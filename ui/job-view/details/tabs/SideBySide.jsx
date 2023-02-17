@@ -12,23 +12,26 @@ import { Table } from 'reactstrap';
 import { getJobsUrl } from '../../../helpers/url';
 import { notify } from '../../redux/stores/notifications';
 import { getData } from '../../../helpers/http';
+import {thEvents} from "../../../helpers/constants";
 
 class SideBySide extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       sideBySideLoading: false,
-      sideBySideParams: {},
+      sideBySideParams: undefined,
     };
   }
 
-  // eslint-disable-next-line no-unused-vars
-  componentDidUpdate(prevProps) {
-    this.getSideBySideParams();
+  componentDidMount() {
+    const { sideBySideParams } = this.state;
+    if (!sideBySideParams) {
+      this.getSideBySideParams();
+    }
   }
 
   getSideBySideParams() {
-    const { jobDetails } = this.state;
+    const { jobDetails } = this.props;
 
     this.setState(
       {
@@ -41,7 +44,8 @@ class SideBySide extends React.PureComponent {
           });
           Promise.all([sideBySideParamsPromise]).then(
             async ([sideBySideParamsResult]) => {
-              const sideBySideParams = sideBySideParamsResult;
+              console.log(sideBySideParamsResult);
+              const sideBySideParams = sideBySideParamsResult.data;
 
               this.setState(
                 {
@@ -125,29 +129,27 @@ class SideBySide extends React.PureComponent {
       </div>
     ) : (
       <div>
-        <h3 className="font-size-16 mt-3 mb-2">Side by side comparison</h3>
-        <h3 className="font-size-16 mt-3 mb-2">
-          <div>{sideBySideParams.test_name}</div>
+        <h3 className="font-size-16 mb-2">
+          <strong>Side by side comparison</strong>
+        </h3>
+        <h3 className="font-size-12 mb-2 d-flex">
+          <div className="mr-2">{sideBySideParams.test_name}</div>
           <div>
             <a
               title=""
               href={beforeJobLink}
-              className="btn btn-darker-secondary btn-sm"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <FontAwesomeIcon icon={faExternalLinkAlt} className="mr-2" />
               before
             </a>
-            <FontAwesomeIcon icon={faLeftRight} />
+            <FontAwesomeIcon className="ml-1 mr-1" icon={faLeftRight} />
             <a
               title=""
               href={afterJobLink}
-              className="btn btn-darker-secondary btn-sm"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <FontAwesomeIcon icon={faExternalLinkAlt} className="mr-2" />
               after
             </a>
           </div>
@@ -216,13 +218,15 @@ class SideBySide extends React.PureComponent {
             </tbody>
           </Table>
         )}
-        {Object.keys(sideBySideParams).map((key, index) =>
-          sideBySideParams[key] ? (
-            <div>
-              {key}: {sideBySideParams[key]}
-            </div>
-          ) : null,
-        )}
+        <div className="mb-2 ml-1">
+          {Object.keys(sideBySideParams).map((key) =>
+            sideBySideParams[key] ? (
+              <div key={key}>
+                <strong>{key}:</strong> {sideBySideParams[key]}
+              </div>
+            ) : null,
+          )}
+        </div>
       </div>
     );
   }
