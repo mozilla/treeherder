@@ -9,6 +9,8 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
 from django.db import models
 from django.utils.timezone import now as django_now
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 from treeherder.model.models import (
     Job,
@@ -325,6 +327,7 @@ class PerformanceAlertSummary(models.Model):
     def update_status(self, using=None):
         self.status = self.autodetermine_status()
         self.save(using=using)
+        return self.status
 
     def autodetermine_status(self):
         alerts = PerformanceAlert.objects.filter(summary=self) | PerformanceAlert.objects.filter(
@@ -541,15 +544,6 @@ class PerformanceAlert(models.Model):
 
         super().save(*args, **kwargs)
 
-        # check to see if we need to update the summary statuses
-
-        # just forward the explicit database
-        # so the summary properly updates there
-        using = kwargs.get('using', None)
-        self.summary.update_status(using=using)
-        if self.related_summary:
-            self.related_summary.update_status(using=using)
-
     def timestamp_first_triage(self):
         # use only on code triggered by
         # human interaction
@@ -564,6 +558,15 @@ class PerformanceAlert(models.Model):
 
     def __str__(self):
         return "{} {} {}%".format(self.summary, self.series_signature, self.amount_pct)
+
+
+@receiver(post_save, sender=PerformanceAlert)
+def update_status(sender, instance, **kwargs):
+    summary_status = instance.summary.update_status()
+    print("summary_status: ", summary_status)
+    if instance.related_summary:
+        related_summary_status = instance.related_summary.update_status()
+        print("related_summary_status: ", related_summary_status)
 
 
 class PerformanceTag(models.Model):
