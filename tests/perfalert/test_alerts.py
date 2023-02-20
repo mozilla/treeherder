@@ -79,6 +79,7 @@ def test_detect_alerts_in_series(
     failure_classifications,
     generic_reference_data,
     test_perf_signature,
+    mock_deviance,
 ):
 
     base_time = time.time()  # generate it based off current time
@@ -115,7 +116,7 @@ def test_detect_alerts_in_series(
         PerformanceAlert.UNTRIAGED,
         PerformanceAlertSummary.UNTRIAGED,
         None,
-        "MODAL",
+        "OK",
     )
 
     # verify that no new alerts generated if we rerun
@@ -133,7 +134,7 @@ def test_detect_alerts_in_series(
         PerformanceAlert.UNTRIAGED,
         PerformanceAlertSummary.UNTRIAGED,
         None,
-        "MODAL",
+        "OK",
     )
 
     # add data that should be enough to generate a new alert if we rerun
@@ -160,7 +161,7 @@ def test_detect_alerts_in_series(
         PerformanceAlert.UNTRIAGED,
         PerformanceAlertSummary.UNTRIAGED,
         None,
-        "MODAL",
+        "OK",
     )
 
 

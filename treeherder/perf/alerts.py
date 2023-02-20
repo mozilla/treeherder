@@ -7,7 +7,7 @@ from datetime import datetime
 import newrelic.agent
 from django.conf import settings
 from django.db import transaction
-from moz_measure_noise import deviance
+import moz_measure_noise
 
 from treeherder.perf.models import (
     PerformanceAlert,
@@ -108,7 +108,7 @@ def generate_new_alerts_in_series(signature):
                             break
                         noise_data.append(geomean(point.values))
 
-                    noise_profile, _ = deviance(noise_data)
+                    noise_profile, _ = moz_measure_noise.deviance(noise_data)
 
                     if not isinstance(noise_profile, str):
                         raise Exception(
