@@ -2,17 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faExternalLinkAlt,
-  faLeftRight,
-  faSpinner,
-} from '@fortawesome/free-solid-svg-icons';
+import { faLeftRight, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { Table } from 'reactstrap';
 
 import { getJobsUrl } from '../../../helpers/url';
 import { notify } from '../../redux/stores/notifications';
 import { getData } from '../../../helpers/http';
-import {thEvents} from "../../../helpers/constants";
+import { getFieldName } from '../../../helpers/constants';
+import Clipboard from "../../../shared/Clipboard";
 
 class SideBySide extends React.PureComponent {
   constructor(props) {
@@ -116,6 +113,11 @@ class SideBySide extends React.PureComponent {
       group_state: 'expanded',
     });
 
+    const videos = {
+      cold: [jobDetails[0], jobDetails[2]],
+      warm: [jobDetails[4], jobDetails[6]],
+    };
+
     return sideBySideLoading ? (
       <div className="overlay">
         <div>
@@ -126,103 +128,108 @@ class SideBySide extends React.PureComponent {
             title="Loading..."
           />
         </div>
-      </div>
+     p </div>
     ) : (
       <div>
         <h3 className="font-size-16 mb-2">
           <strong>Side by side comparison</strong>
         </h3>
-        <h3 className="font-size-12 mb-2 d-flex">
-          <div className="mr-2">{sideBySideParams.test_name}</div>
+        <h2 className="font-size-12 mb-2 d-flex">
+          <strong>Test name: </strong>
+          {sideBySideParams.test_name}
+        </h2>
+        <h2 className="font-size-12 mb-2 d-flex">
+          <strong>Platform: </strong>
+          {sideBySideParams.platform}
+        </h2>
+        <h2 className="font-size-12 mb-2 d-flex">
           <div>
+            <strong>Before: </strong>
+            {sideBySideParams.base_branch}
+            <span> / </span>
             <a
-              title=""
+              title={`Open revision ${sideBySideParams.base_revision} on ${sideBySideParams.base_branch}`}
               href={beforeJobLink}
               target="_blank"
               rel="noopener noreferrer"
+              className="text-monospace"
             >
-              before
+              {sideBySideParams.base_revision.substring(0, 12)}
             </a>
-            <FontAwesomeIcon className="ml-1 mr-1" icon={faLeftRight} />
+            <Clipboard
+              description="full hash"
+              text={sideBySideParams.base_revision}
+            />
+            <strong>After: </strong>
+            {sideBySideParams.new_branch}<span> / </span>
             <a
-              title=""
+              title={`Open revision ${sideBySideParams.new_revision} on ${sideBySideParams.new_branch}`}
               href={afterJobLink}
               target="_blank"
               rel="noopener noreferrer"
+              className="text-monospace"
             >
-              after
+              {sideBySideParams.new_revision.substring(0, 12)}
             </a>
+            <Clipboard
+              description="full hash"
+              text={sideBySideParams.new_revision}
+            />
           </div>
-        </h3>
+        </h2>
         {jobDetails && (
-          <Table>
-            <thead>
-              <tr>
-                <th>Videos 1x</th>
-                <th>Videos 0.1x</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>
-                  <div>
-                    <img
-                      src={jobDetails[0].url}
-                      width="100%"
-                      alt={jobDetails[0].value}
-                    />
-                  </div>
-                  <div>
-                    <a href={jobDetails[0].url}>{jobDetails[0].value}</a>
-                  </div>
-                </td>
-                <td>
-                  <div>
-                    <img
-                      src={jobDetails[2].url}
-                      width="100%"
-                      alt={jobDetails[2].value}
-                    />
-                  </div>
-                  <div>
-                    <a href={jobDetails[2].url}>{jobDetails[2].value}</a>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <div>
-                    <img
-                      src={jobDetails[4].url}
-                      width="100%"
-                      alt={jobDetails[4].value}
-                    />
-                  </div>
-                  <div>
-                    <a href={jobDetails[4].url}>{jobDetails[4].value}</a>
-                  </div>
-                </td>
-                <td>
-                  <div>
-                    <img
-                      src={jobDetails[6].url}
-                      width="100%"
-                      alt={jobDetails[6].value}
-                    />
-                  </div>
-                  <div>
-                    <a href={jobDetails[6].url}>{jobDetails[6].value}</a>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </Table>
+          <React.Fragment>
+            <Table>
+              <thead>
+                <tr>
+                  <th>Video 1x cold</th>
+                  <th>Video slow motion (0.1x) cold</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  {videos.cold.map(({ url, value }) => (
+                    <td key={value}>
+                      <div>
+                        <img src={url} width="100%" alt={value} />
+                      </div>
+                      <div>
+                        <a href={url}>{value}</a>
+                      </div>
+                    </td>
+                  ))}
+                </tr>
+              </tbody>
+            </Table>
+            <Table>
+              <thead>
+                <tr>
+                  <th>Video 1x warm</th>
+                  <th>Video slow motion (0.1x) warm</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  {videos.warm.map(({ url, value }) => (
+                    <td key={value}>
+                      <div>
+                        <img src={url} width="100%" alt={value} />
+                      </div>
+                      <div>
+                        <a href={url}>{value}</a>
+                      </div>
+                    </td>
+                  ))}
+                </tr>
+              </tbody>
+            </Table>
+          </React.Fragment>
         )}
         <div className="mb-2 ml-1">
           {Object.keys(sideBySideParams).map((key) =>
             sideBySideParams[key] ? (
               <div key={key}>
-                <strong>{key}:</strong> {sideBySideParams[key]}
+                <strong>{getFieldName(key)}:</strong> {sideBySideParams[key]}
               </div>
             ) : null,
           )}
@@ -234,17 +241,10 @@ class SideBySide extends React.PureComponent {
 
 SideBySide.propTypes = {
   jobDetails: PropTypes.arrayOf(PropTypes.object),
-  // perfJobDetail: PropTypes.arrayOf(PropTypes.object),
-  // sideBySideParams: PropTypes.shape({}),
-  // revision: PropTypes.string,
-  // decisionTaskMap: PropTypes.shape({}).isRequired,
 };
 
 SideBySide.defaultProps = {
   jobDetails: [],
-  // perfJobDetail: [],
-  // sideBySideParams: {},
-  // revision: '',
 };
 
 const mapStateToProps = (state) => ({

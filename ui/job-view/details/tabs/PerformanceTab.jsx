@@ -186,9 +186,6 @@ class PerformanceTab extends React.PureComponent {
       >
         {showSideBySide && (
           <SideBySide
-            // selectedJobFull={selectedJobFull}
-            // currentRepo={currentRepo}
-            // repoName={currentRepo.name}
             jobDetails={jobDetails}
           />
         )}
