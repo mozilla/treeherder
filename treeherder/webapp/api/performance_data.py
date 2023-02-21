@@ -489,6 +489,14 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
 
         return Response({"alert_summary_id": alert_summary.id})
 
+    def update(self, request, *args, **kwargs):
+        """
+        PUT method custom implementation, which allows the status to update itself.
+        """
+        instance = self.get_object()
+        instance.update_status()  # updating the PerformanceAlertSummary's status
+        return super().update(request, *args, **kwargs)
+
 
 class PerformanceAlertViewSet(viewsets.ModelViewSet):
     queryset = PerformanceAlert.objects.all()
