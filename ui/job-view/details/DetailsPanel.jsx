@@ -413,7 +413,9 @@ class DetailsPanel extends React.Component {
               logParseStatus={logParseStatus}
               jobDetailLoading={jobDetailLoading}
               latestClassification={
-                classifications.length ? classifications[0] : null
+                classifications.length
+                  ? classifications[classifications.length - 1]
+                  : null
               }
               logViewerUrl={logViewerUrl}
               logViewerFullUrl={logViewerFullUrl}

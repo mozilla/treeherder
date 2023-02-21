@@ -31,5 +31,5 @@ RUN pip install --no-cache-dir --disable-pip-version-check --require-hashes -r r
 
 # Setup home so it's readable by nobody
 # mozci will try to read a configuration file there
-ENV HOME /home
+ENV HOME=/home
 RUN mkdir -p $HOME && chown nobody:nogroup $HOME
