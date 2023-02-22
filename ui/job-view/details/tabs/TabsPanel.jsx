@@ -127,7 +127,6 @@ class TabsPanel extends React.Component {
       logParseStatus,
       bugs,
       perfJobDetail,
-      sideBySideParams,
       jobRevision,
       classifications,
       togglePinBoardVisibility,
@@ -261,7 +260,6 @@ class TabsPanel extends React.Component {
                 repoName={currentRepo.name}
                 jobDetails={jobDetails}
                 perfJobDetail={perfJobDetail}
-                sideBySideParams={sideBySideParams}
                 revision={jobRevision}
               />
             </TabPanel>

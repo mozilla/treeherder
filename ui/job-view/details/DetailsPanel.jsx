@@ -376,7 +376,6 @@ class DetailsPanel extends React.Component {
       jobDetailLoading,
       jobArtifactsLoading,
       perfJobDetail,
-      sideBySideParams,
       suggestions,
       errors,
       bugSuggestionsLoading,

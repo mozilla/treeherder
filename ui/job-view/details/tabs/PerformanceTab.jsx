@@ -184,11 +184,7 @@ class PerformanceTab extends React.PureComponent {
         role="region"
         aria-label="Performance"
       >
-        {showSideBySide && (
-          <SideBySide
-            jobDetails={jobDetails}
-          />
-        )}
+        {showSideBySide && <SideBySide jobDetails={jobDetails} />}
         <div className="performance-panel-actions d-flex">
           {
             // If there is a profiler link, show this first. This is most likely

@@ -283,7 +283,7 @@ export const getFieldName = (key) => {
   };
 
   return mapping[key];
-}
+};
 
 // Platforms where the `opt` should be dropped from
 export const thSimplePlatforms = [
