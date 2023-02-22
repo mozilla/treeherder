@@ -128,55 +128,55 @@ class SideBySide extends React.PureComponent {
             title="Loading..."
           />
         </div>
-     p </div>
+      </div>
     ) : (
       <div>
-        <h3 className="font-size-16 mb-2">
-          <strong>Side by side comparison</strong>
+        <h3 className="font-size-16 mt-3 mb-2">
+          <strong>Side by side comparison for test </strong>
+          <code>{sideBySideParams.test_name}</code>
+          <span> on platform </span>
+          <code>{sideBySideParams.platform}</code>
         </h3>
-        <h2 className="font-size-12 mb-2 d-flex">
-          <strong>Test name: </strong>
-          {sideBySideParams.test_name}
-        </h2>
-        <h2 className="font-size-12 mb-2 d-flex">
-          <strong>Platform: </strong>
-          {sideBySideParams.platform}
-        </h2>
-        <h2 className="font-size-12 mb-2 d-flex">
-          <div>
-            <strong>Before: </strong>
-            {sideBySideParams.base_branch}
-            <span> / </span>
-            <a
-              title={`Open revision ${sideBySideParams.base_revision} on ${sideBySideParams.base_branch}`}
-              href={beforeJobLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-monospace"
-            >
-              {sideBySideParams.base_revision.substring(0, 12)}
-            </a>
+        <h3 className="font-size-12 mb-2 d-flex flex-column">
+          <div className="d-flex">
+            <div className="pt-1">
+              <strong>Before: </strong>
+              {sideBySideParams.base_branch}
+              <span> /</span>
+              <a
+                title={`Open revision ${sideBySideParams.base_revision} on ${sideBySideParams.base_branch}`}
+                href={beforeJobLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-monospace ml-1"
+              >
+                {sideBySideParams.base_revision.substring(0, 12)}
+              </a>
+            </div>
             <Clipboard
               description="full hash"
               text={sideBySideParams.base_revision}
             />
-            <strong>After: </strong>
-            {sideBySideParams.new_branch}<span> / </span>
-            <a
-              title={`Open revision ${sideBySideParams.new_revision} on ${sideBySideParams.new_branch}`}
-              href={afterJobLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-monospace"
-            >
-              {sideBySideParams.new_revision.substring(0, 12)}
-            </a>
+            <div className="pt-1 ml-1">
+              <strong>After: </strong>
+              {sideBySideParams.new_branch}
+              <span> /</span>
+              <a
+                title={`Open revision ${sideBySideParams.new_revision} on ${sideBySideParams.new_branch}`}
+                href={afterJobLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-monospace ml-1"
+              >
+                {sideBySideParams.new_revision.substring(0, 12)}
+              </a>
+            </div>
             <Clipboard
               description="full hash"
               text={sideBySideParams.new_revision}
             />
           </div>
-        </h2>
+        </h3>
         {jobDetails && (
           <React.Fragment>
             <Table>
