@@ -237,7 +237,7 @@ export const thPlatformMap = {
   'android-hw-p5-13-0-android-aarch64-qr': 'Android 13.0 Pixel5 AArch64',
   'android-hw-p5-13-0-arm7-shippable-qr': 'Android 13.0 Pixel5 Arm7 Shippable',
   'android-hw-p5-13-0-arm7-qr': 'Android 13.0 Pixel5 Arm7',
-  'android-hw-p5-13-0': 'Android 13.0 Pixel5 Arm7',
+  'android-hw-p5-13-0-arm7': 'Android 13.0 Pixel5 Arm7',
   Android: 'Android',
 
   'gecko-decision': 'Gecko Decision Task',
