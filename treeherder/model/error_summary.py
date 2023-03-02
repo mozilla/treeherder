@@ -117,14 +117,21 @@ def bug_suggestions_line(
     # remove floating point numbers from the summary as they are often variable
     cache_clean_line = cache_clean_error_line(clean_line)
 
+    # find all recent failures matching our current `clean_line`
+    counter = 0
+    for day in line_cache.keys():
+        counter += line_cache[day].get(cache_clean_line, 0)
+
     count_branches = ['autoland', 'mozilla-central']
     if project and str(project.name) in count_branches:
         if cache_clean_line not in line_cache[today].keys():
             line_cache[today][cache_clean_line] = 0
-            if "new_lines" not in line_cache[today].keys():
-                line_cache[today]["new_lines"] = {}
-            if cache_clean_line not in line_cache[today]["new_lines"].keys():
-                line_cache[today]["new_lines"][cache_clean_line] = revision
+            # if not seen in ALL cache, mark as new in revision
+            if counter == 0:
+                if "new_lines" not in line_cache[today].keys():
+                    line_cache[today]["new_lines"] = {}
+                if cache_clean_line not in line_cache[today]["new_lines"].keys():
+                    line_cache[today]["new_lines"][cache_clean_line] = revision
         line_cache[today][cache_clean_line] += 1
 
     # get a meaningful search term out of the error line
@@ -150,11 +157,6 @@ def bug_suggestions_line(
             if crash_signature not in term_cache:
                 term_cache[crash_signature] = Bugscache.search(crash_signature)
             bugs = term_cache[crash_signature]
-
-    # find all recent failures matching our current `clean_line`
-    counter = 0
-    for day in line_cache.keys():
-        counter += line_cache[day].get(cache_clean_line, 0)
 
     failure_new_in_rev = False
     if "new_lines" in line_cache[today] and cache_clean_line in line_cache[today]["new_lines"]:
