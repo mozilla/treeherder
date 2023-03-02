@@ -3,13 +3,14 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
-import { Table } from 'reactstrap';
+import {DropdownToggle, Table, UncontrolledDropdown} from 'reactstrap';
 
 import { getJobsUrl } from '../../../helpers/url';
 import { notify } from '../../redux/stores/notifications';
 import { getData } from '../../../helpers/http';
-import { getFieldName } from '../../../helpers/constants';
 import Clipboard from '../../../shared/Clipboard';
+import SideBySideVideo from "./SideBySideVideo";
+import DropdownMenuItems from "../../../shared/DropdownMenuItems";
 
 class SideBySide extends React.PureComponent {
   constructor(props) {
@@ -17,6 +18,10 @@ class SideBySide extends React.PureComponent {
     this.state = {
       sideBySideLoading: false,
       sideBySideParams: undefined,
+      coldVideoUrl: '',
+      coldVideoValue: '',
+      warmVideoUrl: '',
+      warmVideoValue: '',
     };
   }
 
@@ -179,60 +184,77 @@ class SideBySide extends React.PureComponent {
         {jobDetails && (
           <React.Fragment>
             <Table>
-              <thead>
-                <tr>
-                  <th>Video 1x cold</th>
-                  <th>Video slow motion (0.1x) cold</th>
-                </tr>
-              </thead>
               <tbody>
                 <tr>
-                  {videos.cold.map(({ url, value }) => (
-                    <td key={value}>
-                      <div>
-                        <img src={url} width="100%" alt={value} />
-                      </div>
-                      <div>
-                        <a href={url}>{value}</a>
-                      </div>
-                    </td>
-                  ))}
-                </tr>
-              </tbody>
-            </Table>
-            <Table>
-              <thead>
-                <tr>
-                  <th>Video 1x warm</th>
-                  <th>Video slow motion (0.1x) warm</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  {videos.warm.map(({ url, value }) => (
-                    <td key={value}>
-                      <div>
-                        <img src={url} width="100%" alt={value} />
-                      </div>
-                      <div>
-                        <a href={url}>{value}</a>
-                      </div>
-                    </td>
-                  ))}
+                  <td>
+                    Select video
+                    <UncontrolledDropdown
+                      className="mr-0 text-nowrap"
+                      title={this.state.coldVideoValue || videos.cold[0].value}
+                      aria-label={
+                        this.state.coldVideoValue || videos.cold[0].value
+                      }
+                    >
+                      <DropdownToggle caret outline>
+                        {this.state.coldVideoValue || videos.cold[0].value}
+                      </DropdownToggle>
+                      <DropdownMenuItems
+                        options={videos.cold.map((item) => item.value)}
+                        selectedItem={
+                          this.state.coldVideoValue || videos.cold[0].value
+                        }
+                        updateData={(value) =>
+                          this.setState({
+                            coldVideoValue: value,
+                            coldVideoUrl: videos.cold.find(
+                              (item) => item.value === value,
+                            ).url,
+                          })
+                        }
+                      />
+                    </UncontrolledDropdown>
+                    <SideBySideVideo
+                      url={this.state.coldVideoUrl || videos.cold[0].url}
+                      value={this.state.coldVideoValue || videos.cold[0].value}
+                    />
+                  </td>
+                  <td>
+                    Select video
+                    <UncontrolledDropdown
+                      className="mr-0 text-nowrap"
+                      title={this.state.warmVideoValue || videos.warm[0].value}
+                      aria-label={
+                        this.state.warmVideoValue || videos.warm[0].value
+                      }
+                    >
+                      <DropdownToggle caret outline>
+                        {this.state.warmVideoValue || videos.warm[0].value}
+                      </DropdownToggle>
+                      <DropdownMenuItems
+                        options={videos.warm.map((item) => item.value)}
+                        selectedItem={
+                          this.state.warmVideoValue || videos.warm[0].value
+                        }
+                        updateData={(value) =>
+                          this.setState({
+                            warmVideoValue: value,
+                            warmVideoUrl: videos.warm.find(
+                              (item) => item.value === value,
+                            ).url,
+                          })
+                        }
+                      />
+                    </UncontrolledDropdown>
+                    <SideBySideVideo
+                      url={this.state.warmVideoUrl || videos.warm[0].url}
+                      value={this.state.warmVideoValue || videos.warm[0].value}
+                    />
+                  </td>
                 </tr>
               </tbody>
             </Table>
           </React.Fragment>
         )}
-        <div className="mb-2 ml-1">
-          {Object.keys(sideBySideParams).map((key) =>
-            sideBySideParams[key] ? (
-              <div key={key}>
-                <strong>{getFieldName(key)}:</strong> {sideBySideParams[key]}
-              </div>
-            ) : null,
-          )}
-        </div>
       </div>
     );
   }
