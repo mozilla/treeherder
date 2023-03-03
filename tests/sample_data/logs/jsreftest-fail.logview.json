@@ -160,30 +160,6 @@
     {
       "linenumber": 92322,
       "line": "ReferenceError: d is not defined"
-    },
-    {
-      "linenumber": 92348,
-      "line": "TypeError: missing argument 1 when calling function watch"
-    },
-    {
-      "linenumber": 92795,
-      "line": "TypeError: [] is not a function"
-    },
-    {
-      "linenumber": 92841,
-      "line": "TypeError: XML filter is applied to non-XML value NaN"
-    },
-    {
-      "linenumber": 93349,
-      "line": "TypeError: null has no properties"
-    },
-    {
-      "linenumber": 93458,
-      "line": "STATUS: Assertion failure: staticLevel == script->staticLevel, at ../jsobj.cpp"
-    },
-    {
-      "linenumber": 98988,
-      "line": "580200: Assertion failure enumerating own properties of proxy returning duplicated own property name"
     }
   ]
 }
