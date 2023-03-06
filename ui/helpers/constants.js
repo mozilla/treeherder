@@ -259,32 +259,6 @@ export const thPlatformMap = {
   other: 'Other',
 };
 
-export const getFieldName = (key) => {
-  const mapping = {
-    test_name: 'Test name',
-    new_test_name: 'New test name',
-    base_revision: 'Base revision',
-    new_revision: 'New revision',
-    base_branch: 'Base branch',
-    new_branch: 'New branch',
-    platform: 'Platform',
-    new_platform: 'New platform',
-    overwrite: 'Overwrite',
-    cold: 'Cold',
-    warm: 'Warm',
-    most_similar: 'Most similar',
-    search_crons: 'Search crons',
-    skip_download: 'Skip download',
-    output: 'Output',
-    metric: 'Metric',
-    vismetPath: 'Vismet Path',
-    original: 'Original',
-    skip_slow_gif: 'Skip slow GIF',
-  };
-
-  return mapping[key];
-};
-
 // Platforms where the `opt` should be dropped from
 export const thSimplePlatforms = [
   'gecko-decision',

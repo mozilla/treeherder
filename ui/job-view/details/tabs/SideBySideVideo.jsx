@@ -10,15 +10,20 @@ export default class SideBySideVideo extends React.Component {
     const { videos } = this.props;
     this.state = {
       activeVideo: videos[0],
+      inactiveVideo: videos[1],
       videoToReplay: videos[0],
     };
   }
 
   onReplayHandler = () => {
-    const { videoToReplay } = this.state;
+    const { activeVideo, inactiveVideo, videoToReplay } = this.state;
 
-    this.setState({ activeVideo: { url: '' } }, () =>
-      this.setState({ activeVideo: videoToReplay }),
+    this.setState({ activeVideo: { url: inactiveVideo } }, () =>
+      this.setState({
+        activeVideo: videoToReplay,
+        videoToReplay,
+        inactiveVideo: activeVideo,
+      }),
     );
   };
 
@@ -34,32 +39,37 @@ export default class SideBySideVideo extends React.Component {
   render() {
     const { videos } = this.props;
     const { activeVideo } = this.state;
+    const { url, value } = activeVideo;
     return (
       <div className="w-100">
         <div className="d-flex mb-1">
           <UncontrolledDropdown
             className="mr-1 text-nowrap"
-            title={activeVideo.value || videos[0].value}
-            aria-label={activeVideo.value || videos[0].value}
+            title={value || videos[0].value}
+            aria-label={value || videos[0].value}
           >
             <DropdownToggle size="sm" caret outline>
-              {activeVideo.value || videos[0].value}
+              {value || videos[0].value}
             </DropdownToggle>
             <DropdownMenuItems
               options={videos.map((item) => item.value)}
-              selectedItem={activeVideo.value || videos[0].value}
+              selectedItem={value || videos[0].value}
               updateData={(value) => this.onSetVideo(value, videos)}
             />
           </UncontrolledDropdown>
           <Button size="sm" onClick={this.onReplayHandler}>
             Reload
           </Button>
-          <a href={activeVideo.url} className="m-1">
-            {activeVideo.value}
-          </a>
         </div>
         <div>
-          <img src={activeVideo.url} width="100%" alt={activeVideo.value} />
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Open artifact in new tab"
+          >
+            <img src={url} width="100%" alt={activeVideo.value} />
+          </a>
         </div>
       </div>
     );

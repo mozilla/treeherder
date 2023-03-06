@@ -2,7 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import {
+  faExternalLinkAlt,
+  faSpinner,
+} from '@fortawesome/free-solid-svg-icons';
 import { Table } from 'reactstrap';
 
 import { getJobsUrl } from '../../../helpers/url';
@@ -70,28 +73,6 @@ class SideBySide extends React.PureComponent {
       return null;
     }
 
-    // const sideBySideParams = {
-    //   test_name: 'browsertime-tp6-essential-firefox-amazon',
-    //   new_test_name: null,
-    //   base_revision: 'fcc6a3eb9c660cce5574084c2b01521022a30d1f',
-    //   new_revision: 'cb9000cac930a412240edae67ceff231ec13018a',
-    //   base_branch: 'try',
-    //   new_branch: 'try',
-    //   platform: 'test-linux1804-64-shippable-qr',
-    //   new_platform: null,
-    //   overwrite: false,
-    //   cold: false,
-    //   warm: false,
-    //   most_similar: false,
-    //   search_crons: false,
-    //   skip_download: false,
-    //   output: null,
-    //   metric: 'speedindex',
-    //   vismetPath: false,
-    //   original: false,
-    //   skip_slow_gif: false,
-    // };
-
     const beforeJobLink = getJobsUrl({
       repo: sideBySideParams.base_branch,
       revision: sideBySideParams.base_revision,
@@ -142,7 +123,10 @@ class SideBySide extends React.PureComponent {
             <div className="pt-1">
               <strong>Before: </strong>
 
-              <span>{sideBySideParams.base_branch} / {sideBySideParams.base_revision.substring(0, 12)}</span>
+              <span>
+                {sideBySideParams.base_branch} /{' '}
+                {sideBySideParams.base_revision.substring(0, 12)}
+              </span>
               <a
                 title={`Open revision ${sideBySideParams.base_revision} on ${sideBySideParams.base_branch}`}
                 href={beforeJobLink}
@@ -150,17 +134,18 @@ class SideBySide extends React.PureComponent {
                 rel="noopener noreferrer"
                 className="text-monospace ml-1"
               >
-                (job)
+                (<FontAwesomeIcon icon={faExternalLinkAlt} className="mr-2" />
+                job)
               </a>
             </div>
-            <Clipboard
-              description="job link"
-              text={beforeJobLink}
-            />
+            <Clipboard description="job link" text={beforeJobLink} />
             <div className="pt-1 ml-1">
               <strong>After: </strong>
 
-              <span>{sideBySideParams.new_branch} / {sideBySideParams.new_revision.substring(0, 12)}</span>
+              <span>
+                {sideBySideParams.new_branch} /{' '}
+                {sideBySideParams.new_revision.substring(0, 12)}
+              </span>
               <a
                 title={`Open revision ${sideBySideParams.new_revision} on ${sideBySideParams.new_branch}`}
                 href={afterJobLink}
@@ -168,13 +153,11 @@ class SideBySide extends React.PureComponent {
                 rel="noopener noreferrer"
                 className="text-monospace ml-1"
               >
-                (job)
+                (<FontAwesomeIcon icon={faExternalLinkAlt} className="mr-2" />
+                job)
               </a>
             </div>
-            <Clipboard
-              description="job link"
-              text={afterJobLink}
-            />
+            <Clipboard description="job link" text={afterJobLink} />
           </div>
         </h3>
         {jobDetails && (
