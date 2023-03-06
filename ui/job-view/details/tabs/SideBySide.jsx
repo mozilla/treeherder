@@ -3,14 +3,14 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
-import {DropdownToggle, Table, UncontrolledDropdown} from 'reactstrap';
+import { Table } from 'reactstrap';
 
 import { getJobsUrl } from '../../../helpers/url';
 import { notify } from '../../redux/stores/notifications';
 import { getData } from '../../../helpers/http';
 import Clipboard from '../../../shared/Clipboard';
-import SideBySideVideo from "./SideBySideVideo";
-import DropdownMenuItems from "../../../shared/DropdownMenuItems";
+
+import SideBySideVideo from './SideBySideVideo';
 
 class SideBySide extends React.PureComponent {
   constructor(props) {
@@ -18,10 +18,6 @@ class SideBySide extends React.PureComponent {
     this.state = {
       sideBySideLoading: false,
       sideBySideParams: undefined,
-      coldVideoUrl: '',
-      coldVideoValue: '',
-      warmVideoUrl: '',
-      warmVideoValue: '',
     };
   }
 
@@ -138,15 +134,15 @@ class SideBySide extends React.PureComponent {
         <h3 className="font-size-16 mt-3 mb-2">
           <strong>Side by side comparison for test </strong>
           <code>{sideBySideParams.test_name}</code>
-          <span> on platform </span>
+          <strong> on platform </strong>
           <code>{sideBySideParams.platform}</code>
         </h3>
         <h3 className="font-size-12 mb-2 d-flex flex-column">
           <div className="d-flex">
             <div className="pt-1">
               <strong>Before: </strong>
-              {sideBySideParams.base_branch}
-              <span> /</span>
+
+              <span>{sideBySideParams.base_branch} / {sideBySideParams.base_revision.substring(0, 12)}</span>
               <a
                 title={`Open revision ${sideBySideParams.base_revision} on ${sideBySideParams.base_branch}`}
                 href={beforeJobLink}
@@ -154,17 +150,17 @@ class SideBySide extends React.PureComponent {
                 rel="noopener noreferrer"
                 className="text-monospace ml-1"
               >
-                {sideBySideParams.base_revision.substring(0, 12)}
+                (job)
               </a>
             </div>
             <Clipboard
-              description="full hash"
-              text={sideBySideParams.base_revision}
+              description="job link"
+              text={beforeJobLink}
             />
             <div className="pt-1 ml-1">
               <strong>After: </strong>
-              {sideBySideParams.new_branch}
-              <span> /</span>
+
+              <span>{sideBySideParams.new_branch} / {sideBySideParams.new_revision.substring(0, 12)}</span>
               <a
                 title={`Open revision ${sideBySideParams.new_revision} on ${sideBySideParams.new_branch}`}
                 href={afterJobLink}
@@ -172,88 +168,34 @@ class SideBySide extends React.PureComponent {
                 rel="noopener noreferrer"
                 className="text-monospace ml-1"
               >
-                {sideBySideParams.new_revision.substring(0, 12)}
+                (job)
               </a>
             </div>
             <Clipboard
-              description="full hash"
-              text={sideBySideParams.new_revision}
+              description="job link"
+              text={afterJobLink}
             />
           </div>
         </h3>
         {jobDetails && (
-          <React.Fragment>
-            <Table>
-              <tbody>
-                <tr>
-                  <td>
-                    Select video
-                    <UncontrolledDropdown
-                      className="mr-0 text-nowrap"
-                      title={this.state.coldVideoValue || videos.cold[0].value}
-                      aria-label={
-                        this.state.coldVideoValue || videos.cold[0].value
-                      }
-                    >
-                      <DropdownToggle caret outline>
-                        {this.state.coldVideoValue || videos.cold[0].value}
-                      </DropdownToggle>
-                      <DropdownMenuItems
-                        options={videos.cold.map((item) => item.value)}
-                        selectedItem={
-                          this.state.coldVideoValue || videos.cold[0].value
-                        }
-                        updateData={(value) =>
-                          this.setState({
-                            coldVideoValue: value,
-                            coldVideoUrl: videos.cold.find(
-                              (item) => item.value === value,
-                            ).url,
-                          })
-                        }
-                      />
-                    </UncontrolledDropdown>
-                    <SideBySideVideo
-                      url={this.state.coldVideoUrl || videos.cold[0].url}
-                      value={this.state.coldVideoValue || videos.cold[0].value}
-                    />
-                  </td>
-                  <td>
-                    Select video
-                    <UncontrolledDropdown
-                      className="mr-0 text-nowrap"
-                      title={this.state.warmVideoValue || videos.warm[0].value}
-                      aria-label={
-                        this.state.warmVideoValue || videos.warm[0].value
-                      }
-                    >
-                      <DropdownToggle caret outline>
-                        {this.state.warmVideoValue || videos.warm[0].value}
-                      </DropdownToggle>
-                      <DropdownMenuItems
-                        options={videos.warm.map((item) => item.value)}
-                        selectedItem={
-                          this.state.warmVideoValue || videos.warm[0].value
-                        }
-                        updateData={(value) =>
-                          this.setState({
-                            warmVideoValue: value,
-                            warmVideoUrl: videos.warm.find(
-                              (item) => item.value === value,
-                            ).url,
-                          })
-                        }
-                      />
-                    </UncontrolledDropdown>
-                    <SideBySideVideo
-                      url={this.state.warmVideoUrl || videos.warm[0].url}
-                      value={this.state.warmVideoValue || videos.warm[0].value}
-                    />
-                  </td>
-                </tr>
-              </tbody>
-            </Table>
-          </React.Fragment>
+          <Table>
+            <tbody>
+              <tr className="d-flex">
+                <td>
+                  <div className="d-flex mb-1">
+                    <span>Select video</span>
+                  </div>
+                  <SideBySideVideo videos={videos.cold} />
+                </td>
+                <td>
+                  <div className="d-flex mb-1">
+                    <span>Select video</span>
+                  </div>
+                  <SideBySideVideo videos={videos.warm} />
+                </td>
+              </tr>
+            </tbody>
+          </Table>
         )}
       </div>
     );
