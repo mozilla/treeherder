@@ -94,7 +94,7 @@ class ErrorParser(ParserBase):
         r"|^TEST-UNEXPECTED-WARNING\b"
         r"|^TimeoutException: "
         r"|^ImportError: No module named pygtk$"
-        r"|^non-fatal error"
+        r"|non-fatal error"
     )
 
     RE_ERR_1_MATCH = re.compile(r"^\d+:\d+:\d+ +(?:ERROR|CRITICAL|FATAL) - ")
