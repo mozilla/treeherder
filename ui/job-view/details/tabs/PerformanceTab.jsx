@@ -15,6 +15,8 @@ import { triggerGeckoProfileTask } from '../../../helpers/performance';
 import { notify } from '../../redux/stores/notifications';
 import { isPerfTest } from '../../../helpers/job';
 
+import SideBySide from './SideBySide';
+
 /**
  * The performance tab shows performance-oriented information about a test run.
  * It helps users interact with the Firefox Profiler, and summarizes test
@@ -23,8 +25,12 @@ import { isPerfTest } from '../../../helpers/job';
 class PerformanceTab extends React.PureComponent {
   constructor(props) {
     super(props);
+    const { selectedJobFull } = this.props;
     this.state = {
       triggeredGeckoProfiles: 0,
+      showSideBySide: selectedJobFull.job_type_name.includes(
+        'perftest-linux-side-by-side',
+      ),
     };
   }
 
@@ -168,8 +174,8 @@ class PerformanceTab extends React.PureComponent {
   }
 
   render() {
-    const { repoName, revision, selectedJobFull } = this.props;
-    const { triggeredGeckoProfiles } = this.state;
+    const { repoName, revision, selectedJobFull, jobDetails } = this.props;
+    const { triggeredGeckoProfiles, showSideBySide } = this.state;
     const profilerLink = this.maybeGetFirefoxProfilerLink();
 
     return (
@@ -237,6 +243,7 @@ class PerformanceTab extends React.PureComponent {
           ) : null
         }
         {this.maybeRenderPerfData()}
+        {showSideBySide && <SideBySide jobDetails={jobDetails} />}
       </div>
     );
   }
