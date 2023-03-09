@@ -27,7 +27,7 @@ export default class SideBySideVideo extends React.Component {
     );
   };
 
-  onSetVideo = (value) => {
+  onSetVideoHandler = (value) => {
     const { videos } = this.props;
     const activeVideo = videos.find((item) => item.value === value);
     this.setState({
@@ -54,7 +54,7 @@ export default class SideBySideVideo extends React.Component {
             <DropdownMenuItems
               options={videos.map((item) => item.value)}
               selectedItem={value || videos[0].value}
-              updateData={(value) => this.onSetVideo(value, videos)}
+              updateData={(value) => this.onSetVideoHandler(value, videos)}
             />
           </UncontrolledDropdown>
           <Button size="sm" onClick={this.onReplayHandler}>
