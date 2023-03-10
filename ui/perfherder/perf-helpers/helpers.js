@@ -431,6 +431,10 @@ export const getGraphsURL = (
 export const modifyAlert = (alert, modification) =>
   update(getApiUrl(`${endpoints.alert}${alert.id}/`), modification);
 
+export const modifyAlertSummary = (alertSummaryId) => {
+  update(getApiUrl(`${endpoints.alertSummary}${alertSummaryId}/`));
+};
+
 export const getInitializedAlerts = (alertSummary, optionCollectionMap) =>
   // this function converts the representation returned by the perfherder
   // api into a representation more suited for display in the UI

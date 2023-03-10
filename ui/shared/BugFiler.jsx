@@ -117,6 +117,7 @@ export class BugFilerClass extends React.Component {
       parsedLog,
       reftestUrl,
       jobGroupName,
+      jobTypeName,
     } = props;
 
     const allFailures = suggestions.map((sugg) =>
@@ -153,6 +154,10 @@ export class BugFilerClass extends React.Component {
     ].some((regexp) => regexp.test(summaryString));
     if (isAssertion) {
       keywords.push('assertion');
+    }
+
+    if (jobTypeName.toLowerCase().includes('test-verify')) {
+      keywords.push('test-verify-fail');
     }
 
     const checkedLogLinks = new Map([
@@ -568,6 +573,7 @@ export class BugFilerClass extends React.Component {
       'data race',
       'double-free',
       'e5e5',
+      '65656565',
       'global-buffer-overflow',
       'heap-buffer-overflow',
       'heap-use-after-free',
