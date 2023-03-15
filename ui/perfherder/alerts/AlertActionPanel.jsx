@@ -89,8 +89,10 @@ export default class AlertActionPanel extends React.Component {
       if (summary.related_summary_id === null) refreshAlertsSummaries = false;
     });
 
+    const refreshStatus = ['reassigned', 'downstream'];
+
     if (
-      (newStatus === 'reassigned' && refreshAlertsSummaries) || // check if all alerts from summary were reassigned
+      (refreshStatus.includes(newStatus) && refreshAlertsSummaries) || // check if all alerts from summary were reassigned
       newStatus === 'untriaged' // or check if alert summary was reset
     ) {
       // refresh all summaries for current page
@@ -120,7 +122,25 @@ export default class AlertActionPanel extends React.Component {
       status: alertStatusMap[newStatus],
     });
     modifyAlertSummary(alertSummary.id);
-    fetchAlertSummaries(alertSummary.id);
+
+    const untriagedAlerts = alertSummary.alerts.filter(
+      (alert) => alert.status === 0,
+    );
+    let refreshAlertsSummaries = false;
+
+    if (selectedAlerts.length === untriagedAlerts.length) {
+      refreshAlertsSummaries = untriagedAlerts.every((alert) =>
+        selectedAlerts.includes(alert),
+      );
+    }
+    const refreshStatus = 'invalid';
+
+    if (newStatus === refreshStatus && refreshAlertsSummaries) {
+      fetchAlertSummaries(undefined, false);
+    } else {
+      fetchAlertSummaries(alertSummary.id);
+    }
+
     this.clearSelectedAlerts();
   };
 
