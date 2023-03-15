@@ -67,6 +67,11 @@ export default class AlertTable extends React.Component {
           sortValue: 't_value',
           currentSort: tableSort.default,
         },
+        DebuggingInformation: {
+          name: 'Debug Tools',
+          sortValue: '',
+          currentSort: tableSort.default,
+        },
         NoiseProfile: {
           name: 'Information',
           sortValue: 'noise_profile',
@@ -352,6 +357,12 @@ export default class AlertTable extends React.Component {
                     <th className="align-bottom">
                       <TableColumnHeader
                         column={tableConfig.Platform}
+                        onChangeSort={this.onChangeSort}
+                      />
+                    </th>
+                    <th className="align-bottom">
+                      <TableColumnHeader
+                        column={tableConfig.DebuggingInformation}
                         onChangeSort={this.onChangeSort}
                       />
                     </th>

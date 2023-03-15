@@ -9,6 +9,7 @@ import {
   faUser,
   faCheck,
   faChartLine,
+  faCirclePlay,
   faFire,
   faPlus,
 } from '@fortawesome/free-solid-svg-icons';
@@ -23,6 +24,7 @@ import {
   formatNumber,
   getFrameworkName,
   getTimeRange,
+  getSideBySideLink,
 } from '../perf-helpers/helpers';
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import {
@@ -31,6 +33,8 @@ import {
   alertBackfillResultVisual,
   backfillRetriggeredTitle,
   noiseProfiles,
+  essentialTests,
+  frameworks,
 } from '../perf-helpers/constants';
 import { Perfdocs } from '../perf-helpers/perfdocs';
 
@@ -45,6 +49,7 @@ export default class AlertTableRow extends React.Component {
     this.state = {
       starred: this.props.alert.starred,
       checkboxSelected: false,
+      showSideBySideLink: false,
       icons: [],
     };
   }
@@ -53,6 +58,13 @@ export default class AlertTableRow extends React.Component {
     const { alert } = this.props;
 
     this.showCriticalMagnitudeIcons(alert);
+    this.setState({
+      showSideBySideLink:
+        alert.series_signature.framework_id === frameworks.browsertime &&
+        !alert.series_signature.tags.includes('interactive') &&
+        alert.backfill_record &&
+        !!alert.backfill_record.status,
+    });
   }
 
   componentDidUpdate(prevProps) {
@@ -267,6 +279,29 @@ export default class AlertTableRow extends React.Component {
     return `./comparesubtest${createQueryParams(urlParameters)}`;
   };
 
+  buildSideBySideLink = () => {
+    const { alert, alertSummary } = this.props;
+    const platform = alert.series_signature.machine_platform;
+    const { suite } = alert.series_signature;
+    let testName = suite;
+    if (suite in essentialTests) {
+      if ('bytecode-cached' in alert.series_signature.tags) {
+        testName = `bytecode ${suite}`;
+      } else {
+        testName = `essential ${suite}`;
+      }
+    }
+    const jobUrl = getSideBySideLink(
+      alertSummary.repository,
+      alertSummary.prev_push_revision,
+      alertSummary.revision,
+      platform,
+      testName,
+    );
+
+    return jobUrl;
+  };
+
   showCriticalMagnitudeIcons(alert) {
     const alertMagnitude = Math.round(alert.amount_pct);
     const alertNewValue = alert.new_value;
@@ -335,7 +370,7 @@ export default class AlertTableRow extends React.Component {
 
   render() {
     const { user, alert, alertSummary } = this.props;
-    const { starred, checkboxSelected, icons } = this.state;
+    const { starred, checkboxSelected, icons, showSideBySideLink } = this.state;
     const { repository, framework } = alertSummary;
 
     const { tags, extra_options: options } = alert.series_signature;
@@ -462,6 +497,24 @@ export default class AlertTableRow extends React.Component {
               platform={alert.series_signature.machine_platform}
             />
           </div>
+        </td>
+        <td className="table-width-md">
+          {showSideBySideLink && (
+            <span className="text-darker-info">
+              <a
+                href={this.buildSideBySideLink()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-dark button btn border p-0 border-0 bg-transparent"
+                aria-label="side-by-side"
+              >
+                <FontAwesomeIcon
+                  title="Open side-by-side link"
+                  icon={faCirclePlay}
+                />
+              </a>
+            </span>
+          )}
         </td>
         <td className="table-width-lg">
           <div className="information-container">

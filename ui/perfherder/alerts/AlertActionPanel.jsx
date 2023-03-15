@@ -122,6 +122,7 @@ export default class AlertActionPanel extends React.Component {
       status: alertStatusMap[newStatus],
     });
     modifyAlertSummary(alertSummary.id);
+
     const untriagedAlerts = alertSummary.alerts.filter(
       (alert) => alert.status === 0,
     );
@@ -139,6 +140,7 @@ export default class AlertActionPanel extends React.Component {
     } else {
       fetchAlertSummaries(alertSummary.id);
     }
+
     this.clearSelectedAlerts();
   };
 
