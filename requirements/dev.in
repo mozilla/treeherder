@@ -44,4 +44,4 @@ pip-tools
 importlib-metadata
 typed-ast==1.5.2
 requests==2.28.2
-urllib3==1.26.14
+urllib3==1.26.15
