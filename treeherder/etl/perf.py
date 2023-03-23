@@ -27,6 +27,13 @@ def _get_application_name(validated_perf_datum: dict):
         return ''
 
 
+def _get_application_version(validated_perf_datum: dict):
+    try:
+        return validated_perf_datum['application']['version']
+    except KeyError:
+        return ''
+
+
 def _get_signature_hash(signature_properties):
     signature_prop_values = list(signature_properties.keys())
     str_values = []
@@ -139,6 +146,7 @@ def _load_perf_datum(job: Job, perf_datum: dict):
         )
         return
     application = _get_application_name(perf_datum)
+    application_version = _get_application_version(perf_datum)
     for suite in perf_datum['suites']:
         suite_extra_properties = copy.copy(extra_properties)
         ordered_tags = _order_and_concat(suite.get('tags', []))
@@ -194,6 +202,7 @@ def _load_perf_datum(job: Job, perf_datum: dict):
                 push=job.push,
                 signature=signature,
                 push_timestamp=deduced_timestamp,
+                application_version=application_version,
                 defaults={'value': suite['value']},
             )
             if suite_datum.should_mark_as_multi_commit(is_multi_commit, datum_created):
