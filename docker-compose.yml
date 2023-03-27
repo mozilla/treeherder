@@ -68,7 +68,7 @@ services:
   mysql:
     container_name: mysql
     # https://hub.docker.com/r/library/mysql/
-    image: mysql:5.7.40
+    image: mysql:5.7.41
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=true
       - MYSQL_DATABASE=treeherder
@@ -95,7 +95,7 @@ services:
   rabbitmq:
     container_name: rabbitmq
     # https://hub.docker.com/r/library/rabbitmq/
-    image: rabbitmq:3.11.5-alpine
+    image: rabbitmq:3.11.10-alpine
     environment:
       # Hide INFO and WARNING log levels to reduce log spam.
       - 'RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log [{console,[{level,error}]}]'
