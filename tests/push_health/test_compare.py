@@ -1,4 +1,5 @@
 import pytest
+
 import datetime
 import responses
 
@@ -35,7 +36,7 @@ def mock_rev(test_push):
 def mock_json_pushes(test_push):
     responses.add(
         responses.GET,
-        f'https://hg.mozilla.org/{test_push.repository.name}/json-pushes?version=2&startID=536017&endID=536018',
+        f'https://hg.mozilla.org/{test_push.repository.name}/json-pushes?version=2&startID=536017&endID=536018&full=1',
         json={
             "pushes": {
                 "536018": {
@@ -54,7 +55,7 @@ def mock_json_pushes(test_push):
     )
     responses.add(
         responses.GET,
-        f'https://hg.mozilla.org/{test_push.repository.name}/json-pushes?version=2&startID=536015&endID=536016',
+        f'https://hg.mozilla.org/{test_push.repository.name}/json-pushes?version=2&startID=536015&endID=536016&full=1',
         json={
             "pushes": {
                 "536016": {
