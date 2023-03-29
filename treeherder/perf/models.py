@@ -196,6 +196,7 @@ class PerformanceDatum(models.Model):
     signature = models.ForeignKey(PerformanceSignature, on_delete=models.CASCADE)
     value = models.FloatField()
     push_timestamp = models.DateTimeField(db_index=True)
+    application_version = models.CharField(max_length=50, blank=True)
 
     # job information can expire before the performance datum
     job = models.ForeignKey(Job, null=True, default=None, on_delete=models.SET_NULL)
