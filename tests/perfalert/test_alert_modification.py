@@ -141,27 +141,27 @@ def test_improvement_summary_status_after_reassigning_regression(
         has_subtests=False,
         last_updated=datetime.datetime.now(),
     )
-    s = test_perf_alert_summary
 
-    create_perf_alert(
-        summary=s,
+    alert = create_perf_alert(
+        summary=test_perf_alert_summary,
         series_signature=signature1,
         is_regression=False,
         status=PerformanceAlert.ACKNOWLEDGED,
     )
 
-    assert s.status == PerformanceAlertSummary.IMPROVEMENT
+    assert test_perf_alert_summary.status == PerformanceAlertSummary.IMPROVEMENT
 
     create_perf_alert(
-        summary=s,
+        summary=test_perf_alert_summary_2,
         series_signature=signature2,
         is_regression=True,
-        related_summary=test_perf_alert_summary_2,
+        related_summary=test_perf_alert_summary,
         status=PerformanceAlert.REASSIGNED,
     )
 
-    s = PerformanceAlertSummary.objects.get(id=1)
-    assert s.status == PerformanceAlertSummary.UNTRIAGED
+    improvement_alert = PerformanceAlert.objects.get(id=alert.id)
+    assert improvement_alert.status == PerformanceAlert.UNTRIAGED
+    assert test_perf_alert_summary.status == PerformanceAlertSummary.UNTRIAGED
 
 
 def test_alert_modification(

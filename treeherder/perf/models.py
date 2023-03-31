@@ -196,6 +196,7 @@ class PerformanceDatum(models.Model):
     signature = models.ForeignKey(PerformanceSignature, on_delete=models.CASCADE)
     value = models.FloatField()
     push_timestamp = models.DateTimeField(db_index=True)
+    application_version = models.CharField(max_length=50, blank=True)
 
     # job information can expire before the performance datum
     job = models.ForeignKey(Job, null=True, default=None, on_delete=models.SET_NULL)
@@ -340,12 +341,19 @@ class PerformanceAlertSummary(models.Model):
             return PerformanceAlertSummary.UNTRIAGED
 
         # if the summary's status is IMPROVEMENT, but a regression is
-        # reassigned to that summary then set the status to untriaged
-        if any(alert.summary.status == PerformanceAlertSummary.IMPROVEMENT for alert in alerts):
+        # reassigned to that summary then set the summary's status to untriaged
+        # and change all acknowledged statuses to untriaged
+        if self.status == PerformanceAlertSummary.IMPROVEMENT:
             if any(
                 alert.status == PerformanceAlert.REASSIGNED and alert.is_regression
                 for alert in alerts
             ):
+                acknowledged_alerts = [
+                    alert for alert in alerts if alert.status == PerformanceAlert.ACKNOWLEDGED
+                ]
+                for alert in acknowledged_alerts:
+                    alert.status = PerformanceAlert.UNTRIAGED
+                    alert.save()
                 return PerformanceAlertSummary.UNTRIAGED
 
         # if all invalid, then set to invalid
