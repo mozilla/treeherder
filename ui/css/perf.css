@@ -653,6 +653,10 @@ li.pagination-active.active > button {
   color: #dc3545;
 }
 
+.due-date-container .due-date-ready {
+  color: #2da745;
+}
+
 .status-drop-down-container {
   display: flex;
   justify-content: center;
