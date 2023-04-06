@@ -269,7 +269,7 @@ def _load_perf_datum(job: Job, perf_datum: dict):
                 push=job.push,
                 signature=signature,
                 push_timestamp=deduced_timestamp,
-                defaults={'value': value[0]},
+                defaults={'value': value[0], 'application_version': application_version},
             )
             if subtest_datum.should_mark_as_multi_commit(is_multi_commit, datum_created):
                 # keep a register with all multi commit perf data
