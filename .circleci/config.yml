@@ -24,9 +24,9 @@ jobs:
       - run:
           command: yarn test:coverage
           name: Run Jest tests
-      - run:
-          command: yarn codecov
-          name: Check code coverage changes
+#      - run:
+#          command: yarn codecov
+#          name: Check code coverage changes
 
   builds:
     docker:
@@ -66,7 +66,7 @@ jobs:
       - run: pip install --upgrade pip
       - run: pip install tox codecov
       - run: tox -e docker  # Run tests and coverage within Docker container
-      - run: codecov --required -f coverage.xml
+#      - run: codecov --required -f coverage.xml
 
   test-docker-build:
     docker:
