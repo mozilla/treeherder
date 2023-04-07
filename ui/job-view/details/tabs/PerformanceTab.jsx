@@ -20,6 +20,11 @@ import {
 import { triggerTask } from '../../../helpers/performance';
 import { notify } from '../../redux/stores/notifications';
 import { isPerfTest } from '../../../helpers/job';
+import {
+  geckoProfileTaskName,
+  sxsJobTypeName,
+  sxsTaskName,
+} from '../../../helpers/constants';
 
 import SideBySide from './SideBySide';
 
@@ -34,9 +39,7 @@ class PerformanceTab extends React.PureComponent {
     const { selectedJobFull } = this.props;
     this.state = {
       triggeredGeckoProfiles: 0,
-      showSideBySide: selectedJobFull.job_type_name.includes(
-        'perftest-linux-side-by-side',
-      ),
+      showSideBySide: selectedJobFull.job_type_name.includes(sxsJobTypeName),
     };
   }
 
@@ -52,7 +55,7 @@ class PerformanceTab extends React.PureComponent {
       notify,
       decisionTaskMap,
       currentRepo,
-      'geckoprofile',
+      geckoProfileTaskName,
     );
     this.setState((state) => ({
       triggeredGeckoProfiles: state.triggeredGeckoProfiles + 1,
@@ -71,7 +74,7 @@ class PerformanceTab extends React.PureComponent {
       notify,
       decisionTaskMap,
       currentRepo,
-      'side-by-side',
+      sxsTaskName,
     );
   };
 
@@ -237,7 +240,7 @@ class PerformanceTab extends React.PureComponent {
               </Button>
             ) : null
           }
-          {selectedJobFull.hasSideBySide ? (
+          {selectedJobFull.hasSideBySide && (
             <a
               title="Open side-by-side job"
               href={getJobsUrl({
@@ -254,7 +257,8 @@ class PerformanceTab extends React.PureComponent {
               <FontAwesomeIcon icon={faYoutube} className="mr-2" />
               Open side-by-side job
             </a>
-          ) : (
+          )}
+          {isPerfTest(selectedJobFull) && !selectedJobFull.hasSideBySide && (
             <Button
               className="btn btn-darker-secondary btn-sm"
               onClick={this.createSideBySide}
