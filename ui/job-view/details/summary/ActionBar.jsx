@@ -19,7 +19,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import { thEvents } from '../../../helpers/constants';
-import { triggerGeckoProfileTask } from '../../../helpers/performance';
+import { triggerTask } from '../../../helpers/performance';
 import { formatTaskclusterError } from '../../../helpers/errorMessage';
 import {
   isReftest,
@@ -97,11 +97,28 @@ class ActionBar extends React.PureComponent {
       decisionTaskMap,
       currentRepo,
     } = this.props;
-    return triggerGeckoProfileTask(
+    return triggerTask(
       selectedJobFull,
       notify,
       decisionTaskMap,
       currentRepo,
+      'geckoprofile',
+    );
+  };
+
+  createSideBySide = async () => {
+    const {
+      selectedJobFull,
+      notify,
+      decisionTaskMap,
+      currentRepo,
+    } = this.props;
+    await triggerTask(
+      selectedJobFull,
+      notify,
+      decisionTaskMap,
+      currentRepo,
+      'side-by-side',
     );
   };
 
@@ -469,6 +486,16 @@ class ActionBar extends React.PureComponent {
                           Create Gecko Profile
                         </DropdownItem>
                       )}
+                      {isPerfTest(selectedJobFull) &&
+                        !selectedJobFull.hasSideBySide && (
+                          <DropdownItem
+                            tag="a"
+                            className="py-2"
+                            onClick={this.createSideBySide}
+                          >
+                            Generate side-by-side
+                          </DropdownItem>
+                        )}
                       {canConfirmFailure(selectedJobFull) && (
                         <DropdownItem
                           tag="a"
