@@ -23,11 +23,9 @@ django-environ  # Imported as environ
 
 python-dateutil
 django-filter  # Listed in DEFAULT_FILTER_BACKENDS on settings.py
-django-redis==5.2.0  # Listed in CACHES on settings.py
-redis==4.5.4
+django-redis  # Listed in CACHES on settings.py
 
-aiohttp==3.8.4
-taskcluster==48.3.0  # import taskcluster
+taskcluster  # import taskcluster
 python-jose[pycryptodome]  # from jose import jwt
 
 furl  # Imported as furl
@@ -36,8 +34,7 @@ json-e  # import jsone
 django-cache-memoize   # Imported as cache_memoize
 
 # Required for Push Health
-mozci==2.2.0
-zstandard
+mozci
 
 importlib-metadata
 
