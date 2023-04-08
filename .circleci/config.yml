@@ -24,12 +24,7 @@ jobs:
       - run:
           command: yarn test:coverage
           name: Run Jest tests
-      - run:
-          name: Upload Coverage to codecov
-          command: |
-            curl -Os https://uploader.codecov.io/latest/linux/codecov
-            chmod +x codecov
-            ./codecov
+      - codecov/upload
 
   builds:
     docker:
@@ -72,12 +67,7 @@ jobs:
             pip install --upgrade pip
             pip install tox
             tox -e docker
-      - run:
-          name: Upload Coverage to codecov
-          command: |
-            curl -Os https://uploader.codecov.io/latest/linux/codecov
-            chmod +x codecov
-            ./codecov --required -f coverage.xml
+      - codecov/upload
 
   test-docker-build:
     docker:
@@ -145,6 +135,7 @@ jobs:
 orbs:
   node: circleci/node@4.1.1
   docker: circleci/docker@1.5.0
+  codecov: codecov/codecov@3.2.4
 version: 2.1
 workflows:
   run-tests:
