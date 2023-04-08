@@ -119,7 +119,6 @@
     "build": "yarn build:glean && node ./node_modules/webpack/bin/webpack.js --mode production",
     "build:dev": "node ./node_modules/webpack/bin/webpack.js --mode development",
     "build:glean": "node ./node_modules/@mozilla/glean/dist/cli/cli.js translate ui/glean/metrics.yaml ui/glean/pings.yaml -f javascript -o ui/glean/generated",
-    "codecov": "rm -rf coverage && curl -Os https://uploader.codecov.io/latest/linux/codecov && chmod +x codecov && ./codecov",
     "format": "node ./node_modules/prettier/bin-prettier.js --write \"**/*.{css,html,js,jsx,json,md,yaml,yml}\"",
     "format:check": "node ./node_modules/prettier/bin-prettier.js --check \"**/*.{css,html,js,jsx,json,md,yaml,yml}\"",
     "lint": "node ./node_modules/eslint/bin/eslint.js --report-unused-disable-directives --max-warnings 0 --format codeframe --ext js,jsx \".*.js\" \"*.js\" ui/ tests/ui/",
