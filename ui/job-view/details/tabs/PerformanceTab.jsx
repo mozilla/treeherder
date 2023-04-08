@@ -8,10 +8,16 @@ import {
   faExternalLinkAlt,
   faRedo,
   faTable,
+  faFilm,
 } from '@fortawesome/free-solid-svg-icons';
+import { faYoutube } from '@fortawesome/free-brands-svg-icons';
 
-import { getCompareChooserUrl, getPerfAnalysisUrl } from '../../../helpers/url';
-import { triggerGeckoProfileTask } from '../../../helpers/performance';
+import {
+  getCompareChooserUrl,
+  getJobsUrl,
+  getPerfAnalysisUrl,
+} from '../../../helpers/url';
+import { triggerTask } from '../../../helpers/performance';
 import { notify } from '../../redux/stores/notifications';
 import { isPerfTest } from '../../../helpers/job';
 
@@ -41,15 +47,32 @@ class PerformanceTab extends React.PureComponent {
       decisionTaskMap,
       currentRepo,
     } = this.props;
-    await triggerGeckoProfileTask(
+    await triggerTask(
       selectedJobFull,
       notify,
       decisionTaskMap,
       currentRepo,
+      'geckoprofile',
     );
     this.setState((state) => ({
       triggeredGeckoProfiles: state.triggeredGeckoProfiles + 1,
     }));
+  };
+
+  createSideBySide = async () => {
+    const {
+      selectedJobFull,
+      notify,
+      decisionTaskMap,
+      currentRepo,
+    } = this.props;
+    await triggerTask(
+      selectedJobFull,
+      notify,
+      decisionTaskMap,
+      currentRepo,
+      'side-by-side',
+    );
   };
 
   maybeGetFirefoxProfilerLink() {
@@ -214,6 +237,33 @@ class PerformanceTab extends React.PureComponent {
               </Button>
             ) : null
           }
+          {selectedJobFull.hasSideBySide ? (
+            <a
+              title="Open side-by-side job"
+              href={getJobsUrl({
+                repo: repoName,
+                revision,
+                searchStr: selectedJobFull.hasSideBySide,
+                group_state: 'expanded',
+              })}
+              className="btn btn-darker-secondary btn-sm"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FontAwesomeIcon icon={faExternalLinkAlt} className="mr-2" />
+              <FontAwesomeIcon icon={faYoutube} className="mr-2" />
+              Open side-by-side job
+            </a>
+          ) : (
+            <Button
+              className="btn btn-darker-secondary btn-sm"
+              onClick={this.createSideBySide}
+              title="Generate side-by-side"
+            >
+              <FontAwesomeIcon icon={faFilm} className="mr-2" />
+              Generate side-by-side
+            </Button>
+          )}
           <a
             href={getCompareChooserUrl({
               newProject: repoName,
