@@ -6,9 +6,6 @@ import TaskclusterModel from '../models/taskcluster';
 import { formatTaskclusterError } from './errorMessage';
 import { getAction } from './taskcluster';
 
-export const sxsJobTypeName = 'perftest-linux-side-by-side';
-
-
 /**
  * This function will create a new task that will run the Gecko Profiler against
  * an existing performance test.
