@@ -18,7 +18,11 @@ import {
   faCrosshairs,
 } from '@fortawesome/free-solid-svg-icons';
 
-import { thEvents } from '../../../helpers/constants';
+import {
+  geckoProfileTaskName,
+  sxsTaskName,
+  thEvents,
+} from '../../../helpers/constants';
 import { triggerTask } from '../../../helpers/performance';
 import { formatTaskclusterError } from '../../../helpers/errorMessage';
 import {
@@ -102,7 +106,7 @@ class ActionBar extends React.PureComponent {
       notify,
       decisionTaskMap,
       currentRepo,
-      'geckoprofile',
+      geckoProfileTaskName,
     );
   };
 
@@ -118,7 +122,7 @@ class ActionBar extends React.PureComponent {
       notify,
       decisionTaskMap,
       currentRepo,
-      'side-by-side',
+      sxsTaskName,
     );
   };
 
