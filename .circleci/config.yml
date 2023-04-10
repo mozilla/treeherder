@@ -24,9 +24,7 @@ jobs:
       - run:
           command: yarn test:coverage
           name: Run Jest tests
-      - run:
-          command: yarn codecov
-          name: Check code coverage changes
+      - codecov/upload
 
   builds:
     docker:
@@ -63,10 +61,13 @@ jobs:
       - run:
           command: sudo apt-get update && sudo apt-get install python3-venv -y
           name: python for glean
-      - run: pip install --upgrade pip
-      - run: pip install tox codecov
-      - run: tox -e docker  # Run tests and coverage within Docker container
-      - run: codecov --required -f coverage.xml
+      - run:
+          name: Run tests and coverage within Docker container
+          command: |
+            pip install --upgrade pip
+            pip install tox
+            tox -e docker
+      - codecov/upload
 
   test-docker-build:
     docker:
@@ -134,6 +135,7 @@ jobs:
 orbs:
   node: circleci/node@4.1.1
   docker: circleci/docker@1.5.0
+  codecov: codecov/codecov@3.2.4
 version: 2.1
 workflows:
   run-tests:

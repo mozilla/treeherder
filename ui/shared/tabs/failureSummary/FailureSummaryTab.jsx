@@ -170,9 +170,11 @@ class FailureSummaryTab extends React.Component {
       // this allows us to focus on the top line
       if (suggestionCounter < 2) {
         suggestion.showNewButton = false;
+        // small hack here to use counter==0 and try for display only
         if (
           suggestion.search.split(' | ').length === 3 &&
-          suggestion.failure_new_in_rev === true
+          (suggestion.failure_new_in_rev === true ||
+            (suggestion.counter === 0 && repoName === 'try'))
         ) {
           suggestion.showNewButton = true;
           selectedJob.newFailure = true;
