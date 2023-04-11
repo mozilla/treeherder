@@ -1814,5 +1814,35 @@
       "description": "staging repository for android-components release engineering",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
+  },
+  {
+    "pk": 129,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "git",
+      "name": "firefox-translations-training",
+      "url": "https://github.com/mozilla/firefox-translations-training",
+      "branch": "main",
+      "active_status": "active",
+      "codebase": "firefox-translations-training",
+      "repository_group": 7,
+      "description": "firefox translations training",
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
+    }
+  },
+  {
+    "pk": 130,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "git",
+      "name": "staging-firefox-translations-training",
+      "url": "https://github.com/mozilla-releng/staging-firefox-translations-training",
+      "branch": "main",
+      "active_status": "active",
+      "codebase": "staging-firefox-translations-training",
+      "repository_group": 7,
+      "description": "staging repository for firefox translations training release engineering work",
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
+    }
   }
 ]
