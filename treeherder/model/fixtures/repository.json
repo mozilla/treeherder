@@ -1844,5 +1844,19 @@
       "description": "staging repository for firefox translations training release engineering work",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
+  },
+  {
+    "pk": 131,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "git",
+      "name": "firefox-ios",
+      "url": "https://github.com/mozilla-mobile/firefox-ios",
+      "branch": "main",
+      "active_status": "active",
+      "codebase": "firefox-ios",
+      "repository_group": 11,
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
+    }
   }
 ]
