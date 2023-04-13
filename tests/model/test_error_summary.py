@@ -41,7 +41,7 @@ PIPE_DELIMITED_LINE_TEST_CASES = (
         ),
         {
             'path_end': 'chrome://mochitests/content/browser/browser/components/loop/test/mochitest/browser_fxa_login.js',
-            'search_term': 'browser_fxa_login.js',
+            'search_term': ['browser_fxa_login.js'],
         },
     ),
     (
@@ -52,7 +52,7 @@ PIPE_DELIMITED_LINE_TEST_CASES = (
         ),
         {
             'path_end': 'file:///C:/slave/test/build/tests/reftest/tests/layout/reftests/layers/component-alpha-exit-1.html',
-            'search_term': 'component-alpha-exit-1.html',
+            'search_term': ['component-alpha-exit-1.html'],
         },
     ),
     (
@@ -63,7 +63,7 @@ PIPE_DELIMITED_LINE_TEST_CASES = (
         ),
         {
             'path_end': '/tests/dom/media/tests/mochitest/test_dataChannel_basicAudio.html',
-            'search_term': 'test_dataChannel_basicAudio.html',
+            'search_term': ['test_dataChannel_basicAudio.html'],
         },
     ),
     (
@@ -74,7 +74,7 @@ PIPE_DELIMITED_LINE_TEST_CASES = (
         ),
         {
             'path_end': 'mainthreadio',
-            'search_term': 'mainthreadio',
+            'search_term': ['mainthreadio'],
         },
     ),
     (
@@ -86,7 +86,7 @@ PIPE_DELIMITED_LINE_TEST_CASES = (
         ),
         {
             'path_end': 'http://10.0.2.2:8854/tests/dom/canvas/test/reftest/webgl-resize-test.html',
-            'search_term': 'webgl-resize-test.html',
+            'search_term': ['webgl-resize-test.html'],
         },
     ),
     (
@@ -98,7 +98,7 @@ PIPE_DELIMITED_LINE_TEST_CASES = (
         ),
         {
             'path_end': 'http://10.0.2.2:8854/tests/dom/canvas/test/reftest/webgl-resize-test.html',
-            'search_term': 'webgl-resize-test.html',
+            'search_term': ['webgl-resize-test.html'],
         },
     ),
     (
@@ -109,7 +109,7 @@ PIPE_DELIMITED_LINE_TEST_CASES = (
         ),
         {
             'path_end': '/tests/dom/events/test/pointerevents/pointerevent_touch-action-table-test_touch-manual.html',
-            'search_term': 'pointerevent_touch-action-table-test_touch-manual.html',
+            'search_term': ['pointerevent_touch-action-table-test_touch-manual.html'],
         },
     ),
 )
@@ -117,6 +117,31 @@ PIPE_DELIMITED_LINE_TEST_CASES = (
 
 @pytest.mark.parametrize(("line", "exp_search_info"), PIPE_DELIMITED_LINE_TEST_CASES)
 def test_get_delimited_search_term(line, exp_search_info):
+    """Test search term extraction for a pipe delimited error line"""
+    actual_search_info = get_error_search_term_and_path(line)
+    assert actual_search_info == exp_search_info
+
+
+PIPE_DELIMITED_LINE_TEST_CASES_WITH_PARAMS = (
+    (
+        (
+            'INFO TEST-UNEXPECTED-TIMEOUT '
+            '| /html/cross-origin-opener-policy/coep-navigate-popup.https.html?4-last '
+            '| TestRunner hit external timeout (this may indicate a hang)'
+        ),
+        {
+            'path_end': '/html/cross-origin-opener-policy/coep-navigate-popup.https.html?4-last',
+            'search_term': [
+                'coep-navigate-popup.https.html?4-last',
+                'coep-navigate-popup.https.html',
+            ],
+        },
+    ),
+)
+
+
+@pytest.mark.parametrize(("line", "exp_search_info"), PIPE_DELIMITED_LINE_TEST_CASES_WITH_PARAMS)
+def test_get_delimited_search_term_with_params(line, exp_search_info):
     """Test search term extraction for a pipe delimited error line"""
     actual_search_info = get_error_search_term_and_path(line)
     assert actual_search_info == exp_search_info
@@ -132,7 +157,9 @@ LEAK_LINE_TEST_CASES = (
         ),
         {
             'path_end': None,
-            'search_term': 'BackstagePass, CallbackObject, DOMEventTargetHelper, EventListenerManager, EventTokenBucket, ...',
+            'search_term': [
+                'BackstagePass, CallbackObject, DOMEventTargetHelper, EventListenerManager, EventTokenBucket, ...'
+            ],
         },
     ),
     (
@@ -144,7 +171,9 @@ LEAK_LINE_TEST_CASES = (
         ),
         {
             'path_end': None,
-            'search_term': 'AsyncLatencyLogger, AsyncTransactionTrackersHolder, AudioOutputObserver, BufferRecycleBin, CipherSui',
+            'search_term': [
+                'AsyncLatencyLogger, AsyncTransactionTrackersHolder, AudioOutputObserver, BufferRecycleBin, CipherSui'
+            ],
         },
     ),
     (
@@ -155,7 +184,9 @@ LEAK_LINE_TEST_CASES = (
         ),
         {
             'path_end': None,
-            'search_term': 'MakeUnique, nsThread::nsChainedEventQueue::nsChainedEventQueue, nsThread, nsThreadManager::Init',
+            'search_term': [
+                'MakeUnique, nsThread::nsChainedEventQueue::nsChainedEventQueue, nsThread, nsThreadManager::Init'
+            ],
         },
     ),
 )
@@ -173,14 +204,19 @@ FULL_LINE_FALLBACK_TEST_CASES = (
         'Automation Error: No crash directory (/mnt/sdcard/tests/profile/minidumps/) found on remote device',
         {
             'path_end': None,
-            'search_term': 'Automation Error: No crash directory (/mnt/sdcard/tests/profile/minidumps/) found on remote device',
+            'search_term': [
+                'Automation Error: No crash directory (/mnt/sdcard/tests/profile/minidumps/) found on remote device'
+            ],
         },
     ),
     (
         'PROCESS-CRASH | Automation Error: Missing end of test marker (process crashed?)',
         {
             'path_end': None,
-            'search_term': 'Automation Error: Missing end of test marker (process crashed?)',
+            'search_term': [
+                'Automation Error: Missing end of test marker (process crashed?)',
+                'Automation Error: Missing end of test marker (process crashed',
+            ],
         },
     ),
 )
@@ -207,8 +243,10 @@ LONG_LINE_TEST_CASES = (
         ),
         {
             'path_end': None,
-            'search_term': 'command timed out: 2400 seconds without output running '
-            '[\'/tools/buildbot/bin/python\', \'scripts/scrip',
+            'search_term': [
+                'command timed out: 2400 seconds without output running '
+                '[\'/tools/buildbot/bin/python\', \'scripts/scrip'
+            ],
         },
     ),
     (
@@ -219,7 +257,9 @@ LONG_LINE_TEST_CASES = (
         ),
         {
             'path_end': 'test_switch_frame.py TestSwitchFrame.test_should_be_able_to_carry_on_working_if_the_frame_is_deleted_from_under_us',
-            'search_term': 'test_switch_frame.py TestSwitchFrame.test_should_be_able_to_carry_on_working_if_the_frame_is_deleted',
+            'search_term': [
+                'test_switch_frame.py TestSwitchFrame.test_should_be_able_to_carry_on_working_if_the_frame_is_deleted'
+            ],
         },
     ),
 )
@@ -258,14 +298,16 @@ BLACKLIST_TEST_CASES = (
         'TEST-UNEXPECTED-FAIL | remoteautomation.py | application timed out after 330 seconds with no output',
         {
             'path_end': 'remoteautomation.py',
-            'search_term': 'remoteautomation.py | application timed out after 330 seconds with no output',
+            'search_term': [
+                'remoteautomation.py | application timed out after 330 seconds with no output'
+            ],
         },
     ),
     (
         'Return code: 1',
         {
             'path_end': None,
-            'search_term': None,
+            'search_term': [None],
         },
     ),
     (
@@ -275,7 +317,7 @@ BLACKLIST_TEST_CASES = (
         ),
         {
             'path_end': 'file:///home/worker/workspace/build/tests/reftest/tests/layout/reftests/font-inflation/video-1.html',
-            'search_term': 'video-1.html',
+            'search_term': ['video-1.html'],
         },
     ),
 )
