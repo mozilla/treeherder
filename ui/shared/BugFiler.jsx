@@ -146,14 +146,21 @@ export class BugFilerClass extends React.Component {
 
     const newFailure = suggestion.showNewButton;
     const keywords = [];
-    const isAssertion = [
+    let isAssertion = [
       /ASSERTION:/, // binary code
       /assertion fail/i, // JavaScript
       /assertion count \d+ is \w+ than expected \d+ assertion/, // layout
       /AssertionError/, // Marionette
     ].some((regexp) => regexp.test(summaryString));
     if (isAssertion) {
-      keywords.push('assertion');
+      if (
+        /java.lang.AssertionError/.test(summaryString) &&
+        jobTypeName.includes('junit')
+      ) {
+        isAssertion = false;
+      } else {
+        keywords.push('assertion');
+      }
     }
 
     if (jobTypeName.toLowerCase().includes('test-verify')) {
@@ -173,7 +180,9 @@ export class BugFilerClass extends React.Component {
     if (
       jg.includes('xpcshell') ||
       jg.includes('mochitest') ||
-      jg.includes('web platform tests')
+      jg.includes('web platform tests') ||
+      jg.includes('reftest') ||
+      jobTypeName.includes('junit')
     ) {
       // simple hack to make sure we have a testcase in the summary
       let isTestPath = [
@@ -182,26 +191,49 @@ export class BugFilerClass extends React.Component {
         /.*test_.*\.xhtml/, // mochitest-chrome
         /.*browser_.*\.html/, // b-c
         /.*browser_.*\.js/, // b-c
+        /.*org.mozilla.geckoview.test.*/, // junit
       ].some((regexp) => regexp.test(summaryString));
 
-      if (jg.includes('web platform tests')) {
+      if (jg.includes('web platform tests') || jg.includes('reftest')) {
+        // account for <filename>.html?blah... | failure message
         isTestPath = [
-          /.*\.js \|/,
-          /.*\.html \|/,
-          /.*\.htm \|/,
-          /.*\.xhtml \|/,
-          /.*\.xht \|/,
+          /.*\.js(\?.*| )\|/,
+          /.*\.html(\?.*| )\|/,
+          /.*\.htm(\?.*| )\|/,
+          /.*\.xhtml(\?.*| )\|/,
+          /.*\.xht(\?.*| )\|/,
+          /.*\.mp4 \|/, // reftest specific
+          /.*\.webm \|/, // reftest specific
         ].some((regexp) => regexp.test(summaryString));
+      }
+
+      // trimming params from end of a test case name when filing for stb
+      let trimParams = false;
+
+      // only handle straight forward reftest pixel/color errors
+      if (
+        isTestPath &&
+        jobGroupName.includes('reftest') &&
+        !/.*image comparison, max difference.*/.test(summaryString)
+      ) {
+        isTestPath = false;
+      } else if (jg.includes('web platform tests')) {
+        trimParams = true;
       }
 
       // If not crash|leak
       if (!crash && !isAssertion && isTestPath) {
         const parts = summaryString.split(' | ');
+        // split('?') is for removing `?params...` from the test name
         if (parts.length === 2 || parts.length === 1) {
-          summaryString = `${parts[0]} | single tracking bug`;
+          summaryString = `${
+            trimParams ? parts[0].split('?')[0] : parts[0]
+          } | single tracking bug`;
           keywords.push('intermittent-testcase');
         } else if (parts.length === 3) {
-          summaryString = `${parts[1]} | single tracking bug`;
+          summaryString = `${
+            trimParams ? parts[1].split('?')[0] : parts[1]
+          } | single tracking bug`;
           keywords.push('intermittent-testcase');
         }
       }

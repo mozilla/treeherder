@@ -143,10 +143,14 @@ def bug_suggestions_line(
     # collect open recent and all other bugs suggestions
     search_terms = []
     if search_term:
-        search_terms.append(search_term)
-        if search_term not in term_cache:
-            term_cache[search_term] = Bugscache.search(search_term)
-        bugs = term_cache[search_term]
+        search_terms.extend(search_term)
+        for term in search_term:
+            if not term or not term.strip():
+                continue
+            if term not in term_cache:
+                term_cache[term] = Bugscache.search(term)
+            bugs['open_recent'].extend(term_cache[term]['open_recent'])
+            bugs['all_others'].extend(term_cache[term]['all_others'])
 
     if not bugs or not (bugs['open_recent'] or bugs['all_others']):
         # no suggestions, try to use
@@ -250,6 +254,15 @@ def get_error_search_term_and_path(error_line):
     if search_term:
         search_term = re.sub(PREFIX_PATTERN, '', search_term)
         search_term = search_term[:100]
+
+    # for wpt tests we have testname.html?params, we need to add a search term
+    # for just testname.html.
+    # we will now return an array
+    if search_term and '?' in search_term:
+        search_name = search_term.split('?')[0]
+        search_term = [search_term, search_name]
+    else:
+        search_term = [search_term]
 
     return {
         "search_term": search_term,
