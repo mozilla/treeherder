@@ -141,7 +141,10 @@ describe('DetailsPanel', () => {
   const checkClassifiedJobs = (expectedCount) => {
     const classifiedJobs = [];
     for (const job of jobList.data) {
-      if (job.failure_classification_id > 1) {
+      if (
+        job.failure_classification_id > 1 &&
+        jobList.failure_classification_id !== 6
+      ) {
         classifiedJobs.push(job);
       }
     }

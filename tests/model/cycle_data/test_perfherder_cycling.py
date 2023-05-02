@@ -202,7 +202,7 @@ def test_try_data_removal(
 
 @pytest.mark.parametrize(
     'repository_name',
-    ['autoland', 'mozilla-beta', 'mozilla-central', 'fenix', 'reference-browser'],
+    ['autoland', 'mozilla-beta', 'fenix', 'reference-browser'],
 )
 def test_irrelevant_repos_data_removal(
     test_repository,
@@ -216,6 +216,10 @@ def test_irrelevant_repos_data_removal(
 
     relevant_repository.name = repository_name
     relevant_repository.save()
+
+    # hack after changing tests.settings.TREEHERDER_TEST_REPOSITORY_NAME to be m-c
+    test_repository.name = "%s-test" % test_repository.name
+    test_repository.save()
 
     six_months_ago_timestamp = datetime.now() - timedelta(days=(6 * 30))
 

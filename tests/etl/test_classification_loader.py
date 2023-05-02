@@ -1,9 +1,12 @@
+import copy
 import datetime
+import json
 
 from requests.models import HTTPError
 import pytest
 import responses
 
+from treeherder.etl.artifact import store_job_artifacts
 from treeherder.etl.classification_loader import ClassificationLoader
 from treeherder.model.models import (
     BugJobMap,
@@ -514,3 +517,29 @@ def test_autoclassify_failures(
 
     assert JobNote.objects.count() == 2
     assert BugJobMap.objects.count() == 2 if existing_classification else 3
+
+
+@responses.activate
+@pytest.mark.django_db
+def test_new_classification(autoland_push, sample_data, test_two_jobs_tc_metadata):
+    assert MozciClassification.objects.count() == 0
+    first_job, second_job = test_two_jobs_tc_metadata
+    artifact1 = sample_data.text_log_summary
+    artifact1["job_id"] = first_job.id
+    artifact1['job_guid'] = first_job.guid
+    artifact1['blob'] = json.dumps(artifact1['blob'])
+
+    artifact2 = copy.deepcopy(artifact1)
+    artifact2["job_id"] = second_job.id
+    artifact1['job_guid'] = second_job.guid
+    store_job_artifacts([artifact1, artifact2])
+
+    # first is NEW
+    second_job = Job.objects.get(id=1)
+    first_job = Job.objects.get(id=2)
+    assert first_job.failure_classification.name == 'intermittent needs filing'
+
+    # second instance is normal
+    assert second_job.failure_classification.name == 'not classified'
+
+    # annotate each job and ensure marked as intermittent

@@ -3,7 +3,7 @@
 This is the #1 most frequent failure this week.
 
 Repository breakdown:
-* test_treeherder_jobs: 1
+* mozilla-central: 1
 
 Platform and build breakdown:
 * b2g-emu-jb: 1

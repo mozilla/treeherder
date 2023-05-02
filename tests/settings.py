@@ -3,7 +3,7 @@ from treeherder.config.settings import *  # noqa: F403
 DATABASES["default"]["TEST"] = {"NAME": "test_treeherder"}  # noqa: F405
 KEY_PREFIX = 'test'
 
-TREEHERDER_TEST_REPOSITORY_NAME = 'test_treeherder_jobs'
+TREEHERDER_TEST_REPOSITORY_NAME = 'mozilla-central'
 
 # this makes celery calls synchronous, useful for unit testing
 CELERY_TASK_ALWAYS_EAGER = True
