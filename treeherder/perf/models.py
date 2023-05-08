@@ -227,6 +227,14 @@ class PerformanceDatum(models.Model):
         return "{} {}".format(self.value, self.push_timestamp)
 
 
+class PerformanceDatumReplicate(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    performance_datum = models.ForeignKey(PerformanceDatum, on_delete=models.CASCADE)
+    value = models.FloatField()
+
+    class Meta:
+        db_table = 'performance_datum_replicate'
+
 class MultiCommitDatum(models.Model):
     perf_datum = models.OneToOneField(
         PerformanceDatum,

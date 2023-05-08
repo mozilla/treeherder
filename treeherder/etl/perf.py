@@ -12,6 +12,7 @@ from treeherder.model.models import Job, OptionCollection
 from treeherder.perf.models import (
     MultiCommitDatum,
     PerformanceDatum,
+    PerformanceDatumReplicate,
     PerformanceFramework,
     PerformanceSignature,
 )
@@ -271,6 +272,13 @@ def _load_perf_datum(job: Job, perf_datum: dict):
                 push_timestamp=deduced_timestamp,
                 defaults={'value': value[0], 'application_version': application_version},
             )
+
+            if subtest.get("replicates", []) is not None and len(subtest.get("replicates", [])) > 0:
+                # add the replicates to the PerformanceDatumReplicate table
+                PerformanceDatumReplicate.objects.bulk_create([
+                    PerformanceDatumReplicate(value=replicate, performance_datum=subtest_datum)
+                    for replicate in subtest["replicates"]
+                ])
             if subtest_datum.should_mark_as_multi_commit(is_multi_commit, datum_created):
                 # keep a register with all multi commit perf data
                 MultiCommitDatum.objects.create(perf_datum=subtest_datum)
