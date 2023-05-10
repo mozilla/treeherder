@@ -34,7 +34,7 @@ const InfraMenu = () => (
         Taskcluster Workers
       </DropdownItem>
       <DropdownItem
-        href="https://mozilla-releng.net/treestatus"
+        href="https://treestatus.mozilla-releng.net"
         target="_blank"
         rel="noopener noreferrer"
       >
