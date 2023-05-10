@@ -130,7 +130,7 @@ def _test_should_gather_replicates_based_on(
     return (
         replicates
         and len(replicates) > 0
-        and repository.name in ("try",)
+        and repository.name in ("try", "autoland")
     )
 
 
