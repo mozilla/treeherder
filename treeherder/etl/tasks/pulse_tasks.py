@@ -2,18 +2,21 @@
 This module contains tasks related to pulse job ingestion
 """
 import asyncio
+import logging
 
 import newrelic.agent
 
+from taskcluster.exceptions import TaskclusterRestFailure
 from treeherder.etl.classification_loader import ClassificationLoader
 from treeherder.etl.job_loader import JobLoader
 from treeherder.etl.push_loader import PushLoader
 from treeherder.etl.taskcluster_pulse.handler import handleMessage
 from treeherder.workers.task import retryable_task
 
+logger = logging.getLogger(__name__)
+
 # NOTE: default values for root_url parameters can be removed once all tasks that lack
 # that parameter have been processed
-
 
 @retryable_task(name='store-pulse-tasks', max_retries=10)
 def store_pulse_tasks(
@@ -22,19 +25,25 @@ def store_pulse_tasks(
     """
     Fetches tasks from Taskcluster
     """
+    runs = []
     loop = asyncio.get_event_loop()
     newrelic.agent.add_custom_parameter("exchange", exchange)
     newrelic.agent.add_custom_parameter("routing_key", routing_key)
-    # handleMessage expects messages in this format
-    runs = loop.run_until_complete(
-        handleMessage(
-            {
-                "exchange": exchange,
-                "payload": pulse_job,
-                "root_url": root_url,
-            }
+
+    try:
+        # handleMessage expects messages in this format
+        runs = loop.run_until_complete(
+            handleMessage(
+                {
+                    "exchange": exchange,
+                    "payload": pulse_job,
+                    "root_url": root_url,
+                }
+            )
         )
-    )
+    except TaskclusterRestFailure as e:
+        logger.warning(f"Failed to parse pulse message: {e}")
+
     for run in runs:
         if run:
             JobLoader().process_job(run, root_url)
