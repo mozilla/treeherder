@@ -25,7 +25,7 @@ export default class TreeStatusModel {
           result: {
             status: 'error',
             message_of_the_day:
-              'Unable to connect to the https://mozilla-releng.net/treestatus API',
+              'Unable to connect to the https://treestatus.mozilla-releng.net/trees/ API',
             reason: reason.toString(),
             tree: repoName,
           },
