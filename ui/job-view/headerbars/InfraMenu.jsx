@@ -19,14 +19,6 @@ const InfraMenu = () => (
     </DropdownToggle>
     <DropdownMenu right>
       <DropdownItem
-        tag="a"
-        href="https://wiki.mozilla.org/CIDuty"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        CI Duty
-      </DropdownItem>
-      <DropdownItem
         href={`${prodFirefoxRootUrl}/provisioners`}
         target="_blank"
         rel="noopener noreferrer"
