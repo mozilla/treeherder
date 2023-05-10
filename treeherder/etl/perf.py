@@ -2,13 +2,13 @@ import copy
 import logging
 from datetime import datetime
 from hashlib import sha1
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import simplejson as json
 
 from django.conf import settings
 from treeherder.log_parser.utils import validate_perf_data
-from treeherder.model.models import Job, OptionCollection
+from treeherder.model.models import Job, OptionCollection, Repository
 from treeherder.perf.models import (
     MultiCommitDatum,
     PerformanceDatum,
@@ -115,6 +115,22 @@ def _test_should_alert_based_on(
         and new_datum_ingested
         and job.repository.performance_alerts_enabled
         and job.tier_is_sheriffable
+    )
+
+
+def _test_should_gather_replicates_based_on(
+    repository: Repository, replicates: Optional[List]=None
+) -> bool:
+    """
+    Determine if we should gather/ingest replicates. Currently, it's
+    only available on the try branch. Some tests also don't have replicates
+    available as it's not a required field in our performance artifact
+    schema.
+    """
+    return (
+        replicates
+        and len(replicates) > 0
+        and repository.name in ("try",)
     )
 
 
@@ -273,12 +289,23 @@ def _load_perf_datum(job: Job, perf_datum: dict):
                 defaults={'value': value[0], 'application_version': application_version},
             )
 
-            if subtest.get("replicates", []) is not None and len(subtest.get("replicates", [])) > 0:
-                # add the replicates to the PerformanceDatumReplicate table
+            if _test_should_gather_replicates_based_on(
+                job.repository, subtest.get("replicates", [])
+            ):
+                # try:
+                # Add the replicates to the PerformanceDatumReplicate table, and
+                # catch and ignore any exceptions that are produced here so we don't
+                # impact the standard workflow
                 PerformanceDatumReplicate.objects.bulk_create([
                     PerformanceDatumReplicate(value=replicate, performance_datum=subtest_datum)
                     for replicate in subtest["replicates"]
                 ])
+                logger.info("[sparky] Ingested replicates...")
+                # except Exception as e:
+                #     logger.info(
+                #         "Failed to ingest replicates for %s: %s" % (str(subtest_datum), str(e))
+                #     )
+
             if subtest_datum.should_mark_as_multi_commit(is_multi_commit, datum_created):
                 # keep a register with all multi commit perf data
                 MultiCommitDatum.objects.create(perf_datum=subtest_datum)
