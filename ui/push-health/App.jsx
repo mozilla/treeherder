@@ -1,6 +1,6 @@
 import React from 'react';
 import { hot } from 'react-hot-loader/root';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 
 import {
   clearNotificationAtIndex,
@@ -82,7 +82,7 @@ class App extends React.Component {
           notifications={notifications}
           clearNotification={this.clearNotification}
         />
-        <Switch>
+        <Routes>
           <Route
             exact
             path={`${path}/`}
@@ -113,7 +113,7 @@ class App extends React.Component {
             path={`${path}/usage`}
             render={(props) => <Usage {...props} />}
           />
-        </Switch>
+        </Routes>
       </ErrorBoundary>
     );
   }

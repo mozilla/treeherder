@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import { hot } from 'react-hot-loader/root';
 import { Helmet } from 'react-helmet';
 import { ConnectedRouter } from 'connected-react-router';
@@ -115,7 +115,7 @@ const App = () => {
     <Provider store={configureStore()}>
       <ConnectedRouter history={history}>
         <Suspense fallback={<LoadingSpinner />}>
-          <Switch>
+          <Routes>
             <Route
               exact
               path="/login"
@@ -171,7 +171,7 @@ const App = () => {
                 withFavicon(<PerfherderApp {...props} />, '/perfherder')
               }
             />
-          </Switch>
+          </Routes>
         </Suspense>
       </ConnectedRouter>
     </Provider>

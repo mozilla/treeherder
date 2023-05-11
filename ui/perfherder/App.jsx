@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Switch, Redirect } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 import { hot } from 'react-hot-loader/root';
 import { Container } from 'reactstrap';
 
@@ -87,7 +87,7 @@ class App extends React.Component {
                   <ErrorMessages errorMessages={errorMessages} />
                 </Container>
               )}
-              <Switch>
+              <Routes>
                 <Route
                   path={`${path}/alerts`}
                   render={(props) => (
@@ -182,11 +182,11 @@ class App extends React.Component {
                     />
                   )}
                 />
-                <Redirect
+                <Navigate
                   from={`${path}/`}
                   to={`${path}/alerts?hideDwnToInv=1&page=1`}
                 />
-              </Switch>
+              </Routes>
             </main>
           )}
       </React.Fragment>
