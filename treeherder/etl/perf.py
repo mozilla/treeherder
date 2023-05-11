@@ -119,7 +119,7 @@ def _test_should_alert_based_on(
 
 
 def _test_should_gather_replicates_based_on(
-    repository: Repository, replicates: Optional[List]=None
+    repository: Repository, replicates: Optional[List] = None
 ) -> bool:
     """
     Determine if we should gather/ingest replicates. Currently, it's
@@ -127,11 +127,7 @@ def _test_should_gather_replicates_based_on(
     available as it's not a required field in our performance artifact
     schema.
     """
-    return (
-        replicates
-        and len(replicates) > 0
-        and repository.name in ("try",)
-    )
+    return replicates and len(replicates) > 0 and repository.name in ("try",)
 
 
 def _load_perf_datum(job: Job, perf_datum: dict):
@@ -296,10 +292,14 @@ def _load_perf_datum(job: Job, perf_datum: dict):
                     # Add the replicates to the PerformanceDatumReplicate table, and
                     # catch and ignore any exceptions that are produced here so we don't
                     # impact the standard workflow
-                    PerformanceDatumReplicate.objects.bulk_create([
-                        PerformanceDatumReplicate(value=replicate, performance_datum=subtest_datum)
-                        for replicate in subtest["replicates"]
-                    ])
+                    PerformanceDatumReplicate.objects.bulk_create(
+                        [
+                            PerformanceDatumReplicate(
+                                value=replicate, performance_datum=subtest_datum
+                            )
+                            for replicate in subtest["replicates"]
+                        ]
+                    )
                 except Exception as e:
                     logger.info(f"Failed to ingest replicates for datum {subtest_datum}: {e}")
 

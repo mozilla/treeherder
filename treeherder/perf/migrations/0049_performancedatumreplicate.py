@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('perf', '0048_performancedatum_application_version'),
     ]
@@ -16,7 +15,12 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('value', models.FloatField()),
-                ('performance_datum', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='perf.performancedatum')),
+                (
+                    'performance_datum',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to='perf.performancedatum'
+                    ),
+                ),
             ],
             options={
                 'db_table': 'performance_datum_replicate',
