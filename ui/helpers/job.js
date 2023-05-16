@@ -28,8 +28,9 @@ export const getBtnClass = function getBtnClass(
 ) {
   let btnClass = btnClasses[resultStatus] || 'btn-default';
 
-  // handle if a job is classified
-  if (failureClassificationId > 1) {
+  // handle if a job is classified > 1
+  // and not "NEW failure", classification == 6
+  if (failureClassificationId > 1 && failureClassificationId !== 6) {
     btnClass += '-classified';
   }
   return btnClass;

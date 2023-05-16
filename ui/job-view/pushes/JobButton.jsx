@@ -99,7 +99,7 @@ export default class JobButtonComponent extends React.Component {
     const btnClass = getBtnClass(resultStatus, failureClassificationId);
     let classifiedIcon = null;
 
-    if (failureClassificationId > 1) {
+    if (failureClassificationId > 1 && failureClassificationId !== 6) {
       classifiedIcon =
         failureClassificationId === 7 ? faStarRegular : faStarSolid;
     }
