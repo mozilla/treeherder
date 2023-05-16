@@ -263,3 +263,9 @@ export const genericErrorMessage = 'Something went wrong';
 export const mercurialDatetimeFormat = 'ddd MMM DD HH:mm:ss YYYY ZZ';
 
 export const alertsViewDatetimeFormat = 'ddd MMM DD HH:mm YYYY';
+
+export const sxsJobTypeName = 'perftest-linux-side-by-side';
+
+export const sxsTaskName = 'side-by-side';
+
+export const geckoProfileTaskName = 'geckoprofile';
