@@ -841,7 +841,7 @@ class JobNote(models.Model):
             return
 
         # if the failure type isn't intermittent, ignore
-        if self.failure_classification.name not in ["intermittent", "intermittent needs filing"]:
+        if self.failure_classification.name not in ["intermittent"]:
             return
 
         # if the linked Job has more than one TextLogError, ignore

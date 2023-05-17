@@ -53,7 +53,7 @@ def test_bz_reopen_bugs(request, mock_bugzilla_reopen_request, client, test_job,
             {
                 "status": "REOPENED",
                 "comment": {
-                    "body": "New failure instance: https://treeherder.mozilla.org/logviewer?job_id=1&repo=test_treeherder_jobs"
+                    "body": "New failure instance: https://treeherder.mozilla.org/logviewer?job_id=1&repo=mozilla-central"
                 },
                 "comment_tags": "treeherder",
             }
@@ -62,7 +62,7 @@ def test_bz_reopen_bugs(request, mock_bugzilla_reopen_request, client, test_job,
             {
                 "status": "REOPENED",
                 "comment": {
-                    "body": "New failure instance: https://treeherder.mozilla.org/logviewer?job_id=1&repo=test_treeherder_jobs"
+                    "body": "New failure instance: https://treeherder.mozilla.org/logviewer?job_id=1&repo=mozilla-central"
                 },
                 "comment_tags": "treeherder",
             }

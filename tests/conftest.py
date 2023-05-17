@@ -3,6 +3,7 @@ import datetime
 import json
 import os
 import platform
+import time
 from os.path import join, dirname
 from unittest.mock import MagicMock
 
@@ -322,13 +323,23 @@ def test_job(eleven_job_blobs, create_jobs):
 
 
 @pytest.fixture
-def test_two_jobs_tc_metadata(eleven_job_blobs, create_jobs):
-    job_1, job_2 = eleven_job_blobs[0:2]
+def test_two_jobs_tc_metadata(eleven_job_blobs_new_date, create_jobs):
+    job_1, job_2 = eleven_job_blobs_new_date[0:2]
     job_1['job'].update(
-        {'taskcluster_task_id': 'V3SVuxO8TFy37En_6HcXLs', 'taskcluster_retry_id': '0'}
+        {
+            'status': 'completed',
+            'result': 'testfailed',
+            'taskcluster_task_id': 'V3SVuxO8TFy37En_6HcXLs',
+            'taskcluster_retry_id': '0',
+        }
     )
     job_2['job'].update(
-        {'taskcluster_task_id': 'FJtjczXfTAGClIl6wNBo9g', 'taskcluster_retry_id': '0'}
+        {
+            'status': 'completed',
+            'result': 'testfailed',
+            'taskcluster_task_id': 'FJtjczXfTAGClIl6wNBo9g',
+            'taskcluster_retry_id': '0',
+        }
     )
     return create_jobs([job_1, job_2])
 
@@ -417,6 +428,55 @@ def eleven_job_blobs(sample_data, sample_push, test_repository, mock_log_parser)
         push_index += 1
         task_id_index += 1
     return blobs
+
+
+@pytest.fixture
+def eleven_job_blobs_new_date(sample_data, sample_push, test_repository, mock_log_parser):
+    # make unique revisions
+    counter = 0
+    for push in sample_push:
+        push['push_timestamp'] = int(time.time()) + counter
+        counter += 1
+
+    store_push_data(test_repository, sample_push)
+
+    num_jobs = 11
+    jobs = sample_data.job_data[0:num_jobs]
+
+    max_index = len(sample_push) - 1
+    push_index = 0
+    task_id_index = 0
+
+    blobs = []
+    for blob in jobs:
+
+        if push_index > max_index:
+            push_index = 0
+
+        # Modify job structure to sync with the push sample data
+        if 'sources' in blob:
+            del blob['sources']
+
+        blob['revision'] = sample_push[push_index]['revision']
+        blob['taskcluster_task_id'] = 'V3SVuxO8TFy37En_6HcX{:0>2}'.format(task_id_index)
+        blob['taskcluster_retry_id'] = '0'
+        blob['job']['revision'] = sample_push[push_index]['revision']
+        blob['job']['submit_timestamp'] = sample_push[push_index]['push_timestamp']
+        blob['job']['start_timestamp'] = sample_push[push_index]['push_timestamp'] + 10
+        blob['job']['end_timestamp'] = sample_push[push_index]['push_timestamp'] + 1000
+        blobs.append(blob)
+
+        push_index += 1
+        task_id_index += 1
+    return blobs
+
+
+@pytest.fixture
+def eleven_jobs_stored_new_date(
+    test_repository, failure_classifications, eleven_job_blobs_new_date
+):
+    """stores a list of 11 job samples"""
+    store_job_data(test_repository, eleven_job_blobs_new_date)
 
 
 @pytest.fixture

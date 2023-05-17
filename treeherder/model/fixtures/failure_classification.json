@@ -38,7 +38,7 @@
     "pk": 6,
     "model": "model.failureclassification",
     "fields": {
-      "name": "intermittent needs filing"
+      "name": "new failure not classified"
     }
   },
   {

@@ -32,7 +32,17 @@ def store_text_log_summary_artifact(job, text_log_summary_artifact):
 
     # get error summary immediately (to warm the cache)
     # Conflicts may have occured during the insert, but we pass the queryset for performance
-    error_summary.get_error_summary(job, queryset=log_errors)
+    bugs = error_summary.get_error_summary(job, queryset=log_errors)
+    for suggestion in bugs:
+        if (suggestion['failure_new_in_rev'] or suggestion['counter'] == 0) and job.result not in [
+            'success',
+            'unknown',
+            'usercancel',
+            'retry',
+        ]:
+            # classify job as `new failure` - for filtering, etc.
+            job.failure_classification_id = 6
+            job.save()
 
 
 def store_job_artifacts(artifact_data):

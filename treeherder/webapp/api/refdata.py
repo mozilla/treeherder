@@ -42,7 +42,7 @@ class FailureClassificationViewSet(viewsets.ReadOnlyModelViewSet):
 
     """ViewSet for the refdata FailureClassification model"""
 
-    queryset = models.FailureClassification.objects.exclude(name="intermittent needs filing")
+    queryset = models.FailureClassification.objects
     serializer_class = th_serializers.FailureClassificationSerializer
 
 

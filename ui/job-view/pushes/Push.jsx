@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -5,6 +6,7 @@ import sortBy from 'lodash/sortBy';
 import { Col } from 'reactstrap';
 
 import {
+  sxsJobTypeName,
   thEvents,
   thOptionOrder,
   thPlatformMap,
@@ -309,11 +311,26 @@ class Push extends React.PureComponent {
       // remove old versions of jobs we just fetched.
       const existingJobs = jobList.filter((job) => !newIds.includes(job.id));
       // Join both lists and add test_paths and task_run property
-      const newJobList = [...existingJobs, ...jobs].map((job) => {
+      const joinedJobList = [...existingJobs, ...jobs].map((job) => {
         if (Object.keys(manifestsByTask).length > 0) {
           job.test_paths = manifestsByTask[job.job_type_name] || [];
         }
         job.task_run = getTaskRunStr(job);
+        return job;
+      });
+      // If the pageload job has a side-by-side comparison associated
+      // add job.hasSideBySide containing sideBySideJob.job_type_name
+      const newJobList = joinedJobList.map((job) => {
+        const sideBySideJob = joinedJobList.find(({ job_type_name }) => {
+          const jobTypeName = job_type_name;
+          const [platform, testName] = job.job_type_name.split('/opt-');
+          return (
+            jobTypeName.includes(platform) &&
+            jobTypeName.includes(testName) &&
+            jobTypeName.includes(sxsJobTypeName)
+          );
+        });
+        job.hasSideBySide = sideBySideJob && sideBySideJob.job_type_name;
         return job;
       });
       const platforms = this.sortGroupedJobs(
