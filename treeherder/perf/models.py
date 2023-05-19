@@ -105,7 +105,7 @@ class PerformanceSignature(models.Model):
         Maps a schema-specified alert change type to the internal index
         value
         """
-        for (idx, enum_val) in PerformanceSignature.ALERT_CHANGE_TYPES:
+        for idx, enum_val in PerformanceSignature.ALERT_CHANGE_TYPES:
             if enum_val == alert_change_type_input:
                 return idx
         return None
@@ -225,6 +225,15 @@ class PerformanceDatum(models.Model):
 
     def __str__(self):
         return "{} {}".format(self.value, self.push_timestamp)
+
+
+class PerformanceDatumReplicate(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    performance_datum = models.ForeignKey(PerformanceDatum, on_delete=models.CASCADE)
+    value = models.FloatField()
+
+    class Meta:
+        db_table = 'performance_datum_replicate'
 
 
 class MultiCommitDatum(models.Model):
