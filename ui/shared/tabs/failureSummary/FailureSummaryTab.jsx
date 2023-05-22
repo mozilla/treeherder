@@ -194,7 +194,11 @@ class FailureSummaryTab extends React.Component {
           id="failure-summary-scroll-area"
         >
           {selectedJob.newFailure > 0 && (
-            <Button className="btn-orange" outline title="New Test Failure">
+            <Button
+              className="failure-summary-new-message"
+              outline
+              title="New Test Failure"
+            >
               {selectedJob.newFailure} new failure line(s). First one is
               flagged, it might be good to look at all failures in this job.
             </Button>

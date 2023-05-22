@@ -21,3 +21,10 @@
   /* Override the selector complexity of: "ul.failure-summary-list li .btn-xs" */
   font-size: 11px !important;
 }
+
+.failure-summary-new-message {
+  padding: 2px 4px 0;
+  font-size: 11px;
+  background-color: var(--failure-bg-color);
+  color: var(--failure-color);
+}
