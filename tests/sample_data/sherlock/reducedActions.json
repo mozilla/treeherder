@@ -81,12 +81,12 @@
     "hookPayload": {
       "decision": {
         "action": {
-          "cb_name": "isolate-test-failures",
+          "cb_name": "confirm-failures",
           "description": "Re-run Tests for original manifest, directories and tests for failing tests.",
-          "name": "isolate-test-failures",
+          "name": "confirm-failures",
           "symbol": "it",
           "taskGroupId": "f7Jj_h6MTEKr5Ln_7aFqbw",
-          "title": "Isolate test failures in job"
+          "title": "Confirm failures in job"
         },
         "push": {
           "owner": "mozilla-taskcluster-maintenance@mozilla.com",
@@ -112,7 +112,7 @@
       }
     },
     "kind": "hook",
-    "name": "isolate-test-failures",
+    "name": "confirm-failures",
     "schema": {
       "additionalProperties": false,
       "properties": {
@@ -127,7 +127,7 @@
       },
       "type": "object"
     },
-    "title": "Isolate test failures in job"
+    "title": "Confirm failures in job"
   },
   {
     "context": [{}],
