@@ -28,7 +28,7 @@ import { formatTaskclusterError } from '../../../helpers/errorMessage';
 import {
   isReftest,
   isPerfTest,
-  isTestIsolatable,
+  canConfirmFailure,
   findJobInstance,
 } from '../../../helpers/job';
 import { getInspectTaskUrl, getReftestUrl } from '../../../helpers/url';
@@ -196,7 +196,7 @@ class ActionBar extends React.PureComponent {
     );
   };
 
-  isolateJob = async () => {
+  confirmFailure = async () => {
     const {
       selectedJobFull,
       notify,
@@ -205,12 +205,12 @@ class ActionBar extends React.PureComponent {
     } = this.props;
     const { id: decisionTaskId } = decisionTaskMap[selectedJobFull.push_id];
 
-    if (!isTestIsolatable(selectedJobFull)) {
+    if (!canConfirmFailure(selectedJobFull)) {
       return;
     }
 
     if (!selectedJobFull.id) {
-      notify('Job not yet loaded for isolation', 'warning');
+      notify('Job not yet loaded for failure confirmation', 'warning');
 
       return;
     }
@@ -224,14 +224,14 @@ class ActionBar extends React.PureComponent {
     TaskclusterModel.load(decisionTaskId, selectedJobFull, currentRepo).then(
       (results) => {
         try {
-          const isolationtask = getAction(
+          const confirmFailure = getAction(
             results.actions,
-            'isolate-test-failures',
+            'confirm-failures',
           );
 
-          if (!isolationtask) {
+          if (!confirm) {
             notify(
-              'Request to isolate job via actions.json failed could not find action.',
+              'Request to confirm failure via actions.json failed could not find action.',
               'danger',
               { sticky: true },
             );
@@ -239,25 +239,8 @@ class ActionBar extends React.PureComponent {
           }
 
           let times = 1;
-          let response = null;
-          do {
-            response = window.prompt(
-              'Enter number of times (1..100) to run isolation jobs: ',
-              times,
-            );
-            if (response == null) {
-              break;
-            }
-            times = parseInt(response, 10);
-          } while (Number.isNaN(times) || times < 1 || times > 100);
-
-          if (response === null) {
-            notify('Request to isolate job via actions.json aborted.');
-            return;
-          }
-
           return TaskclusterModel.submit({
-            action: isolationtask,
+            action: confirmFailure,
             decisionTaskId,
             taskId: results.originalTaskId,
             input: { times },
@@ -266,7 +249,7 @@ class ActionBar extends React.PureComponent {
           }).then(
             () => {
               notify(
-                'Request sent to isolate-test-failures job via actions.json',
+                'Request sent to confirm-failures job via actions.json',
                 'success',
               );
             },
@@ -521,13 +504,13 @@ class ActionBar extends React.PureComponent {
                             Generate side-by-side
                           </DropdownItem>
                         )}
-                      {isTestIsolatable(selectedJobFull) && (
+                      {canConfirmFailure(selectedJobFull) && (
                         <DropdownItem
                           tag="a"
                           className="py-2"
-                          onClick={this.isolateJob}
+                          onClick={this.confirmFailure}
                         >
-                          Run Isolation Tests
+                          Confirm Test Failures
                         </DropdownItem>
                       )}
                       <DropdownItem
