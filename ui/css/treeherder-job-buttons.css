@@ -181,8 +181,8 @@
 
 /* Orange, testfailed */
 .btn-orange {
-  background-color: #f7c194;
-  color: #743603;
+  background-color: var(--failure-bg-color);
+  color: var(--failure-color);
 }
 .btn-orange:hover,
 .btn-orange:focus,
