@@ -491,7 +491,7 @@
           "kind": "test"
         }
       ],
-      "description": "Re-run Tests for original manifest, directories and tests for failing tests.",
+      "description": "Re-run Tests for original manifest, directories or tests for failing tests.",
       "extra": {
         "actionPerm": "generic"
       },

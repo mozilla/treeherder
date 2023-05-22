@@ -224,12 +224,9 @@ class ActionBar extends React.PureComponent {
     TaskclusterModel.load(decisionTaskId, selectedJobFull, currentRepo).then(
       (results) => {
         try {
-          const confirmFailure = getAction(
-            results.actions,
-            'confirm-failures',
-          );
+          const confirmFailure = getAction(results.actions, 'confirm-failures');
 
-          if (!confirm) {
+          if (!confirmFailure) {
             notify(
               'Request to confirm failure via actions.json failed could not find action.',
               'danger',
@@ -238,12 +235,11 @@ class ActionBar extends React.PureComponent {
             return;
           }
 
-          let times = 1;
           return TaskclusterModel.submit({
             action: confirmFailure,
             decisionTaskId,
             taskId: results.originalTaskId,
-            input: { times },
+            input: {},
             staticActionVariables: results.staticActionVariables,
             currentRepo,
           }).then(

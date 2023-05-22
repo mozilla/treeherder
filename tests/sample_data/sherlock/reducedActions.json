@@ -72,7 +72,7 @@
         "kind": "test"
       }
     ],
-    "description": "Re-run Tests for original manifest, directories and tests for failing tests.",
+    "description": "Re-run Tests for original manifest, directories or tests for failing tests.",
     "extra": {
       "actionPerm": "generic"
     },
@@ -82,7 +82,7 @@
       "decision": {
         "action": {
           "cb_name": "confirm-failures",
-          "description": "Re-run Tests for original manifest, directories and tests for failing tests.",
+          "description": "Re-run Tests for original manifest, directories or tests for failing tests.",
           "name": "confirm-failures",
           "symbol": "it",
           "taskGroupId": "f7Jj_h6MTEKr5Ln_7aFqbw",
