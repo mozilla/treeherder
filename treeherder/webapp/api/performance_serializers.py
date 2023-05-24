@@ -316,6 +316,7 @@ class PerformanceQueryParamsSerializer(serializers.Serializer):
     signature = serializers.CharField(required=False, allow_null=True, default=None)
     no_subtests = serializers.BooleanField(required=False)
     all_data = OptionalBooleanField()
+    replicates = OptionalBooleanField()
     no_retriggers = OptionalBooleanField()
 
     def validate(self, data):

@@ -29,6 +29,7 @@ export default class CompareTableControls extends React.Component {
       showImportant: convertParams(this.validated, 'showOnlyImportant'),
       hideUncertain: convertParams(this.validated, 'showOnlyConfident'),
       showNoise: convertParams(this.validated, 'showOnlyNoise'),
+      useReplicates: convertParams(this.validated, 'replicates'),
       results: new Map(),
       filteredText: this.getDefaultFilterText(this.validated),
       showRetriggerModal: false,
@@ -49,6 +50,9 @@ export default class CompareTableControls extends React.Component {
     const params = parseQueryParams(location.search);
     const prevParams = parseQueryParams(prevProps.location.search);
 
+    if (params.replicates !== prevParams.replicates) {
+      window.location.reload(false);
+    }
     if (prevState.countPages !== countPages) {
       this.setState({ totalPagesList: this.generatePages(countPages) });
     }
@@ -77,6 +81,13 @@ export default class CompareTableControls extends React.Component {
     this.setState(
       (prevState) => ({ [filter]: !prevState[filter], page: 1 }),
       () => this.updateFilteredResults(),
+    );
+  };
+
+  updateReplicates = () => {
+    this.setState(
+      (prevState) => ({ useReplicates: !prevState.useReplicates }),
+      () => this.updateUrlParams(),
     );
   };
 
@@ -183,6 +194,7 @@ export default class CompareTableControls extends React.Component {
       showImportant,
       hideUncertain,
       showNoise,
+      useReplicates,
       page,
     } = this.state;
     const compareURLParams = {};
@@ -202,6 +214,9 @@ export default class CompareTableControls extends React.Component {
 
     if (showNoise) compareURLParams.showOnlyNoise = 1;
     else paramsToRemove.push('showOnlyNoise');
+
+    if (useReplicates) compareURLParams.replicates = 1;
+    else paramsToRemove.push('replicates');
 
     compareURLParams.page = page;
     updateParams(compareURLParams, paramsToRemove);
@@ -265,6 +280,7 @@ export default class CompareTableControls extends React.Component {
       hideUncertain,
       showImportant,
       showNoise,
+      useReplicates,
       results,
       showRetriggerModal,
       currentRetriggerRow,
@@ -304,6 +320,8 @@ export default class CompareTableControls extends React.Component {
 
     const viewablePagesList = this.getCurrentPages();
     const hasMorePages = () => viewablePagesList.length > 0 && countPages !== 1;
+    const hasTryProject = () =>
+      validated.newProject === 'try' || validated.originalProject === 'try';
 
     const formattedJSONData = this.formatDownloadData(compareResults);
 
@@ -337,8 +355,19 @@ export default class CompareTableControls extends React.Component {
               </Row>
             )
           : null}
-
         <div className="download-json-container">
+          {hasTryProject() && (
+            <Button
+              color="darker-info"
+              outline
+              className="btn"
+              type="button"
+              onClick={this.updateReplicates}
+              active={useReplicates}
+            >
+              Use replicates (try-only)
+            </Button>
+          )}
           {formattedJSONData.length > 0 && (
             <Button
               className="btn download-button"
