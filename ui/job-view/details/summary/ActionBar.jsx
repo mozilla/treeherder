@@ -18,12 +18,8 @@ import {
   faCrosshairs,
 } from '@fortawesome/free-solid-svg-icons';
 
-import {
-  geckoProfileTaskName,
-  sxsTaskName,
-  thEvents,
-} from '../../../helpers/constants';
-import { triggerTask } from '../../../helpers/performance';
+import { thEvents } from '../../../helpers/constants';
+import { triggerGeckoProfileTask } from '../../../helpers/performance';
 import { formatTaskclusterError } from '../../../helpers/errorMessage';
 import {
   isReftest,
@@ -101,28 +97,11 @@ class ActionBar extends React.PureComponent {
       decisionTaskMap,
       currentRepo,
     } = this.props;
-    return triggerTask(
+    return triggerGeckoProfileTask(
       selectedJobFull,
       notify,
       decisionTaskMap,
       currentRepo,
-      geckoProfileTaskName,
-    );
-  };
-
-  createSideBySide = async () => {
-    const {
-      selectedJobFull,
-      notify,
-      decisionTaskMap,
-      currentRepo,
-    } = this.props;
-    await triggerTask(
-      selectedJobFull,
-      notify,
-      decisionTaskMap,
-      currentRepo,
-      sxsTaskName,
     );
   };
 
@@ -511,16 +490,6 @@ class ActionBar extends React.PureComponent {
                           Create Gecko Profile
                         </DropdownItem>
                       )}
-                      {isPerfTest(selectedJobFull) &&
-                        !selectedJobFull.hasSideBySide && (
-                          <DropdownItem
-                            tag="a"
-                            className="py-2"
-                            onClick={this.createSideBySide}
-                          >
-                            Generate side-by-side
-                          </DropdownItem>
-                        )}
                       {isTestIsolatable(selectedJobFull) && (
                         <DropdownItem
                           tag="a"
