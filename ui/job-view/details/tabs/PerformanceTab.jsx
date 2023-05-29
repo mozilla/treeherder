@@ -20,11 +20,7 @@ import {
 import { triggerTask } from '../../../helpers/performance';
 import { notify } from '../../redux/stores/notifications';
 import { isPerfTest } from '../../../helpers/job';
-import {
-  geckoProfileTaskName,
-  sxsJobTypeName,
-  sxsTaskName,
-} from '../../../helpers/constants';
+import { geckoProfileTaskName, sxsTaskName } from '../../../helpers/constants';
 
 import SideBySide from './SideBySide';
 import PerfData from './PerfData';
@@ -39,7 +35,7 @@ class PerformanceTab extends React.PureComponent {
     const { selectedJobFull } = this.props;
     this.state = {
       triggeredGeckoProfiles: 0,
-      showSideBySide: selectedJobFull.job_type_name.includes(sxsJobTypeName),
+      showSideBySide: selectedJobFull.job_type_name.includes(sxsTaskName),
     };
   }
 

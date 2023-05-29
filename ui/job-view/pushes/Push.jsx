@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -6,7 +5,7 @@ import sortBy from 'lodash/sortBy';
 import { Col } from 'reactstrap';
 
 import {
-  sxsJobTypeName,
+  sxsTaskName,
   thEvents,
   thOptionOrder,
   thPlatformMap,
@@ -319,18 +318,24 @@ class Push extends React.PureComponent {
         return job;
       });
       // If the pageload job has a side-by-side comparison associated
-      // add job.hasSideBySide containing sideBySideJob.job_type_name
+      // add job.hasSideBySide containing sxsTaskName ("side-by-side")
       const newJobList = joinedJobList.map((job) => {
-        const sideBySideJob = joinedJobList.find(({ job_type_name }) => {
-          const jobTypeName = job_type_name;
-          const [platform, testName] = job.job_type_name.split('/opt-');
-          return (
-            jobTypeName.includes(platform) &&
-            jobTypeName.includes(testName) &&
-            jobTypeName.includes(sxsJobTypeName)
+        if (!job.job_type_name.includes(sxsTaskName)) {
+          job.hasSideBySide = false;
+        } else {
+          const sideBySideJob = joinedJobList.filter(
+            (sxsJob) =>
+              sxsJob.job_type_name.includes(
+                job.job_type_name.split('/opt-')[0],
+              ) && // platform
+              sxsJob.job_type_name.includes(
+                job.job_type_name.split('/opt-')[1],
+              ) && // testName
+              sxsJob.job_type_name.includes(sxsTaskName),
           );
-        });
-        job.hasSideBySide = sideBySideJob && sideBySideJob.job_type_name;
+          job.hasSideBySide =
+            sideBySideJob[0] && sideBySideJob[0].job_type_name;
+        }
         return job;
       });
       const platforms = this.sortGroupedJobs(
