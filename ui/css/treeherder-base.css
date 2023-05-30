@@ -50,3 +50,8 @@ kbd {
 input[type='checkbox'] {
   margin-right: 5px;
 }
+
+:root {
+  --failure-bg-color: #f7c194;
+  --failure-color: #743603;
+}

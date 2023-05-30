@@ -51,7 +51,7 @@ export const pinJob = (job) => {
     } = getState();
 
     if (MAX_SIZE - Object.keys(pinnedJobs).length > 0) {
-      job.newFailure = false;
+      job.newFailure = 0;
       dispatch({
         type: SET_PINNED_JOBS,
         payload: {

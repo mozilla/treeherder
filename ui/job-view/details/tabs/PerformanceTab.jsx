@@ -8,26 +8,15 @@ import {
   faExternalLinkAlt,
   faRedo,
   faTable,
-  faFilm,
 } from '@fortawesome/free-solid-svg-icons';
-import { faYoutube } from '@fortawesome/free-brands-svg-icons';
 
-import {
-  getCompareChooserUrl,
-  getJobsUrl,
-  getPerfAnalysisUrl,
-} from '../../../helpers/url';
-import { triggerTask } from '../../../helpers/performance';
+import { getCompareChooserUrl, getPerfAnalysisUrl } from '../../../helpers/url';
+import { triggerGeckoProfileTask } from '../../../helpers/performance';
 import { notify } from '../../redux/stores/notifications';
 import { isPerfTest } from '../../../helpers/job';
-import {
-  geckoProfileTaskName,
-  sxsJobTypeName,
-  sxsTaskName,
-} from '../../../helpers/constants';
 
 import SideBySide from './SideBySide';
-import PerfData from './PerfData';
+
 /**
  * The performance tab shows performance-oriented information about a test run.
  * It helps users interact with the Firefox Profiler, and summarizes test
@@ -39,7 +28,9 @@ class PerformanceTab extends React.PureComponent {
     const { selectedJobFull } = this.props;
     this.state = {
       triggeredGeckoProfiles: 0,
-      showSideBySide: selectedJobFull.job_type_name.includes(sxsJobTypeName),
+      showSideBySide: selectedJobFull.job_type_name.includes(
+        'perftest-linux-side-by-side',
+      ),
     };
   }
 
@@ -50,32 +41,15 @@ class PerformanceTab extends React.PureComponent {
       decisionTaskMap,
       currentRepo,
     } = this.props;
-    await triggerTask(
+    await triggerGeckoProfileTask(
       selectedJobFull,
       notify,
       decisionTaskMap,
       currentRepo,
-      geckoProfileTaskName,
     );
     this.setState((state) => ({
       triggeredGeckoProfiles: state.triggeredGeckoProfiles + 1,
     }));
-  };
-
-  createSideBySide = async () => {
-    const {
-      selectedJobFull,
-      notify,
-      decisionTaskMap,
-      currentRepo,
-    } = this.props;
-    await triggerTask(
-      selectedJobFull,
-      notify,
-      decisionTaskMap,
-      currentRepo,
-      sxsTaskName,
-    );
   };
 
   maybeGetFirefoxProfilerLink() {
@@ -105,14 +79,102 @@ class PerformanceTab extends React.PureComponent {
     return null;
   }
 
+  maybeRenderPerfData() {
+    const { perfJobDetail, selectedJobFull } = this.props;
+    if (perfJobDetail.length === 0) {
+      return null;
+    }
+
+    const sortedDetails = perfJobDetail.slice();
+
+    // These styles are shared across all of the table cells.
+    const cellClassName = 'nowrap pl-2 pr-2';
+
+    return (
+      <>
+        <h3 className="font-size-16 mt-3 mb-2">
+          Results for: {selectedJobFull.job_type_name}
+        </h3>
+        <table className="table table-sm performance-panel-data">
+          <thead>
+            <tr>
+              <th scope="col" className={`text-right ${cellClassName}`}>
+                Value
+              </th>
+              <th scope="col" className={cellClassName}>
+                Unit
+              </th>
+              <th scope="col" className={cellClassName}>
+                Better
+              </th>
+              <th scope="col" className={cellClassName}>
+                History
+              </th>
+              <th scope="col" className={cellClassName}>
+                Name
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedDetails.map(
+              (
+                {
+                  value,
+                  url,
+                  measurementUnit,
+                  lowerIsBetter,
+                  title,
+                  suite,
+                  perfdocs,
+                },
+                idx,
+              ) => (
+                // eslint-disable-next-line react/no-array-index-key
+                <tr key={idx}>
+                  {/* Ensure the value and measurement are visually next to each
+                  other in the chart, by aligning the value to the right. */}
+                  <td className={`text-right ${cellClassName}`}>{value}</td>
+                  <td className={cellClassName}>{measurementUnit || '–'}</td>
+                  <td className={cellClassName}>
+                    {lowerIsBetter ? 'Lower' : 'Higher'}
+                  </td>
+                  <td className={cellClassName}>
+                    <a
+                      href={url}
+                      className="btn btn-outline-darker-secondary btn-sm performance-panel-view-button"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      View
+                    </a>
+                  </td>
+                  <td className="w-100">
+                    {perfdocs.hasDocumentation() ? (
+                      <div>
+                        <a
+                          href={perfdocs.documentationURL}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {`${suite} `}
+                        </a>
+                        {`${perfdocs.remainingName}`}
+                      </div>
+                    ) : (
+                      title
+                    )}
+                  </td>
+                </tr>
+              ),
+            )}
+          </tbody>
+        </table>
+      </>
+    );
+  }
+
   render() {
-    const {
-      repoName,
-      revision,
-      selectedJobFull,
-      jobDetails,
-      perfJobDetail,
-    } = this.props;
+    const { repoName, revision, selectedJobFull, jobDetails } = this.props;
     const { triggeredGeckoProfiles, showSideBySide } = this.state;
     const profilerLink = this.maybeGetFirefoxProfilerLink();
 
@@ -152,34 +214,6 @@ class PerformanceTab extends React.PureComponent {
               </Button>
             ) : null
           }
-          {selectedJobFull.hasSideBySide && (
-            <a
-              title="Open side-by-side job"
-              href={getJobsUrl({
-                repo: repoName,
-                revision,
-                searchStr: selectedJobFull.hasSideBySide,
-                group_state: 'expanded',
-              })}
-              className="btn btn-darker-secondary btn-sm"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <FontAwesomeIcon icon={faExternalLinkAlt} className="mr-2" />
-              <FontAwesomeIcon icon={faYoutube} className="mr-2" />
-              Open side-by-side job
-            </a>
-          )}
-          {isPerfTest(selectedJobFull) && !selectedJobFull.hasSideBySide && (
-            <Button
-              className="btn btn-darker-secondary btn-sm"
-              onClick={this.createSideBySide}
-              title="Generate side-by-side"
-            >
-              <FontAwesomeIcon icon={faFilm} className="mr-2" />
-              Generate side-by-side
-            </Button>
-          )}
           <a
             href={getCompareChooserUrl({
               newProject: repoName,
@@ -208,12 +242,7 @@ class PerformanceTab extends React.PureComponent {
             </Alert>
           ) : null
         }
-        {perfJobDetail.length !== 0 && (
-          <PerfData
-            perfJobDetail={perfJobDetail}
-            selectedJobFull={selectedJobFull}
-          />
-        )}
+        {this.maybeRenderPerfData()}
         {showSideBySide && <SideBySide jobDetails={jobDetails} />}
       </div>
     );
