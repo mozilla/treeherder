@@ -17,7 +17,7 @@ const btnClasses = {
 };
 
 // failure classification ids that should be shown in "unclassified" mode
-export const thUnclassifiedIds = [1, 7];
+export const thUnclassifiedIds = [1, 6, 7];
 
 // Get the CSS class for job buttons as well as jobs that show in the pinboard.
 // These also apply to result "groupings" like ``failures`` and ``in progress``

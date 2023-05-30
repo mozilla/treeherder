@@ -22,3 +22,7 @@
   pk: 6
   fields:
     name: improvement-backedout
+- model: perf.PerformanceTag
+  pk: 7
+  fields:
+    name: early-beta-or-earlier
