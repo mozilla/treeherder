@@ -320,22 +320,14 @@ class Push extends React.PureComponent {
       // If the pageload job has a side-by-side comparison associated
       // add job.hasSideBySide containing sxsTaskName ("side-by-side")
       const newJobList = joinedJobList.map((job) => {
-        if (!job.job_type_name.includes(sxsTaskName)) {
-          job.hasSideBySide = false;
-        } else {
-          const sideBySideJob = joinedJobList.filter(
-            (sxsJob) =>
-              sxsJob.job_type_name.includes(
-                job.job_type_name.split('/opt-')[0],
-              ) && // platform
-              sxsJob.job_type_name.includes(
-                job.job_type_name.split('/opt-')[1],
-              ) && // testName
-              sxsJob.job_type_name.includes(sxsTaskName),
-          );
-          job.hasSideBySide =
-            sideBySideJob[0] && sideBySideJob[0].job_type_name;
-        }
+        const [platform, testName] = job.job_type_name.split('/opt-');
+        const sideBySideJob = joinedJobList.filter(
+          (sxsJob) =>
+            sxsJob.job_type_symbol.includes(sxsTaskName) &&
+            sxsJob.job_type_name.includes(platform) &&
+            sxsJob.job_type_name.includes(testName),
+        );
+        job.hasSideBySide = sideBySideJob[0] && sideBySideJob[0].job_type_name;
         return job;
       });
       const platforms = this.sortGroupedJobs(

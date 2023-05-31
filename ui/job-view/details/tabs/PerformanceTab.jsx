@@ -35,7 +35,7 @@ class PerformanceTab extends React.PureComponent {
     const { selectedJobFull } = this.props;
     this.state = {
       triggeredGeckoProfiles: 0,
-      showSideBySide: selectedJobFull.job_type_name.includes(sxsTaskName),
+      showSideBySide: selectedJobFull.job_type_symbol.includes(sxsTaskName),
     };
   }
 
@@ -166,16 +166,18 @@ class PerformanceTab extends React.PureComponent {
               Open side-by-side job
             </a>
           )}
-          {isPerfTest(selectedJobFull) && !selectedJobFull.hasSideBySide && (
-            <Button
-              className="btn btn-darker-secondary btn-sm"
-              onClick={this.createSideBySide}
-              title="Generate side-by-side"
-            >
-              <FontAwesomeIcon icon={faFilm} className="mr-2" />
-              Generate side-by-side
-            </Button>
-          )}
+          {isPerfTest(selectedJobFull) &&
+            !showSideBySide &&
+            !selectedJobFull.hasSideBySide && (
+              <Button
+                className="btn btn-darker-secondary btn-sm"
+                onClick={this.createSideBySide}
+                title="Generate side-by-side"
+              >
+                <FontAwesomeIcon icon={faFilm} className="mr-2" />
+                Generate side-by-side
+              </Button>
+            )}
           <a
             href={getCompareChooserUrl({
               newProject: repoName,
