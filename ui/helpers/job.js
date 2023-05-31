@@ -59,10 +59,10 @@ export const isPerfTest = function isPerfTest(job) {
   );
 };
 
-export const isTestIsolatable = function isTestIsolatable(job) {
-  const isolatableRepos = ['autoland', 'mozilla-central', 'try'];
+export const canConfirmFailure = function canConfirmFailure(job) {
+  const confirmRepos = ['autoland', 'mozilla-central', 'try'];
   const repoName = getRepo();
-  if (!isolatableRepos.includes(repoName)) {
+  if (!confirmRepos.includes(repoName)) {
     return false;
   }
   if (job.job_type_name.toLowerCase().includes('jsreftest')) {
