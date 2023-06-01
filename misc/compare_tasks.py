@@ -117,7 +117,7 @@ if __name__ == "__main__":
             print_url_to_taskcluster(job["job_guid"])
 
     if th_instance_not_found:
-        logger.info("Number of jobs not found th_instancely: %s jobs", len(th_instance_not_found))
+        logger.info("Number of jobs not found instance: %s jobs", len(th_instance_not_found))
         for job in th_instance_not_found:
             print_url_to_taskcluster(job["job_guid"])
 
