@@ -37,7 +37,7 @@ class Usage extends Component {
         <Jumbotron>
           <h4>Push Health Try Usage</h4>
           <p>
-            This shows the difference in count of Need intermittents by push
+            This shows the difference in count of need intermittents by push
             over time.
           </p>
         </Jumbotron>
