@@ -603,6 +603,10 @@ li.pagination-active.active > button {
   margin-bottom: 15px;
 }
 
+.download-json-container .btn {
+  margin-left: 5px;
+}
+
 .download-json-container .download-button {
   background-color: transparent !important;
   color: #1f7d8e !important;
