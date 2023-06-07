@@ -18,6 +18,7 @@ class CompareSubtestsView extends React.PureComponent {
     parent_signature: parentSignature,
     framework,
     repository,
+    replicates: false,
   });
 
   getQueryParams = (timeRange, framework) => {
@@ -29,6 +30,7 @@ class CompareSubtestsView extends React.PureComponent {
       newResultSet,
       originalSignature,
       newSignature,
+      replicates,
     } = this.props.validated;
 
     const originalParams = this.createQueryParams(
@@ -55,6 +57,12 @@ class CompareSubtestsView extends React.PureComponent {
       framework.id,
     );
     newParams.revision = newRevision;
+
+    if (replicates) {
+      originalParams.replicates = true;
+      newParams.replicates = true;
+    }
+
     return [originalParams, newParams];
   };
 
