@@ -162,6 +162,8 @@ const compareTableControlsNode = (
         showOnlyComparable: '0',
         showOnlyConfident: '0',
         showOnlyNoise: '0',
+        originalProject: 'try',
+        newProject: 'mozilla-central',
         filter: null,
       }}
       location={{
@@ -246,7 +248,13 @@ test('toggle all buttons should update the URL params', async () => {
   fireEvent.click(showImportant);
   expect(mockUpdateParams).toHaveBeenLastCalledWith(
     { page: 1, showOnlyImportant: 1 },
-    ['filter', 'showOnlyComparable', 'showOnlyConfident', 'showOnlyNoise'],
+    [
+      'filter',
+      'showOnlyComparable',
+      'showOnlyConfident',
+      'showOnlyNoise',
+      'replicates',
+    ],
   );
 
   const hideUncertain = await waitFor(() =>
@@ -259,7 +267,7 @@ test('toggle all buttons should update the URL params', async () => {
       showOnlyImportant: 1,
       showOnlyConfident: 1,
     },
-    ['filter', 'showOnlyComparable', 'showOnlyNoise'],
+    ['filter', 'showOnlyComparable', 'showOnlyNoise', 'replicates'],
   );
 
   const showNoise = await waitFor(() => getByText(filterText.showNoise));
@@ -271,7 +279,7 @@ test('toggle all buttons should update the URL params', async () => {
       showOnlyConfident: 1,
       showOnlyNoise: 1,
     },
-    ['filter', 'showOnlyComparable'],
+    ['filter', 'showOnlyComparable', 'replicates'],
   );
 
   const hideUncomparable = await waitFor(() =>
@@ -286,6 +294,22 @@ test('toggle all buttons should update the URL params', async () => {
       showOnlyNoise: 1,
       showOnlyComparable: 1,
     },
+    ['filter', 'replicates'],
+  );
+
+  const useReplicates = await waitFor(() =>
+    getByText('Use replicates (try-only)'),
+  );
+  fireEvent.click(useReplicates);
+  expect(mockUpdateParams).toHaveBeenLastCalledWith(
+    {
+      page: 1,
+      showOnlyImportant: 1,
+      showOnlyConfident: 1,
+      showOnlyNoise: 1,
+      showOnlyComparable: 1,
+      replicates: 1,
+    },
     ['filter'],
   );
 });
@@ -299,7 +323,13 @@ test('filters that are not enabled are removed from URL params', async () => {
   fireEvent.click(showImportant);
   expect(mockUpdateParams).toHaveBeenLastCalledWith(
     { page: 1, showOnlyImportant: 1 },
-    ['filter', 'showOnlyComparable', 'showOnlyConfident', 'showOnlyNoise'],
+    [
+      'filter',
+      'showOnlyComparable',
+      'showOnlyConfident',
+      'showOnlyNoise',
+      'replicates',
+    ],
   );
   fireEvent.click(showImportant);
   expect(mockUpdateParams).toHaveBeenLastCalledWith({ page: 1 }, [
@@ -308,6 +338,7 @@ test('filters that are not enabled are removed from URL params', async () => {
     'showOnlyImportant',
     'showOnlyConfident',
     'showOnlyNoise',
+    'replicates',
   ]);
 });
 

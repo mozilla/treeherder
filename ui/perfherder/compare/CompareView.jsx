@@ -27,6 +27,7 @@ class CompareView extends React.PureComponent {
     framework,
     interval,
     no_subtests: true,
+    replicates: false,
   });
 
   getQueryParams = (timeRange, framework) => {
@@ -37,6 +38,7 @@ class CompareView extends React.PureComponent {
       newRevision,
       newResultSet,
       originalResultSet,
+      replicates,
     } = this.props.validated;
 
     let originalParams;
@@ -71,6 +73,12 @@ class CompareView extends React.PureComponent {
 
     const newParams = this.queryParams(newProject, interval, framework.id);
     newParams.revision = newRevision;
+
+    if (replicates) {
+      originalParams.replicates = true;
+      newParams.replicates = true;
+    }
+
     return [originalParams, newParams];
   };
 
