@@ -111,7 +111,7 @@ if __name__ == "__main__":
 
     if production_dict:
         logger.info(
-            "There are the first 10 production jobs we do not have th_instancely. Follow the link to investigate."
+            "There are the first 10 production jobs we do not have instance. Follow the link to investigate."
         )
         for job in list(production_dict.values())[0:10]:
             print_url_to_taskcluster(job["job_guid"])
