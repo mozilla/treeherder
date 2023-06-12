@@ -58,7 +58,7 @@ export default class AlertTableRow extends React.Component {
   componentDidUpdate(prevProps) {
     const { selectedAlerts, alert } = this.props;
 
-    // reset alert checkbox when an action is taken in the AlertActionPanel
+    // reset alert checkbox when an action is taken in the AlertActionPanell
     // (it resets selectedAlerts) or an individual alert has been deselected
     // and removed from selectedAlerts
     if (prevProps.selectedAlerts !== selectedAlerts) {
