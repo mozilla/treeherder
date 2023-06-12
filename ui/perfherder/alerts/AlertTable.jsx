@@ -354,7 +354,7 @@ export default class AlertTable extends React.Component {
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
-                    <th className="align-bottom">
+                    <th className="align-bottom text-nowrap">
                       <TableColumnHeader
                         column={tableConfig.Platform}
                         onChangeSort={this.onChangeSort}

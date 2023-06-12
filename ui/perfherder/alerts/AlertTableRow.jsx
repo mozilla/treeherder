@@ -15,6 +15,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 import { Link } from 'react-router-dom';
+import Badge from 'reactstrap/lib/Badge';
 
 import { createQueryParams } from '../../helpers/url';
 import {
@@ -499,7 +500,7 @@ export default class AlertTableRow extends React.Component {
           </div>
         </td>
         <td className="table-width-md">
-          {showSideBySideLink && (
+          {showSideBySideLink ? (
             <span className="text-darker-info">
               <a
                 href={this.buildSideBySideLink()}
@@ -514,6 +515,10 @@ export default class AlertTableRow extends React.Component {
                 />
               </a>
             </span>
+          ) : (
+            <Badge className="mb-1" color="light">
+              No tools
+            </Badge>
           )}
         </td>
         <td className="table-width-lg">
