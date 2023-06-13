@@ -36,6 +36,8 @@ from .performance_serializers import (
     IssueTrackerSerializer,
     PerformanceAlertSerializer,
     PerformanceAlertSummarySerializer,
+    PerformanceAlertSummaryTasksSerializer,
+    PerfAlertSummaryTasksQueryParamSerializer,
     PerformanceBugTemplateSerializer,
     PerformanceFrameworkSerializer,
     PerformanceQueryParamsSerializer,
@@ -749,6 +751,31 @@ class PerformanceSummary(generics.ListAPIView):
                 ]
 
         return serialized_data
+
+
+class PerformanceAlertSummaryTasks(generics.ListAPIView):
+    serializer_class = PerformanceAlertSummaryTasksSerializer
+    queryset = None
+
+    def list(self, request):
+        query_params = PerfAlertSummaryTasksQueryParamSerializer(data=request.query_params)
+        if not query_params.is_valid():
+            return Response(data=query_params.errors, status=HTTP_400_BAD_REQUEST)
+
+        alert_summary_id = query_params.validated_data['id']
+        signature_ids = PerformanceAlertSummary.objects.filter(id=alert_summary_id).values_list(
+            'alerts__series_signature__id', 'related_alerts__series_signature__id'
+        )
+        signature_ids = [id for id_set in signature_ids for id in id_set]
+        tasks = (
+            PerformanceDatum.objects.filter(signature__in=signature_ids)
+            .values_list('job__job_type__name', flat=True)
+            .distinct()
+        )
+        self.queryset = {"id": alert_summary_id, "tasks": tasks}
+        serializer = self.get_serializer(self.queryset)
+
+        return Response(data=serializer.data)
 
 
 class PerfCompareResults(generics.ListAPIView):

@@ -4,9 +4,11 @@ import datetime
 from django.urls import reverse
 from collections import defaultdict
 
+from tests.conftest import create_perf_alert
 from treeherder.model.models import MachinePlatform, Push
 from treeherder.webapp.api.performance_data import PerformanceSummary
 from treeherder.perf.models import (
+    PerformanceAlert,
     PerformanceDatum,
     PerformanceFramework,
     PerformanceSignature,
@@ -709,3 +711,41 @@ def test_filter_out_retriggers():
 
     filtered_data = PerformanceSummary._filter_out_retriggers(copy.deepcopy(no_retriggers_data))
     assert filtered_data == no_retriggers_data
+
+
+def test_alert_summary_tasks_get(client, test_perf_alert_summary, test_perf_data):
+    create_perf_alert(
+        summary=test_perf_alert_summary,
+        series_signature=test_perf_data.first().signature,
+        related_summary=test_perf_alert_summary,
+        status=PerformanceAlert.REASSIGNED,
+    )
+    resp = client.get(
+        reverse('performance-alertsummary-tasks') + '?id={}'.format(test_perf_alert_summary.id)
+    )
+    assert resp.status_code == 200
+    assert resp.json() == {
+        "id": test_perf_alert_summary.id,
+        "tasks": [
+            "Mochitest Browser Chrome",
+            "Inari Device Image Build",
+            "B2G Emulator Image Build",
+            "Nexus 4 Device Image Build",
+        ],
+    }
+
+
+def test_alert_summary_tasks_get_failure(client, test_perf_alert_summary):
+    # verify that we fail if PerformanceAlertSummary does not exist
+    not_exist_summary_id = test_perf_alert_summary.id
+    test_perf_alert_summary.delete()
+    resp = client.get(
+        reverse('performance-alertsummary-tasks') + '?id={}'.format(not_exist_summary_id)
+    )
+    assert resp.status_code == 400
+    assert resp.json() == {"message": ["PerformanceAlertSummary does not exist."]}
+
+    # verify that we fail if id does not exist as a query parameter
+    resp = client.get(reverse('performance-alertsummary-tasks'))
+    assert resp.status_code == 400
+    assert resp.json() == {"id": ["This field is required."]}
