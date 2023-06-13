@@ -15,6 +15,15 @@ const TableAverage = ({ value, stddev, stddevpct, replicates, app }) => {
       .join(' ')} > ${formatNumber(displayNumber(stddev))} = ${formatNumber(
       displayNumber(stddevpct),
     )}% standard deviation)`;
+
+    const TOOLTIP_MAX_LENGTH = 250;
+    if (tooltipText.length > TOOLTIP_MAX_LENGTH) {
+      tooltipText = `${tooltipText.slice(0, Math.floor(TOOLTIP_MAX_LENGTH / 2))}
+        ...(use JSON download button to see more)...
+        ${tooltipText.slice(
+          tooltipText.length - Math.floor(TOOLTIP_MAX_LENGTH / 2),
+        )}`;
+    }
   } else if (replicates.length === 1) {
     tooltipText = 'Only one run (consider more for greater confidence)';
   }
