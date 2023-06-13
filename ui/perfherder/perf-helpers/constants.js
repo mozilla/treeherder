@@ -205,7 +205,7 @@ export const timeToTriage = 3;
 
 export const replicatesMaxLength = 250;
 
-export const essentialTests = [
+export const browsertimeEssentialTests = [
   'amazon',
   'bing-search',
   'cnn',
@@ -295,4 +295,3 @@ export const browsertimeBenchmarksTests = [
 ];
 
 export const browsertime = 13;
-

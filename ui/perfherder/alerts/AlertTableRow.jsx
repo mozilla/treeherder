@@ -34,8 +34,9 @@ import {
   alertBackfillResultVisual,
   backfillRetriggeredTitle,
   noiseProfiles,
-  essentialTests,
   frameworks,
+  browsertimeEssentialTests,
+  browsertimeBenchmarksTests,
 } from '../perf-helpers/constants';
 import { Perfdocs } from '../perf-helpers/perfdocs';
 
@@ -57,15 +58,15 @@ export default class AlertTableRow extends React.Component {
 
   componentDidMount() {
     const { alert } = this.props;
+    const showSideBySideLink =
+      alert.series_signature.framework_id === frameworks.browsertime &&
+      !alert.series_signature.tags.includes('interactive') &&
+      !browsertimeBenchmarksTests.includes(alert.series_signature.suite) &&
+      alert.backfill_record &&
+      !!alert.backfill_record.status;
 
     this.showCriticalMagnitudeIcons(alert);
-    this.setState({
-      showSideBySideLink:
-        alert.series_signature.framework_id === frameworks.browsertime &&
-        !alert.series_signature.tags.includes('interactive') &&
-        alert.backfill_record &&
-        !!alert.backfill_record.status,
-    });
+    this.setState({ showSideBySideLink });
   }
 
   componentDidUpdate(prevProps) {
@@ -285,7 +286,7 @@ export default class AlertTableRow extends React.Component {
     const platform = alert.series_signature.machine_platform;
     const { suite } = alert.series_signature;
     let testName = suite;
-    if (suite in essentialTests) {
+    if (suite in browsertimeEssentialTests) {
       if ('bytecode-cached' in alert.series_signature.tags) {
         testName = `bytecode ${suite}`;
       } else {
@@ -499,28 +500,30 @@ export default class AlertTableRow extends React.Component {
             />
           </div>
         </td>
-        <td className="table-width-md">
-          {showSideBySideLink ? (
-            <span className="text-darker-info">
-              <a
-                href={this.buildSideBySideLink()}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-dark button btn border p-0 border-0 bg-transparent"
-                aria-label="side-by-side"
-              >
-                <FontAwesomeIcon
-                  title="Open side-by-side link"
-                  icon={faCirclePlay}
-                />
-              </a>
-            </span>
-          ) : (
-            <Badge className="mb-1" color="light">
-              No tools
-            </Badge>
-          )}
-        </td>
+        {alertSummary.framework === frameworks.browsertime && (
+          <td className="table-width-md">
+            {showSideBySideLink ? (
+              <span className="text-darker-info">
+                <a
+                  href={this.buildSideBySideLink()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-dark button btn border p-0 border-0 bg-transparent"
+                  aria-label="side-by-side"
+                >
+                  <FontAwesomeIcon
+                    title="Open side-by-side link"
+                    icon={faCirclePlay}
+                  />
+                </a>
+              </span>
+            ) : (
+              <Badge className="mb-1" color="light">
+                None
+              </Badge>
+            )}
+          </td>
+        )}
         <td className="table-width-lg">
           <div className="information-container">
             <div className="option">

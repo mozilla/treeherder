@@ -6,6 +6,7 @@ import orderBy from 'lodash/orderBy';
 import {
   alertStatusMap,
   maximumVisibleAlertSummaryRows,
+  frameworks as frameworkMapping,
 } from '../perf-helpers/constants';
 import {
   genericErrorMessage,
@@ -360,12 +361,15 @@ export default class AlertTable extends React.Component {
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
-                    <th className="align-bottom">
-                      <TableColumnHeader
-                        column={tableConfig.DebuggingInformation}
-                        onChangeSort={this.onChangeSort}
-                      />
-                    </th>
+                    {alertSummary.framework ===
+                      frameworkMapping.browsertime && (
+                      <th className="align-bottom">
+                        <TableColumnHeader
+                          column={tableConfig.DebuggingInformation}
+                          onChangeSort={this.onChangeSort}
+                        />
+                      </th>
+                    )}
                     <th className="align-bottom">
                       <TableColumnHeader
                         column={tableConfig.NoiseProfile}
