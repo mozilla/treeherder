@@ -15,31 +15,30 @@ import { getAction } from './taskcluster';
  * @param {Object} decisionTaskMap - Object that maps a job push ID to a decision task.
  * @param {string} currentRepo - The name of the current repo, e.g. "try"
  */
-export async function triggerTask(
+export async function triggerGeckoProfileTask(
   selectedJobFull,
   notify,
   decisionTaskMap,
   currentRepo,
-  taskName,
 ) {
   const { id: decisionTaskId } = decisionTaskMap[selectedJobFull.push_id];
 
   TaskclusterModel.load(decisionTaskId, selectedJobFull, currentRepo).then(
     (results) => {
       try {
-        const action = getAction(results.actions, taskName);
+        const geckoprofile = getAction(results.actions, 'geckoprofile');
 
         if (
-          action === undefined ||
-          !Object.prototype.hasOwnProperty.call(action, 'kind')
+          geckoprofile === undefined ||
+          !Object.prototype.hasOwnProperty.call(geckoprofile, 'kind')
         ) {
           return notify(
-            `Job was scheduled without taskcluster support for ${taskName}`,
+            'Job was scheduled without taskcluster support for GeckoProfiles',
           );
         }
 
         TaskclusterModel.submit({
-          action,
+          action: geckoprofile,
           decisionTaskId,
           taskId: results.originalTaskId,
           task: results.originalTask,

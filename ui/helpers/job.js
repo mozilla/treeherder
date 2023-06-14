@@ -52,9 +52,10 @@ export const isReftest = function isReftest(job) {
 export const isPerfTest = function isPerfTest(job) {
   return [job.job_group_name, job.job_type_name].some(
     (name) =>
-      name.toLowerCase().includes('talos') ||
-      name.toLowerCase().includes('raptor') ||
-      name.toLowerCase().includes('browsertime'),
+      (name.toLowerCase().includes('talos') ||
+        name.toLowerCase().includes('raptor') ||
+        name.toLowerCase().includes('browsertime')) &&
+      !name.toLowerCase().includes('side-by-side'),
   );
 };
 
