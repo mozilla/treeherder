@@ -202,3 +202,5 @@ export const noiseProfiles = {
 };
 
 export const timeToTriage = 3;
+
+export const tooltipMaxLength = 250;

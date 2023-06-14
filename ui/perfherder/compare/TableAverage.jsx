@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Badge } from 'reactstrap';
 
 import SimpleTooltip from '../../shared/SimpleTooltip';
+import { tooltipMaxLength } from '../perf-helpers/constants';
 import { displayNumber, formatNumber } from '../perf-helpers/helpers';
 
 import TooltipGraph from './TooltipGraph';
@@ -14,14 +15,13 @@ const TableAverage = ({ value, stddev, stddevpct, replicates, app }) => {
       .map((value) => formatNumber(value))
       .join(' ')} > ${formatNumber(displayNumber(stddev))} = ${formatNumber(
       displayNumber(stddevpct),
-    )}% standard deviation)`;
+    )}% standard deviation`;
 
-    const TOOLTIP_MAX_LENGTH = 250;
-    if (tooltipText.length > TOOLTIP_MAX_LENGTH) {
-      tooltipText = `${tooltipText.slice(0, Math.floor(TOOLTIP_MAX_LENGTH / 2))}
+    if (tooltipText.length > tooltipMaxLength) {
+      tooltipText = `${tooltipText.slice(0, Math.floor(tooltipMaxLength / 2))}
         ...(use JSON download button to see more)...
         ${tooltipText.slice(
-          tooltipText.length - Math.floor(TOOLTIP_MAX_LENGTH / 2),
+          tooltipText.length - Math.floor(tooltipMaxLength / 2),
         )}`;
     }
   } else if (replicates.length === 1) {
