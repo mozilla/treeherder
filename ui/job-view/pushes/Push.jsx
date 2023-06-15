@@ -310,25 +310,35 @@ class Push extends React.PureComponent {
       // remove old versions of jobs we just fetched.
       const existingJobs = jobList.filter((job) => !newIds.includes(job.id));
       // Join both lists and add test_paths and task_run property
-      const joinedJobList = [...existingJobs, ...jobs].map((job) => {
+      const newJobList = [...existingJobs, ...jobs].map((job) => {
         if (Object.keys(manifestsByTask).length > 0) {
           job.test_paths = manifestsByTask[job.job_type_name] || [];
         }
         job.task_run = getTaskRunStr(job);
         return job;
       });
+      const sideBySideJobs = newJobList.filter((sxsJob) =>
+        sxsJob.job_type_symbol.includes(sxsTaskName),
+      );
       // If the pageload job has a side-by-side comparison associated
       // add job.hasSideBySide containing sxsTaskName ("side-by-side")
-      const newJobList = joinedJobList.map((job) => {
-        const [platform, testName] = job.job_type_name.split('/opt-');
-        const sideBySideJob = joinedJobList.filter(
-          (sxsJob) =>
-            sxsJob.job_type_symbol.includes(sxsTaskName) &&
-            sxsJob.job_type_name.includes(platform) &&
-            sxsJob.job_type_name.includes(testName),
-        );
-        job.hasSideBySide = sideBySideJob[0] && sideBySideJob[0].job_type_name;
-        return job;
+      newJobList.forEach((job) => {
+        if (job.job_type_name.includes('browsertime')) {
+          const matchingSxsJobs = sideBySideJobs.filter(
+            (sxsJob) =>
+              sxsJob.job_type_name.includes(
+                job.job_type_name.split('/opt-')[0],
+              ) && // platform
+              sxsJob.job_type_name.includes(
+                job.job_type_name.split('/opt-')[1],
+              ), // testName
+          );
+          if (matchingSxsJobs.length > 0) {
+            job.hasSideBySide = matchingSxsJobs[0].job_type_name;
+          } else {
+            job.hasSideBySide = false;
+          }
+        }
       });
       const platforms = this.sortGroupedJobs(
         this.groupJobByPlatform(newJobList),
