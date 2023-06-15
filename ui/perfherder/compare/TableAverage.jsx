@@ -11,7 +11,7 @@ import TooltipGraph from './TooltipGraph';
 const TableAverage = ({ value, stddev, stddevpct, replicates, app }) => {
   let tooltipText;
   if (replicates.length > 1) {
-    let replicatesStr = replicates
+    const replicatesStr = replicates
       .map((value) => formatNumber(value))
       .join(' ');
 
