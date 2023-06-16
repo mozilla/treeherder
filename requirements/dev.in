@@ -39,3 +39,6 @@ pip-tools==6.10.0
 
 requests==2.28.2
 urllib3==1.26.15
+
+# TODO: Clean this once other packages are upgraded, see https://github.com/pypa/pip/issues/11975
+setuptools==65.6.3
