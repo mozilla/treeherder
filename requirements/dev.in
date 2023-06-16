@@ -1,9 +1,9 @@
 # Dependencies needed only for development/testing.
 pytest-cov==4.1.0
-django-debug-toolbar==3.7.0
+django-debug-toolbar==4.1.0
 mock==5.0.2
 responses==0.23.1
-django-extensions==3.2.1
+django-extensions==3.2.3
 PyPOM==2.2.4
 
 # for git commit hooks
@@ -35,10 +35,10 @@ betamax==0.8.1
 betamax-serializers==0.2.1
 
 # pip-compile for pinning versions
-pip-tools==6.10.0
+pip-tools==6.13.0
 
-requests==2.28.2
-urllib3==1.26.15
+requests==2.31.0
+urllib3==2.0.3
 
 # TODO: Clean this once other packages are upgraded, see https://github.com/pypa/pip/issues/11975
 setuptools==65.6.3
