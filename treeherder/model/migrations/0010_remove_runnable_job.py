@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('model', '0009_add_manager_to_push_and_job'),
     ]

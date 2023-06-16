@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('perf', '0033_permit_multi_data_per_job'),
     ]

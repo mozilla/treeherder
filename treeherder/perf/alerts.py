@@ -88,7 +88,7 @@ def generate_new_alerts_in_series(signature):
     )
 
     with transaction.atomic():
-        for (prev, cur) in zip(analyzed_series, analyzed_series[1:]):
+        for prev, cur in zip(analyzed_series, analyzed_series[1:]):
             if cur.change_detected:
                 prev_value = cur.historical_stats['avg']
                 new_value = cur.forward_stats['avg']

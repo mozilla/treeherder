@@ -58,7 +58,6 @@ def test_perf_signature_same_hash_different_framework(test_perf_signature):
 
 
 def test_no_summary_performance_data(client, test_perf_signature, test_repository):
-
     resp = client.get(
         reverse('performance-signatures-list', kwargs={"project": test_repository.name})
     )
@@ -366,7 +365,7 @@ def test_filter_data_by_interval(
     client, test_repository, test_perf_signature, interval, exp_push_ids
 ):
     # create some test data
-    for (i, timestamp) in enumerate(
+    for i, timestamp in enumerate(
         [NOW, NOW - datetime.timedelta(days=2), NOW - datetime.timedelta(days=7)]
     ):
         push = Push.objects.create(
@@ -404,7 +403,7 @@ def test_filter_data_by_range(
     client, test_repository, test_perf_signature, start_date, end_date, exp_push_ids
 ):
     # create some test data
-    for (i, timestamp) in enumerate(
+    for i, timestamp in enumerate(
         [NOW, NOW - datetime.timedelta(days=2), NOW - datetime.timedelta(days=5)]
     ):
         push = Push.objects.create(
@@ -453,7 +452,7 @@ def test_filter_data_by_signature(
     push = Push.objects.create(
         repository=test_repository, revision='abcdefghi', author='foo@bar.com', time=NOW
     )
-    for (i, signature) in enumerate([test_perf_signature, summary_perf_signature]):
+    for i, signature in enumerate([test_perf_signature, summary_perf_signature]):
         PerformanceDatum.objects.create(
             repository=signature.repository,
             push=push,
@@ -464,8 +463,8 @@ def test_filter_data_by_signature(
 
     # test that we get the expected value for all different permutations of
     # passing in signature_id and signature hash
-    for (i, signature) in enumerate([test_perf_signature, summary_perf_signature]):
-        for (param, value) in [
+    for i, signature in enumerate([test_perf_signature, summary_perf_signature]):
+        for param, value in [
             ('signatures', signature.signature_hash),
             ('signature_id', signature.id),
         ]:
@@ -481,7 +480,6 @@ def test_filter_data_by_signature(
 
 
 def test_perf_summary(client, test_perf_signature, test_perf_data):
-
     query_params1 = (
         '?repository={}&framework={}&interval=172800&no_subtests=true&revision={}'.format(
             test_perf_signature.repository.name,

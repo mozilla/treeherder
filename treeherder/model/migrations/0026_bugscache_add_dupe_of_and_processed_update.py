@@ -18,7 +18,6 @@ def set_update_next_run(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('model', '0025_remove_bugscache_os'),
     ]

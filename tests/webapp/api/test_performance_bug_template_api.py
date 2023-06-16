@@ -7,7 +7,7 @@ def test_perf_bug_template_api(client, test_perf_framework):
     framework2 = PerformanceFramework.objects.create(name='test_talos2', enabled=True)
 
     template_dicts = []
-    for (framework, i) in zip((test_perf_framework, framework2), range(2)):
+    for framework, i in zip((test_perf_framework, framework2), range(2)):
         dict = {
             'keywords': "keyword{}".format(i),
             'status_whiteboard': "sw{}".format(i),
