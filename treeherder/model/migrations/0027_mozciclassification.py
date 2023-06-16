@@ -7,7 +7,6 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('model', '0026_bugscache_add_dupe_of_and_processed_update'),
     ]

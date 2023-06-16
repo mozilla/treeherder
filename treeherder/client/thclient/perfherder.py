@@ -49,9 +49,9 @@ class PerformanceSignatureCollection(dict):
             signatures = signatures.filter(('suite', 'tp5o'), ('machine_platform', 'windowsxp'))
         """
         filtered_signatures = {}
-        for (signature, signature_value) in self.items():
+        for signature, signature_value in self.items():
             skip = False
-            for (key, val) in args:
+            for key, val in args:
                 if signature_value.get(key) != val:
                     skip = True
                     break
@@ -107,7 +107,6 @@ class PerformanceSeries(list):
 
 
 class PerfherderClient(TreeherderClient):
-
     PERFORMANCE_SIGNATURES_ENDPOINT = 'performance/signatures'
     PERFORMANCE_DATA_ENDPOINT = 'performance/data'
 

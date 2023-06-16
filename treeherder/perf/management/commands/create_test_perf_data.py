@@ -12,7 +12,6 @@ class Command(BaseCommand):
     help = "Populate a test set of data suitable for testing the perfherder UI"
 
     def handle(self, *args, **options):
-
         confirm = input(
             """
 You have a requested a load of test performance data, this is a destructive
@@ -40,7 +39,7 @@ Type 'yes' to continue, or 'no' to cancel: """
             time=datetime.datetime.now(),
         )
 
-        for (t, v) in zip(
+        for t, v in zip(
             [i for i in range(INTERVAL)],
             ([0.5 for i in range(int(INTERVAL / 2))] + [1.0 for i in range(int(INTERVAL / 2))]),
         ):

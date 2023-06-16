@@ -230,7 +230,6 @@ class JointConsumer(PulseConsumer):
     queue_suffix = env("PULSE_QUEUE_NAME", default="queue_{}".format(socket.gethostname()))
 
     def bindings(self):
-
         rv = []
         if self.source.get('hgmo'):
             rv += HGMO_PUSH_BINDINGS

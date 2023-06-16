@@ -6,7 +6,6 @@ from django.db import migrations, connection
 
 
 def alter_perfdatum_pk(apps, schema_editor):
-
     PerformanceDatum = apps.get_model('perf', 'PerformanceDatum')
     pursue = "yes"
     # Automatically pursue migration if performance_datum table is empty
@@ -26,7 +25,6 @@ def alter_perfdatum_pk(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('perf', '0043_drop_multicommitdatum'),
     ]

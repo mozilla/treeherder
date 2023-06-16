@@ -162,7 +162,7 @@ class Push(models.Model):
         )
 
         status_dict = {'completed': 0, 'pending': 0, 'running': 0}
-        for (state, result, total) in jobs.values_list('state', 'result').annotate(
+        for state, result, total in jobs.values_list('state', 'result').annotate(
             total=Count('result')
         ):
             if state == 'completed':
@@ -363,7 +363,7 @@ class OptionCollectionManager(models.Manager):
             return option_collection_map
 
         option_collection_map = {}
-        for (hash, option_name) in OptionCollection.objects.values_list(
+        for hash, option_name in OptionCollection.objects.values_list(
             'option_collection_hash', 'option__name'
         ):
             if not option_collection_map.get(hash):

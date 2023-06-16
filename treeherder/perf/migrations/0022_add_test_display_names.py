@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('model', '0015_add_repository_tc_root_url'),
         ('perf', '0021_remove_application_from_constraint'),

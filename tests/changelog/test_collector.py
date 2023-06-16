@@ -22,7 +22,6 @@ def prepare_responses():
     now = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
 
     def releases(request):
-
         data = [
             {
                 "name": "ok",

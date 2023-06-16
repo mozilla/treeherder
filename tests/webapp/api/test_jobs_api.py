@@ -210,7 +210,6 @@ def test_job_detail_not_found(client, test_repository):
 
 
 def test_text_log_errors(client, test_job):
-
     TextLogError.objects.create(job=test_job, line='failure 1', line_number=101)
     TextLogError.objects.create(job=test_job, line='failure 2', line_number=102)
     resp = client.get(

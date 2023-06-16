@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('perf', '0047_performancealertsummary_triage_due'),
     ]

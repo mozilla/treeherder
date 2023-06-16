@@ -16,7 +16,6 @@ class InvestigatedViewSet(viewsets.ModelViewSet):
     allowed_methods = ['GET', 'POST', 'DELETE']
 
     def get_queryset(self):
-
         revision = self.request.GET['revision']
         project = self.kwargs['project']
 
@@ -68,7 +67,6 @@ class InvestigatedViewSet(viewsets.ModelViewSet):
             )
 
     def destroy(self, request, project, pk=None):
-
         try:
             investigated_test = InvestigatedTests.objects.get(pk=pk)
             investigated_test.delete()

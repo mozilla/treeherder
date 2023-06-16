@@ -53,7 +53,7 @@ def test_bug_job_map_list(client, test_repository, eleven_jobs_stored, test_user
 
     expected = list()
 
-    for (i, job) in enumerate(jobs):
+    for i, job in enumerate(jobs):
         bjm = BugJobMap.create(
             job_id=job.id,
             bug_id=bugs[i].id,

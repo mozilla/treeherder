@@ -71,7 +71,7 @@ class PushViewSet(viewsets.ViewSet):
 
             pushes = pushes.filter(repository=repository)
 
-        for (param, value) in meta.items():
+        for param, value in meta.items():
             if param == 'fromchange':
                 revision_field = 'revision__startswith' if len(value) < 40 else 'revision'
                 filter_kwargs = {revision_field: value, 'repository': repository}

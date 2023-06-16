@@ -36,7 +36,6 @@ def do_job_ingestion(test_repository, job_data, sample_push, verify_data=True):
 
     blobs = []
     for blob in job_data:
-
         if push_index > max_index:
             push_index = 0
 
@@ -111,7 +110,6 @@ def do_job_ingestion(test_repository, job_data, sample_push, verify_data=True):
 
 
 def verify_build_platforms(build_platforms_ref):
-
     build_platforms_set = set()
     for build_platform in models.BuildPlatform.objects.all():
         build_platforms_set.add(
@@ -122,7 +120,6 @@ def verify_build_platforms(build_platforms_ref):
 
 
 def verify_machine_platforms(machine_platforms_ref):
-
     machine_platforms_set = set()
     for machine_platform in models.MachinePlatform.objects.all():
         machine_platforms_set.add(
@@ -135,38 +132,32 @@ def verify_machine_platforms(machine_platforms_ref):
 
 
 def verify_machines(machines_ref):
-
     machines = models.Machine.objects.all().values_list('name', flat=True)
     assert machines_ref.issubset(machines)
 
 
 def verify_options(options_ref):
-
     options = models.Option.objects.all().values_list('name', flat=True)
 
     assert options_ref.issubset(options)
 
 
 def verify_job_types(job_types_ref):
-
     job_types = models.JobType.objects.all().values_list('name', flat=True)
     assert job_types_ref.issubset(job_types)
 
 
 def verify_products(products_ref):
-
     products = models.Product.objects.all().values_list('name', flat=True)
 
     assert products_ref.issubset(products)
 
 
 def verify_pushes(pushes_ref):
-
     return pushes_ref.issubset(models.Push.objects.values_list('revision', flat=True))
 
 
 def verify_log_urls(log_urls_ref):
-
     log_urls = set(models.JobLog.objects.values_list('url', flat=True))
 
     assert log_urls_ref.issubset(log_urls)

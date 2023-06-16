@@ -469,7 +469,7 @@ def store_job_data(repository, originalData):
 
     # Update the result/state of any jobs that were superseded by those ingested above.
     if superseded_job_guid_placeholders:
-        for (job_guid, superseded_by_guid) in superseded_job_guid_placeholders:
+        for job_guid, superseded_by_guid in superseded_job_guid_placeholders:
             Job.objects.filter(guid=superseded_by_guid).update(
                 result='superseded', state='completed'
             )

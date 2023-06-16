@@ -58,7 +58,6 @@ def test_store_job_with_unparsed_log(
 def test_store_job_pending_to_completed_with_unparsed_log(
     test_repository, push_stored, failure_classifications, activate_responses
 ):
-
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
 
     # the first time, submit it as running (with no logs)
