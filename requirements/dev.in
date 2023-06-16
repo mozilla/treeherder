@@ -1,28 +1,24 @@
 # Dependencies needed only for development/testing.
-pytest-cov
-django-debug-toolbar
-mock
-responses
-django-extensions
-PyPOM
-
-
-Django==4.0.8  # match common.in for faster install
-certifi==2022.12.7
+pytest-cov==4.0.0	
+django-debug-toolbar==3.7.0
+mock==4.0.3
+responses==0.22.0	
+django-extensions==3.2.1
+PyPOM==2.2.4
 
 # for git commit hooks
-pre-commit
+pre-commit==2.20.0
 
 # for test driven development
-pytest-testmon
-pytest-watch
+pytest-testmon==1.4.2
+pytest-watch==4.2.0
 
 # Required by django-extension's runserver_plus command.
-flake8
-pytest-django
-pytest==7.*
-black>=22.3.0  # issue with 'click' in prior versions of black
-shellcheck-py
+flake8==6.0.0
+pytest-django==4.5.2
+pytest==7.2.0
+black==22.10.0
+shellcheck-py==0.8.0.4
 
 # To test async code
 pytest-asyncio==0.14.0  # required to pass test_new_job_transformation
@@ -35,13 +31,11 @@ https://github.com/hugovk/pytest-freezegun/archive/03d7107a877e8f07617f931a379f5
 
 # To test code that's doing advanced communication
 # with web services via `requests` library
-betamax
-betamax-serializers
+betamax==0.8.1
+betamax-serializers==0.2.1
 
 # pip-compile for pinning versions
-pip-tools
+pip-tools==6.10.0
 
-importlib-metadata
-typed-ast==1.5.2
 requests==2.28.2
 urllib3==1.26.15
