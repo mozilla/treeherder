@@ -1,29 +1,29 @@
 # Packages that are shared between deployment and dev environments.
-gunicorn==20.0.4
+gunicorn==20.1.0
 whitenoise[brotli]==5.2.0  # Used by Whitenoise to provide Brotli-compressed versions of static files.
-Django==4.0.10
-celery==5.2.6  # celery needed for data ingestion
+Django==4.1.9
+celery==5.3.1  # celery needed for data ingestion
 cached-property==1.5.2 # needed for kombu with --require-hashes
 simplejson==3.17.2  # import simplejson
 newrelic==5.22.1.152
 certifi==2022.12.7
 
-mysqlclient==2.0.3   # Required by Django
+mysqlclient==2.1.1   # Required by Django
 
 jsonschema==3.2.0  # import jsonschema
-djangorestframework==3.12.2  # Imported as rest_framework
-django-cors-headers==3.7.0  # Listed as 3rd party app on settings.py
+djangorestframework==3.14.0  # Imported as rest_framework
+django-cors-headers==4.1.0  # Listed as 3rd party app on settings.py
 mozlog==7.1.0
 
 coreapi==2.3.3  # `coreapi` must be installed for schema support.
 
 # Used directly and also by Django's YAML serializer.
 PyYAML==5.4.1  # Imported as yaml
-django-environ==0.4.5  # Imported as environ
+django-environ==0.10.0  # Imported as environ
 
-python-dateutil==2.8.1
-django-filter==2.4.0  # Listed in DEFAULT_FILTER_BACKENDS on settings.py
-django-redis==4.12.1  # Listed in CACHES on settings.py
+python-dateutil==2.8.2
+django-filter==23.2  # Listed in DEFAULT_FILTER_BACKENDS on settings.py
+django-redis==5.3.0  # Listed in CACHES on settings.py
 
 taskcluster==42.1.1  # import taskcluster
 python-jose[pycryptodome]==3.2.0  # from jose import jwt
@@ -31,7 +31,7 @@ python-jose[pycryptodome]==3.2.0  # from jose import jwt
 furl==2.1.0  # Imported as furl
 first==2.0.2  # Imported as first
 json-e==4.4.1  # import jsone
-django-cache-memoize==0.1.8  # Imported as cache_memoize
+django-cache-memoize==0.1.10  # Imported as cache_memoize
 
 # Required for Push Health
 mozci==1.12.6
@@ -39,7 +39,7 @@ mozci==1.12.6
 importlib-metadata==3.7.3
 
 # Dockerflow/CloudOps APIs
-dockerflow==2022.7.0
+dockerflow==2022.8.0
 
 # Measuring noise of perf data
 moz-measure-noise==2.60.0.2
