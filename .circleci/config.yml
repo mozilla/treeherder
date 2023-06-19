@@ -135,7 +135,7 @@ jobs:
 orbs:
   node: circleci/node@4.1.1
   docker: circleci/docker@1.5.0
-  codecov: codecov/codecov@3.2.4
+  codecov: codecov/codecov@3.2.5
 version: 2.1
 workflows:
   run-tests:
