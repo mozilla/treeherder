@@ -5,6 +5,7 @@ import sortBy from 'lodash/sortBy';
 import { Col } from 'reactstrap';
 
 import {
+  sxsTaskName,
   thEvents,
   thOptionOrder,
   thPlatformMap,
@@ -315,6 +316,29 @@ class Push extends React.PureComponent {
         }
         job.task_run = getTaskRunStr(job);
         return job;
+      });
+      const sideBySideJobs = newJobList.filter((sxsJob) =>
+        sxsJob.job_type_symbol.includes(sxsTaskName),
+      );
+      // If the pageload job has a side-by-side comparison associated
+      // add job.hasSideBySide containing sxsTaskName ("side-by-side")
+      newJobList.forEach((job) => {
+        if (job.job_type_name.includes('browsertime')) {
+          const matchingSxsJobs = sideBySideJobs.filter(
+            (sxsJob) =>
+              sxsJob.job_type_name.includes(
+                job.job_type_name.split('/opt-')[0],
+              ) && // platform
+              sxsJob.job_type_name.includes(
+                job.job_type_name.split('/opt-')[1],
+              ), // testName
+          );
+          if (matchingSxsJobs.length > 0) {
+            job.hasSideBySide = matchingSxsJobs[0].job_type_name;
+          } else {
+            job.hasSideBySide = false;
+          }
+        }
       });
       const platforms = this.sortGroupedJobs(
         this.groupJobByPlatform(newJobList),
