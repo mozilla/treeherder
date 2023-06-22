@@ -41,6 +41,6 @@ Test the following:
 
 ## Ask Sheriffs
 
-1. Ping with the word `sheriff` in the `#treeherder` channel and request them
+1. Ping with the word `sheriff` in the `#sheriffs` channel and request them
    to test their workflows.
 2. Test around any high-risk commits since last deploy.
