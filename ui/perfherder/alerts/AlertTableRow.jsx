@@ -34,7 +34,7 @@ import {
   alertBackfillResultVisual,
   backfillRetriggeredTitle,
   noiseProfiles,
-  frameworks,
+  browsertime,
   browsertimeEssentialTests,
   browsertimeBenchmarksTests,
 } from '../perf-helpers/constants';
@@ -51,22 +51,14 @@ export default class AlertTableRow extends React.Component {
     this.state = {
       starred: this.props.alert.starred,
       checkboxSelected: false,
-      showSideBySideLink: false,
       icons: [],
     };
   }
 
   componentDidMount() {
     const { alert } = this.props;
-    const showSideBySideLink =
-      alert.series_signature.framework_id === frameworks.browsertime &&
-      !alert.series_signature.tags.includes('interactive') &&
-      !browsertimeBenchmarksTests.includes(alert.series_signature.suite) &&
-      alert.backfill_record &&
-      !!alert.backfill_record.status;
 
     this.showCriticalMagnitudeIcons(alert);
-    this.setState({ showSideBySideLink });
   }
 
   componentDidUpdate(prevProps) {
@@ -372,7 +364,7 @@ export default class AlertTableRow extends React.Component {
 
   render() {
     const { user, alert, alertSummary } = this.props;
-    const { starred, checkboxSelected, icons, showSideBySideLink } = this.state;
+    const { starred, checkboxSelected, icons } = this.state;
     const { repository, framework } = alertSummary;
 
     const { tags, extra_options: options } = alert.series_signature;
@@ -397,6 +389,16 @@ export default class AlertTableRow extends React.Component {
     const noiseProfileTooltip = alert.noise_profile
       ? noiseProfiles[alert.noise_profile.replace('/', '')]
       : noiseProfiles.NA;
+    const showSideBySideLink =
+      alert.series_signature.framework_id === browsertime &&
+      !alert.series_signature.tags.includes('interactive') &&
+      !browsertimeBenchmarksTests.includes(alert.series_signature.suite) &&
+      alert.backfill_record &&
+      (alert.backfill_record.status ===
+        alertBackfillResultStatusMap.backfilled ||
+        alert.backfill_record.status ===
+          alertBackfillResultStatusMap.successful ||
+        alert.backfill_record.status === alertBackfillResultStatusMap.failed);
 
     const backfillStatusInfo = this.getBackfillStatusInfo(alert);
     let sherlockTooltip = backfillStatusInfo && backfillStatusInfo.message;
@@ -500,7 +502,7 @@ export default class AlertTableRow extends React.Component {
             />
           </div>
         </td>
-        {alertSummary.framework === frameworks.browsertime && (
+        {alertSummary.framework === browsertime && (
           <td className="table-width-md">
             {showSideBySideLink ? (
               <span className="text-darker-info">

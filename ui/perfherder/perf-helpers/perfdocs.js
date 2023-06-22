@@ -31,7 +31,6 @@ const supportedPerfdocsFrameworks = {
  * TODO: remove hardcoded names once suffixes are removed from Perfdocs
  * @link https://firefox-source-docs.mozilla.org/testing/perfdocs/raptor.html#interactive
  */
-
 const browsertimeInteractiveTests = [
   'cnn-nav',
   'facebook-nav',
