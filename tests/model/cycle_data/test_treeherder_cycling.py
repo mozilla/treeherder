@@ -96,7 +96,7 @@ def test_cycle_all_but_one_job(
     assert Job.objects.count() == 1
     assert JobLog.objects.count() == (num_job_logs_before - num_job_logs_to_be_deleted)
 
-    for (object_type, objects) in extra_objects.values():
+    for object_type, objects in extra_objects.values():
         actual = set(item.id for item in object_type.objects.all())
         expected = set(item.id for item in objects)
         assert actual == expected

@@ -34,7 +34,6 @@ def jobs_retriggered(push):
 
 
 def get_usage():
-
     nrql = "SELECT%20max(needInvestigation)%20FROM%20push_health_need_investigation%20FACET%20revision%20SINCE%201%20DAY%20AGO%20TIMESERIES%20where%20repo%3D'{}'%20AND%20appName%3D'{}'".format(
         'try', 'treeherder-prod'
     )

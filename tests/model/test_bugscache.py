@@ -197,7 +197,7 @@ def test_import(mock_bugscache_bugzilla_request):
         1736534: [],
     }
 
-    for (open_bug, duplicates) in EXPECTED_BUG_DUPE_OF_DATA.items():
+    for open_bug, duplicates in EXPECTED_BUG_DUPE_OF_DATA.items():
         assert Bugscache.objects.get(id=open_bug).dupe_of is None
         assert set(Bugscache.objects.filter(dupe_of=open_bug).values_list('id', flat=True)) == set(
             duplicates

@@ -18,7 +18,6 @@ def push_usage(test_base_dir):
 
 
 def test_peak(push_usage):
-
     peak = get_peak(push_usage['facets'][0])
     assert peak['needInvestigation'] == 149.0
     assert peak['time'] == 1584035553

@@ -28,7 +28,7 @@ class OptionCollectionHashViewSet(viewsets.ViewSet):
         option_collection_map = models.OptionCollection.objects.get_option_collection_map()
 
         ret = []
-        for (option_hash, option_names) in option_collection_map.items():
+        for option_hash, option_names in option_collection_map.items():
             ret.append(
                 {
                     'option_collection_hash': option_hash,

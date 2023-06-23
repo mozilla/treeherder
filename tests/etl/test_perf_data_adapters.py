@@ -111,7 +111,7 @@ def _generate_perf_data_range(
     if reverse_push_range:
         push_range = reversed(push_range)
 
-    for (i, value) in zip(push_range, [1] * 15 + [2] * 15):
+    for i, value in zip(push_range, [1] * 15 + [2] * 15):
         push_time = datetime.datetime.fromtimestamp(now + i)
         push = Push.objects.create(
             repository=test_repository,

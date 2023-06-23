@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Badge } from 'reactstrap';
 
 import SimpleTooltip from '../../shared/SimpleTooltip';
+import { replicatesMaxLength } from '../perf-helpers/constants';
 import { displayNumber, formatNumber } from '../perf-helpers/helpers';
 
 import TooltipGraph from './TooltipGraph';
@@ -10,11 +11,38 @@ import TooltipGraph from './TooltipGraph';
 const TableAverage = ({ value, stddev, stddevpct, replicates, app }) => {
   let tooltipText;
   if (replicates.length > 1) {
-    tooltipText = `Runs: < ${replicates
+    const replicatesStr = replicates
       .map((value) => formatNumber(value))
-      .join(' ')} > ${formatNumber(displayNumber(stddev))} = ${formatNumber(
-      displayNumber(stddevpct),
-    )}% standard deviation)`;
+      .join(' ');
+
+    if (replicatesStr.length > replicatesMaxLength) {
+      tooltipText = (
+        <>
+          {`Runs: < ${replicatesStr.slice(
+            0,
+            Math.floor(replicatesMaxLength / 2),
+          )}`}
+          ...
+          {`${replicatesStr.slice(
+            replicatesStr.length - Math.floor(replicatesMaxLength / 2),
+          )} > `}
+          {`${formatNumber(displayNumber(stddev))} = ${formatNumber(
+            displayNumber(stddevpct),
+          )}% `}
+          standard deviation
+          <br />
+          (use JSON download button to see more)
+        </>
+      );
+    } else {
+      tooltipText = (
+        <>
+          {`Runs: < ${replicatesStr} > ${formatNumber(
+            displayNumber(stddev),
+          )} = ${formatNumber(displayNumber(stddevpct))}% standard deviation`}
+        </>
+      );
+    }
   } else if (replicates.length === 1) {
     tooltipText = 'Only one run (consider more for greater confidence)';
   }

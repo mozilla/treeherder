@@ -209,7 +209,6 @@ class BugJobMapSerializer(serializers.ModelSerializer):
 
 
 class JobNoteSerializer(serializers.ModelSerializer):
-
     job_id = serializers.PrimaryKeyRelatedField(source="job", read_only=True)
 
     # these custom fields are for backwards compatibility
@@ -242,7 +241,6 @@ class JobNoteJobSerializer(serializers.ModelSerializer):
 
 
 class JobNoteDetailSerializer(serializers.ModelSerializer):
-
     job = JobNoteJobSerializer()
     failure_classification_name = serializers.SlugRelatedField(
         slug_field="name", source="failure_classification", read_only=True
@@ -261,7 +259,6 @@ class JobNoteDetailSerializer(serializers.ModelSerializer):
 
 
 class CommitSerializer(serializers.ModelSerializer):
-
     result_set_id = serializers.PrimaryKeyRelatedField(source="push", read_only=True)
     repository_id = serializers.SlugRelatedField(
         slug_field="repository_id", source="push", read_only=True
@@ -417,7 +414,6 @@ class MachinePlatformSerializer(serializers.ModelSerializer):
 
 
 class ChangelogSerializer(serializers.ModelSerializer):
-
     files = serializers.StringRelatedField(many=True)
 
     class Meta:
@@ -439,7 +435,6 @@ class ChangelogSerializer(serializers.ModelSerializer):
 
 
 class InvestigatedTestsSerializers(serializers.ModelSerializer):
-
     jobName = serializers.CharField(source='job_type.name')
     jobSymbol = serializers.CharField(source='job_type.symbol')
 

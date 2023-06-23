@@ -263,7 +263,7 @@ class BzApiBugProcess:
         # the bug against which they have been set as duplicate to prevent them
         # from getting dropped - they are still needed to match the failure line
         # against the bug summary.
-        for (bug_duplicate, bug_openish) in duplicates_to_bugs.items():
+        for bug_duplicate, bug_openish in duplicates_to_bugs.items():
             bug_openish_object = Bugscache.objects.filter(id=bug_openish)
             if len(bug_openish_object) == 0:
                 # Script does not have access to open bug but to duplicate

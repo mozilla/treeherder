@@ -238,7 +238,7 @@ class JobsProjectViewSet(viewsets.ViewSet):
             )
             # some values need to be transformed
             values = list(values)
-            for (i, _) in enumerate(values):
+            for i, _ in enumerate(values):
                 func = self._property_query_mapping[i][2]
                 if func:
                     values[i] = func(values[i])
@@ -285,7 +285,7 @@ class JobsProjectViewSet(viewsets.ViewSet):
 
         resp["resource_uri"] = reverse("jobs-detail", kwargs={"project": project, "pk": pk})
         resp["logs"] = []
-        for (name, url) in JobLog.objects.filter(job=job).values_list('name', 'url'):
+        for name, url in JobLog.objects.filter(job=job).values_list('name', 'url'):
             resp["logs"].append({'name': name, 'url': url})
 
         platform_option = job.get_platform_option()

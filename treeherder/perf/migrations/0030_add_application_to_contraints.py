@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('model', '0016_add_index_commit_revision'),
         ('perf', '0029_add_frozen_to_report'),

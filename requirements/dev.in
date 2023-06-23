@@ -1,27 +1,27 @@
 # Dependencies needed only for development/testing.
-pytest-cov==4.0.0	
-django-debug-toolbar==3.7.0
-mock==4.0.3
-responses==0.22.0	
-django-extensions==3.2.1
+pytest-cov==4.1.0
+django-debug-toolbar==4.1.0
+mock==5.0.2
+responses==0.23.1
+django-extensions==3.2.3
 PyPOM==2.2.4
 
 # for git commit hooks
-pre-commit==2.20.0
+pre-commit==3.3.3
 
 # for test driven development
-pytest-testmon==1.4.2
+pytest-testmon==2.0.9
 pytest-watch==4.2.0
 
 # Required by django-extension's runserver_plus command.
 flake8==6.0.0
 pytest-django==4.5.2
-pytest==7.2.0
-black==22.10.0
-shellcheck-py==0.8.0.4
+pytest==7.3.2
+black==23.3.0
+shellcheck-py==0.9.0.5
 
 # To test async code
-pytest-asyncio==0.14.0  # required to pass test_new_job_transformation
+pytest-asyncio==0.21.0  # required to pass test_new_job_transformation
 
 # To test code that's making system time calls
 # pytest-freezegun is not compatible with recent Django versions
@@ -35,10 +35,10 @@ betamax==0.8.1
 betamax-serializers==0.2.1
 
 # pip-compile for pinning versions
-pip-tools==6.10.0
+pip-tools==6.13.0
 
-requests==2.28.2
-urllib3==1.26.15
+requests==2.31.0
+urllib3==2.0.3
 
 # TODO: Clean this once other packages are upgraded, see https://github.com/pypa/pip/issues/11975
 setuptools==65.6.3

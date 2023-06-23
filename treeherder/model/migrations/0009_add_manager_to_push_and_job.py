@@ -5,7 +5,6 @@ import django.db.models.manager
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('model', '0008_remove_failure_match'),
     ]
