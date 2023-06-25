@@ -10,6 +10,7 @@ services:
       # https://github.com/moby/moby/issues/32612#issuecomment-294055017
       # cache_from: TODO
     image: treeherder-backend
+    platform: linux/amd64
     environment:
       # Development/CI-specific environment variables only.
       # Those that do not vary across environments should go in `Dockerfile`.
@@ -64,11 +65,13 @@ services:
       - .:/app
     ports:
       - '5000:5000'
+    platform: linux/amd64
 
   mysql:
     container_name: mysql
     # https://hub.docker.com/r/library/mysql/
     image: mysql:5.7.41
+    platform: linux/amd64
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=true
       - MYSQL_DATABASE=treeherder
@@ -83,10 +86,9 @@ services:
   redis:
     container_name: redis
     # https://hub.docker.com/_/redis/
-    image: redis:6.2.11-alpine
+    image: redis:7.0.11-alpine
     # Messages after starting the redis-server
-    # WARNING: The TCP backlog setting of 511 cannot be enforced because /proc/sys/net/core/somaxconn is set to the lower value of 128
-    # WARNING you have Transparent Huge Pages (THP) support enabled in your kernel. This will create latency and memory usage issues with Redis. To fix this issue run the command 'echo never > /sys/kernel/mm/transparent_hugepage/enabled' as root, and add it to your /etc/rc.local in order to retain the setting after a reboot. Redis must be restarted after THP is disabled.
+    # WARNING Memory overcommit must be enabled! Without it, a background save or replication may fail under low memory condition. Being disabled, it can can also cause failures without low memory condition, see https://github.com/jemalloc/jemalloc/issues/1328. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
     # Hide Redis `notice` log level startup output spam.
     command: redis-server --loglevel warning
     ports:
@@ -120,6 +122,7 @@ services:
     depends_on:
       - mysql
       - rabbitmq
+    platform: linux/amd64
 
   celery:
     build:
@@ -137,6 +140,7 @@ services:
       - mysql
       - redis
       - rabbitmq
+    platform: linux/amd64
 volumes:
   # TODO: Experiment with using tmpfs when testing, to speed up database-using Python tests.
   mysql_data: {}

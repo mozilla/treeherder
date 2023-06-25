@@ -5,7 +5,6 @@ import django.db.models.manager
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('model', '0001_squashed_0022_modify_bugscache_and_bugjobmap'),
     ]

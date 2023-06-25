@@ -412,7 +412,6 @@ def eleven_job_blobs(sample_data, sample_push, test_repository, mock_log_parser)
 
     blobs = []
     for blob in jobs:
-
         if push_index > max_index:
             push_index = 0
 
@@ -449,7 +448,6 @@ def eleven_job_blobs_new_date(sample_data, sample_push, test_repository, mock_lo
 
     blobs = []
     for blob in jobs:
-
         if push_index > max_index:
             push_index = 0
 
@@ -510,7 +508,6 @@ def test_job_with_notes(test_job, test_user):
 
 @pytest.fixture
 def activate_responses(request):
-
     responses.start()
 
     def fin():
@@ -1039,7 +1036,6 @@ def test_run_data(bug_data):
 
 @pytest.fixture
 def group_data(transactional_db, eleven_job_blobs, create_jobs):
-
     query_string = '?manifest=/test&date=2022-10-01'
 
     jt = []
@@ -1094,7 +1090,7 @@ def generate_enough_perf_datum(test_repository, test_perf_signature):
     # extra data on both sides to make sure we're using the proper values
     # to generate the actual alert)
 
-    for (push_id, value) in zip([1] * 30 + [2] * 30, [1] * 30 + [2] * 30):
+    for push_id, value in zip([1] * 30 + [2] * 30, [1] * 30 + [2] * 30):
         push = th_models.Push.objects.get(id=push_id)
         perf_models.PerformanceDatum.objects.create(
             repository=test_repository,

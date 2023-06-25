@@ -128,7 +128,6 @@ class Commenter:
         if (
             [bug_info['product'], bug_info['component']] in COMPONENTS
         ) and not self.check_whiteboard_status(bug_info['whiteboard']):
-
             if bug_info['priority'] not in ['--', 'P1', 'P2', 'P3']:
                 change_priority = '--'
 

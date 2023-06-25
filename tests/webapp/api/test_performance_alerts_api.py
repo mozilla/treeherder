@@ -159,7 +159,6 @@ def alert_create_post_blob(test_perf_alert_summary, test_perf_signature):
 def test_alerts_post(
     client, alert_create_post_blob, test_user, test_sheriff, generate_enough_perf_datum
 ):
-
     # verify that we fail if not authenticated
     resp = client.post(reverse('performance-alerts-list'), alert_create_post_blob)
     assert resp.status_code == 403

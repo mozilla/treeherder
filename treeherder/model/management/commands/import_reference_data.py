@@ -32,7 +32,7 @@ class Command(BaseCommand):
         c = TreeherderClient(server_url=options['server'])
 
         # options / option collection hashes
-        for (uuid, props) in c.get_option_collection_hash().items():
+        for uuid, props in c.get_option_collection_hash().items():
             for prop in props:
                 option, _ = Option.objects.get_or_create(name=prop['name'])
                 OptionCollection.objects.get_or_create(option_collection_hash=uuid, option=option)

@@ -6,7 +6,6 @@ MULTICOMMIT_CONSTRAINT_SYMBOL = 'perf_multicommitdatu_perf_datum_id_c2d7eb14_fk_
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('perf', '0035_fix_deprecated_nullboolean_field'),
     ]

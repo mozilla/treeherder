@@ -85,7 +85,7 @@ class Command(BaseCommand):
                 signatures = []
                 signatures_to_ignore = set()
                 # if doing everything, only handle summary series
-                for (signature, properties) in signature_data.items():
+                for signature, properties in signature_data.items():
                     signatures.append(signature)
                     if 'subtest_signatures' in properties:
                         # Don't alert on subtests which have a summary
@@ -103,7 +103,7 @@ class Command(BaseCommand):
 
                 data = []
 
-                for (timestamp, value) in zip(series['push_timestamp'], series['value']):
+                for timestamp, value in zip(series['push_timestamp'], series['value']):
                     data.append(RevisionDatum(timestamp, value))
 
                 for r in detect_changes(data):

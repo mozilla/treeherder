@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('model', '0017_add_index_task_id'),
         ('perf', '0030_add_application_to_contraints'),

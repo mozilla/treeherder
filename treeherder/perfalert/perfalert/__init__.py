@@ -83,7 +83,6 @@ class RevisionDatum:
     """
 
     def __init__(self, push_timestamp, push_id, values):
-
         # Date code was pushed
         self.push_timestamp = push_timestamp
 

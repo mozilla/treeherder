@@ -42,7 +42,6 @@ def record_backfilled(test_perf_alert, record_context_sample):
 
 @pytest.fixture
 def range_dates(record_context_sample):
-
     from_date = datetime.fromisoformat(record_context_sample[0]['push_timestamp'])
     to_date = datetime.fromisoformat(record_context_sample[-1]['push_timestamp'])
 

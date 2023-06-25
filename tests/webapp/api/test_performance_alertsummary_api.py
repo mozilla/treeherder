@@ -366,7 +366,6 @@ def test_bug_number_and_timestamp_dont_update_from_other_modifications(
 def test_add_multiple_tags_to_alert_summary(
     authorized_sheriff_client, test_perf_alert_summary, test_perf_tag, test_perf_tag_2
 ):
-
     assert test_perf_alert_summary.performance_tags.count() == 1
 
     resp = authorized_sheriff_client.put(

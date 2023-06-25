@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('model', '0007_remove_m2m_between_classified_failures_and_failure_match'),
     ]

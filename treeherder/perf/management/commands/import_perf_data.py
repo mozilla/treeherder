@@ -177,7 +177,6 @@ class MassiveData(Data):
         progress_notifier=None,
         **kwargs,
     ):
-
         super().__init__(source, target, progress_notifier, **kwargs)
         self.time_window = time_window
         self.num_workers = num_workers
@@ -312,7 +311,6 @@ class MassiveData(Data):
         self.progress_notifier(self.bring_in_alert, alerts, 'alert', 2)
 
     def bring_in_alert(self, alert):
-
         if alert.id in self.models_instances['performance_alert']:
             return
 
@@ -399,7 +397,6 @@ class Command(BaseCommand):
         parser.add_argument('--repositories', nargs='+', default=None)
 
     def handle(self, *args, **options):
-
         time_window = datetime.timedelta(days=options['time_window'])
         num_workers = options['num_workers']
         frameworks = options['frameworks']

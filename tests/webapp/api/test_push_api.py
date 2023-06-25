@@ -144,7 +144,7 @@ def test_push_list_filter_by_date(client, test_repository, sample_push):
     """
     test retrieving a push list, filtered by a date range
     """
-    for (i, datestr) in zip(
+    for i, datestr in zip(
         [3, 4, 5, 6, 7], ["2013-08-09", "2013-08-10", "2013-08-11", "2013-08-12", "2013-08-13"]
     ):
         sample_push[i]['push_timestamp'] = utils.to_timestamp(utils.to_datetime(datestr))
@@ -192,7 +192,7 @@ def test_push_list_filter_by_id(client, test_repository, filter_param, exp_ids):
     """
     test filtering by id in various ways
     """
-    for (revision, author) in [
+    for revision, author in [
         ('1234abcd', 'foo@bar.com'),
         ('2234abcd', 'foo2@bar.com'),
         ('3234abcd', 'foo3@bar.com'),
@@ -215,7 +215,7 @@ def test_push_list_id_in(client, test_repository):
     """
     test the id__in parameter
     """
-    for (revision, author) in [
+    for revision, author in [
         ('1234abcd', 'foo@bar.com'),
         ('2234abcd', 'foo2@bar.com'),
         ('3234abcd', 'foo3@bar.com'),
@@ -260,7 +260,7 @@ def test_push_author(client, test_repository):
     """
     test the author parameter
     """
-    for (revision, author) in [
+    for revision, author in [
         ('1234abcd', 'foo@bar.com'),
         ('2234abcd', 'foo@bar.com'),
         ('3234abcd', 'foo2@bar.com'),
@@ -304,7 +304,7 @@ def test_push_reviewbot(client, test_repository):
     """
     test the reviewbot parameter
     """
-    for (revision, author) in [
+    for revision, author in [
         ('1234abcd', 'foo@bar.com'),
         ('2234abcd', 'foo2@bar.com'),
         ('3234abcd', 'reviewbot'),

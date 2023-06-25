@@ -13,7 +13,6 @@ def update_summary_triage_due_date(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('perf', '0046_restore_cascade_perf_datum_deletion'),
     ]

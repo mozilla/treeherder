@@ -52,7 +52,7 @@ def _generate_performance_data(
     value,
     amount,
 ):
-    for (t, v) in zip(
+    for t, v in zip(
         [i for i in range(start_id, start_id + amount)],
         [value for i in range(start_id, start_id + amount)],
     ):
@@ -81,7 +81,6 @@ def test_detect_alerts_in_series(
     test_perf_signature,
     mock_deviance,
 ):
-
     base_time = time.time()  # generate it based off current time
     INTERVAL = 30
     _generate_performance_data(
@@ -172,7 +171,6 @@ def test_detect_alerts_in_series_with_retriggers(
     generic_reference_data,
     test_perf_signature,
 ):
-
     # sometimes we detect an alert in the middle of a series
     # where there are retriggers, make sure we handle this case
     # gracefully by generating a sequence where the regression
@@ -264,7 +262,6 @@ def test_custom_alert_threshold(
     generic_reference_data,
     test_perf_signature,
 ):
-
     test_perf_signature.alert_threshold = 200.0
     test_perf_signature.save()
 

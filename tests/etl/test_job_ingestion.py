@@ -121,7 +121,7 @@ def test_ingest_running_to_retry_to_success_sample_job(
     job_guid_root = job['job_guid']
 
     job_data = []
-    for (state, result, job_guid) in [
+    for state, result, job_guid in [
         ('running', 'unknown', job_guid_root),
         ('completed', 'retry', job_guid_root + "_" + str(job['end_timestamp'])[-5:]),
         ('completed', 'success', job_guid_root),
@@ -132,7 +132,7 @@ def test_ingest_running_to_retry_to_success_sample_job(
         new_job_datum['job']['job_guid'] = job_guid
         job_data.append(new_job_datum)
 
-    for (i, j) in ingestion_cycles:
+    for i, j in ingestion_cycles:
         store_job_data(test_repository, job_data[i:j])
 
     assert Job.objects.count() == 2
@@ -165,7 +165,7 @@ def test_ingest_running_to_retry_to_success_sample_job_multiple_retries(
     job_guid_root = job['job_guid']
 
     job_data = []
-    for (state, result, job_guid) in [
+    for state, result, job_guid in [
         ('running', 'unknown', job_guid_root),
         ('completed', 'retry', job_guid_root + "_" + str(job['end_timestamp'])[-5:]),
         ('completed', 'retry', job_guid_root + "_12345"),
@@ -177,7 +177,7 @@ def test_ingest_running_to_retry_to_success_sample_job_multiple_retries(
         new_job_datum['job']['job_guid'] = job_guid
         job_data.append(new_job_datum)
 
-    for (i, j) in ingestion_cycles:
+    for i, j in ingestion_cycles:
         ins = job_data[i:j]
         store_job_data(test_repository, ins)
 
