@@ -6,7 +6,7 @@ import orderBy from 'lodash/orderBy';
 import {
   alertStatusMap,
   maximumVisibleAlertSummaryRows,
-  browsertime,
+  browsertimeId,
 } from '../perf-helpers/constants';
 import {
   genericErrorMessage,
@@ -361,11 +361,11 @@ export default class AlertTable extends React.Component {
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
-                    {alertSummary.framework === browsertime && (
+                    {alertSummary.framework === browsertimeId && (
                       <th className="align-bottom text-nowrap">
-                        <TableColumnHeader
+                        <span>{tableConfig.DebuggingInformation.name}</span>
+                        <SortButtonDisabled
                           column={tableConfig.DebuggingInformation}
-                          onChangeSort={this.onChangeSort}
                         />
                       </th>
                     )}

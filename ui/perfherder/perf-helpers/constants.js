@@ -294,4 +294,4 @@ export const browsertimeBenchmarksTests = [
   'youtube-playback-widevine-hfr',
 ];
 
-export const browsertime = 13;
+export const browsertimeId = 13;

@@ -34,7 +34,7 @@ import {
   alertBackfillResultVisual,
   backfillRetriggeredTitle,
   noiseProfiles,
-  browsertime,
+  browsertimeId,
   browsertimeEssentialTests,
   browsertimeBenchmarksTests,
 } from '../perf-helpers/constants';
@@ -279,10 +279,9 @@ export default class AlertTableRow extends React.Component {
     const { suite } = alert.series_signature;
     let testName = suite;
     if (suite in browsertimeEssentialTests) {
+      testName = `essential ${suite}`;
       if ('bytecode-cached' in alert.series_signature.tags) {
         testName = `bytecode ${suite}`;
-      } else {
-        testName = `essential ${suite}`;
       }
     }
     const jobUrl = getSideBySideLink(
@@ -389,16 +388,21 @@ export default class AlertTableRow extends React.Component {
     const noiseProfileTooltip = alert.noise_profile
       ? noiseProfiles[alert.noise_profile.replace('/', '')]
       : noiseProfiles.NA;
+    // TODO: make a side-by-side status of its own. We know that side-by-side was triggered
+    //  if only backfill bot has one of the three statuses below
+    const backfillResultStatuses = [
+      alertBackfillResultStatusMap.backfilled,
+      alertBackfillResultStatusMap.successful,
+      alertBackfillResultStatusMap.failed,
+    ];
+    const sxsTriggered =
+      alert.backfill_record &&
+      backfillResultStatuses.includes(alert.backfill_record.status);
     const showSideBySideLink =
-      alert.series_signature.framework_id === browsertime &&
+      alert.series_signature.framework_id === browsertimeId &&
       !alert.series_signature.tags.includes('interactive') &&
       !browsertimeBenchmarksTests.includes(alert.series_signature.suite) &&
-      alert.backfill_record &&
-      (alert.backfill_record.status ===
-        alertBackfillResultStatusMap.backfilled ||
-        alert.backfill_record.status ===
-          alertBackfillResultStatusMap.successful ||
-        alert.backfill_record.status === alertBackfillResultStatusMap.failed);
+      sxsTriggered;
 
     const backfillStatusInfo = this.getBackfillStatusInfo(alert);
     let sherlockTooltip = backfillStatusInfo && backfillStatusInfo.message;
@@ -502,7 +506,7 @@ export default class AlertTableRow extends React.Component {
             />
           </div>
         </td>
-        {alertSummary.framework === browsertime && (
+        {alertSummary.framework === browsertimeId && (
           <td className="table-width-md">
             {showSideBySideLink ? (
               <span className="text-darker-info">
