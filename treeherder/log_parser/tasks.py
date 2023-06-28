@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 @retryable_task(name='log-parser', max_retries=10)
 def parse_logs(job_id, job_log_ids, priority):
-    newrelic.agent.add_custom_parameter("job_id", str(job_id))
+    newrelic.agent.add_custom_attribute("job_id", str(job_id))
 
     job = Job.objects.get(id=job_id)
     job_logs = JobLog.objects.filter(id__in=job_log_ids, job=job)
@@ -39,7 +39,7 @@ def parse_logs(job_id, job_log_ids, priority):
     first_exception = None
     completed_names = set()
     for job_log in job_logs:
-        newrelic.agent.add_custom_parameter("job_log_%s_url" % job_log.name, job_log.url)
+        newrelic.agent.add_custom_attribute("job_log_%s_url" % job_log.name, job_log.url)
         logger.info("parser_task for %s", job_log.id)
 
         # Only parse logs which haven't yet been processed or else failed on the last attempt.
@@ -67,7 +67,7 @@ def parse_logs(job_id, job_log_ids, priority):
 
             # track the exception on NewRelic but don't stop parsing future
             # log lines.
-            newrelic.agent.record_exception()
+            newrelic.agent.notice_error()
         else:
             completed_names.add(job_log.name)
 

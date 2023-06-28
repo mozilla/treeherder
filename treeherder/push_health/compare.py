@@ -1,6 +1,4 @@
 import logging
-from mozci.push import Push as MozciPush
-from mozci.errors import ParentPushNotFound
 
 from treeherder.model.models import Push, Repository
 from treeherder.webapp.api.serializers import RepositorySerializer, PushSerializer, CommitSerializer
@@ -9,6 +7,9 @@ logger = logging.getLogger(__name__)
 
 
 def get_commit_history(repository, revision, push):
+    from mozci.push import Push as MozciPush
+    from mozci.errors import ParentPushNotFound
+
     mozciPush = MozciPush([revision], repository.name)
     parent = None
     parent_sha = None

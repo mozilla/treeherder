@@ -116,7 +116,7 @@ def generate_new_alerts_in_series(signature):
                         )
                 except Exception:
                     # Fail without breaking the alert computation
-                    newrelic.agent.record_exception()
+                    newrelic.agent.notice_error()
                     logger.error("Failed to obtain a noise profile.")
 
                 # ignore regressions below the configured regression

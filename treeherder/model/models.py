@@ -284,7 +284,7 @@ class Bugscache(models.Model):
             open_recent = [x for x in all_data if x["resolution"] == '']
             all_others = [x for x in all_data if x["resolution"] != '']
         except ProgrammingError as e:
-            newrelic.agent.record_exception()
+            newrelic.agent.notice_error()
             logger.error(
                 'Failed to execute FULLTEXT search on Bugscache, error={}, SQL={}'.format(
                     e, recent_qs.query.__str__()

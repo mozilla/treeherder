@@ -35,7 +35,7 @@ class AuthViewSet(viewsets.ViewSet):
             # This indicates an error that may require attention by the
             # Treeherder or Taskcluster teams.  Logging this to New Relic to
             # increase visibility.
-            newrelic.agent.record_exception()
+            newrelic.agent.notice_error()
             logger.exception("Error", exc_info=ex)
             raise AuthenticationFailed(str(ex))
 
