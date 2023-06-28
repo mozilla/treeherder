@@ -35,7 +35,7 @@ class CustomWhiteNoise(WhiteNoiseMiddleware):
        so that WhiteNoise will then set long Cache-Control max-age headers for them.
 
     For the stock functionality provided by WhiteNoiseMiddleware see:
-    http://whitenoise.evans.io/
+    https://whitenoise.readthedocs.io/
     """
 
     # Matches Neutrino's style of hashed filename URLs, eg:
@@ -73,4 +73,4 @@ class NewRelicMiddleware(MiddlewareMixin):
         # The New Relic Python agent only submits the User Agent to APM (for exceptions and
         # slow transactions), so for use in Insights we have to add it as a customer parameter.
         if 'HTTP_USER_AGENT' in request.META:
-            newrelic.agent.add_custom_parameter('user_agent', request.META['HTTP_USER_AGENT'])
+            newrelic.agent.add_custom_attribute('user_agent', request.META['HTTP_USER_AGENT'])

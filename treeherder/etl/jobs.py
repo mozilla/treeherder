@@ -462,7 +462,7 @@ def store_job_data(repository, originalData):
             # make more fields visible in new relic for the job
             # where we encountered the error
             datum.update(datum.get("job", {}))
-            newrelic.agent.record_exception(params=datum)
+            newrelic.agent.notice_error(attributes=datum)
 
             # skip any jobs that hit errors in these stages.
             continue

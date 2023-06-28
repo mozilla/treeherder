@@ -61,7 +61,7 @@ class JobLoader:
         if self._is_valid_job(pulse_job):
             try:
                 project = pulse_job["origin"]["project"]
-                newrelic.agent.add_custom_parameter("project", project)
+                newrelic.agent.add_custom_attribute("project", project)
 
                 repository = Repository.objects.get(name=project)
                 if repository.active_status != 'active':

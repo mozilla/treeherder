@@ -106,7 +106,7 @@ class ClassificationLoader:
             raise
 
         try:
-            newrelic.agent.add_custom_parameter("project", project)
+            newrelic.agent.add_custom_attribute("project", project)
 
             repository = Repository.objects.get(name=project)
         except Repository.DoesNotExist:
@@ -114,7 +114,7 @@ class ClassificationLoader:
             raise
 
         try:
-            newrelic.agent.add_custom_parameter("revision", revision)
+            newrelic.agent.add_custom_attribute("revision", revision)
 
             revision_field = 'revision__startswith' if len(revision) < 40 else 'revision'
             filter_kwargs = {'repository': repository, revision_field: revision}

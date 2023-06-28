@@ -20,15 +20,15 @@ class PushLoader:
     def process(self, message_body, exchange, root_url):
         transformer = self.get_transformer_class(exchange)(message_body)
         try:
-            newrelic.agent.add_custom_parameter("url", transformer.repo_url)
-            newrelic.agent.add_custom_parameter("branch", transformer.branch)
+            newrelic.agent.add_custom_attribute("url", transformer.repo_url)
+            newrelic.agent.add_custom_attribute("branch", transformer.branch)
             repos = Repository.objects
             if transformer.branch:
                 repos = repos.filter(branch__regex="(^|,)%s($|,)" % transformer.branch)
             else:
                 repos = repos.filter(branch=None)
             repo = repos.get(url=transformer.repo_url, active_status="active")
-            newrelic.agent.add_custom_parameter("repository", repo.name)
+            newrelic.agent.add_custom_attribute("repository", repo.name)
         except ObjectDoesNotExist:
             repo_info = transformer.get_info()
             repo_info.update(
@@ -257,7 +257,7 @@ class HgPushTransformer:
         return self.fetch_push(url, repository)
 
     def fetch_push(self, url, repository, sha=None):
-        newrelic.agent.add_custom_parameter("sha", sha)
+        newrelic.agent.add_custom_attribute("sha", sha)
 
         logger.debug("fetching for %s %s", repository, url)
         # there will only ever be one, with this url

@@ -401,7 +401,7 @@ REST_FRAMEWORK = {
 }
 
 # Whitenoise
-# http://whitenoise.evans.io/en/stable/django.html#available-settings
+# https://whitenoise.readthedocs.io/en/stable/django.html#available-settings
 # Files in this directory will be served by WhiteNoise at the site root.
 WHITENOISE_ROOT = join(SRC_DIR, ".build")
 # Serve index.html for URLs ending in a trailing slash.

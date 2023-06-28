@@ -23,8 +23,8 @@ def store_pulse_tasks(
     Fetches tasks from Taskcluster
     """
     loop = asyncio.get_event_loop()
-    newrelic.agent.add_custom_parameter("exchange", exchange)
-    newrelic.agent.add_custom_parameter("routing_key", routing_key)
+    newrelic.agent.add_custom_attribute("exchange", exchange)
+    newrelic.agent.add_custom_attribute("routing_key", routing_key)
     # handleMessage expects messages in this format
     runs = loop.run_until_complete(
         handleMessage(
@@ -47,8 +47,8 @@ def store_pulse_pushes(
     """
     Fetches the pushes pending from pulse exchanges and loads them.
     """
-    newrelic.agent.add_custom_parameter("exchange", exchange)
-    newrelic.agent.add_custom_parameter("routing_key", routing_key)
+    newrelic.agent.add_custom_attribute("exchange", exchange)
+    newrelic.agent.add_custom_attribute("routing_key", routing_key)
 
     PushLoader().process(body, exchange, root_url)
 
@@ -63,7 +63,7 @@ def store_pulse_tasks_classification(
     By default, it should listen to the Community cluster as classifications
     are only running there for the moment
     """
-    newrelic.agent.add_custom_parameter("exchange", exchange)
-    newrelic.agent.add_custom_parameter("routing_key", routing_key)
+    newrelic.agent.add_custom_attribute("exchange", exchange)
+    newrelic.agent.add_custom_attribute("routing_key", routing_key)
 
     ClassificationLoader().process(pulse_job, root_url)
