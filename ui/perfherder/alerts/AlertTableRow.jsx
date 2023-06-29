@@ -9,11 +9,13 @@ import {
   faUser,
   faCheck,
   faChartLine,
+  faCirclePlay,
   faFire,
   faPlus,
 } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 import { Link } from 'react-router-dom';
+import Badge from 'reactstrap/lib/Badge';
 
 import { createQueryParams } from '../../helpers/url';
 import {
@@ -23,6 +25,7 @@ import {
   formatNumber,
   getFrameworkName,
   getTimeRange,
+  getSideBySideLink,
 } from '../perf-helpers/helpers';
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import {
@@ -31,6 +34,9 @@ import {
   alertBackfillResultVisual,
   backfillRetriggeredTitle,
   noiseProfiles,
+  browsertimeId,
+  browsertimeEssentialTests,
+  browsertimeBenchmarksTests,
 } from '../perf-helpers/constants';
 import { Perfdocs } from '../perf-helpers/perfdocs';
 
@@ -267,6 +273,28 @@ export default class AlertTableRow extends React.Component {
     return `./comparesubtest${createQueryParams(urlParameters)}`;
   };
 
+  buildSideBySideLink = () => {
+    const { alert, alertSummary } = this.props;
+    const platform = alert.series_signature.machine_platform;
+    const { suite } = alert.series_signature;
+    let testName = suite;
+    if (suite in browsertimeEssentialTests) {
+      testName = `essential ${suite}`;
+      if ('bytecode-cached' in alert.series_signature.tags) {
+        testName = `bytecode ${suite}`;
+      }
+    }
+    const jobUrl = getSideBySideLink(
+      alertSummary.repository,
+      alertSummary.prev_push_revision,
+      alertSummary.revision,
+      platform,
+      testName,
+    );
+
+    return jobUrl;
+  };
+
   showCriticalMagnitudeIcons(alert) {
     const alertMagnitude = Math.round(alert.amount_pct);
     const alertNewValue = alert.new_value;
@@ -360,6 +388,21 @@ export default class AlertTableRow extends React.Component {
     const noiseProfileTooltip = alert.noise_profile
       ? noiseProfiles[alert.noise_profile.replace('/', '')]
       : noiseProfiles.NA;
+    // TODO: make a side-by-side status of its own. We know that side-by-side was triggered
+    //  if only backfill bot has one of the three statuses below
+    const backfillResultStatuses = [
+      alertBackfillResultStatusMap.backfilled,
+      alertBackfillResultStatusMap.successful,
+      alertBackfillResultStatusMap.failed,
+    ];
+    const sxsTriggered =
+      alert.backfill_record &&
+      backfillResultStatuses.includes(alert.backfill_record.status);
+    const showSideBySideLink =
+      alert.series_signature.framework_id === browsertimeId &&
+      !alert.series_signature.tags.includes('interactive') &&
+      !browsertimeBenchmarksTests.includes(alert.series_signature.suite) &&
+      sxsTriggered;
 
     const backfillStatusInfo = this.getBackfillStatusInfo(alert);
     let sherlockTooltip = backfillStatusInfo && backfillStatusInfo.message;
@@ -463,6 +506,30 @@ export default class AlertTableRow extends React.Component {
             />
           </div>
         </td>
+        {alertSummary.framework === browsertimeId && (
+          <td className="table-width-md">
+            {showSideBySideLink ? (
+              <span className="text-darker-info">
+                <a
+                  href={this.buildSideBySideLink()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-dark button btn border p-0 border-0 bg-transparent"
+                  aria-label="side-by-side"
+                >
+                  <FontAwesomeIcon
+                    title="Open side-by-side link"
+                    icon={faCirclePlay}
+                  />
+                </a>
+              </span>
+            ) : (
+              <Badge className="mb-1" color="light">
+                None
+              </Badge>
+            )}
+          </td>
+        )}
         <td className="table-width-lg">
           <div className="information-container">
             <div className="option">

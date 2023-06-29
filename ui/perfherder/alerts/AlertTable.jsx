@@ -6,6 +6,7 @@ import orderBy from 'lodash/orderBy';
 import {
   alertStatusMap,
   maximumVisibleAlertSummaryRows,
+  browsertimeId,
 } from '../perf-helpers/constants';
 import {
   genericErrorMessage,
@@ -65,6 +66,11 @@ export default class AlertTable extends React.Component {
         Confidence: {
           name: 'Confidence',
           sortValue: 't_value',
+          currentSort: tableSort.default,
+        },
+        DebuggingInformation: {
+          name: 'Debug Tools',
+          sortValue: '',
           currentSort: tableSort.default,
         },
         NoiseProfile: {
@@ -355,6 +361,14 @@ export default class AlertTable extends React.Component {
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
+                    {alertSummary.framework === browsertimeId && (
+                      <th className="align-bottom text-nowrap">
+                        <span>{tableConfig.DebuggingInformation.name}</span>
+                        <SortButtonDisabled
+                          column={tableConfig.DebuggingInformation}
+                        />
+                      </th>
+                    )}
                     <th className="align-bottom">
                       <TableColumnHeader
                         column={tableConfig.NoiseProfile}

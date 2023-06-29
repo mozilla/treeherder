@@ -2,7 +2,7 @@ import moment from 'moment';
 import numeral from 'numeral';
 import queryString from 'query-string';
 
-import { getApiUrl } from '../../helpers/url';
+import { getApiUrl, getJobsUrl } from '../../helpers/url';
 import { update, processResponse } from '../../helpers/http';
 import PerfSeriesModel, {
   getSeriesName,
@@ -10,6 +10,7 @@ import PerfSeriesModel, {
 } from '../../models/perfSeries';
 import RepositoryModel from '../../models/repository';
 import JobModel from '../../models/job';
+import { sxsTaskName } from '../../helpers/constants';
 
 import {
   endpoints,
@@ -375,6 +376,26 @@ export const createGraphsLinks = (
   });
 
   return links;
+};
+
+export const getSideBySideLink = (
+  repository,
+  baseRevision,
+  newRevision,
+  platform,
+  testName,
+) => {
+  const revisions = `${baseRevision.slice(0, 12)} ${newRevision.slice(0, 12)}`;
+
+  const jobUrl = getJobsUrl({
+    repo: repository,
+    tochange: newRevision,
+    fromchange: baseRevision,
+    searchStr: `${platform} ${testName} ${revisions} ${sxsTaskName}`,
+    group_state: 'expanded',
+  });
+
+  return jobUrl;
 };
 
 // TODO change usage of signature_hash to signature.id
