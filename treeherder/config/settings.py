@@ -9,6 +9,7 @@ from furl import furl
 from kombu import Exchange, Queue
 
 from treeherder.config.utils import connection_should_use_tls
+from treeherder.middleware import add_headers_function
 
 # TODO: Switch to pathlib once using Python 3.
 SRC_DIR = dirname(dirname(dirname(abspath(__file__))))
@@ -409,6 +410,8 @@ WHITENOISE_INDEX_FILE = True
 # Only output the hashed filename version of static files and not the originals.
 # Halves the time spent performing Brotli/gzip compression during deploys.
 WHITENOISE_KEEP_ONLY_HASHED_FILES = True
+# Add a `Content-Security-Policy` header to all static file responses.
+WHITENOISE_ADD_HEADERS_FUNCTION = add_headers_function
 
 # Templating
 TEMPLATES = [
