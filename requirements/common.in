@@ -38,4 +38,4 @@ mozci[cache]==2.3.2
 dockerflow==2022.8.0
 
 # Measuring noise of perf data
-moz-measure-noise==2.60.1 
+moz-measure-noise==2.60.1
