@@ -147,32 +147,15 @@ def get_abs_ttest_value(control_values, test_values):
     return res
 
 
-def confidence_detailed_info(confidence):
-    """Returns more explanations on what confidence text means"""
-    text = 'Result of running t-test on base versus new result distribution: '
-    switcher = {
-        'low': text + 'A value of \'low\' suggests less confidence that there is a sustained,'
-        ' significant change between the two revisions.',
-        'med': text
-        + 'A value of \'med\' indicates uncertainty that there is a significant change. '
-        'If you haven\'t already, consider retriggering the job to be more sure.',
-        'high': text
-        + 'A value of \'high\' indicates uncertainty that there is a significant change. '
-        'If you haven\'t already, consider retriggering the job to be more sure.',
-    }
-
-    return switcher.get(confidence, '')
-
-
 def get_confidence_text(abs_tvalue):
     if abs_tvalue == 0 or abs_tvalue is None:
         return ''
     if abs_tvalue < T_VALUE_CARE_MIN:
-        confidence_text = 'low'
+        confidence_text = 'Low'
     elif abs_tvalue < T_VALUE_CONFIDENCE:
-        confidence_text = 'med'
+        confidence_text = 'Medium'
     else:
-        confidence_text = 'high'
+        confidence_text = 'High'
     return confidence_text
 
 

@@ -871,7 +871,6 @@ class PerfCompareResults(generics.ListAPIView):
                     base_perf_data_values, new_perf_data_values
                 )
                 confidence_text = perfcompare_utils.get_confidence_text(confidence)
-                detailed_confidence = perfcompare_utils.confidence_detailed_info(confidence_text)
                 sig_hash = (
                     base_sig.get('signature_hash', '')
                     if base_sig
@@ -892,11 +891,14 @@ class PerfCompareResults(generics.ListAPIView):
                 class_name = perfcompare_utils.get_class_name(
                     new_is_better, base_avg_value, new_avg_value, confidence
                 )
+
                 is_improvement = class_name == 'success'
                 is_regression = class_name == 'danger'
                 is_meaningful = class_name == ''
 
                 row_result = {
+                    'base_rev': base_rev,
+                    'new_rev': new_rev,
                     'header_name': header,
                     'platform': platform,
                     'suite': base_sig.get('suite', ''),  # same suite for base_result and new_result
@@ -926,7 +928,6 @@ class PerfCompareResults(generics.ListAPIView):
                     'new_retriggerable_job_ids': new_grouped_job_ids.get(new_sig_id, []),
                     'confidence': confidence,
                     'confidence_text': confidence_text,
-                    'confidence_text_long': detailed_confidence,
                     'delta_value': delta_value,
                     'delta_percentage': delta_percentage,
                     'magnitude': magnitude,

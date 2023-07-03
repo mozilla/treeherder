@@ -18,7 +18,6 @@ from treeherder.perf.models import (
     PerformanceTag,
 )
 from treeherder.webapp.api.utils import to_timestamp
-from treeherder.webapp.api.perfcompare_utils import T_VALUE_CONFIDENCE, T_VALUE_CARE_MIN
 
 
 class OptionalBooleanField(serializers.BooleanField):
@@ -423,6 +422,8 @@ class PerfCompareResultsQueryParamsSerializer(serializers.Serializer):
 
 
 class PerfCompareResultsSerializer(serializers.ModelSerializer):
+    base_rev = serializers.CharField()
+    new_rev = serializers.CharField()
     is_empty = serializers.BooleanField()
     is_complete = serializers.BooleanField()
     platform = serializers.CharField()
@@ -452,9 +453,6 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
     new_stddev_pct = PerfCompareDecimalField()
     confidence = PerfCompareDecimalField()
     confidence_text = serializers.CharField()
-    confidence_text_long = serializers.CharField()
-    t_value_confidence = serializers.IntegerField(default=T_VALUE_CONFIDENCE)
-    t_value_care_min = serializers.IntegerField(default=T_VALUE_CARE_MIN)
     delta_value = PerfCompareDecimalField()
     delta_percentage = PerfCompareDecimalField()
     magnitude = PerfCompareDecimalField()
@@ -470,6 +468,8 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
     class Meta:
         model = PerformanceSignature
         fields = [
+            'base_rev',
+            'new_rev',
             'framework_id',
             'platform',
             'suite',
@@ -497,9 +497,6 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
             'new_stddev_pct',
             'confidence',
             'confidence_text',
-            'confidence_text_long',
-            't_value_confidence',
-            't_value_care_min',
             'graphs_link',
             'delta_value',
             'delta_percentage',

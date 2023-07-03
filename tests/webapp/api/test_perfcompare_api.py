@@ -99,6 +99,8 @@ def test_perfcompare_results_against_no_base(
 
     expected = [
         {
+            'base_rev': None,
+            'new_rev': test_perfcomp_push_2.revision,
             'framework_id': base_sig.framework.id,
             'platform': base_sig.platform.platform,
             'suite': base_sig.suite,
@@ -126,9 +128,6 @@ def test_perfcompare_results_against_no_base(
             'new_stddev_pct': round(response['new_stddev_pct'], 2),
             'confidence': round(response['confidence'], 2),
             'confidence_text': response['confidence_text'],
-            'confidence_text_long': response['confidence_text_long'],
-            't_value_confidence': perfcompare_utils.T_VALUE_CONFIDENCE,
-            't_value_care_min': perfcompare_utils.T_VALUE_CARE_MIN,
             'delta_value': round(response['delta_value'], 2),
             'delta_percentage': round(response['delta_pct'], 2),
             'magnitude': round(response['magnitude'], 2),
@@ -249,6 +248,8 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
 
     expected = [
         {
+            'base_rev': test_perfcomp_push.revision,
+            'new_rev': test_perfcomp_push_2.revision,
             'framework_id': base_sig.framework.id,
             'platform': base_sig.platform.platform,
             'suite': base_sig.suite,
@@ -276,9 +277,6 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
             'new_stddev_pct': round(response['new_stddev_pct'], 2),
             'confidence': round(response['confidence'], 2),
             'confidence_text': response['confidence_text'],
-            'confidence_text_long': response['confidence_text_long'],
-            't_value_confidence': perfcompare_utils.T_VALUE_CONFIDENCE,
-            't_value_care_min': perfcompare_utils.T_VALUE_CARE_MIN,
             'delta_value': round(response['delta_value'], 2),
             'delta_percentage': round(response['delta_pct'], 2),
             'magnitude': round(response['magnitude'], 2),
@@ -406,6 +404,8 @@ def test_perfcompare_results_multiple_runs(
 
     expected = [
         {
+            'base_rev': test_perfcomp_push.revision,
+            'new_rev': test_perfcomp_push_2.revision,
             'framework_id': sig1.framework.id,
             'platform': sig1.platform.platform,
             'suite': sig1.suite,
@@ -433,9 +433,6 @@ def test_perfcompare_results_multiple_runs(
             'new_stddev_pct': round(first_row['new_stddev_pct'], 2),
             'confidence': round(first_row['confidence'], 2),
             'confidence_text': first_row['confidence_text'],
-            'confidence_text_long': first_row['confidence_text_long'],
-            't_value_confidence': perfcompare_utils.T_VALUE_CONFIDENCE,
-            't_value_care_min': perfcompare_utils.T_VALUE_CARE_MIN,
             'delta_value': round(first_row['delta_value'], 2),
             'delta_percentage': round(first_row['delta_pct'], 2),
             'magnitude': round(first_row['magnitude'], 2),
@@ -451,6 +448,8 @@ def test_perfcompare_results_multiple_runs(
             'is_meaningful': first_row['is_meaningful'],
         },
         {
+            'base_rev': test_perfcomp_push.revision,
+            'new_rev': test_perfcomp_push_2.revision,
             'framework_id': sig3.framework.id,
             'platform': sig3.platform.platform,
             'suite': sig3.suite,
@@ -478,9 +477,6 @@ def test_perfcompare_results_multiple_runs(
             'new_stddev_pct': round(second_row['new_stddev_pct'], 2),
             'confidence': round(second_row['confidence'], 2),
             'confidence_text': second_row['confidence_text'],
-            'confidence_text_long': second_row['confidence_text_long'],
-            't_value_confidence': perfcompare_utils.T_VALUE_CONFIDENCE,
-            't_value_care_min': perfcompare_utils.T_VALUE_CARE_MIN,
             'delta_value': round(second_row['delta_value'], 2),
             'delta_percentage': round(second_row['delta_pct'], 2),
             'magnitude': round(second_row['magnitude'], 2),
@@ -615,9 +611,6 @@ def get_expected(
         len(base_perf_data_values), len(new_perf_data_values), response['confidence']
     )
     response['confidence_text'] = perfcompare_utils.get_confidence_text(response['confidence'])
-    response['confidence_text_long'] = perfcompare_utils.confidence_detailed_info(
-        response['confidence_text']
-    )
     response['is_complete'] = True
     response['more_runs_are_needed'] = perfcompare_utils.more_runs_are_needed(
         response['is_complete'], response['is_confident'], len(base_perf_data_values)
