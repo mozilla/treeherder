@@ -67,6 +67,7 @@ jobs:
             pip install --upgrade pip
             pip install tox
             tox -e docker
+            tox -e docker-postgres
       - codecov/upload
 
   test-docker-build:
