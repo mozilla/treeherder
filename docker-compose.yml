@@ -83,6 +83,19 @@ services:
       - '3306:3306'
     command: --character-set-server=utf8 --collation-server=utf8_bin
 
+  postgres:
+    container_name: postgres
+    # https://hub.docker.com/r/library/postgres/
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=mozilla1234
+      - POSTGRES_DB=treeherder
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+
   redis:
     container_name: redis
     # https://hub.docker.com/_/redis/
@@ -144,3 +157,4 @@ services:
 volumes:
   # TODO: Experiment with using tmpfs when testing, to speed up database-using Python tests.
   mysql_data: {}
+  postgres_data: {}

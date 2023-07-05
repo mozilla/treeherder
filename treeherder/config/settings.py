@@ -142,10 +142,15 @@ if UPSTREAM_DATABASE_URL:
 # We're intentionally not using django-environ's query string options feature,
 # since it hides configuration outside of the repository, plus could lead to
 # drift between environments.
-for alias in DATABASES:
+for alias, db in DATABASES.items():
     # Persist database connections for 5 minutes, to avoid expensive reconnects.
-    DATABASES[alias]['CONN_MAX_AGE'] = 300
-    DATABASES[alias]['OPTIONS'] = {
+    db['CONN_MAX_AGE'] = 300
+
+    # These options are only valid for mysql
+    if db['ENGINE'] != 'django.db.backends.mysql':
+        continue
+
+    db['OPTIONS'] = {
         # Override Django's default connection charset of 'utf8', otherwise it's
         # still not possible to insert non-BMP unicode into utf8mb4 tables.
         'charset': 'utf8mb4',
@@ -157,8 +162,8 @@ for alias in DATABASES:
     }
     # For use of the stage replica, use the 'deployment/gcp/ca-cert.pem' path for use in your local env file
     # or pass the variable to docker-compose command; additional certs are in the deployment directory.
-    if connection_should_use_tls(DATABASES[alias]['HOST']):
-        DATABASES[alias]['OPTIONS']['ssl'] = {
+    if connection_should_use_tls(db['HOST']):
+        db['OPTIONS']['ssl'] = {
             'ca': env("TLS_CERT_PATH", default=None),
         }
 
