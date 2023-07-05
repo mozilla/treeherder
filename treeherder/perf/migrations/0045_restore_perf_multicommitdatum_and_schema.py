@@ -1,10 +1,15 @@
 from django.db import migrations, models, connection
+from django.conf import settings
 import django.db.models.deletion
 from django.db.utils import DatabaseError
 
 
 def check_perfdatum_pk(apps, schema_editor):
     """Ensure performance_datum FK has been updated to bigint type"""
+
+    # Not needed on postgresql
+    if settings.DATABASES['default']['ENGINE'] != 'django.db.backends.mysql':
+        return
 
     with connection.cursor() as cursor:
         cursor.execute(
