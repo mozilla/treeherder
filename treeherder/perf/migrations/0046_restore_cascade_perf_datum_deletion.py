@@ -7,7 +7,7 @@ from django.conf import settings
 MULTICOMMIT_CONSTRAINT_SYMBOL = 'perf_multicommitdatu_perf_datum_id_c2d7eb14_fk_performan'
 
 if settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
-    DROP_TYPE = 'FOREIGN_KEY'
+    DROP_TYPE = 'FOREIGN KEY'
 else:
     DROP_TYPE = 'CONSTRAINT'
 
