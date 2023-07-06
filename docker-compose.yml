@@ -45,6 +45,7 @@ services:
     depends_on:
       - mysql
       - redis
+      - postgres
       - rabbitmq
     stdin_open: true
     tty: true
