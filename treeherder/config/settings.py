@@ -9,7 +9,6 @@ from furl import furl
 from kombu import Exchange, Queue
 
 from treeherder.config.utils import connection_should_use_tls
-from treeherder.middleware import add_headers_function
 
 # TODO: Switch to pathlib once using Python 3.
 SRC_DIR = dirname(dirname(dirname(abspath(__file__))))
@@ -395,14 +394,14 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
-    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.openapi.AutoSchema',
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
     'DEFAULT_VERSION': '1.0',
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
 }
 
 # Whitenoise
-# https://whitenoise.readthedocs.io/en/stable/django.html#available-settings
+# http://whitenoise.evans.io/en/stable/django.html#available-settings
 # Files in this directory will be served by WhiteNoise at the site root.
 WHITENOISE_ROOT = join(SRC_DIR, ".build")
 # Serve index.html for URLs ending in a trailing slash.
@@ -410,8 +409,6 @@ WHITENOISE_INDEX_FILE = True
 # Only output the hashed filename version of static files and not the originals.
 # Halves the time spent performing Brotli/gzip compression during deploys.
 WHITENOISE_KEEP_ONLY_HASHED_FILES = True
-# Add a `Content-Security-Policy` header to all static file responses.
-WHITENOISE_ADD_HEADERS_FUNCTION = add_headers_function
 
 # Templating
 TEMPLATES = [

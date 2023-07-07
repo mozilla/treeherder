@@ -134,13 +134,13 @@ blessed==1.20.0 \
     --hash=sha256:0c542922586a265e699188e52d5f5ac5ec0dd517e5a1041d90d2bbf23f906058 \
     --hash=sha256:2cdd67f8746e048f00df47a2880f4d6acbcdb399031b604e34ba8f71d5787680
     # via mozlog
-boto3==1.26.164 \
-    --hash=sha256:17c58a9e1ba4e9aea1267d6bafc87057687458c3a4f1ef297f67b84dcb463233 \
-    --hash=sha256:1ff5d0705bfd851d4d9d15460b38d7a9775b8116f68812a4e0f81e3321026813
+boto3==1.28.0 \
+    --hash=sha256:8d43863e4769a5652efc32fd63430df58488cdb3fb85e614461b511358e47ec7 \
+    --hash=sha256:ef81f63d38be25137c3ae9c6db2841c4cde82d1c7da9f8cb9f42f410c242d4f2
     # via mozci
-botocore==1.29.164 \
-    --hash=sha256:6d23d9448953390b621a9e34169ff1d78ddd7e10921a2dcaa738f84ca2172a36 \
-    --hash=sha256:e1aeccde63839fc263126ccb5de98fcaf02fc6099fb18bb829085199774e2cec
+botocore==1.31.0 \
+    --hash=sha256:bcb0601fabc9f6fb2f7c592e7c9c4dece69ccd8782bfe6cf991a14f7fa35e6f3 \
+    --hash=sha256:db22eea779de7f61621a612c6a36f3ee069a37d4572a9541aa374503447622aa
     # via
     #   boto3
     #   s3transfer
@@ -329,9 +329,9 @@ cleo==2.0.1 \
     --hash=sha256:6eb133670a3ed1f3b052d53789017b6e50fca66d1287e6e6696285f4cb8ea448 \
     --hash=sha256:eb4b2e1f3063c11085cebe489a6e9124163c226575a3c3be69b2e51af4a15ec5
     # via mozci
-click==8.1.3 \
-    --hash=sha256:7682dc8afb30297001674575ea00d1814d808d6a36af415a82bd481d37ba7b8e \
-    --hash=sha256:bb4d8133cb15a609f44e8213d9b391b0809795062913b383c62be0ee95b1db48
+click==8.1.4 \
+    --hash=sha256:2739815aaa5d2c986a88f1e9230c55e17f0caad3d958a5e13ad0797c166db9e3 \
+    --hash=sha256:b97d0c74955da062a7d4ef92fadb583806a585b2ea81958a81bd72726cbb8e37
     # via
     #   celery
     #   click-didyoumean
@@ -349,6 +349,14 @@ click-repl==0.3.0 \
     --hash=sha256:17849c23dba3d667247dc4defe1757fff98694e90fe37474f3feebb69ced26a9 \
     --hash=sha256:fb7e06deb8da8de86180a33a9da97ac316751c094c6899382da7feeeeb51b812
     # via celery
+coreapi==2.3.3 \
+    --hash=sha256:46145fcc1f7017c076a2ef684969b641d18a2991051fddec9458ad3f78ffc1cb \
+    --hash=sha256:bf39d118d6d3e171f10df9ede5666f63ad80bba9a29a8ec17726a66cf52ee6f3
+    # via -r requirements/common.in
+coreschema==0.0.4 \
+    --hash=sha256:5e6ef7bf38c1525d5e55a895934ab4273548629f16aed5c0a6caa74ebf45551f \
+    --hash=sha256:9503506007d482ab0867ba14724b93c18a33b22b6d19fb419ef2d239dd4a1607
+    # via coreapi
 crashtest==0.4.1 \
     --hash=sha256:80d7b1f316ebfbd429f648076d6275c877ba30ba48979de4191714a75266f0ce \
     --hash=sha256:8d23eac5fa660409f57472e3851dab7ac18aba459a8d19cbbba86d3d5aecd2a5
@@ -494,10 +502,16 @@ idna==3.4 \
     # via
     #   requests
     #   yarl
+itypes==1.2.0 \
+    --hash=sha256:03da6872ca89d29aef62773672b2d408f490f80db48b23079a4b194c86dd04c6 \
+    --hash=sha256:af886f129dea4a2a1e3d36595a2d139589e4dd287f5cab0b40e799ee81570ff1
+    # via coreapi
 jinja2==3.1.2 \
     --hash=sha256:31351a702a408a9e7595a8fc6150fc3f43bb6bf7e319770cbc0db9df9437e852 \
     --hash=sha256:6088930bfe239f0e6710546ab9c19c9ef35e29792895fed6e6e31a023a182a61
-    # via -r requirements/common.in
+    # via
+    #   -r requirements/common.in
+    #   coreschema
 jmespath==1.0.1 \
     --hash=sha256:02e2e4cc71b5bcab88332eebf907519190dd9e6e82107fa7f83b1003a6252980 \
     --hash=sha256:90261b206d6defd58fdd5e85f478bf633a2901798906be2ad389150c5c60edbe
@@ -826,9 +840,9 @@ orderedmultidict==1.0.1 \
     --hash=sha256:04070bbb5e87291cc9bfa51df413677faf2141c73c61d2a5f7b26bea3cd882ad \
     --hash=sha256:43c839a17ee3cdd62234c47deca1a8508a3f2ca1d0678a3bf791c87cf84adbf3
     # via furl
-prompt-toolkit==3.0.38 \
-    --hash=sha256:23ac5d50538a9a38c8bde05fecb47d0b403ecd0662857a86f886f798563d5b9b \
-    --hash=sha256:45ea77a2f7c60418850331366c81cf6b5b9cf4c7fd34616f733c5427e6abbb1f
+prompt-toolkit==3.0.39 \
+    --hash=sha256:04505ade687dc26dc4284b1ad19a83be2f2afe83e7a828ace0c72f3a1df72aac \
+    --hash=sha256:9dffbe1d8acf91e3de75f3b544e4842382fc06c6babe903ac9acb74dc6e08d88
     # via click-repl
 pyasn1==0.5.0 \
     --hash=sha256:87a2121042a1ac9358cabcaf1d07680ff97ee6404333bacca15f76aa8ad01a57 \
@@ -1075,6 +1089,7 @@ requests==2.31.0 \
     --hash=sha256:58cd2187c01e70e6e26505bca751777aa9f2ee0b7f4300988b709f44e013003f \
     --hash=sha256:942c5a758f98d790eaed1a29cb6eefc7ffb0d1cf7af05c3d2791656dbd6ad1e1
     # via
+    #   coreapi
     #   mozci
     #   taskcluster
 rsa==4.9 \
@@ -1237,9 +1252,9 @@ tomlkit==0.11.8 \
     --hash=sha256:8c726c4c202bdb148667835f68d68780b9a003a9ec34167b6c673b38eff2a171 \
     --hash=sha256:9330fc7faa1db67b541b28e62018c17d20be733177d290a13b24c62d1614e0c3
     # via mozci
-typing-extensions==4.7.0 \
-    --hash=sha256:5d8c9dac95c27d20df12fb1d97b9793ab8b2af8a3a525e68c80e21060c161771 \
-    --hash=sha256:935ccf31549830cda708b42289d44b6f74084d616a00be651601a4f968e77c82
+typing-extensions==4.7.1 \
+    --hash=sha256:440d5dd3af93b060174bf433bccd69b0babc3b15b1a8dca43789fd7f61514b36 \
+    --hash=sha256:b75ddc264f0ba5615db7ba217daeb99701ad295353c45f9e95963337ceeeffb2
     # via
     #   asgiref
     #   kombu
@@ -1247,6 +1262,10 @@ tzdata==2023.3 \
     --hash=sha256:11ef1e08e54acb0d4f95bdb1be05da659673de4acbd21bf9c69e94cc5e907a3a \
     --hash=sha256:7e65763eef3120314099b6939b5546db7adce1e7d6f2e179e3df563c70511eda
     # via celery
+uritemplate==4.1.1 \
+    --hash=sha256:4346edfc5c3b79f694bccd6d6099a322bbeb628dbf2cd86eea55a456ce5124f0 \
+    --hash=sha256:830c08b8d99bdd312ea4ead05994a38e8936266f84b9a7878232db50b044e02e
+    # via coreapi
 urllib3==1.26.16 \
     --hash=sha256:8d36afa7616d8ab714608411b4a3b13e58f463aee519024578e062e141dce20f \
     --hash=sha256:8f135f6502756bde6b2a9b28989df5fbe87c9970cecaa69041edcce7f0589b14
@@ -1312,9 +1331,9 @@ wcwidth==0.2.6 \
     # via
     #   blessed
     #   prompt-toolkit
-whitenoise[brotli]==6.5.0 \
-    --hash=sha256:15fe60546ac975b58e357ccaeb165a4ca2d0ab697e48450b8f0307ca368195a8 \
-    --hash=sha256:16468e9ad2189f09f4a8c635a9031cc9bb2cdbc8e5e53365407acf99f7ade9ec
+whitenoise[brotli]==5.2.0 \
+    --hash=sha256:05ce0be39ad85740a78750c86a93485c40f08ad8c62a6006de0233765996e5c7 \
+    --hash=sha256:05d00198c777028d72d8b0bbd234db605ef6d60e9410125124002518a48e515d
     # via -r requirements/common.in
 yarl==1.9.2 \
     --hash=sha256:04ab9d4b9f587c06d801c2abfe9317b77cdf996c65a90d5e84ecc45010823571 \
