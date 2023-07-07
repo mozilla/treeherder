@@ -1,6 +1,7 @@
 import re
 
 import newrelic.agent
+from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
 from whitenoise.middleware import WhiteNoiseMiddleware
 
@@ -21,29 +22,17 @@ CSP_DIRECTIVES = [
     "connect-src 'self' https://community-tc.services.mozilla.com https://firefox-ci-tc.services.mozilla.com https://*.taskcluster-artifacts.net https://taskcluster-artifacts.net https://treestatus.mozilla-releng.net https://bugzilla.mozilla.org https://auth.mozilla.auth0.com https://stage.taskcluster.nonprod.cloudops.mozgcp.net https://insights-api.newrelic.com https://prototype.treeherder.nonprod.cloudops.mozgcp.net https://treeherder.allizom.org",
     # Required since auth0-js performs session renewals in an iframe.
     "frame-src 'self' https://auth.mozilla.auth0.com",
+    "report-uri {}".format(reverse('csp-report')),
 ]
-
-
-def add_headers_function(headers, path, url):
-    """
-    This allows custom headers be be added to static assets responses.
-    NB: It does not affect dynamically generated Django views/templates,
-    such as API responses, or the browse-able API/auto-generated docs,
-    since they are not served by the WhiteNoise middleware.
-    """
-    from django.urls import reverse
-
-    CSP_DIRECTIVES.append("report-uri {}".format(reverse('csp-report')))
-    CSP_HEADER = '; '.join(CSP_DIRECTIVES)
-    headers['Content-Security-Policy'] = CSP_HEADER
+CSP_HEADER = '; '.join(CSP_DIRECTIVES)
 
 
 class CustomWhiteNoise(WhiteNoiseMiddleware):
     """
-    Extends WhiteNoiseMiddleware to allow WhiteNoise to recognise Yarn-generated
-    hashed filenames as "immutable", so that WhiteNoise will then set long
-    Cache-Control max-age headers for them.
-
+    Extends WhiteNoiseMiddleware with two additional features:
+    1) Adds a `Content-Security-Policy` header to all static file responses.
+    2) Allows WhiteNoise to recognise Yarn-generated hashed filenames as "immutable",
+       so that WhiteNoise will then set long Cache-Control max-age headers for them.
     For the stock functionality provided by WhiteNoiseMiddleware see:
     https://whitenoise.readthedocs.io/
     """
@@ -53,6 +42,15 @@ class CustomWhiteNoise(WhiteNoiseMiddleware):
     #   /assets/2.379789df.css.map
     #   /assets/fontawesome-webfont.af7ae505.woff2
     IMMUTABLE_FILE_RE = re.compile(r'^/assets/.*\.[a-f0-9]{8}\..*')
+
+    def add_headers_function(self, headers, path, url):
+        """
+        This allows custom headers be be added to static assets responses.
+        NB: It does not affect dynamically generated Django views/templates,
+        such as API responses, or the browse-able API/auto-generated docs,
+        since they are not served by the WhiteNoise middleware.
+        """
+        headers['Content-Security-Policy'] = CSP_HEADER
 
     def immutable_file_test(self, path, url):
         """
