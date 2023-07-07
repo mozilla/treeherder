@@ -17,7 +17,7 @@ LINE_CACHE_TIMEOUT_DAYS = 21
 LINE_CACHE_TIMEOUT = 86400 * LINE_CACHE_TIMEOUT_DAYS
 
 LEAK_RE = re.compile(r'\d+ bytes leaked \((.+)\)$|leak at (.+)$')
-CRASH_RE = re.compile(r'.+ application crashed \[@ (.+)\]$')
+CRASH_RE = re.compile(r'.+ application crashed \[@ (.+)\] \|.+')
 MOZHARNESS_RE = re.compile(r'^\d+:\d+:\d+[ ]+(?:DEBUG|INFO|WARNING|ERROR|CRITICAL|FATAL) - [ ]?')
 PROCESS_ID_RE = re.compile(r"(?:PID \d+|GECKO\(\d+\)) \| +")
 REFTEST_RE = re.compile(r'\s+[=!]=\s+.*')
@@ -216,9 +216,13 @@ def get_error_search_term_and_path(error_line):
     path_end = None
 
     if len(tokens) >= 3:
+        is_crash = 'PROCESS-CRASH' in tokens[0]
         # it's in the "FAILURE-TYPE | testNameOrFilePath | message" type format.
         test_name_or_path = tokens[1]
         message = tokens[2]
+        if is_crash:
+            test_name_or_path = tokens[2]
+            message = tokens[1]
         # Leak failure messages are of the form:
         # leakcheck | .*\d+ bytes leaked (Object-1, Object-2, Object-3, ...)
         match = LEAK_RE.search(message)
@@ -231,6 +235,8 @@ def get_error_search_term_and_path(error_line):
             path_end = test_name_or_path
             # if this is a path, we are interested in the last part
             search_term = test_name_or_path.split("/")[-1]
+            if is_crash:
+                search_term = message
 
     # If the failure line was not in the pipe symbol delimited format or the search term
     # will likely return too many (or irrelevant) results (eg: too short or matches terms
