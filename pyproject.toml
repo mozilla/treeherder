@@ -1,3 +1,18 @@
+[project]
+name = "treeherder"
+version = "1.0.0"
+description = "Defaut package, used for development or readthedocs"
+
+[project.optional-dependencies]
+docs = [
+  "mkdocs==1.4.3",
+  "mkdocs-material==9.1.18",
+  "mdx_truly_sane_lists==1.3",
+]
+
+[tool.setuptools]
+packages = ["treeherder"]
+
 [build-system]
 requires = ["setuptools", "wheel"]
 # A list of all of the optional dependencies, some of which are included in the
