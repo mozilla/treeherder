@@ -86,8 +86,8 @@ class ArtifactBuilderCollection:
             download_size_in_bytes = int(response.headers.get('Content-Length', -1))
 
             # Temporary annotation of log size to help set thresholds in bug 1295997.
-            newrelic.agent.add_custom_parameter('unstructured_log_size', download_size_in_bytes)
-            newrelic.agent.add_custom_parameter(
+            newrelic.agent.add_custom_attribute('unstructured_log_size', download_size_in_bytes)
+            newrelic.agent.add_custom_attribute(
                 'unstructured_log_encoding', response.headers.get('Content-Encoding', 'None')
             )
 

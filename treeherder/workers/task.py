@@ -57,7 +57,7 @@ class retryable_task:
                     params = {
                         "number_of_prior_retries": number_of_prior_retries,
                     }
-                    newrelic.agent.record_exception(params=params)
+                    newrelic.agent.notice_error(attributes=params)
                 # Implement exponential backoff with some randomness to prevent
                 # thundering herd type problems. Constant factor chosen so we get
                 # reasonable pause between the fastest retries.

@@ -126,7 +126,7 @@ class HgPushlogProcess:
             try:
                 store_push(repository, self.transform_push(push))
             except Exception:
-                newrelic.agent.record_exception()
+                newrelic.agent.notice_error()
                 errors.append(
                     {
                         "project": repository,

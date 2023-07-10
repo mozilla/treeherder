@@ -31,14 +31,13 @@ class CustomWhiteNoise(WhiteNoiseMiddleware):
     """
     Extends WhiteNoiseMiddleware with two additional features:
     1) Adds a `Content-Security-Policy` header to all static file responses.
-    2) Allows WhiteNoise to recognise Neutrino-generated hashed filenames as "immutable",
+    2) Allows WhiteNoise to recognise Yarn-generated hashed filenames as "immutable",
        so that WhiteNoise will then set long Cache-Control max-age headers for them.
-
     For the stock functionality provided by WhiteNoiseMiddleware see:
-    http://whitenoise.evans.io/
+    https://whitenoise.readthedocs.io/
     """
 
-    # Matches Neutrino's style of hashed filename URLs, eg:
+    # Matches Yarn's style of hashed filename URLs, eg:
     #   /assets/index.1d85033a.js
     #   /assets/2.379789df.css.map
     #   /assets/fontawesome-webfont.af7ae505.woff2
@@ -73,4 +72,4 @@ class NewRelicMiddleware(MiddlewareMixin):
         # The New Relic Python agent only submits the User Agent to APM (for exceptions and
         # slow transactions), so for use in Insights we have to add it as a customer parameter.
         if 'HTTP_USER_AGENT' in request.META:
-            newrelic.agent.add_custom_parameter('user_agent', request.META['HTTP_USER_AGENT'])
+            newrelic.agent.add_custom_attribute('user_agent', request.META['HTTP_USER_AGENT'])

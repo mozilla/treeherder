@@ -35,26 +35,7 @@ def mock_rev(test_push):
 def mock_json_pushes(test_push):
     responses.add(
         responses.GET,
-        f'https://hg.mozilla.org/{test_push.repository.name}/json-pushes?version=2&startID=536017&endID=536018',
-        json={
-            "pushes": {
-                "536018": {
-                    "changesets": [
-                        "abcdef77949168d16c03a4cba167678b7ab65f76",
-                        "084c7f0fcde34f813013a96423e6bec18837ead4",
-                        "81ab76256e9a2198a2c9f368d260c2f46ef749a0",
-                    ],
-                    "date": 1589318625,
-                    "user": "user@example.org",
-                }
-            },
-        },
-        content_type='application/json',
-        status=200,
-    )
-    responses.add(
-        responses.GET,
-        f'https://hg.mozilla.org/{test_push.repository.name}/json-pushes?version=2&startID=536015&endID=536016',
+        f'https://hg.mozilla.org/{test_push.repository.name}/json-pushes?version=2&full=1&startID=536015&endID=536016',
         json={
             "pushes": {
                 "536016": {

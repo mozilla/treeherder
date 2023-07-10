@@ -36,14 +36,13 @@ class SummaryByGroupName(generics.ListAPIView):
         if 'enddate' in request.query_params:
             enddate = request.query_params['enddate']
 
-        if (
-            not enddate
-            or not re.match(r'^[0-9]{4}-[0-9]{2}-[0-9]{2}$', enddate)
-            or ((enddate - startdate).days > 1)
-        ):
+        if not enddate or not re.match(r'^[0-9]{4}-[0-9]{2}-[0-9]{2}$', enddate):
             enddate = startdate + datetime.timedelta(days=1)
         else:
             enddate = datetime.datetime.strptime(enddate, "%Y-%m-%d")
+
+        if (enddate - startdate).days > 1:
+            enddate = startdate + datetime.timedelta(days=1)
 
         q = (
             Job.objects.filter(
