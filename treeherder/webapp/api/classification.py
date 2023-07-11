@@ -6,7 +6,7 @@ from rest_framework.status import HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN, HTT
 from treeherder.model.models import BugJobMap, Job, JobNote
 
 
-class ClassificationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class ClassificationViewSet(mixins.ListModelMixin, viewsets.ViewSet):
     """
     This viewset is responsible for the classification endpoint.
     """
