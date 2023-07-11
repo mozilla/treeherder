@@ -2,11 +2,12 @@
 
 from django.db import migrations
 
-DATUM_REPLICATE_CONSTRAINT_SYMBOL = 'performance_datum_re_performance_datum_id_fe2ed518_fk_performan'
+DATUM_REPLICATE_CONSTRAINT_SYMBOL = (
+    'performance_datum_re_performance_datum_id_fe2ed518_fk_performan'
+)
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('perf', '0049_performancedatumreplicate'),
     ]
