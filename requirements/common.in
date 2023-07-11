@@ -16,11 +16,10 @@ djangorestframework==3.14.0  # Imported as rest_framework
 django-cors-headers==4.1.0  # Listed as 3rd party app on settings.py
 mozlog==8.0.0
 
-coreapi==2.3.3 # `coreapi` must be installed for schema support.
-
 # Used directly and also by Django's YAML serializer.
 PyYAML==6.0  # Imported as yaml
 django-environ==0.10.0  # Imported as environ
+uritemplate==4.1.1  # For OpenAPI schema
 
 python-dateutil==2.8.2
 django-filter==23.2  # Listed in DEFAULT_FILTER_BACKENDS on settings.py
