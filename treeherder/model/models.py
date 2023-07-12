@@ -225,6 +225,9 @@ class Bugscache(models.Model):
     class Meta:
         db_table = 'bugscache'
         verbose_name_plural = 'bugscache'
+        indexes = [
+            models.Index(fields=['summary']),
+        ]
 
     def __str__(self):
         return "{0}".format(self.id)

@@ -22,6 +22,12 @@ if settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
                 'SET max_error_count=@old_max_error_count;',
             ],
             reverse_sql=['ALTER TABLE bugscache DROP INDEX idx_summary;'],
+            state_operations=[
+                migrations.AddIndex(
+                    model_name='bugscache',
+                    index=models.Index(fields=['summary'], name='bugscache_summary_7f6b96_idx'),
+                )
+            ],
         ),
         # Since Django doesn't natively support creating composite prefix indicies for Mysql
         migrations.RunSQL(
@@ -61,7 +67,8 @@ else:
             ),
         ),
         migrations.AddIndex(
-            model_name='bugscache', index=models.Index('summary', name='idx_summary')
+            model_name='bugscache',
+            index=models.Index(fields=['summary'], name='bugscache_summary_7f6b96_idx'),
         ),
     ]
 
