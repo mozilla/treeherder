@@ -20,6 +20,7 @@ from treeherder.model.models import Push
 from treeherder.perf.exceptions import MaxRuntimeExceeded
 from treeherder.perf.models import (
     PerformanceDatum,
+    PerformanceDatumReplicate,
     PerformanceSignature,
     PerformanceAlertSummary,
     PerformanceAlert,
@@ -821,6 +822,29 @@ def test_deleting_performance_data_cascades_to_perf_multicomit_data(test_perf_da
         cursor.close()
 
     assert MultiCommitDatum.objects.count() == 0
+
+
+def test_deleting_performance_data_cascades_to_perf_datum_replicate(test_perf_data):
+    perf_datum = test_perf_data[0]
+    PerformanceDatumReplicate.objects.create(performance_datum=perf_datum, value=0.0)
+
+    assert PerformanceDatumReplicate.objects.count() == 1
+
+    try:
+        cursor = connection.cursor()
+        cursor.execute(
+            '''
+            DELETE FROM `performance_datum`
+            WHERE id = %s
+            ''',
+            [perf_datum.id],
+        )
+    except IntegrityError:
+        pytest.fail()
+    finally:
+        cursor.close()
+
+    assert PerformanceDatumReplicate.objects.count() == 0
 
 
 def test_alerts_older_than_a_year_are_removed_even_if_signature_is_active(test_perf_alert):
