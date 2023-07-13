@@ -17,8 +17,13 @@ function check_service () {
 }
 
 # Keep these in sync with DATABASE_URL.
-check_service "MySQL" "mysql" 3306
-check_service "PostgreSQL" "postgres" 5432
+echo "Checking database status at $DATABASE_URL"
+if [[ ${DATABASE_URL:0:8} == "mysql://" ]]; then
+  check_service "MySQL" "mysql" 3306;
+fi
+if [[ ${DATABASE_URL:0:7} == "psql://" ]]; then
+  check_service "PostgreSQL" "postgres" 5432;
+fi
 
 # Keep these in sync with CELERY_BROKER_URL.
 check_service "RabbitMQ" "rabbitmq" 5672
