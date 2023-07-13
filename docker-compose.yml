@@ -135,6 +135,7 @@ services:
       - .:/app
     depends_on:
       - mysql
+      - postgres
       - rabbitmq
     platform: linux/amd64
 
@@ -152,6 +153,7 @@ services:
       - .:/app
     depends_on:
       - mysql
+      - postgres
       - redis
       - rabbitmq
     platform: linux/amd64
