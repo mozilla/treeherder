@@ -87,7 +87,7 @@ services:
   postgres:
     container_name: postgres
     # https://hub.docker.com/r/library/postgres/
-    image: postgres:15
+    image: postgres:15-bullseye
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=mozilla1234
