@@ -191,6 +191,8 @@ export class BugFilerClass extends React.Component {
         /.*test_.*\.xhtml/, // mochitest-chrome
         /.*browser_.*\.html/, // b-c
         /.*browser_.*\.js/, // b-c
+        /.*\.ini/, // when we have a failure on shutdown (crash/leak/timeout)
+        /.*\.toml/, // when we have a failure on shutdown (crash/leak/timeout)
         /.*org.mozilla.geckoview.test.*/, // junit
       ].some((regexp) => regexp.test(summaryString));
 
@@ -204,6 +206,13 @@ export class BugFilerClass extends React.Component {
           /.*\.xht(\?.*| )\|/,
           /.*\.mp4 \|/, // reftest specific
           /.*\.webm \|/, // reftest specific
+          / \| .*\.js(\?.*)?/, // crash format
+          / \| .*\.html(\?.*)?/,
+          / \| .*\.htm(\?.*)?/,
+          / \| .*\.xhtml(\?.*)?/,
+          / \| .*\.xht(\?.*)?/,
+          / \| .*.mp4/, // reftest specific
+          / \| .*\.webm/, // reftest specific
         ].some((regexp) => regexp.test(summaryString));
       }
 
@@ -221,8 +230,8 @@ export class BugFilerClass extends React.Component {
         trimParams = true;
       }
 
-      // If not crash|leak
-      if (!crash && !isAssertion && isTestPath) {
+      // If not leak
+      if (!isAssertion && isTestPath) {
         const parts = summaryString.split(' | ');
         // split('?') is for removing `?params...` from the test name
         if (parts.length === 2 || parts.length === 1) {
