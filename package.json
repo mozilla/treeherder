@@ -23,7 +23,7 @@
     "@types/react-dom": "*",
     "ajv": "8.6.3",
     "assert": "2.0.0",
-    "auth0-js": "9.13.4",
+    "auth0-js": "9.22.0",
     "babel-jest": "29.3.1",
     "buffer": "6.0.3",
     "connected-react-router": "6.8.0",
@@ -73,6 +73,7 @@
     "victory": "36.6.8"
   },
   "devDependencies": {
+    "@babel/eslint-parser": "7.11.5",
     "@babel/plugin-proposal-class-properties": "7.17.12",
     "@babel/plugin-syntax-dynamic-import": "7.8.3",
     "@babel/preset-env": "7.17.12",
@@ -84,7 +85,6 @@
     "@pollyjs/persister-fs": "6.0.5",
     "@testing-library/jest-dom": "5.16.5",
     "@testing-library/react": "12.0.0",
-    "@babel/eslint-parser": "7.11.5",
     "babel-loader": "9.1.2",
     "clean-webpack-plugin": "4.0.0",
     "copy-webpack-plugin": "11.0.0",
