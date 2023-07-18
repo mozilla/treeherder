@@ -53,9 +53,6 @@ WSGI_APPLICATION = 'treeherder.config.wsgi.application'
 # Send full URL within origin but only origin for cross-origin requests
 SECURE_REFERRER_POLICY = "origin-when-cross-origin"
 
-# Prevent window.opener from always being null while it's used in the frontend
-SECURE_CROSS_ORIGIN_OPENER_POLICY = None
-
 # We can't set X_FRAME_OPTIONS to DENY since renewal of an Auth0 token
 # requires opening the auth handler page in an invisible iframe with the
 # same origin.
