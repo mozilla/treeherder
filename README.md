@@ -1,9 +1,8 @@
 # Treeherder
 
 [![What's Deployed](https://img.shields.io/badge/whatsdeployed-prototype,stage,prod-green.svg)](https://whatsdeployed.io/s/BIY/Mozilla/Treeherder)
-[![Build Status](https://travis-ci.org/mozilla/treeherder.png?branch=master)](https://app.circleci.com/pipelines/github/mozilla/treeherder)
-[![Node dependencies Status](https://david-dm.org/mozilla/treeherder/status.svg)](https://david-dm.org/mozilla/treeherder)
-[![Node devDependencies Status](https://david-dm.org/mozilla/treeherder/dev-status.svg)](https://david-dm.org/mozilla/treeherder?type=dev)
+[![Build Status](https://circleci.com/gh/mozilla/treeherder.svg?branch=master&style=shield)](https://app.circleci.com/pipelines/github/mozilla/treeherder)
+![Node dependencies Status](https://shields.io/librariesio/github/mozilla/treeherder)
 [![Documentation Status](https://readthedocs.org/projects/treeherder/badge/?version=latest)](https://treeherder.readthedocs.io/?badge=latest)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
