@@ -1,6 +1,5 @@
 import moment from 'moment';
 import numeral from 'numeral';
-import queryString from 'query-string';
 
 import { getApiUrl, getJobsUrl } from '../../helpers/url';
 import { update, processResponse } from '../../helpers/http';
@@ -319,7 +318,7 @@ export const getGraphsLink = function getGraphsLink(
     params.timerange = timeRange;
   }
 
-  return `./graphs?${queryString.stringify(params)}`;
+  return `./graphs?${new URLSearchParams(params).toString()}`;
 };
 
 export const createNoiseMetric = function createNoiseMetric(

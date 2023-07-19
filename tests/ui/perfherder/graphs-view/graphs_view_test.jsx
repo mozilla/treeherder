@@ -7,7 +7,6 @@ import {
   waitForElementToBeRemoved,
 } from '@testing-library/react';
 import fetchMock from 'fetch-mock';
-import queryString from 'query-string';
 
 import {
   endpoints,
@@ -351,12 +350,12 @@ describe('Mocked API calls', () => {
       `${getProjectUrl(
         '/performance/signatures/',
         seriesData[0].projectName,
-      )}?${queryString.stringify({
+      )}?${new URLSearchParams({
         framework: 1,
         interval: 1209600,
         platform: 'linux64',
         subtests: 0,
-      })}`,
+      }).toString()}`,
       {
         1647494: {
           id: 1647494,

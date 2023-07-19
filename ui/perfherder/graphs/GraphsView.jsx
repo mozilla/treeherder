@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Container, Col, Row } from 'reactstrap';
 import unionBy from 'lodash/unionBy';
-import queryString from 'query-string';
 
 import { getData, processResponse, processErrors } from '../../helpers/http';
 import {
@@ -87,14 +86,18 @@ class GraphsView extends React.Component {
 
   checkQueryParams = () => {
     const {
-      series,
       zoom,
       selected,
       highlightAlerts,
       highlightCommonAlerts,
       highlightChangelogData,
-      highlightedRevisions,
-    } = queryString.parse(this.props.location.search);
+    } = Object.fromEntries(new URLSearchParams(this.props.location.search));
+    const series = new URLSearchParams(this.props.location.search).getAll(
+      'series',
+    );
+    const highlightedRevisions = new URLSearchParams(
+      this.props.location.search,
+    ).getAll('highlightedRevisions');
 
     const updates = {};
 
@@ -123,7 +126,7 @@ class GraphsView extends React.Component {
     if (highlightedRevisions) {
       updates.highlightedRevisions =
         typeof highlightedRevisions === 'string'
-          ? [highlightedRevisions]
+          ? highlightedRevisions.split(',')
           : highlightedRevisions;
     }
 
@@ -314,10 +317,16 @@ class GraphsView extends React.Component {
 
   updateParams = (params) => {
     const { location, history } = this.props;
-    let newQueryString = queryString.stringify(params);
-    newQueryString = newQueryString.replace(/%2C/g, ',');
+    const { series } = params;
+    delete params.series;
+    let newURLSearchParams = new URLSearchParams(params).toString();
+    newURLSearchParams = newURLSearchParams.concat(
+      `&series=${series.join('&series=')}`,
+    );
+    newURLSearchParams = newURLSearchParams.replace(/%2C/g, ',');
+    params.series = series;
 
-    updateQueryParams(newQueryString, history, location);
+    updateQueryParams(newURLSearchParams, history, location);
   };
 
   changeParams = () => {

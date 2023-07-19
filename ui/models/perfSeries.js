@@ -1,5 +1,3 @@
-import queryString from 'query-string';
-
 import { getProjectUrl } from '../helpers/location';
 import { createQueryParams, getArtifactsUrl } from '../helpers/url';
 import { getData } from '../helpers/http';
@@ -77,6 +75,22 @@ export const getSeriesSummary = function getSeriesSummary(
   };
 };
 
+function paramsToTuples(params) {
+  const usp = new URLSearchParams(params).toString();
+  if (usp.indexOf(',') >= 0 || usp.indexOf('%2C') >= 0) {
+    const map = Object.entries(params).map(([key, val]) =>
+      val.toString().indexOf(',') === -1
+        ? [key, val]
+        : val
+            .toString()
+            .split(',')
+            .map((nval) => [key, nval]),
+    );
+    return map[0];
+  }
+  return params;
+}
+
 export default class PerfSeriesModel {
   constructor() {
     this.optionCollectionMap = null;
@@ -93,7 +107,7 @@ export default class PerfSeriesModel {
       `${getProjectUrl(
         '/performance/signatures/',
         projectName,
-      )}?${queryString.stringify(params)}`,
+      )}?${new URLSearchParams(paramsToTuples(params)).toString()}`,
     );
 
     if (response.failureStatus) {
@@ -126,7 +140,7 @@ export default class PerfSeriesModel {
       `${getProjectUrl(
         '/performance/data/',
         projectName,
-      )}?${queryString.stringify(params)}`,
+      )}?${new URLSearchParams(params).toString()}`,
     ).then((resp) => {
       if (resp.ok) {
         return resp.json();
