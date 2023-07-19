@@ -1318,9 +1318,9 @@ wcwidth==0.2.6 \
     # via
     #   blessed
     #   prompt-toolkit
-whitenoise[brotli]==6.1.0 \
-    --hash=sha256:2067fe9008a3cd7d0d75f75c9240b54f5f59996ca285cbeab18fc1e89949e30d \
-    --hash=sha256:6ccc6d1ad6fb688a398ea65d97db47f018ea0be7da75e146e8f2e837a04ba590
+whitenoise[brotli]==6.2.0 \
+    --hash=sha256:8e9c600a5c18bd17655ef668ad55b5edf6c24ce9bdca5bf607649ca4b1e8e2c2 \
+    --hash=sha256:8fa943c6d4cd9e27673b70c21a07b0aa120873901e099cd46cab40f7cc96d567
     # via -r requirements/common.in
 yarl==1.9.2 \
     --hash=sha256:04ab9d4b9f587c06d801c2abfe9317b77cdf996c65a90d5e84ecc45010823571 \
