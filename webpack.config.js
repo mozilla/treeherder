@@ -179,11 +179,6 @@ const developmentConfig = {
       lang: 'en',
       filename: 'index.html',
     }),
-    new HotModuleReplacementPlugin({
-      template: 'ui/redoc.html',
-      lang: 'en',
-      filename: 'redoc.html',
-    }),
   ],
 
   infrastructureLogging: {
@@ -256,13 +251,6 @@ const productionConfig = {
       meta: false,
       filename: 'index.html',
       chunks: ['index'],
-    }),
-    new HtmlWebpackPlugin({
-      template: 'ui/redoc.html',
-      lang: 'en',
-      meta: false,
-      filename: 'redoc.html',
-      chunks: ['redoc'],
     }),
     new MiniCssExtractPlugin({
       filename: 'assets/[name].[contenthash:8].css',
