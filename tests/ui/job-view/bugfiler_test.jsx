@@ -264,6 +264,38 @@ describe('BugFiler', () => {
     expect(displayed).toBeInTheDocument(expected);
   });
 
+  test('should extract crash signature', async () => {
+    const suggestions = [
+      {
+        bugs: {},
+        search_terms: [],
+        search:
+          'PROCESS-CRASH | application crashed [@ servo_arc::HeaderSlice<H,T>::slice] | dom/tests/mochitest/pointerlock/test_pointerlock-api.html',
+      },
+    ];
+
+    render(bugFilerComponentSuggestions(suggestions));
+    const signatureArea = await screen.getByDisplayValue(
+      '[@ servo_arc::HeaderSlice<H,T>::slice]',
+    );
+    expect(signatureArea).toBeInTheDocument();
+  });
+
+  test('crash signature field should be empty for non-crash issues', async () => {
+    const suggestions = [
+      {
+        bugs: {},
+        search_terms: [],
+        search:
+          'TEST-UNEXPECTED-FAIL | dom/tests/mochitest/webvr/test_webvr.html | this passed',
+      },
+    ];
+
+    render(bugFilerComponentSuggestions(suggestions));
+    const signatureArea = await screen.queryByDisplayValue('test_webvr.html');
+    expect(signatureArea).toBeNull();
+  });
+
   test('should set as security bug if summary contains initially a relevant search term', async () => {
     const suggestions = [
       {

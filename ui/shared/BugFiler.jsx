@@ -34,7 +34,6 @@ import { notify } from '../job-view/redux/stores/notifications';
 import { classified } from '../glean/generated/pings.js';
 import { newFailureNewBug, newBug } from '../glean/generated/classification.js';
 
-const crashRegex = /application crashed \[@ (.+)\]$/g;
 const omittedLeads = [
   'TEST-UNEXPECTED-FAIL',
   'PROCESS-CRASH',
@@ -139,10 +138,7 @@ export class BugFilerClass extends React.Component {
       summaryString = summaryString.replace(re, '');
     }
 
-    const crash = suggestion.search.match(crashRegex);
-    const crashSignatures = crash
-      ? [crash[0].split('application crashed ')[1]]
-      : [];
+    const crashSignatures = this.getCrashSignatures(suggestion);
 
     const newFailure = suggestion.showNewButton;
     const keywords = [];
@@ -272,6 +268,12 @@ export class BugFilerClass extends React.Component {
   componentDidMount() {
     this.checkForSecurityIssue();
     this.findProductByPath();
+  }
+
+  getCrashSignatures(failureLine) {
+    const crashRegex = /application crashed \[@ (.+)\]/g;
+    const crash = failureLine.search.match(crashRegex);
+    return crash ? [crash[0].split('application crashed ')[1]] : [];
   }
 
   getUnhelpfulSummaryReason(summary) {
@@ -653,10 +655,7 @@ export class BugFilerClass extends React.Component {
       selectedProduct,
     } = this.state;
     const searchTerms = suggestion.search_terms;
-    const crash = summary.match(crashRegex);
-    const crashSignatures = crash
-      ? [crash[0].split('application crashed ')[1]]
-      : [];
+    const crashSignatures = this.getCrashSignatures(suggestion);
     const unhelpfulSummaryReason = this.getUnhelpfulSummaryReason(summary);
 
     return (
