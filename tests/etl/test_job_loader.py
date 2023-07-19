@@ -147,7 +147,8 @@ def test_ingest_pulse_jobs(
         },
     ]
     assert [
-        {"name": item.name, "url": item.url, "parse_status": item.status} for item in job_logs.all()
+        {"name": item.name, "url": item.url, "parse_status": item.status}
+        for item in job_logs.all().order_by("name")
     ] == logs_expected
 
 
