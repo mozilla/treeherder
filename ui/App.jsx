@@ -4,6 +4,7 @@ import { hot } from 'react-hot-loader/root';
 import { Helmet } from 'react-helmet';
 import { ConnectedRouter } from 'connected-react-router';
 import { Provider } from 'react-redux';
+import { RedocStandalone } from 'redoc';
 
 import { permaLinkPrefix } from './perfherder/perf-helpers/constants';
 import { configureStore, history } from './job-view/redux/configureStore';
@@ -170,6 +171,15 @@ const App = () => {
               render={(props) =>
                 withFavicon(<PerfherderApp {...props} />, '/perfherder')
               }
+            />
+            <Route
+              path="/docs"
+              render={(props) => (
+                <RedocStandalone
+                  specUrl="/api/schema/?format=openapi-json"
+                  {...props}
+                />
+              )}
             />
           </Switch>
         </Suspense>
