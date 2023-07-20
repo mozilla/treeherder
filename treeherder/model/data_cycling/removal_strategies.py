@@ -214,13 +214,14 @@ class TryDataRemoval(RemovalStrategy):
                 [self.try_repo, self._max_timestamp, *self.target_signatures, self._chunk_size],
             )
         else:
-            PerformanceDatum.objects.filter(
+            deleted, _ = PerformanceDatum.objects.filter(
                 id__in=PerformanceDatum.objects.filter(
                     repository_id=self.try_repo,
                     push_timestamp__lte=self._max_timestamp,
                     signature_id__in=self.target_signatures,
                 ).values_list('id')[: self._chunk_size]
             ).delete()
+            using.rowcount = deleted
 
     def __lookup_new_signature(self):
         self.__target_signatures = self.__try_signatures[: self.SIGNATURE_BULK_SIZE]
@@ -305,11 +306,12 @@ class IrrelevantDataRemoval(RemovalStrategy):
                 ],
             )
         else:
-            PerformanceDatum.objects.filter(
+            deleted, _ = PerformanceDatum.objects.filter(
                 id__in=PerformanceDatum.objects.filter(
                     repository_id=self.irrelevant_repo, push_timestamp__lte=self._max_timestamp
                 ).values_list('id')[:chunk_size]
             ).delete()
+            using.rowcount = deleted
 
     def _find_ideal_chunk_size(self) -> int:
         max_id_of_non_expired_row = (
@@ -422,13 +424,14 @@ class StalledDataRemoval(RemovalStrategy):
                 ],
             )
         else:
-            PerformanceDatum.objects.filter(
+            deleted, _ = PerformanceDatum.objects.filter(
                 id__in=PerformanceDatum.objects.filter(
                     repository_id=self.target_signature.repository_id,
                     signature_id=self.target_signature.id,
                     push_timestamp__lte=self._max_timestamp,
                 ).values_list('id')[: self._chunk_size]
             ).delete()
+            using.rowcount = deleted
 
     def __lookup_new_signature(self):
         try:
