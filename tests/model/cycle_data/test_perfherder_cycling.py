@@ -4,6 +4,7 @@ from unittest.mock import MagicMock
 from unittest.mock import patch
 
 import pytest
+from django.conf import settings
 from django.core.management import call_command
 from django.db import connection, IntegrityError
 
@@ -809,13 +810,16 @@ def test_deleting_performance_data_cascades_to_perf_multicomit_data(test_perf_da
 
     try:
         cursor = connection.cursor()
-        cursor.execute(
-            '''
-            DELETE FROM `performance_datum`
-            WHERE id = %s
-            ''',
-            [perf_datum.id],
-        )
+        if settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
+            cursor.execute(
+                '''
+                DELETE FROM `performance_datum`
+                WHERE id = %s
+                ''',
+                [perf_datum.id],
+            )
+        else:
+            PerformanceDatum.objects.filter(id=perf_datum.id).delete()
     except IntegrityError:
         pytest.fail()
     finally:
