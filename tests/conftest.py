@@ -705,7 +705,7 @@ def test_perf_data(test_perf_signature, eleven_jobs_stored):
     # for making things easier, ids for jobs
     # and push should be the same;
     # also, we only need a subset of jobs
-    perf_jobs = th_models.Job.objects.filter(pk__in=range(7, 11)).order_by('push__time').all()
+    perf_jobs = th_models.Job.objects.filter(pk__in=range(7, 11)).order_by('push__time', 'id').all()
 
     for index, job in enumerate(perf_jobs, start=1):
         job.push_id = index
