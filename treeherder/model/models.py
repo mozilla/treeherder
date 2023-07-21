@@ -280,7 +280,7 @@ class Bugscache(models.Model):
             vector = SearchVector("summary")
             query = SearchQuery(search_term_fulltext)
             recent_qs = Bugscache.objects.annotate(rank=SearchRank(vector, query)).order_by(
-                "-rank"
+                "-rank", "id"
             )[0:max_size]
 
         exclude_fields = ["modified", "processed_update"]
