@@ -838,7 +838,7 @@ def test_deleting_performance_data_cascades_to_perf_datum_replicate(test_perf_da
         cursor = connection.cursor()
         cursor.execute(
             '''
-            DELETE FROM `performance_datum`
+            DELETE FROM performance_datum
             WHERE id = %s
             ''',
             [perf_datum.id],
