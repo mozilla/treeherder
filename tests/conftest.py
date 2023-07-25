@@ -350,6 +350,11 @@ def test_job_2(eleven_job_blobs, create_jobs):
 
 
 @pytest.fixture
+def test_job_3(eleven_job_blobs, create_jobs):
+    return create_jobs(eleven_job_blobs[0:3])[2]
+
+
+@pytest.fixture
 def mock_log_parser(monkeypatch):
     from celery import shared_task
     from treeherder.log_parser import tasks
@@ -666,6 +671,37 @@ def create_perf_signature(
         last_updated=datetime.datetime.now(),
     )
 
+@pytest.fixture
+def test_taskcluster_metadata(test_job_2) -> th_models.TaskclusterMetadata:
+    return create_taskcluster_metadata(test_job_2)
+
+
+@pytest.fixture
+def test_taskcluster_metadata_2(test_job_3) -> th_models.TaskclusterMetadata:
+    return create_taskcluster_metadata_2(test_job_3)
+
+
+def create_taskcluster_metadata(
+    test_job_2
+) -> th_models.TaskclusterMetadata:
+
+    return th_models.TaskclusterMetadata.objects.create(
+        job=test_job_2,
+        task_id='V3SVuxO8TFy37En_6HcXLp',
+        retry_id='0',
+    )
+
+
+def create_taskcluster_metadata_2(
+    test_job_3
+) -> th_models.TaskclusterMetadata:
+
+    return th_models.TaskclusterMetadata.objects.create(
+        job=test_job_3,
+        task_id='V3SVuxO8TFy37En_6HcXLq',
+        retry_id='0',
+    )
+
 
 @pytest.fixture
 def test_perf_signature_2(test_perf_signature):
@@ -921,8 +957,45 @@ def test_perf_alert_summary_with_bug(
 
 
 @pytest.fixture
+def test_perf_datum(test_repository, test_perf_signature, test_job_2):
+    push = th_models.Push.objects.get(id=1)
+    perf_models.PerformanceDatum.objects.create(
+        repository=test_repository,
+        job=test_job_2,
+        push_id=1,
+        signature=test_perf_signature,
+        value=1,
+        push_timestamp=push.time,
+    )
+
+
+@pytest.fixture
+def test_perf_datum_2(test_repository, test_perf_signature, test_job_3):
+    push = th_models.Push.objects.get(id=2)
+    perf_models.PerformanceDatum.objects.create(
+        repository=test_repository,
+        job=test_job_3,
+        push_id=2,
+        signature=test_perf_signature,
+        value=1,
+        push_timestamp=push.time,
+    )
+
+
+@pytest.fixture
 def test_perf_alert(test_perf_signature, test_perf_alert_summary) -> perf_models.PerformanceAlert:
     return create_perf_alert(summary=test_perf_alert_summary, series_signature=test_perf_signature)
+
+
+@pytest.fixture
+def test_perf_alert_with_tcmetadata(test_perf_signature, test_perf_alert_summary) -> perf_models.PerformanceAlert:
+    perf_alert = create_perf_alert(summary=test_perf_alert_summary, series_signature=test_perf_signature)
+    perf_alert.taskcluster_metadata = {
+        "current_push": test_taskcluster_metadata_2,
+        "prev_push": test_taskcluster_metadata,
+    }
+    perf_alert.save()
+    return perf_alert
 
 
 def create_perf_alert(**alert_properties) -> perf_models.PerformanceAlert:
