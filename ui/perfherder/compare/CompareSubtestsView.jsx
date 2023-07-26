@@ -133,6 +133,9 @@ class CompareSubtestsView extends React.PureComponent {
       const newResults = newResultsMap.get(testName);
 
       const cmap = getCounterMap(testName, oldResults, newResults);
+      if (!newResults || !oldResults) {
+        return;
+      }
       if (cmap.isEmpty) {
         return;
       }

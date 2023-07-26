@@ -142,8 +142,19 @@ class CompareView extends React.PureComponent {
 
     tableNames.forEach((testName) => {
       rowNames.forEach((value) => {
-        if (!oldStddevVariance[value]) {
-          oldStddevVariance[value] = {
+        if (value.includes("base-rev")) {
+          return;
+        }
+
+        let base_value = value
+        if (origResultsMap.get(
+          `${testName} ${value.replace("shippable", "shippable-base-rev")}`
+        )) {
+          base_value = value.replace("shippable", "shippable-base-rev")
+        }
+
+        if (!oldStddevVariance[base_value]) {
+          oldStddevVariance[base_value] = {
             values: [],
             lower_is_better: true,
             frameworkID: framework.id,
@@ -157,7 +168,8 @@ class CompareView extends React.PureComponent {
         }
 
         const key = `${testName} ${value}`;
-        const oldResults = origResultsMap.get(key);
+        const base_key = `${testName} ${base_value}`;
+        const oldResults = origResultsMap.get(base_key);
         const newResults = newResultsMap.get(key);
 
         const cmap = getCounterMap(testName, oldResults, newResults);
@@ -183,7 +195,7 @@ class CompareView extends React.PureComponent {
           cmap.newStddevPct !== undefined
         ) {
           if (cmap.originalStddevPct < 50.0 && cmap.newStddevPct < 50.0) {
-            oldStddevVariance[value].values.push(
+            oldStddevVariance[base_value].values.push(
               Math.round(cmap.originalStddevPct * 100) / 100,
             );
             newStddevVariance[value].values.push(
