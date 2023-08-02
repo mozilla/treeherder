@@ -1714,12 +1714,12 @@
     route-recognizer "^0.3.4"
     slugify "^1.3.4"
 
-"@pollyjs/node-server@^6.0.1":
-  version "6.0.1"
-  resolved "https://registry.npmjs.org/@pollyjs/node-server/-/node-server-6.0.1.tgz"
-  integrity sha512-R4WyrcOMRf9t4h2MSAooLlijKchDFXHil5XnVe51OBFe3Ib/8/jo+iMmIENTZE1EP6it9HW00Df93jjZ0XT+Og==
+"@pollyjs/node-server@^6.0.6":
+  version "6.0.6"
+  resolved "https://registry.yarnpkg.com/@pollyjs/node-server/-/node-server-6.0.6.tgz#a49ceb4ab801fd588b55385ec6ba3658cea05e5f"
+  integrity sha512-nkP1+hdNoVOlrRz9R84haXVsaSmo8Xmq7uYK9GeUMSLQy4Fs55ZZ9o2KI6vRA8F6ZqJSbC31xxwwIoTkjyP7Vg==
   dependencies:
-    "@pollyjs/utils" "^6.0.1"
+    "@pollyjs/utils" "^6.0.6"
     body-parser "^1.19.0"
     cors "^2.8.5"
     express "^4.17.1"
@@ -1728,20 +1728,20 @@
     morgan "^1.10.0"
     nocache "^3.0.1"
 
-"@pollyjs/persister-fs@6.0.5":
-  version "6.0.5"
-  resolved "https://registry.npmjs.org/@pollyjs/persister-fs/-/persister-fs-6.0.5.tgz"
-  integrity sha512-+zEuPNDoVwA89X/LnmW6l/4LkJXHnZrk/Wyj3ShXLb6sS05LXEThgpriJWLIHh68hPZnqlB4lXsYGjczORiJHw==
+"@pollyjs/persister-fs@6.0.6":
+  version "6.0.6"
+  resolved "https://registry.yarnpkg.com/@pollyjs/persister-fs/-/persister-fs-6.0.6.tgz#a314e4ca7541ebbd65c408bf73d81e180df89377"
+  integrity sha512-/ALVgZiH2zGqwLkW0Mntc0Oq1v7tR8LS8JD2SAyIsHpnSXeBUnfPWwjAuYw0vqORHFVEbwned6MBRFfvU/3qng==
   dependencies:
-    "@pollyjs/node-server" "^6.0.1"
-    "@pollyjs/persister" "^6.0.5"
+    "@pollyjs/node-server" "^6.0.6"
+    "@pollyjs/persister" "^6.0.6"
 
-"@pollyjs/persister@^6.0.5":
-  version "6.0.5"
-  resolved "https://registry.npmjs.org/@pollyjs/persister/-/persister-6.0.5.tgz"
-  integrity sha512-J2zvzJb3XPDran9HzWh/Ng6GRrIPRt3DnqRygbfqP9do6B2unqGlIxqMdqXzuqylJ49k2soEC+haWpdW2cQ9mg==
+"@pollyjs/persister@^6.0.6":
+  version "6.0.6"
+  resolved "https://registry.yarnpkg.com/@pollyjs/persister/-/persister-6.0.6.tgz#14e5ab603e3403fe2351495df715f922ebbf7721"
+  integrity sha512-9KB1p+frvYvFGur4ifzLnFKFLXAMXrhAhCnVhTnkG2WIqqQPT7y+mKBV/DKCmYFx8GPA9FiNGqt2pB53uJpIdw==
   dependencies:
-    "@pollyjs/utils" "^6.0.1"
+    "@pollyjs/utils" "^6.0.6"
     "@types/set-cookie-parser" "^2.4.1"
     bowser "^2.4.0"
     fast-json-stable-stringify "^2.1.0"
@@ -1757,10 +1757,10 @@
     qs "^6.7.0"
     url-parse "^1.4.7"
 
-"@pollyjs/utils@^6.0.1":
-  version "6.0.1"
-  resolved "https://registry.npmjs.org/@pollyjs/utils/-/utils-6.0.1.tgz"
-  integrity sha512-vTdtYhZs/HcBQM3Po85BDmuOpjMwvuQPkSdd9Cd4lUSc8HEO4d52dljtmwlwW83zVuQvlEu5xFIZJUYhX8HxLA==
+"@pollyjs/utils@^6.0.6":
+  version "6.0.6"
+  resolved "https://registry.yarnpkg.com/@pollyjs/utils/-/utils-6.0.6.tgz#fa3c3fc2a7cc4ab181499d2d0b439e5a0136a3fe"
+  integrity sha512-nhVJoI3nRgRimE0V2DVSvsXXNROUH6iyJbroDu4IdsOIOFC1Ds0w+ANMB4NMwFaqE+AisWOmXFzwAGdAfyiQVg==
   dependencies:
     qs "^6.10.1"
     url-parse "^1.5.3"
