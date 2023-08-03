@@ -163,6 +163,11 @@ urlpatterns = [
         name='performance-summary',
     ),
     re_path(
+        r'^performance/alertsummary-tasks/$',
+        performance_data.PerformanceAlertSummaryTasks.as_view(),
+        name='performance-alertsummary-tasks',
+    ),
+    re_path(
         r'^perfcompare/results/$',
         performance_data.PerfCompareResults.as_view(),
         name='perfcompare-results',
