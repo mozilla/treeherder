@@ -2790,10 +2790,10 @@ asynckit@^0.4.0:
   resolved "https://registry.npmjs.org/asynckit/-/asynckit-0.4.0.tgz"
   integrity sha1-x57Zf380y48robyXkLzDZkdLS3k=
 
-auth0-js@9.22.0:
-  version "9.22.0"
-  resolved "https://registry.yarnpkg.com/auth0-js/-/auth0-js-9.22.0.tgz#5b17632e547fa69e3755d9e5bae1cbea072c0e97"
-  integrity sha512-gyqxSyftzF8TK1sooPEk8DsP/I7bMMJi3lx8nnDZor8LjUXKr1kP40pLd0YzIDESO9sKu5TD2QMBooykc5bSZg==
+auth0-js@9.22.1:
+  version "9.22.1"
+  resolved "https://registry.yarnpkg.com/auth0-js/-/auth0-js-9.22.1.tgz#8266f859f215199c70c4ef2988ab0bd63f67b3f4"
+  integrity sha512-AcyJiWhsyG5zdx40O9i/okpLLEvB23/6CivWynmGtP43s2C4GSq3E+XdCRw64ifmZ7t6ZK4Yzfpiqy5KVXEtJg==
   dependencies:
     base64-js "^1.5.1"
     idtoken-verifier "^2.2.2"
