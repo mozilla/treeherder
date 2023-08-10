@@ -110,7 +110,7 @@
     "puppeteer": "19.3.0",
     "setup-polly-jest": "0.9.1",
     "style-loader": "3.3.2",
-    "webpack": "5.76.0",
+    "webpack": "5.76.3",
     "webpack-cli": "4.9.2",
     "webpack-dev-server": "4.9.3",
     "webpack-merge": "5.8.0"
