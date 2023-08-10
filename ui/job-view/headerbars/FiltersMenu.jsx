@@ -167,6 +167,14 @@ function FiltersMenu(props) {
             My pushes only
           </Link>
         </DropdownItem>
+        <DropdownItem title="Do not show pushes from reviewbot">
+          <Link
+            className="dropdown-link"
+            to={{ search: updateParams('author', '-reviewbot') }}
+          >
+            Hide code review pushes
+          </Link>
+        </DropdownItem>
         <DropdownItem
           tag="a"
           title="Reset to default status filters"

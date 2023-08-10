@@ -397,6 +397,25 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
         return '{} {} {}'.format(test_suite, value['option_name'], value['extra_options'])
 
 
+class PerfAlertSummaryTasksQueryParamSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+
+    def validate(self, data):
+        try:
+            PerformanceAlertSummary.objects.get(id=data['id'])
+        except PerformanceAlertSummary.DoesNotExist:
+            raise serializers.ValidationError(
+                {'message': 'PerformanceAlertSummary does not exist.'}
+            )
+
+        return data
+
+
+class PerformanceAlertSummaryTasksSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    tasks = serializers.ListField(child=serializers.CharField(), default=[])
+
+
 class PerfCompareResultsQueryParamsSerializer(serializers.Serializer):
     base_revision = serializers.CharField(required=False, allow_null=True, default=None)
     new_revision = serializers.CharField()

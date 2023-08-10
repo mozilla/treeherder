@@ -11,7 +11,7 @@
     },
     {
       "linenumber": 829,
-      "line": "12:46:37  WARNING -  PROCESS-CRASH | automation.py | application crashed [@ xOpen]"
+      "line": "12:46:37  WARNING -  PROCESS-CRASH | application crashed [@ xOpen] | automation.py"
     },
     {
       "linenumber": 1600,
@@ -27,7 +27,7 @@
     },
     {
       "linenumber": 1636,
-      "line": "12:46:46  WARNING -  PROCESS-CRASH | automation.py | application crashed [@ xOpen]"
+      "line": "12:46:46  WARNING -  PROCESS-CRASH | application crashed [@ xOpen] | automation.py"
     },
     {
       "linenumber": 2283,
@@ -43,7 +43,7 @@
     },
     {
       "linenumber": 2319,
-      "line": "12:46:55  WARNING -  PROCESS-CRASH | automation.py | application crashed [@ xOpen]"
+      "line": "12:46:55  WARNING -  PROCESS-CRASH | application crashed [@ xOpen] | automation.py"
     },
     {
       "linenumber": 3062,

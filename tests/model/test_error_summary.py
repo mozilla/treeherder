@@ -80,25 +80,25 @@ PIPE_DELIMITED_LINE_TEST_CASES = (
     (
         (
             "REFTEST PROCESS-CRASH "
+            "| application crashed [@ jemalloc_crash] "
             "| http://10.0.2.2:8854/tests/dom/canvas/test/reftest/webgl-resize-test.html == "
-            "http://10.0.2.2:8854/tests/dom/canvas/test/reftest/wrapper.html?green.png "
-            "| application crashed [@ jemalloc_crash]"
+            "http://10.0.2.2:8854/tests/dom/canvas/test/reftest/wrapper.html?green.png"
         ),
         {
             'path_end': 'http://10.0.2.2:8854/tests/dom/canvas/test/reftest/webgl-resize-test.html',
-            'search_term': ['webgl-resize-test.html'],
+            'search_term': ['application crashed [@ jemalloc_crash]'],
         },
     ),
     (
         (
             "REFTEST PROCESS-CRASH "
+            "| application crashed [@ jemalloc_crash] "
             "| http://10.0.2.2:8854/tests/dom/canvas/test/reftest/webgl-resize-test.html != "
-            "http://10.0.2.2:8854/tests/dom/canvas/test/reftest/wrapper.html?green.png "
-            "| application crashed [@ jemalloc_crash]"
+            "http://10.0.2.2:8854/tests/dom/canvas/test/reftest/wrapper.html?green.png"
         ),
         {
             'path_end': 'http://10.0.2.2:8854/tests/dom/canvas/test/reftest/webgl-resize-test.html',
-            'search_term': ['webgl-resize-test.html'],
+            'search_term': ['application crashed [@ jemalloc_crash]'],
         },
     ),
     (
@@ -277,9 +277,9 @@ def test_get_long_search_term(line, exp_search_info):
 CRASH_LINE_TEST_CASES = (
     (
         (
-            'PROCESS-CRASH | file:///C:/slave/test/build/tests/jsreftest/tests/'
-            'jsreftest.html?test=test262/ch11/11.4/11.4.1/11.4.1-4.a-6.js | '
-            'application crashed [@ nsInputStreamPump::OnStateStop()]'
+            'PROCESS-CRASH | application crashed [@ nsInputStreamPump::OnStateStop()] | '
+            'file:///C:/slave/test/build/tests/jsreftest/tests/'
+            'jsreftest.html?test=test262/ch11/11.4/11.4.1/11.4.1-4.a-6.js'
         ),
         'nsInputStreamPump::OnStateStop()',
     ),
@@ -312,12 +312,13 @@ BLACKLIST_TEST_CASES = (
     ),
     (
         (
-            'REFTEST PROCESS-CRASH | file:///home/worker/workspace/build/tests/reftest/tests/layout/reftests/font-inflation/video-1.html '
-            '| application crashed [@ mozalloc_abort]'
+            'REFTEST PROCESS-CRASH '
+            '| application crashed [@ mozalloc_abort] '
+            '| file:///home/worker/workspace/build/tests/reftest/tests/layout/reftests/font-inflation/video-1.html'
         ),
         {
             'path_end': 'file:///home/worker/workspace/build/tests/reftest/tests/layout/reftests/font-inflation/video-1.html',
-            'search_term': ['video-1.html'],
+            'search_term': ['application crashed [@ mozalloc_abort]'],
         },
     ),
 )
