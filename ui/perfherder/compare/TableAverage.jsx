@@ -64,7 +64,7 @@ const TableAverage = ({ value, stddev, stddevpct, replicates, app }) => {
                 ? formatNumber(displayNumber(value))
                 : `${formatNumber(
                     displayNumber(value),
-                  )} ${'\u00B1'} ${formatNumber(displayNumber(stddevpct))}`
+                  )} ${'\u00B1'} ${formatNumber(displayNumber(stddevpct))}%`
             }
             tooltipText={
               notZeroSum ? (
