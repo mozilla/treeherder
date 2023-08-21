@@ -11,7 +11,9 @@ import warnings
 warnings.filterwarnings('ignore', category=DeprecationWarning, module='newrelic')
 
 import newrelic.agent
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MinLengthValidator
@@ -225,6 +227,9 @@ class Bugscache(models.Model):
     class Meta:
         db_table = 'bugscache'
         verbose_name_plural = 'bugscache'
+        indexes = [
+            models.Index(fields=['summary']),
+        ]
 
     def __str__(self):
         return "{0}".format(self.id)
@@ -248,24 +253,35 @@ class Bugscache(models.Model):
         # see https://bugzilla.mozilla.org/show_bug.cgi?id=1704311
         search_term_fulltext = self.sanitized_search_term(search_term)
 
-        # Substitute escape and wildcard characters, so the search term is used
-        # literally in the LIKE statement.
-        search_term_like = (
-            search_term.replace('=', '==').replace('%', '=%').replace('_', '=_').replace('\\"', '')
-        )
+        if settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
+            # Substitute escape and wildcard characters, so the search term is used
+            # literally in the LIKE statement.
+            search_term_like = (
+                search_term.replace('=', '==')
+                .replace('%', '=%')
+                .replace('_', '=_')
+                .replace('\\"', '')
+            )
 
-        recent_qs = self.objects.raw(
-            """
-            SELECT id, summary, crash_signature, keywords, resolution, status, dupe_of,
-             MATCH (`summary`) AGAINST (%s IN BOOLEAN MODE) AS relevance
-              FROM bugscache
-             WHERE 1
-               AND `summary` LIKE CONCAT ('%%%%', %s, '%%%%') ESCAPE '='
-          ORDER BY relevance DESC
-             LIMIT 0,%s
-            """,
-            [search_term_fulltext, search_term_like, max_size],
-        )
+            recent_qs = self.objects.raw(
+                """
+                SELECT id, summary, crash_signature, keywords, resolution, status, dupe_of,
+                 MATCH (`summary`) AGAINST (%s IN BOOLEAN MODE) AS relevance
+                  FROM bugscache
+                 WHERE 1
+                   AND `summary` LIKE CONCAT ('%%%%', %s, '%%%%') ESCAPE '='
+              ORDER BY relevance DESC
+                 LIMIT 0,%s
+                """,
+                [search_term_fulltext, search_term_like, max_size],
+            )
+        else:
+            # On PostgreSQL we can use the full text search features
+            vector = SearchVector("summary")
+            query = SearchQuery(search_term_fulltext)
+            recent_qs = Bugscache.objects.annotate(rank=SearchRank(vector, query)).order_by(
+                "-rank", "id"
+            )[0:max_size]
 
         exclude_fields = ["modified", "processed_update"]
         try:

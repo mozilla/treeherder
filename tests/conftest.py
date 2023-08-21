@@ -705,7 +705,7 @@ def test_perf_data(test_perf_signature, eleven_jobs_stored):
     # for making things easier, ids for jobs
     # and push should be the same;
     # also, we only need a subset of jobs
-    perf_jobs = th_models.Job.objects.filter(pk__in=range(7, 11)).order_by('push__time').all()
+    perf_jobs = th_models.Job.objects.filter(pk__in=range(7, 11)).order_by('id').all()
 
     for index, job in enumerate(perf_jobs, start=1):
         job.push_id = index
@@ -764,7 +764,7 @@ def bugs(mock_bugzilla_api_request):
     process = BzApiBugProcess()
     process.run()
 
-    return th_models.Bugscache.objects.all()
+    return th_models.Bugscache.objects.all().order_by('id')
 
 
 @pytest.fixture
@@ -1006,7 +1006,7 @@ def generic_reference_data(test_repository):
 
 @pytest.fixture
 def bug_data(eleven_jobs_stored, test_repository, test_push, bugs):
-    jobs = th_models.Job.objects.all()
+    jobs = th_models.Job.objects.all().order_by('id')
     bug_id = bugs[0].id
     job_id = jobs[0].id
     th_models.BugJobMap.create(job_id=job_id, bug_id=bug_id)

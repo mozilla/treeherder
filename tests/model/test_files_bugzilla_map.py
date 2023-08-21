@@ -91,10 +91,12 @@ def test_data_ingestion(setup_repository_data, mock_file_bugzilla_map_request):
         ('mozilla.org', 'Different path, same product, different component'),
         ('mozilla.org', 'Licensing'),
     ]
-    assert EXPECTED_BUGZILLA_COMPONENTS_IMPORT_1 == list(
-        BugzillaComponent.objects.all()
-        .values_list('product', 'component')
-        .order_by('product', 'component')
+    assert EXPECTED_BUGZILLA_COMPONENTS_IMPORT_1 == sorted(
+        list(
+            BugzillaComponent.objects.all()
+            .values_list('product', 'component')
+            .order_by('product', 'component')
+        )
     )
 
     import_process.run_id = "import_2"
@@ -129,12 +131,14 @@ def test_data_ingestion(setup_repository_data, mock_file_bugzilla_map_request):
             'File first seen on mozilla-beta',
         ),
     ]
-    assert EXPECTED_FILES_BUGZILLA_DATA_IMPORT_2 == list(
-        FilesBugzillaMap.objects.all()
-        .values_list(
-            'path', 'file_name', 'bugzilla_component__product', 'bugzilla_component__component'
+    assert EXPECTED_FILES_BUGZILLA_DATA_IMPORT_2 == sorted(
+        list(
+            FilesBugzillaMap.objects.all()
+            .values_list(
+                'path', 'file_name', 'bugzilla_component__product', 'bugzilla_component__component'
+            )
+            .order_by('path')
         )
-        .order_by('path')
     )
 
     EXPECTED_BUGZILLA_COMPONENTS_IMPORT_2 = [
@@ -145,8 +149,10 @@ def test_data_ingestion(setup_repository_data, mock_file_bugzilla_map_request):
         ('Testing', 'web-platform-tests'),
         ('mozilla.org', 'Import 2: same product, different component'),
     ]
-    assert EXPECTED_BUGZILLA_COMPONENTS_IMPORT_2 == list(
-        BugzillaComponent.objects.all()
-        .values_list('product', 'component')
-        .order_by('product', 'component')
+    assert EXPECTED_BUGZILLA_COMPONENTS_IMPORT_2 == sorted(
+        list(
+            BugzillaComponent.objects.all()
+            .values_list('product', 'component')
+            .order_by('product', 'component')
+        )
     )

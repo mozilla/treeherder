@@ -49,7 +49,7 @@ jobs:
           command: tox -e linters
           name: Run linters
 
-  python-tests:
+  python-tests-mysql:
     machine:
       image: ubuntu-2004:202010-01
     steps:
@@ -67,6 +67,26 @@ jobs:
             pip install --upgrade pip
             pip install tox
             tox -e docker
+      - codecov/upload
+
+  python-tests-postgres:
+    machine:
+      image: ubuntu-2004:202010-01
+    steps:
+      - checkout
+      - docker/install-docker:
+          version: 19.03.13
+      - docker/install-docker-compose:
+          version: 1.29.2
+      - run:
+          command: sudo apt-get update && sudo apt-get install python3-venv -y
+          name: python for glean
+      - run:
+          name: Run tests and coverage within Docker container
+          command: |
+            pip install --upgrade pip
+            pip install tox
+            tox -e docker-postgres
       - codecov/upload
 
   test-docker-build:
@@ -142,7 +162,8 @@ workflows:
     jobs:
       - javascript-tests
       - builds
-      - python-tests
+      - python-tests-mysql
+      - python-tests-postgres
       - test-docker-build
       - deploy:
           filters:

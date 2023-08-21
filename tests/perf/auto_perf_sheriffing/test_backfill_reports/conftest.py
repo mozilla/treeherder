@@ -204,7 +204,7 @@ ONE_DAY_INTERVAL = datetime.timedelta(days=1)
 
 def prepare_graph_data_scenario(push_ids_to_keep, highlighted_push_id, perf_alert, perf_signature):
     original_job_count = Job.objects.count()
-    selectable_jobs = Job.objects.filter(push_id__in=push_ids_to_keep).order_by('push_id')
+    selectable_jobs = Job.objects.filter(push_id__in=push_ids_to_keep).order_by('push_id', 'id')
     Job.objects.exclude(push_id__in=push_ids_to_keep).delete()
 
     assert Job.objects.count() < original_job_count

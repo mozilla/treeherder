@@ -37,7 +37,9 @@ def get_error_summary(job, queryset=None):
         return cached_error_summary
 
     # add support for error line caching
-    line_cache_key = 'error_lines'
+    line_cache_key = 'mc_error_lines'
+    if job.repository == "comm-central":
+        line_cache_key = 'cc_error_lines'
     line_cache = cache.get(line_cache_key)
     if line_cache is None:
         line_cache = {str(job.submit_time.date()): {}}
@@ -122,7 +124,7 @@ def bug_suggestions_line(
     for day in line_cache.keys():
         counter += line_cache[day].get(cache_clean_line, 0)
 
-    count_branches = ['autoland', 'mozilla-central']
+    count_branches = ['autoland', 'mozilla-central', 'comm-central']
     if project and str(project.name) in count_branches:
         if cache_clean_line not in line_cache[today].keys():
             line_cache[today][cache_clean_line] = 0
