@@ -117,60 +117,10 @@ class PerformanceSignatureSerializer(serializers.ModelSerializer):
         ]
 
 
-class AlertTaskclusterMetadataSerializer(serializers.ModelSerializer):
-    current_push = serializers.SerializerMethodField()
-    prev_push = serializers.SerializerMethodField()
-
-    def get_current_push(self, alert):
-        datum = PerformanceDatum.objects.filter(
-            signature=alert.series_signature,
-            repository=alert.series_signature.repository,
-            push_id=alert.summary.push
-        ).first()
-        if datum:
-            try:
-                metadata = TaskclusterMetadata.objects.get(job=datum.job)
-                return {
-                    'task_id': metadata.task_id,
-                    'retry_id': metadata.retry_id,
-                }
-            except ObjectDoesNotExist:
-                return {}
-        else:
-            return {}
-
-    def get_prev_push(self, alert):
-        datum = PerformanceDatum.objects.filter(
-            signature=alert.series_signature,
-            repository=alert.series_signature.repository,
-            push_id=alert.summary.prev_push
-        ).first()
-        if datum:
-            try:
-                metadata = TaskclusterMetadata.objects.get(job=datum.job)
-                return {
-                    'task_id': metadata.task_id,
-                    'retry_id': metadata.retry_id,
-                }
-            except ObjectDoesNotExist:
-                return {}
-        else:
-            return {}
-
-
-    class Meta:
-        model = Job
-        fields = [
-            # 'task_id',
-            # 'retry_id',
-            'current_push',
-            'prev_push',
-        ]
-
-
 class PerformanceAlertSerializer(serializers.ModelSerializer):
     series_signature = PerformanceSignatureSerializer(read_only=True)
     taskcluster_metadata = serializers.SerializerMethodField()
+    prev_taskcluster_metadata = serializers.SerializerMethodField()
     summary_id = serializers.SlugRelatedField(
         slug_field="id",
         source="summary",
@@ -237,8 +187,40 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
     def get_taskcluster_metadata(self, alert):
-        serializer = AlertTaskclusterMetadataSerializer(alert)
-        return serializer.data
+        datum = PerformanceDatum.objects.filter(
+            signature=alert.series_signature,
+            repository=alert.series_signature.repository,
+            push_id=alert.summary.push
+        ).first()
+        if datum:
+            try:
+                metadata = TaskclusterMetadata.objects.get(job=datum.job)
+                return {
+                    'task_id': metadata.task_id,
+                    'retry_id': metadata.retry_id,
+                }
+            except ObjectDoesNotExist:
+                return {}
+        else:
+            return {}
+
+    def get_prev_taskcluster_metadata(self, alert):
+        datum = PerformanceDatum.objects.filter(
+            signature=alert.series_signature,
+            repository=alert.series_signature.repository,
+            push_id=alert.summary.prev_push
+        ).first()
+        if datum:
+            try:
+                metadata = TaskclusterMetadata.objects.get(job=datum.job)
+                return {
+                    'task_id': metadata.task_id,
+                    'retry_id': metadata.retry_id,
+                }
+            except ObjectDoesNotExist:
+                return {}
+        else:
+            return {}
 
     def get_classifier_email(self, performance_alert):
         return getattr(performance_alert.classifier, 'email', None)
@@ -250,6 +232,7 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
             'status',
             'series_signature',
             'taskcluster_metadata',
+            'prev_taskcluster_metadata',
             'is_regression',
             'prev_value',
             'new_value',

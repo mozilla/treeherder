@@ -522,7 +522,7 @@ def activate_responses(request):
     request.addfinalizer(fin)
 
 
-@pytest.fixture
+@pytest.fixture['alerts'][0]
 def pulse_connection():
     """
     Build a Pulse connection with the Kombu library
@@ -990,10 +990,8 @@ def test_perf_alert(test_perf_signature, test_perf_alert_summary) -> perf_models
 @pytest.fixture
 def test_perf_alert_with_tcmetadata(test_perf_signature, test_perf_alert_summary) -> perf_models.PerformanceAlert:
     perf_alert = create_perf_alert(summary=test_perf_alert_summary, series_signature=test_perf_signature)
-    perf_alert.taskcluster_metadata = {
-        "current_push": test_taskcluster_metadata_2,
-        "prev_push": test_taskcluster_metadata,
-    }
+    perf_alert.taskcluster_metadata = test_taskcluster_metadata_2
+    perf_alert.taskcluster_metadata = prev_test_taskcluster_metadata
     perf_alert.save()
     return perf_alert
 

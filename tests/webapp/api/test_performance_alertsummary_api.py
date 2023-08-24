@@ -98,6 +98,7 @@ def test_alert_summaries_get(
         'status',
         'series_signature',
         'taskcluster_metadata',
+        'prev_taskcluster_metadata',
         'is_regression',
         'starred',
         'manually_created',
@@ -115,18 +116,12 @@ def test_alert_summaries_get(
     }
     assert resp.json()['results'][0]['related_alerts'] == []
     assert set(resp.json()['results'][0]['alerts'][0]['taskcluster_metadata'].keys()) == {
-        'current_push',
-        'prev_push',
-    }
-    assert set(resp.json()['results'][0]['alerts'][0]['taskcluster_metadata']['current_push'].keys()) == {
         'task_id',
         'retry_id',
-        # 'result',
     }
-    assert set(resp.json()['results'][0]['alerts'][0]['taskcluster_metadata']['prev_push'].keys()) == {
+    assert set(resp.json()['results'][0]['alerts'][0]['prev_taskcluster_metadata'].keys()) == {
         'task_id',
         'retry_id',
-        # 'result',
     }
 
 
