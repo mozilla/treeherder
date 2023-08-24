@@ -671,6 +671,7 @@ def create_perf_signature(
         last_updated=datetime.datetime.now(),
     )
 
+
 @pytest.fixture
 def test_taskcluster_metadata(test_job_2) -> th_models.TaskclusterMetadata:
     return create_taskcluster_metadata(test_job_2)
@@ -681,10 +682,7 @@ def test_taskcluster_metadata_2(test_job_3) -> th_models.TaskclusterMetadata:
     return create_taskcluster_metadata_2(test_job_3)
 
 
-def create_taskcluster_metadata(
-    test_job_2
-) -> th_models.TaskclusterMetadata:
-
+def create_taskcluster_metadata(test_job_2) -> th_models.TaskclusterMetadata:
     return th_models.TaskclusterMetadata.objects.create(
         job=test_job_2,
         task_id='V3SVuxO8TFy37En_6HcXLp',
@@ -692,10 +690,7 @@ def create_taskcluster_metadata(
     )
 
 
-def create_taskcluster_metadata_2(
-    test_job_3
-) -> th_models.TaskclusterMetadata:
-
+def create_taskcluster_metadata_2(test_job_3) -> th_models.TaskclusterMetadata:
     return th_models.TaskclusterMetadata.objects.create(
         job=test_job_3,
         task_id='V3SVuxO8TFy37En_6HcXLq',
@@ -988,12 +983,14 @@ def test_perf_alert(test_perf_signature, test_perf_alert_summary) -> perf_models
 
 
 @pytest.fixture
-def test_perf_alert_with_tcmetadata(test_perf_signature, test_perf_alert_summary) -> perf_models.PerformanceAlert:
-    perf_alert = create_perf_alert(summary=test_perf_alert_summary, series_signature=test_perf_signature)
-    perf_alert.taskcluster_metadata = {
-        "current_push": test_taskcluster_metadata_2,
-        "prev_push": test_taskcluster_metadata,
-    }
+def test_perf_alert_with_tcmetadata(
+    test_perf_signature, test_perf_alert_summary
+) -> perf_models.PerformanceAlert:
+    perf_alert = create_perf_alert(
+        summary=test_perf_alert_summary, series_signature=test_perf_signature
+    )
+    perf_alert.taskcluster_metadata = test_taskcluster_metadata_2
+    perf_alert.prev_taskcluster_metadata = test_taskcluster_metadata
     perf_alert.save()
     return perf_alert
 

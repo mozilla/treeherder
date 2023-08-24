@@ -54,13 +54,13 @@ def test_perf_alert_onhold(test_perf_signature, test_perf_alert_summary_onhold) 
 
 
 def test_alert_summaries_get(
-        client,
-        test_perf_alert_summary,
-        test_perf_alert_with_tcmetadata,
-        test_perf_datum,
-        test_perf_datum_2,
-        test_taskcluster_metadata,
-        test_taskcluster_metadata_2
+    client,
+    test_perf_alert_summary,
+    test_perf_alert_with_tcmetadata,
+    test_perf_datum,
+    test_perf_datum_2,
+    test_taskcluster_metadata,
+    test_taskcluster_metadata_2,
 ):
     # verify that we get the performance summary + alert on GET
     resp = client.get(reverse('performance-alert-summaries-list'))
@@ -98,6 +98,7 @@ def test_alert_summaries_get(
         'status',
         'series_signature',
         'taskcluster_metadata',
+        'prev_taskcluster_metadata',
         'is_regression',
         'starred',
         'manually_created',
@@ -115,18 +116,12 @@ def test_alert_summaries_get(
     }
     assert resp.json()['results'][0]['related_alerts'] == []
     assert set(resp.json()['results'][0]['alerts'][0]['taskcluster_metadata'].keys()) == {
-        'current_push',
-        'prev_push',
-    }
-    assert set(resp.json()['results'][0]['alerts'][0]['taskcluster_metadata']['current_push'].keys()) == {
         'task_id',
         'retry_id',
-        # 'result',
     }
-    assert set(resp.json()['results'][0]['alerts'][0]['taskcluster_metadata']['prev_push'].keys()) == {
+    assert set(resp.json()['results'][0]['alerts'][0]['prev_taskcluster_metadata'].keys()) == {
         'task_id',
         'retry_id',
-        # 'result',
     }
 
 
@@ -178,6 +173,7 @@ def test_alert_summaries_get_onhold(
         'status',
         'series_signature',
         'taskcluster_metadata',
+        'prev_taskcluster_metadata',
         'is_regression',
         'starred',
         'manually_created',
@@ -195,18 +191,12 @@ def test_alert_summaries_get_onhold(
     }
     assert resp.json()['results'][0]['related_alerts'] == []
     assert set(resp.json()['results'][0]['alerts'][0]['taskcluster_metadata'].keys()) == {
-        'current_push',
-        'prev_push',
-    }
-    assert set(resp.json()['results'][0]['alerts'][0]['taskcluster_metadata']['current_push'].keys()) == {
         'task_id',
         'retry_id',
-        # 'result',
     }
-    assert set(resp.json()['results'][0]['alerts'][0]['taskcluster_metadata']['prev_push'].keys()) == {
+    assert set(resp.json()['results'][0]['alerts'][0]['prev_taskcluster_metadata'].keys()) == {
         'task_id',
         'retry_id',
-        # 'result',
     }
 
 
