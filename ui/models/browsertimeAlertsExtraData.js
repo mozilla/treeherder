@@ -28,11 +28,21 @@ export default class BrowsertimeAlertsExtraData {
     return alerts;
   }
 
-  async enrichSummaryAlerts(alertSummary, repo, pushId, prevPushId) {
-    const [jobList, prevJobList] = await Promise.all([
+  async enrichSummaryAlerts(
+    alertSummary,
+    repo,
+    pushId,
+    prevPushId,
+  ) {
+    let start = performance.now();
+    let [jobList, prevJobList] = [[], []];
+    console.log(`Without fetch: ${performance.now() - start}`);
+    start = performance.now();
+    [jobList, prevJobList] = await Promise.all([
       JobModel.getList({ repo, push_id: pushId }, { fetchAll: true }),
       JobModel.getList({ repo, push_id: prevPushId }, { fetchAll: true }),
     ]);
+    console.log(`With fetch: ${performance.now() - start}`);
 
     if (this.anyAlertWithVideoResults(this.alertSummary)) {
       // add task ids for current rev and previous rev to every relevant alert item
