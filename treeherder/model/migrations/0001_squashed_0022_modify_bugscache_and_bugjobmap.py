@@ -5,7 +5,6 @@ import django.db.models.deletion
 import django.utils.timezone
 from django.conf import settings
 from django.db import migrations, models
-from django.contrib.postgres.operations import BtreeGinExtension
 
 
 if settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
@@ -43,16 +42,16 @@ if settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
             state_operations=[
                 migrations.AddIndex(
                     model_name='failureline',
-                    index=django.contrib.postgres.indexes.GinIndex(
+                    index=django.contrib.postgres.indexes.HashIndex(
                         fields=['test', 'subtest', 'status', 'expected', 'created'],
-                        name='failure_lin_test_d8e087_gin',
+                        name='failure_lin_test_52689e_hash',
                     ),
                 ),
                 migrations.AddIndex(
                     model_name='failureline',
-                    index=django.contrib.postgres.indexes.GinIndex(
+                    index=django.contrib.postgres.indexes.HashIndex(
                         fields=['signature', 'test', 'created'],
-                        name='failure_lin_signatu_bd3fde_gin',
+                        name='failure_lin_signatu_69323a_hash',
                     ),
                 ),
                 migrations.AddIndex(
@@ -66,20 +65,18 @@ if settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
     ]
 else:
     EXTRA_MIGRATIONS = [
-        # Activate the Btree Gin extension on Postgres
-        BtreeGinExtension(),
         migrations.AddIndex(
             model_name='failureline',
-            index=django.contrib.postgres.indexes.GinIndex(
+            index=django.contrib.postgres.indexes.HashIndex(
                 fields=['test', 'subtest', 'status', 'expected', 'created'],
-                name='failure_lin_test_d8e087_gin',
+                name='failure_lin_test_52689e_hash',
             ),
         ),
         migrations.AddIndex(
             model_name='failureline',
-            index=django.contrib.postgres.indexes.GinIndex(
+            index=django.contrib.postgres.indexes.HashIndex(
                 fields=['signature', 'test', 'created'],
-                name='failure_lin_signatu_bd3fde_gin',
+                name='failure_lin_signatu_69323a_hash',
             ),
         ),
         migrations.AddIndex(
