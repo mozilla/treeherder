@@ -5,7 +5,7 @@ import django.db.models.deletion
 import django.utils.timezone
 from django.conf import settings
 from django.db import migrations, models
-from django.contrib.postgres.operations import BtreeGistExtension
+from django.contrib.postgres.operations import BtreeGinExtension
 
 
 if settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
@@ -43,16 +43,16 @@ if settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
             state_operations=[
                 migrations.AddIndex(
                     model_name='failureline',
-                    index=django.contrib.postgres.indexes.GistIndex(
+                    index=django.contrib.postgres.indexes.GinIndex(
                         fields=['test', 'subtest', 'status', 'expected', 'created'],
-                        name='failure_lin_test_c021c5_gist',
+                        name='failure_lin_test_d8e087_gin',
                     ),
                 ),
                 migrations.AddIndex(
                     model_name='failureline',
-                    index=django.contrib.postgres.indexes.GistIndex(
+                    index=django.contrib.postgres.indexes.GinIndex(
                         fields=['signature', 'test', 'created'],
-                        name='failure_lin_signatu_33f9cb_gist',
+                        name='failure_lin_signatu_bd3fde_gin',
                     ),
                 ),
                 migrations.AddIndex(
@@ -66,19 +66,20 @@ if settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
     ]
 else:
     EXTRA_MIGRATIONS = [
-        # Activate the Btree Gist extension on Postgres
-        BtreeGistExtension(),
+        # Activate the Btree Gin extension on Postgres
+        BtreeGinExtension(),
         migrations.AddIndex(
             model_name='failureline',
-            index=django.contrib.postgres.indexes.GistIndex(
+            index=django.contrib.postgres.indexes.GinIndex(
                 fields=['test', 'subtest', 'status', 'expected', 'created'],
-                name='failure_lin_test_c021c5_gist',
+                name='failure_lin_test_d8e087_gin',
             ),
         ),
         migrations.AddIndex(
             model_name='failureline',
-            index=django.contrib.postgres.indexes.GistIndex(
-                fields=['signature', 'test', 'created'], name='failure_lin_signatu_33f9cb_gist'
+            index=django.contrib.postgres.indexes.GinIndex(
+                fields=['signature', 'test', 'created'],
+                name='failure_lin_signatu_bd3fde_gin',
             ),
         ),
         migrations.AddIndex(
