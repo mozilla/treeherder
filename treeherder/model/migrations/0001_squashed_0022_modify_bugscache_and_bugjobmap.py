@@ -40,49 +40,30 @@ if settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
                 'DROP INDEX failure_line_signature_test_idx ON failure_line;',
             ],
             state_operations=[
-                migrations.AddIndex(
-                    model_name='failureline',
-                    index=django.contrib.postgres.indexes.HashIndex(
-                        fields=['test', 'subtest', 'status', 'expected', 'created'],
-                        name='failure_lin_test_52689e_hash',
-                    ),
-                ),
-                migrations.AddIndex(
-                    model_name='failureline',
-                    index=django.contrib.postgres.indexes.HashIndex(
-                        fields=['signature', 'test', 'created'],
-                        name='failure_lin_signatu_69323a_hash',
-                    ),
-                ),
-                migrations.AddIndex(
-                    model_name='failureline',
-                    index=models.Index(
-                        fields=['job_guid', 'repository'], name='failure_lin_job_gui_b67c6d_idx'
+                migrations.AlterIndexTogether(
+                    name='failureline',
+                    index_together=set(
+                        [
+                            ('test', 'subtest', 'status', 'expected', 'created'),
+                            ('job_guid', 'repository'),
+                            ('signature', 'test', 'created'),
+                        ]
                     ),
                 ),
             ],
         ),
     ]
 else:
+    # On postgres we can use standard migrations
     EXTRA_MIGRATIONS = [
-        migrations.AddIndex(
-            model_name='failureline',
-            index=django.contrib.postgres.indexes.HashIndex(
-                fields=['test', 'subtest', 'status', 'expected', 'created'],
-                name='failure_lin_test_52689e_hash',
-            ),
-        ),
-        migrations.AddIndex(
-            model_name='failureline',
-            index=django.contrib.postgres.indexes.HashIndex(
-                fields=['signature', 'test', 'created'],
-                name='failure_lin_signatu_69323a_hash',
-            ),
-        ),
-        migrations.AddIndex(
-            model_name='failureline',
-            index=models.Index(
-                fields=['job_guid', 'repository'], name='failure_lin_job_gui_b67c6d_idx'
+        migrations.AlterIndexTogether(
+            name='failureline',
+            index_together=set(
+                [
+                    ('test', 'subtest', 'status', 'expected', 'created'),
+                    ('job_guid', 'repository'),
+                    ('signature', 'test', 'created'),
+                ]
             ),
         ),
         migrations.AddIndex(
@@ -1037,6 +1018,10 @@ class Migration(migrations.Migration):
         migrations.AlterUniqueTogether(
             name='failureline',
             unique_together=set([('job_log', 'line')]),
+        ),
+        migrations.AlterIndexTogether(
+            name='failureline',
+            index_together=set([('job_guid', 'repository')]),
         ),
         migrations.AlterUniqueTogether(
             name='commit',
