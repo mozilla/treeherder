@@ -39,6 +39,8 @@ def test_perfcompare_results_against_no_base(
     test = 'dhtml.html'
     extra_options = 'e10s fission stylo webrender'
     measurement_unit = 'ms'
+    base_application = 'firefox'
+    new_application = 'geckoview'
 
     base_sig = create_signature(
         signature_hash=(20 * 't1'),
@@ -49,6 +51,7 @@ def test_perfcompare_results_against_no_base(
         test=test,
         test_perf_signature=test_perf_signature,
         repository=try_repository,
+        application=base_application,
     )
 
     base_perf_data_values = [32.4]
@@ -77,6 +80,7 @@ def test_perfcompare_results_against_no_base(
         test=test,
         test_perf_signature=test_perf_signature,
         repository=test_repository,
+        application=new_application,
     )
 
     job = perf_jobs[1]
@@ -108,6 +112,8 @@ def test_perfcompare_results_against_no_base(
             'header_name': response['header_name'],
             'base_repository_name': base_sig.repository.name,
             'new_repository_name': new_sig.repository.name,
+            'base_application': 'firefox',
+            'new_application': 'geckoview',
             'is_complete': response['is_complete'],
             'base_measurement_unit': base_sig.measurement_unit,
             'new_measurement_unit': new_sig.measurement_unit,
@@ -188,6 +194,8 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
     test = 'dhtml.html'
     extra_options = 'e10s fission stylo webrender'
     measurement_unit = 'ms'
+    base_application = 'firefox'
+    new_application = 'geckoview'
 
     base_sig = create_signature(
         signature_hash=(20 * 't1'),
@@ -198,6 +206,7 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
         test=test,
         test_perf_signature=test_perf_signature,
         repository=try_repository,
+        application=base_application,
     )
 
     base_perf_data_values = [32.4]
@@ -226,6 +235,7 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
         test=test,
         test_perf_signature=test_perf_signature,
         repository=test_repository,
+        application=new_application,
     )
 
     job = perf_jobs[1]
@@ -257,6 +267,8 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
             'header_name': response['header_name'],
             'base_repository_name': base_sig.repository.name,
             'new_repository_name': new_sig.repository.name,
+            'base_application': 'firefox',
+            'new_application': 'geckoview',
             'is_complete': response['is_complete'],
             'base_measurement_unit': base_sig.measurement_unit,
             'new_measurement_unit': new_sig.measurement_unit,
@@ -413,6 +425,8 @@ def test_perfcompare_results_multiple_runs(
             'header_name': first_row['header_name'],
             'base_repository_name': sig1.repository.name,
             'new_repository_name': sig2.repository.name,
+            'base_application': '',
+            'new_application': '',
             'is_complete': first_row['is_complete'],
             'base_measurement_unit': sig1.measurement_unit,
             'new_measurement_unit': sig2.measurement_unit,
@@ -457,6 +471,8 @@ def test_perfcompare_results_multiple_runs(
             'header_name': second_row['header_name'],
             'base_repository_name': sig3.repository.name,
             'new_repository_name': sig4.repository.name,
+            'base_application': '',
+            'new_application': '',
             'is_complete': second_row['is_complete'],
             'base_measurement_unit': sig3.measurement_unit,
             'new_measurement_unit': sig4.measurement_unit,
