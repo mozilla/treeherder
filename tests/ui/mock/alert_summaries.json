@@ -257,16 +257,8 @@
           "lower_is_better": true,
           "has_subtests": false,
           "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-          "tags": [
-            "cold",
-            "fission",
-            "webrender"
-          ],
-          "extra_options": [
-            "cold",
-            "fission",
-            "webrender"
-          ],
+          "tags": ["cold", "fission", "webrender"],
+          "extra_options": ["cold", "fission", "webrender"],
           "measurement_unit": "ms",
           "suite_public_name": null,
           "test_public_name": null
@@ -307,16 +299,8 @@
           "lower_is_better": true,
           "has_subtests": false,
           "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-          "tags": [
-            "cold",
-            "fission",
-            "webrender"
-          ],
-          "extra_options": [
-            "cold",
-            "fission",
-            "webrender"
-          ],
+          "tags": ["cold", "fission", "webrender"],
+          "extra_options": ["cold", "fission", "webrender"],
           "measurement_unit": "ms",
           "suite_public_name": null,
           "test_public_name": null
@@ -350,16 +334,8 @@
           "lower_is_better": true,
           "has_subtests": false,
           "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-          "tags": [
-            "cold",
-            "fission",
-            "webrender"
-          ],
-          "extra_options": [
-            "cold",
-            "fission",
-            "webrender"
-          ],
+          "tags": ["cold", "fission", "webrender"],
+          "extra_options": ["cold", "fission", "webrender"],
           "measurement_unit": "ms",
           "suite_public_name": null,
           "test_public_name": null
@@ -392,8 +368,6 @@
     "prev_push_revision": "5ade2b37847325019878bde832493c342759d7eb",
     "assignee_username": null,
     "assignee_email": null,
-    "performance_tags": [
-      "infra"
-    ]
+    "performance_tags": ["infra"]
   }
 ]

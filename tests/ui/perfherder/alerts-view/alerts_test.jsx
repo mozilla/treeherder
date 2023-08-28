@@ -607,12 +607,15 @@ test('Framework name is displayed near alert summary', async () => {
 
 test('Correct message is displayed if the framework id is invalid', async () => {
   const { queryAllByText } = alertsViewControls();
-  // console.log(alertsViewControls());
 
   const frameworkName = await waitFor(() =>
     queryAllByText(unknownFrameworkMessage),
   );
-  expect(frameworkName).toHaveLength(1);
+
+  // We expect 2 invalid frameworks because one is the alert with different framework id in the first item,
+  // and the second one is the browsertime alert whose framework_id is not present in frameworks param
+  // when the AlertsViewControls is mocked
+  expect(frameworkName).toHaveLength(2);
 });
 
 test('Selecting `all` from (frameworks|projects) dropdown shows all (frameworks|projects)', async () => {
