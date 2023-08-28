@@ -14,7 +14,6 @@ import newrelic.agent
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
-from django.contrib.postgres.indexes import HashIndex
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MinLengthValidator
@@ -956,12 +955,12 @@ class FailureLine(models.Model):
 
     class Meta:
         db_table = 'failure_line'
-        indexes = (
-            # Hash function is required to index large entries in test and subtest fields
-            # https://www.postgresql.org/docs/15/textsearch-limitations.html
-            HashIndex(fields=('test', 'subtest', 'status', 'expected', 'created')),
-            HashIndex(fields=('signature', 'test', 'created')),
-            models.Index(fields=('job_guid', 'repository')),
+        index_together = (
+            ('job_guid', 'repository'),
+            # Prefix index: test(50), subtest(25), status, expected, created
+            ('test', 'subtest', 'status', 'expected', 'created'),
+            # Prefix index: signature(25), test(50), created
+            ('signature', 'test', 'created'),
         )
         unique_together = ('job_log', 'line')
 
