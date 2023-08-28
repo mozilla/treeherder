@@ -5,6 +5,7 @@ import django.db.models.deletion
 import django.utils.timezone
 from django.conf import settings
 from django.db import migrations, models
+from django.contrib.postgres.operations import BtreeGistExtension
 
 
 if settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
@@ -40,30 +41,50 @@ if settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
                 'DROP INDEX failure_line_signature_test_idx ON failure_line;',
             ],
             state_operations=[
-                migrations.AlterIndexTogether(
-                    name='failureline',
-                    index_together=set(
-                        [
-                            ('test', 'subtest', 'status', 'expected', 'created'),
-                            ('job_guid', 'repository'),
-                            ('signature', 'test', 'created'),
-                        ]
+                migrations.AddIndex(
+                    model_name='failureline',
+                    index=django.contrib.postgres.indexes.GistIndex(
+                        fields=['test', 'subtest', 'status', 'expected', 'created'],
+                        name='failure_lin_test_c021c5_gist',
+                    ),
+                ),
+                migrations.AddIndex(
+                    model_name='failureline',
+                    index=django.contrib.postgres.indexes.GistIndex(
+                        fields=['signature', 'test', 'created'],
+                        name='failure_lin_signatu_33f9cb_gist',
+                    ),
+                ),
+                migrations.AddIndex(
+                    model_name='failureline',
+                    index=models.Index(
+                        fields=['job_guid', 'repository'], name='failure_lin_job_gui_b67c6d_idx'
                     ),
                 ),
             ],
         ),
     ]
 else:
-    # On postgres we can use standard migrations
     EXTRA_MIGRATIONS = [
-        migrations.AlterIndexTogether(
-            name='failureline',
-            index_together=set(
-                [
-                    ('test', 'subtest', 'status', 'expected', 'created'),
-                    ('job_guid', 'repository'),
-                    ('signature', 'test', 'created'),
-                ]
+        # Activate the Btree Gist extension on Postgres
+        BtreeGistExtension(),
+        migrations.AddIndex(
+            model_name='failureline',
+            index=django.contrib.postgres.indexes.GistIndex(
+                fields=['test', 'subtest', 'status', 'expected', 'created'],
+                name='failure_lin_test_c021c5_gist',
+            ),
+        ),
+        migrations.AddIndex(
+            model_name='failureline',
+            index=django.contrib.postgres.indexes.GistIndex(
+                fields=['signature', 'test', 'created'], name='failure_lin_signatu_33f9cb_gist'
+            ),
+        ),
+        migrations.AddIndex(
+            model_name='failureline',
+            index=models.Index(
+                fields=['job_guid', 'repository'], name='failure_lin_job_gui_b67c6d_idx'
             ),
         ),
         migrations.AddIndex(
@@ -1018,10 +1039,6 @@ class Migration(migrations.Migration):
         migrations.AlterUniqueTogether(
             name='failureline',
             unique_together=set([('job_log', 'line')]),
-        ),
-        migrations.AlterIndexTogether(
-            name='failureline',
-            index_together=set([('job_guid', 'repository')]),
         ),
         migrations.AlterUniqueTogether(
             name='commit',
