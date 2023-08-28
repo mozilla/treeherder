@@ -955,13 +955,7 @@ class FailureLine(models.Model):
 
     class Meta:
         db_table = 'failure_line'
-        index_together = (
-            ('job_guid', 'repository'),
-            # Prefix index: test(50), subtest(25), status, expected, created
-            ('test', 'subtest', 'status', 'expected', 'created'),
-            # Prefix index: signature(25), test(50), created
-            ('signature', 'test', 'created'),
-        )
+        index_together = (('job_guid', 'repository'),)
         unique_together = ('job_log', 'line')
 
     def __str__(self):
