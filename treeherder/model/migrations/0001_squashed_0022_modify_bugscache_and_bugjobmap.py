@@ -54,36 +54,21 @@ if settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
         ),
     ]
 else:
+    # On postgres we can use standard migrations
     EXTRA_MIGRATIONS = [
+        migrations.AlterIndexTogether(
+            name='failureline',
+            index_together=set(
+                [
+                    ('test', 'subtest', 'status', 'expected', 'created'),
+                    ('job_guid', 'repository'),
+                    ('signature', 'test', 'created'),
+                ]
+            ),
+        ),
         migrations.AddIndex(
             model_name='bugscache',
             index=models.Index(fields=['summary'], name='bugscache_summary_7f6b96_idx'),
-        ),
-        # PostgreSQL neither support creating an index on large text entries.
-        # Above indexes mimics the MySQL integration, however would requires the
-        # query to use the same function which is not implemented yet in treeherder.
-        # https://www.postgresql.org/docs/15/indexes-expressional.html
-        migrations.RunSQL(
-            [
-                'CREATE INDEX failure_line_test_idx ON failure_line ("left"(test, 50), "left"(subtest, 25), status, expected, created);',
-                'CREATE INDEX failure_line_signature_test_idx ON failure_line ("left"(signature, 25), "left"(test, 50), created);',
-            ],
-            reverse_sql=[
-                'DROP INDEX failure_line_test_idx ON failure_line;',
-                'DROP INDEX failure_line_signature_test_idx ON failure_line;',
-            ],
-            state_operations=[
-                migrations.AlterIndexTogether(
-                    name='failureline',
-                    index_together=set(
-                        [
-                            ('test', 'subtest', 'status', 'expected', 'created'),
-                            ('job_guid', 'repository'),
-                            ('signature', 'test', 'created'),
-                        ]
-                    ),
-                ),
-            ],
         ),
     ]
 
