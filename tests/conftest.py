@@ -147,6 +147,7 @@ def fixture_create_signature():
         test,
         test_perf_signature,
         repository,
+        application='',
     ):
         return perf_models.PerformanceSignature.objects.create(
             repository=repository,
@@ -160,6 +161,7 @@ def fixture_create_signature():
             extra_options=extra_options,
             last_updated=datetime.datetime.now(),
             measurement_unit=measurement_unit,
+            application=application,
         )
 
     return create
