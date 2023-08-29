@@ -922,9 +922,6 @@ class PerfCompareResults(generics.ListAPIView):
                     new_is_better, base_avg_value, new_avg_value, confidence
                 )
 
-                base_application = base_sig.get('application', '')
-                new_application = new_sig.get('application', '')
-
                 is_improvement = class_name == 'success'
                 is_regression = class_name == 'danger'
                 is_meaningful = class_name == ''
@@ -934,8 +931,8 @@ class PerfCompareResults(generics.ListAPIView):
                     'new_rev': new_rev,
                     'header_name': header,
                     'platform': platform,
-                    'base_application': base_application,
-                    'new_application': new_application,
+                    'base_app': base_sig.get('application', ''),
+                    'new_app': new_sig.get('application', ''),
                     'suite': base_sig.get('suite', ''),  # same suite for base_result and new_result
                     'test': base_sig.get('test', ''),  # same test for base_result and new_result
                     'is_complete': is_complete,

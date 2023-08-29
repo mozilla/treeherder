@@ -443,11 +443,11 @@ class PerfCompareResultsQueryParamsSerializer(serializers.Serializer):
 class PerfCompareResultsSerializer(serializers.ModelSerializer):
     base_rev = serializers.CharField()
     new_rev = serializers.CharField()
-    base_application = serializers.CharField(
+    base_app = serializers.CharField(
         max_length=10,
         default='',
     )
-    new_application = serializers.CharField(
+    new_app = serializers.CharField(
         max_length=10,
         default='',
     )
@@ -497,8 +497,8 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
         fields = [
             'base_rev',
             'new_rev',
-            'base_application',
-            'new_application',
+            'base_app',
+            'new_app',
             'framework_id',
             'platform',
             'suite',
