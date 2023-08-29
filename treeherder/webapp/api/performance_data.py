@@ -679,6 +679,7 @@ class PerformanceSummary(generics.ListAPIView):
         data = PerformanceDatum.objects.select_related('push', 'repository', 'id').filter(
             signature_id__in=signature_ids, repository__name=repository_name
         )
+        .order_by('job_id')
 
         if revision:
             data = data.filter(push__revision=revision)
@@ -785,6 +786,7 @@ class PerformanceAlertSummaryTasks(generics.ListAPIView):
             PerformanceDatum.objects.filter(signature__in=signature_ids)
             .values_list('job__job_type__name', flat=True)
             .distinct()
+            .order_by('job__job_type__name')
         )
         self.queryset = {"id": alert_summary_id, "tasks": tasks}
         serializer = self.get_serializer(self.queryset)
