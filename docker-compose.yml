@@ -71,7 +71,7 @@ services:
   mysql:
     container_name: mysql
     # https://hub.docker.com/r/library/mysql/
-    image: mysql:5.7.41
+    image: mysql:5.7.43
     platform: linux/amd64
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=true
