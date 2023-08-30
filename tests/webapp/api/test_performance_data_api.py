@@ -1,7 +1,6 @@
 import copy
 import pytest
 import datetime
-from django.conf import settings
 from django.urls import reverse
 from collections import defaultdict
 
@@ -482,10 +481,6 @@ def test_filter_data_by_signature(
             assert resp.data[signature.signature_hash][0]['value'] == float(i)
 
 
-@pytest.mark.skipif(
-    settings.DATABASES['default']['ENGINE'] != 'django.db.backends.mysql',
-    reason='Fails frequently with PostgreSQL',
-)
 def test_perf_summary(client, test_perf_signature, test_perf_data):
     query_params1 = (
         '?repository={}&framework={}&interval=172800&no_subtests=true&revision={}'.format(
@@ -533,10 +528,6 @@ def test_perf_summary(client, test_perf_signature, test_perf_data):
     assert resp2.json() == expected
 
 
-@pytest.mark.skipif(
-    settings.DATABASES['default']['ENGINE'] != 'django.db.backends.mysql',
-    reason='Fails frequently with PostgreSQL',
-)
 def test_data_points_from_same_push_are_ordered_chronologically(
     client, test_perf_signature, test_perf_data
 ):
@@ -720,10 +711,6 @@ def test_filter_out_retriggers():
     assert filtered_data == no_retriggers_data
 
 
-@pytest.mark.skipif(
-    settings.DATABASES['default']['ENGINE'] != 'django.db.backends.mysql',
-    reason='Fails with PostgreSQL',
-)
 def test_alert_summary_tasks_get(client, test_perf_alert_summary, test_perf_data):
     create_perf_alert(
         summary=test_perf_alert_summary,
@@ -738,9 +725,9 @@ def test_alert_summary_tasks_get(client, test_perf_alert_summary, test_perf_data
     assert resp.json() == {
         "id": test_perf_alert_summary.id,
         "tasks": [
-            "Mochitest Browser Chrome",
-            "Inari Device Image Build",
             "B2G Emulator Image Build",
+            "Inari Device Image Build",
+            "Mochitest Browser Chrome",
             "Nexus 4 Device Image Build",
         ],
     }

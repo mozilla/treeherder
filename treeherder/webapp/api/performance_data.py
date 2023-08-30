@@ -676,8 +676,10 @@ class PerformanceSummary(generics.ListAPIView):
 
         signature_ids = [item['id'] for item in list(self.queryset)]
 
-        data = PerformanceDatum.objects.select_related('push', 'repository', 'id').filter(
-            signature_id__in=signature_ids, repository__name=repository_name
+        data = (
+            PerformanceDatum.objects.select_related('push', 'repository', 'id')
+            .filter(signature_id__in=signature_ids, repository__name=repository_name)
+            .order_by('job_id', 'id')
         )
 
         if revision:
@@ -784,6 +786,7 @@ class PerformanceAlertSummaryTasks(generics.ListAPIView):
         tasks = (
             PerformanceDatum.objects.filter(signature__in=signature_ids)
             .values_list('job__job_type__name', flat=True)
+            .order_by("job__job_type__name")
             .distinct()
         )
         self.queryset = {"id": alert_summary_id, "tasks": tasks}
