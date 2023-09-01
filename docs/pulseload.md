@@ -1,7 +1,7 @@
 # Pulse Ingestion Configuration
 
 By default, running the Docker container with `docker-compose up` will ingest data
-from the `autoland` and `try` repositories using a shared [Pulse Guardian] user.  You can configure this the following ways:
+from the `autoland` and `try` repositories using a shared [Pulse Guardian] user. You can configure this the following ways:
 
 1. Specify a custom set of repositories for which to ingest data
 2. Create a custom **Pulse User** on [Pulse Guardian]
@@ -19,7 +19,7 @@ export PROJECTS_TO_INGEST=autoland,try
 Visit [Pulse Guardian], sign in, and create a **Pulse User**. It will ask you to set a
 username and password. Remember these as you'll use them in the next step.
 This is recommended, because using the default value **MAY** cause you to miss some data,
-if it was already ingested by another user  Unfortunately, **Pulse** doesn't support creating
+if it was already ingested by another user Unfortunately, **Pulse** doesn't support creating
 queues with a guest account.
 
 If your **Pulse User** was username: `foo` and password: `bar`, your Pulse URL
@@ -62,3 +62,60 @@ ex: <https://community-tc.services.mozilla.com/pulse-messages/>
 
 [pulse guardian]: https://pulseguardian.mozilla.org/whats_pulse
 [yml schema]: https://github.com/mozilla/treeherder/blob/master/schemas/pulse-job.yml
+
+**Here is an example flow you can use:**
+
+## Setup
+
+(These steps should help you set up everything you need to ingest data locally while working on perfherder)
+
+**Create a pulse guardian account and run:**
+
+```bash
+export PULSE_URL=amqp://USER:PASSWORD@pulse.mozilla.org:5671/?ssl=1
+yarn install
+docker-compose up --build
+```
+
+**Run each of these commands in multiple windows:**
+
+```bash
+docker-compose up --build
+docker-compose run -e PROJECTS_TO_INGEST=autoland backend celery -A treeherder worker --concurrency 1
+```
+
+---
+
+**Run the db viewer**
+
+You can use **dbeaver-ce**
+
+**Connect to the following while `docker-compose up --build` from the previous step is running:**
+
+`Serverhost: localhost`
+`Port: 3306`
+`Database: treeherder`
+`Username: root`
+`No password`
+
+---
+
+##### Run the following in separate window while running above to do ingestion
+
+**Ingest push:**
+
+```bash
+docker-compose exec backend ./manage.py ingest push -p autoland -r 1ee42a54a431acdd6cbe43b49de0237fe67eddd9
+```
+
+**Ingest all the tasks, and run celery to trigger the log parsing, and performance data ingestion:**
+
+```bash
+docker-compose exec backend ./manage.py ingest push -p autoland -r 1ee42a54a431acdd6cbe43b49de0237fe67eddd9 -a --enable-eager-celery
+```
+
+**For ingesting multple pushes:**
+
+```bash
+docker-compose exec backend ./manage.py ingest push -p autoland --last-n-pushes 100
+```
