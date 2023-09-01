@@ -18,6 +18,27 @@ export default class JobsAndGroups extends React.Component {
       toggleSelectedRunnableJob,
     } = this.props;
 
+    const confirmGroups = {};
+    for (const g of groups) {
+      // group.mapKey == pushID groupSymbol Tier platform buildtype
+      // find matching group.mapKey
+      if (g.symbol.endsWith('-cf')) {
+        let foundTier = false;
+        let gname = '';
+        for (let tier = 1; tier <= 3; tier++) {
+          gname = g.mapKey.replace('-cf3', tier);
+          for (const t of groups) {
+            if (t.mapKey === gname) foundTier = true;
+          }
+          if (foundTier) break;
+        }
+
+        if (foundTier) {
+          confirmGroups[gname] = g;
+        }
+      }
+    }
+
     return (
       <td className="job-row">
         {groups.map((group) => {
@@ -26,6 +47,11 @@ export default class JobsAndGroups extends React.Component {
               group.visible && (
                 <JobGroup
                   group={group}
+                  confirmGroup={
+                    confirmGroups[group.mapKey] === undefined
+                      ? {}
+                      : confirmGroups[group.mapKey]
+                  }
                   repoName={repoName}
                   filterModel={filterModel}
                   filterPlatformCb={filterPlatformCb}
