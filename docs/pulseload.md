@@ -19,7 +19,7 @@ export PROJECTS_TO_INGEST=autoland,try
 Visit [Pulse Guardian], sign in, and create a **Pulse User**. It will ask you to set a
 username and password. Remember these as you'll use them in the next step.
 This is recommended, because using the default value **MAY** cause you to miss some data,
-if it was already ingested by another user Unfortunately, **Pulse** doesn't support creating
+if it was already ingested by another user. Unfortunately **Pulse** doesn't support creating
 queues with a guest account.
 
 If your **Pulse User** was username: `foo` and password: `bar`, your Pulse URL
@@ -63,21 +63,18 @@ ex: <https://community-tc.services.mozilla.com/pulse-messages/>
 [pulse guardian]: https://pulseguardian.mozilla.org/whats_pulse
 [yml schema]: https://github.com/mozilla/treeherder/blob/master/schemas/pulse-job.yml
 
-**Here is an example flow you can use:**
+## Setup for Perfherder Development
 
-## Setup
-
-(These steps should help you set up everything you need to ingest data locally while working on perfherder)
+These steps should help you set up everything you need to ingest data locally while working on perfherder.
 
 **Create a pulse guardian account and run:**
 
 ```bash
 export PULSE_URL=amqp://USER:PASSWORD@pulse.mozilla.org:5671/?ssl=1
 yarn install
-docker-compose up --build
 ```
 
-**Run each of these commands in multiple windows:**
+**Run each of these commands in a seperate window:**
 
 ```bash
 docker-compose up --build
@@ -88,7 +85,7 @@ docker-compose run -e PROJECTS_TO_INGEST=autoland backend celery -A treeherder w
 
 **Run the db viewer**
 
-You can use **dbeaver-ce**
+You can use any database viewer of your choice `(e.g. dbeaver-ce, mysql workbench, etc.)`
 
 **Connect to the following while `docker-compose up --build` from the previous step is running:**
 
@@ -102,19 +99,27 @@ You can use **dbeaver-ce**
 
 ##### Run the following in separate window while running above to do ingestion
 
+<!-- prettier-ignore -->
+!!! note
+    These commands perform fetches for the data, they are run sequentially in the same window. The first command makes the second one run faster.
+
 **Ingest push:**
 
 ```bash
 docker-compose exec backend ./manage.py ingest push -p autoland -r 1ee42a54a431acdd6cbe43b49de0237fe67eddd9
 ```
 
-**Ingest all the tasks, and run celery to trigger the log parsing, and performance data ingestion:**
+**Ingest all the tasks, run celery to trigger the log parsing, and performance data ingestion:**
+
+> **Warning:** This command can take a long time to ingest and parse everything.
 
 ```bash
 docker-compose exec backend ./manage.py ingest push -p autoland -r 1ee42a54a431acdd6cbe43b49de0237fe67eddd9 -a --enable-eager-celery
 ```
 
-**For ingesting multple pushes:**
+`--enable-eager-celery` triggers the log parsing which is required to capture the `PERFHERDER_DATA` output.
+
+**For ingesting multiple pushes:**
 
 ```bash
 docker-compose exec backend ./manage.py ingest push -p autoland --last-n-pushes 100
