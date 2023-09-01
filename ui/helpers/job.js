@@ -86,6 +86,29 @@ export const isUnclassifiedFailure = function isUnclassifiedFailure(job) {
   return thFailureResults.includes(job.result) && !isClassified(job);
 };
 
+export const isIntermittent = function isIntermittent(jobToEvaluate, group) {
+  if (jobToEvaluate.result !== 'testfailed') {
+    return false;
+  }
+
+  console.log(jobToEvaluate);
+  const failedJobTypeNames = new Set();
+  for (const job of group.jobs) {
+    if (job.result === 'testfailed') {
+      failedJobTypeNames.add(job.job_type_name);
+    }
+  }
+
+  const intermittentJobTypeNames = new Set();
+  for (const job of group.jobs) {
+    if (job.result === 'success' && failedJobTypeNames.has(job.job_type_name)) {
+      intermittentJobTypeNames.add(job.job_type_name);
+    }
+  }
+
+  return intermittentJobTypeNames.has(jobToEvaluate.job_type_name);
+};
+
 // Fetch the React instance of an object from a DOM element.
 // Credit for this approach goes to SO: https://stackoverflow.com/a/48335220/333614
 export const findInstance = function findInstance(el) {
