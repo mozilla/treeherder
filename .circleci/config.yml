@@ -94,7 +94,7 @@ jobs:
       - image: docker:19.03.15
     steps:
       - setup_remote_docker:
-          version: 19.03.14
+          version: 20.10.23
       - checkout
       - run:
           name: Create a version.json
@@ -115,7 +115,7 @@ jobs:
       - image: docker:19.03.15
     steps:
       - setup_remote_docker:
-          version: 19.03.14
+          version: 20.10.23
       - checkout
       - run:
           name: Create a version.json
