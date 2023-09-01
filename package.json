@@ -69,7 +69,7 @@
     "taskcluster-lib-scopes": "11.0.0",
     "taskcluster-lib-urls": "13.0.1",
     "tsconfig-paths": "4.1.2",
-    "url": "0.11.0",
+    "url": "0.11.1",
     "victory": "36.6.11"
   },
   "devDependencies": {
