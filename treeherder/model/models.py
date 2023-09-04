@@ -11,6 +11,7 @@ import warnings
 warnings.filterwarnings('ignore', category=DeprecationWarning, module='newrelic')
 
 import newrelic.agent
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
