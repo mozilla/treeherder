@@ -233,14 +233,21 @@ const productionConfig = {
       chunks: 'all',
       maxInitialRequests: 5,
       name: false,
+      cacheGroups: {
+        redoc: {
+          test: /[\\/]node_modules[\\/](mobx|redoc|styled-components)[\\/]/,
+          name: 'redoc',
+          chunks: 'all',
+        },
+      },
     },
     runtimeChunk: 'single',
   },
 
   performance: {
     hints: 'error',
-    maxAssetSize: 1782579.2,
-    maxEntrypointSize: 2621440,
+    maxAssetSize: 2200000,
+    maxEntrypointSize: 3000000,
   },
 
   plugins: [
@@ -250,7 +257,7 @@ const productionConfig = {
       lang: 'en',
       meta: false,
       filename: 'index.html',
-      chunks: ['index'],
+      chunks: ['index', 'redoc'],
     }),
     new MiniCssExtractPlugin({
       filename: 'assets/[name].[contenthash:8].css',
