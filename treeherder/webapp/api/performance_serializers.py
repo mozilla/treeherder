@@ -440,20 +440,14 @@ class PerfCompareResultsQueryParamsSerializer(serializers.Serializer):
         return data
 
 
-class PerfCompareResultsSerializer(serializers.ModelSerializer):
-    base_rev = serializers.CharField()
-    new_rev = serializers.CharField()
+class PerfCompareResultsRowSerializer(serializers.ModelSerializer):
     is_empty = serializers.BooleanField()
     is_complete = serializers.BooleanField()
     platform = serializers.CharField()
-    header_name = serializers.CharField()
-    base_repository_name = serializers.CharField()
-    new_repository_name = serializers.CharField()
     base_measurement_unit = serializers.CharField(default='')
     new_measurement_unit = serializers.CharField(default='')
     base_retriggerable_job_ids = serializers.ListField(child=serializers.IntegerField(), default=[])
     new_retriggerable_job_ids = serializers.ListField(child=serializers.IntegerField(), default=[])
-    option_name = serializers.CharField()
     base_runs = serializers.ListField(
         child=PerfCompareDecimalField(),
         default=[],
@@ -487,15 +481,8 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
     class Meta:
         model = PerformanceSignature
         fields = [
-            'base_rev',
-            'new_rev',
-            'framework_id',
             'platform',
-            'suite',
             'is_empty',
-            'header_name',
-            'base_repository_name',
-            'new_repository_name',
             'is_complete',
             'base_measurement_unit',
             'new_measurement_unit',
@@ -507,9 +494,6 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
             'new_avg_value',
             'base_median_value',
             'new_median_value',
-            'test',
-            'option_name',
-            'extra_options',
             'base_stddev',
             'new_stddev',
             'base_stddev_pct',
@@ -527,6 +511,32 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
             'is_improvement',
             'is_regression',
             'is_meaningful',
+        ]
+
+
+class PerfCompareResultsSerializer(serializers.ModelSerializer):
+    base_rev = serializers.CharField()
+    new_rev = serializers.CharField()
+    header_name = serializers.CharField()
+    base_repository_name = serializers.CharField()
+    new_repository_name = serializers.CharField()
+    option_name = serializers.CharField()
+    results = PerfCompareResultsRowSerializer(many=True)
+
+    class Meta:
+        model = PerformanceSignature
+        fields = [
+            'base_rev',
+            'new_rev',
+            'framework_id',
+            'suite',
+            'test',
+            'header_name',
+            'base_repository_name',
+            'new_repository_name',
+            'option_name',
+            'extra_options',
+            'results',
         ]
 
 
