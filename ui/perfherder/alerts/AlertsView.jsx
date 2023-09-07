@@ -221,7 +221,9 @@ class AlertsView extends React.Component {
     const userInputArray = userInput.split(' ');
 
     const repositories = projects.map(({ name }) => name);
-    const optionsCollection = Object.values(optionCollectionMap);
+    const optionsCollection = optionCollectionMap
+      ? Object.values(optionCollectionMap)
+      : [];
 
     const allNotSupportedFilters = [...repositories, ...optionsCollection];
     return allNotSupportedFilters.filter((elem) =>
