@@ -1,5 +1,3 @@
-/* eslint-disable react/no-did-update-set-state */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, FormGroup, Input, Label } from 'reactstrap';
