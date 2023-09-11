@@ -352,6 +352,7 @@ export default class AlertTable extends React.Component {
                     <th className="align-bottom">
                       <TableColumnHeader
                         column={tableConfig.Test}
+                        data-testid={`${alertSummary.id} ${tableConfig.Test}`}
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
@@ -363,7 +364,11 @@ export default class AlertTable extends React.Component {
                     </th>
                     {alertSummary.framework === browsertimeId && (
                       <th className="align-bottom text-nowrap">
-                        <span>{tableConfig.DebuggingInformation.name}</span>
+                        <span
+                          data-testid={`${alertSummary.id} ${tableConfig.DebuggingInformation.name}`}
+                        >
+                          {tableConfig.DebuggingInformation.name}
+                        </span>
                         <SortButtonDisabled
                           column={tableConfig.DebuggingInformation}
                         />

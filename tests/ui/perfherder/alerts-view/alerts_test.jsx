@@ -164,7 +164,7 @@ beforeAll(() => {
   fetchMock.mock(getApiUrl(endpoints.issueTrackers), testIssueTrackers);
 
   fetchMock.mock(`begin:${getApiUrl(endpoints.alertSummary)}`, {
-    count: 2,
+    count: 3,
     next: null,
     previous: null,
     results: testAlertSummaries,
@@ -249,6 +249,28 @@ describe('alert filtering ignores repository and/or options', () => {
       expect(warningMessage).toBeInTheDocument();
     });
   });
+});
+
+test('Debug Tools heading not displayed for non-browsertime summaries', async () => {
+  const alertSummary1 = testAlertSummaries[0];
+
+  const { queryByTestId } = alertsViewControls();
+
+  expect(
+    queryByTestId(`${alertSummary1.id.toString()} Debug Tools`),
+  ).not.toBeInTheDocument();
+});
+
+test('Debug Tools heading displayed for browsertime summaries', async () => {
+  const alertSummary1 = testAlertSummaries[2];
+
+  const { getByTestId } = alertsViewControls();
+
+  const heading = await waitFor(() =>
+    getByTestId(`${alertSummary1.id.toString()} Debug Tools`),
+  );
+
+  expect(heading).toBeInTheDocument();
 });
 
 test('clicking the star icon for an alert updates that alert', async () => {
@@ -421,6 +443,10 @@ test('selecting the alert summary checkbox then clicking on the reassign button 
 });
 
 test("display of alert summaries's assignee badge", async () => {
+  const alertSummary = testAlertSummaries[2];
+  alertSummary.assignee_email = 'test_user@mozilla.com';
+  alertSummary.assignee_username = 'mozilla-ldap/test_user@mozilla.com';
+
   const { getAllByTitle, getAllByText } = alertsViewControls();
 
   const ownershipBadges = getAllByTitle('Click to change assignee');
@@ -437,6 +463,10 @@ test("display of alert summaries's assignee badge", async () => {
 });
 
 test("'Take' button hides when clicking on 'Unassigned' badge", async () => {
+  const alertSummary = testAlertSummaries[2];
+  alertSummary.assignee_email = 'test_user@mozilla.com';
+  alertSummary.assignee_username = 'mozilla-ldap/test_user@mozilla.com';
+
   const {
     getByText,
     queryByText,
@@ -452,6 +482,10 @@ test("'Take' button hides when clicking on 'Unassigned' badge", async () => {
 });
 
 test('setting an assignee on unassigned alert summary updates the badge accordingly', async () => {
+  const alertSummary = testAlertSummaries[2];
+  alertSummary.assignee_email = 'test_user@mozilla.com';
+  alertSummary.assignee_username = 'mozilla-ldap/test_user@mozilla.com';
+
   const { getByText, getByPlaceholderText } = alertsViewControls();
 
   const unassignedBadge = await waitFor(() => getByText('Unassigned'));
@@ -472,6 +506,10 @@ test('setting an assignee on unassigned alert summary updates the badge accordin
 });
 
 test('setting an assignee on an already assigned summary is possible', async () => {
+  const alertSummary = testAlertSummaries[2];
+  alertSummary.assignee_email = null;
+  alertSummary.assignee_username = null;
+
   const { getByText, getByDisplayValue } = alertsViewControls();
 
   const unassignedBadge = await waitFor(() => getByText('test_user'));
@@ -510,6 +548,10 @@ test("'Escape' from partially editted assignee does not update original assignee
 });
 
 test("Clicking on 'Take' prefills with logged in user", async () => {
+  const alertSummary = testAlertSummaries[2];
+  alertSummary.assignee_email = 'test_user@mozilla.com';
+  alertSummary.assignee_username = 'mozilla-ldap/test_user@mozilla.com';
+
   const { getByText, getByDisplayValue } = alertsViewControls();
 
   const takeButton = getByText('Take');
@@ -524,7 +566,7 @@ test('Alerts retriggered by the backfill bot have a title', async () => {
   const { queryAllByTitle } = alertsViewControls();
 
   const titles = await waitFor(() => queryAllByTitle(backfillRetriggeredTitle));
-  expect(titles).toHaveLength(2);
+  expect(titles).toHaveLength(3);
 });
 
 describe('"My alerts" checkbox\'s display behaviors', () => {
@@ -560,11 +602,12 @@ test('Framework name is displayed near alert summary', async () => {
 
   const frameworkName = await waitFor(() => queryAllByText(dummyFrameworkName));
   // one summary from testAlertSummaries have one bad framework id
-  expect(frameworkName).toHaveLength(testAlertSummaries.length - 1);
+  expect(frameworkName).toHaveLength(1);
 });
 
 test('Correct message is displayed if the framework id is invalid', async () => {
   const { queryAllByText } = alertsViewControls();
+  // console.log(alertsViewControls());
 
   const frameworkName = await waitFor(() =>
     queryAllByText(unknownFrameworkMessage),
@@ -836,6 +879,7 @@ test('Next alert button should be disable when reaching the last alert', async (
 
   fireEvent.click(nextScrollButton);
   fireEvent.click(nextScrollButton);
+  fireEvent.click(nextScrollButton);
 
   nextScrollButton = await waitFor(() => getByTestId('scroll-next-alert'));
 
@@ -869,6 +913,23 @@ test('Sherlock status 0 in tooltip on alerts', async () => {
   await waitFor(() => getByText(alertBackfillResultVisual.preliminary.message));
 });
 
+test(`Sherlock status 0 in tooltip on alerts Debug Tools column not contains side-by-side icon`, async () => {
+  const alert = testAlertSummaries[2].alerts[0];
+  alert.backfill_record.status = alertBackfillResultStatusMap.preliminary;
+  expect(alert.id).toBe(177726);
+
+  const { getByTestId, getByText, queryByTestId } = alertsViewControls();
+  // hovering over the Sherlock icon should display the tooltip
+  const sherlockIcon = await waitFor(() =>
+    getByTestId(`alert ${alert.id.toString()} sherlock icon`),
+  );
+  fireEvent.mouseOver(sherlockIcon);
+  await waitFor(() => getByText(alertBackfillResultVisual.preliminary.message));
+  expect(
+    queryByTestId(`alert ${alert.id.toString()} side-by-side icon`),
+  ).not.toBeInTheDocument();
+});
+
 test('Sherlock status 1 in tooltip on alerts', async () => {
   const alert = testAlertSummaries[0].alerts[3];
   alert.backfill_record.status =
@@ -886,6 +947,26 @@ test('Sherlock status 1 in tooltip on alerts', async () => {
   );
 });
 
+test(`Sherlock status 1 in tooltip on alerts Debug Tools column not contains side-by-side icon`, async () => {
+  const alert = testAlertSummaries[2].alerts[0];
+  alert.backfill_record.status =
+    alertBackfillResultStatusMap.readyForProcessing;
+  expect(alert.id).toBe(177726);
+
+  const { getByTestId, getByText, queryByTestId } = alertsViewControls();
+  // hovering over the Sherlock icon should display the tooltip
+  const sherlockIcon = await waitFor(() =>
+    getByTestId(`alert ${alert.id.toString()} sherlock icon`),
+  );
+  fireEvent.mouseOver(sherlockIcon);
+  await waitFor(() =>
+    getByText(alertBackfillResultVisual.readyForProcessing.message),
+  );
+  expect(
+    queryByTestId(`alert ${alert.id.toString()} side-by-side icon`),
+  ).not.toBeInTheDocument();
+});
+
 test('Sherlock status 2 in tooltip on alerts', async () => {
   const alert = testAlertSummaries[0].alerts[3];
   alert.backfill_record.status = alertBackfillResultStatusMap.backfilled;
@@ -898,6 +979,24 @@ test('Sherlock status 2 in tooltip on alerts', async () => {
   );
   fireEvent.mouseOver(alertIcon);
   await waitFor(() => getByText(alertBackfillResultVisual.backfilled.message));
+});
+
+test(`Sherlock status 2 in tooltip on alerts Debug Tools column contains side-by-side icon`, async () => {
+  const alert = testAlertSummaries[2].alerts[0];
+  alert.backfill_record.status = alertBackfillResultStatusMap.backfilled;
+  expect(alert.id).toBe(177726);
+
+  const { getByTestId, getByText } = alertsViewControls();
+  // hovering over the Sherlock icon should display the tooltip
+  const sherlockIcon = await waitFor(() =>
+    getByTestId(`alert ${alert.id.toString()} sherlock icon`),
+  );
+  fireEvent.mouseOver(sherlockIcon);
+  await waitFor(() => getByText(alertBackfillResultVisual.backfilled.message));
+  const sxsIcon = await waitFor(() =>
+    getByTestId(`alert ${alert.id.toString()} side-by-side icon`),
+  );
+  expect(sxsIcon).toBeInTheDocument();
 });
 
 test('Sherlock status 3 in tooltip on alerts', async () => {
@@ -914,6 +1013,24 @@ test('Sherlock status 3 in tooltip on alerts', async () => {
   await waitFor(() => getByText(alertBackfillResultVisual.successful.message));
 });
 
+test(`Sherlock status 3 in tooltip on alerts Debug Tools column contains side-by-side icon`, async () => {
+  const alert = testAlertSummaries[2].alerts[0];
+  alert.backfill_record.status = alertBackfillResultStatusMap.successful;
+  expect(alert.id).toBe(177726);
+
+  const { getByTestId, getByText } = alertsViewControls();
+  // hovering over the Sherlock icon should display the tooltip
+  const sherlockIcon = await waitFor(() =>
+    getByTestId(`alert ${alert.id.toString()} sherlock icon`),
+  );
+  fireEvent.mouseOver(sherlockIcon);
+  await waitFor(() => getByText(alertBackfillResultVisual.successful.message));
+  const sxsIcon = await waitFor(() =>
+    getByTestId(`alert ${alert.id.toString()} side-by-side icon`),
+  );
+  expect(sxsIcon).toBeInTheDocument();
+});
+
 test('Sherlock status 4 in tooltip on alerts', async () => {
   const alert = testAlertSummaries[0].alerts[3];
   alert.backfill_record.status = alertBackfillResultStatusMap.failed;
@@ -926,6 +1043,24 @@ test('Sherlock status 4 in tooltip on alerts', async () => {
   );
   fireEvent.mouseOver(alertIcon);
   await waitFor(() => getByText(alertBackfillResultVisual.failed.message));
+});
+
+test(`Sherlock status 4 in tooltip on alerts Debug Tools column contains side-by-side icon`, async () => {
+  const alert = testAlertSummaries[2].alerts[0];
+  alert.backfill_record.status = alertBackfillResultStatusMap.failed;
+  expect(alert.id).toBe(177726);
+
+  const { getByTestId, getByText } = alertsViewControls();
+  // hovering over the Sherlock icon should display the tooltip
+  const sherlockIcon = await waitFor(() =>
+    getByTestId(`alert ${alert.id.toString()} sherlock icon`),
+  );
+  fireEvent.mouseOver(sherlockIcon);
+  await waitFor(() => getByText(alertBackfillResultVisual.failed.message));
+  const sxsIcon = await waitFor(() =>
+    getByTestId(`alert ${alert.id.toString()} side-by-side icon`),
+  );
+  expect(sxsIcon).toBeInTheDocument();
 });
 
 test("Alert's ID can be copied to clipboard", async () => {
