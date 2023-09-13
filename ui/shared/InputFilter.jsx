@@ -22,7 +22,6 @@ export default class InputFilter extends React.Component {
     const { filteredTextValue } = this.props;
 
     if (filteredTextValue !== prevProps.filteredTextValue) {
-      // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ input: filteredTextValue });
     }
   }

@@ -33,7 +33,7 @@ export default class AlertsViewControls extends React.Component {
       this.alertsRef = new Array(alertsLength)
         .fill(null)
         .map(() => React.createRef());
-      // eslint-disable-next-line react/no-did-update-set-state
+
       this.setState({
         currentAlert: -1,
         alertsLength,

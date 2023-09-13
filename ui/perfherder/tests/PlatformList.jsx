@@ -31,7 +31,6 @@ export default class PlatformList extends React.Component {
   componentDidUpdate(prevProps) {
     const { items } = this.props;
     if (items !== prevProps.items) {
-      // eslint-disable-next-line react/no-did-update-set-state
       this.setState(
         {
           platformsVersions: {},

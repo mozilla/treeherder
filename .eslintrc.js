@@ -30,6 +30,8 @@ module.exports = {
     'default-param-last': 'off',
     'import/extensions': 'off',
     'jsx-a11y/click-events-have-key-events': 'off',
+    'jsx-a11y/control-has-associated-label': 'off',
+    'jsx-a11y/role-supports-aria-props': 'off',
     'no-alert': 'off',
     'no-continue': 'off',
     'no-param-reassign': 'off',
@@ -53,6 +55,7 @@ module.exports = {
     'react/prefer-exact-props': 'off',
     'react/prop-types': 'off',
     'react/sort-comp': [0, {}],
+    'react/forbid-prop-types': 'off',
     // Override AirBnB's config for this rule to make it more strict.
     // https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/order.md
     'import/order': [

@@ -256,7 +256,7 @@ describe('DetailsPanel', () => {
 
   test('pin all jobs', async () => {
     const { queryAllByTitle } = render(testDetailsPanel());
-    store.dispatch(pinJobs(jobList.data));
+    await store.dispatch(pinJobs(jobList.data));
     const unPinJobBtns = queryAllByTitle('Unpin job');
     expect(unPinJobBtns).toHaveLength(5);
   });

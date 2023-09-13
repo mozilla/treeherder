@@ -44,7 +44,6 @@ class TestsView extends React.PureComponent {
       platformsMap !== false &&
       location.search === ''
     ) {
-      // eslint-disable-next-line react/no-did-update-set-state
       this.setState(
         {
           framework: { id: 1, name: 'talos' },

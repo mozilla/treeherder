@@ -19,7 +19,7 @@ class ErrorMessages extends React.PureComponent {
       !this.state.visible
     ) {
       // reset Alert if previouly dismissed
-      // eslint-disable-next-line react/no-did-update-set-state
+
       this.setState({ visible: true });
     }
   }
