@@ -916,7 +916,7 @@ test('Sherlock status 0 in tooltip on alerts', async () => {
   await waitFor(() => getByText(alertBackfillResultVisual.preliminary.message));
 });
 
-test(`Sherlock status 0 in tooltip on alerts Debug Tools column not contains side-by-side icon`, async () => {
+test(`Side-by-side icon is not displayed in Debug Tools column when Sherlock status is 0 (Not backfilled) in tooltip alerts`, async () => {
   const alert = testAlertSummaries[2].alerts[0];
   alert.backfill_record.status = alertBackfillResultStatusMap.preliminary;
   expect(alert.id).toBe(177726);
@@ -950,7 +950,7 @@ test('Sherlock status 1 in tooltip on alerts', async () => {
   );
 });
 
-test(`Sherlock status 1 in tooltip on alerts Debug Tools column not contains side-by-side icon`, async () => {
+test(`Side-by-side icon is not displayed in Debug Tools column when Sherlock status is 1 (Soon to be backfilled) in tooltip on alerts`, async () => {
   const alert = testAlertSummaries[2].alerts[0];
   alert.backfill_record.status =
     alertBackfillResultStatusMap.readyForProcessing;
@@ -984,7 +984,7 @@ test('Sherlock status 2 in tooltip on alerts', async () => {
   await waitFor(() => getByText(alertBackfillResultVisual.backfilled.message));
 });
 
-test(`Sherlock status 2 in tooltip on alerts Debug Tools column contains side-by-side icon`, async () => {
+test(`Side-by-side icon is not displayed in Debug Tools column when Sherlock status is 2 (Backfilling in progress) in tooltip on alerts`, async () => {
   const alert = testAlertSummaries[2].alerts[0];
   alert.backfill_record.status = alertBackfillResultStatusMap.backfilled;
   expect(alert.id).toBe(177726);
@@ -1016,7 +1016,7 @@ test('Sherlock status 3 in tooltip on alerts', async () => {
   await waitFor(() => getByText(alertBackfillResultVisual.successful.message));
 });
 
-test(`Sherlock status 3 in tooltip on alerts Debug Tools column contains side-by-side icon`, async () => {
+test(`Side-by-side icon is displayed in Debug Tools column when Sherlock status is 3 (Backfilled successfully some jobs) in tooltip on alerts`, async () => {
   const alert = testAlertSummaries[2].alerts[0];
   alert.backfill_record.status = alertBackfillResultStatusMap.successful;
   expect(alert.id).toBe(177726);
@@ -1048,7 +1048,7 @@ test('Sherlock status 4 in tooltip on alerts', async () => {
   await waitFor(() => getByText(alertBackfillResultVisual.failed.message));
 });
 
-test(`Sherlock status 4 in tooltip on alerts Debug Tools column contains side-by-side icon`, async () => {
+test(`Side-by-side icon is displayed in Debug Tools column when Sherlock status is 4 (Backfilling failed for some jobs) in tooltip on alerts`, async () => {
   const alert = testAlertSummaries[2].alerts[0];
   alert.backfill_record.status = alertBackfillResultStatusMap.failed;
   expect(alert.id).toBe(177726);
