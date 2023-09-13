@@ -520,6 +520,7 @@ export default class AlertTableRow extends React.Component {
                   <FontAwesomeIcon
                     title="Open side-by-side link"
                     icon={faCirclePlay}
+                    data-testid={`alert ${alert.id.toString()} side-by-side icon`}
                   />
                 </a>
               </span>
