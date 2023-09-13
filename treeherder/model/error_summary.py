@@ -19,6 +19,7 @@ LINE_CACHE_TIMEOUT = 86400 * LINE_CACHE_TIMEOUT_DAYS
 LEAK_RE = re.compile(r'\d+ bytes leaked \((.+)\)$|leak at (.+)$')
 CRASH_RE = re.compile(r'.+ application crashed \[@ (.+)\] \|.+')
 MOZHARNESS_RE = re.compile(r'^\d+:\d+:\d+[ ]+(?:DEBUG|INFO|WARNING|ERROR|CRITICAL|FATAL) - [ ]?')
+MARIONETTE_RE = re.compile(r'.+marionette([_harness/]?).*/test_.+.py ([A-Za-z]+).+')
 PROCESS_ID_RE = re.compile(r"(?:PID \d+|GECKO\(\d+\)) \| +")
 REFTEST_RE = re.compile(r'\s+[=!]=\s+.*')
 PREFIX_PATTERN = r'^(TEST-UNEXPECTED-\S+|PROCESS-CRASH)\s+\|\s+'
@@ -234,6 +235,9 @@ def get_error_search_term_and_path(error_line):
             # For reftests, remove the reference path from the tokens as this is
             # not very unique
             test_name_or_path = REFTEST_RE.sub("", test_name_or_path).replace("\\", "/")
+            # split marionette paths to only include the filename
+            if MARIONETTE_RE.search(test_name_or_path):
+                test_name_or_path = "%s.py" % test_name_or_path.split(".py ")[0]
             path_end = test_name_or_path
             # if this is a path, we are interested in the last part
             search_term = test_name_or_path.split("/")[-1]

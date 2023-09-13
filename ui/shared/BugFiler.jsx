@@ -72,7 +72,7 @@ const parseSummary = (suggestion) => {
   summary = summary.replace(re, '');
   re = /http:\/\/([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+):([0-9]+)\/tests\//gi;
   summary = summary.replace(re, '');
-  re = /xpcshell([-a-zA-Z0-9]+)?.ini:/gi;
+  re = /xpcshell([-a-zA-Z0-9]+)?.(ini|toml):/gi;
   summary = summary.replace(re, '');
   summary = summary.replace('/_mozilla/', 'mozilla/tests/');
   // We don't want to include "REFTEST" when it's an unexpected pass
@@ -146,7 +146,6 @@ export class BugFilerClass extends React.Component {
       /ASSERTION:/, // binary code
       /assertion fail/i, // JavaScript
       /assertion count \d+ is \w+ than expected \d+ assertion/, // layout
-      /AssertionError/, // Marionette
     ].some((regexp) => regexp.test(summaryString));
     if (isAssertion) {
       if (
@@ -178,7 +177,9 @@ export class BugFilerClass extends React.Component {
       jg.includes('mochitest') ||
       jg.includes('web platform tests') ||
       jg.includes('reftest') ||
-      jobTypeName.includes('junit')
+      jg.includes('talos') ||
+      jobTypeName.includes('junit') ||
+      jobTypeName.includes('marionette')
     ) {
       // simple hack to make sure we have a testcase in the summary
       let isTestPath = [
@@ -187,12 +188,17 @@ export class BugFilerClass extends React.Component {
         /.*test_.*\.xhtml/, // mochitest-chrome
         /.*browser_.*\.html/, // b-c
         /.*browser_.*\.js/, // b-c
+        /.*test_.*\.py/, // marionette
         /.*\.ini/, // when we have a failure on shutdown (crash/leak/timeout)
         /.*\.toml/, // when we have a failure on shutdown (crash/leak/timeout)
         /.*org.mozilla.geckoview.test.*/, // junit
       ].some((regexp) => regexp.test(summaryString));
 
-      if (jg.includes('web platform tests') || jg.includes('reftest')) {
+      if (jg.includes('talos')) {
+        isTestPath = [
+          /.*PROCESS-CRASH \| .*/, // crashes
+        ].some((regexp) => regexp.test(suggestion.search));
+      } else if (jg.includes('web platform tests') || jg.includes('reftest')) {
         // account for <filename>.html?blah... | failure message
         isTestPath = [
           /.*\.js(\?.*| )\|/,
@@ -222,7 +228,10 @@ export class BugFilerClass extends React.Component {
         !/.*image comparison, max difference.*/.test(summaryString)
       ) {
         isTestPath = false;
-      } else if (jg.includes('web platform tests')) {
+      } else if (
+        jg.includes('web platform tests') ||
+        jobTypeName.includes('marionette')
+      ) {
         trimParams = true;
       }
 
@@ -232,12 +241,12 @@ export class BugFilerClass extends React.Component {
         // split('?') is for removing `?params...` from the test name
         if (parts.length === 2 || parts.length === 1) {
           summaryString = `${
-            trimParams ? parts[0].split('?')[0] : parts[0]
+            trimParams ? parts[0].split('?')[0].split(' ')[0] : parts[0]
           } | single tracking bug`;
           keywords.push('intermittent-testcase');
         } else if (parts.length === 3) {
           summaryString = `${
-            trimParams ? parts[1].split('?')[0] : parts[1]
+            trimParams ? parts[1].split('?')[0].split(' ')[0] : parts[1]
           } | single tracking bug`;
           keywords.push('intermittent-testcase');
         }
