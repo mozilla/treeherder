@@ -326,7 +326,7 @@ class Test extends PureComponent {
                 </NavItem>
               </Nav>
             </Navbar>
-            <div className="ml-5 pl-2">
+            <div className="ml-5 pl-2 position-relative">
               <FormGroup className="mb-1 pl-4">
                 <Input
                   aria-label="Select all platforms for this test"
