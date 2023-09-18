@@ -142,7 +142,7 @@ class TabsPanel extends React.Component {
       taskId,
       rootUrl,
       initializeGlean,
-      updatePinnedJob
+      updatePinnedJob,
     } = this.props;
     const { enableTestGroupsTab, tabIndex } = this.state;
     const countPinnedJobs = Object.keys(pinnedJobs).length;
