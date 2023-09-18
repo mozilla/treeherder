@@ -6,9 +6,7 @@ from django.db.models import Count
 from rest_framework import generics
 from rest_framework.response import Response
 
-from treeherder.model.models import (
-    Job,
-)
+from treeherder.model.models import JobLog
 from treeherder.webapp.api.serializers import GroupNameSerializer
 
 logger = logging.getLogger(__name__)
@@ -44,22 +42,24 @@ class SummaryByGroupName(generics.ListAPIView):
         if (enddate - startdate).days > 1:
             enddate = startdate + datetime.timedelta(days=1)
 
-        q = (
-            Job.objects.filter(
-                push__time__gte=str(startdate.date()), push__time__lte=str(enddate.date())
+        self.queryset = (
+            JobLog.objects.filter(
+                job__push__time__gte=str(startdate.date()), job__push__time__lte=str(enddate.date())
             )
-            .filter(repository_id__in=(1, 77))
+            .filter(job__repository_id__in=(1, 77))
+            .values('job_id')
+            .annotate(job_count=Count('job_id'))
             .values(
-                'job_log__groups__name',
-                'job_type__name',
-                'job_log__group_result__status',
-                'failure_classification_id',
+                'job_count',
+                'job__job_type__name',
+                'job__failure_classification_id',
+                'groups__name',
+                'group_result__status',
             )
-            .annotate(job_count=Count('id'))
-            .order_by('job_log__groups__name')
+            .order_by('groups__name')
         )
-        self.queryset = q
         serializer = self.get_serializer(self.queryset, many=True)
+
         summary = {}
         job_type_names = []
         for item in serializer.data:
