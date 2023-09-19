@@ -543,18 +543,26 @@ class Job(models.Model):
 
     class Meta:
         db_table = "job"
-        index_together = [
+        indexes = [
             # these speed up the various permutations of the "similar jobs"
             # queries
-            ("repository", "job_type", "start_time"),
-            ("repository", "build_platform", "job_type", "start_time"),
-            ("repository", "option_collection_hash", "job_type", "start_time"),
-            ("repository", "build_platform", "option_collection_hash", "job_type", "start_time"),
+            models.Index(fields=["repository", "job_type", "start_time"]),
+            models.Index(fields=["repository", "build_platform", "job_type", "start_time"]),
+            models.Index(fields=["repository", "option_collection_hash", "job_type", "start_time"]),
+            models.Index(
+                fields=[
+                    "repository",
+                    "build_platform",
+                    "option_collection_hash",
+                    "job_type",
+                    "start_time",
+                ]
+            ),
             # this is intended to speed up queries for specific platform /
             # option collections on a push
-            ("machine_platform", "option_collection_hash", "push"),
+            models.Index(fields=["machine_platform", "option_collection_hash", "push"]),
             # speed up cycle data
-            ("repository", "submit_time"),
+            models.Index(fields=["repository", "submit_time"]),
         ]
 
     @property
@@ -578,9 +586,13 @@ class Job(models.Model):
 
         return self.platform_option
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, update_fields=None, **kwargs):
         self.last_modified = datetime.datetime.now()
-        super().save(*args, **kwargs)
+
+        if update_fields is not None:
+            update_fields = {"last_modified"}.union(update_fields)
+
+        super().save(*args, update_fields=update_fields, **kwargs)
 
     def get_manual_classification_line(self):
         """
@@ -916,7 +928,7 @@ class FailureLine(models.Model):
 
     class Meta:
         db_table = "failure_line"
-        index_together = (("job_guid", "repository"),)
+        indexes = [models.Index(fields=["job_guid", "repository"])]
         unique_together = ("job_log", "line")
 
     def __str__(self):
