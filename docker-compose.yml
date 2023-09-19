@@ -126,7 +126,7 @@ services:
       - PULSE_URL=${PULSE_URL:-}
       - LOGGING_LEVEL=INFO
       - PULSE_AUTO_DELETE_QUEUES=True
-      - DATABASE_URL=mysql://root@mysql:3306/treeherder
+      - DATABASE_URL=${DATABASE_URL:-mysql://root@mysql:3306/treeherder}
       - BROKER_URL=amqp://guest:guest@rabbitmq//
       - SKIP_INGESTION=${SKIP_INGESTION:-False}
     entrypoint: './docker/entrypoint.sh'
@@ -145,7 +145,7 @@ services:
       dockerfile: docker/dev.Dockerfile
     environment:
       - BROKER_URL=amqp://guest:guest@rabbitmq:5672//
-      - DATABASE_URL=mysql://root@mysql:3306/treeherder
+      - DATABASE_URL=${DATABASE_URL:-mysql://root@mysql:3306/treeherder}
       - PROJECTS_TO_INGEST=${PROJECTS_TO_INGEST:-autoland,try}
     entrypoint: './docker/entrypoint.sh'
     command: celery -A treeherder worker --uid=nobody --gid=nogroup --without-gossip --without-mingle --without-heartbeat -Q store_pulse_pushes,store_pulse_tasks,store_pulse_tasks_classification --concurrency=1 --loglevel=INFO
