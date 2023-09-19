@@ -69,7 +69,9 @@ class SummaryByGroupName(generics.ListAPIView):
                 'job__failure_classification_id',
                 'job_count',
             )
-            .order_by('groups__name')
+            .order_by(
+                'groups__name', 'job__job_type__name', 'result', 'job__failure_classification_id'
+            )
             .distinct()
         )
 
