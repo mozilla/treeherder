@@ -3,6 +3,7 @@ import logging
 import re
 
 from django.db.models import Count
+from django.db.models import Case, Value, When
 from rest_framework import generics
 from rest_framework.response import Response
 
@@ -46,40 +47,38 @@ class SummaryByGroupName(generics.ListAPIView):
             JobLog.objects.filter(
                 job__push__time__gte=str(startdate.date()), job__push__time__lte=str(enddate.date())
             )
-            .filter(job__repository_id__in=(1, 77))
             .values('job_id')
-            .annotate(job_count=Count('job_id'))
+            .filter(
+                job__repository_id__in=(1, 77),
+                job__job_type__name__startswith='test-',
+                groups__name__isnull=False,
+                group_result__status__in=(1, 2),
+            )
+            .annotate(
+                job_count=Count('job_id'),
+                result=Case(
+                    When(group_result__status=1, then=Value("passed")),
+                    When(group_result__status=2, then=Value("testfailed")),
+                ),
+            )
             .values(
                 'job_count',
                 'job__job_type__name',
                 'job__failure_classification_id',
                 'groups__name',
-                'group_result__status',
+                'result',
             )
             .order_by('groups__name')
         )
+
         serializer = self.get_serializer(self.queryset, many=True)
 
         summary = {}
         job_type_names = []
         for item in serializer.data:
-            if not item['group_name'] or not item['job_type_name']:
-                continue
-
-            if not item['job_type_name'].startswith('test-'):
-                continue
-
-            if int(item['group_status']) == 1:  # ok
-                result = 'passed'
-            elif int(item['group_status']) == 2:  # testfailed
-                result = 'testfailed'
-            else:
-                # other: 3 (skipped), 10 (unsupported (i.e. crashed))
-                # we don't want to count this at all
-                continue
-
             # TODO: consider stripping out some types; mostly care about FBC vs Intermittent
             classification = item['failure_classification']
+            result = item["result"]
 
             if item['job_type_name'] not in job_type_names:
                 job_type_names.append(item['job_type_name'])
