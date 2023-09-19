@@ -3,7 +3,7 @@ jobs:
     executor:
       name: node/default
       # The Node version here must be kept in sync with that in `package.json`.
-      tag: '19.0.1'
+      tag: '20.6.1'
     steps:
       - checkout
       - node/install-packages:
