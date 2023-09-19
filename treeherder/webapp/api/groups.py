@@ -70,6 +70,7 @@ class SummaryByGroupName(generics.ListAPIView):
                 'job_count',
             )
             .order_by('groups__name')
+            .distinct()
         )
 
         # Reference job types in a separated list
