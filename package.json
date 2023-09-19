@@ -7,7 +7,7 @@
   },
   "license": "MPL-2.0",
   "engines": {
-    "node": "19.0.1",
+    "node": "20.6.1",
     "yarn": "1.22.19"
   },
   "dependencies": {
