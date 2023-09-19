@@ -204,12 +204,12 @@ class PerformanceDatum(models.Model):
 
     class Meta:
         db_table = 'performance_datum'
-        index_together = [
+        indexes = [
             # Speeds up the typical "get a range of performance datums" query
-            ('repository', 'signature', 'push_timestamp'),
+            models.Index(fields=['repository', 'signature', 'push_timestamp']),
             # Speeds up the compare view in treeherder (we only index on
             # repository because we currently filter on it in the query)
-            ('repository', 'signature', 'push'),
+            models.Index(fields=['repository', 'signature', 'push']),
         ]
         unique_together = ('repository', 'job', 'push', 'push_timestamp', 'signature')
 
@@ -321,15 +321,23 @@ class PerformanceAlertSummary(models.Model):
         # allows updating timestamps only on new values
         self.__prev_bug_number = self.bug_number
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, update_fields=None, **kwargs):
         if self.bug_number is not None and self.bug_number != self.__prev_bug_number:
             self.bug_updated = datetime.now()
+
+            if update_fields is not None:
+                update_fields = {'bug_updated'}.union(update_fields)
+
         triage_due = calculate_time_to_triage(self.created)
         # created is initially PerformanceDatum.push_timestamp and due to a potential race condition
         # triage_due_date is not always calculated after the real created date
         if self.triage_due_date != triage_due:
             self.triage_due_date = triage_due
-        super(PerformanceAlertSummary, self).save(*args, **kwargs)
+
+            if update_fields is not None:
+                update_fields = {'triage_due_date'}.union(update_fields)
+
+        super(PerformanceAlertSummary, self).save(*args, update_fields=update_fields, **kwargs)
         self.__prev_bug_number = self.bug_number
 
     def update_status(self, using=None):

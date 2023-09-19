@@ -5,6 +5,7 @@ from datetime import timedelta
 from os.path import abspath, dirname, join
 
 import environ
+from django.conf import settings
 from furl import furl
 from kombu import Exchange, Queue
 
@@ -198,7 +199,10 @@ STATIC_URL = "/static/"
 # Create hashed+gzipped versions of assets during collectstatic,
 # which will then be served by WhiteNoise with a suitable max-age.
 # https://whitenoise.readthedocs.io/en/stable/django.html#add-compression-and-caching-support
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+settings.STORAGES['staticfiles'] = {
+    'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+}
+
 
 # Authentication
 AUTHENTICATION_BACKENDS = [
