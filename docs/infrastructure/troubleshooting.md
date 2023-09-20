@@ -25,7 +25,7 @@ For less urgent issues or general support, you can file a bug with [cloudOps](ht
     [prototype](https://rpm.newrelic.com/accounts/677903/applications/7385291/transactions?type=other&show_browser=false) |
     [stage](https://rpm.newrelic.com/accounts/677903/applications/14179733/transactions?type=other&show_browser=false) |
     [prod](https://rpm.newrelic.com/accounts/677903/applications/14179757/transactions?type=other&show_browser=false)
-  - MySQL/Redis client request stats:
+  - Postgres/Redis client request stats:
     [prototype](https://rpm.newrelic.com/accounts/677903/applications/7385291/datastores) |
     [stage](https://rpm.newrelic.com/accounts/677903/applications/14179733/datastores) |
     [prod](https://rpm.newrelic.com/accounts/677903/applications/14179757/datastores)
