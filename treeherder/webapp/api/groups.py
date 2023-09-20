@@ -57,6 +57,7 @@ class SummaryByGroupName(generics.ListAPIView):
             )
             .annotate(
                 job_count=Count('job_id'),
+                # Directly annotate the result value as we filtered entries with status ∈ {1, 2}
                 result=Case(
                     When(group_result__status=1, then=Value("passed")),
                     When(group_result__status=2, then=Value("testfailed")),
