@@ -53,7 +53,15 @@ def test_perf_alert_onhold(test_perf_signature, test_perf_alert_summary_onhold) 
     )
 
 
-def test_alert_summaries_get(client, test_perf_alert_summary, test_perf_alert):
+def test_alert_summaries_get(
+    client,
+    test_perf_alert_summary,
+    test_perf_alert_with_tcmetadata,
+    test_perf_datum,
+    test_perf_datum_2,
+    test_taskcluster_metadata,
+    test_taskcluster_metadata_2,
+):
     # verify that we get the performance summary + alert on GET
     resp = client.get(reverse('performance-alert-summaries-list'))
     assert resp.status_code == 200
@@ -89,6 +97,8 @@ def test_alert_summaries_get(client, test_perf_alert_summary, test_perf_alert):
         'id',
         'status',
         'series_signature',
+        'taskcluster_metadata',
+        'prev_taskcluster_metadata',
         'is_regression',
         'starred',
         'manually_created',
@@ -105,12 +115,24 @@ def test_alert_summaries_get(client, test_perf_alert_summary, test_perf_alert):
         'noise_profile',
     }
     assert resp.json()['results'][0]['related_alerts'] == []
+    assert set(resp.json()['results'][0]['alerts'][0]['taskcluster_metadata'].keys()) == {
+        'task_id',
+        'retry_id',
+    }
+    assert set(resp.json()['results'][0]['alerts'][0]['prev_taskcluster_metadata'].keys()) == {
+        'task_id',
+        'retry_id',
+    }
 
 
 def test_alert_summaries_get_onhold(
     client,
     test_perf_alert_summary,
-    test_perf_alert,
+    test_perf_alert_with_tcmetadata,
+    test_perf_datum,
+    test_perf_datum_2,
+    test_taskcluster_metadata,
+    test_taskcluster_metadata_2,
     test_perf_alert_summary_onhold,
     test_perf_alert_onhold,
     test_repository_onhold,
@@ -150,6 +172,8 @@ def test_alert_summaries_get_onhold(
         'id',
         'status',
         'series_signature',
+        'taskcluster_metadata',
+        'prev_taskcluster_metadata',
         'is_regression',
         'starred',
         'manually_created',
@@ -166,6 +190,14 @@ def test_alert_summaries_get_onhold(
         'noise_profile',
     }
     assert resp.json()['results'][0]['related_alerts'] == []
+    assert set(resp.json()['results'][0]['alerts'][0]['taskcluster_metadata'].keys()) == {
+        'task_id',
+        'retry_id',
+    }
+    assert set(resp.json()['results'][0]['alerts'][0]['prev_taskcluster_metadata'].keys()) == {
+        'task_id',
+        'retry_id',
+    }
 
 
 def test_alert_summaries_put(

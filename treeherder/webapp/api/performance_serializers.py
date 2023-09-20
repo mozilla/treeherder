@@ -5,7 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from rest_framework import exceptions, serializers
 
-from treeherder.model.models import Repository
+from treeherder.model.models import Repository, TaskclusterMetadata
 from treeherder.perf.models import (
     BackfillRecord,
     IssueTracker,
@@ -118,6 +118,8 @@ class PerformanceSignatureSerializer(serializers.ModelSerializer):
 
 class PerformanceAlertSerializer(serializers.ModelSerializer):
     series_signature = PerformanceSignatureSerializer(read_only=True)
+    taskcluster_metadata = serializers.SerializerMethodField()
+    prev_taskcluster_metadata = serializers.SerializerMethodField()
     summary_id = serializers.SlugRelatedField(
         slug_field="id",
         source="summary",
@@ -183,6 +185,42 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
 
         return super().update(instance, validated_data)
 
+    def get_taskcluster_metadata(self, alert):
+        datum = PerformanceDatum.objects.filter(
+            signature=alert.series_signature,
+            repository=alert.series_signature.repository,
+            push=alert.summary.push,
+        ).first()
+        if datum:
+            try:
+                metadata = TaskclusterMetadata.objects.get(job=datum.job)
+                return {
+                    'task_id': metadata.task_id,
+                    'retry_id': metadata.retry_id,
+                }
+            except ObjectDoesNotExist:
+                return {}
+        else:
+            return {}
+
+    def get_prev_taskcluster_metadata(self, alert):
+        datum = PerformanceDatum.objects.filter(
+            signature=alert.series_signature,
+            repository=alert.series_signature.repository,
+            push=alert.summary.prev_push,
+        ).first()
+        if datum:
+            try:
+                metadata = TaskclusterMetadata.objects.get(job=datum.job)
+                return {
+                    'task_id': metadata.task_id,
+                    'retry_id': metadata.retry_id,
+                }
+            except ObjectDoesNotExist:
+                return {}
+        else:
+            return {}
+
     def get_classifier_email(self, performance_alert):
         return getattr(performance_alert.classifier, 'email', None)
 
@@ -192,6 +230,8 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
             'id',
             'status',
             'series_signature',
+            'taskcluster_metadata',
+            'prev_taskcluster_metadata',
             'is_regression',
             'prev_value',
             'new_value',

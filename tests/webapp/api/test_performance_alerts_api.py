@@ -8,7 +8,15 @@ from tests.conftest import create_perf_alert
 from treeherder.perf.models import PerformanceAlert, PerformanceAlertSummary, PerformanceFramework
 
 
-def test_alerts_get(client, test_repository, test_perf_alert):
+def test_alerts_get(
+    client,
+    test_repository,
+    test_perf_alert_with_tcmetadata,
+    test_perf_datum,
+    test_perf_datum_2,
+    test_taskcluster_metadata,
+    test_taskcluster_metadata_2,
+):
     resp = client.get(reverse('performance-alerts-list'))
     assert resp.status_code == 200
 
@@ -27,6 +35,8 @@ def test_alerts_get(client, test_repository, test_perf_alert):
         'prev_value',
         'related_summary_id',
         'series_signature',
+        'taskcluster_metadata',
+        'prev_taskcluster_metadata',
         'summary_id',
         'status',
         't_value',
@@ -36,6 +46,14 @@ def test_alerts_get(client, test_repository, test_perf_alert):
         'noise_profile',
     }
     assert resp.json()['results'][0]['related_summary_id'] is None
+    assert set(resp.json()['results'][0]['taskcluster_metadata'].keys()) == {
+        'task_id',
+        'retry_id',
+    }
+    assert set(resp.json()['results'][0]['prev_taskcluster_metadata'].keys()) == {
+        'task_id',
+        'retry_id',
+    }
 
 
 def test_alerts_put(
