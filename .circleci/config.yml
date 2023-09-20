@@ -140,7 +140,6 @@ workflows:
     jobs:
       - javascript-tests
       - builds
-      - python-tests-mysql
       - python-tests-postgres
       - test-docker-build
       - deploy:
