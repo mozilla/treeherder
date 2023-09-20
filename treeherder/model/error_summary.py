@@ -220,7 +220,7 @@ def get_error_search_term_and_path(error_line):
     Generate a search term from the given error_line string.
 
     Attempt to build a search term that will yield meaningful results when used
-    in a MySQL FTS query.
+    in a FTS query.
     """
     if not error_line:
         return None

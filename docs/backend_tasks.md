@@ -60,29 +60,29 @@ toolbar to your right.
 
 ## Connecting to Services Running inside Docker
 
-Treeherder uses various services to function, eg MySQL, etc.
+Treeherder uses various services to function, eg Postgres, etc.
 At times it can be useful to connect to them from outside the Docker environment.
 
 The `docker-compose.yml` file defines how internal ports are mapped to the host OS' ports.
 
-In the below example we're mapping the container's port 3306 (MySQL's default port) to host port 3306.
+In the below example we're mapping the container's port 5432 (Postgres's default port) to host port 5432.
 
 ```yaml
 # This is a line from the docker-compose.yml file
 ports:
-  - '3306:3306'
+  - '5432:5432'
 ```
 
 <!-- prettier-ignore -->
 !!! note
     Any forwarded ports will block usage of that port on the host OS even if there isn't a service running inside the VM talking to it.
 
-With MySQL exposed at port 3306 you can connect to it from your host OS with the following credentials:
+With Postgres exposed at port 5432 you can connect to it from your host OS with the following credentials:
 
 - host: `localhost`
-- port: `3306`
-- user: `root`
-- password: leave blank
+- port: `5432`
+- user: `postgres`
+- password: `mozilla1234`
 
 Other services running inside the Compose project, can be accessed in the same way.
 

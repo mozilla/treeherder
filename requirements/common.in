@@ -8,7 +8,6 @@ simplejson==3.19.2  # import simplejson
 newrelic==9.10.0
 certifi==2024.2.2
 
-mysqlclient==2.2.4   # Required by Django
 psycopg2-binary==2.9.9
 
 jsonschema==4.22.0  # import jsonschema

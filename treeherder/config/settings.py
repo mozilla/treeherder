@@ -125,14 +125,14 @@ MIDDLEWARE = [
 # Database
 # The database config is defined using environment variables of form:
 #
-#   'mysql://username:password@host:optional_port/database_name'
+#   'psql://username:password@host:optional_port/database_name'
 #
 # which django-environ converts into the Django DB settings dict format.
-LOCALHOST_MYSQL_HOST = "mysql://root@{}:3306/treeherder".format(
-    "localhost" if IS_WINDOWS else "127.0.0.1"
+LOCALHOST_PSQL_HOST = 'psql://postgres:mozilla1234@{}:5432/treeherder'.format(
+    'localhost' if IS_WINDOWS else '127.0.0.1'
 )
 DATABASES = {
-    "default": env.db_url("DATABASE_URL", default=LOCALHOST_MYSQL_HOST),
+    'default': env.db_url('DATABASE_URL', default=LOCALHOST_PSQL_HOST),
 }
 
 # Only used when syncing local database with production replicas
@@ -146,27 +146,6 @@ if UPSTREAM_DATABASE_URL:
 for alias, db in DATABASES.items():
     # Persist database connections for 5 minutes, to avoid expensive reconnects.
     db["CONN_MAX_AGE"] = 300
-
-    # These options are only valid for mysql
-    if db["ENGINE"] != "django.db.backends.mysql":
-        continue
-
-    db["OPTIONS"] = {
-        # Override Django's default connection charset of 'utf8', otherwise it's
-        # still not possible to insert non-BMP unicode into utf8mb4 tables.
-        "charset": "utf8mb4",
-        # From MySQL 5.7 onwards and on fresh installs of MySQL 5.6, the default value of the sql_mode
-        # option contains STRICT_TRANS_TABLES. That option escalates warnings into errors when data are
-        # truncated upon insertion, so Django highly recommends activating a strict mode for MySQL to
-        # prevent data loss (either STRICT_TRANS_TABLES or STRICT_ALL_TABLES).
-        "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
-    }
-    # For use of the stage replica, use the 'deployment/gcp/ca-cert.pem' path for use in your local env file
-    # or pass the variable to docker-compose command; additional certs are in the deployment directory.
-    if connection_should_use_tls(db["HOST"]):
-        db["OPTIONS"]["ssl"] = {
-            "ca": env("TLS_CERT_PATH", default=None),
-        }
 
 # Since Django 3.2, the default AutoField must be configured
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"

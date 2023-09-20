@@ -2,10 +2,10 @@
 # Make non-zero exit codes & other errors fatal.
 set -euo pipefail
 
-export DATABASE_URL=${DATABASE_URL:-mysql://root@127.0.0.1:3306/treeherder}
-# Only execute if we're using the Mysql container
-if [ "${DATABASE_URL}" == "mysql://root@mysql/treeherder" ] ||
-   [ "${DATABASE_URL}" == "mysql://root@127.0.0.1:3306/treeherder" ]; then
+export DATABASE_URL=${DATABASE_URL:-psql://postgres:mozilla1234@127.0.0.1:5432/treeherder}
+# Only execute if we're using the Postgres container
+if [ "${DATABASE_URL}" == "psql://postgres:mozilla1234@postgres:5432/treeherder" ] ||
+   [ "${DATABASE_URL}" == "psql://postgres:mozilla1234@127.0.0.1:5432/treeherder" ]; then
     # Initialize migrations
     echo '-----> Running Django migrations and loading reference data'
     ./manage.py migrate --noinput

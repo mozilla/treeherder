@@ -1,29 +1,5 @@
-from django.db import migrations, models, connection
-from django.conf import settings
+from django.db import migrations, models
 import django.db.models.deletion
-from django.db.utils import DatabaseError
-
-
-def check_perfdatum_pk(apps, schema_editor):
-    """Ensure performance_datum FK has been updated to bigint type"""
-
-    # Not needed on postgresql
-    if settings.DATABASES['default']['ENGINE'] != 'django.db.backends.mysql':
-        return
-
-    with connection.cursor() as cursor:
-        cursor.execute(
-            "SELECT COLUMN_TYPE from INFORMATION_SCHEMA.COLUMNS WHERE "
-            f"""table_schema = '{connection.settings_dict["NAME"]}' and """
-            "table_name = 'performance_datum' and "
-            "COLUMN_NAME = 'id'"
-        )
-        column_type = cursor.fetchone()
-
-        if column_type != ("bigint(20)",):
-            raise DatabaseError(
-                f"PerformanceDatum PK column type is {column_type} but should be bigint(20)"
-            )
 
 
 class Migration(migrations.Migration):
@@ -36,10 +12,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Ensure the PK has been updated
-        migrations.RunPython(
-            check_perfdatum_pk,
-        ),
         # Empty SQL migration that update django state schema
         migrations.RunSQL(
             migrations.RunSQL.noop,

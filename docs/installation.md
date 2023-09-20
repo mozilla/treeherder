@@ -117,14 +117,14 @@ is what needs to be set. You can do this in a file in the root of `/treeherder` 
 `.env`:
 
 ```bash
-DATABASE_URL=mysql://user:password@hostname/treeherder
+DATABASE_URL=psql://user:password@hostname/treeherder
 ```
 
 Alternatively, you can `export` that value in your terminal prior to executing
 `docker-compose up` or just specify it on the command line as you execute:
 
 ```bash
-DATABASE_URL=mysql://user:password@hostname/treeherder SKIP_INGESTION=True docker-compose up
+DATABASE_URL=psql://user:password@hostname/treeherder SKIP_INGESTION=True docker-compose up
 ```
 
 <!-- prettier-ignore -->
@@ -134,14 +134,14 @@ DATABASE_URL=mysql://user:password@hostname/treeherder SKIP_INGESTION=True docke
     even if `DATABASE_URL` is set.  But it will use your system's resources unnecessarily.
     To skip data ingestion, set the var `SKIP_INGESTION=True`
 
-### Deleting the MySql database
+### Deleting the Postgres database
 
-The MySql database is kept locally and is not destroyed when the Docker containers are destroyed.
+The Postgres database is kept locally and is not destroyed when the Docker containers are destroyed.
 If you want to start from scratch type the following commands:
 
 ```bash
 docker-compose down
-docker volume rm treeherder_mysql_data
+docker volume rm treeherder_postgres_data
 ```
 
 ### Running the ingestion tasks

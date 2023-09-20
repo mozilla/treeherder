@@ -5,7 +5,6 @@ from abc import ABC, abstractmethod
 from datetime import timedelta, datetime
 from itertools import cycle
 
-from django.conf import settings
 from django.db.backends.utils import CursorWrapper
 
 from treeherder.model.models import Repository
@@ -80,29 +79,12 @@ class MainRemovalStrategy(RemovalStrategy):
 
     def remove(self, using: CursorWrapper):
         chunk_size = self._find_ideal_chunk_size()
-
-        if settings.DATABASES["default"]["ENGINE"] == "django.db.backends.mysql":
-            # Django's queryset API doesn't support MySQL's
-            # DELETE statements with LIMIT constructs,
-            # even though this database is capable of doing that.
-            #
-            # If ever this support is added in Django, replace
-            # raw SQL bellow with equivalent queryset commands.
-            using.execute(
-                """
-                DELETE FROM `performance_datum`
-                WHERE push_timestamp <= %s
-                LIMIT %s
-            """,
-                [self._max_timestamp, chunk_size],
-            )
-        else:
-            deleted, _ = PerformanceDatum.objects.filter(
-                id__in=PerformanceDatum.objects.filter(
-                    push_timestamp__lte=self._max_timestamp
-                ).values_list("id")[:chunk_size]
-            ).delete()
-            using.rowcount = deleted
+        deleted, _ = PerformanceDatum.objects.filter(
+            id__in=PerformanceDatum.objects.filter(
+                push_timestamp__lte=self._max_timestamp
+            ).values_list("id")[:chunk_size]
+        ).delete()
+        using.rowcount = deleted
 
     @property
     def name(self) -> str:
@@ -192,35 +174,14 @@ class TryDataRemoval(RemovalStrategy):
         return "try data removal strategy"
 
     def __attempt_remove(self, using):
-        if settings.DATABASES["default"]["ENGINE"] == "django.db.backends.mysql":
-            # Django's queryset API doesn't support MySQL's
-            # DELETE statements with LIMIT constructs,
-            # even though this database is capable of doing that.
-            #
-            # If ever this support is added in Django, replace
-            # raw SQL bellow with equivalent queryset commands.
-            total_signatures = len(self.target_signatures)
-            from_target_signatures = " OR ".join(["signature_id =  %s"] * total_signatures)
-
-            delete_try_data = f"""
-                DELETE FROM `performance_datum`
-                WHERE repository_id = %s AND push_timestamp <= %s AND ({from_target_signatures})
-                LIMIT %s
-            """
-
-            using.execute(
-                delete_try_data,
-                [self.try_repo, self._max_timestamp, *self.target_signatures, self._chunk_size],
-            )
-        else:
-            deleted, _ = PerformanceDatum.objects.filter(
-                id__in=PerformanceDatum.objects.filter(
-                    repository_id=self.try_repo,
-                    push_timestamp__lte=self._max_timestamp,
-                    signature_id__in=self.target_signatures,
-                ).values_list("id")[: self._chunk_size]
-            ).delete()
-            using.rowcount = deleted
+        deleted, _ = PerformanceDatum.objects.filter(
+            id__in=PerformanceDatum.objects.filter(
+                repository_id=self.try_repo,
+                push_timestamp__lte=self._max_timestamp,
+                signature_id__in=self.target_signatures,
+            ).values_list("id")[: self._chunk_size]
+        ).delete()
+        using.rowcount = deleted
 
     def __lookup_new_signature(self):
         self.__target_signatures = self.__try_signatures[: self.SIGNATURE_BULK_SIZE]
@@ -284,33 +245,12 @@ class IrrelevantDataRemoval(RemovalStrategy):
 
     def remove(self, using: CursorWrapper):
         chunk_size = self._find_ideal_chunk_size()
-
-        if settings.DATABASES["default"]["ENGINE"] == "django.db.backends.mysql":
-            # Django's queryset API doesn't support MySQL's
-            # DELETE statements with LIMIT constructs,
-            # even though this database is capable of doing that.
-            #
-            # If ever this support is added in Django, replace
-            # raw SQL bellow with equivalent queryset commands.
-            using.execute(
-                """
-                    DELETE FROM `performance_datum`
-                    WHERE repository_id = %s AND push_timestamp <= %s
-                    LIMIT %s
-                """,
-                [
-                    self.irrelevant_repo,
-                    self._max_timestamp,
-                    chunk_size,
-                ],
-            )
-        else:
-            deleted, _ = PerformanceDatum.objects.filter(
-                id__in=PerformanceDatum.objects.filter(
-                    repository_id=self.irrelevant_repo, push_timestamp__lte=self._max_timestamp
-                ).values_list("id")[:chunk_size]
-            ).delete()
-            using.rowcount = deleted
+        deleted, _ = PerformanceDatum.objects.filter(
+            id__in=PerformanceDatum.objects.filter(
+                repository_id=self.irrelevant_repo, push_timestamp__lte=self._max_timestamp
+            ).values_list("id")[:chunk_size]
+        ).delete()
+        using.rowcount = deleted
 
     def _find_ideal_chunk_size(self) -> int:
         max_id_of_non_expired_row = (
@@ -402,35 +342,14 @@ class StalledDataRemoval(RemovalStrategy):
         return "stalled data removal strategy"
 
     def __attempt_remove(self, using: CursorWrapper):
-        if settings.DATABASES["default"]["ENGINE"] == "django.db.backends.mysql":
-            # Django's queryset API doesn't support MySQL's
-            # DELETE statements with LIMIT constructs,
-            # even though this database is capable of doing that.
-            #
-            # If ever this support is added in Django, replace
-            # raw SQL bellow with equivalent queryset commands.
-            using.execute(
-                """
-                    DELETE FROM `performance_datum`
-                    WHERE repository_id = %s AND signature_id = %s AND push_timestamp <= %s
-                    LIMIT %s
-                """,
-                [
-                    self.target_signature.repository_id,
-                    self.target_signature.id,
-                    self._max_timestamp,
-                    self._chunk_size,
-                ],
-            )
-        else:
-            deleted, _ = PerformanceDatum.objects.filter(
-                id__in=PerformanceDatum.objects.filter(
-                    repository_id=self.target_signature.repository_id,
-                    signature_id=self.target_signature.id,
-                    push_timestamp__lte=self._max_timestamp,
-                ).values_list("id")[: self._chunk_size]
-            ).delete()
-            using.rowcount = deleted
+        deleted, _ = PerformanceDatum.objects.filter(
+            id__in=PerformanceDatum.objects.filter(
+                repository_id=self.target_signature.repository_id,
+                signature_id=self.target_signature.id,
+                push_timestamp__lte=self._max_timestamp,
+            ).values_list("id")[: self._chunk_size]
+        ).delete()
+        using.rowcount = deleted
 
     def __lookup_new_signature(self):
         try:
