@@ -3,13 +3,12 @@ import logging
 import re
 
 from django.db.models import Count
+from django.db.models import Case, Value, When
 from rest_framework import generics
 from rest_framework.response import Response
 
-from treeherder.model.models import (
-    Job,
-)
-from treeherder.webapp.api.serializers import GroupNameSerializer
+from treeherder.model.models import JobLog
+from collections import defaultdict
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +18,6 @@ class SummaryByGroupName(generics.ListAPIView):
     This yields group names/status summary for the given group and day.
     """
 
-    serializer_class = GroupNameSerializer
     queryset = None
 
     def list(self, request):
@@ -44,64 +42,72 @@ class SummaryByGroupName(generics.ListAPIView):
         if (enddate - startdate).days > 1:
             enddate = startdate + datetime.timedelta(days=1)
 
-        q = (
-            Job.objects.filter(
-                push__time__gte=str(startdate.date()), push__time__lte=str(enddate.date())
+        self.queryset = (
+            JobLog.objects.filter(
+                job__push__time__gte=str(startdate.date()), job__push__time__lte=str(enddate.date())
             )
-            .filter(repository_id__in=(1, 77))
-            .values(
-                'job_log__groups__name',
-                'job_type__name',
-                'job_log__group_result__status',
-                'failure_classification_id',
+            .values('job_id')
+            .filter(
+                job__repository_id__in=(1, 77),
+                job__job_type__name__startswith='test-',
+                group_result__status__in=(1, 2),
             )
-            .annotate(job_count=Count('id'))
-            .order_by('job_log__groups__name')
+            .exclude(
+                groups__name='',
+            )
+            .annotate(
+                job_count=Count('job_id'),
+                # Directly annotate the result value as we filtered entries with status ∈ {1, 2}
+                result=Case(
+                    When(group_result__status=1, then=Value("passed")),
+                    When(group_result__status=2, then=Value("testfailed")),
+                ),
+            )
+            .values_list(
+                'groups__name',
+                'job__job_type__name',
+                'result',
+                'job__failure_classification_id',
+                'job_count',
+            )
+            .order_by(
+                'groups__name', 'job__job_type__name', 'result', 'job__failure_classification_id'
+            )
+            .distinct()
         )
-        self.queryset = q
-        serializer = self.get_serializer(self.queryset, many=True)
-        summary = {}
-        job_type_names = []
-        for item in serializer.data:
-            if not item['group_name'] or not item['job_type_name']:
-                continue
 
-            if not item['job_type_name'].startswith('test-'):
-                continue
+        # Reference job types in a separated list
+        job_type_names = set()
+        # Group items by group name, type name, result and classification
+        summary = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: defaultdict(int))))
+        for item in self.queryset.all():
+            group_name, type_name, result, classification, job_count = item
 
-            if int(item['group_status']) == 1:  # ok
-                result = 'passed'
-            elif int(item['group_status']) == 2:  # testfailed
-                result = 'testfailed'
-            else:
-                # other: 3 (skipped), 10 (unsupported (i.e. crashed))
-                # we don't want to count this at all
-                continue
+            # Strip a possible number suffix
+            name, suffix = type_name.rsplit('-', maxsplit=1)
+            if suffix.isdigit():
+                type_name = name
 
-            # TODO: consider stripping out some types; mostly care about FBC vs Intermittent
-            classification = item['failure_classification']
+            job_type_names.add(type_name)
+            summary[group_name][type_name][result][classification] += job_count
 
-            if item['job_type_name'] not in job_type_names:
-                job_type_names.append(item['job_type_name'])
-            if item['group_name'] not in summary:
-                summary[item['group_name']] = {}
-            if item['job_type_name'] not in summary[item['group_name']]:
-                summary[item['group_name']][item['job_type_name']] = {}
-            if result not in summary[item['group_name']][item['job_type_name']]:
-                summary[item['group_name']][item['job_type_name']][result] = {}
-            if classification not in summary[item['group_name']][item['job_type_name']][result]:
-                summary[item['group_name']][item['job_type_name']][result][classification] = 0
-            summary[item['group_name']][item['job_type_name']][result][classification] += item[
-                'job_count'
-            ]
+        # Cast job types as a list, to use their index as reference in manifests
+        job_type_names = sorted(job_type_names)
 
-        data = {'job_type_names': job_type_names, 'manifests': []}
-        for m in summary.keys():
+        manifests = []
+        for group, types in summary.items():
             mdata = []
-            for d in summary[m]:
-                for r in summary[m][d]:
-                    for c in summary[m][d][r]:
-                        mdata.append([job_type_names.index(d), r, int(c), summary[m][d][r][c]])
-            data['manifests'].append({m: mdata})
+            for t_name, results in types.items():
+                for result, classifications in results.items():
+                    for classif, job_count in classifications.items():
+                        mdata.append(
+                            [job_type_names.index(t_name), result, int(classif), job_count]
+                        )
+            manifests.append({group: mdata})
 
-        return Response(data=data)
+        return Response(
+            data={
+                'job_type_names': job_type_names,
+                'manifests': manifests,
+            }
+        )
