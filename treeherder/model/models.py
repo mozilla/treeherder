@@ -235,14 +235,14 @@ class Bugscache(models.Model):
 
     @classmethod
     def sanitized_search_term(self, search_term):
-        # MySQL Full Text Search operators, based on:
+        # Full Text Search operators, based on:
         # https://dev.mysql.com/doc/refman/5.7/en/fulltext-boolean.html
         # and other characters we want to remove
-        mysql_fts_operators_re = re.compile(r'[-+@<>()~*"\\]')
+        fts_operators_re = re.compile(r'[-+@<>()~*"\\]')
 
-        # Replace MySQL's Full Text Search Operators with spaces so searching
+        # Replace Full Text Search Operators with spaces so searching
         # for errors that have been pasted in still works.
-        return re.sub(mysql_fts_operators_re, " ", search_term)
+        return re.sub(fts_operators_re, " ", search_term)
 
     @classmethod
     def search(self, search_term):
