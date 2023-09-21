@@ -3,12 +3,8 @@ FROM python:3.9.19-bullseye
 # Variables that are not specific to a particular environment.
 ENV NEW_RELIC_CONFIG_FILE newrelic.ini
 
-# libmysqlclient-dev and gcc are required for the mysqlclient Python package.
-# netcat is used for the MySQL readiness check in entrypoint.sh.
+# netcat is used for the Postgres readiness check in entrypoint.sh.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    pkg-config \
-    default-libmysqlclient-dev \
-    gcc \
     netcat \
     && rm -rf /var/lib/apt/lists/*
 

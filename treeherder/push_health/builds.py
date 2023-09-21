@@ -4,8 +4,7 @@ from django.db.models import Q
 
 
 def get_build_failures(push):
-    # icontains doesn't work with mysql unless collation settings are adjusted: https://code.djangoproject.com/ticket/9682
-    build_types = JobType.objects.filter(Q(name__contains="Build") | Q(name__contains="build"))
+    build_types = JobType.objects.filter(Q(name__icontains=="build"))
 
     build_results = Job.objects.filter(
         push=push,
