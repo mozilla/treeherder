@@ -252,14 +252,12 @@ LONG_LINE_TEST_CASES = (
     (
         (
             'TEST-UNEXPECTED-FAIL '
-            '| test_switch_frame.py TestSwitchFrame.test_should_be_able_to_carry_on_working_if_the_frame_is_deleted_from_under_us '
+            '| frames/marionette/test_switch_frame.py TestSwitchFrame.test_should_be_able_to_carry_on_working_if_the_frame_is_deleted_from_under_us '
             '| AssertionError: 0 != 1'
         ),
         {
-            'path_end': 'test_switch_frame.py TestSwitchFrame.test_should_be_able_to_carry_on_working_if_the_frame_is_deleted_from_under_us',
-            'search_term': [
-                'test_switch_frame.py TestSwitchFrame.test_should_be_able_to_carry_on_working_if_the_frame_is_deleted'
-            ],
+            'path_end': 'frames/marionette/test_switch_frame.py',
+            'search_term': ['test_switch_frame.py'],
         },
     ),
 )

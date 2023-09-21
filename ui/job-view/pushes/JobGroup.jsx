@@ -90,18 +90,17 @@ export class JobGroupComponent extends React.Component {
         for (const sgjob of confirmGroup.jobs) {
           if (sgjob.result === 'unknown') continue;
 
-          if (sgjob.job_type_name === job.job_type_name) {
-            if (
-              !Object.keys(jobCountByConfirmName).includes(sgjob.job_type_name)
-            ) {
-              jobCountByConfirmName[sgjob.job_type_name] = 0;
+          const cfJobName = sgjob.job_type_name.split('-cf')[0];
+          if (cfJobName === job.job_type_name) {
+            if (!Object.keys(jobCountByConfirmName).includes(cfJobName)) {
+              jobCountByConfirmName[cfJobName] = 0;
             }
-            jobCountByConfirmName[sgjob.job_type_name]++;
+            jobCountByConfirmName[cfJobName]++;
 
             // if we find a failing -cf job, then this is a regression!
             // TODO: we could fail for infra
             if (sgjob.result === 'testfailed') {
-              confirmedJobNames.push(sgjob.job_type_name);
+              confirmedJobNames.push(cfJobName);
             }
           }
         }
