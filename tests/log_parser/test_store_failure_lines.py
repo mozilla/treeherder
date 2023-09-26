@@ -193,6 +193,26 @@ def test_store_error_summary_group_status(activate_responses, test_repository, t
     assert error_groups.first().name == "toolkit/components/pictureinpicture/tests/browser.ini"
 
 
+def test_group_status_duration(activate_responses, test_repository, test_job):
+    log_path = SampleData().get_log_path("mochitest-browser-chrome_errorsummary.log")
+    log_url = 'http://my-log.mozilla.org'
+
+    with open(log_path) as log_handler:
+        responses.add(responses.GET, log_url, body=log_handler.read(), status=200)
+
+    log_obj = JobLog.objects.create(job=test_job, name="errorsummary_json", url=log_url)
+    store_failure_lines(log_obj)
+
+    assert FailureLine.objects.count() == 5
+
+    ok_groups = Group.objects.filter(group_result__duration__gt=0)
+    error_groups = Group.objects.filter(group_result__duration=0)
+
+    assert ok_groups.count() == 28
+    assert error_groups.count() == 1
+    assert log_obj.groups.count() == 29
+
+
 def test_get_group_results(activate_responses, test_repository, test_job):
     log_path = SampleData().get_log_path("mochitest-browser-chrome_errorsummary.log")
     log_url = 'http://my-log.mozilla.org'

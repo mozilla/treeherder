@@ -1084,6 +1084,7 @@ class GroupStatus(models.Model):
     status = models.SmallIntegerField()
     job_log = models.ForeignKey(JobLog, on_delete=models.CASCADE, related_name="group_result")
     group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name="group_result")
+    duration = models.SmallIntegerField()
 
     @staticmethod
     def get_status(status_str):

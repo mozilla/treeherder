@@ -132,8 +132,15 @@ def create_group_result(job_log, line):
         )
     else:
         group, _ = Group.objects.get_or_create(name=group_path[:255])
+        duration = int(line.get('duration', 0))
+        # duration > 4 hours or negative, something is wrong
+        if duration > 4 * 3600 or duration < 0:
+            duration = 0
         GroupStatus.objects.create(
-            job_log=job_log, group=group, status=GroupStatus.get_status(line['status'])
+            job_log=job_log,
+            group=group,
+            status=GroupStatus.get_status(line['status']),
+            duration=duration,
         )
 
 
