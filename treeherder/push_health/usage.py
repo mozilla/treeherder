@@ -1,5 +1,6 @@
 import logging
 
+from django.db.models import Count
 from treeherder.config import settings
 from treeherder.model.models import Push, Job
 from treeherder.push_health.classification import NEED_INVESTIGATION
@@ -55,7 +56,9 @@ def get_usage():
 
     results = [
         {
-            'push': PushSerializer(pushes.get(revision=facet['name'])).data,
+            'push': PushSerializer(
+                pushes.annotate(revision_count=Count('commits')).get(revision=facet['name'])
+            ).data,
             'peak': get_peak(facet),
             'latest': get_latest(facet),
             'retriggers': jobs_retriggered(pushes.get(revision=facet['name'])),
