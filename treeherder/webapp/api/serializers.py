@@ -270,18 +270,11 @@ class CommitSerializer(serializers.ModelSerializer):
 
 
 class PushSerializer(serializers.ModelSerializer):
-    def get_revisions(self, push):
-        serializer = CommitSerializer(instance=push.commits.all().order_by('-id')[:20], many=True)
-        return serializer.data
-
-    def get_revision_count(self, push):
-        return push.commits.count()
-
     def get_push_timestamp(self, push):
         return to_timestamp(push.time)
 
-    revisions = serializers.SerializerMethodField()
-    revision_count = serializers.SerializerMethodField()
+    revisions = CommitSerializer(many=True, source='commits')
+    revision_count = serializers.IntegerField()
     push_timestamp = serializers.SerializerMethodField()
     repository_id = serializers.PrimaryKeyRelatedField(source="repository", read_only=True)
 

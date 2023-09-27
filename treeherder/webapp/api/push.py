@@ -3,13 +3,14 @@ import logging
 
 import newrelic.agent
 from cache_memoize import cache_memoize
+from django.db.models import Count, Prefetch
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
 from treeherder.log_parser.failureline import get_group_results
-from treeherder.model.models import Job, JobType, Push, Repository
+from treeherder.model.models import Commit, Job, JobType, Push, Repository
 from treeherder.push_health.builds import get_build_failures
 from treeherder.push_health.compare import get_commit_history
 from treeherder.push_health.linting import get_lint_failures
@@ -176,7 +177,11 @@ class PushViewSet(viewsets.ViewSet):
         # false. however AFAIK no one ever used it (default was to fetch
         # everything), so let's just leave it out. it doesn't break
         # anything to send extra data when not required.
-        pushes = pushes.select_related('repository').prefetch_related('commits')[:count]
+        pushes = (
+            pushes.select_related('repository')
+            .annotate(revision_count=Count('commits'))
+            .prefetch_related(Prefetch('commits', queryset=Commit.objects.order_by('-id')))
+        )[:count]
         serializer = PushSerializer(pushes, many=True)
 
         meta['count'] = len(pushes)
