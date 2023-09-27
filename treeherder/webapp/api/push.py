@@ -197,7 +197,9 @@ class PushViewSet(viewsets.ViewSet):
         GET method implementation for detail view of ``push``
         """
         try:
-            push = Push.objects.get(repository__name=project, id=pk)
+            push = Push.objects.annotate(revision_count=Count('commits')).get(
+                repository__name=project, id=pk
+            )
             serializer = PushSerializer(push)
             return Response(serializer.data)
         except Push.DoesNotExist:
@@ -340,7 +342,9 @@ class PushViewSet(viewsets.ViewSet):
 
         try:
             repository = Repository.objects.get(name=project)
-            push = Push.objects.get(revision=revision, repository=repository)
+            push = Push.objects.annotate(revision_count=Count('commits')).get(
+                revision=revision, repository=repository
+            )
         except Push.DoesNotExist:
             return Response(
                 "No push with revision: {0}".format(revision), status=HTTP_404_NOT_FOUND
