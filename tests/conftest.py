@@ -1136,7 +1136,7 @@ def group_data(transactional_db, eleven_job_blobs, create_jobs):
         # when creating the job, we also create the joblog, we want the last job log entry
         job_log = th_models.JobLog.objects.last()
 
-        th_models.GroupStatus.objects.create(status=1, job_log=job_log, group=g1)
+        th_models.GroupStatus.objects.create(status=1, duration=1, job_log=job_log, group=g1)
 
     return {
         'date': j.submit_time,
