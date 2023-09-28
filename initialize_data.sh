@@ -12,4 +12,6 @@ if [ "${DATABASE_URL}" == "psql://postgres:mozilla1234@postgres:5432/treeherder"
     ./manage.py load_initial_data
 fi
 
+./manage.py createcachetable
+
 exec "$@"
