@@ -3,7 +3,7 @@ import logging
 import re
 import newrelic.agent
 
-from django.core.cache import cache
+from django.core.cache import caches
 
 from treeherder.model.models import Bugscache, TextLogError
 
@@ -15,6 +15,8 @@ logger = logging.getLogger(__name__)
 BUG_SUGGESTION_CACHE_TIMEOUT = 86400
 LINE_CACHE_TIMEOUT_DAYS = 21
 LINE_CACHE_TIMEOUT = 86400 * LINE_CACHE_TIMEOUT_DAYS
+db_cache = caches['db_cache']
+cache = caches['default']
 
 LEAK_RE = re.compile(r'\d+ bytes leaked \((.+)\)$|leak at (.+)$')
 CRASH_RE = re.compile(r'.+ application crashed \[@ (.+)\] \|.+')
@@ -41,7 +43,7 @@ def get_error_summary(job, queryset=None):
     line_cache_key = 'mc_error_lines'
     if job.repository == "comm-central":
         line_cache_key = 'cc_error_lines'
-    line_cache = cache.get(line_cache_key)
+    line_cache = db_cache.get(line_cache_key)
     if line_cache is None:
         line_cache = {str(job.submit_time.date()): {}}
     else:
@@ -83,7 +85,7 @@ def get_error_summary(job, queryset=None):
         logger.error('error caching error_summary for job %s: %s', job.id, e, exc_info=True)
 
     try:
-        cache.set(line_cache_key, line_cache, LINE_CACHE_TIMEOUT)
+        db_cache.set(line_cache_key, line_cache, LINE_CACHE_TIMEOUT)
     except Exception as e:
         newrelic.agent.record_custom_event('error caching error_lines for job', job.id)
         logger.error('error caching error_lines for job %s: %s', job.id, e, exc_info=True)

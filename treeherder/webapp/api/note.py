@@ -1,4 +1,4 @@
-from django.core.cache import cache
+from django.core.cache import caches
 
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -92,8 +92,9 @@ class NoteViewSet(viewsets.ViewSet):
 
         if fc_id == 2:  # this is for fixed_by_commit (backout | follow_up_commit)
             # remove cached failure line counts
+            db_cache = caches['db_cache']
             line_cache_key = 'error_lines'
-            line_cache = cache.get(line_cache_key)
+            line_cache = db_cache.get(line_cache_key)
             date = current_job.submit_time.date().isoformat()
             if line_cache and date in line_cache.keys():
                 for err in TextLogError.objects.filter(job=current_job):
@@ -107,7 +108,7 @@ class NoteViewSet(viewsets.ViewSet):
                         ):
                             del line_cache[date]["new_lines"][cache_clean_line]
                         try:
-                            cache.set(line_cache_key, line_cache, LINE_CACHE_TIMEOUT)
+                            db_cache.set(line_cache_key, line_cache, LINE_CACHE_TIMEOUT)
                         except Exception as e:
                             logger.error(
                                 'error caching error_lines for job %s: %s',
