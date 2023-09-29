@@ -177,16 +177,69 @@ associated with the pushes will not. This mode is useful to seed pushes so
 they are visible on the web interface and so you can easily copy and paste
 changesets from the web interface into subsequent commands to ingest all tasks.
 
-Ingest a single Mercurial push or the last N pushes:
+These steps should help you set up everything you need to ingest data locally while working on perfherder.
 
-```console
-docker-compose exec backend ./manage.py ingest push -p autoland -r 63f8a47cfdf5
-docker-compose exec backend ./manage.py ingest push -p mozilla-central --last-n-pushes 100
+**Create a pulse guardian account and run:**
+
+```bash
+export PULSE_URL=amqp://USER:PASSWORD@pulse.mozilla.org:5671/?ssl=1
+yarn install
 ```
 
-Ingest a single Github push or the last 10:
+**Run each of these commands in a seperate window:**
 
-```console
+```bash
+docker-compose up --build
+docker-compose run -e PROJECTS_TO_INGEST=autoland backend celery -A treeherder worker --concurrency 1
+```
+
+---
+
+**Run the db viewer**
+
+You can use any database viewer of your choice `(e.g. dbeaver-ce, mysql workbench, etc.)`
+
+**Connect to the following while `docker-compose up --build` from the previous step is running:**
+
+`Serverhost: localhost`
+`Port: 3306`
+`Database: treeherder`
+`Username: root`
+`No password`
+
+---
+
+**Run the following in separate window while running above to do ingestion**
+
+<!-- prettier-ignore -->
+!!! note
+    These commands perform fetches for the data, they are run sequentially in the same window. The first command makes the second one run faster.
+
+**Ingest push:**
+
+```bash
+docker-compose exec backend ./manage.py ingest push -p autoland -r 1ee42a54a431acdd6cbe43b49de0237fe67eddd9
+```
+
+**Ingest all the tasks, run celery to trigger the log parsing, and performance data ingestion:**
+
+> **Warning:** This command can take a long time to ingest and parse everything.
+
+```bash
+docker-compose exec backend ./manage.py ingest push -p autoland -r 1ee42a54a431acdd6cbe43b49de0237fe67eddd9 -a --enable-eager-celery
+```
+
+`--enable-eager-celery` triggers the log parsing which is required to capture the `PERFHERDER_DATA` output.
+
+**For ingesting multiple pushes:**
+
+```bash
+docker-compose exec backend ./manage.py ingest push -p autoland --last-n-pushes 100
+```
+
+**Ingest a single Github push or the last 10:**
+
+```bash
 docker-compose exec backend ./manage.py ingest git-push -p servo-try -c 92fc94588f3b6987082923c0003012fd696b1a2d
 docker-compose exec -e GITHUB_TOKEN=<foo> backend ./manage.py ingest git-pushes -p android-components
 ```
