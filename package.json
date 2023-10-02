@@ -16,7 +16,7 @@
     "@fortawesome/free-regular-svg-icons": "6.2.1",
     "@fortawesome/free-solid-svg-icons": "6.2.1",
     "@fortawesome/react-fontawesome": "0.1.19",
-    "@mozilla/glean": "2.0.2",
+    "@mozilla/glean": "2.0.3",
     "@types/prop-types": "*",
     "@types/react": "*",
     "@types/react-dom": "*",

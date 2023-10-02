@@ -1811,10 +1811,10 @@
   dependencies:
     "@types/whatwg-streams" "^0.0.7"
 
-"@mozilla/glean@2.0.2":
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/@mozilla/glean/-/glean-2.0.2.tgz#aa36c60fce3554cc42ef3f5586a4f8f242041283"
-  integrity sha512-ggboBpkNUraL+e3q+UtUMZmJ2ETS60/tiudIzqx8W1sZPZHRqiYf6eN64/NWr9pf7GfIvHXFwaisscTE/9UhdA==
+"@mozilla/glean@2.0.3":
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/@mozilla/glean/-/glean-2.0.3.tgz#5f3fe8f3695e88e82619ca814ecb854c24d7bb0e"
+  integrity sha512-xSPWvgjkmOYzaCf5HIXUHAwFGVLDaGCwvCcHqUqSdXROGap86lzPOIK9Nsd0vfBTNoWVFPlkWqOyhbRitazxkQ==
   dependencies:
     fflate "^0.8.0"
     jose "^4.0.4"
