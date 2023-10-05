@@ -57,6 +57,8 @@ class JobFilter(django_filters.FilterSet):
     signature = django_filters.CharFilter(field_name='signature__signature')
     task_id = django_filters.CharFilter(field_name='taskcluster_metadata__task_id')
     retry_id = django_filters.NumberFilter(field_name='taskcluster_metadata__retry_id')
+    # Perform a single lookup query when filtering with push_id=<int>
+    push_id = django_filters.NumberFilter(field_name='push_id')
 
     class Meta:
         model = Job
