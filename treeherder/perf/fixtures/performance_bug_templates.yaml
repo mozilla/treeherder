@@ -10,7 +10,7 @@
 
       {{ alertSummary }}
 
-      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests. Please follow our [guide to handling regression bugs](https://wiki.mozilla.org/TestEngineering/Performance/Handling_regression_bugs) and **let us know your plans within 3 business days, or the offending patch(es) may be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).
+      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests. Please follow our [guide to handling regression bugs](https://wiki.mozilla.org/TestEngineering/Performance/Handling_regression_bugs) and **let us know your plans within 3 business days, or the patch(es) may be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).
 
       If you need the profiling jobs you can trigger them yourself from treeherder job view or ask a sheriff to do that for you.
 
@@ -27,7 +27,7 @@
 
       {{ alertSummary }}
 
-      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests. Please follow our [guide to handling regression bugs](https://wiki.mozilla.org/TestEngineering/Performance/Handling_regression_bugs) and **let us know your plans within 3 business days, or the offending patch(es) may be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).
+      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests. Please follow our [guide to handling regression bugs](https://wiki.mozilla.org/TestEngineering/Performance/Handling_regression_bugs) and **let us know your plans within 3 business days, or the patch(es) may be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).
 
       For more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).
 - model: perf.PerformanceBugTemplate
@@ -42,7 +42,7 @@
 
       {{ alertSummary }}
 
-      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests. Please follow our [guide to handling regression bugs](https://wiki.mozilla.org/TestEngineering/Performance/Handling_regression_bugs) and **let us know your plans within 3 business days, or the offending patch(es) may be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).
+      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests. Please follow our [guide to handling regression bugs](https://wiki.mozilla.org/TestEngineering/Performance/Handling_regression_bugs) and **let us know your plans within 3 business days, or the patch(es) may be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).
 
       If you need the profiling jobs you can trigger them yourself from treeherder job view or ask a sheriff to do that for you.
 
@@ -59,7 +59,7 @@
 
       {{ alertSummary }}
 
-      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests. Please follow our [guide to handling regression bugs](https://wiki.mozilla.org/TestEngineering/Performance/Handling_regression_bugs) and **let us know your plans within 3 business days, or the offending patch(es) may be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).
+      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests. Please follow our [guide to handling regression bugs](https://wiki.mozilla.org/TestEngineering/Performance/Handling_regression_bugs) and **let us know your plans within 3 business days, or the patch(es) may be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).
 
       If you need the profiling jobs you can trigger them yourself from treeherder job view or ask a sheriff to do that for you.
 
@@ -76,7 +76,7 @@
 
       {{ alertSummary }}
 
-      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests. Please follow our [guide to handling regression bugs](https://wiki.mozilla.org/TestEngineering/Performance/Handling_regression_bugs) and **let us know your plans within 3 business days, or the offending patch(es) may be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).
+      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests. Please follow our [guide to handling regression bugs](https://wiki.mozilla.org/TestEngineering/Performance/Handling_regression_bugs) and **let us know your plans within 3 business days, or the patch(es) may be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).
 
       If you need the profiling jobs you can trigger them yourself from treeherder job view or ask a sheriff to do that for you.
 
@@ -93,7 +93,7 @@
 
       {{ alertSummary }}
 
-      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests. Please follow our [guide to handling regression bugs](https://wiki.mozilla.org/TestEngineering/Performance/Handling_regression_bugs) and **let us know your plans within 3 business days, or the offending patch(es) may be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).
+      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests. Please follow our [guide to handling regression bugs](https://wiki.mozilla.org/TestEngineering/Performance/Handling_regression_bugs) and **let us know your plans within 3 business days, or the patch(es) may be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).
 
       If you need the profiling jobs you can trigger them yourself from treeherder job view or ask a sheriff to do that for you.
 
@@ -110,7 +110,7 @@
 
       {{ alertSummary }}
 
-      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests. Please follow our [guide to handling regression bugs](https://wiki.mozilla.org/TestEngineering/Performance/Handling_regression_bugs) and **let us know your plans within 3 business days, or the offending patch(es) may be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).
+      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests. Please follow our [guide to handling regression bugs](https://wiki.mozilla.org/TestEngineering/Performance/Handling_regression_bugs) and **let us know your plans within 3 business days, or the patch(es) may be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).
 
       If you need the profiling jobs you can trigger them yourself from treeherder job view or ask a sheriff to do that for you.
 
@@ -127,7 +127,7 @@
 
       {{ alertSummary }}
 
-      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests. Please follow our [guide to handling regression bugs](https://wiki.mozilla.org/TestEngineering/Performance/Handling_regression_bugs) and **let us know your plans within 3 business days, or the offending patch(es) may be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).
+      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests. Please follow our [guide to handling regression bugs](https://wiki.mozilla.org/TestEngineering/Performance/Handling_regression_bugs) and **let us know your plans within 3 business days, or the patch(es) may be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).
 
       If you need the profiling jobs you can trigger them yourself from treeherder job view or ask a sheriff to do that for you.
 
@@ -144,7 +144,7 @@
 
       {{ alertSummary }}
 
-      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests. Please follow our [guide to handling regression bugs](https://wiki.mozilla.org/TestEngineering/Performance/Handling_regression_bugs) and **let us know your plans within 3 business days, or the offending patch(es) may be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).
+      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests. Please follow our [guide to handling regression bugs](https://wiki.mozilla.org/TestEngineering/Performance/Handling_regression_bugs) and **let us know your plans within 3 business days, or the patch(es) may be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).
 
       If you need the profiling jobs you can trigger them yourself from treeherder job view or ask a sheriff to do that for you.
 
