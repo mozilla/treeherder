@@ -1887,5 +1887,19 @@
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
+  },
+  {
+    "pk": 134,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "git",
+      "name": "application-services",
+      "url": "https://github.com/mozilla/application-services",
+      "branch": "main",
+      "active_status": "active",
+      "codebase": "application-services",
+      "repository_group": 11,
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
+    }
   }
 ]
