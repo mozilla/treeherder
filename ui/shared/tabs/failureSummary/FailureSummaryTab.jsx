@@ -181,7 +181,7 @@ class FailureSummaryTab extends React.Component {
     });
 
     if (selectedJob.newFailure > 0) {
-      updatePinnedJob(selectedJob);
+      updatePinnedJob?.(selectedJob);
     }
 
     return (
