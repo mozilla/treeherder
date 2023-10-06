@@ -35,6 +35,8 @@ class JobFilter(django_filters.FilterSet):
     id = django_filters.NumberFilter(field_name='id')
     id__in = NumberInFilter(field_name='id', lookup_expr='in')
     tier__in = NumberInFilter(field_name='tier', lookup_expr='in')
+    # Perform a single lookup query when filtering with push_id=<int>
+    push_id = django_filters.NumberFilter(field_name='push_id')
     push_id__in = NumberInFilter(field_name='push_id', lookup_expr='in')
     job_guid = django_filters.CharFilter(field_name='guid')
     job_guid__in = CharInFilter(field_name='guid', lookup_expr='in')
@@ -57,8 +59,6 @@ class JobFilter(django_filters.FilterSet):
     signature = django_filters.CharFilter(field_name='signature__signature')
     task_id = django_filters.CharFilter(field_name='taskcluster_metadata__task_id')
     retry_id = django_filters.NumberFilter(field_name='taskcluster_metadata__retry_id')
-    # Perform a single lookup query when filtering with push_id=<int>
-    push_id = django_filters.NumberFilter(field_name='push_id')
 
     class Meta:
         model = Job
