@@ -1,7 +1,7 @@
 import pytest
 import responses
 from celery import current_app
-from django.core.cache import caches
+from django.core.cache import cache
 from django.core.management import call_command
 
 from treeherder.utils.http import fetch_text
@@ -26,17 +26,11 @@ def test_no_missing_migrations():
     call_command('makemigrations', interactive=False, dry_run=True, check_changes=True)
 
 
-@pytest.mark.django_db
 def test_django_cache():
     """Test the Django cache backend & associated server are properly set up."""
     k, v = 'my_key', 'my_value'
-    cache = caches['default']
     cache.set(k, v, 10)
     assert cache.get(k) == v
-
-    db_cache = caches['db_cache']
-    db_cache.set(k, v, 10)
-    assert db_cache.get(k) == v
 
 
 @current_app.task
