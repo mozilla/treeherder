@@ -103,7 +103,6 @@ def test_get_commit_history(test_push, test_repository, mock_rev, mock_json_push
         author='foo@bar.baz',
         time=datetime.datetime.now(),
     )
-    test_push.revision_count = test_push.commits.count()
 
     history = get_commit_history(test_repository, test_revision, test_push)
     print('\n<><><>history')
