@@ -12,6 +12,4 @@ if [ "${DATABASE_URL}" == "mysql://root@mysql/treeherder" ] ||
     ./manage.py load_initial_data
 fi
 
-./manage.py createcachetable
-
 exec "$@"

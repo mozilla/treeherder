@@ -182,10 +182,6 @@ CACHES = {
             'SOCKET_CONNECT_TIMEOUT': 5,
         },
     },
-    'db_cache': {
-        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
-        "LOCATION": "new_failure_cache",
-    },
 }
 
 # Internationalization
