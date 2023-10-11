@@ -20,6 +20,20 @@ from treeherder.perf.models import (
 from treeherder.webapp.api.utils import to_timestamp
 
 
+def get_tc_metadata(alert, push):
+    datum = PerformanceDatum.objects.filter(
+        signature=alert.series_signature,
+        repository=alert.series_signature.repository,
+        push=push,
+    ).first()
+    metadata = TaskclusterMetadata.objects.get(job=datum.job)
+    task_metadata = {
+        'task_id': metadata.task_id,
+        'retry_id': metadata.retry_id,
+    }
+    return task_metadata
+
+
 class OptionalBooleanField(serializers.BooleanField):
     def __init__(self, *args, **kwargs):
         kwargs['default'] = False
@@ -186,39 +200,19 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
     def get_taskcluster_metadata(self, alert):
-        datum = PerformanceDatum.objects.filter(
-            signature=alert.series_signature,
-            repository=alert.series_signature.repository,
-            push=alert.summary.push,
-        ).first()
-        if datum:
-            try:
-                metadata = TaskclusterMetadata.objects.get(job=datum.job)
-                return {
-                    'task_id': metadata.task_id,
-                    'retry_id': metadata.retry_id,
-                }
-            except ObjectDoesNotExist:
-                return {}
-        else:
+        try:
+            task_metadata = get_tc_metadata(alert, alert.summary.push)
+            cache.set("task_metadata", task_metadata)
+            return task_metadata
+        except ObjectDoesNotExist:
             return {}
 
     def get_prev_taskcluster_metadata(self, alert):
-        datum = PerformanceDatum.objects.filter(
-            signature=alert.series_signature,
-            repository=alert.series_signature.repository,
-            push=alert.summary.prev_push,
-        ).first()
-        if datum:
-            try:
-                metadata = TaskclusterMetadata.objects.get(job=datum.job)
-                return {
-                    'task_id': metadata.task_id,
-                    'retry_id': metadata.retry_id,
-                }
-            except ObjectDoesNotExist:
-                return {}
-        else:
+        try:
+            task_metadata = get_tc_metadata(alert, alert.summary.prev_push)
+            cache.set("prev_task_metadata", task_metadata)
+            return task_metadata
+        except ObjectDoesNotExist:
             return {}
 
     def get_classifier_email(self, performance_alert):
