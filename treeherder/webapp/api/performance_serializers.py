@@ -1,6 +1,7 @@
 import decimal
 
 from django.contrib.auth.models import User
+from django.core.cache import cache, caches
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from rest_framework import exceptions, serializers
@@ -17,7 +18,7 @@ from treeherder.perf.models import (
     PerformanceSignature,
     PerformanceTag,
 )
-from treeherder.webapp.api.utils import to_timestamp
+from treeherder.webapp.api.utils import to_timestamp, get_profile_artifact_url
 
 
 def get_tc_metadata(alert, push):
@@ -134,6 +135,8 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
     series_signature = PerformanceSignatureSerializer(read_only=True)
     taskcluster_metadata = serializers.SerializerMethodField()
     prev_taskcluster_metadata = serializers.SerializerMethodField()
+    profile_url = serializers.SerializerMethodField()
+    prev_profile_url = serializers.SerializerMethodField()
     summary_id = serializers.SlugRelatedField(
         slug_field="id",
         source="summary",
@@ -215,6 +218,18 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
         except ObjectDoesNotExist:
             return {}
 
+    def get_profile_url(self, alert):
+        task_metadata = cache.get("task_metadata")
+        url = get_profile_artifact_url(alert, task_metadata)
+
+        return url
+
+    def get_prev_profile_url(self, alert):
+        prev_task_metadata = cache.get("prev_task_metadata")
+        url = get_profile_artifact_url(alert, prev_task_metadata)
+
+        return url
+
     def get_classifier_email(self, performance_alert):
         return getattr(performance_alert.classifier, 'email', None)
 
@@ -226,6 +241,8 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
             'series_signature',
             'taskcluster_metadata',
             'prev_taskcluster_metadata',
+            'profile_url',
+            'prev_profile_url',
             'is_regression',
             'prev_value',
             'new_value',

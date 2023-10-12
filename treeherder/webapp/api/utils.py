@@ -1,3 +1,7 @@
+import requests
+import json
+import taskcluster_urls as liburls
+
 import time
 from datetime import datetime, timedelta
 
@@ -49,3 +53,21 @@ def to_timestamp(datetime_obj):
 def get_end_of_day(date):
     """Add a 23:59:59.999 timestamp (default is 00:00:00)"""
     return date + timedelta(days=1, microseconds=-1)
+
+
+def get_profile_artifact_url(alert, task_metadata):
+    tc_root_url = alert.summary.repository.tc_root_url
+    index_url = liburls.api(
+        tc_root_url,
+        'queue',
+        'v1',
+        f"task/{task_metadata['task_id']}/runs/{task_metadata['retry_id']}/artifacts"
+    )
+    response = requests.get(index_url)
+    artifacts = json.loads(response.content)
+    profile_artifact = [
+        artifact for artifact in artifacts["artifacts"]
+        if artifact["name"].startswith("public/test_info/profile_")
+           and artifact["name"].endswith(".zip")
+    ]
+    return f"{index_url}/{profile_artifact[0]['name']}"
