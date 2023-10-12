@@ -3,7 +3,7 @@ import logging
 import re
 import newrelic.agent
 
-from django.core.cache import caches
+from django.core.cache import cache
 
 from treeherder.model.models import Bugscache, TextLogError
 
@@ -32,8 +32,6 @@ def get_error_summary(job, queryset=None):
 
     Caches the results if there are any.
     """
-    db_cache = caches['default']
-    cache = caches['default']
     cache_key = 'error-summary-{}'.format(job.id)
     cached_error_summary = cache.get(cache_key)
     if cached_error_summary is not None:
@@ -43,7 +41,7 @@ def get_error_summary(job, queryset=None):
     line_cache_key = 'mc_error_lines'
     if job.repository == "comm-central":
         line_cache_key = 'cc_error_lines'
-    line_cache = db_cache.get(line_cache_key)
+    line_cache = cache.get(line_cache_key)
     if line_cache is None:
         line_cache = {str(job.submit_time.date()): {}}
     else:
@@ -85,7 +83,7 @@ def get_error_summary(job, queryset=None):
         logger.error('error caching error_summary for job %s: %s', job.id, e, exc_info=True)
 
     try:
-        db_cache.set(line_cache_key, line_cache, LINE_CACHE_TIMEOUT)
+        cache.set(line_cache_key, line_cache, LINE_CACHE_TIMEOUT)
     except Exception as e:
         newrelic.agent.record_custom_event('error caching error_lines for job', job.id)
         logger.error('error caching error_lines for job %s: %s', job.id, e, exc_info=True)
