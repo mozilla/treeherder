@@ -1,12 +1,12 @@
-import requests
-import json
-import taskcluster_urls as liburls
-
 import time
 from datetime import datetime, timedelta
 
 import django_filters
+import taskcluster_urls
+from django.core.cache import cache
 from django.db.models import Aggregate, CharField
+
+from treeherder.utils.http import fetch_json
 
 # queries are faster when filtering a range by id rather than name
 # trunk: mozilla-central, autoland
@@ -17,6 +17,8 @@ REPO_GROUPS = {
     'firefox-releases': [6, 7],
     'comm-releases': [38, 135],
 }
+
+FIVE_DAYS = 432000
 
 
 class GroupConcat(Aggregate):
@@ -55,19 +57,41 @@ def get_end_of_day(date):
     return date + timedelta(days=1, microseconds=-1)
 
 
+def get_artifact_list(root_url, task_id):
+    artifacts_url = taskcluster_urls.api(root_url, 'queue', 'v1', f"task/{task_id}/artifacts")
+    artifacts = {"artifacts": []}
+    try:
+        artifacts = fetch_json(artifacts_url)
+    except Exception as e:
+        print(e)
+    finally:
+        return artifacts.get("artifacts", [])
+
+
 def get_profile_artifact_url(alert, task_metadata):
     tc_root_url = alert.summary.repository.tc_root_url
-    index_url = liburls.api(
-        tc_root_url,
-        'queue',
-        'v1',
-        f"task/{task_metadata['task_id']}/runs/{task_metadata['retry_id']}/artifacts"
-    )
-    response = requests.get(index_url)
-    artifacts = json.loads(response.content)
+    # Return a string to tell that task_id wasn't found
+    if not task_metadata.get('task_id'):
+        return "task_id not found"
+    # If the url was already cached, don't calculate again, just return it
+    if cache.get(task_metadata.get('task_id')):
+        return cache.get(task_metadata.get('task_id'))
+    artifacts_json = get_artifact_list(tc_root_url, task_metadata.get('task_id'))
     profile_artifact = [
-        artifact for artifact in artifacts["artifacts"]
-        if artifact["name"].startswith("public/test_info/profile_")
-           and artifact["name"].endswith(".zip")
+        artifact
+        for artifact in artifacts_json
+        if artifacts_json
+        and artifact.get("name", "").startswith("public/test_info/profile_")
+        and artifact.get("name", "").endswith(".zip")
     ]
-    return f"{index_url}/{profile_artifact[0]['name']}"
+
+    if not profile_artifact:
+        return "Artifact not available"
+    task_url = f"{tc_root_url}/api/queue/v1/task/{task_metadata['task_id']}"
+    # There's only one profile relevant for performance per task
+    artifact_url = (
+        f"{task_url}/runs/{str(task_metadata['retry_id'])}/artifacts/{profile_artifact[0]['name']}"
+    )
+    cache.set(task_metadata.get('task_id'), artifact_url, FIVE_DAYS)
+
+    return artifact_url

@@ -1,7 +1,7 @@
 import decimal
 
 from django.contrib.auth.models import User
-from django.core.cache import cache, caches
+from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from rest_framework import exceptions, serializers
@@ -18,7 +18,7 @@ from treeherder.perf.models import (
     PerformanceSignature,
     PerformanceTag,
 )
-from treeherder.webapp.api.utils import to_timestamp, get_profile_artifact_url
+from treeherder.webapp.api.utils import to_timestamp, get_profile_artifact_url, FIVE_DAYS
 
 
 def get_tc_metadata(alert, push):
@@ -27,12 +27,14 @@ def get_tc_metadata(alert, push):
         repository=alert.series_signature.repository,
         push=push,
     ).first()
-    metadata = TaskclusterMetadata.objects.get(job=datum.job)
-    task_metadata = {
-        'task_id': metadata.task_id,
-        'retry_id': metadata.retry_id,
-    }
-    return task_metadata
+    if datum:
+        metadata = TaskclusterMetadata.objects.get(job=datum.job)
+        return {
+            'task_id': metadata.task_id,
+            'retry_id': metadata.retry_id,
+        }
+    else:
+        return {}
 
 
 class OptionalBooleanField(serializers.BooleanField):
@@ -204,29 +206,37 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
 
     def get_taskcluster_metadata(self, alert):
         try:
-            task_metadata = get_tc_metadata(alert, alert.summary.push)
-            cache.set("task_metadata", task_metadata)
-            return task_metadata
+            taskcluster_metadata = get_tc_metadata(alert, alert.summary.push)
+            cache.set("task_metadata", taskcluster_metadata, FIVE_DAYS)
+            return taskcluster_metadata
         except ObjectDoesNotExist:
             return {}
 
     def get_prev_taskcluster_metadata(self, alert):
         try:
-            task_metadata = get_tc_metadata(alert, alert.summary.prev_push)
-            cache.set("prev_task_metadata", task_metadata)
-            return task_metadata
+            taskcluster_metadata = get_tc_metadata(alert, alert.summary.prev_push)
+            cache.set("prev_task_metadata", taskcluster_metadata, FIVE_DAYS)
+            return taskcluster_metadata
         except ObjectDoesNotExist:
             return {}
 
     def get_profile_url(self, alert):
-        task_metadata = cache.get("task_metadata")
-        url = get_profile_artifact_url(alert, task_metadata)
+        if alert.is_regression:
+            taskcluster_metadata = cache.get("task_metadata") if cache.get("task_metadata") else {}
+            url = get_profile_artifact_url(alert, taskcluster_metadata)
+        else:
+            url = "N/A"
 
         return url
 
     def get_prev_profile_url(self, alert):
-        prev_task_metadata = cache.get("prev_task_metadata")
-        url = get_profile_artifact_url(alert, prev_task_metadata)
+        if alert.is_regression:
+            prev_taskcluster_metadata = (
+                cache.get("prev_task_metadata") if cache.get("prev_task_metadata") else {}
+            )
+            url = get_profile_artifact_url(alert, prev_taskcluster_metadata)
+        else:
+            url = "N/A"
 
         return url
 
