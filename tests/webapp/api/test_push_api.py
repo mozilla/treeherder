@@ -2,6 +2,7 @@ import datetime
 
 import pytest
 from django.urls import reverse
+from django.conf import settings
 
 from tests.conftest import IS_WINDOWS
 from treeherder.etl.push import store_push_data
@@ -9,6 +10,10 @@ from treeherder.model.models import Commit, FailureClassification, JobNote, Push
 from treeherder.webapp.api import utils
 
 
+@pytest.mark.skipif(
+    settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql',
+    reason="Version of MySQL doesn't yet support 'LIMIT'",
+)
 def test_push_list_basic(client, eleven_jobs_stored, test_repository):
     """
     test retrieving a list of ten json blobs from the jobs-list
@@ -51,6 +56,10 @@ def test_push_list_bad_project(client, transactional_db):
     assert resp.json() == {"detail": "No project with name foo"}
 
 
+@pytest.mark.skipif(
+    settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql',
+    reason="Version of MySQL doesn't yet support 'LIMIT'",
+)
 def test_push_list_empty_push_still_show(client, sample_push, test_repository):
     """
     test retrieving a push list, when the push has no jobs.
@@ -66,6 +75,10 @@ def test_push_list_empty_push_still_show(client, sample_push, test_repository):
     assert len(data['results']) == 10
 
 
+@pytest.mark.skipif(
+    settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql',
+    reason="Version of MySQL doesn't yet support 'LIMIT'",
+)
 def test_push_list_single_short_revision(client, eleven_jobs_stored, test_repository):
     """
     test retrieving a push list, filtered by single short revision
@@ -87,6 +100,10 @@ def test_push_list_single_short_revision(client, eleven_jobs_stored, test_reposi
     }
 
 
+@pytest.mark.skipif(
+    settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql',
+    reason="Version of MySQL doesn't yet support 'LIMIT'",
+)
 def test_push_list_single_long_revision(client, eleven_jobs_stored, test_repository):
     """
     test retrieving a push list, filtered by a single long revision
@@ -110,6 +127,10 @@ def test_push_list_single_long_revision(client, eleven_jobs_stored, test_reposit
 
 
 @pytest.mark.skipif(IS_WINDOWS, reason="timezone mixup happening somewhere")
+@pytest.mark.skipif(
+    settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql',
+    reason="Version of MySQL doesn't yet support 'LIMIT'",
+)
 def test_push_list_filter_by_revision(client, eleven_jobs_stored, test_repository):
     """
     test retrieving a push list, filtered by a revision range
@@ -139,6 +160,10 @@ def test_push_list_filter_by_revision(client, eleven_jobs_stored, test_repositor
     }
 
 
+@pytest.mark.skipif(
+    settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql',
+    reason="Version of MySQL doesn't yet support 'LIMIT'",
+)
 def test_push_list_many_related_commits(client, eleven_jobs_stored, test_repository):
     """
     Test prefetched commits are limited to the 20 last items
@@ -174,6 +199,10 @@ def test_push_list_many_related_commits(client, eleven_jobs_stored, test_reposit
     ]
 
 
+@pytest.mark.skipif(
+    settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql',
+    reason="Version of MySQL doesn't yet support 'LIMIT'",
+)
 @pytest.mark.skipif(IS_WINDOWS, reason="timezone mixup happening somewhere")
 def test_push_list_filter_by_date(client, test_repository, sample_push):
     """
@@ -213,6 +242,10 @@ def test_push_list_filter_by_date(client, test_repository, sample_push):
     }
 
 
+@pytest.mark.skipif(
+    settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql',
+    reason="Version of MySQL doesn't yet support 'LIMIT'",
+)
 @pytest.mark.parametrize(
     'filter_param, exp_ids',
     [
@@ -246,6 +279,10 @@ def test_push_list_filter_by_id(client, test_repository, filter_param, exp_ids):
     assert set([result['id'] for result in results]) == set(exp_ids)
 
 
+@pytest.mark.skipif(
+    settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql',
+    reason="Version of MySQL doesn't yet support 'LIMIT'",
+)
 def test_push_list_id_in(client, test_repository):
     """
     test the id__in parameter
@@ -291,6 +328,10 @@ def test_push_list_bad_count(client, test_repository):
     assert resp.json() == {'detail': 'Valid count value required'}
 
 
+@pytest.mark.skipif(
+    settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql',
+    reason="Version of MySQL doesn't yet support 'LIMIT'",
+)
 def test_push_author(client, test_repository):
     """
     test the author parameter
@@ -335,6 +376,10 @@ def test_push_author(client, test_repository):
     assert set([result['id'] for result in results]) == set([1, 2])
 
 
+@pytest.mark.skipif(
+    settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql',
+    reason="Version of MySQL doesn't yet support 'LIMIT'",
+)
 def test_push_reviewbot(client, test_repository):
     """
     test the reviewbot parameter
@@ -363,6 +408,10 @@ def test_push_reviewbot(client, test_repository):
     assert set([result['id'] for result in results]) == set([1, 2])
 
 
+@pytest.mark.skipif(
+    settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql',
+    reason="Version of MySQL doesn't yet support 'LIMIT'",
+)
 def test_push_list_without_jobs(client, test_repository, sample_push):
     """
     test retrieving a push list without jobs
