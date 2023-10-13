@@ -5,7 +5,7 @@ from django.urls import reverse
 
 from tests.conftest import IS_WINDOWS
 from treeherder.etl.push import store_push_data
-from treeherder.model.models import FailureClassification, JobNote, Push
+from treeherder.model.models import Commit, FailureClassification, JobNote, Push
 from treeherder.webapp.api import utils
 
 
@@ -137,6 +137,41 @@ def test_push_list_filter_by_revision(client, eleven_jobs_stored, test_repositor
         u'repository': test_repository.name,
         u'tochange': u'f361dcb60bbe',
     }
+
+
+def test_push_list_many_related_commits(client, eleven_jobs_stored, test_repository):
+    """
+    Test prefetched commits are limited to the 20 last items
+    """
+    second_push = Push.objects.create(
+        repository=test_repository,
+        revision='123456',
+        author='foo@bar.net',
+        time=datetime.datetime.now(),
+    )
+    Commit.objects.bulk_create(
+        [
+            Commit(push=second_push, revision=i, author='foo@bar.net', comments=f'comment {i}')
+            for i in range(1, 30)
+        ]
+    )
+
+    resp = client.get(reverse('push-list', kwargs={'project': test_repository.name}), {})
+    assert resp.status_code == 200
+
+    assert resp.json()['meta']['count'] == 10
+    results = resp.json()['results']
+    assert len(results) == 10
+    assert next(r for r in results if r['id'] == second_push.id)['revisions'] == [
+        {
+            'result_set_id': 11,
+            'repository_id': 1,
+            'revision': str(i),
+            'author': 'foo@bar.net',
+            'comments': f'comment {i}',
+        }
+        for i in range(29, 9, -1)
+    ]
 
 
 @pytest.mark.skipif(IS_WINDOWS, reason="timezone mixup happening somewhere")
