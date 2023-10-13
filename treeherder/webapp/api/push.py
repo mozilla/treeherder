@@ -3,7 +3,7 @@ import logging
 
 import newrelic.agent
 from cache_memoize import cache_memoize
-from django.db.models import Count, Prefetch
+from django.db.models import Count, OuterRef, Prefetch, Subquery
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -180,7 +180,22 @@ class PushViewSet(viewsets.ViewSet):
         pushes = (
             pushes.select_related('repository')
             .annotate(revision_count=Count('commits'))
-            .prefetch_related(Prefetch('commits', queryset=Commit.objects.order_by('-id')))
+            .prefetch_related(
+                Prefetch(
+                    'commits',
+                    queryset=(
+                        Commit.objects.order_by('-id').filter(
+                            id__in=Subquery(
+                                # Limit related commits to 20 items, as some
+                                # push can be linked to thousands of commits.
+                                Commit.objects.filter(push_id=OuterRef('push_id'))
+                                .order_by('-id')
+                                .values_list('id', flat=True)[:20]
+                            )
+                        )
+                    ),
+                )
+            )
         )[:count]
         serializer = PushSerializer(pushes, many=True)
 
