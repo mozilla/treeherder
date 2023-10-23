@@ -100,7 +100,7 @@ services:
   redis:
     container_name: redis
     # https://hub.docker.com/_/redis/
-    image: redis:7.0.13-alpine
+    image: redis:7.0.14-alpine
     # Messages after starting the redis-server
     # WARNING Memory overcommit must be enabled! Without it, a background save or replication may fail under low memory condition. Being disabled, it can can also cause failures without low memory condition, see https://github.com/jemalloc/jemalloc/issues/1328. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
     # Hide Redis `notice` log level startup output spam.
