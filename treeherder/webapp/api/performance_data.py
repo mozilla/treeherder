@@ -964,6 +964,7 @@ class PerfCompareResults(generics.ListAPIView):
                     'delta_percentage': delta_percentage,
                     'magnitude': magnitude,
                     'new_is_better': new_is_better,
+                    'lower_is_better': lower_is_better,
                     'is_confident': is_confident,
                     'more_runs_are_needed': more_runs_are_needed,
                     # highlighted revisions is the base_revision and the other highlighted revisions is new_revision

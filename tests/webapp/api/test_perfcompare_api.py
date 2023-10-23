@@ -138,6 +138,7 @@ def test_perfcompare_results_against_no_base(
             'delta_percentage': round(response['delta_pct'], 2),
             'magnitude': round(response['magnitude'], 2),
             'new_is_better': response['new_is_better'],
+            'lower_is_better': response['lower_is_better'],
             'is_confident': response['is_confident'],
             'more_runs_are_needed': response['more_runs_are_needed'],
             'noise_metric': False,
@@ -293,6 +294,7 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
             'delta_percentage': round(response['delta_pct'], 2),
             'magnitude': round(response['magnitude'], 2),
             'new_is_better': response['new_is_better'],
+            'lower_is_better': response['lower_is_better'],
             'is_confident': response['is_confident'],
             'more_runs_are_needed': response['more_runs_are_needed'],
             'noise_metric': False,
@@ -451,6 +453,7 @@ def test_perfcompare_results_multiple_runs(
             'delta_percentage': round(first_row['delta_pct'], 2),
             'magnitude': round(first_row['magnitude'], 2),
             'new_is_better': first_row['new_is_better'],
+            'lower_is_better': first_row['lower_is_better'],
             'is_confident': first_row['is_confident'],
             'more_runs_are_needed': first_row['more_runs_are_needed'],
             'noise_metric': False,
@@ -497,6 +500,7 @@ def test_perfcompare_results_multiple_runs(
             'delta_percentage': round(second_row['delta_pct'], 2),
             'magnitude': round(second_row['magnitude'], 2),
             'new_is_better': second_row['new_is_better'],
+            'lower_is_better': second_row['lower_is_better'],
             'is_confident': second_row['is_confident'],
             'more_runs_are_needed': second_row['more_runs_are_needed'],
             'noise_metric': False,
@@ -620,6 +624,7 @@ def get_expected(
     response['new_is_better'] = perfcompare_utils.is_new_better(
         response['delta_value'], base_sig.lower_is_better
     )
+    response['lower_is_better'] = base_sig.lower_is_better
     response['confidence'] = perfcompare_utils.get_abs_ttest_value(
         base_perf_data_values, new_perf_data_values
     )
