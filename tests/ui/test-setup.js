@@ -1,5 +1,5 @@
 // Entry point for Jest tests
-import '@testing-library/jest-dom/extend-expect';
+import '@testing-library/jest-dom/jest-globals';
 
 const mockBuildUrl = jest.fn((root, taskId, path) => {
   return `${root}/${taskId}/artifacts/${path}`;
