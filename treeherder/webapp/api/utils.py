@@ -7,11 +7,11 @@ from django.db.models import Aggregate, CharField
 # queries are faster when filtering a range by id rather than name
 # trunk: mozilla-central, autoland
 # firefox-releases: mozilla-beta, mozilla-release
-# comm-releases: comm-beta
+# comm-releases: comm-beta, comm-release
 REPO_GROUPS = {
     'trunk': [1, 2, 77],
     'firefox-releases': [6, 7],
-    'comm-releases': [38],
+    'comm-releases': [38, 135],
 }
 
 
