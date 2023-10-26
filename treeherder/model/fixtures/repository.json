@@ -1903,5 +1903,19 @@
       "repository_group": 11,
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
+  },
+  {
+    "pk": 135,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "hg",
+      "name": "comm-release",
+      "url": "https://hg.mozilla.org/releases/comm-release",
+      "active_status": "active",
+      "codebase": "comm",
+      "repository_group": 8,
+      "description": "",
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
+    }
   }
 ]
