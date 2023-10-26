@@ -132,7 +132,11 @@ def create_group_result(job_log, line):
         )
     else:
         group, _ = Group.objects.get_or_create(name=group_path[:255])
-        duration = int(line.get('duration', 0))
+        duration = line.get('duration', 0)
+        if type(duration) not in [float, int]:
+            duration = 0
+        else:
+            duration = int(duration)
         # duration > 2 hours (milliseconds) or negative, something is wrong
         if duration > 7200 * 1000 or duration < 0:
             duration = 0

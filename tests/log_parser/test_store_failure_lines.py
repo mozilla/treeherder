@@ -208,8 +208,8 @@ def test_group_status_duration(activate_responses, test_repository, test_job):
     ok_groups = Group.objects.filter(group_result__duration__gt=0)
     error_groups = Group.objects.filter(group_result__duration=0)
 
-    assert ok_groups.count() == 28
-    assert error_groups.count() == 1
+    assert ok_groups.count() == 27
+    assert error_groups.count() == 2
     assert log_obj.groups.count() == 29
 
 
