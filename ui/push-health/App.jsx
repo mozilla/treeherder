@@ -1,6 +1,6 @@
 import React from 'react';
 import { hot } from 'react-hot-loader/root';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 
 import {
   clearNotificationAtIndex,
@@ -82,10 +82,9 @@ class App extends React.Component {
           notifications={notifications}
           clearNotification={this.clearNotification}
         />
-        <Switch>
+        <Routes>
           <Route
-            exact
-            path={`${path}/`}
+            path="/"
             render={(props) => (
               <MyPushes
                 {...props}
@@ -96,8 +95,8 @@ class App extends React.Component {
             )}
           />
           <Route
-            path={`${path}/push`}
-            render={(props) =>
+            path="push"
+            children={({ props }) =>
               hasProps(props.location.search) ? (
                 <Health
                   {...props}
@@ -105,15 +104,12 @@ class App extends React.Component {
                   clearNotification={this.clearNotification}
                 />
               ) : (
-                (<NotFound />)()
+                <NotFound />
               )
             }
           />
-          <Route
-            path={`${path}/usage`}
-            render={(props) => <Usage {...props} />}
-          />
-        </Switch>
+          <Route path="usage" render={(props) => <Usage {...props} />} />
+        </Routes>
       </ErrorBoundary>
     );
   }

@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import { hot } from 'react-hot-loader/root';
 import { Helmet } from 'react-helmet';
 import { ConnectedRouter } from 'connected-react-router';
@@ -116,14 +116,12 @@ const App = () => {
     <Provider store={configureStore()}>
       <ConnectedRouter history={history}>
         <Suspense fallback={<LoadingSpinner />}>
-          <Switch>
+          <Routes>
             <Route
-              exact
               path="/login"
               render={(props) => <LoginCallback {...props} />}
             />
             <Route
-              exact
               path="/taskcluster-auth"
               render={(props) => <TaskclusterCallback {...props} />}
             />
@@ -152,13 +150,13 @@ const App = () => {
               }
             />
             <Route
-              path="/push-health"
+              path="push-health/*"
               render={(props) =>
                 withFavicon(<PushHealthApp {...props} />, '/push-health')
               }
             />
             <Route
-              path="/intermittent-failures"
+              path="intermittent-failures/*"
               render={(props) =>
                 withFavicon(
                   <IntermittentFailuresApp {...props} />,
@@ -167,7 +165,7 @@ const App = () => {
               }
             />
             <Route
-              path="/perfherder"
+              path="perfherder/*"
               render={(props) =>
                 withFavicon(<PerfherderApp {...props} />, '/perfherder')
               }
@@ -181,7 +179,7 @@ const App = () => {
                 />
               )}
             />
-          </Switch>
+          </Routes>
         </Suspense>
       </ConnectedRouter>
     </Provider>

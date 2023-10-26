@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Switch, Redirect } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 import { hot } from 'react-hot-loader/root';
 import { Container } from 'reactstrap';
 
@@ -87,9 +87,9 @@ class App extends React.Component {
                   <ErrorMessages errorMessages={errorMessages} />
                 </Container>
               )}
-              <Switch>
+              <Routes>
                 <Route
-                  path={`${path}/alerts`}
+                  path="alerts"
                   render={(props) => (
                     <AlertsView
                       {...props}
@@ -101,7 +101,7 @@ class App extends React.Component {
                   )}
                 />
                 <Route
-                  path={`${path}/graphs`}
+                  path="graphs"
                   render={(props) => (
                     <GraphsView
                       {...props}
@@ -112,7 +112,7 @@ class App extends React.Component {
                   )}
                 />
                 <Route
-                  path={`${path}/comparechooser`}
+                  path="comparechooser"
                   render={(props) => (
                     <CompareSelectorView
                       {...props}
@@ -123,7 +123,7 @@ class App extends React.Component {
                   )}
                 />
                 <Route
-                  path={`${path}/compare`}
+                  path="compare"
                   render={(props) => (
                     <CompareView
                       {...props}
@@ -136,7 +136,7 @@ class App extends React.Component {
                   )}
                 />
                 <Route
-                  path={`${path}/infracompare`}
+                  path="infracompare"
                   render={(props) => (
                     <InfraCompareView
                       {...props}
@@ -149,7 +149,7 @@ class App extends React.Component {
                   )}
                 />
                 <Route
-                  path={`${path}/comparesubtest`}
+                  path="comparesubtest"
                   render={(props) => (
                     <CompareSubtestsView
                       {...props}
@@ -160,7 +160,7 @@ class App extends React.Component {
                   )}
                 />
                 <Route
-                  path={`${path}/comparesubtestdistribution`}
+                  path="comparesubtestdistribution"
                   render={(props) => (
                     <CompareSubtestDistributionView
                       {...props}
@@ -171,7 +171,7 @@ class App extends React.Component {
                   )}
                 />
                 <Route
-                  path={`${path}/tests`}
+                  path="tests"
                   render={(props) => (
                     <TestsView
                       {...props}
@@ -182,11 +182,12 @@ class App extends React.Component {
                     />
                   )}
                 />
-                <Redirect
+                <Navigate
+                  replace
                   from={`${path}/`}
                   to={`${path}/alerts?hideDwnToInv=1&page=1`}
                 />
-              </Switch>
+              </Routes>
             </main>
           )}
       </React.Fragment>

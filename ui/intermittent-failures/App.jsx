@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Switch, Redirect } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 import { Container } from 'reactstrap';
 import { hot } from 'react-hot-loader/root';
 
@@ -40,7 +40,7 @@ class IntermittentFailuresApp extends React.Component {
             <ErrorMessages errorMessages={errorMessages} />
           </Container>
         )}
-        <Switch>
+        <Routes>
           <Route
             exact
             path={`${path}/main`}
@@ -70,15 +70,15 @@ class IntermittentFailuresApp extends React.Component {
             )}
           />
           <Route
-            path={`${path}/bugdetails`}
+            path="bugdetails"
             render={(props) => <BugDetailsView {...props} />}
           />
           <Route
-            path={`${path}/bugdetails?startday=:startday&endday=:endday&tree=:tree&failurehash=:failurehash&bug=bug`}
+            path="bugdetails?startday=:startday&endday=:endday&tree=:tree&failurehash=:failurehash&bug=bug"
             render={(props) => <BugDetailsView {...props} />}
           />
-          <Redirect from={`${path}/`} to={`${path}/main`} />
-        </Switch>
+          <Navigate replace from={`${path}/`} to={`${path}/main`} />
+        </Routes>
       </main>
     );
   }
