@@ -26,7 +26,7 @@
 {"status": "OK", "duration": 3141, "action": "group_result", "line": 4865, "group": "dom/security/test/mixedcontentblocker/browser.ini"}
 {"status": "OK", "duration": 3141, "action": "group_result", "line": 4865, "group": "toolkit/content/tests/browser/browser.ini"}
 {"status": "OK", "duration": 3141, "action": "group_result", "line": 4865, "group": "dom/broadcastchannel/tests/browser.ini"}
-{"status": "OK", "duration": 3141, "action": "group_result", "line": 4865, "group": "caps/tests/mochitest/browser.ini"}
+{"status": "OK", "duration": null, "action": "group_result", "line": 4865, "group": "caps/tests/mochitest/browser.ini"}
 {"status": "OK", "duration": 3141, "action": "group_result", "line": 4865, "group": "browser/components/aboutconfig/test/browser/browser.ini"}
 {"status": "OK", "duration": 3141, "action": "group_result", "line": 4865, "group": "browser/components/pocket/test/browser.ini"}
 {"status": "OK", "duration": 3141, "action": "group_result", "line": 4865, "group": "accessible/tests/browser/browser.ini"}
