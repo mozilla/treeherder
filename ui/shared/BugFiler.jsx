@@ -218,6 +218,13 @@ export class BugFilerClass extends React.Component {
         ].some((regexp) => regexp.test(summaryString));
       }
 
+      if (crashSignatures) {
+        isTestPath = false;
+        const parts = summaryString.split(' | ');
+        summaryString = `${parts[0]} | single tracking bug`;
+        keywords.push('intermittent-testcase');
+      }
+
       // trimming params from end of a test case name when filing for stb
       let trimParams = false;
 

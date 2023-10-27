@@ -352,4 +352,13 @@ describe('BugFiler', () => {
         'TEST-UNEXPECTED-PASS | flee | floo',
     );
   });
+
+  test('should have summary as "single tracking bug"', () => {
+    const rawSummary =
+      'PROCESS-CRASH | application crashed [@ libc.so.6 + 0x0000000000114cf9] | /storage/estimate-usage-details-indexeddb.https.tentative.any.html';
+    const expected =
+      'application crashed [@ libc.so.6 + 0x0000000000114cf9] | single tracking bug';
+    const displayed = SummaryAndExpected(rawSummary);
+    expect(displayed).toBeInTheDocument(expected);
+  });
 });
