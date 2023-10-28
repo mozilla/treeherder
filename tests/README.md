@@ -7,13 +7,13 @@ The backend test suite can be run outside the Docker container.
 We need all but the main `backend` service running.  Since multiple `backend` instances are allowed, we will simply start everything up
 
     # ENSURE THE IMAGES ARE CLEAN
-    docker rm "/mysql"
+    docker rm "/postgres"
     docker rm "/frontend"
     docker rm "/rabbitmq" 
     docker rm "/redis"
     docker rm "/backend"
     docker-compose down
-    docker volume rm treeherder_mysql_data 
+    docker volume rm treeherder_postgres_data 
     
     # SETUP ALL IMAGES
     docker-compose up --build
@@ -42,7 +42,6 @@ Be sure you are in the `treeherder` main directory
 
     python -m venv .venv             # IMPORTANT: Notice the dot in the name
     source .venv/bin/activate
-    export LDFLAGS=-L/usr/local/opt/openssl/lib   # https://github.com/PyMySQL/mysqlclient-python/issues/131#issuecomment-503644579
     pip install --no-deps -r requirements/dev.txt
     pip install --no-deps -r requirements/common.txt
 
@@ -56,7 +55,7 @@ For Windows, Treeherder requires a number of environment variables that point to
 
 If you plan to use an IDE, here is the same, as a very long line
 
-    BROKER_URL=localhost//guest:guest@rabbitmq//;DATABASE_URL=mysql://root@localhost:3306/treeherder;REDIS_URL=redis://localhost:6379;SITE_URL=http://backend:8000/;TREEHERDER_DEBUG=True;TREEHERDER_DJANGO_SECRET_KEY=secret-key-of-at-least-50-characters-to-pass-check-deploy;NEW_RELIC_DEVELOPER_MODE=True
+    BROKER_URL=localhost//guest:guest@rabbitmq//;DATABASE_URL=psql://postgres:mozilla1234@postgres:5432/treeherder;REDIS_URL=redis://localhost:6379;SITE_URL=http://backend:8000/;TREEHERDER_DEBUG=True;TREEHERDER_DJANGO_SECRET_KEY=secret-key-of-at-least-50-characters-to-pass-check-deploy;NEW_RELIC_DEVELOPER_MODE=True
 
 ## Ensure everything is working
 

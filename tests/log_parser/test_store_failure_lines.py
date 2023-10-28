@@ -99,23 +99,10 @@ def test_store_error_summary_astral(activate_responses, test_repository, test_jo
 
     assert failure.repository == test_repository
 
-    # Specific unicode chars cannot be inserted as MySQL pseudo-UTF8 and are replaced by a plain text representation
-    if settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
-        assert (
-            failure.test
-            == "toolkit/content/tests/widgets/test_videocontrols_video_direction.html <U+01F346>"
-        )
-        assert failure.subtest == "Test timed out. <U+010081>"
-        assert failure.message == "<U+0F0151>"
-        assert failure.stack.endswith("<U+0F0151>")
-    else:
-        assert (
-            failure.test
-            == "toolkit/content/tests/widgets/test_videocontrols_video_direction.html 🍆"
-        )
-        assert failure.subtest == "Test timed out. 𐂁"
-        assert failure.message == "󰅑"
-        assert failure.stack.endswith("󰅑")
+    assert failure.test == "toolkit/content/tests/widgets/test_videocontrols_video_direction.html 🍆"
+    assert failure.subtest == "Test timed out. 𐂁"
+    assert failure.message == "󰅑"
+    assert failure.stack.endswith("󰅑")
     assert failure.stackwalk_stdout is None
     assert failure.stackwalk_stderr is None
 
