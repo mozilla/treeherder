@@ -19,7 +19,7 @@ from treeherder.model.models import (
     JobType,
     JobGroup,
 )
-from treeherder.perf.utils import calculate_time_to_triage
+from treeherder.perf.utils import calculate_time_to, TRIAGE_DAYS, BUG_DAYS
 from treeherder.utils import default_serializer
 
 logger = logging.getLogger(__name__)
@@ -311,6 +311,7 @@ class PerformanceAlertSummary(models.Model):
     status = models.IntegerField(choices=STATUSES, default=UNTRIAGED)
 
     bug_number = models.PositiveIntegerField(null=True)
+    bug_due_date = models.DateTimeField(null=True, default=None)
     bug_updated = models.DateTimeField(null=True)
 
     issue_tracker = models.ForeignKey(IssueTracker, on_delete=models.PROTECT, default=1)  # Bugzilla
@@ -324,11 +325,14 @@ class PerformanceAlertSummary(models.Model):
     def save(self, *args, **kwargs):
         if self.bug_number is not None and self.bug_number != self.__prev_bug_number:
             self.bug_updated = datetime.now()
-        triage_due = calculate_time_to_triage(self.created)
+        triage_due = calculate_time_to(self.created, TRIAGE_DAYS)
+        bug_due = calculate_time_to(self.created, BUG_DAYS)
         # created is initially PerformanceDatum.push_timestamp and due to a potential race condition
         # triage_due_date is not always calculated after the real created date
         if self.triage_due_date != triage_due:
             self.triage_due_date = triage_due
+        if self.bug_due_date != bug_due:
+            self.bug_due_date = bug_due
         super(PerformanceAlertSummary, self).save(*args, **kwargs)
         self.__prev_bug_number = self.bug_number
 

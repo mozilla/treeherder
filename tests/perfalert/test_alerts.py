@@ -11,7 +11,7 @@ from treeherder.perf.models import (
     PerformanceDatum,
     PerformanceSignature,
 )
-from treeherder.perf.utils import calculate_time_to_triage
+from treeherder.perf.utils import calculate_time_to, TRIAGE_DAYS, BUG_DAYS
 
 
 def _verify_alert(
@@ -41,7 +41,8 @@ def _verify_alert(
     assert summary.push_id == expected_push_id
     assert summary.prev_push_id == expected_prev_push_id
     assert summary.status == expected_summary_status
-    assert summary.triage_due_date == calculate_time_to_triage(summary.created)
+    assert summary.triage_due_date == calculate_time_to(summary.created, TRIAGE_DAYS)
+    assert summary.bug_due_date == calculate_time_to(summary.created, BUG_DAYS)
 
 
 def _generate_performance_data(
