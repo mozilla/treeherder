@@ -264,6 +264,10 @@ properties:
         description: |
           Plain text description of the job and its state.  Submitted with
           the final message about a task.
+      localRun:
+        type: string
+        description: |
+          Plain text description of how to run the equivalent of the job locally.
       links:
         type: array
         items:

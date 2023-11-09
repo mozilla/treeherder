@@ -140,6 +140,7 @@ class JobLoader:
                 "machine": self._get_machine(pulse_job),
                 "option_collection": self._get_option_collection(pulse_job),
                 "log_references": self._get_log_references(pulse_job),
+                "local_run": pulse_job.get("jobInfo", {}).get("localRun", ""),
             },
             "superseded": pulse_job.get("coalesced", []),
             "revision": pulse_job["origin"]["revision"],

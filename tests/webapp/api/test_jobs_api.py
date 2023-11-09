@@ -51,6 +51,7 @@ def test_job_list(client, eleven_jobs_stored, test_repository, offset, count, ex
         "job_type_id",
         "job_type_name",
         "job_type_description",
+        "job_type_local_run",
         "build_architecture",
         "build_system_type",
         "job_type_symbol",
