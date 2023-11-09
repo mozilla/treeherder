@@ -342,6 +342,7 @@ CELERY_TASK_QUEUES = [
         routing_key='store_pulse_tasks_classification',
     ),
     Queue('store_pulse_pushes', Exchange('default'), routing_key='store_pulse_pushes'),
+    Queue('statsd', Exchange('default'), routing_key='statsd'),
 ]
 
 # Force all queues to be explicitly listed in `CELERY_TASK_QUEUES` to help prevent typos
@@ -378,6 +379,9 @@ CELERY_TASK_ACKS_LATE = True
 CELERY_TASK_SOFT_TIME_LIMIT = 15 * 60
 CELERY_TASK_TIME_LIMIT = CELERY_TASK_SOFT_TIME_LIMIT + 30
 
+# Periodically publish runtime statistics on statsd
+CELERY_STATS_PUBLICATION_DELAY = 15 * 60
+
 CELERY_BEAT_SCHEDULE = {
     # this is just a failsafe in case the Pulse ingestion misses something
     'fetch-push-logs-every-5-minutes': {
@@ -385,6 +389,11 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': timedelta(minutes=5),
         'relative': True,
         'options': {"queue": "pushlog"},
+    },
+    'publish_stats': {
+        'task': 'publis-stats',
+        'schedule': CELERY_STATS_PUBLICATION_DELAY,
+        'options': {'queue': 'statsd'},
     },
 }
 
