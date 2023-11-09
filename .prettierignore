@@ -9,3 +9,6 @@ ui/partials/
 
 # Ignore markdown
 *.md
+
+# Statsd configuration file
+docker/statsd_config.js

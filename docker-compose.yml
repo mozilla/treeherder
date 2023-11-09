@@ -157,6 +157,13 @@ services:
       - redis
       - rabbitmq
     platform: linux/amd64
+
+  statsd:
+    container_name: statsd
+    image: statsd/statsd:v0.10.2
+    volumes:
+      - ./docker/statsd_config.js:/usr/src/app/config.js
+
 volumes:
   # TODO: Experiment with using tmpfs when testing, to speed up database-using Python tests.
   mysql_data: {}
