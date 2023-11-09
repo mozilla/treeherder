@@ -46,6 +46,7 @@ export default class JobInfo extends React.PureComponent {
       task_id: taskId,
       build_platform: buildPlatform,
       job_type_name: jobTypeName,
+      job_type_description: jobTypeDesc,
       build_architecture: buildArchitecture,
       build_os: buildOs,
       submit_timestamp: submitTimestamp,
@@ -97,6 +98,10 @@ export default class JobInfo extends React.PureComponent {
           <strong>Job name: </strong>
           <span>{jobTypeName}</span>
           <Clipboard description="job Name" text={jobTypeName} />
+        </li>
+        <li className="small">
+          <strong>Job description: </strong>
+          <span>{jobTypeDesc}</span>
         </li>
         {[...timeFields, ...extraFields].map((field) => (
           <li className="small" key={`${field.title}${field.value}`}>
