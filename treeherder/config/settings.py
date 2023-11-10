@@ -10,6 +10,7 @@ from kombu import Exchange, Queue
 
 from treeherder.config.utils import connection_should_use_tls
 from treeherder.middleware import add_headers_function
+from celery.schedules import crontab
 
 # TODO: Switch to pathlib once using Python 3.
 SRC_DIR = dirname(dirname(dirname(abspath(__file__))))
@@ -379,8 +380,11 @@ CELERY_TASK_ACKS_LATE = True
 CELERY_TASK_SOFT_TIME_LIMIT = 15 * 60
 CELERY_TASK_TIME_LIMIT = CELERY_TASK_SOFT_TIME_LIMIT + 30
 
-# Periodically publish runtime statistics on statsd
-CELERY_STATS_PUBLICATION_DELAY = 15 * 60
+# Periodically publish runtime statistics on statsd (in minutes)
+CELERY_STATS_PUBLICATION_DELAY = 5
+assert (
+    0 < CELERY_STATS_PUBLICATION_DELAY < 60 and 60 % 10 == 0
+), "Celery task must be a valid cron delay in minutes"
 
 CELERY_BEAT_SCHEDULE = {
     # this is just a failsafe in case the Pulse ingestion misses something
@@ -391,8 +395,9 @@ CELERY_BEAT_SCHEDULE = {
         'options': {"queue": "pushlog"},
     },
     'publish_stats': {
-        'task': 'publis-stats',
-        'schedule': CELERY_STATS_PUBLICATION_DELAY,
+        'task': 'publish-stats',
+        'schedule': crontab(minute=f'*/{CELERY_STATS_PUBLICATION_DELAY}'),
+        'relative': True,
         'options': {'queue': 'statsd'},
     },
 }
