@@ -56,7 +56,7 @@ elif [ "$1" == "worker_log_parser_fail_json_unsheriffed" ]; then
 # Tasks that don't need a dedicated worker.
 elif [ "$1" == "worker_misc" ]; then
     export REMAP_SIGTERM=SIGQUIT
-    exec newrelic-admin run-program celery -A treeherder worker --without-gossip --without-mingle --without-heartbeat -Q default,generate_perf_alerts,pushlog --concurrency=3
+    exec newrelic-admin run-program celery -A treeherder worker --without-gossip --without-mingle --without-heartbeat -Q default,generate_perf_alerts,pushlog,statsd --concurrency=3
 
 # Cron jobs
 elif [ "$1" == "run_intermittents_commenter" ]; then
