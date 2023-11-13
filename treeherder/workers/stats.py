@@ -28,7 +28,7 @@ def publish_stats():
     # Round the date to the current date range
     # This should not overlapse as the beat is set as a relative cron based delay in minutes
     end_date = end_date - timedelta(
-        minutes=end_date.minute - end_date.minute % settings.CELERY_STATS_PUBLICATION_DELAY,
+        minutes=end_date.minute % settings.CELERY_STATS_PUBLICATION_DELAY,
         seconds=end_date.second,
         microseconds=end_date.microsecond,
     )
