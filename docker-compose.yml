@@ -163,6 +163,8 @@ services:
     image: statsd/statsd:v0.10.2
     volumes:
       - ./docker/statsd_config.js:/usr/src/app/config.js
+    ports:
+      - '8125:8125'
 
 volumes:
   # TODO: Experiment with using tmpfs when testing, to speed up database-using Python tests.
