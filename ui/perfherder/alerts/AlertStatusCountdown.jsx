@@ -17,7 +17,6 @@ import { countdownClasses, weekdays } from '../perf-helpers/constants';
 export default class AlertStatusCountdown extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
 
     this.showCountdownToTriageIcon = true;
   }
