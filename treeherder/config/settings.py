@@ -507,6 +507,7 @@ GITHUB_TOKEN = env("GITHUB_TOKEN", default=None)
 # Statsd server configuration
 STATSD_HOST = env('STATSD_HOST', default='statsd')
 STATSD_PORT = env('STATSD_PORT', default=8124)
+STATSD_PREFIX = env('STATSD_PREFIX', default='treeherder')
 
 # For dockerflow
 BASE_DIR = SRC_DIR
