@@ -14,7 +14,7 @@ logger.setLevel(logging.INFO)
 
 
 def get_stats_client():
-    return statsd.StatsClient('statsd', 8125)
+    return statsd.StatsClient(settings.STATSD_HOST, settings.STATSD_PORT)
 
 
 @shared_task(name='publish-stats')

@@ -504,5 +504,9 @@ NOTIFY_ACCESS_TOKEN = env('NOTIFY_ACCESS_TOKEN', default=None)
 # https://github.com/settings/tokens
 GITHUB_TOKEN = env("GITHUB_TOKEN", default=None)
 
+# Statsd server configuration
+STATSD_HOST = env('STATSD_HOST', default='statsd')
+STATSD_PORT = env('STATSD_PORT', default=8124)
+
 # For dockerflow
 BASE_DIR = SRC_DIR
