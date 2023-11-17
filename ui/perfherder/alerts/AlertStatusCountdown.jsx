@@ -85,14 +85,15 @@ export default class AlertStatusCountdown extends React.Component {
     const countdown = this.getDueDateCountdownsStatus();
     let countdownClass;
 
-    if (!alertIsLinkedToBug(alertSummary)) {
+    if (!alertIsTriaged(alertSummary)) {
       countdownClass = this.getCountdownClass(countdown.triage);
-    } else if (alertIsLinkedToBug(alertSummary)) {
-      countdownClass = countdownClasses.ready;
-    } else {
-      // If bug_number is not populated then the alert was triaged,
-      // show bug countdown
+    } else if (
+      alertIsTriaged(alertSummary) &&
+      !alertIsLinkedToBug(alertSummary)
+    ) {
       countdownClass = this.getCountdownClass(countdown.bug);
+    } else {
+      countdownClass = countdownClasses.ready;
     }
 
     const showCountdown =
