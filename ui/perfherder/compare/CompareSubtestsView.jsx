@@ -96,8 +96,8 @@ class CompareSubtestsView extends React.PureComponent {
       });
     }
     const signatureHash = !oldResults
-      ? newResults.signature_hash
-      : oldResults.signature_hash;
+      ? newResults.signature_id
+      : oldResults.signature_id;
 
     links = createGraphsLinks(
       this.props.validated,
@@ -139,9 +139,13 @@ class CompareSubtestsView extends React.PureComponent {
       cmap.name = testName;
       if (oldResults !== undefined) {
         cmap.suite = oldResults.suite;
+        cmap.baseColumnMeasurementUnit = oldResults.measurement_unit;
+        cmap.app = oldResults.application;
       }
       if (newResults !== undefined) {
         cmap.suite = newResults.suite;
+        cmap.newColumnMeasurementUnit = newResults.measurement_unit;
+        cmap.app = newResults.application;
       }
 
       if (
