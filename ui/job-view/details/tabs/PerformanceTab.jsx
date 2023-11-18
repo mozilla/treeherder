@@ -24,6 +24,17 @@ import { geckoProfileTaskName, sxsTaskName } from '../../../helpers/constants';
 
 import SideBySide from './SideBySide';
 import PerfData from './PerfData';
+
+const PROFILE_ZIP_RELEVANCE = 4;
+const PROFILE_RESOURCE_RELEVANCE = 3;
+const PROFILE_BUILD_RELEVANCE = 2;
+const PROFILE_JSON_RELEVANCE = 1;
+const NO_PROFILE_RELEVANCE = 0;
+const NON_PERFTEST_RELEVANCES = [
+  PROFILE_RESOURCE_RELEVANCE,
+  PROFILE_BUILD_RELEVANCE,
+];
+
 /**
  * The performance tab shows performance-oriented information about a test run.
  * It helps users interact with the Firefox Profiler, and summarizes test
@@ -74,32 +85,78 @@ class PerformanceTab extends React.PureComponent {
     );
   };
 
-  maybeGetFirefoxProfilerLink() {
-    // Look for a profiler artifact.
-    const jobDetail = this.props.jobDetails.find(
-      ({ url, value }) =>
-        url &&
-        value.startsWith('profile_') &&
-        (value.endsWith('.zip') || value.endsWith('.json')),
-    );
-
-    if (jobDetail) {
-      return (
-        <a
-          title={jobDetail.value}
-          href={getPerfAnalysisUrl(jobDetail.url)}
-          className="btn btn-darker-secondary btn-sm"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <FontAwesomeIcon icon={faExternalLinkAlt} className="mr-2" />
-          Open in Firefox Profiler
-        </a>
-      );
+  getProfileRelevance = (jobDetail) => {
+    const { url, value } = jobDetail;
+    if (!url) {
+      return NO_PROFILE_RELEVANCE;
     }
 
-    return null;
-  }
+    if (!value.startsWith('profile_')) {
+      return NO_PROFILE_RELEVANCE;
+    }
+
+    if (value.endsWith('.zip')) {
+      return PROFILE_ZIP_RELEVANCE;
+    }
+
+    if (!value.endsWith('.json')) {
+      return NO_PROFILE_RELEVANCE;
+    }
+
+    if (value === 'profile_resource-usage.json') {
+      return PROFILE_RESOURCE_RELEVANCE;
+    }
+
+    if (value === 'profile_build_resources.json') {
+      return PROFILE_BUILD_RELEVANCE;
+    }
+
+    return PROFILE_JSON_RELEVANCE;
+  };
+
+  // Returns profile-related job details, ordered by the relevance.
+  getProfiles = (perfTestOnly) => {
+    const profiles = [];
+    for (const jobDetail of this.props.jobDetails) {
+      const relevance = this.getProfileRelevance(jobDetail);
+      if (relevance === NO_PROFILE_RELEVANCE) {
+        continue;
+      }
+      if (perfTestOnly) {
+        if (NON_PERFTEST_RELEVANCES.includes(relevance)) {
+          continue;
+        }
+      }
+
+      profiles.push({ jobDetail, relevance });
+    }
+    return profiles.sort((a, b) => b.relevance - a.relevance);
+  };
+
+  maybeGetFirefoxProfilerLink = (perfTestOnly) => {
+    const profiles = this.getProfiles(perfTestOnly);
+
+    if (profiles.length === 0) {
+      return null;
+    }
+
+    // Use the most relevant profile.
+    const { jobDetail } = profiles[0];
+
+    return (
+      <a
+        title={jobDetail.value}
+        href={getPerfAnalysisUrl(jobDetail.url)}
+        className="btn btn-darker-secondary btn-sm"
+        target="_blank"
+        rel="noopener noreferrer"
+        data-testid="open-profiler"
+      >
+        <FontAwesomeIcon icon={faExternalLinkAlt} className="mr-2" />
+        Open in Firefox Profiler
+      </a>
+    );
+  };
 
   render() {
     const {
@@ -110,7 +167,12 @@ class PerformanceTab extends React.PureComponent {
       perfJobDetail,
     } = this.props;
     const { triggeredGeckoProfiles, showSideBySide } = this.state;
-    const profilerLink = this.maybeGetFirefoxProfilerLink();
+
+    // Just to be safe, use the same isPerfTest check the other
+    // "Create Gecko Profile" button uses in the action menu.
+    const perfTest = isPerfTest(selectedJobFull);
+
+    const profilerLink = this.maybeGetFirefoxProfilerLink(perfTest);
 
     return (
       <div
@@ -124,30 +186,27 @@ class PerformanceTab extends React.PureComponent {
             // the primary action of the user here.
             profilerLink
           }
-          {
-            // Just to be safe, use the same isPerfTest check the other
-            // "Create Gecko Profile" button uses in the action menu.
-            isPerfTest(selectedJobFull) ? (
-              <Button
-                className={`btn ${
-                  // Only make this primary if there is no profiler link.
-                  profilerLink
-                    ? 'btn-outline-darker-secondary'
-                    : 'btn-darker-secondary'
-                } btn-sm`}
-                onClick={this.createGeckoProfile}
-                title={
-                  'Trigger another run of this test with the profiler enabled. The ' +
-                  'profile can then be viewed in the Firefox Profiler.'
-                }
-              >
-                <FontAwesomeIcon icon={faRedo} className="mr-2" />
-                {profilerLink
-                  ? 'Re-trigger performance profile'
-                  : 'Generate performance profile'}
-              </Button>
-            ) : null
-          }
+          {perfTest ? (
+            <Button
+              className={`btn ${
+                // Only make this primary if there is no profiler link.
+                profilerLink
+                  ? 'btn-outline-darker-secondary'
+                  : 'btn-darker-secondary'
+              } btn-sm`}
+              onClick={this.createGeckoProfile}
+              title={
+                'Trigger another run of this test with the profiler enabled. The ' +
+                'profile can then be viewed in the Firefox Profiler.'
+              }
+              data-testid="generate-profile"
+            >
+              <FontAwesomeIcon icon={faRedo} className="mr-2" />
+              {profilerLink
+                ? 'Re-trigger performance profile'
+                : 'Generate performance profile'}
+            </Button>
+          ) : null}
           {selectedJobFull.hasSideBySide && (
             <a
               title="Open side-by-side job"
@@ -166,18 +225,16 @@ class PerformanceTab extends React.PureComponent {
               Open side-by-side job
             </a>
           )}
-          {isPerfTest(selectedJobFull) &&
-            !showSideBySide &&
-            !selectedJobFull.hasSideBySide && (
-              <Button
-                className="btn btn-darker-secondary btn-sm"
-                onClick={this.createSideBySide}
-                title="Generate side-by-side"
-              >
-                <FontAwesomeIcon icon={faFilm} className="mr-2" />
-                Generate side-by-side
-              </Button>
-            )}
+          {perfTest && !showSideBySide && !selectedJobFull.hasSideBySide && (
+            <Button
+              className="btn btn-darker-secondary btn-sm"
+              onClick={this.createSideBySide}
+              title="Generate side-by-side"
+            >
+              <FontAwesomeIcon icon={faFilm} className="mr-2" />
+              Generate side-by-side
+            </Button>
+          )}
           <a
             href={getCompareChooserUrl({
               newProject: repoName,
