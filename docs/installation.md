@@ -30,6 +30,7 @@ To get started:
 
 - Install [Node.js] and [Yarn] (see [package.json] for known compatible versions, listed under `engines`).
 - Run `yarn install` to install all dependencies.
+- Run `yarn build` to build necessary files.
 
 ### Running the standalone development server
 
