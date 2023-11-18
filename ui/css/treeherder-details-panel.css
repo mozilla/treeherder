@@ -200,6 +200,13 @@ div#details-panel-content .actionbar-nav > li > button:focus {
 #summary-panel {
   width: 310px;
   min-width: 310px;
+  display: flex;
+  flex-direction: column;
+}
+
+#summary-panel-content {
+  flex: 1;
+  overflow: auto;
 }
 
 /*
