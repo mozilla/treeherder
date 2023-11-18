@@ -23,6 +23,7 @@
   vertical-align: 0;
   line-height: 1.32;
   cursor: pointer;
+  font-size: 12px;
 }
 
 .group-btn::before {
