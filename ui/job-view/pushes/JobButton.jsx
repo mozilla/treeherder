@@ -39,13 +39,19 @@ export default class JobButtonComponent extends React.Component {
    * shallow compare would allow.
    */
   shouldComponentUpdate(nextProps, nextState) {
-    const { visible, resultStatus, failureClassificationId } = this.props;
+    const {
+      visible,
+      resultStatus,
+      failureClassificationId,
+      intermittent,
+    } = this.props;
     const { isSelected, isRunnableSelected } = this.state;
 
     return (
       visible !== nextProps.visible ||
       resultStatus !== nextProps.resultStatus ||
       failureClassificationId !== nextProps.failureClassificationId ||
+      intermittent !== nextProps.intermittent ||
       isSelected !== nextState.isSelected ||
       isRunnableSelected !== nextState.isRunnableSelected
     );
