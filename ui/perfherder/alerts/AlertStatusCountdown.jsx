@@ -5,14 +5,15 @@ import { faClock } from '@fortawesome/free-regular-svg-icons';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 
 import SimpleTooltip from '../../shared/SimpleTooltip';
+import { getStatus } from '../perf-helpers/helpers';
+import { countdownClasses } from '../perf-helpers/constants';
 import {
-  getStatus,
-  getTimeDifference,
-  getCountdownText,
-  alertIsTriaged,
   alertIsLinkedToBug,
-} from '../perf-helpers/helpers';
-import { countdownClasses, weekdays } from '../perf-helpers/constants';
+  alertIsTriaged,
+  getCountdownText,
+  getTimeDifference,
+  isWeekend,
+} from '../perf-helpers/alertCountdownHelper';
 
 export default class AlertStatusCountdown extends React.Component {
   constructor(props) {
@@ -23,11 +24,14 @@ export default class AlertStatusCountdown extends React.Component {
 
   getDueDateCountdownsStatus() {
     const { alertSummary } = this.props;
+    let {
+      triage_due_date: triageDueDate,
+      bug_due_date: bugDueDate,
+    } = alertSummary;
 
     const currentDate = new Date(Date.now());
-    const currentDay = currentDate.getDay();
-    const triageDueDate = new Date(alertSummary.triage_due_date);
-    const bugDueDate = new Date(alertSummary.bug_due_date);
+    triageDueDate = new Date(triageDueDate);
+    bugDueDate = new Date(bugDueDate);
 
     const timeToTriageDifference = getTimeDifference(
       currentDate,
@@ -40,8 +44,7 @@ export default class AlertStatusCountdown extends React.Component {
       bug: '',
     };
 
-    const accessedDuringWeekend =
-      currentDay === weekdays.saturday || currentDay === weekdays.sunday;
+    const accessedDuringWeekend = isWeekend();
     if (accessedDuringWeekend) {
       this.showCountdownToTriageIcon = false;
       return countdowns;
@@ -117,7 +120,7 @@ export default class AlertStatusCountdown extends React.Component {
                   }
                   tooltipText={
                     <div data-testid="due-date-status">
-                      {alertSummary.bug_number && <h5>Ready</h5>}
+                      {alertSummary.bug_number && <h5>Ready to link to bug</h5>}
                       {!alertSummary.bug_number &&
                       alertSummary.first_triaged ? (
                         <>

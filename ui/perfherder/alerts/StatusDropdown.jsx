@@ -34,6 +34,7 @@ import FileBugModal from './FileBugModal';
 import NotesModal from './NotesModal';
 import TagsModal from './TagsModal';
 import AlertStatusCountdown from './AlertStatusCountdown';
+import { isWeekend } from '../perf-helpers/alertCountdownHelper';
 
 export default class StatusDropdown extends React.Component {
   constructor(props) {
@@ -48,16 +49,9 @@ export default class StatusDropdown extends React.Component {
         this.props.alertSummary,
         this.props.frameworks,
       ),
-      isWeekend: this.isWeekend(),
+      isWeekend: isWeekend(),
     };
   }
-
-  isWeekend = () => {
-    const currentDate = new Date(Date.now());
-    const currentDay = currentDate.getDay();
-
-    return currentDay === weekdays.saturday || currentDay === weekdays.sunday;
-  };
 
   getCulpritDetails = async (culpritId) => {
     const bugDetails = await getData(bugzillaBugsApi(`bug/${culpritId}`));

@@ -526,7 +526,7 @@ test('Alert is created on Wednesday, Bug countdown shows Overdue', async () => {
   expect(dueDateStatusText).toBe('Bug: Overdue');
 });
 
-test('Alert is ready, countdown shows Ready', async () => {
+test('Alert is ready, countdown shows Ready to link to bug', async () => {
   const alert = testAlertSummaries[0];
 
   alert.first_triaged = '2022-02-09T11:41:31.419156';
@@ -542,7 +542,7 @@ test('Alert is ready, countdown shows Ready', async () => {
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
   const dueDateStatusText = dueDateStatus.querySelector('h5').innerHTML;
-  expect(dueDateStatusText).toBe('Ready');
+  expect(dueDateStatusText).toBe('Ready to link to bug');
 });
 
 test('Triage to countdown shows nothing when the website is accessed during the weekend', async () => {
