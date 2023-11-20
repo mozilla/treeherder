@@ -13,7 +13,7 @@ export function AuthorInitials(props) {
   const str = props.author || '';
   const words = str.split(' ');
   const firstLetters = words
-    .map((word) => word.replace(/[^A-Z]/gi, '')[0])
+    .map((word) => word.replace(/\P{General_Category=Letter}/gu, '')[0])
     .filter((firstLetter) => typeof firstLetter !== 'undefined');
   let initials = '';
 
