@@ -25,7 +25,6 @@ import {
   phDefaultTimeRangeValue,
   unknownFrameworkMessage,
   permaLinkPrefix,
-  weekdays,
 } from './constants';
 
 export const formatNumber = (input) =>

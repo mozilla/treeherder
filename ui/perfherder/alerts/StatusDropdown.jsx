@@ -25,16 +25,16 @@ import {
   createQueryParams,
   bugzillaBugsApi,
 } from '../../helpers/url';
-import { summaryStatusMap, weekdays } from '../perf-helpers/constants';
+import { summaryStatusMap } from '../perf-helpers/constants';
 import DropdownMenuItems from '../../shared/DropdownMenuItems';
 import BrowsertimeAlertsExtraData from '../../models/browsertimeAlertsExtraData';
+import { isWeekend } from '../perf-helpers/alertCountdownHelper';
 
 import AlertModal from './AlertModal';
 import FileBugModal from './FileBugModal';
 import NotesModal from './NotesModal';
 import TagsModal from './TagsModal';
 import AlertStatusCountdown from './AlertStatusCountdown';
-import { isWeekend } from '../perf-helpers/alertCountdownHelper';
 
 export default class StatusDropdown extends React.Component {
   constructor(props) {

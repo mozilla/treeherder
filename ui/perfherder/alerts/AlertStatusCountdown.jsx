@@ -44,8 +44,7 @@ export default class AlertStatusCountdown extends React.Component {
       bug: '',
     };
 
-    const accessedDuringWeekend = isWeekend();
-    if (accessedDuringWeekend) {
+    if (isWeekend()) {
       this.showCountdownToTriageIcon = false;
       return countdowns;
     }
