@@ -44,3 +44,6 @@ moz-measure-noise==2.60.1
 
 # Used in the intermittents commenter
 jinja2==3.1.2
+
+# Client to publish runtime statistics to statsd
+statsd==4.0.1

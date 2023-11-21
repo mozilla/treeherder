@@ -10,6 +10,7 @@ from kombu import Exchange, Queue
 
 from treeherder.config.utils import connection_should_use_tls
 from treeherder.middleware import add_headers_function
+from celery.schedules import crontab
 
 # TODO: Switch to pathlib once using Python 3.
 SRC_DIR = dirname(dirname(dirname(abspath(__file__))))
@@ -342,6 +343,7 @@ CELERY_TASK_QUEUES = [
         routing_key='store_pulse_tasks_classification',
     ),
     Queue('store_pulse_pushes', Exchange('default'), routing_key='store_pulse_pushes'),
+    Queue('statsd', Exchange('default'), routing_key='statsd'),
 ]
 
 # Force all queues to be explicitly listed in `CELERY_TASK_QUEUES` to help prevent typos
@@ -378,6 +380,12 @@ CELERY_TASK_ACKS_LATE = True
 CELERY_TASK_SOFT_TIME_LIMIT = 15 * 60
 CELERY_TASK_TIME_LIMIT = CELERY_TASK_SOFT_TIME_LIMIT + 30
 
+# Periodically publish runtime statistics on statsd (in minutes)
+CELERY_STATS_PUBLICATION_DELAY = 5
+assert (
+    0 < CELERY_STATS_PUBLICATION_DELAY < 60 and 60 % 10 == 0
+), "Celery task must be a valid cron delay in minutes"
+
 CELERY_BEAT_SCHEDULE = {
     # this is just a failsafe in case the Pulse ingestion misses something
     'fetch-push-logs-every-5-minutes': {
@@ -385,6 +393,12 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': timedelta(minutes=5),
         'relative': True,
         'options': {"queue": "pushlog"},
+    },
+    'publish_stats': {
+        'task': 'publish-stats',
+        'schedule': crontab(minute=f'*/{CELERY_STATS_PUBLICATION_DELAY}'),
+        'relative': True,
+        'options': {'queue': 'statsd'},
     },
 }
 
@@ -489,6 +503,11 @@ NOTIFY_ACCESS_TOKEN = env('NOTIFY_ACCESS_TOKEN', default=None)
 # This is only used for removing the rate limiting. You can create your own here:
 # https://github.com/settings/tokens
 GITHUB_TOKEN = env("GITHUB_TOKEN", default=None)
+
+# Statsd server configuration
+STATSD_HOST = env('STATSD_HOST', default='statsd')
+STATSD_PORT = env('STATSD_PORT', default=8124)
+STATSD_PREFIX = env('STATSD_PREFIX', default='treeherder')
 
 # For dockerflow
 BASE_DIR = SRC_DIR
