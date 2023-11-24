@@ -129,9 +129,10 @@ def _test_should_gather_replicates_based_on(
     mozilla-central.
     """
     if (
-        replicates and len(replicates) > 0 and
-        suite_name == "speedometer3" and
-        repository.name in ("mozilla-central",)
+        replicates
+        and len(replicates) > 0
+        and suite_name == "speedometer3"
+        and repository.name in ("mozilla-central",)
     ):
         return True
     return replicates and len(replicates) > 0 and repository.name in ("try",)
