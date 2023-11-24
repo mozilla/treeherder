@@ -119,14 +119,21 @@ def _test_should_alert_based_on(
 
 
 def _test_should_gather_replicates_based_on(
-    repository: Repository, replicates: Optional[List] = None
+    repository: Repository, suite_name: str, replicates: Optional[List] = None
 ) -> bool:
     """
     Determine if we should gather/ingest replicates. Currently, it's
     only available on the try branch. Some tests also don't have replicates
     available as it's not a required field in our performance artifact
-    schema.
+    schema. Replicates are also gathered for speedometer3 tests from
+    mozilla-central.
     """
+    if (
+        replicates and len(replicates) > 0 and
+        suite_name == "speedometer3" and
+        repository.name in ("mozilla-central",)
+    ):
+        return True
     return replicates and len(replicates) > 0 and repository.name in ("try",)
 
 
@@ -286,7 +293,7 @@ def _load_perf_datum(job: Job, perf_datum: dict):
             )
 
             if _test_should_gather_replicates_based_on(
-                job.repository, subtest.get("replicates", [])
+                job.repository, suite["name"], subtest.get("replicates", [])
             ):
                 try:
                     # Add the replicates to the PerformanceDatumReplicate table, and
