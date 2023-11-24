@@ -111,7 +111,9 @@ export default class AlertStatusCountdown extends React.Component {
                   text={
                     <FontAwesomeIcon
                       icon={
-                        countdownClass === 'due-date-ready' ? faCheck : faClock
+                        countdownClass === countdownClasses.ready
+                          ? faCheck
+                          : faClock
                       }
                       className={countdownClass}
                       data-testid="triage-clock-icon"
@@ -119,7 +121,9 @@ export default class AlertStatusCountdown extends React.Component {
                   }
                   tooltipText={
                     <div data-testid="due-date-status">
-                      {alertSummary.bug_number && <h5>Ready to link to bug</h5>}
+                      {alertSummary.bug_number && (
+                        <h5>Ready for acknowledge</h5>
+                      )}
                       {!alertSummary.bug_number &&
                       alertSummary.first_triaged ? (
                         <>

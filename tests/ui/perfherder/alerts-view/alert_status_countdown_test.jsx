@@ -23,7 +23,8 @@ const testStatusDropdown = (summaryTags, alertSummary) => {
 
 afterEach(cleanup);
 
-// Alert created on Monday
+// We are counting the triage due date and bug due date starting exactly from the day and hour of the alert.
+// E.g. Alert created on Monday 3pm will have 5 full working days on the next Monday at 3pm for the bug due date.
 test('Alert is created on Monday, Triage countdown shows 3 working days', async () => {
   const alert = testAlertSummaries[0];
 
@@ -174,7 +175,7 @@ test('Alert is created on Monday, Bug countdown shows 3 working days', async () 
   alert.first_triaged = '2022-02-07T11:41:31.419156';
   alert.bug_due_date = '2022-02-14T11:41:31.419156';
 
-  // current day is set to Tuesday
+  // current day is set to Wednesday
   Date.now = jest.fn(() => Date.parse('2022-02-09T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
@@ -195,7 +196,7 @@ test('Alert is created on Monday, Bug countdown shows 2 working days', async () 
   alert.first_triaged = '2022-02-07T11:41:31.419156';
   alert.bug_due_date = '2022-02-14T11:41:31.419156';
 
-  // current day is set to Wednesday
+  // current day is set to Thursday
   Date.now = jest.fn(() => Date.parse('2022-02-10T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
@@ -216,7 +217,7 @@ test('Alert is created on Monday, Bug countdown shows 1 working days', async () 
   alert.first_triaged = '2022-02-07T11:41:31.419156';
   alert.bug_due_date = '2022-02-14T11:41:31.419156';
 
-  // current day is set to Wednesday
+  // current day is set to Friday
   Date.now = jest.fn(() => Date.parse('2022-02-11T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
@@ -237,7 +238,7 @@ test('Alert is created on Monday, Bug countdown shows hours left', async () => {
   alert.first_triaged = '2022-02-07T11:41:31.419156';
   alert.bug_due_date = '2022-02-14T10:41:31.419156';
 
-  // current day is set to Wednesday
+  // current day is set to Friday
   Date.now = jest.fn(() => Date.parse('2022-02-11T12:40:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
@@ -258,7 +259,7 @@ test('Alert is created on Monday, Bug countdown shows Overdue', async () => {
   alert.first_triaged = '2022-02-07T11:41:31.419156';
   alert.bug_due_date = '2022-02-14T11:41:31.419156';
 
-  // current day is set to Friday
+  // current day is set to Tuesday
   Date.now = jest.fn(() => Date.parse('2022-02-15T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
@@ -387,7 +388,7 @@ test('Alert is created on Wednesday, Bug countdown shows 5 working days', async 
   alert.first_triaged = '2022-02-09T11:41:31.419156';
   alert.bug_due_date = '2022-02-16T11:41:31.419156';
 
-  // current day is set to Monday
+  // current day is set to Wednesday
   Date.now = jest.fn(() => Date.parse('2022-02-09T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
@@ -408,7 +409,7 @@ test('Alert is created on Wednesday, Bug countdown shows 4 working days', async 
   alert.first_triaged = '2022-02-09T11:41:31.419156';
   alert.bug_due_date = '2022-02-16T11:41:31.419156';
 
-  // current day is set to Tuesday
+  // current day is set to Thursday
   Date.now = jest.fn(() => Date.parse('2022-02-10T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
@@ -429,7 +430,7 @@ test('Alert is created on Wednesday, Bug countdown shows 3 working days', async 
   alert.first_triaged = '2022-02-09T11:41:31.419156';
   alert.bug_due_date = '2022-02-16T11:41:31.419156';
 
-  // current day is set to Tuesday
+  // current day is set to Friday
   Date.now = jest.fn(() => Date.parse('2022-02-11T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
@@ -450,7 +451,7 @@ test('Alert is created on Wednesday, Bug countdown shows 2 working days', async 
   alert.first_triaged = '2022-02-09T11:41:31.419156';
   alert.bug_due_date = '2022-02-16T11:41:31.419156';
 
-  // current day is set to Wednesday
+  // current day is set to Monday
   Date.now = jest.fn(() => Date.parse('2022-02-14T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
@@ -471,7 +472,7 @@ test('Alert is created on Wednesday, Bug countdown shows 1 working days', async 
   alert.first_triaged = '2022-02-09T11:41:31.419156';
   alert.bug_due_date = '2022-02-16T11:41:31.419156';
 
-  // current day is set to Wednesday
+  // current day is set to Tuesday
   Date.now = jest.fn(() => Date.parse('2022-02-15T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
@@ -513,7 +514,7 @@ test('Alert is created on Wednesday, Bug countdown shows Overdue', async () => {
   alert.first_triaged = '2022-02-09T11:41:31.419156';
   alert.bug_due_date = '2022-02-16T11:41:31.419156';
 
-  // current day is set to Friday
+  // current day is set to Thursday
   Date.now = jest.fn(() => Date.parse('2022-02-17T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
@@ -526,7 +527,7 @@ test('Alert is created on Wednesday, Bug countdown shows Overdue', async () => {
   expect(dueDateStatusText).toBe('Bug: Overdue');
 });
 
-test('Alert is ready, countdown shows Ready to link to bug', async () => {
+test('Alert is ready, countdown shows Ready for acknowledge', async () => {
   const alert = testAlertSummaries[0];
 
   alert.first_triaged = '2022-02-09T11:41:31.419156';
@@ -542,7 +543,7 @@ test('Alert is ready, countdown shows Ready to link to bug', async () => {
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
   const dueDateStatusText = dueDateStatus.querySelector('h5').innerHTML;
-  expect(dueDateStatusText).toBe('Ready to link to bug');
+  expect(dueDateStatusText).toBe('Ready for acknowledge');
 });
 
 test('Triage to countdown shows nothing when the website is accessed during the weekend', async () => {
