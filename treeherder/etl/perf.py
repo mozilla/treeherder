@@ -128,14 +128,11 @@ def _test_should_gather_replicates_based_on(
     schema. Replicates are also gathered for speedometer3 tests from
     mozilla-central.
     """
-    if (
-        replicates
-        and len(replicates) > 0
-        and suite_name == "speedometer3"
-        and repository.name in ("mozilla-central",)
-    ):
-        return True
-    return replicates and len(replicates) > 0 and repository.name in ("try",)
+    if replicates and len(replicates) > 0:
+        return repository.name in ("try",) or (
+            repository.name in ("mozilla-central",) and suite_name == "speedometer3"
+        )
+    return False
 
 
 def _load_perf_datum(job: Job, perf_datum: dict):
