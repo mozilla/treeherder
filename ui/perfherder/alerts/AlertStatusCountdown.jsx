@@ -86,16 +86,19 @@ export default class AlertStatusCountdown extends React.Component {
     const alertStatus = getStatus(alertSummary.status);
     const countdown = this.getDueDateCountdownsStatus();
     let countdownClass;
+    let showTriageCountdown;
+    let showBugCountdown;
+    let showReady;
 
     if (!alertIsTriaged(alertSummary)) {
       countdownClass = this.getCountdownClass(countdown.triage);
-    } else if (
-      alertIsTriaged(alertSummary) &&
-      !alertIsLinkedToBug(alertSummary)
-    ) {
+      showTriageCountdown = true;
+    } else if (!alertIsLinkedToBug(alertSummary)) {
       countdownClass = this.getCountdownClass(countdown.bug);
+      showBugCountdown = true;
     } else {
       countdownClass = countdownClasses.ready;
+      showReady = true;
     }
 
     const showCountdown =
@@ -110,32 +113,26 @@ export default class AlertStatusCountdown extends React.Component {
                 <SimpleTooltip
                   text={
                     <FontAwesomeIcon
-                      icon={
-                        countdownClass === countdownClasses.ready
-                          ? faCheck
-                          : faClock
-                      }
+                      icon={showReady ? faCheck : faClock}
                       className={countdownClass}
                       data-testid="triage-clock-icon"
                     />
                   }
                   tooltipText={
                     <div data-testid="due-date-status">
-                      {alertSummary.bug_number && (
-                        <h5>Ready for acknowledge</h5>
-                      )}
-                      {!alertSummary.bug_number &&
-                      alertSummary.first_triaged ? (
-                        <>
-                          <h5>Due date:</h5>
-                          <p>Bug: {countdown.bug}</p>
-                        </>
-                      ) : (
+                      {showTriageCountdown && (
                         <>
                           <h5>Due date:</h5>
                           <p>Triage: {countdown.triage}</p>
                         </>
                       )}
+                      {showBugCountdown && (
+                        <>
+                          <h5>Due date:</h5>
+                          <p>Bug: {countdown.bug}</p>
+                        </>
+                      )}
+                      {showReady && <h5>Ready for acknowledge</h5>}
                     </div>
                   }
                 />
