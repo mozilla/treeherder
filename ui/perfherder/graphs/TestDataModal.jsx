@@ -383,12 +383,14 @@ export default class TestDataModal extends React.Component {
       getTestData,
       timeRange: parentTimeRange,
       updateTestsAndTimeRange,
+      replicates,
     } = this.props;
 
     const displayedTestParams = selectedTests.map((series) => ({
       repository_name: series.projectName,
       signature_id: parseInt(series.id, 10),
       framework_id: parseInt(series.frameworkId, 10),
+      replicates,
     }));
 
     this.setState({
