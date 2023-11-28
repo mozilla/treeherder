@@ -410,5 +410,24 @@ describe('Mocked API calls', () => {
     expect(updateStateParams).toHaveBeenCalledTimes(1);
   });
 
+  test("'Use replicates' button can be turned on", async () => {
+    const updateStateParams = jest.fn();
+    const { getByText } = graphsViewControls(
+      graphData,
+      false,
+      updateStateParams,
+    );
+
+    const useReplicatesButton = await waitFor(() =>
+      getByText('Use replicates'),
+    );
+
+    expect(useReplicatesButton.classList).not.toContain('active');
+
+    fireEvent.click(useReplicatesButton);
+
+    expect(updateStateParams).toHaveBeenCalledTimes(1);
+  });
+
   // Add here high level GraphsView tests...
 });
