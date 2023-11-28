@@ -132,6 +132,7 @@ def _test_should_gather_replicates_based_on(
         return repository.name in ("try",) or (
             repository.name in ("mozilla-central",) and suite_name == "speedometer3"
         )
+
     return False
 
 
