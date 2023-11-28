@@ -186,7 +186,7 @@ class GraphsView extends React.Component {
   };
 
   getTestData = async (newDisplayedTests = [], init = false) => {
-    const { testData, replicates } = this.state;
+    const { testData } = this.state;
     const tests = newDisplayedTests.length ? newDisplayedTests : testData;
     this.setState({ loading: true });
 
