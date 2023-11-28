@@ -811,6 +811,7 @@ export const createGraphData = (
   colors,
   symbols,
   commonAlerts,
+  replicates,
 ) =>
   seriesData.map((series) => {
     const color = colors.pop();
@@ -858,6 +859,7 @@ export const createGraphData = (
       lowerIsBetter: series.lower_is_better,
       resultSetData: series.data.map((dataPoint) => dataPoint.push_id),
       parentSignature: series.parent_signature,
+      replicates,
     };
   });
 

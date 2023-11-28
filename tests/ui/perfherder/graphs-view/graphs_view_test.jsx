@@ -74,6 +74,7 @@ const mockShowModal = jest
 const graphsViewControls = (
   data = testData,
   hasNoData = true,
+  replicates = false,
   handleUpdateStateParams,
 ) => {
   const updateStateParams = () => {};
@@ -377,6 +378,7 @@ describe('Mocked API calls', () => {
     const { getByText } = graphsViewControls(
       graphData,
       false,
+      false,
       updateStateParams,
     );
 
@@ -396,6 +398,7 @@ describe('Mocked API calls', () => {
     const { getByText } = graphsViewControls(
       graphData,
       false,
+      false,
       updateStateParams,
     );
 
@@ -414,6 +417,7 @@ describe('Mocked API calls', () => {
     const updateStateParams = jest.fn();
     const { getByText } = graphsViewControls(
       graphData,
+      false,
       false,
       updateStateParams,
     );

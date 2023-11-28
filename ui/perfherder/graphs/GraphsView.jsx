@@ -186,7 +186,7 @@ class GraphsView extends React.Component {
   };
 
   getTestData = async (newDisplayedTests = [], init = false) => {
-    const { testData } = this.state;
+    const { testData, replicates } = this.state;
     const tests = newDisplayedTests.length ? newDisplayedTests : testData;
     this.setState({ loading: true });
 
@@ -225,7 +225,7 @@ class GraphsView extends React.Component {
   };
 
   createGraphObject = async (seriesData) => {
-    const { colors, symbols, timeRange } = this.state;
+    const { colors, symbols, timeRange, replicates } = this.state;
     const alertSummaries = await Promise.all(
       seriesData.map((series) =>
         this.getAlertSummaries(series.signature_id, series.repository_id),
@@ -245,6 +245,7 @@ class GraphsView extends React.Component {
       newColors,
       newSymbols,
       commonAlerts,
+      replicates,
     );
 
     this.setState({ colors: newColors, symbols: newSymbols });
