@@ -105,6 +105,7 @@ const graphsViewControls = (
       }}
       user={{ isStaff: true }}
       updateData={() => {}}
+      replicates={replicates}
     />,
   );
 };
@@ -197,6 +198,26 @@ test("Selecting a test with similar unit in the Test Data Modal doesn't give war
 
 test('Using select query param displays tooltip for correct datapoint', async () => {
   const { getByTestId, getByText } = graphsViewControls(graphData, false);
+
+  const graphContainer = await waitFor(() => getByTestId('graphContainer'));
+
+  expect(graphContainer).toBeInTheDocument();
+
+  const graphTooltip = await waitFor(() => getByTestId('graphTooltip'));
+  const expectedRevision = '3afb892abb74c6d281f3e66431408cbb2e16b8c4';
+  const revision = await waitFor(() =>
+    getByText(expectedRevision.slice(0, 13)),
+  );
+  const repoName = await waitFor(() => getByTestId('repoName'));
+  const platform = await waitFor(() => getByTestId('platform'));
+  expect(graphTooltip).toBeInTheDocument();
+  expect(revision).toBeInTheDocument();
+  expect(repoName).toHaveTextContent(testData[0].repository_name);
+  expect(platform).toHaveTextContent(testData[0].platform);
+});
+
+test('Using select query param displays tooltip for correct datapoint with replicates', async () => {
+  const { getByTestId, getByText } = graphsViewControls(graphData, false, true);
 
   const graphContainer = await waitFor(() => getByTestId('graphContainer'));
 
@@ -427,6 +448,26 @@ describe('Mocked API calls', () => {
     );
 
     expect(useReplicatesButton.classList).not.toContain('active');
+
+    fireEvent.click(useReplicatesButton);
+
+    expect(updateStateParams).toHaveBeenCalledTimes(1);
+  });
+
+  test("'Use replicates' button can be turned off", async () => {
+    const updateStateParams = jest.fn();
+    const { getByText } = graphsViewControls(
+      graphData,
+      false,
+      true,
+      updateStateParams,
+    );
+
+    const useReplicatesButton = await waitFor(() =>
+      getByText('Use replicates'),
+    );
+
+    expect(useReplicatesButton.classList).toContain('active');
 
     fireEvent.click(useReplicatesButton);
 
