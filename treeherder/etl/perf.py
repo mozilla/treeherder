@@ -176,9 +176,11 @@ def _load_perf_datum(job: Job, perf_datum: dict):
             suite_extra_options = _order_and_concat(suite['extraOptions'])
         summary_signature_hash = None
 
-        # if we have a summary value, create or get its signature by all its subtest
-        # properties.
-        if suite.get('value') is not None:
+        # If we have a summary value, create or get its signature by all its subtest
+        # properties. For benchmarks, we need to get a summary signature hash so that
+        # the series doesn't reset when we start moving away from the summary value,
+        # and start including that value as it's own subtest with replicates.
+        if suite.get('value') is not None or suite.get("type") == "benchmark":
             # summary series
             summary_properties = {'suite': suite['name']}
             summary_properties.update(reference_data)
@@ -214,20 +216,21 @@ def _load_perf_datum(job: Job, perf_datum: dict):
                 },
             )
 
-            (suite_datum, datum_created) = PerformanceDatum.objects.get_or_create(
-                repository=job.repository,
-                job=job,
-                push=job.push,
-                signature=signature,
-                push_timestamp=deduced_timestamp,
-                defaults={'value': suite['value'], 'application_version': application_version},
-            )
-            if suite_datum.should_mark_as_multi_commit(is_multi_commit, datum_created):
-                # keep a register with all multi commit perf data
-                MultiCommitDatum.objects.create(perf_datum=suite_datum)
+            if suite.get("value", None) is not None:
+                (suite_datum, datum_created) = PerformanceDatum.objects.get_or_create(
+                    repository=job.repository,
+                    job=job,
+                    push=job.push,
+                    signature=signature,
+                    push_timestamp=deduced_timestamp,
+                    defaults={'value': suite['value'], 'application_version': application_version},
+                )
+                if suite_datum.should_mark_as_multi_commit(is_multi_commit, datum_created):
+                    # keep a register with all multi commit perf data
+                    MultiCommitDatum.objects.create(perf_datum=suite_datum)
 
-            if _suite_should_alert_based_on(signature, job, datum_created):
-                generate_alerts.apply_async(args=[signature.id], queue='generate_perf_alerts')
+                if _suite_should_alert_based_on(signature, job, datum_created):
+                    generate_alerts.apply_async(args=[signature.id], queue='generate_perf_alerts')
 
         for subtest in suite['subtests']:
             subtest_properties = {'suite': suite['name'], 'test': subtest['name']}
