@@ -116,6 +116,7 @@ export default class StatusDropdown extends React.Component {
       revisionHref: repoModel.getPushLogHref(alertSummary.revision),
       alertHref: `${window.location.origin}/perfherder/alerts?id=${alertSummary.id}`,
       alertSummary: textualSummary.markdown,
+      alertSummaryId: alertSummary.id,
     };
 
     templateSettings.interpolate = /{{([\s\S]+?)}}/g;
