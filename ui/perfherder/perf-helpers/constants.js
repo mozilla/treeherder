@@ -295,3 +295,20 @@ export const browsertimeBenchmarksTests = [
 ];
 
 export const browsertimeId = 13;
+
+export const weekdays = {
+  monday: 1,
+  tuesday: 2,
+  wednesday: 3,
+  thursday: 4,
+  friday: 5,
+  saturday: 6,
+  sunday: 0,
+};
+
+export const countdownClasses = {
+  overdue: 'due-date-overdue',
+  today: 'due-date-today',
+  ok: 'due-date-ok',
+  ready: 'due-date-ready',
+};
