@@ -18,7 +18,7 @@ from treeherder.perf.models import (
     PerformanceSignature,
     PerformanceTag,
 )
-from treeherder.webapp.api.utils import to_timestamp, get_profile_artifact_url, FIVE_DAYS
+from treeherder.webapp.api.utils import to_timestamp, FIVE_DAYS
 
 
 def get_tc_metadata(alert, push):
@@ -207,6 +207,7 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
     def get_taskcluster_metadata(self, alert):
         try:
             taskcluster_metadata = get_tc_metadata(alert, alert.summary.push)
+            cache.set("tc_root_url", alert.summary.repository.tc_root_url, FIVE_DAYS)
             cache.set("task_metadata", taskcluster_metadata, FIVE_DAYS)
             return taskcluster_metadata
         except ObjectDoesNotExist:
@@ -221,24 +222,10 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
             return {}
 
     def get_profile_url(self, alert):
-        if alert.is_regression:
-            taskcluster_metadata = cache.get("task_metadata") if cache.get("task_metadata") else {}
-            url = get_profile_artifact_url(alert, taskcluster_metadata)
-        else:
-            url = "N/A"
-
-        return url
+        return "N/A"
 
     def get_prev_profile_url(self, alert):
-        if alert.is_regression:
-            prev_taskcluster_metadata = (
-                cache.get("prev_task_metadata") if cache.get("prev_task_metadata") else {}
-            )
-            url = get_profile_artifact_url(alert, prev_taskcluster_metadata)
-        else:
-            url = "N/A"
-
-        return url
+        return "N/A"
 
     def get_classifier_email(self, performance_alert):
         return getattr(performance_alert.classifier, 'email', None)

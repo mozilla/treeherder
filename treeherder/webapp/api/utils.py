@@ -69,9 +69,9 @@ def get_artifact_list(root_url, task_id):
 
 
 def get_profile_artifact_url(alert, task_metadata):
-    tc_root_url = alert.summary.repository.tc_root_url
+    tc_root_url = cache.get("tc_root_url", "")
     # Return a string to tell that task_id wasn't found
-    if not task_metadata.get('task_id'):
+    if not task_metadata.get('task_id') or not tc_root_url:
         return "task_id not found"
     # If the url was already cached, don't calculate again, just return it
     if cache.get(task_metadata.get('task_id')):
