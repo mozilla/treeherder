@@ -501,25 +501,6 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
             return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(many=True, data=queryset)
-        if pk:
-            for summary in serializer.data:
-                if summary.id == int(pk):
-                    for alert in summary["alerts"]:
-                        if alert["is_regression"]:
-                            taskcluster_metadata = (
-                                cache.get("task_metadata") if cache.get("task_metadata") else {}
-                            )
-                            alert["profile_url"] = get_profile_artifact_url(
-                                alert, taskcluster_metadata
-                            )
-                            prev_taskcluster_metadata = (
-                                cache.get("prev_task_metadata")
-                                if cache.get("prev_task_metadata")
-                                else {}
-                            )
-                            alert["prev_profile_url"] = get_profile_artifact_url(
-                                alert, prev_taskcluster_metadata
-                            )
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
