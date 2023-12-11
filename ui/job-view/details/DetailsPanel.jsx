@@ -304,7 +304,8 @@ class DetailsPanel extends React.Component {
                       d.signature_id,
                       1,
                       d.series.frameworkId,
-                    ]}&selected=${[d.signature_id, d.id]}`,
+                    ]}&selected=${[d.signature_id, d.id]}
+                    &replicates=0`,
                     shouldAlert: d.series.should_alert,
                     value: d.value,
                     measurementUnit: d.series.measurementUnit,
