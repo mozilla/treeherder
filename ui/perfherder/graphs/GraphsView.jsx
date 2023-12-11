@@ -80,8 +80,10 @@ class GraphsView extends React.Component {
       });
     }
 
-    if (replicates !== prevReplicates) {
-      window.location.reload(false);
+    if (prevReplicates !== undefined) {
+      if (replicates !== prevReplicates) {
+        window.location.reload(false);
+      }
     }
   }
 
