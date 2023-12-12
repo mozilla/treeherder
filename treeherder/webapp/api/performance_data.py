@@ -703,9 +703,54 @@ class PerformanceSummary(generics.ListAPIView):
 
         if signature and all_data:
             for item in self.queryset:
-                item['data'] = data.values(
-                    'value', 'job_id', 'id', 'push_id', 'push_timestamp', 'push__revision'
-                ).order_by('push_timestamp', 'push_id', 'job_id')
+                if replicates:
+                    item['data'] = list()
+                    for (
+                        value,
+                        job_id,
+                        datum_id,
+                        push_id,
+                        push_timestamp,
+                        push_revision,
+                        replicate_value,
+                    ) in data.values_list(
+                        'value',
+                        'job_id',
+                        'id',
+                        'push_id',
+                        'push_timestamp',
+                        'push__revision',
+                        'performancedatumreplicate__value',
+                    ).order_by(
+                        'push_timestamp', 'push_id', 'job_id'
+                    ):
+                        if replicate_value is not None:
+                            item['data'].append(
+                                {
+                                    "value": replicate_value,
+                                    "job_id": job_id,
+                                    "id": datum_id,
+                                    "push_id": push_id,
+                                    "push_timestamp": push_timestamp,
+                                    "push__revision": push_revision,
+                                }
+                            )
+                        elif value is not None:
+                            item['data'].append(
+                                {
+                                    "value": value,
+                                    "job_id": job_id,
+                                    "id": datum_id,
+                                    "push_id": push_id,
+                                    "push_timestamp": push_timestamp,
+                                    "push__revision": push_revision,
+                                }
+                            )
+                else:
+                    item['data'] = data.values(
+                        'value', 'job_id', 'id', 'push_id', 'push_timestamp', 'push__revision'
+                    ).order_by('push_timestamp', 'push_id', 'job_id')
+
                 item['option_name'] = option_collection_map[item['option_collection_id']]
                 item['repository_name'] = repository_name
 

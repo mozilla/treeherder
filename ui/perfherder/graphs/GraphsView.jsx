@@ -52,6 +52,7 @@ class GraphsView extends React.Component {
       showModal: false,
       showTable: false,
       visibilityChanged: false,
+      replicates: false,
     };
   }
 
@@ -62,6 +63,11 @@ class GraphsView extends React.Component {
   componentDidUpdate(prevProps) {
     const { location } = this.props;
     const { testData, loading } = this.state;
+    const { replicates } = queryString.parse(this.props.location.search);
+    const { replicates: prevReplicates } = queryString.parse(
+      prevProps.location.search,
+    );
+
     if (
       location.search === '' &&
       testData.length !== 0 &&
@@ -72,6 +78,12 @@ class GraphsView extends React.Component {
       this.setState({
         testData: [],
       });
+    }
+
+    if (prevReplicates !== undefined) {
+      if (replicates !== prevReplicates) {
+        window.location.reload(false);
+      }
     }
   }
 
@@ -94,13 +106,20 @@ class GraphsView extends React.Component {
       highlightCommonAlerts,
       highlightChangelogData,
       highlightedRevisions,
+      replicates,
     } = queryString.parse(this.props.location.search);
 
     const updates = {};
 
     if (series) {
+      // TODO: Move series/test data fetch to after the params are parsed, and
+      // the component is updated. Here, it's using default settings even if
+      // the parameters are different.
       const _series = typeof series === 'string' ? [series] : series;
-      const seriesParams = this.parseSeriesParam(_series);
+      const seriesParams = this.parseSeriesParam(
+        _series,
+        Boolean(parseInt(replicates, 10)),
+      );
       this.getTestData(seriesParams, true);
     }
 
@@ -118,6 +137,10 @@ class GraphsView extends React.Component {
       updates.highlightChangelogData = Boolean(
         parseInt(highlightChangelogData, 10),
       );
+    }
+
+    if (replicates) {
+      updates.replicates = Boolean(parseInt(replicates, 10));
     }
 
     if (highlightedRevisions) {
@@ -150,6 +173,7 @@ class GraphsView extends React.Component {
       repository_name: repositoryName,
       signature_id: signatureId,
       framework_id: frameworkId,
+      replicates,
     } = series;
     const { timeRange } = this.state;
 
@@ -159,6 +183,7 @@ class GraphsView extends React.Component {
       framework: frameworkId,
       interval: timeRange.value,
       all_data: true,
+      replicates,
     };
   };
 
@@ -202,7 +227,7 @@ class GraphsView extends React.Component {
   };
 
   createGraphObject = async (seriesData) => {
-    const { colors, symbols, timeRange } = this.state;
+    const { colors, symbols, timeRange, replicates } = this.state;
     const alertSummaries = await Promise.all(
       seriesData.map((series) =>
         this.getAlertSummaries(series.signature_id, series.repository_id),
@@ -222,6 +247,7 @@ class GraphsView extends React.Component {
       newColors,
       newSymbols,
       commonAlerts,
+      replicates,
     );
 
     this.setState({ colors: newColors, symbols: newSymbols });
@@ -287,7 +313,7 @@ class GraphsView extends React.Component {
     this.setState({ testData: newTestData });
   };
 
-  parseSeriesParam = (series) =>
+  parseSeriesParam = (series, replicates) =>
     series.map((encodedSeries) => {
       const partialSeriesArray = encodedSeries.split(',');
       const partialSeriesObject = {
@@ -301,6 +327,7 @@ class GraphsView extends React.Component {
         // for visibility of test legend cards but isn't actually being used
         // to control visibility so it should be removed at some point
         framework_id: parseInt(partialSeriesArray[3], 10),
+        replicates,
       };
 
       return partialSeriesObject;
@@ -330,6 +357,7 @@ class GraphsView extends React.Component {
       highlightChangelogData,
       highlightedRevisions,
       timeRange,
+      replicates,
     } = this.state;
 
     const newSeries = testData.map(
@@ -342,6 +370,7 @@ class GraphsView extends React.Component {
       highlightCommonAlerts: +highlightCommonAlerts,
       highlightChangelogData: +highlightChangelogData,
       timerange: timeRange.value,
+      replicates: +replicates,
       zoom,
     };
 
@@ -388,6 +417,7 @@ class GraphsView extends React.Component {
       showModal,
       showTable,
       visibilityChanged,
+      replicates,
     } = this.state;
 
     const { projects, frameworks, user } = this.props;
@@ -473,6 +503,7 @@ class GraphsView extends React.Component {
                 updateData={this.updateData}
                 toggle={() => this.setState({ showModal: !showModal })}
                 toggleTableView={() => this.setState({ showTable: !showTable })}
+                replicates={replicates}
                 updateTimeRange={(newTimeRange) =>
                   this.setState(
                     {

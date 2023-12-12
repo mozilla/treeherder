@@ -78,6 +78,7 @@ export default class GraphsViewControls extends React.Component {
       hasNoData,
       toggle,
       toggleTableView,
+      replicates,
       showModal,
       showTable,
       testData,
@@ -199,6 +200,19 @@ export default class GraphsViewControls extends React.Component {
                     active={highlightCommonAlerts}
                   >
                     Highlight common alerts
+                  </Button>
+                  <Button
+                    className="ml-3"
+                    color="darker-info"
+                    outline
+                    onClick={() =>
+                      updateStateParams({
+                        replicates: !replicates,
+                      })
+                    }
+                    active={replicates}
+                  >
+                    Use replicates
                   </Button>
                 </Col>
               )}
