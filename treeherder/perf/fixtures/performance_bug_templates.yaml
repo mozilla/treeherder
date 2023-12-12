@@ -14,6 +14,8 @@
 
       If you need the profiling jobs you can trigger them yourself from treeherder job view or ask a sheriff to do that for you.
 
+      You can run these tests on try with `./mach try perf --alert {{ alertSummaryId }}`
+
       For more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).
 - model: perf.PerformanceBugTemplate
   pk: 2
@@ -28,6 +30,8 @@
       {{ alertSummary }}
 
       Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests. Please follow our [guide to handling regression bugs](https://wiki.mozilla.org/TestEngineering/Performance/Handling_regression_bugs) and **let us know your plans within 3 business days, or the patch(es) may be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).
+
+      You can run these tests on try with `./mach try perf --alert {{ alertSummaryId }}`
 
       For more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).
 - model: perf.PerformanceBugTemplate
@@ -46,6 +50,8 @@
 
       If you need the profiling jobs you can trigger them yourself from treeherder job view or ask a sheriff to do that for you.
 
+      You can run these tests on try with `./mach try perf --alert {{ alertSummaryId }}`
+
       For more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).
 - model: perf.PerformanceBugTemplate
   pk: 5
@@ -62,6 +68,8 @@
       Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests. Please follow our [guide to handling regression bugs](https://wiki.mozilla.org/TestEngineering/Performance/Handling_regression_bugs) and **let us know your plans within 3 business days, or the patch(es) may be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).
 
       If you need the profiling jobs you can trigger them yourself from treeherder job view or ask a sheriff to do that for you.
+
+      You can run these tests on try with `./mach try perf --alert {{ alertSummaryId }}`
 
       For more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).
 - model: perf.PerformanceBugTemplate
@@ -80,6 +88,8 @@
 
       If you need the profiling jobs you can trigger them yourself from treeherder job view or ask a sheriff to do that for you.
 
+      You can run these tests on try with `./mach try perf --alert {{ alertSummaryId }}`
+
       For more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).
 - model: perf.PerformanceBugTemplate
   pk: 7
@@ -96,6 +106,8 @@
       Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests. Please follow our [guide to handling regression bugs](https://wiki.mozilla.org/TestEngineering/Performance/Handling_regression_bugs) and **let us know your plans within 3 business days, or the patch(es) may be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).
 
       If you need the profiling jobs you can trigger them yourself from treeherder job view or ask a sheriff to do that for you.
+
+      You can run these tests on try with `./mach try perf --alert {{ alertSummaryId }}`
 
       For more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).
 - model: perf.PerformanceBugTemplate
@@ -114,6 +126,8 @@
 
       If you need the profiling jobs you can trigger them yourself from treeherder job view or ask a sheriff to do that for you.
 
+      You can run these tests on try with `./mach try perf --alert {{ alertSummaryId }}`
+
       For more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).
 - model: perf.PerformanceBugTemplate
   pk: 9
@@ -131,6 +145,8 @@
 
       If you need the profiling jobs you can trigger them yourself from treeherder job view or ask a sheriff to do that for you.
 
+      You can run these tests on try with `./mach try perf --alert {{ alertSummaryId }}`
+
       For more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).
 - model: perf.PerformanceBugTemplate
   pk: 10
@@ -147,5 +163,7 @@
       Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests. Please follow our [guide to handling regression bugs](https://wiki.mozilla.org/TestEngineering/Performance/Handling_regression_bugs) and **let us know your plans within 3 business days, or the patch(es) may be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).
 
       If you need the profiling jobs you can trigger them yourself from treeherder job view or ask a sheriff to do that for you.
+
+      You can run these tests on try with `./mach try perf --alert {{ alertSummaryId }}`
 
       For more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).
