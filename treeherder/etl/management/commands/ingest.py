@@ -67,12 +67,6 @@ def ingest_pr(pr_url, root_url):
 
 
 def ingest_hg_push(options):
-    if not options["enable_eager_celery"]:
-        logger.info("If you want all logs to be parsed use --enable-eager-celery")
-    else:
-        # Make sure all tasks are run synchronously / immediately
-        settings.CELERY_TASK_ALWAYS_EAGER = True
-
     # get reference to repo and ingest this particular revision for this project
     project = options["project"]
     commit = options["commit"]
@@ -463,6 +457,12 @@ class Command(BaseCommand):
         loop = asyncio.get_event_loop()
         typeOfIngestion = options["ingestion_type"][0]
         root_url = options["root_url"]
+
+        if not options["enable_eager_celery"]:
+            logger.info("If you want all logs to be parsed use --enable-eager-celery")
+        else:
+            # Make sure all tasks are run synchronously / immediately
+            settings.CELERY_TASK_ALWAYS_EAGER = True
 
         if typeOfIngestion == "task":
             assert options["taskId"]
