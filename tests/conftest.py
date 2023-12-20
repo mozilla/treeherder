@@ -887,6 +887,41 @@ def mock_bugscache_bugzilla_request(monkeypatch):
     )
 
 
+class MockResponse:
+    def __init__(self):
+        self.status_code = 200
+        self.content = {
+            "artifacts": [
+                {
+                    "storageType": "fake",
+                    "name": "fake/path.json",
+                    "expires": "2999-12-31T23:59:59.999Z",
+                    "contentType": "application/octet-stream",
+                }
+            ]
+        }
+
+
+@pytest.fixture
+def mock_get_artifact_list(monkeypatch):
+    import treeherder.webapp.api.utils
+
+    def _mock_get(url, params=None):
+        return MockResponse()
+
+    monkeypatch.setattr(treeherder.webapp.api.utils, 'fetch_json', _mock_get)
+
+
+@pytest.fixture
+def mock_cache(monkeypatch):
+    import django.core.cache.cache
+
+    def mockreturn_cache(*args, **kwargs):
+        return {"task_id": "some_id", "retry_id": 0}
+
+    monkeypatch.setattr(django.core.cache.cache, 'get', mockreturn_cache)
+
+
 @pytest.fixture
 def text_log_error_lines(test_job, failure_lines):
     lines = [

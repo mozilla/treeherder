@@ -1,18 +1,20 @@
-import time
 import datetime
+import time
 from collections import defaultdict
+from typing import List
+from urllib.parse import urlencode
 
 import django_filters
 from django.conf import settings
+from django.core.cache import cache
 from django.db import transaction
 from django.db.models import CharField, Count, Q, Subquery, Value, Case, When
 from django.db.models.functions import Concat
 from rest_framework import exceptions, filters, generics, pagination, viewsets
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
-from typing import List
-from urllib.parse import urlencode
 
+from treeherder.etl.common import to_timestamp
 from treeherder.model import models
 from treeherder.perf.alerts import get_alert_properties
 from treeherder.perf.models import (
@@ -26,11 +28,9 @@ from treeherder.perf.models import (
     PerformanceSignature,
     PerformanceTag,
 )
-from treeherder.webapp.api.permissions import IsStaffOrReadOnly
-from treeherder.webapp.api.performance_serializers import OptionalBooleanField
 from treeherder.webapp.api import perfcompare_utils
-from treeherder.etl.common import to_timestamp
-
+from treeherder.webapp.api.performance_serializers import OptionalBooleanField
+from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 from .exceptions import InsufficientAlertCreationData
 from .performance_serializers import (
     IssueTrackerSerializer,
@@ -48,7 +48,7 @@ from .performance_serializers import (
     TestSuiteHealthParamsSerializer,
     TestSuiteHealthSerializer,
 )
-from .utils import GroupConcat
+from .utils import GroupConcat, get_profile_artifact_url
 
 
 class PerformanceSignatureViewSet(viewsets.ViewSet):
@@ -472,6 +472,36 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
 
     ordering = ('-created', '-id')
     pagination_class = AlertSummaryPagination
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.queryset)
+        pk = request.query_params.get('id')
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            if pk:
+                for summary in serializer.data:
+                    if summary["id"] == int(pk):
+                        for alert in summary["alerts"]:
+                            if alert["is_regression"]:
+                                taskcluster_metadata = (
+                                    cache.get("task_metadata") if cache.get("task_metadata") else {}
+                                )
+                                alert["profile_url"] = get_profile_artifact_url(
+                                    alert, taskcluster_metadata
+                                )
+                                prev_taskcluster_metadata = (
+                                    cache.get("prev_task_metadata")
+                                    if cache.get("prev_task_metadata")
+                                    else {}
+                                )
+                                alert["prev_profile_url"] = get_profile_artifact_url(
+                                    alert, prev_taskcluster_metadata
+                                )
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(many=True, data=queryset)
+        return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         data = request.data

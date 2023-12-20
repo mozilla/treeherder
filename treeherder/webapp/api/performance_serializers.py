@@ -1,6 +1,7 @@
 import decimal
 
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from rest_framework import exceptions, serializers
@@ -17,7 +18,23 @@ from treeherder.perf.models import (
     PerformanceSignature,
     PerformanceTag,
 )
-from treeherder.webapp.api.utils import to_timestamp
+from treeherder.webapp.api.utils import to_timestamp, FIVE_DAYS
+
+
+def get_tc_metadata(alert, push):
+    datum = PerformanceDatum.objects.filter(
+        signature=alert.series_signature,
+        repository=alert.series_signature.repository,
+        push=push,
+    ).first()
+    if datum:
+        metadata = TaskclusterMetadata.objects.get(job=datum.job)
+        return {
+            'task_id': metadata.task_id,
+            'retry_id': metadata.retry_id,
+        }
+    else:
+        return {}
 
 
 class OptionalBooleanField(serializers.BooleanField):
@@ -120,6 +137,8 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
     series_signature = PerformanceSignatureSerializer(read_only=True)
     taskcluster_metadata = serializers.SerializerMethodField()
     prev_taskcluster_metadata = serializers.SerializerMethodField()
+    profile_url = serializers.SerializerMethodField()
+    prev_profile_url = serializers.SerializerMethodField()
     summary_id = serializers.SlugRelatedField(
         slug_field="id",
         source="summary",
@@ -186,40 +205,27 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
     def get_taskcluster_metadata(self, alert):
-        datum = PerformanceDatum.objects.filter(
-            signature=alert.series_signature,
-            repository=alert.series_signature.repository,
-            push=alert.summary.push,
-        ).first()
-        if datum:
-            try:
-                metadata = TaskclusterMetadata.objects.get(job=datum.job)
-                return {
-                    'task_id': metadata.task_id,
-                    'retry_id': metadata.retry_id,
-                }
-            except ObjectDoesNotExist:
-                return {}
-        else:
+        try:
+            taskcluster_metadata = get_tc_metadata(alert, alert.summary.push)
+            cache.set("tc_root_url", alert.summary.repository.tc_root_url, FIVE_DAYS)
+            cache.set("task_metadata", taskcluster_metadata, FIVE_DAYS)
+            return taskcluster_metadata
+        except ObjectDoesNotExist:
             return {}
 
     def get_prev_taskcluster_metadata(self, alert):
-        datum = PerformanceDatum.objects.filter(
-            signature=alert.series_signature,
-            repository=alert.series_signature.repository,
-            push=alert.summary.prev_push,
-        ).first()
-        if datum:
-            try:
-                metadata = TaskclusterMetadata.objects.get(job=datum.job)
-                return {
-                    'task_id': metadata.task_id,
-                    'retry_id': metadata.retry_id,
-                }
-            except ObjectDoesNotExist:
-                return {}
-        else:
+        try:
+            taskcluster_metadata = get_tc_metadata(alert, alert.summary.prev_push)
+            cache.set("prev_task_metadata", taskcluster_metadata, FIVE_DAYS)
+            return taskcluster_metadata
+        except ObjectDoesNotExist:
             return {}
+
+    def get_profile_url(self, alert):
+        return "N/A"
+
+    def get_prev_profile_url(self, alert):
+        return "N/A"
 
     def get_classifier_email(self, performance_alert):
         return getattr(performance_alert.classifier, 'email', None)
@@ -232,6 +238,8 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
             'series_signature',
             'taskcluster_metadata',
             'prev_taskcluster_metadata',
+            'profile_url',
+            'prev_profile_url',
             'is_regression',
             'prev_value',
             'new_value',
