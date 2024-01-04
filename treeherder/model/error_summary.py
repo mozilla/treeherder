@@ -152,8 +152,20 @@ def bug_suggestions_line(
                 continue
             if term not in term_cache:
                 term_cache[term] = Bugscache.search(term)
-            bugs['open_recent'].extend(term_cache[term]['open_recent'])
-            bugs['all_others'].extend(term_cache[term]['all_others'])
+            bugs['open_recent'].extend(
+                [
+                    bug_to_check
+                    for bug_to_check in term_cache[term]['open_recent']
+                    if bug_to_check['id'] not in [bug['id'] for bug in bugs['open_recent']]
+                ]
+            )
+            bugs['all_others'].extend(
+                [
+                    bug_to_check
+                    for bug_to_check in term_cache[term]['all_others']
+                    if bug_to_check['id'] not in [bug['id'] for bug in bugs['all_others']]
+                ]
+            )
 
     if not bugs or not (bugs['open_recent'] or bugs['all_others']):
         # no suggestions, try to use
