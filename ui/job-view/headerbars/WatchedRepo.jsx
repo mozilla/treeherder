@@ -19,7 +19,7 @@ import {
 } from 'reactstrap';
 import { Link } from 'react-router-dom';
 
-import TreeStatusModel from '../../models/treeStatus';
+import TreeStatusModel, { treeStatusUiUrl } from '../../models/treeStatus';
 import BugLinkify from '../../shared/BugLinkify';
 import { updateRepoParams } from '../../helpers/location';
 
@@ -171,7 +171,7 @@ export default class WatchedRepo extends React.Component {
               <React.Fragment>
                 <DropdownItem
                   tag="a"
-                  href="https://treestatus.mozilla-releng.net"
+                  href={`${treeStatusUiUrl()}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -199,7 +199,7 @@ export default class WatchedRepo extends React.Component {
             )}
             <DropdownItem
               tag="a"
-              href={`https://treestatus.mozilla-releng.net/static/ui/treestatus/show/${watchedRepo}`}
+              href={`${treeStatusUiUrl()}show/${watchedRepo}`}
               target="_blank"
               rel="noopener noreferrer"
             >

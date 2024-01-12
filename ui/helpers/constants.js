@@ -1,6 +1,48 @@
 import treeFavicon from '../img/tree_open.png';
 import closedTreeFavicon from '../img/tree_closed.png';
 
+export const thHosts = {
+  production: {
+    host: 'treeherder.mozilla.org',
+    treestatus: {
+      uiUrl: 'https://treestatus.mozilla-releng.net/static/ui/treestatus/',
+      apiUrl: 'https://treestatus.mozilla-releng.net/',
+    },
+  },
+  stage: {
+    host: 'treeherder.allizom.org',
+    treestatus: {
+      uiUrl: 'https://ui.dev.lando.nonprod.cloudops.mozgcp.net/treestatus/',
+      apiUrl: 'https://treestatus.dev.lando.nonprod.cloudops.mozgcp.net/',
+    },
+  },
+  prototype: {
+    host: 'prototype.treeherder.nonprod.cloudops.mozgcp.net',
+    treestatus: {
+      uiUrl: 'https://ui.dev.lando.nonprod.cloudops.mozgcp.net/treestatus/',
+      apiUrl: 'https://treestatus.dev.lando.nonprod.cloudops.mozgcp.net/',
+    },
+  },
+  localhost: {
+    host: 'localhost',
+    treestatus: {
+      uiUrl: 'https://ui.dev.lando.nonprod.cloudops.mozgcp.net/treestatus/',
+      apiUrl: 'https://treestatus.dev.lando.nonprod.cloudops.mozgcp.net/',
+    },
+  },
+  default: {
+    host: null,
+    treestatus: {
+      uiUrl: 'https://treestatus.mozilla-releng.net/static/ui/treestatus/',
+      apiUrl: 'https://treestatus.mozilla-releng.net/',
+      /*
+      uiUrl: 'https://ui.dev.lando.nonprod.cloudops.mozgcp.net/treestatus/',
+      apiUrl: 'https://treestatus.dev.lando.nonprod.cloudops.mozgcp.net/',
+      */
+    },
+  },
+};
+
 // TODO: This file is a handy catch-all, but we could likely move some of these
 // to a specific helper or into the classes that use them.
 

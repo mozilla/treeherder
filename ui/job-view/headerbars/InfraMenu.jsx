@@ -7,6 +7,7 @@ import {
 } from 'reactstrap';
 
 import { prodFirefoxRootUrl } from '../../taskcluster-auth-callback/constants';
+import { treeStatusUiUrl } from '../../models/treeStatus';
 
 const InfraMenu = () => (
   <UncontrolledDropdown>
@@ -26,7 +27,7 @@ const InfraMenu = () => (
         Taskcluster Workers
       </DropdownItem>
       <DropdownItem
-        href="https://treestatus.mozilla-releng.net"
+        href={`${treeStatusUiUrl()}`}
         target="_blank"
         rel="noopener noreferrer"
       >
