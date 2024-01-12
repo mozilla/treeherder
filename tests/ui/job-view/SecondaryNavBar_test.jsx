@@ -18,14 +18,17 @@ const history = createBrowserHistory();
 const router = { location: history.location };
 
 beforeEach(() => {
-  fetchMock.get('https://treestatus.mozilla-releng.net/trees/autoland', {
-    result: {
-      message_of_the_day: '',
-      reason: '',
-      status: 'open',
-      tree: 'autoland',
+  fetchMock.get(
+    'https://treestatus.dev.lando.nonprod.cloudops.mozgcp.net/trees/autoland',
+    {
+      result: {
+        message_of_the_day: '',
+        reason: '',
+        status: 'open',
+        tree: 'autoland',
+      },
     },
-  });
+  );
 });
 
 afterEach(() => {
