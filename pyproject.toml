@@ -53,10 +53,6 @@ select = [
 ]
 
 ignore = [
-  # E203 whitespace before ':'
-  "E203",
-  # E231: missing whitespace after ','
-  "E231",
   # E501: line too long
   "E501"
 ]
