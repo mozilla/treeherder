@@ -1,9 +1,4 @@
 repos:
-  - repo: https://github.com/pycqa/flake8
-    rev: 6.0.0
-    hooks:
-      - id: flake8
-        args: [--append-config=tox.ini]
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.9.0.5
     hooks:
@@ -16,6 +11,11 @@ repos:
     rev: v0.32.2
     hooks:
       - id: markdownlint
+        args: [--fix]
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.14
+    hooks:
+      - id: ruff
         args: [--fix]
   - repo: https://github.com/psf/black
     rev: 23.3.0

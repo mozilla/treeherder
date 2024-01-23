@@ -5,6 +5,7 @@
 ![Node dependencies Status](https://shields.io/librariesio/github/mozilla/treeherder)
 [![Documentation Status](https://readthedocs.org/projects/treeherder/badge/?version=latest)](https://treeherder.readthedocs.io/?badge=latest)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
 ## Description
 
