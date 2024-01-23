@@ -128,9 +128,9 @@ class ConcurrencyStrategy:
 
         if not issubclass(self._pool_class, Pool):
             raise TypeError(f'Expected Pool (sub)class parameter. Got {self._pool_class} instead')
-        if not type(thread_wait) is timedelta:
+        if type(thread_wait) is not timedelta:
             raise TypeError('Expected timedelta parameter.')
-        if not type(check_interval) is timedelta:
+        if type(check_interval) is not timedelta:
             raise TypeError('Expected timedelta parameter.')
 
     def pool(self):

@@ -60,9 +60,3 @@ ignore = [
 [tool.ruff.per-file-ignores]
 # Ignore `module-import-not-at-top-of-file` rule of `pycodestyle`
 "treeherder/model/models.py" = ["E402"]
-
-# Ignore `not-is-test` rule of `pycodestyle`
-"treeherder/perf/sheriffing_criteria/criteria_tracking.py" = ["E714"]
-
-# Ignore `not-in-test` rule of `pycodestyle`
-"treeherder/push_health/utils.py" = ["E713"]

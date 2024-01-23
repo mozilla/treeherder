@@ -64,7 +64,7 @@ def clean_test(test, signature, message):
 
     if '|' in clean_name:
         parts = clean_name.split('|')
-        clean_parts = filter(lambda x: not x.strip() in trim_parts, parts)
+        clean_parts = filter(lambda x: x.strip() not in trim_parts, parts)
         clean_name = '|'.join(clean_parts)
 
     return clean_name
