@@ -6,54 +6,54 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("model", "0022_support_group_status"),
+        ('model', '0022_support_group_status'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name="BugzillaComponent",
+            name='BugzillaComponent',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.AutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID'
                     ),
                 ),
-                ("product", models.CharField(max_length=60)),
-                ("component", models.CharField(max_length=60)),
+                ('product', models.CharField(max_length=60)),
+                ('component', models.CharField(max_length=60)),
             ],
             options={
-                "verbose_name_plural": "bugzilla_components",
-                "db_table": "bugzilla_component",
-                "unique_together": {("product", "component")},
+                'verbose_name_plural': 'bugzilla_components',
+                'db_table': 'bugzilla_component',
+                'unique_together': {('product', 'component')},
             },
         ),
         migrations.AddField(
-            model_name="repository",
-            name="life_cycle_order",
+            model_name='repository',
+            name='life_cycle_order',
             field=models.PositiveIntegerField(default=None, null=True),
         ),
         migrations.CreateModel(
-            name="FilesBugzillaMap",
+            name='FilesBugzillaMap',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.AutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID'
                     ),
                 ),
-                ("path", models.CharField(db_index=True, max_length=255, unique=True)),
-                ("file_name", models.CharField(db_index=True, max_length=255)),
+                ('path', models.CharField(db_index=True, max_length=255, unique=True)),
+                ('file_name', models.CharField(db_index=True, max_length=255)),
                 (
-                    "bugzilla_component",
+                    'bugzilla_component',
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="model.bugzillacomponent"
+                        on_delete=django.db.models.deletion.CASCADE, to='model.bugzillacomponent'
                     ),
                 ),
             ],
             options={
-                "verbose_name_plural": "files_bugzilla_components",
-                "db_table": "file_bugzilla_component",
+                'verbose_name_plural': 'files_bugzilla_components',
+                'db_table': 'file_bugzilla_component',
             },
         ),
     ]

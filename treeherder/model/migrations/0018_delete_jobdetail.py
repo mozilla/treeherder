@@ -5,11 +5,11 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("model", "0017_add_index_task_id"),
+        ('model', '0017_add_index_task_id'),
     ]
 
     operations = [
         migrations.DeleteModel(
-            name="JobDetail",
+            name='JobDetail',
         ),
     ]

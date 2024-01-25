@@ -6,7 +6,7 @@ from treeherder.perf.utils import calculate_time_to, BUG_DAYS
 
 
 def update_summary_bug_due_date(apps, schema_editor):
-    PerformanceAlertSummary = apps.get_model("perf", "PerformanceAlertSummary")
+    PerformanceAlertSummary = apps.get_model('perf', 'PerformanceAlertSummary')
 
     for row in PerformanceAlertSummary.objects.all():
         row.bug_due_date = calculate_time_to(row.created, due_days=BUG_DAYS)
@@ -15,13 +15,13 @@ def update_summary_bug_due_date(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("perf", "0050_cascade_perf_datum_deletion_replicate"),
+        ('perf', '0050_cascade_perf_datum_deletion_replicate'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name="performancealertsummary",
-            name="bug_due_date",
+            model_name='performancealertsummary',
+            name='bug_due_date',
             field=models.DateTimeField(default=None, null=True),
         ),
         migrations.RunPython(

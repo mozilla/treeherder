@@ -8,17 +8,17 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ("perf", "0016_modify_alertsummary_status_choices"),
+        ('perf', '0016_modify_alertsummary_status_choices'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name="performancealertsummary",
-            name="assignee",
+            model_name='performancealertsummary',
+            name='assignee',
             field=models.ForeignKey(
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                related_name="assigned_alerts",
+                related_name='assigned_alerts',
                 to=settings.AUTH_USER_MODEL,
             ),
         ),

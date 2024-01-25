@@ -11,280 +11,280 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ("model", "0001_squashed_0022_modify_bugscache_and_bugjobmap"),
+        ('model', '0001_squashed_0022_modify_bugscache_and_bugjobmap'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name="IssueTracker",
+            name='IssueTracker',
             fields=[
-                ("id", models.AutoField(primary_key=True, serialize=False)),
-                ("name", models.CharField(max_length=255)),
-                ("task_base_url", models.URLField(max_length=512)),
+                ('id', models.AutoField(primary_key=True, serialize=False)),
+                ('name', models.CharField(max_length=255)),
+                ('task_base_url', models.URLField(max_length=512)),
             ],
             options={
-                "db_table": "issue_tracker",
+                'db_table': 'issue_tracker',
             },
         ),
         migrations.CreateModel(
-            name="PerformanceFramework",
+            name='PerformanceFramework',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.AutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID'
                     ),
                 ),
-                ("name", models.SlugField(max_length=255, unique=True)),
-                ("enabled", models.BooleanField(default=False)),
+                ('name', models.SlugField(max_length=255, unique=True)),
+                ('enabled', models.BooleanField(default=False)),
             ],
             options={
-                "db_table": "performance_framework",
+                'db_table': 'performance_framework',
             },
         ),
         migrations.CreateModel(
-            name="PerformanceBugTemplate",
+            name='PerformanceBugTemplate',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.AutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID'
                     ),
                 ),
-                ("keywords", models.CharField(max_length=255)),
-                ("status_whiteboard", models.CharField(max_length=255)),
-                ("default_component", models.CharField(max_length=255)),
-                ("default_product", models.CharField(max_length=255)),
-                ("cc_list", models.CharField(max_length=255)),
-                ("text", models.TextField(max_length=4096)),
+                ('keywords', models.CharField(max_length=255)),
+                ('status_whiteboard', models.CharField(max_length=255)),
+                ('default_component', models.CharField(max_length=255)),
+                ('default_product', models.CharField(max_length=255)),
+                ('cc_list', models.CharField(max_length=255)),
+                ('text', models.TextField(max_length=4096)),
                 (
-                    "framework",
+                    'framework',
                     models.OneToOneField(
-                        on_delete=django.db.models.deletion.CASCADE, to="perf.PerformanceFramework"
+                        on_delete=django.db.models.deletion.CASCADE, to='perf.PerformanceFramework'
                     ),
                 ),
             ],
             options={
-                "db_table": "performance_bug_template",
+                'db_table': 'performance_bug_template',
             },
         ),
         migrations.CreateModel(
-            name="PerformanceSignature",
+            name='PerformanceSignature',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.AutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID'
                     ),
                 ),
                 (
-                    "signature_hash",
+                    'signature_hash',
                     models.CharField(
                         max_length=40, validators=[django.core.validators.MinLengthValidator(40)]
                     ),
                 ),
-                ("suite", models.CharField(max_length=80)),
-                ("test", models.CharField(blank=True, max_length=80)),
-                ("lower_is_better", models.BooleanField(default=True)),
-                ("last_updated", models.DateTimeField(db_index=True)),
-                ("has_subtests", models.BooleanField()),
-                ("extra_options", models.CharField(blank=True, max_length=60)),
-                ("should_alert", models.NullBooleanField()),
+                ('suite', models.CharField(max_length=80)),
+                ('test', models.CharField(blank=True, max_length=80)),
+                ('lower_is_better', models.BooleanField(default=True)),
+                ('last_updated', models.DateTimeField(db_index=True)),
+                ('has_subtests', models.BooleanField()),
+                ('extra_options', models.CharField(blank=True, max_length=60)),
+                ('should_alert', models.NullBooleanField()),
                 (
-                    "alert_change_type",
-                    models.IntegerField(choices=[(0, "percentage"), (1, "absolute")], null=True),
+                    'alert_change_type',
+                    models.IntegerField(choices=[(0, 'percentage'), (1, 'absolute')], null=True),
                 ),
-                ("alert_threshold", models.FloatField(null=True)),
-                ("min_back_window", models.IntegerField(null=True)),
-                ("max_back_window", models.IntegerField(null=True)),
-                ("fore_window", models.IntegerField(null=True)),
+                ('alert_threshold', models.FloatField(null=True)),
+                ('min_back_window', models.IntegerField(null=True)),
+                ('max_back_window', models.IntegerField(null=True)),
+                ('fore_window', models.IntegerField(null=True)),
                 (
-                    "framework",
+                    'framework',
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="perf.PerformanceFramework"
+                        on_delete=django.db.models.deletion.CASCADE, to='perf.PerformanceFramework'
                     ),
                 ),
                 (
-                    "option_collection",
+                    'option_collection',
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="model.OptionCollection"
+                        on_delete=django.db.models.deletion.CASCADE, to='model.OptionCollection'
                     ),
                 ),
                 (
-                    "parent_signature",
+                    'parent_signature',
                     models.ForeignKey(
                         blank=True,
                         null=True,
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="subtests",
-                        to="perf.PerformanceSignature",
+                        related_name='subtests',
+                        to='perf.PerformanceSignature',
                     ),
                 ),
                 (
-                    "platform",
+                    'platform',
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="model.MachinePlatform"
+                        on_delete=django.db.models.deletion.CASCADE, to='model.MachinePlatform'
                     ),
                 ),
                 (
-                    "repository",
+                    'repository',
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="model.Repository"
+                        on_delete=django.db.models.deletion.CASCADE, to='model.Repository'
                     ),
                 ),
             ],
             options={
-                "db_table": "performance_signature",
+                'db_table': 'performance_signature',
             },
         ),
         migrations.CreateModel(
-            name="PerformanceDatum",
+            name='PerformanceDatum',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.AutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID'
                     ),
                 ),
-                ("value", models.FloatField()),
-                ("push_timestamp", models.DateTimeField()),
-                ("ds_job_id", models.PositiveIntegerField(db_column="ds_job_id", null=True)),
-                ("result_set_id", models.PositiveIntegerField(null=True)),
+                ('value', models.FloatField()),
+                ('push_timestamp', models.DateTimeField()),
+                ('ds_job_id', models.PositiveIntegerField(db_column='ds_job_id', null=True)),
+                ('result_set_id', models.PositiveIntegerField(null=True)),
                 (
-                    "job",
+                    'job',
                     models.ForeignKey(
                         default=None,
                         null=True,
                         on_delete=django.db.models.deletion.SET_NULL,
-                        to="model.Job",
+                        to='model.Job',
                     ),
                 ),
                 (
-                    "push",
-                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="model.Push"),
+                    'push',
+                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='model.Push'),
                 ),
                 (
-                    "repository",
+                    'repository',
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="model.Repository"
+                        on_delete=django.db.models.deletion.CASCADE, to='model.Repository'
                     ),
                 ),
                 (
-                    "signature",
+                    'signature',
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="perf.PerformanceSignature"
+                        on_delete=django.db.models.deletion.CASCADE, to='perf.PerformanceSignature'
                     ),
                 ),
             ],
             options={
-                "db_table": "performance_datum",
+                'db_table': 'performance_datum',
             },
         ),
         migrations.CreateModel(
-            name="PerformanceAlertSummary",
+            name='PerformanceAlertSummary',
             fields=[
-                ("id", models.AutoField(primary_key=True, serialize=False)),
-                ("manually_created", models.BooleanField(default=False)),
-                ("last_updated", models.DateTimeField(db_index=True)),
+                ('id', models.AutoField(primary_key=True, serialize=False)),
+                ('manually_created', models.BooleanField(default=False)),
+                ('last_updated', models.DateTimeField(db_index=True)),
                 (
-                    "status",
+                    'status',
                     models.IntegerField(
                         choices=[
-                            (0, "Untriaged"),
-                            (1, "Downstream"),
-                            (3, "Invalid"),
-                            (4, "Improvement"),
-                            (5, "Investigating"),
+                            (0, 'Untriaged'),
+                            (1, 'Downstream'),
+                            (3, 'Invalid'),
+                            (4, 'Improvement'),
+                            (5, 'Investigating'),
                             (6, "Won't fix"),
-                            (7, "Fixed"),
-                            (8, "Backed out"),
+                            (7, 'Fixed'),
+                            (8, 'Backed out'),
                         ],
                         default=0,
                     ),
                 ),
-                ("bug_number", models.PositiveIntegerField(null=True)),
+                ('bug_number', models.PositiveIntegerField(null=True)),
                 (
-                    "framework",
+                    'framework',
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="perf.PerformanceFramework"
+                        on_delete=django.db.models.deletion.CASCADE, to='perf.PerformanceFramework'
                     ),
                 ),
                 (
-                    "prev_push",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="+",
-                        to="model.Push",
-                    ),
-                ),
-                (
-                    "push",
+                    'prev_push',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="+",
-                        to="model.Push",
+                        related_name='+',
+                        to='model.Push',
                     ),
                 ),
                 (
-                    "repository",
+                    'push',
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="model.Repository"
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name='+',
+                        to='model.Push',
                     ),
                 ),
                 (
-                    "issue_tracker",
+                    'repository',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to='model.Repository'
+                    ),
+                ),
+                (
+                    'issue_tracker',
                     models.ForeignKey(
                         null=True,
                         on_delete=django.db.models.deletion.PROTECT,
-                        to="perf.IssueTracker",
+                        to='perf.IssueTracker',
                     ),
                 ),
             ],
             options={
-                "db_table": "performance_alert_summary",
+                'db_table': 'performance_alert_summary',
             },
         ),
         migrations.CreateModel(
-            name="PerformanceAlert",
+            name='PerformanceAlert',
             fields=[
-                ("id", models.AutoField(primary_key=True, serialize=False)),
-                ("is_regression", models.BooleanField()),
+                ('id', models.AutoField(primary_key=True, serialize=False)),
+                ('is_regression', models.BooleanField()),
                 (
-                    "status",
+                    'status',
                     models.IntegerField(
                         choices=[
-                            (0, "Untriaged"),
-                            (1, "Downstream"),
-                            (2, "Reassigned"),
-                            (3, "Invalid"),
-                            (4, "Acknowledged"),
+                            (0, 'Untriaged'),
+                            (1, 'Downstream'),
+                            (2, 'Reassigned'),
+                            (3, 'Invalid'),
+                            (4, 'Acknowledged'),
                         ],
                         default=0,
                     ),
                 ),
                 (
-                    "amount_pct",
-                    models.FloatField(help_text="Amount in percentage that series has changed"),
+                    'amount_pct',
+                    models.FloatField(help_text='Amount in percentage that series has changed'),
                 ),
                 (
-                    "amount_abs",
-                    models.FloatField(help_text="Absolute amount that series has changed"),
+                    'amount_abs',
+                    models.FloatField(help_text='Absolute amount that series has changed'),
                 ),
                 (
-                    "prev_value",
-                    models.FloatField(help_text="Previous value of series before change"),
+                    'prev_value',
+                    models.FloatField(help_text='Previous value of series before change'),
                 ),
-                ("new_value", models.FloatField(help_text="New value of series after change")),
+                ('new_value', models.FloatField(help_text='New value of series after change')),
                 (
-                    "t_value",
+                    't_value',
                     models.FloatField(
                         help_text="t value out of analysis indicating confidence that change is 'real'",
                         null=True,
                     ),
                 ),
-                ("manually_created", models.BooleanField(default=False)),
+                ('manually_created', models.BooleanField(default=False)),
                 (
-                    "classifier",
+                    'classifier',
                     models.ForeignKey(
                         null=True,
                         on_delete=django.db.models.deletion.CASCADE,
@@ -292,53 +292,53 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "related_summary",
+                    'related_summary',
                     models.ForeignKey(
                         null=True,
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="related_alerts",
-                        to="perf.PerformanceAlertSummary",
+                        related_name='related_alerts',
+                        to='perf.PerformanceAlertSummary',
                     ),
                 ),
                 (
-                    "series_signature",
+                    'series_signature',
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="perf.PerformanceSignature"
+                        on_delete=django.db.models.deletion.CASCADE, to='perf.PerformanceSignature'
                     ),
                 ),
                 (
-                    "summary",
+                    'summary',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="alerts",
-                        to="perf.PerformanceAlertSummary",
+                        related_name='alerts',
+                        to='perf.PerformanceAlertSummary',
                     ),
                 ),
             ],
             options={
-                "db_table": "performance_alert",
+                'db_table': 'performance_alert',
             },
         ),
         migrations.AlterUniqueTogether(
-            name="performancesignature",
-            unique_together=set([("repository", "framework", "signature_hash")]),
+            name='performancesignature',
+            unique_together=set([('repository', 'framework', 'signature_hash')]),
         ),
         migrations.AlterUniqueTogether(
-            name="performancedatum",
-            unique_together=set([("repository", "job", "push", "signature")]),
+            name='performancedatum',
+            unique_together=set([('repository', 'job', 'push', 'signature')]),
         ),
         migrations.AlterIndexTogether(
-            name="performancedatum",
+            name='performancedatum',
             index_together=set(
-                [("repository", "signature", "push_timestamp"), ("repository", "signature", "push")]
+                [('repository', 'signature', 'push_timestamp'), ('repository', 'signature', 'push')]
             ),
         ),
         migrations.AlterUniqueTogether(
-            name="performancealertsummary",
-            unique_together=set([("repository", "framework", "prev_push", "push")]),
+            name='performancealertsummary',
+            unique_together=set([('repository', 'framework', 'prev_push', 'push')]),
         ),
         migrations.AlterUniqueTogether(
-            name="performancealert",
-            unique_together=set([("summary", "series_signature")]),
+            name='performancealert',
+            unique_together=set([('summary', 'series_signature')]),
         ),
     ]

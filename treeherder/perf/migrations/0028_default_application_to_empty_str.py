@@ -5,15 +5,15 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("perf", "0027_support_perfherder_settings"),
+        ('perf', '0027_support_perfherder_settings'),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name="performancesignature",
-            name="application",
+            model_name='performancesignature',
+            name='application',
             field=models.CharField(
-                default="",
+                default='',
                 help_text="Application that runs the signature's tests. Generally used to record browser's name, but not necessarily.",
                 max_length=10,
             ),

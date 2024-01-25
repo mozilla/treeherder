@@ -6,56 +6,56 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("perf", "0023_increase_extra_options_size"),
+        ('perf', '0023_increase_extra_options_size'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name="BackfillReport",
+            name='BackfillReport',
             fields=[
                 (
-                    "summary",
+                    'summary',
                     models.OneToOneField(
                         on_delete=django.db.models.deletion.CASCADE,
                         primary_key=True,
-                        related_name="backfill_report",
+                        related_name='backfill_report',
                         serialize=False,
-                        to="perf.PerformanceAlertSummary",
+                        to='perf.PerformanceAlertSummary',
                     ),
                 ),
-                ("created", models.DateTimeField(auto_now_add=True)),
-                ("last_updated", models.DateTimeField(auto_now=True)),
+                ('created', models.DateTimeField(auto_now_add=True)),
+                ('last_updated', models.DateTimeField(auto_now=True)),
             ],
             options={
-                "db_table": "backfill_report",
+                'db_table': 'backfill_report',
             },
         ),
         migrations.CreateModel(
-            name="BackfillRecord",
+            name='BackfillRecord',
             fields=[
                 (
-                    "alert",
+                    'alert',
                     models.OneToOneField(
                         on_delete=django.db.models.deletion.CASCADE,
                         primary_key=True,
-                        related_name="backfill_record",
+                        related_name='backfill_record',
                         serialize=False,
-                        to="perf.PerformanceAlert",
+                        to='perf.PerformanceAlert',
                     ),
                 ),
-                ("context", models.TextField()),
-                ("created", models.DateTimeField(auto_now_add=True)),
+                ('context', models.TextField()),
+                ('created', models.DateTimeField(auto_now_add=True)),
                 (
-                    "report",
+                    'report',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="records",
-                        to="perf.BackfillReport",
+                        related_name='records',
+                        to='perf.BackfillReport',
                     ),
                 ),
             ],
             options={
-                "db_table": "backfill_record",
+                'db_table': 'backfill_record',
             },
         ),
     ]

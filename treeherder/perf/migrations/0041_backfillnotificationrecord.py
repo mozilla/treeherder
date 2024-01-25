@@ -6,32 +6,32 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("perf", "0040_performancealert_noise_profile"),
+        ('perf', '0040_performancealert_noise_profile'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name="BackfillNotificationRecord",
+            name='BackfillNotificationRecord',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.AutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID'
                     ),
                 ),
-                ("created", models.DateTimeField(auto_now_add=True)),
-                ("last_updated", models.DateTimeField(auto_now=True)),
+                ('created', models.DateTimeField(auto_now_add=True)),
+                ('last_updated', models.DateTimeField(auto_now=True)),
                 (
-                    "record",
+                    'record',
                     models.OneToOneField(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="backfill_notification_record",
-                        to="perf.backfillrecord",
+                        related_name='backfill_notification_record',
+                        to='perf.backfillrecord',
                     ),
                 ),
             ],
             options={
-                "db_table": "backfill_notification_record",
+                'db_table': 'backfill_notification_record',
             },
         ),
     ]

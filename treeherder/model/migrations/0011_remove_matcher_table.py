@@ -5,11 +5,11 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("model", "0010_remove_runnable_job"),
+        ('model', '0010_remove_runnable_job'),
     ]
 
     operations = [
         migrations.DeleteModel(
-            name="Matcher",
+            name='Matcher',
         ),
     ]

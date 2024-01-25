@@ -6,64 +6,64 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("model", "0021_investigatedtests"),
+        ('model', '0021_investigatedtests'),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name="failureline",
-            name="action",
+            model_name='failureline',
+            name='action',
             field=models.CharField(
                 choices=[
-                    ("test_result", "test_result"),
-                    ("log", "log"),
-                    ("crash", "crash"),
-                    ("truncated", "truncated"),
-                    ("group_result", "group_result"),
+                    ('test_result', 'test_result'),
+                    ('log', 'log'),
+                    ('crash', 'crash'),
+                    ('truncated', 'truncated'),
+                    ('group_result', 'group_result'),
                 ],
                 max_length=15,
             ),
         ),
         migrations.CreateModel(
-            name="GroupStatus",
+            name='GroupStatus',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.AutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID'
                     ),
                 ),
-                ("status", models.SmallIntegerField()),
+                ('status', models.SmallIntegerField()),
                 (
-                    "group",
+                    'group',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="group_result",
-                        to="model.Group",
+                        related_name='group_result',
+                        to='model.Group',
                     ),
                 ),
                 (
-                    "job_log",
+                    'job_log',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="group_result",
-                        to="model.JobLog",
+                        related_name='group_result',
+                        to='model.JobLog',
                     ),
                 ),
             ],
             options={
-                "db_table": "group_status",
+                'db_table': 'group_status',
             },
         ),
         migrations.AddField(
-            model_name="group",
-            name="job_logs",
+            model_name='group',
+            name='job_logs',
             field=models.ManyToManyField(
-                related_name="groups", through="model.GroupStatus", to="model.JobLog"
+                related_name='groups', through='model.GroupStatus', to='model.JobLog'
             ),
         ),
         migrations.RemoveField(
-            model_name="group",
-            name="failure_lines",
+            model_name='group',
+            name='failure_lines',
         ),
     ]

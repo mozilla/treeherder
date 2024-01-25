@@ -6,28 +6,28 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("model", "0019_increase_job_type_name_length"),
+        ('model', '0019_increase_job_type_name_length'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name="textlogerror",
-            name="job",
+            model_name='textlogerror',
+            name='job',
             field=models.ForeignKey(
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
-                related_name="text_log_error",
-                to="model.Job",
+                related_name='text_log_error',
+                to='model.Job',
             ),
         ),
         migrations.AlterField(
-            model_name="textlogerror",
-            name="step",
+            model_name='textlogerror',
+            name='step',
             field=models.ForeignKey(
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
-                related_name="errors",
-                to="model.TextLogStep",
+                related_name='errors',
+                to='model.TextLogStep',
             ),
         ),
     ]

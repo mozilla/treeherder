@@ -5,15 +5,15 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("model", "0013_add_index_to_push_revision"),
+        ('model', '0013_add_index_to_push_revision'),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name="joblog",
-            name="status",
+            model_name='joblog',
+            name='status',
             field=models.IntegerField(
-                choices=[(0, "pending"), (1, "parsed"), (2, "failed"), (3, "skipped-size")],
+                choices=[(0, 'pending'), (1, 'parsed'), (2, 'failed'), (3, 'skipped-size')],
                 default=0,
             ),
         ),

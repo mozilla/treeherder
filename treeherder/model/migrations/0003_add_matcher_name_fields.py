@@ -5,20 +5,20 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("model", "0002_add_bugjobmap_model_manager"),
+        ('model', '0002_add_bugjobmap_model_manager'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name="failurematch",
-            name="matcher_name",
-            field=models.CharField(default="", max_length=255),
+            model_name='failurematch',
+            name='matcher_name',
+            field=models.CharField(default='', max_length=255),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name="textlogerrormatch",
-            name="matcher_name",
-            field=models.CharField(default="", max_length=255),
+            model_name='textlogerrormatch',
+            name='matcher_name',
+            field=models.CharField(default='', max_length=255),
             preserve_default=False,
         ),
     ]

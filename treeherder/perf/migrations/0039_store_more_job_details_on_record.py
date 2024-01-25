@@ -6,29 +6,29 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("model", "0022_support_group_status"),
-        ("perf", "0038_update_record_status"),
+        ('model', '0022_support_group_status'),
+        ('perf', '0038_update_record_status'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name="backfillrecord",
-            name="job_group",
+            model_name='backfillrecord',
+            name='job_group',
             field=models.ForeignKey(
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                related_name="backfill_records",
-                to="model.jobgroup",
+                related_name='backfill_records',
+                to='model.jobgroup',
             ),
         ),
         migrations.AddField(
-            model_name="backfillrecord",
-            name="job_platform_option",
+            model_name='backfillrecord',
+            name='job_platform_option',
             field=models.CharField(max_length=100, null=True),
         ),
         migrations.AddField(
-            model_name="backfillrecord",
-            name="job_tier",
+            model_name='backfillrecord',
+            name='job_tier',
             field=models.PositiveIntegerField(null=True),
         ),
     ]

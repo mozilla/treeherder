@@ -5,16 +5,16 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("perf", "0033_permit_multi_data_per_job"),
+        ('perf', '0033_permit_multi_data_per_job'),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name="performancedatum",
-            name="ds_job_id",
+            model_name='performancedatum',
+            name='ds_job_id',
         ),
         migrations.RemoveField(
-            model_name="performancedatum",
-            name="result_set_id",
+            model_name='performancedatum',
+            name='result_set_id',
         ),
     ]

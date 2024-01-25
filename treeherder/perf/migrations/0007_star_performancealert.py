@@ -5,13 +5,13 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("perf", "0006_add_alert_summary_notes"),
+        ('perf', '0006_add_alert_summary_notes'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name="performancealert",
-            name="starred",
+            model_name='performancealert',
+            name='starred',
             field=models.BooleanField(default=False),
         ),
     ]

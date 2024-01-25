@@ -6,28 +6,28 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("model", "0020_textlogerror_job"),
-        ("perf", "0032_add_performance_tag"),
+        ('model', '0020_textlogerror_job'),
+        ('perf', '0032_add_performance_tag'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name="MultiCommitDatum",
+            name='MultiCommitDatum',
             fields=[
                 (
-                    "perf_datum",
+                    'perf_datum',
                     models.OneToOneField(
                         on_delete=django.db.models.deletion.CASCADE,
                         primary_key=True,
-                        related_name="multi_commit_datum",
+                        related_name='multi_commit_datum',
                         serialize=False,
-                        to="perf.PerformanceDatum",
+                        to='perf.PerformanceDatum',
                     ),
                 ),
             ],
         ),
         migrations.AlterUniqueTogether(
-            name="performancedatum",
-            unique_together={("repository", "job", "push", "push_timestamp", "signature")},
+            name='performancedatum',
+            unique_together={('repository', 'job', 'push', 'push_timestamp', 'signature')},
         ),
     ]

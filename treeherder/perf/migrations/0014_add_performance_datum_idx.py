@@ -5,13 +5,13 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("perf", "0013_add_alert_timestamps"),
+        ('perf', '0013_add_alert_timestamps'),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name="performancedatum",
-            name="push_timestamp",
+            model_name='performancedatum',
+            name='push_timestamp',
             field=models.DateTimeField(db_index=True),
         ),
     ]

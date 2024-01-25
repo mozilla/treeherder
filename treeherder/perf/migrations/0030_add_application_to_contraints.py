@@ -5,34 +5,34 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("model", "0016_add_index_commit_revision"),
-        ("perf", "0029_add_frozen_to_report"),
+        ('model', '0016_add_index_commit_revision'),
+        ('perf', '0029_add_frozen_to_report'),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name="performancesignature",
+            name='performancesignature',
             unique_together={
                 (
-                    "repository",
-                    "suite",
-                    "test",
-                    "framework",
-                    "platform",
-                    "option_collection",
-                    "extra_options",
-                    "last_updated",
-                    "application",
+                    'repository',
+                    'suite',
+                    'test',
+                    'framework',
+                    'platform',
+                    'option_collection',
+                    'extra_options',
+                    'last_updated',
+                    'application',
                 ),
-                ("repository", "framework", "signature_hash"),
+                ('repository', 'framework', 'signature_hash'),
                 (
-                    "repository",
-                    "suite_public_name",
-                    "test_public_name",
-                    "framework",
-                    "platform",
-                    "option_collection",
-                    "extra_options",
+                    'repository',
+                    'suite_public_name',
+                    'test_public_name',
+                    'framework',
+                    'platform',
+                    'option_collection',
+                    'extra_options',
                 ),
             },
         ),

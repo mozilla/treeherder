@@ -5,28 +5,28 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("perf", "0041_backfillnotificationrecord"),
+        ('perf', '0041_backfillnotificationrecord'),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name="backfillrecord",
-            old_name="total_backfills_triggered",
-            new_name="total_actions_triggered",
+            model_name='backfillrecord',
+            old_name='total_backfills_triggered',
+            new_name='total_actions_triggered',
         ),
         migrations.AddField(
-            model_name="backfillrecord",
-            name="total_backfills_failed",
+            model_name='backfillrecord',
+            name='total_backfills_failed',
             field=models.IntegerField(default=0),
         ),
         migrations.AddField(
-            model_name="backfillrecord",
-            name="total_backfills_in_progress",
+            model_name='backfillrecord',
+            name='total_backfills_in_progress',
             field=models.IntegerField(default=0),
         ),
         migrations.AddField(
-            model_name="backfillrecord",
-            name="total_backfills_successful",
+            model_name='backfillrecord',
+            name='total_backfills_successful',
             field=models.IntegerField(default=0),
         ),
     ]

@@ -5,13 +5,13 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("perf", "0034_remove_performancedatum_fields"),
+        ('perf', '0034_remove_performancedatum_fields'),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name="performancesignature",
-            name="should_alert",
+            model_name='performancesignature',
+            name='should_alert',
             field=models.BooleanField(null=True),
         ),
     ]

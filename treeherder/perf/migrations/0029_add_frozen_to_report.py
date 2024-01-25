@@ -5,13 +5,13 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("perf", "0028_default_application_to_empty_str"),
+        ('perf', '0028_default_application_to_empty_str'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name="backfillreport",
-            name="frozen",
+            model_name='backfillreport',
+            name='frozen',
             field=models.BooleanField(default=False),
         ),
     ]

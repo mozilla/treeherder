@@ -5,53 +5,53 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("perf", "0012_rename_summary_last_updated"),
+        ('perf', '0012_rename_summary_last_updated'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name="performancealert",
-            name="created",
+            model_name='performancealert',
+            name='created',
             field=models.DateTimeField(null=True),
         ),
         migrations.AlterField(
-            model_name="performancealert",
-            name="created",
+            model_name='performancealert',
+            name='created',
             field=models.DateTimeField(auto_now_add=True, null=True),
         ),
         migrations.AddField(
-            model_name="performancealert",
-            name="first_triaged",
+            model_name='performancealert',
+            name='first_triaged',
             field=models.DateTimeField(default=None, null=True),
         ),
         migrations.AddField(
-            model_name="performancealert",
-            name="last_updated",
+            model_name='performancealert',
+            name='last_updated',
             field=models.DateTimeField(null=True),
         ),
         migrations.AlterField(
-            model_name="performancealert",
-            name="last_updated",
+            model_name='performancealert',
+            name='last_updated',
             field=models.DateTimeField(auto_now=True, null=True),
         ),
         migrations.AlterField(
-            model_name="performancealertsummary",
-            name="created",
+            model_name='performancealertsummary',
+            name='created',
             field=models.DateTimeField(auto_now_add=True, db_index=True),
         ),
         migrations.AddField(
-            model_name="performancealertsummary",
-            name="first_triaged",
+            model_name='performancealertsummary',
+            name='first_triaged',
             field=models.DateTimeField(default=None, null=True),
         ),
         migrations.AddField(
-            model_name="performancealertsummary",
-            name="last_updated",
+            model_name='performancealertsummary',
+            name='last_updated',
             field=models.DateTimeField(null=True),
         ),
         migrations.AlterField(
-            model_name="performancealertsummary",
-            name="last_updated",
+            model_name='performancealertsummary',
+            name='last_updated',
             field=models.DateTimeField(auto_now=True, null=True),
         ),
     ]

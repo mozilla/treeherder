@@ -5,24 +5,24 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("model", "0015_add_repository_tc_root_url"),
-        ("perf", "0020_add_application_field"),
+        ('model', '0015_add_repository_tc_root_url'),
+        ('perf', '0020_add_application_field'),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name="performancesignature",
+            name='performancesignature',
             unique_together={
-                ("repository", "framework", "signature_hash"),
+                ('repository', 'framework', 'signature_hash'),
                 (
-                    "repository",
-                    "suite",
-                    "test",
-                    "framework",
-                    "platform",
-                    "option_collection",
-                    "extra_options",
-                    "last_updated",
+                    'repository',
+                    'suite',
+                    'test',
+                    'framework',
+                    'platform',
+                    'option_collection',
+                    'extra_options',
+                    'last_updated',
                 ),
             },
         ),

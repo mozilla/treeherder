@@ -5,29 +5,29 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("perf", "0039_store_more_job_details_on_record"),
+        ('perf', '0039_store_more_job_details_on_record'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name="performancealert",
-            name="noise_profile",
+            model_name='performancealert',
+            name='noise_profile',
             field=models.CharField(
                 choices=[
-                    ("SKEWED", "Samples are heavily found on one side of the mean."),
+                    ('SKEWED', 'Samples are heavily found on one side of the mean.'),
                     (
-                        "OUTLIERS",
-                        "There are more outliers than should be expected from a normal distribution.",
+                        'OUTLIERS',
+                        'There are more outliers than should be expected from a normal distribution.',
                     ),
                     (
-                        "MODAL",
-                        "There are multiple areas where most values are found rather than only one.",
+                        'MODAL',
+                        'There are multiple areas where most values are found rather than only one.',
                     ),
-                    ("OK", "No issues were found."),
-                    ("N/A", "Could not compute a noise profile."),
+                    ('OK', 'No issues were found.'),
+                    ('N/A', 'Could not compute a noise profile.'),
                 ],
-                default="N/A",
-                help_text="The noise profile of the data which precedes this alert.",
+                default='N/A',
+                help_text='The noise profile of the data which precedes this alert.',
                 max_length=30,
             ),
         ),

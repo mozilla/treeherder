@@ -5,16 +5,16 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("model", "0004_populate_matcher_name_fields"),
+        ('model', '0004_populate_matcher_name_fields'),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name="failurematch",
-            unique_together=set([("failure_line", "classified_failure", "matcher_name")]),
+            name='failurematch',
+            unique_together=set([('failure_line', 'classified_failure', 'matcher_name')]),
         ),
         migrations.AlterUniqueTogether(
-            name="textlogerrormatch",
-            unique_together=set([("text_log_error", "classified_failure", "matcher_name")]),
+            name='textlogerrormatch',
+            unique_together=set([('text_log_error', 'classified_failure', 'matcher_name')]),
         ),
     ]

@@ -5,14 +5,14 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("model", "0015_add_repository_tc_root_url"),
-        ("perf", "0019_remove_confirming_state"),
+        ('model', '0015_add_repository_tc_root_url'),
+        ('perf', '0019_remove_confirming_state'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name="performancesignature",
-            name="application",
+            model_name='performancesignature',
+            name='application',
             field=models.CharField(
                 help_text="Application that runs the signature's tests. Generally used to record browser's name, but not necessarily.",
                 max_length=10,
@@ -20,19 +20,19 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterUniqueTogether(
-            name="performancesignature",
+            name='performancesignature',
             unique_together={
-                ("repository", "framework", "signature_hash"),
+                ('repository', 'framework', 'signature_hash'),
                 (
-                    "repository",
-                    "suite",
-                    "test",
-                    "framework",
-                    "application",
-                    "platform",
-                    "option_collection",
-                    "extra_options",
-                    "last_updated",
+                    'repository',
+                    'suite',
+                    'test',
+                    'framework',
+                    'application',
+                    'platform',
+                    'option_collection',
+                    'extra_options',
+                    'last_updated',
                 ),
             },
         ),

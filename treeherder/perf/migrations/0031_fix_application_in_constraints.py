@@ -5,35 +5,35 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("model", "0017_add_index_task_id"),
-        ("perf", "0030_add_application_to_contraints"),
+        ('model', '0017_add_index_task_id'),
+        ('perf', '0030_add_application_to_contraints'),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name="performancesignature",
+            name='performancesignature',
             unique_together={
                 (
-                    "repository",
-                    "suite",
-                    "test",
-                    "framework",
-                    "platform",
-                    "option_collection",
-                    "extra_options",
-                    "last_updated",
-                    "application",
+                    'repository',
+                    'suite',
+                    'test',
+                    'framework',
+                    'platform',
+                    'option_collection',
+                    'extra_options',
+                    'last_updated',
+                    'application',
                 ),
                 (
-                    "repository",
-                    "suite_public_name",
-                    "test_public_name",
-                    "framework",
-                    "platform",
-                    "option_collection",
-                    "extra_options",
+                    'repository',
+                    'suite_public_name',
+                    'test_public_name',
+                    'framework',
+                    'platform',
+                    'option_collection',
+                    'extra_options',
                 ),
-                ("repository", "framework", "application", "signature_hash"),
+                ('repository', 'framework', 'application', 'signature_hash'),
             },
         ),
     ]

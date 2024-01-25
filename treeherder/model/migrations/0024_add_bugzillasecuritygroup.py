@@ -5,25 +5,25 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("model", "0023_add_filebugzillacomponent"),
+        ('model', '0023_add_filebugzillacomponent'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name="BugzillaSecurityGroup",
+            name='BugzillaSecurityGroup',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.AutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID'
                     ),
                 ),
-                ("product", models.CharField(db_index=True, max_length=60, unique=True)),
-                ("security_group", models.CharField(max_length=60)),
+                ('product', models.CharField(db_index=True, max_length=60, unique=True)),
+                ('security_group', models.CharField(max_length=60)),
             ],
             options={
-                "verbose_name_plural": "bugzilla_security_groups",
-                "db_table": "bugzilla_security_group",
+                'verbose_name_plural': 'bugzilla_security_groups',
+                'db_table': 'bugzilla_security_group',
             },
         ),
     ]

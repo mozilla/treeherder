@@ -11,12 +11,12 @@ class Migration(migrations.Migration):
     """
 
     dependencies = [
-        ("model", "0028_alter_textlogerror_unique_together"),
+        ('model', '0028_alter_textlogerror_unique_together'),
     ]
 
     operations = [
         migrations.AlterIndexTogether(
-            name="failureline",
-            index_together={("job_guid", "repository")},
+            name='failureline',
+            index_together={('job_guid', 'repository')},
         ),
     ]

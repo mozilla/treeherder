@@ -5,12 +5,12 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("model", "0024_add_bugzillasecuritygroup"),
+        ('model', '0024_add_bugzillasecuritygroup'),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name="bugscache",
-            name="os",
+            model_name='bugscache',
+            name='os',
         ),
     ]

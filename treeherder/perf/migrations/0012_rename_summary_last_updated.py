@@ -5,13 +5,13 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("perf", "0011_inc_extra_options_length"),
+        ('perf', '0011_inc_extra_options_length'),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name="performancealertsummary",
-            old_name="last_updated",
-            new_name="created",
+            model_name='performancealertsummary',
+            old_name='last_updated',
+            new_name='created',
         ),
     ]

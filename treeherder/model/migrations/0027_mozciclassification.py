@@ -8,35 +8,35 @@ import django.utils.timezone
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("model", "0026_bugscache_add_dupe_of_and_processed_update"),
+        ('model', '0026_bugscache_add_dupe_of_and_processed_update'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name="MozciClassification",
+            name='MozciClassification',
             fields=[
-                ("id", models.BigAutoField(primary_key=True, serialize=False)),
+                ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 (
-                    "result",
+                    'result',
                     models.CharField(
                         max_length=7,
-                        choices=[("BAD", "bad"), ("GOOD", "good"), ("UNKNOWN", "unknown")],
+                        choices=[('BAD', 'bad'), ('GOOD', 'good'), ('UNKNOWN', 'unknown')],
                     ),
                 ),
-                ("created", models.DateTimeField(default=django.utils.timezone.now)),
+                ('created', models.DateTimeField(default=django.utils.timezone.now)),
                 (
-                    "task_id",
+                    'task_id',
                     models.CharField(
                         max_length=22, validators=[django.core.validators.MinLengthValidator(22)]
                     ),
                 ),
                 (
-                    "push",
-                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="model.push"),
+                    'push',
+                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='model.push'),
                 ),
             ],
             options={
-                "db_table": "mozci_classification",
+                'db_table': 'mozci_classification',
             },
         ),
     ]
