@@ -44,3 +44,4 @@ def test_get_heartbeat(client):
 def test_get_lbheartbeat(client):
     response = client.get("/__lbheartbeat__")
     assert response.status_code == 200
+    assert not response.content
