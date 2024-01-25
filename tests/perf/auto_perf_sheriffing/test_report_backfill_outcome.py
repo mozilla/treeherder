@@ -43,7 +43,7 @@ def test_email_is_still_sent_if_context_is_too_corrupt_to_be_actionable(
     record_ready_for_processing,
     sherlock_settings,
     broken_context_str,
-    tc_notify_mock
+    tc_notify_mock,
     # Note: parametrizes the test
 ):
     record_ready_for_processing.context = broken_context_str
