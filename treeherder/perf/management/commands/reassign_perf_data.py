@@ -41,9 +41,7 @@ class Command(BaseCommand):
             metavar="USE CASE",
             help="""Rename "old" Raptor tp6 subtests, by pointing perf alerts & datum to new signatures.
                  Cannot be used in conjunction with --from/--to arguments.
-                 Available use cases: {}""".format(
-                ",".join(USE_CASES)
-            ),
+                 Available use cases: {}""".format(",".join(USE_CASES)),
         )
         parser.add_argument(
             "--keep-leftovers",

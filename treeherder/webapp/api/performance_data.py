@@ -751,9 +751,7 @@ class PerformanceSummary(generics.ListAPIView):
                         "push_timestamp",
                         "push__revision",
                         "performancedatumreplicate__value",
-                    ).order_by(
-                        "push_timestamp", "push_id", "job_id"
-                    ):
+                    ).order_by("push_timestamp", "push_id", "job_id"):
                         if replicate_value is not None:
                             item["data"].append(
                                 {
