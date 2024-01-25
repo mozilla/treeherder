@@ -535,8 +535,7 @@ class PerformanceAlert(models.Model):
         # or absence of a related summary
         if self.related_summary and self.status not in self.RELATIONAL_STATUS_IDS:
             raise ValidationError(
-                "Related summary set but status not in "
-                "'{}'!".format(
+                "Related summary set but status not in " "'{}'!".format(
                     ", ".join(
                         [
                             STATUS[1]
@@ -548,8 +547,7 @@ class PerformanceAlert(models.Model):
             )
         if not self.related_summary and self.status not in self.UNRELATIONAL_STATUS_IDS:
             raise ValidationError(
-                "Related summary not set but status not in "
-                "'{}'!".format(
+                "Related summary not set but status not in " "'{}'!".format(
                     ", ".join(
                         [
                             STATUS[1]
