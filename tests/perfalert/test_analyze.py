@@ -47,7 +47,7 @@ def test_weights():
     [
         ([0.0, 0.0], [1.0, 2.0], 3.0),
         ([0.0, 0.0], [0.0, 0.0], 0.0),
-        ([0.0, 0.0], [1.0, 1.0], float('inf')),
+        ([0.0, 0.0], [1.0, 1.0], float("inf")),
     ],
 )
 def test_calc_t(old_data, new_data, expected):
@@ -111,13 +111,13 @@ def test_detect_changes_few_revisions_many_values():
 @pytest.mark.parametrize(
     ("filename", "expected_timestamps"),
     [
-        ('runs1.json', [1365019665]),
-        ('runs2.json', [1357704596, 1358971894, 1365014104]),
-        ('runs3.json', [1335293827, 1338839958]),
-        ('runs4.json', [1364922838]),
-        ('runs5.json', []),
-        ('a11y.json', [1366197637, 1367799757]),
-        ('tp5rss.json', [1372846906, 1373413365, 1373424974]),
+        ("runs1.json", [1365019665]),
+        ("runs2.json", [1357704596, 1358971894, 1365014104]),
+        ("runs3.json", [1335293827, 1338839958]),
+        ("runs4.json", [1364922838]),
+        ("runs5.json", []),
+        ("a11y.json", [1366197637, 1367799757]),
+        ("tp5rss.json", [1372846906, 1373413365, 1373424974]),
     ],
 )
 def test_detect_changes_historical_data(filename, expected_timestamps):
@@ -128,8 +128,8 @@ def test_detect_changes_historical_data(filename, expected_timestamps):
     MAX_BACK_WINDOW = 24
     THRESHOLD = 7
 
-    payload = SampleData.get_perf_data(os.path.join('graphs', filename))
-    runs = payload['test_runs']
+    payload = SampleData.get_perf_data(os.path.join("graphs", filename))
+    runs = payload["test_runs"]
     data = [RevisionDatum(r[2], r[2], [r[3]]) for r in runs]
 
     results = detect_changes(

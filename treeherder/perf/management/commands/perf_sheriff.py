@@ -17,38 +17,38 @@ class Command(BaseCommand):
     AVAILABLE_REPOS = Repository.fetch_all_names()
 
     SHERIFFED_FRAMEWORKS = [
-        'browsertime',
-        'raptor',
-        'talos',
-        'awsy',
-        'build_metrics',
-        'js-bench',
-        'devtools',
+        "browsertime",
+        "raptor",
+        "talos",
+        "awsy",
+        "build_metrics",
+        "js-bench",
+        "devtools",
     ]
-    SHERIFFED_REPOS = ['autoland', 'mozilla-beta']
+    SHERIFFED_REPOS = ["autoland", "mozilla-beta"]
 
     help = "Select most relevant alerts and identify jobs to retrigger."
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--time-window',
-            action='store',
+            "--time-window",
+            action="store",
             type=int,
             default=60,
             help="How far back to look for alerts to retrigger (expressed in minutes).",
         )
 
         parser.add_argument(
-            '--frameworks',
-            nargs='+',
+            "--frameworks",
+            nargs="+",
             default=self.SHERIFFED_FRAMEWORKS,
             choices=self.AVAILABLE_FRAMEWORKS,
             help="Defaults to all registered performance frameworks.",
         )
 
         parser.add_argument(
-            '--repositories',
-            nargs='+',
+            "--repositories",
+            nargs="+",
             default=self.SHERIFFED_REPOS,
             choices=self.AVAILABLE_REPOS,
             help=f"Defaults to {self.SHERIFFED_REPOS}.",
@@ -67,8 +67,8 @@ class Command(BaseCommand):
 
     def _parse_args(self, **options) -> Tuple[List, List, datetime, timedelta]:
         return (
-            options['frameworks'],
-            options['repositories'],
-            datetime.now() - timedelta(minutes=options['time_window']),
+            options["frameworks"],
+            options["repositories"],
+            datetime.now() - timedelta(minutes=options["time_window"]),
             timedelta(days=1),
         )

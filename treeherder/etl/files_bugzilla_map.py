@@ -15,9 +15,9 @@ logger = logging.getLogger(__name__)
 class FilesBugzillaMapProcess:
     bugzilla_components = {}
 
-    max_path_length = FilesBugzillaMap._meta.get_field('path').max_length
-    max_product_length = BugzillaComponent._meta.get_field('product').max_length
-    max_component_length = BugzillaComponent._meta.get_field('component').max_length
+    max_path_length = FilesBugzillaMap._meta.get_field("path").max_length
+    max_product_length = BugzillaComponent._meta.get_field("product").max_length
+    max_component_length = BugzillaComponent._meta.get_field("component").max_length
 
     run_id = None
 
@@ -76,16 +76,16 @@ class FilesBugzillaMapProcess:
 
     def get_projects_to_import(self):
         return list(
-            Repository.objects.filter(codebase='gecko')
-            .filter(active_status='active')
+            Repository.objects.filter(codebase="gecko")
+            .filter(active_status="active")
             .filter(life_cycle_order__isnull=False)
-            .values_list('name', flat=True)
-            .order_by('life_cycle_order')
+            .values_list("name", flat=True)
+            .order_by("life_cycle_order")
         )
 
     def fetch_data(self, project):
         url = (
-            'https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2.%s.latest.source.source-bugzilla-info/artifacts/public/components.json'
+            "https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2.%s.latest.source.source-bugzilla-info/artifacts/public/components.json"
             % project
         )
         files_bugzilla_data = None
@@ -131,14 +131,14 @@ class FilesBugzillaMapProcess:
             paths_ingested_all |= paths_ingested_this_project
             paths_bugzilla_ingested_all |= paths_bugzilla_ingested_project
 
-        paths_old = set(FilesBugzillaMap.objects.values_list('path', flat=True))
+        paths_old = set(FilesBugzillaMap.objects.values_list("path", flat=True))
 
         paths_removed = paths_old - paths_ingested_all
         FilesBugzillaMap.objects.filter(path__in=paths_removed).delete()
 
         paths_bugzilla_old = set(
-            FilesBugzillaMap.objects.select_related('bugzilla_component').values_list(
-                'path', 'bugzilla_component__product', 'bugzilla_component__component'
+            FilesBugzillaMap.objects.select_related("bugzilla_component").values_list(
+                "path", "bugzilla_component__product", "bugzilla_component__component"
             )
         )
         paths_bugzilla_unchanged = paths_bugzilla_old.intersection(paths_bugzilla_ingested_all)
@@ -164,12 +164,12 @@ class FilesBugzillaMapProcess:
             if not bugzilla_component_data:
                 continue
             path_bugzilla_update_needed = FilesBugzillaMap.objects.select_related(
-                'bugzilla_component'
+                "bugzilla_component"
             ).filter(path=path)[0]
             path_bugzilla_update_needed.bugzilla_component_id = bugzilla_component_data.id
             paths_bugzilla_update_needed.append(path_bugzilla_update_needed)
         FilesBugzillaMap.objects.bulk_update(
-            paths_bugzilla_update_needed, ['bugzilla_component_id'], batch_size=1000
+            paths_bugzilla_update_needed, ["bugzilla_component_id"], batch_size=1000
         )
 
         paths_bugzilla_addition_needed = []
@@ -177,7 +177,7 @@ class FilesBugzillaMapProcess:
             bugzilla_component_data = self.get_or_add_bugzilla_component(path_bugzilla_data, path)
             if not bugzilla_component_data:
                 continue
-            file_name = (path.rsplit('/', 1))[-1]
+            file_name = (path.rsplit("/", 1))[-1]
             paths_bugzilla_addition_needed.append(
                 FilesBugzillaMap(
                     path=path,
@@ -188,21 +188,21 @@ class FilesBugzillaMapProcess:
         FilesBugzillaMap.objects.bulk_create(paths_bugzilla_addition_needed, batch_size=1000)
 
         bugzilla_components_used = set(
-            FilesBugzillaMap.objects.values_list('bugzilla_component_id', flat=True).distinct()
+            FilesBugzillaMap.objects.values_list("bugzilla_component_id", flat=True).distinct()
         )
         bugzilla_components_all = set(
-            BugzillaComponent.objects.all().values_list('id', flat=True).distinct()
+            BugzillaComponent.objects.all().values_list("id", flat=True).distinct()
         )
         bugzilla_components_unused = bugzilla_components_all.difference(bugzilla_components_used)
         (BugzillaComponent.objects.filter(id__in=bugzilla_components_unused).delete())
 
 
 class ProductSecurityGroupProcess:
-    max_product_length = BugzillaSecurityGroup._meta.get_field('product').max_length
-    max_security_group_length = BugzillaSecurityGroup._meta.get_field('security_group').max_length
+    max_product_length = BugzillaSecurityGroup._meta.get_field("product").max_length
+    max_security_group_length = BugzillaSecurityGroup._meta.get_field("security_group").max_length
 
     def fetch_data(self):
-        url = 'https://bugzilla.mozilla.org/latest/configuration'
+        url = "https://bugzilla.mozilla.org/latest/configuration"
         product_security_group_data = None
         exception = None
         try:

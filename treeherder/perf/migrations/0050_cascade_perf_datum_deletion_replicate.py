@@ -4,37 +4,37 @@ from django.db import migrations
 from django.conf import settings
 
 DATUM_REPLICATE_CONSTRAINT_SYMBOL = (
-    'performance_datum_re_performance_datum_id_fe2ed518_fk_performan'
+    "performance_datum_re_performance_datum_id_fe2ed518_fk_performan"
 )
 
-if settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
-    DROP_TYPE = 'FOREIGN KEY'
+if settings.DATABASES["default"]["ENGINE"] == "django.db.backends.mysql":
+    DROP_TYPE = "FOREIGN KEY"
 else:
-    DROP_TYPE = 'CONSTRAINT'
+    DROP_TYPE = "CONSTRAINT"
 
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('perf', '0049_performancedatumreplicate'),
+        ("perf", "0049_performancedatumreplicate"),
     ]
 
     operations = [
         migrations.RunSQL(
             # add ON DELETE CASCADE at database level
             [
-                f'ALTER TABLE performance_datum_replicate '
-                f'DROP {DROP_TYPE} {DATUM_REPLICATE_CONSTRAINT_SYMBOL};',
-                f'ALTER TABLE performance_datum_replicate '
-                f'ADD CONSTRAINT {DATUM_REPLICATE_CONSTRAINT_SYMBOL} '
-                f'FOREIGN KEY (performance_datum_id) REFERENCES performance_datum (ID) ON DELETE CASCADE;',
+                f"ALTER TABLE performance_datum_replicate "
+                f"DROP {DROP_TYPE} {DATUM_REPLICATE_CONSTRAINT_SYMBOL};",
+                f"ALTER TABLE performance_datum_replicate "
+                f"ADD CONSTRAINT {DATUM_REPLICATE_CONSTRAINT_SYMBOL} "
+                f"FOREIGN KEY (performance_datum_id) REFERENCES performance_datum (ID) ON DELETE CASCADE;",
             ],
             # put back the non-CASCADE foreign key constraint
             reverse_sql=[
-                f'ALTER TABLE performance_datum_replicate '
-                f'DROP {DROP_TYPE} {DATUM_REPLICATE_CONSTRAINT_SYMBOL};',
-                f'ALTER TABLE performance_datum_replicate '
-                f'ADD CONSTRAINT {DATUM_REPLICATE_CONSTRAINT_SYMBOL} '
-                f'FOREIGN KEY (performance_datum_id) REFERENCES performance_datum (ID);',
+                f"ALTER TABLE performance_datum_replicate "
+                f"DROP {DROP_TYPE} {DATUM_REPLICATE_CONSTRAINT_SYMBOL};",
+                f"ALTER TABLE performance_datum_replicate "
+                f"ADD CONSTRAINT {DATUM_REPLICATE_CONSTRAINT_SYMBOL} "
+                f"FOREIGN KEY (performance_datum_id) REFERENCES performance_datum (ID);",
             ],
         )
     ]

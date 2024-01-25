@@ -99,7 +99,7 @@ class GithubTransformer:
             revisions.append(
                 {
                     "comment": commit["commit"]["message"],
-                    "author": u"{} <{}>".format(
+                    "author": "{} <{}>".format(
                         commit["commit"]["author"]["name"], commit["commit"]["author"]["email"]
                     ),
                     "revision": commit["sha"],
@@ -266,7 +266,7 @@ class HgPushTransformer:
         commits = []
         # we only want to ingest the last 200 commits for each push,
         # to protect against the 5000+ commit merges on release day uplift.
-        for commit in push['changesets'][-200:]:
+        for commit in push["changesets"][-200:]:
             commits.append(
                 {
                     "revision": commit["node"],

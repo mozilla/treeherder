@@ -5,7 +5,7 @@ from requests.exceptions import HTTPError
 
 # The Python client release process is documented here:
 # https://treeherder.readthedocs.io/common_tasks.html#releasing-a-new-version-of-the-python-client
-__version__ = '5.0.0'
+__version__ = "5.0.0"
 
 logger = logging.getLogger(__name__)
 
@@ -15,21 +15,21 @@ class TreeherderClient:
     Treeherder client class
     """
 
-    API_VERSION = '1.1'
+    API_VERSION = "1.1"
     REQUEST_HEADERS = {
-        'Accept': 'application/json; version={}'.format(API_VERSION),
-        'User-Agent': 'treeherder-pyclient/{}'.format(__version__),
+        "Accept": "application/json; version={}".format(API_VERSION),
+        "User-Agent": "treeherder-pyclient/{}".format(__version__),
     }
 
-    PUSH_ENDPOINT = 'push'
-    JOBS_ENDPOINT = 'jobs'
-    JOB_LOG_URL_ENDPOINT = 'job-log-url'
-    OPTION_COLLECTION_HASH_ENDPOINT = 'optioncollectionhash'
-    REPOSITORY_ENDPOINT = 'repository'
-    FAILURE_CLASSIFICATION_ENDPOINT = 'failureclassification'
+    PUSH_ENDPOINT = "push"
+    JOBS_ENDPOINT = "jobs"
+    JOB_LOG_URL_ENDPOINT = "job-log-url"
+    OPTION_COLLECTION_HASH_ENDPOINT = "optioncollectionhash"
+    REPOSITORY_ENDPOINT = "repository"
+    FAILURE_CLASSIFICATION_ENDPOINT = "failureclassification"
     MAX_COUNT = 2000
 
-    def __init__(self, server_url='https://treeherder.mozilla.org', timeout=30):
+    def __init__(self, server_url="https://treeherder.mozilla.org", timeout=30):
         """
         :param server_url: The site URL of the Treeherder instance (defaults to production)
         :param timeout: maximum time it can take for a request to complete
@@ -43,9 +43,9 @@ class TreeherderClient:
 
     def _get_endpoint_url(self, endpoint, project=None):
         if project:
-            return '{}/api/project/{}/{}/'.format(self.server_url, project, endpoint)
+            return "{}/api/project/{}/{}/".format(self.server_url, project, endpoint)
 
-        return '{}/api/{}/'.format(self.server_url, endpoint)
+        return "{}/api/{}/".format(self.server_url, endpoint)
 
     def _get_json_list(self, endpoint, project=None, **params):
         if "count" in params and (params["count"] is None or params["count"] > self.MAX_COUNT):
@@ -97,7 +97,7 @@ class TreeherderClient:
         resp = self._get_json(self.OPTION_COLLECTION_HASH_ENDPOINT)
         ret = {}
         for result in resp:
-            ret[result['option_collection_hash']] = result['options']
+            ret[result["option_collection_hash"]] = result["options"]
 
         return ret
 

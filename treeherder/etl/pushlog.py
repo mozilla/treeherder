@@ -16,9 +16,9 @@ ONE_WEEK_IN_SECONDS = 604800
 
 def last_push_id_from_server(repo):
     """Obtain the last push ID from a ``Repository`` instance."""
-    url = '%s/json-pushes/?version=2' % repo.url
+    url = "%s/json-pushes/?version=2" % repo.url
     data = fetch_json(url)
-    return data['lastpushid']
+    return data["lastpushid"]
 
 
 class HgPushlogProcess:
@@ -36,24 +36,24 @@ class HgPushlogProcess:
         commits = []
         # we only want to ingest the last 200 commits for each push,
         # to protect against the 5000+ commit merges on release day uplift.
-        for commit in push['changesets'][-200:]:
+        for commit in push["changesets"][-200:]:
             commits.append(
                 {
-                    'revision': commit['node'],
-                    'author': commit['author'],
-                    'comment': commit['desc'],
+                    "revision": commit["node"],
+                    "author": commit["author"],
+                    "comment": commit["desc"],
                 }
             )
 
         return {
-            'revision': commits[-1]["revision"],
-            'author': push['user'],
-            'push_timestamp': push['date'],
-            'revisions': commits,
+            "revision": commits[-1]["revision"],
+            "author": push["user"],
+            "push_timestamp": push["date"],
+            "revisions": commits,
         }
 
     def run(self, source_url, repository_name, changeset=None, last_push_id=None):
-        cache_key = '{}:last_push_id'.format(repository_name)
+        cache_key = "{}:last_push_id".format(repository_name)
         if not last_push_id:
             # get the last object seen from cache. this will
             # reduce the number of pushes processed every time
@@ -73,7 +73,7 @@ class HgPushlogProcess:
             # ``startID`` to get all new pushes from that point forward.
             extracted_content = self.extract(startid_url)
 
-            if extracted_content['lastpushid'] < last_push_id:
+            if extracted_content["lastpushid"] < last_push_id:
                 # Push IDs from Mercurial are incremental.  If we cached a value
                 # from one call to this API, and a subsequent call told us that
                 # the ``lastpushid`` is LOWER than the one we have cached, then
@@ -83,7 +83,7 @@ class HgPushlogProcess:
                 logger.warning(
                     "Got a ``lastpushid`` value of %s lower than the cached value of %s "
                     "due to Mercurial repo reset. Getting latest changes for '%s' instead",
-                    extracted_content['lastpushid'],
+                    extracted_content["lastpushid"],
                     last_push_id,
                     repository_name,
                 )
@@ -104,7 +104,7 @@ class HgPushlogProcess:
                 )
                 extracted_content = self.extract(source_url)
 
-        pushes = extracted_content['pushes']
+        pushes = extracted_content["pushes"]
 
         # `pushes` could be empty if there are no new ones since we last fetched
         if not pushes:
@@ -118,7 +118,7 @@ class HgPushlogProcess:
         repository = Repository.objects.get(name=repository_name)
 
         for push in pushes.values():
-            if not push['changesets']:
+            if not push["changesets"]:
                 # A push without commits means it was marked as obsolete (see bug 1286426).
                 # Without them it's not possible to calculate the push revision required for ingestion.
                 continue

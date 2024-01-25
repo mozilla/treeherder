@@ -24,10 +24,10 @@ def csp_report_collector(request):
         permission_classes.
     """
     try:
-        report = json.loads(request.body)['csp-report']
+        report = json.loads(request.body)["csp-report"]
     except (KeyError, TypeError, ValueError):
-        return HttpResponseBadRequest('Invalid CSP violation report')
+        return HttpResponseBadRequest("Invalid CSP violation report")
 
-    logger.warning('CSP violation: %s', report)
-    newrelic.agent.record_custom_event('CSP violation', report)
+    logger.warning("CSP violation: %s", report)
+    newrelic.agent.record_custom_event("CSP violation", report)
     return HttpResponse()

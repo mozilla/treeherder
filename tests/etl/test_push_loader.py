@@ -56,7 +56,7 @@ def mock_github_pr_commits(activate_responses):
         "https://api.github.com/repos/mozilla/test_treeherder/pulls/1692/commits",
         body=mocked_content,
         status=200,
-        content_type='application/json',
+        content_type="application/json",
     )
 
 
@@ -74,7 +74,7 @@ def mock_github_push_compare(activate_responses):
         "5fdb785b28b356f50fc1d9cb180d401bb03fc1f1",
         json=mocked_content[0],
         status=200,
-        content_type='application/json',
+        content_type="application/json",
     )
     responses.add(
         responses.GET,
@@ -83,7 +83,7 @@ def mock_github_push_compare(activate_responses):
         "ad9bfc2a62b70b9f3dbb1c3a5969f30bacce3d74",
         json=mocked_content[1],
         status=200,
-        content_type='application/json',
+        content_type="application/json",
     )
 
 
@@ -98,7 +98,7 @@ def mock_hg_push_commits(activate_responses):
         "https://hg.mozilla.org/try/json-pushes",
         body=mocked_content,
         status=200,
-        content_type='application/json',
+        content_type="application/json",
     )
 
 

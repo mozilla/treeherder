@@ -14,20 +14,20 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--chunk-size',
-            action='store',
-            dest='chunk_size',
+            "--chunk-size",
+            action="store",
+            dest="chunk_size",
             default=1000,
             type=int,
-            help=('Define the size of the chunks for querying the TextLogError table'),
+            help=("Define the size of the chunks for querying the TextLogError table"),
         )
 
     def handle(self, *args, **options):
-        queryset = TextLogError.objects.select_related('step').filter(job__isnull=True)
-        chunk_size = options['chunk_size']
+        queryset = TextLogError.objects.select_related("step").filter(job__isnull=True)
+        chunk_size = options["chunk_size"]
 
         for chunked_queryset in chunked_qs(
-            queryset, chunk_size=chunk_size, fields=['id', 'step', 'job']
+            queryset, chunk_size=chunk_size, fields=["id", "step", "job"]
         ):
             if not chunked_queryset:
                 return
@@ -35,12 +35,12 @@ class Command(BaseCommand):
             for row in chunked_queryset:
                 row.job_id = row.step.job_id
 
-            TextLogError.objects.bulk_update(chunked_queryset, ['job'])
+            TextLogError.objects.bulk_update(chunked_queryset, ["job"])
 
             logger.warning(
-                'successfully added job_id in TextLogError table to rows {} to {}'.format(
+                "successfully added job_id in TextLogError table to rows {} to {}".format(
                     chunked_queryset[0].id, chunked_queryset[-1].id
                 )
             )
 
-        logger.warning('successfully finished backfilling job_ids in the TextLogError table')
+        logger.warning("successfully finished backfilling job_ids in the TextLogError table")

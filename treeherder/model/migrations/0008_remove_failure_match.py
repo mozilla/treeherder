@@ -5,23 +5,23 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('model', '0007_remove_m2m_between_classified_failures_and_failure_match'),
+        ("model", "0007_remove_m2m_between_classified_failures_and_failure_match"),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='failurematch',
+            name="failurematch",
             unique_together=set([]),
         ),
         migrations.RemoveField(
-            model_name='failurematch',
-            name='classified_failure',
+            model_name="failurematch",
+            name="classified_failure",
         ),
         migrations.RemoveField(
-            model_name='failurematch',
-            name='failure_line',
+            model_name="failurematch",
+            name="failure_line",
         ),
         migrations.DeleteModel(
-            name='FailureMatch',
+            name="FailureMatch",
         ),
     ]

@@ -120,7 +120,7 @@ def test_error_lines_matched(line):
 def test_error_lines_taskcluster(line):
     parser = ErrorParser()
     # Make the log parser think this is a TaskCluster log.
-    parser.parse_line('[taskcluster foo] this is a taskcluster log', 1)
+    parser.parse_line("[taskcluster foo] this is a taskcluster log", 1)
     assert parser.is_taskcluster
     parser.parse_line(line, 2)
     assert len(parser.artifact) == 1
@@ -155,4 +155,4 @@ def test_taskcluster_strip_prefix():
     # TC prefix is stripped.
     parser.parse_line("[vcs 2016-09-07T19:03:02.188327Z] 23:57:52 ERROR - Return code: 1", 3)
     assert len(parser.artifact) == 1
-    assert parser.artifact[0]['linenumber'] == 3
+    assert parser.artifact[0]["linenumber"] == 3

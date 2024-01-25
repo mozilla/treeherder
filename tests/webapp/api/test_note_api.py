@@ -75,7 +75,7 @@ def test_note_detail_bad_project(client, test_repository):
     assert resp.status_code == 404
 
 
-@pytest.mark.parametrize('test_no_auth', [True, False])
+@pytest.mark.parametrize("test_no_auth", [True, False])
 def test_create_note(client, test_job, test_user, test_no_auth):
     """
     test creating a single note via endpoint when authenticated
@@ -100,23 +100,23 @@ def test_create_note(client, test_job, test_user, test_no_auth):
         assert resp.status_code == 200
 
         content = json.loads(resp.content)
-        assert content['message'] == 'note stored for job %s' % test_job.id
+        assert content["message"] == "note stored for job %s" % test_job.id
 
         note_list = JobNote.objects.filter(job=test_job)
 
         assert len(note_list) == 1
         assert note_list[0].user == test_user
         assert note_list[0].failure_classification.id == 2
-        assert note_list[0].text == 'you look like a man-o-lantern'
+        assert note_list[0].text == "you look like a man-o-lantern"
 
         # verify that the job's last_modified field got updated
         old_last_modified = test_job.last_modified
-        assert old_last_modified < Job.objects.values_list('last_modified', flat=True).get(
+        assert old_last_modified < Job.objects.values_list("last_modified", flat=True).get(
             id=test_job.id
         )
 
 
-@pytest.mark.parametrize('test_no_auth', [True, False])
+@pytest.mark.parametrize("test_no_auth", [True, False])
 def test_delete_note(client, test_job_with_notes, test_repository, test_sheriff, test_no_auth):
     """
     test deleting a single note via endpoint
@@ -169,16 +169,16 @@ def test_push_notes(client, test_job_with_notes):
             "text": "you look like a man-o-lantern",
         },
         {
-            'failure_classification_name': 'expected fail',
-            'id': 2,
-            'job': {
-                'duration': 191,
-                'job_type_name': 'B2G Emulator Image Build',
-                'result': 'success',
+            "failure_classification_name": "expected fail",
+            "id": 2,
+            "job": {
+                "duration": 191,
+                "job_type_name": "B2G Emulator Image Build",
+                "result": "success",
                 "task_id": notes[1].job.taskcluster_metadata.task_id,
             },
             "who": notes[1].user.email,
             "created": notes[1].created.isoformat(),
-            'text': 'you look like a man-o-lantern',
+            "text": "you look like a man-o-lantern",
         },
     ]

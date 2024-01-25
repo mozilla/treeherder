@@ -9,9 +9,9 @@ def filter_failure(failure):
 
 
 def filter_job_type_names(failure):
-    name = failure['jobName']
+    name = failure["jobName"]
 
     return (
-        not name.startswith(('build', 'repackage', 'hazard', 'valgrind', 'spidermonkey'))
-        and 'test-verify' not in name
+        not name.startswith(("build", "repackage", "hazard", "valgrind", "spidermonkey"))
+        and "test-verify" not in name
     )

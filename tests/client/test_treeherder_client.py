@@ -12,7 +12,7 @@ class TreeherderClientTest(unittest.TestCase):
     @responses.activate
     def test_get_job(self):
         tdc = TreeherderClient()
-        url = tdc._get_endpoint_url(tdc.JOBS_ENDPOINT, project='autoland')
+        url = tdc._get_endpoint_url(tdc.JOBS_ENDPOINT, project="autoland")
         content = {
             "meta": {"count": 3, "repository": "autoland", "offset": 0},
             "results": self.JOB_RESULTS,
@@ -26,7 +26,7 @@ class TreeherderClientTest(unittest.TestCase):
     @responses.activate
     def test_get_pushes(self):
         tdc = TreeherderClient()
-        url = tdc._get_endpoint_url(tdc.PUSH_ENDPOINT, project='autoland')
+        url = tdc._get_endpoint_url(tdc.PUSH_ENDPOINT, project="autoland")
         content = {
             "meta": {"count": 3, "repository": "autoland", "offset": 0},
             "results": self.PUSHES,
@@ -38,5 +38,5 @@ class TreeherderClientTest(unittest.TestCase):
         self.assertEqual(pushes, self.PUSHES)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

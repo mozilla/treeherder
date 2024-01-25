@@ -5,12 +5,12 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('model', '0027_mozciclassification'),
+        ("model", "0027_mozciclassification"),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='textlogerror',
-            unique_together={('step', 'line_number'), ('job', 'line_number')},
+            name="textlogerror",
+            unique_together={("step", "line_number"), ("job", "line_number")},
         ),
     ]

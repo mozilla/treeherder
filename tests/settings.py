@@ -1,9 +1,9 @@
 from treeherder.config.settings import *  # noqa: F403
 
 DATABASES["default"]["TEST"] = {"NAME": "test_treeherder"}  # noqa: F405
-KEY_PREFIX = 'test'
+KEY_PREFIX = "test"
 
-TREEHERDER_TEST_REPOSITORY_NAME = 'mozilla-central'
+TREEHERDER_TEST_REPOSITORY_NAME = "mozilla-central"
 
 # this makes celery calls synchronous, useful for unit testing
 CELERY_TASK_ALWAYS_EAGER = True
@@ -22,7 +22,7 @@ BUGFILER_API_URL = "https://thisisnotbugzilla.org"
 # access.  But if we use the defaults in config.settings, we also get the
 # ``ModelBackend``, which will try to access the DB.  This ensures we don't
 # do that, since we don't have any tests that use the ``ModelBackend``.
-AUTHENTICATION_BACKENDS = ('treeherder.auth.backends.AuthBackend',)
+AUTHENTICATION_BACKENDS = ("treeherder.auth.backends.AuthBackend",)
 
 # For Push Health Usage dashboard
 NEW_RELIC_INSIGHTS_API_KEY = "123"
@@ -31,7 +31,7 @@ NEW_RELIC_INSIGHTS_API_KEY = "123"
 # https://django-debug-toolbar.readthedocs.io/en/latest/configuration.html#show-toolbar-callback
 # "You can provide your own function callback(request) which returns True or False."
 DEBUG_TOOLBAR_CONFIG = {
-    'SHOW_TOOLBAR_CALLBACK': lambda request: False,
+    "SHOW_TOOLBAR_CALLBACK": lambda request: False,
 }
 
-INSTALLED_APPS.remove('django.contrib.staticfiles')  # noqa: F405
+INSTALLED_APPS.remove("django.contrib.staticfiles")  # noqa: F405

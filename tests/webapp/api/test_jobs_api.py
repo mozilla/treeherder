@@ -9,7 +9,7 @@ from treeherder.model.models import Job, TextLogError
 
 
 @pytest.mark.parametrize(
-    ('offset', 'count', 'expected_num'),
+    ("offset", "count", "expected_num"),
     [(None, None, 10), (None, 5, 5), (5, None, 6), (0, 5, 5), (10, 10, 1)],
 )
 def test_job_list(client, eleven_jobs_stored, test_repository, offset, count, expected_num):
@@ -18,11 +18,11 @@ def test_job_list(client, eleven_jobs_stored, test_repository, offset, count, ex
     endpoint.
     """
     url = reverse("jobs-list", kwargs={"project": test_repository.name})
-    params = '&'.join(
-        ['{}={}'.format(k, v) for k, v in [('offset', offset), ('count', count)] if v]
+    params = "&".join(
+        ["{}={}".format(k, v) for k, v in [("offset", offset), ("count", count)] if v]
     )
     if params:
-        url += '?{}'.format(params)
+        url += "?{}".format(params)
     resp = client.get(url)
     assert resp.status_code == 200
     response_dict = resp.json()
@@ -91,47 +91,47 @@ def test_job_list_equals_filter(client, eleven_jobs_stored, test_repository):
 
     resp = client.get(final_url)
     assert resp.status_code == 200
-    assert len(resp.json()['results']) == 1
+    assert len(resp.json()["results"]) == 1
 
 
 job_filter_values = [
-    (u'build_architecture', u'x86_64'),
-    (u'build_os', u'mac'),
-    (u'build_platform', u'osx-10-7'),
-    (u'build_platform_id', 3),
-    (u'build_system_type', u'buildbot'),
-    (u'end_timestamp', 1384364849),
-    (u'failure_classification_id', 1),
-    (u'id', 4),
-    (u'job_group_id', 2),
-    (u'job_group_name', u'Mochitest'),
-    (u'job_group_symbol', u'M'),
-    (u'job_guid', u'ab952a4bbbc74f1d9fb3cf536073b371029dbd02'),
-    (u'job_type_id', 2),
-    (u'job_type_name', u'Mochitest Browser Chrome'),
-    (u'job_type_symbol', u'bc'),
-    (u'machine_name', u'talos-r4-lion-011'),
-    (u'machine_platform_architecture', u'x86_64'),
-    (u'machine_platform_os', u'mac'),
-    (u'option_collection_hash', u'32faaecac742100f7753f0c1d0aa0add01b4046b'),
-    (u'platform', u'osx-10-7'),
-    (u'reason', u'scheduler'),
+    ("build_architecture", "x86_64"),
+    ("build_os", "mac"),
+    ("build_platform", "osx-10-7"),
+    ("build_platform_id", 3),
+    ("build_system_type", "buildbot"),
+    ("end_timestamp", 1384364849),
+    ("failure_classification_id", 1),
+    ("id", 4),
+    ("job_group_id", 2),
+    ("job_group_name", "Mochitest"),
+    ("job_group_symbol", "M"),
+    ("job_guid", "ab952a4bbbc74f1d9fb3cf536073b371029dbd02"),
+    ("job_type_id", 2),
+    ("job_type_name", "Mochitest Browser Chrome"),
+    ("job_type_symbol", "bc"),
+    ("machine_name", "talos-r4-lion-011"),
+    ("machine_platform_architecture", "x86_64"),
+    ("machine_platform_os", "mac"),
+    ("option_collection_hash", "32faaecac742100f7753f0c1d0aa0add01b4046b"),
+    ("platform", "osx-10-7"),
+    ("reason", "scheduler"),
     (
-        u'ref_data_name',
-        u'Rev4 MacOSX Lion 10.7 mozilla-release debug test mochitest-browser-chrome',
+        "ref_data_name",
+        "Rev4 MacOSX Lion 10.7 mozilla-release debug test mochitest-browser-chrome",
     ),
-    (u'result', u'success'),
-    (u'result_set_id', 4),
-    (u'signature', u'b4a4be709b937853b4ea1a49fc21bf43bf6d6406'),
-    (u'start_timestamp', 1384356880),
-    (u'state', u'completed'),
-    (u'submit_timestamp', 1384356854),
-    (u'tier', 1),
-    (u'who', u'tests-mozilla-release-lion-debug-unittest'),
+    ("result", "success"),
+    ("result_set_id", 4),
+    ("signature", "b4a4be709b937853b4ea1a49fc21bf43bf6d6406"),
+    ("start_timestamp", 1384356880),
+    ("state", "completed"),
+    ("submit_timestamp", 1384356854),
+    ("tier", 1),
+    ("who", "tests-mozilla-release-lion-debug-unittest"),
 ]
 
 
-@pytest.mark.parametrize(('fieldname', 'expected'), job_filter_values)
+@pytest.mark.parametrize(("fieldname", "expected"), job_filter_values)
 def test_job_list_filter_fields(client, eleven_jobs_stored, test_repository, fieldname, expected):
     """
     test retrieving a job list with a querystring filter.
@@ -146,7 +146,7 @@ def test_job_list_filter_fields(client, eleven_jobs_stored, test_repository, fie
     final_url = url + "?{}={}".format(fieldname, expected)
     resp = client.get(final_url)
     assert resp.status_code == 200
-    first = resp.json()['results'][0]
+    first = resp.json()["results"][0]
     assert first[fieldname] == expected
 
 
@@ -163,7 +163,7 @@ def test_job_list_in_filter(client, eleven_jobs_stored, test_repository):
 
     resp = client.get(final_url)
     assert resp.status_code == 200
-    assert len(resp.json()['results']) == 2
+    assert len(resp.json()["results"]) == 2
 
 
 def test_job_detail(client, test_job):
@@ -183,7 +183,7 @@ def test_job_detail(client, test_job):
     )
     assert resp.status_code == 200
     assert resp.json()["taskcluster_metadata"] == {
-        "task_id": 'V3SVuxO8TFy37En_6HcXLs',
+        "task_id": "V3SVuxO8TFy37En_6HcXLs",
         "retry_id": 0,
     }
 
@@ -210,8 +210,8 @@ def test_job_detail_not_found(client, test_repository):
 
 
 def test_text_log_errors(client, test_job):
-    TextLogError.objects.create(job=test_job, line='failure 1', line_number=101)
-    TextLogError.objects.create(job=test_job, line='failure 2', line_number=102)
+    TextLogError.objects.create(job=test_job, line="failure 1", line_number=101)
+    TextLogError.objects.create(job=test_job, line="failure 2", line_number=102)
     resp = client.get(
         reverse(
             "jobs-text-log-errors", kwargs={"project": test_job.repository.name, "pk": test_job.id}
@@ -220,22 +220,22 @@ def test_text_log_errors(client, test_job):
     assert resp.status_code == 200
     assert resp.json() == [
         {
-            'id': 1,
-            'job': 1,
-            'line': 'failure 1',
-            'line_number': 101,
+            "id": 1,
+            "job": 1,
+            "line": "failure 1",
+            "line_number": 101,
         },
         {
-            'id': 2,
-            'job': 1,
-            'line': 'failure 2',
-            'line_number': 102,
+            "id": 2,
+            "job": 1,
+            "line": "failure 2",
+            "line_number": 102,
         },
     ]
 
 
 @pytest.mark.parametrize(
-    ('offset', 'count', 'expected_num'),
+    ("offset", "count", "expected_num"),
     [(None, None, 3), (None, 2, 2), (1, None, 2), (0, 1, 1), (2, 10, 1)],
 )
 def test_list_similar_jobs(client, eleven_jobs_stored, offset, count, expected_num):
@@ -245,26 +245,26 @@ def test_list_similar_jobs(client, eleven_jobs_stored, offset, count, expected_n
     job = Job.objects.get(id=1)
 
     url = reverse("jobs-similar-jobs", kwargs={"project": job.repository.name, "pk": job.id})
-    params = '&'.join(
-        ['{}={}'.format(k, v) for k, v in [('offset', offset), ('count', count)] if v]
+    params = "&".join(
+        ["{}={}".format(k, v) for k, v in [("offset", offset), ("count", count)] if v]
     )
     if params:
-        url += '?{}'.format(params)
+        url += "?{}".format(params)
     resp = client.get(url)
 
     assert resp.status_code == 200
 
     similar_jobs = resp.json()
 
-    assert 'results' in similar_jobs
+    assert "results" in similar_jobs
 
-    assert isinstance(similar_jobs['results'], list)
+    assert isinstance(similar_jobs["results"], list)
 
-    assert len(similar_jobs['results']) == expected_num
+    assert len(similar_jobs["results"]) == expected_num
 
 
 @pytest.mark.parametrize(
-    'lm_key,lm_value,exp_status, exp_job_count',
+    "lm_key,lm_value,exp_status, exp_job_count",
     [
         ("last_modified__gt", "2016-07-18T22:16:58.000", 200, 8),
         ("last_modified__lt", "2016-07-18T22:16:58.000", 200, 3),

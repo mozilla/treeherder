@@ -5,13 +5,13 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('model', '0029_alter_failureline_index_together'),
+        ("model", "0029_alter_failureline_index_together"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='groupstatus',
-            name='duration',
+            model_name="groupstatus",
+            name="duration",
             field=models.SmallIntegerField(default=0),
             preserve_default=False,
         ),

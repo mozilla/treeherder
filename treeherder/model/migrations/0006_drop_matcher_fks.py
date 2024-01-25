@@ -5,16 +5,16 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('model', '0005_use_matcher_name_for_unique_constraint'),
+        ("model", "0005_use_matcher_name_for_unique_constraint"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='failurematch',
-            name='matcher',
+            model_name="failurematch",
+            name="matcher",
         ),
         migrations.RemoveField(
-            model_name='textlogerrormatch',
-            name='matcher',
+            model_name="textlogerrormatch",
+            name="matcher",
         ),
     ]

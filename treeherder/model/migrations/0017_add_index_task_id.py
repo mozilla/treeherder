@@ -6,13 +6,13 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('model', '0016_add_index_commit_revision'),
+        ("model", "0016_add_index_commit_revision"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='taskclustermetadata',
-            name='task_id',
+            model_name="taskclustermetadata",
+            name="task_id",
             field=models.CharField(
                 db_index=True,
                 max_length=22,

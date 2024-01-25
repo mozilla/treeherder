@@ -102,16 +102,16 @@ def ignore_task(task, taskId, rootUrl, project):
     ignore = False
     # This logic is useful to reduce the number of tasks we ingest and requirying
     # less dynos and less database writes. You can adjust PROJECTS_TO_INGEST on the app to meet your needs
-    if projectsToIngest and project not in projectsToIngest.split(','):
+    if projectsToIngest and project not in projectsToIngest.split(","):
         logger.debug("Ignoring tasks not matching PROJECTS_TO_INGEST (Task id: %s)", taskId)
         return True
 
     mobile_repos = (
-        'fenix',
-        'firefox-android',
-        'reference-browser',
-        'mozilla-vpn-client',
-        'mozilla-vpn-client-release',
+        "fenix",
+        "firefox-android",
+        "reference-browser",
+        "mozilla-vpn-client",
+        "mozilla-vpn-client-release",
     )
     if project in mobile_repos:
         envs = task["payload"].get("env", {})
@@ -144,19 +144,19 @@ def ignore_task(task, taskId, rootUrl, project):
             ignore = True
             for scope in scopes:
                 # e.g. assume:repo:github.com/mozilla-mobile/fenix:branch:master
-                if scope.find('branch:master') != -1 or scope.find('branch:main') != -1:
+                if scope.find("branch:master") != -1 or scope.find("branch:main") != -1:
                     ignore = False
                     break
 
             # This handles nightly tasks
             # e.g. index.mobile.v2.fenix.branch.master.latest.taskgraph.decision-nightly
             for route in decision_task["routes"]:
-                if route.find('master') != -1 or route.find('main') != -1:
+                if route.find("master") != -1 or route.find("main") != -1:
                     ignore = False
                     break
 
     if ignore:
-        logger.debug('Task to be ignored ({})'.format(taskId))
+        logger.debug("Task to be ignored ({})".format(taskId))
 
     return ignore
 
@@ -179,7 +179,7 @@ async def handleMessage(message, taskDefinition=None):
             logger.debug("%s", str(e))
             return jobs
 
-        if ignore_task(task, taskId, message["root_url"], parsedRoute['project']):
+        if ignore_task(task, taskId, message["root_url"], parsedRoute["project"]):
             return jobs
 
         logger.debug("Message received for task %s", taskId)
@@ -290,12 +290,12 @@ def buildMessage(pushInfo, task, runId, payload):
 
 
 def handleTaskPending(pushInfo, task, message):
-    payload = message['payload']
+    payload = message["payload"]
     return buildMessage(pushInfo, task, payload["runId"], payload)
 
 
 async def handleTaskRerun(pushInfo, task, message, session):
-    payload = message['payload']
+    payload = message["payload"]
     job = buildMessage(pushInfo, task, payload["runId"] - 1, payload)
     job["state"] = "completed"
     job["result"] = "fail"
@@ -310,21 +310,21 @@ async def handleTaskRerun(pushInfo, task, message, session):
 
 
 def handleTaskRunning(pushInfo, task, message):
-    payload = message['payload']
+    payload = message["payload"]
     job = buildMessage(pushInfo, task, payload["runId"], payload)
     job["timeStarted"] = payload["status"]["runs"][payload["runId"]]["started"]
     return job
 
 
 async def handleTaskCompleted(pushInfo, task, message, session):
-    payload = message['payload']
+    payload = message["payload"]
     jobRun = payload["status"]["runs"][payload["runId"]]
     job = buildMessage(pushInfo, task, payload["runId"], payload)
 
     job["timeStarted"] = jobRun["started"]
     job["timeCompleted"] = jobRun["resolved"]
     job["logs"] = [
-        createLogReference(message['root_url'], payload["status"]["taskId"], jobRun["runId"]),
+        createLogReference(message["root_url"], payload["status"]["taskId"], jobRun["runId"]),
     ]
     job = await addArtifactUploadedLinks(
         message["root_url"], payload["status"]["taskId"], payload["runId"], job, session
@@ -333,7 +333,7 @@ async def handleTaskCompleted(pushInfo, task, message, session):
 
 
 async def handleTaskException(pushInfo, task, message, session):
-    payload = message['payload']
+    payload = message["payload"]
     jobRun = payload["status"]["runs"][payload["runId"]]
     # Do not report runs that were created as an exception.  Such cases
     # are deadline-exceeded

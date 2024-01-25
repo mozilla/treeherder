@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 # properly, when it's available:
 # https://bugzilla.mozilla.org/show_bug.cgi?id=1323110#c7
 def task_and_retry_ids(job_guid):
-    (decoded_task_id, retry_id) = job_guid.split('/')
+    (decoded_task_id, retry_id) = job_guid.split("/")
     # As of slugid v2, slugid.encode() returns a string not bytestring under Python 3.
     real_task_id = slugid.encode(uuid.UUID(decoded_task_id))
     return (real_task_id, retry_id)
@@ -64,7 +64,7 @@ class JobLoader:
                 newrelic.agent.add_custom_attribute("project", project)
 
                 repository = Repository.objects.get(name=project)
-                if repository.active_status != 'active':
+                if repository.active_status != "active":
                     (real_task_id, _) = task_and_retry_ids(pulse_job["taskId"])
                     logger.debug(
                         "Task %s belongs to a repository that is not active.", real_task_id
@@ -90,13 +90,13 @@ class JobLoader:
         # check the revision for this job has an existing push
         # If it doesn't, then except out so that the celery task will
         # retry till it DOES exist.
-        revision_field = 'revision__startswith' if len(revision) < 40 else 'revision'
-        filter_kwargs = {'repository': repository, revision_field: revision}
+        revision_field = "revision__startswith" if len(revision) < 40 else "revision"
+        filter_kwargs = {"repository": repository, revision_field: revision}
 
-        if revision_field == 'revision__startswith':
+        if revision_field == "revision__startswith":
             newrelic.agent.record_custom_event(
-                'short_revision_job_loader',
-                {'error': 'Revision <40 chars', 'revision': revision, 'job': pulse_job},
+                "short_revision_job_loader",
+                {"error": "Revision <40 chars", "revision": revision, "job": pulse_job},
             )
 
         if not Push.objects.filter(**filter_kwargs).exists():

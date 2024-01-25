@@ -6,24 +6,24 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('model', '0022_support_group_status'),
-        ('perf', '0036_cascade_perf_datum_deletion'),
+        ("model", "0022_support_group_status"),
+        ("perf", "0036_cascade_perf_datum_deletion"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='backfillrecord',
-            name='job_type',
+            model_name="backfillrecord",
+            name="job_type",
             field=models.ForeignKey(
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                related_name='backfill_records',
-                to='model.jobtype',
+                related_name="backfill_records",
+                to="model.jobtype",
             ),
         ),
         migrations.AddField(
-            model_name='backfillrecord',
-            name='total_backfills_triggered',
+            model_name="backfillrecord",
+            name="total_backfills_triggered",
             field=models.IntegerField(default=0),
         ),
     ]

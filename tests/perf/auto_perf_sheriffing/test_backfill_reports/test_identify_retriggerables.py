@@ -24,16 +24,16 @@ def test_identify_retriggerables_as_unit():
 
     # its small private methods
     annotated_data_points = [
-        {'job_id': 1, 'push_id': 1},
-        {'job_id': 2, 'push_id': 2},
-        {'job_id': 3, 'push_id': 2},
-        {'job_id': 4, 'push_id': 3},
-        {'job_id': 5, 'push_id': 3},
-        {'job_id': 6, 'push_id': 3},
+        {"job_id": 1, "push_id": 1},
+        {"job_id": 2, "push_id": 2},
+        {"job_id": 3, "push_id": 2},
+        {"job_id": 4, "push_id": 3},
+        {"job_id": 5, "push_id": 3},
+        {"job_id": 6, "push_id": 3},
     ]
     operation = IdentifyAlertRetriggerables(max_data_points=5, time_interval=one_day)
     flattened_data_points = operation._one_data_point_per_push(annotated_data_points)  # noqa
-    push_counter = Counter([data_point['push_id'] for data_point in flattened_data_points])
+    push_counter = Counter([data_point["push_id"] for data_point in flattened_data_points])
 
     assert max(count for count in push_counter.values()) == 1
 

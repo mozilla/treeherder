@@ -49,22 +49,22 @@ def _remove_existing_jobs(data):
     """
     new_data = []
 
-    guids = [datum['job']['job_guid'] for datum in data]
+    guids = [datum["job"]["job_guid"] for datum in data]
     state_map = {
         guid: state
-        for (guid, state) in Job.objects.filter(guid__in=guids).values_list('guid', 'state')
+        for (guid, state) in Job.objects.filter(guid__in=guids).values_list("guid", "state")
     }
 
     for datum in data:
-        job = datum['job']
-        if not state_map.get(job['job_guid']):
+        job = datum["job"]
+        if not state_map.get(job["job_guid"]):
             new_data.append(datum)
         else:
             # should not transition from running to pending,
             # or completed to any other state
-            current_state = state_map[job['job_guid']]
-            if current_state == 'completed' or (
-                job['state'] == 'pending' and current_state == 'running'
+            current_state = state_map[job["job_guid"]]
+            if current_state == "completed" or (
+                job["state"] == "pending" and current_state == "running"
             ):
                 continue
             new_data.append(datum)
@@ -84,18 +84,18 @@ def _load_job(repository, job_datum, push_id):
     ``pending``/``running`` job and update it with this ``retry`` job.
     """
     build_platform, _ = BuildPlatform.objects.get_or_create(
-        os_name=job_datum.get('build_platform', {}).get('os_name', 'unknown'),
-        platform=job_datum.get('build_platform', {}).get('platform', 'unknown'),
-        architecture=job_datum.get('build_platform', {}).get('architecture', 'unknown'),
+        os_name=job_datum.get("build_platform", {}).get("os_name", "unknown"),
+        platform=job_datum.get("build_platform", {}).get("platform", "unknown"),
+        architecture=job_datum.get("build_platform", {}).get("architecture", "unknown"),
     )
 
     machine_platform, _ = MachinePlatform.objects.get_or_create(
-        os_name=job_datum.get('machine_platform', {}).get('os_name', 'unknown'),
-        platform=job_datum.get('machine_platform', {}).get('platform', 'unknown'),
-        architecture=job_datum.get('machine_platform', {}).get('architecture', 'unknown'),
+        os_name=job_datum.get("machine_platform", {}).get("os_name", "unknown"),
+        platform=job_datum.get("machine_platform", {}).get("platform", "unknown"),
+        architecture=job_datum.get("machine_platform", {}).get("architecture", "unknown"),
     )
 
-    option_names = job_datum.get('option_collection', [])
+    option_names = job_datum.get("option_collection", [])
     option_collection_hash = OptionCollection.calculate_hash(option_names)
     if not OptionCollection.objects.filter(option_collection_hash=option_collection_hash).exists():
         # in the unlikely event that we haven't seen this set of options
@@ -109,43 +109,43 @@ def _load_job(repository, job_datum, push_id):
                 option_collection_hash=option_collection_hash, option=option
             )
 
-    machine, _ = Machine.objects.get_or_create(name=job_datum.get('machine', 'unknown'))
+    machine, _ = Machine.objects.get_or_create(name=job_datum.get("machine", "unknown"))
 
     job_type, _ = JobType.objects.get_or_create(
-        symbol=job_datum.get('job_symbol') or 'unknown', name=job_datum.get('name') or 'unknown'
+        symbol=job_datum.get("job_symbol") or "unknown", name=job_datum.get("name") or "unknown"
     )
 
     job_group, _ = JobGroup.objects.get_or_create(
-        name=job_datum.get('group_name') or 'unknown',
-        symbol=job_datum.get('group_symbol') or 'unknown',
+        name=job_datum.get("group_name") or "unknown",
+        symbol=job_datum.get("group_symbol") or "unknown",
     )
 
-    product_name = job_datum.get('product_name', 'unknown')
+    product_name = job_datum.get("product_name", "unknown")
     if not product_name.strip():
-        product_name = 'unknown'
+        product_name = "unknown"
     product, _ = Product.objects.get_or_create(name=product_name)
 
-    job_guid = job_datum['job_guid']
+    job_guid = job_datum["job_guid"]
     job_guid = job_guid[0:50]
 
-    who = job_datum.get('who') or 'unknown'
+    who = job_datum.get("who") or "unknown"
     who = who[0:50]
 
-    reason = job_datum.get('reason') or 'unknown'
+    reason = job_datum.get("reason") or "unknown"
     reason = reason[0:125]
 
-    state = job_datum.get('state') or 'unknown'
+    state = job_datum.get("state") or "unknown"
     state = state[0:25]
 
-    build_system_type = job_datum.get('build_system_type', 'buildbot')
+    build_system_type = job_datum.get("build_system_type", "buildbot")
 
-    reference_data_name = job_datum.get('reference_data_name', None)
+    reference_data_name = job_datum.get("reference_data_name", None)
 
-    default_failure_classification = FailureClassification.objects.get(name='not classified')
+    default_failure_classification = FailureClassification.objects.get(name="not classified")
 
     sh = sha1()
     sh.update(
-        ''.join(
+        "".join(
             map(
                 str,
                 [
@@ -165,7 +165,7 @@ def _load_job(repository, job_datum, push_id):
                     reference_data_name,
                 ],
             )
-        ).encode('utf-8')
+        ).encode("utf-8")
     )
     signature_hash = sh.hexdigest()
 
@@ -180,28 +180,28 @@ def _load_job(repository, job_datum, push_id):
         build_system_type=build_system_type,
         repository=repository.name,
         defaults={
-            'first_submission_timestamp': time.time(),
-            'build_os_name': build_platform.os_name,
-            'build_platform': build_platform.platform,
-            'build_architecture': build_platform.architecture,
-            'machine_os_name': machine_platform.os_name,
-            'machine_platform': machine_platform.platform,
-            'machine_architecture': machine_platform.architecture,
-            'job_group_name': job_group.name,
-            'job_group_symbol': job_group.symbol,
-            'job_type_name': job_type.name,
-            'job_type_symbol': job_type.symbol,
-            'option_collection_hash': option_collection_hash,
+            "first_submission_timestamp": time.time(),
+            "build_os_name": build_platform.os_name,
+            "build_platform": build_platform.platform,
+            "build_architecture": build_platform.architecture,
+            "machine_os_name": machine_platform.os_name,
+            "machine_platform": machine_platform.platform,
+            "machine_architecture": machine_platform.architecture,
+            "job_group_name": job_group.name,
+            "job_group_symbol": job_group.symbol,
+            "job_type_name": job_type.name,
+            "job_type_symbol": job_type.symbol,
+            "option_collection_hash": option_collection_hash,
         },
     )
 
-    tier = job_datum.get('tier') or 1
+    tier = job_datum.get("tier") or 1
 
-    result = job_datum.get('result', 'unknown')
+    result = job_datum.get("result", "unknown")
 
-    submit_time = datetime.fromtimestamp(_get_number(job_datum.get('submit_timestamp')))
-    start_time = datetime.fromtimestamp(_get_number(job_datum.get('start_timestamp')))
-    end_time = datetime.fromtimestamp(_get_number(job_datum.get('end_timestamp')))
+    submit_time = datetime.fromtimestamp(_get_number(job_datum.get("submit_timestamp")))
+    start_time = datetime.fromtimestamp(_get_number(job_datum.get("start_timestamp")))
+    end_time = datetime.fromtimestamp(_get_number(job_datum.get("end_timestamp")))
 
     # first, try to create the job with the given guid (if it doesn't
     # exist yet)
@@ -246,12 +246,12 @@ def _load_job(repository, job_datum, push_id):
         job = Job.objects.get(guid=job_guid)
 
     # add taskcluster metadata if applicable
-    if all([k in job_datum for k in ['taskcluster_task_id', 'taskcluster_retry_id']]):
+    if all([k in job_datum for k in ["taskcluster_task_id", "taskcluster_retry_id"]]):
         try:
             TaskclusterMetadata.objects.create(
                 job=job,
-                task_id=job_datum['taskcluster_task_id'],
-                retry_id=job_datum['taskcluster_retry_id'],
+                task_id=job_datum["taskcluster_task_id"],
+                retry_id=job_datum["taskcluster_retry_id"],
             )
         except IntegrityError:
             pass
@@ -277,25 +277,25 @@ def _load_job(repository, job_datum, push_id):
         push_id=push_id,
     )
 
-    log_refs = job_datum.get('log_references', [])
+    log_refs = job_datum.get("log_references", [])
     job_logs = []
     if log_refs:
         for log in log_refs:
-            name = log.get('name') or 'unknown'
+            name = log.get("name") or "unknown"
             name = name[0:50]
 
-            url = log.get('url') or 'unknown'
+            url = log.get("url") or "unknown"
             url = url[0:255]
 
             parse_status_map = dict([(k, v) for (v, k) in JobLog.STATUSES])
-            mapped_status = parse_status_map.get(log.get('parse_status'))
+            mapped_status = parse_status_map.get(log.get("parse_status"))
             if mapped_status:
                 parse_status = mapped_status
             else:
                 parse_status = JobLog.PENDING
 
             jl, _ = JobLog.objects.get_or_create(
-                job=job, name=name, url=url, defaults={'status': parse_status}
+                job=job, name=name, url=url, defaults={"status": parse_status}
             )
 
             job_logs.append(jl)
@@ -345,7 +345,7 @@ def _schedule_log_parsing(job, job_logs, result, repository):
         # TODO: Replace the use of different queues for failures vs not with the
         # RabbitMQ priority feature (since the idea behind separate queues was
         # only to ensure failures are dealt with first if there is a backlog).
-        if result != 'success':
+        if result != "success":
             if job_log.name == "errorsummary_json":
                 queue = "log_parser_fail_json"
                 priority = "failures"
@@ -357,7 +357,7 @@ def _schedule_log_parsing(job, job_logs, result, repository):
             else:
                 queue += "_unsheriffed"
         else:
-            queue = 'log_parser'
+            queue = "log_parser"
             priority = "normal"
 
         parse_logs.apply_async(queue=queue, args=[job.id, [job_log.id], priority])
@@ -434,13 +434,13 @@ def store_job_data(repository, originalData):
             # being said, if/when we transition to only using the pulse
             # job consumer, then the data will always be vetted with a
             # JSON schema before we get to this point.
-            job = datum['job']
-            revision = datum['revision']
-            superseded = datum.get('superseded', [])
+            job = datum["job"]
+            revision = datum["revision"]
+            superseded = datum.get("superseded", [])
 
-            revision_field = 'revision__startswith' if len(revision) < 40 else 'revision'
-            filter_kwargs = {'repository': repository, revision_field: revision}
-            push_id = Push.objects.values_list('id', flat=True).get(**filter_kwargs)
+            revision_field = "revision__startswith" if len(revision) < 40 else "revision"
+            filter_kwargs = {"repository": repository, revision_field: revision}
+            push_id = Push.objects.values_list("id", flat=True).get(**filter_kwargs)
 
             # load job
             job_guid = _load_job(repository, job, push_id)
@@ -455,7 +455,7 @@ def store_job_data(repository, originalData):
             # rather report it on New Relic and not block storing the remaining jobs.
             # TODO: Once buildbot support is removed, remove this as part of
             # refactoring this method to process just one job at a time.
-            if 'DYNO' not in os.environ:
+            if "DYNO" not in os.environ:
                 raise
 
             logger.exception(e)
@@ -471,5 +471,5 @@ def store_job_data(repository, originalData):
     if superseded_job_guid_placeholders:
         for job_guid, superseded_by_guid in superseded_job_guid_placeholders:
             Job.objects.filter(guid=superseded_by_guid).update(
-                result='superseded', state='completed'
+                result="superseded", state="completed"
             )

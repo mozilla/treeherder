@@ -16,13 +16,13 @@ BUG_SUGGESTION_CACHE_TIMEOUT = 86400
 LINE_CACHE_TIMEOUT_DAYS = 21
 LINE_CACHE_TIMEOUT = 86400 * LINE_CACHE_TIMEOUT_DAYS
 
-LEAK_RE = re.compile(r'\d+ bytes leaked \((.+)\)$|leak at (.+)$')
-CRASH_RE = re.compile(r'.+ application crashed \[@ (.+)\] \|.+')
-MOZHARNESS_RE = re.compile(r'^\d+:\d+:\d+[ ]+(?:DEBUG|INFO|WARNING|ERROR|CRITICAL|FATAL) - [ ]?')
-MARIONETTE_RE = re.compile(r'.+marionette([_harness/]?).*/test_.+.py ([A-Za-z]+).+')
+LEAK_RE = re.compile(r"\d+ bytes leaked \((.+)\)$|leak at (.+)$")
+CRASH_RE = re.compile(r".+ application crashed \[@ (.+)\] \|.+")
+MOZHARNESS_RE = re.compile(r"^\d+:\d+:\d+[ ]+(?:DEBUG|INFO|WARNING|ERROR|CRITICAL|FATAL) - [ ]?")
+MARIONETTE_RE = re.compile(r".+marionette([_harness/]?).*/test_.+.py ([A-Za-z]+).+")
 PROCESS_ID_RE = re.compile(r"(?:PID \d+|GECKO\(\d+\)) \| +")
-REFTEST_RE = re.compile(r'\s+[=!]=\s+.*')
-PREFIX_PATTERN = r'^(TEST-UNEXPECTED-\S+|PROCESS-CRASH)\s+\|\s+'
+REFTEST_RE = re.compile(r"\s+[=!]=\s+.*")
+PREFIX_PATTERN = r"^(TEST-UNEXPECTED-\S+|PROCESS-CRASH)\s+\|\s+"
 
 
 def get_error_summary(job, queryset=None):
@@ -32,15 +32,15 @@ def get_error_summary(job, queryset=None):
 
     Caches the results if there are any.
     """
-    cache_key = 'error-summary-{}'.format(job.id)
+    cache_key = "error-summary-{}".format(job.id)
     cached_error_summary = cache.get(cache_key)
     if cached_error_summary is not None:
         return cached_error_summary
 
     # add support for error line caching
-    line_cache_key = 'mc_error_lines'
+    line_cache_key = "mc_error_lines"
     if job.repository == "comm-central":
-        line_cache_key = 'cc_error_lines'
+        line_cache_key = "cc_error_lines"
     line_cache = cache.get(line_cache_key)
     if line_cache is None:
         line_cache = {str(job.submit_time.date()): {}}
@@ -48,7 +48,7 @@ def get_error_summary(job, queryset=None):
         dates = list(line_cache.keys())
         dates.sort()
         for d in dates:
-            dTime = datetime.datetime.strptime(d, '%Y-%m-%d')
+            dTime = datetime.datetime.strptime(d, "%Y-%m-%d")
             if dTime <= (job.submit_time - datetime.timedelta(days=LINE_CACHE_TIMEOUT_DAYS)):
                 del line_cache[d]
             else:
@@ -79,14 +79,14 @@ def get_error_summary(job, queryset=None):
     try:
         cache.set(cache_key, error_summary, BUG_SUGGESTION_CACHE_TIMEOUT)
     except Exception as e:
-        newrelic.agent.record_custom_event('error caching error_summary for job', job.id)
-        logger.error('error caching error_summary for job %s: %s', job.id, e, exc_info=True)
+        newrelic.agent.record_custom_event("error caching error_summary for job", job.id)
+        logger.error("error caching error_summary for job %s: %s", job.id, e, exc_info=True)
 
     try:
         cache.set(line_cache_key, line_cache, LINE_CACHE_TIMEOUT)
     except Exception as e:
-        newrelic.agent.record_custom_event('error caching error_lines for job', job.id)
-        logger.error('error caching error_lines for job %s: %s', job.id, e, exc_info=True)
+        newrelic.agent.record_custom_event("error caching error_lines for job", job.id)
+        logger.error("error caching error_lines for job %s: %s", job.id, e, exc_info=True)
 
     return error_summary
 
@@ -125,7 +125,7 @@ def bug_suggestions_line(
     for day in line_cache.keys():
         counter += line_cache[day].get(cache_clean_line, 0)
 
-    count_branches = ['autoland', 'mozilla-central', 'comm-central']
+    count_branches = ["autoland", "mozilla-central", "comm-central"]
     if project and str(project.name) in count_branches:
         if cache_clean_line not in line_cache[today].keys():
             line_cache[today][cache_clean_line] = 0
@@ -152,22 +152,22 @@ def bug_suggestions_line(
                 continue
             if term not in term_cache:
                 term_cache[term] = Bugscache.search(term)
-            bugs['open_recent'].extend(
+            bugs["open_recent"].extend(
                 [
                     bug_to_check
-                    for bug_to_check in term_cache[term]['open_recent']
-                    if bug_to_check['id'] not in [bug['id'] for bug in bugs['open_recent']]
+                    for bug_to_check in term_cache[term]["open_recent"]
+                    if bug_to_check["id"] not in [bug["id"] for bug in bugs["open_recent"]]
                 ]
             )
-            bugs['all_others'].extend(
+            bugs["all_others"].extend(
                 [
                     bug_to_check
-                    for bug_to_check in term_cache[term]['all_others']
-                    if bug_to_check['id'] not in [bug['id'] for bug in bugs['all_others']]
+                    for bug_to_check in term_cache[term]["all_others"]
+                    if bug_to_check["id"] not in [bug["id"] for bug in bugs["all_others"]]
                 ]
             )
 
-    if not bugs or not (bugs['open_recent'] or bugs['all_others']):
+    if not bugs or not (bugs["open_recent"] or bugs["all_others"]):
         # no suggestions, try to use
         # the crash signature as search term
         crash_signature = get_crash_signature(clean_line)
@@ -197,18 +197,18 @@ def bug_suggestions_line(
 
 def get_cleaned_line(line):
     """Strip possible mozharness bits from the given line."""
-    line_to_clean = MOZHARNESS_RE.sub('', line).strip()
-    return PROCESS_ID_RE.sub('', line_to_clean)
+    line_to_clean = MOZHARNESS_RE.sub("", line).strip()
+    return PROCESS_ID_RE.sub("", line_to_clean)
 
 
 def cache_clean_error_line(line):
-    cache_clean_line = re.sub(r' [0-9]+\.[0-9]+ ', ' X ', line)
-    cache_clean_line = re.sub(r' leaked [0-9]+ window(s)', ' leaked X window(s)', cache_clean_line)
-    cache_clean_line = re.sub(r' [0-9]+ bytes leaked', ' X bytes leaked', cache_clean_line)
-    cache_clean_line = re.sub(r' value=[0-9]+', ' value=*', cache_clean_line)
-    cache_clean_line = re.sub(r'ot [0-9]+, expected [0-9]+', 'ot X, expected Y', cache_clean_line)
+    cache_clean_line = re.sub(r" [0-9]+\.[0-9]+ ", " X ", line)
+    cache_clean_line = re.sub(r" leaked [0-9]+ window(s)", " leaked X window(s)", cache_clean_line)
+    cache_clean_line = re.sub(r" [0-9]+ bytes leaked", " X bytes leaked", cache_clean_line)
+    cache_clean_line = re.sub(r" value=[0-9]+", " value=*", cache_clean_line)
+    cache_clean_line = re.sub(r"ot [0-9]+, expected [0-9]+", "ot X, expected Y", cache_clean_line)
     cache_clean_line = re.sub(
-        r' http://localhost:[0-9]+/', ' http://localhost:X/', cache_clean_line
+        r" http://localhost:[0-9]+/", " http://localhost:X/", cache_clean_line
     )
     return cache_clean_line
 
@@ -231,7 +231,7 @@ def get_error_search_term_and_path(error_line):
     path_end = None
 
     if len(tokens) >= 3:
-        is_crash = 'PROCESS-CRASH' in tokens[0]
+        is_crash = "PROCESS-CRASH" in tokens[0]
         # it's in the "FAILURE-TYPE | testNameOrFilePath | message" type format.
         test_name_or_path = tokens[1]
         message = tokens[2]
@@ -276,14 +276,14 @@ def get_error_search_term_and_path(error_line):
     # false positives, but means we're more susceptible to false negatives due to
     # run-to-run variances in the error messages (eg paths, process IDs).
     if search_term:
-        search_term = re.sub(PREFIX_PATTERN, '', search_term)
+        search_term = re.sub(PREFIX_PATTERN, "", search_term)
         search_term = search_term[:100]
 
     # for wpt tests we have testname.html?params, we need to add a search term
     # for just testname.html.
     # we will now return an array
-    if search_term and '?' in search_term:
-        search_name = search_term.split('?')[0]
+    if search_term and "?" in search_term:
+        search_name = search_term.split("?")[0]
         search_term = [search_term, search_name]
     else:
         search_term = [search_term]
@@ -317,24 +317,24 @@ def is_helpful_search_term(search_term):
     search_term = search_term.strip()
 
     blacklist = [
-        'automation.py',
-        'remoteautomation.py',
-        'Shutdown',
-        'undefined',
-        'Main app process exited normally',
-        'Traceback (most recent call last):',
-        'Return code: 0',
-        'Return code: 1',
-        'Return code: 2',
-        'Return code: 10',
-        'mozalloc_abort(char const*)',
-        'mozalloc_abort',
-        'CrashingThread(void *)',
-        'gtest',
-        'Last test finished',
-        'leakcheck',
-        'LeakSanitizer',
-        '# TBPL FAILURE #',
+        "automation.py",
+        "remoteautomation.py",
+        "Shutdown",
+        "undefined",
+        "Main app process exited normally",
+        "Traceback (most recent call last):",
+        "Return code: 0",
+        "Return code: 1",
+        "Return code: 2",
+        "Return code: 10",
+        "mozalloc_abort(char const*)",
+        "mozalloc_abort",
+        "CrashingThread(void *)",
+        "gtest",
+        "Last test finished",
+        "leakcheck",
+        "LeakSanitizer",
+        "# TBPL FAILURE #",
     ]
 
     return len(search_term) > 4 and search_term not in blacklist

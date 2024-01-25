@@ -94,7 +94,7 @@ class Secretary:
 
         perf_sheriff_settings = PerformanceSettings.objects.get(name="perf_sheriff_bot")
         settings = json.loads(perf_sheriff_settings.settings)
-        return settings['limits'][on_platform]
+        return settings["limits"][on_platform]
 
     def consume_backfills(self, on_platform: str, amount: int) -> int:
         self.__assert_platform_is_supported(on_platform)
@@ -103,10 +103,10 @@ class Secretary:
 
         settings = json.loads(perf_sheriff_settings.settings)
 
-        _backfills_left = left = settings['limits'][on_platform] - amount
+        _backfills_left = left = settings["limits"][on_platform] - amount
         _backfills_left = left if left > 0 else 0
 
-        settings['limits'][on_platform] = _backfills_left
+        settings["limits"][on_platform] = _backfills_left
 
         perf_sheriff_settings.set_settings(settings)
         perf_sheriff_settings.save()
@@ -137,8 +137,8 @@ class Secretary:
     @classmethod
     def _get_default_settings(cls, as_json=True):
         default_settings = {
-            'limits': django_settings.MAX_BACKFILLS_PER_PLATFORM,
-            'last_reset_date': datetime.utcnow(),
+            "limits": django_settings.MAX_BACKFILLS_PER_PLATFORM,
+            "last_reset_date": datetime.utcnow(),
         }
 
         return (

@@ -10,32 +10,32 @@ from treeherder.services.taskcluster import (
     TaskclusterModelNullObject,
 )
 
-load_json_fixture = SampleDataJSONLoader('sherlock')
+load_json_fixture = SampleDataJSONLoader("sherlock")
 
 
 @pytest.fixture(scope="module")
 def actions_json():
-    return load_json_fixture('initialActions.json')
+    return load_json_fixture("initialActions.json")
 
 
 @pytest.fixture(scope="module")
 def expected_actions_json():
-    return load_json_fixture('reducedActions.json')
+    return load_json_fixture("reducedActions.json")
 
 
 @pytest.fixture(scope="module")
 def original_task():
-    return load_json_fixture('originalTask.json')
+    return load_json_fixture("originalTask.json")
 
 
 @pytest.fixture(scope="module")
 def expected_backfill_task():
-    return load_json_fixture('backfillTask.json')
+    return load_json_fixture("backfillTask.json")
 
 
 class TestTaskclusterModelImpl:
-    FAKE_ROOT_URL = 'https://fakerooturl.org'
-    FAKE_OPTIONS = (FAKE_ROOT_URL, 'FAKE_CLIENT_ID', 'FAKE_ACCESS_TOKEN')
+    FAKE_ROOT_URL = "https://fakerooturl.org"
+    FAKE_OPTIONS = (FAKE_ROOT_URL, "FAKE_CLIENT_ID", "FAKE_ACCESS_TOKEN")
 
     def test_can_instantiate_without_credentials(self):
         try:

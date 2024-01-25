@@ -16,7 +16,7 @@ class Changelog(models.Model):
 
     class Meta:
         db_table = "changelog_entry"
-        unique_together = ('id', 'remote_id', 'type')
+        unique_together = ("id", "remote_id", "type")
 
     def __str__(self):
         return "[%s] %s by %s" % (self.id, self.message, self.author)

@@ -105,7 +105,7 @@ class BackfillReportContent:
 
     def __prepare_report_description(self) -> str:
         title_case_platforms = map(lambda platf: platf.title(), settings.SUPPORTED_PLATFORMS)
-        platform_enumeration = ', '.join(title_case_platforms)
+        platform_enumeration = ", ".join(title_case_platforms)
 
         description = self.DESCRIPTION.format(supported_platforms=platform_enumeration)
         return description
@@ -117,7 +117,7 @@ class BackfillReportContent:
     def _build_table_row(self, record: BackfillRecord) -> str:
         alert_summary = record.alert.summary
         alert = record.alert
-        job_symbol = self.__escape_markdown(record.job_symbol) or 'N/A'
+        job_symbol = self.__escape_markdown(record.job_symbol) or "N/A"
         total_backfills = (
             record.total_backfills_failed
             + record.total_backfills_successful
@@ -152,7 +152,7 @@ class BackfillReportContent:
 
             return f"[{text_to_link}]({hyperlink})"
         except Exception:
-            return 'N/A'
+            return "N/A"
 
     def __build_push_range_link(self, record: BackfillRecord) -> str:
         repo = record.repository.name
@@ -255,7 +255,7 @@ class DeletionReportContent:
     def _build_table_row(self, signature: PerformanceSignature) -> str:
         props = self.__extract_properties(signature)
 
-        return '| {repository} | {framework} | {platform} | {suite} | {application} | {last_updated} |'.format(
+        return "| {repository} | {framework} | {platform} | {suite} | {application} | {last_updated} |".format(
             repository=props["repository"],
             framework=props["framework"],
             platform=props["platform"],

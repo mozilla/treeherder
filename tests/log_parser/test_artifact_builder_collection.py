@@ -57,14 +57,14 @@ def test_all_builders_complete():
 @responses.activate
 def test_log_download_size_limit():
     """Test that logs whose Content-Length exceed the size limit are not parsed."""
-    url = 'http://foo.tld/fake_large_log.tar.gz'
+    url = "http://foo.tld/fake_large_log.tar.gz"
     responses.add(
         responses.GET,
         url,
-        body='',
+        body="",
         adding_headers={
-            'Content-Encoding': 'gzip',
-            'Content-Length': str(MAX_DOWNLOAD_SIZE_IN_BYTES + 1),
+            "Content-Encoding": "gzip",
+            "Content-Length": str(MAX_DOWNLOAD_SIZE_IN_BYTES + 1),
         },
     )
     lpc = ArtifactBuilderCollection(url)

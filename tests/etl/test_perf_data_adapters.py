@@ -19,16 +19,16 @@ from treeherder.perf.models import (
 
 def sample_perf_datum(framework_name: str, subtest_value: int = 20.0) -> dict:
     return {
-        'job_guid': 'fake_job_guid',
-        'name': 'test',
-        'type': 'test',
-        'blob': {
-            'framework': {'name': framework_name},
-            'suites': [
+        "job_guid": "fake_job_guid",
+        "name": "test",
+        "type": "test",
+        "blob": {
+            "framework": {"name": framework_name},
+            "suites": [
                 {
-                    'name': "some-perf-suite",
-                    'unit': "ms",
-                    'subtests': [{'name': "some-perf-test", 'value': subtest_value, 'unit': 'ms'}],
+                    "name": "some-perf-suite",
+                    "unit": "ms",
+                    "subtests": [{"name": "some-perf-test", "value": subtest_value, "unit": "ms"}],
                 }
             ],
         },
@@ -60,33 +60,33 @@ def _generate_and_validate_alerts(
         "some-perf-framework",
         "some-perf-suite",
         "some-perf-test",
-        'my_option_hash',
-        'my_platform',
+        "my_option_hash",
+        "my_platform",
         True,
         None,
-        'ms',
-        alert_threshold=extra_subtest_metadata.get('alertThreshold'),
-        alert_change_type=extra_subtest_metadata.get('alertChangeType'),
-        min_back_window=extra_subtest_metadata.get('minBackWindow'),
-        max_back_window=extra_subtest_metadata.get('maxBackWindow'),
-        fore_window=extra_subtest_metadata.get('foreWindow'),
+        "ms",
+        alert_threshold=extra_subtest_metadata.get("alertThreshold"),
+        alert_change_type=extra_subtest_metadata.get("alertChangeType"),
+        min_back_window=extra_subtest_metadata.get("minBackWindow"),
+        max_back_window=extra_subtest_metadata.get("maxBackWindow"),
+        fore_window=extra_subtest_metadata.get("foreWindow"),
     )
     if suite_provides_value:
         _verify_signature(
             test_repository.name,
             "some-perf-framework",
             "some-perf-suite",
-            '',
-            'my_option_hash',
-            'my_platform',
+            "",
+            "my_option_hash",
+            "my_platform",
             True,
             None,
-            'ms',
-            alert_threshold=extra_suite_metadata.get('alertThreshold'),
-            alert_change_type=extra_suite_metadata.get('alertChangeType'),
-            min_back_window=extra_suite_metadata.get('minBackWindow'),
-            max_back_window=extra_suite_metadata.get('maxBackWindow'),
-            fore_window=extra_suite_metadata.get('foreWindow'),
+            "ms",
+            alert_threshold=extra_suite_metadata.get("alertThreshold"),
+            alert_change_type=extra_suite_metadata.get("alertChangeType"),
+            min_back_window=extra_suite_metadata.get("minBackWindow"),
+            max_back_window=extra_suite_metadata.get("maxBackWindow"),
+            fore_window=extra_suite_metadata.get("foreWindow"),
         )
 
 
@@ -125,15 +125,15 @@ def _generate_perf_data_range(
         datum = sample_perf_datum(framework_name, value)
 
         if suite_provides_value:
-            datum['blob']['suites'][0]['value'] = value
+            datum["blob"]["suites"][0]["value"] = value
         if extra_suite_metadata:
-            datum['blob']['suites'][0].update(extra_suite_metadata)
+            datum["blob"]["suites"][0].update(extra_suite_metadata)
         if extra_subtest_metadata:
-            datum['blob']['suites'][0]['subtests'][0].update(extra_subtest_metadata)
+            datum["blob"]["suites"][0]["subtests"][0].update(extra_subtest_metadata)
 
         # the perf data adapter expects deserialized performance data
         submit_datum = copy.copy(datum)
-        submit_datum['blob'] = json.dumps({'performance_data': submit_datum['blob']})
+        submit_datum["blob"] = json.dumps({"performance_data": submit_datum["blob"]})
         store_performance_artifact(job, submit_datum)
 
 
@@ -155,9 +155,9 @@ def _verify_signature(
     fore_window=None,
 ):
     if not extra_opts:
-        extra_options = ''
+        extra_options = ""
     else:
-        extra_options = ' '.join(sorted(extra_opts))
+        extra_options = " ".join(sorted(extra_opts))
 
     repository = Repository.objects.get(name=repo_name)
     signature = PerformanceSignature.objects.get(suite=suite_name, test=test_name)
@@ -199,7 +199,7 @@ def test_same_signature_multiple_performance_frameworks(test_repository, perf_jo
 
         # the perf data adapter expects deserialized performance data
         submit_datum = copy.copy(datum)
-        submit_datum['blob'] = json.dumps({'performance_data': submit_datum['blob']})
+        submit_datum["blob"] = json.dumps({"performance_data": submit_datum["blob"]})
 
         store_performance_artifact(perf_job, submit_datum)
 
@@ -218,36 +218,36 @@ def test_same_signature_multiple_performance_frameworks(test_repository, perf_jo
 
 @pytest.mark.parametrize(
     (
-        'alerts_enabled_repository',
-        'suite_provides_value',
-        'extra_suite_metadata',
-        'extra_subtest_metadata',
-        'job_tier',
-        'expected_subtest_alert',
-        'expected_suite_alert',
+        "alerts_enabled_repository",
+        "suite_provides_value",
+        "extra_suite_metadata",
+        "extra_subtest_metadata",
+        "job_tier",
+        "expected_subtest_alert",
+        "expected_suite_alert",
     ),
     [
         # should still alert even if we optionally
         # use a large maximum back window
-        (True, False, None, {'minBackWindow': 12, 'maxBackWindow': 100}, 2, True, False),
+        (True, False, None, {"minBackWindow": 12, "maxBackWindow": 100}, 2, True, False),
         # summary+subtest, no metadata, default settings
         (True, True, {}, {}, 1, False, True),
         # summary+subtest, no metadata, no alerting on
         # summary, alerting on subtest
-        (True, True, {'shouldAlert': False}, {'shouldAlert': True}, 2, True, False),
+        (True, True, {"shouldAlert": False}, {"shouldAlert": True}, 2, True, False),
         # summary+subtest, no metadata on summary, alerting
         # override on subtest
-        (True, True, {}, {'shouldAlert': True}, 2, True, True),
+        (True, True, {}, {"shouldAlert": True}, 2, True, True),
         # summary+subtest, alerting override on subtest +
         # summary
-        (True, True, {'shouldAlert': True}, {'shouldAlert': True}, 1, True, True),
+        (True, True, {"shouldAlert": True}, {"shouldAlert": True}, 1, True, True),
         # summary + subtest, only subtest is absolute so
         # summary should alert
         (
             True,
             True,
-            {'shouldAlert': True},
-            {'shouldAlert': True, 'alertChangeType': 'absolute'},
+            {"shouldAlert": True},
+            {"shouldAlert": True, "alertChangeType": "absolute"},
             2,
             False,
             True,
@@ -292,9 +292,9 @@ def test_alerts_should_be_generated(
 
     if expected_suite_alert:
         # validate suite alert
-        alert = PerformanceAlert.objects.get(series_signature__test='')
+        alert = PerformanceAlert.objects.get(series_signature__test="")
         assert alert.series_signature.suite == "some-perf-suite"
-        assert alert.series_signature.test == ''
+        assert alert.series_signature.test == ""
         assert alert.is_regression
         assert alert.amount_abs == 1
         assert alert.amount_pct == 100
@@ -311,76 +311,76 @@ def test_alerts_should_be_generated(
 
 @pytest.mark.parametrize(
     (
-        'alerts_enabled_repository',
-        'suite_provides_value',
-        'extra_suite_metadata',
-        'extra_subtest_metadata',
-        'job_tier',
+        "alerts_enabled_repository",
+        "suite_provides_value",
+        "extra_suite_metadata",
+        "extra_subtest_metadata",
+        "job_tier",
     ),
     [
         # just subtest, no metadata, default settings & non sheriff-able job tier won't alert
         (True, False, None, {}, 3),
         # just subtest, high alert threshold (so no alert)
-        (True, False, None, {'alertThreshold': 500.0}, 2),
+        (True, False, None, {"alertThreshold": 500.0}, 2),
         # non sheriff-able job tier won't alert either
-        (True, False, None, {'alertThreshold': 500.0}, 3),
+        (True, False, None, {"alertThreshold": 500.0}, 3),
         # just subtest, but larger min window size
         # (so no alerting)
-        (True, False, {}, {'minBackWindow': 100, 'maxBackWindow': 100}, 1),
+        (True, False, {}, {"minBackWindow": 100, "maxBackWindow": 100}, 1),
         # non sheriff-able job tier won't alert either
-        (True, False, {}, {'minBackWindow': 100, 'maxBackWindow': 100}, 3),
+        (True, False, {}, {"minBackWindow": 100, "maxBackWindow": 100}, 3),
         # should still alert even if we optionally
         # use a large maximum back window, but because of
         # non sheriff-able job tier it won't
-        (True, False, None, {'minBackWindow': 12, 'maxBackWindow': 100}, 3),
+        (True, False, None, {"minBackWindow": 12, "maxBackWindow": 100}, 3),
         # summary+subtest, no metadata, default settings should alert,
         # but because of non sheriff-able job tier it won't
         (True, True, {}, {}, 3),
         # summary+subtest, high alert threshold
         # (so no alert)
-        (True, True, {'alertThreshold': 500.0}, {}, 2),
+        (True, True, {"alertThreshold": 500.0}, {}, 2),
         # non sheriff-able job tier won't alert either
-        (True, True, {'alertThreshold': 500.0}, {}, 3),
+        (True, True, {"alertThreshold": 500.0}, {}, 3),
         # non sheriff-able job tier won't alert
-        (True, True, {'alertThreshold': 500.0}, {}, 2),
+        (True, True, {"alertThreshold": 500.0}, {}, 2),
         # non sheriff-able job tier won't alert either
-        (True, True, {'alertThreshold': 500.0}, {}, 3),
+        (True, True, {"alertThreshold": 500.0}, {}, 3),
         # summary+subtest, no metadata, no alerting on summary
-        (True, True, {'shouldAlert': False}, {}, 1),
+        (True, True, {"shouldAlert": False}, {}, 1),
         # non sheriff-able job tier won't alert either
-        (True, True, {'shouldAlert': False}, {}, 3),
+        (True, True, {"shouldAlert": False}, {}, 3),
         # summary+subtest, no metadata, no alerting on
         # summary, alerting on subtest should alert, but
         # because of non sheriff-able job tier it won't
-        (True, True, {'shouldAlert': False}, {'shouldAlert': True}, 3),
+        (True, True, {"shouldAlert": False}, {"shouldAlert": True}, 3),
         # summary+subtest, no metadata on summary, alerting
         # override on subtest should alert, but because of
         # non sheriff-able job tier it won't
-        (True, True, {}, {'shouldAlert': True}, 3),
+        (True, True, {}, {"shouldAlert": True}, 3),
         # summary+subtest, alerting override on subtest +
         # summary & non sheriff-able job tier won't alert
-        (True, True, {'shouldAlert': True}, {'shouldAlert': True}, 3),
+        (True, True, {"shouldAlert": True}, {"shouldAlert": True}, 3),
         # summary+subtest, alerting override on subtest +
         # summary -- but alerts disabled
-        (False, True, {'shouldAlert': True}, {'shouldAlert': True}, 2),
+        (False, True, {"shouldAlert": True}, {"shouldAlert": True}, 2),
         # non sheriff-able job tier won't alert either
-        (False, True, {'shouldAlert': True}, {'shouldAlert': True}, 3),
+        (False, True, {"shouldAlert": True}, {"shouldAlert": True}, 3),
         # summary+subtest, alerting override on subtest +
         # summary, but using absolute change so shouldn't
         # alert
         (
             True,
             True,
-            {'shouldAlert': True, 'alertChangeType': 'absolute'},
-            {'shouldAlert': True, 'alertChangeType': 'absolute'},
+            {"shouldAlert": True, "alertChangeType": "absolute"},
+            {"shouldAlert": True, "alertChangeType": "absolute"},
             1,
         ),
         # non sheriff-able job tier won't alert either
         (
             True,
             True,
-            {'shouldAlert': True, 'alertChangeType': 'absolute'},
-            {'shouldAlert': True, 'alertChangeType': 'absolute'},
+            {"shouldAlert": True, "alertChangeType": "absolute"},
+            {"shouldAlert": True, "alertChangeType": "absolute"},
             3,
         ),
         # summary + subtest, only subtest is absolute so
@@ -389,8 +389,8 @@ def test_alerts_should_be_generated(
         (
             True,
             True,
-            {'shouldAlert': True},
-            {'shouldAlert': True, 'alertChangeType': 'absolute'},
+            {"shouldAlert": True},
+            {"shouldAlert": True, "alertChangeType": "absolute"},
             3,
         ),
     ],
@@ -449,4 +449,4 @@ def test_last_updated(
     _generate_perf_data_range(test_repository, generic_reference_data, reverse_push_range=True)
     assert PerformanceSignature.objects.count() == 1
     signature = PerformanceSignature.objects.first()
-    assert signature.last_updated == max(Push.objects.values_list('time', flat=True))
+    assert signature.last_updated == max(Push.objects.values_list("time", flat=True))

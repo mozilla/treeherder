@@ -22,7 +22,7 @@ Type 'yes' to continue, or 'no' to cancel: """
         if confirm != "yes":
             return
 
-        call_command('loaddata', 'test_performance_data')
+        call_command("loaddata", "test_performance_data")
 
         # generating a test performance series by hand is a little overly
         # verbose, so let's do that programmatically
@@ -34,8 +34,8 @@ Type 'yes' to continue, or 'no' to cancel: """
         # create a push first as need a push_id
         Push.objects.create(
             repository=s.repository,
-            revision='1234abcd',
-            author='foo@bar.com',
+            revision="1234abcd",
+            author="foo@bar.com",
             time=datetime.datetime.now(),
         )
 

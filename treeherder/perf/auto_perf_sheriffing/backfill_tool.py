@@ -28,7 +28,7 @@ class BackfillTool:
         if "browsertime" in job.job_group.name.lower():
             logger.debug(f"Requesting side_by_side for task {task_id_to_backfill}...")
             side_by_side_task_id = self.__taskcluster.trigger_action(
-                action='side-by-side',
+                action="side-by-side",
                 task_id=task_id_to_backfill,
                 decision_task_id=decision_task_id,
                 input={},
@@ -39,7 +39,7 @@ class BackfillTool:
             )
         logger.debug(f"Requesting backfill for task {task_id_to_backfill}...")
         task_id = self.__taskcluster.trigger_action(
-            action='backfill',
+            action="backfill",
             task_id=task_id_to_backfill,
             decision_task_id=decision_task_id,
             input={

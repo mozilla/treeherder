@@ -23,8 +23,8 @@ class OutcomeChecker:
         if record.job_type is None:
             raise ValueError(f"No job_type for record {record.alert.id}.")
         of_type = record.job_type
-        with_successful_results = 'success'  # state is "completed"
-        with_unknown_results = 'unknown'  # state is "running" or "pending"
+        with_successful_results = "success"  # state is "completed"
+        with_unknown_results = "unknown"  # state is "running" or "pending"
         total_backfills_in_progress = 0
         total_backfills_failed = 0
         total_backfills_successful = 0

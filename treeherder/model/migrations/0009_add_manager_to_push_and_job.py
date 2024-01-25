@@ -6,20 +6,20 @@ import django.db.models.manager
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('model', '0008_remove_failure_match'),
+        ("model", "0008_remove_failure_match"),
     ]
 
     operations = [
         migrations.AlterModelManagers(
-            name='push',
+            name="push",
             managers=[
-                ('failures', django.db.models.manager.Manager()),
+                ("failures", django.db.models.manager.Manager()),
             ],
         ),
         migrations.AlterModelManagers(
-            name='job',
+            name="job",
             managers=[
-                ('failures', django.db.models.manager.Manager()),
+                ("failures", django.db.models.manager.Manager()),
             ],
         ),
     ]

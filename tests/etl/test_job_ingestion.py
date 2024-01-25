@@ -18,8 +18,8 @@ def test_ingest_single_sample_job(
     assert Job.objects.count() == 1
     job = Job.objects.get(id=1)
     # Ensure we don't inadvertently change the way we generate job-related hashes.
-    assert job.option_collection_hash == '32faaecac742100f7753f0c1d0aa0add01b4046b'
-    assert job.signature.signature == '5bb6ec49547193d8d9274232cd9de61fb4ef2e59'
+    assert job.option_collection_hash == "32faaecac742100f7753f0c1d0aa0add01b4046b"
+    assert job.signature.signature == "5bb6ec49547193d8d9274232cd9de61fb4ef2e59"
 
 
 def test_ingest_all_sample_jobs(
@@ -39,13 +39,13 @@ def test_ingest_twice_log_parsing_status_changed(
     verify that nothing changes"""
     job_data = sample_data.job_data[:1]
 
-    job_data[0]['job']['state'] = 'running'
+    job_data[0]["job"]["state"] = "running"
     test_utils.do_job_ingestion(test_repository, job_data, sample_push)
     assert JobLog.objects.count() == 1
     for job_log in JobLog.objects.all():
         job_log.update_status(JobLog.FAILED)
 
-    job_data[0]['job']['state'] = 'completed'
+    job_data[0]["job"]["state"] = "completed"
     test_utils.do_job_ingestion(test_repository, job_data, sample_push)
     assert JobLog.objects.count() == 1
     for job_log in JobLog.objects.all():
@@ -65,23 +65,23 @@ def test_ingest_running_to_retry_sample_job(
     store_push_data(test_repository, sample_push)
 
     job_data = copy.deepcopy(sample_data.job_data[:1])
-    job = job_data[0]['job']
-    job_data[0]['revision'] = sample_push[0]['revision']
-    job['state'] = 'running'
-    job['result'] = 'unknown'
+    job = job_data[0]["job"]
+    job_data[0]["revision"] = sample_push[0]["revision"]
+    job["state"] = "running"
+    job["result"] = "unknown"
 
     def _simulate_retry_job(job):
-        job['state'] = 'completed'
-        job['result'] = 'retry'
+        job["state"] = "completed"
+        job["result"] = "retry"
         # convert the job_guid to what it would be on a retry
-        job['job_guid'] = job['job_guid'] + "_" + str(job['end_timestamp'])[-5:]
+        job["job_guid"] = job["job_guid"] + "_" + str(job["end_timestamp"])[-5:]
         return job
 
     if same_ingestion_cycle:
         # now we simulate the complete version of the job coming in (on the
         # same push)
         new_job_datum = copy.deepcopy(job_data[0])
-        new_job_datum['job'] = _simulate_retry_job(new_job_datum['job'])
+        new_job_datum["job"] = _simulate_retry_job(new_job_datum["job"])
         job_data.append(new_job_datum)
         store_job_data(test_repository, job_data)
     else:
@@ -95,9 +95,9 @@ def test_ingest_running_to_retry_sample_job(
 
     assert Job.objects.count() == 1
     job = Job.objects.get(id=1)
-    assert job.result == 'retry'
+    assert job.result == "retry"
     # guid should be the retry one
-    assert job.guid == job_data[-1]['job']['job_guid']
+    assert job.guid == job_data[-1]["job"]["job_guid"]
 
 
 @pytest.mark.parametrize(
@@ -115,29 +115,29 @@ def test_ingest_running_to_retry_to_success_sample_job(
     store_push_data(test_repository, sample_push)
 
     job_datum = copy.deepcopy(sample_data.job_data[0])
-    job_datum['revision'] = sample_push[0]['revision']
+    job_datum["revision"] = sample_push[0]["revision"]
 
-    job = job_datum['job']
-    job_guid_root = job['job_guid']
+    job = job_datum["job"]
+    job_guid_root = job["job_guid"]
 
     job_data = []
     for state, result, job_guid in [
-        ('running', 'unknown', job_guid_root),
-        ('completed', 'retry', job_guid_root + "_" + str(job['end_timestamp'])[-5:]),
-        ('completed', 'success', job_guid_root),
+        ("running", "unknown", job_guid_root),
+        ("completed", "retry", job_guid_root + "_" + str(job["end_timestamp"])[-5:]),
+        ("completed", "success", job_guid_root),
     ]:
         new_job_datum = copy.deepcopy(job_datum)
-        new_job_datum['job']['state'] = state
-        new_job_datum['job']['result'] = result
-        new_job_datum['job']['job_guid'] = job_guid
+        new_job_datum["job"]["state"] = state
+        new_job_datum["job"]["result"] = result
+        new_job_datum["job"]["job_guid"] = job_guid
         job_data.append(new_job_datum)
 
     for i, j in ingestion_cycles:
         store_job_data(test_repository, job_data[i:j])
 
     assert Job.objects.count() == 2
-    assert Job.objects.get(id=1).result == 'retry'
-    assert Job.objects.get(id=2).result == 'success'
+    assert Job.objects.get(id=1).result == "retry"
+    assert Job.objects.get(id=2).result == "success"
     assert JobLog.objects.count() == 2
 
 
@@ -159,22 +159,22 @@ def test_ingest_running_to_retry_to_success_sample_job_multiple_retries(
     store_push_data(test_repository, sample_push)
 
     job_datum = copy.deepcopy(sample_data.job_data[0])
-    job_datum['revision'] = sample_push[0]['revision']
+    job_datum["revision"] = sample_push[0]["revision"]
 
-    job = job_datum['job']
-    job_guid_root = job['job_guid']
+    job = job_datum["job"]
+    job_guid_root = job["job_guid"]
 
     job_data = []
     for state, result, job_guid in [
-        ('running', 'unknown', job_guid_root),
-        ('completed', 'retry', job_guid_root + "_" + str(job['end_timestamp'])[-5:]),
-        ('completed', 'retry', job_guid_root + "_12345"),
-        ('completed', 'success', job_guid_root),
+        ("running", "unknown", job_guid_root),
+        ("completed", "retry", job_guid_root + "_" + str(job["end_timestamp"])[-5:]),
+        ("completed", "retry", job_guid_root + "_12345"),
+        ("completed", "success", job_guid_root),
     ]:
         new_job_datum = copy.deepcopy(job_datum)
-        new_job_datum['job']['state'] = state
-        new_job_datum['job']['result'] = result
-        new_job_datum['job']['job_guid'] = job_guid
+        new_job_datum["job"]["state"] = state
+        new_job_datum["job"]["result"] = result
+        new_job_datum["job"]["job_guid"] = job_guid
         job_data.append(new_job_datum)
 
     for i, j in ingestion_cycles:
@@ -182,9 +182,9 @@ def test_ingest_running_to_retry_to_success_sample_job_multiple_retries(
         store_job_data(test_repository, ins)
 
     assert Job.objects.count() == 3
-    assert Job.objects.get(id=1).result == 'retry'
-    assert Job.objects.get(id=2).result == 'retry'
-    assert Job.objects.get(id=3).result == 'success'
+    assert Job.objects.get(id=1).result == "retry"
+    assert Job.objects.get(id=2).result == "retry"
+    assert Job.objects.get(id=3).result == "success"
     assert JobLog.objects.count() == 3
 
 
@@ -193,23 +193,23 @@ def test_ingest_retry_sample_job_no_running(
 ):
     """Process a single job structure in the job_data.txt file"""
     job_data = copy.deepcopy(sample_data.job_data[:1])
-    job = job_data[0]['job']
-    job_data[0]['revision'] = sample_push[0]['revision']
+    job = job_data[0]["job"]
+    job_data[0]["revision"] = sample_push[0]["revision"]
 
     store_push_data(test_repository, sample_push)
 
     # complete version of the job coming in
-    job['state'] = 'completed'
-    job['result'] = 'retry'
+    job["state"] = "completed"
+    job["result"] = "retry"
     # convert the job_guid to what it would be on a retry
-    retry_guid = job['job_guid'] + "_" + str(job['end_timestamp'])[-5:]
-    job['job_guid'] = retry_guid
+    retry_guid = job["job_guid"] + "_" + str(job["end_timestamp"])[-5:]
+    job["job_guid"] = retry_guid
 
     store_job_data(test_repository, job_data)
 
     assert Job.objects.count() == 1
     job = Job.objects.get(id=1)
-    assert job.result == 'retry'
+    assert job.result == "retry"
     assert job.guid == retry_guid
 
 
@@ -220,7 +220,7 @@ def test_bad_date_value_ingestion(
     Test ingesting a job blob with bad date value
 
     """
-    blob = job_data(start_timestamp="foo", revision=sample_push[0]['revision'])
+    blob = job_data(start_timestamp="foo", revision=sample_push[0]["revision"])
 
     store_push_data(test_repository, sample_push[:1])
     store_job_data(test_repository, [blob])

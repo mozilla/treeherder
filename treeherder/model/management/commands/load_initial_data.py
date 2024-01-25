@@ -7,12 +7,12 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         call_command(
-            'loaddata',
-            'repository_group',
-            'repository',
-            'failure_classification',
-            'issue_tracker',
-            'performance_framework',
-            'performance_bug_templates',
-            'performance_tag',
+            "loaddata",
+            "repository_group",
+            "repository",
+            "failure_classification",
+            "issue_tracker",
+            "performance_framework",
+            "performance_bug_templates",
+            "performance_tag",
         )

@@ -5,13 +5,13 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('model', '0012_branch_maxlen'),
+        ("model", "0012_branch_maxlen"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='push',
-            name='revision',
+            model_name="push",
+            name="revision",
             field=models.CharField(db_index=True, max_length=40),
         ),
     ]

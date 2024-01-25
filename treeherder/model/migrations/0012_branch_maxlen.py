@@ -5,13 +5,13 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('model', '0011_remove_matcher_table'),
+        ("model", "0011_remove_matcher_table"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='repository',
-            name='branch',
+            model_name="repository",
+            name="branch",
             field=models.CharField(db_index=True, max_length=255, null=True),
         ),
     ]

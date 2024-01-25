@@ -6,24 +6,24 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('perf', '0048_performancedatum_application_version'),
+        ("perf", "0048_performancedatum_application_version"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='PerformanceDatumReplicate',
+            name="PerformanceDatumReplicate",
             fields=[
-                ('id', models.BigAutoField(primary_key=True, serialize=False)),
-                ('value', models.FloatField()),
+                ("id", models.BigAutoField(primary_key=True, serialize=False)),
+                ("value", models.FloatField()),
                 (
-                    'performance_datum',
+                    "performance_datum",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to='perf.performancedatum'
+                        on_delete=django.db.models.deletion.CASCADE, to="perf.performancedatum"
                     ),
                 ),
             ],
             options={
-                'db_table': 'performance_datum_replicate',
+                "db_table": "performance_datum_replicate",
             },
         ),
     ]

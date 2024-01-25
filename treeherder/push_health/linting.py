@@ -6,11 +6,11 @@ from treeherder.push_health.utils import get_job_results
 
 def get_lint_failures(push):
     lint_results = Job.objects.filter(
-        Q(machine_platform__platform='lint') | Q(job_type__symbol='mozlint'),
+        Q(machine_platform__platform="lint") | Q(job_type__symbol="mozlint"),
         push=push,
         tier__lte=2,
-    ).select_related('machine_platform', 'taskcluster_metadata')
+    ).select_related("machine_platform", "taskcluster_metadata")
 
-    result, failures, in_progress_count = get_job_results(lint_results, 'testfailed')
+    result, failures, in_progress_count = get_job_results(lint_results, "testfailed")
 
     return (result, failures, in_progress_count)

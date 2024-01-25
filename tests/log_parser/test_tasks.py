@@ -19,7 +19,7 @@ def jobs_with_local_log(activate_responses):
     job = sample_data.job_data[0]
 
     # substitute the log url with a local url
-    job['job']['log_references'][0]['url'] = url
+    job["job"]["log_references"][0]["url"] = url
     return [job]
 
 
@@ -35,8 +35,8 @@ def test_create_error_summary(
 
     jobs = jobs_with_local_log
     for job in jobs:
-        job['job']['result'] = "testfailed"
-        job['revision'] = sample_push[0]['revision']
+        job["job"]["result"] = "testfailed"
+        job["revision"] = sample_push[0]["revision"]
 
     store_job_data(test_repository, jobs)
 

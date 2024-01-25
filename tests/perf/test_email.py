@@ -43,5 +43,5 @@ class TestDeletionNotificationWriter:
             application=test_perf_signature.application,
             last_updated=test_perf_signature.last_updated.date(),
         )
-        expected_content += '\n'
+        expected_content += "\n"
         return expected_content

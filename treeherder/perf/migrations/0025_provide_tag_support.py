@@ -5,13 +5,13 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('perf', '0024_support_backfill_reports'),
+        ("perf", "0024_support_backfill_reports"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='performancesignature',
-            name='tags',
+            model_name="performancesignature",
+            name="tags",
             field=models.CharField(blank=True, max_length=360),
         ),
     ]

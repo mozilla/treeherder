@@ -26,7 +26,7 @@ class Command(BaseCommand):
         self.__timer.start_timer()
 
     def handle(self, *args, **options):
-        vcs_signatures = PerformanceSignature.objects.filter(framework__name='vcs')
+        vcs_signatures = PerformanceSignature.objects.filter(framework__name="vcs")
         for signature in vcs_signatures:
             signature.delete()  # intentionally cascades to data points also
             self._maybe_take_small_break()  # so database won't cripple; blocking call

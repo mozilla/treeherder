@@ -11,8 +11,8 @@ from .serializers import BugJobMapSerializer
 class BugJobMapViewSet(viewsets.ViewSet):
     def create(self, request, project):
         """Add a new relation between a job and a bug."""
-        job_id = int(request.data['job_id'])
-        bug_id = int(request.data['bug_id'])
+        job_id = int(request.data["job_id"])
+        bug_id = int(request.data["bug_id"])
 
         try:
             BugJobMap.create(
@@ -56,14 +56,14 @@ class BugJobMapViewSet(viewsets.ViewSet):
         try:
             # Casting to list since Python 3's `map` returns an iterator,
             # which would hide any ValueError until used by the ORM below.
-            job_ids = list(map(int, request.query_params.getlist('job_id')))
+            job_ids = list(map(int, request.query_params.getlist("job_id")))
         except ValueError:
             return Response({"message": "Valid job_id required"}, status=400)
         if not job_ids:
             return Response({"message": "At least one job_id is required"}, status=400)
 
         jobs = Job.objects.filter(repository__name=project, id__in=job_ids)
-        bug_job_maps = BugJobMap.objects.filter(job__in=jobs).select_related('user')
+        bug_job_maps = BugJobMap.objects.filter(job__in=jobs).select_related("user")
         serializer = BugJobMapSerializer(bug_job_maps, many=True)
 
         return Response(serializer.data)
