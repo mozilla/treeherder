@@ -29,6 +29,7 @@ def _update_bugscache(bug_list):
             dupe_of=bug['dupe_of'],
             crash_signature=bug['cf_crash_signature'],
             keywords=",".join(bug['keywords']),
+            created=bug['creation_time'],
             modified=bug['last_change_time'],
             whiteboard=bug['whiteboard'][:max_whiteboard_length],
             processed_update=True,

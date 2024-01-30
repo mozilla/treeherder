@@ -116,12 +116,14 @@ def populate_bugscache():
                 id=1234567,
                 status='NEW',
                 summary='intermittent devtools/client/framework/test/test1.js | single tracking bug',
+                created='2012-01-01 00:00:00',
                 modified='2014-01-01 00:00:00',
             ),
             Bugscache(
                 id=2345678,
                 status='NEW',
                 summary='intermittent devtools/client/framework/test/test2.js | single tracking bug',
+                created='2013-01-01 00:00:00',
                 modified='2014-01-01 00:00:00',
             ),
         ]

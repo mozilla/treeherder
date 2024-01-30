@@ -78,6 +78,7 @@ def fetch_intermittent_bugs(additional_params, limit, duplicate_chain_length):
                 'duplicates',
                 'cf_crash_signature',
                 'keywords',
+                'creation_time',
                 'last_change_time',
                 'whiteboard',
             ]
@@ -195,6 +196,9 @@ class BzApiBugProcess:
                                 'dupe_of': dupe_of,
                                 'crash_signature': bug.get('cf_crash_signature', ''),
                                 'keywords': ",".join(bug['keywords']),
+                                'created': dateutil.parser.parse(
+                                    bug['creation_time'], ignoretz=True
+                                ),
                                 'modified': dateutil.parser.parse(
                                     bug['last_change_time'], ignoretz=True
                                 ),

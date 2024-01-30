@@ -9,6 +9,7 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "RESOLVED",
+      "creation_time": "2013-03-02 20:11:17",
       "last_change_time": "2014-01-01 00:00:00",
       "whiteboard": "text"
     },
@@ -21,6 +22,7 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
+      "creation_time": "2013-11-30 02:05:00",
       "last_change_time": "2014-01-01 00:00:00",
       "whiteboard": "text"
     },
@@ -33,6 +35,7 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
+      "creation_time": "2013-04-11 20:11:17",
       "last_change_time": "2014-01-01 00:00:00",
       "whiteboard": "text"
     },
@@ -45,6 +48,7 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
+      "creation_time": "2013-05-12 20:11:17",
       "last_change_time": "2014-01-01 00:00:00",
       "whiteboard": "text"
     },
@@ -57,6 +61,7 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
+      "creation_time": "2013-06-13 20:11:17",
       "last_change_time": "2014-01-01 00:00:00",
       "whiteboard": "text"
     },
@@ -69,6 +74,7 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
+      "creation_time": "2013-07-14 20:11:17",
       "last_change_time": "2014-01-01 00:00:00",
       "whiteboard": "text"
     },
@@ -81,6 +87,7 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
+      "creation_time": "2013-08-15 20:11:17",
       "last_change_time": "2014-01-01 00:00:00",
       "whiteboard": "text"
     },
@@ -93,6 +100,7 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
+      "creation_time": "1999-01-20 20:11:17",
       "last_change_time": "2014-01-01 00:00:00",
       "whiteboard": "text"
     },
@@ -105,6 +113,7 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
+      "creation_time": "2000-02-21 20:11:17",
       "last_change_time": "2014-01-01 00:00:00",
       "whiteboard": "text"
     },
@@ -117,6 +126,7 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
+      "creation_time": "2001-03-22 20:11:17",
       "last_change_time": "2014-01-01 00:00:00",
       "whiteboard": "text"
     },
@@ -129,6 +139,7 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
+      "creation_time": "2002-04-23 20:11:17",
       "last_change_time": "2014-01-01 00:00:00",
       "whiteboard": "text"
     },
@@ -141,6 +152,7 @@
       "cf_crash_signature": "",
       "keywords": ["ateam-marionette-intermittent", "intermittent-failure"],
       "resolution": "",
+      "creation_time": "2003-05-24T20:11:17",
       "last_change_time": "2014-08-17T23:15:38",
       "whiteboard": "text"
     },
@@ -153,6 +165,7 @@
       "cf_crash_signature": "",
       "keywords": ["ateam-marionette-intermittent", "intermittent-failure"],
       "resolution": "",
+      "creation_time": "2004-06-25T20:11:17",
       "last_change_time": "2014-10-29T20:57:46",
       "whiteboard": "text"
     },
@@ -165,6 +178,7 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
+      "creation_time": "2005-07-26T20:11:17",
       "last_change_time": "2014-10-23T13:35:06",
       "whiteboard": "text"
     },
@@ -177,6 +191,7 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
+      "creation_time": "2006-08-27T20:11:17",
       "last_change_time": "2014-10-29T20:57:46",
       "whiteboard": "text"
     },
@@ -189,6 +204,7 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
+      "creation_time": "2007-09-28T20:11:17",
       "last_change_time": "2016-07-25T01:04:15Z",
       "whiteboard": "text"
     },
@@ -201,6 +217,7 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
+      "creation_time": "2008-10-29T20:11:17",
       "last_change_time": "2016-07-25T01:04:15Z",
       "whiteboard": "text"
     },
@@ -213,6 +230,7 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
+      "creation_time": "2009-11-30T20:11:17",
       "last_change_time": "2016-07-25T01:04:15Z",
       "whiteboard": "text"
     },
@@ -225,6 +243,7 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
+      "creation_time": "2010-12-31T20:11:17",
       "last_change_time": "2016-07-25T01:04:15Z",
       "whiteboard": "text"
     },
@@ -237,6 +256,7 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
+      "creation_time": "2011-01-01T20:11:17",
       "last_change_time": "2016-07-25T01:04:15Z",
       "whiteboard": "text"
     },
@@ -249,6 +269,7 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
+      "creation_time": "2011-01-02T20:11:17",
       "last_change_time": "2016-07-25T01:04:15Z",
       "whiteboard": "text"
     },
@@ -261,6 +282,7 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
+      "creation_time": "2012-02-01T20:11:17",
       "last_change_time": "2016-07-25T01:04:15Z",
       "whiteboard": "text"
     },
@@ -273,6 +295,7 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
+      "creation_time": "2012-02-28T20:11:17",
       "last_change_time": "2016-07-25T01:04:15Z",
       "whiteboard": "text"
     },
@@ -285,6 +308,7 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
+      "creation_time": "2012-02-29T20:11:17",
       "last_change_time": "2016-07-25T01:04:15Z",
       "whiteboard": "text"
     },
@@ -297,6 +321,7 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
+      "creation_time": "2013-12-05T20:11:17",
       "last_change_time": "2016-07-25T01:04:15Z",
       "whiteboard": "text"
     },
@@ -309,6 +334,7 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "INCOMPLETE",
+      "creation_time": "2017-04-22T20:11:17",
       "last_change_time": "2021-10-11T01:02:03Z",
       "whiteboard": ""
     },
@@ -321,6 +347,7 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "INCOMPLETE",
+      "creation_time": "2021-10-30T20:11:17",
       "last_change_time": "2021-10-31T01:02:03Z",
       "whiteboard": ""
     },
@@ -333,6 +360,7 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "INCOMPLETE",
+      "creation_time": "2017-05-10T20:11:17",
       "last_change_time": "2021-11-03T09:41:22Z",
       "whiteboard": ""
     }
