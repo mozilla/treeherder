@@ -1,4 +1,5 @@
 import logging
+import re
 import uuid
 
 import jsonschema
@@ -123,10 +124,21 @@ class JobLoader:
         """
         job_guid = pulse_job["taskId"]
 
+        description = ""
+        try:
+            # The summary field is concatenation of the job's description and
+            # the Treeherder job link.
+            # https://searchfox.org/mozilla-central/rev/02841791400cf7cf5760c0cfaf31f5d772624253/taskcluster/gecko_taskgraph/transforms/task.py#2004
+            summary = pulse_job["jobInfo"]["summary"]
+            description = re.sub(r"\s*\(\[Treeherder job\].+", "", summary)
+        except Exception:
+            pass
+
         x = {
             "job": {
                 "job_guid": job_guid,
                 "name": pulse_job["display"].get("jobName", "unknown"),
+                "description": description,
                 "job_symbol": self._get_job_symbol(pulse_job),
                 "group_name": pulse_job["display"].get("groupName", "unknown"),
                 "group_symbol": pulse_job["display"].get("groupSymbol"),
@@ -140,6 +152,7 @@ class JobLoader:
                 "machine": self._get_machine(pulse_job),
                 "option_collection": self._get_option_collection(pulse_job),
                 "log_references": self._get_log_references(pulse_job),
+                "local_run": pulse_job.get("jobInfo", {}).get("localRun", ""),
             },
             "superseded": pulse_job.get("coalesced", []),
             "revision": pulse_job["origin"]["revision"],

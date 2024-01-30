@@ -16,6 +16,7 @@
   "job_type_id": 214778,
   "job_type_name": "test-linux1804-64/debug-mochitest-devtools-chrome-e10s-12",
   "job_type_symbol": "dt12",
+  "job_type_local_run": "$ ./mach test TEST_PATH",
   "last_modified": "2020-05-27T22:51:34.806175",
   "machine_name": "i-0e040b25b59698068",
   "machine_platform_architecture": "-",

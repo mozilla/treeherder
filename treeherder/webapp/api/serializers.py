@@ -69,6 +69,8 @@ class JobProjectSerializer(serializers.ModelSerializer):
             'job_type_id': job.job_type_id,
             'job_type_name': job.job_type.name,
             'job_type_symbol': job.job_type.symbol,
+            'job_type_description': job.job_type.description,
+            'job_type_local_run': job.job_type.local_run,
             'last_modified': job.last_modified,
             'machine_name': job.machine.name,
             'machine_platform_architecture': job.machine_platform.architecture,

@@ -28,6 +28,11 @@ export default class JobArtifacts extends React.PureComponent {
     } = this.props;
     const sortedDetails = jobDetails.slice();
 
+    const localRun =
+      selectedJob && 'job_type_local_run' in selectedJob
+        ? selectedJob.job_type_local_run
+        : '';
+
     sortedDetails.sort((a, b) => {
       const compareA = a.title || UNTITLED;
       const compareB = b.title || UNTITLED;
@@ -54,41 +59,50 @@ export default class JobArtifacts extends React.PureComponent {
             </a>
           </div>
         )}
+        {localRun && (
+          <>
+            <h5>How to run locally</h5>
+            <pre data-testid="local-run">{localRun}</pre>
+          </>
+        )}
         {jobArtifactsLoading && <span>Loading job artifacts…</span>}
         {!jobArtifactsLoading && (
-          <ul className="list-unstyled">
-            {sortedDetails.length > 0 &&
-              sortedDetails.map((line) => (
-                <li className="link-style" key={line.value}>
-                  {!!line.url && (
-                    <a
-                      data-testid="task-artifact"
-                      title={line.title ? line.title : line.value}
-                      href={line.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {line.value}
-                    </a>
-                  )}
-                  {line.url &&
-                    line.value.startsWith('profile_') &&
-                    (line.value.endsWith('.zip') ||
-                      line.value.endsWith('.json')) && (
-                      <span>
-                        {' '}
-                        -{' '}
-                        <a
-                          title={line.value}
-                          href={getPerfAnalysisUrl(line.url)}
-                        >
-                          open in Firefox Profiler
-                        </a>
-                      </span>
+          <>
+            <h5>Artifacts</h5>
+            <ul className="list-unstyled">
+              {sortedDetails.length > 0 &&
+                sortedDetails.map((line) => (
+                  <li className="link-style" key={line.value}>
+                    {!!line.url && (
+                      <a
+                        data-testid="task-artifact"
+                        title={line.title ? line.title : line.value}
+                        href={line.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {line.value}
+                      </a>
                     )}
-                </li>
-              ))}
-          </ul>
+                    {line.url &&
+                      line.value.startsWith('profile_') &&
+                      (line.value.endsWith('.zip') ||
+                        line.value.endsWith('.json')) && (
+                        <span>
+                          {' '}
+                          -{' '}
+                          <a
+                            title={line.value}
+                            href={getPerfAnalysisUrl(line.url)}
+                          >
+                            open in Firefox Profiler
+                          </a>
+                        </span>
+                      )}
+                  </li>
+                ))}
+            </ul>
+          </>
         )}
       </div>
     );

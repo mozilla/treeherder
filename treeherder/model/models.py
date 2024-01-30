@@ -421,6 +421,8 @@ class JobType(models.Model):
     symbol = models.CharField(max_length=25, default='?', db_index=True)
     name = models.CharField(max_length=140)
     description = models.TextField(blank=True)
+    # extra.local-run field of the job
+    local_run = models.TextField(blank=True, default='')
 
     class Meta:
         db_table = 'job_type'
