@@ -115,6 +115,19 @@ def _load_job(repository, job_datum, push_id):
         symbol=job_datum.get('job_symbol') or 'unknown', name=job_datum.get('name') or 'unknown'
     )
 
+    local_run = job_datum.get('local_run') or ''
+    if local_run:
+        update_local_run = False
+        if job_type.local_run == '':
+            update_local_run = True
+        elif repository.name == 'mozilla-central' or repository.name == 'autoland':
+            update_local_run = True
+
+        if update_local_run:
+            JobType.objects.filter(symbol=job_type.symbol, name=job_type.name).update(
+                local_run=local_run
+            )
+
     job_group, _ = JobGroup.objects.get_or_create(
         name=job_datum.get('group_name') or 'unknown',
         symbol=job_datum.get('group_symbol') or 'unknown',

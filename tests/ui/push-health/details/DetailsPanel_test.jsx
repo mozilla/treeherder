@@ -93,6 +93,17 @@ describe('DetailsPanel', () => {
     );
   });
 
+  test('should have local-run', async () => {
+    const { getByTestId, findByText } = render(testDetailsPanel(task));
+    const artifactsTab = await findByText('Artifacts and Debugging Tools');
+
+    fireEvent.click(artifactsTab);
+
+    expect((await waitFor(() => getByTestId('local-run'))).textContent).toBe(
+      '$ ./mach test TEST_PATH',
+    );
+  });
+
   test('should have bug suggestions', async () => {
     const { getAllByTestId, findByText } = render(testDetailsPanel(task));
     const failuresTab = await findByText('Failure Summary');

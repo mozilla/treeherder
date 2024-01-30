@@ -221,6 +221,7 @@ def buildMessage(pushInfo, task, runId, payload):
     taskId = payload["status"]["taskId"]
     jobRun = payload["status"]["runs"][runId]
     treeherderConfig = task["extra"]["treeherder"]
+    localRun = task["extra"].get("local-run", "")
 
     job = {
         "buildSystem": "taskcluster",
@@ -245,6 +246,7 @@ def buildMessage(pushInfo, task, runId, payload):
         "jobInfo": {
             "links": [],
             "summary": task["metadata"]["description"],
+            "localRun": localRun,
         },
         "version": 1,
     }
