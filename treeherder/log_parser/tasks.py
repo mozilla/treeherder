@@ -18,7 +18,7 @@ from . import failureline
 logger = logging.getLogger(__name__)
 
 
-@retryable_task(name='log-parser', max_retries=10)
+@retryable_task(name="log-parser", max_retries=10)
 def parse_logs(job_id, job_log_ids, priority):
     newrelic.agent.add_custom_attribute("job_id", str(job_id))
 
@@ -45,7 +45,7 @@ def parse_logs(job_id, job_log_ids, priority):
         # Only parse logs which haven't yet been processed or else failed on the last attempt.
         if job_log.status not in (JobLog.PENDING, JobLog.FAILED):
             logger.info(
-                f'Skipping parsing for job %s since log already processed.  Log Status: {job_log.status}',
+                f"Skipping parsing for job %s since log already processed.  Log Status: {job_log.status}",
                 job_log.id,
             )
             continue
@@ -79,7 +79,7 @@ def parse_logs(job_id, job_log_ids, priority):
 def store_failure_lines(job_log):
     """Store the failure lines from a log corresponding to the structured
     errorsummary file."""
-    logger.info('Running store_failure_lines for job %s', job_log.job.id)
+    logger.info("Running store_failure_lines for job %s", job_log.job.id)
     failureline.store_failure_lines(job_log)
 
 
@@ -91,7 +91,7 @@ def post_log_artifacts(job_log):
         artifact_list = extract_text_log_artifacts(job_log)
     except LogSizeException as e:
         job_log.update_status(JobLog.SKIPPED_SIZE)
-        logger.warning('Skipping parsing log for %s: %s', job_log.id, e)
+        logger.warning("Skipping parsing log for %s: %s", job_log.id, e)
         return
     except Exception as e:
         job_log.update_status(JobLog.FAILED)
@@ -130,7 +130,7 @@ def extract_text_log_artifacts(job_log):
             {
                 "job_guid": job_log.job.guid,
                 "name": name,
-                "type": 'json',
+                "type": "json",
                 "blob": json.dumps(artifact),
             }
         )

@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     help = (
-        'Command used for reporting the outcome of the automatic backfilling process once per day.'
+        "Command used for reporting the outcome of the automatic backfilling process once per day."
     )
 
     def handle(self, *args, **options):
@@ -39,7 +39,7 @@ class Command(BaseCommand):
                 logger.debug(
                     f"Sherlock Notify Service: Email notification service replied with `{notification_outcome}`."
                 )
-                if notification_outcome['response'].status_code == SUCCESS_STATUS:
+                if notification_outcome["response"].status_code == SUCCESS_STATUS:
                     logger.debug(
                         "Sherlock Notify Service: Removing notified records from helper table."
                     )

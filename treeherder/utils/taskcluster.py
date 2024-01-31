@@ -5,7 +5,7 @@ from treeherder.utils.http import fetch_json, fetch_text, make_request
 
 
 def get_task_definition(root_url, task_id):
-    task_url = taskcluster_urls.api(root_url, 'queue', 'v1', 'task/{}'.format(task_id))
+    task_url = taskcluster_urls.api(root_url, "queue", "v1", "task/{}".format(task_id))
     return fetch_json(task_url)
 
 
@@ -17,7 +17,7 @@ def download_artifact(root_url, task_id, path):
     Returns either the parsed json, the parsed yaml or the plain response.
     """
     artifact_url = taskcluster_urls.api(
-        root_url, 'queue', 'v1', 'task/{}/artifacts/{}'.format(task_id, path)
+        root_url, "queue", "v1", "task/{}/artifacts/{}".format(task_id, path)
     )
 
     if path.endswith(".json"):

@@ -3,7 +3,7 @@ from django.db import connection, transaction
 
 from treeherder.perf.models import PerformanceAlert, PerformanceDatum, PerformanceSignature
 
-RAPTOR_TP6_SUBTESTS = 'raptor-tp6-subtests'
+RAPTOR_TP6_SUBTESTS = "raptor-tp6-subtests"
 USE_CASES = [RAPTOR_TP6_SUBTESTS]
 
 
@@ -24,38 +24,38 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--from',
-            action='append',
-            help='Original signature (specify multiple times to get multiple signatures)',
+            "--from",
+            action="append",
+            help="Original signature (specify multiple times to get multiple signatures)",
         )
         parser.add_argument(
-            '--to',
-            action='append',
-            help='New signature we want to move performance data to '
-            '(specify multiple times to get multiple signatures)',
+            "--to",
+            action="append",
+            help="New signature we want to move performance data to "
+            "(specify multiple times to get multiple signatures)",
         )
         parser.add_argument(
-            '--for',
-            action='store',
+            "--for",
+            action="store",
             choices=USE_CASES,
-            metavar='USE CASE',
-            help='''Rename "old" Raptor tp6 subtests, by pointing perf alerts & datum to new signatures.
+            metavar="USE CASE",
+            help="""Rename "old" Raptor tp6 subtests, by pointing perf alerts & datum to new signatures.
                  Cannot be used in conjunction with --from/--to arguments.
-                 Available use cases: {}'''.format(
-                ','.join(USE_CASES)
+                 Available use cases: {}""".format(
+                ",".join(USE_CASES)
             ),
         )
         parser.add_argument(
-            '--keep-leftovers',
-            action='store_true',
-            help='Keep database rows even if they become useless after the script runs',
+            "--keep-leftovers",
+            action="store_true",
+            help="Keep database rows even if they become useless after the script runs",
         )
 
     def handle(self, *args, **options):
-        from_signatures = options['from']
-        to_signatures = options['to']
-        use_case = options['for']
-        keep_leftovers = options['keep_leftovers']
+        from_signatures = options["from"]
+        to_signatures = options["to"]
+        use_case = options["for"]
+        keep_leftovers = options["keep_leftovers"]
 
         self.validate_arguments(from_signatures, to_signatures, use_case)
 
@@ -111,7 +111,7 @@ class Command(BaseCommand):
                old_signature.extra_options = new_signature.extra_options AND
                old_signature.lower_is_better = new_signature.lower_is_better AND
                old_signature.has_subtests = new_signature.has_subtests""".format(
-            tp6_name_pattern='raptor-tp6%',
+            tp6_name_pattern="raptor-tp6%",
             mozilla_central=self.mozilla_central,
             mozilla_inbound=self.mozilla_inbound,
             mozilla_beta=self.mozilla_beta,

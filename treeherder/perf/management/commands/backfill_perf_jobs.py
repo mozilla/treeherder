@@ -17,15 +17,15 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            'job',
-            action='store',
+            "job",
+            action="store",
             type=str,
             help="Performance job to backfill from",
-            metavar='JOB_ID',
+            metavar="JOB_ID",
         )
 
     def handle(self, *args, **options):
-        job_id = options['job']
+        job_id = options["job"]
 
         backfill_tool = backfill_tool_factory()
         task_id = backfill_tool.backfill_job(job_id)

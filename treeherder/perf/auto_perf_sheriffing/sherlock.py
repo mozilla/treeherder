@@ -113,11 +113,11 @@ class Sherlock:
         platform: str, frameworks: List[str], repositories: List[str]
     ) -> QuerySet:
         records_to_backfill = BackfillRecord.objects.select_related(
-            'alert',
-            'alert__series_signature',
-            'alert__series_signature__platform',
-            'alert__summary__framework',
-            'alert__summary__repository',
+            "alert",
+            "alert__series_signature",
+            "alert__series_signature__platform",
+            "alert__summary__framework",
+            "alert__summary__repository",
         ).filter(
             status=BackfillRecord.READY_FOR_PROCESSING,
             alert__series_signature__platform__platform__icontains=platform,
@@ -132,7 +132,7 @@ class Sherlock:
         try:
             context = record.get_context()
         except JSONDecodeError:
-            logger.warning(f'Failed to backfill record {record.alert.id}: invalid JSON context.')
+            logger.warning(f"Failed to backfill record {record.alert.id}: invalid JSON context.")
             record.status = BackfillRecord.FAILED
             record.save()
         else:
@@ -141,11 +141,11 @@ class Sherlock:
                 if left <= 0 or self.runtime_exceeded():
                     break
                 try:
-                    using_job_id = data_point['job_id']
+                    using_job_id = data_point["job_id"]
                     self.backfill_tool.backfill_job(using_job_id)
                     left, consumed = left - 1, consumed + 1
                 except (KeyError, CannotBackfill, Exception) as ex:
-                    logger.debug(f'Failed to backfill record {record.alert.id}: {ex}')
+                    logger.debug(f"Failed to backfill record {record.alert.id}: {ex}")
                 else:
                     record.try_remembering_job_properties(using_job_id)
 
@@ -153,7 +153,7 @@ class Sherlock:
                 record, len(data_points_to_backfill), consumed
             )
             log_level = INFO if success else WARNING
-            logger.log(log_level, f'{outcome} (for backfill record {record.alert.id})')
+            logger.log(log_level, f"{outcome} (for backfill record {record.alert.id})")
 
         return left, consumed
 
@@ -168,19 +168,19 @@ class Sherlock:
         if actually_backfilled == to_backfill:
             record.status = BackfillRecord.BACKFILLED
             success = True
-            outcome = 'Backfilled all data points'
+            outcome = "Backfilled all data points"
         else:
             record.status = BackfillRecord.FAILED
             if actually_backfilled == 0:
-                outcome = 'Backfill attempts on all data points failed right upon request.'
+                outcome = "Backfill attempts on all data points failed right upon request."
             elif actually_backfilled < to_backfill:
-                outcome = 'Backfill attempts on some data points failed right upon request.'
+                outcome = "Backfill attempts on some data points failed right upon request."
             else:
                 raise ValueError(
-                    f'Cannot have backfilled more than available attempts ({actually_backfilled} out of {to_backfill}).'
+                    f"Cannot have backfilled more than available attempts ({actually_backfilled} out of {to_backfill})."
                 )
 
-        record.set_log_details({'action': 'BACKFILL', 'outcome': outcome})
+        record.set_log_details({"action": "BACKFILL", "outcome": outcome})
         record.save()
         return success, outcome
 
@@ -191,11 +191,11 @@ class Sherlock:
         Usage example: _queue_is_too_loaded('gecko-3', 'b-linux')
         :return: True/False
         """
-        tc = TaskclusterConfig('https://firefox-ci-tc.services.mozilla.com')
+        tc = TaskclusterConfig("https://firefox-ci-tc.services.mozilla.com")
         tc.auth(client_id=CLIENT_ID, access_token=ACCESS_TOKEN)
-        queue = tc.get_service('queue')
+        queue = tc.get_service("queue")
 
-        pending_tasks_count = queue.pendingTasks(provisioner_id, worker_type).get('pendingTasks')
+        pending_tasks_count = queue.pendingTasks(provisioner_id, worker_type).get("pendingTasks")
 
         return pending_tasks_count > acceptable_limit
 

@@ -19,7 +19,7 @@ class ClassificationViewSet(mixins.ListModelMixin, viewsets.ViewSet):
             return Response("Must be logged in", status=HTTP_401_UNAUTHORIZED)
         if not request.user.is_staff:
             return Response("Must be staff or in sheriffing group", status=HTTP_403_FORBIDDEN)
-        job_ids = [job['id'] for job in request.data]
+        job_ids = [job["id"] for job in request.data]
         if not job_ids:
             return Response("Must provide job IDs", status=HTTP_404_NOT_FOUND)
         Job.objects.filter(id__in=job_ids).update(failure_classification_id=1)

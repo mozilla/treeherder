@@ -42,15 +42,15 @@ def record_backfilled(test_perf_alert, record_context_sample):
 
 @pytest.fixture
 def range_dates(record_context_sample):
-    from_date = datetime.fromisoformat(record_context_sample[0]['push_timestamp'])
-    to_date = datetime.fromisoformat(record_context_sample[-1]['push_timestamp'])
+    from_date = datetime.fromisoformat(record_context_sample[0]["push_timestamp"])
+    to_date = datetime.fromisoformat(record_context_sample[-1]["push_timestamp"])
 
     return {
-        'before_date': from_date - timedelta(days=5),
-        'from_date': from_date,
-        'in_range_date': from_date + timedelta(hours=13),
-        'to_date': to_date,
-        'after_date': to_date + timedelta(days=3),
+        "before_date": from_date - timedelta(days=5),
+        "from_date": from_date,
+        "in_range_date": from_date + timedelta(hours=13),
+        "to_date": to_date,
+        "after_date": to_date + timedelta(days=3),
     }
 
 
@@ -58,28 +58,28 @@ def range_dates(record_context_sample):
 def outcome_checking_pushes(
     create_push, range_dates, record_context_sample, test_repository, test_repository_2
 ):
-    from_push_id = record_context_sample[0]['push_id']
-    to_push_id = record_context_sample[-1]['push_id']
+    from_push_id = record_context_sample[0]["push_id"]
+    to_push_id = record_context_sample[-1]["push_id"]
 
     pushes = [
-        create_push(test_repository, revision=uuid.uuid4(), time=range_dates['before_date']),
+        create_push(test_repository, revision=uuid.uuid4(), time=range_dates["before_date"]),
         create_push(
             test_repository,
             revision=uuid.uuid4(),
-            time=range_dates['from_date'],
+            time=range_dates["from_date"],
             explicit_id=from_push_id,
         ),
-        create_push(test_repository, revision=uuid.uuid4(), time=range_dates['in_range_date']),
-        create_push(test_repository, revision=uuid.uuid4(), time=range_dates['in_range_date']),
-        create_push(test_repository, revision=uuid.uuid4(), time=range_dates['in_range_date']),
-        create_push(test_repository, revision=uuid.uuid4(), time=range_dates['in_range_date']),
+        create_push(test_repository, revision=uuid.uuid4(), time=range_dates["in_range_date"]),
+        create_push(test_repository, revision=uuid.uuid4(), time=range_dates["in_range_date"]),
+        create_push(test_repository, revision=uuid.uuid4(), time=range_dates["in_range_date"]),
+        create_push(test_repository, revision=uuid.uuid4(), time=range_dates["in_range_date"]),
         create_push(
             test_repository,
             revision=uuid.uuid4(),
-            time=range_dates['to_date'],
+            time=range_dates["to_date"],
             explicit_id=to_push_id,
         ),
-        create_push(test_repository, revision=uuid.uuid4(), time=range_dates['after_date']),
+        create_push(test_repository, revision=uuid.uuid4(), time=range_dates["after_date"]),
     ]
 
     return pushes
@@ -92,7 +92,7 @@ def successful_jobs(outcome_checking_pushes, eleven_jobs_stored):
     pairs = zip(outcome_checking_pushes, jobs)
     for push, job in pairs:
         job.push = push
-        job.result = 'success'
+        job.result = "success"
         job.job_type_id = JOB_TYPE_ID
         job.save()
         _successful_jobs.append(job)
@@ -103,7 +103,7 @@ def successful_jobs(outcome_checking_pushes, eleven_jobs_stored):
 def jobs_with_one_failed(successful_jobs):
     index_in_range = get_middle_index(successful_jobs)
     job_to_fail = successful_jobs[index_in_range]
-    job_to_fail.result = 'testfailed'
+    job_to_fail.result = "testfailed"
     job_to_fail.save()
 
 
@@ -111,7 +111,7 @@ def jobs_with_one_failed(successful_jobs):
 def jobs_with_one_pending(successful_jobs):
     index_in_range = get_middle_index(successful_jobs)
     job_pending = successful_jobs[index_in_range]
-    job_pending.result = 'unknown'
+    job_pending.result = "unknown"
     job_pending.save()
 
 
@@ -120,17 +120,17 @@ def jobs_with_one_pending_and_one_failed(successful_jobs):
     index_in_range = get_middle_index(successful_jobs)
     next_index_in_range = get_middle_index(successful_jobs) + 1
     job_pending = successful_jobs[index_in_range]
-    job_pending.result = 'unknown'
+    job_pending.result = "unknown"
     job_pending.save()
     job_to_fail = successful_jobs[next_index_in_range]
-    job_to_fail.result = 'testfailed'
+    job_to_fail.result = "testfailed"
     job_to_fail.save()
 
 
 @pytest.fixture
 def get_outcome_checker_mock():
     def get_outcome_checker_mock(outcome: OutcomeStatus):
-        return type('', (), {'check': lambda *params: outcome})
+        return type("", (), {"check": lambda *params: outcome})
 
     return get_outcome_checker_mock
 
@@ -184,8 +184,8 @@ def test_outcome_checker_identifies_pushes_in_range(
 ):
     total_pushes = Push.objects.count()
 
-    from_time = range_dates['from_date']
-    to_time = range_dates['to_date']
+    from_time = range_dates["from_date"]
+    to_time = range_dates["to_date"]
 
     total_outside_pushes = Push.objects.filter(
         Q(time__lt=from_time) | Q(time__gt=to_time), repository=test_repository

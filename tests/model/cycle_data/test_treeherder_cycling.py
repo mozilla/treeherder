@@ -11,13 +11,13 @@ from treeherder.perf.models import PerformanceDatum
 
 
 @pytest.mark.parametrize(
-    'days, expected_jobs, expected_failure_lines, expected_job_logs, cmd_args, cmd_kwargs',
+    "days, expected_jobs, expected_failure_lines, expected_job_logs, cmd_args, cmd_kwargs",
     [
-        (7, 0, 0, 0, ('cycle_data', 'from:treeherder'), {'sleep_time': 0, 'days': 1}),
+        (7, 0, 0, 0, ("cycle_data", "from:treeherder"), {"sleep_time": 0, "days": 1}),
         # also check default '--days' param from treeherder
-        (119, 20, 2, 22, ('cycle_data',), {'sleep_time': 0}),
-        (120, 0, 0, 0, ('cycle_data',), {'sleep_time': 0}),
-        (150, 0, 0, 0, ('cycle_data',), {'sleep_time': 0}),
+        (119, 20, 2, 22, ("cycle_data",), {"sleep_time": 0}),
+        (120, 0, 0, 0, ("cycle_data",), {"sleep_time": 0}),
+        (150, 0, 0, 0, ("cycle_data",), {"sleep_time": 0}),
     ],
 )
 def test_cycle_all_data(
@@ -75,7 +75,7 @@ def test_cycle_all_but_one_job(
     job_not_deleted.save()
 
     extra_objects = {
-        'failure_lines': (
+        "failure_lines": (
             FailureLine,
             create_failure_lines(
                 job_not_deleted, [(test_line, {}), (test_line, {"subtest": "subtest2"})]
@@ -91,7 +91,7 @@ def test_cycle_all_but_one_job(
     num_job_logs_to_be_deleted = JobLog.objects.all().exclude(job__id=job_not_deleted.id).count()
     num_job_logs_before = JobLog.objects.count()
 
-    call_command('cycle_data', 'from:treeherder', sleep_time=0, days=1, debug=True, chunk_size=1)
+    call_command("cycle_data", "from:treeherder", sleep_time=0, days=1, debug=True, chunk_size=1)
 
     assert Job.objects.count() == 1
     assert JobLog.objects.count() == (num_job_logs_before - num_job_logs_to_be_deleted)
@@ -119,7 +119,7 @@ def test_cycle_all_data_in_chunks(
 
     create_failure_lines(Job.objects.get(id=1), [(test_line, {})] * 7)
 
-    call_command('cycle_data', 'from:treeherder', sleep_time=0, days=1, chunk_size=3)
+    call_command("cycle_data", "from:treeherder", sleep_time=0, days=1, chunk_size=3)
 
     # There should be no jobs after cycling
     assert Job.objects.count() == 0
@@ -133,17 +133,17 @@ def test_cycle_job_model_reference_data(
     test_utils.do_job_ingestion(test_repository, job_data, sample_push, False)
 
     # get a list of ids of original reference data
-    original_job_type_ids = JobType.objects.values_list('id', flat=True)
-    original_job_group_ids = JobGroup.objects.values_list('id', flat=True)
-    original_machine_ids = Machine.objects.values_list('id', flat=True)
+    original_job_type_ids = JobType.objects.values_list("id", flat=True)
+    original_job_group_ids = JobGroup.objects.values_list("id", flat=True)
+    original_machine_ids = Machine.objects.values_list("id", flat=True)
 
     # create a bunch of job model data that should be cycled, since they don't
     # reference any current jobs
-    jg = JobGroup.objects.create(symbol='moo', name='moo')
-    jt = JobType.objects.create(symbol='mu', name='mu')
-    m = Machine.objects.create(name='machine_with_no_job')
+    jg = JobGroup.objects.create(symbol="moo", name="moo")
+    jt = JobType.objects.create(symbol="mu", name="mu")
+    m = Machine.objects.create(name="machine_with_no_job")
     (jg_id, jt_id, m_id) = (jg.id, jt.id, m.id)
-    call_command('cycle_data', 'from:treeherder', sleep_time=0, days=1, chunk_size=3)
+    call_command("cycle_data", "from:treeherder", sleep_time=0, days=1, chunk_size=3)
 
     # assert that reference data that should have been cycled, was cycled
     assert JobGroup.objects.filter(id=jg_id).count() == 0
@@ -186,7 +186,7 @@ def test_cycle_job_with_performance_data(
         value=1.0,
     )
 
-    call_command('cycle_data', 'from:treeherder', sleep_time=0, days=1, chunk_size=3)
+    call_command("cycle_data", "from:treeherder", sleep_time=0, days=1, chunk_size=3)
 
     # assert that the job got cycled
     assert Job.objects.count() == 0

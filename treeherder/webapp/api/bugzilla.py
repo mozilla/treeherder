@@ -13,7 +13,7 @@ from treeherder.utils.http import make_request
 
 
 class BugzillaViewSet(viewsets.ViewSet):
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=["post"])
     def create_bug(self, request):
         """
         Create a bugzilla bug with passed params
@@ -31,27 +31,27 @@ class BugzillaViewSet(viewsets.ViewSet):
                 status=HTTP_400_BAD_REQUEST,
             )
 
-        description = u"**Filed by:** {}\n{}".format(
-            request.user.email.replace('@', " [at] "), params.get("comment", "")
+        description = "**Filed by:** {}\n{}".format(
+            request.user.email.replace("@", " [at] "), params.get("comment", "")
         ).encode("utf-8")
         summary = params.get("summary").encode("utf-8").strip()
         url = settings.BUGFILER_API_URL + "/rest/bug"
-        headers = {'x-bugzilla-api-key': settings.BUGFILER_API_KEY, 'Accept': 'application/json'}
+        headers = {"x-bugzilla-api-key": settings.BUGFILER_API_KEY, "Accept": "application/json"}
         data = {
-            'type': "defect",
-            'product': params.get("product"),
-            'component': params.get("component"),
-            'summary': summary,
-            'keywords': params.get("keywords"),
-            'whiteboard': params.get("whiteboard"),
-            'regressed_by': params.get("regressed_by"),
-            'see_also': params.get("see_also"),
-            'version': params.get("version"),
-            'cf_crash_signature': params.get("crash_signature"),
-            'severity': params.get("severity"),
-            'priority': params.get("priority"),
-            'description': description,
-            'comment_tags': "treeherder",
+            "type": "defect",
+            "product": params.get("product"),
+            "component": params.get("component"),
+            "summary": summary,
+            "keywords": params.get("keywords"),
+            "whiteboard": params.get("whiteboard"),
+            "regressed_by": params.get("regressed_by"),
+            "see_also": params.get("see_also"),
+            "version": params.get("version"),
+            "cf_crash_signature": params.get("crash_signature"),
+            "severity": params.get("severity"),
+            "priority": params.get("priority"),
+            "description": description,
+            "comment_tags": "treeherder",
         }
         if params.get("is_security_issue"):
             security_group_list = list(
@@ -69,10 +69,10 @@ class BugzillaViewSet(viewsets.ViewSet):
             data["groups"] = security_group_list
 
         try:
-            response = make_request(url, method='POST', headers=headers, json=data)
+            response = make_request(url, method="POST", headers=headers, json=data)
         except requests.exceptions.HTTPError as e:
             try:
-                message = e.response.json()['message']
+                message = e.response.json()["message"]
             except (ValueError, KeyError):
                 message = e.response.text
             return Response({"failure": message}, status=HTTP_400_BAD_REQUEST)

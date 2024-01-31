@@ -15,8 +15,8 @@ class ChangelogViewSet(viewsets.ViewSet):
         """
         GET method implementation for list view
         """
-        start_date = request.query_params.get('startdate')  # YYYY-MM-DD
-        end_date = request.query_params.get('enddate')  # YYYY-MM-DD
+        start_date = request.query_params.get("startdate")  # YYYY-MM-DD
+        end_date = request.query_params.get("enddate")  # YYYY-MM-DD
 
         serializer = ChangelogSerializer(get_changes(start_date, end_date), many=True)
         return Response(serializer.data)

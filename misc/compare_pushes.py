@@ -25,7 +25,7 @@ def main(args):
     production_client = TreeherderClient(server_url=HOSTS["production"])
 
     # Support comma separated projects
-    projects = args.projects.split(',')
+    projects = args.projects.split(",")
     for _project in projects:
         logger.info("Comparing {} against production.".format(_project))
         # Remove properties that are irrelevant for the comparison

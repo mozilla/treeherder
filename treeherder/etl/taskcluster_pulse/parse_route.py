@@ -15,10 +15,10 @@ def parseRoute(route):
     id = None
     owner = None
     parsedProject = None
-    parsedRoute = route.split('.')
+    parsedRoute = route.split(".")
     project = parsedRoute[2]
-    if len(project.split('/')) == 2:
-        [owner, parsedProject] = project.split('/')
+    if len(project.split("/")) == 2:
+        [owner, parsedProject] = project.split("/")
     else:
         parsedProject = project
 
@@ -34,8 +34,8 @@ def parseRoute(route):
 
     if owner and parsedProject:
         pushInfo["owner"] = owner
-        pushInfo["origin"] = 'github.com'
+        pushInfo["origin"] = "github.com"
     else:
-        pushInfo["origin"] = 'hg.mozilla.org'
+        pushInfo["origin"] = "hg.mozilla.org"
 
     return pushInfo

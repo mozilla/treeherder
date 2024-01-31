@@ -16,7 +16,7 @@ class MaxRuntime:
         elapsed_runtime = datetime.now() - self.started_at
 
         if self.max_runtime < elapsed_runtime:
-            raise MaxRuntimeExceeded('Max runtime for performance data cycling exceeded')
+            raise MaxRuntimeExceeded("Max runtime for performance data cycling exceeded")
 
     def start_timer(self):
         self.started_at = datetime.now()

@@ -34,7 +34,7 @@ def test_bz_reopen_bugs(request, mock_bugzilla_reopen_request, client, test_job,
         incomplete_bugs[0],
         incomplete_bugs[2],
     ]:
-        submit_obj = {u"job_id": test_job.id, u"bug_id": bug.id, u"type": u"manual"}
+        submit_obj = {"job_id": test_job.id, "bug_id": bug.id, "type": "manual"}
 
         client.post(
             reverse("bug-job-map-list", kwargs={"project": test_job.repository.name}),
@@ -44,12 +44,12 @@ def test_bz_reopen_bugs(request, mock_bugzilla_reopen_request, client, test_job,
     process = BzApiBugProcess()
     process.run()
 
-    reopened_bugs = request.config.cache.get('reopened_bugs', None)
+    reopened_bugs = request.config.cache.get("reopened_bugs", None)
 
     import json
 
     EXPECTED_REOPEN_ATTEMPTS = {
-        'https://thisisnotbugzilla.org/rest/bug/202': json.dumps(
+        "https://thisisnotbugzilla.org/rest/bug/202": json.dumps(
             {
                 "status": "REOPENED",
                 "comment": {
@@ -58,7 +58,7 @@ def test_bz_reopen_bugs(request, mock_bugzilla_reopen_request, client, test_job,
                 "comment_tags": "treeherder",
             }
         ),
-        'https://thisisnotbugzilla.org/rest/bug/404': json.dumps(
+        "https://thisisnotbugzilla.org/rest/bug/404": json.dumps(
             {
                 "status": "REOPENED",
                 "comment": {

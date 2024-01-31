@@ -22,12 +22,12 @@ class InfraCompareQuerySerializers(serializers.Serializer):
     def validate(self, data):
         # Atleast revision or interval or startDay along with endDay need to be present
         if (
-            data['revision'] is None
-            and data['interval'] is None
-            and (data['startday'] is None or data['endday'] is None)
+            data["revision"] is None
+            and data["interval"] is None
+            and (data["startday"] is None or data["endday"] is None)
         ):
             raise serializers.ValidationError(
-                'Required: revision, startday and endday, or interval.'
+                "Required: revision, startday and endday, or interval."
             )
 
         return data
@@ -37,6 +37,6 @@ class InfraCompareQuerySerializers(serializers.Serializer):
             Repository.objects.get(name=project)
 
         except ObjectDoesNotExist:
-            raise serializers.ValidationError('{} does not exist.'.format(project))
+            raise serializers.ValidationError("{} does not exist.".format(project))
 
         return project

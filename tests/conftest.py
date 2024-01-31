@@ -27,7 +27,7 @@ from treeherder.services.pulse.exchange import get_exchange
 from treeherder.webapp.api import perfcompare_utils
 
 IS_WINDOWS = "windows" in platform.system().lower()
-SAMPLE_DATA_PATH = join(dirname(__file__), 'sample_data')
+SAMPLE_DATA_PATH = join(dirname(__file__), "sample_data")
 
 
 def pytest_addoption(parser):
@@ -45,7 +45,7 @@ def pytest_runtest_setup(item):
     - Clear the django cache between runs
     """
 
-    if 'slow' in item.keywords and not item.config.getoption("--runslow"):
+    if "slow" in item.keywords and not item.config.getoption("--runslow"):
         pytest.skip("need --runslow option to run")
 
     from django.core.cache import cache
@@ -56,9 +56,9 @@ def pytest_runtest_setup(item):
 @pytest.fixture
 def setup_repository_data(django_db_setup, django_db_blocker):
     with django_db_blocker.unblock():
-        call_command('loaddata', join(SAMPLE_DATA_PATH, 'repository_group.json'))
+        call_command("loaddata", join(SAMPLE_DATA_PATH, "repository_group.json"))
     with django_db_blocker.unblock():
-        call_command('loaddata', join(SAMPLE_DATA_PATH, 'repository.json'))
+        call_command("loaddata", join(SAMPLE_DATA_PATH, "repository.json"))
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -70,14 +70,14 @@ def block_unmocked_requests():
     """
 
     def mocked_send(*args, **kwargs):
-        raise RuntimeError('Tests must mock all HTTP requests!')
+        raise RuntimeError("Tests must mock all HTTP requests!")
 
     # The standard monkeypatch fixture cannot be used with session scope:
     # https://github.com/pytest-dev/pytest/issues/363
     monkeypatch = MonkeyPatch()
     # Monkeypatching here since any higher level would break responses:
     # https://github.com/getsentry/responses/blob/0.5.1/responses.py#L295
-    monkeypatch.setattr('requests.adapters.HTTPAdapter.send', mocked_send)
+    monkeypatch.setattr("requests.adapters.HTTPAdapter.send", mocked_send)
     yield monkeypatch
     monkeypatch.undo()
 
@@ -90,7 +90,7 @@ def sample_data():
     return SampleData()
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def test_base_dir():
     return os.path.dirname(__file__)
 
@@ -100,14 +100,14 @@ def sample_push(sample_data):
     return copy.deepcopy(sample_data.push_data)
 
 
-@pytest.fixture(name='create_push')
+@pytest.fixture(name="create_push")
 def fixture_create_push():
     """Return a function to create a push"""
 
     def create(
         repository,
-        revision='4c45a777949168d16c03a4cba167678b7ab65f76',
-        author='foo@bar.com',
+        revision="4c45a777949168d16c03a4cba167678b7ab65f76",
+        author="foo@bar.com",
         time=None,
         explicit_id=None,
     ):
@@ -122,11 +122,11 @@ def fixture_create_push():
     return create
 
 
-@pytest.fixture(name='create_commit')
+@pytest.fixture(name="create_commit")
 def fixture_create_commit():
     """Return a function to create a commit"""
 
-    def create(push, comments='Bug 12345 - This is a message'):
+    def create(push, comments="Bug 12345 - This is a message"):
         return th_models.Commit.objects.create(
             push=push, revision=push.revision, author=push.author, comments=comments
         )
@@ -134,7 +134,7 @@ def fixture_create_commit():
     return create
 
 
-@pytest.fixture(name='create_signature')
+@pytest.fixture(name="create_signature")
 def fixture_create_signature():
     """Returns a function to create a signature"""
 
@@ -147,7 +147,7 @@ def fixture_create_signature():
         test,
         test_perf_signature,
         repository,
-        application='',
+        application="",
     ):
         return perf_models.PerformanceSignature.objects.create(
             repository=repository,
@@ -167,7 +167,7 @@ def fixture_create_signature():
     return create
 
 
-@pytest.fixture(name='create_perf_datum')
+@pytest.fixture(name="create_perf_datum")
 def fixture_create_perf_datum():
     """Returns a function to create a performance datum"""
 
@@ -258,9 +258,9 @@ def test_issue_tracker(transactional_db):
 def test_repository_2(test_repository):
     return th_models.Repository.objects.create(
         repository_group=test_repository.repository_group,
-        name=test_repository.name + '_2',
+        name=test_repository.name + "_2",
         dvcs_type=test_repository.dvcs_type,
-        url=test_repository.url + '_2',
+        url=test_repository.url + "_2",
         codebase=test_repository.codebase,
     )
 
@@ -272,25 +272,25 @@ def test_push(create_push, test_repository):
 
 @pytest.fixture
 def test_perfcomp_push(create_push, test_repository):
-    return create_push(test_repository, '1377267c6dc1')
+    return create_push(test_repository, "1377267c6dc1")
 
 
 @pytest.fixture
 def test_perfcomp_push_2(create_push, test_repository):
-    return create_push(test_repository, '08038e535f58')
+    return create_push(test_repository, "08038e535f58")
 
 
 @pytest.fixture
 def test_linux_platform():
     return th_models.MachinePlatform.objects.create(
-        os_name='-', platform='linux1804-64-shippable-qr', architecture='-'
+        os_name="-", platform="linux1804-64-shippable-qr", architecture="-"
     )
 
 
 @pytest.fixture
 def test_macosx_platform():
     return th_models.MachinePlatform.objects.create(
-        os_name='', platform='macosx1015-64-shippable-qr', architecture=''
+        os_name="", platform="macosx1015-64-shippable-qr", architecture=""
     )
 
 
@@ -304,7 +304,7 @@ def test_commit(create_commit, test_push):
     return create_commit(test_push)
 
 
-@pytest.fixture(name='create_jobs')
+@pytest.fixture(name="create_jobs")
 def fixture_create_jobs(test_repository, failure_classifications):
     """Return a function to create jobs"""
 
@@ -318,8 +318,8 @@ def fixture_create_jobs(test_repository, failure_classifications):
 @pytest.fixture
 def test_job(eleven_job_blobs, create_jobs):
     job = eleven_job_blobs[0]
-    job['job'].update(
-        {'taskcluster_task_id': 'V3SVuxO8TFy37En_6HcXLs', 'taskcluster_retry_id': '0'}
+    job["job"].update(
+        {"taskcluster_task_id": "V3SVuxO8TFy37En_6HcXLs", "taskcluster_retry_id": "0"}
     )
     return create_jobs([job])[0]
 
@@ -327,20 +327,20 @@ def test_job(eleven_job_blobs, create_jobs):
 @pytest.fixture
 def test_two_jobs_tc_metadata(eleven_job_blobs_new_date, create_jobs):
     job_1, job_2 = eleven_job_blobs_new_date[0:2]
-    job_1['job'].update(
+    job_1["job"].update(
         {
-            'status': 'completed',
-            'result': 'testfailed',
-            'taskcluster_task_id': 'V3SVuxO8TFy37En_6HcXLs',
-            'taskcluster_retry_id': '0',
+            "status": "completed",
+            "result": "testfailed",
+            "taskcluster_task_id": "V3SVuxO8TFy37En_6HcXLs",
+            "taskcluster_retry_id": "0",
         }
     )
-    job_2['job'].update(
+    job_2["job"].update(
         {
-            'status': 'completed',
-            'result': 'testfailed',
-            'taskcluster_task_id': 'FJtjczXfTAGClIl6wNBo9g',
-            'taskcluster_retry_id': '0',
+            "status": "completed",
+            "result": "testfailed",
+            "taskcluster_task_id": "FJtjczXfTAGClIl6wNBo9g",
+            "taskcluster_retry_id": "0",
         }
     )
     return create_jobs([job_1, job_2])
@@ -365,7 +365,7 @@ def mock_log_parser(monkeypatch):
     def task_mock(*args, **kwargs):
         pass
 
-    monkeypatch.setattr(tasks, 'parse_logs', task_mock)
+    monkeypatch.setattr(tasks, "parse_logs", task_mock)
 
 
 @pytest.fixture
@@ -376,20 +376,20 @@ def taskcluster_notify_mock(monkeypatch):
         nonlocal mock
         return mock
 
-    monkeypatch.setattr(taskcluster, 'notify_client_factory', mockreturn)
+    monkeypatch.setattr(taskcluster, "notify_client_factory", mockreturn)
     return mock
 
 
 @pytest.fixture
 def mock_tc_prod_backfill_credentials(monkeypatch):
-    monkeypatch.setattr(settings, 'PERF_SHERIFF_BOT_CLIENT_ID', "client_id")
-    monkeypatch.setattr(settings, 'PERF_SHERIFF_BOT_ACCESS_TOKEN', "access_token")
+    monkeypatch.setattr(settings, "PERF_SHERIFF_BOT_CLIENT_ID", "client_id")
+    monkeypatch.setattr(settings, "PERF_SHERIFF_BOT_ACCESS_TOKEN", "access_token")
 
 
 @pytest.fixture
 def mock_tc_prod_notify_credentials(monkeypatch):
-    monkeypatch.setattr(settings, 'NOTIFY_CLIENT_ID', "client_id")
-    monkeypatch.setattr(settings, 'NOTIFY_ACCESS_TOKEN', "access_token")
+    monkeypatch.setattr(settings, "NOTIFY_CLIENT_ID", "client_id")
+    monkeypatch.setattr(settings, "NOTIFY_ACCESS_TOKEN", "access_token")
 
 
 @pytest.fixture
@@ -423,12 +423,12 @@ def eleven_job_blobs(sample_data, sample_push, test_repository, mock_log_parser)
             push_index = 0
 
         # Modify job structure to sync with the push sample data
-        if 'sources' in blob:
-            del blob['sources']
+        if "sources" in blob:
+            del blob["sources"]
 
-        blob['revision'] = sample_push[push_index]['revision']
-        blob['taskcluster_task_id'] = 'V3SVuxO8TFy37En_6HcXL{}'.format(task_id_index)
-        blob['taskcluster_retry_id'] = '0'
+        blob["revision"] = sample_push[push_index]["revision"]
+        blob["taskcluster_task_id"] = "V3SVuxO8TFy37En_6HcXL{}".format(task_id_index)
+        blob["taskcluster_retry_id"] = "0"
         blobs.append(blob)
 
         push_index += 1
@@ -441,7 +441,7 @@ def eleven_job_blobs_new_date(sample_data, sample_push, test_repository, mock_lo
     # make unique revisions
     counter = 0
     for push in sample_push:
-        push['push_timestamp'] = int(time.time()) + counter
+        push["push_timestamp"] = int(time.time()) + counter
         counter += 1
 
     store_push_data(test_repository, sample_push)
@@ -459,16 +459,16 @@ def eleven_job_blobs_new_date(sample_data, sample_push, test_repository, mock_lo
             push_index = 0
 
         # Modify job structure to sync with the push sample data
-        if 'sources' in blob:
-            del blob['sources']
+        if "sources" in blob:
+            del blob["sources"]
 
-        blob['revision'] = sample_push[push_index]['revision']
-        blob['taskcluster_task_id'] = 'V3SVuxO8TFy37En_6HcX{:0>2}'.format(task_id_index)
-        blob['taskcluster_retry_id'] = '0'
-        blob['job']['revision'] = sample_push[push_index]['revision']
-        blob['job']['submit_timestamp'] = sample_push[push_index]['push_timestamp']
-        blob['job']['start_timestamp'] = sample_push[push_index]['push_timestamp'] + 10
-        blob['job']['end_timestamp'] = sample_push[push_index]['push_timestamp'] + 1000
+        blob["revision"] = sample_push[push_index]["revision"]
+        blob["taskcluster_task_id"] = "V3SVuxO8TFy37En_6HcX{:0>2}".format(task_id_index)
+        blob["taskcluster_retry_id"] = "0"
+        blob["job"]["revision"] = sample_push[push_index]["revision"]
+        blob["job"]["submit_timestamp"] = sample_push[push_index]["push_timestamp"]
+        blob["job"]["start_timestamp"] = sample_push[push_index]["push_timestamp"] + 10
+        blob["job"]["end_timestamp"] = sample_push[push_index]["push_timestamp"] + 1000
         blobs.append(blob)
 
         push_index += 1
@@ -552,7 +552,7 @@ def failure_lines(test_job):
 def failure_line_logs(test_job):
     return create_failure_lines(
         test_job,
-        [(test_line, {'action': 'log', 'test': None}), (test_line, {'subtest': 'subtest2'})],
+        [(test_line, {"action": "log", "test": None}), (test_line, {"subtest": "subtest2"})],
     )
 
 
@@ -611,7 +611,7 @@ def classified_failures(
 @pytest.fixture
 def test_user(db):
     # a user *without* sheriff/staff permissions
-    user = th_models.User.objects.create(username="testuser1", email='user@foo.com', is_staff=False)
+    user = th_models.User.objects.create(username="testuser1", email="user@foo.com", is_staff=False)
     return user
 
 
@@ -622,7 +622,7 @@ def test_ldap_user(db):
     and who does not have `is_staff` permissions.
     """
     user = th_models.User.objects.create(
-        username="mozilla-ldap/user@foo.com", email='user@foo.com', is_staff=False
+        username="mozilla-ldap/user@foo.com", email="user@foo.com", is_staff=False
     )
     return user
 
@@ -631,20 +631,20 @@ def test_ldap_user(db):
 def test_sheriff(db):
     # a user *with* sheriff/staff permissions
     user = th_models.User.objects.create(
-        username="testsheriff1", email='sheriff@foo.com', is_staff=True
+        username="testsheriff1", email="sheriff@foo.com", is_staff=True
     )
     return user
 
 
 @pytest.fixture
 def test_perf_framework(transactional_db):
-    return perf_models.PerformanceFramework.objects.create(name='test_talos', enabled=True)
+    return perf_models.PerformanceFramework.objects.create(name="test_talos", enabled=True)
 
 
 @pytest.fixture
 def test_perf_signature(test_repository, test_perf_framework) -> perf_models.PerformanceSignature:
     windows_7_platform = th_models.MachinePlatform.objects.create(
-        os_name='win', platform='win7', architecture='x86'
+        os_name="win", platform="win7", architecture="x86"
     )
     return create_perf_signature(test_perf_framework, test_repository, windows_7_platform)
 
@@ -652,24 +652,24 @@ def test_perf_signature(test_repository, test_perf_framework) -> perf_models.Per
 def create_perf_signature(
     perf_framework, repository, machine_platform: th_models.MachinePlatform
 ) -> perf_models.PerformanceSignature:
-    option = th_models.Option.objects.create(name='opt')
+    option = th_models.Option.objects.create(name="opt")
     option_collection = th_models.OptionCollection.objects.create(
-        option_collection_hash='my_option_hash', option=option
+        option_collection_hash="my_option_hash", option=option
     )
 
     return perf_models.PerformanceSignature.objects.create(
         repository=repository,
-        signature_hash=(40 * 't'),
+        signature_hash=(40 * "t"),
         framework=perf_framework,
         platform=machine_platform,
         option_collection=option_collection,
-        suite='mysuite',
-        test='mytest',
-        application='firefox',
+        suite="mysuite",
+        test="mytest",
+        application="firefox",
         has_subtests=False,
-        tags='warm pageload',
-        extra_options='e10s opt',
-        measurement_unit='ms',
+        tags="warm pageload",
+        extra_options="e10s opt",
+        measurement_unit="ms",
         last_updated=datetime.datetime.now(),
     )
 
@@ -687,16 +687,16 @@ def test_taskcluster_metadata_2(test_job_3) -> th_models.TaskclusterMetadata:
 def create_taskcluster_metadata(test_job_2) -> th_models.TaskclusterMetadata:
     return th_models.TaskclusterMetadata.objects.create(
         job=test_job_2,
-        task_id='V3SVuxO8TFy37En_6HcXLp',
-        retry_id='0',
+        task_id="V3SVuxO8TFy37En_6HcXLp",
+        retry_id="0",
     )
 
 
 def create_taskcluster_metadata_2(test_job_3) -> th_models.TaskclusterMetadata:
     return th_models.TaskclusterMetadata.objects.create(
         job=test_job_3,
-        task_id='V3SVuxO8TFy37En_6HcXLq',
-        retry_id='0',
+        task_id="V3SVuxO8TFy37En_6HcXLq",
+        retry_id="0",
     )
 
 
@@ -704,12 +704,12 @@ def create_taskcluster_metadata_2(test_job_3) -> th_models.TaskclusterMetadata:
 def test_perf_signature_2(test_perf_signature):
     return perf_models.PerformanceSignature.objects.create(
         repository=test_perf_signature.repository,
-        signature_hash=(20 * 't2'),
+        signature_hash=(20 * "t2"),
         framework=test_perf_signature.framework,
         platform=test_perf_signature.platform,
         option_collection=test_perf_signature.option_collection,
-        suite='mysuite2',
-        test='mytest2',
+        suite="mysuite2",
+        test="mytest2",
         has_subtests=test_perf_signature.has_subtests,
         extra_options=test_perf_signature.extra_options,
         last_updated=datetime.datetime.now(),
@@ -721,12 +721,12 @@ def test_stalled_data_signature(test_perf_signature):
     stalled_data_timestamp = datetime.datetime.now() - datetime.timedelta(days=120)
     return perf_models.PerformanceSignature.objects.create(
         repository=test_perf_signature.repository,
-        signature_hash=(20 * 't3'),
+        signature_hash=(20 * "t3"),
         framework=test_perf_signature.framework,
         platform=test_perf_signature.platform,
         option_collection=test_perf_signature.option_collection,
-        suite='mysuite3',
-        test='mytest3',
+        suite="mysuite3",
+        test="mytest3",
         has_subtests=test_perf_signature.has_subtests,
         extra_options=test_perf_signature.extra_options,
         last_updated=stalled_data_timestamp,
@@ -738,7 +738,7 @@ def test_perf_data(test_perf_signature, eleven_jobs_stored):
     # for making things easier, ids for jobs
     # and push should be the same;
     # also, we only need a subset of jobs
-    perf_jobs = th_models.Job.objects.filter(pk__in=range(7, 11)).order_by('id').all()
+    perf_jobs = th_models.Job.objects.filter(pk__in=range(7, 11)).order_by("id").all()
 
     for index, job in enumerate(perf_jobs, start=1):
         job.push_id = index
@@ -755,7 +755,7 @@ def test_perf_data(test_perf_signature, eleven_jobs_stored):
         perf_datum.push.time = job.push.time
         perf_datum.push.save()
 
-    return perf_models.PerformanceDatum.objects.order_by('id').all()
+    return perf_models.PerformanceDatum.objects.order_by("id").all()
 
 
 @pytest.fixture
@@ -767,14 +767,14 @@ def mock_bugzilla_api_request(monkeypatch):
         bug_list_path = os.path.join(tests_folder, "sample_data", "bug_list.json")
         with open(bug_list_path) as f:
             last_change_time = (datetime.datetime.utcnow() - datetime.timedelta(days=30)).strftime(
-                '%Y-%m-%dT%H:%M:%SZ'
+                "%Y-%m-%dT%H:%M:%SZ"
             )
             data = json.load(f)
             for bug in data["bugs"]:
                 bug["last_change_time"] = last_change_time
             return data
 
-    monkeypatch.setattr(treeherder.etl.bugzilla, 'fetch_json', _fetch_json)
+    monkeypatch.setattr(treeherder.etl.bugzilla, "fetch_json", _fetch_json)
 
 
 @pytest.fixture
@@ -787,7 +787,7 @@ def mock_deviance(monkeypatch):
     def _deviance(*args, **kwargs):
         return "OK", 0
 
-    monkeypatch.setattr(moz_measure_noise, 'deviance', _deviance)
+    monkeypatch.setattr(moz_measure_noise, "deviance", _deviance)
 
 
 @pytest.fixture
@@ -797,7 +797,7 @@ def bugs(mock_bugzilla_api_request):
     process = BzApiBugProcess()
     process.run()
 
-    return th_models.Bugscache.objects.all().order_by('id')
+    return th_models.Bugscache.objects.all().order_by("id")
 
 
 @pytest.fixture
@@ -807,11 +807,11 @@ def mock_bugzilla_reopen_request(monkeypatch, request):
     def _reopen_request(url, method, headers, json):
         import json as json_module
 
-        reopened_bugs = request.config.cache.get('reopened_bugs', {})
+        reopened_bugs = request.config.cache.get("reopened_bugs", {})
         reopened_bugs[url] = json_module.dumps(json)
-        request.config.cache.set('reopened_bugs', reopened_bugs)
+        request.config.cache.set("reopened_bugs", reopened_bugs)
 
-    monkeypatch.setattr(treeherder.etl.bugzilla, 'reopen_request', _reopen_request)
+    monkeypatch.setattr(treeherder.etl.bugzilla, "reopen_request", _reopen_request)
 
 
 @pytest.fixture
@@ -839,7 +839,7 @@ def mock_file_bugzilla_map_request(monkeypatch):
 
     def _fetch_data(self, project):
         url = (
-            'https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2.%s.latest.source.source-bugzilla-info/artifacts/public/components.json'
+            "https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2.%s.latest.source.source-bugzilla-info/artifacts/public/components.json"
             % project
         )
         files_bugzilla_data = None
@@ -859,7 +859,7 @@ def mock_file_bugzilla_map_request(monkeypatch):
         }
 
     monkeypatch.setattr(
-        treeherder.etl.files_bugzilla_map.FilesBugzillaMapProcess, 'fetch_data', _fetch_data
+        treeherder.etl.files_bugzilla_map.FilesBugzillaMapProcess, "fetch_data", _fetch_data
     )
 
 
@@ -879,11 +879,11 @@ def mock_bugscache_bugzilla_request(monkeypatch):
             for bug in bugzilla_data["bugs"]:
                 bug["last_change_time"] = (
                     datetime.datetime.now() - datetime.timedelta(20)
-                ).isoformat(timespec='seconds') + 'Z'
+                ).isoformat(timespec="seconds") + "Z"
         return bugzilla_data["bugs"]
 
     monkeypatch.setattr(
-        treeherder.etl.bugzilla, 'fetch_intermittent_bugs', _fetch_intermittent_bugs
+        treeherder.etl.bugzilla, "fetch_intermittent_bugs", _fetch_intermittent_bugs
     )
 
 
@@ -909,7 +909,7 @@ def mock_get_artifact_list(monkeypatch):
     def _mock_get(url, params=None):
         return MockResponse()
 
-    monkeypatch.setattr(treeherder.webapp.api.utils, 'fetch_json', _mock_get)
+    monkeypatch.setattr(treeherder.webapp.api.utils, "fetch_json", _mock_get)
 
 
 @pytest.fixture
@@ -919,7 +919,7 @@ def mock_cache(monkeypatch):
     def mockreturn_cache(*args, **kwargs):
         return {"task_id": "some_id", "retry_id": 0}
 
-    monkeypatch.setattr(django.core.cache.cache, 'get', mockreturn_cache)
+    monkeypatch.setattr(django.core.cache.cache, "get", mockreturn_cache)
 
 
 @pytest.fixture
@@ -935,17 +935,17 @@ def text_log_error_lines(test_job, failure_lines):
 
 @pytest.fixture
 def test_perf_tag():
-    return perf_models.PerformanceTag.objects.create(name='first_tag')
+    return perf_models.PerformanceTag.objects.create(name="first_tag")
 
 
 @pytest.fixture
 def test_perf_tag_2():
-    return perf_models.PerformanceTag.objects.create(name='second_tag')
+    return perf_models.PerformanceTag.objects.create(name="second_tag")
 
 
 @pytest.fixture
 def test_perf_alert_summary(test_repository, push_stored, test_perf_framework, test_issue_tracker):
-    test_perf_tag = perf_models.PerformanceTag.objects.create(name='harness')
+    test_perf_tag = perf_models.PerformanceTag.objects.create(name="harness")
 
     performance_alert_summary = perf_models.PerformanceAlertSummary.objects.create(
         repository=test_repository,
@@ -1074,9 +1074,9 @@ def generic_reference_data(test_repository):
 
     r = RefdataHolder()
 
-    r.option = th_models.Option.objects.create(name='my_option')
+    r.option = th_models.Option.objects.create(name="my_option")
     r.option_collection = th_models.OptionCollection.objects.create(
-        option_collection_hash='my_option_hash', option=r.option
+        option_collection_hash="my_option_hash", option=r.option
     )
     r.option_collection_hash = r.option_collection.option_collection_hash
     r.machine_platform = th_models.MachinePlatform.objects.create(
@@ -1085,13 +1085,13 @@ def generic_reference_data(test_repository):
     r.build_platform = th_models.BuildPlatform.objects.create(
         os_name="my_os", platform="my_platform", architecture="x86"
     )
-    r.machine = th_models.Machine.objects.create(name='mymachine')
-    r.job_group = th_models.JobGroup.objects.create(symbol='S', name='myjobgroup')
-    r.job_type = th_models.JobType.objects.create(symbol='j', name='myjob')
-    r.product = th_models.Product.objects.create(name='myproduct')
+    r.machine = th_models.Machine.objects.create(name="mymachine")
+    r.job_group = th_models.JobGroup.objects.create(symbol="S", name="myjobgroup")
+    r.job_type = th_models.JobType.objects.create(symbol="j", name="myjob")
+    r.product = th_models.Product.objects.create(name="myproduct")
     r.signature = th_models.ReferenceDataSignatures.objects.create(
-        name='myreferencedatasignaeture',
-        signature='1234',
+        name="myreferencedatasignaeture",
+        signature="1234",
         build_os_name=r.build_platform.os_name,
         build_platform=r.build_platform.platform,
         build_architecture=r.build_platform.architecture,
@@ -1103,7 +1103,7 @@ def generic_reference_data(test_repository):
         job_type_name=r.job_type.name,
         job_type_symbol=r.job_type.symbol,
         option_collection_hash=r.option_collection_hash,
-        build_system_type='buildbot',
+        build_system_type="buildbot",
         repository=test_repository.name,
         first_submission_timestamp=0,
     )
@@ -1113,37 +1113,37 @@ def generic_reference_data(test_repository):
 
 @pytest.fixture
 def bug_data(eleven_jobs_stored, test_repository, test_push, bugs):
-    jobs = th_models.Job.objects.all().order_by('id')
+    jobs = th_models.Job.objects.all().order_by("id")
     bug_id = bugs[0].id
     job_id = jobs[0].id
     th_models.BugJobMap.create(job_id=job_id, bug_id=bug_id)
-    query_string = '?startday=2012-05-09&endday=2018-05-10&tree={}'.format(test_repository.name)
+    query_string = "?startday=2012-05-09&endday=2018-05-10&tree={}".format(test_repository.name)
 
     return {
-        'tree': test_repository.name,
-        'option': th_models.Option.objects.first(),
-        'bug_id': bug_id,
-        'job': jobs[0],
-        'jobs': jobs,
-        'query_string': query_string,
+        "tree": test_repository.name,
+        "option": th_models.Option.objects.first(),
+        "bug_id": bug_id,
+        "job": jobs[0],
+        "jobs": jobs,
+        "query_string": query_string,
     }
 
 
 @pytest.fixture
 def test_run_data(bug_data):
     pushes = th_models.Push.objects.all()
-    time = pushes[0].time.strftime('%Y-%m-%d')
+    time = pushes[0].time.strftime("%Y-%m-%d")
     test_runs = 0
     for push in list(pushes):
-        if push.time.strftime('%Y-%m-%d') == time:
+        if push.time.strftime("%Y-%m-%d") == time:
             test_runs += 1
 
-    return {'test_runs': test_runs, 'push_time': time}
+    return {"test_runs": test_runs, "push_time": time}
 
 
 @pytest.fixture
 def group_data(transactional_db, eleven_job_blobs, create_jobs):
-    query_string = '?manifest=/test&date=2022-10-01'
+    query_string = "?manifest=/test&date=2022-10-01"
 
     jt = []
     jt.append(
@@ -1159,11 +1159,11 @@ def group_data(transactional_db, eleven_job_blobs, create_jobs):
     g1 = th_models.Group.objects.create(name="/test")
     for i in range(3):
         job = eleven_job_blobs[i]
-        job['job'].update(
+        job["job"].update(
             {
-                'taskcluster_task_id': 'V3SVuxO8TFy37En_6HcXL%s' % i,
-                'taskcluster_retry_id': '0',
-                'name': jt[i].name,
+                "taskcluster_task_id": "V3SVuxO8TFy37En_6HcXL%s" % i,
+                "taskcluster_retry_id": "0",
+                "name": jt[i].name,
             }
         )
         j = create_jobs([job])[0]
@@ -1174,17 +1174,17 @@ def group_data(transactional_db, eleven_job_blobs, create_jobs):
         th_models.GroupStatus.objects.create(status=1, duration=1, job_log=job_log, group=g1)
 
     return {
-        'date': j.submit_time,
-        'manifest': '/test',
-        'query_string': query_string,
-        'expected': {
-            'job_type_names': [
-                'test-windows10-64-2004-qr/opt-mochitest-plain',
-                'test-windows10-64-2004-qr/opt-mochitest-plain-swr',
+        "date": j.submit_time,
+        "manifest": "/test",
+        "query_string": query_string,
+        "expected": {
+            "job_type_names": [
+                "test-windows10-64-2004-qr/opt-mochitest-plain",
+                "test-windows10-64-2004-qr/opt-mochitest-plain-swr",
             ],
-            'manifests': [
+            "manifests": [
                 {
-                    '/test': [[0, "passed", 1, 2], [1, "passed", 1, 1]],
+                    "/test": [[0, "passed", 1, 2], [1, "passed", 1, 1]],
                 }
             ],
         },
@@ -1210,10 +1210,10 @@ def generate_enough_perf_datum(test_repository, test_perf_signature):
 
 @pytest.fixture
 def sample_option_collections(transactional_db):
-    option1 = th_models.Option.objects.create(name='opt1')
-    option2 = th_models.Option.objects.create(name='opt2')
-    th_models.OptionCollection.objects.create(option_collection_hash='option_hash1', option=option1)
-    th_models.OptionCollection.objects.create(option_collection_hash='option_hash2', option=option2)
+    option1 = th_models.Option.objects.create(name="opt1")
+    option2 = th_models.Option.objects.create(name="opt2")
+    th_models.OptionCollection.objects.create(option_collection_hash="option_hash1", option=option1)
+    th_models.OptionCollection.objects.create(option_collection_hash="option_hash2", option=option2)
 
 
 @pytest.fixture
@@ -1270,7 +1270,7 @@ class JSONFixtureLoader:
 
     def __call__(self, fixture_filename):
         fixture_path = join(*self._prior_dirs, fixture_filename)
-        with open(fixture_path, 'r') as f:
+        with open(fixture_path, "r") as f:
             return json.load(f)
 
 

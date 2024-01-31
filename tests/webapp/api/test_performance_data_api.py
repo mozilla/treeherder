@@ -25,13 +25,13 @@ def summary_perf_signature(test_perf_signature):
     # summary performance signature don't have test value
     signature = PerformanceSignature.objects.create(
         repository=test_perf_signature.repository,
-        signature_hash=(40 * 's'),
+        signature_hash=(40 * "s"),
         framework=test_perf_signature.framework,
         platform=test_perf_signature.platform,
         option_collection=test_perf_signature.option_collection,
-        suite='mysuite',
-        test='',
-        extra_options='e10s shell',
+        suite="mysuite",
+        test="",
+        extra_options="e10s shell",
         has_subtests=True,
         last_updated=datetime.datetime.now(),
     )
@@ -44,7 +44,7 @@ def summary_perf_signature(test_perf_signature):
 def test_perf_signature_same_hash_different_framework(test_perf_signature):
     # a new signature, same as the test_perf_signature in every
     # way, except it belongs to a different "framework"
-    new_framework = PerformanceFramework.objects.create(name='test_talos_2', enabled=True)
+    new_framework = PerformanceFramework.objects.create(name="test_talos_2", enabled=True)
     new_signature = PerformanceSignature.objects.create(
         repository=test_perf_signature.repository,
         signature_hash=test_perf_signature.signature_hash,
@@ -61,23 +61,23 @@ def test_perf_signature_same_hash_different_framework(test_perf_signature):
 
 def test_no_summary_performance_data(client, test_perf_signature, test_repository):
     resp = client.get(
-        reverse('performance-signatures-list', kwargs={"project": test_repository.name})
+        reverse("performance-signatures-list", kwargs={"project": test_repository.name})
     )
     assert resp.status_code == 200
     assert resp.json() == {
         str(test_perf_signature.id): {
-            'id': test_perf_signature.id,
-            'signature_hash': test_perf_signature.signature_hash,
-            'test': test_perf_signature.test,
-            'application': test_perf_signature.application,
-            'suite': test_perf_signature.suite,
-            'tags': test_perf_signature.tags.split(' '),
-            'option_collection_hash': test_perf_signature.option_collection.option_collection_hash,
-            'framework_id': test_perf_signature.framework.id,
-            'machine_platform': test_perf_signature.platform.platform,
-            'extra_options': test_perf_signature.extra_options.split(' '),
-            'measurement_unit': test_perf_signature.measurement_unit,
-            'should_alert': test_perf_signature.should_alert,
+            "id": test_perf_signature.id,
+            "signature_hash": test_perf_signature.signature_hash,
+            "test": test_perf_signature.test,
+            "application": test_perf_signature.application,
+            "suite": test_perf_signature.suite,
+            "tags": test_perf_signature.tags.split(" "),
+            "option_collection_hash": test_perf_signature.option_collection.option_collection_hash,
+            "framework_id": test_perf_signature.framework.id,
+            "machine_platform": test_perf_signature.platform.platform,
+            "extra_options": test_perf_signature.extra_options.split(" "),
+            "measurement_unit": test_perf_signature.measurement_unit,
+            "should_alert": test_perf_signature.should_alert,
         }
     }
 
@@ -85,12 +85,12 @@ def test_no_summary_performance_data(client, test_perf_signature, test_repositor
 def test_performance_platforms(client, test_perf_signature):
     resp = client.get(
         reverse(
-            'performance-signatures-platforms-list',
+            "performance-signatures-platforms-list",
             kwargs={"project": test_perf_signature.repository.name},
         )
     )
     assert resp.status_code == 200
-    assert resp.json() == ['win7']
+    assert resp.json() == ["win7"]
 
 
 def test_performance_platforms_expired_test(client, test_perf_signature):
@@ -99,10 +99,10 @@ def test_performance_platforms_expired_test(client, test_perf_signature):
     test_perf_signature.save()
     resp = client.get(
         reverse(
-            'performance-signatures-platforms-list',
+            "performance-signatures-platforms-list",
             kwargs={"project": test_perf_signature.repository.name},
         )
-        + '?interval={}'.format(86400)
+        + "?interval={}".format(86400)
     )
     assert resp.status_code == 200
     assert resp.json() == []
@@ -110,8 +110,8 @@ def test_performance_platforms_expired_test(client, test_perf_signature):
 
 def test_performance_platforms_framework_filtering(client, test_perf_signature):
     # check framework filtering
-    framework2 = PerformanceFramework.objects.create(name='test_talos2', enabled=True)
-    platform2 = MachinePlatform.objects.create(os_name='win', platform='win7-a', architecture='x86')
+    framework2 = PerformanceFramework.objects.create(name="test_talos2", enabled=True)
+    platform2 = MachinePlatform.objects.create(os_name="win", platform="win7-a", architecture="x86")
     PerformanceSignature.objects.create(
         repository=test_perf_signature.repository,
         signature_hash=test_perf_signature.signature_hash,
@@ -127,23 +127,23 @@ def test_performance_platforms_framework_filtering(client, test_perf_signature):
     # by default should return both
     resp = client.get(
         reverse(
-            'performance-signatures-platforms-list',
+            "performance-signatures-platforms-list",
             kwargs={"project": test_perf_signature.repository.name},
         )
     )
     assert resp.status_code == 200
-    assert sorted(resp.json()) == ['win7', 'win7-a']
+    assert sorted(resp.json()) == ["win7", "win7-a"]
 
     # if we specify just one framework, should only return one
     resp = client.get(
         reverse(
-            'performance-signatures-platforms-list',
+            "performance-signatures-platforms-list",
             kwargs={"project": test_perf_signature.repository.name},
         )
-        + '?framework={}'.format(framework2.id)
+        + "?framework={}".format(framework2.id)
     )
     assert resp.status_code == 200
-    assert resp.json() == ['win7-a']
+    assert resp.json() == ["win7-a"]
 
 
 def test_summary_performance_data(
@@ -151,12 +151,12 @@ def test_summary_performance_data(
 ):
     summary_signature_id = summary_perf_signature.id
     resp = client.get(
-        reverse('performance-signatures-list', kwargs={"project": test_repository.name})
+        reverse("performance-signatures-list", kwargs={"project": test_repository.name})
     )
     assert resp.status_code == 200
 
     resp = client.get(
-        reverse('performance-signatures-list', kwargs={"project": test_repository.name})
+        reverse("performance-signatures-list", kwargs={"project": test_repository.name})
     )
     assert resp.status_code == 200
 
@@ -165,30 +165,30 @@ def test_summary_performance_data(
 
     for signature in [summary_perf_signature, test_perf_signature]:
         expected = {
-            'id': signature.id,
-            'signature_hash': signature.signature_hash,
-            'suite': signature.suite,
-            'option_collection_hash': signature.option_collection.option_collection_hash,
-            'framework_id': signature.framework_id,
-            'machine_platform': signature.platform.platform,
-            'should_alert': signature.should_alert,
+            "id": signature.id,
+            "signature_hash": signature.signature_hash,
+            "suite": signature.suite,
+            "option_collection_hash": signature.option_collection.option_collection_hash,
+            "framework_id": signature.framework_id,
+            "machine_platform": signature.platform.platform,
+            "should_alert": signature.should_alert,
         }
         if signature.test:
-            expected['test'] = signature.test
+            expected["test"] = signature.test
         if signature.has_subtests:
-            expected['has_subtests'] = True
+            expected["has_subtests"] = True
         if signature.tags:
             # tags stored as charField but api returns as list
-            expected['tags'] = signature.tags.split(' ')
+            expected["tags"] = signature.tags.split(" ")
         if signature.parent_signature:
-            expected['parent_signature'] = signature.parent_signature.signature_hash
+            expected["parent_signature"] = signature.parent_signature.signature_hash
         if signature.extra_options:
             # extra_options stored as charField but api returns as list
-            expected['extra_options'] = signature.extra_options.split(' ')
+            expected["extra_options"] = signature.extra_options.split(" ")
         if signature.measurement_unit:
-            expected['measurement_unit'] = signature.measurement_unit
+            expected["measurement_unit"] = signature.measurement_unit
         if signature.application:
-            expected['application'] = signature.application
+            expected["application"] = signature.application
         assert resp.data[signature.id] == expected
 
 
@@ -199,21 +199,21 @@ def test_filter_signatures_by_framework(
 
     # Filter by original framework
     resp = client.get(
-        reverse('performance-signatures-list', kwargs={"project": test_repository.name})
-        + '?framework=%s' % test_perf_signature.framework.id,
+        reverse("performance-signatures-list", kwargs={"project": test_repository.name})
+        + "?framework=%s" % test_perf_signature.framework.id,
     )
     assert resp.status_code == 200
     assert len(resp.data.keys()) == 1
-    assert resp.data[test_perf_signature.id]['framework_id'] == test_perf_signature.framework.id
+    assert resp.data[test_perf_signature.id]["framework_id"] == test_perf_signature.framework.id
 
     # Filter by new framework
     resp = client.get(
-        reverse('performance-signatures-list', kwargs={"project": test_repository.name})
-        + '?framework=%s' % signature2.framework.id,
+        reverse("performance-signatures-list", kwargs={"project": test_repository.name})
+        + "?framework=%s" % signature2.framework.id,
     )
     assert resp.status_code == 200
     assert len(resp.data.keys()) == 1
-    assert resp.data[signature2.id]['framework_id'] == signature2.framework.id
+    assert resp.data[signature2.id]["framework_id"] == signature2.framework.id
 
 
 def test_filter_data_by_no_retriggers(
@@ -258,17 +258,17 @@ def test_filter_data_by_no_retriggers(
     )
 
     resp = client.get(
-        reverse('performance-data-list', kwargs={"project": test_repository.name})
-        + '?signatures={}&no_retriggers=true'.format(test_perf_signature.signature_hash)
+        reverse("performance-data-list", kwargs={"project": test_repository.name})
+        + "?signatures={}&no_retriggers=true".format(test_perf_signature.signature_hash)
     )
     assert resp.status_code == 200
     datums = resp.data[test_perf_signature.signature_hash]
     assert len(datums) == 2
-    assert set(datum['signature_id'] for datum in datums) == {
+    assert set(datum["signature_id"] for datum in datums) == {
         test_perf_signature.id,
         test_perf_signature_2.id,
     }
-    assert signature_for_retrigger_data.id not in set(datum['signature_id'] for datum in datums)
+    assert signature_for_retrigger_data.id not in set(datum["signature_id"] for datum in datums)
 
 
 def test_filter_data_by_framework(
@@ -292,56 +292,56 @@ def test_filter_data_by_framework(
     # No filtering, return two datapoints (this behaviour actually sucks,
     # but it's "by design" for now, see bug 1265709)
     resp = client.get(
-        reverse('performance-data-list', kwargs={"project": test_repository.name})
-        + '?signatures='
+        reverse("performance-data-list", kwargs={"project": test_repository.name})
+        + "?signatures="
         + test_perf_signature.signature_hash
     )
     assert resp.status_code == 200
     datums = resp.data[test_perf_signature.signature_hash]
     assert len(datums) == 2
-    assert set(datum['signature_id'] for datum in datums) == {1, 2}
+    assert set(datum["signature_id"] for datum in datums) == {1, 2}
 
     # Filtering by first framework
     resp = client.get(
-        reverse('performance-data-list', kwargs={"project": test_repository.name})
-        + '?signatures={}&framework={}'.format(
+        reverse("performance-data-list", kwargs={"project": test_repository.name})
+        + "?signatures={}&framework={}".format(
             test_perf_signature.signature_hash, test_perf_signature.framework.id
         )
     )
     assert resp.status_code == 200
     datums = resp.data[test_perf_signature.signature_hash]
     assert len(datums) == 1
-    assert datums[0]['signature_id'] == 1
+    assert datums[0]["signature_id"] == 1
 
     # Filtering by second framework
     resp = client.get(
-        reverse('performance-data-list', kwargs={"project": test_repository.name})
-        + '?signatures={}&framework={}'.format(
+        reverse("performance-data-list", kwargs={"project": test_repository.name})
+        + "?signatures={}&framework={}".format(
             test_perf_signature.signature_hash, signature2.framework.id
         )
     )
     assert resp.status_code == 200
     datums = resp.data[test_perf_signature.signature_hash]
     assert len(datums) == 1
-    assert datums[0]['signature_id'] == 2
+    assert datums[0]["signature_id"] == 2
 
 
 def test_filter_signatures_by_interval(client, test_perf_signature):
     # interval for the last 24 hours, only one signature exists last updated within that timeframe
     resp = client.get(
         reverse(
-            'performance-signatures-list', kwargs={"project": test_perf_signature.repository.name}
+            "performance-signatures-list", kwargs={"project": test_perf_signature.repository.name}
         )
-        + '?interval={}'.format(86400)
+        + "?interval={}".format(86400)
     )
     assert resp.status_code == 200
     assert len(resp.json().keys()) == 1
-    assert resp.json()[str(test_perf_signature.id)]['id'] == 1
+    assert resp.json()[str(test_perf_signature.id)]["id"] == 1
 
 
 @pytest.mark.parametrize(
-    'start_date, end_date, exp_count, exp_id',
-    [(SEVEN_DAYS_AGO, ONE_DAY_AGO, 1, 1), (THREE_DAYS_AGO, '', 1, 1), (ONE_DAY_AGO, '', 0, 0)],
+    "start_date, end_date, exp_count, exp_id",
+    [(SEVEN_DAYS_AGO, ONE_DAY_AGO, 1, 1), (THREE_DAYS_AGO, "", 1, 1), (ONE_DAY_AGO, "", 0, 0)],
 )
 def test_filter_signatures_by_range(
     client, test_perf_signature, start_date, end_date, exp_count, exp_id
@@ -352,17 +352,17 @@ def test_filter_signatures_by_range(
 
     resp = client.get(
         reverse(
-            'performance-signatures-list', kwargs={"project": test_perf_signature.repository.name}
+            "performance-signatures-list", kwargs={"project": test_perf_signature.repository.name}
         )
-        + '?start_date={}&end_date={}'.format(start_date, end_date)
+        + "?start_date={}&end_date={}".format(start_date, end_date)
     )
     assert resp.status_code == 200
     assert len(resp.json().keys()) == exp_count
     if exp_count != 0:
-        assert resp.json()[str(test_perf_signature.id)]['id'] == exp_id
+        assert resp.json()[str(test_perf_signature.id)]["id"] == exp_id
 
 
-@pytest.mark.parametrize('interval, exp_push_ids', [(86400, {1}), (86400 * 3, {2, 1})])
+@pytest.mark.parametrize("interval, exp_push_ids", [(86400, {1}), (86400 * 3, {2, 1})])
 def test_filter_data_by_interval(
     client, test_repository, test_perf_signature, interval, exp_push_ids
 ):
@@ -372,8 +372,8 @@ def test_filter_data_by_interval(
     ):
         push = Push.objects.create(
             repository=test_repository,
-            revision='abcdefgh%s' % i,
-            author='foo@bar.com',
+            revision="abcdefgh%s" % i,
+            author="foo@bar.com",
             time=timestamp,
         )
         PerformanceDatum.objects.create(
@@ -386,20 +386,20 @@ def test_filter_data_by_interval(
 
     # going back interval of 1 day, should find 1 item
     resp = client.get(
-        reverse('performance-data-list', kwargs={"project": test_repository.name})
-        + '?signature_id={}&interval={}'.format(test_perf_signature.id, interval)
+        reverse("performance-data-list", kwargs={"project": test_repository.name})
+        + "?signature_id={}&interval={}".format(test_perf_signature.id, interval)
     )
 
     assert resp.status_code == 200
 
     perf_data = resp.data[test_perf_signature.signature_hash]
-    push_ids = {datum['push_id'] for datum in perf_data}
+    push_ids = {datum["push_id"] for datum in perf_data}
     assert push_ids == exp_push_ids
 
 
 @pytest.mark.parametrize(
-    'start_date, end_date, exp_push_ids',
-    [(SEVEN_DAYS_AGO, THREE_DAYS_AGO, {3}), (THREE_DAYS_AGO, '', {2, 1})],
+    "start_date, end_date, exp_push_ids",
+    [(SEVEN_DAYS_AGO, THREE_DAYS_AGO, {3}), (THREE_DAYS_AGO, "", {2, 1})],
 )
 def test_filter_data_by_range(
     client, test_repository, test_perf_signature, start_date, end_date, exp_push_ids
@@ -410,8 +410,8 @@ def test_filter_data_by_range(
     ):
         push = Push.objects.create(
             repository=test_repository,
-            revision='abcdefgh%s' % i,
-            author='foo@bar.com',
+            revision="abcdefgh%s" % i,
+            author="foo@bar.com",
             time=timestamp,
         )
         PerformanceDatum.objects.create(
@@ -423,8 +423,8 @@ def test_filter_data_by_range(
         )
 
     resp = client.get(
-        reverse('performance-data-list', kwargs={"project": test_repository.name})
-        + '?signature_id={}&start_date={}&end_date={}'.format(
+        reverse("performance-data-list", kwargs={"project": test_repository.name})
+        + "?signature_id={}&start_date={}&end_date={}".format(
             test_perf_signature.id, start_date, end_date
         )
     )
@@ -432,18 +432,18 @@ def test_filter_data_by_range(
     assert resp.status_code == 200
 
     perf_data = resp.data[test_perf_signature.signature_hash]
-    push_ids = {datum['push_id'] for datum in perf_data}
+    push_ids = {datum["push_id"] for datum in perf_data}
     assert push_ids == exp_push_ids
 
 
 def test_job_ids_validity(client, test_repository):
     resp = client.get(
-        reverse('performance-data-list', kwargs={"project": test_repository.name}) + '?job_id=1'
+        reverse("performance-data-list", kwargs={"project": test_repository.name}) + "?job_id=1"
     )
     assert resp.status_code == 200
 
     resp = client.get(
-        reverse('performance-data-list', kwargs={"project": test_repository.name}) + '?job_id=foo'
+        reverse("performance-data-list", kwargs={"project": test_repository.name}) + "?job_id=foo"
     )
     assert resp.status_code == 400
 
@@ -452,7 +452,7 @@ def test_filter_data_by_signature(
     client, test_repository, test_perf_signature, summary_perf_signature
 ):
     push = Push.objects.create(
-        repository=test_repository, revision='abcdefghi', author='foo@bar.com', time=NOW
+        repository=test_repository, revision="abcdefghi", author="foo@bar.com", time=NOW
     )
     for i, signature in enumerate([test_perf_signature, summary_perf_signature]):
         PerformanceDatum.objects.create(
@@ -467,63 +467,63 @@ def test_filter_data_by_signature(
     # passing in signature_id and signature hash
     for i, signature in enumerate([test_perf_signature, summary_perf_signature]):
         for param, value in [
-            ('signatures', signature.signature_hash),
-            ('signature_id', signature.id),
+            ("signatures", signature.signature_hash),
+            ("signature_id", signature.id),
         ]:
             resp = client.get(
-                reverse('performance-data-list', kwargs={"project": test_repository.name})
-                + '?{}={}'.format(param, value)
+                reverse("performance-data-list", kwargs={"project": test_repository.name})
+                + "?{}={}".format(param, value)
             )
             assert resp.status_code == 200
             assert len(resp.data.keys()) == 1
             assert len(resp.data[signature.signature_hash]) == 1
-            assert resp.data[signature.signature_hash][0]['signature_id'] == signature.id
-            assert resp.data[signature.signature_hash][0]['value'] == float(i)
+            assert resp.data[signature.signature_hash][0]["signature_id"] == signature.id
+            assert resp.data[signature.signature_hash][0]["value"] == float(i)
 
 
 def test_perf_summary(client, test_perf_signature, test_perf_data):
     query_params1 = (
-        '?repository={}&framework={}&interval=172800&no_subtests=true&revision={}'.format(
+        "?repository={}&framework={}&interval=172800&no_subtests=true&revision={}".format(
             test_perf_signature.repository.name,
             test_perf_signature.framework_id,
             test_perf_data[0].push.revision,
         )
     )
 
-    query_params2 = '?repository={}&framework={}&interval=172800&no_subtests=true&startday=2013-11-01T23%3A28%3A29&endday=2013-11-30T23%3A28%3A29'.format(
+    query_params2 = "?repository={}&framework={}&interval=172800&no_subtests=true&startday=2013-11-01T23%3A28%3A29&endday=2013-11-30T23%3A28%3A29".format(
         test_perf_signature.repository.name, test_perf_signature.framework_id
     )
 
     expected = [
         {
-            'signature_id': test_perf_signature.id,
-            'framework_id': test_perf_signature.framework_id,
-            'signature_hash': test_perf_signature.signature_hash,
-            'platform': test_perf_signature.platform.platform,
-            'test': test_perf_signature.test,
-            'application': test_perf_signature.application,
-            'lower_is_better': test_perf_signature.lower_is_better,
-            'has_subtests': test_perf_signature.has_subtests,
-            'tags': test_perf_signature.tags,
-            'measurement_unit': test_perf_signature.measurement_unit,
-            'values': [test_perf_data[0].value],
-            'name': 'mysuite mytest opt e10s opt',
-            'parent_signature': None,
-            'job_ids': [test_perf_data[0].job_id],
-            'suite': test_perf_signature.suite,
-            'repository_name': test_perf_signature.repository.name,
-            'repository_id': test_perf_signature.repository.id,
-            'data': [],
+            "signature_id": test_perf_signature.id,
+            "framework_id": test_perf_signature.framework_id,
+            "signature_hash": test_perf_signature.signature_hash,
+            "platform": test_perf_signature.platform.platform,
+            "test": test_perf_signature.test,
+            "application": test_perf_signature.application,
+            "lower_is_better": test_perf_signature.lower_is_better,
+            "has_subtests": test_perf_signature.has_subtests,
+            "tags": test_perf_signature.tags,
+            "measurement_unit": test_perf_signature.measurement_unit,
+            "values": [test_perf_data[0].value],
+            "name": "mysuite mytest opt e10s opt",
+            "parent_signature": None,
+            "job_ids": [test_perf_data[0].job_id],
+            "suite": test_perf_signature.suite,
+            "repository_name": test_perf_signature.repository.name,
+            "repository_id": test_perf_signature.repository.id,
+            "data": [],
         }
     ]
 
-    resp1 = client.get(reverse('performance-summary') + query_params1)
+    resp1 = client.get(reverse("performance-summary") + query_params1)
     assert resp1.status_code == 200
     assert resp1.json() == expected
 
-    expected[0]['values'] = [item.value for item in test_perf_data]
-    expected[0]['job_ids'] = [item.job_id for item in test_perf_data]
-    resp2 = client.get(reverse('performance-summary') + query_params2)
+    expected[0]["values"] = [item.value for item in test_perf_data]
+    expected[0]["job_ids"] = [item.job_id for item in test_perf_data]
+    resp2 = client.get(reverse("performance-summary") + query_params2)
     assert resp2.status_code == 200
     assert resp2.json() == expected
 
@@ -539,14 +539,14 @@ def test_data_points_from_same_push_are_ordered_chronologically(
     As job ids are auto incremented, older jobs have smaller ids than newer ones.
     Thus, these ids are sufficient to check for chronological order.
     """
-    query_params = '?repository={}&framework={}&interval=172800&no_subtests=true&startday=2013-11-01T23%3A28%3A29&endday=2013-11-30T23%3A28%3A29'.format(
+    query_params = "?repository={}&framework={}&interval=172800&no_subtests=true&startday=2013-11-01T23%3A28%3A29&endday=2013-11-30T23%3A28%3A29".format(
         test_perf_signature.repository.name, test_perf_signature.framework_id
     )
 
-    response = client.get(reverse('performance-summary') + query_params)
+    response = client.get(reverse("performance-summary") + query_params)
     assert response.status_code == 200
 
-    job_ids = response.json()[0]['job_ids']
+    job_ids = response.json()[0]["job_ids"]
     assert job_ids == sorted(job_ids)
 
 
@@ -554,7 +554,7 @@ def test_no_retriggers_perf_summary(
     client, push_stored, test_perf_signature, test_perf_signature_2, test_perf_data
 ):
     push = Push.objects.get(id=1)
-    query_params = '?repository={}&framework={}&no_subtests=true&revision={}&all_data=true&signature={}'.format(
+    query_params = "?repository={}&framework={}&no_subtests=true&revision={}&all_data=true&signature={}".format(
         test_perf_signature.repository.name,
         test_perf_signature.framework_id,
         push.revision,
@@ -577,15 +577,15 @@ def test_no_retriggers_perf_summary(
         push_timestamp=push.time,
     )
 
-    response = client.get(reverse('performance-summary') + query_params)
+    response = client.get(reverse("performance-summary") + query_params)
     content = response.json()
     assert response.status_code == 200
-    assert len(content[0]['data']) == 2
+    assert len(content[0]["data"]) == 2
 
-    response = client.get(reverse('performance-summary') + query_params + "&no_retriggers=true")
+    response = client.get(reverse("performance-summary") + query_params + "&no_retriggers=true")
     content = response.json()
     assert response.status_code == 200
-    assert len(content[0]['data']) == 1
+    assert len(content[0]["data"]) == 1
 
 
 def test_filter_out_retriggers():
@@ -662,12 +662,12 @@ def test_filter_out_retriggers():
     filtered_data = PerformanceSummary._filter_out_retriggers(copy.deepcopy(input_data))
     for perf_summary in filtered_data:
         push_id_count = defaultdict(int)
-        for idx, datum in enumerate(perf_summary['data']):
-            push_id_count[datum['push_id']] += 1
+        for idx, datum in enumerate(perf_summary["data"]):
+            push_id_count[datum["push_id"]] += 1
         for push_id in push_id_count:
             assert push_id_count[push_id] == 1
 
-    assert len(filtered_data[0]['data']) == 3
+    assert len(filtered_data[0]["data"]) == 3
 
     no_retriggers_data = [
         {
@@ -719,7 +719,7 @@ def test_alert_summary_tasks_get(client, test_perf_alert_summary, test_perf_data
         status=PerformanceAlert.REASSIGNED,
     )
     resp = client.get(
-        reverse('performance-alertsummary-tasks') + '?id={}'.format(test_perf_alert_summary.id)
+        reverse("performance-alertsummary-tasks") + "?id={}".format(test_perf_alert_summary.id)
     )
     assert resp.status_code == 200
     assert resp.json() == {
@@ -738,12 +738,12 @@ def test_alert_summary_tasks_get_failure(client, test_perf_alert_summary):
     not_exist_summary_id = test_perf_alert_summary.id
     test_perf_alert_summary.delete()
     resp = client.get(
-        reverse('performance-alertsummary-tasks') + '?id={}'.format(not_exist_summary_id)
+        reverse("performance-alertsummary-tasks") + "?id={}".format(not_exist_summary_id)
     )
     assert resp.status_code == 400
     assert resp.json() == {"message": ["PerformanceAlertSummary does not exist."]}
 
     # verify that we fail if id does not exist as a query parameter
-    resp = client.get(reverse('performance-alertsummary-tasks'))
+    resp = client.get(reverse("performance-alertsummary-tasks"))
     assert resp.status_code == 400
     assert resp.json() == {"id": ["This field is required."]}

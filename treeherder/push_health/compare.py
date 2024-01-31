@@ -28,27 +28,27 @@ def get_commit_history(repository, revision, push):
         parent_push = parents[0] if len(parents) else None
 
     resp = {
-        'parentSha': parent_sha,
-        'exactMatch': False,
-        'parentPushRevision': None,
-        'parentRepository': not parent_repo or RepositorySerializer(parent_repo).data,
-        'id': None,
-        'jobCounts': None,
-        'revisions': [
-            CommitSerializer(commit).data for commit in push.commits.all().order_by('-id')
+        "parentSha": parent_sha,
+        "exactMatch": False,
+        "parentPushRevision": None,
+        "parentRepository": not parent_repo or RepositorySerializer(parent_repo).data,
+        "id": None,
+        "jobCounts": None,
+        "revisions": [
+            CommitSerializer(commit).data for commit in push.commits.all().order_by("-id")
         ],
-        'revisionCount': push.commits.count(),
-        'currentPush': PushSerializer(push).data,
+        "revisionCount": push.commits.count(),
+        "currentPush": PushSerializer(push).data,
     }
     if parent_push:
         resp.update(
             {
                 # This will be the revision of the Parent, as long as we could find a Push in
                 # Treeherder for it.
-                'parentPushRevision': parent_push.revision,
-                'id': parent_push.id,
-                'jobCounts': parent_push.get_status(),
-                'exactMatch': parent_sha == parent_push.revision,
+                "parentPushRevision": parent_push.revision,
+                "id": parent_push.id,
+                "jobCounts": parent_push.get_status(),
+                "exactMatch": parent_sha == parent_push.revision,
             }
         )
 

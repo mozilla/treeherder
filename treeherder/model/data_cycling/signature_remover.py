@@ -64,7 +64,7 @@ class PublicSignatureRemover:
 
     @staticmethod
     def _remove_empty_try_signatures(signatures: QuerySet):
-        try_signatures = signatures.filter(repository__name='try')
+        try_signatures = signatures.filter(repository__name="try")
         for perf_signature in try_signatures:
             if not perf_signature.has_performance_data():
                 perf_signature.delete()
@@ -98,7 +98,7 @@ class PublicSignatureRemover:
                 self._send_notification()
         except TaskclusterRestFailure as ex:
             logger.warning(
-                f'Failed to atomically delete perf signatures & notify about this. (Reason: {ex})'
+                f"Failed to atomically delete perf signatures & notify about this. (Reason: {ex})"
             )
             return False
 

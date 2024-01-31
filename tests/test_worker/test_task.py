@@ -58,7 +58,7 @@ def test_retryable_task_throws_retry():
 
     with pytest.raises(Retry) as e:
         throwing_task_should_retry.delay()
-    assert str(e.value) == 'Retry in 10s: OperationalError()'
+    assert str(e.value) == "Retry in 10s: OperationalError()"
 
     # The task is only called once, the Retry() exception
     # will signal to the worker that the task needs to be tried again later

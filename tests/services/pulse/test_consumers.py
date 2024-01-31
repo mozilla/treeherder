@@ -58,9 +58,9 @@ def test_JointConsumer_on_message_do_not_call_classification_ingestion(monkeypat
         nonlocal mock_called
         mock_called = True
 
-    monkeypatch.setattr(store_pulse_tasks, 'apply_async', lambda args, queue: None)
+    monkeypatch.setattr(store_pulse_tasks, "apply_async", lambda args, queue: None)
     monkeypatch.setattr(
-        store_pulse_tasks_classification, 'apply_async', mock_store_pulse_tasks_classification
+        store_pulse_tasks_classification, "apply_async", mock_store_pulse_tasks_classification
     )
 
     consumer = JointConsumer(
@@ -76,10 +76,10 @@ def test_JointConsumer_on_message_do_not_call_classification_ingestion(monkeypat
     message = MagicMock()
     monkeypatch.setattr(
         message,
-        'delivery_info',
+        "delivery_info",
         {
-            'exchange': 'exchange/taskcluster-queue/v1/task-completed',
-            'routing_key': 'primary.aaaaaaaaaaaaaaaaaaaaaa.0.us-east1.111111111111111111.proj-bugbug.compute-smaller.-.AAAAAAAAAAAAAAAAAAAAAA._',
+            "exchange": "exchange/taskcluster-queue/v1/task-completed",
+            "routing_key": "primary.aaaaaaaaaaaaaaaaaaaaaa.0.us-east1.111111111111111111.proj-bugbug.compute-smaller.-.AAAAAAAAAAAAAAAAAAAAAA._",
         },
     )
     consumer.on_message(None, message)
@@ -94,9 +94,9 @@ def test_JointConsumer_on_message_call_classification_ingestion(monkeypatch):
         nonlocal mock_called
         mock_called = True
 
-    monkeypatch.setattr(store_pulse_tasks, 'apply_async', lambda args, queue: None)
+    monkeypatch.setattr(store_pulse_tasks, "apply_async", lambda args, queue: None)
     monkeypatch.setattr(
-        store_pulse_tasks_classification, 'apply_async', mock_store_pulse_tasks_classification
+        store_pulse_tasks_classification, "apply_async", mock_store_pulse_tasks_classification
     )
 
     consumer = JointConsumer(
@@ -112,10 +112,10 @@ def test_JointConsumer_on_message_call_classification_ingestion(monkeypatch):
     message = MagicMock()
     monkeypatch.setattr(
         message,
-        'delivery_info',
+        "delivery_info",
         {
-            'exchange': 'exchange/taskcluster-queue/v1/task-completed',
-            'routing_key': 'primary.aaaaaaaaaaaaaaaaaaaaaa.0.us-east1.111111111111111111.proj-mozci.compute-smaller.-.AAAAAAAAAAAAAAAAAAAAAA._',
+            "exchange": "exchange/taskcluster-queue/v1/task-completed",
+            "routing_key": "primary.aaaaaaaaaaaaaaaaaaaaaa.0.us-east1.111111111111111111.proj-mozci.compute-smaller.-.AAAAAAAAAAAAAAAAAAAAAA._",
         },
     )
     consumer.on_message(None, message)

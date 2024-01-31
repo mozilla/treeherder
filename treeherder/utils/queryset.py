@@ -18,7 +18,7 @@ def chunked_qs(qs, chunk_size=10000, fields=None):
     min_id = 0
 
     while True:
-        chunk = qs.filter(id__gt=min_id).order_by('id')
+        chunk = qs.filter(id__gt=min_id).order_by("id")
 
         if fields is not None:
             chunk = chunk.only(*fields)
@@ -56,7 +56,7 @@ def chunked_qs_reverse(qs, chunk_size=10000):
     if not qs:
         return
 
-    qs = qs.order_by('-id')
+    qs = qs.order_by("-id")
 
     # Can't use .only() here in case the query used select_related
     max_id = qs.first().id

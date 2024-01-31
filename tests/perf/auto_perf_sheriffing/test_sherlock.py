@@ -35,16 +35,16 @@ def test_record_job_symbol_is_none_if_component_misses(record_with_missing_job_s
 
 
 def test_record_correct_job_symbol(record_with_job_symbol):
-    expected_job_symbol = 'Btime[tier 2](Bogo)'
+    expected_job_symbol = "Btime[tier 2](Bogo)"
     assert record_with_job_symbol.job_symbol == expected_job_symbol
 
 
 @pytest.mark.parametrize(
-    'search_str_with, expected_search_str',
+    "search_str_with, expected_search_str",
     [
-        ('all_fields', 'win7,Browsertime performance tests on Firefox,Bogo tests,Bogo'),
-        ('no_job_group', 'win7,Bogo tests,Bogo'),
-        ('no_job_type', 'win7,Browsertime performance tests on Firefox'),
+        ("all_fields", "win7,Browsertime performance tests on Firefox,Bogo tests,Bogo"),
+        ("no_job_group", "win7,Bogo tests,Bogo"),
+        ("no_job_type", "win7,Browsertime performance tests on Firefox"),
     ],
 )
 def test_record_search_str(record_with_job_symbol, search_str_with, expected_search_str):
@@ -78,7 +78,7 @@ def test_records_change_to_ready_for_processing(
         backfill_tool_mock,
         secretary,
     )
-    sherlock.sheriff(since=EPOCH, frameworks=['raptor', 'talos'], repositories=['autoland'])
+    sherlock.sheriff(since=EPOCH, frameworks=["raptor", "talos"], repositories=["autoland"])
 
     assert preliminary_records.count() == 1
     assert ready_records.count() == 1
@@ -123,7 +123,7 @@ def test_records_and_db_limits_remain_unchanged_if_no_records_suitable_for_backf
     record_unsuited_for_backfill,
 ):
     sherlock = Sherlock(report_maintainer_mock, backfill_tool_mock, secretary)
-    sherlock._backfill(['test_talos'], [test_settings.TREEHERDER_TEST_REPOSITORY_NAME])
+    sherlock._backfill(["test_talos"], [test_settings.TREEHERDER_TEST_REPOSITORY_NAME])
 
     assert not has_changed(record_unsuited_for_backfill)
     assert not has_changed(sherlock_settings)
@@ -137,7 +137,7 @@ def test_records_remain_unchanged_if_no_backfills_left(
     empty_sheriff_settings,
 ):
     sherlock = Sherlock(report_maintainer_mock, backfill_tool_mock, secretary)
-    sherlock._backfill(['test_talos'], [test_settings.TREEHERDER_TEST_REPOSITORY_NAME])
+    sherlock._backfill(["test_talos"], [test_settings.TREEHERDER_TEST_REPOSITORY_NAME])
 
     assert not has_changed(record_ready_for_processing)
 
@@ -152,7 +152,7 @@ def test_records_and_db_limits_remain_unchanged_if_runtime_exceeded(
     no_time_left = timedelta(seconds=0)
     sherlock = Sherlock(report_maintainer_mock, backfill_tool_mock, secretary, no_time_left)
     try:
-        sherlock.sheriff(since=EPOCH, frameworks=['raptor', 'talos'], repositories=['autoland'])
+        sherlock.sheriff(since=EPOCH, frameworks=["raptor", "talos"], repositories=["autoland"])
     except MaxRuntimeExceeded:
         pass
 
@@ -170,11 +170,11 @@ def test_db_limits_update_if_backfills_left(
     targeted_platform = record_ready_for_processing.platform.platform
 
     initial_backfills = secretary.backfills_left(on_platform=targeted_platform)
-    assert initial_backfills == json.loads(sherlock_settings.settings)['limits'][targeted_platform]
+    assert initial_backfills == json.loads(sherlock_settings.settings)["limits"][targeted_platform]
     sherlock = Sherlock(report_maintainer_mock, backfill_tool_mock, secretary)
     sherlock.sheriff(
         since=EPOCH,
-        frameworks=['test_talos'],
+        frameworks=["test_talos"],
         repositories=[test_settings.TREEHERDER_TEST_REPOSITORY_NAME],
     )
 
@@ -198,7 +198,7 @@ def test_backfilling_gracefully_handles_invalid_json_contexts_without_blowing_up
     try:
         sherlock.sheriff(
             since=EPOCH,
-            frameworks=['test_talos'],
+            frameworks=["test_talos"],
             repositories=[test_settings.TREEHERDER_TEST_REPOSITORY_NAME],
         )
     except (JSONDecodeError, KeyError, Job.DoesNotExist, Push.DoesNotExist):

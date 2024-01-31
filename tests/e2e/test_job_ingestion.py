@@ -24,23 +24,23 @@ def test_store_job_with_unparsed_log(
 
     # create a wrapper around get_error_summary that records whether
     # it's been called
-    mock_get_error_summary = MagicMock(name='get_error_summary', wraps=get_error_summary)
+    mock_get_error_summary = MagicMock(name="get_error_summary", wraps=get_error_summary)
     import treeherder.model.error_summary
 
-    monkeypatch.setattr(treeherder.model.error_summary, 'get_error_summary', mock_get_error_summary)
+    monkeypatch.setattr(treeherder.model.error_summary, "get_error_summary", mock_get_error_summary)
     log_url = add_log_response("mozilla-central-macosx64-debug-bm65-build1-build15.txt.gz")
     errorsummary = add_log_response("mochitest-browser-chrome_errorsummary.log")
 
-    job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
+    job_guid = "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33"
     job_data = {
-        'project': test_repository.name,
-        'revision': push_stored[0]['revision'],
-        'job': {
-            'job_guid': job_guid,
-            'state': 'completed',
-            'log_references': [
-                {'url': log_url, 'name': 'live_backing_log', 'parse_status': 'pending'},
-                {'url': errorsummary, 'name': 'mochi_errorsummary.log', 'parse_status': 'pending'},
+        "project": test_repository.name,
+        "revision": push_stored[0]["revision"],
+        "job": {
+            "job_guid": job_guid,
+            "state": "completed",
+            "log_references": [
+                {"url": log_url, "name": "live_backing_log", "parse_status": "pending"},
+                {"url": errorsummary, "name": "mochi_errorsummary.log", "parse_status": "pending"},
             ],
         },
     }
@@ -58,13 +58,13 @@ def test_store_job_with_unparsed_log(
 def test_store_job_pending_to_completed_with_unparsed_log(
     test_repository, push_stored, failure_classifications, activate_responses
 ):
-    job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
+    job_guid = "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33"
 
     # the first time, submit it as running (with no logs)
     job_data = {
-        'project': test_repository.name,
-        'revision': push_stored[0]['revision'],
-        'job': {'job_guid': job_guid, 'state': 'running'},
+        "project": test_repository.name,
+        "revision": push_stored[0]["revision"],
+        "job": {"job_guid": job_guid, "state": "running"},
     }
     store_job_data(test_repository, [job_data])
     # should have no text log errors or bug suggestions
@@ -74,13 +74,13 @@ def test_store_job_pending_to_completed_with_unparsed_log(
     # the second time, post a log that will get parsed
     log_url = add_log_response("mozilla-central-macosx64-debug-bm65-build1-build15.txt.gz")
     job_data = {
-        'project': test_repository.name,
-        'revision': push_stored[0]['revision'],
-        'job': {
-            'job_guid': job_guid,
-            'state': 'completed',
-            'log_references': [
-                {'url': log_url, 'name': 'live_backing_log', 'parse_status': 'pending'}
+        "project": test_repository.name,
+        "revision": push_stored[0]["revision"],
+        "job": {
+            "job_guid": job_guid,
+            "state": "completed",
+            "log_references": [
+                {"url": log_url, "name": "live_backing_log", "parse_status": "pending"}
             ],
         },
     }
@@ -93,11 +93,11 @@ def test_store_job_pending_to_completed_with_unparsed_log(
 
 def test_store_job_with_tier(test_repository, failure_classifications, push_stored):
     """test submitting a job with tier specified"""
-    job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
+    job_guid = "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33"
     job_data = {
-        'project': test_repository.name,
-        'revision': push_stored[0]['revision'],
-        'job': {'job_guid': job_guid, 'state': 'completed', 'tier': 3},
+        "project": test_repository.name,
+        "revision": push_stored[0]["revision"],
+        "job": {"job_guid": job_guid, "state": "completed", "tier": 3},
     }
 
     store_job_data(test_repository, [job_data])
@@ -108,11 +108,11 @@ def test_store_job_with_tier(test_repository, failure_classifications, push_stor
 
 def test_store_job_with_default_tier(test_repository, failure_classifications, push_stored):
     """test submitting a job with no tier specified gets default"""
-    job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
+    job_guid = "d22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33"
     job_data = {
-        'project': test_repository.name,
-        'revision': push_stored[0]['revision'],
-        'job': {'job_guid': job_guid, 'state': 'completed'},
+        "project": test_repository.name,
+        "revision": push_stored[0]["revision"],
+        "job": {"job_guid": job_guid, "state": "completed"},
     }
 
     store_job_data(test_repository, [job_data])

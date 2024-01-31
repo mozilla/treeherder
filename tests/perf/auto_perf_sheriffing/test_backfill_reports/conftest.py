@@ -16,13 +16,13 @@ LETTERS = string.ascii_lowercase
 RANDOM_STRINGS = set()
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def alerts_picker():
     # real-world instance
     return AlertsPicker(
         max_alerts=5,
         max_improvements=2,
-        platforms_of_interest=('windows10', 'windows7', 'linux', 'osx', 'android'),
+        platforms_of_interest=("windows10", "windows7", "linux", "osx", "android"),
     )
 
 
@@ -34,19 +34,19 @@ def mock_backfill_context_fetcher(backfill_record_context):
 
 @pytest.fixture
 def option_collection():
-    option = Option.objects.create(name='opt')
-    return OptionCollection.objects.create(option_collection_hash='my_option_hash', option=option)
+    option = Option.objects.create(name="opt")
+    return OptionCollection.objects.create(option_collection_hash="my_option_hash", option=option)
 
 
 @pytest.fixture
 def relevant_platform():
-    return MachinePlatform.objects.create(os_name='win', platform='windows10', architecture='x86')
+    return MachinePlatform.objects.create(os_name="win", platform="windows10", architecture="x86")
 
 
 @pytest.fixture
 def irrelevant_platform():
     return MachinePlatform.objects.create(
-        os_name='OS_OF_NO_INTEREST', platform='PLATFORM_OF_NO_INTEREST', architecture='x86'
+        os_name="OS_OF_NO_INTEREST", platform="PLATFORM_OF_NO_INTEREST", architecture="x86"
     )
 
 
@@ -56,7 +56,7 @@ def unique_random_string():
 
     def _unique_random_string(length=14):
         while True:
-            random_string = ''.join(random.choice(LETTERS) for _ in range(length))
+            random_string = "".join(random.choice(LETTERS) for _ in range(length))
             if random_string not in RANDOM_STRINGS:
                 RANDOM_STRINGS.add(random_string)
                 return random_string
@@ -111,16 +111,16 @@ def create_alerts(create_perf_signature):
 def test_many_various_alerts():
     alerts = [Mock(spec=PerformanceAlert) for _ in range(10)]
     platforms = (
-        'windows10-64-shippable',
-        'windows10-64-shippable',
-        'windows7-32-shippable',
-        'windows7-32-shippable',
-        'linux64-shippable-qr',
-        'linux64-shippable-qr',
-        'osx-10-10-shippable',
-        'osx-10-10-shippable',
-        'android-hw-pix-7-1-android-aarch64',
-        'android-hw-pix-7-1-android-aarch64',
+        "windows10-64-shippable",
+        "windows10-64-shippable",
+        "windows7-32-shippable",
+        "windows7-32-shippable",
+        "linux64-shippable-qr",
+        "linux64-shippable-qr",
+        "osx-10-10-shippable",
+        "osx-10-10-shippable",
+        "android-hw-pix-7-1-android-aarch64",
+        "android-hw-pix-7-1-android-aarch64",
     )
 
     reversed_magnitudes = list(reversed(range(len(alerts))))
@@ -137,7 +137,7 @@ def test_many_various_alerts():
 @pytest.fixture
 def test_few_various_alerts():
     alerts = [Mock(spec=PerformanceAlert) for _ in range(2)]
-    platforms = ('windows7-32-shippable', 'linux64-shippable-qr')
+    platforms = ("windows7-32-shippable", "linux64-shippable-qr")
     reversed_magnitudes = list(reversed(range(len(alerts))))
     toggle = True
     for idx, alert in enumerate(alerts):
@@ -151,7 +151,7 @@ def test_few_various_alerts():
 @pytest.fixture
 def test_macosx_alert():
     alert = Mock(spec=PerformanceAlert)
-    platform = 'macosx1015-64-shippable-qr'
+    platform = "macosx1015-64-shippable-qr"
     alert.series_signature.platform.platform = platform
     alert.is_regression = True
     return alert
@@ -161,11 +161,11 @@ def test_macosx_alert():
 def test_few_regressions():
     alerts = [Mock(spec=PerformanceAlert) for _ in range(5)]
     platforms = (
-        'windows10-64-shippable',
-        'windows7-32-shippable',
-        'linux64-shippable-qr',
-        'osx-10-10-shippable',
-        'android-hw-pix-7-1-android-aarch64',
+        "windows10-64-shippable",
+        "windows7-32-shippable",
+        "linux64-shippable-qr",
+        "osx-10-10-shippable",
+        "android-hw-pix-7-1-android-aarch64",
     )
     reversed_magnitudes = list(reversed(range(len(alerts))))
     for idx, alert in enumerate(alerts):
@@ -187,10 +187,10 @@ def test_few_improvements(test_few_regressions):
 def test_bad_platform_names():
     alerts = [Mock(spec=PerformanceAlert) for _ in range(4)]
     platforms = (
-        'rfvrtgb',  # noqa
-        '4.0',
-        '54dcwec58',  # noqa
-        '8y6 t g',
+        "rfvrtgb",  # noqa
+        "4.0",
+        "54dcwec58",  # noqa
+        "8y6 t g",
     )
     for idx, alert in enumerate(alerts):
         alert.series_signature.platform.platform = platforms[idx]
@@ -204,7 +204,7 @@ ONE_DAY_INTERVAL = datetime.timedelta(days=1)
 
 def prepare_graph_data_scenario(push_ids_to_keep, highlighted_push_id, perf_alert, perf_signature):
     original_job_count = Job.objects.count()
-    selectable_jobs = Job.objects.filter(push_id__in=push_ids_to_keep).order_by('push_id', 'id')
+    selectable_jobs = Job.objects.filter(push_id__in=push_ids_to_keep).order_by("push_id", "id")
     Job.objects.exclude(push_id__in=push_ids_to_keep).delete()
 
     assert Job.objects.count() < original_job_count

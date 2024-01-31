@@ -48,12 +48,12 @@ class Commenter:
         bug_info = self.fetch_all_bug_details(bug_ids)
 
         all_bug_changes = []
-        template = Template(self.open_file('comment.template', False))
+        template = Template(self.open_file("comment.template", False))
 
         if self.weekly_mode:
             top_bugs = [
                 bug[0]
-                for bug in sorted(bug_stats.items(), key=lambda x: x[1]['total'], reverse=True)
+                for bug in sorted(bug_stats.items(), key=lambda x: x[1]["total"], reverse=True)
             ][:50]
 
         for bug_id, counts in bug_stats.items():
@@ -72,8 +72,8 @@ class Commenter:
 
                     # change [stockwell needswork] to [stockwell unknown] when failures drop below 20 failures/week
                     # if this block is true, it implies a priority of 0 (mutually exclusive to previous block)
-                    if counts['total'] < 20:
-                        change_whiteboard = self.check_needswork(bug_info[bug_id]['whiteboard'])
+                    if counts["total"] < 20:
+                        change_whiteboard = self.check_needswork(bug_info[bug_id]["whiteboard"])
 
                 else:
                     change_priority, change_whiteboard = self.check_needswork_owner(
@@ -83,39 +83,39 @@ class Commenter:
                 # recommend disabling when more than 150 failures tracked over 21 days and
                 # takes precedence over any prevous change_whiteboard assignments
                 if bug_id in alt_date_bug_totals and not self.check_whiteboard_status(
-                    bug_info[bug_id]['whiteboard']
+                    bug_info[bug_id]["whiteboard"]
                 ):
                     priority = 3
-                    change_whiteboard = bug_info[bug_id]['whiteboard'].replace(
-                        '[stockwell unknown]', ''
+                    change_whiteboard = bug_info[bug_id]["whiteboard"].replace(
+                        "[stockwell unknown]", ""
                     )
                     change_whiteboard = re.sub(
-                        r'\s*\[stockwell needswork[^\]]*\]\s*', '', change_whiteboard
+                        r"\s*\[stockwell needswork[^\]]*\]\s*", "", change_whiteboard
                     ).strip()
-                    change_whiteboard += '[stockwell disable-recommended]'
+                    change_whiteboard += "[stockwell disable-recommended]"
 
             comment = template.render(
                 bug_id=bug_id,
-                total=counts['total'],
+                total=counts["total"],
                 test_run_count=test_run_count,
                 rank=rank,
                 priority=priority,
-                failure_rate=round(counts['total'] / float(test_run_count), 3),
-                repositories=counts['per_repository'],
-                platforms=counts['per_platform'],
+                failure_rate=round(counts["total"] / float(test_run_count), 3),
+                repositories=counts["per_repository"],
+                platforms=counts["per_platform"],
                 counts=counts,
                 startday=startday,
                 endday=endday.split()[0],
                 weekly_mode=self.weekly_mode,
             )
 
-            bug_changes = {'bug_id': bug_id, 'changes': {'comment': {'body': comment}}}
+            bug_changes = {"bug_id": bug_id, "changes": {"comment": {"body": comment}}}
 
             if change_whiteboard:
-                bug_changes['changes']['whiteboard'] = change_whiteboard
+                bug_changes["changes"]["whiteboard"] = change_whiteboard
 
             if change_priority:
-                bug_changes['changes']['priority'] = change_priority
+                bug_changes["changes"]["priority"] = change_priority
 
             all_bug_changes.append(bug_changes)
 
@@ -126,32 +126,32 @@ class Commenter:
         change_whiteboard = None
 
         if (
-            [bug_info['product'], bug_info['component']] in COMPONENTS
-        ) and not self.check_whiteboard_status(bug_info['whiteboard']):
-            if bug_info['priority'] not in ['--', 'P1', 'P2', 'P3']:
-                change_priority = '--'
+            [bug_info["product"], bug_info["component"]] in COMPONENTS
+        ) and not self.check_whiteboard_status(bug_info["whiteboard"]):
+            if bug_info["priority"] not in ["--", "P1", "P2", "P3"]:
+                change_priority = "--"
 
-            stockwell_labels = re.findall(r'(\[stockwell .+?\])', bug_info['whiteboard'])
+            stockwell_labels = re.findall(r"(\[stockwell .+?\])", bug_info["whiteboard"])
             # update whiteboard text unless it already contains WHITEBOARD_NEEDSWORK_OWNER
             if WHITEBOARD_NEEDSWORK_OWNER not in stockwell_labels:
-                change_whiteboard = bug_info['whiteboard'] + WHITEBOARD_NEEDSWORK_OWNER
+                change_whiteboard = bug_info["whiteboard"] + WHITEBOARD_NEEDSWORK_OWNER
 
         return change_priority, change_whiteboard
 
     def check_needswork(self, whiteboard):
-        stockwell_labels = re.findall(r'\[stockwell needswork[^\]]*\]', whiteboard)
+        stockwell_labels = re.findall(r"\[stockwell needswork[^\]]*\]", whiteboard)
         if len(stockwell_labels) == 0:
             return None
         # update all [stockwell needswork] bugs (including all 'needswork' possibilities,
         # ie 'needswork:owner') and update whiteboard to [stockwell unknown]
-        change_whiteboard = re.sub(r'\s*\[stockwell needswork[^\]]*\]\s*', '', whiteboard).strip()
-        return change_whiteboard + '[stockwell unknown]'
+        change_whiteboard = re.sub(r"\s*\[stockwell needswork[^\]]*\]\s*", "", whiteboard).strip()
+        return change_whiteboard + "[stockwell unknown]"
 
     def assign_priority(self, counts):
         priority = 0
-        if counts['total'] >= 75:
+        if counts["total"] >= 75:
             priority = 1
-        elif counts['total'] >= 30:
+        elif counts["total"] >= 30:
             priority = 2
 
         return priority
@@ -159,23 +159,23 @@ class Commenter:
     def print_or_submit_changes(self, all_bug_changes):
         for bug in all_bug_changes:
             if self.dry_run:
-                logger.info('\n' + bug['changes']['comment']['body'] + '\n')
+                logger.info("\n" + bug["changes"]["comment"]["body"] + "\n")
             elif settings.COMMENTER_API_KEY is None:
                 # prevent duplicate comments when on stage/dev
                 pass
             else:
-                self.submit_bug_changes(bug['changes'], bug['bug_id'])
+                self.submit_bug_changes(bug["changes"], bug["bug_id"])
                 # sleep between comment submissions to avoid overwhelming servers
                 time.sleep(0.5)
 
         logger.warning(
-            'There were {} comments for this {} task.'.format(
-                len(all_bug_changes), 'weekly' if self.weekly_mode else 'daily'
+            "There were {} comments for this {} task.".format(
+                len(all_bug_changes), "weekly" if self.weekly_mode else "daily"
             )
         )
 
     def open_file(self, filename, load):
-        with open('treeherder/intermittents_commenter/{}'.format(filename), 'r') as myfile:
+        with open("treeherder/intermittents_commenter/{}".format(filename), "r") as myfile:
             if load:
                 return json.load(myfile)
             else:
@@ -193,17 +193,17 @@ class Commenter:
             # daily mode
             startday = yesterday
 
-        return startday.isoformat(), endday.strftime('%Y-%m-%d %H:%M:%S.%f')
+        return startday.isoformat(), endday.strftime("%Y-%m-%d %H:%M:%S.%f")
 
     def check_whiteboard_status(self, whiteboard):
         """Extracts stockwell text from a bug's whiteboard status to
         determine whether it matches specified stockwell text;
         returns a boolean."""
 
-        stockwell_text = re.search(r'\[stockwell (.+?)\]', whiteboard)
+        stockwell_text = re.search(r"\[stockwell (.+?)\]", whiteboard)
         if stockwell_text is not None:
-            text = stockwell_text.group(1).split(':')[0]
-            if text == 'fixed' or text == 'infra' or 'disable' in text:
+            text = stockwell_text.group(1).split(":")[0]
+            if text == "fixed" or text == "infra" or "disable" in text:
                 return True
         return False
 
@@ -212,9 +212,9 @@ class Commenter:
         # Use a custom HTTP adapter, so we can set a non-zero max_retries value.
         session.mount("https://", requests.adapters.HTTPAdapter(max_retries=3))
         session.headers = {
-            'User-Agent': 'treeherder/{}'.format(settings.SITE_HOSTNAME),
-            'x-bugzilla-api-key': settings.COMMENTER_API_KEY,
-            'Accept': 'application/json',
+            "User-Agent": "treeherder/{}".format(settings.SITE_HOSTNAME),
+            "x-bugzilla-api-key": settings.COMMENTER_API_KEY,
+            "Accept": "application/json",
         }
         return session
 
@@ -222,43 +222,43 @@ class Commenter:
         """Fetches bug metadata from bugzilla and returns an encoded
         dict if successful, otherwise returns None."""
 
-        params = {'include_fields': 'product, component, priority, whiteboard, id'}
-        params['id'] = bug_ids
+        params = {"include_fields": "product, component, priority, whiteboard, id"}
+        params["id"] = bug_ids
         try:
             response = self.session.get(
-                settings.BZ_API_URL + '/rest/bug',
+                settings.BZ_API_URL + "/rest/bug",
                 headers=self.session.headers,
                 params=params,
                 timeout=30,
             )
             response.raise_for_status()
         except RequestException as e:
-            logger.warning('error fetching bugzilla metadata for bugs due to {}'.format(e))
+            logger.warning("error fetching bugzilla metadata for bugs due to {}".format(e))
             return None
 
-        if response.headers['Content-Type'] == 'text/html; charset=UTF-8':
+        if response.headers["Content-Type"] == "text/html; charset=UTF-8":
             return None
 
         data = response.json()
-        if 'bugs' not in data:
+        if "bugs" not in data:
             return None
 
-        return data['bugs']
+        return data["bugs"]
 
     def submit_bug_changes(self, changes, bug_id):
-        url = '{}/rest/bug/{}'.format(settings.BZ_API_URL, str(bug_id))
+        url = "{}/rest/bug/{}".format(settings.BZ_API_URL, str(bug_id))
         try:
             response = self.session.put(url, headers=self.session.headers, json=changes, timeout=30)
             response.raise_for_status()
         except RequestException as e:
-            logger.error('error posting comment to bugzilla for bug {} due to {}'.format(bug_id, e))
+            logger.error("error posting comment to bugzilla for bug {} due to {}".format(bug_id, e))
 
     def get_test_runs(self, startday, endday):
         """Returns an aggregate of pushes for specified date range and
         repository."""
 
-        test_runs = Push.objects.filter(time__range=(startday, endday)).aggregate(Count('author'))
-        return test_runs['author__count']
+        test_runs = Push.objects.filter(time__range=(startday, endday)).aggregate(Count("author"))
+        return test_runs["author__count"]
 
     def get_bug_stats(self, startday, endday):
         """Get all intermittent failures per specified date range and repository,
@@ -292,20 +292,20 @@ class Commenter:
         threshold = 1 if self.weekly_mode else 15
         bug_ids = (
             BugJobMap.failures.by_date(startday, endday)
-            .values('bug_id')
-            .annotate(total=Count('bug_id'))
+            .values("bug_id")
+            .annotate(total=Count("bug_id"))
             .filter(total__gte=threshold)
-            .values_list('bug_id', flat=True)
+            .values_list("bug_id", flat=True)
         )
 
         bugs = (
             BugJobMap.failures.by_date(startday, endday)
             .filter(bug_id__in=bug_ids)
             .values(
-                'job__repository__name',
-                'job__machine_platform__platform',
-                'bug_id',
-                'job__option_collection_hash',
+                "job__repository__name",
+                "job__machine_platform__platform",
+                "bug_id",
+                "job__option_collection_hash",
             )
         )
 
@@ -313,17 +313,17 @@ class Commenter:
         bug_map = dict()
 
         for bug in bugs:
-            platform = bug['job__machine_platform__platform']
-            repo = bug['job__repository__name']
-            bug_id = bug['bug_id']
+            platform = bug["job__machine_platform__platform"]
+            repo = bug["job__repository__name"]
+            bug_id = bug["bug_id"]
             build_type = option_collection_map.get(
-                bug['job__option_collection_hash'], 'unknown build'
+                bug["job__option_collection_hash"], "unknown build"
             )
 
             if bug_id in bug_map:
-                bug_map[bug_id]['total'] += 1
-                bug_map[bug_id]['per_repository'][repo] += 1
-                bug_map[bug_id]['per_platform'][platform] += 1
+                bug_map[bug_id]["total"] += 1
+                bug_map[bug_id]["per_repository"][repo] += 1
+                bug_map[bug_id]["per_platform"][platform] += 1
                 if bug_map[bug_id].get(platform):
                     bug_map[bug_id][platform][build_type] += 1
                 else:
@@ -331,10 +331,10 @@ class Commenter:
 
             else:
                 bug_map[bug_id] = {}
-                bug_map[bug_id]['total'] = 1
-                bug_map[bug_id]['per_platform'] = Counter([platform])
+                bug_map[bug_id]["total"] = 1
+                bug_map[bug_id]["per_platform"] = Counter([platform])
                 bug_map[bug_id][platform] = Counter([build_type])
-                bug_map[bug_id]['per_repository'] = Counter([repo])
+                bug_map[bug_id]["per_repository"] = Counter([repo])
 
         return bug_map, bug_ids
 
@@ -344,12 +344,12 @@ class Commenter:
         bugs = (
             BugJobMap.failures.by_date(startday, endday)
             .filter(bug_id__in=bug_ids)
-            .values('bug_id')
-            .annotate(total=Count('id'))
-            .values('bug_id', 'total')
+            .values("bug_id")
+            .annotate(total=Count("id"))
+            .values("bug_id", "total")
         )
 
-        return {bug['bug_id']: bug['total'] for bug in bugs if bug['total'] >= 150}
+        return {bug["bug_id"]: bug["total"] for bug in bugs if bug["total"] >= 150}
 
     def fetch_all_bug_details(self, bug_ids):
         """batch requests for bugzilla data in groups of 1200 (which is the safe
@@ -366,4 +366,4 @@ class Commenter:
             min = max
             max = max + 600
 
-        return {bug['id']: bug for bug in bugs_list} if len(bugs_list) else None
+        return {bug["id"]: bug for bug in bugs_list} if len(bugs_list) else None

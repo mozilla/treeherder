@@ -71,20 +71,20 @@ def ingest_hg_push(options):
     project = options["project"]
     commit = options["commit"]
 
-    if not options['last_n_pushes'] and not commit:
-        raise CommandError('must specify --last_n_pushes or a positional commit argument')
-    elif options['last_n_pushes'] and options['ingest_all_tasks']:
-        raise CommandError('Can\'t specify last_n_pushes and ingest_all_tasks at same time')
-    elif options['last_n_pushes'] and options['commit']:
-        raise CommandError('Can\'t specify last_n_pushes and commit/revision at the same time')
+    if not options["last_n_pushes"] and not commit:
+        raise CommandError("must specify --last_n_pushes or a positional commit argument")
+    elif options["last_n_pushes"] and options["ingest_all_tasks"]:
+        raise CommandError("Can't specify last_n_pushes and ingest_all_tasks at same time")
+    elif options["last_n_pushes"] and options["commit"]:
+        raise CommandError("Can't specify last_n_pushes and commit/revision at the same time")
     repo = Repository.objects.get(name=project, active_status="active")
     fetch_push_id = None
 
-    if options['last_n_pushes']:
+    if options["last_n_pushes"]:
         last_push_id = last_push_id_from_server(repo)
-        fetch_push_id = max(1, last_push_id - options['last_n_pushes'])
+        fetch_push_id = max(1, last_push_id - options["last_n_pushes"])
         logger.info(
-            'last server push id: %d; fetching push %d and newer',
+            "last server push id: %d; fetching push %d and newer",
             last_push_id,
             fetch_push_id,
         )
@@ -227,21 +227,21 @@ def process_job_with_threads(pulse_job, root_url):
         try:
             JobLoader().process_job(pulse_job, root_url)
         except MissingPushException:
-            logger.warning('The push was not in the DB. We are going to try that first')
+            logger.warning("The push was not in the DB. We are going to try that first")
             ingest_push(pulse_job["origin"]["project"], pulse_job["origin"]["revision"])
             JobLoader().process_job(pulse_job, root_url)
 
 
 def find_task_id(index_path, root_url):
-    index_url = liburls.api(root_url, 'index', 'v1', 'task/{}'.format(index_path))
+    index_url = liburls.api(root_url, "index", "v1", "task/{}".format(index_path))
     response = requests.get(index_url)
     if response.status_code == 404:
         raise Exception("Index URL {} not found".format(index_url))
-    return response.json()['taskId']
+    return response.json()["taskId"]
 
 
 def get_decision_task_id(project, revision, root_url):
-    index_fmt = 'gecko.v2.{}.revision.{}.taskgraph.decision'
+    index_fmt = "gecko.v2.{}.revision.{}.taskgraph.decision"
     index_path = index_fmt.format(project, revision)
     return find_task_id(index_path, root_url)
 
@@ -343,7 +343,7 @@ def github_push_to_pulse(repo_meta, commit):
 
 def ingest_push(project, revision, fetch_push_id=None):
     _repo = repo_meta(project)
-    if _repo['url'].startswith('https://github.com'):
+    if _repo["url"].startswith("https://github.com"):
         pulse = github_push_to_pulse(_repo, revision)
         PushLoader().process(pulse["payload"], pulse["exchange"], _repo["tc_root_url"])
     else:
@@ -482,4 +482,4 @@ class Command(BaseCommand):
         elif typeOfIngestion == "push":
             ingest_hg_push(options)
         else:
-            raise Exception('Please check the code for valid ingestion types.')
+            raise Exception("Please check the code for valid ingestion types.")

@@ -7,7 +7,7 @@ from treeherder.perf.models import (
 
 """ Constants """
 
-NOISE_METRIC_HEADER = 'noise metric'
+NOISE_METRIC_HEADER = "noise metric"
 """
 Default stddev is used for get_ttest_value if both sets have only a single value - 15%.
 Should be rare case and it's unreliable, but at least we have something.
@@ -16,37 +16,37 @@ STDDEV_DEFAULT_FACTOR = 0.15
 T_VALUE_CARE_MIN = 3  # Anything below this is "low" in confidence
 T_VALUE_CONFIDENCE = 5  # Anything above this is "high" in confidence
 PERFHERDER_TIMERANGES = [
-    {'value': 86400, 'text': 'Last day'},
-    {'value': 86400 * 2, 'text': 'Last 2 days'},
-    {'value': 604800, 'text': 'Last 7 days'},
-    {'value': 1209600, 'text': 'Last 14 days'},
-    {'value': 2592000, 'text': 'Last 30 days'},
-    {'value': 5184000, 'text': 'Last 60 days'},
-    {'value': 7776000, 'text': 'Last 90 days'},
-    {'value': 31536000, 'text': 'Last year'},
+    {"value": 86400, "text": "Last day"},
+    {"value": 86400 * 2, "text": "Last 2 days"},
+    {"value": 604800, "text": "Last 7 days"},
+    {"value": 1209600, "text": "Last 14 days"},
+    {"value": 2592000, "text": "Last 30 days"},
+    {"value": 5184000, "text": "Last 60 days"},
+    {"value": 7776000, "text": "Last 90 days"},
+    {"value": 31536000, "text": "Last year"},
 ]
 
 """ Helpers """
 
 
 def get_test_suite(suite, test):
-    return suite if test == '' or test == suite else '{} {}'.format(suite, test)
+    return suite if test == "" or test == suite else "{} {}".format(suite, test)
 
 
 def get_header_name(extra_options, option_name, test_suite):
-    name = '{} {} {}'.format(test_suite, option_name, extra_options)
+    name = "{} {} {}".format(test_suite, option_name, extra_options)
     return name
 
 
 def get_sig_identifier(header, platform):
-    return '{} {}'.format(header, platform)
+    return "{} {}".format(header, platform)
 
 
 def get_option_collection_map():
-    option_collection = OptionCollection.objects.select_related('option').values(
-        'id', 'option__name'
+    option_collection = OptionCollection.objects.select_related("option").values(
+        "id", "option__name"
     )
-    option_collection_map = {item['id']: item['option__name'] for item in list(option_collection)}
+    option_collection_map = {item["id"]: item["option__name"] for item in list(option_collection)}
     return option_collection_map
 
 
@@ -149,13 +149,13 @@ def get_abs_ttest_value(control_values, test_values):
 
 def get_confidence_text(abs_tvalue):
     if abs_tvalue == 0 or abs_tvalue is None:
-        return ''
+        return ""
     if abs_tvalue < T_VALUE_CARE_MIN:
-        confidence_text = 'Low'
+        confidence_text = "Low"
     elif abs_tvalue < T_VALUE_CONFIDENCE:
-        confidence_text = 'Medium'
+        confidence_text = "Medium"
     else:
-        confidence_text = 'High'
+        confidence_text = "High"
     return confidence_text
 
 
@@ -204,21 +204,21 @@ def more_runs_are_needed(is_complete, is_confident, base_runs_count):
 def get_class_name(new_is_better, base_avg_value, new_avg_value, abs_t_value):
     # Returns a class name, if any, based on a relative change in the absolute value
     if not base_avg_value or not new_avg_value:
-        return ''
+        return ""
 
     ratio = new_avg_value / base_avg_value
     if ratio < 1:
         ratio = 1 / ratio  # Direction agnostic and always >= 1
 
     if ratio < 1.02 or abs_t_value < T_VALUE_CARE_MIN:
-        return ''
+        return ""
 
     if abs_t_value < T_VALUE_CONFIDENCE:
         if new_is_better:
-            return ''
-        return 'warning'
+            return ""
+        return "warning"
 
     if new_is_better:
-        return 'success'
+        return "success"
     else:
-        return 'danger'
+        return "danger"

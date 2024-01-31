@@ -152,7 +152,7 @@ class ErrorParser(ParserBase):
         # log prefix if we know we're in a TaskCluster log.
 
         # First line of TaskCluster logs almost certainly has this.
-        if line.startswith('[taskcluster '):
+        if line.startswith("[taskcluster "):
             self.is_taskcluster = True
 
         # For performance reasons, only do this if we have identified as
@@ -190,7 +190,7 @@ class PerformanceParser(ParserBase):
     # Using $ in the regex as an end of line bounds causes the
     # regex to fail on windows logs. This is likely due to the
     # ^M character representation of the windows end of line.
-    RE_PERFORMANCE = re.compile(r'.*?PERFHERDER_DATA:\s+({.*})')
+    RE_PERFORMANCE = re.compile(r".*?PERFHERDER_DATA:\s+({.*})")
 
     def __init__(self):
         super().__init__("performance_data")

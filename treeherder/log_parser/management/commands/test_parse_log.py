@@ -15,34 +15,34 @@ class Command(BaseCommand):
     """
 
     def add_arguments(self, parser):
-        parser.add_argument('log_url')
+        parser.add_argument("log_url")
         parser.add_argument(
-            '--profile',
-            action='store',
-            dest='profile',
+            "--profile",
+            action="store",
+            dest="profile",
             type=int,
             default=None,
-            help='Profile running command a number of times',
+            help="Profile running command a number of times",
         )
 
     def handle(self, *args, **options):
-        if options['profile']:
-            num_runs = options['profile']
+        if options["profile"]:
+            num_runs = options["profile"]
         else:
             num_runs = 1
 
         times = []
         for _ in range(num_runs):
             start = time.time()
-            artifact_bc = ArtifactBuilderCollection(options['log_url'])
+            artifact_bc = ArtifactBuilderCollection(options["log_url"])
             artifact_bc.parse()
             times.append(time.time() - start)
 
-            if not options['profile']:
+            if not options["profile"]:
                 for name, artifact in artifact_bc.artifacts.items():
                     print("%s, %s" % (name, json.dumps(artifact, indent=2)))
 
-        if options['profile']:
+        if options["profile"]:
             print("Timings: %s" % times)
             print("Average: %s" % (sum(times) / len(times)))
             print("Total: %s" % sum(times))

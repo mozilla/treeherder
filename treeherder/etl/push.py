@@ -9,23 +9,23 @@ logger = logging.getLogger(__name__)
 
 
 def store_push(repository, push_dict):
-    push_revision = push_dict.get('revision')
-    if not push_dict.get('revision'):
+    push_revision = push_dict.get("revision")
+    if not push_dict.get("revision"):
         raise ValueError("Push must have a revision " "associated with it!")
     with transaction.atomic():
         push, _ = Push.objects.update_or_create(
             repository=repository,
             revision=push_revision,
             defaults={
-                'author': push_dict['author'],
-                'time': datetime.utcfromtimestamp(push_dict['push_timestamp']),
+                "author": push_dict["author"],
+                "time": datetime.utcfromtimestamp(push_dict["push_timestamp"]),
             },
         )
-        for revision in push_dict['revisions']:
+        for revision in push_dict["revisions"]:
             Commit.objects.update_or_create(
                 push=push,
-                revision=revision['revision'],
-                defaults={'author': revision['author'], 'comments': revision['comment']},
+                revision=revision["revision"],
+                defaults={"author": revision["author"], "comments": revision["comment"]},
             )
 
 

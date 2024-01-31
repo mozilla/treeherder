@@ -4,7 +4,7 @@ from rest_framework import pagination
 
 
 class IdPagination(pagination.CursorPagination):
-    ordering = '-id'
+    ordering = "-id"
     page_size = 100
 
 
@@ -21,6 +21,6 @@ class CustomPaginator(Paginator):
 
 class JobPagination(pagination.PageNumberPagination):
     page_size = 2000
-    page_size_query_param = 'count'
+    page_size_query_param = "count"
     max_page_size = 2000
     django_paginator_class = CustomPaginator

@@ -32,11 +32,11 @@ class PerformanceFramework(models.Model):
     enabled = models.BooleanField(default=False)
 
     class Meta:
-        db_table = 'performance_framework'
+        db_table = "performance_framework"
 
     @classmethod
     def fetch_all_names(cls) -> List[str]:
-        return cls.objects.values_list('name', flat=True)
+        return cls.objects.values_list("name", flat=True)
 
     def __str__(self):
         return self.name
@@ -55,14 +55,14 @@ class PerformanceSignature(models.Model):
     test = models.CharField(max_length=80, blank=True)
     application = models.CharField(
         max_length=10,
-        default='',
+        default="",
         help_text="Application that runs the signature's tests. "
         "Generally used to record browser's name, but not necessarily.",
     )
     lower_is_better = models.BooleanField(default=True)
     last_updated = models.DateTimeField(db_index=True)
     parent_signature = models.ForeignKey(
-        'self', on_delete=models.CASCADE, related_name='subtests', null=True, blank=True
+        "self", on_delete=models.CASCADE, related_name="subtests", null=True, blank=True
     )
     has_subtests = models.BooleanField()
 
@@ -90,7 +90,7 @@ class PerformanceSignature(models.Model):
     # generation works
     ALERT_PCT = 0
     ALERT_ABS = 1
-    ALERT_CHANGE_TYPES = ((ALERT_PCT, 'percentage'), (ALERT_ABS, 'absolute'))
+    ALERT_CHANGE_TYPES = ((ALERT_PCT, "percentage"), (ALERT_ABS, "absolute"))
 
     should_alert = models.BooleanField(null=True)
     alert_change_type = models.IntegerField(choices=ALERT_CHANGE_TYPES, null=True)
@@ -135,7 +135,7 @@ class PerformanceSignature(models.Model):
         ).exists()
 
     def has_data_with_historical_value(self):
-        repositories = ['autoland', 'mozilla-central']
+        repositories = ["autoland", "mozilla-central"]
         if self.repository.name in repositories:
             perf_data = list(
                 PerformanceDatum.objects.filter(
@@ -148,36 +148,36 @@ class PerformanceSignature(models.Model):
         return False
 
     class Meta:
-        db_table = 'performance_signature'
+        db_table = "performance_signature"
 
         unique_together = (
             # ensure there is only one signature per repository with a
             # particular set of properties
             (
-                'repository',
-                'suite',
-                'test',
-                'framework',
-                'platform',
-                'option_collection',
-                'extra_options',
-                'last_updated',
-                'application',
+                "repository",
+                "suite",
+                "test",
+                "framework",
+                "platform",
+                "option_collection",
+                "extra_options",
+                "last_updated",
+                "application",
             ),
             # suite_public_name/test_public_name must be unique
             # and different than suite/test
             (
-                'repository',
-                'suite_public_name',
-                'test_public_name',
-                'framework',
-                'platform',
-                'option_collection',
-                'extra_options',
+                "repository",
+                "suite_public_name",
+                "test_public_name",
+                "framework",
+                "platform",
+                "option_collection",
+                "extra_options",
             ),
             # ensure there is only one signature of any hash per
             # repository (same hash in different repositories is allowed)
-            ('repository', 'framework', 'application', 'signature_hash'),
+            ("repository", "framework", "application", "signature_hash"),
         )
 
     def __str__(self):
@@ -203,15 +203,15 @@ class PerformanceDatum(models.Model):
     push = models.ForeignKey(Push, on_delete=models.CASCADE)
 
     class Meta:
-        db_table = 'performance_datum'
+        db_table = "performance_datum"
         index_together = [
             # Speeds up the typical "get a range of performance datums" query
-            ('repository', 'signature', 'push_timestamp'),
+            ("repository", "signature", "push_timestamp"),
             # Speeds up the compare view in treeherder (we only index on
             # repository because we currently filter on it in the query)
-            ('repository', 'signature', 'push'),
+            ("repository", "signature", "push"),
         ]
-        unique_together = ('repository', 'job', 'push', 'push_timestamp', 'signature')
+        unique_together = ("repository", "job", "push", "push_timestamp", "signature")
 
     @staticmethod
     def should_mark_as_multi_commit(is_multi_commit: bool, was_created: bool) -> bool:
@@ -233,7 +233,7 @@ class PerformanceDatumReplicate(models.Model):
     value = models.FloatField()
 
     class Meta:
-        db_table = 'performance_datum_replicate'
+        db_table = "performance_datum_replicate"
 
 
 class MultiCommitDatum(models.Model):
@@ -241,7 +241,7 @@ class MultiCommitDatum(models.Model):
         PerformanceDatum,
         on_delete=models.CASCADE,
         primary_key=True,
-        related_name='multi_commit_datum',
+        related_name="multi_commit_datum",
     )
 
 
@@ -271,14 +271,14 @@ class PerformanceAlertSummary(models.Model):
     repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
     framework = models.ForeignKey(PerformanceFramework, on_delete=models.CASCADE)
 
-    prev_push = models.ForeignKey(Push, on_delete=models.CASCADE, related_name='+')
-    push = models.ForeignKey(Push, on_delete=models.CASCADE, related_name='+')
+    prev_push = models.ForeignKey(Push, on_delete=models.CASCADE, related_name="+")
+    push = models.ForeignKey(Push, on_delete=models.CASCADE, related_name="+")
 
     manually_created = models.BooleanField(default=False)
 
     notes = models.TextField(null=True, blank=True)
     assignee = models.ForeignKey(
-        User, on_delete=models.SET_NULL, null=True, related_name='assigned_alerts'
+        User, on_delete=models.SET_NULL, null=True, related_name="assigned_alerts"
     )
 
     created = models.DateTimeField(auto_now_add=True, db_index=True)
@@ -297,15 +297,15 @@ class PerformanceAlertSummary(models.Model):
     BACKED_OUT = 8
 
     STATUSES = (
-        (UNTRIAGED, 'Untriaged'),
-        (DOWNSTREAM, 'Downstream'),
-        (REASSIGNED, 'Reassigned'),
-        (INVALID, 'Invalid'),
-        (IMPROVEMENT, 'Improvement'),
-        (INVESTIGATING, 'Investigating'),
-        (WONTFIX, 'Won\'t fix'),
-        (FIXED, 'Fixed'),
-        (BACKED_OUT, 'Backed out'),
+        (UNTRIAGED, "Untriaged"),
+        (DOWNSTREAM, "Downstream"),
+        (REASSIGNED, "Reassigned"),
+        (INVALID, "Invalid"),
+        (IMPROVEMENT, "Improvement"),
+        (INVESTIGATING, "Investigating"),
+        (WONTFIX, "Won't fix"),
+        (FIXED, "Fixed"),
+        (BACKED_OUT, "Backed out"),
     )
 
     status = models.IntegerField(choices=STATUSES, default=UNTRIAGED)
@@ -415,7 +415,7 @@ class PerformanceAlertSummary(models.Model):
 
     class Meta:
         db_table = "performance_alert_summary"
-        unique_together = ('repository', 'framework', 'prev_push', 'push')
+        unique_together = ("repository", "framework", "prev_push", "push")
 
     def __str__(self):
         return "{} {} {}-{}".format(
@@ -438,10 +438,10 @@ class PerformanceAlert(models.Model):
 
     id = models.AutoField(primary_key=True)
     summary = models.ForeignKey(
-        PerformanceAlertSummary, on_delete=models.CASCADE, related_name='alerts'
+        PerformanceAlertSummary, on_delete=models.CASCADE, related_name="alerts"
     )
     related_summary = models.ForeignKey(
-        PerformanceAlertSummary, on_delete=models.CASCADE, related_name='related_alerts', null=True
+        PerformanceAlertSummary, on_delete=models.CASCADE, related_name="related_alerts", null=True
     )
     series_signature = models.ForeignKey(PerformanceSignature, on_delete=models.CASCADE)
     is_regression = models.BooleanField()
@@ -469,11 +469,11 @@ class PerformanceAlert(models.Model):
     UNRELATIONAL_STATUS_IDS = (UNTRIAGED, INVALID, ACKNOWLEDGED)
 
     STATUSES = (
-        (UNTRIAGED, 'Untriaged'),
-        (DOWNSTREAM, 'Downstream'),
-        (REASSIGNED, 'Reassigned'),
-        (INVALID, 'Invalid'),
-        (ACKNOWLEDGED, 'Acknowledged'),
+        (UNTRIAGED, "Untriaged"),
+        (DOWNSTREAM, "Downstream"),
+        (REASSIGNED, "Reassigned"),
+        (INVALID, "Invalid"),
+        (ACKNOWLEDGED, "Acknowledged"),
     )
 
     status = models.IntegerField(choices=STATUSES, default=UNTRIAGED)
@@ -512,7 +512,7 @@ class PerformanceAlert(models.Model):
 
     @property
     def initial_culprit_job(self) -> Optional[Job]:
-        if hasattr(self, '__initial_culprit_job'):
+        if hasattr(self, "__initial_culprit_job"):
             return self.__initial_culprit_job
 
         try:
@@ -522,7 +522,7 @@ class PerformanceAlert(models.Model):
                 repository=self.series_signature.repository,
                 signature=self.series_signature,
                 push=self.summary.push,
-            ).order_by('id')[0]
+            ).order_by("id")[0]
             self.__initial_culprit_job = culprit_data_point.job
         except IndexError:
             logger.debug(f"Could not find the initial culprit job for alert {self.id}.")
@@ -566,7 +566,7 @@ class PerformanceAlert(models.Model):
 
         # just forward the explicit database
         # so the summary properly updates there
-        using = kwargs.get('using', None)
+        using = kwargs.get("using", None)
         self.summary.update_status(using=using)
         if self.related_summary:
             self.related_summary.update_status(using=using)
@@ -581,7 +581,7 @@ class PerformanceAlert(models.Model):
 
     class Meta:
         db_table = "performance_alert"
-        unique_together = ('summary', 'series_signature')
+        unique_together = ("summary", "series_signature")
 
     def __str__(self):
         return "{} {} {}%".format(self.summary, self.series_signature, self.amount_pct)
@@ -591,7 +591,7 @@ class PerformanceTag(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30, unique=True)
     alert_summaries = models.ManyToManyField(
-        PerformanceAlertSummary, related_name='performance_tags'
+        PerformanceAlertSummary, related_name="performance_tags"
     )
 
     class Meta:
@@ -617,7 +617,7 @@ class PerformanceBugTemplate(models.Model):
         db_table = "performance_bug_template"
 
     def __str__(self):
-        return '{} bug template'.format(self.framework.name)
+        return "{} bug template".format(self.framework.name)
 
 
 # TODO: we actually need this name for the Sherlock' s hourly report
@@ -631,7 +631,7 @@ class BackfillReport(models.Model):
         PerformanceAlertSummary,
         on_delete=models.CASCADE,
         primary_key=True,
-        related_name='backfill_report',
+        related_name="backfill_report",
     )
 
     created = models.DateTimeField(auto_now_add=True)
@@ -658,10 +658,10 @@ class BackfillReport(models.Model):
 
 class BackfillRecord(models.Model):
     alert = models.OneToOneField(
-        PerformanceAlert, on_delete=models.CASCADE, primary_key=True, related_name='backfill_record'
+        PerformanceAlert, on_delete=models.CASCADE, primary_key=True, related_name="backfill_record"
     )
 
-    report = models.ForeignKey(BackfillReport, on_delete=models.CASCADE, related_name='records')
+    report = models.ForeignKey(BackfillReport, on_delete=models.CASCADE, related_name="records")
 
     # all data required to retrigger/backfill
     # associated perf alert, as JSON dump
@@ -676,11 +676,11 @@ class BackfillRecord(models.Model):
     FAILED = 4
 
     STATUSES = (
-        (PRELIMINARY, 'Preliminary'),
-        (READY_FOR_PROCESSING, 'Ready for processing'),
-        (BACKFILLED, 'Backfilled'),
-        (SUCCESSFUL, 'Successful'),
-        (FAILED, 'Failed'),
+        (PRELIMINARY, "Preliminary"),
+        (READY_FOR_PROCESSING, "Ready for processing"),
+        (BACKFILLED, "Backfilled"),
+        (SUCCESSFUL, "Successful"),
+        (FAILED, "Failed"),
     )
 
     status = models.IntegerField(choices=STATUSES, default=PRELIMINARY)
@@ -688,10 +688,10 @@ class BackfillRecord(models.Model):
     # Backfill outcome
     log_details = models.TextField()  # JSON expected, not supported by Django
     job_type = models.ForeignKey(
-        JobType, null=True, on_delete=models.SET_NULL, related_name='backfill_records'
+        JobType, null=True, on_delete=models.SET_NULL, related_name="backfill_records"
     )
     job_group = models.ForeignKey(
-        JobGroup, null=True, on_delete=models.SET_NULL, related_name='backfill_records'
+        JobGroup, null=True, on_delete=models.SET_NULL, related_name="backfill_records"
     )
     job_tier = models.PositiveIntegerField(null=True)
     job_platform_option = models.CharField(max_length=100, null=True)
@@ -718,7 +718,7 @@ class BackfillRecord(models.Model):
         if not all([self.job_tier, self.job_group, self.job_type]):
             return None
 
-        tier_label = ''
+        tier_label = ""
         if self.job_tier > 1:
             tier_label = f"[tier {self.job_tier}]"
 
@@ -763,23 +763,23 @@ class BackfillRecord(models.Model):
         return from_info, to_info
 
     def get_pushes_in_context_range(self) -> List[Push]:
-        from_time, to_time = self.get_context_border_info('push_timestamp')
+        from_time, to_time = self.get_context_border_info("push_timestamp")
 
         return Push.objects.filter(
             repository=self.repository, time__gte=from_time, time__lte=to_time
         ).all()
 
     def get_job_search_str(self) -> str:
-        platform = deepgetattr(self, 'platform.platform')
-        platform_option = deepgetattr(self, 'job_platform_option')
-        job_group_name = deepgetattr(self, 'job_group.name')
-        job_type_name = deepgetattr(self, 'job_type.name')
-        job_type_symbol = deepgetattr(self, 'job_type.symbol')
+        platform = deepgetattr(self, "platform.platform")
+        platform_option = deepgetattr(self, "job_platform_option")
+        job_group_name = deepgetattr(self, "job_group.name")
+        job_type_name = deepgetattr(self, "job_type.name")
+        job_type_symbol = deepgetattr(self, "job_type.symbol")
 
         search_terms = [platform, platform_option, job_group_name, job_type_name, job_type_symbol]
         search_terms = list(filter(None, search_terms))
 
-        return ','.join(search_terms)
+        return ",".join(search_terms)
 
     def get_context(self) -> List[dict]:
         return json.loads(self.context)
@@ -793,7 +793,7 @@ class BackfillRecord(models.Model):
     def save(self, *args, **kwargs):
         # refresh parent's latest update time
         super().save(*args, **kwargs)
-        self.report.save(using=kwargs.get('using'))
+        self.report.save(using=kwargs.get("using"))
 
     def delete(self, using=None, keep_parents=False):
         super().delete(using, keep_parents)
@@ -815,7 +815,7 @@ class BackfillNotificationRecord(models.Model):
     record = models.OneToOneField(
         BackfillRecord,
         on_delete=models.CASCADE,
-        related_name='backfill_notification_record',
+        related_name="backfill_notification_record",
     )
     created = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
@@ -846,7 +846,7 @@ def deepgetattr(obj: object, attr_chain: str) -> Optional[object]:
     @return: None if any attribute within chain does not exist.
     """
     try:
-        return reduce(getattr, attr_chain.split('.'), obj)
+        return reduce(getattr, attr_chain.split("."), obj)
     except AttributeError:
         logger.debug(
             f"Failed to access deeply nested attribute `{attr_chain}` on object of type {type(obj)}."

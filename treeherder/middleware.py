@@ -33,12 +33,12 @@ def add_headers_function(headers, path, url):
     """
     from django.urls import reverse
 
-    report_uri = "report-uri {}".format(reverse('csp-report'))
+    report_uri = "report-uri {}".format(reverse("csp-report"))
     if report_uri not in CSP_DIRECTIVES:
         CSP_DIRECTIVES.append(report_uri)
 
-    CSP_HEADER = '; '.join(CSP_DIRECTIVES)
-    headers['Content-Security-Policy'] = CSP_HEADER
+    CSP_HEADER = "; ".join(CSP_DIRECTIVES)
+    headers["Content-Security-Policy"] = CSP_HEADER
 
 
 class CustomWhiteNoise(WhiteNoiseMiddleware):
@@ -55,7 +55,7 @@ class CustomWhiteNoise(WhiteNoiseMiddleware):
     #   /assets/index.1d85033a.js
     #   /assets/2.379789df.css.map
     #   /assets/fontawesome-webfont.af7ae505.woff2
-    IMMUTABLE_FILE_RE = re.compile(r'^/assets/.*\.[a-f0-9]{8}\..*')
+    IMMUTABLE_FILE_RE = re.compile(r"^/assets/.*\.[a-f0-9]{8}\..*")
 
     def immutable_file_test(self, path, url):
         """
@@ -76,5 +76,5 @@ class NewRelicMiddleware(MiddlewareMixin):
     def process_request(self, request):
         # The New Relic Python agent only submits the User Agent to APM (for exceptions and
         # slow transactions), so for use in Insights we have to add it as a customer parameter.
-        if 'HTTP_USER_AGENT' in request.META:
-            newrelic.agent.add_custom_attribute('user_agent', request.META['HTTP_USER_AGENT'])
+        if "HTTP_USER_AGENT" in request.META:
+            newrelic.agent.add_custom_attribute("user_agent", request.META["HTTP_USER_AGENT"])
