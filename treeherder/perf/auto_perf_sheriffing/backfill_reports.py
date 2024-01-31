@@ -41,9 +41,9 @@ class AlertsPicker:
                 too less specific will alter the correct order of alerts
         """
         if max_alerts <= 0 or max_improvements <= 0:
-            raise ValueError('Use positive values.')
+            raise ValueError("Use positive values.")
         if len(platforms_of_interest) == 0:
-            raise ValueError('Provide at least one platform name.')
+            raise ValueError("Provide at least one platform name.")
 
         self.max_alerts = max_alerts
         self.max_improvements = max_improvements
@@ -51,7 +51,7 @@ class AlertsPicker:
 
     def extract_important_alerts(self, alerts: Tuple[PerformanceAlert, ...]):
         if any(not isinstance(alert, PerformanceAlert) for alert in alerts):
-            raise ValueError('Provided parameter does not contain only PerformanceAlert objects.')
+            raise ValueError("Provided parameter does not contain only PerformanceAlert objects.")
         relevant_alerts = self._extract_by_relevant_platforms(alerts)
         alerts_with_distinct_jobs = self._ensure_distinct_jobs(relevant_alerts)
         sorted_alerts = self._multi_criterion_sort(alerts_with_distinct_jobs)
@@ -140,7 +140,7 @@ class AlertsPicker:
                 return len(
                     self.ordered_platforms_of_interest
                 ) - self.ordered_platforms_of_interest.index(platform_of_interest)
-        raise ValueError('Unknown platform.')
+        raise ValueError("Unknown platform.")
 
     def _noise_profile_is_ok(self, noise_profile: str):
         """
@@ -181,11 +181,11 @@ class AlertsPicker:
 class IdentifyAlertRetriggerables:
     def __init__(self, max_data_points: int, time_interval: timedelta, logger=None):
         if max_data_points < 1:
-            raise ValueError('Cannot set range width less than 1')
+            raise ValueError("Cannot set range width less than 1")
         if max_data_points % 2 == 0:
-            raise ValueError('Must provide odd range width')
+            raise ValueError("Must provide odd range width")
         if not isinstance(time_interval, timedelta):
-            raise TypeError('Must provide time interval as timedelta')
+            raise TypeError("Must provide time interval as timedelta")
 
         self._range_width = max_data_points
         self._time_interval = time_interval
@@ -219,7 +219,7 @@ class IdentifyAlertRetriggerables:
         startday = self.min_timestamp(alert.summary.push.time)
         endday = self.max_timestamp(alert.summary.push.time)
 
-        data = PerformanceDatum.objects.select_related('push').filter(
+        data = PerformanceDatum.objects.select_related("push").filter(
             repository_id=alert.series_signature.repository_id,  # leverage compound index
             signature_id=alert.series_signature_id,
             push_timestamp__gt=startday,
@@ -230,11 +230,11 @@ class IdentifyAlertRetriggerables:
             data
             # JSONs are more self explanatory
             # with perf_datum_id instead of id
-            .extra(select={'perf_datum_id': 'performance_datum.id'})
+            .extra(select={"perf_datum_id": "performance_datum.id"})
             .values(
-                'value', 'job_id', 'perf_datum_id', 'push_id', 'push_timestamp', 'push__revision'
+                "value", "job_id", "perf_datum_id", "push_id", "push_timestamp", "push__revision"
             )
-            .order_by('push_timestamp')
+            .order_by("push_timestamp")
         )
         return annotated_data_points
 
@@ -244,14 +244,14 @@ class IdentifyAlertRetriggerables:
         return [
             data_point
             for data_point in annotated_data_points
-            if not (data_point['push_id'] in seen_push_ids or seen_add(data_point['push_id']))
+            if not (data_point["push_id"] in seen_push_ids or seen_add(data_point["push_id"]))
         ]
 
     def _find_push_id_index(self, push_id: int, flattened_data_points: List[dict]) -> int:
         for index, data_point in enumerate(flattened_data_points):
-            if data_point['push_id'] == push_id:
+            if data_point["push_id"] == push_id:
                 return index
-        raise LookupError(f'Could not find push id {push_id}')
+        raise LookupError(f"Could not find push id {push_id}")
 
     def __compute_window_slices(self, center_index: int) -> slice:
         side = self._range_width // 2
@@ -265,7 +265,7 @@ class IdentifyAlertRetriggerables:
         retrigger_range = len(data_points_to_retrigger)
         if retrigger_range < self._range_width:
             self.log.warning(
-                'Found small backfill range (of size {} instead of {})'.format(
+                "Found small backfill range (of size {} instead of {})".format(
                     retrigger_range, self._range_width
                 )
             )
@@ -334,7 +334,7 @@ class BackfillReportMaintainer:
         self, since: datetime, frameworks: List[str], repositories: List[str]
     ) -> QuerySet:
         no_reports_yet = Q(last_updated__gte=since, backfill_report__isnull=True)
-        with_outdated_reports = Q(last_updated__gt=F('backfill_report__last_updated'))
+        with_outdated_reports = Q(last_updated__gt=F("backfill_report__last_updated"))
         filters = no_reports_yet | with_outdated_reports
 
         if frameworks:
@@ -343,8 +343,8 @@ class BackfillReportMaintainer:
             filters = filters & Q(repository__name__in=repositories)
 
         return (
-            PerformanceAlertSummary.objects.prefetch_related('backfill_report')
-            .select_related('framework', 'repository')
+            PerformanceAlertSummary.objects.prefetch_related("backfill_report")
+            .select_related("framework", "repository")
             .filter(filters)
         )
 
@@ -367,9 +367,9 @@ class BackfillReportMaintainer:
         if incomplete_mapping:
             expected = len(important_alerts)
             missing = expected - len(retrigger_map)
-            raise MissingRecords(f'{missing} out of {expected} records are missing!')
+            raise MissingRecords(f"{missing} out of {expected} records are missing!")
 
         return retrigger_map
 
     def _doesnt_have_report(self, summary):
-        return not hasattr(summary, 'backfill_report')
+        return not hasattr(summary, "backfill_report")

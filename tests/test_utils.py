@@ -40,10 +40,10 @@ def do_job_ingestion(test_repository, job_data, sample_push, verify_data=True):
             push_index = 0
 
         # Modify job structure to sync with the push sample data
-        if 'sources' in blob:
-            del blob['sources']
+        if "sources" in blob:
+            del blob["sources"]
 
-        blob['revision'] = sample_push[push_index]['revision']
+        blob["revision"] = sample_push[push_index]["revision"]
 
         blobs.append(blob)
 
@@ -52,14 +52,14 @@ def do_job_ingestion(test_repository, job_data, sample_push, verify_data=True):
         # Build data structures to confirm everything is stored
         # as expected
         if verify_data:
-            job = blob['job']
+            job = blob["job"]
 
             build_platforms_ref.add(
                 "-".join(
                     [
-                        job.get('build_platform', {}).get('os_name', 'unknown'),
-                        job.get('build_platform', {}).get('platform', 'unknown'),
-                        job.get('build_platform', {}).get('architecture', 'unknown'),
+                        job.get("build_platform", {}).get("os_name", "unknown"),
+                        job.get("build_platform", {}).get("platform", "unknown"),
+                        job.get("build_platform", {}).get("architecture", "unknown"),
                     ]
                 )
             )
@@ -67,30 +67,30 @@ def do_job_ingestion(test_repository, job_data, sample_push, verify_data=True):
             machine_platforms_ref.add(
                 "-".join(
                     [
-                        job.get('machine_platform', {}).get('os_name', 'unknown'),
-                        job.get('machine_platform', {}).get('platform', 'unknown'),
-                        job.get('machine_platform', {}).get('architecture', 'unknown'),
+                        job.get("machine_platform", {}).get("os_name", "unknown"),
+                        job.get("machine_platform", {}).get("platform", "unknown"),
+                        job.get("machine_platform", {}).get("architecture", "unknown"),
                     ]
                 )
             )
 
-            machines_ref.add(job.get('machine', 'unknown'))
+            machines_ref.add(job.get("machine", "unknown"))
 
-            options_ref = options_ref.union(job.get('option_collection', []).keys())
+            options_ref = options_ref.union(job.get("option_collection", []).keys())
 
-            job_types_ref.add(job.get('name', 'unknown'))
-            products_ref.add(job.get('product_name', 'unknown'))
-            pushes_ref.add(blob['revision'])
+            job_types_ref.add(job.get("name", "unknown"))
+            products_ref.add(job.get("product_name", "unknown"))
+            pushes_ref.add(blob["revision"])
 
-            log_url_list = job.get('log_references', [])
+            log_url_list = job.get("log_references", [])
             for log_data in log_url_list:
-                log_urls_ref.add(log_data['url'])
+                log_urls_ref.add(log_data["url"])
 
-            artifact_name = job.get('artifact', {}).get('name')
+            artifact_name = job.get("artifact", {}).get("name")
             if artifact_name:
-                artifacts_ref[artifact_name] = job.get('artifact')
+                artifacts_ref[artifact_name] = job.get("artifact")
 
-            superseded = blob.get('superseded', [])
+            superseded = blob.get("superseded", [])
             superseded_job_guids.update(superseded)
 
     # Store the modified json blobs
@@ -132,40 +132,40 @@ def verify_machine_platforms(machine_platforms_ref):
 
 
 def verify_machines(machines_ref):
-    machines = models.Machine.objects.all().values_list('name', flat=True)
+    machines = models.Machine.objects.all().values_list("name", flat=True)
     assert machines_ref.issubset(machines)
 
 
 def verify_options(options_ref):
-    options = models.Option.objects.all().values_list('name', flat=True)
+    options = models.Option.objects.all().values_list("name", flat=True)
 
     assert options_ref.issubset(options)
 
 
 def verify_job_types(job_types_ref):
-    job_types = models.JobType.objects.all().values_list('name', flat=True)
+    job_types = models.JobType.objects.all().values_list("name", flat=True)
     assert job_types_ref.issubset(job_types)
 
 
 def verify_products(products_ref):
-    products = models.Product.objects.all().values_list('name', flat=True)
+    products = models.Product.objects.all().values_list("name", flat=True)
 
     assert products_ref.issubset(products)
 
 
 def verify_pushes(pushes_ref):
-    return pushes_ref.issubset(models.Push.objects.values_list('revision', flat=True))
+    return pushes_ref.issubset(models.Push.objects.values_list("revision", flat=True))
 
 
 def verify_log_urls(log_urls_ref):
-    log_urls = set(models.JobLog.objects.values_list('url', flat=True))
+    log_urls = set(models.JobLog.objects.values_list("url", flat=True))
 
     assert log_urls_ref.issubset(log_urls)
 
 
 def verify_superseded(expected_superseded_job_guids):
-    super_seeded_guids = models.Job.objects.filter(result='superseded').values_list(
-        'guid', flat=True
+    super_seeded_guids = models.Job.objects.filter(result="superseded").values_list(
+        "guid", flat=True
     )
     assert set(super_seeded_guids) == expected_superseded_job_guids
 
@@ -197,10 +197,10 @@ def create_generic_job(guid, repository, push_id, generic_reference_data, tier=N
         job_group=generic_reference_data.job_group,
         product=generic_reference_data.product,
         failure_classification_id=1,
-        who='testuser@foo.com',
-        reason='success',
-        result='finished',
-        state='completed',
+        who="testuser@foo.com",
+        reason="success",
+        result="finished",
+        state="completed",
         submit_time=job_time,
         start_time=job_time,
         end_time=job_time,
@@ -215,15 +215,15 @@ def add_log_response(filename):
     log_path = SampleData().get_log_path(filename)
     log_url = "http://my-log.mozilla.org/{}".format(filename)
 
-    with open(log_path, 'rb') as log_file:
+    with open(log_path, "rb") as log_file:
         content = log_file.read()
         responses.add(
             responses.GET,
             log_url,
             body=content,
             adding_headers={
-                'Content-Encoding': 'gzip',
-                'Content-Length': str(len(content)),
+                "Content-Encoding": "gzip",
+                "Content-Length": str(len(content)),
             },
         )
     return log_url

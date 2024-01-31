@@ -26,7 +26,7 @@ def patternMatch(pattern: str, scope):
     if scope == pattern:
         return True
 
-    if pattern.endswith('*'):
+    if pattern.endswith("*"):
         return scope.startswith(pattern[:-1])
 
     return False

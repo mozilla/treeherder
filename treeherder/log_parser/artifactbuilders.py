@@ -42,7 +42,7 @@ class ArtifactBuilderBase:
         # Perf data is stored in a json structure contained in a single line,
         # if the MAX_LINE_LENGTH is applied the data structure could be
         # truncated, preventing it from being ingested.
-        if 'PERFHERDER_DATA' not in line:
+        if "PERFHERDER_DATA" not in line:
             line = line[: self.MAX_LINE_LENGTH]
 
         self.parser.parse_line(line, self.lineno)

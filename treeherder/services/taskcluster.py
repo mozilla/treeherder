@@ -12,7 +12,7 @@ from treeherder.utils.taskcluster_lib_scopes import satisfiesExpression
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_ROOT_URL = 'https://firefox-ci-tc.services.mozilla.com'
+DEFAULT_ROOT_URL = "https://firefox-ci-tc.services.mozilla.com"
 
 
 class TaskclusterModel(ABC):
@@ -32,16 +32,16 @@ class TaskclusterModelImpl(TaskclusterModel):
     """Javascript -> Python rewrite of frontend' s TaskclusterModel"""
 
     def __init__(self, root_url, client_id=None, access_token=None):
-        options = {'rootUrl': root_url}
+        options = {"rootUrl": root_url}
         credentials = {}
 
         if client_id:
-            credentials['clientId'] = client_id
+            credentials["clientId"] = client_id
         if access_token:
-            credentials['accessToken'] = access_token
+            credentials["accessToken"] = access_token
 
         # Taskcluster APIs
-        self.hooks = taskcluster.Hooks({**options, 'credentials': credentials})
+        self.hooks = taskcluster.Hooks({**options, "credentials": credentials})
 
         # Following least-privilege principle, as services
         # bellow don't really need authorization credentials.
@@ -55,43 +55,43 @@ class TaskclusterModelImpl(TaskclusterModel):
             self.__set_root_url(root_url)
 
         actions_context = self._load(decision_task_id, task_id)
-        action_to_trigger = self._get_action(actions_context['actions'], action)
+        action_to_trigger = self._get_action(actions_context["actions"], action)
 
         return self._submit(
             action=action_to_trigger,
             decision_task_id=decision_task_id,
             task_id=task_id,
             input=input,
-            static_action_variables=actions_context['staticActionVariables'],
+            static_action_variables=actions_context["staticActionVariables"],
         )
 
     def __set_root_url(self, root_url):
         for service in (self.hooks, self.queue, self.auth):
-            service.options['rootUrl'] = root_url
+            service.options["rootUrl"] = root_url
 
     def _load(self, decision_task_id: str, task_id: str) -> dict:
         if not decision_task_id:
             raise ValueError("No decision task, can't find taskcluster actions")
 
         # fetch
-        logger.debug('Fetching actions.json...')
+        logger.debug("Fetching actions.json...")
 
         actions_url = self.queue.buildUrl(
-            self.queue.funcinfo['getLatestArtifact']['name'],
+            self.queue.funcinfo["getLatestArtifact"]["name"],
             decision_task_id,
-            'public/actions.json',
+            "public/actions.json",
         )
-        response = requests.request('GET', actions_url)
+        response = requests.request("GET", actions_url)
         actions_json = response.json()
 
         task_definition = self.queue.task(task_id)
 
-        if actions_json['version'] != 1:
-            raise RuntimeError('Wrong version of actions.json, unable to continue')
+        if actions_json["version"] != 1:
+            raise RuntimeError("Wrong version of actions.json, unable to continue")
 
         return {
-            'staticActionVariables': actions_json['variables'],
-            'actions': self._filter_relevant_actions(actions_json, task_definition),
+            "staticActionVariables": actions_json["variables"],
+            "actions": self._filter_relevant_actions(actions_json, task_definition),
         }
 
     def _submit(
@@ -132,16 +132,16 @@ class TaskclusterModelImpl(TaskclusterModel):
     def _filter_relevant_actions(cls, actions_json: dict, original_task: dict) -> list:
         relevant_actions = {}
 
-        for action in actions_json['actions']:
-            action_name = action['name']
+        for action in actions_json["actions"]:
+            action_name = action["name"]
             if action_name in relevant_actions:
                 continue
 
-            no_context_or_task_to_check = (not len(action['context'])) and (not original_task)
+            no_context_or_task_to_check = (not len(action["context"])) and (not original_task)
             task_is_in_context = (
                 original_task
-                and original_task.get('tags')
-                and cls._task_in_context(action['context'], original_task['tags'])
+                and original_task.get("tags")
+                and cls._task_in_context(action["context"], original_task["tags"])
             )
 
             if no_context_or_task_to_check or task_is_in_context:
@@ -242,10 +242,10 @@ def notify_client_factory(
 
     if client_id and access_token:  # we're on production
         options = {
-            'rootUrl': root_url or DEFAULT_ROOT_URL,
-            'credentials': {
-                'clientId': client_id,
-                'accessToken': access_token,
+            "rootUrl": root_url or DEFAULT_ROOT_URL,
+            "credentials": {
+                "clientId": client_id,
+                "accessToken": access_token,
             },
         }
         return NotifyAdapter(options)

@@ -30,8 +30,8 @@ def get_tc_metadata(alert, push):
     if datum:
         metadata = TaskclusterMetadata.objects.get(job=datum.job)
         return {
-            'task_id': metadata.task_id,
-            'retry_id': metadata.retry_id,
+            "task_id": metadata.task_id,
+            "retry_id": metadata.retry_id,
         }
     else:
         return {}
@@ -39,24 +39,24 @@ def get_tc_metadata(alert, push):
 
 class OptionalBooleanField(serializers.BooleanField):
     def __init__(self, *args, **kwargs):
-        kwargs['default'] = False
+        kwargs["default"] = False
         super().__init__(*args, **kwargs)
 
 
 class PerformanceDecimalField(serializers.DecimalField):
     def __init__(self, *args, **kwargs):
-        kwargs['max_digits'] = 20
-        kwargs['decimal_places'] = 2
-        kwargs['coerce_to_string'] = False
-        kwargs['allow_null'] = True
+        kwargs["max_digits"] = 20
+        kwargs["decimal_places"] = 2
+        kwargs["coerce_to_string"] = False
+        kwargs["allow_null"] = True
         super().__init__(*args, **kwargs)
 
 
 class PerfCompareDecimalField(serializers.DecimalField):
     def __init__(self, *args, **kwargs):
-        kwargs['max_digits'] = None
-        kwargs['decimal_places'] = 2
-        kwargs['coerce_to_string'] = False
+        kwargs["max_digits"] = None
+        kwargs["decimal_places"] = 2
+        kwargs["coerce_to_string"] = False
         super().__init__(*args, **kwargs)
 
 
@@ -69,7 +69,7 @@ class WordsField(serializers.CharField):
     def to_representation(self, obj):
         # if string's value is blank, just return nothing
         if isinstance(obj, str):
-            return obj.split(' ')
+            return obj.split(" ")
         return []
 
 
@@ -84,20 +84,20 @@ class BackfillRecordSerializer(serializers.Serializer):
     class Meta:
         model = BackfillRecord
         fields = (
-            'alert',
-            'context',
-            'status',
-            'total_actions_triggered',
-            'total_backfills_failed',
-            'total_backfills_successful',
-            'total_backfills_in_progress',
+            "alert",
+            "context",
+            "status",
+            "total_actions_triggered",
+            "total_backfills_failed",
+            "total_backfills_successful",
+            "total_backfills_in_progress",
         )
 
 
 class PerformanceFrameworkSerializer(serializers.ModelSerializer):
     class Meta:
         model = PerformanceFramework
-        fields = ['id', 'name']
+        fields = ["id", "name"]
 
 
 class PerformanceSignatureSerializer(serializers.ModelSerializer):
@@ -116,20 +116,20 @@ class PerformanceSignatureSerializer(serializers.ModelSerializer):
     class Meta:
         model = PerformanceSignature
         fields = [
-            'id',
-            'framework_id',
-            'signature_hash',
-            'machine_platform',
-            'suite',
-            'test',
-            'lower_is_better',
-            'has_subtests',
-            'option_collection_hash',
-            'tags',
-            'extra_options',
-            'measurement_unit',
-            'suite_public_name',
-            'test_public_name',
+            "id",
+            "framework_id",
+            "signature_hash",
+            "machine_platform",
+            "suite",
+            "test",
+            "lower_is_better",
+            "has_subtests",
+            "option_collection_hash",
+            "tags",
+            "extra_options",
+            "measurement_unit",
+            "suite_public_name",
+            "test_public_name",
         ]
 
 
@@ -175,10 +175,10 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         # ensure the related summary, if set, has the same repository and
         # framework as the original summary
-        related_summary = validated_data.get('related_summary')
+        related_summary = validated_data.get("related_summary")
         if related_summary:
             if (
-                validated_data.get('status', instance.status) != PerformanceAlert.DOWNSTREAM
+                validated_data.get("status", instance.status) != PerformanceAlert.DOWNSTREAM
                 and instance.summary.repository_id != related_summary.repository_id
             ):
                 raise exceptions.ValidationError(
@@ -195,7 +195,7 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
                     )
                 )
 
-            status = validated_data.get('status')
+            status = validated_data.get("status")
             if status and status in PerformanceAlert.RELATIONAL_STATUS_IDS:
                 # we've caught a downstream/reassignment: timestamp it
                 related_summary.timestamp_first_triage().save()
@@ -228,32 +228,32 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
         return "N/A"
 
     def get_classifier_email(self, performance_alert):
-        return getattr(performance_alert.classifier, 'email', None)
+        return getattr(performance_alert.classifier, "email", None)
 
     class Meta:
         model = PerformanceAlert
         fields = [
-            'id',
-            'status',
-            'series_signature',
-            'taskcluster_metadata',
-            'prev_taskcluster_metadata',
-            'profile_url',
-            'prev_profile_url',
-            'is_regression',
-            'prev_value',
-            'new_value',
-            't_value',
-            'amount_abs',
-            'amount_pct',
-            'summary_id',
-            'related_summary_id',
-            'manually_created',
-            'classifier',
-            'starred',
-            'classifier_email',
-            'backfill_record',
-            'noise_profile',
+            "id",
+            "status",
+            "series_signature",
+            "taskcluster_metadata",
+            "prev_taskcluster_metadata",
+            "profile_url",
+            "prev_profile_url",
+            "is_regression",
+            "prev_value",
+            "new_value",
+            "t_value",
+            "amount_abs",
+            "amount_pct",
+            "summary_id",
+            "related_summary_id",
+            "manually_created",
+            "classifier",
+            "starred",
+            "classifier_email",
+            "backfill_record",
+            "noise_profile",
         ]
 
 
@@ -262,21 +262,21 @@ class PerformanceTagSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PerformanceTag
-        fields = ['id', 'name']
+        fields = ["id", "name"]
 
 
 class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     alerts = PerformanceAlertSerializer(many=True, read_only=True)
     related_alerts = PerformanceAlertSerializer(many=True, read_only=True)
     performance_tags = serializers.SlugRelatedField(
-        many=True, required=False, slug_field='name', queryset=PerformanceTag.objects.all()
+        many=True, required=False, slug_field="name", queryset=PerformanceTag.objects.all()
     )
-    repository = serializers.SlugRelatedField(read_only=True, slug_field='name')
-    framework = serializers.SlugRelatedField(read_only=True, slug_field='id')
-    revision = serializers.SlugRelatedField(read_only=True, slug_field='revision', source='push')
-    push_timestamp = TimestampField(source='push', read_only=True)
+    repository = serializers.SlugRelatedField(read_only=True, slug_field="name")
+    framework = serializers.SlugRelatedField(read_only=True, slug_field="id")
+    revision = serializers.SlugRelatedField(read_only=True, slug_field="revision", source="push")
+    push_timestamp = TimestampField(source="push", read_only=True)
     prev_push_revision = serializers.SlugRelatedField(
-        read_only=True, slug_field='revision', source='prev_push'
+        read_only=True, slug_field="revision", source="prev_push"
     )
     assignee_username = serializers.SlugRelatedField(
         slug_field="username",
@@ -301,59 +301,59 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
     def get_assignee_email(self, performance_alert_summary):
-        return getattr(performance_alert_summary.assignee, 'email', None)
+        return getattr(performance_alert_summary.assignee, "email", None)
 
     class Meta:
         model = PerformanceAlertSummary
         fields = [
-            'id',
-            'push_id',
-            'prev_push_id',
-            'created',
-            'first_triaged',
-            'triage_due_date',
-            'repository',
-            'framework',
-            'alerts',
-            'related_alerts',
-            'status',
-            'bug_number',
-            'bug_due_date',
-            'bug_updated',
-            'issue_tracker',
-            'notes',
-            'revision',
-            'push_timestamp',
-            'prev_push_revision',
-            'assignee_username',
-            'assignee_email',
-            'performance_tags',
+            "id",
+            "push_id",
+            "prev_push_id",
+            "created",
+            "first_triaged",
+            "triage_due_date",
+            "repository",
+            "framework",
+            "alerts",
+            "related_alerts",
+            "status",
+            "bug_number",
+            "bug_due_date",
+            "bug_updated",
+            "issue_tracker",
+            "notes",
+            "revision",
+            "push_timestamp",
+            "prev_push_revision",
+            "assignee_username",
+            "assignee_email",
+            "performance_tags",
         ]
 
 
 class PerformanceBugTemplateSerializer(serializers.ModelSerializer):
-    framework = serializers.SlugRelatedField(read_only=True, slug_field='id')
+    framework = serializers.SlugRelatedField(read_only=True, slug_field="id")
 
     class Meta:
         model = PerformanceBugTemplate
         fields = [
-            'framework',
-            'keywords',
-            'status_whiteboard',
-            'default_component',
-            'default_product',
-            'cc_list',
-            'text',
+            "framework",
+            "keywords",
+            "status_whiteboard",
+            "default_component",
+            "default_product",
+            "cc_list",
+            "text",
         ]
 
 
 class IssueTrackerSerializer(serializers.ModelSerializer):
-    text = serializers.CharField(read_only=True, source='name')
-    issueTrackerUrl = serializers.URLField(read_only=True, source='task_base_url')
+    text = serializers.CharField(read_only=True, source="name")
+    issueTrackerUrl = serializers.URLField(read_only=True, source="task_base_url")
 
     class Meta:
         model = IssueTracker
-        fields = ['id', 'text', 'issueTrackerUrl']
+        fields = ["id", "text", "issueTrackerUrl"]
 
 
 class PerformanceQueryParamsSerializer(serializers.Serializer):
@@ -372,12 +372,12 @@ class PerformanceQueryParamsSerializer(serializers.Serializer):
 
     def validate(self, data):
         if (
-            data['revision'] is None
-            and data['interval'] is None
-            and (data['startday'] is None or data['endday'] is None)
+            data["revision"] is None
+            and data["interval"] is None
+            and (data["startday"] is None or data["endday"] is None)
         ):
             raise serializers.ValidationError(
-                'Required: revision, startday and endday or interval.'
+                "Required: revision, startday and endday or interval."
             )
 
         return data
@@ -387,17 +387,17 @@ class PerformanceQueryParamsSerializer(serializers.Serializer):
             Repository.objects.get(name=repository)
 
         except ObjectDoesNotExist:
-            raise serializers.ValidationError('{} does not exist.'.format(repository))
+            raise serializers.ValidationError("{} does not exist.".format(repository))
 
         return repository
 
 
 class PerformanceDatumSerializer(serializers.ModelSerializer):
-    revision = serializers.CharField(source='push__revision')
+    revision = serializers.CharField(source="push__revision")
 
     class Meta:
         model = PerformanceDatum
-        fields = ['job_id', 'id', 'value', 'push_timestamp', 'push_id', 'revision']
+        fields = ["job_id", "id", "value", "push_timestamp", "push_id", "revision"]
 
 
 class PerformanceSummarySerializer(serializers.ModelSerializer):
@@ -422,31 +422,31 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
     class Meta:
         model = PerformanceSignature
         fields = [
-            'signature_id',
-            'framework_id',
-            'signature_hash',
-            'platform',
-            'test',
-            'suite',
-            'lower_is_better',
-            'has_subtests',
-            'tags',
-            'values',
-            'name',
-            'parent_signature',
-            'job_ids',
-            'repository_name',
-            'repository_id',
-            'data',
-            'measurement_unit',
-            'application',
+            "signature_id",
+            "framework_id",
+            "signature_hash",
+            "platform",
+            "test",
+            "suite",
+            "lower_is_better",
+            "has_subtests",
+            "tags",
+            "values",
+            "name",
+            "parent_signature",
+            "job_ids",
+            "repository_name",
+            "repository_id",
+            "data",
+            "measurement_unit",
+            "application",
         ]
 
     def get_name(self, value):
-        test = value['test']
-        suite = value['suite']
-        test_suite = suite if test == '' or test == suite else '{} {}'.format(suite, test)
-        return '{} {} {}'.format(test_suite, value['option_name'], value['extra_options'])
+        test = value["test"]
+        suite = value["suite"]
+        test_suite = suite if test == "" or test == suite else "{} {}".format(suite, test)
+        return "{} {} {}".format(test_suite, value["option_name"], value["extra_options"])
 
 
 class PerfAlertSummaryTasksQueryParamSerializer(serializers.Serializer):
@@ -454,10 +454,10 @@ class PerfAlertSummaryTasksQueryParamSerializer(serializers.Serializer):
 
     def validate(self, data):
         try:
-            PerformanceAlertSummary.objects.get(id=data['id'])
+            PerformanceAlertSummary.objects.get(id=data["id"])
         except PerformanceAlertSummary.DoesNotExist:
             raise serializers.ValidationError(
-                {'message': 'PerformanceAlertSummary does not exist.'}
+                {"message": "PerformanceAlertSummary does not exist."}
             )
 
         return data
@@ -478,15 +478,15 @@ class PerfCompareResultsQueryParamsSerializer(serializers.Serializer):
     no_subtests = serializers.BooleanField(required=False)
 
     def validate(self, data):
-        if data['base_revision'] is None and data['interval'] is None:
-            raise serializers.ValidationError('Field required: interval.')
+        if data["base_revision"] is None and data["interval"] is None:
+            raise serializers.ValidationError("Field required: interval.")
 
         try:
-            Repository.objects.get(name=data['base_repository'])
-            Repository.objects.get(name=data['new_repository'])
+            Repository.objects.get(name=data["base_repository"])
+            Repository.objects.get(name=data["new_repository"])
         except ObjectDoesNotExist:
             raise serializers.ValidationError(
-                '{} or {} does not exist.'.format(data['base_repository'], data['new_repository'])
+                "{} or {} does not exist.".format(data["base_repository"], data["new_repository"])
             )
 
         return data
@@ -497,11 +497,11 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
     new_rev = serializers.CharField()
     base_app = serializers.CharField(
         max_length=10,
-        default='',
+        default="",
     )
     new_app = serializers.CharField(
         max_length=10,
-        default='',
+        default="",
     )
     is_empty = serializers.BooleanField()
     is_complete = serializers.BooleanField()
@@ -509,8 +509,8 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
     header_name = serializers.CharField()
     base_repository_name = serializers.CharField()
     new_repository_name = serializers.CharField()
-    base_measurement_unit = serializers.CharField(default='')
-    new_measurement_unit = serializers.CharField(default='')
+    base_measurement_unit = serializers.CharField(default="")
+    new_measurement_unit = serializers.CharField(default="")
     base_retriggerable_job_ids = serializers.ListField(child=serializers.IntegerField(), default=[])
     new_retriggerable_job_ids = serializers.ListField(child=serializers.IntegerField(), default=[])
     option_name = serializers.CharField()
@@ -548,49 +548,49 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
     class Meta:
         model = PerformanceSignature
         fields = [
-            'base_rev',
-            'new_rev',
-            'base_app',
-            'new_app',
-            'framework_id',
-            'platform',
-            'suite',
-            'is_empty',
-            'header_name',
-            'base_repository_name',
-            'new_repository_name',
-            'is_complete',
-            'base_measurement_unit',
-            'new_measurement_unit',
-            'base_retriggerable_job_ids',
-            'new_retriggerable_job_ids',
-            'base_runs',
-            'new_runs',
-            'base_avg_value',
-            'new_avg_value',
-            'base_median_value',
-            'new_median_value',
-            'test',
-            'option_name',
-            'extra_options',
-            'base_stddev',
-            'new_stddev',
-            'base_stddev_pct',
-            'new_stddev_pct',
-            'confidence',
-            'confidence_text',
-            'graphs_link',
-            'delta_value',
-            'delta_percentage',
-            'magnitude',
-            'new_is_better',
-            'lower_is_better',
-            'is_confident',
-            'more_runs_are_needed',
-            'noise_metric',
-            'is_improvement',
-            'is_regression',
-            'is_meaningful',
+            "base_rev",
+            "new_rev",
+            "base_app",
+            "new_app",
+            "framework_id",
+            "platform",
+            "suite",
+            "is_empty",
+            "header_name",
+            "base_repository_name",
+            "new_repository_name",
+            "is_complete",
+            "base_measurement_unit",
+            "new_measurement_unit",
+            "base_retriggerable_job_ids",
+            "new_retriggerable_job_ids",
+            "base_runs",
+            "new_runs",
+            "base_avg_value",
+            "new_avg_value",
+            "base_median_value",
+            "new_median_value",
+            "test",
+            "option_name",
+            "extra_options",
+            "base_stddev",
+            "new_stddev",
+            "base_stddev_pct",
+            "new_stddev_pct",
+            "confidence",
+            "confidence_text",
+            "graphs_link",
+            "delta_value",
+            "delta_percentage",
+            "magnitude",
+            "new_is_better",
+            "lower_is_better",
+            "is_confident",
+            "more_runs_are_needed",
+            "noise_metric",
+            "is_improvement",
+            "is_regression",
+            "is_meaningful",
         ]
 
 
@@ -600,7 +600,7 @@ class TestSuiteHealthParamsSerializer(serializers.Serializer):
 
 class CommaSeparatedField(serializers.Field):
     def to_representation(self, value):
-        return value.split(',')
+        return value.split(",")
 
 
 class TestSuiteHealthSerializer(serializers.Serializer):

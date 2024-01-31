@@ -82,7 +82,7 @@ class MainRemovalStrategy(RemovalStrategy):
     def remove(self, using: CursorWrapper):
         chunk_size = self._find_ideal_chunk_size()
 
-        if settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
+        if settings.DATABASES["default"]["ENGINE"] == "django.db.backends.mysql":
             # Django's queryset API doesn't support MySQL's
             # DELETE statements with LIMIT constructs,
             # even though this database is capable of doing that.
@@ -90,30 +90,30 @@ class MainRemovalStrategy(RemovalStrategy):
             # If ever this support is added in Django, replace
             # raw SQL bellow with equivalent queryset commands.
             using.execute(
-                '''
+                """
                 DELETE FROM `performance_datum`
                 WHERE push_timestamp <= %s
                 LIMIT %s
-            ''',
+            """,
                 [self._max_timestamp, chunk_size],
             )
         else:
             deleted, _ = PerformanceDatum.objects.filter(
                 id__in=PerformanceDatum.objects.filter(
                     push_timestamp__lte=self._max_timestamp
-                ).values_list('id')[:chunk_size]
+                ).values_list("id")[:chunk_size]
             ).delete()
             using.rowcount = deleted
 
     @property
     def name(self) -> str:
-        return 'main removal strategy'
+        return "main removal strategy"
 
     def _find_ideal_chunk_size(self) -> int:
-        max_id = self._manager.filter(push_timestamp__gt=self._max_timestamp).order_by('-id')[0].id
+        max_id = self._manager.filter(push_timestamp__gt=self._max_timestamp).order_by("-id")[0].id
         older_ids = self._manager.filter(
             push_timestamp__lte=self._max_timestamp, id__lte=max_id
-        ).order_by('id')[: self._chunk_size]
+        ).order_by("id")[: self._chunk_size]
 
         return len(older_ids) or self._chunk_size
 
@@ -147,7 +147,7 @@ class TryDataRemoval(RemovalStrategy):
     @property
     def try_repo(self):
         if self.__try_repo_id is None:
-            self.__try_repo_id = Repository.objects.get(name='try').id
+            self.__try_repo_id = Repository.objects.get(name="try").id
         return self.__try_repo_id
 
     @property
@@ -155,7 +155,7 @@ class TryDataRemoval(RemovalStrategy):
         if self.__target_signatures is None:
             self.__target_signatures = self.try_signatures[: self.SIGNATURE_BULK_SIZE]
             if len(self.__target_signatures) == 0:
-                msg = 'No try signatures found.'
+                msg = "No try signatures found."
                 logger.warning(msg)  # no try data is not normal
                 raise LookupError(msg)
         return self.__target_signatures
@@ -165,8 +165,8 @@ class TryDataRemoval(RemovalStrategy):
         if self.__try_signatures is None:
             self.__try_signatures = list(
                 PerformanceSignature.objects.filter(repository=self.try_repo)
-                .order_by('-id')
-                .values_list('id', flat=True)
+                .order_by("-id")
+                .values_list("id", flat=True)
             )
         return self.__try_signatures
 
@@ -185,15 +185,15 @@ class TryDataRemoval(RemovalStrategy):
 
                 self.__lookup_new_signature()  # to remove data from
             except LookupError as ex:
-                logger.debug(f'Could not target any (new) try signature to delete data from. {ex}')
+                logger.debug(f"Could not target any (new) try signature to delete data from. {ex}")
                 break
 
     @property
     def name(self) -> str:
-        return 'try data removal strategy'
+        return "try data removal strategy"
 
     def __attempt_remove(self, using):
-        if settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
+        if settings.DATABASES["default"]["ENGINE"] == "django.db.backends.mysql":
             # Django's queryset API doesn't support MySQL's
             # DELETE statements with LIMIT constructs,
             # even though this database is capable of doing that.
@@ -201,13 +201,13 @@ class TryDataRemoval(RemovalStrategy):
             # If ever this support is added in Django, replace
             # raw SQL bellow with equivalent queryset commands.
             total_signatures = len(self.target_signatures)
-            from_target_signatures = ' OR '.join(['signature_id =  %s'] * total_signatures)
+            from_target_signatures = " OR ".join(["signature_id =  %s"] * total_signatures)
 
-            delete_try_data = f'''
+            delete_try_data = f"""
                 DELETE FROM `performance_datum`
                 WHERE repository_id = %s AND push_timestamp <= %s AND ({from_target_signatures})
                 LIMIT %s
-            '''
+            """
 
             using.execute(
                 delete_try_data,
@@ -219,7 +219,7 @@ class TryDataRemoval(RemovalStrategy):
                     repository_id=self.try_repo,
                     push_timestamp__lte=self._max_timestamp,
                     signature_id__in=self.target_signatures,
-                ).values_list('id')[: self._chunk_size]
+                ).values_list("id")[: self._chunk_size]
             ).delete()
             using.rowcount = deleted
 
@@ -228,7 +228,7 @@ class TryDataRemoval(RemovalStrategy):
         del self.__try_signatures[: self.SIGNATURE_BULK_SIZE]
 
         if len(self.__target_signatures) == 0:
-            raise LookupError('Exhausted all signatures originating from try repository.')
+            raise LookupError("Exhausted all signatures originating from try repository.")
 
 
 class IrrelevantDataRemoval(RemovalStrategy):
@@ -239,11 +239,11 @@ class IrrelevantDataRemoval(RemovalStrategy):
     """
 
     RELEVANT_REPO_NAMES = [
-        'autoland',
-        'mozilla-central',
-        'mozilla-beta',
-        'fenix',
-        'reference-browser',
+        "autoland",
+        "mozilla-central",
+        "mozilla-beta",
+        "fenix",
+        "reference-browser",
     ]
 
     @property
@@ -268,7 +268,7 @@ class IrrelevantDataRemoval(RemovalStrategy):
         if self.__irrelevant_repos is None:
             self.__irrelevant_repos = list(
                 Repository.objects.exclude(name__in=self.RELEVANT_REPO_NAMES).values_list(
-                    'id', flat=True
+                    "id", flat=True
                 )
             )
         return self.__irrelevant_repos
@@ -281,12 +281,12 @@ class IrrelevantDataRemoval(RemovalStrategy):
 
     @property
     def name(self) -> str:
-        return 'irrelevant data removal strategy'
+        return "irrelevant data removal strategy"
 
     def remove(self, using: CursorWrapper):
         chunk_size = self._find_ideal_chunk_size()
 
-        if settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
+        if settings.DATABASES["default"]["ENGINE"] == "django.db.backends.mysql":
             # Django's queryset API doesn't support MySQL's
             # DELETE statements with LIMIT constructs,
             # even though this database is capable of doing that.
@@ -294,11 +294,11 @@ class IrrelevantDataRemoval(RemovalStrategy):
             # If ever this support is added in Django, replace
             # raw SQL bellow with equivalent queryset commands.
             using.execute(
-                '''
+                """
                     DELETE FROM `performance_datum`
                     WHERE repository_id = %s AND push_timestamp <= %s
                     LIMIT %s
-                ''',
+                """,
                 [
                     self.irrelevant_repo,
                     self._max_timestamp,
@@ -309,7 +309,7 @@ class IrrelevantDataRemoval(RemovalStrategy):
             deleted, _ = PerformanceDatum.objects.filter(
                 id__in=PerformanceDatum.objects.filter(
                     repository_id=self.irrelevant_repo, push_timestamp__lte=self._max_timestamp
-                ).values_list('id')[:chunk_size]
+                ).values_list("id")[:chunk_size]
             ).delete()
             using.rowcount = deleted
 
@@ -317,7 +317,7 @@ class IrrelevantDataRemoval(RemovalStrategy):
         max_id_of_non_expired_row = (
             self._manager.filter(push_timestamp__gt=self._max_timestamp)
             .filter(repository_id__in=self.irrelevant_repositories)
-            .order_by('-id')[0]
+            .order_by("-id")[0]
             .id
         )
         older_perf_data_rows = (
@@ -325,7 +325,7 @@ class IrrelevantDataRemoval(RemovalStrategy):
                 push_timestamp__lte=self._max_timestamp, id__lte=max_id_of_non_expired_row
             )
             .filter(repository_id__in=self.irrelevant_repositories)
-            .order_by('id')[: self._chunk_size]
+            .order_by("id")[: self._chunk_size]
         )
         return len(older_perf_data_rows) or self._chunk_size
 
@@ -358,7 +358,7 @@ class StalledDataRemoval(RemovalStrategy):
             if self._target_signature is None:
                 self._target_signature = self.removable_signatures.pop()
         except IndexError:
-            msg = 'No stalled signature found.'
+            msg = "No stalled signature found."
             logger.warning(msg)  # no stalled data is not normal
             raise LookupError(msg)
         return self._target_signature
@@ -368,7 +368,7 @@ class StalledDataRemoval(RemovalStrategy):
         if self._removable_signatures is None:
             self._removable_signatures = list(
                 PerformanceSignature.objects.filter(last_updated__lte=self._max_timestamp).order_by(
-                    'last_updated'
+                    "last_updated"
                 )
             )
             self._removable_signatures = [
@@ -390,7 +390,7 @@ class StalledDataRemoval(RemovalStrategy):
                 self.__lookup_new_signature()  # to remove data from
             except LookupError as ex:
                 logger.debug(
-                    f'Could not target any (new) stalled signature to delete data from. {ex}'
+                    f"Could not target any (new) stalled signature to delete data from. {ex}"
                 )
                 break
 
@@ -400,10 +400,10 @@ class StalledDataRemoval(RemovalStrategy):
 
     @property
     def name(self) -> str:
-        return 'stalled data removal strategy'
+        return "stalled data removal strategy"
 
     def __attempt_remove(self, using: CursorWrapper):
-        if settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
+        if settings.DATABASES["default"]["ENGINE"] == "django.db.backends.mysql":
             # Django's queryset API doesn't support MySQL's
             # DELETE statements with LIMIT constructs,
             # even though this database is capable of doing that.
@@ -411,11 +411,11 @@ class StalledDataRemoval(RemovalStrategy):
             # If ever this support is added in Django, replace
             # raw SQL bellow with equivalent queryset commands.
             using.execute(
-                '''
+                """
                     DELETE FROM `performance_datum`
                     WHERE repository_id = %s AND signature_id = %s AND push_timestamp <= %s
                     LIMIT %s
-                ''',
+                """,
                 [
                     self.target_signature.repository_id,
                     self.target_signature.id,
@@ -429,7 +429,7 @@ class StalledDataRemoval(RemovalStrategy):
                     repository_id=self.target_signature.repository_id,
                     signature_id=self.target_signature.id,
                     push_timestamp__lte=self._max_timestamp,
-                ).values_list('id')[: self._chunk_size]
+                ).values_list("id")[: self._chunk_size]
             ).delete()
             using.rowcount = deleted
 
@@ -437,4 +437,4 @@ class StalledDataRemoval(RemovalStrategy):
         try:
             self._target_signature = self._removable_signatures.pop()
         except IndexError:
-            raise LookupError('Exhausted all stalled signatures.')
+            raise LookupError("Exhausted all stalled signatures.")

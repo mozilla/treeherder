@@ -15,14 +15,14 @@ def store_text_log_summary_artifact(job, text_log_summary_artifact):
     """
     Store the contents of the text log summary artifact
     """
-    errors = json.loads(text_log_summary_artifact['blob'])['errors']
+    errors = json.loads(text_log_summary_artifact["blob"])["errors"]
 
     log_errors = TextLogError.objects.bulk_create(
         [
             TextLogError(
                 job=job,
-                line_number=error['linenumber'],
-                line=astral_filter(error['line']),
+                line_number=error["linenumber"],
+                line=astral_filter(error["line"]),
             )
             for error in errors
         ],
@@ -34,11 +34,11 @@ def store_text_log_summary_artifact(job, text_log_summary_artifact):
     # Conflicts may have occured during the insert, but we pass the queryset for performance
     bugs = error_summary.get_error_summary(job, queryset=log_errors)
     for suggestion in bugs:
-        if (suggestion['failure_new_in_rev'] or suggestion['counter'] == 0) and job.result not in [
-            'success',
-            'unknown',
-            'usercancel',
-            'retry',
+        if (suggestion["failure_new_in_rev"] or suggestion["counter"] == 0) and job.result not in [
+            "success",
+            "unknown",
+            "usercancel",
+            "retry",
         ]:
             # classify job as `new failure` - for filtering, etc.
             job.failure_classification_id = 6
@@ -62,11 +62,11 @@ def store_job_artifacts(artifact_data):
     for artifact in artifact_data:
         # Determine what type of artifact we have received
         if artifact:
-            artifact_name = artifact.get('name')
+            artifact_name = artifact.get("name")
             if not artifact_name:
                 logger.error("load_job_artifacts: Unnamed job artifact, skipping")
                 continue
-            job_guid = artifact.get('job_guid')
+            job_guid = artifact.get("job_guid")
             if not job_guid:
                 logger.error(
                     "load_job_artifacts: Artifact '%s' with no " "job guid set, skipping",
@@ -77,12 +77,12 @@ def store_job_artifacts(artifact_data):
             try:
                 job = Job.objects.get(guid=job_guid)
             except Job.DoesNotExist:
-                logger.error('load_job_artifacts: No job_id for guid %s', job_guid)
+                logger.error("load_job_artifacts: No job_id for guid %s", job_guid)
                 continue
 
-            if artifact_name == 'performance_data':
+            if artifact_name == "performance_data":
                 store_performance_artifact(job, artifact)
-            elif artifact_name == 'text_log_summary':
+            elif artifact_name == "text_log_summary":
                 try:
                     store_text_log_summary_artifact(job, artifact)
                 except IntegrityError:
@@ -97,7 +97,7 @@ def store_job_artifacts(artifact_data):
                     "Unknown artifact type: %s submitted with job %s", artifact_name, job.guid
                 )
         else:
-            logger.error('store_job_artifacts: artifact type %s not understood', artifact_name)
+            logger.error("store_job_artifacts: artifact type %s not understood", artifact_name)
 
 
 def serialize_artifact_json_blobs(artifacts):
@@ -105,8 +105,8 @@ def serialize_artifact_json_blobs(artifacts):
     Ensure that JSON artifact blobs passed as dicts are converted to JSON
     """
     for artifact in artifacts:
-        blob = artifact['blob']
-        if artifact['type'].lower() == 'json' and not isinstance(blob, str):
-            artifact['blob'] = json.dumps(blob)
+        blob = artifact["blob"]
+        if artifact["type"].lower() == "json" and not isinstance(blob, str):
+            artifact["blob"] = json.dumps(blob)
 
     return artifacts

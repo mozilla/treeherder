@@ -11,26 +11,26 @@ fifty_days_ago = datetime.now() - timedelta(days=50)
 
 @pytest.fixture
 def sample_bugs(test_base_dir):
-    filename = os.path.join(test_base_dir, 'sample_data', 'bug_list.json')
+    filename = os.path.join(test_base_dir, "sample_data", "bug_list.json")
     with open(filename) as f:
         return json.load(f)
 
 
 def _update_bugscache(bug_list):
-    max_summary_length = Bugscache._meta.get_field('summary').max_length
-    max_whiteboard_length = Bugscache._meta.get_field('whiteboard').max_length
+    max_summary_length = Bugscache._meta.get_field("summary").max_length
+    max_whiteboard_length = Bugscache._meta.get_field("whiteboard").max_length
 
     for bug in bug_list:
         Bugscache.objects.create(
-            id=bug['id'],
-            status=bug['status'],
-            resolution=bug['resolution'],
-            summary=bug['summary'][:max_summary_length],
-            dupe_of=bug['dupe_of'],
-            crash_signature=bug['cf_crash_signature'],
-            keywords=",".join(bug['keywords']),
-            modified=bug['last_change_time'],
-            whiteboard=bug['whiteboard'][:max_whiteboard_length],
+            id=bug["id"],
+            status=bug["status"],
+            resolution=bug["resolution"],
+            summary=bug["summary"][:max_summary_length],
+            dupe_of=bug["dupe_of"],
+            crash_signature=bug["cf_crash_signature"],
+            keywords=",".join(bug["keywords"]),
+            modified=bug["last_change_time"],
+            whiteboard=bug["whiteboard"][:max_whiteboard_length],
             processed_update=True,
         )
 
@@ -47,7 +47,7 @@ BUG_SEARCHES = (
         [1054456],
     ),
     (
-        "[taskcluster:error]  Command \" [./test-macosx.sh --no-read-buildbot-config --installer-url=https://q",
+        '[taskcluster:error]  Command " [./test-macosx.sh --no-read-buildbot-config --installer-url=https://q',
         [100],
     ),
     ("should not be match_d", []),
@@ -64,33 +64,33 @@ BUG_SEARCHES = (
 @pytest.mark.parametrize(("search_term", "exp_bugs"), BUG_SEARCHES)
 def test_get_open_recent_bugs(transactional_db, sample_bugs, search_term, exp_bugs):
     """Test that we retrieve the expected open recent bugs for a search term."""
-    bug_list = sample_bugs['bugs']
+    bug_list = sample_bugs["bugs"]
     # Update the resolution so that all bugs will be placed in
     # the open_recent bucket, and none in all_others.
     for bug in bug_list:
-        bug['resolution'] = ''
-        bug['last_change_time'] = fifty_days_ago
+        bug["resolution"] = ""
+        bug["last_change_time"] = fifty_days_ago
     _update_bugscache(bug_list)
     suggestions = Bugscache.search(search_term)
-    open_recent_bugs = [b['id'] for b in suggestions['open_recent']]
+    open_recent_bugs = [b["id"] for b in suggestions["open_recent"]]
     assert open_recent_bugs == exp_bugs
-    assert suggestions['all_others'] == []
+    assert suggestions["all_others"] == []
 
 
 @pytest.mark.parametrize(("search_term", "exp_bugs"), BUG_SEARCHES)
 def test_get_all_other_bugs(transactional_db, sample_bugs, search_term, exp_bugs):
     """Test that we retrieve the expected old bugs for a search term."""
-    bug_list = sample_bugs['bugs']
+    bug_list = sample_bugs["bugs"]
     # Update the resolution so that all bugs will be placed in
     # the all_others bucket, and none in open_recent.
     for bug in bug_list:
-        bug['resolution'] = 'FIXED'
-        bug['last_change_time'] = fifty_days_ago
+        bug["resolution"] = "FIXED"
+        bug["last_change_time"] = fifty_days_ago
     _update_bugscache(bug_list)
 
     suggestions = Bugscache.search(search_term)
-    assert suggestions['open_recent'] == []
-    all_others_bugs = [b['id'] for b in suggestions['all_others']]
+    assert suggestions["open_recent"] == []
+    all_others_bugs = [b["id"] for b in suggestions["all_others"]]
     assert all_others_bugs == exp_bugs
 
 
@@ -99,46 +99,46 @@ def test_get_recent_resolved_bugs(transactional_db, sample_bugs):
     search_term = "Recently modified resolved bugs should be returned in all_others"
     exp_bugs = [100001]
 
-    bug_list = sample_bugs['bugs']
+    bug_list = sample_bugs["bugs"]
     # Update the resolution so that all bugs will be placed in
     # the open_recent bucket, and none in all_others.
     for bug in bug_list:
-        bug['resolution'] = 'FIXED'
-        bug['last_change_time'] = fifty_days_ago
+        bug["resolution"] = "FIXED"
+        bug["last_change_time"] = fifty_days_ago
     _update_bugscache(bug_list)
 
     suggestions = Bugscache.search(search_term)
-    assert suggestions['open_recent'] == []
-    all_others_bugs = [b['id'] for b in suggestions['all_others']]
+    assert suggestions["open_recent"] == []
+    all_others_bugs = [b["id"] for b in suggestions["all_others"]]
     assert all_others_bugs == exp_bugs
 
 
 def test_bug_properties(transactional_db, sample_bugs):
     """Test that we retrieve recent, but fixed bugs for a search term."""
     search_term = "test_popup_preventdefault_chrome.xul"
-    bug_list = sample_bugs['bugs']
+    bug_list = sample_bugs["bugs"]
     # Update the resolution so that all bugs will be placed in
     # the open_recent bucket, and none in all_others.
     for bug in bug_list:
-        bug['resolution'] = ''
-        bug['last_change_time'] = fifty_days_ago
+        bug["resolution"] = ""
+        bug["last_change_time"] = fifty_days_ago
     _update_bugscache(bug_list)
 
     expected_keys = set(
         [
-            'crash_signature',
-            'resolution',
-            'summary',
-            'dupe_of',
-            'keywords',
-            'id',
-            'status',
-            'whiteboard',
+            "crash_signature",
+            "resolution",
+            "summary",
+            "dupe_of",
+            "keywords",
+            "id",
+            "status",
+            "whiteboard",
         ]
     )
 
     suggestions = Bugscache.search(search_term)
-    assert set(suggestions['open_recent'][0].keys()) == expected_keys
+    assert set(suggestions["open_recent"][0].keys()) == expected_keys
 
 
 SEARCH_TERMS = (
@@ -152,7 +152,7 @@ SEARCH_TERMS = (
         " command timed out: 3600 seconds without output running ",
     ),
     (
-        "\"input password unmask.html#abc_def 0 7 7 7\"",
+        '"input password unmask.html#abc_def 0 7 7 7"',
         " input password unmask.html#abc_def 0 7 7 7 ",
     ),
 )
@@ -199,7 +199,7 @@ def test_import(mock_bugscache_bugzilla_request):
 
     for open_bug, duplicates in EXPECTED_BUG_DUPE_OF_DATA.items():
         assert Bugscache.objects.get(id=open_bug).dupe_of is None
-        assert set(Bugscache.objects.filter(dupe_of=open_bug).values_list('id', flat=True)) == set(
+        assert set(Bugscache.objects.filter(dupe_of=open_bug).values_list("id", flat=True)) == set(
             duplicates
         )
 

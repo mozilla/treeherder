@@ -39,12 +39,12 @@ def test_summary_status(
     signature1 = test_perf_signature
     signature2 = PerformanceSignature.objects.create(
         repository=test_repository,
-        signature_hash=(40 * 'u'),
+        signature_hash=(40 * "u"),
         framework=test_perf_signature.framework,
         platform=test_perf_signature.platform,
         option_collection=test_perf_signature.option_collection,
-        suite='mysuite_2',
-        test='mytest_2',
+        suite="mysuite_2",
+        test="mytest_2",
         has_subtests=False,
         last_updated=datetime.datetime.now(),
     )
@@ -81,12 +81,12 @@ def test_reassigning_regression(
     signature1 = test_perf_signature
     signature2 = PerformanceSignature.objects.create(
         repository=test_repository,
-        signature_hash=(40 * 'u'),
+        signature_hash=(40 * "u"),
         framework=test_perf_signature.framework,
         platform=test_perf_signature.platform,
         option_collection=test_perf_signature.option_collection,
-        suite='mysuite_2',
-        test='mytest_2',
+        suite="mysuite_2",
+        test="mytest_2",
         has_subtests=False,
         last_updated=datetime.datetime.now(),
     )
@@ -132,12 +132,12 @@ def test_improvement_summary_status_after_reassigning_regression(
     signature1 = test_perf_signature
     signature2 = PerformanceSignature.objects.create(
         repository=test_repository,
-        signature_hash=(40 * 'u'),
+        signature_hash=(40 * "u"),
         framework=test_perf_signature.framework,
         platform=test_perf_signature.platform,
         option_collection=test_perf_signature.option_collection,
-        suite='mysuite_2',
-        test='mytest_2',
+        suite="mysuite_2",
+        test="mytest_2",
         has_subtests=False,
         last_updated=datetime.datetime.now(),
     )

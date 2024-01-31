@@ -4,10 +4,10 @@ from treeherder.model.models import BugzillaComponent, FilesBugzillaMap, Reposit
 from treeherder.etl.files_bugzilla_map import FilesBugzillaMapProcess
 
 EXPECTED_PROJECTS = [
-    'mozilla-central',
-    'mozilla-beta',
-    'mozilla-release',
-    'mozilla-esr78',
+    "mozilla-central",
+    "mozilla-beta",
+    "mozilla-release",
+    "mozilla-esr78",
 ]
 
 
@@ -18,11 +18,11 @@ def test_get_project_to_import(setup_repository_data):
     imported and if the order is correct.
     """
     actual_projects = list(
-        Repository.objects.filter(codebase='gecko')
-        .filter(active_status='active')
+        Repository.objects.filter(codebase="gecko")
+        .filter(active_status="active")
         .filter(life_cycle_order__isnull=False)
-        .values_list('name', flat=True)
-        .order_by('life_cycle_order')
+        .values_list("name", flat=True)
+        .order_by("life_cycle_order")
     )
     assert actual_projects == EXPECTED_PROJECTS
 
@@ -41,61 +41,61 @@ def test_data_ingestion(setup_repository_data, mock_file_bugzilla_map_request):
     assert FilesBugzillaMap.objects.count() == 7
 
     EXPECTED_FILES_BUGZILLA_DATA_IMPORT_1 = [
-        ('AUTHORS', 'AUTHORS', 'mozilla.org', 'Licensing'),
-        ('browser/components/BrowserGlue.jsm', 'BrowserGlue.jsm', 'Firefox', 'General'),
+        ("AUTHORS", "AUTHORS", "mozilla.org", "Licensing"),
+        ("browser/components/BrowserGlue.jsm", "BrowserGlue.jsm", "Firefox", "General"),
         (
-            'mozilla-esr78-folder/file.new.here',
-            'file.new.here',
-            'Mock Component',
-            'File only present in mozilla-esr78',
+            "mozilla-esr78-folder/file.new.here",
+            "file.new.here",
+            "Mock Component",
+            "File only present in mozilla-esr78",
         ),
         (
-            'otherfolder/AUTHORS',
-            'AUTHORS',
-            'mozilla.org',
-            'Different path, same product, different component',
+            "otherfolder/AUTHORS",
+            "AUTHORS",
+            "mozilla.org",
+            "Different path, same product, different component",
         ),
         (
-            'testing/web-platform/meta/IndexedDB/historical.html.ini',
-            'historical.html.ini',
-            'Testing',
-            'web-platform-tests',
+            "testing/web-platform/meta/IndexedDB/historical.html.ini",
+            "historical.html.ini",
+            "Testing",
+            "web-platform-tests",
         ),
         (
-            'testing/web-platform/tests/IndexedDB/historical.html',
-            'historical.html',
-            'Core',
-            'Storage: IndexedDB',
+            "testing/web-platform/tests/IndexedDB/historical.html",
+            "historical.html",
+            "Core",
+            "Storage: IndexedDB",
         ),
         (
-            'toolkit/mozilla-beta/fantasy_file.js',
-            'fantasy_file.js',
-            'Mock',
-            'File first seen on mozilla-beta',
+            "toolkit/mozilla-beta/fantasy_file.js",
+            "fantasy_file.js",
+            "Mock",
+            "File first seen on mozilla-beta",
         ),
     ]
     assert EXPECTED_FILES_BUGZILLA_DATA_IMPORT_1 == list(
         FilesBugzillaMap.objects.all()
         .values_list(
-            'path', 'file_name', 'bugzilla_component__product', 'bugzilla_component__component'
+            "path", "file_name", "bugzilla_component__product", "bugzilla_component__component"
         )
-        .order_by('path')
+        .order_by("path")
     )
 
     EXPECTED_BUGZILLA_COMPONENTS_IMPORT_1 = [
-        ('Core', 'Storage: IndexedDB'),
-        ('Firefox', 'General'),
-        ('Mock', 'File first seen on mozilla-beta'),
-        ('Mock Component', 'File only present in mozilla-esr78'),
-        ('Testing', 'web-platform-tests'),
-        ('mozilla.org', 'Different path, same product, different component'),
-        ('mozilla.org', 'Licensing'),
+        ("Core", "Storage: IndexedDB"),
+        ("Firefox", "General"),
+        ("Mock", "File first seen on mozilla-beta"),
+        ("Mock Component", "File only present in mozilla-esr78"),
+        ("Testing", "web-platform-tests"),
+        ("mozilla.org", "Different path, same product, different component"),
+        ("mozilla.org", "Licensing"),
     ]
     assert EXPECTED_BUGZILLA_COMPONENTS_IMPORT_1 == sorted(
         list(
             BugzillaComponent.objects.all()
-            .values_list('product', 'component')
-            .order_by('product', 'component')
+            .values_list("product", "component")
+            .order_by("product", "component")
         )
     )
 
@@ -104,55 +104,55 @@ def test_data_ingestion(setup_repository_data, mock_file_bugzilla_map_request):
     assert FilesBugzillaMap.objects.count() == 6
 
     EXPECTED_FILES_BUGZILLA_DATA_IMPORT_2 = [
-        ('AUTHORS', 'AUTHORS', 'mozilla.org', 'Import 2: same product, different component'),
-        ('browser/components/BrowserGlue.jsm', 'BrowserGlue.jsm', 'Firefox', 'General'),
+        ("AUTHORS", "AUTHORS", "mozilla.org", "Import 2: same product, different component"),
+        ("browser/components/BrowserGlue.jsm", "BrowserGlue.jsm", "Firefox", "General"),
         (
-            'testing/web-platform/meta/IndexedDB/historical.html.ini',
-            'historical.html.ini',
-            'Testing',
-            'web-platform-tests',
+            "testing/web-platform/meta/IndexedDB/historical.html.ini",
+            "historical.html.ini",
+            "Testing",
+            "web-platform-tests",
         ),
         (
-            'testing/web-platform/tests/IndexedDB/historical.html',
-            'historical.html',
-            'Core',
-            'Storage: IndexedDB',
+            "testing/web-platform/tests/IndexedDB/historical.html",
+            "historical.html",
+            "Core",
+            "Storage: IndexedDB",
         ),
         (
-            'testing/web-platform/tests/IndexedDB2/historical.html',
-            'historical.html',
-            'Core',
-            'Storage: IndexedDB2',
+            "testing/web-platform/tests/IndexedDB2/historical.html",
+            "historical.html",
+            "Core",
+            "Storage: IndexedDB2",
         ),
         (
-            'toolkit/mozilla-beta/fantasy_file.js',
-            'fantasy_file.js',
-            'Mock (import 2)',
-            'File first seen on mozilla-beta',
+            "toolkit/mozilla-beta/fantasy_file.js",
+            "fantasy_file.js",
+            "Mock (import 2)",
+            "File first seen on mozilla-beta",
         ),
     ]
     assert EXPECTED_FILES_BUGZILLA_DATA_IMPORT_2 == sorted(
         list(
             FilesBugzillaMap.objects.all()
             .values_list(
-                'path', 'file_name', 'bugzilla_component__product', 'bugzilla_component__component'
+                "path", "file_name", "bugzilla_component__product", "bugzilla_component__component"
             )
-            .order_by('path')
+            .order_by("path")
         )
     )
 
     EXPECTED_BUGZILLA_COMPONENTS_IMPORT_2 = [
-        ('Core', 'Storage: IndexedDB'),
-        ('Core', 'Storage: IndexedDB2'),
-        ('Firefox', 'General'),
-        ('Mock (import 2)', 'File first seen on mozilla-beta'),
-        ('Testing', 'web-platform-tests'),
-        ('mozilla.org', 'Import 2: same product, different component'),
+        ("Core", "Storage: IndexedDB"),
+        ("Core", "Storage: IndexedDB2"),
+        ("Firefox", "General"),
+        ("Mock (import 2)", "File first seen on mozilla-beta"),
+        ("Testing", "web-platform-tests"),
+        ("mozilla.org", "Import 2: same product, different component"),
     ]
     assert EXPECTED_BUGZILLA_COMPONENTS_IMPORT_2 == sorted(
         list(
             BugzillaComponent.objects.all()
-            .values_list('product', 'component')
-            .order_by('product', 'component')
+            .values_list("product", "component")
+            .order_by("product", "component")
         )
     )

@@ -13,22 +13,22 @@ from treeherder.utils.http import fetch_json
 # firefox-releases: mozilla-beta, mozilla-release
 # comm-releases: comm-beta, comm-release
 REPO_GROUPS = {
-    'trunk': [1, 2, 77],
-    'firefox-releases': [6, 7],
-    'comm-releases': [38, 135],
+    "trunk": [1, 2, 77],
+    "firefox-releases": [6, 7],
+    "comm-releases": [38, 135],
 }
 
 FIVE_DAYS = 432000
 
 
 class GroupConcat(Aggregate):
-    function = 'GROUP_CONCAT'
-    template = '%(function)s(%(distinct)s%(expressions)s)'
+    function = "GROUP_CONCAT"
+    template = "%(function)s(%(distinct)s%(expressions)s)"
     allow_distinct = True
 
     def __init__(self, expression, distinct=False, **extra):
         super().__init__(
-            expression, distinct='DISTINCT ' if distinct else '', output_field=CharField(), **extra
+            expression, distinct="DISTINCT " if distinct else "", output_field=CharField(), **extra
         )
 
 
@@ -58,7 +58,7 @@ def get_end_of_day(date):
 
 
 def get_artifact_list(root_url, task_id):
-    artifacts_url = taskcluster_urls.api(root_url, 'queue', 'v1', f"task/{task_id}/artifacts")
+    artifacts_url = taskcluster_urls.api(root_url, "queue", "v1", f"task/{task_id}/artifacts")
     artifacts = {"artifacts": []}
     try:
         artifacts = fetch_json(artifacts_url)
@@ -71,12 +71,12 @@ def get_artifact_list(root_url, task_id):
 def get_profile_artifact_url(alert, task_metadata):
     tc_root_url = cache.get("tc_root_url", "")
     # Return a string to tell that task_id wasn't found
-    if not task_metadata.get('task_id') or not tc_root_url:
+    if not task_metadata.get("task_id") or not tc_root_url:
         return "task_id not found"
     # If the url was already cached, don't calculate again, just return it
-    if cache.get(task_metadata.get('task_id')):
-        return cache.get(task_metadata.get('task_id'))
-    artifacts_json = get_artifact_list(tc_root_url, task_metadata.get('task_id'))
+    if cache.get(task_metadata.get("task_id")):
+        return cache.get(task_metadata.get("task_id"))
+    artifacts_json = get_artifact_list(tc_root_url, task_metadata.get("task_id"))
     profile_artifact = [
         artifact
         for artifact in artifacts_json
@@ -92,6 +92,6 @@ def get_profile_artifact_url(alert, task_metadata):
     artifact_url = (
         f"{task_url}/runs/{str(task_metadata['retry_id'])}/artifacts/{profile_artifact[0]['name']}"
     )
-    cache.set(task_metadata.get('task_id'), artifact_url, FIVE_DAYS)
+    cache.set(task_metadata.get("task_id"), artifact_url, FIVE_DAYS)
 
     return artifact_url

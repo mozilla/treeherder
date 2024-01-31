@@ -13,11 +13,11 @@ class JobLogUrlViewSet(viewsets.ViewSet):
     @staticmethod
     def _log_as_dict(log):
         return {
-            'id': log.id,
-            'job_id': log.job_id,
-            'name': log.name,
-            'url': log.url,
-            'parse_status': log.get_status_display(),
+            "id": log.id,
+            "job_id": log.job_id,
+            "name": log.name,
+            "url": log.url,
+            "parse_status": log.get_status_display(),
         }
 
     def retrieve(self, request, project, pk=None):
@@ -32,7 +32,7 @@ class JobLogUrlViewSet(viewsets.ViewSet):
         GET method implementation for list view
         job_id -- Mandatory filter indicating which job these log belongs to.
         """
-        job_ids = request.query_params.getlist('job_id')
+        job_ids = request.query_params.getlist("job_id")
         if not job_ids:
             raise ParseError(detail="The job_id parameter is mandatory for this endpoint")
         try:

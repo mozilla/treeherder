@@ -14,8 +14,8 @@ class RepositoryViewSet(viewsets.ReadOnlyModelViewSet):
 
     """ViewSet for the refdata Repository model"""
 
-    queryset = models.Repository.objects.filter(active_status='active').select_related(
-        'repository_group'
+    queryset = models.Repository.objects.filter(active_status="active").select_related(
+        "repository_group"
     )
     serializer_class = th_serializers.RepositorySerializer
 
@@ -31,8 +31,8 @@ class OptionCollectionHashViewSet(viewsets.ViewSet):
         for option_hash, option_names in option_collection_map.items():
             ret.append(
                 {
-                    'option_collection_hash': option_hash,
-                    'options': [{'name': name} for name in option_names.split(' ')],
+                    "option_collection_hash": option_hash,
+                    "options": [{"name": name} for name in option_names.split(" ")],
                 }
             )
         return Response(ret)
@@ -53,7 +53,7 @@ class TaskclusterMetadataViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = th_serializers.TaskclusterMetadataSerializer
 
     def get_queryset(self):
-        job_ids = self.request.query_params.get('job_ids', '').split(',')
+        job_ids = self.request.query_params.get("job_ids", "").split(",")
         return models.TaskclusterMetadata.objects.filter(job_id__in=job_ids)
 
 

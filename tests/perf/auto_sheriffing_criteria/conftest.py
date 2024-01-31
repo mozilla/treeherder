@@ -5,8 +5,8 @@ from requests import Session
 
 from treeherder.perf.sheriffing_criteria import NonBlockableSession
 
-CASSETTE_LIBRARY_DIR = 'tests/sample_data/betamax_cassettes/perf_sheriffing_criteria'
-CASSETTES_RECORDING_DATE = 'June 2nd, 2020'  # when VCR has been conducted
+CASSETTE_LIBRARY_DIR = "tests/sample_data/betamax_cassettes/perf_sheriffing_criteria"
+CASSETTES_RECORDING_DATE = "June 2nd, 2020"  # when VCR has been conducted
 
 
 @pytest.fixture

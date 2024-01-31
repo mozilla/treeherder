@@ -36,11 +36,11 @@ def empty_backfill_report(test_perf_alert_summary) -> BackfillReport:
 
 
 @pytest.mark.parametrize(
-    'repository_name',
+    "repository_name",
     [
-        'autoland',
-        'mozilla-beta',
-        'mozilla-central',
+        "autoland",
+        "mozilla-beta",
+        "mozilla-central",
     ],
 )
 def test_cycle_performance_data(
@@ -57,13 +57,13 @@ def test_cycle_performance_data(
     expired_timestamp = datetime.now() - timedelta(days=400)
 
     test_perf_signature_2 = PerformanceSignature.objects.create(
-        signature_hash='b' * 40,
+        signature_hash="b" * 40,
         repository=test_perf_signature.repository,
         framework=test_perf_signature.framework,
         platform=test_perf_signature.platform,
         option_collection=test_perf_signature.option_collection,
         suite=test_perf_signature.suite,
-        test='test 2',
+        test="test 2",
         last_updated=expired_timestamp,
         has_subtests=False,
     )
@@ -100,12 +100,12 @@ def test_cycle_performance_data(
 
     command = filter(
         lambda arg: arg is not None,
-        ['cycle_data', 'from:perfherder'],
+        ["cycle_data", "from:perfherder"],
     )
     call_command(*list(command))  # test repository isn't a main one
 
-    assert list(PerformanceDatum.objects.values_list('id', flat=True)) == [1]
-    assert list(PerformanceSignature.objects.values_list('id', flat=True)) == [
+    assert list(PerformanceDatum.objects.values_list("id", flat=True)) == [1]
+    assert list(PerformanceSignature.objects.values_list("id", flat=True)) == [
         test_perf_signature.id
     ]
 
@@ -115,36 +115,36 @@ def test_performance_signatures_are_deleted(test_perf_signature, taskcluster_not
     expired_timestamp = cycler.max_timestamp
 
     perf_signature_to_delete = PerformanceSignature.objects.create(
-        signature_hash='b' * 40,
+        signature_hash="b" * 40,
         repository=test_perf_signature.repository,
         framework=test_perf_signature.framework,
         platform=test_perf_signature.platform,
         option_collection=test_perf_signature.option_collection,
         suite=test_perf_signature.suite,
-        test='test_perf_signature_to_delete',
+        test="test_perf_signature_to_delete",
         last_updated=expired_timestamp,
         has_subtests=False,
     )
 
     perf_signature_to_keep = PerformanceSignature.objects.create(
-        signature_hash='h' * 40,
+        signature_hash="h" * 40,
         repository=test_perf_signature.repository,
         framework=test_perf_signature.framework,
         platform=test_perf_signature.platform,
         option_collection=test_perf_signature.option_collection,
         suite=test_perf_signature.suite,
-        test='test_perf_signature_to_keep',
+        test="test_perf_signature_to_keep",
         last_updated=datetime.now(),
         has_subtests=False,
     )
 
-    call_command('cycle_data', 'from:perfherder')
+    call_command("cycle_data", "from:perfherder")
 
     assert perf_signature_to_keep.id in list(
-        PerformanceSignature.objects.values_list('id', flat=True)
+        PerformanceSignature.objects.values_list("id", flat=True)
     )
     assert perf_signature_to_delete.id not in list(
-        PerformanceSignature.objects.values_list('id', flat=True)
+        PerformanceSignature.objects.values_list("id", flat=True)
     )
 
 
@@ -160,7 +160,7 @@ def test_try_data_removal(
     test_perf_signature.repository = try_repository
     test_perf_signature.save()
 
-    try_pushes = list(Push.objects.filter(repository=try_repository).order_by('id').all())
+    try_pushes = list(Push.objects.filter(repository=try_repository).order_by("id").all())
 
     for idx, push in enumerate(try_pushes[:-2]):
         push_timestamp = datetime.now()
@@ -191,7 +191,7 @@ def test_try_data_removal(
 
     total_initial_data = PerformanceDatum.objects.count()
 
-    call_command('cycle_data', 'from:perfherder')
+    call_command("cycle_data", "from:perfherder")
     assert PerformanceDatum.objects.count() == total_initial_data - total_removals
     assert not PerformanceDatum.objects.filter(
         push_timestamp__lt=datetime.now() - timedelta(weeks=6),
@@ -203,8 +203,8 @@ def test_try_data_removal(
 
 
 @pytest.mark.parametrize(
-    'repository_name',
-    ['autoland', 'mozilla-beta', 'fenix', 'reference-browser'],
+    "repository_name",
+    ["autoland", "mozilla-beta", "fenix", "reference-browser"],
 )
 def test_irrelevant_repos_data_removal(
     test_repository,
@@ -262,7 +262,7 @@ def test_irrelevant_repos_data_removal(
 
     total_initial_data = PerformanceDatum.objects.count()
 
-    call_command('cycle_data', 'from:perfherder')
+    call_command("cycle_data", "from:perfherder")
     assert PerformanceDatum.objects.count() == total_initial_data - 1
     assert PerformanceDatum.objects.filter(repository=relevant_repository).exists()
     assert not PerformanceDatum.objects.filter(
@@ -285,14 +285,14 @@ def test_signature_remover(
 
     assert len(PerformanceSignature.objects.all()) == 2
 
-    call_command('cycle_data', 'from:perfherder')
+    call_command("cycle_data", "from:perfherder")
 
     assert taskcluster_notify_mock.email.call_count == 1
     assert len(PerformanceSignature.objects.all()) == 1
     assert PerformanceSignature.objects.first() == test_perf_signature
 
 
-@pytest.mark.parametrize('total_signatures', [3, 4, 8, 10])
+@pytest.mark.parametrize("total_signatures", [3, 4, 8, 10])
 def test_total_emails_sent(
     test_perf_signature, try_repository, total_signatures, mock_tc_prod_notify_credentials
 ):
@@ -311,13 +311,13 @@ def test_total_emails_sent(
     for n in range(0, total_signatures):
         PerformanceSignature.objects.create(
             repository=test_perf_signature.repository,
-            signature_hash=(20 * ('t%s' % n)),
+            signature_hash=(20 * ("t%s" % n)),
             framework=test_perf_signature.framework,
             platform=test_perf_signature.platform,
             option_collection=test_perf_signature.option_collection,
-            suite='mysuite%s' % n,
-            test='mytest%s' % n,
-            application='firefox',
+            suite="mysuite%s" % n,
+            test="mytest%s" % n,
+            application="firefox",
             has_subtests=test_perf_signature.has_subtests,
             extra_options=test_perf_signature.extra_options,
             last_updated=datetime.now(),
@@ -326,13 +326,13 @@ def test_total_emails_sent(
     for n in range(0, 10):
         PerformanceSignature.objects.create(
             repository=try_repository,
-            signature_hash=(20 * ('e%s' % n)),
+            signature_hash=(20 * ("e%s" % n)),
             framework=test_perf_signature.framework,
             platform=test_perf_signature.platform,
             option_collection=test_perf_signature.option_collection,
-            suite='mysuite%s' % n,
-            test='mytest%s' % n,
-            application='firefox',
+            suite="mysuite%s" % n,
+            test="mytest%s" % n,
+            application="firefox",
             has_subtests=test_perf_signature.has_subtests,
             extra_options=test_perf_signature.extra_options,
             last_updated=datetime.now(),
@@ -348,7 +348,7 @@ def test_total_emails_sent(
     signatures_remover.remove_in_chunks(signatures)
 
     assert notify_client_mock.email.call_count == expected_call_count
-    assert not PerformanceSignature.objects.filter(repository__name='try').exists()
+    assert not PerformanceSignature.objects.filter(repository__name="try").exists()
 
 
 def test_remove_try_signatures_without_data(
@@ -367,13 +367,13 @@ def test_remove_try_signatures_without_data(
     )
     signature_with_perf_data = PerformanceSignature.objects.create(
         repository=try_repository,
-        signature_hash=(20 * 'e1'),
+        signature_hash=(20 * "e1"),
         framework=test_perf_signature.framework,
         platform=test_perf_signature.platform,
         option_collection=test_perf_signature.option_collection,
-        suite='mysuite',
-        test='mytest',
-        application='firefox',
+        suite="mysuite",
+        test="mytest",
+        application="firefox",
         has_subtests=test_perf_signature.has_subtests,
         extra_options=test_perf_signature.extra_options,
         last_updated=datetime.now(),
@@ -414,7 +414,7 @@ def test_performance_cycler_quit_indicator(taskcluster_notify_mock):
         max_runtime.started_at = two_seconds_ago
         max_runtime.quit_on_timeout()
     except MaxRuntimeExceeded:
-        pytest.fail('Performance cycling shouldn\'t have timed out')
+        pytest.fail("Performance cycling shouldn't have timed out")
 
 
 @pytest.fixture
@@ -432,7 +432,7 @@ def empty_alert_summary(
 
 
 @pytest.mark.parametrize(
-    'expired_time',
+    "expired_time",
     [
         datetime.now() - timedelta(days=365),
         datetime.now() - timedelta(days=181),
@@ -449,12 +449,12 @@ def test_summary_without_any_kind_of_alerts_is_deleted(
     assert empty_alert_summary.alerts.count() == 0
     assert empty_alert_summary.related_alerts.count() == 0
 
-    call_command('cycle_data', 'from:perfherder')
+    call_command("cycle_data", "from:perfherder")
     assert not PerformanceAlertSummary.objects.exists()
 
 
 @pytest.mark.parametrize(
-    'recently',
+    "recently",
     [
         datetime.now(),
         datetime.now() - timedelta(minutes=30),
@@ -472,12 +472,12 @@ def test_summary_without_any_kind_of_alerts_isnt_deleted(
     assert empty_alert_summary.alerts.count() == 0
     assert empty_alert_summary.related_alerts.count() == 0
 
-    call_command('cycle_data', 'from:perfherder')
+    call_command("cycle_data", "from:perfherder")
     assert PerformanceAlertSummary.objects.count() == 1
 
 
 @pytest.mark.parametrize(
-    'creation_time',
+    "creation_time",
     [
         # expired
         datetime.now() - timedelta(days=365),
@@ -515,7 +515,7 @@ def test_summary_with_alerts_isnt_deleted(
     assert empty_alert_summary.alerts.count() == 1
     assert empty_alert_summary.related_alerts.count() == 0
 
-    call_command('cycle_data', 'from:perfherder')
+    call_command("cycle_data", "from:perfherder")
     assert PerformanceAlertSummary.objects.filter(id=empty_alert_summary.id).exists()
 
     # with both
@@ -526,7 +526,7 @@ def test_summary_with_alerts_isnt_deleted(
     assert empty_alert_summary.alerts.count() == 1
     assert empty_alert_summary.related_alerts.count() == 1
 
-    call_command('cycle_data', 'from:perfherder')
+    call_command("cycle_data", "from:perfherder")
     assert PerformanceAlertSummary.objects.filter(id=empty_alert_summary.id).exists()
 
     # with related_alerts only
@@ -536,7 +536,7 @@ def test_summary_with_alerts_isnt_deleted(
     assert empty_alert_summary.alerts.count() == 0
     assert empty_alert_summary.related_alerts.count() == 1
 
-    call_command('cycle_data', 'from:perfherder')
+    call_command("cycle_data", "from:perfherder")
     assert PerformanceAlertSummary.objects.filter(id=empty_alert_summary.id).exists()
 
 
@@ -563,7 +563,7 @@ def test_stalled_data_removal(
         last_updated__lt=max_timestamp
     )
 
-    call_command('cycle_data', 'from:perfherder')
+    call_command("cycle_data", "from:perfherder")
 
     assert test_perf_signature not in PerformanceSignature.objects.all()
     assert test_perf_data not in PerformanceDatum.objects.all()
@@ -573,8 +573,8 @@ def test_stalled_data_removal(
 
 
 @pytest.mark.parametrize(
-    'nr_months, repository',
-    [(8, 'autoland'), (6, 'autoland'), (5, 'mozilla-central')],
+    "nr_months, repository",
+    [(8, "autoland"), (6, "autoland"), (5, "mozilla-central")],
 )
 def test_equal_distribution_for_historical_data(
     test_repository,
@@ -610,7 +610,7 @@ def test_equal_distribution_for_historical_data(
         )
         perf_data.append(data)
 
-    call_command('cycle_data', 'from:perfherder')
+    call_command("cycle_data", "from:perfherder")
 
     assert PerformanceSignature.objects.filter(id=perf_signature.id).exists()
     all_perf_datum = PerformanceDatum.objects.all()
@@ -619,8 +619,8 @@ def test_equal_distribution_for_historical_data(
 
 
 @pytest.mark.parametrize(
-    'nr_months, repository',
-    [(8, 'autoland'), (6, 'autoland'), (5, 'mozilla-central')],
+    "nr_months, repository",
+    [(8, "autoland"), (6, "autoland"), (5, "mozilla-central")],
 )
 def test_big_density_in_historical_data(
     test_repository,
@@ -667,7 +667,7 @@ def test_big_density_in_historical_data(
         )
         perf_data.append(data)
 
-    call_command('cycle_data', 'from:perfherder')
+    call_command("cycle_data", "from:perfherder")
 
     assert PerformanceSignature.objects.filter(id=perf_signature.id).exists()
     all_perf_datum = PerformanceDatum.objects.all()
@@ -676,8 +676,8 @@ def test_big_density_in_historical_data(
 
 
 @pytest.mark.parametrize(
-    'nr_months, repository',
-    [(5, 'autoland'), (8, 'mozilla-central'), (11, 'mozilla-central')],
+    "nr_months, repository",
+    [(5, "autoland"), (8, "mozilla-central"), (11, "mozilla-central")],
 )
 def test_one_month_worth_of_data_points(
     test_repository,
@@ -721,7 +721,7 @@ def test_one_month_worth_of_data_points(
     )
     perf_data.append(data)
 
-    call_command('cycle_data', 'from:perfherder')
+    call_command("cycle_data", "from:perfherder")
 
     stalled_signature.refresh_from_db()
     assert PerformanceSignature.objects.filter(id=stalled_signature.id).exists()
@@ -731,8 +731,8 @@ def test_one_month_worth_of_data_points(
 
 
 @pytest.mark.parametrize(
-    'nr_months, repository',
-    [(8, 'autoland'), (6, 'autoland'), (5, 'mozilla-central')],
+    "nr_months, repository",
+    [(8, "autoland"), (6, "autoland"), (5, "mozilla-central")],
 )
 def test_non_historical_stalled_data_is_removed(
     test_repository,
@@ -768,7 +768,7 @@ def test_non_historical_stalled_data_is_removed(
         )
         perf_data.append(data)
 
-    call_command('cycle_data', 'from:perfherder')
+    call_command("cycle_data", "from:perfherder")
 
     assert not PerformanceSignature.objects.filter(id=perf_signature.id).exists()
     all_perf_datum = PerformanceDatum.objects.all()
@@ -783,8 +783,8 @@ def test_try_data_removal_errors_out_on_missing_try_data(try_repository):
         _ = try_removal_strategy.target_signatures
 
 
-@patch('treeherder.config.settings.SITE_HOSTNAME', 'treeherder-production.com')
-@pytest.mark.parametrize('days', [5, 30, 100, 364])
+@patch("treeherder.config.settings.SITE_HOSTNAME", "treeherder-production.com")
+@pytest.mark.parametrize("days", [5, 30, 100, 364])
 def test_explicit_days_validation_on_all_envs(days):
     with pytest.raises(ValueError):
         _ = PerfherderCycler(10_000, 0, days=days)
@@ -810,12 +810,12 @@ def test_deleting_performance_data_cascades_to_perf_multicomit_data(test_perf_da
 
     try:
         cursor = connection.cursor()
-        if settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
+        if settings.DATABASES["default"]["ENGINE"] == "django.db.backends.mysql":
             cursor.execute(
-                '''
+                """
                 DELETE FROM `performance_datum`
                 WHERE id = %s
-                ''',
+                """,
                 [perf_datum.id],
             )
         else:
@@ -837,10 +837,10 @@ def test_deleting_performance_data_cascades_to_perf_datum_replicate(test_perf_da
     try:
         cursor = connection.cursor()
         cursor.execute(
-            '''
+            """
             DELETE FROM performance_datum
             WHERE id = %s
-            ''',
+            """,
             [perf_datum.id],
         )
     except IntegrityError:
@@ -870,7 +870,7 @@ def test_empty_backfill_reports_get_removed(empty_backfill_report):
     assert BackfillReport.objects.count() == 0
 
 
-@pytest.mark.parametrize('days_since_created', [0, 30, 100])
+@pytest.mark.parametrize("days_since_created", [0, 30, 100])
 def test_empty_backfill_reports_arent_removed_if_not_enough_time_passed(
     empty_backfill_report, days_since_created
 ):

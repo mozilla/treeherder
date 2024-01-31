@@ -59,10 +59,10 @@ def _generate_performance_data(
     ):
         push, _ = Push.objects.get_or_create(
             repository=test_repository,
-            revision='1234abcd%s' % t,
+            revision="1234abcd%s" % t,
             defaults={
-                'author': 'foo@bar.com',
-                'time': datetime.datetime.fromtimestamp(base_timestamp + t),
+                "author": "foo@bar.com",
+                "time": datetime.datetime.fromtimestamp(base_timestamp + t),
             },
         )
         PerformanceDatum.objects.create(
@@ -302,7 +302,7 @@ def test_custom_alert_threshold(
     assert PerformanceAlertSummary.objects.count() == 1
 
 
-@pytest.mark.parametrize(('new_value', 'expected_num_alerts'), [(1.0, 1), (0.25, 0)])
+@pytest.mark.parametrize(("new_value", "expected_num_alerts"), [(1.0, 1), (0.25, 0)])
 def test_alert_change_type_absolute(
     test_repository,
     test_issue_tracker,

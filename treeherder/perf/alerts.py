@@ -28,7 +28,7 @@ def geomean(iterable):
 
 def get_alert_properties(prev_value, new_value, lower_is_better):
     AlertProperties = namedtuple(
-        'AlertProperties', 'pct_change delta is_regression prev_value new_value'
+        "AlertProperties", "pct_change delta is_regression prev_value new_value"
     )
     if prev_value != 0:
         pct_change = 100.0 * abs(new_value - prev_value) / float(prev_value)
@@ -51,9 +51,9 @@ def generate_new_alerts_in_series(signature):
     series = PerformanceDatum.objects.filter(signature=signature, push_timestamp__gte=max_alert_age)
     latest_alert_timestamp = (
         PerformanceAlert.objects.filter(series_signature=signature)
-        .select_related('summary__push__time')
-        .order_by('-summary__push__time')
-        .values_list('summary__push__time', flat=True)[:1]
+        .select_related("summary__push__time")
+        .order_by("-summary__push__time")
+        .values_list("summary__push__time", flat=True)[:1]
     )
     if latest_alert_timestamp:
         series = series.filter(push_timestamp__gt=latest_alert_timestamp[0])
@@ -90,8 +90,8 @@ def generate_new_alerts_in_series(signature):
     with transaction.atomic():
         for prev, cur in zip(analyzed_series, analyzed_series[1:]):
             if cur.change_detected:
-                prev_value = cur.historical_stats['avg']
-                new_value = cur.forward_stats['avg']
+                prev_value = cur.historical_stats["avg"]
+                new_value = cur.forward_stats["avg"]
                 alert_properties = get_alert_properties(
                     prev_value, new_value, signature.lower_is_better
                 )
@@ -139,27 +139,27 @@ def generate_new_alerts_in_series(signature):
                     push_id=cur.push_id,
                     prev_push_id=prev.push_id,
                     defaults={
-                        'manually_created': False,
-                        'created': datetime.utcfromtimestamp(cur.push_timestamp),
+                        "manually_created": False,
+                        "created": datetime.utcfromtimestamp(cur.push_timestamp),
                     },
                 )
 
                 # django/mysql doesn't understand "inf", so just use some
                 # arbitrarily high value for that case
                 t_value = cur.t
-                if t_value == float('inf'):
+                if t_value == float("inf"):
                     t_value = 1000
 
                 PerformanceAlert.objects.update_or_create(
                     summary=summary,
                     series_signature=signature,
                     defaults={
-                        'noise_profile': noise_profile,
-                        'is_regression': alert_properties.is_regression,
-                        'amount_pct': alert_properties.pct_change,
-                        'amount_abs': alert_properties.delta,
-                        'prev_value': prev_value,
-                        'new_value': new_value,
-                        't_value': t_value,
+                        "noise_profile": noise_profile,
+                        "is_regression": alert_properties.is_regression,
+                        "amount_pct": alert_properties.pct_change,
+                        "amount_abs": alert_properties.delta,
+                        "prev_value": prev_value,
+                        "new_value": new_value,
+                        "t_value": t_value,
                     },
                 )

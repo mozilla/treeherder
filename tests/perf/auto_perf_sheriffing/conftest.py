@@ -22,42 +22,42 @@ from treeherder.perf.models import (
 from treeherder.services.taskcluster import notify_client_factory
 from treeherder.utils import default_serializer
 
-load_json_fixture = SampleDataJSONLoader('sherlock')
+load_json_fixture = SampleDataJSONLoader("sherlock")
 
 
 @pytest.fixture(scope="module")
 def record_context_sample():
     # contains 5 data points that can be backfilled
-    return load_json_fixture('recordContext.json')
+    return load_json_fixture("recordContext.json")
 
 
-@pytest.fixture(params=['totally_broken_json', 'missing_job_fields', 'null_job_fields'])
+@pytest.fixture(params=["totally_broken_json", "missing_job_fields", "null_job_fields"])
 def broken_context_str(record_context_sample: dict, request) -> list:
     context_str = json.dumps(record_context_sample)
     specific = request.param
 
-    if specific == 'totally_broken_json':
-        return copy(context_str).replace(r'"', '<')
+    if specific == "totally_broken_json":
+        return copy(context_str).replace(r'"', "<")
 
     else:
         record_copy = deepcopy(record_context_sample)
-        if specific == 'missing_job_fields':
+        if specific == "missing_job_fields":
             for data_point in record_copy:
-                del data_point['job_id']
+                del data_point["job_id"]
 
-        elif specific == 'null_job_fields':
+        elif specific == "null_job_fields":
             for data_point in record_copy:
-                data_point['job_id'] = None
+                data_point["job_id"] = None
         return json.dumps(record_copy)
 
 
-@pytest.fixture(params=['preliminary', 'from_non_linux'])
+@pytest.fixture(params=["preliminary", "from_non_linux"])
 def record_unsuited_for_backfill(test_perf_alert, request):
     report = BackfillReport.objects.create(summary=test_perf_alert.summary)
 
-    if request.param == 'preliminary':
+    if request.param == "preliminary":
         return BackfillRecord.objects.create(alert=test_perf_alert, report=report)
-    elif request.param == 'from_non_linux':
+    elif request.param == "from_non_linux":
         # test_perf_alert originates from wind platform, by default
         return BackfillRecord.objects.create(
             alert=test_perf_alert, report=report, status=BackfillRecord.READY_FOR_PROCESSING
@@ -69,9 +69,9 @@ def record_with_job_symbol(test_perf_alert):
     report = BackfillReport.objects.create(summary=test_perf_alert.summary)
 
     job_group = JobGroup.objects.create(
-        symbol='Btime', name='Browsertime performance tests on Firefox'
+        symbol="Btime", name="Browsertime performance tests on Firefox"
     )
-    job_type = JobType.objects.create(symbol='Bogo', name='Bogo tests')
+    job_type = JobType.objects.create(symbol="Bogo", name="Bogo tests")
     return BackfillRecord.objects.create(
         alert=test_perf_alert,
         report=report,
@@ -81,15 +81,15 @@ def record_with_job_symbol(test_perf_alert):
     )
 
 
-@pytest.fixture(params=['no_job_tier', 'no_job_group', 'no_job_type'])
+@pytest.fixture(params=["no_job_tier", "no_job_group", "no_job_type"])
 def record_with_missing_job_symbol_components(record_with_job_symbol, request):
-    if request.param == 'no_job_tier':
+    if request.param == "no_job_tier":
         record_with_job_symbol.job_tier = None
         record_with_job_symbol.save()
-    elif request.param == 'no_job_group':
+    elif request.param == "no_job_group":
         record_with_job_symbol.job_group = None
         record_with_job_symbol.save()
-    elif request.param == 'no_job_type':
+    elif request.param == "no_job_type":
         record_with_job_symbol.job_type = None
         record_with_job_symbol.save()
 
@@ -97,22 +97,22 @@ def record_with_missing_job_symbol_components(record_with_job_symbol, request):
 
 
 def prepare_record_with_search_str(record_with_job_symbol, search_str_with):
-    if search_str_with == 'no_job_group':
+    if search_str_with == "no_job_group":
         record_with_job_symbol.job_group = None
         record_with_job_symbol.save()
-    elif search_str_with == 'no_job_type':
+    elif search_str_with == "no_job_type":
         record_with_job_symbol.job_type = None
         record_with_job_symbol.save()
 
     return record_with_job_symbol
 
 
-@pytest.fixture(params=['windows', 'linux', 'osx'])
+@pytest.fixture(params=["windows", "linux", "osx"])
 def platform_specific_signature(
     test_repository, test_perf_framework, request
 ) -> PerformanceSignature:
     new_platform = MachinePlatform.objects.create(
-        os_name=request.param, platform=request.param, architecture='x86'
+        os_name=request.param, platform=request.param, architecture="x86"
     )
     return create_perf_signature(test_perf_framework, test_repository, new_platform)
 
@@ -153,7 +153,7 @@ def record_from_mature_report(test_perf_alert_2):
 
 @pytest.fixture
 def report_maintainer_mock():
-    return type('', (), {'provide_updated_reports': lambda *params: []})
+    return type("", (), {"provide_updated_reports": lambda *params: []})
 
 
 @pytest.fixture
@@ -161,9 +161,9 @@ def backfill_tool_mock():
     def backfill_job(job_id):
         if job_id is None:
             raise Job.DoesNotExist
-        return 'RANDOM_TASK_ID'
+        return "RANDOM_TASK_ID"
 
-    return type('', (), {'backfill_job': backfill_job})
+    return type("", (), {"backfill_job": backfill_job})
 
 
 @pytest.fixture
@@ -174,17 +174,17 @@ def secretary():
 @pytest.fixture
 def sherlock_settings(secretary, db):
     secretary.validate_settings()
-    return PerformanceSettings.objects.get(name='perf_sheriff_bot')
+    return PerformanceSettings.objects.get(name="perf_sheriff_bot")
 
 
 @pytest.fixture
 def empty_sheriff_settings(secretary):
     all_of_them = 1_000_000_000
     secretary.validate_settings()
-    secretary.consume_backfills(on_platform='linux', amount=all_of_them)
-    secretary.consume_backfills(on_platform='windows', amount=all_of_them)
-    secretary.consume_backfills(on_platform='osx', amount=all_of_them)
-    return PerformanceSettings.objects.get(name='perf_sheriff_bot')
+    secretary.consume_backfills(on_platform="linux", amount=all_of_them)
+    secretary.consume_backfills(on_platform="windows", amount=all_of_them)
+    secretary.consume_backfills(on_platform="osx", amount=all_of_them)
+    return PerformanceSettings.objects.get(name="perf_sheriff_bot")
 
 
 # For testing Secretary
@@ -224,7 +224,7 @@ def create_record():
 @pytest.fixture
 def notify_client_mock() -> taskcluster.Notify:
     return MagicMock(
-        spec=notify_client_factory('https://fakerooturl.org', 'FAKE_CLIENT_ID', 'FAKE_ACCESS_TOKEN')
+        spec=notify_client_factory("https://fakerooturl.org", "FAKE_CLIENT_ID", "FAKE_ACCESS_TOKEN")
     )
 
 
@@ -239,13 +239,13 @@ def tc_notify_mock(monkeypatch):
 
     mock = MagicMock()
     response = Response()
-    mock.email.return_value = {'response': response}
+    mock.email.return_value = {"response": response}
 
     def mockreturn(*arg, **kwargs):
         nonlocal mock
         return mock
 
-    monkeypatch.setattr(tc_services, 'notify_client_factory', mockreturn)
+    monkeypatch.setattr(tc_services, "notify_client_factory", mockreturn)
     return mock
 
 

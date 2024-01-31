@@ -66,14 +66,14 @@ def calc_t(w1, w2, weight_fn=None):
 
     s1 = analyze(w1, weight_fn)
     s2 = analyze(w2, weight_fn)
-    delta_s = s2['avg'] - s1['avg']
+    delta_s = s2["avg"] - s1["avg"]
 
     if delta_s == 0:
         return 0
-    if s1['variance'] == 0 and s2['variance'] == 0:
-        return float('inf')
+    if s1["variance"] == 0 and s2["variance"] == 0:
+        return float("inf")
 
-    return delta_s / (((s1['variance'] / s1['n']) + (s2['variance'] / s2['n'])) ** 0.5)
+    return delta_s / (((s1["variance"] / s1["n"]) + (s2["variance"] / s2["n"])) ** 0.5)
 
 
 @functools.total_ordering
@@ -106,7 +106,7 @@ class RevisionDatum:
         return self.push_timestamp < o.push_timestamp
 
     def __repr__(self):
-        values_str = '[ %s ]' % ', '.join(['%.3f' % value for value in self.values])
+        values_str = "[ %s ]" % ", ".join(["%.3f" % value for value in self.values])
         return "<%s: %s, %s, %.3f, %s>" % (
             self.push_timestamp,
             self.push_id,

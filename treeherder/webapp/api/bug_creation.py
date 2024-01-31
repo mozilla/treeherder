@@ -13,67 +13,67 @@ logger = logging.getLogger(__name__)
 class FilesBugzillaMapViewSet(viewsets.ReadOnlyModelViewSet):
     def filter_product_component(self, queryset):
         filtered_queryset = []
-        product = 'bugzilla_component__product'
-        component = 'bugzilla_component__component'
+        product = "bugzilla_component__product"
+        component = "bugzilla_component__component"
         # Don't suggest these. While a file associated with one of these
         # combinations can be in the failure line, it might not be a test and
         # the real issue gets logged earlier but not detected as failure line.
         # Require user input for the product and component to use.
         IGNORE_LIST_PRODUCT_COMPONENT = [
-            {product: 'Testing', component: 'Mochitest'},
+            {product: "Testing", component: "Mochitest"},
         ]
         for product_component in queryset:
             if product_component not in IGNORE_LIST_PRODUCT_COMPONENT:
                 filtered_queryset.append(product_component)
         return filtered_queryset[:5]
 
-    @action(detail=True, methods=['get'])
+    @action(detail=True, methods=["get"])
     def get_queryset(self):
         """
         Gets a set of bug suggestions for this job
         """
-        path = self.request.query_params.get('path')
-        if path.startswith('org.mozilla.'):
-            path = (path.split('#'))[0]
-            path = (path.split('.'))[-1]
-        path = path.replace('\\', '/')
+        path = self.request.query_params.get("path")
+        if path.startswith("org.mozilla."):
+            path = (path.split("#"))[0]
+            path = (path.split("."))[-1]
+        path = path.replace("\\", "/")
         # Drop parameters
-        path = (path.split('?'))[0]
-        file = (path.split('/'))[-1]
-        fileNameParts = file.split('.')
-        file_without_extension = fileNameParts[0] + ('.' if len(fileNameParts) > 1 else '')
+        path = (path.split("?"))[0]
+        file = (path.split("/"))[-1]
+        fileNameParts = file.split(".")
+        file_without_extension = fileNameParts[0] + ("." if len(fileNameParts) > 1 else "")
         queryset = (
-            FilesBugzillaMap.objects.select_related('bugzilla_component')
+            FilesBugzillaMap.objects.select_related("bugzilla_component")
             .filter(path__endswith=path)
-            .exclude(path__startswith='testing/web-platform/meta/')
-            .values('bugzilla_component__product', 'bugzilla_component__component')
+            .exclude(path__startswith="testing/web-platform/meta/")
+            .values("bugzilla_component__product", "bugzilla_component__component")
             .distinct()
         )
         if len(queryset) == 0:
             # E.g. web-platform-tests ("wpt") can use test files generated from
             # other files which just have different file extensions.
-            path_without_extension = (path.rsplit('/', 1))[0] + '/' + file_without_extension
+            path_without_extension = (path.rsplit("/", 1))[0] + "/" + file_without_extension
             queryset = (
-                FilesBugzillaMap.objects.select_related('bugzilla_component')
+                FilesBugzillaMap.objects.select_related("bugzilla_component")
                 .filter(path__contains=path_without_extension)
-                .exclude(path__startswith='testing/web-platform/meta/')
-                .values('bugzilla_component__product', 'bugzilla_component__component')
+                .exclude(path__startswith="testing/web-platform/meta/")
+                .values("bugzilla_component__product", "bugzilla_component__component")
                 .distinct()
             )
         if len(queryset) > 0:
             return self.filter_product_component(queryset)
         queryset = (
-            FilesBugzillaMap.objects.select_related('bugzilla_component')
+            FilesBugzillaMap.objects.select_related("bugzilla_component")
             .filter(file_name=file)
-            .values('bugzilla_component__product', 'bugzilla_component__component')
+            .values("bugzilla_component__product", "bugzilla_component__component")
             .distinct()
         )
         if len(queryset) > 0:
             return self.filter_product_component(queryset)
         queryset = (
-            FilesBugzillaMap.objects.select_related('bugzilla_component')
+            FilesBugzillaMap.objects.select_related("bugzilla_component")
             .filter(file_name__startswith=file_without_extension)
-            .values('bugzilla_component__product', 'bugzilla_component__component')
+            .values("bugzilla_component__product", "bugzilla_component__component")
             .distinct()
         )
         return self.filter_product_component(queryset)

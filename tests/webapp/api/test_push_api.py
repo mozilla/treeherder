@@ -16,8 +16,8 @@ def test_push_list_basic(client, eleven_jobs_stored, test_repository):
     """
     resp = client.get(reverse("push-list", kwargs={"project": test_repository.name}))
     data = resp.json()
-    results = data['results']
-    meta = data['meta']
+    results = data["results"]
+    meta = data["meta"]
 
     assert resp.status_code == 200
     assert isinstance(results, list)
@@ -25,19 +25,19 @@ def test_push_list_basic(client, eleven_jobs_stored, test_repository):
     assert len(results) == 10
     exp_keys = set(
         [
-            u'id',
-            u'repository_id',
-            u'author',
-            u'revision',
-            u'revisions',
-            u'revision_count',
-            u'push_timestamp',
+            "id",
+            "repository_id",
+            "author",
+            "revision",
+            "revisions",
+            "revision_count",
+            "push_timestamp",
         ]
     )
     for rs in results:
         assert set(rs.keys()) == exp_keys
 
-    assert meta == {u'count': 10, u'filter_params': {}, u'repository': test_repository.name}
+    assert meta == {"count": 10, "filter_params": {}, "repository": test_repository.name}
 
 
 def test_push_list_bad_project(client, transactional_db):
@@ -63,7 +63,7 @@ def test_push_list_empty_push_still_show(client, sample_push, test_repository):
     )
     assert resp.status_code == 200
     data = resp.json()
-    assert len(data['results']) == 10
+    assert len(data["results"]) == 10
 
 
 def test_push_list_single_short_revision(client, eleven_jobs_stored, test_repository):
@@ -75,15 +75,15 @@ def test_push_list_single_short_revision(client, eleven_jobs_stored, test_reposi
         reverse("push-list", kwargs={"project": test_repository.name}), {"revision": "45f8637cb9f7"}
     )
     assert resp.status_code == 200
-    results = resp.json()['results']
-    meta = resp.json()['meta']
+    results = resp.json()["results"]
+    meta = resp.json()["meta"]
     assert len(results) == 1
     assert set([rs["revision"] for rs in results]) == {"45f8637cb9f78f19cb8463ff174e81756805d8cf"}
     assert meta == {
-        u'count': 1,
-        u'revision': u'45f8637cb9f7',
-        u'filter_params': {u'revisions_short_revision': "45f8637cb9f7"},
-        u'repository': test_repository.name,
+        "count": 1,
+        "revision": "45f8637cb9f7",
+        "filter_params": {"revisions_short_revision": "45f8637cb9f7"},
+        "repository": test_repository.name,
     }
 
 
@@ -97,15 +97,15 @@ def test_push_list_single_long_revision(client, eleven_jobs_stored, test_reposit
         {"revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf"},
     )
     assert resp.status_code == 200
-    results = resp.json()['results']
-    meta = resp.json()['meta']
+    results = resp.json()["results"]
+    meta = resp.json()["meta"]
     assert len(results) == 1
     assert set([rs["revision"] for rs in results]) == {"45f8637cb9f78f19cb8463ff174e81756805d8cf"}
     assert meta == {
-        u'count': 1,
-        u'revision': u'45f8637cb9f78f19cb8463ff174e81756805d8cf',
-        u'filter_params': {u'revisions_long_revision': u'45f8637cb9f78f19cb8463ff174e81756805d8cf'},
-        u'repository': test_repository.name,
+        "count": 1,
+        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
+        "filter_params": {"revisions_long_revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf"},
+        "repository": test_repository.name,
     }
 
 
@@ -121,21 +121,21 @@ def test_push_list_filter_by_revision(client, eleven_jobs_stored, test_repositor
     )
     assert resp.status_code == 200
     data = resp.json()
-    results = data['results']
-    meta = data['meta']
+    results = data["results"]
+    meta = data["meta"]
     assert len(results) == 4
     assert set([rs["revision"] for rs in results]) == {
-        u'130965d3df6c9a1093b4725f3b877eaef80d72bc',
-        u'7f417c3505e3d2599ac9540f02e3dbee307a3963',
-        u'a69390334818373e2d7e6e9c8d626a328ed37d47',
-        u'f361dcb60bbedaa01257fbca211452972f7a74b2',
+        "130965d3df6c9a1093b4725f3b877eaef80d72bc",
+        "7f417c3505e3d2599ac9540f02e3dbee307a3963",
+        "a69390334818373e2d7e6e9c8d626a328ed37d47",
+        "f361dcb60bbedaa01257fbca211452972f7a74b2",
     }
     assert meta == {
-        u'count': 4,
-        u'fromchange': u'130965d3df6c',
-        u'filter_params': {u'push_timestamp__gte': 1384363842, u'push_timestamp__lte': 1384365942},
-        u'repository': test_repository.name,
-        u'tochange': u'f361dcb60bbe',
+        "count": 4,
+        "fromchange": "130965d3df6c",
+        "filter_params": {"push_timestamp__gte": 1384363842, "push_timestamp__lte": 1384365942},
+        "repository": test_repository.name,
+        "tochange": "f361dcb60bbe",
     }
 
 
@@ -147,7 +147,7 @@ def test_push_list_filter_by_date(client, test_repository, sample_push):
     for i, datestr in zip(
         [3, 4, 5, 6, 7], ["2013-08-09", "2013-08-10", "2013-08-11", "2013-08-12", "2013-08-13"]
     ):
-        sample_push[i]['push_timestamp'] = utils.to_timestamp(utils.to_datetime(datestr))
+        sample_push[i]["push_timestamp"] = utils.to_timestamp(utils.to_datetime(datestr))
 
     store_push_data(test_repository, sample_push)
 
@@ -157,35 +157,35 @@ def test_push_list_filter_by_date(client, test_repository, sample_push):
     )
     assert resp.status_code == 200
     data = resp.json()
-    results = data['results']
-    meta = data['meta']
+    results = data["results"]
+    meta = data["meta"]
     assert len(results) == 4
     assert set([rs["revision"] for rs in results]) == {
-        u'ce17cad5d554cfffddee13d1d8421ae9ec5aad82',
-        u'7f417c3505e3d2599ac9540f02e3dbee307a3963',
-        u'a69390334818373e2d7e6e9c8d626a328ed37d47',
-        u'f361dcb60bbedaa01257fbca211452972f7a74b2',
+        "ce17cad5d554cfffddee13d1d8421ae9ec5aad82",
+        "7f417c3505e3d2599ac9540f02e3dbee307a3963",
+        "a69390334818373e2d7e6e9c8d626a328ed37d47",
+        "f361dcb60bbedaa01257fbca211452972f7a74b2",
     }
     assert meta == {
-        u'count': 4,
-        u'enddate': u'2013-08-13',
-        u'filter_params': {
-            u'push_timestamp__gte': 1376092800.0,
-            u'push_timestamp__lt': 1376438400.0,
+        "count": 4,
+        "enddate": "2013-08-13",
+        "filter_params": {
+            "push_timestamp__gte": 1376092800.0,
+            "push_timestamp__lt": 1376438400.0,
         },
-        u'repository': test_repository.name,
-        u'startdate': u'2013-08-10',
+        "repository": test_repository.name,
+        "startdate": "2013-08-10",
     }
 
 
 @pytest.mark.parametrize(
-    'filter_param, exp_ids',
+    "filter_param, exp_ids",
     [
-        ('id__lt=2', [1]),
-        ('id__lte=2', [1, 2]),
-        ('id=2', [2]),
-        ('id__gt=2', [3]),
-        ('id__gte=2', [2, 3]),
+        ("id__lt=2", [1]),
+        ("id__lte=2", [1, 2]),
+        ("id=2", [2]),
+        ("id__gt=2", [3]),
+        ("id__gte=2", [2, 3]),
     ],
 )
 def test_push_list_filter_by_id(client, test_repository, filter_param, exp_ids):
@@ -193,9 +193,9 @@ def test_push_list_filter_by_id(client, test_repository, filter_param, exp_ids):
     test filtering by id in various ways
     """
     for revision, author in [
-        ('1234abcd', 'foo@bar.com'),
-        ('2234abcd', 'foo2@bar.com'),
-        ('3234abcd', 'foo3@bar.com'),
+        ("1234abcd", "foo@bar.com"),
+        ("2234abcd", "foo2@bar.com"),
+        ("3234abcd", "foo3@bar.com"),
     ]:
         Push.objects.create(
             repository=test_repository,
@@ -204,11 +204,11 @@ def test_push_list_filter_by_id(client, test_repository, filter_param, exp_ids):
             time=datetime.datetime.now(),
         )
     resp = client.get(
-        reverse("push-list", kwargs={"project": test_repository.name}) + '?' + filter_param
+        reverse("push-list", kwargs={"project": test_repository.name}) + "?" + filter_param
     )
     assert resp.status_code == 200
-    results = resp.json()['results']
-    assert set([result['id'] for result in results]) == set(exp_ids)
+    results = resp.json()["results"]
+    assert set([result["id"] for result in results]) == set(exp_ids)
 
 
 def test_push_list_id_in(client, test_repository):
@@ -216,9 +216,9 @@ def test_push_list_id_in(client, test_repository):
     test the id__in parameter
     """
     for revision, author in [
-        ('1234abcd', 'foo@bar.com'),
-        ('2234abcd', 'foo2@bar.com'),
-        ('3234abcd', 'foo3@bar.com'),
+        ("1234abcd", "foo@bar.com"),
+        ("2234abcd", "foo2@bar.com"),
+        ("3234abcd", "foo3@bar.com"),
     ]:
         Push.objects.create(
             repository=test_repository,
@@ -227,17 +227,17 @@ def test_push_list_id_in(client, test_repository):
             time=datetime.datetime.now(),
         )
     resp = client.get(
-        reverse("push-list", kwargs={"project": test_repository.name}) + '?id__in=1,2'
+        reverse("push-list", kwargs={"project": test_repository.name}) + "?id__in=1,2"
     )
     assert resp.status_code == 200
 
-    results = resp.json()['results']
+    results = resp.json()["results"]
     assert len(results) == 2  # would have 3 if filter not applied
-    assert set([result['id'] for result in results]) == set([1, 2])
+    assert set([result["id"] for result in results]) == set([1, 2])
 
     # test that we do something sane if invalid list passed in
     resp = client.get(
-        reverse("push-list", kwargs={"project": test_repository.name}) + '?id__in=1,2,foobar',
+        reverse("push-list", kwargs={"project": test_repository.name}) + "?id__in=1,2,foobar",
     )
     assert resp.status_code == 400
 
@@ -249,11 +249,11 @@ def test_push_list_bad_count(client, test_repository):
     bad_count = "ZAP%n%s%n%s"
 
     resp = client.get(
-        reverse("push-list", kwargs={"project": test_repository.name}), data={'count': bad_count}
+        reverse("push-list", kwargs={"project": test_repository.name}), data={"count": bad_count}
     )
 
     assert resp.status_code == 400
-    assert resp.json() == {'detail': 'Valid count value required'}
+    assert resp.json() == {"detail": "Valid count value required"}
 
 
 def test_push_author(client, test_repository):
@@ -261,9 +261,9 @@ def test_push_author(client, test_repository):
     test the author parameter
     """
     for revision, author in [
-        ('1234abcd', 'foo@bar.com'),
-        ('2234abcd', 'foo@bar.com'),
-        ('3234abcd', 'foo2@bar.com'),
+        ("1234abcd", "foo@bar.com"),
+        ("2234abcd", "foo@bar.com"),
+        ("3234abcd", "foo2@bar.com"),
     ]:
         Push.objects.create(
             repository=test_repository,
@@ -273,31 +273,31 @@ def test_push_author(client, test_repository):
         )
 
     resp = client.get(
-        reverse("push-list", kwargs={"project": test_repository.name}) + '?author=foo@bar.com'
+        reverse("push-list", kwargs={"project": test_repository.name}) + "?author=foo@bar.com"
     )
     assert resp.status_code == 200
 
-    results = resp.json()['results']
+    results = resp.json()["results"]
     assert len(results) == 2  # would have 3 if filter not applied
-    assert set([result['id'] for result in results]) == set([1, 2])
+    assert set([result["id"] for result in results]) == set([1, 2])
 
     resp = client.get(
-        reverse("push-list", kwargs={"project": test_repository.name}) + '?author=foo2@bar.com'
+        reverse("push-list", kwargs={"project": test_repository.name}) + "?author=foo2@bar.com"
     )
     assert resp.status_code == 200
 
-    results = resp.json()['results']
+    results = resp.json()["results"]
     assert len(results) == 1  # would have 3 if filter not applied
-    assert results[0]['id'] == 3
+    assert results[0]["id"] == 3
 
     resp = client.get(
-        reverse("push-list", kwargs={"project": test_repository.name}) + '?author=-foo2@bar.com'
+        reverse("push-list", kwargs={"project": test_repository.name}) + "?author=-foo2@bar.com"
     )
     assert resp.status_code == 200
 
-    results = resp.json()['results']
+    results = resp.json()["results"]
     assert len(results) == 2  # would have 3 if filter not applied
-    assert set([result['id'] for result in results]) == set([1, 2])
+    assert set([result["id"] for result in results]) == set([1, 2])
 
 
 def test_push_reviewbot(client, test_repository):
@@ -305,10 +305,10 @@ def test_push_reviewbot(client, test_repository):
     test the reviewbot parameter
     """
     for revision, author in [
-        ('1234abcd', 'foo@bar.com'),
-        ('2234abcd', 'foo2@bar.com'),
-        ('3234abcd', 'reviewbot'),
-        ('4234abcd', 'reviewbot'),
+        ("1234abcd", "foo@bar.com"),
+        ("2234abcd", "foo2@bar.com"),
+        ("3234abcd", "reviewbot"),
+        ("4234abcd", "reviewbot"),
     ]:
         Push.objects.create(
             repository=test_repository,
@@ -319,13 +319,13 @@ def test_push_reviewbot(client, test_repository):
 
     resp = client.get(
         reverse("push-list", kwargs={"project": test_repository.name})
-        + '?hide_reviewbot_pushes=true'
+        + "?hide_reviewbot_pushes=true"
     )
     assert resp.status_code == 200
 
-    results = resp.json()['results']
+    results = resp.json()["results"]
     assert len(results) == 2
-    assert set([result['id'] for result in results]) == set([1, 2])
+    assert set([result["id"] for result in results]) == set([1, 2])
 
 
 def test_push_list_without_jobs(client, test_repository, sample_push):
@@ -337,16 +337,16 @@ def test_push_list_without_jobs(client, test_repository, sample_push):
     resp = client.get(reverse("push-list", kwargs={"project": test_repository.name}))
     assert resp.status_code == 200
     data = resp.json()
-    results = data['results']
+    results = data["results"]
     assert len(results) == 10
-    assert all([('platforms' not in result) for result in results])
+    assert all([("platforms" not in result) for result in results])
 
-    meta = data['meta']
+    meta = data["meta"]
 
     assert meta == {
-        u'count': len(results),
-        u'filter_params': {},
-        u'repository': test_repository.name,
+        "count": len(results),
+        "filter_params": {},
+        "repository": test_repository.name,
     }
 
 
@@ -400,13 +400,13 @@ def test_push_status(client, test_job, test_user):
     )
     assert resp.status_code == 200
     assert isinstance(resp.json(), dict)
-    assert resp.json() == {'success': 1, 'completed': 1, 'pending': 0, 'running': 0}
+    assert resp.json() == {"success": 1, "completed": 1, "pending": 0, "running": 0}
 
     JobNote.objects.create(
         job=test_job,
         failure_classification=failure_classification,
         user=test_user,
-        text='A random note',
+        text="A random note",
     )
 
     resp = client.get(
@@ -414,4 +414,4 @@ def test_push_status(client, test_job, test_user):
     )
     assert resp.status_code == 200
     assert isinstance(resp.json(), dict)
-    assert resp.json() == {'completed': 0, 'pending': 0, 'running': 0}
+    assert resp.json() == {"completed": 0, "pending": 0, "running": 0}

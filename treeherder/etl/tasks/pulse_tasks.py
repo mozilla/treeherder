@@ -15,9 +15,9 @@ from treeherder.workers.task import retryable_task
 # that parameter have been processed
 
 
-@retryable_task(name='store-pulse-tasks', max_retries=10)
+@retryable_task(name="store-pulse-tasks", max_retries=10)
 def store_pulse_tasks(
-    pulse_job, exchange, routing_key, root_url='https://firefox-ci-tc.services.mozilla.com'
+    pulse_job, exchange, routing_key, root_url="https://firefox-ci-tc.services.mozilla.com"
 ):
     """
     Fetches tasks from Taskcluster
@@ -40,9 +40,9 @@ def store_pulse_tasks(
             JobLoader().process_job(run, root_url)
 
 
-@retryable_task(name='store-pulse-pushes', max_retries=10)
+@retryable_task(name="store-pulse-pushes", max_retries=10)
 def store_pulse_pushes(
-    body, exchange, routing_key, root_url='https://firefox-ci-tc.services.mozilla.com'
+    body, exchange, routing_key, root_url="https://firefox-ci-tc.services.mozilla.com"
 ):
     """
     Fetches the pushes pending from pulse exchanges and loads them.
@@ -53,9 +53,9 @@ def store_pulse_pushes(
     PushLoader().process(body, exchange, root_url)
 
 
-@retryable_task(name='store-pulse-pushes-classification', max_retries=10)
+@retryable_task(name="store-pulse-pushes-classification", max_retries=10)
 def store_pulse_tasks_classification(
-    pulse_job, exchange, routing_key, root_url='https://community-tc.services.mozilla.com'
+    pulse_job, exchange, routing_key, root_url="https://community-tc.services.mozilla.com"
 ):
     """
     Fetches the Mozci classification associated to a task from Taskcluster

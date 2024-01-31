@@ -24,11 +24,11 @@ def __report_maintainer_factory(days_to_lookup: timedelta) -> BackfillReportMain
         max_alerts=5,
         max_improvements=2,
         platforms_of_interest=(
-            'windows10',
-            'linux',
-            'osx',
-            'android',
-            'windows7',
+            "windows10",
+            "linux",
+            "osx",
+            "android",
+            "windows7",
         ),  # windows7 lost it's relevance due to lower alert rate on this platform
     )
     backfill_context_fetcher = IdentifyAlertRetriggerables(

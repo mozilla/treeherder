@@ -20,12 +20,12 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            'routing_key', help="The routing key for publishing. Ex: 'autoland.staging'"
+            "routing_key", help="The routing key for publishing. Ex: 'autoland.staging'"
         )
         parser.add_argument(
-            'connection_url', help="The Pulse url. Ex: 'amqp://guest:guest@localhost:5672/'"
+            "connection_url", help="The Pulse url. Ex: 'amqp://guest:guest@localhost:5672/'"
         )
-        parser.add_argument('payload_file', help="Path to the file that holds the job payload JSON")
+        parser.add_argument("payload_file", help="Path to the file that holds the job payload JSON")
 
     def handle(self, *args, **options):
         routing_key = options["routing_key"]

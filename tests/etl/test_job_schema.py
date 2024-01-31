@@ -7,7 +7,7 @@ from treeherder.etl.schema import get_json_schema
 # production Treeherder
 
 
-@pytest.mark.parametrize("group_symbol", ['?', 'A', 'Aries', 'Buri/Hamac', 'L10n', 'M-e10s'])
+@pytest.mark.parametrize("group_symbol", ["?", "A", "Aries", "Buri/Hamac", "L10n", "M-e10s"])
 def test_group_symbols(sample_data, group_symbol):
     """
     Validate jobs against the schema with different group_symbol values
@@ -19,7 +19,7 @@ def test_group_symbols(sample_data, group_symbol):
     jsonschema.validate(job, get_json_schema("pulse-job.yml"))
 
 
-@pytest.mark.parametrize("job_symbol", ['1.1g', '1g', '20', 'A', 'GBI10', 'en-US-1'])
+@pytest.mark.parametrize("job_symbol", ["1.1g", "1g", "20", "A", "GBI10", "en-US-1"])
 def test_job_symbols(sample_data, job_symbol):
     """
     Validate jobs against the schema with different job_symbol values

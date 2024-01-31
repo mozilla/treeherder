@@ -27,12 +27,12 @@ def test_email_is_sent_after_successful_backfills(
     )
     sherlock.sheriff(
         since=EPOCH,
-        frameworks=['test_talos'],
+        frameworks=["test_talos"],
         repositories=[test_settings.TREEHERDER_TEST_REPOSITORY_NAME],
     )
     record_ready_for_processing.refresh_from_db()
     assert BackfillNotificationRecord.objects.count() == 1
-    call_command('report_backfill_outcome')
+    call_command("report_backfill_outcome")
     assert BackfillNotificationRecord.objects.count() == 0
 
 
@@ -56,12 +56,12 @@ def test_email_is_still_sent_if_context_is_too_corrupt_to_be_actionable(
     )
     sherlock.sheriff(
         since=EPOCH,
-        frameworks=['test_talos'],
+        frameworks=["test_talos"],
         repositories=[test_settings.TREEHERDER_TEST_REPOSITORY_NAME],
     )
 
     assert BackfillNotificationRecord.objects.count() == 1
-    call_command('report_backfill_outcome')
+    call_command("report_backfill_outcome")
     assert BackfillNotificationRecord.objects.count() == 0
 
 
@@ -77,21 +77,21 @@ def test_no_email_is_sent_if_runtime_exceeded(
 
     sherlock = Sherlock(report_maintainer_mock, backfill_tool_mock, secretary, no_time_left)
     try:
-        sherlock.sheriff(since=EPOCH, frameworks=['raptor', 'talos'], repositories=['autoland'])
+        sherlock.sheriff(since=EPOCH, frameworks=["raptor", "talos"], repositories=["autoland"])
     except MaxRuntimeExceeded:
         pass
 
     assert BackfillNotificationRecord.objects.count() == 0
-    call_command('report_backfill_outcome')
+    call_command("report_backfill_outcome")
     assert BackfillNotificationRecord.objects.count() == 0
 
 
 @pytest.mark.parametrize(
-    'framework, repository',
+    "framework, repository",
     [
-        ('non_existent_framework', test_settings.TREEHERDER_TEST_REPOSITORY_NAME),
-        ('test_talos', 'non_existent_repository'),
-        ('non_existent_framework', 'non_existent_repository'),
+        ("non_existent_framework", test_settings.TREEHERDER_TEST_REPOSITORY_NAME),
+        ("test_talos", "non_existent_repository"),
+        ("non_existent_framework", "non_existent_repository"),
     ],
 )
 def test_no_email_is_sent_for_untargeted_alerts(
@@ -117,5 +117,5 @@ def test_no_email_is_sent_for_untargeted_alerts(
     record_ready_for_processing.refresh_from_db()
 
     assert BackfillNotificationRecord.objects.count() == 0
-    call_command('report_backfill_outcome')
+    call_command("report_backfill_outcome")
     assert BackfillNotificationRecord.objects.count() == 0

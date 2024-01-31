@@ -12,7 +12,7 @@ from treeherder.perf.exceptions import NoFiledBugs
 from .bugzilla_formulas import BugzillaFormula, EngineerTractionFormula, FixRatioFormula
 from treeherder.utils import PROJECT_ROOT
 
-CRITERIA_FILENAME = 'perf-sheriffing-criteria.csv'
+CRITERIA_FILENAME = "perf-sheriffing-criteria.csv"
 
 LOGGER = logging.getLogger(__name__)
 
@@ -29,20 +29,20 @@ class CriteriaRecord:
     AllowSync: bool
 
     def __post_init__(self):
-        if self.EngineerTraction not in ('', 'N/A'):
+        if self.EngineerTraction not in ("", "N/A"):
             self.EngineerTraction = float(self.EngineerTraction)
-        if self.FixRatio not in ('', 'N/A'):
+        if self.FixRatio not in ("", "N/A"):
             self.FixRatio = float(self.FixRatio)
-        if self.TotalAlerts not in ('', 'N/A'):
+        if self.TotalAlerts not in ("", "N/A"):
             self.TotalAlerts = int(self.TotalAlerts)
 
-        if self.LastUpdatedOn != '':
+        if self.LastUpdatedOn != "":
             if isinstance(self.LastUpdatedOn, str):
                 self.LastUpdatedOn = datetime.fromisoformat(self.LastUpdatedOn)
 
-        if self.AllowSync in ('', 'True'):
+        if self.AllowSync in ("", "True"):
             self.AllowSync = True
-        elif self.AllowSync == 'False':
+        elif self.AllowSync == "False":
             self.AllowSync = False
 
 
@@ -69,7 +69,7 @@ class RecordComputer:
             return False
 
         # missing data
-        if '' in (engineer_traction, fix_ratio, last_updated_on):
+        if "" in (engineer_traction, fix_ratio, last_updated_on):
             return True
 
         # expired data
@@ -84,12 +84,12 @@ class RecordComputer:
             try:
                 result = formula(record.Framework, record.Suite, record.Test)
             except (NoFiledBugs, Exception) as ex:
-                result = 'N/A'
+                result = "N/A"
                 self.__log_unexpected(ex, form_name, record)
 
             record = replace(
                 record,
-                **{form_name: result, 'LastUpdatedOn': datetime.utcnow().isoformat()},
+                **{form_name: result, "LastUpdatedOn": datetime.utcnow().isoformat()},
             )
             self.__let_web_service_rest_a_bit()
         return record
@@ -101,7 +101,7 @@ class RecordComputer:
         elif type(exception) is Exception:
             # maybe web service problem
             self.log.warning(
-                f'Unexpected exception when applying {formula_name} formula over {record.Framework} - {record.Suite}: {exception}'
+                f"Unexpected exception when applying {formula_name} formula over {record.Framework} - {record.Suite}: {exception}"
             )
 
     def __let_web_service_rest_a_bit(self):
@@ -127,15 +127,15 @@ class ConcurrencyStrategy:
         self.log = logger or LOGGER
 
         if not issubclass(self._pool_class, Pool):
-            raise TypeError(f'Expected Pool (sub)class parameter. Got {self._pool_class} instead')
+            raise TypeError(f"Expected Pool (sub)class parameter. Got {self._pool_class} instead")
         if type(thread_wait) is not timedelta:
-            raise TypeError('Expected timedelta parameter.')
+            raise TypeError("Expected timedelta parameter.")
         if type(check_interval) is not timedelta:
-            raise TypeError('Expected timedelta parameter.')
+            raise TypeError("Expected timedelta parameter.")
 
     def pool(self):
         size = self.figure_out_pool_size()
-        self.log.debug(f'Preparing a {self._pool_class.__name__} of size {size}...')
+        self.log.debug(f"Preparing a {self._pool_class.__name__} of size {size}...")
         return self._pool_class(size)
 
     def figure_out_pool_size(self) -> int:
@@ -168,7 +168,7 @@ class ResultsChecker:
         while True:
             last_check_on = time.time()
             if all(r.ready() for r in results):
-                self.log.info('Finished computing updates for all records.')
+                self.log.info("Finished computing updates for all records.")
                 break
             time.sleep(self._check_interval.total_seconds())
 
@@ -204,8 +204,8 @@ class ResultsChecker:
 class CriteriaTracker:
     TIME_UNTIL_EXPIRES = timedelta(days=3)
 
-    ENGINEER_TRACTION = 'EngineerTraction'
-    FIX_RATIO = 'FixRatio'
+    ENGINEER_TRACTION = "EngineerTraction"
+    FIX_RATIO = "FixRatio"
     FIELDNAMES = [field.name for field in fields(CriteriaRecord)]
 
     # Instance defaults
@@ -234,7 +234,7 @@ class CriteriaTracker:
 
         for formula in self._formula_map.values():
             if not callable(formula):
-                raise TypeError('Must provide callable as sheriffing criteria formula')
+                raise TypeError("Must provide callable as sheriffing criteria formula")
 
     def get_test_moniker(self, record: CriteriaRecord) -> Tuple[str, str, str]:
         return record.Framework, record.Suite, record.Test
@@ -244,18 +244,18 @@ class CriteriaTracker:
         return iter(self._records_map.values())
 
     def load_records(self):
-        self.log.info(f'Loading records from {self._record_path}...')
+        self.log.info(f"Loading records from {self._record_path}...")
         self._records_map = {}  # reset them
 
-        with open(self._record_path, 'r') as csv_file:
+        with open(self._record_path, "r") as csv_file:
             reader = csv.DictReader(csv_file)
             for row in reader:
-                test_moniker = row.get('Framework'), row.get('Suite'), row.get('Test')
+                test_moniker = row.get("Framework"), row.get("Suite"), row.get("Test")
                 self._records_map[test_moniker] = CriteriaRecord(**row)
-        self.log.debug(f'Loaded {len(self._records_map)} records')
+        self.log.debug(f"Loaded {len(self._records_map)} records")
 
     def update_records(self):
-        self.log.info('Updating records...')
+        self.log.info("Updating records...")
         result_checker = ResultsChecker(self.__check_interval(), timeout_after=timedelta(minutes=5))
 
         with self.fetch_strategy.pool() as pool:
@@ -274,11 +274,11 @@ class CriteriaTracker:
                 self._records_map[test_moniker] = record
             self.log.debug("Updated all records internally")
 
-            self.log.info(f'Updating CSV file at {self._record_path}...')
+            self.log.info(f"Updating CSV file at {self._record_path}...")
             self.__dump_records()
 
     def compute_record_update(self, record: CriteriaRecord) -> CriteriaRecord:
-        self.log.info(f'Computing update for record {record}...')
+        self.log.info(f"Computing update for record {record}...")
         if self.__should_update(record):
             record = self._computer.apply_formulas(record)
         return record
@@ -291,21 +291,21 @@ class CriteriaTracker:
 
     def create_fetch_strategy(self, multiprocessed: bool) -> ConcurrencyStrategy:
         options = {  # thread pool defaults
-            'pool_class': ThreadPool,
-            'thread_wait': timedelta(seconds=10),
-            'check_interval': timedelta(seconds=10),
-            'cpu_allocation': 0.75,
-            'threads_per_cpu': 12,
-            'logger': self.log,
+            "pool_class": ThreadPool,
+            "thread_wait": timedelta(seconds=10),
+            "check_interval": timedelta(seconds=10),
+            "cpu_allocation": 0.75,
+            "threads_per_cpu": 12,
+            "logger": self.log,
         }
         if multiprocessed:
             options = {  # process pool defaults (overrides upper ones)
-                'pool_class': Pool,
-                'thread_wait': timedelta(seconds=1.5),
-                'check_interval': timedelta(seconds=4),
-                'cpu_allocation': 0.8,
-                'threads_per_cpu': 12,
-                'logger': self.log,
+                "pool_class": Pool,
+                "thread_wait": timedelta(seconds=1.5),
+                "check_interval": timedelta(seconds=4),
+                "cpu_allocation": 0.8,
+                "threads_per_cpu": 12,
+                "logger": self.log,
             }
         return ConcurrencyStrategy(**options)
 
@@ -323,7 +323,7 @@ class CriteriaTracker:
         return wait_time
 
     def __dump_records(self):
-        with open(self._record_path, 'w') as csv_file:
+        with open(self._record_path, "w") as csv_file:
             writer = csv.DictWriter(csv_file, self.FIELDNAMES)
 
             writer.writeheader()

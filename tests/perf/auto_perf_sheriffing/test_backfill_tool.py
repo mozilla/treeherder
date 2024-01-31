@@ -6,9 +6,9 @@ from treeherder.services.taskcluster import TaskclusterModelNullObject
 
 
 class TestBackfillTool:
-    FAKE_ROOT_URL = 'https://fakerooturl.org'
-    FAKE_OPTIONS = (FAKE_ROOT_URL, 'FAKE_CLIENT_ID', 'FAKE_ACCESS_TOKEN')
-    MISSING_JOB_ID = '12830123912'
+    FAKE_ROOT_URL = "https://fakerooturl.org"
+    FAKE_OPTIONS = (FAKE_ROOT_URL, "FAKE_CLIENT_ID", "FAKE_ACCESS_TOKEN")
+    MISSING_JOB_ID = "12830123912"
 
     def test_backfilling_missing_job_errors_out(self, db):
         backfill_tool = BackfillTool(TaskclusterModelNullObject(*self.FAKE_OPTIONS))

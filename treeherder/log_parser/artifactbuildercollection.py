@@ -83,17 +83,17 @@ class ArtifactBuilderCollection:
         building the ``artifact`` as we go.
         """
         with make_request(self.url, stream=True) as response:
-            download_size_in_bytes = int(response.headers.get('Content-Length', -1))
+            download_size_in_bytes = int(response.headers.get("Content-Length", -1))
 
             # Temporary annotation of log size to help set thresholds in bug 1295997.
-            newrelic.agent.add_custom_attribute('unstructured_log_size', download_size_in_bytes)
+            newrelic.agent.add_custom_attribute("unstructured_log_size", download_size_in_bytes)
             newrelic.agent.add_custom_attribute(
-                'unstructured_log_encoding', response.headers.get('Content-Encoding', 'None')
+                "unstructured_log_encoding", response.headers.get("Content-Encoding", "None")
             )
 
             if download_size_in_bytes > MAX_DOWNLOAD_SIZE_IN_BYTES:
                 raise LogSizeException(
-                    'Download size of %i bytes exceeds limit' % download_size_in_bytes
+                    "Download size of %i bytes exceeds limit" % download_size_in_bytes
                 )
 
             # Lines must be explicitly decoded since `iter_lines()`` returns bytes by default
@@ -105,7 +105,7 @@ class ArtifactBuilderCollection:
                     try:
                         # Using `replace` to prevent malformed unicode (which might possibly exist
                         # in test message output) from breaking parsing of the rest of the log.
-                        builder.parse_line(line.decode('utf-8', 'replace'))
+                        builder.parse_line(line.decode("utf-8", "replace"))
                     except EmptyPerformanceData:
                         logger.warning("We have parsed an empty PERFHERDER_DATA for %s", self.url)
 
@@ -116,7 +116,7 @@ class ArtifactBuilderCollection:
             builder.finish_parse()
             name = builder.name
             artifact = builder.get_artifact()
-            if name == 'performance_data' and not artifact[name]:
+            if name == "performance_data" and not artifact[name]:
                 continue
             self.artifacts[name] = artifact
 

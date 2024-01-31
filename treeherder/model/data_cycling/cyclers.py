@@ -32,8 +32,8 @@ from .utils import has_valid_explicit_days
 
 logger = logging.getLogger(__name__)
 
-TREEHERDER = 'treeherder'
-PERFHERDER = 'perfherder'
+TREEHERDER = "treeherder"
+PERFHERDER = "perfherder"
 
 
 class DataCycler(ABC):
@@ -76,29 +76,29 @@ class TreeherderCycler(DataCycler):
         self._remove_leftovers()
 
     def _remove_leftovers(self):
-        logger.warning('Pruning ancillary data: job types, groups and machines')
+        logger.warning("Pruning ancillary data: job types, groups and machines")
 
         def prune(reference_model, id_name, model):
-            logger.warning('Pruning {}s'.format(model.__name__))
+            logger.warning("Pruning {}s".format(model.__name__))
             used_ids = (
                 reference_model.objects.only(id_name).values_list(id_name, flat=True).distinct()
             )
-            unused_ids = model.objects.exclude(id__in=used_ids).values_list('id', flat=True)
+            unused_ids = model.objects.exclude(id__in=used_ids).values_list("id", flat=True)
 
-            logger.warning('Removing {} records from {}'.format(len(unused_ids), model.__name__))
+            logger.warning("Removing {} records from {}".format(len(unused_ids), model.__name__))
 
             while len(unused_ids):
                 delete_ids = unused_ids[: self.chunk_size]
-                logger.warning('deleting {} of {}'.format(len(delete_ids), len(unused_ids)))
+                logger.warning("deleting {} of {}".format(len(delete_ids), len(unused_ids)))
                 model.objects.filter(id__in=delete_ids).delete()
                 unused_ids = unused_ids[self.chunk_size :]
 
-        prune(Job, 'job_type_id', JobType)
-        prune(Job, 'job_group_id', JobGroup)
-        prune(Job, 'machine_id', Machine)
-        prune(GroupStatus, 'group_id', Group)
-        prune(Job, 'build_platform_id', BuildPlatform)
-        prune(Job, 'machine_platform_id', MachinePlatform)
+        prune(Job, "job_type_id", JobType)
+        prune(Job, "job_group_id", JobGroup)
+        prune(Job, "machine_id", Machine)
+        prune(GroupStatus, "group_id", Group)
+        prune(Job, "build_platform_id", BuildPlatform)
+        prune(Job, "machine_platform_id", MachinePlatform)
 
 
 class PerfherderCycler(DataCycler):
@@ -139,7 +139,7 @@ class PerfherderCycler(DataCycler):
         try:
             for strategy in self.strategies:
                 try:
-                    logger.warning(f'Cycling data using {strategy.name}...')
+                    logger.warning(f"Cycling data using {strategy.name}...")
                     self._delete_in_chunks(strategy)
                 except NoDataCyclingAtAll as ex:
                     logger.warning(str(ex))
@@ -179,10 +179,10 @@ class PerfherderCycler(DataCycler):
     def __remove_empty_alert_summaries(self):
         logger.warning("Removing alert summaries which no longer have any alerts...")
         (
-            PerformanceAlertSummary.objects.prefetch_related('alerts', 'related_alerts')
+            PerformanceAlertSummary.objects.prefetch_related("alerts", "related_alerts")
             .annotate(
-                total_alerts=Count('alerts'),
-                total_related_alerts=Count('related_alerts'),
+                total_alerts=Count("alerts"),
+                total_related_alerts=Count("related_alerts"),
             )
             .filter(
                 total_alerts=0,
@@ -200,7 +200,7 @@ class PerfherderCycler(DataCycler):
         logger.warning("Removing backfill reports which no longer have any records...")
         four_months_ago = datetime.now() - timedelta(days=120)
 
-        BackfillReport.objects.annotate(total_records=Count('records')).filter(
+        BackfillReport.objects.annotate(total_records=Count("records")).filter(
             created__lt=four_months_ago, total_records=0
         ).delete()
 
@@ -224,19 +224,19 @@ class PerfherderCycler(DataCycler):
                     else:
                         any_successful_attempt = True
                         logger.debug(
-                            'Successfully deleted {} performance datum rows'.format(deleted_rows)
+                            "Successfully deleted {} performance datum rows".format(deleted_rows)
                         )
 
     def __handle_chunk_removal_exception(
         self, exception, cursor: CursorWrapper, any_successful_attempt: bool
     ):
-        msg = 'Failed to delete performance data chunk'
-        if hasattr(cursor, '_last_executed'):
+        msg = "Failed to delete performance data chunk"
+        if hasattr(cursor, "_last_executed"):
             msg = f'{msg}, while running "{cursor._last_executed}" query'
 
         if any_successful_attempt:
             # an intermittent error may have occurred
-            logger.warning(f'{msg}: (Exception: {exception})')
+            logger.warning(f"{msg}: (Exception: {exception})")
         else:
             logger.warning(msg)
             raise NoDataCyclingAtAll() from exception

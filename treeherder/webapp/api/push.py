@@ -57,9 +57,9 @@ class PushViewSet(viewsets.ViewSet):
                 del filter_params[param]
                 meta[param] = v
 
-        all_repos = request.query_params.get('all_repos')
+        all_repos = request.query_params.get("all_repos")
 
-        pushes = Push.objects.order_by('-time')
+        pushes = Push.objects.order_by("-time")
 
         if not all_repos:
             try:
@@ -72,52 +72,52 @@ class PushViewSet(viewsets.ViewSet):
             pushes = pushes.filter(repository=repository)
 
         for param, value in meta.items():
-            if param == 'fromchange':
-                revision_field = 'revision__startswith' if len(value) < 40 else 'revision'
-                filter_kwargs = {revision_field: value, 'repository': repository}
-                frompush_time = Push.objects.values_list('time', flat=True).get(**filter_kwargs)
+            if param == "fromchange":
+                revision_field = "revision__startswith" if len(value) < 40 else "revision"
+                filter_kwargs = {revision_field: value, "repository": repository}
+                frompush_time = Push.objects.values_list("time", flat=True).get(**filter_kwargs)
                 pushes = pushes.filter(time__gte=frompush_time)
                 filter_params.update({"push_timestamp__gte": to_timestamp(frompush_time)})
                 self.report_if_short_revision(param, value)
 
-            elif param == 'tochange':
-                revision_field = 'revision__startswith' if len(value) < 40 else 'revision'
-                filter_kwargs = {revision_field: value, 'repository': repository}
-                topush_time = Push.objects.values_list('time', flat=True).get(**filter_kwargs)
+            elif param == "tochange":
+                revision_field = "revision__startswith" if len(value) < 40 else "revision"
+                filter_kwargs = {revision_field: value, "repository": repository}
+                topush_time = Push.objects.values_list("time", flat=True).get(**filter_kwargs)
                 pushes = pushes.filter(time__lte=topush_time)
                 filter_params.update({"push_timestamp__lte": to_timestamp(topush_time)})
                 self.report_if_short_revision(param, value)
 
-            elif param == 'startdate':
+            elif param == "startdate":
                 pushes = pushes.filter(time__gte=to_datetime(value))
                 filter_params.update({"push_timestamp__gte": to_timestamp(to_datetime(value))})
-            elif param == 'enddate':
+            elif param == "enddate":
                 real_end_date = to_datetime(value) + datetime.timedelta(days=1)
                 pushes = pushes.filter(time__lte=real_end_date)
                 filter_params.update({"push_timestamp__lt": to_timestamp(real_end_date)})
-            elif param == 'revision':
+            elif param == "revision":
                 # revision must be the tip revision of the push itself
-                revision_field = 'revision__startswith' if len(value) < 40 else 'revision'
+                revision_field = "revision__startswith" if len(value) < 40 else "revision"
                 filter_kwargs = {revision_field: value}
                 pushes = pushes.filter(**filter_kwargs)
                 rev_key = (
                     "revisions_long_revision"
-                    if len(meta['revision']) == 40
+                    if len(meta["revision"]) == 40
                     else "revisions_short_revision"
                 )
-                filter_params.update({rev_key: meta['revision']})
+                filter_params.update({rev_key: meta["revision"]})
                 self.report_if_short_revision(param, value)
-            elif param == 'commit_revision':
+            elif param == "commit_revision":
                 # revision can be either the revision of the push itself, or
                 # any of the commits it refers to
                 pushes = pushes.filter(commits__revision=value)
                 self.report_if_short_revision(param, value)
 
         for param in [
-            'push_timestamp__lt',
-            'push_timestamp__lte',
-            'push_timestamp__gt',
-            'push_timestamp__gte',
+            "push_timestamp__lt",
+            "push_timestamp__lte",
+            "push_timestamp__gt",
+            "push_timestamp__gte",
         ]:
             if filter_params.get(param):
                 # translate push timestamp directly into a filter
@@ -128,9 +128,9 @@ class PushViewSet(viewsets.ViewSet):
                         {"detail": "Invalid timestamp specified for {}".format(param)},
                         status=HTTP_400_BAD_REQUEST,
                     )
-                pushes = pushes.filter(**{param.replace('push_timestamp', 'time'): value})
+                pushes = pushes.filter(**{param.replace("push_timestamp", "time"): value})
 
-        for param in ['id__lt', 'id__lte', 'id__gt', 'id__gte', 'id']:
+        for param in ["id__lt", "id__lte", "id__gt", "id__gte", "id"]:
             try:
                 value = int(filter_params.get(param, 0))
             except ValueError:
@@ -144,7 +144,7 @@ class PushViewSet(viewsets.ViewSet):
         id_in = filter_params.get("id__in")
         if id_in:
             try:
-                id_in_list = [int(id) for id in id_in.split(',')]
+                id_in_list = [int(id) for id in id_in.split(",")]
             except ValueError:
                 return Response(
                     {"detail": "Invalid id__in specification"}, status=HTTP_400_BAD_REQUEST
@@ -176,14 +176,14 @@ class PushViewSet(viewsets.ViewSet):
         # false. however AFAIK no one ever used it (default was to fetch
         # everything), so let's just leave it out. it doesn't break
         # anything to send extra data when not required.
-        pushes = pushes.select_related('repository').prefetch_related('commits')[:count]
+        pushes = pushes.select_related("repository").prefetch_related("commits")[:count]
         serializer = PushSerializer(pushes, many=True)
 
-        meta['count'] = len(pushes)
-        meta['repository'] = 'all' if all_repos else project
-        meta['filter_params'] = filter_params
+        meta["count"] = len(pushes)
+        meta["repository"] = "all" if all_repos else project
+        meta["filter_params"] = filter_params
 
-        resp = {'meta': meta, 'results': serializer.data}
+        resp = {"meta": meta, "results": serializer.data}
 
         return Response(resp)
 
@@ -215,17 +215,17 @@ class PushViewSet(viewsets.ViewSet):
         """
         Return a calculated summary of the health of this push.
         """
-        revision = request.query_params.get('revision')
-        author = request.query_params.get('author')
-        count = request.query_params.get('count')
-        all_repos = request.query_params.get('all_repos')
-        with_history = request.query_params.get('with_history')
-        with_in_progress_tests = request.query_params.get('with_in_progress_tests', False)
+        revision = request.query_params.get("revision")
+        author = request.query_params.get("author")
+        count = request.query_params.get("count")
+        all_repos = request.query_params.get("all_repos")
+        with_history = request.query_params.get("with_history")
+        with_in_progress_tests = request.query_params.get("with_in_progress_tests", False)
 
         if revision:
             try:
                 pushes = Push.objects.filter(
-                    revision__in=revision.split(','), repository__name=project
+                    revision__in=revision.split(","), repository__name=project
                 )
             except Push.DoesNotExist:
                 return Response(
@@ -235,9 +235,9 @@ class PushViewSet(viewsets.ViewSet):
             try:
                 pushes = (
                     Push.objects.filter(author=author)
-                    .select_related('repository')
-                    .prefetch_related('commits')
-                    .order_by('-time')
+                    .select_related("repository")
+                    .prefetch_related("commits")
+                    .order_by("-time")
                 )
 
                 if not all_repos:
@@ -270,7 +270,7 @@ class PushViewSet(viewsets.ViewSet):
                 push
             )
 
-            test_failure_count = len(push_health_test_failures['needInvestigation'])
+            test_failure_count = len(push_health_test_failures["needInvestigation"])
             build_failure_count = len(push_health_build_failures)
             lint_failure_count = len(push_health_lint_failures)
             test_in_progress_count = 0
@@ -279,7 +279,7 @@ class PushViewSet(viewsets.ViewSet):
             total_failures = test_failure_count + build_failure_count + lint_failure_count
             # Override the testfailed value added in push.get_status so that it aligns with how we detect lint, build and test failures
             # for the push health API's (total_failures doesn't include known intermittent failures)
-            status['testfailed'] = total_failures
+            status["testfailed"] = total_failures
 
             if with_history:
                 serializer = PushSerializer([push], many=True)
@@ -289,31 +289,31 @@ class PushViewSet(viewsets.ViewSet):
 
             data.append(
                 {
-                    'revision': push.revision,
-                    'repository': push.repository.name,
-                    'testFailureCount': test_failure_count,
-                    'testInProgressCount': test_in_progress_count,
-                    'buildFailureCount': build_failure_count,
-                    'buildInProgressCount': builds_in_progress_count,
-                    'lintFailureCount': lint_failure_count,
-                    'lintingInProgressCount': linting_in_progress_count,
-                    'needInvestigation': test_failure_count
+                    "revision": push.revision,
+                    "repository": push.repository.name,
+                    "testFailureCount": test_failure_count,
+                    "testInProgressCount": test_in_progress_count,
+                    "buildFailureCount": build_failure_count,
+                    "buildInProgressCount": builds_in_progress_count,
+                    "lintFailureCount": lint_failure_count,
+                    "lintingInProgressCount": linting_in_progress_count,
+                    "needInvestigation": test_failure_count
                     + build_failure_count
                     + lint_failure_count,
-                    'status': status,
-                    'history': commit_history,
-                    'metrics': {
-                        'linting': {
-                            'name': 'Linting',
-                            'result': lint_result,
+                    "status": status,
+                    "history": commit_history,
+                    "metrics": {
+                        "linting": {
+                            "name": "Linting",
+                            "result": lint_result,
                         },
-                        'tests': {
-                            'name': 'Tests',
-                            'result': test_result,
+                        "tests": {
+                            "name": "Tests",
+                            "result": test_result,
                         },
-                        'builds': {
-                            'name': 'Builds',
-                            'result': build_result,
+                        "builds": {
+                            "name": "Builds",
+                            "result": build_result,
                         },
                     },
                 }
@@ -324,14 +324,14 @@ class PushViewSet(viewsets.ViewSet):
     @action(detail=False)
     def health_usage(self, request, project):
         usage = get_usage()
-        return Response({'usage': usage})
+        return Response({"usage": usage})
 
     @action(detail=False)
     def health(self, request, project):
         """
         Return a calculated assessment of the health of this push.
         """
-        revision = request.query_params.get('revision')
+        revision = request.query_params.get("revision")
 
         try:
             repository = Repository.objects.get(name=project)
@@ -345,7 +345,7 @@ class PushViewSet(viewsets.ViewSet):
         result_status, jobs = get_test_failure_jobs(push)
         # Parent compare only supported for Hg at this time.
         # Bug https://bugzilla.mozilla.org/show_bug.cgi?id=1612645
-        if repository.dvcs_type == 'hg':
+        if repository.dvcs_type == "hg":
             commit_history_details = get_commit_history(repository, revision, push)
 
         test_result, push_health_test_failures = get_test_failures(
@@ -358,97 +358,97 @@ class PushViewSet(viewsets.ViewSet):
 
         lint_result, lint_failures, _unused = get_lint_failures(push)
 
-        push_result = 'pass'
+        push_result = "pass"
         for metric_result in [test_result, lint_result, build_result]:
             if (
-                metric_result == 'indeterminate'
-                or metric_result == 'unknown'
-                and push_result != 'fail'
+                metric_result == "indeterminate"
+                or metric_result == "unknown"
+                and push_result != "fail"
             ):
                 push_result = metric_result
-            elif metric_result == 'fail':
+            elif metric_result == "fail":
                 push_result = metric_result
 
         status = push.get_status()
         total_failures = (
-            len(push_health_test_failures['needInvestigation'])
+            len(push_health_test_failures["needInvestigation"])
             + len(build_failures)
             + len(lint_failures)
         )
         # Override the testfailed value added in push.get_status so that it aligns with how we detect lint, build and test failures
         # for the push health API's (total_failures doesn't include known intermittent failures)
-        status['testfailed'] = total_failures
+        status["testfailed"] = total_failures
 
         newrelic.agent.record_custom_event(
-            'push_health_need_investigation',
+            "push_health_need_investigation",
             {
-                'revision': revision,
-                'repo': repository.name,
-                'needInvestigation': len(push_health_test_failures['needInvestigation']),
-                'author': push.author,
+                "revision": revision,
+                "repo": repository.name,
+                "needInvestigation": len(push_health_test_failures["needInvestigation"]),
+                "author": push.author,
             },
         )
 
         return Response(
             {
-                'revision': revision,
-                'id': push.id,
-                'result': push_result,
-                'jobs': jobs,
-                'metrics': {
-                    'commitHistory': {
-                        'name': 'Commit History',
-                        'result': 'none',
-                        'details': commit_history_details,
+                "revision": revision,
+                "id": push.id,
+                "result": push_result,
+                "jobs": jobs,
+                "metrics": {
+                    "commitHistory": {
+                        "name": "Commit History",
+                        "result": "none",
+                        "details": commit_history_details,
                     },
-                    'linting': {
-                        'name': 'Linting',
-                        'result': lint_result,
-                        'details': lint_failures,
+                    "linting": {
+                        "name": "Linting",
+                        "result": lint_result,
+                        "details": lint_failures,
                     },
-                    'tests': {
-                        'name': 'Tests',
-                        'result': test_result,
-                        'details': push_health_test_failures,
+                    "tests": {
+                        "name": "Tests",
+                        "result": test_result,
+                        "details": push_health_test_failures,
                     },
-                    'builds': {
-                        'name': 'Builds',
-                        'result': build_result,
-                        'details': build_failures,
+                    "builds": {
+                        "name": "Builds",
+                        "result": build_result,
+                        "details": build_failures,
                     },
                 },
-                'status': status,
+                "status": status,
             }
         )
 
     @cache_memoize(60 * 60)
     def get_decision_jobs(self, push_ids):
-        job_types = JobType.objects.filter(name__endswith='Decision Task', symbol='D')
+        job_types = JobType.objects.filter(name__endswith="Decision Task", symbol="D")
         return Job.objects.filter(
             push_id__in=push_ids,
             job_type__in=job_types,
-            result='success',
-        ).select_related('taskcluster_metadata')
+            result="success",
+        ).select_related("taskcluster_metadata")
 
     @action(detail=False)
     def decisiontask(self, request, project):
         """
         Return the decision task ids for the pushes.
         """
-        push_ids = self.request.query_params.get('push_ids', '').split(',')
+        push_ids = self.request.query_params.get("push_ids", "").split(",")
         decision_jobs = self.get_decision_jobs(push_ids)
 
         if decision_jobs:
             return Response(
                 {
                     job.push_id: {
-                        'id': job.taskcluster_metadata.task_id,
-                        'run': job.guid.split('/')[1],
+                        "id": job.taskcluster_metadata.task_id,
+                        "run": job.guid.split("/")[1],
                     }
                     for job in decision_jobs
                 }
             )
-        logger.error('/decisiontask/ found no decision jobs for {}'.format(push_ids))
+        logger.error("/decisiontask/ found no decision jobs for {}".format(push_ids))
         self.get_decision_jobs.invalidate(push_ids)
         return Response(
             "No decision tasks found for pushes: {}".format(push_ids), status=HTTP_404_NOT_FOUND
@@ -458,8 +458,8 @@ class PushViewSet(viewsets.ViewSet):
     def report_if_short_revision(self, param, revision):
         if len(revision) < 40:
             newrelic.agent.record_custom_event(
-                'short_revision_push_api',
-                {'error': 'Revision <40 chars', 'param': param, 'revision': revision},
+                "short_revision_push_api",
+                {"error": "Revision <40 chars", "param": param, "revision": revision},
             )
 
     @action(detail=False)
@@ -467,7 +467,7 @@ class PushViewSet(viewsets.ViewSet):
         """
         Return the results of all the test groups for this push.
         """
-        revision = request.query_params.get('revision')
+        revision = request.query_params.get("revision")
 
         try:
             repository = Repository.objects.get(name=project)

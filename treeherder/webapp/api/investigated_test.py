@@ -13,11 +13,11 @@ class InvestigatedViewSet(viewsets.ModelViewSet):
     """
 
     serializer_class = InvestigatedTestsSerializers
-    allowed_methods = ['GET', 'POST', 'DELETE']
+    allowed_methods = ["GET", "POST", "DELETE"]
 
     def get_queryset(self):
-        revision = self.request.GET['revision']
-        project = self.kwargs['project']
+        revision = self.request.GET["revision"]
+        project = self.kwargs["project"]
 
         try:
             repository = Repository.objects.get(name=project)
@@ -36,11 +36,11 @@ class InvestigatedViewSet(viewsets.ModelViewSet):
             )
 
     def create(self, request, *args, **kwargs):
-        project = kwargs['project']
-        revision = request.query_params.get('revision')
-        test = request.data['test']
-        jobName = request.data['jobName']
-        jobSymbol = request.data['jobSymbol']
+        project = kwargs["project"]
+        revision = request.query_params.get("revision")
+        test = request.data["test"]
+        jobName = request.data["jobName"]
+        jobSymbol = request.data["jobSymbol"]
 
         try:
             repository = Repository.objects.get(name=project)

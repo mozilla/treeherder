@@ -35,7 +35,7 @@ def pending_jobs_stored(test_repository, failure_classifications, pending_job, p
     stores a list of buildapi pending jobs into the jobs store
     """
     pending_job.update(push_stored[0])
-    pending_job.update({'project': test_repository.name})
+    pending_job.update({"project": test_repository.name})
     store_job_data(test_repository, [pending_job])
 
 
@@ -45,7 +45,7 @@ def running_jobs_stored(test_repository, failure_classifications, running_job, p
     stores a list of buildapi running jobs
     """
     running_job.update(push_stored[0])
-    running_job.update({'project': test_repository.name})
+    running_job.update({"project": test_repository.name})
     store_job_data(test_repository, [running_job])
 
 
@@ -54,6 +54,6 @@ def completed_jobs_stored(test_repository, failure_classifications, completed_jo
     """
     stores a list of buildapi completed jobs
     """
-    completed_job['revision'] = push_stored[0]['revision']
-    completed_job.update({'project': test_repository.name})
+    completed_job["revision"] = push_stored[0]["revision"]
+    completed_job.update({"project": test_repository.name})
     store_job_data(test_repository, [completed_job])

@@ -5,8 +5,8 @@ import responses
 from treeherder.model.models import Push
 from treeherder.push_health.compare import get_commit_history
 
-test_revision = '4c45a777949168d16c03a4cba167678b7ab65f76'
-parent_revision = 'abcdef77949168d16c03a4cba167678b7ab65f76'
+test_revision = "4c45a777949168d16c03a4cba167678b7ab65f76"
+parent_revision = "abcdef77949168d16c03a4cba167678b7ab65f76"
 
 
 @pytest.fixture
@@ -14,7 +14,7 @@ def mock_rev(test_push):
     # This is the revision/push under test
     responses.add(
         responses.GET,
-        f'https://hg.mozilla.org/{test_push.repository.name}/rev/{test_revision}?style=json',
+        f"https://hg.mozilla.org/{test_push.repository.name}/rev/{test_revision}?style=json",
         json={
             "node": test_revision,
             "date": [1589318819.0, -7200],
@@ -26,7 +26,7 @@ def mock_rev(test_push):
             "pushdate": [1589318855, 0],
             "pushuser": "hiro@protagonist.com",
         },
-        content_type='application/json',
+        content_type="application/json",
         status=200,
     )
 
@@ -35,7 +35,7 @@ def mock_rev(test_push):
 def mock_json_pushes(test_push):
     responses.add(
         responses.GET,
-        f'https://hg.mozilla.org/{test_push.repository.name}/json-pushes?version=2&full=1&startID=536015&endID=536016',
+        f"https://hg.mozilla.org/{test_push.repository.name}/json-pushes?version=2&full=1&startID=536015&endID=536016",
         json={
             "pushes": {
                 "536016": {
@@ -49,12 +49,12 @@ def mock_json_pushes(test_push):
                 }
             },
         },
-        content_type='application/json',
+        content_type="application/json",
         status=200,
     )
     responses.add(
         responses.GET,
-        f'https://hg.mozilla.org/{test_push.repository.name}/json-automationrelevance/4c45a777949168d16c03a4cba167678b7ab65f76?backouts=1',
+        f"https://hg.mozilla.org/{test_push.repository.name}/json-automationrelevance/4c45a777949168d16c03a4cba167678b7ab65f76?backouts=1",
         json={
             "changesets": [
                 {
@@ -90,7 +90,7 @@ def mock_json_pushes(test_push):
                 },
             ],
         },
-        content_type='application/json',
+        content_type="application/json",
         status=200,
     )
 
@@ -100,12 +100,12 @@ def test_get_commit_history(test_push, test_repository, mock_rev, mock_json_push
     Push.objects.create(
         revision=parent_revision,
         repository=test_repository,
-        author='foo@bar.baz',
+        author="foo@bar.baz",
         time=datetime.datetime.now(),
     )
 
     history = get_commit_history(test_repository, test_revision, test_push)
-    print('\n<><><>history')
+    print("\n<><><>history")
     print(history)
-    assert history['parentSha'] == parent_revision
-    assert history['parentRepository']['name'] == test_repository.name
+    assert history["parentSha"] == parent_revision
+    assert history["parentRepository"]["name"] == test_repository.name

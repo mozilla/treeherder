@@ -46,7 +46,7 @@ def write_failure_lines(job_log, log_iter):
 
     if len(log_list) > failure_lines_cutoff:
         # Alter the N+1th log line to indicate the list was truncated.
-        log_list[-1].update(action='truncated')
+        log_list[-1].update(action="truncated")
 
     transformer = None
     with transaction.atomic():
@@ -132,7 +132,7 @@ def create_group_result(job_log, line):
         )
     else:
         group, _ = Group.objects.get_or_create(name=group_path[:255])
-        duration = line.get('duration', 0)
+        duration = line.get("duration", 0)
         if type(duration) not in [float, int]:
             duration = 0
         else:
@@ -144,7 +144,7 @@ def create_group_result(job_log, line):
         GroupStatus.objects.create(
             job_log=job_log,
             group=group,
-            status=GroupStatus.get_status(line['status']),
+            status=GroupStatus.get_status(line["status"]),
             duration=duration,
         )
 
@@ -155,15 +155,15 @@ def create(job_log, log_list):
     group_results = []
     failure_lines = []
     for line in log_list:
-        action = line['action']
+        action = line["action"]
         if action not in FailureLine.ACTION_LIST:
             newrelic.agent.record_custom_event("unsupported_failure_line_action", line)
             # Unfortunately, these errors flood the logs, but we want to report any
             # others that we didn't expect.  We know about the following action we choose
             # to ignore.
-            if action != 'test_groups':
-                logger.exception(ValueError(f'Unsupported FailureLine ACTION: {action}'))
-        elif action == 'group_result':
+            if action != "test_groups":
+                logger.exception(ValueError(f"Unsupported FailureLine ACTION: {action}"))
+        elif action == "group_result":
             group_results.append(line)
         else:
             failure_lines.append(line)
@@ -190,15 +190,15 @@ def get_group_results(push):
     groups = Group.objects.filter(
         job_logs__job__push=push, group_result__status__in=[GroupStatus.OK, GroupStatus.ERROR]
     ).values(
-        'group_result__status',
-        'name',
-        'job_logs__job__taskcluster_metadata__task_id',
+        "group_result__status",
+        "name",
+        "job_logs__job__taskcluster_metadata__task_id",
     )
 
     by_task_id = defaultdict(dict)
     for group in groups:
-        by_task_id[group['job_logs__job__taskcluster_metadata__task_id']][group['name']] = bool(
-            GroupStatus.STATUS_LOOKUP[group['group_result__status']] == "OK"
+        by_task_id[group["job_logs__job__taskcluster_metadata__task_id"]][group["name"]] = bool(
+            GroupStatus.STATUS_LOOKUP[group["group_result__status"]] == "OK"
         )
 
     return by_task_id

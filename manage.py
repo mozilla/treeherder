@@ -6,7 +6,7 @@ import warnings
 
 # Display deprecation warnings, which are hidden by default:
 # https://docs.python.org/3.7/library/warnings.html#default-warning-filters
-warnings.simplefilter('default', DeprecationWarning)
+warnings.simplefilter("default", DeprecationWarning)
 
 if __name__ == "__main__":
     os.environ["DJANGO_SETTINGS_MODULE"] = "treeherder.config.settings"

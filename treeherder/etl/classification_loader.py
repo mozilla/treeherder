@@ -85,13 +85,13 @@ class ClassificationLoader:
         )
 
     def get_push(self, task_route):
-        mozci_env = env('PULSE_MOZCI_ENVIRONMENT', default='production')
-        if mozci_env == 'testing':
+        mozci_env = env("PULSE_MOZCI_ENVIRONMENT", default="production")
+        if mozci_env == "testing":
             route_regex = CLASSIFICATION_TESTING_ROUTE_REGEX
         else:
-            if mozci_env != 'production':
+            if mozci_env != "production":
                 logger.warning(
-                    f'PULSE_MOZCI_ENVIRONMENT should be testing or production not {mozci_env}, defaulting to production'
+                    f"PULSE_MOZCI_ENVIRONMENT should be testing or production not {mozci_env}, defaulting to production"
                 )
             route_regex = CLASSIFICATION_PRODUCTION_ROUTE_REGEX
 
@@ -116,8 +116,8 @@ class ClassificationLoader:
         try:
             newrelic.agent.add_custom_attribute("revision", revision)
 
-            revision_field = 'revision__startswith' if len(revision) < 40 else 'revision'
-            filter_kwargs = {'repository': repository, revision_field: revision}
+            revision_field = "revision__startswith" if len(revision) < 40 else "revision"
+            filter_kwargs = {"repository": repository, revision_field: revision}
 
             push = Push.objects.get(**filter_kwargs)
         except Push.DoesNotExist:

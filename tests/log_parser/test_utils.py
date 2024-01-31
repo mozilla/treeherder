@@ -14,58 +14,58 @@ from treeherder.log_parser.utils import (
 )
 
 LENGTH_OK = {
-    'framework': {},
-    'suites': [
+    "framework": {},
+    "suites": [
         {
-            'extraOptions': [
-                '.' * 45,
-                '.' * 100,
+            "extraOptions": [
+                "." * 45,
+                "." * 100,
             ],
-            'name': 'testing',
-            'subtests': [],
+            "name": "testing",
+            "subtests": [],
         }
     ]
     * 3,
 }
 
 LONGER_THAN_ALL_MAX = {
-    'framework': {},
-    'suites': [
+    "framework": {},
+    "suites": [
         {
-            'extraOptions': [
-                '.' * 46,
-                '.' * 101,
+            "extraOptions": [
+                "." * 46,
+                "." * 101,
             ],
-            'name': 'testing',
-            'subtests': [],
+            "name": "testing",
+            "subtests": [],
         }
     ],
 }
 
 LONGER_THAN_BIGGER_MAX = {
-    'framework': {},
-    'suites': [
+    "framework": {},
+    "suites": [
         {
-            'extraOptions': [
-                '.' * 45,
-                '.' * 101,
+            "extraOptions": [
+                "." * 45,
+                "." * 101,
             ],
-            'name': 'testing',
-            'subtests': [],
+            "name": "testing",
+            "subtests": [],
         }
     ],
 }
 
 LONGER_THAN_SMALLER_MAX = {
-    'framework': {},
-    'suites': [
+    "framework": {},
+    "suites": [
         {
-            'extraOptions': [
-                '.' * 46,
-                '.' * 100,
+            "extraOptions": [
+                "." * 46,
+                "." * 100,
             ],
-            'name': 'testing',
-            'subtests': [],
+            "name": "testing",
+            "subtests": [],
         }
     ]
     * 3,
@@ -77,7 +77,7 @@ def test_smaller_than_bigger():
 
 
 def test_extra_option_max_length():
-    with open(os.path.join('schemas', 'performance-artifact.json')) as f:
+    with open(os.path.join("schemas", "performance-artifact.json")) as f:
         PERFHERDER_SCHEMA = json.load(f)
     assert 100 == _lookup_extra_options_max(PERFHERDER_SCHEMA)
 
@@ -90,7 +90,7 @@ def test_validate_perf_schema_no_exception():
 
 
 @pytest.mark.parametrize(
-    'data', (LONGER_THAN_ALL_MAX, LONGER_THAN_BIGGER_MAX, LONGER_THAN_SMALLER_MAX)
+    "data", (LONGER_THAN_ALL_MAX, LONGER_THAN_BIGGER_MAX, LONGER_THAN_SMALLER_MAX)
 )
 def test_validate_perf_schema(data):
     for datum in data:

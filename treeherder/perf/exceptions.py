@@ -1,8 +1,8 @@
 class NoDataCyclingAtAll(Exception):
     def __str__(self):
-        msg = 'No data cycling could be performed.'
+        msg = "No data cycling could be performed."
         if self.__cause__:
-            msg = f'{msg} (Reason: {self.__cause__})'
+            msg = f"{msg} (Reason: {self.__cause__})"
         return msg
 
 

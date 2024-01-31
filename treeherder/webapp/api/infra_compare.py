@@ -25,11 +25,11 @@ class InfraCompareView(generics.ListAPIView):
         if not query_params.is_valid():
             return Response(data=query_params.errors, status=HTTP_400_BAD_REQUEST)
 
-        startday = query_params.validated_data['startday']
-        endday = query_params.validated_data['endday']
-        project = query_params.validated_data['project']
-        revision = query_params.validated_data['revision']
-        interval = query_params.validated_data['interval']
+        startday = query_params.validated_data["startday"]
+        endday = query_params.validated_data["endday"]
+        project = query_params.validated_data["project"]
+        revision = query_params.validated_data["revision"]
+        interval = query_params.validated_data["interval"]
         repository = models.Repository.objects.get(name=project)
 
         if revision:
@@ -47,7 +47,7 @@ class InfraCompareView(generics.ListAPIView):
             )
 
         # division by 1000000 is done to convert it to seconds
-        jobs = jobs.annotate(duration=(F('end_time') - F('start_time')) / 1000000)
+        jobs = jobs.annotate(duration=(F("end_time") - F("start_time")) / 1000000)
         self.queryset = jobs.values("id", "job_type__name", "duration", "result")
         serializer = self.get_serializer(self.queryset, many=True)
         return Response(data=serializer.data)

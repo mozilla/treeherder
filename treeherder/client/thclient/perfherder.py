@@ -107,8 +107,8 @@ class PerformanceSeries(list):
 
 
 class PerfherderClient(TreeherderClient):
-    PERFORMANCE_SIGNATURES_ENDPOINT = 'performance/signatures'
-    PERFORMANCE_DATA_ENDPOINT = 'performance/data'
+    PERFORMANCE_SIGNATURES_ENDPOINT = "performance/signatures"
+    PERFORMANCE_DATA_ENDPOINT = "performance/data"
 
     def get_performance_signatures(self, project, **params):
         """

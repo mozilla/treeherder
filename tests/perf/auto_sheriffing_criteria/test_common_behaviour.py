@@ -30,12 +30,12 @@ def concrete_formula_classes() -> List[Type[BugzillaFormula]]:
     return [EngineerTractionFormula, FixRatioFormula]
 
 
-@pytest.mark.parametrize('formula', formula_instances())
+@pytest.mark.parametrize("formula", formula_instances())
 def test_formula_exposes_quantifying_period(formula, nonblock_session):
     assert formula.quantifying_period == settings.QUANTIFYING_PERIOD
 
 
-@pytest.mark.parametrize('formula', bugzilla_formula_instances())
+@pytest.mark.parametrize("formula", bugzilla_formula_instances())
 def test_formula_exposes_oldest_timestamp(formula, nonblock_session):
     no_older_than = datetime.now() - timedelta(weeks=24, seconds=5)
 
@@ -48,9 +48,9 @@ def test_total_alerts_formula_exposes_oldest_timestamp():
     assert TotalAlertsFormula().oldest_timestamp >= no_older_than
 
 
-@pytest.mark.parametrize('formula', bugzilla_formula_instances())
+@pytest.mark.parametrize("formula", bugzilla_formula_instances())
 @pytest.mark.parametrize(
-    'cooled_down_bug',
+    "cooled_down_bug",
     [
         {"creation_time": "2020-05-18T15:20:55Z"},  # older than 2 weeks
         {"creation_time": "2020-05-04T15:20:55Z"},  # older than 1 month
@@ -61,13 +61,13 @@ def test_formula_correctly_detects_cooled_down_bugs(cooled_down_bug, formula, no
     assert formula.has_cooled_down(cooled_down_bug)
 
 
-@pytest.mark.parametrize('formula', bugzilla_formula_instances())
+@pytest.mark.parametrize("formula", bugzilla_formula_instances())
 @pytest.mark.parametrize(
-    'not_cooled_down_bug',
+    "not_cooled_down_bug",
     [
-        {'creation_time': '2020-05-31T00:00:00Z'},  # 2 days old
-        {'creation_time': '2020-05-26T00:00:00Z'},  # 1 week old
-        {'creation_time': '2020-05-19T23:00:00Z'},  # ~2 weeks old, except for 1 hour
+        {"creation_time": "2020-05-31T00:00:00Z"},  # 2 days old
+        {"creation_time": "2020-05-26T00:00:00Z"},  # 1 week old
+        {"creation_time": "2020-05-19T23:00:00Z"},  # ~2 weeks old, except for 1 hour
     ],
 )
 def test_formula_detects_bugs_that_didnt_cool_down_yet(
@@ -76,14 +76,14 @@ def test_formula_detects_bugs_that_didnt_cool_down_yet(
     assert not formula.has_cooled_down(not_cooled_down_bug)
 
 
-@pytest.mark.parametrize('formula', bugzilla_formula_instances())
-@pytest.mark.parametrize('bad_structured_bug', [{}, {'creation_time': 'jiberish-date'}])
+@pytest.mark.parametrize("formula", bugzilla_formula_instances())
+@pytest.mark.parametrize("bad_structured_bug", [{}, {"creation_time": "jiberish-date"}])
 def test_formula_throws_adequate_error_for_bug(bad_structured_bug, formula, nonblock_session):
     with pytest.raises(ValueError):
         formula.has_cooled_down(bad_structured_bug)
 
 
-@pytest.mark.parametrize('FormulaClass', concrete_formula_classes())
+@pytest.mark.parametrize("FormulaClass", concrete_formula_classes())
 def test_formula_initializes_with_non_blockable_sessions(FormulaClass, nonblock_session):
     try:
         _ = FormulaClass(nonblock_session)
@@ -96,13 +96,13 @@ def test_formula_initializes_with_non_blockable_sessions(FormulaClass, nonblock_
         pytest.fail()
 
 
-@pytest.mark.parametrize('FormulaClass', concrete_formula_classes())
+@pytest.mark.parametrize("FormulaClass", concrete_formula_classes())
 def test_formula_cannot_be_initialized_with_a_regular_session(FormulaClass, unrecommended_session):
     with pytest.raises(TypeError):
         _ = FormulaClass(unrecommended_session)
 
 
-@pytest.mark.parametrize('formula', bugzilla_formula_instances())
+@pytest.mark.parametrize("formula", bugzilla_formula_instances())
 def test_accessing_breakdown_without_prior_calculus_errors_out(formula, nonblock_session):
     with pytest.raises(RuntimeError):
         _ = formula.breakdown()
@@ -111,61 +111,61 @@ def test_accessing_breakdown_without_prior_calculus_errors_out(formula, nonblock
 # Leveraging HTTP VCR
 
 
-@pytest.mark.parametrize('FormulaClass', concrete_formula_classes())
+@pytest.mark.parametrize("FormulaClass", concrete_formula_classes())
 def test_formula_demands_at_least_framework_and_suite(FormulaClass, betamax_recorder):
     formula = FormulaClass(betamax_recorder.session)
 
     with pytest.raises(TypeError):
-        formula('some_framework')
+        formula("some_framework")
 
     with pytest.raises(TypeError):
         formula()
 
-    with betamax_recorder.use_cassette('awsy-JS', serialize_with='prettyjson'):
+    with betamax_recorder.use_cassette("awsy-JS", serialize_with="prettyjson"):
         try:
-            formula('awsy', 'JS')
+            formula("awsy", "JS")
         except TypeError:
             pytest.fail()
 
 
-@pytest.mark.parametrize('FormulaClass', concrete_formula_classes())
+@pytest.mark.parametrize("FormulaClass", concrete_formula_classes())
 def test_breakdown_updates_between_calculations(FormulaClass, betamax_recorder):
     formula = FormulaClass(betamax_recorder.session)
 
-    test_moniker_A = ('build_metrics', 'build times')
-    test_moniker_B = ('talos', 'tp5n', 'nonmain_startup_fileio')
+    test_moniker_A = ("build_metrics", "build times")
+    test_moniker_B = ("talos", "tp5n", "nonmain_startup_fileio")
 
-    cassette_preffix_A = '-'.join(filter(None, test_moniker_A))
-    cassette_preffix_B = '-'.join(filter(None, test_moniker_B))
+    cassette_preffix_A = "-".join(filter(None, test_moniker_A))
+    cassette_preffix_B = "-".join(filter(None, test_moniker_B))
 
-    with betamax_recorder.use_cassette(f'{cassette_preffix_A}', serialize_with='prettyjson'):
+    with betamax_recorder.use_cassette(f"{cassette_preffix_A}", serialize_with="prettyjson"):
         formula(*test_moniker_A)  # let it perform calculus & cache breakdown
         breakdown_A = formula.breakdown()
 
-    with betamax_recorder.use_cassette(f'{cassette_preffix_B}', serialize_with='prettyjson'):
+    with betamax_recorder.use_cassette(f"{cassette_preffix_B}", serialize_with="prettyjson"):
         formula(*test_moniker_B)  # let it perform calculus & cache breakdown
         breakdown_B = formula.breakdown()
 
     assert breakdown_A != breakdown_B
 
 
-@pytest.mark.parametrize('FormulaClass', concrete_formula_classes())
+@pytest.mark.parametrize("FormulaClass", concrete_formula_classes())
 def test_breakdown_resets_to_null_when_calculus_errors_out(FormulaClass, betamax_recorder):
     formula = FormulaClass(betamax_recorder.session)
 
-    test_moniker_A = ('build_metrics', 'build times')
-    test_moniker_B = ('nonexistent_framework', 'nonexistent_suite')
+    test_moniker_A = ("build_metrics", "build times")
+    test_moniker_B = ("nonexistent_framework", "nonexistent_suite")
 
-    cassette_preffix_A = '-'.join(filter(None, test_moniker_A))
-    cassette_preffix_B = '-'.join(filter(None, test_moniker_B))
+    cassette_preffix_A = "-".join(filter(None, test_moniker_A))
+    cassette_preffix_B = "-".join(filter(None, test_moniker_B))
 
     # run happy path calculus
-    with betamax_recorder.use_cassette(f'{cassette_preffix_A}', serialize_with='prettyjson'):
+    with betamax_recorder.use_cassette(f"{cassette_preffix_A}", serialize_with="prettyjson"):
         formula(*test_moniker_A)  # let it perform calculus & cache breakdown
         _ = formula.breakdown()
 
     # now run alternated path calculus
-    with betamax_recorder.use_cassette(f'{cassette_preffix_B}', serialize_with='prettyjson'):
+    with betamax_recorder.use_cassette(f"{cassette_preffix_B}", serialize_with="prettyjson"):
         with pytest.raises(NoFiledBugs):
             formula(*test_moniker_B)  # intentionally blows up while doing calculus
 
@@ -174,50 +174,50 @@ def test_breakdown_resets_to_null_when_calculus_errors_out(FormulaClass, betamax
             _ = formula.breakdown()
 
 
-@pytest.mark.parametrize('FormulaClass', concrete_formula_classes())
+@pytest.mark.parametrize("FormulaClass", concrete_formula_classes())
 @pytest.mark.parametrize(
-    'framework, suite, test',
+    "framework, suite, test",
     [
-        ('build_metrics', 'build times', None),
-        ('build_metrics', 'installer size', None),
-        ('awsy', 'JS', None),
-        ('talos', 'tp5n', 'nonmain_startup_fileio'),
+        ("build_metrics", "build times", None),
+        ("build_metrics", "installer size", None),
+        ("awsy", "JS", None),
+        ("talos", "tp5n", "nonmain_startup_fileio"),
     ],
 )
 def test_formula_fetches_bugs_from_quantifying_period(
     framework, suite, test, FormulaClass, betamax_recorder
 ):
     formula = FormulaClass(betamax_recorder.session)
-    cassette = '-'.join(filter(None, [framework, suite, test]))
+    cassette = "-".join(filter(None, [framework, suite, test]))
 
-    with betamax_recorder.use_cassette(f'{cassette}', serialize_with='prettyjson'):
+    with betamax_recorder.use_cassette(f"{cassette}", serialize_with="prettyjson"):
         formula(framework, suite, test)  # let it perform calculus & cache breakdown
 
     all_filed_bugs, except_new_bugs = formula.breakdown()
 
     assert len(all_filed_bugs) > 0
     for bug in all_filed_bugs:
-        creation_time = datetime.strptime(bug['creation_time'], BZ_DATETIME_FORMAT)
+        creation_time = datetime.strptime(bug["creation_time"], BZ_DATETIME_FORMAT)
         assert creation_time >= formula.oldest_timestamp
 
 
-@pytest.mark.parametrize('FormulaClass', concrete_formula_classes())
+@pytest.mark.parametrize("FormulaClass", concrete_formula_classes())
 @pytest.mark.parametrize(
-    'framework, suite, test',
+    "framework, suite, test",
     [
-        ('build_metrics', 'build times', None),
-        ('build_metrics', 'installer size', None),
-        ('awsy', 'JS', None),
-        ('talos', 'tp5n', 'nonmain_startup_fileio'),
+        ("build_metrics", "build times", None),
+        ("build_metrics", "installer size", None),
+        ("awsy", "JS", None),
+        ("talos", "tp5n", "nonmain_startup_fileio"),
     ],
 )
 def test_formula_filters_out_bugs_that_didnt_cool_down_yet(
     framework, suite, test, FormulaClass, betamax_recorder
 ):
     formula = FormulaClass(betamax_recorder.session)
-    cassette = '-'.join(filter(None, [framework, suite, test]))
+    cassette = "-".join(filter(None, [framework, suite, test]))
 
-    with betamax_recorder.use_cassette(f'{cassette}', serialize_with='prettyjson'):
+    with betamax_recorder.use_cassette(f"{cassette}", serialize_with="prettyjson"):
         formula(framework, suite, test)  # let it perform calculus & cache breakdown
 
     # left with cooled down bugs only
@@ -226,14 +226,14 @@ def test_formula_filters_out_bugs_that_didnt_cool_down_yet(
         assert formula.has_cooled_down(bug)
 
 
-@pytest.mark.parametrize('FormulaClass', concrete_formula_classes())
+@pytest.mark.parametrize("FormulaClass", concrete_formula_classes())
 def test_formula_errors_up_when_no_bugs_were_filed(FormulaClass, betamax_recorder):
     formula = FormulaClass(betamax_recorder.session)
-    nonexistent_framework = 'nonexistent_framework'
-    nonexistent_suite = 'nonexistent_suite'
+    nonexistent_framework = "nonexistent_framework"
+    nonexistent_suite = "nonexistent_suite"
 
     with betamax_recorder.use_cassette(
-        f'{nonexistent_framework}-{nonexistent_suite}', serialize_with='prettyjson'
+        f"{nonexistent_framework}-{nonexistent_suite}", serialize_with="prettyjson"
     ):
         with pytest.raises(NoFiledBugs):
             formula(nonexistent_framework, nonexistent_suite)

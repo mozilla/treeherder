@@ -19,7 +19,7 @@ def convert_unicode_character_to_ascii_repr(match_obj):
 
     hex_value = hex_code_point.zfill(6).upper()
 
-    return '<U+{}>'.format(hex_value)
+    return "<U+{}>".format(hex_value)
 
 
 def astral_filter(text):

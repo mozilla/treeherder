@@ -8,7 +8,7 @@ def _lookup_extra_options_max(schema):
     return schema["definitions"]["suite_schema"]["properties"]["extraOptions"]["items"]["maxLength"]
 
 
-with open(os.path.join('schemas', 'performance-artifact.json')) as f:
+with open(os.path.join("schemas", "performance-artifact.json")) as f:
     PERFHERDER_SCHEMA = json.load(f)
     MAX_LENGTH = _lookup_extra_options_max(PERFHERDER_SCHEMA)
     SECOND_MAX_LENGTH = 45

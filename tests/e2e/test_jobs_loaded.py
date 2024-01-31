@@ -6,9 +6,9 @@ def test_pending_job_available(test_repository, pending_jobs_stored, client):
     assert resp.status_code == 200
     jobs = resp.json()
 
-    assert len(jobs['results']) == 1
+    assert len(jobs["results"]) == 1
 
-    assert jobs['results'][0]['state'] == 'pending'
+    assert jobs["results"][0]["state"] == "pending"
 
 
 def test_running_job_available(test_repository, running_jobs_stored, client):
@@ -16,9 +16,9 @@ def test_running_job_available(test_repository, running_jobs_stored, client):
     assert resp.status_code == 200
     jobs = resp.json()
 
-    assert len(jobs['results']) == 1
+    assert len(jobs["results"]) == 1
 
-    assert jobs['results'][0]['state'] == 'running'
+    assert jobs["results"][0]["state"] == "running"
 
 
 def test_completed_job_available(test_repository, completed_jobs_stored, client):
@@ -26,8 +26,8 @@ def test_completed_job_available(test_repository, completed_jobs_stored, client)
     assert resp.status_code == 200
     jobs = resp.json()
 
-    assert len(jobs['results']) == 1
-    assert jobs['results'][0]['state'] == 'completed'
+    assert len(jobs["results"]) == 1
+    assert jobs["results"][0]["state"] == "completed"
 
 
 def test_pending_stored_to_running_loaded(
@@ -42,8 +42,8 @@ def test_pending_stored_to_running_loaded(
     assert resp.status_code == 200
     jobs = resp.json()
 
-    assert len(jobs['results']) == 1
-    assert jobs['results'][0]['state'] == 'running'
+    assert len(jobs["results"]) == 1
+    assert jobs["results"][0]["state"] == "running"
 
 
 def test_finished_job_to_running(
@@ -56,8 +56,8 @@ def test_finished_job_to_running(
     assert resp.status_code == 200
     jobs = resp.json()
 
-    assert len(jobs['results']) == 1
-    assert jobs['results'][0]['state'] == 'completed'
+    assert len(jobs["results"]) == 1
+    assert jobs["results"][0]["state"] == "completed"
 
 
 def test_running_job_to_pending(test_repository, running_jobs_stored, pending_jobs_stored, client):
@@ -69,5 +69,5 @@ def test_running_job_to_pending(test_repository, running_jobs_stored, pending_jo
     assert resp.status_code == 200
     jobs = resp.json()
 
-    assert len(jobs['results']) == 1
-    assert jobs['results'][0]['state'] == 'running'
+    assert len(jobs["results"]) == 1
+    assert jobs["results"][0]["state"] == "running"
