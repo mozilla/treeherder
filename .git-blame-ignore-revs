@@ -1,2 +1,5 @@
 # Switch to double quotes everywhere in Python
 cfb19a5ef8eb49c4b74d2356eeefaa242ccc51f0
+
+# Standardize on modern Python features like f-strings
+8028121253101328c3c8576c5186cfeafcb8a691
