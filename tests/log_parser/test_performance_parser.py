@@ -27,6 +27,6 @@ def test_performance_log_parsing_malformed_perfherder_data():
             }
         ],
     }
-    parser.parse_line("PERFHERDER_DATA: {}".format(json.dumps(valid_perfherder_data)), 3)
+    parser.parse_line(f"PERFHERDER_DATA: {json.dumps(valid_perfherder_data)}", 3)
 
     assert parser.get_artifact() == [valid_perfherder_data]

@@ -19,7 +19,7 @@ class Changelog(models.Model):
         unique_together = ("id", "remote_id", "type")
 
     def __str__(self):
-        return "[%s] %s by %s" % (self.id, self.message, self.author)
+        return f"[{self.id}] {self.message} by {self.author}"
 
 
 class ChangelogFile(models.Model):

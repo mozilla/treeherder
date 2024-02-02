@@ -54,15 +54,15 @@ class TestTaskclusterModelImpl:
 
     def test_task_in_context(self):
         # match
-        tag_set_list, task_tags = [
+        tag_set_list, task_tags = (
             load_json_fixture(f) for f in ("matchingTagSetList.json", "matchingTaskTags.json")
-        ]
+        )
         assert TaskclusterModelImpl._task_in_context(tag_set_list, task_tags) is True
 
         # mismatch
-        tag_set_list, task_tags = [
+        tag_set_list, task_tags = (
             load_json_fixture(f) for f in ("mismatchingTagSetList.json", "mismatchingTaskTags.json")
-        ]
+        )
         assert TaskclusterModelImpl._task_in_context(tag_set_list, task_tags) is False
 
     def test_get_action(self, actions_json, expected_backfill_task):

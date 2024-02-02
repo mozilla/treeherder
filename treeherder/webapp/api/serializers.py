@@ -343,7 +343,7 @@ class TestSuiteField(serializers.Field):
         build_type = value["build_type"]
         platform = value["job__machine_platform__platform"]
         test_suite = value["job__signature__job_type_name"]
-        new_string = test_suite.replace("test-{}".format(platform), "")
+        new_string = test_suite.replace(f"test-{platform}", "")
         new_test_suite = new_string.replace(build_type, "")
         return re.sub(r"^.(/|-)|(/|-)$", "", new_test_suite)
 
@@ -402,7 +402,7 @@ class FailuresQueryParamsSerializer(serializers.Serializer):
                 models.Repository.objects.get(name=tree)
 
             except ObjectDoesNotExist:
-                raise serializers.ValidationError("{} does not exist.".format(tree))
+                raise serializers.ValidationError(f"{tree} does not exist.")
 
         return tree
 

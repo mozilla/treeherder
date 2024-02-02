@@ -26,14 +26,10 @@ class InvestigatedViewSet(viewsets.ModelViewSet):
             return queryset
 
         except Push.DoesNotExist:
-            return Response(
-                "No push with revision: {0}".format(revision), status=HTTP_404_NOT_FOUND
-            )
+            return Response(f"No push with revision: {revision}", status=HTTP_404_NOT_FOUND)
 
         except InvestigatedTests.DoesNotExist:
-            return Response(
-                "No push with revision: {0}".format(revision), status=HTTP_404_NOT_FOUND
-            )
+            return Response(f"No push with revision: {revision}", status=HTTP_404_NOT_FOUND)
 
     def create(self, request, *args, **kwargs):
         project = kwargs["project"]
@@ -52,19 +48,13 @@ class InvestigatedViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         except IntegrityError:
-            return Response(
-                "{0} already marked investigated".format(test), status=HTTP_400_BAD_REQUEST
-            )
+            return Response(f"{test} already marked investigated", status=HTTP_400_BAD_REQUEST)
 
         except Push.DoesNotExist:
-            return Response(
-                "No push with revision: {0}".format(revision), status=HTTP_404_NOT_FOUND
-            )
+            return Response(f"No push with revision: {revision}", status=HTTP_404_NOT_FOUND)
 
         except JobType.DoesNotExist:
-            return Response(
-                "No JobType with job name: {0}".format(jobName), status=HTTP_404_NOT_FOUND
-            )
+            return Response(f"No JobType with job name: {jobName}", status=HTTP_404_NOT_FOUND)
 
     def destroy(self, request, project, pk=None):
         try:

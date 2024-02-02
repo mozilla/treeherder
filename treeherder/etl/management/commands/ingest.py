@@ -38,7 +38,7 @@ for key, value in EXCHANGE_EVENT_MAP.items():
 conn_sem = BoundedSemaphore(50)
 
 
-class Connection(object):
+class Connection:
     def __enter__(self):
         conn_sem.acquire()
 
@@ -51,15 +51,15 @@ def ingest_pr(pr_url, root_url):
     _, _, _, org, repo, _, pull_number, _ = pr_url.split("/", 7)
     pulse = {
         "exchange": "exchange/taskcluster-github/v1/pull-request",
-        "routingKey": "primary.{}.{}.synchronize".format(org, repo),
+        "routingKey": f"primary.{org}.{repo}.synchronize",
         "payload": {
             "repository": repo,
             "organization": org,
             "action": "synchronize",
             "details": {
                 "event.pullNumber": pull_number,
-                "event.base.repo.url": "https://github.com/{}/{}.git".format(org, repo),
-                "event.head.repo.url": "https://github.com/{}/{}.git".format(org, repo),
+                "event.base.repo.url": f"https://github.com/{org}/{repo}.git",
+                "event.head.repo.url": f"https://github.com/{org}/{repo}.git",
             },
         },
     }
@@ -233,10 +233,10 @@ def process_job_with_threads(pulse_job, root_url):
 
 
 def find_task_id(index_path, root_url):
-    index_url = liburls.api(root_url, "index", "v1", "task/{}".format(index_path))
+    index_url = liburls.api(root_url, "index", "v1", f"task/{index_path}")
     response = requests.get(index_url)
     if response.status_code == 404:
-        raise Exception("Index URL {} not found".format(index_url))
+        raise Exception(f"Index URL {index_url} not found")
     return response.json()["taskId"]
 
 
@@ -248,7 +248,7 @@ def get_decision_task_id(project, revision, root_url):
 
 def repo_meta(project):
     _repo = Repository.objects.filter(name=project)[0]
-    assert _repo, "The project {} you specified is incorrect".format(project)
+    assert _repo, f"The project {project} you specified is incorrect"
     splitUrl = _repo.url.split("/")
     return {
         "url": _repo.url,
@@ -388,9 +388,7 @@ def ingest_git_pushes(project, dry_run=False):
         oldest_parent_revision = info["parents"][0]["sha"]
         push_to_date[oldest_parent_revision] = info["commit"]["committer"]["date"]
         logger.info(
-            "Push: {} - Date: {}".format(
-                oldest_parent_revision, push_to_date[oldest_parent_revision]
-            )
+            f"Push: {oldest_parent_revision} - Date: {push_to_date[oldest_parent_revision]}"
         )
         push_revision.append(_commit["sha"])
 

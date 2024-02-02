@@ -673,4 +673,4 @@ def dump_vars(alert_summaries, perf_data, alerts=None):
         for alert in alerts:
             dump(alert)
     for perf_datum in perf_data:
-        pprint("PerfData(id={0.push_id}, push_timestamp={0.push_timestamp})".format(perf_datum))
+        pprint(f"PerfData(id={perf_datum.push_id}, push_timestamp={perf_datum.push_timestamp})")

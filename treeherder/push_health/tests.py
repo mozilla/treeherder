@@ -103,12 +103,10 @@ def get_current_test_failures(push, option_map, jobs, investigatedTests=None):
         job_symbol = job.job_type.symbol
         job_group = job.job_group.name
         job_group_symbol = job.job_group.symbol
-        job.job_key = "{}{}{}{}".format(config, platform, job_name, job_group)
+        job.job_key = f"{config}{platform}{job_name}{job_group}"
         all_failed_jobs[job.id] = job
         # The 't' ensures the key starts with a character, as required for a query selector
-        test_key = re.sub(
-            r"\W+", "", "t{}{}{}{}{}".format(test_name, config, platform, job_name, job_group)
-        )
+        test_key = re.sub(r"\W+", "", f"t{test_name}{config}{platform}{job_name}{job_group}")
         isClassifiedIntermittent = any(
             job["failure_classification_id"] == 4 for job in jobs[job_name]
         )
@@ -215,7 +213,7 @@ def get_test_failures(
     jobs,
     result_status=set(),
 ):
-    logger.debug("Getting test failures for push: {}".format(push.id))
+    logger.debug(f"Getting test failures for push: {push.id}")
     # query for jobs for the last two weeks excluding today
     # find tests that have failed in the last 14 days
     # this is very cache-able for reuse on other pushes.

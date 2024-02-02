@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from treeherder.etl.text import astral_filter, filter_re
 
 

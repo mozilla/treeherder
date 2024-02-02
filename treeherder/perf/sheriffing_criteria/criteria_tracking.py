@@ -4,7 +4,7 @@ import logging
 from multiprocessing import cpu_count
 from multiprocessing.pool import Pool, ThreadPool, AsyncResult
 import time
-from typing import Tuple, Dict, Union, List
+from typing import Union
 
 from datetime import datetime, timedelta
 
@@ -49,7 +49,7 @@ class CriteriaRecord:
 class RecordComputer:
     def __init__(
         self,
-        formula_map: Dict[str, BugzillaFormula],
+        formula_map: dict[str, BugzillaFormula],
         time_until_expires: timedelta,
         webservice_rest_time: timedelta,
         logger=None,
@@ -162,7 +162,7 @@ class ResultsChecker:
         self.__last_change = 0
         self.__since_last_change = timedelta(seconds=0)
 
-    def wait_for_results(self, results: List[AsyncResult]):
+    def wait_for_results(self, results: list[AsyncResult]):
         self.__reset_change_track()
 
         while True:
@@ -180,7 +180,7 @@ class ResultsChecker:
                 f"Haven't computed updates for all records yet (only {len(ready)} out of {len(results)}). Still waiting..."
             )
 
-    def __updates_stagnated(self, results: List[AsyncResult], last_check_on: float) -> bool:
+    def __updates_stagnated(self, results: list[AsyncResult], last_check_on: float) -> bool:
         ready_amount = len([r for r in results if r.ready()])
         total_results = len(results)
         new_change = total_results - ready_amount
@@ -213,7 +213,7 @@ class CriteriaTracker:
 
     def __init__(
         self,
-        formula_map: Dict[str, BugzillaFormula] = None,
+        formula_map: dict[str, BugzillaFormula] = None,
         record_path: str = None,
         webservice_rest_time: timedelta = None,
         multiprocessed: bool = False,
@@ -236,7 +236,7 @@ class CriteriaTracker:
             if not callable(formula):
                 raise TypeError("Must provide callable as sheriffing criteria formula")
 
-    def get_test_moniker(self, record: CriteriaRecord) -> Tuple[str, str, str]:
+    def get_test_moniker(self, record: CriteriaRecord) -> tuple[str, str, str]:
         return record.Framework, record.Suite, record.Test
 
     def __iter__(self):
@@ -247,7 +247,7 @@ class CriteriaTracker:
         self.log.info(f"Loading records from {self._record_path}...")
         self._records_map = {}  # reset them
 
-        with open(self._record_path, "r") as csv_file:
+        with open(self._record_path) as csv_file:
             reader = csv.DictReader(csv_file)
             for row in reader:
                 test_moniker = row.get("Framework"), row.get("Suite"), row.get("Test")
@@ -283,7 +283,7 @@ class CriteriaTracker:
             record = self._computer.apply_formulas(record)
         return record
 
-    def create_formula_map(self) -> Dict[str, BugzillaFormula]:
+    def create_formula_map(self) -> dict[str, BugzillaFormula]:
         return {
             self.ENGINEER_TRACTION: EngineerTractionFormula(),
             self.FIX_RATIO: FixRatioFormula(),

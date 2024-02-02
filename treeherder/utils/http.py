@@ -6,7 +6,7 @@ from django.conf import settings
 def make_request(url, method="GET", headers=None, timeout=30, **kwargs):
     """A wrapper around requests to set defaults & call raise_for_status()."""
     headers = headers or {}
-    headers["User-Agent"] = "treeherder/{}".format(settings.SITE_HOSTNAME)
+    headers["User-Agent"] = f"treeherder/{settings.SITE_HOSTNAME}"
     response = requests.request(method, url, headers=headers, timeout=timeout, **kwargs)
     if response.history:
         params = {

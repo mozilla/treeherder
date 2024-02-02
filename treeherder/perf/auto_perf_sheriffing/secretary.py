@@ -1,6 +1,5 @@
 import logging
 from datetime import datetime, timedelta
-from typing import List
 
 import simplejson as json
 from django.conf import settings as django_settings
@@ -22,7 +21,7 @@ class Secretary:
     """
 
     def __init__(
-        self, outcome_checker: OutcomeChecker = None, supported_platforms: List[str] = None
+        self, outcome_checker: OutcomeChecker = None, supported_platforms: list[str] = None
     ):
         self.outcome_checker = outcome_checker or OutcomeChecker()
         self.supported_platforms = supported_platforms or django_settings.SUPPORTED_PLATFORMS

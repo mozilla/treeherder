@@ -4,7 +4,6 @@ import logging
 import re
 import time
 from hashlib import sha1
-from typing import List
 
 import warnings
 
@@ -80,7 +79,7 @@ class BuildPlatform(models.Model):
         unique_together = ("os_name", "platform", "architecture")
 
     def __str__(self):
-        return "{0} {1} {2}".format(self.os_name, self.platform, self.architecture)
+        return f"{self.os_name} {self.platform} {self.architecture}"
 
 
 class Option(NamedModel):
@@ -117,11 +116,11 @@ class Repository(models.Model):
         verbose_name_plural = "repositories"
 
     @classmethod
-    def fetch_all_names(cls) -> List[str]:
+    def fetch_all_names(cls) -> list[str]:
         return cls.objects.values_list("name", flat=True)
 
     def __str__(self):
-        return "{0} {1}".format(self.name, self.repository_group)
+        return f"{self.name} {self.repository_group}"
 
 
 class Push(models.Model):
@@ -145,7 +144,7 @@ class Push(models.Model):
         unique_together = ("repository", "revision")
 
     def __str__(self):
-        return "{0} {1}".format(self.repository.name, self.revision)
+        return f"{self.repository.name} {self.revision}"
 
     def total_jobs(self, job_type, result):
         return self.jobs.filter(job_type=job_type, result=result).count()
@@ -194,7 +193,7 @@ class Commit(models.Model):
         unique_together = ("push", "revision")
 
     def __str__(self):
-        return "{0} {1}".format(self.push.repository.name, self.revision)
+        return f"{self.push.repository.name} {self.revision}"
 
 
 class MachinePlatform(models.Model):
@@ -208,7 +207,7 @@ class MachinePlatform(models.Model):
         unique_together = ("os_name", "platform", "architecture")
 
     def __str__(self):
-        return "{0} {1} {2}".format(self.os_name, self.platform, self.architecture)
+        return f"{self.os_name} {self.platform} {self.architecture}"
 
 
 class Bugscache(models.Model):
@@ -232,7 +231,7 @@ class Bugscache(models.Model):
         ]
 
     def __str__(self):
-        return "{0}".format(self.id)
+        return f"{self.id}"
 
     @classmethod
     def sanitized_search_term(self, search_term):
@@ -322,7 +321,7 @@ class BugzillaComponent(models.Model):
         unique_together = ("product", "component")
 
     def __str__(self):
-        return "{0} :: {1}".format(self.product, self.component)
+        return f"{self.product} :: {self.component}"
 
 
 class FilesBugzillaMap(models.Model):
@@ -335,7 +334,7 @@ class FilesBugzillaMap(models.Model):
         verbose_name_plural = "files_bugzilla_components"
 
     def __str__(self):
-        return "{0}".format(self.path)
+        return f"{self.path}"
 
 
 class BugzillaSecurityGroup(models.Model):
@@ -363,7 +362,7 @@ class JobGroup(models.Model):
         unique_together = ("name", "symbol")
 
     def __str__(self):
-        return "{0} ({1})".format(self.name, self.symbol)
+        return f"{self.name} ({self.symbol})"
 
 
 class OptionCollectionManager(models.Manager):
@@ -413,7 +412,7 @@ class OptionCollection(models.Model):
         unique_together = ("option_collection_hash", "option")
 
     def __str__(self):
-        return "{0}".format(self.option)
+        return f"{self.option}"
 
 
 class JobType(models.Model):
@@ -427,7 +426,7 @@ class JobType(models.Model):
         unique_together = (("name", "symbol"),)
 
     def __str__(self):
-        return "{0} ({1})".format(self.name, self.symbol)
+        return f"{self.name} ({self.symbol})"
 
 
 class FailureClassification(NamedModel):
@@ -602,7 +601,7 @@ class Job(models.Model):
         return self.tier < 3
 
     def __str__(self):
-        return "{0} {1} {2}".format(self.id, self.repository, self.guid)
+        return f"{self.id} {self.repository} {self.guid}"
 
     def get_platform_option(self, option_collection_map=None):
         if not hasattr(self, "platform_option"):
@@ -723,7 +722,7 @@ class JobLog(models.Model):
         unique_together = ("job", "name", "url")
 
     def __str__(self):
-        return "{0} {1} {2} {3}".format(self.id, self.job.guid, self.name, self.status)
+        return f"{self.id} {self.job.guid} {self.name} {self.status}"
 
     def update_status(self, status):
         self.status = status
@@ -793,7 +792,7 @@ class BugJobMap(models.Model):
         return bug_map
 
     def __str__(self):
-        return "{0} {1} {2} {3}".format(self.id, self.job.guid, self.bug_id, self.user)
+        return f"{self.id} {self.job.guid} {self.bug_id} {self.user}"
 
 
 class JobNote(models.Model):
@@ -899,9 +898,7 @@ class JobNote(models.Model):
         self._ensure_classification()
 
     def __str__(self):
-        return "{0} {1} {2} {3}".format(
-            self.id, self.job.guid, self.failure_classification, self.who
-        )
+        return f"{self.id} {self.job.guid} {self.failure_classification} {self.who}"
 
 
 class FailureLine(models.Model):
@@ -959,7 +956,7 @@ class FailureLine(models.Model):
         unique_together = ("job_log", "line")
 
     def __str__(self):
-        return "{0} {1}".format(self.id, Job.objects.get(guid=self.job_guid).id)
+        return f"{self.id} {Job.objects.get(guid=self.job_guid).id}"
 
     @property
     def error(self):
@@ -1116,7 +1113,7 @@ class ClassifiedFailure(models.Model):
     modified = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return "{0} {1}".format(self.id, self.bug_number)
+        return f"{self.id} {self.bug_number}"
 
     def bug(self):
         # Putting this here forces one query per object; there should be a way
@@ -1256,7 +1253,7 @@ class TextLogError(models.Model):
         unique_together = (("step", "line_number"), ("job", "line_number"))
 
     def __str__(self):
-        return "{0} {1}".format(self.id, self.job.id)
+        return f"{self.id} {self.job.id}"
 
     @property
     def metadata(self):
@@ -1387,7 +1384,7 @@ class TextLogErrorMatch(models.Model):
         unique_together = ("text_log_error", "classified_failure", "matcher_name")
 
     def __str__(self):
-        return "{0} {1}".format(self.text_log_error.id, self.classified_failure.id)
+        return f"{self.text_log_error.id} {self.classified_failure.id}"
 
 
 class InvestigatedTests(models.Model):

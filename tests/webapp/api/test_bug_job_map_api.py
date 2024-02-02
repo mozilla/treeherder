@@ -95,7 +95,7 @@ def test_bug_job_map_detail(client, eleven_jobs_stored, test_repository, test_us
         user=test_user,
     )
 
-    pk = "{0}-{1}".format(job.id, bug.id)
+    pk = f"{job.id}-{bug.id}"
 
     resp = client.get(
         reverse("bug-job-map-detail", kwargs={"project": test_repository.name, "pk": pk})
@@ -130,7 +130,7 @@ def test_bug_job_map_delete(
     if not test_no_auth:
         client.force_authenticate(user=test_user)
 
-    pk = "{0}-{1}".format(job.id, bug.id)
+    pk = f"{job.id}-{bug.id}"
 
     resp = client.delete(
         reverse("bug-job-map-detail", kwargs={"project": test_repository.name, "pk": pk})

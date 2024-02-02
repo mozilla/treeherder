@@ -27,7 +27,7 @@ def main(args):
     # Support comma separated projects
     projects = args.projects.split(",")
     for _project in projects:
-        logger.info("Comparing {} against production.".format(_project))
+        logger.info(f"Comparing {_project} against production.")
         # Remove properties that are irrelevant for the comparison
         pushes = compare_to_client.get_pushes(_project, count=50)
         for _push in sorted(pushes, key=lambda push: push["revision"]):

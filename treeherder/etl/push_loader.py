@@ -58,7 +58,7 @@ class PushLoader:
                 return GithubPullRequestTransformer
         elif "/hgpushes/" in exchange:
             return HgPushTransformer
-        raise PulsePushError("Unsupported push exchange: {}".format(exchange))
+        raise PulsePushError(f"Unsupported push exchange: {exchange}")
 
 
 class GithubTransformer:
@@ -156,7 +156,7 @@ class GithubPushTransformer(GithubTransformer):
         if self.message_body["details"].get("event.head.tag"):
             return "tag"
 
-        return super(GithubPushTransformer, self).get_branch()
+        return super().get_branch()
 
     def transform(self, repository):
         push_data = compare_shas(

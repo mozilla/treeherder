@@ -37,7 +37,7 @@ class Command(BaseCommand):
         self.is_debug = options["debug"]
         days = options["days"]
 
-        self.debug("Fetching {} sets of history...".format(days))
+        self.debug(f"Fetching {days} sets of history...")
 
         option_map = OptionCollection.objects.get_option_collection_map()
         repository_ids = REPO_GROUPS["trunk"]

@@ -1,6 +1,5 @@
 import logging
 from datetime import datetime, timedelta
-from typing import List, Tuple
 
 from django.core.management.base import BaseCommand
 
@@ -65,7 +64,7 @@ class Command(BaseCommand):
 
         logging.info("Sherlock: Going back to sleep.")
 
-    def _parse_args(self, **options) -> Tuple[List, List, datetime, timedelta]:
+    def _parse_args(self, **options) -> tuple[list, list, datetime, timedelta]:
         return (
             options["frameworks"],
             options["repositories"],

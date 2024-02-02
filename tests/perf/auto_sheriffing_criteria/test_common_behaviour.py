@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 import pytest
 from django.conf import settings
-from typing import List, Type, Callable
+from typing import Callable
 
 from tests.perf.auto_sheriffing_criteria.conftest import CASSETTES_RECORDING_DATE
 from treeherder.config.settings import BZ_DATETIME_FORMAT
@@ -18,15 +18,15 @@ from treeherder.perf.sheriffing_criteria import (
 pytestmark = [pytest.mark.freeze_time(CASSETTES_RECORDING_DATE, tick=True)]
 
 
-def bugzilla_formula_instances() -> List[BugzillaFormula]:
+def bugzilla_formula_instances() -> list[BugzillaFormula]:
     return [EngineerTractionFormula(), FixRatioFormula()]
 
 
-def formula_instances() -> List[Callable]:
+def formula_instances() -> list[Callable]:
     return bugzilla_formula_instances() + [TotalAlertsFormula()]
 
 
-def concrete_formula_classes() -> List[Type[BugzillaFormula]]:
+def concrete_formula_classes() -> list[type[BugzillaFormula]]:
     return [EngineerTractionFormula, FixRatioFormula]
 
 

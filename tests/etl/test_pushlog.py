@@ -104,7 +104,7 @@ def test_ingest_hg_pushlog_cache_last_push(test_repository, test_base_dir, activ
     pushes = pushlog_dict["pushes"]
     max_push_id = max(int(k) for k in pushes.keys())
 
-    cache_key = "{}:last_push_id".format(test_repository.name)
+    cache_key = f"{test_repository.name}:last_push_id"
     assert cache.get(cache_key) == max_push_id
 
 

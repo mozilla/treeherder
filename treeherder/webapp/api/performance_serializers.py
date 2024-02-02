@@ -387,7 +387,7 @@ class PerformanceQueryParamsSerializer(serializers.Serializer):
             Repository.objects.get(name=repository)
 
         except ObjectDoesNotExist:
-            raise serializers.ValidationError("{} does not exist.".format(repository))
+            raise serializers.ValidationError(f"{repository} does not exist.")
 
         return repository
 
@@ -445,7 +445,7 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
     def get_name(self, value):
         test = value["test"]
         suite = value["suite"]
-        test_suite = suite if test == "" or test == suite else "{} {}".format(suite, test)
+        test_suite = suite if test == "" or test == suite else f"{suite} {test}"
         return "{} {} {}".format(test_suite, value["option_name"], value["extra_options"])
 
 

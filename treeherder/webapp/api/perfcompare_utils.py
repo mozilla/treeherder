@@ -30,16 +30,16 @@ PERFHERDER_TIMERANGES = [
 
 
 def get_test_suite(suite, test):
-    return suite if test == "" or test == suite else "{} {}".format(suite, test)
+    return suite if test == "" or test == suite else f"{suite} {test}"
 
 
 def get_header_name(extra_options, option_name, test_suite):
-    name = "{} {} {}".format(test_suite, option_name, extra_options)
+    name = f"{test_suite} {option_name} {extra_options}"
     return name
 
 
 def get_sig_identifier(header, platform):
-    return "{} {}".format(header, platform)
+    return f"{header} {platform}"
 
 
 def get_option_collection_map():

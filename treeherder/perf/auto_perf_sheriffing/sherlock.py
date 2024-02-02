@@ -2,7 +2,6 @@ import logging
 from datetime import datetime, timedelta
 from json import JSONDecodeError
 from logging import INFO, WARNING
-from typing import List, Tuple
 
 from django.conf import settings
 from django.db.models import QuerySet
@@ -35,7 +34,7 @@ class Sherlock:
         backfill_tool: BackfillTool,
         secretary: Secretary,
         max_runtime: timedelta = None,
-        supported_platforms: List[str] = None,
+        supported_platforms: list[str] = None,
     ):
         self.report_maintainer = report_maintainer
         self.backfill_tool = backfill_tool
@@ -45,7 +44,7 @@ class Sherlock:
         self.supported_platforms = supported_platforms or settings.SUPPORTED_PLATFORMS
         self._wake_up_time = datetime.now()
 
-    def sheriff(self, since: datetime, frameworks: List[str], repositories: List[str]):
+    def sheriff(self, since: datetime, frameworks: list[str], repositories: list[str]):
         logger.info("Sherlock: Validating settings...")
         self.secretary.validate_settings()
 
@@ -76,15 +75,15 @@ class Sherlock:
             raise MaxRuntimeExceeded("Sherlock: Max runtime exceeded.")
 
     def _report(
-        self, since: datetime, frameworks: List[str], repositories: List[str]
-    ) -> List[BackfillReport]:
+        self, since: datetime, frameworks: list[str], repositories: list[str]
+    ) -> list[BackfillReport]:
         return self.report_maintainer.provide_updated_reports(since, frameworks, repositories)
 
-    def _backfill(self, frameworks: List[str], repositories: List[str]):
+    def _backfill(self, frameworks: list[str], repositories: list[str]):
         for platform in self.supported_platforms:
             self.__backfill_on(platform, frameworks, repositories)
 
-    def __backfill_on(self, platform: str, frameworks: List[str], repositories: List[str]):
+    def __backfill_on(self, platform: str, frameworks: list[str], repositories: list[str]):
         left = self.secretary.backfills_left(on_platform=platform)
         total_consumed = 0
 
@@ -110,7 +109,7 @@ class Sherlock:
 
     @staticmethod
     def __fetch_records_requiring_backfills_on(
-        platform: str, frameworks: List[str], repositories: List[str]
+        platform: str, frameworks: list[str], repositories: list[str]
     ) -> QuerySet:
         records_to_backfill = BackfillRecord.objects.select_related(
             "alert",
@@ -126,7 +125,7 @@ class Sherlock:
         )
         return records_to_backfill
 
-    def _backfill_record(self, record: BackfillRecord, left: int) -> Tuple[int, int]:
+    def _backfill_record(self, record: BackfillRecord, left: int) -> tuple[int, int]:
         consumed = 0
 
         try:
@@ -160,7 +159,7 @@ class Sherlock:
     @staticmethod
     def _note_backfill_outcome(
         record: BackfillRecord, to_backfill: int, actually_backfilled: int
-    ) -> Tuple[bool, str]:
+    ) -> tuple[bool, str]:
         success = False
 
         record.total_actions_triggered = actually_backfilled
@@ -200,7 +199,7 @@ class Sherlock:
         return pending_tasks_count > acceptable_limit
 
     @staticmethod
-    def __get_data_points_to_backfill(context: List[dict]) -> List[dict]:
+    def __get_data_points_to_backfill(context: list[dict]) -> list[dict]:
         context_len = len(context)
         start = None
 

@@ -1,7 +1,6 @@
 import logging
 import uuid
 from abc import ABC, abstractmethod
-from typing import List, Tuple
 import requests
 
 import jsone
@@ -169,7 +168,7 @@ class TaskclusterModelImpl(TaskclusterModel):
             )
 
     @classmethod
-    def _task_in_context(cls, context: List[dict], task_tags: dict) -> bool:
+    def _task_in_context(cls, context: list[dict], task_tags: dict) -> bool:
         """
         A task (as defined by its tags) is said to match a tag-set if its
         tags are a super-set of the tag-set. A tag-set is a set of key-value pairs.
@@ -254,7 +253,7 @@ def notify_client_factory(
     return NotifyNullObject()
 
 
-def autofind_unprovided(access_token, client_id) -> Tuple[str, str]:
+def autofind_unprovided(access_token, client_id) -> tuple[str, str]:
     client_id = client_id or settings.NOTIFY_CLIENT_ID
     access_token = access_token or settings.NOTIFY_ACCESS_TOKEN
     return client_id, access_token

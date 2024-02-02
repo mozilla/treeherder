@@ -41,7 +41,7 @@ class Command(BaseCommand):
             ],
         )
 
-        listener_params = (JointConsumer, pulse_sources, [lambda key: "#.{}".format(key), None])
+        listener_params = (JointConsumer, pulse_sources, [lambda key: f"#.{key}", None])
         consumer = prepare_joint_consumers(listener_params)
 
         try:

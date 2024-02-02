@@ -36,7 +36,7 @@ class Command(BaseCommand):
         consumers = prepare_consumers(
             TaskConsumer,
             task_sources,
-            lambda key: "#.{}".format(key),
+            lambda key: f"#.{key}",
         )
 
         try:

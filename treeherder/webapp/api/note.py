@@ -34,7 +34,7 @@ class NoteViewSet(viewsets.ViewSet):
             serializer = JobNoteSerializer(JobNote.objects.get(id=pk))
             return Response(serializer.data)
         except JobNote.DoesNotExist:
-            return Response("No note with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
+            return Response(f"No note with id: {pk}", status=HTTP_404_NOT_FOUND)
 
     def list(self, request, project):
         """
@@ -116,7 +116,7 @@ class NoteViewSet(viewsets.ViewSet):
                                 exc_info=True,
                             )
 
-        return Response({"message": "note stored for job {0}".format(request.data["job_id"])})
+        return Response({"message": "note stored for job {}".format(request.data["job_id"])})
 
     def destroy(self, request, project, pk=None):
         """
@@ -127,4 +127,4 @@ class NoteViewSet(viewsets.ViewSet):
             note.delete()
             return Response({"message": "Note deleted"})
         except JobNote.DoesNotExist:
-            return Response("No note with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
+            return Response(f"No note with id: {pk}", status=HTTP_404_NOT_FOUND)
