@@ -2,7 +2,7 @@
 
 ## Running the tests
 
-You can run flake8 and the pytest suite inside Docker, using:
+You can run the linter and the pytest suite inside Docker, using:
 
 ```bash
 docker-compose run backend ./runtests.sh
@@ -37,10 +37,10 @@ Then run the individual tools within that shell, like so:
 
   For more options, see `pytest --help` or <https://docs.pytest.org/en/stable/usage.html>.
 
-- [flake8](https://flake8.readthedocs.io/):
+- [Ruff](https://docs.astral.sh/ruff/):
 
   ```bash
-  flake8
+  ruff check .
   ```
 
 ## Hide Jobs with Tiers
