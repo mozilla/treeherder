@@ -17,8 +17,8 @@ class TreeherderClient:
 
     API_VERSION = "1.1"
     REQUEST_HEADERS = {
-        "Accept": "application/json; version={}".format(API_VERSION),
-        "User-Agent": "treeherder-pyclient/{}".format(__version__),
+        "Accept": f"application/json; version={API_VERSION}",
+        "User-Agent": f"treeherder-pyclient/{__version__}",
     }
 
     PUSH_ENDPOINT = "push"
@@ -43,9 +43,9 @@ class TreeherderClient:
 
     def _get_endpoint_url(self, endpoint, project=None):
         if project:
-            return "{}/api/project/{}/{}/".format(self.server_url, project, endpoint)
+            return f"{self.server_url}/api/project/{project}/{endpoint}/"
 
-        return "{}/api/{}/".format(self.server_url, endpoint)
+        return f"{self.server_url}/api/{endpoint}/"
 
     def _get_json_list(self, endpoint, project=None, **params):
         if "count" in params and (params["count"] is None or params["count"] > self.MAX_COUNT):

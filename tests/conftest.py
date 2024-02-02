@@ -427,7 +427,7 @@ def eleven_job_blobs(sample_data, sample_push, test_repository, mock_log_parser)
             del blob["sources"]
 
         blob["revision"] = sample_push[push_index]["revision"]
-        blob["taskcluster_task_id"] = "V3SVuxO8TFy37En_6HcXL{}".format(task_id_index)
+        blob["taskcluster_task_id"] = f"V3SVuxO8TFy37En_6HcXL{task_id_index}"
         blob["taskcluster_retry_id"] = "0"
         blobs.append(blob)
 
@@ -463,7 +463,7 @@ def eleven_job_blobs_new_date(sample_data, sample_push, test_repository, mock_lo
             del blob["sources"]
 
         blob["revision"] = sample_push[push_index]["revision"]
-        blob["taskcluster_task_id"] = "V3SVuxO8TFy37En_6HcX{:0>2}".format(task_id_index)
+        blob["taskcluster_task_id"] = f"V3SVuxO8TFy37En_6HcX{task_id_index:0>2}"
         blob["taskcluster_retry_id"] = "0"
         blob["job"]["revision"] = sample_push[push_index]["revision"]
         blob["job"]["submit_timestamp"] = sample_push[push_index]["push_timestamp"]
@@ -1117,7 +1117,7 @@ def bug_data(eleven_jobs_stored, test_repository, test_push, bugs):
     bug_id = bugs[0].id
     job_id = jobs[0].id
     th_models.BugJobMap.create(job_id=job_id, bug_id=bug_id)
-    query_string = "?startday=2012-05-09&endday=2018-05-10&tree={}".format(test_repository.name)
+    query_string = f"?startday=2012-05-09&endday=2018-05-10&tree={test_repository.name}"
 
     return {
         "tree": test_repository.name,
@@ -1270,7 +1270,7 @@ class JSONFixtureLoader:
 
     def __call__(self, fixture_filename):
         fixture_path = join(*self._prior_dirs, fixture_filename)
-        with open(fixture_path, "r") as f:
+        with open(fixture_path) as f:
             return json.load(f)
 
 

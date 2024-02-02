@@ -1,7 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
 from datetime import timedelta, datetime
-from typing import List
 
 from django.db import OperationalError, connection
 from django.db.backends.utils import CursorWrapper
@@ -69,9 +68,9 @@ class TreeherderCycler(DataCycler):
             rs_deleted = Job.objects.cycle_data(
                 self.cycle_interval, self.chunk_size, self.sleep_time
             )
-            logger.warning("Deleted {} jobs".format(rs_deleted))
+            logger.warning(f"Deleted {rs_deleted} jobs")
         except OperationalError as e:
-            logger.error("Error running cycle_data: {}".format(e))
+            logger.error(f"Error running cycle_data: {e}")
 
         self._remove_leftovers()
 
@@ -79,17 +78,17 @@ class TreeherderCycler(DataCycler):
         logger.warning("Pruning ancillary data: job types, groups and machines")
 
         def prune(reference_model, id_name, model):
-            logger.warning("Pruning {}s".format(model.__name__))
+            logger.warning(f"Pruning {model.__name__}s")
             used_ids = (
                 reference_model.objects.only(id_name).values_list(id_name, flat=True).distinct()
             )
             unused_ids = model.objects.exclude(id__in=used_ids).values_list("id", flat=True)
 
-            logger.warning("Removing {} records from {}".format(len(unused_ids), model.__name__))
+            logger.warning(f"Removing {len(unused_ids)} records from {model.__name__}")
 
             while len(unused_ids):
                 delete_ids = unused_ids[: self.chunk_size]
-                logger.warning("deleting {} of {}".format(len(delete_ids), len(unused_ids)))
+                logger.warning(f"deleting {len(delete_ids)} of {len(unused_ids)}")
                 model.objects.filter(id__in=delete_ids).delete()
                 unused_ids = unused_ids[self.chunk_size :]
 
@@ -111,7 +110,7 @@ class PerfherderCycler(DataCycler):
         sleep_time: int,
         is_debug: bool = None,
         days: int = None,
-        strategies: List[RemovalStrategy] = None,
+        strategies: list[RemovalStrategy] = None,
         **kwargs,
     ):
         super().__init__(chunk_size, sleep_time, is_debug)
@@ -223,9 +222,7 @@ class PerfherderCycler(DataCycler):
                         break  # either finished removing all expired data or failed
                     else:
                         any_successful_attempt = True
-                        logger.debug(
-                            "Successfully deleted {} performance datum rows".format(deleted_rows)
-                        )
+                        logger.debug(f"Successfully deleted {deleted_rows} performance datum rows")
 
     def __handle_chunk_removal_exception(
         self, exception, cursor: CursorWrapper, any_successful_attempt: bool

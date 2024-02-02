@@ -175,7 +175,7 @@ class Commenter:
         )
 
     def open_file(self, filename, load):
-        with open("treeherder/intermittents_commenter/{}".format(filename), "r") as myfile:
+        with open(f"treeherder/intermittents_commenter/{filename}") as myfile:
             if load:
                 return json.load(myfile)
             else:
@@ -212,7 +212,7 @@ class Commenter:
         # Use a custom HTTP adapter, so we can set a non-zero max_retries value.
         session.mount("https://", requests.adapters.HTTPAdapter(max_retries=3))
         session.headers = {
-            "User-Agent": "treeherder/{}".format(settings.SITE_HOSTNAME),
+            "User-Agent": f"treeherder/{settings.SITE_HOSTNAME}",
             "x-bugzilla-api-key": settings.COMMENTER_API_KEY,
             "Accept": "application/json",
         }
@@ -233,7 +233,7 @@ class Commenter:
             )
             response.raise_for_status()
         except RequestException as e:
-            logger.warning("error fetching bugzilla metadata for bugs due to {}".format(e))
+            logger.warning(f"error fetching bugzilla metadata for bugs due to {e}")
             return None
 
         if response.headers["Content-Type"] == "text/html; charset=UTF-8":
@@ -246,12 +246,12 @@ class Commenter:
         return data["bugs"]
 
     def submit_bug_changes(self, changes, bug_id):
-        url = "{}/rest/bug/{}".format(settings.BZ_API_URL, str(bug_id))
+        url = f"{settings.BZ_API_URL}/rest/bug/{str(bug_id)}"
         try:
             response = self.session.put(url, headers=self.session.headers, json=changes, timeout=30)
             response.raise_for_status()
         except RequestException as e:
-            logger.error("error posting comment to bugzilla for bug {} due to {}".format(bug_id, e))
+            logger.error(f"error posting comment to bugzilla for bug {bug_id} due to {e}")
 
     def get_test_runs(self, startday, endday):
         """Returns an aggregate of pushes for specified date range and

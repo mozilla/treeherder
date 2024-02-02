@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from datetime import timedelta, datetime
-from typing import Tuple, List
 
 import requests
 from django.conf import settings
@@ -32,7 +31,7 @@ class NonBlockableSession(Session):
         # IP when making many queries with this
         self.headers = {
             "Referer": f"{referer}",
-            "User-Agent": "treeherder/{}".format(settings.SITE_HOSTNAME),
+            "User-Agent": f"treeherder/{settings.SITE_HOSTNAME}",
             "Accept": "application/json",
         }
 
@@ -91,7 +90,7 @@ class BugzillaFormula(ABC):
 
         return result
 
-    def breakdown(self) -> Tuple[list, list]:
+    def breakdown(self) -> tuple[list, list]:
         breakdown_items = (self._denominator_bugs, self._numerator_bugs)
         if None in breakdown_items:
             raise RuntimeError("Cannot breakdown results without running calculus first")
@@ -107,11 +106,11 @@ class BugzillaFormula(ABC):
             return creation_time <= datetime.now() - self._bug_cooldown
 
     @abstractmethod
-    def _filter_numerator_bugs(self, all_filed_bugs: List[dict]) -> List[dict]:
+    def _filter_numerator_bugs(self, all_filed_bugs: list[dict]) -> list[dict]:
         pass
 
     @abstractmethod
-    def _filter_denominator_bugs(self, all_filed_bugs: List[dict]) -> List[dict]:
+    def _filter_denominator_bugs(self, all_filed_bugs: list[dict]) -> list[dict]:
         pass
 
     def _create_default_session(self) -> NonBlockableSession:
@@ -120,12 +119,12 @@ class BugzillaFormula(ABC):
         """
         return NonBlockableSession()
 
-    def __fetch_cooled_down_bugs(self, framework: str, suite: str, test: str = None) -> List[dict]:
+    def __fetch_cooled_down_bugs(self, framework: str, suite: str, test: str = None) -> list[dict]:
         quantified_bugs = self.__fetch_quantified_bugs(framework, suite, test)
         cooled_bugs = self.__filter_cooled_down_bugs(quantified_bugs)
         return cooled_bugs
 
-    def __fetch_quantified_bugs(self, framework: str, suite: str, test: str = None) -> List[dict]:
+    def __fetch_quantified_bugs(self, framework: str, suite: str, test: str = None) -> list[dict]:
         test_moniker = " ".join(filter(None, (suite, test)))
         test_id_fragments = filter(None, [framework, test_moniker])
         creation_time = datetime.strftime(self.oldest_timestamp, BZ_DATETIME_FORMAT)
@@ -153,7 +152,7 @@ class BugzillaFormula(ABC):
         else:
             return bugs_resp.json()["bugs"]
 
-    def __filter_cooled_down_bugs(self, bugs: List[dict]) -> List[dict]:
+    def __filter_cooled_down_bugs(self, bugs: list[dict]) -> list[dict]:
         return [bug for bug in bugs if self.has_cooled_down(bug)]
 
     def __reset_breakdown(self):
@@ -165,7 +164,7 @@ class BugzillaFormula(ABC):
 
 
 class EngineerTractionFormula(BugzillaFormula):
-    def _filter_numerator_bugs(self, cooled_bugs: List[dict]) -> List[dict]:
+    def _filter_numerator_bugs(self, cooled_bugs: list[dict]) -> list[dict]:
         tracted_bugs = []
         for bug in cooled_bugs:
             bug_history = self._fetch_history(bug["id"])
@@ -177,7 +176,7 @@ class EngineerTractionFormula(BugzillaFormula):
 
         return tracted_bugs
 
-    def _filter_denominator_bugs(self, all_filed_bugs: List[dict]) -> List[dict]:
+    def _filter_denominator_bugs(self, all_filed_bugs: list[dict]) -> list[dict]:
         return all_filed_bugs
 
     def _fetch_history(self, bug_id: int) -> list:
@@ -193,7 +192,7 @@ class EngineerTractionFormula(BugzillaFormula):
             body = history_resp.json()
             return body["bugs"][0]["history"]
 
-    def _notice_any_status_change_in(self, bug_history: List[dict], up_to: datetime) -> bool:
+    def _notice_any_status_change_in(self, bug_history: list[dict], up_to: datetime) -> bool:
         def during_interval(change: dict) -> bool:
             when = datetime.strptime(change["when"], BZ_DATETIME_FORMAT)
             return when <= up_to
@@ -213,7 +212,7 @@ class EngineerTractionFormula(BugzillaFormula):
 
 
 class FixRatioFormula(BugzillaFormula):
-    def _filter_numerator_bugs(self, all_filed_bugs: List[dict]) -> List[dict]:
+    def _filter_numerator_bugs(self, all_filed_bugs: list[dict]) -> list[dict]:
         # select only RESOLVED - FIXED bugs
         return [
             bug
@@ -221,7 +220,7 @@ class FixRatioFormula(BugzillaFormula):
             if bug.get("status") == "RESOLVED" and bug.get("resolution") == "FIXED"
         ]
 
-    def _filter_denominator_bugs(self, all_filed_bugs: List[dict]) -> List[dict]:
+    def _filter_denominator_bugs(self, all_filed_bugs: list[dict]) -> list[dict]:
         # select RESOLVED bugs, no matter what resolution they have
         return [bug for bug in all_filed_bugs if bug.get("status") == "RESOLVED"]
 

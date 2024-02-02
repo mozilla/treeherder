@@ -18,11 +18,9 @@ def test_job_list(client, eleven_jobs_stored, test_repository, offset, count, ex
     endpoint.
     """
     url = reverse("jobs-list", kwargs={"project": test_repository.name})
-    params = "&".join(
-        ["{}={}".format(k, v) for k, v in [("offset", offset), ("count", count)] if v]
-    )
+    params = "&".join([f"{k}={v}" for k, v in [("offset", offset), ("count", count)] if v])
     if params:
-        url += "?{}".format(params)
+        url += f"?{params}"
     resp = client.get(url)
     assert resp.status_code == 200
     response_dict = resp.json()
@@ -143,7 +141,7 @@ def test_job_list_filter_fields(client, eleven_jobs_stored, test_repository, fie
     to make this test easy.
     """
     url = reverse("jobs-list", kwargs={"project": test_repository.name})
-    final_url = url + "?{}={}".format(fieldname, expected)
+    final_url = url + f"?{fieldname}={expected}"
     resp = client.get(final_url)
     assert resp.status_code == 200
     first = resp.json()["results"][0]
@@ -245,11 +243,9 @@ def test_list_similar_jobs(client, eleven_jobs_stored, offset, count, expected_n
     job = Job.objects.get(id=1)
 
     url = reverse("jobs-similar-jobs", kwargs={"project": job.repository.name, "pk": job.id})
-    params = "&".join(
-        ["{}={}".format(k, v) for k, v in [("offset", offset), ("count", count)] if v]
-    )
+    params = "&".join([f"{k}={v}" for k, v in [("offset", offset), ("count", count)] if v])
     if params:
-        url += "?{}".format(params)
+        url += f"?{params}"
     resp = client.get(url)
 
     assert resp.status_code == 200
@@ -288,7 +284,7 @@ def test_last_modified(
         pass
 
     url = reverse("jobs-list", kwargs={"project": test_repository.name})
-    final_url = url + ("?{}={}".format(lm_key, lm_value))
+    final_url = url + (f"?{lm_key}={lm_value}")
 
     resp = client.get(final_url)
     assert resp.status_code == exp_status

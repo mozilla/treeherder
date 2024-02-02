@@ -58,7 +58,7 @@ class PushLoader:
                 return GithubPullRequestTransformer
         elif "/hgpushes/" in exchange:
             return HgPushTransformer
-        raise PulsePushError("Unsupported push exchange: {}".format(exchange))
+        raise PulsePushError(f"Unsupported push exchange: {exchange}")
 
 
 class GithubTransformer:

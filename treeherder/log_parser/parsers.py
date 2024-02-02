@@ -64,27 +64,23 @@ class ErrorParser(ParserBase):
     )
 
     RE_ERR_MATCH = re.compile(
-        (
-            r"^g?make(?:\[\d+\])?: \*\*\*"
-            r"|^[A-Za-z.]+Error: "
-            r"|^[A-Za-z.]*Exception: "
-            r"|^\[  FAILED  \] "
-            r"|^remoteFailed:"
-            r"|^rm: cannot "
-            r"|^abort:"
-            r"|^\[taskcluster\] Error:"
-            r"|^\[[\w._-]+:(?:error|exception)\]"
-        )
+        r"^g?make(?:\[\d+\])?: \*\*\*"
+        r"|^[A-Za-z.]+Error: "
+        r"|^[A-Za-z.]*Exception: "
+        r"|^\[  FAILED  \] "
+        r"|^remoteFailed:"
+        r"|^rm: cannot "
+        r"|^abort:"
+        r"|^\[taskcluster\] Error:"
+        r"|^\[[\w._-]+:(?:error|exception)\]"
     )
 
     RE_ERR_SEARCH = re.compile(
-        (
-            r" error\(\d*\):"
-            r"|:\d+: error:"
-            r"| error R?C\d*:"
-            r"|ERROR [45]\d\d:"
-            r"|mozmake\.(?:exe|EXE)(?:\[\d+\])?: \*\*\*"
-        )
+        r" error\(\d*\):"
+        r"|:\d+: error:"
+        r"| error R?C\d*:"
+        r"|ERROR [45]\d\d:"
+        r"|mozmake\.(?:exe|EXE)(?:\[\d+\])?: \*\*\*"
     )
 
     RE_EXCLUDE_1_SEARCH = re.compile(r"TEST-(?:INFO|PASS) ")

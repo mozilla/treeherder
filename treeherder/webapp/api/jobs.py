@@ -279,7 +279,7 @@ class JobsProjectViewSet(viewsets.ViewSet):
                 repository__name=project, id=pk
             )
         except Job.DoesNotExist:
-            return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
+            return Response(f"No job with id: {pk}", status=HTTP_404_NOT_FOUND)
 
         resp = serializers.JobProjectSerializer(job, read_only=True).data
 
@@ -333,7 +333,7 @@ class JobsProjectViewSet(viewsets.ViewSet):
                     parser.parse(param_value)
                 except ValueError:
                     return Response(
-                        "Invalid date value for `last_modified`: {}".format(param_value),
+                        f"Invalid date value for `last_modified`: {param_value}",
                         status=HTTP_400_BAD_REQUEST,
                     )
                 filter_params[param_key] = param_value
@@ -349,14 +349,14 @@ class JobsProjectViewSet(viewsets.ViewSet):
         return_type = filter_params.get("return_type", "dict").lower()
 
         if count > MAX_JOBS_COUNT:
-            msg = "Specified count exceeds API MAX_JOBS_COUNT value: {}".format(MAX_JOBS_COUNT)
+            msg = f"Specified count exceeds API MAX_JOBS_COUNT value: {MAX_JOBS_COUNT}"
             return Response({"detail": msg}, status=HTTP_400_BAD_REQUEST)
 
         try:
             repository = Repository.objects.get(name=project)
         except Repository.DoesNotExist:
             return Response(
-                {"detail": "No project with name {}".format(project)}, status=HTTP_404_NOT_FOUND
+                {"detail": f"No project with name {project}"}, status=HTTP_404_NOT_FOUND
             )
         jobs = JobFilter(
             {k: v for (k, v) in filter_params.items()},
@@ -379,7 +379,7 @@ class JobsProjectViewSet(viewsets.ViewSet):
         try:
             job = Job.objects.get(repository__name=project, id=pk)
         except ObjectDoesNotExist:
-            return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
+            return Response(f"No job with id: {pk}", status=HTTP_404_NOT_FOUND)
 
         textlog_steps = (
             TextLogStep.objects.filter(job=job)
@@ -398,7 +398,7 @@ class JobsProjectViewSet(viewsets.ViewSet):
         try:
             job = Job.objects.get(repository__name=project, id=pk)
         except Job.DoesNotExist:
-            return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
+            return Response(f"No job with id: {pk}", status=HTTP_404_NOT_FOUND)
         textlog_errors = (
             TextLogError.objects.filter(job=job)
             .select_related("_metadata", "_metadata__failure_line")
@@ -417,7 +417,7 @@ class JobsProjectViewSet(viewsets.ViewSet):
         try:
             job = Job.objects.get(repository__name=project, id=pk)
         except ObjectDoesNotExist:
-            return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
+            return Response(f"No job with id: {pk}", status=HTTP_404_NOT_FOUND)
 
         return Response(get_error_summary(job))
 
@@ -430,13 +430,13 @@ class JobsProjectViewSet(viewsets.ViewSet):
             repository = Repository.objects.get(name=project)
         except Repository.DoesNotExist:
             return Response(
-                {"detail": "No project with name {}".format(project)}, status=HTTP_404_NOT_FOUND
+                {"detail": f"No project with name {project}"}, status=HTTP_404_NOT_FOUND
             )
 
         try:
             job = Job.objects.get(repository=repository, id=pk)
         except ObjectDoesNotExist:
-            return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
+            return Response(f"No job with id: {pk}", status=HTTP_404_NOT_FOUND)
 
         filter_params = request.query_params.copy()
 

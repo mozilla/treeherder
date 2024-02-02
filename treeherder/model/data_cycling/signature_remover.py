@@ -1,5 +1,4 @@
 import logging
-from typing import List
 
 import taskcluster
 from django.conf import settings
@@ -85,7 +84,7 @@ class PublicSignatureRemover:
     def _send_email(self):
         self._notify.email(self._email_writer.email)
 
-    def __delete_and_notify(self, signatures: List[PerformanceSignature]) -> bool:
+    def __delete_and_notify(self, signatures: list[PerformanceSignature]) -> bool:
         """
         Atomically deletes perf signatures & notifies about this.
         @return: whether atomic operation was successful or not
@@ -104,5 +103,5 @@ class PublicSignatureRemover:
 
         return True
 
-    def _prepare_notification(self, signatures: List[PerformanceSignature]):
+    def _prepare_notification(self, signatures: list[PerformanceSignature]):
         self._email_writer.prepare_new_email(signatures)

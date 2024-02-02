@@ -2,7 +2,7 @@ import copy
 import logging
 from datetime import datetime
 from hashlib import sha1
-from typing import List, Optional, Tuple
+from typing import Optional
 
 import simplejson as json
 
@@ -51,7 +51,7 @@ def _get_signature_hash(signature_properties):
     return sha.hexdigest()
 
 
-def _order_and_concat(words: List) -> str:
+def _order_and_concat(words: list) -> str:
     return " ".join(sorted(words))
 
 
@@ -76,7 +76,7 @@ def _create_or_update_signature(repository, signature_hash, framework, applicati
     return signature
 
 
-def _deduce_push_timestamp(perf_datum: dict, job_push_time: datetime) -> Tuple[datetime, bool]:
+def _deduce_push_timestamp(perf_datum: dict, job_push_time: datetime) -> tuple[datetime, bool]:
     is_multi_commit = False
     if not settings.PERFHERDER_ENABLE_MULTIDATA_INGESTION:
         # the old way of ingestion
@@ -119,7 +119,7 @@ def _test_should_alert_based_on(
 
 
 def _test_should_gather_replicates_based_on(
-    repository: Repository, suite_name: str, replicates: Optional[List] = None
+    repository: Repository, suite_name: str, replicates: Optional[list] = None
 ) -> bool:
     """
     Determine if we should gather/ingest replicates. Currently, it's

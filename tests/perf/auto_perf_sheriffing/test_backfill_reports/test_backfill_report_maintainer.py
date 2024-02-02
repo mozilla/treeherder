@@ -1,6 +1,5 @@
 import random
 import datetime
-from typing import Tuple
 
 from treeherder.perf.auto_perf_sheriffing.backfill_reports import (
     BackfillReportMaintainer,
@@ -141,7 +140,7 @@ def test_reports_are_updated_after_alert_summaries_change(
     assert initial_records_timestamps != records_timestamps
 
 
-def __fetch_report_timestamps(test_perf_alert_summary) -> Tuple:
+def __fetch_report_timestamps(test_perf_alert_summary) -> tuple:
     report = BackfillReport.objects.get(summary=test_perf_alert_summary)
     report_timestamps = report.created, report.last_updated
     records_timestamps = [record.created for record in report.records.all()]

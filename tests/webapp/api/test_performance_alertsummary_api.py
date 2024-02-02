@@ -31,7 +31,7 @@ def test_perf_alert_summary_onhold(test_repository_onhold, test_perf_framework):
     for i in range(2):
         Push.objects.create(
             repository=test_repository_onhold,
-            revision="1234abcd{}".format(i),
+            revision=f"1234abcd{i}",
             author="foo@bar.com",
             time=datetime.now(),
         )

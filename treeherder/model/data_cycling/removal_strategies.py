@@ -4,7 +4,6 @@ import logging
 from abc import ABC, abstractmethod
 from datetime import timedelta, datetime
 from itertools import cycle
-from typing import List
 
 from django.conf import settings
 from django.db.backends.utils import CursorWrapper
@@ -48,7 +47,7 @@ class RemovalStrategy(ABC):
         pass
 
     @staticmethod
-    def fabricate_all_strategies(*args, **kwargs) -> List[RemovalStrategy]:
+    def fabricate_all_strategies(*args, **kwargs) -> list[RemovalStrategy]:
         return [
             MainRemovalStrategy(*args, **kwargs),
             TryDataRemoval(*args, **kwargs),
@@ -364,7 +363,7 @@ class StalledDataRemoval(RemovalStrategy):
         return self._target_signature
 
     @property
-    def removable_signatures(self) -> List[PerformanceSignature]:
+    def removable_signatures(self) -> list[PerformanceSignature]:
         if self._removable_signatures is None:
             self._removable_signatures = list(
                 PerformanceSignature.objects.filter(last_updated__lte=self._max_timestamp).order_by(

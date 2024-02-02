@@ -38,7 +38,7 @@ class Command(BaseCommand):
         consumers = prepare_consumers(
             MozciClassificationConsumer,
             classification_sources,
-            lambda key: "#.{}".format(key),
+            lambda key: f"#.{key}",
         )
 
         try:

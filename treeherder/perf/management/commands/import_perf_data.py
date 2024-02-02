@@ -86,14 +86,14 @@ class Data:
 
     def show_progress(self, queryset, map, table_name):
         total_rows = int(queryset.count())
-        print("Fetching {0} {1}(s)...".format(total_rows, table_name))
+        print(f"Fetching {total_rows} {table_name}(s)...")
 
         prev_percentage = None
         for idx, obj in enumerate(list(queryset)):
             map(obj)
             percentage = int((idx + 1) * 100 / total_rows)
             if percentage % 10 == 0 and percentage != prev_percentage:
-                print("Fetched {0}% of alert summaries".format(percentage))
+                print(f"Fetched {percentage}% of alert summaries")
                 prev_percentage = percentage
 
 
@@ -112,12 +112,12 @@ class DecentSizedData(Data):
 
     def delete_local_data(self):
         for model in self.DECENT_SIZED_TABLES:
-            print("Removing elements from {0} table... ".format(model._meta.db_table))
+            print(f"Removing elements from {model._meta.db_table} table... ")
             model.objects.using(self.target).all().delete()
 
     def save_local_data(self):
         for model in self.DECENT_SIZED_TABLES:
-            print("Fetching from {0} table...".format(model._meta.db_table))
+            print(f"Fetching from {model._meta.db_table} table...")
             model.objects.using(self.target).bulk_create(model.objects.using(self.source).all())
 
     def fillup_target(self, **filters):
@@ -224,7 +224,7 @@ class MassiveData(Data):
 
     def delete_local_data(self):
         for model in self.BIG_SIZED_TABLES:
-            print("Removing elements from {0} table... ".format(model._meta.db_table))
+            print(f"Removing elements from {model._meta.db_table} table... ")
             model.objects.using(self.target).all().delete()
 
     def save_local_data(self):
@@ -233,7 +233,7 @@ class MassiveData(Data):
         )
 
         for table_name, properties in priority_dict.items():
-            print("Saving {0} data...".format(table_name))
+            print(f"Saving {table_name} data...")
             model_values = (
                 properties["model"]
                 .objects.using(self.source)
@@ -257,7 +257,7 @@ class MassiveData(Data):
         # fetch all alert summaries & alerts
         # with only a subset of the datum & jobs
         oldest_day = datetime.datetime.now() - self.time_window
-        print("\nFetching data subset no older than {0}...".format(str(oldest_day)))
+        print(f"\nFetching data subset no older than {str(oldest_day)}...")
 
         self.delete_local_data()
         alert_summaries = list(self.query_set)
@@ -293,7 +293,7 @@ class MassiveData(Data):
         self.save_local_data()
 
     def db_worker(self, process_no, alert_summaries):
-        print("Process no {0} up and running...".format(process_no))
+        print(f"Process no {process_no} up and running...")
         self.progress_notifier(self.bring_in_alert_summary, alert_summaries, "alert summary", 1)
 
     def bring_in_alert_summary(self, alert_summary):

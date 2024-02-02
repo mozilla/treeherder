@@ -37,6 +37,6 @@ class InfraCompareQuerySerializers(serializers.Serializer):
             Repository.objects.get(name=project)
 
         except ObjectDoesNotExist:
-            raise serializers.ValidationError("{} does not exist.".format(project))
+            raise serializers.ValidationError(f"{project} does not exist.")
 
         return project

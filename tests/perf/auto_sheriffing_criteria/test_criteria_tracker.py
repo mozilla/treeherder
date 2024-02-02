@@ -151,7 +151,7 @@ def should_take_more_than(seconds: float):
 @pytest.fixture
 def updatable_criteria_csv(tmp_path):
     updatable_csv = tmp_path / "updatable-criteria.csv"
-    with open(RECORD_TEST_PATH, "r") as file_:
+    with open(RECORD_TEST_PATH) as file_:
         updatable_csv.write_text(file_.read())
 
     return updatable_csv

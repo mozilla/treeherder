@@ -18,7 +18,7 @@ def do_test(log):
               result file with the same prefix.
     """
 
-    url = add_log_response("{}.txt.gz".format(log))
+    url = add_log_response(f"{log}.txt.gz")
 
     builder = LogViewerArtifactBuilder(url)
     lpc = ArtifactBuilderCollection(url, builders=builder)
@@ -31,7 +31,7 @@ def do_test(log):
     # with open(SampleData().get_log_path("{0}.logview.json".format(log)), "w") as f:
     #     f.write(json.dumps(act, indent=2))
 
-    exp = test_utils.load_exp("{0}.logview.json".format(log))
+    exp = test_utils.load_exp(f"{log}.logview.json")
 
     assert act == exp
 

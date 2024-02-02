@@ -53,14 +53,14 @@ class HgPushlogProcess:
         }
 
     def run(self, source_url, repository_name, changeset=None, last_push_id=None):
-        cache_key = "{}:last_push_id".format(repository_name)
+        cache_key = f"{repository_name}:last_push_id"
         if not last_push_id:
             # get the last object seen from cache. this will
             # reduce the number of pushes processed every time
             last_push_id = cache.get(cache_key)
 
         if not changeset and last_push_id:
-            startid_url = "{}&startID={}".format(source_url, last_push_id)
+            startid_url = f"{source_url}&startID={last_push_id}"
             logger.debug(
                 "Extracted last push for '%s', '%s', from cache, "
                 "attempting to get changes only from that point at: %s",

@@ -1,7 +1,7 @@
 import logging
 from datetime import timedelta, datetime
 from itertools import zip_longest, groupby
-from typing import Tuple, List, Optional
+from typing import Optional
 
 import simplejson as json
 from django.db.models import QuerySet, Q, F
@@ -24,7 +24,7 @@ class AlertsPicker:
     """
 
     def __init__(
-        self, max_alerts: int, max_improvements: int, platforms_of_interest: Tuple[str, ...]
+        self, max_alerts: int, max_improvements: int, platforms_of_interest: tuple[str, ...]
     ):
         """
         :param max_alerts: the maximum number of selected alerts
@@ -49,7 +49,7 @@ class AlertsPicker:
         self.max_improvements = max_improvements
         self.ordered_platforms_of_interest = platforms_of_interest
 
-    def extract_important_alerts(self, alerts: Tuple[PerformanceAlert, ...]):
+    def extract_important_alerts(self, alerts: tuple[PerformanceAlert, ...]):
         if any(not isinstance(alert, PerformanceAlert) for alert in alerts):
             raise ValueError("Provided parameter does not contain only PerformanceAlert objects.")
         relevant_alerts = self._extract_by_relevant_platforms(alerts)
@@ -57,7 +57,7 @@ class AlertsPicker:
         sorted_alerts = self._multi_criterion_sort(alerts_with_distinct_jobs)
         return self._ensure_alerts_variety(sorted_alerts)
 
-    def _ensure_alerts_variety(self, sorted_alerts: List[PerformanceAlert]):
+    def _ensure_alerts_variety(self, sorted_alerts: list[PerformanceAlert]):
         """
         The alerts container must be sorted before being passed to this function.
         The returned list must contain regressions and (if present) improvements.
@@ -81,12 +81,12 @@ class AlertsPicker:
             : self.max_improvements if improvements_only else self.max_alerts
         ]
 
-    def _ensure_distinct_jobs(self, alerts: List[PerformanceAlert]) -> List[PerformanceAlert]:
+    def _ensure_distinct_jobs(self, alerts: list[PerformanceAlert]) -> list[PerformanceAlert]:
         def initial_culprit_job(alert):
             return alert.initial_culprit_job
 
         def parent_or_sibling_from(
-            alert_group: List[PerformanceAlert],
+            alert_group: list[PerformanceAlert],
         ) -> Optional[PerformanceAlert]:
             if len(alert_group) == 0:
                 return None
@@ -105,8 +105,8 @@ class AlertsPicker:
         return list(filter(None, alerts))
 
     def _ensure_platform_variety(
-        self, sorted_all_alerts: List[PerformanceAlert]
-    ) -> List[PerformanceAlert]:
+        self, sorted_all_alerts: list[PerformanceAlert]
+    ) -> list[PerformanceAlert]:
         """
         Note: Ensure that the sorted_all_alerts container has only
         platforms of interest (example: 'windows10', 'windows7', 'linux', 'osx', 'android').
@@ -191,7 +191,7 @@ class IdentifyAlertRetriggerables:
         self._time_interval = time_interval
         self.log = logger or logging.getLogger(self.__class__.__name__)
 
-    def __call__(self, alert: PerformanceAlert) -> List[dict]:
+    def __call__(self, alert: PerformanceAlert) -> list[dict]:
         """
         Main method
         """
@@ -238,7 +238,7 @@ class IdentifyAlertRetriggerables:
         )
         return annotated_data_points
 
-    def _one_data_point_per_push(self, annotated_data_points: QuerySet) -> List[dict]:
+    def _one_data_point_per_push(self, annotated_data_points: QuerySet) -> list[dict]:
         seen_push_ids = set()
         seen_add = seen_push_ids.add
         return [
@@ -247,7 +247,7 @@ class IdentifyAlertRetriggerables:
             if not (data_point["push_id"] in seen_push_ids or seen_add(data_point["push_id"]))
         ]
 
-    def _find_push_id_index(self, push_id: int, flattened_data_points: List[dict]) -> int:
+    def _find_push_id_index(self, push_id: int, flattened_data_points: list[dict]) -> int:
         for index, data_point in enumerate(flattened_data_points):
             if data_point["push_id"] == push_id:
                 return index
@@ -261,7 +261,7 @@ class IdentifyAlertRetriggerables:
 
         return slice(left_margin, right_margin)
 
-    def _glance_over_retrigger_range(self, data_points_to_retrigger: List[dict]):
+    def _glance_over_retrigger_range(self, data_points_to_retrigger: list[dict]):
         retrigger_range = len(data_points_to_retrigger)
         if retrigger_range < self._range_width:
             self.log.warning(
@@ -286,12 +286,12 @@ class BackfillReportMaintainer:
         self.log = logger or logging.getLogger(self.__class__.__name__)
 
     def provide_updated_reports(
-        self, since: datetime, frameworks: List[str], repositories: List[str]
-    ) -> List[BackfillReport]:
+        self, since: datetime, frameworks: list[str], repositories: list[str]
+    ) -> list[BackfillReport]:
         alert_summaries = self.__fetch_summaries_to_retrigger(since, frameworks, repositories)
         return self.compile_reports_for(alert_summaries)
 
-    def compile_reports_for(self, summaries_to_retrigger: QuerySet) -> List[BackfillReport]:
+    def compile_reports_for(self, summaries_to_retrigger: QuerySet) -> list[BackfillReport]:
         reports = []
 
         for summary in summaries_to_retrigger:
@@ -317,12 +317,12 @@ class BackfillReportMaintainer:
 
     def _pick_important_alerts(
         self, from_summary: PerformanceAlertSummary
-    ) -> List[PerformanceAlert]:
+    ) -> list[PerformanceAlert]:
         return self.alerts_picker.extract_important_alerts(
             from_summary.alerts.filter(status=PerformanceAlert.UNTRIAGED)
         )
 
-    def _provide_records(self, backfill_report: BackfillReport, alert_context_map: List[Tuple]):
+    def _provide_records(self, backfill_report: BackfillReport, alert_context_map: list[tuple]):
         for alert, retrigger_context in alert_context_map:
             BackfillRecord.objects.create(
                 alert=alert,
@@ -331,7 +331,7 @@ class BackfillReportMaintainer:
             )
 
     def __fetch_summaries_to_retrigger(
-        self, since: datetime, frameworks: List[str], repositories: List[str]
+        self, since: datetime, frameworks: list[str], repositories: list[str]
     ) -> QuerySet:
         no_reports_yet = Q(last_updated__gte=since, backfill_report__isnull=True)
         with_outdated_reports = Q(last_updated__gt=F("backfill_report__last_updated"))
@@ -348,7 +348,7 @@ class BackfillReportMaintainer:
             .filter(filters)
         )
 
-    def _associate_retrigger_context(self, important_alerts: List[PerformanceAlert]) -> List[Tuple]:
+    def _associate_retrigger_context(self, important_alerts: list[PerformanceAlert]) -> list[tuple]:
         retrigger_map = []
         incomplete_mapping = False
 

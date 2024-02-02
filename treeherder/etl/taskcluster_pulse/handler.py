@@ -77,7 +77,7 @@ def parseRouteInfo(prefix, taskId, routes, task):
         raise PulseHandlerError(
             "Could not determine Treeherder route. Either there is no route, "
             + "or more than one matching route exists."
-            + "Task ID: {taskId} Routes: {routes}".format(taskId=taskId, routes=routes)
+            + f"Task ID: {taskId} Routes: {routes}"
         )
 
     parsedRoute = parseRoute(matchingRoutes[0])
@@ -156,7 +156,7 @@ def ignore_task(task, taskId, rootUrl, project):
                     break
 
     if ignore:
-        logger.debug("Task to be ignored ({})".format(taskId))
+        logger.debug(f"Task to be ignored ({taskId})")
 
     return ignore
 
@@ -225,7 +225,7 @@ def buildMessage(pushInfo, task, runId, payload):
     job = {
         "buildSystem": "taskcluster",
         "owner": task["metadata"]["owner"],
-        "taskId": "{taskId}/{runId}".format(taskId=slugid.decode(taskId), runId=runId),
+        "taskId": f"{slugid.decode(taskId)}/{runId}",
         "retryId": runId,
         "isRetried": False,
         "display": {
@@ -397,7 +397,7 @@ async def addArtifactUploadedLinks(root_url, taskId, runId, job, session):
             seen[name] = [artifact["name"]]
         else:
             seen[name].append(artifact["name"])
-            name = "{name} ({length})".format(name=name, length=len(seen[name]) - 1)
+            name = f"{name} ({len(seen[name]) - 1})"
 
         links.append(
             {
