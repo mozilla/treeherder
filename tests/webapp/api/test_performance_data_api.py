@@ -102,7 +102,7 @@ def test_performance_platforms_expired_test(client, test_perf_signature):
             "performance-signatures-platforms-list",
             kwargs={"project": test_perf_signature.repository.name},
         )
-        + f"?interval=86400"
+        + "?interval=86400"
     )
     assert resp.status_code == 200
     assert resp.json() == []
@@ -330,7 +330,7 @@ def test_filter_signatures_by_interval(client, test_perf_signature):
         reverse(
             "performance-signatures-list", kwargs={"project": test_perf_signature.repository.name}
         )
-        + f"?interval=86400"
+        + "?interval=86400"
     )
     assert resp.status_code == 200
     assert len(resp.json().keys()) == 1
