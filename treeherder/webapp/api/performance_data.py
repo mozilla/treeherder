@@ -818,7 +818,7 @@ class PerformanceSummary(generics.ListAPIView):
         return Response(data=serialized_data)
 
     @staticmethod
-    def _filter_out_retriggers(serialized_data: list[dict]) -> list[dict]:
+    def _filter_out_retriggers(serialized_data):
         """
         Removes data points resulted from retriggers
         """
@@ -1178,7 +1178,7 @@ class PerfCompareResults(generics.ListAPIView):
         )
 
     @staticmethod
-    def _get_signatures_values(signatures: list[PerformanceSignature]):
+    def _get_signatures_values(signatures):
         return signatures.values(
             "framework_id",
             "id",
