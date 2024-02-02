@@ -32,7 +32,7 @@ def get_error_summary(job, queryset=None):
 
     Caches the results if there are any.
     """
-    cache_key = "error-summary-{}".format(job.id)
+    cache_key = f"error-summary-{job.id}"
     cached_error_summary = cache.get(cache_key)
     if cached_error_summary is not None:
         return cached_error_summary

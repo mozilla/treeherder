@@ -11,7 +11,7 @@ from dataclasses import dataclass, asdict
 from abc import ABC, abstractmethod
 import urllib.parse
 
-from typing import List, Union, Optional
+from typing import Union, Optional
 
 from django.conf import settings
 from treeherder.perf.models import (
@@ -40,7 +40,7 @@ class EmailWriter(ABC):
     def __init__(self):
         self._email = Email()
 
-    def prepare_new_email(self, must_mention: Union[List[object], object]) -> dict:
+    def prepare_new_email(self, must_mention: Union[list[object], object]) -> dict:
         """
         Template method
         """
@@ -64,12 +64,12 @@ class EmailWriter(ABC):
         pass  # pragma: no cover
 
     @abstractmethod
-    def _write_content(self, must_mention: List[object]):
+    def _write_content(self, must_mention: list[object]):
         pass  # pragma: no cover
 
     @staticmethod
-    def __ensure_its_list(must_mention) -> List[object]:
-        if not isinstance(must_mention, List):
+    def __ensure_its_list(must_mention) -> list[object]:
+        if not isinstance(must_mention, list):
             must_mention = [must_mention]
         return must_mention
 
@@ -90,7 +90,7 @@ class BackfillReportContent:
     def __init__(self):
         self._raw_content = None
 
-    def include_records(self, records: List[BackfillRecord]):
+    def include_records(self, records: list[BackfillRecord]):
         self._initialize_report_intro()
 
         for record in records:
@@ -216,7 +216,7 @@ class BackfillNotificationWriter(EmailWriter):
     def _write_subject(self):
         self._email.subject = "Automatic Backfilling Report"
 
-    def _write_content(self, must_mention: List[BackfillRecord]):
+    def _write_content(self, must_mention: list[BackfillRecord]):
         content = BackfillReportContent()
         content.include_records(must_mention)
 
@@ -238,7 +238,7 @@ class DeletionReportContent:
     def __init__(self):
         self._raw_content = None
 
-    def include_signatures(self, signatures: List[PerformanceSignature]):
+    def include_signatures(self, signatures: list[PerformanceSignature]):
         self._initialize_report_intro()
 
         for signature in signatures:
@@ -287,7 +287,7 @@ class DeletionNotificationWriter(EmailWriter):
     def _write_subject(self):
         self._email.subject = "Summary of deleted Performance Signatures"
 
-    def _write_content(self, must_mention: List[PerformanceSignature]):
+    def _write_content(self, must_mention: list[PerformanceSignature]):
         content = DeletionReportContent()
         content.include_signatures(must_mention)
 

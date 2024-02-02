@@ -42,10 +42,10 @@ def create_failure_lines(job, failure_line_list, start_line=0):
         job_log = JobLog.objects.create(
             job=job,
             name="{}{}".format(base_data.get("test"), job.id),
-            url="bar{}".format(i),
+            url=f"bar{i}",
             status=1,
         )
-        print("create jobLog for job id: {}".format(job.id))
+        print(f"create jobLog for job id: {job.id}")
         failure_line.job_log = job_log
         failure_line.save()
         failure_lines.append(failure_line)

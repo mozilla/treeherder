@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 import json
-from typing import List, Tuple, Optional
+from typing import Optional
 from functools import reduce
 
 from django.contrib.auth.models import User
@@ -35,7 +35,7 @@ class PerformanceFramework(models.Model):
         db_table = "performance_framework"
 
     @classmethod
-    def fetch_all_names(cls) -> List[str]:
+    def fetch_all_names(cls) -> list[str]:
         return cls.objects.values_list("name", flat=True)
 
     def __str__(self):
@@ -183,11 +183,11 @@ class PerformanceSignature(models.Model):
     def __str__(self):
         name = self.suite
         if self.test:
-            name += " {}".format(self.test)
+            name += f" {self.test}"
         else:
             name += " summary"
 
-        return "{} {} {} {}".format(self.signature_hash, name, self.platform, self.last_updated)
+        return f"{self.signature_hash} {name} {self.platform} {self.last_updated}"
 
 
 class PerformanceDatum(models.Model):
@@ -224,7 +224,7 @@ class PerformanceDatum(models.Model):
             self.signature.save()
 
     def __str__(self):
-        return "{} {}".format(self.value, self.push_timestamp)
+        return f"{self.value} {self.push_timestamp}"
 
 
 class PerformanceDatumReplicate(models.Model):
@@ -254,7 +254,7 @@ class IssueTracker(models.Model):
         db_table = "issue_tracker"
 
     def __str__(self):
-        return "{} (tasks via {})".format(self.name, self.task_base_url)
+        return f"{self.name} (tasks via {self.task_base_url})"
 
 
 class PerformanceAlertSummary(models.Model):
@@ -317,7 +317,7 @@ class PerformanceAlertSummary(models.Model):
     issue_tracker = models.ForeignKey(IssueTracker, on_delete=models.PROTECT, default=1)  # Bugzilla
 
     def __init__(self, *args, **kwargs):
-        super(PerformanceAlertSummary, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # allows updating timestamps only on new values
         self.__prev_bug_number = self.bug_number
@@ -333,7 +333,7 @@ class PerformanceAlertSummary(models.Model):
             self.triage_due_date = triage_due
         if self.bug_due_date != bug_due:
             self.bug_due_date = bug_due
-        super(PerformanceAlertSummary, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
         self.__prev_bug_number = self.bug_number
 
     def update_status(self, using=None):
@@ -418,9 +418,7 @@ class PerformanceAlertSummary(models.Model):
         unique_together = ("repository", "framework", "prev_push", "push")
 
     def __str__(self):
-        return "{} {} {}-{}".format(
-            self.framework, self.repository, self.prev_push.revision, self.push.revision
-        )
+        return f"{self.framework} {self.repository} {self.prev_push.revision}-{self.push.revision}"
 
 
 class PerformanceAlert(models.Model):
@@ -582,7 +580,7 @@ class PerformanceAlert(models.Model):
         unique_together = ("summary", "series_signature")
 
     def __str__(self):
-        return "{} {} {}%".format(self.summary, self.series_signature, self.amount_pct)
+        return f"{self.summary} {self.series_signature} {self.amount_pct}%"
 
 
 class PerformanceTag(models.Model):
@@ -615,7 +613,7 @@ class PerformanceBugTemplate(models.Model):
         db_table = "performance_bug_template"
 
     def __str__(self):
-        return "{} bug template".format(self.framework.name)
+        return f"{self.framework.name} bug template"
 
 
 # TODO: we actually need this name for the Sherlock' s hourly report
@@ -649,9 +647,7 @@ class BackfillReport(models.Model):
         db_table = "backfill_report"
 
     def __str__(self):
-        return "BackfillReport(summary #{}, last update {})".format(
-            self.summary.id, self.last_updated
-        )
+        return f"BackfillReport(summary #{self.summary.id}, last update {self.last_updated})"
 
 
 class BackfillRecord(models.Model):
@@ -750,7 +746,7 @@ class BackfillRecord(models.Model):
             self.job_platform_option = job.get_platform_option()
         self.save()
 
-    def get_context_border_info(self, context_property: str) -> Tuple[str, str]:
+    def get_context_border_info(self, context_property: str) -> tuple[str, str]:
         """
         Provides border(first and last) information from context based on the property
         """
@@ -760,7 +756,7 @@ class BackfillRecord(models.Model):
 
         return from_info, to_info
 
-    def get_pushes_in_context_range(self) -> List[Push]:
+    def get_pushes_in_context_range(self) -> list[Push]:
         from_time, to_time = self.get_context_border_info("push_timestamp")
 
         return Push.objects.filter(
@@ -779,10 +775,10 @@ class BackfillRecord(models.Model):
 
         return ",".join(search_terms)
 
-    def get_context(self) -> List[dict]:
+    def get_context(self) -> list[dict]:
         return json.loads(self.context)
 
-    def set_context(self, value: List[dict]):
+    def set_context(self, value: list[dict]):
         self.context = json.dumps(value, default=str)
 
     def set_log_details(self, value: dict):
@@ -801,7 +797,7 @@ class BackfillRecord(models.Model):
         db_table = "backfill_record"
 
     def __str__(self):
-        return "BackfillRecord(alert #{}, from {})".format(self.alert.id, self.report)
+        return f"BackfillRecord(alert #{self.alert.id}, from {self.report})"
 
 
 class BackfillNotificationRecord(models.Model):

@@ -37,7 +37,7 @@ def test_intermittents_commenter(bug_data):
 
     comment_params = process.generate_bug_changes(startday, endday, alt_startday, alt_endday)
 
-    with open("tests/intermittents_commenter/expected_comment.text", "r") as comment:
+    with open("tests/intermittents_commenter/expected_comment.text") as comment:
         expected_comment = comment.read()
     print(len(expected_comment))
     print(len(comment_params[0]["changes"]["comment"]["body"]))

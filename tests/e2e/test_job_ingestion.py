@@ -1,4 +1,4 @@
-from mock import MagicMock
+from unittest.mock import MagicMock
 
 from tests.test_utils import add_log_response
 from treeherder.etl.jobs import store_job_data

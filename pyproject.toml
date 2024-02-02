@@ -37,6 +37,8 @@ select = [
   "W",
   # pyflakes
   "F",
+  # pyupgrade
+  "UP",
 ]
 
 ignore = [

@@ -33,13 +33,13 @@ class Command(BaseCommand):
         userid = urlparse(connection_url).username
         payload_file = options["payload_file"]
 
-        exchange_name = "exchange/{}/jobs".format(userid)
+        exchange_name = f"exchange/{userid}/jobs"
 
         connection = Connection(connection_url)
         exchange = Exchange(exchange_name, type="topic")
         producer = Producer(connection, exchange, routing_key=routing_key, auto_declare=True)
 
-        self.stdout.write("Published to exchange: {}".format(exchange_name))
+        self.stdout.write(f"Published to exchange: {exchange_name}")
 
         with open(payload_file) as f:
             body = f.read()

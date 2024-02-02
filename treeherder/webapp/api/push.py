@@ -66,7 +66,7 @@ class PushViewSet(viewsets.ViewSet):
                 repository = Repository.objects.get(name=project)
             except Repository.DoesNotExist:
                 return Response(
-                    {"detail": "No project with name {}".format(project)}, status=HTTP_404_NOT_FOUND
+                    {"detail": f"No project with name {project}"}, status=HTTP_404_NOT_FOUND
                 )
 
             pushes = pushes.filter(repository=repository)
@@ -125,7 +125,7 @@ class PushViewSet(viewsets.ViewSet):
                     value = datetime.datetime.fromtimestamp(float(filter_params.get(param)))
                 except ValueError:
                     return Response(
-                        {"detail": "Invalid timestamp specified for {}".format(param)},
+                        {"detail": f"Invalid timestamp specified for {param}"},
                         status=HTTP_400_BAD_REQUEST,
                     )
                 pushes = pushes.filter(**{param.replace("push_timestamp", "time"): value})
@@ -135,7 +135,7 @@ class PushViewSet(viewsets.ViewSet):
                 value = int(filter_params.get(param, 0))
             except ValueError:
                 return Response(
-                    {"detail": "Invalid timestamp specified for {}".format(param)},
+                    {"detail": f"Invalid timestamp specified for {param}"},
                     status=HTTP_400_BAD_REQUEST,
                 )
             if value:
@@ -168,7 +168,7 @@ class PushViewSet(viewsets.ViewSet):
             return Response({"detail": "Valid count value required"}, status=HTTP_400_BAD_REQUEST)
 
         if count > MAX_PUSH_COUNT:
-            msg = "Specified count exceeds api limit: {}".format(MAX_PUSH_COUNT)
+            msg = f"Specified count exceeds api limit: {MAX_PUSH_COUNT}"
             return Response({"detail": msg}, status=HTTP_400_BAD_REQUEST)
 
         # we used to have a "full" parameter for this endpoint so you could
@@ -196,7 +196,7 @@ class PushViewSet(viewsets.ViewSet):
             serializer = PushSerializer(push)
             return Response(serializer.data)
         except Push.DoesNotExist:
-            return Response("No push with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
+            return Response(f"No push with id: {pk}", status=HTTP_404_NOT_FOUND)
 
     @action(detail=True)
     def status(self, request, project, pk=None):
@@ -207,7 +207,7 @@ class PushViewSet(viewsets.ViewSet):
         try:
             push = Push.objects.get(id=pk)
         except Push.DoesNotExist:
-            return Response("No push with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
+            return Response(f"No push with id: {pk}", status=HTTP_404_NOT_FOUND)
         return Response(push.get_status())
 
     @action(detail=False)
@@ -228,9 +228,7 @@ class PushViewSet(viewsets.ViewSet):
                     revision__in=revision.split(","), repository__name=project
                 )
             except Push.DoesNotExist:
-                return Response(
-                    "No push with revision: {0}".format(revision), status=HTTP_404_NOT_FOUND
-                )
+                return Response(f"No push with revision: {revision}", status=HTTP_404_NOT_FOUND)
         else:
             try:
                 pushes = (
@@ -246,9 +244,7 @@ class PushViewSet(viewsets.ViewSet):
                 pushes = pushes[: int(count)]
 
             except Push.DoesNotExist:
-                return Response(
-                    "No pushes found for author: {0}".format(author), status=HTTP_404_NOT_FOUND
-                )
+                return Response(f"No pushes found for author: {author}", status=HTTP_404_NOT_FOUND)
 
         data = []
         commit_history = None
@@ -337,9 +333,7 @@ class PushViewSet(viewsets.ViewSet):
             repository = Repository.objects.get(name=project)
             push = Push.objects.get(revision=revision, repository=repository)
         except Push.DoesNotExist:
-            return Response(
-                "No push with revision: {0}".format(revision), status=HTTP_404_NOT_FOUND
-            )
+            return Response(f"No push with revision: {revision}", status=HTTP_404_NOT_FOUND)
 
         commit_history_details = None
         result_status, jobs = get_test_failure_jobs(push)
@@ -448,10 +442,10 @@ class PushViewSet(viewsets.ViewSet):
                     for job in decision_jobs
                 }
             )
-        logger.error("/decisiontask/ found no decision jobs for {}".format(push_ids))
+        logger.error(f"/decisiontask/ found no decision jobs for {push_ids}")
         self.get_decision_jobs.invalidate(push_ids)
         return Response(
-            "No decision tasks found for pushes: {}".format(push_ids), status=HTTP_404_NOT_FOUND
+            f"No decision tasks found for pushes: {push_ids}", status=HTTP_404_NOT_FOUND
         )
 
     # TODO: Remove when we no longer support short revisions: Bug 1306707
@@ -473,9 +467,7 @@ class PushViewSet(viewsets.ViewSet):
             repository = Repository.objects.get(name=project)
             push = Push.objects.get(revision=revision, repository=repository)
         except Push.DoesNotExist:
-            return Response(
-                "No push with revision: {0}".format(revision), status=HTTP_404_NOT_FOUND
-            )
+            return Response(f"No push with revision: {revision}", status=HTTP_404_NOT_FOUND)
         groups = get_group_results(push)
 
         return Response(groups)

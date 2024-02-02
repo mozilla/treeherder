@@ -1,7 +1,6 @@
 import datetime
 import time
 from collections import defaultdict
-from typing import List
 from urllib.parse import urlencode
 
 import django_filters
@@ -819,7 +818,7 @@ class PerformanceSummary(generics.ListAPIView):
         return Response(data=serialized_data)
 
     @staticmethod
-    def _filter_out_retriggers(serialized_data: List[dict]) -> List[dict]:
+    def _filter_out_retriggers(serialized_data):
         """
         Removes data points resulted from retriggers
         """
@@ -889,7 +888,7 @@ class PerfCompareResults(generics.ListAPIView):
             new_push = models.Push.objects.get(revision=new_rev, repository__name=new_repo_name)
         except models.Push.DoesNotExist:
             return Response(
-                "No new push with revision {} from repo {}.".format(new_rev, new_repo_name),
+                f"No new push with revision {new_rev} from repo {new_repo_name}.",
                 status=HTTP_400_BAD_REQUEST,
             )
 
@@ -910,7 +909,7 @@ class PerfCompareResults(generics.ListAPIView):
                 end_day = new_push.time
         except models.Push.DoesNotExist:
             return Response(
-                "No base push with revision {} from repo {}.".format(base_rev, base_repo_name),
+                f"No base push with revision {base_rev} from repo {base_repo_name}.",
                 status=HTTP_400_BAD_REQUEST,
             )
 
@@ -1179,7 +1178,7 @@ class PerfCompareResults(generics.ListAPIView):
         )
 
     @staticmethod
-    def _get_signatures_values(signatures: List[PerformanceSignature]):
+    def _get_signatures_values(signatures):
         return signatures.values(
             "framework_id",
             "id",

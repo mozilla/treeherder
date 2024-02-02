@@ -59,7 +59,7 @@ class PulseConsumer(ConsumerMixin):
         self.connection = Connection(source["pulse_url"], virtual_host=source.get("vhost", "/"))
         self.consumers = []
         self.queue = None
-        self.queue_name = "queue/{}/{}".format(self.connection.userid, self.queue_suffix)
+        self.queue_name = f"queue/{self.connection.userid}/{self.queue_suffix}"
         self.root_url = source["root_url"]
         self.source = source
         self.build_routing_key = build_routing_key
@@ -110,7 +110,7 @@ class PulseConsumer(ConsumerMixin):
 
         # get the binding key for this consumer
         binding = self.get_binding_str(exchange.name, routing_key)
-        logger.info("Pulse queue {} bound to: {}".format(self.queue_name, binding))
+        logger.info(f"Pulse queue {self.queue_name} bound to: {binding}")
 
         return binding
 
@@ -146,11 +146,11 @@ class PulseConsumer(ConsumerMixin):
 
     def get_binding_str(self, exchange, routing_key):
         """Use consistent string format for binding comparisons"""
-        return "{} {}".format(exchange, routing_key)
+        return f"{exchange} {routing_key}"
 
     def get_bindings(self, queue_name):
         """Get list of bindings from the pulse API"""
-        return fetch_json("{}queue/{}/bindings".format(PULSE_GUARDIAN_URL, queue_name))
+        return fetch_json(f"{PULSE_GUARDIAN_URL}queue/{queue_name}/bindings")
 
 
 class TaskConsumer(PulseConsumer):
@@ -227,7 +227,7 @@ class JointConsumer(PulseConsumer):
     thread, so we use multiple threads, one per consumer.
     """
 
-    queue_suffix = env("PULSE_QUEUE_NAME", default="queue_{}".format(socket.gethostname()))
+    queue_suffix = env("PULSE_QUEUE_NAME", default=f"queue_{socket.gethostname()}")
 
     def bindings(self):
         rv = []

@@ -9,7 +9,7 @@ def test_get_version(client):
     response = client.get("/__version__")
     assert response.status_code == 200
 
-    with open(f"{settings.BASE_DIR}/version.json", "r") as version_file:
+    with open(f"{settings.BASE_DIR}/version.json") as version_file:
         assert response.json() == json.loads(version_file.read())
 
 

@@ -1,7 +1,6 @@
 import time
 from datetime import timedelta
 
-from typing import List
 
 from treeherder.config import settings
 from treeherder.perf.sheriffing_criteria import (
@@ -15,7 +14,7 @@ from mo_times import Duration
 from django.core.management.base import BaseCommand
 
 
-def pretty_enumerated(formulas: List[str]) -> str:
+def pretty_enumerated(formulas: list[str]) -> str:
     comma = ", "
     return " & ".join(comma.join(formulas).rsplit(comma, maxsplit=1))
 

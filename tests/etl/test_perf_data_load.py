@@ -5,7 +5,6 @@ import operator
 import time
 
 import pytest
-from typing import List
 
 from django.core.management import call_command
 from django.db import IntegrityError
@@ -87,7 +86,7 @@ def sample_perf_artifact() -> dict:
 
 
 @pytest.fixture
-def sibling_perf_artifacts(sample_perf_artifact: dict) -> List[dict]:
+def sibling_perf_artifacts(sample_perf_artifact: dict) -> list[dict]:
     """intended to belong to the same job"""
     artifacts = [copy.deepcopy(sample_perf_artifact) for _ in range(3)]
 

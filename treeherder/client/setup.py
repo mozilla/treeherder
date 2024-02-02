@@ -1,4 +1,3 @@
-import io
 import os
 import re
 
@@ -7,7 +6,7 @@ from setuptools import setup
 
 def read(*names, **kwargs):
     # Taken from https://packaging.python.org/en/latest/single_source_version.html
-    with io.open(
+    with open(
         os.path.join(os.path.dirname(__file__), *names), encoding=kwargs.get("encoding", "utf8")
     ) as fp:
         return fp.read()

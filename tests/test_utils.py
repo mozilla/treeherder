@@ -213,7 +213,7 @@ def add_log_response(filename):
     Set up responses for a local gzipped log and return the url for it.
     """
     log_path = SampleData().get_log_path(filename)
-    log_url = "http://my-log.mozilla.org/{}".format(filename)
+    log_url = f"http://my-log.mozilla.org/{filename}"
 
     with open(log_path, "rb") as log_file:
         content = log_file.read()

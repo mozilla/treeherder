@@ -1,7 +1,6 @@
 import pytest
 from datetime import datetime, timedelta
 
-from typing import List
 
 from tests.perf.auto_sheriffing_criteria.conftest import CASSETTES_RECORDING_DATE
 from treeherder.config.settings import BZ_DATETIME_FORMAT
@@ -44,7 +43,7 @@ def quantified_bugs(betamax_recorder) -> list:
 
 
 @pytest.fixture
-def cooled_down_bugs(nonblock_session, quantified_bugs) -> List[dict]:
+def cooled_down_bugs(nonblock_session, quantified_bugs) -> list[dict]:
     bugs = []
     for bug in quantified_bugs:
         created_at = datetime.strptime(bug["creation_time"], BZ_DATETIME_FORMAT)

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import re
 
 # Regexp that matches all non-BMP unicode characters.
@@ -19,7 +18,7 @@ def convert_unicode_character_to_ascii_repr(match_obj):
 
     hex_value = hex_code_point.zfill(6).upper()
 
-    return "<U+{}>".format(hex_value)
+    return f"<U+{hex_value}>"
 
 
 def astral_filter(text):

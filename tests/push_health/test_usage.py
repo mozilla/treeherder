@@ -34,7 +34,7 @@ def test_get_usage(push_usage, test_repository):
     nrql = "SELECT%20max(needInvestigation)%20FROM%20push_health_need_investigation%20FACET%20revision%20SINCE%201%20DAY%20AGO%20TIMESERIES%20where%20repo%3D'{}'%20AND%20appName%3D'{}'".format(
         "try", "treeherder-prod"
     )
-    new_relic_url = "{}?nrql={}".format(settings.NEW_RELIC_INSIGHTS_API_URL, nrql)
+    new_relic_url = f"{settings.NEW_RELIC_INSIGHTS_API_URL}?nrql={nrql}"
 
     responses.add(
         responses.GET,

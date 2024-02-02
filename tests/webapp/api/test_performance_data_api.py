@@ -102,7 +102,7 @@ def test_performance_platforms_expired_test(client, test_perf_signature):
             "performance-signatures-platforms-list",
             kwargs={"project": test_perf_signature.repository.name},
         )
-        + "?interval={}".format(86400)
+        + "?interval=86400"
     )
     assert resp.status_code == 200
     assert resp.json() == []
@@ -140,7 +140,7 @@ def test_performance_platforms_framework_filtering(client, test_perf_signature):
             "performance-signatures-platforms-list",
             kwargs={"project": test_perf_signature.repository.name},
         )
-        + "?framework={}".format(framework2.id)
+        + f"?framework={framework2.id}"
     )
     assert resp.status_code == 200
     assert resp.json() == ["win7-a"]
@@ -259,7 +259,7 @@ def test_filter_data_by_no_retriggers(
 
     resp = client.get(
         reverse("performance-data-list", kwargs={"project": test_repository.name})
-        + "?signatures={}&no_retriggers=true".format(test_perf_signature.signature_hash)
+        + f"?signatures={test_perf_signature.signature_hash}&no_retriggers=true"
     )
     assert resp.status_code == 200
     datums = resp.data[test_perf_signature.signature_hash]
@@ -316,9 +316,7 @@ def test_filter_data_by_framework(
     # Filtering by second framework
     resp = client.get(
         reverse("performance-data-list", kwargs={"project": test_repository.name})
-        + "?signatures={}&framework={}".format(
-            test_perf_signature.signature_hash, signature2.framework.id
-        )
+        + f"?signatures={test_perf_signature.signature_hash}&framework={signature2.framework.id}"
     )
     assert resp.status_code == 200
     datums = resp.data[test_perf_signature.signature_hash]
@@ -332,7 +330,7 @@ def test_filter_signatures_by_interval(client, test_perf_signature):
         reverse(
             "performance-signatures-list", kwargs={"project": test_perf_signature.repository.name}
         )
-        + "?interval={}".format(86400)
+        + "?interval=86400"
     )
     assert resp.status_code == 200
     assert len(resp.json().keys()) == 1
@@ -354,7 +352,7 @@ def test_filter_signatures_by_range(
         reverse(
             "performance-signatures-list", kwargs={"project": test_perf_signature.repository.name}
         )
-        + "?start_date={}&end_date={}".format(start_date, end_date)
+        + f"?start_date={start_date}&end_date={end_date}"
     )
     assert resp.status_code == 200
     assert len(resp.json().keys()) == exp_count
@@ -387,7 +385,7 @@ def test_filter_data_by_interval(
     # going back interval of 1 day, should find 1 item
     resp = client.get(
         reverse("performance-data-list", kwargs={"project": test_repository.name})
-        + "?signature_id={}&interval={}".format(test_perf_signature.id, interval)
+        + f"?signature_id={test_perf_signature.id}&interval={interval}"
     )
 
     assert resp.status_code == 200
@@ -424,9 +422,7 @@ def test_filter_data_by_range(
 
     resp = client.get(
         reverse("performance-data-list", kwargs={"project": test_repository.name})
-        + "?signature_id={}&start_date={}&end_date={}".format(
-            test_perf_signature.id, start_date, end_date
-        )
+        + f"?signature_id={test_perf_signature.id}&start_date={start_date}&end_date={end_date}"
     )
 
     assert resp.status_code == 200
@@ -472,7 +468,7 @@ def test_filter_data_by_signature(
         ]:
             resp = client.get(
                 reverse("performance-data-list", kwargs={"project": test_repository.name})
-                + "?{}={}".format(param, value)
+                + f"?{param}={value}"
             )
             assert resp.status_code == 200
             assert len(resp.data.keys()) == 1
@@ -719,7 +715,7 @@ def test_alert_summary_tasks_get(client, test_perf_alert_summary, test_perf_data
         status=PerformanceAlert.REASSIGNED,
     )
     resp = client.get(
-        reverse("performance-alertsummary-tasks") + "?id={}".format(test_perf_alert_summary.id)
+        reverse("performance-alertsummary-tasks") + f"?id={test_perf_alert_summary.id}"
     )
     assert resp.status_code == 200
     assert resp.json() == {
@@ -737,9 +733,7 @@ def test_alert_summary_tasks_get_failure(client, test_perf_alert_summary):
     # verify that we fail if PerformanceAlertSummary does not exist
     not_exist_summary_id = test_perf_alert_summary.id
     test_perf_alert_summary.delete()
-    resp = client.get(
-        reverse("performance-alertsummary-tasks") + "?id={}".format(not_exist_summary_id)
-    )
+    resp = client.get(reverse("performance-alertsummary-tasks") + f"?id={not_exist_summary_id}")
     assert resp.status_code == 400
     assert resp.json() == {"message": ["PerformanceAlertSummary does not exist."]}
 
