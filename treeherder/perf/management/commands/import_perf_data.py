@@ -50,14 +50,14 @@ def progress_notifier(
     tabs_no=0,
 ):
     total_items = len(iterable)
-    print("{0}Fetching {1} {2} item(s)...".format("\t" * tabs_no, total_items, item_name))
+    print("{}Fetching {} {} item(s)...".format("\t" * tabs_no, total_items, item_name))
 
     prev_percentage = None
     for idx, item in enumerate(iterable):
         item_processor(item)
         percentage = int((idx + 1) * 100 / total_items)
         if percentage % 10 == 0 and percentage != prev_percentage:
-            print("{0}Fetched {1}% of {2} item(s)".format("\t" * tabs_no, percentage, item_name))
+            print("{}Fetched {}% of {} item(s)".format("\t" * tabs_no, percentage, item_name))
             prev_percentage = percentage
 
 
@@ -124,7 +124,7 @@ class DecentSizedData(Data):
         print("Fetching all affordable data...\n")
         # TODO: JSON dump the list
         print(
-            "From tables {0}".format(
+            "From tables {}".format(
                 ", ".join([model._meta.db_table for model in self.DECENT_SIZED_TABLES])
             )
         )
@@ -314,7 +314,7 @@ class MassiveData(Data):
         if alert.id in self.models_instances["performance_alert"]:
             return
 
-        print("{0}Fetching alert #{1}...".format("\t" * 2, alert.id))
+        print("{}Fetching alert #{}...".format("\t" * 2, alert.id))
         if alert.related_summary:
             if alert.related_summary not in self.models_instances["performance_alert_summary"]:
                 # if the alert summary identified isn't registered yet
@@ -365,7 +365,7 @@ class MassiveData(Data):
         if job.id in self.models_instances["job"]:
             return
 
-        occasional_log("{0}Fetching job #{1}".format("\t" * 4, job.id))
+        occasional_log("{}Fetching job #{}".format("\t" * 4, job.id))
 
         self.update_list("reference_data_signature", job.signature)
         self.update_list("build_platform", job.build_platform)

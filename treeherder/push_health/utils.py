@@ -31,7 +31,7 @@ def clean_test(test, signature, message):
         elif clean_name.startswith("http://10.0"):
             left = "/tests/".join(left.split("/tests/")[1:])
             right = "/tests/".join(right.split("/tests/")[1:])
-        clean_name = "%s%s%s" % (left, splitter, right)
+        clean_name = f"{left}{splitter}{right}"
 
     if "test_end for" in clean_name:
         clean_name = clean_name.split()[2]

@@ -107,7 +107,7 @@ class RevisionDatum:
 
     def __repr__(self):
         values_str = "[ %s ]" % ", ".join(["%.3f" % value for value in self.values])
-        return "<%s: %s, %s, %.3f, %s>" % (
+        return "<{}: {}, {}, {:.3f}, {}>".format(
             self.push_timestamp,
             self.push_id,
             values_str,

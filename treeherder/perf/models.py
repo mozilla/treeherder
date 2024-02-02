@@ -317,7 +317,7 @@ class PerformanceAlertSummary(models.Model):
     issue_tracker = models.ForeignKey(IssueTracker, on_delete=models.PROTECT, default=1)  # Bugzilla
 
     def __init__(self, *args, **kwargs):
-        super(PerformanceAlertSummary, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # allows updating timestamps only on new values
         self.__prev_bug_number = self.bug_number
@@ -333,7 +333,7 @@ class PerformanceAlertSummary(models.Model):
             self.triage_due_date = triage_due
         if self.bug_due_date != bug_due:
             self.bug_due_date = bug_due
-        super(PerformanceAlertSummary, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
         self.__prev_bug_number = self.bug_number
 
     def update_status(self, using=None):

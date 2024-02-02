@@ -843,7 +843,7 @@ def mock_file_bugzilla_map_request(monkeypatch):
             % project
         )
         files_bugzilla_data = None
-        file_name = "files_bugzilla_map_%s_%s.json" % (project, self.run_id)
+        file_name = f"files_bugzilla_map_{project}_{self.run_id}.json"
         exception = None
         try:
             tests_folder = os.path.dirname(__file__)

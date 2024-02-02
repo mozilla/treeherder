@@ -116,7 +116,7 @@ class NoteViewSet(viewsets.ViewSet):
                                 exc_info=True,
                             )
 
-        return Response({"message": "note stored for job {0}".format(request.data["job_id"])})
+        return Response({"message": "note stored for job {}".format(request.data["job_id"])})
 
     def destroy(self, request, project, pk=None):
         """

@@ -19,7 +19,7 @@ class SampleData:
             self.text_log_summary = json.load(f)
 
         with open(
-            "{0}/sample_data/pulse_consumer/taskcluster_pulse_messages.json".format(
+            "{}/sample_data/pulse_consumer/taskcluster_pulse_messages.json".format(
                 os.path.dirname(__file__)
             )
         ) as f:
@@ -31,7 +31,7 @@ class SampleData:
             self.taskcluster_tasks = json.load(f)
 
         with open(
-            "{0}/sample_data/pulse_consumer/taskcluster_transformed_jobs.json".format(
+            "{}/sample_data/pulse_consumer/taskcluster_transformed_jobs.json".format(
                 os.path.dirname(__file__)
             )
         ) as f:
