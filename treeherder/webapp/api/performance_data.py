@@ -1,7 +1,6 @@
 import datetime
 import time
 from collections import defaultdict
-from typing import List
 from urllib.parse import urlencode
 
 import django_filters
@@ -819,7 +818,7 @@ class PerformanceSummary(generics.ListAPIView):
         return Response(data=serialized_data)
 
     @staticmethod
-    def _filter_out_retriggers(serialized_data: List[dict]) -> List[dict]:
+    def _filter_out_retriggers(serialized_data: list[dict]) -> list[dict]:
         """
         Removes data points resulted from retriggers
         """
@@ -1179,7 +1178,7 @@ class PerfCompareResults(generics.ListAPIView):
         )
 
     @staticmethod
-    def _get_signatures_values(signatures: List[PerformanceSignature]):
+    def _get_signatures_values(signatures: list[PerformanceSignature]):
         return signatures.values(
             "framework_id",
             "id",
