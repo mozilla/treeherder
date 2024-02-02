@@ -16,6 +16,6 @@ repos:
     rev: v0.1.14
     hooks:
       - id: ruff
-        args: [--fix]
+        args: [--fix, --show-fixes]
       - id: ruff-format
         exclude: ^treeherder/.*/migrations
