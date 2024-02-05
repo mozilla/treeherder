@@ -8,7 +8,7 @@
   "license": "MPL-2.0",
   "engines": {
     "node": "21.1.0",
-    "yarn": "1.22.19"
+    "yarn": "1.22.21"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "6.2.1",
