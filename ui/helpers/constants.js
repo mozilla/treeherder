@@ -140,9 +140,11 @@ export const thPlatformMap = {
   'android-5-0-x86_64': 'Android 5.0 x86-64',
   'android-5-0-x86_64-shippable': 'Android 5.0 x86-64 Shippable',
   'android-5-0-x86_64-shippable-lite': 'Android 5.0 x86-64 Lite Shippable',
+  'android-5-0-geckoview-fat-aar': 'Android 5.0 GeckoView multi-arch fat AAR',
   'android-5-0-geckoview-fat-aar-shippable':
     'Android 5.0 GeckoView multi-arch fat AAR Shippable',
   'android-em-7-0-x86': 'Android 7.0 x86',
+  'android-em-7-0-x86-qr': 'Android 7.0 x86 WebRender',
   'android-em-7-0-x86_64-qr': 'Android 7.0 x86-64 WebRender',
   'android-em-7-0-x86_64-lite-qr': 'Android 7.0 x86-64 Lite WebRender',
   'android-em-7-0-x86_64-shippable-lite-qr':
