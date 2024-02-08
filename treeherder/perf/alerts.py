@@ -129,7 +129,7 @@ def generate_new_alerts_in_series(signature):
                     and alert_properties.pct_change < alert_threshold
                 ) or (
                     signature.alert_change_type == PerformanceSignature.ALERT_ABS
-                    and alert_properties.delta < alert_threshold
+                    and abs(alert_properties.delta) < alert_threshold
                 ):
                     continue
 
