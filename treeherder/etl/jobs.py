@@ -320,7 +320,6 @@ def _schedule_log_parsing(job, job_logs, result, repository):
         "mozilla-central",
         "mozilla-beta",
         "mozilla-release",
-        "mozilla-esr102",
         "mozilla-esr115",
         "firefox-android",
         "reference-browser",
