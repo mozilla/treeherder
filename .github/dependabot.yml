@@ -1,6 +1,14 @@
 version: 2
 updates:
 - package-ecosystem: pip
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 99
+  labels:
+  - dependencies
+  - python
+- package-ecosystem: pip
   directory: "/requirements"
   schedule:
     interval: daily
