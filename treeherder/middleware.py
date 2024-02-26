@@ -37,8 +37,8 @@ def add_headers_function(headers, path, url):
     if report_uri not in CSP_DIRECTIVES:
         CSP_DIRECTIVES.append(report_uri)
 
-    CSP_HEADER = "; ".join(CSP_DIRECTIVES)
-    headers["Content-Security-Policy"] = CSP_HEADER
+    csp_header = "; ".join(CSP_DIRECTIVES)
+    headers["Content-Security-Policy"] = csp_header
 
 
 class CustomWhiteNoise(WhiteNoiseMiddleware):

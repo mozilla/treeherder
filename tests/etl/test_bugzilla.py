@@ -48,7 +48,7 @@ def test_bz_reopen_bugs(request, mock_bugzilla_reopen_request, client, test_job,
 
     import json
 
-    EXPECTED_REOPEN_ATTEMPTS = {
+    expected_reopen_attempts = {
         "https://thisisnotbugzilla.org/rest/bug/202": json.dumps(
             {
                 "status": "REOPENED",
@@ -68,4 +68,4 @@ def test_bz_reopen_bugs(request, mock_bugzilla_reopen_request, client, test_job,
             }
         ),
     }
-    assert reopened_bugs == EXPECTED_REOPEN_ATTEMPTS
+    assert reopened_bugs == expected_reopen_attempts

@@ -39,6 +39,8 @@ select = [
   "F",
   # pyupgrade
   "UP",
+  # pep-naming
+  "N806",
 ]
 
 ignore = [

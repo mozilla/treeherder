@@ -132,42 +132,42 @@ def test_formula_demands_at_least_framework_and_suite(FormulaClass, betamax_reco
 def test_breakdown_updates_between_calculations(FormulaClass, betamax_recorder):
     formula = FormulaClass(betamax_recorder.session)
 
-    test_moniker_A = ("build_metrics", "build times")
-    test_moniker_B = ("talos", "tp5n", "nonmain_startup_fileio")
+    test_moniker_a = ("build_metrics", "build times")
+    test_moniker_b = ("talos", "tp5n", "nonmain_startup_fileio")
 
-    cassette_preffix_A = "-".join(filter(None, test_moniker_A))
-    cassette_preffix_B = "-".join(filter(None, test_moniker_B))
+    cassette_preffix_a = "-".join(filter(None, test_moniker_a))
+    cassette_preffix_b = "-".join(filter(None, test_moniker_b))
 
-    with betamax_recorder.use_cassette(f"{cassette_preffix_A}", serialize_with="prettyjson"):
-        formula(*test_moniker_A)  # let it perform calculus & cache breakdown
-        breakdown_A = formula.breakdown()
+    with betamax_recorder.use_cassette(f"{cassette_preffix_a}", serialize_with="prettyjson"):
+        formula(*test_moniker_a)  # let it perform calculus & cache breakdown
+        breakdown_a = formula.breakdown()
 
-    with betamax_recorder.use_cassette(f"{cassette_preffix_B}", serialize_with="prettyjson"):
-        formula(*test_moniker_B)  # let it perform calculus & cache breakdown
-        breakdown_B = formula.breakdown()
+    with betamax_recorder.use_cassette(f"{cassette_preffix_b}", serialize_with="prettyjson"):
+        formula(*test_moniker_b)  # let it perform calculus & cache breakdown
+        breakdown_b = formula.breakdown()
 
-    assert breakdown_A != breakdown_B
+    assert breakdown_a != breakdown_b
 
 
 @pytest.mark.parametrize("FormulaClass", concrete_formula_classes())
 def test_breakdown_resets_to_null_when_calculus_errors_out(FormulaClass, betamax_recorder):
     formula = FormulaClass(betamax_recorder.session)
 
-    test_moniker_A = ("build_metrics", "build times")
-    test_moniker_B = ("nonexistent_framework", "nonexistent_suite")
+    test_moniker_a = ("build_metrics", "build times")
+    test_moniker_b = ("nonexistent_framework", "nonexistent_suite")
 
-    cassette_preffix_A = "-".join(filter(None, test_moniker_A))
-    cassette_preffix_B = "-".join(filter(None, test_moniker_B))
+    cassette_preffix_a = "-".join(filter(None, test_moniker_a))
+    cassette_preffix_b = "-".join(filter(None, test_moniker_b))
 
     # run happy path calculus
-    with betamax_recorder.use_cassette(f"{cassette_preffix_A}", serialize_with="prettyjson"):
-        formula(*test_moniker_A)  # let it perform calculus & cache breakdown
+    with betamax_recorder.use_cassette(f"{cassette_preffix_a}", serialize_with="prettyjson"):
+        formula(*test_moniker_a)  # let it perform calculus & cache breakdown
         _ = formula.breakdown()
 
     # now run alternated path calculus
-    with betamax_recorder.use_cassette(f"{cassette_preffix_B}", serialize_with="prettyjson"):
+    with betamax_recorder.use_cassette(f"{cassette_preffix_b}", serialize_with="prettyjson"):
         with pytest.raises(NoFiledBugs):
-            formula(*test_moniker_B)  # intentionally blows up while doing calculus
+            formula(*test_moniker_b)  # intentionally blows up while doing calculus
 
         # cached breakdown got invalidated & can no longer be obtained
         with pytest.raises(RuntimeError):

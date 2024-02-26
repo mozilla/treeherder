@@ -35,13 +35,13 @@ class InvestigatedViewSet(viewsets.ModelViewSet):
         project = kwargs["project"]
         revision = request.query_params.get("revision")
         test = request.data["test"]
-        jobName = request.data["jobName"]
-        jobSymbol = request.data["jobSymbol"]
+        job_name = request.data["jobName"]
+        job_symbol = request.data["jobSymbol"]
 
         try:
             repository = Repository.objects.get(name=project)
             push = Push.objects.get(revision=revision, repository=repository)
-            job_type = JobType.objects.get(name=jobName, symbol=jobSymbol)
+            job_type = JobType.objects.get(name=job_name, symbol=job_symbol)
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save(push=push, job_type=job_type, test=test)
@@ -54,7 +54,7 @@ class InvestigatedViewSet(viewsets.ModelViewSet):
             return Response(f"No push with revision: {revision}", status=HTTP_404_NOT_FOUND)
 
         except JobType.DoesNotExist:
-            return Response(f"No JobType with job name: {jobName}", status=HTTP_404_NOT_FOUND)
+            return Response(f"No JobType with job name: {job_name}", status=HTTP_404_NOT_FOUND)
 
     def destroy(self, request, project, pk=None):
         try:

@@ -313,7 +313,7 @@ class JobsProjectViewSet(viewsets.ViewSet):
         - count (10)
         - return_type (dict)
         """
-        MAX_JOBS_COUNT = 2000
+        max_jobs_count = 2000
 
         filter_params = {}
 
@@ -348,8 +348,8 @@ class JobsProjectViewSet(viewsets.ViewSet):
             return Response("Invalid value for offset or count", status=HTTP_400_BAD_REQUEST)
         return_type = filter_params.get("return_type", "dict").lower()
 
-        if count > MAX_JOBS_COUNT:
-            msg = f"Specified count exceeds API MAX_JOBS_COUNT value: {MAX_JOBS_COUNT}"
+        if count > max_jobs_count:
+            msg = f"Specified count exceeds API MAX_JOBS_COUNT value: {max_jobs_count}"
             return Response({"detail": msg}, status=HTTP_400_BAD_REQUEST)
 
         try:

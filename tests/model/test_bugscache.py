@@ -190,20 +190,20 @@ def test_import(mock_bugscache_bugzilla_request):
     assert bug.dupe_of == 1662628
 
     # key: open bug, values: duplicates
-    EXPECTED_BUG_DUPE_OF_DATA = {
+    expected_bug_dupe_of_data = {
         1392106: [1442991, 1443801],
         1411358: [1204281],
         1662628: [1652208, 1660324, 1660719, 1660765, 1663081, 1663118, 1702255],
         1736534: [],
     }
 
-    for open_bug, duplicates in EXPECTED_BUG_DUPE_OF_DATA.items():
+    for open_bug, duplicates in expected_bug_dupe_of_data.items():
         assert Bugscache.objects.get(id=open_bug).dupe_of is None
         assert set(Bugscache.objects.filter(dupe_of=open_bug).values_list("id", flat=True)) == set(
             duplicates
         )
 
-    EXPECTED_BUG_COUNT = sum(
-        [1 + len(duplicates) for duplicates in EXPECTED_BUG_DUPE_OF_DATA.values()]
+    expected_bug_count = sum(
+        [1 + len(duplicates) for duplicates in expected_bug_dupe_of_data.values()]
     )
-    assert len(Bugscache.objects.all()) == EXPECTED_BUG_COUNT
+    assert len(Bugscache.objects.all()) == expected_bug_count

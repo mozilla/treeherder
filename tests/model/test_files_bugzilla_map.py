@@ -40,7 +40,7 @@ def test_data_ingestion(setup_repository_data, mock_file_bugzilla_map_request):
     import_process.run()
     assert FilesBugzillaMap.objects.count() == 7
 
-    EXPECTED_FILES_BUGZILLA_DATA_IMPORT_1 = [
+    expected_files_bugzilla_data_import_1 = [
         ("AUTHORS", "AUTHORS", "mozilla.org", "Licensing"),
         ("browser/components/BrowserGlue.jsm", "BrowserGlue.jsm", "Firefox", "General"),
         (
@@ -74,7 +74,7 @@ def test_data_ingestion(setup_repository_data, mock_file_bugzilla_map_request):
             "File first seen on mozilla-beta",
         ),
     ]
-    assert EXPECTED_FILES_BUGZILLA_DATA_IMPORT_1 == list(
+    assert expected_files_bugzilla_data_import_1 == list(
         FilesBugzillaMap.objects.all()
         .values_list(
             "path", "file_name", "bugzilla_component__product", "bugzilla_component__component"
@@ -82,7 +82,7 @@ def test_data_ingestion(setup_repository_data, mock_file_bugzilla_map_request):
         .order_by("path")
     )
 
-    EXPECTED_BUGZILLA_COMPONENTS_IMPORT_1 = [
+    expected_bugzilla_components_import_1 = [
         ("Core", "Storage: IndexedDB"),
         ("Firefox", "General"),
         ("Mock", "File first seen on mozilla-beta"),
@@ -91,7 +91,7 @@ def test_data_ingestion(setup_repository_data, mock_file_bugzilla_map_request):
         ("mozilla.org", "Different path, same product, different component"),
         ("mozilla.org", "Licensing"),
     ]
-    assert EXPECTED_BUGZILLA_COMPONENTS_IMPORT_1 == sorted(
+    assert expected_bugzilla_components_import_1 == sorted(
         list(
             BugzillaComponent.objects.all()
             .values_list("product", "component")
@@ -103,7 +103,7 @@ def test_data_ingestion(setup_repository_data, mock_file_bugzilla_map_request):
     import_process.run()
     assert FilesBugzillaMap.objects.count() == 6
 
-    EXPECTED_FILES_BUGZILLA_DATA_IMPORT_2 = [
+    expected_files_bugzilla_data_import_2 = [
         ("AUTHORS", "AUTHORS", "mozilla.org", "Import 2: same product, different component"),
         ("browser/components/BrowserGlue.jsm", "BrowserGlue.jsm", "Firefox", "General"),
         (
@@ -131,7 +131,7 @@ def test_data_ingestion(setup_repository_data, mock_file_bugzilla_map_request):
             "File first seen on mozilla-beta",
         ),
     ]
-    assert EXPECTED_FILES_BUGZILLA_DATA_IMPORT_2 == sorted(
+    assert expected_files_bugzilla_data_import_2 == sorted(
         list(
             FilesBugzillaMap.objects.all()
             .values_list(
@@ -141,7 +141,7 @@ def test_data_ingestion(setup_repository_data, mock_file_bugzilla_map_request):
         )
     )
 
-    EXPECTED_BUGZILLA_COMPONENTS_IMPORT_2 = [
+    expected_bugzilla_components_import_2 = [
         ("Core", "Storage: IndexedDB"),
         ("Core", "Storage: IndexedDB2"),
         ("Firefox", "General"),
@@ -149,7 +149,7 @@ def test_data_ingestion(setup_repository_data, mock_file_bugzilla_map_request):
         ("Testing", "web-platform-tests"),
         ("mozilla.org", "Import 2: same product, different component"),
     ]
-    assert EXPECTED_BUGZILLA_COMPONENTS_IMPORT_2 == sorted(
+    assert expected_bugzilla_components_import_2 == sorted(
         list(
             BugzillaComponent.objects.all()
             .values_list("product", "component")
