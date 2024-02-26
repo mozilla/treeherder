@@ -64,8 +64,8 @@ class PulseConsumer(ConsumerMixin):
         self.source = source
         self.build_routing_key = build_routing_key
 
-    def get_consumers(self, Consumer, channel):
-        return [Consumer(**c) for c in self.consumers]
+    def get_consumers(self, consumer, channel):
+        return [consumer(**c) for c in self.consumers]
 
     def bindings(self):
         """Get the bindings for this consumer, each of the form `<exchange>.<routing_keys>`,

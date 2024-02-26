@@ -36,14 +36,14 @@ def transformed_pulse_jobs(sample_data, test_repository):
     return jobs
 
 
-def mock_artifact(taskId, runId, artifactName):
+def mock_artifact(task_id, run_id, artifact_name):
     # Mock artifact with empty body
     base_url = (
         "https://taskcluster.net/api/queue/v1/task/{taskId}/runs/{runId}/artifacts/{artifactName}"
     )
     responses.add(
         responses.GET,
-        base_url.format(taskId=taskId, runId=runId, artifactName=artifactName),
+        base_url.format(taskId=task_id, runId=run_id, artifactName=artifact_name),
         body="",
         content_type="text/plain",
         status=200,
