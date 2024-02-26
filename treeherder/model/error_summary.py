@@ -48,8 +48,8 @@ def get_error_summary(job, queryset=None):
         dates = list(line_cache.keys())
         dates.sort()
         for d in dates:
-            dTime = datetime.datetime.strptime(d, "%Y-%m-%d")
-            if dTime <= (job.submit_time - datetime.timedelta(days=LINE_CACHE_TIMEOUT_DAYS)):
+            date_time = datetime.datetime.strptime(d, "%Y-%m-%d")
+            if date_time <= (job.submit_time - datetime.timedelta(days=LINE_CACHE_TIMEOUT_DAYS)):
                 del line_cache[d]
             else:
                 break

@@ -123,10 +123,10 @@ def test_detect_changes_few_revisions_many_values():
 def test_detect_changes_historical_data(filename, expected_timestamps):
     """Parse JSON produced by http://graphs.mozilla.org/api/test/runs"""
     # Configuration for Analyzer
-    FORE_WINDOW = 12
-    MIN_BACK_WINDOW = 12
-    MAX_BACK_WINDOW = 24
-    THRESHOLD = 7
+    fore_window = 12
+    min_back_window = 12
+    max_back_window = 24
+    threshold = 7
 
     payload = SampleData.get_perf_data(os.path.join("graphs", filename))
     runs = payload["test_runs"]
@@ -134,10 +134,10 @@ def test_detect_changes_historical_data(filename, expected_timestamps):
 
     results = detect_changes(
         data,
-        min_back_window=MIN_BACK_WINDOW,
-        max_back_window=MAX_BACK_WINDOW,
-        fore_window=FORE_WINDOW,
-        t_threshold=THRESHOLD,
+        min_back_window=min_back_window,
+        max_back_window=max_back_window,
+        fore_window=fore_window,
+        t_threshold=threshold,
     )
     regression_timestamps = [d.push_timestamp for d in results if d.change_detected]
     assert regression_timestamps == expected_timestamps

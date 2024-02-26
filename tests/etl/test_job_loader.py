@@ -38,12 +38,12 @@ def transformed_pulse_jobs(sample_data, test_repository):
 
 def mock_artifact(taskId, runId, artifactName):
     # Mock artifact with empty body
-    baseUrl = (
+    base_url = (
         "https://taskcluster.net/api/queue/v1/task/{taskId}/runs/{runId}/artifacts/{artifactName}"
     )
     responses.add(
         responses.GET,
-        baseUrl.format(taskId=taskId, runId=runId, artifactName=artifactName),
+        base_url.format(taskId=taskId, runId=runId, artifactName=artifactName),
         body="",
         content_type="text/plain",
         status=200,
@@ -53,20 +53,20 @@ def mock_artifact(taskId, runId, artifactName):
 @pytest.fixture
 async def new_pulse_jobs(sample_data, test_repository, push_stored):
     revision = push_stored[0]["revisions"][0]["revision"]
-    pulseMessages = copy.deepcopy(sample_data.taskcluster_pulse_messages)
+    pulse_messages = copy.deepcopy(sample_data.taskcluster_pulse_messages)
     tasks = copy.deepcopy(sample_data.taskcluster_tasks)
     jobs = []
     # Over here we transform the Pulse messages into the intermediary taskcluster-treeherder
     # generated messages
-    for message in list(pulseMessages.values()):
-        taskId = message["payload"]["status"]["taskId"]
-        task = tasks[taskId]
+    for message in list(pulse_messages.values()):
+        task_id = message["payload"]["status"]["taskId"]
+        task = tasks[task_id]
 
         # If we pass task to handleMessage we won't hit the network
-        taskRuns = await handleMessage(message, task)
+        task_runs = await handleMessage(message, task)
         # handleMessage returns [] when it is a task that is not meant for Treeherder
-        for run in reversed(taskRuns):
-            mock_artifact(taskId, run["retryId"], "public/logs/live_backing.log")
+        for run in reversed(task_runs):
+            mock_artifact(task_id, run["retryId"], "public/logs/live_backing.log")
             run["origin"]["project"] = test_repository.name
             run["origin"]["revision"] = revision
             jobs.append(run)
@@ -99,11 +99,11 @@ def test_new_job_transformation(new_pulse_jobs, new_transformed_jobs, failure_cl
         job_guid = message["taskId"]
         (decoded_task_id, _) = job_guid.split("/")
         # As of slugid v2, slugid.encode() returns a string not bytestring under Python 3.
-        taskId = slugid.encode(uuid.UUID(decoded_task_id))
+        task_id = slugid.encode(uuid.UUID(decoded_task_id))
         transformed_job = jl.process_job(message, "https://firefox-ci-tc.services.mozilla.com")
         # Not all messages from Taskcluster will be processed
         if transformed_job:
-            assert new_transformed_jobs[taskId] == transformed_job
+            assert new_transformed_jobs[task_id] == transformed_job
 
 
 def test_ingest_pulse_jobs(
