@@ -10,14 +10,14 @@ def get_commit_history(repository, revision, push):
     from mozci.push import Push as MozciPush
     from mozci.errors import ParentPushNotFound
 
-    mozciPush = MozciPush([revision], repository.name)
+    mozci_push = MozciPush([revision], repository.name)
     parent = None
     parent_sha = None
     parent_repo = None
     parent_push = None
 
     try:
-        parent = mozciPush.parent
+        parent = mozci_push.parent
     except ParentPushNotFound:
         pass
 

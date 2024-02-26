@@ -19,11 +19,11 @@ class FilesBugzillaMapViewSet(viewsets.ReadOnlyModelViewSet):
         # combinations can be in the failure line, it might not be a test and
         # the real issue gets logged earlier but not detected as failure line.
         # Require user input for the product and component to use.
-        IGNORE_LIST_PRODUCT_COMPONENT = [
+        ignore_list_product_component = [
             {product: "Testing", component: "Mochitest"},
         ]
         for product_component in queryset:
-            if product_component not in IGNORE_LIST_PRODUCT_COMPONENT:
+            if product_component not in ignore_list_product_component:
                 filtered_queryset.append(product_component)
         return filtered_queryset[:5]
 
@@ -40,8 +40,8 @@ class FilesBugzillaMapViewSet(viewsets.ReadOnlyModelViewSet):
         # Drop parameters
         path = (path.split("?"))[0]
         file = (path.split("/"))[-1]
-        fileNameParts = file.split(".")
-        file_without_extension = fileNameParts[0] + ("." if len(fileNameParts) > 1 else "")
+        file_name_parts = file.split(".")
+        file_without_extension = file_name_parts[0] + ("." if len(file_name_parts) > 1 else "")
         queryset = (
             FilesBugzillaMap.objects.select_related("bugzilla_component")
             .filter(path__endswith=path)

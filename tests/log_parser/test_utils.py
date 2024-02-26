@@ -78,8 +78,8 @@ def test_smaller_than_bigger():
 
 def test_extra_option_max_length():
     with open(os.path.join("schemas", "performance-artifact.json")) as f:
-        PERFHERDER_SCHEMA = json.load(f)
-    assert 100 == _lookup_extra_options_max(PERFHERDER_SCHEMA)
+        perfherder_schema = json.load(f)
+    assert 100 == _lookup_extra_options_max(perfherder_schema)
 
 
 def test_validate_perf_schema_no_exception():

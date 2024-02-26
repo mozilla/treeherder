@@ -53,8 +53,8 @@ def print_url_to_taskcluster(job_guid):
     job_guid = job["job_guid"]
     (decoded_task_id, _) = job_guid.split("/")
     # As of slugid v2, slugid.encode() returns a string not bytestring under Python 3.
-    taskId = slugid.encode(uuid.UUID(decoded_task_id))
-    logger.info("https://firefox-ci-tc.services.mozilla.com/tasks/%s", taskId)
+    task_id = slugid.encode(uuid.UUID(decoded_task_id))
+    logger.info("https://firefox-ci-tc.services.mozilla.com/tasks/%s", task_id)
 
 
 if __name__ == "__main__":
@@ -95,13 +95,13 @@ if __name__ == "__main__":
             th_instance_not_found.append(job)
         else:
             # You can use this value in a url with &selectedJob=
-            jobId = job["id"]
+            job_id = job["id"]
             remove_some_attributes(job, production_job)
 
             differences = DeepDiff(job, production_dict[job["job_guid"]])
             if differences:
                 pprint.pprint(differences)
-                logger.info(jobId)
+                logger.info(job_id)
             else:
                 # Delete jobs that don"t have any differences
                 del production_dict[job["job_guid"]]

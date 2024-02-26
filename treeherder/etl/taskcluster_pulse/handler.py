@@ -38,17 +38,17 @@ def stateFromRun(jobRun):
 
 
 def resultFromRun(jobRun):
-    RUN_TO_RESULT = {
+    run_to_result = {
         "completed": "success",
         "failed": "fail",
     }
     state = jobRun["state"]
-    if state in list(RUN_TO_RESULT.keys()):
-        return RUN_TO_RESULT[state]
+    if state in list(run_to_result.keys()):
+        return run_to_result[state]
     elif state == "exception":
-        reasonResolved = jobRun.get("reasonResolved")
-        if reasonResolved in ["canceled", "superseded"]:
-            return reasonResolved
+        reason_resolved = jobRun.get("reasonResolved")
+        if reason_resolved in ["canceled", "superseded"]:
+            return reason_resolved
         return "exception"
     else:
         return "unknown"
@@ -57,12 +57,12 @@ def resultFromRun(jobRun):
 # Creates a log entry for Treeherder to retrieve and parse.  This log is
 # displayed on the Treeherder Log Viewer once parsed.
 def createLogReference(root_url, taskId, runId):
-    logUrl = taskcluster_urls.api(
+    log_url = taskcluster_urls.api(
         root_url, "queue", "v1", "task/{taskId}/runs/{runId}/artifacts/public/logs/live_backing.log"
     ).format(taskId=taskId, runId=runId)
     return {
         "name": "live_backing_log",
-        "url": logUrl,
+        "url": log_url,
     }
 
 
@@ -71,27 +71,27 @@ def createLogReference(root_url, taskId, runId):
 # Treeherder job message.
 # TODO: Refactor https://bugzilla.mozilla.org/show_bug.cgi?id=1560596
 def parseRouteInfo(prefix, taskId, routes, task):
-    matchingRoutes = list(filter(lambda route: route.split(".")[0] == "tc-treeherder", routes))
+    matching_routes = list(filter(lambda route: route.split(".")[0] == "tc-treeherder", routes))
 
-    if len(matchingRoutes) != 1:
+    if len(matching_routes) != 1:
         raise PulseHandlerError(
             "Could not determine Treeherder route. Either there is no route, "
             + "or more than one matching route exists."
             + f"Task ID: {taskId} Routes: {routes}"
         )
 
-    parsedRoute = parseRoute(matchingRoutes[0])
+    parsed_route = parseRoute(matching_routes[0])
 
-    return parsedRoute
+    return parsed_route
 
 
 def validateTask(task):
-    treeherderMetadata = task.get("extra", {}).get("treeherder")
-    if not treeherderMetadata:
+    treeherder_metadata = task.get("extra", {}).get("treeherder")
+    if not treeherder_metadata:
         logger.debug("Task metadata is missing Treeherder job configuration.")
         return False
     try:
-        jsonschema.validate(treeherderMetadata, get_json_schema("task-treeherder-config.yml"))
+        jsonschema.validate(treeherder_metadata, get_json_schema("task-treeherder-config.yml"))
     except (jsonschema.ValidationError, jsonschema.SchemaError) as e:
         logger.error("JSON Schema validation error during Taskcluser message ingestion: %s", e)
         return False
@@ -169,26 +169,26 @@ def ignore_task(task, taskId, rootUrl, project):
 async def handleMessage(message, taskDefinition=None):
     async with taskcluster.aio.createSession() as session:
         jobs = []
-        taskId = message["payload"]["status"]["taskId"]
-        asyncQueue = taskcluster.aio.Queue({"rootUrl": message["root_url"]}, session=session)
-        task = (await asyncQueue.task(taskId)) if not taskDefinition else taskDefinition
+        task_id = message["payload"]["status"]["taskId"]
+        async_queue = taskcluster.aio.Queue({"rootUrl": message["root_url"]}, session=session)
+        task = (await async_queue.task(task_id)) if not taskDefinition else taskDefinition
 
         try:
-            parsedRoute = parseRouteInfo("tc-treeherder", taskId, task["routes"], task)
+            parsed_route = parseRouteInfo("tc-treeherder", task_id, task["routes"], task)
         except PulseHandlerError as e:
             logger.debug("%s", str(e))
             return jobs
 
-        if ignore_task(task, taskId, message["root_url"], parsedRoute["project"]):
+        if ignore_task(task, task_id, message["root_url"], parsed_route["project"]):
             return jobs
 
-        logger.debug("Message received for task %s", taskId)
+        logger.debug("Message received for task %s", task_id)
 
         # Validation failures are common and logged, so do nothing more.
         if not validateTask(task):
             return jobs
 
-        taskType = EXCHANGE_EVENT_MAP.get(message["exchange"])
+        task_type = EXCHANGE_EVENT_MAP.get(message["exchange"])
 
         # Originally this code was only within the "pending" case, however, in order to support
         # ingesting all tasks at once which might not have "pending" case
@@ -196,18 +196,18 @@ async def handleMessage(message, taskDefinition=None):
         # This will only work if the previous run has not yet been processed by Treeherder
         # since _remove_existing_jobs() will prevent it
         if message["payload"]["runId"] > 0:
-            jobs.append(await handleTaskRerun(parsedRoute, task, message, session))
+            jobs.append(await handleTaskRerun(parsed_route, task, message, session))
 
-        if not taskType:
+        if not task_type:
             raise Exception("Unknown exchange: {exchange}".format(exchange=message["exchange"]))
-        elif taskType == "pending":
-            jobs.append(handleTaskPending(parsedRoute, task, message))
-        elif taskType == "running":
-            jobs.append(handleTaskRunning(parsedRoute, task, message))
-        elif taskType in ("completed", "failed"):
-            jobs.append(await handleTaskCompleted(parsedRoute, task, message, session))
-        elif taskType == "exception":
-            jobs.append(await handleTaskException(parsedRoute, task, message, session))
+        elif task_type == "pending":
+            jobs.append(handleTaskPending(parsed_route, task, message))
+        elif task_type == "running":
+            jobs.append(handleTaskRunning(parsed_route, task, message))
+        elif task_type in ("completed", "failed"):
+            jobs.append(await handleTaskCompleted(parsed_route, task, message, session))
+        elif task_type == "exception":
+            jobs.append(await handleTaskException(parsed_route, task, message, session))
 
         return jobs
 
@@ -218,30 +218,30 @@ async def handleMessage(message, taskDefinition=None):
 # Specific handlers for each message type will add/remove information necessary
 # for the type of task event..
 def buildMessage(pushInfo, task, runId, payload):
-    taskId = payload["status"]["taskId"]
-    jobRun = payload["status"]["runs"][runId]
-    treeherderConfig = task["extra"]["treeherder"]
+    task_id = payload["status"]["taskId"]
+    job_run = payload["status"]["runs"][runId]
+    treeherder_config = task["extra"]["treeherder"]
 
     job = {
         "buildSystem": "taskcluster",
         "owner": task["metadata"]["owner"],
-        "taskId": f"{slugid.decode(taskId)}/{runId}",
+        "taskId": f"{slugid.decode(task_id)}/{runId}",
         "retryId": runId,
         "isRetried": False,
         "display": {
             # jobSymbols could be an integer (i.e. Chunk ID) but need to be strings
             # for treeherder
-            "jobSymbol": str(treeherderConfig["symbol"]),
-            "groupSymbol": treeherderConfig.get("groupSymbol", "?"),
+            "jobSymbol": str(treeherder_config["symbol"]),
+            "groupSymbol": treeherder_config.get("groupSymbol", "?"),
             # Maximum job name length is 140 chars...
             "jobName": task["metadata"]["name"][0:139],
         },
-        "state": stateFromRun(jobRun),
-        "result": resultFromRun(jobRun),
-        "tier": treeherderConfig.get("tier", 1),
+        "state": stateFromRun(job_run),
+        "result": resultFromRun(job_run),
+        "tier": treeherder_config.get("tier", 1),
         "timeScheduled": task["created"],
-        "jobKind": treeherderConfig.get("jobKind", "other"),
-        "reason": treeherderConfig.get("reason", "scheduled"),
+        "jobKind": treeherder_config.get("jobKind", "other"),
+        "reason": treeherder_config.get("reason", "scheduled"),
         "jobInfo": {
             "links": [],
             "summary": task["metadata"]["description"],
@@ -263,28 +263,28 @@ def buildMessage(pushInfo, task, runId, payload):
 
     # Transform "collection" into an array of labels if task doesn't
     # define "labels".
-    labels = treeherderConfig.get("labels", [])
+    labels = treeherder_config.get("labels", [])
     if not labels:
-        if not treeherderConfig.get("collection"):
+        if not treeherder_config.get("collection"):
             labels = ["opt"]
         else:
-            labels = list(treeherderConfig["collection"].keys())
+            labels = list(treeherder_config["collection"].keys())
 
     job["labels"] = labels
 
-    machine = treeherderConfig.get("machine", {})
+    machine = treeherder_config.get("machine", {})
     job["buildMachine"] = {
-        "name": jobRun.get("workerId", "unknown"),
+        "name": job_run.get("workerId", "unknown"),
         "platform": machine.get("platform", task["workerType"]),
         "os": machine.get("os", "-"),
         "architecture": machine.get("architecture", "-"),
     }
 
-    if treeherderConfig.get("productName"):
-        job["productName"] = treeherderConfig["productName"]
+    if treeherder_config.get("productName"):
+        job["productName"] = treeherder_config["productName"]
 
-    if treeherderConfig.get("groupName"):
-        job["display"]["groupName"] = treeherderConfig["groupName"]
+    if treeherder_config.get("groupName"):
+        job["display"]["groupName"] = treeherder_config["groupName"]
 
     return job
 
@@ -318,13 +318,13 @@ def handleTaskRunning(pushInfo, task, message):
 
 async def handleTaskCompleted(pushInfo, task, message, session):
     payload = message["payload"]
-    jobRun = payload["status"]["runs"][payload["runId"]]
+    job_run = payload["status"]["runs"][payload["runId"]]
     job = buildMessage(pushInfo, task, payload["runId"], payload)
 
-    job["timeStarted"] = jobRun["started"]
-    job["timeCompleted"] = jobRun["resolved"]
+    job["timeStarted"] = job_run["started"]
+    job["timeCompleted"] = job_run["resolved"]
     job["logs"] = [
-        createLogReference(message["root_url"], payload["status"]["taskId"], jobRun["runId"]),
+        createLogReference(message["root_url"], payload["status"]["taskId"], job_run["runId"]),
     ]
     job = await addArtifactUploadedLinks(
         message["root_url"], payload["status"]["taskId"], payload["runId"], job, session
@@ -334,17 +334,17 @@ async def handleTaskCompleted(pushInfo, task, message, session):
 
 async def handleTaskException(pushInfo, task, message, session):
     payload = message["payload"]
-    jobRun = payload["status"]["runs"][payload["runId"]]
+    job_run = payload["status"]["runs"][payload["runId"]]
     # Do not report runs that were created as an exception.  Such cases
     # are deadline-exceeded
-    if jobRun["reasonCreated"] == "exception":
+    if job_run["reasonCreated"] == "exception":
         return
 
     job = buildMessage(pushInfo, task, payload["runId"], payload)
     # Jobs that get cancelled before running don't have a started time
-    if jobRun.get("started"):
-        job["timeStarted"] = jobRun["started"]
-    job["timeCompleted"] = jobRun["resolved"]
+    if job_run.get("started"):
+        job["timeStarted"] = job_run["started"]
+    job["timeCompleted"] = job_run["resolved"]
     # exceptions generally have no logs, so in the interest of not linking to a 404'ing artifact,
     # don't include a link
     job["logs"] = []
@@ -355,21 +355,21 @@ async def handleTaskException(pushInfo, task, message, session):
 
 
 async def fetchArtifacts(root_url, taskId, runId, session):
-    asyncQueue = taskcluster.aio.Queue({"rootUrl": root_url}, session=session)
-    res = await asyncQueue.listArtifacts(taskId, runId)
+    async_queue = taskcluster.aio.Queue({"rootUrl": root_url}, session=session)
+    res = await async_queue.listArtifacts(taskId, runId)
     artifacts = res["artifacts"]
 
-    continuationToken = res.get("continuationToken")
-    while continuationToken is not None:
+    continuation_token = res.get("continuationToken")
+    while continuation_token is not None:
         continuation = {"continuationToken": res["continuationToken"]}
 
         try:
-            res = await asyncQueue.listArtifacts(taskId, runId, continuation)
+            res = await async_queue.listArtifacts(taskId, runId, continuation)
         except Exception:
             break
 
         artifacts = artifacts.concat(res["artifacts"])
-        continuationToken = res.get("continuationToken")
+        continuation_token = res.get("continuationToken")
 
     return artifacts
 

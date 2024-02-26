@@ -35,7 +35,7 @@ class PushViewSet(viewsets.ViewSet):
         GET method for list of ``push`` records with revisions
         """
         # What is the upper limit on the number of pushes returned by the api
-        MAX_PUSH_COUNT = 1000
+        max_push_count = 1000
 
         # make a mutable copy of these params
         filter_params = request.query_params.copy()
@@ -167,8 +167,8 @@ class PushViewSet(viewsets.ViewSet):
         except ValueError:
             return Response({"detail": "Valid count value required"}, status=HTTP_400_BAD_REQUEST)
 
-        if count > MAX_PUSH_COUNT:
-            msg = f"Specified count exceeds api limit: {MAX_PUSH_COUNT}"
+        if count > max_push_count:
+            msg = f"Specified count exceeds api limit: {max_push_count}"
             return Response({"detail": msg}, status=HTTP_400_BAD_REQUEST)
 
         # we used to have a "full" parameter for this endpoint so you could

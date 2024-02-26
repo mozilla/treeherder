@@ -28,7 +28,7 @@ Type 'yes' to continue, or 'no' to cancel: """
         # verbose, so let's do that programmatically
         s = PerformanceSignature.objects.get(id=1)
         PerformanceDatum.objects.filter(signature=s).delete()
-        INTERVAL = 30
+        interval = 30
         now = time.time()
 
         # create a push first as need a push_id
@@ -40,8 +40,8 @@ Type 'yes' to continue, or 'no' to cancel: """
         )
 
         for t, v in zip(
-            [i for i in range(INTERVAL)],
-            ([0.5 for i in range(int(INTERVAL / 2))] + [1.0 for i in range(int(INTERVAL / 2))]),
+            [i for i in range(interval)],
+            ([0.5 for i in range(int(interval / 2))] + [1.0 for i in range(int(interval / 2))]),
         ):
             PerformanceDatum.objects.create(
                 repository=s.repository,

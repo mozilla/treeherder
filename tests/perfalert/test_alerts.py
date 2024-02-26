@@ -83,22 +83,22 @@ def test_detect_alerts_in_series(
     mock_deviance,
 ):
     base_time = time.time()  # generate it based off current time
-    INTERVAL = 30
+    interval = 30
     _generate_performance_data(
         test_repository,
         test_perf_signature,
         base_time,
         1,
         0.5,
-        int(INTERVAL / 2),
+        int(interval / 2),
     )
     _generate_performance_data(
         test_repository,
         test_perf_signature,
         base_time,
-        int(INTERVAL / 2) + 1,
+        int(interval / 2) + 1,
         1.0,
-        int(INTERVAL / 2),
+        int(interval / 2),
     )
 
     generate_new_alerts_in_series(test_perf_signature)
@@ -107,8 +107,8 @@ def test_detect_alerts_in_series(
     assert PerformanceAlertSummary.objects.count() == 1
     _verify_alert(
         1,
-        (INTERVAL / 2) + 1,
-        (INTERVAL / 2),
+        (interval / 2) + 1,
+        (interval / 2),
         test_perf_signature,
         0.5,
         1.0,
@@ -125,8 +125,8 @@ def test_detect_alerts_in_series(
     assert PerformanceAlertSummary.objects.count() == 1
     _verify_alert(
         1,
-        (INTERVAL / 2) + 1,
-        (INTERVAL / 2),
+        (interval / 2) + 1,
+        (interval / 2),
         test_perf_signature,
         0.5,
         1.0,
@@ -142,9 +142,9 @@ def test_detect_alerts_in_series(
         test_repository,
         test_perf_signature,
         base_time,
-        (INTERVAL + 1),
+        (interval + 1),
         2.0,
-        INTERVAL,
+        interval,
     )
     generate_new_alerts_in_series(test_perf_signature)
 
@@ -152,8 +152,8 @@ def test_detect_alerts_in_series(
     assert PerformanceAlertSummary.objects.count() == 2
     _verify_alert(
         2,
-        INTERVAL + 1,
-        INTERVAL,
+        interval + 1,
+        interval,
         test_perf_signature,
         1.0,
         2.0,
@@ -232,22 +232,22 @@ def test_no_alerts_with_old_data(
     test_perf_signature,
 ):
     base_time = 0  # 1970, too old!
-    INTERVAL = 30
+    interval = 30
     _generate_performance_data(
         test_repository,
         test_perf_signature,
         base_time,
         1,
         0.5,
-        int(INTERVAL / 2),
+        int(interval / 2),
     )
     _generate_performance_data(
         test_repository,
         test_perf_signature,
         base_time,
-        int(INTERVAL / 2) + 1,
+        int(interval / 2) + 1,
         1.0,
-        int(INTERVAL / 2),
+        int(interval / 2),
     )
 
     generate_new_alerts_in_series(test_perf_signature)
@@ -269,7 +269,7 @@ def test_custom_alert_threshold(
     # under default settings, this set of data would generate
     # 2 alerts, but we'll set an artificially high threshold
     # of 200% that should only generate 1
-    INTERVAL = 60
+    interval = 60
     base_time = time.time()
     _generate_performance_data(
         test_repository,
@@ -277,23 +277,23 @@ def test_custom_alert_threshold(
         base_time,
         1,
         0.5,
-        int(INTERVAL / 3),
+        int(interval / 3),
     )
     _generate_performance_data(
         test_repository,
         test_perf_signature,
         base_time,
-        int(INTERVAL / 3) + 1,
+        int(interval / 3) + 1,
         0.6,
-        int(INTERVAL / 3),
+        int(interval / 3),
     )
     _generate_performance_data(
         test_repository,
         test_perf_signature,
         base_time,
-        2 * int(INTERVAL / 3) + 1,
+        2 * int(interval / 3) + 1,
         2.0,
-        int(INTERVAL / 3),
+        int(interval / 3),
     )
 
     generate_new_alerts_in_series(test_perf_signature)
@@ -319,22 +319,22 @@ def test_alert_change_type_absolute(
     test_perf_signature.save()
 
     base_time = time.time()  # generate it based off current time
-    INTERVAL = 30
+    interval = 30
     _generate_performance_data(
         test_repository,
         test_perf_signature,
         base_time,
         1,
         0.5,
-        int(INTERVAL / 2),
+        int(interval / 2),
     )
     _generate_performance_data(
         test_repository,
         test_perf_signature,
         base_time,
-        int(INTERVAL / 2) + 1,
+        int(interval / 2) + 1,
         new_value,
-        int(INTERVAL / 2),
+        int(interval / 2),
     )
 
     generate_new_alerts_in_series(test_perf_signature)

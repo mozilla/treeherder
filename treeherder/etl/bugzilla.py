@@ -27,9 +27,9 @@ def reopen_intermittent_bugs():
     )
     # Intermittent bugs get closed after 3 weeks of inactivity if other conditions don't apply:
     # https://github.com/mozilla/relman-auto-nag/blob/c7439e247677333c1cd8c435234b3ef3adc49680/auto_nag/scripts/close_intermittents.py#L17
-    RECENT_DAYS = 7
+    recent_days = 7
     recently_used_bugs = set(
-        BugJobMap.objects.filter(created__gt=datetime.now() - timedelta(RECENT_DAYS)).values_list(
+        BugJobMap.objects.filter(created__gt=datetime.now() - timedelta(recent_days)).values_list(
             "bug_id", flat=True
         )
     )
