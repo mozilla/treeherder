@@ -362,7 +362,7 @@ def _schedule_log_parsing(job, job_logs, result, repository):
         parse_logs.apply_async(queue=queue, args=[job.id, [job_log.id], priority])
 
 
-def store_job_data(repository, originalData):
+def store_job_data(repository, original_data):
     """
     Store job data instances into jobs db
 
@@ -412,7 +412,7 @@ def store_job_data(repository, originalData):
     ]
 
     """
-    data = copy.deepcopy(originalData)
+    data = copy.deepcopy(original_data)
     # Ensure that we have job data to process
     if not data:
         return

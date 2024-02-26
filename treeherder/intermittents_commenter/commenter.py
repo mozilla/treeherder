@@ -181,14 +181,14 @@ class Commenter:
             else:
                 return myfile.read()
 
-    def calculate_date_strings(self, mode, numDays):
+    def calculate_date_strings(self, mode, num_days):
         """Returns a tuple of start (in YYYY-MM-DD format) and end date
         strings (in YYYY-MM-DD HH:MM:SS format for an inclusive day)."""
 
         yesterday = date.today() - timedelta(days=1)
         endday = datetime(yesterday.year, yesterday.month, yesterday.day, 23, 59, 59, 999)
         if mode:
-            startday = yesterday - timedelta(days=numDays)
+            startday = yesterday - timedelta(days=num_days)
         else:
             # daily mode
             startday = yesterday
