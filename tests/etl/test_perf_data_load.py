@@ -311,15 +311,15 @@ def test_changing_extra_options_decouples_perf_signatures(
 
 
 # Multi perf data (for the same job) ingestion workflow
-@pytest.mark.parametrize("PERFHERDER_ENABLE_MULTIDATA_INGESTION", [True, False])
+@pytest.mark.parametrize("perfherder_enable_multidata_ingestion", [True, False])
 def test_multi_data_can_be_ingested_for_same_job_and_push(
-    PERFHERDER_ENABLE_MULTIDATA_INGESTION,
+    perfherder_enable_multidata_ingestion,
     test_repository,
     perf_job,
     sibling_perf_artifacts,
     settings,
 ):
-    settings.PERFHERDER_ENABLE_MULTIDATA_INGESTION = PERFHERDER_ENABLE_MULTIDATA_INGESTION
+    settings.PERFHERDER_ENABLE_MULTIDATA_INGESTION = perfherder_enable_multidata_ingestion
 
     try:
         for artifact in sibling_perf_artifacts:
@@ -330,11 +330,11 @@ def test_multi_data_can_be_ingested_for_same_job_and_push(
 
 
 @pytest.mark.parametrize(
-    "PERFHERDER_ENABLE_MULTIDATA_INGESTION, based_on_multidata_toggle",
+    "perfherder_enable_multidata_ingestion, based_on_multidata_toggle",
     [(True, operator.truth), (False, operator.not_)],
 )
 def test_multi_data_ingest_workflow(
-    PERFHERDER_ENABLE_MULTIDATA_INGESTION,
+    perfherder_enable_multidata_ingestion,
     based_on_multidata_toggle,
     test_repository,
     perf_push,
@@ -347,7 +347,7 @@ def test_multi_data_ingest_workflow(
     """
     Assumes the job has multiple PERFHERDER_DATA record in the same log
     """
-    settings.PERFHERDER_ENABLE_MULTIDATA_INGESTION = PERFHERDER_ENABLE_MULTIDATA_INGESTION
+    settings.PERFHERDER_ENABLE_MULTIDATA_INGESTION = perfherder_enable_multidata_ingestion
 
     def performance_datum_exists(**with_these_properties) -> bool:
         return based_on_multidata_toggle(
@@ -398,15 +398,15 @@ def test_multi_data_ingest_workflow(
                 )
 
 
-@pytest.mark.parametrize("PERFHERDER_ENABLE_MULTIDATA_INGESTION", [True, False])
+@pytest.mark.parametrize("perfherder_enable_multidata_ingestion", [True, False])
 def test_hash_remains_unchanged_for_multi_data_ingestion_workflow(
-    PERFHERDER_ENABLE_MULTIDATA_INGESTION,
+    perfherder_enable_multidata_ingestion,
     test_repository,
     perf_job,
     sibling_perf_artifacts,
     settings,
 ):
-    settings.PERFHERDER_ENABLE_MULTIDATA_INGESTION = PERFHERDER_ENABLE_MULTIDATA_INGESTION
+    settings.PERFHERDER_ENABLE_MULTIDATA_INGESTION = perfherder_enable_multidata_ingestion
 
     for artifact in sibling_perf_artifacts:
         _, submit_datum = _prepare_test_data(artifact)
@@ -416,10 +416,10 @@ def test_hash_remains_unchanged_for_multi_data_ingestion_workflow(
 
 
 @pytest.mark.parametrize(
-    "PERFHERDER_ENABLE_MULTIDATA_INGESTION, operator_", [(True, operator.eq), (False, operator.ne)]
+    "perfherder_enable_multidata_ingestion, operator_", [(True, operator.eq), (False, operator.ne)]
 )
 def test_timestamp_can_be_updated_for_multi_data_ingestion_workflow(
-    PERFHERDER_ENABLE_MULTIDATA_INGESTION,
+    perfherder_enable_multidata_ingestion,
     operator_,
     test_repository,
     perf_job,
@@ -428,7 +428,7 @@ def test_timestamp_can_be_updated_for_multi_data_ingestion_workflow(
     sibling_perf_artifacts,
     settings,
 ):
-    settings.PERFHERDER_ENABLE_MULTIDATA_INGESTION = PERFHERDER_ENABLE_MULTIDATA_INGESTION
+    settings.PERFHERDER_ENABLE_MULTIDATA_INGESTION = perfherder_enable_multidata_ingestion
 
     for artifact in sibling_perf_artifacts:
         _, submit_datum = _prepare_test_data(artifact)

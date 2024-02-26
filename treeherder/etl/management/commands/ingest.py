@@ -112,14 +112,14 @@ def _ingest_hg_push(project, revision, fetch_push_id=None):
     process.run(pushlog_url, project, changeset=revision, last_push_id=fetch_push_id)
 
 
-async def ingest_task(taskId, root_url):
+async def ingest_task(task_id, root_url):
     # Limiting the connection pool just in case we have too many
     conn = aiohttp.TCPConnector(limit=10)
     # Remove default timeout limit of 5 minutes
     timeout = aiohttp.ClientTimeout(total=0)
     async with taskcluster.aio.createSession(connector=conn, timeout=timeout) as session:
         async_queue = taskcluster.aio.Queue({"rootUrl": root_url}, session=session)
-        results = await asyncio.gather(async_queue.status(taskId), async_queue.task(taskId))
+        results = await asyncio.gather(async_queue.status(task_id), async_queue.task(task_id))
         await handleTask(
             {
                 "status": results[0]["status"],
@@ -160,7 +160,7 @@ async def handleTask(task, root_url):
             await await_futures(job_futures)
 
 
-async def fetchGroupTasks(taskGroupId, root_url):
+async def fetchGroupTasks(task_group_id, root_url):
     tasks = []
     query = {}
     continuation_token = ""
@@ -173,7 +173,7 @@ async def fetchGroupTasks(taskGroupId, root_url):
         while True:
             if continuation_token:
                 query = {"continuationToken": continuation_token}
-            response = await async_queue.listTaskGroup(taskGroupId, query=query)
+            response = await async_queue.listTaskGroup(task_group_id, query=query)
             tasks.extend(response["tasks"])
             continuation_token = response.get("continuationToken")
             if continuation_token is None:
@@ -182,9 +182,9 @@ async def fetchGroupTasks(taskGroupId, root_url):
         return tasks
 
 
-async def processTasks(taskGroupId, root_url):
+async def processTasks(task_group_id, root_url):
     try:
-        tasks = await fetchGroupTasks(taskGroupId, root_url)
+        tasks = await fetchGroupTasks(task_group_id, root_url)
         logger.info("We have %s tasks to process", len(tasks))
     except Exception as e:
         logger.exception(e)

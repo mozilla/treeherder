@@ -33,20 +33,20 @@ class PulseHandlerError(Exception):
     pass
 
 
-def stateFromRun(jobRun):
-    return "completed" if jobRun["state"] in ("exception", "failed") else jobRun["state"]
+def stateFromRun(job_run):
+    return "completed" if job_run["state"] in ("exception", "failed") else job_run["state"]
 
 
-def resultFromRun(jobRun):
+def resultFromRun(job_run):
     run_to_result = {
         "completed": "success",
         "failed": "fail",
     }
-    state = jobRun["state"]
+    state = job_run["state"]
     if state in list(run_to_result.keys()):
         return run_to_result[state]
     elif state == "exception":
-        reason_resolved = jobRun.get("reasonResolved")
+        reason_resolved = job_run.get("reasonResolved")
         if reason_resolved in ["canceled", "superseded"]:
             return reason_resolved
         return "exception"
@@ -56,10 +56,10 @@ def resultFromRun(jobRun):
 
 # Creates a log entry for Treeherder to retrieve and parse.  This log is
 # displayed on the Treeherder Log Viewer once parsed.
-def createLogReference(root_url, taskId, runId):
+def createLogReference(root_url, task_id, run_id):
     log_url = taskcluster_urls.api(
         root_url, "queue", "v1", "task/{taskId}/runs/{runId}/artifacts/public/logs/live_backing.log"
-    ).format(taskId=taskId, runId=runId)
+    ).format(taskId=task_id, runId=run_id)
     return {
         "name": "live_backing_log",
         "url": log_url,
@@ -70,14 +70,14 @@ def createLogReference(root_url, taskId, runId):
 # the route is parsed into distinct parts used for constructing the
 # Treeherder job message.
 # TODO: Refactor https://bugzilla.mozilla.org/show_bug.cgi?id=1560596
-def parseRouteInfo(prefix, taskId, routes, task):
+def parseRouteInfo(prefix, task_id, routes, task):
     matching_routes = list(filter(lambda route: route.split(".")[0] == "tc-treeherder", routes))
 
     if len(matching_routes) != 1:
         raise PulseHandlerError(
             "Could not determine Treeherder route. Either there is no route, "
             + "or more than one matching route exists."
-            + f"Task ID: {taskId} Routes: {routes}"
+            + f"Task ID: {task_id} Routes: {routes}"
         )
 
     parsed_route = parseRoute(matching_routes[0])
@@ -98,12 +98,12 @@ def validateTask(task):
     return True
 
 
-def ignore_task(task, taskId, rootUrl, project):
+def ignore_task(task, task_id, root_url, project):
     ignore = False
     # This logic is useful to reduce the number of tasks we ingest and requirying
     # less dynos and less database writes. You can adjust PROJECTS_TO_INGEST on the app to meet your needs
     if projectsToIngest and project not in projectsToIngest.split(","):
-        logger.debug("Ignoring tasks not matching PROJECTS_TO_INGEST (Task id: %s)", taskId)
+        logger.debug("Ignoring tasks not matching PROJECTS_TO_INGEST (Task id: %s)", task_id)
         return True
 
     mobile_repos = (
@@ -122,7 +122,7 @@ def ignore_task(task, taskId, rootUrl, project):
                     # Ignore tasks that are associated to a pull request
                     if envs["MOBILE_BASE_REPOSITORY"] != envs["MOBILE_HEAD_REPOSITORY"]:
                         logger.debug(
-                            "Task: %s belong to a pull request OR branch which we ignore.", taskId
+                            "Task: %s belong to a pull request OR branch which we ignore.", task_id
                         )
                         ignore = True
                     # Bug 1587542 - Temporary change to ignore Github tasks not associated to 'master'
@@ -132,13 +132,13 @@ def ignore_task(task, taskId, rootUrl, project):
                         "refs/heads/main",
                         "main",
                     ):
-                        logger.info("Task: %s is not for the `master` branch.", taskId)
+                        logger.info("Task: %s is not for the `master` branch.", task_id)
                         ignore = True
             except KeyError:
                 pass
         else:
             # The decision task is the ultimate source for determining this information
-            queue = taskcluster.Queue({"rootUrl": rootUrl})
+            queue = taskcluster.Queue({"rootUrl": root_url})
             decision_task = queue.task(task["taskGroupId"])
             scopes = decision_task["metadata"].get("source")
             ignore = True
@@ -156,7 +156,7 @@ def ignore_task(task, taskId, rootUrl, project):
                     break
 
     if ignore:
-        logger.debug(f"Task to be ignored ({taskId})")
+        logger.debug(f"Task to be ignored ({task_id})")
 
     return ignore
 
@@ -166,12 +166,12 @@ def ignore_task(task, taskId, rootUrl, project):
 # Only messages that contain the properly formatted routing key and contains
 # treeherder job information in task.extra.treeherder are accepted
 # This will generate a list of messages that need to be ingested by Treeherder
-async def handleMessage(message, taskDefinition=None):
+async def handleMessage(message, task_definition=None):
     async with taskcluster.aio.createSession() as session:
         jobs = []
         task_id = message["payload"]["status"]["taskId"]
         async_queue = taskcluster.aio.Queue({"rootUrl": message["root_url"]}, session=session)
-        task = (await async_queue.task(task_id)) if not taskDefinition else taskDefinition
+        task = (await async_queue.task(task_id)) if not task_definition else task_definition
 
         try:
             parsed_route = parseRouteInfo("tc-treeherder", task_id, task["routes"], task)
@@ -217,16 +217,16 @@ async def handleMessage(message, taskDefinition=None):
 #
 # Specific handlers for each message type will add/remove information necessary
 # for the type of task event..
-def buildMessage(pushInfo, task, runId, payload):
+def buildMessage(push_info, task, run_id, payload):
     task_id = payload["status"]["taskId"]
-    job_run = payload["status"]["runs"][runId]
+    job_run = payload["status"]["runs"][run_id]
     treeherder_config = task["extra"]["treeherder"]
 
     job = {
         "buildSystem": "taskcluster",
         "owner": task["metadata"]["owner"],
-        "taskId": f"{slugid.decode(task_id)}/{runId}",
-        "retryId": runId,
+        "taskId": f"{slugid.decode(task_id)}/{run_id}",
+        "retryId": run_id,
         "isRetried": False,
         "display": {
             # jobSymbols could be an integer (i.e. Chunk ID) but need to be strings
@@ -250,16 +250,16 @@ def buildMessage(pushInfo, task, runId, payload):
     }
 
     job["origin"] = {
-        "kind": pushInfo["origin"],
-        "project": pushInfo["project"],
-        "revision": pushInfo["revision"],
+        "kind": push_info["origin"],
+        "project": push_info["project"],
+        "revision": push_info["revision"],
     }
 
-    if pushInfo["origin"] == "hg.mozilla.org":
-        job["origin"]["pushLogID"] = pushInfo["id"]
+    if push_info["origin"] == "hg.mozilla.org":
+        job["origin"]["pushLogID"] = push_info["id"]
     else:
-        job["origin"]["pullRequestID"] = pushInfo["id"]
-        job["origin"]["owner"] = pushInfo["owner"]
+        job["origin"]["pullRequestID"] = push_info["id"]
+        job["origin"]["owner"] = push_info["owner"]
 
     # Transform "collection" into an array of labels if task doesn't
     # define "labels".
@@ -289,14 +289,14 @@ def buildMessage(pushInfo, task, runId, payload):
     return job
 
 
-def handleTaskPending(pushInfo, task, message):
+def handleTaskPending(push_info, task, message):
     payload = message["payload"]
-    return buildMessage(pushInfo, task, payload["runId"], payload)
+    return buildMessage(push_info, task, payload["runId"], payload)
 
 
-async def handleTaskRerun(pushInfo, task, message, session):
+async def handleTaskRerun(push_info, task, message, session):
     payload = message["payload"]
-    job = buildMessage(pushInfo, task, payload["runId"] - 1, payload)
+    job = buildMessage(push_info, task, payload["runId"] - 1, payload)
     job["state"] = "completed"
     job["result"] = "fail"
     job["isRetried"] = True
@@ -309,17 +309,17 @@ async def handleTaskRerun(pushInfo, task, message, session):
     return job
 
 
-def handleTaskRunning(pushInfo, task, message):
+def handleTaskRunning(push_info, task, message):
     payload = message["payload"]
-    job = buildMessage(pushInfo, task, payload["runId"], payload)
+    job = buildMessage(push_info, task, payload["runId"], payload)
     job["timeStarted"] = payload["status"]["runs"][payload["runId"]]["started"]
     return job
 
 
-async def handleTaskCompleted(pushInfo, task, message, session):
+async def handleTaskCompleted(push_info, task, message, session):
     payload = message["payload"]
     job_run = payload["status"]["runs"][payload["runId"]]
-    job = buildMessage(pushInfo, task, payload["runId"], payload)
+    job = buildMessage(push_info, task, payload["runId"], payload)
 
     job["timeStarted"] = job_run["started"]
     job["timeCompleted"] = job_run["resolved"]
@@ -332,7 +332,7 @@ async def handleTaskCompleted(pushInfo, task, message, session):
     return job
 
 
-async def handleTaskException(pushInfo, task, message, session):
+async def handleTaskException(push_info, task, message, session):
     payload = message["payload"]
     job_run = payload["status"]["runs"][payload["runId"]]
     # Do not report runs that were created as an exception.  Such cases
@@ -340,7 +340,7 @@ async def handleTaskException(pushInfo, task, message, session):
     if job_run["reasonCreated"] == "exception":
         return
 
-    job = buildMessage(pushInfo, task, payload["runId"], payload)
+    job = buildMessage(push_info, task, payload["runId"], payload)
     # Jobs that get cancelled before running don't have a started time
     if job_run.get("started"):
         job["timeStarted"] = job_run["started"]
@@ -354,9 +354,9 @@ async def handleTaskException(pushInfo, task, message, session):
     return job
 
 
-async def fetchArtifacts(root_url, taskId, runId, session):
+async def fetchArtifacts(root_url, task_id, run_id, session):
     async_queue = taskcluster.aio.Queue({"rootUrl": root_url}, session=session)
-    res = await async_queue.listArtifacts(taskId, runId)
+    res = await async_queue.listArtifacts(task_id, run_id)
     artifacts = res["artifacts"]
 
     continuation_token = res.get("continuationToken")
@@ -364,7 +364,7 @@ async def fetchArtifacts(root_url, taskId, runId, session):
         continuation = {"continuationToken": res["continuationToken"]}
 
         try:
-            res = await async_queue.listArtifacts(taskId, runId, continuation)
+            res = await async_queue.listArtifacts(task_id, run_id, continuation)
         except Exception:
             break
 
@@ -378,12 +378,12 @@ async def fetchArtifacts(root_url, taskId, runId, session):
 # fetch them in order to determine if there is an error_summary log;
 # TODO refactor this when there is a way to only retrieve the error_summary
 # artifact: https://bugzilla.mozilla.org/show_bug.cgi?id=1629716
-async def addArtifactUploadedLinks(root_url, taskId, runId, job, session):
+async def addArtifactUploadedLinks(root_url, task_id, run_id, job, session):
     artifacts = []
     try:
-        artifacts = await fetchArtifacts(root_url, taskId, runId, session)
+        artifacts = await fetchArtifacts(root_url, task_id, run_id, session)
     except Exception:
-        logger.debug("Artifacts could not be found for task: %s run: %s", taskId, runId)
+        logger.debug("Artifacts could not be found for task: %s run: %s", task_id, run_id)
         return job
 
     seen = {}
@@ -408,7 +408,7 @@ async def addArtifactUploadedLinks(root_url, taskId, runId, job, session):
                     "queue",
                     "v1",
                     "task/{taskId}/runs/{runId}/artifacts/{artifact_name}".format(
-                        taskId=taskId, runId=runId, artifact_name=artifact["name"]
+                        taskId=task_id, runId=run_id, artifact_name=artifact["name"]
                     ),
                 ),
             }
