@@ -10,7 +10,7 @@ from django.db.utils import IntegrityError, ProgrammingError
 from treeherder.etl.exceptions import MissingPushException
 
 
-class retryable_task:
+class retryable_task:  # noqa: N801
     """Wrapper around a celery task to add conditional task retrying."""
 
     NON_RETRYABLE_EXCEPTIONS = (
