@@ -14,7 +14,7 @@ from treeherder.etl.taskcluster_pulse.parse_route import parseRoute
 
 env = environ.Env()
 logger = logging.getLogger(__name__)
-projectsToIngest = env("PROJECTS_TO_INGEST", default=None)
+projects_to_ingest = env("PROJECTS_TO_INGEST", default=None)
 
 
 # Build a mapping from exchange name to task status
@@ -102,7 +102,7 @@ def ignore_task(task, task_id, root_url, project):
     ignore = False
     # This logic is useful to reduce the number of tasks we ingest and requirying
     # less dynos and less database writes. You can adjust PROJECTS_TO_INGEST on the app to meet your needs
-    if projectsToIngest and project not in projectsToIngest.split(","):
+    if projects_to_ingest and project not in projects_to_ingest.split(","):
         logger.debug("Ignoring tasks not matching PROJECTS_TO_INGEST (Task id: %s)", task_id)
         return True
 

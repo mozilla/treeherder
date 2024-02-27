@@ -30,9 +30,9 @@ logger.setLevel(logging.INFO)
 # Executor to run threads in parallel
 executor = ThreadPoolExecutor()
 
-stateToExchange = {}
+state_to_exchange = {}
 for key, value in EXCHANGE_EVENT_MAP.items():
-    stateToExchange[value] = key
+    state_to_exchange[value] = key
 
 # Semaphore to limit the number of threads opening DB connections when processing jobs
 conn_sem = BoundedSemaphore(50)
@@ -136,7 +136,7 @@ async def handleTask(task, root_url):
     # "retry" instead of exception
     for run in reversed(runs):
         message = {
-            "exchange": stateToExchange[run["state"]],
+            "exchange": state_to_exchange[run["state"]],
             "payload": {
                 "status": {
                     "taskId": task_id,
