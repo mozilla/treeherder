@@ -1,9 +1,9 @@
 import pytest
 
-from treeherder.utils.taskcluster_lib_scopes import patternMatch, satisfiesExpression
+from treeherder.utils.taskcluster_lib_scopes import pattern_match, satisfies_expression
 
 
-# satisfiesExpression()
+# satisfies_expression()
 @pytest.mark.parametrize(
     "scopeset, expression",
     [
@@ -36,7 +36,7 @@ from treeherder.utils.taskcluster_lib_scopes import patternMatch, satisfiesExpre
     ],
 )
 def test_expression_is_satisfied(scopeset, expression):
-    assert satisfiesExpression(scopeset, expression) is True
+    assert satisfies_expression(scopeset, expression) is True
 
 
 @pytest.mark.parametrize(
@@ -58,7 +58,7 @@ def test_expression_is_satisfied(scopeset, expression):
     ],
 )
 def test_expression_is_not_satisfied(scopeset, expression):
-    assert not satisfiesExpression(scopeset, expression)
+    assert not satisfies_expression(scopeset, expression)
 
 
 @pytest.mark.parametrize(
@@ -72,19 +72,19 @@ def test_expression_is_not_satisfied(scopeset, expression):
 )
 def test_wrong_scopeset_type_raises_exception(scopeset):
     with pytest.raises(TypeError):
-        satisfiesExpression(scopeset, "in-tree:hook-action:{hook_group_id}/{hook_id}")
+        satisfies_expression(scopeset, "in-tree:hook-action:{hook_group_id}/{hook_id}")
 
 
-# patternMatch()
+# pattern_match()
 def test_identical_scope_and_pattern_are_matching():
-    assert patternMatch("mock:scope", "mock:scope") is True
+    assert pattern_match("mock:scope", "mock:scope") is True
 
 
 @pytest.mark.parametrize(
     "pattern, scope", [("matching*", "matching"), ("matching*", "matching/scope")]
 )
 def test_starred_patterns_are_matching(pattern, scope):
-    assert patternMatch(pattern, scope) is True
+    assert pattern_match(pattern, scope) is True
 
 
 @pytest.mark.parametrize(
@@ -92,4 +92,4 @@ def test_starred_patterns_are_matching(pattern, scope):
     [("matching*", "mismatching"), ("match*ing", "matching"), ("*matching", "matching")],
 )
 def test_starred_patterns_dont_matching(pattern, scope):
-    assert not patternMatch(pattern, scope)
+    assert not pattern_match(pattern, scope)

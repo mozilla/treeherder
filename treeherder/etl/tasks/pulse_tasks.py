@@ -8,7 +8,7 @@ import newrelic.agent
 from treeherder.etl.classification_loader import ClassificationLoader
 from treeherder.etl.job_loader import JobLoader
 from treeherder.etl.push_loader import PushLoader
-from treeherder.etl.taskcluster_pulse.handler import handleMessage
+from treeherder.etl.taskcluster_pulse.handler import handle_message
 from treeherder.workers.task import retryable_task
 
 # NOTE: default values for root_url parameters can be removed once all tasks that lack
@@ -25,9 +25,9 @@ def store_pulse_tasks(
     loop = asyncio.get_event_loop()
     newrelic.agent.add_custom_attribute("exchange", exchange)
     newrelic.agent.add_custom_attribute("routing_key", routing_key)
-    # handleMessage expects messages in this format
+    # handle_message expects messages in this format
     runs = loop.run_until_complete(
-        handleMessage(
+        handle_message(
             {
                 "exchange": exchange,
                 "payload": pulse_job,

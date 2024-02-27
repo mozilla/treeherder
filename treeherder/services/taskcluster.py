@@ -7,7 +7,7 @@ import jsone
 import taskcluster
 from django.conf import settings
 
-from treeherder.utils.taskcluster_lib_scopes import satisfiesExpression
+from treeherder.utils.taskcluster_lib_scopes import satisfies_expression
 
 logger = logging.getLogger(__name__)
 
@@ -117,7 +117,7 @@ class TaskclusterModelImpl(TaskclusterModel):
             expansion = self.auth.expandScopes({"scopes": decision_task["scopes"]})
             expression = f"in-tree:hook-action:{hook_group_id}/{hook_id}"
 
-            if not satisfiesExpression(expansion["scopes"], expression):
+            if not satisfies_expression(expansion["scopes"], expression):
                 raise RuntimeError(
                     f"Action is misconfigured: decision task's scopes do not satisfy {expression}"
                 )
