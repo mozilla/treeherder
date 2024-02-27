@@ -92,7 +92,7 @@ def ingest_hg_push(options):
         gecko_decision_task = get_decision_task_id(project, commit, repo.tc_root_url)
         logger.info("## START ##")
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(processTasks(gecko_decision_task, repo.tc_root_url))
+        loop.run_until_complete(process_tasks(gecko_decision_task, repo.tc_root_url))
         logger.info("## END ##")
     else:
         logger.info("You can ingest all tasks for a push with -a/--ingest-all-tasks.")
@@ -120,7 +120,7 @@ async def ingest_task(task_id, root_url):
     async with taskcluster.aio.createSession(connector=conn, timeout=timeout) as session:
         async_queue = taskcluster.aio.Queue({"rootUrl": root_url}, session=session)
         results = await asyncio.gather(async_queue.status(task_id), async_queue.task(task_id))
-        await handleTask(
+        await handle_task(
             {
                 "status": results[0]["status"],
                 "task": results[1],
@@ -129,7 +129,7 @@ async def ingest_task(task_id, root_url):
         )
 
 
-async def handleTask(task, root_url):
+async def handle_task(task, root_url):
     task_id = task["status"]["taskId"]
     runs = task["status"]["runs"]
     # If we iterate in order of the runs, we will not be able to mark older runs as
@@ -160,7 +160,7 @@ async def handleTask(task, root_url):
             await await_futures(job_futures)
 
 
-async def fetchGroupTasks(task_group_id, root_url):
+async def fetch_group_tasks(task_group_id, root_url):
     tasks = []
     query = {}
     continuation_token = ""
@@ -182,9 +182,9 @@ async def fetchGroupTasks(task_group_id, root_url):
         return tasks
 
 
-async def processTasks(task_group_id, root_url):
+async def process_tasks(task_group_id, root_url):
     try:
-        tasks = await fetchGroupTasks(task_group_id, root_url)
+        tasks = await fetch_group_tasks(task_group_id, root_url)
         logger.info("We have %s tasks to process", len(tasks))
     except Exception as e:
         logger.exception(e)
@@ -193,7 +193,7 @@ async def processTasks(task_group_id, root_url):
         return
 
     # Schedule and run tasks inside the thread pool executor
-    task_futures = [routine_to_future(handleTask, task, root_url) for task in tasks]
+    task_futures = [routine_to_future(handle_task, task, root_url) for task in tasks]
     await await_futures(task_futures)
 
 

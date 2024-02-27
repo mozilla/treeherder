@@ -11,7 +11,7 @@
 #     Note: pushes on a branch on Github would not have a PR ID
 # Function extracted from
 # https://github.com/taskcluster/taskcluster/blob/32629c562f8d6f5a6b608a3141a8ee2e0984619f/services/treeherder/src/util/route_parser.js
-def parseRoute(route):
+def parse_route(route):
     id = None
     owner = None
     parsed_project = None

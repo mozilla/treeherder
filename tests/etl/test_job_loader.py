@@ -6,7 +6,7 @@ import responses
 import slugid
 
 from treeherder.etl.job_loader import JobLoader
-from treeherder.etl.taskcluster_pulse.handler import handleMessage
+from treeherder.etl.taskcluster_pulse.handler import handle_message
 from treeherder.model.models import Job, JobLog, TaskclusterMetadata
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -62,9 +62,9 @@ async def new_pulse_jobs(sample_data, test_repository, push_stored):
         task_id = message["payload"]["status"]["taskId"]
         task = tasks[task_id]
 
-        # If we pass task to handleMessage we won't hit the network
-        task_runs = await handleMessage(message, task)
-        # handleMessage returns [] when it is a task that is not meant for Treeherder
+        # If we pass task to handle_message we won't hit the network
+        task_runs = await handle_message(message, task)
+        # handle_message returns [] when it is a task that is not meant for Treeherder
         for run in reversed(task_runs):
             mock_artifact(task_id, run["retryId"], "public/logs/live_backing.log")
             run["origin"]["project"] = test_repository.name
