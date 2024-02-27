@@ -6,7 +6,7 @@ from typing import Callable
 
 from tests.perf.auto_sheriffing_criteria.conftest import CASSETTES_RECORDING_DATE
 from treeherder.config.settings import BZ_DATETIME_FORMAT
-from treeherder.perf.exceptions import NoFiledBugs
+from treeherder.perf.exceptions import NoFiledBugsError
 from treeherder.perf.sheriffing_criteria import (
     EngineerTractionFormula,
     FixRatioFormula,
@@ -166,7 +166,7 @@ def test_breakdown_resets_to_null_when_calculus_errors_out(formula_class, betama
 
     # now run alternated path calculus
     with betamax_recorder.use_cassette(f"{cassette_preffix_b}", serialize_with="prettyjson"):
-        with pytest.raises(NoFiledBugs):
+        with pytest.raises(NoFiledBugsError):
             formula(*test_moniker_b)  # intentionally blows up while doing calculus
 
         # cached breakdown got invalidated & can no longer be obtained
@@ -235,5 +235,5 @@ def test_formula_errors_up_when_no_bugs_were_filed(formula_class, betamax_record
     with betamax_recorder.use_cassette(
         f"{nonexistent_framework}-{nonexistent_suite}", serialize_with="prettyjson"
     ):
-        with pytest.raises(NoFiledBugs):
+        with pytest.raises(NoFiledBugsError):
             formula(nonexistent_framework, nonexistent_suite)

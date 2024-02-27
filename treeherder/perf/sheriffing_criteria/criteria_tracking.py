@@ -8,7 +8,7 @@ from typing import Union
 
 from datetime import datetime, timedelta
 
-from treeherder.perf.exceptions import NoFiledBugs
+from treeherder.perf.exceptions import NoFiledBugsError
 from .bugzilla_formulas import BugzillaFormula, EngineerTractionFormula, FixRatioFormula
 from treeherder.utils import PROJECT_ROOT
 
@@ -83,7 +83,7 @@ class RecordComputer:
         for form_name, formula in self._formula_map.items():
             try:
                 result = formula(record.Framework, record.Suite, record.Test)
-            except (NoFiledBugs, Exception) as ex:
+            except (NoFiledBugsError, Exception) as ex:
                 result = "N/A"
                 self.__log_unexpected(ex, form_name, record)
 
@@ -95,7 +95,7 @@ class RecordComputer:
         return record
 
     def __log_unexpected(self, exception: Exception, formula_name: str, record: CriteriaRecord):
-        if type(Exception) is NoFiledBugs:
+        if type(Exception) is NoFiledBugsError:
             # maybe web service problem
             self.log.info(exception)
         elif type(exception) is Exception:

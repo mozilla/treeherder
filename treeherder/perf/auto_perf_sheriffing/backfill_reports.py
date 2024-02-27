@@ -6,7 +6,7 @@ from typing import Optional
 import simplejson as json
 from django.db.models import QuerySet, Q, F
 
-from treeherder.perf.exceptions import MissingRecords
+from treeherder.perf.exceptions import MissingRecordsError
 from treeherder.perf.models import (
     PerformanceAlert,
     PerformanceDatum,
@@ -302,7 +302,7 @@ class BackfillReportMaintainer:
 
             try:
                 alert_context_map = self._associate_retrigger_context(important_alerts)
-            except MissingRecords as ex:
+            except MissingRecordsError as ex:
                 self.log.warning(f"Failed to compute report for alert summary {summary}. {ex}")
                 continue
 
@@ -367,7 +367,7 @@ class BackfillReportMaintainer:
         if incomplete_mapping:
             expected = len(important_alerts)
             missing = expected - len(retrigger_map)
-            raise MissingRecords(f"{missing} out of {expected} records are missing!")
+            raise MissingRecordsError(f"{missing} out of {expected} records are missing!")
 
         return retrigger_map
 

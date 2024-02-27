@@ -17,7 +17,7 @@ from treeherder.model.models import (
     BuildPlatform,
     MachinePlatform,
 )
-from treeherder.perf.exceptions import NoDataCyclingAtAll, MaxRuntimeExceeded
+from treeherder.perf.exceptions import NoDataCyclingAtAllError, MaxRuntimeExceededError
 from treeherder.perf.models import (
     PerformanceSignature,
     PerformanceAlertSummary,
@@ -140,11 +140,11 @@ class PerfherderCycler(DataCycler):
                 try:
                     logger.warning(f"Cycling data using {strategy.name}...")
                     self._delete_in_chunks(strategy)
-                except NoDataCyclingAtAll as ex:
+                except NoDataCyclingAtAllError as ex:
                     logger.warning(str(ex))
 
             self._remove_leftovers()
-        except MaxRuntimeExceeded as ex:
+        except MaxRuntimeExceededError as ex:
             logger.warning(ex)
 
     def _remove_leftovers(self):
@@ -236,4 +236,4 @@ class PerfherderCycler(DataCycler):
             logger.warning(f"{msg}: (Exception: {exception})")
         else:
             logger.warning(msg)
-            raise NoDataCyclingAtAll() from exception
+            raise NoDataCyclingAtAllError() from exception

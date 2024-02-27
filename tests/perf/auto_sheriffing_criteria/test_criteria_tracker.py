@@ -12,7 +12,7 @@ import pytest
 from freezegun import freeze_time
 
 from tests.perf.auto_sheriffing_criteria.conftest import CASSETTES_RECORDING_DATE
-from treeherder.perf.exceptions import NoFiledBugs
+from treeherder.perf.exceptions import NoFiledBugsError
 from treeherder.perf.sheriffing_criteria import (
     CriteriaTracker,
     EngineerTractionFormula,
@@ -223,7 +223,7 @@ def test_record_computer_can_tell_unallowed_data(criteria_record):
 
 
 @pytest.mark.freeze_time(CASSETTES_RECORDING_DATE)  # disable tick
-@pytest.mark.parametrize("exception", [NoFiledBugs(), Exception()])
+@pytest.mark.parametrize("exception", [NoFiledBugsError(), Exception()])
 def test_record_computer_still_updates_if_one_of_the_formulas_fails(exception, db):
     formula_map = {
         "EngineerTraction": MagicMock(spec=EngineerTractionFormula, return_value=EXPECTED_VALUE),

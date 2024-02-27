@@ -6,7 +6,7 @@ from django.core.management import call_command
 
 from treeherder.perf.auto_perf_sheriffing.sherlock import Sherlock
 from treeherder.perf.models import BackfillNotificationRecord
-from treeherder.perf.exceptions import MaxRuntimeExceeded
+from treeherder.perf.exceptions import MaxRuntimeExceededError
 
 EPOCH = datetime.utcfromtimestamp(0)
 
@@ -78,7 +78,7 @@ def test_no_email_is_sent_if_runtime_exceeded(
     sherlock = Sherlock(report_maintainer_mock, backfill_tool_mock, secretary, no_time_left)
     try:
         sherlock.sheriff(since=EPOCH, frameworks=["raptor", "talos"], repositories=["autoland"])
-    except MaxRuntimeExceeded:
+    except MaxRuntimeExceededError:
         pass
 
     assert BackfillNotificationRecord.objects.count() == 0

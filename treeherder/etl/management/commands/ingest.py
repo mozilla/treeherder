@@ -16,7 +16,7 @@ from django.db import connection
 
 from treeherder.client.thclient import TreeherderClient
 from treeherder.config.settings import GITHUB_TOKEN
-from treeherder.etl.job_loader import JobLoader, MissingPushException
+from treeherder.etl.job_loader import JobLoader, MissingPushError
 from treeherder.etl.push_loader import PushLoader
 from treeherder.etl.pushlog import HgPushlogProcess, last_push_id_from_server
 from treeherder.etl.taskcluster_pulse.handler import EXCHANGE_EVENT_MAP, handleMessage
@@ -226,7 +226,7 @@ def process_job_with_threads(pulse_job, root_url):
     with Connection():
         try:
             JobLoader().process_job(pulse_job, root_url)
-        except MissingPushException:
+        except MissingPushError:
             logger.warning("The push was not in the DB. We are going to try that first")
             ingest_push(pulse_job["origin"]["project"], pulse_job["origin"]["revision"])
             JobLoader().process_job(pulse_job, root_url)

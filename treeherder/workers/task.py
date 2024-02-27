@@ -7,7 +7,7 @@ import newrelic.agent
 from celery import shared_task
 from django.db.utils import IntegrityError, ProgrammingError
 
-from treeherder.etl.exceptions import MissingPushException
+from treeherder.etl.exceptions import MissingPushError
 
 
 class retryable_task:  # noqa: N801
@@ -28,7 +28,7 @@ class retryable_task:  # noqa: N801
     # For these exceptions, we expect a certain amount of retries
     # but to report each one is just noise.  So don't raise to
     # New Relic until the retries have been exceeded.
-    HIDE_DURING_RETRIES = (MissingPushException,)
+    HIDE_DURING_RETRIES = (MissingPushError,)
 
     def __init__(self, *args, **kwargs):
         self.task_args = args

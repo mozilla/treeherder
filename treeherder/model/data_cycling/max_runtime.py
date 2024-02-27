@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from treeherder.perf.exceptions import MaxRuntimeExceeded
+from treeherder.perf.exceptions import MaxRuntimeExceededError
 
 
 class MaxRuntime:
@@ -16,7 +16,7 @@ class MaxRuntime:
         elapsed_runtime = datetime.now() - self.started_at
 
         if self.max_runtime < elapsed_runtime:
-            raise MaxRuntimeExceeded("Max runtime for performance data cycling exceeded")
+            raise MaxRuntimeExceededError("Max runtime for performance data cycling exceeded")
 
     def start_timer(self):
         self.started_at = datetime.now()

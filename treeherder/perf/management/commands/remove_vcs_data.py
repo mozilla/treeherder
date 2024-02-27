@@ -10,7 +10,7 @@ from datetime import timedelta
 from django.core.management.base import BaseCommand
 
 from treeherder.model.data_cycling import MaxRuntime
-from treeherder.perf.exceptions import MaxRuntimeExceeded
+from treeherder.perf.exceptions import MaxRuntimeExceededError
 from treeherder.perf.models import PerformanceSignature
 
 
@@ -38,7 +38,7 @@ class Command(BaseCommand):
     def __enough_work(self) -> bool:
         try:
             self.__timer.quit_on_timeout()  # check timer
-        except MaxRuntimeExceeded:
+        except MaxRuntimeExceededError:
             self.__timer.start_timer()  # reset & restart it
             return True
         return False

@@ -5,7 +5,7 @@ import newrelic.agent
 from treeherder.utils.http import make_request
 
 from .artifactbuilders import LogViewerArtifactBuilder, PerformanceDataArtifactBuilder
-from .parsers import EmptyPerformanceData
+from .parsers import EmptyPerformanceDataError
 
 logger = logging.getLogger(__name__)
 # Max log size in bytes we will download (prior to decompression).
@@ -92,7 +92,7 @@ class ArtifactBuilderCollection:
             )
 
             if download_size_in_bytes > MAX_DOWNLOAD_SIZE_IN_BYTES:
-                raise LogSizeException(
+                raise LogSizeError(
                     "Download size of %i bytes exceeds limit" % download_size_in_bytes
                 )
 
@@ -106,7 +106,7 @@ class ArtifactBuilderCollection:
                         # Using `replace` to prevent malformed unicode (which might possibly exist
                         # in test message output) from breaking parsing of the rest of the log.
                         builder.parse_line(line.decode("utf-8", "replace"))
-                    except EmptyPerformanceData:
+                    except EmptyPerformanceDataError:
                         logger.warning("We have parsed an empty PERFHERDER_DATA for %s", self.url)
 
         # gather the artifacts from all builders
@@ -121,5 +121,5 @@ class ArtifactBuilderCollection:
             self.artifacts[name] = artifact
 
 
-class LogSizeException(Exception):
+class LogSizeError(Exception):
     pass
