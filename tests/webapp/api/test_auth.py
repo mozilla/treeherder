@@ -1,7 +1,7 @@
 import time
 
 import pytest
-from django.contrib.auth import SESSION_KEY as auth_session_key
+from django.contrib.auth import SESSION_KEY
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.decorators import APIView
@@ -73,7 +73,7 @@ def test_login_logout_relogin(client, monkeypatch, id_token_sub, id_token_email,
 
     monkeypatch.setattr(AuthBackend, "_get_user_info", userinfo_mock)
 
-    assert auth_session_key not in client.session
+    assert SESSION_KEY not in client.session
     assert User.objects.count() == 0
 
     # The first time someone logs in a new user should be created,
@@ -92,12 +92,12 @@ def test_login_logout_relogin(client, monkeypatch, id_token_sub, id_token_email,
         "is_staff": False,
         "is_superuser": False,
     }
-    assert auth_session_key in client.session
+    assert SESSION_KEY in client.session
     # Uses a tolerance of up to 5 seconds to account for rounding/the time the test takes to run.
     assert client.session.get_expiry_age() == pytest.approx(one_hour_in_seconds, abs=5)
 
     assert User.objects.count() == 1
-    session_user_id = int(client.session[auth_session_key])
+    session_user_id = int(client.session[SESSION_KEY])
     user = User.objects.get(id=session_user_id)
     assert user.username == expected_username
     assert user.email == id_token_email
@@ -106,7 +106,7 @@ def test_login_logout_relogin(client, monkeypatch, id_token_sub, id_token_email,
 
     resp = client.get(reverse("auth-logout"))
     assert resp.status_code == 200
-    assert auth_session_key not in client.session
+    assert SESSION_KEY not in client.session
 
     # Logging in again should associate the existing user with the Django session.
 
@@ -118,7 +118,7 @@ def test_login_logout_relogin(client, monkeypatch, id_token_sub, id_token_email,
     )
     assert resp.status_code == 200
     assert resp.json()["username"] == expected_username
-    assert auth_session_key in client.session
+    assert SESSION_KEY in client.session
     assert client.session.get_expiry_age() == pytest.approx(one_hour_in_seconds, abs=5)
     assert User.objects.count() == 1
 
