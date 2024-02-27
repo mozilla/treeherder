@@ -9,7 +9,7 @@ from tests import settings as test_settings
 from tests.perf.auto_perf_sheriffing.conftest import prepare_record_with_search_str
 from treeherder.model.models import Job, Push
 from treeherder.perf.auto_perf_sheriffing.sherlock import Sherlock
-from treeherder.perf.exceptions import MaxRuntimeExceeded
+from treeherder.perf.exceptions import MaxRuntimeExceededError
 from treeherder.perf.models import BackfillRecord, BackfillReport
 
 EPOCH = datetime.utcfromtimestamp(0)
@@ -95,7 +95,7 @@ def test_assert_can_run_throws_exception_when_runtime_exceeded(
     no_time_left = timedelta(seconds=0)
     sherlock_bot = Sherlock(report_maintainer_mock, backfill_tool_mock, secretary, no_time_left)
 
-    with pytest.raises(MaxRuntimeExceeded):
+    with pytest.raises(MaxRuntimeExceededError):
         sherlock_bot.assert_can_run()
 
 
@@ -111,7 +111,7 @@ def test_assert_can_run_doesnt_throw_exception_when_enough_time_left(
 
     try:
         sherlock.assert_can_run()
-    except MaxRuntimeExceeded:
+    except MaxRuntimeExceededError:
         pytest.fail()
 
 
@@ -153,7 +153,7 @@ def test_records_and_db_limits_remain_unchanged_if_runtime_exceeded(
     sherlock = Sherlock(report_maintainer_mock, backfill_tool_mock, secretary, no_time_left)
     try:
         sherlock.sheriff(since=EPOCH, frameworks=["raptor", "talos"], repositories=["autoland"])
-    except MaxRuntimeExceeded:
+    except MaxRuntimeExceededError:
         pass
 
     assert not has_changed(record_ready_for_processing)

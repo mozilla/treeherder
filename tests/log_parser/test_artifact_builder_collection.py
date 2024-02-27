@@ -5,7 +5,7 @@ from tests.test_utils import add_log_response
 from treeherder.log_parser.artifactbuildercollection import (
     MAX_DOWNLOAD_SIZE_IN_BYTES,
     ArtifactBuilderCollection,
-    LogSizeException,
+    LogSizeError,
 )
 from treeherder.log_parser.artifactbuilders import LogViewerArtifactBuilder
 
@@ -69,5 +69,5 @@ def test_log_download_size_limit():
     )
     lpc = ArtifactBuilderCollection(url)
 
-    with pytest.raises(LogSizeException):
+    with pytest.raises(LogSizeError):
         lpc.parse()

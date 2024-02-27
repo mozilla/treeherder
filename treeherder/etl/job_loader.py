@@ -7,7 +7,7 @@ import slugid
 
 from treeherder.etl.taskcluster_pulse.handler import ignore_task
 from treeherder.etl.common import to_timestamp
-from treeherder.etl.exceptions import MissingPushException
+from treeherder.etl.exceptions import MissingPushError
 from treeherder.etl.jobs import store_job_data
 from treeherder.etl.schema import get_json_schema
 from treeherder.model.models import Push, Repository
@@ -106,7 +106,7 @@ class JobLoader:
             task = get_task_definition(repository.tc_root_url, real_task_id)
             # We do this to prevent raising an exception for a task that will never be ingested
             if not ignore_task(task, real_task_id, repository.tc_root_url, project):
-                raise MissingPushException(
+                raise MissingPushError(
                     "No push found in {} for revision {} for task {}".format(
                         pulse_job["origin"]["project"], revision, real_task_id
                     )

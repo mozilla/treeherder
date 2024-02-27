@@ -1,4 +1,4 @@
-class CollectionNotStoredException(Exception):
+class CollectionNotStoredError(Exception):
     def __init__(self, error_list, *args, **kwargs):
         """
         error_list contains dictionaries, each containing
@@ -16,5 +16,5 @@ class CollectionNotStoredException(Exception):
         )
 
 
-class MissingPushException(Exception):
+class MissingPushError(Exception):
     pass

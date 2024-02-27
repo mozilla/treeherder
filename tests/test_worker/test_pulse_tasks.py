@@ -2,7 +2,7 @@ from threading import local
 
 import pytest
 
-from treeherder.etl.exceptions import MissingPushException
+from treeherder.etl.exceptions import MissingPushError
 from treeherder.etl.push import store_push_data
 from treeherder.etl.tasks.pulse_tasks import store_pulse_tasks
 from treeherder.model.models import Job
@@ -26,7 +26,7 @@ def test_retry_missing_revision_succeeds(
     orig_retry = store_pulse_tasks.retry
 
     def retry_mock(exc=None, countdown=None):
-        assert isinstance(exc, MissingPushException)
+        assert isinstance(exc, MissingPushError)
         thread_data.retries += 1
         store_push_data(test_repository, [rs])
         return orig_retry(exc=exc, countdown=countdown)
