@@ -197,7 +197,7 @@ class PerformanceParser(ParserBase):
             try:
                 data = json.loads(match.group(1))
                 if not bool(data):
-                    raise EmptyPerformanceData("The perf data is empty.")
+                    raise EmptyPerformanceDataError("The perf data is empty.")
                 validate_perf_data(data)
                 self.artifact.append(data)
             except ValueError:
@@ -210,5 +210,5 @@ class PerformanceParser(ParserBase):
             # Don't mark the parser as complete, in case there are multiple performance artifacts.
 
 
-class EmptyPerformanceData(Exception):
+class EmptyPerformanceDataError(Exception):
     pass

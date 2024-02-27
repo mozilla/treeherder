@@ -10,7 +10,7 @@ from taskcluster.helper import TaskclusterConfig
 from treeherder.perf.auto_perf_sheriffing.backfill_reports import BackfillReportMaintainer
 from treeherder.perf.auto_perf_sheriffing.backfill_tool import BackfillTool
 from treeherder.perf.auto_perf_sheriffing.secretary import Secretary
-from treeherder.perf.exceptions import CannotBackfill, MaxRuntimeExceeded
+from treeherder.perf.exceptions import CannotBackfillError, MaxRuntimeExceededError
 from treeherder.perf.models import BackfillRecord, BackfillReport, BackfillNotificationRecord
 
 logger = logging.getLogger(__name__)
@@ -72,7 +72,7 @@ class Sherlock:
 
     def assert_can_run(self):
         if self.runtime_exceeded():
-            raise MaxRuntimeExceeded("Sherlock: Max runtime exceeded.")
+            raise MaxRuntimeExceededError("Sherlock: Max runtime exceeded.")
 
     def _report(
         self, since: datetime, frameworks: list[str], repositories: list[str]
@@ -143,7 +143,7 @@ class Sherlock:
                     using_job_id = data_point["job_id"]
                     self.backfill_tool.backfill_job(using_job_id)
                     left, consumed = left - 1, consumed + 1
-                except (KeyError, CannotBackfill, Exception) as ex:
+                except (KeyError, CannotBackfillError, Exception) as ex:
                     logger.debug(f"Failed to backfill record {record.alert.id}: {ex}")
                 else:
                     record.try_remembering_job_properties(using_job_id)

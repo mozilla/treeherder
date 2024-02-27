@@ -5,7 +5,7 @@ import newrelic.agent
 import requests
 from django.core.cache import cache
 
-from treeherder.etl.exceptions import CollectionNotStoredException
+from treeherder.etl.exceptions import CollectionNotStoredError
 from treeherder.etl.push import store_push
 from treeherder.model.models import Repository
 from treeherder.utils.github import fetch_json
@@ -136,7 +136,7 @@ class HgPushlogProcess:
                 )
 
         if errors:
-            raise CollectionNotStoredException(errors)
+            raise CollectionNotStoredError(errors)
 
         if not changeset:
             # only cache the last push if we're not fetching a specific changeset

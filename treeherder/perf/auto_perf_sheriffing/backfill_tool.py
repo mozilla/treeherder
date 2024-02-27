@@ -4,7 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from typing import Union
 
 from treeherder.model.models import Job
-from treeherder.perf.exceptions import CannotBackfill
+from treeherder.perf.exceptions import CannotBackfillError
 from treeherder.services.taskcluster import TaskclusterModel
 
 logger = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ class BackfillTool:
 
     def assert_backfill_ability(self, over_job: Job):
         if over_job.repository.is_try_repo:
-            raise CannotBackfill("Try repository isn't suited for backfilling.")
+            raise CannotBackfillError("Try repository isn't suited for backfilling.")
 
     @staticmethod
     def _fetch_job_by_id(job_id: str) -> Job:

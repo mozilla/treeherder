@@ -5,7 +5,7 @@ from django.core.management.base import BaseCommand
 
 from treeherder.model.models import Repository
 from treeherder.perf.auto_perf_sheriffing.factories import sherlock_factory
-from treeherder.perf.exceptions import MaxRuntimeExceeded
+from treeherder.perf.exceptions import MaxRuntimeExceededError
 from treeherder.perf.models import PerformanceFramework
 
 logger = logging.getLogger(__name__)
@@ -59,7 +59,7 @@ class Command(BaseCommand):
         sherlock = sherlock_factory(days_to_lookup)
         try:
             sherlock.sheriff(since, frameworks, repositories)
-        except MaxRuntimeExceeded as ex:
+        except MaxRuntimeExceededError as ex:
             logging.info(ex)
 
         logging.info("Sherlock: Going back to sleep.")

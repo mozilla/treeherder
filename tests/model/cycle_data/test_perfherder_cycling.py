@@ -18,7 +18,7 @@ from treeherder.model.data_cycling.removal_strategies import (
     StalledDataRemoval,
 )
 from treeherder.model.models import Push
-from treeherder.perf.exceptions import MaxRuntimeExceeded
+from treeherder.perf.exceptions import MaxRuntimeExceededError
 from treeherder.perf.models import (
     PerformanceDatum,
     PerformanceDatumReplicate,
@@ -401,7 +401,7 @@ def test_performance_cycler_quit_indicator(taskcluster_notify_mock):
     two_seconds_ago = datetime.now() - timedelta(seconds=2)
     five_minutes = timedelta(minutes=5)
 
-    with pytest.raises(MaxRuntimeExceeded):
+    with pytest.raises(MaxRuntimeExceededError):
         PerfherderCycler(chunk_size=100, sleep_time=0)
 
         max_runtime = MaxRuntime(max_runtime=one_second)
@@ -413,7 +413,7 @@ def test_performance_cycler_quit_indicator(taskcluster_notify_mock):
         max_runtime = MaxRuntime(max_runtime=five_minutes)
         max_runtime.started_at = two_seconds_ago
         max_runtime.quit_on_timeout()
-    except MaxRuntimeExceeded:
+    except MaxRuntimeExceededError:
         pytest.fail("Performance cycling shouldn't have timed out")
 
 

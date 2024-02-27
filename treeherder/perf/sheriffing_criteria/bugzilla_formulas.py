@@ -7,7 +7,7 @@ from django.conf import settings
 from requests import Session
 
 from treeherder.config.settings import BZ_DATETIME_FORMAT
-from treeherder.perf.exceptions import NoFiledBugs, BugzillaEndpointError
+from treeherder.perf.exceptions import NoFiledBugsError, BugzillaEndpointError
 from treeherder.perf.models import PerformanceAlert
 
 # Google Doc specification
@@ -77,7 +77,7 @@ class BugzillaFormula(ABC):
 
         all_filed_bugs = self.__fetch_cooled_down_bugs(framework, suite, test)
         if len(all_filed_bugs) == 0:
-            raise NoFiledBugs()
+            raise NoFiledBugsError()
 
         denominator_bugs = self._filter_denominator_bugs(all_filed_bugs)
         numerator_bugs = self._filter_numerator_bugs(all_filed_bugs)
