@@ -349,11 +349,11 @@ class PerformanceBugTemplateSerializer(serializers.ModelSerializer):
 
 class IssueTrackerSerializer(serializers.ModelSerializer):
     text = serializers.CharField(read_only=True, source="name")
-    issueTrackerUrl = serializers.URLField(read_only=True, source="task_base_url")
+    issue_tracker_url = serializers.URLField(read_only=True, source="task_base_url")
 
     class Meta:
         model = IssueTracker
-        fields = ["id", "text", "issueTrackerUrl"]
+        fields = ["id", "text", "issue_tracker_url"]
 
 
 class PerformanceQueryParamsSerializer(serializers.Serializer):

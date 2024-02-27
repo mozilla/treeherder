@@ -35,8 +35,8 @@ class InvestigatedViewSet(viewsets.ModelViewSet):
         project = kwargs["project"]
         revision = request.query_params.get("revision")
         test = request.data["test"]
-        job_name = request.data["jobName"]
-        job_symbol = request.data["jobSymbol"]
+        job_name = request.data["job_name"]
+        job_symbol = request.data["job_symbol"]
 
         try:
             repository = Repository.objects.get(name=project)
