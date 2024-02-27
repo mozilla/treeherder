@@ -4,25 +4,25 @@ TODO: Extract this module into a dedicated PyPI package, acting as the
 """
 
 
-def satisfiesExpression(scopeset, expression):
+def satisfies_expression(scopeset, expression):
     if not isinstance(scopeset, list):
         raise TypeError("Scopeset must be an array.")
 
-    def isSatisfied(expr):
+    def is_satisfied(expr):
         if isinstance(expr, str):
-            return any([patternMatch(s, expr) for s in scopeset])
+            return any([pattern_match(s, expr) for s in scopeset])
 
         return (
             "AllOf" in expr
-            and all([isSatisfied(e) for e in expr["AllOf"]])
+            and all([is_satisfied(e) for e in expr["AllOf"]])
             or "AnyOf" in expr
-            and any([isSatisfied(e) for e in expr["AnyOf"]])
+            and any([is_satisfied(e) for e in expr["AnyOf"]])
         )
 
-    return isSatisfied(expression)
+    return is_satisfied(expression)
 
 
-def patternMatch(pattern: str, scope):
+def pattern_match(pattern: str, scope):
     if scope == pattern:
         return True
 

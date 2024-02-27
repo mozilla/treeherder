@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class RemovalStrategy(ABC):
     @property
     @abstractmethod
-    def CYCLE_INTERVAL(self) -> int:
+    def cycle_interval(self) -> int:
         """
         expressed in days
         """
@@ -26,7 +26,7 @@ class RemovalStrategy(ABC):
 
     @has_valid_explicit_days
     def __init__(self, chunk_size: int, days: int = None):
-        days = days or self.CYCLE_INTERVAL
+        days = days or self.cycle_interval
 
         self._cycle_interval = timedelta(days=days)
         self._chunk_size = chunk_size
@@ -65,7 +65,7 @@ class MainRemovalStrategy(RemovalStrategy):
     """
 
     @property
-    def CYCLE_INTERVAL(self) -> int:
+    def cycle_interval(self) -> int:
         # WARNING!! Don't override this without proper approval!
         return 365  # days                                     #
         ########################################################
@@ -127,7 +127,7 @@ class TryDataRemoval(RemovalStrategy):
     SIGNATURE_BULK_SIZE = 10
 
     @property
-    def CYCLE_INTERVAL(self) -> int:
+    def cycle_interval(self) -> int:
         # WARNING!! Don't override this without proper approval!
         return 42  # days                                      #
         ########################################################
@@ -246,7 +246,7 @@ class IrrelevantDataRemoval(RemovalStrategy):
     ]
 
     @property
-    def CYCLE_INTERVAL(self) -> int:
+    def cycle_interval(self) -> int:
         # WARNING!! Don't override this without proper approval!
         return 180  # days                                     #
         ########################################################
@@ -340,7 +340,7 @@ class StalledDataRemoval(RemovalStrategy):
     """
 
     @property
-    def CYCLE_INTERVAL(self) -> int:
+    def cycle_interval(self) -> int:
         # WARNING!! Don't override this without proper approval!
         return 120  # days                                     #
         ########################################################

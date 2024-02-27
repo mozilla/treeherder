@@ -9,7 +9,7 @@ from treeherder.services.pulse.consumers import Consumers, JointConsumer, PulseC
 from .utils import create_and_destroy_exchange
 
 
-def test_Consumers():
+def test_consumers():
     class TestConsumer:
         def prepare(self):
             self.prepared = True
@@ -30,7 +30,7 @@ def test_Consumers():
 
 
 @pytest.mark.skipif(IS_WINDOWS, reason="celery does not work on windows")
-def test_PulseConsumer(pulse_connection):
+def test_pulse_consumer(pulse_connection):
     class TestConsumer(PulseConsumer):
         queue_suffix = "test"
 
@@ -51,7 +51,7 @@ def test_PulseConsumer(pulse_connection):
         cons.prepare()
 
 
-def test_JointConsumer_on_message_do_not_call_classification_ingestion(monkeypatch):
+def test_joint_consumer_on_message_do_not_call_classification_ingestion(monkeypatch):
     mock_called = False
 
     def mock_store_pulse_tasks_classification(args, queue):
@@ -87,7 +87,7 @@ def test_JointConsumer_on_message_do_not_call_classification_ingestion(monkeypat
     assert not mock_called
 
 
-def test_JointConsumer_on_message_call_classification_ingestion(monkeypatch):
+def test_joint_consumer_on_message_call_classification_ingestion(monkeypatch):
     mock_called = False
 
     def mock_store_pulse_tasks_classification(args, queue):
