@@ -212,7 +212,7 @@ const GraphTooltip = ({
           <div>
             <span>
               <a href={pushUrl} target="_blank" rel="noopener noreferrer">
-                {dataPointDetails.revision.slice(0, 13)}
+                {dataPointDetails.revision.slice(0, 12)}
               </a>{' '}
               {(dataPointDetails.jobId || prevRevision) && '('}
               {dataPointDetails.jobId && (

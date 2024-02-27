@@ -206,7 +206,7 @@ test('Using select query param displays tooltip for correct datapoint', async ()
   const graphTooltip = await waitFor(() => getByTestId('graphTooltip'));
   const expectedRevision = '3afb892abb74c6d281f3e66431408cbb2e16b8c4';
   const revision = await waitFor(() =>
-    getByText(expectedRevision.slice(0, 13)),
+    getByText(expectedRevision.slice(0, 12)),
   );
   const repoName = await waitFor(() => getByTestId('repoName'));
   const platform = await waitFor(() => getByTestId('platform'));
@@ -226,7 +226,7 @@ test('Using select query param displays tooltip for correct datapoint with repli
   const graphTooltip = await waitFor(() => getByTestId('graphTooltip'));
   const expectedRevision = '3afb892abb74c6d281f3e66431408cbb2e16b8c4';
   const revision = await waitFor(() =>
-    getByText(expectedRevision.slice(0, 13)),
+    getByText(expectedRevision.slice(0, 12)),
   );
   const repoName = await waitFor(() => getByTestId('repoName'));
   const platform = await waitFor(() => getByTestId('platform'));
