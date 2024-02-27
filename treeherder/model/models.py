@@ -234,7 +234,7 @@ class Bugscache(models.Model):
         return f"{self.id}"
 
     @classmethod
-    def sanitized_search_term(self, search_term):
+    def sanitized_search_term(cls, search_term):
         # MySQL Full Text Search operators, based on:
         # https://dev.mysql.com/doc/refman/5.7/en/fulltext-boolean.html
         # and other characters we want to remove
@@ -245,12 +245,12 @@ class Bugscache(models.Model):
         return re.sub(mysql_fts_operators_re, " ", search_term)
 
     @classmethod
-    def search(self, search_term):
+    def search(cls, search_term):
         max_size = 50
 
         # Do not wrap a string in quotes to search as a phrase;
         # see https://bugzilla.mozilla.org/show_bug.cgi?id=1704311
-        search_term_fulltext = self.sanitized_search_term(search_term)
+        search_term_fulltext = cls.sanitized_search_term(search_term)
 
         if settings.DATABASES["default"]["ENGINE"] == "django.db.backends.mysql":
             # Substitute escape and wildcard characters, so the search term is used
@@ -262,7 +262,7 @@ class Bugscache(models.Model):
                 .replace('\\"', "")
             )
 
-            recent_qs = self.objects.raw(
+            recent_qs = cls.objects.raw(
                 """
                 SELECT id, summary, crash_signature, keywords, resolution, status, dupe_of,
                  MATCH (`summary`) AGAINST (%s IN BOOLEAN MODE) AS relevance
