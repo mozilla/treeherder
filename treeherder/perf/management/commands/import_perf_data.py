@@ -1,7 +1,7 @@
 import collections
 import datetime
 import math
-from multiprocessing import Manager as interproc
+from multiprocessing import Manager as Interproc
 from multiprocessing import Process
 
 from django.core.management.base import BaseCommand
@@ -205,7 +205,7 @@ class MassiveData(Data):
             if repositories is not None
             else list(Repository.objects.using(self.source).values_list("name", flat=True))
         )
-        interproc_instance = interproc()
+        interproc_instance = Interproc()
         self.models_instances = {
             "reference_data_signature": interproc_instance.list(),
             "performance_alert": interproc_instance.list(),
