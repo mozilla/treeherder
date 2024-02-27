@@ -112,7 +112,7 @@ for res in READY_RESULTS:
     res.ready = MagicMock(return_value=True)
 
 
-class eventually_ready:
+class EventuallyReady:
     def __init__(self, start_time: float, ready_after: float):
         print(f"start_time: {start_time}")
         self.start_time = start_time
@@ -128,7 +128,7 @@ class eventually_ready:
 with freeze_time(CASSETTES_RECORDING_DATE) as frozentime:
     for res in EVENTUALLY_READY_RESULTS:
         res.ready = MagicMock(
-            side_effect=eventually_ready(time.time(), 4 * 60 + 59)
+            side_effect=EventuallyReady(time.time(), 4 * 60 + 59)
         )  # ready just before timeout
 
 
