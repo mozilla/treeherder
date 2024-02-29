@@ -24,6 +24,7 @@ import {
   containsText,
   getInitialData,
   getSeriesData,
+  getFrameworkName,
 } from '../perf-helpers/helpers';
 
 import TimeRangeDropdown from './TimeRangeDropdown';
@@ -76,7 +77,7 @@ export default class TestDataModal extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { activeTags, availableTags, platform, platforms } = this.state;
-    const { testData, timeRange } = this.props;
+    const { testData, timeRange, showModal } = this.props;
 
     if (prevState.platforms !== platforms) {
       const newPlatform = platforms.find((item) => item === platform)
@@ -106,6 +107,24 @@ export default class TestDataModal extends React.Component {
 
     if (testData !== prevProps.testData) {
       this.processOptions();
+    }
+
+    if (showModal === true && showModal !== prevProps.showModal) {
+      const newFramework = {
+        name: getFrameworkName(this.props.frameworks, testData[0].framework_id),
+        id: testData[0].framework_id,
+      };
+
+      this.setState(
+        {
+          framework: newFramework,
+          platform: testData[0].platform,
+          filterText: testData[0].name,
+        },
+        () => {
+          this.processOptions();
+        },
+      );
     }
   }
 
@@ -556,6 +575,7 @@ export default class TestDataModal extends React.Component {
                   disabled={relatedTests.length > 0}
                   placeholder="filter tests e.g. linux tp5o"
                   updateFilterText={this.applyFilters}
+                  filteredTextValue={filterText ? filterText : ""}
                 />
               </Col>
             </Row>
