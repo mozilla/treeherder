@@ -114,7 +114,7 @@ export default class TestDataModal extends React.Component {
         name: getFrameworkName(this.props.frameworks, testData[0].framework_id),
         id: testData[0].framework_id,
       };
-
+      // eslint-disable-next-line react/no-did-update-set-state
       this.setState(
         {
           framework: newFramework,
@@ -575,7 +575,7 @@ export default class TestDataModal extends React.Component {
                   disabled={relatedTests.length > 0}
                   placeholder="filter tests e.g. linux tp5o"
                   updateFilterText={this.applyFilters}
-                  filteredTextValue={filterText ? filterText : ""}
+                  filteredTextValue={filterText || ''}
                 />
               </Col>
             </Row>
