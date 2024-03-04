@@ -11,7 +11,7 @@ certifi==2023.5.7
 mysqlclient==2.1.1   # Required by Django
 psycopg2-binary==2.9.6
 
-jsonschema==4.17.3  # import jsonschema
+jsonschema==4.21.1  # import jsonschema
 djangorestframework==3.14.0  # Imported as rest_framework
 django-cors-headers==4.1.0  # Listed as 3rd party app on settings.py
 mozlog==8.0.0
