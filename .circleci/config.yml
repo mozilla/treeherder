@@ -51,7 +51,7 @@ jobs:
 
   python-tests-mysql:
     machine:
-      image: ubuntu-2004:202010-01
+      image: default
     steps:
       - checkout
       - docker/install-docker-compose:
@@ -69,7 +69,7 @@ jobs:
 
   python-tests-postgres:
     machine:
-      image: ubuntu-2004:202010-01
+      image: default
     steps:
       - checkout
       - docker/install-docker-compose:
