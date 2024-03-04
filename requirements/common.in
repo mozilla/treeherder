@@ -1,5 +1,5 @@
 # Packages that are shared between deployment and dev environments.
-gunicorn==20.1.0
+gunicorn==21.2.0
 whitenoise[brotli]==6.5.0  # Used by Whitenoise to provide Brotli-compressed versions of static files.
 Django==4.1.13
 celery==5.3.6  # celery needed for data ingestion
