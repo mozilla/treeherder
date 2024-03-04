@@ -14,9 +14,9 @@ attrs==23.2.0 \
     # via
     #   outcome
     #   trio
-betamax==0.8.1 \
-    --hash=sha256:5bf004ceffccae881213fb722f34517166b84a34919b92ffc14d1dbd050b71c2 \
-    --hash=sha256:aa5ad34cc8d018b35814fb0557d15c78ced9ac56fdc43ccacdb882aa7a5217c1
+betamax==0.9.0 \
+    --hash=sha256:82316e1679bc6879e3c83318d016b54b7c9225ff08c4462de4813e22038d5f94 \
+    --hash=sha256:880d6da87eaf7e61c42bdc4240f0ac04ab5365bd7f2798784c18d37d8cf747bc
     # via
     #   -r requirements/dev.in
     #   betamax-serializers
@@ -221,6 +221,7 @@ coverage[toml]==7.4.1 \
     --hash=sha256:f90515974b39f4dea2f27c0959688621b46d96d5a626cf9c53dbc653a895c05c \
     --hash=sha256:fe558371c1bdf3b8fa03e097c523fb9645b8730399c14fe7721ee9c9e2a545d3
     # via
+    #   coverage
     #   pytest-cov
     #   pytest-testmon
 distlib==0.3.8 \
