@@ -2,7 +2,7 @@
 gunicorn==20.1.0
 whitenoise[brotli]==6.5.0  # Used by Whitenoise to provide Brotli-compressed versions of static files.
 Django==4.1.13
-celery==5.3.1  # celery needed for data ingestion
+celery==5.3.6  # celery needed for data ingestion
 cached-property==1.5.2 # needed for kombu with --require-hashes
 simplejson==3.19.1  # import simplejson
 newrelic==8.8.0

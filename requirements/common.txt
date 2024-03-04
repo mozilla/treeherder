@@ -226,9 +226,9 @@ cachy==0.3.0 \
     --hash=sha256:186581f4ceb42a0bbe040c407da73c14092379b1e4c0e327fdb72ae4a9b269b1 \
     --hash=sha256:338ca09c8860e76b275aff52374330efedc4d5a5e45dc1c5b539c1ead0786fe7
     # via mozci
-celery==5.3.1 \
-    --hash=sha256:27f8f3f3b58de6e0ab4f174791383bbd7445aff0471a43e99cfd77727940753f \
-    --hash=sha256:f84d1c21a1520c116c2b7d26593926581191435a03aa74b77c941b93ca1c6210
+celery==5.3.6 \
+    --hash=sha256:870cc71d737c0200c397290d730344cc991d13a057534353d124c9380267aab9 \
+    --hash=sha256:9da4ea0118d232ce97dff5ed4974587fb1c0ff5c10042eb15278487cdd27d1af
     # via -r requirements/common.in
 certifi==2023.5.7 \
     --hash=sha256:0f0d56dc5a6ad56fd4ba36484d6cc34451e1c6548c61daad8c320169f91eddc7 \
@@ -692,7 +692,9 @@ moz-measure-noise==2.60.1 \
 mozci[cache]==2.3.2 \
     --hash=sha256:7f9256f400792c46254bd5422c214f6715e824015696c1ab7ffce5457628c646 \
     --hash=sha256:c7126a7bd044e9275cf0f4801ff18561d2420eca436e62bdd920601c1d3b4085
-    # via -r requirements/common.in
+    # via
+    #   -r requirements/common.in
+    #   mozci
 mozfile==3.0.0 \
     --hash=sha256:3b0afcda2fa8b802ef657df80a56f21619008f61fcc14b756124028d7b7adf5c \
     --hash=sha256:92ca1a786abbdf5e6a7aada62d3a4e28f441ef069c7623223add45268e53c789
@@ -1030,7 +1032,9 @@ python-dateutil==2.8.2 \
 python-jose[pycryptodome]==3.3.0 \
     --hash=sha256:55779b5e6ad599c6336191246e95eb2293a9ddebd555f796a65f838f07e5d78a \
     --hash=sha256:9b1376b023f8b298536eedd47ae1089bcdb848f1535ab30555cd92002d78923a
-    # via -r requirements/common.in
+    # via
+    #   -r requirements/common.in
+    #   python-jose
 python3-memcached==1.51 \
     --hash=sha256:7cbe5951d68eef69d948b7a7ed7decfbd101e15e7f5be007dcd1219ccc584859
     # via mozci
@@ -1436,7 +1440,9 @@ wcwidth==0.2.13 \
 whitenoise[brotli]==6.5.0 \
     --hash=sha256:15fe60546ac975b58e357ccaeb165a4ca2d0ab697e48450b8f0307ca368195a8 \
     --hash=sha256:16468e9ad2189f09f4a8c635a9031cc9bb2cdbc8e5e53365407acf99f7ade9ec
-    # via -r requirements/common.in
+    # via
+    #   -r requirements/common.in
+    #   whitenoise
 yarl==1.9.4 \
     --hash=sha256:008d3e808d03ef28542372d01057fd09168419cdc8f848efe2804f894ae03e51 \
     --hash=sha256:03caa9507d3d3c83bca08650678e25364e1843b484f19986a527630ca376ecce \
@@ -1579,5 +1585,6 @@ zstandard==0.22.0 \
     # via mozci
 
 # WARNING: The following packages were not pinned, but pip requires them to be
-# pinned when the requirements file includes hashes. Consider using the --allow-unsafe flag.
+# pinned when the requirements file includes hashes and the requirement is not
+# satisfied by a package already installed. Consider using the --allow-unsafe flag.
 # setuptools
