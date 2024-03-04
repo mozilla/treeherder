@@ -17,7 +17,7 @@ django-cors-headers==4.1.0  # Listed as 3rd party app on settings.py
 mozlog==8.0.0
 
 # Used directly and also by Django's YAML serializer.
-PyYAML==6.0  # Imported as yaml
+PyYAML==6.0.1  # Imported as yaml
 django-environ==0.10.0  # Imported as environ
 uritemplate==4.1.1  # For OpenAPI schema
 
