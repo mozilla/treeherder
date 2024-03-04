@@ -221,6 +221,7 @@ coverage[toml]==7.4.1 \
     --hash=sha256:f90515974b39f4dea2f27c0959688621b46d96d5a626cf9c53dbc653a895c05c \
     --hash=sha256:fe558371c1bdf3b8fa03e097c523fb9645b8730399c14fe7721ee9c9e2a545d3
     # via
+    #   coverage
     #   pytest-cov
     #   pytest-testmon
 distlib==0.3.8 \
