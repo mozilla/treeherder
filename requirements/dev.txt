@@ -368,9 +368,9 @@ pytest-django==4.5.2 \
 pytest-freezegun @ https://github.com/hugovk/pytest-freezegun/archive/03d7107a877e8f07617f931a379f567d89060085.zip \
     --hash=sha256:60cf7c6592c612d3fbcb12c77c96b97f011bd313a238f07c31505b9d50f855a0
     # via -r requirements/dev.in
-pytest-testmon==2.0.9 \
-    --hash=sha256:5011e093c5d897a48e4f5769678bf75db57576827bf1112a511315b24a8e4e4d \
-    --hash=sha256:8ee537a279cdd02ab999a395010be353e30cd59c167b85f46a901aa50168648f
+pytest-testmon==2.1.1 \
+    --hash=sha256:8271ca47bc8c80760c4fc7fd7895ea786b111bbb31f13eeea879a6fd11fe2226 \
+    --hash=sha256:8ebe2c3de42d99306ee54cd4536fed0fc48346a954420da904b18e8d59b5da98
     # via -r requirements/dev.in
 pytest-watch==4.2.0 \
     --hash=sha256:06136f03d5b361718b8d0d234042f7b2f203910d8568f63df2f866b547b3d4b9
