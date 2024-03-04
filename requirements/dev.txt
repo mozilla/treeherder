@@ -221,6 +221,7 @@ coverage[toml]==7.4.1 \
     --hash=sha256:f90515974b39f4dea2f27c0959688621b46d96d5a626cf9c53dbc653a895c05c \
     --hash=sha256:fe558371c1bdf3b8fa03e097c523fb9645b8730399c14fe7721ee9c9e2a545d3
     # via
+    #   coverage
     #   pytest-cov
     #   pytest-testmon
 distlib==0.3.8 \
@@ -233,9 +234,9 @@ django==4.2.9 \
     # via
     #   django-debug-toolbar
     #   django-extensions
-django-debug-toolbar==4.1.0 \
-    --hash=sha256:a0b532ef5d52544fd745d1dcfc0557fa75f6f0d1962a8298bd568427ef2fa436 \
-    --hash=sha256:f57882e335593cb8e74c2bda9f1116bbb9ca8fc0d81b50a75ace0f83de5173c7
+django-debug-toolbar==4.3.0 \
+    --hash=sha256:0b0dddee5ea29b9cb678593bc0d7a6d76b21d7799cb68e091a2148341a80f3c4 \
+    --hash=sha256:e09b7dcb8417b743234dfc57c95a7c1d1d87a88844abd13b4c5387f807b31bf6
     # via -r requirements/dev.in
 django-extensions==3.2.3 \
     --hash=sha256:44d27919d04e23b3f40231c4ab7af4e61ce832ef46d610cc650d53e68328410a \
