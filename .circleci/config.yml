@@ -51,11 +51,9 @@ jobs:
 
   python-tests-mysql:
     machine:
-      image: ubuntu-2004:202010-01
+      image: default
     steps:
       - checkout
-      - docker/install-docker:
-          version: 19.03.13
       - docker/install-docker-compose:
           version: 1.29.2
       - run:
@@ -71,11 +69,9 @@ jobs:
 
   python-tests-postgres:
     machine:
-      image: ubuntu-2004:202010-01
+      image: default
     steps:
       - checkout
-      - docker/install-docker:
-          version: 19.03.13
       - docker/install-docker-compose:
           version: 1.29.2
       - run:
@@ -94,7 +90,7 @@ jobs:
       - image: docker:19.03.15
     steps:
       - setup_remote_docker:
-          version: 20.10.23
+          version: docker24
       - checkout
       - run:
           name: Create a version.json
@@ -115,7 +111,7 @@ jobs:
       - image: docker:19.03.15
     steps:
       - setup_remote_docker:
-          version: 20.10.23
+          version: docker24
       - checkout
       - run:
           name: Create a version.json
