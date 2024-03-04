@@ -30,7 +30,7 @@ https://github.com/hugovk/pytest-freezegun/archive/03d7107a877e8f07617f931a379f5
 
 # To test code that's doing advanced communication
 # with web services via `requests` library
-betamax==0.8.1
+betamax==0.9.0
 betamax-serializers==0.2.1
 
 # pip-compile for pinning versions
