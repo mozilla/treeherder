@@ -109,11 +109,16 @@ export default class TestDataModal extends React.Component {
       this.processOptions();
     }
 
-    if (showModal === true && showModal !== prevProps.showModal) {
+    if (
+      showModal === true &&
+      showModal !== prevProps.showModal &&
+      testData.length
+    ) {
       const newFramework = {
         name: getFrameworkName(this.props.frameworks, testData[0].framework_id),
         id: testData[0].framework_id,
       };
+
       // eslint-disable-next-line react/no-did-update-set-state
       this.setState(
         {
