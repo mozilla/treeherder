@@ -366,9 +366,9 @@ django==4.1.13 \
     #   django-filter
     #   django-redis
     #   djangorestframework
-django-cache-memoize==0.1.10 \
-    --hash=sha256:63e8faa245a41c0dbad843807e9f21a6e59eba8e6e50df310fdf6485a6749843 \
-    --hash=sha256:676299313079cde9242ae84db0160e80b1d44e8dd6bc9b1f4f1247e11b30c9e0
+django-cache-memoize==0.2.0 \
+    --hash=sha256:79950a027ba40e4aff4efed587b76036bf5ba1f59329d7b158797b832be72ca6 \
+    --hash=sha256:a6bfd112da699d1fa85955a1e15b7c48ee25e58044398958e269678db10736f3
     # via -r requirements/common.in
 django-cors-headers==4.1.0 \
     --hash=sha256:36a8d7a6dee6a85f872fe5916cc878a36d0812043866355438dfeda0b20b6b78 \
