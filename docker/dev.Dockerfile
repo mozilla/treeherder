@@ -6,6 +6,7 @@ ENV NEW_RELIC_CONFIG_FILE newrelic.ini
 # libmysqlclient-dev and gcc are required for the mysqlclient Python package.
 # netcat is used for the MySQL readiness check in entrypoint.sh.
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    pkg-config \
     default-libmysqlclient-dev \
     gcc \
     netcat \
