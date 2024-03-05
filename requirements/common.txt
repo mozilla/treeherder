@@ -101,7 +101,9 @@ arrow==1.3.0 \
 asgiref==3.7.2 \
     --hash=sha256:89b2ef2247e3b562a16eef663bc0e2e703ec6468e2fa8a5cd61cd449786d4f6e \
     --hash=sha256:9e0ce3aa93a819ba5b45120216b23878cf6e8525eb3848653452b4192b92afed
-    # via django
+    # via
+    #   django
+    #   django-cors-headers
 async-timeout==4.0.3 \
     --hash=sha256:4640d96be84d82d02ed59ea2b7105a0f7b33abe8703703cd0ab0bf87c427522f \
     --hash=sha256:7405140ff1230c310e51dc27b3145b9092d659ce68ff733fb0cefe3ee42be028
@@ -370,9 +372,9 @@ django-cache-memoize==0.2.0 \
     --hash=sha256:79950a027ba40e4aff4efed587b76036bf5ba1f59329d7b158797b832be72ca6 \
     --hash=sha256:a6bfd112da699d1fa85955a1e15b7c48ee25e58044398958e269678db10736f3
     # via -r requirements/common.in
-django-cors-headers==4.1.0 \
-    --hash=sha256:36a8d7a6dee6a85f872fe5916cc878a36d0812043866355438dfeda0b20b6b78 \
-    --hash=sha256:88a4bfae24b6404dd0e0640203cb27704a2a57fd546a429e5d821dfa53dd1acf
+django-cors-headers==4.3.1 \
+    --hash=sha256:0b1fd19297e37417fc9f835d39e45c8c642938ddba1acce0c1753d3edef04f36 \
+    --hash=sha256:0bf65ef45e606aff1994d35503e6b677c0b26cafff6506f8fd7187f3be840207
     # via -r requirements/common.in
 django-environ==0.10.0 \
     --hash=sha256:510f8c9c1d0a38b0815f91504270c29440a0cf44fab07f55942fa8d31bbb9be6 \
