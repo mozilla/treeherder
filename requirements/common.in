@@ -9,7 +9,7 @@ newrelic==8.8.0
 certifi==2023.5.7
 
 mysqlclient==2.1.1   # Required by Django
-psycopg2-binary==2.9.6
+psycopg2-binary==2.9.9
 
 jsonschema==4.21.1  # import jsonschema
 djangorestframework==3.14.0  # Imported as rest_framework
