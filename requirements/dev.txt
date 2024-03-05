@@ -441,9 +441,9 @@ requests==2.31.0 \
     #   -r requirements/dev.in
     #   betamax
     #   responses
-responses==0.23.1 \
-    --hash=sha256:8a3a5915713483bf353b6f4079ba8b2a29029d1d1090a503c70b0dc5d9d0c7bd \
-    --hash=sha256:c4d9aa9fc888188f0c673eff79a8dadbe2e75b7fe879dc80a221a06e0a68138f
+responses==0.25.0 \
+    --hash=sha256:01ae6a02b4f34e39bffceb0fc6786b67a25eae919c6368d05eabc8d9576c2a66 \
+    --hash=sha256:2f0b9c2b6437db4b528619a77e5d565e4ec2a9532162ac1a131a83529db7be1a
     # via -r requirements/dev.in
 selenium==4.17.2 \
     --hash=sha256:5aee79026c07985dc1b0c909f34084aa996dfe5b307602de9016d7a621a473f2 \
@@ -492,10 +492,6 @@ trio-websocket==0.11.1 \
     --hash=sha256:18c11793647703c158b1f6e62de638acada927344d534e3c7628eedcb746839f \
     --hash=sha256:520d046b0d030cf970b8b2b2e00c4c2245b3807853ecd44214acd33d74581638
     # via selenium
-types-pyyaml==6.0.12.12 \
-    --hash=sha256:334373d392fde0fdf95af5c3f1661885fa10c52167b14593eb856289e1855062 \
-    --hash=sha256:c05bc6c158facb0676674b7f11fe3960db4f389718e19e62bd2b84d6205cfd24
-    # via responses
 typing-extensions==4.9.0 \
     --hash=sha256:23478f88c37f27d76ac8aee6c905017a143b0b1b886c3c9f66bc2fd94f9f5783 \
     --hash=sha256:af72aea155e91adfc61c3ae9e0e342dbc0cba726d6cba4b6c72c1f34e47291cd
