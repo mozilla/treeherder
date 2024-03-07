@@ -7028,9 +7028,9 @@ joi@^17.11.0:
     "@sideway/pinpoint" "^2.0.0"
 
 jose@^4.0.4:
-  version "4.11.1"
-  resolved "https://registry.npmjs.org/jose/-/jose-4.11.1.tgz"
-  integrity sha512-YRv4Tk/Wlug8qicwqFNFVEZSdbROCHRAC6qu/i0dyNKr5JQdoa2pIGoS04lLO/jXQX7Z9omoNewYIVIxqZBd9Q==
+  version "4.15.5"
+  resolved "https://registry.yarnpkg.com/jose/-/jose-4.15.5.tgz#6475d0f467ecd3c630a1b5dadd2735a7288df706"
+  integrity sha512-jc7BFxgKPKi94uOvEmzlSWFFe2+vASyXaKUpdQKatWAESU2MWjDfFf0fdfc83CDKcA5QecabZeNLyfhe3yKNkg==
 
 js-cookie@3.0.5:
   version "3.0.5"
