@@ -111,7 +111,7 @@ services:
   rabbitmq:
     container_name: rabbitmq
     # https://hub.docker.com/r/library/rabbitmq/
-    image: rabbitmq:3.11.25-alpine
+    image: rabbitmq:3.11.28-alpine
     environment:
       # Hide INFO and WARNING log levels to reduce log spam.
       - 'RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log [{console,[{level,error}]}]'
