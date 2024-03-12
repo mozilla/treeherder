@@ -5,7 +5,7 @@ Django==4.1.13
 celery==5.3.6  # celery needed for data ingestion
 cached-property==1.5.2 # needed for kombu with --require-hashes
 simplejson==3.19.2  # import simplejson
-newrelic==9.7.0
+newrelic==9.7.1
 certifi==2024.2.2
 
 mysqlclient==2.2.4   # Required by Django
