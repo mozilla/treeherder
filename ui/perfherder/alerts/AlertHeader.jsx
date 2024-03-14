@@ -27,7 +27,7 @@ const AlertHeader = ({
   updateAssignee,
 }) => {
   const getIssueTrackerUrl = () => {
-    const { issueTrackerUrl } = issueTrackers.find(
+    const { issue_tracker_url: issueTrackerUrl } = issueTrackers.find(
       (tracker) => tracker.id === alertSummary.issue_tracker,
     );
     return issueTrackerUrl + alertSummary.bug_number;
