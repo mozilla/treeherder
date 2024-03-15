@@ -306,6 +306,7 @@ class FailureSummaryTab extends React.Component {
             successCallback={this.bugFilerCallback}
             jobGroupName={selectedJob.job_group_name}
             jobTypeName={selectedJob.job_type_name}
+            platform={selectedJob.platform}
           />
         )}
       </div>
