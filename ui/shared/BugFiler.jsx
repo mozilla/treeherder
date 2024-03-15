@@ -386,9 +386,30 @@ export class BugFilerClass extends React.Component {
    *  file path or its end.
    */
   findProductByPath = async () => {
-    const { suggestion } = this.props;
+    const { suggestion, platform } = this.props;
     const { crashSignatures } = this.state;
     const pathEnd = suggestion.path_end;
+
+    if (
+      !crashSignatures.length &&
+      (platform.startsWith('AC-') || platform.startsWith('fenix-'))
+    ) {
+      this.setState({
+        suggestedProducts: ['Fenix :: General'],
+        selectedProduct: 'Fenix :: General',
+        searching: false,
+      });
+      return;
+    }
+
+    if (!crashSignatures.length && platform.startsWith('focus-')) {
+      this.setState({
+        suggestedProducts: ['Focus :: General'],
+        selectedProduct: 'Focus :: General',
+        searching: false,
+      });
+      return;
+    }
 
     if (!pathEnd) {
       return;
@@ -1001,6 +1022,8 @@ BugFilerClass.propTypes = {
   reftestUrl: PropTypes.string.isRequired,
   successCallback: PropTypes.func.isRequired,
   jobGroupName: PropTypes.string.isRequired,
+  jobTypeName: PropTypes.string.isRequired,
+  platform: PropTypes.string.isRequired,
   notify: PropTypes.func.isRequired,
 };
 

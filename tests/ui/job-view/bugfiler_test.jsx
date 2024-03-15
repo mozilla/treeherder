@@ -21,6 +21,7 @@ describe('BugFiler', () => {
     job_group_name: 'Mochitests executed by TaskCluster',
     job_type_name: 'test-linux64/debug-mochitest-browser-chrome-10',
     job_type_symbol: 'bc10',
+    platform: 'windows11-64',
   };
   const suggestions = [
     {
@@ -120,6 +121,7 @@ describe('BugFiler', () => {
         successCallback={successCallback}
         jobGroupName={selectedJob.job_group_name}
         jobTypeName={selectedJob.job_type_name}
+        platform={selectedJob.platform}
         notify={() => {}}
       />
     </Provider>
@@ -138,6 +140,7 @@ describe('BugFiler', () => {
         successCallback={successCallback}
         jobGroupName={selectedJob.job_group_name}
         jobTypeName={selectedJob.job_type_name}
+        platform={selectedJob.platform}
         notify={() => {}}
       />
     </Provider>
