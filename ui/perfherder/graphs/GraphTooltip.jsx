@@ -276,6 +276,11 @@ const GraphTooltip = ({
                     </span>
                   )}
                 </span>
+                <Clipboard
+                  text={dataPointDetails.alertSummary.id.toString()}
+                  description="Alert Summary id"
+                  outline
+                />
               </p>
             )}
             {isCommonAlert && !dataPointDetails.alertSummary && (
