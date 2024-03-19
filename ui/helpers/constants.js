@@ -102,6 +102,8 @@ export const thPlatformMap = {
   'windows11-64-2009-devedition-qr': 'Windows 11 x64 22H2 WebRender DevEdition',
   'windows11-64-2009-ccov-qr': 'Windows 11 x64 22H2 CCov WebRender',
   'windows11-64-2009-mingwclang-qr': 'Windows 11 x64 22H2 MinGW WebRender',
+  'windows11-64-2009-hw-ref': 'Windows 11 x64 22H2 WebRender Ref HW',
+  'windows11-64-2009-hw-ref-shippable': 'Windows 11 x64 22H2 WebRender Ref HW Shippable',
   'windows2012-32': 'Windows 2012',
   'windows2012-32-shippable': 'Windows 2012 Shippable',
   'windows2012-32-add-on-devel': 'Windows 2012 addon',
