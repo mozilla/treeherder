@@ -351,9 +351,9 @@ pytest==8.1.1 \
     #   pytest-freezegun
     #   pytest-testmon
     #   pytest-watch
-pytest-asyncio==0.23.5.post1 \
-    --hash=sha256:30f54d27774e79ac409778889880242b0403d09cabd65b727ce90fe92dd5d80e \
-    --hash=sha256:b9a8806bea78c21276bc34321bbf234ba1b2ea5b30d9f0ce0f2dea45e4685813
+pytest-asyncio==0.23.6 \
+    --hash=sha256:68516fdd1018ac57b846c9846b954f0393b26f094764a28c955eabb0536a4e8a \
+    --hash=sha256:ffe523a89c1c222598c76856e76852b787504ddb72dd5d9b6617ffa8aa2cde5f
     # via -r requirements/dev.in
 pytest-cov==4.1.0 \
     --hash=sha256:3904b13dfbfec47f003b8e77fd5b589cd11904a21ddf1ab38a64f204d6a10ef6 \
