@@ -1,10 +1,11 @@
 import pytest
+from unittest.mock import patch
 
 from tests.test_utils import add_log_response
 from treeherder.etl.jobs import store_job_data
 from treeherder.etl.push import store_push_data
-from treeherder.model.error_summary import get_error_summary
-from treeherder.model.models import Job, TextLogError
+from treeherder.model.error_summary import get_error_summary, bug_suggestions_line
+from treeherder.model.models import Job, TextLogError, Bugscache
 
 from ..sampledata import SampleData
 
@@ -62,3 +63,64 @@ def test_create_error_summary(
     )
     for failure_line in bug_suggestions:
         assert set(failure_line.keys()) == expected_keys
+
+
+@pytest.mark.django_db
+@patch(
+    "treeherder.model.error_summary.get_error_search_term_and_path",
+    return_value={
+        "search_term": ["browser_switchTab_inputHistory.js"],
+        "path_end": "browser/components/urlbar/tests/browser/browser_switchTab_inputHistory.js",
+    },
+)
+def test_bug_suggestion_line(
+    search_mock, failure_classifications, jobs_with_local_log, sample_push, test_repository
+):
+    """
+    A test to reproduce a search issue with PostgreSQL
+    https://github.com/mozilla/treeherder/pull/7986
+    """
+    store_push_data(test_repository, sample_push)
+    for job in jobs_with_local_log:
+        job["job"]["result"] = "testfailed"
+        job["revision"] = sample_push[0]["revision"]
+    store_job_data(test_repository, jobs_with_local_log)
+
+    job = Job.objects.get(id=1)
+
+    # Create a bug entry that pass with MySQL and fails with Postgres
+    Bugscache.objects.create(
+        id=1775819,
+        status="2",
+        keywords="intermittent-failure,intermittent-testcase",
+        summary=(
+            "Intermittent browser/components/urlbar/tests/browser/browser_switchTab_inputHistory.js "
+            "| single tracking bug"
+        ),
+        modified="2010-01-01 00:00:00",
+    )
+    error = job.text_log_error.first()
+    summary, line_cache = bug_suggestions_line(
+        error,
+        project=job.repository,
+        logdate=job.submit_time,
+        term_cache={},
+        line_cache={str(job.submit_time.date()): {}},
+        revision=job.push.revision,
+    )
+    assert summary["bugs"]["open_recent"] == [
+        {
+            "crash_signature": "",
+            "dupe_of": None,
+            "id": 1775819,
+            "keywords": "intermittent-failure,intermittent-testcase",
+            "resolution": "",
+            "status": "2",
+            "whiteboard": "",
+            "summary": (
+                "Intermittent "
+                "browser/components/urlbar/tests/browser/browser_switchTab_inputHistory.js "
+                "| single tracking bug"
+            ),
+        }
+    ]
