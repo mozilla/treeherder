@@ -12,12 +12,12 @@ warnings.filterwarnings("ignore", category=DeprecationWarning, module="newrelic"
 import newrelic.agent
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MinLengthValidator
 from django.db import models, transaction
 from django.db.models import Count, Max, Min, Q, Subquery
+from django.contrib.postgres.search import TrigramSimilarity
 from django.db.utils import ProgrammingError
 from django.forms import model_to_dict
 from django.utils import timezone
@@ -275,12 +275,15 @@ class Bugscache(models.Model):
                 [search_term_fulltext, search_term_like, max_size],
             )
         else:
-            # On PostgreSQL we can use the full text search features
-            vector = SearchVector("summary")
-            query = SearchQuery(search_term_fulltext)
-            recent_qs = Bugscache.objects.annotate(rank=SearchRank(vector, query)).order_by(
-                "-rank", "id"
-            )[0:max_size]
+            # On PostgreSQL we can use the ORM directly, but NOT the full text search
+            # as the ranking algorithm expects english words, not paths
+            # So we use standard pattern matching AND trigram similarity to compare suite of characters
+            # instead of words
+            recent_qs = (
+                Bugscache.objects.filter(summary__icontains=search_term_fulltext)
+                .annotate(similarity=TrigramSimilarity("summary", search_term_fulltext))
+                .order_by("-similarity")[0:max_size]
+            )
 
         exclude_fields = ["modified", "processed_update"]
         try:
