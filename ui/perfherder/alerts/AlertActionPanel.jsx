@@ -11,7 +11,7 @@ import {
 
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import { alertStatusMap } from '../perf-helpers/constants';
-import { modifyAlert, modifyAlertSummary } from '../perf-helpers/helpers';
+import { modifyAlert } from '../perf-helpers/helpers';
 import { processErrors } from '../../helpers/http';
 
 import AlertModal from './AlertModal';
@@ -121,7 +121,6 @@ export default class AlertActionPanel extends React.Component {
     await this.modifySelectedAlerts(selectedAlerts, {
       status: alertStatusMap[newStatus],
     });
-    modifyAlertSummary(alertSummary.id);
 
     const untriagedAlerts = alertSummary.alerts.filter(
       (alert) => alert.status === 0,
