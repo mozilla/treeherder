@@ -248,11 +248,11 @@ class Bugscache(models.Model):
     def search(cls, search_term):
         max_size = 50
 
-        # Do not wrap a string in quotes to search as a phrase;
-        # see https://bugzilla.mozilla.org/show_bug.cgi?id=1704311
-        search_term_fulltext = cls.sanitized_search_term(search_term)
-
         if settings.DATABASES["default"]["ENGINE"] == "django.db.backends.mysql":
+            # Do not wrap a string in quotes to search as a phrase;
+            # see https://bugzilla.mozilla.org/show_bug.cgi?id=1704311
+            search_term_fulltext = cls.sanitized_search_term(search_term)
+
             # Substitute escape and wildcard characters, so the search term is used
             # literally in the LIKE statement.
             search_term_like = (
@@ -279,10 +279,11 @@ class Bugscache(models.Model):
             # as the ranking algorithm expects english words, not paths
             # So we use standard pattern matching AND trigram similarity to compare suite of characters
             # instead of words
+            # Django already escapes special characters, so we do not need to handle that here
             recent_qs = (
-                Bugscache.objects.filter(summary__icontains=search_term_fulltext)
-                .annotate(similarity=TrigramSimilarity("summary", search_term_fulltext))
-                .order_by("-similarity")[0:max_size]
+                Bugscache.objects.filter(summary__icontains=search_term)
+                .annotate(similarity=TrigramSimilarity("summary", search_term))
+                .order_by("similarity")[0:max_size]
             )
 
         exclude_fields = ["modified", "processed_update"]
