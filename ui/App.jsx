@@ -99,7 +99,16 @@ const faviconPaths = {
 };
 
 const withFavicon = (element, route) => {
-  const { title, favicon } = faviconPaths[route];
+  let { title } = faviconPaths[route];
+  const { favicon } = faviconPaths[route];
+
+  const searchParams = new URLSearchParams(history.location.search);
+  const id = searchParams.get('id');
+
+  if (history.location.pathname === '/perfherder/alerts' && id) {
+    title = `Alert #${id.toString()}`;
+  }
+
   return (
     <React.Fragment>
       <Helmet defaultTitle={title}>
