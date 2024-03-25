@@ -99,6 +99,26 @@ def test_bug_suggestion_line(
         ),
         modified="2010-01-01 00:00:00",
     )
+
+    # Create 50 other results with an inferior ID.
+    # The bug suggestions SQL query fetches up to 50 rows, ordered by match rank then ID.
+    # In case results are returned with a wrong rank (e.g. 0 for each result), above related suggestion will be lost.
+    Bugscache.objects.bulk_create(
+        [
+            Bugscache(
+                id=100 + i,
+                status="2",
+                keywords="intermittent-failure,intermittent-testcase",
+                summary=(
+                    f"Intermittent browser/components/urlbar/tests/browser/browser_unrelated_{i}.js "
+                    "| single tracking bug"
+                ),
+                modified="2010-01-01 00:00:00",
+            )
+            for i in range(50)
+        ]
+    )
+
     error = job.text_log_error.first()
     summary, line_cache = bug_suggestions_line(
         error,
