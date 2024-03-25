@@ -388,9 +388,9 @@ django-redis==5.4.0 \
     --hash=sha256:6a02abaa34b0fea8bf9b707d2c363ab6adc7409950b2db93602e6cb292818c42 \
     --hash=sha256:ebc88df7da810732e2af9987f7f426c96204bf89319df4c6da6ca9a2942edd5b
     # via -r requirements/common.in
-djangorestframework==3.15.0 \
-    --hash=sha256:3f4a263012e1b263bf49a4907eb4cfe14de840a09b1ba64596d01a9c54835919 \
-    --hash=sha256:5fa616048a7ec287fdaab3148aa5151efb73f7f8be1e23a9d18484e61e672695
+djangorestframework==3.15.1 \
+    --hash=sha256:3ccc0475bce968608cf30d07fb17d8e52d1d7fc8bfe779c905463200750cbca6 \
+    --hash=sha256:f88fad74183dfc7144b2756d0d2ac716ea5b4c7c9840995ac3bfd8ec034333c1
     # via -r requirements/common.in
 dockerflow==2024.3.0 \
     --hash=sha256:96678b00636dfd61fccf08f5f4102d0444e43bec3f8850175a060d8e83559e4c \
