@@ -283,7 +283,7 @@ class Bugscache(models.Model):
             recent_qs = (
                 Bugscache.objects.filter(summary__icontains=search_term)
                 .annotate(similarity=TrigramSimilarity("summary", search_term))
-                .order_by("similarity")[0:max_size]
+                .order_by("-similarity")[0:max_size]
             )
 
         exclude_fields = ["modified", "processed_update"]
