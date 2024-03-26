@@ -79,8 +79,7 @@ const fetchGeckoDecisionArtifact = async (project, revision, filePath) => {
   if (url.endsWith('.gz')) {
     if ([200, 303, 304].includes(response.status)) {
       const blob = await response.blob();
-      const binData = await blob.arrayBuffer();
-      artifactContents = await decompress(binData);
+      artifactContents = await decompress(blob);
     }
   } else if (url.endsWith('.json')) {
     if ([200, 303, 304].includes(response.status)) {
