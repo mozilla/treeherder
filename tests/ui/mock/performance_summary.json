@@ -54,6 +54,14 @@
         "push_timestamp": "2019-08-11T09:56:40",
         "push_id": 530521,
         "revision": "e8fe8b0af1a7a0c64d28b4e08a9c5509d916759f"
+      },
+      {
+        "job_id": 260895769,
+        "id": 887279309,
+        "value": 211.24042970178886,
+        "push_timestamp": "2019-08-09T21:57:48",
+        "push_id": 477720,
+        "revision": "3afb892abb74c6d281f3e66431408cbb2e16b8c5"
       }
     ]
   }
