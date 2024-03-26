@@ -77,8 +77,10 @@ def test_bug_suggestion_line(
     search_mock, failure_classifications, jobs_with_local_log, sample_push, test_repository
 ):
     """
-    A test to reproduce a search issue with PostgreSQL
-    https://github.com/mozilla/treeherder/pull/7986
+    A test to verify similarity of search term (often test name) derived from
+    the failure line and bug summary gets taken into account. If it is equal
+    for every bug, the expected result won't be returned by the query because
+    of its higher bug ID.
     """
     store_push_data(test_repository, sample_push)
     for job in jobs_with_local_log:
@@ -88,7 +90,6 @@ def test_bug_suggestion_line(
 
     job = Job.objects.get(id=1)
 
-    # Create a bug entry that pass with MySQL and fails with Postgres
     Bugscache.objects.create(
         id=1775819,
         status="2",
