@@ -12,12 +12,12 @@ warnings.filterwarnings("ignore", category=DeprecationWarning, module="newrelic"
 import newrelic.agent
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MinLengthValidator
 from django.db import models, transaction
 from django.db.models import Count, Max, Min, Q, Subquery
+from django.contrib.postgres.search import TrigramSimilarity
 from django.db.utils import ProgrammingError
 from django.forms import model_to_dict
 from django.utils import timezone
@@ -248,11 +248,11 @@ class Bugscache(models.Model):
     def search(cls, search_term):
         max_size = 50
 
-        # Do not wrap a string in quotes to search as a phrase;
-        # see https://bugzilla.mozilla.org/show_bug.cgi?id=1704311
-        search_term_fulltext = cls.sanitized_search_term(search_term)
-
         if settings.DATABASES["default"]["ENGINE"] == "django.db.backends.mysql":
+            # Do not wrap a string in quotes to search as a phrase;
+            # see https://bugzilla.mozilla.org/show_bug.cgi?id=1704311
+            search_term_fulltext = cls.sanitized_search_term(search_term)
+
             # Substitute escape and wildcard characters, so the search term is used
             # literally in the LIKE statement.
             search_term_like = (
@@ -275,12 +275,16 @@ class Bugscache(models.Model):
                 [search_term_fulltext, search_term_like, max_size],
             )
         else:
-            # On PostgreSQL we can use the full text search features
-            vector = SearchVector("summary")
-            query = SearchQuery(search_term_fulltext)
-            recent_qs = Bugscache.objects.annotate(rank=SearchRank(vector, query)).order_by(
-                "-rank", "id"
-            )[0:max_size]
+            # On PostgreSQL we can use the ORM directly, but NOT the full text search
+            # as the ranking algorithm expects english words, not paths
+            # So we use standard pattern matching AND trigram similarity to compare suite of characters
+            # instead of words
+            # Django already escapes special characters, so we do not need to handle that here
+            recent_qs = (
+                Bugscache.objects.filter(summary__icontains=search_term)
+                .annotate(similarity=TrigramSimilarity("summary", search_term))
+                .order_by("-similarity")[0:max_size]
+            )
 
         exclude_fields = ["modified", "processed_update"]
         try:
