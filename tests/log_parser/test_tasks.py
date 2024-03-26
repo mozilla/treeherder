@@ -69,8 +69,8 @@ def test_create_error_summary(
 @patch(
     "treeherder.model.error_summary.get_error_search_term_and_path",
     return_value={
-        "search_term": ["browser_switchTab_inputHistory.js"],
-        "path_end": "browser/components/urlbar/tests/browser/browser_switchTab_inputHistory.js",
+        "search_term": ["browser_dbg-pretty-print-inline-scripts.js"],
+        "path_end": "devtools/client/debugger/test/mochitest/browser_dbg-pretty-print-inline-scripts.js",
     },
 )
 def test_bug_suggestion_line(
@@ -92,9 +92,10 @@ def test_bug_suggestion_line(
     Bugscache.objects.create(
         id=1775819,
         status="2",
-        keywords="intermittent-failure,intermittent-testcase",
+        keywords="intermittent-failure,regression,test-verify-fail",
+        whiteboard="[retriggered][stockwell unknown]",
         summary=(
-            "Intermittent browser/components/urlbar/tests/browser/browser_switchTab_inputHistory.js "
+            "Intermittent devtools/client/debugger/test/mochitest/browser_dbg-pretty-print-inline-scripts.js "
             "| single tracking bug"
         ),
         modified="2010-01-01 00:00:00",
@@ -110,7 +111,7 @@ def test_bug_suggestion_line(
                 status="2",
                 keywords="intermittent-failure,intermittent-testcase",
                 summary=(
-                    f"Intermittent browser/components/urlbar/tests/browser/browser_unrelated_{i}.js "
+                    f"Intermittent devtools/client/debugger/test/mochitest/browser_unrelated-{i}.js "
                     "| single tracking bug"
                 ),
                 modified="2010-01-01 00:00:00",
@@ -133,13 +134,13 @@ def test_bug_suggestion_line(
             "crash_signature": "",
             "dupe_of": None,
             "id": 1775819,
-            "keywords": "intermittent-failure,intermittent-testcase",
+            "keywords": "intermittent-failure,regression,test-verify-fail",
             "resolution": "",
             "status": "2",
-            "whiteboard": "",
+            "whiteboard": "[retriggered][stockwell unknown]",
             "summary": (
                 "Intermittent "
-                "browser/components/urlbar/tests/browser/browser_switchTab_inputHistory.js "
+                "devtools/client/debugger/test/mochitest/browser_dbg-pretty-print-inline-scripts.js "
                 "| single tracking bug"
             ),
         }
