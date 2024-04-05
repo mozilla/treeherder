@@ -19,7 +19,7 @@ from treeherder.config.settings import GITHUB_TOKEN
 from treeherder.etl.job_loader import JobLoader, MissingPushError
 from treeherder.etl.push_loader import PushLoader
 from treeherder.etl.pushlog import HgPushlogProcess, last_push_id_from_server
-from treeherder.etl.taskcluster_pulse.handler import EXCHANGE_EVENT_MAP, handleMessage
+from treeherder.etl.taskcluster_pulse.handler import EXCHANGE_EVENT_MAP, handle_message
 from treeherder.model.models import Repository
 from treeherder.utils import github
 from treeherder.utils.github import fetch_json
@@ -148,7 +148,7 @@ async def handle_task(task, root_url):
         }
 
         try:
-            task_runs = await handleMessage(message, task["task"])
+            task_runs = await handle_message(message, task["task"])
         except Exception as e:
             logger.exception(e)
 
