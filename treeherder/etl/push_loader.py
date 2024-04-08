@@ -46,7 +46,7 @@ class PushLoader:
         transformed_data = transformer.transform(repo.name)
 
         logger.info(
-            "Storing push for %s %s %s", repo.name, transformer.repo_url, transformer.branch
+            f"Storing push for repository '{repo.name}' revision '{transformed_data['revision']}' branch '{transformer.branch}' url {transformer.repo_url}",
         )
         store_push_data(repo, [transformed_data])
 
