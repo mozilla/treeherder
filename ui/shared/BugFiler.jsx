@@ -287,9 +287,9 @@ export class BugFilerClass extends React.Component {
   }
 
   getCrashSignatures(failureLine) {
-    const crashRegex = /application crashed \[@ (.+)\]/g;
-    const crash = failureLine.search.match(crashRegex);
-    return crash ? [crash[0].split('application crashed ')[1]] : [];
+    const crashRegex = /(\[@ .+\])/g;
+    const crashSignatures = failureLine.search.match(crashRegex);
+    return crashSignatures ? [crashSignatures[0]] : [];
   }
 
   getUnhelpfulSummaryReason(summary) {
