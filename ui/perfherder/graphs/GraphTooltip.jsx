@@ -276,6 +276,11 @@ const GraphTooltip = ({
                     </span>
                   )}
                 </span>
+                <Clipboard
+                  text={dataPointDetails.alertSummary.id.toString()}
+                  description="Alert Summary id"
+                  outline
+                />
               </p>
             )}
             {isCommonAlert && !dataPointDetails.alertSummary && (
@@ -292,6 +297,11 @@ const GraphTooltip = ({
                   {` Alert # ${datum.commonAlert.id}`}
                 </Link>
                 <span className="text-muted">{` - ${commonAlertStatus} `}</span>
+                <Clipboard
+                  text={datum.commonAlert.id.toString()}
+                  description="Alert Summary id"
+                  outline
+                />
                 <p className="small text-danger">Common alert</p>
               </p>
             )}

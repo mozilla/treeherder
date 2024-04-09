@@ -6,6 +6,7 @@ import {
   waitFor,
   waitForElementToBeRemoved,
 } from '@testing-library/react';
+import { BrowserRouter as Router } from 'react-router-dom';
 import fetchMock from 'fetch-mock';
 import queryString from 'query-string';
 
@@ -17,6 +18,7 @@ import {
 import GraphsViewControls from '../../../../ui/perfherder/graphs/GraphsViewControls';
 import repos from '../../mock/repositories';
 import testData from '../../mock/performance_summary.json';
+import alertSummaries from '../../mock/alert_summaries.json';
 import changelogData from '../../mock/infra_changelog.json';
 import seriesData from '../../mock/performance_signature_formatted.json';
 import seriesData2 from '../../mock/performance_signature_formatted2.json';
@@ -33,7 +35,7 @@ fetchMock.mock(`begin:${getApiUrl(endpoints.changelog)}`, changelogData);
 
 const graphData = createGraphData(
   testData,
-  [],
+  alertSummaries,
   [...graphColors],
   [...graphSymbols],
   [...commonAlerts],
@@ -76,37 +78,40 @@ const graphsViewControls = (
   hasNoData = true,
   replicates = false,
   handleUpdateStateParams,
+  selectedDataPoint = {
+    signature_id: testData[0].signature_id,
+    dataPointId: testData[0].data[1].id,
+  },
 ) => {
   const updateStateParams = () => {};
 
   return render(
-    <GraphsViewControls
-      updateStateParams={handleUpdateStateParams || updateStateParams}
-      highlightAlerts={false}
-      highlightChangelogData
-      highlightedRevisions={['', '']}
-      updateTimeRange={() => {}}
-      hasNoData={hasNoData}
-      frameworks={frameworks}
-      projects={repos}
-      timeRange={{ value: 172800, text: 'Last two days' }}
-      options={{}}
-      getTestData={() => {}}
-      testData={data}
-      getInitialData={() => ({
-        platforms,
-      })}
-      getSeriesData={mockGetSeriesData}
-      showModal={Boolean(mockShowModal)}
-      toggle={mockShowModal}
-      selectedDataPoint={{
-        signature_id: testData[0].signature_id,
-        dataPointId: testData[0].data[1].id,
-      }}
-      user={{ isStaff: true }}
-      updateData={() => {}}
-      replicates={replicates}
-    />,
+    <Router>
+      <GraphsViewControls
+        updateStateParams={handleUpdateStateParams || updateStateParams}
+        highlightAlerts={false}
+        highlightChangelogData
+        highlightedRevisions={['', '']}
+        updateTimeRange={() => {}}
+        hasNoData={hasNoData}
+        frameworks={frameworks}
+        projects={repos}
+        timeRange={{ value: 172800, text: 'Last two days' }}
+        options={{}}
+        getTestData={() => {}}
+        testData={data}
+        getInitialData={() => ({
+          platforms,
+        })}
+        getSeriesData={mockGetSeriesData}
+        showModal={Boolean(mockShowModal)}
+        toggle={mockShowModal}
+        selectedDataPoint={selectedDataPoint}
+        user={{ isStaff: true }}
+        updateData={() => {}}
+        replicates={replicates}
+      />
+    </Router>,
   );
 };
 afterEach(cleanup);
@@ -214,6 +219,42 @@ test('Using select query param displays tooltip for correct datapoint', async ()
   expect(revision).toBeInTheDocument();
   expect(repoName).toHaveTextContent(testData[0].repository_name);
   expect(platform).toHaveTextContent(testData[0].platform);
+});
+
+test("Alert's ID can be copied to clipboard from tooltip", async () => {
+  const selectedDataPoint = {
+    signature_id: testData[0].signature_id,
+    dataPointId: testData[0].data[5].id,
+  };
+
+  Object.assign(navigator, {
+    clipboard: {
+      writeText: jest.fn(),
+    },
+  });
+  const { getByTestId, queryByTitle } = graphsViewControls(
+    graphData,
+    false,
+    undefined,
+    undefined,
+    selectedDataPoint,
+  );
+
+  const graphContainer = await waitFor(() => getByTestId('graphContainer'));
+  expect(graphContainer).toBeInTheDocument();
+
+  const graphTooltip = await waitFor(() => getByTestId('graphTooltip'));
+  expect(graphTooltip).toBeInTheDocument();
+
+  const copyIdButton = await waitFor(() =>
+    queryByTitle('Copy Alert Summary id'),
+  );
+  expect(copyIdButton).toBeInTheDocument();
+
+  fireEvent.click(copyIdButton);
+
+  const alertID = alertSummaries[0].id;
+  expect(navigator.clipboard.writeText).toHaveBeenCalledWith(`${alertID}`);
 });
 
 test('Using select query param displays tooltip for correct datapoint with replicates', async () => {
