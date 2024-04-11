@@ -161,18 +161,39 @@ export default class StatusDropdown extends React.Component {
   };
 
   copySummary = async () => {
-    const { filteredAlerts, alertSummary, frameworks } = this.props;
+    const { alertSummary, repoModel, filteredAlerts, frameworks } = this.props;
     const { browsertimeAlertsExtraData } = this.state;
     const textualSummary = new TextualSummary(
       frameworks,
       filteredAlerts,
       alertSummary,
-      true,
+      null,
       await browsertimeAlertsExtraData.enrichAndRetrieveAlerts(),
     );
+
+    const templateArgs = {
+      bugType: 'defect',
+      framework: getFrameworkName(frameworks, alertSummary.framework),
+      revision: alertSummary.revision,
+      revisionHref: repoModel.getPushLogHref(alertSummary.revision),
+      alertHref: `${window.location.origin}/perfherder/alerts?id=${alertSummary.id}`,
+      alertSummary: textualSummary.markdown,
+      alertSummaryId: alertSummary.id,
+    };
+    const containsRegression = textualSummary.alerts.some(
+      (item) => item.is_regression === true,
+    );
+    const templateText = containsRegression
+      ? 'Perfherder has detected a {{ framework }} performance change from push [{{ revision }}]({{ revisionHref }}).\n\n{{ alertSummary }}\n\nAs author of one of the patches included in that push, we need your help to address this regression.\nDetails of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests. Please follow our [guide to handling regression bugs](https://wiki.mozilla.org/TestEngineering/Performance/Handling_regression_bugs) and **let us know your plans within 3 business days, or the patch(es) may be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).\n\nIf you need the profiling jobs you can trigger them yourself from treeherder job view or ask a sheriff to do that for you.\n\nYou can run these tests on try with `./mach try perf --alert {{ alertSummaryId }}`\n\nFor more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).\n'
+      : 'Perfherder has detected a {{ framework }} performance change from push [{{ revision }}]({{ revisionHref }}).\n\n{{ alertSummary }}\n\nDetails of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests.\n\nIf you need the profiling jobs you can trigger them yourself from treeherder job view or ask a sheriff to do that for you.\n\nYou can run these tests on try with `./mach try perf --alert {{ alertSummaryId }}`\n\nFor more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).\n';
+
+    templateSettings.interpolate = /{{([\s\S]+?)}}/g;
+    const fillTemplate = template(templateText);
+    const commentText = fillTemplate(templateArgs);
+
     // can't access the clipboardData on event unless it's done from react's
     // onCopy, onCut or onPaste props so using this workaround
-    navigator.clipboard.writeText(textualSummary.markdown).then(() => {});
+    navigator.clipboard.writeText(commentText).then(() => {});
   };
 
   toggle = (state) => {
