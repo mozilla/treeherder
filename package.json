@@ -86,7 +86,7 @@
     "@pollyjs/core": "5.1.1",
     "@pollyjs/persister-fs": "6.0.6",
     "@testing-library/jest-dom": "6.1.6",
-    "@testing-library/react": "12.0.0",
+    "@testing-library/react": "14.3.0",
     "babel-loader": "9.1.3",
     "clean-webpack-plugin": "4.0.0",
     "copy-webpack-plugin": "11.0.0",
