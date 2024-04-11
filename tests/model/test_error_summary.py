@@ -19,6 +19,18 @@ LINE_CLEANING_TEST_CASES = (
             "/builds/worker/checkouts/gecko/xpcom/threads/TimerThread.cpp:434"
         ),
     ),
+    (
+        (
+            "17:22:43 INFO - PID 2944 | [6132] Assertion failure: XRE_IsGPUProcess()"
+            " || gfxPlatform::GetPlatform()->DevicesInitialized(),"
+            " at /builds/worker/checkouts/gecko/gfx/thebes/DeviceManagerDx.cpp:1320"
+        ),
+        (
+            "Assertion failure: XRE_IsGPUProcess()"
+            " || gfxPlatform::GetPlatform()->DevicesInitialized(),"
+            " at /builds/worker/checkouts/gecko/gfx/thebes/DeviceManagerDx.cpp:1320"
+        ),
+    ),
 )
 
 
