@@ -20,7 +20,8 @@ LEAK_RE = re.compile(r"\d+ bytes leaked \((.+)\)$|leak at (.+)$")
 CRASH_RE = re.compile(r".+ application crashed \[@ (.+)\] \|.+")
 MOZHARNESS_RE = re.compile(r"^\d+:\d+:\d+[ ]+(?:DEBUG|INFO|WARNING|ERROR|CRITICAL|FATAL) - [ ]?")
 MARIONETTE_RE = re.compile(r".+marionette([_harness/]?).*/test_.+.py ([A-Za-z]+).+")
-PROCESS_ID_RE = re.compile(r"(?:PID \d+|GECKO\(\d+\)) \| +")
+PROCESS_ID_RE_1 = re.compile(r"(?:PID \d+|GECKO\(\d+\)) \| +")
+PROCESS_ID_RE_2 = re.compile(r"^\[\d+\] +")
 REFTEST_RE = re.compile(r"\s+[=!]=\s+.*")
 PREFIX_PATTERN = r"^(TEST-UNEXPECTED-\S+|PROCESS-CRASH)\s+\|\s+"
 
@@ -196,9 +197,10 @@ def bug_suggestions_line(
 
 
 def get_cleaned_line(line):
-    """Strip possible mozharness bits from the given line."""
+    """Strip possible unwanted information from the given line."""
     line_to_clean = MOZHARNESS_RE.sub("", line).strip()
-    return PROCESS_ID_RE.sub("", line_to_clean)
+    line_to_clean = PROCESS_ID_RE_1.sub("", line_to_clean)
+    return PROCESS_ID_RE_2.sub("", line_to_clean)
 
 
 def cache_clean_error_line(line):
