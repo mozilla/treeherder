@@ -1833,13 +1833,12 @@
   dependencies:
     "@types/whatwg-streams" "^0.0.7"
 
-"@mozilla/glean@2.0.5":
-  version "2.0.5"
-  resolved "https://registry.yarnpkg.com/@mozilla/glean/-/glean-2.0.5.tgz#20679c244c10710a54b98a72e0b20773932a3bdd"
-  integrity sha512-9OKK+bUuhfIrDOt5CK/mXQdZ76uSjX68H25JlX0yXBw0b8k+Ft1vdA7ToTjlL4vkgrOymhPLfwMCmEsc1/kX5Q==
+"@mozilla/glean@5.0.0":
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/@mozilla/glean/-/glean-5.0.0.tgz#ded7afd60ce7b3a63714545f1b410eb129c1d922"
+  integrity sha512-DstT6PI8QTixlULf7Is277sEmpX61Dz+z/7rtxQBBFwGaPsvWJJsMsnNysNtSzSESIlcXoPbdPZ9RoXOcHuSlA==
   dependencies:
     fflate "^0.8.0"
-    jose "^4.0.4"
     tslib "^2.3.1"
     uuid "^9.0.0"
 
@@ -7044,11 +7043,6 @@ joi@^17.11.0:
     "@sideway/address" "^4.1.5"
     "@sideway/formula" "^3.0.1"
     "@sideway/pinpoint" "^2.0.0"
-
-jose@^4.0.4:
-  version "4.15.5"
-  resolved "https://registry.yarnpkg.com/jose/-/jose-4.15.5.tgz#6475d0f467ecd3c630a1b5dadd2735a7288df706"
-  integrity sha512-jc7BFxgKPKi94uOvEmzlSWFFe2+vASyXaKUpdQKatWAESU2MWjDfFf0fdfc83CDKcA5QecabZeNLyfhe3yKNkg==
 
 js-cookie@3.0.5:
   version "3.0.5"
