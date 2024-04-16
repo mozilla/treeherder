@@ -516,10 +516,10 @@ test('setting an assignee on an already assigned summary is possible', async () 
 
   fireEvent.click(unassignedBadge);
   const inputField = await waitFor(() =>
-    getByDisplayValue('mozilla-ldap/test_user@mozilla.com'),
+    getByDisplayValue('test_user@mozilla.com'),
   );
   fireEvent.change(inputField, {
-    target: { value: 'mozilla-ldap/test_another_user@mozilla.com' },
+    target: { value: 'test_another_user@mozilla.com' },
   });
   // pressing 'Enter' has some issues on react-testing-library;
   // found workaround on https://github.com/testing-library/react-testing-library/issues/269
@@ -536,7 +536,7 @@ test("'Escape' from partially editted assignee does not update original assignee
 
   fireEvent.click(unassignedBadge);
   const inputField = await waitFor(() =>
-    getByDisplayValue('mozilla-ldap/test_user@mozilla.com'),
+    getByDisplayValue('test_user@mozilla.com'),
   );
   fireEvent.change(inputField, {
     target: { value: 'mozilla-ldap/test_another_' },
@@ -559,7 +559,7 @@ test("Clicking on 'Take' prefills with logged in user", async () => {
   fireEvent.click(takeButton);
 
   // ensure it preffiled input field
-  await waitFor(() => getByDisplayValue('mozilla-ldap/test_user@mozilla.com'));
+  await waitFor(() => getByDisplayValue('test_user@mozilla.com'));
 });
 
 test('Alerts retriggered by the backfill bot have a title', async () => {

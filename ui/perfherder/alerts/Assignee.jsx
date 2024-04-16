@@ -33,7 +33,9 @@ export default class Assignee extends React.Component {
         inEditMode: true,
         // input prefills with this field, so
         // we must have it prepared
-        newAssigneeUsername: assigneeUsername,
+        newAssigneeUsername: assigneeUsername
+          ? assigneeUsername.split('/')[1]
+          : assigneeUsername,
       });
     }
   };
@@ -43,11 +45,13 @@ export default class Assignee extends React.Component {
   };
 
   pressedEnter = async (event) => {
-    event.preventDefault();
     if (event.key === 'Enter') {
+      event.preventDefault();
       const { updateAssignee } = this.props;
-      const newAssigneeUsername = event.target.value;
-
+      const newAssigneeUsername =
+        event.target.value !== ''
+          ? `mozilla-ldap/${event.target.value}`
+          : event.target.value;
       const { failureStatus } = await updateAssignee(newAssigneeUsername);
 
       if (!failureStatus) {
@@ -63,7 +67,7 @@ export default class Assignee extends React.Component {
     const { user } = this.props;
 
     this.setState({
-      newAssigneeUsername: user.username,
+      newAssigneeUsername: user.username.split('/')[1],
       inEditMode: true,
     });
   };
