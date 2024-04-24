@@ -167,18 +167,18 @@ describe('BugFiler', () => {
     const rawSummary =
       'PROCESS-CRASH | browser/components/search/test/browser_searchbar_smallpanel_keyboard_navigation.js | application crashed [@ js::GCMarker::eagerlyMarkChildren]';
     const expected =
-      'browser/components/search/test/browser_searchbar_smallpanel_keyboard_navigation.js';
+      'Intermittent browser/components/search/test/browser_searchbar_smallpanel_keyboard_navigation.js | single tracking bug';
     const displayed = SummaryAndExpected(rawSummary);
-    expect(displayed).toBeInTheDocument(expected);
+    expect(displayed).toHaveValue(expected);
   });
 
   test('should parse mochitest-bc summaries', () => {
     const rawSummary =
       'browser/components/sessionstore/test/browser_625016.js | observe1: 1 window in data written to disk - Got 0, expected 1';
     const expected =
-      'browser/components/sessionstore/test/browser_625016.js | observe1: 1 window in data written to disk - Got 0, expected 1';
+      'Intermittent browser/components/sessionstore/test/browser_625016.js | single tracking bug';
     const displayed = SummaryAndExpected(rawSummary);
-    expect(displayed).toBeInTheDocument(expected);
+    expect(displayed).toHaveValue(expected);
   });
 
   test('should parse accessibility summaries', () => {
@@ -187,73 +187,72 @@ describe('BugFiler', () => {
       ' | uncaught exception - TypeError: this.textbox.popup.oneOffButtons is undefined at ' +
       'searchbar_XBL_Constructor@chrome://browser/content/search/search.xml:95:9';
     const expected =
-      'accessible/tests/mochitest/states/test_expandable.xul | uncaught exception - TypeError: this.textbox.popup.oneOffButtons is undefined at ' +
-      'searchbar_XBL_Constructor@chrome://browser/content/search/search.xml:95:9';
+      'Intermittent accessible/tests/mochitest/states/test_expandable.xul | uncaught exception - TypeError: this.textbox.popup.oneOffButtons is undefined at searchbar_XBL_Constructor@chrome://browser/content/search/search.xml:95:9';
     const displayed = SummaryAndExpected(rawSummary);
-    expect(displayed).toBeInTheDocument(expected);
+    expect(displayed).toHaveValue(expected);
   });
 
   test('should parse xpcshell summaries', () => {
     const rawSummary =
       'xpcshell-child-process.ini:dom/indexedDB/test/unit/test_rename_objectStore_errors.js | application crashed [@ mozalloc_abort(char const*)]';
     const expected =
-      'dom/indexedDB/test/unit/test_rename_objectStore_errors.js | application crashed [@ mozalloc_abort(char const*)]';
+      'Intermittent dom/indexedDB/test/unit/test_rename_objectStore_errors.js | single tracking bug';
     const displayed = SummaryAndExpected(rawSummary);
-    expect(displayed).toBeInTheDocument(expected);
+    expect(displayed).toHaveValue(expected);
   });
 
   test('should parse xpcshell unpack summaries', () => {
     const rawSummary =
       'xpcshell-unpack.ini:dom/indexedDB/test/unit/test_rename_objectStore_errors.js | application crashed [@ mozalloc_abort(char const*)]';
     const expected =
-      'dom/indexedDB/test/unit/test_rename_objectStore_errors.js | application crashed [@ mozalloc_abort(char const*)]';
+      'Intermittent dom/indexedDB/test/unit/test_rename_objectStore_errors.js | single tracking bug';
     const displayed = SummaryAndExpected(rawSummary);
-    expect(displayed).toBeInTheDocument(expected);
+    expect(displayed).toHaveValue(expected);
   });
 
   test('should parse xpcshell dom summaries', () => {
     const rawSummary =
       'xpcshell.ini:dom/indexedDB/test/unit/test_rename_objectStore_errors.js | application crashed [@ mozalloc_abort(char const*)]';
     const expected =
-      'dom/indexedDB/test/unit/test_rename_objectStore_errors.js | application crashed [@ mozalloc_abort(char const*)]';
+      'Intermittent dom/indexedDB/test/unit/test_rename_objectStore_errors.js | single tracking bug';
     const displayed = SummaryAndExpected(rawSummary);
-    expect(displayed).toBeInTheDocument(expected);
+    expect(displayed).toHaveValue(expected);
   });
 
   test('should parse Windows reftests on C drive summaries', () => {
     const rawSummary =
       'file:///C:/slave/test/build/tests/reftest/tests/layout/reftests/w3c-css/submitted/variables/variable-supports-12.html | application timed out after 330 seconds with no output';
     const expected =
-      'layout/reftests/w3c-css/submitted/variables/variable-supports-12.html | application timed out after 330 seconds with no output';
+      'Intermittent layout/reftests/w3c-css/submitted/variables/variable-supports-12.html | application timed out after 330 seconds with no output';
     const displayed = SummaryAndExpected(rawSummary);
-    expect(displayed).toBeInTheDocument(expected);
+    expect(displayed).toHaveValue(expected);
   });
 
   test('should parse Linux reftest summaries', () => {
     const rawSummary =
       'file:///home/worker/workspace/build/tests/reftest/tests/image/test/reftest/encoders-lossless/size-7x7.png | application timed out after 330 seconds with no output';
     const expected =
-      'image/test/reftest/encoders-lossless/size-7x7.png | application timed out after 330 seconds with no output';
+      'Intermittent image/test/reftest/encoders-lossless/size-7x7.png | application timed out after 330 seconds with no output';
     const displayed = SummaryAndExpected(rawSummary);
-    expect(displayed).toBeInTheDocument(expected);
+    expect(displayed).toHaveValue(expected);
   });
 
   test('should parse Windows reftests on Z drive summaries', () => {
     const rawSummary =
       'file:///Z:/task_1491428153/build/tests/reftest/tests/layout/reftests/font-face/src-list-local-full.html == file:///Z:/task_1491428153/build/tests/reftest/tests/layout/reftests/font-face/src-list-local-full-ref.html | image comparison, max difference: 255, number of differing pixels: 5184';
     const expected =
-      'layout/reftests/font-face/src-list-local-full.html == layout/reftests/font-face/src-list-local-full-ref.html | image comparison, max difference: 255, number of differing pixels: 5184';
+      'Intermittent layout/reftests/font-face/src-list-local-full.html == layout/reftests/font-face/src-list-local-full-ref.html | image comparison, max difference: 255, number of differing pixels: 5184';
     const displayed = SummaryAndExpected(rawSummary);
-    expect(displayed).toBeInTheDocument(expected);
+    expect(displayed).toHaveValue(expected);
   });
 
   test('should parse android reftests summaries', () => {
     const rawSummary =
       'http://10.0.2.2:8854/tests/layout/reftests/css-display/display-contents-style-inheritance-1.html == http://10.0.2.2:8854/tests/layout/reftests/css-display/display-contents-style-inheritance-1-ref.html | image comparison, max difference: 255, number of differing pixels: 699';
     const expected =
-      'layout/reftests/css-display/display-contents-style-inheritance-1.html == layout/reftests/css-display/display-contents-style-inheritance-1-ref.html | image comparison, max difference: 255, number of differing pixels: 699';
+      'Intermittent layout/reftests/css-display/display-contents-style-inheritance-1.html == layout/reftests/css-display/display-contents-style-inheritance-1-ref.html | image comparison, max difference: 255, number of differing pixels: 699';
     const displayed = SummaryAndExpected(rawSummary);
-    expect(displayed).toBeInTheDocument(expected);
+    expect(displayed).toHaveValue(expected);
   });
 
   test('should parse reftest unexpected pass summaries', () => {
@@ -262,7 +261,16 @@ describe('BugFiler', () => {
       'reftests/backgrounds/vector/empty/wide--cover--width.html == file:///home/worker/workspace/' +
       'build/tests/reftest/tests/layout/reftests/backgrounds/vector/empty/ref-wide-lime.html | image comparison';
     const expected =
-      'TEST-UNEXPECTED-PASS | layout/reftests/backgrounds/vector/empty/wide--cover--width.html == layout/reftests/backgrounds/vector/empty/ref-wide-lime.html | image comparison';
+      'Intermittent TEST-UNEXPECTED-PASS | layout/reftests/backgrounds/vector/empty/wide--cover--width.html == layout/reftests/backgrounds/vector/empty/ref-wide-lime.html | image comparison';
+    const displayed = SummaryAndExpected(rawSummary);
+    expect(displayed).toHaveValue(expected);
+  });
+
+  test('should use test name for unexpected crashes if signature missing', () => {
+    const rawSummary =
+      'TEST-UNEXPECTED-CRASH | /referrer-policy/gen/top.meta/never/sharedworker-module.http.html | expected OK';
+    const expected =
+      'Intermittent TEST-UNEXPECTED-CRASH | /referrer-policy/gen/top.meta/never/sharedworker-module.http.html | expected OK';
     const displayed = SummaryAndExpected(rawSummary);
     expect(displayed).toBeInTheDocument(expected);
   });
