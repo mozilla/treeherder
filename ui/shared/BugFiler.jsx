@@ -218,7 +218,7 @@ export class BugFilerClass extends React.Component {
         ].some((regexp) => regexp.test(summaryString));
       }
 
-      if (crashSignatures) {
+      if (crashSignatures.length > 0) {
         isTestPath = false;
         const parts = summaryString.split(' | ');
         summaryString = `${parts[0]} | single tracking bug`;
