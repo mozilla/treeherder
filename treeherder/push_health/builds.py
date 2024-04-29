@@ -4,7 +4,7 @@ from django.db.models import Q
 
 
 def get_build_failures(push):
-    build_types = JobType.objects.filter(Q(name__icontains=="build"))
+    build_types = JobType.objects.filter(Q(name__icontains="build"))
 
     build_results = Job.objects.filter(
         push=push,

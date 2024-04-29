@@ -100,8 +100,7 @@ def test_store_error_summary_astral(activate_responses, test_repository, test_jo
     assert failure.repository == test_repository
 
     assert (
-        failure.test
-        == "toolkit/content/tests/widgets/test_videocontrols_video_direction.html 🍆"
+        failure.test == "toolkit/content/tests/widgets/test_videocontrols_video_direction.html 🍆"
     )
     assert failure.subtest == "Test timed out. 𐂁"
     assert failure.message == "󰅑"

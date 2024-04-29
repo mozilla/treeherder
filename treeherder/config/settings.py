@@ -128,11 +128,11 @@ MIDDLEWARE = [
 #   'psql://username:password@host:optional_port/database_name'
 #
 # which django-environ converts into the Django DB settings dict format.
-LOCALHOST_PSQL_HOST = 'psql://postgres:mozilla1234@{}:5432/treeherder'.format(
-    'localhost' if IS_WINDOWS else '127.0.0.1'
+LOCALHOST_PSQL_HOST = "psql://postgres:mozilla1234@{}:5432/treeherder".format(
+    "localhost" if IS_WINDOWS else "127.0.0.1"
 )
 DATABASES = {
-    'default': env.db_url('DATABASE_URL', default=LOCALHOST_PSQL_HOST),
+    "default": env.db_url("DATABASE_URL", default=LOCALHOST_PSQL_HOST),
 }
 
 # Only used when syncing local database with production replicas
