@@ -34,7 +34,10 @@ class BugzillaViewSet(viewsets.ViewSet):
         ).encode("utf-8")
         summary = params.get("summary").encode("utf-8").strip()
         url = settings.BUGFILER_API_URL + "/rest/bug"
-        headers = {"x-bugzilla-api-key": settings.BUGFILER_API_KEY, "Accept": "application/json"}
+        headers = {
+            "x-bugzilla-api-key": settings.BUGFILER_API_KEY,
+            "Accept": "application/json",
+        }
         data = {
             "type": "defect",
             "product": params.get("product"),
@@ -51,6 +54,19 @@ class BugzillaViewSet(viewsets.ViewSet):
             "description": description,
             "comment_tags": "treeherder",
         }
+        if params.get("by_treeherder"):
+            data["type"] = params.get("type")
+            data["description"] = params.get("description").encode("utf-8")
+            data["cc"] = params.get("cc")
+            if params.get("needinfo_from"):
+                data["flags"] = [
+                    {
+                        "name": "needinfo",
+                        "status": "?",
+                        "requestee": params.get("needinfo_from"),
+                    }
+                ]
+
         if params.get("is_security_issue"):
             security_group_list = list(
                 BugzillaSecurityGroup.objects.filter(product=data.get("product")).values_list(

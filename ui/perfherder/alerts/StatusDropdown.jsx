@@ -17,14 +17,9 @@ import {
   getStatus,
   updateAlertSummary,
 } from '../perf-helpers/helpers';
-import { getData } from '../../helpers/http';
+import { getData, create } from '../../helpers/http';
 import TextualSummary from '../perf-helpers/textualSummary';
-import {
-  getApiUrl,
-  bzBaseUrl,
-  createQueryParams,
-  bugzillaBugsApi,
-} from '../../helpers/url';
+import { getApiUrl, bzBaseUrl, bugzillaBugsApi } from '../../helpers/url';
 import { summaryStatusMap } from '../perf-helpers/constants';
 import DropdownMenuItems from '../../shared/DropdownMenuItems';
 import BrowsertimeAlertsExtraData from '../../models/browsertimeAlertsExtraData';
@@ -50,6 +45,7 @@ export default class StatusDropdown extends React.Component {
         this.props.frameworks,
       ),
       isWeekend: isWeekend(),
+      fileBugErrorMessage: null,
     };
   }
 
@@ -58,13 +54,22 @@ export default class StatusDropdown extends React.Component {
     if (bugDetails.failureStatus) {
       return bugDetails;
     }
-    const bugData = bugDetails.data.bugs[0];
 
+    const bugData = bugDetails.data.bugs[0];
     const bugVersion = 'Default';
-    const needinfoFrom = bugData.assigned_to;
+
+    let needinfoFrom = '';
+    if (bugData.assigned_to !== 'nobody@mozilla.org') {
+      needinfoFrom = bugData.assigned_to;
+    } else {
+      const componentInfo = await getData(
+        bugzillaBugsApi(`component/${bugData.product}/${bugData.component}`),
+      );
+      needinfoFrom = componentInfo.data.triage_owner;
+    }
+
     // Using set because it doesn't keep duplicates by default
-    const ccList = new Set();
-    ccList.add(bugData.creator);
+    const ccList = new Set([bugData.creator]);
 
     return {
       bug_version: bugVersion,
@@ -122,42 +127,48 @@ export default class StatusDropdown extends React.Component {
     templateSettings.interpolate = /{{([\s\S]+?)}}/g;
     const fillTemplate = template(result.text);
     const commentText = fillTemplate(templateArgs);
-
     const bugTitle = `${getFilledBugSummary(alertSummary)}`;
-
     const culpritDetails = await this.getCulpritDetails(culpritId);
-    const defaultParams = {
-      bug_type: templateArgs.bugType,
+    let defaultParams = {
+      type: templateArgs.bugType,
       version: 'unspecified',
-      // result.cc_list is a string, not array
-      cc: result.cc_list,
-      comment: commentText,
+      cc: [result.cc_list],
+      description: commentText,
       component: result.default_component,
       product: result.default_product,
       keywords: result.keywords,
-      short_desc: bugTitle,
-      status_whiteboard: result.status_whiteboard,
+      summary: bugTitle,
+      whiteboard: result.status_whiteboard,
+      by_treeherder: true,
     };
 
-    if (culpritDetails.failureStatus) {
-      window.open(
-        `${bzBaseUrl}enter_bug.cgi${createQueryParams(defaultParams)}`,
-      );
-    } else {
+    if (!culpritDetails.failureStatus) {
       let cc = culpritDetails.ccList.add(result.cc_list);
       cc = Array.from(cc);
-      window.open(
-        `${bzBaseUrl}enter_bug.cgi${createQueryParams({
-          ...defaultParams,
-          cc,
-          needinfo_from: culpritDetails.needinfoFrom,
-          component: culpritDetails.component,
-          product: culpritDetails.product,
-          regressed_by: culpritId,
-          cf_has_regression_range: 'yes',
-        })}`,
-      );
+      defaultParams = {
+        ...defaultParams,
+        cc,
+        needinfo_from: culpritDetails.needinfoFrom,
+        component: culpritDetails.component,
+        product: culpritDetails.product,
+        regressed_by: culpritId,
+      };
     }
+
+    const createResult = await create(
+      getApiUrl('/bugzilla/create_bug/'),
+      defaultParams,
+    );
+    if (createResult.failureStatus) {
+      return {
+        failureStatus: createResult.failureStatus,
+        data: createResult.data,
+      };
+    }
+    window.open(`${bzBaseUrl}show_bug.cgi?id=${createResult.data.id}`);
+    return {
+      failureStatus: null,
+    };
   };
 
   copySummary = async () => {
@@ -200,6 +211,12 @@ export default class StatusDropdown extends React.Component {
     this.setState((prevState) => ({
       [state]: !prevState[state],
     }));
+
+    if (this.state.showFileBugModal) {
+      this.setState({
+        fileBugErrorMessage: null,
+      });
+    }
   };
 
   updateAndClose = async (event, params, state) => {
@@ -211,8 +228,15 @@ export default class StatusDropdown extends React.Component {
   fileBugAndClose = async (event, params, state) => {
     event.preventDefault();
     const culpritId = params.bug_number;
-    await this.fileBug(culpritId);
-    this.toggle(state);
+    const createResult = await this.fileBug(culpritId);
+
+    if (createResult.failureStatus) {
+      this.setState({
+        fileBugErrorMessage: `Failure: ${createResult.data}`,
+      });
+    } else {
+      this.toggle(state);
+    }
   };
 
   changeAlertSummary = async (params) => {
@@ -314,6 +338,8 @@ export default class StatusDropdown extends React.Component {
           header="File Regression Bug for"
           title="Enter Bug Number"
           submitButtonText="File Bug"
+          user={user}
+          errorMessage={this.state.fileBugErrorMessage}
         />
         <NotesModal
           showModal={showNotesModal}
