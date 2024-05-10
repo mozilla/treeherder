@@ -39,7 +39,9 @@ const TableAverage = ({ value, stddev, stddevpct, replicates, app }) => {
         <>
           {`Runs: < ${replicatesStr} > ${formatNumber(
             displayNumber(stddev),
-          )} = ${formatNumber(displayNumber(stddevpct))}% for 1 standard deviation`}
+          )} = ${formatNumber(
+            displayNumber(stddevpct),
+          )}% for 1 standard deviation`}
         </>
       );
     }
