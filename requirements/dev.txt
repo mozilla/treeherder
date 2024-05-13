@@ -321,9 +321,9 @@ pluggy==1.5.0 \
     # via
     #   pypom
     #   pytest
-pre-commit==3.7.0 \
-    --hash=sha256:5eae9e10c2b5ac51577c3452ec0a490455c45a0533f7960f993a0d01e59decab \
-    --hash=sha256:e209d61b8acdcf742404408531f0c37d49d2c734fd7cff2d6076083d191cb060
+pre-commit==3.7.1 \
+    --hash=sha256:8ca3ad567bc78a4972a3f1a477e94a79d4597e8140a6e0b651c5e33899c3654a \
+    --hash=sha256:fae36fd1d7ad7d6a5a1c0b0d5adb2ed1a3bda5a21bf6c3e5372073d7a11cd4c5
     # via -r requirements/dev.in
 pypom==2.2.4 \
     --hash=sha256:5da52cf447e62f43a0cfa47dfe52eb822eff07b2fdad759f930d1d227c15220b \
