@@ -53,7 +53,7 @@ describe('Filtering', () => {
     fetchMock.get(getApiUrl('/failureclassification/'), []);
     fetchMock.get(`begin:${bzBaseUrl}rest/bug`, emptyBzResponse);
     fetchMock.get(
-      'begin:https://treestatus.mozilla-releng.net/trees/',
+      'begin:https://treestatus.prod.lando.prod.cloudops.mozgcp.net/trees/',
       treeStatusResponse,
     );
     fetchMock.get(

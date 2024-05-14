@@ -4,8 +4,8 @@ let _treeStatusApiUrl;
 let _treeStatusUiUrl;
 for (const [hostPrettyName, config] of Object.entries(thHosts)) {
   if (config.host === window.location.hostname) {
-    _treeStatusApiUrl = thHosts[hostPrettyName].treestatus.apiUrl;
-    _treeStatusUiUrl = thHosts[hostPrettyName].treestatus.uiUrl;
+    _treeStatusApiUrl = thHosts[hostPrettyName]?.treestatus?.apiUrl;
+    _treeStatusUiUrl = thHosts[hostPrettyName]?.treestatus?.uiUrl;
   }
 }
 if (_treeStatusApiUrl === undefined) {
