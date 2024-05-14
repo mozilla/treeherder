@@ -34,14 +34,17 @@ describe('history', () => {
     fetchMock.get(getApiUrl('/performance/framework/'), {});
     fetchMock.get(getApiUrl('/user/'), []);
     fetchMock.get(getApiUrl('/failureclassification/'), []);
-    fetchMock.get('begin:https://treestatus.mozilla-releng.net/trees/', {
-      result: {
-        message_of_the_day: '',
-        reason: '',
-        status: 'open',
-        tree: repoName,
+    fetchMock.get(
+      'begin:https://treestatus.prod.lando.prod.cloudops.mozgcp.net/trees/',
+      {
+        result: {
+          message_of_the_day: '',
+          reason: '',
+          status: 'open',
+          tree: repoName,
+        },
       },
-    });
+    );
     fetchMock.get(
       `begin:${getProjectUrl('/push/?full=true&count=', repoName)}`,
       {

@@ -19,7 +19,7 @@ const router = { location: history.location };
 
 beforeEach(() => {
   fetchMock.get(
-    'https://treestatus.dev.lando.nonprod.cloudops.mozgcp.net/trees/autoland',
+    'https://treestatus.prod.lando.prod.cloudops.mozgcp.net/trees/autoland',
     {
       result: {
         message_of_the_day: '',

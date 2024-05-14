@@ -199,7 +199,7 @@ export default class WatchedRepo extends React.Component {
             )}
             <DropdownItem
               tag="a"
-              href={`${treeStatusUiUrl()}show/${watchedRepo}`}
+              href={`${treeStatusUiUrl()}${watchedRepo}`}
               target="_blank"
               rel="noopener noreferrer"
             >
