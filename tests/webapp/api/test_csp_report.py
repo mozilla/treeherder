@@ -7,11 +7,10 @@ def test_valid_report(client):
     """Tests that a correctly formed CSP violation report is accepted when unauthenticated."""
     valid_report = {
         "csp-report": {
-            "blocked-uri": "https://treestatus.mozilla-releng.net/trees/autoland",
-            "document-uri": "http://localhost:8000/",
-            "original-policy": "...",
-            "referrer": "",
-            "violated-directive": "connect-src",
+            # The Content Security Policy report is a dictionary as documented at
+            # https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP#violation_report_syntax
+            # The app only forwards the browser-generate CSP report to the
+            # endpoint for the reports.
         }
     }
     response = client.post(
