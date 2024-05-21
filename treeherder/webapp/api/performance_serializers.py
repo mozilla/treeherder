@@ -476,6 +476,7 @@ class PerfCompareResultsQueryParamsSerializer(serializers.Serializer):
     framework = serializers.IntegerField(required=False, allow_null=True, default=None)
     interval = serializers.IntegerField(required=False, allow_null=True, default=None)
     no_subtests = serializers.BooleanField(required=False)
+    parent_signature = serializers.CharField(required=False, allow_null=True, default=None)
 
     def validate(self, data):
         if data["base_revision"] is None and data["interval"] is None:
@@ -544,6 +545,7 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
     is_improvement = serializers.BooleanField(required=False)
     is_regression = serializers.BooleanField(required=False)
     is_meaningful = serializers.BooleanField(required=False)
+    parent_signature = serializers.IntegerField()
 
     class Meta:
         model = PerformanceSignature
@@ -591,6 +593,7 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
             "is_improvement",
             "is_regression",
             "is_meaningful",
+            "parent_signature",
         ]
 
 

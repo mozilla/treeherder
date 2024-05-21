@@ -883,6 +883,7 @@ class PerfCompareResults(generics.ListAPIView):
         interval = query_params.validated_data["interval"]
         framework = query_params.validated_data["framework"]
         no_subtests = query_params.validated_data["no_subtests"]
+        parent_signature = query_params.validated_data["parent_signature"]
 
         try:
             new_push = models.Push.objects.get(revision=new_rev, repository__name=new_repo_name)
@@ -915,8 +916,13 @@ class PerfCompareResults(generics.ListAPIView):
 
         push_timestamp = self._get_push_timestamp(base_push, new_push)
 
-        base_signatures = self._get_signatures(base_repo_name, framework, interval, no_subtests)
-        new_signatures = self._get_signatures(new_repo_name, framework, interval, no_subtests)
+        base_signatures = self._get_signatures(
+            base_repo_name, framework, parent_signature, interval, no_subtests
+        )
+
+        new_signatures = self._get_signatures(
+            new_repo_name, framework, parent_signature, interval, no_subtests
+        )
 
         base_perf_data = self._get_perf_data(
             base_repo_name, base_rev, base_signatures, interval, start_day, end_day
@@ -1052,6 +1058,7 @@ class PerfCompareResults(generics.ListAPIView):
                     "is_improvement": is_improvement,
                     "is_regression": is_regression,
                     "is_meaningful": is_meaningful,
+                    "parent_signature": parent_signature,
                 }
 
                 self.queryset.append(row_result)
@@ -1099,11 +1106,13 @@ class PerfCompareResults(generics.ListAPIView):
 
         return perf_data
 
-    def _get_signatures(self, repository_name, framework, interval, no_subtests):
+    def _get_signatures(self, repository_name, framework, parent_signature, interval, no_subtests):
         signatures = self._get_filtered_signatures_by_repo(repository_name)
         signatures = signatures.filter(parent_signature__isnull=no_subtests)
         if framework:
             signatures = signatures.filter(framework__id=framework)
+        if parent_signature:
+            signatures = signatures.filter(parent_signature_id=parent_signature)
         if interval:
             signatures = self._get_filtered_signatures_by_interval(signatures, interval)
         signatures = self._get_signatures_values(signatures)
@@ -1187,6 +1196,7 @@ class PerfCompareResults(generics.ListAPIView):
             "platform__platform",
             "test",
             "option_collection_id",
+            "parent_signature_id",
             "repository_id",
             "measurement_unit",
             "lower_is_better",

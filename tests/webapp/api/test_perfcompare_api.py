@@ -150,6 +150,7 @@ def test_perfcompare_results_against_no_base(
             "is_improvement": response["is_improvement"],
             "is_regression": response["is_regression"],
             "is_meaningful": response["is_meaningful"],
+            "parent_signature": response["parent_signature"],
         },
     ]
 
@@ -306,6 +307,7 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
             "is_improvement": response["is_improvement"],
             "is_regression": response["is_regression"],
             "is_meaningful": response["is_meaningful"],
+            "parent_signature": response["parent_signature"],
         },
     ]
 
@@ -317,6 +319,169 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
             test_perfcomp_push.revision,
             test_perfcomp_push_2.revision,
             test_perf_signature.framework_id,
+        )
+    )
+
+    response = client.get(reverse("perfcompare-results") + query_params)
+
+    assert response.status_code == 200
+    assert expected[0] == response.json()[0]
+
+
+def test_perfcompare_results_subtests_support(
+    client,
+    create_signature,
+    create_perf_datum,
+    test_perf_signature,
+    test_perf_signature_2,
+    test_repository,
+    try_repository,
+    eleven_jobs_stored,
+    test_perfcomp_push,
+    test_perfcomp_push_2,
+    test_linux_platform,
+    test_option_collection,
+):
+    perf_jobs = Job.objects.filter(pk__in=range(1, 11)).order_by("push__time").all()
+
+    test_perfcomp_push.time = THREE_DAYS_AGO
+    test_perfcomp_push.repository = try_repository
+    test_perfcomp_push.save()
+    test_perfcomp_push_2.time = datetime.datetime.now()
+    test_perfcomp_push_2.save()
+
+    suite = "a11yr"
+    test = "dhtml.html"
+    extra_options = "e10s fission stylo webrender"
+    measurement_unit = "ms"
+    base_application = "firefox"
+    new_application = "geckoview"
+
+    base_sig = create_signature(
+        signature_hash=(20 * "t1"),
+        extra_options=extra_options,
+        platform=test_linux_platform,
+        measurement_unit=measurement_unit,
+        suite=suite,
+        test=test,
+        test_perf_signature=test_perf_signature,
+        repository=try_repository,
+        application=base_application,
+    )
+    base_sig.parent_signature = test_perf_signature_2
+    base_sig.save()
+
+    base_perf_data_values = [32.4]
+    new_perf_data_values = [40.2]
+
+    job = perf_jobs[0]
+    job.push = test_perfcomp_push
+    job.save()
+    perf_datum = PerformanceDatum.objects.create(
+        value=base_perf_data_values[0],
+        push_timestamp=job.push.time,
+        job=job,
+        push=job.push,
+        repository=try_repository,
+        signature=base_sig,
+    )
+    perf_datum.push.time = job.push.time
+    perf_datum.push.save()
+
+    new_sig = create_signature(
+        signature_hash=(20 * "t2"),
+        extra_options=extra_options,
+        platform=test_linux_platform,
+        measurement_unit=measurement_unit,
+        suite=suite,
+        test=test,
+        test_perf_signature=test_perf_signature,
+        repository=test_repository,
+        application=new_application,
+    )
+    new_sig.parent_signature = test_perf_signature_2
+    new_sig.save()
+
+    job = perf_jobs[1]
+    job.push = test_perfcomp_push_2
+    job.save()
+    perf_datum = PerformanceDatum.objects.create(
+        value=new_perf_data_values[0],
+        push_timestamp=job.push.time,
+        job=job,
+        push=job.push,
+        repository=job.repository,
+        signature=new_sig,
+    )
+    perf_datum.push.time = job.push.time
+    perf_datum.push.save()
+
+    response = get_expected(
+        base_sig, extra_options, test_option_collection, new_perf_data_values, base_perf_data_values
+    )
+
+    expected = [
+        {
+            "base_rev": test_perfcomp_push.revision,
+            "new_rev": test_perfcomp_push_2.revision,
+            "framework_id": base_sig.framework.id,
+            "platform": base_sig.platform.platform,
+            "suite": base_sig.suite,
+            "is_empty": False,
+            "header_name": response["header_name"],
+            "base_repository_name": base_sig.repository.name,
+            "new_repository_name": new_sig.repository.name,
+            "base_app": "firefox",
+            "new_app": "geckoview",
+            "is_complete": response["is_complete"],
+            "base_measurement_unit": base_sig.measurement_unit,
+            "new_measurement_unit": new_sig.measurement_unit,
+            "base_retriggerable_job_ids": [1],
+            "new_retriggerable_job_ids": [4],
+            "base_runs": base_perf_data_values,
+            "new_runs": new_perf_data_values,
+            "base_avg_value": round(response["base_avg_value"], 2),
+            "new_avg_value": round(response["new_avg_value"], 2),
+            "base_median_value": round(response["base_median_value"], 2),
+            "new_median_value": round(response["new_median_value"], 2),
+            "test": base_sig.test,
+            "option_name": response["option_name"],
+            "extra_options": base_sig.extra_options,
+            "base_stddev": round(response["base_stddev"], 2),
+            "new_stddev": round(response["new_stddev"], 2),
+            "base_stddev_pct": round(response["base_stddev_pct"], 2),
+            "new_stddev_pct": round(response["new_stddev_pct"], 2),
+            "confidence": round(response["confidence"], 2),
+            "confidence_text": response["confidence_text"],
+            "delta_value": round(response["delta_value"], 2),
+            "delta_percentage": round(response["delta_pct"], 2),
+            "magnitude": round(response["magnitude"], 2),
+            "new_is_better": response["new_is_better"],
+            "lower_is_better": response["lower_is_better"],
+            "is_confident": response["is_confident"],
+            "more_runs_are_needed": response["more_runs_are_needed"],
+            "noise_metric": False,
+            "graphs_link": f"https://treeherder.mozilla.org/perfherder/graphs?highlightedRevisions={test_perfcomp_push.revision}&"
+            f"highlightedRevisions={test_perfcomp_push_2.revision}&"
+            f"series={try_repository.name}%2C{base_sig.signature_hash}%2C1%2C{base_sig.framework.id}&"
+            f"series={test_repository.name}%2C{base_sig.signature_hash}%2C1%2C{base_sig.framework.id}&"
+            f"timerange=604800",
+            "is_improvement": response["is_improvement"],
+            "is_regression": response["is_regression"],
+            "is_meaningful": response["is_meaningful"],
+            "parent_signature": response["parent_signature"],
+        },
+    ]
+
+    query_params = (
+        "?base_repository={}&new_repository={}&base_revision={}&new_revision={}&framework={"
+        "}&parent_signature={}".format(
+            try_repository.name,
+            test_repository.name,
+            test_perfcomp_push.revision,
+            test_perfcomp_push_2.revision,
+            test_perf_signature.framework_id,
+            test_perf_signature_2.id,
         )
     )
 
@@ -645,4 +810,7 @@ def get_expected(
     response["is_improvement"] = class_name == "success"
     response["is_regression"] = class_name == "danger"
     response["is_meaningful"] = class_name == ""
+    response["parent_signature"] = (
+        base_sig.parent_signature.id if base_sig.parent_signature else None
+    )
     return response
