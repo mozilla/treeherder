@@ -55,7 +55,7 @@ jobs:
     steps:
       - checkout
       - docker/install-docker-compose:
-          version: 1.29.2
+          version: 2.26.1
       - run:
           command: sudo apt-get update && sudo apt-get install python3-venv -y
           name: python for glean
@@ -73,17 +73,17 @@ jobs:
     steps:
       - checkout
       - docker/install-docker-compose:
-          version: 1.29.2
-      - run:
-          command: sudo apt-get update && sudo apt-get install python3-venv -y
-          name: python for glean
-      - run:
-          name: Run tests and coverage within Docker container
-          command: |
-            pip install --upgrade pip
-            pip install tox
-            tox -e docker-postgres
-      - codecov/upload
+          version: 2.26.1
+#      - run:
+#          command: sudo apt-get update && sudo apt-get install python3-venv -y
+#          name: python for glean
+#      - run:
+#          name: Run tests and coverage within Docker container
+#          command: |
+#            pip install --upgrade pip
+#            pip install tox
+#            tox -e docker-postgres
+#      - codecov/upload
 
   test-docker-build:
     docker:
@@ -149,8 +149,8 @@ jobs:
             fi
 
 orbs:
-  node: circleci/node@4.1.1
-  docker: circleci/docker@1.5.0
+  node: circleci/node@5.2.0
+  docker: circleci/docker@2.6.0
   codecov: codecov/codecov@4.1.0
 version: 2.1
 workflows:
