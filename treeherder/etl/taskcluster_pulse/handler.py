@@ -107,8 +107,6 @@ def ignore_task(task, task_id, root_url, project):
         return True
 
     mobile_repos = (
-        "fenix",
-        "firefox-android",
         "reference-browser",
         "mozilla-vpn-client",
         "mozilla-vpn-client-release",
