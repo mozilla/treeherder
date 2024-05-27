@@ -1,6 +1,6 @@
 # Dependencies needed only for development/testing.
 pytest-cov==5.0.0
-django-debug-toolbar==4.3.0
+django-debug-toolbar==4.4.1
 mock==5.1.0
 responses==0.25.0
 django-extensions==3.2.3
