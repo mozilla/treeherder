@@ -315,7 +315,7 @@
       "dvcs_type": "hg",
       "name": "cypress",
       "url": "https://hg.mozilla.org/projects/cypress",
-      "active_status": "onhold",
+      "active_status": "active",
       "codebase": "gecko",
       "repository_group": 6,
       "description": "",
