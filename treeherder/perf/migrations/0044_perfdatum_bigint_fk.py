@@ -3,12 +3,6 @@ On large tables or production environment, it is recommanded to use an external 
 to update the column and fake this migration. Migration perf.0045 will restore a valid django's schema.
 """
 from django.db import migrations, connection
-from django.conf import settings
-
-if settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
-    QUERY = "ALTER TABLE performance_datum MODIFY COLUMN id BIGINT(20) NOT NULL AUTO_INCREMENT"
-else:
-    QUERY = "ALTER TABLE performance_datum ALTER COLUMN id TYPE BIGINT using id::bigint"
 
 
 def alter_perfdatum_pk(apps, schema_editor):
@@ -24,7 +18,7 @@ def alter_perfdatum_pk(apps, schema_editor):
     if pursue.lower() not in ('', 'y', 'yes'):
         raise Exception("Aborting…")
     with connection.cursor() as cursor:
-        cursor.execute(QUERY)
+        cursor.execute("ALTER TABLE performance_datum ALTER COLUMN id TYPE BIGINT using id::bigint")
         return
 
 
