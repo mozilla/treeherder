@@ -1058,7 +1058,9 @@ class PerfCompareResults(generics.ListAPIView):
                     "is_improvement": is_improvement,
                     "is_regression": is_regression,
                     "is_meaningful": is_meaningful,
-                    "parent_signature": parent_signature,
+                    "parent_signature": parent_signature
+                    if parent_signature
+                    else base_sig.get("parent_signature_id", None),
                 }
 
                 self.queryset.append(row_result)

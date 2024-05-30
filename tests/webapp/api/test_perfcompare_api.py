@@ -169,6 +169,7 @@ def test_perfcompare_results_against_no_base(
 
     assert response.status_code == 200
     assert expected[0] == response.json()[0]
+    assert response.json()[0]["parent_signature"] is None
 
 
 def test_perfcompare_results_with_only_one_run_and_diff_repo(
@@ -489,6 +490,7 @@ def test_perfcompare_results_subtests_support(
 
     assert response.status_code == 200
     assert expected[0] == response.json()[0]
+    assert response.json()[0]["parent_signature"] == test_perf_signature_2.id
 
 
 @skip("test is frequently failing in CI, needs to be fixed, see bug 1809467")
