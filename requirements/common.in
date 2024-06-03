@@ -33,7 +33,7 @@ json-e==4.7.0  # import jsone
 django-cache-memoize==0.2.0  # Imported as cache_memoize
 
 # Required for Push Health
-mozci[cache]==2.4.0
+mozci[cache]==2.4.1
 
 # Dockerflow/CloudOps APIs
 dockerflow==2024.4.2
