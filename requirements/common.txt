@@ -696,9 +696,9 @@ moz-measure-noise==2.60.1 \
     --hash=sha256:d147b9af6a1ccbe94f951152596fbef3959dddf4284fb47c9a4ca3211f1da06a \
     --hash=sha256:f8811a904fab113ba195c5eed84a448283a95c46751409a70fc168634c7d9613
     # via -r requirements/common.in
-mozci[cache]==2.4.0 \
-    --hash=sha256:1302ce8b08f53e608b654e54313b1f36f978dafad9a913a58a3331139b2d9225 \
-    --hash=sha256:b1ee163b31e1696bee7f2b203f508fcd4a3869c1158969615f9bdab2e1a57a9b
+mozci[cache]==2.4.1 \
+    --hash=sha256:389296a56e9f37f636c424b38092904334c6f767782098cad2a70ffab96f8f85 \
+    --hash=sha256:c38cf0fde61424f327edfa9694f28c02536e6e0b49ddb23c43427829bedbde7f
     # via -r requirements/common.in
 mozfile==3.0.0 \
     --hash=sha256:3b0afcda2fa8b802ef657df80a56f21619008f61fcc14b756124028d7b7adf5c \
