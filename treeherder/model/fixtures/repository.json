@@ -1917,5 +1917,34 @@
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
+  },
+  {
+    "pk": 136,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "hg",
+      "name": "mozilla-esr128",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr128",
+      "active_status": "active",
+      "codebase": "gecko",
+      "repository_group": 2,
+      "life_cycle_order": 9996,
+      "description": "",
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
+    }
+  },
+  {
+    "pk": 137,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "hg",
+      "name": "comm-esr128",
+      "url": "https://hg.mozilla.org/releases/comm-esr128",
+      "active_status": "active",
+      "codebase": "comm",
+      "repository_group": 8,
+      "description": "",
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
+    }
   }
 ]
