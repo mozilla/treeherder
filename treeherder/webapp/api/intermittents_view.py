@@ -140,6 +140,7 @@ class FailureCount(generics.ListAPIView):
             .values("date")
             .annotate(test_runs=Count("author"))
             .values("date", "test_runs")
+            .order_by("date")
         )
 
         if bug_id:
