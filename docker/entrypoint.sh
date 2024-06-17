@@ -18,7 +18,9 @@ function check_service () {
 
 # Keep these in sync with DATABASE_URL.
 echo "Checking database status at $DATABASE_URL"
-if [[ ${DATABASE_URL:0:7} == "psql://" ]]; then
+if [[ ${DATABASE_URL:0:27} == *"@host.docker.internal"* ]]; then
+  check_service "PostgreSQL" "host.docker.internal" 5432;
+else
   check_service "PostgreSQL" "postgres" 5432;
 fi
 
