@@ -186,9 +186,11 @@ def replace_astral(log_list):
         yield item
 
 
-def get_group_results(push):
+def get_group_results(repository, push):
     groups = Group.objects.filter(
-        job_logs__job__push=push, group_result__status__in=[GroupStatus.OK, GroupStatus.ERROR]
+        job_logs__job__push__revision=push.revision,
+        job_logs__job__push__repository=repository,
+        group_result__status__in=[GroupStatus.OK, GroupStatus.ERROR],
     ).values(
         "group_result__status",
         "name",
