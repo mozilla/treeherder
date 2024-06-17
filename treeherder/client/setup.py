@@ -44,5 +44,5 @@ setup(
     license="MPL",
     packages=["thclient"],
     python_requires=">=3",
-    install_requires=["requests==2.32.0"],
+    install_requires=["requests==2.32.3"],
 )
