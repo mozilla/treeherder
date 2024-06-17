@@ -468,6 +468,6 @@ class PushViewSet(viewsets.ViewSet):
             push = Push.objects.get(revision=revision, repository=repository)
         except Push.DoesNotExist:
             return Response(f"No push with revision: {revision}", status=HTTP_404_NOT_FOUND)
-        groups = get_group_results(push)
+        groups = get_group_results(repository, push)
 
         return Response(groups)
