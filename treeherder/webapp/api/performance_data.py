@@ -1061,6 +1061,7 @@ class PerfCompareResults(generics.ListAPIView):
                     "parent_signature": parent_signature
                     if parent_signature
                     else base_sig.get("parent_signature_id", None),
+                    "signature_id": base_sig_id,
                 }
 
                 self.queryset.append(row_result)
