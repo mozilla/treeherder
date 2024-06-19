@@ -1,6 +1,5 @@
 import React from 'react';
 import { Modal } from 'reactstrap';
-import { hot } from 'react-hot-loader/root';
 import SplitPane from 'react-split-pane';
 import pick from 'lodash/pick';
 import isEqual from 'lodash/isEqual';
@@ -461,4 +460,4 @@ const mapStateToProps = ({ pushes: { jobMap }, router }) => ({
 export default connect(mapStateToProps, {
   pushRoute,
   clearExpiredNotifications,
-})(hot(App));
+})(App);
