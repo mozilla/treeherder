@@ -1,4 +1,5 @@
 import React from 'react';
+import { hot } from 'react-hot-loader/root';
 import moment from 'moment';
 
 import AuthService from '../shared/auth/AuthService';
@@ -81,4 +82,4 @@ class LoginCallback extends React.PureComponent {
   }
 }
 
-export default LoginCallback;
+export default hot(LoginCallback);

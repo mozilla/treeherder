@@ -1,4 +1,5 @@
 import React from 'react';
+import { hot } from 'react-hot-loader/root';
 
 import PerfherderUserGuide from '../perfherder/userguide/PerherderUserGuide';
 
@@ -23,4 +24,4 @@ const App = () => (
   </div>
 );
 
-export default App;
+export default hot(App);
