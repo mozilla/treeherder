@@ -1,4 +1,5 @@
 import React from 'react';
+import { hot } from 'react-hot-loader/root';
 import { Route, Switch } from 'react-router-dom';
 
 import {
@@ -118,4 +119,4 @@ class App extends React.Component {
   }
 }
 
-export default App;
+export default hot(App);

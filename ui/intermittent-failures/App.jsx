@@ -1,6 +1,7 @@
 import React from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import { Container } from 'reactstrap';
+import { hot } from 'react-hot-loader/root';
 
 import ErrorMessages from '../shared/ErrorMessages';
 
@@ -83,4 +84,4 @@ class IntermittentFailuresApp extends React.Component {
   }
 }
 
-export default IntermittentFailuresApp;
+export default hot(IntermittentFailuresApp);

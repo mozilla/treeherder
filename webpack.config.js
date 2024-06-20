@@ -8,7 +8,6 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const { ProvidePlugin } = require('webpack');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 
 const commonConfig = {
   target: 'web',
@@ -121,9 +120,8 @@ const developmentConfig = {
     hot: true,
     historyApiFallback: true,
     open: true,
-    proxy: [
-      {
-        context: ['/api'],
+    proxy: {
+      '/api': {
         changeOrigin: true,
         headers: {
           referer: 'https://treeherder.mozilla.org/webpack-dev-server',
@@ -143,7 +141,7 @@ const developmentConfig = {
           }
         },
       },
-    ],
+    },
     devMiddleware: {
       stats: {
         all: false,
@@ -175,7 +173,13 @@ const developmentConfig = {
     runtimeChunk: 'single',
   },
 
-  plugins: [new ReactRefreshWebpackPlugin({})],
+  plugins: [
+    new HotModuleReplacementPlugin({
+      template: 'ui/index.html',
+      lang: 'en',
+      filename: 'index.html',
+    }),
+  ],
 
   infrastructureLogging: {
     level: 'warn',
