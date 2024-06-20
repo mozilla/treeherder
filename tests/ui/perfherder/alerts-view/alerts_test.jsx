@@ -101,6 +101,7 @@ const alertsView = () => {
         />
       </ConnectedRouter>
     </Provider>,
+    { legacyRoot: true },
   );
 };
 
@@ -151,11 +152,12 @@ const alertsViewControls = ({
         />
       </ConnectedRouter>
     </Provider>,
+    { legacyRoot: true },
   );
 };
 
 const tagsList = (tags = []) => {
-  return render(<TagsList tags={tags} />);
+  return render(<TagsList tags={tags} />, { legacyRoot: true });
 };
 
 const modifyAlertSpy = jest.spyOn(mockModifyAlert, 'update');

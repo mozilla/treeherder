@@ -71,7 +71,9 @@ describe('SecondaryNavBar', () => {
       },
       router,
     });
-    const { getByText } = render(testSecondaryNavBar(store));
+    const { getByText } = render(testSecondaryNavBar(store), {
+      legacyRoot: true,
+    });
 
     expect(await waitFor(() => getByText(repoName))).toBeInTheDocument();
     expect(await waitFor(() => getByText('52'))).toBeInTheDocument();
@@ -86,7 +88,9 @@ describe('SecondaryNavBar', () => {
       },
       router,
     });
-    const { getByText } = render(testSecondaryNavBar(store));
+    const { getByText } = render(testSecondaryNavBar(store), {
+      legacyRoot: true,
+    });
 
     expect(await waitFor(() => getByText(repoName))).toBeInTheDocument();
     expect(await waitFor(() => getByText('22'))).toBeInTheDocument();
@@ -106,7 +110,9 @@ describe('SecondaryNavBar', () => {
       updateButtonClick: jest.fn(),
     };
 
-    const { container } = render(testSecondaryNavBar(store, props));
+    const { container } = render(testSecondaryNavBar(store, props), {
+      legacyRoot: true,
+    });
     const el = container.querySelector('#revisionChangedLabel');
     fireEvent.click(el);
     expect(props.updateButtonClick).toHaveBeenCalled();

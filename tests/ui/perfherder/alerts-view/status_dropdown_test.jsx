@@ -45,6 +45,7 @@ const testStatusDropdown = (summaryTags, alertSummary) => {
       performanceTags={testPerformanceTags}
       frameworks={[{ id: 1, name: dummyFrameworkName }]}
     />,
+    { legacyRoot: true },
   );
 };
 

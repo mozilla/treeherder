@@ -66,7 +66,7 @@ describe('Logviewer App', () => {
   });
 
   test('should have links to Perfherder and Intermittent Failures View', async () => {
-    const { findByText } = render(testApp());
+    const { findByText } = render(testApp(), { legacyRoot: true });
     const appMenu = await findByText('Logviewer');
 
     expect(appMenu).toBeInTheDocument();
@@ -83,7 +83,7 @@ describe('Logviewer App', () => {
   });
 
   test('should have a show job info button', async () => {
-    const { findByText } = render(testApp());
+    const { findByText } = render(testApp(), { legacyRoot: true });
 
     const showButton = await findByText('Show Job Info');
 

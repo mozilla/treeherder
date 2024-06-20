@@ -18,6 +18,7 @@ const testFileBugModal = (handleClose) => {
       title="Bug Number"
       submitButtonText="File Bug"
     />,
+    { legacyRoot: true },
   );
 };
 

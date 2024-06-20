@@ -33,6 +33,7 @@ const tableView = (
       highlightedRevisions={highlightedRevisions}
       projects={projects}
     />,
+    { legacyRoot: true },
   );
 
 afterEach(cleanup);
