@@ -97,9 +97,8 @@ export default class Assignee extends React.Component {
     const { user } = this.props;
     const { assigneeUsername, newAssigneeUsername, inEditMode } = this.state;
 
-    const { nickname, placeholder } = this.extractNicknameAndPlaceholder(
-      assigneeUsername,
-    );
+    const { nickname, placeholder } =
+      this.extractNicknameAndPlaceholder(assigneeUsername);
 
     return !inEditMode ? (
       <React.Fragment>

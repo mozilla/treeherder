@@ -468,12 +468,8 @@ describe('Filtering', () => {
     });
 
     test('Filters | Reset should get back to original set of jobs', async () => {
-      const {
-        getAllByText,
-        findAllByText,
-        findByText,
-        queryAllByText,
-      } = render(testApp());
+      const { getAllByText, findAllByText, findByText, queryAllByText } =
+        render(testApp());
       const symbolToRemove = 'yaml';
 
       await findAllByText('B');

@@ -262,12 +262,8 @@ describe('DetailsPanel', () => {
   });
 
   test('classify and unclassify all jobs', async () => {
-    const {
-      getByPlaceholderText,
-      getByText,
-      getByTitle,
-      queryAllByTitle,
-    } = render(testDetailsPanel());
+    const { getByPlaceholderText, getByText, getByTitle, queryAllByTitle } =
+      render(testDetailsPanel());
 
     store.dispatch(pinJobs(jobList.data));
     store.dispatch(setSelectedJob(jobList.data[1], true));

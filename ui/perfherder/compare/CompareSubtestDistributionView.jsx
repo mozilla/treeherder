@@ -36,16 +36,12 @@ export default class CompareSubtestDistributionView extends React.Component {
       newProjectName,
     );
 
-    const {
-      testSuite,
-      subtest,
-      testName,
-      platform,
-    } = await this.fetchTestCharacteristics(
-      originalProjectName,
-      originalRevision,
-      originalSubtestSignature,
-    );
+    const { testSuite, subtest, testName, platform } =
+      await this.fetchTestCharacteristics(
+        originalProjectName,
+        originalRevision,
+        originalSubtestSignature,
+      );
     this.setState({
       filters: { testSuite, subtest },
       testName,
