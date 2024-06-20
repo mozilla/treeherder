@@ -128,11 +128,8 @@ class App extends React.Component {
       this.setState({ serverRev: revision });
       this.updateInterval = setInterval(() => {
         this.fetchDeployedRevision().then((revision) => {
-          const {
-            serverChangedTimestamp,
-            serverRev,
-            serverChanged,
-          } = this.state;
+          const { serverChangedTimestamp, serverRev, serverChanged } =
+            this.state;
 
           if (serverChanged) {
             if (

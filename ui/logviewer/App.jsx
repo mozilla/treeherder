@@ -214,9 +214,8 @@ class App extends React.PureComponent {
       selectedLogText = window.getSelection().toString().trim();
     }
 
-    const descriptionField = window.opener.document.getElementById(
-      'summary-input',
-    );
+    const descriptionField =
+      window.opener.document.getElementById('summary-input');
     const startPos = descriptionField.selectionStart;
     const endPos = descriptionField.selectionEnd;
     descriptionField.value =
