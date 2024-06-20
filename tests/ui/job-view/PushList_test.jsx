@@ -158,13 +158,13 @@ describe('PushList', () => {
   const push2Id = 'push-511137';
 
   test('should have 2 pushes', async () => {
-    render(testPushList());
+    render(testPushList(), { legacyRoot: true });
 
     expect(await pushCount()).toHaveLength(2);
   });
 
   test('should switch to single loaded revision', async () => {
-    const { getAllByTitle } = render(testPushList());
+    const { getAllByTitle } = render(testPushList(), { legacyRoot: true });
 
     expect(await pushCount()).toHaveLength(2);
     const pushLinks = await getAllByTitle('View only this push');
@@ -175,7 +175,9 @@ describe('PushList', () => {
   });
 
   test('should reload pushes when setting fromchange', async () => {
-    const { queryAllByTestId, queryByTestId } = render(testPushList());
+    const { queryAllByTestId, queryByTestId } = render(testPushList(), {
+      legacyRoot: true,
+    });
 
     expect(await pushCount()).toHaveLength(2);
 
@@ -200,7 +202,7 @@ describe('PushList', () => {
   });
 
   test('should reload pushes when setting tochange', async () => {
-    const { getByTestId } = render(testPushList());
+    const { getByTestId } = render(testPushList(), { legacyRoot: true });
 
     expect(await pushCount()).toHaveLength(2);
 
@@ -223,7 +225,9 @@ describe('PushList', () => {
   });
 
   test('should load N more pushes when click next N', async () => {
-    const { getByTestId, getAllByTestId } = render(testPushList());
+    const { getByTestId, getAllByTestId } = render(testPushList(), {
+      legacyRoot: true,
+    });
     const nextNUrl = (count) =>
       getProjectUrl(`/push/?full=true&count=${count + 1}&push_timestamp__lte=`);
     const clickNext = (count) =>
@@ -272,7 +276,7 @@ describe('PushList', () => {
   });
 
   test('jobs should have fields required for retriggers', async () => {
-    const { getByText } = render(testPushList());
+    const { getByText } = render(testPushList(), { legacyRoot: true });
     const jobEl = await waitFor(() => getByText('yaml'));
     const jobInstance = findJobInstance(jobEl.getAttribute('data-job-id'));
     const { job } = jobInstance.props;

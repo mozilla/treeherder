@@ -122,6 +122,7 @@ const replicatesGraph = (mockedGetData, mockedGetReplicateData) =>
       getData={mockedGetData}
       getReplicateData={mockedGetReplicateData}
     />,
+    { legacyRoot: true },
   );
 
 test('graph with available data displays properly', async () => {

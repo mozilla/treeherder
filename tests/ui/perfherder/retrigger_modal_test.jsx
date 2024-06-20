@@ -22,7 +22,7 @@ const retriggerModal = (
     isBaseAggregate,
     currentRetriggerRow,
   };
-  return render(<RetriggerModal {...props} />);
+  return render(<RetriggerModal {...props} />, { legacyRoot: true });
 };
 
 afterEach(cleanup);
