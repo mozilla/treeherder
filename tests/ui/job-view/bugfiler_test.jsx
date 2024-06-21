@@ -346,9 +346,9 @@ describe('BugFiler', () => {
   });
 
   test('should strip omitted leads from thisFailure', async () => {
-    const { getByTitle } = bugFilerComponentSuggestions(PdfSuggestions);
+    render(bugFilerComponentSuggestions(PdfSuggestions), { legacyRoot: true });
 
-    const toggleSummary = getByTitle('expand');
+    const toggleSummary = screen.getByTitle('expand');
     await fireEvent.click(toggleSummary);
 
     // TODO: hardcoded '2' value - how to get textarea for expanded field

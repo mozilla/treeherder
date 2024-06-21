@@ -46,7 +46,11 @@ describe('history', () => {
       },
     );
     fetchMock.get(
-      `begin:${getProjectUrl('/push/?full=true&count=', repoName)}`,
+      `begin:${getProjectUrl('/push/?full=true&count=10&revision=', 'try')}`,
+      { results: [] },
+    );
+    fetchMock.get(
+      `begin:${getProjectUrl('/push/?full=true&count=10', repoName)}`,
       {
         ...pushListFixture,
         results: [pushListFixture.results[0]],

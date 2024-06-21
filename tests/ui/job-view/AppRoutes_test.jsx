@@ -7,6 +7,7 @@ import { ConnectedRouter } from 'connected-react-router';
 import App from '../../../ui/App';
 import reposFixture from '../mock/repositories';
 import { getApiUrl } from '../../../ui/helpers/url';
+import { getProjectUrl } from '../../../ui/helpers/location';
 import {
   configureStore,
   history,
@@ -28,6 +29,12 @@ describe('Test for backwards-compatible routes for other apps', () => {
     fetchMock.get('/revision.txt', []);
     fetchMock.get(getApiUrl('/repository/'), reposFixture);
     fetchMock.get(getApiUrl('/failureclassification/'), []);
+    fetchMock.get(getApiUrl('/user/'), []);
+    fetchMock.get(getProjectUrl('/jobs/319893964/', 'autoland'), {});
+    fetchMock.get(
+      getProjectUrl('/jobs/319893964/text_log_errors/', 'autoland'),
+      {},
+    );
   });
 
   test('old push health url should redirect to correct url', () => {
@@ -83,8 +90,6 @@ describe('Test for backwards-compatible routes for other apps', () => {
   });
 
   test('url is not broken when it contains a table permalink hash', async () => {
-    fetchMock.get(getApiUrl('/user/'), []);
-
     history.push(
       '/perfherder/compare?originalProject=mozilla-central&originalRevision=54e7fb66ad44b8dcb8caab587f929dad60932d71&newProject=mozilla-central&newRevision=54e7fb66ad44b8dcb8caab587f929dad60932d71&framework=1&page=1#tableLink-header-134266337',
     );
