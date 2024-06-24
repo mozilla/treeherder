@@ -170,6 +170,7 @@ class ErrorParser(ParserBase):
 
         # Remove mozharness prefixes prior to matching
         trimline = re.sub(self.RE_MOZHARNESS_PREFIX, "", line).rstrip()
+
         if self.RE_EXCLUDE_2_SEARCH.search(trimline):
             return False
 
