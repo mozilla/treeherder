@@ -151,6 +151,7 @@ def test_perfcompare_results_against_no_base(
             "is_regression": response["is_regression"],
             "is_meaningful": response["is_meaningful"],
             "parent_signature": response["parent_signature"],
+            "signature_id": response["signature_id"],
         },
     ]
 
@@ -309,6 +310,7 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
             "is_regression": response["is_regression"],
             "is_meaningful": response["is_meaningful"],
             "parent_signature": response["parent_signature"],
+            "signature_id": response["signature_id"],
         },
     ]
 
@@ -471,6 +473,7 @@ def test_perfcompare_results_subtests_support(
             "is_regression": response["is_regression"],
             "is_meaningful": response["is_meaningful"],
             "parent_signature": response["parent_signature"],
+            "signature_id": response["signature_id"],
         },
     ]
 
@@ -815,4 +818,5 @@ def get_expected(
     response["parent_signature"] = (
         base_sig.parent_signature.id if base_sig.parent_signature else None
     )
+    response["signature_id"] = base_sig.id
     return response
