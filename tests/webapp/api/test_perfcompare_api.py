@@ -152,6 +152,7 @@ def test_perfcompare_results_against_no_base(
             "is_meaningful": response["is_meaningful"],
             "parent_signature": response["parent_signature"],
             "signature_id": response["signature_id"],
+            "has_subtests": response["has_subtests"],
         },
     ]
 
@@ -311,6 +312,7 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
             "is_meaningful": response["is_meaningful"],
             "parent_signature": response["parent_signature"],
             "signature_id": response["signature_id"],
+            "has_subtests": response["has_subtests"],
         },
     ]
 
@@ -474,6 +476,7 @@ def test_perfcompare_results_subtests_support(
             "is_meaningful": response["is_meaningful"],
             "parent_signature": response["parent_signature"],
             "signature_id": response["signature_id"],
+            "has_subtests": response["has_subtests"],
         },
     ]
 
@@ -819,4 +822,5 @@ def get_expected(
         base_sig.parent_signature.id if base_sig.parent_signature else None
     )
     response["signature_id"] = base_sig.id
+    response["has_subtests"] = base_sig.has_subtests
     return response
