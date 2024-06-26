@@ -883,7 +883,8 @@ class PerfCompareResults(generics.ListAPIView):
         interval = query_params.validated_data["interval"]
         framework = query_params.validated_data["framework"]
         no_subtests = query_params.validated_data["no_subtests"]
-        parent_signature = query_params.validated_data["parent_signature"]
+        base_parent_signature = query_params.validated_data["base_parent_signature"]
+        new_parent_signature = query_params.validated_data["new_parent_signature"]
 
         try:
             new_push = models.Push.objects.get(revision=new_rev, repository__name=new_repo_name)
@@ -917,11 +918,11 @@ class PerfCompareResults(generics.ListAPIView):
         push_timestamp = self._get_push_timestamp(base_push, new_push)
 
         base_signatures = self._get_signatures(
-            base_repo_name, framework, parent_signature, interval, no_subtests
+            base_repo_name, framework, base_parent_signature, interval, no_subtests
         )
 
         new_signatures = self._get_signatures(
-            new_repo_name, framework, parent_signature, interval, no_subtests
+            new_repo_name, framework, new_parent_signature, interval, no_subtests
         )
 
         base_perf_data = self._get_perf_data(
@@ -956,7 +957,9 @@ class PerfCompareResults(generics.ListAPIView):
                 new_sig = new_signatures_map.get(sig_identifier, {})
                 new_sig_id = new_sig.get("id", "")
                 lower_is_better = base_sig.get("lower_is_better", "")
-                is_empty = not (base_sig and new_sig)
+                is_empty = not (
+                    base_sig and new_sig
+                )  # ensures there are signatures for base and new
                 if is_empty:
                     continue
                 base_perf_data_values = base_grouped_values.get(base_sig_id, [])
@@ -1058,12 +1061,14 @@ class PerfCompareResults(generics.ListAPIView):
                     "is_improvement": is_improvement,
                     "is_regression": is_regression,
                     "is_meaningful": is_meaningful,
-                    "parent_signature": parent_signature
-                    if parent_signature
-                    else base_sig.get("parent_signature_id", None),
-                    "signature_id": base_sig_id,
+                    "base_parent_signature": base_sig.get("parent_signature_id", None),
+                    "new_parent_signature": new_sig.get("parent_signature_id", None),
+                    "base_signature_id": base_sig_id,
+                    "new_signature_id": new_sig_id,
+                    "has_subtests": (
+                        base_sig.get("has_subtests", None) or new_sig.get("has_subtests", None)
+                    ),
                 }
-
                 self.queryset.append(row_result)
 
         serializer = self.get_serializer(self.queryset, many=True)
@@ -1133,16 +1138,17 @@ class PerfCompareResults(generics.ListAPIView):
         signatures = signatures.values(
             "framework_id",
             "id",
+            "lower_is_better",
+            "has_subtests",
             "extra_options",
             "suite",
+            "signature_hash",
             "platform__platform",
             "test",
             "option_collection_id",
             "parent_signature_id",
             "repository_id",
             "measurement_unit",
-            "lower_is_better",
-            "signature_hash",
             "application",
         )
         return signatures
