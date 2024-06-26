@@ -546,6 +546,7 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
     is_regression = serializers.BooleanField(required=False)
     is_meaningful = serializers.BooleanField(required=False)
     parent_signature = serializers.IntegerField()
+    signature_id = serializers.IntegerField()
 
     class Meta:
         model = PerformanceSignature
@@ -594,6 +595,7 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
             "is_regression",
             "is_meaningful",
             "parent_signature",
+            "signature_id",
         ]
 
 

@@ -1061,6 +1061,7 @@ class PerfCompareResults(generics.ListAPIView):
                     "parent_signature": parent_signature
                     if parent_signature
                     else base_sig.get("parent_signature_id", None),
+                    "signature_id": base_sig_id,
                 }
 
                 self.queryset.append(row_result)
@@ -1093,8 +1094,13 @@ class PerfCompareResults(generics.ListAPIView):
                     break
         return max(values)
 
-    def _get_perf_data(self, repository_name, revision, signatures, interval, startday, endday):
-        perf_data = self._get_perf_data_by_repo_and_signatures(repository_name, signatures)
+    @staticmethod
+    def _get_perf_data(repository_name, revision, signatures, interval, startday, endday):
+        signature_ids = [signature["id"] for signature in list(signatures)]
+        perf_data = PerformanceDatum.objects.select_related("push", "repository", "id").filter(
+            signature_id__in=signature_ids,
+            repository__name=repository_name,
+        )
         if revision:
             perf_data = perf_data.filter(push__revision=revision)
         elif interval and not startday and not endday:
@@ -1108,16 +1114,37 @@ class PerfCompareResults(generics.ListAPIView):
 
         return perf_data
 
-    def _get_signatures(self, repository_name, framework, parent_signature, interval, no_subtests):
-        signatures = self._get_filtered_signatures_by_repo(repository_name)
+    @staticmethod
+    def _get_signatures(repository_name, framework, parent_signature, interval, no_subtests):
+        signatures = PerformanceSignature.objects.select_related(
+            "framework", "repository", "platform", "push", "job"
+        ).filter(repository__name=repository_name)
         signatures = signatures.filter(parent_signature__isnull=no_subtests)
         if framework:
             signatures = signatures.filter(framework__id=framework)
         if parent_signature:
             signatures = signatures.filter(parent_signature_id=parent_signature)
         if interval:
-            signatures = self._get_filtered_signatures_by_interval(signatures, interval)
-        signatures = self._get_signatures_values(signatures)
+            signatures = signatures.filter(
+                last_updated__gte=datetime.datetime.utcfromtimestamp(
+                    int(time.time() - int(interval))
+                )
+            )
+        signatures = signatures.values(
+            "framework_id",
+            "id",
+            "extra_options",
+            "suite",
+            "platform__platform",
+            "test",
+            "option_collection_id",
+            "parent_signature_id",
+            "repository_id",
+            "measurement_unit",
+            "lower_is_better",
+            "signature_hash",
+            "application",
+        )
         return signatures
 
     @staticmethod
@@ -1175,44 +1202,6 @@ class PerfCompareResults(generics.ListAPIView):
         return new_time_range
 
     @staticmethod
-    def _get_perf_data_by_repo_and_signatures(repository_name, signatures):
-        signature_ids = [signature["id"] for signature in list(signatures)]
-        return PerformanceDatum.objects.select_related("push", "repository", "id").filter(
-            signature_id__in=signature_ids,
-            repository__name=repository_name,
-        )
-
-    @staticmethod
-    def _get_filtered_signatures_by_interval(signatures, interval):
-        return signatures.filter(
-            last_updated__gte=datetime.datetime.utcfromtimestamp(int(time.time() - int(interval)))
-        )
-
-    @staticmethod
-    def _get_signatures_values(signatures):
-        return signatures.values(
-            "framework_id",
-            "id",
-            "extra_options",
-            "suite",
-            "platform__platform",
-            "test",
-            "option_collection_id",
-            "parent_signature_id",
-            "repository_id",
-            "measurement_unit",
-            "lower_is_better",
-            "signature_hash",
-            "application",
-        )
-
-    @staticmethod
-    def _get_filtered_signatures_by_repo(repository_name):
-        return PerformanceSignature.objects.select_related(
-            "framework", "repository", "platform", "push", "job"
-        ).filter(repository__name=repository_name)
-
-    @staticmethod
     def _get_grouped_perf_data(perf_data):
         grouped_values = defaultdict(list)
         grouped_job_ids = defaultdict(list)
@@ -1222,7 +1211,8 @@ class PerfCompareResults(generics.ListAPIView):
                 grouped_job_ids[signature_id].append(job_id)
         return grouped_job_ids, grouped_values
 
-    def _get_signatures_map(self, signatures, grouped_values, option_collection_map):
+    @staticmethod
+    def _get_signatures_map(signatures, grouped_values, option_collection_map):
         """
         @return: signatures_map - contains a mapping of all the signatures for easy access and matching
                  header_names - list of header names for all given signatures
