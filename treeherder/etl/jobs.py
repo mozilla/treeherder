@@ -297,6 +297,7 @@ def _load_job(repository, job_datum, push_id):
             jl, _ = JobLog.objects.get_or_create(
                 job=job, name=name, url=url, defaults={"status": parse_status}
             )
+
             job_logs.append(jl)
 
         _schedule_log_parsing(job, job_logs, result, repository)
