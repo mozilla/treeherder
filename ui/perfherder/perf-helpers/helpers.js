@@ -27,8 +27,11 @@ import {
   permaLinkPrefix,
 } from './constants';
 
-export const formatNumber = (input) =>
-  new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(input);
+const numberFormat = new Intl.NumberFormat('en-US', {
+  maximumFractionDigits: 2,
+});
+
+export const formatNumber = (input) => numberFormat.format(input);
 
 export const abbreviatedNumber = (num) =>
   num.toString().length <= 5 ? num : numeral(num).format('0.0a');
