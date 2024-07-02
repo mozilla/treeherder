@@ -24,10 +24,8 @@ export default class AlertStatusCountdown extends React.Component {
 
   getDueDateCountdownsStatus() {
     const { alertSummary } = this.props;
-    let {
-      triage_due_date: triageDueDate,
-      bug_due_date: bugDueDate,
-    } = alertSummary;
+    let { triage_due_date: triageDueDate, bug_due_date: bugDueDate } =
+      alertSummary;
 
     const currentDate = new Date(Date.now());
     triageDueDate = new Date(triageDueDate);

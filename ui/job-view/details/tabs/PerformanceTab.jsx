@@ -51,12 +51,8 @@ class PerformanceTab extends React.PureComponent {
   }
 
   createGeckoProfile = async () => {
-    const {
-      selectedJobFull,
-      notify,
-      decisionTaskMap,
-      currentRepo,
-    } = this.props;
+    const { selectedJobFull, notify, decisionTaskMap, currentRepo } =
+      this.props;
     await triggerTask(
       selectedJobFull,
       notify,
@@ -70,12 +66,8 @@ class PerformanceTab extends React.PureComponent {
   };
 
   createSideBySide = async () => {
-    const {
-      selectedJobFull,
-      notify,
-      decisionTaskMap,
-      currentRepo,
-    } = this.props;
+    const { selectedJobFull, notify, decisionTaskMap, currentRepo } =
+      this.props;
     await triggerTask(
       selectedJobFull,
       notify,
@@ -159,13 +151,8 @@ class PerformanceTab extends React.PureComponent {
   };
 
   render() {
-    const {
-      repoName,
-      revision,
-      selectedJobFull,
-      jobDetails,
-      perfJobDetail,
-    } = this.props;
+    const { repoName, revision, selectedJobFull, jobDetails, perfJobDetail } =
+      this.props;
     const { triggeredGeckoProfiles, showSideBySide } = this.state;
 
     // Just to be safe, use the same isPerfTest check the other
