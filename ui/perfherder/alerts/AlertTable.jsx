@@ -136,11 +136,8 @@ export default class AlertTable extends React.Component {
   };
 
   filterAlert = (alert) => {
-    const {
-      hideDownstream,
-      hideAssignedToOthers,
-      filterText,
-    } = this.props.filters;
+    const { hideDownstream, hideAssignedToOthers, filterText } =
+      this.props.filters;
     const { username } = this.props.user;
     const { alertSummary } = this.state;
 
@@ -198,9 +195,8 @@ export default class AlertTable extends React.Component {
     const filteredAlerts = alertSummary.alerts.filter((alert) =>
       this.filterAlert(alert),
     );
-    const filteredAndSortedAlerts = this.getAlertsSortedByDefault(
-      filteredAlerts,
-    );
+    const filteredAndSortedAlerts =
+      this.getAlertsSortedByDefault(filteredAlerts);
     this.setState({
       tableConfig,
       filteredAlerts,
@@ -211,11 +207,8 @@ export default class AlertTable extends React.Component {
   };
 
   updateAssignee = async (newAssigneeUsername) => {
-    const {
-      updateAlertSummary,
-      updateViewState,
-      fetchAlertSummaries,
-    } = this.props;
+    const { updateAlertSummary, updateViewState, fetchAlertSummaries } =
+      this.props;
     const { alertSummary } = this.state;
 
     const { data, failureStatus } = await updateAlertSummary(alertSummary.id, {

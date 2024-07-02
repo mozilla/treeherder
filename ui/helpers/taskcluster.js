@@ -80,7 +80,6 @@ const taskcluster = (() => {
         userCredentials[_rootUrl] &&
         moment(userCredentials[_rootUrl].expires).isAfter(moment())
       ) {
-        // eslint-disable-next-line no-promise-executor-return
         return resolve(userCredentials[_rootUrl]);
       }
 
