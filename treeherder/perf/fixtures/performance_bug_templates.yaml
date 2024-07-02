@@ -167,3 +167,22 @@
       You can run these tests on try with `./mach try perf --alert {{ alertSummaryId }}`
 
       For more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).
+- model: perf.PerformanceBugTemplate
+  pk: 11
+  fields:
+    framework: 15
+    keywords: perf, perf-alert, regression
+    default_component: Performance
+    default_product: Testing
+    text: |
+      Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). As author of one of the patches included in that push, we need your help to address this regression.
+
+      {{ alertSummary }}
+
+      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests. Please follow our [guide to handling regression bugs](https://wiki.mozilla.org/TestEngineering/Performance/Handling_regression_bugs) and **let us know your plans within 3 business days, or the patch(es) may be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).
+
+      If you need the profiling jobs you can trigger them yourself from treeherder job view or ask a sheriff to do that for you.
+
+      You can run these tests on try with `./mach try perf --alert {{ alertSummaryId }}`
+
+      For more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).
