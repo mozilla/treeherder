@@ -6,7 +6,14 @@ import { getByText } from '@testing-library/dom';
 import FileBugModal from '../../../../ui/perfherder/alerts/FileBugModal';
 import testRegressions from '../../mock/performance_regressions';
 
-const testFileBugModal = (handleClose) => {
+const testUser = {
+  username: 'mozilla-ldap/test_user@mozilla.com',
+  isLoggedIn: true,
+  isStaff: true,
+  email: 'test_user@mozilla.com',
+};
+
+const testFileBugModal = (user, handleClose) => {
   const toggle = () => {};
 
   return render(
@@ -17,6 +24,7 @@ const testFileBugModal = (handleClose) => {
       header="File Regression for"
       title="Bug Number"
       submitButtonText="File Bug"
+      user={user || testUser}
     />,
   );
 };
@@ -78,4 +86,26 @@ test('Entering a bug number with leading zero(es) File bug button should be disa
   expect(await waitFor(() => getByText('File Bug'))).toBeInTheDocument();
   const submitButton = getByText('File Bug');
   expect(submitButton).toBeDisabled();
+});
+
+test('Submit button should be disabled when user is not logged in', async () => {
+  const notLoggedInUser = {
+    ...testUser,
+    isLoggedIn: false,
+  };
+
+  const { getByText, queryByText } = testFileBugModal(notLoggedInUser);
+
+  expect(queryByText('File Bug')).toBeNull();
+  expect(
+    getByText('You need to log in to access this feature.'),
+  ).toBeInTheDocument();
+});
+
+test('Submit button should be active when user is logged in', async () => {
+  const { getByText } = testFileBugModal(testUser);
+
+  expect(await waitFor(() => getByText('File Bug'))).toBeInTheDocument();
+  const submitButton = getByText('File Bug');
+  expect(submitButton).toBeEnabled();
 });
