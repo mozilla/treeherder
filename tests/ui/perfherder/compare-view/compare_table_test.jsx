@@ -346,8 +346,9 @@ test('filters that are not enabled are removed from URL params', async () => {
 });
 
 test('page parameter updates with value 2 when clicking on the second page', async () => {
-  const { getByText, findAllByLabelText } =
-    compareTableControls(compareResults);
+  const { getByText, findAllByLabelText } = compareTableControls(
+    compareResults,
+  );
 
   const result1 = await waitFor(() =>
     getByText(compareTablesControlsResults[0].name),
@@ -376,8 +377,11 @@ test('page parameter updates with value 2 when clicking on the second page', asy
 });
 
 test('text input filter results should differ when filter button(s) are selected', async () => {
-  const { getByText, getByPlaceholderText, queryByText } =
-    compareTableControls();
+  const {
+    getByText,
+    getByPlaceholderText,
+    queryByText,
+  } = compareTableControls();
 
   const result1 = await waitFor(() => getByText(result[0].name));
   const result2 = await waitFor(() => getByText(result[1].name));

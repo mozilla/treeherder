@@ -48,8 +48,14 @@ export default class AlertModal extends React.Component {
   };
 
   render() {
-    const { showModal, toggle, updateAndClose, dropdownOption, header, title } =
-      this.props;
+    const {
+      showModal,
+      toggle,
+      updateAndClose,
+      dropdownOption,
+      header,
+      title,
+    } = this.props;
 
     const { inputValue, invalidInput, validated } = this.state;
 

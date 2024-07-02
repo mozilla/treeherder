@@ -71,7 +71,8 @@ describe('Transformations', () => {
         expected: 'devtools/client/framework/browser-toolbox/test/browser.ini',
       },
       {
-        path: 'devtools/client/framework/browser-toolbox/test/browser_browser_toolbox.js',
+        path:
+          'devtools/client/framework/browser-toolbox/test/browser_browser_toolbox.js',
         expected:
           'devtools/client/framework/browser-toolbox/test/browser_browser_toolbox.js',
       },

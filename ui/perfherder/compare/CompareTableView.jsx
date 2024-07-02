@@ -98,8 +98,12 @@ export default class CompareTableView extends React.Component {
 
   getPerformanceData = async () => {
     const { getQueryParams, hasSubtests, getDisplayResults } = this.props;
-    const { originalProject, originalRevision, newProject, newRevision } =
-      this.props.validated;
+    const {
+      originalProject,
+      originalRevision,
+      newProject,
+      newRevision,
+    } = this.props.validated;
     const { framework, timeRange, failureMessages } = this.state;
 
     this.setState({ loading: true });

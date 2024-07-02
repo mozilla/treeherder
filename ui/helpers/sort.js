@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/prefer-default-export
 export const sortAlphaNum = (a, b) => {
   // Implement a better alphanumeric sort so that mochitest-10
   // is sorted after mochitest 9, not mochitest-1

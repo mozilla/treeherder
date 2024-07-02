@@ -237,8 +237,7 @@ export const getTaskRunStr = (job) => `${job.task_id}.${job.retry_id}`;
 
 // This matches as taskId, optionally followed by `.` or`-` and a runId.
 // We support `-` for backwards compatability with the original format used.
-const taskRunPattern =
-  /^([A-Za-z0-9_-]{8}[Q-T][A-Za-z0-9_-][CGKOSWaeimquy26-][A-Za-z0-9_-]{10}[AQgw])(?:[-.]([0-9]+))?$/;
+const taskRunPattern = /^([A-Za-z0-9_-]{8}[Q-T][A-Za-z0-9_-][CGKOSWaeimquy26-][A-Za-z0-9_-]{10}[AQgw])(?:[-.]([0-9]+))?$/;
 
 export const getTaskRun = function getTaskRun(taskRunStr) {
   const match = taskRunPattern.exec(taskRunStr);

@@ -104,8 +104,13 @@ const TableView = ({
       Cell: (props) => {
         let cellElem = null;
         if (props.original[dataKey]) {
-          const { value, jobsUrl, compareUrl, deltaValue, deltaPercent } =
-            props.original[dataKey];
+          const {
+            value,
+            jobsUrl,
+            compareUrl,
+            deltaValue,
+            deltaPercent,
+          } = props.original[dataKey];
           cellElem = (
             <div tabIndex={-1}>
               <span>
@@ -145,8 +150,13 @@ const TableView = ({
     highlightedRevisions,
     dataKey,
   ) => {
-    const { pushUrl, jobsUrl, compareUrl, deltaValue, deltaPercent } =
-      getRevisionInfo(dataIndex, dataPoint, item);
+    const {
+      pushUrl,
+      jobsUrl,
+      compareUrl,
+      deltaValue,
+      deltaPercent,
+    } = getRevisionInfo(dataIndex, dataPoint, item);
 
     return {
       date: moment(dataPoint.x),

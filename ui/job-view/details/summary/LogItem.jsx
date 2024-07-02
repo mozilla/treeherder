@@ -47,8 +47,13 @@ function getLogUrlProps(logKey, logUrl, logViewerUrl, logViewerFullUrl) {
 }
 
 export default function LogItem(props) {
-  const { logUrls, logViewerUrl, logViewerFullUrl, logKey, logDescription } =
-    props;
+  const {
+    logUrls,
+    logViewerUrl,
+    logViewerFullUrl,
+    logKey,
+    logDescription,
+  } = props;
 
   return (
     <li key={logKey}>

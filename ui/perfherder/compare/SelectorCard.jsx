@@ -111,8 +111,12 @@ export default class SelectorCard extends React.Component {
   };
 
   validateInput = async (value) => {
-    const { updateState, revisionState, selectedRepo, getRevisions } =
-      this.props;
+    const {
+      updateState,
+      revisionState,
+      selectedRepo,
+      getRevisions,
+    } = this.props;
     const { data } = this.state;
 
     updateState({
@@ -172,8 +176,13 @@ export default class SelectorCard extends React.Component {
       validating,
       validated,
     } = this.state;
-    const { selectedRepo, projects, title, selectedRevision, missingRevision } =
-      this.props;
+    const {
+      selectedRepo,
+      projects,
+      title,
+      selectedRevision,
+      missingRevision,
+    } = this.props;
     return (
       <Col sm="4" className="p-2 text-left">
         <Card className="card-height">

@@ -24,8 +24,13 @@ class PlatformConfig extends React.PureComponent {
   }
 
   componentDidMount() {
-    const { selectedJobName, selectedTaskId, jobs, jobName, testName } =
-      this.props;
+    const {
+      selectedJobName,
+      selectedTaskId,
+      jobs,
+      jobName,
+      testName,
+    } = this.props;
 
     this.setState({
       detailsShowing: selectedJobName === `${testName} ${jobName}`,

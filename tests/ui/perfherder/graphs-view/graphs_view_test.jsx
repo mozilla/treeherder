@@ -279,8 +279,12 @@ test('Using select query param displays tooltip for correct datapoint with repli
 });
 
 test('InputFilter from TestDataModal can filter by application name', async () => {
-  const { getByText, getByTestId, getByPlaceholderText, getByTitle } =
-    graphsViewControls();
+  const {
+    getByText,
+    getByTestId,
+    getByPlaceholderText,
+    getByTitle,
+  } = graphsViewControls();
 
   const { name, application, projectName, platform } = seriesData[0];
   const fullTestName = projectName.concat(
@@ -310,8 +314,12 @@ test('InputFilter from TestDataModal can filter by application name', async () =
 
 test('Changing the platform dropdown while filtered by text in the Test Data Modal displays expected tests', async () => {
   mockShowModal.mockClear();
-  const { getByText, getByPlaceholderText, getByTitle, getByTestId } =
-    graphsViewControls();
+  const {
+    getByText,
+    getByPlaceholderText,
+    getByTitle,
+    getByTestId,
+  } = graphsViewControls();
 
   fireEvent.click(getByText('Add test data'));
 

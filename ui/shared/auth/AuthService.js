@@ -15,6 +15,7 @@ export default class AuthService {
   _fetchUser(userSession) {
     const loginUrl = getApiUrl('/auth/login/');
 
+    // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
       const userResponse = await fetch(loginUrl, {
         headers: {
@@ -68,6 +69,7 @@ export default class AuthService {
         this.logout();
       }
 
+      /* eslint-disable no-console */
       console.error('Could not renew login:', err);
     }
   }

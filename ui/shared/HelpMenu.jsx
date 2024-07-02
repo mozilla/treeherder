@@ -37,7 +37,8 @@ const menuItems = [
     text: 'API Reference',
   },
   {
-    href: 'https://wiki.mozilla.org/EngineeringProductivity/Projects/Treeherder',
+    href:
+      'https://wiki.mozilla.org/EngineeringProductivity/Projects/Treeherder',
     icon: faFileWord,
     text: 'Project Wiki',
   },
@@ -47,7 +48,8 @@ const menuItems = [
     text: 'Mailing List',
   },
   {
-    href: 'https://bugzilla.mozilla.org/enter_bug.cgi?product=Tree+Management&component=Treeherder',
+    href:
+      'https://bugzilla.mozilla.org/enter_bug.cgi?product=Tree+Management&component=Treeherder',
     icon: faBug,
     text: 'Report a Bug',
   },

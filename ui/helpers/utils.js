@@ -1,3 +1,5 @@
+/* eslint-disable no-bitwise */
+
 export const hashFunction = (someString) => {
   // Borrowed from https://github.com/darkskyapp/string-hash
   let hash = 5381;

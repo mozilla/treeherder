@@ -43,8 +43,13 @@ class PushActionMenu extends React.PureComponent {
   };
 
   triggerMissingJobs = () => {
-    const { notify, revision, pushId, currentRepo, decisionTaskMap } =
-      this.props;
+    const {
+      notify,
+      revision,
+      pushId,
+      currentRepo,
+      decisionTaskMap,
+    } = this.props;
     const decisionTask = decisionTaskMap[pushId];
 
     if (

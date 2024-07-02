@@ -20,8 +20,12 @@ export default class JobArtifacts extends React.PureComponent {
   }
 
   render() {
-    const { jobDetails, jobArtifactsLoading, repoName, selectedJob } =
-      this.props;
+    const {
+      jobDetails,
+      jobArtifactsLoading,
+      repoName,
+      selectedJob,
+    } = this.props;
     const sortedDetails = jobDetails.slice();
 
     sortedDetails.sort((a, b) => {
