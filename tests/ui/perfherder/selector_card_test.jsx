@@ -35,7 +35,9 @@ const renderReactNode = (getRevisions, updateState, parentState) => (
 );
 
 const selectorCard = (getRevisions, updateState, parentState, ref) =>
-  render(renderReactNode(getRevisions, updateState, parentState, ref));
+  render(renderReactNode(getRevisions, updateState, parentState, ref), {
+    legacyRoot: true,
+  });
 
 test('correct hash for input value is valid', async () => {
   const parentState = { selectedRevision: validHash };

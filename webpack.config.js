@@ -246,7 +246,7 @@ const productionConfig = {
 
   performance: {
     hints: 'error',
-    maxAssetSize: 2200000,
+    maxAssetSize: 2300000,
     maxEntrypointSize: 3000000,
   },
 

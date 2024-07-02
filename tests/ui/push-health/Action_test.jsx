@@ -23,7 +23,10 @@ describe('Action', () => {
   );
 
   test('should group by test path', async () => {
-    const { getAllByTestId } = render(testAction(tests, jobs, 'path', 'count'));
+    const { getAllByTestId } = render(
+      testAction(tests, jobs, 'path', 'count'),
+      { legacyRoot: true },
+    );
 
     expect(await waitFor(() => getAllByTestId('test-grouping'))).toHaveLength(
       3,
@@ -33,6 +36,7 @@ describe('Action', () => {
   test('should group by platform', async () => {
     const { getAllByTestId } = render(
       testAction(tests, jobs, 'platform', 'count'),
+      { legacyRoot: true },
     );
 
     expect(await waitFor(() => getAllByTestId('test-grouping'))).toHaveLength(
@@ -41,7 +45,10 @@ describe('Action', () => {
   });
 
   test('should bold the test file', async () => {
-    const { getAllByTestId } = render(testAction(tests, jobs, 'path', 'count'));
+    const { getAllByTestId } = render(
+      testAction(tests, jobs, 'path', 'count'),
+      { legacyRoot: true },
+    );
 
     expect(
       await waitFor(() => getAllByTestId('group-slash-bolded')),

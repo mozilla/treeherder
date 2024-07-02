@@ -33,7 +33,9 @@ describe('CommitHistory', () => {
 
   test('should show the push header and the author', () => {
     const { details: commitHistory } = pushHealth.metrics.commitHistory;
-    const { getByTestId } = render(testCommitHistory(commitHistory));
+    const { getByTestId } = render(testCommitHistory(commitHistory), {
+      legacyRoot: true,
+    });
     const headerText = getByTestId('headerText');
     const authorTime = getByTestId('authorTime');
 
@@ -51,6 +53,7 @@ describe('CommitHistory', () => {
     const { details: commitHistory } = pushHealth.metrics.commitHistory;
     const { getByText, getByTestId, queryByTestId } = render(
       testCommitHistory(commitHistory),
+      { legacyRoot: true },
     );
     const parentLink = getByTestId('parent-commit-sha');
 
@@ -76,6 +79,7 @@ describe('CommitHistory', () => {
 
     const { getByText, getByTestId, queryByTestId } = render(
       testCommitHistory(commitHistory),
+      { legacyRoot: true },
     );
     expect(
       getByText(
@@ -106,6 +110,7 @@ describe('CommitHistory', () => {
 
     const { getByText, queryByTestId } = render(
       testCommitHistory(commitHistory),
+      { legacyRoot: true },
     );
     expect(
       await waitFor(() =>

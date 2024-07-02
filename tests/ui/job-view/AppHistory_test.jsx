@@ -46,7 +46,11 @@ describe('history', () => {
       },
     );
     fetchMock.get(
-      `begin:${getProjectUrl('/push/?full=true&count=', repoName)}`,
+      `begin:${getProjectUrl('/push/?full=true&count=10&revision=', 'try')}`,
+      { results: [] },
+    );
+    fetchMock.get(
+      `begin:${getProjectUrl('/push/?full=true&count=10', repoName)}`,
       {
         ...pushListFixture,
         results: [pushListFixture.results[0]],
@@ -66,7 +70,7 @@ describe('history', () => {
     history.push(
       '/#/jobs?repo=try&revision=07615c30668c70692d01a58a00e7e271e69ff6f1',
     );
-    render(testApp());
+    render(testApp(), { legacyRoot: true });
 
     expect(history.location).toEqual(
       expect.objectContaining({
@@ -78,7 +82,7 @@ describe('history', () => {
   });
 
   test('lack of a specified route should redirect to jobs view with a default repo', () => {
-    render(testApp());
+    render(testApp(), { legacyRoot: true });
 
     expect(history.location).toEqual(
       expect.objectContaining({

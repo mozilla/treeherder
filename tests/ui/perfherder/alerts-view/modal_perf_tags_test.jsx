@@ -18,6 +18,7 @@ const testTagsModal = (handleClose) => {
       toggle={handleClose || toggle}
       updateAndClose={() => {}}
     />,
+    { legacyRoot: true },
   );
 };
 

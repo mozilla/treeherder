@@ -25,7 +25,9 @@ describe('ClassificationGroup', () => {
   );
 
   test('should group by test path', async () => {
-    const { getAllByTestId } = render(testClassificationGroup(tests, 'path'));
+    const { getAllByTestId } = render(testClassificationGroup(tests, 'path'), {
+      legacyRoot: true,
+    });
 
     expect(await waitFor(() => getAllByTestId('test-grouping'))).toHaveLength(
       3,
@@ -35,6 +37,7 @@ describe('ClassificationGroup', () => {
   test('should group by platform', async () => {
     const { getAllByTestId } = render(
       testClassificationGroup(tests, 'platform'),
+      { legacyRoot: true },
     );
 
     expect(await waitFor(() => getAllByTestId('test-grouping'))).toHaveLength(

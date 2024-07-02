@@ -112,6 +112,7 @@ const graphsViewControls = (
         replicates={replicates}
       />
     </Router>,
+    { legacyRoot: true },
   );
 };
 afterEach(cleanup);
