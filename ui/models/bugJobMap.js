@@ -11,11 +11,10 @@ export default class BugJobMapModel {
 
   // the options parameter is used to filter/limit the list of objects
   static getList(options) {
-    return fetch(`${getProjectUrl(uri)}${createQueryParams(options)}`).then(
-      (resp) =>
-        resp
-          .json()
-          .then((data) => data.map((elem) => new BugJobMapModel(elem))),
+    return fetch(
+      `${getProjectUrl(uri)}${createQueryParams(options)}`,
+    ).then((resp) =>
+      resp.json().then((data) => data.map((elem) => new BugJobMapModel(elem))),
     );
   }
 

@@ -24,7 +24,7 @@ export const getRevisionTitle = function getRevisionTitle(revisions) {
      *  Strip out unwanted things like additional lines, trychooser
      *  syntax, request flags, mq cruft, whitespace, and punctuation
      */
-
+    // eslint-disable-next-line prefer-destructuring
     title = title.split('\n')[0];
     title = title.replace(/\btry: .*/, '');
     title = title.replace(/\b(r|sr|f|a)=.*/, '');

@@ -95,8 +95,12 @@ class ActionBar extends React.PureComponent {
   };
 
   createGeckoProfile = async () => {
-    const { selectedJobFull, notify, decisionTaskMap, currentRepo } =
-      this.props;
+    const {
+      selectedJobFull,
+      notify,
+      decisionTaskMap,
+      currentRepo,
+    } = this.props;
     return triggerTask(
       selectedJobFull,
       notify,
@@ -107,8 +111,12 @@ class ActionBar extends React.PureComponent {
   };
 
   createSideBySide = async () => {
-    const { selectedJobFull, notify, decisionTaskMap, currentRepo } =
-      this.props;
+    const {
+      selectedJobFull,
+      notify,
+      decisionTaskMap,
+      currentRepo,
+    } = this.props;
     await triggerTask(
       selectedJobFull,
       notify,
@@ -137,8 +145,12 @@ class ActionBar extends React.PureComponent {
   };
 
   backfillJob = async () => {
-    const { selectedJobFull, notify, decisionTaskMap, currentRepo } =
-      this.props;
+    const {
+      selectedJobFull,
+      notify,
+      decisionTaskMap,
+      currentRepo,
+    } = this.props;
 
     if (!this.canBackfill()) {
       return;
@@ -185,8 +197,12 @@ class ActionBar extends React.PureComponent {
   };
 
   confirmFailure = async () => {
-    const { selectedJobFull, notify, decisionTaskMap, currentRepo } =
-      this.props;
+    const {
+      selectedJobFull,
+      notify,
+      decisionTaskMap,
+      currentRepo,
+    } = this.props;
     const { id: decisionTaskId } = decisionTaskMap[selectedJobFull.push_id];
 
     if (!canConfirmFailure(selectedJobFull)) {
@@ -274,8 +290,13 @@ class ActionBar extends React.PureComponent {
   };
 
   createInteractiveTask = async () => {
-    const { user, selectedJobFull, notify, decisionTaskMap, currentRepo } =
-      this.props;
+    const {
+      user,
+      selectedJobFull,
+      notify,
+      decisionTaskMap,
+      currentRepo,
+    } = this.props;
 
     const { id: decisionTaskId } = decisionTaskMap[selectedJobFull.push_id];
     const results = await TaskclusterModel.load(

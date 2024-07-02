@@ -99,8 +99,12 @@ const MainView = (props) => {
   let totalRuns = 0;
 
   if (graphData.length) {
-    ({ graphOneData, graphTwoData, totalFailures, totalRuns } =
-      calculateMetrics(graphData));
+    ({
+      graphOneData,
+      graphTwoData,
+      totalFailures,
+      totalRuns,
+    } = calculateMetrics(graphData));
     graphOneData = { all: graphOneData };
     graphOneData.all[0].count = tableData.length;
   }

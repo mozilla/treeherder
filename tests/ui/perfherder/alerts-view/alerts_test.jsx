@@ -469,8 +469,11 @@ test("'Take' button hides when clicking on 'Unassigned' badge", async () => {
   alertSummary.assignee_email = 'test_user@mozilla.com';
   alertSummary.assignee_username = 'mozilla-ldap/test_user@mozilla.com';
 
-  const { getByText, queryByText, queryByPlaceholderText } =
-    alertsViewControls();
+  const {
+    getByText,
+    queryByText,
+    queryByPlaceholderText,
+  } = alertsViewControls();
 
   const unassignedBadge = await waitFor(() => getByText('Unassigned'));
 
@@ -658,8 +661,11 @@ const assertAlertsAreInOrder = async (alertsInOrder, alertTableRows) => {
 };
 
 test(`table data can be sorted in descending order by 'Test'`, async () => {
-  const { getAllByLabelText, getByTestId, getAllByTitle } =
-    alertsViewControls();
+  const {
+    getAllByLabelText,
+    getByTestId,
+    getAllByTitle,
+  } = alertsViewControls();
 
   let alertTableRows = await waitFor(() =>
     getAllByLabelText('Alert table row'),
@@ -694,8 +700,11 @@ test(`table data can be sorted in descending order by 'Test'`, async () => {
 });
 
 test(`table data can be sorted in ascending order by 'Platform'`, async () => {
-  const { getByTestId, getAllByLabelText, getAllByTitle } =
-    alertsViewControls();
+  const {
+    getByTestId,
+    getAllByLabelText,
+    getAllByTitle,
+  } = alertsViewControls();
 
   let alertTableRows = await waitFor(() =>
     getAllByLabelText('Alert table row'),
@@ -737,8 +746,11 @@ test(`table data cannot be sorted by 'Tags & Options'`, async () => {
 });
 
 test(`table data can be sorted in ascending order by 'Confidence'`, async () => {
-  const { getAllByLabelText, getByTestId, getAllByTitle } =
-    alertsViewControls();
+  const {
+    getAllByLabelText,
+    getByTestId,
+    getAllByTitle,
+  } = alertsViewControls();
 
   let alertTableRows = await waitFor(() =>
     getAllByLabelText('Alert table row'),
@@ -770,8 +782,11 @@ test(`table data can be sorted in ascending order by 'Confidence'`, async () => 
 });
 
 test(`table data can be sorted in ascending order by 'Magnitude of Change'`, async () => {
-  const { getAllByLabelText, getByTestId, getAllByTitle } =
-    alertsViewControls();
+  const {
+    getAllByLabelText,
+    getByTestId,
+    getAllByTitle,
+  } = alertsViewControls();
 
   let alertTableRows = await waitFor(() =>
     getAllByLabelText('Alert table row'),
@@ -804,8 +819,11 @@ test(`table data can be sorted in ascending order by 'Magnitude of Change'`, asy
 });
 
 test('Data can be sorted only by one column', async () => {
-  const { getAllByLabelText, getByTestId, getAllByTitle } =
-    alertsViewControls();
+  const {
+    getAllByLabelText,
+    getByTestId,
+    getAllByTitle,
+  } = alertsViewControls();
 
   let alertTableRows = await waitFor(() =>
     getAllByLabelText('Alert table row'),

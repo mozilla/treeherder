@@ -190,10 +190,12 @@ describe('Filtering', () => {
     });
 
     test('should have 1 push', async () => {
-      const { getAllByText, getAllByTestId, getByText, getByTitle } = render(
-        testApp(),
-        { legacyRoot: true },
-      );
+      const {
+        getAllByText,
+        getAllByTestId,
+        getByText,
+        getByTitle,
+      } = render(testApp(), { legacyRoot: true });
       const unfilteredPushes = await waitFor(() =>
         getAllByTestId('push-header'),
       );
@@ -492,8 +494,12 @@ describe('Filtering', () => {
     });
 
     test('Filters | Reset should get back to original set of jobs', async () => {
-      const { getAllByText, findAllByText, findByText, queryAllByText } =
-        render(testApp(), { legacyRoot: true });
+      const {
+        getAllByText,
+        findAllByText,
+        findByText,
+        queryAllByText,
+      } = render(testApp(), { legacyRoot: true });
       const symbolToRemove = 'yaml';
 
       await findAllByText('B');

@@ -1,4 +1,5 @@
 // This file may export additional functions.
+/* eslint-disable import/prefer-default-export */
 
 import TaskclusterModel from '../models/taskcluster';
 

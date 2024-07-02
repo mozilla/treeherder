@@ -36,8 +36,10 @@ export default class JobModel {
       if (fetchAll && nextUrl) {
         const page = new URLSearchParams(nextUrl.split('?')[1]).get('page');
         const newOptions = { ...options, page };
-        const { data: nextData, failureStatus: nextFailureStatus } =
-          await JobModel.getList(newOptions, config);
+        const {
+          data: nextData,
+          failureStatus: nextFailureStatus,
+        } = await JobModel.getList(newOptions, config);
 
         if (!nextFailureStatus) {
           nextPagesJobs = nextData;
@@ -219,6 +221,7 @@ export default class JobModel {
     try {
       notify(`Attempting to cancel selected ${jobTerm} via actions.json`);
 
+      /* eslint-disable no-await-in-loop */
       for (const job of jobs) {
         const decisionTaskId = taskIdMap[job.push_id].id;
         let results;
@@ -251,6 +254,7 @@ export default class JobModel {
           notify(formatTaskclusterError(e), 'danger', { sticky: true });
         }
       }
+      /* eslint-enable no-await-in-loop */
 
       notify(`Request sent to cancel ${jobTerm} via action.json`, 'success');
     } catch (e) {

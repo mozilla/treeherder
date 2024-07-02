@@ -48,8 +48,10 @@ class SimilarJobsTab extends React.Component {
       options.nosuccess = '';
     }
 
-    const { data: newSimilarJobs, failureStatus } =
-      await JobModel.getSimilarJobs(selectedJobFull.id, options);
+    const {
+      data: newSimilarJobs,
+      failureStatus,
+    } = await JobModel.getSimilarJobs(selectedJobFull.id, options);
 
     if (!failureStatus) {
       this.setState({ hasNextPage: newSimilarJobs.length > this.pageSize });
