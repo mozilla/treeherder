@@ -160,9 +160,8 @@ export default class TextualSummary {
       );
       const biggestTenRegressed = sortedRegressed.slice(0, 10);
       const smallestFiveRegressed = sortedRegressed.slice(-5);
-      const formattedBiggestRegressions = this.formatAlertBulk(
-        biggestTenRegressed,
-      );
+      const formattedBiggestRegressions =
+        this.formatAlertBulk(biggestTenRegressed);
       const formattedSmallestRegressions = this.formatAlertBulk(
         smallestFiveRegressed,
       );
@@ -204,9 +203,8 @@ export default class TextualSummary {
       const formattedBiggestImprovements = this.formatAlertBulk(
         biggestFiveImprovements,
       );
-      const formattedSmallestImprovement = this.formatAlertBulk(
-        smallestImprovement,
-      );
+      const formattedSmallestImprovement =
+        this.formatAlertBulk(smallestImprovement);
 
       // Add a column for the profiler links if at least one alert has them.
       const maybeProfileColumn = this.hasProfileUrls
