@@ -107,6 +107,7 @@ export const thPlatformMap = {
   'windows10-64-2009-shippable-qr': 'Windows 10 x64 2009 Shippable WebRender',
   'windows10-64-2009-qr': 'Windows 10 x64 2009 WebRender',
   'windows11-64': 'Windows 11 x64',
+  'windows11-64-shippable-qr': 'Windows 11 x64 WebRender Shippable',
   'windows11-64-2009-qr': 'Windows 11 x64 22H2 WebRender',
   'windows11-64-2009-asan-qr': 'Windows 11 x64 22H2 asan WebRender',
   'windows11-64-2009-shippable-qr': 'Windows 11 x64 22H2 WebRender Shippable',
