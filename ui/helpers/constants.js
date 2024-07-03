@@ -139,6 +139,8 @@ export const thPlatformMap = {
   'win64-nightlyasrelease': 'Windows x64 NightlyAsRelease WebRender',
   'windows10-64-nightlyasrelease-qr':
     'Windows 10 x64 NightlyAsRelease WebRender',
+  'windows11-64-nightlyasrelease-qr':
+    'Windows 11 x64 NightlyAsRelease WebRender',
   'android-4-1-armv7': 'Android 4.1 ARMv7',
   'android-4-1-x86': 'Android 4.1 x86',
   'android-4-1-x86-shippable-lite': 'Android 4.1 x86 Lite Shippable',
