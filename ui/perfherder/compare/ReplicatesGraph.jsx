@@ -47,13 +47,8 @@ export default class ReplicatesGraph extends React.Component {
       : `${title} replicates`;
 
   fetchReplicateGraphData = async () => {
-    const {
-      project,
-      revision,
-      subtestSignature,
-      getData,
-      getReplicateData,
-    } = this.props;
+    const { project, revision, subtestSignature, getData, getReplicateData } =
+      this.props;
     const replicateData = {};
 
     const perfDatumResponse = await getData(

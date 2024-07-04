@@ -225,11 +225,8 @@ class Test extends PureComponent {
       selectedTaskId,
       updateParamsAndState,
     } = this.props;
-    const {
-      clipboardVisible,
-      detailsShowing,
-      allPlatformsSelected,
-    } = this.state;
+    const { clipboardVisible, detailsShowing, allPlatformsSelected } =
+      this.state;
 
     return (
       <div>

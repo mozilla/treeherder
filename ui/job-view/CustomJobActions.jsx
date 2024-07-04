@@ -48,12 +48,8 @@ class CustomJobActions extends React.PureComponent {
     const { id: decisionTaskId } = decisionTaskMap[pushId];
 
     TaskclusterModel.load(decisionTaskId, job, currentRepo).then((results) => {
-      const {
-        originalTask,
-        originalTaskId,
-        staticActionVariables,
-        actions,
-      } = results;
+      const { originalTask, originalTaskId, staticActionVariables, actions } =
+        results;
 
       if (actions.length) {
         const mappedActions = keyBy(actions, 'name');

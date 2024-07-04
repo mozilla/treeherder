@@ -149,12 +149,8 @@ class DetailsPanel extends React.Component {
 
   render() {
     const { currentRepo, closeDetails } = this.props;
-    const {
-      selectedTaskFull,
-      taskDetails,
-      taskDetailLoading,
-      tabIndex,
-    } = this.state;
+    const { selectedTaskFull, taskDetails, taskDetailLoading, tabIndex } =
+      this.state;
 
     return (
       <div className="w-100">
