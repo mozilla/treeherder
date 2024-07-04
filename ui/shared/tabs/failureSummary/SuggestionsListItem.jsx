@@ -71,6 +71,7 @@ export default class SuggestionsListItem extends React.Component {
               bugClassName={
                 developerMode ? 'text-darker-secondary small-text' : ''
               }
+              title={bug.resolution !== '' ? bug.resolution : ''}
             />
           ))}
         </ul>,
