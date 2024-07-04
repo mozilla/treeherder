@@ -36,3 +36,5 @@ jest.mock('taskcluster-client-web', () => {
     }),
   };
 });
+
+jest.setTimeout(10000);

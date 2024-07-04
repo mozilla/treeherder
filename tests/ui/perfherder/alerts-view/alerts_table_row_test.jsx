@@ -55,6 +55,7 @@ const alertTableRowTest = (
         />
       </tbody>
     </table>,
+    { legacyRoot: true },
   );
 };
 

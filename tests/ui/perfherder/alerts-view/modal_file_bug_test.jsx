@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react';
-// eslint-disable-next-line no-unused-vars,import/no-extraneous-dependencies
+// eslint-disable-next-line no-unused-vars
 import { getByText } from '@testing-library/dom';
 
 import FileBugModal from '../../../../ui/perfherder/alerts/FileBugModal';
@@ -18,6 +18,7 @@ const testFileBugModal = (handleClose) => {
       title="Bug Number"
       submitButtonText="File Bug"
     />,
+    { legacyRoot: true },
   );
 };
 

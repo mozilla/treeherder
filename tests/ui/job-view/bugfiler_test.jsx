@@ -155,7 +155,7 @@ describe('BugFiler', () => {
       search: summary,
     };
 
-    render(bugFilerComponentSuggestion(suggestion));
+    render(bugFilerComponentSuggestion(suggestion), { legacyRoot: true });
     const area = screen.getAllByRole('textbox');
     // TODO: hardcoded '1' in the array index
     // TODO: this used to check specific areas of summary,
@@ -285,8 +285,8 @@ describe('BugFiler', () => {
       },
     ];
 
-    render(bugFilerComponentSuggestions(suggestions));
-    const signatureArea = await screen.getByDisplayValue(
+    render(bugFilerComponentSuggestions(suggestions), { legacyRoot: true });
+    const signatureArea = screen.getByDisplayValue(
       '[@ servo_arc::HeaderSlice<H,T>::slice]',
     );
     expect(signatureArea).toBeInTheDocument();
@@ -302,8 +302,8 @@ describe('BugFiler', () => {
       },
     ];
 
-    render(bugFilerComponentSuggestions(suggestions));
-    const signatureArea = await screen.queryByDisplayValue('test_webvr.html');
+    render(bugFilerComponentSuggestions(suggestions), { legacyRoot: true });
+    const signatureArea = screen.queryByDisplayValue('test_webvr.html');
     expect(signatureArea).toBeNull();
   });
 
@@ -316,10 +316,8 @@ describe('BugFiler', () => {
           'SUMMARY: AddressSanitizer: heap-use-after-free /builds/worker/checkouts/gecko/mock/folder/file.c:12:34 in mock::MockComponent::MockMethod(mock::squirrel::Weasel*)',
       },
     ];
-    render(bugFilerComponentSuggestions(suggestions));
-    const securityIssue = await screen.getByText(
-      'Report this as a security issue',
-    );
+    render(bugFilerComponentSuggestions(suggestions), { legacyRoot: true });
+    const securityIssue = screen.getByText('Report this as a security issue');
     expect(securityIssue).toBeTruthy();
   });
 
@@ -333,10 +331,8 @@ describe('BugFiler', () => {
       },
     ];
 
-    render(bugFilerComponentSuggestions(suggestions));
-    const securityIssue = await screen.getByText(
-      'Report this as a security issue',
-    );
+    render(bugFilerComponentSuggestions(suggestions), { legacyRoot: true });
+    const securityIssue = screen.getByText('Report this as a security issue');
     expect(securityIssue.checked).toBeFalsy();
   });
 
@@ -350,9 +346,9 @@ describe('BugFiler', () => {
   });
 
   test('should strip omitted leads from thisFailure', async () => {
-    const { getByTitle } = render(bugFilerComponentSuggestions(PdfSuggestions));
+    render(bugFilerComponentSuggestions(PdfSuggestions), { legacyRoot: true });
 
-    const toggleSummary = getByTitle('expand');
+    const toggleSummary = screen.getByTitle('expand');
     await fireEvent.click(toggleSummary);
 
     // TODO: hardcoded '2' value - how to get textarea for expanded field

@@ -152,7 +152,7 @@ describe('DetailsPanel', () => {
   };
 
   test('pin selected job with button', async () => {
-    const { getByTitle } = render(testDetailsPanel());
+    const { getByTitle } = render(testDetailsPanel(), { legacyRoot: true });
     store.dispatch(setSelectedJob(jobList.data[1], true));
 
     fireEvent.click(await waitFor(() => getByTitle('Pin job')));
@@ -166,7 +166,7 @@ describe('DetailsPanel', () => {
   });
 
   test('KeyboardShortcut space: pin selected job', async () => {
-    const { getByTitle } = render(testDetailsPanel());
+    const { getByTitle } = render(testDetailsPanel(), { legacyRoot: true });
     store.dispatch(setSelectedJob(jobList.data[1], true));
 
     const content = await waitFor(() =>
@@ -182,7 +182,9 @@ describe('DetailsPanel', () => {
   });
 
   test('KeyboardShortcut b: pin selected task and edit bug', async () => {
-    const { getByPlaceholderText } = render(testDetailsPanel());
+    const { getByPlaceholderText } = render(testDetailsPanel(), {
+      legacyRoot: true,
+    });
     store.dispatch(setSelectedJob(jobList.data[1], true));
 
     const content = await waitFor(() =>
@@ -201,7 +203,9 @@ describe('DetailsPanel', () => {
   });
 
   test('KeyboardShortcut c: pin selected task and edit comment', async () => {
-    const { getByPlaceholderText } = render(testDetailsPanel());
+    const { getByPlaceholderText } = render(testDetailsPanel(), {
+      legacyRoot: true,
+    });
     store.dispatch(setSelectedJob(jobList.data[1], true));
 
     const content = await waitFor(() =>
@@ -218,7 +222,7 @@ describe('DetailsPanel', () => {
   });
 
   test('KeyboardShortcut ctrl+shift+u: clear PinBoard', async () => {
-    const { getByTitle } = render(testDetailsPanel());
+    const { getByTitle } = render(testDetailsPanel(), { legacyRoot: true });
     store.dispatch(setSelectedJob(jobList.data[1], true));
 
     fireEvent.click(await waitFor(() => getByTitle('Pin job')));
@@ -238,7 +242,9 @@ describe('DetailsPanel', () => {
   });
 
   test('clear PinBoard', async () => {
-    const { getByTitle, getByText } = render(testDetailsPanel());
+    const { getByTitle, getByText } = render(testDetailsPanel(), {
+      legacyRoot: true,
+    });
     store.dispatch(setSelectedJob(jobList.data[1], true));
 
     fireEvent.click(await waitFor(() => getByTitle('Pin job')));
@@ -255,7 +261,9 @@ describe('DetailsPanel', () => {
   });
 
   test('pin all jobs', async () => {
-    const { queryAllByTitle } = render(testDetailsPanel());
+    const { queryAllByTitle } = render(testDetailsPanel(), {
+      legacyRoot: true,
+    });
     store.dispatch(pinJobs(jobList.data));
     const unPinJobBtns = queryAllByTitle('Unpin job');
     expect(unPinJobBtns).toHaveLength(5);
@@ -267,7 +275,7 @@ describe('DetailsPanel', () => {
       getByText,
       getByTitle,
       queryAllByTitle,
-    } = render(testDetailsPanel());
+    } = render(testDetailsPanel(), { legacyRoot: true });
 
     store.dispatch(pinJobs(jobList.data));
     store.dispatch(setSelectedJob(jobList.data[1], true));

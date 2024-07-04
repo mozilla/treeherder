@@ -35,14 +35,14 @@ describe('Usage', () => {
   const revision = 'bdb000dbec165634372c03ad2a8692ed81bf98a1';
 
   test('should show 10 facets', async () => {
-    const { getAllByTestId } = render(testUsage());
+    const { getAllByTestId } = render(testUsage(), { legacyRoot: true });
     const facets = await waitFor(() => getAllByTestId('facet-link'));
 
     expect(facets).toHaveLength(10);
   });
 
   test('should show details about each revision', async () => {
-    const { getByTestId } = render(testUsage());
+    const { getByTestId } = render(testUsage(), { legacyRoot: true });
     const facet = await waitFor(() => getByTestId(`facet-${revision}`));
     const { children } = facet;
 

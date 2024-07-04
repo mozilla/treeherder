@@ -55,14 +55,16 @@ describe('JobGroup component', () => {
       Tests Jobs view
    */
   it('collapsed should show a job and count of 2 icon when collapsed', async () => {
-    const { getByTestId } = render(jobGroup(countGroup));
+    const { getByTestId } = render(jobGroup(countGroup), { legacyRoot: true });
 
     const jobGroupCount = await waitFor(() => getByTestId('job-group-count'));
     expect(jobGroupCount).toHaveTextContent('2');
   });
 
   test('should show a job and count of 2 icon when re-collapsed', async () => {
-    const { getByText, getByTestId } = render(jobGroup(countGroup));
+    const { getByText, getByTestId } = render(jobGroup(countGroup), {
+      legacyRoot: true,
+    });
 
     const jobGroupCount = await waitFor(() => getByTestId('job-group-count'));
     expect(jobGroupCount).toHaveTextContent('2');
@@ -78,7 +80,9 @@ describe('JobGroup component', () => {
   });
 
   test('should show jobs, not counts when expanded', async () => {
-    const { getByTestId, getAllByTestId } = render(jobGroup(countGroup));
+    const { getByTestId, getAllByTestId } = render(jobGroup(countGroup), {
+      legacyRoot: true,
+    });
 
     const jobGroupCount = await waitFor(() => getByTestId('job-group-count'));
     expect(jobGroupCount).toHaveTextContent('2');
@@ -95,6 +99,7 @@ describe('JobGroup component', () => {
     const groupCountsExpanded = true;
     const { queryByTestId, getAllByTestId } = render(
       jobGroup(countGroup, groupCountsExpanded),
+      { legacyRoot: true },
     );
 
     const expandedJobs = await waitFor(() => getAllByTestId('job-btn'));
@@ -105,7 +110,7 @@ describe('JobGroup component', () => {
   });
 
   test('should hide duplicates by default', async () => {
-    const { getAllByTestId } = render(jobGroup(dupGroup));
+    const { getAllByTestId } = render(jobGroup(dupGroup), { legacyRoot: true });
 
     const jobGroupCount = await waitFor(() =>
       getAllByTestId('job-group-count'),

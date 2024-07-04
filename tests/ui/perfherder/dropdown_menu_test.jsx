@@ -24,6 +24,7 @@ const repoDropdownMenuItems = () =>
       pinned={pinned.filter((item) => options.includes(item))}
       updateData={updateData}
     />,
+    { legacyRoot: true },
   );
 
 test('Pinned options are listed first', async () => {

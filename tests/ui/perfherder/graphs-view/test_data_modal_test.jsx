@@ -65,6 +65,7 @@ const testDataModel = () => {
       })}
       getSeriesData={mockGetSeriesData}
     />,
+    { legacyRoot: true },
   );
 };
 
