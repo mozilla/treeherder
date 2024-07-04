@@ -37,6 +37,7 @@ def _update_bugscache(bug_list):
 
 BUG_SEARCHES = (
     ("test_popup_preventdefault_chrome.xul", [455091]),
+    ("test_Popup_Preventdefault_Chrome.XUL", [455091]),
     ("test_popup_preventdefault_chrome.xul foo bar", []),
     (
         "test_switch_frame.py TestSwitchFrame.test_should_be_able_to_carry_on_working_if_the_frame_is_deleted",

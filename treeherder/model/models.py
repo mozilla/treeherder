@@ -234,6 +234,7 @@ class Bugscache(models.Model):
     @classmethod
     def search(cls, search_term):
         max_size = 50
+        search_term = search_term.lower()
 
         # On PostgreSQL we can use the ORM directly, but NOT the full text search
         # as the ranking algorithm expects english words, not paths
@@ -254,11 +255,11 @@ class Bugscache(models.Model):
             all_data = [
                 match
                 for match in open_recent_match_string
-                if match["summary"].startswith(search_term)
-                or "/" + search_term in match["summary"]
-                or " " + search_term in match["summary"]
-                or "\\" + search_term in match["summary"]
-                or "," + search_term in match["summary"]
+                if match["summary"].lower().startswith(search_term)
+                or "/" + search_term in match["summary"].lower()
+                or " " + search_term in match["summary"].lower()
+                or "\\" + search_term in match["summary"].lower()
+                or "," + search_term in match["summary"].lower()
             ]
             open_recent = [x for x in all_data if x["resolution"] == ""]
             all_others = [x for x in all_data if x["resolution"] != ""]
