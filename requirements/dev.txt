@@ -230,9 +230,9 @@ django==4.2.9 \
     # via
     #   django-debug-toolbar
     #   django-extensions
-django-debug-toolbar==4.4.2 \
-    --hash=sha256:5d7afb2ea5f8730241e5b0735396e16cd1fd8c6b53a2f3e1e30bbab9abb23728 \
-    --hash=sha256:9204050fcb1e4f74216c5b024bc76081451926a6303993d6c513f5e142675927
+django-debug-toolbar==4.4.3 \
+    --hash=sha256:1418397daa1bd41d0c282e6cb20756eec008cb8e1330cf776de45e58b1e5b44c \
+    --hash=sha256:c01296649dcaa05522d58bbb29461b5def06b687bf2af767069b5f805ac57d43
     # via -r requirements/dev.in
 django-extensions==3.2.3 \
     --hash=sha256:44d27919d04e23b3f40231c4ab7af4e61ce832ef46d610cc650d53e68328410a \
