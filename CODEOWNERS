@@ -7,7 +7,10 @@
 ui/helpers/constants.js     @mozilla/treeherder-admins
 repository.json             @mozilla/treeherder-admins
 push-health/**              @mozilla/treeherder-admins
+infra-compare/              @beatrice-acasandrei @esanuandra
 intermittent-failures/**    @mozilla/treeherder-admins
 intermittents-commenter/**  @mozilla/treeherder-admins
 job-view/**                 @mozilla/treeherder-admins
-perfherder/**               @ionutgoldan
+perf/                       @beatrice-acasandrei @esanuandra
+perfalert/                  @beatrice-acasandrei @esanuandra
+perfherder/                 @beatrice-acasandrei @esanuandra
