@@ -98,7 +98,12 @@ def test_perfcompare_results_against_no_base(
     perf_datum.push.save()
 
     response = get_expected(
-        base_sig, extra_options, test_option_collection, new_perf_data_values, base_perf_data_values
+        base_sig,
+        new_sig,
+        extra_options,
+        test_option_collection,
+        new_perf_data_values,
+        base_perf_data_values,
     )
 
     expected = [
@@ -150,8 +155,11 @@ def test_perfcompare_results_against_no_base(
             "is_improvement": response["is_improvement"],
             "is_regression": response["is_regression"],
             "is_meaningful": response["is_meaningful"],
-            "parent_signature": response["parent_signature"],
-            "signature_id": response["signature_id"],
+            "base_parent_signature": response["base_parent_signature"],
+            "new_parent_signature": response["new_parent_signature"],
+            "base_signature_id": response["base_signature_id"],
+            "new_signature_id": response["new_signature_id"],
+            "has_subtests": response["has_subtests"],
         },
     ]
 
@@ -170,7 +178,8 @@ def test_perfcompare_results_against_no_base(
 
     assert response.status_code == 200
     assert expected[0] == response.json()[0]
-    assert response.json()[0]["parent_signature"] is None
+    assert response.json()[0]["base_parent_signature"] is None
+    assert response.json()[0]["new_parent_signature"] is None
 
 
 def test_perfcompare_results_with_only_one_run_and_diff_repo(
@@ -257,7 +266,12 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
     perf_datum.push.save()
 
     response = get_expected(
-        base_sig, extra_options, test_option_collection, new_perf_data_values, base_perf_data_values
+        base_sig,
+        new_sig,
+        extra_options,
+        test_option_collection,
+        new_perf_data_values,
+        base_perf_data_values,
     )
 
     expected = [
@@ -309,8 +323,11 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
             "is_improvement": response["is_improvement"],
             "is_regression": response["is_regression"],
             "is_meaningful": response["is_meaningful"],
-            "parent_signature": response["parent_signature"],
-            "signature_id": response["signature_id"],
+            "base_parent_signature": response["base_parent_signature"],
+            "new_parent_signature": response["new_parent_signature"],
+            "base_signature_id": response["base_signature_id"],
+            "new_signature_id": response["new_signature_id"],
+            "has_subtests": response["has_subtests"],
         },
     ]
 
@@ -420,7 +437,12 @@ def test_perfcompare_results_subtests_support(
     perf_datum.push.save()
 
     response = get_expected(
-        base_sig, extra_options, test_option_collection, new_perf_data_values, base_perf_data_values
+        base_sig,
+        new_sig,
+        extra_options,
+        test_option_collection,
+        new_perf_data_values,
+        base_perf_data_values,
     )
 
     expected = [
@@ -472,14 +494,17 @@ def test_perfcompare_results_subtests_support(
             "is_improvement": response["is_improvement"],
             "is_regression": response["is_regression"],
             "is_meaningful": response["is_meaningful"],
-            "parent_signature": response["parent_signature"],
-            "signature_id": response["signature_id"],
+            "base_parent_signature": response["base_parent_signature"],
+            "new_parent_signature": response["new_parent_signature"],
+            "base_signature_id": response["base_signature_id"],
+            "new_signature_id": response["new_signature_id"],
+            "has_subtests": response["has_subtests"],
         },
     ]
 
     query_params = (
         "?base_repository={}&new_repository={}&base_revision={}&new_revision={}&framework={"
-        "}&parent_signature={}".format(
+        "}&base_parent_signature={}".format(
             try_repository.name,
             test_repository.name,
             test_perfcomp_push.revision,
@@ -493,7 +518,8 @@ def test_perfcompare_results_subtests_support(
 
     assert response.status_code == 200
     assert expected[0] == response.json()[0]
-    assert response.json()[0]["parent_signature"] == test_perf_signature_2.id
+    assert response.json()[0]["base_parent_signature"] == test_perf_signature_2.id
+    assert response.json()[0]["new_parent_signature"] == test_perf_signature_2.id
 
 
 @skip("test is frequently failing in CI, needs to be fixed, see bug 1809467")
@@ -757,7 +783,12 @@ def test_interval_is_required_when_comparing_without_base(
 
 
 def get_expected(
-    base_sig, extra_options, test_option_collection, new_perf_data_values, base_perf_data_values
+    base_sig,
+    new_sig,
+    extra_options,
+    test_option_collection,
+    new_perf_data_values,
+    base_perf_data_values,
 ):
     response = {"option_name": test_option_collection.get(base_sig.option_collection_id, "")}
     test_suite = perfcompare_utils.get_test_suite(base_sig.suite, base_sig.test)
@@ -815,8 +846,13 @@ def get_expected(
     response["is_improvement"] = class_name == "success"
     response["is_regression"] = class_name == "danger"
     response["is_meaningful"] = class_name == ""
-    response["parent_signature"] = (
+    response["base_parent_signature"] = (
         base_sig.parent_signature.id if base_sig.parent_signature else None
     )
-    response["signature_id"] = base_sig.id
+    response["new_parent_signature"] = (
+        new_sig.parent_signature.id if base_sig.parent_signature else None
+    )
+    response["base_signature_id"] = base_sig.id
+    response["new_signature_id"] = new_sig.id
+    response["has_subtests"] = base_sig.has_subtests or new_sig.has_subtests
     return response
