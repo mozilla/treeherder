@@ -83,5 +83,17 @@
     "search_terms": ["Got 1 unexpected statuses"],
     "path_end": null,
     "bugs": { "open_recent": [], "all_others": [] }
+  },
+  {
+    "search": "TEST-UNEXPECTED-CRASH | /trusted-types/WorkerGlobalScope-eval.html | expected OK",
+    "search_terms": ["WorkerGlobalScope-eval.html"],
+    "path_end": "/trusted-types/WorkerGlobalScope-eval.html",
+    "bugs": { "open_recent": [], "all_others": [] }
+  },
+  {
+    "search": "TEST-UNEXPECTED-CRASH | /css/css-break/hit-test-inline-fragmentation-with-border-radius.html | expected OK",
+    "search_terms": ["hit-test-inline-fragmentation-with-border-radius.html"],
+    "path_end": "/css/css-break/hit-test-inline-fragmentation-with-border-radius.html",
+    "bugs": { "open_recent": [], "all_others": [] }
   }
 ]
