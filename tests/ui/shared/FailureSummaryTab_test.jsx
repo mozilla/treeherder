@@ -124,4 +124,38 @@ describe('FailureSummaryTab', () => {
       '1725749',
     );
   });
+
+  test('filter by test path contains folder path (one level depth)', async () => {
+    /* For web platform tests, the test manifest does not necessarily only
+       contain one test folder but can contain subfolders.
+       Support for this has not been implemented and the whole test path is
+       supposed to be set as filter. */
+    render(testFailureSummaryTab(), {
+      legacyRoot: true,
+    });
+
+    await waitFor(() =>
+      screen.getByTitle('Filter by test path: trusted-types/'),
+    );
+    expect(
+      screen.getByTitle('Filter by test path: trusted-types/'),
+    ).toBeInTheDocument();
+  });
+
+  test('filter by test path contains folder path (multiple level depth)', async () => {
+    /* For web platform tests, the test manifest does not necessarily only
+       contain one test folder but can contain subfolders.
+       Support for this has not been implemented and the whole test path is
+       supposed to be set as filter. */
+    render(testFailureSummaryTab(), {
+      legacyRoot: true,
+    });
+
+    await waitFor(() =>
+      screen.getByTitle('Filter by test path: css/css-break/'),
+    );
+    expect(
+      screen.getByTitle('Filter by test path: css/css-break/'),
+    ).toBeInTheDocument();
+  });
 });

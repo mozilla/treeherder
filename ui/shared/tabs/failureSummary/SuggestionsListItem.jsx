@@ -131,7 +131,7 @@ export default class SuggestionsListItem extends React.Component {
         </mark>,
       );
     }
-    const filterTestPath = suggestion.search.match(/([a-z_\\-s0-9.]+[/])+/gi);
+    const filterTestPath = suggestion.search.match(/([a-z_\-0-9]+[/])+/gi);
 
     return (
       <li>
