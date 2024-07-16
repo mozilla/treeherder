@@ -57,7 +57,7 @@ jobs:
       - docker/install-docker-compose:
           version: 1.29.2
       - run:
-          command: sudo apt-get update && sudo apt-get install python3-venv -y
+          command: sudo NEEDRESTART_SUSPEND=True apt-get update && sudo NEEDRESTART_SUSPEND=True apt-get install python3-venv -y
           name: python for glean
       - run:
           name: Run tests and coverage within Docker container
