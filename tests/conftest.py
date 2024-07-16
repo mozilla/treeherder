@@ -325,6 +325,11 @@ def test_job(eleven_job_blobs, create_jobs):
 
 
 @pytest.fixture
+def test_jobs(eleven_job_blobs_new_date, create_jobs):
+    return create_jobs(eleven_job_blobs_new_date)
+
+
+@pytest.fixture
 def test_two_jobs_tc_metadata(eleven_job_blobs_new_date, create_jobs):
     job_1, job_2 = eleven_job_blobs_new_date[0:2]
     job_1["job"].update(
