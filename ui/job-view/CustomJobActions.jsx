@@ -151,7 +151,7 @@ class CustomJobActions extends React.PureComponent {
       currentRepo,
     }).then(
       (taskId) => {
-        this.setState({ triggering: false });
+        this.setState({ triggering: false }, this.close);
         let message = 'Custom action request sent successfully:';
         let url = tcLibUrls.ui(
           checkRootUrl(currentRepo.tc_root_url),
@@ -175,8 +175,7 @@ class CustomJobActions extends React.PureComponent {
       },
       (e) => {
         notify(formatTaskclusterError(e), 'danger', { sticky: true });
-        this.setState({ triggering: false });
-        this.close();
+        this.setState({ triggering: false }, this.close);
       },
     );
   };
