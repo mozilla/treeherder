@@ -58,7 +58,15 @@ export default class FileBugModal extends React.Component {
   };
 
   render() {
-    const { showModal, toggle, header, title, submitButtonText } = this.props;
+    const {
+      showModal,
+      toggle,
+      header,
+      title,
+      submitButtonText,
+      user,
+      errorMessage,
+    } = this.props;
 
     const { inputValue, invalidInput, validated } = this.state;
 
@@ -72,46 +80,65 @@ export default class FileBugModal extends React.Component {
         <ModalHeader toggle={toggle}>{header}</ModalHeader>
         <Form>
           <ModalBody>
-            <FormGroup>
-              <Row className="justify-content-left">
-                <Col className="col-6">
-                  <Label for="culpritBugId">
-                    {title} <i>(optional): </i>
-                    <span className="text-secondary">
-                      <FontAwesomeIcon icon={faInfoCircle} title={infoText} />
-                    </span>
-                  </Label>
-                  <Input
-                    value={inputValue}
-                    onChange={this.updateInput}
-                    name="culpritBugId"
-                    placeholder="123456"
-                  />
-                </Col>
-              </Row>
-              <Row className="justify-content-left">
-                <Col className="text-left">
-                  {invalidInput && !validated && (
-                    <p className="text-danger pt-2 text-wrap">
-                      Input should only contain numbers and not start with 0
-                    </p>
-                  )}
-                </Col>
-              </Row>
-            </FormGroup>
+            {errorMessage && (
+              <div className="alert alert-danger">{errorMessage}</div>
+            )}
+            {user.isLoggedIn ? (
+              <FormGroup>
+                <Row className="justify-content-left">
+                  <Col className="col-6">
+                    <Label for="culpritBugId">
+                      {title} <i>(optional): </i>
+                      <span className="text-secondary">
+                        <FontAwesomeIcon icon={faInfoCircle} title={infoText} />
+                      </span>
+                    </Label>
+                    <Input
+                      value={inputValue}
+                      onChange={this.updateInput}
+                      name="culpritBugId"
+                      placeholder="123456"
+                    />
+                  </Col>
+                </Row>
+                <Row className="justify-content-left">
+                  <Col className="text-left">
+                    {invalidInput && !validated && (
+                      <p className="text-danger pt-2 text-wrap">
+                        Input should only contain numbers and not start with 0
+                      </p>
+                    )}
+                  </Col>
+                </Row>
+              </FormGroup>
+            ) : (
+              <div>
+                <p>You need to log in to access this feature.</p>
+              </div>
+            )}
           </ModalBody>
           <ModalFooter>
-            <Button
-              className="btn-outline-darker-info active"
-              onClick={(event) => this.handleSubmit(event, inputValue)}
-              disabled={invalidInput && !validated}
-              type="submit"
-            >
-              {(inputValue.length &&
-                !invalidInput &&
-                `${submitButtonText} for ${inputValue}`) ||
-                ((!inputValue.length || invalidInput) && `${submitButtonText}`)}
-            </Button>
+            {user.isLoggedIn ? (
+              <Button
+                className="btn-outline-darker-info active"
+                onClick={(event) => this.handleSubmit(event, inputValue)}
+                disabled={invalidInput && !validated}
+                type="submit"
+              >
+                {(inputValue.length &&
+                  !invalidInput &&
+                  `${submitButtonText} for ${inputValue}`) ||
+                  ((!inputValue.length || invalidInput) &&
+                    `${submitButtonText}`)}
+              </Button>
+            ) : (
+              <Button
+                className="btn-outline-darker-info active"
+                onClick={toggle}
+              >
+                Cancel
+              </Button>
+            )}
           </ModalFooter>
         </Form>
       </Modal>
@@ -126,4 +153,5 @@ FileBugModal.propTypes = {
   header: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   submitButtonText: PropTypes.string.isRequired,
+  user: PropTypes.shape({}).isRequired,
 };
