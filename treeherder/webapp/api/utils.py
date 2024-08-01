@@ -68,14 +68,19 @@ def get_artifact_list(root_url, task_id):
         return artifacts.get("artifacts", [])
 
 
-def get_profile_artifact_url(alert, task_metadata):
+def get_profile_artifact_url(alert, metadata_key):
     tc_root_url = cache.get("tc_root_url", "")
-    # Return a string to tell that task_id wasn't found
+    # Get the taskcluster metadata we'll use. It's determined by the caller.
+    task_metadata = alert[metadata_key]
+
+    # Return None if task_id wasn't found
     if not task_metadata.get("task_id") or not tc_root_url:
-        return "task_id not found"
+        return None
+
     # If the url was already cached, don't calculate again, just return it
     if cache.get(task_metadata.get("task_id")):
         return cache.get(task_metadata.get("task_id"))
+
     artifacts_json = get_artifact_list(tc_root_url, task_metadata.get("task_id"))
     profile_artifact = [
         artifact
@@ -86,7 +91,8 @@ def get_profile_artifact_url(alert, task_metadata):
     ]
 
     if not profile_artifact:
-        return "Artifact not available"
+        return None
+
     task_url = f"{tc_root_url}/api/queue/v1/task/{task_metadata['task_id']}"
     # There's only one profile relevant for performance per task
     artifact_url = (
