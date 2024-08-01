@@ -222,10 +222,10 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
             return {}
 
     def get_profile_url(self, alert):
-        return "N/A"
+        return None
 
     def get_prev_profile_url(self, alert):
-        return "N/A"
+        return None
 
     def get_classifier_email(self, performance_alert):
         return getattr(performance_alert.classifier, "email", None)
