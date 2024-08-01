@@ -146,6 +146,7 @@ services:
       - ./docker/statsd_config.js:/usr/src/app/config.js
     ports:
       - '8125:8125'
+    platform: linux/amd64
 
 volumes:
   # TODO: Experiment with using tmpfs when testing, to speed up database-using Python tests.
