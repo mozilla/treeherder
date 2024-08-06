@@ -5,7 +5,6 @@ from urllib.parse import urlencode
 
 import django_filters
 from django.conf import settings
-from django.core.cache import cache
 from django.db import transaction
 from django.db.models import CharField, Count, Q, Subquery, Value, Case, When
 from django.db.models.functions import Concat
@@ -483,19 +482,11 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
                     if summary["id"] == int(pk):
                         for alert in summary["alerts"]:
                             if alert["is_regression"]:
-                                taskcluster_metadata = (
-                                    cache.get("task_metadata") if cache.get("task_metadata") else {}
-                                )
                                 alert["profile_url"] = get_profile_artifact_url(
-                                    alert, taskcluster_metadata
-                                )
-                                prev_taskcluster_metadata = (
-                                    cache.get("prev_task_metadata")
-                                    if cache.get("prev_task_metadata")
-                                    else {}
+                                    alert, metadata_key="taskcluster_metadata"
                                 )
                                 alert["prev_profile_url"] = get_profile_artifact_url(
-                                    alert, prev_taskcluster_metadata
+                                    alert, metadata_key="prev_taskcluster_metadata"
                                 )
             return self.get_paginated_response(serializer.data)
 
