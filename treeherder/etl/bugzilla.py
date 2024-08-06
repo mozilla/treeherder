@@ -4,7 +4,7 @@ import requests
 import dateutil.parser
 from datetime import datetime, timedelta
 from django.conf import settings
-from django.db.models import Max
+from django.db.models import Count, Max
 
 from treeherder.model.models import Bugscache, BugJobMap
 from treeherder.utils.github import fetch_json
@@ -17,7 +17,7 @@ def reopen_request(url, method, headers, json):
     make_request(url, method=method, headers=headers, json=json)
 
 
-def reopen_intermittent_bugs():
+def reopen_intermittent_bugs(minimum_failures_to_reopen=1):
     # Don't reopen bugs from non-production deployments.
     if settings.BUGFILER_API_KEY is None:
         return
@@ -29,9 +29,11 @@ def reopen_intermittent_bugs():
     # https://github.com/mozilla/relman-auto-nag/blob/c7439e247677333c1cd8c435234b3ef3adc49680/auto_nag/scripts/close_intermittents.py#L17
     recent_days = 7
     recently_used_bugs = set(
-        BugJobMap.objects.filter(created__gt=datetime.now() - timedelta(recent_days)).values_list(
-            "bug_id", flat=True
-        )
+        BugJobMap.objects.filter(created__gt=(datetime.now() - timedelta(recent_days)))
+        .values("bug_id")
+        .annotate(num_failures=Count("bug_id"))
+        .filter(num_failures__gte=minimum_failures_to_reopen)
+        .values_list("bug_id", flat=True)
     )
     bugs_to_reopen = incomplete_bugs & recently_used_bugs
 
@@ -90,6 +92,8 @@ def fetch_intermittent_bugs(additional_params, limit, duplicate_chain_length):
 
 
 class BzApiBugProcess:
+    minimum_failures_to_reopen = 1
+
     def run(self):
         year_ago = datetime.utcnow() - timedelta(days=365)
         last_change_time_max = (
@@ -302,4 +306,4 @@ class BzApiBugProcess:
                 modified=last_change_time_max
             )
 
-        reopen_intermittent_bugs()
+        reopen_intermittent_bugs(self.minimum_failures_to_reopen)
