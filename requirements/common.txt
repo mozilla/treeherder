@@ -359,9 +359,9 @@ crashtest==0.4.1 \
     --hash=sha256:80d7b1f316ebfbd429f648076d6275c877ba30ba48979de4191714a75266f0ce \
     --hash=sha256:8d23eac5fa660409f57472e3851dab7ac18aba459a8d19cbbba86d3d5aecd2a5
     # via cleo
-django==4.2.14 \
-    --hash=sha256:3ec32bc2c616ab02834b9cac93143a7dc1cdcd5b822d78ac95fc20a38c534240 \
-    --hash=sha256:fc6919875a6226c7ffcae1a7d51e0f2ceaf6f160393180818f6c95f51b1e7b96
+django==4.2.15 \
+    --hash=sha256:61ee4a130efb8c451ef3467c67ca99fdce400fedd768634efc86a68c18d80d30 \
+    --hash=sha256:c77f926b81129493961e19c0e02188f8d07c112a1162df69bfab178ae447f94a
     # via
     #   -r requirements/common.in
     #   django-cors-headers
