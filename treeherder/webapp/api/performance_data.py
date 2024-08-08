@@ -934,8 +934,12 @@ class PerfCompareResults(generics.ListAPIView):
 
         option_collection_map = perfcompare_utils.get_option_collection_map()
 
-        base_grouped_job_ids, base_grouped_values, base_grouped_replicates = self._get_grouped_perf_data(base_perf_data)
-        new_grouped_job_ids, new_grouped_values, new_grouped_replicates = self._get_grouped_perf_data(new_perf_data)
+        base_grouped_job_ids, base_grouped_values, base_grouped_replicates = (
+            self._get_grouped_perf_data(base_perf_data)
+        )
+        new_grouped_job_ids, new_grouped_values, new_grouped_replicates = (
+            self._get_grouped_perf_data(new_perf_data)
+        )
 
         base_signatures_map, base_header_names, base_platforms = self._get_signatures_map(
             base_signatures, base_grouped_values, option_collection_map
@@ -1106,9 +1110,7 @@ class PerfCompareResults(generics.ListAPIView):
     @staticmethod
     def _get_perf_data(repository_name, revision, signatures, interval, startday, endday):
         signature_ids = [signature["id"] for signature in list(signatures)]
-        perf_data = PerformanceDatum.objects.select_related(
-            "push", "repository", "id"
-        ).filter(
+        perf_data = PerformanceDatum.objects.select_related("push", "repository", "id").filter(
             signature_id__in=signature_ids,
             repository__name=repository_name,
         )
@@ -1222,7 +1224,9 @@ class PerfCompareResults(generics.ListAPIView):
             if value is not None:
                 grouped_values[signature_id].append(value)
                 grouped_job_ids[signature_id].append(job_id)
-        for signature_id, replicate_value in perf_data.values_list("signature_id", "performancedatumreplicate__value"):
+        for signature_id, replicate_value in perf_data.values_list(
+            "signature_id", "performancedatumreplicate__value"
+        ):
             if replicate_value is not None:
                 grouped_replicate_values[signature_id].append(replicate_value)
         return grouped_job_ids, grouped_values, grouped_replicate_values
