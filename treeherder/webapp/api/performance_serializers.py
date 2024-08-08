@@ -153,10 +153,7 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
         queryset=PerformanceAlertSummary.objects.all(),
     )
     classifier = serializers.SlugRelatedField(
-        slug_field="username",
-        allow_null=True,
-        required=False,
-        queryset=User.objects.all(),
+        slug_field="username", allow_null=True, required=False, queryset=User.objects.all()
     )
     classifier_email = serializers.SerializerMethodField()
     backfill_record = BackfillRecordSerializer(read_only=True, allow_null=True)
@@ -181,8 +178,7 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
         related_summary = validated_data.get("related_summary")
         if related_summary:
             if (
-                validated_data.get("status", instance.status)
-                != PerformanceAlert.DOWNSTREAM
+                validated_data.get("status", instance.status) != PerformanceAlert.DOWNSTREAM
                 and instance.summary.repository_id != related_summary.repository_id
             ):
                 raise exceptions.ValidationError(
@@ -273,16 +269,11 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     alerts = PerformanceAlertSerializer(many=True, read_only=True)
     related_alerts = PerformanceAlertSerializer(many=True, read_only=True)
     performance_tags = serializers.SlugRelatedField(
-        many=True,
-        required=False,
-        slug_field="name",
-        queryset=PerformanceTag.objects.all(),
+        many=True, required=False, slug_field="name", queryset=PerformanceTag.objects.all()
     )
     repository = serializers.SlugRelatedField(read_only=True, slug_field="name")
     framework = serializers.SlugRelatedField(read_only=True, slug_field="id")
-    revision = serializers.SlugRelatedField(
-        read_only=True, slug_field="revision", source="push"
-    )
+    revision = serializers.SlugRelatedField(read_only=True, slug_field="revision", source="push")
     push_timestamp = TimestampField(source="push", read_only=True)
     prev_push_revision = serializers.SlugRelatedField(
         read_only=True, slug_field="revision", source="prev_push"
@@ -370,13 +361,9 @@ class PerformanceQueryParamsSerializer(serializers.Serializer):
     endday = serializers.DateTimeField(required=False, allow_null=True, default=None)
     revision = serializers.CharField(required=False, allow_null=True, default=None)
     repository = serializers.CharField()
-    framework = serializers.ListField(
-        required=False, child=serializers.IntegerField(), default=[]
-    )
+    framework = serializers.ListField(required=False, child=serializers.IntegerField(), default=[])
     interval = serializers.IntegerField(required=False, allow_null=True, default=None)
-    parent_signature = serializers.CharField(
-        required=False, allow_null=True, default=None
-    )
+    parent_signature = serializers.CharField(required=False, allow_null=True, default=None)
     signature = serializers.CharField(required=False, allow_null=True, default=None)
     no_subtests = serializers.BooleanField(required=False)
     all_data = OptionalBooleanField()
@@ -459,9 +446,7 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
         test = value["test"]
         suite = value["suite"]
         test_suite = suite if test == "" or test == suite else f"{suite} {test}"
-        return "{} {} {}".format(
-            test_suite, value["option_name"], value["extra_options"]
-        )
+        return "{} {} {}".format(test_suite, value["option_name"], value["extra_options"])
 
 
 class PerfAlertSummaryTasksQueryParamSerializer(serializers.Serializer):
@@ -491,12 +476,8 @@ class PerfCompareResultsQueryParamsSerializer(serializers.Serializer):
     framework = serializers.IntegerField(required=False, allow_null=True, default=None)
     interval = serializers.IntegerField(required=False, allow_null=True, default=None)
     no_subtests = serializers.BooleanField(required=False)
-    base_parent_signature = serializers.CharField(
-        required=False, allow_null=True, default=None
-    )
-    new_parent_signature = serializers.CharField(
-        required=False, allow_null=True, default=None
-    )
+    base_parent_signature = serializers.CharField(required=False, allow_null=True, default=None)
+    new_parent_signature = serializers.CharField(required=False, allow_null=True, default=None)
 
     def validate(self, data):
         if data["base_revision"] is None and data["interval"] is None:
@@ -507,9 +488,7 @@ class PerfCompareResultsQueryParamsSerializer(serializers.Serializer):
             Repository.objects.get(name=data["new_repository"])
         except ObjectDoesNotExist:
             raise serializers.ValidationError(
-                "{} or {} does not exist.".format(
-                    data["base_repository"], data["new_repository"]
-                )
+                "{} or {} does not exist.".format(data["base_repository"], data["new_repository"])
             )
 
         return data
@@ -534,12 +513,8 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
     new_repository_name = serializers.CharField()
     base_measurement_unit = serializers.CharField(default="")
     new_measurement_unit = serializers.CharField(default="")
-    base_retriggerable_job_ids = serializers.ListField(
-        child=serializers.IntegerField(), default=[]
-    )
-    new_retriggerable_job_ids = serializers.ListField(
-        child=serializers.IntegerField(), default=[]
-    )
+    base_retriggerable_job_ids = serializers.ListField(child=serializers.IntegerField(), default=[])
+    new_retriggerable_job_ids = serializers.ListField(child=serializers.IntegerField(), default=[])
     option_name = serializers.CharField()
     base_runs = serializers.ListField(
         child=PerfCompareDecimalField(),
