@@ -2193,10 +2193,10 @@
   dependencies:
     "@types/whatwg-streams" "^0.0.7"
 
-"@mozilla/glean@5.0.2":
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/@mozilla/glean/-/glean-5.0.2.tgz#e5ec03685cccbf429e91b170cf0c445aea6c4c93"
-  integrity sha512-NBWNBoPTY0AeLdDiNROECq9Vx84ybKmzdkwSXQ54EgjGUkq7FD4yoo11NqeQKvgnRCgzR/IhuQNiE0HXcAyQxw==
+"@mozilla/glean@5.0.3":
+  version "5.0.3"
+  resolved "https://registry.yarnpkg.com/@mozilla/glean/-/glean-5.0.3.tgz#eda7169f3e8f38a7d3019a1512b45778c4f05735"
+  integrity sha512-zSCOOoFPC+W7rwwj9qPVMWnPwroHQkqNYe6SH9492RMPbDeWwxzqaeacX6ZmpPXopbcqfxQgyTET5Jbh1xLhHA==
   dependencies:
     fflate "^0.8.0"
     tslib "^2.3.1"
