@@ -29,6 +29,50 @@ import RevisionInformation from '../../shared/RevisionInformation';
 import CompareTableControls from './CompareTableControls';
 import NoiseTable from './NoiseTable';
 
+export const getPerfCompareCompareBaseURL = function getOldCompareWithBaseViewURL(
+  originalProject,
+  originalRevision,
+  newProject,
+  newRevision,
+  framework,
+) {
+  return `https://perf.compare/compare-results?baseRev=${originalRevision}&baseRepo=${originalProject}&newRev=${newRevision}&newRepo=${newProject}&framework=${framework}`;
+};
+
+export const getPerfCompareCompareBaseSubtestsURL = function getPerfCompareCompareBaseSubtestsURL(
+  originalProject,
+  originalRevision,
+  newProject,
+  newRevision,
+  framework,
+  originalSignature,
+  newSignature,
+) {
+  return `https://perf.compare/subtestsCompareWithBase?baseRev=${originalRevision}&baseRepo=${originalProject}&newRev=${newRevision}&newRepo=${newProject}&framework=${framework}&baseParentSignature=${originalSignature}&newParentSignature=${newSignature}`;
+};
+
+export const getPerfCompareCompareOvertimeURL = function getPerfCompareCompareOvertimeURL(
+  originalProject,
+  newProject,
+  newRevision,
+  framework,
+  timeRange,
+) {
+  return `https://perf.compare/compare-over-time-results?baseRepo=${originalProject}&selectedTimeRange=${timeRange}&newRev=${newRevision}&newRepo=${newProject}&framework=${framework}`;
+};
+
+export const getPerfCompareCompareOvertimeSubtestsURL = function getPerfCompareCompareOvertimeSubtestsURL(
+  originalProject,
+  newProject,
+  newRevision,
+  framework,
+  timeRange,
+  originalSignature,
+  newSignature,
+) {
+  return `https://perf.compare/subtestsCompareOverTime?baseRepo=${originalProject}&newRev=${newRevision}&newRepo=${newProject}&framework=${framework}&interval=${timeRange}&baseParentSignature=${originalSignature}&newParentSignature=${newSignature}`;
+};
+
 export default class CompareTableView extends React.Component {
   constructor(props) {
     super(props);
@@ -216,6 +260,8 @@ export default class CompareTableView extends React.Component {
       originalResultSet,
       newResultSet,
       pageTitle,
+      originalSignature,
+      newSignature,
     } = this.props.validated;
 
     const { filterByFramework, hasSubtests, frameworks, projects } = this.props;
@@ -266,6 +312,47 @@ export default class CompareTableView extends React.Component {
       });
     }
 
+    let perfCompareURL;
+    if (originalRevision) {
+      // compare with base url
+      perfCompareURL = hasSubtests
+        ? getPerfCompareCompareBaseSubtestsURL(
+            originalProject,
+            originalRevision,
+            newProject,
+            newRevision,
+            framework.id,
+            originalSignature,
+            newSignature,
+          )
+        : getPerfCompareCompareBaseURL(
+            originalProject,
+            originalRevision,
+            newProject,
+            newRevision,
+            framework.id,
+          );
+    } else if (timeRange) {
+      // compareOverTime URL
+      perfCompareURL = hasSubtests
+        ? getPerfCompareCompareOvertimeSubtestsURL(
+            originalProject,
+            newProject,
+            newRevision,
+            framework.id,
+            timeRange.value,
+            originalSignature,
+            newSignature,
+          )
+        : getPerfCompareCompareOvertimeURL(
+            originalProject,
+            newProject,
+            newRevision,
+            framework.id,
+            timeRange.value,
+          );
+    }
+
     return (
       <Container fluid className="max-width-default">
         {loading && !failureMessages.length && <LoadingSpinner />}
@@ -274,6 +361,20 @@ export default class CompareTableView extends React.Component {
           message={genericErrorMessage}
         >
           <React.Fragment>
+            <Row className="justify-content-center">
+              <Alert color="info">
+                A{' '}
+                <a
+                  href={perfCompareURL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  PerfCompare
+                </a>{' '}
+                comparison is now available.
+              </Alert>
+            </Row>
+
             {hasSubtests && (
               <Link
                 to={{
