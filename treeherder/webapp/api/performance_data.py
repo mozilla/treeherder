@@ -934,12 +934,16 @@ class PerfCompareResults(generics.ListAPIView):
 
         option_collection_map = perfcompare_utils.get_option_collection_map()
 
-        base_grouped_job_ids, base_grouped_values, base_grouped_replicates = (
-            self._get_grouped_perf_data(base_perf_data)
-        )
-        new_grouped_job_ids, new_grouped_values, new_grouped_replicates = (
-            self._get_grouped_perf_data(new_perf_data)
-        )
+        (
+            base_grouped_job_ids,
+            base_grouped_values,
+            base_grouped_replicates,
+        ) = self._get_grouped_perf_data(base_perf_data)
+        (
+            new_grouped_job_ids,
+            new_grouped_values,
+            new_grouped_replicates,
+        ) = self._get_grouped_perf_data(new_perf_data)
 
         base_signatures_map, base_header_names, base_platforms = self._get_signatures_map(
             base_signatures, base_grouped_values, option_collection_map
