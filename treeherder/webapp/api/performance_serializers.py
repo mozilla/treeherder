@@ -208,7 +208,6 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
         try:
             taskcluster_metadata = get_tc_metadata(alert, alert.summary.push)
             cache.set("tc_root_url", alert.summary.repository.tc_root_url, FIVE_DAYS)
-            cache.set("task_metadata", taskcluster_metadata, FIVE_DAYS)
             return taskcluster_metadata
         except ObjectDoesNotExist:
             return {}
@@ -222,10 +221,10 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
             return {}
 
     def get_profile_url(self, alert):
-        return "N/A"
+        return None
 
     def get_prev_profile_url(self, alert):
-        return "N/A"
+        return None
 
     def get_classifier_email(self, performance_alert):
         return getattr(performance_alert.classifier, "email", None)
