@@ -523,6 +523,14 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
         child=PerfCompareDecimalField(),
         default=[],
     )
+    base_runs_replicates = serializers.ListField(
+        child=PerfCompareDecimalField(),
+        default=[],
+    )
+    new_runs_replicates = serializers.ListField(
+        child=PerfCompareDecimalField(),
+        default=[],
+    )
     base_avg_value = PerfCompareDecimalField()
     new_avg_value = PerfCompareDecimalField()
     base_median_value = PerfCompareDecimalField()
@@ -572,6 +580,8 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
             "new_retriggerable_job_ids",
             "base_runs",
             "new_runs",
+            "base_runs_replicates",
+            "new_runs_replicates",
             "base_avg_value",
             "new_avg_value",
             "base_median_value",

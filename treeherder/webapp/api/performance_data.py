@@ -925,8 +925,16 @@ class PerfCompareResults(generics.ListAPIView):
 
         option_collection_map = perfcompare_utils.get_option_collection_map()
 
-        base_grouped_job_ids, base_grouped_values = self._get_grouped_perf_data(base_perf_data)
-        new_grouped_job_ids, new_grouped_values = self._get_grouped_perf_data(new_perf_data)
+        (
+            base_grouped_job_ids,
+            base_grouped_values,
+            base_grouped_replicates,
+        ) = self._get_grouped_perf_data(base_perf_data)
+        (
+            new_grouped_job_ids,
+            new_grouped_values,
+            new_grouped_replicates,
+        ) = self._get_grouped_perf_data(new_perf_data)
 
         base_signatures_map, base_header_names, base_platforms = self._get_signatures_map(
             base_signatures, base_grouped_values, option_collection_map
@@ -955,6 +963,8 @@ class PerfCompareResults(generics.ListAPIView):
                     continue
                 base_perf_data_values = base_grouped_values.get(base_sig_id, [])
                 new_perf_data_values = new_grouped_values.get(new_sig_id, [])
+                base_perf_data_replicates = base_grouped_replicates.get(base_sig_id, [])
+                new_perf_data_replicates = new_grouped_replicates.get(new_sig_id, [])
                 base_runs_count = len(base_perf_data_values)
                 new_runs_count = len(new_perf_data_values)
                 is_complete = base_runs_count and new_runs_count
@@ -1020,6 +1030,8 @@ class PerfCompareResults(generics.ListAPIView):
                     "new_measurement_unit": new_sig.get("measurement_unit", ""),
                     "base_runs": sorted(base_perf_data_values),
                     "new_runs": sorted(new_perf_data_values),
+                    "base_runs_replicates": sorted(base_perf_data_replicates),
+                    "new_runs_replicates": sorted(new_perf_data_replicates),
                     "base_avg_value": base_avg_value,
                     "new_avg_value": new_avg_value,
                     "base_median_value": base_median_value,
@@ -1200,13 +1212,19 @@ class PerfCompareResults(generics.ListAPIView):
 
     @staticmethod
     def _get_grouped_perf_data(perf_data):
+        grouped_replicate_values = defaultdict(list)
         grouped_values = defaultdict(list)
         grouped_job_ids = defaultdict(list)
         for signature_id, value, job_id in perf_data.values_list("signature_id", "value", "job_id"):
             if value is not None:
                 grouped_values[signature_id].append(value)
                 grouped_job_ids[signature_id].append(job_id)
-        return grouped_job_ids, grouped_values
+        for signature_id, replicate_value in perf_data.values_list(
+            "signature_id", "performancedatumreplicate__value"
+        ):
+            if replicate_value is not None:
+                grouped_replicate_values[signature_id].append(replicate_value)
+        return grouped_job_ids, grouped_values, grouped_replicate_values
 
     @staticmethod
     def _get_signatures_map(signatures, grouped_values, option_collection_map):
