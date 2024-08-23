@@ -48,7 +48,7 @@ export const getPerfCompareCompareBaseSubtestsURL = function getPerfCompareCompa
   originalSignature,
   newSignature,
 ) {
-  return `https://perf.compare/subtestsCompareWithBase?baseRev=${originalRevision}&baseRepo=${originalProject}&newRev=${newRevision}&newRepo=${newProject}&framework=${framework}&baseParentSignature=${originalSignature}&newParentSignature=${newSignature}`;
+  return `https://perf.compare/subtests-compare-results?baseRev=${originalRevision}&baseRepo=${originalProject}&newRev=${newRevision}&newRepo=${newProject}&framework=${framework}&baseParentSignature=${originalSignature}&newParentSignature=${newSignature}`;
 };
 
 export const getPerfCompareCompareOvertimeURL = function getPerfCompareCompareOvertimeURL(
@@ -70,7 +70,7 @@ export const getPerfCompareCompareOvertimeSubtestsURL = function getPerfCompareC
   originalSignature,
   newSignature,
 ) {
-  return `https://perf.compare/subtestsCompareOverTime?baseRepo=${originalProject}&newRev=${newRevision}&newRepo=${newProject}&framework=${framework}&interval=${timeRange}&baseParentSignature=${originalSignature}&newParentSignature=${newSignature}`;
+  return `https://perf.compare/subtests-compare-over-time-results?baseRepo=${originalProject}&newRev=${newRevision}&newRepo=${newProject}&framework=${framework}&selectedTimeRange=${timeRange}&baseParentSignature=${originalSignature}&newParentSignature=${newSignature}`;
 };
 
 export default class CompareTableView extends React.Component {
@@ -363,15 +363,15 @@ export default class CompareTableView extends React.Component {
           <React.Fragment>
             <Row className="justify-content-center">
               <Alert color="info">
-                A{' '}
+                Try out the same comparison{' '}
                 <a
                   href={perfCompareURL}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  PerfCompare
-                </a>{' '}
-                comparison is now available.
+                  with our new PerfCompare tool
+                </a>
+                !
               </Alert>
             </Row>
 
