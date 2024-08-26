@@ -137,6 +137,13 @@ export default class CompareSelectorView extends React.Component {
               </Col>
             </Row>
             <Row className="justify-content-center">
+              <Alert color="info">
+                The <a href="https://perf.compare/">PerfCompare</a> application
+                has been officially launched. We encourage you to utilize this
+                new tool for future comparisons.
+              </Alert>
+            </Row>
+            <Row className="justify-content-center">
               {showWarning && (
                 <Alert color="warning">
                   It is not recommended to compare a <b>try</b> build against a{' '}
