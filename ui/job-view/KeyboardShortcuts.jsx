@@ -113,11 +113,11 @@ class KeyboardShortcuts extends React.Component {
   };
 
   // pin selected job to pinboard and add a related bug
-  addRelatedBug = () => {
+  addRelatedBug = async () => {
     const { selectedJob, pinJob } = this.props;
 
     if (selectedJob) {
-      pinJob(selectedJob);
+      await pinJob(selectedJob);
       document.getElementById('add-related-bug-button').click();
     }
   };
