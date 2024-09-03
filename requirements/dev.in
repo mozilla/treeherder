@@ -14,7 +14,7 @@ pytest-testmon==2.1.1
 pytest-watch==4.2.0
 
 # Required by django-extension's runserver_plus command.
-pytest-django==4.8.0
+pytest-django==4.9.0
 pytest==8.3.2
 black==24.8.0
 shellcheck-py==0.10.0.1
