@@ -1,5 +1,5 @@
 import React from 'react';
-import { LazyLog } from 'react-lazylog';
+import { LazyLog } from '@melloware/react-logviewer';
 import isEqual from 'lodash/isEqual';
 
 import {
@@ -8,6 +8,7 @@ import {
   setUrlParam,
   getProjectJobUrl,
 } from '../helpers/location';
+
 import { scrollToLine } from '../helpers/utils';
 import { isReftest } from '../helpers/job';
 import {
