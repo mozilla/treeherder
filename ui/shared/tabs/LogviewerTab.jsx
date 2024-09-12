@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { LazyLog } from 'react-lazylog';
+import { LazyLog } from '@melloware/react-logviewer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExpand, faFileAlt } from '@fortawesome/free-solid-svg-icons';
 

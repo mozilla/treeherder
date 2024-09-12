@@ -1,6 +1,20 @@
 // Entry point for Jest tests
 import '@testing-library/jest-dom/jest-globals';
 
+// Mock ResizeObserver which is required by @melloware/react-logviewer
+// but not available in jsdom
+global.ResizeObserver = class ResizeObserver {
+  constructor(callback) {
+    this.callback = callback;
+  }
+
+  observe() {}
+
+  unobserve() {}
+
+  disconnect() {}
+};
+
 const mockBuildUrl = jest.fn((root, taskId, path) => {
   return `${root}/${taskId}/artifacts/${path}`;
 });
