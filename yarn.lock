@@ -7285,6 +7285,19 @@ jest-config@^28.1.3:
     slash "^3.0.0"
     strip-json-comments "^3.1.1"
 
+jest-dev-server@^10.1.1:
+  version "10.1.1"
+  resolved "https://registry.yarnpkg.com/jest-dev-server/-/jest-dev-server-10.1.1.tgz#79d9420e97cd6943b8af25c576d126df2afc7896"
+  integrity sha512-Yk9gmW/io2udONlhdrsC69ZGYM2CISvGItyYk9zD5QK3tGq8ZAJP27NDHma4hI6ey/zcaiqbrDkIf7dmpHq86w==
+  dependencies:
+    chalk "^4.1.2"
+    cwd "^0.10.0"
+    find-process "^1.4.7"
+    prompts "^2.4.2"
+    spawnd "^10.1.1"
+    tree-kill "^1.2.2"
+    wait-on "^7.2.0"
+
 jest-dev-server@^9.0.2:
   version "9.0.2"
   resolved "https://registry.yarnpkg.com/jest-dev-server/-/jest-dev-server-9.0.2.tgz#9a1ab8a8eefe76e5115c9266944b7390cd1495b3"
@@ -7364,7 +7377,18 @@ jest-environment-node@^29.7.0:
     jest-mock "^29.7.0"
     jest-util "^29.7.0"
 
-jest-environment-puppeteer@9.0.2, jest-environment-puppeteer@^9.0.2:
+jest-environment-puppeteer@10.1.1:
+  version "10.1.1"
+  resolved "https://registry.yarnpkg.com/jest-environment-puppeteer/-/jest-environment-puppeteer-10.1.1.tgz#3efa3cdf00e611134ddad542b208cdbc5295107c"
+  integrity sha512-xg+94eL4LeJ3rFLtF9TCIvs3xbx0IJ3W4HEEpaZdkszZt1PbOosqOwbkLEtCeBXePwPproag7nLQz3/vfmp1Qw==
+  dependencies:
+    chalk "^4.1.2"
+    cosmiconfig "^8.3.6"
+    deepmerge "^4.3.1"
+    jest-dev-server "^10.1.1"
+    jest-environment-node "^29.7.0"
+
+jest-environment-puppeteer@^9.0.2:
   version "9.0.2"
   resolved "https://registry.yarnpkg.com/jest-environment-puppeteer/-/jest-environment-puppeteer-9.0.2.tgz#c0a0382c8147e2e7f6fff085c3d8916ae210cbf5"
   integrity sha512-t7+W4LUiPoOz+xpKREgnu6IElMuRthOWTkrThDZqVKPmLhwbK3yx7OCiX8xT1Pw/Cv5WnSoNhwtN7czdCC3fQg==
@@ -10613,6 +10637,14 @@ source-map@^0.7.3:
   version "0.7.3"
   resolved "https://registry.npmjs.org/source-map/-/source-map-0.7.3.tgz"
   integrity sha512-CkCj6giN3S+n9qrYiBTX5gystlENnRW5jZeNLHpe6aue+SrHcG5VYwujhW9s4dY31mEGsxBDrHR6oI69fTXsaQ==
+
+spawnd@^10.1.1:
+  version "10.1.1"
+  resolved "https://registry.yarnpkg.com/spawnd/-/spawnd-10.1.1.tgz#71e5f927951721b9fa1c1e994917d687e48c0852"
+  integrity sha512-kTim9sz8KuKX7ZcO8imlvEvbaJmFtFhT5tKS0WP5FRlmWLH5Pd9qj9u29nbMrvDcJPj8ltwOG+QAiZq928GKCw==
+  dependencies:
+    signal-exit "^4.1.0"
+    tree-kill "^1.2.2"
 
 spawnd@^9.0.2:
   version "9.0.2"
