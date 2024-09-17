@@ -20,7 +20,7 @@
 
       For more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).
       
-      If you have any questions, feel free to leave a need info at {{ user }}.
+      If you have any questions, please do not hesitate to reach out to {{ user }}.
 - model: perf.PerformanceBugTemplate
   pk: 2
   fields:
@@ -41,7 +41,7 @@
 
       For more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).
       
-      If you have any questions, feel free to leave a need info at {{ user }}.
+      If you have any questions, please do not hesitate to reach out to {{ user }}.
 - model: perf.PerformanceBugTemplate
   pk: 4
   fields:
@@ -64,7 +64,7 @@
 
       For more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).
       
-      If you have any questions, feel free to leave a need info at {{ user }}.
+      If you have any questions, please do not hesitate to reach out to {{ user }}.
 - model: perf.PerformanceBugTemplate
   pk: 5
   fields:
@@ -87,7 +87,7 @@
 
       For more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).
       
-      If you have any questions, feel free to leave a need info at {{ user }}.
+      If you have any questions, please do not hesitate to reach out to {{ user }}.
 - model: perf.PerformanceBugTemplate
   pk: 6
   fields:
@@ -110,7 +110,7 @@
 
       For more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).
       
-      If you have any questions, feel free to leave a need info at {{ user }}.
+      If you have any questions, please do not hesitate to reach out to {{ user }}.
 - model: perf.PerformanceBugTemplate
   pk: 7
   fields:
@@ -133,7 +133,7 @@
 
       For more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).
       
-      If you have any questions, feel free to leave a need info at {{ user }}.
+      If you have any questions, please do not hesitate to reach out to {{ user }}.
 - model: perf.PerformanceBugTemplate
   pk: 8
   fields:
@@ -156,7 +156,7 @@
 
       For more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).
       
-      If you have any questions, feel free to leave a need info at {{ user }}.
+      If you have any questions, please do not hesitate to reach out to {{ user }}.
 - model: perf.PerformanceBugTemplate
   pk: 9
   fields:
@@ -179,7 +179,7 @@
 
       For more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).
       
-      If you have any questions, feel free to leave a need info at {{ user }}.
+      If you have any questions, please do not hesitate to reach out to {{ user }}.
 - model: perf.PerformanceBugTemplate
   pk: 10
   fields:
@@ -202,7 +202,7 @@
 
       For more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).
       
-      If you have any questions, feel free to leave a need info at {{ user }}.
+      If you have any questions, please do not hesitate to reach out to {{ user }}.
 - model: perf.PerformanceBugTemplate
   pk: 11
   fields:
@@ -225,4 +225,4 @@
 
       For more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).
       
-      If you have any questions, feel free to leave a need info at {{ user }}.
+      If you have any questions, please do not hesitate to reach out to {{ user }}.
