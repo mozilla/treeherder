@@ -44,6 +44,7 @@ export const thPlatformMap = {
   'linux64-ccov': 'Linux x64 CCov',
   'linux64-noopt': 'Linux x64 NoOpt',
   'linux64-aarch64': 'Linux AArch64',
+  'linux64-aarch64-shippable': 'Linux AArch64 Shippable',
   'linux1804-64': 'Linux 18.04 x64',
   'linux1804-64-qr': 'Linux 18.04 x64 WebRender',
   'linux1804-64-shippable': 'Linux 18.04 x64 Shippable',
@@ -77,6 +78,8 @@ export const thPlatformMap = {
   'macosx1100-64-shippable-qr': 'OS X 11 WebRender Shippable',
   'macosx1100-64-aarch64-qr': 'OS X 11 AArch64 WebRender',
   'macosx1100-64-aarch64-shippable-qr': 'OS X 11 AArch64 WebRender Shippable',
+  'macosx1100-aarch64-qr': 'OS X 11 AArch64 WebRender',
+  'macosx1100-aarch64-shippable-qr': 'OS X 11 AArch64 WebRender Shippable',
   'macosx1300-64-shippable-qr': 'macOS 13 x64 Shippable WebRender',
   macosx64: 'OS X',
   osx: 'OS X',
@@ -172,14 +175,31 @@ export const thPlatformMap = {
   'android-hw-a51-11-0-aarch64-qr': 'Android 11.0 Samsung A51 AArch64',
   'android-hw-a51-11-0-aarch64-shippable-qr':
     'Android 11.0 Samsung A51 AArch64 Shippable',
+  'android-hw-a51-11-0-aarch64-shippable':
+    'Android 11.0 Samsung A51 AArch64 Shippable',
   'android-hw-a51-11-0-arm7': 'Android 11.0 Samsung A51 Arm7',
+  'android-hw-a55-14-0-aarch64-shippable':
+    'Android 14.0 Samsung A55 AArch64 Shippable',
+  'android-hw-a55-14-0-android-aarch64-shippable-qr':
+    'Android 14.0 Samsung A55 AArch64 Shippable',
   'android-hw-p5-13-0-android-aarch64-shippable-qr':
     'Android 13.0 Pixel5 AArch64 Shippable',
   'android-hw-p5-13-0-android-aarch64-qr': 'Android 13.0 Pixel5 AArch64',
   'android-hw-p5-13-0-arm7-shippable-qr': 'Android 13.0 Pixel5 Arm7 Shippable',
   'android-hw-p5-13-0-arm7-qr': 'Android 13.0 Pixel5 Arm7',
   'android-hw-p5-13-0-arm7': 'Android 13.0 Pixel5 Arm7',
+  'android-hw-p6-13-0-android-aarch64-shippable-qr':
+    'Android 13.0 Pixel6 Aarch64 Shippable',
+  'android-hw-s24-14-0-android-aarch64-shippable-qr':
+    'Android 14.0 Galaxy S24 Aarch64 Shippable',
   Android: 'Android',
+  'AC-android-all': 'Android Components',
+  'AC-ui-test': 'Android Components UI Tests',
+  'fenix-android-all': 'Fenix',
+  'fenix-ui-test': 'Fenix UI Tests',
+  'focus-android-all': 'Focus Android',
+  'focus-ui-test': 'Focus Android UI Tests',
+  ios: 'iOS',
 
   'gecko-decision': 'Gecko Decision Task',
   'firefox-release': 'Firefox Release Tasks',
