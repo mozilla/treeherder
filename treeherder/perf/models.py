@@ -353,7 +353,7 @@ class PerformanceAlertSummaryBase(models.Model):
         self.save(using=using)
 
     def autodetermine_status(self, alert_model=None):
-        summary_klass = self.__class__
+        summary_class = self.__class__
         if not alert_model:
             alert_model = PerformanceAlert
 
@@ -363,16 +363,16 @@ class PerformanceAlertSummaryBase(models.Model):
 
         # if no alerts yet, we'll say untriaged
         if not alerts:
-            return summary_klass.UNTRIAGED
+            return summary_class.UNTRIAGED
 
         # if any untriaged, then set to untriaged
         if any(alert.status == alert_model.UNTRIAGED for alert in alerts):
-            return summary_klass.UNTRIAGED
+            return summary_class.UNTRIAGED
 
         # if the summary's status is IMPROVEMENT, but a regression is
         # reassigned to that summary then set the summary's status to untriaged
         # and change all acknowledged statuses to untriaged
-        if self.status == summary_klass.IMPROVEMENT:
+        if self.status == summary_class.IMPROVEMENT:
             if any(
                 alert.status == alert_model.REASSIGNED and alert.is_regression for alert in alerts
             ):
@@ -382,11 +382,11 @@ class PerformanceAlertSummaryBase(models.Model):
                 for alert in acknowledged_alerts:
                     alert.status = alert_model.UNTRIAGED
                     alert.save()
-                return summary_klass.UNTRIAGED
+                return summary_class.UNTRIAGED
 
         # if all invalid, then set to invalid
         if all(alert.status == alert_model.INVALID for alert in alerts):
-            return summary_klass.INVALID
+            return summary_class.INVALID
 
         # otherwise filter out invalid alerts
         alerts = [a for a in alerts if a.status != alert_model.INVALID]
@@ -401,15 +401,15 @@ class PerformanceAlertSummaryBase(models.Model):
                 if alert.status == alert_model.ACKNOWLEDGED
                 or alert.status == alert_model.REASSIGNED
             ):
-                return summary_klass.IMPROVEMENT
+                return summary_class.IMPROVEMENT
             elif self.status not in (
-                summary_klass.IMPROVEMENT,
-                summary_klass.INVESTIGATING,
-                summary_klass.WONTFIX,
-                summary_klass.FIXED,
-                summary_klass.BACKED_OUT,
+                summary_class.IMPROVEMENT,
+                summary_class.INVESTIGATING,
+                summary_class.WONTFIX,
+                summary_class.FIXED,
+                summary_class.BACKED_OUT,
             ):
-                return summary_klass.INVESTIGATING
+                return summary_class.INVESTIGATING
             # keep status if one of the investigating ones
             return self.status
 
@@ -418,9 +418,9 @@ class PerformanceAlertSummaryBase(models.Model):
         # downstream, or invalid (but not all invalid, that case is covered
         # above)
         if any(alert.status == alert_model.REASSIGNED for alert in alerts):
-            return summary_klass.REASSIGNED
+            return summary_class.REASSIGNED
 
-        return summary_klass.DOWNSTREAM
+        return summary_class.DOWNSTREAM
 
     def timestamp_first_triage(self):
         # called for summary specific updates (e.g. notes, bug linking)
