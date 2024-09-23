@@ -88,6 +88,7 @@ export default class StatusDropdown extends React.Component {
       updateViewState,
       filteredAlerts,
       frameworks,
+      user,
     } = this.props;
     const { browsertimeAlertsExtraData } = this.state;
     let result = bugTemplate;
@@ -122,6 +123,7 @@ export default class StatusDropdown extends React.Component {
       alertHref: `${window.location.origin}/perfherder/alerts?id=${alertSummary.id}`,
       alertSummary: textualSummary.markdown,
       alertSummaryId: alertSummary.id,
+      user: user.email,
     };
 
     templateSettings.interpolate = /{{([\s\S]+?)}}/g;
