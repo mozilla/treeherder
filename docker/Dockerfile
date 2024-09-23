@@ -15,7 +15,7 @@ RUN yarn build
 
 
 ## Backend stage
-FROM python:3.9.19-slim-bullseye
+FROM python:3.9.20-slim-bullseye
 
 WORKDIR /app
 
