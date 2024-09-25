@@ -403,7 +403,7 @@ class PerformanceAlertSummaryBase(models.Model):
                 not alert.is_regression
                 for alert in alerts
                 if alert.status == alert_model.ACKNOWLEDGED
-                or alert.status == alert_model.REASSIGNED
+                or (alert.status == alert_model.REASSIGNED and alert.related_summary.id == self.id)
             ):
                 return summary_class.IMPROVEMENT
             elif self.status not in (
