@@ -171,27 +171,27 @@ export const thPlatformMap = {
     'Android 7.0 x86-64 Lite WebRender Shippable',
   'android-em-7-0-x86_64-shippable-qr':
     'Android 7.0 x86-64 Shippable WebRender',
-  'android-hw-a51-11-0-arm7-qr': 'Android 11.0 Samsung A51 Arm7',
-  'android-hw-a51-11-0-aarch64-qr': 'Android 11.0 Samsung A51 AArch64',
+  'android-hw-a51-11-0-aarch64-qr': 'Android 11.0 Galaxy A51 AArch64',
   'android-hw-a51-11-0-aarch64-shippable-qr':
-    'Android 11.0 Samsung A51 AArch64 Shippable',
+    'Android 11.0 Galaxy A51 AArch64 Shippable',
   'android-hw-a51-11-0-aarch64-shippable':
-    'Android 11.0 Samsung A51 AArch64 Shippable',
-  'android-hw-a51-11-0-arm7': 'Android 11.0 Samsung A51 Arm7',
-  'android-hw-a55-14-0-aarch64-shippable':
-    'Android 14.0 Samsung A55 AArch64 Shippable',
-  'android-hw-a55-14-0-android-aarch64-shippable-qr':
-    'Android 14.0 Samsung A55 AArch64 Shippable',
+    'Android 11.0 Galaxy A51 AArch64 Shippable',
+  'android-hw-a51-11-0-arm7-qr': 'Android 11.0 Galaxy A51 ARMv7',
+  'android-hw-a51-11-0-arm7': 'Android 11.0 Galaxy A51 ARMv7',
   'android-hw-p5-13-0-android-aarch64-shippable-qr':
     'Android 13.0 Pixel5 AArch64 Shippable',
   'android-hw-p5-13-0-android-aarch64-qr': 'Android 13.0 Pixel5 AArch64',
-  'android-hw-p5-13-0-arm7-shippable-qr': 'Android 13.0 Pixel5 Arm7 Shippable',
-  'android-hw-p5-13-0-arm7-qr': 'Android 13.0 Pixel5 Arm7',
-  'android-hw-p5-13-0-arm7': 'Android 13.0 Pixel5 Arm7',
+  'android-hw-p5-13-0-arm7-shippable-qr': 'Android 13.0 Pixel5 ARMv7 Shippable',
+  'android-hw-p5-13-0-arm7-qr': 'Android 13.0 Pixel5 ARMv7',
+  'android-hw-p5-13-0-arm7': 'Android 13.0 Pixel5 ARMv7',
   'android-hw-p6-13-0-android-aarch64-shippable-qr':
-    'Android 13.0 Pixel6 Aarch64 Shippable',
+    'Android 13.0 Pixel6 AArch64 Shippable',
+  'android-hw-a55-14-0-aarch64-shippable':
+    'Android 14.0 Galaxy A55 AArch64 Shippable',
+  'android-hw-a55-14-0-android-aarch64-shippable-qr':
+    'Android 14.0 Galaxy A55 AArch64 Shippable',
   'android-hw-s24-14-0-android-aarch64-shippable-qr':
-    'Android 14.0 Galaxy S24 Aarch64 Shippable',
+    'Android 14.0 Galaxy S24 AArch64 Shippable',
   Android: 'Android',
   'AC-android-all': 'Android Components',
   'AC-ui-test': 'Android Components UI Tests',
