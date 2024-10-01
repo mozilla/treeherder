@@ -952,15 +952,14 @@ class PerfCompareResults(generics.ListAPIView):
             for platform in platforms:
                 sig_identifier = perfcompare_utils.get_sig_identifier(header, platform)
                 base_sig = base_signatures_map.get(sig_identifier, {})
-                base_sig_id = base_sig.get("id", "")
+                base_sig_id = base_sig.get("id", None)
                 new_sig = new_signatures_map.get(sig_identifier, {})
-                new_sig_id = new_sig.get("id", "")
-                lower_is_better = base_sig.get("lower_is_better", "")
-                is_empty = not (
-                    base_sig and new_sig
-                )  # ensures there are signatures for base and new
-                if is_empty:
-                    continue
+                new_sig_id = new_sig.get("id", None)
+                lower_is_better = (
+                    base_sig.get("lower_is_better", "")
+                    if base_sig
+                    else new_sig.get("lower_is_better", "")
+                )
                 base_perf_data_values = base_grouped_values.get(base_sig_id, [])
                 new_perf_data_values = new_grouped_values.get(new_sig_id, [])
                 base_perf_data_replicates = base_grouped_replicates.get(base_sig_id, [])
@@ -1015,15 +1014,20 @@ class PerfCompareResults(generics.ListAPIView):
                     "platform": platform,
                     "base_app": base_sig.get("application", ""),
                     "new_app": new_sig.get("application", ""),
-                    "suite": base_sig.get("suite", ""),  # same suite for base_result and new_result
-                    "test": base_sig.get("test", ""),  # same test for base_result and new_result
+                    "suite": base_sig.get("suite", "")
+                    if base_sig
+                    else new_sig.get("suite", ""),  # same suite for base_result and new_result
+                    "test": base_sig.get("test", "")
+                    if base_sig
+                    else new_sig.get("test", ""),  # same test for base_result and new_result
                     "is_complete": is_complete,
                     "framework_id": framework,
-                    "is_empty": is_empty,
-                    "option_name": option_collection_map.get(
-                        base_sig.get("option_collection_id", ""), ""
-                    ),
-                    "extra_options": base_sig.get("extra_options", ""),
+                    "option_name": self._get_option_name(base_sig, option_collection_map)
+                    if base_sig
+                    else self._get_option_name(new_sig, option_collection_map),
+                    "extra_options": base_sig.get("extra_options", "")
+                    if base_sig
+                    else new_sig.get("extra_options", ""),
                     "base_repository_name": base_repo_name,
                     "new_repository_name": new_repo_name,
                     "base_measurement_unit": base_sig.get("measurement_unit", ""),
@@ -1078,6 +1082,10 @@ class PerfCompareResults(generics.ListAPIView):
         serialized_data = serializer.data
 
         return Response(data=serialized_data)
+
+    @staticmethod
+    def _get_option_name(sig, option_collection_map):
+        return option_collection_map.get(sig.get("option_collection_id", ""), "")
 
     @staticmethod
     def _get_push_timestamp(base_push, new_push):
