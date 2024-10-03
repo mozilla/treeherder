@@ -2,7 +2,6 @@ import copy
 import logging
 from datetime import datetime
 from hashlib import sha1
-from typing import Optional
 
 import simplejson as json
 
@@ -119,7 +118,7 @@ def _test_should_alert_based_on(
 
 
 def _test_should_gather_replicates_based_on(
-    repository: Repository, suite_name: str, replicates: Optional[list] = None
+    repository: Repository, suite_name: str, replicates: list | None
 ) -> bool:
     """
     Determine if we should gather/ingest replicates. Currently, it's

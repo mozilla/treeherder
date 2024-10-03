@@ -1,7 +1,6 @@
 import logging
 from datetime import timedelta, datetime
 from itertools import zip_longest, groupby
-from typing import Optional
 
 import simplejson as json
 from django.db.models import QuerySet, Q, F
@@ -87,7 +86,7 @@ class AlertsPicker:
 
         def parent_or_sibling_from(
             alert_group: list[PerformanceAlert],
-        ) -> Optional[PerformanceAlert]:
+        ) -> PerformanceAlert | None:
             if len(alert_group) == 0:
                 return None
 

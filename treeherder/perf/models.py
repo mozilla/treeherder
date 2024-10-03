@@ -1,7 +1,6 @@
 import logging
 from datetime import datetime
 import json
-from typing import Optional
 from functools import reduce
 
 from django.contrib.auth.models import User
@@ -521,7 +520,7 @@ class PerformanceAlert(models.Model):
     manually_created = models.BooleanField(default=False)
 
     @property
-    def initial_culprit_job(self) -> Optional[Job]:
+    def initial_culprit_job(self) -> Job | None:
         if hasattr(self, "__initial_culprit_job"):
             return self.__initial_culprit_job
 
@@ -720,7 +719,7 @@ class BackfillRecord(models.Model):
         return self.alert.series_signature.platform
 
     @property
-    def job_symbol(self) -> Optional[str]:
+    def job_symbol(self) -> str | None:
         if not all([self.job_tier, self.job_group, self.job_type]):
             return None
 
@@ -845,7 +844,7 @@ class PerformanceSettings(models.Model):
         db_table = "performance_settings"
 
 
-def deepgetattr(obj: object, attr_chain: str) -> Optional[object]:
+def deepgetattr(obj: object, attr_chain: str) -> object | None:
     """Recursively follow an attribute chain to get the final value.
 
     @param attr_chain: e.g. 'repository.name', 'job_type', 'record.platform.architecture' etc
