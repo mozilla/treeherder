@@ -1,4 +1,4 @@
-FROM python:3.9.20-bullseye
+FROM python:3.10.13-bullseye
 
 # Variables that are not specific to a particular environment.
 ENV NEW_RELIC_CONFIG_FILE newrelic.ini

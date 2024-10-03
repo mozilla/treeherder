@@ -5,7 +5,7 @@ import sys
 import warnings
 
 # Display deprecation warnings, which are hidden by default:
-# https://docs.python.org/3.7/library/warnings.html#default-warning-filters
+# https://docs.python.org/3.10/library/warnings.html#default-warning-filter
 warnings.simplefilter("default", DeprecationWarning)
 
 if __name__ == "__main__":
