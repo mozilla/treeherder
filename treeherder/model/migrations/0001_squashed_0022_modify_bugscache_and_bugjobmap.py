@@ -925,23 +925,52 @@ class Migration(migrations.Migration):
             name='jobdetail',
             unique_together=set([('title', 'value', 'job')]),
         ),
-        migrations.AlterIndexTogether(
-            name='job',
-            index_together=set(
-                [
-                    ('repository', 'option_collection_hash', 'job_type', 'start_time'),
-                    ('repository', 'build_platform', 'job_type', 'start_time'),
-                    ('repository', 'submit_time'),
-                    ('machine_platform', 'option_collection_hash', 'push'),
-                    (
-                        'repository',
-                        'build_platform',
-                        'option_collection_hash',
-                        'job_type',
-                        'start_time',
-                    ),
-                    ('repository', 'job_type', 'start_time'),
-                ]
+        migrations.AddIndex(
+            model_name='job',
+            index=models.Index(
+                fields=['repository', 'option_collection_hash', 'job_type', 'start_time'],
+                name='job_reposit_63c897_idx',
+            ),
+        ),
+        migrations.AddIndex(
+            model_name='job',
+            index=models.Index(
+                fields=['repository', 'build_platform', 'job_type', 'start_time'],
+                name='job_reposit_fc1f71_idx',
+            ),
+        ),
+        migrations.AddIndex(
+            model_name='job',
+            index=models.Index(
+                fields=['repository', 'submit_time'],
+                name='job_reposit_2101af_idx',
+            ),
+        ),
+        migrations.AddIndex(
+            model_name='job',
+            index=models.Index(
+                fields=['machine_platform', 'option_collection_hash', 'push'],
+                name='job_machine_92bdd4_idx',
+            ),
+        ),
+        migrations.AddIndex(
+            model_name='job',
+            index=models.Index(
+                fields=[
+                    'repository',
+                    'build_platform',
+                    'option_collection_hash',
+                    'job_type',
+                    'start_time',
+                ],
+                name='job_reposit_f4bb0f_idx'
+            )
+        ),
+        migrations.AddIndex(
+            model_name='job',
+            index=models.Index(
+                fields=['repository', 'job_type', 'start_time'],
+                name='job_reposit_f65dd6_idx',
             ),
         ),
         migrations.AlterUniqueTogether(
@@ -952,10 +981,6 @@ class Migration(migrations.Migration):
             name='failureline',
             unique_together=set([('job_log', 'line')]),
         ),
-        migrations.AlterIndexTogether(
-            name='failureline',
-            index_together=set([('job_guid', 'repository')]),
-        ),
         migrations.AlterUniqueTogether(
             name='commit',
             unique_together=set([('push', 'revision')]),
@@ -964,14 +989,11 @@ class Migration(migrations.Migration):
             name='bugjobmap',
             unique_together=set([('job', 'bug_id')]),
         ),
-        migrations.AlterIndexTogether(
-            name='failureline',
-            index_together=set(
-                [
-                    ('test', 'subtest', 'status', 'expected', 'created'),
-                    ('job_guid', 'repository'),
-                    ('signature', 'test', 'created'),
-                ]
+        migrations.AddIndex(
+            model_name='failureline',
+            index=models.Index(
+                fields=['job_guid', 'repository'],
+                name='failure_lin_job_gui_b67c6d_idx',
             ),
         ),
         migrations.AddIndex(

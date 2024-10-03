@@ -15,8 +15,4 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterIndexTogether(
-            name='failureline',
-            index_together={('job_guid', 'repository')},
-        ),
     ]
