@@ -326,10 +326,18 @@ class Migration(migrations.Migration):
             name='performancedatum',
             unique_together=set([('repository', 'job', 'push', 'signature')]),
         ),
-        migrations.AlterIndexTogether(
-            name='performancedatum',
-            index_together=set(
-                [('repository', 'signature', 'push_timestamp'), ('repository', 'signature', 'push')]
+        migrations.AddIndex(
+            model_name='performancedatum',
+            index=models.Index(
+                fields=['repository', 'signature', 'push_timestamp'],
+                name='performance_reposit_c9d328_idx',
+            ),
+        ),
+        migrations.AddIndex(
+            model_name='performancedatum',
+            index=models.Index(
+                fields=['repository', 'signature', 'push'],
+                name='performance_reposit_5486e2_idx',
             ),
         ),
         migrations.AlterUniqueTogether(

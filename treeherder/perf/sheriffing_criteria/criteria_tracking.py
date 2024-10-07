@@ -4,7 +4,6 @@ import logging
 from multiprocessing import cpu_count
 from multiprocessing.pool import Pool, ThreadPool, AsyncResult
 import time
-from typing import Union
 
 from datetime import datetime, timedelta
 
@@ -22,8 +21,8 @@ class CriteriaRecord:
     Framework: str
     Suite: str
     Test: str
-    EngineerTraction: Union[float, str]
-    FixRatio: Union[float, str]
+    EngineerTraction: float | str
+    FixRatio: float | str
     TotalAlerts: int
     LastUpdatedOn: datetime
     AllowSync: bool

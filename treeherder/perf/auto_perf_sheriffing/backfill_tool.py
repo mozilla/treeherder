@@ -1,7 +1,6 @@
 import logging
 
 from django.core.exceptions import ObjectDoesNotExist
-from typing import Union
 
 from treeherder.model.models import Job
 from treeherder.perf.exceptions import CannotBackfillError
@@ -14,7 +13,7 @@ class BackfillTool:
     def __init__(self, taskcluster_model: TaskclusterModel):
         self.__taskcluster = taskcluster_model
 
-    def backfill_job(self, job: Union[Job, str]) -> str:
+    def backfill_job(self, job: Job | str) -> str:
         if not isinstance(job, Job):
             job = self._fetch_job_by_id(job)
 

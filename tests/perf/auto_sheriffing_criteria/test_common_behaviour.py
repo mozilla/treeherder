@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 import pytest
 from django.conf import settings
-from typing import Callable
+from collections.abc import Callable
 
 from tests.perf.auto_sheriffing_criteria.conftest import CASSETTES_RECORDING_DATE
 from treeherder.config.settings import BZ_DATETIME_FORMAT

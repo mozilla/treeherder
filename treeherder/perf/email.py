@@ -11,8 +11,6 @@ from dataclasses import dataclass, asdict
 from abc import ABC, abstractmethod
 import urllib.parse
 
-from typing import Union, Optional
-
 from django.conf import settings
 from treeherder.perf.models import (
     BackfillRecord,
@@ -40,7 +38,7 @@ class EmailWriter(ABC):
     def __init__(self):
         self._email = Email()
 
-    def prepare_new_email(self, must_mention: Union[list[object], object]) -> dict:
+    def prepare_new_email(self, must_mention: list[object] | object) -> dict:
         """
         Template method
         """
@@ -192,7 +190,7 @@ class BackfillReportContent:
         return f"{repository_name}:{previous_push}:{push}"
 
     @staticmethod
-    def __escape_markdown(text: str) -> Optional[str]:
+    def __escape_markdown(text: str) -> str | None:
         """
         Mostly copied "Example 2" from https://www.programcreek.com/python/?CodeExample=escape+markdown
         """
