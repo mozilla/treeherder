@@ -17,3 +17,9 @@ updates:
     interval: daily
   labels:
   - dependencies
+- package-ecosystem: yarn
+  directory: "/"
+  schedule:
+    interval: daily
+  labels:
+  - dependencies
