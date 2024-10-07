@@ -7,7 +7,7 @@ django-extensions==3.2.3
 PyPOM==2.2.4
 
 # for git commit hooks
-pre-commit==3.8.0
+pre-commit==4.0.0
 
 # for test driven development
 pytest-testmon==2.1.1
