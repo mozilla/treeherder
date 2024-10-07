@@ -113,7 +113,7 @@
     "prettier": "2.0.5",
     "puppeteer": "21.10.0",
     "setup-polly-jest": "0.9.1",
-    "style-loader": "3.3.4",
+    "style-loader": "4.0.0",
     "webpack": "5.94.0",
     "webpack-cli": "5.1.4",
     "webpack-dev-server": "4.9.3",
