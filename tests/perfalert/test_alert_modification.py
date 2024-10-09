@@ -101,9 +101,9 @@ def test_reassigning_regression(
 
     assert s.status == PerformanceAlertSummary.UNTRIAGED
 
-    # reassigning a regression to the initial summary
-    # which contains only an improvement
-    create_perf_alert(
+    # reassigning a regression that was in the first summary
+    # to the second summary should leave the status as UNTRIAGED
+    reassigned_alert = create_perf_alert(
         summary=s,
         series_signature=signature1,
         related_summary=test_perf_alert_summary_2,
@@ -117,9 +117,12 @@ def test_reassigning_regression(
     # the regression alert will keep it's status of REASSIGNED
     untriaged_improvement_alert.status = PerformanceAlert.ACKNOWLEDGED
     untriaged_improvement_alert.save()
+    assert reassigned_alert.status == PerformanceAlert.REASSIGNED
 
+    # Status of the summary with only improvements should automatically
+    # have a status of IMPROVEMENT
     s = PerformanceAlertSummary.objects.get(id=1)
-    assert s.status == PerformanceAlertSummary.INVESTIGATING
+    assert s.status == PerformanceAlertSummary.IMPROVEMENT
 
 
 def test_improvement_summary_status_after_reassigning_regression(
