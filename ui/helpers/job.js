@@ -171,24 +171,20 @@ export const getResultState = function getResultState(job) {
   return state === 'completed' ? result : state;
 };
 
-export const addAggregateFields = function addAggregateFields(job) {
-  const {
-    job_group_name: jobGroupName,
-    platform,
-    platform_option: platformOption,
-    submit_timestamp: submitTimestamp,
-    start_timestamp: startTimestamp,
-    end_timestamp: endTimestamp,
-  } = job;
-  let { job_type_name: jobTypeName, job_type_symbol: jobTypeSymbol } = job;
+// In order to support backfilling of manifest based scheduling, modify the job
+// type name and symbol.
+//
+// Returns an array of modified jobTypeName and jobTypeSymbol, or undefined for
+// each if no modification happened.
+//
+// A backfilled task (e.g. bc2) ends up being named bc2-<revision>-bk
+// The label can also be different than the original task selected to be backfilled
+// For instance 'test-linux1804-64/debug-mochitest-browser-chrome-e10s-4' can be
+// 'test-linux1804-64/debug-mochitest-browser-chrome-e10s-1' yet the symbol be bc4
+function generateJobTypeForBackfill(jobTypeName, jobTypeSymbol) {
+  const originalJobTypeName = jobTypeName;
+  const originalJobTypeSymbol = jobTypeSymbol;
 
-  job.resultStatus = getResultState(job);
-
-  // The current modification is to support backfilling of manifest based scheduling.
-  // A backfilled task (e.g. bc2) ends up being named bc2-<revision>-bk
-  // The label can also be different than the original task selected to be backfilled
-  // For instance 'test-linux1804-64/debug-mochitest-browser-chrome-e10s-4' can be
-  // 'test-linux1804-64/debug-mochitest-browser-chrome-e10s-1' yet the symbol be bc4
   const parts = jobTypeName.split('-');
   // This makes backfilled tasks have the same symbol as the original task
   if (jobTypeSymbol.endsWith('-bk')) {
@@ -199,12 +195,40 @@ export const addAggregateFields = function addAggregateFields(job) {
     jobTypeName = parts.join('-');
     jobTypeSymbol = jobTypeSymbol.split('-').shift();
   }
+
+  return [
+    originalJobTypeName !== jobTypeName ? jobTypeName : undefined,
+    originalJobTypeSymbol !== jobTypeSymbol ? jobTypeSymbol : undefined,
+  ];
+}
+
+export const addAggregateFields = function addAggregateFields(job) {
+  const {
+    job_type_name: jobTypeName,
+    job_type_symbol: jobTypeSymbol,
+    job_group_name: jobGroupName,
+    platform,
+    platform_option: platformOption,
+    submit_timestamp: submitTimestamp,
+    start_timestamp: startTimestamp,
+    end_timestamp: endTimestamp,
+  } = job;
+
+  job.resultStatus = getResultState(job);
+
+  const [
+    jobTypeNameForBackfill,
+    jobTypeSymbolForBackfill,
+  ] = generateJobTypeForBackfill(jobTypeName, jobTypeSymbol);
+
   job.searchStr = [
     thPlatformMap[platform] || platform,
     platformOption,
     jobGroupName === 'unknown' ? undefined : jobGroupName,
     jobTypeName,
     jobTypeSymbol,
+    jobTypeNameForBackfill,
+    jobTypeSymbolForBackfill,
   ]
     .filter((item) => typeof item !== 'undefined')
     .join(' ');
