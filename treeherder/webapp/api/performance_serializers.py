@@ -504,7 +504,6 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
         max_length=10,
         default="",
     )
-    is_empty = serializers.BooleanField()
     is_complete = serializers.BooleanField()
     platform = serializers.CharField()
     header_name = serializers.CharField()
@@ -569,7 +568,6 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
             "framework_id",
             "platform",
             "suite",
-            "is_empty",
             "header_name",
             "base_repository_name",
             "new_repository_name",
