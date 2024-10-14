@@ -10,7 +10,7 @@ import {
   Col,
 } from 'reactstrap';
 
-import { getJobsUrl, getPerfCompareCompareBaseURL } from '../../helpers/url';
+import { getJobsUrl, getPerfCompareBaseURL } from '../../helpers/url';
 import { toMercurialShortDateStr } from '../../helpers/display';
 import SimpleTooltip from '../../shared/SimpleTooltip';
 
@@ -60,7 +60,7 @@ const AlertHeader = ({
           </Row>
           <Row className="m-0 px-0 py-0">
             <a
-              href={getPerfCompareCompareBaseURL(
+              href={getPerfCompareBaseURL(
                 alertSummary.repository,
                 alertSummary.prev_push_revision,
                 alertSummary.repository,

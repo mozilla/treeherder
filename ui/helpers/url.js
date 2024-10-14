@@ -167,7 +167,7 @@ export const updateQueryParams = function updateHistoryWithQueryParams(
 export const getPernoscoURL = (taskId) =>
   `https://pernos.co/self-service-api/mozilla/${taskId}/self-service.html`;
 
-export const getPerfCompareCompareBaseURL = function getOldCompareWithBaseViewURL(
+export const getPerfCompareBaseURL = function getOldCompareWithBaseViewURL(
   originalProject,
   originalRevision,
   newProject,
@@ -177,7 +177,7 @@ export const getPerfCompareCompareBaseURL = function getOldCompareWithBaseViewUR
   return `https://perf.compare/compare-results?baseRev=${originalRevision}&baseRepo=${originalProject}&newRev=${newRevision}&newRepo=${newProject}&framework=${framework}`;
 };
 
-export const getPerfCompareCompareBaseSubtestsURL = function getPerfCompareCompareBaseSubtestsURL(
+export const getPerfCompareBaseSubtestsURL = function getPerfCompareBaseSubtestsURL(
   originalProject,
   originalRevision,
   newProject,
@@ -189,7 +189,7 @@ export const getPerfCompareCompareBaseSubtestsURL = function getPerfCompareCompa
   return `https://perf.compare/subtests-compare-results?baseRev=${originalRevision}&baseRepo=${originalProject}&newRev=${newRevision}&newRepo=${newProject}&framework=${framework}&baseParentSignature=${originalSignature}&newParentSignature=${newSignature}`;
 };
 
-export const getPerfCompareCompareOvertimeURL = function getPerfCompareCompareOvertimeURL(
+export const getPerfCompareOvertimeURL = function getPerfCompareOvertimeURL(
   originalProject,
   newProject,
   newRevision,
@@ -199,7 +199,7 @@ export const getPerfCompareCompareOvertimeURL = function getPerfCompareCompareOv
   return `https://perf.compare/compare-over-time-results?baseRepo=${originalProject}&selectedTimeRange=${timeRange}&newRev=${newRevision}&newRepo=${newProject}&framework=${framework}`;
 };
 
-export const getPerfCompareCompareOvertimeSubtestsURL = function getPerfCompareCompareOvertimeSubtestsURL(
+export const getPerfCompareOvertimeSubtestsURL = function getPerfCompareOvertimeSubtestsURL(
   originalProject,
   newProject,
   newRevision,

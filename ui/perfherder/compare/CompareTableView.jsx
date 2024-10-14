@@ -18,10 +18,10 @@ import { getData } from '../../helpers/http';
 import {
   createApiUrl,
   createQueryParams,
-  getPerfCompareCompareBaseURL,
-  getPerfCompareCompareOvertimeURL,
-  getPerfCompareCompareBaseSubtestsURL,
-  getPerfCompareCompareOvertimeSubtestsURL,
+  getPerfCompareBaseURL,
+  getPerfCompareOvertimeURL,
+  getPerfCompareBaseSubtestsURL,
+  getPerfCompareOvertimeSubtestsURL,
 } from '../../helpers/url';
 import {
   getFrameworkData,
@@ -279,7 +279,7 @@ export default class CompareTableView extends React.Component {
     if (originalRevision) {
       // compare with base url
       perfCompareURL = hasSubtests
-        ? getPerfCompareCompareBaseSubtestsURL(
+        ? getPerfCompareBaseSubtestsURL(
             originalProject,
             originalRevision,
             newProject,
@@ -288,7 +288,7 @@ export default class CompareTableView extends React.Component {
             originalSignature,
             newSignature,
           )
-        : getPerfCompareCompareBaseURL(
+        : getPerfCompareBaseURL(
             originalProject,
             originalRevision,
             newProject,
@@ -298,7 +298,7 @@ export default class CompareTableView extends React.Component {
     } else if (timeRange) {
       // compareOverTime URL
       perfCompareURL = hasSubtests
-        ? getPerfCompareCompareOvertimeSubtestsURL(
+        ? getPerfCompareOvertimeSubtestsURL(
             originalProject,
             newProject,
             newRevision,
@@ -307,7 +307,7 @@ export default class CompareTableView extends React.Component {
             originalSignature,
             newSignature,
           )
-        : getPerfCompareCompareOvertimeURL(
+        : getPerfCompareOvertimeURL(
             originalProject,
             newProject,
             newRevision,
