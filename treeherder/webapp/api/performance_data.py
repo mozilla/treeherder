@@ -955,11 +955,24 @@ class PerfCompareResults(generics.ListAPIView):
                 base_sig_id = base_sig.get("id", None)
                 new_sig = new_signatures_map.get(sig_identifier, {})
                 new_sig_id = new_sig.get("id", None)
-                lower_is_better = (
-                    base_sig.get("lower_is_better", "")
-                    if base_sig
-                    else new_sig.get("lower_is_better", "")
-                )
+                if base_sig:
+                    (
+                        extra_options,
+                        lower_is_better,
+                        option_name,
+                        sig_hash,
+                        suite,
+                        test,
+                    ) = self._get_signature_based_properties(base_sig, option_collection_map)
+                else:
+                    (
+                        extra_options,
+                        lower_is_better,
+                        option_name,
+                        sig_hash,
+                        suite,
+                        test,
+                    ) = self._get_signature_based_properties(new_sig, option_collection_map)
                 base_perf_data_values = base_grouped_values.get(base_sig_id, [])
                 new_perf_data_values = new_grouped_values.get(new_sig_id, [])
                 base_perf_data_replicates = base_grouped_replicates.get(base_sig_id, [])
@@ -982,11 +995,6 @@ class PerfCompareResults(generics.ListAPIView):
                     base_perf_data_values, new_perf_data_values
                 )
                 confidence_text = perfcompare_utils.get_confidence_text(confidence)
-                sig_hash = (
-                    base_sig.get("signature_hash", "")
-                    if base_sig
-                    else new_sig.get("signature_hash", "")
-                )
                 delta_value = perfcompare_utils.get_delta_value(new_avg_value, base_avg_value)
                 delta_percentage = perfcompare_utils.get_delta_percentage(
                     delta_value, base_avg_value
@@ -1014,20 +1022,12 @@ class PerfCompareResults(generics.ListAPIView):
                     "platform": platform,
                     "base_app": base_sig.get("application", ""),
                     "new_app": new_sig.get("application", ""),
-                    "suite": base_sig.get("suite", "")
-                    if base_sig
-                    else new_sig.get("suite", ""),  # same suite for base_result and new_result
-                    "test": base_sig.get("test", "")
-                    if base_sig
-                    else new_sig.get("test", ""),  # same test for base_result and new_result
+                    "suite": suite,  # same suite for base_result and new_result
+                    "test": test,  # same test for base_result and new_result
                     "is_complete": is_complete,
                     "framework_id": framework,
-                    "option_name": self._get_option_name(base_sig, option_collection_map)
-                    if base_sig
-                    else self._get_option_name(new_sig, option_collection_map),
-                    "extra_options": base_sig.get("extra_options", "")
-                    if base_sig
-                    else new_sig.get("extra_options", ""),
+                    "option_name": option_name,
+                    "extra_options": extra_options,
                     "base_repository_name": base_repo_name,
                     "new_repository_name": new_repo_name,
                     "base_measurement_unit": base_sig.get("measurement_unit", ""),
@@ -1082,6 +1082,15 @@ class PerfCompareResults(generics.ListAPIView):
         serialized_data = serializer.data
 
         return Response(data=serialized_data)
+
+    def _get_signature_based_properties(self, sig, option_collection_map):
+        suite = sig.get("suite", "")
+        test = sig.get("test", "")
+        lower_is_better = sig.get("lower_is_better", "")
+        sig_hash = sig.get("signature_hash", "")
+        option_name = self._get_option_name(sig, option_collection_map)
+        extra_options = sig.get("extra_options", "")
+        return extra_options, lower_is_better, option_name, sig_hash, suite, test
 
     @staticmethod
     def _get_option_name(sig, option_collection_map):
