@@ -10,7 +10,7 @@ import {
   Col,
 } from 'reactstrap';
 
-import { getJobsUrl } from '../../helpers/url';
+import { getJobsUrl, getPerfCompareCompareBaseURL } from '../../helpers/url';
 import { toMercurialShortDateStr } from '../../helpers/display';
 import SimpleTooltip from '../../shared/SimpleTooltip';
 
@@ -57,6 +57,21 @@ const AlertHeader = ({
               text={toMercurialShortDateStr(created)}
               tooltipText="Alert Summary created"
             />
+          </Row>
+          <Row className="m-0 px-0 py-0">
+            <a
+              href={getPerfCompareCompareBaseURL(
+                alertSummary.repository,
+                alertSummary.prev_push_revision,
+                alertSummary.repository,
+                alertSummary.revision,
+                alertSummary.framework,
+              )}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              PerfCompare comparison
+            </a>
           </Row>
         </Col>
         <Col className="p-0" xs="auto">

@@ -166,3 +166,47 @@ export const updateQueryParams = function updateHistoryWithQueryParams(
 
 export const getPernoscoURL = (taskId) =>
   `https://pernos.co/self-service-api/mozilla/${taskId}/self-service.html`;
+
+export const getPerfCompareCompareBaseURL = function getOldCompareWithBaseViewURL(
+  originalProject,
+  originalRevision,
+  newProject,
+  newRevision,
+  framework,
+) {
+  return `https://perf.compare/compare-results?baseRev=${originalRevision}&baseRepo=${originalProject}&newRev=${newRevision}&newRepo=${newProject}&framework=${framework}`;
+};
+
+export const getPerfCompareCompareBaseSubtestsURL = function getPerfCompareCompareBaseSubtestsURL(
+  originalProject,
+  originalRevision,
+  newProject,
+  newRevision,
+  framework,
+  originalSignature,
+  newSignature,
+) {
+  return `https://perf.compare/subtests-compare-results?baseRev=${originalRevision}&baseRepo=${originalProject}&newRev=${newRevision}&newRepo=${newProject}&framework=${framework}&baseParentSignature=${originalSignature}&newParentSignature=${newSignature}`;
+};
+
+export const getPerfCompareCompareOvertimeURL = function getPerfCompareCompareOvertimeURL(
+  originalProject,
+  newProject,
+  newRevision,
+  framework,
+  timeRange,
+) {
+  return `https://perf.compare/compare-over-time-results?baseRepo=${originalProject}&selectedTimeRange=${timeRange}&newRev=${newRevision}&newRepo=${newProject}&framework=${framework}`;
+};
+
+export const getPerfCompareCompareOvertimeSubtestsURL = function getPerfCompareCompareOvertimeSubtestsURL(
+  originalProject,
+  newProject,
+  newRevision,
+  framework,
+  timeRange,
+  originalSignature,
+  newSignature,
+) {
+  return `https://perf.compare/subtests-compare-over-time-results?baseRepo=${originalProject}&newRev=${newRevision}&newRepo=${newProject}&framework=${framework}&selectedTimeRange=${timeRange}&baseParentSignature=${originalSignature}&newParentSignature=${newSignature}`;
+};

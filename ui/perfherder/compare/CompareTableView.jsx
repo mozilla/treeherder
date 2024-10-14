@@ -15,7 +15,14 @@ import {
 } from '../perf-helpers/constants';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import { getData } from '../../helpers/http';
-import { createApiUrl, createQueryParams } from '../../helpers/url';
+import {
+  createApiUrl,
+  createQueryParams,
+  getPerfCompareCompareBaseURL,
+  getPerfCompareCompareOvertimeURL,
+  getPerfCompareCompareBaseSubtestsURL,
+  getPerfCompareCompareOvertimeSubtestsURL,
+} from '../../helpers/url';
 import {
   getFrameworkData,
   scrollWithOffset,
@@ -28,50 +35,6 @@ import RevisionInformation from '../../shared/RevisionInformation';
 
 import CompareTableControls from './CompareTableControls';
 import NoiseTable from './NoiseTable';
-
-export const getPerfCompareCompareBaseURL = function getOldCompareWithBaseViewURL(
-  originalProject,
-  originalRevision,
-  newProject,
-  newRevision,
-  framework,
-) {
-  return `https://perf.compare/compare-results?baseRev=${originalRevision}&baseRepo=${originalProject}&newRev=${newRevision}&newRepo=${newProject}&framework=${framework}`;
-};
-
-export const getPerfCompareCompareBaseSubtestsURL = function getPerfCompareCompareBaseSubtestsURL(
-  originalProject,
-  originalRevision,
-  newProject,
-  newRevision,
-  framework,
-  originalSignature,
-  newSignature,
-) {
-  return `https://perf.compare/subtests-compare-results?baseRev=${originalRevision}&baseRepo=${originalProject}&newRev=${newRevision}&newRepo=${newProject}&framework=${framework}&baseParentSignature=${originalSignature}&newParentSignature=${newSignature}`;
-};
-
-export const getPerfCompareCompareOvertimeURL = function getPerfCompareCompareOvertimeURL(
-  originalProject,
-  newProject,
-  newRevision,
-  framework,
-  timeRange,
-) {
-  return `https://perf.compare/compare-over-time-results?baseRepo=${originalProject}&selectedTimeRange=${timeRange}&newRev=${newRevision}&newRepo=${newProject}&framework=${framework}`;
-};
-
-export const getPerfCompareCompareOvertimeSubtestsURL = function getPerfCompareCompareOvertimeSubtestsURL(
-  originalProject,
-  newProject,
-  newRevision,
-  framework,
-  timeRange,
-  originalSignature,
-  newSignature,
-) {
-  return `https://perf.compare/subtests-compare-over-time-results?baseRepo=${originalProject}&newRev=${newRevision}&newRepo=${newProject}&framework=${framework}&selectedTimeRange=${timeRange}&baseParentSignature=${originalSignature}&newParentSignature=${newSignature}`;
-};
 
 export default class CompareTableView extends React.Component {
   constructor(props) {
