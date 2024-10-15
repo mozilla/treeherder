@@ -293,6 +293,7 @@ def handle_task_running(push_info, task, message):
 
 async def handle_task_completed(push_info, task, message, session):
     payload = message["payload"]
+
     job_run = payload["status"]["runs"][payload["runId"]]
     job = build_message(push_info, task, payload["runId"], payload)
     job["timeStarted"] = job_run["started"]
