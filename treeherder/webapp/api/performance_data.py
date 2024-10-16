@@ -1084,13 +1084,14 @@ class PerfCompareResults(generics.ListAPIView):
         return Response(data=serialized_data)
 
     def _get_signature_based_properties(self, sig, option_collection_map):
-        suite = sig.get("suite", "")
-        test = sig.get("test", "")
-        lower_is_better = sig.get("lower_is_better", "")
-        sig_hash = sig.get("signature_hash", "")
-        option_name = self._get_option_name(sig, option_collection_map)
-        extra_options = sig.get("extra_options", "")
-        return extra_options, lower_is_better, option_name, sig_hash, suite, test
+        return (
+            sig.get("extra_options", ""),
+            sig.get("lower_is_better", ""),
+            self._get_option_name(sig, option_collection_map),
+            sig.get("signature_hash", ""),
+            sig.get("suite", ""),
+            sig.get("test", ""),
+        )
 
     @staticmethod
     def _get_option_name(sig, option_collection_map):
