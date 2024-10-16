@@ -113,7 +113,6 @@ def test_perfcompare_results_against_no_base(
             "framework_id": base_sig.framework.id,
             "platform": base_sig.platform.platform,
             "suite": base_sig.suite,
-            "is_empty": False,
             "header_name": response["header_name"],
             "base_repository_name": base_sig.repository.name,
             "new_repository_name": new_sig.repository.name,
@@ -283,7 +282,6 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
             "framework_id": base_sig.framework.id,
             "platform": base_sig.platform.platform,
             "suite": base_sig.suite,
-            "is_empty": False,
             "header_name": response["header_name"],
             "base_repository_name": base_sig.repository.name,
             "new_repository_name": new_sig.repository.name,
@@ -323,6 +321,146 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
             f"highlightedRevisions={test_perfcomp_push_2.revision}&"
             f"series={try_repository.name}%2C{base_sig.signature_hash}%2C1%2C{base_sig.framework.id}&"
             f"series={test_repository.name}%2C{base_sig.signature_hash}%2C1%2C{base_sig.framework.id}&"
+            f"timerange=604800",
+            "is_improvement": response["is_improvement"],
+            "is_regression": response["is_regression"],
+            "is_meaningful": response["is_meaningful"],
+            "base_parent_signature": response["base_parent_signature"],
+            "new_parent_signature": response["new_parent_signature"],
+            "base_signature_id": response["base_signature_id"],
+            "new_signature_id": response["new_signature_id"],
+            "has_subtests": response["has_subtests"],
+        },
+    ]
+
+    query_params = (
+        "?base_repository={}&new_repository={}&base_revision={}&new_revision={}&framework={"
+        "}&no_subtests=true".format(
+            try_repository.name,
+            test_repository.name,
+            test_perfcomp_push.revision,
+            test_perfcomp_push_2.revision,
+            test_perf_signature.framework_id,
+        )
+    )
+
+    response = client.get(reverse("perfcompare-results") + query_params)
+
+    assert response.status_code == 200
+    assert expected[0] == response.json()[0]
+
+
+def test_perfcompare_results_without_base_signature(
+    client,
+    create_signature,
+    create_perf_datum,
+    test_perf_signature,
+    test_repository,
+    try_repository,
+    eleven_jobs_stored,
+    test_perfcomp_push,
+    test_perfcomp_push_2,
+    test_linux_platform,
+    test_option_collection,
+):
+    perf_jobs = Job.objects.filter(pk__in=range(1, 11)).order_by("push__time").all()
+
+    test_perfcomp_push.time = THREE_DAYS_AGO
+    test_perfcomp_push.repository = try_repository
+    test_perfcomp_push.save()
+
+    test_perfcomp_push_2.time = datetime.datetime.now()
+    test_perfcomp_push_2.save()
+
+    suite = "a11yr"
+    test = "dhtml.html"
+    extra_options = "e10s fission stylo webrender"
+    measurement_unit = "ms"
+    new_application = "geckoview"
+
+    new_perf_data_values = [40.2]
+
+    new_sig = create_signature(
+        signature_hash=(20 * "t2"),
+        extra_options=extra_options,
+        platform=test_linux_platform,
+        measurement_unit=measurement_unit,
+        suite=suite,
+        test=test,
+        test_perf_signature=test_perf_signature,
+        repository=test_repository,
+        application=new_application,
+    )
+
+    job = perf_jobs[1]
+    job.push = test_perfcomp_push_2
+    job.save()
+    perf_datum = PerformanceDatum.objects.create(
+        value=new_perf_data_values[0],
+        push_timestamp=job.push.time,
+        job=job,
+        push=job.push,
+        repository=job.repository,
+        signature=new_sig,
+    )
+    perf_datum.push.time = job.push.time
+    perf_datum.push.save()
+
+    response = get_expected(
+        None,
+        new_sig,
+        extra_options,
+        test_option_collection,
+        new_perf_data_values,
+        [],
+    )
+
+    expected = [
+        {
+            "base_rev": test_perfcomp_push.revision,
+            "new_rev": test_perfcomp_push_2.revision,
+            "framework_id": new_sig.framework.id,
+            "platform": new_sig.platform.platform,
+            "suite": new_sig.suite,
+            "header_name": response["header_name"],
+            "base_repository_name": try_repository.name,
+            "new_repository_name": new_sig.repository.name,
+            "base_app": "",
+            "new_app": "geckoview",
+            "is_complete": False,
+            "base_measurement_unit": "",
+            "new_measurement_unit": new_sig.measurement_unit,
+            "base_retriggerable_job_ids": [],
+            "new_retriggerable_job_ids": [job.id],
+            "base_runs": [],
+            "new_runs": new_perf_data_values,
+            "base_runs_replicates": [],
+            "new_runs_replicates": [],
+            "base_avg_value": round(response["base_avg_value"], 2),
+            "new_avg_value": round(response["new_avg_value"], 2),
+            "base_median_value": round(response["base_median_value"], 2),
+            "new_median_value": round(response["new_median_value"], 2),
+            "test": new_sig.test,
+            "option_name": response["option_name"],
+            "extra_options": new_sig.extra_options,
+            "base_stddev": round(response["base_stddev"], 2),
+            "new_stddev": round(response["new_stddev"], 2),
+            "base_stddev_pct": round(response["base_stddev_pct"], 2),
+            "new_stddev_pct": round(response["new_stddev_pct"], 2),
+            "confidence": round(response["confidence"], 2),
+            "confidence_text": response["confidence_text"],
+            "delta_value": round(response["delta_value"], 2),
+            "delta_percentage": round(response["delta_pct"], 2),
+            "magnitude": round(response["magnitude"], 2),
+            "new_is_better": response["new_is_better"],
+            "lower_is_better": response["lower_is_better"],
+            "is_confident": response["is_confident"],
+            "more_runs_are_needed": False,
+            "noise_metric": False,
+            "graphs_link": f"https://treeherder.mozilla.org/perfherder/graphs?highlightedRevisions={test_perfcomp_push.revision}&"
+            f"highlightedRevisions={test_perfcomp_push_2.revision}&"
+            f"series={try_repository.name}%2C{new_sig.signature_hash}%2C1%2C{new_sig.framework.id}&"
+            f"series={test_repository.name}%2C{new_sig.signature_hash}%2C1%2C{new_sig.framework.id}&"
             f"timerange=604800",
             "is_improvement": response["is_improvement"],
             "is_regression": response["is_regression"],
@@ -456,7 +594,6 @@ def test_perfcompare_results_subtests_support(
             "framework_id": base_sig.framework.id,
             "platform": base_sig.platform.platform,
             "suite": base_sig.suite,
-            "is_empty": False,
             "header_name": response["header_name"],
             "base_repository_name": base_sig.repository.name,
             "new_repository_name": new_sig.repository.name,
@@ -625,7 +762,6 @@ def test_perfcompare_results_multiple_runs(
             "framework_id": sig1.framework.id,
             "platform": sig1.platform.platform,
             "suite": sig1.suite,
-            "is_empty": False,
             "header_name": first_row["header_name"],
             "base_repository_name": sig1.repository.name,
             "new_repository_name": sig2.repository.name,
@@ -674,7 +810,6 @@ def test_perfcompare_results_multiple_runs(
             "framework_id": sig3.framework.id,
             "platform": sig3.platform.platform,
             "suite": sig3.suite,
-            "is_empty": False,
             "header_name": second_row["header_name"],
             "base_repository_name": sig3.repository.name,
             "new_repository_name": sig4.repository.name,
@@ -800,8 +935,9 @@ def get_expected(
     new_perf_data_values,
     base_perf_data_values,
 ):
-    response = {"option_name": test_option_collection.get(base_sig.option_collection_id, "")}
-    test_suite = perfcompare_utils.get_test_suite(base_sig.suite, base_sig.test)
+    sig = base_sig if base_sig else new_sig
+    response = {"option_name": test_option_collection.get(sig.option_collection_id, "")}
+    test_suite = perfcompare_utils.get_test_suite(sig.suite, sig.test)
     response["header_name"] = perfcompare_utils.get_header_name(
         extra_options, response["option_name"], test_suite
     )
@@ -833,9 +969,9 @@ def get_expected(
     )
     response["magnitude"] = perfcompare_utils.get_magnitude(response["delta_pct"])
     response["new_is_better"] = perfcompare_utils.is_new_better(
-        response["delta_value"], base_sig.lower_is_better
+        response["delta_value"], sig.lower_is_better
     )
-    response["lower_is_better"] = base_sig.lower_is_better
+    response["lower_is_better"] = sig.lower_is_better
     response["confidence"] = perfcompare_utils.get_abs_ttest_value(
         base_perf_data_values, new_perf_data_values
     )
@@ -857,12 +993,14 @@ def get_expected(
     response["is_regression"] = class_name == "danger"
     response["is_meaningful"] = class_name == ""
     response["base_parent_signature"] = (
-        base_sig.parent_signature.id if base_sig.parent_signature else None
+        base_sig.parent_signature.id if base_sig and base_sig.parent_signature else None
     )
     response["new_parent_signature"] = (
-        new_sig.parent_signature.id if base_sig.parent_signature else None
+        new_sig.parent_signature.id if new_sig and new_sig.parent_signature else None
     )
-    response["base_signature_id"] = base_sig.id
-    response["new_signature_id"] = new_sig.id
-    response["has_subtests"] = base_sig.has_subtests or new_sig.has_subtests
+    response["base_signature_id"] = base_sig.id if base_sig else None
+    response["new_signature_id"] = new_sig.id if new_sig else None
+    response["has_subtests"] = (base_sig.has_subtests if base_sig else False) or (
+        new_sig.has_subtests if new_sig else False
+    )
     return response
