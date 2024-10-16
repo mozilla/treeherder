@@ -10,6 +10,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.AlterUniqueTogether(
+            name="performancealerttesting",
+            unique_together=None,
+        ),
         migrations.RemoveField(
             model_name="performancealerttesting",
             name="related_summary",
@@ -17,10 +21,6 @@ class Migration(migrations.Migration):
         migrations.RemoveField(
             model_name="performancealerttesting",
             name="summary",
-        ),
-        migrations.AlterUniqueTogether(
-            name="performancealerttesting",
-            unique_together=None,
         ),
         migrations.RemoveField(
             model_name="performancealerttesting",
