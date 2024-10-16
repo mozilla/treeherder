@@ -109,6 +109,7 @@ const GraphTooltip = ({
     revision: dataPointDetails.revision,
     selectedJob: dataPointDetails.jobId,
     group_state: 'expanded',
+    searchStr: `${testDetails.platform},${testDetails.suite}`,
   });
 
   const createAlert = async () => {
