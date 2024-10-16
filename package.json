@@ -139,6 +139,6 @@
     "test:watch": "node ./node_modules/jest/bin/jest --watch"
   },
   "resolutions": {
-    "cacache": "18.0.4"
+    "cacache": "19.0.1"
   }
 }
