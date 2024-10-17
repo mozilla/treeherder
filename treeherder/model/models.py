@@ -1219,6 +1219,7 @@ class TextLogError(models.Model):
     job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name="text_log_error", null=True)
     line = models.TextField()
     line_number = models.PositiveIntegerField()
+    new_failure = models.BooleanField(default=False)
 
     # TODO delete this field and unique_together once backfill of jobs in TextLogError table has been completed
     step = models.ForeignKey(

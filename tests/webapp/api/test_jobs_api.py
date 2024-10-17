@@ -222,12 +222,14 @@ def test_text_log_errors(client, test_job):
             "job": 1,
             "line": "failure 1",
             "line_number": 101,
+            "new_failure": False,
         },
         {
             "id": 2,
             "job": 1,
             "line": "failure 2",
             "line_number": 102,
+            "new_failure": False,
         },
     ]
 
