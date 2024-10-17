@@ -43,6 +43,11 @@ def store_text_log_summary_artifact(job, text_log_summary_artifact):
             # classify job as `new failure` - for filtering, etc.
             job.failure_classification_id = 6
             job.save()
+            # for every log_errors (TLE object) there is a corresponding bugs/suggestion
+            # we might be able to avoid the TLE lookup
+            tle = TextLogError.objects.get(job=job)
+            tle.new_failure = 1
+            tle.save()
 
 
 def store_job_artifacts(artifact_data):
