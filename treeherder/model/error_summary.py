@@ -193,6 +193,7 @@ def bug_suggestions_line(
         "line_number": err.line_number,
         "counter": counter,
         "failure_new_in_rev": failure_new_in_rev,
+        "text_log_error_id": err.id,
     }, line_cache
 
 

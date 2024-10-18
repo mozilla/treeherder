@@ -59,6 +59,7 @@ def test_create_error_summary(
             "line_number",
             "counter",
             "failure_new_in_rev",
+            "text_log_error_id",
         ]
     )
     for failure_line in bug_suggestions:
