@@ -72,7 +72,7 @@ def ingest_hg_push(options):
     commit = options["commit"]
 
     if not options["last_n_pushes"] and not commit:
-        raise CommandError("must specify --last_n_pushes or a positional commit argument")
+        raise CommandError("must specify --last-n-pushes or a positional commit argument")
     elif options["last_n_pushes"] and options["ingest_all_tasks"]:
         raise CommandError("Can't specify last_n_pushes and ingest_all_tasks at same time")
     elif options["last_n_pushes"] and options["commit"]:
@@ -97,7 +97,7 @@ def ingest_hg_push(options):
     else:
         logger.info("You can ingest all tasks for a push with -a/--ingest-all-tasks.")
 
-    _ingest_hg_push(project, commit)
+    _ingest_hg_push(project, commit, fetch_push_id)
 
 
 def _ingest_hg_push(project, revision, fetch_push_id=None):
