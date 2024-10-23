@@ -137,8 +137,5 @@
     "test": "yarn build:glean && node ./node_modules/jest/bin/jest",
     "test:integration": "node node_modules/puppeteer/install.js && set TEST_TYPE=integration && node ./node_modules/jest/bin/jest",
     "test:watch": "node ./node_modules/jest/bin/jest --watch"
-  },
-  "resolutions": {
-    "cacache": "19.0.1"
   }
 }
