@@ -30,6 +30,9 @@ def store_text_log_summary_artifact(job, text_log_summary_artifact):
         ignore_conflicts=True,
     )
 
+    # Bulk create doesn't return .id field, so query to get them.
+    log_errors = TextLogError.objects.filter(job=job)
+
     # get error summary immediately (to warm the cache)
     # Conflicts may have occured during the insert, but we pass the queryset for performance
     bugs = error_summary.get_error_summary(job, queryset=log_errors)
@@ -42,7 +45,13 @@ def store_text_log_summary_artifact(job, text_log_summary_artifact):
         ]:
             # classify job as `new failure` - for filtering, etc.
             job.failure_classification_id = 6
-            job.save()
+            job.save(update_fields=["failure_classification_id"])
+            # for every log_errors (TLE object) there is a corresponding bugs/suggestion
+            for tle in log_errors:
+                if tle.line_number == suggestion["line_number"]:
+                    tle.new_failure = True
+                    tle.save(update_fields=["new_failure"])
+                    break
 
 
 def store_job_artifacts(artifact_data):
