@@ -507,9 +507,9 @@ typing-extensions==4.9.0 \
     #   asgiref
     #   black
     #   selenium
-urllib3[socks]==2.0.3 \
-    --hash=sha256:48e7fafa40319d358848e1bc6809b208340fafe2096f1725d05d67443d0483d1 \
-    --hash=sha256:bee28b5e56addb8226c96f7f13ac28cb4c301dd5ea8a6ca179c0b9835e032825
+urllib3[socks]==2.2.3 \
+    --hash=sha256:ca899ca043dcb1bafa3e262d73aa25c465bfb49e0bd9dd5d59f1d0acba2f8fac \
+    --hash=sha256:e7d814a81dad81e6caf2ec9fdedb284ecc9c73076b62654547cc64ccdcae26e9
     # via
     #   -r requirements/dev.in
     #   requests
