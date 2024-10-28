@@ -225,9 +225,9 @@ brotli==1.1.0 \
     --hash=sha256:fd5f17ff8f14003595ab414e45fce13d073e0762394f957182e69035c9f3d7c2 \
     --hash=sha256:fdc3ff3bfccdc6b9cc7c342c03aa2400683f0cb891d46e94b64a197910dc4064
     # via whitenoise
-cached-property==1.5.2 \
-    --hash=sha256:9fa5755838eecbb2d234c3aa390bd80fbd3ac6b6869109bfc1b499f7bd89a130 \
-    --hash=sha256:df4f613cf7ad9a588cc381aaf4a512d26265ecebd5eb9e1ba12f1319eb85a6a0
+cached-property==2.0.1 \
+    --hash=sha256:484d617105e3ee0e4f1f58725e72a8ef9e93deee462222dbd51cd91230897641 \
+    --hash=sha256:f617d70ab1100b7bcf6e42228f9ddcb78c676ffa167278d9f730d1c2fba69ccb
     # via -r common.in
 cachy==0.3.0 \
     --hash=sha256:186581f4ceb42a0bbe040c407da73c14092379b1e4c0e327fdb72ae4a9b269b1 \
