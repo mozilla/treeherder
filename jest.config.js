@@ -18,7 +18,7 @@ module.exports = {
   transform: {
     '\\.(mjs|jsx|js)$': 'babel-jest',
   },
-  transformIgnorePatterns: ['node_modules/(!taskcluster-client-web|!@mozilla)'],
+  transformIgnorePatterns: ['node_modules/(?!taskcluster-client-web)'],
   setupFilesAfterEnv: ['<rootDir>/tests/ui/test-setup.js'],
   testPathIgnorePatterns: ['tests/ui/integration'],
 };

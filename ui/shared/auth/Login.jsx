@@ -10,9 +10,7 @@ import {
 import isEqual from 'lodash/isEqual';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
-import { push as pushRoute } from 'connected-react-router';
 
-import { setUrlParam, getUrlParam } from '../../helpers/location';
 import { loggedOutUser } from '../../helpers/auth';
 import { getApiUrl, loginCallbackUrl } from '../../helpers/url';
 import UserModel from '../../models/user';
@@ -25,9 +23,6 @@ class Login extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      telemetry: true,
-    };
     this.authService = new AuthService(this.props.setUser);
   }
 
@@ -42,8 +37,6 @@ class Login extends React.Component {
         this.setLoggedOut();
       }
     });
-
-    this.setState({ telemetry: !getUrlParam('noTelemetry') });
   }
 
   componentWillUnmount() {
@@ -94,19 +87,6 @@ class Login extends React.Component {
     window.open(loginCallbackUrl, '_blank');
   };
 
-  toggleTelemetry = () => {
-    const { telemetry } = this.state;
-
-    if (telemetry) {
-      setUrlParam('noTelemetry', 1);
-      this.setState({ telemetry: false });
-    } else {
-      setUrlParam('noTelemetry', null);
-      this.setState({ telemetry: true });
-    }
-    pushRoute();
-  };
-
   logout = () => {
     const { notify } = this.props;
 
@@ -148,9 +128,6 @@ class Login extends React.Component {
             <DropdownMenu right>
               <DropdownItem tag="a" onClick={this.logout}>
                 Logout
-              </DropdownItem>
-              <DropdownItem tag="a" onClick={() => this.toggleTelemetry()}>
-                Turn Telemetry {this.state.telemetry ? 'off' : 'on'}
               </DropdownItem>
             </DropdownMenu>
           </UncontrolledDropdown>

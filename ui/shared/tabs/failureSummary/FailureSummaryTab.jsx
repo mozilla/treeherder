@@ -7,7 +7,6 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { thBugSuggestionLimit, thEvents } from '../../../helpers/constants';
 import { getResultState, isReftest } from '../../../helpers/job';
 import { getReftestUrl } from '../../../helpers/url';
-import { getUrlParam } from '../../../helpers/location';
 import BugFiler from '../../BugFiler';
 import BugSuggestionsModel from '../../../models/bugSuggestions';
 
@@ -44,13 +43,7 @@ class FailureSummaryTab extends React.Component {
   }
 
   fileBug = (suggestion) => {
-    const { selectedJob, pinJob, initializeGlean } = this.props;
-
-    // accumulate telemetry on failure classification type
-    // submit data when all jobs are counted
-    if (!getUrlParam('noTelemetry')) {
-      initializeGlean();
-    }
+    const { selectedJob, pinJob } = this.props;
 
     pinJob(selectedJob);
     this.setState({
@@ -149,7 +142,6 @@ class FailureSummaryTab extends React.Component {
       logViewerFullUrl,
       selectedJob,
       addBug,
-      updatePinnedJob,
       repoName,
       developerMode,
     } = this.props;
@@ -179,10 +171,6 @@ class FailureSummaryTab extends React.Component {
         selectedJob.newFailure++;
       }
     });
-
-    if (selectedJob.newFailure > 0) {
-      updatePinnedJob?.(selectedJob);
-    }
 
     return (
       <div className="w-100 h-100" role="region" aria-label="Failure Summary">
@@ -322,9 +310,7 @@ FailureSummaryTab.propTypes = {
   repoName: PropTypes.string.isRequired,
   addBug: PropTypes.func,
   pinJob: PropTypes.func,
-  updatePinnedJob: PropTypes.func,
   developerMode: PropTypes.bool,
-  initializeGlean: PropTypes.func.isRequired,
 };
 
 FailureSummaryTab.defaultProps = {
@@ -333,7 +319,6 @@ FailureSummaryTab.defaultProps = {
   logViewerFullUrl: null,
   addBug: null,
   pinJob: null,
-  updatePinnedJob: null,
   developerMode: false,
 };
 

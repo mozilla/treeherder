@@ -14,7 +14,7 @@ import { thEvents } from '../../../helpers/constants';
 import JobArtifacts from '../../../shared/JobArtifacts';
 import JobTestGroups from '../JobTestGroups';
 import { clearSelectedJob } from '../../redux/stores/selectedJob';
-import { pinJob, addBug, updatePinnedJob } from '../../redux/stores/pinnedJobs';
+import { pinJob, addBug } from '../../redux/stores/pinnedJobs';
 import FailureSummaryTab from '../../../shared/tabs/failureSummary/FailureSummaryTab';
 
 import PerformanceTab from './PerformanceTab';
@@ -141,8 +141,6 @@ class TabsPanel extends React.Component {
       addBug,
       taskId,
       rootUrl,
-      initializeGlean,
-      updatePinnedJob,
     } = this.props;
     const { enableTestGroupsTab, tabIndex } = this.state;
     const countPinnedJobs = Object.keys(pinnedJobs).length;
@@ -231,9 +229,7 @@ class TabsPanel extends React.Component {
               logViewerFullUrl={logViewerFullUrl}
               addBug={addBug}
               pinJob={pinJob}
-              updatePinnedJob={updatePinnedJob}
               repoName={currentRepo.name}
-              initializeGlean={initializeGlean}
               fontSize="font-size-11"
             />
           </TabPanel>
@@ -307,7 +303,6 @@ TabsPanel.propTypes = {
   logViewerFullUrl: PropTypes.string,
   taskId: PropTypes.string.isRequired,
   rootUrl: PropTypes.string.isRequired,
-  initializeGlean: PropTypes.func.isRequired,
 };
 
 TabsPanel.defaultProps = {
@@ -323,9 +318,6 @@ const mapStateToProps = ({
   pinnedJobs: { pinnedJobs, isPinBoardVisible },
 }) => ({ pinnedJobs, isPinBoardVisible });
 
-export default connect(mapStateToProps, {
-  clearSelectedJob,
-  pinJob,
-  addBug,
-  updatePinnedJob,
-})(TabsPanel);
+export default connect(mapStateToProps, { clearSelectedJob, pinJob, addBug })(
+  TabsPanel,
+);

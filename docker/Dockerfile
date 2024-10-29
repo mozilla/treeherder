@@ -6,9 +6,6 @@ WORKDIR /app
 COPY ui/ /app/ui/
 COPY package.json babel.config.json webpack.config.js yarn.lock /app/
 
-# ensure we have python-venv available for glean
-RUN apt-get update && apt-get install python3-venv -y
-
 RUN npm install -g --force yarn@1.22.22
 RUN yarn install
 RUN yarn build
