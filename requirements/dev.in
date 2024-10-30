@@ -1,5 +1,5 @@
 # Dependencies needed only for development/testing.
-pytest-cov==5.0.0
+pytest-cov==6.0.0
 django-debug-toolbar==4.4.6
 mock==5.1.0
 responses==0.25.3
