@@ -720,6 +720,7 @@ class BugJobMap(models.Model):
     bug_id = models.PositiveIntegerField(db_index=True)
     created = models.DateTimeField(default=timezone.now)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # null if autoclassified
+    bug_open = models.BooleanField(default=False)
 
     failures = FailuresQuerySet.as_manager()
     objects = models.Manager()
@@ -741,6 +742,7 @@ class BugJobMap(models.Model):
             job_id=job_id,
             bug_id=bug_id,
             user=user,
+            bug_open=False,
         )
 
         if not user:
