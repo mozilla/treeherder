@@ -1,5 +1,3 @@
-/* eslint import/no-unresolved: [2, { ignore: ['../glean/generated/pings.js$', '../glean/generated/classification.js$'] }] */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -29,10 +27,7 @@ import {
   getApiUrl,
 } from '../helpers/url';
 import { create } from '../helpers/http';
-import { getUrlParam } from '../helpers/location';
 import { notify } from '../job-view/redux/stores/notifications';
-import { classified } from '../glean/generated/pings.js';
-import { newFailureNewBug, newBug } from '../glean/generated/classification.js';
 
 const omittedLeads = [
   'TEST-UNEXPECTED-FAIL',
@@ -140,7 +135,6 @@ export class BugFilerClass extends React.Component {
 
     const crashSignatures = this.getCrashSignatures(suggestion);
 
-    const newFailure = suggestion.showNewButton;
     const keywords = [];
     let isAssertion = [
       /ASSERTION:/, // binary code
@@ -277,7 +271,6 @@ export class BugFilerClass extends React.Component {
       thisFailure,
       keywords,
       crashSignatures,
-      newFailure,
     };
   }
 
@@ -468,7 +461,6 @@ export class BugFilerClass extends React.Component {
       comment,
       isIntermittent,
       isSecurityIssue,
-      newFailure,
       checkedLogLinks,
       regressedBy,
       seeAlso,
@@ -591,15 +583,6 @@ export class BugFilerClass extends React.Component {
         );
 
         if (!failureStatus) {
-          if (!getUrlParam('noTelemetry')) {
-            // glean metrics for new bugs added
-            if (newFailure) {
-              newFailureNewBug.add();
-            } else {
-              newBug.add();
-            }
-            classified.submit();
-          }
           toggle();
           successCallback(data);
         } else {

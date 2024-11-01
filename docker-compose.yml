@@ -60,7 +60,7 @@ services:
     working_dir: /app
     environment:
       BACKEND: http://backend:8000
-    command: sh -c "yarn && yarn build:glean && yarn start --host 0.0.0.0"
+    command: sh -c "yarn && yarn start --host 0.0.0.0"
     volumes:
       - .:/app
     ports:

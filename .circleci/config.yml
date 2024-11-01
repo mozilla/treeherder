@@ -16,12 +16,6 @@ jobs:
           command: yarn markdownlint
           name: Check markdown linting
       - run:
-          command: sudo apt-get update && sudo apt-get install python3-venv -y
-          name: python for glean
-      - run:
-          command: yarn build:glean
-          name: generate glean files
-      - run:
           command: yarn test:coverage
           name: Run Jest tests
       - codecov/upload
@@ -35,12 +29,6 @@ jobs:
           name: Restore Yarn Package Cache
           keys:
             - node-deps-v1-{{ .Branch }}
-      - run:
-          command: sudo apt-get update && sudo apt-get install python3-venv -y
-          name: python for glean
-      - run:
-          command: yarn install && yarn build:glean
-          name: generate glean files
       - run: pip install tox
       - run:
           command: tox -e docs
@@ -56,9 +44,6 @@ jobs:
       - checkout
       - docker/install-docker-compose:
           version: 1.29.2
-      - run:
-          command: sudo NEEDRESTART_SUSPEND=True apt-get update && sudo NEEDRESTART_SUSPEND=True apt-get install python3-venv -y
-          name: python for glean
       - run:
           name: Run tests and coverage within Docker container
           command: |
