@@ -272,8 +272,9 @@ class PerformanceAlertSummary(models.Model):
 
     prev_push = models.ForeignKey(Push, on_delete=models.CASCADE, related_name="+")
     push = models.ForeignKey(Push, on_delete=models.CASCADE, related_name="+")
-    original_push = models.ForeignKey(Push, on_delete=models.CASCADE, related_name="+", null=True, default=None)
-
+    original_push = models.ForeignKey(
+        Push, on_delete=models.CASCADE, related_name="+", null=True, default=None
+    )
     manually_created = models.BooleanField(default=False)
 
     notes = models.TextField(null=True, blank=True)
