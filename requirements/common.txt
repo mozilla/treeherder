@@ -376,9 +376,9 @@ django-cache-memoize==0.2.0 \
     --hash=sha256:79950a027ba40e4aff4efed587b76036bf5ba1f59329d7b158797b832be72ca6 \
     --hash=sha256:a6bfd112da699d1fa85955a1e15b7c48ee25e58044398958e269678db10736f3
     # via -r requirements/common.in
-django-cors-headers==4.5.0 \
-    --hash=sha256:28c1ded847aa70208798de3e42422a782f427b8b720e8d7319d34b654b5978e6 \
-    --hash=sha256:6c01a85cf1ec779a7bde621db853aa3ce5c065a5ba8e27df7a9f9e8dac310f4f
+django-cors-headers==4.6.0 \
+    --hash=sha256:14d76b4b4c8d39375baeddd89e4f08899051eeaf177cb02a29bd6eae8cf63aa8 \
+    --hash=sha256:8edbc0497e611c24d5150e0055d3b178c6534b8ed826fb6f53b21c63f5d48ba3
     # via -r requirements/common.in
 django-environ==0.11.2 \
     --hash=sha256:0ff95ab4344bfeff693836aa978e6840abef2e2f1145adff7735892711590c05 \
