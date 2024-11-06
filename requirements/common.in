@@ -12,7 +12,7 @@ psycopg2-binary==2.9.9
 
 jsonschema==4.23.0  # import jsonschema
 djangorestframework==3.15.2  # Imported as rest_framework
-django-cors-headers==4.5.0  # Listed as 3rd party app on settings.py
+django-cors-headers==4.6.0  # Listed as 3rd party app on settings.py
 mozlog==8.0.0
 
 # Used directly and also by Django's YAML serializer.
