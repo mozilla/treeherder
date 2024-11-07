@@ -4,9 +4,9 @@ import django.db.models.deletion
 from django.db import migrations, models
 
 
-def copy_push_to_original_push(apps, schema_editor):
-    alerts = apps.get_model('perf', 'PerformanceAlertSummary')
-    for alert in alerts.objects.all():
+def update_summary_original_push(apps, schema_editor):
+    PerformanceAlertSummary = apps.get_model('perf', 'PerformanceAlertSummary')
+    for alert in PerformanceAlertSummary.objects.all():
         alert.original_push = alert.push
         alert.save()
 
@@ -14,10 +14,6 @@ def copy_push_to_original_push(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        (
-            "model",
-            "0032_rename_failureline_job_guid_repository_failure_lin_job_gui_b67c6d_idx_and_more",
-        ),
         (
             "perf",
             "0052_rename_performancedatum_repository_signature_push_timestamp_performance_reposit_c9d328_idx_and_more",
@@ -36,5 +32,5 @@ class Migration(migrations.Migration):
                 to="model.push",
             ),
         ),
-        migrations.RunPython(copy_push_to_original_push, reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(update_summary_original_push, reverse_code=migrations.RunPython.noop),
     ]
