@@ -184,13 +184,13 @@ export const thPlatformMap = {
   'android-hw-p5-13-0-arm7-shippable-qr': 'Android 13.0 Pixel5 ARMv7 Shippable',
   'android-hw-p5-13-0-arm7-qr': 'Android 13.0 Pixel5 ARMv7',
   'android-hw-p5-13-0-arm7': 'Android 13.0 Pixel5 ARMv7',
-  'android-hw-p6-13-0-android-aarch64-shippable-qr':
+  'android-hw-p6-13-0-aarch64-shippable':
     'Android 13.0 Pixel6 AArch64 Shippable',
   'android-hw-a55-14-0-aarch64-shippable':
     'Android 14.0 Galaxy A55 AArch64 Shippable',
   'android-hw-a55-14-0-android-aarch64-shippable-qr':
     'Android 14.0 Galaxy A55 AArch64 Shippable',
-  'android-hw-s24-14-0-android-aarch64-shippable-qr':
+  'android-hw-s24-14-0-aarch64-shippable':
     'Android 14.0 Galaxy S24 AArch64 Shippable',
   Android: 'Android',
   'AC-android-all': 'Android Components',
