@@ -507,6 +507,10 @@ idna==3.7 \
     # via
     #   requests
     #   yarl
+inflection==0.5.1 \
+    --hash=sha256:1a29730d366e996aaacffb2f1f1cb9593dc38e2ddd30c91250c6dde09ea9b417 \
+    --hash=sha256:f38b2b640938a4f35ade69ac3d053042959b62a0f1076a5bbaa1b9526605a8a2
+    # via -r requirements/common.in
 jinja2==3.1.4 \
     --hash=sha256:4a3aee7acbbe7303aede8e9648d13b8bf88a429282aa6122a993f0ac800cb369 \
     --hash=sha256:bc5dd2abb727a5319567b7a813e6a2e7318c39f4f487cfe6c89c6f9c7d25197d
