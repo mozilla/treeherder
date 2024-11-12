@@ -281,6 +281,16 @@ def test_push_author(client, test_repository):
     assert len(results) == 2  # would have 3 if filter not applied
     assert set([result["id"] for result in results]) == set([1, 2])
 
+    # iexact looks for a case-insensitive match
+    resp = client.get(
+        reverse("push-list", kwargs={"project": test_repository.name}) + "?author=FoO@bar.com"
+    )
+    assert resp.status_code == 200
+
+    results = resp.json()["results"]
+    assert len(results) == 2  # would have 3 if filter not applied
+    assert set([result["id"] for result in results]) == set([1, 2])
+
     resp = client.get(
         reverse("push-list", kwargs={"project": test_repository.name}) + "?author=foo2@bar.com"
     )
@@ -298,6 +308,61 @@ def test_push_author(client, test_repository):
     results = resp.json()["results"]
     assert len(results) == 2  # would have 3 if filter not applied
     assert set([result["id"] for result in results]) == set([1, 2])
+
+    # iexact looks for a case-insensitive match
+    resp = client.get(
+        reverse("push-list", kwargs={"project": test_repository.name}) + "?author=-FOo2@bar.com"
+    )
+    assert resp.status_code == 200
+
+    results = resp.json()["results"]
+    assert len(results) == 2  # would have 3 if filter not applied
+    assert set([result["id"] for result in results]) == set([1, 2])
+
+
+def test_push_author_contains(client, test_repository):
+    """
+    test the author parameter
+    """
+    for revision, author in [
+        ("1234abcd", "foo@bar.com"),
+        ("2234abcd", "foo2@bar.com"),
+        ("3234abcd", "qux@bar.com"),
+    ]:
+        Push.objects.create(
+            repository=test_repository,
+            revision=revision,
+            author=author,
+            time=datetime.datetime.now(),
+        )
+
+    # icontains - case-insensitive containment test
+    resp = client.get(
+        reverse("push-list", kwargs={"project": test_repository.name}) + "?author_contains=fOo"
+    )
+    assert resp.status_code == 200
+
+    results = resp.json()["results"]
+    assert len(results) == 2
+    assert set([result["id"] for result in results]) == set([1, 2])
+
+    resp = client.get(
+        reverse("push-list", kwargs={"project": test_repository.name}) + "?author_contains=foO2"
+    )
+    assert resp.status_code == 200
+
+    results = resp.json()["results"]
+    assert len(results) == 1
+    assert results[0]["id"] == 2
+
+    resp = client.get(
+        reverse("push-list", kwargs={"project": test_repository.name}) + "?author_contains=qux"
+    )
+    assert resp.status_code == 200
+
+    results = resp.json()["results"]
+    assert len(results) == 1
+    assert results[0]["id"] == 3
 
 
 def test_push_reviewbot(client, test_repository):
