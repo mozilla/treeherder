@@ -2280,14 +2280,14 @@
   resolved "https://registry.yarnpkg.com/@pkgjs/parseargs/-/parseargs-0.11.0.tgz#a77ea742fab25775145434eb1d2328cf5013ac33"
   integrity sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==
 
-"@pollyjs/adapter-fetch@5.1.1":
-  version "5.1.1"
-  resolved "https://registry.npmjs.org/@pollyjs/adapter-fetch/-/adapter-fetch-5.1.1.tgz"
-  integrity sha512-ceWx8LGsdx0UNw9rSHY8IcBbmQlCR9EggpgVco702KCtj6SzSAmXhAX+RTQCvtWtCc4QasB39budxhRXCL0JZg==
+"@pollyjs/adapter-fetch@6.0.6":
+  version "6.0.6"
+  resolved "https://registry.yarnpkg.com/@pollyjs/adapter-fetch/-/adapter-fetch-6.0.6.tgz#2f97b593aab9f6037cf4a97b7f5499965faa83de"
+  integrity sha512-euWzM5TnA2jptdJgjIkEd/Q2hNFB652XivPKerWpLMFB13IKlrERX9wn2Dw3pquDAP0LvXH1qVBZt5DK0Xhzyg==
   dependencies:
-    "@pollyjs/adapter" "^5.1.1"
-    "@pollyjs/utils" "^5.1.1"
-    detect-node "^2.0.4"
+    "@pollyjs/adapter" "^6.0.6"
+    "@pollyjs/utils" "^6.0.6"
+    detect-node "^2.1.0"
     to-arraybuffer "^1.0.1"
 
 "@pollyjs/adapter-node-http@5.1.1":
@@ -2314,6 +2314,13 @@
   integrity sha512-4Ju6batDrkqyhYFhmKhjDTIbkfj0p0kZslCQ/saA1JMWIqlFnrXMiJVCSVlwNEsej3Zt/n9JfU5mEzbXxi+3vg==
   dependencies:
     "@pollyjs/utils" "^5.1.1"
+
+"@pollyjs/adapter@^6.0.6":
+  version "6.0.6"
+  resolved "https://registry.yarnpkg.com/@pollyjs/adapter/-/adapter-6.0.6.tgz#d97b3617cd0e6b662dbfe34bacfb8b99feac0192"
+  integrity sha512-szhys0NiFQqCJDMC0kpDyjhLqSI7aWc6m6iATCRKgcMcN/7QN85pb3GmRzvnNV8+/Bi2AUSCwxZljcsKhbYVWQ==
+  dependencies:
+    "@pollyjs/utils" "^6.0.6"
 
 "@pollyjs/core@5.1.1":
   version "5.1.1"
@@ -4856,7 +4863,7 @@ detect-newline@^3.0.0:
   resolved "https://registry.npmjs.org/detect-newline/-/detect-newline-3.1.0.tgz"
   integrity sha512-TLz+x/vEXm/Y7P7wn1EJFNLxYpUD4TgMosxY6fAVJUnJMbupHBOncxyWUG9OpTaH9EBD7uFI5LfEgmMOc54DsA==
 
-detect-node@^2.0.4:
+detect-node@^2.0.4, detect-node@^2.1.0:
   version "2.1.0"
   resolved "https://registry.npmjs.org/detect-node/-/detect-node-2.1.0.tgz"
   integrity sha512-T0NIuQpnTvFDATNuHN5roPwSBG83rFsuO+MXXH9/3N1eFbn4wcPjttvjMLEPWJ0RGUYgQE7cGgS3tNxbqCGM7g==
