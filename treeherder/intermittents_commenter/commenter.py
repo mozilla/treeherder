@@ -56,12 +56,14 @@ class Commenter:
                 for bug in sorted(bug_stats.items(), key=lambda x: x[1]["total"], reverse=True)
             ][:50]
 
+        test_variants = set()
         for bug_id, counts in bug_stats.items():
             change_priority = None
             change_whiteboard = None
             priority = 0
             rank = top_bugs.index(bug_id) + 1 if self.weekly_mode and bug_id in top_bugs else None
 
+            test_variants |= bug_stats[bug_id]['test_variants']
             if bug_info and bug_id in bug_info:
                 if self.weekly_mode:
                     priority = self.assign_priority(counts)
@@ -103,6 +105,8 @@ class Commenter:
                 failure_rate=round(counts["total"] / float(test_run_count), 3),
                 repositories=counts["per_repository"],
                 platforms=counts["per_platform"],
+                test_variants=sorted(test_variants),
+                test_suites=counts["test_suite_per_platform_and_build"],
                 counts=counts,
                 startday=startday,
                 endday=endday.split()[0],
@@ -277,6 +281,20 @@ class Commenter:
                     "osx-10-10": 1,
                     }
                 },
+               "test_suite_per_platform_and_build": {
+                    "windows10-64/debug" {
+                        "mochitest-browser-chrome": 2,
+                        "mochitest-browser-chrome-swr": 2,
+                     },
+                     "windows10-64/ccov" {
+                        "mochitest-browser-chrome": 0,
+                        "mochitest-browser-chrome-swr": 2,
+                     },
+                    "osx-10-10/debug": {
+                        "mochitest-browser-chrome": 2,
+                        "mochitest-browser-chrome-swr": 0,
+                     },
+                },
                 "windows10-64": {
                     "debug": 30,
                     "ccov": 20,
@@ -307,6 +325,7 @@ class Commenter:
                 "job__machine_platform__platform",
                 "bug_id",
                 "job__option_collection_hash",
+                "job__signature__job_type_name",
             )
         )
 
@@ -315,16 +334,26 @@ class Commenter:
 
         for bug in bugs:
             platform = bug["job__machine_platform__platform"]
+            test_variant = bug["job__signature__job_type_name"].rsplit("-", 1)[0]
             repo = bug["job__repository__name"]
             bug_id = bug["bug_id"]
             build_type = option_collection_map.get(
                 bug["job__option_collection_hash"], "unknown build"
             )
-
+            platform_and_build = f"{platform}/{build_type}"
             if bug_id in bug_map:
+                bug_map[bug_id]["test_variants"].add(test_variant)
                 bug_map[bug_id]["total"] += 1
                 bug_map[bug_id]["per_repository"][repo] += 1
                 bug_map[bug_id]["per_platform"][platform] += 1
+                if platform_and_build in bug_map[bug_id]["test_suite_per_platform_and_build"]:
+                    bug_map[bug_id]["test_suite_per_platform_and_build"][platform_and_build][
+                        test_variant
+                    ] += 1
+                else:
+                    bug_map[bug_id]["test_suite_per_platform_and_build"][
+                        platform_and_build
+                    ] = Counter([test_variant])
                 if bug_map[bug_id].get(platform):
                     bug_map[bug_id][platform][build_type] += 1
                 else:
@@ -332,11 +361,14 @@ class Commenter:
 
             else:
                 bug_map[bug_id] = {}
+                bug_map[bug_id]["test_variants"] = set([test_variant])
                 bug_map[bug_id]["total"] = 1
                 bug_map[bug_id]["per_platform"] = Counter([platform])
+                bug_map[bug_id]["test_suite_per_platform_and_build"] = {
+                    platform_and_build: Counter([test_variant])
+                }
                 bug_map[bug_id][platform] = Counter([build_type])
                 bug_map[bug_id]["per_repository"] = Counter([repo])
-
         return bug_map, bug_ids
 
     def get_alt_date_bug_totals(self, startday, endday, bug_ids):
