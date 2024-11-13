@@ -1,3 +1,4 @@
+## Summary
 {{total}} failures in {{test_run_count}} pushes ({{failure_rate}} failures/push) were associated with this bug {% if weekly_mode %}in the last 7 days{% else %}yesterday{% endif %}.
 
 {%- if rank %}
@@ -20,16 +21,16 @@ This is the #{{rank}} most frequent failure this week.{% endif %}
 
 **This test has failed more than 150 times in the last 21 days. It should be disabled until it can be fixed.** {% endif %}
 
-Repository breakdown:
+## Repository breakdown:
 {% for repository, count in repositories.items() -%}
 * {{repository}}: {{count}}
 {% endfor %}
-Platform and build breakdown:
+## Platform and build breakdown:
 {% for platform, count in platforms.items() -%}
 * {{platform}}: {{count}}
   {%- for build, count in counts[platform].items() %}
   * {{ build }}: {{ count }}
   {%- endfor %}
 {% endfor %}
-For more details, see:
+## For more details, see:
 https://treeherder.mozilla.org/intermittent-failures/bugdetails?bug={{bug_id}}&startday={{startday}}&endday={{endday}}&tree=all
