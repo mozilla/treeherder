@@ -737,12 +737,12 @@ class BugJobMap(models.Model):
             return "autoclassifier"
 
     @classmethod
-    def create(cls, job_id, bug_id, user=None):
+    def create(cls, job_id, bug_id, user=None, bug_open=False):
         bug_map = BugJobMap.objects.create(
             job_id=job_id,
             bug_id=bug_id,
             user=user,
-            bug_open=False,
+            bug_open=bug_open,
         )
 
         if not user:

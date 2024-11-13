@@ -50,7 +50,10 @@ def reopen_intermittent_bugs(minimum_failures_to_reopen=1):
 
         comment = {"body": "New failure instance: " + log_url}
         url = settings.BUGFILER_API_URL + "/rest/bug/" + str(bug_id)
-        headers = {"x-bugzilla-api-key": settings.BUGFILER_API_KEY, "Accept": "application/json"}
+        headers = {
+            "x-bugzilla-api-key": settings.BUGFILER_API_KEY,
+            "Accept": "application/json",
+        }
         data = {
             "status": "REOPENED",
             "comment": comment,
@@ -59,6 +62,8 @@ def reopen_intermittent_bugs(minimum_failures_to_reopen=1):
 
         try:
             reopen_request(url, method="PUT", headers=headers, json=data)
+            # NOTE: this will only toggle 1 bug_job_map entry, not all (if there are retriggers)
+            BugJobMap.objects.filter(job_id=job_id, bug_id=bug_id).update(bug_open=True)
         except requests.exceptions.HTTPError as e:
             try:
                 message = e.response.json()["message"]
