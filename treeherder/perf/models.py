@@ -272,7 +272,9 @@ class PerformanceAlertSummary(models.Model):
 
     prev_push = models.ForeignKey(Push, on_delete=models.CASCADE, related_name="+")
     push = models.ForeignKey(Push, on_delete=models.CASCADE, related_name="+")
-
+    original_push = models.ForeignKey(
+        Push, on_delete=models.CASCADE, related_name="+", null=True, default=None
+    )
     manually_created = models.BooleanField(default=False)
 
     notes = models.TextField(null=True, blank=True)
@@ -343,6 +345,9 @@ class PerformanceAlertSummary(models.Model):
 
             if update_fields is not None:
                 update_fields = {"bug_due_date"}.union(update_fields)
+
+        if not self.original_push:
+            self.original_push = self.push
 
         super().save(*args, update_fields=update_fields, **kwargs)
         self.__prev_bug_number = self.bug_number
