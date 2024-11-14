@@ -174,7 +174,14 @@ export const getPerfCompareBaseURL = function getOldCompareWithBaseViewURL(
   newRevision,
   framework,
 ) {
-  return `https://perf.compare/compare-results?baseRev=${originalRevision}&baseRepo=${originalProject}&newRev=${newRevision}&newRepo=${newProject}&framework=${framework}`;
+  const params = {
+    baseRev: originalRevision,
+    baseRepo: originalProject,
+    newRev: newRevision,
+    newRepo: newProject,
+    framework,
+  };
+  return `https://perf.compare/compare-results${createQueryParams(params)}`;
 };
 
 export const getPerfCompareBaseSubtestsURL = function getPerfCompareBaseSubtestsURL(
@@ -186,7 +193,18 @@ export const getPerfCompareBaseSubtestsURL = function getPerfCompareBaseSubtests
   originalSignature,
   newSignature,
 ) {
-  return `https://perf.compare/subtests-compare-results?baseRev=${originalRevision}&baseRepo=${originalProject}&newRev=${newRevision}&newRepo=${newProject}&framework=${framework}&baseParentSignature=${originalSignature}&newParentSignature=${newSignature}`;
+  const params = {
+    baseRev: originalRevision,
+    baseRepo: originalProject,
+    newRev: newRevision,
+    newRepo: newProject,
+    framework,
+    baseParentSignature: originalSignature,
+    newParentSignature: newSignature,
+  };
+  return `https://perf.compare/subtests-compare-results${createQueryParams(
+    params,
+  )}`;
 };
 
 export const getPerfCompareOvertimeURL = function getPerfCompareOvertimeURL(
@@ -196,7 +214,16 @@ export const getPerfCompareOvertimeURL = function getPerfCompareOvertimeURL(
   framework,
   timeRange,
 ) {
-  return `https://perf.compare/compare-over-time-results?baseRepo=${originalProject}&selectedTimeRange=${timeRange}&newRev=${newRevision}&newRepo=${newProject}&framework=${framework}`;
+  const params = {
+    baseRepo: originalProject,
+    newRev: newRevision,
+    newRepo: newProject,
+    framework,
+    selectedTimeRange: timeRange,
+  };
+  return `https://perf.compare/compare-over-time-results${createQueryParams(
+    params,
+  )}`;
 };
 
 export const getPerfCompareOvertimeSubtestsURL = function getPerfCompareOvertimeSubtestsURL(
@@ -208,5 +235,16 @@ export const getPerfCompareOvertimeSubtestsURL = function getPerfCompareOvertime
   originalSignature,
   newSignature,
 ) {
-  return `https://perf.compare/subtests-compare-over-time-results?baseRepo=${originalProject}&newRev=${newRevision}&newRepo=${newProject}&framework=${framework}&selectedTimeRange=${timeRange}&baseParentSignature=${originalSignature}&newParentSignature=${newSignature}`;
+  const params = {
+    baseRepo: originalProject,
+    newRev: newRevision,
+    newRepo: newProject,
+    framework,
+    selectedTimeRange: timeRange,
+    baseParentSignature: originalSignature,
+    newParentSignature: newSignature,
+  };
+  return `https://perf.compare/subtests-compare-over-time-results${createQueryParams(
+    params,
+  )}`;
 };
