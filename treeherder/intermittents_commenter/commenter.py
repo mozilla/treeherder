@@ -301,6 +301,7 @@ class Commenter:
         bugs = (
             BugJobMap.failures.by_date(startday, endday)
             .filter(bug_id__in=bug_ids)
+            .order_by("job__machine_platform__platform")
             .values(
                 "job__repository__name",
                 "job__machine_platform__platform",
