@@ -1135,6 +1135,18 @@ def bug_data(eleven_jobs_stored, test_repository, test_push, bugs):
 
 
 @pytest.fixture
+def bug_data_with_5_failures(eleven_jobs_stored, test_repository, test_push, bugs):
+    jobs = th_models.Job.objects.all().order_by("id")
+    bug_id = bugs[0].id
+    for job in jobs[:5]:
+        th_models.BugJobMap.create(job_id=job.id, bug_id=bug_id)
+
+    return {
+        "bug_id": bug_id,
+    }
+
+
+@pytest.fixture
 def test_run_data(bug_data):
     pushes = th_models.Push.objects.all()
     time = pushes[0].time.strftime("%Y-%m-%d")
