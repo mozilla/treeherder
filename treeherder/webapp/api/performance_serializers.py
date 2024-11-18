@@ -17,6 +17,7 @@ from treeherder.perf.models import (
     PerformanceFramework,
     PerformanceSignature,
     PerformanceTag,
+    Push,
 )
 from treeherder.webapp.api.utils import to_timestamp, FIVE_DAYS
 
@@ -272,7 +273,8 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     )
     repository = serializers.SlugRelatedField(read_only=True, slug_field="name")
     framework = serializers.SlugRelatedField(read_only=True, slug_field="id")
-    revision = serializers.SlugRelatedField(read_only=True, slug_field="revision", source="push")
+    revision = serializers.SlugRelatedField(read_only=False, slug_field="revision", source="push", required=False, queryset=Push.objects.all())
+    original_revision = serializers.SlugRelatedField(read_only=True, slug_field="revision", source="original_push")
     push_timestamp = TimestampField(source="push", read_only=True)
     prev_push_revision = serializers.SlugRelatedField(
         read_only=True, slug_field="revision", source="prev_push"
@@ -308,6 +310,7 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
             "id",
             "push_id",
             "prev_push_id",
+            "original_revision",
             "created",
             "first_triaged",
             "triage_due_date",
