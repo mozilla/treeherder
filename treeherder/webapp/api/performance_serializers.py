@@ -273,8 +273,11 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     )
     repository = serializers.SlugRelatedField(read_only=True, slug_field="name")
     framework = serializers.SlugRelatedField(read_only=True, slug_field="id")
-    revision = serializers.SlugRelatedField(read_only=False, slug_field="revision", source="push", required=False, queryset=Push.objects.all())
-    original_revision = serializers.SlugRelatedField(read_only=True, slug_field="revision", source="original_push")
+    revision = serializers.SlugRelatedField(read_only=False, slug_field="revision",
+                                            source="push",required=False,
+                                            queryset=Push.objects.all())
+    original_revision = serializers.SlugRelatedField(read_only=True, slug_field="revision",
+                                                     source="original_push")
     push_timestamp = TimestampField(source="push", read_only=True)
     prev_push_revision = serializers.SlugRelatedField(
         read_only=True, slug_field="revision", source="prev_push"
