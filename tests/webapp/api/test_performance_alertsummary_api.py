@@ -241,21 +241,20 @@ def test_alert_summaries_put(
 
 
 def test_performance_alert_summary_change_revision(
-    client, test_repository, test_perf_signature, test_perf_alert_summary, test_user, test_sheriff):
+    client, test_perf_alert_summary, test_sheriff, test_push
+):
+    client.force_authenticate(user=test_sheriff)
 
     # verify we can set revision
-    client.force_authenticate(user=test_sheriff)
+    assert PerformanceAlertSummary.objects.get(id=1).push.revision != test_push.revision
     resp = client.put(
         reverse("performance-alert-summaries-list") + "1/",
-        {"revision": "b11529c9865a4dee3a93d63d119ebb89fcbbdf69"},
+        {"revision": test_push.revision},
     )
     assert resp.status_code == 200
+    assert PerformanceAlertSummary.objects.get(id=1).push.revision == test_push.revision
 
-    obj = PerformanceAlertSummary.objects.get(id=1)
-    assert str(getattr(obj, "push")).split()[-1] == "b11529c9865a4dee3a93d63d119ebb89fcbbdf69"
-
-    # verify we can set inexistent revision
-    client.force_authenticate(user=test_sheriff)
+    # verify we can set non-exist revision
     resp = client.put(
         reverse("performance-alert-summaries-list") + "1/",
         {"revision": "no-push-revision"},
@@ -263,14 +262,14 @@ def test_performance_alert_summary_change_revision(
     assert resp.status_code == 400
 
     # revert revision
-    original_revision = str((getattr(obj, "original_push"))).split()[-1]
-    client.force_authenticate(user=test_sheriff)
+    original_revision = PerformanceAlertSummary.objects.get(id=1).original_push.revision
     resp = client.put(
         reverse("performance-alert-summaries-list") + "1/",
         {"revision": original_revision},
     )
     assert resp.status_code == 200
-    assert str(getattr(obj, "push")).split()[-1] == original_revision
+    assert PerformanceAlertSummary.objects.get(id=1).push.revision == original_revision
+
 
 def test_auth_for_alert_summary_post(
     client,
