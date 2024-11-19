@@ -700,9 +700,9 @@ mohawk==1.1.0 \
     --hash=sha256:3ed296a30453d0b724679e0fd41e4e940497f8e461a9a9c3b7f36e43bab0fa09 \
     --hash=sha256:d2a0e3ab10a209cc79e95e28f2dd54bd4a73fd1998ffe27b7ba0f962b6be9723
     # via taskcluster
-moz-measure-noise==2.60.1 \
-    --hash=sha256:d147b9af6a1ccbe94f951152596fbef3959dddf4284fb47c9a4ca3211f1da06a \
-    --hash=sha256:f8811a904fab113ba195c5eed84a448283a95c46751409a70fc168634c7d9613
+moz-measure-noise==2.70.0 \
+    --hash=sha256:12019ccf56e42c9cebf2a09aebbe38b69e4c9ee5995c61ea7fe8abfb387b18f0 \
+    --hash=sha256:e068a383753346dcbd636987d76997d8e03494b61c55a835a16161ad7d2e8d56
     # via -r requirements/common.in
 mozci[cache]==2.4.1 \
     --hash=sha256:389296a56e9f37f636c424b38092904334c6f767782098cad2a70ffab96f8f85 \
