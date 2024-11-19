@@ -18,13 +18,13 @@ This is the #1 most frequent failure this week.
   * debug: 1
 
 ## Table
-| |Linux x64 Tsan Build|Mochitest Browser Chrome|
+| |**Linux x64 Tsan Build**|**Mochitest Browser Chrome**|
 |---|:-:|:-:|
-|linux1804/debug|1| |
-|linux1804/opt|1| |
-|osx-10-6/debug| |1|
-|osx-10-7/debug| |1|
-|windows7-32/debug| |1|
+|**linux1804/debug**|1| |
+|**linux1804/opt**|1| |
+|**osx-10-6/debug**| |1|
+|**osx-10-7/debug**| |1|
+|**windows7-32/debug**| |1|
 
 ## For more details, see:
 https://treeherder.mozilla.org/intermittent-failures/bugdetails?bug=1&startday=2012-05-09&endday=2018-05-10&tree=all

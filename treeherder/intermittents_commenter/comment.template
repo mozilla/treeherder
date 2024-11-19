@@ -35,14 +35,14 @@ This is the #{{rank}} most frequent failure this week.{% endif %}
 ## Table
 | |
 {%- for variant in test_variants -%}
-  {{variant}}|
+  **{{variant}}**|
 {%- endfor %}
 |---|
 {%- for test_variant in test_variants -%}
   :-:|
 {%- endfor %}
 {% for platform_and_build, test_by_variant in test_suites.items() -%}
-|{{platform_and_build}}|
+|**{{platform_and_build}}**|
   {%- for variant in test_variants -%}
     {{test_by_variant.get(variant, " ")}}|
   {%- endfor %}
