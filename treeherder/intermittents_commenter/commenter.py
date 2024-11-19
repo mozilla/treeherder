@@ -63,7 +63,7 @@ class Commenter:
             priority = 0
             rank = top_bugs.index(bug_id) + 1 if self.weekly_mode and bug_id in top_bugs else None
 
-            test_variants |= bug_stats[bug_id]['test_variants']
+            test_variants |= bug_stats[bug_id]["test_variants"]
             if bug_info and bug_id in bug_info:
                 if self.weekly_mode:
                     priority = self.assign_priority(counts)
