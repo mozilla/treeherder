@@ -128,9 +128,13 @@ def _test_should_gather_replicates_based_on(
     mozilla-central.
     """
     if replicates and len(replicates) > 0:
-        return repository.name in ("try",) or (
-            repository.name in ("mozilla-central",) and suite_name == "speedometer3"
-        )
+        if repository.name in ("try",):
+            return True
+        elif repository.name in ("mozilla-central",):
+            if suite_name == "speedometer3":
+                return True
+            elif "applink-startup" in suite_name:
+                return True
     return False
 
 
