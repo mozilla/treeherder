@@ -1,4 +1,3 @@
-import json
 import logging
 import re
 import time
@@ -48,7 +47,8 @@ class Commenter:
         bug_info = self.fetch_all_bug_details(bug_ids)
 
         all_bug_changes = []
-        template = Template(self.open_file("comment.template", False))
+        with open("treeherder/intermittents_commenter/comment.template") as template_file:
+            template = Template(template_file.read())
 
         if self.weekly_mode:
             top_bugs = [
@@ -177,13 +177,6 @@ class Commenter:
                 len(all_bug_changes), "weekly" if self.weekly_mode else "daily"
             )
         )
-
-    def open_file(self, filename, load):
-        with open(f"treeherder/intermittents_commenter/{filename}") as myfile:
-            if load:
-                return json.load(myfile)
-            else:
-                return myfile.read()
 
     def calculate_date_strings(self, mode, num_days):
         """Returns a tuple of start (in YYYY-MM-DD format) and end date
