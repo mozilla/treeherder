@@ -39,7 +39,7 @@ mozci[cache]==2.4.1
 dockerflow==2024.4.2
 
 # Measuring noise of perf data
-moz-measure-noise==2.60.1
+moz-measure-noise==2.70.0
 
 # Used in the intermittents commenter
 jinja2==3.1.4
