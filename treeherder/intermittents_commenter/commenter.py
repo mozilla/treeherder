@@ -44,9 +44,10 @@ class Commenter:
         test_run_count = self.get_test_runs(startday, endday)
 
         # if fetch_bug_details fails, None is returned
-        bug_info = self.fetch_all_bug_details(bug_ids)
-
+        bugs_info = self.fetch_all_bug_details(bug_ids)
         all_bug_changes = []
+        test_variants = set()
+
         with open("treeherder/intermittents_commenter/comment.template") as template_file:
             template = Template(template_file.read())
 
@@ -56,39 +57,38 @@ class Commenter:
                 for bug in sorted(bug_stats.items(), key=lambda x: x[1]["total"], reverse=True)
             ][:50]
 
-        test_variants = set()
         for bug_id, counts in bug_stats.items():
             change_priority = None
             change_whiteboard = None
             priority = 0
             rank = top_bugs.index(bug_id) + 1 if self.weekly_mode and bug_id in top_bugs else None
-
             test_variants |= bug_stats[bug_id]["test_variants"]
-            if bug_info and bug_id in bug_info:
+
+            if bugs_info and bug_id in bugs_info:
                 if self.weekly_mode:
                     priority = self.assign_priority(counts)
                     if priority == 2:
                         change_priority, change_whiteboard = self.check_needswork_owner(
-                            bug_info[bug_id]
+                            bugs_info[bug_id]
                         )
 
                     # change [stockwell needswork] to [stockwell unknown] when failures drop below 20 failures/week
                     # if this block is true, it implies a priority of 0 (mutually exclusive to previous block)
                     if counts["total"] < 20:
-                        change_whiteboard = self.check_needswork(bug_info[bug_id]["whiteboard"])
+                        change_whiteboard = self.check_needswork(bugs_info[bug_id]["whiteboard"])
 
                 else:
                     change_priority, change_whiteboard = self.check_needswork_owner(
-                        bug_info[bug_id]
+                        bugs_info[bug_id]
                     )
 
                 # recommend disabling when more than 150 failures tracked over 21 days and
                 # takes precedence over any prevous change_whiteboard assignments
                 if bug_id in alt_date_bug_totals and not self.check_whiteboard_status(
-                    bug_info[bug_id]["whiteboard"]
+                    bugs_info[bug_id]["whiteboard"]
                 ):
                     priority = 3
-                    change_whiteboard = bug_info[bug_id]["whiteboard"].replace(
+                    change_whiteboard = bugs_info[bug_id]["whiteboard"].replace(
                         "[stockwell unknown]", ""
                     )
                     change_whiteboard = re.sub(
@@ -259,7 +259,7 @@ class Commenter:
 
     def get_bug_stats(self, startday, endday):
         """Get all intermittent failures per specified date range and repository,
-           returning a dict of bug_id's with total, repository and platform totals
+           returning a dict of bug_id's with total, repository test_suite and platform totals
            if totals are greater than or equal to the threshold.
         eg:
         {
@@ -308,7 +308,6 @@ class Commenter:
             .filter(total__gte=threshold)
             .values_list("bug_id", flat=True)
         )
-
         bugs = (
             BugJobMap.failures.by_date(startday, endday)
             .filter(bug_id__in=bug_ids)
@@ -321,10 +320,13 @@ class Commenter:
                 "job__signature__job_type_name",
             )
         )
-
         option_collection_map = OptionCollection.objects.get_option_collection_map()
-        bug_map = dict()
+        bug_map = self.build_bug_map(bugs, option_collection_map)
+        return bug_map, bug_ids
 
+    def build_bug_map(self, bugs, option_collection_map):
+        """Returning a dict of bug_id's with total, repository, test_suite and platform totals"""
+        bug_map = dict()
         for bug in bugs:
             platform = bug["job__machine_platform__platform"]
             test_variant = bug["job__signature__job_type_name"].rsplit("-", 1)[0]
@@ -334,35 +336,37 @@ class Commenter:
                 bug["job__option_collection_hash"], "unknown build"
             )
             platform_and_build = f"{platform}/{build_type}"
-            if bug_id in bug_map:
-                bug_map[bug_id]["test_variants"].add(test_variant)
-                bug_map[bug_id]["total"] += 1
-                bug_map[bug_id]["per_repository"][repo] += 1
-                bug_map[bug_id]["per_platform"][platform] += 1
-                if platform_and_build in bug_map[bug_id]["test_suite_per_platform_and_build"]:
-                    bug_map[bug_id]["test_suite_per_platform_and_build"][platform_and_build][
+            if bug_id not in bug_map:
+                bug_infos = {
+                    "total": 1,
+                    "test_variants": set([test_variant]),
+                    "per_platform": Counter([platform]),
+                    "test_suite_per_platform_and_build": {
+                        platform_and_build: Counter([test_variant])
+                    },
+                    "per_repository": Counter([repo]),
+                    platform: Counter([build_type]),
+                }
+            else:
+                bug_infos = bug_map[bug_id]
+                bug_infos["total"] += 1
+                bug_infos["test_variants"].add(test_variant)
+                bug_infos["per_repository"][repo] += 1
+                bug_infos["per_platform"][platform] += 1
+                if platform_and_build in bug_infos["test_suite_per_platform_and_build"]:
+                    bug_infos["test_suite_per_platform_and_build"][platform_and_build][
                         test_variant
                     ] += 1
                 else:
-                    bug_map[bug_id]["test_suite_per_platform_and_build"][
-                        platform_and_build
-                    ] = Counter([test_variant])
-                if bug_map[bug_id].get(platform):
-                    bug_map[bug_id][platform][build_type] += 1
+                    bug_infos["test_suite_per_platform_and_build"][platform_and_build] = Counter(
+                        [test_variant]
+                    )
+                if bug_infos.get(platform):
+                    bug_infos[platform][build_type] += 1
                 else:
-                    bug_map[bug_id][platform] = Counter([build_type])
-
-            else:
-                bug_map[bug_id] = {}
-                bug_map[bug_id]["test_variants"] = set([test_variant])
-                bug_map[bug_id]["total"] = 1
-                bug_map[bug_id]["per_platform"] = Counter([platform])
-                bug_map[bug_id]["test_suite_per_platform_and_build"] = {
-                    platform_and_build: Counter([test_variant])
-                }
-                bug_map[bug_id][platform] = Counter([build_type])
-                bug_map[bug_id]["per_repository"] = Counter([repo])
-        return bug_map, bug_ids
+                    bug_infos[platform] = Counter([build_type])
+            bug_map[bug_id] = bug_infos
+        return bug_map
 
     def get_alt_date_bug_totals(self, startday, endday, bug_ids):
         """use previously fetched bug_ids to check for total failures
