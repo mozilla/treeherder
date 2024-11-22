@@ -160,7 +160,6 @@ const AlertHeader = ({
             <Col className="p-0" xs="auto">
               <Button
                 className="ml-1"
-                color="darker-secondary"
                 size="xs"
                 color="warning"
                 onClick={handleRevertRevision}
