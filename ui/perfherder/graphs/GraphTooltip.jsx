@@ -10,7 +10,11 @@ import {
 import { Link } from 'react-router-dom';
 
 import { alertStatusMap, endpoints } from '../perf-helpers/constants';
-import { createQueryParams, getApiUrl, getJobsUrl } from '../../helpers/url';
+import {
+  getApiUrl,
+  getJobsUrl,
+  getPerfCompareBaseSubtestsURL,
+} from '../../helpers/url';
 import { create } from '../../helpers/http';
 import RepositoryModel from '../../models/repository';
 import { displayNumber, getStatus } from '../perf-helpers/helpers';
@@ -223,17 +227,15 @@ const GraphTooltip = ({
               {dataPointDetails.jobId && prevRevision && ', '}
               {prevRevision && (
                 <a
-                  href={`./comparesubtest${createQueryParams({
-                    originalProject: testDetails.repository_name,
-                    newProject: testDetails.repository_name,
-                    originalRevision: prevRevision,
-                    newRevision: dataPointDetails.revision,
-                    originalSignature:
-                      testDetails.parentSignature || testDetails.signature_id,
-                    newSignature:
-                      testDetails.parentSignature || testDetails.signature_id,
-                    framework: testDetails.framework_id,
-                  })}`}
+                  href={getPerfCompareBaseSubtestsURL(
+                    testDetails.repository_name,
+                    prevRevision,
+                    testDetails.repository_name,
+                    dataPointDetails.revision,
+                    testDetails.framework_id,
+                    testDetails.parentSignature || testDetails.signature_id,
+                    testDetails.parentSignature || testDetails.signature_id,
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

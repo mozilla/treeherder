@@ -17,7 +17,7 @@ import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 import { Link } from 'react-router-dom';
 import Badge from 'reactstrap/lib/Badge';
 
-import { createQueryParams } from '../../helpers/url';
+import { getPerfCompareBaseSubtestsURL } from '../../helpers/url';
 import {
   getStatus,
   getGraphsURL,
@@ -260,17 +260,16 @@ export default class AlertTableRow extends React.Component {
 
   getSubtestsURL = () => {
     const { alert, alertSummary } = this.props;
-    const urlParameters = {
-      framework: alertSummary.framework,
-      originalProject: alertSummary.repository,
-      originalSignature: alert.series_signature.id,
-      newProject: alertSummary.repository,
-      newSignature: alert.series_signature.id,
-      originalRevision: alertSummary.prev_push_revision,
-      newRevision: alertSummary.revision,
-    };
 
-    return `./comparesubtest${createQueryParams(urlParameters)}`;
+    return getPerfCompareBaseSubtestsURL(
+      alertSummary.repository,
+      alertSummary.prev_push_revision,
+      alertSummary.repository,
+      alertSummary.revision,
+      alertSummary.framework,
+      alert.series_signature.id,
+      alert.series_signature.id,
+    );
   };
 
   buildSideBySideLink = () => {

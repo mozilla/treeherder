@@ -6,7 +6,7 @@ import { groupBy, forIn } from 'lodash';
 import numeral from 'numeral';
 
 import RepositoryModel from '../../models/repository';
-import { getJobsUrl, createQueryParams } from '../../helpers/url';
+import { getJobsUrl, getPerfCompareBaseSubtestsURL } from '../../helpers/url';
 import { getFrameworkName, displayNumber } from '../perf-helpers/helpers';
 
 const TableView = ({
@@ -54,15 +54,15 @@ const TableView = ({
       group_state: 'expanded',
     });
 
-    const compareUrl = `./comparesubtest${createQueryParams({
-      originalProject: item.repository_name,
-      newProject: item.repository_name,
-      originalRevision: prevRevision,
-      newRevision: dataPoint.revision,
-      originalSignature: item.parentSignature || item.signature_id,
-      newSignature: item.parentSignature || item.signature_id,
-      framework: item.framework_id,
-    })}`;
+    const compareUrl = getPerfCompareBaseSubtestsURL(
+      item.repository_name,
+      prevRevision,
+      item.repository_name,
+      dataPoint.revision,
+      item.framework_id,
+      item.parentSignature || item.signature_id,
+      item.parentSignature || item.signature_id,
+    );
 
     return {
       deltaValue,
