@@ -7,10 +7,11 @@ from treeherder.model.models import BugJobMap, Job
 
 
 @pytest.mark.parametrize(
-    "test_no_auth,test_duplicate_handling", [(True, False), (False, False), (False, True)]
+    "test_no_auth,test_duplicate_handling,bug_open",
+    [(True, False, False), (False, False, False), (False, True, True)],
 )
 def test_create_bug_job_map(
-    client, test_job, test_user, bugs, test_no_auth, test_duplicate_handling
+    client, test_job, test_user, bugs, test_no_auth, test_duplicate_handling, bug_open
 ):
     """
     test creating a single note via endpoint
@@ -19,7 +20,12 @@ def test_create_bug_job_map(
     if not test_no_auth:
         client.force_authenticate(user=test_user)
 
-    submit_obj = {"job_id": test_job.id, "bug_id": bug.id, "type": "manual"}
+    submit_obj = {
+        "job_id": test_job.id,
+        "bug_id": bug.id,
+        "type": "manual",
+        "bug_open": bug_open,
+    }
 
     # if testing duplicate handling, submit twice
     if test_duplicate_handling:
@@ -43,6 +49,7 @@ def test_create_bug_job_map(
         assert bug_job_map.job_id == submit_obj["job_id"]
         assert bug_job_map.bug_id == submit_obj["bug_id"]
         assert bug_job_map.user == test_user
+        assert bug_job_map.bug_open == bug_open
 
 
 def test_bug_job_map_list(client, test_repository, eleven_jobs_stored, test_user, bugs):

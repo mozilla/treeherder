@@ -108,13 +108,20 @@ export const pinJobs = (jobsToPin) => {
 export const addBug = (bug, job) => {
   return async (dispatch, getState) => {
     const {
-      pinnedJobs: { pinnedJobBugs },
+      pinnedJobs: { pinnedJobBugs, newBug },
     } = getState();
 
     const bugId = bug.dupe_of ? bug.dupe_of : bug.id;
     if (!pinnedJobBugs.has(bugId)) {
       pinnedJobBugs.add(bugId);
     }
+
+    if ('newBug' in bug) {
+      if (!newBug.has(bug.newBug)) {
+        newBug.add(bug.newBug);
+      }
+    }
+
     dispatch({
       type: SET_PINNED_JOB_BUGS,
       pinnedJobBugs: new Set(pinnedJobBugs),
@@ -148,6 +155,7 @@ export const unPinAll = () => ({
   payload: {
     failureClassificationId: 4,
     failureClassificationComment: '',
+    newBug: new Set(),
     pinnedJobs: {},
     pinnedJobBugs: new Set(),
   },
@@ -171,6 +179,7 @@ const initialState = {
   pinnedJobs: {},
   pinnedJobBugs: new Set(),
   failureClassificationComment: '',
+  newBug: new Set(),
   failureClassificationId: 4,
   isPinBoardVisible: false,
 };

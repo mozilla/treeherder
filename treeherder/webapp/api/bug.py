@@ -13,12 +13,14 @@ class BugJobMapViewSet(viewsets.ViewSet):
         """Add a new relation between a job and a bug."""
         job_id = int(request.data["job_id"])
         bug_id = int(request.data["bug_id"])
+        bug_open = bool(request.data["bug_open"])
 
         try:
             BugJobMap.create(
                 job_id=job_id,
                 bug_id=bug_id,
                 user=request.user,
+                bug_open=bug_open,
             )
             message = "Bug job map saved"
         except IntegrityError:

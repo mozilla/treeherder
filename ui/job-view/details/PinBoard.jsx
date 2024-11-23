@@ -150,13 +150,14 @@ class PinBoard extends React.Component {
   };
 
   saveBugs = (job) => {
-    const { pinnedJobBugs, notify } = this.props;
+    const { pinnedJobBugs, newBug, notify } = this.props;
 
     pinnedJobBugs.forEach((bugId) => {
       const bjm = new BugJobMapModel({
         bug_id: bugId,
         job_id: job.id,
         type: 'annotation',
+        bug_open: newBug.has(bugId),
       });
 
       bjm.create().catch((response) => {
@@ -703,6 +704,7 @@ PinBoard.propTypes = {
   isPinBoardVisible: PropTypes.bool.isRequired,
   pinnedJobs: PropTypes.shape({}).isRequired,
   pinnedJobBugs: PropTypes.shape({}).isRequired,
+  newBug: PropTypes.string.isRequired,
   addBug: PropTypes.func.isRequired,
   removeBug: PropTypes.func.isRequired,
   unPinJob: PropTypes.func.isRequired,
@@ -733,6 +735,7 @@ const mapStateToProps = ({
     pinnedJobBugs,
     failureClassificationId,
     failureClassificationComment,
+    newBug,
   },
 }) => ({
   revisionTips,
@@ -743,6 +746,7 @@ const mapStateToProps = ({
   pinnedJobBugs,
   failureClassificationId,
   failureClassificationComment,
+  newBug,
 });
 
 export default connect(mapStateToProps, {
