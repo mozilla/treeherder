@@ -468,7 +468,7 @@
     },
     "metadata": {
       "description": "xpcshell test run ([Treeherder push](https://treeherder.mozilla.org/#/jobs?repo=autoland&revision=219d38523a321229f7f48aca6592f76b993fb1aa))",
-      "name": "test-linux64-qr/debug-xpcshell-e10s-5",
+      "name": "test-linux64-qr/debug-xpcshell-condprof-5",
       "owner": "jmuizelaar@mozilla.com",
       "source": "https://hg.mozilla.org/integration/autoland/file/219d38523a321229f7f48aca6592f76b993fb1aa/taskcluster/ci/test"
     },
@@ -565,7 +565,7 @@
     "tags": {
       "createdForUser": "jmuizelaar@mozilla.com",
       "kind": "test",
-      "label": "test-linux64-qr/debug-xpcshell-e10s-5",
+      "label": "test-linux64-qr/debug-xpcshell-condprof-5",
       "os": "linux",
       "retrigger": "true",
       "worker-implementation": "docker-worker"
@@ -749,7 +749,7 @@
     },
     "metadata": {
       "description": "xpcshell test run ([Treeherder push](https://treeherder.mozilla.org/#/jobs?repo=autoland&revision=219d38523a321229f7f48aca6592f76b993fb1aa))",
-      "name": "test-linux64/debug-xpcshell-e10s-3",
+      "name": "test-linux64/debug-xpcshell-msix-3",
       "owner": "jmuizelaar@mozilla.com",
       "source": "https://hg.mozilla.org/integration/autoland/file/219d38523a321229f7f48aca6592f76b993fb1aa/taskcluster/ci/test"
     },
@@ -845,7 +845,7 @@
     "tags": {
       "createdForUser": "jmuizelaar@mozilla.com",
       "kind": "test",
-      "label": "test-linux64/debug-xpcshell-e10s-3",
+      "label": "test-linux64/debug-xpcshell-msix-3",
       "os": "linux",
       "retrigger": "true",
       "worker-implementation": "docker-worker"
@@ -1453,7 +1453,7 @@
     },
     "metadata": {
       "description": "xpcshell test run ([Treeherder push](https://treeherder.mozilla.org/#/jobs?repo=autoland&revision=219d38523a321229f7f48aca6592f76b993fb1aa))",
-      "name": "test-linux64-qr/debug-xpcshell-e10s-2",
+      "name": "test-linux64-qr/debug-xpcshell-spi-nw-2",
       "owner": "jmuizelaar@mozilla.com",
       "source": "https://hg.mozilla.org/integration/autoland/file/219d38523a321229f7f48aca6592f76b993fb1aa/taskcluster/ci/test"
     },
@@ -1550,7 +1550,7 @@
     "tags": {
       "createdForUser": "jmuizelaar@mozilla.com",
       "kind": "test",
-      "label": "test-linux64-qr/debug-xpcshell-e10s-2",
+      "label": "test-linux64-qr/debug-xpcshell-spi-nw-2",
       "os": "linux",
       "retrigger": "true",
       "worker-implementation": "docker-worker"
@@ -3561,7 +3561,7 @@
     },
     "metadata": {
       "description": "xpcshell test run ([Treeherder push](https://treeherder.mozilla.org/#/jobs?repo=autoland&revision=219d38523a321229f7f48aca6592f76b993fb1aa))",
-      "name": "test-linux64-qr/debug-xpcshell-e10s-3",
+      "name": "test-linux64-qr/debug-xpcshell-msix-3",
       "owner": "jmuizelaar@mozilla.com",
       "source": "https://hg.mozilla.org/integration/autoland/file/219d38523a321229f7f48aca6592f76b993fb1aa/taskcluster/ci/test"
     },
@@ -3658,7 +3658,7 @@
     "tags": {
       "createdForUser": "jmuizelaar@mozilla.com",
       "kind": "test",
-      "label": "test-linux64-qr/debug-xpcshell-e10s-3",
+      "label": "test-linux64-qr/debug-xpcshell-msix-3",
       "os": "linux",
       "retrigger": "true",
       "worker-implementation": "docker-worker"
@@ -12078,7 +12078,7 @@
     },
     "metadata": {
       "description": "xpcshell test run ([Treeherder push](https://treeherder.mozilla.org/#/jobs?repo=autoland&revision=219d38523a321229f7f48aca6592f76b993fb1aa))",
-      "name": "test-linux64/debug-xpcshell-e10s-5",
+      "name": "test-linux64/debug-xpcshell-condprof-5",
       "owner": "jmuizelaar@mozilla.com",
       "source": "https://hg.mozilla.org/integration/autoland/file/219d38523a321229f7f48aca6592f76b993fb1aa/taskcluster/ci/test"
     },
@@ -12174,7 +12174,7 @@
     "tags": {
       "createdForUser": "jmuizelaar@mozilla.com",
       "kind": "test",
-      "label": "test-linux64/debug-xpcshell-e10s-5",
+      "label": "test-linux64/debug-xpcshell-condprof-5",
       "os": "linux",
       "retrigger": "true",
       "worker-implementation": "docker-worker"

@@ -721,8 +721,8 @@ def test_alert_summary_tasks_get(client, test_perf_alert_summary, test_perf_data
     assert resp.json() == {
         "id": test_perf_alert_summary.id,
         "tasks": [
-            "B2G Emulator Image Build",
             "Inari Device Image Build",
+            "Linux x64 Tsan Build",
             "Mochitest Browser Chrome",
             "Nexus 4 Device Image Build",
         ],
