@@ -126,7 +126,7 @@
         "os_name": "-",
         "platform": "linux64-qr"
       },
-      "name": "test-linux64-qr/debug-xpcshell-e10s-5",
+      "name": "test-linux64-qr/debug-xpcshell-condprof-5",
       "option_collection": {
         "debug": true
       },
@@ -198,7 +198,7 @@
         "os_name": "-",
         "platform": "linux64"
       },
-      "name": "test-linux64/debug-xpcshell-e10s-3",
+      "name": "test-linux64/debug-xpcshell-msix-3",
       "option_collection": {
         "debug": true
       },
@@ -379,7 +379,7 @@
         "os_name": "-",
         "platform": "linux64-qr"
       },
-      "name": "test-linux64-qr/debug-xpcshell-e10s-2",
+      "name": "test-linux64-qr/debug-xpcshell-spi-nw-2",
       "option_collection": {
         "debug": true
       },
@@ -928,7 +928,7 @@
         "os_name": "-",
         "platform": "linux64-qr"
       },
-      "name": "test-linux64-qr/debug-xpcshell-e10s-3",
+      "name": "test-linux64-qr/debug-xpcshell-msix-3",
       "option_collection": {
         "debug": true
       },
@@ -3219,7 +3219,7 @@
         "os_name": "-",
         "platform": "linux64"
       },
-      "name": "test-linux64/debug-xpcshell-e10s-5",
+      "name": "test-linux64/debug-xpcshell-condprof-5",
       "option_collection": {
         "debug": true
       },
