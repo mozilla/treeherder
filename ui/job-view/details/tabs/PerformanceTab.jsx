@@ -13,7 +13,7 @@ import {
 import { faYoutube } from '@fortawesome/free-brands-svg-icons';
 
 import {
-  getCompareChooserUrl,
+  getPerfCompareChooserUrl,
   getJobsUrl,
   getPerfAnalysisUrl,
 } from '../../../helpers/url';
@@ -236,9 +236,10 @@ class PerformanceTab extends React.PureComponent {
             </Button>
           )}
           <a
-            href={getCompareChooserUrl({
-              newProject: repoName,
-              newRevision: revision,
+            href={getPerfCompareChooserUrl({
+              newRepo: repoName,
+              newRev: revision,
+              frameworkName: perfJobDetail[0].frameworkName,
             })}
             target="_blank"
             rel="noopener noreferrer"
