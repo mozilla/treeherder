@@ -6,7 +6,7 @@ Repository breakdown:
 * mozilla-central: 1
 
 Platform and build breakdown:
-* b2g-emu-jb: 1
+* linux1804: 1
   * debug: 1
 
 For more details, see:
