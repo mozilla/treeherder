@@ -3,7 +3,7 @@ jobs:
     executor:
       name: node/default
       # The Node version here must be kept in sync with that in `package.json`.
-      tag: '21.1.0'
+      tag: '22.11.0'
     steps:
       - checkout
       - node/install-packages:
