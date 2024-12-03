@@ -81,6 +81,9 @@ export const thPlatformMap = {
   'macosx1100-aarch64-qr': 'OS X 11 AArch64 WebRender',
   'macosx1100-aarch64-shippable-qr': 'OS X 11 AArch64 WebRender Shippable',
   'macosx1300-64-shippable-qr': 'macOS 13 x64 Shippable WebRender',
+  'macosx1400-64-shippable-qr': 'macOS 14.00 x64 Shippable WebRender',
+  'macosx1470-64': 'macOS 14.70 x64',
+  'macosx1470-64-shippable': 'macOS 14.70 x64 Shippable',
   macosx64: 'OS X',
   osx: 'OS X',
   'macosx64-shippable': 'OS X Shippable',
@@ -184,10 +187,12 @@ export const thPlatformMap = {
   'android-hw-p5-13-0-arm7-shippable-qr': 'Android 13.0 Pixel5 ARMv7 Shippable',
   'android-hw-p5-13-0-arm7-qr': 'Android 13.0 Pixel5 ARMv7',
   'android-hw-p5-13-0-arm7': 'Android 13.0 Pixel5 ARMv7',
+  'android-hw-p5-13-0-aarch64': 'Android 13.0 Pixel5 AArch64',
+  'android-hw-p6-13-0-aarch64': 'Android 13.0 Pixel6 AArch64',
   'android-hw-p6-13-0-aarch64-shippable':
     'Android 13.0 Pixel6 AArch64 Shippable',
-  'android-hw-a55-14-0-aarch64-shippable':
-    'Android 14.0 Galaxy A55 AArch64 Shippable',
+  'android-hw-a55-14-0-aarch64-shippable': 'Android 14.0 Galaxy A55 AArch64',
+  'android-hw-a55-14-0-aarch64': 'Android 14.0 Galaxy A55 AArch64 Shippable',
   'android-hw-a55-14-0-android-aarch64-shippable-qr':
     'Android 14.0 Galaxy A55 AArch64 Shippable',
   'android-hw-s24-14-0-aarch64-shippable':
@@ -215,6 +220,21 @@ export const thPlatformMap = {
   toolchains: 'Toolchains',
   updatebot: 'Updatebot',
   codeql: 'codeql',
+  'linux64-snap-amd64-nightly': 'Linux x64 Snap amd64 nightly',
+  'linux64-snap-amd64-beta': 'Linux x64 Snap amd64 beta',
+  'linux64-snap-amd64-stable': 'Linux x64 Snap amd64 stable',
+  'linux64-snap-amd64-esr128': 'Linux x64 Snap amd64 esr128',
+  'linux64-snap-amd64-esr': 'Linux x64 Snap amd64 esr',
+  'linux64-snap-amd64-2204-nightly': 'Linux 22.04 x64 Snap amd64 nightly',
+  'linux64-snap-amd64-2204-beta': 'Linux 22.04 x64 Snap amd64 beta',
+  'linux64-snap-amd64-2204-stable': 'Linux 22.04 x64 Snap amd64 stable',
+  'linux64-snap-amd64-2204-esr128': 'Linux 22.04 x64 Snap amd64 esr128',
+  'linux64-snap-amd64-2204-esr': 'Linux 22.04 x64 Snap amd64 esr',
+  'linux64-snap-amd64-2404-nightly': 'Linux 24.04 x64 Snap amd64 nightly',
+  'linux64-snap-amd64-2404-beta': 'Linux 24.04 x64 Snap amd64 beta',
+  'linux64-snap-amd64-2404-stable': 'Linux 24.04 x64 Snap amd64 stable',
+  'linux64-snap-amd64-2404-esr128': 'Linux 24.04 x64 Snap amd64 esr128',
+  'linux64-snap-amd64-2404-esr': 'Linux 24.04 x64 Snap amd64 esr',
   other: 'Other',
 };
 
