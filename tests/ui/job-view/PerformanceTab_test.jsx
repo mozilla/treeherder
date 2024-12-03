@@ -8,6 +8,7 @@ import {
   history,
 } from '../../../ui/job-view/redux/configureStore';
 import PerformanceTab from '../../../ui/job-view/details/tabs/PerformanceTab.jsx';
+import { Perfdocs } from '../../../ui/perfherder/perf-helpers/perfdocs';
 
 describe('PerformanceTab', () => {
   const testPerformanceTab = ({
@@ -47,7 +48,17 @@ describe('PerformanceTab', () => {
           hasSideBySide: false,
         },
         jobDetails: [],
-        perfJobDetail: [],
+        perfJobDetail: [
+          {
+            frameworkName: 'browsertime',
+            perfdocs: new Perfdocs(
+              'browsertime',
+              'outlook',
+              'macosx1015-64-shippable-qr',
+              'outlook ContentfulSpeedIndex opt cold fission webrender',
+            ),
+          },
+        ],
       }),
     );
 
@@ -78,7 +89,17 @@ describe('PerformanceTab', () => {
             value: 'profile_build_resources.json',
           },
         ],
-        perfJobDetail: [],
+        perfJobDetail: [
+          {
+            frameworkName: 'browsertime',
+            perfdocs: new Perfdocs(
+              'browsertime',
+              'outlook',
+              'macosx1015-64-shippable-qr',
+              'outlook ContentfulSpeedIndex opt cold fission webrender',
+            ),
+          },
+        ],
       }),
     );
 
@@ -105,7 +126,17 @@ describe('PerformanceTab', () => {
             value: 'profile_something.zip',
           },
         ],
-        perfJobDetail: [],
+        perfJobDetail: [
+          {
+            frameworkName: 'browsertime',
+            perfdocs: new Perfdocs(
+              'browsertime',
+              'outlook',
+              'macosx1015-64-shippable-qr',
+              'outlook ContentfulSpeedIndex opt cold fission webrender',
+            ),
+          },
+        ],
       }),
     );
 
@@ -138,7 +169,17 @@ describe('PerformanceTab', () => {
             value: 'profile_something.json',
           },
         ],
-        perfJobDetail: [],
+        perfJobDetail: [
+          {
+            frameworkName: 'browsertime',
+            perfdocs: new Perfdocs(
+              'browsertime',
+              'outlook',
+              'macosx1015-64-shippable-qr',
+              'outlook ContentfulSpeedIndex opt cold fission webrender',
+            ),
+          },
+        ],
       }),
     );
 
@@ -171,7 +212,17 @@ describe('PerformanceTab', () => {
             value: 'profile_something.zip',
           },
         ],
-        perfJobDetail: [],
+        perfJobDetail: [
+          {
+            frameworkName: 'browsertime',
+            perfdocs: new Perfdocs(
+              'browsertime',
+              'outlook',
+              'macosx1015-64-shippable-qr',
+              'outlook ContentfulSpeedIndex opt cold fission webrender',
+            ),
+          },
+        ],
       }),
     );
 
