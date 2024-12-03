@@ -3,6 +3,7 @@ import re
 import time
 from collections import Counter
 from datetime import date, datetime, timedelta
+import yaml
 
 import requests
 from django.conf import settings
@@ -324,17 +325,47 @@ class Commenter:
         bug_map = self.build_bug_map(bugs, option_collection_map)
         return bug_map, bug_ids
 
+    def fetch_test_variants(self):
+        mozilla_central_url = "https://hg.mozilla.org/mozilla-central"
+        variant_file_url = f"{mozilla_central_url}/raw-file/tip/taskcluster/kinds/test/variants.yml"
+        response = requests.get(variant_file_url, headers={"User-agent": "mach-test-info/1.0"})
+        return yaml.safe_load(response.text)
+
+    def get_test_variant(self, test_suite):
+        test_variants = self.fetch_test_variants()
+        # iterate through variants, allow for Base-[variant_list]
+        variant_symbols = sorted(
+            [
+                test_variants[v]["suffix"]
+                for v in test_variants
+                if test_variants[v].get("suffix", "")
+            ],
+            key=len,
+            reverse=True,
+        )
+        # strip known variants
+        # build a list of known variants
+        base_symbol = test_suite
+        found_variants = []
+        for variant in variant_symbols:
+            if f"-{variant}" in base_symbol:
+                found_variants.append(variant)
+                base_symbol = base_symbol.replace(f"-{variant}", "")
+        if not found_variants:
+            return "no_variant"
+        return "-".join(found_variants)
+
     def build_bug_map(self, bugs, option_collection_map):
         """Returning a dict of bug_id's with total, repository, test_suite and platform totals"""
         bug_map = dict()
         for bug in bugs:
             platform = bug["job__machine_platform__platform"]
-            test_variant = bug["job__signature__job_type_name"].rsplit("-", 1)[0]
             repo = bug["job__repository__name"]
             bug_id = bug["bug_id"]
             build_type = option_collection_map.get(
                 bug["job__option_collection_hash"], "unknown build"
             )
+            test_variant = self.get_test_variant(bug["job__signature__job_type_name"])
             platform_and_build = f"{platform}/{build_type}"
             if bug_id not in bug_map:
                 bug_infos = {
