@@ -127,8 +127,10 @@ export const getPushHealthUrl = function getPushHealthUrl(params) {
   return `${uiPushHealthBase}/push${createQueryParams(params)}`;
 };
 
-export const getCompareChooserUrl = function getCompareChooserUrl(params) {
-  return `/perfherder/comparechooser${createQueryParams(params)}`;
+export const getPerfCompareChooserUrl = function getPerfCompareChooserUrl(
+  params,
+) {
+  return `https://perf.compare${createQueryParams(params)}`;
 };
 
 export const parseQueryParams = function parseQueryParams(search) {

@@ -12,7 +12,7 @@ import { push as pushRoute } from 'connected-react-router';
 import {
   createQueryParams,
   getPushHealthUrl,
-  getCompareChooserUrl,
+  getPerfCompareChooserUrl,
   parseQueryParams,
 } from '../../helpers/url';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
@@ -172,9 +172,9 @@ class PushActionMenu extends React.PureComponent {
             </DropdownItem>
             <DropdownItem
               tag="a"
-              href={getCompareChooserUrl({
-                newProject: currentRepo.name,
-                newRevision: revision,
+              href={getPerfCompareChooserUrl({
+                newRepo: currentRepo.name,
+                newRev: revision,
               })}
               target="_blank"
               rel="noopener noreferrer"

@@ -287,6 +287,7 @@ class DetailsPanel extends React.Component {
                     title: d.series.name,
                     suite: d.series.suite,
                     options: d.series.options.join(' '),
+                    frameworkName: mappedFrameworks[d.series.frameworkId],
                     perfdocs: new Perfdocs(
                       mappedFrameworks[d.series.frameworkId],
                       d.series.suite,
