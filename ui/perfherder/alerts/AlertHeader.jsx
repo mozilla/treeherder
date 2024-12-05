@@ -8,6 +8,7 @@ import {
   Container,
   Row,
   Col,
+  Button,
 } from 'reactstrap';
 
 import { getJobsUrl, getPerfCompareBaseURL } from '../../helpers/url';
@@ -25,12 +26,16 @@ const AlertHeader = ({
   issueTrackers,
   user,
   updateAssignee,
+  changeRevision,
 }) => {
   const getIssueTrackerUrl = () => {
     const { issue_tracker_url: issueTrackerUrl } = issueTrackers.find(
       (tracker) => tracker.id === alertSummary.issue_tracker,
     );
     return issueTrackerUrl + alertSummary.bug_number;
+  };
+  const handleRevertRevision = async () => {
+    await changeRevision(alertSummary.original_revision);
   };
   const bugNumber = alertSummary.bug_number
     ? `Bug ${alertSummary.bug_number}`
@@ -150,6 +155,19 @@ const AlertHeader = ({
             user={user}
           />
         </Col>
+        {user.isStaff &&
+          alertSummary.original_revision !== alertSummary.revision && (
+            <Col className="p-0" xs="auto">
+              <Button
+                className="ml-1"
+                size="xs"
+                color="warning"
+                onClick={handleRevertRevision}
+              >
+                Revert
+              </Button>
+            </Col>
+          )}
       </Row>
       <Row>
         {performanceTags.length > 0 && (
