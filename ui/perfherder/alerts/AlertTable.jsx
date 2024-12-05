@@ -236,6 +236,30 @@ export default class AlertTable extends React.Component {
     return { failureStatus };
   };
 
+  changeRevision = async (newRevision) => {
+    const {
+      updateAlertSummary,
+      updateViewState,
+      fetchAlertSummaries,
+    } = this.props;
+    const { alertSummary } = this.state;
+
+    const { data, failureStatus } = await updateAlertSummary(alertSummary.id, {
+      revision: newRevision,
+    });
+
+    if (!failureStatus) {
+      // now refresh UI, by syncing with backend
+      fetchAlertSummaries(alertSummary.id);
+    } else {
+      updateViewState({
+        errorMessages: [`Failed to set revision "${newRevision}". (${data})`],
+      });
+    }
+
+    return { failureStatus };
+  };
+
   setSelectedAlerts = ({ selectedAlerts, allSelected }) =>
     this.setState({
       selectedAlerts,
@@ -324,6 +348,7 @@ export default class AlertTable extends React.Component {
                         issueTrackers={issueTrackers}
                         user={user}
                         updateAssignee={this.updateAssignee}
+                        changeRevision={this.changeRevision}
                       />
                     </FormGroup>
                   </Col>
