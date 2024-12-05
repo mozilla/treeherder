@@ -69,7 +69,7 @@
     "taskcluster-client-web": "44.18.0",
     "taskcluster-lib-scopes": "11.0.0",
     "taskcluster-lib-urls": "13.0.1",
-    "tsconfig-paths": "4.1.2",
+    "tsconfig-paths": "4.2.0",
     "url": "0.11.4",
     "victory": "36.6.12"
   },
