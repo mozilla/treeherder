@@ -79,6 +79,14 @@ const AlertHeader = ({
             </a>
           </Row>
         </Col>
+        {user.isStaff &&
+          alertSummary.original_revision !== alertSummary.revision && (
+            <Col className="p-0" xs="auto">
+              <Button className="ml-1" size="xs" onClick={handleRevertRevision}>
+                Revert
+              </Button>
+            </Col>
+          )}
         <Col className="p-0" xs="auto">
           <UncontrolledDropdown tag="span">
             <DropdownToggle
@@ -155,19 +163,6 @@ const AlertHeader = ({
             user={user}
           />
         </Col>
-        {user.isStaff &&
-          alertSummary.original_revision !== alertSummary.revision && (
-            <Col className="p-0" xs="auto">
-              <Button
-                className="ml-1"
-                size="xs"
-                color="warning"
-                onClick={handleRevertRevision}
-              >
-                Revert
-              </Button>
-            </Col>
-          )}
       </Row>
       <Row>
         {performanceTags.length > 0 && (
