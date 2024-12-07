@@ -108,7 +108,7 @@
     "markdownlint-cli": "0.43.0",
     "mini-css-extract-plugin": "2.6.1",
     "path": "0.12.7",
-    "prettier": "2.0.5",
+    "prettier": "3.4.2",
     "puppeteer": "21.10.0",
     "setup-polly-jest": "0.11.0",
     "style-loader": "4.0.0",
