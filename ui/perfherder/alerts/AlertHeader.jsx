@@ -83,7 +83,7 @@ const AlertHeader = ({
           alertSummary.original_revision !== alertSummary.revision && (
             <Col className="p-0" xs="auto">
               <Button className="ml-1" size="xs" onClick={handleRevertRevision}>
-                Revert
+                Reset hash
               </Button>
             </Col>
           )}
