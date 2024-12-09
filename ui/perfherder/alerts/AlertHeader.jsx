@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   UncontrolledDropdown,
@@ -8,6 +8,9 @@ import {
   Container,
   Row,
   Col,
+  Button,
+  Input,
+  InputGroup,
 } from 'reactstrap';
 
 import { getJobsUrl, getPerfCompareBaseURL } from '../../helpers/url';
@@ -25,12 +28,34 @@ const AlertHeader = ({
   issueTrackers,
   user,
   updateAssignee,
+  changeRevision,
 }) => {
+  const [inEditMode, setInEditMode] = useState(false);
+  const [newRevision, setNewRevision] = useState(alertSummary.revision);
+
+  const handleEditMode = () => {
+    setInEditMode(true);
+  };
+  const handleRevisionChange = (event) => {
+    setNewRevision(event.target.value);
+  };
+  const saveRevision = async () => {
+    const success = await changeRevision(newRevision);
+    if (success.failureStatus === 200) {
+      setInEditMode(false);
+    }
+  };
+  const cancelEditMode = () => {
+    setInEditMode(false);
+  };
   const getIssueTrackerUrl = () => {
     const { issue_tracker_url: issueTrackerUrl } = issueTrackers.find(
       (tracker) => tracker.id === alertSummary.issue_tracker,
     );
     return issueTrackerUrl + alertSummary.bug_number;
+  };
+  const handleRevertRevision = async () => {
+    await changeRevision(alertSummary.original_revision);
   };
   const bugNumber = alertSummary.bug_number
     ? `Bug ${alertSummary.bug_number}`
@@ -74,6 +99,58 @@ const AlertHeader = ({
             </a>
           </Row>
         </Col>
+        <Col className="p-0" xs="auto">
+          {inEditMode ? (
+            <InputGroup size="sm">
+              <Input
+                value={newRevision}
+                onChange={handleRevisionChange}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    event.preventDefault();
+                    saveRevision();
+                  }
+                  if (event.key === 'Escape') cancelEditMode();
+                }}
+                autoFocus
+              />
+              <Button
+                color="primary"
+                className="ml-1"
+                size="xs"
+                onClick={saveRevision}
+              >
+                Save
+              </Button>
+              <Button
+                color="secondary"
+                className="ml-1"
+                size="xs"
+                onClick={cancelEditMode}
+              >
+                Cancel
+              </Button>
+            </InputGroup>
+          ) : (
+            <Button
+              className="ml-1"
+              color="darker-secondary"
+              size="xs"
+              onClick={handleEditMode}
+              title="Click to edit revision"
+            >
+              Edit Revision
+            </Button>
+          )}
+        </Col>
+        {user.isStaff &&
+          alertSummary.original_revision !== alertSummary.revision && (
+            <Col className="p-0" xs="auto">
+              <Button className="ml-1" size="xs" onClick={handleRevertRevision}>
+                Reset hash
+              </Button>
+            </Col>
+          )}
         <Col className="p-0" xs="auto">
           <UncontrolledDropdown tag="span">
             <DropdownToggle
