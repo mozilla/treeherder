@@ -1,4 +1,5 @@
-{{total}} failures in {{test_run_count}} pushes ({{failure_rate}} failures/push) were associated with this bug {% if weekly_mode %}in the last 7 days{% else %}yesterday{% endif %}. 
+## Summary
+{{total}} failures in {{test_run_count}} pushes ({{failure_rate}} failures/push) were associated with this bug {% if weekly_mode %}in the last 7 days{% else %}yesterday{% endif %}.
 
 {%- if rank %}
 
@@ -6,30 +7,45 @@ This is the #{{rank}} most frequent failure this week.{% endif %}
 
 {%- if priority==1 %}
 
-** This failure happened more than 75 times this week! Resolving this bug is a very high priority. ** 
+**This failure happened more than 75 times this week! Resolving this bug is a very high priority.**
 
-** Try to resolve this bug as soon as possible. If unresolved for 1 week, the affected test(s) may be disabled. ** {% endif %}
+**Try to resolve this bug as soon as possible. If unresolved for 1 week, the affected test(s) may be disabled.** {% endif %}
 
 {%- if priority==2 %}
 
-** This failure happened more than 30 times this week! Resolving this bug is a high priority. **
+**This failure happened more than 30 times this week! Resolving this bug is a high priority.**
 
-** Try to resolve this bug as soon as possible. If unresolved for 2 weeks, the affected test(s) may be disabled. ** {% endif %}
+**Try to resolve this bug as soon as possible. If unresolved for 2 weeks, the affected test(s) may be disabled.** {% endif %}
 
 {%-if priority==3 %}
 
-** This test has failed more than 150 times in the last 21 days. It should be disabled until it can be fixed. ** {% endif %}
+**This test has failed more than 150 times in the last 21 days. It should be disabled until it can be fixed.** {% endif %}
 
-Repository breakdown:
+## Repository breakdown:
 {% for repository, count in repositories.items() -%}
 * {{repository}}: {{count}}
 {% endfor %}
-Platform and build breakdown:
+## Platform and build breakdown:
 {% for platform, count in platforms.items() -%}
 * {{platform}}: {{count}}
   {%- for build, count in counts[platform].items() %}
   * {{ build }}: {{ count }}
   {%- endfor %}
 {% endfor %}
-For more details, see:
+## Table
+| |
+{%- for variant in test_variants -%}
+  **{{variant}}**|
+{%- endfor %}
+|---|
+{%- for test_variant in test_variants -%}
+  :-:|
+{%- endfor %}
+{% for platform_and_build, test_by_variant in test_suites.items() -%}
+|**{{platform_and_build}}**|
+  {%- for variant in test_variants -%}
+    {{test_by_variant.get(variant, " ")}}|
+  {%- endfor %}
+{% endfor %}
+## For more details, see:
 https://treeherder.mozilla.org/intermittent-failures/bugdetails?bug={{bug_id}}&startday={{startday}}&endday={{endday}}&tree=all

@@ -1,9 +1,9 @@
-import json
 import logging
 import re
 import time
 from collections import Counter
 from datetime import date, datetime, timedelta
+import yaml
 
 import requests
 from django.conf import settings
@@ -45,10 +45,12 @@ class Commenter:
         test_run_count = self.get_test_runs(startday, endday)
 
         # if fetch_bug_details fails, None is returned
-        bug_info = self.fetch_all_bug_details(bug_ids)
-
+        bugs_info = self.fetch_all_bug_details(bug_ids)
         all_bug_changes = []
-        template = Template(self.open_file("comment.template", False))
+        test_variants = set()
+
+        with open("treeherder/intermittents_commenter/comment.template") as template_file:
+            template = Template(template_file.read())
 
         if self.weekly_mode:
             top_bugs = [
@@ -61,32 +63,33 @@ class Commenter:
             change_whiteboard = None
             priority = 0
             rank = top_bugs.index(bug_id) + 1 if self.weekly_mode and bug_id in top_bugs else None
+            test_variants |= bug_stats[bug_id]["test_variants"]
 
-            if bug_info and bug_id in bug_info:
+            if bugs_info and bug_id in bugs_info:
                 if self.weekly_mode:
                     priority = self.assign_priority(counts)
                     if priority == 2:
                         change_priority, change_whiteboard = self.check_needswork_owner(
-                            bug_info[bug_id]
+                            bugs_info[bug_id]
                         )
 
                     # change [stockwell needswork] to [stockwell unknown] when failures drop below 20 failures/week
                     # if this block is true, it implies a priority of 0 (mutually exclusive to previous block)
                     if counts["total"] < 20:
-                        change_whiteboard = self.check_needswork(bug_info[bug_id]["whiteboard"])
+                        change_whiteboard = self.check_needswork(bugs_info[bug_id]["whiteboard"])
 
                 else:
                     change_priority, change_whiteboard = self.check_needswork_owner(
-                        bug_info[bug_id]
+                        bugs_info[bug_id]
                     )
 
                 # recommend disabling when more than 150 failures tracked over 21 days and
                 # takes precedence over any prevous change_whiteboard assignments
                 if bug_id in alt_date_bug_totals and not self.check_whiteboard_status(
-                    bug_info[bug_id]["whiteboard"]
+                    bugs_info[bug_id]["whiteboard"]
                 ):
                     priority = 3
-                    change_whiteboard = bug_info[bug_id]["whiteboard"].replace(
+                    change_whiteboard = bugs_info[bug_id]["whiteboard"].replace(
                         "[stockwell unknown]", ""
                     )
                     change_whiteboard = re.sub(
@@ -103,6 +106,8 @@ class Commenter:
                 failure_rate=round(counts["total"] / float(test_run_count), 3),
                 repositories=counts["per_repository"],
                 platforms=counts["per_platform"],
+                test_variants=sorted(test_variants),
+                test_suites=counts["test_suite_per_platform_and_build"],
                 counts=counts,
                 startday=startday,
                 endday=endday.split()[0],
@@ -173,13 +178,6 @@ class Commenter:
                 len(all_bug_changes), "weekly" if self.weekly_mode else "daily"
             )
         )
-
-    def open_file(self, filename, load):
-        with open(f"treeherder/intermittents_commenter/{filename}") as myfile:
-            if load:
-                return json.load(myfile)
-            else:
-                return myfile.read()
 
     def calculate_date_strings(self, mode, num_days):
         """Returns a tuple of start (in YYYY-MM-DD format) and end date
@@ -262,7 +260,7 @@ class Commenter:
 
     def get_bug_stats(self, startday, endday):
         """Get all intermittent failures per specified date range and repository,
-           returning a dict of bug_id's with total, repository and platform totals
+           returning a dict of bug_id's with total, repository test_suite and platform totals
            if totals are greater than or equal to the threshold.
         eg:
         {
@@ -276,6 +274,20 @@ class Commenter:
                     "windows10-64": 52,
                     "osx-10-10": 1,
                     }
+                },
+               "test_suite_per_platform_and_build": {
+                    "windows10-64/debug" {
+                        "mochitest-browser-chrome": 2,
+                        "mochitest-browser-chrome-swr": 2,
+                     },
+                     "windows10-64/ccov" {
+                        "mochitest-browser-chrome": 0,
+                        "mochitest-browser-chrome-swr": 2,
+                     },
+                    "osx-10-10/debug": {
+                        "mochitest-browser-chrome": 2,
+                        "mochitest-browser-chrome-swr": 0,
+                     },
                 },
                 "windows10-64": {
                     "debug": 30,
@@ -297,21 +309,55 @@ class Commenter:
             .filter(total__gte=threshold)
             .values_list("bug_id", flat=True)
         )
-
         bugs = (
             BugJobMap.failures.by_date(startday, endday)
             .filter(bug_id__in=bug_ids)
+            .order_by("job__machine_platform__platform")
             .values(
                 "job__repository__name",
                 "job__machine_platform__platform",
                 "bug_id",
                 "job__option_collection_hash",
+                "job__signature__job_type_name",
             )
         )
-
         option_collection_map = OptionCollection.objects.get_option_collection_map()
-        bug_map = dict()
+        bug_map = self.build_bug_map(bugs, option_collection_map)
+        return bug_map, bug_ids
 
+    def fetch_test_variants(self):
+        mozilla_central_url = "https://hg.mozilla.org/mozilla-central"
+        variant_file_url = f"{mozilla_central_url}/raw-file/tip/taskcluster/kinds/test/variants.yml"
+        response = requests.get(variant_file_url, headers={"User-agent": "mach-test-info/1.0"})
+        return yaml.safe_load(response.text)
+
+    def get_test_variant(self, test_suite):
+        test_variants = self.fetch_test_variants()
+        # iterate through variants, allow for Base-[variant_list]
+        variant_symbols = sorted(
+            [
+                test_variants[v]["suffix"]
+                for v in test_variants
+                if test_variants[v].get("suffix", "")
+            ],
+            key=len,
+            reverse=True,
+        )
+        # strip known variants
+        # build a list of known variants
+        base_symbol = test_suite
+        found_variants = []
+        for variant in variant_symbols:
+            if f"-{variant}" in base_symbol:
+                found_variants.append(variant)
+                base_symbol = base_symbol.replace(f"-{variant}", "")
+        if not found_variants:
+            return "no_variant"
+        return "-".join(found_variants)
+
+    def build_bug_map(self, bugs, option_collection_map):
+        """Returning a dict of bug_id's with total, repository, test_suite and platform totals"""
+        bug_map = dict()
         for bug in bugs:
             platform = bug["job__machine_platform__platform"]
             repo = bug["job__repository__name"]
@@ -319,24 +365,39 @@ class Commenter:
             build_type = option_collection_map.get(
                 bug["job__option_collection_hash"], "unknown build"
             )
-
-            if bug_id in bug_map:
-                bug_map[bug_id]["total"] += 1
-                bug_map[bug_id]["per_repository"][repo] += 1
-                bug_map[bug_id]["per_platform"][platform] += 1
-                if bug_map[bug_id].get(platform):
-                    bug_map[bug_id][platform][build_type] += 1
-                else:
-                    bug_map[bug_id][platform] = Counter([build_type])
-
+            test_variant = self.get_test_variant(bug["job__signature__job_type_name"])
+            platform_and_build = f"{platform}/{build_type}"
+            if bug_id not in bug_map:
+                bug_infos = {
+                    "total": 1,
+                    "test_variants": set([test_variant]),
+                    "per_platform": Counter([platform]),
+                    "test_suite_per_platform_and_build": {
+                        platform_and_build: Counter([test_variant])
+                    },
+                    "per_repository": Counter([repo]),
+                    platform: Counter([build_type]),
+                }
             else:
-                bug_map[bug_id] = {}
-                bug_map[bug_id]["total"] = 1
-                bug_map[bug_id]["per_platform"] = Counter([platform])
-                bug_map[bug_id][platform] = Counter([build_type])
-                bug_map[bug_id]["per_repository"] = Counter([repo])
-
-        return bug_map, bug_ids
+                bug_infos = bug_map[bug_id]
+                bug_infos["total"] += 1
+                bug_infos["test_variants"].add(test_variant)
+                bug_infos["per_repository"][repo] += 1
+                bug_infos["per_platform"][platform] += 1
+                if platform_and_build in bug_infos["test_suite_per_platform_and_build"]:
+                    bug_infos["test_suite_per_platform_and_build"][platform_and_build][
+                        test_variant
+                    ] += 1
+                else:
+                    bug_infos["test_suite_per_platform_and_build"][platform_and_build] = Counter(
+                        [test_variant]
+                    )
+                if bug_infos.get(platform):
+                    bug_infos[platform][build_type] += 1
+                else:
+                    bug_infos[platform] = Counter([build_type])
+            bug_map[bug_id] = bug_infos
+        return bug_map
 
     def get_alt_date_bug_totals(self, startday, endday, bug_ids):
         """use previously fetched bug_ids to check for total failures
