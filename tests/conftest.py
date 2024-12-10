@@ -6,6 +6,7 @@ import platform
 import time
 from os.path import join, dirname
 from unittest.mock import MagicMock
+import yaml
 
 import kombu
 import pytest
@@ -892,6 +893,27 @@ def mock_bugscache_bugzilla_request(monkeypatch):
     )
 
 
+@pytest.fixture
+def mock_test_variants_firefoxci_request(monkeypatch):
+    """
+    Mock fetch_test_variants() used to retreive test variants from firefox-ci
+    """
+
+    def _fetch_test_variants(self):
+        tests_folder = os.path.dirname(__file__)
+        file_name = "variants.yml"
+        data_path = os.path.join(tests_folder, "sample_data", file_name)
+        with open(data_path) as f:
+            data = yaml.safe_load(f)
+        return data
+
+    monkeypatch.setattr(
+        treeherder.intermittents_commenter.commenter.Commenter,
+        "fetch_test_variants",
+        _fetch_test_variants,
+    )
+
+
 class MockResponse:
     def __init__(self):
         self.status_code = 200
@@ -1131,6 +1153,22 @@ def bug_data(eleven_jobs_stored, test_repository, test_push, bugs):
         "job": jobs[0],
         "jobs": jobs,
         "query_string": query_string,
+    }
+
+
+@pytest.fixture
+def bug_data_with_5_failures(eleven_jobs_stored, test_repository, test_push, bugs):
+    jobs = th_models.Job.objects.all().order_by("id")
+    bug_id = bugs[0].id
+    for index, job in enumerate(jobs[:5]):
+        th_models.BugJobMap.create(job_id=job.id, bug_id=bug_id)
+        if index > 2:
+            signature = th_models.BugJobMap.failures.last().job.signature
+            signature.job_type_name = "mochitest-plain-headless-1"
+            signature.save()
+
+    return {
+        "bug_id": bug_id,
     }
 
 

@@ -95,7 +95,7 @@ def test_job_list_equals_filter(client, eleven_jobs_stored, test_repository):
 job_filter_values = [
     ("build_architecture", "x86_64"),
     ("build_os", "mac"),
-    ("build_platform", "osx-10-7"),
+    ("build_platform", "mac1120"),
     ("build_platform_id", 3),
     ("build_system_type", "buildbot"),
     ("end_timestamp", 1384364849),
@@ -112,7 +112,7 @@ job_filter_values = [
     ("machine_platform_architecture", "x86_64"),
     ("machine_platform_os", "mac"),
     ("option_collection_hash", "32faaecac742100f7753f0c1d0aa0add01b4046b"),
-    ("platform", "osx-10-7"),
+    ("platform", "mac1120"),
     ("reason", "scheduler"),
     (
         "ref_data_name",
@@ -120,7 +120,7 @@ job_filter_values = [
     ),
     ("result", "success"),
     ("result_set_id", 4),
-    ("signature", "b4a4be709b937853b4ea1a49fc21bf43bf6d6406"),
+    ("signature", "d900aca1e93a9ef2d9e00c1877c838ea920abca1"),
     ("start_timestamp", 1384356880),
     ("state", "completed"),
     ("submit_timestamp", 1384356854),
