@@ -372,8 +372,8 @@ export default class AlertTable extends React.Component {
               <Table className="compare-table mb-0">
                 <tbody>
                   <tr className="border subtest-header">
-                    <th> </th>
-                    <th> </th>
+                    <th aria-label="Select alerts"> </th>
+                    <th aria-label="Star alert or open graph"> </th>
                     <th className="align-bottom">
                       <TableColumnHeader
                         column={tableConfig.Test}

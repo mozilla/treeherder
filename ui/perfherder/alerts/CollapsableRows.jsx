@@ -48,18 +48,13 @@ export default class CollapsableRows extends React.Component {
           onClick={() => this.toggleRows()}
           data-testid={isOpen ? 'show-less-alerts' : 'show-more-alerts'}
         >
-          <td />
-          <td />
-          <td />
-          <td className="text-right" colSpan="2">
+          <td className="text-right" colSpan="5" id="moreLessAlerts-{alert.id}">
             <span className="cursor-pointer">
               <FontAwesomeIcon icon={isOpen ? faAngleUp : faAngleDown} />{' '}
               {isOpen ? 'Show less alerts' : 'Show more alerts'}
             </span>
           </td>
-          <td />
-          <td />
-          <td />
+          <td colSpan="3" aria-labelledby="moreLessAlerts-{alert.id}" />
         </tr>
         {isOpen && (
           <React.Fragment>

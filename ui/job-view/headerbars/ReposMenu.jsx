@@ -49,7 +49,11 @@ export default function ReposMenu(props) {
   }));
 
   return (
-    <UncontrolledDropdown>
+    <UncontrolledDropdown
+      aria-controls="repo-dropdown"
+      aria-expanded="false"
+      aria-haspopup="menu"
+    >
       <DropdownToggle
         id="repoLabel"
         className="btn-view-nav nav-menu-btn"
@@ -63,8 +67,6 @@ export default function ReposMenu(props) {
           className="checkbox-dropdown-menu row"
           role="menu"
           aria-labelledby="repoLabel"
-          aria-haspopup="true"
-          aria-expanded="false"
         >
           {groupedRepos.map((group) => (
             <DropdownItem
