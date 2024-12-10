@@ -82,15 +82,15 @@ const AlertHeader = ({
         {user.isStaff &&
           alertSummary.original_revision !== alertSummary.revision && (
             <Col className="p-0" xs="auto">
-              <Button className="ml-1" size="xs" onClick={handleRevertRevision}>
-                Reset hash
+              <Button className="ml-2" size="xs" onClick={handleRevertRevision}>
+                Reset Revision
               </Button>
             </Col>
           )}
         <Col className="p-0" xs="auto">
           <UncontrolledDropdown tag="span">
             <DropdownToggle
-              className="btn-xs ml-2"
+              className="btn-xs ml-1"
               color="secondary"
               caret
               data-testid="push-dropdown"
