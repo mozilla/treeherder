@@ -145,7 +145,7 @@ def test_push_notes(client, test_job_with_notes):
     """
     test retrieving all notes for a given push revision
     """
-    notes = JobNote.objects.all()
+    notes = JobNote.objects.all().order_by("id")
 
     resp = client.get(
         reverse("note-push-notes", kwargs={"project": test_job_with_notes.repository.name}),
