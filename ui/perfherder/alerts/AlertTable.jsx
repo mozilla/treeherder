@@ -349,6 +349,7 @@ export default class AlertTable extends React.Component {
                         user={user}
                         updateAssignee={this.updateAssignee}
                         changeRevision={this.changeRevision}
+                        updateViewState={updateViewState}
                       />
                     </FormGroup>
                   </Col>
