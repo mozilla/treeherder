@@ -54,7 +54,8 @@ export const isPerfTest = function isPerfTest(job) {
     (name) =>
       name.toLowerCase().includes('talos') ||
       name.toLowerCase().includes('raptor') ||
-      name.toLowerCase().includes('browsertime'),
+      name.toLowerCase().includes('browsertime') ||
+      name.toLowerCase().includes('perftest'),
   );
 };
 
