@@ -58,6 +58,7 @@ const FilterControls = ({
       outline
       onClick={() => updateFilter(filter.stateName)}
       active={filter.state}
+      disabled={filter.disable}
     >
       {filter.text}
     </Button>
