@@ -64,7 +64,7 @@ export default class AlertsViewControls extends React.Component {
     if (['invalid', 'reassigned', 'downstream'].includes(status)) {
       this.setState({ disableHideDownstream: true });
       const { filters } = this.props;
-      const actaulValue = filters['hideDownstream'];
+      const actaulValue = filters.hideDownstream;
       if (actaulValue) {
         this.updateFilter('hideDownstream');
       }
