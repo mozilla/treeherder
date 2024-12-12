@@ -16,6 +16,7 @@ export default class AlertsViewControls extends React.Component {
       .fill(null)
       .map(() => React.createRef());
     this.state = {
+      disableHideDownstream: false,
       currentAlert: -1,
       alertsLength: this.props.alertSummaries.length,
       disableButtons: {
@@ -60,6 +61,16 @@ export default class AlertsViewControls extends React.Component {
     const { setFiltersState, updateViewState } = this.props;
     setFiltersState({ status });
     updateViewState({ page: 1 });
+    if (['invalid', 'reassigned', 'downstream'].includes(status)) {
+      this.setState({ disableHideDownstream: true });
+      const { filters } = this.props;
+      const actaulValue = filters['hideDownstream'];
+      if (actaulValue) {
+        this.updateFilter('hideDownstream');
+      }
+    } else {
+      this.setState({ disableHideDownstream: false });
+    }
   };
 
   updateFramework = (selectedFramework) => {
@@ -160,6 +171,7 @@ export default class AlertsViewControls extends React.Component {
         text: 'Hide downstream / reassigned to / invalid',
         state: hideDownstream,
         stateName: 'hideDownstream',
+        disable: this.state.disableHideDownstream,
       },
     ];
 
@@ -168,6 +180,7 @@ export default class AlertsViewControls extends React.Component {
         text: 'My alerts',
         state: hideAssignedToOthers,
         stateName: 'hideAssignedToOthers',
+        disable: false,
       });
     }
 
