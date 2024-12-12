@@ -642,6 +642,7 @@ export class BugFilerClass extends React.Component {
       'heap-use-after-free',
       'negative-size-param',
       'stack-buffer-overflow',
+      'stack-use-after-scope',
       'use-after-poison',
     ];
     for (const searchTerm of potentialSecurityIssues) {
