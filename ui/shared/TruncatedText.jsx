@@ -12,13 +12,17 @@ export default class TruncatedText extends React.Component {
 
   render() {
     const { text, maxLength, title, color } = this.props;
+    console.log('@@@');
+    console.log(text);
     const { showMoreResults } = this.state;
 
     return (
       <React.Fragment>
         <p className={showMoreResults ? '' : 'text-truncate'}>
           {title && <span className="font-weight-bold">{title}</span>}
-          {text}
+          <span className="multiline-text" style={{ whiteSpace: 'pre-line' }}>
+            {text}
+          </span>
         </p>
         {text.length > maxLength && (
           <Button
