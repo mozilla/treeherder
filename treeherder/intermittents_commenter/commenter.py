@@ -23,6 +23,8 @@ class Commenter:
     and priority status as need; if in dry_run, comments will be output
     to stdout rather than submitting to bugzilla."""
 
+    test_variants = None
+
     def __init__(self, weekly_mode, dry_run=False):
         self.weekly_mode = weekly_mode
         self.dry_run = dry_run
@@ -329,10 +331,13 @@ class Commenter:
         mozilla_central_url = "https://hg.mozilla.org/mozilla-central"
         variant_file_url = f"{mozilla_central_url}/raw-file/tip/taskcluster/kinds/test/variants.yml"
         response = requests.get(variant_file_url, headers={"User-agent": "mach-test-info/1.0"})
-        return yaml.safe_load(response.text)
+        self.test_variants = yaml.safe_load(response.text)
+        return self.test_variants
 
     def get_test_variant(self, test_suite):
-        test_variants = self.fetch_test_variants()
+        test_variants = (
+            self.fetch_test_variants() if self.test_variants is None else self.test_variants
+        )
         # iterate through variants, allow for Base-[variant_list]
         variant_symbols = sorted(
             [
