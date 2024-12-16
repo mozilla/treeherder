@@ -62,11 +62,17 @@ export default class AlertsViewControls extends React.Component {
   updateStatus = (status) => {
     const { setFiltersState, updateViewState } = this.props;
 
-    const isInvalidStatus = ['invalid', 'reassigned', 'downstream'].includes(
-      status,
-    );
+    const isInvalidStatus = [
+      'invalid',
+      'reassigned',
+      'downstream',
+      'all statuses',
+    ].includes(status);
 
-    this.setState({ disableHideDownstream: isInvalidStatus });
+    this.setState({
+      disableHideDownstream:
+        status === 'all statuses' ? false : isInvalidStatus,
+    });
     setFiltersState({ status, hideDownstream: !isInvalidStatus });
     updateViewState({ page: 1 });
   };
