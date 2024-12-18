@@ -353,7 +353,7 @@ class Commenter:
         base_symbol = test_suite
         found_variants = []
         for variant in variant_symbols:
-            if f"-{variant}" in base_symbol:
+            if f"-{variant}-" in base_symbol:
                 found_variants.append(variant)
                 base_symbol = base_symbol.replace(f"-{variant}", "")
         if not found_variants:
