@@ -4293,7 +4293,7 @@ crypto-browserify@3.12.0:
     randombytes "^2.0.0"
     randomfill "^1.0.3"
 
-crypto-js@^4.0.0, crypto-js@^4.1.1:
+crypto-js@^4.1.1, crypto-js@^4.2.0:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/crypto-js/-/crypto-js-4.2.0.tgz#4d931639ecdfd12ff80e8186dba6af2c2e856631"
   integrity sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==
@@ -6342,10 +6342,10 @@ hasown@^2.0.0, hasown@^2.0.1, hasown@^2.0.2:
   dependencies:
     function-bind "^1.1.2"
 
-hawk@^9.0.1:
-  version "9.0.1"
-  resolved "https://registry.npmjs.org/hawk/-/hawk-9.0.1.tgz"
-  integrity sha512-H2E+5ATFEXmorgVzYl3NzG3PCo2e+euYrHDnRpLLdOtJrQHGRXrJT9/joWnrkHCtzDZkaNoLXg/+TsSkD06eNg==
+hawk@^9.0.2:
+  version "9.0.2"
+  resolved "https://registry.yarnpkg.com/hawk/-/hawk-9.0.2.tgz#64b18c109d86b3a4b3174a76169f2c868297d0c0"
+  integrity sha512-EJMLBZAWg+EoI/aAJWDhrYGvucWYvY37CdGXolkol0ITGswkDHtDnjbFcPBaIv3jbtpfWqYjXMm4KhfXPOLCRg==
   dependencies:
     "@hapi/b64" "5.x.x"
     "@hapi/boom" "9.x.x"
@@ -10950,13 +10950,13 @@ tar@^7.4.3:
     mkdirp "^3.0.1"
     yallist "^5.0.0"
 
-taskcluster-client-web@44.18.0:
-  version "44.18.0"
-  resolved "https://registry.npmjs.org/taskcluster-client-web/-/taskcluster-client-web-44.18.0.tgz"
-  integrity sha512-Ose/hnog/cOdDfZKU3X3nw2t5dB6tnrSBGwkKziCUov75Z06J2DAYHHAnSw2tTQrXEW3Bz+30KI2Ze5iAFVz3A==
+taskcluster-client-web@77.0.0:
+  version "77.0.0"
+  resolved "https://registry.yarnpkg.com/taskcluster-client-web/-/taskcluster-client-web-77.0.0.tgz#4f4327c0906c79be6fae572878a00bc3bf111133"
+  integrity sha512-WE+oyVJ3oqa87LX+4PsCZbES5hYjvTSgxDo8OkYIH7mDm18HfB56KjyB9niMuXKmUhO1V138wUxLcbCVhHMy7w==
   dependencies:
-    crypto-js "^4.0.0"
-    hawk "^9.0.1"
+    crypto-js "^4.2.0"
+    hawk "^9.0.2"
     query-string "^7.0.0"
     taskcluster-lib-urls "^13.0.0"
 
