@@ -65,7 +65,7 @@ class Commenter:
             change_whiteboard = None
             priority = 0
             rank = top_bugs.index(bug_id) + 1 if self.weekly_mode and bug_id in top_bugs else None
-            test_variants |= bug_stats[bug_id]["test_variants"]
+            test_variants = bug_stats[bug_id]["test_variants"]
 
             if bugs_info and bug_id in bugs_info:
                 if self.weekly_mode:
@@ -353,7 +353,7 @@ class Commenter:
         base_symbol = test_suite
         found_variants = []
         for variant in variant_symbols:
-            if f"-{variant}" in base_symbol:
+            if f"-{variant}-" in base_symbol or base_symbol.endswith(variant):
                 found_variants.append(variant)
                 base_symbol = base_symbol.replace(f"-{variant}", "")
         if not found_variants:

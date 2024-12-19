@@ -80,3 +80,13 @@ def test_intermittents_commenter_with_failures(
     with open("tests/intermittents_commenter/expected_comment_with_5_failures.text") as comment:
         expected_comment = comment.read()
     assert comment_params[0]["changes"]["comment"]["body"] == expected_comment
+
+
+def test_get_test_variants(mock_test_variants_firefoxci_request):
+    process = Commenter(weekly_mode=True, dry_run=True)
+    test_suite = "mochitest-browser-chrome-spi-nw-10"
+    variants = process.get_test_variant(test_suite)
+    assert variants == "spi-nw"
+    test_suite = "mochitest-browser-chrome-2"
+    variants = process.get_test_variant(test_suite)
+    assert variants == "no_variant"
