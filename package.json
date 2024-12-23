@@ -64,7 +64,7 @@
     "redux-thunk": "2.3.0",
     "stream-browserify": "3.0.0",
     "styled-components": "5.3.11",
-    "taskcluster-client-web": "44.18.0",
+    "taskcluster-client-web": "77.0.0",
     "taskcluster-lib-scopes": "11.0.0",
     "taskcluster-lib-urls": "13.0.1",
     "url": "0.11.4",
