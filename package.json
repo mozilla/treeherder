@@ -68,7 +68,7 @@
     "taskcluster-lib-scopes": "11.0.0",
     "taskcluster-lib-urls": "13.0.1",
     "url": "0.11.4",
-    "victory": "37.3.4"
+    "victory": "37.3.5"
   },
   "devDependencies": {
     "@babel/core": "7.24.9",
