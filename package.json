@@ -32,7 +32,7 @@
     "history": "4.10.1",
     "js-cookie": "3.0.5",
     "js-yaml": "4.1.0",
-    "json-e": "4.4.3",
+    "json-e": "4.8.0",
     "json-schema-defaults": "0.4.0",
     "lodash": "4.17.21",
     "mobx": "6.13.5",

@@ -7692,10 +7692,10 @@ json-buffer@3.0.1:
   resolved "https://registry.yarnpkg.com/json-buffer/-/json-buffer-3.0.1.tgz#9338802a30d3b6605fbe0613e094008ca8c05a13"
   integrity sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==
 
-json-e@4.4.3:
-  version "4.4.3"
-  resolved "https://registry.npmjs.org/json-e/-/json-e-4.4.3.tgz"
-  integrity sha512-G2tp4fkEzN6hlya4J9dNaRbIxxTW+Lqu+An40E36SNZYexIGPPuNU30VuS0eZam4AieV0R+fvRxZrVFPJEvUbA==
+json-e@4.8.0:
+  version "4.8.0"
+  resolved "https://registry.yarnpkg.com/json-e/-/json-e-4.8.0.tgz#26e5b55f5a1b46c40425d55f885ed5f932d708d4"
+  integrity sha512-YOxEEr9dd9/y5PbXsKx/MCFyAR+UL5zbRBObbuHnjxvC3rY8EIfQMc64iULb97G4NcV5vadIzFdEHAYh0Cqljg==
   dependencies:
     json-stable-stringify-without-jsonify "^1.0.1"
 
