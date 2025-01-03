@@ -24,6 +24,7 @@ const convertDates = function convertDates(locationParams) {
 
     delete locationParams.enddate;
   }
+
   return locationParams;
 };
 
