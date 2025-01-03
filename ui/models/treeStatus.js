@@ -23,7 +23,7 @@ const apiUrl = `${_treeStatusApiUrl}trees/`;
 
 export default class TreeStatusModel {
   static get(repoName) {
-    return fetch(`${apiUrl}${repoName}`)
+    return fetch(`${apiUrl}${repoName}`, { mode: 'cors' })
       .then(async (resp) => {
         if (resp.ok) {
           return resp.json();
