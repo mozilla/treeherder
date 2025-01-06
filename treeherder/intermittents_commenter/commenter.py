@@ -278,21 +278,20 @@ class Commenter:
                 "per_platform": {
                     "windows10-64": 52,
                     "osx-10-10": 1,
-                    }
                 },
-               "test_suite_per_platform_and_build": {
+                "test_suite_per_platform_and_build": {
                     "windows10-64/debug" {
                         "mochitest-browser-chrome": 2,
                         "mochitest-browser-chrome-swr": 2,
-                     },
-                     "windows10-64/ccov" {
+                    },
+                    "windows10-64/ccov" {
                         "mochitest-browser-chrome": 0,
                         "mochitest-browser-chrome-swr": 2,
-                     },
+                    },
                     "osx-10-10/debug": {
                         "mochitest-browser-chrome": 2,
                         "mochitest-browser-chrome-swr": 0,
-                     },
+                    },
                 },
                 "windows10-64": {
                     "debug": 30,
@@ -300,9 +299,9 @@ class Commenter:
                     "asan": 2,
                 },
                 "osx-10-10": {
-                    "debug: 1
+                    "debug": 1,
                 }
-            },
+            }
         }
         """
         # Min required failures per bug in order to post a comment
