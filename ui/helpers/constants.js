@@ -75,6 +75,7 @@ export const thPlatformMap = {
   'macosx1015-64-shippable-qr': 'OS X 10.15 WebRender Shippable',
   'macosx1015-64-devedition-qr': 'OS X 10.15 WebRender DevEdition',
   'macosx1100-64-qr': 'OS X 11 WebRender',
+  'macosx1100-64-shippable': 'OS X 11 Shippable',
   'macosx1100-64-shippable-qr': 'OS X 11 WebRender Shippable',
   'macosx1100-64-aarch64-qr': 'OS X 11 AArch64 WebRender',
   'macosx1100-64-aarch64-shippable-qr': 'OS X 11 AArch64 WebRender Shippable',
@@ -93,6 +94,7 @@ export const thPlatformMap = {
   'macosx64-nightlyasrelease': 'macOS x64 NightlyAsRelease',
   'macosx1015-64-nightlyasrelease-qr':
     'OS X 10.15 x64 NightlyAsRelease WebRender',
+  'macosx1470-64-nightlyasrelease': 'macOS 14.70 x64 NightlyAsRelease',
   'win32-shippable': 'Windows x86 Shippable',
   'win32-devedition': 'Windows x86 DevEdition',
   'windows7-32-qr': 'Windows 7 WebRender',
@@ -113,6 +115,7 @@ export const thPlatformMap = {
   'windows10-64-2009-shippable-qr': 'Windows 10 x64 2009 Shippable WebRender',
   'windows10-64-2009-qr': 'Windows 10 x64 2009 WebRender',
   'windows11-64': 'Windows 11 x64',
+  'windows11-64-qr': 'Windows 11 x64 WebRender',
   'windows11-64-shippable-qr': 'Windows 11 x64 WebRender Shippable',
   'windows11-64-2009-qr': 'Windows 11 x64 22H2 WebRender',
   'windows11-64-2009-asan-qr': 'Windows 11 x64 22H2 asan WebRender',
@@ -184,6 +187,8 @@ export const thPlatformMap = {
   'android-hw-p5-13-0-android-aarch64-shippable-qr':
     'Android 13.0 Pixel5 AArch64 Shippable',
   'android-hw-p5-13-0-android-aarch64-qr': 'Android 13.0 Pixel5 AArch64',
+  'android-hw-p6-13-0-android-aarch64-shippable-qr':
+    'Android 13.0 Pixel5 AArch64 Shippable',
   'android-hw-p5-13-0-arm7-shippable-qr': 'Android 13.0 Pixel5 ARMv7 Shippable',
   'android-hw-p5-13-0-arm7-qr': 'Android 13.0 Pixel5 ARMv7',
   'android-hw-p5-13-0-arm7': 'Android 13.0 Pixel5 ARMv7',
@@ -196,6 +201,8 @@ export const thPlatformMap = {
   'android-hw-a55-14-0-android-aarch64-shippable-qr':
     'Android 14.0 Galaxy A55 AArch64 Shippable',
   'android-hw-s24-14-0-aarch64-shippable':
+    'Android 14.0 Galaxy S24 AArch64 Shippable',
+  'android-hw-s24-14-0-android-aarch64-shippable-qr':
     'Android 14.0 Galaxy S24 AArch64 Shippable',
   Android: 'Android',
   'AC-android-all': 'Android Components',
