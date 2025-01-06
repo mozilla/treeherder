@@ -922,6 +922,48 @@ def mock_test_variants_firefoxci_request(monkeypatch):
     )
 
 
+@pytest.fixture
+def mock_test_manifests_firefoxci_request(monkeypatch):
+    """
+    Mock fetch_test_manifests() used to retreive test manifests from firefox-ci
+    """
+
+    def _fetch_test_manifests(self):
+        tests_folder = os.path.dirname(__file__)
+        file_name = "test-info-all-tests.json"
+        data_path = os.path.join(tests_folder, "sample_data", file_name)
+        with open(data_path) as f:
+            data = json.load(f)
+        return data
+
+    monkeypatch.setattr(
+        treeherder.intermittents_commenter.commenter.Commenter,
+        "fetch_test_manifests",
+        _fetch_test_manifests,
+    )
+
+
+@pytest.fixture
+def mock_testrun_matrix_firefoxci_request(monkeypatch):
+    """
+    Mock fetch_testrun_matrix() used to retreive testrun matrix from firefox-ci
+    """
+
+    def _fetch_testrun_matrix(self):
+        tests_folder = os.path.dirname(__file__)
+        file_name = "test-info-testrun-matrix.json"
+        data_path = os.path.join(tests_folder, "sample_data", file_name)
+        with open(data_path) as f:
+            data = json.load(f)
+        return data
+
+    monkeypatch.setattr(
+        treeherder.intermittents_commenter.commenter.Commenter,
+        "fetch_testrun_matrix",
+        _fetch_testrun_matrix,
+    )
+
+
 class MockResponse:
     def __init__(self):
         self.status_code = 200
