@@ -171,7 +171,7 @@
     {
       "status": "NEW",
       "id": 1,
-      "summary": "This bug should not be matched",
+      "summary": "Intermittent browser/components/sessionstore/test/browser_sessionHistory.js | single tracking bug",
       "dupe_of": null,
       "duplicates": [],
       "cf_crash_signature": "",
