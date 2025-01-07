@@ -1,0 +1,10 @@
+node_modules
+.tox
+.git
+.venv
+.env
+.build
+.build-docs
+.pytest_cache
+.coverage
+.ruff_cache
