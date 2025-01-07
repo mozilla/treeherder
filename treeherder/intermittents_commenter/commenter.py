@@ -321,6 +321,7 @@ class Commenter:
             .values(
                 "job__repository__name",
                 "job__machine_platform__platform",
+                "job__machine_platform__architecture",
                 "bug_id",
                 "job__option_collection_hash",
                 "job__signature__job_type_name",
@@ -368,13 +369,14 @@ class Commenter:
         bug_map = dict()
         for bug in bugs:
             platform = bug["job__machine_platform__platform"]
+            architecture = bug["job__machine_platform__architecture"]
             repo = bug["job__repository__name"]
             bug_id = bug["bug_id"]
             build_type = option_collection_map.get(
                 bug["job__option_collection_hash"], "unknown build"
             )
             test_variant = self.get_test_variant(bug["job__signature__job_type_name"])
-            platform_and_build = f"{platform}/{build_type}"
+            platform_and_build = f"{platform}/{architecture}/{build_type}"
             if bug_id not in bug_map:
                 bug_infos = {
                     "total": 1,
