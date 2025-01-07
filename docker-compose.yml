@@ -52,7 +52,7 @@ services:
   frontend:
     container_name: frontend
     # https://hub.docker.com/_/node
-    image: nikolaik/python-nodejs:python3.11-nodejs19-alpine
+    image: node:23.5.0-alpine3.20
     # Installing JS dependencies at runtime so that they share the `node_modules` from the
     # host, improving speed (both install and build due to the webpack cache) and ensuring
     # the host copy stays in sync (for people that switch back and forth between UI-only
