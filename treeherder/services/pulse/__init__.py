@@ -14,5 +14,4 @@ __all__ = [
     "MozciClassificationConsumer",
     "prepare_consumers",
     "prepare_joint_consumers",
-    "pulse_conn",
 ]
