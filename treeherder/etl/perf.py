@@ -157,13 +157,12 @@ def _load_perf_datum(job: Job, perf_datum: dict):
         if perf_datum["framework"]["name"] == "job_resource_usage":
             return
         logger.warning(
-            "Performance framework %s does not exist, skipping " "load of performance artifacts",
-            perf_datum["framework"]["name"],
+            f"Performance framework {perf_datum['framework']['name']} does not exist, skipping load of performance artifacts"
         )
         return
     if not framework.enabled:
         logger.info(
-            "Performance framework %s is not enabled, skipping", perf_datum["framework"]["name"]
+            f"Performance framework {perf_datum['framework']['name']} is not enabled, skipping"
         )
         return
     application = _get_application_name(perf_datum)

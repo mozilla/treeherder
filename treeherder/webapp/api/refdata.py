@@ -11,7 +11,6 @@ from treeherder.webapp.api import serializers as th_serializers
 
 
 class RepositoryViewSet(viewsets.ReadOnlyModelViewSet):
-
     """ViewSet for the refdata Repository model"""
 
     queryset = models.Repository.objects.filter(active_status="active").select_related(
@@ -21,7 +20,6 @@ class RepositoryViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class OptionCollectionHashViewSet(viewsets.ViewSet):
-
     """ViewSet for the virtual OptionCollectionHash model"""
 
     def list(self, request):
@@ -39,7 +37,6 @@ class OptionCollectionHashViewSet(viewsets.ViewSet):
 
 
 class FailureClassificationViewSet(viewsets.ReadOnlyModelViewSet):
-
     """ViewSet for the refdata FailureClassification model"""
 
     queryset = models.FailureClassification.objects
@@ -47,7 +44,6 @@ class FailureClassificationViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class TaskclusterMetadataViewSet(viewsets.ReadOnlyModelViewSet):
-
     """ViewSet for the refdata TaskclusterMetadata model"""
 
     serializer_class = th_serializers.TaskclusterMetadataSerializer
@@ -63,7 +59,6 @@ class TaskclusterMetadataViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
-
     """
     Info about a logged-in user.
     Used by Treeherder's UI to inspect user properties

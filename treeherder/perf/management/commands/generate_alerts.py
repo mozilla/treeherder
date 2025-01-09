@@ -26,7 +26,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if not options["project"]:
-            raise CommandError("Must specify at least one project with " "--project")
+            raise CommandError("Must specify at least one project with --project")
         for project in options["project"]:
             repository = models.Repository.objects.get(name=project)
 

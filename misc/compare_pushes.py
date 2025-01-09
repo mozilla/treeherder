@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-""" Script to compare pushes from a Treeherder instance against production.
+"""Script to compare pushes from a Treeherder instance against production.
 
 This is useful to compare if pushes between two different instances have been
 ingested differently.
 """
+
 import argparse
 import logging
 

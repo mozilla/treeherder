@@ -253,7 +253,7 @@ def get_error_search_term_and_path(error_line):
             test_name_or_path = REFTEST_RE.sub("", test_name_or_path).replace("\\", "/")
             # split marionette paths to only include the filename
             if MARIONETTE_RE.search(test_name_or_path):
-                test_name_or_path = "%s.py" % test_name_or_path.split(".py ")[0]
+                test_name_or_path = f"{test_name_or_path.split('.py ')[0]}.py"
             path_end = test_name_or_path
             # if this is a path, we are interested in the last part
             search_term = test_name_or_path.split("/")[-1]

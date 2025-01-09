@@ -112,7 +112,7 @@ def generate_new_alerts_in_series(signature):
 
                     if not isinstance(noise_profile, str):
                         raise Exception(
-                            "Expecting a string as a " f"noise profile, got: {type(noise_profile)}"
+                            f"Expecting a string as a noise profile, got: {type(noise_profile)}"
                         )
                 except Exception:
                     # Fail without breaking the alert computation

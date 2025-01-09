@@ -78,8 +78,7 @@ def store_job_artifacts(artifact_data):
             job_guid = artifact.get("job_guid")
             if not job_guid:
                 logger.error(
-                    "load_job_artifacts: Artifact '%s' with no " "job guid set, skipping",
-                    artifact_name,
+                    f"load_job_artifacts: Artifact '{artifact_name}' with no job guid set, skipping"
                 )
                 continue
 

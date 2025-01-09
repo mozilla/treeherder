@@ -59,7 +59,7 @@ def _generate_performance_data(
     ):
         push, _ = Push.objects.get_or_create(
             repository=test_repository,
-            revision="1234abcd%s" % t,
+            revision=f"1234abcd{t}",
             defaults={
                 "author": "foo@bar.com",
                 "time": datetime.datetime.fromtimestamp(base_timestamp + t),

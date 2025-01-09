@@ -104,7 +104,7 @@ def _ingest_hg_push(project, revision, fetch_push_id=None):
     # get reference to repo
     repo = Repository.objects.get(name=project, active_status="active")
     # get hg pushlog
-    pushlog_url = "%s/json-pushes/?full=1&version=2" % repo.url
+    pushlog_url = f"{repo.url}/json-pushes/?full=1&version=2"
     # ingest this particular revision for this project
     process = HgPushlogProcess()
     # Use the actual push SHA, in case the changeset specified was a tag

@@ -9,7 +9,7 @@ def test_future_date(group_data, client):
 
     today = datetime.datetime.today().date()
     tomorrow = today + datetime.timedelta(days=1)
-    url = reverse("groupsummary") + "?startdate=%s" % tomorrow
+    url = reverse("groupsummary") + f"?startdate={tomorrow}"
     resp = client.get(url)
     assert resp.status_code == 200
     assert resp.json() == expected
@@ -29,7 +29,8 @@ def test_default_date(group_data, client):
 # test jobname chunk removal and aggregation
 def test_summarized(group_data, client):
     expected = group_data["expected"]
-    url = reverse("groupsummary") + "?startdate=%s" % str(group_data["date"]).split(" ")[0]
+    startdate = str(group_data["date"]).split(" ")[0]
+    url = reverse("groupsummary") + f"?startdate={startdate}"
     resp = client.get(url)
     assert resp.status_code == 200
     assert resp.json() == expected
