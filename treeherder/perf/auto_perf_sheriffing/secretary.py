@@ -4,7 +4,10 @@ from datetime import datetime, timedelta
 import simplejson as json
 from django.conf import settings as django_settings
 
-from treeherder.perf.auto_perf_sheriffing.outcome_checker import OutcomeChecker, OutcomeStatus
+from treeherder.perf.auto_perf_sheriffing.outcome_checker import (
+    OutcomeChecker,
+    OutcomeStatus,
+)
 from treeherder.perf.models import BackfillRecord, BackfillReport, PerformanceSettings
 from treeherder.utils import default_serializer
 

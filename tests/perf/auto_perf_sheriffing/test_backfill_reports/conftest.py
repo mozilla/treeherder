@@ -7,9 +7,13 @@ from unittest.mock import Mock
 import pytest
 
 from tests.conftest import create_perf_alert
-from treeherder.model.models import Job, Option, OptionCollection, MachinePlatform
+from treeherder.model.models import Job, MachinePlatform, Option, OptionCollection
 from treeherder.perf.auto_perf_sheriffing.backfill_reports import AlertsPicker
-from treeherder.perf.models import PerformanceAlert, PerformanceDatum, PerformanceSignature
+from treeherder.perf.models import (
+    PerformanceAlert,
+    PerformanceDatum,
+    PerformanceSignature,
+)
 
 # For testing BackfillReportMaintainer
 LETTERS = string.ascii_lowercase

@@ -1,15 +1,15 @@
 import csv
-from dataclasses import dataclass, asdict, replace, fields
 import logging
-from multiprocessing import cpu_count
-from multiprocessing.pool import Pool, ThreadPool, AsyncResult
 import time
-
+from dataclasses import asdict, dataclass, fields, replace
 from datetime import datetime, timedelta
+from multiprocessing import cpu_count
+from multiprocessing.pool import AsyncResult, Pool, ThreadPool
 
 from treeherder.perf.exceptions import NoFiledBugsError
-from .bugzilla_formulas import BugzillaFormula, EngineerTractionFormula, FixRatioFormula
 from treeherder.utils import PROJECT_ROOT
+
+from .bugzilla_formulas import BugzillaFormula, EngineerTractionFormula, FixRatioFormula
 
 CRITERIA_FILENAME = "perf-sheriffing-criteria.csv"
 

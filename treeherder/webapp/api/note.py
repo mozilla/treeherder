@@ -1,21 +1,20 @@
-from django.core.cache import caches
+import logging
 
+from django.core.cache import caches
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 from rest_framework.status import HTTP_404_NOT_FOUND
 
-import logging
-
-from treeherder.model.models import Job, JobNote, Push, TextLogError
 from treeherder.model.error_summary import (
-    get_cleaned_line,
-    cache_clean_error_line,
     LINE_CACHE_TIMEOUT,
+    cache_clean_error_line,
+    get_cleaned_line,
 )
+from treeherder.model.models import Job, JobNote, Push, TextLogError
 
-from .serializers import JobNoteSerializer, JobNoteDetailSerializer
+from .serializers import JobNoteDetailSerializer, JobNoteSerializer
 
 logger = logging.getLogger(__name__)
 

@@ -1,12 +1,12 @@
 from datetime import datetime, timedelta
 
 import pytest
-from tests import settings as test_settings
 from django.core.management import call_command
 
+from tests import settings as test_settings
 from treeherder.perf.auto_perf_sheriffing.sherlock import Sherlock
-from treeherder.perf.models import BackfillNotificationRecord
 from treeherder.perf.exceptions import MaxRuntimeExceededError
+from treeherder.perf.models import BackfillNotificationRecord
 
 EPOCH = datetime.utcfromtimestamp(0)
 

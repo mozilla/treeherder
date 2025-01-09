@@ -5,7 +5,6 @@ import operator
 import time
 
 import pytest
-
 from django.core.management import call_command
 from django.db import IntegrityError
 

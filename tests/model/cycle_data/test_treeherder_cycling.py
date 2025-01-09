@@ -6,7 +6,7 @@ from django.db.models import Max
 
 from tests import test_utils
 from tests.autoclassify.utils import create_failure_lines, test_line
-from treeherder.model.models import Job, FailureLine, JobLog, JobType, Machine, JobGroup
+from treeherder.model.models import FailureLine, Job, JobGroup, JobLog, JobType, Machine
 from treeherder.perf.models import PerformanceDatum
 
 

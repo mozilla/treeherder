@@ -6,9 +6,7 @@ from django.db.models import Count
 from rest_framework import generics
 from rest_framework.response import Response
 
-from treeherder.model.models import (
-    Job,
-)
+from treeherder.model.models import Job
 from treeherder.webapp.api.serializers import GroupNameSerializer
 
 logger = logging.getLogger(__name__)

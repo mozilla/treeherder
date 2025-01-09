@@ -1,9 +1,9 @@
 import logging
+
 from django.core.management.base import BaseCommand
 
-
-from treeherder.perf.models import BackfillNotificationRecord
 from treeherder.perf.email import BackfillNotificationWriter
+from treeherder.perf.models import BackfillNotificationRecord
 from treeherder.services.taskcluster import notify_client_factory
 
 SUCCESS_STATUS = 200

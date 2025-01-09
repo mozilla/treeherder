@@ -1,6 +1,6 @@
+import json
 import logging
 from datetime import datetime
-import json
 from functools import reduce
 
 from django.contrib.auth.models import User
@@ -11,14 +11,14 @@ from django.utils.timezone import now as django_now
 
 from treeherder.model.models import (
     Job,
+    JobGroup,
+    JobType,
     MachinePlatform,
     OptionCollection,
     Push,
     Repository,
-    JobType,
-    JobGroup,
 )
-from treeherder.perf.utils import calculate_time_to, TRIAGE_DAYS, BUG_DAYS
+from treeherder.perf.utils import BUG_DAYS, TRIAGE_DAYS, calculate_time_to
 from treeherder.utils import default_serializer
 
 logger = logging.getLogger(__name__)

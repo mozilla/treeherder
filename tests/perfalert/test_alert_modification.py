@@ -4,7 +4,11 @@ import pytest
 from django.core.exceptions import ValidationError
 
 from tests.conftest import create_perf_alert
-from treeherder.perf.models import PerformanceAlert, PerformanceAlertSummary, PerformanceSignature
+from treeherder.perf.models import (
+    PerformanceAlert,
+    PerformanceAlertSummary,
+    PerformanceSignature,
+)
 
 
 def test_summary_modification(

@@ -2,15 +2,14 @@ import datetime
 import logging
 import time
 
-from rest_framework import generics
 from django.db.models import F
-from treeherder.model import models
-
-from .infra_serializers import InfraCompareSerializer, InfraCompareQuerySerializers
-
+from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
+from treeherder.model import models
+
+from .infra_serializers import InfraCompareQuerySerializers, InfraCompareSerializer
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

@@ -4,8 +4,8 @@ from datetime import datetime
 from hashlib import sha1
 
 import simplejson as json
-
 from django.conf import settings
+
 from treeherder.log_parser.utils import validate_perf_data
 from treeherder.model.models import Job, OptionCollection, Repository
 from treeherder.perf.models import (

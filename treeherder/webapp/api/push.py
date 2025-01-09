@@ -14,8 +14,8 @@ from treeherder.push_health.builds import get_build_failures
 from treeherder.push_health.compare import get_commit_history
 from treeherder.push_health.linting import get_lint_failures
 from treeherder.push_health.tests import (
-    get_test_failures,
     get_test_failure_jobs,
+    get_test_failures,
     get_test_in_progress_count,
 )
 from treeherder.push_health.usage import get_usage

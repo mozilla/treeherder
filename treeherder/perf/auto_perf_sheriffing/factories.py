@@ -1,13 +1,13 @@
 from datetime import timedelta
 
 from treeherder.perf.auto_perf_sheriffing.backfill_reports import (
-    BackfillReportMaintainer,
     AlertsPicker,
+    BackfillReportMaintainer,
     IdentifyAlertRetriggerables,
 )
 from treeherder.perf.auto_perf_sheriffing.backfill_tool import BackfillTool
-from treeherder.perf.auto_perf_sheriffing.sherlock import Sherlock
 from treeherder.perf.auto_perf_sheriffing.secretary import Secretary
+from treeherder.perf.auto_perf_sheriffing.sherlock import Sherlock
 from treeherder.services.taskcluster import taskcluster_model_factory
 
 

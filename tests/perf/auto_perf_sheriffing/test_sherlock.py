@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta
-import simplejson as json
 from json import JSONDecodeError
 
 import pytest
+import simplejson as json
 from django.db import models
-from tests import settings as test_settings
 
+from tests import settings as test_settings
 from tests.perf.auto_perf_sheriffing.conftest import prepare_record_with_search_str
 from treeherder.model.models import Job, Push
 from treeherder.perf.auto_perf_sheriffing.sherlock import Sherlock

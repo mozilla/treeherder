@@ -1,6 +1,6 @@
 import logging
-import threading
 import socket
+import threading
 
 import environ
 import newrelic.agent

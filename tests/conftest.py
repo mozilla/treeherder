@@ -4,21 +4,25 @@ import json
 import os
 import platform
 import time
-from os.path import join, dirname
+from os.path import dirname, join
 from unittest.mock import MagicMock
-import yaml
 
 import kombu
+import moz_measure_noise
 import pytest
 import responses
+import yaml
 from _pytest.monkeypatch import MonkeyPatch
 from django.conf import settings
 from django.core.management import call_command
 from rest_framework.test import APIClient
-import moz_measure_noise
 
-from tests.autoclassify.utils import test_line, create_failure_lines, create_text_log_errors
 import treeherder.etl.bugzilla
+from tests.autoclassify.utils import (
+    create_failure_lines,
+    create_text_log_errors,
+    test_line,
+)
 from treeherder.etl.jobs import store_job_data
 from treeherder.etl.push import store_push_data
 from treeherder.model import models as th_models
@@ -365,6 +369,7 @@ def test_job_3(eleven_job_blobs, create_jobs):
 @pytest.fixture
 def mock_log_parser(monkeypatch):
     from celery import shared_task
+
     from treeherder.log_parser import tasks
 
     @shared_task

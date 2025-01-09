@@ -1,8 +1,8 @@
 import datetime
 import logging
 import re
-import newrelic.agent
 
+import newrelic.agent
 from django.core.cache import caches
 
 from treeherder.model.models import Bugscache, TextLogError

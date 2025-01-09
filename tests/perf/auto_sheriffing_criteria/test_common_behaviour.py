@@ -1,19 +1,18 @@
+from collections.abc import Callable
 from datetime import datetime, timedelta
 
 import pytest
 from django.conf import settings
-from collections.abc import Callable
 
 from tests.perf.auto_sheriffing_criteria.conftest import CASSETTES_RECORDING_DATE
 from treeherder.config.settings import BZ_DATETIME_FORMAT
 from treeherder.perf.exceptions import NoFiledBugsError
 from treeherder.perf.sheriffing_criteria import (
+    BugzillaFormula,
     EngineerTractionFormula,
     FixRatioFormula,
-    BugzillaFormula,
     TotalAlertsFormula,
 )
-
 
 pytestmark = [pytest.mark.freeze_time(CASSETTES_RECORDING_DATE, tick=True)]
 

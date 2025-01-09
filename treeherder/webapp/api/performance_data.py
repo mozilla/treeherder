@@ -6,7 +6,7 @@ from urllib.parse import urlencode
 import django_filters
 from django.conf import settings
 from django.db import transaction
-from django.db.models import CharField, Count, Q, Subquery, Value, Case, When
+from django.db.models import Case, CharField, Count, Q, Subquery, Value, When
 from django.db.models.functions import Concat
 from rest_framework import exceptions, filters, generics, pagination, viewsets
 from rest_framework.response import Response
@@ -29,19 +29,20 @@ from treeherder.perf.models import (
 from treeherder.webapp.api import perfcompare_utils
 from treeherder.webapp.api.performance_serializers import OptionalBooleanField
 from treeherder.webapp.api.permissions import IsStaffOrReadOnly
+
 from .exceptions import InsufficientAlertCreationData
 from .performance_serializers import (
     IssueTrackerSerializer,
+    PerfAlertSummaryTasksQueryParamSerializer,
+    PerfCompareResultsQueryParamsSerializer,
+    PerfCompareResultsSerializer,
     PerformanceAlertSerializer,
     PerformanceAlertSummarySerializer,
     PerformanceAlertSummaryTasksSerializer,
-    PerfAlertSummaryTasksQueryParamSerializer,
     PerformanceBugTemplateSerializer,
     PerformanceFrameworkSerializer,
     PerformanceQueryParamsSerializer,
-    PerfCompareResultsQueryParamsSerializer,
     PerformanceSummarySerializer,
-    PerfCompareResultsSerializer,
     PerformanceTagSerializer,
     TestSuiteHealthParamsSerializer,
     TestSuiteHealthSerializer,

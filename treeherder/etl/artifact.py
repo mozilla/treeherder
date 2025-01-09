@@ -2,10 +2,10 @@ import logging
 
 import simplejson as json
 from django.db.utils import IntegrityError
-from treeherder.model import error_summary
 
 from treeherder.etl.perf import store_performance_artifact
 from treeherder.etl.text import astral_filter
+from treeherder.model import error_summary
 from treeherder.model.models import Job, TextLogError
 
 logger = logging.getLogger(__name__)

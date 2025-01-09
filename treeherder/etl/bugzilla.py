@@ -1,12 +1,12 @@
 import logging
-import requests
+from datetime import datetime, timedelta
 
 import dateutil.parser
-from datetime import datetime, timedelta
+import requests
 from django.conf import settings
 from django.db.models import Count, Max
 
-from treeherder.model.models import Bugscache, BugJobMap
+from treeherder.model.models import BugJobMap, Bugscache
 from treeherder.utils.github import fetch_json
 from treeherder.utils.http import make_request
 

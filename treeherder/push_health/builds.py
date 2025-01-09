@@ -1,6 +1,7 @@
+from django.db.models import Q
+
 from treeherder.model.models import Job, JobType
 from treeherder.push_health.utils import get_job_results
-from django.db.models import Q
 
 
 def get_build_failures(push):

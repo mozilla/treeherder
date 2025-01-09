@@ -7,16 +7,17 @@ They then get an email that's ready-to-send via taskcluster.Notify service.
 """
 import logging
 import re
-from dataclasses import dataclass, asdict
-from abc import ABC, abstractmethod
 import urllib.parse
+from abc import ABC, abstractmethod
+from dataclasses import asdict, dataclass
 
 from django.conf import settings
+
 from treeherder.perf.models import (
     BackfillRecord,
-    PerformanceSignature,
-    PerformanceAlertSummary,
     PerformanceAlert,
+    PerformanceAlertSummary,
+    PerformanceSignature,
 )
 
 logger = logging.getLogger(__name__)

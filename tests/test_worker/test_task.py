@@ -2,8 +2,8 @@ from functools import wraps
 from threading import local
 
 import pytest
-from django.db.utils import OperationalError
 from celery.exceptions import Retry
+from django.db.utils import OperationalError
 
 from treeherder.workers.task import retryable_task
 

@@ -11,7 +11,7 @@ from treeherder.perf.models import (
     PerformanceDatum,
     PerformanceSignature,
 )
-from treeherder.perf.utils import calculate_time_to, TRIAGE_DAYS, BUG_DAYS
+from treeherder.perf.utils import BUG_DAYS, TRIAGE_DAYS, calculate_time_to
 
 
 def _verify_alert(

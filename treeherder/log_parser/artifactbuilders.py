@@ -1,6 +1,6 @@
 import logging
 
-from .parsers import PerformanceParser, ErrorParser
+from .parsers import ErrorParser, PerformanceParser
 
 logger = logging.getLogger(__name__)
 

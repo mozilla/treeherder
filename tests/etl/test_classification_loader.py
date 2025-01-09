@@ -2,9 +2,9 @@ import copy
 import datetime
 import json
 
-from requests.models import HTTPError
 import pytest
 import responses
+from requests.models import HTTPError
 
 from treeherder.etl.artifact import store_job_artifacts
 from treeherder.etl.classification_loader import ClassificationLoader

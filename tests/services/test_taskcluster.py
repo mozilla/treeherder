@@ -2,12 +2,12 @@ import pytest
 
 from tests.conftest import SampleDataJSONLoader
 from treeherder.services.taskcluster import (
-    TaskclusterModelImpl,
-    taskcluster_model_factory,
-    notify_client_factory,
-    NotifyNullObject,
     NotifyAdapter,
+    NotifyNullObject,
+    TaskclusterModelImpl,
     TaskclusterModelNullObject,
+    notify_client_factory,
+    taskcluster_model_factory,
 )
 
 load_json_fixture = SampleDataJSONLoader("sherlock")

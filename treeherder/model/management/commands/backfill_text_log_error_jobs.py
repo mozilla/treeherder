@@ -1,9 +1,9 @@
 import logging
+
 from django.core.management.base import BaseCommand
 
 from treeherder.model.models import TextLogError
 from treeherder.utils.queryset import chunked_qs
-
 
 logger = logging.getLogger(__name__)
 

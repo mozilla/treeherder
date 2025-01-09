@@ -4,11 +4,11 @@ import uuid
 import pytest
 import responses
 import slugid
+from django.core.exceptions import ObjectDoesNotExist
 
 from treeherder.etl.job_loader import JobLoader
 from treeherder.etl.taskcluster_pulse.handler import handle_message
 from treeherder.model.models import Job, JobLog, TaskclusterMetadata
-from django.core.exceptions import ObjectDoesNotExist
 
 
 @pytest.fixture

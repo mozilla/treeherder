@@ -1,5 +1,6 @@
-import pytest
 import datetime
+
+import pytest
 import responses
 
 from treeherder.model.models import Push

@@ -1,9 +1,9 @@
 import logging
 import uuid
 from abc import ABC, abstractmethod
-import requests
 
 import jsone
+import requests
 import taskcluster
 from django.conf import settings
 

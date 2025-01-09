@@ -1,12 +1,14 @@
+import logging
+from datetime import timedelta
+from itertools import groupby
+
+import statsd
 from celery import shared_task
 from django.conf import settings
-from django.utils import timezone
-from datetime import timedelta
 from django.db.models import Count
-from treeherder.model.models import Push, Job
-from itertools import groupby
-import statsd
-import logging
+from django.utils import timezone
+
+from treeherder.model.models import Job, Push
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)

@@ -5,7 +5,11 @@ from django.urls import reverse
 from first import first
 
 from tests.conftest import create_perf_alert
-from treeherder.perf.models import PerformanceAlert, PerformanceAlertSummary, PerformanceFramework
+from treeherder.perf.models import (
+    PerformanceAlert,
+    PerformanceAlertSummary,
+    PerformanceFramework,
+)
 
 
 def test_alerts_get(

@@ -1,6 +1,6 @@
 import json
-import pytest
 
+import pytest
 from django.conf import settings
 
 

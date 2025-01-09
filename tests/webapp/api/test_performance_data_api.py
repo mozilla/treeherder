@@ -1,18 +1,19 @@
 import copy
-import pytest
 import datetime
-from django.urls import reverse
 from collections import defaultdict
+
+import pytest
+from django.urls import reverse
 
 from tests.conftest import create_perf_alert
 from treeherder.model.models import MachinePlatform, Push
-from treeherder.webapp.api.performance_data import PerformanceSummary
 from treeherder.perf.models import (
     PerformanceAlert,
     PerformanceDatum,
     PerformanceFramework,
     PerformanceSignature,
 )
+from treeherder.webapp.api.performance_data import PerformanceSummary
 
 NOW = datetime.datetime.now()
 ONE_DAY_AGO = NOW - datetime.timedelta(days=1)

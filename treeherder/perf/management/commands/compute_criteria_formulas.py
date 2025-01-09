@@ -1,17 +1,17 @@
 import time
 from datetime import timedelta
 
+from django.core.management.base import BaseCommand
+from mo_times import Duration
 
 from treeherder.config import settings
 from treeherder.perf.sheriffing_criteria import (
+    CriteriaTracker,
     EngineerTractionFormula,
     FixRatioFormula,
-    CriteriaTracker,
     TotalAlertsFormula,
+    criteria_tracking,
 )
-from treeherder.perf.sheriffing_criteria import criteria_tracking
-from mo_times import Duration
-from django.core.management.base import BaseCommand
 
 
 def pretty_enumerated(formulas: list[str]) -> str:

@@ -5,11 +5,11 @@ import jsonschema
 import newrelic.agent
 import slugid
 
-from treeherder.etl.taskcluster_pulse.handler import ignore_task
 from treeherder.etl.common import to_timestamp
 from treeherder.etl.exceptions import MissingPushError
 from treeherder.etl.jobs import store_job_data
 from treeherder.etl.schema import get_json_schema
+from treeherder.etl.taskcluster_pulse.handler import ignore_task
 from treeherder.model.models import Push, Repository
 from treeherder.utils.taskcluster import get_task_definition
 

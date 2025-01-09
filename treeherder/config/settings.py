@@ -5,12 +5,12 @@ from datetime import timedelta
 from os.path import abspath, dirname, join
 
 import environ
+from celery.schedules import crontab
 from furl import furl
 from kombu import Exchange, Queue
 
 from treeherder.config.utils import connection_should_use_tls
 from treeherder.middleware import add_headers_function
-from celery.schedules import crontab
 
 # TODO: Switch to pathlib once using Python 3.
 SRC_DIR = dirname(dirname(dirname(abspath(__file__))))

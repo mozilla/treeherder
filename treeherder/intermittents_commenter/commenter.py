@@ -3,16 +3,19 @@ import re
 import time
 from collections import Counter
 from datetime import date, datetime, timedelta
-import yaml
 
 import requests
+import yaml
 from django.conf import settings
 from django.db.models import Count
 from jinja2 import Template
 from requests.exceptions import RequestException
 
-from treeherder.intermittents_commenter.constants import COMPONENTS, WHITEBOARD_NEEDSWORK_OWNER
-from treeherder.model.models import BugJobMap, Push, OptionCollection
+from treeherder.intermittents_commenter.constants import (
+    COMPONENTS,
+    WHITEBOARD_NEEDSWORK_OWNER,
+)
+from treeherder.model.models import BugJobMap, OptionCollection, Push
 
 logger = logging.getLogger(__name__)
 

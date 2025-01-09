@@ -1,8 +1,6 @@
 from enum import Enum
 
-from treeherder.perf.models import (
-    BackfillRecord,
-)
+from treeherder.perf.models import BackfillRecord
 
 
 class OutcomeStatus(Enum):

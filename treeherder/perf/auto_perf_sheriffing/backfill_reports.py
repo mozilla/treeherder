@@ -1,17 +1,17 @@
 import logging
-from datetime import timedelta, datetime
-from itertools import zip_longest, groupby
+from datetime import datetime, timedelta
+from itertools import groupby, zip_longest
 
 import simplejson as json
-from django.db.models import QuerySet, Q, F
+from django.db.models import F, Q, QuerySet
 
 from treeherder.perf.exceptions import MissingRecordsError
 from treeherder.perf.models import (
-    PerformanceAlert,
-    PerformanceDatum,
-    BackfillReport,
-    PerformanceAlertSummary,
     BackfillRecord,
+    BackfillReport,
+    PerformanceAlert,
+    PerformanceAlertSummary,
+    PerformanceDatum,
 )
 from treeherder.utils import default_serializer
 

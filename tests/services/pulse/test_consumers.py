@@ -1,9 +1,13 @@
 from unittest.mock import MagicMock
+
 import pytest
 from django.conf import settings
 
 from tests.conftest import IS_WINDOWS
-from treeherder.etl.tasks.pulse_tasks import store_pulse_tasks, store_pulse_tasks_classification
+from treeherder.etl.tasks.pulse_tasks import (
+    store_pulse_tasks,
+    store_pulse_tasks_classification,
+)
 from treeherder.services.pulse.consumers import Consumers, JointConsumer, PulseConsumer
 
 from .utils import create_and_destroy_exchange

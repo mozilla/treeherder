@@ -7,8 +7,9 @@ from django.db.models import QuerySet
 from taskcluster.exceptions import TaskclusterRestFailure
 
 from treeherder.perf.models import PerformanceSignature
-from .max_runtime import MaxRuntime
+
 from ...perf.email import DeletionNotificationWriter, EmailWriter
+from .max_runtime import MaxRuntime
 
 logger = logging.getLogger(__name__)
 

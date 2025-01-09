@@ -1,9 +1,8 @@
 import functools
 from math import sqrt
-from statistics import mean, stdev, median
-from treeherder.perf.models import (
-    OptionCollection,
-)
+from statistics import mean, median, stdev
+
+from treeherder.perf.models import OptionCollection
 
 """ Constants """
 

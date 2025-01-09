@@ -1,8 +1,8 @@
 from .consumers import (
     JointConsumer,
+    MozciClassificationConsumer,
     PushConsumer,
     TaskConsumer,
-    MozciClassificationConsumer,
     prepare_consumers,
     prepare_joint_consumers,
 )

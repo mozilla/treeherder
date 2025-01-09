@@ -1,12 +1,11 @@
 import datetime
+from unittest import skip
+
 from django.urls import reverse
 
 from treeherder.model.models import Job
+from treeherder.perf.models import PerformanceDatum
 from treeherder.webapp.api import perfcompare_utils
-from treeherder.perf.models import (
-    PerformanceDatum,
-)
-from unittest import skip
 
 NOW = datetime.datetime.now()
 ONE_DAY_AGO = NOW - datetime.timedelta(days=1)
