@@ -92,9 +92,7 @@ class ArtifactBuilderCollection:
             )
 
             if download_size_in_bytes > MAX_DOWNLOAD_SIZE_IN_BYTES:
-                raise LogSizeError(
-                    "Download size of %i bytes exceeds limit" % download_size_in_bytes
-                )
+                raise LogSizeError(f"Download size of {download_size_in_bytes} bytes exceeds limit")
 
             # Lines must be explicitly decoded since `iter_lines()`` returns bytes by default
             # and we cannot use its `decode_unicode=True` mode, since otherwise Unicode newline

@@ -264,9 +264,7 @@ class IdentifyAlertRetriggerables:
         retrigger_range = len(data_points_to_retrigger)
         if retrigger_range < self._range_width:
             self.log.warning(
-                "Found small backfill range (of size {} instead of {})".format(
-                    retrigger_range, self._range_width
-                )
+                f"Found small backfill range (of size {retrigger_range} instead of {self._range_width})"
             )
 
 

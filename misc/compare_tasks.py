@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-""" Script to compare tasks from pushes on different Treeherder instances"""
+"""Script to compare tasks from pushes on different Treeherder instances"""
+
 import argparse
 import logging
 import pprint

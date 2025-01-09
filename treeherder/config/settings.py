@@ -365,9 +365,9 @@ CELERY_TASK_TIME_LIMIT = CELERY_TASK_SOFT_TIME_LIMIT + 30
 
 # Periodically publish runtime statistics on statsd (in minutes)
 CELERY_STATS_PUBLICATION_DELAY = 5
-assert (
-    0 < CELERY_STATS_PUBLICATION_DELAY < 60 and 60 % 10 == 0
-), "Celery task must be a valid cron delay in minutes"
+assert 0 < CELERY_STATS_PUBLICATION_DELAY < 60 and 60 % 10 == 0, (
+    "Celery task must be a valid cron delay in minutes"
+)
 
 CELERY_BEAT_SCHEDULE = {
     # this is just a failsafe in case the Pulse ingestion misses something

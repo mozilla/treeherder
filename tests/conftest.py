@@ -844,10 +844,7 @@ def mock_file_bugzilla_map_request(monkeypatch):
     import treeherder.etl.files_bugzilla_map
 
     def _fetch_data(self, project):
-        url = (
-            "https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2.%s.latest.source.source-bugzilla-info/artifacts/public/components.json"
-            % project
-        )
+        url = f"https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2.{project}.latest.source.source-bugzilla-info/artifacts/public/components.json"
         files_bugzilla_data = None
         file_name = f"files_bugzilla_map_{project}_{self.run_id}.json"
         exception = None
@@ -878,7 +875,7 @@ def mock_bugscache_bugzilla_request(monkeypatch):
 
     def _fetch_intermittent_bugs(additional_params, limit, duplicate_chain_length):
         tests_folder = os.path.dirname(__file__)
-        file_name = "run-%s.json" % str(duplicate_chain_length)
+        file_name = f"run-{str(duplicate_chain_length)}.json"
         data_path = os.path.join(tests_folder, "sample_data", "bugscache_population", file_name)
         with open(data_path) as f:
             bugzilla_data = json.load(f)
@@ -1204,7 +1201,7 @@ def group_data(transactional_db, eleven_job_blobs, create_jobs):
         job = eleven_job_blobs[i]
         job["job"].update(
             {
-                "taskcluster_task_id": "V3SVuxO8TFy37En_6HcXL%s" % i,
+                "taskcluster_task_id": f"V3SVuxO8TFy37En_6HcXL{i}",
                 "taskcluster_retry_id": "0",
                 "name": jt[i].name,
             }

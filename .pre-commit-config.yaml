@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.9.0.5
+    rev: v0.10.0.1
     hooks:
       - id: shellcheck
   - repo: https://github.com/pre-commit/mirrors-prettier
@@ -8,12 +8,12 @@ repos:
     hooks:
       - id: prettier
   - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.32.2
+    rev: v0.43.0
     hooks:
       - id: markdownlint
         args: [--fix]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.14
+    rev: v0.9.0
     hooks:
       - id: ruff
         args: [--fix, --show-fixes]

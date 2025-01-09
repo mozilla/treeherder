@@ -235,11 +235,11 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
 
         if not (signature_ids or signature_hashes or push_ids or job_ids):
             raise exceptions.ValidationError(
-                "Need to specify either " "signature_id, signatures, " "push_id, or job_id"
+                "Need to specify either signature_id, signatures, push_id, or job_id"
             )
         if signature_ids and signature_hashes:
             raise exceptions.ValidationError(
-                "Can't specify both signature_id " "and signatures in same query"
+                "Can't specify both signature_id and signatures in same query"
             )
 
         datums = PerformanceDatum.objects.filter(repository=repository).select_related(
@@ -553,7 +553,7 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
         data = request.data
         if "summary_id" not in data or "signature_id" not in data:
             return Response(
-                {"message": "Summary and signature ids necessary " "to create alert"},
+                {"message": "Summary and signature ids necessary to create alert"},
                 status=HTTP_400_BAD_REQUEST,
             )
 
@@ -1193,24 +1193,26 @@ class PerfCompareResults(generics.ListAPIView):
             highlighted_revisions_params.append((highlighted_revision_key, base_revision[:12]))
         highlighted_revisions_params.append((highlighted_revision_key, new_revision[:12]))
 
-        graph_link = "graphs?%s" % urlencode(highlighted_revisions_params)
+        encoded = urlencode(highlighted_revisions_params)
+        graph_link = f"graphs?{encoded}"
 
         if new_repo_name == base_repo_name:
             # if repo for base and new are not the same then make diff
             # series data one for each repo, else generate one
             repo_value = ",".join([new_repo_name, signature, "1", framework])
-            graph_link = graph_link + "&%s" % urlencode({series_key: repo_value})
+            encoded = urlencode({series_key: repo_value})
+            graph_link = f"{graph_link}&{encoded}"
         else:
             # if repos selected are not the same
             base_repo_value = ",".join([base_repo_name, signature, "1", framework])
             new_repo_value = ",".join([new_repo_name, signature, "1", framework])
             encoded = urlencode([(series_key, base_repo_value), (series_key, new_repo_value)])
+            graph_link = f"{graph_link}&{encoded}"
 
-            graph_link = graph_link + "&%s" % encoded
+        encoded = urlencode({time_range_key: time_range})
+        graph_link = f"{graph_link}&{encoded}"
 
-        graph_link = graph_link + "&%s" % urlencode({time_range_key: time_range})
-
-        return "https://treeherder.mozilla.org/perfherder/%s" % graph_link
+        return f"https://treeherder.mozilla.org/perfherder/{graph_link}"
 
     @staticmethod
     def _get_interval(base_push, new_push):

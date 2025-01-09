@@ -266,9 +266,7 @@ class Bugscache(models.Model):
         except ProgrammingError as e:
             newrelic.agent.notice_error()
             logger.error(
-                "Failed to execute FULLTEXT search on Bugscache, error={}, SQL={}".format(
-                    e, recent_qs.query.__str__()
-                )
+                f"Failed to execute FULLTEXT search on Bugscache, error={e}, SQL={recent_qs.query.__str__()}"
             )
             open_recent = []
             all_others = []
@@ -400,7 +398,6 @@ class FailureClassification(NamedModel):
 
 
 class ReferenceDataSignatures(models.Model):
-
     """
     A collection of all the possible combinations of reference data,
     populated on data ingestion. signature is a hash of the data it refers to
@@ -947,7 +944,7 @@ class FailureLine(models.Model):
 
     def _serialized_components(self):
         if self.action == "test_result":
-            return ["TEST-UNEXPECTED-%s" % self.status.upper(), self.test]
+            return [f"TEST-UNEXPECTED-{self.status.upper()}", self.test]
         if self.action == "log":
             return [self.level.upper(), self.message.split("\n")[0]]
 

@@ -219,7 +219,7 @@ def test_irrelevant_repos_data_removal(
     relevant_repository.save()
 
     # hack after changing tests.settings.TREEHERDER_TEST_REPOSITORY_NAME to be m-c
-    test_repository.name = "%s-test" % test_repository.name
+    test_repository.name = f"{test_repository.name}-test"
     test_repository.save()
 
     six_months_ago_timestamp = datetime.now() - timedelta(days=(6 * 30))
@@ -310,12 +310,12 @@ def test_total_emails_sent(
     for n in range(0, total_signatures):
         PerformanceSignature.objects.create(
             repository=test_perf_signature.repository,
-            signature_hash=(20 * ("t%s" % n)),
+            signature_hash=(20 * (f"t{n}")),
             framework=test_perf_signature.framework,
             platform=test_perf_signature.platform,
             option_collection=test_perf_signature.option_collection,
-            suite="mysuite%s" % n,
-            test="mytest%s" % n,
+            suite=f"mysuite{n}",
+            test=f"mytest{n}",
             application="firefox",
             has_subtests=test_perf_signature.has_subtests,
             extra_options=test_perf_signature.extra_options,
@@ -325,12 +325,12 @@ def test_total_emails_sent(
     for n in range(0, 10):
         PerformanceSignature.objects.create(
             repository=try_repository,
-            signature_hash=(20 * ("e%s" % n)),
+            signature_hash=(20 * (f"e{n}")),
             framework=test_perf_signature.framework,
             platform=test_perf_signature.platform,
             option_collection=test_perf_signature.option_collection,
-            suite="mysuite%s" % n,
-            test="mytest%s" % n,
+            suite=f"mysuite{n}",
+            test=f"mytest{n}",
             application="firefox",
             has_subtests=test_perf_signature.has_subtests,
             extra_options=test_perf_signature.extra_options,

@@ -100,7 +100,7 @@ def test_create_note(client, test_job, test_user, test_no_auth):
         assert resp.status_code == 200
 
         content = json.loads(resp.content)
-        assert content["message"] == "note stored for job %s" % test_job.id
+        assert content["message"] == f"note stored for job {test_job.id}"
 
         note_list = JobNote.objects.filter(job=test_job)
 

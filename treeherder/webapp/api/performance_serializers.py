@@ -185,17 +185,13 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
                 and instance.summary.repository_id != related_summary.repository_id
             ):
                 raise exceptions.ValidationError(
-                    "New summary's repository ({}) does not match existing "
-                    "summary's repository ({})".format(
-                        related_summary.repository, instance.summary.framework
-                    )
+                    f"New summary's repository ({related_summary.repository}) does not match existing "
+                    f"summary's repository ({instance.summary.framework})"
                 )
             elif instance.summary.framework_id != related_summary.framework_id:
                 raise exceptions.ValidationError(
-                    "New summary's framework ({}) does not match existing "
-                    "summary's framework ({})".format(
-                        related_summary.framework, instance.summary.framework
-                    )
+                    f"New summary's framework ({related_summary.framework}) does not match existing "
+                    f"summary's framework ({instance.summary.framework})"
                 )
 
             status = validated_data.get("status")
