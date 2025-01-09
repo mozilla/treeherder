@@ -57,6 +57,7 @@ class Commenter:
         with open("treeherder/intermittents_commenter/comment.template") as template_file:
             template = Template(template_file.read())
 
+        top_bugs = []
         if self.weekly_mode:
             top_bugs = [
                 bug[0]
