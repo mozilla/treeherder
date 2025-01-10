@@ -24,6 +24,9 @@ from treeherder.webapp.api.utils import REPO_GROUPS, to_timestamp
 
 logger = logging.getLogger(__name__)
 
+# Wait for a bug to be reported multiple times until suggesting to open or reopen a bug on Bugzilla
+MIN_BUG_OCCURENCES = 3
+
 
 class FailuresQuerySet(models.QuerySet):
     def by_bug(self, bug_id):
@@ -209,7 +212,12 @@ class MachinePlatform(models.Model):
 
 
 class Bugscache(models.Model):
-    id = models.PositiveIntegerField(primary_key=True)
+    id = models.BigAutoField(primary_key=True)
+
+    # Optional reference towards a bug in Bugzilla, once is has been reported more than MIN_BUG_OCCURENCES
+    bugzilla_id = models.PositiveIntegerField(null=True, blank=True)
+    occurences = models.PositiveIntegerField(default=1)
+
     status = models.CharField(max_length=64, db_index=True)
     resolution = models.CharField(max_length=64, blank=True, db_index=True)
     # Is covered by a FULLTEXT index created via a migrations RunSQL operation.
