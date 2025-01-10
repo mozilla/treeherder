@@ -15,6 +15,9 @@ if [[ -v NEW_RELIC_CONFIG_FILE ]]; then
     PRE_COMMAND="newrelic-admin run-program"
 fi
 
+echo "-----> PRE-DEPLOY: Creating DB cache table..."
+$PRE_COMMAND ./manage.py createcachetable
+
 echo "-----> PRE-DEPLOY: Running Django migration..."
 $PRE_COMMAND ./manage.py migrate --noinput
 
