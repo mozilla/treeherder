@@ -245,6 +245,14 @@ class Bugscache(models.Model):
     def __str__(self):
         return f"{self.id}"
 
+    def serialize(self):
+        exclude_fields = ["modified", "processed_update"]
+
+        attrs = model_to_dict(self, exclude=exclude_fields)
+        # Serialize bug ID as the bugzilla number for compatibility reasons
+        attrs["id"] = attrs.pop("bugzilla_id")
+        return attrs
+
     @classmethod
     def search(cls, search_term):
         max_size = 50
@@ -261,11 +269,8 @@ class Bugscache(models.Model):
             .order_by("-similarity")[0:max_size]
         )
 
-        exclude_fields = ["modified", "processed_update"]
         try:
-            open_recent_match_string = [
-                model_to_dict(item, exclude=exclude_fields) for item in recent_qs
-            ]
+            open_recent_match_string = [item.serialize() for item in recent_qs]
             all_data = [
                 match
                 for match in open_recent_match_string
