@@ -1108,7 +1108,7 @@ class ClassifiedFailure(models.Model):
     def bug(self):
         # Putting this here forces one query per object; there should be a way
         # to make things more efficient
-        return Bugscache.objects.filter(id=self.bug_number).first()
+        return Bugscache.objects.filter(bugzilla_id=self.bug_number).first()
 
     def set_bug(self, bug_number):
         """
