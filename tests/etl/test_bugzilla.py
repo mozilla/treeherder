@@ -51,7 +51,7 @@ def test_bz_reopen_bugs(
     ]:
         submit_obj = {
             "job_id": test_jobs[idx].id,
-            "bug_id": bug.id,
+            "bug_id": bug.bugzilla_id,
             "type": "manual",
             "bug_open": False,
         }
@@ -68,10 +68,14 @@ def test_bz_reopen_bugs(
     # always closed
     # as we only reopen a single instance of a bug, we choose the most recent instance
     # since the reopen code queries and then `.order_by("-created")`
-    bug_job_map = BugJobMap.objects.filter(job_id=test_jobs[4].id, bug_id=incomplete_bugs[0].id)[0]
+    bug_job_map = BugJobMap.objects.filter(
+        job_id=test_jobs[4].id, bug_id=incomplete_bugs[0].bugzilla_id
+    )[0]
     assert bug_job_map.bug_open is False
 
-    bug_job_map = BugJobMap.objects.filter(job_id=test_jobs[3].id, bug_id=incomplete_bugs[2].id)[0]
+    bug_job_map = BugJobMap.objects.filter(
+        job_id=test_jobs[3].id, bug_id=incomplete_bugs[2].bugzilla_id
+    )[0]
     assert bug_job_map.bug_open is False
 
     process = BzApiBugProcess()
@@ -79,10 +83,14 @@ def test_bz_reopen_bugs(
     process.run()
 
     # reopens based on minimum_failures_to_reopen
-    bug_job_map = BugJobMap.objects.filter(job_id=test_jobs[4].id, bug_id=incomplete_bugs[0].id)[0]
+    bug_job_map = BugJobMap.objects.filter(
+        job_id=test_jobs[4].id, bug_id=incomplete_bugs[0].bugzilla_id
+    )[0]
     assert bug_job_map.bug_open is True
 
-    bug_job_map = BugJobMap.objects.filter(job_id=test_jobs[3].id, bug_id=incomplete_bugs[2].id)[0]
+    bug_job_map = BugJobMap.objects.filter(
+        job_id=test_jobs[3].id, bug_id=incomplete_bugs[2].bugzilla_id
+    )[0]
     if minimum_failures_to_reopen < 3:
         assert bug_job_map.bug_open is True
     else:
