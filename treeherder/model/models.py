@@ -5,8 +5,6 @@ import time
 import warnings
 from hashlib import sha1
 
-warnings.filterwarnings("ignore", category=DeprecationWarning, module="newrelic")
-
 import newrelic.agent
 from django.contrib.auth.models import User
 from django.contrib.postgres.search import TrigramSimilarity
@@ -20,6 +18,8 @@ from django.forms import model_to_dict
 from django.utils import timezone
 
 from treeherder.webapp.api.utils import REPO_GROUPS, to_timestamp
+
+warnings.filterwarnings("ignore", category=DeprecationWarning, module="newrelic")
 
 logger = logging.getLogger(__name__)
 
