@@ -1,13 +1,13 @@
 import logging
-import numpy as np
 import time
 from collections import namedtuple
 from datetime import datetime
 
+import moz_measure_noise
 import newrelic.agent
+import numpy as np
 from django.conf import settings
 from django.db import transaction
-import moz_measure_noise
 
 from treeherder.perf.models import (
     PerformanceAlert,

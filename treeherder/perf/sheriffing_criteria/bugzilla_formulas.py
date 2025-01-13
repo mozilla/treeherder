@@ -1,13 +1,13 @@
 from abc import ABC, abstractmethod
 from copy import deepcopy
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 
 import requests
 from django.conf import settings
 from requests import Session
 
 from treeherder.config.settings import BZ_DATETIME_FORMAT
-from treeherder.perf.exceptions import NoFiledBugsError, BugzillaEndpointError
+from treeherder.perf.exceptions import BugzillaEndpointError, NoFiledBugsError
 from treeherder.perf.models import PerformanceAlert
 
 # Google Doc specification

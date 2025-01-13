@@ -7,15 +7,19 @@ import simplejson as json
 import taskcluster
 from freezegun import freeze_time
 
-from tests.conftest import SampleDataJSONLoader, create_perf_signature, create_perf_alert
-from treeherder.model.models import MachinePlatform, Job, JobGroup, JobType
+from tests.conftest import (
+    SampleDataJSONLoader,
+    create_perf_alert,
+    create_perf_signature,
+)
+from treeherder.model.models import Job, JobGroup, JobType, MachinePlatform
 from treeherder.perf.auto_perf_sheriffing.secretary import Secretary
 from treeherder.perf.models import (
-    BackfillReport,
     BackfillRecord,
+    BackfillReport,
+    PerformanceAlert,
     PerformanceSettings,
     PerformanceSignature,
-    PerformanceAlert,
 )
 
 # For testing Sherlock

@@ -1,6 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 
 from django.db import OperationalError, connection
 from django.db.backends.utils import CursorWrapper
@@ -8,23 +8,24 @@ from django.db.models import Count
 
 from treeherder.model.data_cycling.removal_strategies import RemovalStrategy
 from treeherder.model.models import (
-    Job,
-    JobType,
-    JobGroup,
-    Machine,
+    BuildPlatform,
     Group,
     GroupStatus,
-    BuildPlatform,
+    Job,
+    JobGroup,
+    JobType,
+    Machine,
     MachinePlatform,
 )
-from treeherder.perf.exceptions import NoDataCyclingAtAllError, MaxRuntimeExceededError
+from treeherder.perf.exceptions import MaxRuntimeExceededError, NoDataCyclingAtAllError
 from treeherder.perf.models import (
-    PerformanceSignature,
-    PerformanceAlertSummary,
-    PerformanceAlert,
     BackfillReport,
+    PerformanceAlert,
+    PerformanceAlertSummary,
+    PerformanceSignature,
 )
 from treeherder.services import taskcluster
+
 from .max_runtime import MaxRuntime
 from .signature_remover import PublicSignatureRemover
 from .utils import has_valid_explicit_days

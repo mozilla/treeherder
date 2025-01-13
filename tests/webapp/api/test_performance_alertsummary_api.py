@@ -6,7 +6,7 @@ from django.urls import reverse
 
 from tests.conftest import create_perf_alert
 from treeherder.model.models import Push
-from treeherder.perf.models import PerformanceAlertSummary, PerformanceAlert
+from treeherder.perf.models import PerformanceAlert, PerformanceAlertSummary
 
 
 @pytest.fixture

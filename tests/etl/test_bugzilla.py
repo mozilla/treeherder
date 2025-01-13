@@ -1,9 +1,8 @@
 import pytest
-
 from django.urls import reverse
 
 from treeherder.etl.bugzilla import BzApiBugProcess
-from treeherder.model.models import Bugscache, BugJobMap
+from treeherder.model.models import BugJobMap, Bugscache
 
 
 @pytest.mark.django_db(transaction=True)

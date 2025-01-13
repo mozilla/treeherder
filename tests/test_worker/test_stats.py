@@ -1,9 +1,11 @@
-import pytest
-from unittest.mock import patch, MagicMock, call
-from treeherder.workers.stats import publish_stats
-from treeherder.model.models import Push, Job
-from django.utils import timezone
 from datetime import timedelta
+from unittest.mock import MagicMock, call, patch
+
+import pytest
+from django.utils import timezone
+
+from treeherder.model.models import Job, Push
+from treeherder.workers.stats import publish_stats
 
 
 @pytest.mark.django_db

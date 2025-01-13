@@ -6,7 +6,6 @@ import pprint
 import uuid
 
 import slugid
-
 from deepdiff import DeepDiff
 from thclient import TreeherderClient
 

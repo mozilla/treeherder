@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 
-from treeherder.perf.utils import calculate_time_to, BUG_DAYS
+from treeherder.perf.utils import BUG_DAYS, calculate_time_to
 
 
 def update_summary_bug_due_date(apps, schema_editor):

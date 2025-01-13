@@ -19,7 +19,7 @@ from treeherder.perf.models import (
     PerformanceTag,
     Push,
 )
-from treeherder.webapp.api.utils import to_timestamp, FIVE_DAYS
+from treeherder.webapp.api.utils import FIVE_DAYS, to_timestamp
 
 
 def get_tc_metadata(alert, push):

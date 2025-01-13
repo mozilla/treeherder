@@ -1,9 +1,9 @@
 from django.db import IntegrityError
-from rest_framework import viewsets, status
+from rest_framework import status, viewsets
 from rest_framework.response import Response
-from rest_framework.status import HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
-from treeherder.model.models import JobType, Push, Repository, InvestigatedTests
+from treeherder.model.models import InvestigatedTests, JobType, Push, Repository
 from treeherder.webapp.api.serializers import InvestigatedTestsSerializers
 
 

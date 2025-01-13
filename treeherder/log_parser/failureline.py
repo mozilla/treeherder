@@ -1,16 +1,16 @@
-from collections import defaultdict
 import json
 import logging
+from collections import defaultdict
 from itertools import islice
 
 import newrelic.agent
 from django.conf import settings
 from django.db import transaction
-from django.db.utils import IntegrityError, OperationalError, DataError
+from django.db.utils import DataError, IntegrityError, OperationalError
 from requests.exceptions import HTTPError
 
 from treeherder.etl.text import astral_filter
-from treeherder.model.models import FailureLine, Group, JobLog, GroupStatus
+from treeherder.model.models import FailureLine, Group, GroupStatus, JobLog
 from treeherder.utils.http import fetch_text
 
 logger = logging.getLogger(__name__)

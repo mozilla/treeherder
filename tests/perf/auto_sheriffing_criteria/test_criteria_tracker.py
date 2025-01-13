@@ -4,21 +4,21 @@ from contextlib import contextmanager
 from dataclasses import replace
 from datetime import timedelta
 from itertools import chain
-from unittest.mock import MagicMock
-from dateutil.parser import parse as dateutil_parse
 from multiprocessing.pool import AsyncResult
+from unittest.mock import MagicMock
 
 import pytest
+from dateutil.parser import parse as dateutil_parse
 from freezegun import freeze_time
 
 from tests.perf.auto_sheriffing_criteria.conftest import CASSETTES_RECORDING_DATE
 from treeherder.perf.exceptions import NoFiledBugsError
 from treeherder.perf.sheriffing_criteria import (
+    CriteriaRecord,
     CriteriaTracker,
     EngineerTractionFormula,
     FixRatioFormula,
     RecordComputer,
-    CriteriaRecord,
     TotalAlertsFormula,
 )
 from treeherder.perf.sheriffing_criteria.criteria_tracking import ResultsChecker

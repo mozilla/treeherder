@@ -6,11 +6,11 @@ from django.conf import settings
 from requests.exceptions import HTTPError
 
 from treeherder.log_parser.failureline import (
+    get_group_results,
     store_failure_lines,
     write_failure_lines,
-    get_group_results,
 )
-from treeherder.model.models import FailureLine, Group, JobLog, GroupStatus
+from treeherder.model.models import FailureLine, Group, GroupStatus, JobLog
 
 from ..sampledata import SampleData
 

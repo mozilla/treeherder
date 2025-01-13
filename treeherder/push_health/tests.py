@@ -7,10 +7,21 @@ from collections import defaultdict
 from django.core.cache import cache
 from django.db.models import Q
 
-from treeherder.model.models import FailureLine, Job, OptionCollection, InvestigatedTests, JobType
+from treeherder.model.models import (
+    FailureLine,
+    InvestigatedTests,
+    Job,
+    JobType,
+    OptionCollection,
+)
 from treeherder.push_health.classification import get_grouped, set_classifications
 from treeherder.push_health.filter import filter_failure
-from treeherder.push_health.utils import clean_config, clean_platform, clean_test, job_to_dict
+from treeherder.push_health.utils import (
+    clean_config,
+    clean_platform,
+    clean_test,
+    job_to_dict,
+)
 from treeherder.webapp.api.utils import REPO_GROUPS
 
 logger = logging.getLogger(__name__)

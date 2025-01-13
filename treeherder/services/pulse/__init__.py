@@ -1,8 +1,8 @@
 from .consumers import (
     JointConsumer,
+    MozciClassificationConsumer,
     PushConsumer,
     TaskConsumer,
-    MozciClassificationConsumer,
     prepare_consumers,
     prepare_joint_consumers,
 )
@@ -14,5 +14,4 @@ __all__ = [
     "MozciClassificationConsumer",
     "prepare_consumers",
     "prepare_joint_consumers",
-    "pulse_conn",
 ]

@@ -1,6 +1,6 @@
-from requests.models import Response
 import pytest
 import responses
+from requests.models import Response
 
 from treeherder.utils.taskcluster import download_artifact
 

@@ -1,31 +1,32 @@
 import math
 from datetime import datetime, timedelta
-from unittest.mock import MagicMock
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 from django.core.management import call_command
-from django.db import connection, IntegrityError
+from django.db import IntegrityError, connection
 
-from treeherder.model.data_cycling import MaxRuntime
-from treeherder.model.data_cycling import PerfherderCycler
-from treeherder.model.data_cycling import PublicSignatureRemover
+from treeherder.model.data_cycling import (
+    MaxRuntime,
+    PerfherderCycler,
+    PublicSignatureRemover,
+)
 from treeherder.model.data_cycling.removal_strategies import (
-    MainRemovalStrategy,
-    TryDataRemoval,
     IrrelevantDataRemoval,
+    MainRemovalStrategy,
     StalledDataRemoval,
+    TryDataRemoval,
 )
 from treeherder.model.models import Push
 from treeherder.perf.exceptions import MaxRuntimeExceededError
 from treeherder.perf.models import (
+    BackfillReport,
+    MultiCommitDatum,
+    PerformanceAlert,
+    PerformanceAlertSummary,
     PerformanceDatum,
     PerformanceDatumReplicate,
     PerformanceSignature,
-    PerformanceAlertSummary,
-    PerformanceAlert,
-    MultiCommitDatum,
-    BackfillReport,
 )
 
 

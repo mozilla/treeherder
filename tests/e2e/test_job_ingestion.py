@@ -2,7 +2,6 @@ from unittest.mock import MagicMock
 
 from tests.test_utils import add_log_response
 from treeherder.etl.jobs import store_job_data
-
 from treeherder.model.error_summary import get_error_summary
 from treeherder.model.models import Job, JobLog, TextLogError
 

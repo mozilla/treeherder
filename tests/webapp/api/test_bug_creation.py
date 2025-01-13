@@ -2,7 +2,6 @@ from django.urls import reverse
 
 from treeherder.model.models import BugzillaComponent, FilesBugzillaMap
 
-
 # @pytest.mark.parametrize(
 #     ('offset', 'count', 'expected_num'),
 #     [(None, None, 10), (None, 5, 5), (5, None, 6), (0, 5, 5), (10, 10, 1)],

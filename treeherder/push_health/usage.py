@@ -1,7 +1,7 @@
 import logging
 
 from treeherder.config import settings
-from treeherder.model.models import Push, Job
+from treeherder.model.models import Job, Push
 from treeherder.push_health.classification import NEED_INVESTIGATION
 from treeherder.utils.http import make_request
 from treeherder.webapp.api.serializers import PushSerializer

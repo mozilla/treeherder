@@ -2,7 +2,7 @@
 On large tables or production environment, it is recommanded to use an external tool (e.g. pt-osc)
 to update the column and fake this migration. Migration perf.0045 will restore a valid django's schema.
 """
-from django.db import migrations, connection
+from django.db import connection, migrations
 
 
 def alter_perfdatum_pk(apps, schema_editor):

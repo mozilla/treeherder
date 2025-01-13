@@ -1,7 +1,11 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.db import connection, transaction
 
-from treeherder.perf.models import PerformanceAlert, PerformanceDatum, PerformanceSignature
+from treeherder.perf.models import (
+    PerformanceAlert,
+    PerformanceDatum,
+    PerformanceSignature,
+)
 
 RAPTOR_TP6_SUBTESTS = "raptor-tp6-subtests"
 USE_CASES = [RAPTOR_TP6_SUBTESTS]

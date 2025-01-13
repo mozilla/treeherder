@@ -4,10 +4,10 @@ from django.core.management.base import BaseCommand
 
 from treeherder.model.models import OptionCollection
 from treeherder.push_health.tests import (
+    CACHE_KEY_ROOT,
     fixed_by_commit_history_days,
     get_history,
     intermittent_history_days,
-    CACHE_KEY_ROOT,
 )
 from treeherder.webapp.api.utils import REPO_GROUPS
 

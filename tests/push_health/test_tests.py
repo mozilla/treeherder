@@ -1,7 +1,12 @@
 import pytest
 
 from treeherder.model.models import FailureLine, Job, Repository
-from treeherder.push_health.tests import get_test_failures, get_test_failure_jobs, has_job, has_line
+from treeherder.push_health.tests import (
+    get_test_failure_jobs,
+    get_test_failures,
+    has_job,
+    has_line,
+)
 
 
 @pytest.mark.parametrize(("find_it",), [(True,), (False,)])

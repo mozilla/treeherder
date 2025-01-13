@@ -1,14 +1,10 @@
-import random
 import datetime
+import random
 
 from treeherder.perf.auto_perf_sheriffing.backfill_reports import (
     BackfillReportMaintainer,
 )
-from treeherder.perf.models import (
-    BackfillRecord,
-    BackfillReport,
-    PerformanceAlert,
-)
+from treeherder.perf.models import BackfillRecord, BackfillReport, PerformanceAlert
 
 EPOCH = datetime.datetime.utcfromtimestamp(0)
 

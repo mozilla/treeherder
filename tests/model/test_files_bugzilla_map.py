@@ -1,7 +1,7 @@
 import pytest
 
-from treeherder.model.models import BugzillaComponent, FilesBugzillaMap, Repository
 from treeherder.etl.files_bugzilla_map import FilesBugzillaMapProcess
+from treeherder.model.models import BugzillaComponent, FilesBugzillaMap, Repository
 
 EXPECTED_PROJECTS = [
     "mozilla-central",

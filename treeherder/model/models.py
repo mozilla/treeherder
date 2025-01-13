@@ -2,25 +2,24 @@ import datetime
 import itertools
 import logging
 import time
-from hashlib import sha1
-
 import warnings
-
-warnings.filterwarnings("ignore", category=DeprecationWarning, module="newrelic")
+from hashlib import sha1
 
 import newrelic.agent
 from django.contrib.auth.models import User
+from django.contrib.postgres.search import TrigramSimilarity
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MinLengthValidator
 from django.db import models, transaction
 from django.db.models import Count, Max, Min, Q, Subquery
-from django.contrib.postgres.search import TrigramSimilarity
 from django.db.utils import ProgrammingError
 from django.forms import model_to_dict
 from django.utils import timezone
 
 from treeherder.webapp.api.utils import REPO_GROUPS, to_timestamp
+
+warnings.filterwarnings("ignore", category=DeprecationWarning, module="newrelic")
 
 logger = logging.getLogger(__name__)
 

@@ -7,11 +7,17 @@ from django.conf import settings
 from django.db.models import QuerySet
 from taskcluster.helper import TaskclusterConfig
 
-from treeherder.perf.auto_perf_sheriffing.backfill_reports import BackfillReportMaintainer
+from treeherder.perf.auto_perf_sheriffing.backfill_reports import (
+    BackfillReportMaintainer,
+)
 from treeherder.perf.auto_perf_sheriffing.backfill_tool import BackfillTool
 from treeherder.perf.auto_perf_sheriffing.secretary import Secretary
 from treeherder.perf.exceptions import CannotBackfillError, MaxRuntimeExceededError
-from treeherder.perf.models import BackfillRecord, BackfillReport, BackfillNotificationRecord
+from treeherder.perf.models import (
+    BackfillNotificationRecord,
+    BackfillRecord,
+    BackfillReport,
+)
 
 logger = logging.getLogger(__name__)
 

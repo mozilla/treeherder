@@ -1,8 +1,8 @@
 from django.conf import settings
 from django.urls import include, re_path
+from django.views.generic.base import TemplateView
 
 from treeherder.webapp.api import urls as api_urls
-from django.views.generic.base import TemplateView
 
 urlpatterns = []
 # The order is important for the debug toolbar; it needs to be first

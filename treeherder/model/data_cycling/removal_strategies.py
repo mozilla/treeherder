@@ -2,13 +2,14 @@ from __future__ import annotations
 
 import logging
 from abc import ABC, abstractmethod
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 from itertools import cycle
 
 from django.db.backends.utils import CursorWrapper
 
 from treeherder.model.models import Repository
 from treeherder.perf.models import PerformanceDatum, PerformanceSignature
+
 from .utils import has_valid_explicit_days
 
 logger = logging.getLogger(__name__)
