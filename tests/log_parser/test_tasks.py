@@ -91,7 +91,8 @@ def test_bug_suggestion_line(
     job = Job.objects.get(id=1)
 
     Bugscache.objects.create(
-        id=1775819,
+        bugzilla_id=1775819,
+        occurences=1,
         status="2",
         keywords="intermittent-failure,regression,test-verify-fail",
         whiteboard="[retriggered][stockwell unknown]",
@@ -108,7 +109,8 @@ def test_bug_suggestion_line(
     Bugscache.objects.bulk_create(
         [
             Bugscache(
-                id=100 + i,
+                bugzilla_id=100 + i,
+                occurences=1,
                 status="2",
                 keywords="intermittent-failure,intermittent-testcase",
                 summary=(
@@ -135,6 +137,7 @@ def test_bug_suggestion_line(
             "crash_signature": "",
             "dupe_of": None,
             "id": 1775819,
+            "occurences": 1,
             "keywords": "intermittent-failure,regression,test-verify-fail",
             "resolution": "",
             "status": "2",
