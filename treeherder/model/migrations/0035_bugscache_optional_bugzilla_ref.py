@@ -34,4 +34,12 @@ class Migration(migrations.Migration):
             name="id",
             field=models.BigAutoField(primary_key=True, serialize=False),
         ),
+        migrations.AddConstraint(
+            model_name="bugscache",
+            constraint=models.UniqueConstraint(
+                condition=models.Q(("bugzilla_id__isnull", False)),
+                fields=("bugzilla_id",),
+                name="unique_bugzilla_id",
+            ),
+        ),
     ]

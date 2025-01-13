@@ -235,6 +235,13 @@ class Bugscache(models.Model):
         indexes = [
             models.Index(fields=["summary"]),
         ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["bugzilla_id"],
+                name="unique_bugzilla_id",
+                condition=Q(bugzilla_id__isnull=False),
+            )
+        ]
 
     def __str__(self):
         return f"{self.id}"
