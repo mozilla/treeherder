@@ -23,7 +23,9 @@ def reopen_intermittent_bugs(minimum_failures_to_reopen=1):
         return
 
     incomplete_bugs = set(
-        Bugscache.objects.filter(resolution="INCOMPLETE").values_list("id", flat=True)
+        Bugscache.objects.filter(resolution="INCOMPLETE", bugzilla_id__isnull=False).values_list(
+            "bugzilla_id", flat=True
+        )
     )
     # Intermittent bugs get closed after 3 weeks of inactivity if other conditions don't apply:
     # https://github.com/mozilla/relman-auto-nag/blob/c7439e247677333c1cd8c435234b3ef3adc49680/auto_nag/scripts/close_intermittents.py#L17
@@ -102,7 +104,10 @@ class BzApiBugProcess:
     def run(self):
         year_ago = datetime.utcnow() - timedelta(days=365)
         last_change_time_max = (
-            Bugscache.objects.all().aggregate(Max("modified"))["modified__max"] or None
+            Bugscache.objects.filter(bugzilla_id__isnull=False).aggregate(Max("modified"))[
+                "modified__max"
+            ]
+            or None
         )
         if last_change_time_max:
             last_change_time_max -= timedelta(minutes=10)
@@ -143,7 +148,9 @@ class BzApiBugProcess:
                 bugs_to_process = list(
                     bugs_to_process
                     - set(
-                        Bugscache.objects.filter(processed_update=True).values_list("id", flat=True)
+                        Bugscache.objects.filter(
+                            processed_update=True, bugzilla_id__isnull=False
+                        ).values_list("bugzilla_id", flat=True)
                     )
                 )
                 if len(bugs_to_process) == 0:
@@ -186,8 +193,12 @@ class BzApiBugProcess:
 
             if bug_list:
                 if duplicate_chain_length == 0:
-                    Bugscache.objects.filter(modified__lt=year_ago).delete()
-                    Bugscache.objects.all().update(processed_update=False)
+                    Bugscache.objects.filter(
+                        modified__lt=year_ago, bugzilla_id__isnull=False
+                    ).delete()
+                    Bugscache.objects.filter(bugzilla_id__isnull=False).update(
+                        processed_update=False
+                    )
 
                 for bug in bug_list:
                     # we currently don't support timezones in treeherder, so
@@ -196,7 +207,7 @@ class BzApiBugProcess:
                     try:
                         dupe_of = bug.get("dupe_of", None)
                         Bugscache.objects.update_or_create(
-                            id=bug["id"],
+                            bugzilla_id=bug["id"],
                             defaults={
                                 "status": bug.get("status", ""),
                                 "resolution": bug.get("resolution", ""),
@@ -243,7 +254,9 @@ class BzApiBugProcess:
                     BugJobMap.objects.all().values_list("bug_id", flat=True)
                 )
             bugs_to_process = bugs_to_process_next - set(
-                Bugscache.objects.filter(processed_update=True).values_list("id", flat=True)
+                Bugscache.objects.filter(processed_update=True).values_list(
+                    "bugzilla_id", flat=True
+                )
             )
             if duplicate_chain_length == 5 and len(bugs_to_process):
                 logger.warn(
@@ -258,7 +271,9 @@ class BzApiBugProcess:
                 bugs_to_process_next = duplicates_to_check
                 duplicates_to_check = set()
                 bugs_to_process = bugs_to_process_next - set(
-                    Bugscache.objects.filter(processed_update=True).values_list("id", flat=True)
+                    Bugscache.objects.filter(
+                        processed_update=True, bugzilla_id__isnull=False
+                    ).values_list("bugzilla_id", flat=True)
                 )
                 if len(bugs_to_process) == 0:
                     break
@@ -273,22 +288,24 @@ class BzApiBugProcess:
         # from getting dropped - they are still needed to match the failure line
         # against the bug summary.
         for bug_duplicate, bug_openish in duplicates_to_bugs.items():
-            bug_openish_object = Bugscache.objects.filter(id=bug_openish)
+            bug_openish_object = Bugscache.objects.filter(bugzilla_id=bug_openish)
             if len(bug_openish_object) == 0:
                 # Script does not have access to open bug but to duplicate
                 continue
-            Bugscache.objects.filter(id=bug_duplicate).update(
+            Bugscache.objects.filter(bugzilla_id=bug_duplicate).update(
                 dupe_of=bug_openish, modified=bug_openish_object[0].modified
             )
 
         # Switch classifications from duplicate bugs to open ones.
         duplicates_db = set(
-            Bugscache.objects.filter(dupe_of__isnull=False).values_list("id", flat=True)
+            Bugscache.objects.filter(dupe_of__isnull=False, bugzilla_id__isnull=False).values_list(
+                "bugzilla_id", flat=True
+            )
         )
         bugs_used = set(BugJobMap.objects.all().values_list("bug_id", flat=True))
         duplicates_used = duplicates_db & bugs_used
         for bug_id in duplicates_used:
-            dupe_of = Bugscache.objects.get(id=bug_id).dupe_of
+            dupe_of = Bugscache.objects.get(bugzilla_id=bug_id).dupe_of
             # Jobs both already classified with new duplicate and its open bug.
             jobs_openish = list(
                 BugJobMap.objects.filter(bug_id=dupe_of).values_list("job_id", flat=True)
@@ -298,7 +315,7 @@ class BzApiBugProcess:
 
         # Delete open bugs and related duplicates if modification date (of open
         # bug) is too old.
-        Bugscache.objects.filter(modified__lt=year_ago).delete()
+        Bugscache.objects.filter(modified__lt=year_ago, bugzilla_id__isnull=False).delete()
 
         if insert_errors_observed:
             logger.error(
@@ -307,8 +324,8 @@ class BzApiBugProcess:
             # Move modification date of bugs inserted/updated during this
             # run back to attempt to ingest bug data which failed during
             # this insert/update in the next run.
-            Bugscache.objects.filter(modified__gt=last_change_time_max).update(
-                modified=last_change_time_max
-            )
+            Bugscache.objects.filter(
+                modified__gt=last_change_time_max, bugzilla_id__isnull=False
+            ).update(modified=last_change_time_max)
 
         reopen_intermittent_bugs(self.minimum_failures_to_reopen)
