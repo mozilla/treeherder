@@ -1946,5 +1946,21 @@
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
+  },
+  {
+    "pk": 138,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "git",
+      "name": "staging-firefox-ios",
+      "url": "https://github.com/mozilla-mobile/staging-firefox-ios",
+      "branch": "main",
+      "active_status": "active",
+      "codebase": "firefox-ios",
+      "repository_group": 11,
+      "performance_alerts_enabled": false,
+      "expire_performance_data": false,
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
+    }
   }
 ]
