@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name="bugscache",
-            name="occurences",
+            name="occurrences",
             field=models.PositiveIntegerField(default=1),
         ),
         migrations.AlterField(
