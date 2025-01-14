@@ -23,9 +23,6 @@ warnings.filterwarnings("ignore", category=DeprecationWarning, module="newrelic"
 
 logger = logging.getLogger(__name__)
 
-# Wait for a bug to be reported multiple times until suggesting to open or reopen a bug on Bugzilla
-MIN_BUG_OCCURENCES = 3
-
 
 class FailuresQuerySet(models.QuerySet):
     def by_bug(self, bug_id):
@@ -215,7 +212,7 @@ class Bugscache(models.Model):
 
     # Optional reference towards a bug in Bugzilla, once is has been reported more than MIN_BUG_OCCURENCES
     bugzilla_id = models.PositiveIntegerField(null=True, blank=True)
-    occurences = models.PositiveIntegerField(default=1)
+    occurrences = models.PositiveIntegerField(default=1)
 
     status = models.CharField(max_length=64, db_index=True)
     resolution = models.CharField(max_length=64, blank=True, db_index=True)
