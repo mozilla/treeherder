@@ -205,7 +205,7 @@ class CommitHistory extends React.PureComponent {
 
 CommitHistory.propTypes = {
   history: PropTypes.shape({
-    parentRepository: PropTypes.object,
+    parentRepository: PropTypes.shape({}).isRequired,
     revisionCount: PropTypes.number.isRequired,
     parentPushRevision: PropTypes.string,
     job_counts: PropTypes.shape({

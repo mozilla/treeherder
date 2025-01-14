@@ -258,10 +258,10 @@ class ActiveFilters extends React.Component {
 
 ActiveFilters.propTypes = {
   filterModel: PropTypes.shape({}).isRequired,
-  filterBarFilters: PropTypes.arrayOf(PropTypes.object).isRequired,
+  filterBarFilters: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   isFieldFilterVisible: PropTypes.bool.isRequired,
   toggleFieldFilterVisible: PropTypes.func.isRequired,
-  classificationTypes: PropTypes.arrayOf(PropTypes.object).isRequired,
+  classificationTypes: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   router: PropTypes.shape({}).isRequired,
   clearSelectedJob: PropTypes.func.isRequired,
 };

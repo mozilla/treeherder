@@ -79,7 +79,7 @@ class Action extends PureComponent {
 
 Action.propTypes = {
   name: PropTypes.string.isRequired,
-  tests: PropTypes.arrayOf(PropTypes.object).isRequired,
+  tests: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   groupedBy: PropTypes.string.isRequired,
   orderedBy: PropTypes.string.isRequired,
   revision: PropTypes.string.isRequired,

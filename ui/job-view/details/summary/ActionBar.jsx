@@ -543,7 +543,7 @@ ActionBar.propTypes = {
   selectedJobFull: PropTypes.shape({}).isRequired,
   logParseStatus: PropTypes.string.isRequired,
   notify: PropTypes.func.isRequired,
-  jobLogUrls: PropTypes.arrayOf(PropTypes.object),
+  jobLogUrls: PropTypes.arrayOf(PropTypes.shape({})),
   currentRepo: PropTypes.shape({}).isRequired,
   isTryRepo: PropTypes.bool,
   logViewerUrl: PropTypes.string,

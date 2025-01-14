@@ -400,7 +400,7 @@ SecondaryNavBar.propTypes = {
   updateButtonClick: PropTypes.func.isRequired,
   serverChanged: PropTypes.bool.isRequired,
   filterModel: PropTypes.shape({}).isRequired,
-  repos: PropTypes.arrayOf(PropTypes.object).isRequired,
+  repos: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   setCurrentRepoTreeStatus: PropTypes.func.isRequired,
   allUnclassifiedFailureCount: PropTypes.number.isRequired,
   recalculateUnclassifiedCounts: PropTypes.func.isRequired,

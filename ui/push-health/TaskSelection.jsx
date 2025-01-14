@@ -19,7 +19,6 @@ class TaskSelection extends React.PureComponent {
       prevProps.allPlatformsSelected !== allPlatformsSelected &&
       allPlatformsSelected !== isTestSelected
     ) {
-      // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ isTestSelected: allPlatformsSelected });
     }
   }

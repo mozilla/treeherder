@@ -116,7 +116,7 @@ export default function LogItem(props) {
 }
 
 LogItem.propTypes = {
-  logUrls: PropTypes.arrayOf(PropTypes.object).isRequired,
+  logUrls: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   logViewerUrl: PropTypes.string,
   logViewerFullUrl: PropTypes.string,
 };

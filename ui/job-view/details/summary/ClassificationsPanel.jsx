@@ -63,5 +63,5 @@ ClassificationsPanel.propTypes = {
   classification: PropTypes.shape({}).isRequired,
   classificationMap: PropTypes.shape({}).isRequired,
   job: PropTypes.shape({}).isRequired,
-  bugs: PropTypes.arrayOf(PropTypes.object).isRequired,
+  bugs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };

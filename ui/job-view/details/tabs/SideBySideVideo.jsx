@@ -77,5 +77,5 @@ export default class SideBySideVideo extends React.Component {
 }
 
 SideBySideVideo.propTypes = {
-  videos: PropTypes.arrayOf(PropTypes.object).isRequired,
+  videos: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };

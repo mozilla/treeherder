@@ -27,5 +27,8 @@ export default function ErrorsList(props) {
 }
 
 ErrorsList.propTypes = {
-  errors: PropTypes.arrayOf(PropTypes.object).isRequired,
+  errors: PropTypes.arrayOf({
+    line: PropTypes.string.isRequired,
+    lineNumber: PropTypes.number.isRequired,
+  }).isRequired,
 };

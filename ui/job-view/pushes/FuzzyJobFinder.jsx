@@ -316,8 +316,8 @@ FuzzyJobFinder.propTypes = {
   notify: PropTypes.func.isRequired,
   toggle: PropTypes.func.isRequired,
   decisionTaskId: PropTypes.string,
-  jobList: PropTypes.arrayOf(PropTypes.object),
-  filteredJobList: PropTypes.arrayOf(PropTypes.object),
+  jobList: PropTypes.arrayOf(PropTypes.shape({})),
+  filteredJobList: PropTypes.arrayOf(PropTypes.shape({})),
   currentRepo: PropTypes.shape({}).isRequired,
 };
 

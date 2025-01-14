@@ -83,7 +83,6 @@ export default class TestDataModal extends React.Component {
         ? platform
         : platforms[0];
 
-      // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ platform: newPlatform });
     }
 
@@ -91,7 +90,7 @@ export default class TestDataModal extends React.Component {
       const newActiveTags = activeTags.filter((tag) =>
         availableTags.includes(tag),
       );
-      // eslint-disable-next-line react/no-did-update-set-state
+
       this.setState({ activeTags: newActiveTags }, this.applyFilters);
     }
 
@@ -100,7 +99,6 @@ export default class TestDataModal extends React.Component {
     }
 
     if (timeRange !== prevProps.timeRange) {
-      // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ innerTimeRange: timeRange });
     }
 
