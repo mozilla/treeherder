@@ -18,7 +18,7 @@ export default class TruncatedText extends React.Component {
       <React.Fragment>
         <p className={showMoreResults ? '' : 'text-truncate'}>
           {title && <span className="font-weight-bold">{title}</span>}
-          {text}
+          <span className="multiline-text">{text}</span>
         </p>
         {text.length > maxLength && (
           <Button
