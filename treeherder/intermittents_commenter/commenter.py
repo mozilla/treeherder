@@ -369,6 +369,7 @@ class Commenter:
         bug_map = dict()
         for bug in bugs:
             platform = bug["job__machine_platform__platform"]
+            platform = platform.replace("-shippable", "")
             architecture = bug["job__machine_platform__architecture"]
             repo = bug["job__repository__name"]
             bug_id = bug["bug_id"]
