@@ -57,6 +57,7 @@ class Commenter:
         with open("treeherder/intermittents_commenter/comment.template") as template_file:
             template = Template(template_file.read())
 
+        top_bugs = []
         if self.weekly_mode:
             top_bugs = [
                 bug[0]
@@ -278,21 +279,20 @@ class Commenter:
                 "per_platform": {
                     "windows10-64": 52,
                     "osx-10-10": 1,
-                    }
                 },
-               "test_suite_per_platform_and_build": {
+                "test_suite_per_platform_and_build": {
                     "windows10-64/debug" {
                         "mochitest-browser-chrome": 2,
                         "mochitest-browser-chrome-swr": 2,
-                     },
-                     "windows10-64/ccov" {
+                    },
+                    "windows10-64/ccov" {
                         "mochitest-browser-chrome": 0,
                         "mochitest-browser-chrome-swr": 2,
-                     },
+                    },
                     "osx-10-10/debug": {
                         "mochitest-browser-chrome": 2,
                         "mochitest-browser-chrome-swr": 0,
-                     },
+                    },
                 },
                 "windows10-64": {
                     "debug": 30,
@@ -300,9 +300,9 @@ class Commenter:
                     "asan": 2,
                 },
                 "osx-10-10": {
-                    "debug: 1
+                    "debug": 1,
                 }
-            },
+            }
         }
         """
         # Min required failures per bug in order to post a comment
@@ -321,6 +321,7 @@ class Commenter:
             .values(
                 "job__repository__name",
                 "job__machine_platform__platform",
+                "job__machine_platform__architecture",
                 "bug_id",
                 "job__option_collection_hash",
                 "job__signature__job_type_name",
@@ -368,13 +369,15 @@ class Commenter:
         bug_map = dict()
         for bug in bugs:
             platform = bug["job__machine_platform__platform"]
+            platform = platform.replace("-shippable", "")
+            architecture = bug["job__machine_platform__architecture"]
             repo = bug["job__repository__name"]
             bug_id = bug["bug_id"]
             build_type = option_collection_map.get(
                 bug["job__option_collection_hash"], "unknown build"
             )
             test_variant = self.get_test_variant(bug["job__signature__job_type_name"])
-            platform_and_build = f"{platform}/{build_type}"
+            platform_and_build = f"{platform}/{architecture}/{build_type}"
             if bug_id not in bug_map:
                 bug_infos = {
                     "total": 1,
