@@ -2,7 +2,7 @@
 pytest-cov==6.0.0
 django-debug-toolbar==5.0.1
 mock==5.1.0
-responses==0.25.3
+responses==0.25.6
 django-extensions==3.2.3
 PyPOM==2.2.4
 
