@@ -120,14 +120,15 @@ const developmentConfig = {
     hot: true,
     historyApiFallback: true,
     open: true,
-    proxy: {
-      '/api': {
+    proxy: [
+      {
+        context: ['/api'],
+        target: process.env.BACKEND || 'https://treeherder.mozilla.org',
         changeOrigin: true,
         headers: {
           referer: 'https://treeherder.mozilla.org/webpack-dev-server',
         },
         // Support BACKEND environment variable provided by npm run scripts
-        target: process.env.BACKEND || 'https://treeherder.mozilla.org',
         onProxyRes: (proxyRes) => {
           // Strip the cookie `secure` attribute, otherwise production's cookies
           // will be rejected by the browser when using non-HTTPS localhost:
@@ -141,7 +142,7 @@ const developmentConfig = {
           }
         },
       },
-    },
+    ],
     devMiddleware: {
       stats: {
         all: false,
