@@ -1,5 +1,5 @@
-""" Collector, grabs changes in various sources and put them in a DB.
-"""
+"""Collector, grabs changes in various sources and put them in a DB."""
+
 import json
 import os
 

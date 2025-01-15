@@ -7,6 +7,7 @@ The subcommand's sole purpose is to act as a smoke test
 harness that quickly does an end-to-end check over the
 functionality of the `BackfillTool`.
 """
+
 from django.core.management.base import BaseCommand
 
 from treeherder.perf.auto_perf_sheriffing.factories import backfill_tool_factory

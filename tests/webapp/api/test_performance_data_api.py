@@ -201,7 +201,7 @@ def test_filter_signatures_by_framework(
     # Filter by original framework
     resp = client.get(
         reverse("performance-signatures-list", kwargs={"project": test_repository.name})
-        + "?framework=%s" % test_perf_signature.framework.id,
+        + f"?framework={test_perf_signature.framework.id}",
     )
     assert resp.status_code == 200
     assert len(resp.data.keys()) == 1
@@ -210,7 +210,7 @@ def test_filter_signatures_by_framework(
     # Filter by new framework
     resp = client.get(
         reverse("performance-signatures-list", kwargs={"project": test_repository.name})
-        + "?framework=%s" % signature2.framework.id,
+        + f"?framework={signature2.framework.id}",
     )
     assert resp.status_code == 200
     assert len(resp.data.keys()) == 1
@@ -305,9 +305,7 @@ def test_filter_data_by_framework(
     # Filtering by first framework
     resp = client.get(
         reverse("performance-data-list", kwargs={"project": test_repository.name})
-        + "?signatures={}&framework={}".format(
-            test_perf_signature.signature_hash, test_perf_signature.framework.id
-        )
+        + f"?signatures={test_perf_signature.signature_hash}&framework={test_perf_signature.framework.id}"
     )
     assert resp.status_code == 200
     datums = resp.data[test_perf_signature.signature_hash]
@@ -371,7 +369,7 @@ def test_filter_data_by_interval(
     ):
         push = Push.objects.create(
             repository=test_repository,
-            revision="abcdefgh%s" % i,
+            revision=f"abcdefgh{i}",
             author="foo@bar.com",
             time=timestamp,
         )
@@ -409,7 +407,7 @@ def test_filter_data_by_range(
     ):
         push = Push.objects.create(
             repository=test_repository,
-            revision="abcdefgh%s" % i,
+            revision=f"abcdefgh{i}",
             author="foo@bar.com",
             time=timestamp,
         )
@@ -479,17 +477,9 @@ def test_filter_data_by_signature(
 
 
 def test_perf_summary(client, test_perf_signature, test_perf_data):
-    query_params1 = (
-        "?repository={}&framework={}&interval=172800&no_subtests=true&revision={}".format(
-            test_perf_signature.repository.name,
-            test_perf_signature.framework_id,
-            test_perf_data[0].push.revision,
-        )
-    )
+    query_params1 = f"?repository={test_perf_signature.repository.name}&framework={test_perf_signature.framework_id}&interval=172800&no_subtests=true&revision={test_perf_data[0].push.revision}"
 
-    query_params2 = "?repository={}&framework={}&interval=172800&no_subtests=true&startday=2013-11-01T23%3A28%3A29&endday=2013-11-30T23%3A28%3A29".format(
-        test_perf_signature.repository.name, test_perf_signature.framework_id
-    )
+    query_params2 = f"?repository={test_perf_signature.repository.name}&framework={test_perf_signature.framework_id}&interval=172800&no_subtests=true&startday=2013-11-01T23%3A28%3A29&endday=2013-11-30T23%3A28%3A29"
 
     expected = [
         {
@@ -536,9 +526,7 @@ def test_data_points_from_same_push_are_ordered_chronologically(
     As job ids are auto incremented, older jobs have smaller ids than newer ones.
     Thus, these ids are sufficient to check for chronological order.
     """
-    query_params = "?repository={}&framework={}&interval=172800&no_subtests=true&startday=2013-11-01T23%3A28%3A29&endday=2013-11-30T23%3A28%3A29".format(
-        test_perf_signature.repository.name, test_perf_signature.framework_id
-    )
+    query_params = f"?repository={test_perf_signature.repository.name}&framework={test_perf_signature.framework_id}&interval=172800&no_subtests=true&startday=2013-11-01T23%3A28%3A29&endday=2013-11-30T23%3A28%3A29"
 
     response = client.get(reverse("performance-summary") + query_params)
     assert response.status_code == 200
@@ -551,12 +539,7 @@ def test_no_retriggers_perf_summary(
     client, push_stored, test_perf_signature, test_perf_signature_2, test_perf_data
 ):
     push = Push.objects.get(id=1)
-    query_params = "?repository={}&framework={}&no_subtests=true&revision={}&all_data=true&signature={}".format(
-        test_perf_signature.repository.name,
-        test_perf_signature.framework_id,
-        push.revision,
-        test_perf_signature.id,
-    )
+    query_params = f"?repository={test_perf_signature.repository.name}&framework={test_perf_signature.framework_id}&no_subtests=true&revision={push.revision}&all_data=true&signature={test_perf_signature.id}"
 
     PerformanceDatum.objects.create(
         repository=test_perf_signature.repository,

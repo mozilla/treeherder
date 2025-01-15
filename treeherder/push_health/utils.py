@@ -23,11 +23,11 @@ def clean_test(test, signature, message):
         left, right, *rest = clean_name.split(splitter)
 
         if "tests/layout/" in left and "tests/layout/" in right:
-            left = "layout%s" % left.split("tests/layout")[1]
-            right = "layout%s" % right.split("tests/layout")[1]
+            left = f"layout{left.split('tests/layout')[1]}"
+            right = f"layout{right.split('tests/layout')[1]}"
         elif "build/tests/reftest/tests/" in left and "build/tests/reftest/tests/" in right:
-            left = "%s" % left.split("build/tests/reftest/tests/")[1]
-            right = "%s" % right.split("build/tests/reftest/tests/")[1]
+            left = left.split("build/tests/reftest/tests/")[1]
+            right = right.split("build/tests/reftest/tests/")[1]
         elif clean_name.startswith("http://10.0"):
             left = "/tests/".join(left.split("/tests/")[1:])
             right = "/tests/".join(right.split("/tests/")[1:])

@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 def store_push(repository, push_dict):
     push_revision = push_dict.get("revision")
     if not push_dict.get("revision"):
-        raise ValueError("Push must have a revision " "associated with it!")
+        raise ValueError("Push must have a revision associated with it!")
     with transaction.atomic():
         push, _ = Push.objects.update_or_create(
             repository=repository,

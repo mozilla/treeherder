@@ -43,6 +43,6 @@ class Command(BaseCommand):
                     print(f"{name}, {json.dumps(artifact, indent=2)}")
 
         if options["profile"]:
-            print("Timings: %s" % times)
-            print("Average: %s" % (sum(times) / len(times)))
-            print("Total: %s" % sum(times))
+            print(f"Timings: {times}")
+            print(f"Average: {sum(times) / len(times)}")
+            print(f"Total: {sum(times)}")

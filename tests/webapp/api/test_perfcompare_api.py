@@ -885,8 +885,9 @@ def test_revision_is_not_found(client, test_perf_signature, test_perfcomp_push):
 
     response = client.get(reverse("perfcompare-results") + query_params)
     assert response.status_code == 400
-    assert response.json() == "No base push with revision {} from repo {}.".format(
-        non_existent_revision, test_perf_signature.repository.name
+    assert (
+        response.json()
+        == f"No base push with revision {non_existent_revision} from repo {test_perf_signature.repository.name}."
     )
 
     query_params = (
@@ -902,8 +903,9 @@ def test_revision_is_not_found(client, test_perf_signature, test_perfcomp_push):
 
     response = client.get(reverse("perfcompare-results") + query_params)
     assert response.status_code == 400
-    assert response.json() == "No new push with revision {} from repo {}.".format(
-        non_existent_revision, test_perf_signature.repository.name
+    assert (
+        response.json()
+        == f"No new push with revision {non_existent_revision} from repo {test_perf_signature.repository.name}."
     )
 
 

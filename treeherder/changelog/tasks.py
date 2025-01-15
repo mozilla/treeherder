@@ -13,7 +13,7 @@ def update_changelog(days=1):
     """
     Collect changes and update the DB.
     """
-    logger.info("Updating unified changelog (days=%d)" % days)
+    logger.info(f"Updating unified changelog (days={days})")
     # collecting last day of changes across all sources
     since = datetime.datetime.now() - datetime.timedelta(days=days)
     since = since.strftime("%Y-%m-%dT%H:%M:%S")
@@ -34,6 +34,4 @@ def update_changelog(days=1):
             created += 1
             [ChangelogFile.objects.create(name=name, changelog=changelog) for name in files]
 
-    logger.info(
-        "Found %d items, %d existed and %d where created." % (created + existed, existed, created)
-    )
+    logger.info(f"Found {created + existed} items, {existed} existed and {created} where created.")

@@ -39,7 +39,7 @@ def parse_logs(job_id, job_log_ids, priority):
     first_exception = None
     completed_names = set()
     for job_log in job_logs:
-        newrelic.agent.add_custom_attribute("job_log_%s_url" % job_log.name, job_log.url)
+        newrelic.agent.add_custom_attribute(f"job_log_{job_log.name}_url", job_log.url)
         logger.info("parser_task for %s", job_log.id)
 
         # Only parse logs which haven't yet been processed or else failed on the last attempt.

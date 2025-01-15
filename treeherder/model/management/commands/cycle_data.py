@@ -45,9 +45,7 @@ class Command(BaseCommand):
             dest="chunk_size",
             default=100,
             type=int,
-            help=(
-                "Define the size of the chunks " "Split the job deletes into chunks of this size"
-            ),
+            help=("Define the size of the chunks Split the job deletes into chunks of this size"),
         )
         parser.add_argument(
             "--sleep-time",

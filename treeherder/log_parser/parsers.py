@@ -201,11 +201,9 @@ class PerformanceParser(ParserBase):
                 validate_perf_data(data)
                 self.artifact.append(data)
             except ValueError:
-                logger.warning("Unable to parse Perfherder data from line: %s", line)
+                logger.warning(f"Unable to parse Perfherder data from line: {line}")
             except jsonschema.ValidationError as e:
-                logger.warning(
-                    "Perfherder line '%s' does not comply with " "json schema: %s", line, e
-                )
+                logger.warning(f"Perfherder line '{line}' does not comply with json schema: {e}")
 
             # Don't mark the parser as complete, in case there are multiple performance artifacts.
 

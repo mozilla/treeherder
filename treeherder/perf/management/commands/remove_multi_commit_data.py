@@ -4,6 +4,7 @@ This subcommand isn't intended for regular use.
 The subcommand's sole purpose is to clean the database of dirty
 performance_datum, in case a revert migration is needed.
 """
+
 from django.core.management.base import BaseCommand
 
 from treeherder.perf.models import MultiCommitDatum, PerformanceDatum

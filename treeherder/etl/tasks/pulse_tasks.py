@@ -1,6 +1,7 @@
 """
 This module contains tasks related to pulse job ingestion
 """
+
 import asyncio
 
 import newrelic.agent

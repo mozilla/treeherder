@@ -5,6 +5,7 @@ Its clients should only instantiate their writer of choice &
 provide it with some basic data to include in the email.
 They then get an email that's ready-to-send via taskcluster.Notify service.
 """
+
 import logging
 import re
 import urllib.parse

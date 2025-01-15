@@ -84,10 +84,7 @@ class FilesBugzillaMapProcess:
         )
 
     def fetch_data(self, project):
-        url = (
-            "https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2.%s.latest.source.source-bugzilla-info/artifacts/public/components.json"
-            % project
-        )
+        url = f"https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2.{project}.latest.source.source-bugzilla-info/artifacts/public/components.json"
         files_bugzilla_data = None
         exception = None
         try:

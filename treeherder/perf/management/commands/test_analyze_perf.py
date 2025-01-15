@@ -48,7 +48,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if not options["project"]:
-            raise CommandError("Must specify at least one project with " "--project")
+            raise CommandError("Must specify at least one project with --project")
 
         pc = PerfherderClient(server_url=options["server"])
 

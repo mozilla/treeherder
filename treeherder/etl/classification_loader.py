@@ -32,9 +32,9 @@ class ClassificationLoader:
         task_id = pulse_job["status"]["taskId"]
 
         task_definition = get_task_definition(root_url, task_id)
-        assert (
-            "routes" in task_definition and len(task_definition["routes"]) > 0
-        ), "A route containing the push project and revision is needed to save the mozci classification"
+        assert "routes" in task_definition and len(task_definition["routes"]) > 0, (
+            "A route containing the push project and revision is needed to save the mozci classification"
+        )
         # Retrieving a Push object thanks to the project/revision parsed from the task first route
         try:
             push = self.get_push(task_definition["routes"][0])
@@ -53,9 +53,9 @@ class ClassificationLoader:
         # Saving the mozci classification in the database
         results = dict(MozciClassification.CLASSIFICATION_RESULT)
         classification = classification_json["push"]["classification"]
-        assert (
-            classification in results.keys()
-        ), "Classification result should be a value in BAD, GOOD, UNKNOWN"
+        assert classification in results.keys(), (
+            "Classification result should be a value in BAD, GOOD, UNKNOWN"
+        )
 
         logger.info(
             "Storing mozci classification calculated as %s for push %s on repository %s",

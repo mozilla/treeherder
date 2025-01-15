@@ -2,7 +2,6 @@ from rest_framework import permissions
 
 
 class IsStaffOrReadOnly(permissions.BasePermission):
-
     """
     The request is authenticated as an admin staff (eg. sheriffs), or is a read-only request.
     """

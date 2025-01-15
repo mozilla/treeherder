@@ -16,7 +16,7 @@ ONE_WEEK_IN_SECONDS = 604800
 
 def last_push_id_from_server(repo):
     """Obtain the last push ID from a ``Repository`` instance."""
-    url = "%s/json-pushes/?version=2" % repo.url
+    url = f"{repo.url}/json-pushes/?version=2"
     data = fetch_json(url)
     return data["lastpushid"]
 
@@ -92,15 +92,12 @@ class HgPushlogProcess:
         else:
             if changeset:
                 logger.info(
-                    "Getting all pushes for '%s' corresponding to " "changeset '%s'",
-                    repository_name,
-                    changeset,
+                    f"Getting all pushes for '{repository_name}' corresponding to changeset '{changeset}'"
                 )
-                extracted_content = self.extract(source_url + "&changeset=" + changeset)
+                extracted_content = self.extract(f"{source_url}&changeset={changeset}")
             else:
                 logger.warning(
-                    "Unable to get last push from cache for '%s', " "getting all pushes",
-                    repository_name,
+                    f"Unable to get last push from cache for '{repository_name}', getting all pushes",
                 )
                 extracted_content = self.extract(source_url)
 

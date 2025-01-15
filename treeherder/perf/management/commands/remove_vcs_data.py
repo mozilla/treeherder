@@ -4,6 +4,7 @@ TODO: Remove this module entirely once all vcs data
  environments (from prototype up to & including production).
  See bug https://bugzilla.mozilla.org/show_bug.cgi?id=1694335
 """
+
 import time
 from datetime import timedelta
 

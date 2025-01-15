@@ -161,9 +161,9 @@ def test_ingest_pulse_job_with_long_job_type_name(
     job = pulse_jobs[0]
     jl = JobLoader()
     revision = push_stored[0]["revision"]
-    job["display"][
-        "jobName"
-    ] = "this is a very long string that exceeds the 100 character size that was the previous limit by just a little bit"
+    job["display"]["jobName"] = (
+        "this is a very long string that exceeds the 100 character size that was the previous limit by just a little bit"
+    )
     job["origin"]["revision"] = revision
     jl.process_job(job, "https://firefox-ci-tc.services.mozilla.com")
 

@@ -38,9 +38,7 @@ class Command(BaseCommand):
             TextLogError.objects.bulk_update(chunked_queryset, ["job"])
 
             logger.warning(
-                "successfully added job_id in TextLogError table to rows {} to {}".format(
-                    chunked_queryset[0].id, chunked_queryset[-1].id
-                )
+                f"successfully added job_id in TextLogError table to rows {chunked_queryset[0].id} to {chunked_queryset[-1].id}"
             )
 
         logger.warning("successfully finished backfilling job_ids in the TextLogError table")
