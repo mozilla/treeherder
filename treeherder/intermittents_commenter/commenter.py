@@ -1,7 +1,7 @@
 import logging
 import re
 import time
-from collections import Counter
+from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 
 import requests
@@ -18,6 +18,25 @@ from treeherder.intermittents_commenter.constants import (
 from treeherder.model.models import BugJobMap, OptionCollection, Push
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class BugsDetailsPerPlatform:
+    total: int = 0
+    per_build_type: dict[str, int] = field(
+        default_factory=dict
+    )  # {build_type1: 2, build_type2: 1, ...}
+
+
+@dataclass
+class BugsDetails:
+    total: int = 0
+    test_variants: set = field(default_factory=set)
+    per_repositories: dict[str, int] = field(default_factory=dict)  # {repo1: 1, repo2: 2, ...}
+    per_platforms: dict[str, BugsDetailsPerPlatform] = field(default_factory=dict)
+    data_table: dict[str, dict[str, int]] = field(
+        default_factory=dict
+    )  # {variant1: {platform_and_build1: 3, platform_and_build2: 1}, ...}
 
 
 class Commenter:
@@ -45,14 +64,16 @@ class Commenter:
         the appropriate threshold) and potentially an updated whiteboard
         or priority status."""
 
-        bug_stats, bug_ids = self.get_bug_stats(startday, endday)
+        bug_ids, bugs = self.get_bugs(startday, endday)
+        option_collection_map = OptionCollection.objects.get_option_collection_map()
+        bug_map = self.build_bug_map(bugs, option_collection_map)
+
         alt_date_bug_totals = self.get_alt_date_bug_totals(alt_startday, alt_endday, bug_ids)
         test_run_count = self.get_test_runs(startday, endday)
 
         # if fetch_bug_details fails, None is returned
         bugs_info = self.fetch_all_bug_details(bug_ids)
         all_bug_changes = []
-        test_variants = set()
 
         with open("treeherder/intermittents_commenter/comment.template") as template_file:
             template = Template(template_file.read())
@@ -60,17 +81,14 @@ class Commenter:
         top_bugs = []
         if self.weekly_mode:
             top_bugs = [
-                bug[0]
-                for bug in sorted(bug_stats.items(), key=lambda x: x[1]["total"], reverse=True)
+                bug[0] for bug in sorted(bug_map.items(), key=lambda x: x[1].total, reverse=True)
             ][:50]
 
-        for bug_id, counts in bug_stats.items():
+        for bug_id, counts in bug_map.items():
             change_priority = None
             change_whiteboard = None
             priority = 0
             rank = top_bugs.index(bug_id) + 1 if self.weekly_mode and bug_id in top_bugs else None
-            test_variants = bug_stats[bug_id]["test_variants"]
-
             if bugs_info and bug_id in bugs_info:
                 if self.weekly_mode:
                     priority = self.assign_priority(counts)
@@ -81,7 +99,7 @@ class Commenter:
 
                     # change [stockwell needswork] to [stockwell unknown] when failures drop below 20 failures/week
                     # if this block is true, it implies a priority of 0 (mutually exclusive to previous block)
-                    if counts["total"] < 20:
+                    if counts.total < 20:
                         change_whiteboard = self.check_needswork(bugs_info[bug_id]["whiteboard"])
 
                 else:
@@ -102,19 +120,17 @@ class Commenter:
                         r"\s*\[stockwell needswork[^\]]*\]\s*", "", change_whiteboard
                     ).strip()
                     change_whiteboard += "[stockwell disable-recommended]"
-
             comment = template.render(
                 bug_id=bug_id,
-                total=counts["total"],
+                total=counts.total,
+                failure_rate=round(counts.total / float(test_run_count), 3),
                 test_run_count=test_run_count,
                 rank=rank,
                 priority=priority,
-                failure_rate=round(counts["total"] / float(test_run_count), 3),
-                repositories=counts["per_repository"],
-                platforms=counts["per_platform"],
-                test_variants=sorted(test_variants),
-                test_suites=counts["test_suite_per_platform_and_build"],
-                counts=counts,
+                repositories=counts.per_repositories,
+                platforms=counts.per_platforms,
+                test_variants=sorted(list(counts.test_variants)),
+                data_table=counts.data_table,
                 startday=startday,
                 endday=endday.split()[0],
                 weekly_mode=self.weekly_mode,
@@ -160,9 +176,9 @@ class Commenter:
 
     def assign_priority(self, counts):
         priority = 0
-        if counts["total"] >= 75:
+        if counts.total >= 75:
             priority = 1
-        elif counts["total"] >= 30:
+        elif counts.total >= 30:
             priority = 2
 
         return priority
@@ -264,47 +280,8 @@ class Commenter:
         test_runs = Push.objects.filter(time__range=(startday, endday)).aggregate(Count("author"))
         return test_runs["author__count"]
 
-    def get_bug_stats(self, startday, endday):
-        """Get all intermittent failures per specified date range and repository,
-           returning a dict of bug_id's with total, repository test_suite and platform totals
-           if totals are greater than or equal to the threshold.
-        eg:
-        {
-            "1206327": {
-                "total": 5,
-                "per_repository": {
-                    "fx-team": 2,
-                    "autoland": 3
-                },
-                "per_platform": {
-                    "windows10-64": 52,
-                    "osx-10-10": 1,
-                },
-                "test_suite_per_platform_and_build": {
-                    "windows10-64/debug" {
-                        "mochitest-browser-chrome": 2,
-                        "mochitest-browser-chrome-swr": 2,
-                    },
-                    "windows10-64/ccov" {
-                        "mochitest-browser-chrome": 0,
-                        "mochitest-browser-chrome-swr": 2,
-                    },
-                    "osx-10-10/debug": {
-                        "mochitest-browser-chrome": 2,
-                        "mochitest-browser-chrome-swr": 0,
-                    },
-                },
-                "windows10-64": {
-                    "debug": 30,
-                    "ccov": 20,
-                    "asan": 2,
-                },
-                "osx-10-10": {
-                    "debug": 1,
-                }
-            }
-        }
-        """
+    def get_bugs(self, startday, endday):
+        """Get all intermittent failures per specified date range and repository,"""
         # Min required failures per bug in order to post a comment
         threshold = 1 if self.weekly_mode else 15
         bug_ids = (
@@ -327,9 +304,7 @@ class Commenter:
                 "job__signature__job_type_name",
             )
         )
-        option_collection_map = OptionCollection.objects.get_option_collection_map()
-        bug_map = self.build_bug_map(bugs, option_collection_map)
-        return bug_map, bug_ids
+        return bug_ids, bugs
 
     def fetch_test_variants(self):
         mozilla_central_url = "https://hg.mozilla.org/mozilla-central"
@@ -365,8 +340,49 @@ class Commenter:
         return "-".join(found_variants)
 
     def build_bug_map(self, bugs, option_collection_map):
-        """Returning a dict of bug_id's with total, repository, test_suite and platform totals"""
-        bug_map = dict()
+        """Build bug_map
+         eg:
+        {
+            "1206327": {
+                "total": 5,
+                "per_repository": {
+                    "fx-team": 2,
+                    "autoland": 3
+                },
+                "per_platforms": {
+                    "windows10-64": {
+                        "total": 52,
+                        "per_build_type": {
+                            "debug": 30,
+                            "ccov": 20,
+                            "asan": 2,
+                         },
+                    },
+                    "osx-10-10": {
+                         "total": 1,
+                         "per_build_type": {
+                             "debug": 1,
+                         },
+                    },
+                },
+                "test_variants": {'no-variant', 'swr', ...},
+                "data_table": {
+                    "windows10-64/ccov": {
+                        "mochitest-browser-chrome": 0,
+                        "mochitest-browser-chrome-swr": 2,
+                    },
+                    "windows10-64/debug": {
+                         "mochitest-browser-chrome-swr": 2,
+                    },
+                    "osx-10-10/debug": {
+                         "mochitest-browser-chrome": 2,
+                         "mochitest-browser-chrome-swr": 0,
+                    },
+                },
+            },
+        }
+        """
+        bug_map = {}
         for bug in bugs:
             platform = bug["job__machine_platform__platform"]
             platform = platform.replace("-shippable", "")
@@ -379,35 +395,33 @@ class Commenter:
             test_variant = self.get_test_variant(bug["job__signature__job_type_name"])
             platform_and_build = f"{platform}-{architecture}/{build_type}"
             if bug_id not in bug_map:
-                bug_infos = {
-                    "total": 1,
-                    "test_variants": set([test_variant]),
-                    "per_platform": Counter([platform]),
-                    "test_suite_per_platform_and_build": {
-                        platform_and_build: Counter([test_variant])
-                    },
-                    "per_repository": Counter([repo]),
-                    platform: Counter([build_type]),
-                }
+                bug_infos = BugsDetails()
+                bug_infos.total = 1
+                bug_infos.test_variants.add(test_variant)
+                bug_infos.per_repositories[repo] = 1
+                bug_infos.per_platforms[platform] = BugsDetailsPerPlatform()
+                bug_infos.per_platforms[platform].total = 1
+                bug_infos.per_platforms[platform].per_build_type = {build_type: 1}
+                bug_infos.data_table[platform_and_build] = {test_variant: 1}
+                bug_map[bug_id] = bug_infos
             else:
                 bug_infos = bug_map[bug_id]
-                bug_infos["total"] += 1
-                bug_infos["test_variants"].add(test_variant)
-                bug_infos["per_repository"][repo] += 1
-                bug_infos["per_platform"][platform] += 1
-                if platform_and_build in bug_infos["test_suite_per_platform_and_build"]:
-                    bug_infos["test_suite_per_platform_and_build"][platform_and_build][
-                        test_variant
-                    ] += 1
-                else:
-                    bug_infos["test_suite_per_platform_and_build"][platform_and_build] = Counter(
-                        [test_variant]
-                    )
-                if bug_infos.get(platform):
-                    bug_infos[platform][build_type] += 1
-                else:
-                    bug_infos[platform] = Counter([build_type])
-            bug_map[bug_id] = bug_infos
+                bug_infos.total += 1
+                bug_infos.test_variants.add(test_variant)
+                bug_infos.per_repositories.setdefault(repo, 0)
+                bug_infos.per_repositories[repo] += 1
+                # per_platforms
+                bug_infos.per_platforms.setdefault(platform, BugsDetailsPerPlatform())
+                bug_infos.per_platforms[platform].total += 1
+                bug_infos.per_platforms[platform].per_build_type.setdefault(build_type, 0)
+                bug_infos.per_platforms[platform].per_build_type[build_type] += 1
+                # data_table
+                data_table = bug_infos.data_table
+                platform_and_build_data = data_table.get(platform_and_build, {})
+                data_table[platform_and_build] = platform_and_build_data
+                data_table[platform_and_build][test_variant] = (
+                    platform_and_build_data.get(test_variant, 0) + 1
+                )
         return bug_map
 
     def get_alt_date_bug_totals(self, startday, endday, bug_ids):
