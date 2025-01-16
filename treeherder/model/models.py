@@ -207,12 +207,27 @@ class MachinePlatform(models.Model):
         return f"{self.os_name} {self.platform} {self.architecture}"
 
 
+class BugscacheOccurrence(models.Model):
+    """
+    M2M used to reference a bug being reported form a Failure Line locally.
+    Once the same bug is reported multiple times, the user is prompted to fill a Bugzilla ticket.
+    The same user cannot report the same failure line multiple times.
+    """
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    failure_line = models.ForeignKey("FailureLine", on_delete=models.CASCADE)
+    bug = models.ForeignKey("Bugscache", on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+
+
 class Bugscache(models.Model):
     id = models.BigAutoField(primary_key=True)
 
-    # Optional reference towards a bug in Bugzilla, once is has been reported more than MIN_BUG_OCCURENCES
+    # Optional reference towards a bug in Bugzilla, once is has been reported as occurring many times in a week
     bugzilla_id = models.PositiveIntegerField(null=True, blank=True)
-    occurrences = models.PositiveIntegerField(default=1)
+    occurrences = models.ManyToManyField(
+        "FailureLine", through="BugscacheOccurrence", related_name="bug_occurences"
+    )
 
     status = models.CharField(max_length=64, db_index=True)
     resolution = models.CharField(max_length=64, blank=True, db_index=True)
