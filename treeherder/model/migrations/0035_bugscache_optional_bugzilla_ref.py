@@ -76,4 +76,11 @@ class Migration(migrations.Migration):
                 ),
             ],
         ),
+        migrations.AddConstraint(
+            model_name="BugscacheOccurrence",
+            constraint=models.UniqueConstraint(
+                fields=("user", "failure_line", "bug"),
+                name="unique_failureline_bug_occurrence",
+            ),
+        ),
     ]

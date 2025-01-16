@@ -221,6 +221,14 @@ class BugscacheOccurrence(models.Model):
     bug = models.ForeignKey("Bugscache", on_delete=models.CASCADE, related_name="occurrences")
     created = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "failure_line", "bug"],
+                name="unique_failureline_bug_occurrence",
+            )
+        ]
+
 
 class Bugscache(models.Model):
     id = models.BigAutoField(primary_key=True)
