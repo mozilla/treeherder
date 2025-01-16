@@ -258,7 +258,7 @@ class Bugscache(models.Model):
         return f"{self.id}"
 
     def serialize(self):
-        exclude_fields = ["modified", "processed_update"]
+        exclude_fields = ["modified", "processed_update", "occurrences"]
 
         attrs = model_to_dict(self, exclude=exclude_fields)
         # Serialize bug ID as the bugzilla number for compatibility reasons
