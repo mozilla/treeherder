@@ -13,7 +13,7 @@ This is the #1 most frequent failure this week.
 ## Table
 | |**no_variant**|
 |---|:-:|
-|**linux1804/x86/debug**|1|
+|**linux1804-x86/debug**|1|
 
 ## For more details, see:
 https://treeherder.mozilla.org/intermittent-failures/bugdetails?bug=1&startday=2012-05-09&endday=2018-05-10&tree=all
