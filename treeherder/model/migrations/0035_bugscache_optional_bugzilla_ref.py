@@ -56,6 +56,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         on_delete=models.deletion.CASCADE,
                         to="model.bugscache",
+                        related_name="occurrences",
                     ),
                 ),
                 (
@@ -63,6 +64,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         on_delete=models.deletion.CASCADE,
                         to="model.failureline",
+                        related_name="bug_occurrences",
                     ),
                 ),
                 (
@@ -73,14 +75,5 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-        ),
-        migrations.AddField(
-            model_name="bugscache",
-            name="occurrences",
-            field=models.ManyToManyField(
-                related_name="bug_occurences",
-                through="model.BugscacheOccurrence",
-                to="model.failureline",
-            ),
         ),
     ]

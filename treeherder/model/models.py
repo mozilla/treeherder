@@ -215,8 +215,10 @@ class BugscacheOccurrence(models.Model):
     """
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    failure_line = models.ForeignKey("FailureLine", on_delete=models.CASCADE)
-    bug = models.ForeignKey("Bugscache", on_delete=models.CASCADE)
+    failure_line = models.ForeignKey(
+        "FailureLine", on_delete=models.CASCADE, related_name="bug_occurrences"
+    )
+    bug = models.ForeignKey("Bugscache", on_delete=models.CASCADE, related_name="occurrences")
     created = models.DateTimeField(auto_now_add=True)
 
 
@@ -225,9 +227,6 @@ class Bugscache(models.Model):
 
     # Optional reference towards a bug in Bugzilla, once is has been reported as occurring many times in a week
     bugzilla_id = models.PositiveIntegerField(null=True, blank=True)
-    occurrences = models.ManyToManyField(
-        "FailureLine", through="BugscacheOccurrence", related_name="bug_occurences"
-    )
 
     status = models.CharField(max_length=64, db_index=True)
     resolution = models.CharField(max_length=64, blank=True, db_index=True)
