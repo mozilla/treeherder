@@ -140,6 +140,8 @@ export const thPlatformMap = {
   'windows2012-aarch64': 'Windows 2012 AArch64',
   'windows2012-aarch64-shippable': 'Windows 2012 AArch64 Shippable',
   'windows2012-aarch64-devedition': 'Windows 2012 AArch64 DevEdition',
+  'windows2022-32': 'Windows 2022',
+  'windows2022-64': 'Windows 2022 x64',
   'windows-mingw32': 'Windows MinGW',
   win32: 'Windows x86',
   win64: 'Windows x64',
