@@ -67,6 +67,7 @@ X_FRAME_OPTIONS = "SAMEORIGIN"
 INSTALLED_APPS = [
     "django.contrib.auth",
     "django.contrib.contenttypes",
+    "django.contrib.postgres.search",
     # Disable Django's own staticfiles handling in favour of WhiteNoise, for
     # greater consistency between gunicorn and `./manage.py runserver`.
     "whitenoise.runserver_nostatic",
