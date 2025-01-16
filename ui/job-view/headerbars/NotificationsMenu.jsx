@@ -106,7 +106,7 @@ class NotificationsMenu extends React.Component {
 }
 
 NotificationsMenu.propTypes = {
-  storedNotifications: PropTypes.arrayOf(PropTypes.object).isRequired,
+  storedNotifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   clearStoredNotifications: PropTypes.func.isRequired,
 };
 

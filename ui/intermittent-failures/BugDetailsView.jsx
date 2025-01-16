@@ -316,7 +316,18 @@ const BugDetailsView = (props) => {
 };
 
 BugDetailsView.propTypes = {
-  location: PropTypes.shape({}).isRequired,
+  location: PropTypes.shape({
+    pathname: PropTypes.string,
+    search: PropTypes.string,
+    state: PropTypes.shape({}),
+    hash: PropTypes.string,
+  }).isRequired,
+  lastLocation: PropTypes.shape({
+    pathname: PropTypes.string,
+    search: PropTypes.string,
+    state: PropTypes.shape({}),
+    hash: PropTypes.string,
+  }).isRequired,
   tree: PropTypes.string.isRequired,
   updateAppState: PropTypes.func,
   updateState: PropTypes.func.isRequired,
@@ -324,17 +335,43 @@ BugDetailsView.propTypes = {
   startday: PropTypes.string.isRequired,
   failurehash: PropTypes.string.isRequired,
   endday: PropTypes.string.isRequired,
-  tableData: PropTypes.arrayOf(PropTypes.shape({})),
-  graphData: PropTypes.arrayOf(PropTypes.shape({})),
+  tableData: PropTypes.arrayOf(
+    PropTypes.shape({
+      // Define the expected structure of tableData objects here
+      push_time: PropTypes.string,
+      tree: PropTypes.string,
+      revision: PropTypes.string,
+      platform: PropTypes.string,
+      build_type: PropTypes.string,
+      test_suite: PropTypes.string,
+      machine_name: PropTypes.string,
+      job_id: PropTypes.string,
+      lines: PropTypes.arrayOf(PropTypes.string),
+    }),
+  ),
+  graphData: PropTypes.arrayOf(
+    PropTypes.shape({
+      // Define the expected structure of graphData objects here
+      // Example:
+      timestamp: PropTypes.number,
+      value: PropTypes.number,
+    }),
+  ),
   initialParamsSet: PropTypes.bool.isRequired,
   bug: PropTypes.string.isRequired,
   summary: PropTypes.string.isRequired,
   errorMessages: PropTypes.arrayOf(PropTypes.string),
-  lastLocation: PropTypes.shape({}).isRequired,
   tableFailureStatus: PropTypes.string,
   graphFailureStatus: PropTypes.string,
-  uniqueLines: PropTypes.arrayOf(PropTypes.array),
-  uniqueFrequency: PropTypes.shape({}),
+  uniqueLines: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)),
+  uniqueFrequency: PropTypes.shape({
+    // Define the expected structure of uniqueFrequency object here
+    all: PropTypes.arrayOf(
+      PropTypes.shape({
+        count: PropTypes.number,
+      }),
+    ),
+  }),
 };
 
 BugDetailsView.defaultProps = {

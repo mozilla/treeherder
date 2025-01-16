@@ -698,7 +698,7 @@ PinBoard.propTypes = {
   recalculateUnclassifiedCounts: PropTypes.func.isRequired,
   decisionTaskMap: PropTypes.shape({}).isRequired,
   jobMap: PropTypes.shape({}).isRequired,
-  classificationTypes: PropTypes.arrayOf(PropTypes.object).isRequired,
+  classificationTypes: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
   isStaff: PropTypes.bool.isRequired,
   isPinBoardVisible: PropTypes.bool.isRequired,
@@ -718,7 +718,7 @@ PinBoard.propTypes = {
   failureClassificationComment: PropTypes.string.isRequired,
   selectedJobFull: PropTypes.shape({}),
   email: PropTypes.string,
-  revisionTips: PropTypes.arrayOf(PropTypes.object),
+  revisionTips: PropTypes.arrayOf(PropTypes.shape({})),
 };
 
 PinBoard.defaultProps = {

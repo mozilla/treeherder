@@ -74,7 +74,6 @@ class GraphsView extends React.Component {
       loading !== true &&
       location.search !== prevProps.location.search
     ) {
-      // eslint-disable-next-line react/no-did-update-set-state
       this.setState({
         testData: [],
       });

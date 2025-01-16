@@ -67,7 +67,7 @@ function RelatedBug(props) {
 
 RelatedBug.propTypes = {
   deleteBug: PropTypes.func.isRequired,
-  bugs: PropTypes.arrayOf(PropTypes.object).isRequired,
+  bugs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
 function TableRow(props) {
@@ -145,7 +145,7 @@ function AnnotationsTable(props) {
 
 AnnotationsTable.propTypes = {
   deleteClassification: PropTypes.func.isRequired,
-  classifications: PropTypes.arrayOf(PropTypes.object).isRequired,
+  classifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   classificationMap: PropTypes.shape({}).isRequired,
 };
 
@@ -248,8 +248,8 @@ class AnnotationsTab extends React.Component {
 
 AnnotationsTab.propTypes = {
   classificationMap: PropTypes.shape({}).isRequired,
-  bugs: PropTypes.arrayOf(PropTypes.object).isRequired,
-  classifications: PropTypes.arrayOf(PropTypes.object).isRequired,
+  bugs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  classifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   recalculateUnclassifiedCounts: PropTypes.func.isRequired,
   notify: PropTypes.func.isRequired,
   selectedJobFull: PropTypes.shape({}).isRequired,

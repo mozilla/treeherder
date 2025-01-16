@@ -159,7 +159,7 @@ PushJobs.propTypes = {
   runnableVisible: PropTypes.bool.isRequired,
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
-  platforms: PropTypes.arrayOf(PropTypes.object).isRequired,
+  platforms: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   filterModel: PropTypes.shape({}).isRequired,
 };
 

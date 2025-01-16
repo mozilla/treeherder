@@ -373,7 +373,7 @@ class Test extends PureComponent {
 Test.propTypes = {
   test: PropTypes.shape({
     key: PropTypes.string.isRequired,
-    tests: PropTypes.arrayOf(PropTypes.object).isRequired,
+    tests: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   }).isRequired,
   groupedBy: PropTypes.string.isRequired,
   revision: PropTypes.string.isRequired,

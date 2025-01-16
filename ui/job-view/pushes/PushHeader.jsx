@@ -364,7 +364,7 @@ PushHeader.propTypes = {
   expandAllPushGroups: PropTypes.func.isRequired,
   notificationSupported: PropTypes.bool.isRequired,
   getAllShownJobs: PropTypes.func.isRequired,
-  selectedRunnableJobs: PropTypes.arrayOf(PropTypes.object).isRequired,
+  selectedRunnableJobs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   collapsed: PropTypes.bool.isRequired,
   notify: PropTypes.func.isRequired,
   jobCounts: PropTypes.shape({}).isRequired,

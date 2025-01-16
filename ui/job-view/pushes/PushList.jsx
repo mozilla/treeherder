@@ -212,7 +212,7 @@ class PushList extends React.Component {
 PushList.propTypes = {
   repoName: PropTypes.string.isRequired,
   filterModel: PropTypes.shape({}).isRequired,
-  pushList: PropTypes.arrayOf(PropTypes.object).isRequired,
+  pushList: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   fetchPushes: PropTypes.func.isRequired,
   pollPushes: PropTypes.func.isRequired,
   updateRange: PropTypes.func.isRequired,

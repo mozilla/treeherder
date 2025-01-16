@@ -65,7 +65,7 @@ JobListMetric.propTypes = {
   data: PropTypes.shape({
     name: PropTypes.string.isRequired,
     result: PropTypes.string.isRequired,
-    details: PropTypes.array.isRequired,
+    details: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   }).isRequired,
   currentRepo: PropTypes.shape({}).isRequired,
   updateParamsAndState: PropTypes.func.isRequired,

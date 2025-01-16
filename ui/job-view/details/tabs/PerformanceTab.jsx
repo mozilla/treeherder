@@ -278,8 +278,8 @@ class PerformanceTab extends React.PureComponent {
 
 PerformanceTab.propTypes = {
   repoName: PropTypes.string.isRequired,
-  jobDetails: PropTypes.arrayOf(PropTypes.object),
-  perfJobDetail: PropTypes.arrayOf(PropTypes.object),
+  jobDetails: PropTypes.arrayOf(PropTypes.shape({})),
+  perfJobDetail: PropTypes.arrayOf(PropTypes.shape({})),
   revision: PropTypes.string,
   decisionTaskMap: PropTypes.shape({}).isRequired,
 };

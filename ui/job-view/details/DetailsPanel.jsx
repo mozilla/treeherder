@@ -436,11 +436,11 @@ DetailsPanel.propTypes = {
   currentRepo: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({}).isRequired,
   resizedHeight: PropTypes.number.isRequired,
-  classificationTypes: PropTypes.arrayOf(PropTypes.object).isRequired,
+  classificationTypes: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   classificationMap: PropTypes.shape({}).isRequired,
   setPinBoardVisible: PropTypes.func.isRequired,
   isPinBoardVisible: PropTypes.bool.isRequired,
-  pushList: PropTypes.arrayOf(PropTypes.object).isRequired,
+  pushList: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   selectedJob: PropTypes.shape({}),
 };
 

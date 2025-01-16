@@ -96,7 +96,12 @@ export default class JobArtifacts extends React.PureComponent {
 }
 
 JobArtifacts.propTypes = {
-  jobDetails: PropTypes.arrayOf(PropTypes.object),
+  jobDetails: PropTypes.arrayOf({
+    contentType: PropTypes.string.isRequired,
+    expires: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    storageType: PropTypes.string.isRequired,
+  }),
   jobArtifactsLoading: PropTypes.bool,
   repoName: PropTypes.string.isRequired,
   selectedJob: PropTypes.shape({}).isRequired,

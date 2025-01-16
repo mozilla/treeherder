@@ -106,7 +106,7 @@ PrimaryNavBar.propTypes = {
   setCurrentRepoTreeStatus: PropTypes.func.isRequired,
   toggleFieldFilterVisible: PropTypes.func.isRequired,
   filterModel: PropTypes.shape({}).isRequired,
-  repos: PropTypes.arrayOf(PropTypes.object).isRequired,
+  repos: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   serverChanged: PropTypes.bool.isRequired,
   user: PropTypes.shape({}).isRequired,
   duplicateJobsVisible: PropTypes.bool.isRequired,

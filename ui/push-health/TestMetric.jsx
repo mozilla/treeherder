@@ -122,8 +122,8 @@ TestMetric.propTypes = {
     name: PropTypes.string.isRequired,
     result: PropTypes.string.isRequired,
     details: PropTypes.shape({
-      needInvestigation: PropTypes.array.isRequired,
-      knownIssues: PropTypes.array.isRequired,
+      needInvestigation: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+      knownIssues: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
     }).isRequired,
   }).isRequired,
   repo: PropTypes.string.isRequired,

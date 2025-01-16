@@ -186,7 +186,7 @@ class SideBySide extends React.PureComponent {
 }
 
 SideBySide.propTypes = {
-  jobDetails: PropTypes.arrayOf(PropTypes.object),
+  jobDetails: PropTypes.arrayOf(PropTypes.shape({})),
 };
 
 SideBySide.defaultProps = {

@@ -98,7 +98,7 @@ class PerfData extends React.PureComponent {
 }
 
 PerfData.propTypes = {
-  perfJobDetail: PropTypes.arrayOf(PropTypes.object),
+  perfJobDetail: PropTypes.arrayOf(PropTypes.shape({})),
 };
 
 PerfData.defaultProps = {
