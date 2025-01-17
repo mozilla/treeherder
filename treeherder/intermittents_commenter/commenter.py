@@ -404,29 +404,35 @@ class Commenter:
             },
         }
         """
+        bug_map = {}
         bug_ids = [b["bug_id"] for b in bugs]
         bug_summarys = Bugscache.objects.filter(id__in=bug_ids).values("summary")
-        manifest = self.get_test_manifest(bug_summarys)  # TODO possibly null
-        testrun_matrix = (
-            self.fetch_testrun_matrix() if self.testrun_matrix is None else self.testrun_matrix
-        )
-        testrun_matrix = testrun_matrix[manifest]
-        bug_map = dict()
+        manifest = self.get_test_manifest(bug_summarys)
+        manifest = None
+        testrun_matrix = []
+        if manifest:
+            testrun_matrix = (
+                self.fetch_testrun_matrix() if self.testrun_matrix is None else self.testrun_matrix
+            )
+            testrun_matrix = testrun_matrix[manifest]
         for bug in bugs:
             platform = bug["job__machine_platform__platform"]
             platform = platform.replace("-shippable", "")
             os_name = bug["job__machine_platform__os_name"]
-            testrun_os_matrix = testrun_matrix[os_name]
             architecture = bug["job__machine_platform__architecture"]
-            all_variants = self.get_all_test_variants(
-                testrun_os_matrix, platform, os_name, architecture
-            )
+            test_variant = self.get_test_variant(bug["job__signature__job_type_name"])
+            if testrun_matrix:
+                testrun_os_matrix = testrun_matrix[os_name]
+                all_variants = self.get_all_test_variants(
+                    testrun_os_matrix, platform, os_name, architecture
+                )
+            else:
+                all_variants = {test_variant}
             repo = bug["job__repository__name"]
             bug_id = bug["bug_id"]
             build_type = option_collection_map.get(
                 bug["job__option_collection_hash"], "unknown build"
             )
-            test_variant = self.get_test_variant(bug["job__signature__job_type_name"])
             platform_and_build = f"{platform}-{architecture}/{build_type}"
             if bug_id not in bug_map:
                 bug_infos = BugsDetails()
