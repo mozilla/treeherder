@@ -224,7 +224,7 @@ class BugscacheOccurrence(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["user", "failure_line", "bug"],
+                fields=["failure_line", "bug"],
                 name="unique_failureline_bug_occurrence",
             )
         ]
