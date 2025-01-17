@@ -22,7 +22,7 @@ def _update_bugscache(bug_list):
 
     for bug in bug_list:
         Bugscache.objects.create(
-            id=bug["id"],
+            bugzilla_id=bug["id"],
             status=bug["status"],
             resolution=bug["resolution"],
             summary=bug["summary"][:max_summary_length],
@@ -153,7 +153,7 @@ def test_import(mock_bugscache_bugzilla_request):
 
     BzApiBugProcess().run()
 
-    bug = Bugscache.objects.get(id=1652208)
+    bug = Bugscache.objects.get(bugzilla_id=1652208)
     assert bug.status == "RESOLVED"
     assert bug.resolution == "DUPLICATE"
     assert bug.crash_signature == "[@ some::mock_signature]"
@@ -174,10 +174,10 @@ def test_import(mock_bugscache_bugzilla_request):
     }
 
     for open_bug, duplicates in expected_bug_dupe_of_data.items():
-        assert Bugscache.objects.get(id=open_bug).dupe_of is None
-        assert set(Bugscache.objects.filter(dupe_of=open_bug).values_list("id", flat=True)) == set(
-            duplicates
-        )
+        assert Bugscache.objects.get(bugzilla_id=open_bug).dupe_of is None
+        assert set(
+            Bugscache.objects.filter(dupe_of=open_bug).values_list("bugzilla_id", flat=True)
+        ) == set(duplicates)
 
     expected_bug_count = sum(
         [1 + len(duplicates) for duplicates in expected_bug_dupe_of_data.values()]

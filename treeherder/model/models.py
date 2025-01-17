@@ -207,8 +207,35 @@ class MachinePlatform(models.Model):
         return f"{self.os_name} {self.platform} {self.architecture}"
 
 
+class BugscacheOccurrence(models.Model):
+    """
+    M2M used to reference a bug being reported form a Failure Line locally.
+    Once the same bug is reported multiple times, the user is prompted to fill a Bugzilla ticket.
+    The same user cannot report the same failure line multiple times.
+    """
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    failure_line = models.ForeignKey(
+        "FailureLine", on_delete=models.CASCADE, related_name="bug_occurrences"
+    )
+    bug = models.ForeignKey("Bugscache", on_delete=models.CASCADE, related_name="occurrences")
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["failure_line", "bug"],
+                name="unique_failureline_bug_occurrence",
+            )
+        ]
+
+
 class Bugscache(models.Model):
-    id = models.PositiveIntegerField(primary_key=True)
+    id = models.BigAutoField(primary_key=True)
+
+    # Optional reference towards a bug in Bugzilla, once is has been reported as occurring many times in a week
+    bugzilla_id = models.PositiveIntegerField(null=True, blank=True)
+
     status = models.CharField(max_length=64, db_index=True)
     resolution = models.CharField(max_length=64, blank=True, db_index=True)
     # Is covered by a FULLTEXT index created via a migrations RunSQL operation.
@@ -226,9 +253,24 @@ class Bugscache(models.Model):
         indexes = [
             models.Index(fields=["summary"]),
         ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["bugzilla_id"],
+                name="unique_bugzilla_id",
+                condition=Q(bugzilla_id__isnull=False),
+            )
+        ]
 
     def __str__(self):
         return f"{self.id}"
+
+    def serialize(self):
+        exclude_fields = ["modified", "processed_update", "occurrences"]
+
+        attrs = model_to_dict(self, exclude=exclude_fields)
+        # Serialize bug ID as the bugzilla number for compatibility reasons
+        attrs["id"] = attrs.pop("bugzilla_id")
+        return attrs
 
     @classmethod
     def search(cls, search_term):
@@ -246,11 +288,8 @@ class Bugscache(models.Model):
             .order_by("-similarity")[0:max_size]
         )
 
-        exclude_fields = ["modified", "processed_update"]
         try:
-            open_recent_match_string = [
-                model_to_dict(item, exclude=exclude_fields) for item in recent_qs
-            ]
+            open_recent_match_string = [item.serialize() for item in recent_qs]
             all_data = [
                 match
                 for match in open_recent_match_string
@@ -1093,7 +1132,7 @@ class ClassifiedFailure(models.Model):
     def bug(self):
         # Putting this here forces one query per object; there should be a way
         # to make things more efficient
-        return Bugscache.objects.filter(id=self.bug_number).first()
+        return Bugscache.objects.filter(bugzilla_id=self.bug_number).first()
 
     def set_bug(self, bug_number):
         """

@@ -113,13 +113,15 @@ def populate_bugscache():
     return Bugscache.objects.bulk_create(
         [
             Bugscache(
-                id=1234567,
+                id=1,
+                bugzilla_id=1234567,
                 status="NEW",
                 summary="intermittent devtools/client/framework/test/test1.js | single tracking bug",
                 modified="2014-01-01 00:00:00",
             ),
             Bugscache(
-                id=2345678,
+                id=2,
+                bugzilla_id=2345678,
                 status="NEW",
                 summary="intermittent devtools/client/framework/test/test2.js | single tracking bug",
                 modified="2014-01-01 00:00:00",

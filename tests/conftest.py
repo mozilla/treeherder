@@ -808,7 +808,7 @@ def bugs(mock_bugzilla_api_request):
     process = BzApiBugProcess()
     process.run()
 
-    return th_models.Bugscache.objects.all().order_by("id")
+    return th_models.Bugscache.objects.filter(bugzilla_id__isnull=False).order_by("bugzilla_id")
 
 
 @pytest.fixture
@@ -1143,7 +1143,7 @@ def generic_reference_data(test_repository):
 @pytest.fixture
 def bug_data(eleven_jobs_stored, test_repository, test_push, bugs):
     jobs = th_models.Job.objects.all().order_by("id")
-    bug_id = bugs[0].id
+    bug_id = bugs[0].bugzilla_id
     job_id = jobs[0].id
     th_models.BugJobMap.create(job_id=job_id, bug_id=bug_id)
     query_string = f"?startday=2012-05-09&endday=2018-05-10&tree={test_repository.name}"
@@ -1161,7 +1161,7 @@ def bug_data(eleven_jobs_stored, test_repository, test_push, bugs):
 @pytest.fixture
 def bug_data_with_5_failures(eleven_jobs_stored, test_repository, test_push, bugs):
     jobs = th_models.Job.objects.all().order_by("id")
-    bug_id = bugs[0].id
+    bug_id = bugs[0].bugzilla_id
     for index, job in enumerate(jobs[:5]):
         th_models.BugJobMap.create(job_id=job.id, bug_id=bug_id)
         if index > 2:
