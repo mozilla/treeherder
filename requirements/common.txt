@@ -1479,9 +1479,9 @@ tabulate==0.9.0 \
     --hash=sha256:0095b12bf5966de529c0feb1fa08671671b3368eec77d7ef7ab114be2c068b3c \
     --hash=sha256:024ca478df22e9340661486f85298cff5f6dcdba14f3813e8830015b9ed1948f
     # via mozci
-taskcluster==77.3.1 \
-    --hash=sha256:016b5a6abe0dc690910a8df99611a946fef8d667d514dceb116b0413c55a9a2b \
-    --hash=sha256:626553a389aef53880005851bb19498c2ff6472e545d6b6de19f4ae9665fdb31
+taskcluster==78.0.0 \
+    --hash=sha256:5d439362c76d69097d173902a67605043ac563d0592bc29adc5b6dbff714547d \
+    --hash=sha256:f654eb7de87b933a87557630936aa7672d2cc904a5767fb6c179f874fb69a958
     # via
     #   -r requirements/common.in
     #   mozci
