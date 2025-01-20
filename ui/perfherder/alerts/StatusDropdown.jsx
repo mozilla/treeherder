@@ -374,6 +374,7 @@ export default class StatusDropdown extends React.Component {
             {!alertSummary.bug_number && (
               <DropdownItem
                 tag="a"
+                disabled={!user.isStaff}
                 onClick={() => this.toggle('showFileBugModal')}
               >
                 File bug
