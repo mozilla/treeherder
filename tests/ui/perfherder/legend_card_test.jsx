@@ -25,6 +25,9 @@ const testData = [
     signature_id: 1647493,
     visible: true,
     suite: 'tp5o_webext',
+    shouldAlert: true,
+    alertChangeType: 1,
+    alertThreshold: 2.0,
   },
   {
     color: ['darkorchid', '#9932cc'],
@@ -42,6 +45,7 @@ const testData = [
     signature_id: 2146210,
     visible: true,
     suite: 'tp5o_webext',
+    shouldAlert: null,
   },
 ];
 
@@ -107,6 +111,20 @@ test('click on legend card displays the Test Data Modal', async () => {
     options: { option: 'addRelatedApplications', relatedSeries: testData[0] },
     showModal: true,
   });
+});
+
+test('legend card displays the shouldAlert value', async () => {
+  const { queryByText } = legendCard(testData[0], testData);
+
+  const shouldAlert = await waitFor(() => queryByText('should_alert: true'));
+  const alertChangeType = await waitFor(() =>
+    queryByText('alert_change_type: 1'),
+  );
+  const alertThreshold = await waitFor(() => queryByText('alert_threshold: 2'));
+
+  expect(shouldAlert).toBeInTheDocument();
+  expect(alertChangeType).toBeInTheDocument();
+  expect(alertThreshold).toBeInTheDocument();
 });
 
 test('legend card closes when pressing x', async () => {

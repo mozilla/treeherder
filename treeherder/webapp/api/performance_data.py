@@ -693,6 +693,9 @@ class PerformanceSummary(generics.ListAPIView):
             "tags",
             "measurement_unit",
             "application",
+            "should_alert",
+            "alert_change_type",
+            "alert_threshold",
         )
 
         signature_ids = [item["id"] for item in list(self.queryset)]
