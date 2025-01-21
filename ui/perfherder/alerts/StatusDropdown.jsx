@@ -371,7 +371,7 @@ export default class StatusDropdown extends React.Component {
             <DropdownItem tag="a" onClick={this.copySummary}>
               Copy Summary
             </DropdownItem>
-            {!alertSummary.bug_number && (
+            {!alertSummary.bug_number && user.isStaff && (
               <DropdownItem
                 tag="a"
                 onClick={() => this.toggle('showFileBugModal')}
