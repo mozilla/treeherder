@@ -2,19 +2,19 @@
   "logurl": "http://my-log.mozilla.org/crash-1.txt.gz",
   "errors": [
     {
-      "linenumber": 38366,
+      "linenumber": 38435,
       "line": "Assertion failure: !(addr & GC_CELL_MASK), at e:/builds/moz2_slave/mozilla-central-win32-debug/build/js/src/jsgc.cpp:425"
     },
     {
-      "linenumber": 38374,
+      "linenumber": 38443,
       "line": "NEXT ERROR <#err1> TEST-UNEXPECTED-FAIL | /tests/dom/tests/mochitest/ajax/jquery/test_jQuery.html | Exited with code -1073741819 during test run"
     },
     {
-      "linenumber": 38377,
+      "linenumber": 38446,
       "line": "PROCESS-CRASH | /tests/dom/tests/mochitest/ajax/jquery/test_jQuery.html | application crashed (minidump found)"
     },
     {
-      "linenumber": 39522,
+      "linenumber": 39592,
       "line": "TEST-UNEXPECTED-FAIL | automationutils.processLeakLog() | missing output line for total leaks!"
     }
   ]
