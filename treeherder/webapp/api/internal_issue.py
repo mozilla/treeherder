@@ -6,7 +6,7 @@ from rest_framework import generics, serializers
 
 from treeherder.model.models import Bugscache, FailureLine
 
-# Only track occurences of a bug on a specific time window
+# Only track occurrences of a bug on a specific time window
 BUGSCACHE_OCCURENCES_WINDOW = timedelta(days=7)
 
 
@@ -16,10 +16,10 @@ class InternalIssueSerializer(serializers.Serializer):
         source="failure_line",
         queryset=FailureLine.objects.all(),
     )
-    occurences = serializers.SerializerMethodField(read_only=True)
+    occurrences = serializers.SerializerMethodField(read_only=True)
 
-    def get_occurences(self, bug):
-        return bug.occurences.filter(created__gte=timezone.now() - BUGSCACHE_OCCURENCES_WINDOW)
+    def get_occurrences(self, bug):
+        return bug.occurrences.filter(created__gte=timezone.now() - BUGSCACHE_OCCURENCES_WINDOW)
 
     @transaction.atomic
     def create(self, validated_data):
@@ -29,12 +29,12 @@ class InternalIssueSerializer(serializers.Serializer):
         similar_failure_lines = [failure_line.id]
 
         # Build or retrieve a bug already reported for a similar FailureLine
-        bug = Bugscache.objects.filter(occurences__failure_line__in=similar_failure_lines).first()
+        bug = Bugscache.objects.filter(occurrences__failure_line__in=similar_failure_lines).first()
         if bug is None:
             # TODO: Support writting summary field from the FailureLine information
             bug = Bugscache.objects.create()
 
-        bug.occurences.get_or_create(
+        bug.occurrences.get_or_create(
             user=self.context["request"].user,
             failure_line=failure_line,
             bug=bug,
@@ -43,15 +43,15 @@ class InternalIssueSerializer(serializers.Serializer):
 
     class Meta:
         model = Bugscache
-        fields = ["failure_line_id", "occurences"]
+        fields = ["failure_line_id", "occurrences"]
 
 
-class InternalIssue(generics.CreateAPIView):
+class CreateInternalIssue(generics.CreateAPIView):
     """
-    Create a Bugscache entry, not necessarilly linked to a real Bugzilla ticket.µ
-    In case it already exists, update its occurences.
+    Create a Bugscache entry, not necessarilly linked to a real Bugzilla ticket.
+    In case it already exists, update its occurrences.
 
-    Returns the number of occurences of this bug in the last week.
+    Returns the number of occurrences of this bug in the last week.
     """
 
     serializer_class = InternalIssueSerializer
