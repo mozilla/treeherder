@@ -215,8 +215,8 @@ class BugscacheOccurrence(models.Model):
     """
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    failure_line = models.ForeignKey(
-        "FailureLine", on_delete=models.CASCADE, related_name="bug_occurrences"
+    text_log_error = models.ForeignKey(
+        "TextLogError", on_delete=models.CASCADE, related_name="bug_occurrences"
     )
     bug = models.ForeignKey("Bugscache", on_delete=models.CASCADE, related_name="occurrences")
     created = models.DateTimeField(auto_now_add=True)
@@ -224,8 +224,8 @@ class BugscacheOccurrence(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["failure_line", "bug"],
-                name="unique_failureline_bug_occurrence",
+                fields=["text_log_error", "bug"],
+                name="unique_text_log_error_bug_occurrence",
             )
         ]
 
