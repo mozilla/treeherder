@@ -477,6 +477,11 @@ def test_filter_data_by_signature(
 
 
 def test_perf_summary(client, test_perf_signature, test_perf_data):
+    test_perf_signature.should_alert = True
+    test_perf_signature.alert_change_type = 1
+    test_perf_signature.alert_threshold = 2.0
+    test_perf_signature.save()
+
     query_params1 = f"?repository={test_perf_signature.repository.name}&framework={test_perf_signature.framework_id}&interval=172800&no_subtests=true&revision={test_perf_data[0].push.revision}"
 
     query_params2 = f"?repository={test_perf_signature.repository.name}&framework={test_perf_signature.framework_id}&interval=172800&no_subtests=true&startday=2013-11-01T23%3A28%3A29&endday=2013-11-30T23%3A28%3A29"
@@ -501,6 +506,9 @@ def test_perf_summary(client, test_perf_signature, test_perf_data):
             "repository_name": test_perf_signature.repository.name,
             "repository_id": test_perf_signature.repository.id,
             "data": [],
+            "should_alert": True,
+            "alert_change_type": 1,
+            "alert_threshold": 2,
         }
     ]
 

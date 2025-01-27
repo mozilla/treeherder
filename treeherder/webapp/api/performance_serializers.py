@@ -448,6 +448,9 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
             "data",
             "measurement_unit",
             "application",
+            "should_alert",
+            "alert_change_type",
+            "alert_threshold",
         ]
 
     def get_name(self, value):
