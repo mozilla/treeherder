@@ -106,7 +106,7 @@
     "jest-environment-puppeteer": "11.0.0",
     "jest-puppeteer": "11.0.0",
     "markdownlint-cli": "0.43.0",
-    "mini-css-extract-plugin": "2.6.1",
+    "mini-css-extract-plugin": "2.9.2",
     "path": "0.12.7",
     "prettier": "2.0.5",
     "puppeteer": "24.1.1",
