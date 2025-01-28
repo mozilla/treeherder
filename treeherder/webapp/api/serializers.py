@@ -209,6 +209,7 @@ class BugJobMapSerializer(serializers.ModelSerializer):
 
 
 class JobNoteSerializer(serializers.ModelSerializer):
+    ordering = ["id"]
     job_id = serializers.PrimaryKeyRelatedField(source="job", read_only=True)
 
     # these custom fields are for backwards compatibility
