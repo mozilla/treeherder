@@ -1,5 +1,6 @@
 import datetime
 import logging
+from datetime import date, timedelta
 
 import newrelic.agent
 from cache_memoize import cache_memoize
@@ -77,11 +78,14 @@ class PushViewSet(viewsets.ViewSet):
                     search=SearchVector("revision", "author", "comments", config="english")
                 )
                 .filter(
-                    search=SearchQuery(search_param, config="english")
-                    # Get most recent results and limit result to 200
+                    search=SearchQuery(search_param, config="english"),
+                    # Filter and retrieve pushes from last 3 months
+                    push__time__gte=date.today() - timedelta(days=4 * 7 * 3),
                 )
-                .order_by("-push__time")[:200]
                 .values_list("push_id", flat=True)
+                # Get most recent results and limit result to 200
+                .order_by("-push__time")
+                .distinct()[:200]
             )
             pushes = pushes.filter(id__in=filtered_commits)
         for param, value in meta.items():
