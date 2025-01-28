@@ -111,10 +111,8 @@ export const addBug = (bug, job) => {
       pinnedJobs: { pinnedJobBugs, newBug },
     } = getState();
 
-    const bugId = bug.dupe_of ? bug.dupe_of : bug.id;
-    if (!pinnedJobBugs.has(bugId)) {
-      pinnedJobBugs.add(bugId);
-    }
+    const bugEntry = bug.dupe_of ? bug.dupe_of : { [bug.internal_id]: bug };
+    //pinnedJobBugs = { ...pinnedJobBugs, bugEntry };
 
     if ('newBug' in bug) {
       if (!newBug.has(bug.newBug)) {
@@ -124,7 +122,7 @@ export const addBug = (bug, job) => {
 
     dispatch({
       type: SET_PINNED_JOB_BUGS,
-      pinnedJobBugs: new Set(pinnedJobBugs),
+      pinnedJobBugs: { ...pinnedJobBugs },
     });
     if (job) {
       // ``job`` here is likely passed in from the DetailsPanel which is not
@@ -145,9 +143,9 @@ export const addBug = (bug, job) => {
   };
 };
 
-export const removeBug = (bugId) => ({
+export const removeBug = (bugInternalId) => ({
   type: REMOVE_JOB_BUG,
-  bugId,
+  bugInternalId,
 });
 
 export const unPinAll = () => ({
@@ -157,7 +155,7 @@ export const unPinAll = () => ({
     failureClassificationComment: '',
     newBug: new Set(),
     pinnedJobs: {},
-    pinnedJobBugs: new Set(),
+    pinnedJobBugs: {},
   },
 });
 
@@ -177,7 +175,7 @@ export const togglePinJob = (job) => {
 
 const initialState = {
   pinnedJobs: {},
-  pinnedJobBugs: new Set(),
+  pinnedJobBugs: {},
   failureClassificationComment: '',
   newBug: new Set(),
   failureClassificationId: 4,
@@ -185,7 +183,7 @@ const initialState = {
 };
 
 export const reducer = (state = initialState, action) => {
-  const { type, payload, bugId } = action;
+  const { type, payload, bugInternalId } = action;
   const { pinnedJobBugs } = state;
 
   switch (type) {
@@ -202,8 +200,8 @@ export const reducer = (state = initialState, action) => {
     case UNPIN_ALL_JOBS:
       return { ...state, ...payload };
     case REMOVE_JOB_BUG:
-      pinnedJobBugs.delete(bugId);
-      return { ...state, pinnedJobBugs: new Set(pinnedJobBugs) };
+      pinnedJobBugs.delete(bugInternalId);
+      return { ...state, pinnedJobBugs: { ...pinnedJobBugs } };
     default:
       return state;
   }

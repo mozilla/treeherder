@@ -365,7 +365,7 @@ class PinBoard extends React.Component {
       if (!newBugNumber) {
         this.toggleEnterBugNumber(false);
       } else if (this.isNumber(newBugNumber)) {
-        this.props.addBug({ id: parseInt(newBugNumber, 10) });
+        this.props.addBug({ id: parseInt(newBugNumber, 10), internal_id: 999 });
         this.toggleEnterBugNumber(false);
       }
     }
@@ -518,23 +518,23 @@ class PinBoard extends React.Component {
                   </Button>
                 </span>
               )}
-              {Array.from(pinnedJobBugs).map((bugId) => (
-                <span key={bugId}>
+              {Array.from(pinnedJobBugs).map((bug) => (
+                <span key={bug.internal_id}>
                   <span className="btn-group pinboard-related-bugs-btn">
                     <a
                       className="btn btn-xs related-bugs-link"
-                      href={getBugUrl(bugId)}
+                      href={getBugUrl(bug.id)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      data-testid={`pinboard-bug-${bugId}`}
+                      data-testid={`pinboard-bug-${bug.id}`}
                     >
-                      <em>{bugId}</em>
+                      <em>{bug.id}</em>
                     </a>
                     <Button
                       color="secondary"
                       outline
                       className="btn-xs pinned-job-close-btn"
-                      onClick={() => removeBug(bugId)}
+                      onClick={() => removeBug(bug.internal_id)}
                       title="remove this bug"
                     >
                       <FontAwesomeIcon icon={faTimes} title="Remove bug" />
