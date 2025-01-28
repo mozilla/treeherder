@@ -6136,10 +6136,10 @@ homedir-polyfill@^1.0.0:
   dependencies:
     parse-passwd "^1.0.0"
 
-hotkeys-js@^3.7.5:
-  version "3.8.7"
-  resolved "https://registry.npmjs.org/hotkeys-js/-/hotkeys-js-3.8.7.tgz"
-  integrity sha512-ckAx3EkUr5XjDwjEHDorHxRO2Kb7z6Z2Sxul4MbBkN8Nho7XDslQsgMJT+CiJ5Z4TgRxxvKHEpuLE3imzqy4Lg==
+hotkeys-js@^3.8.1:
+  version "3.13.9"
+  resolved "https://registry.yarnpkg.com/hotkeys-js/-/hotkeys-js-3.13.9.tgz#e2f976dddfa695a4a40ee60d7888e3cf7637a77a"
+  integrity sha512-3TRCj9u9KUH6cKo25w4KIdBfdBfNRjfUwrljCLDC2XhmPDG0SjAZFcFZekpUZFmXzfYoGhFDcdx2gX/vUVtztQ==
 
 hpack.js@^2.1.6:
   version "2.1.6"
@@ -9421,13 +9421,13 @@ react-highlight-words@0.20.0:
     memoize-one "^4.0.0"
     prop-types "^15.5.8"
 
-react-hot-keys@2.5.2:
-  version "2.5.2"
-  resolved "https://registry.npmjs.org/react-hot-keys/-/react-hot-keys-2.5.2.tgz"
-  integrity sha512-JnCDS/qtAOdjr1x+dWr/wbCgWGN7SrnKbqpk5+Y6iftrsMSrKcIWu3YaQrFnb7b5Sh5poc7vKZICV6zNYX+/Ow==
+react-hot-keys@2.6.0:
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/react-hot-keys/-/react-hot-keys-2.6.0.tgz#9c360d45d4d45a0cde35c59eb05335230f8e9f37"
+  integrity sha512-q7UKLGxZyWhIeyNp4TIp5ardcIF5lPeS8Lmh5gTKH+4IOQDrfMkyvAoz1XFYKR2UDc4GW9sEDrzVrqVZu/HrAw==
   dependencies:
     "@babel/runtime" "^7.8.4"
-    hotkeys-js "^3.7.5"
+    hotkeys-js "^3.8.1"
     prop-types "^15.7.2"
 
 react-hot-loader@4.13.1:
