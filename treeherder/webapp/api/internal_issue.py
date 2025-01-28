@@ -7,7 +7,7 @@ from rest_framework import generics, serializers
 from treeherder.model.models import Bugscache, FailureLine
 
 # Only track occurrences of a bug on a specific time window
-BUGSCACHE_OCCURENCES_WINDOW = timedelta(days=7)
+BUGSCACHE_OCCURRENCES_WINDOW = timedelta(days=7)
 
 
 class InternalIssueSerializer(serializers.Serializer):
@@ -19,7 +19,7 @@ class InternalIssueSerializer(serializers.Serializer):
     occurrences = serializers.SerializerMethodField(read_only=True)
 
     def get_occurrences(self, bug):
-        return bug.occurrences.filter(created__gte=timezone.now() - BUGSCACHE_OCCURENCES_WINDOW)
+        return bug.occurrences.filter(created__gte=timezone.now() - BUGSCACHE_OCCURRENCES_WINDOW)
 
     @transaction.atomic
     def create(self, validated_data):
