@@ -207,29 +207,6 @@ class MachinePlatform(models.Model):
         return f"{self.os_name} {self.platform} {self.architecture}"
 
 
-class BugscacheOccurrence(models.Model):
-    """
-    M2M used to reference a bug being reported form a Failure Line locally.
-    Once the same bug is reported multiple times, the user is prompted to fill a Bugzilla ticket.
-    The same user cannot report the same failure line multiple times.
-    """
-
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    failure_line = models.ForeignKey(
-        "FailureLine", on_delete=models.CASCADE, related_name="bug_occurrences"
-    )
-    bug = models.ForeignKey("Bugscache", on_delete=models.CASCADE, related_name="occurrences")
-    created = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["failure_line", "bug"],
-                name="unique_failureline_bug_occurrence",
-            )
-        ]
-
-
 class Bugscache(models.Model):
     id = models.BigAutoField(primary_key=True)
 
@@ -265,7 +242,7 @@ class Bugscache(models.Model):
         return f"{self.id}"
 
     def serialize(self):
-        exclude_fields = ["modified", "processed_update", "occurrences"]
+        exclude_fields = ["modified", "processed_update", "jobmap"]
 
         attrs = model_to_dict(self, exclude=exclude_fields)
         # Serialize bug ID as the bugzilla number for compatibility reasons
@@ -743,7 +720,7 @@ class JobLog(models.Model):
 
 class BugJobMap(models.Model):
     """
-    Maps job_ids to related bug_ids
+    Maps job_ids to related bug. It supports referencing an internal issue (bug without a Bugzilla ID).
 
     Mappings can be made manually through a UI or from doing lookups in the
     BugsCache
@@ -752,8 +729,8 @@ class BugJobMap(models.Model):
     id = models.BigAutoField(primary_key=True)
 
     job = models.ForeignKey(Job, on_delete=models.CASCADE)
-    bug_id = models.PositiveIntegerField(db_index=True)
-    created = models.DateTimeField(default=timezone.now)
+    bug = models.ForeignKey("Bugscache", on_delete=models.CASCADE, related_name="jobmap")
+    created = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # null if autoclassified
     bug_open = models.BooleanField(default=False)
 
@@ -762,7 +739,12 @@ class BugJobMap(models.Model):
 
     class Meta:
         db_table = "bug_job_map"
-        unique_together = ("job", "bug_id")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["job", "bug"],
+                name="unique_job_bug_mapping",
+            )
+        ]
 
     @property
     def who(self):
