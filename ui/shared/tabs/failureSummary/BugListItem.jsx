@@ -27,24 +27,32 @@ function BugListItem(props) {
           <FontAwesomeIcon icon={faThumbtack} title="Select bug" />
         </Button>
       )}
-      <a
-        className={`${bugClassName} ml-1 ${
-          bug.resolution !== '' ? 'strike-through' : ''
-        }`}
-        href={bugUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        title={title}
-      >
-        {bug.id}
-        <Highlighter
-          className={`${bugClassName} ml-1`}
-          searchWords={getSearchWords(suggestion.search)}
-          textToHighlight={bug.summary}
-          caseSensitive
-          highlightTag="strong"
-        />
-      </a>
+      {!bug.id && (
+        <span>
+          <b class="ml-1 mr-1">[INTERNAL]</b>
+          {bug.summary} ({bug.occurrences} occurrences)
+        </span>
+      )}
+      {bug.id && (
+        <a
+          className={`${bugClassName} ml-1 ${
+            bug.resolution !== '' ? 'strike-through' : ''
+          }`}
+          href={bugUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          title={title}
+        >
+          {bug.id}
+          <Highlighter
+            className={`${bugClassName} ml-1`}
+            searchWords={getSearchWords(suggestion.search)}
+            textToHighlight={bug.summary}
+            caseSensitive
+            highlightTag="strong"
+          />
+        </a>
+      )}
       {bug.dupe_of && (
         <span>
           {' '}
