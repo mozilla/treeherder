@@ -25,7 +25,7 @@ const testData = [
     signature_id: 1647493,
     visible: true,
     suite: 'tp5o_webext',
-    shouldAlert: true,
+    shouldAlert: null,
     alertChangeType: 1,
     alertThreshold: 2.0,
   },
@@ -46,6 +46,8 @@ const testData = [
     visible: true,
     suite: 'tp5o_webext',
     shouldAlert: null,
+    alertChangeType: 1,
+    alertThreshold: 2.0,
   },
 ];
 
@@ -118,7 +120,7 @@ test('legend card displays the shouldAlert value', async () => {
 
   const shouldAlert = await waitFor(() => queryByText('should_alert: true'));
   const alertChangeType = await waitFor(() =>
-    queryByText('alert_change_type: 1'),
+    queryByText('alert_change_type: absolute'),
   );
   const alertThreshold = await waitFor(() => queryByText('alert_threshold: 2'));
 
