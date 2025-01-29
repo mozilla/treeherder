@@ -1,6 +1,5 @@
 import datetime
 import logging
-from datetime import date, timedelta
 
 import newrelic.agent
 from cache_memoize import cache_memoize
@@ -73,14 +72,14 @@ class PushViewSet(viewsets.ViewSet):
 
         search_param = filter_params.get("search")
         if search_param:
+            repository = Repository.objects.get(name=project)
             filtered_commits = (
                 Commit.objects.annotate(
                     search=SearchVector("revision", "author", "comments", config="english")
                 )
                 .filter(
                     search=SearchQuery(search_param, config="english"),
-                    # Filter and retrieve pushes from last 3 months
-                    push__time__gte=date.today() - timedelta(days=4 * 7 * 3),
+                    push__repository=repository,
                 )
                 .values_list("push_id", flat=True)
                 # Get most recent results and limit result to 200
