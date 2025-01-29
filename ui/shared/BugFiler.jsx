@@ -632,11 +632,12 @@ export class BugFilerClass extends React.Component {
     const inputToCheck = `${summary}\n${comment}`;
 
     const potentialSecurityIssues = [
+      '65656565',
       'access-violation',
       'data race',
       'double-free',
       'e5e5',
-      '65656565',
+      'f2f2f2f2',
       'global-buffer-overflow',
       'heap-buffer-overflow',
       'heap-use-after-free',
