@@ -20,6 +20,13 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # Allow access to custom manager inside the migration
+        migrations.AlterModelManagers(
+            name='bugjobmap',
+            managers=[
+                ('objects', models.Manager()),
+            ],
+        ),
         migrations.DeleteModel(
             name="BugscacheOccurrence",
         ),
@@ -68,5 +75,11 @@ class Migration(migrations.Migration):
         migrations.RemoveField(
             model_name="bugjobmap",
             name="bugzilla_id",
+        ),
+        migrations.AlterModelManagers(
+            name="bugjobmap",
+            managers=[
+                ("failures", django.db.models.manager.Manager()),
+            ],
         ),
     ]
