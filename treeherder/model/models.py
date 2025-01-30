@@ -25,8 +25,8 @@ logger = logging.getLogger(__name__)
 
 
 class FailuresQuerySet(models.QuerySet):
-    def by_bug(self, bug_id):
-        return self.filter(bug_id=int(bug_id))
+    def by_bug(self, bugzilla_id):
+        return self.filter(bug__bugzilla_id=int(bugzilla_id))
 
     def by_date(self, startday, endday):
         return self.select_related("push", "job").filter(job__push__time__range=(startday, endday))
@@ -754,12 +754,16 @@ class BugJobMap(models.Model):
             return "autoclassifier"
 
     @classmethod
-    def create(cls, job_id, bug_id, user=None, bug_open=False):
+    def create(cls, job_id, internal_bug_id=None, bugzilla_id=None, user=None, bug_open=False):
+        if (bool(internal_bug_id) ^ bool(bugzilla_id)) is False:
+            raise ValueError("Only one of internal bug ID or Bugzilla ID must be set")
+        if internal_bug_id:
+            bug_reference = {"bug_id": internal_bug_id}
+        else:
+            bug_reference = {"bug__bugzilla_id": bugzilla_id}
+
         bug_map = BugJobMap.objects.create(
-            job_id=job_id,
-            bug_id=bug_id,
-            user=user,
-            bug_open=bug_open,
+            job_id=job_id, user=user, bug_open=bug_open, **bug_reference
         )
 
         if not user:
@@ -777,13 +781,14 @@ class BugJobMap(models.Model):
             text_log_error.metadata.best_classification if text_log_error.metadata else None
         )
 
-        if classification is None:
-            return bug_map  # no classification to update
-
-        if classification.bug_number:
-            return bug_map  # classification already has a bug number
-
-        classification.set_bug(bug_id)
+        if (
+            bugzilla_id
+            # no classification to update
+            and classification is not None
+            # classification already has a bug number
+            and not classification.bug_number
+        ):
+            classification.set_bug(bugzilla_id)
 
         return bug_map
 
