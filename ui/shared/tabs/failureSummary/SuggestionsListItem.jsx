@@ -63,7 +63,7 @@ export default class SuggestionsListItem extends React.Component {
         >
           {suggestion.bugs.open_recent.map((bug) => (
             <BugListItem
-              key={bug.id}
+              key={bug.internal_id}
               bug={bug}
               suggestion={suggestion}
               selectedJob={selectedJob}
