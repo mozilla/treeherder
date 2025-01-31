@@ -50,7 +50,9 @@ class BugJobMapViewSet(viewsets.ViewSet):
         job_id, bugzilla_id = map(int, pk.split("-"))
         job = Job.objects.get(repository__name=project, id=job_id)
         try:
-            bug_job_map = BugJobMap.objects.get(job=job, bug__bugzilla_id=bugzilla_id)
+            bug_job_map = BugJobMap.objects.select_related("bug").get(
+                job=job, bug__bugzilla_id=bugzilla_id
+            )
             serializer = BugJobMapSerializer(bug_job_map)
 
             return Response(serializer.data)
@@ -68,7 +70,7 @@ class BugJobMapViewSet(viewsets.ViewSet):
             return Response({"message": "At least one job_id is required"}, status=400)
 
         jobs = Job.objects.filter(repository__name=project, id__in=job_ids)
-        bug_job_maps = BugJobMap.objects.filter(job__in=jobs).select_related("user")
+        bug_job_maps = BugJobMap.objects.filter(job__in=jobs).select_related("user", "bug")
         serializer = BugJobMapSerializer(bug_job_maps, many=True)
 
         return Response(serializer.data)
