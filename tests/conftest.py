@@ -1145,7 +1145,7 @@ def bug_data(eleven_jobs_stored, test_repository, test_push, bugs):
     jobs = th_models.Job.objects.all().order_by("id")
     bug_id = bugs[0].bugzilla_id
     job_id = jobs[0].id
-    th_models.BugJobMap.create(job_id=job_id, bug_id=bug_id)
+    th_models.BugJobMap.create(job_id=job_id, bugzilla_id=bug_id)
     query_string = f"?startday=2012-05-09&endday=2018-05-10&tree={test_repository.name}"
 
     return {
@@ -1163,7 +1163,7 @@ def bug_data_with_5_failures(eleven_jobs_stored, test_repository, test_push, bug
     jobs = th_models.Job.objects.all().order_by("id")
     bug_id = bugs[0].bugzilla_id
     for index, job in enumerate(jobs[:5]):
-        th_models.BugJobMap.create(job_id=job.id, bug_id=bug_id)
+        th_models.BugJobMap.create(job_id=job.id, bugzilla_id=bug_id)
         if index > 2:
             signature = th_models.BugJobMap.failures.last().job.signature
             signature.job_type_name = "mochitest-plain-headless-1"
