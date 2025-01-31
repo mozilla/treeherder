@@ -224,6 +224,9 @@ class Bugscache(models.Model):
     whiteboard = models.CharField(max_length=100, blank=True, default="")
     processed_update = models.BooleanField(default=True)
 
+    # Only track occurrences of a bug on a specific time window
+    INTERNAL_OCCURRENCES_WINDOW = datetime.timedelta(days=7)
+
     class Meta:
         db_table = "bugscache"
         verbose_name_plural = "bugscache"
@@ -246,7 +249,15 @@ class Bugscache(models.Model):
 
         attrs = model_to_dict(self, exclude=exclude_fields)
         # Serialize bug ID as the bugzilla number for compatibility reasons
+        attrs["internal_id"] = attrs["id"]
         attrs["id"] = attrs.pop("bugzilla_id")
+
+        attrs["occurrences"] = None
+        if attrs["id"] is None:
+            # Only fetch occurrences for internal issues. It causes one extra query
+            attrs["occurrences"] = BugJobMap.objects.filter(
+                created__gte=timezone.now() - self.INTERNAL_OCCURRENCES_WINDOW
+            ).count()
         return attrs
 
     @classmethod
