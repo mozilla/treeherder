@@ -189,6 +189,55 @@ class PerformanceSignature(models.Model):
         return f"{self.signature_hash} {name} {self.platform} {self.last_updated}"
 
 
+class PerformanceTelemetrySignature(models.Model):
+    id = models.BigAutoField(primary_key=True)
+
+    NIGHTLY = "Nightly"
+    BETA = "Beta"
+    RELEASE = "Release"
+
+    CHANNELS = (
+        (NIGHTLY, "Mozilla-central Builds"),
+        (BETA, "Mozilla-beta Builds"),
+        (RELEASE, "Mozilla-release Builds")
+    )
+    channel = models.CharField(max_length=30, choices=CHANNELS)
+    platform = models.CharField(max_length=80)
+    probe = models.CharField(max_length=80)
+
+    GLEAN = "Glean"
+    LEGACY = "Legacy"
+
+    PROBE_TYPES = (
+        (GLEAN, "Probes that are from the Glean Telemetry System"),
+        (LEGACY, "Probes that are from the Legacy Telemetry System")
+    )
+    probe_type = models.CharField(max_length=30, choices=PROBE_TYPES)
+    application = models.CharField(
+        max_length=80,
+        default="",
+        help_text="Application that runs the signature's tests. "
+        "Generally used to record browser's name, but not necessarily.",
+    )
+
+    class Meta:
+        db_table = "performance_telemetry_signature"
+
+        unique_together = (
+            "channel",
+            "probe",
+            "probe_type",
+            "platform",
+            "application"
+        )
+
+    def __str__(self):
+        return (
+            f"{self.probe} {self.probe_type} {self.channel} {self.platform} "
+            f"{self.application}"
+        )
+
+
 class PerformanceDatum(models.Model):
     id = models.BigAutoField(primary_key=True)
     repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
@@ -445,13 +494,26 @@ class PerformanceAlertSummary(PerformanceAlertSummaryBase):
         unique_together = ("repository", "framework", "prev_push", "push")
 
 
+class PerformanceTelemetryAlertSummary(PerformanceAlertSummaryBase):
+    assignee = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name="assigned_telemetry_alerts"
+    )
+
+    def autodetermine_status(self, alert_model=None):
+        return super().autodetermine_status(alert_model=PerformanceTelemetryAlertSummary)
+
+    class Meta:
+        db_table = "performance_telemetry_alert_summary"
+        unique_together = ("repository", "framework", "prev_push", "push")
+
+
 class PerformanceAlertSummaryTesting(PerformanceAlertSummaryBase):
     assignee = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True, related_name="assigned_alerts_testing"
     )
 
     def autodetermine_status(self, alert_model=None):
-        super().autodetermine_status(alert_model=PerformanceAlertTesting)
+        return super().autodetermine_status(alert_model=PerformanceAlertTesting)
 
     class Meta:
         db_table = "performance_alert_summary_testing"
@@ -634,6 +696,38 @@ class PerformanceAlert(PerformanceAlertBase):
         unique_together = ("summary", "series_signature")
 
 
+class PerformanceTelemetryAlert(PerformanceAlertBase):
+    summary = models.ForeignKey(
+        PerformanceTelemetryAlertSummary, on_delete=models.CASCADE, related_name="alerts"
+    )
+    related_summary = models.ForeignKey(
+        PerformanceTelemetryAlertSummary,
+        on_delete=models.CASCADE,
+        related_name="related_alerts",
+        null=True,
+    )
+    series_signature = models.ForeignKey(
+        PerformanceTelemetrySignature,
+        on_delete=models.CASCADE
+    )
+
+    sustained = models.BooleanField(default=False)
+    direction = models.CharField(max_length=100, null=True)
+
+    prev_median = models.FloatField(help_text="Previous median value of series before change")
+    new_median = models.FloatField(help_text="New median value of series after change")
+
+    prev_p90 = models.FloatField(help_text="Previous P90 value of series before change")
+    new_p90 = models.FloatField(help_text="New P90 value of series after change")
+
+    prev_p95 = models.FloatField(help_text="Previous P95 value of series before change")
+    new_p95 = models.FloatField(help_text="New P95 value of series after change")
+
+    class Meta:
+        db_table = "performance_telemetry_alert"
+        unique_together = ("summary", "series_signature")
+
+
 class PerformanceAlertTesting(PerformanceAlertBase):
     summary = models.ForeignKey(
         PerformanceAlertSummaryTesting, on_delete=models.CASCADE, related_name="alerts"
@@ -644,10 +738,30 @@ class PerformanceAlertTesting(PerformanceAlertBase):
         related_name="related_alerts",
         null=True,
     )
+    telemetry_series_signature = models.ForeignKey(
+        PerformanceTelemetrySignature,
+        on_delete=models.CASCADE
+    )
+
+    # Duplicate fields from other types of alerts in this table for testing
+    sustained = models.BooleanField(default=False)
+    direction = models.CharField(max_length=100, null=True)
+
+    prev_median = models.FloatField(help_text="Previous median value of series before change")
+    new_median = models.FloatField(help_text="New median value of series after change")
+
+    prev_p90 = models.FloatField(help_text="Previous P90 value of series before change")
+    new_p90 = models.FloatField(help_text="New P90 value of series after change")
+
+    prev_p95 = models.FloatField(help_text="Previous P95 value of series before change")
+    new_p95 = models.FloatField(help_text="New P95 value of series after change")
 
     class Meta:
         db_table = "performance_alert_testing"
-        unique_together = ("summary", "series_signature")
+        unique_together = (
+            ("summary", "series_signature"),
+            ("summary", "telemetry_series_signature"),
+        )
 
 
 class PerformanceTag(models.Model):
