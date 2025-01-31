@@ -754,13 +754,19 @@ class BugJobMap(models.Model):
             return "autoclassifier"
 
     @classmethod
-    def create(cls, job_id, internal_bug_id=None, bugzilla_id=None, user=None, bug_open=False):
+    def create(cls, *, job_id, internal_bug_id=None, bugzilla_id=None, user=None, bug_open=False):
         if (bool(internal_bug_id) ^ bool(bugzilla_id)) is False:
             raise ValueError("Only one of internal bug ID or Bugzilla ID must be set")
         if internal_bug_id:
             bug_reference = {"bug_id": internal_bug_id}
         else:
-            bug_reference = {"bug__bugzilla_id": bugzilla_id}
+            # Try mapping Bugzilla ID to internal reference of a bug
+            try:
+                bug_reference = {
+                    "bug_id": Bugscache.objects.only("id").get(bugzilla_id=bugzilla_id).id
+                }
+            except Bugscache.DoesNotExist:
+                raise ValueError(f"No bug found with Bugzilla ID {bugzilla_id}")
 
         bug_map = BugJobMap.objects.create(
             job_id=job_id, user=user, bug_open=bug_open, **bug_reference

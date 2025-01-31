@@ -1,7 +1,7 @@
 from django.db import IntegrityError
 from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.status import HTTP_404_NOT_FOUND
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
 from treeherder.model.models import BugJobMap, Job
 
@@ -26,6 +26,8 @@ class BugJobMapViewSet(viewsets.ViewSet):
             message = "Bug job map saved"
         except IntegrityError:
             message = "Bug job map skipped: mapping already exists"
+        except ValueError as e:
+            return Response(str(e), HTTP_400_BAD_REQUEST)
 
         return Response({"message": message})
 
