@@ -211,6 +211,9 @@ const LegendCard = ({
         <div className="small">{`should_alert: ${
           series.shouldAlert !== false
         }`}</div>
+        <div className="small">{`modified_should_alert: ${
+          series.modifiedShouldAlert !== false
+        }`}</div>
         <div className="small">{`alert_change_type: ${
           series.alertChangeType === 1 ? 'absolute' : 'percentage'
         }`}</div>

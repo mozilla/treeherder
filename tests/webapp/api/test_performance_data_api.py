@@ -509,6 +509,7 @@ def test_perf_summary(client, test_perf_signature, test_perf_data):
             "should_alert": True,
             "alert_change_type": 1,
             "alert_threshold": 2,
+            "modified_should_alert": True,
         }
     ]
 
