@@ -211,7 +211,7 @@ const LegendCard = ({
         <div className="small">{`should_alert: ${
           series.shouldAlert !== false
         }`}</div>
-        <div className="small">{`modified_should_alert: ${
+        <div className="small">{`annotated_should_alert: ${
           series.modifiedShouldAlert !== false
         }`}</div>
         <div className="small">{`alert_change_type: ${

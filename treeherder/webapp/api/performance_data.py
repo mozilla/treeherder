@@ -693,14 +693,14 @@ class PerformanceSummary(generics.ListAPIView):
         A null value for these subtests indicates that the `should_alert` parameter is set to False.
         """
         self.queryset = (
-            signature_data.prefetch_related("subtests")
+            signature_data.prefetch_related("parent_signature__performancedatum")
             .annotate(
                 modified_should_alert=Case(
                     When(
-                        parent_signature__id__isnull=False,
+                        parent_signature__isnull=False,
                         should_alert__isnull=True,
                         parent_signature__should_alert__in=[True, None],
-                        subtests__performancedatum__value__isnull=False,
+                        parent_signature__performancedatum__isnull=False,
                         then=Value(False),
                     ),
                     default=F("should_alert"),
