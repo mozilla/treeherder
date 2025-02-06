@@ -152,12 +152,13 @@ class PinBoard extends React.Component {
   saveBugs = (job) => {
     const { pinnedJobBugs, newBug, notify } = this.props;
 
-    pinnedJobBugs.forEach((bugId) => {
+    pinnedJobBugs.forEach((bug) => {
       const bjm = new BugJobMapModel({
-        bug_id: bugId,
+        bug_id: bug.id,
+        internal_id: bug.internal_id ?? null,
         job_id: job.id,
         type: 'annotation',
-        bug_open: newBug.has(bugId),
+        bug_open: newBug.has(bug.id),
       });
 
       bjm.create().catch((response) => {
@@ -518,23 +519,30 @@ class PinBoard extends React.Component {
                   </Button>
                 </span>
               )}
-              {Array.from(pinnedJobBugs).map((bugId) => (
-                <span key={bugId}>
+              {Array.from(pinnedJobBugs).map((bug) => (
+                <span key={bug.internal_id}>
                   <span className="btn-group pinboard-related-bugs-btn">
-                    <a
-                      className="btn btn-xs related-bugs-link"
-                      href={getBugUrl(bugId)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      data-testid={`pinboard-bug-${bugId}`}
-                    >
-                      <em>{bugId}</em>
-                    </a>
+                    {!bug.id && (
+                      <span className="btn btn-xs">
+                        <em>i{bug.internal_id}</em>
+                      </span>
+                    )}
+                    {bug.id && (
+                      <a
+                        className="btn btn-xs related-bugs-link"
+                        href={getBugUrl(bug.id)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        data-testid={`pinboard-bug-${bug.id}`}
+                      >
+                        <em>{bug.id}</em>
+                      </a>
+                    )}
                     <Button
                       color="secondary"
                       outline
                       className="btn-xs pinned-job-close-btn"
-                      onClick={() => removeBug(bugId)}
+                      onClick={() => removeBug(bug)}
                       title="remove this bug"
                     >
                       <FontAwesomeIcon icon={faTimes} title="Remove bug" />
