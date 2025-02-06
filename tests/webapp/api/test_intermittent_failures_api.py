@@ -41,7 +41,7 @@ def test_failure_count_by_bug(bug_data, client, test_run_data):
     for bug in bugs:
         if (
             bug.job.repository.name == bug_data["tree"]
-            and bug.bug_id == bug_data["bug_id"]
+            and bug.bug.bugzilla_id == bug_data["bug_id"]
             and bug.job.push.time.strftime("%Y-%m-%d") == test_run_data["push_time"]
         ):
             failure_count += 1

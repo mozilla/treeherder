@@ -25,8 +25,8 @@ logger = logging.getLogger(__name__)
 
 
 class FailuresQuerySet(models.QuerySet):
-    def by_bug(self, bug_id):
-        return self.filter(bug_id=int(bug_id))
+    def by_bug(self, bugzilla_id):
+        return self.filter(bug__bugzilla_id=int(bugzilla_id))
 
     def by_date(self, startday, endday):
         return self.select_related("push", "job").filter(job__push__time__range=(startday, endday))
@@ -207,29 +207,6 @@ class MachinePlatform(models.Model):
         return f"{self.os_name} {self.platform} {self.architecture}"
 
 
-class BugscacheOccurrence(models.Model):
-    """
-    M2M used to reference a bug being reported form a Failure Line locally.
-    Once the same bug is reported multiple times, the user is prompted to fill a Bugzilla ticket.
-    The same user cannot report the same failure line multiple times.
-    """
-
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    failure_line = models.ForeignKey(
-        "FailureLine", on_delete=models.CASCADE, related_name="bug_occurrences"
-    )
-    bug = models.ForeignKey("Bugscache", on_delete=models.CASCADE, related_name="occurrences")
-    created = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["failure_line", "bug"],
-                name="unique_failureline_bug_occurrence",
-            )
-        ]
-
-
 class Bugscache(models.Model):
     id = models.BigAutoField(primary_key=True)
 
@@ -265,7 +242,7 @@ class Bugscache(models.Model):
         return f"{self.id}"
 
     def serialize(self):
-        exclude_fields = ["modified", "processed_update", "occurrences"]
+        exclude_fields = ["modified", "processed_update", "jobmap"]
 
         attrs = model_to_dict(self, exclude=exclude_fields)
         # Serialize bug ID as the bugzilla number for compatibility reasons
@@ -743,7 +720,7 @@ class JobLog(models.Model):
 
 class BugJobMap(models.Model):
     """
-    Maps job_ids to related bug_ids
+    Maps job_ids to related bug. It supports referencing an internal issue (bug without a Bugzilla ID).
 
     Mappings can be made manually through a UI or from doing lookups in the
     BugsCache
@@ -752,8 +729,8 @@ class BugJobMap(models.Model):
     id = models.BigAutoField(primary_key=True)
 
     job = models.ForeignKey(Job, on_delete=models.CASCADE)
-    bug_id = models.PositiveIntegerField(db_index=True)
-    created = models.DateTimeField(default=timezone.now)
+    bug = models.ForeignKey("Bugscache", on_delete=models.CASCADE, related_name="jobmap")
+    created = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # null if autoclassified
     bug_open = models.BooleanField(default=False)
 
@@ -762,7 +739,12 @@ class BugJobMap(models.Model):
 
     class Meta:
         db_table = "bug_job_map"
-        unique_together = ("job", "bug_id")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["job", "bug"],
+                name="unique_job_bug_mapping",
+            )
+        ]
 
     @property
     def who(self):
@@ -772,12 +754,22 @@ class BugJobMap(models.Model):
             return "autoclassifier"
 
     @classmethod
-    def create(cls, job_id, bug_id, user=None, bug_open=False):
+    def create(cls, *, job_id, internal_bug_id=None, bugzilla_id=None, user=None, bug_open=False):
+        if (bool(internal_bug_id) ^ bool(bugzilla_id)) is False:
+            raise ValueError("Only one of internal bug ID or Bugzilla ID must be set")
+        if internal_bug_id:
+            bug_reference = {"bug_id": internal_bug_id}
+        else:
+            # Try mapping Bugzilla ID to internal reference of a bug
+            try:
+                bug_reference = {
+                    "bug_id": Bugscache.objects.only("id").get(bugzilla_id=bugzilla_id).id
+                }
+            except Bugscache.DoesNotExist:
+                raise ValueError(f"No bug found with Bugzilla ID {bugzilla_id}")
+
         bug_map = BugJobMap.objects.create(
-            job_id=job_id,
-            bug_id=bug_id,
-            user=user,
-            bug_open=bug_open,
+            job_id=job_id, user=user, bug_open=bug_open, **bug_reference
         )
 
         if not user:
@@ -795,13 +787,14 @@ class BugJobMap(models.Model):
             text_log_error.metadata.best_classification if text_log_error.metadata else None
         )
 
-        if classification is None:
-            return bug_map  # no classification to update
-
-        if classification.bug_number:
-            return bug_map  # classification already has a bug number
-
-        classification.set_bug(bug_id)
+        if (
+            bugzilla_id
+            # no classification to update
+            and classification is not None
+            # classification already has a bug number
+            and not classification.bug_number
+        ):
+            classification.set_bug(bugzilla_id)
 
         return bug_map
 

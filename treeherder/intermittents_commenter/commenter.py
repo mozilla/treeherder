@@ -286,20 +286,21 @@ class Commenter:
         threshold = 1 if self.weekly_mode else 15
         bug_ids = (
             BugJobMap.failures.by_date(startday, endday)
-            .values("bug_id")
-            .annotate(total=Count("bug_id"))
+            .filter(bug__bugzilla_id__isnull=False)
+            .values("bug__bugzilla_id")
+            .annotate(total=Count("bug__bugzilla_id"))
             .filter(total__gte=threshold)
-            .values_list("bug_id", flat=True)
+            .values_list("bug__bugzilla_id", flat=True)
         )
         bugs = (
             BugJobMap.failures.by_date(startday, endday)
-            .filter(bug_id__in=bug_ids)
+            .filter(bug__bugzilla_id__in=bug_ids)
             .order_by("job__machine_platform__platform")
             .values(
                 "job__repository__name",
                 "job__machine_platform__platform",
                 "job__machine_platform__architecture",
-                "bug_id",
+                "bug__bugzilla_id",
                 "job__option_collection_hash",
                 "job__signature__job_type_name",
             )
@@ -388,7 +389,7 @@ class Commenter:
             platform = platform.replace("-shippable", "")
             architecture = bug["job__machine_platform__architecture"]
             repo = bug["job__repository__name"]
-            bug_id = bug["bug_id"]
+            bug_id = bug["bug__bugzilla_id"]
             build_type = option_collection_map.get(
                 bug["job__option_collection_hash"], "unknown build"
             )
