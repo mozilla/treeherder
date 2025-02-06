@@ -32,16 +32,17 @@ def reopen_intermittent_bugs(minimum_failures_to_reopen=1):
     recent_days = 7
     recently_used_bugs = set(
         BugJobMap.objects.filter(created__gt=(datetime.now() - timedelta(recent_days)))
-        .values("bug_id")
-        .annotate(num_failures=Count("bug_id"))
+        .filter(bug__bugzilla_id__isnull=False)
+        .values("bug__bugzilla_id")
+        .annotate(num_failures=Count("bug__bugzilla_id"))
         .filter(num_failures__gte=minimum_failures_to_reopen)
-        .values_list("bug_id", flat=True)
+        .values_list("bug__bugzilla_id", flat=True)
     )
     bugs_to_reopen = incomplete_bugs & recently_used_bugs
 
-    for bug_id in bugs_to_reopen:
+    for bugzilla_id in bugs_to_reopen:
         bug_data = (
-            BugJobMap.objects.filter(bug_id=bug_id)
+            BugJobMap.objects.filter(bug__bugzilla_id=bugzilla_id)
             .select_related("job__repository")
             .order_by("-created")
             .values("job_id", "job__repository__name")[0]
@@ -51,7 +52,7 @@ def reopen_intermittent_bugs(minimum_failures_to_reopen=1):
         log_url = f"https://treeherder.mozilla.org/logviewer?job_id={job_id}&repo={repository}"
 
         comment = {"body": "New failure instance: " + log_url}
-        url = settings.BUGFILER_API_URL + "/rest/bug/" + str(bug_id)
+        url = settings.BUGFILER_API_URL + "/rest/bug/" + str(bugzilla_id)
         headers = {
             "x-bugzilla-api-key": settings.BUGFILER_API_KEY,
             "Accept": "application/json",
@@ -65,13 +66,15 @@ def reopen_intermittent_bugs(minimum_failures_to_reopen=1):
         try:
             reopen_request(url, method="PUT", headers=headers, json=data)
             # NOTE: this will only toggle 1 bug_job_map entry, not all (if there are retriggers)
-            BugJobMap.objects.filter(job_id=job_id, bug_id=bug_id).update(bug_open=True)
+            BugJobMap.objects.filter(job_id=job_id, bug__bugzilla_id=bugzilla_id).update(
+                bug_open=True
+            )
         except requests.exceptions.HTTPError as e:
             try:
                 message = e.response.json()["message"]
             except (ValueError, KeyError):
                 message = e.response.text
-            logger.error(f"Reopening bug {str(bug_id)} failed: {message}")
+            logger.error(f"Reopening bug {str(bugzilla_id)} failed: {message}")
 
 
 def fetch_intermittent_bugs(additional_params, limit, duplicate_chain_length):
@@ -251,7 +254,9 @@ class BzApiBugProcess:
                 # typo) but they don't cause issues.
                 # distinct('bug_id') is not supported by Django + MySQL 5.7
                 bugs_to_process_next |= set(
-                    BugJobMap.objects.all().values_list("bug_id", flat=True)
+                    BugJobMap.objects.filter(bug__bugzilla_id__isnull=False).values_list(
+                        "bug__bugzilla_id", flat=True
+                    )
                 )
             bugs_to_process = bugs_to_process_next - set(
                 Bugscache.objects.filter(processed_update=True).values_list(
@@ -302,16 +307,20 @@ class BzApiBugProcess:
                 "bugzilla_id", flat=True
             )
         )
-        bugs_used = set(BugJobMap.objects.all().values_list("bug_id", flat=True))
+        bugs_used = set(
+            BugJobMap.objects.filter(bug__bugzilla_id__isnull=False).values_list(
+                "bug__bugzilla_id", flat=True
+            )
+        )
         duplicates_used = duplicates_db & bugs_used
-        for bug_id in duplicates_used:
-            dupe_of = Bugscache.objects.get(bugzilla_id=bug_id).dupe_of
+        for bugzilla_id in duplicates_used:
+            dupe_of = Bugscache.objects.get(bugzilla_id=bugzilla_id).dupe_of
             # Jobs both already classified with new duplicate and its open bug.
             jobs_openish = list(
-                BugJobMap.objects.filter(bug_id=dupe_of).values_list("job_id", flat=True)
+                BugJobMap.objects.filter(bug__bugzilla_id=dupe_of).values_list("job_id", flat=True)
             )
-            BugJobMap.objects.filter(bug_id=bug_id, job_id__in=jobs_openish).delete()
-            BugJobMap.objects.filter(bug_id=bug_id).update(bug_id=dupe_of)
+            BugJobMap.objects.filter(bug__bugzilla_id=bugzilla_id, job_id__in=jobs_openish).delete()
+            BugJobMap.objects.filter(bug__bugzilla_id=bugzilla_id).update(bug_id=dupe_of)
 
         # Delete open bugs and related duplicates if modification date (of open
         # bug) is too old.

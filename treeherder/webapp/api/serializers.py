@@ -202,6 +202,7 @@ class TextLogStepSerializer(serializers.ModelSerializer):
 
 class BugJobMapSerializer(serializers.ModelSerializer):
     job_id = serializers.PrimaryKeyRelatedField(source="job", read_only=True)
+    bug_id = serializers.IntegerField(source="bug.bugzilla_id", read_only=True)
 
     class Meta:
         model = models.BugJobMap
@@ -301,6 +302,7 @@ class PushSerializer(serializers.ModelSerializer):
 
 class FailuresSerializer(serializers.ModelSerializer):
     bug_count = serializers.IntegerField()
+    bug_id = serializers.IntegerField(source="bug__bugzilla_id", read_only=True)
 
     class Meta:
         model = models.BugJobMap
@@ -358,6 +360,7 @@ class FailuresByBugSerializer(serializers.ModelSerializer):
     build_type = serializers.CharField()
     machine_name = serializers.CharField(source="job__machine__name")
     lines = serializers.ListField(child=serializers.CharField())
+    bug_id = serializers.IntegerField(source="bug__bugzilla_id", read_only=True)
 
     class Meta:
         model = models.BugJobMap

@@ -34,9 +34,9 @@ class Failures(generics.ListAPIView):
         self.queryset = (
             BugJobMap.failures.by_date(startday, endday)
             .by_repo(repo)
-            .values("bug_id")
+            .values("bug__bugzilla_id")
             .annotate(bug_count=Count("job_id"))
-            .values("bug_id", "bug_count")
+            .values("bug__bugzilla_id", "bug_count")
             .order_by("-bug_count")
         )
 
@@ -60,16 +60,16 @@ class FailuresByBug(generics.ListAPIView):
         startday = query_params.validated_data["startday"]
         endday = get_end_of_day(query_params.validated_data["endday"])
         repo = query_params.validated_data["tree"]
-        bug_id = query_params.validated_data["bug"]
+        bugzilla_id = query_params.validated_data["bug"]
 
         self.queryset = (
             BugJobMap.failures.by_date(startday, endday)
             .by_repo(repo)
-            .by_bug(bug_id)
+            .by_bug(bugzilla_id)
             .values(
                 "job__repository__name",
                 "job__machine_platform__platform",
-                "bug_id",
+                "bug__bugzilla_id",
                 "job_id",
                 "job__push__time",
                 "job__push__revision",
@@ -131,7 +131,7 @@ class FailureCount(generics.ListAPIView):
         startday = query_params.validated_data["startday"]
         endday = get_end_of_day(query_params.validated_data["endday"])
         repo = query_params.validated_data["tree"]
-        bug_id = query_params.validated_data["bug"]
+        bugzilla_id = query_params.validated_data["bug"]
 
         push_query = (
             Push.failures.filter(time__range=(startday, endday))
@@ -143,11 +143,11 @@ class FailureCount(generics.ListAPIView):
             .order_by("date")
         )
 
-        if bug_id:
+        if bugzilla_id:
             job_query = (
                 BugJobMap.failures.by_date(startday, endday)
                 .by_repo(repo)
-                .by_bug(bug_id)
+                .by_bug(bugzilla_id)
                 .annotate(date=TruncDate("job__push__time"))
                 .values("date")
                 .annotate(failure_count=Count("id"))
