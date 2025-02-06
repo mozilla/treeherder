@@ -3,6 +3,7 @@ import { findJobInstance } from '../../../helpers/job';
 import { notify } from './notifications';
 
 const COUNT_ERROR = 'Max pinboard size of 500 reached.';
+const DUPLICATE_BUG_WARNING = 'This bug (or a duplicate) is already pinned.';
 const MAX_SIZE = 500;
 const SET_CLASSIFICATION_ID = 'SET_CLASSIFICATION_ID';
 const SET_CLASSIFICATION_COMMENT = 'SET_CLASSIFICATION_COMMENT';
@@ -105,26 +106,38 @@ export const pinJobs = (jobsToPin) => {
   };
 };
 
-export const addBug = (bug, job) => {
+export const addBug = (bug, job = null) => {
   return async (dispatch, getState) => {
     const {
       pinnedJobs: { pinnedJobBugs, newBug },
     } = getState();
 
-    const bugId = bug.dupe_of ? bug.dupe_of : bug.id;
-    if (!pinnedJobBugs.has(bugId)) {
-      pinnedJobBugs.add(bugId);
-    }
-
+    const newBugUpdate = new Set(newBug);
     if ('newBug' in bug) {
       if (!newBug.has(bug.newBug)) {
-        newBug.add(bug.newBug);
+        newBugUpdate.add(bug.newBug);
       }
+    }
+    console.log(newBugUpdate);
+    // Avoid duplicating an already pinned bug
+    if (
+      pinnedJobBugs.some(
+        (b) =>
+          (b.dupe_of && (b.dupe_of === bug.id || b.dupe_of === bug.dupe_of)) ||
+          (b.id && (b.id === bug.id || b.id === bug.dupe_of)) ||
+          (b.internal_id && b.internal_id === bug.internal_id),
+      )
+    ) {
+      dispatch(notify(DUPLICATE_BUG_WARNING, 'warning'));
+      return;
     }
 
     dispatch({
       type: SET_PINNED_JOB_BUGS,
-      pinnedJobBugs: new Set(pinnedJobBugs),
+      payload: {
+        pinnedJobBugs: [...pinnedJobBugs, bug],
+        newBug: newBugUpdate,
+      },
     });
     if (job) {
       // ``job`` here is likely passed in from the DetailsPanel which is not
@@ -145,9 +158,16 @@ export const addBug = (bug, job) => {
   };
 };
 
-export const removeBug = (bugId) => ({
+export const removeBug = ({
+  id = None,
+  dupe_of = None,
+  internal_id = None,
+}) => ({
   type: REMOVE_JOB_BUG,
-  bugId,
+  payload: {
+    bugInternalId: internal_id,
+    bugzillaId: dupe_of || id,
+  },
 });
 
 export const unPinAll = () => ({
@@ -157,7 +177,7 @@ export const unPinAll = () => ({
     failureClassificationComment: '',
     newBug: new Set(),
     pinnedJobs: {},
-    pinnedJobBugs: new Set(),
+    pinnedJobBugs: [],
   },
 });
 
@@ -177,7 +197,7 @@ export const togglePinJob = (job) => {
 
 const initialState = {
   pinnedJobs: {},
-  pinnedJobBugs: new Set(),
+  pinnedJobBugs: [],
   failureClassificationComment: '',
   newBug: new Set(),
   failureClassificationId: 4,
@@ -185,8 +205,7 @@ const initialState = {
 };
 
 export const reducer = (state = initialState, action) => {
-  const { type, payload, bugId } = action;
-  const { pinnedJobBugs } = state;
+  const { type, payload } = action;
 
   switch (type) {
     case SET_PINNED_JOBS:
@@ -202,8 +221,24 @@ export const reducer = (state = initialState, action) => {
     case UNPIN_ALL_JOBS:
       return { ...state, ...payload };
     case REMOVE_JOB_BUG:
-      pinnedJobBugs.delete(bugId);
-      return { ...state, pinnedJobBugs: new Set(pinnedJobBugs) };
+      const { bugzillaId, bugInternalId } = payload;
+      let index = -1;
+      if (bugzillaId)
+        index = state.pinnedJobBugs.findIndex(
+          (bug) => bug.dupe_of === bugzillaId || bug.id === bugzillaId,
+        );
+      else if (bugInternalId)
+        index = state.pinnedJobBugs.findIndex(
+          (bug) => bug.internal_id === bugInternalId,
+        );
+      if (index < 0) return state;
+      return {
+        ...state,
+        pinnedJobBugs: [
+          ...state.pinnedJobBugs.slice(0, index),
+          ...state.pinnedJobBugs.slice(index + 1),
+        ],
+      };
     default:
       return state;
   }
