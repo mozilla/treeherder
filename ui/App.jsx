@@ -1,7 +1,6 @@
 import React, { Suspense, lazy } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import { hot } from 'react-hot-loader/root';
-import { Helmet } from 'react-helmet';
 import { ConnectedRouter } from 'connected-react-router';
 import { Provider } from 'react-redux';
 import { RedocStandalone } from 'redoc';
@@ -102,21 +101,17 @@ const withFavicon = (element, route) => {
   let { title } = faviconPaths[route];
   const { favicon } = faviconPaths[route];
 
+  document.querySelector('link[rel="icon"]').href = favicon;
+
   const searchParams = new URLSearchParams(history.location.search);
   const id = searchParams.get('id');
 
   if (history.location.pathname === '/perfherder/alerts' && id) {
     title = `Alert #${id.toString()}`;
   }
+  document.title = title;
 
-  return (
-    <React.Fragment>
-      <Helmet defaultTitle={title}>
-        <link rel={`${title} icon`} href={favicon} />
-      </Helmet>
-      {element}
-    </React.Fragment>
-  );
+  return <React.Fragment>{element}</React.Fragment>;
 };
 
 const App = () => {

@@ -233,9 +233,7 @@ class App extends React.Component {
   };
 
   setCurrentRepoTreeStatus = (status) => {
-    const link = document.head.querySelector(
-      'link[rel="Treeherder Jobs View icon"]',
-    );
+    const link = document.head.querySelector('link[rel="icon"]');
 
     if (link) {
       link.href = thFavicons[status] || thFavicons.open;
