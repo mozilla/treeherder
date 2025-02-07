@@ -5,7 +5,7 @@ Django==5.1.6
 celery==5.4.0  # celery needed for data ingestion
 cached-property==2.0.1 # needed for kombu with --require-hashes
 simplejson==3.19.3  # import simplejson
-newrelic==10.5.0
+newrelic==10.6.0
 certifi==2025.1.31
 
 psycopg2-binary==2.9.9
