@@ -199,7 +199,7 @@ class PerformanceTelemetrySignature(models.Model):
     CHANNELS = (
         (NIGHTLY, "Mozilla-central Builds"),
         (BETA, "Mozilla-beta Builds"),
-        (RELEASE, "Mozilla-release Builds")
+        (RELEASE, "Mozilla-release Builds"),
     )
     channel = models.CharField(max_length=30, choices=CHANNELS)
     platform = models.CharField(max_length=80)
@@ -210,7 +210,7 @@ class PerformanceTelemetrySignature(models.Model):
 
     PROBE_TYPES = (
         (GLEAN, "Probes that are from the Glean Telemetry System"),
-        (LEGACY, "Probes that are from the Legacy Telemetry System")
+        (LEGACY, "Probes that are from the Legacy Telemetry System"),
     )
     probe_type = models.CharField(max_length=30, choices=PROBE_TYPES)
     application = models.CharField(
@@ -223,19 +223,10 @@ class PerformanceTelemetrySignature(models.Model):
     class Meta:
         db_table = "performance_telemetry_signature"
 
-        unique_together = (
-            "channel",
-            "probe",
-            "probe_type",
-            "platform",
-            "application"
-        )
+        unique_together = ("channel", "probe", "probe_type", "platform", "application")
 
     def __str__(self):
-        return (
-            f"{self.probe} {self.probe_type} {self.channel} {self.platform} "
-            f"{self.application}"
-        )
+        return f"{self.probe} {self.probe_type} {self.channel} {self.platform} {self.application}"
 
 
 class PerformanceDatum(models.Model):
@@ -706,10 +697,7 @@ class PerformanceTelemetryAlert(PerformanceAlertBase):
         related_name="related_alerts",
         null=True,
     )
-    series_signature = models.ForeignKey(
-        PerformanceTelemetrySignature,
-        on_delete=models.CASCADE
-    )
+    series_signature = models.ForeignKey(PerformanceTelemetrySignature, on_delete=models.CASCADE)
 
     sustained = models.BooleanField(default=False)
     direction = models.CharField(max_length=100, null=True)
@@ -739,8 +727,7 @@ class PerformanceAlertTesting(PerformanceAlertBase):
         null=True,
     )
     telemetry_series_signature = models.ForeignKey(
-        PerformanceTelemetrySignature,
-        on_delete=models.CASCADE
+        PerformanceTelemetrySignature, on_delete=models.CASCADE
     )
 
     # Duplicate fields from other types of alerts in this table for testing
