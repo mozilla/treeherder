@@ -118,7 +118,6 @@ export const addBug = (bug, job = null) => {
         newBugUpdate.add(bug.newBug);
       }
     }
-    console.log(newBugUpdate);
     // Avoid duplicating an already pinned bug
     if (
       pinnedJobBugs.some(
@@ -158,15 +157,11 @@ export const addBug = (bug, job = null) => {
   };
 };
 
-export const removeBug = ({
-  id = None,
-  dupe_of = None,
-  internal_id = None,
-}) => ({
+export const removeBug = (bug) => ({
   type: REMOVE_JOB_BUG,
   payload: {
-    bugInternalId: internal_id,
-    bugzillaId: dupe_of || id,
+    bugInternalId: bug.internal_id,
+    bugzillaId: bug.dupe_of || bug.id,
   },
 });
 
@@ -206,6 +201,12 @@ const initialState = {
 
 export const reducer = (state = initialState, action) => {
   const { type, payload } = action;
+  const { bugzillaId, bugInternalId } = {
+    bugzillaId: null,
+    bubInternalId: null,
+    ...payload,
+  };
+  let index = -1;
 
   switch (type) {
     case SET_PINNED_JOBS:
@@ -221,8 +222,6 @@ export const reducer = (state = initialState, action) => {
     case UNPIN_ALL_JOBS:
       return { ...state, ...payload };
     case REMOVE_JOB_BUG:
-      const { bugzillaId, bugInternalId } = payload;
-      let index = -1;
       if (bugzillaId)
         index = state.pinnedJobBugs.findIndex(
           (bug) => bug.dupe_of === bugzillaId || bug.id === bugzillaId,

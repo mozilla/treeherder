@@ -27,9 +27,9 @@ function BugListItem(props) {
           <FontAwesomeIcon icon={faThumbtack} title="Select bug" />
         </Button>
       )}
-      <span class="ml-1">i{bug.internal_id}</span>
+      <span className="ml-1">i{bug.internal_id}</span>
       {!bug.id && (
-        <span class="ml-1">
+        <span className="ml-1">
           {bug.summary} ({bug.occurrences} occurrences)
         </span>
       )}
