@@ -135,6 +135,8 @@ def test_bug_properties(transactional_db, sample_bugs):
             "id",
             "status",
             "whiteboard",
+            "internal_id",
+            "occurrences",
         ]
     )
 

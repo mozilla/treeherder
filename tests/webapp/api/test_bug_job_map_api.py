@@ -7,12 +7,10 @@ from treeherder.model.models import BugJobMap, Job
 
 
 @pytest.mark.parametrize(
-    "test_no_auth,test_duplicate_handling,bug_open",
-    [(True, False, False), (False, False, False), (False, True, True)],
+    "test_no_auth,bug_open",
+    [(True, False), (False, False), (False, True)],
 )
-def test_create_bug_job_map(
-    client, test_job, test_user, bugs, test_no_auth, test_duplicate_handling, bug_open
-):
+def test_create_bug_job_map(client, test_job, test_user, bugs, test_no_auth, bug_open):
     """
     test creating a single note via endpoint
     """
@@ -27,17 +25,10 @@ def test_create_bug_job_map(
         "bug_open": bug_open,
     }
 
-    # if testing duplicate handling, submit twice
-    if test_duplicate_handling:
-        num_times = 2
-    else:
-        num_times = 1
-
-    for _ in range(num_times):
-        resp = client.post(
-            reverse("bug-job-map-list", kwargs={"project": test_job.repository.name}),
-            data=submit_obj,
-        )
+    resp = client.post(
+        reverse("bug-job-map-list", kwargs={"project": test_job.repository.name}),
+        data=submit_obj,
+    )
 
     if test_no_auth:
         assert resp.status_code == 403
@@ -51,6 +42,31 @@ def test_create_bug_job_map(
         assert bug_job_map.bug.bugzilla_id == submit_obj["bug_id"]
         assert bug_job_map.user == test_user
         assert bug_job_map.bug_open == bug_open
+
+
+def test_create_bug_job_map_duplicate_handling(client, test_job, test_user, bugs):
+    """
+    test calling creation twice with the same payload
+    """
+    submit_obj = {
+        "job_id": test_job.id,
+        "bug_id": bugs[0].bugzilla_id,
+        "type": "manual",
+        "bug_open": False,
+    }
+    client.force_authenticate(user=test_user)
+
+    resp = client.post(
+        reverse("bug-job-map-list", kwargs={"project": test_job.repository.name}),
+        data=submit_obj,
+    )
+    assert resp.status_code == 200
+    resp = client.post(
+        reverse("bug-job-map-list", kwargs={"project": test_job.repository.name}),
+        data=submit_obj,
+    )
+    assert resp.status_code == 200
+    assert resp.json() == {"message": "Bug job map skipped: mapping already exists"}
 
 
 def test_bug_job_map_list(client, test_repository, eleven_jobs_stored, test_user, bugs):
