@@ -22,7 +22,7 @@ def test_create_bug_job_map(
 
     submit_obj = {
         "job_id": test_job.id,
-        "bug_id": bug.id,
+        "bug_id": bug.bugzilla_id,
         "type": "manual",
         "bug_open": bug_open,
     }
@@ -43,11 +43,12 @@ def test_create_bug_job_map(
         assert resp.status_code == 403
         assert BugJobMap.objects.count() == 0
     else:
+        assert resp.status_code == 200
         assert BugJobMap.objects.count() == 1
         bug_job_map = BugJobMap.objects.first()
 
         assert bug_job_map.job_id == submit_obj["job_id"]
-        assert bug_job_map.bug_id == submit_obj["bug_id"]
+        assert bug_job_map.bug.bugzilla_id == submit_obj["bug_id"]
         assert bug_job_map.user == test_user
         assert bug_job_map.bug_open == bug_open
 
@@ -63,7 +64,7 @@ def test_bug_job_map_list(client, test_repository, eleven_jobs_stored, test_user
     for i, job in enumerate(jobs):
         bjm = BugJobMap.create(
             job_id=job.id,
-            bug_id=bugs[i].bugzilla_id,
+            internal_bug_id=bugs[i].id,
             user=test_user,
         )
 
@@ -98,11 +99,11 @@ def test_bug_job_map_detail(client, eleven_jobs_stored, test_repository, test_us
 
     bjm = BugJobMap.create(
         job_id=job.id,
-        bug_id=bug.id,
+        bugzilla_id=bug.bugzilla_id,
         user=test_user,
     )
 
-    pk = f"{job.id}-{bug.id}"
+    pk = f"{job.id}-{bug.bugzilla_id}"
 
     resp = client.get(
         reverse("bug-job-map-detail", kwargs={"project": test_repository.name, "pk": pk})
@@ -111,7 +112,7 @@ def test_bug_job_map_detail(client, eleven_jobs_stored, test_repository, test_us
 
     expected = {
         "job_id": job.id,
-        "bug_id": bug.id,
+        "bug_id": bug.bugzilla_id,
         "created": bjm.created.isoformat(),
         "who": test_user.email,
     }
@@ -130,14 +131,14 @@ def test_bug_job_map_delete(
 
     BugJobMap.create(
         job_id=job.id,
-        bug_id=bug.id,
+        internal_bug_id=bug.id,
         user=test_user,
     )
 
     if not test_no_auth:
         client.force_authenticate(user=test_user)
 
-    pk = f"{job.id}-{bug.id}"
+    pk = f"{job.id}-{bug.bugzilla_id}"
 
     resp = client.delete(
         reverse("bug-job-map-detail", kwargs={"project": test_repository.name, "pk": pk})
