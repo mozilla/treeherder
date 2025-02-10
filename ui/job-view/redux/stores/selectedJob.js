@@ -28,7 +28,6 @@ export const setSelectedJob = (job, updateDetails = true) => {
     dispatch({
       type: SELECT_JOB,
       job,
-      updateDetails,
     });
     if (updateDetails) {
       const taskRun = job ? getTaskRunStr(job) : null;

@@ -357,12 +357,11 @@ export const setPushes = (pushList, jobMap, router) => ({
   },
 });
 
-export const recalculateUnclassifiedCounts = (filterModel) => {
+export const recalculateUnclassifiedCounts = () => {
   return (dispatch, getState) => {
     const { router } = getState();
     return dispatch({
       type: RECALCULATE_UNCLASSIFIED_COUNTS,
-      filterModel,
       router,
     });
   };
