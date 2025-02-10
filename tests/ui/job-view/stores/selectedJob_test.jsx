@@ -56,7 +56,6 @@ describe('SelectedJob Redux store', () => {
       {
         job: group.jobs[0],
         type: SELECT_JOB,
-        updateDetails: true,
       },
       {
         payload: {
