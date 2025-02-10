@@ -26,10 +26,11 @@ class BugJobMapViewSet(viewsets.ViewSet):
                 "At least one of bug_id or internal_id is required", HTTP_400_BAD_REQUEST
             )
         bug_reference = {}
-        if internal_bug_id:
-            bug_reference["internal_bug_id"] = internal_bug_id
-        elif bugzilla_id:
+        # Use Bugzilla ID by default to handle `dupe_of` attribute correctly
+        if bugzilla_id:
             bug_reference["bugzilla_id"] = bugzilla_id
+        elif internal_bug_id:
+            bug_reference["internal_bug_id"] = internal_bug_id
         try:
             BugJobMap.create(
                 job_id=job_id,

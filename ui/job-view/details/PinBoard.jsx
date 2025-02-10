@@ -154,7 +154,8 @@ class PinBoard extends React.Component {
 
     pinnedJobBugs.forEach((bug) => {
       const bjm = new BugJobMapModel({
-        bug_id: bug.id,
+        // Use dupe_of by default for BugJobMap creation
+        bug_id: bug.dupe_of ?? bug.id ?? null,
         internal_id: bug.internal_id ?? null,
         job_id: job.id,
         type: 'annotation',
@@ -530,12 +531,12 @@ class PinBoard extends React.Component {
                     {bug.id && (
                       <a
                         className="btn btn-xs related-bugs-link"
-                        href={getBugUrl(bug.id)}
+                        href={getBugUrl(bug.dupe_of ?? bug.id)}
                         target="_blank"
                         rel="noopener noreferrer"
                         data-testid={`pinboard-bug-${bug.id}`}
                       >
-                        <em>{bug.id}</em>
+                        <em>{bug.dupe_of ?? bug.id}</em>
                       </a>
                     )}
                     <Button
