@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
-from treeherder.model.models import BugJobMap, Bugscache, Job
+from treeherder.model.models import BugJobMap, Job
 
 from .serializers import BugJobMapSerializer
 
@@ -29,12 +29,7 @@ class BugJobMapViewSet(viewsets.ViewSet):
         if internal_bug_id:
             bug_reference["internal_bug_id"] = internal_bug_id
         elif bugzilla_id:
-            try:
-                bug_reference["bugzilla_id"] = (
-                    Bugscache.objects.only("id").get(bugzilla_id=bugzilla_id).id
-                )
-            except Bugscache.DoesNotExist:
-                return Response(f"No bug match Bugzilla ID {bugzilla_id}", HTTP_400_BAD_REQUEST)
+            bug_reference["bugzilla_id"] = bugzilla_id
         try:
             BugJobMap.create(
                 job_id=job_id,
