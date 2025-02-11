@@ -189,6 +189,46 @@ class PerformanceSignature(models.Model):
         return f"{self.signature_hash} {name} {self.platform} {self.last_updated}"
 
 
+class PerformanceTelemetrySignature(models.Model):
+    id = models.BigAutoField(primary_key=True)
+
+    NIGHTLY = "Nightly"
+    BETA = "Beta"
+    RELEASE = "Release"
+
+    CHANNELS = (
+        (NIGHTLY, "Mozilla-central Builds"),
+        (BETA, "Mozilla-beta Builds"),
+        (RELEASE, "Mozilla-release Builds"),
+    )
+    channel = models.CharField(max_length=30, choices=CHANNELS)
+    platform = models.CharField(max_length=80)
+    probe = models.CharField(max_length=80)
+
+    GLEAN = "Glean"
+    LEGACY = "Legacy"
+
+    PROBE_TYPES = (
+        (GLEAN, "Probes that are from the Glean Telemetry System"),
+        (LEGACY, "Probes that are from the Legacy Telemetry System"),
+    )
+    probe_type = models.CharField(max_length=30, choices=PROBE_TYPES)
+    application = models.CharField(
+        max_length=80,
+        default="",
+        help_text="Application that runs the signature's tests. "
+        "Generally used to record browser's name, but not necessarily.",
+    )
+
+    class Meta:
+        db_table = "performance_telemetry_signature"
+
+        unique_together = ("channel", "probe", "probe_type", "platform", "application")
+
+    def __str__(self):
+        return f"{self.probe} {self.probe_type} {self.channel} {self.platform} {self.application}"
+
+
 class PerformanceDatum(models.Model):
     id = models.BigAutoField(primary_key=True)
     repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
@@ -256,7 +296,7 @@ class IssueTracker(models.Model):
         return f"{self.name} (tasks via {self.task_base_url})"
 
 
-class PerformanceAlertSummary(models.Model):
+class PerformanceAlertSummaryBase(models.Model):
     """
     A summarization of performance alerts
 
@@ -356,61 +396,64 @@ class PerformanceAlertSummary(models.Model):
         self.status = self.autodetermine_status()
         self.save(using=using)
 
-    def autodetermine_status(self):
-        alerts = PerformanceAlert.objects.filter(summary=self) | PerformanceAlert.objects.filter(
+    def autodetermine_status(self, alert_model=None):
+        summary_class = self.__class__
+        if not alert_model:
+            alert_model = PerformanceAlert
+
+        alerts = alert_model.objects.filter(summary=self) | alert_model.objects.filter(
             related_summary=self
         )
 
         # if no alerts yet, we'll say untriaged
         if not alerts:
-            return PerformanceAlertSummary.UNTRIAGED
+            return summary_class.UNTRIAGED
 
         # if any untriaged, then set to untriaged
-        if any(alert.status == PerformanceAlert.UNTRIAGED for alert in alerts):
-            return PerformanceAlertSummary.UNTRIAGED
+        if any(alert.status == alert_model.UNTRIAGED for alert in alerts):
+            return summary_class.UNTRIAGED
 
         # if the summary's status is IMPROVEMENT, but a regression is
         # reassigned to that summary then set the summary's status to untriaged
         # and change all acknowledged statuses to untriaged
-        if self.status == PerformanceAlertSummary.IMPROVEMENT:
+        if self.status == summary_class.IMPROVEMENT:
             if any(
-                alert.status == PerformanceAlert.REASSIGNED and alert.is_regression
-                for alert in alerts
+                alert.status == alert_model.REASSIGNED and alert.is_regression for alert in alerts
             ):
                 acknowledged_alerts = [
-                    alert for alert in alerts if alert.status == PerformanceAlert.ACKNOWLEDGED
+                    alert for alert in alerts if alert.status == alert_model.ACKNOWLEDGED
                 ]
                 for alert in acknowledged_alerts:
-                    alert.status = PerformanceAlert.UNTRIAGED
+                    alert.status = alert_model.UNTRIAGED
                     alert.save()
-                return PerformanceAlertSummary.UNTRIAGED
+                return summary_class.UNTRIAGED
 
         # if all invalid, then set to invalid
-        if all(alert.status == PerformanceAlert.INVALID for alert in alerts):
-            return PerformanceAlertSummary.INVALID
+        if all(alert.status == alert_model.INVALID for alert in alerts):
+            return summary_class.INVALID
 
         # otherwise filter out invalid alerts
-        alerts = [a for a in alerts if a.status != PerformanceAlert.INVALID]
+        alerts = [a for a in alerts if a.status != alert_model.INVALID]
 
         # if there are any "acknowledged" alerts, then set to investigating
         # if not one of the resolved statuses and there are regressions,
         # otherwise we'll say it's an improvement
-        if any(alert.status == PerformanceAlert.ACKNOWLEDGED for alert in alerts):
+        if any(alert.status == alert_model.ACKNOWLEDGED for alert in alerts):
             if all(
                 not alert.is_regression
                 for alert in alerts
-                if alert.status == PerformanceAlert.ACKNOWLEDGED
-                or alert.status == PerformanceAlert.REASSIGNED
+                if alert.status == alert_model.ACKNOWLEDGED
+                or (alert.status == alert_model.REASSIGNED and alert.related_summary.id == self.id)
             ):
-                return PerformanceAlertSummary.IMPROVEMENT
+                return summary_class.IMPROVEMENT
             elif self.status not in (
-                PerformanceAlertSummary.IMPROVEMENT,
-                PerformanceAlertSummary.INVESTIGATING,
-                PerformanceAlertSummary.WONTFIX,
-                PerformanceAlertSummary.FIXED,
-                PerformanceAlertSummary.BACKED_OUT,
+                summary_class.IMPROVEMENT,
+                summary_class.INVESTIGATING,
+                summary_class.WONTFIX,
+                summary_class.FIXED,
+                summary_class.BACKED_OUT,
             ):
-                return PerformanceAlertSummary.INVESTIGATING
+                return summary_class.INVESTIGATING
             # keep status if one of the investigating ones
             return self.status
 
@@ -418,10 +461,10 @@ class PerformanceAlertSummary(models.Model):
         # alerts of its own: all alerts should be either reassigned,
         # downstream, or invalid (but not all invalid, that case is covered
         # above)
-        if any(alert.status == PerformanceAlert.REASSIGNED for alert in alerts):
-            return PerformanceAlertSummary.REASSIGNED
+        if any(alert.status == alert_model.REASSIGNED for alert in alerts):
+            return summary_class.REASSIGNED
 
-        return PerformanceAlertSummary.DOWNSTREAM
+        return summary_class.DOWNSTREAM
 
     def timestamp_first_triage(self):
         # called for summary specific updates (e.g. notes, bug linking)
@@ -430,14 +473,45 @@ class PerformanceAlertSummary(models.Model):
         return self
 
     class Meta:
-        db_table = "performance_alert_summary"
-        unique_together = ("repository", "framework", "prev_push", "push")
+        abstract = True
 
     def __str__(self):
         return f"{self.framework} {self.repository} {self.prev_push.revision}-{self.push.revision}"
 
 
-class PerformanceAlert(models.Model):
+class PerformanceAlertSummary(PerformanceAlertSummaryBase):
+    class Meta:
+        db_table = "performance_alert_summary"
+        unique_together = ("repository", "framework", "prev_push", "push")
+
+
+class PerformanceTelemetryAlertSummary(PerformanceAlertSummaryBase):
+    assignee = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name="assigned_telemetry_alerts"
+    )
+
+    def autodetermine_status(self, alert_model=None):
+        return super().autodetermine_status(alert_model=PerformanceTelemetryAlertSummary)
+
+    class Meta:
+        db_table = "performance_telemetry_alert_summary"
+        unique_together = ("repository", "framework", "prev_push", "push")
+
+
+class PerformanceAlertSummaryTesting(PerformanceAlertSummaryBase):
+    assignee = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name="assigned_alerts_testing"
+    )
+
+    def autodetermine_status(self, alert_model=None):
+        return super().autodetermine_status(alert_model=PerformanceAlertTesting)
+
+    class Meta:
+        db_table = "performance_alert_summary_testing"
+        unique_together = ("repository", "framework", "prev_push", "push")
+
+
+class PerformanceAlertBase(models.Model):
     """
     A single performance alert
 
@@ -500,6 +574,15 @@ class PerformanceAlert(models.Model):
         help_text="t value out of analysis indicating confidence that change is 'real'",
         null=True,
     )
+
+    confidence = models.FloatField(
+        help_text=(
+            "A value that indicates the confidence of the alert (specific to "
+            "the detection method used)"
+        ),
+        null=True,
+    )
+    detection_method = models.CharField(max_length=100, null=True)
 
     SKEWED = "SKEWED"
     OUTLIERS = "OUTLIERS"
@@ -592,11 +675,80 @@ class PerformanceAlert(models.Model):
         return self
 
     class Meta:
-        db_table = "performance_alert"
-        unique_together = ("summary", "series_signature")
+        abstract = True
 
     def __str__(self):
         return f"{self.summary} {self.series_signature} {self.amount_pct}%"
+
+
+class PerformanceAlert(PerformanceAlertBase):
+    class Meta:
+        db_table = "performance_alert"
+        unique_together = ("summary", "series_signature")
+
+
+class PerformanceTelemetryAlert(PerformanceAlertBase):
+    summary = models.ForeignKey(
+        PerformanceTelemetryAlertSummary, on_delete=models.CASCADE, related_name="alerts"
+    )
+    related_summary = models.ForeignKey(
+        PerformanceTelemetryAlertSummary,
+        on_delete=models.CASCADE,
+        related_name="related_alerts",
+        null=True,
+    )
+    series_signature = models.ForeignKey(PerformanceTelemetrySignature, on_delete=models.CASCADE)
+
+    sustained = models.BooleanField(default=False)
+    direction = models.CharField(max_length=100, null=True)
+
+    prev_median = models.FloatField(help_text="Previous median value of series before change")
+    new_median = models.FloatField(help_text="New median value of series after change")
+
+    prev_p90 = models.FloatField(help_text="Previous P90 value of series before change")
+    new_p90 = models.FloatField(help_text="New P90 value of series after change")
+
+    prev_p95 = models.FloatField(help_text="Previous P95 value of series before change")
+    new_p95 = models.FloatField(help_text="New P95 value of series after change")
+
+    class Meta:
+        db_table = "performance_telemetry_alert"
+        unique_together = ("summary", "series_signature")
+
+
+class PerformanceAlertTesting(PerformanceAlertBase):
+    summary = models.ForeignKey(
+        PerformanceAlertSummaryTesting, on_delete=models.CASCADE, related_name="alerts"
+    )
+    related_summary = models.ForeignKey(
+        PerformanceAlertSummaryTesting,
+        on_delete=models.CASCADE,
+        related_name="related_alerts",
+        null=True,
+    )
+    telemetry_series_signature = models.ForeignKey(
+        PerformanceTelemetrySignature, on_delete=models.CASCADE
+    )
+
+    # Duplicate fields from other types of alerts in this table for testing
+    sustained = models.BooleanField(default=False)
+    direction = models.CharField(max_length=100, null=True)
+
+    prev_median = models.FloatField(help_text="Previous median value of series before change")
+    new_median = models.FloatField(help_text="New median value of series after change")
+
+    prev_p90 = models.FloatField(help_text="Previous P90 value of series before change")
+    new_p90 = models.FloatField(help_text="New P90 value of series after change")
+
+    prev_p95 = models.FloatField(help_text="Previous P95 value of series before change")
+    new_p95 = models.FloatField(help_text="New P95 value of series after change")
+
+    class Meta:
+        db_table = "performance_alert_testing"
+        unique_together = (
+            ("summary", "series_signature"),
+            ("summary", "telemetry_series_signature"),
+        )
 
 
 class PerformanceTag(models.Model):
