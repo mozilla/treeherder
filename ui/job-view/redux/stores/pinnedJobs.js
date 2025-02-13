@@ -122,8 +122,11 @@ export const addBug = (bug, job = null) => {
     if (
       pinnedJobBugs.some(
         (b) =>
+          // Check if a bug already in the pinboard is set as duplicate and that number matches either the bug number to be pinned or the bug it is as duplicate of
           (b.dupe_of && (b.dupe_of === bug.id || b.dupe_of === bug.dupe_of)) ||
+          // Check if a bug already in the pinboard has a number matching the number of the bug to be pinned or the number of the bug to which it is set as duplicate
           (b.id && (b.id === bug.id || b.id === bug.dupe_of)) ||
+          // Check if an internal issue already in the pinboard if classified with internal issue (assumption internal issue will be converted to bug soon enough to not need support for duplicates)
           (b.internal_id && b.internal_id === bug.internal_id),
       )
     ) {
