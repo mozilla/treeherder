@@ -108,6 +108,7 @@
     "jest-puppeteer": "11.0.0",
     "markdownlint-cli": "0.43.0",
     "mini-css-extract-plugin": "2.9.2",
+    "moment-locales-webpack-plugin": "1.2.0",
     "path": "0.12.7",
     "prettier": "2.2.1",
     "puppeteer": "24.1.1",
