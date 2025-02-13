@@ -1,62 +1,165 @@
 {
-  "step_data": {
-    "steps": [
-      {
-        "errors": [],
-        "name": "set props: revision",
-        "started": "2013-06-05 12:51:48.767751",
-        "started_linenumber": 8,
-        "finished_linenumber": 10,
-        "finished": "2013-06-05 12:51:48.768393",
-        "result": "success"
-      },
-      {
-        "errors": [],
-        "name": "set props: who",
-        "started": "2013-06-05 12:51:48.768881",
-        "started_linenumber": 12,
-        "finished_linenumber": 14,
-        "finished": "2013-06-05 12:51:48.769473",
-        "result": "success"
-      },
-      {
-        "errors": [
-          {
-            "line": "TEST-UNEXPECTED-FAIL | c:\\talos-slave\\test\\build\\xpcshell\\tests\\services\\sync\\tests\\unit\\test_service_detect_upgrade.js | test failed (with xpcshell return code: -2147483645), see following log:",
-            "linenumber": 5134
-          },
-          {
-            "line": "PROCESS-CRASH | c:\\talos-slave\\test\\build\\xpcshell\\tests\\services\\sync\\tests\\unit\\test_service_detect_upgrade.js | application crashed (minidump found)",
-            "linenumber": 5682
-          }
-        ],
-        "name": "'python mochitest/runtests.py ...' warnings",
-        "started": "2013-06-05 12:54:55.232364",
-        "started_linenumber": 16,
-        "finished_linenumber": 7420,
-        "finished": "2013-06-05 13:15:39.235146",
-        "result": "testfailed"
-      },
-      {
-        "errors": [],
-        "name": "'rm -rf ...'",
-        "started": "2013-06-05 13:15:39.244545",
-        "started_linenumber": 7422,
-        "finished_linenumber": 7466,
-        "finished": "2013-06-05 13:16:04.014823",
-        "result": "success"
-      },
-      {
-        "errors": [],
-        "name": "maybe rebooting slave lost",
-        "started": "2013-06-05 13:16:04.015405",
-        "started_linenumber": 7468,
-        "finished_linenumber": 7470,
-        "finished": "2013-06-05 13:16:04.963614",
-        "result": "success"
-      }
-    ],
-    "errors_truncated": false
-  },
-  "logurl": "http://my-log.mozilla.org/xpcshell-crash.txt.gz"
+  "logurl": "http://my-log.mozilla.org/xpcshell-crash.log.gz",
+  "errors": [
+    {
+      "linenumber": 3289,
+      "line": "21:36:55  WARNING -  PROCESS-CRASH | application crashed [@ libsystem_kernel.dylib + 0x0000000000000dfa] | dom/base/test/unit_ipc/test_bug553888_wrap.js"
+    },
+    {
+      "linenumber": 4332,
+      "line": "21:36:55     INFO -  PID 2029 | [Parent 2029, IPC I/O Parent] WARNING: Process 2050 hanging at shutdown; attempting crash report (fatal error).: file /builds/worker/checkouts/gecko/ipc/chromium/src/chrome/common/process_watcher_posix_sigchld.cc:211"
+    },
+    {
+      "linenumber": 4418,
+      "line": "21:37:06  WARNING -  PROCESS-CRASH | application crashed [@ libsystem_kernel.dylib + 0x0000000000000dfa] | xpcshell-child-process.toml:dom/indexedDB/test/unit/test_event_source.js"
+    },
+    {
+      "linenumber": 5537,
+      "line": "21:37:06     INFO -  PID 2085 | [Parent 2085, IPC I/O Parent] WARNING: Process 2162 hanging at shutdown; attempting crash report (fatal error).: file /builds/worker/checkouts/gecko/ipc/chromium/src/chrome/common/process_watcher_posix_sigchld.cc:211"
+    },
+    {
+      "linenumber": 5543,
+      "line": "21:37:06  WARNING -  PROCESS-CRASH | application crashed [@ libsystem_kernel.dylib + 0x0000000000000dfa] | xpcshell-child-process.toml:dom/indexedDB/test/unit/test_indexes.js"
+    },
+    {
+      "linenumber": 6616,
+      "line": "21:37:07  WARNING -  PROCESS-CRASH | application crashed [@ libsystem_kernel.dylib + 0x0000000000000dfa] | xpcshell-child-process.toml:dom/indexedDB/test/unit/test_index_getAllObjects.js"
+    },
+    {
+      "linenumber": 7665,
+      "line": "21:37:07  WARNING -  PROCESS-CRASH | application crashed [@ libsystem_kernel.dylib + 0x0000000000000dfa] | xpcshell-child-process.toml:dom/indexedDB/test/unit/test_abort_deleted_index.js"
+    },
+    {
+      "linenumber": 8637,
+      "line": "21:37:08  WARNING -  PROCESS-CRASH | application crashed [@ libsystem_kernel.dylib + 0x0000000000000dfa] | xpcshell-child-process.toml:dom/indexedDB/test/unit/test_count.js"
+    },
+    {
+      "linenumber": 9698,
+      "line": "21:37:08  WARNING -  PROCESS-CRASH | application crashed [@ libsystem_kernel.dylib + 0x0000000000000dfa] | xpcshell-child-process.toml:dom/indexedDB/test/unit/test_invalid_cursor.js"
+    },
+    {
+      "linenumber": 10722,
+      "line": "21:37:09  WARNING -  PROCESS-CRASH | application crashed [@ libsystem_kernel.dylib + 0x0000000000000dfa] | xpcshell-child-process.toml:dom/indexedDB/test/unit/test_cursor_update_updates_indexes.js"
+    },
+    {
+      "linenumber": 11761,
+      "line": "21:37:09  WARNING -  PROCESS-CRASH | application crashed [@ libsystem_kernel.dylib + 0x0000000000000dfa] | xpcshell-child-process.toml:dom/indexedDB/test/unit/test_cursor_mutation.js"
+    },
+    {
+      "linenumber": 12802,
+      "line": "21:37:09  WARNING -  PROCESS-CRASH | application crashed [@ libsystem_kernel.dylib + 0x0000000000000dfa] | xpcshell-child-process.toml:dom/indexedDB/test/unit/test_index_update_delete.js"
+    },
+    {
+      "linenumber": 13827,
+      "line": "21:37:10  WARNING -  PROCESS-CRASH | application crashed [@ libsystem_kernel.dylib + 0x0000000000000dfa] | xpcshell-child-process.toml:dom/indexedDB/test/unit/test_cursors.js"
+    },
+    {
+      "linenumber": 14885,
+      "line": "21:37:10  WARNING -  PROCESS-CRASH | application crashed [@ libsystem_kernel.dylib + 0x0000000000000dfa] | xpcshell-child-process.toml:dom/indexedDB/test/unit/test_create_locale_aware_index.js"
+    },
+    {
+      "linenumber": 15911,
+      "line": "21:37:10  WARNING -  PROCESS-CRASH | application crashed [@ libsystem_kernel.dylib + 0x0000000000000dfa] | xpcshell-child-process.toml:dom/indexedDB/test/unit/test_globalObjects_xpc.js"
+    },
+    {
+      "linenumber": 16937,
+      "line": "21:37:11  WARNING -  PROCESS-CRASH | application crashed [@ libsystem_kernel.dylib + 0x0000000000000dfa] | xpcshell-child-process.toml:dom/indexedDB/test/unit/test_create_objectStore.js"
+    },
+    {
+      "linenumber": 17961,
+      "line": "21:37:11  WARNING -  PROCESS-CRASH | application crashed [@ libsystem_kernel.dylib + 0x0000000000000dfa] | xpcshell-child-process.toml:dom/indexedDB/test/unit/test_deleteDatabase_onblocked_duringVersionChange.js"
+    },
+    {
+      "linenumber": 18979,
+      "line": "21:37:12  WARNING -  PROCESS-CRASH | application crashed [@ libsystem_kernel.dylib + 0x0000000000000dfa] | xpcshell-child-process.toml:dom/indexedDB/test/unit/test_deleteDatabase_onblocked.js"
+    },
+    {
+      "linenumber": 20074,
+      "line": "21:37:13  WARNING -  PROCESS-CRASH | application crashed [@ libsystem_kernel.dylib + 0x0000000000000dfa] | xpcshell-child-process.toml:dom/indexedDB/test/unit/test_objectStore_inline_autoincrement_key_added_on_put.js"
+    },
+    {
+      "linenumber": 21103,
+      "line": "21:37:13  WARNING -  PROCESS-CRASH | application crashed [@ libsystem_kernel.dylib + 0x0000000000000dfa] | xpcshell-child-process.toml:dom/indexedDB/test/unit/test_put_get_values.js"
+    },
+    {
+      "linenumber": 22140,
+      "line": "21:37:13  WARNING -  PROCESS-CRASH | application crashed [@ libsystem_kernel.dylib + 0x0000000000000dfa] | xpcshell-child-process.toml:dom/indexedDB/test/unit/test_object_identity.js"
+    },
+    {
+      "linenumber": 23181,
+      "line": "21:37:14  WARNING -  PROCESS-CRASH | application crashed [@ libsystem_kernel.dylib + 0x0000000000000dfa] | xpcshell-child-process.toml:dom/indexedDB/test/unit/test_open_objectStore.js"
+    },
+    {
+      "linenumber": 24210,
+      "line": "21:37:14  WARNING -  PROCESS-CRASH | application crashed [@ libsystem_kernel.dylib + 0x0000000000000dfa] | xpcshell-child-process.toml:dom/indexedDB/test/unit/test_put_get_values_autoIncrement.js"
+    },
+    {
+      "linenumber": 25254,
+      "line": "21:37:15  WARNING -  PROCESS-CRASH | application crashed [@ libsystem_kernel.dylib + 0x0000000000000dfa] | xpcshell-child-process.toml:dom/indexedDB/test/unit/test_overlapping_transactions.js"
+    },
+    {
+      "linenumber": 26332,
+      "line": "21:37:15  WARNING -  PROCESS-CRASH | application crashed [@ libsystem_kernel.dylib + 0x0000000000000dfa] | xpcshell-child-process.toml:dom/indexedDB/test/unit/test_readonly_transactions.js"
+    },
+    {
+      "linenumber": 27484,
+      "line": "21:37:16  WARNING -  PROCESS-CRASH | application crashed [@ libsystem_kernel.dylib + 0x0000000000000dfa] | xpcshell-child-process.toml:dom/indexedDB/test/unit/test_open_for_principal.js"
+    },
+    {
+      "linenumber": 28621,
+      "line": "21:37:16  WARNING -  PROCESS-CRASH | application crashed [@ libsystem_kernel.dylib + 0x0000000000000dfa] | xpcshell-child-process.toml:dom/indexedDB/test/unit/test_optionalArguments.js"
+    },
+    {
+      "linenumber": 30743,
+      "line": "21:37:17     INFO -  PID 2088 | [Parent 2088, IPC I/O Parent] WARNING: Process 2147 hanging at shutdown; attempting crash report (fatal error).: file /builds/worker/checkouts/gecko/ipc/chromium/src/chrome/common/process_watcher_posix_sigchld.cc:211"
+    },
+    {
+      "linenumber": 30837,
+      "line": "21:37:17     INFO -  PID 2211 | [Parent 2211, IPC I/O Parent] WARNING: Process 2240 hanging at shutdown; attempting crash report (fatal error).: file /builds/worker/checkouts/gecko/ipc/chromium/src/chrome/common/process_watcher_posix_sigchld.cc:211"
+    },
+    {
+      "linenumber": 30865,
+      "line": "21:37:17     INFO -  PID 2112 | [Parent 2112, IPC I/O Parent] WARNING: Process 2168 hanging at shutdown; attempting crash report (fatal error).: file /builds/worker/checkouts/gecko/ipc/chromium/src/chrome/common/process_watcher_posix_sigchld.cc:211"
+    },
+    {
+      "linenumber": 30879,
+      "line": "21:37:17     INFO -  PID 2272 | [Parent 2272, IPC I/O Parent] WARNING: Process 2308 hanging at shutdown; attempting crash report (fatal error).: file /builds/worker/checkouts/gecko/ipc/chromium/src/chrome/common/process_watcher_posix_sigchld.cc:211"
+    },
+    {
+      "linenumber": 30934,
+      "line": "21:37:18     INFO -  PID 2271 | [Parent 2271, IPC I/O Parent] WARNING: Process 2312 hanging at shutdown; attempting crash report (fatal error).: file /builds/worker/checkouts/gecko/ipc/chromium/src/chrome/common/process_watcher_posix_sigchld.cc:211"
+    },
+    {
+      "linenumber": 31029,
+      "line": "21:37:18     INFO -  PID 2040 | [Parent 2040, IPC I/O Parent] WARNING: Process 2079 hanging at shutdown; attempting crash report (fatal error).: file /builds/worker/checkouts/gecko/ipc/chromium/src/chrome/common/process_watcher_posix_sigchld.cc:211"
+    },
+    {
+      "linenumber": 31037,
+      "line": "21:37:18     INFO -  PID 2268 | [Parent 2268, IPC I/O Parent] WARNING: Process 2311 hanging at shutdown; attempting crash report (fatal error).: file /builds/worker/checkouts/gecko/ipc/chromium/src/chrome/common/process_watcher_posix_sigchld.cc:211"
+    },
+    {
+      "linenumber": 31053,
+      "line": "21:37:18     INFO -  PID 2214 | [Parent 2214, IPC I/O Parent] WARNING: Process 2241 hanging at shutdown; attempting crash report (fatal error).: file /builds/worker/checkouts/gecko/ipc/chromium/src/chrome/common/process_watcher_posix_sigchld.cc:211"
+    },
+    {
+      "linenumber": 31056,
+      "line": "21:37:18     INFO -  PID 2070 | [Parent 2070, IPC I/O Parent] WARNING: Process 2161 hanging at shutdown; attempting crash report (fatal error).: file /builds/worker/checkouts/gecko/ipc/chromium/src/chrome/common/process_watcher_posix_sigchld.cc:211"
+    },
+    {
+      "linenumber": 31146,
+      "line": "21:37:18     INFO -  PID 2267 | [Parent 2267, IPC I/O Parent] WARNING: Process 2307 hanging at shutdown; attempting crash report (fatal error).: file /builds/worker/checkouts/gecko/ipc/chromium/src/chrome/common/process_watcher_posix_sigchld.cc:211"
+    },
+    {
+      "linenumber": 31156,
+      "line": "21:37:18     INFO -  PID 2077 | [Parent 2077, IPC I/O Parent] WARNING: Process 2145 hanging at shutdown; attempting crash report (fatal error).: file /builds/worker/checkouts/gecko/ipc/chromium/src/chrome/common/process_watcher_posix_sigchld.cc:211"
+    },
+    {
+      "linenumber": 31173,
+      "line": "21:37:18     INFO -  PID 2080 | [Parent 2080, IPC I/O Parent] WARNING: Process 2169 hanging at shutdown; attempting crash report (fatal error).: file /builds/worker/checkouts/gecko/ipc/chromium/src/chrome/common/process_watcher_posix_sigchld.cc:211"
+    },
+    {
+      "linenumber": 31219,
+      "line": "21:37:18     INFO -  PID 2273 | [Parent 2273, IPC I/O Parent] WARNING: Process 2313 hanging at shutdown; attempting crash report (fatal error).: file /builds/worker/checkouts/gecko/ipc/chromium/src/chrome/common/process_watcher_posix_sigchld.cc:211"
+    }
+  ]
 }

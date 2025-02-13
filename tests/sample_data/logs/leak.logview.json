@@ -1,0 +1,17 @@
+{
+  "logurl": "http://my-log.mozilla.org/leak.log.gz",
+  "errors": [
+    {
+      "linenumber": 14425,
+      "line": "21:44:59     INFO - GECKO(8692) | WARNING: YOU ARE LEAKING THE WORLD (at least one JSRuntime and everything alive inside it, that is) AT JS_ShutDown TIME.  FIX THIS!"
+    },
+    {
+      "linenumber": 23370,
+      "line": "21:45:28     INFO - TEST-UNEXPECTED-FAIL | leakcheck large nsGlobalWindowInner | browser/extensions/webcompat/tests/browser/browser.toml"
+    },
+    {
+      "linenumber": 51541,
+      "line": "[taskcluster:error] exit status 1"
+    }
+  ]
+}

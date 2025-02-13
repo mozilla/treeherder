@@ -1,0 +1,9 @@
+{
+  "logurl": "http://my-log.mozilla.org/mochitest-fail.log.gz",
+  "errors": [
+    {
+      "linenumber": 9093,
+      "line": "11:00:27     INFO - TEST-UNEXPECTED-FAIL | devtools/client/webconsole/test/browser/browser_console_enable_network_monitoring.js | A promise chain failed to handle a rejection: Protocol error (Error): Not listening for network events from: server18.conn0.networkParent25 (resource://devtools/server/actors/network-monitor/network-parent.js:99:13) - stack: onPacket/<@resource://devtools/shared/protocol/Front.js:382:31"
+    }
+  ]
+}

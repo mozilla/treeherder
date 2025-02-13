@@ -1,0 +1,13 @@
+{
+  "logurl": "http://my-log.mozilla.org/mochitest-crash.log.gz",
+  "errors": [
+    {
+      "linenumber": 8616,
+      "line": "21:24:26     INFO - GECKO(5432) | [5432] Hit MOZ_CRASH(Shutdown hanging at step XPCOMShutdownThreads. Something is blocking the main-thread.) at /builds/worker/checkouts/gecko/toolkit/components/terminator/nsTerminator.cpp:244"
+    },
+    {
+      "linenumber": 8640,
+      "line": "21:24:45     INFO - PROCESS-CRASH | Shutdown hanging at step XPCOMShutdownThreads. Something is blocking the main-thread. [@ mozilla::(anonymous namespace)::RunWatchdog] | dom/workers/test/test_sourcemap_header.html (finished)"
+    }
+  ]
+}

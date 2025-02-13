@@ -36,9 +36,7 @@ def test_default_builders():
 @responses.activate
 def test_all_builders_complete():
     """test when parse.complete is true creates correct structure"""
-    url = add_log_response(
-        "mozilla-central_fedora-b2g_test-crashtest-1-bm54-tests1-linux-build50.txt.gz"
-    )
+    url = add_log_response("win-aarch64-build.txt.gz")
     lpc = ArtifactBuilderCollection(url)
     for builder in lpc.builders:
         builder.parser.complete = True
