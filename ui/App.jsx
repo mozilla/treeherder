@@ -3,7 +3,6 @@ import { Route, Switch } from 'react-router-dom';
 import { hot } from 'react-hot-loader/root';
 import { ConnectedRouter } from 'connected-react-router';
 import { Provider } from 'react-redux';
-import { RedocStandalone } from 'redoc';
 
 import { permaLinkPrefix } from './perfherder/perf-helpers/constants';
 import { configureStore, history } from './job-view/redux/configureStore';
@@ -26,6 +25,8 @@ const PushHealthApp = lazy(() => import('./push-health/App'));
 const JobsViewApp = lazy(() => import('./job-view/App'));
 
 const LogviewerApp = lazy(() => import('./logviewer/App'));
+
+const RedocApp = lazy(() => import('./RedocApp'));
 
 // backwards compatibility for routes like this: treeherder.mozilla.org/perf.html#/alerts?id=26622&hideDwnToInv=0
 const updateOldUrls = () => {
@@ -176,15 +177,7 @@ const App = () => {
                 withFavicon(<PerfherderApp {...props} />, '/perfherder')
               }
             />
-            <Route
-              path="/docs"
-              render={(props) => (
-                <RedocStandalone
-                  specUrl="/api/schema/?format=openapi-json"
-                  {...props}
-                />
-              )}
-            />
+            <Route path="/docs" render={(props) => <RedocApp {...props} />} />
           </Switch>
         </Suspense>
       </ConnectedRouter>
