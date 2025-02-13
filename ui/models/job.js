@@ -257,7 +257,7 @@ export default class JobModel {
       /* eslint-enable no-await-in-loop */
 
       notify(`Request sent to cancel ${jobTerm} via action.json`, 'success');
-    } catch (e) {
+    } catch {
       notify(`Unable to cancel ${jobTerm}`, 'danger', { sticky: true });
     }
   }
