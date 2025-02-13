@@ -13,7 +13,9 @@
           "dupe_of": null,
           "crash_signature": "",
           "keywords": "intermittent-failure,leave-open",
-          "whiteboard": "[stockwell disabled]"
+          "whiteboard": "[stockwell disabled]",
+          "internal_id": 16,
+          "occurrences": null
         }
       ],
       "all_others": [
@@ -25,7 +27,9 @@
           "dupe_of": null,
           "crash_signature": "",
           "keywords": "intermittent-failure,regression",
-          "whiteboard": ""
+          "whiteboard": "",
+          "internal_id": 17,
+          "occurrences": null
         }
       ]
     }
@@ -44,7 +48,9 @@
           "dupe_of": null,
           "crash_signature": "",
           "keywords": "intermittent-failure",
-          "whiteboard": ""
+          "whiteboard": "",
+          "internal_id": 18,
+          "occurrences": null
         }
       ],
       "all_others": [
@@ -56,7 +62,9 @@
           "dupe_of": 1725749,
           "crash_signature": "[@ audioipc_server::server::CubebServer::process_msg]",
           "keywords": "crash,intermittent-failure",
-          "whiteboard": ""
+          "whiteboard": "",
+          "internal_id": 19,
+          "occurrences": null
         },
         {
           "id": 1573505,
@@ -66,7 +74,9 @@
           "dupe_of": null,
           "crash_signature": "",
           "keywords": "intermittent-failure,regression",
-          "whiteboard": ""
+          "whiteboard": "",
+          "internal_id": 20,
+          "occurrences": null
         }
       ]
     },

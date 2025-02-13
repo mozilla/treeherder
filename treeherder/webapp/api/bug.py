@@ -12,16 +12,31 @@ class BugJobMapViewSet(viewsets.ViewSet):
     def create(self, request, project):
         """Add a new relation between a job and a bug."""
         job_id = int(request.data["job_id"])
-        # TODO: Support either internal reference to a bug or Bugzilla ID
-        bugzilla_id = int(request.data["bug_id"])
         bug_open = bool(request.data["bug_open"])
 
+        bugzilla_id = request.data.get("bug_id")
+        internal_bug_id = request.data.get("internal_id")
+        try:
+            bugzilla_id = bugzilla_id and int(bugzilla_id)
+            internal_bug_id = internal_bug_id and int(internal_bug_id)
+        except TypeError:
+            return Response("bugzilla_id and internal_id must be integers", HTTP_400_BAD_REQUEST)
+        if internal_bug_id is None and bugzilla_id is None:
+            return Response(
+                "At least one of bug_id or internal_id is required", HTTP_400_BAD_REQUEST
+            )
+        bug_reference = {}
+        # Use Bugzilla ID by default to handle `dupe_of` attribute correctly
+        if bugzilla_id:
+            bug_reference["bugzilla_id"] = bugzilla_id
+        elif internal_bug_id:
+            bug_reference["internal_bug_id"] = internal_bug_id
         try:
             BugJobMap.create(
                 job_id=job_id,
-                bugzilla_id=bugzilla_id,
                 user=request.user,
                 bug_open=bug_open,
+                **bug_reference,
             )
             message = "Bug job map saved"
         except IntegrityError:

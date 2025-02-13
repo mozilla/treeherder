@@ -136,6 +136,9 @@ def test_bug_suggestion_line(
             "crash_signature": "",
             "dupe_of": None,
             "id": 1775819,
+            "internal_id": 1,
+            # Only count occurrences for internal issues
+            "occurrences": None,
             "keywords": "intermittent-failure,regression,test-verify-fail",
             "resolution": "",
             "status": "2",

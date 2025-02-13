@@ -6,6 +6,7 @@ import warnings
 from hashlib import sha1
 
 import newrelic.agent
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.postgres.search import TrigramSimilarity
 from django.core.cache import cache
@@ -246,7 +247,16 @@ class Bugscache(models.Model):
 
         attrs = model_to_dict(self, exclude=exclude_fields)
         # Serialize bug ID as the bugzilla number for compatibility reasons
+        attrs["internal_id"] = attrs["id"]
         attrs["id"] = attrs.pop("bugzilla_id")
+
+        attrs["occurrences"] = None
+        if attrs["id"] is None:
+            # Only fetch occurrences for internal issues. It causes one extra query
+            attrs["occurrences"] = BugJobMap.objects.filter(
+                created__gte=timezone.now()
+                - datetime.timedelta(days=settings.INTERNAL_OCCURRENCES_DAYS_WINDOW)
+            ).count()
         return attrs
 
     @classmethod
