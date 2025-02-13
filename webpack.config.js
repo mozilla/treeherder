@@ -8,6 +8,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const { ProvidePlugin } = require('webpack');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const MomentLocalesPlugin = require('moment-locales-webpack-plugin');
 
 const commonConfig = {
   target: 'web',
@@ -42,6 +43,7 @@ const commonConfig = {
       assert: require.resolve('assert'),
       fs: false,
       tls: false,
+      vm: false,
     },
   },
   module: {
@@ -103,6 +105,7 @@ const commonConfig = {
       jQuery: 'jquery',
       'window.jQuery': 'jquery',
     }),
+    new MomentLocalesPlugin(),
   ],
   entry: {
     index: ['./ui/index'],
