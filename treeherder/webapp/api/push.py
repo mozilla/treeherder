@@ -107,6 +107,7 @@ class PushViewSet(viewsets.ViewSet):
                 )
                 filter_params.update({rev_key: meta["revision"]})
                 self.report_if_short_revision(param, value)
+
             elif param == "commit_revision":
                 # revision can be either the revision of the push itself, or
                 # any of the commits it refers to
