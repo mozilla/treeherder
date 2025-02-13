@@ -1,0 +1,21 @@
+{
+  "logurl": "http://my-log.mozilla.org/timeout-crash.log.gz",
+  "errors": [
+    {
+      "linenumber": 9508,
+      "line": "14:56:19     INFO - TEST-UNEXPECTED-TIMEOUT | automation.py | application timed out after 370 seconds with no output"
+    },
+    {
+      "linenumber": 9582,
+      "line": "14:58:25     INFO - PROCESS-CRASH | application crashed [None] | automation.py"
+    },
+    {
+      "linenumber": 9591,
+      "line": "14:58:28     INFO - PROCESS-CRASH | application crashed [@ libsystem_kernel.dylib + 0x0000000000000ce8] | automation.py"
+    },
+    {
+      "linenumber": 106944,
+      "line": "[taskcluster:error] exit status 1"
+    }
+  ]
+}

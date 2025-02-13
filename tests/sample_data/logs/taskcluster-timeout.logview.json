@@ -1,0 +1,41 @@
+{
+  "logurl": "http://my-log.mozilla.org/taskcluster-timeout.log.gz",
+  "errors": [
+    {
+      "linenumber": 1526,
+      "line": "11:53:22     INFO - TEST-UNEXPECTED-TIMEOUT | automation.py | application timed out after 370 seconds with no output"
+    },
+    {
+      "linenumber": 1697,
+      "line": "12:01:26     INFO - TEST-UNEXPECTED-TIMEOUT | automation.py | application timed out after 370 seconds with no output"
+    },
+    {
+      "linenumber": 1853,
+      "line": "12:09:31     INFO - TEST-UNEXPECTED-TIMEOUT | automation.py | application timed out after 370 seconds with no output"
+    },
+    {
+      "linenumber": 2023,
+      "line": "12:17:35     INFO - TEST-UNEXPECTED-TIMEOUT | automation.py | application timed out after 370 seconds with no output"
+    },
+    {
+      "linenumber": 2195,
+      "line": "12:25:40     INFO - TEST-UNEXPECTED-TIMEOUT | automation.py | application timed out after 370 seconds with no output"
+    },
+    {
+      "linenumber": 2351,
+      "line": "12:33:44     INFO - TEST-UNEXPECTED-TIMEOUT | automation.py | application timed out after 370 seconds with no output"
+    },
+    {
+      "linenumber": 2521,
+      "line": "12:41:49     INFO - TEST-UNEXPECTED-TIMEOUT | automation.py | application timed out after 370 seconds with no output"
+    },
+    {
+      "linenumber": 2681,
+      "line": "[taskcluster:error] Aborting task..."
+    },
+    {
+      "linenumber": 2700,
+      "line": "[taskcluster:error] Task aborted - max run time exceeded"
+    }
+  ]
+}

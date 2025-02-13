@@ -1,0 +1,73 @@
+{
+  "logurl": "http://my-log.mozilla.org/mochitest-end.log.gz",
+  "errors": [
+    {
+      "linenumber": 1744,
+      "line": "21:30:46  WARNING -  TEST-UNEXPECTED-FAIL | dom/canvas/test/crossorigin/test_webgl_crossorigin_textures.html | Test timed out. -"
+    },
+    {
+      "linenumber": 1745,
+      "line": "21:30:46  WARNING -  TEST-UNEXPECTED-FAIL | SimpleTest | this test already called finish!"
+    },
+    {
+      "linenumber": 1746,
+      "line": "21:30:46  WARNING -  TEST-UNEXPECTED-ERROR | dom/canvas/test/crossorigin/test_webgl_crossorigin_textures.html | called finish() multiple times"
+    },
+    {
+      "linenumber": 1748,
+      "line": "21:31:16  WARNING -  TEST-UNEXPECTED-FAIL | dom/canvas/test/crossorigin/test_webgl_crossorigin_textures.html | Test timed out. -"
+    },
+    {
+      "linenumber": 1749,
+      "line": "21:31:16  WARNING -  TEST-UNEXPECTED-FAIL | SimpleTest | this test already called finish!"
+    },
+    {
+      "linenumber": 1750,
+      "line": "21:31:16  WARNING -  TEST-UNEXPECTED-ERROR | dom/canvas/test/crossorigin/test_webgl_crossorigin_textures.html | called finish() multiple times"
+    },
+    {
+      "linenumber": 1752,
+      "line": "21:31:46  WARNING -  TEST-UNEXPECTED-FAIL | dom/canvas/test/crossorigin/test_webgl_crossorigin_textures.html | Test timed out. -"
+    },
+    {
+      "linenumber": 1753,
+      "line": "21:31:46  WARNING -  TEST-UNEXPECTED-FAIL | SimpleTest | this test already called finish!"
+    },
+    {
+      "linenumber": 1754,
+      "line": "21:31:46  WARNING -  TEST-UNEXPECTED-ERROR | dom/canvas/test/crossorigin/test_webgl_crossorigin_textures.html | called finish() multiple times"
+    },
+    {
+      "linenumber": 1756,
+      "line": "21:32:06  WARNING -  TEST-UNEXPECTED-FAIL | dom/canvas/test/crossorigin/test_webgl_crossorigin_textures.html | Test timed out. -"
+    },
+    {
+      "linenumber": 1757,
+      "line": "21:32:06  WARNING -  TEST-UNEXPECTED-FAIL | (SimpleTest/TestRunner.js) | 4 test timeouts, giving up. -"
+    },
+    {
+      "linenumber": 1758,
+      "line": "21:32:06  WARNING -  TEST-UNEXPECTED-FAIL | (SimpleTest/TestRunner.js) | Skipping 1 remaining tests. -"
+    },
+    {
+      "linenumber": 1759,
+      "line": "21:32:17  WARNING -  TEST-UNEXPECTED-FAIL | SimpleTest | this test already called finish!"
+    },
+    {
+      "linenumber": 1760,
+      "line": "21:32:17  WARNING -  TEST-UNEXPECTED-ERROR | (SimpleTest/TestRunner.js) | called finish() multiple times"
+    },
+    {
+      "linenumber": 1764,
+      "line": "21:38:54  WARNING -  TEST-UNEXPECTED-FAIL | (SimpleTest/TestRunner.js) (finished) | application timed out after 370 seconds with no output"
+    },
+    {
+      "linenumber": 1769,
+      "line": "21:38:58  WARNING -  PROCESS-CRASH | application crashed [@ libc.so + 0x000000000001ccb5] | dom/canvas/test/crossorigin/mochitest.toml"
+    },
+    {
+      "linenumber": 4964,
+      "line": "21:39:03  WARNING -  PROCESS-CRASH | application crashed [@ libc.so + 0x000000000008c66a] | dom/canvas/test/crossorigin/mochitest.toml"
+    }
+  ]
+}

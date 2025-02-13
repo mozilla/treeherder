@@ -1,0 +1,9 @@
+{
+  "logurl": "http://my-log.mozilla.org/reftest-fail.log.gz",
+  "errors": [
+    {
+      "linenumber": 13566,
+      "line": "21:27:46     INFO - REFTEST TEST-UNEXPECTED-FAIL | layout/reftests/bugs/1804872-2.html == layout/reftests/bugs/1804872-2-ref.html | image comparison, max difference: 255, number of differing pixels: 22456"
+    }
+  ]
+}
