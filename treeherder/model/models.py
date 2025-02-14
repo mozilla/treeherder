@@ -1194,52 +1194,6 @@ class ClassifiedFailure(models.Model):
         db_table = "classified_failure"
 
 
-# TODO delete table once backfill of jobs in TextLogError table has been completed
-class TextLogStep(models.Model):
-    """
-    An individual step in the textual (unstructured) log
-    """
-
-    id = models.BigAutoField(primary_key=True)
-
-    job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name="text_log_step")
-
-    # these are presently based off of buildbot results
-    # (and duplicated in treeherder/etl/buildbot.py)
-    SUCCESS = 0
-    TEST_FAILED = 1
-    BUSTED = 2
-    SKIPPED = 3
-    EXCEPTION = 4
-    RETRY = 5
-    USERCANCEL = 6
-    UNKNOWN = 7
-    SUPERSEDED = 8
-
-    RESULTS = (
-        (SUCCESS, "success"),
-        (TEST_FAILED, "testfailed"),
-        (BUSTED, "busted"),
-        (SKIPPED, "skipped"),
-        (EXCEPTION, "exception"),
-        (RETRY, "retry"),
-        (USERCANCEL, "usercancel"),
-        (UNKNOWN, "unknown"),
-        (SUPERSEDED, "superseded"),
-    )
-
-    name = models.CharField(max_length=200)
-    started = models.DateTimeField(null=True)
-    finished = models.DateTimeField(null=True)
-    started_line_number = models.PositiveIntegerField()
-    finished_line_number = models.PositiveIntegerField()
-    result = models.IntegerField(choices=RESULTS)
-
-    class Meta:
-        db_table = "text_log_step"
-        unique_together = ("job", "started_line_number", "finished_line_number")
-
-
 class TextLogError(models.Model):
     """
     A detected error line in the textual (unstructured) log
@@ -1251,14 +1205,9 @@ class TextLogError(models.Model):
     line_number = models.PositiveIntegerField()
     new_failure = models.BooleanField(default=False)
 
-    # TODO delete this field and unique_together once backfill of jobs in TextLogError table has been completed
-    step = models.ForeignKey(
-        TextLogStep, on_delete=models.CASCADE, related_name="errors", null=True
-    )
-
     class Meta:
         db_table = "text_log_error"
-        unique_together = (("step", "line_number"), ("job", "line_number"))
+        unique_together = ("job", "line_number")
 
     def __str__(self):
         return f"{self.id} {self.job.id}"
