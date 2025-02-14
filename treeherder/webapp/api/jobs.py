@@ -18,7 +18,6 @@ from treeherder.model.models import (
     OptionCollection,
     Repository,
     TextLogError,
-    TextLogStep,
 )
 from treeherder.webapp.api import pagination, serializers
 from treeherder.webapp.api.utils import CharInFilter, NumberInFilter, to_timestamp
@@ -369,26 +368,6 @@ class JobsProjectViewSet(viewsets.ViewSet):
         response_body["meta"] = dict(repository=project, offset=offset, count=count)
 
         return Response(response_body)
-
-    # TODO remove
-    @action(detail=True, methods=["get"])
-    def text_log_steps(self, request, project, pk=None):
-        """
-        Gets a list of steps associated with this job
-        """
-        try:
-            job = Job.objects.get(repository__name=project, id=pk)
-        except ObjectDoesNotExist:
-            return Response(f"No job with id: {pk}", status=HTTP_404_NOT_FOUND)
-
-        textlog_steps = (
-            TextLogStep.objects.filter(job=job)
-            .order_by("started_line_number")
-            .prefetch_related("errors")
-        )
-        return Response(
-            serializers.TextLogStepSerializer(textlog_steps, many=True, read_only=True).data
-        )
 
     @action(detail=True, methods=["get"])
     def text_log_errors(self, request, project, pk=None):
