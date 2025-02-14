@@ -426,10 +426,12 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
     job_ids = serializers.ListField(child=serializers.IntegerField(), default=[])
     data = PerformanceDatumSerializer(read_only=True, many=True, default=[])
     repository_name = serializers.CharField()
+    modified_should_alert = serializers.BooleanField()
 
     class Meta:
         model = PerformanceSignature
         fields = [
+            "modified_should_alert",
             "signature_id",
             "framework_id",
             "signature_hash",
@@ -448,6 +450,9 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
             "data",
             "measurement_unit",
             "application",
+            "should_alert",
+            "alert_change_type",
+            "alert_threshold",
         ]
 
     def get_name(self, value):
