@@ -1,0 +1,145 @@
+{
+  "logurl": "http://my-log.mozilla.org/wpt-multiple.log.gz",
+  "errors": [
+    {
+      "linenumber": 6932,
+      "line": "23:52:10     INFO - TEST-UNEXPECTED-FAIL | /fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html | After a file has finished moving, that file can have an open access handle in readwrite-unsafe mode - promise_rejects_dom: function \"function() { throw e }\" threw object \"NotFoundError: Entry not found\" that is not a DOMException NoModificationAllowedError: property \"code\" is equal to 8, expected 7"
+    },
+    {
+      "linenumber": 6935,
+      "line": "23:52:10     INFO - TEST-UNEXPECTED-PASS | /fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html | A file cannot be moved to a location with an open access handle in readwrite-unsafe mode - expected NOTRUN"
+    },
+    {
+      "linenumber": 6938,
+      "line": "23:52:10     INFO - TEST-UNEXPECTED-PASS | /fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html | A file with an open access handle in readwrite-unsafe mode cannot be moved - expected NOTRUN"
+    },
+    {
+      "linenumber": 6941,
+      "line": "23:52:10     INFO - TEST-UNEXPECTED-PASS | /fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html | A file with an open access handle in readwrite-unsafe mode does not interfere with moving another file - expected NOTRUN"
+    },
+    {
+      "linenumber": 6944,
+      "line": "23:52:10     INFO - TEST-UNEXPECTED-PASS | /fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html | After an open access handle in readwrite-unsafe mode on a file has been closed, that file can be moved - expected NOTRUN"
+    },
+    {
+      "linenumber": 6947,
+      "line": "23:52:10     INFO - TEST-UNEXPECTED-FAIL | /fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html | A file with an ongoing remove operation does not interfere with the creation of an open access handle in readwrite-unsafe mode on another file - promise_test: Unhandled rejection with value: object \"TypeError: fileHandle.remove is not a function\""
+    },
+    {
+      "linenumber": 6950,
+      "line": "23:52:10     INFO - TEST-UNEXPECTED-FAIL | /fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html | After a file has finished being removed, that file can have an open access handle in readwrite-unsafe mode - promise_test: Unhandled rejection with value: object \"TypeError: fileHandle.remove is not a function\""
+    },
+    {
+      "linenumber": 6953,
+      "line": "23:52:10     INFO - TEST-UNEXPECTED-FAIL | /fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html | A directory cannot be removed if it contains a file that has an open access handle in readwrite-unsafe mode. - promise_test: Unhandled rejection with value: object \"TypeError: fileHandle.remove is not a function\""
+    },
+    {
+      "linenumber": 6956,
+      "line": "23:52:10     INFO - TEST-UNEXPECTED-FAIL | /fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html | A file with an open access handle in readwrite-unsafe mode cannot be removed - promise_test: Unhandled rejection with value: object \"TypeError: fileHandle.remove is not a function\""
+    },
+    {
+      "linenumber": 6959,
+      "line": "23:52:10     INFO - TEST-UNEXPECTED-FAIL | /fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html | A file with an open access handle in readwrite-unsafe mode does not interfere with removing another file - promise_test: Unhandled rejection with value: object \"TypeError: fileHandle.remove is not a function\""
+    },
+    {
+      "linenumber": 6962,
+      "line": "23:52:10     INFO - TEST-UNEXPECTED-FAIL | /fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html | After an open access handle in readwrite-unsafe mode on a file has been closed, that file can be removed - promise_test: Unhandled rejection with value: object \"TypeError: fileHandle.remove is not a function\""
+    },
+    {
+      "linenumber": 6965,
+      "line": "23:52:10     INFO - TEST-UNEXPECTED-PASS | /fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html | When there's an open writable stream in siloed mode on a file, cannot have an open access handle in readwrite-unsafe mode on that same file - expected NOTRUN"
+    },
+    {
+      "linenumber": 6968,
+      "line": "23:52:10     INFO - TEST-UNEXPECTED-PASS | /fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html | A file with an open writable stream in siloed mode does not interfere with an open access handle in readwrite-unsafe mode on another file - expected NOTRUN"
+    },
+    {
+      "linenumber": 6971,
+      "line": "23:52:10     INFO - TEST-UNEXPECTED-PASS | /fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html | After all writable streams in siloed mode have been closed for a file, that file can have an open access handle in readwrite-unsafe mode - expected NOTRUN"
+    },
+    {
+      "linenumber": 6974,
+      "line": "23:52:10     INFO - TEST-UNEXPECTED-PASS | /fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html | When there's an open access handle in readwrite-unsafe mode on a file, cannot open an open writable stream in siloed mode on that same file - expected NOTRUN"
+    },
+    {
+      "linenumber": 6977,
+      "line": "23:52:10     INFO - TEST-UNEXPECTED-PASS | /fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html | A file with an open access handle in readwrite-unsafe mode does not interfere with the creation of an open writable stream in siloed mode on another file - expected NOTRUN"
+    },
+    {
+      "linenumber": 6980,
+      "line": "23:52:10     INFO - TEST-UNEXPECTED-PASS | /fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html | When there's an open writable stream in exclusive mode on a file, cannot have an open access handle in readwrite-unsafe mode on that same file - expected NOTRUN"
+    },
+    {
+      "linenumber": 6983,
+      "line": "23:52:10     INFO - TEST-UNEXPECTED-PASS | /fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html | A file with an open writable stream in exclusive mode does not interfere with an open access handle in readwrite-unsafe mode on another file - expected NOTRUN"
+    },
+    {
+      "linenumber": 6986,
+      "line": "23:52:10     INFO - TEST-UNEXPECTED-PASS | /fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html | After a writable stream in exclusive mode has been closed for a file, that file can have an open access handle in readwrite-unsafe mode - expected NOTRUN"
+    },
+    {
+      "linenumber": 6989,
+      "line": "23:52:10     INFO - TEST-UNEXPECTED-PASS | /fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html | When there's an open access handle in readwrite-unsafe mode on a file, cannot open an open writable stream in exclusive mode on that same file - expected NOTRUN"
+    },
+    {
+      "linenumber": 6992,
+      "line": "23:52:10     INFO - TEST-UNEXPECTED-PASS | /fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html | A file with an open access handle in readwrite-unsafe mode does not interfere with the creation of an open writable stream in exclusive mode on another file - expected NOTRUN"
+    },
+    {
+      "linenumber": 6995,
+      "line": "23:52:10     INFO - TEST-UNEXPECTED-PASS | /fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html | A file with an ongoing move operation does not interfere with an open writable stream in siloed mode on another file - expected NOTRUN"
+    },
+    {
+      "linenumber": 6998,
+      "line": "23:52:10     INFO - TEST-UNEXPECTED-FAIL | /fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html | After a file has finished moving, that file can have an open writable stream in siloed mode - promise_rejects_dom: function \"function() { throw e }\" threw object \"NotFoundError: Entry not found\" that is not a DOMException NoModificationAllowedError: property \"code\" is equal to 8, expected 7"
+    },
+    {
+      "linenumber": 7001,
+      "line": "23:52:10     INFO - TEST-UNEXPECTED-PASS | /fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html | A file cannot be moved to a location with an open writable stream in siloed mode - expected NOTRUN"
+    },
+    {
+      "linenumber": 7004,
+      "line": "23:52:10     INFO - TEST-UNEXPECTED-PASS | /fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html | When there's an open writable stream in siloed mode on a file, cannot have an ongoing move operation on that same file - expected NOTRUN"
+    },
+    {
+      "linenumber": 7007,
+      "line": "23:52:10     INFO - TEST-UNEXPECTED-PASS | /fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html | A file with an open writable stream in siloed mode does not interfere with an ongoing move operation on another file - expected NOTRUN"
+    },
+    {
+      "linenumber": 7010,
+      "line": "23:52:10     INFO - TEST-UNEXPECTED-PASS | /fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html | After all writable streams in siloed mode have been closed for a file, that file can have an ongoing move operation - expected NOTRUN"
+    },
+    {
+      "linenumber": 7013,
+      "line": "23:52:10     INFO - TEST-UNEXPECTED-FAIL | /fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html | A file with an ongoing remove operation does not interfere with the creation of an open writable stream in siloed mode on another file - promise_test: Unhandled rejection with value: object \"TypeError: fileHandle.remove is not a function\""
+    },
+    {
+      "linenumber": 7016,
+      "line": "23:52:10     INFO - TEST-UNEXPECTED-FAIL | /fs/FileSystemFileHandle-cross-primitive-locking.https.tentative.worker.html | After a file has finished being removed, that file can have an open writable stream in siloed mode - promise_test: Unhandled rejection with value: object \"TypeError: fileHandle.remove is not a function\""
+    },
+    {
+      "linenumber": 15089,
+      "line": "00:01:58     INFO - KeyError: 261"
+    },
+    {
+      "linenumber": 15117,
+      "line": "00:01:58     INFO - KeyError: 275"
+    },
+    {
+      "linenumber": 17469,
+      "line": "00:05:10  WARNING - KeyError: 'bidi.bluetooth.simulate_adapter'"
+    },
+    {
+      "linenumber": 17482,
+      "line": "00:05:10  WARNING - ValueError: Unknown action bidi.bluetooth.simulate_adapter"
+    },
+    {
+      "linenumber": 17518,
+      "line": "00:05:15  WARNING - KeyError: 'bidi.permissions.set_permission'"
+    },
+    {
+      "linenumber": 17531,
+      "line": "00:05:15  WARNING - ValueError: Unknown action bidi.permissions.set_permission"
+    }
+  ]
+}

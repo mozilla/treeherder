@@ -1,0 +1,13 @@
+{
+  "logurl": "http://my-log.mozilla.org/asan_too_large.log.gz",
+  "errors": [
+    {
+      "linenumber": 5438,
+      "line": "22:10:07    ERROR - PID 16211 | ==16211==ERROR: AddressSanitizer: heap-use-after-free on address 0x512000dacef0 at pc 0x7f5f778257ff bp 0x7fff65bbc1b0 sp 0x7fff65bbc1a8"
+    },
+    {
+      "linenumber": 5542,
+      "line": "22:10:09     INFO - PID 16211 | SUMMARY: AddressSanitizer: heap-use-after-free /builds/worker/workspace/obj-build/dist/include/nsISupportsImpl.h:388:19 in operator++"
+    }
+  ]
+}
