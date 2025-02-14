@@ -26,9 +26,9 @@ This is the #{{rank}} most frequent failure this week.{% endif %}
 * {{repository}}: {{count}}
 {% endfor %}
 ## Platform and build breakdown:
-{% for platform, stats in platforms.items() -%}
+{% for platform, stats in platforms.items() | sort -%}
 * {{platform}}: {{stats['total']}}
-  {%- for build, count in stats['per_build_type'].items() %}
+  {%- for build, count in stats['per_build_type'].items() | sort %}
   * {{ build }}: {{ count }}
   {%- endfor %}
 {% endfor %}
