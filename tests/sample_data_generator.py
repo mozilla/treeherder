@@ -73,12 +73,7 @@ def option_collection(**kwargs):
 
 def log_references(log_refs=None):
     if not log_refs:
-        log_refs = [
-            {
-                "url": "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/...",
-                "name": "unittest",
-            }
-        ]
+        log_refs = [{"url": "http://ftp.mozilla.org/pub/...", "name": "unittest"}]
     return log_refs
 
 
@@ -88,9 +83,9 @@ def build_platform(**kwargs):
 
     """
     defaults = {
-        "platform": "Windows11",
+        "platform": "WINNT5.1",
         "os_name": "win",
-        "architecture": "x86_64",
+        "architecture": "x86",
     }
 
     defaults.update(kwargs)
@@ -104,9 +99,9 @@ def machine_platform(**kwargs):
 
     """
     defaults = {
-        "platform": "Windows11",
+        "platform": "WINNT5.1",
         "os_name": "win",
-        "architecture": "x86_64",
+        "architecture": "x86",
     }
 
     defaults.update(kwargs)

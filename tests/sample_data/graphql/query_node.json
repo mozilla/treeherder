@@ -1,0 +1,170 @@
+[
+  {
+    "alias": null,
+    "arguments": [
+      {
+        "kind": "Argument",
+        "name": {
+          "kind": "Name",
+          "value": "result"
+        },
+        "value": {
+          "kind": "StringValue",
+          "value": "testfailed"
+        }
+      },
+      {
+        "kind": "Argument",
+        "name": {
+          "kind": "Name",
+          "value": "tier_Lt"
+        },
+        "value": {
+          "kind": "IntValue",
+          "value": "3"
+        }
+      }
+    ],
+    "directives": [],
+    "kind": "Field",
+    "name": {
+      "kind": "Name",
+      "value": "jobs"
+    },
+    "selection_set": {
+      "kind": "SelectionSet",
+      "selections": [
+        {
+          "alias": null,
+          "arguments": [],
+          "directives": [],
+          "kind": "Field",
+          "name": {
+            "kind": "Name",
+            "value": "edges"
+          },
+          "selection_set": {
+            "kind": "SelectionSet",
+            "selections": [
+              {
+                "alias": null,
+                "arguments": [],
+                "directives": [],
+                "kind": "Field",
+                "name": {
+                  "kind": "Name",
+                  "value": "node"
+                },
+                "selection_set": {
+                  "kind": "SelectionSet",
+                  "selections": [
+                    {
+                      "alias": null,
+                      "arguments": [],
+                      "directives": [],
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "failureClassification"
+                      },
+                      "selection_set": {
+                        "kind": "SelectionSet",
+                        "selections": [
+                          {
+                            "alias": null,
+                            "arguments": [],
+                            "directives": [],
+                            "kind": "Field",
+                            "name": {
+                              "kind": "Name",
+                              "value": "name"
+                            },
+                            "selection_set": null
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "alias": null,
+                      "arguments": [],
+                      "directives": [],
+                      "kind": "Field",
+                      "name": {
+                        "kind": "Name",
+                        "value": "jobType"
+                      },
+                      "selection_set": {
+                        "kind": "SelectionSet",
+                        "selections": [
+                          {
+                            "alias": null,
+                            "arguments": [],
+                            "directives": [],
+                            "kind": "Field",
+                            "name": {
+                              "kind": "Name",
+                              "value": "symbol"
+                            },
+                            "selection_set": null
+                          },
+                          {
+                            "alias": null,
+                            "arguments": [],
+                            "directives": [],
+                            "kind": "Field",
+                            "name": {
+                              "kind": "Name",
+                              "value": "name"
+                            },
+                            "selection_set": null
+                          },
+                          {
+                            "alias": null,
+                            "arguments": [],
+                            "directives": [],
+                            "kind": "Field",
+                            "name": {
+                              "kind": "Name",
+                              "value": "jobGroup"
+                            },
+                            "selection_set": {
+                              "kind": "SelectionSet",
+                              "selections": [
+                                {
+                                  "alias": null,
+                                  "arguments": [],
+                                  "directives": [],
+                                  "kind": "Field",
+                                  "name": {
+                                    "kind": "Name",
+                                    "value": "symbol"
+                                  },
+                                  "selection_set": null
+                                },
+                                {
+                                  "alias": null,
+                                  "arguments": [],
+                                  "directives": [],
+                                  "kind": "Field",
+                                  "name": {
+                                    "kind": "Name",
+                                    "value": "name"
+                                  },
+                                  "selection_set": null
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+]
