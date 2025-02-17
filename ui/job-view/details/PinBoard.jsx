@@ -284,7 +284,7 @@ class PinBoard extends React.Component {
     return (
       this.hasPinnedJobs() &&
       isLoggedIn &&
-      (!!pinnedJobBugs.size ||
+      (!!pinnedJobBugs.length ||
         (failureClassificationId !== 4 && failureClassificationId !== 2) ||
         currentRepo.is_try_repo ||
         currentRepo.repository_group.name === 'project repositories' ||
@@ -304,7 +304,7 @@ class PinBoard extends React.Component {
 
     return (
       failureClassificationComment !== '' ||
-      !!this.props.pinnedJobBugs.size ||
+      !!this.props.pinnedJobBugs.length ||
       failureClassificationId !== 4
     );
   };
@@ -343,7 +343,7 @@ class PinBoard extends React.Component {
 
   hasPinnedJobs = () => !!Object.keys(this.props.pinnedJobs).length;
 
-  hasPinnedJobBugs = () => !!this.props.pinnedJobBugs.size;
+  hasPinnedJobBugs = () => !!this.props.pinnedJobBugs.length;
 
   toggleEnterBugNumber = (tf) => {
     this.setState(
