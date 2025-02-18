@@ -20,7 +20,9 @@ def test_failures_by_bug(bug_data, client):
             "push_time": bug_data["job"].push.time.strftime("%Y-%m-%d %H:%M:%S"),
             "platform": bug_data["job"].machine_platform.platform,
             "revision": bug_data["job"].push.revision,
-            "test_suite": bug_data["job"].signature.job_type_name,
+            "test_suite": "-".join(
+                bug_data["job"].signature.job_type_name.split("/")[1].split("-")[1:]
+            ),
             "tree": bug_data["job"].repository.name,
             "machine_name": bug_data["job"].machine.name,
             "lines": [],

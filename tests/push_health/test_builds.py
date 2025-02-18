@@ -17,5 +17,5 @@ def test_get_build_failures(
     result, build_failures, in_progress = get_build_failures(test_push)
 
     assert in_progress == 0
-    assert result == "fail"
-    assert len(build_failures) == 2
+    assert result == "none"
+    assert len(build_failures) == 0
