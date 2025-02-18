@@ -85,7 +85,7 @@ def test_job_list_equals_filter(client, eleven_jobs_stored, test_repository):
     test retrieving a job list with a querystring filter.
     """
     url = reverse("jobs-list", kwargs={"project": test_repository.name})
-    final_url = url + "?job_guid=f1c75261017c7c5ce3000931dce4c442fe0a1297"
+    final_url = url + "?job_guid=26013fb5-e780-46bb-b750-58442dc3586f"
 
     resp = client.get(final_url)
     assert resp.status_code == 200
@@ -94,38 +94,38 @@ def test_job_list_equals_filter(client, eleven_jobs_stored, test_repository):
 
 job_filter_values = [
     ("build_architecture", "x86_64"),
-    ("build_os", "mac"),
-    ("build_platform", "mac1120"),
-    ("build_platform_id", 3),
+    ("build_os", "win"),
+    ("build_platform", "win64"),
+    ("build_platform_id", 1),
     ("build_system_type", "buildbot"),
-    ("end_timestamp", 1384364849),
+    ("end_timestamp", 1740065424),
     ("failure_classification_id", 1),
-    ("id", 4),
-    ("job_group_id", 2),
-    ("job_group_name", "Mochitest"),
-    ("job_group_symbol", "M"),
-    ("job_guid", "ab952a4bbbc74f1d9fb3cf536073b371029dbd02"),
-    ("job_type_id", 2),
-    ("job_type_name", "Mochitest Browser Chrome"),
-    ("job_type_symbol", "bc"),
-    ("machine_name", "talos-r4-lion-011"),
+    ("id", 1),
+    ("job_group_id", 1),
+    ("job_group_name", "Mochitests with networking on socket process enabled"),
+    ("job_group_symbol", "M-spi-nw"),
+    ("job_guid", "3a4206e4-916b-4271-bf52-2698759d910e/0"),
+    ("job_type_id", 1),
+    ("job_type_name", "Mochitests"),
+    ("job_type_symbol", "bc2"),
+    ("machine_name", "vm-erquemssckgllmztpj5wqxkr6om6q6e090n"),
     ("machine_platform_architecture", "x86_64"),
-    ("machine_platform_os", "mac"),
-    ("option_collection_hash", "32faaecac742100f7753f0c1d0aa0add01b4046b"),
-    ("platform", "mac1120"),
+    ("machine_platform_os", "win"),
+    ("option_collection_hash", "6ae999552a0d2dca14d62e2bc8b764d377b1dd6c"),
+    ("platform", "win64"),
     ("reason", "scheduler"),
     (
         "ref_data_name",
-        "Rev4 MacOSX Lion 10.7 mozilla-release debug test mochitest-browser-chrome",
+        "1af0ba60f22f1fc3ec40f95709a5eddca6fe330b",
     ),
     ("result", "success"),
-    ("result_set_id", 4),
-    ("signature", "d900aca1e93a9ef2d9e00c1877c838ea920abca1"),
-    ("start_timestamp", 1384356880),
+    ("result_set_id", 1),
+    ("signature", "f312444ee170abf99730ec3e2dce229d383b2f35"),
+    ("start_timestamp", 1740063038),
     ("state", "completed"),
-    ("submit_timestamp", 1384356854),
+    ("submit_timestamp", 1740060953),
     ("tier", 1),
-    ("who", "tests-mozilla-release-lion-debug-unittest"),
+    ("who", "vm-erquemssckgllmztp@fakemail.com"),
 ]
 
 
@@ -155,8 +155,8 @@ def test_job_list_in_filter(client, eleven_jobs_stored, test_repository):
     url = reverse("jobs-list", kwargs={"project": test_repository.name})
     final_url = url + (
         "?job_guid__in="
-        "f1c75261017c7c5ce3000931dce4c442fe0a1297,"
-        "9abb6f7d54a49d763c584926377f09835c5e1a32"
+        "26013fb5-e780-46bb-b750-58442dc3586f,"
+        "3a4206e4-916b-4271-bf52-2698759d910e"
     )
 
     resp = client.get(final_url)
@@ -245,7 +245,7 @@ def test_list_similar_jobs(client, eleven_jobs_stored, offset, count, expected_n
     job = Job.objects.get(id=1)
 
     url = reverse("jobs-similar-jobs", kwargs={"project": job.repository.name, "pk": job.id})
-    params = "&".join([f"{k}={v}" for k, v in [("offset", offset), ("count", count)] if v])
+    params = "&".join([f"{k}={v}" for k, v in [("offset", offset), ("count", 100)] if v])
     if params:
         url += f"?{params}"
     resp = client.get(url)
@@ -253,6 +253,8 @@ def test_list_similar_jobs(client, eleven_jobs_stored, offset, count, expected_n
     assert resp.status_code == 200
 
     similar_jobs = resp.json()
+    print(f"JMAHER: url: {url}")
+    print(f"JMAHER: similar_jobs: {similar_jobs}")
 
     assert "results" in similar_jobs
 

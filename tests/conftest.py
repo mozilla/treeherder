@@ -200,7 +200,7 @@ def test_repository(django_db_reset_sequences):
 
     r = th_models.Repository.objects.create(
         dvcs_type="hg",
-        name=settings.TREEHERDER_TEST_REPOSITORY_NAME,
+        name="autoland", # settings.TREEHERDER_TEST_REPOSITORY_NAME,
         url="https://hg.mozilla.org/mozilla-central",
         active_status="active",
         codebase="gecko",
@@ -1188,7 +1188,7 @@ def test_run_data(bug_data):
 
 @pytest.fixture
 def group_data(transactional_db, eleven_job_blobs, create_jobs):
-    query_string = "?manifest=/test&date=2022-10-01"
+    query_string = "?manifest=/test&date=2025-02-19"
 
     jt = []
     jt.append(

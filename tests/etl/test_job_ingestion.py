@@ -18,8 +18,8 @@ def test_ingest_single_sample_job(
     assert Job.objects.count() == 1
     job = Job.objects.get(id=1)
     # Ensure we don't inadvertently change the way we generate job-related hashes.
-    assert job.option_collection_hash == "32faaecac742100f7753f0c1d0aa0add01b4046b"
-    assert job.signature.signature == "d900aca1e93a9ef2d9e00c1877c838ea920abca1"
+    assert job.option_collection_hash == "6ae999552a0d2dca14d62e2bc8b764d377b1dd6c"
+    assert job.signature.signature == "eb2af295be51d56a63a9c327a16ec50327ba2983"
 
 
 def test_ingest_all_sample_jobs(
