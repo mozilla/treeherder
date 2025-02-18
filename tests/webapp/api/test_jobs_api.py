@@ -141,6 +141,7 @@ def test_job_list_filter_fields(client, eleven_jobs_stored, test_repository, fie
     resp = client.get(final_url)
     assert resp.status_code == 200
     first = resp.json()["results"][0]
+    print(f"JMAHER: response: {first}")
     assert first[fieldname] == expected
 
 
@@ -256,6 +257,8 @@ def test_list_similar_jobs(client, eleven_jobs_stored, offset, count, expected_n
     assert resp.status_code == 200
 
     similar_jobs = resp.json()
+    print(f"JMAHER: url: {url}")
+    print(f"JMAHER: similar_jobs: {similar_jobs}")
 
     assert "results" in similar_jobs
 
