@@ -20,6 +20,7 @@ def jobs_with_local_log(activate_responses):
 
     # substitute the log url with a local url
     job["job"]["log_references"][0]["url"] = url
+    job["job"]["log_references"][0]["name"] = "live_backing_log"
     return [job]
 
 

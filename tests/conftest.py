@@ -421,7 +421,8 @@ def try_push_stored(try_repository, sample_push):
 def eleven_job_blobs(sample_data, sample_push, test_repository, mock_log_parser):
     store_push_data(test_repository, sample_push)
 
-    num_jobs = 11
+    # NOTE: when generating new data, we appear to need more jobs to find similar jobs
+    num_jobs = 100
     jobs = sample_data.job_data[0:num_jobs]
 
     max_index = len(sample_push) - 1
@@ -563,7 +564,10 @@ def failure_lines(test_job):
 def failure_line_logs(test_job):
     return create_failure_lines(
         test_job,
-        [(test_line, {"action": "log", "test": None}), (test_line, {"subtest": "subtest2"})],
+        [
+            (test_line, {"action": "log", "test": None}),
+            (test_line, {"subtest": "subtest2"}),
+        ],
     )
 
 
@@ -867,7 +871,9 @@ def mock_file_bugzilla_map_request(monkeypatch):
         }
 
     monkeypatch.setattr(
-        treeherder.etl.files_bugzilla_map.FilesBugzillaMapProcess, "fetch_data", _fetch_data
+        treeherder.etl.files_bugzilla_map.FilesBugzillaMapProcess,
+        "fetch_data",
+        _fetch_data,
     )
 
 
@@ -1146,7 +1152,7 @@ def bug_data(eleven_jobs_stored, test_repository, test_push, bugs):
     bug_id = bugs[0].bugzilla_id
     job_id = jobs[0].id
     th_models.BugJobMap.create(job_id=job_id, bugzilla_id=bug_id)
-    query_string = f"?startday=2012-05-09&endday=2018-05-10&tree={test_repository.name}"
+    query_string = f"?startday=2025-02-28&endday=2025-03-03&tree={test_repository.name}"
 
     return {
         "tree": test_repository.name,
@@ -1188,17 +1194,13 @@ def test_run_data(bug_data):
 
 @pytest.fixture
 def group_data(transactional_db, eleven_job_blobs, create_jobs):
-    query_string = "?manifest=/test&date=2022-10-01"
+    query_string = "?manifest=/test&date=2025-03-01"
 
     jt = []
+    jt.append(th_models.JobType.objects.create(name="test-windows11-64-24h2/opt-mochitest-plain-1"))
+    jt.append(th_models.JobType.objects.create(name="test-windows11-64-24h2/opt-mochitest-plain-2"))
     jt.append(
-        th_models.JobType.objects.create(name="test-windows10-64-2004-qr/opt-mochitest-plain-1")
-    )
-    jt.append(
-        th_models.JobType.objects.create(name="test-windows10-64-2004-qr/opt-mochitest-plain-2")
-    )
-    jt.append(
-        th_models.JobType.objects.create(name="test-windows10-64-2004-qr/opt-mochitest-plain-swr-1")
+        th_models.JobType.objects.create(name="test-windows11-64-24h2/opt-mochitest-plain-swr-1")
     )
 
     g1 = th_models.Group.objects.create(name="/test")
@@ -1213,23 +1215,23 @@ def group_data(transactional_db, eleven_job_blobs, create_jobs):
         )
         j = create_jobs([job])[0]
 
-        # when creating the job, we also create the joblog, we want the last job log entry
+        # when creating the job, we also create the joblog, we want the last entry
         job_log = th_models.JobLog.objects.last()
 
         th_models.GroupStatus.objects.create(status=1, duration=1, job_log=job_log, group=g1)
 
+    query_string = "?manifest=/test&startdate=2025-03-01"
     return {
         "date": j.submit_time,
         "manifest": "/test",
         "query_string": query_string,
         "expected": {
             "job_type_names": [
-                "test-windows10-64-2004-qr/opt-mochitest-plain",
-                "test-windows10-64-2004-qr/opt-mochitest-plain-swr",
+                "test-windows11-64-24h2/opt-mochitest-plain",
             ],
             "manifests": [
                 {
-                    "/test": [[0, "passed", 1, 2], [1, "passed", 1, 1]],
+                    "/test": [[0, "passed", 1, 1]],
                 }
             ],
         },

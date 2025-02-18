@@ -5,9 +5,9 @@ This is the #1 most frequent failure this week.
 * mozilla-central: 1
 
 ## Table
-| |**no_variant**|
+| |**spi-nw**|
 |---|:-:|
-|**linux1804-x86/debug**|1|
+|**macosx1015-64-qr/debug**|1|
 
 ## For more details, see:
-https://treeherder.mozilla.org/intermittent-failures/bugdetails?bug=1&startday=2012-05-09&endday=2018-05-10&tree=all
+https://treeherder.mozilla.org/intermittent-failures/bugdetails?bug=1&startday=2022-05-09&endday=2025-05-10&tree=all

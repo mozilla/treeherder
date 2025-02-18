@@ -18,7 +18,7 @@
         "linenumber": 8157
       }
     ],
-    "logurl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/2015/04/2015-04-15-03-02-06-mozilla-central/mozilla-central_snowleopard_test-mochitest-2-bm107-tests1-macosx-build128.txt.gz"
+    "logurl": "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/YxJCaWl3Shu4FBJrKG2K1Q/runs/0/artifacts/public/logs/live_backing.log.gz"
   },
   "type": "json",
   "id": 8217463,
