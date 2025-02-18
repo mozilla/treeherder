@@ -102,7 +102,7 @@ def fetch_intermittent_bugs(additional_params, limit, duplicate_chain_length):
 
 
 class BzApiBugProcess:
-    minimum_failures_to_reopen = 1
+    minimum_failures_to_reopen = 3
 
     def run(self):
         year_ago = datetime.utcnow() - timedelta(days=365)
