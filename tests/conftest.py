@@ -421,7 +421,8 @@ def try_push_stored(try_repository, sample_push):
 def eleven_job_blobs(sample_data, sample_push, test_repository, mock_log_parser):
     store_push_data(test_repository, sample_push)
 
-    num_jobs = 11
+    # NOTE: when generating new data, we appear to need more jobs to find similar jobs
+    num_jobs = 100
     jobs = sample_data.job_data[0:num_jobs]
 
     max_index = len(sample_push) - 1
@@ -448,7 +449,9 @@ def eleven_job_blobs(sample_data, sample_push, test_repository, mock_log_parser)
 
 
 @pytest.fixture
-def eleven_job_blobs_new_date(sample_data, sample_push, test_repository, mock_log_parser):
+def eleven_job_blobs_new_date(
+    sample_data, sample_push, test_repository, mock_log_parser
+):
     # make unique revisions
     counter = 0
     for push in sample_push:
@@ -556,14 +559,19 @@ def pulse_exchange(pulse_connection, request):
 
 @pytest.fixture
 def failure_lines(test_job):
-    return create_failure_lines(test_job, [(test_line, {}), (test_line, {"subtest": "subtest2"})])
+    return create_failure_lines(
+        test_job, [(test_line, {}), (test_line, {"subtest": "subtest2"})]
+    )
 
 
 @pytest.fixture
 def failure_line_logs(test_job):
     return create_failure_lines(
         test_job,
-        [(test_line, {"action": "log", "test": None}), (test_line, {"subtest": "subtest2"})],
+        [
+            (test_line, {"action": "log", "test": None}),
+            (test_line, {"subtest": "subtest2"}),
+        ],
     )
 
 
@@ -622,7 +630,9 @@ def classified_failures(
 @pytest.fixture
 def test_user(db):
     # a user *without* sheriff/staff permissions
-    user = th_models.User.objects.create(username="testuser1", email="user@foo.com", is_staff=False)
+    user = th_models.User.objects.create(
+        username="testuser1", email="user@foo.com", is_staff=False
+    )
     return user
 
 
@@ -649,15 +659,21 @@ def test_sheriff(db):
 
 @pytest.fixture
 def test_perf_framework(transactional_db):
-    return perf_models.PerformanceFramework.objects.create(name="test_talos", enabled=True)
+    return perf_models.PerformanceFramework.objects.create(
+        name="test_talos", enabled=True
+    )
 
 
 @pytest.fixture
-def test_perf_signature(test_repository, test_perf_framework) -> perf_models.PerformanceSignature:
+def test_perf_signature(
+    test_repository, test_perf_framework
+) -> perf_models.PerformanceSignature:
     windows_7_platform = th_models.MachinePlatform.objects.create(
         os_name="win", platform="win7", architecture="x86"
     )
-    return create_perf_signature(test_perf_framework, test_repository, windows_7_platform)
+    return create_perf_signature(
+        test_perf_framework, test_repository, windows_7_platform
+    )
 
 
 def create_perf_signature(
@@ -777,9 +793,9 @@ def mock_bugzilla_api_request(monkeypatch):
         tests_folder = os.path.dirname(__file__)
         bug_list_path = os.path.join(tests_folder, "sample_data", "bug_list.json")
         with open(bug_list_path) as f:
-            last_change_time = (datetime.datetime.utcnow() - datetime.timedelta(days=30)).strftime(
-                "%Y-%m-%dT%H:%M:%SZ"
-            )
+            last_change_time = (
+                datetime.datetime.utcnow() - datetime.timedelta(days=30)
+            ).strftime("%Y-%m-%dT%H:%M:%SZ")
             data = json.load(f)
             for bug in data["bugs"]:
                 bug["last_change_time"] = last_change_time
@@ -808,7 +824,9 @@ def bugs(mock_bugzilla_api_request):
     process = BzApiBugProcess()
     process.run()
 
-    return th_models.Bugscache.objects.filter(bugzilla_id__isnull=False).order_by("bugzilla_id")
+    return th_models.Bugscache.objects.filter(bugzilla_id__isnull=False).order_by(
+        "bugzilla_id"
+    )
 
 
 @pytest.fixture
@@ -855,7 +873,9 @@ def mock_file_bugzilla_map_request(monkeypatch):
         exception = None
         try:
             tests_folder = os.path.dirname(__file__)
-            data_path = os.path.join(tests_folder, "sample_data", "files_bugzilla_map", file_name)
+            data_path = os.path.join(
+                tests_folder, "sample_data", "files_bugzilla_map", file_name
+            )
             with open(data_path) as f:
                 files_bugzilla_data = json.load(f)
         except Exception as e:
@@ -867,7 +887,9 @@ def mock_file_bugzilla_map_request(monkeypatch):
         }
 
     monkeypatch.setattr(
-        treeherder.etl.files_bugzilla_map.FilesBugzillaMapProcess, "fetch_data", _fetch_data
+        treeherder.etl.files_bugzilla_map.FilesBugzillaMapProcess,
+        "fetch_data",
+        _fetch_data,
     )
 
 
@@ -881,7 +903,9 @@ def mock_bugscache_bugzilla_request(monkeypatch):
     def _fetch_intermittent_bugs(additional_params, limit, duplicate_chain_length):
         tests_folder = os.path.dirname(__file__)
         file_name = f"run-{str(duplicate_chain_length)}.json"
-        data_path = os.path.join(tests_folder, "sample_data", "bugscache_population", file_name)
+        data_path = os.path.join(
+            tests_folder, "sample_data", "bugscache_population", file_name
+        )
         with open(data_path) as f:
             bugzilla_data = json.load(f)
             for bug in bugzilla_data["bugs"]:
@@ -954,7 +978,10 @@ def mock_cache(monkeypatch):
 @pytest.fixture
 def text_log_error_lines(test_job, failure_lines):
     lines = [
-        (item, {}) for item in th_models.FailureLine.objects.filter(job_guid=test_job.guid).values()
+        (item, {})
+        for item in th_models.FailureLine.objects.filter(
+            job_guid=test_job.guid
+        ).values()
     ]
 
     errors = create_text_log_errors(test_job, lines)
@@ -973,7 +1000,9 @@ def test_perf_tag_2():
 
 
 @pytest.fixture
-def test_perf_alert_summary(test_repository, push_stored, test_perf_framework, test_issue_tracker):
+def test_perf_alert_summary(
+    test_repository, push_stored, test_perf_framework, test_issue_tracker
+):
     test_perf_tag = perf_models.PerformanceTag.objects.create(name="harness")
 
     performance_alert_summary = perf_models.PerformanceAlertSummary.objects.create(
@@ -1044,8 +1073,12 @@ def test_perf_datum_2(test_repository, test_perf_signature, test_job_3):
 
 
 @pytest.fixture
-def test_perf_alert(test_perf_signature, test_perf_alert_summary) -> perf_models.PerformanceAlert:
-    return create_perf_alert(summary=test_perf_alert_summary, series_signature=test_perf_signature)
+def test_perf_alert(
+    test_perf_signature, test_perf_alert_summary
+) -> perf_models.PerformanceAlert:
+    return create_perf_alert(
+        summary=test_perf_alert_summary, series_signature=test_perf_signature
+    )
 
 
 @pytest.fixture
@@ -1146,7 +1179,7 @@ def bug_data(eleven_jobs_stored, test_repository, test_push, bugs):
     bug_id = bugs[0].bugzilla_id
     job_id = jobs[0].id
     th_models.BugJobMap.create(job_id=job_id, bugzilla_id=bug_id)
-    query_string = f"?startday=2012-05-09&endday=2018-05-10&tree={test_repository.name}"
+    query_string = f"?startday=2025-02-28&endday=2025-03-03&tree={test_repository.name}"
 
     return {
         "tree": test_repository.name,
@@ -1188,17 +1221,23 @@ def test_run_data(bug_data):
 
 @pytest.fixture
 def group_data(transactional_db, eleven_job_blobs, create_jobs):
-    query_string = "?manifest=/test&date=2022-10-01"
+    query_string = "?manifest=/test&date=2025-03-01"
 
     jt = []
     jt.append(
-        th_models.JobType.objects.create(name="test-windows10-64-2004-qr/opt-mochitest-plain-1")
+        th_models.JobType.objects.create(
+            name="test-windows11-64-24h2/opt-mochitest-plain-1"
+        )
     )
     jt.append(
-        th_models.JobType.objects.create(name="test-windows10-64-2004-qr/opt-mochitest-plain-2")
+        th_models.JobType.objects.create(
+            name="test-windows11-64-24h2/opt-mochitest-plain-2"
+        )
     )
     jt.append(
-        th_models.JobType.objects.create(name="test-windows10-64-2004-qr/opt-mochitest-plain-swr-1")
+        th_models.JobType.objects.create(
+            name="test-windows11-64-24h2/opt-mochitest-plain-swr-1"
+        )
     )
 
     g1 = th_models.Group.objects.create(name="/test")
@@ -1213,23 +1252,25 @@ def group_data(transactional_db, eleven_job_blobs, create_jobs):
         )
         j = create_jobs([job])[0]
 
-        # when creating the job, we also create the joblog, we want the last job log entry
+        # when creating the job, we also create the joblog, we want the last entry
         job_log = th_models.JobLog.objects.last()
 
-        th_models.GroupStatus.objects.create(status=1, duration=1, job_log=job_log, group=g1)
+        th_models.GroupStatus.objects.create(
+            status=1, duration=1, job_log=job_log, group=g1
+        )
 
+    query_string = f"?manifest=/test&startdate=2025-03-01"
     return {
         "date": j.submit_time,
         "manifest": "/test",
         "query_string": query_string,
         "expected": {
             "job_type_names": [
-                "test-windows10-64-2004-qr/opt-mochitest-plain",
-                "test-windows10-64-2004-qr/opt-mochitest-plain-swr",
+                "test-windows11-64-24h2/opt-mochitest-plain",
             ],
             "manifests": [
                 {
-                    "/test": [[0, "passed", 1, 2], [1, "passed", 1, 1]],
+                    "/test": [[0, "passed", 1, 1]],
                 }
             ],
         },
@@ -1257,8 +1298,12 @@ def generate_enough_perf_datum(test_repository, test_perf_signature):
 def sample_option_collections(transactional_db):
     option1 = th_models.Option.objects.create(name="opt1")
     option2 = th_models.Option.objects.create(name="opt2")
-    th_models.OptionCollection.objects.create(option_collection_hash="option_hash1", option=option1)
-    th_models.OptionCollection.objects.create(option_collection_hash="option_hash2", option=option2)
+    th_models.OptionCollection.objects.create(
+        option_collection_hash="option_hash1", option=option1
+    )
+    th_models.OptionCollection.objects.create(
+        option_collection_hash="option_hash2", option=option2
+    )
 
 
 @pytest.fixture
