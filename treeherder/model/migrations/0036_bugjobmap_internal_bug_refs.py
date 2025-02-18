@@ -1,6 +1,7 @@
 import django.db.models.deletion
 from django.conf import settings
 from django.db import migrations, models
+from django.utils import timezone
 
 
 def set_internal_fks(apps, schema_editor):
@@ -10,6 +11,17 @@ def set_internal_fks(apps, schema_editor):
     created internal ID and Bugzilla ID should be out of sync.
     """
     BugJobMap = apps.get_model("model", "BugJobMap")
+    Bugscache = apps.get_model("model", "Bugscache")
+    bug_ids = list(BugJobMap.objects.all().distinct("bugzilla_id").values_list("bugzilla_id", flat=True))
+    now = timezone.now(),
+    for bug_id in bug_ids:
+        if not Bugscache.objects.filter(bugzilla_id=bug_id).exists():
+            Bugscache.objects.get_or_create(
+                id=bug_id,
+                bugzilla_id=bug_id,
+                modified=now,
+                summary="(no bug data fetched)",
+            )
     BugJobMap.objects.all().update(bug_id=models.F("bugzilla_id"))
 
 class Migration(migrations.Migration):
