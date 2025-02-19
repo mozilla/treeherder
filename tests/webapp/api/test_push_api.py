@@ -256,6 +256,20 @@ def test_push_list_bad_count(client, test_repository):
     assert resp.json() == {"detail": "Valid count value required"}
 
 
+def test_push_list_negative_count(client, test_repository):
+    """
+    test for graceful error when passed an invalid count value
+    """
+    bad_count = -1
+
+    resp = client.get(
+        reverse("push-list", kwargs={"project": test_repository.name}), data={"count": bad_count}
+    )
+
+    assert resp.status_code == 400
+    assert resp.json() == {"detail": f"count requires a positive integer, not: {bad_count}"}
+
+
 def test_push_author(client, test_repository):
     """
     test the author parameter

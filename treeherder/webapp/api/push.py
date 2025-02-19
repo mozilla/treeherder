@@ -175,6 +175,10 @@ class PushViewSet(viewsets.ViewSet):
             msg = f"Specified count exceeds api limit: {max_push_count}"
             return Response({"detail": msg}, status=HTTP_400_BAD_REQUEST)
 
+        if count < 1:
+            msg = f"count requires a positive integer, not: {count}"
+            return Response({"detail": msg}, status=HTTP_400_BAD_REQUEST)
+
         # we used to have a "full" parameter for this endpoint so you could
         # specify to not fetch the revision information if it was set to
         # false. however AFAIK no one ever used it (default was to fetch
