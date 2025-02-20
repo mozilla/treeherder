@@ -15,13 +15,14 @@ def set_internal_fks(apps, schema_editor):
     bug_ids = list(BugJobMap.objects.all().distinct("bugzilla_id").values_list("bugzilla_id", flat=True))
     now = timezone.now(),
     for bug_id in bug_ids:
-        if not Bugscache.objects.filter(bugzilla_id=bug_id).exists():
-            Bugscache.objects.get_or_create(
-                id=bug_id,
-                bugzilla_id=bug_id,
-                modified=now,
-                summary="(no bug data fetched)",
-            )
+        Bugscache.objects.get_or_create(
+            id=bug_id,
+            bugzilla_id=bug_id,
+            defaults={
+                "modified": now,
+                "summary": "(no bug data fetched)",
+            }
+        )
     BugJobMap.objects.all().update(bug_id=models.F("bugzilla_id"))
 
 class Migration(migrations.Migration):
