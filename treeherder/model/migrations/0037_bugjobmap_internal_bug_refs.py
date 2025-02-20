@@ -31,7 +31,7 @@ def set_internal_fks(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("model", "0035_bugscache_optional_bugzilla_ref"),
+        ("model", "0036_bugscache_init_autoincrement"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
