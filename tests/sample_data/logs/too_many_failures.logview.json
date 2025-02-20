@@ -1,0 +1,165 @@
+{
+  "logurl": "http://my-log.mozilla.org/too_many_failures.log.gz",
+  "errors": [
+    {
+      "linenumber": 1936,
+      "line": "21:36:09     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__extensions__ext-texture-norm16.html | getError expected: INVALID_OPERATION. Was NO_ERROR : texImage should generate error:INVALID_OPERATION"
+    },
+    {
+      "linenumber": 2345,
+      "line": "21:45:25     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__offscreencanvas__offscreencanvas-sync.html | Test timed out. -"
+    },
+    {
+      "linenumber": 2699,
+      "line": "21:48:20     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__rendering__blitframebuffer-filter-srgb.html | pixel at [0, 0] should be (53,53,53,255), but the actual color is (40,40,40,255)"
+    },
+    {
+      "linenumber": 2707,
+      "line": "21:48:20     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__rendering__blitframebuffer-filter-srgb.html | pixel at [1, 0] should be (53,53,255,81), but the actual color is (40,40,255,72)"
+    },
+    {
+      "linenumber": 2725,
+      "line": "21:48:20     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__rendering__blitframebuffer-filter-srgb.html | pixel at [0, 1] should be (28,28,28,255), but the actual color is (16,16,16,255)"
+    },
+    {
+      "linenumber": 2733,
+      "line": "21:48:20     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__rendering__blitframebuffer-filter-srgb.html | pixel at [1, 1] should be (28,28,255,34), but the actual color is (16,16,255,20)"
+    },
+    {
+      "linenumber": 2741,
+      "line": "21:48:20     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__rendering__blitframebuffer-filter-srgb.html | pixel at [2, 1] should be (28,255,34,34), but the actual color is (16,255,20,20)"
+    },
+    {
+      "linenumber": 2749,
+      "line": "21:48:20     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__rendering__blitframebuffer-filter-srgb.html | pixel at [3, 1] should be (255,34,34,34), but the actual color is (255,20,20,20)"
+    },
+    {
+      "linenumber": 2757,
+      "line": "21:48:20     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__rendering__blitframebuffer-filter-srgb.html | pixel at [4, 1] should be (34,34,34,255), but the actual color is (20,20,20,255)"
+    },
+    {
+      "linenumber": 2765,
+      "line": "21:48:20     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__rendering__blitframebuffer-filter-srgb.html | pixel at [5, 1] should be (34,34,255,38), but the actual color is (20,20,255,28)"
+    },
+    {
+      "linenumber": 2773,
+      "line": "21:48:20     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__rendering__blitframebuffer-filter-srgb.html | pixel at [6, 1] should be (34,255,38,38), but the actual color is (20,255,28,28)"
+    },
+    {
+      "linenumber": 2781,
+      "line": "21:48:20     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__rendering__blitframebuffer-filter-srgb.html | pixel at [7, 1] should be (255,38,38,38), but the actual color is (255,28,28,28)"
+    },
+    {
+      "linenumber": 2789,
+      "line": "21:48:20     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__rendering__blitframebuffer-filter-srgb.html | pixel at [0, 2] should be (56,56,56,255), but the actual color is (48,48,48,255)"
+    },
+    {
+      "linenumber": 2797,
+      "line": "21:48:20     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__rendering__blitframebuffer-filter-srgb.html | pixel at [1, 2] should be (56,56,255,59), but the actual color is (48,48,255,52)"
+    },
+    {
+      "linenumber": 2805,
+      "line": "21:48:20     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__rendering__blitframebuffer-filter-srgb.html | pixel at [2, 2] should be (56,255,59,59), but the actual color is (48,255,52,52)"
+    },
+    {
+      "linenumber": 3342,
+      "line": "21:51:21     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__rendering__framebuffer-render-to-layer.html | pixel 0,0 channel 0 was 204 expected 191 +/- 9"
+    },
+    {
+      "linenumber": 3521,
+      "line": "21:51:22     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__rendering__framebuffer-render-to-layer.html | pixel 0,0 channel 0 was 204 expected 191 +/- 9"
+    },
+    {
+      "linenumber": 5037,
+      "line": "21:55:47     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__misc__immutable-tex-render-feedback.html | checkFramebufferStatus expected: FRAMEBUFFER_INCOMPLETE_ATTACHMENT. Was FRAMEBUFFER_COMPLETE: {immutable: false, level_prime_base/max: [1, 0], minFilter: LINEAR, dest: 1}"
+    },
+    {
+      "linenumber": 5046,
+      "line": "21:55:47     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__misc__immutable-tex-render-feedback.html | getError expected: INVALID_FRAMEBUFFER_OPERATION. Was INVALID_OPERATION : after draw with texture"
+    },
+    {
+      "linenumber": 5062,
+      "line": "21:55:47     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__misc__immutable-tex-render-feedback.html | checkFramebufferStatus expected: FRAMEBUFFER_INCOMPLETE_ATTACHMENT. Was FRAMEBUFFER_COMPLETE: {immutable: false, level_prime_base/max: [1, 0], minFilter: LINEAR, dest: 1}"
+    },
+    {
+      "linenumber": 5071,
+      "line": "21:55:47     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__misc__immutable-tex-render-feedback.html | getError expected: INVALID_FRAMEBUFFER_OPERATION. Was INVALID_OPERATION : after draw with texture"
+    },
+    {
+      "linenumber": 5087,
+      "line": "21:55:47     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__misc__immutable-tex-render-feedback.html | checkFramebufferStatus expected: FRAMEBUFFER_INCOMPLETE_ATTACHMENT. Was FRAMEBUFFER_COMPLETE: {immutable: false, level_prime_base/max: [1, 0], minFilter: LINEAR_MIPMAP_LINEAR, dest: 1}"
+    },
+    {
+      "linenumber": 5096,
+      "line": "21:55:47     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__misc__immutable-tex-render-feedback.html | getError expected: INVALID_FRAMEBUFFER_OPERATION. Was NO_ERROR : after draw with texture"
+    },
+    {
+      "linenumber": 5112,
+      "line": "21:55:47     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__misc__immutable-tex-render-feedback.html | checkFramebufferStatus expected: FRAMEBUFFER_INCOMPLETE_ATTACHMENT. Was FRAMEBUFFER_COMPLETE: {immutable: false, level_prime_base/max: [1, 0], minFilter: LINEAR_MIPMAP_LINEAR, dest: 1}"
+    },
+    {
+      "linenumber": 5121,
+      "line": "21:55:47     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__misc__immutable-tex-render-feedback.html | getError expected: INVALID_FRAMEBUFFER_OPERATION. Was NO_ERROR : after draw with texture"
+    },
+    {
+      "linenumber": 5137,
+      "line": "21:55:47     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__misc__immutable-tex-render-feedback.html | checkFramebufferStatus expected: FRAMEBUFFER_INCOMPLETE_ATTACHMENT. Was FRAMEBUFFER_COMPLETE: {immutable: false, level_prime_base/max: [1, 0], minFilter: LINEAR_MIPMAP_NEAREST, dest: 1}"
+    },
+    {
+      "linenumber": 5146,
+      "line": "21:55:47     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__misc__immutable-tex-render-feedback.html | getError expected: INVALID_FRAMEBUFFER_OPERATION. Was NO_ERROR : after draw with texture"
+    },
+    {
+      "linenumber": 5162,
+      "line": "21:55:47     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__misc__immutable-tex-render-feedback.html | checkFramebufferStatus expected: FRAMEBUFFER_INCOMPLETE_ATTACHMENT. Was FRAMEBUFFER_COMPLETE: {immutable: false, level_prime_base/max: [1, 0], minFilter: LINEAR_MIPMAP_NEAREST, dest: 1}"
+    },
+    {
+      "linenumber": 5171,
+      "line": "21:55:47     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__misc__immutable-tex-render-feedback.html | getError expected: INVALID_FRAMEBUFFER_OPERATION. Was NO_ERROR : after draw with texture"
+    },
+    {
+      "linenumber": 5187,
+      "line": "21:55:47     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__misc__immutable-tex-render-feedback.html | checkFramebufferStatus expected: FRAMEBUFFER_INCOMPLETE_ATTACHMENT. Was FRAMEBUFFER_COMPLETE: {immutable: false, level_prime_base/max: [1, 0], minFilter: NEAREST, dest: 1}"
+    },
+    {
+      "linenumber": 5196,
+      "line": "21:55:47     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__misc__immutable-tex-render-feedback.html | getError expected: INVALID_FRAMEBUFFER_OPERATION. Was INVALID_OPERATION : after draw with texture"
+    },
+    {
+      "linenumber": 5212,
+      "line": "21:55:47     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__misc__immutable-tex-render-feedback.html | checkFramebufferStatus expected: FRAMEBUFFER_INCOMPLETE_ATTACHMENT. Was FRAMEBUFFER_COMPLETE: {immutable: false, level_prime_base/max: [1, 0], minFilter: NEAREST, dest: 1}"
+    },
+    {
+      "linenumber": 5221,
+      "line": "21:55:47     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__misc__immutable-tex-render-feedback.html | getError expected: INVALID_FRAMEBUFFER_OPERATION. Was INVALID_OPERATION : after draw with texture"
+    },
+    {
+      "linenumber": 5237,
+      "line": "21:55:47     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__misc__immutable-tex-render-feedback.html | checkFramebufferStatus expected: FRAMEBUFFER_INCOMPLETE_ATTACHMENT. Was FRAMEBUFFER_COMPLETE: {immutable: false, level_prime_base/max: [1, 0], minFilter: NEAREST_MIPMAP_LINEAR, dest: 1}"
+    },
+    {
+      "linenumber": 5246,
+      "line": "21:55:47     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__misc__immutable-tex-render-feedback.html | getError expected: INVALID_FRAMEBUFFER_OPERATION. Was NO_ERROR : after draw with texture"
+    },
+    {
+      "linenumber": 5262,
+      "line": "21:55:47     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__misc__immutable-tex-render-feedback.html | checkFramebufferStatus expected: FRAMEBUFFER_INCOMPLETE_ATTACHMENT. Was FRAMEBUFFER_COMPLETE: {immutable: false, level_prime_base/max: [1, 0], minFilter: NEAREST_MIPMAP_LINEAR, dest: 1}"
+    },
+    {
+      "linenumber": 5271,
+      "line": "21:55:47     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__misc__immutable-tex-render-feedback.html | getError expected: INVALID_FRAMEBUFFER_OPERATION. Was NO_ERROR : after draw with texture"
+    },
+    {
+      "linenumber": 5287,
+      "line": "21:55:47     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__misc__immutable-tex-render-feedback.html | checkFramebufferStatus expected: FRAMEBUFFER_INCOMPLETE_ATTACHMENT. Was FRAMEBUFFER_COMPLETE: {immutable: false, level_prime_base/max: [1, 0], minFilter: NEAREST_MIPMAP_NEAREST, dest: 1}"
+    },
+    {
+      "linenumber": 5296,
+      "line": "21:55:47     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__misc__immutable-tex-render-feedback.html | getError expected: INVALID_FRAMEBUFFER_OPERATION. Was NO_ERROR : after draw with texture"
+    },
+    {
+      "linenumber": 5312,
+      "line": "21:55:47     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__misc__immutable-tex-render-feedback.html | checkFramebufferStatus expected: FRAMEBUFFER_INCOMPLETE_ATTACHMENT. Was FRAMEBUFFER_COMPLETE: {immutable: false, level_prime_base/max: [1, 0], minFilter: NEAREST_MIPMAP_NEAREST, dest: 1}"
+    }
+  ]
+}

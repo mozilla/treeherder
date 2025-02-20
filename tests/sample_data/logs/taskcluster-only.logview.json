@@ -1,0 +1,13 @@
+{
+  "logurl": "http://my-log.mozilla.org/taskcluster-only.log.gz",
+  "errors": [
+    {
+      "linenumber": 4184,
+      "line": "[taskcluster:error] Aborting task..."
+    },
+    {
+      "linenumber": 4195,
+      "line": "[taskcluster:error] Task aborted - max run time exceeded"
+    }
+  ]
+}
