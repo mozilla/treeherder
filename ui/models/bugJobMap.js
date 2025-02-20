@@ -23,6 +23,12 @@ export default class BugJobMapModel {
   }
 
   destroy() {
+    if (!this.bug_id) {
+      // Use the internal bug reference
+      return destroy(
+        `${getProjectUrl(uri)}${this.job_id}-i${this.bug_internal_id}/`,
+      );
+    }
     return destroy(`${getProjectUrl(uri)}${this.job_id}-${this.bug_id}/`);
   }
 }

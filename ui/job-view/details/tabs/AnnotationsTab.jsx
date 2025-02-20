@@ -17,25 +17,31 @@ import { recalculateUnclassifiedCounts } from '../../redux/stores/pushes';
 
 function RelatedBugSaved(props) {
   const { deleteBug, bug } = props;
-  const { bug_id: bugId } = bug;
 
   return (
     <span className="btn-group pinboard-related-bugs-btn">
-      <a
-        className="btn btn-xs annotations-bug related-bugs-link"
-        href={getBugUrl(bugId)}
-        target="_blank"
-        rel="noopener noreferrer"
-        title={`View bug ${bugId}`}
-      >
-        <em>{bugId}</em>
-      </a>
+      {!bug.bug_id && (
+        <span className="btn btn-xs">
+          <em>i{bug.bug_internal_id}</em>
+        </span>
+      )}
+      {bug.bug_id && (
+        <a
+          className="btn btn-xs annotations-bug related-bugs-link"
+          href={getBugUrl(bug.bug_id)}
+          target="_blank"
+          rel="noopener noreferrer"
+          title={`View bug ${bug.bug_id}`}
+        >
+          <em>{bug.bug_id}</em>
+        </a>
+      )}
       <Button
         color="link"
         size="xs"
         className="classification-delete-icon hover-warning pinned-job-close-btn annotations-bug"
         onClick={() => deleteBug(bug)}
-        title={`Delete relation to bug ${bugId}`}
+        title={`Delete relation to bug ${bug.bug_internal_id ?? bug.bug_id}`}
       >
         <FontAwesomeIcon icon={faTimesCircle} title="Delete" />
       </Button>
@@ -56,7 +62,7 @@ function RelatedBug(props) {
       <p className="annotations-bug-header font-weight-bold">Bugs</p>
       <ul className="annotations-bug-list">
         {bugs.map((bug) => (
-          <li key={bug.bug_id}>
+          <li key={bug.internal_id}>
             <RelatedBugSaved bug={bug} deleteBug={() => deleteBug(bug)} />
           </li>
         ))}
@@ -206,14 +212,22 @@ class AnnotationsTab extends React.Component {
 
     if (!failureStatus) {
       notify(
-        `Association to bug ${bug.bug_id} successfully deleted`,
+        `Association to bug ${
+          bug.bug_id ?? bug.bug_internal_id
+        } successfully deleted`,
         'success',
       );
       window.dispatchEvent(new CustomEvent(thEvents.classificationChanged));
     } else {
-      notify(`Association to bug ${bug.bug_id} deletion failed`, 'danger', {
-        sticky: true,
-      });
+      notify(
+        `Association to bug ${
+          bug.bug_id ?? bug.bug_internal_id
+        } deletion failed`,
+        'danger',
+        {
+          sticky: true,
+        },
+      );
     }
   };
 

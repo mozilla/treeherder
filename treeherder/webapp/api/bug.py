@@ -51,9 +51,16 @@ class BugJobMapViewSet(viewsets.ViewSet):
         Delete bug-job-map entry. pk is a composite key in the form
         job_id-bugzilla_id
         """
-        job_id, bugzilla_id = map(int, pk.split("-"))
+        job_id, bugzilla_id = pk.split("-")
+        # Support internal ID reference for deletion
+        job_id = int(job_id)
+        if bugzilla_id.startswith("i"):
+            key = {"bug_id": int(bugzilla_id[1:])}
+        else:
+            key = {"bug__bugzilla_id": int(bugzilla_id)}
+
         job = Job.objects.get(repository__name=project, id=job_id)
-        BugJobMap.objects.filter(job=job, bug__bugzilla_id=bugzilla_id).delete()
+        BugJobMap.objects.filter(job=job, **key).delete()
 
         return Response({"message": "Bug job map deleted"})
 

@@ -203,10 +203,11 @@ class TextLogStepSerializer(serializers.ModelSerializer):
 class BugJobMapSerializer(serializers.ModelSerializer):
     job_id = serializers.PrimaryKeyRelatedField(source="job", read_only=True)
     bug_id = serializers.IntegerField(source="bug.bugzilla_id", read_only=True)
+    bug_internal_id = serializers.IntegerField(source="bug.id", read_only=True)
 
     class Meta:
         model = models.BugJobMap
-        fields = ["job_id", "bug_id", "created", "who"]
+        fields = ["job_id", "bug_id", "bug_internal_id", "created", "who"]
 
 
 class JobNoteSerializer(serializers.ModelSerializer):

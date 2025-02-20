@@ -21,6 +21,7 @@ def test_create_bug_job_map(client, test_job, test_user, bugs, test_no_auth, bug
     submit_obj = {
         "job_id": test_job.id,
         "bug_id": bug.bugzilla_id,
+        "bug_internal_id": bug.id,
         "type": "manual",
         "bug_open": bug_open,
     }
@@ -51,6 +52,7 @@ def test_create_bug_job_map_duplicate_handling(client, test_job, test_user, bugs
     submit_obj = {
         "job_id": test_job.id,
         "bug_id": bugs[0].bugzilla_id,
+        "bug_internal_id": bugs[0].id,
         "type": "manual",
         "bug_open": False,
     }
@@ -88,6 +90,7 @@ def test_bug_job_map_list(client, test_repository, eleven_jobs_stored, test_user
             {
                 "job_id": job.id,
                 "bug_id": bugs[i].bugzilla_id,
+                "bug_internal_id": bugs[i].id,
                 "created": bjm.created.isoformat(),
                 "who": test_user.email,
             }
@@ -129,6 +132,7 @@ def test_bug_job_map_detail(client, eleven_jobs_stored, test_repository, test_us
     expected = {
         "job_id": job.id,
         "bug_id": bug.bugzilla_id,
+        "bug_internal_id": bug.id,
         "created": bjm.created.isoformat(),
         "who": test_user.email,
     }

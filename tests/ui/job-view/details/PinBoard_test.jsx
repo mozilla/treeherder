@@ -291,7 +291,6 @@ describe('DetailsPanel', () => {
     );
     fireEvent.change(bugInput, { target: { value: classificationBug } });
     fireEvent.blur(bugInput);
-    fireEvent.keyDown(content, { key: 'enter', keyCode: 13 });
 
     fetchMock.get(
       {
@@ -324,9 +323,16 @@ describe('DetailsPanel', () => {
       ],
     );
 
-    await waitFor(() => getByTitle('Ineligible classification data'));
+    fireEvent.click(
+      await waitFor(() => getByTitle('Save classification data')),
+    );
+    await waitFor(() =>
+      getByTitle('Ineligible classification data / no pinned jobs'),
+    );
 
     let unPinJobBtns = await waitFor(() => queryAllByTitle('Unpin job'));
+    expect(unPinJobBtns).toHaveLength(0);
+    checkClassifiedJobs(jobList.data.length);
 
     store.dispatch(pinJobs(jobList.data));
     fireEvent.click(
