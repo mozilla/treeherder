@@ -6,24 +6,27 @@ from django.utils import timezone
 
 def set_internal_fks(apps, schema_editor):
     """
-    Initally set the internal ID as the same as Bugzilla ID.
-    This is not reversible as once internal issues will be
-    created internal ID and Bugzilla ID should be out of sync.
+    Reference FK from BugJobMap to Bugscache instead of just the Bugzilla ID as integer.
+    This is required to support creating internal issues without publishing to Bugzilla.
     """
     BugJobMap = apps.get_model("model", "BugJobMap")
     Bugscache = apps.get_model("model", "Bugscache")
-    bug_ids = list(BugJobMap.objects.all().distinct("bugzilla_id").values_list("bugzilla_id", flat=True))
-    now = timezone.now(),
-    for bug_id in bug_ids:
-        Bugscache.objects.get_or_create(
-            id=bug_id,
-            bugzilla_id=bug_id,
+    now = timezone.now()
+    created_count = 0
+    for bug_job_map in BugJobMap.objects.only("id", "bugzilla_id").iterator():
+        # Create eventually missing Bugscache entries
+        bugscache, created = Bugscache.objects.get_or_create(
+            bugzilla_id=bug_job_map.bugzilla_id,
             defaults={
                 "modified": now,
                 "summary": "(no bug data fetched)",
             }
         )
-    BugJobMap.objects.all().update(bug_id=models.F("bugzilla_id"))
+        created_count += created
+        bug_job_map.bug_id = bugscache.id
+        bug_job_map.save()
+    if created_count:
+        print(f"Created {created_count} missing Bugscache entries referenced via BugJobMap")
 
 class Migration(migrations.Migration):
 
