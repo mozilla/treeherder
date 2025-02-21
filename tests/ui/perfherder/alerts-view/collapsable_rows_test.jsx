@@ -38,7 +38,6 @@ const collapsableRowsTest = () => {
         />
       </tbody>
     </table>,
-    { legacyRoot: true },
   );
 };
 

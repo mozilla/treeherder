@@ -186,7 +186,6 @@ const compareTableControls = (
       isBaseAggregate,
       mockDataRetrigger,
     ),
-    { legacyRoot: true },
   );
 
 const compareTable = (userLoggedIn, isBaseAggregate = false) =>
@@ -200,7 +199,6 @@ const compareTable = (userLoggedIn, isBaseAggregate = false) =>
       isBaseAggregate={isBaseAggregate}
       projects={projects}
     />,
-    { legacyRoot: true },
   );
 
 const comparePageTitle = () =>
@@ -210,7 +208,6 @@ const comparePageTitle = () =>
       updateParams={() => {}}
       pageTitleQueryParam="Perfherder Compare Revisions"
     />,
-    { legacyRoot: true },
   );
 
 test('toggle buttons should filter results by selected filter', async () => {
@@ -468,7 +465,7 @@ test('retrigger buttons should appear only when the user is logged in', async ()
   expect(retriggerButtons).toHaveLength(0);
 
   // simulate login
-  rerender(compareTableControlsNode(results, true), { legacyRoot: true });
+  rerender(compareTableControlsNode(results, true));
 
   retriggerButtons = queryAllByTitle(compareTableText.retriggerButtonTitle);
   expect(retriggerButtons).toHaveLength(3);
@@ -883,9 +880,7 @@ test(`TableColumnHeader shows the title as expected`, async () => {
       currentSort: 'default',
     },
   };
-  const { queryByText } = render(<TableColumnHeader {...defaultProps} />, {
-    legacyRoot: true,
-  });
+  const { queryByText } = render(<TableColumnHeader {...defaultProps} />);
 
   expect(queryByText('New (score)')).not.toBeInTheDocument();
   expect(queryByText('New')).toBeInTheDocument();

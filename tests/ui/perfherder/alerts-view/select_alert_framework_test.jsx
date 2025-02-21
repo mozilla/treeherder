@@ -37,7 +37,6 @@ const testFrameworksDropdown = () => {
       updateOnEnter
       dropdownCol
     />,
-    { legacyRoot: true },
   );
 };
 

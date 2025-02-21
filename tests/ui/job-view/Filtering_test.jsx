@@ -190,12 +190,9 @@ describe('Filtering', () => {
     });
 
     test('should have 1 push', async () => {
-      const {
-        getAllByText,
-        getAllByTestId,
-        getByText,
-        getByTitle,
-      } = render(testApp(), { legacyRoot: true });
+      const { getAllByText, getAllByTestId, getByText, getByTitle } = render(
+        testApp(),
+      );
       const unfilteredPushes = await waitFor(() =>
         getAllByTestId('push-header'),
       );
@@ -219,9 +216,7 @@ describe('Filtering', () => {
 
   describe('by failure result', () => {
     test('should have 10 failures', async () => {
-      const { getByTitle, findAllByText, queryAllByText } = render(testApp(), {
-        legacyRoot: true,
-      });
+      const { getByTitle, findAllByText, queryAllByText } = render(testApp());
 
       await findAllByText('B');
       const unclassifiedOnlyButton = getByTitle(
@@ -247,9 +242,7 @@ describe('Filtering', () => {
       expect(jobCount()).toBe(50);
     });
     test('KeyboardShortcut u: toggle unclassified jobs', async () => {
-      const { queryAllByText, getAllByText } = render(testApp(), {
-        legacyRoot: true,
-      });
+      const { queryAllByText, getAllByText } = render(testApp());
       const symbolToRemove = 'yaml';
       await waitFor(() => getAllByText(symbolToRemove));
       fireEvent.keyDown(document.body, { key: 'u', keyCode: 85 });
@@ -302,9 +295,7 @@ describe('Filtering', () => {
     };
 
     test('click signature should have 10 jobs', async () => {
-      const { getByTitle, findAllByText } = render(testApp(), {
-        legacyRoot: true,
-      });
+      const { getByTitle, findAllByText } = render(testApp());
 
       const build = await findAllByText('B');
 
@@ -320,10 +311,7 @@ describe('Filtering', () => {
     });
 
     test('string "yaml" should have 10 jobs', async () => {
-      const { getAllByText, findAllByText, queryAllByText } = render(
-        testApp(),
-        { legacyRoot: true },
-      );
+      const { getAllByText, findAllByText, queryAllByText } = render(testApp());
       await findAllByText('B');
       const filterField = document.querySelector('#quick-filter');
       setFilterText(filterField, 'yaml');
@@ -340,7 +328,7 @@ describe('Filtering', () => {
     });
 
     test('KeyboardShortcut f: focus the quick filter input', async () => {
-      const { findAllByText } = render(testApp(), { legacyRoot: true });
+      const { findAllByText } = render(testApp());
       await findAllByText('B');
 
       const filterField = document.querySelector('#quick-filter');
@@ -356,7 +344,7 @@ describe('Filtering', () => {
         getAllByText,
         getByPlaceholderText,
         queryAllByText,
-      } = render(testApp(), { legacyRoot: true });
+      } = render(testApp());
       await findAllByText('B');
       const filterField = getByPlaceholderText('Filter platforms & jobs');
       setFilterText(filterField, 'yaml');
@@ -385,10 +373,7 @@ describe('Filtering', () => {
     };
 
     test('uncheck success should leave 30 jobs', async () => {
-      const { getAllByText, findAllByText, queryAllByText } = render(
-        testApp(),
-        { legacyRoot: true },
-      );
+      const { getAllByText, findAllByText, queryAllByText } = render(testApp());
 
       await findAllByText('B');
       clickFilterChicklet('green');
@@ -406,10 +391,7 @@ describe('Filtering', () => {
     });
 
     test('uncheck failures should leave 20 jobs', async () => {
-      const { getAllByText, findAllByText, queryAllByText } = render(
-        testApp(),
-        { legacyRoot: true },
-      );
+      const { getAllByText, findAllByText, queryAllByText } = render(testApp());
       const symbolToRemove = 'B';
 
       await findAllByText(symbolToRemove);
@@ -428,10 +410,7 @@ describe('Filtering', () => {
     });
 
     test('uncheck in progress should leave 20 jobs', async () => {
-      const { getAllByText, findAllByText, queryAllByText } = render(
-        testApp(),
-        { legacyRoot: true },
-      );
+      const { getAllByText, findAllByText, queryAllByText } = render(testApp());
       const symbolToRemove = 'yaml';
 
       await findAllByText('B');
@@ -449,9 +428,7 @@ describe('Filtering', () => {
     });
 
     test('KeyboardShortcut i: toggle off in-progress tasks', async () => {
-      const { getAllByText, queryAllByText } = render(testApp(), {
-        legacyRoot: true,
-      });
+      const { getAllByText, queryAllByText } = render(testApp());
       const symbolToRemove = 'yaml';
 
       await waitFor(() => getAllByText(symbolToRemove));
@@ -468,10 +445,7 @@ describe('Filtering', () => {
     });
 
     test('KeyboardShortcut i: toggle on in-progress tasks', async () => {
-      const { getAllByText, findAllByText, queryAllByText } = render(
-        testApp(),
-        { legacyRoot: true },
-      );
+      const { getAllByText, findAllByText, queryAllByText } = render(testApp());
       const symbolToRemove = 'yaml';
 
       await waitFor(() => getAllByText(symbolToRemove));
@@ -499,7 +473,7 @@ describe('Filtering', () => {
         findAllByText,
         findByText,
         queryAllByText,
-      } = render(testApp(), { legacyRoot: true });
+      } = render(testApp());
       const symbolToRemove = 'yaml';
 
       await findAllByText('B');

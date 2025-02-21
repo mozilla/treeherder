@@ -165,9 +165,7 @@ describe('Push', () => {
   // eslint-disable-next-line jest/no-disabled-tests
   test.skip('jobs should have test_path field to filter', async () => {
     const { store } = configureStore();
-    const { getByText } = render(testPush(store, new FilterModel()), {
-      legacyRoot: true,
-    });
+    const { getByText } = render(testPush(store, new FilterModel()));
 
     const validateJob = async (name, testPaths) => {
       const jobEl = await waitFor(() => getByText(name));
