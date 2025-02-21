@@ -32,8 +32,8 @@ def get_test_suite(suite, test):
     return suite if test == "" or test == suite else f"{suite} {test}"
 
 
-def get_header_name(extra_options, option_name, test_suite):
-    name = f"{test_suite} {option_name} {extra_options}"
+def get_header_name(extra_options, option_name, test_suite, application):
+    name = f"{test_suite} {option_name} {extra_options} {application}"
     return name
 
 
