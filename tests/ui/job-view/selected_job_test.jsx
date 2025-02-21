@@ -72,7 +72,7 @@ const testPushJobs = (filtermodel = null) => {
 };
 
 test('select a job updates url', async () => {
-  const { getByText } = render(testPushJobs(), { legacyRoot: true });
+  const { getByText } = render(testPushJobs());
   const spell = getByText('spell');
 
   expect(spell).toBeInTheDocument();
@@ -86,7 +86,7 @@ test('select a job updates url', async () => {
 });
 
 test('filter change keeps selected job visible', async () => {
-  const { getByText, rerender } = render(testPushJobs(), { legacyRoot: true });
+  const { getByText, rerender } = render(testPushJobs());
   const spell = await waitFor(() => getByText('spell'));
   const filterModel = new FilterModel({
     router: { location: history.location },

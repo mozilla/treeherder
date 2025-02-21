@@ -26,7 +26,6 @@ const testFileBugModal = (user, handleClose) => {
       submitButtonText="File Bug"
       user={user || testUser}
     />,
-    { legacyRoot: true },
   );
 };
 

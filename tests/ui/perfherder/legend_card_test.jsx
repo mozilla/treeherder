@@ -66,7 +66,6 @@ const legendCard = (
       colors={colors}
       symbols={graphSymbols}
     />,
-    { legacyRoot: true },
   );
 
 afterEach(cleanup);

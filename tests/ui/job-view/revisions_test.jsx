@@ -83,7 +83,6 @@ describe('Revision list component', () => {
         revisionCount={push.revision_count}
         bugSummaryMap={push.bugSummaryMap}
       />,
-      { legacyRoot: true },
     );
 
     expect(getAllByTestId('revision')).toHaveLength(push.revision_count);
@@ -100,7 +99,6 @@ describe('Revision list component', () => {
         revisionCount={push.revision_count}
         bugSummaryMap={push.bugSummaryMap}
       />,
-      { legacyRoot: true },
     );
     expect(getByText('\u2026and more')).toBeInTheDocument();
   });
@@ -114,7 +112,6 @@ describe('Revision item component', () => {
         revision={revision}
         bugSummaryMap={push.bugSummaryMap}
       />,
-      { legacyRoot: true },
     );
     const revLink = await waitFor(() => getByText('5a110ad242ea'));
 
@@ -133,7 +130,6 @@ describe('Revision item component', () => {
         revision={revision}
         bugSummaryMap={push.bugSummaryMap}
       />,
-      { legacyRoot: true },
     );
     expect(getByText('AB')).toBeInTheDocument();
   });
@@ -145,7 +141,6 @@ describe('Revision item component', () => {
         revision={revision}
         bugSummaryMap={push.bugSummaryMap}
       />,
-      { legacyRoot: true },
     );
 
     expect(
@@ -164,7 +159,6 @@ describe('Revision item component', () => {
         revision={revision}
         bugSummaryMap={push.bugSummaryMap}
       />,
-      { legacyRoot: true },
     );
 
     expect(document.querySelectorAll('.text-danger')).toHaveLength(1);
@@ -179,7 +173,6 @@ describe('Revision item component', () => {
         revision={revision}
         bugSummaryMap={push.bugSummaryMap}
       />,
-      { legacyRoot: true },
     );
 
     expect(document.querySelectorAll('.text-danger')).toHaveLength(1);
@@ -190,7 +183,6 @@ describe('More revisions link component', () => {
   test('renders an "...and more" link', () => {
     const { getByText } = render(
       <MoreRevisionsLink href="http://more.link/" />,
-      { legacyRoot: true },
     );
     const link = getByText('\u2026and more');
 
@@ -199,7 +191,7 @@ describe('More revisions link component', () => {
   });
 
   test('has an external link icon', () => {
-    render(<MoreRevisionsLink href="http://more.link" />, { legacyRoot: true });
+    render(<MoreRevisionsLink href="http://more.link" />);
 
     expect(
       document.querySelectorAll('svg.svg-inline--fa.fa-square-up-right'),
@@ -213,7 +205,6 @@ describe('initials filter', () => {
     const name = 'Starscream';
     const { getByText } = render(
       <AuthorInitials title={`${name}: ${email}`} author={name} />,
-      { legacyRoot: true },
     );
 
     expect(getByText('S')).toBeInTheDocument();
@@ -223,7 +214,6 @@ describe('initials filter', () => {
     const name = 'Optimus Prime';
     const { getByText } = render(
       <AuthorInitials title={`${name}: ${email}`} author={name} />,
-      { legacyRoot: true },
     );
 
     expect(getByText('OP')).toBeInTheDocument();
@@ -233,7 +223,6 @@ describe('initials filter', () => {
     const name = 'Some Other Transformer';
     const { getByText } = render(
       <AuthorInitials title={`${name}: ${email}`} author={name} />,
-      { legacyRoot: true },
     );
 
     expect(getByText('ST')).toBeInTheDocument();

@@ -133,7 +133,7 @@ describe('Health', () => {
   test('should show some grouped tests', async () => {
     history.push(`/push-health?repo=${repo}&revision=${revision}`);
 
-    const health = render(testHealth(), { legacyRoot: true });
+    const health = render(testHealth());
     const classificationGroups = await waitFor(() =>
       health.getAllByTestId('classification-group'),
     );
@@ -154,7 +154,7 @@ describe('Health', () => {
     history.push(
       `/push-health?repo=${repo}&revision=${revision}&searchStr=browser/extensions/`,
     );
-    const health = render(testHealth(), { legacyRoot: true });
+    const health = render(testHealth());
     const classificationGroups = await waitFor(() =>
       health.getAllByTestId('classification-group'),
     );

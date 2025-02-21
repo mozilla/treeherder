@@ -54,7 +54,7 @@ describe('Test for backwards-compatible routes for other apps', () => {
     history.push(
       '/pushhealth.html?repo=autoland&revision=3c8e093335315c42a87eebf0531effe9cd6fdb95',
     );
-    render(testApp(), { legacyRoot: true });
+    render(testApp());
 
     expect(history.location).toEqual(
       expect.objectContaining({
@@ -71,7 +71,7 @@ describe('Test for backwards-compatible routes for other apps', () => {
     fetchMock.get('/api/performance/tag/', []);
 
     history.push('/perf.html#/alerts?id=27285&hideDwnToInv=0');
-    render(testApp(), { legacyRoot: true });
+    render(testApp());
 
     expect(history.location).toEqual(
       expect.objectContaining({
@@ -86,7 +86,7 @@ describe('Test for backwards-compatible routes for other apps', () => {
     history.push(
       '/logviewer.html#/jobs?job_id=319893964&repo=autoland&lineNumber=2728',
     );
-    render(testApp(), { legacyRoot: true });
+    render(testApp());
 
     expect(history.location).toEqual(
       expect.objectContaining({
@@ -101,7 +101,7 @@ describe('Test for backwards-compatible routes for other apps', () => {
     history.push(
       '/perfherder/compare?originalProject=mozilla-central&originalRevision=54e7fb66ad44b8dcb8caab587f929dad60932d71&newProject=mozilla-central&newRevision=54e7fb66ad44b8dcb8caab587f929dad60932d71&framework=1&page=1#tableLink-header-134266337',
     );
-    render(testApp(), { legacyRoot: true });
+    render(testApp());
 
     expect(history.location).toEqual(
       expect.objectContaining({

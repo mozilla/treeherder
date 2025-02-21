@@ -55,9 +55,7 @@ describe('FuzzyJobFinder', () => {
   );
 
   test('Fuzzy search gives expected results', async () => {
-    const { getByTitle, queryAllByTestId } = await render(testFuzzyJobFinder, {
-      legacyRoot: true,
-    });
+    const { getByTitle, queryAllByTestId } = await render(testFuzzyJobFinder);
     const inputElement = getByTitle('Filter the list of runnable jobs');
 
     await waitFor(() => {
@@ -86,9 +84,7 @@ describe('FuzzyJobFinder', () => {
   });
 
   test('Fuzzy search gives expected results for extended operators', async () => {
-    const { getByTitle, queryAllByTestId } = await render(testFuzzyJobFinder, {
-      legacyRoot: true,
-    });
+    const { getByTitle, queryAllByTestId } = await render(testFuzzyJobFinder);
     const inputElement = getByTitle('Filter the list of runnable jobs');
 
     await waitFor(() => {

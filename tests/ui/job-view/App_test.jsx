@@ -146,7 +146,7 @@ describe('App', () => {
   });
 
   test('should have links to Perfherder and Intermittent Failures View', async () => {
-    const { getByText, getByAltText } = render(testApp(), { legacyRoot: true });
+    const { getByText, getByAltText } = render(testApp());
     const appMenu = await waitFor(() => getByAltText('Treeherder'));
 
     expect(appMenu).toBeInTheDocument();
@@ -168,9 +168,7 @@ describe('App', () => {
     secondJobSymbol,
     secondJobTaskId,
   ) => {
-    const { getByText, findByText, findByTestId } = render(testApp(), {
-      legacyRoot: true,
-    });
+    const { getByText, findByText, findByTestId } = render(testApp());
     const firstJob = await findByText(firstJobSymbol);
 
     fireEvent.mouseDown(firstJob);
@@ -238,7 +236,7 @@ describe('App', () => {
   });
 
   test('changing repo updates ``currentRepo``', async () => {
-    const { getByText, getByTitle } = render(testApp(), { legacyRoot: true });
+    const { getByText, getByTitle } = render(testApp());
 
     const autolandRevision = await waitFor(() => getByText('ba9c692786e9'));
     expect(autolandRevision).toBeInTheDocument();
