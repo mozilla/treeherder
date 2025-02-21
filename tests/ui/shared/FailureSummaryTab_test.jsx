@@ -72,9 +72,7 @@ describe('FailureSummaryTab', () => {
   );
 
   test('failures should be visible', async () => {
-    const { findByText } = render(testFailureSummaryTab(), {
-      legacyRoot: true,
-    });
+    const { findByText } = render(testFailureSummaryTab());
 
     expect(
       await findByText(
@@ -84,9 +82,7 @@ describe('FailureSummaryTab', () => {
   });
 
   test('suggested duplicate bugs should mention open bug', async () => {
-    const { findByText } = render(testFailureSummaryTab(), {
-      legacyRoot: true,
-    });
+    const { findByText } = render(testFailureSummaryTab());
 
     await waitFor(() => screen.getAllByText('Show more bug suggestions'));
     fireEvent.click(screen.getAllByText('Show more bug suggestions')[1]);
@@ -97,9 +93,7 @@ describe('FailureSummaryTab', () => {
   });
 
   test('suggested non-duplicate bugs should not mention other bug like duplicates do', async () => {
-    const { findByText } = render(testFailureSummaryTab(), {
-      legacyRoot: true,
-    });
+    const { findByText } = render(testFailureSummaryTab());
 
     await waitFor(() => screen.getAllByText('Show more bug suggestions'));
     fireEvent.click(screen.getAllByText('Show more bug suggestions')[1]);
@@ -110,9 +104,7 @@ describe('FailureSummaryTab', () => {
   });
 
   test('classification with match to duplicate bug should put open bug into pinboard', async () => {
-    const { findByText } = render(testFailureSummaryTab(), {
-      legacyRoot: true,
-    });
+    const { findByText } = render(testFailureSummaryTab());
 
     await waitFor(() => screen.getAllByText('Show more bug suggestions'));
     fireEvent.click(screen.getAllByText('Show more bug suggestions')[1]);
@@ -130,9 +122,7 @@ describe('FailureSummaryTab', () => {
        contain one test folder but can contain subfolders.
        Support for this has not been implemented and the whole test path is
        supposed to be set as filter. */
-    render(testFailureSummaryTab(), {
-      legacyRoot: true,
-    });
+    render(testFailureSummaryTab());
 
     await waitFor(() =>
       screen.getByTitle('Filter by test path: trusted-types/'),
@@ -147,9 +137,7 @@ describe('FailureSummaryTab', () => {
        contain one test folder but can contain subfolders.
        Support for this has not been implemented and the whole test path is
        supposed to be set as filter. */
-    render(testFailureSummaryTab(), {
-      legacyRoot: true,
-    });
+    render(testFailureSummaryTab());
 
     await waitFor(() =>
       screen.getByTitle('Filter by test path: css/css-break/'),

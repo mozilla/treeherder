@@ -26,7 +26,6 @@ const selectAlertsDropdown = (user) => {
       allSelected={false}
       alertSummary={testAlertSummary}
     />,
-    { legacyRoot: true },
   );
 };
 
