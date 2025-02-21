@@ -155,7 +155,7 @@ describe('BugFiler', () => {
       search: summary,
     };
 
-    render(bugFilerComponentSuggestion(suggestion), { legacyRoot: true });
+    render(bugFilerComponentSuggestion(suggestion));
     const area = screen.getAllByRole('textbox');
     // TODO: hardcoded '1' in the array index
     // TODO: this used to check specific areas of summary,
@@ -285,7 +285,7 @@ describe('BugFiler', () => {
       },
     ];
 
-    render(bugFilerComponentSuggestions(suggestions), { legacyRoot: true });
+    render(bugFilerComponentSuggestions(suggestions));
     const signatureArea = screen.getByDisplayValue(
       '[@ servo_arc::HeaderSlice<H,T>::slice]',
     );
@@ -302,7 +302,7 @@ describe('BugFiler', () => {
       },
     ];
 
-    render(bugFilerComponentSuggestions(suggestions), { legacyRoot: true });
+    render(bugFilerComponentSuggestions(suggestions));
     const signatureArea = screen.queryByDisplayValue('test_webvr.html');
     expect(signatureArea).toBeNull();
   });
@@ -316,7 +316,7 @@ describe('BugFiler', () => {
           'SUMMARY: AddressSanitizer: heap-use-after-free /builds/worker/checkouts/gecko/mock/folder/file.c:12:34 in mock::MockComponent::MockMethod(mock::squirrel::Weasel*)',
       },
     ];
-    render(bugFilerComponentSuggestions(suggestions), { legacyRoot: true });
+    render(bugFilerComponentSuggestions(suggestions));
     const securityIssue = screen.getByText('Report this as a security issue');
     expect(securityIssue).toBeTruthy();
   });
@@ -331,7 +331,7 @@ describe('BugFiler', () => {
       },
     ];
 
-    render(bugFilerComponentSuggestions(suggestions), { legacyRoot: true });
+    render(bugFilerComponentSuggestions(suggestions));
     const securityIssue = screen.getByText('Report this as a security issue');
     expect(securityIssue.checked).toBeFalsy();
   });
@@ -346,7 +346,7 @@ describe('BugFiler', () => {
   });
 
   test('should strip omitted leads from thisFailure', async () => {
-    render(bugFilerComponentSuggestions(PdfSuggestions), { legacyRoot: true });
+    render(bugFilerComponentSuggestions(PdfSuggestions));
 
     const toggleSummary = screen.getByTitle('expand');
     await fireEvent.click(toggleSummary);

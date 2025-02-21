@@ -25,9 +25,7 @@ describe('TestMetric', () => {
   );
 
   test('should have a Possible Regressions section', async () => {
-    const { getByText } = render(testTestMetric(tests, jobs), {
-      legacyRoot: true,
-    });
+    const { getByText } = render(testTestMetric(tests, jobs));
 
     expect(
       await waitFor(() => getByText('Possible Regressions', { exact: false })),
@@ -35,9 +33,7 @@ describe('TestMetric', () => {
   });
 
   test('should have a Known Issues section', async () => {
-    const { getByText } = render(testTestMetric(tests, jobs), {
-      legacyRoot: true,
-    });
+    const { getByText } = render(testTestMetric(tests, jobs));
 
     expect(
       await waitFor(() => getByText('Known Issues', { exact: false })),
@@ -45,9 +41,7 @@ describe('TestMetric', () => {
   });
 
   test('should show the test name', async () => {
-    const { getByText } = render(testTestMetric(tests, jobs), {
-      legacyRoot: true,
-    });
+    const { getByText } = render(testTestMetric(tests, jobs));
 
     expect(
       await waitFor(() =>
