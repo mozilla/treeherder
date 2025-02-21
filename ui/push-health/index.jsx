@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 // Treeherder Styles
 import '../css/failure-summary.css';
@@ -11,4 +11,5 @@ import 'react-tabs/style/react-tabs.css';
 
 import App from './App';
 
-render(<App />, document.getElementById('root'));
+const root = createRoot(document.getElementById('root'));
+root.render(<App />);
