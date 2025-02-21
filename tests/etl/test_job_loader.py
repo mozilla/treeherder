@@ -120,29 +120,30 @@ def test_ingest_pulse_jobs(
         jl.process_job(job, "https://firefox-ci-tc.services.mozilla.com")
 
     jobs = Job.objects.all()
-    assert len(jobs) == 5
+    assert len(jobs) == 10
 
     assert [job.taskcluster_metadata for job in jobs]
     assert set(TaskclusterMetadata.objects.values_list("task_id", flat=True)) == set(
         [
-            "IYyscnNMTLuxzna7PNqUJQ",
-            "XJCbbRQ6Sp-UL1lL-tw5ng",
-            "ZsSzJQu3Q7q2MfehIBAzKQ",
-            "bIzVZt9jQQKgvQYD3a2HQw",
+            "JgE_teeARru3UFhELcNYbw",
+            "CW46ODAzSkaj4e3OFriTgg",
+            "H06f9dCnQBCB5JdHIg24Ow",
+            "IEMEha9TS3SdXe5Doqtqsg",
+            "NAKQhXjuQzqDhO6BgAXzQg",
+            "OkIG5JFrQnG_UiaYdZ2RDg",
+            "TFeo7P0iT9SXeNpfdVEcHw",
+            "WeYY0WorSBubKrB9zFVX2g",
+            "altlRkVJS2uz7v_ytFQOuQ",
+            "da5VjBq3RMuJ8S93GA9lOw",
         ]
     )
 
     job_logs = JobLog.objects.filter(job_id=1)
-    assert job_logs.count() == 2
+    assert job_logs.count() == 1
     logs_expected = [
         {
-            "name": "errorsummary_json",
-            "url": "http://example.com/blobs/Mozilla-Inbound-Non-PGO/sha512/05c7f57df6583c6351c6b49e439e2678e0f43c2e5b66695ea7d096a7519e1805f441448b5ffd4cc3b80b8b2c74b244288fda644f55ed0e226ef4e25ba02ca466",
-            "parse_status": 0,
-        },
-        {
             "name": "live_backing_log",
-            "url": "http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/tinderbox-builds/mozilla-inbound-linux64/mozilla-inbound_linux64_spidermonkey-warnaserr-bm57-build1-build352.txt.gz",
+            "url": "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/JgE_teeARru3UFhELcNYbw/runs/0/artifacts/public/logs/live_backing.log",
             "parse_status": 0,
         },
     ]
@@ -191,10 +192,10 @@ def test_ingest_pending_pulse_job(
 
     job = jobs[0]
     assert job.taskcluster_metadata
-    assert job.taskcluster_metadata.task_id == "IYyscnNMTLuxzna7PNqUJQ"
+    assert job.taskcluster_metadata.task_id == "JgE_teeARru3UFhELcNYbw"
 
     # should not have processed any log or details for pending jobs
-    assert JobLog.objects.count() == 2
+    assert JobLog.objects.count() == 1
 
 
 def test_ingest_pulse_jobs_bad_project(
@@ -214,7 +215,7 @@ def test_ingest_pulse_jobs_bad_project(
         jl.process_job(pulse_job, "https://firefox-ci-tc.services.mozilla.com")
 
     # length of pulse jobs is 5, so one will be skipped due to bad project
-    assert Job.objects.count() == 4
+    assert Job.objects.count() == 9
 
 
 @responses.activate
@@ -228,7 +229,7 @@ def test_ingest_pulse_jobs_with_missing_push(pulse_jobs):
     job["origin"]["revision"] = "1234567890123456789012345678901234567890"
     responses.add(
         responses.GET,
-        "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/IYyscnNMTLuxzna7PNqUJQ",
+        "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/JgE_teeARru3UFhELcNYbw",
         json={},
         content_type="application/json",
         status=200,

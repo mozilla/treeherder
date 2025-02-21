@@ -22,7 +22,7 @@ def test_push_list_basic(client, eleven_jobs_stored, test_repository):
     assert resp.status_code == 200
     assert isinstance(results, list)
 
-    assert len(results) == 10
+    assert len(results) == 6
     exp_keys = set(
         [
             "id",
@@ -37,7 +37,7 @@ def test_push_list_basic(client, eleven_jobs_stored, test_repository):
     for rs in results:
         assert set(rs.keys()) == exp_keys
 
-    assert meta == {"count": 10, "filter_params": {}, "repository": test_repository.name}
+    assert meta == {"count": 6, "filter_params": {}, "repository": test_repository.name}
 
 
 def test_push_list_bad_project(client, transactional_db):
@@ -63,7 +63,7 @@ def test_push_list_empty_push_still_show(client, sample_push, test_repository):
     )
     assert resp.status_code == 200
     data = resp.json()
-    assert len(data["results"]) == 10
+    assert len(data["results"]) == 6
 
 
 def test_push_list_single_short_revision(client, eleven_jobs_stored, test_repository):
@@ -72,17 +72,17 @@ def test_push_list_single_short_revision(client, eleven_jobs_stored, test_reposi
     """
 
     resp = client.get(
-        reverse("push-list", kwargs={"project": test_repository.name}), {"revision": "45f8637cb9f7"}
+        reverse("push-list", kwargs={"project": test_repository.name}), {"revision": "cc221f1c307e"}
     )
     assert resp.status_code == 200
     results = resp.json()["results"]
     meta = resp.json()["meta"]
     assert len(results) == 1
-    assert set([rs["revision"] for rs in results]) == {"45f8637cb9f78f19cb8463ff174e81756805d8cf"}
+    assert set([rs["revision"] for rs in results]) == {"cc221f1c307eab9b73da5a666ece48475a500907"}
     assert meta == {
         "count": 1,
-        "revision": "45f8637cb9f7",
-        "filter_params": {"revisions_short_revision": "45f8637cb9f7"},
+        "revision": "cc221f1c307e",
+        "filter_params": {"revisions_short_revision": "cc221f1c307e"},
         "repository": test_repository.name,
     }
 
@@ -94,17 +94,17 @@ def test_push_list_single_long_revision(client, eleven_jobs_stored, test_reposit
 
     resp = client.get(
         reverse("push-list", kwargs={"project": test_repository.name}),
-        {"revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf"},
+        {"revision": "cc221f1c307eab9b73da5a666ece48475a500907"},
     )
     assert resp.status_code == 200
     results = resp.json()["results"]
     meta = resp.json()["meta"]
     assert len(results) == 1
-    assert set([rs["revision"] for rs in results]) == {"45f8637cb9f78f19cb8463ff174e81756805d8cf"}
+    assert set([rs["revision"] for rs in results]) == {"cc221f1c307eab9b73da5a666ece48475a500907"}
     assert meta == {
         "count": 1,
-        "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
-        "filter_params": {"revisions_long_revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf"},
+        "revision": "cc221f1c307eab9b73da5a666ece48475a500907",
+        "filter_params": {"revisions_long_revision": "cc221f1c307eab9b73da5a666ece48475a500907"},
         "repository": test_repository.name,
     }
 
@@ -117,25 +117,27 @@ def test_push_list_filter_by_revision(client, eleven_jobs_stored, test_repositor
 
     resp = client.get(
         reverse("push-list", kwargs={"project": test_repository.name}),
-        {"fromchange": "130965d3df6c", "tochange": "f361dcb60bbe"},
+        {"fromchange": "a3bc96da6e5a73351a7b8eb5e9e619486aa93185", "tochange": "cc221f1c307eab9b73da5a666ece48475a500907"},
     )
     assert resp.status_code == 200
     data = resp.json()
     results = data["results"]
     meta = data["meta"]
-    assert len(results) == 4
+    assert len(results) == 6
     assert set([rs["revision"] for rs in results]) == {
-        "130965d3df6c9a1093b4725f3b877eaef80d72bc",
-        "7f417c3505e3d2599ac9540f02e3dbee307a3963",
-        "a69390334818373e2d7e6e9c8d626a328ed37d47",
-        "f361dcb60bbedaa01257fbca211452972f7a74b2",
+        "a3bc96da6e5a73351a7b8eb5e9e619486aa93185",
+        "bc5151048fdd2d0789d044585f51f80a7f512adf",
+        "b1ebe9d9686771a81969bb46454c4be05cbb9e19",
+        "47360b5eb4344118242aeb1dbf5b56a6c581ee43",
+        "0fb970d47ef2ae0e4d7e3f50320ade19d5d627a2",
+        "cc221f1c307eab9b73da5a666ece48475a500907"
     }
     assert meta == {
-        "count": 4,
-        "fromchange": "130965d3df6c",
-        "filter_params": {"push_timestamp__gte": 1384363842, "push_timestamp__lte": 1384365942},
+        "count": 6,
+        "fromchange": "a3bc96da6e5a73351a7b8eb5e9e619486aa93185",
+        "filter_params": {"push_timestamp__gte": 1740058509, "push_timestamp__lte": 1740060694},
         "repository": test_repository.name,
-        "tochange": "f361dcb60bbe",
+        "tochange": "cc221f1c307eab9b73da5a666ece48475a500907",
     }
 
 
@@ -145,7 +147,7 @@ def test_push_list_filter_by_date(client, test_repository, sample_push):
     test retrieving a push list, filtered by a date range
     """
     for i, datestr in zip(
-        [3, 4, 5, 6, 7], ["2013-08-09", "2013-08-10", "2013-08-11", "2013-08-12", "2013-08-13"]
+        [2, 3, 4, 5], ["2025-02-16", "2025-02-17", "2025-02-18", "2025-02-19"]
     ):
         sample_push[i]["push_timestamp"] = utils.to_timestamp(utils.to_datetime(datestr))
 
@@ -153,28 +155,29 @@ def test_push_list_filter_by_date(client, test_repository, sample_push):
 
     resp = client.get(
         reverse("push-list", kwargs={"project": test_repository.name}),
-        {"startdate": "2013-08-10", "enddate": "2013-08-13"},
+        {"startdate": "2025-02-17", "enddate": "2025-02-20"},
     )
     assert resp.status_code == 200
     data = resp.json()
     results = data["results"]
     meta = data["meta"]
-    assert len(results) == 4
+    assert len(results) == 5
     assert set([rs["revision"] for rs in results]) == {
-        "ce17cad5d554cfffddee13d1d8421ae9ec5aad82",
-        "7f417c3505e3d2599ac9540f02e3dbee307a3963",
-        "a69390334818373e2d7e6e9c8d626a328ed37d47",
-        "f361dcb60bbedaa01257fbca211452972f7a74b2",
+        "a3bc96da6e5a73351a7b8eb5e9e619486aa93185",
+        "bc5151048fdd2d0789d044585f51f80a7f512adf",
+        "b1ebe9d9686771a81969bb46454c4be05cbb9e19",
+        "0fb970d47ef2ae0e4d7e3f50320ade19d5d627a2",
+        "cc221f1c307eab9b73da5a666ece48475a500907"
     }
     assert meta == {
-        "count": 4,
-        "enddate": "2013-08-13",
+        "count": 5,
+        "enddate": "2025-02-20",
         "filter_params": {
-            "push_timestamp__gte": 1376092800.0,
-            "push_timestamp__lt": 1376438400.0,
+            "push_timestamp__gte": 1739750400,
+            "push_timestamp__lt": 1740096000,
         },
         "repository": test_repository.name,
-        "startdate": "2013-08-10",
+        "startdate": "2025-02-17",
     }
 
 
@@ -417,7 +420,7 @@ def test_push_list_without_jobs(client, test_repository, sample_push):
     assert resp.status_code == 200
     data = resp.json()
     results = data["results"]
-    assert len(results) == 10
+    assert len(results) == 6
     assert all([("platforms" not in result) for result in results])
 
     meta = data["meta"]

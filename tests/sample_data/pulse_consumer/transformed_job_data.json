@@ -1,211 +1,442 @@
 [
   {
     "job": {
-      "taskcluster_task_id": "IYyscnNMTLuxzna7PNqUJQ",
+      "taskcluster_task_id": "JgE_teeARru3UFhELcNYbw",
       "taskcluster_retry_id": 0,
       "build_platform": {
-        "platform": "linux64",
-        "os_name": "linux",
+        "platform": "win64",
+        "os_name": "win",
         "architecture": "x86_64"
       },
-      "submit_timestamp": 1419035997.0,
-      "start_timestamp": 1419039597.0,
-      "name": "test-linux64/opt-mochitest-devtools-chrome-3",
+      "submit_timestamp": 1740032153,
+      "start_timestamp": 1740034289,
+      "name": "test-windows10-64-2009-qr/opt-cppunittest-1proc",
       "option_collection": {
-        "debug": true
+        "opt": true
       },
       "machine_platform": {
-        "platform": "linux64",
-        "os_name": "linux",
+        "platform": "win64",
+        "os_name": "win",
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "thedude@lebowski.com",
-      "group_symbol": "PI",
-      "reason": "scheduler",
-      "group_name": "PulseIngestion",
-      "machine": "bld-linux64-ec2-104",
+      "who": "vm-l00dbw38tpe3jwzew@fakemail.com",
+      "group_symbol": "?",
+      "reason": "scheduled",
+      "group_name": "unknown",
+      "machine": "vm-l00dbw38tpe3jwzewrpbafddueheaqxmu1o",
       "state": "completed",
       "result": "success",
       "log_references": [
         {
-          "url": "http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/tinderbox-builds/mozilla-inbound-linux64/mozilla-inbound_linux64_spidermonkey-warnaserr-bm57-build1-build352.txt.gz",
-          "parse_status": "pending",
-          "name": "live_backing_log"
-        },
-        {
-          "url": "http://example.com/blobs/Mozilla-Inbound-Non-PGO/sha512/05c7f57df6583c6351c6b49e439e2678e0f43c2e5b66695ea7d096a7519e1805f441448b5ffd4cc3b80b8b2c74b244288fda644f55ed0e226ef4e25ba02ca466",
-          "parse_status": "pending",
-          "name": "errorsummary_json"
+          "url": "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/JgE_teeARru3UFhELcNYbw/runs/0/artifacts/public/logs/live_backing.log",
+          "name": "live_backing_log",
+          "parse_status": "pending"
         }
       ],
       "tier": 1,
-      "job_symbol": "P",
-      "job_guid": "218cac72-734c-4cbb-b1ce-76bb3cda9425/0",
-      "product_name": "Oscillation Overthruster",
-      "end_timestamp": 1419043197.0
+      "job_symbol": "cppunit-1proc",
+      "job_guid": "26013fb5-e780-46bb-b750-58442dc3586f/0",
+      "product_name": "Firefox",
+      "end_timestamp": 1740034449
     },
-    "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
+    "revision": "cc221f1c307eab9b73da5a666ece48475a500907",
     "superseded": []
   },
   {
     "job": {
-      "taskcluster_task_id": "XJCbbRQ6Sp-UL1lL-tw5ng",
+      "taskcluster_task_id": "NAKQhXjuQzqDhO6BgAXzQg",
       "taskcluster_retry_id": 0,
       "build_platform": {
-        "platform": "linux64",
-        "os_name": "linux",
+        "platform": "win64",
+        "os_name": "win",
         "architecture": "x86_64"
       },
-      "submit_timestamp": 1419035997.0,
-      "start_timestamp": 1419039597.0,
-      "name": "test-android-4.3-arm7-api-15/debug-mochitest-media-1",
+      "submit_timestamp": 1740032153,
+      "start_timestamp": 1740034236,
+      "name": "test-windows11-64-24h2/opt-mochitest-browser-chrome-1",
       "option_collection": {
-        "debug": true
+        "opt": true
       },
       "machine_platform": {
-        "platform": "linux64",
-        "os_name": "linux",
+        "platform": "win64",
+        "os_name": "win",
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "thedude@lebowski.com",
-      "group_symbol": "?",
-      "reason": "scheduler",
-      "group_name": "unknown",
-      "machine": "bld-linux64-ec2-104",
-      "state": "running",
-      "result": "unknown",
-      "log_references": [],
-      "tier": 1,
-      "job_symbol": "P2",
-      "job_guid": "5c909b6d-143a-4a9f-942f-594bfadc399e/0",
-      "product_name": "Oscillation Overthruster",
-      "end_timestamp": 1419043197.0
-    },
-    "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
-    "superseded": []
-  },
-  {
-    "job": {
-      "taskcluster_task_id": "XJCbbRQ6Sp-UL1lL-tw5ng",
-      "taskcluster_retry_id": 1,
-      "build_platform": {
-        "platform": "linux64",
-        "os_name": "linux",
-        "architecture": "x86_64"
-      },
-      "submit_timestamp": 1419035997.0,
-      "start_timestamp": 1419039597.0,
-      "name": "test-android-4.3-arm7-api-15/debug-mochitest-media-1",
-      "option_collection": {
-        "debug": true
-      },
-      "machine_platform": {
-        "platform": "linux64",
-        "os_name": "linux",
-        "architecture": "x86_64"
-      },
-      "build_system_type": "taskcluster",
-      "who": "thedude@lebowski.com",
-      "group_symbol": "?",
-      "reason": "scheduler",
-      "group_name": "unknown",
-      "machine": "bld-linux64-ec2-104",
-      "state": "running",
-      "result": "unknown",
-      "log_references": [],
-      "tier": 1,
-      "job_symbol": "P2",
-      "job_guid": "5c909b6d-143a-4a9f-942f-594bfadc399e/1",
-      "product_name": "Oscillation Overthruster",
-      "end_timestamp": 1419043197.0
-    },
-    "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
-    "superseded": []
-  },
-  {
-    "job": {
-      "taskcluster_task_id": "ZsSzJQu3Q7q2MfehIBAzKQ",
-      "taskcluster_retry_id": 0,
-      "build_platform": {
-        "platform": "linux64",
-        "os_name": "linux",
-        "architecture": "x86_64"
-      },
-      "submit_timestamp": 1419035997.0,
-      "start_timestamp": 1419039597.0,
-      "name": "static-analysis-win32-st-an/debug",
-      "option_collection": {},
-      "machine_platform": {
-        "platform": "linux64",
-        "os_name": "linux",
-        "architecture": "x86_64"
-      },
-      "build_system_type": "taskcluster",
-      "who": "thedude@lebowski.com",
-      "group_symbol": "PI",
-      "reason": "scheduler",
-      "group_name": "PulseIngestion",
-      "machine": "bld-linux64-ec2-104",
+      "who": "vm-eo9bwwrhfeaeeobqs@fakemail.com",
+      "group_symbol": "M",
+      "reason": "scheduled",
+      "group_name": "Mochitests",
+      "machine": "vm-eo9bwwrhfeaeeobqskwdekilct7sqwia6av",
       "state": "completed",
-      "result": "retry",
+      "result": "success",
       "log_references": [
         {
-          "url": "http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/tinderbox-builds/mozilla-inbound-linux64/mozilla-inbound_linux64_spidermonkey-warnaserr-bm57-build1-build352.txt.gz",
-          "parse_status": "pending",
-          "name": "live_backing_log"
+          "url": "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/NAKQhXjuQzqDhO6BgAXzQg/runs/0/artifacts/public/logs/live_backing.log",
+          "name": "live_backing_log",
+          "parse_status": "pending"
         }
       ],
       "tier": 1,
-      "job_symbol": "3",
-      "job_guid": "66c4b325-0bb7-43ba-b631-f7a120103329/0",
-      "product_name": "unknown",
-      "end_timestamp": 1419043197.0
+      "job_symbol": "bc1",
+      "job_guid": "34029085-78ee-433a-8384-ee818005f342/0",
+      "product_name": "Firefox",
+      "end_timestamp": 1740035940
     },
-    "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
+    "revision": "cc221f1c307eab9b73da5a666ece48475a500907",
     "superseded": []
   },
   {
     "job": {
-      "taskcluster_task_id": "bIzVZt9jQQKgvQYD3a2HQw",
-      "taskcluster_retry_id": 3,
+      "taskcluster_task_id": "OkIG5JFrQnG_UiaYdZ2RDg",
+      "taskcluster_retry_id": 0,
       "build_platform": {
-        "platform": "linux64",
-        "os_name": "linux",
+        "platform": "win64",
+        "os_name": "win",
         "architecture": "x86_64"
       },
-      "submit_timestamp": 1419035997.0,
-      "start_timestamp": 1419039597.0,
-      "name": "test-windows10-64-vm/opt-jsreftest",
-      "option_collection": {},
+      "submit_timestamp": 1740032153,
+      "start_timestamp": 1740034238,
+      "name": "test-windows11-64-24h2/opt-mochitest-browser-chrome-spi-nw-2",
+      "option_collection": {
+        "opt": true
+      },
       "machine_platform": {
-        "platform": "linux64",
-        "os_name": "linux",
+        "platform": "win64",
+        "os_name": "win",
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "thedude@lebowski.com",
-      "group_symbol": "PI",
-      "reason": "scheduler",
-      "group_name": "PulseIngestion",
-      "machine": "bld-linux64-ec2-104",
+      "who": "vm-erquemssckgllmztp@fakemail.com",
+      "group_symbol": "M-spi-nw",
+      "reason": "scheduled",
+      "group_name": "Mochitests with networking on socket process enabled",
+      "machine": "vm-erquemssckgllmztpj5wqxkr6om6q6e090n",
+      "state": "completed",
+      "result": "success",
+      "log_references": [
+        {
+          "url": "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/OkIG5JFrQnG_UiaYdZ2RDg/runs/0/artifacts/public/logs/live_backing.log",
+          "name": "live_backing_log",
+          "parse_status": "pending"
+        }
+      ],
+      "tier": 1,
+      "job_symbol": "bc2",
+      "job_guid": "3a4206e4-916b-4271-bf52-2698759d910e/0",
+      "product_name": "Firefox",
+      "end_timestamp": 1740036624
+    },
+    "revision": "cc221f1c307eab9b73da5a666ece48475a500907",
+    "superseded": []
+  },
+  {
+    "job": {
+      "taskcluster_task_id": "TFeo7P0iT9SXeNpfdVEcHw",
+      "taskcluster_retry_id": 0,
+      "build_platform": {
+        "platform": "win64",
+        "os_name": "win",
+        "architecture": "x86_64"
+      },
+      "submit_timestamp": 1740032153,
+      "start_timestamp": 1740034239,
+      "name": "test-windows11-64-24h2/opt-mochitest-media-wmfme",
+      "option_collection": {
+        "opt": true
+      },
+      "machine_platform": {
+        "platform": "win64",
+        "os_name": "win",
+        "architecture": "x86_64"
+      },
+      "build_system_type": "taskcluster",
+      "who": "vm-ewpsdaztqxiiasw0t@fakemail.com",
+      "group_symbol": "M-wmfme",
+      "reason": "scheduled",
+      "group_name": "Mochitests with Windows Media Foundation media engine enabled",
+      "machine": "vm-ewpsdaztqxiiasw0t7nf1at1ztycy0twaz9",
+      "state": "completed",
+      "result": "success",
+      "log_references": [
+        {
+          "url": "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/TFeo7P0iT9SXeNpfdVEcHw/runs/0/artifacts/public/logs/live_backing.log",
+          "name": "live_backing_log",
+          "parse_status": "pending"
+        }
+      ],
+      "tier": 1,
+      "job_symbol": "mda",
+      "job_guid": "4c57a8ec-fd22-4fd4-9778-da5f75511c1f/0",
+      "product_name": "Firefox",
+      "end_timestamp": 1740034865
+    },
+    "revision": "cc221f1c307eab9b73da5a666ece48475a500907",
+    "superseded": []
+  },
+  {
+    "job": {
+      "taskcluster_task_id": "altlRkVJS2uz7v_ytFQOuQ",
+      "taskcluster_retry_id": 0,
+      "build_platform": {
+        "platform": "win32",
+        "os_name": "win",
+        "architecture": "x86"
+      },
+      "submit_timestamp": 1740032153,
+      "start_timestamp": 1740034255,
+      "name": "test-windows11-32-24h2/opt-mochitest-browser-chrome-10",
+      "option_collection": {
+        "opt": true
+      },
+      "machine_platform": {
+        "platform": "win32",
+        "os_name": "win",
+        "architecture": "x86"
+      },
+      "build_system_type": "taskcluster",
+      "who": "vm-fzmqowdht6ukcckmf@fakemail.com",
+      "group_symbol": "M",
+      "reason": "scheduled",
+      "group_name": "Mochitests",
+      "machine": "vm-fzmqowdht6ukcckmfpxamisysuvisdcl6x9",
+      "state": "completed",
+      "result": "success",
+      "log_references": [
+        {
+          "url": "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/altlRkVJS2uz7v_ytFQOuQ/runs/0/artifacts/public/logs/live_backing.log",
+          "name": "live_backing_log",
+          "parse_status": "pending"
+        }
+      ],
+      "tier": 1,
+      "job_symbol": "bc10",
+      "job_guid": "6a5b6546-4549-4b6b-b3ee-fff2b4540eb9/0",
+      "product_name": "Firefox",
+      "end_timestamp": 1740035397
+    },
+    "revision": "cc221f1c307eab9b73da5a666ece48475a500907",
+    "superseded": []
+  },
+  {
+    "job": {
+      "taskcluster_task_id": "da5VjBq3RMuJ8S93GA9lOw",
+      "taskcluster_retry_id": 0,
+      "build_platform": {
+        "platform": "win32",
+        "os_name": "win",
+        "architecture": "x86"
+      },
+      "submit_timestamp": 1740032153,
+      "start_timestamp": 1740034261,
+      "name": "test-windows11-32-24h2/opt-mochitest-browser-a11y",
+      "option_collection": {
+        "opt": true
+      },
+      "machine_platform": {
+        "platform": "win32",
+        "os_name": "win",
+        "architecture": "x86"
+      },
+      "build_system_type": "taskcluster",
+      "who": "vm-uyk5q5ddto6pvowlm@fakemail.com",
+      "group_symbol": "M",
+      "reason": "scheduled",
+      "group_name": "Mochitests",
+      "machine": "vm-uyk5q5ddto6pvowlmaz0swa4wir5n8tb65e",
+      "state": "completed",
+      "result": "success",
+      "log_references": [
+        {
+          "url": "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/da5VjBq3RMuJ8S93GA9lOw/runs/0/artifacts/public/logs/live_backing.log",
+          "name": "live_backing_log",
+          "parse_status": "pending"
+        }
+      ],
+      "tier": 1,
+      "job_symbol": "ba",
+      "job_guid": "75ae558c-1ab7-44cb-89f1-2f77180f653b/0",
+      "product_name": "Firefox",
+      "end_timestamp": 1740034938
+    },
+    "revision": "cc221f1c307eab9b73da5a666ece48475a500907",
+    "superseded": []
+  },
+  {
+    "job": {
+      "taskcluster_task_id": "WeYY0WorSBubKrB9zFVX2g",
+      "taskcluster_retry_id": 0,
+      "build_platform": {
+        "platform": "win32",
+        "os_name": "win",
+        "architecture": "x86"
+      },
+      "submit_timestamp": 1740032154,
+      "start_timestamp": 1740034261,
+      "name": "test-windows11-32-24h2/opt-mochitest-browser-chrome-4",
+      "option_collection": {
+        "opt": true
+      },
+      "machine_platform": {
+        "platform": "win32",
+        "os_name": "win",
+        "architecture": "x86"
+      },
+      "build_system_type": "taskcluster",
+      "who": "vm-wedcfwjcrq21bod24@fakemail.com",
+      "group_symbol": "M",
+      "reason": "scheduled",
+      "group_name": "Mochitests",
+      "machine": "vm-wedcfwjcrq21bod24xthygbxfuzwpzryoxp",
       "state": "completed",
       "result": "testfailed",
       "log_references": [
         {
-          "url": "http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/tinderbox-builds/mozilla-inbound-linux64/mozilla-inbound_linux64_spidermonkey-warnaserr-bm57-build1-build352.txt.gz",
-          "parse_status": "pending",
-          "name": "live_backing_log"
+          "url": "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/WeYY0WorSBubKrB9zFVX2g/runs/0/artifacts/public/logs/live_backing.log",
+          "name": "live_backing_log",
+          "parse_status": "pending"
         }
       ],
       "tier": 1,
-      "job_symbol": "3",
-      "job_guid": "6c8cd566-df63-4102-a0bd-0603ddad8743/3",
-      "product_name": "unknown",
-      "end_timestamp": 1419043197.0
+      "job_symbol": "bc4",
+      "job_guid": "59e618d1-6a2b-481b-9b2a-b07dcc5557da/0",
+      "product_name": "Firefox",
+      "end_timestamp": 1740035669
     },
-    "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
+    "revision": "cc221f1c307eab9b73da5a666ece48475a500907",
+    "superseded": []
+  },
+  {
+    "job": {
+      "taskcluster_task_id": "CW46ODAzSkaj4e3OFriTgg",
+      "taskcluster_retry_id": 0,
+      "build_platform": {
+        "platform": "linux64",
+        "os_name": "linux",
+        "architecture": "x86_64"
+      },
+      "submit_timestamp": 1740032153,
+      "start_timestamp": 1740034300,
+      "name": "test-linux1804-64-qr/opt-mochitest-chrome-1proc-1",
+      "option_collection": {
+        "opt": true
+      },
+      "machine_platform": {
+        "platform": "linux64",
+        "os_name": "linux",
+        "architecture": "x86_64"
+      },
+      "build_system_type": "taskcluster",
+      "who": "1341513139427641596@fakemail.com",
+      "group_symbol": "M-1proc",
+      "reason": "scheduled",
+      "group_name": "Mochitests with e10s disabled",
+      "machine": "1341513139427641596",
+      "state": "completed",
+      "result": "success",
+      "log_references": [
+        {
+          "url": "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/CW46ODAzSkaj4e3OFriTgg/runs/0/artifacts/public/logs/live_backing.log",
+          "name": "live_backing_log",
+          "parse_status": "pending"
+        }
+      ],
+      "tier": 1,
+      "job_symbol": "c1",
+      "job_guid": "096e3a38-3033-4a46-a3e1-edce16b89382/0",
+      "product_name": "Firefox",
+      "end_timestamp": 1740034548
+    },
+    "revision": "cc221f1c307eab9b73da5a666ece48475a500907",
+    "superseded": []
+  },
+  {
+    "job": {
+      "taskcluster_task_id": "H06f9dCnQBCB5JdHIg24Ow",
+      "taskcluster_retry_id": 0,
+      "build_platform": {
+        "platform": "linux64",
+        "os_name": "linux",
+        "architecture": "x86_64"
+      },
+      "submit_timestamp": 1740032153,
+      "start_timestamp": 1740034301,
+      "name": "test-linux1804-64-qr/opt-mochitest-browser-chrome-swr-5",
+      "option_collection": {
+        "opt": true
+      },
+      "machine_platform": {
+        "platform": "linux64",
+        "os_name": "linux",
+        "architecture": "x86_64"
+      },
+      "build_system_type": "taskcluster",
+      "who": "3037294492791799742@fakemail.com",
+      "group_symbol": "M-swr",
+      "reason": "scheduled",
+      "group_name": "Mochitests with software webrender enabled",
+      "machine": "3037294492791799742",
+      "state": "completed",
+      "result": "testfailed",
+      "log_references": [
+        {
+          "url": "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/H06f9dCnQBCB5JdHIg24Ow/runs/0/artifacts/public/logs/live_backing.log",
+          "name": "live_backing_log",
+          "parse_status": "pending"
+        }
+      ],
+      "tier": 1,
+      "job_symbol": "bc5",
+      "job_guid": "1f4e9ff5-d0a7-4010-81e4-9747220db83b/0",
+      "product_name": "Firefox",
+      "end_timestamp": 1740036840
+    },
+    "revision": "cc221f1c307eab9b73da5a666ece48475a500907",
+    "superseded": []
+  },
+  {
+    "job": {
+      "taskcluster_task_id": "IEMEha9TS3SdXe5Doqtqsg",
+      "taskcluster_retry_id": 0,
+      "build_platform": {
+        "platform": "linux64",
+        "os_name": "linux",
+        "architecture": "x86_64"
+      },
+      "submit_timestamp": 1740032153,
+      "start_timestamp": 1740034302,
+      "name": "test-linux1804-64-qr/opt-mochitest-plain-xorig-4",
+      "option_collection": {
+        "opt": true
+      },
+      "machine_platform": {
+        "platform": "linux64",
+        "os_name": "linux",
+        "architecture": "x86_64"
+      },
+      "build_system_type": "taskcluster",
+      "who": "1573264180240908222@fakemail.com",
+      "group_symbol": "M-xorig",
+      "reason": "scheduled",
+      "group_name": "Mochitests with cross-origin",
+      "machine": "1573264180240908222",
+      "state": "completed",
+      "result": "success",
+      "log_references": [
+        {
+          "url": "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/IEMEha9TS3SdXe5Doqtqsg/runs/0/artifacts/public/logs/live_backing.log",
+          "name": "live_backing_log",
+          "parse_status": "pending"
+        }
+      ],
+      "tier": 1,
+      "job_symbol": "4",
+      "job_guid": "20430485-af53-4b74-9d5d-ee43a2ab6ab2/0",
+      "product_name": "Firefox",
+      "end_timestamp": 1740035100
+    },
+    "revision": "cc221f1c307eab9b73da5a666ece48475a500907",
     "superseded": []
   }
 ]

@@ -159,9 +159,9 @@ def test_push_notes(client, test_job_with_notes):
             "id": 1,
             "job": {
                 "task_id": notes[0].job.taskcluster_metadata.task_id,
-                "job_type_name": "Linux x64 Tsan Build",
+                "job_type_name": "unknown",
                 "result": "success",
-                "duration": 191,
+                "duration": 40,
             },
             "failure_classification_name": "fixed by commit",
             "who": notes[0].user.email,
@@ -172,8 +172,8 @@ def test_push_notes(client, test_job_with_notes):
             "failure_classification_name": "expected fail",
             "id": 2,
             "job": {
-                "duration": 191,
-                "job_type_name": "Linux x64 Tsan Build",
+                "duration": 40,
+                "job_type_name": "unknown",
                 "result": "success",
                 "task_id": notes[1].job.taskcluster_metadata.task_id,
             },
