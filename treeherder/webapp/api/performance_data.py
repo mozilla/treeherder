@@ -807,6 +807,16 @@ class PerformanceSummary(generics.ListAPIView):
         if no_retriggers:
             serialized_data = self._filter_out_retriggers(serialized_data)
 
+        for item in serializer.data:
+            for point in item["data"]:
+                try:
+                    job_submit_time = models.Job.objects.filter(
+                        repository__name=repository_name, id=point["job_id"]
+                    ).values_list("submit_time", flat=True)
+                    point["submit_time"] = job_submit_time[0].strftime("%Y-%m-%dT%H:%M:%S")
+                except Exception:
+                    point["submit_time"] = None
+
         return Response(data=serialized_data)
 
     @staticmethod

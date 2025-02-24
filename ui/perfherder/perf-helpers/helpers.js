@@ -839,6 +839,7 @@ export const createGraphData = (
       data: series.data.map((dataPoint) => ({
         // Backend implicitly provides all dates as UTC.
         // Let's make this explicit, so frontend doesn't get confused.
+        requested: new Date(`${dataPoint.submit_time}Z`),
         x: new Date(`${dataPoint.push_timestamp}Z`),
         y: dataPoint.value,
         z: color ? color[1] : '',
