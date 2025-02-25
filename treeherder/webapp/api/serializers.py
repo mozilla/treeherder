@@ -2,6 +2,8 @@ import re
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction
+from django.utils import timezone
 from rest_framework import serializers
 
 from treeherder.changelog.models import Changelog
@@ -445,3 +447,30 @@ class InvestigatedTestsSerializers(serializers.ModelSerializer):
     class Meta:
         model = models.InvestigatedTests
         fields = ("id", "test", "job_name", "job_symbol")
+
+
+class InternalIssueSerializer(serializers.Serializer):
+    job_id = serializers.PrimaryKeyRelatedField(
+        write_only=True,
+        source="job",
+        queryset=models.Job.objects.all(),
+    )
+
+    class Meta:
+        model = models.Bugscache
+        fields = ["job_id", "summary"]
+
+    @transaction.atomic
+    def create(self, validated_data):
+        job = validated_data.pop("job")
+
+        # Build or retrieve a bug already reported for a similar FailureLine
+        try:
+            bug, _ = models.Bugscache.get_or_create(
+                **validated_data, default={"modified": timezone.now()}
+            )
+        except models.Bugscache.MultipleObjectsReturned:
+            # Take last modified in case a conflict happens
+            bug = models.Bugscache.filter(**validated_data).order_by("modified").first()
+        bug.jobmap.get_or_create(job=job, defaults={"user": self.context["request"].user})
+        return bug
