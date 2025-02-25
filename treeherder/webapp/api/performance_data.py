@@ -807,15 +807,18 @@ class PerformanceSummary(generics.ListAPIView):
         if no_retriggers:
             serialized_data = self._filter_out_retriggers(serialized_data)
 
+        # Add submit_time for each point using only one request to DB
+        job_ids = {point["job_id"] for item in serializer.data for point in item["data"]}
+        jobs = models.Job.objects.filter(
+            repository__name=repository_name, id__in=job_ids
+        ).values_list("id", "submit_time")
+
+        # job[0] = id, job[1] = submit_time
+        job_submit_times = {job[0]: job[1].strftime("%Y-%m-%dT%H:%M:%S") for job in jobs}
+
         for item in serializer.data:
             for point in item["data"]:
-                try:
-                    job_submit_time = models.Job.objects.filter(
-                        repository__name=repository_name, id=point["job_id"]
-                    ).values_list("submit_time", flat=True)
-                    point["submit_time"] = job_submit_time[0].strftime("%Y-%m-%dT%H:%M:%S")
-                except Exception:
-                    point["submit_time"] = None
+                point["submit_time"] = job_submit_times.get(point["job_id"], None)
 
         return Response(data=serialized_data)
 
