@@ -96,72 +96,81 @@ def test_perfcompare_results_against_no_base(
     perf_datum.push.time = new_job.push.time
     perf_datum.push.save()
 
-    response = get_expected(
+    test_perfcomp_push_2_revision = test_perfcomp_push_2.revision
+
+    expected = get_expected(
         base_sig,
         new_sig,
         extra_options,
         test_option_collection,
         new_perf_data_values,
         base_perf_data_values,
+        None,
+        test_perfcomp_push_2_revision,
+        base_job.id,
+        new_job.id,
+        try_repository,  # base_repository
+        test_repository,  # new_repository
+        base_sig,  # graph_sig
     )
 
-    expected = [
-        {
-            "base_rev": None,
-            "new_rev": test_perfcomp_push_2.revision,
-            "framework_id": base_sig.framework.id,
-            "platform": base_sig.platform.platform,
-            "suite": base_sig.suite,
-            "header_name": response["header_name"],
-            "base_repository_name": base_sig.repository.name,
-            "new_repository_name": new_sig.repository.name,
-            "base_app": base_sig.application,
-            "new_app": new_sig.application,
-            "is_complete": response["is_complete"],
-            "base_measurement_unit": base_sig.measurement_unit,
-            "new_measurement_unit": new_sig.measurement_unit,
-            "base_retriggerable_job_ids": [base_job.id],
-            "new_retriggerable_job_ids": [new_job.id],
-            "base_runs": base_perf_data_values,
-            "new_runs": new_perf_data_values,
-            "base_runs_replicates": [],
-            "new_runs_replicates": [],
-            "base_avg_value": round(response["base_avg_value"], 2),
-            "new_avg_value": round(response["new_avg_value"], 2),
-            "base_median_value": round(response["base_median_value"], 2),
-            "new_median_value": round(response["new_median_value"], 2),
-            "test": base_sig.test,
-            "option_name": response["option_name"],
-            "extra_options": base_sig.extra_options,
-            "base_stddev": round(response["base_stddev"], 2),
-            "new_stddev": round(response["new_stddev"], 2),
-            "base_stddev_pct": round(response["base_stddev_pct"], 2),
-            "new_stddev_pct": round(response["new_stddev_pct"], 2),
-            "confidence": round(response["confidence"], 2),
-            "confidence_text": response["confidence_text"],
-            "delta_value": round(response["delta_value"], 2),
-            "delta_percentage": round(response["delta_pct"], 2),
-            "magnitude": round(response["magnitude"], 2),
-            "new_is_better": response["new_is_better"],
-            "lower_is_better": response["lower_is_better"],
-            "is_confident": response["is_confident"],
-            "more_runs_are_needed": response["more_runs_are_needed"],
-            "noise_metric": False,
-            "graphs_link": f"https://treeherder.mozilla.org/perfherder/graphs?"
-            f"highlightedRevisions={test_perfcomp_push_2.revision}&"
-            f"series={try_repository.name}%2C{base_sig.signature_hash}%2C1%2C{base_sig.framework.id}&"
-            f"series={test_repository.name}%2C{base_sig.signature_hash}%2C1%2C{base_sig.framework.id}&"
-            f"timerange=86400",
-            "is_improvement": response["is_improvement"],
-            "is_regression": response["is_regression"],
-            "is_meaningful": response["is_meaningful"],
-            "base_parent_signature": response["base_parent_signature"],
-            "new_parent_signature": response["new_parent_signature"],
-            "base_signature_id": response["base_signature_id"],
-            "new_signature_id": response["new_signature_id"],
-            "has_subtests": response["has_subtests"],
-        },
-    ]
+    # expected = [
+    #     {
+    #         "base_rev": None,
+    #         "new_rev": test_perfcomp_push_2.revision,
+    #         "framework_id": base_sig.framework.id,
+    #         "platform": base_sig.platform.platform,
+    #         "suite": base_sig.suite,
+    #         "header_name": response["header_name"],
+    #         "base_repository_name": base_sig.repository.name,
+    #         "new_repository_name": new_sig.repository.name,
+    #         "base_app": base_sig.application,
+    #         "new_app": new_sig.application,
+    #         "is_complete": response["is_complete"],
+    #         "base_measurement_unit": base_sig.measurement_unit,
+    #         "new_measurement_unit": new_sig.measurement_unit,
+    #         "base_retriggerable_job_ids": [base_job.id],
+    #         "new_retriggerable_job_ids": [new_job.id],
+    #         "base_runs": base_perf_data_values,
+    #         "new_runs": new_perf_data_values,
+    #         "base_runs_replicates": [],
+    #         "new_runs_replicates": [],
+    #         "base_avg_value": round(response["base_avg_value"], 2),
+    #         "new_avg_value": round(response["new_avg_value"], 2),
+    #         "base_median_value": round(response["base_median_value"], 2),
+    #         "new_median_value": round(response["new_median_value"], 2),
+    #         "test": base_sig.test,
+    #         "option_name": response["option_name"],
+    #         "extra_options": base_sig.extra_options,
+    #         "base_stddev": round(response["base_stddev"], 2),
+    #         "new_stddev": round(response["new_stddev"], 2),
+    #         "base_stddev_pct": round(response["base_stddev_pct"], 2),
+    #         "new_stddev_pct": round(response["new_stddev_pct"], 2),
+    #         "confidence": round(response["confidence"], 2),
+    #         "confidence_text": response["confidence_text"],
+    #         "delta_value": round(response["delta_value"], 2),
+    #         "delta_percentage": round(response["delta_pct"], 2),
+    #         "magnitude": round(response["magnitude"], 2),
+    #         "new_is_better": response["new_is_better"],
+    #         "lower_is_better": response["lower_is_better"],
+    #         "is_confident": response["is_confident"],
+    #         "more_runs_are_needed": response["more_runs_are_needed"],
+    #         "noise_metric": False,
+    #         "graphs_link": f"https://treeherder.mozilla.org/perfherder/graphs?"
+    #         f"highlightedRevisions={test_perfcomp_push_2.revision}&"
+    #         f"series={try_repository.name}%2C{base_sig.signature_hash}%2C1%2C{base_sig.framework.id}&"
+    #         f"series={test_repository.name}%2C{base_sig.signature_hash}%2C1%2C{base_sig.framework.id}&"
+    #         f"timerange=86400",
+    #         "is_improvement": response["is_improvement"],
+    #         "is_regression": response["is_regression"],
+    #         "is_meaningful": response["is_meaningful"],
+    #         "base_parent_signature": response["base_parent_signature"],
+    #         "new_parent_signature": response["new_parent_signature"],
+    #         "base_signature_id": response["base_signature_id"],
+    #         "new_signature_id": response["new_signature_id"],
+    #         "has_subtests": response["has_subtests"],
+    #     },
+    # ]
 
     query_params = (
         "?base_repository={}&new_repository={}&new_revision={}&framework={"
@@ -281,7 +290,7 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
         new_job.id,
         try_repository,  # base_repository
         test_repository,  # new_repository
-        base_sig,  # graph_sig_hash
+        base_sig,  # graph_sig
     )
 
     # expected = [
