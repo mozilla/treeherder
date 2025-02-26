@@ -1,4 +1,3 @@
-import datetime
 import logging
 import re
 
@@ -40,22 +39,23 @@ def get_error_summary(job, queryset=None):
     if cached_error_summary is not None:
         return cached_error_summary
 
-    # add support for error line caching
-    line_cache_key = "mc_error_lines"
-    if job.repository == "comm-central":
-        line_cache_key = "cc_error_lines"
-    line_cache = db_cache.get(line_cache_key)
-    if line_cache is None:
-        line_cache = {str(job.submit_time.date()): {}}
-    else:
-        dates = list(line_cache.keys())
-        dates.sort()
-        for d in dates:
-            date_time = datetime.datetime.strptime(d, "%Y-%m-%d")
-            if date_time <= (job.submit_time - datetime.timedelta(days=LINE_CACHE_TIMEOUT_DAYS)):
-                del line_cache[d]
-            else:
-                break
+    # disabled for performance issues
+    # # add support for error line caching
+    # line_cache_key = "mc_error_lines"
+    # if job.repository == "comm-central":
+    #     line_cache_key = "cc_error_lines"
+    # line_cache = db_cache.get(line_cache_key)
+    # if line_cache is None:
+    #     line_cache = {str(job.submit_time.date()): {}}
+    # else:
+    #     dates = list(line_cache.keys())
+    #     dates.sort()
+    #     for d in dates:
+    #         date_time = datetime.datetime.strptime(d, "%Y-%m-%d")
+    #         if date_time <= (job.submit_time - datetime.timedelta(days=LINE_CACHE_TIMEOUT_DAYS)):
+    #             del line_cache[d]
+    #         else:
+    #             break
 
     if queryset is None:
         queryset = TextLogError.objects.filter(job=job)
@@ -69,12 +69,12 @@ def get_error_summary(job, queryset=None):
     error_summary = []
     # Future suggestion, set this to queryset[:10] to reduce calls to bug_suggestions_line
     for err in queryset:
-        summary, line_cache = bug_suggestions_line(
+        summary = bug_suggestions_line(
             err,
             project=job.repository,
             logdate=job.submit_time,
             term_cache=term_cache,
-            line_cache=line_cache,
+            # line_cache=line_cache,
             revision=job.push.revision,
         )
         error_summary.append(summary)
@@ -85,18 +85,17 @@ def get_error_summary(job, queryset=None):
         newrelic.agent.record_custom_event("error caching error_summary for job", job.id)
         logger.error("error caching error_summary for job %s: %s", job.id, e, exc_info=True)
 
-    try:
-        db_cache.set(line_cache_key, line_cache, LINE_CACHE_TIMEOUT)
-    except Exception as e:
-        newrelic.agent.record_custom_event("error caching error_lines for job", job.id)
-        logger.error("error caching error_lines for job %s: %s", job.id, e, exc_info=True)
+    # disabled for performance issues
+    # try:
+    #     db_cache.set(line_cache_key, line_cache, LINE_CACHE_TIMEOUT)
+    # except Exception as e:
+    #     newrelic.agent.record_custom_event("error caching error_lines for job", job.id)
+    #     logger.error("error caching error_lines for job %s: %s", job.id, e, exc_info=True)
 
     return error_summary
 
 
-def bug_suggestions_line(
-    err, project=None, logdate=None, term_cache=None, line_cache=None, revision=None
-):
+def bug_suggestions_line(err, project=None, logdate=None, term_cache=None, revision=None):
     """
     Get Bug suggestions for a given TextLogError (err).
 
@@ -109,36 +108,37 @@ def bug_suggestions_line(
         term_cache = {}
 
     # store "search_terms: count"
-    if logdate is None:
-        # use today
-        today = str(datetime.datetime.now().date())
-    else:
-        today = str(logdate.date())
-    if today not in line_cache.keys():
-        line_cache[today] = {"new_lines": {}}
+    # disabled for performance issues
+    # if logdate is None:
+    #     # use today
+    #     today = str(datetime.datetime.now().date())
+    # else:
+    #     today = str(logdate.date())
+    # if today not in line_cache.keys():
+    #     line_cache[today] = {"new_lines": {}}
 
     # remove the mozharness prefix
     clean_line = get_cleaned_line(err.line)
 
     # remove floating point numbers from the summary as they are often variable
-    cache_clean_line = cache_clean_error_line(clean_line)
+    # cache_clean_line = cache_clean_error_line(clean_line)
 
     # find all recent failures matching our current `clean_line`
     counter = 0
-    for day in line_cache.keys():
-        counter += line_cache[day].get(cache_clean_line, 0)
+    # for day in line_cache.keys():
+    #     counter += line_cache[day].get(cache_clean_line, 0)
 
-    count_branches = ["autoland", "mozilla-central", "comm-central"]
-    if project and str(project.name) in count_branches:
-        if cache_clean_line not in line_cache[today].keys():
-            line_cache[today][cache_clean_line] = 0
-            # if not seen in ALL cache, mark as new in revision
-            if counter == 0:
-                if "new_lines" not in line_cache[today].keys():
-                    line_cache[today]["new_lines"] = {}
-                if cache_clean_line not in line_cache[today]["new_lines"].keys():
-                    line_cache[today]["new_lines"][cache_clean_line] = revision
-        line_cache[today][cache_clean_line] += 1
+    # count_branches = ["autoland", "mozilla-central", "comm-central"]
+    # if project and str(project.name) in count_branches:
+    #     if cache_clean_line not in line_cache[today].keys():
+    #         line_cache[today][cache_clean_line] = 0
+    #         # if not seen in ALL cache, mark as new in revision
+    #         if counter == 0:
+    #             if "new_lines" not in line_cache[today].keys():
+    #                 line_cache[today]["new_lines"] = {}
+    #             if cache_clean_line not in line_cache[today]["new_lines"].keys():
+    #                 line_cache[today]["new_lines"][cache_clean_line] = revision
+    #     line_cache[today][cache_clean_line] += 1
 
     # get a meaningful search term out of the error line
     search_info = get_error_search_term_and_path(clean_line)
@@ -181,9 +181,10 @@ def bug_suggestions_line(
             bugs = term_cache[crash_signature]
 
     failure_new_in_rev = False
-    if "new_lines" in line_cache[today] and cache_clean_line in line_cache[today]["new_lines"]:
-        if revision == line_cache[today]["new_lines"][cache_clean_line]:
-            failure_new_in_rev = True
+    # disabled for performance issues
+    # if "new_lines" in line_cache[today] and cache_clean_line in line_cache[today]["new_lines"]:
+    #     if revision == line_cache[today]["new_lines"][cache_clean_line]:
+    #         failure_new_in_rev = True
 
     # TODO: Rename 'search' to 'error_text' or similar, since that's
     # closer to what it actually represents (bug 1091060).
@@ -195,7 +196,7 @@ def bug_suggestions_line(
         "line_number": err.line_number,
         "counter": counter,
         "failure_new_in_rev": failure_new_in_rev,
-    }, line_cache
+    }  # , line_cache
 
 
 def get_cleaned_line(line):
