@@ -39,7 +39,7 @@ def test_perfcompare_results_against_no_base(
     extra_options = "e10s fission stylo webrender"
     measurement_unit = "ms"
     base_application = "firefox"
-    new_application = "geckoview"
+    new_application = "firefox"
 
     base_sig = create_signature(
         signature_hash=(20 * "t1"),
@@ -115,8 +115,8 @@ def test_perfcompare_results_against_no_base(
             "header_name": response["header_name"],
             "base_repository_name": base_sig.repository.name,
             "new_repository_name": new_sig.repository.name,
-            "base_app": "firefox",
-            "new_app": "geckoview",
+            "base_app": base_sig.application,
+            "new_app": new_sig.application,
             "is_complete": response["is_complete"],
             "base_measurement_unit": base_sig.measurement_unit,
             "new_measurement_unit": new_sig.measurement_unit,
@@ -208,7 +208,7 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
     extra_options = "e10s fission stylo webrender"
     measurement_unit = "ms"
     base_application = "firefox"
-    new_application = "geckoview"
+    new_application = "firefox"
 
     base_sig = create_signature(
         signature_hash=(20 * "t1"),
@@ -284,8 +284,8 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
             "header_name": response["header_name"],
             "base_repository_name": base_sig.repository.name,
             "new_repository_name": new_sig.repository.name,
-            "base_app": "firefox",
-            "new_app": "geckoview",
+            "base_app": base_sig.application,
+            "new_app": new_sig.application,
             "is_complete": response["is_complete"],
             "base_measurement_unit": base_sig.measurement_unit,
             "new_measurement_unit": new_sig.measurement_unit,
@@ -516,7 +516,7 @@ def test_perfcompare_results_subtests_support(
     extra_options = "e10s fission stylo webrender"
     measurement_unit = "ms"
     base_application = "firefox"
-    new_application = "geckoview"
+    new_application = "firefox"
 
     base_sig = create_signature(
         signature_hash=(20 * "t1"),
@@ -596,8 +596,8 @@ def test_perfcompare_results_subtests_support(
             "header_name": response["header_name"],
             "base_repository_name": base_sig.repository.name,
             "new_repository_name": new_sig.repository.name,
-            "base_app": "firefox",
-            "new_app": "geckoview",
+            "base_app": base_sig.application,
+            "new_app": new_sig.application,
             "is_complete": response["is_complete"],
             "base_measurement_unit": base_sig.measurement_unit,
             "new_measurement_unit": new_sig.measurement_unit,
@@ -940,7 +940,7 @@ def get_expected(
     response = {"option_name": test_option_collection.get(sig.option_collection_id, "")}
     test_suite = perfcompare_utils.get_test_suite(sig.suite, sig.test)
     response["header_name"] = perfcompare_utils.get_header_name(
-        extra_options, response["option_name"], test_suite
+        extra_options, response["option_name"], test_suite, sig.application
     )
     response["base_avg_value"] = perfcompare_utils.get_avg(
         base_perf_data_values, response["header_name"]

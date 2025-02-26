@@ -892,7 +892,7 @@ class PerfCompareResults(generics.ListAPIView):
                 base_push = models.Push.objects.get(
                     revision=base_rev, repository__name=base_repo_name
                 )
-                # Dynamically calculate an time interval based on the base and new push
+                # Dynamically calculate a time interval based on the base and new push
                 interval = self._get_interval(base_push, new_push)
             else:
                 # Comparing without a base needs a timerange from which to gather the data needed
@@ -1261,10 +1261,13 @@ class PerfCompareResults(generics.ListAPIView):
             suite = signature["suite"]
             test = signature["test"]
             extra_options = signature["extra_options"]
+            application = signature["application"]
             option_name = option_collection_map[signature["option_collection_id"]]
             test_suite = perfcompare_utils.get_test_suite(suite, test)
             platform = signature["platform__platform"]
-            header = perfcompare_utils.get_header_name(extra_options, option_name, test_suite)
+            header = perfcompare_utils.get_header_name(
+                extra_options, option_name, test_suite, application
+            )
             sig_identifier = perfcompare_utils.get_sig_identifier(header, platform)
 
             if sig_identifier not in signatures_map or (
