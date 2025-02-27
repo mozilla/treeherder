@@ -15,6 +15,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MinLengthValidator
 from django.db import models, transaction
 from django.db.models import Count, Max, Min, Q, Subquery
+from django.db.models.functions import Substr
 from django.db.utils import ProgrammingError
 from django.forms import model_to_dict
 from django.utils import timezone
@@ -192,7 +193,7 @@ class Commit(models.Model):
         unique_together = ("push", "revision")
         indexes = [
             GinIndex(
-                SearchVector("revision", "author", "comments", config="english"),
+                SearchVector("revision", "author", Substr("comments", 1, 100000), config="english"),
                 name="search_vector_idx",
             ),
         ]
