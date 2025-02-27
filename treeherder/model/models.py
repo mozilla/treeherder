@@ -8,8 +8,7 @@ from hashlib import sha1
 import newrelic.agent
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.postgres.indexes import GinIndex
-from django.contrib.postgres.search import SearchVector, TrigramSimilarity
+from django.contrib.postgres.search import TrigramSimilarity
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MinLengthValidator
@@ -190,12 +189,6 @@ class Commit(models.Model):
     class Meta:
         db_table = "commit"
         unique_together = ("push", "revision")
-        indexes = [
-            GinIndex(
-                SearchVector("revision", "author", "comments", config="english"),
-                name="search_vector_idx",
-            ),
-        ]
 
     def __str__(self):
         return f"{self.push.repository.name} {self.revision}"
