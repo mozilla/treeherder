@@ -3,14 +3,13 @@ import logging
 
 import newrelic.agent
 from cache_memoize import cache_memoize
-from django.contrib.postgres.search import SearchQuery, SearchVector
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
 from treeherder.log_parser.failureline import get_group_results
-from treeherder.model.models import Commit, Job, JobType, Push, Repository
+from treeherder.model.models import Job, JobType, Push, Repository
 from treeherder.push_health.builds import get_build_failures
 from treeherder.push_health.compare import get_commit_history
 from treeherder.push_health.linting import get_lint_failures
@@ -43,6 +42,7 @@ class PushViewSet(viewsets.ViewSet):
 
         # This will contain some meta data about the request and results
         meta = {}
+
         # support ranges for date as well as revisions(changes) like old tbpl
         for param in [
             "fromchange",
@@ -60,6 +60,7 @@ class PushViewSet(viewsets.ViewSet):
         all_repos = request.query_params.get("all_repos")
 
         pushes = Push.objects.order_by("-time")
+
         if not all_repos:
             try:
                 repository = Repository.objects.get(name=project)
@@ -70,23 +71,6 @@ class PushViewSet(viewsets.ViewSet):
 
             pushes = pushes.filter(repository=repository)
 
-        search_param = filter_params.get("search")
-        if search_param:
-            repository = Repository.objects.get(name=project)
-            filtered_commits = (
-                Commit.objects.annotate(
-                    search=SearchVector("revision", "author", "comments", config="english")
-                )
-                .filter(
-                    search=SearchQuery(search_param, config="english"),
-                    push__repository=repository,
-                )
-                .values_list("push_id", flat=True)
-                # Get most recent results and limit result to 200
-                .order_by("-push__time")
-                .distinct()[:200]
-            )
-            pushes = pushes.filter(id__in=filtered_commits)
         for param, value in meta.items():
             if param == "fromchange":
                 revision_field = "revision__startswith" if len(value) < 40 else "revision"

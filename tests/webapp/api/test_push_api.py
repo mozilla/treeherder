@@ -5,7 +5,7 @@ from django.urls import reverse
 
 from tests.conftest import IS_WINDOWS
 from treeherder.etl.push import store_push_data
-from treeherder.model.models import Commit, FailureClassification, JobNote, Push
+from treeherder.model.models import FailureClassification, JobNote, Push
 from treeherder.webapp.api import utils
 
 
@@ -377,93 +377,6 @@ def test_push_author_contains(client, test_repository):
     results = resp.json()["results"]
     assert len(results) == 1
     assert results[0]["id"] == 3
-
-
-def test_push_search(client, test_repository):
-    """
-    Test the search parameter for filtering by Commit fields: revision, author, comments.
-    """
-    now = datetime.datetime.now()
-    push1 = Push.objects.create(
-        repository=test_repository,
-        revision="1234abcd",
-        author="foo@bar.com",
-        time=now,
-    )
-    push2 = Push.objects.create(
-        repository=test_repository,
-        revision="2234abcd",
-        author="foo2@bar.com",
-        time=now + datetime.timedelta(seconds=1),
-    )
-    push3 = Push.objects.create(
-        repository=test_repository,
-        revision="3234abcd",
-        author="qux@bar.com",
-        time=now + datetime.timedelta(seconds=2),
-    )
-
-    # Add Commit objects linked to the Push objects
-    Commit.objects.create(
-        push=push1, revision="1234abcd", author="kaz <foo@bar.com>", comments="Initial commit"
-    )
-    Commit.objects.create(
-        push=push2, revision="2234abcd", author="foo <foo2@bar.com>", comments="Bug 12345567 - fix"
-    )
-    Commit.objects.create(
-        push=push3,
-        revision="3234abcd",
-        author="quxzan <qux@bar>.com",
-        comments="Bug 12345567 - Feature added",
-    )
-
-    # Test search by comments
-    resp = client.get(
-        reverse("push-list", kwargs={"project": test_repository.name}) + "?search=bug"
-    )
-    assert resp.status_code == 200
-
-    results = resp.json()["results"]
-    assert len(results) == 2
-    assert set([result["id"] for result in results]) == set([3, 2])
-
-    # Test search by bug number
-    resp = client.get(
-        reverse("push-list", kwargs={"project": test_repository.name}) + "?search=12345567"
-    )
-    assert resp.status_code == 200
-
-    results = resp.json()["results"]
-    assert len(results) == 2
-    assert set([result["id"] for result in results]) == set([3, 2])
-
-    # Test search by author
-    resp = client.get(
-        reverse("push-list", kwargs={"project": test_repository.name}) + "?search=foo"
-    )
-    assert resp.status_code == 200
-
-    results = resp.json()["results"]
-    assert len(results) == 1
-    assert results[0]["id"] == push2.id
-
-    # Test search by revision
-    resp = client.get(
-        reverse("push-list", kwargs={"project": test_repository.name}) + "?search=3234abcd"
-    )
-    assert resp.status_code == 200
-
-    results = resp.json()["results"]
-    assert len(results) == 1
-    assert results[0]["id"] == push3.id
-
-    # Test empty search input
-    resp = client.get(reverse("push-list", kwargs={"project": test_repository.name}) + "?search=")
-    assert resp.status_code == 200
-
-    results = resp.json()["results"]
-    assert len(results) == 3
-    assert set([result["id"] for result in results]) == set([3, 2, 1])
 
 
 def test_push_reviewbot(client, test_repository):
