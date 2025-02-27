@@ -8,6 +8,7 @@ import { thBugSuggestionLimit, thEvents } from '../../../helpers/constants';
 import { getResultState, isReftest } from '../../../helpers/job';
 import { getReftestUrl } from '../../../helpers/url';
 import BugFiler from '../../BugFiler';
+import InternalIssueFiler from '../../InternalIssueFiler';
 import BugSuggestionsModel from '../../../models/bugSuggestions';
 
 import ErrorsList from './ErrorsList';
@@ -20,6 +21,7 @@ class FailureSummaryTab extends React.Component {
 
     this.state = {
       isBugFilerOpen: false,
+      isInternalIssueFilerOpen: false,
       suggestions: [],
       errors: [],
       bugSuggestionsLoading: false,
@@ -55,6 +57,12 @@ class FailureSummaryTab extends React.Component {
   toggleBugFiler = () => {
     this.setState((prevState) => ({
       isBugFilerOpen: !prevState.isBugFilerOpen,
+    }));
+  };
+
+  toggleInternalIssueFiler = () => {
+    this.setState((prevState) => ({
+      isInternalIssueFilerOpen: !prevState.isInternalIssueFilerOpen,
     }));
   };
 
@@ -154,6 +162,7 @@ class FailureSummaryTab extends React.Component {
     } = this.props;
     const {
       isBugFilerOpen,
+      isInternalIssueFilerOpen,
       suggestion,
       bugSuggestionsLoading,
       suggestions,
@@ -205,6 +214,9 @@ class FailureSummaryTab extends React.Component {
               index={index}
               suggestion={suggestion}
               toggleBugFiler={() => this.fileBug(suggestion)}
+              toggleInternalIssueFiler={() =>
+                this.setState({ isInternalIssueFilerOpen: true })
+              }
               selectedJob={selectedJob}
               addBug={addBug}
               currentRepo={currentRepo}
@@ -302,6 +314,13 @@ class FailureSummaryTab extends React.Component {
             selectedJob={selectedJob}
             currentRepo={currentRepo}
             platform={selectedJob.platform}
+          />
+        )}
+
+        {isInternalIssueFilerOpen && (
+          <InternalIssueFiler
+            isOpen={isInternalIssueFilerOpen}
+            suggestion={suggestion}
           />
         )}
       </div>
