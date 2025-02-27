@@ -4,6 +4,7 @@ import logging
 import newrelic.agent
 from cache_memoize import cache_memoize
 from django.contrib.postgres.search import SearchQuery, SearchVector
+from django.db.models.functions import Substr
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -75,7 +76,9 @@ class PushViewSet(viewsets.ViewSet):
             repository = Repository.objects.get(name=project)
             filtered_commits = (
                 Commit.objects.annotate(
-                    search=SearchVector("revision", "author", "comments", config="english")
+                    search=SearchVector(
+                        "revision", "author", Substr("comments", 1, 100000), config="english"
+                    )
                 )
                 .filter(
                     search=SearchQuery(search_param, config="english"),
