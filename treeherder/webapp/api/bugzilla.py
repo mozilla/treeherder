@@ -1,11 +1,12 @@
 import requests
 from django.conf import settings
+from django.utils import timezone
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
-from treeherder.model.models import BugzillaSecurityGroup
+from treeherder.model.models import Bugscache, BugzillaSecurityGroup
 from treeherder.utils.bugzilla import get_bug_url
 from treeherder.utils.http import make_request
 
@@ -92,4 +93,9 @@ class BugzillaViewSet(viewsets.ViewSet):
             return Response({"failure": message}, status=HTTP_400_BAD_REQUEST)
 
         bug_id = response.json()["id"]
+        Bugscache.objects.create(
+            bugzilla_id=bug_id,
+            modified=timezone.now(),
+            summary=summary,
+        )
         return Response({"id": bug_id, "url": get_bug_url(bug_id, settings.BUGFILER_API_URL)})

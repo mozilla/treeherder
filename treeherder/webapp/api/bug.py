@@ -1,9 +1,10 @@
 from django.db import IntegrityError
+from django.utils import timezone
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
-from treeherder.model.models import BugJobMap, Job
+from treeherder.model.models import BugJobMap, Bugscache, Job
 
 from .serializers import BugJobMapSerializer
 
@@ -11,6 +12,7 @@ from .serializers import BugJobMapSerializer
 class BugJobMapViewSet(viewsets.ViewSet):
     def create(self, request, project):
         """Add a new relation between a job and a bug."""
+
         job_id = int(request.data["job_id"])
         bug_open = bool(request.data["bug_open"])
 
@@ -29,6 +31,13 @@ class BugJobMapViewSet(viewsets.ViewSet):
         # Use Bugzilla ID by default to handle `dupe_of` attribute correctly
         if bugzilla_id:
             bug_reference["bugzilla_id"] = bugzilla_id
+            # If bug is not in Bugscache, create a shim.
+            if not Bugscache.objects.filter(bugzilla_id=bugzilla_id).exists():
+                Bugscache.objects.create(
+                    bugzilla_id=bugzilla_id,
+                    modified=timezone.now(),
+                    summary="(no bug data fetched)",
+                )
         elif internal_bug_id:
             bug_reference["internal_bug_id"] = internal_bug_id
         try:
