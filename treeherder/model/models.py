@@ -8,12 +8,14 @@ from hashlib import sha1
 import newrelic.agent
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.postgres.search import TrigramSimilarity
+from django.contrib.postgres.indexes import GinIndex
+from django.contrib.postgres.search import SearchVector, TrigramSimilarity
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MinLengthValidator
 from django.db import models, transaction
 from django.db.models import Count, Max, Min, Q, Subquery
+from django.db.models.functions import Substr
 from django.db.utils import ProgrammingError
 from django.forms import model_to_dict
 from django.utils import timezone
@@ -189,6 +191,12 @@ class Commit(models.Model):
     class Meta:
         db_table = "commit"
         unique_together = ("push", "revision")
+        indexes = [
+            GinIndex(
+                SearchVector("revision", "author", Substr("comments", 1, 100000), config="english"),
+                name="search_vector_idx",
+            ),
+        ]
 
     def __str__(self):
         return f"{self.push.repository.name} {self.revision}"
