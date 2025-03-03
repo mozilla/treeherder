@@ -105,8 +105,8 @@ jobs:
               docker tag app:build "${DOCKERHUB_REPO}:${CIRCLE_BRANCH}-${CIRCLE_SHA1}"
               docker push "${DOCKERHUB_REPO}:${CIRCLE_BRANCH}-${CIRCLE_SHA1}"
             elif [ "${CIRCLE_BRANCH}" == "prototype" ]; then
-              docker tag app:build "${DOCKERHUB_REPO}:${CIRCLE_BRANCH}"
-              docker push "${DOCKERHUB_REPO}:${CIRCLE_BRANCH}"
+              docker tag app:build "${DOCKERHUB_REPO}:${CIRCLE_BRANCH}-${CIRCLE_SHA1}"
+              docker push "${DOCKERHUB_REPO}:${CIRCLE_BRANCH}-${CIRCLE_SHA1}"
             elif  [ ! -z "${CIRCLE_TAG}" ]; then
             # deploy a release tag...
               echo "${DOCKERHUB_REPO}:${CIRCLE_TAG}"
