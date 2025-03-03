@@ -698,7 +698,7 @@ class PerformanceSummary(generics.ListAPIView):
         signature_ids = [item["id"] for item in list(self.queryset)]
 
         data = (
-            PerformanceDatum.objects.select_related("push", "repository", "id")
+            PerformanceDatum.objects.select_related("push", "repository", "job")
             .filter(signature_id__in=signature_ids, repository__name=repository_name)
             .order_by("job_id", "id")
         )
@@ -734,6 +734,7 @@ class PerformanceSummary(generics.ListAPIView):
                         push_timestamp,
                         push_revision,
                         replicate_value,
+                        submit_time,
                     ) in data.values_list(
                         "value",
                         "job_id",
@@ -742,6 +743,7 @@ class PerformanceSummary(generics.ListAPIView):
                         "push_timestamp",
                         "push__revision",
                         "performancedatumreplicate__value",
+                        "job__submit_time",
                     ).order_by("push_timestamp", "push_id", "job_id"):
                         if replicate_value is not None:
                             item["data"].append(
@@ -752,6 +754,7 @@ class PerformanceSummary(generics.ListAPIView):
                                     "push_id": push_id,
                                     "push_timestamp": push_timestamp,
                                     "push__revision": push_revision,
+                                    "submit_time": submit_time,
                                 }
                             )
                         elif value is not None:
@@ -763,11 +766,18 @@ class PerformanceSummary(generics.ListAPIView):
                                     "push_id": push_id,
                                     "push_timestamp": push_timestamp,
                                     "push__revision": push_revision,
+                                    "submit_time": submit_time,
                                 }
                             )
                 else:
                     item["data"] = data.values(
-                        "value", "job_id", "id", "push_id", "push_timestamp", "push__revision"
+                        "value",
+                        "job_id",
+                        "id",
+                        "push_id",
+                        "push_timestamp",
+                        "push__revision",
+                        "job__submit_time",
                     ).order_by("push_timestamp", "push_id", "job_id")
 
                 item["option_name"] = option_collection_map[item["option_collection_id"]]
@@ -776,28 +786,36 @@ class PerformanceSummary(generics.ListAPIView):
         else:
             grouped_values = defaultdict(list)
             grouped_job_ids = defaultdict(list)
+            grouped_submit_times = defaultdict(list)
             if replicates:
-                for signature_id, value, job_id, replicate_value in data.values_list(
-                    "signature_id", "value", "job_id", "performancedatumreplicate__value"
+                for signature_id, value, job_id, replicate_value, submit_time in data.values_list(
+                    "signature_id",
+                    "value",
+                    "job_id",
+                    "performancedatumreplicate__value, job__submit_time",
                 ):
                     if replicate_value is not None:
                         grouped_values[signature_id].append(replicate_value)
                         grouped_job_ids[signature_id].append(job_id)
+                        grouped_submit_times[signature_id].append(submit_time)
                     elif value is not None:
                         grouped_values[signature_id].append(value)
                         grouped_job_ids[signature_id].append(job_id)
+                        grouped_submit_times[signature_id].append(submit_time)
             else:
-                for signature_id, value, job_id in data.values_list(
-                    "signature_id", "value", "job_id"
+                for signature_id, value, job_id, submit_time in data.values_list(
+                    "signature_id", "value", "job_id", "job__submit_time"
                 ):
                     if value is not None:
                         grouped_values[signature_id].append(value)
                         grouped_job_ids[signature_id].append(job_id)
+                        grouped_submit_times[signature_id].append(submit_time)
 
             # name field is created in the serializer
             for item in self.queryset:
                 item["values"] = grouped_values.get(item["id"], [])
                 item["job_ids"] = grouped_job_ids.get(item["id"], [])
+                item["submit_times"] = grouped_submit_times.get(item["id"], [])
                 item["option_name"] = option_collection_map[item["option_collection_id"]]
                 item["repository_name"] = repository_name
 
@@ -806,19 +824,6 @@ class PerformanceSummary(generics.ListAPIView):
 
         if no_retriggers:
             serialized_data = self._filter_out_retriggers(serialized_data)
-
-        # Add submit_time for each point using only one request to DB
-        job_ids = {point["job_id"] for item in serializer.data for point in item["data"]}
-        jobs = models.Job.objects.filter(
-            repository__name=repository_name, id__in=job_ids
-        ).values_list("id", "submit_time")
-
-        # job[0] = id, job[1] = submit_time
-        job_submit_times = {job[0]: job[1].strftime("%Y-%m-%dT%H:%M:%S") for job in jobs}
-
-        for item in serializer.data:
-            for point in item["data"]:
-                point["submit_time"] = job_submit_times.get(point["job_id"], None)
 
         return Response(data=serialized_data)
 

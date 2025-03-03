@@ -327,7 +327,9 @@ const GraphTooltip = ({
               {`Push time: ${toMercurialDateStr(dataPointDetails.x)}`}
             </p>
             <p className="small text-white pt-2">
-              {`Requested: ${toMercurialDateStr(dataPointDetails.requested)}`}
+              {`Retrigger time: ${toMercurialDateStr(
+                dataPointDetails.retrigger_time,
+              )}`}
             </p>
             {Boolean(retriggerNum) && (
               <p className="small">{`Retriggers: ${retriggerNum}`}</p>
