@@ -3,8 +3,7 @@ import logging
 
 import newrelic.agent
 from cache_memoize import cache_memoize
-from django.contrib.postgres.search import SearchQuery, SearchVector
-from django.db.models.functions import Substr
+from django.contrib.postgres.search import SearchQuery
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -75,17 +74,11 @@ class PushViewSet(viewsets.ViewSet):
         if search_param:
             repository = Repository.objects.get(name=project)
             filtered_commits = (
-                Commit.objects.annotate(
-                    search=SearchVector(
-                        "revision", "author", Substr("comments", 1, 100000), config="english"
-                    )
-                )
-                .filter(
-                    search=SearchQuery(search_param, config="english"),
+                Commit.objects.filter(
+                    search_vector=SearchQuery(search_param, config="english"),
                     push__repository=repository,
                 )
                 .values_list("push_id", flat=True)
-                # Get most recent results and limit result to 200
                 .order_by("-push__time")
                 .distinct()[:200]
             )
