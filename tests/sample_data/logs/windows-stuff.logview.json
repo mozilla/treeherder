@@ -1,0 +1,109 @@
+{
+  "logurl": "http://my-log.mozilla.org/windows-stuff.log.gz",
+  "errors": [
+    {
+      "linenumber": 3495,
+      "line": "22:11:13     INFO - GECKO(10764) | [7380] Assertion failure: !isStackAddress (Please don't pass stack arrays to the GL. Consider using HeapCopyOfStackArray. See bug 1005658.), at /builds/worker/checkouts/gecko/gfx/gl/GLContext.cpp:2004"
+    },
+    {
+      "linenumber": 3628,
+      "line": "22:11:35     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__canvas__tex-3d-rgb32f-rgb-float.html | shouldBe 255,0,0"
+    },
+    {
+      "linenumber": 3699,
+      "line": "22:11:35     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__canvas__tex-3d-rgb32f-rgb-float.html | shouldBe 0,255,0"
+    },
+    {
+      "linenumber": 3781,
+      "line": "22:11:35     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__canvas__tex-3d-rgb32f-rgb-float.html | shouldBe 255,0,0"
+    },
+    {
+      "linenumber": 3829,
+      "line": "22:11:35     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__canvas__tex-3d-rgb32f-rgb-float.html | shouldBe 0,255,0"
+    },
+    {
+      "linenumber": 3884,
+      "line": "22:11:35     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__canvas__tex-3d-rgb32f-rgb-float.html | shouldBe 255,0,0"
+    },
+    {
+      "linenumber": 3945,
+      "line": "22:11:35     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__canvas__tex-3d-rgb32f-rgb-float.html | shouldBe 0,255,0"
+    },
+    {
+      "linenumber": 4013,
+      "line": "22:11:35     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__canvas__tex-3d-rgb32f-rgb-float.html | shouldBe 255,0,0"
+    },
+    {
+      "linenumber": 4087,
+      "line": "22:11:35     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__canvas__tex-3d-rgb32f-rgb-float.html | shouldBe 0,255,0"
+    },
+    {
+      "linenumber": 4168,
+      "line": "22:11:35     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__canvas__tex-3d-rgb32f-rgb-float.html | should be white"
+    },
+    {
+      "linenumber": 4303,
+      "line": "22:11:35     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__canvas__tex-3d-rgb32f-rgb-float.html | shouldBe 255,0,0"
+    },
+    {
+      "linenumber": 4349,
+      "line": "22:11:35     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__canvas__tex-3d-rgb32f-rgb-float.html | shouldBe 0,255,0"
+    },
+    {
+      "linenumber": 4418,
+      "line": "22:11:35     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__canvas__tex-3d-rgb32f-rgb-float.html | shouldBe 255,0,0"
+    },
+    {
+      "linenumber": 4477,
+      "line": "22:11:35     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__canvas__tex-3d-rgb32f-rgb-float.html | shouldBe 0,255,0"
+    },
+    {
+      "linenumber": 4542,
+      "line": "22:11:35     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__canvas__tex-3d-rgb32f-rgb-float.html | shouldBe 255,0,0"
+    },
+    {
+      "linenumber": 4614,
+      "line": "22:11:35     INFO - TEST-UNEXPECTED-FAIL | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__canvas__tex-3d-rgb32f-rgb-float.html | shouldBe 0,255,0"
+    },
+    {
+      "linenumber": 4735,
+      "line": "22:17:45     INFO - TEST-UNEXPECTED-TIMEOUT | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__canvas__tex-3d-rgb32f-rgb-float.html | application timed out after 370 seconds with no output"
+    },
+    {
+      "linenumber": 4760,
+      "line": "22:17:45    ERROR - mozcrash minidumpwriter exited with status: 1"
+    },
+    {
+      "linenumber": 4778,
+      "line": "22:17:46    ERROR - mozcrash minidumpwriter exited with status: 1"
+    },
+    {
+      "linenumber": 4808,
+      "line": "22:17:47    ERROR - mozcrash minidumpwriter exited with status: 1"
+    },
+    {
+      "linenumber": 4859,
+      "line": "22:17:57     INFO - PROCESS-CRASH | application crashed [None] | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__canvas__tex-3d-rgb32f-rgb-float.html"
+    },
+    {
+      "linenumber": 9402,
+      "line": "22:18:06     INFO - PROCESS-CRASH | application crashed [None] | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__canvas__tex-3d-rgb32f-rgb-float.html"
+    },
+    {
+      "linenumber": 11383,
+      "line": "22:18:16     INFO - PROCESS-CRASH | application crashed [None] | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__canvas__tex-3d-rgb32f-rgb-float.html"
+    },
+    {
+      "linenumber": 12770,
+      "line": "22:18:25     INFO - PROCESS-CRASH | application crashed [None] | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__canvas__tex-3d-rgb32f-rgb-float.html"
+    },
+    {
+      "linenumber": 13802,
+      "line": "22:18:34     INFO - PROCESS-CRASH | MOZ_ASSERT(!isStackAddress) (Please don't pass stack arrays to the GL. Consider using HeapCopyOfStackArray. See bug 1005658.) [@ MOZ_CrashSequence] | dom/canvas/test/webgl-conf/generated/test_2_conformance2__textures__canvas__tex-3d-rgb32f-rgb-float.html"
+    },
+    {
+      "linenumber": 17826,
+      "line": "[taskcluster:error] exit status 2"
+    }
+  ]
+}
