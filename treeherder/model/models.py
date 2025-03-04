@@ -9,7 +9,11 @@ import newrelic.agent
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.postgres.indexes import GinIndex
-from django.contrib.postgres.search import SearchVector, TrigramSimilarity
+from django.contrib.postgres.search import (
+    SearchVector,
+    SearchVectorField,
+    TrigramSimilarity,
+)
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MinLengthValidator
@@ -187,16 +191,20 @@ class Commit(models.Model):
     revision = models.CharField(max_length=40, db_index=True)
     author = models.CharField(max_length=150)
     comments = models.TextField()
+    search_vector = SearchVectorField(null=True, blank=True)
 
     class Meta:
         db_table = "commit"
         unique_together = ("push", "revision")
         indexes = [
-            GinIndex(
-                SearchVector("revision", "author", Substr("comments", 1, 100000), config="english"),
-                name="search_vector_idx",
-            ),
+            GinIndex(fields=["search_vector"], name="search_vector_idx"),
         ]
+
+    def save(self, *args, **kwargs):
+        self.search_vector = SearchVector(
+            self.revision, self.author, Substr(self.comments, 1, 100000), config="english"
+        )
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.push.repository.name} {self.revision}"
