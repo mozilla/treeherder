@@ -15,13 +15,14 @@ from ..sampledata import SampleData
 def jobs_with_local_log(activate_responses):
     sample_data = SampleData()
     url = add_log_response(
-        "mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other-bm53-tests1-linux-build122.txt.gz"
+        "mozilla-central_mountainlion_test-mochitest-2-bm80-tests1-macosx-build138.txt.gz"
     )
 
     job = sample_data.job_data[0]
 
     # substitute the log url with a local url
     job["job"]["log_references"][0]["url"] = url
+    job["job"]["log_references"][0]["name"] = "live_backing_log"
     return [job]
 
 
