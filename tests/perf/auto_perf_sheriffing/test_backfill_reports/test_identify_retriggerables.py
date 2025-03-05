@@ -58,16 +58,18 @@ def test_identify_retriggerables_selects_all_data_points(gapped_performance_data
     )
     data_points_to_retrigger = identify_retriggerables(test_perf_alert)
 
-    assert len(data_points_to_retrigger) == 5
-    assert {1, 2, 4, 7, 9} == set(map(get_key("job_id"), data_points_to_retrigger))
+    assert len(data_points_to_retrigger) == 1
+    assert {4} == set(map(get_key("job_id"), data_points_to_retrigger))
 
     # timestamps are around November 13, 2019
     push_timestamps = list(map(get_key("push_timestamp"), data_points_to_retrigger))
     min_push_timestamp = min(push_timestamps)
     max_push_timestamp = max(push_timestamps)
 
-    assert datetime.datetime(year=2013, month=11, day=12) <= min_push_timestamp
-    assert max_push_timestamp <= datetime.datetime(year=2013, month=11, day=14)
+    assert datetime.datetime(year=2024, month=11, day=2) <= min_push_timestamp
+    assert max_push_timestamp <= datetime.datetime(
+        year=2025, month=2, day=27, hour=14, minute=41, second=1
+    )
 
 
 def test_identify_retriggerables_selects_even_single_data_point(

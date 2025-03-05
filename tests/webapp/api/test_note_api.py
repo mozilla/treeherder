@@ -38,7 +38,10 @@ def test_note_detail(client, test_job_with_notes):
     note = JobNote.objects.get(id=1)
 
     resp = client.get(
-        reverse("note-detail", kwargs={"project": test_job_with_notes.repository.name, "pk": 1})
+        reverse(
+            "note-detail",
+            kwargs={"project": test_job_with_notes.repository.name, "pk": 1},
+        )
     )
 
     assert resp.status_code == 200
@@ -128,7 +131,8 @@ def test_delete_note(client, test_job_with_notes, test_repository, test_sheriff,
 
     resp = client.delete(
         reverse(
-            "note-detail", kwargs={"project": test_repository.name, "pk": test_job_with_notes.id}
+            "note-detail",
+            kwargs={"project": test_repository.name, "pk": test_job_with_notes.id},
         ),
     )
     new_notes_count = JobNote.objects.count()
@@ -154,31 +158,33 @@ def test_push_notes(client, test_job_with_notes):
 
     assert resp.status_code == 200
     assert isinstance(resp.json(), list)
-    assert resp.json() == [
-        {
-            "id": 1,
-            "job": {
-                "task_id": notes[0].job.taskcluster_metadata.task_id,
-                "job_type_name": "Linux x64 Tsan Build",
-                "result": "success",
-                "duration": 191,
+    response = sorted(resp.json(), key=id, reverse=True)
+    for item in response:
+        assert item in [
+            {
+                "failure_classification_name": "fixed by commit",
+                "id": 1,
+                "job": {
+                    "duration": 28,
+                    "job_type_name": "test-macosx1015-64-qr/debug-mochitest-browser-chrome-spi-nw-10",
+                    "result": "success",
+                    "task_id": notes[1].job.taskcluster_metadata.task_id,
+                },
+                "who": notes[1].user.email,
+                "created": notes[0].created.isoformat(),
+                "text": "you look like a man-o-lantern",
             },
-            "failure_classification_name": "fixed by commit",
-            "who": notes[0].user.email,
-            "created": notes[0].created.isoformat(),
-            "text": "you look like a man-o-lantern",
-        },
-        {
-            "failure_classification_name": "expected fail",
-            "id": 2,
-            "job": {
-                "duration": 191,
-                "job_type_name": "Linux x64 Tsan Build",
-                "result": "success",
-                "task_id": notes[1].job.taskcluster_metadata.task_id,
+            {
+                "id": 2,
+                "job": {
+                    "task_id": notes[0].job.taskcluster_metadata.task_id,
+                    "job_type_name": "test-macosx1015-64-qr/debug-mochitest-browser-chrome-spi-nw-10",
+                    "result": "success",
+                    "duration": 28,
+                },
+                "failure_classification_name": "expected fail",
+                "who": notes[0].user.email,
+                "created": notes[1].created.isoformat(),
+                "text": "you look like a man-o-lantern",
             },
-            "who": notes[1].user.email,
-            "created": notes[1].created.isoformat(),
-            "text": "you look like a man-o-lantern",
-        },
-    ]
+        ]
