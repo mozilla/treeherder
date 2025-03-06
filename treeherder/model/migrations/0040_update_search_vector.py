@@ -4,22 +4,17 @@ import django.contrib.postgres.indexes
 import django.contrib.postgres.search
 from django.contrib.postgres.search import SearchVector
 from django.db import migrations
+from django.db.models.functions import Substr
 
 
 def update_search_vector(apps, schema_editor):
     Commit = apps.get_model("model", "Commit")
     Commit.objects.update(
-        search_vector=SearchVector("revision", "author", "comments", config="english")
+        search_vector=SearchVector("revision", "author", Substr("comments", 1, 100000), config="english")
     )
 
 
 class Migration(migrations.Migration):
-
-    replaces = [
-        ("model", "0040_remove_commit_search_vector_idx_commit_search_vector_and_more"),
-        ("model", "0041_update_search_vector"),
-    ]
-
     dependencies = [
         ("model", "0039_fix_bugscache_autoincrement"),
     ]

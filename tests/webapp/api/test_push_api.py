@@ -430,8 +430,6 @@ def test_push_search(client, test_repository):
 
     results = resp.json()["results"]
 
-    print(list(Commit.objects.values("revision", "author", "comments", "search_vector")))
-
     assert len(results) == 2
     assert set([result["id"] for result in results]) == set([3, 2])
 
