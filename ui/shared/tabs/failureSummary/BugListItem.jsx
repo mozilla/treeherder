@@ -21,6 +21,8 @@ function BugListItem(props) {
   } = props;
   const bugUrl = getBugUrl(bug.id);
   const duplicateBugUrl = bug.dupe_of ? getBugUrl(bug.dupe_of) : undefined;
+  // Number of internal issue classifications to open a bug in Bugzilla
+  const requiredInternalOcurrences = 3;
 
   return (
     <li data-testid="bug-list-item">
@@ -46,15 +48,14 @@ function BugListItem(props) {
           {bug.summary}
           {!bug.bugzilla_id && (
             <Button
-              // TODO: Update the condition below to match backend configuration
-              disabled={bug.occurrences < -1}
+              disabled={bug.occurrences < requiredInternalOcurrences}
               className="bg-light py-1 px-2 ml-2"
               outline
               style={{ fontSize: '8px' }}
               onClick={() => toggleBugFiler(suggestion)}
               title={
-                bug.occurrences < -1
-                  ? 'Occurences must be > 3 to open a bug'
+                bug.occurrences < requiredInternalOcurrences
+                  ? `${requiredInternalOcurrences} classification occurrences are required to file a bug`
                   : 'File a bug for this internal issue'
               }
             >
