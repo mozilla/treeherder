@@ -170,9 +170,9 @@ export default class SuggestionsListItem extends React.Component {
                 outline
                 style={{ fontSize: '8px' }}
                 onClick={() => toggleInternalIssueFiler(suggestion)}
-                title="file an internal issue for this failure"
+                title="File an internal issue for this failure"
               >
-                <FontAwesomeIcon icon={faCircleExclamation} title="File bug" />
+                <FontAwesomeIcon icon={faCircleExclamation} />
               </Button>
 
               {suggestion.showNewButton && (
