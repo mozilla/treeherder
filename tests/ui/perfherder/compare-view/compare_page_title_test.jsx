@@ -25,7 +25,7 @@ const comparePageTitle = (hasSubtests) => {
 afterEach(cleanup);
 
 test('Compare page title includes the platform name with subtest summary when there are subtests', async () => {
-  const { getByText } = render(comparePageTitle(true), { legacyRoot: true });
+  const { getByText } = render(comparePageTitle(true));
 
   const pageTitle = await waitFor(() => getByText(`${title} subtest summary`));
 
@@ -33,7 +33,7 @@ test('Compare page title includes the platform name with subtest summary when th
 });
 
 test('Compare page tab title includes platform name', async () => {
-  render(comparePageTitle(true), { legacyRoot: true });
+  render(comparePageTitle(true));
 
   await waitFor(() => expect(document.title).toBe(defaultPageTitle));
 });

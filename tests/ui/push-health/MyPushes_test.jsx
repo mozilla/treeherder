@@ -50,9 +50,7 @@ describe('My Pushes', () => {
   };
 
   test('should show message if no author query param is provided and user is not logged in', async () => {
-    const { queryByText } = render(testMyPushes({ isLoggedIn: false }), {
-      legacyRoot: true,
-    });
+    const { queryByText } = render(testMyPushes({ isLoggedIn: false }));
 
     // verify no author query param exists
     expect(history.location.search).toBe('');
@@ -63,7 +61,7 @@ describe('My Pushes', () => {
   });
 
   test('should fetch the push health data if user is logged in and update query param', async () => {
-    const { getAllByText } = render(testMyPushes(), { legacyRoot: true });
+    const { getAllByText } = render(testMyPushes());
 
     const pushes = await waitFor(() => getAllByText(testUser.email));
     expect(pushes).toHaveLength(3);
@@ -75,7 +73,6 @@ describe('My Pushes', () => {
     history.location.search = `?author=${testUser.email}`;
     const { getAllByText } = render(
       testMyPushes({ email: '', isLoggedIn: false }),
-      { legacyRoot: true },
     );
 
     const pushes = await waitFor(() => getAllByText(testUser.email));
@@ -84,9 +81,7 @@ describe('My Pushes', () => {
   });
 
   test('should filter pushes by repos', async () => {
-    const { getByText, getAllByTestId, queryByText } = render(testMyPushes(), {
-      legacyRoot: true,
-    });
+    const { getByText, getAllByTestId, queryByText } = render(testMyPushes());
 
     const tryPushes = await waitFor(() => getAllByTestId('header-repo'));
     expect(tryPushes).toHaveLength(3);

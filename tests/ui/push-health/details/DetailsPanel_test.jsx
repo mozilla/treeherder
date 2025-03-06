@@ -83,9 +83,7 @@ describe('DetailsPanel', () => {
   );
 
   test('should have artifacts', async () => {
-    const { getAllByTestId, findByText } = render(testDetailsPanel(task), {
-      legacyRoot: true,
-    });
+    const { getAllByTestId, findByText } = render(testDetailsPanel(task));
     const artifactsTab = await findByText('Artifacts and Debugging Tools');
 
     fireEvent.click(artifactsTab);
@@ -96,9 +94,7 @@ describe('DetailsPanel', () => {
   });
 
   test('should have bug suggestions', async () => {
-    const { getAllByTestId, findByText } = render(testDetailsPanel(task), {
-      legacyRoot: true,
-    });
+    const { getAllByTestId, findByText } = render(testDetailsPanel(task));
     const failuresTab = await findByText('Failure Summary');
 
     fireEvent.click(failuresTab);
@@ -109,9 +105,7 @@ describe('DetailsPanel', () => {
   });
 
   test('should have a log viewer with custom buttons', async () => {
-    const { findByText, getByText } = render(testDetailsPanel(task), {
-      legacyRoot: true,
-    });
+    const { findByText, getByText } = render(testDetailsPanel(task));
     const LogViewerTab = await findByText('Log Viewer');
 
     fireEvent.click(LogViewerTab);

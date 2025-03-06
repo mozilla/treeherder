@@ -12,7 +12,7 @@ module.exports = {
   parser: '@babel/eslint-parser',
   settings: {
     react: {
-      version: '16.6',
+      version: '18',
     },
   },
   env: {
