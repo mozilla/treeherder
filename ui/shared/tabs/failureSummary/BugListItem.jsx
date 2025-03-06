@@ -31,25 +31,34 @@ function BugListItem(props) {
           style={{ fontSize: '8px' }}
           type="button"
           onClick={() => addBug(bug, selectedJob)}
-          title="add to list of bugs to associate with all pinned jobs"
+          title="Add to list of bugs to associate with all pinned jobs"
         >
           <FontAwesomeIcon icon={faThumbtack} title="Select bug" />
         </Button>
       )}
       <span className="ml-1">i{bug.internal_id}</span>
       {!bug.id && (
-        <span className="ml-1">
-          {bug.summary} ({bug.occurrences} occurrences)
-          {bug.occurrences > -1 && (
-            // TODO: Update the condition above to match backend configuration
+        <span>
+          <span className="ml-1 mr-1" title="Number of recent classifications">
+            ({bug.occurrences} occurrences{' '}
+            <FontAwesomeIcon icon={faThumbtack} />)
+          </span>
+          {bug.summary}
+          {!bug.bugzilla_id && (
             <Button
+              // TODO: Update the condition below to match backend configuration
+              disabled={bug.occurrences < -1}
               className="bg-light py-1 px-2 ml-2"
               outline
               style={{ fontSize: '8px' }}
               onClick={() => toggleBugFiler(suggestion)}
-              title="file a bug for this internal issue"
+              title={
+                bug.occurrences < -1
+                  ? 'Occurences must be > 3 to open a bug'
+                  : 'File a bug for this internal issue'
+              }
             >
-              <FontAwesomeIcon icon={faBug} title="File bug" />
+              <FontAwesomeIcon icon={faBug} />
             </Button>
           )}
         </span>
