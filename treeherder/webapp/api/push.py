@@ -3,8 +3,7 @@ import logging
 
 import newrelic.agent
 from cache_memoize import cache_memoize
-from django.contrib.postgres.search import SearchQuery, SearchVector
-from django.db.models.functions import Substr
+from django.contrib.postgres.search import SearchQuery
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -75,13 +74,8 @@ class PushViewSet(viewsets.ViewSet):
         if search_param:
             repository = Repository.objects.get(name=project)
             filtered_commits = (
-                Commit.objects.annotate(
-                    search=SearchVector(
-                        "revision", "author", Substr("comments", 1, 100000), config="english"
-                    )
-                )
-                .filter(
-                    search=SearchQuery(search_param, config="english"),
+                Commit.objects.filter(
+                    search_vector=SearchQuery(search_param, config="english"),
                     push__repository=repository,
                 )
                 .values_list("push_id", flat=True)
@@ -90,6 +84,7 @@ class PushViewSet(viewsets.ViewSet):
                 .distinct()[:200]
             )
             pushes = pushes.filter(id__in=filtered_commits)
+
         for param, value in meta.items():
             if param == "fromchange":
                 revision_field = "revision__startswith" if len(value) < 40 else "revision"
