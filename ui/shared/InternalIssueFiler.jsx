@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { create } from '../helpers/http';
+import { getApiUrl } from '../helpers/url';
 import {
   Button,
   Modal,
@@ -136,9 +138,8 @@ export class InternalIssueFilerClass extends React.Component {
 
   submitInternalIssue = async () => {
     const { summary } = this.state;
-    const { notify } = this.props;
 
-    notify(summary, 'danger');
+    create(getApiUrl('/internal_issue/'), { summary });
   };
 
   render() {
@@ -161,13 +162,16 @@ export class InternalIssueFilerClass extends React.Component {
                   type="text"
                   placeholder="Intermittent..."
                   pattern=".{0,255}"
-                  defaultValue={summary}
+                  value={summary}
+                  onChange={(evt) =>
+                    this.setState({ summary: evt.target.value })
+                  }
                 />
               </div>
             </form>
           </ModalBody>
           <ModalFooter>
-            <Button color="secondary" onClick={this.submitFiler}>
+            <Button color="secondary" onClick={this.submitInternalIssue}>
               Submit Internal Issue
             </Button>{' '}
             <Button color="secondary" onClick={toggle}>
