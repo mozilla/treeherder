@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { create } from '../helpers/http';
+import { getApiUrl } from '../helpers/url';
 import {
   Button,
   Modal,
@@ -18,7 +20,7 @@ export class InternalIssueFilerClass extends React.Component {
   constructor(props) {
     super(props);
 
-    const { suggestion, jobGroupName } = props;
+    const { suggestion, jobGroupName, jobTypeName } = props;
 
     const parsedSummary = parseSummary(suggestion);
     let summaryString = parsedSummary[0].join(' | ');
@@ -136,9 +138,18 @@ export class InternalIssueFilerClass extends React.Component {
 
   submitInternalIssue = async () => {
     const { summary } = this.state;
-    const { notify } = this.props;
+    const { notify, jobId } = this.props;
 
-    notify(summary, 'danger');
+    const resp = await create(getApiUrl('/internal_issue/'), {
+      summary,
+      job_id: jobId,
+    });
+    if ('failureStatus' in resp) {
+      notify(resp?.data || resp.failureStatus, 'danger');
+    } else {
+      notify('Error line reported as an internal issue', 'success');
+      // TODO: Reload failures summary
+    }
   };
 
   render() {
@@ -161,13 +172,16 @@ export class InternalIssueFilerClass extends React.Component {
                   type="text"
                   placeholder="Intermittent..."
                   pattern=".{0,255}"
-                  defaultValue={summary}
+                  value={summary}
+                  onChange={(evt) =>
+                    this.setState({ summary: evt.target.value })
+                  }
                 />
               </div>
             </form>
           </ModalBody>
           <ModalFooter>
-            <Button color="secondary" onClick={this.submitFiler}>
+            <Button color="secondary" onClick={this.submitInternalIssue}>
               Submit Internal Issue
             </Button>{' '}
             <Button color="secondary" onClick={toggle}>
@@ -185,6 +199,8 @@ InternalIssueFilerClass.propTypes = {
   toggle: PropTypes.func.isRequired,
   suggestion: PropTypes.shape({}).isRequired,
   jobGroupName: PropTypes.string.isRequired,
+  jobTypeName: PropTypes.string.isRequired,
+  jobId: PropTypes.string.isRequired,
   notify: PropTypes.func.isRequired,
 };
 
