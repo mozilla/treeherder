@@ -27,7 +27,7 @@ import {
   getApiUrl,
 } from '../helpers/url';
 import { create } from '../helpers/http';
-import { omittedLeads, parseSummary } from '../helpers/bug';
+import { omittedLeads, parseSummary, getCrashSignatures } from '../helpers/bug';
 import { notify } from '../job-view/redux/stores/notifications';
 
 export class BugFilerClass extends React.Component {
@@ -63,7 +63,7 @@ export class BugFilerClass extends React.Component {
       summaryString = summaryString.replace(re, '');
     }
 
-    const crashSignatures = this.getCrashSignatures(suggestion);
+    const crashSignatures = getCrashSignatures(suggestion);
 
     const keywords = [];
     let isAssertion = [
@@ -211,12 +211,6 @@ export class BugFilerClass extends React.Component {
   componentDidMount() {
     this.checkForSecurityIssue();
     this.findProductByPath();
-  }
-
-  getCrashSignatures(failureLine) {
-    const crashRegex = /(\[@ .+\])/g;
-    const crashSignatures = failureLine.search.match(crashRegex);
-    return crashSignatures ? [crashSignatures[0]] : [];
   }
 
   getUnhelpfulSummaryReason(summary) {
@@ -611,7 +605,7 @@ export class BugFilerClass extends React.Component {
       selectedProduct,
     } = this.state;
     const searchTerms = suggestion.search_terms;
-    const crashSignatures = this.getCrashSignatures(suggestion);
+    const crashSignatures = getCrashSignatures(suggestion);
     const unhelpfulSummaryReason = this.getUnhelpfulSummaryReason(summary);
 
     return (
