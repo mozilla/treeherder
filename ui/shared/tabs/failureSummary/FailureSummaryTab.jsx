@@ -215,7 +215,10 @@ class FailureSummaryTab extends React.Component {
               suggestion={suggestion}
               toggleBugFiler={() => this.fileBug(suggestion)}
               toggleInternalIssueFiler={() =>
-                this.setState({ isInternalIssueFilerOpen: true })
+                this.setState({
+                  isInternalIssueFilerOpen: true,
+                  suggestion: suggestion,
+                })
               }
               selectedJob={selectedJob}
               addBug={addBug}
@@ -321,6 +324,8 @@ class FailureSummaryTab extends React.Component {
           <InternalIssueFiler
             isOpen={isInternalIssueFilerOpen}
             suggestion={suggestion}
+            toggle={this.toggleInternalIssueFiler}
+            jobGroupName={selectedJob.job_group_name}
           />
         )}
       </div>
