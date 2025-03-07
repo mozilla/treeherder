@@ -99,3 +99,9 @@ export const parseSummary = (suggestion) => {
 
   return [summaryParts, possibleFilename];
 };
+
+export const getCrashSignatures = (failureLine) => {
+  const crashRegex = /(\[@ .+\])/g;
+  const crashSignatures = failureLine.search.match(crashRegex);
+  return crashSignatures ? [crashSignatures[0]] : [];
+};
