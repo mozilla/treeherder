@@ -326,6 +326,8 @@ class FailureSummaryTab extends React.Component {
             suggestion={suggestion}
             toggle={this.toggleInternalIssueFiler}
             jobGroupName={selectedJob.job_group_name}
+            jobTypeName={selectedJob.job_type_name}
+            jobId={selectedJob.id}
           />
         )}
       </div>
