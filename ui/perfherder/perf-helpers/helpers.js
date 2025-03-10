@@ -862,6 +862,10 @@ export const createGraphData = (
       lowerIsBetter: series.lower_is_better,
       resultSetData: series.data.map((dataPoint) => dataPoint.push_id),
       parentSignature: series.parent_signature,
+      shouldAlert: series.should_alert,
+      alertChangeType: series.alert_change_type,
+      alertThreshold: series.alert_threshold,
+      modifiedShouldAlert: series.modified_should_alert,
       replicates,
     };
   });
