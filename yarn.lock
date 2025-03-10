@@ -9593,12 +9593,11 @@ react-highlight-words@0.20.0:
     memoize-one "^4.0.0"
     prop-types "^15.5.8"
 
-react-hot-keys@2.6.0:
-  version "2.6.0"
-  resolved "https://registry.yarnpkg.com/react-hot-keys/-/react-hot-keys-2.6.0.tgz#9c360d45d4d45a0cde35c59eb05335230f8e9f37"
-  integrity sha512-q7UKLGxZyWhIeyNp4TIp5ardcIF5lPeS8Lmh5gTKH+4IOQDrfMkyvAoz1XFYKR2UDc4GW9sEDrzVrqVZu/HrAw==
+react-hot-keys@2.6.2:
+  version "2.6.2"
+  resolved "https://registry.yarnpkg.com/react-hot-keys/-/react-hot-keys-2.6.2.tgz#32fba45d9bf854a12f75994f421cb7047e5a3338"
+  integrity sha512-BMyIrQqQg5H7VWPW0OlJe+MTVZ68t37kkGF2ELvQqgCBPEMbvi6jhb7V4gKYkUV/BetqNnLTrUC4LUMW6myr1Q==
   dependencies:
-    "@babel/runtime" "^7.8.4"
     hotkeys-js "^3.8.1"
     prop-types "^15.7.2"
 
