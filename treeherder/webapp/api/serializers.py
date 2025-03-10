@@ -467,11 +467,11 @@ class InternalIssueSerializer(serializers.Serializer):
 
         # Build or retrieve a bug already reported for a similar FailureLine
         try:
-            bug, _ = models.Bugscache.get_or_create(
-                **validated_data, default={"modified": timezone.now()}
+            bug, _ = models.Bugscache.objects.get_or_create(
+                **validated_data, defaults={"modified": timezone.now()}
             )
         except models.Bugscache.MultipleObjectsReturned:
             # Take last modified in case a conflict happens
-            bug = models.Bugscache.filter(**validated_data).order_by("modified").first()
+            bug = models.Bugscache.objects.filter(**validated_data).order_by("modified").first()
         bug.jobmap.get_or_create(job=job, defaults={"user": self.context["request"].user})
         return bug
