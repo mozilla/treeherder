@@ -54,6 +54,16 @@ class FailureSummaryTab extends React.Component {
     });
   };
 
+  fileInternalIssue = (suggestion) => {
+    const { selectedJob, pinJob } = this.props;
+
+    pinJob(selectedJob);
+    this.setState({
+      isInternalIssueFilerOpen: true,
+      suggestion: suggestion,
+    });
+  };
+
   toggleBugFiler = () => {
     this.setState((prevState) => ({
       isBugFilerOpen: !prevState.isBugFilerOpen,
@@ -73,6 +83,13 @@ class FailureSummaryTab extends React.Component {
     window.dispatchEvent(new CustomEvent(thEvents.saveClassification));
     // Open the newly filed bug in a new tab or window for further editing
     window.open(data.url);
+  };
+
+  internalIssueFilerCallback = (data) => {
+    const { addBug } = this.props;
+
+    addBug(data);
+    window.dispatchEvent(new CustomEvent(thEvents.saveClassification));
   };
 
   loadBugSuggestions = () => {
@@ -215,10 +232,7 @@ class FailureSummaryTab extends React.Component {
               suggestion={suggestion}
               toggleBugFiler={() => this.fileBug(suggestion)}
               toggleInternalIssueFiler={() =>
-                this.setState({
-                  isInternalIssueFilerOpen: true,
-                  suggestion: suggestion,
-                })
+                this.fileInternalIssue(suggestion)
               }
               selectedJob={selectedJob}
               addBug={addBug}
@@ -327,7 +341,7 @@ class FailureSummaryTab extends React.Component {
             toggle={this.toggleInternalIssueFiler}
             jobGroupName={selectedJob.job_group_name}
             jobTypeName={selectedJob.job_type_name}
-            jobId={selectedJob.id}
+            successCallback={this.internalIssueFilerCallback}
           />
         )}
       </div>

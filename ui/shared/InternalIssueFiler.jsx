@@ -138,17 +138,17 @@ export class InternalIssueFilerClass extends React.Component {
 
   submitInternalIssue = async () => {
     const { summary } = this.state;
-    const { notify, jobId } = this.props;
+    const { notify, successCallback, toggle } = this.props;
 
-    const resp = await create(getApiUrl('/internal_issue/'), {
-      summary,
-      job_id: jobId,
-    });
-    if ('failureStatus' in resp) {
-      notify(resp?.data || resp.failureStatus, 'danger');
+    const resp = await create(getApiUrl('/internal_issue/'), { summary });
+    if (resp?.failureStatus && resp.failureStatus >= 400) {
+      const msg =
+        typeof resp?.data === 'string' ? resp.data : resp.failureStatus;
+      notify(msg, 'danger');
     } else {
       notify('Error line reported as an internal issue', 'success');
-      // TODO: Reload failures summary
+      toggle();
+      successCallback(resp.data);
     }
   };
 
@@ -200,7 +200,7 @@ InternalIssueFilerClass.propTypes = {
   suggestion: PropTypes.shape({}).isRequired,
   jobGroupName: PropTypes.string.isRequired,
   jobTypeName: PropTypes.string.isRequired,
-  jobId: PropTypes.string.isRequired,
+  successCallback: PropTypes.func.isRequired,
   notify: PropTypes.func.isRequired,
 };
 
