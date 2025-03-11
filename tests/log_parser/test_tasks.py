@@ -121,12 +121,12 @@ def test_bug_suggestion_line(
     )
 
     error = job.text_log_error.first()
-    summary = bug_suggestions_line(
+    summary, line_cache = bug_suggestions_line(
         error,
         project=job.repository,
         logdate=job.submit_time,
         term_cache={},
-        # line_cache={str(job.submit_time.date()): {}},
+        line_cache={str(job.submit_time.date()): {}},
         revision=job.push.revision,
     )
     assert summary["bugs"]["open_recent"] == [

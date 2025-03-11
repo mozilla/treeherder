@@ -1,6 +1,7 @@
 import json
 
 from treeherder.etl.artifact import store_job_artifacts
+from treeherder.model.error_summary import get_error_summary
 from treeherder.model.models import TextLogError
 
 
@@ -57,12 +58,11 @@ def test_load_non_ascii_textlog_errors(test_job):
     store_job_artifacts([text_log_summary_artifact])
 
     # ensure bug_suggestions data is stored and retrieved properly
-    # tle_all = TextLogError.objects.all()
-    # bug_suggestions = get_error_summary(test_job)
-    # disabled for performance issues
-    # for suggestion in bug_suggestions:
-    #     tle = next(t for t in tle_all if t.line_number == suggestion["line_number"])
-    #     assert suggestion["failure_new_in_rev"] == tle.new_failure
+    tle_all = TextLogError.objects.all()
+    bug_suggestions = get_error_summary(test_job)
+    for suggestion in bug_suggestions:
+        tle = next(t for t in tle_all if t.line_number == suggestion["line_number"])
+        assert suggestion["failure_new_in_rev"] == tle.new_failure
 
     assert TextLogError.objects.count() == 2
     assert TextLogError.objects.get(line_number=1587).line == "07:51:28  WARNING - \U000000c3"
