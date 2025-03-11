@@ -1,7 +1,10 @@
 import json
 
+import pytest
+from django.core.cache import caches
+
 from treeherder.etl.artifact import store_job_artifacts
-from treeherder.model.error_summary import get_error_summary
+from treeherder.model.error_summary import MemDBCache, get_error_summary
 from treeherder.model.models import TextLogError
 
 
@@ -67,3 +70,59 @@ def test_load_non_ascii_textlog_errors(test_job):
     assert TextLogError.objects.count() == 2
     assert TextLogError.objects.get(line_number=1587).line == "07:51:28  WARNING - \U000000c3"
     assert TextLogError.objects.get(line_number=1588).line == "07:51:29  WARNING - <U+01D400>"
+
+
+@pytest.mark.django_db
+def test_memcache_to_db_class():
+    root = "th_test"
+    lcache = MemDBCache(root)
+    line_cache = lcache.get_cache()
+
+    date = "2025-01-01"
+    # add stuff to line_cache, write to memcache, verify not in db_cache
+    line_cache[date] = {
+        "new_lines": {"this is a trap": 31415926535},
+        "this is a trap": 1,
+    }
+    assert caches["default"].get(f"{root}_{date}") is None
+
+    # write to memcache
+    lcache.update_cache(date, line_cache[date])
+    assert len(lcache.get_cache_keys()) == 0
+
+    # add key to db
+    lcache.add_cache_keys(date)
+    assert len(lcache.get_cache_keys()) == 1
+
+    db_data = caches["db_cache"].get(f"{root}_{date}")
+    assert db_data is None
+
+    # bulk write entire memcache -> db
+    lcache.write_cache()
+    db_data = caches["db_cache"].get(f"{root}_{date}")
+    assert db_data == line_cache[date]
+
+    date2 = "2025-01-02"
+    line_cache[date2] = {
+        "new_lines": {"this is a trap2": 31415926535},
+        "this is a trap2": 1,
+    }
+
+    # write only date2 to db
+    lcache.write_cache(date2, line_cache[date2])
+    assert len(lcache.get_cache_keys()) == 2
+    db_data = caches["db_cache"].get(f"{root}_{date2}")
+    assert db_data == line_cache[date2]
+
+    # expire cache
+    lcache.remove_cache_key(date)
+    assert len(lcache.get_cache_keys()) == 1
+
+    # ensure we only have date2
+    line_cache = lcache.get_cache()
+    assert len(line_cache.keys()) == 1
+
+    # remove it all
+    lcache.remove_cache_key(date2)
+    line_cache = lcache.get_cache()
+    assert len(line_cache.keys()) == 0

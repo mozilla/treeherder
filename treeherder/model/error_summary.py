@@ -28,6 +28,89 @@ REFTEST_RE = re.compile(r"\s+[=!]=\s+.*")
 PREFIX_PATTERN = r"^(TEST-UNEXPECTED-\S+|PROCESS-CRASH)\s+\|\s+"
 
 
+class MemDBCache:
+    keyroot = ""
+
+    def __init__(self, keyroot):
+        self.keyroot = keyroot
+
+    def get_cache(self):
+        lcache = {}
+        keys = self.get_cache_keys()
+        # copy db cache to memory cache
+        if keys and not cache.get(keys[0]):
+            for k in keys:
+                self.update_cache(k, db_cache.get(f"{self.keyroot}_{k}"))
+
+        for d in [k.split("_")[-1] for k in keys]:
+            lcache[d] = cache.get(f"{self.keyroot}_{d}")
+        return lcache
+
+    def write_cache(self, key=None, value=None):
+        if key:
+            # new key, add to both cache and db_cache
+            self.update_cache(key, value)
+            self.update_db_cache(key, value)
+            self.add_cache_keys(key)
+        else:
+            # flush cache->db_cache; ensure that keys are removed/added
+            keys = self.get_cache_keys()
+            for key in keys:
+                self.update_db_cache(key, cache.get(f"{self.keyroot}_{key}"))
+            self.set_cache_keys(keys)
+
+    def update_cache(self, key, value, timeout=LINE_CACHE_TIMEOUT):
+        cache.set(f"{self.keyroot}_{key}", value, timeout)
+
+    def update_db_cache(self, key, value, timeout=LINE_CACHE_TIMEOUT):
+        db_cache.set(f"{self.keyroot}_{key}", value, timeout)
+
+    def get_cache_keys(self):
+        # this will return all keys (dates)
+        keys = db_cache.get(f"{self.keyroot}_keys")
+        if not keys:
+            # this is the first time we run this
+            # either fresh DB || migrating from old
+            if db_cache.get(f"{self.keyroot}"):
+                keys = self.migrate_from_old()
+            else:
+                keys = []
+            self.set_cache_keys(keys)
+        return keys
+
+    def add_cache_keys(self, key):
+        # this will return all keys (dates)
+        keys = self.get_cache_keys()
+        if not keys:
+            keys = []
+        keys.append(key)
+        self.set_cache_keys(keys)
+
+    def remove_cache_key(self, key):
+        # this will return all keys (dates)
+        keys = self.get_cache_keys()
+        keys.remove(key)
+        cache.delete(f"{self.keyroot}_{key}")
+        db_cache.delete(f"{self.keyroot}_{key}")
+        self.set_cache_keys(keys)
+
+    def set_cache_keys(self, keys):
+        db_cache.set(f"{self.keyroot}_keys", keys, LINE_CACHE_TIMEOUT)
+
+    def migrate_from_old(self):
+        keys = []
+        # get keyroot, data is {date: value, date2: value, ...}
+        data = db_cache.get(self.keyroot)
+        for date in data.keys():
+            self.update_cache(f"{self.keyroot}_{date}", data[date])
+            self.update_db_cache(f"{self.keyroot}_{date}", data[date])
+            keys.append(date)
+
+        # delete old data (keyroot)
+        db_cache.delete(self.keyroot)
+        return keys
+
+
 def get_error_summary(job, queryset=None):
     """
     Create a list of bug suggestions for a job.
@@ -41,19 +124,22 @@ def get_error_summary(job, queryset=None):
         return cached_error_summary
 
     # add support for error line caching
-    line_cache_key = "mc_error_lines"
     if job.repository == "comm-central":
-        line_cache_key = "cc_error_lines"
-    line_cache = db_cache.get(line_cache_key)
-    if line_cache is None:
-        line_cache = {str(job.submit_time.date()): {}}
+        lcache = MemDBCache("cc_error_lines")
     else:
-        dates = list(line_cache.keys())
+        lcache = MemDBCache("mc_error_lines")
+
+    date = str(job.submit_time.date())
+    line_cache = lcache.get_cache()
+    if date not in line_cache.keys():
+        lcache.write_cache(date, {})
+    else:
+        dates = lcache.get_cache_keys()
         dates.sort()
         for d in dates:
             date_time = datetime.datetime.strptime(d, "%Y-%m-%d")
             if date_time <= (job.submit_time - datetime.timedelta(days=LINE_CACHE_TIMEOUT_DAYS)):
-                del line_cache[d]
+                lcache.remove_cache_key(d)
             else:
                 break
 
@@ -86,7 +172,9 @@ def get_error_summary(job, queryset=None):
         logger.error("error caching error_summary for job %s: %s", job.id, e, exc_info=True)
 
     try:
-        db_cache.set(line_cache_key, line_cache, LINE_CACHE_TIMEOUT)
+        lcache.update_cache(date, line_cache[date])
+        # TODO: consider reducing this, each date is ~5%, so it will be faster
+        lcache.update_db_cache(date, line_cache[date])
     except Exception as e:
         newrelic.agent.record_custom_event("error caching error_lines for job", job.id)
         logger.error("error caching error_lines for job %s: %s", job.id, e, exc_info=True)
