@@ -1,6 +1,5 @@
 import logging
 
-from django.core.cache import caches
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ParseError
@@ -8,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_404_NOT_FOUND
 
 from treeherder.model.error_summary import (
-    LINE_CACHE_TIMEOUT,
+    MemDBCache,
     cache_clean_error_line,
     get_cleaned_line,
 )
@@ -91,9 +90,11 @@ class NoteViewSet(viewsets.ViewSet):
 
         if fc_id == 2:  # this is for fixed_by_commit (backout | follow_up_commit)
             # remove cached failure line counts
-            db_cache = caches["db_cache"]
-            line_cache_key = "error_lines"
-            line_cache = db_cache.get(line_cache_key)
+            if current_job.repository == "comm-central":
+                lcache = MemDBCache("cc_error_lines")
+            else:
+                lcache = MemDBCache("mc_error_lines")
+            line_cache = lcache.get_cache()
             date = current_job.submit_time.date().isoformat()
             if line_cache and date in line_cache.keys():
                 for err in TextLogError.objects.filter(job=current_job):
@@ -107,7 +108,8 @@ class NoteViewSet(viewsets.ViewSet):
                         ):
                             del line_cache[date]["new_lines"][cache_clean_line]
                         try:
-                            db_cache.set(line_cache_key, line_cache, LINE_CACHE_TIMEOUT)
+                            lcache.update_cache(date, line_cache[date])
+                            lcache.update_db_cache(date, line_cache[date])
                         except Exception as e:
                             logger.error(
                                 "error caching error_lines for job %s: %s",
