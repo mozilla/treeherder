@@ -79,9 +79,7 @@ describe('PlatformConfig', () => {
   );
 
   test('should show the test name', async () => {
-    const { getByText } = render(testPlatformConfig(testFailure, jobs), {
-      legacyRoot: true,
-    });
+    const { getByText } = render(testPlatformConfig(testFailure, jobs));
 
     expect(
       await waitFor(() =>
@@ -93,17 +91,13 @@ describe('PlatformConfig', () => {
   });
 
   test('should not show details by default', async () => {
-    const { queryByTestId } = render(testPlatformConfig(testFailure, jobs), {
-      legacyRoot: true,
-    });
+    const { queryByTestId } = render(testPlatformConfig(testFailure, jobs));
 
     expect(queryByTestId('log-lines')).toBeNull();
   });
 
   test('should show bug suggestions when expander clicked', async () => {
-    const { getByText } = render(testPlatformConfig(testFailure, jobs), {
-      legacyRoot: true,
-    });
+    const { getByText } = render(testPlatformConfig(testFailure, jobs));
     const detailsButton = getByText('task');
 
     fireEvent.click(detailsButton);
@@ -116,9 +110,7 @@ describe('PlatformConfig', () => {
   });
 
   test('should show artifacts when tab clicked', async () => {
-    const { getByText } = render(testPlatformConfig(testFailure, jobs), {
-      legacyRoot: true,
-    });
+    const { getByText } = render(testPlatformConfig(testFailure, jobs));
     const detailsButton = getByText('task');
 
     fireEvent.click(detailsButton);

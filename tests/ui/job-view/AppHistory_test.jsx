@@ -78,7 +78,7 @@ describe('history', () => {
     history.push(
       '/#/jobs?repo=try&revision=07615c30668c70692d01a58a00e7e271e69ff6f1',
     );
-    render(testApp(), { legacyRoot: true });
+    render(testApp());
 
     expect(history.location).toEqual(
       expect.objectContaining({
@@ -90,7 +90,7 @@ describe('history', () => {
   });
 
   test('lack of a specified route should redirect to jobs view with a default repo', () => {
-    render(testApp(), { legacyRoot: true });
+    render(testApp());
 
     expect(history.location).toEqual(
       expect.objectContaining({
