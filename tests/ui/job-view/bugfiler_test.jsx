@@ -368,4 +368,13 @@ describe('BugFiler', () => {
     const displayed = SummaryAndExpected(rawSummary);
     expect(displayed).toBeInTheDocument(expected);
   });
+
+  test('should NOT have summary as "single tracking bug"', () => {
+    const rawSummary =
+      'TEST-UNEXPECTED-FAIL | browser/components/extensions/test/browser/browser_ext_contextMenus_targetUrlPatterns.js | Test timed out';
+    const expected =
+      'TEST-UNEXPECTED-FAIL | browser/components/extensions/test/browser/browser_ext_contextMenus_targetUrlPatterns.js | Test timed out';
+    const displayed = SummaryAndExpected(rawSummary);
+    expect(displayed).toBeInTheDocument(expected);
+  });
 });
