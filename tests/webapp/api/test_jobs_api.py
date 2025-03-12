@@ -93,7 +93,7 @@ def test_job_list_equals_filter(client, eleven_jobs_stored, test_repository):
 
 
 job_filter_values = [
-    ("build_architecture", "x86_64"),
+    ("build_architecture", "x86"),
     ("build_os", "mac"),
     ("build_platform", "mac1120"),
     ("build_platform_id", 3),
