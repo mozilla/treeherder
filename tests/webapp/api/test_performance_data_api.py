@@ -509,7 +509,6 @@ def test_perf_summary(client, test_perf_signature, test_perf_data):
             "should_alert": True,
             "alert_change_type": 1,
             "alert_threshold": 2,
-            "modified_should_alert": True,
         }
     ]
 
@@ -522,6 +521,63 @@ def test_perf_summary(client, test_perf_signature, test_perf_data):
     resp2 = client.get(reverse("performance-summary") + query_params2)
     assert resp2.status_code == 200
     assert resp2.json() == expected
+
+
+def test_perf_summary_should_alert_is_false_edge_case(
+    client, test_perf_signature, test_perf_signature_2, test_perf_data
+):
+    """
+    If a suite has a `should_alert` value of either null or True and there is a suite-level value set,
+    but the subtests do not have the `should_alert` set to True, then those subtests will not trigger an alert.
+    A null value for these subtests indicates that the `should_alert` parameter is set to False.
+    """
+    parent_signature = test_perf_signature
+    subtest_signature = test_perf_signature_2
+
+    # For the subtests signature: the parent_signature needs to be set, should_alert is set to None
+    subtest_signature.parent_signature = parent_signature
+    subtest_signature.should_alert = None
+    subtest_signature.alert_change_type = 1
+    subtest_signature.alert_threshold = 2.0
+    subtest_signature.save()
+
+    # For the parent signature: should_alert needs to be set to None/True and
+    # there is at least one related performance datum value which is not None
+    # (condition met by using the test_perf_data fixture).
+    parent_signature.should_alert = True
+    parent_signature.save()
+
+    query_params = f"?repository={subtest_signature.repository.name}&framework={subtest_signature.framework_id}&interval=172800&signature={subtest_signature.id}&all_data=true&replicates=false"
+
+    expected = [
+        {
+            "signature_id": subtest_signature.id,
+            "framework_id": subtest_signature.framework_id,
+            "signature_hash": subtest_signature.signature_hash,
+            "platform": subtest_signature.platform.platform,
+            "test": subtest_signature.test,
+            "application": subtest_signature.application,
+            "lower_is_better": subtest_signature.lower_is_better,
+            "has_subtests": subtest_signature.has_subtests,
+            "tags": subtest_signature.tags,
+            "measurement_unit": subtest_signature.measurement_unit,
+            "values": [],
+            "name": "mysuite2 mytest2 opt e10s opt",
+            "parent_signature": parent_signature.id,
+            "job_ids": [],
+            "suite": subtest_signature.suite,
+            "repository_name": subtest_signature.repository.name,
+            "repository_id": subtest_signature.repository.id,
+            "data": [],
+            "should_alert": False,
+            "alert_change_type": 1,
+            "alert_threshold": 2.0,
+        }
+    ]
+
+    response = client.get(reverse("performance-summary") + query_params)
+    assert response.status_code == 200
+    assert response.json() == expected
 
 
 def test_data_points_from_same_push_are_ordered_chronologically(

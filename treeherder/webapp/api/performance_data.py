@@ -6,17 +6,7 @@ from urllib.parse import urlencode
 import django_filters
 from django.conf import settings
 from django.db import transaction
-from django.db.models import (
-    BooleanField,
-    Case,
-    CharField,
-    Count,
-    F,
-    Q,
-    Subquery,
-    Value,
-    When,
-)
+from django.db.models import Case, CharField, Count, Q, Subquery, Value, When
 from django.db.models.functions import Concat
 from rest_framework import exceptions, filters, generics, pagination, viewsets
 from rest_framework.response import Response
@@ -687,48 +677,29 @@ class PerformanceSummary(generics.ListAPIView):
             )
 
         # TODO signature_hash is being returned for legacy support - should be removed at some point
-        """
-        If a suite has a `should_alert` value of either null or True and there is a suite-level value set,
-        but the subtests do not have the `should_alert` set to True, then those subtests will not trigger an alert.
-        A null value for these subtests indicates that the `should_alert` parameter is set to False.
-        """
-        self.queryset = (
-            signature_data.prefetch_related("subtests")
-            .annotate(
-                modified_should_alert=Case(
-                    When(
-                        parent_signature__id__isnull=False,
-                        should_alert__isnull=True,
-                        parent_signature__should_alert__in=[True, None],
-                        subtests__performancedatum__value__isnull=False,
-                        then=Value(False),
-                    ),
-                    default=F("should_alert"),
-                    output_field=BooleanField(),
-                )
-            )
-            .values(
-                "modified_should_alert",
-                "framework_id",
-                "id",
-                "lower_is_better",
-                "has_subtests",
-                "extra_options",
-                "suite",
-                "signature_hash",
-                "platform__platform",
-                "test",
-                "option_collection_id",
-                "parent_signature_id",
-                "repository_id",
-                "tags",
-                "measurement_unit",
-                "application",
-                "should_alert",
-                "alert_change_type",
-                "alert_threshold",
-            )
+        self.queryset = signature_data.values(
+            "framework_id",
+            "id",
+            "lower_is_better",
+            "has_subtests",
+            "extra_options",
+            "suite",
+            "signature_hash",
+            "platform__platform",
+            "test",
+            "option_collection_id",
+            "parent_signature_id",
+            "repository_id",
+            "tags",
+            "measurement_unit",
+            "application",
+            "should_alert",
+            "alert_change_type",
+            "alert_threshold",
+            "parent_signature__should_alert",
         )
+
+        self.check_and_update_should_alert()
 
         signature_ids = [item["id"] for item in list(self.queryset)]
 
@@ -843,6 +814,23 @@ class PerformanceSummary(generics.ListAPIView):
             serialized_data = self._filter_out_retriggers(serialized_data)
 
         return Response(data=serialized_data)
+
+    def check_and_update_should_alert(self):
+        """
+        If a suite has a `should_alert` value of either null or True and there is a suite-level value set,
+        but the subtests do not have the `should_alert` set to True, then those subtests will not trigger an alert.
+        A null value for these subtests indicates that the `should_alert` parameter is set to False.
+        """
+        for signature in list(self.queryset):
+            if (
+                signature["should_alert"] is None
+                and signature["parent_signature_id"] is not None
+                and signature["parent_signature__should_alert"] is not False
+            ):
+                if PerformanceDatum.objects.filter(
+                    signature_id=signature["parent_signature_id"], value__isnull=False
+                ).exists():
+                    signature["should_alert"] = False
 
     @staticmethod
     def _filter_out_retriggers(serialized_data):
