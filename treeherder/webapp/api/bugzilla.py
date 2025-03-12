@@ -96,6 +96,6 @@ class BugzillaViewSet(viewsets.ViewSet):
         Bugscache.objects.create(
             bugzilla_id=bug_id,
             modified=timezone.now(),
-            summary=summary,
+            summary=summary.decode("utf-8"),
         )
         return Response({"id": bug_id, "url": get_bug_url(bug_id, settings.BUGFILER_API_URL)})
