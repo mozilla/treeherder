@@ -236,8 +236,12 @@ export class BugFilerClass extends React.Component {
         trimParams = true;
       }
 
+      const isPerfTest = [
+        /.*browser\/base\/content\/test\/performance.*/,
+      ].some((regexp) => regexp.test(summaryString));
+
       // If not leak
-      if (!isAssertion && isTestPath) {
+      if (!isAssertion && !isPerfTest && isTestPath) {
         const parts = summaryString.split(' | ');
         // split('?') is for removing `?params...` from the test name
         if (parts.length === 2 || parts.length === 1) {
