@@ -17,6 +17,15 @@ def parse_build_platform(name, os_field="os_name"):
     return {"platform": platform, os_field: os_name, "architecture": arch}
 
 
+def fetch_url(url):
+    try:
+        response = requests.get(url, headers={"User-agent": "mach-test-info/1.0"}, timeout=10)
+    except requests.exceptions.Timeout:
+        print(f"timeout fetching {url}")
+        raise
+    return response
+
+
 def get_tasks(project, revision):
     # 1) get push information, find results[0]["id"] <- this will be the push_id
     # https://treeherder.mozilla.org/api/project/autoland/push/?full=true&count=10&revision=473a353f2aeaaf904a08f7c1f287b5607d9e8cb9
@@ -25,13 +34,13 @@ def get_tasks(project, revision):
 
     retval = []
 
-    url = f"https://treeherder.mozilla.org/api/project/{project}/push/?full=true&count=10&revision={revision}"
-    response = requests.get(url, headers={"User-agent": "mach-test-info/1.0"})
+    response = fetch_url(
+        f"https://treeherder.mozilla.org/api/project/{project}/push/?full=true&count=10&revision={revision}"
+    )
     data = response.json()
     push_id = data["results"][0]["id"]
 
-    url = f"https://treeherder.mozilla.org/api/jobs/?push_id={push_id}"
-    response = requests.get(url, headers={"User-agent": "mach-test-info/1.0"})
+    response = fetch_url(f"https://treeherder.mozilla.org/api/jobs/?push_id={push_id}")
     data = response.json()
 
     # set a max of 100 tasks for a given revision, just so we don't have too much data
@@ -39,8 +48,7 @@ def get_tasks(project, revision):
         job_id = task[1]
 
         # https://treeherder.mozilla.org/api/project/autoland/jobs/495738649/
-        url = f"https://treeherder.mozilla.org/api/project/{project}/jobs/{job_id}/"
-        response = requests.get(url, headers={"User-agent": "mach-test-info/1.0"})
+        response = fetch_url(f"https://treeherder.mozilla.org/api/project/{project}/jobs/{job_id}/")
         data = response.json()
         retval.append(data)
         if len(retval) >= 100:
@@ -51,8 +59,7 @@ def get_tasks(project, revision):
 
 def tasks_to_jobdata(all_tasks, project, revision):
     # get option collection hash to translate
-    url = "https://treeherder.mozilla.org/api/optioncollectionhash/"
-    response = requests.get(url, headers={"User-agent": "mach-test-info/1.0"})
+    response = fetch_url("https://treeherder.mozilla.org/api/optioncollectionhash/")
     och = response.json()
 
     retval = []
@@ -128,8 +135,7 @@ def get_push_data(project, output_file):
 
     # ideally autoland `hg log -50`
     # https://treeherder.mozilla.org/api/project/autoland/push/?full=true&count=50
-    url = f"https://treeherder.mozilla.org/api/project/{project}/push/?count=50"
-    response = requests.get(url, headers={"User-agent": "mach-test-info/1.0"})
+    response = fetch_url(f"https://treeherder.mozilla.org/api/project/{project}/push/?count=50")
     data = response.json()
 
     for result in data["results"]:
@@ -196,7 +202,7 @@ def get_job_data(project, revisions, output_file):
         newjobs = tasks_to_jobdata(all_tasks, project, rev)
         total_tasks += len(newjobs)
         print(f"  found {len(newjobs)} tasks to add to job data!")
-        if not len(newjobs):
+        if not newjobs:
             revision_index -= 3
             continue
 
@@ -225,8 +231,7 @@ def get_job_data(project, revisions, output_file):
 
 def generate_pulse_job_data(tasks, revision, output_file):
     # get option collection hash to translate
-    url = "https://treeherder.mozilla.org/api/optioncollectionhash/"
-    response = requests.get(url, headers={"User-agent": "mach-test-info/1.0"})
+    response = fetch_url("https://treeherder.mozilla.org/api/optioncollectionhash/")
     och = response.json()
 
     retval = []
@@ -355,10 +360,10 @@ def generate_pulse_job_data(tasks, revision, output_file):
 
 
 project = "autoland"
-revisions = get_push_data(project, output_file="push_data2.json")
-all_tasks, revision = get_job_data(project, revisions, output_file="job_data2.txt")
-generate_pulse_job_data(all_tasks, revision, output_file="pulse_consumer/job_data2.json")
-reduce_push_data(revision, output_file="push_data2.json")
+revisions = get_push_data(project, output_file="push_data.json")
+all_tasks, revision = get_job_data(project, revisions, output_file="job_data.txt")
+generate_pulse_job_data(all_tasks, revision, output_file="pulse_consumer/job_data.json")
+reduce_push_data(revision, output_file="push_data.json")
 
 # TODO: ensure test at first entry
 # TODO: ensure multiple job_type_id's to test similar jobs (could be other platforms, but ideally platforms as well as revisions)
