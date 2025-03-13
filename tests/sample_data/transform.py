@@ -84,7 +84,7 @@ def tasks_to_jobdata(all_tasks, project, revision):
         # only accept  (chunk 1) as well as other tasks
         if task["job_type_name"].startswith("test-"):
             try:
-                if int(task["job_type_name"].split("-")[-1]) < 3:
+                if int(task["job_type_name"].split("-")[-1]) > 1:
                     continue
             except ValueError:
                 pass
@@ -96,7 +96,7 @@ def tasks_to_jobdata(all_tasks, project, revision):
                 "submit_timestamp": task["submit_timestamp"],
                 "start_timestamp": task["start_timestamp"],
                 "job_guid": task["job_guid"],
-                "name": task["job_type_name"],  # task["job_group_name"].split(" ")[0],
+                "name": task["job_type_name"],
                 "reference_data_name": task["ref_data_name"],
                 "log_references": [
                     {"url": task["logs"][0]["url"], "name": task["logs"][0]["name"]}

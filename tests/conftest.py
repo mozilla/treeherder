@@ -321,8 +321,8 @@ def fixture_create_jobs(test_repository, failure_classifications):
 
 
 @pytest.fixture
-def test_job(eleven_job_blobs, create_jobs):
-    job = eleven_job_blobs[0]
+def test_job(hundred_job_blobs, create_jobs):
+    job = hundred_job_blobs[0]
     job["job"].update(
         {"taskcluster_task_id": "V3SVuxO8TFy37En_6HcXLs", "taskcluster_retry_id": "0"}
     )
@@ -330,13 +330,13 @@ def test_job(eleven_job_blobs, create_jobs):
 
 
 @pytest.fixture
-def test_jobs(eleven_job_blobs_new_date, create_jobs):
-    return create_jobs(eleven_job_blobs_new_date)
+def test_jobs(hundred_job_blobs_new_date, create_jobs):
+    return create_jobs(hundred_job_blobs_new_date)
 
 
 @pytest.fixture
-def test_two_jobs_tc_metadata(eleven_job_blobs_new_date, create_jobs):
-    job_1, job_2 = eleven_job_blobs_new_date[0:2]
+def test_two_jobs_tc_metadata(hundred_job_blobs_new_date, create_jobs):
+    job_1, job_2 = hundred_job_blobs_new_date[0:2]
     job_1["job"].update(
         {
             "status": "completed",
@@ -357,13 +357,13 @@ def test_two_jobs_tc_metadata(eleven_job_blobs_new_date, create_jobs):
 
 
 @pytest.fixture
-def test_job_2(eleven_job_blobs, create_jobs):
-    return create_jobs(eleven_job_blobs[0:2])[1]
+def test_job_2(hundred_job_blobs, create_jobs):
+    return create_jobs(hundred_job_blobs[0:2])[1]
 
 
 @pytest.fixture
-def test_job_3(eleven_job_blobs, create_jobs):
-    return create_jobs(eleven_job_blobs[0:3])[2]
+def test_job_3(hundred_job_blobs, create_jobs):
+    return create_jobs(hundred_job_blobs[0:3])[2]
 
 
 @pytest.fixture
@@ -418,7 +418,7 @@ def try_push_stored(try_repository, sample_push):
 
 
 @pytest.fixture
-def eleven_job_blobs(sample_data, sample_push, test_repository, mock_log_parser):
+def hundred_job_blobs(sample_data, sample_push, test_repository, mock_log_parser):
     store_push_data(test_repository, sample_push)
 
     # NOTE: when generating new data, we appear to need more jobs to find similar jobs
@@ -449,7 +449,7 @@ def eleven_job_blobs(sample_data, sample_push, test_repository, mock_log_parser)
 
 
 @pytest.fixture
-def eleven_job_blobs_new_date(sample_data, sample_push, test_repository, mock_log_parser):
+def hundred_job_blobs_new_date(sample_data, sample_push, test_repository, mock_log_parser):
     # make unique revisions
     counter = 0
     for push in sample_push:
@@ -490,16 +490,16 @@ def eleven_job_blobs_new_date(sample_data, sample_push, test_repository, mock_lo
 
 @pytest.fixture
 def eleven_jobs_stored_new_date(
-    test_repository, failure_classifications, eleven_job_blobs_new_date
+    test_repository, failure_classifications, hundred_job_blobs_new_date
 ):
     """stores a list of 11 job samples"""
-    store_job_data(test_repository, eleven_job_blobs_new_date)
+    store_job_data(test_repository, hundred_job_blobs_new_date)
 
 
 @pytest.fixture
-def eleven_jobs_stored(test_repository, failure_classifications, eleven_job_blobs):
+def eleven_jobs_stored(test_repository, failure_classifications, hundred_job_blobs):
     """stores a list of 11 job samples"""
-    store_job_data(test_repository, eleven_job_blobs)
+    store_job_data(test_repository, hundred_job_blobs)
 
 
 @pytest.fixture
@@ -761,7 +761,7 @@ def test_perf_data(test_perf_signature, eleven_jobs_stored):
 
         perf_datum = perf_models.PerformanceDatum.objects.create(
             value=10,
-            push_timestamp=job.push.time,
+            push_timestamp=job.push.time - datetime.timedelta(days=100),
             job=job,
             push=job.push,
             repository=job.repository,
@@ -1193,7 +1193,7 @@ def test_run_data(bug_data):
 
 
 @pytest.fixture
-def group_data(transactional_db, eleven_job_blobs, create_jobs):
+def group_data(transactional_db, hundred_job_blobs, create_jobs):
     query_string = "?manifest=/test&date=2025-03-01"
 
     jt = []
@@ -1205,7 +1205,7 @@ def group_data(transactional_db, eleven_job_blobs, create_jobs):
 
     g1 = th_models.Group.objects.create(name="/test")
     for i in range(3):
-        job = eleven_job_blobs[i]
+        job = hundred_job_blobs[i]
         job["job"].update(
             {
                 "taskcluster_task_id": f"V3SVuxO8TFy37En_6HcXL{i}",

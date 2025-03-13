@@ -20,7 +20,7 @@
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "8961039277226838678@fakemail.com",
+      "who": "8961039277226838678@example.com",
       "group_symbol": "M-spi-nw",
       "reason": "scheduled",
       "group_name": "Mochitests with networking on socket process enabled",
@@ -64,7 +64,7 @@
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "8694211573514619625@fakemail.com",
+      "who": "8694211573514619625@example.com",
       "group_symbol": "M",
       "reason": "scheduled",
       "group_name": "Mochitests",
@@ -108,7 +108,7 @@
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "1930007011415409232@fakemail.com",
+      "who": "1930007011415409232@example.com",
       "group_symbol": "R",
       "reason": "scheduled",
       "group_name": "Reftests",
@@ -152,7 +152,7 @@
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "8683040324923017879@fakemail.com",
+      "who": "8683040324923017879@example.com",
       "group_symbol": "M-swr",
       "reason": "scheduled",
       "group_name": "Mochitests with software webrender enabled",
@@ -196,7 +196,7 @@
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "5796713192661830535@fakemail.com",
+      "who": "5796713192661830535@example.com",
       "group_symbol": "M-spi-nw",
       "reason": "scheduled",
       "group_name": "Mochitests with networking on socket process enabled",
@@ -240,7 +240,7 @@
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "8984136765236169706@fakemail.com",
+      "who": "8984136765236169706@example.com",
       "group_symbol": "M-swr",
       "reason": "scheduled",
       "group_name": "Mochitests with software webrender enabled",
@@ -284,7 +284,7 @@
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "7142285837582848162@fakemail.com",
+      "who": "7142285837582848162@example.com",
       "group_symbol": "R",
       "reason": "scheduled",
       "group_name": "Reftests",
@@ -328,7 +328,7 @@
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "8581372247093922696@fakemail.com",
+      "who": "8581372247093922696@example.com",
       "group_symbol": "M-spi-nw",
       "reason": "scheduled",
       "group_name": "Mochitests with networking on socket process enabled",
@@ -372,7 +372,7 @@
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "5337528253247504976@fakemail.com",
+      "who": "5337528253247504976@example.com",
       "group_symbol": "R",
       "reason": "scheduled",
       "group_name": "Reftests",
@@ -416,7 +416,7 @@
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "5273175839128538224@fakemail.com",
+      "who": "5273175839128538224@example.com",
       "group_symbol": "M-swr",
       "reason": "scheduled",
       "group_name": "Mochitests with software webrender enabled",
@@ -460,7 +460,7 @@
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "1336906043978795691@fakemail.com",
+      "who": "1336906043978795691@example.com",
       "group_symbol": "R",
       "reason": "scheduled",
       "group_name": "Reftests",
@@ -504,7 +504,7 @@
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "6383577120260342314@fakemail.com",
+      "who": "6383577120260342314@example.com",
       "group_symbol": "R",
       "reason": "scheduled",
       "group_name": "Reftests",
@@ -548,7 +548,7 @@
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "6143895516824325098@fakemail.com",
+      "who": "6143895516824325098@example.com",
       "group_symbol": "M-spi-nw",
       "reason": "scheduled",
       "group_name": "Mochitests with networking on socket process enabled",
@@ -592,7 +592,7 @@
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "6987552695782329223@fakemail.com",
+      "who": "6987552695782329223@example.com",
       "group_symbol": "M-spi-nw",
       "reason": "scheduled",
       "group_name": "Mochitests with networking on socket process enabled",
@@ -636,7 +636,7 @@
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "5936936096690455120@fakemail.com",
+      "who": "5936936096690455120@example.com",
       "group_symbol": "R",
       "reason": "scheduled",
       "group_name": "Reftests",
@@ -680,7 +680,7 @@
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "4281358098233150184@fakemail.com",
+      "who": "4281358098233150184@example.com",
       "group_symbol": "R",
       "reason": "scheduled",
       "group_name": "Reftests",
@@ -724,7 +724,7 @@
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "5267719688769358568@fakemail.com",
+      "who": "5267719688769358568@example.com",
       "group_symbol": "M-spi-nw",
       "reason": "scheduled",
       "group_name": "Mochitests with networking on socket process enabled",
@@ -768,7 +768,7 @@
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "8791806875590836229@fakemail.com",
+      "who": "8791806875590836229@example.com",
       "group_symbol": "R",
       "reason": "scheduled",
       "group_name": "Reftests",
@@ -812,7 +812,7 @@
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "1925341989737185285@fakemail.com",
+      "who": "1925341989737185285@example.com",
       "group_symbol": "M-http3",
       "reason": "scheduled",
       "group_name": "Mochitests with http3 server",
@@ -856,7 +856,7 @@
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "5960255909386895365@fakemail.com",
+      "who": "5960255909386895365@example.com",
       "group_symbol": "M-vt",
       "reason": "scheduled",
       "group_name": "Mochitests limited to tests identified as being applicable to also run with vertical tabs enabled",
@@ -900,7 +900,7 @@
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "6960160425160589317@fakemail.com",
+      "who": "6960160425160589317@example.com",
       "group_symbol": "M-spi-nw",
       "reason": "scheduled",
       "group_name": "Mochitests with networking on socket process enabled",
@@ -944,7 +944,7 @@
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "782077753455132677@fakemail.com",
+      "who": "782077753455132677@example.com",
       "group_symbol": "M-spi-nw",
       "reason": "scheduled",
       "group_name": "Mochitests with networking on socket process enabled",
@@ -988,7 +988,7 @@
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "3956461659289927685@fakemail.com",
+      "who": "3956461659289927685@example.com",
       "group_symbol": "M",
       "reason": "scheduled",
       "group_name": "Mochitests",
@@ -1032,7 +1032,7 @@
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "3827820576956596352@fakemail.com",
+      "who": "3827820576956596352@example.com",
       "group_symbol": "R",
       "reason": "scheduled",
       "group_name": "Reftests",
@@ -1070,7 +1070,7 @@
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "876059733904965637@fakemail.com",
+      "who": "876059733904965637@example.com",
       "group_symbol": "M-spi-nw",
       "reason": "scheduled",
       "group_name": "Mochitests with networking on socket process enabled",
@@ -1114,7 +1114,7 @@
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "8855612218250477573@fakemail.com",
+      "who": "8855612218250477573@example.com",
       "group_symbol": "M-swr",
       "reason": "scheduled",
       "group_name": "Mochitests with software webrender enabled",
@@ -1158,7 +1158,7 @@
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "6227968977657514667@fakemail.com",
+      "who": "6227968977657514667@example.com",
       "group_symbol": "M-swr",
       "reason": "scheduled",
       "group_name": "Mochitests with software webrender enabled",
@@ -1202,7 +1202,7 @@
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "1653479167014846469@fakemail.com",
+      "who": "1653479167014846469@example.com",
       "group_symbol": "R",
       "reason": "scheduled",
       "group_name": "Reftests",
@@ -1240,7 +1240,7 @@
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "7197484843170381829@fakemail.com",
+      "who": "7197484843170381829@example.com",
       "group_symbol": "M-spi-nw",
       "reason": "scheduled",
       "group_name": "Mochitests with networking on socket process enabled",
@@ -1284,7 +1284,7 @@
         "architecture": "x86_64"
       },
       "build_system_type": "taskcluster",
-      "who": "258492717194919941@fakemail.com",
+      "who": "258492717194919941@example.com",
       "group_symbol": "M-spi-nw",
       "reason": "scheduled",
       "group_name": "Mochitests with networking on socket process enabled",

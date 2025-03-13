@@ -523,9 +523,6 @@ def test_perf_summary(client, test_perf_signature, test_perf_data):
         item.job.submit_time.strftime("%Y-%m-%dT%H:%M:%S") for item in test_perf_data
     ]
     resp2 = client.get(reverse("performance-summary") + query_params2)
-    print(f"JMAHER: url: {reverse('performance-summary') + query_params2}")
-    print(f"JMAHER: expected: {expected}")
-    print(f"JMAHER: values: {test_perf_data[0].value}")
     assert resp2.status_code == 200
     assert resp2.json() == expected
 

@@ -559,6 +559,9 @@ def test_stalled_data_removal(
         value=1.0,
     )
 
+    test_perf_alert.created = max_timestamp
+    test_perf_alert.save()
+
     assert test_perf_signature in PerformanceSignature.objects.filter(
         last_updated__lt=max_timestamp
     )
@@ -569,8 +572,8 @@ def test_stalled_data_removal(
     assert seg2_data in PerformanceDatum.objects.all()
     assert test_perf_data not in PerformanceDatum.objects.all()
     # TODO: I am not sure why these fail, after updating data everything else works but this
-    # assert test_perf_alert not in PerformanceAlert.objects.all()
-    # assert test_perf_signature not in PerformanceSignature.objects.all()
+    assert test_perf_alert not in PerformanceAlert.objects.all()
+    assert test_perf_signature not in PerformanceSignature.objects.all()
 
 
 @pytest.mark.parametrize(
