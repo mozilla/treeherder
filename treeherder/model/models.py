@@ -258,7 +258,7 @@ class Bugscache(models.Model):
         attrs["occurrences"] = None
         if attrs["id"] is None:
             # Only fetch occurrences for internal issues. It causes one extra query
-            attrs["occurrences"] = BugJobMap.objects.filter(
+            attrs["occurrences"] = self.jobmap.filter(
                 created__gte=timezone.now()
                 - datetime.timedelta(days=settings.INTERNAL_OCCURRENCES_DAYS_WINDOW)
             ).count()
