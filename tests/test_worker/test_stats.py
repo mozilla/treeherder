@@ -34,7 +34,7 @@ def test_publish_stats(
     settings.CELERY_STATS_PUBLICATION_DELAY = 10
     statsd_client = MagicMock()
     get_worker_mock.return_value = statsd_client
-    assert Push.objects.count() == 10
+    assert Push.objects.count() == 22
     assert Job.objects.count() == 11
     Push.objects.update(time=timezone.now() - timedelta(minutes=10))
     Job.objects.update(end_time=timezone.now() - timedelta(minutes=10))
@@ -43,11 +43,11 @@ def test_publish_stats(
         publish_stats()
     assert [(level, message) for _, level, message in caplog.record_tuples] == [
         (20, "Publishing runtime statistics to statsd"),
-        (20, "Ingested 10 pushes"),
+        (20, "Ingested 22 pushes"),
         (20, "Ingested 11 jobs in total"),
     ]
     assert statsd_client.incr.call_args_list == [
-        call("push", 10),
+        call("push", 22),
         call("jobs", 11),
         call("jobs_repo.mozilla-central", 11),
         call("jobs_state.completed", 11),
