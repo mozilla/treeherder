@@ -107,7 +107,7 @@ For the `sample_data/` there is `tests/sample_data/transform.py`:
 - `pulse_consumer/job_data.json`: specific data that pulse would have for related jobs and pushes
 - `pulse_consumer/transformed_job_data.json`: what we transform the pulse data to
 
-The will update the data used for `etl/` using recent live data from autoland.
+That will update the data used for `etl/` using recent live data from autoland.
 
 There are a lot of taskid, revisions, and expected fields to update in tests.  Future work could be done to:
 
