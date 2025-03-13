@@ -85,10 +85,10 @@ class FailureSummaryTab extends React.Component {
     window.open(data.url);
   };
 
-  internalIssueFilerCallback = (data) => {
+  internalIssueFilerCallback = async (data) => {
     const { addBug } = this.props;
 
-    addBug(data);
+    await addBug({ ...data, newBug: `i${data.internal_id}` });
     window.dispatchEvent(new CustomEvent(thEvents.saveClassification));
   };
 
