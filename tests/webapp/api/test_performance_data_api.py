@@ -489,6 +489,7 @@ def test_perf_summary(client, test_perf_signature, test_perf_data):
             "platform": test_perf_signature.platform.platform,
             "test": test_perf_signature.test,
             "application": test_perf_signature.application,
+            "submit_times": [test_perf_data[0].job.submit_time.strftime("%Y-%m-%dT%H:%M:%S")],
             "lower_is_better": test_perf_signature.lower_is_better,
             "has_subtests": test_perf_signature.has_subtests,
             "tags": test_perf_signature.tags,
@@ -510,6 +511,9 @@ def test_perf_summary(client, test_perf_signature, test_perf_data):
 
     expected[0]["values"] = [item.value for item in test_perf_data]
     expected[0]["job_ids"] = [item.job_id for item in test_perf_data]
+    expected[0]["submit_times"] = [
+        item.job.submit_time.strftime("%Y-%m-%dT%H:%M:%S") for item in test_perf_data
+    ]
     resp2 = client.get(reverse("performance-summary") + query_params2)
     assert resp2.status_code == 200
     assert resp2.json() == expected
