@@ -422,6 +422,7 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
         ),
         default=[],
     )
+    submit_times = serializers.ListField(child=serializers.DateTimeField(), default=[])
     name = serializers.SerializerMethodField()
     suite = serializers.CharField()
     parent_signature = serializers.IntegerField(source="parent_signature_id")
@@ -454,6 +455,7 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
             "should_alert",
             "alert_change_type",
             "alert_threshold",
+            "submit_times",
         ]
 
     def get_name(self, value):
