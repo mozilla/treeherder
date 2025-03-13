@@ -358,7 +358,7 @@ class PinBoard extends React.Component {
     );
   };
 
-  isNumber = (text) => !text || /^[0-9]*$/.test(text);
+  isValidBugNumber = (text) => !text || /^i?[0-9]*$/.test(text);
 
   saveEnteredBugNumber = () => {
     const { newBugNumber, enteringBugNumber } = this.state;
@@ -366,8 +366,12 @@ class PinBoard extends React.Component {
     if (enteringBugNumber) {
       if (!newBugNumber) {
         this.toggleEnterBugNumber(false);
-      } else if (this.isNumber(newBugNumber)) {
-        this.props.addBug({ id: parseInt(newBugNumber, 10) });
+      } else if (this.isValidBugNumber(newBugNumber)) {
+        if (newBugNumber[0] === 'i') {
+          this.props.addBug({ internal_id: newBugNumber.slice(1) });
+        } else {
+          this.props.addBug({ id: parseInt(newBugNumber, 10) });
+        }
         this.toggleEnterBugNumber(false);
       }
     }
@@ -491,7 +495,7 @@ class PinBoard extends React.Component {
                       pattern="[0-9]*"
                       className="add-related-bugs-input"
                       placeholder="enter bug number"
-                      invalid={!this.isNumber(newBugNumber)}
+                      invalid={!this.isValidBugNumber(newBugNumber)}
                       onKeyPress={this.bugNumberKeyPress}
                       onChange={(ev) => {
                         this.setState({ newBugNumber: ev.target.value });
