@@ -422,6 +422,7 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
         ),
         default=[],
     )
+    submit_times = serializers.ListField(child=serializers.DateTimeField(), default=[])
     name = serializers.SerializerMethodField()
     suite = serializers.CharField()
     parent_signature = serializers.IntegerField(source="parent_signature_id")
@@ -451,6 +452,7 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
             "data",
             "measurement_unit",
             "application",
+            "submit_times",
         ]
 
     def get_name(self, value):
