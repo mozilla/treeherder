@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { create } from '../helpers/http';
-import { getApiUrl } from '../helpers/url';
 import {
   Button,
   Modal,
@@ -13,6 +11,8 @@ import {
   Label,
 } from 'reactstrap';
 
+import { create } from '../helpers/http';
+import { getApiUrl } from '../helpers/url';
 import { parseSummary, getCrashSignatures } from '../helpers/bug';
 import { notify } from '../job-view/redux/stores/notifications';
 
@@ -32,13 +32,11 @@ export class InternalIssueFilerClass extends React.Component {
     const crashSignatures = getCrashSignatures(suggestion);
 
     if (crashSignatures.length > 0) {
-      isTestPath = false;
       const parts = summaryString.split(' | ');
       summaryString = `${parts[0]} | single tracking bug`;
-      keywords.push('intermittent-testcase');
     }
 
-    let isAssertion = [
+    const isAssertion = [
       /ASSERTION:/, // binary code
       /assertion fail/i, // JavaScript
       /assertion count \d+ is \w+ than expected \d+ assertion/, // layout
@@ -95,7 +93,6 @@ export class InternalIssueFilerClass extends React.Component {
         isTestPath = false;
         const parts = summaryString.split(' | ');
         summaryString = `${parts[0]} | single tracking bug`;
-        keywords.push('intermittent-testcase');
       }
 
       // trimming params from end of a test case name when filing for stb
