@@ -1,34 +1,3 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import {
-  Button,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Tooltip,
-  FormGroup,
-  Input,
-  Label,
-} from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faChevronCircleDown,
-  faChevronCircleUp,
-  faSpinner,
-  faExclamationTriangle,
-} from '@fortawesome/free-solid-svg-icons';
-
-import {
-  bugzillaBugsApi,
-  bzBaseUrl,
-  bzComponentEndpoint,
-  getApiUrl,
-} from '../helpers/url';
-import { create } from '../helpers/http';
-import { notify } from '../job-view/redux/stores/notifications';
-
 export const omittedLeads = [
   'TEST-UNEXPECTED-FAIL',
   'PROCESS-CRASH',

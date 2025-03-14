@@ -64,7 +64,7 @@ class FailureSummaryTab extends React.Component {
     pinJob(selectedJob);
     this.setState({
       isInternalIssueFilerOpen: true,
-      suggestion: suggestion,
+      suggestion,
     });
   };
 
