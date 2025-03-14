@@ -4,7 +4,11 @@ import { Button } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
-import { thBugSuggestionLimit, thEvents } from '../../../helpers/constants';
+import {
+  thBugSuggestionLimit,
+  thEvents,
+  requiredInternalOcurrences,
+} from '../../../helpers/constants';
 import { getResultState, isReftest } from '../../../helpers/job';
 import { getReftestUrl } from '../../../helpers/url';
 import BugFiler from '../../BugFiler';
@@ -87,9 +91,22 @@ class FailureSummaryTab extends React.Component {
 
   internalIssueFilerCallback = async (data) => {
     const { addBug } = this.props;
+    const { suggestion, suggestions } = this.state;
 
     await addBug({ ...data, newBug: `i${data.internal_id}` });
     window.dispatchEvent(new CustomEvent(thEvents.saveClassification));
+
+    // Try matching an internal bug already fetched with enough occurences
+    const internalBugs = suggestions
+      .map((s) => s.bugs.open_recent)
+      .flat()
+      .filter((bug) => bug.id === null);
+    const existingBug = internalBugs.filter(
+      (bug) => bug.internal_id === data.internal_id,
+    )[0];
+    if (existingBug && existingBug.occurrences >= requiredInternalOcurrences) {
+      this.fileBug(suggestion);
+    }
   };
 
   loadBugSuggestions = () => {
