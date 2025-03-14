@@ -8,6 +8,7 @@ import { Button } from 'reactstrap';
 
 import { getSearchWords } from '../../../helpers/display';
 import { getBugUrl } from '../../../helpers/url';
+import { requiredInternalOcurrences } from '../../../helpers/constants';
 
 function BugListItem(props) {
   const {
@@ -21,8 +22,6 @@ function BugListItem(props) {
   } = props;
   const bugUrl = getBugUrl(bug.id);
   const duplicateBugUrl = bug.dupe_of ? getBugUrl(bug.dupe_of) : undefined;
-  // Number of internal issue classifications to open a bug in Bugzilla
-  const requiredInternalOcurrences = 3;
 
   return (
     <li data-testid="bug-list-item">
