@@ -1,5 +1,6 @@
+from datetime import datetime
+
 from django.db import IntegrityError
-from django.utils import timezone
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
@@ -35,7 +36,8 @@ class BugJobMapViewSet(viewsets.ViewSet):
             if not Bugscache.objects.filter(bugzilla_id=bugzilla_id).exists():
                 Bugscache.objects.create(
                     bugzilla_id=bugzilla_id,
-                    modified=timezone.now(),
+                    modified=datetime(1971, 1, 1),
+                    processed_update=False,
                     summary="(no bug data fetched)",
                 )
         elif internal_bug_id:

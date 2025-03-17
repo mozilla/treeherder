@@ -196,9 +196,11 @@ class BzApiBugProcess:
 
             if bug_list:
                 if duplicate_chain_length == 0:
-                    Bugscache.objects.filter(
-                        modified__lt=year_ago, bugzilla_id__isnull=False
-                    ).delete()
+                    Bugscache.objects.exclude(summary="(no bug data fetched)").exclude(
+                        bugzilla_id__in=BugJobMap.objects.distinct("bug__bugzilla_id").values_list(
+                            "bug__bugzilla_id", flat=True
+                        )
+                    ).filter(modified__lt=year_ago, bugzilla_id__isnull=False).delete()
                     Bugscache.objects.filter(bugzilla_id__isnull=False).update(
                         processed_update=False
                     )
@@ -209,6 +211,18 @@ class BzApiBugProcess:
                     # a ValueError
                     try:
                         dupe_of = bug.get("dupe_of", None)
+                        if (
+                            dupe_of is not None
+                            and not Bugscache.objects.filter(bugzilla_id=dupe_of).exists()
+                        ):
+                            Bugscache.objects.update_or_create(
+                                bugzilla_id=dupe_of,
+                                defaults={
+                                    "modified": datetime(1971, 1, 1),
+                                    "summary": "(no bug data fetched)",
+                                    "processed_update": False,
+                                },
+                            )
                         Bugscache.objects.update_or_create(
                             bugzilla_id=bug["id"],
                             defaults={
@@ -319,12 +333,20 @@ class BzApiBugProcess:
             jobs_openish = list(
                 BugJobMap.objects.filter(bug__bugzilla_id=dupe_of).values_list("job_id", flat=True)
             )
+            # Delete annotations with duplicate bug for jobs which have also
+            # been classified with the open bug of a duplicate bug.
             BugJobMap.objects.filter(bug__bugzilla_id=bugzilla_id, job_id__in=jobs_openish).delete()
-            BugJobMap.objects.filter(bug__bugzilla_id=bugzilla_id).update(bug_id=dupe_of)
+            BugJobMap.objects.filter(bug__bugzilla_id=bugzilla_id).update(
+                bug_id=Bugscache.objects.get(bugzilla_id=dupe_of)
+            )
 
         # Delete open bugs and related duplicates if modification date (of open
         # bug) is too old.
-        Bugscache.objects.filter(modified__lt=year_ago, bugzilla_id__isnull=False).delete()
+        Bugscache.objects.exclude(
+            bugzilla_id__in=BugJobMap.objects.distinct("bug__bugzilla_id").values_list(
+                "bug__bugzilla_id", flat=True
+            )
+        ).filter(modified__lt=year_ago, bugzilla_id__isnull=False).delete()
 
         if insert_errors_observed:
             logger.error(
