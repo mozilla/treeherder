@@ -42,7 +42,7 @@ dockerflow==2024.4.2
 moz-measure-noise==2.70.0
 
 # Used in the intermittents commenter
-jinja2==3.1.5
+jinja2==3.1.6
 
 # Client to publish runtime statistics to statsd
 statsd==4.0.1
