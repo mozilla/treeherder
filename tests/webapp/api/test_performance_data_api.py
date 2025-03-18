@@ -569,6 +569,7 @@ def test_perf_summary_should_alert_is_false_edge_case(
             "name": "mysuite2 mytest2 opt e10s opt",
             "parent_signature": parent_signature.id,
             "job_ids": [],
+            "submit_times": [],
             "suite": subtest_signature.suite,
             "repository_name": subtest_signature.repository.name,
             "repository_id": subtest_signature.repository.id,
