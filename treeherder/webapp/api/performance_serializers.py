@@ -402,10 +402,13 @@ class PerformanceQueryParamsSerializer(serializers.Serializer):
 
 class PerformanceDatumSerializer(serializers.ModelSerializer):
     revision = serializers.CharField(source="push__revision")
+    submit_time = serializers.DateTimeField(
+        required=False, allow_null=True, default=None, source="job__submit_time"
+    )
 
     class Meta:
         model = PerformanceDatum
-        fields = ["job_id", "id", "value", "push_timestamp", "push_id", "revision"]
+        fields = ["job_id", "id", "value", "push_timestamp", "push_id", "revision", "submit_time"]
 
 
 class PerformanceSummarySerializer(serializers.ModelSerializer):
@@ -419,6 +422,7 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
         ),
         default=[],
     )
+    submit_times = serializers.ListField(child=serializers.DateTimeField(), default=[])
     name = serializers.SerializerMethodField()
     suite = serializers.CharField()
     parent_signature = serializers.IntegerField(source="parent_signature_id")
@@ -451,6 +455,7 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
             "should_alert",
             "alert_change_type",
             "alert_threshold",
+            "submit_times",
         ]
 
     def get_name(self, value):
