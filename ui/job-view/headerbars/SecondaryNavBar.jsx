@@ -181,7 +181,7 @@ class SecondaryNavBar extends React.PureComponent {
 
       // Re-save the list, in case it has now changed
       this.saveWatchedRepos(watchedRepoNames);
-    } catch (e) {
+    } catch {
       // localStorage is disabled/not supported.
       return [];
     }
@@ -191,7 +191,7 @@ class SecondaryNavBar extends React.PureComponent {
     this.setState({ watchedRepoNames: repos });
     try {
       localStorage.setItem(WATCHED_REPOS_STORAGE_KEY, JSON.stringify(repos));
-    } catch (e) {
+    } catch {
       // localStorage is disabled/not supported.
     }
   }
