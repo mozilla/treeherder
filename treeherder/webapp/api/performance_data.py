@@ -693,7 +693,13 @@ class PerformanceSummary(generics.ListAPIView):
             "tags",
             "measurement_unit",
             "application",
+            "should_alert",
+            "alert_change_type",
+            "alert_threshold",
+            "parent_signature__should_alert",
         )
+
+        self.check_and_update_should_alert()
 
         signature_ids = [item["id"] for item in list(self.queryset)]
 
@@ -808,6 +814,23 @@ class PerformanceSummary(generics.ListAPIView):
             serialized_data = self._filter_out_retriggers(serialized_data)
 
         return Response(data=serialized_data)
+
+    def check_and_update_should_alert(self):
+        """
+        If a suite has a `should_alert` value of either null or True and there is a suite-level value set,
+        but the subtests do not have the `should_alert` set to True, then those subtests will not trigger an alert.
+        A null value for these subtests indicates that the `should_alert` parameter is set to False.
+        """
+        for signature in list(self.queryset):
+            if (
+                signature["should_alert"] is None
+                and signature["parent_signature_id"] is not None
+                and signature["parent_signature__should_alert"] is not False
+                and PerformanceDatum.objects.filter(
+                    signature_id=signature["parent_signature_id"], value__isnull=False
+                ).exists()
+            ):
+                signature["should_alert"] = False
 
     @staticmethod
     def _filter_out_retriggers(serialized_data):

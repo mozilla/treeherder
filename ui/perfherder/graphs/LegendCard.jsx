@@ -208,6 +208,13 @@ const LegendCard = ({
           </Button>
         )}
         <Badge> {framework} </Badge>
+        <div className="small">{`should_alert: ${
+          series.shouldAlert !== false
+        }`}</div>
+        <div className="small">{`alert_change_type: ${
+          series.alertChangeType === 1 ? 'absolute' : 'percentage'
+        }`}</div>
+        <div className="small">{`alert_threshold: ${series.alertThreshold}`}</div>
         <div className="small">{`${series.signatureHash.slice(0, 16)}...`}</div>
       </div>
       <Input
