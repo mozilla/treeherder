@@ -826,11 +826,11 @@ class PerformanceSummary(generics.ListAPIView):
                 signature["should_alert"] is None
                 and signature["parent_signature_id"] is not None
                 and signature["parent_signature__should_alert"] is not False
-            ):
-                if PerformanceDatum.objects.filter(
+                and PerformanceDatum.objects.filter(
                     signature_id=signature["parent_signature_id"], value__isnull=False
-                ).exists():
-                    signature["should_alert"] = False
+                ).exists()
+            ):
+                signature["should_alert"] = False
 
     @staticmethod
     def _filter_out_retriggers(serialized_data):
