@@ -185,19 +185,7 @@ class FailureLineNoStackSerializer(serializers.ModelSerializer):
 class TextLogErrorSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.TextLogError
-        exclude = ["step"]
-
-
-class TextLogStepSerializer(serializers.ModelSerializer):
-    errors = TextLogErrorSerializer(many=True, read_only=True)
-    result = serializers.SerializerMethodField()
-
-    def get_result(self, obj):
-        return obj.get_result_display()
-
-    class Meta:
-        model = models.TextLogStep
-        exclude = ["job"]
+        fields = "__all__"
 
 
 class BugJobMapSerializer(serializers.ModelSerializer):
