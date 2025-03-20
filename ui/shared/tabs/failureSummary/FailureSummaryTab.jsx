@@ -7,7 +7,7 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import {
   thBugSuggestionLimit,
   thEvents,
-  requiredInternalOcurrences,
+  requiredInternalOccurrences,
 } from '../../../helpers/constants';
 import { getResultState, isReftest } from '../../../helpers/job';
 import { getReftestUrl } from '../../../helpers/url';
@@ -104,7 +104,11 @@ class FailureSummaryTab extends React.Component {
     const existingBug = internalBugs.filter(
       (bug) => bug.internal_id === data.internal_id,
     )[0];
-    if (existingBug && existingBug.occurrences >= requiredInternalOcurrences) {
+    // Check if we reached the required number of occurrence to open a bug in Bugzilla
+    if (
+      existingBug &&
+      existingBug.occurrences >= requiredInternalOccurrences - 1
+    ) {
       this.fileBug(suggestion);
     }
   };

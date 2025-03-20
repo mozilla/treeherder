@@ -7,7 +7,7 @@ import { Button } from 'reactstrap';
 
 import { getSearchWords } from '../../../helpers/display';
 import { getBugUrl } from '../../../helpers/url';
-import { requiredInternalOcurrences } from '../../../helpers/constants';
+import { requiredInternalOccurrences } from '../../../helpers/constants';
 
 function BugListItem(props) {
   const {
@@ -46,14 +46,14 @@ function BugListItem(props) {
           {bug.summary}
           {!bug.bugzilla_id && (
             <Button
-              disabled={bug.occurrences < requiredInternalOcurrences}
+              disabled={bug.occurrences < requiredInternalOccurrences}
               className="bg-light py-1 px-2 ml-2"
               outline
               style={{ fontSize: '8px' }}
               onClick={() => toggleBugFiler(suggestion)}
               title={
-                bug.occurrences < requiredInternalOcurrences
-                  ? `${requiredInternalOcurrences} classification occurrences are required to file a bug`
+                bug.occurrences < requiredInternalOccurrences
+                  ? `${requiredInternalOccurrences} classification occurrences are required to file a bug`
                   : 'File a bug for this internal issue'
               }
             >
