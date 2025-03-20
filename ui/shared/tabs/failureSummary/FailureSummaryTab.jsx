@@ -84,6 +84,13 @@ class FailureSummaryTab extends React.Component {
           crashLeak = true;
         }
 
+        let isPerfTest = false;
+        if (
+          suggestion.search.includes('browser/base/content/test/performance')
+        ) {
+          isPerfTest = true;
+        }
+
         if (suggestion.bugs.open_recent.length > 0) {
           suggestion.bugs.open_recent.forEach((bug) => {
             if (bug.summary.endsWith('single tracking bug')) {
@@ -100,7 +107,7 @@ class FailureSummaryTab extends React.Component {
         }
 
         // HACK: use the simple case if found.
-        if (simpleCase.length > 0 && !crashLeak) {
+        if (simpleCase.length > 0 && !isPerfTest && !crashLeak) {
           suggestion.bugs.open_recent = simpleCase;
 
           // HACK: remove any other bugs, keep this simple.
