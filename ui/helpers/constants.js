@@ -364,4 +364,4 @@ export const sxsTaskName = 'side-by-side';
 export const geckoProfileTaskName = 'geckoprofile';
 
 // Number of internal issue classifications to open a bug in Bugzilla
-export const requiredInternalOcurrences = 3;
+export const requiredInternalOccurrences = 3;
