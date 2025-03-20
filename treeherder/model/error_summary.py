@@ -102,6 +102,8 @@ class MemDBCache:
         # get keyroot, data is {date: value, date2: value, ...}
         data = db_cache.get(self.keyroot)
         for date in data.keys():
+            if not re.match(r"\d{4}-\d{2}-\d{2}", date):
+                continue
             self.update_cache(f"{self.keyroot}_{date}", data[date])
             self.update_db_cache(f"{self.keyroot}_{date}", data[date])
             keys.append(date)

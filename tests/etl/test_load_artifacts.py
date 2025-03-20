@@ -73,6 +73,51 @@ def test_load_non_ascii_textlog_errors(test_job):
 
 
 @pytest.mark.django_db
+def test_memcache_migration():
+    root = "th_test"
+
+    date = "2025-01-01"
+    date2 = "2025-02-01"
+    # add stuff to line_cache, write to memcache, verify not in db_cache
+    line_cache = {}
+    line_cache[date] = {
+        "new_lines": {"this is a trap": 31415926535},
+        "this is a trap": 1,
+    }
+
+    db_cache = caches["db_cache"]
+    db_cache.set(root, line_cache)
+
+    # ensure we can get the cache and it is a dict with key "date"
+    lcache = db_cache.get(root)
+    assert date in lcache
+
+    lcache = MemDBCache(root)
+
+    # this will migrate the old format to the new
+    lc = lcache.get_cache()
+    assert date in lc
+    assert lcache.get_cache_keys() == [f"{date}"]
+
+    # add an extra date
+    lc[date2] = lc[date]
+    lcache.write_cache(date2)
+    assert date2 in lc
+    assert lcache.get_cache_keys() == [date, date2]
+
+    # flush cache so we can reload
+    memcache = caches["default"]
+    memcache.delete(root)
+    assert memcache.get(root) == None
+
+    # reload cache
+    lc = lcache.get_cache()
+    assert date in lc
+    assert date2 in lc
+    assert lcache.get_cache_keys() == [date, date2]
+
+
+@pytest.mark.django_db
 def test_memcache_to_db_class():
     root = "th_test"
     lcache = MemDBCache(root)
