@@ -51,7 +51,7 @@
     {
       "cf_crash_signature": "",
       "status": "NEW",
-      "summary": "Intermittent devtools/client/netmonitor/test/browser_net_resend_cors.js | Test timed out -",
+      "summary": "Intermittent devtools/client/netmonitor/test/browser_net_resend_cors.js | single tracking bug",
       "id": 1736534,
       "resolution": "",
       "last_change_time": "2021-11-01T06:16:02Z",
