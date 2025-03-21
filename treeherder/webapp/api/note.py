@@ -78,9 +78,7 @@ class NoteViewSet(viewsets.ViewSet):
         """
         current_job = Job.objects.get(repository__name=project, id=int(request.data["job_id"]))
         fc_id = int(request.data["failure_classification_id"])
-        revision = None
-        if "text" in request.data:
-            revision = request.data["text"]
+        revision = current_job.push.revision
         JobNote.objects.create(
             job=current_job,
             failure_classification_id=fc_id,
@@ -99,13 +97,23 @@ class NoteViewSet(viewsets.ViewSet):
             if line_cache and date in line_cache.keys():
                 for err in TextLogError.objects.filter(job=current_job):
                     cache_clean_line = cache_clean_error_line(get_cleaned_line(err.line))
+
+                    # TODO: if annotating a FBC and we don't have new_failure, or failure
+                    # has already been annotated (cleaned), then we need to store new_failure
+                    # in the tle.  Here we need to take all known failures that match ccl
+                    # and annotate them as new_failure.  Theoretically these will
                     if cache_clean_line in line_cache[date].keys():
                         line_cache[date][cache_clean_line] -= 1
+                        if line_cache[date][cache_clean_line] <= 0:
+                            del line_cache[date][cache_clean_line]
+
                         if (
                             cache_clean_line in line_cache[date]["new_lines"].keys()
                             and revision
                             and line_cache[date]["new_lines"][cache_clean_line] == revision
                         ):
+                            # delete both the "new_lines" reference and the existing reference
+                            # this allows us to classify a future failure as new_failure!
                             del line_cache[date]["new_lines"][cache_clean_line]
                         try:
                             lcache.update_cache(date, line_cache[date])

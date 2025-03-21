@@ -38,7 +38,7 @@ class MemDBCache:
         lcache = {}
         keys = self.get_cache_keys()
         # copy db cache to memory cache
-        if keys and not cache.get(keys[0]):
+        if keys and not cache.get(f"{self.keyroot}_{keys[0]}"):
             for k in keys:
                 self.update_cache(k, db_cache.get(f"{self.keyroot}_{k}"))
 
@@ -101,15 +101,16 @@ class MemDBCache:
         keys = []
         # get keyroot, data is {date: value, date2: value, ...}
         data = db_cache.get(self.keyroot)
-        for date in data.keys():
-            if not re.match(r"\d{4}-\d{2}-\d{2}", date):
-                continue
+        dates = [d for d in data if re.match(r"\d{4}-\d{2}-\d{2}", d)]
+        if len(dates) > 0:
+            # only clear db cache if we have data to work with
+            cache.clear()
+
+        for date in dates:
             self.update_cache(f"{self.keyroot}_{date}", data[date])
             self.update_db_cache(f"{self.keyroot}_{date}", data[date])
             keys.append(date)
 
-        # delete old data (keyroot)
-        db_cache.delete(self.keyroot)
         return keys
 
 

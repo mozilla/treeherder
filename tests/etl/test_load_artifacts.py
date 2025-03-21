@@ -2,6 +2,7 @@ import json
 
 import pytest
 from django.core.cache import caches
+from django.urls import reverse
 
 from treeherder.etl.artifact import store_job_artifacts
 from treeherder.model.error_summary import MemDBCache, get_error_summary
@@ -72,6 +73,99 @@ def test_load_non_ascii_textlog_errors(test_job):
     assert TextLogError.objects.get(line_number=1588).line == "07:51:29  WARNING - <U+01D400>"
 
 
+def _add_job_summary(job, expected_new):
+    text_log_summary_artifact = {
+        "type": "json",
+        "name": "text_log_summary",
+        "blob": json.dumps(
+            {
+                "errors": [
+                    {
+                        "line": "TEST-UNEXPECTED-FAIL | mypath/mytest.js | unexpected value 3.14",
+                        "linenumber": 1587,
+                    },
+                ],
+            }
+        ),
+    }
+
+    # ensure a result='failed' to treat failure as a NEW_failure
+    job.result = "testfailed"
+    job.save()
+
+    text_log_summary_artifact["job_guid"] = job.guid
+    store_job_artifacts([text_log_summary_artifact])
+
+    # ensure bug_suggestions data is stored and retrieved properly
+    tle_all = TextLogError.objects.all()
+    bug_suggestions = get_error_summary(job)
+    for suggestion in bug_suggestions:
+        tle = next(t for t in tle_all if t.line_number == suggestion["line_number"])
+        tle = next(
+            t
+            for t in tle_all
+            if t.line_number == suggestion["line_number"]
+            and t.job.guid == text_log_summary_artifact["job_guid"]
+        )
+        assert suggestion["failure_new_in_rev"] == tle.new_failure
+        assert tle.new_failure is expected_new
+
+
+def _add_annotation(client, job, test_user):
+    client.force_authenticate(user=test_user)
+    resp = client.post(
+        reverse("note-list", kwargs={"project": job.repository.name}),
+        data={
+            "job_id": job.id,
+            "failure_classification_id": 2,
+            "who": test_user.email,
+            "text": "you look like a man-o-lantern",
+        },
+    )
+    content = json.loads(resp.content)
+    assert content["message"] == f"note stored for job {job.id}"
+
+
+@pytest.mark.django_db
+def test_new_failure_annotation(client, test_jobs, test_user):
+    db_cache = caches["db_cache"]
+    db_cache.clear()
+
+    # add first job, new failure, add second job, not new failure
+    _add_job_summary(test_jobs[0], expected_new=True)
+    _add_job_summary(test_jobs[1], expected_new=False)
+
+    # annotate job 1 as fixed_by_commit, this should remove references from new line cache
+    # NOTE: I am annotating both; this will reset the counter to allow NEW failures to show
+    # up in the future
+    _add_annotation(client, test_jobs[0], test_user)
+    _add_annotation(client, test_jobs[1], test_user)
+
+    # add a 3rd job, same error, but different job/push, verify not new
+    # ensure a result='failed' to treat failure as a NEW_failure
+    _add_job_summary(test_jobs[2], expected_new=True)
+
+
+@pytest.mark.django_db
+def test_new_failure_partial_annotation(client, test_jobs, test_user):
+    db_cache = caches["db_cache"]
+    db_cache.clear()
+
+    # add first job, new failure, add second job, not new failure
+    _add_job_summary(test_jobs[0], expected_new=True)
+    _add_job_summary(test_jobs[1], expected_new=False)
+
+    # annotate job 1 as fixed_by_commit, this should remove references from new line cache
+    # NOTE: only annotate 1, so future lines will not be NEW
+    #       if we change to a model where we clear the cache for a given annotation
+    #       this test case would be different
+    _add_annotation(client, test_jobs[0], test_user)
+
+    # add a 3rd job, same error, but different job/push, verify not new
+    # ensure a result='failed' to treat failure as a NEW_failure
+    _add_job_summary(test_jobs[2], expected_new=False)
+
+
 @pytest.mark.django_db
 def test_memcache_migration():
     root = "th_test"
@@ -108,13 +202,18 @@ def test_memcache_migration():
     # flush cache so we can reload
     memcache = caches["default"]
     memcache.delete(root)
-    assert memcache.get(root) == None
+    assert memcache.get(root) is None
 
     # reload cache
     lc = lcache.get_cache()
     assert date in lc
     assert date2 in lc
     assert lcache.get_cache_keys() == [date, date2]
+
+    # ensure we can wipe things out and it really clears stuff
+    db_cache.clear()
+    memcache.clear()
+    assert lcache.get_cache_keys() == []
 
 
 @pytest.mark.django_db
