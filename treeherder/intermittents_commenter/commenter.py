@@ -15,7 +15,7 @@ from treeherder.intermittents_commenter.constants import (
     COMPONENTS,
     WHITEBOARD_NEEDSWORK_OWNER,
 )
-from treeherder.model.models import BugJobMap, OptionCollection, Push
+from treeherder.model.models import BugJobMap, OptionCollection
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,6 @@ class BugsDetails:
     total: int = 0
     test_variants: set = field(default_factory=set)
     per_repositories: dict[str, int] = field(default_factory=dict)  # {repo1: 1, repo2: 2, ...}
-    per_platforms: dict[str, BugsDetailsPerPlatform] = field(default_factory=dict)
     data_table: dict[str, dict[str, int]] = field(
         default_factory=dict
     )  # {variant1: {platform_and_build1: 3, platform_and_build2: 1}, ...}
@@ -69,7 +68,6 @@ class Commenter:
         bug_map = self.build_bug_map(bugs, option_collection_map)
 
         alt_date_bug_totals = self.get_alt_date_bug_totals(alt_startday, alt_endday, bug_ids)
-        test_run_count = self.get_test_runs(startday, endday)
 
         # if fetch_bug_details fails, None is returned
         bugs_info = self.fetch_all_bug_details(bug_ids)
@@ -122,13 +120,9 @@ class Commenter:
                     change_whiteboard += "[stockwell disable-recommended]"
             comment = template.render(
                 bug_id=bug_id,
-                total=counts.total,
-                failure_rate=round(counts.total / float(test_run_count), 3),
-                test_run_count=test_run_count,
                 rank=rank,
                 priority=priority,
                 repositories=counts.per_repositories,
-                platforms=counts.per_platforms,
                 test_variants=sorted(list(counts.test_variants)),
                 data_table=counts.data_table,
                 startday=startday,
@@ -273,13 +267,6 @@ class Commenter:
         except RequestException as e:
             logger.error(f"error posting comment to bugzilla for bug {bug_id} due to {e}")
 
-    def get_test_runs(self, startday, endday):
-        """Returns an aggregate of pushes for specified date range and
-        repository."""
-
-        test_runs = Push.objects.filter(time__range=(startday, endday)).aggregate(Count("author"))
-        return test_runs["author__count"]
-
     def get_bugs(self, startday, endday):
         """Get all intermittent failures per specified date range and repository,"""
         # Min required failures per bug in order to post a comment
@@ -350,22 +337,6 @@ class Commenter:
                     "fx-team": 2,
                     "autoland": 3
                 },
-                "per_platforms": {
-                    "windows10-64": {
-                        "total": 52,
-                        "per_build_type": {
-                            "debug": 30,
-                            "ccov": 20,
-                            "asan": 2,
-                         },
-                    },
-                    "osx-10-10": {
-                         "total": 1,
-                         "per_build_type": {
-                             "debug": 1,
-                         },
-                    },
-                },
                 "test_variants": {'no-variant', 'swr', ...},
                 "data_table": {
                     "windows10-64/ccov": {
@@ -400,9 +371,6 @@ class Commenter:
                 bug_infos.total = 1
                 bug_infos.test_variants.add(test_variant)
                 bug_infos.per_repositories[repo] = 1
-                bug_infos.per_platforms[platform] = BugsDetailsPerPlatform()
-                bug_infos.per_platforms[platform].total = 1
-                bug_infos.per_platforms[platform].per_build_type = {build_type: 1}
                 bug_infos.data_table[platform_and_build] = {test_variant: 1}
                 bug_map[bug_id] = bug_infos
             else:
@@ -411,11 +379,6 @@ class Commenter:
                 bug_infos.test_variants.add(test_variant)
                 bug_infos.per_repositories.setdefault(repo, 0)
                 bug_infos.per_repositories[repo] += 1
-                # per_platforms
-                bug_infos.per_platforms.setdefault(platform, BugsDetailsPerPlatform())
-                bug_infos.per_platforms[platform].total += 1
-                bug_infos.per_platforms[platform].per_build_type.setdefault(build_type, 0)
-                bug_infos.per_platforms[platform].per_build_type[build_type] += 1
                 # data_table
                 data_table = bug_infos.data_table
                 platform_and_build_data = data_table.get(platform_and_build, {})

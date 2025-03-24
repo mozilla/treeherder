@@ -1,8 +1,4 @@
-## Summary
-{{total}} failures in {{test_run_count}} pushes ({{failure_rate}} failures/push) were associated with this bug {% if weekly_mode %}in the last 7 days{% else %}yesterday{% endif %}.
-
 {%- if rank %}
-
 This is the #{{rank}} most frequent failure this week.{% endif %}
 
 {%- if priority==1 %}
@@ -24,13 +20,6 @@ This is the #{{rank}} most frequent failure this week.{% endif %}
 ## Repository breakdown:
 {% for repository, count in repositories.items() -%}
 * {{repository}}: {{count}}
-{% endfor %}
-## Platform and build breakdown:
-{% for platform, stats in platforms.items() -%}
-* {{platform}}: {{stats['total']}}
-  {%- for build, count in stats['per_build_type'].items() %}
-  * {{ build }}: {{ count }}
-  {%- endfor %}
 {% endfor %}
 ## Table
 | |
