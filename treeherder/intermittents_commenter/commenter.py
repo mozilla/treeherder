@@ -15,7 +15,7 @@ from treeherder.intermittents_commenter.constants import (
     COMPONENTS,
     WHITEBOARD_NEEDSWORK_OWNER,
 )
-from treeherder.model.models import BugJobMap, OptionCollection, Push
+from treeherder.model.models import BugJobMap, OptionCollection
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +68,6 @@ class Commenter:
         bug_map = self.build_bug_map(bugs, option_collection_map)
 
         alt_date_bug_totals = self.get_alt_date_bug_totals(alt_startday, alt_endday, bug_ids)
-        test_run_count = self.get_test_runs(startday, endday)
 
         # if fetch_bug_details fails, None is returned
         bugs_info = self.fetch_all_bug_details(bug_ids)
@@ -121,9 +120,6 @@ class Commenter:
                     change_whiteboard += "[stockwell disable-recommended]"
             comment = template.render(
                 bug_id=bug_id,
-                total=counts.total,
-                failure_rate=round(counts.total / float(test_run_count), 3),
-                test_run_count=test_run_count,
                 rank=rank,
                 priority=priority,
                 repositories=counts.per_repositories,
@@ -270,13 +266,6 @@ class Commenter:
             response.raise_for_status()
         except RequestException as e:
             logger.error(f"error posting comment to bugzilla for bug {bug_id} due to {e}")
-
-    def get_test_runs(self, startday, endday):
-        """Returns an aggregate of pushes for specified date range and
-        repository."""
-
-        test_runs = Push.objects.filter(time__range=(startday, endday)).aggregate(Count("author"))
-        return test_runs["author__count"]
 
     def get_bugs(self, startday, endday):
         """Get all intermittent failures per specified date range and repository,"""
