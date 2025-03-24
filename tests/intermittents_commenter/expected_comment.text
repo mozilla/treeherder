@@ -6,10 +6,6 @@ This is the #1 most frequent failure this week.
 ## Repository breakdown:
 * mozilla-central: 1
 
-## Platform and build breakdown:
-* linux1804: 1
-  * debug: 1
-
 ## Table
 | |**no_variant**|
 |---|:-:|

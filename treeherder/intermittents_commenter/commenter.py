@@ -33,7 +33,6 @@ class BugsDetails:
     total: int = 0
     test_variants: set = field(default_factory=set)
     per_repositories: dict[str, int] = field(default_factory=dict)  # {repo1: 1, repo2: 2, ...}
-    per_platforms: dict[str, BugsDetailsPerPlatform] = field(default_factory=dict)
     data_table: dict[str, dict[str, int]] = field(
         default_factory=dict
     )  # {variant1: {platform_and_build1: 3, platform_and_build2: 1}, ...}
@@ -128,7 +127,6 @@ class Commenter:
                 rank=rank,
                 priority=priority,
                 repositories=counts.per_repositories,
-                platforms=counts.per_platforms,
                 test_variants=sorted(list(counts.test_variants)),
                 data_table=counts.data_table,
                 startday=startday,
@@ -350,22 +348,6 @@ class Commenter:
                     "fx-team": 2,
                     "autoland": 3
                 },
-                "per_platforms": {
-                    "windows10-64": {
-                        "total": 52,
-                        "per_build_type": {
-                            "debug": 30,
-                            "ccov": 20,
-                            "asan": 2,
-                         },
-                    },
-                    "osx-10-10": {
-                         "total": 1,
-                         "per_build_type": {
-                             "debug": 1,
-                         },
-                    },
-                },
                 "test_variants": {'no-variant', 'swr', ...},
                 "data_table": {
                     "windows10-64/ccov": {
@@ -400,9 +382,6 @@ class Commenter:
                 bug_infos.total = 1
                 bug_infos.test_variants.add(test_variant)
                 bug_infos.per_repositories[repo] = 1
-                bug_infos.per_platforms[platform] = BugsDetailsPerPlatform()
-                bug_infos.per_platforms[platform].total = 1
-                bug_infos.per_platforms[platform].per_build_type = {build_type: 1}
                 bug_infos.data_table[platform_and_build] = {test_variant: 1}
                 bug_map[bug_id] = bug_infos
             else:
@@ -411,11 +390,6 @@ class Commenter:
                 bug_infos.test_variants.add(test_variant)
                 bug_infos.per_repositories.setdefault(repo, 0)
                 bug_infos.per_repositories[repo] += 1
-                # per_platforms
-                bug_infos.per_platforms.setdefault(platform, BugsDetailsPerPlatform())
-                bug_infos.per_platforms[platform].total += 1
-                bug_infos.per_platforms[platform].per_build_type.setdefault(build_type, 0)
-                bug_infos.per_platforms[platform].per_build_type[build_type] += 1
                 # data_table
                 data_table = bug_infos.data_table
                 platform_and_build_data = data_table.get(platform_and_build, {})
