@@ -497,7 +497,7 @@ class PerformanceTelemetryAlertSummary(PerformanceAlertSummaryBase):
     )
 
     def autodetermine_status(self, alert_model=None):
-        return super().autodetermine_status(alert_model=PerformanceTelemetryAlertSummary)
+        return super().autodetermine_status(alert_model=PerformanceTelemetryAlert)
 
     class Meta:
         db_table = "performance_telemetry_alert_summary"

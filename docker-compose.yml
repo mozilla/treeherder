@@ -40,6 +40,8 @@ services:
     shm_size: 2g # 2 Gig seems like a good size
     volumes:
       - .:/app
+      - ${GCLOUD_DIR:-.}:/home/.config/gcloud
+      - ${GOOGLE_APPLICATION_CREDENTIALS:-.}:/bq-credentials/credentials.json
     ports:
       - '8000:8000'
     depends_on:
