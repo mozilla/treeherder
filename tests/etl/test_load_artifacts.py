@@ -1,3 +1,4 @@
+import datetime
 import json
 
 import pytest
@@ -73,7 +74,7 @@ def test_load_non_ascii_textlog_errors(test_job):
     assert TextLogError.objects.get(line_number=1588).line == "07:51:29  WARNING - <U+01D400>"
 
 
-def _add_job_summary(job, expected_new):
+def _add_job_summary(job, date=None, expected_new=False):
     text_log_summary_artifact = {
         "type": "json",
         "name": "text_log_summary",
@@ -91,6 +92,8 @@ def _add_job_summary(job, expected_new):
 
     # ensure a result='failed' to treat failure as a NEW_failure
     job.result = "testfailed"
+    if date:
+        job.submit_time = datetime.datetime.strptime(date, "%Y-%m-%d")
     job.save()
 
     text_log_summary_artifact["job_guid"] = job.guid
@@ -100,7 +103,6 @@ def _add_job_summary(job, expected_new):
     tle_all = TextLogError.objects.all()
     bug_suggestions = get_error_summary(job)
     for suggestion in bug_suggestions:
-        tle = next(t for t in tle_all if t.line_number == suggestion["line_number"])
         tle = next(
             t
             for t in tle_all
@@ -270,3 +272,25 @@ def test_memcache_to_db_class():
     lcache.remove_cache_key(date2)
     line_cache = lcache.get_cache()
     assert len(line_cache.keys()) == 0
+
+
+@pytest.mark.django_db
+def test_memcache_new_date(client, test_jobs, test_user):
+    root = "mc_error_lines"
+
+    db_cache = caches["db_cache"]
+    db_cache.clear()
+
+    date = "2025-01-01"
+    line_cache = {}
+    line_cache[date] = {
+        "new_lines": {"this is a trap": 31415926535},
+        "this is a trap": 1,
+    }
+
+    db_cache = caches["db_cache"]
+    db_cache.set(root, line_cache)
+
+    # adding two jobs on different dates
+    _add_job_summary(test_jobs[0], date="2025-01-02", expected_new=True)
+    _add_job_summary(test_jobs[1], date="2025-01-03", expected_new=False)

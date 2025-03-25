@@ -107,8 +107,8 @@ class MemDBCache:
             cache.clear()
 
         for date in dates:
-            self.update_cache(f"{self.keyroot}_{date}", data[date])
-            self.update_db_cache(f"{self.keyroot}_{date}", data[date])
+            self.update_cache(f"{date}", data[date])
+            self.update_db_cache(f"{date}", data[date])
             keys.append(date)
 
         return keys
