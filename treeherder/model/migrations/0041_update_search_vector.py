@@ -16,8 +16,8 @@ def update_search_vector(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("model", "0039_fix_bugscache_autoincrement"),
-    ]
+            ("model", "0040_alter_textlogerror_unique_together_and_more"),
+        ]
 
     operations = [
         migrations.RemoveIndex(
