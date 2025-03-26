@@ -26,6 +26,7 @@ import {
   bzComponentEndpoint,
   getApiUrl,
 } from '../helpers/url';
+import { confirmFailure } from '../helpers/job';
 import { create } from '../helpers/http';
 import { notify } from '../job-view/redux/stores/notifications';
 
@@ -110,8 +111,7 @@ export class BugFilerClass extends React.Component {
       fullLog,
       parsedLog,
       reftestUrl,
-      jobGroupName,
-      jobTypeName,
+      selectedJob,
     } = props;
 
     const allFailures = suggestions.map((sugg) =>
@@ -128,7 +128,7 @@ export class BugFilerClass extends React.Component {
 
     const parsedSummary = parseSummary(suggestion);
     let summaryString = parsedSummary[0].join(' | ');
-    if (jobGroupName.toLowerCase().includes('reftest')) {
+    if (selectedJob.job_group_name.toLowerCase().includes('reftest')) {
       const re = /layout\/reftests\//gi;
       summaryString = summaryString.replace(re, '');
     }
@@ -144,7 +144,7 @@ export class BugFilerClass extends React.Component {
     if (isAssertion) {
       if (
         /java.lang.AssertionError/.test(summaryString) &&
-        jobTypeName.includes('junit')
+        selectedJob.job_type_name.includes('junit')
       ) {
         isAssertion = false;
       } else {
@@ -152,7 +152,7 @@ export class BugFilerClass extends React.Component {
       }
     }
 
-    if (jobTypeName.toLowerCase().includes('test-verify')) {
+    if (selectedJob.job_type_name.toLowerCase().includes('test-verify')) {
       keywords.push('test-verify-fail');
     }
 
@@ -165,15 +165,15 @@ export class BugFilerClass extends React.Component {
       checkedLogLinks.set('Reftest URL', reftestUrl);
     }
 
-    const jg = jobGroupName.toLowerCase();
+    const jg = selectedJob.job_group_name.toLowerCase();
     if (
       jg.includes('xpcshell') ||
       jg.includes('mochitest') ||
       jg.includes('web platform tests') ||
       jg.includes('reftest') ||
       jg.includes('talos') ||
-      jobTypeName.includes('junit') ||
-      jobTypeName.includes('marionette')
+      selectedJob.job_type_name.includes('junit') ||
+      selectedJob.job_type_name.includes('marionette')
     ) {
       // simple hack to make sure we have a testcase in the summary
       let isTestPath = [
@@ -225,13 +225,13 @@ export class BugFilerClass extends React.Component {
       // only handle straight forward reftest pixel/color errors
       if (
         isTestPath &&
-        jobGroupName.includes('reftest') &&
+        selectedJob.job_group_name.includes('reftest') &&
         !/.*image comparison, max difference.*/.test(summaryString)
       ) {
         isTestPath = false;
       } else if (
         jg.includes('web platform tests') ||
-        jobTypeName.includes('marionette')
+        selectedJob.job_type_name.includes('marionette')
       ) {
         trimParams = true;
       }
@@ -304,12 +304,12 @@ export class BugFilerClass extends React.Component {
 
   // Some job types are special, lets explicitly handle them.
   getSpecialProducts(fp) {
-    const { jobGroupName } = this.props;
+    const { selectedJob } = this.props;
     const { suggestedProducts } = this.state;
     const newProducts = [];
 
     if (suggestedProducts.length === 0) {
-      const jg = jobGroupName.toLowerCase();
+      const jg = selectedJob.job_group_name.toLowerCase();
 
       if (jg.includes('talos')) {
         newProducts.push('Testing :: Talos');
@@ -658,6 +658,11 @@ export class BugFilerClass extends React.Component {
     }
   }
 
+  handleConfirmFailure = async () => {
+    const { selectedJob, notify, decisionTaskMap, currentRepo } = this.props;
+    confirmFailure(selectedJob, notify, decisionTaskMap, currentRepo);
+  };
+
   render() {
     const {
       isOpen,
@@ -988,6 +993,13 @@ export class BugFilerClass extends React.Component {
             </form>
           </ModalBody>
           <ModalFooter>
+            <Button
+              color="secondary"
+              style={{ marginRight: '2em' }}
+              onClick={this.handleConfirmFailure}
+            >
+              Confirm failures
+            </Button>{' '}
             <Button color="secondary" onClick={this.submitFiler}>
               Submit Bug
             </Button>{' '}
@@ -1039,10 +1051,14 @@ BugFilerClass.propTypes = {
   parsedLog: PropTypes.string.isRequired,
   reftestUrl: PropTypes.string.isRequired,
   successCallback: PropTypes.func.isRequired,
-  jobGroupName: PropTypes.string.isRequired,
-  jobTypeName: PropTypes.string.isRequired,
   platform: PropTypes.string.isRequired,
   notify: PropTypes.func.isRequired,
+  selectedJob: PropTypes.shape({}).isRequired,
+  currentRepo: PropTypes.string.isRequired,
 };
 
-export default connect(null, { notify })(BugFilerClass);
+const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({
+  decisionTaskMap,
+});
+
+export default connect(mapStateToProps, { notify })(BugFilerClass);
