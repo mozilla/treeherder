@@ -29,6 +29,7 @@ import {
   isReftest,
   isPerfTest,
   canConfirmFailure,
+  confirmFailure,
   findJobInstance,
 } from '../../../helpers/job';
 import { getInspectTaskUrl, getReftestUrl } from '../../../helpers/url';
@@ -196,70 +197,14 @@ class ActionBar extends React.PureComponent {
     );
   };
 
-  confirmFailure = async () => {
+  handleConfirmFailure = async () => {
     const {
       selectedJobFull,
       notify,
       decisionTaskMap,
       currentRepo,
     } = this.props;
-    const { id: decisionTaskId } = decisionTaskMap[selectedJobFull.push_id];
-
-    if (!canConfirmFailure(selectedJobFull)) {
-      return;
-    }
-
-    if (!selectedJobFull.id) {
-      notify('Job not yet loaded for failure confirmation', 'warning');
-
-      return;
-    }
-
-    if (selectedJobFull.state !== 'completed') {
-      notify('Job not yet completed. Try again later.', 'warning');
-
-      return;
-    }
-
-    TaskclusterModel.load(decisionTaskId, selectedJobFull, currentRepo).then(
-      (results) => {
-        try {
-          const confirmFailure = getAction(results.actions, 'confirm-failures');
-
-          if (!confirmFailure) {
-            notify(
-              'Request to confirm failure via actions.json failed could not find action.',
-              'danger',
-              { sticky: true },
-            );
-            return;
-          }
-
-          return TaskclusterModel.submit({
-            action: confirmFailure,
-            decisionTaskId,
-            taskId: results.originalTaskId,
-            input: {},
-            staticActionVariables: results.staticActionVariables,
-            currentRepo,
-          }).then(
-            () => {
-              notify(
-                'Request sent to confirm-failures job via actions.json',
-                'success',
-              );
-            },
-            (e) => {
-              // The full message is too large to fit in a Treeherder
-              // notification box.
-              notify(formatTaskclusterError(e), 'danger', { sticky: true });
-            },
-          );
-        } catch (e) {
-          notify(formatTaskclusterError(e), 'danger', { sticky: true });
-        }
-      },
-    );
+    confirmFailure(selectedJobFull, notify, decisionTaskMap, currentRepo);
   };
 
   // Can we backfill? At the moment, this only ensures we're not in a 'try' repo.
@@ -504,7 +449,7 @@ class ActionBar extends React.PureComponent {
                         <DropdownItem
                           tag="a"
                           className="py-2"
-                          onClick={this.confirmFailure}
+                          onClick={this.handleConfirmFailure}
                         >
                           Confirm Test Failures
                         </DropdownItem>

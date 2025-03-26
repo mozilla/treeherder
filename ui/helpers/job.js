@@ -1,6 +1,10 @@
+import TaskclusterModel from '../models/taskcluster';
+
 import { thFailureResults, thPlatformMap } from './constants';
 import { getGroupMapKey } from './aggregateId';
 import { getAllUrlParams, getRepo } from './location';
+import { getAction } from './taskcluster';
+import { formatTaskclusterError } from './errorMessage';
 
 const btnClasses = {
   busted: 'btn-red',
@@ -77,6 +81,72 @@ export const canConfirmFailure = function canConfirmFailure(job) {
         name.toLowerCase().includes('web-platform') ||
         name.toLowerCase().includes('xpcshell')),
   );
+};
+
+export const confirmFailure = async function confirmFailure(
+  job,
+  notify,
+  decisionTaskMap,
+  currentRepo,
+) {
+  const { id: decisionTaskId } = decisionTaskMap[job.push_id];
+
+  if (!canConfirmFailure(job)) {
+    return;
+  }
+
+  if (!job.id) {
+    notify('Job not yet loaded for failure confirmation', 'warning');
+
+    return;
+  }
+
+  if (job.state !== 'completed') {
+    notify('Job not yet completed. Try again later.', 'warning');
+
+    return;
+  }
+
+  TaskclusterModel.load(decisionTaskId, job, currentRepo).then((results) => {
+    try {
+      const confirmFailureAction = getAction(
+        results.actions,
+        'confirm-failures',
+      );
+
+      if (!confirmFailureAction) {
+        notify(
+          'Request to confirm failure via actions.json failed could not find action.',
+          'danger',
+          { sticky: true },
+        );
+        return;
+      }
+
+      return TaskclusterModel.submit({
+        action: confirmFailureAction,
+        decisionTaskId,
+        taskId: results.originalTaskId,
+        input: {},
+        staticActionVariables: results.staticActionVariables,
+        currentRepo,
+      }).then(
+        () => {
+          notify(
+            'Request sent to confirm-failures job via actions.json',
+            'success',
+          );
+        },
+        (e) => {
+          // The full message is too large to fit in a Treeherder
+          // notification box.
+          notify(formatTaskclusterError(e), 'danger', { sticky: true });
+        },
+      );
+    } catch (e) {
+      notify(formatTaskclusterError(e), 'danger', { sticky: true });
+    }
+  });
 };
 
 export const isClassified = function isClassified(job) {
