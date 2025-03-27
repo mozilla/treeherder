@@ -4,6 +4,7 @@ import logging
 import newrelic.agent
 from cache_memoize import cache_memoize
 from django.contrib.postgres.search import SearchQuery
+from django.db.models import Exists, OuterRef, Q
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -73,19 +74,24 @@ class PushViewSet(viewsets.ViewSet):
         search_param = filter_params.get("search")
         if search_param:
             repository = Repository.objects.get(name=project)
-            filtered_commits = (
-                Commit.objects.filter(
-                    search_vector=SearchQuery(search_param, config="english"),
-                    push__repository=repository,
+            # Subquery to check if a commit exists with the search term
+            commit_exists_subquery = Commit.objects.filter(
+                push_id=OuterRef("id"), search_vector=SearchQuery(search_param)
+            ).values("id")
+            pushes = (
+                Push.objects.annotate(has_matching_commit=Exists(commit_exists_subquery))
+                .filter(
+                    Q(repository=repository)
+                    & (
+                        Q(has_matching_commit=True)
+                        | Q(author__icontains=search_param)
+                        | Q(revision__icontains=search_param)
+                    )
                 )
-                .values_list("push_id", flat=True)
-                # Get most recent results and limit result to 200
-                .order_by("-push__time")
-                .distinct()[:200]
-            )
-
-            pushes = pushes.filter(id__in=filtered_commits)
-
+                .distinct()
+                .order_by("-time")[:200]
+            )  # Get most recent results and limit result to 200
+            print(pushes.query)
         for param, value in meta.items():
             if param == "fromchange":
                 revision_field = "revision__startswith" if len(value) < 40 else "revision"
