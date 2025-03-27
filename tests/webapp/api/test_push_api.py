@@ -450,7 +450,7 @@ def test_push_search(client, test_repository):
     assert resp.status_code == 200
 
     results = resp.json()["results"]
-    assert len(results) == 1
+    assert len(results) == 2
     assert results[0]["id"] == push2.id
 
     # Test search by revision
