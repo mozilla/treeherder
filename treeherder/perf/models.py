@@ -311,6 +311,9 @@ class PerformanceAlertSummaryBase(models.Model):
     framework = models.ForeignKey(PerformanceFramework, on_delete=models.CASCADE)
 
     prev_push = models.ForeignKey(Push, on_delete=models.CASCADE, related_name="+")
+    original_prev_push = models.ForeignKey(
+        Push, on_delete=models.CASCADE, related_name="+", null=True, default=None
+    )
     push = models.ForeignKey(Push, on_delete=models.CASCADE, related_name="+")
     original_push = models.ForeignKey(
         Push, on_delete=models.CASCADE, related_name="+", null=True, default=None
@@ -388,6 +391,9 @@ class PerformanceAlertSummaryBase(models.Model):
 
         if not self.original_push:
             self.original_push = self.push
+
+        if not self.original_prev_push:
+            self.original_prev_push = self.prev_push
 
         super().save(*args, update_fields=update_fields, **kwargs)
         self.__prev_bug_number = self.bug_number

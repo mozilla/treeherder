@@ -283,7 +283,14 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     )
     push_timestamp = TimestampField(source="push", read_only=True)
     prev_push_revision = serializers.SlugRelatedField(
-        read_only=True, slug_field="revision", source="prev_push"
+        read_only=False,
+        slug_field="revision",
+        source="prev_push",
+        required=False,
+        queryset=Push.objects.all(),
+    )
+    original_prev_push_revision = serializers.SlugRelatedField(
+        read_only=True, slug_field="revision", source="original_prev_push"
     )
     assignee_username = serializers.SlugRelatedField(
         slug_field="username",
@@ -333,6 +340,7 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
             "revision",
             "push_timestamp",
             "prev_push_revision",
+            "original_prev_push_revision",
             "assignee_username",
             "assignee_email",
             "performance_tags",
