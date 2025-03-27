@@ -203,9 +203,44 @@ export default class StatusDropdown extends React.Component {
     const containsRegression = textualSummary.alerts.some(
       (item) => item.is_regression === true,
     );
+
+    const regressionTemplate = `
+Perfherder has detected a {{ framework }} performance change from push [{{ revision }}]({{ revisionHref }}). As author of one of the patches included in that push, we need your help to address this regression.
+
+Please **acknowledge, and begin investigating this alert within 3 business days, or the patch(es) may be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/). Our [guide to handling regression bugs](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#help-i-have-a-regression-what-do-i-do) has information about how you can proceed with this investigation.
+
+If you have any questions or need any help with the investigation, please reach out to a performance sheriff. Alternatively, you can find help on Slack by joining [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ), and on Matrix you can find help by joining [#perftest](https://matrix.to/#/#perftest:mozilla.org).
+
+{{ alertSummary }}
+
+Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests.
+
+If you need the profiling jobs [you can trigger them yourself from treeherder job view](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) or ask a performance sheriff to do that for you.
+
+You can run all of these tests on try with \`./mach try perf --alert {{ alertSummaryId }}\`
+
+The following [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) provides more information about this command.
+    `;
+
+    const improvementTemplate = `
+Perfherder has detected a {{ framework }} performance change from push [{{ revision }}]({{ revisionHref }}).
+
+If you have any questions, please reach out to a performance sheriff. Alternatively, you can find help on Slack by joining [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ), and on Matrix you can find help by joining [#perftest](https://matrix.to/#/#perftest:mozilla.org).
+
+{{ alertSummary }}
+
+Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests.
+
+If you need the profiling jobs [you can trigger them yourself from treeherder job view](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) or ask a performance sheriff to do that for you.
+
+You can run all of these tests on try with \`./mach try perf --alert {{ alertSummaryId }}\`
+
+The following [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) provides more information about this command.
+    `;
+
     const templateText = containsRegression
-      ? 'Perfherder has detected a {{ framework }} performance change from push [{{ revision }}]({{ revisionHref }}).\n\n{{ alertSummary }}\n\nAs author of one of the patches included in that push, we need your help to address this regression.\nDetails of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests. Please follow our [guide to handling regression bugs](https://wiki.mozilla.org/TestEngineering/Performance/Handling_regression_bugs) and **let us know your plans within 3 business days, or the patch(es) may be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).\n\nIf you need the profiling jobs you can trigger them yourself from treeherder job view or ask a sheriff to do that for you.\n\nYou can run these tests on try with `./mach try perf --alert {{ alertSummaryId }}`\n\nFor more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).\n'
-      : 'Perfherder has detected a {{ framework }} performance change from push [{{ revision }}]({{ revisionHref }}).\n\n{{ alertSummary }}\n\nDetails of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests.\n\nIf you need the profiling jobs you can trigger them yourself from treeherder job view or ask a sheriff to do that for you.\n\nYou can run these tests on try with `./mach try perf --alert {{ alertSummaryId }}`\n\nFor more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).\n';
+      ? regressionTemplate
+      : improvementTemplate;
 
     templateSettings.interpolate = /{{([\s\S]+?)}}/g;
     const fillTemplate = template(templateText);
