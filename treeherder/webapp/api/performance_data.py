@@ -798,7 +798,8 @@ class PerformanceSummary(generics.ListAPIView):
                     "signature_id",
                     "value",
                     "job_id",
-                    "performancedatumreplicate__value, job__submit_time",
+                    "performancedatumreplicate__value",
+                    "job__submit_time",
                 ):
                     if replicate_value is not None:
                         grouped_values[signature_id].append(replicate_value)
