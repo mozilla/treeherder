@@ -28,7 +28,7 @@
     "d3-color": "3.1.0",
     "d3-scale": "4.0.2",
     "eslint-formatter-codeframe": "7.32.1",
-    "fuse.js": "6.0.4",
+    "fuse.js": "7.1.0",
     "globals": "15.15.0",
     "history": "4.10.1",
     "js-cookie": "3.0.5",
