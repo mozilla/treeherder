@@ -120,6 +120,7 @@ class Commenter:
                     change_whiteboard += "[stockwell disable-recommended]"
             comment = template.render(
                 bug_id=bug_id,
+                total=counts.total,
                 rank=rank,
                 priority=priority,
                 repositories=counts.per_repositories,
