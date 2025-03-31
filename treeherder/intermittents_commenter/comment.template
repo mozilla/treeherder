@@ -1,3 +1,5 @@
+{{total}} failures were associated with this bug {% if weekly_mode %}in the last 7 days{% else %}yesterday{% endif %}.
+
 {%- if rank %}
 This is the #{{rank}} most frequent failure this week.{% endif %}
 
