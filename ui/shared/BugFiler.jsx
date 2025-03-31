@@ -518,15 +518,17 @@ export class BugFilerClass extends React.Component {
           getApiUrl('/bugzilla/create_bug/'),
           payload,
         );
-        // Directly update internal issue from suggestions
-        const internalBugs = suggestions
-          .map((s) => s.bugs.open_recent)
-          .flat()
-          .filter((bug) => bug.id === null);
-        const existingBug = internalBugs.filter(
-          (bug) => bug.internal_id === data.internal_id,
-        )[0];
-        if (existingBug) existingBug.id = data.id;
+        if (data.internal_id) {
+          // Directly update internal issue from suggestions
+          const internalBugs = suggestions
+            .map((s) => s.bugs.open_recent)
+            .flat()
+            .filter((bug) => bug.id === null);
+          const existingBug = internalBugs.filter(
+            (bug) => bug.internal_id === data.internal_id,
+          )[0];
+          if (existingBug) existingBug.id = data.id;
+        }
 
         if (!failureStatus) {
           toggle();
