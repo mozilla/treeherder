@@ -1,3 +1,5 @@
+import logging
+
 import requests
 from django.conf import settings
 from django.utils import timezone
@@ -9,6 +11,8 @@ from rest_framework.status import HTTP_400_BAD_REQUEST
 from treeherder.model.models import Bugscache, BugzillaSecurityGroup
 from treeherder.utils.bugzilla import get_bug_url
 from treeherder.utils.http import make_request
+
+logger = logging.getLogger(__name__)
 
 
 class BugzillaViewSet(viewsets.ViewSet):
@@ -93,9 +97,23 @@ class BugzillaViewSet(viewsets.ViewSet):
             return Response({"failure": message}, status=HTTP_400_BAD_REQUEST)
 
         bug_id = response.json()["id"]
-        Bugscache.objects.create(
-            bugzilla_id=bug_id,
-            modified=timezone.now(),
-            summary=summary.decode("utf-8"),
-        )
+        summary = summary.decode("utf-8")
+        # Creation API only returns the ID, but the bug will be updated later on by `treeherder.etl.bugzilla.BzApiBugProcess`
+        try:
+            Bugscache.objects.update_or_create(
+                summary=summary,
+                defaults={
+                    "modified": timezone.now(),
+                    "bugzilla_id": bug_id,
+                },
+            )
+        except Bugscache.MultipleObjectsReturned:
+            ids = Bugscache.objects.filter(summary=summary).only("id").values("id")
+            logger.warning(
+                f"Associating multiple internal issues to the same bugilla ID {bug_id}: {ids}"
+            )
+            Bugscache.objects.filter(summary=summary).update(
+                modified=timezone.now(),
+                bugzilla_iD=bug_id,
+            )
         return Response({"id": bug_id, "url": get_bug_url(bug_id, settings.BUGFILER_API_URL)})
