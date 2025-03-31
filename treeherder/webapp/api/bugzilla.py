@@ -100,20 +100,33 @@ class BugzillaViewSet(viewsets.ViewSet):
         summary = summary.decode("utf-8")
         # Creation API only returns the ID, but the bug will be updated later on by `treeherder.etl.bugzilla.BzApiBugProcess`
         try:
-            Bugscache.objects.update_or_create(
+            bug, _ = Bugscache.objects.update_or_create(
                 summary=summary,
                 defaults={
                     "modified": timezone.now(),
                     "bugzilla_id": bug_id,
                 },
             )
+            internal_id = bug.id
         except Bugscache.MultipleObjectsReturned:
-            ids = Bugscache.objects.filter(summary=summary).only("id").values("id")
+            ids = list(
+                Bugscache.objects.filter(summary=summary)
+                .order_by("modified")
+                .only("id")
+                .values("id")
+            )
+            internal_id = ids[-1]["id"]
             logger.warning(
                 f"Associating multiple internal issues to the same bugilla ID {bug_id}: {ids}"
             )
             Bugscache.objects.filter(summary=summary).update(
                 modified=timezone.now(),
-                bugzilla_iD=bug_id,
+                bugzilla_id=bug_id,
             )
-        return Response({"id": bug_id, "url": get_bug_url(bug_id, settings.BUGFILER_API_URL)})
+        return Response(
+            {
+                "id": bug_id,
+                "internal_id": internal_id,
+                "url": get_bug_url(bug_id, settings.BUGFILER_API_URL),
+            }
+        )
