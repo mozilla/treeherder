@@ -1,5 +1,3 @@
-import logging
-
 import requests
 from django.conf import settings
 from django.utils import timezone
@@ -11,8 +9,6 @@ from rest_framework.status import HTTP_400_BAD_REQUEST
 from treeherder.model.models import Bugscache, BugzillaSecurityGroup
 from treeherder.utils.bugzilla import get_bug_url
 from treeherder.utils.http import make_request
-
-logger = logging.getLogger(__name__)
 
 
 class BugzillaViewSet(viewsets.ViewSet):
@@ -99,30 +95,15 @@ class BugzillaViewSet(viewsets.ViewSet):
         bug_id = response.json()["id"]
         summary = summary.decode("utf-8")
         # Creation API only returns the ID, but the bug will be updated later on by `treeherder.etl.bugzilla.BzApiBugProcess`
-        try:
-            bug, _ = Bugscache.objects.update_or_create(
-                summary=summary,
-                defaults={
-                    "modified": timezone.now(),
-                    "bugzilla_id": bug_id,
-                },
-            )
-            internal_id = bug.id
-        except Bugscache.MultipleObjectsReturned:
-            ids = list(
-                Bugscache.objects.filter(summary=summary)
-                .order_by("modified")
-                .only("id")
-                .values("id")
-            )
-            internal_id = ids[-1]["id"]
-            logger.warning(
-                f"Associating multiple internal issues to the same bugilla ID {bug_id}: {ids}"
-            )
-            Bugscache.objects.filter(summary=summary).update(
-                modified=timezone.now(),
-                bugzilla_id=bug_id,
-            )
+        bug = Bugscache.objects.filter(bugzilla_id=bug_id).first()
+        if not bug:
+            bugs = list(Bugscache.objects.filter(summary=summary).order_by("modified"))
+            if bugs and not (bug := next((b.bugzilla_id == bug_id for b in bugs), None)):
+                bug = bugs[-1]
+                bug.modified = timezone.now()
+                bug.bugzilla_id = bug_id
+                bug.save()
+        internal_id = bug.id if bug else None
         return Response(
             {
                 "id": bug_id,
