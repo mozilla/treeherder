@@ -267,6 +267,7 @@ export class BugFilerClass extends React.Component {
       selectedProduct: null,
       isIntermittent: true,
       isSecurityIssue: false,
+      launchConfirmFailure: true,
       comment: '',
       searching: false,
       // used by test
@@ -465,6 +466,7 @@ export class BugFilerClass extends React.Component {
       comment,
       isIntermittent,
       isSecurityIssue,
+      launchConfirmFailure,
       checkedLogLinks,
       regressedBy,
       seeAlso,
@@ -549,7 +551,10 @@ export class BugFilerClass extends React.Component {
     ) {
       priority = '--';
     }
-
+    if (launchConfirmFailure) {
+      // Launch confirm failure task
+      this.handleConfirmFailure();
+    }
     // Fetch product information from bugzilla to get version numbers, then
     // submit the new bug.  Only request the versions because some products
     // take quite a long time to fetch the full object
@@ -679,6 +684,7 @@ export class BugFilerClass extends React.Component {
       isFilerSummaryVisible,
       isIntermittent,
       isSecurityIssue,
+      launchConfirmFailure,
       summary,
       searching,
       checkedLogLinks,
@@ -975,6 +981,20 @@ export class BugFilerClass extends React.Component {
                   Report this as a security issue
                 </Label>
               </div>
+              <div className="d-inline-flex mt-2 ml-5">
+                <Label>
+                  <Input
+                    type="checkbox"
+                    checked={launchConfirmFailure}
+                    onChange={() =>
+                      this.setState({
+                        launchConfirmFailure: !launchConfirmFailure,
+                      })
+                    }
+                  />
+                  Launch the Confirm Failures task at bug submission
+                </Label>
+              </div>
               {!!crashSignatures.length && (
                 <div>
                   <Label for="signature-input">Signature:</Label>
@@ -993,13 +1013,6 @@ export class BugFilerClass extends React.Component {
             </form>
           </ModalBody>
           <ModalFooter>
-            <Button
-              color="secondary"
-              style={{ marginRight: '2em' }}
-              onClick={this.handleConfirmFailure}
-            >
-              Confirm failures
-            </Button>{' '}
             <Button color="secondary" onClick={this.submitFiler}>
               Submit Bug
             </Button>{' '}
