@@ -60,6 +60,19 @@ export default class PushModel {
     );
   }
 
+  static async get_commit_from_hash(options = {}) {
+    const transformedOptions = convertDates(options);
+    const repoName = transformedOptions.repo;
+    const params = {
+      ...transformedOptions,
+    };
+    const url = `${getProjectUrl(
+      pushEndpoint,
+      repoName,
+    )}commit_from_hash/${createQueryParams(params)}`;
+    return getData(url);
+  }
+
   static get(pk, options = {}) {
     const repoName = options.repo || getUrlParam('repo');
     return fetch(getProjectUrl(`${pushEndpoint}${pk}/`, repoName));
