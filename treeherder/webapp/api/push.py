@@ -51,6 +51,7 @@ class PushViewSet(viewsets.ViewSet):
             "startdate",
             "enddate",
             "revision",
+            "hash_to_map",
             "commit_revision",
         ]:
             v = filter_params.get(param, None)
@@ -59,6 +60,8 @@ class PushViewSet(viewsets.ViewSet):
                 meta[param] = v
 
         all_repos = request.query_params.get("all_repos")
+        hash_to_map = None
+        commit = None
 
         pushes = Push.objects.order_by("-time")
         if not all_repos:
@@ -131,6 +134,14 @@ class PushViewSet(viewsets.ViewSet):
                 # any of the commits it refers to
                 pushes = pushes.filter(commits__revision=value)
                 self.report_if_short_revision(param, value)
+            elif param == "hash_to_map":
+                hash_to_map = True
+                commit = Commit.objects.filter(comments__contains=value).first().revision
+                pushes = pushes.filter(commits__revision=commit)
+                self.report_if_short_revision("commit_revision", commit)
+
+            if hash_to_map:
+                meta['revision'] = commit
 
         for param in [
             "push_timestamp__lt",
@@ -450,6 +461,17 @@ class PushViewSet(viewsets.ViewSet):
             job_type__in=job_types,
             result="success",
         ).select_related("taskcluster_metadata")
+
+    @action(detail=False)
+    def commit_from_hash(self, request, project):
+        hash = request.query_params.get("hash")
+        # Find the push that has a comment that contains the hash we are looking for
+        push = Commit.objects.filter(comments__contains=hash).first()
+        return Response(
+            {
+                "revision": push.revision
+            }
+        )
 
     @action(detail=False)
     def decisiontask(self, request, project):
