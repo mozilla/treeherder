@@ -24,7 +24,13 @@ class PushLoader:
             newrelic.agent.add_custom_attribute("branch", transformer.branch)
             repos = Repository.objects
             if transformer.branch:
-                repos = repos.filter(branch__regex=f"(^|,){transformer.branch}($|,)")
+                if "/" in transformer.branch:
+                    branch_domain = transformer.branch.split("/")[0] + "\\/\\*"
+                    repos = repos.filter(
+                        branch__regex=f"(^|,){transformer.branch}($|,)|(^|,){branch_domain}($|,)"
+                    )
+                else:
+                    repos = repos.filter(branch__regex=f"(^|,){transformer.branch}($|,)")
             else:
                 repos = repos.filter(branch=None)
             repo = repos.get(url=transformer.repo_url, active_status="active")
