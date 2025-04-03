@@ -93,6 +93,7 @@ def test_alert_summaries_get(
         "revision",
         "push_timestamp",
         "prev_push_revision",
+        "original_prev_push_revision",
         "performance_tags",
     }
     assert len(resp.json()["results"][0]["alerts"]) == 1
@@ -173,6 +174,7 @@ def test_alert_summaries_get_onhold(
         "revision",
         "push_timestamp",
         "prev_push_revision",
+        "original_prev_push_revision",
         "performance_tags",
     }
     assert len(resp.json()["results"][0]["alerts"]) == 1
