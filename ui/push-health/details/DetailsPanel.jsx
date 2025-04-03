@@ -76,7 +76,6 @@ class DetailsPanel extends React.Component {
 
   selectTask = async () => {
     const { currentRepo, selectedTask } = this.props;
-
     this.setState({ taskDetails: [], taskDetailLoading: true }, () => {
       if (this.selectTaskController !== null) {
         // Cancel the in-progress fetch requests.
@@ -200,7 +199,7 @@ class DetailsPanel extends React.Component {
                       selectedTaskFull.id,
                       currentRepo.name,
                     )}
-                    repoName={currentRepo.name}
+                    currentRepo={currentRepo}
                     developerMode
                   />
                 </TabPanel>

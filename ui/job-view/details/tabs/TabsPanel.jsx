@@ -229,7 +229,7 @@ class TabsPanel extends React.Component {
               logViewerFullUrl={logViewerFullUrl}
               addBug={addBug}
               pinJob={pinJob}
-              repoName={currentRepo.name}
+              currentRepo={currentRepo}
               fontSize="font-size-11"
             />
           </TabPanel>
