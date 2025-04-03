@@ -240,6 +240,37 @@ def test_alert_summaries_put(
     assert PerformanceAlertSummary.objects.get(id=1).assignee == test_user
 
 
+def test_performance_alert_summary_change_from_revision(
+    client, test_perf_alert_summary, test_sheriff, test_push
+):
+    client.force_authenticate(user=test_sheriff)
+
+    # verify we can set revision
+    assert PerformanceAlertSummary.objects.get(id=1).prev_push.revision != test_push.revision
+    resp = client.put(
+        reverse("performance-alert-summaries-list") + "1/",
+        {"prev_push_revision": test_push.revision},
+    )
+    assert resp.status_code == 200
+    assert PerformanceAlertSummary.objects.get(id=1).prev_push.revision == test_push.revision
+
+    # verify we can set non-existing revision
+    resp = client.put(
+        reverse("performance-alert-summaries-list") + "1/",
+        {"prev_push_revision": "no-push-revision"},
+    )
+    assert resp.status_code == 400
+
+    # revert revision
+    original_revision = PerformanceAlertSummary.objects.get(id=1).original_prev_push.revision
+    resp = client.put(
+        reverse("performance-alert-summaries-list") + "1/",
+        {"prev_push_revision": original_revision},
+    )
+    assert resp.status_code == 200
+    assert PerformanceAlertSummary.objects.get(id=1).prev_push.revision == original_revision
+
+
 def test_performance_alert_summary_change_revision(
     client, test_perf_alert_summary, test_sheriff, test_push
 ):
