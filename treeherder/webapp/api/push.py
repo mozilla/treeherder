@@ -141,7 +141,7 @@ class PushViewSet(viewsets.ViewSet):
                 self.report_if_short_revision("commit_revision", commit)
 
             if hash_to_map:
-                meta['revision'] = commit
+                meta["revision"] = commit
 
         for param in [
             "push_timestamp__lt",
@@ -467,11 +467,7 @@ class PushViewSet(viewsets.ViewSet):
         hash = request.query_params.get("hash")
         # Find the push that has a comment that contains the hash we are looking for
         push = Commit.objects.filter(comments__contains=hash).first()
-        return Response(
-            {
-                "revision": push.revision
-            }
-        )
+        return Response({"revision": push.revision})
 
     @action(detail=False)
     def decisiontask(self, request, project):

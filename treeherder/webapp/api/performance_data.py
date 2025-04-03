@@ -30,6 +30,7 @@ from treeherder.webapp.api import perfcompare_utils
 from treeherder.webapp.api.performance_serializers import OptionalBooleanField
 from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 
+from ...model.models import Commit
 from .exceptions import InsufficientAlertCreationData
 from .performance_serializers import (
     IssueTrackerSerializer,
@@ -48,7 +49,6 @@ from .performance_serializers import (
     TestSuiteHealthSerializer,
 )
 from .utils import GroupConcat, get_profile_artifact_url
-from ...model.models import Commit
 
 
 class PerformanceSignatureViewSet(viewsets.ViewSet):
