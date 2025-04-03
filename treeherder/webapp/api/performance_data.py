@@ -30,7 +30,6 @@ from treeherder.webapp.api import perfcompare_utils
 from treeherder.webapp.api.performance_serializers import OptionalBooleanField
 from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 
-from ...model.models import Commit
 from .exceptions import InsufficientAlertCreationData
 from .performance_serializers import (
     IssueTrackerSerializer,
@@ -640,11 +639,6 @@ class PerformanceSummary(generics.ListAPIView):
         startday = query_params.validated_data["startday"]
         endday = query_params.validated_data["endday"]
         revision = query_params.validated_data["revision"]
-        hash = query_params.validated_data["hash"]
-        if hash is not None:
-            revision_from_hash = Commit.objects.filter(comments__contains=hash).first().revision
-            if revision_from_hash:
-                revision = revision_from_hash
         repository_name = query_params.validated_data["repository"]
         interval = query_params.validated_data["interval"]
         frameworks = query_params.validated_data["framework"]

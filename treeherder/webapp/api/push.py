@@ -463,13 +463,6 @@ class PushViewSet(viewsets.ViewSet):
         ).select_related("taskcluster_metadata")
 
     @action(detail=False)
-    def commit_from_hash(self, request, project):
-        hash = request.query_params.get("hash")
-        # Find the push that has a comment that contains the hash we are looking for
-        push = Commit.objects.filter(comments__contains=hash).first()
-        return Response({"revision": push.revision})
-
-    @action(detail=False)
     def decisiontask(self, request, project):
         """
         Return the decision task ids for the pushes.
