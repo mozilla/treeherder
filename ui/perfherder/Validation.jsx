@@ -76,8 +76,8 @@ const withValidation = ({ requiredParams }, verifyRevisions = true) => (
     };
 
     async checkRevisions(params) {
-      let findOriginalRevision = params.originalRevision;
-      let findNewRevision = params.newRevision;
+      var findOriginalRevision = params.originalRevision;
+      var findNewRevision = params.newRevision;
       if (params.newRevision == null && params.newHash) {
         const newRevision = await PushModel.get_commit_from_hash({
           repo: params.newProject,
