@@ -253,7 +253,7 @@ export default class AlertTable extends React.Component {
       fetchAlertSummaries(alertSummary.id);
     } else {
       updateViewState({
-        errorMessages: [`Failed to set revision "${newRevision}". (${data})`],
+        errorMessages: [`Failed to set revisions. (${data})`],
       });
     }
 
