@@ -149,7 +149,7 @@ class FailureSummaryTab extends React.Component {
       logViewerFullUrl,
       selectedJob,
       addBug,
-      repoName,
+      currentRepo,
       developerMode,
     } = this.props;
     const {
@@ -170,7 +170,7 @@ class FailureSummaryTab extends React.Component {
       if (
         suggestion.search.split(' | ').length === 3 &&
         (suggestion.failure_new_in_rev === true ||
-          (suggestion.counter === 0 && repoName === 'try'))
+          (suggestion.counter === 0 && currentRepo.name === 'try'))
       ) {
         if (selectedJob.newFailure === 0) {
           suggestion.showNewButton = true;
@@ -207,7 +207,7 @@ class FailureSummaryTab extends React.Component {
               toggleBugFiler={() => this.fileBug(suggestion)}
               selectedJob={selectedJob}
               addBug={addBug}
-              repoName={repoName}
+              currentRepo={currentRepo}
               developerMode={developerMode}
             />
           ))}
@@ -299,8 +299,8 @@ class FailureSummaryTab extends React.Component {
               isReftest(selectedJob) ? getReftestUrl(jobLogUrls[0].url) : ''
             }
             successCallback={this.bugFilerCallback}
-            jobGroupName={selectedJob.job_group_name}
-            jobTypeName={selectedJob.job_type_name}
+            selectedJob={selectedJob}
+            currentRepo={currentRepo}
             platform={selectedJob.platform}
           />
         )}
@@ -320,7 +320,7 @@ FailureSummaryTab.propTypes = {
   }),
   logParseStatus: PropTypes.string,
   logViewerFullUrl: PropTypes.string,
-  repoName: PropTypes.string.isRequired,
+  currentRepo: PropTypes.shape({}).isRequired,
   addBug: PropTypes.func,
   pinJob: PropTypes.func,
   developerMode: PropTypes.bool,
