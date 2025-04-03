@@ -20,7 +20,9 @@ const withValidation = ({ requiredParams }, verifyRevisions = true) => (
         originalProject: null,
         newProject: null,
         originalRevision: null,
+        originalHash: null,
         newRevision: null,
+        newHash: null,
         originalSignature: null,
         newSignature: null,
         errorMessages: [],
@@ -74,10 +76,28 @@ const withValidation = ({ requiredParams }, verifyRevisions = true) => (
     };
 
     async checkRevisions(params) {
-      if (!params.originalRevision) {
+      let findOriginalRevision = params.originalRevision;
+      let findNewRevision = params.newRevision;
+      if (params.newRevision == null && params.newHash) {
+        const newRevision = await PushModel.get_commit_from_hash({
+          repo: params.newProject,
+          hash: params.newHash,
+        });
+        findNewRevision = newRevision.data.revision;
+        params.newRevision = findNewRevision;
+      }
+      if (params.originalRevision == null && params.originalHash) {
+        const originalRevision = await PushModel.get_commit_from_hash({
+          repo: params.originalProject,
+          hash: params.originalHash,
+        });
+        findOriginalRevision = originalRevision.data.revision;
+        params.originalRevision = findOriginalRevision;
+      }
+      if (!findOriginalRevision && !params.originalHash) {
         const newResultResponse = await this.verifyRevision(
           params.newProject,
-          params.newRevision,
+          findNewRevision,
           'newResultSet',
         );
         return this.setState({
@@ -87,14 +107,10 @@ const withValidation = ({ requiredParams }, verifyRevisions = true) => (
         });
       }
       const [newResultResponse, origResultResponse] = await Promise.all([
-        this.verifyRevision(
-          params.newProject,
-          params.newRevision,
-          'newResultSet',
-        ),
+        this.verifyRevision(params.newProject, findNewRevision, 'newResultSet'),
         this.verifyRevision(
           params.originalProject,
-          params.originalRevision,
+          findOriginalRevision,
           'originalResultSet',
         ),
       ]);

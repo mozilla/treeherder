@@ -368,6 +368,7 @@ class PerformanceQueryParamsSerializer(serializers.Serializer):
     startday = serializers.DateTimeField(required=False, allow_null=True, default=None)
     endday = serializers.DateTimeField(required=False, allow_null=True, default=None)
     revision = serializers.CharField(required=False, allow_null=True, default=None)
+    hash = serializers.CharField(required=False, allow_null=True, default=None)
     repository = serializers.CharField()
     framework = serializers.ListField(required=False, child=serializers.IntegerField(), default=[])
     interval = serializers.IntegerField(required=False, allow_null=True, default=None)
@@ -382,6 +383,7 @@ class PerformanceQueryParamsSerializer(serializers.Serializer):
         if (
             data["revision"] is None
             and data["interval"] is None
+            and data["hash"] is None
             and (data["startday"] is None or data["endday"] is None)
         ):
             raise serializers.ValidationError(
