@@ -119,8 +119,7 @@ describe('BugFiler', () => {
         parsedLog={parsedLog}
         reftestUrl={isReftest(selectedJob) ? reftest : ''}
         successCallback={successCallback}
-        jobGroupName={selectedJob.job_group_name}
-        jobTypeName={selectedJob.job_type_name}
+        selectedJob={selectedJob}
         platform={selectedJob.platform}
         notify={() => {}}
       />
@@ -138,8 +137,7 @@ describe('BugFiler', () => {
         parsedLog={parsedLog}
         reftestUrl={isReftest(selectedJob) ? reftest : ''}
         successCallback={successCallback}
-        jobGroupName={selectedJob.job_group_name}
-        jobTypeName={selectedJob.job_type_name}
+        selectedJob={selectedJob}
         platform={selectedJob.platform}
         notify={() => {}}
       />
