@@ -195,6 +195,10 @@ def test_memcache_migration():
     assert date in lc
     assert lcache.get_cache_keys() == [f"{date}"]
 
+    # ensure entire old db is cleared
+    rc = db_cache.get(root)
+    assert rc is None
+
     # add an extra date
     lc[date2] = lc[date]
     lcache.write_cache(date2)
