@@ -365,9 +365,9 @@ pytest-cov==6.1.1 \
     --hash=sha256:46935f7aaefba760e716c2ebfbe1c216240b9592966e7da99ea8292d4d3e2a0a \
     --hash=sha256:bddf29ed2d0ab6f4df17b4c55b0a657287db8684af9c42ea546b21b1041b3dde
     # via -r requirements/dev.in
-pytest-django==4.11.0 \
-    --hash=sha256:35b339b9a231a99de226789c3e45d4d19d6c09ca9f3c236b3b5024afbf1f68b5 \
-    --hash=sha256:ab969cc86585a1763fd4a2fa1bc0f3015abbbcb823667af48320f1a1d2053291
+pytest-django==4.11.1 \
+    --hash=sha256:1b63773f648aa3d8541000c26929c1ea63934be1cfa674c76436966d73fe6a10 \
+    --hash=sha256:a949141a1ee103cb0e7a20f1451d355f83f5e4a5d07bdd4dcfdd1fd0ff227991
     # via -r requirements/dev.in
 pytest-freezegun @ https://github.com/hugovk/pytest-freezegun/archive/03d7107a877e8f07617f931a379f567d89060085.zip \
     --hash=sha256:60cf7c6592c612d3fbcb12c77c96b97f011bd313a238f07c31505b9d50f855a0
