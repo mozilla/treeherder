@@ -3,7 +3,7 @@ pytest-cov==6.1.1
 django-debug-toolbar==5.0.1
 mock==5.2.0
 responses==0.25.7
-django-extensions==3.2.3
+django-extensions==4.0
 PyPOM==2.2.4
 
 # for git commit hooks
