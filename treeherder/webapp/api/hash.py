@@ -1,10 +1,12 @@
 import logging
 
-from rest_framework import viewsets
+from rest_framework import exceptions, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from treeherder.model.models import Commit
+from treeherder.webapp.api.serializers import HashQuerySerializer
 
 logger = logging.getLogger(__name__)
 
@@ -12,8 +14,15 @@ logger = logging.getLogger(__name__)
 class HashViewSet(viewsets.ViewSet):
     @action(detail=False)
     def tocommit(self, request, project):
-        newhash = request.query_params.get("newHash")
-        basehash = request.query_params.get("baseHash")
-        newpush = Commit.objects.filter(comments__contains=newhash).first().revision
-        basepush = Commit.objects.filter(comments__contains=basehash).first().revision
-        return Response({"originalRevision": basepush, "newRevision": newpush})
+        query_params = HashQuerySerializer(data=request.query_params)
+        if not query_params.is_valid():
+            return Response(data=query_params.errors, status=HTTP_400_BAD_REQUEST)
+        newhash = query_params.validated_data["newHash"]
+        basehash = query_params.validated_data["baseHash"]
+        newpush = Commit.objects.filter(comments__contains=newhash).first()
+        basepush = Commit.objects.filter(comments__contains=basehash).first()
+        if newpush is None or basepush is None:
+            raise exceptions.ValidationError(
+                f"{newhash} or {basehash} do not correspond to any existing hashes please double check both hashes you provided"
+            )
+        return Response({"originalRevision": basepush.revision, "newRevision": newpush.revision})
