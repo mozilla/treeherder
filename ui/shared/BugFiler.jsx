@@ -533,7 +533,7 @@ export class BugFilerClass extends React.Component {
     /* Intermittent bugs in the Core :: DOM: Security component need to have the
        whiteboard '[domsecurity-intermittent]' to support filtering by the
        triagers. Contact person is Christoph Kerschbaumer. */
-    const whiteboard =
+    let whiteboard =
       isIntermittent && product === 'Core' && component === 'DOM: Security'
         ? '[domsecurity-intermittent]'
         : '';
@@ -554,6 +554,7 @@ export class BugFilerClass extends React.Component {
     if (launchConfirmFailure) {
       // Launch confirm failure task
       this.handleConfirmFailure();
+      whiteboard += '[collect_confirm_failure]';
     }
     // Fetch product information from bugzilla to get version numbers, then
     // submit the new bug.  Only request the versions because some products
