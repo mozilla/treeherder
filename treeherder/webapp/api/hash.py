@@ -13,7 +13,7 @@ class HashViewSet(viewsets.ViewSet):
     @action(detail=False)
     def tocommit(self, request, project):
         newhash = request.query_params.get("newHash")
-        originalhash = request.query_params.get("baseHash")
+        basehash = request.query_params.get("baseHash")
         newpush = Commit.objects.filter(comments__contains=newhash).first().revision
-        originalpush = Commit.objects.filter(comments__contains=originalhash).first().revision
-        return Response({"originalRevision": originalpush, "newRevision": newpush})
+        basepush = Commit.objects.filter(comments__contains=basehash).first().revision
+        return Response({"originalRevision": basepush, "newRevision": newpush})
