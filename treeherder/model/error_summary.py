@@ -105,6 +105,7 @@ class MemDBCache:
         if len(dates) > 0:
             # only clear db cache if we have data to work with
             cache.clear()
+            db_cache.clear()
 
         for date in dates:
             self.update_cache(f"{date}", data[date])
