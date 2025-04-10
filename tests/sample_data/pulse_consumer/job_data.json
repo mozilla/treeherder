@@ -28,7 +28,7 @@
       "architecture": "x86_64",
       "name": "8961039277226838678"
     },
-    "owner": "8961039277226838678@fakemail.com",
+    "owner": "8961039277226838678@example.com",
     "reason": "scheduled",
     "productName": "Firefox",
     "labels": ["debug"],
@@ -81,7 +81,7 @@
       "architecture": "x86_64",
       "name": "8694211573514619625"
     },
-    "owner": "8694211573514619625@fakemail.com",
+    "owner": "8694211573514619625@example.com",
     "reason": "scheduled",
     "productName": "Firefox",
     "labels": ["debug"],
@@ -134,7 +134,7 @@
       "architecture": "x86_64",
       "name": "1930007011415409232"
     },
-    "owner": "1930007011415409232@fakemail.com",
+    "owner": "1930007011415409232@example.com",
     "reason": "scheduled",
     "productName": "Firefox",
     "labels": ["debug"],
@@ -187,7 +187,7 @@
       "architecture": "x86_64",
       "name": "8683040324923017879"
     },
-    "owner": "8683040324923017879@fakemail.com",
+    "owner": "8683040324923017879@example.com",
     "reason": "scheduled",
     "productName": "Firefox",
     "labels": ["debug"],
@@ -240,7 +240,7 @@
       "architecture": "x86_64",
       "name": "5796713192661830535"
     },
-    "owner": "5796713192661830535@fakemail.com",
+    "owner": "5796713192661830535@example.com",
     "reason": "scheduled",
     "productName": "Firefox",
     "labels": ["debug"],
@@ -293,7 +293,7 @@
       "architecture": "x86_64",
       "name": "8984136765236169706"
     },
-    "owner": "8984136765236169706@fakemail.com",
+    "owner": "8984136765236169706@example.com",
     "reason": "scheduled",
     "productName": "Firefox",
     "labels": ["debug"],
@@ -346,7 +346,7 @@
       "architecture": "x86_64",
       "name": "7142285837582848162"
     },
-    "owner": "7142285837582848162@fakemail.com",
+    "owner": "7142285837582848162@example.com",
     "reason": "scheduled",
     "productName": "Firefox",
     "labels": ["debug"],
@@ -399,7 +399,7 @@
       "architecture": "x86_64",
       "name": "8581372247093922696"
     },
-    "owner": "8581372247093922696@fakemail.com",
+    "owner": "8581372247093922696@example.com",
     "reason": "scheduled",
     "productName": "Firefox",
     "labels": ["debug"],
@@ -452,7 +452,7 @@
       "architecture": "x86_64",
       "name": "5337528253247504976"
     },
-    "owner": "5337528253247504976@fakemail.com",
+    "owner": "5337528253247504976@example.com",
     "reason": "scheduled",
     "productName": "Firefox",
     "labels": ["debug"],
@@ -505,7 +505,7 @@
       "architecture": "x86_64",
       "name": "5273175839128538224"
     },
-    "owner": "5273175839128538224@fakemail.com",
+    "owner": "5273175839128538224@example.com",
     "reason": "scheduled",
     "productName": "Firefox",
     "labels": ["debug"],
@@ -558,7 +558,7 @@
       "architecture": "x86_64",
       "name": "1336906043978795691"
     },
-    "owner": "1336906043978795691@fakemail.com",
+    "owner": "1336906043978795691@example.com",
     "reason": "scheduled",
     "productName": "Firefox",
     "labels": ["debug"],
@@ -611,7 +611,7 @@
       "architecture": "x86_64",
       "name": "6383577120260342314"
     },
-    "owner": "6383577120260342314@fakemail.com",
+    "owner": "6383577120260342314@example.com",
     "reason": "scheduled",
     "productName": "Firefox",
     "labels": ["debug"],
@@ -664,7 +664,7 @@
       "architecture": "x86_64",
       "name": "6143895516824325098"
     },
-    "owner": "6143895516824325098@fakemail.com",
+    "owner": "6143895516824325098@example.com",
     "reason": "scheduled",
     "productName": "Firefox",
     "labels": ["debug"],
@@ -717,7 +717,7 @@
       "architecture": "x86_64",
       "name": "6987552695782329223"
     },
-    "owner": "6987552695782329223@fakemail.com",
+    "owner": "6987552695782329223@example.com",
     "reason": "scheduled",
     "productName": "Firefox",
     "labels": ["debug"],
@@ -770,7 +770,7 @@
       "architecture": "x86_64",
       "name": "5936936096690455120"
     },
-    "owner": "5936936096690455120@fakemail.com",
+    "owner": "5936936096690455120@example.com",
     "reason": "scheduled",
     "productName": "Firefox",
     "labels": ["debug"],
@@ -823,7 +823,7 @@
       "architecture": "x86_64",
       "name": "4281358098233150184"
     },
-    "owner": "4281358098233150184@fakemail.com",
+    "owner": "4281358098233150184@example.com",
     "reason": "scheduled",
     "productName": "Firefox",
     "labels": ["debug"],
@@ -876,7 +876,7 @@
       "architecture": "x86_64",
       "name": "5267719688769358568"
     },
-    "owner": "5267719688769358568@fakemail.com",
+    "owner": "5267719688769358568@example.com",
     "reason": "scheduled",
     "productName": "Firefox",
     "labels": ["debug"],
@@ -929,7 +929,7 @@
       "architecture": "x86_64",
       "name": "8791806875590836229"
     },
-    "owner": "8791806875590836229@fakemail.com",
+    "owner": "8791806875590836229@example.com",
     "reason": "scheduled",
     "productName": "Firefox",
     "labels": ["debug"],
@@ -982,7 +982,7 @@
       "architecture": "x86_64",
       "name": "1925341989737185285"
     },
-    "owner": "1925341989737185285@fakemail.com",
+    "owner": "1925341989737185285@example.com",
     "reason": "scheduled",
     "productName": "Firefox",
     "labels": ["debug"],
@@ -1035,7 +1035,7 @@
       "architecture": "x86_64",
       "name": "5960255909386895365"
     },
-    "owner": "5960255909386895365@fakemail.com",
+    "owner": "5960255909386895365@example.com",
     "reason": "scheduled",
     "productName": "Firefox",
     "labels": ["debug"],
@@ -1088,7 +1088,7 @@
       "architecture": "x86_64",
       "name": "6960160425160589317"
     },
-    "owner": "6960160425160589317@fakemail.com",
+    "owner": "6960160425160589317@example.com",
     "reason": "scheduled",
     "productName": "Firefox",
     "labels": ["debug"],
@@ -1141,7 +1141,7 @@
       "architecture": "x86_64",
       "name": "782077753455132677"
     },
-    "owner": "782077753455132677@fakemail.com",
+    "owner": "782077753455132677@example.com",
     "reason": "scheduled",
     "productName": "Firefox",
     "labels": ["debug"],
@@ -1194,7 +1194,7 @@
       "architecture": "x86_64",
       "name": "3956461659289927685"
     },
-    "owner": "3956461659289927685@fakemail.com",
+    "owner": "3956461659289927685@example.com",
     "reason": "scheduled",
     "productName": "Firefox",
     "labels": ["debug"],
@@ -1247,7 +1247,7 @@
       "architecture": "x86_64",
       "name": "3827820576956596352"
     },
-    "owner": "3827820576956596352@fakemail.com",
+    "owner": "3827820576956596352@example.com",
     "reason": "scheduled",
     "productName": "Firefox",
     "labels": ["debug"],
@@ -1295,7 +1295,7 @@
       "architecture": "x86_64",
       "name": "876059733904965637"
     },
-    "owner": "876059733904965637@fakemail.com",
+    "owner": "876059733904965637@example.com",
     "reason": "scheduled",
     "productName": "Firefox",
     "labels": ["debug"],
@@ -1348,7 +1348,7 @@
       "architecture": "x86_64",
       "name": "8855612218250477573"
     },
-    "owner": "8855612218250477573@fakemail.com",
+    "owner": "8855612218250477573@example.com",
     "reason": "scheduled",
     "productName": "Firefox",
     "labels": ["debug"],
@@ -1401,7 +1401,7 @@
       "architecture": "x86_64",
       "name": "6227968977657514667"
     },
-    "owner": "6227968977657514667@fakemail.com",
+    "owner": "6227968977657514667@example.com",
     "reason": "scheduled",
     "productName": "Firefox",
     "labels": ["debug"],
@@ -1454,7 +1454,7 @@
       "architecture": "x86_64",
       "name": "1653479167014846469"
     },
-    "owner": "1653479167014846469@fakemail.com",
+    "owner": "1653479167014846469@example.com",
     "reason": "scheduled",
     "productName": "Firefox",
     "labels": ["debug"],
@@ -1496,7 +1496,7 @@
       "architecture": "x86_64",
       "name": "7197484843170381829"
     },
-    "owner": "7197484843170381829@fakemail.com",
+    "owner": "7197484843170381829@example.com",
     "reason": "scheduled",
     "productName": "Firefox",
     "labels": ["debug"],
@@ -1549,7 +1549,7 @@
       "architecture": "x86_64",
       "name": "258492717194919941"
     },
-    "owner": "258492717194919941@fakemail.com",
+    "owner": "258492717194919941@example.com",
     "reason": "scheduled",
     "productName": "Firefox",
     "labels": ["debug"],

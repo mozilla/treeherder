@@ -7,19 +7,17 @@ import requests
 
 def parse_build_platform(name, os_field="os_name"):
     platform = ""
-    os_name = ""
-    arch = ""
 
     if name.startswith("test-"):
         name = name.replace("test-", "", 1)
     platform = name.split("/")[0]
 
-    return {"platform": platform, os_field: os_name, "architecture": arch}
+    return {"platform": platform, os_field: "", "architecture": ""}
 
 
 def fetch_url(url):
     try:
-        response = requests.get(url, headers={"User-agent": "mach-test-info/1.0"}, timeout=10)
+        response = requests.get(url, headers={"User-agent": "treeherder/1.0"}, timeout=10)
     except requests.exceptions.Timeout:
         print(f"timeout fetching {url}")
         raise
@@ -108,7 +106,7 @@ def tasks_to_jobdata(all_tasks, project, revision):
                     for x in och
                     if x["option_collection_hash"] == task["option_collection_hash"]
                 ][0],
-                "who": f"{task['machine_name'][:20]}@fakemail.com",  # task["who"], <= protect the privacy of real developers
+                "who": f"{task['machine_name'][:20]}@example.com",  # task["who"], <= protect the privacy of real developers
                 "group_symbol": task["job_group_symbol"],
                 "state": task["state"],
                 "artifact": {"log_urls": [], "type": "", "name": "", "blob": ""},
@@ -154,7 +152,7 @@ def get_push_data(project, output_file):
                     "result_set_id": r["result_set_id"],
                     "repository_id": r["repository_id"],
                     "revision": r["revision"],
-                    "author": "Fake Hacker <hacker1@fakemail.com>",  # preserve identidy: r["author"],
+                    "author": "Fake Hacker <hacker1@example.com>",  # preserve identity: r["author"],
                     "comment": r["comments"],
                 }
             )
@@ -179,9 +177,9 @@ def reduce_push_data(top_revision, output_file):
     for item in data:
         if item["revision"] != top_revision and not output:
             continue
-        item["author"] = f"hacker{len(output)}@fakemail.com"
+        item["author"] = f"hacker{len(output)}@example.com"
         for revision in item["revisions"]:
-            revision["author"] = f"Hacker {len(output)} <hacker{len(output)}@fakemail.com>"
+            revision["author"] = f"Hacker {len(output)} <hacker{len(output)}@example.com>"
         output.append(item)
 
     with open(output_file, "w") as f:
@@ -263,7 +261,7 @@ def generate_pulse_job_data(tasks, revision, output_file):
             "jobKind": "test" if "test" in task["job_type_name"] else "build",
             "runMachine": parse_build_platform(task["job_type_name"], os_field="os"),
             "buildMachine": parse_build_platform(task["build_platform"], os_field="os"),
-            "owner": f"{task['machine_name'][:20]}@fakemail.com",  # task["who"], <= protect the privacy of real developers
+            "owner": f"{task['machine_name'][:20]}@example.com",  # task["who"], <= protect the privacy of real developers
             "reason": task["reason"],
             "productName": "Firefox",
             "labels": [
@@ -326,7 +324,7 @@ def generate_pulse_job_data(tasks, revision, output_file):
             ][0],
             "machine_platform": parse_build_platform(task["job_type_name"]),
             "build_system_type": task["build_system_type"],
-            "who": f"{task['machine_name'][:20]}@fakemail.com",  # task["who"], <= protect the privacy of real developers
+            "who": f"{task['machine_name'][:20]}@example.com",  # task["who"], <= protect the privacy of real developers
             "group_symbol": task["job_group_symbol"],
             "reason": task["reason"],
             "group_name": task["job_group_name"],
