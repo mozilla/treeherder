@@ -4,10 +4,15 @@ import { Button } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
-import { thBugSuggestionLimit, thEvents } from '../../../helpers/constants';
+import {
+  thBugSuggestionLimit,
+  thEvents,
+  requiredInternalOccurrences,
+} from '../../../helpers/constants';
 import { getResultState, isReftest } from '../../../helpers/job';
 import { getReftestUrl } from '../../../helpers/url';
 import BugFiler from '../../BugFiler';
+import InternalIssueFiler from '../../InternalIssueFiler';
 import BugSuggestionsModel from '../../../models/bugSuggestions';
 
 import ErrorsList from './ErrorsList';
@@ -20,6 +25,7 @@ class FailureSummaryTab extends React.Component {
 
     this.state = {
       isBugFilerOpen: false,
+      isInternalIssueFilerOpen: false,
       suggestions: [],
       errors: [],
       bugSuggestionsLoading: false,
@@ -52,9 +58,25 @@ class FailureSummaryTab extends React.Component {
     });
   };
 
+  fileInternalIssue = (suggestion) => {
+    const { selectedJob, pinJob } = this.props;
+
+    pinJob(selectedJob);
+    this.setState({
+      isInternalIssueFilerOpen: true,
+      suggestion,
+    });
+  };
+
   toggleBugFiler = () => {
     this.setState((prevState) => ({
       isBugFilerOpen: !prevState.isBugFilerOpen,
+    }));
+  };
+
+  toggleInternalIssueFiler = () => {
+    this.setState((prevState) => ({
+      isInternalIssueFilerOpen: !prevState.isInternalIssueFilerOpen,
     }));
   };
 
@@ -65,6 +87,30 @@ class FailureSummaryTab extends React.Component {
     window.dispatchEvent(new CustomEvent(thEvents.saveClassification));
     // Open the newly filed bug in a new tab or window for further editing
     window.open(data.url);
+  };
+
+  internalIssueFilerCallback = async (data) => {
+    const { addBug } = this.props;
+    const { suggestion, suggestions } = this.state;
+
+    await addBug({ ...data, newBug: `i${data.internal_id}` });
+    window.dispatchEvent(new CustomEvent(thEvents.saveClassification));
+
+    // Try matching an internal bug already fetched with enough occurences
+    const internalBugs = suggestions
+      .map((s) => s.bugs.open_recent)
+      .flat()
+      .filter((bug) => bug.id === null);
+    const existingBug = internalBugs.filter(
+      (bug) => bug.internal_id === data.internal_id,
+    )[0];
+    // Check if we reached the required number of occurrence to open a bug in Bugzilla
+    if (
+      existingBug &&
+      existingBug.occurrences >= requiredInternalOccurrences - 1
+    ) {
+      this.fileBug(suggestion);
+    }
   };
 
   loadBugSuggestions = () => {
@@ -154,6 +200,7 @@ class FailureSummaryTab extends React.Component {
     } = this.props;
     const {
       isBugFilerOpen,
+      isInternalIssueFilerOpen,
       suggestion,
       bugSuggestionsLoading,
       suggestions,
@@ -205,6 +252,9 @@ class FailureSummaryTab extends React.Component {
               index={index}
               suggestion={suggestion}
               toggleBugFiler={() => this.fileBug(suggestion)}
+              toggleInternalIssueFiler={() =>
+                this.fileInternalIssue(suggestion)
+              }
               selectedJob={selectedJob}
               addBug={addBug}
               currentRepo={currentRepo}
@@ -302,6 +352,17 @@ class FailureSummaryTab extends React.Component {
             selectedJob={selectedJob}
             currentRepo={currentRepo}
             platform={selectedJob.platform}
+          />
+        )}
+
+        {isInternalIssueFilerOpen && (
+          <InternalIssueFiler
+            isOpen={isInternalIssueFilerOpen}
+            suggestion={suggestion}
+            toggle={this.toggleInternalIssueFiler}
+            jobGroupName={selectedJob.job_group_name}
+            jobTypeName={selectedJob.job_type_name}
+            successCallback={this.internalIssueFilerCallback}
           />
         )}
       </div>
