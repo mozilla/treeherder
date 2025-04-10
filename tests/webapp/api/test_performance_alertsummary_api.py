@@ -256,7 +256,7 @@ def test_performance_alert_summary_change_from_revision(
     assert resp.status_code == 200
     assert PerformanceAlertSummary.objects.get(id=1).prev_push.revision == test_push.revision
 
-    # verify we can set non-existing revision
+    # verify we cannot set non-existing revision
     resp = client.put(
         reverse("performance-alert-summaries-list") + "1/",
         {"prev_push_revision": "no-push-revision"},
@@ -287,7 +287,7 @@ def test_performance_alert_summary_change_revision(
     assert resp.status_code == 200
     assert PerformanceAlertSummary.objects.get(id=1).push.revision == test_push.revision
 
-    # verify we can set non-existing revision
+    # verify we cannot set non-existing revision
     resp = client.put(
         reverse("performance-alert-summaries-list") + "1/",
         {"revision": "no-push-revision"},

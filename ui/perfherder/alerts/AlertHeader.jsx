@@ -42,8 +42,9 @@ const AlertHeader = ({
     setnewRevisionFrom('');
     setInEditMode(true);
   };
-  const handleRevisionChange = (pushORfrom) => (event) => {
-    if (pushORfrom === 'push') setnewRevisionTo(event.target.value);
+  const handleRevisionChange = (revisionType) => (event) => {
+    // revisionType can only to be "to" or "from"
+    if (revisionType === 'to') setnewRevisionTo(event.target.value);
     else setnewRevisionFrom(event.target.value);
   };
   const saveRevision = async () => {
@@ -85,8 +86,9 @@ const AlertHeader = ({
     );
     return issueTrackerUrl + alertSummary.bug_number;
   };
-  const handleRevertRevision = (pushORfrom) => () => {
-    if (pushORfrom === 'push') setnewRevisionTo(alertSummary.original_revision);
+  const handleRevertRevision = (revisionType) => () => {
+    // revisionType can only to be "to" or "from"
+    if (revisionType === 'to') setnewRevisionTo(alertSummary.original_revision);
     else setnewRevisionFrom(alertSummary.original_prev_push_revision);
   };
   const bugNumber = alertSummary.bug_number
@@ -281,7 +283,7 @@ const AlertHeader = ({
                 <Input
                   value={newRevisionTo}
                   placeholder="Enter desired revision"
-                  onChange={handleRevisionChange('push')}
+                  onChange={handleRevisionChange('to')}
                   autoFocus
                 />
               </InputGroup>
@@ -293,7 +295,7 @@ const AlertHeader = ({
                 disabled={
                   alertSummary.original_revision === alertSummary.revision
                 }
-                onClick={handleRevertRevision('push')}
+                onClick={handleRevertRevision('to')}
               >
                 Reset Revision
               </Button>
