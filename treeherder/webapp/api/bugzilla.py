@@ -93,9 +93,21 @@ class BugzillaViewSet(viewsets.ViewSet):
             return Response({"failure": message}, status=HTTP_400_BAD_REQUEST)
 
         bug_id = response.json()["id"]
-        Bugscache.objects.create(
-            bugzilla_id=bug_id,
-            modified=timezone.now(),
-            summary=summary.decode("utf-8"),
+        summary = summary.decode("utf-8")
+        # Creation API only returns the ID, but the bug will be updated later on by `treeherder.etl.bugzilla.BzApiBugProcess`
+        bug = Bugscache.objects.filter(bugzilla_id=bug_id).first()
+        if not bug:
+            bugs = list(Bugscache.objects.filter(summary=summary).order_by("modified"))
+            if bugs and not (bug := next((b.bugzilla_id == bug_id for b in bugs), None)):
+                bug = bugs[-1]
+                bug.modified = timezone.now()
+                bug.bugzilla_id = bug_id
+                bug.save()
+        internal_id = bug.id if bug else None
+        return Response(
+            {
+                "id": bug_id,
+                "internal_id": internal_id,
+                "url": get_bug_url(bug_id, settings.BUGFILER_API_URL),
+            }
         )
-        return Response({"id": bug_id, "url": get_bug_url(bug_id, settings.BUGFILER_API_URL)})
