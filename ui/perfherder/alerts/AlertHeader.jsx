@@ -111,25 +111,6 @@ const AlertHeader = ({
               PerfCompare comparison
             </a>
           </Row>
-          {alertSummary.duplicated_summaries_ids.length > 0 && (
-            <Row className="m-0 px-0 py-0">
-              Duplicated summaries:
-              {alertSummary.duplicated_summaries_ids.map((id, index) => (
-                <Link
-                  className="text-dark mr-1"
-                  target="_blank"
-                  to={`./alerts?id=${id}&hideDwnToInv=0`}
-                  id={`alert summary ${id.toString()} title`}
-                  data-testid={`alert summary ${alertSummary.id.toString()} title`}
-                  style={{ marginLeft: '5px' }}
-                >
-                  Alert #{id}
-                  {alertSummary.duplicated_summaries_ids.length - 1 !== index &&
-                    ', '}
-                </Link>
-              ))}
-            </Row>
-          )}
         </Col>
         <Col className="p-0" xs="auto">
           {inEditMode ? (
@@ -260,6 +241,24 @@ const AlertHeader = ({
           />
         </Col>
       </Row>
+      {alertSummary.duplicated_summaries_ids.length > 0 && (
+        <Row>
+          Duplicated summaries:
+          {alertSummary.duplicated_summaries_ids.map((id, index) => (
+            <Link
+              className="text-dark mr-1"
+              target="_blank"
+              to={`./alerts?id=${id}&hideDwnToInv=0`}
+              id={`duplicated alert summary ${id.toString()} `}
+              style={{ marginLeft: '5px' }}
+            >
+              Alert #{id}
+              {alertSummary.duplicated_summaries_ids.length - 1 !== index &&
+                ', '}
+            </Link>
+          ))}
+        </Row>
+      )}
       <Row>
         {performanceTags.length > 0 && (
           <Col className="p-0" xs="auto">
