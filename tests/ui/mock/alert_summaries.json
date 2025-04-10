@@ -136,6 +136,7 @@
       }
     ],
     "related_alerts": [],
+    "duplicated_summaries_ids": [],
     "status": 0,
     "bug_number": null,
     "bug_updated": null,
@@ -223,6 +224,7 @@
       }
     ],
     "related_alerts": [],
+    "duplicated_summaries_ids": [],
     "status": 0,
     "bug_number": null,
     "bug_updated": null,
@@ -358,6 +360,7 @@
       }
     ],
     "related_alerts": [],
+    "duplicated_summaries_ids": [],
     "status": 0,
     "bug_number": null,
     "bug_updated": null,
