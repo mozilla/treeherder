@@ -544,7 +544,7 @@ def test_stalled_data_removal(
     test_perf_signature, test_perf_signature_2, test_perf_data, test_perf_alert
 ):
     max_timestamp = datetime.now() - timedelta(days=120)
-    test_perf_signature.last_updated = max_timestamp - timedelta(days=1)
+    test_perf_signature.last_updated = max_timestamp - timedelta(days=2)
     test_perf_signature.save()
     test_perf_signature_2.last_updated = max_timestamp
     test_perf_signature_2.save()
@@ -559,17 +559,21 @@ def test_stalled_data_removal(
         value=1.0,
     )
 
+    test_perf_alert.created = max_timestamp
+    test_perf_alert.save()
+
     assert test_perf_signature in PerformanceSignature.objects.filter(
         last_updated__lt=max_timestamp
     )
 
     call_command("cycle_data", "from:perfherder")
 
-    assert test_perf_signature not in PerformanceSignature.objects.all()
-    assert test_perf_data not in PerformanceDatum.objects.all()
-    assert test_perf_alert not in PerformanceAlert.objects.all()
     assert test_perf_signature_2 in PerformanceSignature.objects.all()
     assert seg2_data in PerformanceDatum.objects.all()
+    assert test_perf_data not in PerformanceDatum.objects.all()
+    # TODO: I am not sure why these fail, after updating data everything else works but this
+    assert test_perf_alert not in PerformanceAlert.objects.all()
+    assert test_perf_signature not in PerformanceSignature.objects.all()
 
 
 @pytest.mark.parametrize(

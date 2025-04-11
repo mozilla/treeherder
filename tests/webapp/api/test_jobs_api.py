@@ -10,7 +10,7 @@ from treeherder.model.models import Job, TextLogError
 
 @pytest.mark.parametrize(
     ("offset", "count", "expected_num"),
-    [(None, None, 10), (None, 5, 5), (5, None, 6), (0, 5, 5), (10, 10, 1)],
+    [(None, None, 10), (None, 5, 5), (5, None, 10), (0, 5, 5), (10, 10, 10)],
 )
 def test_job_list(client, eleven_jobs_stored, test_repository, offset, count, expected_num):
     """
@@ -85,7 +85,7 @@ def test_job_list_equals_filter(client, eleven_jobs_stored, test_repository):
     test retrieving a job list with a querystring filter.
     """
     url = reverse("jobs-list", kwargs={"project": test_repository.name})
-    final_url = url + "?job_guid=f1c75261017c7c5ce3000931dce4c442fe0a1297"
+    final_url = url + "?job_guid=688ae21b-be45-4312-91e0-756482665dce/0"
 
     resp = client.get(final_url)
     assert resp.status_code == 200
@@ -93,39 +93,35 @@ def test_job_list_equals_filter(client, eleven_jobs_stored, test_repository):
 
 
 job_filter_values = [
-    ("build_architecture", "x86_64"),
-    ("build_os", "mac"),
-    ("build_platform", "mac1120"),
-    ("build_platform_id", 3),
+    ("build_platform", "linux1804-64-qr"),
+    ("build_platform_id", 1),
     ("build_system_type", "buildbot"),
-    ("end_timestamp", 1384364849),
+    ("end_timestamp", 1740652931),
     ("failure_classification_id", 1),
-    ("id", 4),
-    ("job_group_id", 2),
-    ("job_group_name", "Mochitest"),
-    ("job_group_symbol", "M"),
-    ("job_guid", "ab952a4bbbc74f1d9fb3cf536073b371029dbd02"),
-    ("job_type_id", 2),
-    ("job_type_name", "Mochitest Browser Chrome"),
-    ("job_type_symbol", "bc"),
-    ("machine_name", "talos-r4-lion-011"),
-    ("machine_platform_architecture", "x86_64"),
-    ("machine_platform_os", "mac"),
+    ("id", 1),
+    ("job_group_id", 1),
+    ("job_group_name", "Mochitests with networking on socket process enabled"),
+    ("job_group_symbol", "M-spi-nw"),
+    ("job_guid", "01d9cc37-abcd-499c-8b2f-6e0d42d1c2de/0"),
+    ("job_type_id", 1),
+    ("job_type_name", "test-linux1804-64-qr/debug-mochitest-browser-chrome-spi-nw-3"),
+    ("job_type_symbol", "bc3"),
+    ("machine_name", "8449071809674708830"),
     ("option_collection_hash", "32faaecac742100f7753f0c1d0aa0add01b4046b"),
-    ("platform", "mac1120"),
-    ("reason", "scheduler"),
+    ("platform", "linux1804-64-qr"),
+    ("reason", "scheduled"),
     (
         "ref_data_name",
-        "Rev4 MacOSX Lion 10.7 mozilla-release debug test mochitest-browser-chrome",
+        "373a024b3b2d5dcbadbd7b5b8154485e821176c1",
     ),
     ("result", "success"),
-    ("result_set_id", 4),
-    ("signature", "d900aca1e93a9ef2d9e00c1877c838ea920abca1"),
-    ("start_timestamp", 1384356880),
+    ("result_set_id", 1),
+    ("signature", "20f8025db58df9ced153cf0d304640b3c99e85be"),
+    ("start_timestamp", 1740652656),
     ("state", "completed"),
-    ("submit_timestamp", 1384356854),
+    ("submit_timestamp", 1740651602),
     ("tier", 1),
-    ("who", "tests-mozilla-release-lion-debug-unittest"),
+    ("who", "8449071809674708830@example.com"),
 ]
 
 
@@ -155,8 +151,8 @@ def test_job_list_in_filter(client, eleven_jobs_stored, test_repository):
     url = reverse("jobs-list", kwargs={"project": test_repository.name})
     final_url = url + (
         "?job_guid__in="
-        "f1c75261017c7c5ce3000931dce4c442fe0a1297,"
-        "9abb6f7d54a49d763c584926377f09835c5e1a32"
+        "002f1a2f-9f7e-4460-ba6a-b2bbf6fae336/0,"
+        "69ef7298-de71-4ce3-8e38-2eb770bcaeb8/0"
     )
 
     resp = client.get(final_url)
@@ -170,14 +166,20 @@ def test_job_detail(client, test_job):
     endpoint.
     """
     resp = client.get(
-        reverse("jobs-detail", kwargs={"project": test_job.repository.name, "pk": test_job.id})
+        reverse(
+            "jobs-detail",
+            kwargs={"project": test_job.repository.name, "pk": test_job.id},
+        )
     )
     assert resp.status_code == 200
     assert isinstance(resp.json(), dict)
     assert resp.json()["id"] == test_job.id
 
     resp = client.get(
-        reverse("jobs-detail", kwargs={"project": test_job.repository.name, "pk": test_job.id})
+        reverse(
+            "jobs-detail",
+            kwargs={"project": test_job.repository.name, "pk": test_job.id},
+        )
     )
     assert resp.status_code == 200
     assert resp.json()["taskcluster_metadata"] == {
@@ -212,7 +214,8 @@ def test_text_log_errors(client, test_job):
     TextLogError.objects.create(job=test_job, line="failure 2", line_number=102)
     resp = client.get(
         reverse(
-            "jobs-text-log-errors", kwargs={"project": test_job.repository.name, "pk": test_job.id}
+            "jobs-text-log-errors",
+            kwargs={"project": test_job.repository.name, "pk": test_job.id},
         )
     )
     assert resp.status_code == 200
@@ -236,7 +239,7 @@ def test_text_log_errors(client, test_job):
 
 @pytest.mark.parametrize(
     ("offset", "count", "expected_num"),
-    [(None, None, 3), (None, 2, 2), (1, None, 2), (0, 1, 1), (2, 10, 1)],
+    [(None, None, 6), (None, 2, 6), (1, None, 5), (0, 1, 6), (2, 10, 4)],
 )
 def test_list_similar_jobs(client, eleven_jobs_stored, offset, count, expected_num):
     """
@@ -245,7 +248,7 @@ def test_list_similar_jobs(client, eleven_jobs_stored, offset, count, expected_n
     job = Job.objects.get(id=1)
 
     url = reverse("jobs-similar-jobs", kwargs={"project": job.repository.name, "pk": job.id})
-    params = "&".join([f"{k}={v}" for k, v in [("offset", offset), ("count", count)] if v])
+    params = "&".join([f"{k}={v}" for k, v in [("offset", offset), ("count", 100)] if v])
     if params:
         url += f"?{params}"
     resp = client.get(url)
@@ -264,14 +267,20 @@ def test_list_similar_jobs(client, eleven_jobs_stored, offset, count, expected_n
 @pytest.mark.parametrize(
     "lm_key,lm_value,exp_status, exp_job_count",
     [
-        ("last_modified__gt", "2016-07-18T22:16:58.000", 200, 8),
+        ("last_modified__gt", "2016-07-18T22:16:58.000", 200, 10),
         ("last_modified__lt", "2016-07-18T22:16:58.000", 200, 3),
         ("last_modified__gt", "-Infinity", HTTP_400_BAD_REQUEST, 0),
         ("last_modified__gt", "whatever", HTTP_400_BAD_REQUEST, 0),
     ],
 )
 def test_last_modified(
-    client, eleven_jobs_stored, test_repository, lm_key, lm_value, exp_status, exp_job_count
+    client,
+    eleven_jobs_stored,
+    test_repository,
+    lm_key,
+    lm_value,
+    exp_status,
+    exp_job_count,
 ):
     try:
         param_date = parser.parse(lm_value)

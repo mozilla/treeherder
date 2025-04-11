@@ -366,7 +366,10 @@ class Commenter:
                 bug["job__option_collection_hash"], "unknown build"
             )
             test_variant = self.get_test_variant(bug["job__signature__job_type_name"])
-            platform_and_build = f"{platform}-{architecture}/{build_type}"
+            if architecture:
+                platform_and_build = f"{platform}-{architecture}/{build_type}"
+            else:
+                platform_and_build = f"{platform}/{build_type}"
             if bug_id not in bug_map:
                 bug_infos = BugsDetails()
                 bug_infos.total = 1
