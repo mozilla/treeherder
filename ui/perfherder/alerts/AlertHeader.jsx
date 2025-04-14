@@ -36,6 +36,7 @@ const AlertHeader = ({
   const [newRevisionFrom, setnewRevisionFrom] = useState(
     alertSummary.prev_push_revision,
   );
+  const revisionToType = 'to';
 
   const handleEditMode = () => {
     setnewRevisionTo('');
@@ -43,8 +44,8 @@ const AlertHeader = ({
     setInEditMode(true);
   };
   const handleRevisionChange = (revisionType) => (event) => {
-    // revisionType can only to be "to" or "from"
-    if (revisionType === 'to') setnewRevisionTo(event.target.value);
+    // revisionType can only be "to" or "from"
+    if (revisionType === revisionToType) setnewRevisionTo(event.target.value);
     else setnewRevisionFrom(event.target.value);
   };
   const saveRevision = async () => {
@@ -87,8 +88,9 @@ const AlertHeader = ({
     return issueTrackerUrl + alertSummary.bug_number;
   };
   const handleRevertRevision = (revisionType) => () => {
-    // revisionType can only to be "to" or "from"
-    if (revisionType === 'to') setnewRevisionTo(alertSummary.original_revision);
+    // revisionType can only be "to" or "from"
+    if (revisionType === revisionToType)
+      setnewRevisionTo(alertSummary.original_revision);
     else setnewRevisionFrom(alertSummary.original_prev_push_revision);
   };
   const bugNumber = alertSummary.bug_number
