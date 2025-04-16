@@ -393,8 +393,8 @@ export class BugFilerClass extends React.Component {
       (platform.startsWith('AC-') || platform.startsWith('fenix-'))
     ) {
       this.setState({
-        suggestedProducts: ['Fenix :: General'],
-        selectedProduct: 'Fenix :: General',
+        suggestedProducts: ['Firefox for Android :: General'],
+        selectedProduct: 'Firefox for Android :: General',
         searching: false,
       });
       return;
