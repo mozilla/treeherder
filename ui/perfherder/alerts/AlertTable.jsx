@@ -236,16 +236,16 @@ export default class AlertTable extends React.Component {
     return { failureStatus };
   };
 
-  changeRevision = async (newRevision) => {
+  changeRevision = async (newRevisionTo, newRevisionFrom) => {
     const {
       updateAlertSummary,
       updateViewState,
       fetchAlertSummaries,
     } = this.props;
     const { alertSummary } = this.state;
-
     const { data, failureStatus } = await updateAlertSummary(alertSummary.id, {
-      revision: newRevision,
+      revision: newRevisionTo,
+      prev_push_revision: newRevisionFrom,
     });
 
     if (!failureStatus) {
@@ -253,7 +253,7 @@ export default class AlertTable extends React.Component {
       fetchAlertSummaries(alertSummary.id);
     } else {
       updateViewState({
-        errorMessages: [`Failed to set revision "${newRevision}". (${data})`],
+        errorMessages: [`Failed to set revisions. (${data})`],
       });
     }
 

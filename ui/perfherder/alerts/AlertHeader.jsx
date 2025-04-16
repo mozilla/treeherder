@@ -32,19 +32,37 @@ const AlertHeader = ({
   updateViewState,
 }) => {
   const [inEditMode, setInEditMode] = useState(false);
-  const [newRevision, setNewRevision] = useState(alertSummary.revision);
+  const [newRevisionTo, setnewRevisionTo] = useState(alertSummary.revision);
+  const [newRevisionFrom, setnewRevisionFrom] = useState(
+    alertSummary.prev_push_revision,
+  );
+  const revisionToType = 'to';
 
   const handleEditMode = () => {
-    setNewRevision('');
+    setnewRevisionTo('');
+    setnewRevisionFrom('');
     setInEditMode(true);
   };
-  const handleRevisionChange = (event) => {
-    setNewRevision(event.target.value);
+  const handleRevisionChange = (revisionType) => (event) => {
+    // revisionType can only be "to" or "from"
+    if (revisionType === revisionToType) setnewRevisionTo(event.target.value);
+    else setnewRevisionFrom(event.target.value);
   };
   const saveRevision = async () => {
+    const trimmedRevisionTo =
+      newRevisionTo.trim() === ''
+        ? alertSummary.revision
+        : newRevisionTo.trim();
+    const trimmedRevisionFrom =
+      newRevisionFrom.trim() === ''
+        ? alertSummary.prev_push_revision
+        : newRevisionFrom.trim();
+
     const longHashMatch = /\b[a-f0-9]{40}\b/;
-    const trimmedRevision = newRevision.trim();
-    if (!longHashMatch.test(trimmedRevision)) {
+    if (
+      !longHashMatch.test(trimmedRevisionTo) ||
+      !longHashMatch.test(trimmedRevisionFrom)
+    ) {
       updateViewState({
         errorMessages: [
           `Invalid Revision format, expected a 40 character hash.`,
@@ -52,7 +70,10 @@ const AlertHeader = ({
       });
       return;
     }
-    const response = await changeRevision(trimmedRevision);
+    const response = await changeRevision(
+      trimmedRevisionTo,
+      trimmedRevisionFrom,
+    );
     if (!response.failureStatus) {
       setInEditMode(false);
     }
@@ -66,8 +87,11 @@ const AlertHeader = ({
     );
     return issueTrackerUrl + alertSummary.bug_number;
   };
-  const handleRevertRevision = async () => {
-    await changeRevision(alertSummary.original_revision);
+  const handleRevertRevision = (revisionType) => () => {
+    // revisionType can only be "to" or "from"
+    if (revisionType === revisionToType)
+      setnewRevisionTo(alertSummary.original_revision);
+    else setnewRevisionFrom(alertSummary.original_prev_push_revision);
   };
   const bugNumber = alertSummary.bug_number
     ? `Bug ${alertSummary.bug_number}`
@@ -82,7 +106,7 @@ const AlertHeader = ({
     <Container>
       <AlertHeaderTitle alertSummary={alertSummary} frameworks={frameworks} />
       <Row className="font-weight-normal">
-        <Col className="p-0" xs="auto">
+        <Col className="p-0 pr-1" xs="auto">
           <Row className="m-0 px-0 py-0">
             <SimpleTooltip
               text={toMercurialShortDateStr(alertSummaryDatetime)}
@@ -95,55 +119,9 @@ const AlertHeader = ({
               tooltipText="Alert Summary created"
             />
           </Row>
-          <Row className="m-0 px-0 py-0">
-            <a
-              href={getPerfCompareBaseURL(
-                alertSummary.repository,
-                alertSummary.prev_push_revision,
-                alertSummary.repository,
-                alertSummary.revision,
-                alertSummary.framework,
-              )}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              PerfCompare comparison
-            </a>
-          </Row>
         </Col>
-        <Col className="p-0" xs="auto">
-          {inEditMode ? (
-            <InputGroup size="sm">
-              <Input
-                placeholder="Enter desired revision"
-                onChange={handleRevisionChange}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter') {
-                    event.preventDefault();
-                    saveRevision();
-                  }
-                  if (event.key === 'Escape') cancelEditMode();
-                }}
-                autoFocus
-              />
-              <Button
-                color="primary"
-                className="ml-1"
-                size="xs"
-                onClick={saveRevision}
-              >
-                Save
-              </Button>
-              <Button
-                color="secondary"
-                className="ml-1"
-                size="xs"
-                onClick={cancelEditMode}
-              >
-                Cancel
-              </Button>
-            </InputGroup>
-          ) : (
+        {user.isStaff && (
+          <Col className="p-0" xs="auto">
             <Button
               className="ml-1"
               color="darker-secondary"
@@ -151,18 +129,10 @@ const AlertHeader = ({
               onClick={handleEditMode}
               title="Click to edit revision"
             >
-              Edit Revision
+              Edit Revisions
             </Button>
-          )}
-        </Col>
-        {user.isStaff &&
-          alertSummary.original_revision !== alertSummary.revision && (
-            <Col className="p-0" xs="auto">
-              <Button className="ml-1" size="xs" onClick={handleRevertRevision}>
-                Reset Revision
-              </Button>
-            </Col>
-          )}
+          </Col>
+        )}
         <Col className="p-0" xs="auto">
           <UncontrolledDropdown tag="span">
             <DropdownToggle
@@ -240,6 +210,26 @@ const AlertHeader = ({
           />
         </Col>
       </Row>
+      <Row className="px-0 py-2">
+        <a
+          href={getPerfCompareBaseURL(
+            alertSummary.repository,
+            alertSummary.prev_push_revision,
+            alertSummary.repository,
+            alertSummary.revision,
+            alertSummary.framework,
+          )}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          PerfCompare comparison
+        </a>
+        {(alertSummary.original_revision !== alertSummary.revision ||
+          alertSummary.original_prev_push_revision !==
+            alertSummary.prev_push_revision) && (
+          <span className="px-2">Revisions have been modified.</span>
+        )}
+      </Row>
       <Row>
         {performanceTags.length > 0 && (
           <Col className="p-0" xs="auto">
@@ -247,6 +237,95 @@ const AlertHeader = ({
           </Col>
         )}
       </Row>
+      {inEditMode && (
+        <div>
+          <Row className="mb-2">
+            <Col xs="2" className="p-0 align-content-center">
+              <span className="align-middle">Current From: </span>
+            </Col>
+            <Col xs="2" className="p-0 align-content-center">
+              <span className="align-middle">
+                {`${alertSummary.prev_push_revision.slice(0, 12)}`}{' '}
+              </span>
+            </Col>
+
+            <Col xs="5" className="p-0">
+              <InputGroup size="sm">
+                <Input
+                  value={newRevisionFrom}
+                  placeholder="Enter desired revision"
+                  onChange={handleRevisionChange('from')}
+                  autoFocus
+                />
+              </InputGroup>
+            </Col>
+            <Col xs="3" className="p-0">
+              <Button
+                className="ml-1"
+                size="sm"
+                disabled={
+                  alertSummary.original_prev_push_revision ===
+                  alertSummary.prev_push_revision
+                }
+                onClick={handleRevertRevision('from')}
+              >
+                Reset Revision
+              </Button>
+            </Col>
+          </Row>
+          <Row className="mb-2">
+            <Col xs="2" className="p-0 align-content-center">
+              <span className="align-middle">Current To: </span>
+            </Col>
+            <Col xs="2" className="p-0 align-content-center">
+              <span className="align-middle">{formattedSummaryRevision} </span>
+            </Col>
+            <Col xs="5" className="p-0">
+              <InputGroup size="sm">
+                <Input
+                  value={newRevisionTo}
+                  placeholder="Enter desired revision"
+                  onChange={handleRevisionChange('to')}
+                  autoFocus
+                />
+              </InputGroup>
+            </Col>
+            <Col xs="3" className="p-0">
+              <Button
+                className="ml-1"
+                size="sm"
+                disabled={
+                  alertSummary.original_revision === alertSummary.revision
+                }
+                onClick={handleRevertRevision('to')}
+              >
+                Reset Revision
+              </Button>
+            </Col>
+          </Row>
+          <Row>
+            <Col className="p-0">
+              <Button
+                color="primary"
+                className="ml-1"
+                size="xs"
+                disabled={newRevisionTo === '' && newRevisionFrom === ''}
+                onClick={saveRevision}
+              >
+                Save
+              </Button>
+              <Button
+                color="secondary"
+                className="ml-1"
+                size="xs"
+                onClick={cancelEditMode}
+              >
+                Cancel
+              </Button>
+            </Col>
+          </Row>
+        </div>
+      )}
     </Container>
   );
 };
