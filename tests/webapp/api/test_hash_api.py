@@ -33,7 +33,7 @@ def test_all_good(client):
     ):
         resp = client.get(
             reverse("hash-tocommit", kwargs={"project": "try"}),
-            {"baseHash": basehash, "newHash": newhash},
+            {"basehash": basehash, "newhash": newhash},
         )
     assert resp.status_code == HTTP_200_OK
     assert resp.json() == {"originalRevision": "1ebfd5", "newRevision": "1ebfd5"}
@@ -51,7 +51,7 @@ def test_no_newhash_commit_returned(client):
     ):
         resp = client.get(
             reverse("hash-tocommit", kwargs={"project": "try"}),
-            {"baseHash": basehash, "newHash": newhash},
+            {"basehash": basehash, "newhash": newhash},
         )
     assert resp.status_code == HTTP_400_BAD_REQUEST
     assert resp.json() == [
@@ -71,7 +71,7 @@ def test_no_basehash_commit_returned(client):
     ):
         resp = client.get(
             reverse("hash-tocommit", kwargs={"project": "try"}),
-            {"baseHash": basehash, "newHash": newhash},
+            {"basehash": basehash, "newhash": newhash},
         )
     assert resp.status_code == HTTP_400_BAD_REQUEST
     assert resp.json() == [
@@ -87,10 +87,10 @@ def test_invalid_newhash_parameter(client):
     newhash = "Invalid"
     resp = client.get(
         reverse("hash-tocommit", kwargs={"project": "try"}),
-        {"baseHash": basehash, "newHash": newhash},
+        {"basehash": basehash, "newhash": newhash},
     )
     assert resp.status_code == HTTP_400_BAD_REQUEST
-    assert resp.json() == {"newHash": [f"{newhash} is not numeric."]}
+    assert resp.json() == {"newhash": [f"{newhash} is not numeric."]}
 
 
 def test_invalid_basehash_parameter(client):
@@ -101,7 +101,7 @@ def test_invalid_basehash_parameter(client):
     newhash = "124898925481"
     resp = client.get(
         reverse("hash-tocommit", kwargs={"project": "try"}),
-        {"baseHash": basehash, "newHash": newhash},
+        {"basehash": basehash, "newhash": newhash},
     )
     assert resp.status_code == 400
-    assert resp.json() == {"baseHash": [f"{basehash} is not numeric."]}
+    assert resp.json() == {"basehash": [f"{basehash} is not numeric."]}
