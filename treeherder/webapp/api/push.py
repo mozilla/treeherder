@@ -91,7 +91,6 @@ class PushViewSet(viewsets.ViewSet):
                 .distinct()
                 .order_by("-time")[:200]
             )  # Get most recent results and limit result to 200
-            print(pushes.query)
         for param, value in meta.items():
             if param == "fromchange":
                 revision_field = "revision__startswith" if len(value) < 40 else "revision"
