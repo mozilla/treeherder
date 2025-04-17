@@ -36,7 +36,7 @@ def test_all_good(client):
             {"basehash": basehash, "newhash": newhash},
         )
     assert resp.status_code == HTTP_200_OK
-    assert resp.json() == {"originalRevision": "1ebfd5", "newRevision": "1ebfd5"}
+    assert resp.json() == {"baseRevision": "1ebfd5", "newRevision": "1ebfd5"}
 
 
 def test_no_newhash_commit_returned(client):

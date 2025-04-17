@@ -25,4 +25,4 @@ class HashViewSet(viewsets.ViewSet):
             raise exceptions.ValidationError(
                 f"{newhash} or {basehash} do not correspond to any existing hashes please double check both hashes you provided"
             )
-        return Response({"originalRevision": basepush.revision, "newRevision": newpush.revision})
+        return Response({"baseRevision": basepush.revision, "newRevision": newpush.revision})
