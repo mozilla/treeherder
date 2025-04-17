@@ -23,7 +23,7 @@ class MockedCommitSet:
 
 def test_all_good(client):
     """
-    test that we have a sane error when the repository does not exist
+    test normal functionality
     """
     basehash = "494224"
     newhash = "4124814"
@@ -41,7 +41,7 @@ def test_all_good(client):
 
 def test_no_newhash_commit_returned(client):
     """
-    test that we have a sane error when the repository does not exist
+    test when no newhash is not found as a string in any commit we get the expected failure
     """
     basehash = "492424224"
     newhash = "412894814"
@@ -61,7 +61,7 @@ def test_no_newhash_commit_returned(client):
 
 def test_no_basehash_commit_returned(client):
     """
-    test that we have a sane error when the repository does not exist
+    test when no basehash is not found as a string in any commit we get the expected failure
     """
     basehash = "412894814"
     newhash = "492424224"
@@ -81,7 +81,7 @@ def test_no_basehash_commit_returned(client):
 
 def test_invalid_newhash_parameter(client):
     """
-    test that we have a sane error when the repository does not exist
+    test that when we provide a newhash it is numeric
     """
     basehash = "124898925481"
     newhash = "Invalid"
@@ -95,7 +95,7 @@ def test_invalid_newhash_parameter(client):
 
 def test_invalid_basehash_parameter(client):
     """
-    test that we have a sane error when the repository does not exist
+    test that when we provide a basehash it is numeric
     """
     basehash = "Invalid"
     newhash = "124898925481"
