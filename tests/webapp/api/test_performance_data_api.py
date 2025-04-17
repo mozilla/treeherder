@@ -484,7 +484,7 @@ def test_perf_summary(client, test_perf_signature, test_perf_data):
 
     query_params1 = f"?repository={test_perf_signature.repository.name}&framework={test_perf_signature.framework_id}&interval=172800&no_subtests=true&revision={test_perf_data[0].push.revision}"
 
-    query_params2 = f"?repository={test_perf_signature.repository.name}&framework={test_perf_signature.framework_id}&interval=172800&no_subtests=true&startday=2013-11-01T23%3A28%3A29&endday=2013-11-30T23%3A28%3A29"
+    query_params2 = f"?repository={test_perf_signature.repository.name}&framework={test_perf_signature.framework_id}&interval=172800&no_subtests=true&startday=2024-02-01T23%3A28%3A29&endday=2025-03-28T23%3A28%3A29"
 
     expected = [
         {
@@ -775,10 +775,10 @@ def test_alert_summary_tasks_get(client, test_perf_alert_summary, test_perf_data
     assert resp.json() == {
         "id": test_perf_alert_summary.id,
         "tasks": [
-            "Inari Device Image Build",
-            "Linux x64 Tsan Build",
-            "Mochitest Browser Chrome",
-            "Nexus 4 Device Image Build",
+            "test-linux1804-64-qr/debug-mochitest-browser-chrome-spi-nw-10",
+            "test-linux1804-64-qr/debug-mochitest-browser-chrome-spi-nw-11",
+            "test-linux1804-64-qr/debug-mochitest-devtools-chrome-9",
+            "test-linux1804-64-qr/debug-xpcshell-3",
         ],
     }
 

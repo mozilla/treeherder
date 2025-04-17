@@ -146,6 +146,7 @@ properties:
     description: |
       fail: A failure
       exception: An infrastructure error/exception
+      retry: Task has a known exception and is automatically retried
       success: Build/Test executed without error or failure
       canceled: The job was cancelled by a user
       unknown: When the job is not yet completed
@@ -155,6 +156,7 @@ properties:
       - success
       - fail
       - exception
+      - retry
       - canceled
       - superseded
       - unknown

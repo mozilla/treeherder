@@ -96,4 +96,24 @@ Just the `test_ingest_pending_pulse_job` within the `/etl` tests
 docker-compose run backend pytest tests/ -k test_ingest_pending_pulse_job
 ```
 
+### Updating backend python test data
+
+There are many parts of the backend data, this section will continue to be updated as we document this process.
+
+For the `sample_data/` there is `tests/sample_data/transform.py`:
+
+- `push_data.json`: list of commits
+- `job_data.txt`: list of job data as returned from the TH jobs api
+- `pulse_consumer/job_data.json`: specific data that pulse would have for related jobs and pushes
+- `pulse_consumer/transformed_job_data.json`: what we transform the pulse data to
+
+That will update the data used for `etl/` using recent live data from autoland.
+
+There are a lot of taskid, revisions, and expected fields to update in tests.  Future work could be done to:
+
+- create a revision list and reference it instead of raw revisions
+- create an input file as a start date, end date, and use that instead of hard coded dates in many tests
+- ensure variety of platforms, builds, tests, pass/fail, etc. are included
+- push_data.json - adjust the dates to have multiple days (1st +1, 2nd +2, 3rd +3)
+
 [eslint]: https://eslint.org

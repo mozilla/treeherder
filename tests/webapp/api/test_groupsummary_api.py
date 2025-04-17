@@ -29,7 +29,7 @@ def test_default_date(group_data, client):
 # test jobname chunk removal and aggregation
 def test_summarized(group_data, client):
     expected = group_data["expected"]
-    startdate = str(group_data["date"]).split(" ")[0]
+    startdate = str(group_data["query_string"]).split("=")[-1]
     url = reverse("groupsummary") + f"?startdate={startdate}"
     resp = client.get(url)
     assert resp.status_code == 200
