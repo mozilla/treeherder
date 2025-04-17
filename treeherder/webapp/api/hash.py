@@ -1,6 +1,6 @@
 import logging
 
-from rest_framework import exceptions, viewsets
+from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
@@ -21,8 +21,5 @@ class HashViewSet(viewsets.ViewSet):
         basehash = query_params.validated_data["basehash"]
         newpush = Commit.objects.filter(comments__contains=newhash).first()
         basepush = Commit.objects.filter(comments__contains=basehash).first()
-        if newpush is None or basepush is None:
-            raise exceptions.ValidationError(
-                f"{newhash} or {basehash} do not correspond to any existing hashes please double check both hashes you provided"
-            )
+        HashQuerySerializer.validate_pushes(newpush, newhash, basepush, basehash)
         return Response({"baseRevision": basepush.revision, "newRevision": newpush.revision})
