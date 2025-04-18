@@ -137,6 +137,14 @@ export class InternalIssueFilerClass extends React.Component {
     const { summary } = this.state;
     const { notify, successCallback, toggle } = this.props;
 
+    if (summary.length > 255) {
+      notify(
+        'Please ensure the summary is no more than 255 characters',
+        'danger',
+      );
+      return;
+    }
+
     const resp = await create(getApiUrl('/internal_issue/'), { summary });
     if (resp?.failureStatus && resp.failureStatus >= 400) {
       const msg =
@@ -174,6 +182,14 @@ export class InternalIssueFilerClass extends React.Component {
                     this.setState({ summary: evt.target.value })
                   }
                 />
+                <span
+                  id="summaryLength"
+                  className={`ml-1 font-weight-bold lg ${
+                    summary.length > 255 ? 'text-danger' : 'text-success'
+                  }`}
+                >
+                  {summary.length}
+                </span>
               </div>
             </form>
           </ModalBody>
