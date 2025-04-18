@@ -109,6 +109,7 @@ class FailureSummaryTab extends React.Component {
       existingBug &&
       existingBug.occurrences >= requiredInternalOccurrences - 1
     ) {
+      existingBug.occurrences += 1;
       this.fileBug(suggestion);
     }
   };
