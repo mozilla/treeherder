@@ -1,6 +1,7 @@
 import datetime
 
 import pytest
+from django.contrib.postgres.search import SearchVector
 from django.urls import reverse
 
 from tests.conftest import IS_WINDOWS
@@ -405,16 +406,20 @@ def test_push_search(client, test_repository):
     Commit.objects.create(
         push=push1, revision="1234abcd", author="kaz <foo@bar.com>", comments="Initial commit"
     )
+
     Commit.objects.create(
         push=push2, revision="2234abcd", author="foo <foo2@bar.com>", comments="Bug 12345567 - fix"
     )
+
     Commit.objects.create(
         push=push3,
         revision="3234abcd",
         author="quxzan <qux@bar>.com",
         comments="Bug 12345567 - Feature added",
     )
-
+    Commit.objects.update(
+        search_vector=SearchVector("revision", "author", "comments", config="english")
+    )
     # Test search by comments
     resp = client.get(
         reverse("push-list", kwargs={"project": test_repository.name}) + "?search=bug"
@@ -422,6 +427,7 @@ def test_push_search(client, test_repository):
     assert resp.status_code == 200
 
     results = resp.json()["results"]
+
     assert len(results) == 2
     assert set([result["id"] for result in results]) == set([3, 2])
 
@@ -442,7 +448,7 @@ def test_push_search(client, test_repository):
     assert resp.status_code == 200
 
     results = resp.json()["results"]
-    assert len(results) == 1
+    assert len(results) == 2
     assert results[0]["id"] == push2.id
 
     # Test search by revision
