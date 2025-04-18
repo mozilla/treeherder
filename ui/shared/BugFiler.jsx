@@ -527,7 +527,9 @@ export class BugFilerClass extends React.Component {
           const existingBug = internalBugs.filter(
             (bug) => bug.internal_id === data.internal_id,
           )[0];
-          if (existingBug) existingBug.id = data.id;
+          if (existingBug) {
+            existingBug.id = data.id;
+          }
         }
 
         if (!failureStatus) {
