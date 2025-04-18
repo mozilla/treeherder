@@ -46,14 +46,13 @@ function BugListItem(props) {
           {bug.summary}
           {!bug.bugzilla_id && (
             <Button
-              disabled={bug.occurrences < requiredInternalOccurrences}
               className="bg-light py-1 px-2 ml-2"
               outline
               style={{ fontSize: '8px' }}
               onClick={() => toggleBugFiler(suggestion)}
               title={
                 bug.occurrences < requiredInternalOccurrences
-                  ? `${requiredInternalOccurrences} classification occurrences are required to file a bug`
+                  ? `Force file a bug (${bug.occurrences}/${requiredInternalOccurrences} occurrences)`
                   : 'File a bug for this internal issue'
               }
             >
