@@ -11,6 +11,7 @@ from treeherder.webapp.api import (
     classification,
     csp_report,
     groups,
+    hash,
     infra_compare,
     intermittents_view,
     investigated_test,
@@ -43,6 +44,11 @@ project_bound_router.register(
     basename="push",
 )
 
+project_bound_router.register(
+    r"hash",
+    hash.HashViewSet,
+    basename="hash",
+)
 
 project_bound_router.register(
     r"investigated-tests",

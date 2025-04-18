@@ -400,6 +400,21 @@ class FailuresQueryParamsSerializer(serializers.Serializer):
         return tree
 
 
+class HashQuerySerializer(serializers.Serializer):
+    basehash = serializers.CharField()
+    newhash = serializers.CharField()
+
+    def validate_basehash(self, basehash):
+        if not basehash.isnumeric():
+            raise serializers.ValidationError(f"{basehash} is not numeric.")
+        return basehash
+
+    def validate_newhash(self, newhash):
+        if not newhash.isnumeric():
+            raise serializers.ValidationError(f"{newhash} is not numeric.")
+        return newhash
+
+
 class MachinePlatformSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.MachinePlatform
