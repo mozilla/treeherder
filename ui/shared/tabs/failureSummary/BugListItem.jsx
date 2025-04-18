@@ -21,44 +21,57 @@ function BugListItem(props) {
   } = props;
   const bugUrl = getBugUrl(bug.id);
   const duplicateBugUrl = bug.dupe_of ? getBugUrl(bug.dupe_of) : undefined;
+  const internalOccurrenceButton = (
+    <Button
+      className="bg-light px-2 py-1"
+      outline
+      style={{ fontSize: '8px' }}
+      type="button"
+      onClick={() => addBug(bug, selectedJob)}
+      title="Add to list of bugs to associate with all pinned jobs"
+    >
+      <FontAwesomeIcon icon={faThumbtack} title="Select bug" />
+    </Button>
+  );
+  const bugzillaButton = (
+    <Button
+      className="bg-light py-1 px-2"
+      outline
+      style={{ fontSize: '8px' }}
+      onClick={() => toggleBugFiler(suggestion)}
+      title={
+        bug.occurrences < requiredInternalOccurrences
+          ? `Force file a bug (${bug.occurrences}/${requiredInternalOccurrences} occurrences)`
+          : 'File a bug for this internal issue'
+      }
+    >
+      <FontAwesomeIcon icon={faBug} />
+    </Button>
+  );
 
   return (
     <li data-testid="bug-list-item">
-      {!!addBug && (
-        <Button
-          className="bg-light px-2 py-1"
-          outline
-          style={{ fontSize: '8px' }}
-          type="button"
-          onClick={() => addBug(bug, selectedJob)}
-          title="Add to list of bugs to associate with all pinned jobs"
-        >
-          <FontAwesomeIcon icon={faThumbtack} title="Select bug" />
-        </Button>
-      )}
+      {!!addBug &&
+        bug.occurrences < requiredInternalOccurrences &&
+        internalOccurrenceButton}
+      {!bug.bugzilla_id &&
+        bug.occurrences >= requiredInternalOccurrences &&
+        bugzillaButton}
+      {bug.bugzilla_id}
       <span className="ml-1">i{bug.internal_id}</span>
       {!bug.id && (
         <span>
-          <span className="ml-1 mr-1" title="Number of recent classifications">
+          <span className="ml-1" title="Number of recent classifications">
             ({bug.occurrences} occurrences{' '}
             <FontAwesomeIcon icon={faThumbtack} />)
           </span>
-          {bug.summary}
-          {!bug.bugzilla_id && (
-            <Button
-              className="bg-light py-1 px-2 ml-2"
-              outline
-              style={{ fontSize: '8px' }}
-              onClick={() => toggleBugFiler(suggestion)}
-              title={
-                bug.occurrences < requiredInternalOccurrences
-                  ? `Force file a bug (${bug.occurrences}/${requiredInternalOccurrences} occurrences)`
-                  : 'File a bug for this internal issue'
-              }
-            >
-              <FontAwesomeIcon icon={faBug} />
-            </Button>
-          )}
+          <span className="mr-2">{bug.summary}</span>
+          {!!addBug &&
+            bug.occurrences >= requiredInternalOccurrences &&
+            internalOccurrenceButton}
+          {!bug.bugzilla_id &&
+            bug.occurrences < requiredInternalOccurrences &&
+            bugzillaButton}
         </span>
       )}
       {bug.id && (
