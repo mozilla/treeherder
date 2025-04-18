@@ -28,78 +28,8 @@ import {
 } from '../helpers/url';
 import { confirmFailure } from '../helpers/job';
 import { create } from '../helpers/http';
+import { omittedLeads, parseSummary, getCrashSignatures } from '../helpers/bug';
 import { notify } from '../job-view/redux/stores/notifications';
-
-const omittedLeads = [
-  'TEST-UNEXPECTED-FAIL',
-  'PROCESS-CRASH',
-  'TEST-UNEXPECTED-ERROR',
-  'REFTEST ERROR',
-];
-/*
- *  Find the first thing in the summary line that looks like a filename.
- */
-const findFilename = (summary) => {
-  // Take left side of any reftest comparisons, as the right side is the reference file
-  // eslint-disable-next-line prefer-destructuring
-  summary = summary.split('==')[0];
-  // Take the leaf node of unix paths
-  summary = summary.split('/').pop();
-  // Take the leaf node of Windows paths
-  summary = summary.split('\\').pop();
-  // Remove leading/trailing whitespace
-  summary = summary.trim();
-  // If there's a space in what's remaining, take the first word
-  // eslint-disable-next-line prefer-destructuring
-  summary = summary.split(' ')[0];
-  return summary;
-};
-/*
- *  Remove extraneous junk from the start of the summary line
- *  and try to find the failing test name from what's left
- */
-const parseSummary = (suggestion) => {
-  let summary = suggestion.search;
-  const searchTerms = suggestion.search_terms;
-  // Strip out some extra stuff at the start of some failure paths
-  let re = /file:\/\/\/.*?\/build\/tests\/reftest\/tests\//gi;
-  summary = summary.replace(re, '');
-  re = /chrome:\/\/mochitests\/content\/a11y\//gi;
-  summary = summary.replace(re, '');
-  re = /http:\/\/([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+):([0-9]+)\/tests\//gi;
-  summary = summary.replace(re, '');
-  re = /xpcshell([-a-zA-Z0-9]+)?.(ini|toml):/gi;
-  summary = summary.replace(re, '');
-  summary = summary.replace('/_mozilla/', 'mozilla/tests/');
-  // We don't want to include "REFTEST" when it's an unexpected pass
-  summary = summary.replace(
-    'REFTEST TEST-UNEXPECTED-PASS',
-    'TEST-UNEXPECTED-PASS',
-  );
-  const summaryParts = summary.split(' | ');
-
-  // If the search_terms used for finding bug suggestions
-  // contains any of the omittedLeads, that lead is needed
-  // for the full string match, so don't omit it in this case.
-  // If it's not needed, go ahead and omit it.
-  if (searchTerms.length && summaryParts.length > 1) {
-    omittedLeads.forEach((lead) => {
-      if (!searchTerms[0].includes(lead) && summaryParts[0].includes(lead)) {
-        summaryParts.shift();
-      }
-    });
-  }
-
-  // Some of the TEST-FOO bits aren't removed from the summary,
-  // so we sometimes end up with them instead of the test path here.
-  const summaryName =
-    summaryParts[0].startsWith('TEST-') && summaryParts.length > 1
-      ? summaryParts[1]
-      : summaryParts[0];
-  const possibleFilename = findFilename(summaryName);
-
-  return [summaryParts, possibleFilename];
-};
 
 export class BugFilerClass extends React.Component {
   constructor(props) {
@@ -133,7 +63,7 @@ export class BugFilerClass extends React.Component {
       summaryString = summaryString.replace(re, '');
     }
 
-    const crashSignatures = this.getCrashSignatures(suggestion);
+    const crashSignatures = getCrashSignatures(suggestion);
 
     const keywords = [];
     let isAssertion = [
@@ -282,12 +212,6 @@ export class BugFilerClass extends React.Component {
   componentDidMount() {
     this.checkForSecurityIssue();
     this.findProductByPath();
-  }
-
-  getCrashSignatures(failureLine) {
-    const crashRegex = /(\[@ .+\])/g;
-    const crashSignatures = failureLine.search.match(crashRegex);
-    return crashSignatures ? [crashSignatures[0]] : [];
   }
 
   getUnhelpfulSummaryReason(summary) {
@@ -473,7 +397,7 @@ export class BugFilerClass extends React.Component {
       keywords,
       crashSignatures,
     } = this.state;
-    const { toggle, successCallback, notify } = this.props;
+    const { toggle, successCallback, notify, suggestions } = this.props;
 
     if (!selectedProduct) {
       notify(
@@ -591,6 +515,19 @@ export class BugFilerClass extends React.Component {
           getApiUrl('/bugzilla/create_bug/'),
           payload,
         );
+        if (data.internal_id) {
+          // Directly update internal issue from suggestions
+          const internalBugs = suggestions
+            .map((s) => s.bugs.open_recent)
+            .flat()
+            .filter((bug) => bug.id === null);
+          const existingBug = internalBugs.filter(
+            (bug) => bug.internal_id === data.internal_id,
+          )[0];
+          if (existingBug) {
+            existingBug.id = data.id;
+          }
+        }
 
         if (!failureStatus) {
           toggle();
@@ -693,7 +630,7 @@ export class BugFilerClass extends React.Component {
       selectedProduct,
     } = this.state;
     const searchTerms = suggestion.search_terms;
-    const crashSignatures = this.getCrashSignatures(suggestion);
+    const crashSignatures = getCrashSignatures(suggestion);
     const unhelpfulSummaryReason = this.getUnhelpfulSummaryReason(summary);
 
     return (
