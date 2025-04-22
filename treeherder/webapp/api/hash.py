@@ -21,5 +21,5 @@ class HashViewSet(viewsets.ViewSet):
         basehash = query_params.validated_data["basehash"]
         newpush = Commit.objects.filter(comments__contains=newhash).first()
         basepush = Commit.objects.filter(comments__contains=basehash).first()
-        HashQuerySerializer.validate_pushes(newpush, newhash, basepush, basehash)
+        query_params.validate_pushes(newpush, newhash, basepush, basehash)
         return Response({"baseRevision": basepush.revision, "newRevision": newpush.revision})
