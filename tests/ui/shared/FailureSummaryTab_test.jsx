@@ -29,6 +29,7 @@ const { dispatch, getState } = store;
 
 describe('FailureSummaryTab', () => {
   const repoName = 'autoland';
+  const currentRepo = { name: repoName };
 
   beforeEach(async () => {
     fetchMock.get(getApiUrl('/jobs/?push_id=511138', repoName), selectedJob);
@@ -65,7 +66,7 @@ describe('FailureSummaryTab', () => {
              correct bug got added. */
           addBug={(bug, job) => addBug(bug, job)(dispatch, getState)}
           pinJob={() => {}}
-          repoName={repoName}
+          currentRepo={currentRepo}
         />
       </ConnectedRouter>
     </Provider>
