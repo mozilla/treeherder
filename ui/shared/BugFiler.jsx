@@ -551,7 +551,10 @@ export class BugFilerClass extends React.Component {
     ) {
       priority = '--';
     }
-    if (launchConfirmFailure) {
+    if (
+      launchConfirmFailure &&
+      whiteboard.includes('[intermittent-testcase]')
+    ) {
       // Launch confirm failure task
       this.handleConfirmFailure();
       whiteboard += '[collect_confirm_failure]';
