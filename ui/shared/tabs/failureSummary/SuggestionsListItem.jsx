@@ -47,9 +47,10 @@ export default class SuggestionsListItem extends React.Component {
       toggleBugFiler,
       selectedJob,
       addBug,
-      repoName,
+      currentRepo,
       developerMode,
     } = this.props;
+    const repoName = currentRepo.name;
     const { suggestionShowMore } = this.state;
 
     const suggestions = [];
