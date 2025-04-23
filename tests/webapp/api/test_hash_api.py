@@ -90,7 +90,7 @@ def test_invalid_newhash_parameter(client):
         {"basehash": basehash, "newhash": newhash},
     )
     assert resp.status_code == HTTP_400_BAD_REQUEST
-    assert resp.json() == {"newhash": [f"{newhash} is not numeric."]}
+    assert resp.json() == {"newhash": ["A valid integer is required."]}
 
 
 def test_invalid_basehash_parameter(client):
@@ -104,4 +104,4 @@ def test_invalid_basehash_parameter(client):
         {"basehash": basehash, "newhash": newhash},
     )
     assert resp.status_code == 400
-    assert resp.json() == {"basehash": [f"{basehash} is not numeric."]}
+    assert resp.json() == {"basehash": ["A valid integer is required."]}
