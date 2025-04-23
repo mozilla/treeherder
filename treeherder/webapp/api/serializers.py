@@ -400,6 +400,17 @@ class FailuresQueryParamsSerializer(serializers.Serializer):
         return tree
 
 
+class HashQuerySerializer(serializers.Serializer):
+    basehash = serializers.IntegerField()
+    newhash = serializers.IntegerField()
+
+    def validate_pushes(self, newpush, newhash, basepush, basehash):
+        if newpush is None or basepush is None:
+            raise serializers.ValidationError(
+                f"{newhash} or {basehash} do not correspond to any existing hashes please double check both hashes you provided"
+            )
+
+
 class MachinePlatformSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.MachinePlatform
