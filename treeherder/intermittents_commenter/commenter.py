@@ -30,6 +30,16 @@ class BugsDetailsPerPlatform:
 
 
 @dataclass
+class BugRunInfo:
+    platform: str = ""
+    arch: str = ""
+    os_name: str = ""
+    os_version: str = ""
+    build_type: str = ""
+    variants: set[str] = field(default_factory=set)
+
+
+@dataclass
 class BugsDetails:
     total: int = 0
     test_variants: set = field(default_factory=set)
@@ -326,24 +336,52 @@ class Commenter:
             return "no_variant"
         return "-".join(found_variants)
 
-    def get_all_test_variants(self, testrun_os_matrix, platform, os_name, architecture):
+    def get_all_test_variants(self, bug_run_info, testrun_os_matrix):
         """
-        Try to provide a mapping between the artifact giving the manifest and the data available in treeherder.
-        We try to retrieve the os_version from platform. For Linux and mac, that seems to work, but not
-        for windowns (and maybe android).
-        we isolate this code in a function so that we can easily improve it or replace it with better logic.
+        Try to provide a mapping between the artifact giving the manifest
+        and the data available in treeherder.
         TODO: not very consistant
         """
-        versions = list(testrun_os_matrix.keys())
-        for version in versions:
-            testrun_os_matrix[version.replace(".", "")] = testrun_os_matrix.pop(version)
-        version = platform.replace(os_name, "")
         variants = set()
         for key_version in testrun_os_matrix:
-            if key_version in version:
-                variants = set(testrun_os_matrix[key_version][architecture].keys())
-        variants.add("no_variant")
+            if key_version.replace(".", "") in bug_run_info.os_version:
+                for key_arch in testrun_os_matrix[key_version]:
+                    variants = set(testrun_os_matrix[key_version][key_arch].keys())
+        variants.add("no_variant")  # this is an assumption, we might not always have this
         return variants
+
+    def get_bug_run_info(self, bug):
+        all_platforms = ["linux", "mac", "windows", "android"]
+        info = BugRunInfo()
+        raw_data = bug["job__signature__job_type_name"]
+        # platform, os, version
+        info.platform = "linux"
+        info.os_name = "linux"
+        for substr in raw_data.split("-"):
+            if any((current_platform := platform) in substr for platform in all_platforms):
+                info.platform = substr
+                info.os_name = current_platform
+                info.os_version = substr.replace(info.os_name, "")
+                break
+        # architecture
+        info.arch = "x86"
+        if "-64" in raw_data:
+            info.arch = "x86_64"
+        elif "-aarch64" in raw_data:
+            info.arch = "aarch64"
+        # variant
+        info.variants.add(self.get_test_variant(raw_data))
+        # build_type
+        # build types can be asan/opt, etc.,
+        # so make sure that we search for 'debug' and 'opt' after other build_types
+        build_types = ["asan", "tsan", "ccov", "debug", "opt"]
+        for b_type in build_types:
+            if b_type in raw_data:
+                info.build_type = b_type
+                break
+        if not info.build_type:
+            info.build_type = "unknown build"
+        return info
 
     def build_bug_map(self, bugs, option_collection_map):
         """Build bug_map
@@ -374,44 +412,34 @@ class Commenter:
         """
         bug_map = {}
         bug_ids = [b["bug__bugzilla_id"] for b in bugs]
-        bug_summarys = Bugscache.objects.filter(bugzilla_id__in=bug_ids).values("summary")
-        manifest = self.get_test_manifest(bug_summarys)
-        testrun_matrix = []
-        if manifest:
-            testrun_matrix = (
-                fetch.fetch_testrun_matrix() if self.testrun_matrix is None else self.testrun_matrix
-            )[manifest]
-            self.testrun_matrix = testrun_matrix
-        for bug in bugs:
-            platform = bug["job__machine_platform__platform"]
-            platform = platform.replace("-shippable", "")
-            os_name = ""
-            if "linux" in platform:
-                os_name = "linux"
-            elif "mac" in platform:
-                os_name = "mac"
-            elif "win" in platform:
-                os_name = "windows"
-            architecture = "x86"
-            if "64" in platform:
-                architecture = "x86_64"
-            test_variant = self.get_test_variant(bug["job__signature__job_type_name"])
-            all_variants = {test_variant}
-            if testrun_matrix and os_name in testrun_matrix:
-                testrun_os_matrix = testrun_matrix[os_name]
-                all_variants |= self.get_all_test_variants(
-                    testrun_os_matrix, platform, os_name, architecture
+        bug_summaries = Bugscache.objects.filter(bugzilla_id__in=bug_ids).values(
+            "summary", "bugzilla_id"
+        )
+        all_variants = set()
+        for bug, bug_id in zip(bugs, bug_ids):
+            manifest = self.get_test_manifest(bug_summaries.filter(bugzilla_id=bug_id))
+            bug_testrun_matrix = []
+            if manifest:
+                testrun_matrix = (
+                    fetch.fetch_testrun_matrix()
+                    if self.testrun_matrix is None
+                    else self.testrun_matrix
                 )
+                self.testrun_matrix = testrun_matrix
+                bug_testrun_matrix = testrun_matrix[manifest]
+            bug_run_info = self.get_bug_run_info(bug)
+            all_variants = bug_run_info.variants
+            if bug_testrun_matrix and bug_run_info.os_name in bug_testrun_matrix:
+                testrun_os_matrix = bug_testrun_matrix[bug_run_info.os_name]
+                all_variants |= self.get_all_test_variants(bug_run_info, testrun_os_matrix)
             repo = bug["job__repository__name"]
-            bug_id = bug["bug__bugzilla_id"]
-            build_type = option_collection_map.get(
-                bug["job__option_collection_hash"], "unknown build"
-            )
             test_variant = self.get_test_variant(bug["job__signature__job_type_name"])
-            if architecture:
-                platform_and_build = f"{platform}-{architecture}/{build_type}"
+            if bug_run_info.arch:
+                platform_and_build = (
+                    f"{bug_run_info.platform}-{bug_run_info.arch}/{bug_run_info.build_type}"
+                )
             else:
-                platform_and_build = f"{platform}/{build_type}"
+                platform_and_build = f"{bug_run_info.platform}/{bug_run_info.build_type}"
             if bug_id not in bug_map:
                 bug_infos = BugsDetails()
                 bug_infos.total = 1
@@ -422,7 +450,7 @@ class Commenter:
             else:
                 bug_infos = bug_map[bug_id]
                 bug_infos.total += 1
-                bug_infos.test_variants.add(test_variant)
+                bug_infos.test_variants |= all_variants
                 bug_infos.per_repositories.setdefault(repo, 0)
                 bug_infos.per_repositories[repo] += 1
                 # data_table
@@ -500,7 +528,7 @@ class Commenter:
         test_name = test_name.split("?")[0]
         return test_name
 
-    def get_test_manifest(self, bug_summarys):
+    def get_test_manifest(self, bug_summaries):
         all_tests = self.get_tests_from_manifests()
         tv_strings = [
             " TV ",
@@ -524,7 +552,7 @@ class Commenter:
             "svg",
             "mp4",
         ]
-        for bug_summary_dict in bug_summarys:
+        for bug_summary_dict in bug_summaries:
             summary = bug_summary_dict["summary"]
             # ensure format we want
             if "| single tracking bug" not in summary:
@@ -569,3 +597,4 @@ class Commenter:
                 # matching test- we can access manifest
                 manifest = all_tests[test_name]
                 return manifest[0]
+        return None

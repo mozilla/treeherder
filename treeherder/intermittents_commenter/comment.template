@@ -32,7 +32,7 @@ This is the #{{rank}} most frequent failure this week.{% endif %}
 {%- for variant in test_variants -%}
   :-:|
 {%- endfor %}
-{% for platform_and_build, test_by_variant in data_table.items() -%}
+{% for platform_and_build, test_by_variant in data_table.items() | sort() -%}
 |**{{platform_and_build}}**|
   {%- for variant in test_variants -%}
     {{test_by_variant.get(variant, " ")}}|
