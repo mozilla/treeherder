@@ -5,7 +5,6 @@ from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 
 import requests
-import yaml
 from django.conf import settings
 from django.db.models import Count
 from jinja2 import Template
@@ -16,6 +15,8 @@ from treeherder.intermittents_commenter.constants import (
     WHITEBOARD_NEEDSWORK_OWNER,
 )
 from treeherder.model.models import BugJobMap, Bugscache, OptionCollection
+
+from . import fetch
 
 logger = logging.getLogger(__name__)
 
@@ -298,17 +299,11 @@ class Commenter:
         )
         return bug_ids, bugs
 
-    def fetch_test_variants(self):
-        mozilla_central_url = "https://hg.mozilla.org/mozilla-central"
-        variant_file_url = f"{mozilla_central_url}/raw-file/tip/taskcluster/kinds/test/variants.yml"
-        response = requests.get(variant_file_url, headers={"User-agent": "mach-test-info/1.0"})
-        self.test_variants = yaml.safe_load(response.text)
-        return self.test_variants
-
     def get_test_variant(self, test_suite):
         test_variants = (
-            self.fetch_test_variants() if self.test_variants is None else self.test_variants
+            fetch.fetch_test_variants() if self.test_variants is None else self.test_variants
         )
+        self.test_variants = test_variants
         # iterate through variants, allow for Base-[variant_list]
         variant_symbols = sorted(
             [
@@ -384,9 +379,9 @@ class Commenter:
         testrun_matrix = []
         if manifest:
             testrun_matrix = (
-                self.fetch_testrun_matrix() if self.testrun_matrix is None else self.testrun_matrix
-            )
-            testrun_matrix = testrun_matrix[manifest]
+                fetch.fetch_testrun_matrix() if self.testrun_matrix is None else self.testrun_matrix
+            )[manifest]
+            self.testrun_matrix = testrun_matrix
         for bug in bugs:
             platform = bug["job__machine_platform__platform"]
             platform = platform.replace("-shippable", "")
@@ -469,15 +464,9 @@ class Commenter:
 
         return {bug["id"]: bug for bug in bugs_list} if len(bugs_list) else None
 
-    def fetch_test_manifests(self):
-        firefoxci_service_url = "https://firefox-ci-tc.services.mozilla.com"
-        test_info_url = f"{firefoxci_service_url}/api/index/v1/task/gecko.v2.mozilla-central.latest.source.test-info-all/artifacts/public/test-info-all-tests.json"
-        response = requests.get(test_info_url, headers={"User-agent": "mach-test-info/1.0"})
-        self.manifests = response.json()
-        return self.manifests
-
     def get_tests_from_manifests(self):
-        manifests = self.fetch_test_manifests() if self.manifests is None else self.manifests
+        manifests = fetch.fetch_test_manifests() if self.manifests is None else self.manifests
+        self.manifests = manifests
         all_tests = {}
         for component in manifests["tests"]:
             for item in manifests["tests"][component]:
@@ -486,13 +475,6 @@ class Commenter:
                 # split(':') allows for parent:child where we want to keep parent
                 all_tests[item["test"]].append(item["manifest"][0].split(":")[0])
         return all_tests
-
-    def fetch_testrun_matrix(self):
-        firefoxci_service_url = "https://firefoxci.taskcluster-artifacts.net"
-        testrun_matrix_url = f"{firefoxci_service_url}/api/index/v1/task/gecko.v2.mozilla-central.latest.source.test-info-all/artifacts/public/test-info-testrun-matrix.json"
-        response = requests.get(testrun_matrix_url, headers={"User-agent": "mach-test-info/1.0"})
-        self.testrun_matrix = response.json()
-        return self.testrun_matrix
 
     def fix_wpt_name(self, test_name):
         # TODO: keep this updated with wpt changes to:
