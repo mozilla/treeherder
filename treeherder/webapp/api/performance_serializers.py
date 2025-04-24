@@ -320,7 +320,9 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
 
     def get_duplicated_summaries_ids(self, performance_alert_summary):
         return (
-            PerformanceAlertSummary.objects.filter(push=performance_alert_summary.push)
+            PerformanceAlertSummary.objects.filter(
+                push=performance_alert_summary.push, framework=performance_alert_summary.framework
+            )
             .exclude(id=performance_alert_summary.id)
             .values_list("id", flat=True)
         )
