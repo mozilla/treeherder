@@ -1,3 +1,4 @@
+from datetime import datetime
 from unittest import mock
 
 from django.urls import reverse
@@ -45,13 +46,20 @@ def test_no_newhash_commit_returned(client):
     """
     basehash = "492424224"
     newhash = "412894814"
+    newhashdate = datetime.now().strftime("%Y-%m-%d")
+    basehashdate = datetime.now().strftime("%Y-%m-%d")
     with mock.patch(
         "treeherder.webapp.api.hash.Commit.objects.filter",
         return_value=MockedCommitSet(basehash, newhash),
     ):
         resp = client.get(
             reverse("hash-tocommit", kwargs={"project": "try"}),
-            {"basehash": basehash, "newhash": newhash},
+            {
+                "basehash": basehash,
+                "newhash": newhash,
+                "basehashdate": basehashdate,
+                "newhashdate": newhashdate,
+            },
         )
     assert resp.status_code == HTTP_400_BAD_REQUEST
     assert resp.json() == [
@@ -65,13 +73,20 @@ def test_no_basehash_commit_returned(client):
     """
     basehash = "412894814"
     newhash = "492424224"
+    newhashdate = datetime.now().strftime("%Y-%m-%d")
+    basehashdate = datetime.now().strftime("%Y-%m-%d")
     with mock.patch(
         "treeherder.webapp.api.hash.Commit.objects.filter",
         return_value=MockedCommitSet(basehash, newhash),
     ):
         resp = client.get(
             reverse("hash-tocommit", kwargs={"project": "try"}),
-            {"basehash": basehash, "newhash": newhash},
+            {
+                "basehash": basehash,
+                "newhash": newhash,
+                "basehashdate": basehashdate,
+                "newhashdate": newhashdate,
+            },
         )
     assert resp.status_code == HTTP_400_BAD_REQUEST
     assert resp.json() == [
@@ -85,9 +100,16 @@ def test_invalid_newhash_parameter(client):
     """
     basehash = "124898925481"
     newhash = "Invalid"
+    newhashdate = datetime.now().strftime("%Y-%m-%d")
+    basehashdate = datetime.now().strftime("%Y-%m-%d")
     resp = client.get(
         reverse("hash-tocommit", kwargs={"project": "try"}),
-        {"basehash": basehash, "newhash": newhash},
+        {
+            "basehash": basehash,
+            "newhash": newhash,
+            "basehashdate": basehashdate,
+            "newhashdate": newhashdate,
+        },
     )
     assert resp.status_code == HTTP_400_BAD_REQUEST
     assert resp.json() == {"newhash": ["A valid integer is required."]}
@@ -99,9 +121,16 @@ def test_invalid_basehash_parameter(client):
     """
     basehash = "Invalid"
     newhash = "124898925481"
+    newhashdate = datetime.now().strftime("%Y-%m-%d")
+    basehashdate = datetime.now().strftime("%Y-%m-%d")
     resp = client.get(
         reverse("hash-tocommit", kwargs={"project": "try"}),
-        {"basehash": basehash, "newhash": newhash},
+        {
+            "basehash": basehash,
+            "newhash": newhash,
+            "basehashdate": basehashdate,
+            "newhashdate": newhashdate,
+        },
     )
     assert resp.status_code == 400
     assert resp.json() == {"basehash": ["A valid integer is required."]}
