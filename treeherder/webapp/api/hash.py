@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime, timedelta
 
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -19,7 +20,17 @@ class HashViewSet(viewsets.ViewSet):
             return Response(data=query_params.errors, status=HTTP_400_BAD_REQUEST)
         newhash = query_params.validated_data["newhash"]
         basehash = query_params.validated_data["basehash"]
-        newpush = Commit.objects.filter(comments__contains=newhash).first()
-        basepush = Commit.objects.filter(comments__contains=basehash).first()
+        today = datetime.now().strftime("%Y-%m-%d")
+        start_date_range = (datetime.now() - timedelta(days=60)).strftime("%Y-%m-%d")
+        newpush = Commit.objects.filter(
+            comments__contains=newhash,
+            push__repository=4,
+            push__time__range=(start_date_range, today),
+        ).first()
+        basepush = Commit.objects.filter(
+            comments__contains=basehash,
+            push__repository=4,
+            push__time__range=(start_date_range, today),
+        ).first()
         query_params.validate_pushes(newpush, newhash, basepush, basehash)
         return Response({"baseRevision": basepush.revision, "newRevision": newpush.revision})
