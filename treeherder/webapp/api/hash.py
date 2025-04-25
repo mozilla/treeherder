@@ -11,6 +11,8 @@ from treeherder.webapp.api.serializers import HashQuerySerializer
 
 logger = logging.getLogger(__name__)
 
+TRY_REPO_NAME = "try"
+
 
 class HashViewSet(viewsets.ViewSet):
     @action(detail=False)
@@ -24,12 +26,12 @@ class HashViewSet(viewsets.ViewSet):
         basehashdate = query_params.validated_data["basehashdate"]
         newpush = Commit.objects.filter(
             comments__contains=newhash,
-            push__repository=4,
+            push__repository__name=TRY_REPO_NAME,
             push__time__range=(newhashdate - timedelta(days=1), newhashdate + timedelta(days=1)),
         ).first()
         basepush = Commit.objects.filter(
             comments__contains=basehash,
-            push__repository=4,
+            push__repository__name=TRY_REPO_NAME,
             push__time__range=(basehashdate - timedelta(days=1), basehashdate + timedelta(days=1)),
         ).first()
         query_params.validate_pushes(
