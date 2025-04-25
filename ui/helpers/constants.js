@@ -341,6 +341,7 @@ export const thEvents = {
   applyNewJobs: 'apply-new-jobs-EVT',
   filtersUpdated: 'filters-updated-EVT',
   clearPinboard: 'clear-pinboard-EVT',
+  internalIssueClassification: 'internal-issue-classification-EVT',
 };
 
 export const thBugSuggestionLimit = 20;

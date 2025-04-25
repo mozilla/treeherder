@@ -166,6 +166,15 @@ class PinBoard extends React.Component {
         const message = `Error saving bug association for ${job.platform} ${job.job_type_name}`;
         notify(formatModelError(response, message), 'danger');
       });
+
+      // In case the bug is still an internal issue, check if the required number of occurrence is reached to open a bug
+      if (!bug.id) {
+        window.dispatchEvent(
+          new CustomEvent(thEvents.internalIssueClassification, {
+            detail: { internalBugId: bug.internal_id },
+          }),
+        );
+      }
     });
   };
 

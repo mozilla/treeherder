@@ -34,6 +34,10 @@ class FailureSummaryTab extends React.Component {
 
   componentDidMount() {
     this.loadBugSuggestions();
+
+    window.addEventListener(thEvents.internalIssueClassification, (event) =>
+      this.checkInternalFailureOccurrences(event.detail.internalBugId),
+    );
   }
 
   componentDidUpdate(prevProps) {
@@ -89,20 +93,16 @@ class FailureSummaryTab extends React.Component {
     window.open(data.url);
   };
 
-  internalIssueFilerCallback = async (data) => {
-    const { addBug } = this.props;
+  checkInternalFailureOccurrences = (bugInternalId) => {
+    // Try matching an internal bug already fetched with enough occurences
     const { suggestion, suggestions } = this.state;
 
-    await addBug({ ...data, newBug: `i${data.internal_id}` });
-    window.dispatchEvent(new CustomEvent(thEvents.saveClassification));
-
-    // Try matching an internal bug already fetched with enough occurences
     const internalBugs = suggestions
       .map((s) => s.bugs.open_recent)
       .flat()
       .filter((bug) => bug.id === null);
     const existingBug = internalBugs.filter(
-      (bug) => bug.internal_id === data.internal_id,
+      (bug) => bug.internal_id === bugInternalId,
     )[0];
     // Check if we reached the required number of occurrence to open a bug in Bugzilla
     if (
@@ -112,6 +112,15 @@ class FailureSummaryTab extends React.Component {
       existingBug.occurrences += 1;
       this.fileBug(suggestion);
     }
+  };
+
+  internalIssueFilerCallback = async (data) => {
+    const { addBug } = this.props;
+
+    await addBug({ ...data, newBug: `i${data.internal_id}` });
+    window.dispatchEvent(new CustomEvent(thEvents.saveClassification));
+
+    this.checkInternalFailureOccurrences(data.internal_id);
   };
 
   loadBugSuggestions = () => {
