@@ -95,7 +95,7 @@ class FailureSummaryTab extends React.Component {
 
   checkInternalFailureOccurrences = (bugInternalId) => {
     // Try matching an internal bug already fetched with enough occurences
-    const { suggestion, suggestions } = this.state;
+    const { suggestions } = this.state;
 
     const internalBugs = suggestions
       .map((s) => s.bugs.open_recent)
@@ -104,11 +104,16 @@ class FailureSummaryTab extends React.Component {
     const existingBug = internalBugs.filter(
       (bug) => bug.internal_id === bugInternalId,
     )[0];
+    if (!existingBug) {
+      return;
+    }
+    const suggestion = suggestions.find((s) =>
+      s.bugs.open_recent
+        .map((bug) => bug.internal_id)
+        .includes(existingBug.internal_id),
+    );
     // Check if we reached the required number of occurrence to open a bug in Bugzilla
-    if (
-      existingBug &&
-      existingBug.occurrences >= requiredInternalOccurrences - 1
-    ) {
+    if (existingBug.occurrences >= requiredInternalOccurrences - 1) {
       existingBug.occurrences += 1;
       this.fileBug(suggestion);
     }
