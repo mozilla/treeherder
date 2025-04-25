@@ -28,13 +28,20 @@ def test_all_good(client):
     """
     basehash = "494224"
     newhash = "4124814"
+    newhashdate = datetime.now().strftime("%Y-%m-%d")
+    basehashdate = datetime.now().strftime("%Y-%m-%d")
     with mock.patch(
         "treeherder.webapp.api.hash.Commit.objects.filter",
         return_value=MockedCommitSet(basehash, newhash),
     ):
         resp = client.get(
             reverse("hash-tocommit", kwargs={"project": "try"}),
-            {"basehash": basehash, "newhash": newhash},
+            {
+                "basehash": basehash,
+                "newhash": newhash,
+                "newhashdate": newhashdate,
+                "basehashdate": basehashdate,
+            },
         )
     assert resp.status_code == HTTP_200_OK
     assert resp.json() == {"baseRevision": "1ebfd5", "newRevision": "1ebfd5"}
@@ -63,7 +70,7 @@ def test_no_newhash_commit_returned(client):
         )
     assert resp.status_code == HTTP_400_BAD_REQUEST
     assert resp.json() == [
-        f"{newhash} or {basehash} do not correspond to any existing hashes please double check both hashes you provided"
+        f"The date and hash combination you provided({newhashdate} and {newhash}) is invalid"
     ]
 
 
@@ -90,8 +97,62 @@ def test_no_basehash_commit_returned(client):
         )
     assert resp.status_code == HTTP_400_BAD_REQUEST
     assert resp.json() == [
-        f"{newhash} or {basehash} do not correspond to any existing hashes please double check both hashes you provided"
+        f"The date and hash combination you provided({newhashdate} and {newhash}) is invalid"
     ]
+
+
+def test_invalid_newhashdate_parameter(client):
+    """
+    test when no basehash is not found as a string in any commit we get the expected failure
+    """
+    basehash = "412894814"
+    newhash = "492424224"
+    newhashdate = "Bad date - Sallah"
+    basehashdate = datetime.now().strftime("%Y-%m-%d")
+    with mock.patch(
+        "treeherder.webapp.api.hash.Commit.objects.filter",
+        return_value=MockedCommitSet(basehash, newhash),
+    ):
+        resp = client.get(
+            reverse("hash-tocommit", kwargs={"project": "try"}),
+            {
+                "basehash": basehash,
+                "newhash": newhash,
+                "basehashdate": basehashdate,
+                "newhashdate": newhashdate,
+            },
+        )
+    assert resp.status_code == HTTP_400_BAD_REQUEST
+    assert resp.json() == {
+        "newhashdate": "Date has wrong format. Use one of these formats instead: YYYY-MM-DD."
+    }
+
+
+def test_invalid_basehashdate_parameter(client):
+    """
+    test when no basehash is not found as a string in any commit we get the expected failure
+    """
+    basehash = "412894814"
+    newhash = "492424224"
+    newhashdate = datetime.now().strftime("%Y-%m-%d")
+    basehashdate = "Bad date - Sallah"
+    with mock.patch(
+        "treeherder.webapp.api.hash.Commit.objects.filter",
+        return_value=MockedCommitSet(basehash, newhash),
+    ):
+        resp = client.get(
+            reverse("hash-tocommit", kwargs={"project": "try"}),
+            {
+                "basehash": basehash,
+                "newhash": newhash,
+                "basehashdate": basehashdate,
+                "newhashdate": newhashdate,
+            },
+        )
+    assert resp.status_code == HTTP_400_BAD_REQUEST
+    assert resp.json() == {
+        "basehashdate": "Date has wrong format. Use one of these formats instead: YYYY-MM-DD."
+    }
 
 
 def test_invalid_newhash_parameter(client):
