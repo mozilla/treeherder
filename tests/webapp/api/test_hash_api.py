@@ -124,7 +124,9 @@ def test_invalid_newhashdate_parameter(client):
         )
     assert resp.status_code == HTTP_400_BAD_REQUEST
     assert resp.json() == {
-        "newhashdate": ["Date has wrong format. Use one of these formats instead: YYYY-MM-DD."]
+        "newhashdate": [
+            "Date has wrong format. Use one of these formats instead: YYYY-MM-DD."
+        ]
     }
 
 
@@ -151,7 +153,9 @@ def test_invalid_basehashdate_parameter(client):
         )
     assert resp.status_code == HTTP_400_BAD_REQUEST
     assert resp.json() == {
-        "basehashdate": ["Date has wrong format. Use one of these formats instead: YYYY-MM-DD."]
+        "basehashdate": [
+            "Date has wrong format. Use one of these formats instead: YYYY-MM-DD."
+        ]
     }
 
 
