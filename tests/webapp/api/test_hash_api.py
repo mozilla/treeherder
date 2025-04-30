@@ -78,8 +78,8 @@ def test_no_basehash_commit_returned(client):
     """
     test when no basehash is not found as a string in any commit we get the expected failure
     """
-    basehash = "412894814"
-    newhash = "492424224"
+    basehash = "492424224"
+    newhash = "412894814"
     newhashdate = datetime.now().strftime("%Y-%m-%d")
     basehashdate = datetime.now().strftime("%Y-%m-%d")
     with mock.patch(
@@ -97,7 +97,7 @@ def test_no_basehash_commit_returned(client):
         )
     assert resp.status_code == HTTP_400_BAD_REQUEST
     assert resp.json() == [
-        f"The date and hash combination you provided({newhashdate} and {newhash}) is invalid"
+        f"The date and hash combination you provided({basehashdate} and {basehash}) is invalid"
     ]
 
 
