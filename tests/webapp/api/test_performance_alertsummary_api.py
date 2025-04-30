@@ -6,7 +6,11 @@ from django.urls import reverse
 
 from tests.conftest import create_perf_alert
 from treeherder.model.models import Push
-from treeherder.perf.models import PerformanceAlert, PerformanceAlertSummary
+from treeherder.perf.models import (
+    PerformanceAlert,
+    PerformanceAlertSummary,
+    PerformanceFramework,
+)
 
 
 @pytest.fixture
@@ -130,6 +134,38 @@ def test_alert_summaries_get(
         "task_id",
         "retry_id",
     }
+
+
+def test_alert_summaries_sheriffed_frameworks(
+    client, test_perf_alert_summary, test_perf_alert_summary_2, test_perf_framework
+):
+    # Add comments explaining what we are testing
+    browsertime = PerformanceFramework.objects.create(name="browsertime", enabled=True)
+    platform_mircobench = PerformanceFramework.objects.create(
+        name="platform_mircobench", enabled=True
+    )
+    test_perf_alert_summary.framework = browsertime
+    test_perf_alert_summary.save()
+    test_perf_alert_summary_2.framework = platform_mircobench
+    test_perf_alert_summary_2.save()
+    # verify that we get the performance summary + alert on GET
+    resp = client.get(
+        reverse("performance-alert-summaries-list"), {"show_sheriffed_frameworks": True}
+    )
+    assert resp.status_code == 200
+
+    assert len(resp.json()["results"]) == 1
+    assert resp.json()["results"][0]["framework"] == browsertime.id
+
+    test_perf_alert_summary.framework = test_perf_framework
+    test_perf_alert_summary.save()
+
+    resp = client.get(
+        reverse("performance-alert-summaries-list"), {"show_sheriffed_frameworks": True}
+    )
+    assert resp.status_code == 200
+
+    assert len(resp.json()["results"]) == 0
 
 
 def test_alert_summaries_get_onhold(

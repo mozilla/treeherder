@@ -347,6 +347,7 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
     hide_related_and_invalid = django_filters.BooleanFilter(method="_hide_related_and_invalid")
     with_assignee = django_filters.CharFilter(method="_with_assignee")
     timerange = django_filters.NumberFilter(method="_timerange")
+    show_sheriffed_frameworks = django_filters.BooleanFilter(method="_show_sheriffed_frameworks")
 
     def _filter_text(self, queryset, name, value):
         sep = Value(" ")
@@ -416,6 +417,19 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
     def _timerange(self, queryset, name, value):
         return queryset.filter(
             push__time__gt=datetime.datetime.utcfromtimestamp(int(time.time() - int(value)))
+        )
+
+    def _show_sheriffed_frameworks(self, queryset, name, value):
+        return queryset.filter(
+            framework__name__in=[
+                "browsertime",
+                "awsy",
+                "talos",
+                "build_metrics",
+                "js-bench",
+                "mozperftest",
+                "devtools",
+            ]
         )
 
     class Meta:

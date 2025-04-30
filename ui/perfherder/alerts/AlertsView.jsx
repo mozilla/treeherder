@@ -148,6 +148,11 @@ class AlertsView extends React.Component {
     const frameworkOptions = cloneDeep(frameworks);
     const ignoreFrameworks = { id: -1, name: 'all frameworks' };
     frameworkOptions.unshift(ignoreFrameworks);
+    const ignoreNonSheriffedFrameworks = {
+      id: -2,
+      name: 'all sheriffed frameworks',
+    };
+    frameworkOptions.unshift(ignoreNonSheriffedFrameworks);
     return frameworkOptions;
   };
 
@@ -205,6 +210,9 @@ class AlertsView extends React.Component {
       delete params.status;
     }
     if (listMode && params.framework === doNotFilter) {
+      delete params.framework;
+    }
+    if (listMode && params.framework === -2) {
       delete params.framework;
     }
 
@@ -270,6 +278,10 @@ class AlertsView extends React.Component {
       }
       if (hideAssignedToOthers) {
         params.with_assignee = user.username;
+      }
+      console.log(framework);
+      if (framework.id === -2) {
+        params.show_sheriffed_frameworks = true;
       }
     }
 
