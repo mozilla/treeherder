@@ -9,7 +9,7 @@ from treeherder.webapp.api import perfcompare_utils
 
 NOW = datetime.datetime.now()
 ONE_DAY_AGO = NOW - datetime.timedelta(days=1)
-THREE_DAYS_AGO = NOW - datetime.timedelta(days=3)
+FOUR_DAYS_AGO = NOW - datetime.timedelta(days=4)
 SEVEN_DAYS_AGO = NOW - datetime.timedelta(days=7)
 
 
@@ -28,7 +28,7 @@ def test_perfcompare_results_against_no_base(
 ):
     perf_jobs = Job.objects.filter(pk__in=range(1, 11)).order_by("push__time").all()
 
-    test_perfcomp_push.time = THREE_DAYS_AGO
+    test_perfcomp_push.time = FOUR_DAYS_AGO
     test_perfcomp_push.repository = try_repository
     test_perfcomp_push.save()
     test_perfcomp_push_2.time = datetime.datetime.now()
@@ -197,7 +197,7 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
 ):
     perf_jobs = Job.objects.filter(pk__in=range(1, 11)).order_by("push__time").all()
 
-    test_perfcomp_push.time = THREE_DAYS_AGO
+    test_perfcomp_push.time = FOUR_DAYS_AGO
     test_perfcomp_push.repository = try_repository
     test_perfcomp_push.save()
     test_perfcomp_push_2.time = datetime.datetime.now()
@@ -364,7 +364,7 @@ def test_perfcompare_results_without_base_signature(
 ):
     perf_jobs = Job.objects.filter(pk__in=range(1, 11)).order_by("push__time").all()
 
-    test_perfcomp_push.time = THREE_DAYS_AGO
+    test_perfcomp_push.time = FOUR_DAYS_AGO
     test_perfcomp_push.repository = try_repository
     test_perfcomp_push.save()
 
@@ -505,7 +505,7 @@ def test_perfcompare_results_subtests_support(
 ):
     perf_jobs = Job.objects.filter(pk__in=range(1, 11)).order_by("push__time").all()
 
-    test_perfcomp_push.time = THREE_DAYS_AGO
+    test_perfcomp_push.time = FOUR_DAYS_AGO
     test_perfcomp_push.repository = try_repository
     test_perfcomp_push.save()
     test_perfcomp_push_2.time = datetime.datetime.now()

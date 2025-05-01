@@ -350,6 +350,7 @@ class FailuresByBugSerializer(serializers.ModelSerializer):
     machine_name = serializers.CharField(source="job__machine__name")
     lines = serializers.ListField(child=serializers.CharField())
     bug_id = serializers.IntegerField(source="bug__bugzilla_id", read_only=True)
+    task_id = serializers.CharField()
 
     class Meta:
         model = models.BugJobMap
@@ -364,6 +365,7 @@ class FailuresByBugSerializer(serializers.ModelSerializer):
             "bug_id",
             "machine_name",
             "lines",
+            "task_id",
         )
 
 
