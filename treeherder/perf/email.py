@@ -292,3 +292,47 @@ class DeletionNotificationWriter(EmailWriter):
         content.include_signatures(must_mention)
 
         self._email.content = str(content)
+
+
+class AlertNotificationContent:
+    DESCRIPTION = "Perfherder has detected a performance change on the test **{test}** and produced an alert. See {alert_summary} for more information."
+    ALERT_SUMMARY_LINK = "https://treeherder.mozilla.org/perfherder/alerts?id={alert_summary_id}"
+
+    def __init__(self):
+        self._raw_content = None
+
+    def include_alert_summary(self, test: str, alert_summary_id: str):
+        self._raw_content = self.DESCRIPTION.format(
+            test=test,
+            alert_summary=(
+                f"[this alert summary]"
+                f"({self.ALERT_SUMMARY_LINK.format(alert_summary_id=alert_summary_id)})"
+            ),
+        )
+
+    def __str__(self):
+        if self._raw_content is None:
+            raise ValueError("No content set")
+        return self._raw_content
+
+
+class AlertNotificationWriter(EmailWriter):
+    def prepare_new_email(
+        self, email: str, alert: PerformanceAlert, alert_summary: PerformanceAlertSummary
+    ) -> dict:
+        self._write_address(email)
+        self._write_subject(alert.series_signature.test)
+        self._write_content(alert.series_signature.test, str(alert_summary.id))
+        return self.email
+
+    def _write_address(self, email: str):
+        self._email.address = email
+
+    def _write_subject(self, test: str):
+        self._email.subject = f"Alert: Test {test} detected a performance change"
+
+    def _write_content(self, test: str, alert_summary_id: str):
+        content = AlertNotificationContent()
+        content.include_alert_summary(test, alert_summary_id)
+
+        self._email.content = str(content)

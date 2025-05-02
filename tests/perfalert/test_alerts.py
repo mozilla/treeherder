@@ -1,5 +1,6 @@
 import datetime
 import time
+from unittest import mock
 
 import pytest
 
@@ -341,3 +342,101 @@ def test_alert_change_type_absolute(
 
     assert PerformanceAlert.objects.count() == expected_num_alerts
     assert PerformanceAlertSummary.objects.count() == expected_num_alerts
+
+
+def test_alert_monitor_no_sheriff(
+    test_repository,
+    test_issue_tracker,
+    failure_classifications,
+    generic_reference_data,
+    test_perf_signature,
+):
+    # modify the test signature to have it as a monitored signature, but not sheriffed
+    test_perf_signature.monitor = True
+    test_perf_signature.should_alert = True
+    test_perf_signature.save()
+
+    base_time = time.time()  # generate it based off current time
+    interval = 60
+    _generate_performance_data(
+        test_repository,
+        test_perf_signature,
+        base_time,
+        1,
+        0.5,
+        int(interval / 2),
+    )
+    _generate_performance_data(
+        test_repository,
+        test_perf_signature,
+        base_time,
+        int(interval / 2) + 1,
+        1.0,
+        int(interval / 2),
+    )
+
+    generate_new_alerts_in_series(test_perf_signature)
+
+    assert PerformanceAlert.objects.count() == 1
+    assert PerformanceAlertSummary.objects.count() == 1
+
+    # When monitor is true, then alert should not be sheriffed
+    # regardless of should_alert settings
+    assert [alert.sheriffed == False for alert in PerformanceAlert.objects.all()]
+
+
+@mock.patch("treeherder.perf.alerts.taskcluster")
+def test_alert_emails(
+    mocked_taskcluster,
+    test_repository,
+    test_issue_tracker,
+    failure_classifications,
+    generic_reference_data,
+    test_perf_signature,
+):
+    mocked_email_client = mock.MagicMock()
+    mocked_taskcluster.notify_client_factory.return_value = mocked_email_client
+
+    emails = "fake@email.com fake2@email.com"
+    test_perf_signature.alert_notify_emails = emails
+    test_perf_signature.save()
+
+    base_time = time.time()  # generate it based off current time
+    interval = 60
+    _generate_performance_data(
+        test_repository,
+        test_perf_signature,
+        base_time,
+        1,
+        0.5,
+        int(interval / 2),
+    )
+    _generate_performance_data(
+        test_repository,
+        test_perf_signature,
+        base_time,
+        int(interval / 2) + 1,
+        1.0,
+        int(interval / 2),
+    )
+
+    generate_new_alerts_in_series(test_perf_signature)
+
+    assert PerformanceAlert.objects.count() == 1
+    assert PerformanceAlertSummary.objects.count() == 1
+
+    # When monitor is False, then the alerts should be sheriffed
+    assert [alert.sheriffed == True for alert in PerformanceAlert.objects.all()]
+
+    # Make sure the email service was called correctly for 2 emails
+    assert mocked_taskcluster.notify_client_factory.call_count == 1
+    assert mocked_email_client.email.call_count == 2
+
+    # Ensure that each email specified has an email sent to it
+    for email in emails.split():
+        assert any(
+            [
+                email in call_arg[0][0]["address"]
+                for call_arg in mocked_email_client.email.call_args_list
+            ]
+        )

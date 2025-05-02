@@ -102,6 +102,7 @@ class AlertsView extends React.Component {
       filterText: this.getDefaultFilterText(validated),
       hideDownstream: convertParams(validated, 'hideDwnToInv'),
       hideAssignedToOthers: convertParams(validated, 'hideAssignedToOthers'),
+      monitoredAlerts: convertParams(validated, 'monitoredAlerts'),
     };
   };
 
@@ -251,6 +252,7 @@ class AlertsView extends React.Component {
       filterText,
       hideDownstream,
       hideAssignedToOthers,
+      monitoredAlerts,
     } = filters;
 
     this.setState({ page });
@@ -270,6 +272,9 @@ class AlertsView extends React.Component {
       }
       if (hideAssignedToOthers) {
         params.with_assignee = user.username;
+      }
+      if (monitoredAlerts) {
+        params.monitored_alerts = monitoredAlerts;
       }
     }
 
