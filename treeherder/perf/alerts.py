@@ -9,6 +9,7 @@ import numpy as np
 from django.conf import settings
 from django.db import transaction
 
+from treeherder.perf.email import AlertNotificationWriter
 from treeherder.perf.models import (
     PerformanceAlert,
     PerformanceAlertSummary,
@@ -16,8 +17,19 @@ from treeherder.perf.models import (
     PerformanceSignature,
 )
 from treeherder.perfalert.perfalert import RevisionDatum, detect_changes
+from treeherder.services import taskcluster
 
 logger = logging.getLogger(__name__)
+
+
+def send_alert_emails(emails, alert, alert_summary):
+    notify_client = taskcluster.notify_client_factory()
+
+    for email in emails:
+        logger.info(f"Sending alert email to {email}")
+        notification_writer = AlertNotificationWriter()
+        email = notification_writer.prepare_new_email(email, alert, alert_summary)
+        notify_client.email(email)
 
 
 def geomean(iterable):
@@ -138,6 +150,7 @@ def generate_new_alerts_in_series(signature):
                     framework=signature.framework,
                     push_id=cur.push_id,
                     prev_push_id=prev.push_id,
+                    sheriffed=not signature.monitor,
                     defaults={
                         "manually_created": False,
                         "created": datetime.utcfromtimestamp(cur.push_timestamp),
@@ -150,9 +163,10 @@ def generate_new_alerts_in_series(signature):
                 if t_value == float("inf"):
                     t_value = 1000
 
-                PerformanceAlert.objects.update_or_create(
+                alert, _ = PerformanceAlert.objects.update_or_create(
                     summary=summary,
                     series_signature=signature,
+                    sheriffed=not signature.monitor,
                     defaults={
                         "noise_profile": noise_profile,
                         "is_regression": alert_properties.is_regression,
@@ -163,3 +177,6 @@ def generate_new_alerts_in_series(signature):
                         "t_value": t_value,
                     },
                 )
+
+                if signature.alert_notify_emails:
+                    send_alert_emails(signature.alert_notify_emails.split(), alert, summary)
