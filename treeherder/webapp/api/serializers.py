@@ -403,11 +403,17 @@ class FailuresQueryParamsSerializer(serializers.Serializer):
 class HashQuerySerializer(serializers.Serializer):
     basehash = serializers.IntegerField()
     newhash = serializers.IntegerField()
+    newhashdate = serializers.DateField(format="%Y-%m-%d")
+    basehashdate = serializers.DateField(format="%Y-%m-%d")
 
-    def validate_pushes(self, newpush, newhash, basepush, basehash):
-        if newpush is None or basepush is None:
+    def validate_pushes(self, newpush, newhash, newhashdate, basepush, basehash, basehashdate):
+        if newpush is None:
             raise serializers.ValidationError(
-                f"{newhash} or {basehash} do not correspond to any existing hashes please double check both hashes you provided"
+                f"The date and hash combination you provided({newhashdate} and {newhash}) is invalid"
+            )
+        if basepush is None:
+            raise serializers.ValidationError(
+                f"The date and hash combination you provided({basehashdate} and {basehash}) is invalid"
             )
 
 
