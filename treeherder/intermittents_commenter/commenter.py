@@ -36,6 +36,7 @@ class BugRunInfo:
     os_name: str = ""
     os_version: str = ""
     build_type: str = ""
+    current_variant: str = ""
     variants: set[str] = field(default_factory=set)
 
 
@@ -370,7 +371,8 @@ class Commenter:
         elif "-aarch64" in raw_data:
             info.arch = "aarch64"
         # variant
-        info.variants.add(self.get_test_variant(raw_data))
+        info.current_variant = self.get_test_variant(raw_data)
+        info.variants.add(info.current_variant)
         # build_type
         # build types can be asan/opt, etc.,
         # so make sure that we search for 'debug' and 'opt' after other build_types
@@ -433,7 +435,7 @@ class Commenter:
                 testrun_os_matrix = bug_testrun_matrix[bug_run_info.os_name]
                 all_variants |= self.get_all_test_variants(bug_run_info, testrun_os_matrix)
             repo = bug["job__repository__name"]
-            test_variant = self.get_test_variant(bug["job__signature__job_type_name"])
+            test_variant = bug_run_info.current_variant
             if bug_run_info.arch:
                 platform_and_build = (
                     f"{bug_run_info.platform}-{bug_run_info.arch}/{bug_run_info.build_type}"
