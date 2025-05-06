@@ -6,7 +6,14 @@ from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
-from treeherder.model.models import BugJobMap, Job, OptionCollection, Push, TextLogError
+from treeherder.model.models import (
+    BugJobMap,
+    Job,
+    OptionCollection,
+    Push,
+    TaskclusterMetadata,
+    TextLogError,
+)
 from treeherder.webapp.api.serializers import (
     FailureCountSerializer,
     FailuresByBugSerializer,
@@ -79,6 +86,16 @@ class FailuresByBug(generics.ListAPIView):
             )
             .order_by("-job__push__time")
         )
+
+        task_ids = TaskclusterMetadata.objects.filter(
+            job_id__in=self.queryset.values_list("job_id", flat=True),
+        ).values_list("job_id", "task_id")
+        for item in self.queryset:
+            match = [x[1] for x in task_ids if x[0] == item["job_id"]]
+            if match:
+                item["task_id"] = match[0]
+            else:
+                item["task_id"] = "unknown"
 
         lines = TextLogError.objects.filter(
             job_id__in=self.queryset.values_list("job_id", flat=True),

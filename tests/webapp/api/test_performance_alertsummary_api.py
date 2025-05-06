@@ -59,8 +59,6 @@ def test_alert_summaries_get(
     test_perf_alert_with_tcmetadata,
     test_perf_datum,
     test_perf_datum_2,
-    test_taskcluster_metadata,
-    test_taskcluster_metadata_2,
 ):
     # verify that we get the performance summary + alert on GET
     resp = client.get(reverse("performance-alert-summaries-list"))
@@ -138,8 +136,6 @@ def test_alert_summaries_get_onhold(
     test_perf_alert_with_tcmetadata,
     test_perf_datum,
     test_perf_datum_2,
-    test_taskcluster_metadata,
-    test_taskcluster_metadata_2,
     test_perf_alert_summary_onhold,
     test_perf_alert_onhold,
     test_repository_onhold,

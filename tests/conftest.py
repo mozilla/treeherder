@@ -439,8 +439,8 @@ def hundred_job_blobs(sample_data, sample_push, test_repository, mock_log_parser
             del blob["sources"]
 
         blob["revision"] = sample_push[push_index]["revision"]
-        blob["taskcluster_task_id"] = f"V3SVuxO8TFy37En_6HcXL{task_id_index}"
-        blob["taskcluster_retry_id"] = "0"
+        blob["job"]["taskcluster_task_id"] = f"V3SVuxO8TFy37En_6Hc{str(task_id_index).zfill(3)}"
+        blob["job"]["taskcluster_retry_id"] = "0"
         blobs.append(blob)
 
         push_index += 1
@@ -475,8 +475,8 @@ def hundred_job_blobs_new_date(sample_data, sample_push, test_repository, mock_l
             del blob["sources"]
 
         blob["revision"] = sample_push[push_index]["revision"]
-        blob["taskcluster_task_id"] = f"V3SVuxO8TFy37En_6HcX{task_id_index:0>2}"
-        blob["taskcluster_retry_id"] = "0"
+        blob["job"]["taskcluster_task_id"] = f"V3SVuxO8TFy37En_6Hc{str(task_id_index).zfill(3)}"
+        blob["job"]["taskcluster_retry_id"] = "0"
         blob["job"]["revision"] = sample_push[push_index]["revision"]
         blob["job"]["submit_timestamp"] = sample_push[push_index]["push_timestamp"]
         blob["job"]["start_timestamp"] = sample_push[push_index]["push_timestamp"] + 10
@@ -1152,7 +1152,7 @@ def bug_data(eleven_jobs_stored, test_repository, test_push, bugs):
     bug_id = bugs[0].bugzilla_id
     job_id = jobs[0].id
     th_models.BugJobMap.create(job_id=job_id, bugzilla_id=bug_id)
-    query_string = f"?startday=2025-02-28&endday=2025-03-03&tree={test_repository.name}"
+    query_string = f"?startday=2025-02-26&endday=2025-03-03&tree={test_repository.name}"
 
     return {
         "tree": test_repository.name,
@@ -1161,6 +1161,7 @@ def bug_data(eleven_jobs_stored, test_repository, test_push, bugs):
         "job": jobs[0],
         "jobs": jobs,
         "query_string": query_string,
+        "task_id": "V3SVuxO8TFy37En_6Hc000",
     }
 
 
@@ -1182,10 +1183,17 @@ def bug_data_with_5_failures(eleven_jobs_stored, test_repository, test_push, bug
 
 @pytest.fixture
 def test_run_data(bug_data):
-    pushes = th_models.Push.objects.all()
-    time = pushes[0].time.strftime("%Y-%m-%d")
+    pushes = list(th_models.Push.objects.all())
+    time = sorted(
+        [
+            p.time.strftime("%Y-%m-%d")
+            for p in pushes
+            if p.time.strftime("%Y-%m-%d")
+            >= bug_data["query_string"].split("startday=")[1].split("&")[0]
+        ]
+    )[0]
     test_runs = 0
-    for push in list(pushes):
+    for push in pushes:
         if push.time.strftime("%Y-%m-%d") == time:
             test_runs += 1
 
@@ -1194,7 +1202,7 @@ def test_run_data(bug_data):
 
 @pytest.fixture
 def group_data(transactional_db, hundred_job_blobs, create_jobs):
-    query_string = "?manifest=/test&date=2025-03-01"
+    query_string = "?manifest=/test&date=2025-02-28"
 
     jt = []
     jt.append(th_models.JobType.objects.create(name="test-windows11-64-24h2/opt-mochitest-plain-1"))
@@ -1208,7 +1216,7 @@ def group_data(transactional_db, hundred_job_blobs, create_jobs):
         job = hundred_job_blobs[i]
         job["job"].update(
             {
-                "taskcluster_task_id": f"V3SVuxO8TFy37En_6HcXL{i}",
+                "taskcluster_task_id": f"V3SVuxO8TFy37En_6Hc{str(i).zfill(3)}",
                 "taskcluster_retry_id": "0",
                 "name": jt[i].name,
             }
@@ -1220,7 +1228,7 @@ def group_data(transactional_db, hundred_job_blobs, create_jobs):
 
         th_models.GroupStatus.objects.create(status=1, duration=1, job_log=job_log, group=g1)
 
-    query_string = "?manifest=/test&startdate=2025-03-01"
+    query_string = "?manifest=/test&startdate=2025-02-28"
     return {
         "date": j.submit_time,
         "manifest": "/test",

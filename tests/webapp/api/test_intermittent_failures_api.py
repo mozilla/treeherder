@@ -26,6 +26,7 @@ def test_failures_by_bug(bug_data, client):
             "tree": bug_data["job"].repository.name,
             "machine_name": bug_data["job"].machine.name,
             "lines": [],
+            "task_id": bug_data["task_id"],
         }
     ]
 
