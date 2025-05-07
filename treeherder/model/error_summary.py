@@ -148,7 +148,7 @@ def get_error_summary(job, queryset=None):
                 break
 
     if queryset is None:
-        queryset = TextLogError.objects.filter(job=job)
+        queryset = TextLogError.objects.filter(job=job).order_by("id")
     # don't cache or do anything if we have no text log errors to get results for
     if not queryset:
         return []
