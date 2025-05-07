@@ -4,7 +4,7 @@ from unittest import skip
 from django.urls import reverse
 
 from treeherder.model.models import Job
-from treeherder.perf.models import PerformanceDatum
+from treeherder.perf.models import PerformanceDatum, PerformanceDatumReplicate
 from treeherder.webapp.api import perfcompare_utils
 
 NOW = datetime.datetime.now()
@@ -224,6 +224,8 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
 
     base_perf_data_values = [32.4]
     new_perf_data_values = [40.2]
+    base_perf_data_replicates = [20]
+    new_perf_data_replicates = [15]
 
     job = perf_jobs[0]
     job.push = test_perfcomp_push
@@ -238,6 +240,7 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
     )
     perf_datum.push.time = job.push.time
     perf_datum.push.save()
+    PerformanceDatumReplicate.objects.create(performance_datum=perf_datum, value=20)
 
     new_sig = create_signature(
         signature_hash=(20 * "t2"),
@@ -264,6 +267,7 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
     )
     perf_datum.push.time = job.push.time
     perf_datum.push.save()
+    PerformanceDatumReplicate.objects.create(performance_datum=perf_datum, value=15)
 
     response = get_expected(
         base_sig,
@@ -293,8 +297,8 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
             "new_retriggerable_job_ids": [10],
             "base_runs": base_perf_data_values,
             "new_runs": new_perf_data_values,
-            "base_runs_replicates": [],
-            "new_runs_replicates": [],
+            "base_runs_replicates": [20],
+            "new_runs_replicates": [15],
             "base_avg_value": round(response["base_avg_value"], 2),
             "new_avg_value": round(response["new_avg_value"], 2),
             "base_median_value": round(response["base_median_value"], 2),
@@ -347,6 +351,38 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
 
     assert response.status_code == 200
     assert expected[0] == response.json()[0]
+
+    # test the same comparison by setting the replicates values to true
+    query_params = (
+        "?base_repository={}&new_repository={}&base_revision={}&new_revision={}&framework={"
+        "}&no_subtests=true&replicates=true".format(
+            try_repository.name,
+            test_repository.name,
+            test_perfcomp_push.revision,
+            test_perfcomp_push_2.revision,
+            test_perf_signature.framework_id,
+        )
+    )
+
+    expected_response = get_expected(
+        base_sig,
+        new_sig,
+        extra_options,
+        test_option_collection,
+        # get expected_response using the replicates values
+        new_perf_data_replicates,
+        base_perf_data_replicates,
+    )
+    response = client.get(reverse("perfcompare-results") + query_params)
+
+    # test to see how the response changed based on the replicates values
+    assert response.status_code == 200
+    response.json()[0]["base_avg_value"] = round(expected_response["base_avg_value"], 2)
+    response.json()[0]["base_stddev"] = round(expected_response["base_stddev"], 2)
+    response.json()[0]["base_median_value"] = round(expected_response["base_median_value"], 2)
+    response.json()[0]["new_avg_value"] = round(expected_response["new_avg_value"], 2)
+    response.json()[0]["new_stddev"] = round(expected_response["new_stddev"], 2)
+    response.json()[0]["new_median_value"] = round(expected_response["new_median_value"], 2)
 
 
 def test_perfcompare_results_without_base_signature(
