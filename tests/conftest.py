@@ -907,7 +907,7 @@ def mock_test_variants_firefoxci_request(monkeypatch):
     Mock fetch_test_variants() used to retreive test variants from firefox-ci
     """
 
-    def _fetch_test_variants(self):
+    def _fetch_test_variants():
         tests_folder = os.path.dirname(__file__)
         file_name = "variants.yml"
         data_path = os.path.join(tests_folder, "sample_data", file_name)
@@ -916,9 +916,51 @@ def mock_test_variants_firefoxci_request(monkeypatch):
         return data
 
     monkeypatch.setattr(
-        treeherder.intermittents_commenter.commenter.Commenter,
+        treeherder.intermittents_commenter.commenter.fetch,
         "fetch_test_variants",
         _fetch_test_variants,
+    )
+
+
+@pytest.fixture
+def mock_test_manifests_firefoxci_request(monkeypatch):
+    """
+    Mock fetch_test_manifests() used to retreive test manifests from firefox-ci
+    """
+
+    def _fetch_test_manifests():
+        tests_folder = os.path.dirname(__file__)
+        file_name = "test-info-all-tests.json"
+        data_path = os.path.join(tests_folder, "sample_data", file_name)
+        with open(data_path) as f:
+            data = json.load(f)
+        return data
+
+    monkeypatch.setattr(
+        treeherder.intermittents_commenter.commenter.fetch,
+        "fetch_test_manifests",
+        _fetch_test_manifests,
+    )
+
+
+@pytest.fixture
+def mock_testrun_matrix_firefoxci_request(monkeypatch):
+    """
+    Mock fetch_testrun_matrix() used to retreive testrun matrix from firefox-ci
+    """
+
+    def _fetch_testrun_matrix():
+        tests_folder = os.path.dirname(__file__)
+        file_name = "test-info-testrun-matrix.json"
+        data_path = os.path.join(tests_folder, "sample_data", file_name)
+        with open(data_path) as f:
+            data = json.load(f)
+        return data
+
+    monkeypatch.setattr(
+        treeherder.intermittents_commenter.commenter.fetch,
+        "fetch_testrun_matrix",
+        _fetch_testrun_matrix,
     )
 
 

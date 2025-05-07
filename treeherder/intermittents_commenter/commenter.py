@@ -5,7 +5,6 @@ from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 
 import requests
-import yaml
 from django.conf import settings
 from django.db.models import Count
 from jinja2 import Template
@@ -15,7 +14,9 @@ from treeherder.intermittents_commenter.constants import (
     COMPONENTS,
     WHITEBOARD_NEEDSWORK_OWNER,
 )
-from treeherder.model.models import BugJobMap, OptionCollection
+from treeherder.model.models import BugJobMap, Bugscache, OptionCollection
+
+from . import fetch
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +27,17 @@ class BugsDetailsPerPlatform:
     per_build_type: dict[str, int] = field(
         default_factory=dict
     )  # {build_type1: 2, build_type2: 1, ...}
+
+
+@dataclass
+class BugRunInfo:
+    platform: str = ""
+    arch: str = ""
+    os_name: str = ""
+    os_version: str = ""
+    build_type: str = ""
+    current_variant: str = ""
+    variants: set[str] = field(default_factory=set)
 
 
 @dataclass
@@ -45,6 +57,8 @@ class Commenter:
     to stdout rather than submitting to bugzilla."""
 
     test_variants = None
+    manifests = None
+    testrun_matrix = None
 
     def __init__(self, weekly_mode, dry_run=False):
         self.weekly_mode = weekly_mode
@@ -288,6 +302,7 @@ class Commenter:
                 "job__repository__name",
                 "job__machine_platform__platform",
                 "job__machine_platform__architecture",
+                "job__machine_platform__os_name",
                 "bug__bugzilla_id",
                 "job__option_collection_hash",
                 "job__signature__job_type_name",
@@ -295,17 +310,11 @@ class Commenter:
         )
         return bug_ids, bugs
 
-    def fetch_test_variants(self):
-        mozilla_central_url = "https://hg.mozilla.org/mozilla-central"
-        variant_file_url = f"{mozilla_central_url}/raw-file/tip/taskcluster/kinds/test/variants.yml"
-        response = requests.get(variant_file_url, headers={"User-agent": "mach-test-info/1.0"})
-        self.test_variants = yaml.safe_load(response.text)
-        return self.test_variants
-
     def get_test_variant(self, test_suite):
         test_variants = (
-            self.fetch_test_variants() if self.test_variants is None else self.test_variants
+            fetch.fetch_test_variants() if self.test_variants is None else self.test_variants
         )
+        self.test_variants = test_variants
         # iterate through variants, allow for Base-[variant_list]
         variant_symbols = sorted(
             [
@@ -327,6 +336,54 @@ class Commenter:
         if not found_variants:
             return "no_variant"
         return "-".join(found_variants)
+
+    def get_all_test_variants(self, bug_run_info, testrun_os_matrix):
+        """
+        Try to provide a mapping between the artifact giving the manifest
+        and the data available in treeherder.
+        TODO: not very consistant
+        """
+        variants = set()
+        for key_version in testrun_os_matrix:
+            if key_version.replace(".", "") in bug_run_info.os_version:
+                for key_arch in testrun_os_matrix[key_version]:
+                    variants = set(testrun_os_matrix[key_version][key_arch].keys())
+        variants.add("no_variant")  # this is an assumption, we might not always have this
+        return variants
+
+    def get_bug_run_info(self, bug):
+        all_platforms = ["linux", "mac", "windows", "android"]
+        info = BugRunInfo()
+        raw_data = bug["job__signature__job_type_name"]
+        # platform, os, version
+        info.platform = "linux"
+        info.os_name = "linux"
+        for substr in raw_data.split("-"):
+            if any((current_platform := platform) in substr for platform in all_platforms):
+                info.platform = substr
+                info.os_name = current_platform
+                info.os_version = substr.replace(info.os_name, "")
+                break
+        # architecture
+        info.arch = "x86"
+        if "-64" in raw_data:
+            info.arch = "x86_64"
+        elif "-aarch64" in raw_data:
+            info.arch = "aarch64"
+        # variant
+        info.current_variant = self.get_test_variant(raw_data)
+        info.variants.add(info.current_variant)
+        # build_type
+        # build types can be asan/opt, etc.,
+        # so make sure that we search for 'debug' and 'opt' after other build_types
+        build_types = ["asan", "tsan", "ccov", "debug", "opt"]
+        for b_type in build_types:
+            if b_type in raw_data:
+                info.build_type = b_type
+                break
+        if not info.build_type:
+            info.build_type = "unknown build"
+        return info
 
     def build_bug_map(self, bugs, option_collection_map):
         """Build bug_map
@@ -356,31 +413,46 @@ class Commenter:
         }
         """
         bug_map = {}
-        for bug in bugs:
-            platform = bug["job__machine_platform__platform"]
-            platform = platform.replace("-shippable", "")
-            architecture = bug["job__machine_platform__architecture"]
+        bug_ids = [b["bug__bugzilla_id"] for b in bugs]
+        bug_summaries = Bugscache.objects.filter(bugzilla_id__in=bug_ids).values(
+            "summary", "bugzilla_id"
+        )
+        all_variants = set()
+        for bug, bug_id in zip(bugs, bug_ids):
+            manifest = self.get_test_manifest(bug_summaries.filter(bugzilla_id=bug_id))
+            bug_testrun_matrix = []
+            if manifest:
+                testrun_matrix = (
+                    fetch.fetch_testrun_matrix()
+                    if self.testrun_matrix is None
+                    else self.testrun_matrix
+                )
+                self.testrun_matrix = testrun_matrix
+                bug_testrun_matrix = testrun_matrix[manifest]
+            bug_run_info = self.get_bug_run_info(bug)
+            all_variants = bug_run_info.variants
+            if bug_testrun_matrix and bug_run_info.os_name in bug_testrun_matrix:
+                testrun_os_matrix = bug_testrun_matrix[bug_run_info.os_name]
+                all_variants |= self.get_all_test_variants(bug_run_info, testrun_os_matrix)
             repo = bug["job__repository__name"]
-            bug_id = bug["bug__bugzilla_id"]
-            build_type = option_collection_map.get(
-                bug["job__option_collection_hash"], "unknown build"
-            )
-            test_variant = self.get_test_variant(bug["job__signature__job_type_name"])
-            if architecture:
-                platform_and_build = f"{platform}-{architecture}/{build_type}"
+            test_variant = bug_run_info.current_variant
+            if bug_run_info.arch:
+                platform_and_build = (
+                    f"{bug_run_info.platform}-{bug_run_info.arch}/{bug_run_info.build_type}"
+                )
             else:
-                platform_and_build = f"{platform}/{build_type}"
+                platform_and_build = f"{bug_run_info.platform}/{bug_run_info.build_type}"
             if bug_id not in bug_map:
                 bug_infos = BugsDetails()
                 bug_infos.total = 1
-                bug_infos.test_variants.add(test_variant)
+                bug_infos.test_variants |= all_variants
                 bug_infos.per_repositories[repo] = 1
                 bug_infos.data_table[platform_and_build] = {test_variant: 1}
                 bug_map[bug_id] = bug_infos
             else:
                 bug_infos = bug_map[bug_id]
                 bug_infos.total += 1
-                bug_infos.test_variants.add(test_variant)
+                bug_infos.test_variants |= all_variants
                 bug_infos.per_repositories.setdefault(repo, 0)
                 bug_infos.per_repositories[repo] += 1
                 # data_table
@@ -421,3 +493,110 @@ class Commenter:
             max = max + 600
 
         return {bug["id"]: bug for bug in bugs_list} if len(bugs_list) else None
+
+    def get_tests_from_manifests(self):
+        manifests = fetch.fetch_test_manifests() if self.manifests is None else self.manifests
+        self.manifests = manifests
+        all_tests = {}
+        for component in manifests["tests"]:
+            for item in manifests["tests"][component]:
+                if item["test"] not in all_tests:
+                    all_tests[item["test"]] = []
+                # split(':') allows for parent:child where we want to keep parent
+                all_tests[item["test"]].append(item["manifest"][0].split(":")[0])
+        return all_tests
+
+    def fix_wpt_name(self, test_name):
+        # TODO: keep this updated with wpt changes to:
+        # https://searchfox.org/mozilla-central/source/testing/web-platform/tests/tools/serve/serve.py#273
+        if (
+            ".https.any.shadowrealm-in-serviceworker.html" in test_name
+            or ".https.any.shadowrealm-in-audioworklet.html" in test_name
+        ):
+            test_name = f"{test_name.split('.https.any.')[0]}.any.js"
+        elif ".any." in test_name:
+            test_name = f"{test_name.split('.any.')[0]}.any.js"
+        if ".window.html" in test_name:
+            test_name = test_name.replace(".window.html", ".window.js")
+        if ".worker.html" in test_name:
+            test_name = test_name.replace(".worker.html", ".worker.js")
+        if test_name.startswith("/mozilla/tests"):
+            test_name = test_name.replace("/mozilla/", "mozilla/")
+        if test_name.startswith("mozilla/tests"):
+            test_name = f"testing/web-platform/{test_name}"
+        else:
+            test_name = "testing/web-platform/tests/" + test_name.strip("/")
+        # some wpt tests have params, those are not supported
+        test_name = test_name.split("?")[0]
+        return test_name
+
+    def get_test_manifest(self, bug_summaries):
+        all_tests = self.get_tests_from_manifests()
+        tv_strings = [
+            " TV ",
+            " TV-nofis ",
+            "[TV]",
+            " TVW ",
+            "[TVW]",
+            " TC ",
+            "[TC]",
+            " TCW ",
+            "[TCW]",
+        ]
+        test_file_extensions = [
+            "html",
+            "html (finished)",
+            "js",
+            "js (finished)",
+            "py",
+            "htm",
+            "xht",
+            "svg",
+            "mp4",
+        ]
+        for bug_summary_dict in bug_summaries:
+            summary = bug_summary_dict["summary"]
+            # ensure format we want
+            if "| single tracking bug" not in summary:
+                continue
+            # ignore chrome://, file://, resource://, http[s]://, etc.
+            if "://" in summary:
+                continue
+            # ignore test-verify as these run only on demand when the specific test is modified
+            if any(k for k in tv_strings if k.lower() in summary.lower()):
+                continue
+            # now parse and try to find file in list of tests
+            if any(k for k in test_file_extensions if f"{k} | single" in summary):
+                if " (finished)" in summary:
+                    summary = summary.replace(" (finished)", "")
+                # get <test_name> from: "TEST-UNEXPECTED-FAIL | <test_name> | single tracking bug"
+                # TODO: fix reftest
+                test_name = summary.split("|")[-2].strip()
+                if " == " in test_name or " != " in test_name:
+                    test_name = test_name.split(" ")[0]
+                else:
+                    test_name = test_name.split(" ")[-1]
+                # comm/ is thunderbird, not in mozilla-central repo
+                # "-ref" is related to a reftest reference file, not what we want to target
+                # if no <path>/<filename>, then we won't be able to find in repo, ignore
+                if test_name.startswith("comm/") or "-ref" in test_name or "/" not in test_name:
+                    continue
+                # handle known WPT mapping
+                if test_name.startswith("/") or test_name.startswith("mozilla/tests"):
+                    test_name = self.fix_wpt_name(test_name)
+                if test_name not in all_tests:
+                    # try reftest:
+                    if f"layout/reftests/{test_name}" in all_tests:
+                        test_name = f"layout/reftests/{test_name}"
+                    else:
+                        # unknown test
+                        # TODO: we get here for a few reasons:
+                        # 1) test has moved in the source tree
+                        # 2) test has typo in summary
+                        # 3) test has been deleted from the source tree
+                        # 4) sometimes test was deleted but is valid on beta
+                        continue
+                # matching test- we can access manifest
+                manifest = all_tests[test_name]
+                return manifest[0]
+        return None

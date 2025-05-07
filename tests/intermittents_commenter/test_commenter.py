@@ -5,7 +5,12 @@ from treeherder.intermittents_commenter.commenter import Commenter
 
 
 @responses.activate
-def test_intermittents_commenter(bug_data, mock_test_variants_firefoxci_request):
+def test_intermittents_commenter(
+    bug_data,
+    mock_test_variants_firefoxci_request,
+    mock_test_manifests_firefoxci_request,
+    mock_testrun_matrix_firefoxci_request,
+):
     startday = "2022-05-09"
     endday = "2025-05-10"
     alt_startday = startday
@@ -44,7 +49,10 @@ def test_intermittents_commenter(bug_data, mock_test_variants_firefoxci_request)
 
 @responses.activate
 def test_intermittents_commenter_with_failures(
-    bug_data_with_5_failures, mock_test_variants_firefoxci_request
+    bug_data_with_5_failures,
+    mock_test_variants_firefoxci_request,
+    mock_test_manifests_firefoxci_request,
+    mock_testrun_matrix_firefoxci_request,
 ):
     startday = "2022-05-09"
     endday = "2025-05-10"
