@@ -166,6 +166,15 @@ class PinBoard extends React.Component {
         const message = `Error saving bug association for ${job.platform} ${job.job_type_name}`;
         notify(formatModelError(response, message), 'danger');
       });
+
+      // In case the bug is still an internal issue, check if the required number of occurrence is reached to open a bug
+      if (!bug.id) {
+        window.dispatchEvent(
+          new CustomEvent(thEvents.internalIssueClassification, {
+            detail: { internalBugId: bug.internal_id },
+          }),
+        );
+      }
     });
   };
 
@@ -358,7 +367,7 @@ class PinBoard extends React.Component {
     );
   };
 
-  isNumber = (text) => !text || /^[0-9]*$/.test(text);
+  isValidBugNumber = (text) => !text || /^i?[0-9]*$/.test(text);
 
   saveEnteredBugNumber = () => {
     const { newBugNumber, enteringBugNumber } = this.state;
@@ -366,8 +375,12 @@ class PinBoard extends React.Component {
     if (enteringBugNumber) {
       if (!newBugNumber) {
         this.toggleEnterBugNumber(false);
-      } else if (this.isNumber(newBugNumber)) {
-        this.props.addBug({ id: parseInt(newBugNumber, 10) });
+      } else if (this.isValidBugNumber(newBugNumber)) {
+        if (newBugNumber[0] === 'i') {
+          this.props.addBug({ internal_id: newBugNumber.slice(1) });
+        } else {
+          this.props.addBug({ id: parseInt(newBugNumber, 10) });
+        }
         this.toggleEnterBugNumber(false);
       }
     }
@@ -491,7 +504,7 @@ class PinBoard extends React.Component {
                       pattern="[0-9]*"
                       className="add-related-bugs-input"
                       placeholder="enter bug number"
-                      invalid={!this.isNumber(newBugNumber)}
+                      invalid={!this.isValidBugNumber(newBugNumber)}
                       onKeyPress={this.bugNumberKeyPress}
                       onChange={(ev) => {
                         this.setState({ newBugNumber: ev.target.value });
@@ -712,8 +725,8 @@ PinBoard.propTypes = {
   isStaff: PropTypes.bool.isRequired,
   isPinBoardVisible: PropTypes.bool.isRequired,
   pinnedJobs: PropTypes.shape({}).isRequired,
-  pinnedJobBugs: PropTypes.shape({}).isRequired,
-  newBug: PropTypes.string.isRequired,
+  pinnedJobBugs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  newBug: PropTypes.shape({}).isRequired,
   addBug: PropTypes.func.isRequired,
   removeBug: PropTypes.func.isRequired,
   unPinJob: PropTypes.func.isRequired,

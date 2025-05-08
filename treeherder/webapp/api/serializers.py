@@ -2,6 +2,7 @@ import re
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils import timezone
 from rest_framework import serializers
 
 from treeherder.changelog.models import Changelog
@@ -453,3 +454,22 @@ class InvestigatedTestsSerializers(serializers.ModelSerializer):
     class Meta:
         model = models.InvestigatedTests
         fields = ("id", "test", "job_name", "job_symbol")
+
+
+class InternalIssueSerializer(serializers.ModelSerializer):
+    internal_id = serializers.IntegerField(source="id", read_only=True)
+
+    class Meta:
+        model = models.Bugscache
+        fields = ("internal_id", "summary")
+
+    def create(self, validated_data):
+        """Build or retrieve a bug already reported for a similar FailureLine"""
+        try:
+            bug, _ = models.Bugscache.objects.get_or_create(
+                **validated_data, defaults={"modified": timezone.now()}
+            )
+        except models.Bugscache.MultipleObjectsReturned:
+            # Take last modified in case a conflict happens
+            bug = models.Bugscache.objects.filter(**validated_data).order_by("modified").first()
+        return bug

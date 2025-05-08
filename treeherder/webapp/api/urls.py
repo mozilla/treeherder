@@ -14,6 +14,7 @@ from treeherder.webapp.api import (
     hash,
     infra_compare,
     intermittents_view,
+    internal_issue,
     investigated_test,
     job_log_url,
     jobs,
@@ -181,4 +182,7 @@ urlpatterns = [
     ),
     re_path(r"^csp-report/$", csp_report.csp_report_collector, name="csp-report"),
     re_path(r"^schema/", get_schema_view(title="Treeherder Rest API"), name="openapi-schema"),
+    re_path(
+        r"^internal_issue/", internal_issue.CreateInternalIssue.as_view(), name="internal_issue"
+    ),
 ]
