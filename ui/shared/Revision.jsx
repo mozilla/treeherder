@@ -55,7 +55,12 @@ export class Revision extends React.PureComponent {
   };
 
   isBackout = (comment) => {
-    return comment.search('Backed out') >= 0 || comment.search('Back out') >= 0;
+    // 'Revert' commits directly after migration to Git VCS when no `hg oops` equivalent available.
+    return (
+      comment.search('Backed out') >= 0 ||
+      comment.search('Back out') >= 0 ||
+      comment.startsWith('Revert')
+    );
   };
 
   render() {
