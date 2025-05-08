@@ -43,9 +43,7 @@ class SummaryByGroupName(generics.ListAPIView):
             enddate = startdate + datetime.timedelta(days=1)
 
         q = (
-            Job.objects.filter(
-                push__time__gte=str(startdate.date()), push__time__lte=str(enddate.date())
-            )
+            Job.objects.filter(push__time__range=(startdate.date(), enddate.date()))
             .filter(repository_id__in=(1, 77))
             .values(
                 "job_log__groups__name",
