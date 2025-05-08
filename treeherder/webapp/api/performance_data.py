@@ -919,6 +919,7 @@ class PerfCompareResults(generics.ListAPIView):
         no_subtests = query_params.validated_data["no_subtests"]
         base_parent_signature = query_params.validated_data["base_parent_signature"]
         new_parent_signature = query_params.validated_data["new_parent_signature"]
+        replicates = query_params.validated_data["replicates"]
 
         try:
             new_push = models.Push.objects.get(revision=new_rev, repository__name=new_repo_name)
@@ -979,11 +980,17 @@ class PerfCompareResults(generics.ListAPIView):
             new_grouped_replicates,
         ) = self._get_grouped_perf_data(new_perf_data)
 
+        statistics_base_grouped_data = base_grouped_values
+        statistics_new_grouped_data = new_grouped_values
+        if replicates:
+            statistics_base_grouped_data = base_grouped_replicates
+            statistics_new_grouped_data = new_grouped_replicates
+
         base_signatures_map, base_header_names, base_platforms = self._get_signatures_map(
-            base_signatures, base_grouped_values, option_collection_map
+            base_signatures, statistics_base_grouped_data, option_collection_map
         )
         new_signatures_map, new_header_names, new_platforms = self._get_signatures_map(
-            new_signatures, new_grouped_values, option_collection_map
+            new_signatures, statistics_new_grouped_data, option_collection_map
         )
 
         header_names = list(set(base_header_names + new_header_names))
@@ -1020,22 +1027,24 @@ class PerfCompareResults(generics.ListAPIView):
                 new_perf_data_values = new_grouped_values.get(new_sig_id, [])
                 base_perf_data_replicates = base_grouped_replicates.get(base_sig_id, [])
                 new_perf_data_replicates = new_grouped_replicates.get(new_sig_id, [])
-                base_runs_count = len(base_perf_data_values)
-                new_runs_count = len(new_perf_data_values)
+                statistics_base_perf_data = statistics_base_grouped_data.get(base_sig_id, [])
+                statistics_new_perf_data = statistics_new_grouped_data.get(new_sig_id, [])
+                base_runs_count = len(statistics_base_perf_data)
+                new_runs_count = len(statistics_new_perf_data)
                 is_complete = base_runs_count and new_runs_count
                 no_results_to_show = not base_runs_count and not new_runs_count
                 if no_results_to_show:
                     continue
-                base_avg_value = perfcompare_utils.get_avg(base_perf_data_values, header)
-                base_stddev = perfcompare_utils.get_stddev(base_perf_data_values, header)
-                base_median_value = perfcompare_utils.get_median(base_perf_data_values)
-                new_avg_value = perfcompare_utils.get_avg(new_perf_data_values, header)
-                new_stddev = perfcompare_utils.get_stddev(new_perf_data_values, header)
-                new_median_value = perfcompare_utils.get_median(new_perf_data_values)
+                base_avg_value = perfcompare_utils.get_avg(statistics_base_perf_data, header)
+                base_stddev = perfcompare_utils.get_stddev(statistics_base_perf_data, header)
+                base_median_value = perfcompare_utils.get_median(statistics_base_perf_data)
+                new_avg_value = perfcompare_utils.get_avg(statistics_new_perf_data, header)
+                new_stddev = perfcompare_utils.get_stddev(statistics_new_perf_data, header)
+                new_median_value = perfcompare_utils.get_median(statistics_new_perf_data)
                 base_stddev_pct = perfcompare_utils.get_stddev_pct(base_avg_value, base_stddev)
                 new_stddev_pct = perfcompare_utils.get_stddev_pct(new_avg_value, new_stddev)
                 confidence = perfcompare_utils.get_abs_ttest_value(
-                    base_perf_data_values, new_perf_data_values
+                    statistics_base_perf_data, statistics_new_perf_data
                 )
                 confidence_text = perfcompare_utils.get_confidence_text(confidence)
                 delta_value = perfcompare_utils.get_delta_value(new_avg_value, base_avg_value)
