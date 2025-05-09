@@ -18,6 +18,7 @@ import {
   parseQueryParams,
   createQueryParams,
   getApiUrl,
+  getLandoJobsUrl,
 } from '../helpers/url';
 import ClassificationTypeModel from '../models/classificationType';
 import FilterModel from '../models/filter';
@@ -78,6 +79,7 @@ class App extends React.Component {
     this.state = {
       repoName: this.getOrSetRepo(),
       revision: urlParams.get('revision'),
+      landoCommitID: urlParams.get('landoCommitID'),
       user: { isLoggedIn: false, isStaff: false },
       filterModel,
       isFieldFilterVisible: false,
@@ -102,7 +104,7 @@ class App extends React.Component {
   }
 
   async componentDidMount() {
-    const { repoName } = this.state;
+    const { repoName, landoCommitID } = this.state;
     const { data } = await getData(getApiUrl(endpoints.frameworks));
     this.setState({ frameworks: data });
 
@@ -122,6 +124,10 @@ class App extends React.Component {
     window.addEventListener('resize', this.updateDimensions, false);
     window.addEventListener('storage', this.handleStorageEvent);
     window.addEventListener(thEvents.filtersUpdated, this.handleFiltersUpdated);
+
+    if (landoCommitID) {
+      await this.setLandoRevision();
+    }
 
     // Get the current Treeherder revision and poll to notify on updates.
     this.fetchDeployedRevision().then((revision) => {
@@ -215,6 +221,27 @@ class App extends React.Component {
     }
 
     return repo;
+  }
+
+  async setLandoRevision() {
+    const { pushRoute } = this.props;
+    const params = getAllUrlParams();
+    const landoCommitID = params.get('landoCommitID');
+    let revision = params.get('revision');
+
+    if ((!revision || (revision === 'undefined')) && landoCommitID) {
+      const { data } = await getData(
+        getLandoJobsUrl(landoCommitID),
+      );
+
+      revision = data.commit_id;
+      this.setState({ revision });
+
+      params.set('revision', revision);
+      pushRoute({
+        search: createQueryParams(params),
+      });
+    }
   }
 
   handleFiltersUpdated = () => {

@@ -13,6 +13,8 @@ export const thBaseUrl = 'https://treeherder.mozilla.org/';
 
 export const bzBaseUrl = 'https://bugzilla.mozilla.org/';
 
+export const loBaseUrl = 'https://api.lando.services.mozilla.com/';
+
 export const bzComponentEndpoint = '/bugzilla-component/';
 
 export const bugsEndpoint = '/failures/';
@@ -38,6 +40,8 @@ export const repoEndpoint = '/repository/';
 export const tcAuthCallbackUrl = '/taskcluster-auth';
 
 export const textLogErrorsEndpoint = '/text_log_errors/';
+
+export const loLandingJobsEndPoint = 'landing_jobs/';
 
 export const getRunnableJobsURL = function getRunnableJobsURL(
   decisionTask,
@@ -249,4 +253,8 @@ export const getPerfCompareOvertimeSubtestsURL = function getPerfCompareOvertime
   return `https://perf.compare/subtests-compare-over-time-results${createQueryParams(
     params,
   )}`;
+};
+
+export const getLandoJobsUrl = function getLandoJobsUrl(landoCommitID) {
+  return `${loBaseUrl}${loLandingJobsEndPoint}${landoCommitID}`;
 };
