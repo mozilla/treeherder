@@ -2,7 +2,7 @@ import requests
 import yaml
 
 firefoxci_service_api_url = "https://firefox-ci-tc.services.mozilla.com/api/index/v1"
-firefoxci_artefact_api_url = f"{firefoxci_service_api_url}/task/gecko.v2.mozilla-central.latest.source.test-info-all/artifacts/public/"
+firefoxci_artefact_api_url = f"{firefoxci_service_api_url}/task/gecko.v2.mozilla-central.latest.source.test-info-all/artifacts/public"
 
 
 def fetch_test_variants():
