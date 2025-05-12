@@ -100,7 +100,10 @@ class FailureSummaryTab extends React.Component {
         }
         if (simpleCase.length === 0 && suggestion.bugs.all_others.length > 0) {
           suggestion.bugs.all_others.forEach((bug) => {
-            if (bug.summary.endsWith('single tracking bug')) {
+            if (
+              bug.summary.endsWith('single tracking bug') &&
+              bug.resolution !== 'FIXED'
+            ) {
               simpleCase.push(bug);
             }
           });
