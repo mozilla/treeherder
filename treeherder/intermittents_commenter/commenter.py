@@ -14,7 +14,7 @@ from treeherder.intermittents_commenter.constants import (
     COMPONENTS,
     WHITEBOARD_NEEDSWORK_OWNER,
 )
-from treeherder.model.models import BugJobMap, Bugscache, OptionCollection
+from treeherder.model.models import BugJobMap, OptionCollection
 
 from . import fetch
 
@@ -306,6 +306,7 @@ class Commenter:
                 "bug__bugzilla_id",
                 "job__option_collection_hash",
                 "job__signature__job_type_name",
+                "bug__summary",
             )
         )
         return bug_ids, bugs
@@ -413,13 +414,10 @@ class Commenter:
         }
         """
         bug_map = {}
-        bug_ids = [b["bug__bugzilla_id"] for b in bugs]
-        bug_summaries = Bugscache.objects.filter(bugzilla_id__in=bug_ids).values(
-            "summary", "bugzilla_id"
-        )
         all_variants = set()
-        for bug, bug_id in zip(bugs, bug_ids):
-            manifest = self.get_test_manifest(bug_summaries.filter(bugzilla_id=bug_id))
+        for bug in bugs:
+            bug_id = bug["bug__bugzilla_id"]
+            manifest = self.get_test_manifest(bug["bug__summary"])
             bug_testrun_matrix = []
             if manifest:
                 testrun_matrix = (
@@ -530,7 +528,7 @@ class Commenter:
         test_name = test_name.split("?")[0]
         return test_name
 
-    def get_test_manifest(self, bug_summaries):
+    def get_test_manifest(self, summary):
         all_tests = self.get_tests_from_manifests()
         tv_strings = [
             " TV ",
@@ -554,49 +552,47 @@ class Commenter:
             "svg",
             "mp4",
         ]
-        for bug_summary_dict in bug_summaries:
-            summary = bug_summary_dict["summary"]
-            # ensure format we want
-            if "| single tracking bug" not in summary:
-                continue
-            # ignore chrome://, file://, resource://, http[s]://, etc.
-            if "://" in summary:
-                continue
-            # ignore test-verify as these run only on demand when the specific test is modified
-            if any(k for k in tv_strings if k.lower() in summary.lower()):
-                continue
-            # now parse and try to find file in list of tests
-            if any(k for k in test_file_extensions if f"{k} | single" in summary):
-                if " (finished)" in summary:
-                    summary = summary.replace(" (finished)", "")
-                # get <test_name> from: "TEST-UNEXPECTED-FAIL | <test_name> | single tracking bug"
-                # TODO: fix reftest
-                test_name = summary.split("|")[-2].strip()
-                if " == " in test_name or " != " in test_name:
-                    test_name = test_name.split(" ")[0]
+        # ensure format we want
+        if "| single tracking bug" not in summary:
+            return None
+        # ignore chrome://, file://, resource://, http[s]://, etc.
+        if "://" in summary:
+            return None
+        # ignore test-verify as these run only on demand when the specific test is modified
+        if any(k for k in tv_strings if k.lower() in summary.lower()):
+            return None
+        # now parse and try to find file in list of tests
+        if any(k for k in test_file_extensions if f"{k} | single" in summary):
+            if " (finished)" in summary:
+                summary = summary.replace(" (finished)", "")
+            # get <test_name> from: "TEST-UNEXPECTED-FAIL | <test_name> | single tracking bug"
+            # TODO: fix reftest
+            test_name = summary.split("|")[-2].strip()
+            if " == " in test_name or " != " in test_name:
+                test_name = test_name.split(" ")[0]
+            else:
+                test_name = test_name.split(" ")[-1]
+            # comm/ is thunderbird, not in mozilla-central repo
+            # "-ref" is related to a reftest reference file, not what we want to target
+            # if no <path>/<filename>, then we won't be able to find in repo, ignore
+            if test_name.startswith("comm/") or "-ref" in test_name or "/" not in test_name:
+                return None
+            # handle known WPT mapping
+            if test_name.startswith("/") or test_name.startswith("mozilla/tests"):
+                test_name = self.fix_wpt_name(test_name)
+            if test_name not in all_tests:
+                # try reftest:
+                if f"layout/reftests/{test_name}" in all_tests:
+                    test_name = f"layout/reftests/{test_name}"
                 else:
-                    test_name = test_name.split(" ")[-1]
-                # comm/ is thunderbird, not in mozilla-central repo
-                # "-ref" is related to a reftest reference file, not what we want to target
-                # if no <path>/<filename>, then we won't be able to find in repo, ignore
-                if test_name.startswith("comm/") or "-ref" in test_name or "/" not in test_name:
-                    continue
-                # handle known WPT mapping
-                if test_name.startswith("/") or test_name.startswith("mozilla/tests"):
-                    test_name = self.fix_wpt_name(test_name)
-                if test_name not in all_tests:
-                    # try reftest:
-                    if f"layout/reftests/{test_name}" in all_tests:
-                        test_name = f"layout/reftests/{test_name}"
-                    else:
-                        # unknown test
-                        # TODO: we get here for a few reasons:
-                        # 1) test has moved in the source tree
-                        # 2) test has typo in summary
-                        # 3) test has been deleted from the source tree
-                        # 4) sometimes test was deleted but is valid on beta
-                        continue
-                # matching test- we can access manifest
-                manifest = all_tests[test_name]
-                return manifest[0]
+                    # unknown test
+                    # TODO: we get here for a few reasons:
+                    # 1) test has moved in the source tree
+                    # 2) test has typo in summary
+                    # 3) test has been deleted from the source tree
+                    # 4) sometimes test was deleted but is valid on beta
+                    return None
+            # matching test- we can access manifest
+            manifests = all_tests[test_name]
+            return manifests[0]
         return None
