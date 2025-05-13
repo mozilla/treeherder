@@ -229,10 +229,8 @@ class App extends React.Component {
     const landoCommitID = params.get('landoCommitID');
     let revision = params.get('revision');
 
-    if ((!revision || (revision === 'undefined')) && landoCommitID) {
-      const { data } = await getData(
-        getLandoJobsUrl(landoCommitID),
-      );
+    if ((!revision || revision === 'undefined') && landoCommitID) {
+      const { data } = await getData(getLandoJobsUrl(landoCommitID));
 
       revision = data.commit_id;
       this.setState({ revision });
