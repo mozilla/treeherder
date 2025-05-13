@@ -382,7 +382,7 @@ def test_alert_monitor_no_sheriff(
 
     # When monitor is true, then alert should not be sheriffed
     # regardless of should_alert settings
-    assert [alert.sheriffed == False for alert in PerformanceAlert.objects.all()]
+    assert [not alert.sheriffed for alert in PerformanceAlert.objects.all()]
 
 
 @mock.patch("treeherder.perf.alerts.taskcluster")
@@ -426,7 +426,7 @@ def test_alert_emails(
     assert PerformanceAlertSummary.objects.count() == 1
 
     # When monitor is False, then the alerts should be sheriffed
-    assert [alert.sheriffed == True for alert in PerformanceAlert.objects.all()]
+    assert [alert.sheriffed for alert in PerformanceAlert.objects.all()]
 
     # Make sure the email service was called correctly for 2 emails
     assert mocked_taskcluster.notify_client_factory.call_count == 1
