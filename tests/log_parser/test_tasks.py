@@ -228,3 +228,23 @@ def test_bug_suggestion_line_no_stb(
             ),
         }
     ]
+
+
+@pytest.mark.django_db
+def test_confirm_failure_intermittent(
+    failure_classifications, jobs_with_local_log, sample_push, test_repository
+):
+    """
+    TODO: write tests for testing intermittents.py handling in the parser.
+     * test retrigger with 1 similar failure, but both jobs have different failures - both orange
+     * test 5 jobs, 2 fail, 2 fail for other reasons, 1 pass - all green
+     * test infra/tooling error + 1x green - both green
+     * test failure w/3x tests + 3x confirm-failure tasks green - all green
+     * test failure w/3x tests + 2x confirm-failure tasks green - original task still orange
+    """
+    store_push_data(test_repository, sample_push)
+    for job in jobs_with_local_log:
+        job["job"]["result"] = "testfailed"
+        job["revision"] = sample_push[0]["revision"]
+    store_job_data(test_repository, jobs_with_local_log)
+    assert 1 == 0
