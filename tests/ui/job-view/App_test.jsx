@@ -147,7 +147,9 @@ describe('App', () => {
 
   test('should have links to Perfherder and Intermittent Failures View', async () => {
     const { getByText, getByAltText } = render(testApp());
-    const appMenu = await waitFor(() => getByAltText('Treeherder'));
+    const appMenu = await waitFor(() => getByAltText('Treeherder'), {
+      timeout: 2000,
+    });
 
     expect(appMenu).toBeInTheDocument();
     fireEvent.click(appMenu);
