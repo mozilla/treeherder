@@ -59,6 +59,7 @@ class Commenter:
     test_variants = None
     manifests = None
     testrun_matrix = None
+    summary_groups = None
 
     def __init__(self, weekly_mode, dry_run=False):
         self.weekly_mode = weekly_mode
@@ -386,6 +387,21 @@ class Commenter:
             info.build_type = "unknown build"
         return info
 
+    def get_task_labels_and_count(self, manifest):
+        tasks_and_count = {}
+        summary_groups = (
+            fetch.get_summary_groups() if self.summary_groups is None else self.summary_groups
+        )
+        all_task_labels = summary_groups["job_type_names"]
+        for tasks_by_manifest in summary_groups["manifests"]:
+            for man, tasks in tasks_by_manifest.items():
+                if manifest == man:
+                    for task_index, _, _, count in tasks:
+                        task_label = all_task_labels[task_index]
+                        tasks_and_count.setdefault(task_label, 0)
+                        tasks_and_count[task_label] += count
+        return tasks_and_count
+
     def build_bug_map(self, bugs, option_collection_map):
         """Build bug_map
          eg:
@@ -418,6 +434,8 @@ class Commenter:
         for bug in bugs:
             bug_id = bug["bug__bugzilla_id"]
             manifest = self.get_test_manifest(bug["bug__summary"])
+            task_labels = self.get_task_labels_and_count(manifest)
+            print(task_labels)
             bug_testrun_matrix = []
             if manifest:
                 testrun_matrix = (
