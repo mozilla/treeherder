@@ -782,6 +782,7 @@ class PerformanceBugTemplate(models.Model):
     cc_list = models.CharField(max_length=255)
 
     text = models.TextField(max_length=4096)
+    critical_text = models.TextField(max_length=4096, default="")
 
     class Meta:
         db_table = "performance_bug_template"

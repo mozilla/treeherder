@@ -15,6 +15,7 @@ def test_perf_bug_template_api(client, test_perf_framework):
             "default_product": f"dfprod{i}",
             "cc_list": f"foo{i}@bar.com",
             "text": f"my great text {i}",
+            "critical_text": f"my great critical text {i}",
         }
         PerformanceBugTemplate.objects.create(framework=framework, **dict)
         dict["framework"] = framework.id
