@@ -80,7 +80,7 @@ class Commenter:
 
         bug_ids, bugs = self.get_bugs(startday, endday)
         option_collection_map = OptionCollection.objects.get_option_collection_map()
-        bug_map = self.build_bug_map(bugs, option_collection_map)
+        bug_map = self.build_bug_map(bugs, option_collection_map, startday, endday)
 
         alt_date_bug_totals = self.get_alt_date_bug_totals(alt_startday, alt_endday, bug_ids)
 
@@ -387,22 +387,32 @@ class Commenter:
             info.build_type = "unknown build"
         return info
 
-    def get_task_labels_and_count(self, manifest):
+    def get_task_labels_and_count(self, manifest, start_day, end_day):
         tasks_and_count = {}
         summary_groups = (
-            fetch.get_summary_groups() if self.summary_groups is None else self.summary_groups
+            fetch.fetch_summary_groups(start_day, end_day)
+            if self.summary_groups is None
+            else self.summary_groups
         )
-        all_task_labels = summary_groups["job_type_names"]
-        for tasks_by_manifest in summary_groups["manifests"]:
-            for man, tasks in tasks_by_manifest.items():
-                if manifest == man:
-                    for task_index, _, _, count in tasks:
-                        task_label = all_task_labels[task_index]
-                        tasks_and_count.setdefault(task_label, 0)
-                        tasks_and_count[task_label] += count
+        days = [start_day]
+        if self.weekly_mode:
+            for j in range(6):
+                jj = datetime.strptime(days[-1], "%Y-%m-%d") + timedelta(days=1)
+                days.append(jj.strftime("%Y-%m-%d"))
+        for day in days:
+            if day not in summary_groups:
+                continue
+            all_task_labels = summary_groups[day]["job_type_names"]
+            for tasks_by_manifest in summary_groups[day]["manifests"]:
+                for man, tasks in tasks_by_manifest.items():
+                    if manifest == man:
+                        for task_index, _, _, count in tasks:
+                            task_label = all_task_labels[task_index]
+                            tasks_and_count.setdefault(task_label, 0)
+                            tasks_and_count[task_label] += count
         return tasks_and_count
 
-    def build_bug_map(self, bugs, option_collection_map):
+    def build_bug_map(self, bugs, option_collection_map, start_day, end_day):
         """Build bug_map
          eg:
         {
@@ -434,7 +444,7 @@ class Commenter:
         for bug in bugs:
             bug_id = bug["bug__bugzilla_id"]
             manifest = self.get_test_manifest(bug["bug__summary"])
-            task_labels = self.get_task_labels_and_count(manifest)
+            task_labels = self.get_task_labels_and_count(manifest, start_day, end_day)
             print(task_labels)
             bug_testrun_matrix = []
             if manifest:
