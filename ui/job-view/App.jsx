@@ -255,7 +255,7 @@ class App extends React.Component {
         search: createQueryParams(params),
       });
     } else {
-      let status = data.status ? data.status : 'unknown';
+      const status = data.status ? data.status : 'unknown';
       this.setState({ landoStatus: status.toLowerCase() });
     }
 
