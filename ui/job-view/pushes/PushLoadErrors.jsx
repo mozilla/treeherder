@@ -5,10 +5,17 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import { getAllUrlParams } from '../../helpers/location';
-import { uiJobsUrlBase } from '../../helpers/url';
+import { uiJobsUrlBase, getLandoJobsUrl } from '../../helpers/url';
 
 function PushLoadErrors(props) {
-  const { loadingPushes, currentRepo, revision, repoName } = props;
+  const {
+    loadingPushes,
+    currentRepo,
+    revision,
+    landoCommitID,
+    landoStatus,
+    repoName,
+  } = props;
   const urlParams = getAllUrlParams();
   urlParams.delete('revision');
 
@@ -52,6 +59,42 @@ function PushLoadErrors(props) {
             </span>
           </div>
         )}
+      {!loadingPushes &&
+        !revision &&
+        landoCommitID &&
+        currentRepo &&
+        currentRepo.url && (
+          <div className="push-body unknown-message-body">
+            <span>
+              {landoCommitID && (
+                <div>
+                  <p>
+                    Waiting for push with lando commit ID&nbsp;
+                    <a
+                      href={getLandoJobsUrl(landoCommitID)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="See lando status"
+                    >
+                      {landoCommitID}
+                    </a>
+                    . Lando status is: {landoStatus}&nbsp;
+                    <FontAwesomeIcon
+                      icon={faSpinner}
+                      pulse
+                      className="th-spinner"
+                      title="Loading..."
+                    />
+                  </p>
+                  <p>
+                    If the push exists, it will appear in a few minutes once it
+                    has been processed.
+                  </p>
+                </div>
+              )}
+            </span>
+          </div>
+        )}
       {!loadingPushes && revision && !isRevision(revision) && currentRepo.url && (
         <div className="push-body unknown-message-body">
           This is an invalid or unknown revision. Please change it, or click
@@ -59,20 +102,24 @@ function PushLoadErrors(props) {
           reload the latest revisions from {repoName}.
         </div>
       )}
-      {!loadingPushes && !revision && currentRepo && currentRepo.url && (
-        <div className="push-body unknown-message-body">
-          <span>
-            <div>
-              <b>No pushes found.</b>
-            </div>
+      {!loadingPushes &&
+        !revision &&
+        !landoCommitID &&
+        currentRepo &&
+        currentRepo.url && (
+          <div className="push-body unknown-message-body">
             <span>
-              No commit information could be loaded for this repository. More
-              information about this repository can be found{' '}
-              <a href={currentRepo.url}>here</a>.
+              <div>
+                <b>No pushes found.</b>
+              </div>
+              <span>
+                No commit information could be loaded for this repository. More
+                information about this repository can be found{' '}
+                <a href={currentRepo.url}>here</a>.
+              </span>
             </span>
-          </span>
-        </div>
-      )}
+          </div>
+        )}
       {!loadingPushes && !currentRepo.url && (
         <div className="push-body unknown-message-body">
           <span>
@@ -102,10 +149,14 @@ PushLoadErrors.propTypes = {
   }).isRequired,
   repoName: PropTypes.string.isRequired,
   revision: PropTypes.string,
+  landoCommitID: PropTypes.string,
+  landoStatus: PropTypes.string,
 };
 
 PushLoadErrors.defaultProps = {
   revision: null,
+  landoCommitID: null,
+  landoStatus: 'unknown',
 };
 
 const mapStateToProps = ({ pushes: { loadingPushes } }) => ({ loadingPushes });

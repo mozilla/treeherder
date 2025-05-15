@@ -126,6 +126,8 @@ class PushList extends React.Component {
     const {
       repoName,
       revision,
+      landoCommitID,
+      landoStatus,
       currentRepo,
       filterModel,
       pushList,
@@ -185,6 +187,8 @@ class PushList extends React.Component {
             currentRepo={currentRepo}
             repoName={repoName}
             revision={revision}
+            landoCommitID={landoCommitID}
+            landoStatus={landoStatus}
           />
         )}
         <div className="card card-body get-next">
@@ -228,12 +232,16 @@ PushList.propTypes = {
   jobMap: PropTypes.shape({}).isRequired,
   notify: PropTypes.func.isRequired,
   revision: PropTypes.string,
+  landoCommitID: PropTypes.string,
+  landoStatus: PropTypes.string,
   currentRepo: PropTypes.shape({}),
   router: PropTypes.shape({}).isRequired,
 };
 
 PushList.defaultProps = {
   revision: null,
+  landoCommitID: null,
+  landoStatus: 'unknown',
   currentRepo: {},
 };
 

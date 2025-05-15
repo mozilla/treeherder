@@ -50,6 +50,7 @@ import '../css/treeherder-loading-overlay.css';
 const DEFAULT_DETAILS_PCT = 40;
 const REVISION_POLL_INTERVAL = 1000 * 60 * 5;
 const REVISION_POLL_DELAYED_INTERVAL = 1000 * 60 * 60;
+const LANDO_POLL_INTERVAL = 1000 * 60;
 const HIDDEN_URL_PARAMS = [
   'repo',
   'classifiedState',
@@ -80,6 +81,7 @@ class App extends React.Component {
       repoName: this.getOrSetRepo(),
       revision: urlParams.get('revision'),
       landoCommitID: urlParams.get('landoCommitID'),
+      landoStatus: 'unknown',
       user: { isLoggedIn: false, isStaff: false },
       filterModel,
       isFieldFilterVisible: false,
@@ -126,7 +128,15 @@ class App extends React.Component {
     window.addEventListener(thEvents.filtersUpdated, this.handleFiltersUpdated);
 
     if (landoCommitID) {
-      await this.setLandoRevision();
+      let revision = await this.setLandoRevision();
+      if (!revision) {
+        this.landoInterval = setInterval(async () => {
+          revision = await this.setLandoRevision();
+          if (revision) {
+            clearInterval(this.landoInterval);
+          }
+        }, LANDO_POLL_INTERVAL);
+      }
     }
 
     // Get the current Treeherder revision and poll to notify on updates.
@@ -190,6 +200,9 @@ class App extends React.Component {
     if (this.updateInterval) {
       clearInterval(this.updateInterval);
     }
+    if (this.landoInterval) {
+      clearInterval(this.landoInterval);
+    }
   }
 
   static getSplitterDimensions(hasSelectedJob) {
@@ -229,17 +242,24 @@ class App extends React.Component {
     const landoCommitID = params.get('landoCommitID');
     let revision = params.get('revision');
 
-    if ((!revision || revision === 'undefined') && landoCommitID) {
-      const { data } = await getData(getLandoJobsUrl(landoCommitID));
+    const { data } = await getData(getLandoJobsUrl(landoCommitID));
 
-      revision = data.commit_id;
+    revision = data.commit_id;
+    if (revision) {
       this.setState({ revision });
 
       params.set('revision', revision);
+      params.delete('landoCommitID');
+
       pushRoute({
         search: createQueryParams(params),
       });
+    } else {
+      let status = data.status ? data.status : 'unknown';
+      this.setState({ landoStatus: status.toLowerCase() });
     }
+
+    return revision;
   }
 
   handleFiltersUpdated = () => {
@@ -356,6 +376,8 @@ class App extends React.Component {
       filterModel,
       hasSelectedJob,
       revision,
+      landoCommitID,
+      landoStatus,
       duplicateJobsVisible,
       groupCountsExpanded,
       showShortCuts,
@@ -431,6 +453,8 @@ class App extends React.Component {
                       user={user}
                       repoName={repoName}
                       revision={revision}
+                      landoCommitID={landoCommitID}
+                      landoStatus={landoStatus}
                       currentRepo={currentRepo}
                       filterModel={filterModel}
                       duplicateJobsVisible={duplicateJobsVisible}
