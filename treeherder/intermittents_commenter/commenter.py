@@ -42,6 +42,7 @@ class BugRunInfo:
 
 @dataclass
 class BugsDetails:
+    run_count: dict[str, int] = field(default_factory=dict)  # {job_name: run_count}
     total: int = 0
     test_variants: set = field(default_factory=set)
     per_repositories: dict[str, int] = field(default_factory=dict)  # {repo1: 1, repo2: 2, ...}
@@ -443,18 +444,27 @@ class Commenter:
         all_variants = set()
         for bug in bugs:
             bug_id = bug["bug__bugzilla_id"]
-            manifest = self.get_test_manifest(bug["bug__summary"])
-            task_labels = self.get_task_labels_and_count(manifest, start_day, end_day)
-            print(task_labels)
+            all_tests = self.get_tests_from_manifests()
+            test_name = self.get_test_name(all_tests, bug["bug__summary"])
+            manifest = None
             bug_testrun_matrix = []
-            if manifest:
-                testrun_matrix = (
-                    fetch.fetch_testrun_matrix()
-                    if self.testrun_matrix is None
-                    else self.testrun_matrix
-                )
-                self.testrun_matrix = testrun_matrix
-                bug_testrun_matrix = testrun_matrix[manifest]
+            run_count = 0
+            if test_name:
+                manifest = all_tests[test_name][0]
+                if manifest:
+                    tasks_count = self.get_task_labels_and_count(manifest, start_day, end_day)
+                    job_name = bug["job__signature__job_type_name"]
+                    for task_name, count in tasks_count.items():
+                        if task_name == job_name or task_name == job_name.rsplit("-", 1)[0]:
+                            run_count = count
+                            break
+                    testrun_matrix = (
+                        fetch.fetch_testrun_matrix()
+                        if self.testrun_matrix is None
+                        else self.testrun_matrix
+                    )
+                    self.testrun_matrix = testrun_matrix
+                    bug_testrun_matrix = testrun_matrix[manifest]
             bug_run_info = self.get_bug_run_info(bug)
             all_variants = bug_run_info.variants
             if bug_testrun_matrix and bug_run_info.os_name in bug_testrun_matrix:
@@ -473,7 +483,9 @@ class Commenter:
                 bug_infos.total = 1
                 bug_infos.test_variants |= all_variants
                 bug_infos.per_repositories[repo] = 1
-                bug_infos.data_table[platform_and_build] = {test_variant: 1}
+                bug_infos.data_table[platform_and_build] = {
+                    test_variant: {"count": 1, "runs": run_count},
+                }
                 bug_map[bug_id] = bug_infos
             else:
                 bug_infos = bug_map[bug_id]
@@ -485,9 +497,10 @@ class Commenter:
                 data_table = bug_infos.data_table
                 platform_and_build_data = data_table.get(platform_and_build, {})
                 data_table[platform_and_build] = platform_and_build_data
-                data_table[platform_and_build][test_variant] = (
-                    platform_and_build_data.get(test_variant, 0) + 1
-                )
+                if test_variant in data_table[platform_and_build]:
+                    data_table[platform_and_build][test_variant]["count"] += 1
+                else:
+                    data_table[platform_and_build][test_variant] = {"count": 1, "runs": run_count}
         return bug_map
 
     def get_alt_date_bug_totals(self, startday, endday, bug_ids):
@@ -556,8 +569,7 @@ class Commenter:
         test_name = test_name.split("?")[0]
         return test_name
 
-    def get_test_manifest(self, summary):
-        all_tests = self.get_tests_from_manifests()
+    def get_test_name(self, all_tests, summary):
         tv_strings = [
             " TV ",
             " TV-nofis ",
@@ -620,7 +632,5 @@ class Commenter:
                     # 3) test has been deleted from the source tree
                     # 4) sometimes test was deleted but is valid on beta
                     return None
-            # matching test- we can access manifest
-            manifests = all_tests[test_name]
-            return manifests[0]
+            return test_name
         return None
