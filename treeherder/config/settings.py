@@ -448,9 +448,8 @@ COMMENTER_API_KEY = env("BUG_COMMENTER_API_KEY", default=None)
 MAX_ERROR_LINES = 40
 FAILURE_LINES_CUTOFF = 150
 
-# Required number of occurrences in a given time window before being prompted to file a bug in Bugzilla
+# Count internal issue annotations in a limited time window (before prompting user to file a bug in Bugzilla)
 INTERNAL_OCCURRENCES_DAYS_WINDOW = 7
-INTERNAL_OCCURRENCES_COUNT = 3
 
 # Perfherder
 # Default minimum regression threshold for perfherder is 2% (otherwise

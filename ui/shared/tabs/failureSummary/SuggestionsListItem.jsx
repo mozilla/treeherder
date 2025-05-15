@@ -3,7 +3,10 @@ import PropTypes from 'prop-types';
 import { Button } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBug, faFilter } from '@fortawesome/free-solid-svg-icons';
+import {
+  faCircleExclamation,
+  faFilter,
+} from '@fortawesome/free-solid-svg-icons';
 
 import Clipboard from '../../Clipboard';
 import logviewerIcon from '../../../img/logviewerIcon.png';
@@ -45,6 +48,7 @@ export default class SuggestionsListItem extends React.Component {
     const {
       suggestion,
       toggleBugFiler,
+      toggleInternalIssueFiler,
       selectedJob,
       addBug,
       currentRepo,
@@ -69,6 +73,7 @@ export default class SuggestionsListItem extends React.Component {
               suggestion={suggestion}
               selectedJob={selectedJob}
               addBug={addBug}
+              toggleBugFiler={toggleBugFiler}
               bugClassName={
                 developerMode ? 'text-darker-secondary small-text' : ''
               }
@@ -165,10 +170,10 @@ export default class SuggestionsListItem extends React.Component {
                 className="bg-light py-1 px-2 mr-2"
                 outline
                 style={{ fontSize: '8px' }}
-                onClick={() => toggleBugFiler(suggestion)}
-                title="file a bug for this failure"
+                onClick={() => toggleInternalIssueFiler(suggestion)}
+                title="File an internal issue for this failure"
               >
-                <FontAwesomeIcon icon={faBug} title="File bug" />
+                <FontAwesomeIcon icon={faCircleExclamation} />
               </Button>
 
               {suggestion.showNewButton && (
@@ -231,6 +236,7 @@ SuggestionsListItem.propTypes = {
   selectedJob: PropTypes.shape({}).isRequired,
   suggestion: PropTypes.shape({}).isRequired,
   toggleBugFiler: PropTypes.func.isRequired,
+  toggleInternalIssueFiler: PropTypes.func.isRequired,
   developerMode: PropTypes.bool.isRequired,
   addBug: PropTypes.func,
 };

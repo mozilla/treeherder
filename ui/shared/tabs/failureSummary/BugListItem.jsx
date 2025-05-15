@@ -2,35 +2,76 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Highlighter from 'react-highlight-words';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faThumbtack } from '@fortawesome/free-solid-svg-icons';
+import { faBug, faThumbtack } from '@fortawesome/free-solid-svg-icons';
 import { Button } from 'reactstrap';
 
 import { getSearchWords } from '../../../helpers/display';
 import { getBugUrl } from '../../../helpers/url';
+import { requiredInternalOccurrences } from '../../../helpers/constants';
 
 function BugListItem(props) {
-  const { bug, suggestion, bugClassName, title, selectedJob, addBug } = props;
+  const {
+    bug,
+    suggestion,
+    bugClassName,
+    title,
+    selectedJob,
+    addBug,
+    toggleBugFiler,
+  } = props;
   const bugUrl = getBugUrl(bug.id);
   const duplicateBugUrl = bug.dupe_of ? getBugUrl(bug.dupe_of) : undefined;
+  const internalOccurrenceButton = (
+    <Button
+      className="bg-light px-2 py-1"
+      outline
+      style={{ fontSize: '8px' }}
+      type="button"
+      onClick={() => addBug(bug, selectedJob)}
+      title="Add to list of bugs to associate with all pinned jobs"
+    >
+      <FontAwesomeIcon icon={faThumbtack} title="Select bug" />
+    </Button>
+  );
+  const bugzillaButton = (
+    <Button
+      className="bg-light py-1 px-2"
+      outline
+      style={{ fontSize: '8px' }}
+      onClick={() => toggleBugFiler(suggestion)}
+      title={
+        bug.occurrences < requiredInternalOccurrences
+          ? `Force file a bug (${bug.occurrences}/${requiredInternalOccurrences} occurrences)`
+          : 'File a bug for this internal issue'
+      }
+    >
+      <FontAwesomeIcon icon={faBug} />
+    </Button>
+  );
 
   return (
     <li data-testid="bug-list-item">
-      {!!addBug && (
-        <Button
-          className="bg-light px-2 py-1"
-          outline
-          style={{ fontSize: '8px' }}
-          type="button"
-          onClick={() => addBug(bug, selectedJob)}
-          title="add to list of bugs to associate with all pinned jobs"
-        >
-          <FontAwesomeIcon icon={faThumbtack} title="Select bug" />
-        </Button>
-      )}
+      {!!addBug &&
+        bug.occurrences < requiredInternalOccurrences &&
+        internalOccurrenceButton}
+      {!bug.bugzilla_id &&
+        bug.occurrences >= requiredInternalOccurrences &&
+        bugzillaButton}
+      {bug.bugzilla_id}
       <span className="ml-1">i{bug.internal_id}</span>
       {!bug.id && (
-        <span className="ml-1">
-          {bug.summary} ({bug.occurrences} occurrences)
+        <span>
+          <span className="ml-1" title="Number of recent classifications">
+            ({bug.occurrences} occurrences{' '}
+            <FontAwesomeIcon icon={faThumbtack} />)
+          </span>
+          <span className="mr-2">{bug.summary}</span>
+          {!!addBug &&
+            bug.occurrences >= requiredInternalOccurrences &&
+            internalOccurrenceButton}
+          {!bug.bugzilla_id &&
+            bug.occurrences < requiredInternalOccurrences &&
+            bugzillaButton}
         </span>
       )}
       {bug.id && (
@@ -78,6 +119,7 @@ BugListItem.propTypes = {
   bugClassName: PropTypes.string,
   title: PropTypes.string,
   addBug: PropTypes.func,
+  toggleBugFiler: PropTypes.func.isRequired,
 };
 
 BugListItem.defaultProps = {

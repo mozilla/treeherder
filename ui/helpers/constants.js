@@ -341,6 +341,7 @@ export const thEvents = {
   applyNewJobs: 'apply-new-jobs-EVT',
   filtersUpdated: 'filters-updated-EVT',
   clearPinboard: 'clear-pinboard-EVT',
+  internalIssueClassification: 'internal-issue-classification-EVT',
 };
 
 export const thBugSuggestionLimit = 20;
@@ -362,3 +363,6 @@ export const sxsJobTypeName = 'perftest-linux-side-by-side';
 export const sxsTaskName = 'side-by-side';
 
 export const geckoProfileTaskName = 'geckoprofile';
+
+// Number of internal issue classifications to open a bug in Bugzilla
+export const requiredInternalOccurrences = 3;
