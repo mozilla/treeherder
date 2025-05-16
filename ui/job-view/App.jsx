@@ -240,11 +240,10 @@ class App extends React.Component {
     const { pushRoute } = this.props;
     const params = getAllUrlParams();
     const landoCommitID = params.get('landoCommitID');
-    let revision = params.get('revision');
 
     const { data } = await getData(getLandoJobsUrl(landoCommitID));
+    const revision = data.commit_id;
 
-    revision = data.commit_id;
     if (revision) {
       this.setState({ revision });
 
