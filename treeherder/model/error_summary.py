@@ -135,14 +135,16 @@ def get_error_summary(job, queryset=None):
 
     date = str(job.submit_time.date())
     line_cache = lcache.get_cache()
-    if date not in line_cache.keys():
+    if date not in lcache.get_cache_keys():
         lcache.write_cache(date, {})
     else:
         dates = lcache.get_cache_keys()
         dates.sort()
         for d in dates:
             date_time = datetime.datetime.strptime(d, "%Y-%m-%d")
-            if date_time <= (job.submit_time - datetime.timedelta(days=LINE_CACHE_TIMEOUT_DAYS)):
+            if date_time <= (
+                datetime.datetime.today() - datetime.timedelta(days=LINE_CACHE_TIMEOUT_DAYS)
+            ):
                 lcache.remove_cache_key(d)
             else:
                 break
