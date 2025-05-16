@@ -45,6 +45,7 @@ export const thPlatformMap = {
   'linux64-noopt': 'Linux NoOpt',
   'linux64-aarch64': 'Linux AArch64',
   'linux64-aarch64-shippable': 'Linux AArch64 Shippable',
+  'linux64-aarch64-devedition': 'Linux AArch64 DevEdition',
   'linux1804-64': 'Linux 18.04',
   'linux1804-64-qr': 'Linux 18.04',
   'linux1804-64-shippable': 'Linux 18.04 Shippable',
