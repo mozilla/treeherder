@@ -1,7 +1,16 @@
+import importlib.util
 import logging
-from datetime import datetime, timedelta
-from json import JSONDecodeError
+import os
+import requests
+import shutil
+import tempfile
+import traceback
+import yaml
+from datetime import datetime, timedelta, timezone
+from json import loads, JSONDecodeError
 from logging import INFO, WARNING
+from time import strptime
+from pathlib import Path
 
 from django.conf import settings
 from django.db.models import QuerySet
@@ -17,12 +26,32 @@ from treeherder.perf.models import (
     BackfillNotificationRecord,
     BackfillRecord,
     BackfillReport,
+    PerformanceFramework,
+    PerformanceTelemetrySignature,
+    PerformanceTelemetryAlert,
+    PerformanceTelemetryAlertSummary,
+    Push,
+    Repository,
 )
 
 logger = logging.getLogger(__name__)
 
 CLIENT_ID = settings.PERF_SHERIFF_BOT_CLIENT_ID
 ACCESS_TOKEN = settings.PERF_SHERIFF_BOT_ACCESS_TOKEN
+
+BUILDID_MAPPING = "https://hg.mozilla.org/mozilla-central/json-firefoxreleases"
+REVISION_INFO = "https://hg.mozilla.org/mozilla-central/json-log/%s"
+
+INITIAL_PROBES = (
+    "memory_ghost_windows",
+    "cycle_collector_time",
+    "mouseup_followed_by_click_present_latency",
+    "network_tcp_connection",
+    "network_tls_handshake",
+    "networking_http_channel_page_open_to_first_sent",
+    "performance_pageload_fcp",
+    "perf_largest_contentful_paint",
+)
 
 
 class Sherlock:
@@ -49,6 +78,7 @@ class Sherlock:
 
         self.supported_platforms = supported_platforms or settings.SUPPORTED_PLATFORMS
         self._wake_up_time = datetime.now()
+        self._buildid_mappings = {}
 
     def sheriff(self, since: datetime, frameworks: list[str], repositories: list[str]):
         logger.info("Sherlock: Validating settings...")
@@ -215,3 +245,237 @@ class Sherlock:
             start = 1
 
         return context[start:]
+
+    def telemetry_alert(self):
+        import mozdetect
+        from mozdetect.telemetry_query import get_metric_table
+
+        if (
+            not os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
+            and settings.SITE_HOSTNAME != "backend"
+        ):
+            raise Exception(
+                "GOOGLE_APPLICATION_CREDENTIALS must be defined in production. "
+                "Use GCLOUD_DIR for local testing."
+            )
+
+        ts_detectors = mozdetect.get_timeseries_detectors()
+
+        metric_definitions = self._get_metric_definitions()
+
+        repository = Repository.objects.get(name="mozilla-central")
+        framework = PerformanceFramework.objects.get(name="telemetry")
+        for metric_info in metric_definitions:
+            if metric_info["name"] not in INITIAL_PROBES:
+                continue
+            logger.info(f"Running detection for {metric_info['name']}")
+            cdf_ts_detector = ts_detectors[
+                metric_info["data"]
+                .get("monitor", {})
+                .get("change-detection-technique", "cdf_squared")
+            ]
+
+            for platform in ("Windows", "Darwin", "Linux"):
+                if metric_info["platform"] == "mobile" and platform != "Mobile":
+                    continue
+                elif metric_info["platform"] == "desktop" and platform == "Mobile":
+                    continue
+                logger.info(f"On Platform {platform}")
+                try:
+                    data = get_metric_table(
+                        metric_info["name"],
+                        platform,
+                        android=(platform == "Mobile"),
+                        use_fog=True,
+                    )
+                    if data.empty:
+                        logger.info("No data found")
+                        continue
+
+                    timeseries = mozdetect.TelemetryTimeSeries(data)
+
+                    ts_detector = cdf_ts_detector(timeseries)
+                    detections = ts_detector.detect_changes()
+
+                    for detection in detections:
+                        # Only get buildids if there might be a detection
+                        if not self._buildid_mappings:
+                            self._make_buildid_to_date_mapping()
+                        self._create_detection_alert(
+                            detection, metric_info, platform, repository, framework
+                        )
+                except Exception:
+                    logger.info(f"Failed: {traceback.format_exc()}")
+
+    def _create_detection_alert(
+        self,
+        detection: object,
+        probe_info: dict,
+        platform: str,
+        repository: Repository,
+        framework: PerformanceFramework,
+    ):
+        # Get, or create the signature
+        # TODO: Allow multiple channels, legacy probes, and different apps
+        probe_signature, _ = PerformanceTelemetrySignature.objects.update_or_create(
+            channel="Nightly",
+            platform=platform,
+            probe=probe_info["name"],
+            probe_type="Glean",
+            application="Firefox",
+        )
+
+        detection_date = str(detection.location)
+        if detection_date not in self._buildid_mappings[platform]:
+            # TODO: See if we should expand the range in this situation
+            detection_date = self._find_closest_build_date(detection_date, platform)
+
+        detection_build = self._buildid_mappings[platform][detection_date]
+        prev_build = self._buildid_mappings[platform][detection_build["prev_build"]]
+        next_build = self._buildid_mappings[platform][detection_build["next_build"]]
+
+        # Get the pushes for these builds
+        detection_push = Push.objects.get(
+            revision=detection_build["node"], repository__name=repository.name
+        )
+        prev_push = Push.objects.get(revision=prev_build["node"], repository__name=repository.name)
+        next_push = Push.objects.get(revision=next_build["node"], repository__name=repository.name)
+
+        # Check that an alert summary doesn't already exist around this point (+/- 1 day)
+        latest_timestamp = next_push.time + timedelta(days=1)
+        oldest_timestamp = next_push.time - timedelta(days=1)
+        try:
+            detection_summary = PerformanceTelemetryAlertSummary.objects.filter(
+                repository=repository,
+                framework=framework,
+                push__time__gte=oldest_timestamp,
+                push__time__lte=latest_timestamp,
+            ).latest("push__time")
+        except PerformanceTelemetryAlertSummary.DoesNotExist:
+            detection_summary = None
+
+        if not detection_summary:
+            # Create an alert summary to capture all alerts
+            # that occurred on the same date range
+            detection_summary, _ = PerformanceTelemetryAlertSummary.objects.get_or_create(
+                repository=repository,
+                framework=framework,
+                prev_push=prev_push,
+                push=next_push,
+                original_push=detection_push,
+                defaults={
+                    "manually_created": False,
+                    "created": datetime.now(timezone.utc),
+                },
+            )
+
+        detection_alert, _ = PerformanceTelemetryAlert.objects.update_or_create(
+            summary_id=detection_summary.id,
+            series_signature=probe_signature,
+            defaults={
+                "is_regression": True,
+                "amount_pct": round(
+                    (100.0 * abs(detection.new_value - detection.previous_value))
+                    / float(detection.previous_value),
+                    2,
+                ),
+                "amount_abs": abs(detection.new_value - detection.previous_value),
+                "sustained": True,
+                "direction": detection.direction,
+                "confidence": detection.confidence,
+                "prev_value": detection.previous_value,
+                "new_value": detection.new_value,
+                "prev_median": detection.optional_detection_info["Interpolated Median"][0],
+                "new_median": detection.optional_detection_info["Interpolated Median"][1],
+                "prev_p90": detection.optional_detection_info["Interpolated p05"][0],
+                "new_p90": detection.optional_detection_info["Interpolated p05"][1],
+                "prev_p95": detection.optional_detection_info["Interpolated p95"][0],
+                "new_p95": detection.optional_detection_info["Interpolated p95"][1],
+            },
+        )
+
+    def _get_metric_definitions(self) -> list[dict]:
+        metric_definition_urls = [
+            ("https://dictionary.telemetry.mozilla.org/data/firefox_desktop/index.json", "desktop"),
+            ("https://dictionary.telemetry.mozilla.org/data/fenix/index.json", "mobile"),
+        ]
+
+        merged_metrics = []
+
+        for url, platform in metric_definition_urls:
+            try:
+                logger.info(f"Getting probes from {url}")
+                response = requests.get(url)
+                response.raise_for_status()
+
+                data = response.json()
+                metrics = data.get("metrics", [])
+                for metric in metrics:
+                    merged_metrics.append(
+                        {
+                            "name": metric["name"].replace(".", "_"),
+                            "data": metric,
+                            "platform": platform,
+                        }
+                    )
+
+                logger.info(f"Found {len(metrics)} probes")
+            except requests.RequestException as e:
+                logger.info(f"Failed to fetch from {url}: {e}")
+            except ValueError:
+                logger.info(f"Invalid JSON from {url}")
+
+        return merged_metrics
+
+    def _make_buildid_to_date_mapping(self):
+        # Always returned in order of newest to oldest, only capture
+        # the newest build for each day, and ignore others. This can
+        # differ between platforms too (e.g. failed builds)
+        buildid_mappings = self._get_buildid_mappings()
+
+        prev_date = {}
+        for build in buildid_mappings["builds"]:
+            platform = self._replace_platform_build_name(build["platform"])
+            if not platform:
+                continue
+            curr_date = str(datetime.strptime(build["buildid"][:8], "%Y%m%d").date())
+
+            platform_builds = self._buildid_mappings.setdefault(platform, {})
+            if curr_date not in platform_builds:
+                platform_builds[curr_date] = build
+
+                if prev_date.get(platform):
+                    platform_builds[prev_date[platform]]["prev_build"] = curr_date
+                    platform_builds[curr_date]["next_build"] = prev_date[platform]
+                else:
+                    platform_builds[curr_date]["next_build"] = curr_date
+
+            prev_date[platform] = curr_date
+
+    def _get_buildid_mappings(self) -> dict:
+        try:
+            response = requests.get(BUILDID_MAPPING)
+            response.raise_for_status()
+            return loads(response.content)
+        except requests.RequestException as e:
+            raise Exception(f"Failed to download buildid mappings, cannot produce detections: {e}")
+
+    def _replace_platform_build_name(self, platform: str) -> str:
+        if platform == "win64":
+            return "Windows"
+        if platform == "linux64":
+            return "Linux"
+        if platform == "mac":
+            return "Darwin"
+        return ""
+
+    def _find_closest_build_date(self, detection_date: str, platform: str) -> str:
+        # Get the closest date to the detection date
+        prev_date = None
+
+        for date in sorted(list(self._buildid_mappings[platform].keys())):
+            if date > detection_date:
+                break
+            prev_date = date
+
+        return prev_date
