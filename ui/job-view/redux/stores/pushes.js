@@ -254,10 +254,16 @@ export const fetchPushes = (
 
     dispatch({ type: LOADING });
 
+    const locationSearch = parseQueryParams(window.location.search);
+
     // Only pass supported query string params to this endpoint.
     const options = {
-      ...pick(parseQueryParams(window.location.search), PUSH_FETCH_KEYS),
+      ...pick(locationSearch, PUSH_FETCH_KEYS),
     };
+
+    if (locationSearch.landoCommitID) {
+      return dispatch({ type: ADD_PUSHES });
+    }
 
     if (oldestPushTimestamp) {
       // If we have an oldestTimestamp, then this isn't our first fetch,
@@ -306,7 +312,9 @@ export const pollPushes = () => {
       {},
     );
 
-    if (pushList.length === 1 && locationSearch.revision) {
+    if (locationSearch.landoCommitID) {
+      dispatch({ type: ADD_PUSHES });
+    } else if (pushList.length === 1 && locationSearch.revision) {
       // If we are on a single revision, no need to poll for more pushes, but
       // we need to keep polling for jobs.
       dispatch(fetchNewJobs());

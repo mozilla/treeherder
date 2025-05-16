@@ -18,6 +18,7 @@ import {
   parseQueryParams,
   createQueryParams,
   getApiUrl,
+  getLandoJobsUrl,
 } from '../helpers/url';
 import ClassificationTypeModel from '../models/classificationType';
 import FilterModel from '../models/filter';
@@ -49,6 +50,7 @@ import '../css/treeherder-loading-overlay.css';
 const DEFAULT_DETAILS_PCT = 40;
 const REVISION_POLL_INTERVAL = 1000 * 60 * 5;
 const REVISION_POLL_DELAYED_INTERVAL = 1000 * 60 * 60;
+const LANDO_POLL_INTERVAL = 1000 * 60;
 const HIDDEN_URL_PARAMS = [
   'repo',
   'classifiedState',
@@ -78,6 +80,8 @@ class App extends React.Component {
     this.state = {
       repoName: this.getOrSetRepo(),
       revision: urlParams.get('revision'),
+      landoCommitID: urlParams.get('landoCommitID'),
+      landoStatus: 'unknown',
       user: { isLoggedIn: false, isStaff: false },
       filterModel,
       isFieldFilterVisible: false,
@@ -102,7 +106,7 @@ class App extends React.Component {
   }
 
   async componentDidMount() {
-    const { repoName } = this.state;
+    const { repoName, landoCommitID } = this.state;
     const { data } = await getData(getApiUrl(endpoints.frameworks));
     this.setState({ frameworks: data });
 
@@ -122,6 +126,18 @@ class App extends React.Component {
     window.addEventListener('resize', this.updateDimensions, false);
     window.addEventListener('storage', this.handleStorageEvent);
     window.addEventListener(thEvents.filtersUpdated, this.handleFiltersUpdated);
+
+    if (landoCommitID) {
+      let revision = await this.setLandoRevision();
+      if (!revision) {
+        this.landoInterval = setInterval(async () => {
+          revision = await this.setLandoRevision();
+          if (revision) {
+            clearInterval(this.landoInterval);
+          }
+        }, LANDO_POLL_INTERVAL);
+      }
+    }
 
     // Get the current Treeherder revision and poll to notify on updates.
     this.fetchDeployedRevision().then((revision) => {
@@ -184,6 +200,9 @@ class App extends React.Component {
     if (this.updateInterval) {
       clearInterval(this.updateInterval);
     }
+    if (this.landoInterval) {
+      clearInterval(this.landoInterval);
+    }
   }
 
   static getSplitterDimensions(hasSelectedJob) {
@@ -215,6 +234,31 @@ class App extends React.Component {
     }
 
     return repo;
+  }
+
+  async setLandoRevision() {
+    const { pushRoute } = this.props;
+    const params = getAllUrlParams();
+    const landoCommitID = params.get('landoCommitID');
+
+    const { data } = await getData(getLandoJobsUrl(landoCommitID));
+    const revision = data.commit_id;
+
+    if (revision) {
+      this.setState({ revision });
+
+      params.set('revision', revision);
+      params.delete('landoCommitID');
+
+      pushRoute({
+        search: createQueryParams(params),
+      });
+    } else {
+      const status = data.status ? data.status : 'unknown';
+      this.setState({ landoStatus: status.toLowerCase() });
+    }
+
+    return revision;
   }
 
   handleFiltersUpdated = () => {
@@ -331,6 +375,8 @@ class App extends React.Component {
       filterModel,
       hasSelectedJob,
       revision,
+      landoCommitID,
+      landoStatus,
       duplicateJobsVisible,
       groupCountsExpanded,
       showShortCuts,
@@ -406,6 +452,8 @@ class App extends React.Component {
                       user={user}
                       repoName={repoName}
                       revision={revision}
+                      landoCommitID={landoCommitID}
+                      landoStatus={landoStatus}
                       currentRepo={currentRepo}
                       filterModel={filterModel}
                       duplicateJobsVisible={duplicateJobsVisible}
