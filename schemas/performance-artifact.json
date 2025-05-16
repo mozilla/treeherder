@@ -205,6 +205,21 @@
           "type": "integer",
           "minimum": 1,
           "maximum": 255
+        },
+        "monitor": {
+          "description": "Enable non-sheriffed alerting (ignores shouldAlert settings)",
+          "title": "Monitor",
+          "type": "boolean"
+        },
+        "alertNotifyEmails": {
+          "type": "array",
+          "title": "Notify these emails for any alerts produced",
+          "items": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "uniqueItems": true,
+          "maxItems": 8
         }
       },
       "required": ["name", "subtests"],
