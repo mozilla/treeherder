@@ -62,7 +62,7 @@ class Command(BaseCommand):
             sherlock.sheriff(since, frameworks, repositories)
             try:
                 sherlock.telemetry_alert()
-            except Exception as e:
+            except Exception:
                 logging.warning("Failed to run telemetry alerting\n" + traceback.format_exc())
         except MaxRuntimeExceededError as ex:
             logging.info(ex)

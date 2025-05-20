@@ -1,16 +1,10 @@
-import importlib.util
 import logging
 import os
 import requests
-import shutil
-import tempfile
 import traceback
-import yaml
 from datetime import datetime, timedelta, timezone
 from json import loads, JSONDecodeError
 from logging import INFO, WARNING
-from time import strptime
-from pathlib import Path
 
 from django.conf import settings
 from django.db.models import QuerySet
