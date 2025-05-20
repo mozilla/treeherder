@@ -1,11 +1,11 @@
 import logging
 import os
-import requests
 import traceback
 from datetime import datetime, timedelta, timezone
-from json import loads, JSONDecodeError
+from json import JSONDecodeError, loads
 from logging import INFO, WARNING
 
+import requests
 from django.conf import settings
 from django.db.models import QuerySet
 from taskcluster.helper import TaskclusterConfig
@@ -21,9 +21,9 @@ from treeherder.perf.models import (
     BackfillRecord,
     BackfillReport,
     PerformanceFramework,
-    PerformanceTelemetrySignature,
     PerformanceTelemetryAlert,
     PerformanceTelemetryAlertSummary,
+    PerformanceTelemetrySignature,
     Push,
     Repository,
 )
