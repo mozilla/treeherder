@@ -315,7 +315,13 @@ def fixture_create_jobs(test_repository, failure_classifications):
 
     def create(jobs):
         store_job_data(test_repository, jobs)
-        return [th_models.Job.objects.get(id=i) for i in range(1, len(jobs) + 1)]
+        retval = []
+        for i in range(1, len(jobs) + 1):
+            try:
+                retval.append(th_models.Job.objects.get(id=i))
+            except Exception:
+                pass
+        return retval
 
     return create
 
@@ -377,6 +383,29 @@ def mock_log_parser(monkeypatch):
         pass
 
     monkeypatch.setattr(tasks, "parse_logs", task_mock)
+
+
+@pytest.fixture
+def mock_parser(monkeypatch):
+    from celery import shared_task
+
+    from treeherder.log_parser import failureline
+
+    @shared_task
+    def fetch_mock(*args, **kwargs):
+        file_name = args[0].url.split("/")[-1]
+        try:
+            data_path = os.path.join(SAMPLE_DATA_PATH, "logs", file_name)
+            with open(data_path) as f:
+                fetch_data = f.read()
+        except Exception:
+            return
+
+        if not fetch_data:
+            return
+        return (json.loads(item.strip("\n")) for item in fetch_data.splitlines())
+
+    monkeypatch.setattr(failureline, "fetch_log", fetch_mock)
 
 
 @pytest.fixture

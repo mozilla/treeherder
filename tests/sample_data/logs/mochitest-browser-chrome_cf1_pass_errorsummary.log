@@ -1,0 +1,2 @@
+{"action": "test_groups", "line": 2, "groups": ["browser/components/preferences/tests/browser.ini"]}
+{"status": "OK", "duration": 3141, "action": "group_result", "line": 4865, "group": "browser/components/preferences/tests/browser.ini"}
