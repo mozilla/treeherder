@@ -1,3 +1,5 @@
+import datetime
+
 from treeherder.model.models import Group, GroupStatus, Job, Push
 
 
@@ -14,8 +16,14 @@ def check_and_mark_intermittent(job_id):
 
     # if we are not on try, look at recent history
     if current_job.repository.id != 4:
+        start_date = current_job.push.time - datetime.timedelta(hours=36)
+
         # get list of pushes, find the current push and recent pushes
-        idlist = Push.objects.filter(repository__id=current_job.repository.id).values("id")
+        idlist = (
+            Push.objects.filter(repository__id=current_job.repository.id, time__gte=start_date)
+            .values("id")
+            .order_by("-id")
+        )
         counter = -1
         for id in idlist:
             if id == current_job.push.id:
@@ -25,14 +33,14 @@ def check_and_mark_intermittent(job_id):
                 continue
             if current_job.repository.id == 77 and counter >= 20:
                 break
-            elif counter >= 3:
+            elif current_job.repository.id != 77 and counter >= 3:
                 break
             ids.append(id)
             counter += 1
 
     all_groups = (
         Group.objects.filter(
-            job_logs__job__push__id__range=(ids[-1],ids[0]),
+            job_logs__job__push__id__range=(ids[-1], ids[0]),
             job_logs__job__push__repository__id=current_job.repository.id,
             job_logs__job__job_type__name__startswith=jtname,
             job_logs__job__failure_classification__id__in=[
