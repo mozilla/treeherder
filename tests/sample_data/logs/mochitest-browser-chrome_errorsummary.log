@@ -16,8 +16,8 @@
 {"status": "OK", "duration": 3141, "action": "group_result", "line": 4865, "group": "toolkit/components/mozprotocol/tests/browser.ini"}
 {"status": "OK", "duration": 3141, "action": "group_result", "line": 4865, "group": "netwerk/test/browser/browser.ini"}
 {"status": "OK", "duration": 3141, "action": "group_result", "line": 4865, "group": "browser/base/content/test/siteIdentity/browser.ini"}
-{"status": "OK", "duration": 3141, "action": "group_result", "line": 4865, "group": "dom/workers/test/browser.ini"}
-{"status": "OK", "duration": 3141, "action": "group_result", "line": 4865, "group": "browser/components/preferences/tests/browser.ini"}
+{"status": "ERROR", "duration": 3141, "action": "group_result", "line": 4865, "group": "dom/workers/test/browser.ini"}
+{"status": "ERROR", "duration": 3141, "action": "group_result", "line": 4865, "group": "browser/components/preferences/tests/browser.ini"}
 {"status": "ERROR", "duration": 0, "action": "group_result", "line": 4865, "group": "toolkit/components/pictureinpicture/tests/browser.ini"}
 {"status": "OK", "duration": 3141, "action": "group_result", "line": 4865, "group": "browser/base/content/test/popups/browser.ini"}
 {"status": "OK", "duration": 3141, "action": "group_result", "line": 4865, "group": "accessible/tests/browser/tree/browser.ini"}
