@@ -4,6 +4,7 @@ import { Button } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
+  faBug,
   faCircleExclamation,
   faFilter,
 } from '@fortawesome/free-solid-svg-icons';
@@ -216,6 +217,15 @@ export default class SuggestionsListItem extends React.Component {
                   className="logviewer-icon ml-1"
                 />
               </a>
+              <Button
+                className="bg-light py-1 px-2 ml-2"
+                outline
+                style={{ fontSize: '8px' }}
+                onClick={() => toggleBugFiler(suggestion)}
+                title="File a bug for this failure"
+              >
+                <FontAwesomeIcon icon={faBug} />
+              </Button>
             </span>
           )}
         </div>
