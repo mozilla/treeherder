@@ -84,10 +84,10 @@ class FailureSummaryTab extends React.Component {
     }));
   };
 
-  bugFilerCallback = (data) => {
+  bugFilerCallback = async (data) => {
     const { addBug } = this.props;
 
-    addBug({ id: data.id, newBug: data.id });
+    await addBug({ id: data.id, newBug: data.id });
     window.dispatchEvent(new CustomEvent(thEvents.saveClassification));
     // Open the newly filed bug in a new tab or window for further editing
     window.open(data.url);
