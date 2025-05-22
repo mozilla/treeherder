@@ -22,7 +22,7 @@
 
       The following [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) provides more information about this command.
     critical_text: |
-      Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). We would like to inform you that we are requesting an immediate back out from sheriffs@mozilla.bugs of the current patch due to the following critical tests performance regressions {{ criticalTests }}.
+      Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). We would like to inform you that we are requesting an immediate back out from sheriffs@mozilla.bugs of the current patch due to performance regressions on the following critical test(s):  {{ criticalTests }}.
 
       Please review our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/) for additional details regarding the reasons for the immediate backout.
 
@@ -59,7 +59,7 @@
 
       The following [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) provides more information about this command.
     critical_text: |
-      Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). We would like to inform you that we are requesting an immediate back out from sheriffs@mozilla.bugs of the current patch due to the following critical tests performance regressions {{ criticalTests }}.
+      Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). We would like to inform you that we are requesting an immediate back out from sheriffs@mozilla.bugs of the current patch due to performance regressions on the following critical test(s):  {{ criticalTests }}.
 
       Please review our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/) for additional details regarding the reasons for the immediate backout.
 
@@ -98,7 +98,7 @@
 
       The following [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) provides more information about this command.
     critical_text: |
-      Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). We would like to inform you that we are requesting an immediate back out from sheriffs@mozilla.bugs of the current patch due to the following critical tests performance regressions {{ criticalTests }}.
+      Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). We would like to inform you that we are requesting an immediate back out from sheriffs@mozilla.bugs of the current patch due to performance regressions on the following critical test(s):  {{ criticalTests }}.
 
       Please review our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/) for additional details regarding the reasons for the immediate backout.
 
@@ -137,7 +137,7 @@
 
       The following [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) provides more information about this command.
     critical_text: |
-      Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). We would like to inform you that we are requesting an immediate back out from sheriffs@mozilla.bugs of the current patch due to the following critical tests performance regressions {{ criticalTests }}.
+      Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). We would like to inform you that we are requesting an immediate back out from sheriffs@mozilla.bugs of the current patch due to performance regressions on the following critical test(s):  {{ criticalTests }}.
 
       Please review our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/) for additional details regarding the reasons for the immediate backout.
 
@@ -176,7 +176,7 @@
 
       The following [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) provides more information about this command.
     critical_text: |
-      Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). We would like to inform you that we are requesting an immediate back out from sheriffs@mozilla.bugs of the current patch due to the following critical tests performance regressions {{ criticalTests }}.
+      Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). We would like to inform you that we are requesting an immediate back out from sheriffs@mozilla.bugs of the current patch due to performance regressions on the following critical test(s):  {{ criticalTests }}.
 
       Please review our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/) for additional details regarding the reasons for the immediate backout.
 
@@ -215,7 +215,7 @@
 
       The following [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) provides more information about this command.
     critical_text: |
-      Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). We would like to inform you that we are requesting an immediate back out from sheriffs@mozilla.bugs of the current patch due to the following critical tests performance regressions {{ criticalTests }}.
+      Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). We would like to inform you that we are requesting an immediate back out from sheriffs@mozilla.bugs of the current patch due to performance regressions on the following critical test(s):  {{ criticalTests }}.
 
       Please review our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/) for additional details regarding the reasons for the immediate backout.
 
@@ -254,7 +254,7 @@
 
       The following [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) provides more information about this command.
     critical_text: |
-      Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). We would like to inform you that we are requesting an immediate back out from sheriffs@mozilla.bugs of the current patch due to the following critical tests performance regressions {{ criticalTests }}.
+      Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). We would like to inform you that we are requesting an immediate back out from sheriffs@mozilla.bugs of the current patch due to performance regressions on the following critical test(s):  {{ criticalTests }}.
 
       Please review our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/) for additional details regarding the reasons for the immediate backout.
 
@@ -293,7 +293,7 @@
 
       The following [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) provides more information about this command.
     critical_text: |
-      Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). We would like to inform you that we are requesting an immediate back out from sheriffs@mozilla.bugs of the current patch due to the following critical tests performance regressions {{ criticalTests }}.
+      Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). We would like to inform you that we are requesting an immediate back out from sheriffs@mozilla.bugs of the current patch due to performance regressions on the following critical test(s):  {{ criticalTests }}.
 
       Please review our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/) for additional details regarding the reasons for the immediate backout.
 
@@ -332,7 +332,7 @@
 
       The following [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) provides more information about this command.
     critical_text: |
-      Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). We would like to inform you that we are requesting an immediate back out from sheriffs@mozilla.bugs of the current patch due to the following critical tests performance regressions {{ criticalTests }}.
+      Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). We would like to inform you that we are requesting an immediate back out from sheriffs@mozilla.bugs of the current patch due to performance regressions on the following critical test(s):  {{ criticalTests }}.
 
       Please review our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/) for additional details regarding the reasons for the immediate backout.
 
@@ -371,7 +371,7 @@
 
       The following [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) provides more information about this command.
     critical_text: |
-      Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). We would like to inform you that we are requesting an immediate back out from sheriffs@mozilla.bugs of the current patch due to the following critical tests performance regressions {{ criticalTests }}.
+      Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). We would like to inform you that we are requesting an immediate back out from sheriffs@mozilla.bugs of the current patch due to performance regressions on the following critical test(s):  {{ criticalTests }}.
 
       Please review our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/) for additional details regarding the reasons for the immediate backout.
 
