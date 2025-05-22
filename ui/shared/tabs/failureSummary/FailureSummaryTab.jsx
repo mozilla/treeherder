@@ -381,6 +381,7 @@ class FailureSummaryTab extends React.Component {
             jobGroupName={selectedJob.job_group_name}
             jobTypeName={selectedJob.job_type_name}
             successCallback={this.internalIssueFilerCallback}
+            currentRepo={currentRepo}
           />
         )}
       </div>
