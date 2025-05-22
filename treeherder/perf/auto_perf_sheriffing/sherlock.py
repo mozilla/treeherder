@@ -241,6 +241,10 @@ class Sherlock:
         return context[start:]
 
     def telemetry_alert(self):
+        if not settings.TELEMETRY_ENABLE_ALERTS:
+            logger.info("Telemetry alerting is disabled. Enable it with TELEMETRY_ENABLE_ALERTS=1")
+            return
+
         import mozdetect
         from mozdetect.telemetry_query import get_metric_table
 
