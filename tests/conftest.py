@@ -964,6 +964,27 @@ def mock_testrun_matrix_firefoxci_request(monkeypatch):
     )
 
 
+@pytest.fixture
+def mock_summary_groups_request(monkeypatch):
+    """
+    Mock get_summary_groups()
+    """
+
+    def _fetch_summary_groups(start_day, end_day):
+        tests_folder = os.path.dirname(__file__)
+        file_name = "summary_groups.json"
+        data_path = os.path.join(tests_folder, "sample_data", file_name)
+        with open(data_path) as f:
+            data = json.load(f)
+        return data
+
+    monkeypatch.setattr(
+        treeherder.intermittents_commenter.commenter.fetch,
+        "fetch_summary_groups",
+        _fetch_summary_groups,
+    )
+
+
 class MockResponse:
     def __init__(self):
         self.status_code = 200
