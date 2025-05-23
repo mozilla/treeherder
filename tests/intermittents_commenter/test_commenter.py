@@ -10,7 +10,7 @@ def test_intermittents_commenter(
     mock_test_variants_firefoxci_request,
     mock_test_manifests_firefoxci_request,
     mock_testrun_matrix_firefoxci_request,
-    mock_get_summary_groups_request,
+    mock_summary_groups_request,
 ):
     startday = "2022-05-09"
     endday = "2025-05-10"
@@ -54,7 +54,7 @@ def test_intermittents_commenter_with_failures(
     mock_test_variants_firefoxci_request,
     mock_test_manifests_firefoxci_request,
     mock_testrun_matrix_firefoxci_request,
-    mock_get_summary_groups_request,
+    mock_summary_groups_request,
 ):
     startday = "2022-05-09"
     endday = "2025-05-10"
