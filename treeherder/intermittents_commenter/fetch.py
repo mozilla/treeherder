@@ -24,7 +24,7 @@ def fetch_testrun_matrix():
     return response.json()
 
 
-def get_summary_groups():
-    url = "https://treeherder.mozilla.org/api/groupsummary/"
-    response = requests.get(url, headers={"User-agent": "mach-test-info/1.0"})
+def fetch_summary_groups(start_day, end_day):
+    testrun_info_url = f"{firefoxci_artefact_api_url}/test-run-info.json"
+    response = requests.get(testrun_info_url, headers={"User-agent": "mach-test-info/1.0"})
     return response.json()
