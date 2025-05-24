@@ -13,7 +13,12 @@ export const parseAuthor = function parseAuthor(author) {
 };
 
 export const isSHAorCommit = function isSHAorCommit(str) {
-  return /^[a-f\d]{12,40}$/.test(str) || str.includes('hg.mozilla.org');
+  try {
+    const url = new URL(str);
+    return /^[a-f\d]{12,40}$/.test(str) || url.host === 'hg.mozilla.org';
+  } catch (e) {
+    return false; // If str is not a valid URL, return false
+  }
 };
 
 export const getRevisionTitle = function getRevisionTitle(revisions) {
