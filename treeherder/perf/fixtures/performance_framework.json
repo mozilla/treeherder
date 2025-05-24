@@ -94,5 +94,13 @@
       "name": "fxrecord",
       "enabled": true
     }
+  },
+  {
+    "pk": 17,
+    "model": "perf.PerformanceFramework",
+    "fields": {
+      "name": "telemetry",
+      "enabled": true
+    }
   }
 ]

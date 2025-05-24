@@ -472,6 +472,9 @@ PERFHERDER_ENABLE_MULTIDATA_INGESTION = env.bool(
     "PERFHERDER_ENABLE_MULTIDATA_INGESTION", default=True
 )
 
+# Used to turn on telemetry alerting
+TELEMETRY_ENABLE_ALERTS = env.bool("TELEMETRY_ENABLE_ALERTS", default=False)
+
 # Sherlock' settings (the performance sheriff robot)
 SUPPORTED_PLATFORMS = ["windows", "linux", "osx"]
 MAX_BACKFILLS_PER_PLATFORM = {
