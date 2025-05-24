@@ -21,6 +21,8 @@ import { displayNumber, getStatus } from '../perf-helpers/helpers';
 import Clipboard from '../../shared/Clipboard';
 import { toMercurialDateStr } from '../../helpers/display';
 
+import RetriggerJobButton from './RetriggerJobButton';
+
 const GraphTooltip = ({
   testData,
   infraAffectedData,
@@ -334,6 +336,10 @@ const GraphTooltip = ({
             {Boolean(retriggerNum) && (
               <p className="small">{`Retriggers: ${retriggerNum}`}</p>
             )}
+            <RetriggerJobButton
+              pushId={datum.pushId}
+              repoName={repositoryName}
+            />
           </div>
         </div>
         <div
