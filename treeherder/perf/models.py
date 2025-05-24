@@ -92,6 +92,8 @@ class PerformanceSignature(models.Model):
     ALERT_CHANGE_TYPES = ((ALERT_PCT, "percentage"), (ALERT_ABS, "absolute"))
 
     should_alert = models.BooleanField(null=True)
+    monitor = models.BooleanField(null=True)
+    alert_notify_emails = models.CharField(max_length=422, null=True)
     alert_change_type = models.IntegerField(choices=ALERT_CHANGE_TYPES, null=True)
     alert_threshold = models.FloatField(null=True)
     min_back_window = models.IntegerField(null=True)
@@ -324,6 +326,7 @@ class PerformanceAlertSummaryBase(models.Model):
     assignee = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True, related_name="assigned_alerts"
     )
+    sheriffed = models.BooleanField(default=True)
 
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     triage_due_date = models.DateTimeField(null=True, default=None)
@@ -488,7 +491,7 @@ class PerformanceAlertSummaryBase(models.Model):
 class PerformanceAlertSummary(PerformanceAlertSummaryBase):
     class Meta:
         db_table = "performance_alert_summary"
-        unique_together = ("repository", "framework", "prev_push", "push")
+        unique_together = ("repository", "framework", "prev_push", "push", "sheriffed")
 
 
 class PerformanceTelemetryAlertSummary(PerformanceAlertSummaryBase):
@@ -543,6 +546,7 @@ class PerformanceAlertBase(models.Model):
     classifier = models.ForeignKey(
         User, on_delete=models.CASCADE, null=True
     )  # null if autoclassified
+    sheriffed = models.BooleanField(default=True)
 
     created = models.DateTimeField(auto_now_add=True, null=True)
     # time when human user 1st interacted with alert
@@ -690,7 +694,7 @@ class PerformanceAlertBase(models.Model):
 class PerformanceAlert(PerformanceAlertBase):
     class Meta:
         db_table = "performance_alert"
-        unique_together = ("summary", "series_signature")
+        unique_together = ("summary", "series_signature", "sheriffed")
 
 
 class PerformanceTelemetryAlert(PerformanceAlertBase):
