@@ -1234,10 +1234,6 @@ def bug_data_with_5_failures(eleven_jobs_stored, test_repository, test_push, bug
     bug_id = bugs[0].bugzilla_id
     for index, job in enumerate(jobs[:5]):
         th_models.BugJobMap.create(job_id=job.id, bugzilla_id=bug_id)
-        if index > 2:
-            signature = th_models.BugJobMap.failures.last().job.signature
-            signature.job_type_name = "mochitest-plain-headless-1"
-            signature.save()
 
     return {
         "bug_id": bug_id,
