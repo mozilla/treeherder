@@ -121,6 +121,7 @@ export default class SuggestionsListItem extends React.Component {
               title={bug.resolution !== '' ? bug.resolution : ''}
               selectedJob={selectedJob}
               addBug={addBug}
+              toggleBugFiler={toggleBugFiler}
             />
           ))}
         </ul>,
