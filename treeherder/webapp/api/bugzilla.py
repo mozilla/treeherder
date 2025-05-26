@@ -55,18 +55,29 @@ class BugzillaViewSet(viewsets.ViewSet):
             "description": description,
             "comment_tags": "treeherder",
         }
-        if params.get("by_treeherder"):
+
+        # Only Perfherder is setting the param needinfo_from when filing a regression bug
+        if params.get("needinfo_from"):
             data["type"] = params.get("type")
             data["description"] = params.get("description").encode("utf-8")
             data["cc"] = params.get("cc")
-            if params.get("needinfo_from"):
-                data["flags"] = [
+            data["flags"] = [
+                {
+                    "name": "needinfo",
+                    "status": "?",
+                    "requestee": params.get("needinfo_from"),
+                }
+            ]
+            # For critical alerts sheriffs are requesting from sheriffs@mozilla.bugs an immediate backout
+            if params.get("is_backout_requested"):
+                data["flags"].append(
                     {
                         "name": "needinfo",
                         "status": "?",
-                        "requestee": params.get("needinfo_from"),
+                        "requestee": "bacasandrei@mozilla.com",  # to be removed, added for testing purposes
+                        # "requestee": "sheriffs@mozilla.bugs",
                     }
-                ]
+                )
 
         if params.get("is_security_issue"):
             security_group_list = list(
