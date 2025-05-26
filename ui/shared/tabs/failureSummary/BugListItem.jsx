@@ -64,7 +64,7 @@ function BugListItem(props) {
           <span className="ml-1" title="Number of recent classifications">
             ({bug.occurrences} occurrences{' '}
             <FontAwesomeIcon icon={faThumbtack} />)
-          </span>
+          </span>{' '}
           <span className="mr-2">{bug.summary}</span>
           {!!addBug &&
             bug.occurrences >= requiredInternalOccurrences &&
