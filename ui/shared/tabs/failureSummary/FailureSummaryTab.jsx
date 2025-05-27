@@ -137,47 +137,6 @@ class FailureSummaryTab extends React.Component {
     this.setState({ bugSuggestionsLoading: true });
     BugSuggestionsModel.get(selectedJob.id).then(async (suggestions) => {
       suggestions.forEach((suggestion) => {
-        const simpleCase = [];
-
-        // HACK: if not a test failure for any test in error set, ignore
-        let crashLeak = false;
-        if (suggestion.search.startsWith('PROCESS-CRASH')) {
-          crashLeak = true;
-        }
-
-        let isPerfTest = false;
-        if (
-          suggestion.search.includes('browser/base/content/test/performance')
-        ) {
-          isPerfTest = true;
-        }
-
-        if (suggestion.bugs.open_recent.length > 0) {
-          suggestion.bugs.open_recent.forEach((bug) => {
-            if (bug.summary.endsWith('single tracking bug')) {
-              simpleCase.push(bug);
-            }
-          });
-        }
-        if (simpleCase.length === 0 && suggestion.bugs.all_others.length > 0) {
-          suggestion.bugs.all_others.forEach((bug) => {
-            if (
-              bug.summary.endsWith('single tracking bug') &&
-              bug.resolution !== 'FIXED'
-            ) {
-              simpleCase.push(bug);
-            }
-          });
-        }
-
-        // HACK: use the simple case if found.
-        if (simpleCase.length > 0 && !isPerfTest && !crashLeak) {
-          suggestion.bugs.open_recent = simpleCase;
-
-          // HACK: remove any other bugs, keep this simple.
-          suggestion.bugs.all_others = [];
-        }
-
         suggestion.bugs.too_many_open_recent =
           suggestion.bugs.open_recent.length > thBugSuggestionLimit;
         suggestion.bugs.too_many_all_others =
