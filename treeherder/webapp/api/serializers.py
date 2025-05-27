@@ -466,7 +466,7 @@ class InternalIssueSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         """Build or retrieve a bug already reported for a similar FailureLine"""
         try:
-            bug, _ = models.Bugscache.objects.get_or_create(
+            bug, _ = models.Bugscache.objects.exclude(resolution__isnull=False).get_or_create(
                 **validated_data, defaults={"modified": timezone.now()}
             )
         except models.Bugscache.MultipleObjectsReturned:
