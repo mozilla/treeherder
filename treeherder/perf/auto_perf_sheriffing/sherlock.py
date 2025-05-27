@@ -250,7 +250,7 @@ class Sherlock:
 
         if (
             not os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
-            and settings.SITE_HOSTNAME != "backend"
+            and settings.SITE_HOSTNAME == "treeherder.mozilla.org"
         ):
             raise Exception(
                 "GOOGLE_APPLICATION_CREDENTIALS must be defined in production. "
