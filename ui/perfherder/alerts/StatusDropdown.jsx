@@ -20,7 +20,7 @@ import {
 import { getData, create } from '../../helpers/http';
 import TextualSummary from '../perf-helpers/textualSummary';
 import { getApiUrl, bzBaseUrl, bugzillaBugsApi } from '../../helpers/url';
-import { summaryStatusMap } from '../perf-helpers/constants';
+import { summaryStatusMap, criticalTestsList } from '../perf-helpers/constants';
 import DropdownMenuItems from '../../shared/DropdownMenuItems';
 import BrowsertimeAlertsExtraData from '../../models/browsertimeAlertsExtraData';
 import { isWeekend } from '../perf-helpers/alertCountdownHelper';
@@ -125,11 +125,6 @@ export default class StatusDropdown extends React.Component {
       alertSummary: textualSummary.markdown,
       alertSummaryId: alertSummary.id,
       user: user.email,
-    };
-
-    const criticalTestsList = {
-      browsertime: 'Speedometer3 score windows11 shippable',
-      mozperftest: 'Newssite_applink_startup android-a55 shippable',
     };
 
     if (showCriticalFileBugModal) {
@@ -322,7 +317,13 @@ The following [documentation link](https://firefox-source-docs.mozilla.org/testi
     (alertStatus !== status && this.isResolved(alertStatus));
 
   render() {
-    const { alertSummary, user, issueTrackers, performanceTags } = this.props;
+    const {
+      alertSummary,
+      user,
+      issueTrackers,
+      performanceTags,
+      frameworks,
+    } = this.props;
     const {
       showBugModal,
       showFileBugModal,
@@ -333,6 +334,7 @@ The following [documentation link](https://firefox-source-docs.mozilla.org/testi
       isWeekend,
     } = this.state;
 
+    const frameworkName = getFrameworkName(frameworks, alertSummary.framework);
     const alertStatus = getStatus(alertSummary.status);
     const alertSummaryActiveTags = alertSummary.performance_tags || [];
 
@@ -447,14 +449,16 @@ The following [documentation link](https://firefox-source-docs.mozilla.org/testi
                 File bug
               </DropdownItem>
             )}
-            {!alertSummary.bug_number && user.isStaff && (
-              <DropdownItem
-                tag="a"
-                onClick={() => this.toggle('showCriticalFileBugModal')}
-              >
-                Request backout
-              </DropdownItem>
-            )}
+            {!alertSummary.bug_number &&
+              frameworkName in criticalTestsList &&
+              user.isStaff && (
+                <DropdownItem
+                  tag="a"
+                  onClick={() => this.toggle('showCriticalFileBugModal')}
+                >
+                  Request backout
+                </DropdownItem>
+              )}
             {user.isStaff && (
               <React.Fragment>
                 {!alertSummary.bug_number ? (

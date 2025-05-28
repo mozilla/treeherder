@@ -312,3 +312,8 @@ export const countdownClasses = {
   ok: 'due-date-ok',
   ready: 'due-date-ready',
 };
+
+export const criticalTestsList = {
+  browsertime: 'Speedometer3 score windows11 shippable',
+  mozperftest: 'Newssite_applink_startup android-a55 shippable',
+};

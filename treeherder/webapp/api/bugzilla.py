@@ -74,8 +74,7 @@ class BugzillaViewSet(viewsets.ViewSet):
                     {
                         "name": "needinfo",
                         "status": "?",
-                        "requestee": "bacasandrei@mozilla.com",  # to be removed, added for testing purposes
-                        # "requestee": "sheriffs@mozilla.bugs",
+                        "requestee": "sheriffs@mozilla.bugs",
                     }
                 )
 
