@@ -138,7 +138,8 @@ class ClassificationLoader:
                     try:
                         bugs.append(
                             Bugscache.objects.get(
-                                summary__endswith=f"{failing_test_name} | single tracking bug"
+                                summary__endswith=f"{failing_test_name} | single tracking bug",
+                                resolution__isnull=True,
                             )
                         )
                     except Bugscache.DoesNotExist:
