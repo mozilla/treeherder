@@ -314,6 +314,6 @@ export const countdownClasses = {
 };
 
 export const criticalTestsList = {
-  browsertime: 'Speedometer3 score windows11 shippable',
-  mozperftest: 'Newssite_applink_startup android-a55 shippable',
+  browsertime: 'Speedometer 3 on Windows 11',
+  mozperftest: 'NewsSite Applink Startup on Android A55',
 };
