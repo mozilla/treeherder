@@ -16,6 +16,10 @@ function check_service () {
   echo "-----> $name service is available"
 }
 
+if [ -f "/bq-credentials/credentials.json" ]; then
+  export GOOGLE_APPLICATION_CREDENTIALS=/bq-credentials/credentials.json
+fi
+
 # Keep these in sync with DATABASE_URL.
 echo "Checking database status at $DATABASE_URL"
 if [[ ${DATABASE_URL:0:27} == *"@host.docker.internal"* ]]; then
