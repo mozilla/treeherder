@@ -35,7 +35,15 @@ This is the #{{rank}} most frequent failure this week.{% endif %}
 {% for platform_and_build, test_by_variant in data_table.items() | sort() -%}
 |**{{platform_and_build}}**|
   {%- for variant in test_variants -%}
-    {{test_by_variant.get(variant, " ")}}|
+    {%- if variant in test_by_variant -%}
+      {%- if test_by_variant[variant].get('runs', 0) >  test_by_variant[variant].get('count', 0) -%}
+      {{test_by_variant[variant].get('count', ' ')}}/{{test_by_variant[variant]['runs']}}|
+      {%- else -%}
+      {{test_by_variant[variant].get('count', ' ')}}|
+      {%- endif -%}
+    {%- else -%}
+    {{" |"}}
+    {%- endif -%}
   {%- endfor %}
 {% endfor %}
 ## For more details, see:
