@@ -30,6 +30,14 @@ const Navigation = ({ user, setUser, notify }) => (
         </Link>
       </NavItem>
       <NavItem>
+        <Link
+          to="./alerts?monitoredAlerts=1&page=1"
+          className="nav-link btn-view-nav"
+        >
+          Monitoring
+        </Link>
+      </NavItem>
+      <NavItem>
         <Link to="./tests" className="nav-link btn-view-nav">
           Tests
         </Link>
