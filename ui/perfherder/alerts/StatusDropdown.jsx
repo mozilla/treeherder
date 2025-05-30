@@ -20,7 +20,7 @@ import {
 import { getData, create } from '../../helpers/http';
 import TextualSummary from '../perf-helpers/textualSummary';
 import { getApiUrl, bzBaseUrl, bugzillaBugsApi } from '../../helpers/url';
-import { summaryStatusMap } from '../perf-helpers/constants';
+import { summaryStatusMap, criticalTestsList } from '../perf-helpers/constants';
 import DropdownMenuItems from '../../shared/DropdownMenuItems';
 import BrowsertimeAlertsExtraData from '../../models/browsertimeAlertsExtraData';
 import { isWeekend } from '../perf-helpers/alertCountdownHelper';
@@ -90,7 +90,7 @@ export default class StatusDropdown extends React.Component {
       frameworks,
       user,
     } = this.props;
-    const { browsertimeAlertsExtraData } = this.state;
+    const { browsertimeAlertsExtraData, showCriticalFileBugModal } = this.state;
     let result = bugTemplate;
 
     if (!result) {
@@ -115,9 +115,10 @@ export default class StatusDropdown extends React.Component {
       null,
       await browsertimeAlertsExtraData.enrichAndRetrieveAlerts(),
     );
+    const frameworkName = getFrameworkName(frameworks, alertSummary.framework);
     const templateArgs = {
       bugType: 'defect',
-      framework: getFrameworkName(frameworks, alertSummary.framework),
+      framework: frameworkName,
       revision: alertSummary.revision,
       revisionHref: repoModel.getPushLogHref(alertSummary.revision),
       alertHref: `${window.location.origin}/perfherder/alerts?id=${alertSummary.id}`,
@@ -126,8 +127,13 @@ export default class StatusDropdown extends React.Component {
       user: user.email,
     };
 
+    if (showCriticalFileBugModal) {
+      templateArgs.criticalTests = criticalTestsList[frameworkName];
+    }
+
     templateSettings.interpolate = /{{([\s\S]+?)}}/g;
-    const fillTemplate = template(result.text);
+    const text = showCriticalFileBugModal ? result.critical_text : result.text;
+    const fillTemplate = template(text);
     const commentText = fillTemplate(templateArgs);
     const bugTitle = `${getFilledBugSummary(alertSummary)}`;
     const culpritDetails = await this.getCulpritDetails(culpritId);
@@ -148,7 +154,7 @@ export default class StatusDropdown extends React.Component {
       summary: bugTitle,
       whiteboard: result.status_whiteboard,
       needinfo_from: componentInfo.data.triage_owner,
-      by_treeherder: true,
+      is_backout_requested: showCriticalFileBugModal,
     };
 
     if (!culpritDetails.failureStatus) {
@@ -311,16 +317,24 @@ The following [documentation link](https://firefox-source-docs.mozilla.org/testi
     (alertStatus !== status && this.isResolved(alertStatus));
 
   render() {
-    const { alertSummary, user, issueTrackers, performanceTags } = this.props;
+    const {
+      alertSummary,
+      user,
+      issueTrackers,
+      performanceTags,
+      frameworks,
+    } = this.props;
     const {
       showBugModal,
       showFileBugModal,
+      showCriticalFileBugModal,
       showNotesModal,
       showTagsModal,
       selectedValue,
       isWeekend,
     } = this.state;
 
+    const frameworkName = getFrameworkName(frameworks, alertSummary.framework);
     const alertStatus = getStatus(alertSummary.status);
     const alertSummaryActiveTags = alertSummary.performance_tags || [];
 
@@ -385,6 +399,27 @@ The following [documentation link](https://firefox-source-docs.mozilla.org/testi
           user={user}
           errorMessage={this.state.fileBugErrorMessage}
         />
+        <FileBugModal
+          showModal={showCriticalFileBugModal}
+          toggle={() => this.toggle('showCriticalFileBugModal')}
+          updateAndClose={(event, inputValue) =>
+            this.fileBugAndClose(
+              event,
+              {
+                bug_number: parseInt(inputValue, 10),
+                issue_tracker: issueTrackers.find(
+                  (item) => item.text === selectedValue,
+                ).id,
+              },
+              'showCriticalFileBugModal',
+            )
+          }
+          header="Request backout"
+          title="Enter Bug Number"
+          submitButtonText="Request Backout"
+          user={user}
+          errorMessage={this.state.fileBugErrorMessage}
+        />
         <NotesModal
           showModal={showNotesModal}
           toggle={() => this.toggle('showNotesModal')}
@@ -414,6 +449,16 @@ The following [documentation link](https://firefox-source-docs.mozilla.org/testi
                 File bug
               </DropdownItem>
             )}
+            {!alertSummary.bug_number &&
+              frameworkName in criticalTestsList &&
+              user.isStaff && (
+                <DropdownItem
+                  tag="a"
+                  onClick={() => this.toggle('showCriticalFileBugModal')}
+                >
+                  Request backout
+                </DropdownItem>
+              )}
             {user.isStaff && (
               <React.Fragment>
                 {!alertSummary.bug_number ? (
