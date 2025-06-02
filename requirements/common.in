@@ -25,7 +25,7 @@ django-filter==25.1  # Listed in DEFAULT_FILTER_BACKENDS on settings.py
 django-redis==5.4.0  # Listed in CACHES on settings.py
 
 taskcluster==84.0.2  # import taskcluster
-python-jose[pycryptodome]==3.4.0  # from jose import jwt
+python-jose[pycryptodome]==3.5.0  # from jose import jwt
 
 furl==2.1.4  # Imported as furl
 first==2.0.2  # Imported as first
