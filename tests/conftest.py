@@ -964,6 +964,27 @@ def mock_testrun_matrix_firefoxci_request(monkeypatch):
     )
 
 
+@pytest.fixture
+def mock_summary_groups_request(monkeypatch):
+    """
+    Mock get_summary_groups()
+    """
+
+    def _fetch_summary_groups(start_day, end_day):
+        tests_folder = os.path.dirname(__file__)
+        file_name = "summary_groups.json"
+        data_path = os.path.join(tests_folder, "sample_data", file_name)
+        with open(data_path) as f:
+            data = json.load(f)
+        return data
+
+    monkeypatch.setattr(
+        treeherder.intermittents_commenter.commenter.fetch,
+        "fetch_summary_groups",
+        _fetch_summary_groups,
+    )
+
+
 class MockResponse:
     def __init__(self):
         self.status_code = 200
@@ -1213,10 +1234,6 @@ def bug_data_with_5_failures(eleven_jobs_stored, test_repository, test_push, bug
     bug_id = bugs[0].bugzilla_id
     for index, job in enumerate(jobs[:5]):
         th_models.BugJobMap.create(job_id=job.id, bugzilla_id=bug_id)
-        if index > 2:
-            signature = th_models.BugJobMap.failures.last().job.signature
-            signature.job_type_name = "mochitest-plain-headless-1"
-            signature.save()
 
     return {
         "bug_id": bug_id,

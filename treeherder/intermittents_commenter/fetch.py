@@ -22,3 +22,9 @@ def fetch_testrun_matrix():
     testrun_matrix_url = f"{firefoxci_artefact_api_url}/test-info-testrun-matrix.json"
     response = requests.get(testrun_matrix_url, headers={"User-agent": "mach-test-info/1.0"})
     return response.json()
+
+
+def fetch_summary_groups(start_day, end_day):
+    testrun_info_url = f"{firefoxci_artefact_api_url}/test-run-info.json"
+    response = requests.get(testrun_info_url, headers={"User-agent": "mach-test-info/1.0"})
+    return response.json()

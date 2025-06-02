@@ -5,11 +5,10 @@ This is the #1 most frequent failure this week.
 * mozilla-central: 5
 
 ## Table
-| |**asan**|**debug**|**headless**|**no_variant**|**opt**|**spi-nw**|**swr**|**tsan**|
+| |**1proc**|**asan**|**debug**|**no_variant**|**opt**|**spi-nw**|**swr**|**tsan**|
 |---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-|**linux-x86/unknown build**| | |2| | | | | |
-|**linux1804-x86_64/debug**| | | | | |1| | |
-|**macosx1015-x86_64/debug**| | | | | |1| | |
+|**linux1804-x86_64/debug**|1| | |1| |1/92| | |
+|**macosx1015-x86_64/debug**| | | | | |1/22| | |
 |**macosx1470-x86_64/debug**| | | | | | |1| |
 
 ## For more details, see:
