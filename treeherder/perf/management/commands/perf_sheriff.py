@@ -1,4 +1,5 @@
 import logging
+import traceback
 from datetime import datetime, timedelta
 
 from django.core.management.base import BaseCommand
@@ -59,6 +60,10 @@ class Command(BaseCommand):
         sherlock = sherlock_factory(days_to_lookup)
         try:
             sherlock.sheriff(since, frameworks, repositories)
+            try:
+                sherlock.telemetry_alert()
+            except Exception:
+                logging.warning("Failed to run telemetry alerting\n" + traceback.format_exc())
         except MaxRuntimeExceededError as ex:
             logging.info(ex)
 

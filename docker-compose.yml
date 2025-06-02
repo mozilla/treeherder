@@ -31,6 +31,7 @@ services:
       - BUGZILLA_API_URL=${BUGZILLA_API_URL:-}
       - BUG_FILER_API_KEY=${BUG_FILER_API_KEY:-}
       - TLS_CERT_PATH=${TLS_CERT_PATH:-}
+      - TELEMETRY_ENABLE_ALERTS=${TELEMETRY_ENABLE_ALERTS:-}
     entrypoint: './docker/entrypoint.sh'
     # We *ONLY* initialize the data when we're running the backend
     command: './initialize_data.sh ./manage.py runserver 0.0.0.0:8000'
@@ -40,6 +41,8 @@ services:
     shm_size: 2g # 2 Gig seems like a good size
     volumes:
       - .:/app
+      - ${GCLOUD_DIR:-.}:/home/.config/gcloud
+      - ${GOOGLE_APPLICATION_CREDENTIALS:-.}:/bq-credentials/credentials.json
     ports:
       - '8000:8000'
     depends_on:
