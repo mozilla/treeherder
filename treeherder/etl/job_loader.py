@@ -245,6 +245,13 @@ class JobLoader:
                 pulse_job["owner"] = pulse_job["owner"][0:49]
             jsonschema.validate(pulse_job, get_json_schema("pulse-job.yml"))
         except (jsonschema.ValidationError, jsonschema.SchemaError) as e:
-            logger.error("JSON Schema validation error during job ingestion: %s", e)
+            if "taskId" in pulse_job:
+                (real_task_id, run_id) = task_and_retry_ids(pulse_job["taskId"])
+            else:
+                real_task_id = "unknown"
+                run_id = "unknown"
+            logger.error(
+                f"JSON Schema validation error during job ingestion for task {real_task_id}, run {run_id}: {e}"
+            )
             return False
         return True
