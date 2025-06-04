@@ -347,7 +347,7 @@ class Machine(NamedModel):
 class JobGroup(models.Model):
     id = models.AutoField(primary_key=True)
     symbol = models.CharField(max_length=25, default="?", db_index=True)
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
 
     class Meta:
