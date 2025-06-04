@@ -85,15 +85,19 @@ def parse_route_info(prefix, task_id, routes, task):
     return parsed_route
 
 
-def validate_task(task):
+def validate_task(task, task_id, run_id):
     treeherder_metadata = task.get("extra", {}).get("treeherder")
     if not treeherder_metadata:
-        logger.debug("Task metadata is missing Treeherder job configuration.")
+        logger.debug(
+            f"Task metadata is missing Treeherder job configuration for task {task_id}, run {run_id}"
+        )
         return False
     try:
         jsonschema.validate(treeherder_metadata, get_json_schema("task-treeherder-config.yml"))
     except (jsonschema.ValidationError, jsonschema.SchemaError) as e:
-        logger.error("JSON Schema validation error during Taskcluser message ingestion: %s", e)
+        logger.error(
+            f"JSON Schema validation error during Taskcluser message ingestion for task {task_id}, run {run_id}: {e}"
+        )
         return False
     return True
 
@@ -168,6 +172,7 @@ async def handle_message(message, task_definition=None):
     async with taskcluster.aio.createSession() as session:
         jobs = []
         task_id = message["payload"]["status"]["taskId"]
+        run_id = message["payload"]["runId"]
         async_queue = taskcluster.aio.Queue({"rootUrl": message["root_url"]}, session=session)
         task = (await async_queue.task(task_id)) if not task_definition else task_definition
 
@@ -183,7 +188,7 @@ async def handle_message(message, task_definition=None):
         logger.debug("Message received for task %s", task_id)
 
         # Validation failures are common and logged, so do nothing more.
-        if not validate_task(task):
+        if not validate_task(task, task_id, run_id):
             return jobs
 
         task_type = EXCHANGE_EVENT_MAP.get(message["exchange"])
