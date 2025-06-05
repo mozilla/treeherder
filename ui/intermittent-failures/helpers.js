@@ -125,8 +125,10 @@ export const tableRowStyling = function tableRowStyling(state, bug) {
       color: 'rgb(117, 117, 117)',
       backgroundColor: 'rgba(0, 0, 0, 0.009)',
     };
-
-    if (bug.row.status === 'RESOLVED' || bug.row.status === 'VERIFIED') {
+    if (
+      bug.original.status === 'RESOLVED' ||
+      bug.original.status === 'VERIFIED'
+    ) {
       style.textDecoration = 'line-through';
       return { style };
     }
