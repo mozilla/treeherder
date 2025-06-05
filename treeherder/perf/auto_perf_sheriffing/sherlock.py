@@ -1,7 +1,7 @@
 import logging
 import os
 import traceback
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, time
 from json import JSONDecodeError, loads
 from logging import INFO, WARNING
 
@@ -241,6 +241,8 @@ class Sherlock:
         return context[start:]
 
     def telemetry_alert(self):
+        if not self._can_run_telemetry():
+            return
         if not settings.TELEMETRY_ENABLE_ALERTS:
             logger.info("Telemetry alerting is disabled. Enable it with TELEMETRY_ENABLE_ALERTS=1")
             return
@@ -304,6 +306,9 @@ class Sherlock:
                         )
                 except Exception:
                     logger.info(f"Failed: {traceback.format_exc()}")
+
+    def _can_run_telemetry(self):
+        return time(23, 0) <= datetime.utcnow().time() < time(0, 0)
 
     def _create_detection_alert(
         self,
