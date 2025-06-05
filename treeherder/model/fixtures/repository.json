@@ -1962,5 +1962,34 @@
       "expire_performance_data": false,
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
+  },
+  {
+    "pk": 139,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "hg",
+      "name": "mozilla-esr140",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr140",
+      "active_status": "active",
+      "codebase": "gecko",
+      "repository_group": 2,
+      "life_cycle_order": 9995,
+      "description": "",
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
+    }
+  },
+  {
+    "pk": 140,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "hg",
+      "name": "comm-esr140",
+      "url": "https://hg.mozilla.org/releases/comm-esr140",
+      "active_status": "active",
+      "codebase": "comm",
+      "repository_group": 8,
+      "description": "",
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
+    }
   }
 ]

@@ -322,6 +322,7 @@ def _schedule_log_parsing(job, job_logs, result, repository):
         "mozilla-release",
         "mozilla-esr115",
         "mozilla-esr128",
+        "mozilla-esr140",
         "reference-browser",
         "toolchains",
     }
