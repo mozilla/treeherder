@@ -5,6 +5,7 @@ import moment from 'moment';
 import ReactTable from 'react-table-6';
 
 import { bugsEndpoint } from '../helpers/url';
+import { setUrlParam, getUrlParam } from '../helpers/location';
 
 import BugColumn from './BugColumn';
 import {
@@ -32,6 +33,9 @@ const MainView = (props) => {
   } = props;
 
   const textFilter = (filter, row) => {
+    if (getUrlParam(filter.id) !== filter.value) {
+      setUrlParam(filter.id, filter.value);
+    }
     const text = row[filter.id];
     const regex = RegExp(filter.value, 'i');
     if (regex.test(text)) {
@@ -119,6 +123,17 @@ const MainView = (props) => {
     };
   };
 
+  const setInitialFiltersFromUrl = () => {
+    const filters = [];
+    for (const header of ['product', 'component', 'summary', 'whiteboard']) {
+      const param = getUrlParam(header);
+      if (param) {
+        filters.push({ id: header, value: getUrlParam(header) });
+      }
+    }
+    return filters;
+  };
+
   return (
     <Layout
       {...props}
@@ -179,6 +194,7 @@ const MainView = (props) => {
             showPaginationTop
             defaultPageSize={50}
             filterable
+            defaultFiltered={setInitialFiltersFromUrl()}
           />
         )
       }
