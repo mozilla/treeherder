@@ -331,6 +331,10 @@ pre-commit==4.2.0 \
     --hash=sha256:601283b9757afd87d40c4c4a9b2b5de9637a8ea02eaff7adc2d0fb4e04841146 \
     --hash=sha256:a009ca7205f1eb497d10b845e52c838a98b6cdd2102a6c8e4540e94ee75c58bd
     # via -r requirements/dev.in
+pygments==2.19.1 \
+    --hash=sha256:61c16d2a8576dc0649d9f39e089b5f02bcd27fba10d8fb4dcc28173f7a45151f \
+    --hash=sha256:9ea1544ad55cecf4b8242fab6dd35a93bbce657034b0611ee383099054ab6d8c
+    # via pytest
 pypom==2.2.4 \
     --hash=sha256:5da52cf447e62f43a0cfa47dfe52eb822eff07b2fdad759f930d1d227c15220b \
     --hash=sha256:8b4dc6d1a24580298bf5ad8ad6c586f33b73c326c10a4419f83aee1abb20077d
@@ -346,9 +350,9 @@ pysocks==1.7.1 \
     --hash=sha256:2725bd0a9925919b9b51739eea5f9e2bae91e83288108a9ad338b2e3a4435ee5 \
     --hash=sha256:3f8804571ebe159c380ac6de37643bb4685970655d3bba243530d6558b799aa0
     # via urllib3
-pytest==8.3.5 \
-    --hash=sha256:c69214aa47deac29fad6c2a4f590b9c4a9fdb16a403176fe154b79c0b4d4d820 \
-    --hash=sha256:f4efe70cc14e511565ac476b57c279e12a855b11f48f212af1080ef2263d3845
+pytest==8.4.0 \
+    --hash=sha256:14d920b48472ea0dbf68e45b96cd1ffda4705f33307dcc86c676c1b5104838a6 \
+    --hash=sha256:f40f825768ad76c0977cbacdf1fd37c6f7a468e460ea6a0636078f8972d4517e
     # via
     #   -r requirements/dev.in
     #   pytest-asyncio
