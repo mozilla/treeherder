@@ -315,7 +315,13 @@ def fixture_create_jobs(test_repository, failure_classifications):
 
     def create(jobs):
         store_job_data(test_repository, jobs)
-        return [th_models.Job.objects.get(id=i) for i in range(1, len(jobs) + 1)]
+        retVal = []
+        for i in range(1, len(jobs) + 1):
+            try:
+                retVal.append(th_models.Job.objects.get(id=i))
+            except Exception:
+                pass
+        return retVal
 
     return create
 
@@ -367,7 +373,7 @@ def test_job_3(hundred_job_blobs, create_jobs):
 
 
 @pytest.fixture
-def mock_log_parser(monkeypatch):
+def mock_full_log_parser(monkeypatch):
     from celery import shared_task
 
     from treeherder.log_parser import tasks
@@ -377,6 +383,42 @@ def mock_log_parser(monkeypatch):
         pass
 
     monkeypatch.setattr(tasks, "parse_logs", task_mock)
+
+
+@pytest.fixture
+def mock_parser(monkeypatch):
+    import requests
+    from celery import shared_task
+
+    from treeherder.log_parser import failureline
+
+    @shared_task
+    def fetch_mock(*args, **kwargs):
+        file_name = args[0].url.split("/")[-1]
+        # TODO: consider reducing a lot of this code
+        #        print(f"JMAHER ------------------------------------------------------- {file_name} --------------------------------------------")
+        #        print(args)
+        if file_name == "" and args[0].url == "http://my-log.mozilla.org/":
+            response = requests.get(args[0].url)
+            if response.status_code != 200:
+                args[0].update_status(2)  # JobLog.FAILED
+                if response.status_code in [500]:
+                    raise requests.exceptions.HTTPError
+                return
+            fetch_data = response.text
+        else:
+            try:
+                data_path = os.path.join(SAMPLE_DATA_PATH, "logs", file_name)
+                with open(data_path) as f:
+                    fetch_data = f.read()
+            except Exception:
+                return
+
+        if not fetch_data:
+            return
+        return (json.loads(item.strip("\n")) for item in fetch_data.splitlines())
+
+    monkeypatch.setattr(failureline, "fetch_log", fetch_mock)
 
 
 @pytest.fixture
@@ -418,7 +460,7 @@ def try_push_stored(try_repository, sample_push):
 
 
 @pytest.fixture
-def hundred_job_blobs(sample_data, sample_push, test_repository, mock_log_parser):
+def hundred_job_blobs(sample_data, sample_push, test_repository, mock_full_log_parser):
     store_push_data(test_repository, sample_push)
 
     # NOTE: when generating new data, we appear to need more jobs to find similar jobs
@@ -449,7 +491,7 @@ def hundred_job_blobs(sample_data, sample_push, test_repository, mock_log_parser
 
 
 @pytest.fixture
-def hundred_job_blobs_new_date(sample_data, sample_push, test_repository, mock_log_parser):
+def hundred_job_blobs_new_date(sample_data, sample_push, test_repository, mock_full_log_parser):
     # make unique revisions
     counter = 0
     for push in sample_push:
