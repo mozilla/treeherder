@@ -4583,10 +4583,10 @@ eslint-plugin-import@2.31.0:
     string.prototype.trimend "^1.0.8"
     tsconfig-paths "^3.15.0"
 
-eslint-plugin-jest@28.11.2:
-  version "28.11.2"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-jest/-/eslint-plugin-jest-28.11.2.tgz#fd70e255e9ca053ee9bbe53bb14746edc562465e"
-  integrity sha512-hv1PA0U+zSxUiOJ0LgebriASzf+R9ej2im+HzmWGZP2HmClgLj+z8aUVGk7OBv8/rhLV/XgxdszL/HQDk/TM3w==
+eslint-plugin-jest@28.13.0:
+  version "28.13.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-jest/-/eslint-plugin-jest-28.13.0.tgz#f215195915cefe3ed14145f841b6e7c90d60a672"
+  integrity sha512-4AuBcFWOriOeEqy6s4Zup/dQ7E1EPTyyfDaMYmM2YP9xEWPWwK3yYifH1dzY6aHRvyx7y53qMSIyT5s+jrorsQ==
   dependencies:
     "@typescript-eslint/utils" "^6.0.0 || ^7.0.0 || ^8.0.0"
 
