@@ -18,7 +18,7 @@ mozlog==8.0.0
 # Used directly and also by Django's YAML serializer.
 PyYAML==6.0.2  # Imported as yaml
 django-environ==0.11.2  # Imported as environ
-uritemplate==4.1.1  # For OpenAPI schema
+uritemplate==4.2.0  # For OpenAPI schema
 
 python-dateutil==2.9.0.post0
 django-filter==25.1  # Listed in DEFAULT_FILTER_BACKENDS on settings.py
