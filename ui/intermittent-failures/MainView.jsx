@@ -3,6 +3,9 @@ import { Row, Col, Breadcrumb, BreadcrumbItem } from 'reactstrap';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import ReactTable from 'react-table-6';
+import Checkbox from '@mui/material/Checkbox';
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
 
 import { bugsEndpoint } from '../helpers/url';
 import { setUrlParam, getUrlParam } from '../helpers/location';
@@ -32,6 +35,7 @@ const MainView = (props) => {
     updateAppState,
   } = props;
 
+  const [selectedProduct, setSelectedProduct] = React.useState([]);
   const textFilter = (filter, row) => {
     if (getUrlParam(filter.id) !== filter.value) {
       setUrlParam(filter.id, filter.value);
@@ -75,7 +79,46 @@ const MainView = (props) => {
       Header: 'Product',
       accessor: 'product',
       maxWidth: 100,
-      filterMethod: (filter, row) => textFilter(filter, row),
+      filterMethod: (filter, row) => {
+        const regex = RegExp(filter.value.join('|'), 'i');
+        if (regex.test(row.product)) {
+          return row;
+        }
+      },
+      Filter: ({ onChange }) => {
+        return (
+          <Autocomplete
+            multiple
+            id="checkboxes-tags-filter"
+            options={[...new Set(tableData.map((d) => d.product))]}
+            onChange={(_event, values) => {
+              setUrlParam('product', values);
+              onChange(values);
+            }}
+            limitTags={2}
+            disableCloseOnSelect
+            defaultValue={selectedProduct}
+            style={{
+              width: '20em',
+            }}
+            renderOption={(props, option, { selected }) => {
+              const { key, ...optionProps } = props;
+              return (
+                <li key={key} {...optionProps}>
+                  <Checkbox style={{ marginRight: 8 }} checked={selected} />
+                  {option}
+                </li>
+              );
+            }}
+            renderInput={(params) => (
+              <TextField
+                style={{ border: 'none', height: '0.3em', padding: '0' }}
+                {...params}
+              />
+            )}
+          />
+        );
+      },
     },
     {
       Header: 'Component',
@@ -128,7 +171,14 @@ const MainView = (props) => {
     for (const header of ['product', 'component', 'summary', 'whiteboard']) {
       const param = getUrlParam(header);
       if (param) {
-        filters.push({ id: header, value: getUrlParam(header) });
+        if (header === 'product') {
+          filters.push({ id: header, value: param.split(',') });
+          if (selectedProduct.length === 0) {
+            setSelectedProduct(param.split(','));
+          }
+        } else {
+          filters.push({ id: header, value: param });
+        }
       }
     }
     return filters;
