@@ -602,9 +602,15 @@ class Commenter:
         if any(k for k in test_file_extensions if f"{k} | single" in summary):
             if " (finished)" in summary:
                 summary = summary.replace(" (finished)", "")
-            # get <test_name> from: "TEST-UNEXPECTED-FAIL | <test_name> | single tracking bug"
+            # get <test_name> from: "Intermittent <test_name>[ == <test_name-ref>] | single tracking bug"
+            test_name_re = re.compile(r".*? ((\S+ [!=]= )?(\S+)) \| single tracking bug")
+            m = test_name_re.match(summary)
+            if m:
+                test_name = m.group(1)
+            if not test_name:
+                return None
+
             # TODO: fix reftest
-            test_name = summary.split("|")[-2].strip()
             if " == " in test_name or " != " in test_name:
                 test_name = test_name.split(" ")[0]
             else:
