@@ -6,7 +6,11 @@ import { Link } from 'react-router-dom';
 import { Row, Col, Badge } from 'reactstrap';
 
 import Clipboard from '../../shared/Clipboard';
-import { getFrameworkName, getTitle } from '../perf-helpers/helpers';
+import {
+  getFrameworkName,
+  getTitle,
+  containsText,
+} from '../perf-helpers/helpers';
 
 export default class AlertHeaderTitle extends React.Component {
   constructor(props) {
@@ -16,6 +20,11 @@ export default class AlertHeaderTitle extends React.Component {
 
   render() {
     const { alertSummary, frameworks } = this.props;
+
+    const title = getTitle(alertSummary);
+    const isCritical =
+      containsText(title, 'speedometer3 score windows11 shippable') ||
+      containsText(title, 'newssite-applink a55');
 
     return (
       <Row>
@@ -31,6 +40,7 @@ export default class AlertHeaderTitle extends React.Component {
               <Badge className="mr-2">
                 {getFrameworkName(frameworks, alertSummary.framework)}
               </Badge>
+              {isCritical ? <Badge className="mr-2">critical</Badge> : null}
               Alert #{alertSummary.id} - {alertSummary.repository} -{' '}
               {getTitle(alertSummary)}{' '}
               <FontAwesomeIcon
