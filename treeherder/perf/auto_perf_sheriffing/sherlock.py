@@ -308,7 +308,7 @@ class Sherlock:
                     logger.info(f"Failed: {traceback.format_exc()}")
 
     def _can_run_telemetry(self):
-        return time(23, 0) <= datetime.utcnow().time() < time(0, 0)
+        return time(22, 0) <= datetime.utcnow().time() < time(23, 0)
 
     def _create_detection_alert(
         self,
