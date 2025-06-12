@@ -6,6 +6,7 @@ import ReactTable from 'react-table-6';
 import Checkbox from '@mui/material/Checkbox';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
+import Popper from '@mui/material/Popper';
 
 import { bugsEndpoint } from '../helpers/url';
 import { setUrlParam, getUrlParam } from '../helpers/location';
@@ -21,6 +22,16 @@ import withView from './View';
 import Layout from './Layout';
 import DateRangePicker from './DateRangePicker';
 
+const CustomPopper = (props) => {
+  return (
+    <Popper
+      {...props}
+      style={{ width: '350px', textAlign: 'left' }}
+      placement="bottom-start"
+    />
+  );
+};
+
 const MainView = (props) => {
   const {
     graphData,
@@ -35,7 +46,10 @@ const MainView = (props) => {
     updateAppState,
   } = props;
 
-  const [selectedProduct, setSelectedProduct] = React.useState([]);
+  const [selectedFilter, setSelectedFilter] = React.useState({
+    product: [],
+    component: [],
+  });
   const textFilter = (filter, row) => {
     if (getUrlParam(filter.id) !== filter.value) {
       setUrlParam(filter.id, filter.value);
@@ -45,6 +59,49 @@ const MainView = (props) => {
     if (regex.test(text)) {
       return row;
     }
+  };
+
+  const autoCompleteFilter = ({ column, onChange }) => {
+    const options = [...new Set(tableData.map((d) => d[column.id]))];
+    options.sort();
+    return (
+      <Autocomplete
+        slots={{ popper: CustomPopper }}
+        size="small"
+        multiple
+        limitTags={0}
+        id="checkboxes-tags-filter"
+        options={options}
+        onChange={(_event, values) => {
+          setUrlParam(column.id, values);
+          onChange(values);
+          setSelectedFilter({ ...selectedFilter, [column.id]: values });
+        }}
+        disableCloseOnSelect
+        defaultValue={selectedFilter[column.id]}
+        fullWidth
+        renderOption={(props, option, { selected }) => {
+          const { key, ...optionProps } = props;
+          return (
+            <li key={key} {...optionProps}>
+              <Checkbox style={{ marginRight: 8 }} checked={selected} />
+              {option}
+            </li>
+          );
+        }}
+        renderInput={(params) => (
+          <TextField
+            style={{
+              maxHeight: '0.9em',
+              border: 'none',
+              padding: '0',
+              minWidth: '140px',
+            }}
+            {...params}
+          />
+        )}
+      />
+    );
   };
 
   const columns = [
@@ -80,51 +137,28 @@ const MainView = (props) => {
       accessor: 'product',
       maxWidth: 100,
       filterMethod: (filter, row) => {
-        const regex = RegExp(filter.value.join('|'), 'i');
-        if (regex.test(row.product)) {
-          return row;
+        if (filter.value) {
+          const regex = RegExp(filter.value.join('|'), 'i');
+          if (regex.test(row.product)) {
+            return row;
+          }
         }
       },
-      Filter: ({ onChange }) => {
-        return (
-          <Autocomplete
-            multiple
-            id="checkboxes-tags-filter"
-            options={[...new Set(tableData.map((d) => d.product))]}
-            onChange={(_event, values) => {
-              setUrlParam('product', values);
-              onChange(values);
-            }}
-            limitTags={2}
-            disableCloseOnSelect
-            defaultValue={selectedProduct}
-            style={{
-              width: '20em',
-            }}
-            renderOption={(props, option, { selected }) => {
-              const { key, ...optionProps } = props;
-              return (
-                <li key={key} {...optionProps}>
-                  <Checkbox style={{ marginRight: 8 }} checked={selected} />
-                  {option}
-                </li>
-              );
-            }}
-            renderInput={(params) => (
-              <TextField
-                style={{ border: 'none', height: '0.3em', padding: '0' }}
-                {...params}
-              />
-            )}
-          />
-        );
-      },
+      Filter: autoCompleteFilter,
     },
     {
       Header: 'Component',
       accessor: 'component',
       maxWidth: 100,
-      filterMethod: (filter, row) => textFilter(filter, row),
+      filterMethod: (filter, row) => {
+        if (filter.value) {
+          const regex = RegExp(filter.value.join('|'), 'i');
+          if (regex.test(row.component)) {
+            return row;
+          }
+        }
+      },
+      Filter: autoCompleteFilter,
     },
     {
       Header: 'Summary',
@@ -173,8 +207,16 @@ const MainView = (props) => {
       if (param) {
         if (header === 'product') {
           filters.push({ id: header, value: param.split(',') });
-          if (selectedProduct.length === 0) {
-            setSelectedProduct(param.split(','));
+          if (selectedFilter.product.length === 0) {
+            setSelectedFilter({ ...selectedFilter, product: param.split(',') });
+          }
+        } else if (header === 'component') {
+          filters.push({ id: header, value: param.split(',') });
+          if (selectedFilter.component.length === 0) {
+            setSelectedFilter({
+              ...selectedFilter,
+              component: param.split(','),
+            });
           }
         } else {
           filters.push({ id: header, value: param });

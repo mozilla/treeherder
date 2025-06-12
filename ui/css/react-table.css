@@ -505,6 +505,10 @@
   user-select: none;
 }
 
+.ReactTable .MuiAutocomplete-inputRoot {
+  max-height: 2em;
+}
+
 .ReactTable .MuiAutocomplete-inputRoot .MuiOutlinedInput-input {
   border: none;
   height: 1em;
