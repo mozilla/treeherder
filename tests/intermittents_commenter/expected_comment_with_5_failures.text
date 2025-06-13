@@ -5,11 +5,11 @@ This is the #1 most frequent failure this week.
 * mozilla-central: 5
 
 ## Table
-| |**1proc**|**asan**|**debug**|**no_variant**|**opt**|**spi-nw**|**swr**|**tsan**|
-|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-|**linux1804-x86_64/debug**|1| | |1| |1/92| | |
-|**macosx1015-x86_64/debug**| | | | | |1/22| | |
-|**macosx1470-x86_64/debug**| | | | | | |1| |
+| |**1proc**|**a11y_checks+swgl**|**no_variant**|**socketprocess_networking**|**spi-nw**|**swgl**|**swr**|
+|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+|**linux1804-x86_64/debug**|1| |1| |1/92| | |
+|**macosx1015-x86_64/debug**| | | | |1/22| | |
+|**macosx1470-x86_64/debug**| | | | | | |1|
 
 ## For more details, see:
 https://treeherder.mozilla.org/intermittent-failures/bugdetails?bug=1&startday=2022-05-09&endday=2025-05-10&tree=all
