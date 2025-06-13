@@ -20,7 +20,7 @@ black==25.1.0
 shellcheck-py==0.10.0.1
 
 # To test async code
-pytest-asyncio==0.26.0  # required to pass test_new_job_transformation
+pytest-asyncio==1.0.0  # required to pass test_new_job_transformation
 
 # To test code that's making system time calls
 # pytest-freezegun is not compatible with recent Django versions
