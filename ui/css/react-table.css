@@ -504,3 +504,13 @@
   -ms-user-select: none;
   user-select: none;
 }
+
+.ReactTable .MuiAutocomplete-tag {
+  height: 20px;
+}
+.ReactTable .MuiAutocomplete-inputRoot {
+  height: 2em;
+}
+.ReactTable .MuiInputBase-input {
+  height: 0.2em;
+}
