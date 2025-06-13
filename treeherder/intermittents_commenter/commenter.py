@@ -344,13 +344,13 @@ class Commenter:
         """
         Try to provide a mapping between the artifact giving the manifest
         and the data available in treeherder.
-        TODO: not very consistant
         """
         variants = set()
         for key_version in testrun_os_matrix:
             if key_version.replace(".", "") in bug_run_info.os_version:
                 for key_arch in testrun_os_matrix[key_version]:
-                    variants = set(testrun_os_matrix[key_version][key_arch].keys())
+                    for key_type in testrun_os_matrix[key_version][key_arch]:
+                        variants |= set(testrun_os_matrix[key_version][key_arch][key_type].keys())
         variants.add("no_variant")  # this is an assumption, we might not always have this
         return variants
 
