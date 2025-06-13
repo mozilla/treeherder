@@ -3,6 +3,7 @@ import datetime
 import json
 import operator
 import time
+from unittest import mock
 
 import pytest
 from django.core.management import call_command
@@ -232,6 +233,52 @@ def test_default_ingest_workflow(
                 perf_push.time,
             )
             _verify_datum(suite["name"], subtest["name"], subtest["value"], perf_push.time)
+
+
+@mock.patch("treeherder.etl.perf.generate_alerts")
+def test_monitored_perf_data(
+    mocked_generate_alerts,
+    test_repository,
+    perf_push,
+    later_perf_push,
+    perf_job_nonsheriffed,
+    generic_reference_data,
+    sample_perf_artifact,
+):
+    for suite in sample_perf_artifact["blob"]["suites"]:
+        suite["monitor"] = True
+    perf_datum, submit_datum = _prepare_test_data(sample_perf_artifact)
+
+    store_performance_artifact(perf_job_nonsheriffed, submit_datum)
+
+    assert DATA_PER_ARTIFACT == PerformanceSignature.objects.all().count()
+    assert 1 == PerformanceFramework.objects.all().count()
+
+    # Ensure that alert generation gets triggered on a tier-3 test with
+    # monitor set to True
+    mocked_generate_alerts.apply_async.assert_called()
+
+
+@mock.patch("treeherder.etl.perf.generate_alerts")
+def test_unmonitored_perf_data(
+    mocked_generate_alerts,
+    test_repository,
+    perf_push,
+    later_perf_push,
+    perf_job_nonsheriffed,
+    generic_reference_data,
+    sample_perf_artifact,
+):
+    perf_datum, submit_datum = _prepare_test_data(sample_perf_artifact)
+
+    store_performance_artifact(perf_job_nonsheriffed, submit_datum)
+
+    assert DATA_PER_ARTIFACT == PerformanceSignature.objects.all().count()
+    assert 1 == PerformanceFramework.objects.all().count()
+
+    # Ensure that alert generation does not get triggered when monitor is False
+    # on a tier-3 job
+    mocked_generate_alerts.apply_async.assert_not_called()
 
 
 def test_hash_remains_unchanged_for_default_ingestion_workflow(
