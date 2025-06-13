@@ -379,9 +379,9 @@ distlib==0.3.9 \
     --hash=sha256:47f8c22fd27c27e25a65601af709b38e4f0a45ea4fc2e710f65755fa8caaaf87 \
     --hash=sha256:a60f20dea646b8a33f3e7772f74dc0b2d0772d2837ee1342a00645c81edf9403
     # via virtualenv
-django==5.1.10 \
-    --hash=sha256:19c9b771e9cf4de91101861aadd2daaa159bcf10698ca909c5755c88e70ccb84 \
-    --hash=sha256:73e5d191421d177803dbd5495d94bc7d06d156df9561f4eea9e11b4994c07137
+django==5.1.11 \
+    --hash=sha256:3bcdbd40e4d4623b5e04f59c28834323f3086df583058e65ebce99f9982385ce \
+    --hash=sha256:e48091f364007068728aca938e7450fbfe3f2217079bfd2b8af45122585acf64
     # via
     #   -r requirements/common.in
     #   django-cors-headers
