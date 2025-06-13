@@ -40,7 +40,11 @@ export default class AlertHeaderTitle extends React.Component {
               <Badge className="mr-2">
                 {getFrameworkName(frameworks, alertSummary.framework)}
               </Badge>
-              {isCritical ? <Badge className="mr-2">critical</Badge> : null}
+              {isCritical ? (
+                <Badge className="mr-2" color="danger">
+                  critical
+                </Badge>
+              ) : null}
               Alert #{alertSummary.id} - {alertSummary.repository} -{' '}
               {getTitle(alertSummary)}{' '}
               <FontAwesomeIcon
