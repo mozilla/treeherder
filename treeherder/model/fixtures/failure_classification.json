@@ -47,5 +47,12 @@
     "fields": {
       "name": "autoclassified intermittent"
     }
+  },
+  {
+    "pk": 8,
+    "model": "model.failureclassification",
+    "fields": {
+      "name": "intermittent needs bugid"
+    }
   }
 ]
