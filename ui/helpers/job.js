@@ -21,7 +21,8 @@ const btnClasses = {
 };
 
 // failure classification ids that should be shown in "unclassified" mode
-export const thUnclassifiedIds = [1, 6, 7];
+// TODO: consider dropping 8 from this list, only here for full compatibility
+export const thUnclassifiedIds = [1, 6, 7, 8];
 
 // Get the CSS class for job buttons as well as jobs that show in the pinboard.
 // These also apply to result "groupings" like ``failures`` and ``in progress``
@@ -34,7 +35,11 @@ export const getBtnClass = function getBtnClass(
 
   // handle if a job is classified > 1
   // and not "NEW failure", classification == 6
-  if (failureClassificationId > 1 && failureClassificationId !== 6) {
+  // TODO: consider dropping 8 from this list, only here for full compatibility
+  if (
+    failureClassificationId > 1 &&
+    ![6, 8].includes(failureClassificationId)
+  ) {
     btnClass += '-classified';
   }
   return btnClass;
