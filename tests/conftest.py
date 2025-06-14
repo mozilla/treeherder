@@ -608,8 +608,9 @@ def failure_classifications(transactional_db):
         "expected fail",
         "intermittent",
         "infra",
-        "intermittent needs filing",
+        "new failure not classified",
         "autoclassified intermittent",
+        "intermittent needs bugid",
     ]:
         th_models.FailureClassification(name=name).save()
 
