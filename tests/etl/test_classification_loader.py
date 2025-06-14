@@ -539,7 +539,7 @@ def test_new_classification(autoland_push, sample_data, test_two_jobs_tc_metadat
     # first is NEW
     second_job = Job.objects.get(id=1)
     first_job = Job.objects.get(id=2)
-    assert first_job.failure_classification.name == "intermittent needs filing"
+    assert first_job.failure_classification.name == "new failure not classified"
 
     # second instance is normal
     assert second_job.failure_classification.name == "not classified"

@@ -26,7 +26,8 @@ def check_and_mark_intermittent(job_id):
                 1,
                 4,
                 6,
-            ],  # not classified, intermittent, new_failure;  TODO: consider 7 == autoclassified
+                8,
+            ],  # not classified, intermittent, new_failure, intermittent needs bug; TODO: consider 7 == autoclassified
             job_logs__job__result__in=[
                 "success",
                 "testfailed",
@@ -127,8 +128,7 @@ def check_and_mark_intermittent(job_id):
                 # TODO: infra would be nice to detect, but in the case of no groups, our data set == []
                 # edge case is all groups originally pass and then shutdown leaks cause 'testfailed'.
                 # also we ignore infra/leaks that don't report group failures in errorsummary files
-                if (
-                    target_job[0].result != "success"
-                    and target_job[0].failure_classification_id != 4
-                ):
-                    target_job.update(failure_classification_id=4)
+                if target_job[0].result != "success" and target_job[
+                    0
+                ].failure_classification_id not in [4, 8]:
+                    target_job.update(failure_classification_id=8)

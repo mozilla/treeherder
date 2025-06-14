@@ -190,9 +190,9 @@ class SimilarJobsTab extends React.Component {
                     >
                       {similarJob.job_type_symbol}
                       {similarJob.failure_classification_id > 1 &&
-                        similarJob.failure_classification_id !== 6 && (
-                          <span>*</span>
-                        )}
+                        ![6, 8].includes(
+                          similarJob.failure_classification_id,
+                        ) && <span>*</span>}
                     </button>
                   </td>
                   <td title={toDateStr(similarJob.result_set.push_timestamp)}>
