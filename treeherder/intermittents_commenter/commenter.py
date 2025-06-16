@@ -452,12 +452,15 @@ class Commenter:
             if test_name:
                 manifest = all_tests[test_name][0]
                 if manifest:
+                    """
+                    # Bug 1972307 - disabled due to no comments
                     tasks_count = self.get_task_labels_and_count(manifest, start_day, end_day)
                     job_name = bug["job__signature__job_type_name"]
                     for task_name, count in tasks_count.items():
                         if task_name == job_name or task_name == job_name.rsplit("-", 1)[0]:
                             run_count = count
                             break
+                    """
                     testrun_matrix = (
                         fetch.fetch_testrun_matrix()
                         if self.testrun_matrix is None
