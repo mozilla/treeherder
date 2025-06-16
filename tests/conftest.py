@@ -503,6 +503,24 @@ def eleven_jobs_stored(test_repository, failure_classifications, hundred_job_blo
 
 
 @pytest.fixture
+def five_intermittent_jobs(test_repository, hundred_job_blobs, create_jobs):
+    """make multiple failures for same platform/variant"""
+    jobs = []
+    for i in range(0, 5):
+        # this allows every other task to repeat the job name
+        if i % 2 == 0:
+            name = hundred_job_blobs[i]["job"]["name"]
+
+        job = hundred_job_blobs[i]
+        job["job"].update({"name": name})
+        jobs.append(job)
+    return create_jobs(jobs)[0]
+
+
+#    store_job_data(test_repository, hundred_job_blobs[0:5])
+
+
+@pytest.fixture
 def taskcluster_jobs_stored(test_repository, sample_data):
     """stores a list of TaskCluster job samples"""
     store_job_data(test_repository, sample_data.transformed_pulse_jobs)
@@ -1229,7 +1247,7 @@ def bug_data(eleven_jobs_stored, test_repository, test_push, bugs):
 
 
 @pytest.fixture
-def bug_data_with_5_failures(eleven_jobs_stored, test_repository, test_push, bugs):
+def bug_data_with_5_failures(five_intermittent_jobs, test_repository, test_push, bugs):
     jobs = th_models.Job.objects.all().order_by("id")
     bug_id = bugs[0].bugzilla_id
     for index, job in enumerate(jobs[:5]):

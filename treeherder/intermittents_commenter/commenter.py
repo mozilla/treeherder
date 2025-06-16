@@ -500,7 +500,11 @@ class Commenter:
                 data_table = bug_infos.data_table
                 platform_and_build_data = data_table.get(platform_and_build, {})
                 data_table[platform_and_build] = platform_and_build_data
-                data_table[platform_and_build][test_variant] = {"count": 1, "runs": run_count}
+                data_table[platform_and_build][test_variant] = {
+                    "count": platform_and_build_data.get(test_variant, {}).get("count", 0) + 1,
+                    "runs": run_count,
+                }
+
         return bug_map
 
     def get_alt_date_bug_totals(self, startday, endday, bug_ids):
