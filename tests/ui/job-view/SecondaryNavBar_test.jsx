@@ -19,13 +19,13 @@ const router = { location: history.location };
 
 beforeEach(() => {
   fetchMock.get(
-    'https://treestatus.prod.lando.prod.cloudops.mozgcp.net/trees/autoland',
+    'https://treestatus.prod.lando.prod.cloudops.mozgcp.net/trees/firefox-autoland',
     {
       result: {
         message_of_the_day: '',
         reason: '',
         status: 'open',
-        tree: 'autoland',
+        tree: 'firefox-autoland',
       },
     },
   );
