@@ -22,7 +22,7 @@ uritemplate==4.2.0  # For OpenAPI schema
 
 python-dateutil==2.9.0.post0
 django-filter==25.1  # Listed in DEFAULT_FILTER_BACKENDS on settings.py
-django-redis==5.4.0  # Listed in CACHES on settings.py
+django-redis==6.0.0  # Listed in CACHES on settings.py
 
 taskcluster==84.2.0  # import taskcluster
 python-jose[pycryptodome]==3.5.0  # from jose import jwt
