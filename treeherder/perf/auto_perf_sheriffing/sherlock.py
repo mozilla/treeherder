@@ -250,14 +250,16 @@ class Sherlock:
         import mozdetect
         from mozdetect.telemetry_query import get_metric_table
 
-        if (
-            not os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
-            and settings.SITE_HOSTNAME == "treeherder.mozilla.org"
-        ):
+        if not os.environ.get("GOOGLE_APPLICATION_CREDENTIALS") and self._is_prod():
             raise Exception(
                 "GOOGLE_APPLICATION_CREDENTIALS must be defined in production. "
                 "Use GCLOUD_DIR for local testing."
             )
+
+        project = "mozdata"
+        if self._is_prod():
+            # Defined from the GCLOUD_PROJECT env variable
+            project = None
 
         ts_detectors = mozdetect.get_timeseries_detectors()
 
@@ -287,6 +289,7 @@ class Sherlock:
                         platform,
                         android=(platform == "Mobile"),
                         use_fog=True,
+                        project=project,
                     )
                     if data.empty:
                         logger.info("No data found")
@@ -307,8 +310,11 @@ class Sherlock:
                 except Exception:
                     logger.info(f"Failed: {traceback.format_exc()}")
 
+    def _is_prod(self):
+        return settings.SITE_HOSTNAME == "treeherder.mozilla.org"
+
     def _can_run_telemetry(self):
-        return time(22, 0) <= datetime.utcnow().time() < time(23, 0)
+        return not self._is_prod() or (time(22, 0) <= datetime.utcnow().time() < time(23, 0))
 
     def _create_detection_alert(
         self,
