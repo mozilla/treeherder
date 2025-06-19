@@ -394,7 +394,7 @@ class Commenter:
             info.build_type = "unknown build"
         return info
 
-    def get_task_labels_and_count(self, manifest, days):
+    def get_task_labels_and_count(self, manifest, days, job_name):
         tasks_and_count = {}
         summary_groups = (
             fetch.fetch_summary_groups(days) if self.summary_groups is None else self.summary_groups
@@ -407,9 +407,11 @@ class Commenter:
                 if manifest in tasks_by_manifest:
                     for task_index, _, _, count in tasks_by_manifest[manifest]:
                         task_label = all_task_labels[task_index]
-                        tasks_and_count.setdefault(task_label, 0)
-                        tasks_and_count[task_label] += count
-        return tasks_and_count
+                        if task_label == job_name:
+                            tasks_and_count.setdefault(task_label, 0)
+                            tasks_and_count[task_label] += count
+                    break
+        return tasks_and_count.get(job_name, 0)
 
     def build_bug_map(self, bugs, option_collection_map, days):
         """Build bug_map
@@ -450,12 +452,10 @@ class Commenter:
             if test_name:
                 manifest = all_tests[test_name][0]
                 if manifest:
-                    tasks_count = self.get_task_labels_and_count(manifest, days)
                     job_name = bug["job__signature__job_type_name"]
-                    for task_name, count in tasks_count.items():
-                        if task_name == job_name or task_name == job_name.rsplit("-", 1)[0]:
-                            run_count = count
-                            break
+                    if len(job_name.rsplit("-", 1)) == 2 and job_name.rsplit("-", 1)[1].isdigit():
+                        job_name = job_name.rsplit("-", 1)[0]
+                    run_count = self.get_task_labels_and_count(manifest, days, job_name)
                     testrun_matrix = (
                         fetch.fetch_testrun_matrix()
                         if self.testrun_matrix is None
