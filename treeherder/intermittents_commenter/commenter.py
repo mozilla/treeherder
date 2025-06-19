@@ -405,12 +405,11 @@ class Commenter:
                 continue
             all_task_labels = summary_groups[day]["job_type_names"]
             for tasks_by_manifest in summary_groups[day]["manifests"]:
-                for man, tasks in tasks_by_manifest.items():
-                    if manifest == man:
-                        for task_index, _, _, count in tasks:
-                            task_label = all_task_labels[task_index]
-                            tasks_and_count.setdefault(task_label, 0)
-                            tasks_and_count[task_label] += count
+                if manifest in tasks_by_manifest:
+                    for task_index, _, _, count in tasks_by_manifest[manifest]:
+                        task_label = all_task_labels[task_index]
+                        tasks_and_count.setdefault(task_label, 0)
+                        tasks_and_count[task_label] += count
         return tasks_and_count
 
     def build_bug_map(self, bugs, option_collection_map, start_day, end_day):
@@ -452,15 +451,12 @@ class Commenter:
             if test_name:
                 manifest = all_tests[test_name][0]
                 if manifest:
-                    """
-                    # Bug 1972307 - disabled due to no comments
                     tasks_count = self.get_task_labels_and_count(manifest, start_day, end_day)
                     job_name = bug["job__signature__job_type_name"]
                     for task_name, count in tasks_count.items():
                         if task_name == job_name or task_name == job_name.rsplit("-", 1)[0]:
                             run_count = count
                             break
-                    """
                     testrun_matrix = (
                         fetch.fetch_testrun_matrix()
                         if self.testrun_matrix is None
