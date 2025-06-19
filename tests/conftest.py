@@ -988,7 +988,7 @@ def mock_summary_groups_request(monkeypatch):
     Mock get_summary_groups()
     """
 
-    def _fetch_summary_groups(start_day, end_day):
+    def _fetch_summary_groups(days):
         tests_folder = os.path.dirname(__file__)
         file_name = "summary_groups.json"
         data_path = os.path.join(tests_folder, "sample_data", file_name)

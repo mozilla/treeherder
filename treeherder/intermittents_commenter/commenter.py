@@ -78,10 +78,16 @@ class Commenter:
         for bugs whose total number of daily or weekly occurrences meet
         the appropriate threshold) and potentially an updated whiteboard
         or priority status."""
+        days = [startday]
+        if self.weekly_mode:
+            days = [
+                (datetime.strptime(startday, "%Y-%m-%d") + timedelta(days=i)).strftime("%Y-%m-%d")
+                for i in range(7)
+            ]
 
         bug_ids, bugs = self.get_bugs(startday, endday)
         option_collection_map = OptionCollection.objects.get_option_collection_map()
-        bug_map = self.build_bug_map(bugs, option_collection_map, startday, endday)
+        bug_map = self.build_bug_map(bugs, option_collection_map, days)
 
         alt_date_bug_totals = self.get_alt_date_bug_totals(alt_startday, alt_endday, bug_ids)
 
@@ -388,18 +394,11 @@ class Commenter:
             info.build_type = "unknown build"
         return info
 
-    def get_task_labels_and_count(self, manifest, start_day, end_day):
+    def get_task_labels_and_count(self, manifest, days):
         tasks_and_count = {}
         summary_groups = (
-            fetch.fetch_summary_groups(start_day, end_day)
-            if self.summary_groups is None
-            else self.summary_groups
+            fetch.fetch_summary_groups(days) if self.summary_groups is None else self.summary_groups
         )
-        days = [start_day]
-        if self.weekly_mode:
-            for j in range(6):
-                jj = datetime.strptime(days[-1], "%Y-%m-%d") + timedelta(days=1)
-                days.append(jj.strftime("%Y-%m-%d"))
         for day in days:
             if day not in summary_groups:
                 continue
@@ -412,7 +411,7 @@ class Commenter:
                         tasks_and_count[task_label] += count
         return tasks_and_count
 
-    def build_bug_map(self, bugs, option_collection_map, start_day, end_day):
+    def build_bug_map(self, bugs, option_collection_map, days):
         """Build bug_map
          eg:
         {
@@ -451,7 +450,7 @@ class Commenter:
             if test_name:
                 manifest = all_tests[test_name][0]
                 if manifest:
-                    tasks_count = self.get_task_labels_and_count(manifest, start_day, end_day)
+                    tasks_count = self.get_task_labels_and_count(manifest, days)
                     job_name = bug["job__signature__job_type_name"]
                     for task_name, count in tasks_count.items():
                         if task_name == job_name or task_name == job_name.rsplit("-", 1)[0]:
