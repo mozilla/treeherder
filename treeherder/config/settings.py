@@ -369,7 +369,7 @@ CELERY_TASK_SOFT_TIME_LIMIT = 15 * 60
 CELERY_TASK_TIME_LIMIT = CELERY_TASK_SOFT_TIME_LIMIT + 30
 
 # Periodically publish runtime statistics on statsd (in minutes)
-CELERY_STATS_PUBLICATION_DELAY = 5
+CELERY_STATS_PUBLICATION_DELAY = 20
 assert 0 < CELERY_STATS_PUBLICATION_DELAY < 60 and 60 % 10 == 0, (
     "Celery task must be a valid cron delay in minutes"
 )
