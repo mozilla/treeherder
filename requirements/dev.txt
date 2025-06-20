@@ -327,6 +327,7 @@ pluggy==1.5.0 \
     # via
     #   pypom
     #   pytest
+    #   pytest-cov
 pre-commit==4.2.0 \
     --hash=sha256:601283b9757afd87d40c4c4a9b2b5de9637a8ea02eaff7adc2d0fb4e04841146 \
     --hash=sha256:a009ca7205f1eb497d10b845e52c838a98b6cdd2102a6c8e4540e94ee75c58bd
@@ -365,9 +366,9 @@ pytest-asyncio==0.26.0 \
     --hash=sha256:7b51ed894f4fbea1340262bdae5135797ebbe21d8638978e35d31c6d19f72fb0 \
     --hash=sha256:c4df2a697648241ff39e7f0e4a73050b03f123f760673956cf0d72a4990e312f
     # via -r requirements/dev.in
-pytest-cov==6.1.1 \
-    --hash=sha256:46935f7aaefba760e716c2ebfbe1c216240b9592966e7da99ea8292d4d3e2a0a \
-    --hash=sha256:bddf29ed2d0ab6f4df17b4c55b0a657287db8684af9c42ea546b21b1041b3dde
+pytest-cov==6.2.1 \
+    --hash=sha256:25cc6cc0a5358204b8108ecedc51a9b57b34cc6b8c967cc2c01a4e00d8a67da2 \
+    --hash=sha256:f5bc4c23f42f1cdd23c70b1dab1bbaef4fc505ba950d53e0081d0730dd7e86d5
     # via -r requirements/dev.in
 pytest-django==4.11.1 \
     --hash=sha256:1b63773f648aa3d8541000c26929c1ea63934be1cfa674c76436966d73fe6a10 \
