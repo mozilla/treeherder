@@ -7,7 +7,7 @@ This is the #1 most frequent failure this week.
 ## Table
 | |**no_variant**|**socketprocess_networking**|**spi-nw**|
 |---|:-:|:-:|:-:|
-|**macosx1015-x86_64/debug**| | |1|
+|**macosx1015-x86_64/debug**| | |1/22|
 
 ## For more details, see:
 https://treeherder.mozilla.org/intermittent-failures/bugdetails?bug=1&startday=2022-05-09&endday=2025-05-10&tree=all
