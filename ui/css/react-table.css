@@ -504,3 +504,8 @@
   -ms-user-select: none;
   user-select: none;
 }
+
+.ReactTable .MuiAutocomplete-inputRoot .MuiOutlinedInput-input {
+  border: none;
+  height: 1em;
+}
