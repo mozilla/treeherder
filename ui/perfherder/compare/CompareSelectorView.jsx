@@ -138,7 +138,7 @@ export default class CompareSelectorView extends React.Component {
             </Row>
             <Row className="justify-content-center">
               <Alert color="info">
-                We plan to deprecate Compare View soon. Please use{' '}
+                Compare View will be deprecated soon. Please consider using{' '}
                 <a href="https://perf.compare/">PerfCompare</a> as an
                 alternative.
               </Alert>
