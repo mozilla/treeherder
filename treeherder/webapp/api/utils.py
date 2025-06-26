@@ -20,6 +20,17 @@ REPO_GROUPS = {
 
 FIVE_DAYS = 432000
 
+# Constant used to check for sheriffed frameworks
+SHERIFFED_FRAMEWORKS = [
+    "awsy",
+    "browsertime",
+    "build_metrics",
+    "devtools",
+    "js-bench",
+    "mozperftest",
+    "talos",
+]
+
 
 class GroupConcat(Aggregate):
     function = "GROUP_CONCAT"

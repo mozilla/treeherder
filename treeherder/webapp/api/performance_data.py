@@ -47,7 +47,7 @@ from .performance_serializers import (
     TestSuiteHealthParamsSerializer,
     TestSuiteHealthSerializer,
 )
-from .utils import GroupConcat, get_profile_artifact_url
+from .utils import SHERIFFED_FRAMEWORKS, GroupConcat, get_profile_artifact_url
 
 
 class PerformanceSignatureViewSet(viewsets.ViewSet):
@@ -347,6 +347,7 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
     hide_related_and_invalid = django_filters.BooleanFilter(method="_hide_related_and_invalid")
     with_assignee = django_filters.CharFilter(method="_with_assignee")
     timerange = django_filters.NumberFilter(method="_timerange")
+    show_sheriffed_frameworks = django_filters.BooleanFilter(method="_show_sheriffed_frameworks")
 
     def _filter_text(self, queryset, name, value):
         sep = Value(" ")
@@ -417,6 +418,9 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
         return queryset.filter(
             push__time__gt=datetime.datetime.utcfromtimestamp(int(time.time() - int(value)))
         )
+
+    def _show_sheriffed_frameworks(self, queryset, name, value):
+        return queryset.filter(framework__name__in=SHERIFFED_FRAMEWORKS)
 
     class Meta:
         model = PerformanceAlertSummary
