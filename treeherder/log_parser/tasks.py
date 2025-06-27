@@ -3,6 +3,7 @@ import logging
 import newrelic.agent
 import simplejson as json
 from celery.exceptions import SoftTimeLimitExceeded
+from django.conf import settings
 from requests.exceptions import HTTPError
 
 from treeherder.etl.artifact import serialize_artifact_json_blobs, store_job_artifacts
@@ -13,7 +14,7 @@ from treeherder.log_parser.artifactbuildercollection import (
 from treeherder.model.models import Job, JobLog
 from treeherder.workers.task import retryable_task
 
-from . import failureline
+from . import failureline, intermittents
 
 logger = logging.getLogger(__name__)
 
@@ -81,6 +82,10 @@ def store_failure_lines(job_log):
     errorsummary file."""
     logger.info("Running store_failure_lines for job %s", job_log.job.id)
     failureline.store_failure_lines(job_log)
+    # NOTE: do not run on production
+    if settings.SITE_HOSTNAME != "treeherder.mozilla.org":
+        logger.info("Running check_and_mark_intermittent for job %s", job_log.job.id)
+        intermittents.check_and_mark_intermittent(job_log.job.id)
 
 
 def post_log_artifacts(job_log):
