@@ -174,9 +174,14 @@ def test_store_error_summary_group_status(activate_responses, test_repository, t
     assert error_groups.count() == 3
     assert log_obj.groups.count() == 29
 
-    assert log_obj.groups.all().first().name == "dom/base/test/browser.ini"
-    assert ok_groups.first().name == "dom/base/test/browser.ini"
-    assert error_groups.first().name == "dom/workers/test/browser.ini"
+    assert (
+        log_obj.groups.all().order_by("name").first().name == "accessible/tests/browser/browser.ini"
+    )
+    assert ok_groups.order_by("name").first().name == "accessible/tests/browser/browser.ini"
+    assert (
+        error_groups.order_by("name").first().name
+        == "browser/components/preferences/tests/browser.ini"
+    )
 
 
 def test_group_status_duration(activate_responses, test_repository, test_job):
@@ -250,10 +255,10 @@ def mock_full_log_parser(job_logs, mock_parser):
 
 def create_errorsummary_job(base_job, create_jobs, log_filenames):
     import copy
-    import random
 
     job_defs = []
     urls = []
+    counter = 0
     for log_filename in log_filenames:
         log_path = SampleData().get_log_path(log_filename)
         log_url = f"http://my-log.mozilla.org/{log_path}"
@@ -273,23 +278,21 @@ def create_errorsummary_job(base_job, create_jobs, log_filenames):
                 "result": "success" if "_pass" in log_filename else "testfailed",
                 "name": f"{job_def['job']['name']}{task_ending}",
                 "reference_data_name": job_def["job"]["reference_data_name"].replace(
-                    "a", str(random.randint(0, 9))
+                    "a", str(counter)
                 ),
                 "job_guid": job_def["job"]["job_guid"]
-                .replace("e", str(random.randint(0, 9)))
-                .replace("d", str(random.randint(0, 9))),
-                "start_timestamp": job_def["job"]["start_timestamp"]
-                + 100
-                + random.randint(0, 100)
-                + random.randint(0, 100),
+                .replace("e", str(counter))
+                .replace("d", str(counter)),
+                "start_timestamp": job_def["job"]["start_timestamp"] + 100 + counter,
                 "taskcluster_task_id": job_def["job"]["taskcluster_task_id"].replace(
-                    "T", str(random.randint(0, 9))
+                    "T", str(counter)
                 ),
                 "taskcluster_retry_id": "0",
             }
         )
         job_defs.append(job_def)
         urls.append(log_url)
+        counter += 1
 
     jobs = create_jobs(job_defs)
 

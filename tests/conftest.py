@@ -317,10 +317,7 @@ def fixture_create_jobs(test_repository, failure_classifications):
         store_job_data(test_repository, jobs)
         retval = []
         for i in range(1, len(jobs) + 1):
-            try:
-                retval.append(th_models.Job.objects.get(id=i))
-            except Exception:
-                pass
+            retval.append(th_models.Job.objects.get(id=i))
         return retval
 
     return create
