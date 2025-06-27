@@ -21,3 +21,10 @@ def perf_job(perf_push, failure_classifications, generic_reference_data):
     return create_generic_job(
         "myfunguid", perf_push.repository, perf_push.id, generic_reference_data
     )
+
+
+@pytest.fixture
+def perf_job_nonsheriffed(perf_push, failure_classifications, generic_reference_data):
+    return create_generic_job(
+        "myfunguid", perf_push.repository, perf_push.id, generic_reference_data, tier=3
+    )
