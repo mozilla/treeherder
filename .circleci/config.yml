@@ -8,7 +8,7 @@ jobs:
       - checkout
       - node/install-packages:
           # `yarn install --frozen-lockfile` is run and cache is enabled by default for this orb configuration
-          pkg-manager: yarn      
+          pkg-manager: yarn
       - run:
           command: yarn lint
           name: Run linting
@@ -115,10 +115,43 @@ jobs:
               docker push "${DOCKERHUB_REPO}:${CIRCLE_TAG}"
             fi
 
+      - gcp-cli/setup:
+          use_oidc: true
+          google_project_number: GCP_WIP_PROJECT_NUMBER
+          google_project_id: GCP_PROJECT_ID_OF_GCP_GAR
+          workload_identity_pool_id: GCP_WIP_ID
+          workload_identity_pool_provider_id: GCP_WIP_PROVIDER_ID
+          service_account_email: GCP_GAR_PUSHER_SERVICE_ACCOUNT_EMAIL
+
+      - run:
+          name: Configure Docker for GAR
+          command: |
+            gcloud auth configure-docker ${GCP_GAR_REGISTRY}
+
+      - run:
+          name: Deploy to GCP GAR
+          command: |
+            GCP_GAR_REPO="${GCP_GAR_REGISTRY}/${GCP_PROJECT_ID_OF_GCP_GAR}/treeherder-prod/treeherder"
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              docker tag app:build ${GCP_GAR_REPO}:latest
+              docker push ${GCP_GAR_REPO}:latest
+              docker tag app:build "${GCP_GAR_REPO}:${CIRCLE_BRANCH}-${CIRCLE_SHA1}"
+              docker push "${GCP_GAR_REPO}:${CIRCLE_BRANCH}-${CIRCLE_SHA1}"
+            elif [ "${CIRCLE_BRANCH}" == "prototype" ]; then
+              docker tag app:build "${GCP_GAR_REPO}:${CIRCLE_BRANCH}-${CIRCLE_SHA1}"
+              docker push "${GCP_GAR_REPO}:${CIRCLE_BRANCH}-${CIRCLE_SHA1}"
+            elif  [ ! -z "${CIRCLE_TAG}" ]; then
+              echo "${GCP_GAR_REPO}:${CIRCLE_TAG}"
+              docker tag app:build "${GCP_GAR_REPO}:${CIRCLE_TAG}"
+              docker images
+              docker push "${GCP_GAR_REPO}:${CIRCLE_TAG}"
+            fi
+
 orbs:
   node: circleci/node@7.1.0
   docker: circleci/docker@1.5.0
   codecov: codecov/codecov@5.0.3
+  gcp-cli: circleci/gcp-cli@3.3.1
 version: 2.1
 workflows:
   run-tests:
