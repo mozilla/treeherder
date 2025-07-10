@@ -44,6 +44,7 @@ class BugRunInfo:
 class BugsDetails:
     run_count: dict[str, int] = field(default_factory=dict)  # {job_name: run_count}
     total: int = 0
+    has_runcount: bool = False
     test_variants: set = field(default_factory=set)
     per_repositories: dict[str, int] = field(default_factory=dict)  # {repo1: 1, repo2: 2, ...}
     data_table: dict[str, dict[str, int]] = field(
@@ -148,6 +149,7 @@ class Commenter:
                 repositories=counts.per_repositories,
                 test_variants=sorted(list(counts.test_variants)),
                 data_table=counts.data_table,
+                has_runcount=bug_map[bug_id].has_runcount,
                 startday=startday,
                 endday=endday.split()[0],
                 weekly_mode=self.weekly_mode,
@@ -484,6 +486,8 @@ class Commenter:
                 bug_infos.data_table[platform_and_build] = {
                     test_variant: {"count": 1, "runs": run_count},
                 }
+                if run_count > 0:
+                    bug_infos.has_runcount = True
                 bug_map[bug_id] = bug_infos
             else:
                 bug_infos = bug_map[bug_id]
@@ -499,6 +503,8 @@ class Commenter:
                     "count": platform_and_build_data.get(test_variant, {}).get("count", 0) + 1,
                     "runs": run_count,
                 }
+                if run_count > 0:
+                    bug_infos.has_runcount = True
 
         return bug_map
 
