@@ -474,6 +474,17 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.queryset)
+        if request.query_params.get("monitored_alerts"):
+            queryset = queryset.filter(
+                alerts__series_signature__monitor=True,
+            )
+        else:
+            queryset = queryset.filter(
+                alerts__series_signature__monitor=None,
+            ) | queryset.filter(
+                alerts__series_signature__monitor=False,
+            )
+
         pk = request.query_params.get("id")
         page = self.paginate_queryset(queryset)
         if page is not None:
