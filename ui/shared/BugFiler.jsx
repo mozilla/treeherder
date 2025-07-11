@@ -614,6 +614,8 @@ export class BugFilerClass extends React.Component {
       parsedLog,
       fullLog,
       reftestUrl,
+      selectedJob,
+      currentRepo,
     } = this.props;
     const {
       productSearch,
@@ -632,6 +634,18 @@ export class BugFilerClass extends React.Component {
     const searchTerms = suggestion.search_terms;
     const crashSignatures = getCrashSignatures(suggestion);
     const unhelpfulSummaryReason = this.getUnhelpfulSummaryReason(summary);
+
+    let launchCF = launchConfirmFailure;
+
+    if (
+      ['autoland', 'mozilla-central', 'try'].includes(currentRepo.name) &&
+      !selectedJob.job_type_name.toLowerCase().includes('backlog') &&
+      !selectedJob.job_type_name.toLowerCase().includes('-verify')
+    ) {
+      // no-op
+    } else {
+      launchCF = false;
+    }
 
     return (
       <div>
@@ -923,10 +937,10 @@ export class BugFilerClass extends React.Component {
                 <Label>
                   <Input
                     type="checkbox"
-                    checked={launchConfirmFailure}
+                    checked={launchCF}
                     onChange={() =>
                       this.setState({
-                        launchConfirmFailure: !launchConfirmFailure,
+                        launchConfirmFailure: !launchCF,
                       })
                     }
                   />
