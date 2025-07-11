@@ -76,7 +76,8 @@ class AlertsView extends React.Component {
       params.framework !== prevParams.framework ||
       params.filterText !== prevParams.filterText ||
       params.hideDwnToInv !== prevParams.hideDwnToInv ||
-      params.hideAssignedToOthers !== prevParams.hideAssignedToOthers
+      params.hideAssignedToOthers !== prevParams.hideAssignedToOthers ||
+      params.monitoredAlerts !== prevParams.monitoredAlerts
     ) {
       this.setState(
         { id: params.id || null, filters: this.getFiltersFromParams(params) },

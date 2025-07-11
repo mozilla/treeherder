@@ -132,7 +132,6 @@ export default class AlertsViewControls extends React.Component {
       filterText,
       hideDownstream,
       hideAssignedToOthers,
-      monitoredAlerts,
       framework,
       status,
     } = filters;
@@ -177,11 +176,6 @@ export default class AlertsViewControls extends React.Component {
         state: hideDownstream,
         stateName: 'hideDownstream',
         disable: this.state.disableHideDownstream,
-      },
-      {
-        text: 'Monitored Alerts',
-        state: monitoredAlerts,
-        stateName: 'monitoredAlerts',
       },
     ];
 
@@ -252,7 +246,6 @@ export default class AlertsViewControls extends React.Component {
                   filterText,
                   hideDownstream,
                   hideAssignedToOthers,
-                  monitoredAlerts,
                 }}
                 alertSummary={alertSummary}
                 fetchAlertSummaries={fetchAlertSummaries}
@@ -287,7 +280,6 @@ AlertsViewControls.propTypes = {
     filterText: PropTypes.string.isRequired,
     hideDownstream: PropTypes.bool.isRequired,
     hideAssignedToOthers: PropTypes.bool.isRequired,
-    monitoredAlerts: PropTypes.bool.isRequired,
     framework: PropTypes.shape({}).isRequired,
     status: PropTypes.string.isRequired,
   }).isRequired,
