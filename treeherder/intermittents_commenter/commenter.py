@@ -58,7 +58,7 @@ class Commenter:
     to stdout rather than submitting to bugzilla."""
 
     test_variants = None
-    manifests = None
+    all_tests = None
     testrun_matrix = None
     summary_groups = None
 
@@ -440,11 +440,18 @@ class Commenter:
             },
         }
         """
+
+        # these are large blocks of data, reference 1x/run
+        all_tests = self.get_tests_from_manifests()
+        testrun_matrix = (
+            fetch.fetch_testrun_matrix() if self.testrun_matrix is None else self.testrun_matrix
+        )
+        self.testrun_matrix = testrun_matrix
+
         bug_map = {}
         all_variants = set()
         for bug in bugs:
             bug_id = bug["bug__bugzilla_id"]
-            all_tests = self.get_tests_from_manifests()
             test_name = self.get_test_name(all_tests, bug["bug__summary"])
             manifest = None
             bug_testrun_matrix = []
@@ -456,12 +463,6 @@ class Commenter:
                     if len(job_name.rsplit("-", 1)) == 2 and job_name.rsplit("-", 1)[1].isdigit():
                         job_name = job_name.rsplit("-", 1)[0]
                     run_count = self.get_task_labels_and_count(manifest, days, job_name)
-                    testrun_matrix = (
-                        fetch.fetch_testrun_matrix()
-                        if self.testrun_matrix is None
-                        else self.testrun_matrix
-                    )
-                    self.testrun_matrix = testrun_matrix
                     bug_testrun_matrix = testrun_matrix[manifest]
             bug_run_info = self.get_bug_run_info(bug)
             all_variants = bug_run_info.variants
@@ -533,8 +534,10 @@ class Commenter:
         return {bug["id"]: bug for bug in bugs_list} if len(bugs_list) else None
 
     def get_tests_from_manifests(self):
-        manifests = fetch.fetch_test_manifests() if self.manifests is None else self.manifests
-        self.manifests = manifests
+        if self.all_tests:
+            return self.all_tests
+
+        manifests = fetch.fetch_test_manifests()
         all_tests = {}
         for component in manifests["tests"]:
             for item in manifests["tests"][component]:
@@ -542,6 +545,7 @@ class Commenter:
                     all_tests[item["test"]] = []
                 # split(':') allows for parent:child where we want to keep parent
                 all_tests[item["test"]].append(item["manifest"][0].split(":")[0])
+        self.all_tests = all_tests
         return all_tests
 
     def fix_wpt_name(self, test_name):
