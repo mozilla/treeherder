@@ -28,4 +28,4 @@ def fetch_summary_groups(days):
     testrun_info_url = f"{firefoxci_artefact_api_url}/test-run-info.json"
     response = requests.get(testrun_info_url, headers={"User-agent": "mach-test-info/1.0"})
     summary_groups = response.json()
-    return {key: summary_groups[key] for key in days}
+    return {key: summary_groups[key] for key in days if key in summary_groups}
