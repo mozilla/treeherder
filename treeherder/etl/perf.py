@@ -97,7 +97,7 @@ def _suite_should_alert_based_on(
         and new_datum_ingested
         and job.repository.performance_alerts_enabled
         and job.tier_is_sheriffable
-    )
+    ) or (signature.monitor and job.repository.name not in ("try",))
 
 
 def _test_should_alert_based_on(
@@ -114,7 +114,7 @@ def _test_should_alert_based_on(
         and new_datum_ingested
         and job.repository.performance_alerts_enabled
         and job.tier_is_sheriffable
-    )
+    ) or (signature.monitor and job.repository.name not in ("try",))
 
 
 def _test_should_gather_replicates_based_on(
@@ -205,6 +205,8 @@ def _load_perf_datum(job: Job, perf_datum: dict):
                     # these properties below can be either True, False, or null
                     # (None). Null indicates no preference has been set.
                     "should_alert": suite.get("shouldAlert"),
+                    "monitor": suite.get("monitor"),
+                    "alert_notify_emails": _order_and_concat(suite.get("alertNotifyEmails", [])),
                     "alert_change_type": PerformanceSignature._get_alert_change_type(
                         suite.get("alertChangeType")
                     ),
@@ -272,6 +274,8 @@ def _load_perf_datum(job: Job, perf_datum: dict):
                     # null (None). Null indicates no preference has been
                     # set.
                     "should_alert": subtest.get("shouldAlert"),
+                    "monitor": suite.get("monitor"),
+                    "alert_notify_emails": _order_and_concat(suite.get("alertNotifyEmails", [])),
                     "alert_change_type": PerformanceSignature._get_alert_change_type(
                         subtest.get("alertChangeType")
                     ),

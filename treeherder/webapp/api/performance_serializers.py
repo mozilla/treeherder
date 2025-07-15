@@ -310,6 +310,7 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     first_triaged = serializers.ReadOnlyField()
     triage_due_date = serializers.ReadOnlyField()
     bug_due_date = serializers.ReadOnlyField()
+    monitored_alerts = serializers.BooleanField(required=False)
 
     def update(self, instance, validated_data):
         instance.timestamp_first_triage()
@@ -355,6 +356,7 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
             "assignee_email",
             "performance_tags",
             "duplicated_summaries_ids",
+            "monitored_alerts",
         ]
 
 
