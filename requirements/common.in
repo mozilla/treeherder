@@ -51,4 +51,4 @@ statsd==4.0.1
 inflection==0.5.1
 
 # Change detection tooling
-mozdetect==0.0.8
+mozdetect==0.0.9

@@ -855,9 +855,9 @@ mozci[cache]==2.4.3 \
     --hash=sha256:45ce75f9230b4d1bdf8563830576b31634fddeb42e854d461c0855c2ba18a386 \
     --hash=sha256:6df2c61c9381350bfc94b45350aba0d915dad72c5dccf1536d80e5df5930be11
     # via -r requirements/common.in
-mozdetect==0.0.8 \
-    --hash=sha256:3ea5f09ca02aa3c57b13ae67b7e1222e55a43c98d63d287da894bacb7b89b406 \
-    --hash=sha256:6de00513c577754a6d3e7da968f04c8fbb7ceb3d9514ef9eef2879cc64cffab3
+mozdetect==0.0.9 \
+    --hash=sha256:580a851237754190db41913c3e02f41bc9fc1e1b09aa48cf671fa6308a7a07c2 \
+    --hash=sha256:5c734ef5b5a8dd9783bbcc5b49b221d0025676fd540cfcbc583f38c05ba08407
     # via -r requirements/common.in
 mozfile==3.0.0 \
     --hash=sha256:3b0afcda2fa8b802ef657df80a56f21619008f61fcc14b756124028d7b7adf5c \
