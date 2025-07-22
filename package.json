@@ -16,7 +16,7 @@
     "@fortawesome/free-regular-svg-icons": "6.7.2",
     "@fortawesome/free-solid-svg-icons": "6.7.2",
     "@fortawesome/react-fontawesome": "0.2.2",
-    "@mui/material": "7.1.1",
+    "@mui/material": "7.1.2",
     "@mui/styled-engine-sc": "npm:@mui/styled-engine-sc@latest",
     "@types/react": "*",
     "@types/react-dom": "*",
