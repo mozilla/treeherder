@@ -152,7 +152,7 @@ jobs:
 
   test-docker-build:
     docker:
-      - image: docker:19.03.15
+      - image: cimg/base:current
     steps:
       - checkout
       - setup-docker-env
@@ -160,7 +160,7 @@ jobs:
 
   deploy:
     docker:
-      - image: docker:19.03.15
+      - image: cimg/base:current
     steps:
       - checkout
       - setup-docker-env
