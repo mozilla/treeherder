@@ -130,6 +130,27 @@ def test_alert_summaries_get(
     }
 
 
+def test_alert_summaries_get_multiple_alerts(
+    client,
+    test_perf_alert_summary,
+    test_perf_alert_summary_2,
+    test_perf_alert_2,
+    test_perf_alert_3,
+    test_perf_alert_4,
+):
+    # verify that we get the performance summary + alert on GET
+    resp = client.get(reverse("performance-alert-summaries-list"))
+    assert resp.status_code == 200
+
+    # make sure only 2 alert summaries are returned when one summary
+    # has multiple alerts associated with it
+    data = resp.json()
+    assert len(data["results"]) == 2
+
+    # make sure the 2 alert summaries are unique
+    assert len(set([result["id"] for result in data["results"]])) == 2
+
+
 def test_alert_summaries_get_onhold(
     client,
     test_perf_alert_summary,
