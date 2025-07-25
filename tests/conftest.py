@@ -780,6 +780,40 @@ def test_perf_signature_2(test_perf_signature):
 
 
 @pytest.fixture
+def test_perf_signature_3(test_perf_signature):
+    return perf_models.PerformanceSignature.objects.create(
+        repository=test_perf_signature.repository,
+        signature_hash=(20 * "t3"),
+        framework=test_perf_signature.framework,
+        platform=test_perf_signature.platform,
+        option_collection=test_perf_signature.option_collection,
+        suite="mysuite2",
+        test="mytest3",
+        has_subtests=test_perf_signature.has_subtests,
+        extra_options=test_perf_signature.extra_options,
+        last_updated=datetime.datetime.now(),
+        tags="cold pageload",
+    )
+
+
+@pytest.fixture
+def test_perf_signature_4(test_perf_signature):
+    return perf_models.PerformanceSignature.objects.create(
+        repository=test_perf_signature.repository,
+        signature_hash=(20 * "t4"),
+        framework=test_perf_signature.framework,
+        platform=test_perf_signature.platform,
+        option_collection=test_perf_signature.option_collection,
+        suite="mysuite2",
+        test="mytest4",
+        has_subtests=test_perf_signature.has_subtests,
+        extra_options=test_perf_signature.extra_options,
+        last_updated=datetime.datetime.now(),
+        tags="cold pageload",
+    )
+
+
+@pytest.fixture
 def test_stalled_data_signature(test_perf_signature):
     stalled_data_timestamp = datetime.datetime.now() - datetime.timedelta(days=120)
     return perf_models.PerformanceSignature.objects.create(
@@ -1206,6 +1240,24 @@ def test_perf_alert_2(
 ) -> perf_models.PerformanceAlert:
     return create_perf_alert(
         summary=test_perf_alert_summary_2, series_signature=test_perf_signature_2
+    )
+
+
+@pytest.fixture
+def test_perf_alert_3(
+    test_perf_alert, test_perf_signature_3, test_perf_alert_summary_2
+) -> perf_models.PerformanceAlert:
+    return create_perf_alert(
+        summary=test_perf_alert_summary_2, series_signature=test_perf_signature_3
+    )
+
+
+@pytest.fixture
+def test_perf_alert_4(
+    test_perf_alert, test_perf_signature_4, test_perf_alert_summary_2
+) -> perf_models.PerformanceAlert:
+    return create_perf_alert(
+        summary=test_perf_alert_summary_2, series_signature=test_perf_signature_4
     )
 
 
