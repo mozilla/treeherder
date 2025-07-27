@@ -5,12 +5,12 @@ Django==5.1.11
 celery==5.5.3  # celery needed for data ingestion
 cached-property==2.0.1 # needed for kombu with --require-hashes
 simplejson==3.20.1  # import simplejson
-newrelic==10.14.0
+newrelic==10.15.0
 certifi==2025.6.15
 
 psycopg2-binary==2.9.9
 
-jsonschema==4.24.0  # import jsonschema
+jsonschema==4.25.0  # import jsonschema
 djangorestframework==3.16.0  # Imported as rest_framework
 django-cors-headers==4.7.0  # Listed as 3rd party app on settings.py
 mozlog==8.0.0
