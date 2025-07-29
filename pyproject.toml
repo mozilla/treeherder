@@ -6,7 +6,7 @@ description = "Defaut package, used for development or readthedocs"
 [project.optional-dependencies]
 docs = [
   "mkdocs==1.6.1",
-  "mkdocs-material==9.6.14",
+  "mkdocs-material==9.6.16",
   "mdx_truly_sane_lists==1.3",
 ]
 
