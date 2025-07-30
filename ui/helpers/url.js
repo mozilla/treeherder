@@ -101,7 +101,7 @@ export const getInspectTaskUrl = function getInspectTaskUrl(
 };
 
 export const getReftestUrl = function getReftestUrl(logUrl) {
-  return `https://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl=${logUrl}&only_show_unexpected=1`;
+  return `https://hg.mozilla.org/mozilla-central/raw-file/default/layout/tools/reftest/reftest-analyzer.xhtml#logurl=${logUrl}&only_show_unexpected=1`;
 };
 
 // repoName here is necessary because this data comes from the /jobs endpoint
