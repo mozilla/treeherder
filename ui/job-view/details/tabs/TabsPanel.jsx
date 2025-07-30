@@ -225,6 +225,7 @@ class TabsPanel extends React.Component {
             <FailureSummaryTab
               selectedJob={selectedJobFull}
               jobLogUrls={jobLogUrls}
+              jobDetails={jobDetails}
               logParseStatus={logParseStatus}
               logViewerFullUrl={logViewerFullUrl}
               addBug={addBug}

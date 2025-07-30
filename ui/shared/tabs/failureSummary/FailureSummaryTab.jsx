@@ -168,6 +168,7 @@ class FailureSummaryTab extends React.Component {
   render() {
     const {
       jobLogUrls,
+      jobDetails,
       logParseStatus,
       logViewerFullUrl,
       selectedJob,
@@ -236,6 +237,7 @@ class FailureSummaryTab extends React.Component {
               addBug={addBug}
               currentRepo={currentRepo}
               developerMode={developerMode}
+              jobDetails={jobDetails}
             />
           ))}
 
@@ -356,6 +358,11 @@ FailureSummaryTab.propTypes = {
     url: PropTypes.string.isRequired,
     parse_status: PropTypes.string.isRequired,
   }),
+  jobDetails: PropTypes.arrayOf({
+    url: PropTypes.string.isRequired,
+    value: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+  }),
   logParseStatus: PropTypes.string,
   logViewerFullUrl: PropTypes.string,
   currentRepo: PropTypes.shape({}).isRequired,
@@ -366,6 +373,7 @@ FailureSummaryTab.propTypes = {
 
 FailureSummaryTab.defaultProps = {
   jobLogUrls: [],
+  jobDetails: [],
   logParseStatus: 'pending',
   logViewerFullUrl: null,
   addBug: null,
