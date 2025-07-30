@@ -389,6 +389,7 @@ class DetailsPanel extends React.Component {
               classificationMap={classificationMap}
               jobLogUrls={jobLogUrls}
               logParseStatus={logParseStatus}
+              jobDetails={jobDetails}
               jobDetailLoading={jobDetailLoading}
               latestClassification={
                 classifications.length
