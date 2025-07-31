@@ -16,6 +16,7 @@ import {
   faThumbtack,
   faTimesCircle,
   faCrosshairs,
+  faGaugeHigh,
 } from '@fortawesome/free-solid-svg-icons';
 
 import {
@@ -32,7 +33,11 @@ import {
   confirmFailure,
   findJobInstance,
 } from '../../../helpers/job';
-import { getInspectTaskUrl, getReftestUrl } from '../../../helpers/url';
+import {
+  getInspectTaskUrl,
+  getReftestUrl,
+  getPerfAnalysisUrl,
+} from '../../../helpers/url';
 import JobModel from '../../../models/job';
 import TaskclusterModel from '../../../models/taskcluster';
 import CustomJobActions from '../../CustomJobActions';
@@ -307,11 +312,17 @@ class ActionBar extends React.PureComponent {
       selectedJobFull,
       logViewerUrl,
       logViewerFullUrl,
+      jobDetails,
       jobLogUrls,
       pinJob,
       currentRepo,
     } = this.props;
     const { customJobActionsShowing } = this.state;
+    const resourceUsageProfile = jobDetails.find((artifact) =>
+      ['profile_build_resources.json', 'profile_resource-usage.json'].includes(
+        artifact.value,
+      ),
+    );
 
     return (
       <div id="actionbar">
@@ -342,6 +353,21 @@ class ActionBar extends React.PureComponent {
                 <FontAwesomeIcon icon={faRedo} title="Retrigger job" />
               </Button>
             </li>
+            {resourceUsageProfile &&
+              // not shown at the same time as the reftest analyzer to avoid running out of space.
+              !isReftest(selectedJobFull) && (
+                <li>
+                  <a
+                    title="Show the resource usage profile in the Firefox Profiler"
+                    className="actionbar-nav-btn btn"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={getPerfAnalysisUrl(resourceUsageProfile.url)}
+                  >
+                    <FontAwesomeIcon icon={faGaugeHigh} />
+                  </a>
+                </li>
+              )}
             {isReftest(selectedJobFull) &&
               jobLogUrls.map((jobLogUrl) => (
                 <li key={`reftest-${jobLogUrl.id}`}>
