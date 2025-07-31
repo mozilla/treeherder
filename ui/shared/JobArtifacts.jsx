@@ -81,6 +81,8 @@ export default class JobArtifacts extends React.PureComponent {
                         <a
                           title={line.value}
                           href={getPerfAnalysisUrl(line.url)}
+                          target="_blank"
+                          rel="noreferrer"
                         >
                           open in Firefox Profiler
                         </a>
@@ -97,10 +99,9 @@ export default class JobArtifacts extends React.PureComponent {
 
 JobArtifacts.propTypes = {
   jobDetails: PropTypes.arrayOf({
-    contentType: PropTypes.string.isRequired,
-    expires: PropTypes.string.isRequired,
-    name: PropTypes.string.isRequired,
-    storageType: PropTypes.string.isRequired,
+    url: PropTypes.string.isRequired,
+    value: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
   }),
   jobArtifactsLoading: PropTypes.bool,
   repoName: PropTypes.string.isRequired,
