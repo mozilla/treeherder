@@ -95,10 +95,10 @@ class DetailsPanel extends React.Component {
 
   updateClassifications = async () => {
     const { selectedJob } = this.props;
-    const classifications = await JobClassificationModel.getList({
-      job_id: selectedJob.id,
-    });
-    const bugs = await BugJobMapModel.getList({ job_id: selectedJob.id });
+    const [classifications, bugs] = await Promise.all([
+      JobClassificationModel.getList({ job_id: selectedJob.id }),
+      BugJobMapModel.getList({ job_id: selectedJob.id }),
+    ]);
 
     this.setState({ classifications, bugs });
   };
