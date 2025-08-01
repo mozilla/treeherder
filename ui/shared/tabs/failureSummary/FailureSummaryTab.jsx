@@ -41,12 +41,12 @@ class FailureSummaryTab extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { selectedJob } = this.props;
+    const { selectedJobId } = this.props;
 
     if (
-      !!selectedJob &&
+      !!selectedJobId &&
       !!prevProps.selectedJob &&
-      selectedJob.id !== prevProps.selectedJob.id
+      selectedJobId !== prevProps.selectedJobId
     ) {
       this.loadBugSuggestions();
     }
@@ -129,13 +129,13 @@ class FailureSummaryTab extends React.Component {
   };
 
   loadBugSuggestions = () => {
-    const { selectedJob } = this.props;
+    const { selectedJobId } = this.props;
 
-    if (!selectedJob) {
+    if (!selectedJobId) {
       return;
     }
     this.setState({ bugSuggestionsLoading: true });
-    BugSuggestionsModel.get(selectedJob.id).then(async (suggestions) => {
+    BugSuggestionsModel.get(selectedJobId).then(async (suggestions) => {
       suggestions.forEach((suggestion) => {
         suggestion.bugs.too_many_open_recent =
           suggestion.bugs.open_recent.length > thBugSuggestionLimit;
@@ -351,6 +351,7 @@ class FailureSummaryTab extends React.Component {
 
 FailureSummaryTab.propTypes = {
   selectedJob: PropTypes.shape({}).isRequired,
+  selectedJobId: PropTypes.number.isRequired,
   jobLogUrls: PropTypes.arrayOf({
     id: PropTypes.number.isRequired,
     job_id: PropTypes.number.isRequired,

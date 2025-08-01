@@ -193,6 +193,7 @@ class DetailsPanel extends React.Component {
                 <TabPanel>
                   <FailureSummaryTab
                     selectedJob={selectedTaskFull}
+                    selectedJobId={selectedTaskFull.id}
                     jobLogUrls={selectedTaskFull.logs}
                     logParseStatus="unknown"
                     logViewerFullUrl={getLogViewerUrl(

@@ -41,26 +41,26 @@ class TabsPanel extends React.Component {
   }
 
   static getDerivedStateFromProps(props, state) {
-    const { perfJobDetail, selectedJobFull } = props;
+    const { perfJobDetail, selectedJob } = props;
 
     // This fires every time the props change.  But we only want to figure out the new default
     // tab when we get a new job.  However, the job could change, then later, the perf details fetch
     // returns.  So we need to check for a change in the size of the perfJobDetail too.
     if (
-      state.jobId !== selectedJobFull.id ||
-      state.perfJobDetailSize !== perfJobDetail.length
+      !!selectedJob &&
+      (state.jobId !== selectedJob.id ||
+        state.perfJobDetailSize !== perfJobDetail.length)
     ) {
       const tabIndex = TabsPanel.getDefaultTabIndex(
-        selectedJobFull.resultStatus,
+        selectedJob.resultStatus,
         props,
       );
-
       return {
         tabIndex,
         // Every time we select a different job we need to let the component
         // let us know if we should enable the tab
         enableTestGroupsTab: false,
-        jobId: selectedJobFull.id,
+        jobId: selectedJob.id,
         perfJobDetailSize: perfJobDetail.length,
       };
     }
@@ -135,6 +135,7 @@ class TabsPanel extends React.Component {
       classificationMap,
       logViewerFullUrl,
       clearSelectedJob,
+      selectedJob,
       selectedJobFull,
       currentRepo,
       pinJob,
@@ -224,6 +225,7 @@ class TabsPanel extends React.Component {
           <TabPanel>
             <FailureSummaryTab
               selectedJob={selectedJobFull}
+              selectedJobId={selectedJob && selectedJob.id}
               jobLogUrls={jobLogUrls}
               jobDetails={jobDetails}
               logParseStatus={logParseStatus}
@@ -295,6 +297,7 @@ TabsPanel.propTypes = {
   pinnedJobs: PropTypes.shape({}).isRequired,
   bugs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   clearSelectedJob: PropTypes.func.isRequired,
+  selectedJob: PropTypes.shape({}).isRequired,
   selectedJobFull: PropTypes.shape({}).isRequired,
   currentRepo: PropTypes.shape({}).isRequired,
   perfJobDetail: PropTypes.arrayOf(PropTypes.shape({})),
