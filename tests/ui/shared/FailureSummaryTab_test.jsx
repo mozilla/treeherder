@@ -58,6 +58,7 @@ describe('FailureSummaryTab', () => {
         />
         <FailureSummaryTab
           selectedJob={selectedJob}
+          selectedJobId={selectedJob.id}
           jobLogUrls={jobLogUrls}
           logParseStatus="parsed"
           reftestUrl="boo"
