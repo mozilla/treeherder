@@ -310,9 +310,7 @@ def verify_classification_id(jobs, job1_fcid, job2_fcid):
 
 
 """
-TODO: write tests for testing intermittents.py handling in the parser.
-    * not supported yet: test infra/tooling error + 1x green - both green
-    * test multiple push ids
+TODO: test multiple push ids
 """
 
 
@@ -328,7 +326,7 @@ def test_infra_no_intermittent(activate_responses, hundred_job_blobs, mock_parse
 
     # this will parse and check for intermittents
     mock_full_log_parser(job_logs, mock_parser)
-    verify_classification_id(jobs, 1, 1)
+    verify_classification_id(jobs, 1, 8)
 
 
 def test_infra_intermittent(activate_responses, hundred_job_blobs, mock_parser, create_jobs):
