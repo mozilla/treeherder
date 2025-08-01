@@ -107,8 +107,9 @@ class App extends React.Component {
 
   async componentDidMount() {
     const { repoName, landoCommitID } = this.state;
-    const { data } = await getData(getApiUrl(endpoints.frameworks));
-    this.setState({ frameworks: data });
+    getData(getApiUrl(endpoints.frameworks)).then((response) =>
+      this.setState({ frameworks: response.data }),
+    );
 
     RepositoryModel.getList().then((repos) => {
       const newRepo = repos.find((repo) => repo.name === repoName);
