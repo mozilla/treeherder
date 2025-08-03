@@ -1,0 +1,28 @@
+{
+  "mcpServers": {
+    "puppeteer": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-puppeteer"
+      ]
+    },
+    "postgres": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "postgresql://postgres:mozilla1234@localhost:5432/treeherder"
+      ]
+    },
+    "docker": {
+      "command": "node",
+      "args": [
+        "/Users/mozilla/groot/treeherder/mcp-servers/docker-server/build/index.js"
+      ],
+      "alwaysAllow": [
+        "docker_logs"
+      ]
+    }
+  }
+}

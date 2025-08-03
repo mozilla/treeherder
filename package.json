@@ -121,6 +121,7 @@
   "scripts": {
     "build": "node ./node_modules/webpack/bin/webpack.js --mode production",
     "build:dev": "node ./node_modules/webpack/bin/webpack.js --mode development",
+    "build:mcp": "find mcp-servers -type d -depth 1 -exec bash -c 'cd {} && yarn build' \\;",
     "format": "node ./node_modules/prettier/bin-prettier.js --write \"**/*.{css,html,js,jsx,json,md,yaml,yml}\"",
     "format:check": "node ./node_modules/prettier/bin-prettier.js --check \"**/*.{css,html,js,jsx,json,md,yaml,yml}\"",
     "lint": "node ./node_modules/eslint/bin/eslint.js --report-unused-disable-directives --max-warnings 0 --format codeframe ui/ tests/ui/",

@@ -60,3 +60,45 @@ We receive contributions from both Bugzilla and Github. We have some specificati
     For example: "This pull request fixes #5135".
 
     Github automatically links both issue and pull request to one another.
+
+## Using AI with Treeherder
+
+Treeherder supports AI-assisted development through VS Code, Roo, Claude Code, and Model Context Protocol (MCP) servers.
+
+### MCP Servers
+
+MCP servers provide specialized capabilities to AI assistants, allowing them to interact with various services:
+
+- **puppeteer**: Browser automation and interaction
+- **postgres**: PostgreSQL database interaction
+- **docker**: Docker container management
+
+### Automatic MCP Server Startup
+
+When VS Code is started with the MCP extension active, it automatically starts the MCP servers defined in `.vscode/mcp.json`. No manual startup is required.
+
+### Setup and Configuration
+
+1. **Build MCP Servers** (required before first use):
+
+   ```bash
+   yarn build:mcp
+   ```
+
+### Troubleshooting
+
+1. **MCP Server Communication**: MCP servers use stdio (standard input/output) for communication, not network ports. This is by design.
+
+2. **Path Resolution**: Ensure the paths in `.roo/mcp.json` are correct relative to your workspace.
+   NOTE: There is a symlink in the `.vscode/` folder to the `.roo/mcp.json` file.  This is what auto-starts the MCP servers.
+
+3. **Use MCP Inspector for Debugging**:
+
+   ```bash
+   cd mcp-servers/docker-server
+   npm run inspector
+   ```
+
+4. **Common Issues**:
+   - Missing build files: Run `yarn build:mcp`
+   - Postgres connection issues: Verify PostgreSQL is running on localhost:5432
