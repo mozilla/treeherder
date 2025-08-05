@@ -1991,5 +1991,19 @@
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
+  },
+  {
+    "pk": 141,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "git",
+      "name": "worker-images",
+      "url": "https://github.com/mozilla-platform-ops/worker-images",
+      "branch": "main",
+      "active_status": "active",
+      "codebase": "worker-images",
+      "repository_group": 9,
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
+    }
   }
 ]
