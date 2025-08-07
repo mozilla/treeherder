@@ -11,7 +11,7 @@ certifi==2025.6.15
 psycopg2-binary==2.9.9
 
 jsonschema==4.25.0  # import jsonschema
-djangorestframework==3.16.0  # Imported as rest_framework
+djangorestframework==3.16.1  # Imported as rest_framework
 django-cors-headers==4.7.0  # Listed as 3rd party app on settings.py
 mozlog==8.0.0
 
