@@ -22,18 +22,21 @@ class PushHealthStatus extends Component {
   }
 
   async componentDidMount() {
-    const {
-      jobCounts: { completed },
-    } = this.props;
-
-    if (completed > 0) {
-      await this.loadLatestStatus();
-    }
+    // Load health status immediately without waiting for job completion
+    await this.loadLatestStatus();
   }
 
   async componentDidUpdate(prevProps) {
     const { jobCounts } = this.props;
     const fields = ['completed', 'fixedByCommit', 'pending', 'running'];
+
+    // Skip if this is the initial load (all previous counts were zero)
+    const isInitialLoad = !fields.some(
+      (field) => prevProps.jobCounts[field] > 0,
+    );
+    if (isInitialLoad) {
+      return;
+    }
 
     if (didObjectsChange(jobCounts, prevProps.jobCounts, fields)) {
       await this.loadLatestStatus();
