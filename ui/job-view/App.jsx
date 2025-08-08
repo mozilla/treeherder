@@ -34,6 +34,7 @@ import DetailsPanel from './details/DetailsPanel';
 import PushList from './pushes/PushList';
 import KeyboardShortcuts from './KeyboardShortcuts';
 import { clearExpiredNotifications } from './redux/stores/notifications';
+import { fetchPushes } from './redux/stores/pushes';
 
 import '../css/treeherder.css';
 import '../css/treeherder-navbar-panels.css';
@@ -107,13 +108,15 @@ class App extends React.Component {
 
   async componentDidMount() {
     const { repoName, landoCommitID } = this.state;
+    const { fetchPushes } = this.props;
+
+    // Start all API requests in parallel - including pushes.
     getData(getApiUrl(endpoints.frameworks)).then((response) =>
       this.setState({ frameworks: response.data }),
     );
 
     RepositoryModel.getList().then((repos) => {
       const newRepo = repos.find((repo) => repo.name === repoName);
-
       this.setState({ currentRepo: newRepo, repos });
     });
 
@@ -123,6 +126,10 @@ class App extends React.Component {
         classificationMap: ClassificationTypeModel.getMap(classificationTypes),
       });
     });
+
+    // Start (pre)fetching pushes immediately. The PushList component needs
+    // currentRepo but it is not needed to start the network request.
+    fetchPushes();
 
     window.addEventListener('resize', this.updateDimensions, false);
     window.addEventListener('storage', this.handleStorageEvent);
@@ -498,6 +505,7 @@ App.propTypes = {
   jobMap: PropTypes.shape({}).isRequired,
   router: PropTypes.shape({}).isRequired,
   pushRoute: PropTypes.func.isRequired,
+  fetchPushes: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = ({ pushes: { jobMap }, router }) => ({
@@ -508,4 +516,5 @@ const mapStateToProps = ({ pushes: { jobMap }, router }) => ({
 export default connect(mapStateToProps, {
   pushRoute,
   clearExpiredNotifications,
+  fetchPushes,
 })(hot(App));
