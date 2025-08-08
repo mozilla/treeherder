@@ -1,6 +1,61 @@
 import datetime
 
-from treeherder.model.models import Group, GroupStatus, Job, Push
+from treeherder.model.models import Group, GroupStatus, Job, JobLog, Push
+
+
+def _check_and_mark_infra(current_job, job_ids, push_ids):
+    """
+    current_job - Job object of incoming job we are parsing
+    job_ids - list of all job_ids found in previous query
+    push_ids - ids of pushes we care about from previous query
+    """
+    if current_job.result != "success":
+        # if new job is broken, then only look on same push
+        # otherwise it could be a new failure.
+        push_ids = [current_job.push.id]
+
+    # look for all jobs in pushids matching current_job.job_type.name
+    # if older are failing for "infra", then ensure same job is passing
+    #  if so mark as intermittent
+    extra_jobs = JobLog.objects.filter(
+        job__push__id__range=(push_ids[-1], push_ids[0]),
+        job__push__repository__id=current_job.repository.id,
+        job__job_type__name=current_job.job_type.name,
+        job__failure_classification_id__in=[1, 6],
+        status__in=(1, 2, 3),  # ignore pending
+        job__result__in=[
+            "busted",
+            "testfailed",
+            "exception",
+            "success",
+        ],  # primarily ignore retry/usercancel
+    ).values(
+        "job__id",
+        "job__result",
+        "job__failure_classification_id",
+    )
+
+    if len(extra_jobs) == 0:
+        return
+
+    # ensure 50% 'success' rate
+    # success here means the task ran and produced groups | is success
+    # jobs without groups (like marionette) will still get tallied properly here
+    extra_failed = []
+    for job in extra_jobs:
+        if job["job__id"] not in job_ids and job["job__result"] != "success":
+            extra_failed.append(job)
+
+    # look for failure rate > 50% and exit early
+    if len(extra_failed) / len(extra_jobs) > 0.5:
+        return
+
+    # any extra_jobs will be failures without groups (infra/timeout/etc.)
+    # theoretically there could be many jobs here
+    # mark extra_jobs as `intermittent_needs_classification`
+    for job in extra_failed:
+        if job["job__failure_classification_id"] not in [4, 8]:
+            Job.objects.filter(id=job["job__id"]).update(failure_classification_id=8)
 
 
 def check_and_mark_intermittent(job_id):
@@ -52,7 +107,7 @@ def check_and_mark_intermittent(job_id):
             job_logs__job__result__in=[
                 "success",
                 "testfailed",
-            ],  # primarily ignore retry/usercancel
+            ],  # primarily ignore retry/usercancel/unknown
             group_result__status__in=[GroupStatus.OK, GroupStatus.ERROR],
         )
         .values(
@@ -64,6 +119,11 @@ def check_and_mark_intermittent(job_id):
         )
         .order_by("-job_logs__job__push__id")
     )
+
+    # If no groups, look for infra
+    distinct_job_ids = list(set([f["job_logs__job__id"] for f in all_groups]))
+    if len(distinct_job_ids) == 1:
+        return _check_and_mark_infra(current_job, distinct_job_ids, ids)
 
     mappings = {}
     for item in all_groups:
@@ -146,10 +206,9 @@ def check_and_mark_intermittent(job_id):
             ):
                 target_job = Job.objects.filter(id=job)
 
-                # TODO: infra would be nice to detect, but in the case of no groups, our data set == []
-                # edge case is all groups originally pass and then shutdown leaks cause 'testfailed'.
-                # also we ignore infra/leaks that don't report group failures in errorsummary files
                 if target_job[0].result != "success" and target_job[
                     0
                 ].failure_classification_id not in [4, 8]:
                     target_job.update(failure_classification_id=8)
+
+    return _check_and_mark_infra(current_job, distinct_job_ids, ids)
