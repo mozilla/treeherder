@@ -24,7 +24,7 @@ python-dateutil==2.9.0.post0
 django-filter==25.1  # Listed in DEFAULT_FILTER_BACKENDS on settings.py
 django-redis==6.0.0  # Listed in CACHES on settings.py
 
-taskcluster==85.0.1  # import taskcluster
+taskcluster==88.0.2  # import taskcluster
 python-jose[pycryptodome]==3.5.0  # from jose import jwt
 
 furl==2.1.4  # Imported as furl
