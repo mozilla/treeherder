@@ -251,9 +251,9 @@ celery==5.5.3 \
     --hash=sha256:0b5761a07057acee94694464ca482416b959568904c9dfa41ce8413a7d65d525 \
     --hash=sha256:6c972ae7968c2b5281227f01c3a3f984037d21c5129d07bf3550cc2afc6b10a5
     # via -r requirements/common.in
-certifi==2025.6.15 \
-    --hash=sha256:2e0c7ce7cb5d8f8634ca55d2ba7e6ec2689a2fd6537d8dec1296a477a4910057 \
-    --hash=sha256:d747aa5a8b9bbbb1bb8c22bb13e22bd1f18e9796defa16bab421f7f7a317323b
+certifi==2025.8.3 \
+    --hash=sha256:e564105f78ded564e3ae7c923924435e1daa7463faeab5bb932bc53ffae63407 \
+    --hash=sha256:f6c12493cfb1b06ba2ff328595af9350c65d6644968e5d3a2ffd78699af217a5
     # via
     #   -r requirements/common.in
     #   requests
