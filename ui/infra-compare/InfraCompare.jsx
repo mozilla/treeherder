@@ -7,15 +7,15 @@ import { getCounterMap } from './helpers';
 import { phTimeRanges } from './constants';
 import InfraCompareTableView from './InfraCompareTableView';
 
-class InfraCompareView extends React.PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {
-      jobsNotDisplayed: [],
-    };
-  }
+function InfraCompareView({
+  projects,
+  validated = {},
+  updateAppState,
+  ...otherProps
+}) {
+  const [jobsNotDisplayed, setJobsNotDisplayed] = React.useState([]);
 
-  getInterval = (oldTimestamp, newTimestamp) => {
+  const getInterval = (oldTimestamp, newTimestamp) => {
     const now = new Date().getTime() / 1000;
     let timeRange = Math.min(oldTimestamp, newTimestamp);
     timeRange = Math.round(now - timeRange);
@@ -23,7 +23,7 @@ class InfraCompareView extends React.PureComponent {
     return newTimeRange.value;
   };
 
-  getQueryParams = (timeRange) => {
+  const getQueryParams = (timeRange) => {
     const {
       originalProject,
       newProject,
@@ -31,12 +31,12 @@ class InfraCompareView extends React.PureComponent {
       newRevision,
       newResultSet,
       originalResultSet,
-    } = this.props.validated;
+    } = validated;
     let originalParams;
     let interval;
 
     if (originalRevision) {
-      interval = this.getInterval(
+      interval = getInterval(
         originalResultSet.push_timestamp,
         newResultSet.push_timestamp,
       );
@@ -61,7 +61,7 @@ class InfraCompareView extends React.PureComponent {
     return [originalParams, newParams];
   };
 
-  getDisplayResults = (origResultsMap, newResultsMap, tableNames) => {
+  const getDisplayResults = (origResultsMap, newResultsMap, tableNames) => {
     let compareResults = new Map();
     tableNames.forEach((jobName) => {
       const originalResults = origResultsMap.filter(
@@ -90,29 +90,27 @@ class InfraCompareView extends React.PureComponent {
           compareResults.set(cmap.platform, [cmap]);
         }
       } else {
-        const { jobsNotDisplayed } = this.state;
-        this.setState({
-          jobsNotDisplayed: [...jobsNotDisplayed, jobName],
-        });
+        setJobsNotDisplayed((prev) => [...prev, jobName]);
       }
     });
     compareResults = new Map([...compareResults.entries()].sort());
     const updates = { compareResults, loading: false };
-    this.props.updateAppState({ compareData: compareResults });
+    updateAppState({ compareData: compareResults });
 
     return updates;
   };
 
-  render() {
-    return (
-      <InfraCompareTableView
-        {...this.props}
-        jobsNotDisplayed={this.state.jobsNotDisplayed}
-        getQueryParams={this.getQueryParams}
-        getDisplayResults={this.getDisplayResults}
-      />
-    );
-  }
+  return (
+    <InfraCompareTableView
+      projects={projects}
+      validated={validated}
+      updateAppState={updateAppState}
+      {...otherProps}
+      jobsNotDisplayed={jobsNotDisplayed}
+      getQueryParams={getQueryParams}
+      getDisplayResults={getDisplayResults}
+    />
+  );
 }
 
 InfraCompareView.propTypes = {
@@ -125,10 +123,7 @@ InfraCompareView.propTypes = {
     newProject: PropTypes.string,
     originalRevision: PropTypes.string,
   }),
-};
-
-InfraCompareView.defaultProps = {
-  validated: PropTypes.shape({}),
+  updateAppState: PropTypes.func.isRequired,
 };
 
 const requiredParams = new Set([

@@ -62,6 +62,7 @@ export default [
       'react/no-unused-class-component-methods': 'off',
       'react/prefer-exact-props': 'off',
       'react/prop-types': 'off',
+      'react/require-default-props': 'off', // Allow default parameters instead of defaultProps
       'react/sort-comp': [0, {}],
 
       'import/order': [
