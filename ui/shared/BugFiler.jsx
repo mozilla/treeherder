@@ -978,7 +978,10 @@ BugFilerClass.propTypes = {
     bugs: PropTypes.shape({
       open_recent: PropTypes.arrayOf({
         crash_signature: PropTypes.string.isRequired,
-        dupe_of: PropTypes.oneOfType(null, PropTypes.number).isRequired,
+        dupe_of: PropTypes.oneOfType([
+          PropTypes.oneOf([null]),
+          PropTypes.number,
+        ]).isRequired,
         id: PropTypes.number.isRequired,
         keywords: PropTypes.string.isRequired,
         status: PropTypes.string.isRequired,
@@ -988,7 +991,10 @@ BugFilerClass.propTypes = {
       }),
       all_others: PropTypes.arrayOf({
         crash_signature: PropTypes.string.isRequired,
-        dupe_of: PropTypes.oneOfType(null, PropTypes.number).isRequired,
+        dupe_of: PropTypes.oneOfType([
+          PropTypes.oneOf([null]),
+          PropTypes.number,
+        ]).isRequired,
         id: PropTypes.number.isRequired,
         keywords: PropTypes.string.isRequired,
         status: PropTypes.string.isRequired,
@@ -1000,7 +1006,8 @@ BugFilerClass.propTypes = {
     counter: PropTypes.number.isRequired,
     failure_in_new_rev: PropTypes.bool.isRequired,
     line_number: PropTypes.number.isRequired,
-    path_end: PropTypes.oneOfType(null, PropTypes.string).isRequired,
+    path_end: PropTypes.oneOfType([PropTypes.oneOf([null]), PropTypes.string])
+      .isRequired,
     search: PropTypes.string.isRequired,
     search_terms: PropTypes.arrayOf(PropTypes.string),
   }).isRequired,

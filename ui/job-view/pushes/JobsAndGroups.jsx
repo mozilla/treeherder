@@ -156,6 +156,7 @@ export default class JobsAndGroups extends React.Component {
               group.visible && (
                 <JobGroup
                   group={group}
+                  confirmGroup={confirmGroups[group.mapKey] || {}}
                   repoName={repoName}
                   filterModel={filterModel}
                   filterPlatformCb={filterPlatformCb}
