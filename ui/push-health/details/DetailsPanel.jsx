@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
-import { Col, Button, Spinner } from 'reactstrap';
+import { Col, Button, Spinner } from 'react-bootstrap';
 
 import { getArtifactsUrl, getLogViewerUrl } from '../../helpers/url';
 import { formatArtifacts } from '../../helpers/display';

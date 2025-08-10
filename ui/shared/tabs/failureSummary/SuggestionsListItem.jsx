@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'reactstrap';
+import { Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -91,7 +91,7 @@ export default class SuggestionsListItem extends React.Component {
         suggestions.push(
           <Button
             key="show-hide-more"
-            color="link"
+            variant="link"
             rel="noopener"
             onClick={this.clickShowMore}
             className={`bg-light px-2 py-1 btn btn-outline-secondary btn-xs my-2 show-hide-more ${
@@ -198,7 +198,7 @@ export default class SuggestionsListItem extends React.Component {
             <span>
               <Button
                 className="bg-light py-1 px-2 mr-2"
-                outline
+                variant="outline-secondary"
                 style={{ fontSize: '8px' }}
                 onClick={() => toggleInternalIssueFiler(suggestion)}
                 title="File an internal issue for this failure"
@@ -249,7 +249,7 @@ export default class SuggestionsListItem extends React.Component {
               </a>
               <Button
                 className="bg-light py-1 px-2 ml-2"
-                outline
+                variant="outline-secondary"
                 style={{ fontSize: '8px' }}
                 onClick={() => toggleBugFiler(suggestion)}
                 title="File a bug for this failure"
