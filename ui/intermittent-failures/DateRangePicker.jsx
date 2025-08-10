@@ -5,7 +5,7 @@ import { DateRangePickerPhrases } from 'react-dates/lib/defaultPhrases';
 import { DateRangePicker as DatePickerAirbnb } from 'react-dates';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import { Button } from 'reactstrap';
+import { Button } from 'react-bootstrap';
 
 import { ISODate } from './helpers';
 
@@ -91,7 +91,7 @@ export default class DateRangePicker extends React.Component {
           isOutsideRange={(day) => moment().diff(day) < 0}
           phrases={defaultPhrases}
         />
-        <Button color="secondary" className="ml-3" onClick={this.updateData}>
+        <Button variant="secondary" className="ml-3" onClick={this.updateData}>
           update
         </Button>
       </div>

@@ -5,16 +5,11 @@ import {
   Collapse,
   Nav,
   Navbar,
-  NavItem,
-  UncontrolledButtonDropdown,
+  DropdownButton,
   ButtonGroup,
-  DropdownMenu,
-  DropdownToggle,
-  DropdownItem,
-  Input,
-  FormGroup,
-  Label,
-} from 'reactstrap';
+  Dropdown,
+  Form,
+} from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCaretDown,
@@ -271,7 +266,7 @@ class Test extends PureComponent {
           <Collapse isOpen={detailsShowing}>
             <Navbar className="mb-3">
               <Nav>
-                <NavItem>
+                <Nav.Item>
                   <ButtonGroup size="sm" className="ml-5">
                     <Button
                       title="Retrigger selected jobs once"
@@ -286,11 +281,11 @@ class Test extends PureComponent {
                       />
                       Retrigger Selected
                     </Button>
-                    <UncontrolledButtonDropdown size="sm">
-                      <DropdownToggle caret />
-                      <DropdownMenu>
+                    <DropdownButton size="sm">
+                      <Dropdown.Toggle caret />
+                      <Dropdown.Menu>
                         {[5, 10, 15].map((times) => (
-                          <DropdownItem
+                          <Dropdown.Item
                             key={times}
                             title={`Retrigger selected jobs ${times} times`}
                             onClick={() => this.retriggerSelected(times)}
@@ -298,15 +293,15 @@ class Test extends PureComponent {
                             tag="a"
                           >
                             Retrigger selected {times} times
-                          </DropdownItem>
+                          </Dropdown.Item>
                         ))}
-                      </DropdownMenu>
-                    </UncontrolledButtonDropdown>
+                      </Dropdown.Menu>
+                    </DropdownButton>
                   </ButtonGroup>
                   <Button
                     size="sm"
                     outline
-                    color="primary"
+                    variant="primary"
                     className="mx-3"
                     title="Mark selected jobs as investigated"
                     onClick={() => this.markAsInvestigated()}
@@ -316,26 +311,28 @@ class Test extends PureComponent {
                   <Button
                     size="sm"
                     outline
-                    color="primary"
+                    variant="primary"
                     className="mx-3"
                     title="Mark selected jobs as Uninvestigated"
                     onClick={() => this.markAsUninvestigated()}
                   >
                     Mark as Uninvestigated
                   </Button>
-                </NavItem>
+                </Nav.Item>
               </Nav>
             </Navbar>
             <div className="ml-5 pl-2 position-relative">
-              <FormGroup className="mb-1 pl-4">
-                <Input
+              <Form.Group className="mb-1 pl-4">
+                <Form.Control
                   aria-label="Select all platforms for this test"
                   type="checkbox"
                   checked={allPlatformsSelected}
                   onChange={this.selectAll}
                 />
-                <Label className="text-darker-secondary ml-4">select all</Label>
-              </FormGroup>
+                <Form.Label className="text-darker-secondary ml-4">
+                  select all
+                </Form.Label>
+              </Form.Group>
             </div>
             {tests.map((failure) => (
               <PlatformConfig

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Row } from 'reactstrap';
+import { Container, Row } from 'react-bootstrap';
 
 import RepositoryModel from '../../models/repository';
 import PushModel from '../../models/push';
