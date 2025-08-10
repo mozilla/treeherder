@@ -1,40 +1,29 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { UncontrolledTooltip } from 'reactstrap';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 
-export default class SimpleTooltip extends React.Component {
-  constructor(props) {
-    super(props);
-    this.tooltipRef = React.createRef();
-  }
+const SimpleTooltip = ({
+  text,
+  tooltipText,
+  placement,
+  textClass,
+  innerClassName,
+  autohide,
+}) => {
+  const tooltip = <Tooltip className={innerClassName}>{tooltipText}</Tooltip>;
 
-  render() {
-    const {
-      text,
-      tooltipText,
-      placement,
-      textClass,
-      innerClassName,
-      autohide,
-    } = this.props;
+  return (
+    <OverlayTrigger
+      placement={placement}
+      overlay={tooltip}
+      delay={{ show: autohide ? 250 : 0, hide: autohide ? 250 : 0 }}
+    >
+      <span className={textClass}>{text}</span>
+    </OverlayTrigger>
+  );
+};
 
-    return (
-      <React.Fragment>
-        <span ref={this.tooltipRef} className={textClass}>
-          {text}
-        </span>
-        <UncontrolledTooltip
-          placement={placement}
-          target={this.tooltipRef}
-          innerClassName={innerClassName}
-          autohide={autohide}
-        >
-          {tooltipText}
-        </UncontrolledTooltip>
-      </React.Fragment>
-    );
-  }
-}
+export default SimpleTooltip;
 SimpleTooltip.propTypes = {
   text: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.string]).isRequired,
   tooltipText: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.string])

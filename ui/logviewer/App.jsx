@@ -2,7 +2,7 @@ import React from 'react';
 import { hot } from 'react-hot-loader/root';
 import { LazyLog } from 'react-lazylog';
 import isEqual from 'lodash/isEqual';
-import { Collapse } from 'reactstrap';
+import { Collapse } from 'react-bootstrap';
 
 import {
   getAllUrlParams,

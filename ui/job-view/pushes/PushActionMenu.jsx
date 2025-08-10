@@ -1,12 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import {
-  DropdownMenu,
-  DropdownItem,
-  DropdownToggle,
-  UncontrolledDropdown,
-} from 'reactstrap';
+import { Dropdown } from 'react-bootstrap';
 import { push as pushRoute } from 'connected-react-router';
 
 import {
@@ -90,47 +85,47 @@ class PushActionMenu extends React.PureComponent {
 
     return (
       <React.Fragment>
-        <UncontrolledDropdown className="btn-group">
-          <DropdownToggle
+        <Dropdown className="btn-group">
+          <Dropdown.Toggle
             size="sm"
             className="btn-push"
             title="Action menu"
             data-testid="push-action-menu-button"
             caret
           />
-          <DropdownMenu>
+          <Dropdown.Menu>
             {runnableVisible ? (
-              <DropdownItem
+              <Dropdown.Item
                 tag="a"
                 title="Hide Runnable Jobs"
                 onClick={hideRunnableJobs}
               >
                 Hide Runnable Jobs
-              </DropdownItem>
+              </Dropdown.Item>
             ) : (
-              <DropdownItem
+              <Dropdown.Item
                 tag="a"
                 title="Add new jobs to this push"
                 onClick={showRunnableJobs}
               >
                 Add new jobs
-              </DropdownItem>
+              </Dropdown.Item>
             )}
-            <DropdownItem
+            <Dropdown.Item
               tag="a"
               title="Add new jobs to this push via a fuzzy search"
               onClick={showFuzzyJobs}
             >
               Add new jobs (Search)
-            </DropdownItem>
-            <DropdownItem
+            </Dropdown.Item>
+            <Dropdown.Item
               tag="a"
               title="Trigger all jobs that were optimized away"
               onClick={this.triggerMissingJobs}
             >
               Trigger missing jobs
-            </DropdownItem>
-            <DropdownItem
+            </Dropdown.Item>
+            <Dropdown.Item
               tag="a"
               target="_blank"
               rel="noopener noreferrer"
@@ -138,30 +133,30 @@ class PushActionMenu extends React.PureComponent {
               title="Use Bugherder to mark the bugs in this push"
             >
               Mark with Bugherder
-            </DropdownItem>
-            <DropdownItem
+            </Dropdown.Item>
+            <Dropdown.Item
               tag="a"
               onClick={this.toggleCustomJobActions}
               title="View/Edit/Submit Action tasks for this push"
             >
               Custom Push Action...
-            </DropdownItem>
-            <DropdownItem
+            </Dropdown.Item>
+            <Dropdown.Item
               tag="a"
               onClick={() => this.updateParamsAndRange('tochange')}
               data-testid="top-of-range-menu-item"
             >
               Set as top of range
-            </DropdownItem>
-            <DropdownItem
+            </Dropdown.Item>
+            <Dropdown.Item
               tag="a"
               onClick={() => this.updateParamsAndRange('fromchange')}
               data-testid="bottom-of-range-menu-item"
             >
               Set as bottom of range
-            </DropdownItem>
-            <DropdownItem divider />
-            <DropdownItem
+            </Dropdown.Item>
+            <Dropdown.Item divider />
+            <Dropdown.Item
               tag="a"
               href={getPushHealthUrl({ repo: currentRepo.name, revision })}
               target="_blank"
@@ -169,8 +164,8 @@ class PushActionMenu extends React.PureComponent {
               title="Enable Health Badges in the Health menu"
             >
               Push Health
-            </DropdownItem>
-            <DropdownItem
+            </Dropdown.Item>
+            <Dropdown.Item
               tag="a"
               href={getPerfCompareChooserUrl({
                 newRepo: currentRepo.name,
@@ -181,9 +176,9 @@ class PushActionMenu extends React.PureComponent {
               title="Compare performance against another revision"
             >
               Compare Performance
-            </DropdownItem>
-          </DropdownMenu>
-        </UncontrolledDropdown>
+            </Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
         {customJobActionsShowing && (
           <CustomJobActions
             job={null}

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { DropdownMenu, DropdownItem } from 'reactstrap';
+import { Dropdown } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 
@@ -12,8 +12,8 @@ const createDropdownItem = (
   className,
 ) => {
   return (
-    <DropdownItem
-      tag="a"
+    <Dropdown.Item
+      as="a"
       key={`${namespace}${item}`}
       onClick={() => updateData(item)}
       className={`${className || ''}`}
@@ -24,7 +24,7 @@ const createDropdownItem = (
         title={selectedItem === item ? 'Selected' : ''}
       />
       {item}
-    </DropdownItem>
+    </Dropdown.Item>
   );
 };
 
@@ -36,7 +36,7 @@ const DropdownMenuItems = ({
   namespace,
   otherPinned,
 }) => (
-  <DropdownMenu className="overflow-auto dropdown-menu-height">
+  <>
     {/* Items pinned to top of dropdown */}
     {pinned.length > 0 && (
       <React.Fragment>
@@ -49,7 +49,7 @@ const DropdownMenuItems = ({
             'top-pinned',
           ),
         )}
-        <DropdownItem divider />
+        <Dropdown.Divider />
       </React.Fragment>
     )}
     {options.map((item) =>
@@ -58,7 +58,7 @@ const DropdownMenuItems = ({
     {/* Items pinned to bottom of dropdown */}
     {otherPinned.length > 0 && (
       <React.Fragment>
-        <DropdownItem divider />
+        <Dropdown.Divider />
         {otherPinned.map((item) =>
           createDropdownItem(
             item,
@@ -70,7 +70,7 @@ const DropdownMenuItems = ({
         )}
       </React.Fragment>
     )}
-  </DropdownMenu>
+  </>
 );
 
 DropdownMenuItems.propTypes = {

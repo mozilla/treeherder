@@ -7,10 +7,7 @@ import {
   ModalFooter,
   Button,
   Form,
-  FormGroup,
-  Label,
-  CustomInput,
-} from 'reactstrap';
+} from 'react-bootstrap';
 
 export default class TagsModal extends React.Component {
   constructor(props) {
@@ -44,7 +41,7 @@ export default class TagsModal extends React.Component {
   listTags = () => {
     return this.state.tags.map((tag, index) => {
       return (
-        <CustomInput
+        <Form.Check
           key={tag.name}
           data-testid={`modal-perf-tag ${tag.name}`}
           type="checkbox"
@@ -88,12 +85,12 @@ export default class TagsModal extends React.Component {
         <ModalHeader toggle={this.toggleModal}>Alert Tags</ModalHeader>
         <Form>
           <ModalBody>
-            <Label for="performanceTags" />
-            <FormGroup>{this.listTags()}</FormGroup>
+            <Form.Label htmlFor="performanceTags" />
+            <Form.Group>{this.listTags()}</Form.Group>
           </ModalBody>
           <ModalFooter>
             <Button
-              color="darker-secondary"
+              variant="darker-secondary"
               onClick={(event) => {
                 updateAndClose(
                   event,

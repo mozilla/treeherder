@@ -1,12 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Collapse,
-  Navbar,
-  Nav,
-  UncontrolledDropdown,
-  DropdownToggle,
-} from 'reactstrap';
+import { Collapse, Navbar, Nav, Dropdown } from 'react-bootstrap';
 
 import LogoMenu from '../shared/LogoMenu';
 import Login from '../shared/auth/Login';
@@ -35,16 +29,16 @@ export default class Navigation extends React.Component {
         />
         <Collapse isOpen={this.state.isOpen} navbar>
           <Nav navbar />
-          <UncontrolledDropdown>
-            <DropdownToggle className="btn-navbar navbar-link" nav caret>
+          <Dropdown>
+            <Dropdown.Toggle className="btn-navbar navbar-link" nav caret>
               Tree
-            </DropdownToggle>
+            </Dropdown.Toggle>
             <DropdownMenuItems
               options={treeOptions}
               updateData={(tree) => updateState({ tree })}
               selectedItem={tree}
             />
-          </UncontrolledDropdown>
+          </Dropdown>
         </Collapse>
         <Navbar className="ml-auto">
           <HelpMenu />

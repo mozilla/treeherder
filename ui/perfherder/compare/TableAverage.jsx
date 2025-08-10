@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Badge } from 'reactstrap';
+import { Badge } from 'react-bootstrap';
 
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import { replicatesMaxLength } from '../perf-helpers/constants';
@@ -88,7 +88,7 @@ const TableAverage = ({ value, stddev, stddevpct, replicates, app }) => {
       )}
       {app && (
         <p className="d-flex align-items-start m-0">
-          <Badge color="light">{app}</Badge>
+          <Badge bg="light">{app}</Badge>
         </p>
       )}
     </td>

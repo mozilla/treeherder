@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
-import { Row, Col, Badge } from 'reactstrap';
+import { Row, Col, Badge } from 'react-bootstrap';
 
 import Clipboard from '../../shared/Clipboard';
 import { getFrameworkName, getTitle } from '../perf-helpers/helpers';
@@ -52,7 +52,7 @@ export default class AlertHeaderTitle extends React.Component {
                 {getFrameworkName(frameworks, alertSummary.framework)}
               </Badge>
               {isCritical ? (
-                <Badge className="mr-2" color="danger">
+                <Badge className="mr-2" bg="danger">
                   critical
                 </Badge>
               ) : null}
@@ -67,7 +67,7 @@ export default class AlertHeaderTitle extends React.Component {
           <Clipboard
             text={`${alertSummary.id}`}
             description="Alert ID"
-            color="transparent"
+            variant="transparent"
           />
         </Col>
       </Row>

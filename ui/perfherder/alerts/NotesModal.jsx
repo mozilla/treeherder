@@ -2,15 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {
   Form,
-  FormGroup,
-  Input,
-  Label,
   Button,
   Modal,
   ModalHeader,
   ModalBody,
   ModalFooter,
-} from 'reactstrap';
+} from 'react-bootstrap';
 
 export default class NotesModal extends React.Component {
   constructor(props) {
@@ -33,21 +30,21 @@ export default class NotesModal extends React.Component {
         <ModalHeader toggle={toggle}>Alert Notes</ModalHeader>
         <Form>
           <ModalBody>
-            <FormGroup>
-              <Label for="editableNotes">Add or edit notes</Label>
-              <Input
+            <Form.Group>
+              <Form.Label htmlFor="editableNotes">Add or edit notes</Form.Label>
+              <Form.Control
                 value={inputValue || ''}
                 onChange={this.updateInput}
                 name="editableNotes"
-                type="textarea"
+                as="textarea"
                 cols="50"
                 rows="10"
               />
-            </FormGroup>
+            </Form.Group>
           </ModalBody>
           <ModalFooter>
             <Button
-              color="secondary"
+              variant="secondary"
               onClick={(event) =>
                 updateAndClose(
                   event,

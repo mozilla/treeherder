@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Table } from 'reactstrap';
+import { Table } from 'react-bootstrap';
 
 import { abbreviatedNumber } from '../perf-helpers/helpers';
 

@@ -6,16 +6,7 @@ import jsonSchemaDefaults from 'json-schema-defaults';
 import keyBy from 'lodash/keyBy';
 import jsyaml from 'js-yaml';
 import tcLibUrls from 'taskcluster-lib-urls';
-import {
-  Button,
-  DropdownToggle,
-  Label,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  UncontrolledDropdown,
-} from 'reactstrap';
+import { Button, Dropdown, Form, Modal } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckSquare } from '@fortawesome/free-regular-svg-icons';
 
@@ -196,11 +187,11 @@ class CustomJobActions extends React.PureComponent {
     const isOpen = true;
 
     return (
-      <Modal isOpen={isOpen} toggle={this.close} size="lg">
-        <ModalHeader toggle={this.close}>
-          Custom Taskcluster Job Actions
-        </ModalHeader>
-        <ModalBody>
+      <Modal show={isOpen} onHide={this.close} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>Custom Taskcluster Job Actions</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
           {!actions && (
             <div>
               <p className="blink"> Getting available actions...</p>
@@ -209,21 +200,21 @@ class CustomJobActions extends React.PureComponent {
           {!!actions && (
             <div>
               <div className="form-group">
-                <Label for="action-select-input">Action</Label>
-                <UncontrolledDropdown
+                <Form.Label for="action-select-input">Action</Form.Label>
+                <Dropdown
                   aria-describedby="selectedActionHelp"
                   className="mb-1"
                   id="action-select-input"
                 >
-                  <DropdownToggle caret outline>
+                  <Dropdown.Toggle caret outline>
                     {selectedAction.name}
-                  </DropdownToggle>
+                  </Dropdown.Toggle>
                   <DropdownMenuItems
                     selectedItem={selectedAction.name}
                     updateData={this.onChangeAction}
                     options={Object.keys(actions)}
                   />
-                </UncontrolledDropdown>
+                </Dropdown>
                 <p id="selectedActionHelp" className="help-block">
                   {selectedAction.description}
                 </p>
@@ -240,9 +231,9 @@ class CustomJobActions extends React.PureComponent {
                 {!!selectedAction.schema && (
                   <React.Fragment>
                     <div className="col-s-12 col-md-6 form-group">
-                      <Label for="payload-textarea" className="w-100">
+                      <Form.Label for="payload-textarea" className="w-100">
                         Payload
-                      </Label>
+                      </Form.Label>
                       <textarea
                         id="payload-textarea"
                         value={payload}
@@ -255,9 +246,9 @@ class CustomJobActions extends React.PureComponent {
                       />
                     </div>
                     <div className="col-s-12 col-md-6 form-group">
-                      <Label for="schema-textarea" className="w-100">
+                      <Form.Label for="schema-textarea" className="w-100">
                         Schema
-                      </Label>
+                      </Form.Label>
                       <textarea
                         id="schema-textarea"
                         className="form-control pre"
@@ -271,10 +262,10 @@ class CustomJobActions extends React.PureComponent {
               </div>
             </div>
           )}
-        </ModalBody>
-        <ModalFooter>
+        </Modal.Body>
+        <Modal.Footer>
           <Button
-            color="darker-info"
+            variant="darker-info"
             className={triggering ? 'disabled' : ''}
             onClick={this.triggerAction}
             title="Trigger this action"
@@ -286,10 +277,10 @@ class CustomJobActions extends React.PureComponent {
             />
             <span>{triggering ? 'Triggering' : 'Trigger'}</span>
           </Button>
-          <Button color="secondary" onClick={toggle}>
+          <Button variant="secondary" onClick={toggle}>
             Cancel
           </Button>
-        </ModalFooter>
+        </Modal.Footer>
       </Modal>
     );
   }

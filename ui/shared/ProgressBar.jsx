@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Progress } from 'reactstrap';
+import { ProgressBar as BSProgressBar } from 'react-bootstrap';
 
 import SimpleTooltip from './SimpleTooltip';
 
@@ -11,25 +11,28 @@ const ProgressBar = ({ magnitude, regression, color }) => {
   return (
     <SimpleTooltip
       text={
-        <Progress
-          multi
+        <BSProgressBar
           aria-label={`Lower is better. Metric: ${truncMag} % regressed`}
         >
           {/* the % of the bars that are colored and transparent is based on the newIsBetter metric,
           which determines whether the colored bar for magnitude is displayed on the left or right */}
           <div aria-hidden="true" className="progress w-100">
-            <Progress
-              bar
-              value={regression ? 100 - magnitude : magnitude}
-              color={regression ? 'transparent' : color}
+            <BSProgressBar
+              now={regression ? 100 - magnitude : magnitude}
+              variant={regression ? undefined : color}
+              style={
+                regression ? { backgroundColor: 'transparent' } : undefined
+              }
             />
-            <Progress
-              bar
-              value={regression ? magnitude : 100 - magnitude}
-              color={regression ? color : 'transparent'}
+            <BSProgressBar
+              now={regression ? magnitude : 100 - magnitude}
+              variant={regression ? color : undefined}
+              style={
+                regression ? undefined : { backgroundColor: 'transparent' }
+              }
             />
           </div>
-        </Progress>
+        </BSProgressBar>
       }
       tooltipText="Relative magnitude of change (scale from 0 - 20%+)"
     />

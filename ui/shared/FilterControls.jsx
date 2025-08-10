@@ -1,13 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Col,
-  Row,
-  Container,
-  Button,
-  UncontrolledDropdown,
-  DropdownToggle,
-} from 'reactstrap';
+import { Col, Row, Container, Button, Dropdown } from 'react-bootstrap';
 
 import SimpleTooltip from './SimpleTooltip';
 import DropdownMenuItems from './DropdownMenuItems';
@@ -21,14 +14,14 @@ export const createDropdowns = (dropdownOptions, colClass, outline = false) => (
         className={colClass}
         key={`dropdown ${dropdown.namespace || ''}${dropdown.selectedItem}`}
       >
-        <UncontrolledDropdown
+        <Dropdown
           className="mr-0 text-nowrap"
           title={dropdown.title}
           aria-label={dropdown.title}
         >
-          <DropdownToggle caret outline={outline}>
+          <Dropdown.Toggle caret outline={outline}>
             {dropdown.selectedItem}
-          </DropdownToggle>
+          </Dropdown.Toggle>
           <DropdownMenuItems
             pinned={dropdown.pinnedProjects || dropdown.pinned}
             otherPinned={dropdown.otherPinned}
@@ -37,7 +30,7 @@ export const createDropdowns = (dropdownOptions, colClass, outline = false) => (
             updateData={dropdown.updateData}
             namespace={dropdown.namespace}
           />
-        </UncontrolledDropdown>
+        </Dropdown>
       </Col>
     ))}
   </React.Fragment>
@@ -54,7 +47,7 @@ const FilterControls = ({
 }) => {
   const createButton = (filter) => (
     <Button
-      color="darker-info"
+      variant="darker-info"
       outline
       onClick={() => updateFilter(filter.stateName)}
       active={filter.state}

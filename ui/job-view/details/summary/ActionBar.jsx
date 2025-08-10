@@ -1,13 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import {
-  Button,
-  DropdownMenu,
-  DropdownItem,
-  DropdownToggle,
-  UncontrolledDropdown,
-} from 'reactstrap';
+import { Button, Dropdown } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartBar } from '@fortawesome/free-regular-svg-icons';
 import {
@@ -445,28 +439,31 @@ class ActionBar extends React.PureComponent {
               </li>
             )}
             <li className="ml-auto">
-              <UncontrolledDropdown>
-                <DropdownToggle className="bg-transparent text-light border-0 pr-2 py-2 m-0">
+              <Dropdown>
+                <Dropdown.Toggle className="bg-transparent text-light border-0 pr-2 py-2 m-0">
                   <FontAwesomeIcon
                     icon={faEllipsisH}
                     title="Other job actions"
                     className="align-baseline"
                   />
-                </DropdownToggle>
-                <DropdownMenu className="actionbar-menu dropdown-menu-right">
-                  <DropdownItem
-                    tag="a"
+                </Dropdown.Toggle>
+                <Dropdown.Menu
+                  className="actionbar-menu dropdown-menu"
+                  align="end"
+                >
+                  <Dropdown.Item
+                    as="a"
                     id="backfill-btn"
                     className={`${!this.canBackfill() ? 'disabled' : ''}`}
                     title={this.backfillButtonTitle()}
                     onClick={() => !this.canBackfill() || this.backfillJob()}
                   >
                     Backfill
-                  </DropdownItem>
+                  </Dropdown.Item>
                   {selectedJobFull.task_id && (
                     <React.Fragment>
-                      <DropdownItem
-                        tag="a"
+                      <Dropdown.Item
+                        as="a"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="pl-4"
@@ -477,53 +474,53 @@ class ActionBar extends React.PureComponent {
                         )}
                       >
                         Inspect Task
-                      </DropdownItem>
-                      <DropdownItem
-                        tag="a"
+                      </Dropdown.Item>
+                      <Dropdown.Item
+                        as="a"
                         className="py-2"
                         onClick={this.createInteractiveTask}
                       >
                         Create Interactive Task
-                      </DropdownItem>
+                      </Dropdown.Item>
                       {isPerfTest(selectedJobFull) && (
-                        <DropdownItem
-                          tag="a"
+                        <Dropdown.Item
+                          as="a"
                           className="py-2"
                           onClick={this.createGeckoProfile}
                         >
                           Create Gecko Profile
-                        </DropdownItem>
+                        </Dropdown.Item>
                       )}
                       {isPerfTest(selectedJobFull) &&
                         !selectedJobFull.hasSideBySide && (
-                          <DropdownItem
-                            tag="a"
+                          <Dropdown.Item
+                            as="a"
                             className="py-2"
                             onClick={this.createSideBySide}
                           >
                             Generate side-by-side
-                          </DropdownItem>
+                          </Dropdown.Item>
                         )}
                       {canConfirmFailure(selectedJobFull) && (
-                        <DropdownItem
-                          tag="a"
+                        <Dropdown.Item
+                          as="a"
                           className="py-2"
                           onClick={this.handleConfirmFailure}
                         >
                           Confirm Test Failures
-                        </DropdownItem>
+                        </Dropdown.Item>
                       )}
-                      <DropdownItem
-                        tag="a"
+                      <Dropdown.Item
+                        as="a"
                         onClick={this.toggleCustomJobActions}
                         className="dropdown-item"
                       >
                         Custom Action...
-                      </DropdownItem>
+                      </Dropdown.Item>
                     </React.Fragment>
                   )}
-                </DropdownMenu>
-              </UncontrolledDropdown>
+                </Dropdown.Menu>
+              </Dropdown>
             </li>
           </ul>
         </nav>

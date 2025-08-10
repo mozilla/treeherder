@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from 'reactstrap';
+import { Button } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -64,7 +64,7 @@ export default class CompareTableRow extends React.PureComponent {
               <span>
                 <Button
                   className="permalink p-0 ml-1"
-                  color="link"
+                  variant="link"
                   onClick={() =>
                     onPermalinkClick(
                       getHashBasedId(

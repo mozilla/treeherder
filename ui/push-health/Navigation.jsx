@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Navbar, Nav, NavItem } from 'reactstrap';
+import { Navbar, Nav } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
 import LogoMenu from '../shared/LogoMenu';
@@ -11,11 +11,11 @@ const Navigation = ({ user, setUser, notify }) => (
   <Navbar expand sticky="top" className="top-navbar">
     <LogoMenu menuText="Push Health" />
     <Nav className="navbar navbar-inverse">
-      <NavItem>
+      <Nav.Item>
         <Link to="/push-health" className="menu-items nav-link btn-view-nav">
           My Pushes
         </Link>
-      </NavItem>
+      </Nav.Item>
     </Nav>
     <Navbar className="ml-auto">
       <HelpMenu />

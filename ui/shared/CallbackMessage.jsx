@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Row } from 'reactstrap';
+import { Row } from 'react-bootstrap';
 
 import ErrorMessages from './ErrorMessages';
 

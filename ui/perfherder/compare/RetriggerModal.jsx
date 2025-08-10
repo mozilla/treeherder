@@ -3,16 +3,13 @@ import PropTypes from 'prop-types';
 import {
   Col,
   Form,
-  Input,
   InputGroup,
-  InputGroupAddon,
-  InputGroupText,
   Button,
   Modal,
   ModalHeader,
   ModalBody,
   ModalFooter,
-} from 'reactstrap';
+} from 'react-bootstrap';
 
 export default class RetriggerModal extends React.Component {
   constructor(props) {
@@ -143,10 +140,8 @@ export default class RetriggerModal extends React.Component {
             <div className="row">
               <Col className="col-xs-10 col-sm-6 col-md-6 col-lg-6 form-inline">
                 <InputGroup title={this.getInputTitle(true)}>
-                  <InputGroupAddon addonType="prepend">
-                    <InputGroupText>Base revision:</InputGroupText>
-                  </InputGroupAddon>
-                  <Input
+                  <InputGroup.Text>Base revision:</InputGroup.Text>
+                  <Form.Control
                     data-testid="input baseRetriggerTimes"
                     defaultValue={this.getInitialValue(true)}
                     min={0}
@@ -163,10 +158,8 @@ export default class RetriggerModal extends React.Component {
               </Col>
               <Col className="col-xs-10 col-sm-6 col-md-6 col-lg-6 form-inline">
                 <InputGroup title={this.getInputTitle()}>
-                  <InputGroupAddon addonType="prepend">
-                    <InputGroupText>New revision:</InputGroupText>
-                  </InputGroupAddon>
-                  <Input
+                  <InputGroup.Text>New revision:</InputGroup.Text>
+                  <Form.Control
                     data-testid="input newRetriggerTimes"
                     defaultValue={this.getInitialValue()}
                     min={0}
@@ -189,7 +182,7 @@ export default class RetriggerModal extends React.Component {
           </ModalBody>
           <ModalFooter>
             <Button
-              color="info"
+              variant="info"
               onClick={this.onRetriggerClick}
               disabled={invalidInput}
             >

@@ -7,9 +7,8 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-  Input,
-  Label,
-} from 'reactstrap';
+  Form,
+} from 'react-bootstrap';
 
 import { create } from '../helpers/http';
 import { getApiUrl } from '../helpers/url';
@@ -169,9 +168,9 @@ export class InternalIssueFilerClass extends React.Component {
           </ModalHeader>
           <ModalBody>
             <form className="d-flex flex-column">
-              <Label for="summary">Summary:</Label>
+              <Form.Label htmlFor="summary">Summary:</Form.Label>
               <div className="d-flex">
-                <Input
+                <Form.Control
                   id="summary"
                   className="flex-grow-1"
                   type="text"
@@ -194,10 +193,10 @@ export class InternalIssueFilerClass extends React.Component {
             </form>
           </ModalBody>
           <ModalFooter>
-            <Button color="secondary" onClick={this.submitInternalIssue}>
+            <Button variant="secondary" onClick={this.submitInternalIssue}>
               Submit Internal Issue
             </Button>{' '}
-            <Button color="secondary" onClick={toggle}>
+            <Button variant="secondary" onClick={toggle}>
               Cancel
             </Button>
           </ModalFooter>

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import countBy from 'lodash/countBy';
-import { Button } from 'reactstrap';
+import { Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faExclamationCircle,
@@ -172,7 +172,7 @@ const GraphTooltip = ({
       >
         <Button
           outline
-          color="secondary"
+          variant="secondary"
           className="close mr-3 my-2 ml-2"
           onClick={closeTooltip}
         >
@@ -311,7 +311,7 @@ const GraphTooltip = ({
               <p className="pt-2">
                 {user.isStaff ? (
                   <Button
-                    color="darker-info"
+                    variant="darker-info"
                     outline
                     size="sm"
                     onClick={createAlert}
