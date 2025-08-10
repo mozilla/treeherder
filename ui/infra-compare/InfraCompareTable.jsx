@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table } from 'reactstrap';
+import { Table } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 
 import { getJobsUrl } from '../helpers/url';

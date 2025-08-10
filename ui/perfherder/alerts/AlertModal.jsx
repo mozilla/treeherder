@@ -2,9 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {
   Form,
-  FormGroup,
-  Input,
-  Label,
   Button,
   Modal,
   ModalHeader,
@@ -12,7 +9,7 @@ import {
   ModalFooter,
   Col,
   Row,
-} from 'reactstrap';
+} from 'react-bootstrap';
 import debounce from 'lodash/debounce';
 
 export default class AlertModal extends React.Component {
@@ -64,11 +61,11 @@ export default class AlertModal extends React.Component {
         <ModalHeader toggle={toggle}>{header}</ModalHeader>
         <Form>
           <ModalBody>
-            <FormGroup>
+            <Form.Group>
               <Row className="justify-content-center">
                 <Col className="col-4">
-                  <Label for="taskId">{title}</Label>
-                  <Input
+                  <Form.Label htmlFor="taskId">{title}</Form.Label>
+                  <Form.Control
                     value={inputValue}
                     onChange={this.updateInput}
                     name="taskId"
@@ -86,11 +83,11 @@ export default class AlertModal extends React.Component {
                   )}
                 </Col>
               </Row>
-            </FormGroup>
+            </Form.Group>
           </ModalBody>
           <ModalFooter>
             <Button
-              color="secondary"
+              variant="secondary"
               onClick={(event) => updateAndClose(event, inputValue)}
               disabled={invalidInput || !inputValue.length || !validated}
               type="submit"

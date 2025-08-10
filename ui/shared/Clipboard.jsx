@@ -5,7 +5,7 @@ import {
   faClipboard,
   faCheckCircle,
 } from '@fortawesome/free-regular-svg-icons';
-import { Button } from 'reactstrap';
+import { Button } from 'react-bootstrap';
 
 export default class Clipboard extends React.Component {
   constructor(props) {
@@ -36,12 +36,12 @@ export default class Clipboard extends React.Component {
           this.copyToClipboard(text);
         }}
         className="py-0 px-1"
-        color={`${color || 'light'}`}
+        variant={`${color || 'light'}`}
         outline={outline}
         {...(!text && { style: { visibility: 'hidden' } })}
       >
         {copied ? (
-          <FontAwesomeIcon icon={faCheckCircle} color="#2da745" />
+          <FontAwesomeIcon icon={faCheckCircle} variant="#2da745" />
         ) : (
           <FontAwesomeIcon icon={faClipboard} />
         )}
