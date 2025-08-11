@@ -26,7 +26,7 @@ function getLogUrlProps(logKey, logUrl, logViewerUrl, logViewerFullUrl) {
         )}`,
         href: logViewerUrl,
         'copy-value': logViewerFullUrl,
-        title: 'Open the log viewer in a new window',
+        title: 'Open the log viewer in a new window (l)',
       };
     case 'failed':
       return {
