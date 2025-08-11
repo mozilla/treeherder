@@ -42,9 +42,18 @@ class SummaryByGroupName(generics.ListAPIView):
         if (enddate - startdate).days > 1:
             enddate = startdate + datetime.timedelta(days=1)
 
+        summary = {}
+        job_type_names = {}
+        job_type_counter = 0
+
         q = (
-            Job.objects.filter(push__time__range=(startdate.date(), enddate.date()))
-            .filter(repository_id__in=(1, 77))
+            Job.objects.filter(
+                push__time__range=(startdate.date(), enddate.date()),
+                repository_id__in=(1, 77),
+                job_type__name__startswith="test-",  # Filter at DB level
+                job_log__group_result__status__in=[1, 2],  # Only OK and ERROR statuses
+            )
+            .select_related("job_type", "job_log")  # Reduce queries
             .values(
                 "job_log__groups__name",
                 "job_type__name",
@@ -54,50 +63,51 @@ class SummaryByGroupName(generics.ListAPIView):
             .annotate(job_count=Count("id"))
             .order_by("job_log__groups__name")
         )
-        self.queryset = q
-        serializer = self.get_serializer(self.queryset, many=True)
-        summary = {}
-        job_type_names = []
-        for item in serializer.data:
-            if not item["group_name"] or not item["job_type_name"]:
+
+        for item in q.iterator(chunk_size=2000):
+            group_name = item["job_log__groups__name"]
+            job_type_name = item["job_type__name"]
+            group_status = item["job_log__group_result__status"]
+            classification = item["failure_classification_id"]
+            job_count = item["job_count"]
+
+            if not group_name or not job_type_name:
                 continue
 
-            if not item["job_type_name"].startswith("test-"):
-                continue
+            # serialize job_type_name (remove chunk number)
+            parts = job_type_name.split("-")
+            try:
+                _ = int(parts[-1])
+                job_type_name = "-".join(parts[:-1])
+            except ValueError:
+                pass
 
-            if int(item["group_status"]) == 1:  # ok
-                result = "passed"
-            elif int(item["group_status"]) == 2:  # testfailed
-                result = "testfailed"
+            result = "passed" if group_status == 1 else "testfailed"
+
+            if job_type_name not in job_type_names:
+                job_type_names[job_type_name] = job_type_counter
+                jt_index = job_type_counter
+                job_type_counter += 1
             else:
-                # other: 3 (skipped), 10 (unsupported (i.e. crashed))
-                # we don't want to count this at all
-                continue
+                jt_index = job_type_names[job_type_name]
 
-            # TODO: consider stripping out some types; mostly care about FBC vs Intermittent
-            classification = item["failure_classification"]
+            if group_name not in summary:
+                summary[group_name] = {}
+            if jt_index not in summary[group_name]:
+                summary[group_name][jt_index] = {}
+            if result not in summary[group_name][jt_index]:
+                summary[group_name][jt_index][result] = {}
+            if classification not in summary[group_name][jt_index][result]:
+                summary[group_name][jt_index][result][classification] = 0
+            summary[group_name][jt_index][result][classification] += job_count
 
-            if item["job_type_name"] not in job_type_names:
-                job_type_names.append(item["job_type_name"])
-            if item["group_name"] not in summary:
-                summary[item["group_name"]] = {}
-            if item["job_type_name"] not in summary[item["group_name"]]:
-                summary[item["group_name"]][item["job_type_name"]] = {}
-            if result not in summary[item["group_name"]][item["job_type_name"]]:
-                summary[item["group_name"]][item["job_type_name"]][result] = {}
-            if classification not in summary[item["group_name"]][item["job_type_name"]][result]:
-                summary[item["group_name"]][item["job_type_name"]][result][classification] = 0
-            summary[item["group_name"]][item["job_type_name"]][result][classification] += item[
-                "job_count"
-            ]
-
-        data = {"job_type_names": job_type_names, "manifests": []}
+        data = {"job_type_names": job_type_names.keys(), "manifests": []}
         for m in summary.keys():
             mdata = []
             for d in summary[m]:
                 for r in summary[m][d]:
                     for c in summary[m][d][r]:
-                        mdata.append([job_type_names.index(d), r, int(c), summary[m][d][r][c]])
+                        mdata.append([d, r, int(c), summary[m][d][r][c]])
             data["manifests"].append({m: mdata})
 
         return Response(data=data)
