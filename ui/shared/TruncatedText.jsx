@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from 'reactstrap';
+import { Button } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 
 export default class TruncatedText extends React.Component {
