@@ -182,6 +182,7 @@ export default class SuggestionsListItem extends React.Component {
                   selectedJob.id,
                   repoName,
                   suggestion.line_number + 1,
+                  selectedJob,
                 )}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -234,6 +235,7 @@ export default class SuggestionsListItem extends React.Component {
                   selectedJob.id,
                   repoName,
                   suggestion.line_number + 1,
+                  selectedJob,
                 )}
                 target="_blank"
                 rel="noopener noreferrer"

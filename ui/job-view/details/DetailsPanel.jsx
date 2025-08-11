@@ -309,6 +309,8 @@ class DetailsPanel extends React.Component {
               const logViewerUrl = getLogViewerUrl(
                 selectedJob.id,
                 currentRepo.name,
+                null,
+                selectedJobFull,
               );
               const logViewerFullUrl = `${window.location.origin}${logViewerUrl}`;
 
