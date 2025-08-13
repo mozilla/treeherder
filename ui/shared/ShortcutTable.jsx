@@ -24,12 +24,6 @@ const ShortcutTable = function ShortcutTable() {
             </tr>
             <tr>
               <td>
-                <kbd>g</kbd>
-              </td>
-              <td>Open the resource usage profile in the Firefox Profiler</td>
-            </tr>
-            <tr>
-              <td>
                 <kbd>ctrl</kbd>
                 <kbd>shift</kbd>
                 <kbd>f</kbd>
@@ -59,6 +53,12 @@ const ShortcutTable = function ShortcutTable() {
                 <kbd>l</kbd>
               </td>
               <td>Open the logviewer for the selected job</td>
+            </tr>
+            <tr>
+              <td>
+                <kbd>g</kbd>
+              </td>
+              <td>Open the resource usage profile in the Firefox Profiler</td>
             </tr>
             <tr>
               <td>
