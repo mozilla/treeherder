@@ -59,11 +59,16 @@ class ActionBar extends React.PureComponent {
 
   componentDidMount() {
     window.addEventListener(thEvents.openLogviewer, this.onOpenLogviewer);
+    window.addEventListener(thEvents.openGeckoProfile, this.onOpenGeckoProfile);
     window.addEventListener(thEvents.jobRetrigger, this.onRetriggerJob);
   }
 
   componentWillUnmount() {
     window.removeEventListener(thEvents.openLogviewer, this.onOpenLogviewer);
+    window.removeEventListener(
+      thEvents.openGeckoProfile,
+      this.onOpenGeckoProfile,
+    );
     window.removeEventListener(thEvents.jobRetrigger, this.onRetriggerJob);
   }
 
@@ -91,6 +96,27 @@ class ActionBar extends React.PureComponent {
       case 'parsed':
         document.querySelector('.logviewer-btn').click();
     }
+  };
+
+  // Open the gecko profile and provide notifications if it isn't available
+  onOpenGeckoProfile = () => {
+    const { notify } = this.props;
+    const resourceUsageProfile = this.getResourceUsageProfile();
+
+    if (resourceUsageProfile) {
+      window.open(getPerfAnalysisUrl(resourceUsageProfile.url), '_blank');
+    } else {
+      notify('No resource usage profile available for this job');
+    }
+  };
+
+  getResourceUsageProfile = () => {
+    const { jobDetails } = this.props;
+    return jobDetails.find((artifact) =>
+      ['profile_build_resources.json', 'profile_resource-usage.json'].includes(
+        artifact.value,
+      ),
+    );
   };
 
   canCancel = () => {
@@ -312,17 +338,12 @@ class ActionBar extends React.PureComponent {
       selectedJobFull,
       logViewerUrl,
       logViewerFullUrl,
-      jobDetails,
       jobLogUrls,
       pinJob,
       currentRepo,
     } = this.props;
     const { customJobActionsShowing } = this.state;
-    const resourceUsageProfile = jobDetails.find((artifact) =>
-      ['profile_build_resources.json', 'profile_resource-usage.json'].includes(
-        artifact.value,
-      ),
-    );
+    const resourceUsageProfile = this.getResourceUsageProfile();
 
     return (
       <div id="actionbar">
@@ -346,11 +367,11 @@ class ActionBar extends React.PureComponent {
             <li>
               <Button
                 id="retrigger-btn"
-                title="Repeat the selected job"
+                title="Retrigger job (r)"
                 className="actionbar-nav-btn bg-transparent border-0 icon-green"
                 onClick={() => this.retriggerJob([selectedJobFull])}
               >
-                <FontAwesomeIcon icon={faRedo} title="Retrigger job" />
+                <FontAwesomeIcon icon={faRedo} />
               </Button>
             </li>
             {resourceUsageProfile &&
@@ -358,7 +379,7 @@ class ActionBar extends React.PureComponent {
               !isReftest(selectedJobFull) && (
                 <li>
                   <a
-                    title="Show the resource usage profile in the Firefox Profiler"
+                    title="Show the resource usage profile in the Firefox Profiler (g)"
                     className="actionbar-nav-btn btn"
                     target="_blank"
                     rel="noopener noreferrer"

@@ -353,6 +353,7 @@ export const thEvents = {
   saveClassification: 'save-classification-EVT',
   deleteClassification: 'delete-classification-EVT',
   openLogviewer: 'open-logviewer-EVT',
+  openGeckoProfile: 'open-gecko-profile-EVT',
   applyNewJobs: 'apply-new-jobs-EVT',
   filtersUpdated: 'filters-updated-EVT',
   clearPinboard: 'clear-pinboard-EVT',

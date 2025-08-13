@@ -17,7 +17,7 @@ import {
 import { pinJob, unPinAll } from './redux/stores/pinnedJobs';
 
 const handledKeys =
-  'b,c,f,ctrl+shift+f,f,i,j,k,l,n,p,q,r,t,u,v,ctrl+shift+u,left,right,space,shift+/,escape,ctrl+enter,ctrl+backspace';
+  'b,c,f,ctrl+shift+f,f,g,i,j,k,l,n,p,q,r,t,u,v,ctrl+shift+u,left,right,space,shift+/,escape,ctrl+enter,ctrl+backspace';
 
 class KeyboardShortcuts extends React.Component {
   onKeyDown = (key, e) => {
@@ -34,6 +34,8 @@ class KeyboardShortcuts extends React.Component {
         return this.quickFilter();
       case 'ctrl+shift+f':
         return this.clearFilter();
+      case 'g':
+        return this.openGeckoProfile();
       case 'i':
         return filterModel.toggleInProgress();
       case 'j':
@@ -153,6 +155,11 @@ class KeyboardShortcuts extends React.Component {
   // open the logviewer for the selected job
   openLogviewer = () => {
     window.dispatchEvent(new CustomEvent(thEvents.openLogviewer));
+  };
+
+  // open the resource usage profile in the Firefox Profiler
+  openGeckoProfile = () => {
+    window.dispatchEvent(new CustomEvent(thEvents.openGeckoProfile));
   };
 
   // retrigger selected job
