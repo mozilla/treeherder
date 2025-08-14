@@ -17,6 +17,7 @@ import jobListFixtureOne from '../mock/job_list/job_1';
 import jobListFixtureTwo from '../mock/job_list/job_2';
 import { configureStore } from '../../../ui/job-view/redux/configureStore';
 import PushList from '../../../ui/job-view/pushes/PushList';
+import { fetchPushes } from '../../../ui/job-view/redux/stores/pushes';
 import { getApiUrl } from '../../../ui/helpers/url';
 import { findJobInstance } from '../../../ui/helpers/job';
 
@@ -128,6 +129,10 @@ describe('PushList', () => {
 
   const testPushList = () => {
     const store = configureStore(history);
+
+    // Manually trigger fetchPushes since outside testing the App does it.
+    store.dispatch(fetchPushes());
+
     return (
       <Provider store={store} context={ReactReduxContext}>
         <ConnectedRouter history={history} context={ReactReduxContext}>

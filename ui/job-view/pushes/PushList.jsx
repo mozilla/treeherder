@@ -29,11 +29,6 @@ class PushList extends React.Component {
   }
 
   componentDidMount() {
-    const { fetchPushes } = this.props;
-
-    // Fetch pushes regardless of whether App started the request,
-    // the Redux action will handle deduplication if needed.
-    fetchPushes();
     this.poll();
   }
 
