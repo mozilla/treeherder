@@ -221,6 +221,7 @@ export const thPlatformMap = {
   'android-hw-p6-13-0-aarch64-shippable':
     'Android 13.0 Pixel6 AArch64 Shippable',
   'android-em-14-x86_64': 'Android 14.0 x86-64',
+  'android-em-14-x86_64-lite': 'Android 14.0 x86-64 Lite',
   'android-hw-a55-14-0-aarch64-shippable':
     'Android 14.0 Galaxy A55 AArch64 Shippable',
   'android-hw-a55-14-0-aarch64': 'Android 14.0 Galaxy A55 AArch64',
