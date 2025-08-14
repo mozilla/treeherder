@@ -248,14 +248,9 @@ export const fetchPushes = (
 ) => {
   return async (dispatch, getState) => {
     const {
-      pushes: { pushList, jobMap, oldestPushTimestamp, loadingPushes },
+      pushes: { pushList, jobMap, oldestPushTimestamp },
       router,
     } = getState();
-
-    // Prevent duplicate requests when already loading initial data.
-    if (loadingPushes && !setFromchange) {
-      return;
-    }
 
     dispatch({ type: LOADING });
 
