@@ -243,6 +243,11 @@ def mock_full_log_parser(job_logs, mock_parser):
     try:
         # note: I was using parse_logs, but that is less deterministic
         for jl in job_logs:
+            # if job is already parsed
+            matching = JobLog.objects.filter(job_id=jl.job.id, name=jl.name, status__in=(1, 3))
+            if len(matching) == 1:
+                continue
+
             store_failure_lines(jl)
     except:
         raise

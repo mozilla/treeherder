@@ -1,6 +1,6 @@
 import datetime
 
-from treeherder.model.models import Group, GroupStatus, Job, JobLog, Push
+from treeherder.model.models import Group, GroupStatus, Job, Push
 
 
 def _check_and_mark_infra(current_job, job_ids, push_ids):
@@ -17,22 +17,23 @@ def _check_and_mark_infra(current_job, job_ids, push_ids):
     # look for all jobs in pushids matching current_job.job_type.name
     # if older are failing for "infra", then ensure same job is passing
     #  if so mark as intermittent
-    extra_jobs = JobLog.objects.filter(
-        job__push__id__range=(push_ids[-1], push_ids[0]),
-        job__push__repository__id=current_job.repository.id,
-        job__job_type__name=current_job.job_type.name,
-        job__failure_classification_id__in=[1, 6],
-        status__in=(1, 2, 3),  # ignore pending
-        job__result__in=[
+    extra_jobs = Job.objects.filter(
+        push__id__range=(push_ids[-1], push_ids[0]),
+        repository__id=current_job.repository.id,
+        job_type__name=current_job.job_type.name,
+        failure_classification_id__in=[1, 6],
+        job_log__status__in=[1, 3],  # ignore pending, failed
+        state="completed",  # ignore running/pending
+        result__in=[
             "busted",
             "testfailed",
             "exception",
             "success",
         ],  # primarily ignore retry/usercancel
     ).values(
-        "job__id",
-        "job__result",
-        "job__failure_classification_id",
+        "id",
+        "result",
+        "failure_classification_id",
     )
 
     if len(extra_jobs) == 0:
@@ -43,7 +44,7 @@ def _check_and_mark_infra(current_job, job_ids, push_ids):
     # jobs without groups (like marionette) will still get tallied properly here
     extra_failed = []
     for job in extra_jobs:
-        if job["job__id"] not in job_ids and job["job__result"] != "success":
+        if job["id"] not in job_ids and job["result"] != "success":
             extra_failed.append(job)
 
     # look for failure rate > 50% and exit early
@@ -54,8 +55,8 @@ def _check_and_mark_infra(current_job, job_ids, push_ids):
     # theoretically there could be many jobs here
     # mark extra_jobs as `intermittent_needs_classification`
     for job in extra_failed:
-        if job["job__failure_classification_id"] not in [4, 8]:
-            Job.objects.filter(id=job["job__id"]).update(failure_classification_id=8)
+        if job["failure_classification_id"] not in [4, 8]:
+            Job.objects.filter(id=job["id"]).update(failure_classification_id=8)
 
 
 def check_and_mark_intermittent(job_id):
