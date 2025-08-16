@@ -1,5 +1,6 @@
 import datetime
 import logging
+import time
 
 import newrelic.agent
 from cache_memoize import cache_memoize
@@ -66,7 +67,8 @@ class PushViewSet(viewsets.ViewSet):
                 repository = Repository.objects.get(name=project)
             except Repository.DoesNotExist:
                 return Response(
-                    {"detail": f"No project with name {project}"}, status=HTTP_404_NOT_FOUND
+                    {"detail": f"No project with name {project}"},
+                    status=HTTP_404_NOT_FOUND,
                 )
 
             pushes = pushes.filter(repository=repository)
@@ -167,7 +169,8 @@ class PushViewSet(viewsets.ViewSet):
                 id_in_list = [int(id) for id in id_in.split(",")]
             except ValueError:
                 return Response(
-                    {"detail": "Invalid id__in specification"}, status=HTTP_400_BAD_REQUEST
+                    {"detail": "Invalid id__in specification"},
+                    status=HTTP_400_BAD_REQUEST,
                 )
             pushes = pushes.filter(id__in=id_in_list)
 
@@ -496,6 +499,20 @@ class PushViewSet(viewsets.ViewSet):
             push = Push.objects.get(revision=revision, repository=repository)
         except Push.DoesNotExist:
             return Response(f"No push with revision: {revision}", status=HTTP_404_NOT_FOUND)
+
+        start_time = time.time()
         groups = get_group_results(repository, push)
+        end_time = time.time()
+        duration = end_time - start_time
+        logger.info(f"<><><><><> get_group_results took {duration:.3f} seconds for push {revision}")
+
+        # start_time_new = time.time()
+        # groups_new = get_group_results_new(push)
+        # end_time_new = time.time()
+        # duration_new = end_time_new - start_time_new
+        # logger.info(f"<><><><> get_group_results_new took {duration_new:.3f} seconds for push {revision}")
+
+        # groups_equal = groups == groups_new
+        # logger.info(f"<><><> Group and new Group equal: {groups_equal}")
 
         return Response(groups)
