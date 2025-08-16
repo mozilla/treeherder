@@ -199,7 +199,7 @@ def test_group_status_duration(activate_responses, test_repository, test_job):
     assert log_obj.groups.count() == 29
 
 
-def test_get_group_results(activate_responses, test_repository, test_job):
+def test_get_group_results(activate_responses, test_job):
     log_path = SampleData().get_log_path("mochitest-browser-chrome_errorsummary.log")
     log_url = "http://my-log.mozilla.org"
 
@@ -209,13 +209,13 @@ def test_get_group_results(activate_responses, test_repository, test_job):
     log_obj = JobLog.objects.create(job=test_job, name="errorsummary_json", url=log_url)
     store_failure_lines(log_obj)
 
-    groups = get_group_results(test_repository, test_job.push)
+    groups = get_group_results(test_job.push)
     task_groups = groups["V3SVuxO8TFy37En_6HcXLs"]
 
     assert task_groups["dom/base/test/browser.ini"]
 
 
-def test_get_group_results_with_colon(activate_responses, test_repository, test_job):
+def test_get_group_results_with_colon(activate_responses, test_job):
     log_path = SampleData().get_log_path("xpcshell-errorsummary-with-colon.log")
     log_url = "http://my-log.mozilla.org"
 
@@ -225,7 +225,7 @@ def test_get_group_results_with_colon(activate_responses, test_repository, test_
     log_obj = JobLog.objects.create(job=test_job, name="errorsummary_json", url=log_url)
     store_failure_lines(log_obj)
 
-    groups = get_group_results(test_repository, test_job.push)
+    groups = get_group_results(test_job.push)
     task_groups = groups["V3SVuxO8TFy37En_6HcXLs"]
 
     assert task_groups[
