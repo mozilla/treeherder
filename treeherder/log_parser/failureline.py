@@ -180,27 +180,40 @@ def create(job_log, log_list):
 
 def replace_astral(log_list):
     for item in log_list:
-        for key in ["test", "subtest", "message", "stack", "stackwalk_stdout", "stackwalk_stderr"]:
+        for key in [
+            "test",
+            "subtest",
+            "message",
+            "stack",
+            "stackwalk_stdout",
+            "stackwalk_stderr",
+        ]:
             if key in item:
                 item[key] = astral_filter(item[key])
         yield item
 
 
-def get_group_results(repository, push):
-    groups = Group.objects.filter(
-        job_logs__job__push__revision=push.revision,
-        job_logs__job__push__repository=repository,
-        group_result__status__in=[GroupStatus.OK, GroupStatus.ERROR],
-    ).values(
-        "group_result__status",
-        "name",
-        "job_logs__job__taskcluster_metadata__task_id",
+def get_group_results(push):
+    # Use push.id instead of filtering by revision and repository separately
+    # Also use select_related to reduce queries and only fetch needed fields
+    groups = (
+        Group.objects.filter(
+            group_result__job_log__job__push=push,
+            group_result__status__in=[GroupStatus.OK, GroupStatus.ERROR],
+        )
+        .select_related("group_result__job_log__job__taskcluster_metadata")
+        .values(
+            "group_result__status",
+            "name",
+            "group_result__job_log__job__taskcluster_metadata__task_id",
+        )
     )
 
+    # Pre-compute status check to avoid repeated dictionary lookups
     by_task_id = defaultdict(dict)
     for group in groups:
-        by_task_id[group["job_logs__job__taskcluster_metadata__task_id"]][group["name"]] = bool(
-            GroupStatus.STATUS_LOOKUP[group["group_result__status"]] == "OK"
-        )
+        task_id = group["group_result__job_log__job__taskcluster_metadata__task_id"]
+        # Directly check status value instead of looking up in STATUS_LOOKUP
+        by_task_id[task_id][group["name"]] = group["group_result__status"] == GroupStatus.OK
 
     return by_task_id
