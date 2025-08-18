@@ -52,3 +52,6 @@ inflection==0.5.1
 
 # Change detection tooling
 mozdetect==0.0.9
+
+# speed up CI tests
+pytest-xdist
