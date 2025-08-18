@@ -21,7 +21,7 @@ def _check_and_mark_infra(current_job, job_ids, push_ids):
         push__id__range=(push_ids[-1], push_ids[0]),
         repository__id=current_job.repository.id,
         job_type__name=current_job.job_type.name,
-        failure_classification_id__in=[1, 6],
+        failure_classification_id__in=[1, 6, 8],
         job_log__status__in=[1, 3],  # ignore pending, failed
         state="completed",  # ignore running/pending
         result__in=[
@@ -36,7 +36,8 @@ def _check_and_mark_infra(current_job, job_ids, push_ids):
         "failure_classification_id",
     )
 
-    if len(extra_jobs) == 0:
+    # ignore previous classified, we are looking for NEW extra jobs
+    if len([ej for ej in extra_jobs if ej["failure_classification_id"] != 8]) == 0:
         return
 
     # ensure 50% 'success' rate
@@ -49,6 +50,10 @@ def _check_and_mark_infra(current_job, job_ids, push_ids):
 
     # look for failure rate > 50% and exit early
     if len(extra_failed) / len(extra_jobs) > 0.5:
+        # as failure rate > 50%, if any jobs are fc_id=8 classify as fc_id=1
+        for job in extra_failed:
+            if job["failure_classification_id"] == 8:
+                Job.objects.filter(id=job["id"]).update(failure_classification_id=1)
         return
 
     # any extra_jobs will be failures without groups (infra/timeout/etc.)
@@ -117,6 +122,7 @@ def check_and_mark_intermittent(job_id):
             "group_result__status",
             "job_logs__job__job_type__name",
             "job_logs__job__push__id",
+            "job_logs__job__failure_classification__id",
         )
         .order_by("-job_logs__job__push__id")
     )
@@ -127,6 +133,7 @@ def check_and_mark_intermittent(job_id):
         return _check_and_mark_infra(current_job, distinct_job_ids, ids)
 
     mappings = {}
+    job_classifications = {}
     for item in all_groups:
         jobname = item["job_logs__job__job_type__name"].strip("-cf")
         try:
@@ -138,6 +145,12 @@ def check_and_mark_intermittent(job_id):
         if jobname != jtname:
             # we have a variant
             continue
+
+        # store job:fc_id so we can reference what needs changed
+        if item["job_logs__job__id"] not in job_classifications:
+            job_classifications[item["job_logs__job__id"]] = item[
+                "job_logs__job__failure_classification__id"
+            ]
 
         if item["job_logs__job__push__id"] not in mappings:
             mappings[item["job_logs__job__push__id"]] = {"groups": {}, "jobs": {}}
@@ -186,6 +199,8 @@ def check_and_mark_intermittent(job_id):
 
     # all changed_groups need to be evaluated on previous 'failed' jobs to ensure all groups in that task are 'passing'
     for id in mappings.keys():
+        jobs_to_classify = []  # mark as fcid=8 (known intermittent)
+        jobs_to_unclassify = []  # previously parked as fcid=8, new failing data, now fcid=1
         for job in mappings[id]["jobs"]:
             all_green = True
             current_all_green = True
@@ -205,11 +220,23 @@ def check_and_mark_intermittent(job_id):
             if (id == current_job.push.id and current_all_green) or (
                 id != current_job.push.id and len(ids) > 1 and all_green
             ):
-                target_job = Job.objects.filter(id=job)
+                jobs_to_classify.append(job)
+            elif job_classifications[job] == 8:
+                jobs_to_unclassify.append(job)
 
-                if target_job[0].result != "success" and target_job[
-                    0
-                ].failure_classification_id not in [4, 8]:
-                    target_job.update(failure_classification_id=8)
+        # TODO: consider job.result=(busted, exception)
+        for job in jobs_to_classify:
+            target_job = Job.objects.filter(
+                id=job, result="testfailed", failure_classification_id__in=[1, 6]
+            )
+            if target_job:
+                target_job.update(failure_classification_id=8)
+
+        for job in jobs_to_unclassify:
+            target_job = Job.objects.filter(
+                id=job, result="testfailed", failure_classification_id=8
+            )
+            if target_job:
+                target_job.update(failure_classification_id=1)
 
     return _check_and_mark_infra(current_job, distinct_job_ids, ids)
