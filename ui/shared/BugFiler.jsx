@@ -42,6 +42,7 @@ export class BugFilerClass extends React.Component {
       parsedLog,
       reftestUrl,
       selectedJob,
+      currentRepo,
     } = props;
 
     const allFailures = suggestions.map((sugg) =>
@@ -188,9 +189,13 @@ export class BugFilerClass extends React.Component {
       }
     }
 
+    if (currentRepo.name === 'try') {
+      summaryString = `[non-prod]  ${summaryString}`;
+    }
+
     this.state = {
       tooltipOpen: {},
-      summary: `Intermittent ${summaryString}`,
+      summary: `Intermittent [non-prod] ${summaryString}`,
       productSearch: null,
       suggestedProducts: [],
       isFilerSummaryVisible: false,
@@ -1018,7 +1023,7 @@ BugFilerClass.propTypes = {
   platform: PropTypes.string.isRequired,
   notify: PropTypes.func.isRequired,
   selectedJob: PropTypes.shape({}).isRequired,
-  currentRepo: PropTypes.string.isRequired,
+  currentRepo: PropTypes.shape({}).isRequired,
 };
 
 const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({

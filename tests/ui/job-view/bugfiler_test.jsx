@@ -143,6 +143,7 @@ describe('BugFiler', () => {
         successCallback={successCallback}
         selectedJob={selectedJob}
         platform={selectedJob.platform}
+        currentRepo={{ name: 'autoland' }}
         notify={() => {}}
         currentRepo={currentRepo}
       />
@@ -162,6 +163,7 @@ describe('BugFiler', () => {
         successCallback={successCallback}
         selectedJob={selectedJob}
         platform={selectedJob.platform}
+        currentRepo={{ name: 'autoland' }}
         notify={() => {}}
         currentRepo={currentRepo}
       />
