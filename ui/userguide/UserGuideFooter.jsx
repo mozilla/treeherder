@@ -31,7 +31,7 @@ const UserGuideFooter = function UserGuideFooter() {
           className="midgray"
           href="https://whatsdeployed.io/s/BIY/Mozilla/Treeherder"
         >
-          What's Deployed?
+          What&apos;s Deployed?
         </a>
       </div>
     </div>
