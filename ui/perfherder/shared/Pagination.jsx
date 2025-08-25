@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Pagination, PaginationItem, PaginationLink } from 'reactstrap';
+import { Pagination } from 'react-bootstrap';
 
 class PaginationGroup extends React.Component {
   navigatePage = (page) => {
@@ -25,49 +25,37 @@ class PaginationGroup extends React.Component {
          aren't working correctly (icons aren't visible)
          so they haven't been added */
       <Pagination aria-label={`Page ${currentPage}`}>
-        <PaginationItem className="text-info" disabled={!firstButtonAvailable}>
-          <PaginationLink
-            className="text-info"
-            first
-            onClick={() => this.navigatePage(1)}
-          />
-        </PaginationItem>
-        <PaginationItem disabled={!prevButtonAvailable}>
-          <PaginationLink
-            className="text-info"
-            previous
-            onClick={() => this.navigatePage(currentPage - 1)}
-          />
-        </PaginationItem>
+        <Pagination.First
+          className="text-info"
+          disabled={!firstButtonAvailable}
+          onClick={() => this.navigatePage(1)}
+        />
+        <Pagination.Prev
+          className="text-info"
+          disabled={!prevButtonAvailable}
+          onClick={() => this.navigatePage(currentPage - 1)}
+        />
         {viewablePageNums.map((num) => (
-          <PaginationItem
+          <Pagination.Item
             key={num}
             active={num === currentPage}
             className="text-info pagination-active"
+            onClick={() => this.navigatePage(num)}
+            aria-label={`pagination-button-${num}`}
           >
-            <PaginationLink
-              className="text-info"
-              onClick={() => this.navigatePage(num)}
-              aria-label={`pagination-button-${num}`}
-            >
-              {num}
-            </PaginationLink>
-          </PaginationItem>
+            {num}
+          </Pagination.Item>
         ))}
-        <PaginationItem disabled={!nextButtonAvailable}>
-          <PaginationLink
-            className="text-info"
-            next
-            onClick={() => this.navigatePage(currentPage + 1)}
-          />
-        </PaginationItem>
-        <PaginationItem className="text-info" disabled={!lastButtonAvailable}>
-          <PaginationLink
-            className="text-info"
-            last
-            onClick={() => this.navigatePage(count)}
-          />
-        </PaginationItem>
+        <Pagination.Next
+          className="text-info"
+          disabled={!nextButtonAvailable}
+          onClick={() => this.navigatePage(currentPage + 1)}
+        />
+        <Pagination.Last
+          className="text-info"
+          disabled={!lastButtonAvailable}
+          onClick={() => this.navigatePage(count)}
+        />
       </Pagination>
     );
   }

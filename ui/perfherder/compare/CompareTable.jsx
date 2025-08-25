@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Table } from 'reactstrap';
+import { Button, Table } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHashtag } from '@fortawesome/free-solid-svg-icons';
@@ -154,7 +154,7 @@ export default class CompareTable extends React.Component {
                 {onPermalinkClick && (
                   <Button
                     className="permalink p-0 ml-1"
-                    color="link"
+                    variant="link"
                     onClick={() =>
                       onPermalinkClick(
                         getHashBasedId(testName, hashFunction),
