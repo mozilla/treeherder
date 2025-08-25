@@ -10,7 +10,7 @@ import { push as pushRoute } from 'connected-react-router';
 
 import { thFavicons, thDefaultRepo, thEvents } from '../helpers/constants';
 import ShortcutTable from '../shared/ShortcutTable';
-import { matchesDefaults } from '../helpers/filter';
+import { matchesDefaults, hasUrlFilterChanges } from '../helpers/filter';
 import { getAllUrlParams } from '../helpers/location';
 import { MAX_TRANSIENT_AGE } from '../helpers/notifications';
 import {
@@ -335,13 +335,28 @@ class App extends React.Component {
     };
 
     const oldState = pick(this.state, Object.keys(newState));
-    let stateChanges = { filterModel: new FilterModel(this.props) };
+    let stateChanges = {};
+
+    // Only create a new FilterModel instance if filter parameters actually changed
+    if (
+      hasUrlFilterChanges(
+        this.state.filterModel.location.search,
+        router.location.search,
+      )
+    ) {
+      stateChanges.filterModel = new FilterModel(this.props);
+    } else {
+      // Update existing FilterModel's location to keep the selected task when filters change
+      this.state.filterModel.location = router.location;
+    }
 
     if (!isEqual(newState, oldState)) {
       stateChanges = { ...stateChanges, ...newState };
     }
 
-    this.setState(stateChanges);
+    if (Object.keys(stateChanges).length > 0) {
+      this.setState(stateChanges);
+    }
   };
 
   // If ``show`` is a boolean, then set to that value.  If it's not, then toggle

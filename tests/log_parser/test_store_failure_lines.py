@@ -449,3 +449,39 @@ def test_retrigger_intermittent(activate_responses, hundred_job_blobs, mock_pars
     # this will parse and check for intermittents
     mock_full_log_parser(job_logs, mock_parser)
     verify_classification_id(jobs, 8, 8)
+
+
+def test_reclassify_group_intermittent(
+    activate_responses, hundred_job_blobs, mock_parser, create_jobs
+):
+    # test fails, retrigger has different failures on same group, both -> intermittent
+    log_filenames = [
+        "mochitest-browser-chrome_errorsummary.log",
+        "mochitest-browser-chrome_2_errorsummary.log",
+        "mochitest-browser-chrome_errorsummary.log",
+    ]
+    jobs = create_errorsummary_job(hundred_job_blobs[0], create_jobs, log_filenames)
+    job_logs = JobLog.objects.filter(job_id__in=(j.id for j in jobs))
+    assert len(jobs) == len(log_filenames)
+
+    # this will parse and check for intermittents
+    mock_full_log_parser(job_logs, mock_parser)
+    verify_classification_id(jobs, 1, 8)
+
+
+def test_reclassify_infra_intermittent(
+    activate_responses, hundred_job_blobs, mock_parser, create_jobs
+):
+    # test fails, retrigger has different failures on same group, both -> intermittent
+    log_filenames = [
+        "mochitest-browser-chrome_infra_errorsummary.log",
+        "mochitest-browser-chrome_pass_errorsummary.log",
+        "mochitest-browser-chrome_infra_errorsummary.log",
+    ]
+    jobs = create_errorsummary_job(hundred_job_blobs[0], create_jobs, log_filenames)
+    job_logs = JobLog.objects.filter(job_id__in=(j.id for j in jobs))
+    assert len(jobs) == len(log_filenames)
+
+    # this will parse and check for intermittents
+    mock_full_log_parser(job_logs, mock_parser)
+    verify_classification_id(jobs, 1, 1)
