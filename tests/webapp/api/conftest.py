@@ -3,10 +3,6 @@ import pathlib
 
 import pytest
 
-from tests.conftest import SampleDataJSONLoader
-
-load_json_fixture = SampleDataJSONLoader("sherlock")
-
 
 def pytest_collection_modifyitems(config, items):
     for root, dirs, files in os.walk(pathlib.Path(__file__).parent):
@@ -17,9 +13,11 @@ def pytest_collection_modifyitems(config, items):
             subfolder_path = pathlib.Path(__file__).parent / dir
             for item in items:
                 if subfolder_path in pathlib.Path(item.fspath).parents:
-                    item.add_marker(pytest.mark.perf)
+                    item.add_marker(pytest.mark.frontend)
 
         for file in files:
+            if 'test_perf' in file:
+                continue
             for item in items:
                 if str(item.fspath).endswith(file):
-                    item.add_marker(pytest.mark.perf)
+                    item.add_marker(pytest.mark.frontend)

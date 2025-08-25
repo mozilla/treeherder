@@ -1,4 +1,7 @@
+import pytest
 from django.urls import reverse
+
+pytestmark = pytest.mark.perf
 
 
 def test_perf_tags_get(authorized_sheriff_client, test_perf_tag, test_perf_tag_2):
