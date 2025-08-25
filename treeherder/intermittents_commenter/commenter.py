@@ -464,7 +464,8 @@ class Commenter:
                     job_name = bug["job__signature__job_type_name"]
                     if len(job_name.rsplit("-", 1)) == 2 and job_name.rsplit("-", 1)[1].isdigit():
                         job_name = job_name.rsplit("-", 1)[0]
-                    run_count = self.get_task_labels_and_count(manifest, days, job_name)
+                    # NOTE: until we get groupsummary/ api working and make this run more performant
+                    # run_count = self.get_task_labels_and_count(manifest, days, job_name)
                     bug_testrun_matrix = testrun_matrix[manifest]
             bug_run_info = self.get_bug_run_info(bug)
             all_variants = bug_run_info.variants
