@@ -17,23 +17,27 @@ def _check_and_mark_infra(current_job, job_ids, push_ids):
     # look for all jobs in pushids matching current_job.job_type.name
     # if older are failing for "infra", then ensure same job is passing
     #  if so mark as intermittent
-    extra_jobs = Job.objects.filter(
-        push__id__range=(push_ids[-1], push_ids[0]),
-        repository__id=current_job.repository.id,
-        job_type__name=current_job.job_type.name,
-        failure_classification_id__in=[1, 6, 8],
-        job_log__status__in=[1, 3],  # ignore pending, failed
-        state="completed",  # ignore running/pending
-        result__in=[
-            "busted",
-            "testfailed",
-            "exception",
-            "success",
-        ],  # primarily ignore retry/usercancel
-    ).values(
-        "id",
-        "result",
-        "failure_classification_id",
+    extra_jobs = (
+        Job.objects.filter(
+            push__id__range=(push_ids[-1], push_ids[0]),
+            repository__id=current_job.repository.id,
+            job_type__name=current_job.job_type.name,
+            failure_classification_id__in=[1, 6, 8],
+            job_log__status__in=[1, 3],  # ignore pending, failed
+            state="completed",  # ignore running/pending
+            result__in=[
+                "busted",
+                "testfailed",
+                "exception",
+                "success",
+            ],  # primarily ignore retry/usercancel
+        )
+        .values(
+            "id",
+            "result",
+            "failure_classification_id",
+        )
+        .distinct("id")
     )
 
     # ignore previous classified, we are looking for NEW extra jobs
@@ -116,6 +120,7 @@ def check_and_mark_intermittent(job_id):
             ],  # primarily ignore retry/usercancel/unknown
             group_result__status__in=[GroupStatus.OK, GroupStatus.ERROR],
         )
+        .exclude(name__exact="")
         .values(
             "name",
             "job_logs__job__id",
