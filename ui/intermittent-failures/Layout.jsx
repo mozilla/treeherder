@@ -28,6 +28,7 @@ const Layout = (props) => {
     table,
     datePicker,
     header,
+    location,
   } = props;
 
   let failureMessage = null;
@@ -37,7 +38,14 @@ const Layout = (props) => {
     failureMessage = graphData;
   }
   return (
-    <Container fluid className="my-5 max-width-default">
+    <Container
+      fluid
+      className={`my-5 ${
+        location && location.pathname !== '/intermittent-failures/main'
+          ? 'max-width-default'
+          : ''
+      }`}
+    >
       <Navigation
         updateState={updateState}
         updateHash={updateHash}

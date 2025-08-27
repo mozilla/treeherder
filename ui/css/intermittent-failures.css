@@ -16,23 +16,6 @@ h1,
   margin-bottom: 7px;
 }
 
-.bug-column-header {
-  margin-left: 10px;
-}
-
-.bug-column {
-  margin-left: 5px;
-}
-
-.bug-column .bug-details {
-  display: none;
-}
-
-.bug-column:hover .bug-details,
-.bug-column:focus-within .bug-details {
-  display: initial;
-}
-
 /* Graph Alternate View - Table */
 .alternate-table {
   max-width: 660px;

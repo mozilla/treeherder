@@ -329,7 +329,6 @@ BugDetailsView.propTypes = {
     hash: PropTypes.string,
   }).isRequired,
   tree: PropTypes.string.isRequired,
-  updateAppState: PropTypes.func,
   updateState: PropTypes.func.isRequired,
   updateHash: PropTypes.func.isRequired,
   startday: PropTypes.string.isRequired,
@@ -380,7 +379,6 @@ BugDetailsView.defaultProps = {
   errorMessages: [],
   tableFailureStatus: null,
   graphFailureStatus: null,
-  updateAppState: null,
   uniqueLines: [],
   uniqueFrequency: {},
 };
