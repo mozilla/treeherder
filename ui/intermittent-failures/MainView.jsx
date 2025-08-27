@@ -7,11 +7,11 @@ import Checkbox from '@mui/material/Checkbox';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import Popper from '@mui/material/Popper';
+import IconButton from '@mui/material/IconButton';
 
-import { bugsEndpoint } from '../helpers/url';
+import { bugsEndpoint, getBugUrl } from '../helpers/url';
 import { setUrlParam, getUrlParam } from '../helpers/location';
 
-import BugColumn from './BugColumn';
 import {
   calculateMetrics,
   prettyDate,
@@ -39,7 +39,6 @@ const MainView = (props) => {
     initialParamsSet,
     startday,
     endday,
-    failurehash,
     updateState,
     tree,
     location,
@@ -50,12 +49,12 @@ const MainView = (props) => {
     product: [],
     component: [],
   });
-  const textFilter = (filter, row) => {
-    if (getUrlParam(filter.id) !== filter.value) {
-      setUrlParam(filter.id, filter.value);
-    }
+  const regexpFilter = (filter, row) => {
     const text = row[filter.id];
-    const regex = RegExp(filter.value, 'i');
+    const value = Array.isArray(filter.value)
+      ? filter.value.join('|')
+      : filter.value;
+    const regex = RegExp(value, 'i');
     if (regex.test(text)) {
       return row;
     }
@@ -92,10 +91,8 @@ const MainView = (props) => {
         renderInput={(params) => (
           <TextField
             style={{
-              maxHeight: '0.9em',
               border: 'none',
               padding: '0',
-              minWidth: '140px',
             }}
             {...params}
           />
@@ -104,73 +101,147 @@ const MainView = (props) => {
     );
   };
 
+  const textFilter = ({ filter, onChange, placeholder, columnId }) => (
+    <TextField
+      size="small"
+      fullWidth
+      placeholder={placeholder}
+      value={filter ? filter.value : ''}
+      onChange={(event) => {
+        const { value } = event.target;
+        setUrlParam(columnId, value);
+        onChange(value);
+      }}
+      style={{
+        border: 'none',
+        padding: '0',
+      }}
+      slotProps={{
+        htmlInput: {
+          style: {
+            textAlign: 'left',
+          },
+        },
+        input: {
+          style: {
+            paddingRight: '0px',
+          },
+          endAdornment:
+            filter && filter.value ? (
+              <IconButton
+                onClick={() => {
+                  setUrlParam(columnId, '');
+                  onChange('');
+                }}
+                size="small"
+                style={{
+                  visibility: 'visible',
+                  margin: '4px',
+                  width: '24px',
+                  height: '24px',
+                }}
+              >
+                ✕
+              </IconButton>
+            ) : null,
+        },
+      }}
+    />
+  );
+
+  const tooltipCell = (props) => <span title={props.value}>{props.value}</span>;
+
   const columns = [
-    {
-      Header: 'Bug',
-      accessor: 'id',
-      headerClassName: 'bug-column-header text-left',
-      className: 'bug-column text-left',
-      maxWidth: 150,
-      width: 115,
-      Cell: (_props) => (
-        <BugColumn
-          data={_props.original}
-          tree={tree}
-          startday={startday}
-          endday={endday}
-          failurehash={failurehash}
-          location={location}
-          graphData={graphData}
-          tableData={tableData}
-          updateAppState={updateAppState}
-        />
-      ),
-    },
     {
       Header: 'Count',
       accessor: 'count',
-      maxWidth: 100,
+      maxWidth: 60,
       filterable: false,
+      className: 'text-right',
+      headerClassName: 'text-left',
+    },
+    {
+      Header: 'Bug',
+      accessor: 'id',
+      headerClassName: 'text-left',
+      className: 'text-left',
+      width: 90,
+      Cell: (props) => (
+        <div>
+          <a
+            className="ml-1"
+            target="_blank"
+            rel="noopener noreferrer"
+            href={`${getBugUrl(props.original.id)}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {props.original.id}
+          </a>
+        </div>
+      ),
+      filterMethod: (filter, row) => {
+        if (filter.value) {
+          const bugId = row.id.toString();
+          return bugId.includes(filter.value);
+        }
+        return true;
+      },
+      Filter: (props) =>
+        textFilter({
+          ...props,
+          placeholder: 'Filter by bug ID…',
+          columnId: 'id',
+        }),
     },
     {
       Header: 'Product',
       accessor: 'product',
       maxWidth: 100,
-      filterMethod: (filter, row) => {
-        if (filter.value) {
-          const regex = RegExp(filter.value.join('|'), 'i');
-          if (regex.test(row.product)) {
-            return row;
-          }
-        }
-      },
+      className: 'text-left',
+      headerClassName: 'text-left',
+      Cell: tooltipCell,
+      filterMethod: regexpFilter,
       Filter: autoCompleteFilter,
     },
     {
       Header: 'Component',
       accessor: 'component',
       maxWidth: 100,
-      filterMethod: (filter, row) => {
-        if (filter.value) {
-          const regex = RegExp(filter.value.join('|'), 'i');
-          if (regex.test(row.component)) {
-            return row;
-          }
-        }
-      },
+      className: 'text-left',
+      headerClassName: 'text-left',
+      Cell: tooltipCell,
+      filterMethod: regexpFilter,
       Filter: autoCompleteFilter,
+    },
+    {
+      Header: 'Whiteboard',
+      accessor: 'whiteboard',
+      width: 150,
+      className: 'text-left',
+      headerClassName: 'text-left',
+      Cell: tooltipCell,
+      filterMethod: regexpFilter,
+      Filter: (props) =>
+        textFilter({
+          ...props,
+          placeholder: 'Filter by whiteboard…',
+          columnId: 'whiteboard',
+        }),
     },
     {
       Header: 'Summary',
       accessor: 'summary',
       minWidth: 250,
-      filterMethod: (filter, row) => textFilter(filter, row),
-    },
-    {
-      Header: 'Whiteboard',
-      accessor: 'whiteboard',
-      minWidth: 150,
-      filterMethod: (filter, row) => textFilter(filter, row),
+      className: 'text-left',
+      headerClassName: 'text-left',
+      Cell: tooltipCell,
+      filterMethod: regexpFilter,
+      Filter: (props) =>
+        textFilter({
+          ...props,
+          placeholder: 'Filter by summary…',
+          columnId: 'summary',
+        }),
     },
   ];
 
@@ -277,14 +348,43 @@ const MainView = (props) => {
         initialParamsSet && (
           <ReactTable
             data={tableData}
-            showPageSizeOptions
+            showPageSizeOptions={false}
             columns={columns}
             className="-striped"
             getTableProps={() => ({ role: 'table' })}
             getTheadFilterThProps={getHeaderAriaLabel}
-            getTrProps={tableRowStyling}
+            getTrProps={(state, rowInfo) => {
+              const baseProps = tableRowStyling(state, rowInfo);
+              if (rowInfo && rowInfo.original) {
+                return {
+                  ...baseProps,
+                  style: {
+                    ...baseProps.style,
+                    cursor: 'pointer',
+                  },
+                  onClick: () => {
+                    updateAppState({ graphData, tableData });
+                    const { id, summary } = rowInfo.original;
+                    // Use history.push for proper React Router navigation
+                    props.history.push({
+                      pathname: '/intermittent-failures/bugdetails',
+                      search: `?startday=${startday}&endday=${endday}&tree=${tree}&bug=${id}`,
+                      state: {
+                        startday,
+                        endday,
+                        tree,
+                        id,
+                        summary,
+                        location,
+                      },
+                    });
+                  },
+                };
+              }
+              return baseProps;
+            }}
             showPaginationTop
-            defaultPageSize={50}
+            defaultPageSize={100}
             filterable
             defaultFiltered={setInitialFiltersFromUrl()}
           />
@@ -302,7 +402,6 @@ MainView.propTypes = {
   updateState: PropTypes.func.isRequired,
   startday: PropTypes.string.isRequired,
   endday: PropTypes.string.isRequired,
-  failurehash: PropTypes.string.isRequired,
   tableData: PropTypes.arrayOf(PropTypes.shape({})),
   graphData: PropTypes.arrayOf(PropTypes.shape({})),
   initialParamsSet: PropTypes.bool.isRequired,
@@ -319,7 +418,6 @@ const defaultState = {
   tree: 'all',
   startday: ISODate(moment().utc().subtract(7, 'days')),
   endday: ISODate(moment().utc()),
-  failurehash: 'all',
   endpoint: bugsEndpoint,
   route: '/main',
 };
