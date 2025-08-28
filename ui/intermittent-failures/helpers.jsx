@@ -1,4 +1,9 @@
 import moment from 'moment';
+import React from 'react';
+import TextField from '@mui/material/TextField';
+import IconButton from '@mui/material/IconButton';
+
+import { setUrlParam } from '../helpers/location';
 
 // be sure to wrap date arg in a moment()
 export const ISODate = function formatISODate(date) {
@@ -141,4 +146,69 @@ export const tableRowStyling = function tableRowStyling(state, bug) {
   return {};
 };
 
+export const tooltipCell = (props) => (
+  <span title={props.value}>{props.value}</span>
+);
+
 export const removePath = (line = '') => line.replace(/\/?([\w\d-.]+\/)+/, '');
+
+export const regexpFilter = (filter, row) => {
+  if (filter.value) {
+    const text = row[filter.id];
+    const value = Array.isArray(filter.value)
+      ? filter.value.join('|')
+      : filter.value;
+    const regex = RegExp(value, 'i');
+    if (regex.test(text)) {
+      return row;
+    }
+  }
+};
+
+export const textFilter = ({ filter, onChange, placeholder, columnId }) => (
+  <TextField
+    size="small"
+    fullWidth
+    placeholder={placeholder}
+    value={filter ? filter.value : ''}
+    onChange={(event) => {
+      const { value } = event.target;
+      if (columnId) setUrlParam(columnId, value);
+      onChange(value);
+    }}
+    style={{
+      border: 'none',
+      padding: '0',
+    }}
+    slotProps={{
+      htmlInput: {
+        style: {
+          textAlign: 'left',
+        },
+      },
+      input: {
+        style: {
+          paddingRight: '0px',
+        },
+        endAdornment:
+          filter && filter.value ? (
+            <IconButton
+              onClick={() => {
+                if (columnId) setUrlParam(columnId, '');
+                onChange('');
+              }}
+              size="small"
+              style={{
+                visibility: 'visible',
+                margin: '4px',
+                width: '24px',
+                height: '24px',
+              }}
+            >
+              ✕
+            </IconButton>
+          ) : null,
+      },
+    }}
+  />
+);
