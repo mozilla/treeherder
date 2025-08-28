@@ -9,6 +9,7 @@ __pycache__
 .build/
 .venv/
 venv/
+.scratch/
 
 # vi
 *.swp

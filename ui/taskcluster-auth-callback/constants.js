@@ -4,7 +4,7 @@ export const tcClientIdMap = {
   'https://treeherder.mozilla.org': 'production',
   'https://treeherder.allizom.org': 'stage',
   'https://prototype.treeherder.nonprod.cloudops.mozgcp.net': 'dev',
-  'http://localhost:5001': 'localhost-5001',
+  'http://localhost:5000': 'localhost-5000',
   'http://localhost:8000': 'localhost-8000',
   'https://tc-staging.treeherder.nonprod.cloudops.mozgcp.net':
     'taskcluster-staging',
