@@ -8,9 +8,13 @@ __pycache__
 .ruff_cache/
 .build/
 .venv/
+venv/
 
 # vi
 *.swp
+
+# Database
+treeherder_backup_*
 
 # Caches
 .eslintcache

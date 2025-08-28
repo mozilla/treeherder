@@ -251,11 +251,11 @@ LOGGING = {
             "handlers": ["json"],
             "level": "DEBUG",
         },
-        "django.db.backends": {
-            "handlers": ["console"],
-            "level": "DEBUG",
-            "propagate": False,
-        },
+        # "django.db.backends": {
+        #     "handlers": ["console"],
+        #     "level": "DEBUG",
+        #     "propagate": False,
+        # },
     },
 }
 
@@ -265,7 +265,7 @@ USE_X_FORWARDED_PORT = True
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 CSRF_TRUSTED_ORIGINS = env.list(
-    "CSRF_TRUSTED_ORIGINS", default=["http://localhost:8000", "http://localhost:5000"]
+    "CSRF_TRUSTED_ORIGINS", default=["http://localhost:8000", "http://localhost:5001"]
 )
 
 if SITE_URL.startswith("https://"):
