@@ -27,7 +27,9 @@ def parse_logs(job_id, job_log_ids, priority):
     job_logs = JobLog.objects.filter(id__in=job_log_ids, job=job)
 
     if len(job_log_ids) != len(job_logs):
-        logger.warning("Failed to load all expected job ids: %s", ", ".join(job_log_ids))
+        logger.warning(
+            "Failed to load all expected job ids: %s", ", ".join([str(j) for j in job_log_ids])
+        )
 
     parser_tasks = {
         "errorsummary_json": store_failure_lines,
