@@ -5,10 +5,10 @@ import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 const SimpleTooltip = ({
   text,
   tooltipText,
-  placement,
-  textClass,
-  innerClassName,
-  autohide,
+  placement = 'top',
+  textClass = '',
+  innerClassName = '',
+  autohide = true,
 }) => {
   const tooltip = <Tooltip className={innerClassName}>{tooltipText}</Tooltip>;
 
@@ -32,11 +32,4 @@ SimpleTooltip.propTypes = {
   placement: PropTypes.string,
   innerClassName: PropTypes.string,
   autohide: PropTypes.bool,
-};
-
-SimpleTooltip.defaultProps = {
-  textClass: '',
-  placement: 'top',
-  innerClassName: '',
-  autohide: true,
 };

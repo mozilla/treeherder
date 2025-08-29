@@ -6,7 +6,7 @@ import SimpleTooltip from './SimpleTooltip';
 import DropdownMenuItems from './DropdownMenuItems';
 import InputFilter from './InputFilter';
 
-export const createDropdowns = (dropdownOptions, colClass, outline = false) => (
+export const createDropdowns = (dropdownOptions, colClass) => (
   <React.Fragment>
     {dropdownOptions.map((dropdown) => (
       <Col
@@ -19,9 +19,7 @@ export const createDropdowns = (dropdownOptions, colClass, outline = false) => (
           title={dropdown.title}
           aria-label={dropdown.title}
         >
-          <Dropdown.Toggle caret outline={outline}>
-            {dropdown.selectedItem}
-          </Dropdown.Toggle>
+          <Dropdown.Toggle caret>{dropdown.selectedItem}</Dropdown.Toggle>
           <DropdownMenuItems
             pinned={dropdown.pinnedProjects || dropdown.pinned}
             otherPinned={dropdown.otherPinned}
@@ -47,8 +45,7 @@ const FilterControls = ({
 }) => {
   const createButton = (filter) => (
     <Button
-      variant="darker-info"
-      outline
+      variant="outline-darker-info"
       onClick={() => updateFilter(filter.stateName)}
       active={filter.state}
       disabled={filter.disable}

@@ -5,7 +5,6 @@ import {
   Collapse,
   Nav,
   Navbar,
-  DropdownButton,
   ButtonGroup,
   Dropdown,
   Form,
@@ -238,7 +237,7 @@ class Test extends PureComponent {
               onClick={this.toggleDetails}
               className="pr-0 text-left border-0"
               title="Click to expand for test detail"
-              outline
+              variant="outline"
             >
               <FontAwesomeIcon
                 icon={detailsShowing ? faCaretDown : faCaretRight}
@@ -249,7 +248,7 @@ class Test extends PureComponent {
               onClick={this.toggleDetails}
               className="text-left border-0"
               title="Click to expand for test detail"
-              outline
+              variant="outline"
             >
               {key === 'none' ? 'All' : this.getGroupHtml(key)}
               <span className="ml-2 text-break">
@@ -263,103 +262,106 @@ class Test extends PureComponent {
             />
           </span>
 
-          <Collapse isOpen={detailsShowing}>
-            <Navbar className="mb-3">
-              <Nav>
-                <Nav.Item>
-                  <ButtonGroup size="sm" className="ml-5">
+          <Collapse in={detailsShowing}>
+            <div>
+              <Navbar className="mb-3">
+                <Nav>
+                  <Nav.Item>
+                    <ButtonGroup size="sm" className="ml-5">
+                      <Button
+                        title="Retrigger selected jobs once"
+                        onClick={() => this.retriggerSelected(1)}
+                        size="sm"
+                        variant="secondary"
+                      >
+                        <FontAwesomeIcon
+                          icon={faRedo}
+                          title="Retrigger"
+                          className="mr-2"
+                          alt=""
+                        />
+                        Retrigger Selected
+                      </Button>
+                      <Dropdown>
+                        <Dropdown.Toggle
+                          split
+                          variant="secondary"
+                          size="sm"
+                          title="Retrigger selected multiple times"
+                        />
+                        <Dropdown.Menu>
+                          {[5, 10, 15].map((times) => (
+                            <Dropdown.Item
+                              key={times}
+                              title={`Retrigger selected jobs ${times} times`}
+                              onClick={() => this.retriggerSelected(times)}
+                              className="pointable"
+                            >
+                              Retrigger selected {times} times
+                            </Dropdown.Item>
+                          ))}
+                        </Dropdown.Menu>
+                      </Dropdown>
+                    </ButtonGroup>
                     <Button
-                      title="Retrigger selected jobs once"
-                      onClick={() => this.retriggerSelected(1)}
                       size="sm"
+                      variant="outline-primary"
+                      className="mx-3"
+                      title="Mark selected jobs as investigated"
+                      onClick={() => this.markAsInvestigated()}
                     >
-                      <FontAwesomeIcon
-                        icon={faRedo}
-                        title="Retrigger"
-                        className="mr-2"
-                        alt=""
-                      />
-                      Retrigger Selected
+                      Mark as investigated
                     </Button>
-                    <DropdownButton size="sm">
-                      <Dropdown.Toggle caret />
-                      <Dropdown.Menu>
-                        {[5, 10, 15].map((times) => (
-                          <Dropdown.Item
-                            key={times}
-                            title={`Retrigger selected jobs ${times} times`}
-                            onClick={() => this.retriggerSelected(times)}
-                            className="pointable"
-                            tag="a"
-                          >
-                            Retrigger selected {times} times
-                          </Dropdown.Item>
-                        ))}
-                      </Dropdown.Menu>
-                    </DropdownButton>
-                  </ButtonGroup>
-                  <Button
-                    size="sm"
-                    outline
-                    variant="primary"
-                    className="mx-3"
-                    title="Mark selected jobs as investigated"
-                    onClick={() => this.markAsInvestigated()}
-                  >
-                    Mark as investigated
-                  </Button>
-                  <Button
-                    size="sm"
-                    outline
-                    variant="primary"
-                    className="mx-3"
-                    title="Mark selected jobs as Uninvestigated"
-                    onClick={() => this.markAsUninvestigated()}
-                  >
-                    Mark as Uninvestigated
-                  </Button>
-                </Nav.Item>
-              </Nav>
-            </Navbar>
-            <div className="ml-5 pl-2 position-relative">
-              <Form.Group className="mb-1 pl-4">
-                <Form.Control
-                  aria-label="Select all platforms for this test"
+                    <Button
+                      size="sm"
+                      variant="outline-primary"
+                      className="mx-3"
+                      title="Mark selected jobs as Uninvestigated"
+                      onClick={() => this.markAsUninvestigated()}
+                    >
+                      Mark as Uninvestigated
+                    </Button>
+                  </Nav.Item>
+                </Nav>
+              </Navbar>
+              <div className="mb-2 ml-4 pl-4">
+                <Form.Check
                   type="checkbox"
+                  id="select-all-platforms"
+                  label="select all"
                   checked={allPlatformsSelected}
                   onChange={this.selectAll}
+                  className="text-darker-secondary"
+                  style={{ '--bs-form-check-label-margin-start': '1rem' }}
                 />
-                <Form.Label className="text-darker-secondary ml-4">
-                  select all
-                </Form.Label>
-              </Form.Group>
-            </div>
-            {tests.map((failure) => (
-              <PlatformConfig
-                key={failure.key}
-                testName={failure.testName}
-                jobName={failure.jobName}
-                jobs={jobs[failure.jobName]}
-                revision={revision}
-                notify={notify}
-                selectedJobName={selectedJobName}
-                selectedTaskId={selectedTaskId}
-                updateParamsAndState={(stateObj) => {
-                  stateObj.selectedTest = id;
-                  updateParamsAndState(stateObj);
-                }}
-                currentRepo={currentRepo}
-              >
-                <TaskSelection
-                  failure={failure}
-                  groupedBy={groupedBy}
-                  addSelectedTest={this.addSelectedTest}
-                  removeSelectedTest={this.removeSelectedTest}
-                  allPlatformsSelected={allPlatformsSelected}
+              </div>
+              {tests.map((failure) => (
+                <PlatformConfig
+                  key={failure.key}
+                  testName={failure.testName}
+                  jobName={failure.jobName}
+                  jobs={jobs[failure.jobName]}
+                  revision={revision}
+                  notify={notify}
+                  selectedJobName={selectedJobName}
+                  selectedTaskId={selectedTaskId}
+                  updateParamsAndState={(stateObj) => {
+                    stateObj.selectedTest = id;
+                    updateParamsAndState(stateObj);
+                  }}
                   currentRepo={currentRepo}
-                />
-              </PlatformConfig>
-            ))}
+                >
+                  <TaskSelection
+                    failure={failure}
+                    groupedBy={groupedBy}
+                    addSelectedTest={this.addSelectedTest}
+                    removeSelectedTest={this.removeSelectedTest}
+                    allPlatformsSelected={allPlatformsSelected}
+                    currentRepo={currentRepo}
+                  />
+                </PlatformConfig>
+              ))}
+            </div>
           </Collapse>
         </div>
       </div>

@@ -531,8 +531,7 @@ export default class TestDataModal extends React.Component {
               )}
               <Col sm="auto" className="p-2">
                 <Button
-                  variant="darker-info"
-                  outline
+                  variant="outline-darker-info"
                   onClick={() =>
                     this.setState(
                       { includeSubtests: !includeSubtests },

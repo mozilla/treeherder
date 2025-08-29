@@ -152,8 +152,7 @@ const LegendCard = ({
       </Button>
       <div className={`${series.color[0]} graph-legend-card p-3`}>
         <Button
-          variant="link"
-          outline
+          variant="outline-link"
           className={`p-0 mb-0 pointer border-0 ${
             series.visible ? series.color[0] : 'text-muted'
           } text-left`}
@@ -179,8 +178,7 @@ const LegendCard = ({
           )}
         </div>
         <Button
-          variant="link"
-          outline
+          variant="outline-link"
           className={`w-100  ${subtitleStyle}`}
           onClick={() => addTestData('addRelatedBranches')}
           title="Add related branches"
@@ -188,8 +186,7 @@ const LegendCard = ({
           {series.repository_name}
         </Button>
         <Button
-          variant="link"
-          outline
+          variant="outline-link"
           className={`w-100  ${subtitleStyle}`}
           onClick={() => addTestData('addRelatedPlatform')}
           title="Add related platforms and branches"
@@ -198,8 +195,7 @@ const LegendCard = ({
         </Button>
         {series.application && (
           <Button
-            variant="link"
-            outline
+            variant="outline-link"
             className={`w-100  ${subtitleStyle}`}
             title="Add related applications"
             onClick={() => addTestData('addRelatedApplications')}
