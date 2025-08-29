@@ -13,8 +13,6 @@ import {
   DropdownButton,
   Button,
   Dropdown,
-  Navbar,
-  Nav,
 } from 'react-bootstrap';
 import groupBy from 'lodash/groupBy';
 
@@ -28,7 +26,6 @@ class ClassificationGroup extends React.PureComponent {
 
     this.state = {
       detailsShowing: props.expanded,
-      retriggerDropdownOpen: false,
     };
   }
 
@@ -40,12 +37,6 @@ class ClassificationGroup extends React.PureComponent {
     });
     this.setState((prevState) => ({
       detailsShowing: !prevState.detailsShowing,
-    }));
-  };
-
-  toggleRetrigger = () => {
-    this.setState((prevState) => ({
-      retriggerDropdownOpen: !prevState.retriggerDropdownOpen,
     }));
   };
 
@@ -83,7 +74,7 @@ class ClassificationGroup extends React.PureComponent {
   };
 
   render() {
-    const { detailsShowing, retriggerDropdownOpen } = this.state;
+    const { detailsShowing } = this.state;
     const {
       jobs,
       tests,
@@ -117,13 +108,13 @@ class ClassificationGroup extends React.PureComponent {
 
     return (
       <Row
-        className={`justify-content-between ${className}`}
+        className={`justify-content-between ${className ? className : ''}`}
         data-testid="classification-group"
       >
         <span className="font-size-24">
           <Button
             onClick={this.toggleDetails}
-            outline
+            variant="outline"
             className="font-size-24 border-0"
             role="button"
             aria-expanded={detailsShowing}
@@ -140,141 +131,124 @@ class ClassificationGroup extends React.PureComponent {
           </Button>
         </span>
         {hasRetriggerAll && groupLength > 0 && detailsShowing && (
-          <Navbar className="mb-4">
-            <Nav>
-              <Nav.Item>
-                <ButtonGroup size="sm">
-                  <Button
-                    title="Retrigger all 'Need Investigation' jobs once"
-                    onClick={() => this.retriggerAll(1)}
-                    size="sm"
-                  >
-                    <FontAwesomeIcon
-                      icon={faRedo}
-                      title="Retrigger"
-                      className="mr-2"
-                      alt=""
-                    />
-                    Retrigger all
-                  </Button>
-                  <DropdownButton
-                    isOpen={retriggerDropdownOpen}
-                    toggle={this.toggleRetrigger}
-                    size="sm"
-                  >
-                    <Dropdown.Toggle caret />
-                    <Dropdown.Menu>
-                      {[5, 10, 15].map((times) => (
-                        <Dropdown.Item
-                          key={times}
-                          title={`Retrigger all 'Need Investigation' jobs ${times} times`}
-                          onClick={() => this.retriggerAll(times)}
-                          className="pointable"
-                          tag="a"
-                        >
-                          Retrigger all {times} times
-                        </Dropdown.Item>
-                      ))}
-                    </Dropdown.Menu>
-                  </DropdownButton>
-                </ButtonGroup>
-              </Nav.Item>
-              <Nav.Item>
-                <DropdownButton size="sm" className="ml-1">
-                  <Dropdown.Toggle
-                    className="btn-sm ml-1 text-capitalize"
-                    id="groupTestsDropdown"
-                    caret
-                    outline
-                    data-testid="groupTestsDropdown"
-                  >
-                    Group By: {groupedBy}
-                  </Dropdown.Toggle>
-                  <Dropdown.Menu toggler="groupTestsDropdown">
+          <div className="mb-4 d-flex gap-2">
+            <ButtonGroup size="sm">
+              <Button
+                title="Retrigger all 'Need Investigation' jobs once"
+                onClick={() => this.retriggerAll(1)}
+                size="sm"
+                variant="secondary"
+              >
+                <FontAwesomeIcon
+                  icon={faRedo}
+                  title="Retrigger"
+                  className="mr-2"
+                  alt=""
+                />
+                Retrigger all
+              </Button>
+              <Dropdown>
+                <Dropdown.Toggle
+                  split
+                  variant="secondary"
+                  size="sm"
+                  title="Retrigger all multiple times"
+                />
+                <Dropdown.Menu>
+                  {[5, 10, 15].map((times) => (
                     <Dropdown.Item
+                      key={times}
+                      title={`Retrigger all 'Need Investigation' jobs ${times} times`}
+                      onClick={() => this.retriggerAll(times)}
                       className="pointable"
                       tag="a"
-                      onClick={() => setGroupedBy('none')}
                     >
-                      None
+                      Retrigger all {times} times
                     </Dropdown.Item>
-                    <Dropdown.Item
-                      className="pointable"
-                      tag="a"
-                      onClick={() => {
-                        setGroupedBy('path');
-                      }}
-                    >
-                      Path
-                    </Dropdown.Item>
-                    <Dropdown.Item
-                      className="pointable"
-                      tag="a"
-                      onClick={() => setGroupedBy('platform')}
-                    >
-                      Platform
-                    </Dropdown.Item>
-                  </Dropdown.Menu>
-                </DropdownButton>
-              </Nav.Item>
-              <Nav.Item>
-                <DropdownButton size="sm" className="ml-1">
-                  <Dropdown.Toggle
-                    className="btn-sm ml-1 text-capitalize"
-                    id="groupTestsDropdown"
-                    caret
-                    outline
-                  >
-                    Order By: {orderedBy}
-                  </Dropdown.Toggle>
-                  <Dropdown.Menu toggler="groupTestsDropdown">
-                    <Dropdown.Item
-                      className="pointable"
-                      tag="a"
-                      onClick={() => {
-                        setOrderedBy('count');
-                      }}
-                    >
-                      Count
-                    </Dropdown.Item>
-                    <Dropdown.Item
-                      className="pointable"
-                      tag="a"
-                      onClick={() => {
-                        setOrderedBy('text');
-                      }}
-                    >
-                      Text
-                    </Dropdown.Item>
-                  </Dropdown.Menu>
-                </DropdownButton>
-              </Nav.Item>
-            </Nav>
-          </Navbar>
+                  ))}
+                </Dropdown.Menu>
+              </Dropdown>
+            </ButtonGroup>
+            <DropdownButton
+              size="sm"
+              className="ml-1"
+              title={`Group By: ${groupedBy}`}
+              variant="outline-secondary"
+              id="groupTestsDropdown"
+              data-testid="groupTestsDropdown"
+            >
+              <Dropdown.Item
+                className="pointable"
+                onClick={() => setGroupedBy('none')}
+              >
+                None
+              </Dropdown.Item>
+              <Dropdown.Item
+                className="pointable"
+                onClick={() => {
+                  setGroupedBy('path');
+                }}
+              >
+                Path
+              </Dropdown.Item>
+              <Dropdown.Item
+                className="pointable"
+                onClick={() => setGroupedBy('platform')}
+              >
+                Platform
+              </Dropdown.Item>
+            </DropdownButton>
+            <DropdownButton
+              size="sm"
+              className="ml-1"
+              title={`Order By: ${orderedBy}`}
+              variant="outline-secondary"
+              id="orderTestsDropdown"
+            >
+              <Dropdown.Item
+                className="pointable"
+                onClick={() => {
+                  setOrderedBy('count');
+                }}
+              >
+                Count
+              </Dropdown.Item>
+              <Dropdown.Item
+                className="pointable"
+                onClick={() => {
+                  setOrderedBy('text');
+                }}
+              >
+                Text
+              </Dropdown.Item>
+            </DropdownButton>
+          </div>
         )}
-        <Collapse isOpen={detailsShowing} className="w-100">
-          {testsByAction.length > 0 &&
-            testsByAction.map(([key, value]) => (
-              <Action
-                name={key}
-                tests={value}
-                groupedBy={groupedBy}
-                orderedBy={orderedBy}
-                revision={revision}
-                currentRepo={currentRepo}
-                notify={notify}
-                key={key}
-                jobs={jobs}
-                testGroup={testGroup}
-                selectedTest={selectedTest}
-                selectedJobName={selectedJobName}
-                selectedTaskId={selectedTaskId}
-                updateParamsAndState={updateParamsAndState}
-                investigateTest={investigateTest}
-                unInvestigateTest={unInvestigateTest}
-                updatePushHealth={updatePushHealth}
-              />
-            ))}
+        <Collapse in={detailsShowing} className="w-100">
+          <div>
+            {testsByAction.length > 0 &&
+              testsByAction.map(([key, value]) => (
+                <Action
+                  name={key}
+                  tests={value}
+                  groupedBy={groupedBy}
+                  orderedBy={orderedBy}
+                  revision={revision}
+                  currentRepo={currentRepo}
+                  notify={notify}
+                  key={key}
+                  jobs={jobs}
+                  testGroup={testGroup}
+                  selectedTest={selectedTest}
+                  selectedJobName={selectedJobName}
+                  selectedTaskId={selectedTaskId}
+                  updateParamsAndState={updateParamsAndState}
+                  investigateTest={investigateTest}
+                  unInvestigateTest={unInvestigateTest}
+                  updatePushHealth={updatePushHealth}
+                />
+              ))}
+          </div>
         </Collapse>
       </Row>
     );

@@ -187,9 +187,7 @@ export default class SelectorCard extends React.Component {
               isOpen={buttonDropdownOpen}
               toggle={() => this.toggle('buttonDropdownOpen')}
             >
-              <Dropdown.Toggle caret outline>
-                {selectedRepo}
-              </Dropdown.Toggle>
+              <Dropdown.Toggle caret>{selectedRepo}</Dropdown.Toggle>
               {projects.length > 0 && (
                 <Dropdown.Menu className="overflow-auto dropdown-menu-height">
                   {projects.map((item) => (
@@ -239,7 +237,7 @@ export default class SelectorCard extends React.Component {
                   isOpen={inputDropdownOpen}
                   toggle={() => this.toggle('inputDropdownOpen')}
                 >
-                  <Dropdown.Toggle caret outline disabled={disabled}>
+                  <Dropdown.Toggle caret disabled={disabled}>
                     Recent
                   </Dropdown.Toggle>
                   {!!data.results && data.results.length > 0 && (

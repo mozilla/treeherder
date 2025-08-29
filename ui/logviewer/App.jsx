@@ -372,7 +372,7 @@ class App extends React.PureComponent {
           copySelectedLogToBugFiler={this.copySelectedLogToBugFiler}
         />
         <div className="d-flex flex-column flex-fill">
-          <Collapse isOpen={!collapseDetails}>
+          <Collapse in={!collapseDetails}>
             <div className="run-data d-flex flex-row mx-1 mb-2">
               <div className="d-flex flex-column job-data-panel">
                 {job && (

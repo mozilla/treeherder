@@ -27,7 +27,7 @@ export default class Navigation extends React.Component {
           menuText="Intermittent Failures View"
           colorClass="lightorange"
         />
-        <Collapse isOpen={this.state.isOpen} navbar>
+        <Navbar.Collapse in={this.state.isOpen}>
           <Nav navbar />
           <Dropdown>
             <Dropdown.Toggle className="btn-navbar navbar-link" nav caret>
@@ -39,7 +39,7 @@ export default class Navigation extends React.Component {
               selectedItem={tree}
             />
           </Dropdown>
-        </Collapse>
+        </Navbar.Collapse>
         <Navbar className="ml-auto">
           <HelpMenu />
           <Login user={user} setUser={setUser} notify={notify} />

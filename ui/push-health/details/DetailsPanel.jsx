@@ -181,7 +181,7 @@ class DetailsPanel extends React.Component {
                   </span>
                   <Button
                     onClick={closeDetails}
-                    outline
+                    variant="outline"
                     className="border-0"
                     title="Close details view of this task"
                   >

@@ -168,8 +168,7 @@ export default class GraphsViewControls extends React.Component {
               {!showTable && (
                 <Col sm="auto" className="pl-0">
                   <Button
-                    variant="darker-info"
-                    outline
+                    variant="outline-darker-info"
                     onClick={() =>
                       updateStateParams({
                         highlightAlerts: !highlightAlerts,
@@ -181,8 +180,7 @@ export default class GraphsViewControls extends React.Component {
                   </Button>
                   <Button
                     className="ml-3"
-                    variant="darker-info"
-                    outline
+                    variant="outline-darker-info"
                     onClick={() =>
                       updateStateParams({
                         highlightChangelogData: !highlightChangelogData,
@@ -194,8 +192,7 @@ export default class GraphsViewControls extends React.Component {
                   </Button>
                   <Button
                     className="ml-3"
-                    variant="darker-info"
-                    outline
+                    variant="outline-darker-info"
                     onClick={() =>
                       updateStateParams({
                         highlightCommonAlerts: !highlightCommonAlerts,
@@ -207,8 +204,7 @@ export default class GraphsViewControls extends React.Component {
                   </Button>
                   <Button
                     className="ml-3"
-                    variant="darker-info"
-                    outline
+                    variant="outline-darker-info"
                     onClick={() =>
                       updateStateParams({
                         replicates: !replicates,

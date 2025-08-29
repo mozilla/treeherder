@@ -182,8 +182,7 @@ class CommitHistory extends React.PureComponent {
           <span className="font-weight-bold">
             <Button
               onClick={this.toggleDetails}
-              outline
-              variant="darker-secondary"
+              variant="outline-secondary"
               className="border-0 pl-0 shadow-none"
               role="button"
               aria-expanded={isExpanded}
