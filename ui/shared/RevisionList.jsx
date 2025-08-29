@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Col, Row } from 'reactstrap';
+import { Col, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExternalLinkSquareAlt } from '@fortawesome/free-solid-svg-icons';
 

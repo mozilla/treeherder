@@ -1,5 +1,5 @@
 import React from 'react';
-import { Badge } from 'reactstrap';
+import { Badge } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {

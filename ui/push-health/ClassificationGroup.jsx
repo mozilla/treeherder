@@ -10,16 +10,12 @@ import {
   Row,
   Collapse,
   ButtonGroup,
-  ButtonDropdown,
+  DropdownButton,
   Button,
-  DropdownMenu,
-  DropdownToggle,
-  DropdownItem,
+  Dropdown,
   Navbar,
   Nav,
-  NavItem,
-  UncontrolledButtonDropdown,
-} from 'reactstrap';
+} from 'react-bootstrap';
 import groupBy from 'lodash/groupBy';
 
 import JobModel from '../models/job';
@@ -146,7 +142,7 @@ class ClassificationGroup extends React.PureComponent {
         {hasRetriggerAll && groupLength > 0 && detailsShowing && (
           <Navbar className="mb-4">
             <Nav>
-              <NavItem>
+              <Nav.Item>
                 <ButtonGroup size="sm">
                   <Button
                     title="Retrigger all 'Need Investigation' jobs once"
@@ -161,15 +157,15 @@ class ClassificationGroup extends React.PureComponent {
                     />
                     Retrigger all
                   </Button>
-                  <ButtonDropdown
+                  <DropdownButton
                     isOpen={retriggerDropdownOpen}
                     toggle={this.toggleRetrigger}
                     size="sm"
                   >
-                    <DropdownToggle caret />
-                    <DropdownMenu>
+                    <Dropdown.Toggle caret />
+                    <Dropdown.Menu>
                       {[5, 10, 15].map((times) => (
-                        <DropdownItem
+                        <Dropdown.Item
                           key={times}
                           title={`Retrigger all 'Need Investigation' jobs ${times} times`}
                           onClick={() => this.retriggerAll(times)}
@@ -177,15 +173,15 @@ class ClassificationGroup extends React.PureComponent {
                           tag="a"
                         >
                           Retrigger all {times} times
-                        </DropdownItem>
+                        </Dropdown.Item>
                       ))}
-                    </DropdownMenu>
-                  </ButtonDropdown>
+                    </Dropdown.Menu>
+                  </DropdownButton>
                 </ButtonGroup>
-              </NavItem>
-              <NavItem>
-                <UncontrolledButtonDropdown size="sm" className="ml-1">
-                  <DropdownToggle
+              </Nav.Item>
+              <Nav.Item>
+                <DropdownButton size="sm" className="ml-1">
+                  <Dropdown.Toggle
                     className="btn-sm ml-1 text-capitalize"
                     id="groupTestsDropdown"
                     caret
@@ -193,16 +189,16 @@ class ClassificationGroup extends React.PureComponent {
                     data-testid="groupTestsDropdown"
                   >
                     Group By: {groupedBy}
-                  </DropdownToggle>
-                  <DropdownMenu toggler="groupTestsDropdown">
-                    <DropdownItem
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu toggler="groupTestsDropdown">
+                    <Dropdown.Item
                       className="pointable"
                       tag="a"
                       onClick={() => setGroupedBy('none')}
                     >
                       None
-                    </DropdownItem>
-                    <DropdownItem
+                    </Dropdown.Item>
+                    <Dropdown.Item
                       className="pointable"
                       tag="a"
                       onClick={() => {
@@ -210,29 +206,29 @@ class ClassificationGroup extends React.PureComponent {
                       }}
                     >
                       Path
-                    </DropdownItem>
-                    <DropdownItem
+                    </Dropdown.Item>
+                    <Dropdown.Item
                       className="pointable"
                       tag="a"
                       onClick={() => setGroupedBy('platform')}
                     >
                       Platform
-                    </DropdownItem>
-                  </DropdownMenu>
-                </UncontrolledButtonDropdown>
-              </NavItem>
-              <NavItem>
-                <UncontrolledButtonDropdown size="sm" className="ml-1">
-                  <DropdownToggle
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </DropdownButton>
+              </Nav.Item>
+              <Nav.Item>
+                <DropdownButton size="sm" className="ml-1">
+                  <Dropdown.Toggle
                     className="btn-sm ml-1 text-capitalize"
                     id="groupTestsDropdown"
                     caret
                     outline
                   >
                     Order By: {orderedBy}
-                  </DropdownToggle>
-                  <DropdownMenu toggler="groupTestsDropdown">
-                    <DropdownItem
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu toggler="groupTestsDropdown">
+                    <Dropdown.Item
                       className="pointable"
                       tag="a"
                       onClick={() => {
@@ -240,8 +236,8 @@ class ClassificationGroup extends React.PureComponent {
                       }}
                     >
                       Count
-                    </DropdownItem>
-                    <DropdownItem
+                    </Dropdown.Item>
+                    <Dropdown.Item
                       className="pointable"
                       tag="a"
                       onClick={() => {
@@ -249,10 +245,10 @@ class ClassificationGroup extends React.PureComponent {
                       }}
                     >
                       Text
-                    </DropdownItem>
-                  </DropdownMenu>
-                </UncontrolledButtonDropdown>
-              </NavItem>
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </DropdownButton>
+              </Nav.Item>
             </Nav>
           </Navbar>
         )}
