@@ -171,8 +171,7 @@ const GraphTooltip = ({
         data-testid="graphTooltip"
       >
         <Button
-          outline
-          variant="secondary"
+          variant="outline-secondary"
           className="close mr-3 my-2 ml-2"
           onClick={closeTooltip}
         >
@@ -246,7 +245,6 @@ const GraphTooltip = ({
               <Clipboard
                 text={dataPointDetails.revision}
                 description="Revision"
-                outline
               />
             </span>
             {dataPointDetails.alertSummary && (
@@ -281,7 +279,6 @@ const GraphTooltip = ({
                 <Clipboard
                   text={dataPointDetails.alertSummary.id.toString()}
                   description="Alert Summary id"
-                  outline
                 />
               </p>
             )}
@@ -302,7 +299,6 @@ const GraphTooltip = ({
                 <Clipboard
                   text={datum.commonAlert.id.toString()}
                   description="Alert Summary id"
-                  outline
                 />
                 <p className="small text-danger">Common alert</p>
               </p>
@@ -311,8 +307,7 @@ const GraphTooltip = ({
               <p className="pt-2">
                 {user.isStaff ? (
                   <Button
-                    variant="darker-info"
-                    outline
+                    variant="outline-darker-info"
                     size="sm"
                     onClick={createAlert}
                   >

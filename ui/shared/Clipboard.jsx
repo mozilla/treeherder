@@ -32,6 +32,9 @@ export default class Clipboard extends React.Component {
       return null;
     }
 
+    const baseColor = color || 'light';
+    const variant = outline ? `outline-${baseColor}` : baseColor;
+
     return (
       <Button
         type="button"
@@ -40,8 +43,7 @@ export default class Clipboard extends React.Component {
           this.copyToClipboard(text);
         }}
         className="py-0 px-1"
-        variant={`${color || 'light'}`}
-        outline={outline}
+        variant={variant}
       >
         {copied ? (
           <FontAwesomeIcon icon={faCheckCircle} variant="#2da745" />

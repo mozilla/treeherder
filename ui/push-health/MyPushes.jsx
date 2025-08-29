@@ -149,7 +149,7 @@ class MyPushes extends React.Component {
 
     return (
       <React.Fragment>
-        <Navbar variant="light" light expand="sm" className="w-100">
+        <Navbar variant="light" expand="sm" className="w-100">
           <Nav className="mb-2 pt-2 pl-3 justify-content-between w-100">
             <span />
             <span className="mr-3 d-flex">

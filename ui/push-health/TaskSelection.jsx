@@ -41,11 +41,12 @@ class TaskSelection extends React.PureComponent {
     return (
       <React.Fragment>
         <Col xs="auto">
-          <Form.Control
+          <Form.Check
             type="checkbox"
             checked={isTestSelected}
             onChange={this.selectTest}
             aria-label={`Select ${jobName}`}
+            id={`checkbox-${key}`}
           />
         </Col>
         <Col>

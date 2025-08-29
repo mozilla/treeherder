@@ -64,7 +64,7 @@ class PushHealthStatus extends Component {
     } = this.props;
     const { needInvestigation } = this.state;
     let healthStatus = 'In progress';
-    let badgeColor = 'darker-secondary';
+    let badgeColor = 'secondary';
     let extraTitle = 'No errors so far';
     let icon = faClock;
 
@@ -95,8 +95,10 @@ class PushHealthStatus extends Component {
             rel="noopener noreferrer"
           >
             <Badge
-              color={badgeColor}
+              bg={badgeColor}
+              text="white"
               title={`Push Health status - click for details: ${extraTitle}`}
+              style={{ color: 'white' }}
             >
               <FontAwesomeIcon className="mr-1" icon={icon} />
               {healthStatus}

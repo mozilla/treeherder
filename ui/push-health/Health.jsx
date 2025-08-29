@@ -179,7 +179,7 @@ export default class Health extends React.PureComponent {
     const { notify } = this.props;
     return (
       <React.Fragment>
-        <Navbar variant="light" light expand="sm" className="w-100">
+        <Navbar variant="light" expand="sm" className="w-100">
           {!!tests && (
             <Nav className="mb-2 pt-2 pl-3 justify-content-between w-100">
               <span />
