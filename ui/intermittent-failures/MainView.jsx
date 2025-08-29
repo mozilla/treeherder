@@ -405,6 +405,8 @@ MainView.propTypes = {
   tableData: PropTypes.arrayOf(PropTypes.shape({})),
   graphData: PropTypes.arrayOf(PropTypes.shape({})),
   initialParamsSet: PropTypes.bool.isRequired,
+  user: PropTypes.shape({}),
+  setUser: PropTypes.func.isRequired,
   notify: PropTypes.func.isRequired,
 };
 

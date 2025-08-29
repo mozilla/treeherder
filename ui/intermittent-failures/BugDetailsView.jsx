@@ -371,6 +371,9 @@ BugDetailsView.propTypes = {
       }),
     ),
   }),
+  user: PropTypes.shape({}),
+  setUser: PropTypes.func.isRequired,
+  notify: PropTypes.func.isRequired,
 };
 
 BugDetailsView.defaultProps = {
