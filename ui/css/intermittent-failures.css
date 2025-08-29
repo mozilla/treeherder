@@ -85,3 +85,42 @@ button.DateRangePickerInput_clearDates {
   padding: 5px 8px;
   margin: 1px 10px 0 5px;
 }
+
+.vm-container {
+  width: 100%;
+  height: 100%;
+  min-height: 20px;
+}
+
+.vm-text {
+  font-size: 0.9em;
+  font-style: italic;
+  visibility: hidden;
+}
+
+.rt-td:hover .vm-text {
+  visibility: visible !important;
+  color: #666;
+}
+
+.failure-header {
+  margin-bottom: 8px;
+}
+
+.failure-count {
+  font-size: 0.9em;
+  color: #666;
+}
+
+.failure-lines {
+  font-size: 0.85em;
+  line-height: 1.3;
+}
+
+.failure-line {
+  margin-bottom: 2px;
+  font-family: monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
