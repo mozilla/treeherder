@@ -96,6 +96,7 @@ def mock_json_pushes(test_push):
     )
 
 
+@pytest.mark.frontend
 @responses.activate
 def test_get_commit_history(test_push, test_repository, mock_rev, mock_json_pushes):
     Push.objects.create(

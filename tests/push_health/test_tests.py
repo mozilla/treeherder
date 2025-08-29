@@ -9,6 +9,7 @@ from treeherder.push_health.tests import (
 )
 
 
+@pytest.mark.frontend
 @pytest.mark.parametrize(("find_it",), [(True,), (False,)])
 def test_has_job(find_it):
     job = Job(id=123, repository=Repository(), guid="12345")
@@ -24,6 +25,7 @@ def test_has_job(find_it):
         assert not has_job(job, job_list)
 
 
+@pytest.mark.frontend
 @pytest.mark.parametrize(("find_it",), [(True,), (False,)])
 def test_has_line(find_it):
     line = FailureLine(line=123)
@@ -39,6 +41,7 @@ def test_has_line(find_it):
         assert not has_line(line, line_list)
 
 
+@pytest.mark.frontend
 def test_get_test_failures(
     failure_classifications, test_repository, test_job, text_log_error_lines
 ):

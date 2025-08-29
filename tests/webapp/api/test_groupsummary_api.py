@@ -1,9 +1,11 @@
 import datetime
 
+import pytest
 from django.urls import reverse
 
 
 # test date (future date, no data)
+@pytest.mark.frontend
 def test_future_date(group_data, client):
     expected = {"job_type_names": [], "manifests": []}
 
@@ -16,6 +18,7 @@ def test_future_date(group_data, client):
 
 
 # test date (today/recent) data
+@pytest.mark.frontend
 def test_default_date(group_data, client):
     expected = {"job_type_names": [], "manifests": []}
 
@@ -27,6 +30,7 @@ def test_default_date(group_data, client):
 
 # test data, summarized by manifest
 # test jobname chunk removal and aggregation
+@pytest.mark.frontend
 def test_summarized(group_data, client):
     expected = group_data["expected"]
     startdate = str(group_data["query_string"]).split("=")[-1]

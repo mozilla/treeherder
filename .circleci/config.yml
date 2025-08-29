@@ -135,7 +135,7 @@ jobs:
           command: tox -e linters
           name: Run linters
 
-  python-tests-postgres:
+  python-tests-general:
     machine:
       image: default
     steps:
@@ -147,7 +147,37 @@ jobs:
           command: |
             pip install --upgrade pip
             pip install tox
-            tox -e docker-postgres
+            tox -e docker-general
+      - codecov/upload
+
+  python-tests-perf:
+    machine:
+      image: default
+    steps:
+      - checkout
+      - docker/install-docker-compose:
+          version: 1.29.2
+      - run:
+          name: Run tests and coverage within Docker container
+          command: |
+            pip install --upgrade pip
+            pip install tox
+            tox -e docker-perf
+      - codecov/upload
+
+  python-tests-frontend:
+    machine:
+      image: default
+    steps:
+      - checkout
+      - docker/install-docker-compose:
+          version: 1.29.2
+      - run:
+          name: Run tests and coverage within Docker container
+          command: |
+            pip install --upgrade pip
+            pip install tox
+            tox -e docker-frontend
       - codecov/upload
 
   test-docker-build:
@@ -173,7 +203,9 @@ workflows:
     jobs:
       - javascript-tests
       - builds
-      - python-tests-postgres
+      - python-tests-frontend
+      - python-tests-general
+      - python-tests-perf
       - test-docker-build
       - deploy:
           filters:

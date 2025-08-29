@@ -1,6 +1,8 @@
 import datetime
 import random
 
+import pytest
+
 from treeherder.perf.auto_perf_sheriffing.backfill_reports import (
     BackfillReportMaintainer,
 )
@@ -9,6 +11,7 @@ from treeherder.perf.models import BackfillRecord, BackfillReport, PerformanceAl
 EPOCH = datetime.datetime.utcfromtimestamp(0)
 
 
+@pytest.mark.perf
 def test_reports_are_generated_for_relevant_alerts_only(
     test_perf_alert_summary,
     test_perf_framework,
@@ -28,6 +31,7 @@ def test_reports_are_generated_for_relevant_alerts_only(
     assert not BackfillReport.objects.exists()
 
 
+@pytest.mark.perf
 def test_pick_important_alerts(
     test_perf_alert_summary, create_alerts, alerts_picker, mock_backfill_context_fetcher
 ):
@@ -55,6 +59,7 @@ def test_pick_important_alerts(
     assert set(important_alerts).intersection(set(triaged_alerts)) == set([])
 
 
+@pytest.mark.perf
 def test_running_report_twice_on_unchanged_data_doesnt_change_anything(
     test_perf_alert_summary,
     test_perf_framework,
@@ -88,6 +93,7 @@ def test_running_report_twice_on_unchanged_data_doesnt_change_anything(
     assert initial_records_timestamps == records_timestamps
 
 
+@pytest.mark.perf
 def test_reports_are_updated_after_alert_summaries_change(
     test_perf_alert_summary,
     test_perf_framework,

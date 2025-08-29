@@ -60,6 +60,7 @@ def test_perf_signature_same_hash_different_framework(test_perf_signature):
     return new_signature
 
 
+@pytest.mark.perf
 def test_no_summary_performance_data(client, test_perf_signature, test_repository):
     resp = client.get(
         reverse("performance-signatures-list", kwargs={"project": test_repository.name})
@@ -83,6 +84,7 @@ def test_no_summary_performance_data(client, test_perf_signature, test_repositor
     }
 
 
+@pytest.mark.perf
 def test_performance_platforms(client, test_perf_signature):
     resp = client.get(
         reverse(
@@ -94,6 +96,7 @@ def test_performance_platforms(client, test_perf_signature):
     assert resp.json() == ["win7"]
 
 
+@pytest.mark.perf
 def test_performance_platforms_expired_test(client, test_perf_signature):
     # check that we have no performance platform if the signatures are too old
     test_perf_signature.last_updated = datetime.datetime.utcfromtimestamp(0)
@@ -109,6 +112,7 @@ def test_performance_platforms_expired_test(client, test_perf_signature):
     assert resp.json() == []
 
 
+@pytest.mark.perf
 def test_performance_platforms_framework_filtering(client, test_perf_signature):
     # check framework filtering
     framework2 = PerformanceFramework.objects.create(name="test_talos2", enabled=True)
@@ -147,6 +151,7 @@ def test_performance_platforms_framework_filtering(client, test_perf_signature):
     assert resp.json() == ["win7-a"]
 
 
+@pytest.mark.perf
 def test_summary_performance_data(
     client, test_repository, summary_perf_signature, test_perf_signature
 ):
@@ -193,6 +198,7 @@ def test_summary_performance_data(
         assert resp.data[signature.id] == expected
 
 
+@pytest.mark.perf
 def test_filter_signatures_by_framework(
     client, test_repository, test_perf_signature, test_perf_signature_same_hash_different_framework
 ):
@@ -217,6 +223,7 @@ def test_filter_signatures_by_framework(
     assert resp.data[signature2.id]["framework_id"] == signature2.framework.id
 
 
+@pytest.mark.perf
 def test_filter_data_by_no_retriggers(
     client,
     test_repository,
@@ -272,6 +279,7 @@ def test_filter_data_by_no_retriggers(
     assert signature_for_retrigger_data.id not in set(datum["signature_id"] for datum in datums)
 
 
+@pytest.mark.perf
 def test_filter_data_by_framework(
     client,
     test_repository,
@@ -323,6 +331,7 @@ def test_filter_data_by_framework(
     assert datums[0]["signature_id"] == 2
 
 
+@pytest.mark.perf
 def test_filter_signatures_by_interval(client, test_perf_signature):
     # interval for the last 24 hours, only one signature exists last updated within that timeframe
     resp = client.get(
@@ -336,6 +345,7 @@ def test_filter_signatures_by_interval(client, test_perf_signature):
     assert resp.json()[str(test_perf_signature.id)]["id"] == 1
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize(
     "start_date, end_date, exp_count, exp_id",
     [(SEVEN_DAYS_AGO, ONE_DAY_AGO, 1, 1), (THREE_DAYS_AGO, "", 1, 1), (ONE_DAY_AGO, "", 0, 0)],
@@ -359,6 +369,7 @@ def test_filter_signatures_by_range(
         assert resp.json()[str(test_perf_signature.id)]["id"] == exp_id
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize("interval, exp_push_ids", [(86400, {1}), (86400 * 3, {2, 1})])
 def test_filter_data_by_interval(
     client, test_repository, test_perf_signature, interval, exp_push_ids
@@ -394,6 +405,7 @@ def test_filter_data_by_interval(
     assert push_ids == exp_push_ids
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize(
     "start_date, end_date, exp_push_ids",
     [(SEVEN_DAYS_AGO, THREE_DAYS_AGO, {3}), (THREE_DAYS_AGO, "", {2, 1})],
@@ -431,6 +443,7 @@ def test_filter_data_by_range(
     assert push_ids == exp_push_ids
 
 
+@pytest.mark.perf
 def test_job_ids_validity(client, test_repository):
     resp = client.get(
         reverse("performance-data-list", kwargs={"project": test_repository.name}) + "?job_id=1"
@@ -443,6 +456,7 @@ def test_job_ids_validity(client, test_repository):
     assert resp.status_code == 400
 
 
+@pytest.mark.perf
 def test_filter_data_by_signature(
     client, test_repository, test_perf_signature, summary_perf_signature
 ):
@@ -476,6 +490,7 @@ def test_filter_data_by_signature(
             assert resp.data[signature.signature_hash][0]["value"] == float(i)
 
 
+@pytest.mark.perf
 def test_perf_summary(client, test_perf_signature, test_perf_data):
     test_perf_signature.should_alert = True
     test_perf_signature.alert_change_type = 1
@@ -527,6 +542,7 @@ def test_perf_summary(client, test_perf_signature, test_perf_data):
     assert resp2.json() == expected
 
 
+@pytest.mark.perf
 def test_perf_summary_should_alert_is_false_edge_case(
     client, test_perf_signature, test_perf_signature_2, test_perf_data
 ):
@@ -585,6 +601,7 @@ def test_perf_summary_should_alert_is_false_edge_case(
     assert response.json() == expected
 
 
+@pytest.mark.perf
 def test_data_points_from_same_push_are_ordered_chronologically(
     client, test_perf_signature, test_perf_data
 ):
@@ -605,6 +622,7 @@ def test_data_points_from_same_push_are_ordered_chronologically(
     assert job_ids == sorted(job_ids)
 
 
+@pytest.mark.perf
 def test_no_retriggers_perf_summary(
     client, push_stored, test_perf_signature, test_perf_signature_2, test_perf_data
 ):
@@ -638,6 +656,7 @@ def test_no_retriggers_perf_summary(
     assert len(content[0]["data"]) == 1
 
 
+@pytest.mark.perf
 def test_filter_out_retriggers():
     input_data = [
         {
@@ -761,6 +780,7 @@ def test_filter_out_retriggers():
     assert filtered_data == no_retriggers_data
 
 
+@pytest.mark.perf
 def test_alert_summary_tasks_get(client, test_perf_alert_summary, test_perf_data):
     create_perf_alert(
         summary=test_perf_alert_summary,
@@ -783,6 +803,7 @@ def test_alert_summary_tasks_get(client, test_perf_alert_summary, test_perf_data
     }
 
 
+@pytest.mark.perf
 def test_alert_summary_tasks_get_failure(client, test_perf_alert_summary):
     # verify that we fail if PerformanceAlertSummary does not exist
     not_exist_summary_id = test_perf_alert_summary.id

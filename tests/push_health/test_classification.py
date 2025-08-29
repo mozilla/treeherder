@@ -3,6 +3,7 @@ import pytest
 from treeherder.push_health.classification import set_classifications
 
 
+@pytest.mark.frontend
 def test_intermittent_win7_reftest():
     """test that a failed test is classified as infra"""
     failures = [
@@ -20,6 +21,7 @@ def test_intermittent_win7_reftest():
     assert failures[0]["suggestedClassification"] == "intermittent"
 
 
+@pytest.mark.frontend
 @pytest.mark.parametrize(
     ("history", "confidence", "classification", "fcid"),
     [

@@ -6,6 +6,7 @@ from django.urls import reverse
 from treeherder.model.models import Job, JobNote
 
 
+@pytest.mark.frontend
 def test_note_list(client, test_job_with_notes):
     """
     test retrieving a list of notes from the note-list endpoint
@@ -30,6 +31,7 @@ def test_note_list(client, test_job_with_notes):
     ]
 
 
+@pytest.mark.frontend
 def test_note_detail(client, test_job_with_notes):
     """
     test retrieving a single note from the notes-detail
@@ -56,6 +58,7 @@ def test_note_detail(client, test_job_with_notes):
     }
 
 
+@pytest.mark.frontend
 def test_note_detail_not_found(client, test_repository):
     """
     test retrieving a HTTP 404 from the note-detail
@@ -67,6 +70,7 @@ def test_note_detail_not_found(client, test_repository):
     assert resp.status_code == 404
 
 
+@pytest.mark.frontend
 def test_note_detail_bad_project(client, test_repository):
     """
     test retrieving a HTTP 404 from the note-detail
@@ -78,6 +82,7 @@ def test_note_detail_bad_project(client, test_repository):
     assert resp.status_code == 404
 
 
+@pytest.mark.frontend
 @pytest.mark.parametrize("test_no_auth", [True, False])
 def test_create_note(client, test_job, test_user, test_no_auth):
     """
@@ -119,6 +124,7 @@ def test_create_note(client, test_job, test_user, test_no_auth):
         )
 
 
+@pytest.mark.frontend
 @pytest.mark.parametrize("test_no_auth", [True, False])
 def test_delete_note(client, test_job_with_notes, test_repository, test_sheriff, test_no_auth):
     """
@@ -145,6 +151,7 @@ def test_delete_note(client, test_job_with_notes, test_repository, test_sheriff,
         assert new_notes_count == notes_count - 1
 
 
+@pytest.mark.frontend
 def test_push_notes(client, test_job_with_notes):
     """
     test retrieving all notes for a given push revision

@@ -1,6 +1,7 @@
 from datetime import datetime
 from unittest import mock
 
+import pytest
 from django.urls import reverse
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 
@@ -21,6 +22,7 @@ class MockedCommitSet:
             return MockedCommitObject()
 
 
+@pytest.mark.frontend
 def test_all_good(client):
     """
     test normal functionality
@@ -46,6 +48,7 @@ def test_all_good(client):
     assert resp.json() == {"baseRevision": "1ebfd5", "newRevision": "1ebfd5"}
 
 
+@pytest.mark.frontend
 def test_no_newhash_commit_returned(client):
     """
     test when no newhash is not found as a string in any commit we get the expected failure
@@ -73,6 +76,7 @@ def test_no_newhash_commit_returned(client):
     ]
 
 
+@pytest.mark.frontend
 def test_no_basehash_commit_returned(client):
     """
     test when no basehash is not found as a string in any commit we get the expected failure
@@ -100,6 +104,7 @@ def test_no_basehash_commit_returned(client):
     ]
 
 
+@pytest.mark.frontend
 def test_invalid_newhashdate_parameter(client):
     """
     test when no basehash is not found as a string in any commit we get the expected failure
@@ -123,6 +128,7 @@ def test_invalid_newhashdate_parameter(client):
     }
 
 
+@pytest.mark.frontend
 def test_invalid_basehashdate_parameter(client):
     """
     test when no basehash is not found as a string in any commit we get the expected failure
@@ -146,6 +152,7 @@ def test_invalid_basehashdate_parameter(client):
     }
 
 
+@pytest.mark.frontend
 def test_invalid_newhash_parameter(client):
     """
     test that when we provide a newhash it is numeric
@@ -167,6 +174,7 @@ def test_invalid_newhash_parameter(client):
     assert resp.json() == {"newhash": ["A valid integer is required."]}
 
 
+@pytest.mark.frontend
 def test_invalid_basehash_parameter(client):
     """
     test that when we provide a basehash it is numeric

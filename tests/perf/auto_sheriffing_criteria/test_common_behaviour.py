@@ -29,11 +29,13 @@ def concrete_formula_classes() -> list[type[BugzillaFormula]]:
     return [EngineerTractionFormula, FixRatioFormula]
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize("formula", formula_instances())
 def test_formula_exposes_quantifying_period(formula, nonblock_session):
     assert formula.quantifying_period == settings.QUANTIFYING_PERIOD
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize("formula", bugzilla_formula_instances())
 def test_formula_exposes_oldest_timestamp(formula, nonblock_session):
     no_older_than = datetime.now() - timedelta(weeks=24, seconds=5)
@@ -41,12 +43,14 @@ def test_formula_exposes_oldest_timestamp(formula, nonblock_session):
     assert formula.oldest_timestamp >= no_older_than
 
 
+@pytest.mark.perf
 def test_total_alerts_formula_exposes_oldest_timestamp():
     no_older_than = datetime.now() - (timedelta(weeks=24, seconds=5) + timedelta(weeks=2))
 
     assert TotalAlertsFormula().oldest_timestamp >= no_older_than
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize("formula", bugzilla_formula_instances())
 @pytest.mark.parametrize(
     "cooled_down_bug",
@@ -60,6 +64,7 @@ def test_formula_correctly_detects_cooled_down_bugs(cooled_down_bug, formula, no
     assert formula.has_cooled_down(cooled_down_bug)
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize("formula", bugzilla_formula_instances())
 @pytest.mark.parametrize(
     "not_cooled_down_bug",
@@ -75,6 +80,7 @@ def test_formula_detects_bugs_that_didnt_cool_down_yet(
     assert not formula.has_cooled_down(not_cooled_down_bug)
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize("formula", bugzilla_formula_instances())
 @pytest.mark.parametrize("bad_structured_bug", [{}, {"creation_time": "jiberish-date"}])
 def test_formula_throws_adequate_error_for_bug(bad_structured_bug, formula, nonblock_session):
@@ -82,6 +88,7 @@ def test_formula_throws_adequate_error_for_bug(bad_structured_bug, formula, nonb
         formula.has_cooled_down(bad_structured_bug)
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize("formula_class", concrete_formula_classes())
 def test_formula_initializes_with_non_blockable_sessions(formula_class, nonblock_session):
     try:
@@ -95,12 +102,14 @@ def test_formula_initializes_with_non_blockable_sessions(formula_class, nonblock
         pytest.fail()
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize("formula_class", concrete_formula_classes())
 def test_formula_cannot_be_initialized_with_a_regular_session(formula_class, unrecommended_session):
     with pytest.raises(TypeError):
         _ = formula_class(unrecommended_session)
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize("formula", bugzilla_formula_instances())
 def test_accessing_breakdown_without_prior_calculus_errors_out(formula, nonblock_session):
     with pytest.raises(RuntimeError):
@@ -110,6 +119,7 @@ def test_accessing_breakdown_without_prior_calculus_errors_out(formula, nonblock
 # Leveraging HTTP VCR
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize("formula_class", concrete_formula_classes())
 def test_formula_demands_at_least_framework_and_suite(formula_class, betamax_recorder):
     formula = formula_class(betamax_recorder.session)
@@ -127,6 +137,7 @@ def test_formula_demands_at_least_framework_and_suite(formula_class, betamax_rec
             pytest.fail()
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize("formula_class", concrete_formula_classes())
 def test_breakdown_updates_between_calculations(formula_class, betamax_recorder):
     formula = formula_class(betamax_recorder.session)
@@ -148,6 +159,7 @@ def test_breakdown_updates_between_calculations(formula_class, betamax_recorder)
     assert breakdown_a != breakdown_b
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize("formula_class", concrete_formula_classes())
 def test_breakdown_resets_to_null_when_calculus_errors_out(formula_class, betamax_recorder):
     formula = formula_class(betamax_recorder.session)
@@ -173,6 +185,7 @@ def test_breakdown_resets_to_null_when_calculus_errors_out(formula_class, betama
             _ = formula.breakdown()
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize("formula_class", concrete_formula_classes())
 @pytest.mark.parametrize(
     "framework, suite, test",
@@ -200,6 +213,7 @@ def test_formula_fetches_bugs_from_quantifying_period(
         assert creation_time >= formula.oldest_timestamp
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize("formula_class", concrete_formula_classes())
 @pytest.mark.parametrize(
     "framework, suite, test",
@@ -225,6 +239,7 @@ def test_formula_filters_out_bugs_that_didnt_cool_down_yet(
         assert formula.has_cooled_down(bug)
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize("formula_class", concrete_formula_classes())
 def test_formula_errors_up_when_no_bugs_were_filed(formula_class, betamax_recorder):
     formula = formula_class(betamax_recorder.session)

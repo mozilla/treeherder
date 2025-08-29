@@ -1,11 +1,13 @@
 from datetime import datetime
 
+import pytest
 from django.db import transaction
 from django.urls import reverse
 
 from treeherder.changelog.models import Changelog, ChangelogFile
 
 
+@pytest.mark.frontend
 def test_changelog_list(client, test_job_with_notes):
     """
     test retrieving a list of changes from the changelog endpoint

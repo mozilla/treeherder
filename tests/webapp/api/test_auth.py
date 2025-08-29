@@ -29,6 +29,7 @@ factory = APIRequestFactory()
 url = "http://testserver/"
 
 
+@pytest.mark.frontend
 def test_get_no_auth():
     request = factory.get(url)
     view = AuthenticatedView.as_view()
@@ -37,6 +38,7 @@ def test_get_no_auth():
     assert response.data == {"foo": "bar"}
 
 
+@pytest.mark.frontend
 def test_post_no_auth():
     request = factory.post(url)
     view = AuthenticatedView.as_view()
@@ -48,6 +50,7 @@ def test_post_no_auth():
 # Auth Login and Logout Tests
 
 
+@pytest.mark.frontend
 @pytest.mark.django_db
 @pytest.mark.parametrize(
     ("id_token_sub", "id_token_email", "expected_username"),
@@ -123,6 +126,7 @@ def test_login_logout_relogin(client, monkeypatch, id_token_sub, id_token_email,
     assert User.objects.count() == 1
 
 
+@pytest.mark.frontend
 def test_login_same_email_different_provider(test_ldap_user, client, monkeypatch):
     """
     Test that an existing user is not re-used if the email address matches,
@@ -149,6 +153,7 @@ def test_login_same_email_different_provider(test_ldap_user, client, monkeypatch
     assert resp.json()["email"] == test_ldap_user.email
 
 
+@pytest.mark.frontend
 def test_login_unknown_identity_provider(client, monkeypatch):
     """Test an id token `sub` value that does not match a known identity provider."""
     now_in_seconds = int(time.time())
@@ -170,6 +175,7 @@ def test_login_unknown_identity_provider(client, monkeypatch):
     assert resp.json()["detail"] == "Unrecognized identity"
 
 
+@pytest.mark.frontend
 @pytest.mark.django_db
 def test_login_not_active(test_ldap_user, client, monkeypatch):
     """Test that login is not permitted if the user has been disabled."""
@@ -199,12 +205,14 @@ def test_login_not_active(test_ldap_user, client, monkeypatch):
     assert resp.json()["detail"] == "This user has been disabled."
 
 
+@pytest.mark.frontend
 def test_login_authorization_header_missing(client):
     resp = client.get(reverse("auth-login"))
     assert resp.status_code == 403
     assert resp.json()["detail"] == "Authorization header is expected"
 
 
+@pytest.mark.frontend
 @pytest.mark.parametrize(
     "auth_header_value",
     [
@@ -222,6 +230,7 @@ def test_login_authorization_header_malformed(client, auth_header_value):
     assert resp.json()["detail"] == "Authorization header must be of form 'Bearer {token}'"
 
 
+@pytest.mark.frontend
 def test_login_id_token_header_missing(client):
     resp = client.get(
         reverse("auth-login"),
@@ -231,6 +240,7 @@ def test_login_id_token_header_missing(client):
     assert resp.json()["detail"] == "Id-Token header is expected"
 
 
+@pytest.mark.frontend
 def test_login_id_token_malformed(client):
     resp = client.get(
         reverse("auth-login"),
@@ -241,6 +251,7 @@ def test_login_id_token_malformed(client):
     assert resp.json()["detail"] == "Unable to decode the Id token header"
 
 
+@pytest.mark.frontend
 def test_login_id_token_missing_rsa_key_id(client):
     resp = client.get(
         reverse("auth-login"),
@@ -263,6 +274,7 @@ def test_login_id_token_missing_rsa_key_id(client):
     assert resp.json()["detail"] == "Id token header missing RSA key ID"
 
 
+@pytest.mark.frontend
 def test_login_id_token_unknown_rsa_key_id(client):
     resp = client.get(
         reverse("auth-login"),
@@ -286,6 +298,7 @@ def test_login_id_token_unknown_rsa_key_id(client):
     assert resp.json()["detail"] == "Id token using unrecognised RSA key ID"
 
 
+@pytest.mark.frontend
 def test_login_id_token_invalid_signature(client):
     resp = client.get(
         reverse("auth-login"),
@@ -310,6 +323,7 @@ def test_login_id_token_invalid_signature(client):
     assert resp.json()["detail"] == "Invalid header: Unable to parse authentication"
 
 
+@pytest.mark.frontend
 def test_login_access_token_expiry_header_missing(client, monkeypatch):
     now_in_seconds = int(time.time())
     id_token_expiration_timestamp = now_in_seconds + one_day_in_seconds
@@ -328,6 +342,7 @@ def test_login_access_token_expiry_header_missing(client, monkeypatch):
     assert resp.json()["detail"] == "Access-Token-Expires-At header is expected"
 
 
+@pytest.mark.frontend
 def test_login_access_token_expiry_header_malformed(client, monkeypatch):
     now_in_seconds = int(time.time())
     id_token_expiration_timestamp = now_in_seconds + one_day_in_seconds
@@ -347,6 +362,7 @@ def test_login_access_token_expiry_header_malformed(client, monkeypatch):
     assert resp.json()["detail"] == "Access-Token-Expires-At header value is invalid"
 
 
+@pytest.mark.frontend
 def test_login_access_token_expired(client, monkeypatch):
     now_in_seconds = int(time.time())
     id_token_expiration_timestamp = now_in_seconds + one_hour_in_seconds
@@ -367,6 +383,7 @@ def test_login_access_token_expired(client, monkeypatch):
     assert resp.json()["detail"] == "Session expiry time has already passed!"
 
 
+@pytest.mark.frontend
 def test_login_id_token_expires_before_access_token(test_ldap_user, client, monkeypatch):
     """
     Test that the Django session expiration is set correctly if the Id Token expiration

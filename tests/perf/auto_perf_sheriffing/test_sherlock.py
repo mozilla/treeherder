@@ -27,6 +27,7 @@ def has_changed(orm_object: models.Model) -> bool:
     return False
 
 
+@pytest.mark.perf
 def test_record_job_symbol_is_none_if_component_misses(record_with_missing_job_symbol_components):
     job_symbol = record_with_missing_job_symbol_components.job_symbol
 
@@ -34,11 +35,13 @@ def test_record_job_symbol_is_none_if_component_misses(record_with_missing_job_s
     assert job_symbol is None
 
 
+@pytest.mark.perf
 def test_record_correct_job_symbol(record_with_job_symbol):
     expected_job_symbol = "Btime[tier 2](Bogo)"
     assert record_with_job_symbol.job_symbol == expected_job_symbol
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize(
     "search_str_with, expected_search_str",
     [
@@ -54,6 +57,7 @@ def test_record_search_str(record_with_job_symbol, search_str_with, expected_sea
     assert search_str == expected_search_str
 
 
+@pytest.mark.perf
 def test_records_change_to_ready_for_processing(
     test_perf_alert,
     create_record,
@@ -85,6 +89,7 @@ def test_records_change_to_ready_for_processing(
     assert frozen_reports.count() == 1
 
 
+@pytest.mark.perf
 def test_assert_can_run_throws_exception_when_runtime_exceeded(
     report_maintainer_mock,
     backfill_tool_mock,
@@ -99,6 +104,7 @@ def test_assert_can_run_throws_exception_when_runtime_exceeded(
         sherlock_bot.assert_can_run()
 
 
+@pytest.mark.perf
 def test_assert_can_run_doesnt_throw_exception_when_enough_time_left(
     report_maintainer_mock,
     backfill_tool_mock,
@@ -115,6 +121,7 @@ def test_assert_can_run_doesnt_throw_exception_when_enough_time_left(
         pytest.fail()
 
 
+@pytest.mark.perf
 def test_records_and_db_limits_remain_unchanged_if_no_records_suitable_for_backfill(
     report_maintainer_mock,
     backfill_tool_mock,
@@ -129,6 +136,7 @@ def test_records_and_db_limits_remain_unchanged_if_no_records_suitable_for_backf
     assert not has_changed(sherlock_settings)
 
 
+@pytest.mark.perf
 def test_records_remain_unchanged_if_no_backfills_left(
     report_maintainer_mock,
     backfill_tool_mock,
@@ -142,6 +150,7 @@ def test_records_remain_unchanged_if_no_backfills_left(
     assert not has_changed(record_ready_for_processing)
 
 
+@pytest.mark.perf
 def test_records_and_db_limits_remain_unchanged_if_runtime_exceeded(
     report_maintainer_mock,
     backfill_tool_mock,
@@ -160,6 +169,7 @@ def test_records_and_db_limits_remain_unchanged_if_runtime_exceeded(
     assert not has_changed(sherlock_settings)
 
 
+@pytest.mark.perf
 def test_db_limits_update_if_backfills_left(
     report_maintainer_mock,
     backfill_tool_mock,
@@ -183,6 +193,7 @@ def test_db_limits_update_if_backfills_left(
     assert (initial_backfills - 4) == secretary.backfills_left(on_platform=targeted_platform)
 
 
+@pytest.mark.perf
 def test_backfilling_gracefully_handles_invalid_json_contexts_without_blowing_up(
     report_maintainer_mock,
     backfill_tool_mock,

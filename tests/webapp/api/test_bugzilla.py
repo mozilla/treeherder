@@ -1,9 +1,11 @@
 import json
 
+import pytest
 import responses
 from django.urls import reverse
 
 
+@pytest.mark.frontend
 def test_create_bug(client, eleven_jobs_stored, activate_responses, test_user):
     """
     test successfully creating a bug in bugzilla
@@ -55,6 +57,7 @@ def test_create_bug(client, eleven_jobs_stored, activate_responses, test_user):
     assert resp.json()["url"] == "https://thisisnotbugzilla.org/show_bug.cgi?id=323"
 
 
+@pytest.mark.frontend
 def test_create_bug_with_unicode(client, eleven_jobs_stored, activate_responses, test_user):
     """
     test successfully creating a bug in bugzilla
@@ -107,6 +110,7 @@ def test_create_bug_with_unicode(client, eleven_jobs_stored, activate_responses,
     assert resp.json()["id"] == 323
 
 
+@pytest.mark.frontend
 def test_create_crash_bug(client, eleven_jobs_stored, activate_responses, test_user):
     """
     test successfully creating a bug with a crash signature in bugzilla
@@ -161,6 +165,7 @@ def test_create_crash_bug(client, eleven_jobs_stored, activate_responses, test_u
     assert resp.json()["id"] == 323
 
 
+@pytest.mark.frontend
 def test_create_unauthenticated_bug(client, eleven_jobs_stored, activate_responses):
     """
     test successfully creating a bug in bugzilla
@@ -209,6 +214,7 @@ def test_create_unauthenticated_bug(client, eleven_jobs_stored, activate_respons
     assert resp.json()["detail"] == "Authentication credentials were not provided."
 
 
+@pytest.mark.frontend
 def test_create_bug_with_long_crash_signature(
     client, eleven_jobs_stored, activate_responses, test_user
 ):

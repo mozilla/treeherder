@@ -53,6 +53,7 @@ def test_perf_alert_onhold(test_perf_signature, test_perf_alert_summary_onhold) 
     )
 
 
+@pytest.mark.perf
 def test_alert_summaries_get(
     client,
     test_perf_alert_summary,
@@ -130,6 +131,7 @@ def test_alert_summaries_get(
     }
 
 
+@pytest.mark.perf
 def test_alert_summaries_get_multiple_alerts(
     client,
     test_perf_alert_summary,
@@ -151,6 +153,7 @@ def test_alert_summaries_get_multiple_alerts(
     assert len(set([result["id"] for result in data["results"]])) == 2
 
 
+@pytest.mark.perf
 def test_alert_summaries_get_onhold(
     client,
     test_perf_alert_summary,
@@ -231,6 +234,7 @@ def test_alert_summaries_get_onhold(
     }
 
 
+@pytest.mark.perf
 def test_alert_summaries_put(
     client, test_repository, test_perf_signature, test_perf_alert_summary, test_user, test_sheriff
 ):
@@ -261,6 +265,7 @@ def test_alert_summaries_put(
     assert PerformanceAlertSummary.objects.get(id=1).assignee == test_user
 
 
+@pytest.mark.perf
 def test_performance_alert_summary_change_from_revision(
     client, test_perf_alert_summary, test_sheriff, test_push
 ):
@@ -292,6 +297,7 @@ def test_performance_alert_summary_change_from_revision(
     assert PerformanceAlertSummary.objects.get(id=1).prev_push.revision == original_revision
 
 
+@pytest.mark.perf
 def test_performance_alert_summary_change_revision(
     client, test_perf_alert_summary, test_sheriff, test_push
 ):
@@ -323,6 +329,7 @@ def test_performance_alert_summary_change_revision(
     assert PerformanceAlertSummary.objects.get(id=1).push.revision == original_revision
 
 
+@pytest.mark.perf
 def test_auth_for_alert_summary_post(
     client,
     test_repository,
@@ -351,6 +358,7 @@ def test_auth_for_alert_summary_post(
     assert PerformanceAlertSummary.objects.count() == 0
 
 
+@pytest.mark.perf
 def test_alert_summary_post(
     authorized_sheriff_client,
     test_repository,
@@ -386,6 +394,7 @@ def test_alert_summary_post(
     assert PerformanceAlertSummary.objects.count() == 1
 
 
+@pytest.mark.perf
 def test_push_range_validation_for_alert_summary_post(
     authorized_sheriff_client,
     test_repository,
@@ -410,6 +419,7 @@ def test_push_range_validation_for_alert_summary_post(
     assert PerformanceAlertSummary.objects.count() == 0
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize(
     "modification", [{"notes": "human created notes"}, {"bug_number": 123456, "issue_tracker": 1}]
 )
@@ -430,6 +440,7 @@ def test_alert_summary_timestamps_via_endpoints(
     assert test_perf_alert_summary.created < test_perf_alert_summary.last_updated
 
 
+@pytest.mark.perf
 def test_bug_number_and_timestamp_on_setting_value(
     authorized_sheriff_client, test_perf_alert_summary
 ):
@@ -449,6 +460,7 @@ def test_bug_number_and_timestamp_on_setting_value(
     assert test_perf_alert_summary.bug_updated is not None
 
 
+@pytest.mark.perf
 def test_bug_number_and_timestamp_on_overriding(
     authorized_sheriff_client, test_perf_alert_summary_with_bug
 ):
@@ -470,6 +482,7 @@ def test_bug_number_and_timestamp_on_overriding(
     assert test_perf_alert_summary_with_bug.bug_updated > bug_linking_time
 
 
+@pytest.mark.perf
 def test_bug_number_and_timestamp_dont_update_from_other_modifications(
     authorized_sheriff_client, test_perf_alert_summary
 ):
@@ -488,6 +501,7 @@ def test_bug_number_and_timestamp_dont_update_from_other_modifications(
     assert test_perf_alert_summary.bug_updated is None
 
 
+@pytest.mark.perf
 def test_add_multiple_tags_to_alert_summary(
     authorized_sheriff_client, test_perf_alert_summary, test_perf_tag, test_perf_tag_2
 ):
@@ -503,6 +517,7 @@ def test_add_multiple_tags_to_alert_summary(
     assert test_perf_alert_summary.performance_tags.count() == 2
 
 
+@pytest.mark.perf
 def test_remove_a_tag_from_a_summary(authorized_sheriff_client, test_perf_alert_summary):
     assert test_perf_alert_summary.performance_tags.count() == 1
 
@@ -515,6 +530,7 @@ def test_remove_a_tag_from_a_summary(authorized_sheriff_client, test_perf_alert_
     assert test_perf_alert_summary.performance_tags.count() == 0
 
 
+@pytest.mark.perf
 def test_cannot_add_unregistered_tag_to_a_summary(
     authorized_sheriff_client, test_perf_alert_summary
 ):
@@ -530,6 +546,7 @@ def test_cannot_add_unregistered_tag_to_a_summary(
     assert test_perf_alert_summary.performance_tags.count() == 1
 
 
+@pytest.mark.perf
 def test_timerange_with_summary_outside_range(
     client, create_push, test_repository, test_perf_alert_summary, test_perf_alert_summary_2
 ):
@@ -561,6 +578,7 @@ def test_timerange_with_summary_outside_range(
     assert len(summary_ids) == 1
 
 
+@pytest.mark.perf
 def test_timerange_with_all_summaries_in_range(
     client, create_push, test_repository, test_perf_alert_summary, test_perf_alert_summary_2
 ):
@@ -592,6 +610,7 @@ def test_timerange_with_all_summaries_in_range(
     assert len(summary_ids) == 2
 
 
+@pytest.mark.perf
 def test_pagesize_is_limited_from_params(
     client, test_perf_alert_summary, test_perf_alert_summary_2
 ):
@@ -611,6 +630,7 @@ def test_pagesize_is_limited_from_params(
     assert len(summary_ids) == 1
 
 
+@pytest.mark.perf
 def test_pagesize_with_limit_higher_than_total_summaries(
     client, test_perf_alert_summary, test_perf_alert_summary_2
 ):
@@ -643,6 +663,7 @@ def related_alert(test_perf_alert_summary, test_perf_alert_summary_2, test_perf_
     )
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize(
     "text_to_filter",
     ["mysuite2", "mysuite2 mytest2", "mytest2 win7", "mysuite2 mytest2 win7 e10s opt"],

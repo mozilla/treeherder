@@ -11,6 +11,7 @@ from treeherder.perf.models import (
 )
 
 
+@pytest.mark.perf
 def test_summary_modification(
     test_repository, test_perf_signature, test_perf_alert_summary, test_perf_alert
 ):
@@ -33,6 +34,7 @@ def test_summary_modification(
     assert s.status == PerformanceAlertSummary.UNTRIAGED
 
 
+@pytest.mark.perf
 def test_summary_status(
     test_repository,
     test_perf_signature,
@@ -75,6 +77,7 @@ def test_summary_status(
     assert s.status == PerformanceAlertSummary.IMPROVEMENT
 
 
+@pytest.mark.perf
 def test_reassigning_regression(
     test_repository,
     test_perf_signature,
@@ -129,6 +132,7 @@ def test_reassigning_regression(
     assert s.status == PerformanceAlertSummary.IMPROVEMENT
 
 
+@pytest.mark.perf
 def test_improvement_summary_status_after_reassigning_regression(
     test_repository,
     test_perf_signature,
@@ -171,6 +175,7 @@ def test_improvement_summary_status_after_reassigning_regression(
     assert test_perf_alert_summary.status == PerformanceAlertSummary.UNTRIAGED
 
 
+@pytest.mark.perf
 def test_alert_modification(
     test_perf_signature, test_perf_alert_summary, push_stored, test_perf_alert
 ):

@@ -17,18 +17,21 @@ def push_usage(test_base_dir):
         return json.load(f)
 
 
+@pytest.mark.frontend
 def test_peak(push_usage):
     peak = get_peak(push_usage["facets"][0])
     assert peak["needInvestigation"] == 149.0
     assert peak["time"] == 1584035553
 
 
+@pytest.mark.frontend
 def test_latest(push_usage):
     latest = get_latest(push_usage["facets"][0])
     assert latest["needInvestigation"] == 30.0
     assert latest["time"] == 1584042753
 
 
+@pytest.mark.frontend
 @responses.activate
 def test_get_usage(push_usage, test_repository):
     nrql = "SELECT%20max(needInvestigation)%20FROM%20push_health_need_investigation%20FACET%20revision%20SINCE%201%20DAY%20AGO%20TIMESERIES%20where%20repo%3D'{}'%20AND%20appName%3D'{}'".format(

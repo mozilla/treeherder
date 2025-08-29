@@ -137,6 +137,7 @@ def get_outcome_checker_mock():
     return get_outcome_checker_mock
 
 
+@pytest.mark.perf
 @pytest.mark.skipif(IS_WINDOWS, reason="datetime logic does not work when OS not on GMT")
 def test_secretary_updates_only_matured_reports(
     test_perf_alert, create_record, record_from_mature_report
@@ -151,6 +152,7 @@ def test_secretary_updates_only_matured_reports(
     assert BackfillRecord.objects.filter(status=BackfillRecord.PRELIMINARY).count() == 1
 
 
+@pytest.mark.perf
 def test_secretary_uses_existing_settings(performance_settings):
     assert PerformanceSettings.objects.count() == 1
     last_reset_date_before = json.loads(performance_settings.settings)["last_reset_date"]
@@ -162,6 +164,7 @@ def test_secretary_uses_existing_settings(performance_settings):
     assert json.loads(settings_after.settings)["last_reset_date"] == last_reset_date_before
 
 
+@pytest.mark.perf
 def test_secretary_resets_settings_if_expired(expired_performance_settings):
     assert PerformanceSettings.objects.count() == 1
     expired_last_reset_date = json.loads(expired_performance_settings.settings)["last_reset_date"]
@@ -173,6 +176,7 @@ def test_secretary_resets_settings_if_expired(expired_performance_settings):
     assert json.loads(settings_after.settings)["last_reset_date"] != expired_last_reset_date
 
 
+@pytest.mark.perf
 def test_secretary_creates_new_settings_if_none_exist(db):
     assert PerformanceSettings.objects.count() == 0
 
@@ -181,6 +185,7 @@ def test_secretary_creates_new_settings_if_none_exist(db):
     assert PerformanceSettings.objects.count() == 1
 
 
+@pytest.mark.perf
 def test_outcome_checker_identifies_pushes_in_range(
     record_backfilled, test_repository, test_repository_2, range_dates, outcome_checking_pushes
 ):
@@ -212,6 +217,7 @@ def test_outcome_checker_identifies_pushes_in_range(
     assert len(updated_pushes_in_range) == len(pushes_in_range) - total_other_repo_pushes
 
 
+@pytest.mark.perf
 def test_check_outcome_after_success(get_outcome_checker_mock, record_backfilled):
     outcome_checker_mock = get_outcome_checker_mock(OutcomeStatus.SUCCESSFUL)
     secretary = Secretary(outcome_checker_mock)
@@ -223,6 +229,7 @@ def test_check_outcome_after_success(get_outcome_checker_mock, record_backfilled
     assert BackfillRecord.objects.filter(status=BackfillRecord.SUCCESSFUL).count() == 1
 
 
+@pytest.mark.perf
 def test_check_outcome_after_fail(get_outcome_checker_mock, record_backfilled):
     outcome_checker_mock = get_outcome_checker_mock(OutcomeStatus.FAILED)
     secretary = Secretary(outcome_checker_mock)
@@ -234,6 +241,7 @@ def test_check_outcome_after_fail(get_outcome_checker_mock, record_backfilled):
     assert BackfillRecord.objects.filter(status=BackfillRecord.FAILED).count() == 1
 
 
+@pytest.mark.perf
 def test_no_action_when_in_progress(get_outcome_checker_mock, record_backfilled):
     outcome_checker_mock = get_outcome_checker_mock(OutcomeStatus.IN_PROGRESS)
     secretary = Secretary(outcome_checker_mock)
@@ -244,6 +252,7 @@ def test_no_action_when_in_progress(get_outcome_checker_mock, record_backfilled)
 
 
 class TestOutcomeChecker:
+    @pytest.mark.perf
     def test_successful_jobs_mean_successful_outcome(
         self, record_backfilled, outcome_checking_pushes, successful_jobs
     ):
@@ -258,6 +267,7 @@ class TestOutcomeChecker:
         assert record_backfilled.total_backfills_failed == 0
         assert response == OutcomeStatus.SUCCESSFUL
 
+    @pytest.mark.perf
     def test_failed_job_means_failed_outcome(
         self, record_backfilled, outcome_checking_pushes, jobs_with_one_failed
     ):
@@ -272,6 +282,7 @@ class TestOutcomeChecker:
         assert record_backfilled.total_backfills_failed == 1
         assert response == OutcomeStatus.FAILED
 
+    @pytest.mark.perf
     def test_pending_job_means_in_progress_outcome(
         self, record_backfilled, outcome_checking_pushes, jobs_with_one_pending
     ):
@@ -286,6 +297,7 @@ class TestOutcomeChecker:
         assert record_backfilled.total_backfills_failed == 0
         assert response == OutcomeStatus.IN_PROGRESS
 
+    @pytest.mark.perf
     def test_pending_and_failed_jobs_means_in_progress_outcome(
         self, record_backfilled, outcome_checking_pushes, jobs_with_one_pending_and_one_failed
     ):

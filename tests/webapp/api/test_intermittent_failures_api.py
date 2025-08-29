@@ -1,8 +1,10 @@
+import pytest
 from django.urls import reverse
 
 from treeherder.model.models import BugJobMap
 
 
+@pytest.mark.frontend
 def test_failures(bug_data, client):
     expected = [{"bug_count": 1, "bug_id": bug_data["bug_id"]}]
 
@@ -11,6 +13,7 @@ def test_failures(bug_data, client):
     assert resp.json() == expected
 
 
+@pytest.mark.frontend
 def test_failures_by_bug(bug_data, client):
     expected = [
         {
@@ -37,6 +40,7 @@ def test_failures_by_bug(bug_data, client):
     assert resp.json() == expected
 
 
+@pytest.mark.frontend
 def test_failure_count_by_bug(bug_data, client, test_run_data):
     failure_count = 0
     bugs = list(BugJobMap.objects.all())
@@ -62,6 +66,7 @@ def test_failure_count_by_bug(bug_data, client, test_run_data):
     assert resp.json()[0] == expected
 
 
+@pytest.mark.frontend
 def test_failure_count(bug_data, client, test_run_data):
     failure_count = 0
 

@@ -1,3 +1,4 @@
+import pytest
 from django.urls import reverse
 
 from treeherder.model.models import BugzillaComponent, FilesBugzillaMap
@@ -8,6 +9,7 @@ from treeherder.model.models import BugzillaComponent, FilesBugzillaMap
 # )
 
 
+@pytest.mark.frontend
 def test_bugzilla_components_for_path(client, test_job):
     BugzillaComponent.objects.create(product="Mock Product 1", component="Mock Component 1")
 

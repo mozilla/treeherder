@@ -12,6 +12,7 @@ from .conftest import NON_RETRIGGERABLE_JOB_ID, ONE_DAY_INTERVAL
 
 
 # Unit tests
+@pytest.mark.perf
 def test_identify_retriggerables_as_unit():
     # basic instantiation & usage
     one_day = datetime.timedelta(days=1)
@@ -52,6 +53,7 @@ def test_identify_retriggerables_as_unit():
 
 
 # Component tests
+@pytest.mark.perf
 def test_identify_retriggerables_selects_all_data_points(gapped_performance_data, test_perf_alert):
     identify_retriggerables = IdentifyAlertRetriggerables(
         max_data_points=5, time_interval=ONE_DAY_INTERVAL
@@ -73,6 +75,7 @@ def test_identify_retriggerables_selects_all_data_points(gapped_performance_data
     )
 
 
+@pytest.mark.perf
 def test_identify_retriggerables_selects_even_single_data_point(
     single_performance_datum, test_perf_alert
 ):
@@ -85,6 +88,7 @@ def test_identify_retriggerables_selects_even_single_data_point(
     assert {4} == set(map(get_key("job_id"), data_points_to_retrigger))
 
 
+@pytest.mark.perf
 def test_identify_retriggerables_doesnt_select_out_of_range_data_points(
     retriggerable_and_nonretriggerable_performance_data, test_perf_alert
 ):

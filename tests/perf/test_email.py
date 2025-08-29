@@ -4,6 +4,7 @@ from treeherder.perf.email import DeletionNotificationWriter, DeletionReportCont
 
 
 class TestDeletionReportContent:
+    @pytest.mark.perf
     def test_error_out_when_trying_to_serialize_empty_content(self):
         content = DeletionReportContent()
 
@@ -12,6 +13,7 @@ class TestDeletionReportContent:
 
 
 class TestDeletionNotificationWriter:
+    @pytest.mark.perf
     def test_email_content(self, test_perf_signature):
         email_writer = DeletionNotificationWriter()
         email_writer.prepare_new_email(test_perf_signature)
@@ -19,6 +21,7 @@ class TestDeletionNotificationWriter:
         expected_content = self.__prepare_expected_content(test_perf_signature)
         assert expected_content == email_writer.email["content"]
 
+    @pytest.mark.perf
     def test_writing_content_without_mentioning_any_signature_doesnt_error_out(self):
         email_writer = DeletionNotificationWriter()
 

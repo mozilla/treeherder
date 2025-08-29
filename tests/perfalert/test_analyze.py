@@ -13,6 +13,7 @@ from treeherder.perfalert.perfalert import (
 )
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize(
     ("revision_data", "weight_fn", "expected"),
     [
@@ -37,11 +38,13 @@ def test_analyze_fn(revision_data, weight_fn, expected):
     assert analyze(data, weight_fn) == expected
 
 
+@pytest.mark.perf
 def test_weights():
     assert [default_weights(i, 5) for i in range(5)] == [1.0, 1.0, 1.0, 1.0, 1.0]
     assert [linear_weights(i, 5) for i in range(5)] == [1.0, 0.8, 0.6, 0.4, 0.2]
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize(
     ("old_data", "new_data", "expected"),
     [
@@ -54,6 +57,7 @@ def test_calc_t(old_data, new_data, expected):
     assert calc_t([RevisionDatum(0, 0, old_data)], [RevisionDatum(1, 1, new_data)]) == expected
 
 
+@pytest.mark.perf
 def test_detect_changes():
     data = []
 
@@ -88,6 +92,7 @@ def test_detect_changes():
     ]
 
 
+@pytest.mark.perf
 def test_detect_changes_few_revisions_many_values():
     """
     Tests that we correctly detect a regression with
@@ -108,6 +113,7 @@ def test_detect_changes_few_revisions_many_values():
     assert result == [(0, False), (1, True), (1, False)]
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize(
     ("filename", "expected_timestamps"),
     [

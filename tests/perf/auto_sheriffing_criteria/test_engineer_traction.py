@@ -54,6 +54,7 @@ def cooled_down_bugs(nonblock_session, quantified_bugs) -> list[dict]:
 # Leveraging HTTP VCR
 
 
+@pytest.mark.perf
 def test_formula_counts_tracted_bugs(cooled_down_bugs, betamax_recorder):
     engineer_traction = EngineerTractionFormula(betamax_recorder.session)
 
@@ -62,6 +63,7 @@ def test_formula_counts_tracted_bugs(cooled_down_bugs, betamax_recorder):
         assert len(tracted_bugs) == 2
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize(
     "framework, suite, test",
     [
@@ -79,6 +81,7 @@ def test_final_formula_confirms_sheriffed_tests(framework, suite, test, betamax_
         assert engineer_traction(framework, suite) >= 0.35
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize(
     "framework, suite, test",
     [

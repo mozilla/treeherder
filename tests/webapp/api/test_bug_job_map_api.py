@@ -6,6 +6,7 @@ from django.urls import reverse
 from treeherder.model.models import BugJobMap, Job
 
 
+@pytest.mark.frontend
 @pytest.mark.parametrize(
     "test_no_auth,bug_open",
     [(True, False), (False, False), (False, True)],
@@ -45,6 +46,7 @@ def test_create_bug_job_map(client, test_job, test_user, bugs, test_no_auth, bug
         assert bug_job_map.bug_open == bug_open
 
 
+@pytest.mark.frontend
 def test_create_bug_job_map_duplicate_handling(client, test_job, test_user, bugs):
     """
     test calling creation twice with the same payload
@@ -71,6 +73,7 @@ def test_create_bug_job_map_duplicate_handling(client, test_job, test_user, bugs
     assert resp.json() == {"message": "Bug job map skipped: mapping already exists"}
 
 
+@pytest.mark.frontend
 def test_bug_job_map_list(client, test_repository, eleven_jobs_stored, test_user, bugs):
     """
     test retrieving a list of bug_job_map
@@ -108,6 +111,7 @@ def test_bug_job_map_list(client, test_repository, eleven_jobs_stored, test_user
         assert buglist == expected[job_range[0] : job_range[1]]
 
 
+@pytest.mark.frontend
 def test_bug_job_map_detail(client, eleven_jobs_stored, test_repository, test_user, bugs):
     """
     test retrieving a list of bug_job_map
@@ -139,6 +143,7 @@ def test_bug_job_map_detail(client, eleven_jobs_stored, test_repository, test_us
     assert resp.json() == expected
 
 
+@pytest.mark.frontend
 @pytest.mark.parametrize("test_no_auth", [True, False])
 def test_bug_job_map_delete(
     client, eleven_jobs_stored, test_repository, test_user, test_no_auth, bugs
@@ -173,6 +178,7 @@ def test_bug_job_map_delete(
         assert BugJobMap.objects.count() == 0
 
 
+@pytest.mark.frontend
 def test_bug_job_map_bad_job_id(client, test_repository):
     """
     test we have graceful error when we pass an invalid job_id

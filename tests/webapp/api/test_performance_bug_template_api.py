@@ -1,8 +1,10 @@
+import pytest
 from django.urls import reverse
 
 from treeherder.perf.models import PerformanceBugTemplate, PerformanceFramework
 
 
+@pytest.mark.perf
 def test_perf_bug_template_api(client, test_perf_framework):
     framework2 = PerformanceFramework.objects.create(name="test_talos2", enabled=True)
 

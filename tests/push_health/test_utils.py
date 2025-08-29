@@ -8,6 +8,7 @@ from treeherder.push_health.utils import (
 )
 
 
+@pytest.mark.frontend
 @pytest.mark.parametrize(
     ("action", "test", "signature", "message", "expected"),
     [
@@ -58,6 +59,7 @@ def test_clean_test(action, test, signature, message, expected):
     assert expected == clean_test(test, signature, message)
 
 
+@pytest.mark.frontend
 @pytest.mark.parametrize(
     ("config", "expected"),
     [
@@ -72,6 +74,7 @@ def test_clean_config(config, expected):
     assert expected == clean_config(config)
 
 
+@pytest.mark.frontend
 @pytest.mark.parametrize(
     ("platform", "expected"),
     [
@@ -84,6 +87,7 @@ def test_clean_platform(platform, expected):
     assert expected == clean_platform(platform)
 
 
+@pytest.mark.frontend
 @pytest.mark.parametrize(
     ("line", "expected"),
     [

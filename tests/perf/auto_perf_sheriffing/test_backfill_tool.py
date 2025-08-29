@@ -10,17 +10,20 @@ class TestBackfillTool:
     FAKE_OPTIONS = (FAKE_ROOT_URL, "FAKE_CLIENT_ID", "FAKE_ACCESS_TOKEN")
     MISSING_JOB_ID = "12830123912"
 
+    @pytest.mark.perf
     def test_backfilling_missing_job_errors_out(self, db):
         backfill_tool = BackfillTool(TaskclusterModelNullObject(*self.FAKE_OPTIONS))
         with pytest.raises(LookupError):
             backfill_tool.backfill_job(self.MISSING_JOB_ID)
 
+    @pytest.mark.perf
     def test_backfilling_job_from_try_repo_by_id_raises_exception(self, job_from_try):
         backfill_tool = BackfillTool(TaskclusterModelNullObject(*self.FAKE_OPTIONS))
 
         with pytest.raises(CannotBackfillError):
             backfill_tool.backfill_job(job_from_try.id)
 
+    @pytest.mark.perf
     def test_backfilling_job_from_try_repo_raises_exception(self, job_from_try):
         backfill_tool = BackfillTool(TaskclusterModelNullObject(*self.FAKE_OPTIONS))
 

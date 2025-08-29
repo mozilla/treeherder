@@ -12,6 +12,7 @@ from treeherder.perf.models import (
 )
 
 
+@pytest.mark.perf
 def test_alerts_get(
     client,
     test_repository,
@@ -60,6 +61,7 @@ def test_alerts_get(
     }
 
 
+@pytest.mark.perf
 def test_alerts_put(
     client,
     push_stored,
@@ -111,6 +113,7 @@ def test_alerts_put(
     assert PerformanceAlert.objects.get(id=1).related_summary_id is None
 
 
+@pytest.mark.perf
 def test_reassign_different_repository(
     authorized_sheriff_client,
     push_stored,
@@ -143,6 +146,7 @@ def test_reassign_different_repository(
     assert test_perf_alert.classifier == test_sheriff
 
 
+@pytest.mark.perf
 def test_reassign_different_framework(
     authorized_sheriff_client,
     push_stored,
@@ -162,6 +166,7 @@ def test_reassign_different_framework(
     )
 
 
+@pytest.mark.perf
 def assert_incompatible_alert_assignment_fails(
     authorized_sheriff_client, perf_alert, incompatible_summary
 ):
@@ -182,6 +187,7 @@ def alert_create_post_blob(test_perf_alert_summary, test_perf_signature):
     return {"summary_id": test_perf_alert_summary.id, "signature_id": test_perf_signature.id}
 
 
+@pytest.mark.perf
 def test_alerts_post(
     client, alert_create_post_blob, test_user, test_sheriff, generate_enough_perf_datum
 ):
@@ -212,6 +218,7 @@ def test_alerts_post(
     assert alert.summary.id == 1
 
 
+@pytest.mark.perf
 def test_alerts_post_insufficient_data(
     authorized_sheriff_client,
     test_repository,
@@ -229,6 +236,7 @@ def test_alerts_post_insufficient_data(
         assert PerformanceAlert.objects.count() == 0
 
 
+@pytest.mark.perf
 @pytest.mark.xfail
 def test_nudge_alert_towards_conflicting_one(
     authorized_sheriff_client, test_perf_alert, test_conflicting_perf_alert
@@ -252,6 +260,7 @@ def test_nudge_alert_towards_conflicting_one(
     assert test_conflicting_perf_alert.last_updated > old_conflicting_update
 
 
+@pytest.mark.perf
 @pytest.mark.xfail
 @pytest.mark.parametrize(
     "perf_datum_id, towards_push_ids",
@@ -286,6 +295,7 @@ def test_nudge_alert_to_changeset_without_alert_summary(
     assert not PerformanceAlertSummary.objects.filter(pk=old_alert_summary_id).exists()
 
 
+@pytest.mark.perf
 @pytest.mark.xfail
 @pytest.mark.parametrize(
     "perf_datum_ids, alert_id_to_move, towards_push_ids",
@@ -359,6 +369,7 @@ def test_nudge_alert_to_changeset_with_an_alert_summary(
     assert target_summary.last_updated > old_summary_last_updated
 
 
+@pytest.mark.perf
 @pytest.mark.xfail
 def test_nudge_left_alert_from_alert_summary_with_more_alerts(
     authorized_sheriff_client,
@@ -398,6 +409,7 @@ def test_nudge_left_alert_from_alert_summary_with_more_alerts(
     assert test_perf_alert_summary_2.alerts.count() == 1
 
 
+@pytest.mark.perf
 @pytest.mark.xfail
 def test_nudge_right_alert_from_alert_summary_with_more_alerts(
     authorized_sheriff_client,
@@ -448,6 +460,7 @@ def test_nudge_right_alert_from_alert_summary_with_more_alerts(
     assert test_perf_alert_summary.alerts.count() == 1
 
 
+@pytest.mark.perf
 @pytest.mark.xfail
 def test_nudge_raises_exception_when_no_perf_data(
     authorized_sheriff_client, test_perf_alert, test_perf_alert_summary
@@ -464,6 +477,7 @@ def test_nudge_raises_exception_when_no_perf_data(
     assert PerformanceAlert.objects.all().count() == initial_alert_count
 
 
+@pytest.mark.perf
 @pytest.mark.xfail
 def test_nudge_recalculates_alert_properties(
     authorized_sheriff_client, test_perf_alert, test_perf_alert_summary, test_perf_data
@@ -488,6 +502,7 @@ def test_nudge_recalculates_alert_properties(
     assert new_alert_properties == [400.0, 20.0, 5.0, 25.0, 20.0]
 
 
+@pytest.mark.perf
 def test_timestamps_on_alert_and_summaries_inside_code(
     test_perf_alert_summary, test_perf_signature, test_perf_signature_2
 ):
@@ -523,6 +538,7 @@ def test_timestamps_on_alert_and_summaries_inside_code(
     assert parent_summary.first_triaged is not None
 
 
+@pytest.mark.perf
 def test_timestamps_on_manual_created_alert_via_their_endpoints(
     authorized_sheriff_client, alert_create_post_blob, generate_enough_perf_datum
 ):
@@ -543,6 +559,7 @@ def test_timestamps_on_manual_created_alert_via_their_endpoints(
     assert manual_alert.created <= manual_alert.first_triaged
 
 
+@pytest.mark.perf
 def test_alert_timestamps_via_endpoint(
     authorized_sheriff_client,
     test_sheriff,
@@ -582,6 +599,7 @@ def test_alert_timestamps_via_endpoint(
     assert test_perf_alert.last_updated > old_last_updated
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize("relation", [PerformanceAlert.DOWNSTREAM, PerformanceAlert.REASSIGNED])
 def test_related_alerts_timestamps_via_endpoint(
     authorized_sheriff_client,

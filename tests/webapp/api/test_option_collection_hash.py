@@ -1,6 +1,8 @@
+import pytest
 from django.urls import reverse
 
 
+@pytest.mark.frontend
 def test_option_collection_list(client, sample_option_collections):
     resp = client.get(reverse("optioncollectionhash-list") + "?")
     assert resp.status_code == 200

@@ -14,6 +14,7 @@ pytestmark = [pytest.mark.freeze_time(CASSETTES_RECORDING_DATE, tick=True)]
 #  bugs that date back to last quantifying period
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize(
     "framework, suite",
     [
@@ -31,6 +32,7 @@ def test_formula_confirms_sheriffed_tests(framework, suite, betamax_recorder):
         assert fix_ratio(framework, suite) >= 0.3
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize(
     "framework, suite, test",
     [

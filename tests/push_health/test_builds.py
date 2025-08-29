@@ -1,7 +1,10 @@
+import pytest
+
 from treeherder.etl.jobs import store_job_data
 from treeherder.push_health.builds import get_build_failures
 
 
+@pytest.mark.frontend
 def test_get_build_failures(
     failure_classifications, test_push, test_repository, sample_data, mock_log_parser
 ):

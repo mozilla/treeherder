@@ -1,7 +1,10 @@
+import pytest
+
 from treeherder.etl.jobs import store_job_data
 from treeherder.push_health.linting import get_lint_failures
 
 
+@pytest.mark.frontend
 def test_get_linting_failures(
     failure_classifications, test_push, test_repository, sample_data, mock_log_parser
 ):

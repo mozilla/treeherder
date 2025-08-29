@@ -75,6 +75,7 @@ def _generate_performance_data(
         )
 
 
+@pytest.mark.perf
 def test_detect_alerts_in_series(
     test_repository,
     test_issue_tracker,
@@ -166,6 +167,7 @@ def test_detect_alerts_in_series(
     )
 
 
+@pytest.mark.perf
 def test_detect_alerts_in_series_with_retriggers(
     test_repository,
     test_issue_tracker,
@@ -225,6 +227,7 @@ def test_detect_alerts_in_series_with_retriggers(
     )
 
 
+@pytest.mark.perf
 def test_no_alerts_with_old_data(
     test_repository,
     test_issue_tracker,
@@ -257,6 +260,7 @@ def test_no_alerts_with_old_data(
     assert PerformanceAlertSummary.objects.count() == 0
 
 
+@pytest.mark.perf
 def test_custom_alert_threshold(
     test_repository,
     test_issue_tracker,
@@ -303,6 +307,7 @@ def test_custom_alert_threshold(
     assert PerformanceAlertSummary.objects.count() == 1
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize(("new_value", "expected_num_alerts"), [(1.0, 1), (0.25, 0)])
 def test_alert_change_type_absolute(
     test_repository,
@@ -344,6 +349,7 @@ def test_alert_change_type_absolute(
     assert PerformanceAlertSummary.objects.count() == expected_num_alerts
 
 
+@pytest.mark.perf
 def test_alert_monitor_no_sheriff(
     test_repository,
     test_issue_tracker,
@@ -385,6 +391,7 @@ def test_alert_monitor_no_sheriff(
     assert [not alert.sheriffed for alert in PerformanceAlert.objects.all()]
 
 
+@pytest.mark.perf
 @mock.patch("treeherder.perf.alerts.taskcluster")
 def test_alert_emails(
     mocked_taskcluster,

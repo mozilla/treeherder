@@ -1,6 +1,7 @@
 import datetime
 from unittest import skip
 
+import pytest
 from django.urls import reverse
 
 from treeherder.model.models import Job
@@ -13,6 +14,7 @@ FOUR_DAYS_AGO = NOW - datetime.timedelta(days=4)
 SEVEN_DAYS_AGO = NOW - datetime.timedelta(days=7)
 
 
+@pytest.mark.perf
 def test_perfcompare_results_against_no_base(
     client,
     create_signature,
@@ -182,6 +184,7 @@ def test_perfcompare_results_against_no_base(
     assert response.json()[0]["new_parent_signature"] is None
 
 
+@pytest.mark.perf
 def test_perfcompare_results_with_only_one_run_and_diff_repo(
     client,
     create_signature,
@@ -385,6 +388,7 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
     response.json()[0]["new_median_value"] = round(expected_response["new_median_value"], 2)
 
 
+@pytest.mark.perf
 def test_perfcompare_results_without_base_signature(
     client,
     create_signature,
@@ -525,6 +529,7 @@ def test_perfcompare_results_without_base_signature(
     assert expected[0] == response.json()[0]
 
 
+@pytest.mark.perf
 def test_perfcompare_results_subtests_support(
     client,
     create_signature,
@@ -700,6 +705,7 @@ def test_perfcompare_results_subtests_support(
     assert response.json()[0]["new_parent_signature"] == test_perf_signature_2.id
 
 
+@pytest.mark.perf
 @skip("test is frequently failing in CI, needs to be fixed, see bug 1809467")
 def test_perfcompare_results_multiple_runs(
     client,
@@ -906,6 +912,7 @@ def test_perfcompare_results_multiple_runs(
         assert result in response.json()
 
 
+@pytest.mark.perf
 def test_revision_is_not_found(client, test_perf_signature, test_perfcomp_push):
     non_existent_revision = "nonexistentrevision"
     query_params = (
@@ -945,6 +952,7 @@ def test_revision_is_not_found(client, test_perf_signature, test_perfcomp_push):
     )
 
 
+@pytest.mark.perf
 def test_interval_is_required_when_comparing_without_base(
     client, test_perf_signature, test_perfcomp_push
 ):

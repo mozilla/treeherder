@@ -6,6 +6,7 @@ import pytest
 from treeherder.perf.auto_perf_sheriffing.backfill_reports import AlertsPicker
 
 
+@pytest.mark.perf
 def test_init():
     with pytest.raises(ValueError):
         AlertsPicker(
@@ -28,6 +29,7 @@ def test_init():
         AlertsPicker(max_alerts=0, max_improvements=0, platforms_of_interest=tuple())
 
 
+@pytest.mark.perf
 def test_extract_important_alerts(
     test_bad_platform_names, test_few_improvements, test_few_regressions
 ):
@@ -64,6 +66,7 @@ def test_extract_important_alerts(
         assert imp_alert.amount_pct == expected_magnitudes_order[idx]
 
 
+@pytest.mark.perf
 def test_ensure_alerts_variety(
     test_few_regressions, test_few_improvements, test_many_various_alerts, test_few_various_alerts
 ):
@@ -111,6 +114,7 @@ def test_ensure_alerts_variety(
     assert number_of[False] == 0
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize(
     ("max_alerts, expected_alerts_platforms"),  # noqa
     [
@@ -130,6 +134,7 @@ def test_ensure_platform_variety(test_many_various_alerts, max_alerts, expected_
         assert picked_alerts[idx].series_signature.platform.platform.startswith(platform)
 
 
+@pytest.mark.perf
 def test_os_relevance():
     picker = AlertsPicker(
         max_alerts=5,
@@ -147,6 +152,7 @@ def test_os_relevance():
         picker._os_relevance("some weird OS")
 
 
+@pytest.mark.perf
 def test_has_relevant_platform(
     test_many_various_alerts, test_bad_platform_names, test_macosx_alert
 ):
@@ -163,6 +169,7 @@ def test_has_relevant_platform(
     assert picker._has_relevant_platform(test_macosx_alert) is True
 
 
+@pytest.mark.perf
 def test_extract_by_relevant_platforms(test_many_various_alerts, test_bad_platform_names):
     picker = AlertsPicker(
         max_alerts=5,
@@ -176,6 +183,7 @@ def test_extract_by_relevant_platforms(test_many_various_alerts, test_bad_platfo
     assert set(relevant_alerts).intersection(set(test_bad_platform_names)) == set([])
 
 
+@pytest.mark.perf
 def test_multi_criterion_sort(test_many_various_alerts):
     def count_alert_types(alerts):
         return Counter([alert.is_regression for alert in alerts])

@@ -1,3 +1,4 @@
+import pytest
 from django.conf import settings
 from rest_framework.decorators import APIView
 from rest_framework.exceptions import NotAcceptable
@@ -13,6 +14,7 @@ class RequestVersionView(APIView):
 factory = APIRequestFactory()
 
 
+@pytest.mark.frontend
 def test_unsupported_version():
     view = RequestVersionView.as_view()
     request = factory.get("/endpoint/", HTTP_ACCEPT="application/json; version=foo.bar")
@@ -23,6 +25,7 @@ def test_unsupported_version():
     assert response.data == {"detail": 'Invalid version in "Accept" header.'}
 
 
+@pytest.mark.frontend
 def test_correct_version():
     view = RequestVersionView.as_view()
     version = settings.REST_FRAMEWORK["ALLOWED_VERSIONS"][0]
@@ -31,6 +34,7 @@ def test_correct_version():
     assert response.data == {"version": version}
 
 
+@pytest.mark.frontend
 def test_default_version():
     view = RequestVersionView.as_view()
     request = factory.get("/endpoint/", HTTP_ACCEPT="application/json")

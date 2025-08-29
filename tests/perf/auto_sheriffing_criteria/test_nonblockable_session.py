@@ -1,6 +1,7 @@
 import pytest
 
 
+@pytest.mark.perf
 def test_nonblockable_sessions_has_the_recommended_headers(nonblock_session):
     session_headers = nonblock_session.headers
 

@@ -12,6 +12,7 @@ EPOCH = datetime.utcfromtimestamp(0)
 
 
 # TODO: Update tests so that the mock 'tc_notify_mock' works as expected
+@pytest.mark.perf
 def test_email_is_sent_after_successful_backfills(
     report_maintainer_mock,
     backfill_tool_mock,
@@ -36,6 +37,7 @@ def test_email_is_sent_after_successful_backfills(
     assert BackfillNotificationRecord.objects.count() == 0
 
 
+@pytest.mark.perf
 def test_email_is_still_sent_if_context_is_too_corrupt_to_be_actionable(
     report_maintainer_mock,
     backfill_tool_mock,
@@ -65,6 +67,7 @@ def test_email_is_still_sent_if_context_is_too_corrupt_to_be_actionable(
     assert BackfillNotificationRecord.objects.count() == 0
 
 
+@pytest.mark.perf
 def test_no_email_is_sent_if_runtime_exceeded(
     report_maintainer_mock,
     backfill_tool_mock,
@@ -86,6 +89,7 @@ def test_no_email_is_sent_if_runtime_exceeded(
     assert BackfillNotificationRecord.objects.count() == 0
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize(
     "framework, repository",
     [

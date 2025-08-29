@@ -8,6 +8,7 @@ from rest_framework.status import HTTP_400_BAD_REQUEST
 from treeherder.model.models import Job, TextLogError
 
 
+@pytest.mark.frontend
 @pytest.mark.parametrize(
     ("offset", "count", "expected_num"),
     [(None, None, 10), (None, 5, 5), (5, None, 10), (0, 5, 5), (10, 10, 10)],
@@ -70,6 +71,7 @@ def test_job_list(client, eleven_jobs_stored, test_repository, offset, count, ex
         assert set(job.keys()) == set(exp_keys)
 
 
+@pytest.mark.frontend
 def test_job_list_bad_project(client, transactional_db):
     """
     test retrieving a job list with a bad project throws 404.
@@ -80,6 +82,7 @@ def test_job_list_bad_project(client, transactional_db):
     assert resp.status_code == 404
 
 
+@pytest.mark.frontend
 def test_job_list_equals_filter(client, eleven_jobs_stored, test_repository):
     """
     test retrieving a job list with a querystring filter.
@@ -125,6 +128,7 @@ job_filter_values = [
 ]
 
 
+@pytest.mark.frontend
 @pytest.mark.parametrize(("fieldname", "expected"), job_filter_values)
 def test_job_list_filter_fields(client, eleven_jobs_stored, test_repository, fieldname, expected):
     """
@@ -144,6 +148,7 @@ def test_job_list_filter_fields(client, eleven_jobs_stored, test_repository, fie
     assert first[fieldname] == expected
 
 
+@pytest.mark.frontend
 def test_job_list_in_filter(client, eleven_jobs_stored, test_repository):
     """
     test retrieving a job list with a querystring filter.
@@ -160,6 +165,7 @@ def test_job_list_in_filter(client, eleven_jobs_stored, test_repository):
     assert len(resp.json()["results"]) == 2
 
 
+@pytest.mark.frontend
 def test_job_detail(client, test_job):
     """
     test retrieving a single job from the jobs-detail
@@ -188,6 +194,7 @@ def test_job_detail(client, test_job):
     }
 
 
+@pytest.mark.frontend
 def test_job_detail_bad_project(client, transactional_db):
     """
     test retrieving a single job from the jobs-detail
@@ -198,6 +205,7 @@ def test_job_detail_bad_project(client, transactional_db):
     assert resp.status_code == 404
 
 
+@pytest.mark.frontend
 def test_job_detail_not_found(client, test_repository):
     """
     test retrieving a HTTP 404 from the jobs-detail
@@ -209,6 +217,7 @@ def test_job_detail_not_found(client, test_repository):
     assert resp.status_code == 404
 
 
+@pytest.mark.frontend
 def test_text_log_errors(client, test_job):
     TextLogError.objects.create(job=test_job, line="failure 1", line_number=101)
     TextLogError.objects.create(job=test_job, line="failure 2", line_number=102)
@@ -237,6 +246,7 @@ def test_text_log_errors(client, test_job):
     ]
 
 
+@pytest.mark.frontend
 @pytest.mark.parametrize(
     ("offset", "count", "expected_num"),
     [(None, None, 6), (None, 2, 6), (1, None, 5), (0, 1, 6), (2, 10, 4)],
@@ -264,6 +274,7 @@ def test_list_similar_jobs(client, eleven_jobs_stored, offset, count, expected_n
     assert len(similar_jobs["results"]) == expected_num
 
 
+@pytest.mark.frontend
 @pytest.mark.parametrize(
     "lm_key,lm_value,exp_status, exp_job_count",
     [

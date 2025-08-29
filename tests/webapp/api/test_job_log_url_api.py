@@ -1,9 +1,11 @@
+import pytest
 from django.urls import reverse
 
 from tests.test_utils import create_generic_job
 from treeherder.model.models import JobLog
 
 
+@pytest.mark.frontend
 def test_get_job_log_urls(
     test_repository, push_stored, failure_classifications, generic_reference_data, client
 ):

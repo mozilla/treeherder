@@ -166,6 +166,7 @@ def mock_formula_map():
     }
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize(
     "invalid_formulas",
     [
@@ -178,6 +179,7 @@ def test_tracker_throws_error_for_invalid_formulas(invalid_formulas):
         CriteriaTracker(formula_map=invalid_formulas)
 
 
+@pytest.mark.perf
 def test_tracker_throws_error_if_no_record_file_found(tmp_path):
     nonexistent_file = str(tmp_path / "perf-sheriffing-criteria.csv")
     tracker = CriteriaTracker(record_path=nonexistent_file)
@@ -186,6 +188,7 @@ def test_tracker_throws_error_if_no_record_file_found(tmp_path):
         tracker.load_records()
 
 
+@pytest.mark.perf
 def test_tracker_has_a_list_of_records():
     tracker = CriteriaTracker(record_path=RECORD_TEST_PATH)
     tracker.load_records()
@@ -194,6 +197,7 @@ def test_tracker_has_a_list_of_records():
     assert len(record_list) == 5
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize("criteria_record", RECORDS_WITH_NO_DATA)
 def test_record_computer_can_tell_missing_data(criteria_record):
     computer = RecordComputer({}, timedelta(days=3), timedelta(seconds=0))
@@ -201,6 +205,7 @@ def test_record_computer_can_tell_missing_data(criteria_record):
     assert computer.should_update(criteria_record)
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize("criteria_record", RECORDS_WITH_EXPIRED_DATA)
 def test_record_computer_can_tell_expired_data(criteria_record):
     computer = RecordComputer({}, timedelta(days=3), timedelta(seconds=0))
@@ -208,6 +213,7 @@ def test_record_computer_can_tell_expired_data(criteria_record):
     assert computer.should_update(criteria_record)
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize("criteria_record", RECORDS_WITH_UPDATED_DATA)
 def test_record_computer_can_tell_updated_data(criteria_record):
     computer = RecordComputer({}, timedelta(days=3), timedelta(seconds=0))
@@ -215,6 +221,7 @@ def test_record_computer_can_tell_updated_data(criteria_record):
     assert not computer.should_update(criteria_record)
 
 
+@pytest.mark.perf
 @pytest.mark.parametrize("criteria_record", RECORDS_UNALLOWED_TO_SYNC)
 def test_record_computer_can_tell_unallowed_data(criteria_record):
     computer = RecordComputer({}, timedelta(days=3), timedelta(seconds=0))
@@ -222,6 +229,7 @@ def test_record_computer_can_tell_unallowed_data(criteria_record):
     assert not computer.should_update(criteria_record)
 
 
+@pytest.mark.perf
 @pytest.mark.freeze_time(CASSETTES_RECORDING_DATE)  # disable tick
 @pytest.mark.parametrize("exception", [NoFiledBugsError(), Exception()])
 def test_record_computer_still_updates_if_one_of_the_formulas_fails(exception, db):
@@ -253,6 +261,7 @@ def test_record_computer_still_updates_if_one_of_the_formulas_fails(exception, d
     assert record.AllowSync is True
 
 
+@pytest.mark.perf
 def test_tracker_lets_web_service_rest(mock_formula_map, updatable_criteria_csv):
     tracker = CriteriaTracker(
         formula_map=mock_formula_map,
@@ -266,6 +275,7 @@ def test_tracker_lets_web_service_rest(mock_formula_map, updatable_criteria_csv)
 
 
 # We cannot use freeze_time here as it breaks the multiprocessing & sleep usages in CriteriaTracker
+@pytest.mark.perf
 def test_tracker_updates_records_with_missing_data(mock_formula_map, updatable_criteria_csv):
     # all tests from the fixture don't have any kind of data
     tracker = CriteriaTracker(
@@ -300,6 +310,7 @@ def test_tracker_updates_records_with_missing_data(mock_formula_map, updatable_c
         assert criteria_rec.AllowSync is True
 
 
+@pytest.mark.perf
 @pytest.mark.freeze_time(CASSETTES_RECORDING_DATE, auto_tick_seconds=30)
 @pytest.mark.parametrize("async_results", [NEVER_READY_RESULTS, PARTIALLY_READY_RESULTS])
 def test_results_checker_timeouts_on_no_changes(async_results):
@@ -309,6 +320,7 @@ def test_results_checker_timeouts_on_no_changes(async_results):
         checker.wait_for_results(async_results)
 
 
+@pytest.mark.perf
 @pytest.mark.freeze_time(CASSETTES_RECORDING_DATE, auto_tick_seconds=30)
 @pytest.mark.parametrize("async_results", [READY_RESULTS, EVENTUALLY_READY_RESULTS])
 def test_results_checker_doesnt_timeout_unexpectedly(async_results):

@@ -1,8 +1,10 @@
 import json
 
+import pytest
 from django.urls import reverse
 
 
+@pytest.mark.frontend
 def test_valid_report(client):
     """Tests that a correctly formed CSP violation report is accepted when unauthenticated."""
     valid_report = {
