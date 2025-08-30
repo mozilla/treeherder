@@ -69,7 +69,7 @@ class Test extends PureComponent {
       .reduce(
         (acc, test) => ({
           ...acc,
-          ...jobs[test.jobName].reduce((fjAcc, job) => ({ [job.id]: job }), {}),
+          ...jobs[test.jobName].reduce((_, job) => ({ [job.id]: job }), {}),
         }),
         {},
       );

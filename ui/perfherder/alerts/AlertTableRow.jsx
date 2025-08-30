@@ -426,7 +426,7 @@ export default class AlertTableRow extends React.Component {
         data-testid={alert.id}
       >
         <td className="table-width-xs px-1">
-          <Form.Group check className="ml-2 pl-4">
+          <Form.Group className="ml-2 pl-4">
             <Form.Label hidden>alert {alert.id} title</Form.Label>
             <Form.Control
               aria-label={`alert ${alert.id} title`}

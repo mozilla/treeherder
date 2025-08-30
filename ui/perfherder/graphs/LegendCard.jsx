@@ -137,7 +137,7 @@ const LegendCard = ({
   const perfdocs = new Perfdocs(framework, suite, platform);
   const hasDocumentation = perfdocs.hasDocumentation();
   return (
-    <Form.Group check className="pl-0 border">
+    <Form.Group className="pl-0 border">
       <Button
         className="close mr-3 my-2 ml-2 bg-transparent"
         onClick={removeTest}

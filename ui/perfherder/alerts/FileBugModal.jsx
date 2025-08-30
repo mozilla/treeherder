@@ -1,15 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Form,
-  Button,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Col,
-  Row,
-} from 'react-bootstrap';
+import { Form, Button, Modal, Col, Row } from 'react-bootstrap';
 import debounce from 'lodash/debounce';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
@@ -73,10 +64,12 @@ export default class FileBugModal extends React.Component {
       'regression from the referenced bug.';
 
     return (
-      <Modal isOpen={showModal}>
-        <ModalHeader toggle={toggle}>{header}</ModalHeader>
+      <Modal show={showModal} onHide={toggle}>
+        <Modal.Header closeButton>
+          <Modal.Title>{header}</Modal.Title>
+        </Modal.Header>
         <Form>
-          <ModalBody>
+          <Modal.Body>
             {errorMessage && (
               <div className="alert alert-danger">{errorMessage}</div>
             )}
@@ -113,8 +106,8 @@ export default class FileBugModal extends React.Component {
                 <p>You need to log in to access this feature.</p>
               </div>
             )}
-          </ModalBody>
-          <ModalFooter>
+          </Modal.Body>
+          <Modal.Footer>
             {user.isLoggedIn ? (
               <Button
                 className="btn-outline-darker-info active"
@@ -136,7 +129,7 @@ export default class FileBugModal extends React.Component {
                 Cancel
               </Button>
             )}
-          </ModalFooter>
+          </Modal.Footer>
         </Form>
       </Modal>
     );

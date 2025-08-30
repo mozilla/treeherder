@@ -1,15 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Button,
-  Col,
-  Form,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  Row,
-  Badge,
-} from 'react-bootstrap';
+import { Button, Col, Form, Modal, Row, Badge } from 'react-bootstrap';
 import flatMap from 'lodash/flatMap';
 
 import { createDropdowns } from '../../shared/FilterControls';
@@ -510,9 +501,11 @@ export default class TestDataModal extends React.Component {
     }
 
     return (
-      <Modal size="lg" isOpen={showModal}>
-        <ModalHeader toggle={this.closeModal}>Add Test Data</ModalHeader>
-        <ModalBody className="container-fluid test-chooser">
+      <Modal size="lg" show={showModal} onHide={this.closeModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Add Test Data</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="container-fluid test-chooser">
           <Form>
             <Row className="justify-content-start">
               {createDropdowns(modalOptions, 'p-2', true)}
@@ -677,7 +670,7 @@ export default class TestDataModal extends React.Component {
               </Col>
             </Row>
           </Form>
-        </ModalBody>
+        </Modal.Body>
       </Modal>
     );
   }

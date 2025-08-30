@@ -23,7 +23,7 @@ export default class InfraCompareTable extends React.PureComponent {
         sz="small"
         className="compare-table mb-0 px-0"
         key={platform}
-        innerRef={(el) => {
+        ref={(el) => {
           this.header = el;
         }}
       >

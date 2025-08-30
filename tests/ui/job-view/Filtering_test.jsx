@@ -198,6 +198,11 @@ describe('Filtering', () => {
       );
       expect(unfilteredPushes).toHaveLength(10);
 
+      // Open the filters dropdown to reveal menu items
+      const filtersDropdown = await waitFor(() => getByTitle('Set filters'));
+      fireEvent.click(filtersDropdown);
+
+      // Wait for dropdown to open and find "My pushes only"
       const myPushes = await waitFor(() => getByText('My pushes only'));
       fireEvent.click(myPushes);
 

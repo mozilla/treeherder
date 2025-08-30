@@ -48,7 +48,7 @@ export default class SideBySideVideo extends React.Component {
             title={value || videos[0].value}
             aria-label={value || videos[0].value}
           >
-            <Dropdown.Toggle size="sm" caret>
+            <Dropdown.Toggle size="sm">
               {value || videos[0].value}
             </Dropdown.Toggle>
             <DropdownMenuItems

@@ -108,7 +108,7 @@ class ClassificationGroup extends React.PureComponent {
 
     return (
       <Row
-        className={`justify-content-between ${className ? className : ''}`}
+        className={`justify-content-between ${className || ''}`}
         data-testid="classification-group"
       >
         <span className="font-size-24">

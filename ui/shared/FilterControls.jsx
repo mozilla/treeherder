@@ -19,15 +19,19 @@ export const createDropdowns = (dropdownOptions, colClass) => (
           title={dropdown.title}
           aria-label={dropdown.title}
         >
-          <Dropdown.Toggle caret>{dropdown.selectedItem}</Dropdown.Toggle>
-          <DropdownMenuItems
-            pinned={dropdown.pinnedProjects || dropdown.pinned}
-            otherPinned={dropdown.otherPinned}
-            options={dropdown.options}
-            selectedItem={dropdown.selectedItem}
-            updateData={dropdown.updateData}
-            namespace={dropdown.namespace}
-          />
+          <Dropdown.Toggle variant="secondary">
+            {dropdown.selectedItem}
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            <DropdownMenuItems
+              pinned={dropdown.pinnedProjects || dropdown.pinned}
+              otherPinned={dropdown.otherPinned}
+              options={dropdown.options}
+              selectedItem={dropdown.selectedItem}
+              updateData={dropdown.updateData}
+              namespace={dropdown.namespace}
+            />
+          </Dropdown.Menu>
         </Dropdown>
       </Col>
     ))}

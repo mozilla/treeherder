@@ -25,15 +25,27 @@ export default class Clipboard extends React.Component {
   };
 
   render() {
-    const { description, text, outline, color } = this.props;
+    const { description, text, outline, color, variant } = this.props;
     const { copied } = this.state;
 
     if (!text) {
       return null;
     }
 
-    const baseColor = color || 'light';
-    const variant = outline ? `outline-${baseColor}` : baseColor;
+    let buttonVariant;
+    let buttonStyle = {};
+    let iconClassName = '';
+
+    if (variant === 'transparent') {
+      buttonVariant = 'link';
+      buttonStyle = { backgroundColor: 'transparent', border: 'none' };
+      iconClassName = 'text-dark';
+    } else if (variant) {
+      buttonVariant = variant;
+    } else {
+      const baseColor = color || 'light';
+      buttonVariant = outline ? `outline-${baseColor}` : baseColor;
+    }
 
     return (
       <Button
@@ -43,12 +55,17 @@ export default class Clipboard extends React.Component {
           this.copyToClipboard(text);
         }}
         className="py-0 px-1"
-        variant={variant}
+        variant={buttonVariant}
+        style={buttonStyle}
       >
         {copied ? (
-          <FontAwesomeIcon icon={faCheckCircle} variant="#2da745" />
+          <FontAwesomeIcon
+            icon={faCheckCircle}
+            className={iconClassName}
+            style={{ color: '#2da745' }}
+          />
         ) : (
-          <FontAwesomeIcon icon={faClipboard} />
+          <FontAwesomeIcon icon={faClipboard} className={iconClassName} />
         )}
       </Button>
     );
@@ -59,6 +76,8 @@ Clipboard.propTypes = {
   description: PropTypes.string.isRequired,
   text: PropTypes.string,
   outline: PropTypes.bool,
+  color: PropTypes.string,
+  variant: PropTypes.string,
 };
 
 Clipboard.defaultProps = {
