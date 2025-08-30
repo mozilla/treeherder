@@ -2,7 +2,7 @@ import React from 'react';
 import { Table, Alert } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 
-const NoiseTable = ({ testsWithNoise, hasSubtests }) => {
+const NoiseTable = ({ testsWithNoise, hasSubtests = false }) => {
   const valueToString = (value) => {
     if (Number.isNaN(value)) {
       return value.toString();
@@ -41,10 +41,6 @@ const NoiseTable = ({ testsWithNoise, hasSubtests }) => {
 NoiseTable.propTypes = {
   testsWithNoise: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   hasSubtests: PropTypes.bool,
-};
-
-NoiseTable.defaultProps = {
-  hasSubtests: false,
 };
 
 export default NoiseTable;

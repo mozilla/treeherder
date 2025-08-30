@@ -1,15 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import {
-  Button,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Tooltip,
-  Form,
-} from 'react-bootstrap';
+import { Button, Modal, Tooltip, Form } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faChevronCircleDown,
@@ -635,9 +627,11 @@ export class BugFilerClass extends React.Component {
 
     return (
       <div>
-        <Modal isOpen={isOpen} toggle={toggle} size="lg">
-          <ModalHeader toggle={toggle}>Intermittent Bug Filer</ModalHeader>
-          <ModalBody>
+        <Modal show={isOpen} onHide={toggle} size="lg">
+          <Modal.Header closeButton>
+            <Modal.Title>Intermittent Bug Filer</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
             <form className="d-flex flex-column">
               <div className="d-inline-flex">
                 <Form.Control
@@ -685,7 +679,7 @@ export class BugFilerClass extends React.Component {
                       className="ml-4"
                       key={`modalProductSuggestion${product}`}
                     >
-                      <Form.Label check>
+                      <Form.Label>
                         <Form.Control
                           type="radio"
                           value={product}
@@ -743,8 +737,8 @@ export class BugFilerClass extends React.Component {
                 />
                 <Tooltip
                   target="toggle-failure-lines"
-                  isOpen={tooltipOpen.toggleFailureLines}
-                  toggle={() => this.toggleTooltip('toggleFailureLines')}
+                  show={tooltipOpen.toggleFailureLines}
+                  onToggle={() => this.toggleTooltip('toggleFailureLines')}
                 >
                   {isFilerSummaryVisible
                     ? 'Hide all failure lines for this job'
@@ -953,15 +947,15 @@ export class BugFilerClass extends React.Component {
                 </div>
               )}
             </form>
-          </ModalBody>
-          <ModalFooter>
+          </Modal.Body>
+          <Modal.Footer>
             <Button variant="secondary" onClick={this.submitFiler}>
               Submit Bug
             </Button>{' '}
             <Button variant="secondary" onClick={toggle}>
               Cancel
             </Button>
-          </ModalFooter>
+          </Modal.Footer>
         </Modal>
       </div>
     );

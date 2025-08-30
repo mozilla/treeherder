@@ -129,7 +129,7 @@ export default class CompareTable extends React.Component {
         sz="small"
         className="compare-table mb-0 px-0"
         key={testName}
-        innerRef={(el) => {
+        ref={(el) => {
           this.header = el;
         }}
       >

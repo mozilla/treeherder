@@ -1,15 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Form,
-  Button,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Col,
-  Row,
-} from 'react-bootstrap';
+import { Form, Button, Modal, Col, Row } from 'react-bootstrap';
 import debounce from 'lodash/debounce';
 
 export default class AlertModal extends React.Component {
@@ -57,10 +48,12 @@ export default class AlertModal extends React.Component {
     const { inputValue, invalidInput, validated } = this.state;
 
     return (
-      <Modal isOpen={showModal}>
-        <ModalHeader toggle={toggle}>{header}</ModalHeader>
+      <Modal show={showModal} onHide={toggle}>
+        <Modal.Header closeButton>
+          <Modal.Title>{header}</Modal.Title>
+        </Modal.Header>
         <Form>
-          <ModalBody>
+          <Modal.Body>
             <Form.Group>
               <Row className="justify-content-center">
                 <Col className="col-4">
@@ -84,8 +77,8 @@ export default class AlertModal extends React.Component {
                 </Col>
               </Row>
             </Form.Group>
-          </ModalBody>
-          <ModalFooter>
+          </Modal.Body>
+          <Modal.Footer>
             <Button
               variant="secondary"
               onClick={(event) => updateAndClose(event, inputValue)}
@@ -94,7 +87,7 @@ export default class AlertModal extends React.Component {
             >
               Assign
             </Button>
-          </ModalFooter>
+          </Modal.Footer>
         </Form>
       </Modal>
     );

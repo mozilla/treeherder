@@ -333,7 +333,10 @@ export default class AlertTable extends React.Component {
                     xs={10}
                     className="text-left alert-summary-header-element"
                   >
-                    <Form.Group check className="d-inline-flex">
+                    <Form.Group
+                      check
+                      className="d-inline-flex align-items-top gap-3"
+                    >
                       <SelectAlertsDropdown
                         setSelectedAlerts={this.setSelectedAlerts}
                         user={user}
