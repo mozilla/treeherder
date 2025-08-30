@@ -1,14 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import {
-  Button,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Form,
-} from 'react-bootstrap';
+import { Button, Modal, Form } from 'react-bootstrap';
 
 import { create } from '../helpers/http';
 import { getApiUrl } from '../helpers/url';
@@ -162,11 +155,11 @@ export class InternalIssueFilerClass extends React.Component {
 
     return (
       <div>
-        <Modal isOpen={isOpen} toggle={toggle} size="lg">
-          <ModalHeader toggle={toggle}>
+        <Modal show={isOpen} onHide={toggle} size="lg">
+          <Modal.Header closeButton>
             Intermittent Internal Issue Filer
-          </ModalHeader>
-          <ModalBody>
+          </Modal.Header>
+          <Modal.Body>
             <form className="d-flex flex-column">
               <Form.Label htmlFor="summary">Summary:</Form.Label>
               <div className="d-flex">
@@ -191,15 +184,15 @@ export class InternalIssueFilerClass extends React.Component {
                 </span>
               </div>
             </form>
-          </ModalBody>
-          <ModalFooter>
+          </Modal.Body>
+          <Modal.Footer>
             <Button variant="secondary" onClick={this.submitInternalIssue}>
               Submit Internal Issue
             </Button>{' '}
             <Button variant="secondary" onClick={toggle}>
               Cancel
             </Button>
-          </ModalFooter>
+          </Modal.Footer>
         </Modal>
       </div>
     );

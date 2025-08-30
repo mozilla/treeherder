@@ -206,7 +206,7 @@ class CustomJobActions extends React.PureComponent {
                   className="mb-1"
                   id="action-select-input"
                 >
-                  <Dropdown.Toggle caret>{selectedAction.name}</Dropdown.Toggle>
+                  <Dropdown.Toggle>{selectedAction.name}</Dropdown.Toggle>
                   <DropdownMenuItems
                     selectedItem={selectedAction.name}
                     updateData={this.onChangeAction}

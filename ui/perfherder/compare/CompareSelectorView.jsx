@@ -170,7 +170,7 @@ export default class CompareSelectorView extends React.Component {
             <Row className="justify-content-center pt-3">
               <Col sm="8" className="text-right px-1">
                 <ButtonGroup>
-                  <DropdownButton title={frameworkName}>
+                  <DropdownButton title={frameworkName} variant="secondary">
                     <DropdownMenuItems
                       options={frameworkNames}
                       selectedItem={frameworkName}

@@ -184,10 +184,10 @@ export default class SelectorCard extends React.Component {
             <Card.Subtitle className="pb-2 pt-3">Project</Card.Subtitle>
             <DropdownButton
               className="mr-3 w-25 text-nowrap"
-              isOpen={buttonDropdownOpen}
-              toggle={() => this.toggle('buttonDropdownOpen')}
+              show={buttonDropdownOpen}
+              onToggle={() => this.toggle('buttonDropdownOpen')}
+              title={selectedRepo}
             >
-              <Dropdown.Toggle caret>{selectedRepo}</Dropdown.Toggle>
               {projects.length > 0 && (
                 <Dropdown.Menu className="overflow-auto dropdown-menu-height">
                   {projects.map((item) => (
@@ -232,14 +232,13 @@ export default class SelectorCard extends React.Component {
                     })
                   }
                 />
-                <InputGroup.Append
-                  addonType="append"
-                  isOpen={inputDropdownOpen}
-                  toggle={() => this.toggle('inputDropdownOpen')}
+                <DropdownButton
+                  show={inputDropdownOpen}
+                  onToggle={() => this.toggle('inputDropdownOpen')}
+                  title="Recent"
+                  disabled={disabled}
+                  as={InputGroup.Append}
                 >
-                  <Dropdown.Toggle caret disabled={disabled}>
-                    Recent
-                  </Dropdown.Toggle>
                   {!!data.results && data.results.length > 0 && (
                     <Dropdown.Menu>
                       {data.results.map((item) => (
@@ -268,7 +267,7 @@ export default class SelectorCard extends React.Component {
                       ))}
                     </Dropdown.Menu>
                   )}
-                </InputGroup.Append>
+                </DropdownButton>
               </InputGroup>
               {(validating || invalidRevision || missingRevision) && (
                 <Card.Text

@@ -358,16 +358,18 @@ The following [documentation link](https://firefox-source-docs.mozilla.org/testi
                   Select Bug Tracker
                 </Form.Label>
                 <Dropdown>
-                  <Dropdown.Toggle variant="outline-secondary">
+                  <Dropdown.Toggle variant="secondary">
                     {selectedValue}
                   </Dropdown.Toggle>
-                  <DropdownMenuItems
-                    updateData={(selectedValue) =>
-                      this.setState({ selectedValue })
-                    }
-                    selectedItem={selectedValue}
-                    options={issueTrackers.map((item) => item.text)}
-                  />
+                  <Dropdown.Menu>
+                    <DropdownMenuItems
+                      updateData={(selectedValue) =>
+                        this.setState({ selectedValue })
+                      }
+                      selectedItem={selectedValue}
+                      options={issueTrackers.map((item) => item.text)}
+                    />
+                  </Dropdown.Menu>
                 </Dropdown>
               </Col>
             }
@@ -429,7 +431,7 @@ The following [documentation link](https://firefox-source-docs.mozilla.org/testi
           updateAndClose={this.updateAndClose}
         />
         <Dropdown as="span" className="status-drop-down-container">
-          <Dropdown.Toggle className="btn-xs" variant="darker-secondary">
+          <Dropdown.Toggle className="btn-xs" variant="secondary">
             {getStatus(alertSummary.status)}
           </Dropdown.Toggle>
           <Dropdown.Menu>

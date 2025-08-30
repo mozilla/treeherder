@@ -8,7 +8,13 @@ import { displayNumber, formatNumber } from '../perf-helpers/helpers';
 
 import TooltipGraph from './TooltipGraph';
 
-const TableAverage = ({ value, stddev, stddevpct, replicates, app }) => {
+const TableAverage = ({
+  value = null,
+  stddev = null,
+  stddevpct = null,
+  replicates = [],
+  app,
+}) => {
   let tooltipText;
   if (replicates.length > 1) {
     const replicatesStr = replicates
@@ -100,13 +106,6 @@ TableAverage.propTypes = {
   stddev: PropTypes.number,
   stddevpct: PropTypes.number,
   replicates: PropTypes.arrayOf(PropTypes.number),
-};
-
-TableAverage.defaultProps = {
-  value: PropTypes.null,
-  stddev: PropTypes.null,
-  stddevpct: PropTypes.null,
-  replicates: [],
 };
 
 export default TableAverage;

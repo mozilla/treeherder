@@ -29,12 +29,12 @@ const createDropdownItem = (
 };
 
 const DropdownMenuItems = ({
-  selectedItem,
-  updateData,
+  selectedItem = null,
+  updateData = null,
   options,
-  pinned,
-  namespace,
-  otherPinned,
+  pinned = [],
+  namespace = '',
+  otherPinned = [],
 }) => (
   <>
     {/* Items pinned to top of dropdown */}
@@ -81,14 +81,6 @@ DropdownMenuItems.propTypes = {
   namespace: PropTypes.string,
   // optional pinned Items, ideally to be positioned at the bottom of the drop down
   otherPinned: PropTypes.arrayOf(PropTypes.string),
-};
-
-DropdownMenuItems.defaultProps = {
-  updateData: null,
-  selectedItem: null,
-  pinned: [],
-  namespace: '',
-  otherPinned: [],
 };
 
 export default DropdownMenuItems;

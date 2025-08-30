@@ -15,7 +15,7 @@ class TimeRangeDropdown extends React.PureComponent {
         title="Time range"
         aria-label="Time range"
       >
-        <Dropdown.Toggle caret>{timeRangeText}</Dropdown.Toggle>
+        <Dropdown.Toggle>{timeRangeText}</Dropdown.Toggle>
         <DropdownMenuItems
           options={phTimeRanges.map((item) => item.text)}
           selectedItem={timeRangeText}

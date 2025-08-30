@@ -199,16 +199,16 @@ class FuzzyJobFinder extends React.Component {
     return (
       <div>
         <Modal
-          onOpened={this.filterJobs}
-          onClosed={this.resetForm}
+          onShow={this.filterJobs}
+          onExited={this.resetForm}
           size="lg"
-          isOpen={this.props.isOpen}
-          toggle={this.props.toggle}
+          show={this.props.isOpen}
+          onHide={this.props.toggle}
           className={this.props.className}
         >
           <ModalHeader>Add New Jobs (Search)</ModalHeader>
           <ModalBody>
-            <Form.Group row>
+            <Form.Group as="div" className="row">
               <Col sm={10}>
                 <Form.Control
                   type="search"

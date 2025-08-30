@@ -1,15 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Col,
-  Form,
-  InputGroup,
-  Button,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-} from 'react-bootstrap';
+import { Col, Form, InputGroup, Button, Modal } from 'react-bootstrap';
 
 export default class RetriggerModal extends React.Component {
   constructor(props) {
@@ -130,13 +121,16 @@ export default class RetriggerModal extends React.Component {
 
     return (
       <Modal
-        isOpen={showModal}
-        onOpened={this.onOpened}
-        onClosed={this.onClosed}
+        show={showModal}
+        onShow={this.onOpened}
+        onHide={toggle}
+        onExited={this.onClosed}
       >
-        <ModalHeader toggle={toggle}>Retrigger Jobs</ModalHeader>
+        <Modal.Header closeButton>
+          <Modal.Title>Retrigger Jobs</Modal.Title>
+        </Modal.Header>
         <Form>
-          <ModalBody>
+          <Modal.Body>
             <div className="row">
               <Col className="col-xs-10 col-sm-6 col-md-6 col-lg-6 form-inline">
                 <InputGroup title={this.getInputTitle(true)}>
@@ -179,8 +173,8 @@ export default class RetriggerModal extends React.Component {
                 </p>
               )}
             </div>
-          </ModalBody>
-          <ModalFooter>
+          </Modal.Body>
+          <Modal.Footer>
             <Button
               variant="info"
               onClick={this.onRetriggerClick}
@@ -188,7 +182,7 @@ export default class RetriggerModal extends React.Component {
             >
               Retrigger
             </Button>
-          </ModalFooter>
+          </Modal.Footer>
         </Form>
       </Modal>
     );
