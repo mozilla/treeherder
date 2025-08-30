@@ -1,6 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Pagination } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faAngleDoubleLeft,
+  faAngleLeft,
+  faAngleRight,
+  faAngleDoubleRight,
+} from '@fortawesome/free-solid-svg-icons';
 
 class PaginationGroup extends React.Component {
   navigatePage = (page) => {
@@ -25,37 +32,63 @@ class PaginationGroup extends React.Component {
          aren't working correctly (icons aren't visible)
          so they haven't been added */
       <Pagination aria-label={`Page ${currentPage}`}>
-        <Pagination.First
-          className="text-info"
-          disabled={!firstButtonAvailable}
-          onClick={() => this.navigatePage(1)}
-        />
-        <Pagination.Prev
-          className="text-info"
-          disabled={!prevButtonAvailable}
-          onClick={() => this.navigatePage(currentPage - 1)}
-        />
-        {viewablePageNums.map((num) => (
-          <Pagination.Item
-            key={num}
-            active={num === currentPage}
-            className="text-info pagination-active"
-            onClick={() => this.navigatePage(num)}
-            aria-label={`pagination-button-${num}`}
+        <li className="page-item">
+          <button
+            className="page-link text-info"
+            disabled={!firstButtonAvailable}
+            onClick={() => this.navigatePage(1)}
+            aria-label="Go to first page"
           >
-            {num}
-          </Pagination.Item>
-        ))}
-        <Pagination.Next
-          className="text-info"
-          disabled={!nextButtonAvailable}
-          onClick={() => this.navigatePage(currentPage + 1)}
-        />
-        <Pagination.Last
-          className="text-info"
-          disabled={!lastButtonAvailable}
-          onClick={() => this.navigatePage(count)}
-        />
+            <FontAwesomeIcon icon={faAngleDoubleLeft} />
+          </button>
+        </li>
+        <li className="page-item">
+          <button
+            className="page-link text-info"
+            disabled={!prevButtonAvailable}
+            onClick={() => this.navigatePage(currentPage - 1)}
+            aria-label="Go to previous page"
+          >
+            <FontAwesomeIcon icon={faAngleLeft} />
+          </button>
+        </li>
+        {viewablePageNums.map((num) => {
+          const isActive = num === currentPage;
+          return (
+            <li key={num} className="page-item">
+              <button
+                className={`page-link text-info ${isActive ? 'active' : ''}`}
+                onClick={() => this.navigatePage(num)}
+                aria-label={`Go to page ${num}`}
+                aria-current={isActive ? 'page' : undefined}
+                disabled={isActive}
+                style={isActive ? { backgroundColor: '#e9ecef' } : undefined}
+              >
+                {num}
+              </button>
+            </li>
+          );
+        })}
+        <li className="page-item">
+          <button
+            className="page-link text-info"
+            disabled={!nextButtonAvailable}
+            onClick={() => this.navigatePage(currentPage + 1)}
+            aria-label="Go to next page"
+          >
+            <FontAwesomeIcon icon={faAngleRight} />
+          </button>
+        </li>
+        <li className="page-item">
+          <button
+            className="page-link text-info"
+            disabled={!lastButtonAvailable}
+            onClick={() => this.navigatePage(count)}
+            aria-label="Go to last page"
+          >
+            <FontAwesomeIcon icon={faAngleDoubleRight} />
+          </button>
+        </li>
       </Pagination>
     );
   }

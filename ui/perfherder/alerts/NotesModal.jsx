@@ -1,13 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Form,
-  Button,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-} from 'react-bootstrap';
+import { Form, Button, Modal } from 'react-bootstrap';
 
 export default class NotesModal extends React.Component {
   constructor(props) {
@@ -26,10 +19,12 @@ export default class NotesModal extends React.Component {
     const { inputValue } = this.state;
 
     return (
-      <Modal isOpen={showModal}>
-        <ModalHeader toggle={toggle}>Alert Notes</ModalHeader>
+      <Modal show={showModal} onHide={toggle}>
+        <Modal.Header closeButton>
+          <Modal.Title>Alert Notes</Modal.Title>
+        </Modal.Header>
         <Form>
-          <ModalBody>
+          <Modal.Body>
             <Form.Group>
               <Form.Label htmlFor="editableNotes">Add or edit notes</Form.Label>
               <Form.Control
@@ -41,8 +36,8 @@ export default class NotesModal extends React.Component {
                 rows="10"
               />
             </Form.Group>
-          </ModalBody>
-          <ModalFooter>
+          </Modal.Body>
+          <Modal.Footer>
             <Button
               variant="secondary"
               onClick={(event) =>
@@ -59,7 +54,7 @@ export default class NotesModal extends React.Component {
             >
               Save
             </Button>
-          </ModalFooter>
+          </Modal.Footer>
         </Form>
       </Modal>
     );

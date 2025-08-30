@@ -1,13 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
-  Form,
-} from 'react-bootstrap';
+import { Modal, Button, Form } from 'react-bootstrap';
 
 export default class TagsModal extends React.Component {
   constructor(props) {
@@ -81,14 +74,20 @@ export default class TagsModal extends React.Component {
     const { showModal, updateAndClose } = this.props;
 
     return (
-      <Modal isOpen={showModal} data-testid="tags-modal">
-        <ModalHeader toggle={this.toggleModal}>Alert Tags</ModalHeader>
+      <Modal
+        show={showModal}
+        onHide={this.toggleModal}
+        data-testid="tags-modal"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Alert Tags</Modal.Title>
+        </Modal.Header>
         <Form>
-          <ModalBody>
+          <Modal.Body>
             <Form.Label htmlFor="performanceTags" />
             <Form.Group>{this.listTags()}</Form.Group>
-          </ModalBody>
-          <ModalFooter>
+          </Modal.Body>
+          <Modal.Footer>
             <Button
               variant="darker-secondary"
               onClick={(event) => {
@@ -104,7 +103,7 @@ export default class TagsModal extends React.Component {
             >
               Save
             </Button>
-          </ModalFooter>
+          </Modal.Footer>
         </Form>
       </Modal>
     );
