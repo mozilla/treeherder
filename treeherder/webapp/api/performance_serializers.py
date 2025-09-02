@@ -517,7 +517,6 @@ class PerfCompareResultsQueryParamsSerializer(serializers.Serializer):
     base_parent_signature = serializers.CharField(required=False, allow_null=True, default=None)
     new_parent_signature = serializers.CharField(required=False, allow_null=True, default=None)
     replicates = serializers.BooleanField(required=False)
-    show_new = serializers.BooleanField(required=True)
 
     def validate(self, data):
         if data["base_revision"] is None and data["interval"] is None:

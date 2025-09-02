@@ -15,8 +15,6 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
 import treeherder.perf.stats as stats
-
-# from treeherder.perf.stats import
 from treeherder.etl.common import to_timestamp
 from treeherder.model import models
 from treeherder.perf.alerts import get_alert_properties

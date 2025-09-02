@@ -8,7 +8,6 @@ __pycache__
 .ruff_cache/
 .build/
 .venv/
-tree/
 
 # vi
 *.swp
