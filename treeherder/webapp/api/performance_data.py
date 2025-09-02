@@ -14,6 +14,8 @@ from rest_framework import exceptions, filters, generics, pagination, viewsets
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
+import treeherder.perf.stats as stats
+
 # from treeherder.perf.stats import
 from treeherder.etl.common import to_timestamp
 from treeherder.model import models
@@ -29,7 +31,7 @@ from treeherder.perf.models import (
     PerformanceSignature,
     PerformanceTag,
 )
-from treeherder.webapp.api import perfcompare_utils, stats
+from treeherder.webapp.api import perfcompare_utils
 from treeherder.webapp.api.performance_serializers import OptionalBooleanField
 from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 
