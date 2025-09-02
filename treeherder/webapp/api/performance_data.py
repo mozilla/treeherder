@@ -4,6 +4,8 @@ from collections import defaultdict
 from urllib.parse import urlencode
 
 import django_filters
+import numpy as np
+from cliffs_delta import cliffs_delta
 from django.conf import settings
 from django.db import transaction
 from django.db.models import Case, CharField, Count, Q, Subquery, Value, When
@@ -12,6 +14,7 @@ from rest_framework import exceptions, filters, generics, pagination, viewsets
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
+# from treeherder.perf.stats import
 from treeherder.etl.common import to_timestamp
 from treeherder.model import models
 from treeherder.perf.alerts import get_alert_properties
@@ -26,7 +29,7 @@ from treeherder.perf.models import (
     PerformanceSignature,
     PerformanceTag,
 )
-from treeherder.webapp.api import perfcompare_utils
+from treeherder.webapp.api import perfcompare_utils, stats
 from treeherder.webapp.api.performance_serializers import OptionalBooleanField
 from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 
@@ -1041,6 +1044,7 @@ class PerfCompareResults(generics.ListAPIView):
                 no_results_to_show = not base_runs_count and not new_runs_count
                 if no_results_to_show:
                     continue
+
                 base_avg_value = perfcompare_utils.get_avg(statistics_base_perf_data, header)
                 base_stddev = perfcompare_utils.get_stddev(statistics_base_perf_data, header)
                 base_median_value = perfcompare_utils.get_median(statistics_base_perf_data)
@@ -1049,6 +1053,8 @@ class PerfCompareResults(generics.ListAPIView):
                 new_median_value = perfcompare_utils.get_median(statistics_new_perf_data)
                 base_stddev_pct = perfcompare_utils.get_stddev_pct(base_avg_value, base_stddev)
                 new_stddev_pct = perfcompare_utils.get_stddev_pct(new_avg_value, new_stddev)
+
+                # Old Stats
                 confidence = perfcompare_utils.get_abs_ttest_value(
                     statistics_base_perf_data, statistics_new_perf_data
                 )
@@ -1073,6 +1079,7 @@ class PerfCompareResults(generics.ListAPIView):
                 is_regression = class_name == "danger"
                 is_meaningful = class_name == ""
 
+                new_stats = (self._process_new_stats(base_rev, new_rev, str(sig_hash), header),)
                 row_result = {
                     "base_rev": base_rev,
                     "new_rev": new_rev,
@@ -1104,28 +1111,32 @@ class PerfCompareResults(generics.ListAPIView):
                     "new_stddev_pct": new_stddev_pct,
                     "base_retriggerable_job_ids": base_grouped_job_ids.get(base_sig_id, []),
                     "new_retriggerable_job_ids": new_grouped_job_ids.get(new_sig_id, []),
-                    "confidence": confidence,
-                    "confidence_text": confidence_text,
-                    "delta_value": delta_value,
-                    "delta_percentage": delta_percentage,
-                    "magnitude": magnitude,
-                    "new_is_better": new_is_better,
-                    "lower_is_better": lower_is_better,
-                    "is_confident": is_confident,
-                    "more_runs_are_needed": more_runs_are_needed,
-                    # highlighted revisions is the base_revision and the other highlighted revisions is new_revision
-                    "graphs_link": self._create_graph_links(
-                        base_repo_name,
-                        new_repo_name,
-                        base_rev,
-                        new_rev,
-                        str(framework),
-                        push_timestamp,
-                        str(sig_hash),
-                    ),
-                    "is_improvement": is_improvement,
-                    "is_regression": is_regression,
-                    "is_meaningful": is_meaningful,
+                    "old_stats": {
+                        "confidence": confidence,
+                        "confidence_text": confidence_text,
+                        "delta_value": delta_value,
+                        "delta_percentage": delta_percentage,
+                        "magnitude": magnitude,
+                        "new_is_better": new_is_better,
+                        "lower_is_better": lower_is_better,
+                        "is_confident": is_confident,
+                        "more_runs_are_needed": more_runs_are_needed,
+                        # highlighted revisions is the base_revision and the other highlighted revisions is new_revision
+                        "graphs_link": self._create_graph_links(
+                            base_repo_name,
+                            new_repo_name,
+                            base_rev,
+                            new_rev,
+                            str(framework),
+                            push_timestamp,
+                            str(sig_hash),
+                            header,
+                        ),
+                        "is_improvement": is_improvement,
+                        "is_regression": is_regression,
+                        "is_meaningful": is_meaningful,
+                    },
+                    "new_stats": new_stats,
                     "base_parent_signature": base_sig.get("parent_signature_id", None),
                     "new_parent_signature": new_sig.get("parent_signature_id", None),
                     "base_signature_id": base_sig_id,
@@ -1134,6 +1145,7 @@ class PerfCompareResults(generics.ListAPIView):
                         base_sig.get("has_subtests", None) or new_sig.get("has_subtests", None)
                     ),
                 }
+
                 self.queryset.append(row_result)
 
         serializer = self.get_serializer(self.queryset, many=True)
@@ -1271,6 +1283,121 @@ class PerfCompareResults(generics.ListAPIView):
         graph_link = f"{graph_link}&{encoded}"
 
         return f"https://treeherder.mozilla.org/perfherder/{graph_link}"
+
+    @staticmethod
+    def _process_new_stats(
+        base_revision,
+        new_revision,
+        header,
+        remove_outliers=stats.ENABLE_REMOVE_OUTLIERS,
+        pvalue_threshold=stats.PVALUE_THRESHOLD,
+    ):
+        # extract data, potentially removing outliers
+        if remove_outliers:
+            without_patch = stats.remove_outliers(base_revision.flatten())
+            with_patch = stats.remove_outliers(new_revision.flatten())
+        else:
+            without_patch = base_revision.flatten()
+            with_patch = new_revision.flatten()
+
+        # Basic statistics, normality test"
+        # Shapiro-Wilk test
+        # Statistical test for normality — checks whether a dataset is normally distributed.
+        # <https://en.wikipedia.org/wiki/Shapiro%E2%80%93Wilk_test>
+        # Is both a classic Gaussian distribution or classic bell curve
+
+        without_patch_info, with_patch_info, is_both_normal = (
+            stats.interpret_normality_shapiro_wilk(
+                without_patch, with_patch, header, pvalue_threshold
+            )
+        )
+
+        stats_data = {
+            "basic_normality_shapiro_wilk": {
+                "without_patch": without_patch_info,
+                "with_patch": with_patch_info,
+                "is_both_normal": is_both_normal,
+            },
+            "is_both_normal": is_both_normal,
+        }
+
+        # Kolmogorov-Smirnov test for goodness of fit
+        ks_test, is_fit_good, ks_warning = stats.interpret_ks_test(
+            without_patch, with_patch, pvalue_threshold
+        )
+        stats_data["ks_test"] = ks_test
+        stats_data["is_fit_good"] = is_fit_good
+
+        # Mann-Whitney U test, two sided because we're never quite sure what of
+        # the intent of the patch, as things stand
+        # Tests the null hypothesis that the distributions of the two are identical
+        mann_whitney, mann_stat, mann_pvalue = stats.interpret_mann_whitneyu(
+            without_patch, with_patch
+        )
+        stats_data["mann_whitney_test"] = mann_whitney
+
+        base_median = np.median(without_patch)
+        new_median = np.median(with_patch)
+        delta_value = new_median - base_median
+        delta_percentage = (delta_value / base_median * 100) if base_median != 0 else 0
+
+        stats_data["base_median"] = base_median
+        stats_data["new_median"] = new_median
+        stats_data["delta_value"] = delta_value
+        stats_data["delta_percentage"] = delta_percentage
+        stats_data["pvalue"] = mann_pvalue
+
+        # Cliff's delta to take into account effect size:
+        # https://www.researchgate.net/post/What_is_the_most_appropriate_effect_size_type_for_mann_whitney_u_analysis
+        # https://www.researchgate.net/publication/262763337_Cliff's_Delta_Calculator_A_non-parametric_effect_size_program_for_two_groups_of_observations
+        # https://stats.stackexchange.com/questions/450495/cliffs-delta-in-python
+        # https://github.com/neilernst/cliffsDelta
+        delta, _ = cliffs_delta(without_patch, with_patch)
+        interpretation = stats.interpret_effect_size(delta)
+        stats_data["cliffs_delta"] = delta
+        stats_data["cliffs_interpretation"] = interpretation
+
+        # returns CLES, direction
+        common_language_effect_size, cles, is_significant = stats.interpret_cles(
+            mann_stat,
+            mann_pvalue,
+            with_patch,
+            without_patch,
+            pvalue_threshold,
+            interpretation,
+            delta,
+        )
+        stats_data["is_meaningful"] = is_significant
+        stats_data.update(common_language_effect_size)
+
+        plot_to_use = "plot_silverman_kde"
+
+        # Compute KDE with Silverman bandwidth, and warn if multimodal.
+        # Also compute confidence interval and interperet patch regression or improvement and warnings
+        (
+            silverman_kde,
+            is_regression,
+            is_improvement,
+            is_multimodal_or_irregular,
+            more_runs_are_needed,
+        ) = stats.interpret_silverman_kde(without_patch, with_patch)
+
+        stats_data["plot_silverman_kde"] = silverman_kde
+        stats_data["is_regression"] = is_regression
+        stats_data["is_improvement"] = is_improvement
+        stats_data["more_runs_are_needed"] = more_runs_are_needed
+
+        # Plot Kernel Density Estimator (KDE) with an ISJ (Improved Sheather-Jones) if data multimodal, skewed, heavy-tailed, or irregular
+        if is_multimodal_or_irregular:
+            # Plot KDE with ISJ bandwidth
+            plot_kde_with_isj = stats.plot_kde_with_isj_bandwidth(
+                without_patch, with_patch, mann_pvalue, cles, delta, interpretation
+            )
+            plot_to_use = "pplot_kde_with_isj"
+            stats_data["plot_kde"] = plot_kde_with_isj
+
+        stats_data["plot_to_use"] = plot_to_use
+        return stats_data
 
     @staticmethod
     def _get_interval(base_push, new_push):
