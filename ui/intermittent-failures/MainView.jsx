@@ -116,6 +116,13 @@ const MainView = (props) => {
             rel="noopener noreferrer"
             href={`${getBugUrl(props.original.id)}`}
             onClick={(e) => e.stopPropagation()}
+            onAuxClick={(e) => {
+              // Stop the propagation of middle clicks events to open the bug
+              // on bugzilla rather than the bugdetails view.
+              if (e.button === 1) {
+                e.stopPropagation();
+              }
+            }}
           >
             {props.original.id}
           </a>
@@ -298,6 +305,10 @@ const MainView = (props) => {
             getTrProps={(state, rowInfo) => {
               const baseProps = tableRowStyling(state, rowInfo);
               if (rowInfo && rowInfo.original) {
+                const { id, summary } = rowInfo.original;
+                const pathname = '/intermittent-failures/bugdetails';
+                const search = `?startday=${startday}&endday=${endday}&tree=${tree}&bug=${id}`;
+
                 return {
                   ...baseProps,
                   style: {
@@ -306,11 +317,10 @@ const MainView = (props) => {
                   },
                   onClick: () => {
                     updateAppState({ graphData, tableData });
-                    const { id, summary } = rowInfo.original;
                     // Use history.push for proper React Router navigation
                     props.history.push({
-                      pathname: '/intermittent-failures/bugdetails',
-                      search: `?startday=${startday}&endday=${endday}&tree=${tree}&bug=${id}`,
+                      pathname,
+                      search,
                       state: {
                         startday,
                         endday,
@@ -320,6 +330,13 @@ const MainView = (props) => {
                         location,
                       },
                     });
+                  },
+                  onAuxClick: (e) => {
+                    if (e.button === 1) {
+                      // Middle click
+                      e.preventDefault();
+                      window.open(`${pathname}${search}`, '_blank');
+                    }
                   },
                 };
               }
