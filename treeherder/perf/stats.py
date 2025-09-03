@@ -630,7 +630,7 @@ def plot_kde_with_isj_bandwidth(
     # Fill overlap
     overlap = np.minimum(y1, y2)
 
-    plot_kde_with_isj = {"bandwidth": "ISJ", "kernel": "Gaussian"}
+    plot_kde_with_isj = {"bandwidth": "Improved Sheather-Jones", "kernel": "Gaussian"}
 
     without_patch_kde_isj = {
         "x": x_kde,
