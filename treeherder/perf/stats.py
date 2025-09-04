@@ -14,24 +14,74 @@ PVALUE_THRESHOLD = 0.05
 ENABLE_REMOVE_OUTLIERS = False
 
 
+# returns sample count, mean, median. variance, standard deviation, min, max
 def summarize_data(series):
+    sample_count = len(series)
+    mean = np.mean(series)
+    median = np.median(series)
+    variance = np.var(series, ddof=1)
+    standard_deviation = np.std(series, ddof=1)
+    min = np.min(series)
+    max = np.max(series)
     summary = {
-        "Sample count": len(series),
-        "Mean": np.mean(series),
-        "Median": np.median(series),
-        "Variance": np.var(series, ddof=1),
-        "Standard Deviation": np.std(series, ddof=1),
-        "Min": np.min(series),
-        "Max": np.max(series),
+        "sample_count": sample_count,
+        "mean": mean,
+        "median": median,
+        "variance": variance,
+        "standard_deviation": standard_deviation,
+        "min": min,
+        "max": max,
     }
-    return summary
+    return summary, sample_count, mean, median, variance, standard_deviation, min, max
+
+
+# get basic statistics mean, median, variance, standard deviation, average, min, max
+def summarize_basic_stats_data(without_patch, with_patch, header):
+    title = "Basic statistics, normality test"
+    info_link = "https://en.m.wikipedia.org/wiki/Shapiro%E2%80%93Wilk_test#"
+
+    # Without Patch
+    without_patch_info = {
+        "name": "without patch",
+        "data": without_patch,
+        "header": header,
+        "title": title,
+        "info_link": info_link,
+        "sample_count": len(without_patch),
+        "mean": np.mean(without_patch),
+        "median": np.median(without_patch),
+        "variance": np.var(without_patch, ddof=1),
+        "standard_deviation": np.std(without_patch, ddof=1),
+        "average": np.average(without_patch),
+        "min": np.min(without_patch),
+        "max": np.max(without_patch),
+    }
+
+    # With Patch
+    with_patch_info = {
+        "name": "with patch",
+        "data": with_patch,
+        "header": header,
+        "title": title,
+        "info_link": info_link,
+        "sample_count": len(with_patch),
+        "mean": np.mean(with_patch),
+        "median": np.median(with_patch),
+        "average": np.average(with_patch),
+        "variance": np.var(with_patch, ddof=1),
+        "standard_deviation": np.std(with_patch, ddof=1),
+        "min": np.min(with_patch),
+        "max": np.max(with_patch),
+    }
+
+    return without_patch_info, with_patch_info
 
 
 ## IID detection
 
 
 def mann_kendall_test(x):
-    # https://pypi.org/project/pymannkendall/ explains all the variants, I picked one I thought suitable
+    # https://pypi.org/project/pymannkendall/ explains all the variants, @padenot picked one he thought suitable
     trend, h, p, z, tau, s, var_s, slope, intercept = mk.hamed_rao_modification_test(x)
     return z, p
 
@@ -187,34 +237,33 @@ def plot_cumulative_stats(x, iid_data):
 
 
 def interpret_mann_kendall(z, p, alpha=0.05):
+    warning = None
     if p < alpha:
         direction = "upward" if z > 0 else "downward"
-        print(
-            f"  Mann-Kendall p={p:.3g} < {alpha}, indicates a {direction} trend -> suspect not identically distributed."
-        )
-        return True
+        warning = f"  Mann-Kendall p={p:.3g} < {alpha}, indicates a {direction} trend -> suspect not identically distributed."
+        return True, warning
     else:
-        return False
+        return False, warning
 
 
 def interpret_wilcoxon(stat, p, alpha=0.05):
+    warning = None
     if p < alpha:
-        print(
-            f"  Wilcoxon rank-sum p={p:.3g} < {alpha}, early vs. late differ -> suspect not identically distributed."
-        )
-        return True
+        warning = f"  Wilcoxon rank-sum p={p:.3g} < {alpha}, early vs. late differ -> suspect not identically distributed."
+        return True, warning
     else:
-        return False
+        return False, warning
 
 
 def interpret_runs_test(z, p, alpha=0.05):
+    warning = None
     if p < alpha:
-        print(
+        warning = (
             f"  Runs test p={p:.3g} < {alpha}, data not random around median -> suspect dependence."
         )
-        return True
+        return True, warning
     else:
-        return False
+        return False, warning
 
 
 def assess_iid(data, label, alpha=0.05):
@@ -380,50 +429,31 @@ def interpret_effect_size(effect_size):
 
 
 def interpret_normality_shapiro_wilk(without_patch, with_patch, header, pvalue_threshold):
-    title = "Basic statistics, normality test"
-    info_link = "https://en.m.wikipedia.org/wiki/Shapiro%E2%80%93Wilk_test#"
-
-    # Without Patch
-    without_patch_info = {
-        "test_name": "Shapiro-Wilk",
-        "name": "without patch",
-        "data": without_patch,
-        "header": header,
-        "title": title,
-        "info_link": info_link,
-    }
-    df_without_patch = stats.summarize_data(without_patch)
+    without_patch_name = "Without Patch"
     stat_without_patch, p_without_patch = stats.shapiro(without_patch)
     is_normal_without_patch = True if p_without_patch > pvalue_threshold else False
-    interpretation_without_patch = f"Shapiro-Wilk result: {p_without_patch:.2f}, {without_patch_info['name']} is {'**likely normal**' if p_without_patch > pvalue_threshold else '**not normal**'}"
+    interpretation_without_patch = f"Shapiro-Wilk result: {p_without_patch:.2f}, {without_patch_name} is {'**likely normal**' if p_without_patch > pvalue_threshold else '**not normal**'}"
 
-    without_patch_info["df"] = df_without_patch
-    without_patch_info["variance"] = df_without_patch["Variance"]
-    without_patch_info["shapiro_stat"] = stat_without_patch
-    without_patch_info["pvalue"] = p_without_patch
-    without_patch_info["interpretation"] = interpretation_without_patch
-    without_patch_info["is_normal"] = is_normal_without_patch
-
-    # With Patch
-    with_patch_info = {
-        "test_name": "Shapiro-Wilk",
-        "name": "with patch",
-        "data": with_patch,
-        "header": header,
-        "title": title,
-        "info_link": info_link,
-    }
-    df_with_patch = stats.summarize_data(without_patch)
+    with_patch_name = "With Patch"
     stat_with_patch, p_with_patch = stats.shapiro(with_patch)
     is_normal_with_patch = True if p_without_patch > pvalue_threshold else False
-    interpretation_with_patch = f"Shapiro-Wilk result: {p_with_patch:.2f}, {with_patch_info['name']} is {'**likely normal**' if p_with_patch > pvalue_threshold else '**not normal**'}"
+    interpretation_with_patch = f"Shapiro-Wilk result: {p_with_patch:.2f}, {with_patch_name} is {'**likely normal**' if p_with_patch > pvalue_threshold else '**not normal**'}"
 
-    with_patch_info["df"] = df_with_patch
-    with_patch_info["variance"] = df_with_patch["Variance"]
-    with_patch_info["shapiro_stat"] = stat_with_patch
-    with_patch_info["pvalue"] = p_with_patch
-    with_patch_info["interpretation"] = interpretation_with_patch
-    with_patch_info["is_normal"] = is_normal_with_patch
+    shapiro_results_without = {
+        "test_name": "Shapiro-Wilk",
+        "shapiro_stat": stat_without_patch,
+        "pvalue": p_without_patch,
+        "interpretation": interpretation_without_patch,
+        "is_normal": is_normal_without_patch,
+    }
+
+    shapiro_results_with = {
+        "test_name": "Shapiro-Wilk",
+        "shapiro_stat": stat_with_patch,
+        "pvalue": p_with_patch,
+        "interpretation": interpretation_with_patch,
+        "is_normal": is_normal_with_patch,
+    }
 
     # Is both with patch and without patch normal?
     if is_normal_without_patch and is_normal_with_patch:
@@ -431,7 +461,7 @@ def interpret_normality_shapiro_wilk(without_patch, with_patch, header, pvalue_t
     else:
         is_both_normal = False
 
-    return without_patch_info, with_patch_info, is_both_normal
+    return shapiro_results_without, shapiro_results_with, is_both_normal
 
 
 # Kolmogorov-Smirnov test for goodness of fit
@@ -676,91 +706,3 @@ def plot_kde_with_isj_bandwidth(
     plot_kde_with_isj["with_patch_kde_ISJ"] = with_patch_kde_isj
 
     return plot_kde_with_isj
-
-
-# def process_new(base_rev, new_rev, header, remove_outliers=ENABLE_REMOVE_OUTLIERS, pvalue_threshold=PVALUE_THRESHOLD):
-#     # extract data, potentially removing outliers
-#     if remove_outliers:
-#         without_patch = remove_outliers(base_rev.flatten())
-#         with_patch = remove_outliers(new_rev.flatten())
-#     else:
-#         without_patch = base_rev.flatten()
-#         with_patch = new_rev.flatten()
-
-#     # possibly not needed for checking iid
-#     # iid_data_without_patch = assess_iid(
-#     #     without_patch, "base revision"
-#     # )
-#     # iid_data_with_patch = assess_iid(
-#     #     with_patch, "new revision"
-#     # )
-
-#     series = [
-#         {"name": "without patch", "data": without_patch, "header": header},
-#         {"name": "with patch", "data": with_patch, "header": header},
-#     ]
-
-#     # Basic statistics, normality test"
-#     # <https://en.wikipedia.org/wiki/Shapiro%E2%80%93Wilk_test>
-#     title = "Basic statistics, normality test"
-#     for serie in series:
-#         df = summarize_data(serie["data"])
-#         serie["variance"] = df["Variance"]
-#         stat, p, is_normal, interpretation = interpret_normality_shapiro_wilk(serie["data"])
-
-#         serie["test_name"] = "Shapiro-Wilk"
-#         serie["shapiro_stat"] = stat
-#         serie["shapiro_pvalue"] = p
-#         serie["df"] = df
-#         serie["title"] = title
-#         serie["interpretation"] = interpretation
-#         serie["is_normal"] = is_normal
-#         serie["info_link"] = "https://en.m.wikipedia.org/wiki/Shapiro%E2%80%93Wilk_test#"
-
-#     stats_data = {
-#         "basic_normality_shapiro": series,
-#     }
-
-
-#     # Kolmogorov-Smirnov test for goodness of fit
-#     ks_test = interpret_ks_test(without_patch, with_patch, pvalue_threshold)
-#     stats_data["ks_test"] = ks_test
-
-
-#     # Mann-Whitney U test, two sided because we're never quite sure what of
-#     # the intent of the patch, as things stand
-#     mann_stat, mann_pvalue = mannwhitneyu(without_patch, with_patch, alternative="two-sided")
-#     mann_whitney = {
-#         "test_name": "Mann-Whitney U",
-#         "stat": mann_stat,
-#         "pvalue": mann_pvalue,
-#     }
-#     stats_data["mann_whitney_test"] = mann_whitney
-
-#     # Cliff's delta to take into account effect size:
-#     # https://www.researchgate.net/post/What_is_the_most_appropriate_effect_size_type_for_mann_whitney_u_analysis
-#     # https://www.researchgate.net/publication/262763337_Cliff's_Delta_Calculator_A_non-parametric_effect_size_program_for_two_groups_of_observations
-#     # https://stats.stackexchange.com/questions/450495/cliffs-delta-in-python
-#     # https://github.com/neilernst/cliffsDelta
-#     delta, _ = cliffs_delta(without_patch, with_patch)
-#     interpretation = interpret_effect_size(delta)
-#     stats_data["cliffs_delta"] = delta
-#     stats_data["cliffs_interpretation"] = interpretation
-
-
-#     common_language_effect_size, cles = interpret_cles(mann_stat, mann_pvalue, with_patch, without_patch, pvalue_threshold, interpretation, delta)
-#     stats_data["common_language_effect_size"] = common_language_effect_size
-
-#     # Compute KDE with Silverman bandwidth, and warn if multimodal.
-#     # Also compute confidence interval and interperet patch regression or improvement and warnings
-#     silverman_kde, ci_warnings, is_regression, is_improvement = interpret_silverman_KDE(without_patch, with_patch)
-
-#     stats_data["silverman_kde"] = silverman_kde
-#     stats_data["is_regression"] = is_regression
-#     stats_data["is_improvement"] = is_improvement
-#     stats_data["ci_warning"] = ci_warnings
-
-#     #Plot KDE with ISJ bandwidth
-#     plot_kde_with_isj = plot_kde_with_isj_bandwidth(without_patch, with_patch, mann_pvalue, cles, delta, interpretation)
-#     stats_data["plot_KDE"] = plot_kde_with_isj
-#     return stats_data

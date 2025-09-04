@@ -1477,14 +1477,14 @@ class PerfCompareResultsV2(generics.ListAPIView):
                 if no_results_to_show:
                     continue
 
-                base_avg_value = perfcompare_utils.get_avg(statistics_base_perf_data, header)
-                base_stddev = perfcompare_utils.get_stddev(statistics_base_perf_data, header)
-                base_median_value = perfcompare_utils.get_median(statistics_base_perf_data)
-                new_avg_value = perfcompare_utils.get_avg(statistics_new_perf_data, header)
-                new_stddev = perfcompare_utils.get_stddev(statistics_new_perf_data, header)
-                new_median_value = perfcompare_utils.get_median(statistics_new_perf_data)
-                base_stddev_pct = perfcompare_utils.get_stddev_pct(base_avg_value, base_stddev)
-                new_stddev_pct = perfcompare_utils.get_stddev_pct(new_avg_value, new_stddev)
+                # base_avg_value = perfcompare_utils.get_avg(statistics_base_perf_data, header)
+                # base_stddev = perfcompare_utils.get_stddev(statistics_base_perf_data, header)
+                # base_median_value = perfcompare_utils.get_median(statistics_base_perf_data)
+                # new_avg_value = perfcompare_utils.get_avg(statistics_new_perf_data, header)
+                # new_stddev = perfcompare_utils.get_stddev(statistics_new_perf_data, header)
+                # new_median_value = perfcompare_utils.get_median(statistics_new_perf_data)
+                # base_stddev_pct = perfcompare_utils.get_stddev_pct(base_avg_value, base_stddev)
+                # new_stddev_pct = perfcompare_utils.get_stddev_pct(new_avg_value, new_stddev)
                 new_stats = self._process_new_stats(base_rev, new_rev, str(sig_hash), header)
                 row_result = {
                     "base_rev": base_rev,
@@ -1507,14 +1507,6 @@ class PerfCompareResultsV2(generics.ListAPIView):
                     "new_runs": sorted(new_perf_data_values),
                     "base_runs_replicates": sorted(base_perf_data_replicates),
                     "new_runs_replicates": sorted(new_perf_data_replicates),
-                    "base_avg_value": base_avg_value,
-                    "new_avg_value": new_avg_value,
-                    "base_median_value": base_median_value,
-                    "new_median_value": new_median_value,
-                    "base_stddev": base_stddev,
-                    "new_stddev": new_stddev,
-                    "base_stddev_pct": base_stddev_pct,
-                    "new_stddev_pct": new_stddev_pct,
                     "base_retriggerable_job_ids": base_grouped_job_ids.get(base_sig_id, []),
                     "new_retriggerable_job_ids": new_grouped_job_ids.get(new_sig_id, []),
                     "new_stats": new_stats,
@@ -1526,6 +1518,7 @@ class PerfCompareResultsV2(generics.ListAPIView):
                         base_sig.get("has_subtests", None) or new_sig.get("has_subtests", None)
                     ),
                 }
+                row_result.update(new_stats)
 
                 self.queryset.append(row_result)
 
@@ -1641,23 +1634,28 @@ class PerfCompareResultsV2(generics.ListAPIView):
             without_patch = base_revision.flatten()
             with_patch = new_revision.flatten()
 
+        without_patch_info, with_patch_info = stats.summarize_basic_stats_data(
+            without_patch, with_patch, header
+        )
+
         # Basic statistics, normality test"
         # Shapiro-Wilk test
         # Statistical test for normality — checks whether a dataset is normally distributed.
         # <https://en.wikipedia.org/wiki/Shapiro%E2%80%93Wilk_test>
         # Is both a classic Gaussian distribution or classic bell curve
 
-        without_patch_info, with_patch_info, is_both_normal = (
+        shapiro_stats_without, shapiro_stats_with, is_both_normal = (
             stats.interpret_normality_shapiro_wilk(
                 without_patch, with_patch, header, pvalue_threshold
             )
         )
 
         stats_data = {
-            "basic_normality_shapiro_wilk": {
-                "without_patch": without_patch_info,
-                "with_patch": with_patch_info,
-                "is_both_normal": is_both_normal,
+            "without_patch": without_patch_info.update(shapiro_stats_without),
+            "with_patch": with_patch_info.update(shapiro_stats_with),
+            "shapiro_wilk": {
+                "shapiro_stats_without": shapiro_stats_without,
+                "shapiro_stats_with": shapiro_stats_with,
             },
             "is_both_normal": is_both_normal,
         }
