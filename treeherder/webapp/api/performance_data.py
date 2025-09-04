@@ -1477,7 +1477,7 @@ class PerfCompareResultsV2(generics.ListAPIView):
                 if no_results_to_show:
                     continue
 
-                new_stats = self._process_new_stats(base_rev, new_rev, str(sig_hash), header)
+                new_stats = self._process_stats(base_rev, new_rev, str(sig_hash), header)
                 row_result = {
                     "base_rev": base_rev,
                     "new_rev": new_rev,
@@ -1609,8 +1609,20 @@ class PerfCompareResultsV2(generics.ListAPIView):
         )
         return signatures
 
+    """
+    _process_new_stats does the following for base and new:
+    1. calculate basic statistics, mean, median, variance, standard deviation, average, min, max
+    2. Runs a Shapiro-Wilk normality test, is it normal and interpretation
+    3. Runs a Kolmogorov-Smirnov test for goodness of fit, is fit good and interpretation
+    4. Runs a Mann-Whitney U test test null hypothesis, data between two base and new, calculates p-value
+    5. Interpret Common Language Effect Size, with p-value and p-threshold (.05), calculate statistical effect and significance with what level of confidence interval
+    6. Estimate out KDE with Silverman bandwidth, check if multimodal or irregular
+    7. If multimodal or irregular estimate KDE with ISJ bandwith
+
+    """
+
     @staticmethod
-    def _process_new_stats(
+    def _process_stats(
         base_revision,
         new_revision,
         header,
@@ -1625,6 +1637,7 @@ class PerfCompareResultsV2(generics.ListAPIView):
             without_patch = base_revision.flatten()
             with_patch = new_revision.flatten()
 
+        # get basic statistics mean, median, variance, standard deviation, average, min, max
         without_patch_info, with_patch_info = stats.summarize_basic_stats_data(
             without_patch, with_patch, header
         )
@@ -1708,7 +1721,9 @@ class PerfCompareResultsV2(generics.ListAPIView):
             silverman_kde,
             is_regression,
             is_improvement,
-            is_multimodal_or_irregular,
+            is_base_multimodal,
+            is_new_multimodal,
+            is_irregular,
             more_runs_are_needed,
         ) = stats.interpret_silverman_kde(without_patch, with_patch)
 
@@ -1718,7 +1733,7 @@ class PerfCompareResultsV2(generics.ListAPIView):
         stats_data["more_runs_are_needed"] = more_runs_are_needed
 
         # Plot Kernel Density Estimator (KDE) with an ISJ (Improved Sheather-Jones) if data multimodal, skewed, heavy-tailed, or irregular
-        if is_multimodal_or_irregular:
+        if is_irregular or is_base_multimodal or is_new_multimodal:
             # Plot KDE with ISJ bandwidth
             plot_kde_with_isj = stats.plot_kde_with_isj_bandwidth(
                 without_patch, with_patch, mann_pvalue, cles, delta, interpretation

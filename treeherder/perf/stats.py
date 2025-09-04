@@ -492,6 +492,7 @@ def interpret_ks_test(without_patch, with_patch, pvalue_threshold):
 
 # Mann-Whitney U test
 # Tests the null hypothesis that the distributions patch and without patch are identical.
+# Null hypothesis is a statement that there is no significant difference or effect in population, calculates p-value
 def interpret_mann_whitneyu(without_patch, with_patch):
     mann_stat, mann_pvalue = mannwhitneyu(without_patch, with_patch, alternative="two-sided")
     mann_whitney = {
@@ -538,20 +539,22 @@ def interpret_silverman_kde(without_patch, with_patch):
     base_mode_count, base_peak_locs, base_prom = count_modes(x_without, y_without)
     new_mode_count, new_peak_locs, new_prom = count_modes(x_with, y_with)
 
-    is_multimodal_or_irregular = False
+    is_irregular = False
+    is_base_multimodal = False
+    is_new_multimodal = False
     warning_msgs = []
     if base_mode_count > 1:
         warning_msgs.append("⚠️  Warning: Base revision distribution appears multimodal!")
-        is_multimodal_or_irregular = True
+        is_base_multimodal = True
     if new_mode_count > 1:
         warning_msgs.append("⚠️  Warning: New revision distribution appears multimodal!")
-        is_multimodal_or_irregular = True
+        is_new_multimodal = True
     # May be over or under smoothing
     if base_mode_count != new_mode_count:
         warning_msgs.append(
             "⚠️  Warning: mode count between base and new revision different, look at the KDE!"
         )
-        is_multimodal_or_irregular = True
+        is_irregular = True
 
     silverman_kde = {
         "x_without": x_without,
@@ -632,7 +635,9 @@ def interpret_silverman_kde(without_patch, with_patch):
         silverman_kde,
         is_regression,
         is_improvement,
-        is_multimodal_or_irregular,
+        is_base_multimodal,
+        is_new_multimodal,
+        is_irregular,
         more_runs_are_needed,
     )
 
