@@ -1,9 +1,6 @@
-import pytest
 from django.urls import reverse
 
 from treeherder.perf.models import PerformanceBugTemplate, PerformanceFramework
-
-pytestmark = pytest.mark.perf
 
 
 def test_perf_bug_template_api(client, test_perf_framework):

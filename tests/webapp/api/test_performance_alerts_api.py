@@ -11,8 +11,6 @@ from treeherder.perf.models import (
     PerformanceFramework,
 )
 
-pytestmark = pytest.mark.perf
-
 
 def test_alerts_get(
     client,

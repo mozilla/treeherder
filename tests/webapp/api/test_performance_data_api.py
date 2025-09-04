@@ -15,8 +15,6 @@ from treeherder.perf.models import (
 )
 from treeherder.webapp.api.performance_data import PerformanceSummary
 
-pytestmark = pytest.mark.perf
-
 NOW = datetime.datetime.now()
 ONE_DAY_AGO = NOW - datetime.timedelta(days=1)
 THREE_DAYS_AGO = NOW - datetime.timedelta(days=3)
