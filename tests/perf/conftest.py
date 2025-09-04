@@ -3,10 +3,6 @@ import pathlib
 
 import pytest
 
-from tests.conftest import SampleDataJSONLoader
-
-load_json_fixture = SampleDataJSONLoader("sherlock")
-
 
 def pytest_collection_modifyitems(config, items):
     for root, dirs, files in os.walk(pathlib.Path(__file__).parent):
