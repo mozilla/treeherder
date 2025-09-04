@@ -16,7 +16,7 @@ def pytest_collection_modifyitems(config, items):
                     item.add_marker(pytest.mark.frontend)
 
         for file in files:
-            if 'test_perf' in file:
+            if "test_perf" in file:
                 continue
             for item in items:
                 if str(item.fspath).endswith(file):
