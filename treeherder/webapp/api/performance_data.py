@@ -4,6 +4,8 @@ from collections import defaultdict
 from urllib.parse import urlencode
 
 import django_filters
+import numpy as np
+from cliffs_delta import cliffs_delta
 from django.conf import settings
 from django.db import transaction
 from django.db.models import Case, CharField, Count, Q, Subquery, Value, When
@@ -12,6 +14,7 @@ from rest_framework import exceptions, filters, generics, pagination, viewsets
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
+import treeherder.perf.stats as stats
 from treeherder.etl.common import to_timestamp
 from treeherder.model import models
 from treeherder.perf.alerts import get_alert_properties
@@ -1041,6 +1044,7 @@ class PerfCompareResults(generics.ListAPIView):
                 no_results_to_show = not base_runs_count and not new_runs_count
                 if no_results_to_show:
                     continue
+
                 base_avg_value = perfcompare_utils.get_avg(statistics_base_perf_data, header)
                 base_stddev = perfcompare_utils.get_stddev(statistics_base_perf_data, header)
                 base_median_value = perfcompare_utils.get_median(statistics_base_perf_data)
@@ -1122,6 +1126,7 @@ class PerfCompareResults(generics.ListAPIView):
                         str(framework),
                         push_timestamp,
                         str(sig_hash),
+                        header,
                     ),
                     "is_improvement": is_improvement,
                     "is_regression": is_regression,
@@ -1134,6 +1139,7 @@ class PerfCompareResults(generics.ListAPIView):
                         base_sig.get("has_subtests", None) or new_sig.get("has_subtests", None)
                     ),
                 }
+
                 self.queryset.append(row_result)
 
         serializer = self.get_serializer(self.queryset, many=True)
@@ -1271,6 +1277,472 @@ class PerfCompareResults(generics.ListAPIView):
         graph_link = f"{graph_link}&{encoded}"
 
         return f"https://treeherder.mozilla.org/perfherder/{graph_link}"
+
+    @staticmethod
+    def _get_interval(base_push, new_push):
+        base_push_timestamp = base_push.time
+        new_push_timestamp = new_push.time
+
+        date_now = (time.time() * 1000) / 1000.0
+        time_range = min(base_push_timestamp, new_push_timestamp)
+        time_range = round(date_now - to_timestamp(str(time_range)))
+
+        ph_ranges = perfcompare_utils.PERFHERDER_TIMERANGES
+        for ph_range in ph_ranges:
+            if ph_range["value"] >= time_range:
+                new_time_range = ph_range["value"]
+                break
+        return new_time_range
+
+    @staticmethod
+    def _get_grouped_perf_data(perf_data):
+        grouped_replicate_values = defaultdict(list)
+        grouped_values = defaultdict(list)
+        grouped_job_ids = defaultdict(list)
+        for signature_id, value, job_id in perf_data.values_list("signature_id", "value", "job_id"):
+            if value is not None:
+                grouped_values[signature_id].append(value)
+                grouped_job_ids[signature_id].append(job_id)
+        for signature_id, replicate_value in perf_data.values_list(
+            "signature_id", "performancedatumreplicate__value"
+        ):
+            if replicate_value is not None:
+                grouped_replicate_values[signature_id].append(replicate_value)
+        return grouped_job_ids, grouped_values, grouped_replicate_values
+
+    @staticmethod
+    def _get_signatures_map(signatures, grouped_values, option_collection_map):
+        """
+        @return: signatures_map - contains a mapping of all the signatures for easy access and matching
+                 header_names - list of header names for all given signatures
+                 platforms - list of platforms for all given signatures
+        """
+        header_names = []
+        platforms = []
+        signatures_map = {}
+        for signature in signatures:
+            suite = signature["suite"]
+            test = signature["test"]
+            extra_options = signature["extra_options"]
+            application = signature["application"]
+            option_name = option_collection_map[signature["option_collection_id"]]
+            test_suite = perfcompare_utils.get_test_suite(suite, test)
+            platform = signature["platform__platform"]
+            header = perfcompare_utils.get_header_name(
+                extra_options, option_name, test_suite, application
+            )
+            sig_identifier = perfcompare_utils.get_sig_identifier(header, platform)
+
+            if sig_identifier not in signatures_map or (
+                sig_identifier in signatures_map
+                and len(grouped_values.get(signature["id"], [])) != 0
+            ):
+                signatures_map[sig_identifier] = signature
+            header_names.append(header)
+            platforms.append(platform)
+
+        return signatures_map, header_names, platforms
+
+
+class PerfCompareResultsV2(generics.ListAPIView):
+    serializer_class = PerfCompareResultsSerializer
+    queryset = None
+
+    def list(self, request):
+        query_params = PerfCompareResultsQueryParamsSerializer(data=request.query_params)
+        if not query_params.is_valid():
+            return Response(data=query_params.errors, status=HTTP_400_BAD_REQUEST)
+
+        base_rev = query_params.validated_data["base_revision"]
+        new_rev = query_params.validated_data["new_revision"]
+        base_repo_name = query_params.validated_data["base_repository"]
+        new_repo_name = query_params.validated_data["new_repository"]
+        interval = query_params.validated_data["interval"]
+        framework = query_params.validated_data["framework"]
+        no_subtests = query_params.validated_data["no_subtests"]
+        base_parent_signature = query_params.validated_data["base_parent_signature"]
+        new_parent_signature = query_params.validated_data["new_parent_signature"]
+        replicates = query_params.validated_data["replicates"]
+
+        try:
+            new_push = models.Push.objects.get(revision=new_rev, repository__name=new_repo_name)
+        except models.Push.DoesNotExist:
+            return Response(
+                f"No new push with revision {new_rev} from repo {new_repo_name}.",
+                status=HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            base_push, start_day, end_day = None, None, None
+            if base_rev:
+                base_push = models.Push.objects.get(
+                    revision=base_rev, repository__name=base_repo_name
+                )
+                # Dynamically calculate a time interval based on the base and new push
+                interval = self._get_interval(base_push, new_push)
+            else:
+                # Comparing without a base needs a timerange from which to gather the data needed
+                # based on the interval param received, which can be last day or last 2/ 7/ 14 /30 /90 days or last year
+                start_day = datetime.datetime.utcfromtimestamp(
+                    int(to_timestamp(str(new_push.time)) - int(interval))
+                )
+                end_day = new_push.time
+        except models.Push.DoesNotExist:
+            return Response(
+                f"No base push with revision {base_rev} from repo {base_repo_name}.",
+                status=HTTP_400_BAD_REQUEST,
+            )
+
+        base_signatures = self._get_signatures(
+            base_repo_name, framework, base_parent_signature, interval, no_subtests
+        )
+
+        new_signatures = self._get_signatures(
+            new_repo_name, framework, new_parent_signature, interval, no_subtests
+        )
+
+        base_perf_data = self._get_perf_data(
+            base_repo_name, base_rev, base_signatures, interval, start_day, end_day
+        )
+        new_perf_data = self._get_perf_data(
+            new_repo_name, new_rev, new_signatures, interval, None, None
+        )
+
+        option_collection_map = perfcompare_utils.get_option_collection_map()
+
+        (
+            base_grouped_job_ids,
+            base_grouped_values,
+            base_grouped_replicates,
+        ) = self._get_grouped_perf_data(base_perf_data)
+        (
+            new_grouped_job_ids,
+            new_grouped_values,
+            new_grouped_replicates,
+        ) = self._get_grouped_perf_data(new_perf_data)
+
+        statistics_base_grouped_data = base_grouped_values
+        statistics_new_grouped_data = new_grouped_values
+        if replicates:
+            statistics_base_grouped_data = base_grouped_replicates
+            statistics_new_grouped_data = new_grouped_replicates
+
+        base_signatures_map, base_header_names, base_platforms = self._get_signatures_map(
+            base_signatures, statistics_base_grouped_data, option_collection_map
+        )
+        new_signatures_map, new_header_names, new_platforms = self._get_signatures_map(
+            new_signatures, statistics_new_grouped_data, option_collection_map
+        )
+
+        header_names = list(set(base_header_names + new_header_names))
+        header_names.sort()
+        platforms = set(base_platforms + new_platforms)
+        self.queryset = []
+
+        for header in header_names:
+            for platform in platforms:
+                sig_identifier = perfcompare_utils.get_sig_identifier(header, platform)
+                base_sig = base_signatures_map.get(sig_identifier, {})
+                base_sig_id = base_sig.get("id", None)
+                new_sig = new_signatures_map.get(sig_identifier, {})
+                new_sig_id = new_sig.get("id", None)
+                if base_sig:
+                    (
+                        extra_options,
+                        lower_is_better,
+                        option_name,
+                        sig_hash,
+                        suite,
+                        test,
+                    ) = self._get_signature_based_properties(base_sig, option_collection_map)
+                else:
+                    (
+                        extra_options,
+                        lower_is_better,
+                        option_name,
+                        sig_hash,
+                        suite,
+                        test,
+                    ) = self._get_signature_based_properties(new_sig, option_collection_map)
+                base_perf_data_values = base_grouped_values.get(base_sig_id, [])
+                new_perf_data_values = new_grouped_values.get(new_sig_id, [])
+                base_perf_data_replicates = base_grouped_replicates.get(base_sig_id, [])
+                new_perf_data_replicates = new_grouped_replicates.get(new_sig_id, [])
+                statistics_base_perf_data = statistics_base_grouped_data.get(base_sig_id, [])
+                statistics_new_perf_data = statistics_new_grouped_data.get(new_sig_id, [])
+                base_runs_count = len(statistics_base_perf_data)
+                new_runs_count = len(statistics_new_perf_data)
+                is_complete = base_runs_count and new_runs_count
+                no_results_to_show = not base_runs_count and not new_runs_count
+                if no_results_to_show:
+                    continue
+
+                new_stats = self._process_stats(base_rev, new_rev, str(sig_hash), header)
+                row_result = {
+                    "base_rev": base_rev,
+                    "new_rev": new_rev,
+                    "header_name": header,
+                    "platform": platform,
+                    "base_app": base_sig.get("application", ""),
+                    "new_app": new_sig.get("application", ""),
+                    "suite": suite,  # same suite for base_result and new_result
+                    "test": test,  # same test for base_result and new_result
+                    "is_complete": is_complete,
+                    "framework_id": framework,
+                    "option_name": option_name,
+                    "extra_options": extra_options,
+                    "base_repository_name": base_repo_name,
+                    "new_repository_name": new_repo_name,
+                    "base_measurement_unit": base_sig.get("measurement_unit", ""),
+                    "new_measurement_unit": new_sig.get("measurement_unit", ""),
+                    "base_runs": sorted(base_perf_data_values),
+                    "new_runs": sorted(new_perf_data_values),
+                    "base_runs_replicates": sorted(base_perf_data_replicates),
+                    "new_runs_replicates": sorted(new_perf_data_replicates),
+                    "base_retriggerable_job_ids": base_grouped_job_ids.get(base_sig_id, []),
+                    "new_retriggerable_job_ids": new_grouped_job_ids.get(new_sig_id, []),
+                    "base_parent_signature": base_sig.get("parent_signature_id", None),
+                    "new_parent_signature": new_sig.get("parent_signature_id", None),
+                    "base_signature_id": base_sig_id,
+                    "new_signature_id": new_sig_id,
+                    "has_subtests": (
+                        base_sig.get("has_subtests", None) or new_sig.get("has_subtests", None)
+                    ),
+                }
+                row_result.update(new_stats)
+
+                self.queryset.append(row_result)
+
+        serializer = self.get_serializer(self.queryset, many=True)
+        serialized_data = serializer.data
+
+        return Response(data=serialized_data)
+
+    def _get_signature_based_properties(self, sig, option_collection_map):
+        return (
+            sig.get("extra_options", ""),
+            sig.get("lower_is_better", ""),
+            self._get_option_name(sig, option_collection_map),
+            sig.get("signature_hash", ""),
+            sig.get("suite", ""),
+            sig.get("test", ""),
+        )
+
+    @staticmethod
+    def _get_option_name(sig, option_collection_map):
+        return option_collection_map.get(sig.get("option_collection_id", ""), "")
+
+    @staticmethod
+    def _get_push_timestamp(base_push, new_push):
+        # This function will determine the right push time stamp to assign a revision.
+        # It will do this by comparing timestamps with ph_time_ranges
+        new_push_timestamp = new_push.time
+
+        timestamps = [new_push_timestamp]
+        if base_push:
+            base_push_timestamp = base_push.time
+            timestamps.append(base_push_timestamp)
+
+        timeranges = perfcompare_utils.PERFHERDER_TIMERANGES
+        values = []
+
+        date_now = (time.time() * 1000) / 1000.0
+        for ts in timestamps:
+            ph_value = date_now - to_timestamp(str(ts))
+            for ph_range in timeranges:
+                if ph_value < ph_range["value"]:
+                    values.append(ph_range["value"])
+                    break
+        return max(values)
+
+    @staticmethod
+    def _get_perf_data(repository_name, revision, signatures, interval, startday, endday):
+        signature_ids = [signature["id"] for signature in list(signatures)]
+        perf_data = PerformanceDatum.objects.select_related("push", "repository", "id").filter(
+            signature_id__in=signature_ids,
+            repository__name=repository_name,
+        )
+        if revision:
+            perf_data = perf_data.filter(push__revision=revision)
+        elif interval and not startday and not endday:
+            perf_data = perf_data.filter(
+                push_timestamp__gt=datetime.datetime.utcfromtimestamp(
+                    int(time.time() - int(interval))
+                )
+            )
+        else:
+            perf_data = perf_data.filter(push_timestamp__gt=startday, push_timestamp__lt=endday)
+
+        return perf_data
+
+    @staticmethod
+    def _get_signatures(repository_name, framework, parent_signature, interval, no_subtests):
+        signatures = PerformanceSignature.objects.select_related(
+            "framework", "repository", "platform", "push", "job"
+        ).filter(repository__name=repository_name)
+        signatures = signatures.filter(parent_signature__isnull=no_subtests)
+        if framework:
+            signatures = signatures.filter(framework__id=framework)
+        if parent_signature:
+            signatures = signatures.filter(parent_signature_id=parent_signature)
+        if interval:
+            signatures = signatures.filter(
+                last_updated__gte=datetime.datetime.utcfromtimestamp(
+                    int(time.time() - int(interval))
+                )
+            )
+        signatures = signatures.values(
+            "framework_id",
+            "id",
+            "lower_is_better",
+            "has_subtests",
+            "extra_options",
+            "suite",
+            "signature_hash",
+            "platform__platform",
+            "test",
+            "option_collection_id",
+            "parent_signature_id",
+            "repository_id",
+            "measurement_unit",
+            "application",
+        )
+        return signatures
+
+    """
+    _process_new_stats does the following for base and new:
+    1. calculate basic statistics, mean, median, variance, standard deviation, average, min, max
+    2. Runs a Shapiro-Wilk normality test, is it normal and interpretation
+    3. Runs a Kolmogorov-Smirnov test for goodness of fit, is fit good and interpretation
+    4. Runs a Mann-Whitney U test test null hypothesis, data between two base and new, calculates p-value
+    5. Interpret Common Language Effect Size, with p-value and p-threshold (.05), calculate statistical effect and significance with what level of confidence interval
+    6. Estimate out KDE with Silverman bandwidth, check if multimodal or irregular
+    7. If multimodal or irregular estimate KDE with ISJ bandwith
+
+    """
+
+    @staticmethod
+    def _process_stats(
+        base_revision,
+        new_revision,
+        header,
+        remove_outliers=stats.ENABLE_REMOVE_OUTLIERS,
+        pvalue_threshold=stats.PVALUE_THRESHOLD,
+    ):
+        # extract data, potentially removing outliers
+        if remove_outliers:
+            without_patch = stats.remove_outliers(base_revision.flatten())
+            with_patch = stats.remove_outliers(new_revision.flatten())
+        else:
+            without_patch = base_revision.flatten()
+            with_patch = new_revision.flatten()
+
+        # get basic statistics mean, median, variance, standard deviation, average, min, max
+        without_patch_info, with_patch_info = stats.summarize_basic_stats_data(
+            without_patch, with_patch, header
+        )
+
+        # Basic statistics, normality test"
+        # Shapiro-Wilk test
+        # Statistical test for normality — checks whether a dataset is normally distributed.
+        # <https://en.wikipedia.org/wiki/Shapiro%E2%80%93Wilk_test>
+        # Is both a classic Gaussian distribution or classic bell curve
+
+        shapiro_stats_without, shapiro_stats_with, is_both_normal = (
+            stats.interpret_normality_shapiro_wilk(
+                without_patch, with_patch, header, pvalue_threshold
+            )
+        )
+
+        stats_data = {
+            "without_patch": without_patch_info.update(shapiro_stats_without),
+            "with_patch": with_patch_info.update(shapiro_stats_with),
+            "shapiro_wilk": {
+                "shapiro_stats_without": shapiro_stats_without,
+                "shapiro_stats_with": shapiro_stats_with,
+            },
+            "is_both_normal": is_both_normal,
+        }
+
+        # Kolmogorov-Smirnov test for goodness of fit
+        ks_test, is_fit_good, ks_warning = stats.interpret_ks_test(
+            without_patch, with_patch, pvalue_threshold
+        )
+        stats_data["ks_test"] = ks_test
+        stats_data["is_fit_good"] = is_fit_good
+
+        # Mann-Whitney U test, two sided because we're never quite sure what of
+        # the intent of the patch, as things stand
+        # Tests the null hypothesis that the distributions of the two are identical
+        mann_whitney, mann_stat, mann_pvalue = stats.interpret_mann_whitneyu(
+            without_patch, with_patch
+        )
+        stats_data["mann_whitney_test"] = mann_whitney
+
+        base_median = np.median(without_patch)
+        new_median = np.median(with_patch)
+        delta_value = new_median - base_median
+        delta_percentage = (delta_value / base_median * 100) if base_median != 0 else 0
+
+        stats_data["base_median"] = base_median
+        stats_data["new_median"] = new_median
+        stats_data["delta_value"] = delta_value
+        stats_data["delta_percentage"] = delta_percentage
+        stats_data["pvalue"] = mann_pvalue
+
+        # Cliff's delta to take into account effect size:
+        # https://www.researchgate.net/post/What_is_the_most_appropriate_effect_size_type_for_mann_whitney_u_analysis
+        # https://www.researchgate.net/publication/262763337_Cliff's_Delta_Calculator_A_non-parametric_effect_size_program_for_two_groups_of_observations
+        # https://stats.stackexchange.com/questions/450495/cliffs-delta-in-python
+        # https://github.com/neilernst/cliffsDelta
+        delta, _ = cliffs_delta(without_patch, with_patch)
+        interpretation = stats.interpret_effect_size(delta)
+        stats_data["cliffs_delta"] = delta
+        stats_data["cliffs_interpretation"] = interpretation
+
+        # returns CLES, direction
+        common_language_effect_size, cles, is_significant = stats.interpret_cles(
+            mann_stat,
+            mann_pvalue,
+            with_patch,
+            without_patch,
+            pvalue_threshold,
+            interpretation,
+            delta,
+        )
+        stats_data["is_meaningful"] = is_significant
+        stats_data.update(common_language_effect_size)
+
+        plot_to_use = "plot_silverman_kde"
+
+        # Compute KDE with Silverman bandwidth, and warn if multimodal.
+        # Also compute confidence interval and interperet patch regression or improvement and warnings
+        (
+            silverman_kde,
+            is_regression,
+            is_improvement,
+            is_base_multimodal,
+            is_new_multimodal,
+            is_irregular,
+            more_runs_are_needed,
+        ) = stats.interpret_silverman_kde(without_patch, with_patch)
+
+        stats_data["plot_silverman_kde"] = silverman_kde
+        stats_data["is_regression"] = is_regression
+        stats_data["is_improvement"] = is_improvement
+        stats_data["more_runs_are_needed"] = more_runs_are_needed
+
+        # Plot Kernel Density Estimator (KDE) with an ISJ (Improved Sheather-Jones) if data multimodal, skewed, heavy-tailed, or irregular
+        if is_irregular or is_base_multimodal or is_new_multimodal:
+            # Plot KDE with ISJ bandwidth
+            plot_kde_with_isj = stats.plot_kde_with_isj_bandwidth(
+                without_patch, with_patch, mann_pvalue, cles, delta, interpretation
+            )
+            plot_to_use = "pplot_kde_with_isj"
+            stats_data["plot_kde"] = plot_kde_with_isj
+
+        stats_data["plot_to_use"] = plot_to_use
+        return stats_data
 
     @staticmethod
     def _get_interval(base_push, new_push):
