@@ -1477,14 +1477,6 @@ class PerfCompareResultsV2(generics.ListAPIView):
                 if no_results_to_show:
                     continue
 
-                # base_avg_value = perfcompare_utils.get_avg(statistics_base_perf_data, header)
-                # base_stddev = perfcompare_utils.get_stddev(statistics_base_perf_data, header)
-                # base_median_value = perfcompare_utils.get_median(statistics_base_perf_data)
-                # new_avg_value = perfcompare_utils.get_avg(statistics_new_perf_data, header)
-                # new_stddev = perfcompare_utils.get_stddev(statistics_new_perf_data, header)
-                # new_median_value = perfcompare_utils.get_median(statistics_new_perf_data)
-                # base_stddev_pct = perfcompare_utils.get_stddev_pct(base_avg_value, base_stddev)
-                # new_stddev_pct = perfcompare_utils.get_stddev_pct(new_avg_value, new_stddev)
                 new_stats = self._process_new_stats(base_rev, new_rev, str(sig_hash), header)
                 row_result = {
                     "base_rev": base_rev,
@@ -1509,7 +1501,6 @@ class PerfCompareResultsV2(generics.ListAPIView):
                     "new_runs_replicates": sorted(new_perf_data_replicates),
                     "base_retriggerable_job_ids": base_grouped_job_ids.get(base_sig_id, []),
                     "new_retriggerable_job_ids": new_grouped_job_ids.get(new_sig_id, []),
-                    "new_stats": new_stats,
                     "base_parent_signature": base_sig.get("parent_signature_id", None),
                     "new_parent_signature": new_sig.get("parent_signature_id", None),
                     "base_signature_id": base_sig_id,
