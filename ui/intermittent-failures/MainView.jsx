@@ -206,8 +206,6 @@ const MainView = (props) => {
       totalFailures,
       totalRuns,
     } = calculateMetrics(graphData));
-    graphOneData = { all: graphOneData };
-    graphOneData.all[0].count = tableData.length;
   }
 
   const getHeaderAriaLabel = (state, bug, data) => {

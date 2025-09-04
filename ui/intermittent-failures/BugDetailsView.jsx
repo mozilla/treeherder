@@ -31,57 +31,14 @@ const BugDetailsView = (props) => {
     initialParamsSet,
     startday,
     endday,
-    failurehash,
     updateState,
-    updateHash,
     bug,
     summary,
     errorMessages,
     lastLocation,
     tableFailureStatus,
     graphFailureStatus,
-    uniqueLines,
-    uniqueFrequency,
   } = props;
-
-  const customFilter = ({ filter }) => {
-    if (!tableData || !uniqueLines) return;
-    return (
-      <select
-        onChange={(event) => updateHash(event.target.value)}
-        style={{ width: '100%' }}
-        value={filter ? filter.value : failurehash}
-      >
-        <option value="all">All</option>
-        {uniqueLines.map((vals) => {
-          return (
-            <option key={vals[1]} value={vals[1]}>
-              {vals[0]}
-            </option>
-          );
-        })}
-      </select>
-    );
-  };
-
-  const lineTrimmer = (failureLines) => {
-    if (failureLines === undefined) {
-      return '';
-    }
-    if (typeof failureLines === 'string') {
-      failureLines = failureLines.split('\n');
-    }
-    const lines = failureLines.map((i) => i.split('\n'));
-
-    const trimmedLines = lines.map((line) => {
-      const parts = line.toString().split(' | ');
-      if (parts.length > 2) {
-        parts.shift();
-      }
-      return parts.join(' | ');
-    });
-    return trimmedLines.join('\n');
-  };
 
   const columns = [
     {
@@ -153,11 +110,13 @@ const BugDetailsView = (props) => {
     },
     {
       Header: 'Failure Lines',
-      accessor: 'job_id',
+      accessor: 'failure_lines_text',
       headerClassName: 'text-left',
-      Filter: ({ filter, onChange }) => customFilter({ filter, onChange }),
+      Filter: (props) =>
+        textFilter({ ...props, placeholder: 'Filter by failure lines…' }),
+      filterMethod: regexpFilter,
       Cell: (_props) => {
-        const { value, original } = _props;
+        const { original } = _props;
         return (
           <div>
             <div className="failure-header">
@@ -170,7 +129,7 @@ const BugDetailsView = (props) => {
               <a
                 className="small-text"
                 href={`${window.location.origin}${getLogViewerUrl(
-                  value,
+                  original.job_id,
                   original.tree,
                 )}`}
                 target="_blank"
@@ -212,48 +171,24 @@ const BugDetailsView = (props) => {
     },
   ];
 
-  let gOneData = {};
   let graphOneData = null;
   let graphTwoData = null;
   let _tableData = null;
 
   if (graphData.length > 0) {
     ({ graphOneData, graphTwoData } = calculateMetrics(graphData));
-    if (uniqueFrequency) {
-      gOneData = uniqueFrequency;
-    }
-    gOneData.all = graphOneData;
-    gOneData.all[0].count = tableData.length;
 
     _tableData = tableData.map((row) => ({
       ...row,
       job_name: `${row.platform}/${row.build_type}-${row.test_suite}`,
+      failure_lines_text: row.lines ? row.lines.join(' ') : '',
     }));
-    // here we Filter() the tableData.
-    // Since we use urlParams for failurehash, this synchronizes it.
-    if (failurehash !== 'all') {
-      const tData = [];
-      _tableData.forEach((row) => {
-        const trimmed = lineTrimmer(row.lines);
-        let filterValue = '';
-        const hashIndex = 1;
-        uniqueLines.forEach((uniqueLine) => {
-          if (trimmed === uniqueLine[0]) {
-            filterValue = uniqueLine[hashIndex];
-          }
-        });
-        if (filterValue === failurehash) {
-          tData.push(row);
-        }
-      });
-      _tableData = tData;
-    }
   }
 
   return (
     <Layout
       {...props}
-      graphOneData={gOneData}
+      graphOneData={graphOneData}
       graphTwoData={graphTwoData}
       header={
         <React.Fragment>
@@ -316,10 +251,7 @@ const BugDetailsView = (props) => {
                 <Row>
                   <Col xs="12" className="mx-auto">
                     <p className="text-secondary">
-                      {failurehash in gOneData
-                        ? gOneData[failurehash][0].count
-                        : 0}{' '}
-                      total failures
+                      {tableData.length} total failures
                     </p>
                   </Col>
                 </Row>
@@ -364,9 +296,7 @@ BugDetailsView.propTypes = {
   }).isRequired,
   tree: PropTypes.string.isRequired,
   updateState: PropTypes.func.isRequired,
-  updateHash: PropTypes.func.isRequired,
   startday: PropTypes.string.isRequired,
-  failurehash: PropTypes.string.isRequired,
   endday: PropTypes.string.isRequired,
   tableData: PropTypes.arrayOf(
     PropTypes.shape({
@@ -396,15 +326,6 @@ BugDetailsView.propTypes = {
   errorMessages: PropTypes.arrayOf(PropTypes.string),
   tableFailureStatus: PropTypes.string,
   graphFailureStatus: PropTypes.string,
-  uniqueLines: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)),
-  uniqueFrequency: PropTypes.shape({
-    // Define the expected structure of uniqueFrequency object here
-    all: PropTypes.arrayOf(
-      PropTypes.shape({
-        count: PropTypes.number,
-      }),
-    ),
-  }),
   user: PropTypes.shape({}),
   setUser: PropTypes.func.isRequired,
   notify: PropTypes.func.isRequired,
@@ -416,8 +337,6 @@ BugDetailsView.defaultProps = {
   errorMessages: [],
   tableFailureStatus: null,
   graphFailureStatus: null,
-  uniqueLines: [],
-  uniqueFrequency: {},
 };
 
 const defaultState = {
