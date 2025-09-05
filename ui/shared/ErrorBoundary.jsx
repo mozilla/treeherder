@@ -33,7 +33,7 @@ export default class ErrorBoundary extends React.Component {
 }
 
 ErrorBoundary.propTypes = {
-  children: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
+  children: PropTypes.node,
   errorClasses: PropTypes.string,
   message: PropTypes.string,
 };
