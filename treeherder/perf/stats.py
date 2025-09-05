@@ -503,9 +503,29 @@ def interpret_mann_whitneyu(without_patch, with_patch):
     return mann_whitney, mann_stat, mann_pvalue
 
 
+def is_new_better(delta_value, lower_is_better):
+    """This method returns if the new result is better or worse (even if unsure)"""
+    is_new_better = None
+    if abs(delta_value) < 0.001:
+        direction = "neutral"
+    elif (lower_is_better and delta_value < 0) or (not lower_is_better and delta_value > 0):
+        direction = "better"
+        is_new_better = True
+    else:
+        direction = "worse"
+        is_new_better = False
+    return direction, is_new_better
+
+
 # Common Language Effect Size, and its interpretation in english
 def interpret_cles(
-    mann_stat, mann_pvalue, with_patch, without_patch, pvalue_threshold, interpretation, delta
+    mann_stat,
+    mann_pvalue,
+    with_patch,
+    without_patch,
+    pvalue_threshold,
+    interpretation,
+    delta,
 ):
     cles = mann_stat / (len(with_patch) * len(without_patch))
     cles_direction = (

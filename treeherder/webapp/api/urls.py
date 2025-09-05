@@ -180,11 +180,6 @@ urlpatterns = [
         performance_data.PerfCompareResults.as_view(),
         name="perfcompare-results",
     ),
-    re_path(
-        r"^perfcompare/results2/$",
-        performance_data.PerfCompareResultsV2.as_view(),
-        name="perfcompare-results-2",
-    ),
     re_path(r"^csp-report/$", csp_report.csp_report_collector, name="csp-report"),
     re_path(r"^schema/", get_schema_view(title="Treeherder Rest API"), name="openapi-schema"),
     re_path(
