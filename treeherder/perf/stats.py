@@ -36,45 +36,45 @@ def summarize_data(series):
 
 
 # get basic statistics mean, median, variance, standard deviation, average, min, max
-def summarize_basic_stats_data(without_patch, with_patch, header):
+def summarize_basic_stats_data(base, new, header):
     title = "Basic statistics, normality test"
     info_link = "https://en.m.wikipedia.org/wiki/Shapiro%E2%80%93Wilk_test#"
 
-    # Without Patch
-    without_patch_info = {
+    # Base Revision
+    base_rev_info = {
         "name": "without patch",
-        "data": without_patch,
+        "data": base,
         "header": header,
         "title": title,
         "info_link": info_link,
-        "sample_count": len(without_patch),
-        "mean": np.mean(without_patch),
-        "median": np.median(without_patch),
-        "variance": np.var(without_patch, ddof=1),
-        "standard_deviation": np.std(without_patch, ddof=1),
-        "average": np.average(without_patch),
-        "min": np.min(without_patch),
-        "max": np.max(without_patch),
+        "sample_count": len(base),
+        "mean": np.mean(base),
+        "median": np.median(base),
+        "variance": np.var(base, ddof=1),
+        "standard_deviation": np.std(base, ddof=1),
+        "average": np.average(base),
+        "min": np.min(base),
+        "max": np.max(base),
     }
 
-    # With Patch
-    with_patch_info = {
+    # New Revision
+    new_rev_info = {
         "name": "with patch",
-        "data": with_patch,
+        "data": new,
         "header": header,
         "title": title,
         "info_link": info_link,
-        "sample_count": len(with_patch),
-        "mean": np.mean(with_patch),
-        "median": np.median(with_patch),
-        "average": np.average(with_patch),
-        "variance": np.var(with_patch, ddof=1),
-        "standard_deviation": np.std(with_patch, ddof=1),
-        "min": np.min(with_patch),
-        "max": np.max(with_patch),
+        "sample_count": len(new),
+        "mean": np.mean(new),
+        "median": np.median(new),
+        "average": np.average(new),
+        "variance": np.var(new, ddof=1),
+        "standard_deviation": np.std(new, ddof=1),
+        "min": np.min(new),
+        "max": np.max(new),
     }
 
-    return without_patch_info, with_patch_info
+    return base_rev_info, new_rev_info
 
 
 ## IID detection
@@ -428,45 +428,45 @@ def interpret_effect_size(effect_size):
 # <https://en.wikipedia.org/wiki/Shapiro%E2%80%93Wilk_test>
 
 
-def interpret_normality_shapiro_wilk(without_patch, with_patch, header, pvalue_threshold):
-    without_patch_name = "Without Patch"
-    stat_without_patch, p_without_patch = stats.shapiro(without_patch)
-    is_normal_without_patch = True if p_without_patch > pvalue_threshold else False
-    interpretation_without_patch = f"Shapiro-Wilk result: {p_without_patch:.2f}, {without_patch_name} is {'**likely normal**' if p_without_patch > pvalue_threshold else '**not normal**'}"
+def interpret_normality_shapiro_wilk(base, new, header, pvalue_threshold):
+    base_name = "Base Reversion"
+    stat_base, p_base = stats.shapiro(base)
+    is_normal_base = True if p_base > pvalue_threshold else False
+    interpretation_base = f"Shapiro-Wilk result: {p_base:.2f}, {base_name} is {'**likely normal**' if p_base > pvalue_threshold else '**not normal**'}"
 
-    with_patch_name = "With Patch"
-    stat_with_patch, p_with_patch = stats.shapiro(with_patch)
-    is_normal_with_patch = True if p_without_patch > pvalue_threshold else False
-    interpretation_with_patch = f"Shapiro-Wilk result: {p_with_patch:.2f}, {with_patch_name} is {'**likely normal**' if p_with_patch > pvalue_threshold else '**not normal**'}"
+    new_rev_name = "With Patch"
+    stat_new, p_new = stats.shapiro(new)
+    is_normal_new = True if p_base > pvalue_threshold else False
+    interpretation_new = f"Shapiro-Wilk result: {p_new:.2f}, {new_rev_name} is {'**likely normal**' if p_new > pvalue_threshold else '**not normal**'}"
 
-    shapiro_results_without = {
+    shapiro_results_base = {
         "test_name": "Shapiro-Wilk",
-        "shapiro_stat": stat_without_patch,
-        "pvalue": p_without_patch,
-        "interpretation": interpretation_without_patch,
-        "is_normal": is_normal_without_patch,
+        "shapiro_stat": stat_base,
+        "pvalue": p_base,
+        "interpretation": interpretation_base,
+        "is_normal": is_normal_base,
     }
 
     shapiro_results_with = {
         "test_name": "Shapiro-Wilk",
-        "shapiro_stat": stat_with_patch,
-        "pvalue": p_with_patch,
-        "interpretation": interpretation_with_patch,
-        "is_normal": is_normal_with_patch,
+        "shapiro_stat": stat_new,
+        "pvalue": p_new,
+        "interpretation": interpretation_new,
+        "is_normal": is_normal_new,
     }
 
     # Is both with patch and without patch normal?
-    if is_normal_without_patch and is_normal_with_patch:
+    if is_normal_base and is_normal_new:
         is_both_normal = True
     else:
         is_both_normal = False
 
-    return shapiro_results_without, shapiro_results_with, is_both_normal
+    return shapiro_results_base, shapiro_results_with, is_both_normal
 
 
 # Kolmogorov-Smirnov test for goodness of fit
-def interpret_ks_test(without_patch, with_patch, pvalue_threshold):
-    ks_stat, ks_p = ks_2samp(without_patch, with_patch)
+def interpret_ks_test(base, new, pvalue_threshold):
+    ks_stat, ks_p = ks_2samp(base, new)
     ks_comment = f"KS test p-value: {ks_p:.4f}"
 
     ks_test = {
@@ -493,8 +493,8 @@ def interpret_ks_test(without_patch, with_patch, pvalue_threshold):
 # Mann-Whitney U test
 # Tests the null hypothesis that the distributions patch and without patch are identical.
 # Null hypothesis is a statement that there is no significant difference or effect in population, calculates p-value
-def interpret_mann_whitneyu(without_patch, with_patch):
-    mann_stat, mann_pvalue = mannwhitneyu(without_patch, with_patch, alternative="two-sided")
+def interpret_mann_whitneyu(base, new):
+    mann_stat, mann_pvalue = mannwhitneyu(base, new, alternative="two-sided")
     mann_whitney = {
         "test_name": "Mann-Whitney U",
         "stat": mann_stat,
@@ -521,17 +521,17 @@ def is_new_better(delta_value, lower_is_better):
 def interpret_cles(
     mann_stat,
     mann_pvalue,
-    with_patch,
-    without_patch,
+    new_revision,
+    base_revision,
     pvalue_threshold,
     interpretation,
     delta,
 ):
-    cles = mann_stat / (len(with_patch) * len(without_patch))
+    cles = mann_stat / (len(new_revision) * len(base_revision))
     cles_direction = (
-        f"{cles:.2f} → {cles * 100:.0f}% chance a value from `without_patch` is greater than a value from `with_patch`"
+        f"{cles:.2f} → {cles * 100:.0f}% chance a value from `base` is greater than a value from `new`"
         if cles >= 0.5
-        else f"{1 - cles:.2f} → {100 - cles * 100:.0f}% chance a value from `with_patch` is greater than a value from `without_patch`"
+        else f"{1 - cles:.2f} → {100 - cles * 100:.0f}% chance a value from `new` is greater than a value from `base`"
     )
 
     is_significant = False if mann_pvalue > pvalue_threshold else True
@@ -550,42 +550,28 @@ def interpret_cles(
     return common_language_effect_size, cles, is_significant
 
 
-def interpret_silverman_kde(without_patch, with_patch):
+def interpret_silverman_kde(base, new):
     # Kernel Density Estimator (KDE) - estimate the probability density function (PDF) of a continuous random variable in a smooth, non-parametric way, based on a finite sample of data.
-    x_without, y_without = FFTKDE(kernel="gaussian", bw="silverman").fit(without_patch).evaluate()
-    x_with, y_with = FFTKDE(kernel="gaussian", bw="silverman").fit(with_patch).evaluate()
+    x_base, y_base = FFTKDE(kernel="gaussian", bw="silverman").fit(base).evaluate()
+    x_new, y_new = FFTKDE(kernel="gaussian", bw="silverman").fit(new).evaluate()
 
     # Estimate modes, and warn if multimodal. We estimate the modes w/ a bandwidth computed via silverman's method because it smoothes a bit more
-    base_mode_count, base_peak_locs, base_prom = count_modes(x_without, y_without)
-    new_mode_count, new_peak_locs, new_prom = count_modes(x_with, y_with)
+    base_mode_count, base_peak_locs, base_prom = count_modes(x_base, y_base)
+    new_mode_count, new_peak_locs, new_prom = count_modes(x_new, y_new)
 
-    is_irregular = False
-    is_base_multimodal = False
-    is_new_multimodal = False
     warning_msgs = []
     if base_mode_count > 1:
         warning_msgs.append("⚠️  Warning: Base revision distribution appears multimodal!")
-        is_base_multimodal = True
     if new_mode_count > 1:
         warning_msgs.append("⚠️  Warning: New revision distribution appears multimodal!")
-        is_new_multimodal = True
     # May be over or under smoothing
     if base_mode_count != new_mode_count:
         warning_msgs.append(
             "⚠️  Warning: mode count between base and new revision different, look at the KDE!"
         )
-        is_irregular = True
 
     silverman_kde = {
-        "x_without": x_without,
-        "y_without": y_without,
-        "x_with": x_with,
-        "y_with": y_with,
-        "title": "Kernel Density Estimate (KDE)",
-        "xlabel": "Value",
-        "ylabel": "Density",
         "bandwidth": "Silverman",
-        "kernel": "Gaussian",
         "base_mode_count": base_mode_count,
         "base_peak_locs": base_peak_locs,
         "base_prom": base_prom,
@@ -607,13 +593,13 @@ def interpret_silverman_kde(without_patch, with_patch):
 
     ci_warning = None
     if base_mode_count == new_mode_count:
-        base_intervals = find_mode_interval(x_without, y_without, base_peak_locs)
-        new_intervals = find_mode_interval(x_with, y_with, new_peak_locs)
-        per_mode_without = split_per_mode(without_patch, base_intervals)
-        per_mode_with = split_per_mode(with_patch, new_intervals)
+        base_intervals = find_mode_interval(x_base, y_base, base_peak_locs)
+        new_intervals = find_mode_interval(x_new, y_new, new_peak_locs)
+        per_mode_base = split_per_mode(base, base_intervals)
+        per_mode_new = split_per_mode(new, new_intervals)
         for i, (start, end) in enumerate(base_intervals):
-            ref_vals = without_patch[per_mode_without == i]
-            new_vals = with_patch[per_mode_with == i]
+            ref_vals = base[per_mode_base == i]
+            new_vals = new[per_mode_new == i]
 
             if len(ref_vals) == 0 or len(new_vals) == 0:
                 ci_warning = f"Mode {i + 1} [{start:.2f}, {end:.2f}]: Not enough data to compare."
@@ -655,20 +641,15 @@ def interpret_silverman_kde(without_patch, with_patch):
         silverman_kde,
         is_regression,
         is_improvement,
-        is_base_multimodal,
-        is_new_multimodal,
-        is_irregular,
         more_runs_are_needed,
     )
 
 
 # Kernel Density Estimator (KDE) with an ISJ (Improved Sheather-Jones) bandwidth for complex or multimodal data distributions.
 # Plot KDE with ISJ bandwidth
-def plot_kde_with_isj_bandwidth(
-    without_patch, with_patch, mann_pvalue, cles, delta, interpretation
-):
-    x1 = without_patch
-    x2 = with_patch
+def plot_kde_with_isj_bandwidth(base, new, mann_pvalue, cles, delta, interpretation):
+    x1 = base
+    x2 = new
     padding = 0.05 * (x1.max() - x1.min() + x2.max() - x2.min()) / 2
     x_min = min(x1.min(), x2.min()) - padding
     x_max = max(x1.max(), x2.max()) + padding
@@ -687,20 +668,24 @@ def plot_kde_with_isj_bandwidth(
 
     plot_kde_with_isj = {"bandwidth": "Improved Sheather-Jones", "kernel": "Gaussian"}
 
-    without_patch_kde_isj = {
+    base_kde_isj = {
         "x": x_kde,
         "y": y1,
-        "title": "Without patch",
+        "title": "Base Revision Kernel Density Estimate (KDE)",
+        "bandwidth": "Improved Sheather-Jones",
+        "kernel": "Gaussian",
         "xlabel": "Value",
         "ylabel": "Density",
         "overlap": overlap,
         "x_kde": x_kde,
     }
 
-    with_patch_kde_isj = {
+    new_kde_isj = {
         "x": x_kde,
         "y": y2,
-        "title": "With patch",
+        "title": "New Revision Kernel Density Estimate (KDE)",
+        "bandwidth": "Improved Sheather-Jones",
+        "kernel": "Gaussian",
         "xlabel": "Value",
         "ylabel": "Density",
         "overlap": overlap,
@@ -708,14 +693,14 @@ def plot_kde_with_isj_bandwidth(
     }
     # Medians as dashed lines, same colors
     plot_kde_with_isj["median_lines"] = {
-        "median_without": np.median(x1),
-        "median_with": np.median(x2),
+        "median_base": np.median(x1),
+        "median_new": np.median(x2),
     }
     plot_kde_with_isj["x_vals"] = x_vals
     # Summary text
     plot_kde_with_isj["summary_text_ISJ"] = [
         f"p-value: {mann_pvalue:.3f}\n",
-        f"CLES: {cles:.2f} → {'without_patch > with_patch' if cles >= 0.5 else 'with_patch > without_patch'}\n",
+        f"CLES: {cles:.2f} → {'base > new' if cles >= 0.5 else 'new > base'}\n",
         f"Cliff’s delta: {delta:.2f} → {interpretation}",
     ]
 
@@ -724,10 +709,10 @@ def plot_kde_with_isj_bandwidth(
     plot_kde_with_isj["title"] = "Distribution Comparison (KDE)"
     plot_kde_with_isj["label_texts"] = [
         f"p-value: {mann_pvalue:.3f}\n",
-        f"CLES: {cles:.2f} → {'without_patch > with_patch' if cles >= 0.5 else 'with_patch > without_patch'}\n",
+        f"CLES: {cles:.2f} → {'base > new' if cles >= 0.5 else 'new > base'}\n",
         f"Cliff’s delta: {delta:.2f} → {interpretation}",
     ]
-    plot_kde_with_isj["without_patch_kde_ISJ"] = without_patch_kde_isj
-    plot_kde_with_isj["with_patch_kde_ISJ"] = with_patch_kde_isj
+    plot_kde_with_isj["base_kde_ISJ"] = base_kde_isj
+    plot_kde_with_isj["new_kde_ISJ"] = new_kde_isj
 
     return plot_kde_with_isj

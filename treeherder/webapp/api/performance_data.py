@@ -1359,7 +1359,7 @@ class PerfCompareResults(generics.ListAPIView):
     5. Calculate Cliff's delta and interpretation, check if new is better than base based on delta and lower_is_better
     6. Interpret Common Language Effect Size, with p-value and p-threshold (.05), calculate statistical effect and significance with what level of confidence interval
     7. Estimate out KDE with Silverman bandwidth, check if multimodal or irregular
-    8. If multimodal or irregular estimate KDE with ISJ bandwith
+    8. Plot KDE with ISJ bandwidth to reduce smoothing
     """
 
     @staticmethod
@@ -1373,16 +1373,14 @@ class PerfCompareResults(generics.ListAPIView):
     ):
         # extract data, potentially removing outliers
         if remove_outliers:
-            without_patch = stats.remove_outliers(base_revision.flatten())
-            with_patch = stats.remove_outliers(new_revision.flatten())
+            base_rev = stats.remove_outliers(base_revision.flatten())
+            new_rev = stats.remove_outliers(new_revision.flatten())
         else:
-            without_patch = base_revision.flatten()
-            with_patch = new_revision.flatten()
+            base_rev = base_revision.flatten()
+            new_rev = new_revision.flatten()
 
         # get basic statistics mean, median, variance, standard deviation, average, min, max
-        without_patch_info, with_patch_info = stats.summarize_basic_stats_data(
-            without_patch, with_patch, header
-        )
+        base_rev_info, new_rev_info = stats.summarize_basic_stats_data(base_rev, new_rev, header)
 
         # Basic statistics, normality test"
         # Shapiro-Wilk test
@@ -1391,14 +1389,12 @@ class PerfCompareResults(generics.ListAPIView):
         # Is both a classic Gaussian distribution or classic bell curve
 
         shapiro_stats_without, shapiro_stats_with, is_both_normal = (
-            stats.interpret_normality_shapiro_wilk(
-                without_patch, with_patch, header, pvalue_threshold
-            )
+            stats.interpret_normality_shapiro_wilk(base_rev, new_rev, header, pvalue_threshold)
         )
 
         stats_data = {
-            "without_patch": without_patch_info.update(shapiro_stats_without),
-            "with_patch": with_patch_info.update(shapiro_stats_with),
+            "base_rev": base_rev_info.update(shapiro_stats_without),
+            "new_rev": new_rev_info.update(shapiro_stats_with),
             "shapiro_wilk": {
                 "shapiro_stats_without": shapiro_stats_without,
                 "shapiro_stats_with": shapiro_stats_with,
@@ -1408,7 +1404,7 @@ class PerfCompareResults(generics.ListAPIView):
 
         # Kolmogorov-Smirnov test for goodness of fit
         ks_test, is_fit_good, ks_warning = stats.interpret_ks_test(
-            without_patch, with_patch, pvalue_threshold
+            base_rev, new_rev, pvalue_threshold
         )
         stats_data["ks_test"] = ks_test
         stats_data["is_fit_good"] = is_fit_good
@@ -1416,13 +1412,11 @@ class PerfCompareResults(generics.ListAPIView):
         # Mann-Whitney U test, two sided because we're never quite sure what of
         # the intent of the patch, as things stand
         # Tests the null hypothesis that the distributions of the two are identical
-        mann_whitney, mann_stat, mann_pvalue = stats.interpret_mann_whitneyu(
-            without_patch, with_patch
-        )
+        mann_whitney, mann_stat, mann_pvalue = stats.interpret_mann_whitneyu(base_rev, new_rev)
         stats_data["mann_whitney_test"] = mann_whitney
 
-        base_median = np.median(without_patch)
-        new_median = np.median(with_patch)
+        base_median = np.median(base_rev)
+        new_median = np.median(new_rev)
         delta_value = new_median - base_median
         delta_percentage = (delta_value / base_median * 100) if base_median != 0 else 0
 
@@ -1437,7 +1431,7 @@ class PerfCompareResults(generics.ListAPIView):
         # https://www.researchgate.net/publication/262763337_Cliff's_Delta_Calculator_A_non-parametric_effect_size_program_for_two_groups_of_observations
         # https://stats.stackexchange.com/questions/450495/cliffs-delta-in-python
         # https://github.com/neilernst/cliffsDelta
-        delta, _ = cliffs_delta(without_patch, with_patch)
+        delta, _ = cliffs_delta(base_rev, new_rev)
         interpretation = stats.interpret_effect_size(delta)
         stats_data["cliffs_delta"] = delta
         stats_data["cliffs_interpretation"] = interpretation
@@ -1449,8 +1443,8 @@ class PerfCompareResults(generics.ListAPIView):
         common_language_effect_size, cles, is_significant = stats.interpret_cles(
             mann_stat,
             mann_pvalue,
-            with_patch,
-            without_patch,
+            new_rev,
+            base_rev,
             pvalue_threshold,
             interpretation,
             delta,
@@ -1458,35 +1452,26 @@ class PerfCompareResults(generics.ListAPIView):
         stats_data["is_meaningful"] = is_significant
         stats_data.update(common_language_effect_size)
 
-        plot_to_use = "plot_silverman_kde"
-
         # Compute KDE with Silverman bandwidth, and warn if multimodal.
         # Also compute confidence interval and interperet patch regression or improvement and warnings
         (
             silverman_kde,
             is_regression,
             is_improvement,
-            is_base_multimodal,
-            is_new_multimodal,
-            is_irregular,
             more_runs_are_needed,
-        ) = stats.interpret_silverman_kde(without_patch, with_patch)
+        ) = stats.interpret_silverman_kde(base_rev, new_rev)
 
         stats_data["plot_silverman_kde"] = silverman_kde
         stats_data["is_regression"] = is_regression
         stats_data["is_improvement"] = is_improvement
         stats_data["more_runs_are_needed"] = more_runs_are_needed
 
-        # Plot Kernel Density Estimator (KDE) with an ISJ (Improved Sheather-Jones) if data multimodal, skewed, heavy-tailed, or irregular
-        if is_irregular or is_base_multimodal or is_new_multimodal:
-            # Plot KDE with ISJ bandwidth
-            plot_kde_with_isj = stats.plot_kde_with_isj_bandwidth(
-                without_patch, with_patch, mann_pvalue, cles, delta, interpretation
-            )
-            plot_to_use = "pplot_kde_with_isj"
-            stats_data["plot_kde"] = plot_kde_with_isj
+        # Plot Kernel Density Estimator (KDE) with an ISJ (Improved Sheather-Jones) to reduce false positives from over-smoothing in Silverman
 
-        stats_data["plot_to_use"] = plot_to_use
+        plot_kde_with_isj = stats.plot_kde_with_isj_bandwidth(
+            base_rev, new_rev, mann_pvalue, cles, delta, interpretation
+        )
+        stats_data["plot_kde"] = plot_kde_with_isj
         return stats_data
 
 
