@@ -53,7 +53,7 @@ def write_failure_lines(job_log, log_iter):
         try:
             failure_lines = create(job_log, log_list)
         except DataError as e:
-            logger.warning(f"Got DataError inserting failure_line: {e.args}")
+            logger.warning(f"Got DataError inserting failure_line: {e.args} for job_log: {job_log}")
         except OperationalError as e:
             logger.warning("Got OperationalError inserting failure_line")
             # Retry iff this error is the "incorrect String Value" error
