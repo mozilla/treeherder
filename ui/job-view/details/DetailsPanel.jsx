@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import chunk from 'lodash/chunk';
 import { connect } from 'react-redux';
+import { Queue } from 'taskcluster-client-web';
 
 import { setPinBoardVisible } from '../redux/stores/pinnedJobs';
 import { thEvents } from '../../helpers/constants';
@@ -41,6 +42,7 @@ class DetailsPanel extends React.Component {
       jobRevision: null,
       logParseStatus: 'unavailable',
       classifications: [],
+      testGroups: [],
       bugs: [],
     };
   }
@@ -91,6 +93,31 @@ class DetailsPanel extends React.Component {
     const { setPinBoardVisible, isPinBoardVisible } = this.props;
 
     setPinBoardVisible(!isPinBoardVisible);
+  };
+
+  fetchTaskData = async (taskId, rootUrl) => {
+    let testGroups = [];
+    let taskQueueId = null;
+
+    if (!taskId || !rootUrl) {
+      return { testGroups, taskQueueId };
+    }
+
+    const queue = new Queue({ rootUrl });
+    const taskDefinition = await queue.task(taskId);
+    if (taskDefinition) {
+      taskQueueId = taskDefinition.taskQueueId;
+      if (taskDefinition.payload.env.MOZHARNESS_TEST_PATHS) {
+        const testGroupsData = Object.values(
+          JSON.parse(taskDefinition.payload.env.MOZHARNESS_TEST_PATHS),
+        );
+        if (testGroupsData.length) {
+          [testGroups] = testGroupsData;
+        }
+      }
+    }
+
+    return { testGroups, taskQueueId };
   };
 
   updateClassifications = async () => {
@@ -252,10 +279,16 @@ class DetailsPanel extends React.Component {
           jobPromise,
           jobLogUrlPromise,
           builtFromArtifactPromise,
+          this.fetchTaskData(selectedJob.task_id, currentRepo.tc_root_url),
           this.updateClassifications(),
         ])
           .then(
-            async ([jobResult, jobLogUrlResult, builtFromArtifactResult]) => {
+            async ([
+              jobResult,
+              jobLogUrlResult,
+              builtFromArtifactResult,
+              taskData,
+            ]) => {
               // This version of the job has more information than what we get in the main job list.  This
               // is what we'll pass to the rest of the details panel.
               // Don't update the job instance in the greater job field so as to not add the memory overhead
@@ -265,6 +298,7 @@ class DetailsPanel extends React.Component {
               const selectedJobFull = {
                 ...jobResult,
                 hasSideBySide: selectedJob.hasSideBySide,
+                taskQueueId: taskData.taskQueueId,
               };
               const jobRevision = push ? push.revision : null;
 
@@ -321,6 +355,7 @@ class DetailsPanel extends React.Component {
                 logViewerUrl,
                 logViewerFullUrl,
                 jobRevision,
+                testGroups: taskData.testGroups,
               };
 
               // Only wait for the performance data before setting
@@ -373,6 +408,7 @@ class DetailsPanel extends React.Component {
       logViewerUrl,
       logViewerFullUrl,
       bugs,
+      testGroups,
     } = this.state;
     const detailsPanelHeight = isPinBoardVisible
       ? resizedHeight - pinboardHeight
@@ -431,8 +467,7 @@ class DetailsPanel extends React.Component {
               bugs={bugs}
               togglePinBoardVisibility={() => this.togglePinBoardVisibility()}
               logViewerFullUrl={logViewerFullUrl}
-              taskId={selectedJobFull.task_id}
-              rootUrl={currentRepo.tc_root_url}
+              testGroups={testGroups}
             />
           </div>
         )}
