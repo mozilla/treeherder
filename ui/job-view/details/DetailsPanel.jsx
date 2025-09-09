@@ -107,7 +107,7 @@ class DetailsPanel extends React.Component {
     const taskDefinition = await queue.task(taskId);
     if (taskDefinition) {
       taskQueueId = taskDefinition.taskQueueId;
-      if (taskDefinition.payload.env.MOZHARNESS_TEST_PATHS) {
+      if (taskDefinition.payload.env?.MOZHARNESS_TEST_PATHS) {
         const testGroupsData = Object.values(
           JSON.parse(taskDefinition.payload.env.MOZHARNESS_TEST_PATHS),
         );
