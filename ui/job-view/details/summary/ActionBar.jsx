@@ -59,12 +59,14 @@ class ActionBar extends React.PureComponent {
 
   componentDidMount() {
     window.addEventListener(thEvents.openLogviewer, this.onOpenLogviewer);
+    window.addEventListener(thEvents.openRawLog, this.onOpenRawLog);
     window.addEventListener(thEvents.openGeckoProfile, this.onOpenGeckoProfile);
     window.addEventListener(thEvents.jobRetrigger, this.onRetriggerJob);
   }
 
   componentWillUnmount() {
     window.removeEventListener(thEvents.openLogviewer, this.onOpenLogviewer);
+    window.removeEventListener(thEvents.openRawLog, this.onOpenRawLog);
     window.removeEventListener(
       thEvents.openGeckoProfile,
       this.onOpenGeckoProfile,
@@ -95,6 +97,16 @@ class ActionBar extends React.PureComponent {
         break;
       case 'parsed':
         document.querySelector('.logviewer-btn').click();
+    }
+  };
+
+  // Open the raw log and provide notifications if it isn't available
+  onOpenRawLog = () => {
+    const { jobLogUrls, notify } = this.props;
+    if (jobLogUrls && jobLogUrls.length > 0) {
+      window.open(jobLogUrls[0].url, '_blank');
+    } else {
+      notify('No logs available for this job');
     }
   };
 

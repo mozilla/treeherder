@@ -17,7 +17,7 @@ import {
 import { pinJob, unPinAll } from './redux/stores/pinnedJobs';
 
 const handledKeys =
-  'b,c,f,ctrl+shift+f,f,g,i,j,k,l,n,p,q,r,t,u,v,ctrl+shift+u,left,right,space,shift+/,escape,ctrl+enter,ctrl+backspace';
+  'b,c,f,ctrl+shift+f,f,g,i,j,k,l,shift+l,n,p,q,r,t,u,v,ctrl+shift+u,left,right,space,shift+/,escape,ctrl+enter,ctrl+backspace';
 
 class KeyboardShortcuts extends React.Component {
   onKeyDown = (key, e) => {
@@ -44,6 +44,8 @@ class KeyboardShortcuts extends React.Component {
         return this.changeSelectedJob('previous', true);
       case 'l':
         return this.openLogviewer();
+      case 'shift+l':
+        return this.openRawLog();
       case 'n':
         return this.changeSelectedJob('next', true);
       case 'p':
@@ -155,6 +157,11 @@ class KeyboardShortcuts extends React.Component {
   // open the logviewer for the selected job
   openLogviewer = () => {
     window.dispatchEvent(new CustomEvent(thEvents.openLogviewer));
+  };
+
+  // open the raw log for the selected job
+  openRawLog = () => {
+    window.dispatchEvent(new CustomEvent(thEvents.openRawLog));
   };
 
   // open the resource usage profile in the Firefox Profiler
