@@ -1044,7 +1044,6 @@ class PerfCompareResults(generics.ListAPIView):
                 no_results_to_show = not base_runs_count and not new_runs_count
                 if no_results_to_show:
                     continue
-
                 base_avg_value = perfcompare_utils.get_avg(statistics_base_perf_data, header)
                 base_stddev = perfcompare_utils.get_stddev(statistics_base_perf_data, header)
                 base_median_value = perfcompare_utils.get_median(statistics_base_perf_data)
