@@ -1104,17 +1104,6 @@ class PerfCompareResults(generics.ListAPIView):
                     "new_median_value": new_median_value,
                     "base_stddev": base_stddev,
                     "new_stddev": new_stddev,
-                    "base_stddev_pct": base_stddev_pct,
-                    "new_stddev_pct": new_stddev_pct,
-                    "base_retriggerable_job_ids": base_grouped_job_ids.get(base_sig_id, []),
-                    "new_retriggerable_job_ids": new_grouped_job_ids.get(new_sig_id, []),
-                    "base_parent_signature": base_sig.get("parent_signature_id", None),
-                    "new_parent_signature": new_sig.get("parent_signature_id", None),
-                    "base_signature_id": base_sig_id,
-                    "new_signature_id": new_sig_id,
-                    "has_subtests": (
-                        base_sig.get("has_subtests", None) or new_sig.get("has_subtests", None)
-                    ),
                     # previous stats
                     "confidence": confidence,
                     "confidence_text": confidence_text,
@@ -1134,11 +1123,21 @@ class PerfCompareResults(generics.ListAPIView):
                         str(framework),
                         push_timestamp,
                         str(sig_hash),
-                        header,
                     ),
                     "is_improvement": is_improvement,
                     "is_regression": is_regression,
                     "is_meaningful": is_meaningful,
+                    "base_stddev_pct": base_stddev_pct,
+                    "new_stddev_pct": new_stddev_pct,
+                    "base_retriggerable_job_ids": base_grouped_job_ids.get(base_sig_id, []),
+                    "new_retriggerable_job_ids": new_grouped_job_ids.get(new_sig_id, []),
+                    "base_parent_signature": base_sig.get("parent_signature_id", None),
+                    "new_parent_signature": new_sig.get("parent_signature_id", None),
+                    "base_signature_id": base_sig_id,
+                    "new_signature_id": new_sig_id,
+                    "has_subtests": (
+                        base_sig.get("has_subtests", None) or new_sig.get("has_subtests", None)
+                    ),
                     "new_stats": self._process_stats(
                         base_rev,
                         new_rev,
