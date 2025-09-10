@@ -31,7 +31,7 @@ target-version = "py310"
 # In addition to the standard set of exclusions, omit all tests, plus a specific file.
 extend-exclude = ["*/.*/",".*/","__pycache__","node_modules"]
 
-lint.select = [
+select = [
   # pycodestyle
   "E",
   "W",
@@ -43,7 +43,7 @@ lint.select = [
   "N"
 ]
 
-lint.ignore = [
+ignore = [
   # E501: line too long
   "E501",
 ]
