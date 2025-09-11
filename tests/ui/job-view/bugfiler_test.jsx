@@ -107,6 +107,28 @@ describe('BugFiler', () => {
     fetchMock.reset();
   });
 
+  const currentRepo = {
+    id: 77,
+    repository_group: {
+      name: 'development',
+      description:
+        'Collection of repositories where code initially lands in the development process',
+    },
+    name: 'autoland',
+    dvcs_type: 'hg',
+    url: 'https://hg.mozilla.org/integration/autoland',
+    branch: null,
+    codebase: 'gecko',
+    description: 'The destination for automatically landed Firefox commits.',
+    active_status: 'active',
+    performance_alerts_enabled: true,
+    expire_performance_data: false,
+    is_try_repo: false,
+    tc_root_url: 'https://firefox-ci-tc.services.mozilla.com',
+    pushLogUrl: 'https://hg.mozilla.org/integration/autoland/pushloghtml',
+    revisionHrefPrefix: 'https://hg.mozilla.org/integration/autoland/rev/',
+  };
+
   const store = mockStore({});
   const bugFilerComponentSuggestions = (suggestions) => (
     <Provider store={store}>
@@ -122,6 +144,7 @@ describe('BugFiler', () => {
         selectedJob={selectedJob}
         platform={selectedJob.platform}
         notify={() => {}}
+        currentRepo={currentRepo}
       />
     </Provider>
   );
@@ -140,6 +163,7 @@ describe('BugFiler', () => {
         selectedJob={selectedJob}
         platform={selectedJob.platform}
         notify={() => {}}
+        currentRepo={currentRepo}
       />
     </Provider>
   );

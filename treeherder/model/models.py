@@ -444,7 +444,7 @@ class ReferenceDataSignatures(models.Model):
     machine_os_name = models.CharField(max_length=25, db_index=True)
     machine_platform = models.CharField(max_length=100, db_index=True)
     machine_architecture = models.CharField(max_length=25, db_index=True)
-    job_group_name = models.CharField(max_length=100, blank=True, db_index=True)
+    job_group_name = models.CharField(max_length=255, blank=True, db_index=True)
     job_group_symbol = models.CharField(max_length=25, blank=True, db_index=True)
     job_type_name = models.CharField(max_length=140, db_index=True)
     job_type_symbol = models.CharField(max_length=25, blank=True, db_index=True)
@@ -878,7 +878,7 @@ class JobNote(models.Model):
             return
 
         # if the failure type isn't intermittent, ignore
-        if self.failure_classification.name not in ["intermittent"]:
+        if self.failure_classification.name not in ["intermittent", "intermittent needs bugid"]:
             return
 
         # if the linked Job has more than one TextLogError, ignore

@@ -1,3 +1,101 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@7.1.1
+  docker: circleci/docker@1.5.0
+  codecov: codecov/codecov@5.0.3
+  gcp-cli: circleci/gcp-cli@3.3.2
+
+# Reusable commands for Docker jobs
+commands:
+  create-version-json:
+    description: "Create version.json for Dockerflow"
+    steps:
+      - run:
+          name: Create version.json
+          command: |
+            # create a version.json per https://github.com/mozilla-services/Dockerflow/blob/master/docs/version_object.md
+            printf '{"commit":"%s","version":"%s","source":"https://github.com/%s/%s","build":"%s"}\n' \
+            "$CIRCLE_SHA1" \
+            "$CIRCLE_TAG" \
+            "$CIRCLE_PROJECT_USERNAME" \
+            "$CIRCLE_PROJECT_REPONAME" \
+            "$CIRCLE_BUILD_URL" > version.json
+
+  setup-docker-env:
+    description: "Setup Docker environment"
+    steps:
+      - setup_remote_docker:
+          version: docker24
+      - create-version-json
+
+  build-docker-image:
+    description: "Build Docker image"
+    steps:
+      - run:
+          name: Build Docker image
+          command: docker build -f docker/Dockerfile -t app:build .
+
+  deploy-to-dockerhub:
+    description: "Deploy to Docker Hub"
+    steps:
+      - run:
+          name: Deploy to Dockerhub
+          command: |
+            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+
+            # Function to tag and push
+            tag_and_push() {
+              local tag=$1
+              docker tag app:build "${DOCKERHUB_REPO}:${tag}"
+              docker push "${DOCKERHUB_REPO}:${tag}"
+            }
+
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              tag_and_push "latest"
+              tag_and_push "${CIRCLE_BRANCH}-${CIRCLE_SHA1}"
+            elif [ "${CIRCLE_BRANCH}" == "prototype" ]; then
+              tag_and_push "${CIRCLE_BRANCH}-${CIRCLE_SHA1}"
+            elif [ ! -z "${CIRCLE_TAG}" ]; then
+              echo "Deploying release tag: ${DOCKERHUB_REPO}:${CIRCLE_TAG}"
+              tag_and_push "${CIRCLE_TAG}"
+            fi
+
+  deploy-to-gcp-gar:
+    description: "Deploy to GCP Artifact Registry"
+    steps:
+      - gcp-cli/setup:
+          use_oidc: true
+          google_project_number: GCP_WIP_PROJECT_NUMBER
+          google_project_id: GCP_PROJECT_ID_OF_GCP_GAR
+          workload_identity_pool_id: GCP_WIP_ID
+          workload_identity_pool_provider_id: GCP_WIP_PROVIDER_ID
+          service_account_email: GCP_GAR_PUSHER_SERVICE_ACCOUNT_EMAIL
+      - run:
+          name: Configure Docker for GAR
+          command: gcloud auth configure-docker ${GCP_GAR_REGISTRY}
+      - run:
+          name: Deploy to GCP GAR
+          command: |
+            GCP_GAR_REPO="${GCP_GAR_REGISTRY}/${GCP_PROJECT_ID_OF_GCP_GAR}/treeherder-prod/treeherder"
+
+            # Function to tag and push to GCP GAR
+            tag_and_push_gar() {
+              local tag=$1
+              docker tag app:build "${GCP_GAR_REPO}:${tag}"
+              docker push "${GCP_GAR_REPO}:${tag}"
+            }
+
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              tag_and_push_gar "latest"
+              tag_and_push_gar "${CIRCLE_BRANCH}-${CIRCLE_SHA1}"
+            elif [ "${CIRCLE_BRANCH}" == "prototype" ]; then
+              tag_and_push_gar "${CIRCLE_BRANCH}-${CIRCLE_SHA1}"
+            elif [ ! -z "${CIRCLE_TAG}" ]; then
+              echo "Deploying release tag: ${GCP_GAR_REPO}:${CIRCLE_TAG}"
+              tag_and_push_gar "${CIRCLE_TAG}"
+            fi
+
 jobs:
   javascript-tests:
     executor:
@@ -8,7 +106,7 @@ jobs:
       - checkout
       - node/install-packages:
           # `yarn install --frozen-lockfile` is run and cache is enabled by default for this orb configuration
-          pkg-manager: yarn      
+          pkg-manager: yarn
       - run:
           command: yarn lint
           name: Run linting
@@ -37,7 +135,7 @@ jobs:
           command: tox -e linters
           name: Run linters
 
-  python-tests-postgres:
+  python-tests-general:
     machine:
       image: default
     steps:
@@ -49,83 +147,65 @@ jobs:
           command: |
             pip install --upgrade pip
             pip install tox
-            tox -e docker-postgres
+            tox -e docker-general
+      - codecov/upload
+
+  python-tests-perf:
+    machine:
+      image: default
+    steps:
+      - checkout
+      - docker/install-docker-compose:
+          version: 1.29.2
+      - run:
+          name: Run tests and coverage within Docker container
+          command: |
+            pip install --upgrade pip
+            pip install tox
+            tox -e docker-perf
+      - codecov/upload
+
+  python-tests-frontend:
+    machine:
+      image: default
+    steps:
+      - checkout
+      - docker/install-docker-compose:
+          version: 1.29.2
+      - run:
+          name: Run tests and coverage within Docker container
+          command: |
+            pip install --upgrade pip
+            pip install tox
+            tox -e docker-frontend
       - codecov/upload
 
   test-docker-build:
     docker:
-      - image: docker:19.03.15
+      - image: cimg/base:current
     steps:
-      - setup_remote_docker:
-          version: docker24
       - checkout
-      - run:
-          name: Create a version.json
-          command: |
-            # create a version.json per https://github.com/mozilla-services/Dockerflow/blob/master/docs/version_object.md
-            printf '{"commit":"%s","version":"%s","source":"https://github.com/%s/%s","build":"%s"}\n' \
-            "$CIRCLE_SHA1" \
-            "$CIRCLE_TAG" \
-            "$CIRCLE_PROJECT_USERNAME" \
-            "$CIRCLE_PROJECT_REPONAME" \
-            "$CIRCLE_BUILD_URL" > version.json
-      - run:
-          name: Build Docker image
-          command: docker build -f docker/Dockerfile -t app:build .
+      - setup-docker-env
+      - build-docker-image
 
   deploy:
     docker:
-      - image: docker:19.03.15
+      - image: cimg/base:current
     steps:
-      - setup_remote_docker:
-          version: docker24
       - checkout
-      - run:
-          name: Create a version.json
-          command: |
-            # create a version.json per https://github.com/mozilla-services/Dockerflow/blob/master/docs/version_object.md
-            printf '{"commit":"%s","version":"%s","source":"https://github.com/%s/%s","build":"%s"}\n' \
-            "$CIRCLE_SHA1" \
-            "$CIRCLE_TAG" \
-            "$CIRCLE_PROJECT_USERNAME" \
-            "$CIRCLE_PROJECT_REPONAME" \
-            "$CIRCLE_BUILD_URL" > version.json
-      - run:
-          name: Build Docker image
-          command: docker build -f docker/Dockerfile -t app:build .
+      - setup-docker-env
+      - build-docker-image
+      - deploy-to-dockerhub
+      - deploy-to-gcp-gar
 
-      - run:
-          name: Deploy to Dockerhub
-          command: |
-            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-            # deploy master
-            if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              docker tag app:build ${DOCKERHUB_REPO}:latest
-              docker push ${DOCKERHUB_REPO}:latest
-              docker tag app:build "${DOCKERHUB_REPO}:${CIRCLE_BRANCH}-${CIRCLE_SHA1}"
-              docker push "${DOCKERHUB_REPO}:${CIRCLE_BRANCH}-${CIRCLE_SHA1}"
-            elif [ "${CIRCLE_BRANCH}" == "prototype" ]; then
-              docker tag app:build "${DOCKERHUB_REPO}:${CIRCLE_BRANCH}-${CIRCLE_SHA1}"
-              docker push "${DOCKERHUB_REPO}:${CIRCLE_BRANCH}-${CIRCLE_SHA1}"
-            elif  [ ! -z "${CIRCLE_TAG}" ]; then
-            # deploy a release tag...
-              echo "${DOCKERHUB_REPO}:${CIRCLE_TAG}"
-              docker tag app:build "${DOCKERHUB_REPO}:${CIRCLE_TAG}"
-              docker images
-              docker push "${DOCKERHUB_REPO}:${CIRCLE_TAG}"
-            fi
-
-orbs:
-  node: circleci/node@7.1.0
-  docker: circleci/docker@1.5.0
-  codecov: codecov/codecov@5.0.3
-version: 2.1
 workflows:
   run-tests:
     jobs:
       - javascript-tests
       - builds
-      - python-tests-postgres
+      - python-tests-frontend
+      - python-tests-general
+      - python-tests-perf
       - test-docker-build
       - deploy:
           filters:

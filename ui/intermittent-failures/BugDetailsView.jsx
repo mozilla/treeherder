@@ -10,13 +10,15 @@ import {
   getJobsUrl,
   getLogViewerUrl,
 } from '../helpers/url';
-import SimpleTooltip from '../shared/SimpleTooltip';
 
 import {
   calculateMetrics,
   prettyDate,
   tableRowStyling,
   removePath,
+  regexpFilter,
+  tooltipCell,
+  textFilter,
 } from './helpers';
 import Layout from './Layout';
 import withView from './View';
@@ -29,197 +31,164 @@ const BugDetailsView = (props) => {
     initialParamsSet,
     startday,
     endday,
-    failurehash,
     updateState,
-    updateHash,
     bug,
     summary,
     errorMessages,
     lastLocation,
     tableFailureStatus,
     graphFailureStatus,
-    uniqueLines,
-    uniqueFrequency,
   } = props;
-
-  const customFilter = ({ filter }) => {
-    if (!tableData || !uniqueLines) return;
-    return (
-      <select
-        onChange={(event) => updateHash(event.target.value)}
-        style={{ width: '100%' }}
-        value={filter ? filter.value : failurehash}
-      >
-        <option value="all">All</option>
-        {uniqueLines.map((vals) => {
-          return (
-            <option key={vals[1]} value={vals[1]}>
-              {vals[0]}
-            </option>
-          );
-        })}
-      </select>
-    );
-  };
-
-  const lineTrimmer = (failureLines) => {
-    if (failureLines === undefined) {
-      return '';
-    }
-    if (typeof failureLines === 'string') {
-      failureLines = failureLines.split('\n');
-    }
-    const lines = failureLines.map((i) => i.split('\n'));
-
-    const trimmedLines = lines.map((line) => {
-      const parts = line.toString().split(' | ');
-      if (parts.length > 2) {
-        parts.shift();
-      }
-      return parts.join(' | ');
-    });
-    return trimmedLines.join('\n');
-  };
 
   const columns = [
     {
       Header: 'Push Time',
       accessor: 'push_time',
-      minWidth: 105,
+      maxWidth: 180,
       className: 'text-left',
-    },
-    {
-      Header: 'Tree',
-      accessor: 'tree',
-    },
-    {
-      Header: 'Revision',
-      accessor: 'revision',
+      headerClassName: 'text-left',
+      filterMethod: regexpFilter,
+      Filter: (props) =>
+        textFilter({ ...props, placeholder: 'Filter by push time…' }),
       Cell: (_props) => (
         <a
           href={getJobsUrl({
             repo: _props.original.tree,
-            revision: _props.value,
+            revision: _props.original.revision,
             selectedJob: _props.original.job_id,
           })}
           target="_blank"
           rel="noopener noreferrer"
+          title="Open job in a new window"
         >
           {_props.value}
         </a>
       ),
     },
     {
-      Header: 'Platform',
-      accessor: 'platform',
+      Header: 'Tree',
+      accessor: 'tree',
+      maxWidth: 130,
       className: 'text-left',
-      headerClassName: 'platform-column-header',
+      headerClassName: 'text-left',
+      filterMethod: regexpFilter,
+      Filter: (props) =>
+        textFilter({ ...props, placeholder: 'Filter by tree…' }),
+      Cell: tooltipCell,
     },
     {
-      Header: 'Build Type',
-      accessor: 'build_type',
-    },
-    {
-      Header: 'Test Suite',
-      accessor: 'test_suite',
-      minWidth: 150,
+      Header: 'Job Name',
+      accessor: 'job_name',
+      maxWidth: 500,
       className: 'text-left',
-      headerClassName: 'test-suite-header',
+      headerClassName: 'text-left',
+      filterMethod: regexpFilter,
+      Filter: (props) =>
+        textFilter({ ...props, placeholder: 'Filter by job name…' }),
+      Cell: tooltipCell,
     },
     {
       Header: 'Machine Name',
       accessor: 'machine_name',
-      minWidth: 125,
+      maxWidth: 125,
+      className: 'text-left',
+      headerClassName: 'text-left',
+      filterMethod: regexpFilter,
+      Filter: (props) =>
+        textFilter({ ...props, placeholder: 'Filter by machine…' }),
+      Cell: (props) => {
+        const { value } = props;
+        if (value?.startsWith('vm-') || /^\d+$/.test(value)) {
+          return (
+            <div title={value} className="vm-container">
+              <span className="vm-text">virtual machine</span>
+            </div>
+          );
+        }
+        return tooltipCell(props);
+      },
     },
     {
-      Header: 'Log',
-      accessor: 'job_id',
-      Filter: ({ filter, onChange }) => customFilter({ filter, onChange }),
+      Header: 'Failure Lines',
+      accessor: 'failure_lines_text',
+      headerClassName: 'text-left',
+      Filter: (props) =>
+        textFilter({ ...props, placeholder: 'Filter by failure lines…' }),
+      filterMethod: regexpFilter,
       Cell: (_props) => {
-        const { value, original } = _props;
+        const { original } = _props;
         return (
-          <SimpleTooltip
-            text={
-              <React.Fragment>
+          <div>
+            <div className="failure-header">
+              <span className="failure-count">
                 {`${original.lines.length} unexpected-fail${
                   original.lines.length > 1 ? 's' : ''
                 }`}
-                <br />
-                <a
-                  className="small-text"
-                  href={`${window.location.origin}${getLogViewerUrl(
-                    value,
-                    original.tree,
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  view details
-                </a>
-              </React.Fragment>
-            }
-            placement="top"
-            tooltipText={
-              original.lines.length && (
-                <ul>
-                  {original.lines.map((line, index) => (
-                    <li
+              </span>
+              {' | '}
+              <a
+                className="small-text"
+                href={`${window.location.origin}${getLogViewerUrl(
+                  original.job_id,
+                  original.tree,
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Open the log viewer in a new window"
+              >
+                open log viewer
+              </a>
+            </div>
+            {original.lines.length > 0 && (
+              <div className="failure-lines">
+                {original.lines.map((line, index) => {
+                  // Remove "TEST-UNEXPECTED-FAIL | " and everything before it
+                  const TEST_FAIL_PREFIX = 'TEST-UNEXPECTED-FAIL | ';
+                  const failIndex = line.indexOf(TEST_FAIL_PREFIX);
+                  const trimmedLine = removePath(
+                    failIndex !== -1
+                      ? line.slice(failIndex + TEST_FAIL_PREFIX.length)
+                      : line,
+                  );
+
+                  return (
+                    <div
                       key={index} // eslint-disable-line react/no-array-index-key
-                      className="failure_li text-truncate"
+                      title={trimmedLine}
+                      className="failure-line"
                     >
-                      {removePath(line)}
-                    </li>
-                  ))}
-                </ul>
-              )
-            }
-            innerClassName="custom-tooltip"
-          />
+                      {trimmedLine}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         );
       },
-      minWidth: 110,
+      minWidth: 300,
+      className: 'text-left',
     },
   ];
 
-  let gOneData = {};
   let graphOneData = null;
   let graphTwoData = null;
   let _tableData = null;
 
   if (graphData.length > 0) {
     ({ graphOneData, graphTwoData } = calculateMetrics(graphData));
-    if (uniqueFrequency) {
-      gOneData = uniqueFrequency;
-    }
-    gOneData.all = graphOneData;
-    gOneData.all[0].count = tableData.length;
 
-    _tableData = tableData;
-    // here we Filter() the tableData.
-    // Since we use urlParams for failurehash, this synchronizes it.
-    if (failurehash !== 'all') {
-      const tData = [];
-      tableData.forEach((row) => {
-        const trimmed = lineTrimmer(row.lines);
-        let filterValue = '';
-        const hashIndex = 1;
-        uniqueLines.forEach((uniqueLine) => {
-          if (trimmed === uniqueLine[0]) {
-            filterValue = uniqueLine[hashIndex];
-          }
-        });
-        if (filterValue === failurehash) {
-          tData.push(row);
-        }
-      });
-      _tableData = tData;
-    }
+    _tableData = tableData.map((row) => ({
+      ...row,
+      job_name: `${row.platform}/${row.build_type}-${row.test_suite}`,
+      failure_lines_text: row.lines ? row.lines.join(' ') : '',
+    }));
   }
 
   return (
     <Layout
       {...props}
-      graphOneData={gOneData}
+      graphOneData={graphOneData}
       graphTwoData={graphTwoData}
       header={
         <React.Fragment>
@@ -282,10 +251,7 @@ const BugDetailsView = (props) => {
                 <Row>
                   <Col xs="12" className="mx-auto">
                     <p className="text-secondary">
-                      {failurehash in gOneData
-                        ? gOneData[failurehash][0].count
-                        : 0}{' '}
-                      total failures
+                      {tableData.length} total failures
                     </p>
                   </Col>
                 </Row>
@@ -301,12 +267,12 @@ const BugDetailsView = (props) => {
           <ReactTable
             data={_tableData}
             filterable
-            showPageSizeOptions
+            showPageSizeOptions={false}
             columns={columns}
             className="-striped"
             getTrProps={tableRowStyling}
             showPaginationTop
-            defaultPageSize={50}
+            defaultPageSize={100}
           />
         )
       }
@@ -329,11 +295,8 @@ BugDetailsView.propTypes = {
     hash: PropTypes.string,
   }).isRequired,
   tree: PropTypes.string.isRequired,
-  updateAppState: PropTypes.func,
   updateState: PropTypes.func.isRequired,
-  updateHash: PropTypes.func.isRequired,
   startday: PropTypes.string.isRequired,
-  failurehash: PropTypes.string.isRequired,
   endday: PropTypes.string.isRequired,
   tableData: PropTypes.arrayOf(
     PropTypes.shape({
@@ -363,15 +326,9 @@ BugDetailsView.propTypes = {
   errorMessages: PropTypes.arrayOf(PropTypes.string),
   tableFailureStatus: PropTypes.string,
   graphFailureStatus: PropTypes.string,
-  uniqueLines: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)),
-  uniqueFrequency: PropTypes.shape({
-    // Define the expected structure of uniqueFrequency object here
-    all: PropTypes.arrayOf(
-      PropTypes.shape({
-        count: PropTypes.number,
-      }),
-    ),
-  }),
+  user: PropTypes.shape({}),
+  setUser: PropTypes.func.isRequired,
+  notify: PropTypes.func.isRequired,
 };
 
 BugDetailsView.defaultProps = {
@@ -380,9 +337,6 @@ BugDetailsView.defaultProps = {
   errorMessages: [],
   tableFailureStatus: null,
   graphFailureStatus: null,
-  updateAppState: null,
-  uniqueLines: [],
-  uniqueFrequency: {},
 };
 
 const defaultState = {

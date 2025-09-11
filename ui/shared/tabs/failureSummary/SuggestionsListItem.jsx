@@ -16,6 +16,7 @@ import { isReftest } from '../../../helpers/job';
 import {
   createQueryParams,
   getLogViewerUrl,
+  getPerfAnalysisUrl,
   parseQueryParams,
 } from '../../../helpers/url';
 
@@ -51,6 +52,7 @@ export default class SuggestionsListItem extends React.Component {
       toggleBugFiler,
       toggleInternalIssueFiler,
       selectedJob,
+      jobDetails,
       addBug,
       currentRepo,
       developerMode,
@@ -141,6 +143,31 @@ export default class SuggestionsListItem extends React.Component {
     }
     const filterTestPath = suggestion.search.match(/([a-z_\-0-9]+[/])+/gi);
 
+    let line = [suggestion.search];
+    const hasProfile = suggestion.search.match(
+      /profile uploaded in (profile_.*\.js\.json)/,
+    );
+    if (hasProfile) {
+      const artifact = jobDetails.find(
+        (artifact) => artifact.value === hasProfile[1],
+      );
+      if (artifact) {
+        const [begin, end] = suggestion.search.split(hasProfile[0]);
+        line = [
+          begin,
+          <a
+            title="open in Firefox Profiler"
+            href={getPerfAnalysisUrl(artifact.url)}
+            target="_blank"
+            rel="noreferrer"
+          >
+            open {artifact.value} in the Firefox Profiler
+          </a>,
+          end,
+        ];
+      }
+    }
+
     return (
       <li>
         <div>
@@ -155,6 +182,7 @@ export default class SuggestionsListItem extends React.Component {
                   selectedJob.id,
                   repoName,
                   suggestion.line_number + 1,
+                  selectedJob,
                 )}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -188,7 +216,7 @@ export default class SuggestionsListItem extends React.Component {
                 </Button>
               )}
 
-              <span className="align-middle">{suggestion.search} </span>
+              <span className="align-middle">{line} </span>
               <Clipboard
                 description=" text of error line"
                 text={suggestion.search}
@@ -207,6 +235,7 @@ export default class SuggestionsListItem extends React.Component {
                   selectedJob.id,
                   repoName,
                   suggestion.line_number + 1,
+                  selectedJob,
                 )}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -246,6 +275,11 @@ export default class SuggestionsListItem extends React.Component {
 SuggestionsListItem.propTypes = {
   selectedJob: PropTypes.shape({}).isRequired,
   suggestion: PropTypes.shape({}).isRequired,
+  jobDetails: PropTypes.arrayOf({
+    url: PropTypes.string.isRequired,
+    value: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+  }).isRequired,
   toggleBugFiler: PropTypes.func.isRequired,
   toggleInternalIssueFiler: PropTypes.func.isRequired,
   developerMode: PropTypes.bool.isRequired,

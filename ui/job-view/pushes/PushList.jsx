@@ -29,9 +29,6 @@ class PushList extends React.Component {
   }
 
   componentDidMount() {
-    const { fetchPushes } = this.props;
-
-    fetchPushes();
     this.poll();
   }
 

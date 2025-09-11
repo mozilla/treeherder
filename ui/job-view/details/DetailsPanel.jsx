@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import chunk from 'lodash/chunk';
 import { connect } from 'react-redux';
+import { Queue } from 'taskcluster-client-web';
 
 import { setPinBoardVisible } from '../redux/stores/pinnedJobs';
 import { thEvents } from '../../helpers/constants';
@@ -41,6 +42,7 @@ class DetailsPanel extends React.Component {
       jobRevision: null,
       logParseStatus: 'unavailable',
       classifications: [],
+      testGroups: [],
       bugs: [],
     };
   }
@@ -93,12 +95,37 @@ class DetailsPanel extends React.Component {
     setPinBoardVisible(!isPinBoardVisible);
   };
 
+  fetchTaskData = async (taskId, rootUrl) => {
+    let testGroups = [];
+    let taskQueueId = null;
+
+    if (!taskId || !rootUrl) {
+      return { testGroups, taskQueueId };
+    }
+
+    const queue = new Queue({ rootUrl });
+    const taskDefinition = await queue.task(taskId);
+    if (taskDefinition) {
+      taskQueueId = taskDefinition.taskQueueId;
+      if (taskDefinition.payload.env?.MOZHARNESS_TEST_PATHS) {
+        const testGroupsData = Object.values(
+          JSON.parse(taskDefinition.payload.env.MOZHARNESS_TEST_PATHS),
+        );
+        if (testGroupsData.length) {
+          [testGroups] = testGroupsData;
+        }
+      }
+    }
+
+    return { testGroups, taskQueueId };
+  };
+
   updateClassifications = async () => {
     const { selectedJob } = this.props;
-    const classifications = await JobClassificationModel.getList({
-      job_id: selectedJob.id,
-    });
-    const bugs = await BugJobMapModel.getList({ job_id: selectedJob.id });
+    const [classifications, bugs] = await Promise.all([
+      JobClassificationModel.getList({ job_id: selectedJob.id }),
+      BugJobMapModel.getList({ job_id: selectedJob.id }),
+    ]);
 
     this.setState({ classifications, bugs });
   };
@@ -115,7 +142,6 @@ class DetailsPanel extends React.Component {
 
     this.setState(
       {
-        jobDetails: [],
         suggestions: [],
         jobDetailLoading: true,
         jobArtifactsLoading: true,
@@ -167,25 +193,101 @@ class DetailsPanel extends React.Component {
           this.selectJobController.signal,
         );
 
-        const phSeriesPromise = PerfSeriesModel.getSeriesData(
+        const performancePromise = PerfSeriesModel.getSeriesData(
           currentRepo.name,
           {
             job_id: selectedJob.id,
           },
-        );
+        ).then(async (phSeriesResult) => {
+          const performanceData = Object.values(phSeriesResult).reduce(
+            (a, b) => [...a, ...b],
+            [],
+          );
+          let perfJobDetail = [];
+
+          if (performanceData.length) {
+            const signatureIds = [
+              ...new Set(performanceData.map((perf) => perf.signature_id)),
+            ];
+            const seriesListList = await Promise.all(
+              chunk(signatureIds, 20).map((signatureIdChunk) =>
+                PerfSeriesModel.getSeriesList(currentRepo.name, {
+                  id: signatureIdChunk,
+                }),
+              ),
+            );
+            const mappedFrameworks = {};
+            frameworks.forEach((element) => {
+              mappedFrameworks[element.id] = element.name;
+            });
+
+            const seriesList = seriesListList
+              .map((item) => item.data)
+              .reduce((a, b) => [...a, ...b], []);
+
+            perfJobDetail = performanceData
+              .map((d) => ({
+                series: seriesList.find((s) => d.signature_id === s.id),
+                ...d,
+              }))
+              .map((d) => ({
+                url: `/perfherder/graphs?series=${[
+                  currentRepo.name,
+                  d.signature_id,
+                  1,
+                  d.series.frameworkId,
+                ]}&selected=${[d.signature_id, d.id]}`,
+                shouldAlert: d.series.should_alert,
+                value: d.value,
+                measurementUnit: d.series.measurementUnit,
+                lowerIsBetter: d.series.lowerIsBetter,
+                title: d.series.name,
+                suite: d.series.suite,
+                options: d.series.options.join(' '),
+                frameworkName: mappedFrameworks[d.series.frameworkId],
+                perfdocs: new Perfdocs(
+                  mappedFrameworks[d.series.frameworkId],
+                  d.series.suite,
+                  d.series.platform,
+                  d.series.name,
+                ),
+              }));
+          }
+          perfJobDetail.sort((a, b) => {
+            // Sort perfJobDetails by value of shouldAlert in a particular order:
+            // first true values, after that null values and then false.
+            if (a.shouldAlert === true) {
+              return -1;
+            }
+            if (a.shouldAlert === false) {
+              return 1;
+            }
+            if (a.shouldAlert === null && b.shouldAlert === true) {
+              return 1;
+            }
+            if (a.shouldAlert === null && b.shouldAlert === false) {
+              return -1;
+            }
+            return 0;
+          });
+          this.setState({
+            perfJobDetail,
+          });
+        });
 
         Promise.all([
           jobPromise,
           jobLogUrlPromise,
-          phSeriesPromise,
           builtFromArtifactPromise,
+          this.fetchTaskData(selectedJob.task_id, currentRepo.tc_root_url),
+          this.updateClassifications(),
         ])
           .then(
             async ([
               jobResult,
               jobLogUrlResult,
-              phSeriesResult,
               builtFromArtifactResult,
+              taskData,
             ]) => {
               // This version of the job has more information than what we get in the main job list.  This
               // is what we'll pass to the rest of the details panel.
@@ -196,6 +298,7 @@ class DetailsPanel extends React.Component {
               const selectedJobFull = {
                 ...jobResult,
                 hasSideBySide: selectedJob.hasSideBySide,
+                taskQueueId: taskData.taskQueueId,
               };
               const jobRevision = push ? push.revision : null;
 
@@ -240,95 +343,36 @@ class DetailsPanel extends React.Component {
               const logViewerUrl = getLogViewerUrl(
                 selectedJob.id,
                 currentRepo.name,
+                null,
+                selectedJobFull,
               );
               const logViewerFullUrl = `${window.location.origin}${logViewerUrl}`;
-              const performanceData = Object.values(phSeriesResult).reduce(
-                (a, b) => [...a, ...b],
-                [],
-              );
-              let perfJobDetail = [];
 
-              if (performanceData.length) {
-                const signatureIds = [
-                  ...new Set(performanceData.map((perf) => perf.signature_id)),
-                ];
-                const seriesListList = await Promise.all(
-                  chunk(signatureIds, 20).map((signatureIdChunk) =>
-                    PerfSeriesModel.getSeriesList(currentRepo.name, {
-                      id: signatureIdChunk,
-                    }),
-                  ),
-                );
-                const mappedFrameworks = {};
-                frameworks.forEach((element) => {
-                  mappedFrameworks[element.id] = element.name;
-                });
+              const newState = {
+                selectedJobFull,
+                jobLogUrls,
+                logParseStatus,
+                logViewerUrl,
+                logViewerFullUrl,
+                jobRevision,
+                testGroups: taskData.testGroups,
+              };
 
-                const seriesList = seriesListList
-                  .map((item) => item.data)
-                  .reduce((a, b) => [...a, ...b], []);
-
-                perfJobDetail = performanceData
-                  .map((d) => ({
-                    series: seriesList.find((s) => d.signature_id === s.id),
-                    ...d,
-                  }))
-                  .map((d) => ({
-                    url: `/perfherder/graphs?series=${[
-                      currentRepo.name,
-                      d.signature_id,
-                      1,
-                      d.series.frameworkId,
-                    ]}&selected=${[d.signature_id, d.id]}`,
-                    shouldAlert: d.series.should_alert,
-                    value: d.value,
-                    measurementUnit: d.series.measurementUnit,
-                    lowerIsBetter: d.series.lowerIsBetter,
-                    title: d.series.name,
-                    suite: d.series.suite,
-                    options: d.series.options.join(' '),
-                    frameworkName: mappedFrameworks[d.series.frameworkId],
-                    perfdocs: new Perfdocs(
-                      mappedFrameworks[d.series.frameworkId],
-                      d.series.suite,
-                      d.series.platform,
-                      d.series.name,
-                    ),
-                  }));
+              // Only wait for the performance data before setting
+              // jobDetailLoading to false if we will not be showing
+              // the Failure Summary panel by default.
+              if (
+                !['busted', 'testfailed', 'exception'].includes(
+                  selectedJobFull.resultStatus,
+                )
+              ) {
+                this.setState(newState);
+                await performancePromise;
+                this.setState({ jobDetailLoading: false });
+              } else {
+                newState.jobDetailLoading = false;
+                this.setState(newState);
               }
-              perfJobDetail.sort((a, b) => {
-                // Sort perfJobDetails by value of shouldAlert in a particular order:
-                // first true values, after that null values and then false.
-                if (a.shouldAlert === true) {
-                  return -1;
-                }
-                if (a.shouldAlert === false) {
-                  return 1;
-                }
-                if (a.shouldAlert === null && b.shouldAlert === true) {
-                  return 1;
-                }
-                if (a.shouldAlert === null && b.shouldAlert === false) {
-                  return -1;
-                }
-                return 0;
-              });
-
-              this.setState(
-                {
-                  selectedJobFull,
-                  jobLogUrls,
-                  logParseStatus,
-                  logViewerUrl,
-                  logViewerFullUrl,
-                  perfJobDetail,
-                  jobRevision,
-                },
-                async () => {
-                  await this.updateClassifications();
-                  this.setState({ jobDetailLoading: false });
-                },
-              );
             },
           )
           .finally(() => {
@@ -346,6 +390,7 @@ class DetailsPanel extends React.Component {
       classificationMap,
       classificationTypes,
       isPinBoardVisible,
+      selectedJob,
     } = this.props;
     const {
       selectedJobFull,
@@ -363,6 +408,7 @@ class DetailsPanel extends React.Component {
       logViewerUrl,
       logViewerFullUrl,
       bugs,
+      testGroups,
     } = this.state;
     const detailsPanelHeight = isPinBoardVisible
       ? resizedHeight - pinboardHeight
@@ -389,6 +435,7 @@ class DetailsPanel extends React.Component {
               classificationMap={classificationMap}
               jobLogUrls={jobLogUrls}
               logParseStatus={logParseStatus}
+              jobDetails={jobDetails}
               jobDetailLoading={jobDetailLoading}
               latestClassification={
                 classifications.length
@@ -402,6 +449,7 @@ class DetailsPanel extends React.Component {
             />
             <span className="job-tabs-divider" />
             <TabsPanel
+              selectedJob={selectedJob}
               selectedJobFull={selectedJobFull}
               currentRepo={currentRepo}
               jobDetails={jobDetails}
@@ -419,8 +467,7 @@ class DetailsPanel extends React.Component {
               bugs={bugs}
               togglePinBoardVisibility={() => this.togglePinBoardVisibility()}
               logViewerFullUrl={logViewerFullUrl}
-              taskId={selectedJobFull.task_id}
-              rootUrl={currentRepo.tc_root_url}
+              testGroups={testGroups}
             />
           </div>
         )}

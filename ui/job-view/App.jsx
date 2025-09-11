@@ -10,7 +10,7 @@ import { push as pushRoute } from 'connected-react-router';
 
 import { thFavicons, thDefaultRepo, thEvents } from '../helpers/constants';
 import ShortcutTable from '../shared/ShortcutTable';
-import { matchesDefaults } from '../helpers/filter';
+import { matchesDefaults, hasUrlFilterChanges } from '../helpers/filter';
 import { getAllUrlParams } from '../helpers/location';
 import { MAX_TRANSIENT_AGE } from '../helpers/notifications';
 import {
@@ -34,6 +34,7 @@ import DetailsPanel from './details/DetailsPanel';
 import PushList from './pushes/PushList';
 import KeyboardShortcuts from './KeyboardShortcuts';
 import { clearExpiredNotifications } from './redux/stores/notifications';
+import { fetchPushes } from './redux/stores/pushes';
 
 import '../css/treeherder.css';
 import '../css/treeherder-navbar-panels.css';
@@ -107,12 +108,15 @@ class App extends React.Component {
 
   async componentDidMount() {
     const { repoName, landoCommitID } = this.state;
-    const { data } = await getData(getApiUrl(endpoints.frameworks));
-    this.setState({ frameworks: data });
+    const { fetchPushes } = this.props;
+
+    // Start all API requests in parallel - including pushes.
+    getData(getApiUrl(endpoints.frameworks)).then((response) =>
+      this.setState({ frameworks: response.data }),
+    );
 
     RepositoryModel.getList().then((repos) => {
       const newRepo = repos.find((repo) => repo.name === repoName);
-
       this.setState({ currentRepo: newRepo, repos });
     });
 
@@ -122,6 +126,10 @@ class App extends React.Component {
         classificationMap: ClassificationTypeModel.getMap(classificationTypes),
       });
     });
+
+    // Start (pre)fetching pushes immediately. The PushList component needs
+    // currentRepo but it is not needed to start the network request.
+    fetchPushes();
 
     window.addEventListener('resize', this.updateDimensions, false);
     window.addEventListener('storage', this.handleStorageEvent);
@@ -327,13 +335,28 @@ class App extends React.Component {
     };
 
     const oldState = pick(this.state, Object.keys(newState));
-    let stateChanges = { filterModel: new FilterModel(this.props) };
+    let stateChanges = {};
+
+    // Only create a new FilterModel instance if filter parameters actually changed
+    if (
+      hasUrlFilterChanges(
+        this.state.filterModel.location.search,
+        router.location.search,
+      )
+    ) {
+      stateChanges.filterModel = new FilterModel(this.props);
+    } else {
+      // Update existing FilterModel's location to keep the selected task when filters change
+      this.state.filterModel.location = router.location;
+    }
 
     if (!isEqual(newState, oldState)) {
       stateChanges = { ...stateChanges, ...newState };
     }
 
-    this.setState(stateChanges);
+    if (Object.keys(stateChanges).length > 0) {
+      this.setState(stateChanges);
+    }
   };
 
   // If ``show`` is a boolean, then set to that value.  If it's not, then toggle
@@ -497,6 +520,7 @@ App.propTypes = {
   jobMap: PropTypes.shape({}).isRequired,
   router: PropTypes.shape({}).isRequired,
   pushRoute: PropTypes.func.isRequired,
+  fetchPushes: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = ({ pushes: { jobMap }, router }) => ({
@@ -507,4 +531,5 @@ const mapStateToProps = ({ pushes: { jobMap }, router }) => ({
 export default connect(mapStateToProps, {
   pushRoute,
   clearExpiredNotifications,
+  fetchPushes,
 })(hot(App));

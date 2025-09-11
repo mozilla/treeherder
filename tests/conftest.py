@@ -315,7 +315,13 @@ def fixture_create_jobs(test_repository, failure_classifications):
 
     def create(jobs):
         store_job_data(test_repository, jobs)
-        return [th_models.Job.objects.get(id=i) for i in range(1, len(jobs) + 1)]
+        retval = []
+        for i in range(1, len(jobs) + 1):
+            try:
+                retval.append(th_models.Job.objects.get(id=i))
+            except Exception:
+                pass
+        return retval
 
     return create
 
@@ -377,6 +383,29 @@ def mock_log_parser(monkeypatch):
         pass
 
     monkeypatch.setattr(tasks, "parse_logs", task_mock)
+
+
+@pytest.fixture
+def mock_parser(monkeypatch):
+    from celery import shared_task
+
+    from treeherder.log_parser import failureline
+
+    @shared_task
+    def fetch_mock(*args, **kwargs):
+        file_name = args[0].url.split("/")[-1]
+        try:
+            data_path = os.path.join(SAMPLE_DATA_PATH, "logs", file_name)
+            with open(data_path) as f:
+                fetch_data = f.read()
+        except Exception:
+            return
+
+        if not fetch_data:
+            return
+        return (json.loads(item.strip("\n")) for item in fetch_data.splitlines())
+
+    monkeypatch.setattr(failureline, "fetch_log", fetch_mock)
 
 
 @pytest.fixture
@@ -597,8 +626,9 @@ def failure_classifications(transactional_db):
         "expected fail",
         "intermittent",
         "infra",
-        "intermittent needs filing",
+        "new failure not classified",
         "autoclassified intermittent",
+        "intermittent needs bugid",
     ]:
         th_models.FailureClassification(name=name).save()
 
@@ -746,6 +776,40 @@ def test_perf_signature_2(test_perf_signature):
         has_subtests=test_perf_signature.has_subtests,
         extra_options=test_perf_signature.extra_options,
         last_updated=datetime.datetime.now(),
+    )
+
+
+@pytest.fixture
+def test_perf_signature_3(test_perf_signature):
+    return perf_models.PerformanceSignature.objects.create(
+        repository=test_perf_signature.repository,
+        signature_hash=(20 * "t3"),
+        framework=test_perf_signature.framework,
+        platform=test_perf_signature.platform,
+        option_collection=test_perf_signature.option_collection,
+        suite="mysuite2",
+        test="mytest3",
+        has_subtests=test_perf_signature.has_subtests,
+        extra_options=test_perf_signature.extra_options,
+        last_updated=datetime.datetime.now(),
+        tags="cold pageload",
+    )
+
+
+@pytest.fixture
+def test_perf_signature_4(test_perf_signature):
+    return perf_models.PerformanceSignature.objects.create(
+        repository=test_perf_signature.repository,
+        signature_hash=(20 * "t4"),
+        framework=test_perf_signature.framework,
+        platform=test_perf_signature.platform,
+        option_collection=test_perf_signature.option_collection,
+        suite="mysuite2",
+        test="mytest4",
+        has_subtests=test_perf_signature.has_subtests,
+        extra_options=test_perf_signature.extra_options,
+        last_updated=datetime.datetime.now(),
+        tags="cold pageload",
     )
 
 
@@ -1176,6 +1240,24 @@ def test_perf_alert_2(
 ) -> perf_models.PerformanceAlert:
     return create_perf_alert(
         summary=test_perf_alert_summary_2, series_signature=test_perf_signature_2
+    )
+
+
+@pytest.fixture
+def test_perf_alert_3(
+    test_perf_alert, test_perf_signature_3, test_perf_alert_summary_2
+) -> perf_models.PerformanceAlert:
+    return create_perf_alert(
+        summary=test_perf_alert_summary_2, series_signature=test_perf_signature_3
+    )
+
+
+@pytest.fixture
+def test_perf_alert_4(
+    test_perf_alert, test_perf_signature_4, test_perf_alert_summary_2
+) -> perf_models.PerformanceAlert:
+    return create_perf_alert(
+        summary=test_perf_alert_summary_2, series_signature=test_perf_signature_4
     )
 
 

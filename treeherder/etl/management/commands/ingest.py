@@ -222,7 +222,8 @@ async def await_futures(fs):
 
 
 def process_job_with_threads(pulse_job, root_url):
-    logger.info("Loading into DB:\t%s", pulse_job["taskId"])
+    task_id = pulse_job.get("taskId", "unknown")
+    logger.info("Loading into DB:\t%s", task_id)
     with Connection():
         try:
             JobLoader().process_job(pulse_job, root_url)

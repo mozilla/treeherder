@@ -11,7 +11,7 @@ import {
 function getLogUrlProps(logKey, logUrl, logViewerUrl, logViewerFullUrl) {
   if (logKey === 'rawlog') {
     return {
-      title: 'Open the raw log in a new window',
+      title: 'Open the raw log in a new window (shift+l)',
       target: '_blank',
       rel: 'noopener noreferrer',
       href: logUrl.url,
@@ -26,7 +26,7 @@ function getLogUrlProps(logKey, logUrl, logViewerUrl, logViewerFullUrl) {
         )}`,
         href: logViewerUrl,
         'copy-value': logViewerFullUrl,
-        title: 'Open the log viewer in a new window',
+        title: 'Open the log viewer in a new window (l)',
       };
     case 'failed':
       return {

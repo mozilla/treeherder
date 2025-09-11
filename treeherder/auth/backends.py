@@ -183,6 +183,16 @@ class AuthBackend:
         id_token_expiry_timestamp = self._get_id_token_expiry(user_info)
         now_in_seconds = int(time.time())
 
+        # Log token expiration details
+        logger.debug(
+            "Token expiration details - Access token: %s (%s), ID token: %s (%s), Current time: %s",
+            access_token_expiry_timestamp,
+            time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(access_token_expiry_timestamp)),
+            id_token_expiry_timestamp,
+            time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(id_token_expiry_timestamp)),
+            time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(now_in_seconds)),
+        )
+
         # The session length is set to match whichever token expiration time is closer.
         earliest_expiration_timestamp = min(
             access_token_expiry_timestamp, id_token_expiry_timestamp
@@ -190,35 +200,63 @@ class AuthBackend:
         seconds_until_expiry = earliest_expiration_timestamp - now_in_seconds
 
         if seconds_until_expiry <= 0:
+            logger.error(
+                "Session expiry time has already passed! Current time exceeds token expiration."
+            )
             raise AuthError("Session expiry time has already passed!")
 
         return seconds_until_expiry
 
     def authenticate(self, request):
-        access_token = self._get_access_token(request)
-        id_token = self._get_id_token(request)
-
-        user_info = self._get_user_info(access_token, id_token)
-        username = self._get_username_from_userinfo(user_info)
-        is_sheriff = self._get_is_sheriff_from_userinfo(user_info)
-
-        seconds_until_expiry = self._calculate_session_expiry(request, user_info)
-        logger.debug("Updating session to expire in %i seconds", seconds_until_expiry)
-        request.session.set_expiry(seconds_until_expiry)
-
+        logger.debug("Authentication attempt started")
         try:
-            user = User.objects.get(username=username)
-            if user.is_staff != is_sheriff:
-                user.is_staff = is_sheriff
-                user.save()
-            return user
-        except ObjectDoesNotExist:
-            # The user doesn't already exist, so create it since we allow
-            # anyone with SSO access to create an account on Treeherder.
-            logger.debug("Creating new user: %s", username)
-            return User.objects.create_user(
-                username, email=user_info["email"], password=None, is_staff=is_sheriff
+            access_token = self._get_access_token(request)
+            id_token = self._get_id_token(request)
+            logger.debug("Authentication tokens retrieved successfully")
+
+            user_info = self._get_user_info(access_token, id_token)
+            username = self._get_username_from_userinfo(user_info)
+            is_sheriff = self._get_is_sheriff_from_userinfo(user_info)
+            logger.debug("User info retrieved for: %s", username)
+
+            seconds_until_expiry = self._calculate_session_expiry(request, user_info)
+            logger.debug(
+                "Updating session to expire in %i seconds for user %s",
+                seconds_until_expiry,
+                username,
             )
+
+            # Convert seconds to more readable format
+            hours = seconds_until_expiry // 3600
+            minutes = (seconds_until_expiry % 3600) // 60
+            logger.debug("Session will expire in %d hours and %d minutes", hours, minutes)
+
+            request.session.set_expiry(seconds_until_expiry)
+
+            try:
+                user = User.objects.get(username=username)
+                logger.debug("Existing user authenticated: %s", username)
+                if user.is_staff != is_sheriff:
+                    user.is_staff = is_sheriff
+                    user.save()
+                    logger.debug("Updated staff status for user %s to %s", username, is_sheriff)
+                return user
+            except ObjectDoesNotExist:
+                # The user doesn't already exist, so create it since we allow
+                # anyone with SSO access to create an account on Treeherder.
+                logger.debug("Creating new user: %s", username)
+                return User.objects.create_user(
+                    username, email=user_info["email"], password=None, is_staff=is_sheriff
+                )
+        except AuthenticationFailed as e:
+            logger.error("Authentication failed: %s", str(e))
+            raise
+        except AuthError as e:
+            logger.error("Auth error during authentication: %s", str(e))
+            raise
+        except Exception as e:
+            logger.error("Unexpected error during authentication: %s", str(e))
+            raise
 
     def get_user(self, user_id):
         try:

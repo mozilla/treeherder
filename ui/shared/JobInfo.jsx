@@ -87,11 +87,19 @@ export default class JobInfo extends React.PureComponent {
             <Clipboard description="task ID" text={taskId} />
           </li>
         )}
+        {taskId && job.taskQueueId && (
+          <li className="small">
+            <strong>Task Queue: </strong>
+            <span>{job.taskQueueId}</span>
+          </li>
+        )}
         <li className="small">
           <strong>Build: </strong>
-          <span>{`${buildArchitecture} ${buildPlatform} ${
-            buildOs || ''
-          }`}</span>
+          <span>
+            {[buildArchitecture, buildPlatform, buildOs]
+              .filter((val) => val && val !== '-')
+              .join(' ')}
+          </span>
         </li>
         <li className="small">
           <strong>Job name: </strong>

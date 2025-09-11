@@ -326,15 +326,14 @@ export default class CompareTableView extends React.Component {
           <React.Fragment>
             <Row className="justify-content-center">
               <Alert color="info">
-                Try out the same comparison{' '}
                 <a
                   href={perfCompareURL}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  with our new PerfCompare tool
-                </a>
-                !
+                  PerfCompare
+                </a>{' '}
+                will soon become the primary tool for performance comparison.
               </Alert>
             </Row>
 
