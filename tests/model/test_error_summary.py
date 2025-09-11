@@ -16,7 +16,7 @@ LINE_CLEANING_TEST_CASES = (
         (
             "Assertion failure: rc != 0 (destroyed timer off its target thread!),"
             " at "
-            "/builds/worker/checkouts/gecko/xpcom/threads/TimerThread.cpp:434"
+            "/builds/worker/checkouts/gecko/xpcom/threads/TimerThread.cpp:X"
         ),
     ),
     (
@@ -28,7 +28,21 @@ LINE_CLEANING_TEST_CASES = (
         (
             "Assertion failure: XRE_IsGPUProcess()"
             " || gfxPlatform::GetPlatform()->DevicesInitialized(),"
-            " at /builds/worker/checkouts/gecko/gfx/thebes/DeviceManagerDx.cpp:1320"
+            " at /builds/worker/checkouts/gecko/gfx/thebes/DeviceManagerDx.cpp:X"
+        ),
+    ),
+    (
+        (
+            "10:27:00  WARNING -  PROCESS-CRASH | [Child 8959, Main Thread] ###!!! ASSERTION:"
+            " Should only schedule view manager flush on root prescontexts: 'mPresContext &&"
+            " mPresContext->IsRoot()', file /builds/worker/checkouts/gecko/layout/base/nsRefreshDriver.cpp:2931"
+            " [@ nsRefreshDriver::SchedulePaint] | docshell/test/unit/test_subframe_stop_after_parent_error.js"
+        ),
+        (
+            "PROCESS-CRASH | [Child X, Y Thread] ###!!! ASSERTION:"
+            " Should only schedule view manager flush on root prescontexts: 'mPresContext &&"
+            " mPresContext->IsRoot()', file /builds/worker/checkouts/gecko/layout/base/nsRefreshDriver.cpp:X"
+            " [@ nsRefreshDriver::SchedulePaint] | docshell/test/unit/test_subframe_stop_after_parent_error.js"
         ),
     ),
 )
