@@ -109,7 +109,7 @@ properties:
     title: 'group name'
     type: 'string'
     minLength: 1
-    maxLength: 100
+    maxLength: 255
   groupSymbol:
     title: 'group symbol'
     description: |

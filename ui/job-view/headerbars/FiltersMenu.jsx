@@ -23,15 +23,14 @@ const resultStatusMenuItems = thAllResultStatuses.filter(
   (rs) => rs !== 'runnable',
 );
 
-function FiltersMenu(props) {
-  const {
-    filterModel,
-    pinJobs,
-    getAllShownJobs,
-    selectedJob,
-    setSelectedJob,
-    user,
-  } = props;
+function FiltersMenu({
+  filterModel,
+  pinJobs,
+  getAllShownJobs,
+  selectedJob = null,
+  setSelectedJob,
+  user,
+}) {
   const {
     urlParams: { resultStatus, classifiedState },
   } = filterModel;
@@ -194,10 +193,6 @@ FiltersMenu.propTypes = {
   getAllShownJobs: PropTypes.func.isRequired,
   selectedJob: PropTypes.shape({}),
   user: PropTypes.shape({}).isRequired,
-};
-
-FiltersMenu.defaultProps = {
-  selectedJob: null,
 };
 
 const mapStateToProps = ({ selectedJob: { selectedJob } }) => ({ selectedJob });

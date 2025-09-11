@@ -46,5 +46,8 @@ This is the #{{rank}} most frequent failure this week.{% endif %}
     {%- endif -%}
   {%- endfor %}
 {% endfor %}
+{% if has_runcount -%}
+{{"* x/y indicates test failures and total runs; only x means number of runs is unknown.\n"}}
+{% endif -%}
 ## For more details, see:
 https://treeherder.mozilla.org/intermittent-failures/bugdetails?bug={{bug_id}}&startday={{startday}}&endday={{endday}}&tree=all

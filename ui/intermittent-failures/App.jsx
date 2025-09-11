@@ -30,6 +30,14 @@ class IntermittentFailuresApp extends React.Component {
     this.setState(state);
   };
 
+  setUser = (user) => {
+    this.setState({ user });
+  };
+
+  notify = (message) => {
+    this.setState({ errorMessages: [message] });
+  };
+
   render() {
     const { user, graphData, tableData, errorMessages } = this.state;
     const { path } = this.props.match;
@@ -51,10 +59,8 @@ class IntermittentFailuresApp extends React.Component {
                 mainTableData={tableData}
                 updateAppState={this.updateAppState}
                 user={user}
-                setUser={(user) => this.setState({ user })}
-                notify={(message) =>
-                  this.setState({ errorMessages: [message] })
-                }
+                setUser={this.setUser}
+                notify={this.notify}
               />
             )}
           />
@@ -66,16 +72,33 @@ class IntermittentFailuresApp extends React.Component {
                 mainGraphData={graphData}
                 mainTableData={tableData}
                 updateAppState={this.updateAppState}
+                user={user}
+                setUser={this.setUser}
+                notify={this.notify}
               />
             )}
           />
           <Route
             path={`${path}/bugdetails`}
-            render={(props) => <BugDetailsView {...props} />}
+            render={(props) => (
+              <BugDetailsView
+                {...props}
+                user={user}
+                setUser={this.setUser}
+                notify={this.notify}
+              />
+            )}
           />
           <Route
-            path={`${path}/bugdetails?startday=:startday&endday=:endday&tree=:tree&failurehash=:failurehash&bug=bug`}
-            render={(props) => <BugDetailsView {...props} />}
+            path={`${path}/bugdetails?startday=:startday&endday=:endday&tree=:tree&bug=bug`}
+            render={(props) => (
+              <BugDetailsView
+                {...props}
+                user={user}
+                setUser={this.setUser}
+                notify={this.notify}
+              />
+            )}
           />
           <Redirect from={`${path}/`} to={`${path}/main`} />
         </Switch>

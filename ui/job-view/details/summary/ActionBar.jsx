@@ -16,6 +16,7 @@ import {
   faThumbtack,
   faTimesCircle,
   faCrosshairs,
+  faGaugeHigh,
 } from '@fortawesome/free-solid-svg-icons';
 
 import {
@@ -32,7 +33,11 @@ import {
   confirmFailure,
   findJobInstance,
 } from '../../../helpers/job';
-import { getInspectTaskUrl, getReftestUrl } from '../../../helpers/url';
+import {
+  getInspectTaskUrl,
+  getReftestUrl,
+  getPerfAnalysisUrl,
+} from '../../../helpers/url';
 import JobModel from '../../../models/job';
 import TaskclusterModel from '../../../models/taskcluster';
 import CustomJobActions from '../../CustomJobActions';
@@ -54,11 +59,18 @@ class ActionBar extends React.PureComponent {
 
   componentDidMount() {
     window.addEventListener(thEvents.openLogviewer, this.onOpenLogviewer);
+    window.addEventListener(thEvents.openRawLog, this.onOpenRawLog);
+    window.addEventListener(thEvents.openGeckoProfile, this.onOpenGeckoProfile);
     window.addEventListener(thEvents.jobRetrigger, this.onRetriggerJob);
   }
 
   componentWillUnmount() {
     window.removeEventListener(thEvents.openLogviewer, this.onOpenLogviewer);
+    window.removeEventListener(thEvents.openRawLog, this.onOpenRawLog);
+    window.removeEventListener(
+      thEvents.openGeckoProfile,
+      this.onOpenGeckoProfile,
+    );
     window.removeEventListener(thEvents.jobRetrigger, this.onRetriggerJob);
   }
 
@@ -86,6 +98,37 @@ class ActionBar extends React.PureComponent {
       case 'parsed':
         document.querySelector('.logviewer-btn').click();
     }
+  };
+
+  // Open the raw log and provide notifications if it isn't available
+  onOpenRawLog = () => {
+    const { jobLogUrls, notify } = this.props;
+    if (jobLogUrls && jobLogUrls.length > 0) {
+      window.open(jobLogUrls[0].url, '_blank');
+    } else {
+      notify('No logs available for this job');
+    }
+  };
+
+  // Open the gecko profile and provide notifications if it isn't available
+  onOpenGeckoProfile = () => {
+    const { notify } = this.props;
+    const resourceUsageProfile = this.getResourceUsageProfile();
+
+    if (resourceUsageProfile) {
+      window.open(getPerfAnalysisUrl(resourceUsageProfile.url), '_blank');
+    } else {
+      notify('No resource usage profile available for this job');
+    }
+  };
+
+  getResourceUsageProfile = () => {
+    const { jobDetails } = this.props;
+    return jobDetails.find((artifact) =>
+      ['profile_build_resources.json', 'profile_resource-usage.json'].includes(
+        artifact.value,
+      ),
+    );
   };
 
   canCancel = () => {
@@ -312,6 +355,7 @@ class ActionBar extends React.PureComponent {
       currentRepo,
     } = this.props;
     const { customJobActionsShowing } = this.state;
+    const resourceUsageProfile = this.getResourceUsageProfile();
 
     return (
       <div id="actionbar">
@@ -335,13 +379,28 @@ class ActionBar extends React.PureComponent {
             <li>
               <Button
                 id="retrigger-btn"
-                title="Repeat the selected job"
+                title="Retrigger job (r)"
                 className="actionbar-nav-btn bg-transparent border-0 icon-green"
                 onClick={() => this.retriggerJob([selectedJobFull])}
               >
-                <FontAwesomeIcon icon={faRedo} title="Retrigger job" />
+                <FontAwesomeIcon icon={faRedo} />
               </Button>
             </li>
+            {resourceUsageProfile &&
+              // not shown at the same time as the reftest analyzer to avoid running out of space.
+              !isReftest(selectedJobFull) && (
+                <li>
+                  <a
+                    title="Show the resource usage profile in the Firefox Profiler (g)"
+                    className="actionbar-nav-btn btn"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={getPerfAnalysisUrl(resourceUsageProfile.url)}
+                  >
+                    <FontAwesomeIcon icon={faGaugeHigh} />
+                  </a>
+                </li>
+              )}
             {isReftest(selectedJobFull) &&
               jobLogUrls.map((jobLogUrl) => (
                 <li key={`reftest-${jobLogUrl.id}`}>

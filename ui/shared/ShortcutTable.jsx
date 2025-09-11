@@ -56,6 +56,18 @@ const ShortcutTable = function ShortcutTable() {
             </tr>
             <tr>
               <td>
+                <kbd>shift</kbd>+<kbd>l</kbd>
+              </td>
+              <td>Open the raw log for the selected job</td>
+            </tr>
+            <tr>
+              <td>
+                <kbd>g</kbd>
+              </td>
+              <td>Open the resource usage profile in the Firefox Profiler</td>
+            </tr>
+            <tr>
+              <td>
                 <kbd>q</kbd>
               </td>
               <td>

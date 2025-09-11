@@ -44,6 +44,7 @@ class BugRunInfo:
 class BugsDetails:
     run_count: dict[str, int] = field(default_factory=dict)  # {job_name: run_count}
     total: int = 0
+    has_runcount: bool = False
     test_variants: set = field(default_factory=set)
     per_repositories: dict[str, int] = field(default_factory=dict)  # {repo1: 1, repo2: 2, ...}
     data_table: dict[str, dict[str, int]] = field(
@@ -58,7 +59,7 @@ class Commenter:
     to stdout rather than submitting to bugzilla."""
 
     test_variants = None
-    manifests = None
+    all_tests = None
     testrun_matrix = None
     summary_groups = None
 
@@ -148,6 +149,7 @@ class Commenter:
                 repositories=counts.per_repositories,
                 test_variants=sorted(list(counts.test_variants)),
                 data_table=counts.data_table,
+                has_runcount=bug_map[bug_id].has_runcount,
                 startday=startday,
                 endday=endday.split()[0],
                 weekly_mode=self.weekly_mode,
@@ -440,11 +442,18 @@ class Commenter:
             },
         }
         """
+
+        # these are large blocks of data, reference 1x/run
+        all_tests = self.get_tests_from_manifests()
+        testrun_matrix = (
+            fetch.fetch_testrun_matrix() if self.testrun_matrix is None else self.testrun_matrix
+        )
+        self.testrun_matrix = testrun_matrix
+
         bug_map = {}
         all_variants = set()
         for bug in bugs:
             bug_id = bug["bug__bugzilla_id"]
-            all_tests = self.get_tests_from_manifests()
             test_name = self.get_test_name(all_tests, bug["bug__summary"])
             manifest = None
             bug_testrun_matrix = []
@@ -455,13 +464,8 @@ class Commenter:
                     job_name = bug["job__signature__job_type_name"]
                     if len(job_name.rsplit("-", 1)) == 2 and job_name.rsplit("-", 1)[1].isdigit():
                         job_name = job_name.rsplit("-", 1)[0]
-                    run_count = self.get_task_labels_and_count(manifest, days, job_name)
-                    testrun_matrix = (
-                        fetch.fetch_testrun_matrix()
-                        if self.testrun_matrix is None
-                        else self.testrun_matrix
-                    )
-                    self.testrun_matrix = testrun_matrix
+                    # NOTE: until we get groupsummary/ api working and make this run more performant
+                    # run_count = self.get_task_labels_and_count(manifest, days, job_name)
                     bug_testrun_matrix = testrun_matrix[manifest]
             bug_run_info = self.get_bug_run_info(bug)
             all_variants = bug_run_info.variants
@@ -484,6 +488,8 @@ class Commenter:
                 bug_infos.data_table[platform_and_build] = {
                     test_variant: {"count": 1, "runs": run_count},
                 }
+                if run_count > 0:
+                    bug_infos.has_runcount = True
                 bug_map[bug_id] = bug_infos
             else:
                 bug_infos = bug_map[bug_id]
@@ -499,6 +505,8 @@ class Commenter:
                     "count": platform_and_build_data.get(test_variant, {}).get("count", 0) + 1,
                     "runs": run_count,
                 }
+                if run_count > 0:
+                    bug_infos.has_runcount = True
 
         return bug_map
 
@@ -533,8 +541,10 @@ class Commenter:
         return {bug["id"]: bug for bug in bugs_list} if len(bugs_list) else None
 
     def get_tests_from_manifests(self):
-        manifests = fetch.fetch_test_manifests() if self.manifests is None else self.manifests
-        self.manifests = manifests
+        if self.all_tests:
+            return self.all_tests
+
+        manifests = fetch.fetch_test_manifests()
         all_tests = {}
         for component in manifests["tests"]:
             for item in manifests["tests"][component]:
@@ -542,6 +552,7 @@ class Commenter:
                     all_tests[item["test"]] = []
                 # split(':') allows for parent:child where we want to keep parent
                 all_tests[item["test"]].append(item["manifest"][0].split(":")[0])
+        self.all_tests = all_tests
         return all_tests
 
     def fix_wpt_name(self, test_name):

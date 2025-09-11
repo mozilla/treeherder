@@ -6,11 +6,7 @@ import { Link } from 'react-router-dom';
 import { Row, Col, Badge } from 'reactstrap';
 
 import Clipboard from '../../shared/Clipboard';
-import {
-  getFrameworkName,
-  getTitle,
-  containsText,
-} from '../perf-helpers/helpers';
+import { getFrameworkName, getTitle } from '../perf-helpers/helpers';
 
 export default class AlertHeaderTitle extends React.Component {
   constructor(props) {
@@ -18,13 +14,28 @@ export default class AlertHeaderTitle extends React.Component {
     this.state = {};
   }
 
+  isAlertSummaryCritical = (alertSummary) => {
+    const { alerts } = alertSummary;
+
+    const criticalTests = [
+      'speedometer3 score windows11-64-24h2-shippable',
+      'newssite-applink-startup applink_startup android-hw-a55-14-0-aarch64-shippable',
+    ];
+
+    const isCritical = alerts.some((alert) => {
+      const { series_signature: seriesSignature } = alert;
+      const { suite, test, machine_platform: platform } = seriesSignature;
+
+      return criticalTests.includes(`${suite} ${test} ${platform}`);
+    });
+
+    return isCritical;
+  };
+
   render() {
     const { alertSummary, frameworks } = this.props;
 
-    const title = getTitle(alertSummary);
-    const isCritical =
-      containsText(title, 'speedometer3 score windows11 shippable') ||
-      containsText(title, 'newssite-applink a55');
+    const isCritical = this.isAlertSummaryCritical(alertSummary);
 
     return (
       <Row>

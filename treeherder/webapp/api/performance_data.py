@@ -475,6 +475,12 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.queryset)
         pk = request.query_params.get("id")
+        if not pk:
+            if request.query_params.get("monitored_alerts"):
+                queryset = queryset.filter(sheriffed=False)
+            else:
+                queryset = queryset.filter(sheriffed=True)
+
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)

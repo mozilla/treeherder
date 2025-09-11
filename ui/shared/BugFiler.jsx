@@ -390,12 +390,12 @@ export class BugFilerClass extends React.Component {
       comment,
       isIntermittent,
       isSecurityIssue,
-      launchConfirmFailure,
       checkedLogLinks,
       regressedBy,
       seeAlso,
       keywords,
       crashSignatures,
+      launchConfirmFailure,
     } = this.state;
     const { toggle, successCallback, notify, suggestions } = this.props;
 
@@ -475,6 +475,7 @@ export class BugFilerClass extends React.Component {
     ) {
       priority = '--';
     }
+
     if (launchConfirmFailure && keywords.includes('intermittent-testcase')) {
       // Launch confirm failure task
       this.handleConfirmFailure();
@@ -614,6 +615,7 @@ export class BugFilerClass extends React.Component {
       parsedLog,
       fullLog,
       reftestUrl,
+      currentRepo,
     } = this.props;
     const {
       productSearch,
@@ -919,20 +921,24 @@ export class BugFilerClass extends React.Component {
                   Report this as a security issue
                 </Label>
               </div>
-              <div className="d-inline-flex mt-2 ml-5">
-                <Label>
-                  <Input
-                    type="checkbox"
-                    checked={launchConfirmFailure}
-                    onChange={() =>
-                      this.setState({
-                        launchConfirmFailure: !launchConfirmFailure,
-                      })
-                    }
-                  />
-                  Launch the Confirm Failures task at bug submission
-                </Label>
-              </div>
+              {['autoland', 'mozilla-central', 'try'].includes(
+                currentRepo.name,
+              ) && (
+                <div className="d-inline-flex mt-2 ml-5">
+                  <Label>
+                    <Input
+                      type="checkbox"
+                      checked={launchConfirmFailure}
+                      onChange={() =>
+                        this.setState({
+                          launchConfirmFailure: !launchConfirmFailure,
+                        })
+                      }
+                    />
+                    Launch the Confirm Failures task at bug submission
+                  </Label>
+                </div>
+              )}
               {!!crashSignatures.length && (
                 <div>
                   <Label for="signature-input">Signature:</Label>
@@ -972,7 +978,10 @@ BugFilerClass.propTypes = {
     bugs: PropTypes.shape({
       open_recent: PropTypes.arrayOf({
         crash_signature: PropTypes.string.isRequired,
-        dupe_of: PropTypes.oneOfType(null, PropTypes.number).isRequired,
+        dupe_of: PropTypes.oneOfType([
+          PropTypes.oneOf([null]),
+          PropTypes.number,
+        ]).isRequired,
         id: PropTypes.number.isRequired,
         keywords: PropTypes.string.isRequired,
         status: PropTypes.string.isRequired,
@@ -982,7 +991,10 @@ BugFilerClass.propTypes = {
       }),
       all_others: PropTypes.arrayOf({
         crash_signature: PropTypes.string.isRequired,
-        dupe_of: PropTypes.oneOfType(null, PropTypes.number).isRequired,
+        dupe_of: PropTypes.oneOfType([
+          PropTypes.oneOf([null]),
+          PropTypes.number,
+        ]).isRequired,
         id: PropTypes.number.isRequired,
         keywords: PropTypes.string.isRequired,
         status: PropTypes.string.isRequired,
@@ -994,7 +1006,8 @@ BugFilerClass.propTypes = {
     counter: PropTypes.number.isRequired,
     failure_in_new_rev: PropTypes.bool.isRequired,
     line_number: PropTypes.number.isRequired,
-    path_end: PropTypes.oneOfType(null, PropTypes.string).isRequired,
+    path_end: PropTypes.oneOfType([PropTypes.oneOf([null]), PropTypes.string])
+      .isRequired,
     search: PropTypes.string.isRequired,
     search_terms: PropTypes.arrayOf(PropTypes.string),
   }).isRequired,

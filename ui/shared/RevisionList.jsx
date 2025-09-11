@@ -43,13 +43,15 @@ export class RevisionList extends React.PureComponent {
 
 RevisionList.propTypes = {
   revision: PropTypes.string.isRequired,
-  revisions: PropTypes.arrayOf({
-    author: PropTypes.string.isRequired,
-    comments: PropTypes.string.isRequired,
-    repository_id: PropTypes.number.isRequired,
-    result_set_id: PropTypes.number.isRequired,
-    revision: PropTypes.string.isRequired,
-  }).isRequired,
+  revisions: PropTypes.arrayOf(
+    PropTypes.shape({
+      author: PropTypes.string.isRequired,
+      comments: PropTypes.string.isRequired,
+      repository_id: PropTypes.number.isRequired,
+      result_set_id: PropTypes.number.isRequired,
+      revision: PropTypes.string.isRequired,
+    }),
+  ).isRequired,
   revisionCount: PropTypes.number.isRequired,
   repo: PropTypes.shape({
     pushLogUrl: PropTypes.string,

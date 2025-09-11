@@ -16,6 +16,7 @@ class SummaryPanel extends React.PureComponent {
       latestClassification,
       bugs,
       jobLogUrls,
+      jobDetails,
       jobDetailLoading,
       logViewerUrl,
       logViewerFullUrl,
@@ -46,6 +47,7 @@ class SummaryPanel extends React.PureComponent {
           logParseStatus={logParseStatus}
           currentRepo={currentRepo}
           isTryRepo={currentRepo.is_try_repo}
+          jobDetails={jobDetails}
           logViewerUrl={logViewerUrl}
           logViewerFullUrl={logViewerFullUrl}
           jobLogUrls={jobLogUrls}
@@ -96,6 +98,11 @@ SummaryPanel.propTypes = {
   selectedJobFull: PropTypes.shape({}).isRequired,
   latestClassification: PropTypes.shape({}),
   jobLogUrls: PropTypes.arrayOf(PropTypes.shape({})),
+  jobDetails: PropTypes.arrayOf({
+    url: PropTypes.string.isRequired,
+    value: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+  }),
   jobDetailLoading: PropTypes.bool,
   logParseStatus: PropTypes.string,
   logViewerUrl: PropTypes.string,
@@ -105,6 +112,7 @@ SummaryPanel.propTypes = {
 SummaryPanel.defaultProps = {
   latestClassification: null,
   jobLogUrls: [],
+  jobDetails: [],
   jobDetailLoading: false,
   logParseStatus: 'pending',
   logViewerUrl: null,

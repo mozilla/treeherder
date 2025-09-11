@@ -66,15 +66,54 @@ class App extends React.PureComponent {
     };
   }
 
+  startArtifactsRequests = (taskId, run, rootUrl, repoName) => {
+    const params = { taskId, run, rootUrl };
+    const jobArtifactsPromise = getData(getArtifactsUrl(params));
+
+    let builtFromArtifactPromise;
+    if (repoName === 'comm-central' || repoName === 'try-comm-central') {
+      builtFromArtifactPromise = getData(
+        getArtifactsUrl({
+          ...params,
+          artifactPath: 'public/build/built_from.json',
+        }),
+      );
+    }
+
+    return { jobArtifactsPromise, builtFromArtifactPromise };
+  };
+
   async componentDidMount() {
     const { repoName, jobId } = this.state;
 
     const repoPromise = RepositoryModel.getList();
     const jobPromise = JobModel.get(repoName, jobId);
+    let artifactsPromises;
+
+    // Start loading the log file and the artifacts early if the task parameter
+    // was provided.
+    const taskParam = getAllUrlParams().get('task');
+    if (taskParam) {
+      const [taskId, run] = taskParam.split('.');
+      if (taskId && run !== undefined) {
+        // Construct log URL early and set in state
+        const earlyRawLogUrl = `https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/${taskId}/runs/${run}/artifacts/public/logs/live_backing.log`;
+        this.setState({ rawLogUrl: earlyRawLogUrl });
+
+        // Start artifacts requests in parallel
+        artifactsPromises = this.startArtifactsRequests(
+          taskId,
+          run,
+          'https://firefox-ci-tc.services.mozilla.com',
+          repoName,
+        );
+      }
+    }
 
     Promise.all([repoPromise, jobPromise])
       .then(async ([repos, job]) => {
         const currentRepo = repos.find((repo) => repo.name === repoName);
+        const pushPromise = PushModel.get(job.push_id);
 
         // set the title of  the browser window/tab
         document.title = job.searchStr;
@@ -93,69 +132,69 @@ class App extends React.PureComponent {
             ? getReftestUrl(rawLogUrl)
             : null;
 
-        this.setState(
-          {
-            job,
-            rawLogUrl,
-            reftestUrl,
-            jobExists: true,
-            currentRepo,
-          },
-          async () => {
-            const params = {
-              taskId: job.task_id,
-              run: job.retry_id,
-              rootUrl: currentRepo.tc_root_url,
-            };
+        const newState = {
+          job,
+          reftestUrl,
+          jobExists: true,
+          currentRepo,
+        };
 
-            const jobArtifactsPromise = getData(getArtifactsUrl(params));
-            let builtFromArtifactPromise;
+        // Update rawLogUrl if it's different
+        if (rawLogUrl !== this.state.rawLogUrl) {
+          newState.rawLogUrl = rawLogUrl;
+        }
 
-            if (
-              currentRepo.name === 'comm-central' ||
-              currentRepo.name === 'try-comm-central'
-            ) {
-              builtFromArtifactPromise = getData(
-                getArtifactsUrl({
-                  ...params,
-                  ...{ artifactPath: 'public/build/built_from.json' },
-                }),
-              );
-            }
-            const pushPromise = PushModel.get(job.push_id);
+        this.setState(newState);
 
-            Promise.all([
-              jobArtifactsPromise,
-              pushPromise,
-              builtFromArtifactPromise,
-            ]).then(
-              async ([artifactsResp, pushResp, builtFromArtifactResp]) => {
-                const { revision } = await pushResp.json();
-                let jobDetails =
-                  !artifactsResp.failureStatus && artifactsResp.data.artifacts
-                    ? formatArtifacts(artifactsResp.data.artifacts, params)
-                    : [];
+        // Start artifacts requests if we didn't do it early
+        if (!artifactsPromises) {
+          artifactsPromises = this.startArtifactsRequests(
+            job.task_id,
+            job.retry_id,
+            currentRepo.tc_root_url,
+            currentRepo.name,
+          );
+        }
 
-                if (
-                  builtFromArtifactResp &&
-                  !builtFromArtifactResp.failureStatus
-                ) {
-                  jobDetails = [...jobDetails, ...builtFromArtifactResp.data];
-                }
+        // Handle artifacts independently of push request
+        Promise.all([
+          artifactsPromises.jobArtifactsPromise,
+          artifactsPromises.builtFromArtifactPromise,
+        ]).then(([artifactsResp, builtFromArtifactResp]) => {
+          const params = {
+            taskId: job.task_id,
+            run: job.retry_id,
+            rootUrl: currentRepo.tc_root_url,
+          };
 
-                this.setState({
-                  revision,
-                  jobUrl: getJobsUrl({
-                    repo: repoName,
-                    revision,
-                    selectedJob: jobId,
-                  }),
-                  jobDetails,
-                });
-              },
-            );
-          },
-        );
+          let jobDetails =
+            !artifactsResp.failureStatus && artifactsResp.data.artifacts
+              ? formatArtifacts(artifactsResp.data.artifacts, params)
+              : [];
+
+          if (builtFromArtifactResp && !builtFromArtifactResp.failureStatus) {
+            jobDetails = [...jobDetails, ...builtFromArtifactResp.data];
+          }
+
+          this.setState({ jobDetails });
+        });
+
+        // Handle push request separately
+        pushPromise.then(async (pushResp) => {
+          const { revision } = await pushResp.json();
+          const selectedTaskRun =
+            job.task_id && job.retry_id !== undefined
+              ? `${job.task_id}.${job.retry_id}`
+              : null;
+          this.setState({
+            revision,
+            jobUrl: getJobsUrl({
+              repo: repoName,
+              revision,
+              selectedTaskRun,
+            }),
+          });
+        });
       })
       .catch((error) => {
         this.setState({
@@ -256,7 +295,9 @@ class App extends React.PureComponent {
   scrollHighlightToTop = (highlight) => {
     const lineAtTop = highlight && highlight[0] > 7 ? highlight[0] - 7 : 0;
 
-    scrollToLine(`a[id="${lineAtTop}"]`, 100);
+    scrollToLine(`a[id="${lineAtTop}"]`).catch(() => {
+      // Silently handle cases where the line is not found
+    });
   };
 
   updateQuery = () => {
@@ -330,11 +371,11 @@ class App extends React.PureComponent {
           collapseJobDetails={this.collapseJobDetails}
           copySelectedLogToBugFiler={this.copySelectedLogToBugFiler}
         />
-        {job && (
-          <div className="d-flex flex-column flex-fill">
-            <Collapse isOpen={!collapseDetails}>
-              <div className="run-data d-flex flex-row mx-1 mb-2">
-                <div className="d-flex flex-column job-data-panel">
+        <div className="d-flex flex-column flex-fill">
+          <Collapse isOpen={!collapseDetails}>
+            <div className="run-data d-flex flex-row mx-1 mb-2">
+              <div className="d-flex flex-column job-data-panel">
+                {job && (
                   <JobInfo
                     job={job}
                     extraFields={extraFields}
@@ -343,15 +384,14 @@ class App extends React.PureComponent {
                     showJobFilters={false}
                     currentRepo={currentRepo}
                   />
-                  <JobArtifacts jobDetails={jobDetails} />
-                </div>
-                <ErrorLines
-                  errors={errors}
-                  onClickLine={this.setSelectedLine}
-                />
+                )}
+                <JobArtifacts jobDetails={jobDetails} />
               </div>
-            </Collapse>
-            <div className="log-contents flex-fill">
+              <ErrorLines errors={errors} onClickLine={this.setSelectedLine} />
+            </div>
+          </Collapse>
+          <div className="log-contents flex-fill">
+            {rawLogUrl && (
               <LazyLog
                 url={rawLogUrl}
                 formatPart={this.logFormatter}
@@ -366,9 +406,9 @@ class App extends React.PureComponent {
                 enableSearch
                 caseInsensitive
               />
-            </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     );
   }

@@ -101,7 +101,7 @@ export const getInspectTaskUrl = function getInspectTaskUrl(
 };
 
 export const getReftestUrl = function getReftestUrl(logUrl) {
-  return `https://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl=${logUrl}&only_show_unexpected=1`;
+  return `https://hg.mozilla.org/mozilla-central/raw-file/default/layout/tools/reftest/reftest-analyzer.xhtml#logurl=${logUrl}&only_show_unexpected=1`;
 };
 
 // repoName here is necessary because this data comes from the /jobs endpoint
@@ -112,8 +112,12 @@ export const getLogViewerUrl = function getLogViewerUrl(
   jobId,
   repoName,
   lineNumber,
+  task,
 ) {
-  const rv = `/logviewer?job_id=${jobId}&repo=${repoName}`;
+  let rv = `/logviewer?job_id=${jobId}&repo=${repoName}`;
+  if (task && task.task_id && task.retry_id !== undefined) {
+    rv += `&task=${task.task_id}.${task.retry_id}`;
+  }
   return lineNumber ? `${rv}&lineNumber=${lineNumber}` : rv;
 };
 

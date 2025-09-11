@@ -117,12 +117,17 @@ class Push extends React.PureComponent {
     // this allows someone to more quickly load ranges of revisions
     // when they don't care about the specific jobs and results.
     const allParams = getAllUrlParams();
+    const promises = [];
+
     if (!allParams.has('nojobs')) {
-      await this.fetchJobs();
+      promises.push(this.fetchJobs());
     }
     if (allParams.has('test_paths')) {
-      await this.fetchTestManifests();
+      promises.push(this.fetchTestManifests());
     }
+
+    // Execute jobs and test manifests in parallel
+    await Promise.all(promises);
 
     this.testForFilteredTry();
 
