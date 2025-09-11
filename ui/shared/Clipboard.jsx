@@ -28,10 +28,6 @@ export default class Clipboard extends React.Component {
     const { description, text, outline, color } = this.props;
     const { copied } = this.state;
 
-    if (!text) {
-      return null;
-    }
-
     return (
       <Button
         type="button"
@@ -42,6 +38,7 @@ export default class Clipboard extends React.Component {
         className="py-0 px-1"
         color={`${color || 'light'}`}
         outline={outline}
+        {...(!text && { style: { visibility: 'hidden' } })}
       >
         {copied ? (
           <FontAwesomeIcon icon={faCheckCircle} color="#2da745" />

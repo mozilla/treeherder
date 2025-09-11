@@ -82,15 +82,27 @@ describe('App', () => {
       ...fullJob,
       task_id: 'secondTaskId',
     });
+    fetchMock.get(
+      getProjectUrl('/jobs/259537372/bug_suggestions/', repoName),
+      [],
+    );
 
     fetchMock.get(getProjectUrl('/jobs/259539665/', repoName), {
       ...fullJob,
       task_id: 'MirsMc8UQPeSBC3yKMSlPw',
     });
+    fetchMock.get(
+      getProjectUrl('/jobs/259539665/bug_suggestions/', repoName),
+      [],
+    );
     fetchMock.get(getProjectUrl('/jobs/259539664/', repoName), {
       ...fullJob,
       task_id: 'Fe4GqwoZQSStNUbe4EeSPQ',
     });
+    fetchMock.get(
+      getProjectUrl('/jobs/259539664/bug_suggestions/', repoName),
+      [],
+    );
     fetchMock.get(
       `begin:${getProjectUrl('/performance/data/?job_id=', repoName)}`,
       [],

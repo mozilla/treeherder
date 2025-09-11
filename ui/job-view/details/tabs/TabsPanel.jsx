@@ -34,33 +34,27 @@ class TabsPanel extends React.Component {
 
     this.state = {
       tabIndex: 0,
-      enableTestGroupsTab: false,
     };
-
-    this.handleEnableTestGroupsTab = this.handleEnableTestGroupsTab.bind(this);
   }
 
   static getDerivedStateFromProps(props, state) {
-    const { perfJobDetail, selectedJobFull } = props;
+    const { perfJobDetail, selectedJob } = props;
 
     // This fires every time the props change.  But we only want to figure out the new default
     // tab when we get a new job.  However, the job could change, then later, the perf details fetch
     // returns.  So we need to check for a change in the size of the perfJobDetail too.
     if (
-      state.jobId !== selectedJobFull.id ||
-      state.perfJobDetailSize !== perfJobDetail.length
+      !!selectedJob &&
+      (state.jobId !== selectedJob.id ||
+        state.perfJobDetailSize !== perfJobDetail.length)
     ) {
       const tabIndex = TabsPanel.getDefaultTabIndex(
-        selectedJobFull.resultStatus,
+        selectedJob.resultStatus,
         props,
       );
-
       return {
         tabIndex,
-        // Every time we select a different job we need to let the component
-        // let us know if we should enable the tab
-        enableTestGroupsTab: false,
-        jobId: selectedJobFull.id,
+        jobId: selectedJob.id,
         perfJobDetailSize: perfJobDetail.length,
       };
     }
@@ -111,10 +105,6 @@ class TabsPanel extends React.Component {
     ].filter((name) => !(name === 'perf' && !showPerf));
   }
 
-  handleEnableTestGroupsTab = (stateOfTab) => {
-    this.setState({ enableTestGroupsTab: stateOfTab });
-  };
-
   setTabIndex = (tabIndex) => {
     this.setState({ tabIndex });
   };
@@ -135,16 +125,17 @@ class TabsPanel extends React.Component {
       classificationMap,
       logViewerFullUrl,
       clearSelectedJob,
+      selectedJob,
       selectedJobFull,
       currentRepo,
       pinJob,
       addBug,
-      taskId,
-      rootUrl,
+      testGroups,
     } = this.props;
-    const { enableTestGroupsTab, tabIndex } = this.state;
+    const { tabIndex } = this.state;
     const countPinnedJobs = Object.keys(pinnedJobs).length;
     const { showPerf } = showTabsFromProps(this.props);
+    const enableTestGroupsTab = testGroups && testGroups.length > 0;
 
     return (
       <div id="tabs-panel" role="region" aria-label="Job">
@@ -160,11 +151,7 @@ class TabsPanel extends React.Component {
               <Tab>Annotations</Tab>
               <Tab>Similar Jobs</Tab>
               {showPerf && <Tab>Performance</Tab>}
-              {enableTestGroupsTab ? (
-                <Tab>Test Groups</Tab>
-              ) : (
-                <Tab disabled>Test Groups</Tab>
-              )}
+              {enableTestGroupsTab && <Tab>Test Groups</Tab>}
             </span>
             <span
               id="tab-header-buttons"
@@ -224,7 +211,9 @@ class TabsPanel extends React.Component {
           <TabPanel>
             <FailureSummaryTab
               selectedJob={selectedJobFull}
+              selectedJobId={selectedJob && selectedJob.id}
               jobLogUrls={jobLogUrls}
+              jobDetails={jobDetails}
               logParseStatus={logParseStatus}
               logViewerFullUrl={logViewerFullUrl}
               addBug={addBug}
@@ -261,21 +250,9 @@ class TabsPanel extends React.Component {
               />
             </TabPanel>
           )}
-          {enableTestGroupsTab ? (
+          {enableTestGroupsTab && (
             <TabPanel>
-              <JobTestGroups
-                taskId={taskId}
-                rootUrl={rootUrl}
-                notifyTestGroupsAvailable={this.handleEnableTestGroupsTab}
-              />
-            </TabPanel>
-          ) : (
-            <TabPanel disabled forceRender>
-              <JobTestGroups
-                taskId={taskId}
-                rootUrl={rootUrl}
-                notifyTestGroupsAvailable={this.handleEnableTestGroupsTab}
-              />
+              <JobTestGroups testGroups={testGroups} />
             </TabPanel>
           )}
         </Tabs>
@@ -294,6 +271,7 @@ TabsPanel.propTypes = {
   pinnedJobs: PropTypes.shape({}).isRequired,
   bugs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   clearSelectedJob: PropTypes.func.isRequired,
+  selectedJob: PropTypes.shape({}).isRequired,
   selectedJobFull: PropTypes.shape({}).isRequired,
   currentRepo: PropTypes.shape({}).isRequired,
   perfJobDetail: PropTypes.arrayOf(PropTypes.shape({})),
@@ -301,8 +279,7 @@ TabsPanel.propTypes = {
   jobLogUrls: PropTypes.arrayOf(PropTypes.shape({})),
   logParseStatus: PropTypes.string,
   logViewerFullUrl: PropTypes.string,
-  taskId: PropTypes.string.isRequired,
-  rootUrl: PropTypes.string.isRequired,
+  testGroups: PropTypes.arrayOf(PropTypes.shape({})),
 };
 
 TabsPanel.defaultProps = {
@@ -312,6 +289,7 @@ TabsPanel.defaultProps = {
   perfJobDetail: [],
   jobRevision: null,
   logViewerFullUrl: null,
+  testGroups: [],
 };
 
 const mapStateToProps = ({

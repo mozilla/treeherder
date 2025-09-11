@@ -423,7 +423,7 @@ export const initialState = {
   decisionTaskMap: {},
   revisionTips: [],
   jobsLoaded: false,
-  loadingPushes: true,
+  loadingPushes: false,
   oldestPushTimestamp: null,
   allUnclassifiedFailureCount: 0,
   filteredUnclassifiedFailureCount: 0,

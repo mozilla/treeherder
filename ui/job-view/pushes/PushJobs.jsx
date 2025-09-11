@@ -83,7 +83,12 @@ class PushJobs extends React.Component {
     JobModel.get(repoName, jobId).then((data) => {
       if (data.logs.length > 0) {
         window.open(
-          `${window.location.origin}${getLogViewerUrl(jobId, repoName)}`,
+          `${window.location.origin}${getLogViewerUrl(
+            jobId,
+            repoName,
+            null,
+            data,
+          )}`,
         );
       }
     });

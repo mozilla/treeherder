@@ -1,13 +1,13 @@
 # Dependencies needed only for development/testing.
-pytest-cov==6.2.1
+pytest-cov==7.0.0
 django-debug-toolbar==6.0.0
 mock==5.2.0
-responses==0.25.7
+responses==0.25.8
 django-extensions==4.1
 PyPOM==2.2.4
 
 # for git commit hooks
-pre-commit==4.2.0
+pre-commit==4.3.0
 
 # for test driven development
 pytest-testmon==2.1.3
@@ -15,9 +15,9 @@ pytest-watch==4.2.0
 
 # Required by django-extension's runserver_plus command.
 pytest-django==4.11.1
-pytest==8.4.1
+pytest==8.4.2
 black==25.1.0
-shellcheck-py==0.10.0.1
+shellcheck-py==0.11.0.1
 
 # To test async code
 pytest-asyncio==1.0.0  # required to pass test_new_job_transformation
@@ -34,7 +34,7 @@ betamax==0.9.0
 betamax-serializers==0.2.1
 
 # pip-compile for pinning versions
-pip-tools==7.4.1
+pip-tools==7.5.0
 
-requests==2.32.4
+requests==2.32.5
 urllib3==2.0.3

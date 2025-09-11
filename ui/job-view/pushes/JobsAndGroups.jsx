@@ -25,6 +25,13 @@ export default class JobsAndGroups extends React.Component {
       if (!Object.keys(jobCountByName).includes(job.job_type_name)) {
         jobCountByName[job.job_type_name] = 0;
       }
+
+      // job state of retry, usercancel, etc. is misleading
+      if (
+        !['success', 'testfailed', 'exception', 'busted'].includes(job.result)
+      ) {
+        continue;
+      }
       jobCountByName[job.job_type_name]++;
 
       // -cf group can have >1 job of each job_type_name and >1 type of job
@@ -156,6 +163,7 @@ export default class JobsAndGroups extends React.Component {
               group.visible && (
                 <JobGroup
                   group={group}
+                  confirmGroup={confirmGroups[group.mapKey] || {}}
                   repoName={repoName}
                   filterModel={filterModel}
                   filterPlatformCb={filterPlatformCb}

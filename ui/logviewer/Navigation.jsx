@@ -35,6 +35,7 @@ export default class Navigation extends React.PureComponent {
             {jobExists ? (
               <span
                 className={`lightgray ${resultStatusShading} pt-2 pl-2 pr-2`}
+                style={{ minWidth: '150px' }}
               >
                 <strong>Result: </strong>
                 {result}
@@ -46,23 +47,24 @@ export default class Navigation extends React.PureComponent {
                 </span>
               </span>
             )}
-            {!!jobUrl && (
-              <span>
-                <a
-                  title="Open the Job in Treeherder"
-                  className="nav-link btn-view-nav"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href={jobUrl}
-                >
-                  <FontAwesomeIcon
-                    icon={faTree}
-                    className="actionbtn-icon mr-1"
-                  />
-                  <span>open Job</span>
-                </a>
-              </span>
-            )}
+            <span>
+              <a
+                title={
+                  jobUrl ? 'Open the Job in Treeherder' : 'Loading job data...'
+                }
+                className={`nav-link btn-view-nav ${!jobUrl ? 'disabled' : ''}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                href={jobUrl || '#'}
+                {...(!jobUrl && { onClick: (e) => e.preventDefault() })}
+              >
+                <FontAwesomeIcon
+                  icon={faTree}
+                  className="actionbtn-icon mr-1"
+                />
+                <span>open Job</span>
+              </a>
+            </span>
             <span>
               <a
                 title="Open the raw log in a new window"

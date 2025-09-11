@@ -15,14 +15,38 @@ export const hashFunction = (someString) => {
   return hash >>> 0;
 };
 
-export const scrollToLine = (selector, time, iteration = 0, options = true) => {
+export const scrollToLine = (selector, options = true, timeout = 10000) => {
   const line = document.querySelector(selector);
 
   if (line !== null) {
     line.scrollIntoView(options);
-    return;
+    return Promise.resolve();
   }
-  if (iteration < 10) {
-    setTimeout(() => scrollToLine(selector, time, iteration + 1), time);
-  }
+
+  return new Promise((resolve, reject) => {
+    let timeoutId;
+
+    const observer = new MutationObserver(() => {
+      const line = document.querySelector(selector);
+      if (line !== null) {
+        clearTimeout(timeoutId);
+        observer.disconnect();
+        line.scrollIntoView(options);
+        resolve();
+      }
+    });
+
+    timeoutId = setTimeout(() => {
+      observer.disconnect();
+      reject(new Error(`Line ${selector} not found within timeout`));
+    }, timeout);
+
+    // Observe the log container for new elements
+    const logContainer =
+      document.querySelector('.log-contents') || document.body;
+    observer.observe(logContainer, {
+      childList: true,
+      subtree: true,
+    });
+  });
 };
