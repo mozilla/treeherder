@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Pagination, PaginationItem, PaginationLink } from 'reactstrap';
+import { Pagination } from 'react-bootstrap';
 
 class PaginationGroup extends React.Component {
   navigatePage = (page) => {
@@ -21,53 +21,41 @@ class PaginationGroup extends React.Component {
     const lastButtonAvailable = lastViewablePage < count;
 
     return (
-      /* The first and last pagination navigation links
-         aren't working correctly (icons aren't visible)
-         so they haven't been added */
       <Pagination aria-label={`Page ${currentPage}`}>
-        <PaginationItem className="text-info" disabled={!firstButtonAvailable}>
-          <PaginationLink
-            className="text-info"
-            first
-            onClick={() => this.navigatePage(1)}
-          />
-        </PaginationItem>
-        <PaginationItem disabled={!prevButtonAvailable}>
-          <PaginationLink
-            className="text-info"
-            previous
-            onClick={() => this.navigatePage(currentPage - 1)}
-          />
-        </PaginationItem>
-        {viewablePageNums.map((num) => (
-          <PaginationItem
-            key={num}
-            active={num === currentPage}
-            className="text-info pagination-active"
-          >
-            <PaginationLink
-              className="text-info"
+        <Pagination.First
+          disabled={!firstButtonAvailable}
+          onClick={() => this.navigatePage(1)}
+          linkClassName="text-info d-flex align-items-center justify-content-center"
+        />
+        <Pagination.Prev
+          disabled={!prevButtonAvailable}
+          onClick={() => this.navigatePage(currentPage - 1)}
+          linkClassName="text-info d-flex align-items-center justify-content-center"
+        />
+        {viewablePageNums.map((num) => {
+          const isActive = num === currentPage;
+          return (
+            <Pagination.Item
+              key={num}
+              active={isActive}
               onClick={() => this.navigatePage(num)}
-              aria-label={`pagination-button-${num}`}
+              linkClassName="text-info d-flex align-items-center justify-content-center"
+              aria-label={`Go to page ${num}`}
             >
               {num}
-            </PaginationLink>
-          </PaginationItem>
-        ))}
-        <PaginationItem disabled={!nextButtonAvailable}>
-          <PaginationLink
-            className="text-info"
-            next
-            onClick={() => this.navigatePage(currentPage + 1)}
-          />
-        </PaginationItem>
-        <PaginationItem className="text-info" disabled={!lastButtonAvailable}>
-          <PaginationLink
-            className="text-info"
-            last
-            onClick={() => this.navigatePage(count)}
-          />
-        </PaginationItem>
+            </Pagination.Item>
+          );
+        })}
+        <Pagination.Next
+          disabled={!nextButtonAvailable}
+          onClick={() => this.navigatePage(currentPage + 1)}
+          linkClassName="text-info d-flex align-items-center justify-content-center"
+        />
+        <Pagination.Last
+          disabled={!lastButtonAvailable}
+          onClick={() => this.navigatePage(count)}
+          linkClassName="text-info d-flex align-items-center justify-content-center"
+        />
       </Pagination>
     );
   }

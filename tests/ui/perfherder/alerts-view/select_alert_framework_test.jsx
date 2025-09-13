@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
 import { noop } from 'lodash';
 import React from 'react';
 
@@ -41,9 +41,13 @@ const testFrameworksDropdown = () => {
 };
 
 test('should pin the right number of items to top and bottom frameworks w.r.t config', async () => {
-  testFrameworksDropdown();
+  const { container } = testFrameworksDropdown();
   // top pinned represents all items in the drop down that is at the top of the list
   // bottom pinned represents all items in the drop down that is at the bottom of the list.
+
+  // Open the dropdown to render the menu items
+  const dropdownToggle = container.querySelector('.dropdown-toggle');
+  fireEvent.click(dropdownToggle);
 
   const topPinned = document.querySelectorAll('.top-pinned');
   const bottomPinned = document.querySelectorAll('.bottom-pinned');

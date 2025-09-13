@@ -1,12 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Button,
-  DropdownMenu,
-  DropdownItem,
-  DropdownToggle,
-  UncontrolledDropdown,
-} from 'reactstrap';
+import { Button, Dropdown } from 'react-bootstrap';
 import isEqual from 'lodash/isEqual';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
@@ -110,9 +104,9 @@ class Login extends React.Component {
     return (
       <React.Fragment>
         {user && user.isLoggedIn ? (
-          <UncontrolledDropdown>
-            <DropdownToggle
-              color="transparent"
+          <Dropdown>
+            <Dropdown.Toggle
+              variant="transparent"
               className="navbar-link nav-menu-btn"
               nav
               caret
@@ -124,13 +118,13 @@ class Login extends React.Component {
                 <FontAwesomeIcon icon={faUser} size="xs" />
               </span>
               <span>{user.fullName}</span>
-            </DropdownToggle>
-            <DropdownMenu right>
-              <DropdownItem tag="a" onClick={this.logout}>
+            </Dropdown.Toggle>
+            <Dropdown.Menu right>
+              <Dropdown.Item tag="a" onClick={this.logout}>
                 Logout
-              </DropdownItem>
-            </DropdownMenu>
-          </UncontrolledDropdown>
+              </Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
         ) : (
           <Button onClick={this.login} className="btn-view-nav nav-menu-btn">
             Login / Register

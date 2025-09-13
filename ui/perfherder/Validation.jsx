@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Container } from 'reactstrap';
+import { Container } from 'react-bootstrap';
 
 import { parseQueryParams, createQueryParams } from '../helpers/url';
 import PushModel from '../models/push';

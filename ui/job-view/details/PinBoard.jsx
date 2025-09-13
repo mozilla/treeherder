@@ -1,17 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import {
-  Button,
-  ButtonGroup,
-  FormGroup,
-  Input,
-  FormFeedback,
-  DropdownMenu,
-  DropdownItem,
-  DropdownToggle,
-  UncontrolledDropdown,
-} from 'reactstrap';
+import { Button, ButtonGroup, Form, Dropdown } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlusSquare, faTimes } from '@fortawesome/free-solid-svg-icons';
 
@@ -447,13 +437,12 @@ class PinBoard extends React.Component {
                     onClick={() => setSelectedJob(job)}
                     data-job-id={job.job_id}
                     size={selectedJobId === job.id ? 'large' : 'small'}
-                    outline
+                    variant="outline-secondary"
                   >
                     {job.job_type_symbol}
                   </Button>
                   <Button
-                    color="secondary"
-                    outline
+                    variant="outline-secondary"
                     className={`pinned-job-close-btn ${
                       selectedJobId === job.id
                         ? 'btn-lg selected-job'
@@ -473,7 +462,7 @@ class PinBoard extends React.Component {
           <div id="pinboard-related-bugs">
             <div className="content">
               <Button
-                color="link"
+                variant="link"
                 id="add-related-bug-button"
                 onClick={() => this.toggleEnterBugNumber(!enteringBugNumber)}
                 className="pointable p-0"
@@ -487,7 +476,7 @@ class PinBoard extends React.Component {
               </Button>
               {!this.hasPinnedJobBugs() && (
                 <Button
-                  color="link"
+                  variant="link"
                   className="pinboard-preload-txt pinboard-related-bug-preload-txt p-0 text-decoration-none"
                   onClick={() => this.toggleEnterBugNumber(!enteringBugNumber)}
                 >
@@ -497,7 +486,7 @@ class PinBoard extends React.Component {
               {enteringBugNumber && (
                 <span className="add-related-bugs-form d-flex align-items-start">
                   <div>
-                    <Input
+                    <Form.Control
                       id="related-bug-input"
                       data-bug-input
                       type="text"
@@ -511,10 +500,12 @@ class PinBoard extends React.Component {
                       }}
                       onBlur={this.saveEnteredBugNumber}
                     />
-                    <FormFeedback>Please enter only numbers</FormFeedback>
+                    <Form.Control.Feedback>
+                      Please enter only numbers
+                    </Form.Control.Feedback>
                   </div>
                   <Button
-                    color="link"
+                    variant="link"
                     id="clear-related-bug-button"
                     onClick={() =>
                       this.setState({
@@ -553,8 +544,7 @@ class PinBoard extends React.Component {
                       </a>
                     )}
                     <Button
-                      color="secondary"
-                      outline
+                      variant="outline-secondary"
                       className="btn-xs pinned-job-close-btn"
                       onClick={() => removeBug(bug)}
                       title="remove this bug"
@@ -571,9 +561,9 @@ class PinBoard extends React.Component {
           <div id="pinboard-classification">
             <div className="pinboard-label">classification</div>
             <div id="pinboard-classification-content" className="content">
-              <FormGroup>
-                <Input
-                  type="select"
+              <Form.Group>
+                <Form.Control
+                  as="select"
                   name="failureClassificationId"
                   id="pinboard-classification-select"
                   className="classification-select"
@@ -587,8 +577,8 @@ class PinBoard extends React.Component {
                       {opt.name}
                     </option>
                   ))}
-                </Input>
-              </FormGroup>
+                </Form.Control>
+              </Form.Group>
               {/* Classification comment */}
               <div className="classification-comment-container">
                 <input
@@ -602,11 +592,11 @@ class PinBoard extends React.Component {
                 />
                 {failureClassificationId === 2 && (
                   <div>
-                    <FormGroup>
-                      <Input
+                    <Form.Group>
+                      <Form.Control
                         id="pinboard-revision-select"
                         className="classification-select"
-                        type="select"
+                        as="select"
                         defaultValue={0}
                         onChange={(evt) =>
                           setClassificationComment(evt.target.value)
@@ -624,8 +614,8 @@ class PinBoard extends React.Component {
                             {tip.revision.slice(0, 12)} {tip.author}
                           </option>
                         ))}
-                      </Input>
-                    </FormGroup>
+                      </Form.Control>
+                    </Form.Group>
                   </div>
                 )}
               </div>
@@ -645,15 +635,15 @@ class PinBoard extends React.Component {
                     ? 'disabled'
                     : ''
                 }`}
-                outline
+                variant="outline-secondary"
                 size="xs"
                 title={this.saveUITitle('classification')}
                 onClick={this.save}
               >
                 save
               </Button>
-              <UncontrolledDropdown>
-                <DropdownToggle
+              <Dropdown>
+                <Dropdown.Toggle
                   size="xs"
                   caret
                   className={`bg-light ${
@@ -666,10 +656,10 @@ class PinBoard extends React.Component {
                       ? 'No pinned jobs'
                       : 'Additional pinboard functions'
                   }
-                  outline
+                  variant="outline-secondary"
                 />
-                <DropdownMenu className="save-btn-dropdown-menu">
-                  <DropdownItem
+                <Dropdown.Menu className="save-btn-dropdown-menu">
+                  <Dropdown.Item
                     tag="a"
                     title={
                       !isLoggedIn ? 'Not logged in' : 'Repeat the pinned jobs'
@@ -678,8 +668,8 @@ class PinBoard extends React.Component {
                     onClick={() => !isLoggedIn || this.retriggerAllPinnedJobs()}
                   >
                     Retrigger all
-                  </DropdownItem>
-                  <DropdownItem
+                  </Dropdown.Item>
+                  <Dropdown.Item
                     tag="a"
                     title={this.cancelAllPinnedJobsTitle()}
                     className={this.canCancelAllPinnedJobs() ? '' : 'disabled'}
@@ -689,8 +679,8 @@ class PinBoard extends React.Component {
                     }
                   >
                     Cancel all
-                  </DropdownItem>
-                  <DropdownItem
+                  </Dropdown.Item>
+                  <Dropdown.Item
                     tag="a"
                     title={this.unclassifyAllPinnedJobsTitle()}
                     className={
@@ -702,12 +692,12 @@ class PinBoard extends React.Component {
                     }
                   >
                     Unclassify all
-                  </DropdownItem>
-                  <DropdownItem tag="a" onClick={() => this.unPinAll()}>
+                  </Dropdown.Item>
+                  <Dropdown.Item tag="a" onClick={() => this.unPinAll()}>
                     Clear all
-                  </DropdownItem>
-                </DropdownMenu>
-              </UncontrolledDropdown>
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
             </ButtonGroup>
           </div>
         </div>
