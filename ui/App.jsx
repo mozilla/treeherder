@@ -1,6 +1,5 @@
 import React, { Suspense, lazy } from 'react';
 import { Route, Switch } from 'react-router-dom';
-import { hot } from 'react-hot-loader/root';
 import { ConnectedRouter } from 'connected-react-router';
 import { Provider } from 'react-redux';
 import { HelmetProvider } from 'react-helmet-async';
@@ -191,4 +190,4 @@ const App = () => {
   );
 };
 
-export default hot(App);
+export default App;
