@@ -91,7 +91,6 @@ class PushActionMenu extends React.PureComponent {
             className="btn-push"
             title="Action menu"
             data-testid="push-action-menu-button"
-            caret
           />
           <Dropdown.Menu>
             {runnableVisible ? (

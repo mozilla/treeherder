@@ -8,27 +8,7 @@ import { getBtnClass } from '../../helpers/job';
 
 import JobButton from './JobButton';
 import JobCount from './JobCount';
-
-const GroupSymbol = function GroupSymbol(props) {
-  const { symbol, tier, toggleExpanded } = props;
-
-  return (
-    <button type="button" className="btn group-symbol" onClick={toggleExpanded}>
-      {symbol}
-      {tier !== 1 && <span className="small">[tier {tier}]</span>}
-    </button>
-  );
-};
-
-GroupSymbol.propTypes = {
-  symbol: PropTypes.string.isRequired,
-  toggleExpanded: PropTypes.func.isRequired,
-  tier: PropTypes.number,
-};
-
-GroupSymbol.defaultProps = {
-  tier: 1,
-};
+import GroupSymbol from './GroupSymbol';
 
 export class JobGroupComponent extends React.Component {
   constructor(props) {

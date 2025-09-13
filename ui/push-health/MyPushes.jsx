@@ -7,7 +7,7 @@ import {
   Navbar,
   Nav,
 } from 'react-bootstrap';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 
 import faviconBroken from '../img/push-health-broken.png';
 import faviconOk from '../img/push-health-ok.png';
@@ -156,7 +156,6 @@ class MyPushes extends React.Component {
               <DropdownButton
                 variant="secondary"
                 title={`${selectedRepo} pushes`}
-                caret
                 size="sm"
               >
                 <DropdownMenuItems
