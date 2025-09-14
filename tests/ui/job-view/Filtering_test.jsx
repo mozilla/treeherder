@@ -37,7 +37,9 @@ const testApp = () => {
   return (
     <Provider store={store}>
       <ConnectedRouter history={history} context={ReactReduxContext}>
-        <App user={{ email: 'reviewbot' }} context={ReactReduxContext} />
+        <React.StrictMode>
+          <App user={{ email: 'reviewbot' }} context={ReactReduxContext} />
+        </React.StrictMode>
       </ConnectedRouter>
     </Provider>
   );
