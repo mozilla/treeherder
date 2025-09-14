@@ -1,8 +1,9 @@
+import path from 'path';
+
 import { Polly } from '@pollyjs/core';
 import PuppeteerAdapter from '@pollyjs/adapter-puppeteer';
 import FsPersister from '@pollyjs/persister-fs';
 import { setupPolly } from 'setup-polly-jest';
-import path from 'path';
 
 Polly.register(PuppeteerAdapter);
 Polly.register(FsPersister);
