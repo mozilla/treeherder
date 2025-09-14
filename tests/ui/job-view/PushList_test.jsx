@@ -7,6 +7,7 @@ import {
   waitFor,
   fireEvent,
   getAllByTestId,
+  act,
 } from '@testing-library/react';
 import { createBrowserHistory } from 'history';
 
@@ -174,7 +175,9 @@ describe('PushList', () => {
     expect(await pushCount()).toHaveLength(2);
     const pushLinks = await getAllByTitle('View only this push');
 
-    fireEvent.click(pushLinks[1]);
+    await act(async () => {
+      fireEvent.click(pushLinks[1]);
+    });
     expect(pushLinks[0]).not.toBeInTheDocument();
     expect(await pushCount()).toHaveLength(1);
   });
@@ -191,13 +194,17 @@ describe('PushList', () => {
       '[data-testid="push-action-menu-button"]',
     );
 
-    fireEvent.click(actionMenuButton);
+    await act(async () => {
+      fireEvent.click(actionMenuButton);
+    });
 
     const setFromRange = await waitFor(() =>
       push2.querySelector('[data-testid="bottom-of-range-menu-item"]'),
     );
 
-    fireEvent.click(setFromRange);
+    await act(async () => {
+      fireEvent.click(setFromRange);
+    });
 
     expect(history.location.search).toContain(
       '?repo=autoland&fromchange=d5b037941b0ebabcc9b843f24d926e9d65961087',
@@ -214,13 +221,17 @@ describe('PushList', () => {
       '[data-testid="push-action-menu-button"]',
     );
 
-    fireEvent.click(actionMenuButton);
+    await act(async () => {
+      fireEvent.click(actionMenuButton);
+    });
 
     const setTopRange = await waitFor(() =>
       push1.querySelector('[data-testid="top-of-range-menu-item"]'),
     );
 
-    fireEvent.click(setTopRange);
+    await act(async () => {
+      fireEvent.click(setTopRange);
+    });
 
     expect(history.location.search).toContain(
       '?repo=autoland&tochange=ba9c692786e95143b8df3f4b3e9b504dfbc589a0',
@@ -231,8 +242,10 @@ describe('PushList', () => {
     const { getByTestId, getAllByTestId } = render(testPushList());
     const nextNUrl = (count) =>
       getProjectUrl(`/push/?full=true&count=${count + 1}&push_timestamp__lte=`);
-    const clickNext = (count) =>
-      fireEvent.click(getByTestId(`get-next-${count}`));
+    const clickNext = async (count) =>
+      await act(async () => {
+        fireEvent.click(getByTestId(`get-next-${count}`));
+      });
 
     fetchMock.get(`begin:${nextNUrl(10)}`, {
       ...pushListFixture,
@@ -256,7 +269,7 @@ describe('PushList', () => {
 
     expect(await pushCount()).toHaveLength(2);
 
-    clickNext(10);
+    await clickNext(10);
     await waitFor(() => getByTestId('push-511135'));
     expect(fetchMock.called(`begin:${nextNUrl(10)}`)).toBe(true);
     // It matters less that an actual count of 10 was returned
@@ -265,12 +278,12 @@ describe('PushList', () => {
     // using a shorter return set for simplicity.
     expect(await pushCount()).toHaveLength(4);
 
-    clickNext(20);
+    await clickNext(20);
     await waitFor(() => getAllByTestId('push-511133'));
     expect(fetchMock.called(`begin:${nextNUrl(20)}`)).toBe(true);
     expect(await pushCount()).toHaveLength(5);
 
-    clickNext(50);
+    await clickNext(50);
     await waitFor(() => getAllByTestId('push-511132'));
     expect(fetchMock.called(`begin:${nextNUrl(50)}`)).toBe(true);
     expect(await pushCount()).toHaveLength(6);

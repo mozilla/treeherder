@@ -1,6 +1,6 @@
 import React from 'react';
 import fetchMock from 'fetch-mock';
-import { render, waitFor, fireEvent } from '@testing-library/react';
+import { render, waitFor, fireEvent, act } from '@testing-library/react';
 import { Provider, ReactReduxContext } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 
@@ -171,7 +171,10 @@ describe('App', () => {
     });
 
     expect(appMenu).toBeInTheDocument();
-    fireEvent.click(appMenu);
+
+    await act(async () => {
+      fireEvent.click(appMenu);
+    });
 
     const phMenu = await waitFor(() => getByText('Perfherder'));
     expect(phMenu.getAttribute('href')).toBe('/perfherder');
@@ -194,7 +197,9 @@ describe('App', () => {
 
     // Wait for the first job to appear and click it
     const firstJob = await findByText(firstJobSymbol);
-    fireEvent.mouseDown(firstJob);
+    await act(async () => {
+      fireEvent.mouseDown(firstJob);
+    });
 
     // Wait for the details panel to appear and verify the first job is selected
     expect(await findByTestId('summary-panel')).toBeInTheDocument();
@@ -204,7 +209,9 @@ describe('App', () => {
     // Find the second job in the DOM to click on it directly
     // This simulates the behavior of keyboard navigation without relying on keyboard events
     const secondJob = getByText(secondJobSymbol);
-    fireEvent.mouseDown(secondJob);
+    await act(async () => {
+      fireEvent.mouseDown(secondJob);
+    });
 
     // Wait for the second job to be selected
     await waitFor(() => {
@@ -277,10 +284,14 @@ describe('App', () => {
     expect(autolandRevision).toBeInTheDocument();
 
     const reposButton = await waitFor(() => getByTitle('Watch a repo'));
-    fireEvent.click(reposButton);
+    await act(async () => {
+      fireEvent.click(reposButton);
+    });
 
     const tryRepo = await waitFor(() => getByText('try'));
-    fireEvent.click(tryRepo);
+    await act(async () => {
+      fireEvent.click(tryRepo);
+    });
 
     await waitFor(() => getByText('333333333333'));
 

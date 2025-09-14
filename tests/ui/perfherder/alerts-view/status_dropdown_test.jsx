@@ -1,5 +1,11 @@
 import React from 'react';
-import { render, waitFor, cleanup, fireEvent } from '@testing-library/react';
+import {
+  render,
+  waitFor,
+  cleanup,
+  fireEvent,
+  act,
+} from '@testing-library/react';
 
 import testAlertSummaries from '../../mock/alert_summaries';
 import testPerformanceTags from '../../mock/performance_tags';
@@ -55,7 +61,9 @@ test("Summary with no tags shows 'Add tags'", async () => {
 
   // Open the status dropdown first
   const statusDropdown = await waitFor(() => getByText('untriaged'));
-  fireEvent.click(statusDropdown);
+  await act(async () => {
+    fireEvent.click(statusDropdown);
+  });
 
   const dropdownItem = await waitFor(() => getByText('Add tags'));
 
@@ -67,7 +75,9 @@ test("Summary with tags shows 'Edit tags'", async () => {
 
   // Open the status dropdown first
   const statusDropdown = await waitFor(() => getByText('untriaged'));
-  fireEvent.click(statusDropdown);
+  await act(async () => {
+    fireEvent.click(statusDropdown);
+  });
 
   const dropdownItem = await waitFor(() => getByText('Edit tags'));
 
@@ -79,11 +89,15 @@ test("Tags modal opens from 'Add tags'", async () => {
 
   // Open the status dropdown first
   const statusDropdown = await waitFor(() => getByText('untriaged'));
-  fireEvent.click(statusDropdown);
+  await act(async () => {
+    fireEvent.click(statusDropdown);
+  });
 
   const dropdownItem = await waitFor(() => getByText('Add tags'));
 
-  fireEvent.click(dropdownItem);
+  await act(async () => {
+    fireEvent.click(dropdownItem);
+  });
 
   const modal = await waitFor(() => getByTestId('tags-modal'));
 
@@ -95,11 +109,15 @@ test("Tags modal opens from 'Edit tags'", async () => {
 
   // Open the status dropdown first
   const statusDropdown = await waitFor(() => getByText('untriaged'));
-  fireEvent.click(statusDropdown);
+  await act(async () => {
+    fireEvent.click(statusDropdown);
+  });
 
   const dropdownItem = await waitFor(() => getByText('Edit tags'));
 
-  fireEvent.click(dropdownItem);
+  await act(async () => {
+    fireEvent.click(dropdownItem);
+  });
 
   const modal = await waitFor(() => getByTestId('tags-modal'));
 
