@@ -190,13 +190,23 @@ export class JobGroupComponent extends React.Component {
 
 JobGroupComponent.propTypes = {
   group: PropTypes.shape({}).isRequired,
-  confirmGroup: PropTypes.shape({}).isRequired,
+  confirmGroup: PropTypes.shape({}),
   repoName: PropTypes.string.isRequired,
   filterModel: PropTypes.shape({}).isRequired,
   filterPlatformCb: PropTypes.func.isRequired,
   pushGroupState: PropTypes.string.isRequired,
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
+  intermittentJobTypeNames: PropTypes.instanceOf(Set),
+  runnableVisible: PropTypes.bool,
+  toggleSelectedRunnableJob: PropTypes.func,
+};
+
+JobGroupComponent.defaultProps = {
+  confirmGroup: null,
+  intermittentJobTypeNames: new Set(),
+  runnableVisible: false,
+  toggleSelectedRunnableJob: null,
 };
 
 export default JobGroupComponent;

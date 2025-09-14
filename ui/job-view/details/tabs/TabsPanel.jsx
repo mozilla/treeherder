@@ -279,7 +279,9 @@ TabsPanel.propTypes = {
   jobLogUrls: PropTypes.arrayOf(PropTypes.shape({})),
   logParseStatus: PropTypes.string,
   logViewerFullUrl: PropTypes.string,
-  testGroups: PropTypes.arrayOf(PropTypes.shape({})),
+  testGroups: PropTypes.arrayOf(
+    PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})]),
+  ),
 };
 
 TabsPanel.defaultProps = {

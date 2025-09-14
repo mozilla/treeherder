@@ -14,7 +14,7 @@ describe('Push Health Integration Tests', () => {
 
   describe('Navigation and Basic Layout', () => {
     test('should load push health landing page', async () => {
-      await navigateAndWaitForLoad(`${URL}/push-health`);
+      await navigateAndWaitForLoad(`${global.URL}/push-health`);
 
       // Check that navigation is present
       await page.waitForSelector('.push-health-navigation');
@@ -36,7 +36,7 @@ describe('Push Health Integration Tests', () => {
     });
 
     test('should navigate to usage page', async () => {
-      await navigateAndWaitForLoad(`${URL}/push-health`);
+      await navigateAndWaitForLoad(`${global.URL}/push-health`);
 
       // Click on Usage link in navigation
       const usageLink = 'a[href*="/push-health/usage"]';
@@ -62,7 +62,7 @@ describe('Push Health Integration Tests', () => {
       const testRevision = 'abcd1234567890abcd1234567890abcd12345678';
 
       await navigateAndWaitForLoad(
-        `${URL}/push-health/push?repo=${testRepo}&revision=${testRevision}`,
+        `${global.URL}/push-health/push?repo=${testRepo}&revision=${testRevision}`,
       );
 
       // Wait for push health content to load
@@ -88,7 +88,7 @@ describe('Push Health Integration Tests', () => {
       const testRevision = 'abcd1234567890abcd1234567890abcd12345678';
 
       await navigateAndWaitForLoad(
-        `${URL}/push-health/push?repo=${testRepo}&revision=${testRevision}`,
+        `${global.URL}/push-health/push?repo=${testRepo}&revision=${testRevision}`,
       );
 
       await waitForLoadingComplete();
@@ -123,7 +123,7 @@ describe('Push Health Integration Tests', () => {
       const testRevision = 'abcd1234567890abcd1234567890abcd12345678';
 
       await navigateAndWaitForLoad(
-        `${URL}/push-health/push?repo=${testRepo}&revision=${testRevision}`,
+        `${global.URL}/push-health/push?repo=${testRepo}&revision=${testRevision}`,
       );
 
       await waitForLoadingComplete();
@@ -159,7 +159,7 @@ describe('Push Health Integration Tests', () => {
       const testRevision = 'abcd1234567890abcd1234567890abcd12345678';
 
       await navigateAndWaitForLoad(
-        `${URL}/push-health/push?repo=${testRepo}&revision=${testRevision}`,
+        `${global.URL}/push-health/push?repo=${testRepo}&revision=${testRevision}`,
       );
 
       await waitForLoadingComplete();
@@ -191,7 +191,7 @@ describe('Push Health Integration Tests', () => {
       const testRevision = 'abcd1234567890abcd1234567890abcd12345678';
 
       await navigateAndWaitForLoad(
-        `${URL}/push-health/push?repo=${testRepo}&revision=${testRevision}`,
+        `${global.URL}/push-health/push?repo=${testRepo}&revision=${testRevision}`,
       );
 
       await waitForLoadingComplete();
@@ -236,7 +236,7 @@ describe('Push Health Integration Tests', () => {
 
   describe('My Pushes Functionality', () => {
     test('should display user pushes when logged in', async () => {
-      await navigateAndWaitForLoad(`${URL}/push-health`);
+      await navigateAndWaitForLoad(`${global.URL}/push-health`);
 
       // Check if login is required or if there's a login prompt
       const loginRequired = await isElementVisible(
@@ -266,7 +266,7 @@ describe('Push Health Integration Tests', () => {
     });
 
     test('should handle empty push list gracefully', async () => {
-      await navigateAndWaitForLoad(`${URL}/push-health`);
+      await navigateAndWaitForLoad(`${global.URL}/push-health`);
 
       // Check for empty state message
       const emptyState = await isElementVisible(
@@ -291,7 +291,7 @@ describe('Push Health Integration Tests', () => {
       const invalidRevision = 'invalid-revision-123';
 
       await navigateAndWaitForLoad(
-        `${URL}/push-health/push?repo=autoland&revision=${invalidRevision}`,
+        `${global.URL}/push-health/push?repo=autoland&revision=${invalidRevision}`,
       );
 
       // Should show error message or not found page
@@ -312,7 +312,7 @@ describe('Push Health Integration Tests', () => {
       const testRevision = 'abcd1234567890abcd1234567890abcd12345678';
 
       await navigateAndWaitForLoad(
-        `${URL}/push-health/push?revision=${testRevision}`,
+        `${global.URL}/push-health/push?revision=${testRevision}`,
       );
 
       // Should show error or redirect to proper format
@@ -330,7 +330,7 @@ describe('Push Health Integration Tests', () => {
 
       // Start navigation
       const navigationPromise = page.goto(
-        `${URL}/push-health/push?repo=${testRepo}&revision=${testRevision}`,
+        `${global.URL}/push-health/push?repo=${testRepo}&revision=${testRevision}`,
       );
 
       // Check for loading indicators while page loads
@@ -360,7 +360,9 @@ describe('Push Health Integration Tests', () => {
     test('should load within reasonable time', async () => {
       const startTime = Date.now();
 
-      await navigateAndWaitForLoad(`${URL}/push-health`, { timeout: 15000 });
+      await navigateAndWaitForLoad(`${global.URL}/push-health`, {
+        timeout: 15000,
+      });
 
       const loadTime = Date.now() - startTime;
 

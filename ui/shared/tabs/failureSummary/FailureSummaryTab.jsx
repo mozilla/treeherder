@@ -354,11 +354,11 @@ FailureSummaryTab.propTypes = {
   selectedJobId: PropTypes.number.isRequired,
   jobLogUrls: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.number.isRequired,
-      job_id: PropTypes.number.isRequired,
+      id: PropTypes.number,
+      job_id: PropTypes.number,
       name: PropTypes.string.isRequired,
       url: PropTypes.string.isRequired,
-      parse_status: PropTypes.string.isRequired,
+      parse_status: PropTypes.string,
     }),
   ),
   jobDetails: PropTypes.arrayOf(

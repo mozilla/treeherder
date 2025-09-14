@@ -966,43 +966,49 @@ BugFilerClass.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   toggle: PropTypes.func.isRequired,
   suggestion: PropTypes.shape({}).isRequired,
-  suggestions: PropTypes.arrayOf({
-    bugs: PropTypes.shape({
-      open_recent: PropTypes.arrayOf({
-        crash_signature: PropTypes.string.isRequired,
-        dupe_of: PropTypes.oneOfType([
-          PropTypes.oneOf([null]),
-          PropTypes.number,
-        ]).isRequired,
-        id: PropTypes.number.isRequired,
-        keywords: PropTypes.string.isRequired,
-        status: PropTypes.string.isRequired,
-        resolution: PropTypes.string.isRequired,
-        summary: PropTypes.string.isRequired,
-        whiteboard: PropTypes.string.isRequired,
+  suggestions: PropTypes.arrayOf(
+    PropTypes.shape({
+      bugs: PropTypes.shape({
+        open_recent: PropTypes.arrayOf(
+          PropTypes.shape({
+            crash_signature: PropTypes.string.isRequired,
+            dupe_of: PropTypes.oneOfType([
+              PropTypes.oneOf([null]),
+              PropTypes.number,
+            ]).isRequired,
+            id: PropTypes.number.isRequired,
+            keywords: PropTypes.string.isRequired,
+            status: PropTypes.string.isRequired,
+            resolution: PropTypes.string.isRequired,
+            summary: PropTypes.string.isRequired,
+            whiteboard: PropTypes.string.isRequired,
+          }),
+        ),
+        all_others: PropTypes.arrayOf(
+          PropTypes.shape({
+            crash_signature: PropTypes.string.isRequired,
+            dupe_of: PropTypes.oneOfType([
+              PropTypes.oneOf([null]),
+              PropTypes.number,
+            ]).isRequired,
+            id: PropTypes.number.isRequired,
+            keywords: PropTypes.string.isRequired,
+            status: PropTypes.string.isRequired,
+            resolution: PropTypes.string.isRequired,
+            summary: PropTypes.string.isRequired,
+            whiteboard: PropTypes.string.isRequired,
+          }),
+        ),
       }),
-      all_others: PropTypes.arrayOf({
-        crash_signature: PropTypes.string.isRequired,
-        dupe_of: PropTypes.oneOfType([
-          PropTypes.oneOf([null]),
-          PropTypes.number,
-        ]).isRequired,
-        id: PropTypes.number.isRequired,
-        keywords: PropTypes.string.isRequired,
-        status: PropTypes.string.isRequired,
-        resolution: PropTypes.string.isRequired,
-        summary: PropTypes.string.isRequired,
-        whiteboard: PropTypes.string.isRequired,
-      }),
+      counter: PropTypes.number.isRequired,
+      failure_in_new_rev: PropTypes.bool.isRequired,
+      line_number: PropTypes.number.isRequired,
+      path_end: PropTypes.oneOfType([PropTypes.oneOf([null]), PropTypes.string])
+        .isRequired,
+      search: PropTypes.string.isRequired,
+      search_terms: PropTypes.arrayOf(PropTypes.string),
     }),
-    counter: PropTypes.number.isRequired,
-    failure_in_new_rev: PropTypes.bool.isRequired,
-    line_number: PropTypes.number.isRequired,
-    path_end: PropTypes.oneOfType([PropTypes.oneOf([null]), PropTypes.string])
-      .isRequired,
-    search: PropTypes.string.isRequired,
-    search_terms: PropTypes.arrayOf(PropTypes.string),
-  }).isRequired,
+  ).isRequired,
   fullLog: PropTypes.string.isRequired,
   parsedLog: PropTypes.string.isRequired,
   reftestUrl: PropTypes.string.isRequired,
@@ -1010,7 +1016,7 @@ BugFilerClass.propTypes = {
   platform: PropTypes.string.isRequired,
   notify: PropTypes.func.isRequired,
   selectedJob: PropTypes.shape({}).isRequired,
-  currentRepo: PropTypes.string.isRequired,
+  currentRepo: PropTypes.shape({}).isRequired,
 };
 
 const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({

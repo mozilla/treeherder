@@ -14,7 +14,7 @@ describe('Jobs View Integration Tests', () => {
 
   describe('Basic Navigation and Layout', () => {
     test('should load jobs view with default repository', async () => {
-      await navigateAndWaitForLoad(`${URL}/jobs`);
+      await navigateAndWaitForLoad(`${global.URL}/jobs`);
 
       // Check that the main navigation is present
       await page.waitForSelector('#th-global-navbar');
@@ -32,7 +32,7 @@ describe('Jobs View Integration Tests', () => {
     });
 
     test('should display repository selector with available repositories', async () => {
-      await navigateAndWaitForLoad(`${URL}/jobs`);
+      await navigateAndWaitForLoad(`${global.URL}/jobs`);
 
       const repoButton = 'button[title="Repository"]';
       await clickElement(repoButton);
@@ -52,7 +52,7 @@ describe('Jobs View Integration Tests', () => {
     });
 
     test('should switch repositories when selected', async () => {
-      await navigateAndWaitForLoad(`${URL}/jobs?repo=autoland`);
+      await navigateAndWaitForLoad(`${global.URL}/jobs?repo=autoland`);
 
       const repoButton = 'button[title="Repository"]';
       await clickElement(repoButton);
@@ -76,7 +76,7 @@ describe('Jobs View Integration Tests', () => {
 
   describe('Job Filtering', () => {
     test('should show and hide field filter panel', async () => {
-      await navigateAndWaitForLoad(`${URL}/jobs`);
+      await navigateAndWaitForLoad(`${global.URL}/jobs`);
 
       // Click the filter button
       const filterButton = 'button[title="Filter jobs"]';
@@ -93,7 +93,7 @@ describe('Jobs View Integration Tests', () => {
     });
 
     test('should filter jobs by search text', async () => {
-      await navigateAndWaitForLoad(`${URL}/jobs`);
+      await navigateAndWaitForLoad(`${global.URL}/jobs`);
 
       // Wait for jobs to load
       await waitForLoadingComplete();
@@ -120,7 +120,7 @@ describe('Jobs View Integration Tests', () => {
     });
 
     test('should filter jobs by result status', async () => {
-      await navigateAndWaitForLoad(`${URL}/jobs`);
+      await navigateAndWaitForLoad(`${global.URL}/jobs`);
 
       // Open filter panel
       await clickElement('button[title="Filter jobs"]');
@@ -148,7 +148,7 @@ describe('Jobs View Integration Tests', () => {
 
   describe('Job Selection and Details', () => {
     test('should select a job and show details panel', async () => {
-      await navigateAndWaitForLoad(`${URL}/jobs?repo=autoland`);
+      await navigateAndWaitForLoad(`${global.URL}/jobs?repo=autoland`);
 
       // Wait for jobs to load
       await waitForLoadingComplete();
@@ -170,7 +170,7 @@ describe('Jobs View Integration Tests', () => {
     });
 
     test('should show job actions in details panel', async () => {
-      await navigateAndWaitForLoad(`${URL}/jobs?repo=autoland`);
+      await navigateAndWaitForLoad(`${global.URL}/jobs?repo=autoland`);
 
       // Wait for jobs to load and select a job
       await waitForLoadingComplete();
@@ -195,7 +195,7 @@ describe('Jobs View Integration Tests', () => {
 
   describe('Push List Functionality', () => {
     test('should display push information', async () => {
-      await navigateAndWaitForLoad(`${URL}/jobs?repo=autoland`);
+      await navigateAndWaitForLoad(`${global.URL}/jobs?repo=autoland`);
 
       // Wait for pushes to load
       await waitForLoadingComplete();
@@ -213,7 +213,7 @@ describe('Jobs View Integration Tests', () => {
     });
 
     test('should expand and collapse job groups', async () => {
-      await navigateAndWaitForLoad(`${URL}/jobs?repo=autoland`);
+      await navigateAndWaitForLoad(`${global.URL}/jobs?repo=autoland`);
 
       // Wait for jobs to load
       await waitForLoadingComplete();
@@ -244,7 +244,7 @@ describe('Jobs View Integration Tests', () => {
 
   describe('Keyboard Shortcuts', () => {
     test('should show keyboard shortcuts modal', async () => {
-      await navigateAndWaitForLoad(`${URL}/jobs`);
+      await navigateAndWaitForLoad(`${global.URL}/jobs`);
 
       // Press '?' to show shortcuts
       await page.keyboard.press('?');
@@ -268,7 +268,7 @@ describe('Jobs View Integration Tests', () => {
     test('should handle revision parameter', async () => {
       const testRevision = 'abcd1234567890';
       await navigateAndWaitForLoad(
-        `${URL}/jobs?repo=autoland&revision=${testRevision}`,
+        `${global.URL}/jobs?repo=autoland&revision=${testRevision}`,
       );
 
       // Check that URL contains the revision
@@ -281,7 +281,7 @@ describe('Jobs View Integration Tests', () => {
 
     test('should handle multiple filter parameters', async () => {
       const params = 'repo=autoland&resultStatus=testfailed&searchStr=test';
-      await navigateAndWaitForLoad(`${URL}/jobs?${params}`);
+      await navigateAndWaitForLoad(`${global.URL}/jobs?${params}`);
 
       // Check that URL contains all parameters
       const url = await page.url();

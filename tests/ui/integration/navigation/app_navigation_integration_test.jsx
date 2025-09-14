@@ -14,28 +14,28 @@ describe('App Navigation Integration Tests', () => {
   describe('Cross-App Navigation', () => {
     test('should navigate between different Treeherder apps', async () => {
       // Start at jobs view
-      await navigateAndWaitForLoad(`${URL}/jobs`);
+      await navigateAndWaitForLoad(`${global.URL}/jobs`);
 
       // Verify we're on jobs view
       let title = await page.title();
       expect(title).toBe('Treeherder Jobs View');
 
       // Navigate to Perfherder
-      await page.goto(`${URL}/perfherder`);
+      await page.goto(`${global.URL}/perfherder`);
       await waitForLoadingComplete();
 
       title = await page.title();
       expect(title).toBe('Perfherder');
 
       // Navigate to Push Health
-      await page.goto(`${URL}/push-health`);
+      await page.goto(`${global.URL}/push-health`);
       await waitForLoadingComplete();
 
       title = await page.title();
       expect(title).toBe('Push Health');
 
       // Navigate back to Jobs
-      await page.goto(`${URL}/jobs`);
+      await page.goto(`${global.URL}/jobs`);
       await waitForLoadingComplete();
 
       title = await page.title();
@@ -44,18 +44,18 @@ describe('App Navigation Integration Tests', () => {
 
     test('should maintain proper favicon for each app', async () => {
       // Jobs view
-      await navigateAndWaitForLoad(`${URL}/jobs`);
+      await navigateAndWaitForLoad(`${global.URL}/jobs`);
       let favicon = await page.$eval('link[rel="icon"]', (el) => el.href);
       expect(favicon).toContain('tree_open.png');
 
       // Perfherder
-      await page.goto(`${URL}/perfherder`);
+      await page.goto(`${global.URL}/perfherder`);
       await waitForLoadingComplete();
       favicon = await page.$eval('link[rel="icon"]', (el) => el.href);
       expect(favicon).toContain('line_chart.png');
 
       // Push Health
-      await page.goto(`${URL}/push-health`);
+      await page.goto(`${global.URL}/push-health`);
       await waitForLoadingComplete();
       favicon = await page.$eval('link[rel="icon"]', (el) => el.href);
       expect(favicon).toContain('push-health-ok.png');
@@ -63,7 +63,7 @@ describe('App Navigation Integration Tests', () => {
 
     test('should handle deep linking with parameters', async () => {
       // Test jobs view with specific parameters
-      const jobsUrl = `${URL}/jobs?repo=autoland&revision=abcd1234&selectedJob=12345`;
+      const jobsUrl = `${global.URL}/jobs?repo=autoland&revision=abcd1234&selectedJob=12345`;
       await navigateAndWaitForLoad(jobsUrl);
 
       // Verify parameters are preserved
@@ -72,7 +72,7 @@ describe('App Navigation Integration Tests', () => {
       expect(currentUrl).toContain('revision=abcd1234');
 
       // Test push health with parameters
-      const pushHealthUrl = `${URL}/push-health/push?repo=mozilla-central&revision=xyz789`;
+      const pushHealthUrl = `${global.URL}/push-health/push?repo=mozilla-central&revision=xyz789`;
       await page.goto(pushHealthUrl);
       await waitForLoadingComplete();
 
@@ -85,7 +85,7 @@ describe('App Navigation Integration Tests', () => {
   describe('URL Compatibility and Redirects', () => {
     test('should handle legacy URL formats', async () => {
       // Test old .html format
-      await page.goto(`${URL}/perf.html#/alerts`);
+      await page.goto(`${global.URL}/perf.html#/alerts`);
       await waitForLoadingComplete();
 
       // Should redirect to new format
@@ -93,7 +93,7 @@ describe('App Navigation Integration Tests', () => {
       expect(currentUrl).toContain('/perfherder');
 
       // Test pushhealth.html redirect
-      await page.goto(`${URL}/pushhealth.html`);
+      await page.goto(`${global.URL}/pushhealth.html`);
       await waitForLoadingComplete();
 
       const pushHealthUrl = await page.url();
@@ -101,7 +101,7 @@ describe('App Navigation Integration Tests', () => {
     });
 
     test('should handle root URL redirect', async () => {
-      await page.goto(`${URL}/`);
+      await page.goto(`${global.URL}/`);
       await waitForLoadingComplete();
 
       // Should redirect to jobs view
@@ -111,7 +111,7 @@ describe('App Navigation Integration Tests', () => {
 
     test('should preserve hash parameters during redirects', async () => {
       // Test with hash parameters that should be converted to search params
-      await page.goto(`${URL}/perf.html#/alerts?id=12345`);
+      await page.goto(`${global.URL}/perf.html#/alerts?id=12345`);
       await waitForLoadingComplete();
 
       const currentUrl = await page.url();
@@ -122,7 +122,7 @@ describe('App Navigation Integration Tests', () => {
 
   describe('Error Pages and 404 Handling', () => {
     test('should handle invalid routes gracefully', async () => {
-      await page.goto(`${URL}/invalid-route-that-does-not-exist`);
+      await page.goto(`${global.URL}/invalid-route-that-does-not-exist`);
 
       // Should either show 404 page or redirect to valid route
       const is404 = await isElementVisible('.not-found, .error-404');
@@ -135,7 +135,7 @@ describe('App Navigation Integration Tests', () => {
     test('should handle malformed URLs', async () => {
       // Test with malformed parameters
       await page.goto(
-        `${URL}/jobs?repo=&revision=invalid&malformed=param=value`,
+        `${global.URL}/jobs?repo=&revision=invalid&malformed=param=value`,
       );
 
       // Page should still load, possibly with default values
@@ -150,10 +150,10 @@ describe('App Navigation Integration Tests', () => {
   describe('Browser Navigation', () => {
     test('should handle browser back and forward buttons', async () => {
       // Navigate through multiple pages
-      await navigateAndWaitForLoad(`${URL}/jobs`);
-      await page.goto(`${URL}/perfherder`);
+      await navigateAndWaitForLoad(`${global.URL}/jobs`);
+      await page.goto(`${global.URL}/perfherder`);
       await waitForLoadingComplete();
-      await page.goto(`${URL}/push-health`);
+      await page.goto(`${global.URL}/push-health`);
       await waitForLoadingComplete();
 
       // Use browser back button
@@ -180,7 +180,9 @@ describe('App Navigation Integration Tests', () => {
 
     test('should handle page refresh', async () => {
       // Navigate to a page with parameters
-      await navigateAndWaitForLoad(`${URL}/jobs?repo=autoland&searchStr=test`);
+      await navigateAndWaitForLoad(
+        `${global.URL}/jobs?repo=autoland&searchStr=test`,
+      );
 
       // Refresh the page
       await page.reload();
@@ -199,7 +201,7 @@ describe('App Navigation Integration Tests', () => {
 
   describe('Authentication Flow', () => {
     test('should handle login callback route', async () => {
-      await page.goto(`${URL}/login`);
+      await page.goto(`${global.URL}/login`);
 
       // Should load login callback page
       const loginCallback = await isElementVisible(
@@ -212,7 +214,7 @@ describe('App Navigation Integration Tests', () => {
     });
 
     test('should handle taskcluster auth callback', async () => {
-      await page.goto(`${URL}/taskcluster-auth`);
+      await page.goto(`${global.URL}/taskcluster-auth`);
 
       // Should load taskcluster auth callback
       const authCallback = await isElementVisible(
@@ -226,7 +228,7 @@ describe('App Navigation Integration Tests', () => {
 
   describe('Documentation and Help', () => {
     test('should load user guide', async () => {
-      await navigateAndWaitForLoad(`${URL}/userguide`);
+      await navigateAndWaitForLoad(`${global.URL}/userguide`);
 
       // Should show user guide content
       const userGuide = await isElementVisible('.userguide, .documentation');
@@ -238,7 +240,7 @@ describe('App Navigation Integration Tests', () => {
     });
 
     test('should load API documentation', async () => {
-      await navigateAndWaitForLoad(`${URL}/docs`);
+      await navigateAndWaitForLoad(`${global.URL}/docs`);
 
       // Should show API documentation (Redoc)
       const apiDocs = await isElementVisible('.redoc-wrap, .api-docs');
@@ -249,9 +251,9 @@ describe('App Navigation Integration Tests', () => {
   describe('Performance and Loading', () => {
     test('should load apps within reasonable time', async () => {
       const apps = [
-        { url: `${URL}/jobs`, name: 'Jobs' },
-        { url: `${URL}/perfherder`, name: 'Perfherder' },
-        { url: `${URL}/push-health`, name: 'Push Health' },
+        { url: `${global.URL}/jobs`, name: 'Jobs' },
+        { url: `${global.URL}/perfherder`, name: 'Perfherder' },
+        { url: `${global.URL}/push-health`, name: 'Push Health' },
       ];
 
       for (const app of apps) {
@@ -274,10 +276,10 @@ describe('App Navigation Integration Tests', () => {
 
     test('should handle concurrent navigation', async () => {
       // Rapidly navigate between apps
-      await page.goto(`${URL}/jobs`);
-      await page.goto(`${URL}/perfherder`);
-      await page.goto(`${URL}/push-health`);
-      await page.goto(`${URL}/jobs`);
+      await page.goto(`${global.URL}/jobs`);
+      await page.goto(`${global.URL}/perfherder`);
+      await page.goto(`${global.URL}/push-health`);
+      await page.goto(`${global.URL}/jobs`);
 
       // Final navigation should complete successfully
       await waitForLoadingComplete();
@@ -295,7 +297,7 @@ describe('App Navigation Integration Tests', () => {
       // Set mobile viewport
       await page.setViewport({ width: 375, height: 667 });
 
-      await navigateAndWaitForLoad(`${URL}/jobs`);
+      await navigateAndWaitForLoad(`${global.URL}/jobs`);
 
       // Page should still load and be functional
       const pageLoaded = await isElementVisible('#th-global-content');
@@ -309,7 +311,7 @@ describe('App Navigation Integration Tests', () => {
       // Set tablet viewport
       await page.setViewport({ width: 768, height: 1024 });
 
-      await navigateAndWaitForLoad(`${URL}/push-health`);
+      await navigateAndWaitForLoad(`${global.URL}/push-health`);
 
       // Page should still load and be functional
       const pageLoaded = await isElementVisible(

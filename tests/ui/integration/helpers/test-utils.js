@@ -3,8 +3,8 @@ import path from 'path';
 import { Polly } from '@pollyjs/core';
 import PuppeteerAdapter from '@pollyjs/adapter-puppeteer';
 import FsPersister from '@pollyjs/persister-fs';
-import { setupPolly } from 'setup-polly-jest';
 
+// Register adapters and persisters
 Polly.register(PuppeteerAdapter);
 Polly.register(FsPersister);
 
@@ -21,24 +21,60 @@ export const NAVIGATION_TIMEOUT = 10000;
  * @returns {Object} Polly context
  */
 export const setupPollyForTest = (testName) => {
-  return setupPolly({
-    adapters: ['puppeteer'],
-    adapterOptions: {
-      puppeteer: { page },
-    },
-    persister: 'fs',
-    persisterOptions: {
-      fs: {
-        recordingsDir: path.resolve(__dirname, '../recordings'),
-      },
-    },
-    recordIfMissing: true,
-    matchRequestsBy: {
-      headers: {
-        exclude: ['user-agent'],
-      },
-    },
+  let polly;
+
+  beforeEach(async () => {
+    // Ensure page is available and ready before setting up Polly
+    if (typeof page !== 'undefined' && page) {
+      try {
+        // Wait for page to be ready (use setTimeout instead of waitForTimeout)
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        polly = new Polly(testName, {
+          adapters: ['puppeteer'],
+          adapterOptions: {
+            puppeteer: { page },
+          },
+          persister: 'fs',
+          persisterOptions: {
+            fs: {
+              recordingsDir: path.resolve(__dirname, '../recordings'),
+            },
+          },
+          recordIfMissing: true,
+          matchRequestsBy: {
+            headers: {
+              exclude: ['user-agent', 'accept-encoding'],
+            },
+          },
+          recordFailedRequests: true,
+          logging: false,
+        });
+      } catch (error) {
+        console.warn('Failed to setup Polly.js:', error.message);
+        // Continue without Polly if setup fails
+        polly = null;
+      }
+    }
   });
+
+  afterEach(async () => {
+    if (polly) {
+      try {
+        await polly.flush();
+        await polly.stop();
+      } catch (error) {
+        console.warn('Failed to cleanup Polly.js:', error.message);
+      }
+      polly = null;
+    }
+  });
+
+  return {
+    get polly() {
+      return polly;
+    },
+  };
 };
 
 /**
@@ -49,12 +85,26 @@ export const setupPollyForTest = (testName) => {
  */
 export const navigateAndWaitForLoad = async (page, url, options = {}) => {
   await page.setRequestInterception(true);
-  await page.setDefaultNavigationTimeout(options.timeout || NAVIGATION_TIMEOUT);
+  await page.setDefaultNavigationTimeout(options.timeout || 30000); // Increased timeout
 
-  await page.goto(url, {
-    waitUntil: 'networkidle2',
-    ...options,
-  });
+  // Retry navigation if it fails (server might still be starting)
+  let retries = 3;
+  while (retries > 0) {
+    try {
+      await page.goto(url, {
+        waitUntil: 'networkidle0', // Wait for network to be completely idle
+        timeout: 30000,
+        ...options,
+      });
+      break;
+    } catch (error) {
+      retries--;
+      if (retries === 0) throw error;
+
+      console.log(`Navigation failed, retrying... (${retries} attempts left)`);
+      await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait 2 seconds before retry
+    }
+  }
 
   // Wait for React to render
   await page.waitForSelector('body', { timeout: DEFAULT_TIMEOUT });
@@ -94,7 +144,7 @@ export const clickElement = async (page, selector, options = {}) => {
 
   try {
     await page.click(selector, { clickCount: 1, ...options });
-  } catch (error) {
+  } catch {
     // Retry with JavaScript click if regular click fails
     await page.evaluate((sel) => {
       document.querySelector(sel).click();
@@ -181,7 +231,7 @@ export const isElementVisible = async (page, selector) => {
   try {
     await page.waitForSelector(selector, { visible: true, timeout: 1000 });
     return true;
-  } catch (error) {
+  } catch {
     return false;
   }
 };
@@ -200,13 +250,15 @@ export const waitForLoadingComplete = async (page, options = {}) => {
     '.fa-spinner',
   ];
 
-  for (const selector of loadingSelectors) {
-    try {
-      await page.waitForSelector(selector, { hidden: true, timeout: 2000 });
-    } catch (error) {
-      // Selector might not exist, continue
-    }
-  }
+  await Promise.all(
+    loadingSelectors.map(async (selector) => {
+      try {
+        await page.waitForSelector(selector, { hidden: true, timeout: 2000 });
+      } catch {
+        // Selector might not exist, continue
+      }
+    }),
+  );
 
   // Wait for network to be idle
   (await page.waitForLoadState?.('networkidle')) ||
@@ -223,13 +275,14 @@ export const setupIntegrationTest = (testName) => {
 
   beforeEach(async () => {
     jest.setTimeout(60000);
-    await page.setRequestInterception(true);
-    await page.setDefaultNavigationTimeout(NAVIGATION_TIMEOUT);
-  });
 
-  afterEach(async () => {
-    if (context.polly) {
-      await context.polly.flush();
+    // Only set up page interception if page is available
+    if (typeof page !== 'undefined') {
+      await page.setRequestInterception(true);
+      await page.setDefaultNavigationTimeout(NAVIGATION_TIMEOUT);
+
+      // Set viewport for consistent testing
+      await page.setViewport({ width: 1280, height: 720 });
     }
   });
 

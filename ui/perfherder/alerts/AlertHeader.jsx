@@ -268,7 +268,7 @@ const AlertHeader = ({
             <Col xs="5" className="p-0">
               <InputGroup size="sm">
                 <Form.Control
-                  value={newRevisionFrom}
+                  value={newRevisionFrom || ''}
                   placeholder="Enter desired revision"
                   onChange={handleRevisionChange('from')}
                   autoFocus
@@ -299,7 +299,7 @@ const AlertHeader = ({
             <Col xs="5" className="p-0">
               <InputGroup size="sm">
                 <Form.Control
-                  value={newRevisionTo}
+                  value={newRevisionTo || ''}
                   placeholder="Enter desired revision"
                   onChange={handleRevisionChange('to')}
                   autoFocus
