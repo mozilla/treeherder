@@ -296,6 +296,14 @@ def get_cleaned_line(line):
     """Strip possible unwanted information from the given line."""
     line_to_clean = MOZHARNESS_RE.sub("", line).strip()
     line_to_clean = PROCESS_ID_RE_1.sub("", line_to_clean)
+
+    # .cpp:* ; appears we don't have .cpp: without .cpp:<d>
+    line_to_clean = re.sub(r".cpp:[0-9]+", ".cpp:X", line_to_clean)
+    # [Child X, Main Thread] || [Parent X, Main Thread]
+    line_to_clean = re.sub(r"\[Child [0-9]+, [a-zA-Z]+ Thread", "[Child X, Y Thread", line_to_clean)
+    line_to_clean = re.sub(
+        r"\[Parent [0-9]+, [a-zA-Z]+ Thread", "[Parent X, Y Thread", line_to_clean
+    )
     return PROCESS_ID_RE_2.sub("", line_to_clean)
 
 
