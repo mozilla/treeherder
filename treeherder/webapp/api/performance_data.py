@@ -1115,7 +1115,6 @@ class PerfCompareResults(generics.ListAPIView):
                     "new_median_value": new_median_value,
                     "base_stddev": base_stddev,
                     "new_stddev": new_stddev,
-                    # previous stats
                     "confidence": confidence,
                     "confidence_text": confidence_text,
                     "delta_value": delta_value,
@@ -1373,7 +1372,23 @@ class PerfCompareResults(generics.ListAPIView):
 
     return object:
 
-    {
+        {   "base_data": base_rev,
+            "new_data": new_rev,
+            "base_median": base_median,
+            "base_mean": base_mean,
+            "base_stddev": base_stddev,
+            "base_stddev_pct": base_stddev_pct,
+            "base_min": base_min,
+            "base_max": base_max,
+            "base_count": base_count,
+            "new_mean": new_mean,
+            "new_stddev": new_stddev,
+            "new_stddev_pct": new_stddev_pct,
+            "new_min": new_min,
+            "new_max": new_max,
+            "new_count": new_count,
+            "new_median": new_median,
+            "lower_is_better": lower_is_better,
             "shapiro_wilk_test": {
                 "test_name": "Shapiro-Wilk",
                 "shapiro_stat_base",
@@ -1390,8 +1405,6 @@ class PerfCompareResults(generics.ListAPIView):
             },
             "ks_warning": ks_warning,
             "mann_whitney_test": { "test_name": "Mann-Whitney U", "stat": mann_stat, "pvalue": mann_pvalue, "interpretation": interpretation_mann },
-            "base_median": base_median,
-            "new_median": new_median,
             "delta_value": delta_value,
             "delta_percentage": delta_percentage,
             "mann_pvalue": mann_pvalue,
@@ -1471,7 +1484,7 @@ class PerfCompareResults(generics.ListAPIView):
             base_rev = base_rev.flatten()
             new_rev = new_rev.flatten()
 
-        # get basic statistics for both base and new with mean, median, variance, standard deviation, min, max
+        # get basic statistics for both base and new with mean, median, variance, standard deviation, standard deviation percentage, min, max
         base_min = np.min(base_rev) if len(base_rev) else 0
         base_max = np.max(base_rev) if len(base_rev) else 0
         base_mean = np.mean(base_rev) if len(base_rev) else 0
@@ -1479,6 +1492,7 @@ class PerfCompareResults(generics.ListAPIView):
         base_stddev = np.std(base_rev) if len(base_rev) else 0
         base_count = len(base_rev)
         base_median = np.median(base_rev) if len(base_rev) else 0
+        base_stddev_pct = perfcompare_utils.get_stddev_pct(base_mean, base_stddev)
         new_min = np.min(new_rev) if len(new_rev) else 0
         new_max = np.max(new_rev) if len(new_rev) else 0
         new_mean = np.mean(new_rev) if len(new_rev) else 0
@@ -1486,6 +1500,8 @@ class PerfCompareResults(generics.ListAPIView):
         new_stddev = np.std(new_rev) if len(new_rev) else 0
         new_count = len(new_rev)
         new_median = np.median(new_rev) if len(new_rev) else 0
+        new_stddev_pct = perfcompare_utils.get_stddev_pct(new_mean, new_stddev)
+
         # Basic statistics, normality test"
         # Shapiro-Wilk test
         # Statistical test for normality — checks whether a dataset is normally distributed.
@@ -1574,6 +1590,8 @@ class PerfCompareResults(generics.ListAPIView):
             "new_stddev": new_stddev,
             "base_median": base_median,
             "new_median": new_median,
+            "base_stddev_pct": base_stddev_pct,
+            "new_stddev_pct": new_stddev_pct,
             "shapiro_wilk_test": shapiro_results,
             "ks_test": ks_test,
             "ks_warning": ks_warning,
@@ -1603,6 +1621,7 @@ class PerfCompareResults(generics.ListAPIView):
             "p_value_cles": p_value_cles,
             "effect_size": effect_size,
             "is_significant": is_significant,
+            "lower_is_better": lower_is_better,
         }
         return stats_data
 
