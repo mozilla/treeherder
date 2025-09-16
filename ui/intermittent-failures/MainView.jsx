@@ -7,7 +7,6 @@ import Checkbox from '@mui/material/Checkbox';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import Popper from '@mui/material/Popper';
-import IconButton from '@mui/material/IconButton';
 
 import { bugsEndpoint, getBugUrl } from '../helpers/url';
 import { setUrlParam, getUrlParam } from '../helpers/location';
@@ -17,6 +16,9 @@ import {
   prettyDate,
   ISODate,
   tableRowStyling,
+  regexpFilter,
+  tooltipCell,
+  textFilter,
 } from './helpers';
 import withView from './View';
 import Layout from './Layout';
@@ -49,16 +51,6 @@ const MainView = (props) => {
     product: [],
     component: [],
   });
-  const regexpFilter = (filter, row) => {
-    const text = row[filter.id];
-    const value = Array.isArray(filter.value)
-      ? filter.value.join('|')
-      : filter.value;
-    const regex = RegExp(value, 'i');
-    if (regex.test(text)) {
-      return row;
-    }
-  };
 
   const autoCompleteFilter = ({ column, onChange }) => {
     const options = [...new Set(tableData.map((d) => d[column.id]))];
@@ -101,56 +93,6 @@ const MainView = (props) => {
     );
   };
 
-  const textFilter = ({ filter, onChange, placeholder, columnId }) => (
-    <TextField
-      size="small"
-      fullWidth
-      placeholder={placeholder}
-      value={filter ? filter.value : ''}
-      onChange={(event) => {
-        const { value } = event.target;
-        setUrlParam(columnId, value);
-        onChange(value);
-      }}
-      style={{
-        border: 'none',
-        padding: '0',
-      }}
-      slotProps={{
-        htmlInput: {
-          style: {
-            textAlign: 'left',
-          },
-        },
-        input: {
-          style: {
-            paddingRight: '0px',
-          },
-          endAdornment:
-            filter && filter.value ? (
-              <IconButton
-                onClick={() => {
-                  setUrlParam(columnId, '');
-                  onChange('');
-                }}
-                size="small"
-                style={{
-                  visibility: 'visible',
-                  margin: '4px',
-                  width: '24px',
-                  height: '24px',
-                }}
-              >
-                ✕
-              </IconButton>
-            ) : null,
-        },
-      }}
-    />
-  );
-
-  const tooltipCell = (props) => <span title={props.value}>{props.value}</span>;
-
   const columns = [
     {
       Header: 'Count',
@@ -174,6 +116,13 @@ const MainView = (props) => {
             rel="noopener noreferrer"
             href={`${getBugUrl(props.original.id)}`}
             onClick={(e) => e.stopPropagation()}
+            onAuxClick={(e) => {
+              // Stop the propagation of middle clicks events to open the bug
+              // on bugzilla rather than the bugdetails view.
+              if (e.button === 1) {
+                e.stopPropagation();
+              }
+            }}
           >
             {props.original.id}
           </a>
@@ -257,8 +206,6 @@ const MainView = (props) => {
       totalFailures,
       totalRuns,
     } = calculateMetrics(graphData));
-    graphOneData = { all: graphOneData };
-    graphOneData.all[0].count = tableData.length;
   }
 
   const getHeaderAriaLabel = (state, bug, data) => {
@@ -356,6 +303,10 @@ const MainView = (props) => {
             getTrProps={(state, rowInfo) => {
               const baseProps = tableRowStyling(state, rowInfo);
               if (rowInfo && rowInfo.original) {
+                const { id, summary } = rowInfo.original;
+                const pathname = '/intermittent-failures/bugdetails';
+                const search = `?startday=${startday}&endday=${endday}&tree=${tree}&bug=${id}`;
+
                 return {
                   ...baseProps,
                   style: {
@@ -364,11 +315,10 @@ const MainView = (props) => {
                   },
                   onClick: () => {
                     updateAppState({ graphData, tableData });
-                    const { id, summary } = rowInfo.original;
                     // Use history.push for proper React Router navigation
                     props.history.push({
-                      pathname: '/intermittent-failures/bugdetails',
-                      search: `?startday=${startday}&endday=${endday}&tree=${tree}&bug=${id}`,
+                      pathname,
+                      search,
                       state: {
                         startday,
                         endday,
@@ -378,6 +328,13 @@ const MainView = (props) => {
                         location,
                       },
                     });
+                  },
+                  onAuxClick: (e) => {
+                    if (e.button === 1) {
+                      // Middle click
+                      e.preventDefault();
+                      window.open(`${pathname}${search}`, '_blank');
+                    }
                   },
                 };
               }

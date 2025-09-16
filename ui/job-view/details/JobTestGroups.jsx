@@ -1,50 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Queue } from 'taskcluster-client-web';
 
 export default class JobTestGroups extends React.PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {
-      testGroups: [],
-    };
-  }
-
-  componentDidMount() {
-    this.fetch();
-  }
-
-  // Because we use Tab with forceRender it does not call componentDidMount
-  // even though the props have changes
-  componentDidUpdate(prevProps) {
-    if (this.props.taskId !== prevProps.taskId) {
-      this.fetch();
-    }
-  }
-
-  async fetch() {
-    const { notifyTestGroupsAvailable, taskId, rootUrl } = this.props;
-    if (taskId) {
-      const queue = new Queue({ rootUrl });
-      const taskDefinition = await queue.task(taskId);
-      if (taskDefinition && taskDefinition.payload.env.MOZHARNESS_TEST_PATHS) {
-        const testGroups = Object.values(
-          JSON.parse(taskDefinition.payload.env.MOZHARNESS_TEST_PATHS),
-        );
-        if (testGroups.length) {
-          this.setState({
-            testGroups: testGroups[0],
-          });
-        }
-        notifyTestGroupsAvailable(true);
-      } else {
-        notifyTestGroupsAvailable(false);
-      }
-    }
-  }
-
   render() {
-    const { testGroups } = this.state;
+    const { testGroups } = this.props;
     const currentLocation = window.location.href;
 
     return (
@@ -73,7 +32,5 @@ export default class JobTestGroups extends React.PureComponent {
 }
 
 JobTestGroups.propTypes = {
-  notifyTestGroupsAvailable: PropTypes.func.isRequired,
-  taskId: PropTypes.string.isRequired,
-  rootUrl: PropTypes.string.isRequired,
+  testGroups: PropTypes.arrayOf(PropTypes.string),
 };

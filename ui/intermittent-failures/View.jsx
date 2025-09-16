@@ -1,4 +1,3 @@
-import moment from 'moment';
 import React from 'react';
 import PropTypes from 'prop-types';
 
@@ -26,7 +25,6 @@ const withView = (defaultState) => (WrappedComponent) => {
         tree: this.default.tree || null,
         startday: this.default.startday || null,
         endday: this.default.endday || null,
-        failurehash: this.default.failurehash || 'all',
         bug: this.default.id || null,
         summary: this.default.summary || null,
         tableData: [],
@@ -45,8 +43,8 @@ const withView = (defaultState) => (WrappedComponent) => {
 
     setQueryParams = () => {
       const { location, history } = this.props;
-      const { startday, endday, tree, failurehash, bug } = this.state;
-      const params = { startday, endday, tree, failurehash };
+      const { startday, endday, tree, bug } = this.state;
+      const params = { startday, endday, tree };
 
       if (bug) {
         params.bug = bug;
@@ -75,99 +73,6 @@ const withView = (defaultState) => (WrappedComponent) => {
       }
     };
 
-    hashMessage = async (message) => {
-      const encodedBytes = new TextEncoder().encode(message);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', encodedBytes);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      const hashHex = hashArray
-        .map((bytes) => bytes.toString(16).padStart(2, '0'))
-        .join('');
-      return hashHex;
-    };
-
-    // trim off the timestamp and "TEST-UNEXPECTED-XXX | "
-    lineTrimmer = async (failureLines, pushTime) => {
-      if (failureLines === undefined) {
-        return ['', '', pushTime];
-      }
-      if (typeof failureLines === 'string') {
-        failureLines = failureLines.split('\n');
-      }
-      const lines = failureLines.map((i) => i.split('\n'));
-
-      const trimmedLines = lines.map((line) => {
-        const parts = line.toString().split(' | ');
-        if (parts.length > 2) {
-          parts.shift();
-        }
-        return parts.join(' | ');
-      });
-      const rv = trimmedLines.join('\n');
-      return this.hashMessage(rv).then((hash) => {
-        return [rv, hash, pushTime];
-      });
-    };
-
-    getUniqueLines = async (tableData) => {
-      const { startday, endday } = this.state;
-
-      const uniqueLogKeys = [];
-      const uniqueLogHashes = [];
-      const uniqueFrequency = {};
-
-      const results = tableData.map((td) =>
-        this.lineTrimmer(td.lines, td.push_time),
-      );
-      for (const result of await Promise.all(results)) {
-        const hash = result[1];
-        if (hash === '') {
-          continue;
-        }
-        if (uniqueLogKeys.indexOf(hash) === -1) {
-          uniqueLogKeys.push(hash);
-          uniqueLogHashes.push([result[0], hash]);
-
-          uniqueFrequency[hash] = [
-            { data: [], color: 'red', dates: {}, datemap: {}, count: 0 },
-          ];
-          let start = moment.utc(startday);
-          const end = moment.utc(endday);
-          // create entry for each date in range so graph looks nice.
-          while (start <= end) {
-            const sdate = start.format('MMM DD');
-            uniqueFrequency[hash][0].dates[sdate] = 0;
-            uniqueFrequency[hash][0].datemap[sdate] = start.format('ddd DD');
-            start = start.add(1, 'days');
-          }
-        }
-
-        // store frequency data by date to use in graphs, etc.
-        const date = result[2].split(' ')[0];
-        const sdate = moment.utc(date).format('MMM DD');
-        if (!(sdate in uniqueFrequency[hash][0].dates)) {
-          uniqueFrequency[hash][0].dates[sdate] = 0;
-        }
-        uniqueFrequency[hash][0].dates[sdate] += 1;
-        uniqueFrequency[hash][0].count += 1;
-      }
-
-      // convert data to a graph friendly format
-      uniqueLogKeys.forEach((hval) => {
-        const dates = Object.keys(uniqueFrequency[hval][0].dates);
-        dates.sort();
-        dates.forEach((date) => {
-          const counter = uniqueFrequency[hval][0].dates[date];
-          uniqueFrequency[hval][0].data.push({
-            date,
-            failurePerPush: counter,
-            x: uniqueFrequency[hval][0].datemap[date],
-            y: counter,
-          });
-        });
-      });
-      return [uniqueLogHashes, uniqueFrequency];
-    };
-
     getTableData = async (url) => {
       this.setState({ tableFailureStatus: null, isFetchingTable: true });
       const { data, failureStatus } = await getData(url);
@@ -179,14 +84,10 @@ const withView = (defaultState) => (WrappedComponent) => {
         mergedData = mergeData(data, bugzillaData);
       }
 
-      const uniqueLines = await this.getUniqueLines(mergedData || data);
-
       this.setState({
         tableData: mergedData || data,
         tableFailureStatus: failureStatus,
         isFetchingTable: false,
-        uniqueLines: uniqueLines[0],
-        uniqueFrequency: uniqueLines[1],
       });
     };
 
@@ -228,8 +129,8 @@ const withView = (defaultState) => (WrappedComponent) => {
 
     updateState = (updatedObj) => {
       this.setState(updatedObj, () => {
-        const { startday, endday, tree, failurehash, bug } = this.state;
-        const params = { startday, endday, tree, failurehash };
+        const { startday, endday, tree, bug } = this.state;
+        const params = { startday, endday, tree };
 
         if (bug) {
           params.bug = bug;
@@ -237,21 +138,6 @@ const withView = (defaultState) => (WrappedComponent) => {
 
         this.getGraphData(createApiUrl(graphsEndpoint, params));
         this.getTableData(createApiUrl(defaultState.endpoint, params));
-
-        // update query params if dates or tree are updated
-        const queryString = createQueryParams(params);
-        updateQueryParams(queryString, this.props.history, this.props.location);
-      });
-    };
-
-    updateHash = (hashVal) => {
-      this.setState({ failurehash: hashVal }, () => {
-        const { startday, endday, tree, failurehash, bug } = this.state;
-        const params = { startday, endday, tree, failurehash };
-
-        if (bug) {
-          params.bug = bug;
-        }
 
         // update query params if dates or tree are updated
         const queryString = createQueryParams(params);
@@ -305,12 +191,10 @@ const withView = (defaultState) => (WrappedComponent) => {
 
     render() {
       const updateState = { updateState: this.updateState };
-      const updateHash = { updateHash: this.updateHash };
       const newProps = {
         ...this.props,
         ...this.state,
         ...updateState,
-        ...updateHash,
       };
       return <WrappedComponent {...newProps} />;
     }

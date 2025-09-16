@@ -24,11 +24,9 @@ const Layout = (props) => {
     updateHash,
     graphOneData,
     graphTwoData,
-    failurehash,
     table,
     datePicker,
     header,
-    location,
   } = props;
 
   let failureMessage = null;
@@ -38,14 +36,7 @@ const Layout = (props) => {
     failureMessage = graphData;
   }
   return (
-    <Container
-      fluid
-      className={`my-5 ${
-        location && location.pathname !== '/intermittent-failures/main'
-          ? 'max-width-default'
-          : ''
-      }`}
-    >
+    <Container fluid className="my-5">
       <Navigation
         updateState={updateState}
         updateHash={updateHash}
@@ -75,7 +66,6 @@ const Layout = (props) => {
           <GraphsContainer
             graphOneData={graphOneData}
             graphTwoData={graphTwoData}
-            failurehash={failurehash}
           >
             {datePicker}
           </GraphsContainer>
@@ -105,7 +95,6 @@ Layout.propTypes = {
   header: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.bool]),
   table: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.bool]),
   graphTwoData: PropTypes.arrayOf(PropTypes.shape({})),
-  failurehash: PropTypes.string,
   tableData: PropTypes.arrayOf(PropTypes.shape({})),
   graphData: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.shape({})),
@@ -128,7 +117,6 @@ Layout.defaultProps = {
   isFetchingGraphs: null,
   tableData: null,
   graphData: null,
-  failurehash: 'all',
   tree: null,
   table: null,
   header: null,
