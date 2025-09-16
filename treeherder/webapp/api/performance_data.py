@@ -1374,8 +1374,6 @@ class PerfCompareResults(generics.ListAPIView):
     return object:
 
     {
-            "base_rev_stats": { name, data, header, title, info_link, sample_count, mean, median, variance, standard_deviation, min, max },
-            "new_rev_stats": new_rev_info,
             "shapiro_wilk_test": {
                 "test_name": "Shapiro-Wilk",
                 "shapiro_stat_base",
@@ -1474,9 +1472,20 @@ class PerfCompareResults(generics.ListAPIView):
             new_rev = new_rev.flatten()
 
         # get basic statistics for both base and new with mean, median, variance, standard deviation, min, max
-
-        base_rev_info, new_rev_info = stats.summarize_basic_stats_data(base_rev, new_rev, header)
-
+        base_min = np.min(base_rev) if len(base_rev) else 0
+        base_max = np.max(base_rev) if len(base_rev) else 0
+        base_mean = np.mean(base_rev) if len(base_rev) else 0
+        base_variance = np.var(base_rev) if len(base_rev) else 0
+        base_stddev = np.std(base_rev) if len(base_rev) else 0
+        base_count = len(base_rev)
+        base_median = np.median(base_rev) if len(base_rev) else 0
+        new_min = np.min(new_rev) if len(new_rev) else 0
+        new_max = np.max(new_rev) if len(new_rev) else 0
+        new_mean = np.mean(new_rev) if len(new_rev) else 0
+        new_variance = np.var(new_rev) if len(new_rev) else 0
+        new_stddev = np.std(new_rev) if len(new_rev) else 0
+        new_count = len(new_rev)
+        new_median = np.median(new_rev) if len(new_rev) else 0
         # Basic statistics, normality test"
         # Shapiro-Wilk test
         # Statistical test for normality — checks whether a dataset is normally distributed.
@@ -1495,9 +1504,6 @@ class PerfCompareResults(generics.ListAPIView):
         # the intent of the patch, as things stand
         # Tests the null hypothesis that the distributions of the two are identical
         mann_whitney, mann_stat, mann_pvalue = stats.interpret_mann_whitneyu(base_rev, new_rev)
-
-        base_median = np.median(base_rev)
-        new_median = np.median(new_rev)
         delta_value = new_median - base_median
         delta_percentage = (delta_value / base_median * 100) if base_median != 0 else 0
 
@@ -1552,14 +1558,26 @@ class PerfCompareResults(generics.ListAPIView):
         )
 
         stats_data = {
-            "base_rev_stats": base_rev_info,
-            "new_rev_stats": new_rev_info,
+            "base_rev": base_rev,
+            "new_rev": new_rev,
+            "base_count": base_count,
+            "new_count": new_count,
+            "base_min": base_min,
+            "base_max": base_max,
+            "base_mean": base_mean,
+            "base_variance": base_variance,
+            "base_stddev": base_stddev,
+            "new_min": new_min,
+            "new_max": new_max,
+            "new_mean": new_mean,
+            "new_variance": new_variance,
+            "new_stddev": new_stddev,
+            "base_median": base_median,
+            "new_median": new_median,
             "shapiro_wilk_test": shapiro_results,
             "ks_test": ks_test,
             "ks_warning": ks_warning,
             "mann_whitney_test": mann_whitney,
-            "base_median": base_median,
-            "new_median": new_median,
             "delta_value": delta_value,
             "delta_percentage": delta_percentage,
             "mann_pvalue": mann_pvalue,
