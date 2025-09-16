@@ -1379,18 +1379,15 @@ class PerfCompareResults(generics.ListAPIView):
             "shapiro_wilk_test": {
                 "test_name": "Shapiro-Wilk",
                 "shapiro_stat_base",
-                "pvalue_base",
                 "interpretation_base",
                 "is_normal_base",
                 "shapiro_stat_new",
-                "pvalue_new",
                 "interpretation_new",
                 "is_normal_new",
             },
             "ks_test": {
                 "test_name": "Kolmogorov-Smirnov",
                 "stat": ks_stat,
-                "pvalue": ks_p,
                 "comment": ks_comment,
             },
             "ks_warning": ks_warning,
@@ -1410,25 +1407,18 @@ class PerfCompareResults(generics.ListAPIView):
             "more_runs_are_needed": more_runs_are_needed,
             "direction_of_change": direction,  # 'neutral', 'better', or 'worse'
             "performance_interpretation": performance_interpretation,
-            "dke_isj_plot": {
-                "bandwidth": "Improved Sheather-Jones",
-                "kernel": "Gaussian",
-                "title": "Distribution Comparison Kernel Density Estimate (KDE)",
-                "xlabel": "Value",
-                "ylabel": "Density",
-                "summary_text": summary_text,
-                "base_kde": {
-                    "median": base_median,
-                    "sample_count": len(base),
-                    "kde_x": kde_x_base,
-                    "kde_y": kde_y_base,
-                },
-                "new_kde_plot": {
-                    "median": new_median,
-                    "sample_count": len(new),
-                    "kde_x": kde_x_new,
-                    "kde_y": kde_y_new,
-                },
+            "dke_isj_plot_summary_text": summary_text,
+            "dke_isj_plot_base": {
+                "median": base_median,
+                "sample_count": len(base),
+                "kde_x": kde_x_base,
+                "kde_y": kde_y_base,
+            },
+            "dke_isj_plot_new": {
+                "median": new_median,
+                "sample_count": len(new),
+                "kde_x": kde_x_new,
+                "kde_y": kde_y_new,
             },
             "silverman_warnings": warning_msgs,
             "silverman_kde": {
@@ -1458,11 +1448,9 @@ class PerfCompareResults(generics.ListAPIView):
             "cles_direction": cles_direction,
             "effect_size": effect_size,
             "cles_explanation": cles_explanation,
-            "cles_interpretations": [
-                f"**Mann-Whitney U Common Language Effect Size**: {cles_direction}",
-                f"**p-value**: {mann_pvalue:.3f}, {'not' if mann_pvalue > pvalue_threshold else ''} significant",
-                f"**Cliff's Delta**: {delta:.2f} → {interpretation}",
-            ],
+            "mann_whitney_u_cles": mann_whitney_u_cles,
+            "cliffs_delta_cles": cliffs_delta_cles,
+            "p_value_cles": p_value_cles,
             "is_significant": is_significant,
         },
     }
@@ -1485,7 +1473,7 @@ class PerfCompareResults(generics.ListAPIView):
             base_rev = base_rev.flatten()
             new_rev = new_rev.flatten()
 
-        # get basic statistics for both base and new with mean, median, variance, standard deviation, average, min, max
+        # get basic statistics for both base and new with mean, median, variance, standard deviation, min, max
 
         base_rev_info, new_rev_info = stats.summarize_basic_stats_data(base_rev, new_rev, header)
 
@@ -1526,7 +1514,14 @@ class PerfCompareResults(generics.ListAPIView):
         effect_size = stats.interpret_effect_size(c_delta)
 
         # returns CLES, direction
-        cles, is_significant, cles_explanation, cles_interpretations = stats.interpret_cles(
+        (
+            cles,
+            is_significant,
+            cles_explanation,
+            mann_whitney_u_cles,
+            cliffs_delta_cles,
+            p_value_cles,
+        ) = stats.interpret_cles(
             mann_stat,
             mann_pvalue,
             new_rev,
@@ -1550,8 +1545,10 @@ class PerfCompareResults(generics.ListAPIView):
 
         # Plot Kernel Density Estimator (KDE) with an ISJ (Improved Sheather-Jones) to reduce false positives from over-smoothing in Silverman
 
-        dke_isj_plot = stats.plot_kde_with_isj_bandwidth(
-            base_rev, new_rev, mann_pvalue, cles, c_delta, cliffs_interpretation
+        dke_isj_plot_base, dke_isj_plot_new, isj_kde_summary_text = (
+            stats.plot_kde_with_isj_bandwidth(
+                base_rev, new_rev, mann_pvalue, cles, c_delta, cliffs_interpretation
+            )
         )
 
         stats_data = {
@@ -1575,13 +1572,17 @@ class PerfCompareResults(generics.ListAPIView):
             "is_improvement": is_improvement,
             "more_runs_are_needed": more_runs_are_needed,
             "direction_of_change": direction,  # 'neutral', 'better', or 'worse'
-            "dke_isj_plot": dke_isj_plot,
+            "dke_isj_plot_base": dke_isj_plot_base,
+            "dke_isj_plot_new": dke_isj_plot_new,
+            "dke_isj_plot_summary_text": isj_kde_summary_text,
             "silverman_warnings": warning_msgs,
             "silverman_kde": silverman_kde,
             "cles": cles,
             "cles_direction": direction,
             "cles_explanation": cles_explanation,
-            "cles_interpretations": cles_interpretations,
+            "mann_whitney_u_cles": mann_whitney_u_cles,
+            "cliffs_delta_cles": cliffs_delta_cles,
+            "p_value_cles": p_value_cles,
             "effect_size": effect_size,
             "is_significant": is_significant,
         }
