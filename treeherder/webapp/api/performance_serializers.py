@@ -791,13 +791,12 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
     direction_of_change = serializers.CharField(default="")
     cles = PerfCompareDecimalField()
     cles_direction = serializers.CharField(default="")
-    cles_interpretations = serializers.ListField(
-        child=serializers.CharField(default=""),
-        default=[],
-    )
+    mann_whitney_u_cles = serializers.CharField(default="")
+    p_value_cles = serializers.CharField(default="")
+    cliffs_delta_cles = serializers.CharField(default="")
     effect_size = serializers.CharField(default="")
     cles_explanation = serializers.CharField(default="")
-    performance_intepretation = serializers.CharField(default="")
+    performance_interpretation = serializers.CharField(default="")
 
     class Meta:
         model = PerformanceSignature
@@ -863,8 +862,11 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
             "effect_size",
             "cles",
             "cles_direction",
-            "cles_interpretations",
-            "performance_intepretation",
+            "mann_whitney_u_cles",
+            "p_value_cles",
+            "cliffs_delta_cles",
+            "cles_explanation",
+            "performance_interpretation",
         ]
 
 

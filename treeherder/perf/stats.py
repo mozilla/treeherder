@@ -131,11 +131,9 @@ def interpret_normality_shapiro_wilk(base, new, pvalue_threshold):
     shapiro_results = {
         "test_name": "Shapiro-Wilk",
         "shapiro_stat_base": stat_base,
-        "pvalue_base": p_base,
         "interpretation_base": interpretation_base,
         "is_base_normal": is_base_normal,
         "shapiro_stat_new": stat_new,
-        "pvalue_new": p_new,
         "interpretation_new": interpretation_new,
         "is_new_normal": is_new_normal,
     }
@@ -151,7 +149,6 @@ def interpret_ks_test(base, new, pvalue_threshold):
     ks_test = {
         "test_name": "Kolmogorov-Smirnov",
         "stat": ks_stat,
-        "pvalue": ks_p,
         "interpretation": ks_comment,
     }
     is_fit_good = True
@@ -221,7 +218,7 @@ def interpret_performance_direction(ci_low, ci_high, lower_is_better):
     if ci_low > 0:
         if lower_is_better:
             is_regression = False
-            is_improvement = False
+            is_improvement = True
             ci_intepretation = "Performance improved (median increased)"
         else:
             is_regression = True
@@ -253,7 +250,9 @@ def interpret_cles(
     lower_is_better,
 ):
     cles = mann_stat / (len(new_revision) * len(base_revision))
-    cles_direction = (
+
+    # Mann-Whitney U Common Language Effect Size
+    mann_whitney_u_cles = (
         f"{cles:.2f} → {cles * 100:.0f}% chance a value from `base` is greater than a value from `new`"
         if cles >= 0.5
         else f"{1 - cles:.2f} → {100 - cles * 100:.0f}% chance a value from `new` is greater than a value from `base`"
@@ -264,13 +263,22 @@ def interpret_cles(
     # Generate CLES explanation
     cles_explanation = interpret_cles_direction(cles)
 
-    cles_interpretations = [
-        f"**Mann-Whitney U Common Language Effect Size**: {cles_direction}",
-        f"**p-value**: {mann_pvalue:.3f}, {'not' if mann_pvalue > pvalue_threshold else ''} significant",
-        f"**Cliff's Delta**: {delta:.2f} → {interpretation}",
-    ]
+    # Cliff's delta CLES
+    cliffs_delta_cles = f"**Cliff's Delta**: {delta:.2f} → {interpretation}"
 
-    return cles, is_significant, cles_explanation, cles_interpretations
+    # Mann-Whitney U  p-value CLES
+    p_value_cles = (
+        f"{mann_pvalue:.3f}, {'not' if mann_pvalue > pvalue_threshold else ''} significant"
+    )
+
+    return (
+        cles,
+        is_significant,
+        cles_explanation,
+        mann_whitney_u_cles,
+        cliffs_delta_cles,
+        p_value_cles,
+    )
 
 
 def interpret_silverman_kde(base, new, lower_is_better):
@@ -399,31 +407,23 @@ def plot_kde_with_isj_bandwidth(base, new, mann_pvalue, cles, delta, interpretat
         pass
 
     # Summary text
-    summary_text = [
+    isj_kde_summary_text = [
         f"p-value: {mann_pvalue:.3f}\n",
         f"CLES: {cles:.2f} → {'base > new' if cles >= 0.5 else 'new > base'}\n",
         f"Cliff’s delta: {delta:.2f} → {interpretation}",
     ]
 
-    result_dke = {
-        "bandwidth": "Improved Sheather-Jones",
-        "kernel": "Gaussian",
-        "title": "Distribution Comparison Kernel Density Estimate (KDE)",
-        "xlabel": "Value",
-        "ylabel": "Density",
-        "summary_text": summary_text,
-        "base_kde": {
-            "median": base_median,
-            "sample_count": len(base),
-            "kde_x": kde_x_base,
-            "kde_y": kde_y_base,
-        },
-        "new_kde": {
-            "median": new_median,
-            "sample_count": len(new),
-            "kde_x": kde_x_new,
-            "kde_y": kde_y_new,
-        },
+    dke_isj_plot_base = {
+        "median": base_median,
+        "sample_count": len(base),
+        "kde_x": kde_x_base,
+        "kde_y": kde_y_base,
+    }
+    dke_isj_plot_new = {
+        "median": new_median,
+        "sample_count": len(new),
+        "kde_x": kde_x_new,
+        "kde_y": kde_y_new,
     }
 
-    return result_dke
+    return dke_isj_plot_base, dke_isj_plot_new, isj_kde_summary_text
