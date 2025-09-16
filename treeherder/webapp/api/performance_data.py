@@ -1478,11 +1478,11 @@ class PerfCompareResults(generics.ListAPIView):
     ):
         # extract data, potentially removing outliers
         if remove_outliers:
-            base_rev = stats.remove_outliers(base_rev.flatten())
-            new_rev = stats.remove_outliers(new_rev.flatten())
+            base_rev = stats.remove_outliers(base_rev)
+            new_rev = stats.remove_outliers(new_rev)
         else:
-            base_rev = base_rev.flatten()
-            new_rev = new_rev.flatten()
+            base_rev = base_rev
+            new_rev = new_rev
 
         # get basic statistics for both base and new with mean, median, variance, standard deviation, standard deviation percentage, min, max
         base_min = np.min(base_rev) if len(base_rev) else 0
