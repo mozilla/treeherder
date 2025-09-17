@@ -14,9 +14,9 @@ from rest_framework import exceptions, filters, generics, pagination, viewsets
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
-import treeherder.perf.stats as stats
 from treeherder.etl.common import to_timestamp
 from treeherder.model import models
+from treeherder.perf import stats
 from treeherder.perf.alerts import get_alert_properties
 from treeherder.perf.models import (
     IssueTracker,
@@ -920,11 +920,13 @@ class PerfCompareResults(generics.ListAPIView):
     queryset = None
 
     def get_serializer_class(self):
-        if self.request.query_params.get("test_version") == "Student-T":
+        test_version = self.request.query_params.get("test_version", "")
+        if test_version == "student-t":
             return PerfCompareResultsSerializer
-        if self.request.query_params.get("test_version") == "Mann-Whitney-U":
+        if test_version == "mann-whitney-u":
             return PerfCompareResultsSerializerV2
-        return PerfCompareResultsSerializer
+        else:
+            return PerfCompareResultsSerializer
 
     def list(self, request):
         query_params = PerfCompareResultsQueryParamsSerializer(data=request.query_params)
@@ -941,6 +943,7 @@ class PerfCompareResults(generics.ListAPIView):
         base_parent_signature = query_params.validated_data["base_parent_signature"]
         new_parent_signature = query_params.validated_data["new_parent_signature"]
         replicates = query_params.validated_data["replicates"]
+        test_version = query_params.validated_data["test_version"]
 
         try:
             new_push = models.Push.objects.get(revision=new_rev, repository__name=new_repo_name)
@@ -1054,41 +1057,7 @@ class PerfCompareResults(generics.ListAPIView):
                 new_runs_count = len(statistics_new_perf_data)
                 is_complete = base_runs_count and new_runs_count
                 no_results_to_show = not base_runs_count and not new_runs_count
-                if no_results_to_show:
-                    continue
-                base_avg_value = perfcompare_utils.get_avg(statistics_base_perf_data, header)
-                base_stddev = perfcompare_utils.get_stddev(statistics_base_perf_data, header)
-                base_median_value = perfcompare_utils.get_median(statistics_base_perf_data)
-                new_avg_value = perfcompare_utils.get_avg(statistics_new_perf_data, header)
-                new_stddev = perfcompare_utils.get_stddev(statistics_new_perf_data, header)
-                new_median_value = perfcompare_utils.get_median(statistics_new_perf_data)
-                base_stddev_pct = perfcompare_utils.get_stddev_pct(base_avg_value, base_stddev)
-                new_stddev_pct = perfcompare_utils.get_stddev_pct(new_avg_value, new_stddev)
-                confidence = perfcompare_utils.get_abs_ttest_value(
-                    statistics_base_perf_data, statistics_new_perf_data
-                )
-                confidence_text = perfcompare_utils.get_confidence_text(confidence)
-                delta_value = perfcompare_utils.get_delta_value(new_avg_value, base_avg_value)
-                delta_percentage = perfcompare_utils.get_delta_percentage(
-                    delta_value, base_avg_value
-                )
-                magnitude = perfcompare_utils.get_magnitude(delta_percentage)
-                new_is_better = perfcompare_utils.is_new_better(delta_value, lower_is_better)
-                is_confident = perfcompare_utils.is_confident(
-                    base_runs_count, new_runs_count, confidence
-                )
-                more_runs_are_needed = perfcompare_utils.more_runs_are_needed(
-                    is_complete, is_confident, base_runs_count
-                )
-                class_name = perfcompare_utils.get_class_name(
-                    new_is_better, base_avg_value, new_avg_value, confidence
-                )
-
-                is_improvement = class_name == "success"
-                is_regression = class_name == "danger"
-                is_meaningful = class_name == ""
-
-                row_result = {
+                common_result = {
                     "base_rev": base_rev,
                     "new_rev": new_rev,
                     "header_name": header,
@@ -1109,54 +1078,112 @@ class PerfCompareResults(generics.ListAPIView):
                     "new_runs": sorted(new_perf_data_values),
                     "base_runs_replicates": sorted(base_perf_data_replicates),
                     "new_runs_replicates": sorted(new_perf_data_replicates),
-                    "base_avg_value": base_avg_value,
-                    "new_avg_value": new_avg_value,
-                    "base_median_value": base_median_value,
-                    "new_median_value": new_median_value,
-                    "base_stddev": base_stddev,
-                    "new_stddev": new_stddev,
-                    "confidence": confidence,
-                    "confidence_text": confidence_text,
-                    "delta_value": delta_value,
-                    "delta_percentage": delta_percentage,
-                    "magnitude": magnitude,
-                    "new_is_better": new_is_better,
-                    "lower_is_better": lower_is_better,
-                    "is_confident": is_confident,
-                    "more_runs_are_needed": more_runs_are_needed,
-                    # highlighted revisions is the base_revision and the other highlighted revisions is new_revision
-                    "graphs_link": self._create_graph_links(
-                        base_repo_name,
-                        new_repo_name,
-                        base_rev,
-                        new_rev,
-                        str(framework),
-                        push_timestamp,
-                        str(sig_hash),
-                    ),
-                    "is_improvement": is_improvement,
-                    "is_regression": is_regression,
-                    "is_meaningful": is_meaningful,
-                    "base_stddev_pct": base_stddev_pct,
-                    "new_stddev_pct": new_stddev_pct,
-                    "base_retriggerable_job_ids": base_grouped_job_ids.get(base_sig_id, []),
-                    "new_retriggerable_job_ids": new_grouped_job_ids.get(new_sig_id, []),
-                    "base_parent_signature": base_sig.get("parent_signature_id", None),
-                    "new_parent_signature": new_sig.get("parent_signature_id", None),
-                    "base_signature_id": base_sig_id,
-                    "new_signature_id": new_sig_id,
-                    "has_subtests": (
-                        base_sig.get("has_subtests", None) or new_sig.get("has_subtests", None)
-                    ),
-                    "new_stats": self._process_stats(
-                        base_rev,
-                        new_rev,
-                        header,
-                        lower_is_better,
-                    ),
                 }
+                if no_results_to_show:
+                    continue
+                if test_version == "mann-whitney-u":
+                    new_stats = self._process_stats(base_rev, new_rev, header, lower_is_better)
+                    row_result = {
+                        **common_result,
+                        **new_stats,
+                        # highlighted revisions is the base_revision and the other highlighted revisions is new_revision
+                        "graphs_link": self._create_graph_links(
+                            base_repo_name,
+                            new_repo_name,
+                            base_rev,
+                            new_rev,
+                            str(framework),
+                            push_timestamp,
+                            str(sig_hash),
+                        ),
+                        "base_retriggerable_job_ids": base_grouped_job_ids.get(base_sig_id, []),
+                        "new_retriggerable_job_ids": new_grouped_job_ids.get(new_sig_id, []),
+                        "base_parent_signature": base_sig.get("parent_signature_id", None),
+                        "new_parent_signature": new_sig.get("parent_signature_id", None),
+                        "base_signature_id": base_sig_id,
+                        "new_signature_id": new_sig_id,
+                        "has_subtests": (
+                            base_sig.get("has_subtests", None) or new_sig.get("has_subtests", None)
+                        ),
+                    }
+                    self.queryset.append(row_result)
+                else:
+                    base_avg_value = perfcompare_utils.get_avg(statistics_base_perf_data, header)
+                    base_stddev = perfcompare_utils.get_stddev(statistics_base_perf_data, header)
+                    base_median_value = perfcompare_utils.get_median(statistics_base_perf_data)
+                    new_avg_value = perfcompare_utils.get_avg(statistics_new_perf_data, header)
+                    new_stddev = perfcompare_utils.get_stddev(statistics_new_perf_data, header)
+                    new_median_value = perfcompare_utils.get_median(statistics_new_perf_data)
+                    base_stddev_pct = perfcompare_utils.get_stddev_pct(base_avg_value, base_stddev)
+                    new_stddev_pct = perfcompare_utils.get_stddev_pct(new_avg_value, new_stddev)
+                    confidence = perfcompare_utils.get_abs_ttest_value(
+                        statistics_base_perf_data, statistics_new_perf_data
+                    )
+                    confidence_text = perfcompare_utils.get_confidence_text(confidence)
+                    delta_value = perfcompare_utils.get_delta_value(new_avg_value, base_avg_value)
+                    delta_percentage = perfcompare_utils.get_delta_percentage(
+                        delta_value, base_avg_value
+                    )
+                    magnitude = perfcompare_utils.get_magnitude(delta_percentage)
+                    new_is_better = perfcompare_utils.is_new_better(delta_value, lower_is_better)
+                    is_confident = perfcompare_utils.is_confident(
+                        base_runs_count, new_runs_count, confidence
+                    )
+                    more_runs_are_needed = perfcompare_utils.more_runs_are_needed(
+                        is_complete, is_confident, base_runs_count
+                    )
+                    class_name = perfcompare_utils.get_class_name(
+                        new_is_better, base_avg_value, new_avg_value, confidence
+                    )
 
-                self.queryset.append(row_result)
+                    is_improvement = class_name == "success"
+                    is_regression = class_name == "danger"
+                    is_meaningful = class_name == ""
+
+                    row_result = {
+                        **common_result,
+                        "base_avg_value": base_avg_value,
+                        "new_avg_value": new_avg_value,
+                        "base_median_value": base_median_value,
+                        "new_median_value": new_median_value,
+                        "base_stddev": base_stddev,
+                        "new_stddev": new_stddev,
+                        "confidence": confidence,
+                        "confidence_text": confidence_text,
+                        "delta_value": delta_value,
+                        "delta_percentage": delta_percentage,
+                        "magnitude": magnitude,
+                        "new_is_better": new_is_better,
+                        "lower_is_better": lower_is_better,
+                        "is_confident": is_confident,
+                        "more_runs_are_needed": more_runs_are_needed,
+                        # highlighted revisions is the base_revision and the other highlighted revisions is new_revision
+                        "graphs_link": self._create_graph_links(
+                            base_repo_name,
+                            new_repo_name,
+                            base_rev,
+                            new_rev,
+                            str(framework),
+                            push_timestamp,
+                            str(sig_hash),
+                        ),
+                        "is_improvement": is_improvement,
+                        "is_regression": is_regression,
+                        "is_meaningful": is_meaningful,
+                        "base_stddev_pct": base_stddev_pct,
+                        "new_stddev_pct": new_stddev_pct,
+                        "base_retriggerable_job_ids": base_grouped_job_ids.get(base_sig_id, []),
+                        "new_retriggerable_job_ids": new_grouped_job_ids.get(new_sig_id, []),
+                        "base_parent_signature": base_sig.get("parent_signature_id", None),
+                        "new_parent_signature": new_sig.get("parent_signature_id", None),
+                        "base_signature_id": base_sig_id,
+                        "new_signature_id": new_sig_id,
+                        "has_subtests": (
+                            base_sig.get("has_subtests", None) or new_sig.get("has_subtests", None)
+                        ),
+                    }
+
+                    self.queryset.append(row_result)
 
         serializer = self.get_serializer(self.queryset, many=True)
         serialized_data = serializer.data
@@ -1484,22 +1511,30 @@ class PerfCompareResults(generics.ListAPIView):
             base_rev = base_rev
             new_rev = new_rev
 
+        if not base_rev:
+            base_rev = []
+        if not new_rev:
+            new_rev = []
+
         # get basic statistics for both base and new with mean, median, variance, standard deviation, standard deviation percentage, min, max
-        base_min = np.min(base_rev) if len(base_rev) else 0
-        base_max = np.max(base_rev) if len(base_rev) else 0
-        base_mean = np.mean(base_rev) if len(base_rev) else 0
-        base_variance = np.var(base_rev) if len(base_rev) else 0
-        base_stddev = np.std(base_rev) if len(base_rev) else 0
+
+        base_min = np.min(base_rev) if len(base_rev) > 0 else 0
+        base_max = np.max(base_rev) if len(base_rev) > 0 else 0
+        base_variance = np.var(base_rev) if base_rev else 0
+        base_mean = perfcompare_utils.get_avg(base_rev, header)
+        base_stddev = perfcompare_utils.get_stddev(base_rev, header)
+        base_stddev = np.std(base_rev) if base_rev else 0
         base_count = len(base_rev)
-        base_median = np.median(base_rev) if len(base_rev) else 0
+        base_median = np.median(base_rev) if base_rev else 0
         base_stddev_pct = perfcompare_utils.get_stddev_pct(base_mean, base_stddev)
-        new_min = np.min(new_rev) if len(new_rev) else 0
-        new_max = np.max(new_rev) if len(new_rev) else 0
-        new_mean = np.mean(new_rev) if len(new_rev) else 0
-        new_variance = np.var(new_rev) if len(new_rev) else 0
-        new_stddev = np.std(new_rev) if len(new_rev) else 0
+
+        new_min = np.min(new_rev) if len(new_rev) > 0 else 0
+        new_max = np.max(new_rev) if len(new_rev) > 0 else 0
+        new_variance = np.var(new_rev) if new_rev else 0
+        new_mean = perfcompare_utils.get_avg(new_rev, header)
+        new_stddev = perfcompare_utils.get_stddev(new_rev, header)
         new_count = len(new_rev)
-        new_median = np.median(new_rev) if len(new_rev) else 0
+        new_median = np.median(new_rev) if new_rev else 0
         new_stddev_pct = perfcompare_utils.get_stddev_pct(new_mean, new_stddev)
 
         # Basic statistics, normality test"

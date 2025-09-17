@@ -517,6 +517,7 @@ class PerfCompareResultsQueryParamsSerializer(serializers.Serializer):
     base_parent_signature = serializers.CharField(required=False, allow_null=True, default=None)
     new_parent_signature = serializers.CharField(required=False, allow_null=True, default=None)
     replicates = serializers.BooleanField(required=False)
+    test_version = serializers.CharField(required=False, default="student-t")
 
     def validate(self, data):
         if data["base_revision"] is None and data["interval"] is None:
@@ -570,14 +571,10 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
         child=PerfCompareDecimalField(),
         default=[],
     )
-    base_mean = PerfCompareDecimalField()
-    new_mean = PerfCompareDecimalField()
-    base_median = PerfCompareDecimalField()
-    new_median = PerfCompareDecimalField()
-    base_min = PerfCompareDecimalField()
-    new_min = PerfCompareDecimalField()
-    base_max = PerfCompareDecimalField()
-    new_max = PerfCompareDecimalField()
+    base_avg_value = PerfCompareDecimalField()
+    new_avg_value = PerfCompareDecimalField()
+    base_median_value = PerfCompareDecimalField()
+    new_median_value = PerfCompareDecimalField()
     base_stddev = PerfCompareDecimalField()
     new_stddev = PerfCompareDecimalField()
     base_stddev_pct = PerfCompareDecimalField()
@@ -624,14 +621,10 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
             "new_runs",
             "base_runs_replicates",
             "new_runs_replicates",
-            "base_mean",
-            "new_mean",
-            "base_median",
-            "new_median",
-            "base_min",
-            "new_min",
-            "base_max",
-            "new_max",
+            "base_avg_value",
+            "new_avg_value",
+            "base_median_value",
+            "new_median_value",
             "test",
             "option_name",
             "extra_options",
@@ -759,10 +752,10 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
         child=PerfCompareDecimalField(),
         default=[],
     )
-    base_avg_value = PerfCompareDecimalField()
-    new_avg_value = PerfCompareDecimalField()
-    base_median_value = PerfCompareDecimalField()
-    new_median_value = PerfCompareDecimalField()
+    base_mean = PerfCompareDecimalField()
+    new_mean = PerfCompareDecimalField()
+    base_median = PerfCompareDecimalField()
+    new_median = PerfCompareDecimalField()
     base_stddev = PerfCompareDecimalField()
     new_stddev = PerfCompareDecimalField()
     base_count = serializers.IntegerField()
@@ -830,10 +823,10 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
             "new_runs",
             "base_runs_replicates",
             "new_runs_replicates",
-            "base_avg_value",
-            "new_avg_value",
-            "base_median_value",
-            "new_median_value",
+            "base_mean",
+            "new_mean",
+            "base_median",
+            "new_median",
             "test",
             "option_name",
             "extra_options",
