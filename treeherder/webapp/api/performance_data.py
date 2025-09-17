@@ -1543,7 +1543,7 @@ class PerfCompareResults(generics.ListAPIView):
         # Statistical test for normality — checks whether a dataset is normally distributed.
         # <https://en.wikipedia.org/wiki/Shapiro%E2%80%93Wilk_test>
         # Is both a classic Gaussian distribution or classic bell curve
-        print(base_rev, new_rev)
+
         shapiro_results, shapiro_warning = stats.interpret_normality_shapiro_wilk(
             base_rev, new_rev, pvalue_threshold
         )
@@ -1618,15 +1618,15 @@ class PerfCompareResults(generics.ListAPIView):
             "base_min": base_min,
             "base_max": base_max,
             "base_mean": base_mean,
+            "base_median": base_median,
             "base_variance": base_variance,
             "base_stddev": base_stddev,
             "new_min": new_min,
             "new_max": new_max,
             "new_mean": new_mean,
+            "new_median": new_median,
             "new_variance": new_variance,
             "new_stddev": new_stddev,
-            "base_median": base_median,
-            "new_median": new_median,
             "base_stddev_pct": base_stddev_pct,
             "new_stddev_pct": new_stddev_pct,
             "shapiro_wilk_test": shapiro_results,
