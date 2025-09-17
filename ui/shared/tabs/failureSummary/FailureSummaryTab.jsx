@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'reactstrap';
+import { Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
@@ -216,7 +216,7 @@ class FailureSummaryTab extends React.Component {
           {selectedJob.newFailure > 0 && (
             <Button
               className="failure-summary-new-message"
-              outline
+              variant="outline-info"
               title="New Test Failure"
             >
               {selectedJob.newFailure} new failure line(s). First one is
@@ -352,18 +352,22 @@ class FailureSummaryTab extends React.Component {
 FailureSummaryTab.propTypes = {
   selectedJob: PropTypes.shape({}).isRequired,
   selectedJobId: PropTypes.number.isRequired,
-  jobLogUrls: PropTypes.arrayOf({
-    id: PropTypes.number.isRequired,
-    job_id: PropTypes.number.isRequired,
-    name: PropTypes.string.isRequired,
-    url: PropTypes.string.isRequired,
-    parse_status: PropTypes.string.isRequired,
-  }),
-  jobDetails: PropTypes.arrayOf({
-    url: PropTypes.string.isRequired,
-    value: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-  }),
+  jobLogUrls: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number,
+      job_id: PropTypes.number,
+      name: PropTypes.string.isRequired,
+      url: PropTypes.string.isRequired,
+      parse_status: PropTypes.string,
+    }),
+  ),
+  jobDetails: PropTypes.arrayOf(
+    PropTypes.shape({
+      url: PropTypes.string.isRequired,
+      value: PropTypes.string.isRequired,
+      title: PropTypes.string.isRequired,
+    }),
+  ),
   logParseStatus: PropTypes.string,
   logViewerFullUrl: PropTypes.string,
   currentRepo: PropTypes.shape({}).isRequired,

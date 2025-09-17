@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Highlighter from 'react-highlight-words';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBug, faThumbtack } from '@fortawesome/free-solid-svg-icons';
-import { Button } from 'reactstrap';
+import { Button } from 'react-bootstrap';
 
 import { getSearchWords } from '../../../helpers/display';
 import { getBugUrl } from '../../../helpers/url';
@@ -13,10 +13,10 @@ function BugListItem(props) {
   const {
     bug,
     suggestion,
-    bugClassName,
-    title,
+    bugClassName = '',
+    title = null,
     selectedJob,
-    addBug,
+    addBug = null,
     toggleBugFiler,
   } = props;
   const bugUrl = getBugUrl(bug.id);
@@ -24,7 +24,7 @@ function BugListItem(props) {
   const internalOccurrenceButton = (
     <Button
       className="bg-light px-2 py-1"
-      outline
+      variant="outline-secondary"
       style={{ fontSize: '8px' }}
       type="button"
       onClick={() => addBug(bug, selectedJob)}
@@ -36,7 +36,7 @@ function BugListItem(props) {
   const bugzillaButton = (
     <Button
       className="bg-light py-1 px-2"
-      outline
+      variant="outline-secondary"
       style={{ fontSize: '8px' }}
       onClick={() => toggleBugFiler(suggestion)}
       title={
@@ -120,12 +120,6 @@ BugListItem.propTypes = {
   title: PropTypes.string,
   addBug: PropTypes.func,
   toggleBugFiler: PropTypes.func.isRequired,
-};
-
-BugListItem.defaultProps = {
-  bugClassName: '',
-  title: null,
-  addBug: null,
 };
 
 export default BugListItem;

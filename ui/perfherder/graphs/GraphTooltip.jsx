@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import countBy from 'lodash/countBy';
-import { Button } from 'reactstrap';
+import { Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faExclamationCircle,
@@ -26,7 +26,7 @@ const GraphTooltip = ({
   infraAffectedData,
   user,
   updateData,
-  projects,
+  projects = [],
   updateStateParams,
   lockTooltip,
   closeTooltip,
@@ -34,6 +34,7 @@ const GraphTooltip = ({
   x,
   y,
   windowWidth,
+  dataPoint = undefined,
 }) => {
   const testDetails = testData.find(
     (item) => item.signature_id === datum.signature_id,
@@ -171,8 +172,7 @@ const GraphTooltip = ({
         data-testid="graphTooltip"
       >
         <Button
-          outline
-          color="secondary"
+          variant="outline-secondary"
           className="close mr-3 my-2 ml-2"
           onClick={closeTooltip}
         >
@@ -246,7 +246,6 @@ const GraphTooltip = ({
               <Clipboard
                 text={dataPointDetails.revision}
                 description="Revision"
-                outline
               />
             </span>
             {dataPointDetails.alertSummary && (
@@ -281,7 +280,6 @@ const GraphTooltip = ({
                 <Clipboard
                   text={dataPointDetails.alertSummary.id.toString()}
                   description="Alert Summary id"
-                  outline
                 />
               </p>
             )}
@@ -302,7 +300,6 @@ const GraphTooltip = ({
                 <Clipboard
                   text={datum.commonAlert.id.toString()}
                   description="Alert Summary id"
-                  outline
                 />
                 <p className="small text-danger">Common alert</p>
               </p>
@@ -311,8 +308,7 @@ const GraphTooltip = ({
               <p className="pt-2">
                 {user.isStaff ? (
                   <Button
-                    color="darker-info"
-                    outline
+                    variant="outline-darker-info"
                     size="sm"
                     onClick={createAlert}
                   >
@@ -351,11 +347,6 @@ GraphTooltip.propTypes = {
   user: PropTypes.shape({}).isRequired,
   updateData: PropTypes.func.isRequired,
   projects: PropTypes.arrayOf(PropTypes.shape({})),
-};
-
-GraphTooltip.defaultProps = {
-  projects: [],
-  dataPoint: undefined,
 };
 
 export default GraphTooltip;

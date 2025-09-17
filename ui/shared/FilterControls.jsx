@@ -1,19 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Col,
-  Row,
-  Container,
-  Button,
-  UncontrolledDropdown,
-  DropdownToggle,
-} from 'reactstrap';
+import { Col, Row, Container, Button, Dropdown } from 'react-bootstrap';
 
 import SimpleTooltip from './SimpleTooltip';
 import DropdownMenuItems from './DropdownMenuItems';
 import InputFilter from './InputFilter';
 
-export const createDropdowns = (dropdownOptions, colClass, outline = false) => (
+export const createDropdowns = (dropdownOptions, colClass) => (
   <React.Fragment>
     {dropdownOptions.map((dropdown) => (
       <Col
@@ -21,41 +14,42 @@ export const createDropdowns = (dropdownOptions, colClass, outline = false) => (
         className={colClass}
         key={`dropdown ${dropdown.namespace || ''}${dropdown.selectedItem}`}
       >
-        <UncontrolledDropdown
+        <Dropdown
           className="mr-0 text-nowrap"
           title={dropdown.title}
           aria-label={dropdown.title}
         >
-          <DropdownToggle caret outline={outline}>
+          <Dropdown.Toggle variant="secondary">
             {dropdown.selectedItem}
-          </DropdownToggle>
-          <DropdownMenuItems
-            pinned={dropdown.pinnedProjects || dropdown.pinned}
-            otherPinned={dropdown.otherPinned}
-            options={dropdown.options}
-            selectedItem={dropdown.selectedItem}
-            updateData={dropdown.updateData}
-            namespace={dropdown.namespace}
-          />
-        </UncontrolledDropdown>
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            <DropdownMenuItems
+              pinned={dropdown.pinnedProjects || dropdown.pinned}
+              otherPinned={dropdown.otherPinned}
+              options={dropdown.options}
+              selectedItem={dropdown.selectedItem}
+              updateData={dropdown.updateData}
+              namespace={dropdown.namespace}
+            />
+          </Dropdown.Menu>
+        </Dropdown>
       </Col>
     ))}
   </React.Fragment>
 );
 
 const FilterControls = ({
-  dropdownOptions,
-  filterOptions,
+  dropdownOptions = null,
+  filterOptions = [],
   updateFilterText,
-  updateFilter,
-  updateOnEnter,
-  dropdownCol,
+  updateFilter = null,
+  updateOnEnter = false,
+  dropdownCol = false,
   filteredTextValue,
 }) => {
   const createButton = (filter) => (
     <Button
-      color="darker-info"
-      outline
+      variant="outline-darker-info"
       onClick={() => updateFilter(filter.stateName)}
       active={filter.state}
       disabled={filter.disable}
@@ -109,14 +103,6 @@ FilterControls.propTypes = {
   updateFilterText: PropTypes.func.isRequired,
   updateOnEnter: PropTypes.bool, // only used by the InputFilter
   dropdownCol: PropTypes.bool,
-};
-
-FilterControls.defaultProps = {
-  dropdownOptions: null,
-  dropdownCol: false,
-  filterOptions: [],
-  updateFilter: null,
-  updateOnEnter: false,
 };
 
 export default FilterControls;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Row, Col, Breadcrumb, BreadcrumbItem } from 'reactstrap';
+import { Row, Col, Breadcrumb, BreadcrumbItem } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import ReactTable from 'react-table-6';
@@ -110,12 +110,13 @@ const MainView = (props) => {
       width: 90,
       Cell: (props) => (
         <div>
-          <a
-            className="ml-1"
-            target="_blank"
-            rel="noopener noreferrer"
-            href={`${getBugUrl(props.original.id)}`}
-            onClick={(e) => e.stopPropagation()}
+          <button
+            type="button"
+            className="btn btn-link p-0 ml-1"
+            onClick={(e) => {
+              e.stopPropagation();
+              window.open(getBugUrl(props.original.id), '_blank');
+            }}
             onAuxClick={(e) => {
               // Stop the propagation of middle clicks events to open the bug
               // on bugzilla rather than the bugdetails view.
@@ -123,9 +124,10 @@ const MainView = (props) => {
                 e.stopPropagation();
               }
             }}
+            title="Open bug in Bugzilla"
           >
             {props.original.id}
-          </a>
+          </button>
         </div>
       ),
       filterMethod: (filter, row) => {
@@ -255,10 +257,8 @@ const MainView = (props) => {
             <Row>
               <Col xs="12" className="text-left">
                 <Breadcrumb listClassName="bg-white">
-                  <BreadcrumbItem>
-                    <a title="Treeherder home page" href="/">
-                      Treeherder
-                    </a>
+                  <BreadcrumbItem href="/" title="Treeherder home page">
+                    Treeherder
                   </BreadcrumbItem>
                   <BreadcrumbItem
                     active

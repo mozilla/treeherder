@@ -1,9 +1,9 @@
 import React from 'react';
-import { Row, Col, Breadcrumb, BreadcrumbItem } from 'reactstrap';
+import { Row, Col, Breadcrumb, BreadcrumbItem } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import ReactTable from 'react-table-6';
 import PropTypes from 'prop-types';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 
 import {
   bugDetailsEndpoint,
@@ -198,18 +198,15 @@ const BugDetailsView = (props) => {
             </Helmet>
             <Col xs="12" className="text-left">
               <Breadcrumb listClassName="bg-white">
-                <BreadcrumbItem>
-                  <a title="Treeherder home page" href="/">
-                    Treeherder
-                  </a>
+                <BreadcrumbItem href="/" title="Treeherder home page">
+                  Treeherder
                 </BreadcrumbItem>
-                <BreadcrumbItem>
-                  <Link
-                    title="Intermittent Failures View main page"
-                    to={lastLocation || '/intermittent-failures/'}
-                  >
-                    Main view
-                  </Link>
+                <BreadcrumbItem
+                  as={Link}
+                  to={lastLocation || '/intermittent-failures/'}
+                  title="Intermittent Failures View main page"
+                >
+                  Main view
                 </BreadcrumbItem>
                 <BreadcrumbItem active title="Bugdetails view">
                   Bugdetails view

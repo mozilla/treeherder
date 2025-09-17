@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
-import { Button } from 'reactstrap';
+import { Button } from 'react-bootstrap';
 
 import { thMaxPushFetchSize } from '../../../helpers/constants';
 import { toDateStr, toShortDateStr } from '../../../helpers/display';
@@ -199,15 +199,37 @@ class SimilarJobsTab extends React.Component {
                     {toShortDateStr(similarJob.result_set.push_timestamp)}
                   </td>
                   <td>
-                    <a href={similarJob.authorResultsetFilterUrl}>
+                    <button
+                      type="button"
+                      className="btn btn-link p-0 text-left"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(
+                          similarJob.authorResultsetFilterUrl,
+                          '_blank',
+                        );
+                      }}
+                      title="Open author filter in new tab"
+                    >
                       {similarJob.result_set.author}
-                    </a>
+                    </button>
                   </td>
                   <td>{similarJob.duration} min</td>
                   <td>
-                    <a href={similarJob.revisionResultsetFilterUrl}>
+                    <button
+                      type="button"
+                      className="btn btn-link p-0 text-left"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(
+                          similarJob.revisionResultsetFilterUrl,
+                          '_blank',
+                        );
+                      }}
+                      title="Open revision filter in new tab"
+                    >
                       {similarJob.result_set.revisions[0].revision}
-                    </a>
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -215,7 +237,7 @@ class SimilarJobsTab extends React.Component {
           </table>
           {hasNextPage && (
             <Button
-              outline
+              variant="outline-secondary"
               className="bg-light"
               type="button"
               onClick={this.showNext}

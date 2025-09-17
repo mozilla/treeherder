@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'reactstrap';
+import { Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import { connect } from 'react-redux';
@@ -112,8 +112,7 @@ class ActiveFilters extends React.Component {
         {!!filterBarFilters.length && (
           <div>
             <Button
-              color="darker-info"
-              outline
+              variant="outline-darker-info"
               className="pointable bg-transparent border-0 pt-0 pr-1 pb-1"
               title="Clear all of these filters"
               onClick={() => this.clearAndUpdateRange()}
@@ -133,8 +132,7 @@ class ActiveFilters extends React.Component {
                   key={`${filter.field}${filterValue}`}
                 >
                   <Button
-                    color="darker-info"
-                    outline
+                    variant="outline-darker-info"
                     className="pointable bg-transparent border-0 py-0 pr-1"
                     title={`Clear filter: ${filter.field}`}
                     onClick={() =>
@@ -179,7 +177,7 @@ class ActiveFilters extends React.Component {
                 <select
                   id="job-filter-field"
                   className="form-control"
-                  value={newFilterField}
+                  value={newFilterField || ''}
                   onChange={(evt) => this.setNewFilterField(evt.target.value)}
                   placeholder="filter field"
                   aria-label="Field"
@@ -200,7 +198,7 @@ class ActiveFilters extends React.Component {
                   <React.Fragment>
                     <input
                       className="form-control"
-                      value={newFilterValue}
+                      value={newFilterValue || ''}
                       onChange={(evt) =>
                         this.setNewFilterValue(evt.target.value)
                       }
@@ -215,7 +213,7 @@ class ActiveFilters extends React.Component {
                 {newFilterMatchType === 'choice' && (
                   <select
                     className="form-control"
-                    value={newFilterValue}
+                    value={newFilterValue || ''}
                     onChange={(evt) => this.setNewFilterValue(evt.target.value)}
                     id="job-filter-choice-value"
                     aria-label="Value"
@@ -235,13 +233,13 @@ class ActiveFilters extends React.Component {
                   size="sm"
                   className="bg-light"
                   onClick={this.addNewFieldFilter}
-                  outline
+                  variant="outline-secondary"
                 >
                   add
                 </Button>
                 <Button
                   className="bg-light"
-                  outline
+                  variant="outline-secondary"
                   size="sm"
                   onClick={this.clearNewFieldFilter}
                 >

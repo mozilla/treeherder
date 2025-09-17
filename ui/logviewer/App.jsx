@@ -1,8 +1,7 @@
 import React from 'react';
-import { hot } from 'react-hot-loader/root';
 import { LazyLog } from 'react-lazylog';
 import isEqual from 'lodash/isEqual';
-import { Collapse } from 'reactstrap';
+import { Collapse } from 'react-bootstrap';
 
 import {
   getAllUrlParams,
@@ -372,7 +371,7 @@ class App extends React.PureComponent {
           copySelectedLogToBugFiler={this.copySelectedLogToBugFiler}
         />
         <div className="d-flex flex-column flex-fill">
-          <Collapse isOpen={!collapseDetails}>
+          <Collapse in={!collapseDetails}>
             <div className="run-data d-flex flex-row mx-1 mb-2">
               <div className="d-flex flex-column job-data-panel">
                 {job && (
@@ -414,4 +413,4 @@ class App extends React.PureComponent {
   }
 }
 
-export default hot(App);
+export default App;

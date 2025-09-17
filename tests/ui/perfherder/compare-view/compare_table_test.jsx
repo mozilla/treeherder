@@ -7,6 +7,7 @@ import {
   waitFor,
   waitForElementToBeRemoved,
 } from '@testing-library/react';
+import { HelmetProvider } from 'react-helmet-async';
 
 import compareTablesControlsResults from '../../mock/compare_table_controls';
 import projects from '../../mock/repositories';
@@ -203,11 +204,14 @@ const compareTable = (userLoggedIn, isBaseAggregate = false) =>
 
 const comparePageTitle = () =>
   render(
-    <ComparePageTitle
-      title="Perfherder Compare Revisions"
-      updateParams={() => {}}
-      pageTitleQueryParam="Perfherder Compare Revisions"
-    />,
+    <HelmetProvider>
+      <ComparePageTitle
+        title="Perfherder Compare Revisions"
+        updateParams={() => {}}
+        pageTitleQueryParam="Perfherder Compare Revisions"
+        defaultPageTitle="Perfherder Compare Revisions"
+      />
+    </HelmetProvider>,
   );
 
 test('toggle buttons should filter results by selected filter', async () => {
@@ -361,14 +365,10 @@ test('page parameter updates with value 2 when clicking on the second page', asy
   expect(result2).toBeInTheDocument();
   expect(result10).toBeInTheDocument();
 
-  const secondPage = await waitFor(() =>
-    findAllByLabelText('pagination-button-2'),
-  );
+  const secondPage = await waitFor(() => findAllByLabelText('Go to page 2'));
   fireEvent.click(secondPage[0]);
 
-  const firstPage = await waitFor(() =>
-    findAllByLabelText('pagination-button-1'),
-  );
+  const firstPage = await waitFor(() => findAllByLabelText('Go to page 1'));
   expect(firstPage[0]).toBeInTheDocument();
   expect(mockUpdateParams).toHaveBeenLastCalledWith({ page: 2 });
 });

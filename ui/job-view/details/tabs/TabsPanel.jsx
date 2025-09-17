@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Button } from 'reactstrap';
+import { Button } from 'react-bootstrap';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -279,7 +279,9 @@ TabsPanel.propTypes = {
   jobLogUrls: PropTypes.arrayOf(PropTypes.shape({})),
   logParseStatus: PropTypes.string,
   logViewerFullUrl: PropTypes.string,
-  testGroups: PropTypes.arrayOf(PropTypes.shape({})),
+  testGroups: PropTypes.arrayOf(
+    PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})]),
+  ),
 };
 
 TabsPanel.defaultProps = {

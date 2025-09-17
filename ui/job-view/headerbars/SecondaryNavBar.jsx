@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from 'reactstrap';
+import { Button } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -40,7 +40,7 @@ class SecondaryNavBar extends React.PureComponent {
     ].reduce((acc, val) => acc.concat(val), []);
 
     this.state = {
-      searchQueryStr: getSearchStrFromUrl(),
+      searchQueryStr: getSearchStrFromUrl() || '',
       watchedRepoNames: [],
       repoName: getRepo(),
     };
@@ -75,7 +75,7 @@ class SecondaryNavBar extends React.PureComponent {
     const { repoName } = this.state;
     const { recalculateUnclassifiedCounts } = this.props;
     const newState = {
-      searchQueryStr: getSearchStrFromUrl(),
+      searchQueryStr: getSearchStrFromUrl() || '',
       repoName: getRepo(),
     };
 
@@ -375,7 +375,7 @@ class SecondaryNavBar extends React.PureComponent {
                 id="quick-filter"
                 className="form-control form-control-sm"
                 required
-                value={searchQueryStr}
+                value={searchQueryStr || ''}
                 title="Click to enter filter values"
                 onChange={(evt) => this.setSearchStr(evt)}
                 onKeyDown={(evt) => this.search(evt)}

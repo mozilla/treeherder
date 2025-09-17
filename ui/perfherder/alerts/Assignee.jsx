@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Input, InputGroup } from 'reactstrap';
+import { Button, Form, InputGroup } from 'react-bootstrap';
 
 export default class Assignee extends React.Component {
   constructor(props) {
@@ -10,7 +10,7 @@ export default class Assignee extends React.Component {
     this.state = {
       assigneeUsername,
       inEditMode: false,
-      newAssigneeUsername: null,
+      newAssigneeUsername: '',
     };
   }
 
@@ -105,7 +105,7 @@ export default class Assignee extends React.Component {
       <React.Fragment>
         <Button
           className="ml-1"
-          color="darker-secondary"
+          variant="darker-secondary"
           size="xs"
           onClick={this.goToEditMode}
           title="Click to change assignee"
@@ -115,7 +115,7 @@ export default class Assignee extends React.Component {
         {!assigneeUsername && (
           <Button
             className="ml-1"
-            color="darker-secondary"
+            variant="darker-secondary"
             size="xs"
             disabled={!user.isStaff}
             onClick={this.prefillWithLoggedInUsername}
@@ -126,10 +126,10 @@ export default class Assignee extends React.Component {
       </React.Fragment>
     ) : (
       <InputGroup size="sm">
-        <Input
+        <Form.Control
           disabled={!user.isStaff}
           placeholder={placeholder}
-          value={newAssigneeUsername}
+          value={newAssigneeUsername || ''}
           aria-label="Set assignee"
           onChange={(event) => this.editUsername(event.target.value)}
           onKeyPress={(event) => this.pressedEnter(event)}

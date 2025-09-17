@@ -1,18 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Form,
-  FormGroup,
-  Input,
-  Label,
-  Button,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Col,
-  Row,
-} from 'reactstrap';
+import { Form, Button, Modal, Col, Row } from 'react-bootstrap';
 import debounce from 'lodash/debounce';
 
 export default class AlertModal extends React.Component {
@@ -60,15 +48,17 @@ export default class AlertModal extends React.Component {
     const { inputValue, invalidInput, validated } = this.state;
 
     return (
-      <Modal isOpen={showModal}>
-        <ModalHeader toggle={toggle}>{header}</ModalHeader>
+      <Modal show={showModal} onHide={toggle}>
+        <Modal.Header closeButton>
+          <Modal.Title>{header}</Modal.Title>
+        </Modal.Header>
         <Form>
-          <ModalBody>
-            <FormGroup>
+          <Modal.Body>
+            <Form.Group>
               <Row className="justify-content-center">
                 <Col className="col-4">
-                  <Label for="taskId">{title}</Label>
-                  <Input
+                  <Form.Label htmlFor="taskId">{title}</Form.Label>
+                  <Form.Control
                     value={inputValue}
                     onChange={this.updateInput}
                     name="taskId"
@@ -86,18 +76,18 @@ export default class AlertModal extends React.Component {
                   )}
                 </Col>
               </Row>
-            </FormGroup>
-          </ModalBody>
-          <ModalFooter>
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
             <Button
-              color="secondary"
+              variant="secondary"
               onClick={(event) => updateAndClose(event, inputValue)}
               disabled={invalidInput || !inputValue.length || !validated}
               type="submit"
             >
               Assign
             </Button>
-          </ModalFooter>
+          </Modal.Footer>
         </Form>
       </Modal>
     );

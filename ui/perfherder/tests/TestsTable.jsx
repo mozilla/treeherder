@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Container } from 'reactstrap';
+import { Container } from 'react-bootstrap';
 import ReactTable from 'react-table-6';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -19,12 +19,12 @@ import AlertsLink from './AlertsLink';
 
 export default function TestsTable(props) {
   const {
-    results,
+    results = [],
     framework,
     allFrameworks,
     projectsMap,
     platformsMap,
-    defaultPageSize,
+    defaultPageSize = 20,
   } = props;
 
   const showPagination = results.length > defaultPageSize;
@@ -218,9 +218,4 @@ TestsTable.propTypes = {
     .isRequired,
   platformsMap: PropTypes.oneOfType([PropTypes.bool, PropTypes.shape({})])
     .isRequired,
-};
-
-TestsTable.defaultProps = {
-  results: [],
-  defaultPageSize: 20,
 };

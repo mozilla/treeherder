@@ -1,5 +1,11 @@
 import React from 'react';
-import { render, waitFor, cleanup, fireEvent } from '@testing-library/react';
+import {
+  render,
+  waitFor,
+  cleanup,
+  fireEvent,
+  act,
+} from '@testing-library/react';
 
 import testAlertSummaries from '../../mock/alert_summaries';
 import testPerformanceTags from '../../mock/performance_tags';
@@ -53,6 +59,12 @@ afterEach(cleanup);
 test("Summary with no tags shows 'Add tags'", async () => {
   const { getByText } = testStatusDropdown([]);
 
+  // Open the status dropdown first
+  const statusDropdown = await waitFor(() => getByText('untriaged'));
+  await act(async () => {
+    fireEvent.click(statusDropdown);
+  });
+
   const dropdownItem = await waitFor(() => getByText('Add tags'));
 
   expect(dropdownItem).toBeInTheDocument();
@@ -60,6 +72,12 @@ test("Summary with no tags shows 'Add tags'", async () => {
 
 test("Summary with tags shows 'Edit tags'", async () => {
   const { getByText } = testStatusDropdown(['harness']);
+
+  // Open the status dropdown first
+  const statusDropdown = await waitFor(() => getByText('untriaged'));
+  await act(async () => {
+    fireEvent.click(statusDropdown);
+  });
 
   const dropdownItem = await waitFor(() => getByText('Edit tags'));
 
@@ -69,9 +87,17 @@ test("Summary with tags shows 'Edit tags'", async () => {
 test("Tags modal opens from 'Add tags'", async () => {
   const { getByText, getByTestId } = testStatusDropdown([]);
 
+  // Open the status dropdown first
+  const statusDropdown = await waitFor(() => getByText('untriaged'));
+  await act(async () => {
+    fireEvent.click(statusDropdown);
+  });
+
   const dropdownItem = await waitFor(() => getByText('Add tags'));
 
-  fireEvent.click(dropdownItem);
+  await act(async () => {
+    fireEvent.click(dropdownItem);
+  });
 
   const modal = await waitFor(() => getByTestId('tags-modal'));
 
@@ -81,9 +107,17 @@ test("Tags modal opens from 'Add tags'", async () => {
 test("Tags modal opens from 'Edit tags'", async () => {
   const { getByText, getByTestId } = testStatusDropdown(['harness']);
 
+  // Open the status dropdown first
+  const statusDropdown = await waitFor(() => getByText('untriaged'));
+  await act(async () => {
+    fireEvent.click(statusDropdown);
+  });
+
   const dropdownItem = await waitFor(() => getByText('Edit tags'));
 
-  fireEvent.click(dropdownItem);
+  await act(async () => {
+    fireEvent.click(dropdownItem);
+  });
 
   const modal = await waitFor(() => getByTestId('tags-modal'));
 

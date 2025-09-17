@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from 'reactstrap';
+import { Button } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRedo } from '@fortawesome/free-solid-svg-icons';
@@ -7,7 +7,7 @@ import { faRedo } from '@fortawesome/free-solid-svg-icons';
 import { compareTableText } from '../perf-helpers/constants';
 
 export default function RetriggerButton(props) {
-  const { onClick, title } = props;
+  const { onClick, title = compareTableText.retriggerButtonTitle } = props;
 
   return (
     <Button
@@ -23,8 +23,4 @@ export default function RetriggerButton(props) {
 RetriggerButton.propTypes = {
   onClick: PropTypes.func.isRequired,
   title: PropTypes.string,
-};
-
-RetriggerButton.defaultProps = {
-  title: compareTableText.retriggerButtonTitle,
 };

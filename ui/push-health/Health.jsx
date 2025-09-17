@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Container, Spinner, Navbar, Nav } from 'reactstrap';
+import { Container, Spinner, Navbar, Nav } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import camelCase from 'lodash/camelCase';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
 
 import faviconBroken from '../img/push-health-broken.png';
@@ -179,7 +179,7 @@ export default class Health extends React.PureComponent {
     const { notify } = this.props;
     return (
       <React.Fragment>
-        <Navbar color="light" light expand="sm" className="w-100">
+        <Navbar variant="light" expand="sm" className="w-100">
           {!!tests && (
             <Nav className="mb-2 pt-2 pl-3 justify-content-between w-100">
               <span />
