@@ -1046,7 +1046,7 @@ def get_expected(
     return response
 
 
-def test_perfcompare_results_with_mann_witney_u(
+def test_perfcompare_results_with_mann_witney_u_against_no_base(
     client,
     create_signature,
     create_perf_datum,
@@ -1153,3 +1153,5 @@ def test_perfcompare_results_with_mann_witney_u(
     response = client.get(reverse("perfcompare-results") + query_params)
 
     assert response.status_code == 200
+    assert response.json()[0]["base_parent_signature"] is None
+    assert response.json()[0]["new_parent_signature"] is None
