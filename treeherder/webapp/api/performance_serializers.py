@@ -745,13 +745,12 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
     new_stddev = PerfCompareDecimalField()
     base_count = serializers.IntegerField()
     new_count = serializers.IntegerField()
+    base_variance = PerfCompareDecimalField()
+    new_variance = PerfCompareDecimalField()
     base_stddev_pct = PerfCompareDecimalField()
     new_stddev_pct = PerfCompareDecimalField()
-    confidence = PerfCompareDecimalField()
-    confidence_text = serializers.CharField()
     delta_value = PerfCompareDecimalField()
     delta_percentage = PerfCompareDecimalField()
-    magnitude = PerfCompareDecimalField()
     new_is_better = OptionalBooleanField()
     lower_is_better = OptionalBooleanField()
     is_confident = OptionalBooleanField()
@@ -810,6 +809,8 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
             "new_mean",
             "base_median",
             "new_median",
+            "base_variance",
+            "new_variance",
             "test",
             "option_name",
             "extra_options",
@@ -819,15 +820,13 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
             "new_stddev",
             "base_stddev_pct",
             "new_stddev_pct",
-            "confidence",
-            "confidence_text",
             "graphs_link",
             "delta_value",
             "delta_percentage",
-            "magnitude",
             "new_is_better",
             "lower_is_better",
             "is_confident",
+            "is_fit_good",
             "more_runs_are_needed",
             "direction_of_change",
             "noise_metric",
@@ -842,6 +841,7 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
             "ks_test",
             "mann_whitney_test",
             "cliffs_delta",
+            "cliffs_interpretation",
             "mann_pvalue",
             "silverman_kde",
             "isj_kde",

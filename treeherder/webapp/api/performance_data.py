@@ -1082,7 +1082,9 @@ class PerfCompareResults(generics.ListAPIView):
                 if no_results_to_show:
                     continue
                 if test_version == "mann-whitney-u":
-                    new_stats = self._process_stats(base_rev, new_rev, header, lower_is_better)
+                    new_stats = self._process_stats(
+                        statistics_base_perf_data, statistics_new_perf_data, header, lower_is_better
+                    )
                     row_result = {
                         **common_result,
                         **new_stats,
@@ -1523,7 +1525,6 @@ class PerfCompareResults(generics.ListAPIView):
         base_variance = np.var(base_rev) if base_rev else 0
         base_mean = perfcompare_utils.get_avg(base_rev, header)
         base_stddev = perfcompare_utils.get_stddev(base_rev, header)
-        base_stddev = np.std(base_rev) if base_rev else 0
         base_count = len(base_rev)
         base_median = np.median(base_rev) if base_rev else 0
         base_stddev_pct = perfcompare_utils.get_stddev_pct(base_mean, base_stddev)
@@ -1542,7 +1543,8 @@ class PerfCompareResults(generics.ListAPIView):
         # Statistical test for normality — checks whether a dataset is normally distributed.
         # <https://en.wikipedia.org/wiki/Shapiro%E2%80%93Wilk_test>
         # Is both a classic Gaussian distribution or classic bell curve
-        shapiro_results = stats.interpret_normality_shapiro_wilk(
+        print(base_rev, new_rev)
+        shapiro_results, shapiro_warning = stats.interpret_normality_shapiro_wilk(
             base_rev, new_rev, pvalue_threshold
         )
 
@@ -1598,7 +1600,7 @@ class PerfCompareResults(generics.ListAPIView):
             more_runs_are_needed,
             warning_msgs,
             performance_intepretation,
-        ) = stats.interpret_silverman_kde(base_rev, new_rev)
+        ) = stats.interpret_silverman_kde(base_rev, new_rev, lower_is_better)
 
         # Plot Kernel Density Estimator (KDE) with an ISJ (Improved Sheather-Jones) to reduce false positives from over-smoothing in Silverman
 
@@ -1628,6 +1630,7 @@ class PerfCompareResults(generics.ListAPIView):
             "base_stddev_pct": base_stddev_pct,
             "new_stddev_pct": new_stddev_pct,
             "shapiro_wilk_test": shapiro_results,
+            "shapiro_warning": shapiro_warning,
             "ks_test": ks_test,
             "ks_warning": ks_warning,
             "mann_whitney_test": mann_whitney,

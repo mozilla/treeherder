@@ -1044,3 +1044,112 @@ def get_expected(
         new_sig.has_subtests if new_sig else False
     )
     return response
+
+
+def test_perfcompare_results_with_mann_witney_u(
+    client,
+    create_signature,
+    create_perf_datum,
+    test_perf_signature,
+    test_repository,
+    try_repository,
+    eleven_jobs_stored,
+    test_perfcomp_push,
+    test_perfcomp_push_2,
+    test_linux_platform,
+    test_option_collection,
+):
+    perf_jobs = Job.objects.filter(pk__in=range(1, 11)).order_by("push__time").all()
+
+    test_perfcomp_push.time = FOUR_DAYS_AGO
+    test_perfcomp_push.repository = try_repository
+    test_perfcomp_push.save()
+    test_perfcomp_push_2.time = datetime.datetime.now()
+    test_perfcomp_push_2.save()
+
+    suite = "a11yr"
+    test = "dhtml.html"
+    extra_options = "e10s fission stylo webrender"
+    measurement_unit = "ms"
+    base_application = "firefox"
+    new_application = "firefox"
+
+    base_sig = create_signature(
+        signature_hash=(20 * "t1"),
+        extra_options=extra_options,
+        platform=test_linux_platform,
+        measurement_unit=measurement_unit,
+        suite=suite,
+        test=test,
+        test_perf_signature=test_perf_signature,
+        repository=try_repository,
+        application=base_application,
+    )
+
+    base_perf_data_values = [32.4]
+    new_perf_data_values = [40.2]
+
+    job = perf_jobs[0]
+    job.push = test_perfcomp_push
+    job.save()
+    perf_datum = PerformanceDatum.objects.create(
+        value=base_perf_data_values[0],
+        push_timestamp=job.push.time,
+        job=job,
+        push=job.push,
+        repository=try_repository,
+        signature=base_sig,
+    )
+    perf_datum.push.time = job.push.time
+    perf_datum.push.save()
+
+    new_sig = create_signature(
+        signature_hash=(20 * "t2"),
+        extra_options=extra_options,
+        platform=test_linux_platform,
+        measurement_unit=measurement_unit,
+        suite=suite,
+        test=test,
+        test_perf_signature=test_perf_signature,
+        repository=test_repository,
+        application=new_application,
+    )
+
+    job = perf_jobs[1]
+    job.push = test_perfcomp_push_2
+    job.save()
+    perf_datum = PerformanceDatum.objects.create(
+        value=new_perf_data_values[0],
+        push_timestamp=job.push.time,
+        job=job,
+        push=job.push,
+        repository=job.repository,
+        signature=new_sig,
+    )
+    perf_datum.push.time = job.push.time
+    perf_datum.push.save()
+
+    response = get_expected(
+        base_sig,
+        new_sig,
+        extra_options,
+        test_option_collection,
+        new_perf_data_values,
+        base_perf_data_values,
+    )
+
+    query_params = (
+        "?base_repository={}&new_repository={}&new_revision={}&framework={"
+        "}&interval={}&no_subtests=true&test_version={}".format(
+            try_repository.name,
+            test_repository.name,
+            test_perfcomp_push_2.revision,
+            test_perf_signature.framework_id,
+            604800,  # seven days in milliseconds
+            "mann-whitney-u",
+        )
+    )
+
+    response = client.get(reverse("perfcompare-results") + query_params)
+
+    assert response.status_code == 200
