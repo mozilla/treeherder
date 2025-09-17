@@ -80,13 +80,20 @@ def find_mode_interval(x, y, peaks):
 
 # Split a data series into multiple data series, one per mode
 def split_per_mode(data, intervals):
+    if data is None or len(data) == 0:
+        return np.array([])
     assignments = []
     for val in data:
-        for i, (start, end) in enumerate(intervals):
+        assigned = False
+        for i, interval in enumerate(intervals):
+            if len(interval) != 2:
+                return None
+            start, end = interval
             if start <= val <= end:
                 assignments.append(i)
+                assigned = True
                 break
-        else:
+        if not assigned:
             assignments.append(None)
     return np.array(assignments)
 
@@ -118,27 +125,42 @@ def bootstrap_median_diff_ci(a, b, n_iter=1000, alpha=0.05):
 
 
 def interpret_normality_shapiro_wilk(base, new, pvalue_threshold):
-    base_name = "Base Reversion"
-    stat_base, p_base = stats.shapiro(base)
-    is_base_normal = True if p_base > pvalue_threshold else False
-    interpretation_base = f"Shapiro-Wilk result: {p_base:.2f}, {base_name} is {'**likely normal**' if p_base > pvalue_threshold else '**not normal**'}"
+    warning = None
+    stat_base = None
+    interpretation_base = ""
+    is_base_normal = None
+    stat_new = None
+    interpretation_new = ""
+    is_new_normal = None
 
-    new_rev_name = "With Patch"
-    stat_new, p_new = stats.shapiro(new)
-    is_new_normal = True if p_base > pvalue_threshold else False
-    interpretation_new = f"Shapiro-Wilk result: {p_new:.2f}, {new_rev_name} is {'**likely normal**' if p_new > pvalue_threshold else '**not normal**'}"
+    if len(base) < 3:
+        warning = "data must be at least length 3."
 
-    shapiro_results = {
-        "test_name": "Shapiro-Wilk",
-        "shapiro_stat_base": stat_base,
-        "interpretation_base": interpretation_base,
-        "is_base_normal": is_base_normal,
-        "shapiro_stat_new": stat_new,
-        "interpretation_new": interpretation_new,
-        "is_new_normal": is_new_normal,
-    }
+    else:
+        base_name = "Base Reversion"
+        stat_base, p_base = stats.shapiro(base)
+        is_base_normal = True if p_base > pvalue_threshold else False
+        interpretation_base = f"Shapiro-Wilk result: {p_base:.2f}, {base_name} is {'**likely normal**' if p_base > pvalue_threshold else '**not normal**'}"
+    if len(new) < 3:
+        warning = "data must be at least length 3."
+        return None, warning
+    else:
+        new_rev_name = "New Reversion"
+        stat_new, p_new = stats.shapiro(new)
+        is_new_normal = True if p_new > pvalue_threshold else False
+        interpretation_new = f"Shapiro-Wilk result: {p_new:.2f}, {new_rev_name} is {'**likely normal**' if p_new > pvalue_threshold else '**not normal**'}"
 
-    return shapiro_results
+        shapiro_results = {
+            "test_name": "Shapiro-Wilk",
+            "shapiro_stat_base": stat_base,
+            "interpretation_base": interpretation_base,
+            "is_base_normal": is_base_normal,
+            "shapiro_stat_new": stat_new,
+            "interpretation_new": interpretation_new,
+            "is_new_normal": is_new_normal,
+        }
+
+    return shapiro_results, warning
 
 
 # Kolmogorov-Smirnov test for goodness of fit
@@ -308,9 +330,13 @@ def interpret_silverman_kde(base, new, lower_is_better):
     if base_mode_count == new_mode_count:
         base_intervals = find_mode_interval(x_base, y_base, base_peak_locs)
         new_intervals = find_mode_interval(x_new, y_new, new_peak_locs)
-        per_mode_base = split_per_mode(base, base_intervals)
         per_mode_new = split_per_mode(new, new_intervals)
-        for i, (start, end) in enumerate(base_intervals):
+        per_mode_base = split_per_mode(base, base_intervals)
+
+        for i, interval in enumerate(base_intervals):
+            if len(interval) != 2:
+                return None, None, None, None, None, None
+            start, end = interval
             ref_vals = base[per_mode_base == i]
             new_vals = new[per_mode_new == i]
 
@@ -319,40 +345,40 @@ def interpret_silverman_kde(base, new, lower_is_better):
                 more_runs_are_needed = True
                 continue
 
-            shift, (ci_low, ci_high) = bootstrap_median_diff_ci(ref_vals, new_vals)
+        shift, (ci_low, ci_high) = bootstrap_median_diff_ci(ref_vals, new_vals)
 
-            mode_summary = f"Mode {i + 1} [{start:.2f}, {end:.2f}]"
-            median_shift_summary = (
-                f"Median shift: {shift:+.3f} (95% CI: {ci_low:+.3f} to {ci_high:+.3f})"
-            )
+        mode_summary = f"Mode {i + 1} [{start:.2f}, {end:.2f}]"
+        median_shift_summary = (
+            f"Median shift: {shift:+.3f} (95% CI: {ci_low:+.3f} to {ci_high:+.3f})"
+        )
 
-            is_regression, is_improvement, performance_intepretation = (
-                interpret_performance_direction(ci_low, ci_high, lower_is_better)
-            )
+        is_regression, is_improvement, performance_intepretation = interpret_performance_direction(
+            ci_low, ci_high, lower_is_better
+        )
 
-            silverman_kde = {
-                "bandwidth": "Silverman",
-                "base_mode_count": base_mode_count,
-                "base_peak_locs": base_peak_locs,
-                "base_prom": base_prom,
-                "new_mode_count": new_mode_count,
-                "new_peak_locs": new_peak_locs,
-                "new_prom": new_prom,
-                "mode_comments": [
-                    f"Estimated modes (Base): {base_mode_count} (location: {base_peak_locs}, prominence: {base_prom})",
-                    f"Estimated modes (New): {new_mode_count} (location: {new_peak_locs}, prominence: {new_prom})",
-                ],
-                "warnings": warning_msgs,
-                "mode_summary": mode_summary,
-                "median_shift_summary": median_shift_summary,
-                "ci_low": ci_low,
-                "ci_high": ci_high,
-                "shift": shift,
-                "shift_summary": performance_intepretation,
-                "is_regression": is_regression,
-                "is_improvement": is_improvement,
-                "ci_warning": ci_warning,
-            }
+        silverman_kde = {
+            "bandwidth": "Silverman",
+            "base_mode_count": base_mode_count,
+            "base_peak_locs": base_peak_locs,
+            "base_prom": base_prom,
+            "new_mode_count": new_mode_count,
+            "new_peak_locs": new_peak_locs,
+            "new_prom": new_prom,
+            "mode_comments": [
+                f"Estimated modes (Base): {base_mode_count} (location: {base_peak_locs}, prominence: {base_prom})",
+                f"Estimated modes (New): {new_mode_count} (location: {new_peak_locs}, prominence: {new_prom})",
+            ],
+            "warnings": warning_msgs,
+            "mode_summary": mode_summary,
+            "median_shift_summary": median_shift_summary,
+            "ci_low": ci_low,
+            "ci_high": ci_high,
+            "shift": shift,
+            "shift_summary": performance_intepretation,
+            "is_regression": is_regression,
+            "is_improvement": is_improvement,
+            "ci_warning": ci_warning,
+        }
 
     return (
         silverman_kde,
