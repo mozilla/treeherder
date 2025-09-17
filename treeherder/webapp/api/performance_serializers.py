@@ -654,21 +654,6 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
         ]
 
 
-class StandardStatisticsSerializer(serializers.Serializer):
-    name = serializers.CharField()
-    data = serializers.ListField(child=PerfCompareDecimalField(), default=[])
-    header = serializers.CharField()
-    title = serializers.CharField()
-    info_link = serializers.CharField()
-    sample_count = serializers.IntegerField()
-    mean = PerfCompareDecimalField()
-    median = PerfCompareDecimalField()
-    variance = PerfCompareDecimalField()
-    standard_deviation = PerfCompareDecimalField()
-    min = PerfCompareDecimalField()
-    max = PerfCompareDecimalField()
-
-
 class StatisticsTestSerializer(serializers.Serializer):
     test_name = serializers.CharField()
     stat = PerfCompareDecimalField()
@@ -782,8 +767,6 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
     base_signature_id = serializers.IntegerField()
     new_signature_id = serializers.IntegerField()
     has_subtests = serializers.BooleanField()
-    base_rev_stats = StandardStatisticsSerializer(many=False)
-    new_rev_stats = StandardStatisticsSerializer(many=False)
     ks_test = StatisticsTestSerializer(many=False)
     mann_whitney_test = StatisticsTestSerializer(many=False)
     cliffs_delta = PerfCompareDecimalField()
@@ -856,8 +839,6 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
             "base_signature_id",
             "new_signature_id",
             "has_subtests",
-            "base_rev_stats",
-            "new_rev_stats",
             "ks_test",
             "mann_whitney_test",
             "cliffs_delta",
