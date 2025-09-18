@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Badge } from 'reactstrap';
+import { Badge } from 'react-bootstrap';
 
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import { replicatesMaxLength } from '../perf-helpers/constants';
@@ -8,7 +8,13 @@ import { displayNumber, formatNumber } from '../perf-helpers/helpers';
 
 import TooltipGraph from './TooltipGraph';
 
-const TableAverage = ({ value, stddev, stddevpct, replicates, app }) => {
+const TableAverage = ({
+  value = null,
+  stddev = null,
+  stddevpct = null,
+  replicates = [],
+  app,
+}) => {
   let tooltipText;
   if (replicates.length > 1) {
     const replicatesStr = replicates
@@ -88,7 +94,7 @@ const TableAverage = ({ value, stddev, stddevpct, replicates, app }) => {
       )}
       {app && (
         <p className="d-flex align-items-start m-0">
-          <Badge color="light">{app}</Badge>
+          <Badge bg="light">{app}</Badge>
         </p>
       )}
     </td>
@@ -100,13 +106,6 @@ TableAverage.propTypes = {
   stddev: PropTypes.number,
   stddevpct: PropTypes.number,
   replicates: PropTypes.arrayOf(PropTypes.number),
-};
-
-TableAverage.defaultProps = {
-  value: PropTypes.null,
-  stddev: PropTypes.null,
-  stddevpct: PropTypes.null,
-  replicates: [],
 };
 
 export default TableAverage;

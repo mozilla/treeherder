@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Container, Row } from 'reactstrap';
+import { Container, Row, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import Button from 'reactstrap/lib/Button';
 import { faFileDownload } from '@fortawesome/free-solid-svg-icons';
 
 import { filterText } from '../perf-helpers/constants';
@@ -357,8 +356,7 @@ export default class CompareTableControls extends React.Component {
         <div className="download-json-container">
           {hasTryProject() && (
             <Button
-              color="darker-info"
-              outline
+              variant="outline-info"
               className="btn"
               type="button"
               onClick={this.updateReplicates}

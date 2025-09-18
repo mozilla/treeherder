@@ -1,13 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { UncontrolledTooltip } from 'reactstrap';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 import { getJobsUrl } from '../helpers/url';
 
 export default class InfraCompareTableRow extends React.PureComponent {
   render() {
     const {
-      hashkey,
       rowLevelResults: {
         suite,
         platform,
@@ -24,80 +23,80 @@ export default class InfraCompareTableRow extends React.PureComponent {
     } = this.props;
 
     return (
-      <tr color="danger">
+      <tr className="table-danger">
         <th className="text-left">{suite}</th>
         <td>
-          <span
-            style={{ textDecoration: 'underline', color: 'blue' }}
-            id={`originalValue${hashkey}`}
-          >
-            {originalValue}
-          </span>
-          <UncontrolledTooltip
+          <OverlayTrigger
             placement="top"
-            target={`originalValue${hashkey}`}
-            autohide={false}
+            overlay={
+              <Tooltip>
+                {originalJobs.size > 0 ? (
+                  Array.from(originalJobs).map(([jobName, durations]) => (
+                    <p key={jobName}>
+                      {jobName}: {durations.join(', ')}
+                    </p>
+                  ))
+                ) : (
+                  <p className="lead text-center">No jobs to show</p>
+                )}
+                <a
+                  href={getJobsUrl({
+                    repo: originalProject,
+                    revision: originalRevision,
+                    searchStr: `${platform} ${suite}`,
+                  })}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Go to treeherder Job View
+                </a>
+              </Tooltip>
+            }
+            delay={{ show: 0, hide: 0 }}
           >
-            {originalJobs.size > 0 ? (
-              Array.from(originalJobs).map(([jobName, durations]) => (
-                <p>
-                  {jobName}: {durations.join(', ')}
-                </p>
-              ))
-            ) : (
-              <p className="lead text-center">No jobs to show</p>
-            )}
-            <a
-              href={getJobsUrl({
-                repo: originalProject,
-                revision: originalRevision,
-                searchStr: `${platform} ${suite}`,
-              })}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Go to treeherder Job View
-            </a>
-          </UncontrolledTooltip>
+            <span style={{ textDecoration: 'underline', color: 'blue' }}>
+              {originalValue}
+            </span>
+          </OverlayTrigger>
         </td>
         <td>
           {originalValue < newValue && <span>&lt;</span>}
           {originalValue > newValue && <span>&gt;</span>}
         </td>
         <td>
-          <span
-            style={{ textDecoration: 'underline', color: 'blue' }}
-            id={`newValue${hashkey}`}
+          <OverlayTrigger
+            placement="top"
+            overlay={
+              <Tooltip>
+                {newJobs.size > 0 ? (
+                  Array.from(newJobs).map(([jobName, duration]) => (
+                    <p key={jobName}>
+                      {jobName}: {duration.join(', ')}
+                    </p>
+                  ))
+                ) : (
+                  <p className="lead text-center">No jobs to show</p>
+                )}
+                <a
+                  href={getJobsUrl({
+                    repo: newProject,
+                    revision: newRevision,
+                    searchStr: `${platform} ${suite}`,
+                  })}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Go to treeherder Job View
+                </a>
+              </Tooltip>
+            }
+            delay={{ show: 0, hide: 0 }}
           >
-            {newValue}
-          </span>
+            <span style={{ textDecoration: 'underline', color: 'blue' }}>
+              {newValue}
+            </span>
+          </OverlayTrigger>
         </td>
-        <UncontrolledTooltip
-          placement="top"
-          target={`newValue${hashkey}`}
-          autohide={false}
-        >
-          {newJobs.size > 0 ? (
-            Array.from(newJobs).map(([jobName, duration]) => (
-              <p>
-                {jobName}: {duration.join(', ')}
-              </p>
-            ))
-          ) : (
-            <p className="lead text-center">No jobs to show</p>
-          )}
-          <a
-            href={getJobsUrl({
-              repo: newProject,
-              revision: newRevision,
-              searchStr: `${platform} ${suite}`,
-            })}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Go to treeherder Job View
-          </a>
-        </UncontrolledTooltip>
         <td>{originalFailures}</td>
         <td>
           {originalFailures < newFailures && <span>&lt;</span>}

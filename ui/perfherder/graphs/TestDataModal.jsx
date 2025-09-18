@@ -1,18 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Button,
-  Col,
-  Form,
-  Input,
-  Label,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  Row,
-  FormGroup,
-  Badge,
-} from 'reactstrap';
+import { Button, Col, Form, Modal, Row, Badge } from 'react-bootstrap';
 import flatMap from 'lodash/flatMap';
 
 import { createDropdowns } from '../../shared/FilterControls';
@@ -513,9 +501,11 @@ export default class TestDataModal extends React.Component {
     }
 
     return (
-      <Modal size="lg" isOpen={showModal}>
-        <ModalHeader toggle={this.closeModal}>Add Test Data</ModalHeader>
-        <ModalBody className="container-fluid test-chooser">
+      <Modal size="lg" show={showModal} onHide={this.closeModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Add Test Data</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="container-fluid test-chooser">
           <Form>
             <Row className="justify-content-start">
               {createDropdowns(modalOptions, 'p-2', true)}
@@ -534,8 +524,7 @@ export default class TestDataModal extends React.Component {
               )}
               <Col sm="auto" className="p-2">
                 <Button
-                  color="darker-info"
-                  outline
+                  variant="outline-darker-info"
                   onClick={() =>
                     this.setState(
                       { includeSubtests: !includeSubtests },
@@ -561,11 +550,11 @@ export default class TestDataModal extends React.Component {
               <>
                 <Row className="justify-content-start">
                   <Col className="p-2">
-                    <FormGroup>
-                      <Label for="selectMultiTags">Tags</Label>
-                      <Input
+                    <Form.Group>
+                      <Form.Label htmlFor="selectMultiTags">Tags</Form.Label>
+                      <Form.Control
                         className="fa"
-                        type="select"
+                        as="select"
                         name="selectMultiTags"
                         id="selectMultiTags"
                         multiple
@@ -579,8 +568,8 @@ export default class TestDataModal extends React.Component {
                             {tag}
                           </option>
                         ))}
-                      </Input>
-                    </FormGroup>
+                      </Form.Control>
+                    </Form.Group>
                   </Col>
                 </Row>
                 <Row className="pb-2 justify-content-start">
@@ -606,13 +595,13 @@ export default class TestDataModal extends React.Component {
             )}
             <Row className="p-2 justify-content-start">
               <Col className="p-0">
-                <Label for="exampleSelect">
+                <Form.Label htmlFor="exampleSelect">
                   {relatedTests.length > 0 ? 'Related tests' : 'Tests'}
-                </Label>
-                <Input
+                </Form.Label>
+                <Form.Control
                   className="fa"
                   data-testid="tests"
-                  type="select"
+                  as="select"
                   name="selectMulti"
                   id="selectTests"
                   multiple
@@ -629,7 +618,7 @@ export default class TestDataModal extends React.Component {
                         {this.getOriginalTestName(test)}
                       </option>
                     ))}
-                </Input>
+                </Form.Control>
                 {showNoRelatedTests && (
                   <p className="text-info pt-2">No related tests found.</p>
                 )}
@@ -637,13 +626,13 @@ export default class TestDataModal extends React.Component {
             </Row>
             <Row className="p-2 justify-content-start">
               <Col className="p-0">
-                <Label for="exampleSelect">
+                <Form.Label htmlFor="exampleSelect">
                   Selected tests{' '}
                   <span className="small">(click a test to remove it)</span>
-                </Label>
-                <Input
+                </Form.Label>
+                <Form.Control
                   data-testid="selectedTests"
-                  type="select"
+                  as="select"
                   name="selectMulti"
                   id="selectTests"
                   multiple
@@ -659,7 +648,7 @@ export default class TestDataModal extends React.Component {
                         {this.getFullTestName(test)}
                       </option>
                     ))}
-                </Input>
+                </Form.Control>
                 {selectedTests.length > 6 && (
                   <p className="text-info pt-2">
                     Displaying more than 6 graphs at a time is not supported in
@@ -671,7 +660,7 @@ export default class TestDataModal extends React.Component {
             <Row className="p-2">
               <Col className="py-2 px-0 text-right">
                 <Button
-                  color="darker-info"
+                  variant="darker-info"
                   disabled={!selectedTests.length}
                   onClick={this.submitData}
                   onKeyPress={(event) => event.preventDefault()}
@@ -681,7 +670,7 @@ export default class TestDataModal extends React.Component {
               </Col>
             </Row>
           </Form>
-        </ModalBody>
+        </Modal.Body>
       </Modal>
     );
   }

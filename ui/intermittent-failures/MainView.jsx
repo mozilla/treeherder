@@ -1,5 +1,5 @@
 import React from 'react';
-import { Row, Col, Breadcrumb, BreadcrumbItem } from 'reactstrap';
+import { Row, Col, Breadcrumb, BreadcrumbItem } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import ReactTable from 'react-table-6';

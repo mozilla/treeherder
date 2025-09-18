@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Alert, Button } from 'reactstrap';
+import { Alert, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCaretUp, faCaretRight } from '@fortawesome/free-solid-svg-icons';
 
@@ -139,7 +139,7 @@ class CommitHistory extends React.PureComponent {
               <span>
                 {!exactMatch && (
                   <div>
-                    <Alert color="warning" className="m-3 font-italics">
+                    <Alert variant="warning" className="m-3 font-italics">
                       Warning: Could not find an exact match parent Push in
                       Treeherder.
                     </Alert>
@@ -182,8 +182,7 @@ class CommitHistory extends React.PureComponent {
           <span className="font-weight-bold">
             <Button
               onClick={this.toggleDetails}
-              outline
-              color="darker-secondary"
+              variant="outline-secondary"
               className="border-0 pl-0 shadow-none"
               role="button"
               aria-expanded={isExpanded}

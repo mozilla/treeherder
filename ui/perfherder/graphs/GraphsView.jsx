@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Container, Col, Row } from 'reactstrap';
+import { Button, Container, Col, Row } from 'react-bootstrap';
 import unionBy from 'lodash/unionBy';
 import queryString from 'query-string';
 

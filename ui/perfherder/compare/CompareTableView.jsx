@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Alert, Col, Row, Container } from 'reactstrap';
+import { Alert, Col, Row, Container } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
 import ErrorMessages from '../../shared/ErrorMessages';
@@ -325,7 +325,7 @@ export default class CompareTableView extends React.Component {
         >
           <React.Fragment>
             <Row className="justify-content-center">
-              <Alert color="info">
+              <Alert variant="info">
                 <a
                   href={perfCompareURL}
                   target="_blank"
@@ -386,7 +386,7 @@ export default class CompareTableView extends React.Component {
               {testsNoResults && (
                 <Row className="pt-5 justify-content-center">
                   <Col small="12" className="px-0 max-width-default">
-                    <Alert color="warning">
+                    <Alert variant="warning">
                       <TruncatedText
                         title="Tests without results: "
                         maxLength={174}

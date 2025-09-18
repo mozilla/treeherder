@@ -27,8 +27,8 @@ const repoDropdownMenuItems = () =>
   );
 
 test('Pinned options are listed first', async () => {
-  const { getAllByRole } = repoDropdownMenuItems();
-  const items = getAllByRole('menuitem', { hidden: true });
+  const { container } = repoDropdownMenuItems();
+  const items = container.querySelectorAll('.dropdown-item');
 
   expect(items[0].textContent).toContain('fenix');
   expect(items[1].textContent).toContain('autoland');
@@ -36,15 +36,15 @@ test('Pinned options are listed first', async () => {
 });
 
 test('Bogus pinned items are not listed', async () => {
-  const { getAllByRole } = repoDropdownMenuItems();
-  const items = getAllByRole('menuitem', { hidden: true });
+  const { container } = repoDropdownMenuItems();
+  const items = container.querySelectorAll('.dropdown-item');
 
   expect(items[2].textContent).not.toContain('tunafish');
 });
 
 test('Unpinned items are sorted alphabetically', async () => {
-  const { getAllByRole } = repoDropdownMenuItems();
-  const items = getAllByRole('menuitem', { hidden: true });
+  const { container } = repoDropdownMenuItems();
+  const items = container.querySelectorAll('.dropdown-item');
 
   expect(items[3].textContent).toContain('ash');
   expect(items[4].textContent).toContain('mozilla-central');
@@ -53,8 +53,8 @@ test('Unpinned items are sorted alphabetically', async () => {
 });
 
 test('Pinned options are listed only once', async () => {
-  const { getAllByRole } = repoDropdownMenuItems();
-  const items = getAllByRole('menuitem', { hidden: true });
+  const { container } = repoDropdownMenuItems();
+  const items = container.querySelectorAll('.dropdown-item');
 
   expect(items[4].textContent).not.toContain('autoland');
   expect(items[5].textContent).not.toContain('fenix');

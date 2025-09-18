@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartBar, faFileAlt } from '@fortawesome/free-regular-svg-icons';
 import { faTree } from '@fortawesome/free-solid-svg-icons';
-import { Button } from 'reactstrap';
+import { Button } from 'react-bootstrap';
 
 import LogoMenu from '../shared/LogoMenu';
 
