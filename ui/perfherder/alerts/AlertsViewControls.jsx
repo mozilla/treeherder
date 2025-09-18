@@ -138,14 +138,16 @@ export default class AlertsViewControls extends React.Component {
 
     let sortedFrameworks = sortData(frameworkOptions, 'name', false);
     const allFrameworks = 'all frameworks';
-    const mozperftest = 'mozperftest';
+    const allSheriffedFrameworks = 'all sheriffed frameworks';
     const platformMicrobench = 'platform_microbench';
+    const telemetry = 'telemetry';
 
     sortedFrameworks = sortedFrameworks.filter(
       (framework) =>
-        framework.name !== mozperftest &&
         framework.name !== platformMicrobench &&
-        framework.name !== allFrameworks,
+        framework.name !== telemetry &&
+        framework.name !== allFrameworks &&
+        framework.name !== allSheriffedFrameworks,
     );
 
     const frameworkNames =
@@ -165,8 +167,8 @@ export default class AlertsViewControls extends React.Component {
         selectedItem: framework.name,
         updateData: this.updateFramework,
         namespace: 'framework',
-        pinned: [allFrameworks],
-        otherPinned: [mozperftest, platformMicrobench],
+        pinned: [allFrameworks, allSheriffedFrameworks],
+        otherPinned: [platformMicrobench, telemetry],
       },
     ];
 
