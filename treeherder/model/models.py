@@ -926,7 +926,18 @@ class JobNote(models.Model):
 class FailureLine(models.Model):
     # We make use of prefix indicies for several columns in this table which
     # can't be expressed in django syntax so are created with raw sql in migrations.
-    STATUS_LIST = ("PASS", "FAIL", "OK", "ERROR", "TIMEOUT", "CRASH", "ASSERT", "SKIP", "NOTRUN")
+    STATUS_LIST = (
+        "PASS",
+        "FAIL",
+        "OK",
+        "ERROR",
+        "TIMEOUT",
+        "CRASH",
+        "ASSERT",
+        "SKIP",
+        "NOTRUN",
+        "PRECONDITION_FAILED",
+    )
     # Truncated is a special action that we use to indicate that the list of failure lines
     # was truncated according to settings.FAILURE_LINES_CUTOFF.
     ACTION_LIST = ("test_result", "log", "crash", "truncated", "group_result")
@@ -947,11 +958,11 @@ class FailureLine(models.Model):
     line = models.PositiveIntegerField()
     test = models.TextField(blank=True, null=True)
     subtest = models.TextField(blank=True, null=True)
-    status = models.CharField(max_length=7, choices=STATUS_CHOICES)
-    expected = models.CharField(max_length=7, choices=STATUS_CHOICES, blank=True, null=True)
+    status = models.CharField(max_length=19, choices=STATUS_CHOICES)
+    expected = models.CharField(max_length=19, choices=STATUS_CHOICES, blank=True, null=True)
     message = models.TextField(blank=True, null=True)
     signature = models.TextField(blank=True, null=True)
-    level = models.CharField(max_length=8, choices=STATUS_CHOICES, blank=True, null=True)
+    level = models.CharField(max_length=19, choices=STATUS_CHOICES, blank=True, null=True)
     stack = models.TextField(blank=True, null=True)
     stackwalk_stdout = models.TextField(blank=True, null=True)
     stackwalk_stderr = models.TextField(blank=True, null=True)

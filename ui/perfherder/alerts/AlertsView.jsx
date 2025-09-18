@@ -150,6 +150,11 @@ class AlertsView extends React.Component {
     const frameworkOptions = cloneDeep(frameworks);
     const ignoreFrameworks = { id: -1, name: 'all frameworks' };
     frameworkOptions.unshift(ignoreFrameworks);
+    const allSheriffedFrameworks = {
+      id: -2,
+      name: 'all sheriffed frameworks',
+    };
+    frameworkOptions.unshift(allSheriffedFrameworks);
     return frameworkOptions;
   };
 
@@ -201,13 +206,21 @@ class AlertsView extends React.Component {
 
     // -1 ('all') is created for UI purposes but is not a valid API parameter
     const doNotFilter = -1;
+    // -2 ('all sheriffed') Constant created for UI purposes but is not a valid API parameter
+    const allSheriffedFrameworksID = -2;
     const listMode = !id;
 
     if (listMode && params.status === doNotFilter) {
       delete params.status;
     }
-    if (listMode && params.framework === doNotFilter) {
-      delete params.framework;
+
+    if (listMode) {
+      if (params.framework === allSheriffedFrameworksID) {
+        params.show_sheriffed_frameworks = true;
+      }
+      if ([doNotFilter, allSheriffedFrameworksID].includes(params.framework)) {
+        delete params.framework;
+      }
     }
 
     return params;
