@@ -10,6 +10,7 @@ import {
 import { createBrowserHistory } from 'history';
 import { ConnectedRouter } from 'connected-react-router';
 import { Provider } from 'react-redux';
+import { HelmetProvider } from 'react-helmet-async';
 
 import Health from '../../../ui/push-health/Health';
 import pushHealth from '../mock/push_health';
@@ -126,15 +127,17 @@ describe('Health', () => {
   const testHealth = () => {
     const store = configureStore(history);
     return (
-      <Provider store={store}>
-        <ConnectedRouter history={history}>
-          <Health
-            location={history.location}
-            notify={() => {}}
-            clearNotification={() => {}}
-          />
-        </ConnectedRouter>
-      </Provider>
+      <HelmetProvider>
+        <Provider store={store}>
+          <ConnectedRouter history={history}>
+            <Health
+              location={history.location}
+              notify={() => {}}
+              clearNotification={() => {}}
+            />
+          </ConnectedRouter>
+        </Provider>
+      </HelmetProvider>
     );
   };
 

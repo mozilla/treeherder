@@ -1,9 +1,10 @@
 import React from 'react';
 import fetchMock from 'fetch-mock';
-import { render, waitFor, fireEvent } from '@testing-library/react';
+import { render, waitFor, fireEvent, act } from '@testing-library/react';
 import { createBrowserHistory } from 'history';
 import { ConnectedRouter } from 'connected-react-router';
 import { Provider } from 'react-redux';
+import { HelmetProvider } from 'react-helmet-async';
 
 import MyPushes from '../../../ui/push-health/MyPushes';
 import pushHealthSummaryTryData from '../mock/push_health_summary_try';
@@ -35,17 +36,19 @@ describe('My Pushes', () => {
   const testMyPushes = (user = testUser) => {
     const store = configureStore(history);
     return (
-      <Provider store={store}>
-        <ConnectedRouter history={history}>
-          <MyPushes
-            user={user}
-            location={history.location}
-            notify={() => {}}
-            clearNotification={() => {}}
-            history={history}
-          />
-        </ConnectedRouter>
-      </Provider>
+      <HelmetProvider>
+        <Provider store={store}>
+          <ConnectedRouter history={history}>
+            <MyPushes
+              user={user}
+              location={history.location}
+              notify={() => {}}
+              clearNotification={() => {}}
+              history={history}
+            />
+          </ConnectedRouter>
+        </Provider>
+      </HelmetProvider>
     );
   };
 
@@ -92,7 +95,9 @@ describe('My Pushes', () => {
     ]);
 
     const dropdownButton = await waitFor(() => getByText('try pushes'));
-    fireEvent.click(dropdownButton);
+    await act(async () => {
+      fireEvent.click(dropdownButton);
+    });
 
     fetchMock.get(
       getProjectUrl(`/push/health_summary/?${params}&all_repos=true`, repo),

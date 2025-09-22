@@ -688,7 +688,7 @@ TestDataModal.propTypes = {
   showModal: PropTypes.bool.isRequired,
   timeRange: PropTypes.shape({}).isRequired,
   toggle: PropTypes.func.isRequired,
-  updateTestsAndTimeRange: PropTypes.func.isRequired,
+  updateTestsAndTimeRange: PropTypes.func,
   frameworks: PropTypes.arrayOf(PropTypes.shape({})),
   getInitialData: PropTypes.func,
   getSeriesData: PropTypes.func,
@@ -697,6 +697,7 @@ TestDataModal.propTypes = {
     relatedSeries: PropTypes.shape({}),
   }),
   testData: PropTypes.arrayOf(PropTypes.shape({})),
+  replicates: PropTypes.number,
 };
 
 TestDataModal.defaultProps = {
@@ -705,4 +706,6 @@ TestDataModal.defaultProps = {
   getSeriesData,
   options: undefined,
   testData: [],
+  updateTestsAndTimeRange: null,
+  replicates: 1,
 };

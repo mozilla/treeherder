@@ -1,8 +1,8 @@
 import React, { Suspense, lazy } from 'react';
 import { Route, Switch } from 'react-router-dom';
-import { hot } from 'react-hot-loader/root';
 import { ConnectedRouter } from 'connected-react-router';
 import { Provider } from 'react-redux';
+import { HelmetProvider } from 'react-helmet-async';
 
 import { permaLinkPrefix } from './perfherder/perf-helpers/constants';
 import { configureStore, history } from './job-view/redux/configureStore';
@@ -118,71 +118,76 @@ const withFavicon = (element, route) => {
 const App = () => {
   updateUrls();
   return (
-    <Provider store={configureStore()}>
-      <ConnectedRouter history={history}>
-        <Suspense fallback={<LoadingSpinner />}>
-          <Switch>
-            <Route
-              exact
-              path="/login"
-              render={(props) => <LoginCallback {...props} />}
-            />
-            <Route
-              exact
-              path="/taskcluster-auth"
-              render={(props) => <TaskclusterCallback {...props} />}
-            />
-            <Route
-              path="/jobs"
-              render={(props) =>
-                withFavicon(<JobsViewApp {...props} />, props.location.pathname)
-              }
-            />
-            <Route
-              path="/logviewer"
-              render={(props) =>
-                withFavicon(
-                  <LogviewerApp {...props} />,
-                  props.location.pathname,
-                )
-              }
-            />
-            <Route
-              path="/userguide"
-              render={(props) =>
-                withFavicon(
-                  <UserGuideApp {...props} />,
-                  props.location.pathname,
-                )
-              }
-            />
-            <Route
-              path="/push-health"
-              render={(props) =>
-                withFavicon(<PushHealthApp {...props} />, '/push-health')
-              }
-            />
-            <Route
-              path="/intermittent-failures"
-              render={(props) =>
-                withFavicon(
-                  <IntermittentFailuresApp {...props} />,
-                  '/intermittent-failures',
-                )
-              }
-            />
-            <Route
-              path="/perfherder"
-              render={(props) =>
-                withFavicon(<PerfherderApp {...props} />, '/perfherder')
-              }
-            />
-            <Route path="/docs" render={(props) => <RedocApp {...props} />} />
-          </Switch>
-        </Suspense>
-      </ConnectedRouter>
-    </Provider>
+    <HelmetProvider>
+      <Provider store={configureStore()}>
+        <ConnectedRouter history={history}>
+          <Suspense fallback={<LoadingSpinner />}>
+            <Switch>
+              <Route
+                exact
+                path="/login"
+                render={(props) => <LoginCallback {...props} />}
+              />
+              <Route
+                exact
+                path="/taskcluster-auth"
+                render={(props) => <TaskclusterCallback {...props} />}
+              />
+              <Route
+                path="/jobs"
+                render={(props) =>
+                  withFavicon(
+                    <JobsViewApp {...props} />,
+                    props.location.pathname,
+                  )
+                }
+              />
+              <Route
+                path="/logviewer"
+                render={(props) =>
+                  withFavicon(
+                    <LogviewerApp {...props} />,
+                    props.location.pathname,
+                  )
+                }
+              />
+              <Route
+                path="/userguide"
+                render={(props) =>
+                  withFavicon(
+                    <UserGuideApp {...props} />,
+                    props.location.pathname,
+                  )
+                }
+              />
+              <Route
+                path="/push-health"
+                render={(props) =>
+                  withFavicon(<PushHealthApp {...props} />, '/push-health')
+                }
+              />
+              <Route
+                path="/intermittent-failures"
+                render={(props) =>
+                  withFavicon(
+                    <IntermittentFailuresApp {...props} />,
+                    '/intermittent-failures',
+                  )
+                }
+              />
+              <Route
+                path="/perfherder"
+                render={(props) =>
+                  withFavicon(<PerfherderApp {...props} />, '/perfherder')
+                }
+              />
+              <Route path="/docs" render={(props) => <RedocApp {...props} />} />
+            </Switch>
+          </Suspense>
+        </ConnectedRouter>
+      </Provider>
+    </HelmetProvider>
   );
 };
 
-export default hot(App);
+export default App;
