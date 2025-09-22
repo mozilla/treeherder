@@ -26,7 +26,7 @@ const GraphTooltip = ({
   infraAffectedData,
   user,
   updateData,
-  projects,
+  projects = [],
   updateStateParams,
   lockTooltip,
   closeTooltip,
@@ -346,11 +346,6 @@ GraphTooltip.propTypes = {
   user: PropTypes.shape({}).isRequired,
   updateData: PropTypes.func.isRequired,
   projects: PropTypes.arrayOf(PropTypes.shape({})),
-};
-
-GraphTooltip.defaultProps = {
-  projects: [],
-  dataPoint: undefined,
 };
 
 export default GraphTooltip;

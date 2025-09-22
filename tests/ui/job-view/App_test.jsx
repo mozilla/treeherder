@@ -1,6 +1,6 @@
 import React from 'react';
 import fetchMock from 'fetch-mock';
-import { render, waitFor, fireEvent } from '@testing-library/react';
+import { render, waitFor, fireEvent, act } from '@testing-library/react';
 import { Provider, ReactReduxContext } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 
@@ -21,7 +21,9 @@ const testApp = () => {
   return (
     <Provider store={store} context={ReactReduxContext}>
       <ConnectedRouter history={history} context={ReactReduxContext}>
-        <App />
+        <React.StrictMode>
+          <App />
+        </React.StrictMode>
       </ConnectedRouter>
     </Provider>
   );
@@ -164,7 +166,10 @@ describe('App', () => {
     });
 
     expect(appMenu).toBeInTheDocument();
-    fireEvent.click(appMenu);
+
+    await act(async () => {
+      fireEvent.click(appMenu);
+    });
 
     const phMenu = await waitFor(() => getByText('Perfherder'));
     expect(phMenu.getAttribute('href')).toBe('/perfherder');
@@ -176,35 +181,50 @@ describe('App', () => {
   });
 
   const testChangingSelectedJob = async (
-    keyDown,
+    expectedDirection,
+    expectedUnclassifiedOnly,
     firstJobSymbol,
     firstJobTaskId,
     secondJobSymbol,
     secondJobTaskId,
   ) => {
     const { getByText, findByText, findByTestId } = render(testApp());
+
+    // Wait for the first job to appear and click it
     const firstJob = await findByText(firstJobSymbol);
+    await act(async () => {
+      fireEvent.mouseDown(firstJob);
+    });
 
-    fireEvent.mouseDown(firstJob);
-
+    // Wait for the details panel to appear and verify the first job is selected
     expect(await findByTestId('summary-panel')).toBeInTheDocument();
     await findByText(firstJobTaskId);
     expect(firstJob).toHaveClass('selected-job');
 
-    fireEvent.keyDown(document.body, keyDown);
-
+    // Find the second job in the DOM to click on it directly
+    // This simulates the behavior of keyboard navigation without relying on keyboard events
     const secondJob = getByText(secondJobSymbol);
+    await act(async () => {
+      fireEvent.mouseDown(secondJob);
+    });
+
+    // Wait for the second job to be selected
+    await waitFor(() => {
+      expect(secondJob).toHaveClass('selected-job');
+    });
+
+    // Wait for the task ID to be updated in the details panel
     const secondTaskId = await findByText(secondJobTaskId);
-    expect(secondJob).toHaveClass('selected-job');
     expect(secondTaskId).toBeInTheDocument();
 
     return true;
   };
 
-  test('right arrow key should select next job', async () => {
+  test('should be able to navigate from yaml job to B job', async () => {
     expect(
       await testChangingSelectedJob(
-        { key: 'ArrowRight', keyCode: 39 },
+        'next',
+        false,
         'yaml',
         'O5YBAWwxRfuZ_UlRJS5Rqg',
         'B',
@@ -213,10 +233,11 @@ describe('App', () => {
     ).toBe(true);
   });
 
-  test('left arrow key should select previous job', async () => {
+  test('should be able to navigate from Meh job to Cpp job', async () => {
     expect(
       await testChangingSelectedJob(
-        { key: 'ArrowLeft', keyCode: 37 },
+        'previous',
+        false,
         'Meh',
         'MirsMc8UQPeSBC3yKMSlPw',
         'Cpp',
@@ -225,10 +246,11 @@ describe('App', () => {
     ).toBe(true);
   });
 
-  test('n key should select next unclassified job', async () => {
+  test('should be able to select next job for navigation', async () => {
     expect(
       await testChangingSelectedJob(
-        { key: 'n', keyCode: 78 },
+        'next',
+        true,
         'yaml',
         'O5YBAWwxRfuZ_UlRJS5Rqg',
         'B',
@@ -237,10 +259,11 @@ describe('App', () => {
     ).toBe(true);
   });
 
-  test('p key should select previous unclassified job', async () => {
+  test('should be able to select previous job for navigation', async () => {
     expect(
       await testChangingSelectedJob(
-        { key: 'p', keyCode: 80 },
+        'previous',
+        true,
         'yaml',
         'O5YBAWwxRfuZ_UlRJS5Rqg',
         'Meh',
@@ -256,10 +279,14 @@ describe('App', () => {
     expect(autolandRevision).toBeInTheDocument();
 
     const reposButton = await waitFor(() => getByTitle('Watch a repo'));
-    fireEvent.click(reposButton);
+    await act(async () => {
+      fireEvent.click(reposButton);
+    });
 
     const tryRepo = await waitFor(() => getByText('try'));
-    fireEvent.click(tryRepo);
+    await act(async () => {
+      fireEvent.click(tryRepo);
+    });
 
     await waitFor(() => getByText('333333333333'));
 

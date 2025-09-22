@@ -199,15 +199,37 @@ class SimilarJobsTab extends React.Component {
                     {toShortDateStr(similarJob.result_set.push_timestamp)}
                   </td>
                   <td>
-                    <a href={similarJob.authorResultsetFilterUrl}>
+                    <button
+                      type="button"
+                      className="btn btn-link p-0 text-left"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(
+                          similarJob.authorResultsetFilterUrl,
+                          '_blank',
+                        );
+                      }}
+                      title="Open author filter in new tab"
+                    >
                       {similarJob.result_set.author}
-                    </a>
+                    </button>
                   </td>
                   <td>{similarJob.duration} min</td>
                   <td>
-                    <a href={similarJob.revisionResultsetFilterUrl}>
+                    <button
+                      type="button"
+                      className="btn btn-link p-0 text-left"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(
+                          similarJob.revisionResultsetFilterUrl,
+                          '_blank',
+                        );
+                      }}
+                      title="Open revision filter in new tab"
+                    >
                       {similarJob.result_set.revisions[0].revision}
-                    </a>
+                    </button>
                   </td>
                 </tr>
               ))}

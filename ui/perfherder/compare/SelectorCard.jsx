@@ -221,7 +221,7 @@ export default class SelectorCard extends React.Component {
               <Card.Subtitle className="pt-4 pb-2">Revision</Card.Subtitle>
               <InputGroup>
                 <Form.Control
-                  valid={!invalidRevision && !validating && validated}
+                  isValid={!invalidRevision && !validating && validated}
                   placeholder={selectorCardText.revisionPlaceHolder}
                   value={selectedRevision}
                   onChange={(event) => this.validateInput(event.target.value)}

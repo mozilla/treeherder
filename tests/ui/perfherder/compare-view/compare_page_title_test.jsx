@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, cleanup, waitFor } from '@testing-library/react';
+import { HelmetProvider } from 'react-helmet-async';
 
 import ComparePageTitle from '../../../../ui/shared/ComparePageTitle';
 
@@ -10,15 +11,17 @@ const defaultPageTitle =
 
 const comparePageTitle = (hasSubtests) => {
   return (
-    <ComparePageTitle
-      title={
-        hasSubtests
-          ? `${title} subtest summary`
-          : 'Perfherder Compare Revisions'
-      }
-      pageTitleQueryParam={null}
-      defaultPageTitle={defaultPageTitle}
-    />
+    <HelmetProvider>
+      <ComparePageTitle
+        title={
+          hasSubtests
+            ? `${title} subtest summary`
+            : 'Perfherder Compare Revisions'
+        }
+        pageTitleQueryParam={null}
+        defaultPageTitle={defaultPageTitle}
+      />
+    </HelmetProvider>
   );
 };
 

@@ -6,9 +6,10 @@ body {
 .absolute-progress {
   position: absolute;
   width: 100%;
-  top: 35%;
+  top: 50%;
   left: 0px;
   text-align: center;
+  transform: translateY(-50%);
 }
 
 .progress-relative {

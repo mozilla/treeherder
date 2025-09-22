@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, screen } from '@testing-library/react';
+import { render, fireEvent, screen, act } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import configureStore from 'redux-mock-store';
@@ -118,7 +118,7 @@ describe('FiltersMenu', () => {
     expect(screen.getByText('Filters')).toBeInTheDocument();
   });
 
-  it('renders all result status menu items', () => {
+  it('renders all result status menu items', async () => {
     renderWithRouter(
       <FiltersMenu
         filterModel={mockFilterModel}
@@ -128,7 +128,9 @@ describe('FiltersMenu', () => {
     );
 
     // Open the dropdown
-    fireEvent.click(screen.getByText('Filters'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Filters'));
+    });
 
     // Check that all result status menu items are rendered (except 'runnable')
     const resultStatusMenuItems = thAllResultStatuses.filter(
@@ -140,7 +142,7 @@ describe('FiltersMenu', () => {
     });
   });
 
-  it('calls toggleResultStatuses when a status filter is clicked', () => {
+  it('calls toggleResultStatuses when a status filter is clicked', async () => {
     renderWithRouter(
       <FiltersMenu
         filterModel={mockFilterModel}
@@ -150,10 +152,14 @@ describe('FiltersMenu', () => {
     );
 
     // Open the dropdown
-    fireEvent.click(screen.getByText('Filters'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Filters'));
+    });
 
     // Click on a status filter
-    fireEvent.click(screen.getByText('success'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('success'));
+    });
 
     // Check that toggleResultStatuses was called with the correct argument
     expect(mockFilterModel.toggleResultStatuses).toHaveBeenCalledWith([
@@ -161,7 +167,7 @@ describe('FiltersMenu', () => {
     ]);
   });
 
-  it('calls pinJobs when "Pin all showing" is clicked', () => {
+  it('calls pinJobs when "Pin all showing" is clicked', async () => {
     renderWithRouter(
       <FiltersMenu
         filterModel={mockFilterModel}
@@ -171,10 +177,14 @@ describe('FiltersMenu', () => {
     );
 
     // Open the dropdown
-    fireEvent.click(screen.getByText('Filters'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Filters'));
+    });
 
     // Click on "Pin all showing"
-    fireEvent.click(screen.getByText('Pin all showing'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Pin all showing'));
+    });
 
     // Check that getAllShownJobs and pinJobs were called
     expect(mockGetAllShownJobs).toHaveBeenCalled();
@@ -192,7 +202,7 @@ describe('FiltersMenu', () => {
     });
   });
 
-  it('calls setSelectedJob when pinning jobs and no job is selected', () => {
+  it('calls setSelectedJob when pinning jobs and no job is selected', async () => {
     renderWithRouter(
       <FiltersMenu
         filterModel={mockFilterModel}
@@ -202,10 +212,14 @@ describe('FiltersMenu', () => {
     );
 
     // Open the dropdown
-    fireEvent.click(screen.getByText('Filters'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Filters'));
+    });
 
     // Click on "Pin all showing"
-    fireEvent.click(screen.getByText('Pin all showing'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Pin all showing'));
+    });
 
     // Check that the store received the SELECT_JOB action
     const actions = store.getActions();
@@ -218,7 +232,7 @@ describe('FiltersMenu', () => {
     });
   });
 
-  it('does not call setSelectedJob when pinning jobs and a job is already selected', () => {
+  it('does not call setSelectedJob when pinning jobs and a job is already selected', async () => {
     // Create a store with a selected job
     const storeWithSelectedJob = mockStore({
       selectedJob: {
@@ -242,16 +256,20 @@ describe('FiltersMenu', () => {
     );
 
     // Open the dropdown
-    fireEvent.click(screen.getByText('Filters'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Filters'));
+    });
 
     // Click on "Pin all showing"
-    fireEvent.click(screen.getByText('Pin all showing'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Pin all showing'));
+    });
 
     // Check that setSelectedJob was not called
     expect(selectedJobActions.setSelectedJob).not.toHaveBeenCalled();
   });
 
-  it('calls toggleClassifiedFailures(true) when "All failures" is clicked', () => {
+  it('calls toggleClassifiedFailures(true) when "All failures" is clicked', async () => {
     renderWithRouter(
       <FiltersMenu
         filterModel={mockFilterModel}
@@ -261,16 +279,20 @@ describe('FiltersMenu', () => {
     );
 
     // Open the dropdown
-    fireEvent.click(screen.getByText('Filters'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Filters'));
+    });
 
     // Click on "All failures"
-    fireEvent.click(screen.getByText('All failures'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('All failures'));
+    });
 
     // Check that toggleClassifiedFailures was called with true
     expect(mockFilterModel.toggleClassifiedFailures).toHaveBeenCalledWith(true);
   });
 
-  it('calls toggleUnclassifiedFailures when "Unclassified failures" is clicked', () => {
+  it('calls toggleUnclassifiedFailures when "Unclassified failures" is clicked', async () => {
     renderWithRouter(
       <FiltersMenu
         filterModel={mockFilterModel}
@@ -280,16 +302,20 @@ describe('FiltersMenu', () => {
     );
 
     // Open the dropdown
-    fireEvent.click(screen.getByText('Filters'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Filters'));
+    });
 
     // Click on "Unclassified failures"
-    fireEvent.click(screen.getByText('Unclassified failures'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Unclassified failures'));
+    });
 
     // Check that toggleUnclassifiedFailures was called
     expect(mockFilterModel.toggleUnclassifiedFailures).toHaveBeenCalled();
   });
 
-  it('calls toggleClassifiedFailures when "Classified failures" is clicked', () => {
+  it('calls toggleClassifiedFailures when "Classified failures" is clicked', async () => {
     renderWithRouter(
       <FiltersMenu
         filterModel={mockFilterModel}
@@ -299,16 +325,20 @@ describe('FiltersMenu', () => {
     );
 
     // Open the dropdown
-    fireEvent.click(screen.getByText('Filters'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Filters'));
+    });
 
     // Click on "Classified failures"
-    fireEvent.click(screen.getByText('Classified failures'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Classified failures'));
+    });
 
     // Check that toggleClassifiedFailures was called
     expect(mockFilterModel.toggleClassifiedFailures).toHaveBeenCalled();
   });
 
-  it('calls setOnlySuperseded when "Superseded only" is clicked', () => {
+  it('calls setOnlySuperseded when "Superseded only" is clicked', async () => {
     renderWithRouter(
       <FiltersMenu
         filterModel={mockFilterModel}
@@ -318,16 +348,20 @@ describe('FiltersMenu', () => {
     );
 
     // Open the dropdown
-    fireEvent.click(screen.getByText('Filters'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Filters'));
+    });
 
     // Click on "Superseded only"
-    fireEvent.click(screen.getByText('Superseded only'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Superseded only'));
+    });
 
     // Check that setOnlySuperseded was called
     expect(mockFilterModel.setOnlySuperseded).toHaveBeenCalled();
   });
 
-  it('calls resetNonFieldFilters when "Reset" is clicked', () => {
+  it('calls resetNonFieldFilters when "Reset" is clicked', async () => {
     renderWithRouter(
       <FiltersMenu
         filterModel={mockFilterModel}
@@ -337,16 +371,20 @@ describe('FiltersMenu', () => {
     );
 
     // Open the dropdown
-    fireEvent.click(screen.getByText('Filters'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Filters'));
+    });
 
     // Click on "Reset"
-    fireEvent.click(screen.getByText('Reset'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Reset'));
+    });
 
     // Check that resetNonFieldFilters was called
     expect(mockFilterModel.resetNonFieldFilters).toHaveBeenCalled();
   });
 
-  it('creates correct URL for "My pushes only" link', () => {
+  it('creates correct URL for "My pushes only" link', async () => {
     renderWithRouter(
       <FiltersMenu
         filterModel={mockFilterModel}
@@ -356,7 +394,9 @@ describe('FiltersMenu', () => {
     );
 
     // Open the dropdown
-    fireEvent.click(screen.getByText('Filters'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Filters'));
+    });
 
     // Find the "My pushes only" link
     const myPushesLink = screen.getByText('My pushes only').closest('a');
@@ -365,7 +405,7 @@ describe('FiltersMenu', () => {
     expect(myPushesLink.search).toContain('author=test%40example.com');
   });
 
-  it('creates correct URL for "Hide code review pushes" link', () => {
+  it('creates correct URL for "Hide code review pushes" link', async () => {
     renderWithRouter(
       <FiltersMenu
         filterModel={mockFilterModel}
@@ -375,7 +415,9 @@ describe('FiltersMenu', () => {
     );
 
     // Open the dropdown
-    fireEvent.click(screen.getByText('Filters'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Filters'));
+    });
 
     // Find the "Hide code review pushes" link
     const hideReviewbotLink = screen
@@ -386,7 +428,7 @@ describe('FiltersMenu', () => {
     expect(hideReviewbotLink.search).toContain('author=-reviewbot');
   });
 
-  it('handles "All jobs" filter correctly when default filters are active', () => {
+  it('handles "All jobs" filter correctly when default filters are active', async () => {
     // Mock arraysEqual to return true for the default filters
     filterHelpers.arraysEqual.mockImplementation((a, b) => {
       if (
@@ -408,16 +450,20 @@ describe('FiltersMenu', () => {
     );
 
     // Open the dropdown
-    fireEvent.click(screen.getByText('Filters'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Filters'));
+    });
 
     // Click on "All jobs"
-    fireEvent.click(screen.getByText('All jobs'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('All jobs'));
+    });
 
     // Check that toggleClassifiedFailures was called with true
     expect(mockFilterModel.toggleClassifiedFailures).toHaveBeenCalledWith(true);
   });
 
-  it('handles "All jobs" filter correctly when non-default filters are active', () => {
+  it('handles "All jobs" filter correctly when non-default filters are active', async () => {
     // Mock arraysEqual to return false for the default filters
     filterHelpers.arraysEqual.mockImplementation(() => false);
 
@@ -430,10 +476,14 @@ describe('FiltersMenu', () => {
     );
 
     // Open the dropdown
-    fireEvent.click(screen.getByText('Filters'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Filters'));
+    });
 
     // Click on "All jobs"
-    fireEvent.click(screen.getByText('All jobs'));
+    await act(async () => {
+      fireEvent.click(screen.getByText('All jobs'));
+    });
 
     // Check that resetNonFieldFilters was called
     expect(mockFilterModel.resetNonFieldFilters).toHaveBeenCalled();

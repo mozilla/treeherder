@@ -177,7 +177,7 @@ class ActiveFilters extends React.Component {
                 <select
                   id="job-filter-field"
                   className="form-control"
-                  value={newFilterField}
+                  value={newFilterField || ''}
                   onChange={(evt) => this.setNewFilterField(evt.target.value)}
                   placeholder="filter field"
                   aria-label="Field"
@@ -198,7 +198,7 @@ class ActiveFilters extends React.Component {
                   <React.Fragment>
                     <input
                       className="form-control"
-                      value={newFilterValue}
+                      value={newFilterValue || ''}
                       onChange={(evt) =>
                         this.setNewFilterValue(evt.target.value)
                       }
@@ -213,7 +213,7 @@ class ActiveFilters extends React.Component {
                 {newFilterMatchType === 'choice' && (
                   <select
                     className="form-control"
-                    value={newFilterValue}
+                    value={newFilterValue || ''}
                     onChange={(evt) => this.setNewFilterValue(evt.target.value)}
                     id="job-filter-choice-value"
                     aria-label="Value"
