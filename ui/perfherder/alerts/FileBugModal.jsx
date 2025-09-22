@@ -137,11 +137,17 @@ export default class FileBugModal extends React.Component {
 }
 
 FileBugModal.propTypes = {
-  showModal: PropTypes.bool.isRequired,
+  showModal: PropTypes.bool,
   toggle: PropTypes.func.isRequired,
   updateAndClose: PropTypes.func.isRequired,
   header: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   submitButtonText: PropTypes.string.isRequired,
   user: PropTypes.shape({}).isRequired,
+  errorMessage: PropTypes.string,
+};
+
+FileBugModal.defaultProps = {
+  showModal: false,
+  errorMessage: null,
 };

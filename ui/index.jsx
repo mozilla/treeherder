@@ -8,4 +8,8 @@ import './css/treeherder-navbar.css';
 import './css/treeherder-base.css';
 
 const root = createRoot(document.getElementById('root'));
-root.render(<App />);
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+);

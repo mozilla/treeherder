@@ -19,7 +19,9 @@ const testApp = () => {
   return (
     <Provider store={store} context={ReactReduxContext}>
       <ConnectedRouter history={history} context={ReactReduxContext}>
-        <App />
+        <React.StrictMode>
+          <App />
+        </React.StrictMode>
       </ConnectedRouter>
     </Provider>
   );

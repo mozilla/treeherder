@@ -1,4 +1,10 @@
-import { cleanup, render, fireEvent, waitFor } from '@testing-library/react';
+import {
+  cleanup,
+  render,
+  fireEvent,
+  waitFor,
+  act,
+} from '@testing-library/react';
 import React from 'react';
 
 import RetriggerModal from '../../../ui/perfherder/compare/RetriggerModal';
@@ -33,7 +39,9 @@ test('clicking retrigger button sends correct values from inputs', async () => {
 
   const retriggerButton = await waitFor(() => getByText('Retrigger'));
 
-  fireEvent.click(retriggerButton);
+  await act(async () => {
+    fireEvent.click(retriggerButton);
+  });
 
   expect(updateAndCloseMock.mock.calls).toHaveLength(1);
   const sentParameters = updateAndCloseMock.mock.calls[0][1];
@@ -50,7 +58,9 @@ test('If base revision is aggregate base input should be disabled', async () => 
   const baseInput = getByTestId('input baseRetriggerTimes');
 
   expect(baseInput).toBeDisabled();
-  fireEvent.click(retriggerButton);
+  await act(async () => {
+    fireEvent.click(retriggerButton);
+  });
 
   expect(updateAndCloseMock.mock.calls).toHaveLength(1);
   const sentParameters = updateAndCloseMock.mock.calls[0][1];
@@ -65,12 +75,18 @@ test('Invalid value disables retrigger button', async () => {
   const retriggerButton = await waitFor(() => getByText('Retrigger'));
   expect(retriggerButton).not.toBeDisabled();
 
-  fireEvent.change(baseInput, { target: { value: 100 } });
+  await act(async () => {
+    fireEvent.change(baseInput, { target: { value: 100 } });
+  });
   expect(retriggerButton).toBeDisabled();
 
-  fireEvent.change(baseInput, { target: { value: -10 } });
+  await act(async () => {
+    fireEvent.change(baseInput, { target: { value: -10 } });
+  });
   expect(retriggerButton).toBeDisabled();
 
-  fireEvent.change(baseInput, { target: { value: '%$#%' } });
+  await act(async () => {
+    fireEvent.change(baseInput, { target: { value: '%$#%' } });
+  });
   expect(retriggerButton).toBeDisabled();
 });

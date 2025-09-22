@@ -109,7 +109,6 @@ class Login extends React.Component {
               variant="transparent"
               className="navbar-link nav-menu-btn"
               nav
-              caret
             >
               <span
                 className="bg-info px-1 mr-1 rounded text-light"

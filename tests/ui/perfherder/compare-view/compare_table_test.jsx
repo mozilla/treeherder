@@ -7,6 +7,7 @@ import {
   waitFor,
   waitForElementToBeRemoved,
 } from '@testing-library/react';
+import { HelmetProvider } from 'react-helmet-async';
 
 import compareTablesControlsResults from '../../mock/compare_table_controls';
 import projects from '../../mock/repositories';
@@ -203,11 +204,14 @@ const compareTable = (userLoggedIn, isBaseAggregate = false) =>
 
 const comparePageTitle = () =>
   render(
-    <ComparePageTitle
-      title="Perfherder Compare Revisions"
-      updateParams={() => {}}
-      pageTitleQueryParam="Perfherder Compare Revisions"
-    />,
+    <HelmetProvider>
+      <ComparePageTitle
+        title="Perfherder Compare Revisions"
+        updateParams={() => {}}
+        pageTitleQueryParam="Perfherder Compare Revisions"
+        defaultPageTitle="Perfherder Compare Revisions"
+      />
+    </HelmetProvider>,
   );
 
 test('toggle buttons should filter results by selected filter', async () => {

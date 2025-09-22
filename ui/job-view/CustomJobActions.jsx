@@ -97,7 +97,7 @@ class CustomJobActions extends React.PureComponent {
         validate: ajv.compile(action.schema),
       });
     } else {
-      this.setState({ schema: null, payload: null, validate: null });
+      this.setState({ schema: '', payload: '', validate: null });
     }
   };
 
@@ -234,7 +234,7 @@ class CustomJobActions extends React.PureComponent {
                       </Form.Label>
                       <textarea
                         id="payload-textarea"
-                        value={payload}
+                        value={payload || ''}
                         className="form-control pre"
                         rows="10"
                         onChange={(evt) =>
@@ -252,7 +252,7 @@ class CustomJobActions extends React.PureComponent {
                         className="form-control pre"
                         rows="10"
                         readOnly
-                        value={schema}
+                        value={schema || ''}
                       />
                     </div>
                   </React.Fragment>

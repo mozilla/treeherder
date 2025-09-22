@@ -53,7 +53,7 @@ export default class SuggestionsListItem extends React.Component {
       toggleInternalIssueFiler,
       selectedJob,
       jobDetails,
-      addBug,
+      addBug = null,
       currentRepo,
       developerMode,
     } = this.props;
@@ -275,17 +275,15 @@ export default class SuggestionsListItem extends React.Component {
 SuggestionsListItem.propTypes = {
   selectedJob: PropTypes.shape({}).isRequired,
   suggestion: PropTypes.shape({}).isRequired,
-  jobDetails: PropTypes.arrayOf({
-    url: PropTypes.string.isRequired,
-    value: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-  }).isRequired,
+  jobDetails: PropTypes.arrayOf(
+    PropTypes.shape({
+      url: PropTypes.string.isRequired,
+      value: PropTypes.string.isRequired,
+      title: PropTypes.string.isRequired,
+    }),
+  ).isRequired,
   toggleBugFiler: PropTypes.func.isRequired,
   toggleInternalIssueFiler: PropTypes.func.isRequired,
   developerMode: PropTypes.bool.isRequired,
   addBug: PropTypes.func,
-};
-
-SuggestionsListItem.defaultProps = {
-  addBug: null,
 };
