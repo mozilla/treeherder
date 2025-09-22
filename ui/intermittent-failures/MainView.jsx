@@ -123,6 +123,7 @@ const MainView = (props) => {
                 e.stopPropagation();
               }
             }}
+            title="Open bug in Bugzilla"
           >
             {props.original.id}
           </a>
@@ -255,10 +256,8 @@ const MainView = (props) => {
             <Row>
               <Col xs="12" className="text-left">
                 <Breadcrumb listClassName="bg-white">
-                  <BreadcrumbItem>
-                    <a title="Treeherder home page" href="/">
-                      Treeherder
-                    </a>
+                  <BreadcrumbItem href="/" title="Treeherder home page">
+                    Treeherder
                   </BreadcrumbItem>
                   <BreadcrumbItem
                     active

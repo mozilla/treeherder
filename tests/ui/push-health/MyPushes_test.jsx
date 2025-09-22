@@ -4,7 +4,6 @@ import { render, waitFor, fireEvent } from '@testing-library/react';
 import { createBrowserHistory } from 'history';
 import { ConnectedRouter } from 'connected-react-router';
 import { Provider } from 'react-redux';
-import { HelmetProvider } from 'react-helmet-async';
 
 import MyPushes from '../../../ui/push-health/MyPushes';
 import pushHealthSummaryTryData from '../mock/push_health_summary_try';
@@ -36,19 +35,17 @@ describe('My Pushes', () => {
   const testMyPushes = (user = testUser) => {
     const store = configureStore(history);
     return (
-      <HelmetProvider>
-        <Provider store={store}>
-          <ConnectedRouter history={history}>
-            <MyPushes
-              user={user}
-              location={history.location}
-              notify={() => {}}
-              clearNotification={() => {}}
-              history={history}
-            />
-          </ConnectedRouter>
-        </Provider>
-      </HelmetProvider>
+      <Provider store={store}>
+        <ConnectedRouter history={history}>
+          <MyPushes
+            user={user}
+            location={history.location}
+            notify={() => {}}
+            clearNotification={() => {}}
+            history={history}
+          />
+        </ConnectedRouter>
+      </Provider>
     );
   };
 

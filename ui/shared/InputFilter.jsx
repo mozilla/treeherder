@@ -9,7 +9,7 @@ export default class InputFilter extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      input: props.filteredTextValue,
+      input: props.filteredTextValue || '',
     };
   }
 
@@ -22,7 +22,7 @@ export default class InputFilter extends React.Component {
     const { filteredTextValue } = this.props;
 
     if (filteredTextValue !== prevProps.filteredTextValue) {
-      this.setState({ input: filteredTextValue });
+      this.setState({ input: filteredTextValue || '' });
     }
   }
 
@@ -66,7 +66,7 @@ export default class InputFilter extends React.Component {
             }
           }}
           placeholder={placeholder}
-          value={input}
+          value={input || ''}
           disabled={disabled}
           aria-label="filter text"
         />

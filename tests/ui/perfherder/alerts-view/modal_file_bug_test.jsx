@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react';
+import { render, fireEvent, waitFor, act } from '@testing-library/react';
 // eslint-disable-next-line no-unused-vars
 import { getByText } from '@testing-library/dom';
 
@@ -48,7 +48,11 @@ test('When entering a bug ID with non-leading zero, submit bug button label shou
 
   const input = getByPlaceholderText('123456');
 
-  fireEvent.change(input, { target: { value: testRegressions[3]['Bug ID'] } });
+  await act(async () => {
+    fireEvent.change(input, {
+      target: { value: testRegressions[3]['Bug ID'] },
+    });
+  });
 
   expect(
     await waitFor(() =>
@@ -62,7 +66,11 @@ test('Entering a bug number with non leading zero File bug button should be enab
 
   const input = getByPlaceholderText('123456');
 
-  fireEvent.change(input, { target: { value: testRegressions[0]['Bug ID'] } });
+  await act(async () => {
+    fireEvent.change(input, {
+      target: { value: testRegressions[0]['Bug ID'] },
+    });
+  });
 
   expect(
     await waitFor(() =>
@@ -81,7 +89,11 @@ test('Entering a bug number with leading zero(es) File bug button should be disa
   const { getByText, getByPlaceholderText } = testFileBugModal();
   const input = getByPlaceholderText('123456');
 
-  fireEvent.change(input, { target: { value: testRegressions[2]['Bug ID'] } });
+  await act(async () => {
+    fireEvent.change(input, {
+      target: { value: testRegressions[2]['Bug ID'] },
+    });
+  });
 
   expect(await waitFor(() => getByText('File Bug'))).toBeInTheDocument();
   const submitButton = getByText('File Bug');

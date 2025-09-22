@@ -237,6 +237,7 @@ const developmentConfig = {
             options: {
               sassOptions: {
                 quietDeps: true,
+                silenceDeprecations: ['import'],
               },
             },
           },
@@ -337,6 +338,7 @@ const productionConfig = {
             options: {
               sassOptions: {
                 quietDeps: true,
+                silenceDeprecations: ['import'],
               },
             },
           },

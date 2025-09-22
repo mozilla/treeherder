@@ -23,7 +23,7 @@ const AlertHeader = ({
   frameworks,
   alertSummary,
   repoModel,
-  issueTrackers,
+  issueTrackers = [],
   user,
   updateAssignee,
   changeRevision,
@@ -266,7 +266,7 @@ const AlertHeader = ({
             <Col xs="5" className="p-0">
               <InputGroup size="sm">
                 <Form.Control
-                  value={newRevisionFrom}
+                  value={newRevisionFrom || ''}
                   placeholder="Enter desired revision"
                   onChange={handleRevisionChange('from')}
                   autoFocus
@@ -297,7 +297,7 @@ const AlertHeader = ({
             <Col xs="5" className="p-0">
               <InputGroup size="sm">
                 <Form.Control
-                  value={newRevisionTo}
+                  value={newRevisionTo || ''}
                   placeholder="Enter desired revision"
                   onChange={handleRevisionChange('to')}
                   autoFocus
@@ -349,10 +349,6 @@ AlertHeader.propTypes = {
   repoModel: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({}).isRequired,
   issueTrackers: PropTypes.arrayOf(PropTypes.shape({})),
-};
-
-AlertHeader.defaultProps = {
-  issueTrackers: [],
 };
 
 export default AlertHeader;

@@ -58,7 +58,8 @@ export default class JobButtonComponent extends React.Component {
   }
 
   componentWillUnmount() {
-    this.setState({ isRunnableSelected: false, isSelected: false });
+    // Don't call setState during unmount as it can cause memory leaks and warnings
+    // The component is being destroyed, so state updates are unnecessary
   }
 
   setSelected(isSelected) {
