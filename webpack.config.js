@@ -3,7 +3,7 @@ const path = require('path');
 const webpack = require('webpack');
 const { merge } = require('webpack-merge');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const HotModuleReplacementPlugin = require('html-webpack-plugin');
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const { ProvidePlugin } = require('webpack');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
@@ -185,11 +185,12 @@ const developmentConfig = {
   },
 
   plugins: [
-    new HotModuleReplacementPlugin({
+    new HtmlWebpackPlugin({
       template: 'ui/index.html',
       lang: 'en',
       filename: 'index.html',
     }),
+    new ReactRefreshWebpackPlugin(),
   ],
 
   infrastructureLogging: {

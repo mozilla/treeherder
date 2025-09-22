@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Container, Spinner, Navbar, Nav, Alert } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import camelCase from 'lodash/camelCase';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
 
 import faviconBroken from '../img/push-health-broken.png';

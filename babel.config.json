@@ -25,12 +25,16 @@
   ],
   "plugins": [
     "@babel/plugin-syntax-dynamic-import",
-    "react-hot-loader/babel",
     [
       "@babel/plugin-proposal-class-properties",
       {
         "loose": true
       }
     ]
-  ]
+  ],
+  "env": {
+    "development": {
+      "plugins": ["react-refresh/babel"]
+    }
+  }
 }
