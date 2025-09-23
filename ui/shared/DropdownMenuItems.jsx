@@ -37,39 +37,41 @@ const DropdownMenuItems = ({
   otherPinned = [],
 }) => (
   <>
-    {/* Items pinned to top of dropdown */}
-    {pinned.length > 0 && (
-      <React.Fragment>
-        {pinned.map((item) =>
-          createDropdownItem(
-            item,
-            namespace,
-            updateData,
-            selectedItem,
-            'top-pinned',
-          ),
-        )}
-        <Dropdown.Divider />
-      </React.Fragment>
-    )}
-    {options.map((item) =>
-      createDropdownItem(item, namespace, updateData, selectedItem),
-    )}
-    {/* Items pinned to bottom of dropdown */}
-    {otherPinned.length > 0 && (
-      <React.Fragment>
-        <Dropdown.Divider />
-        {otherPinned.map((item) =>
-          createDropdownItem(
-            item,
-            namespace,
-            updateData,
-            selectedItem,
-            'bottom-pinned',
-          ),
-        )}
-      </React.Fragment>
-    )}
+    <Dropdown.Menu>
+      {/* Items pinned to top of dropdown */}
+      {pinned.length > 0 && (
+        <React.Fragment>
+          {pinned.map((item) =>
+            createDropdownItem(
+              item,
+              namespace,
+              updateData,
+              selectedItem,
+              'top-pinned',
+            ),
+          )}
+          <Dropdown.Divider />
+        </React.Fragment>
+      )}
+      {options.map((item) =>
+        createDropdownItem(item, namespace, updateData, selectedItem),
+      )}
+      {/* Items pinned to bottom of dropdown */}
+      {otherPinned.length > 0 && (
+        <React.Fragment>
+          <Dropdown.Divider />
+          {otherPinned.map((item) =>
+            createDropdownItem(
+              item,
+              namespace,
+              updateData,
+              selectedItem,
+              'bottom-pinned',
+            ),
+          )}
+        </React.Fragment>
+      )}
+    </Dropdown.Menu>
   </>
 );
 
