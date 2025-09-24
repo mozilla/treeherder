@@ -445,7 +445,10 @@ class ActionBar extends React.PureComponent {
             )}
             <li className="ml-auto">
               <Dropdown>
-                <Dropdown.Toggle className="bg-transparent text-light border-0 pr-2 py-2 m-0">
+                <Dropdown.Toggle
+                  className="bg-transparent text-light border-0 pr-2 py-2 m-0"
+                  bsPrefix="btn"
+                >
                   <FontAwesomeIcon
                     icon={faEllipsisH}
                     title="Other job actions"
