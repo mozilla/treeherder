@@ -45,6 +45,9 @@ INITIAL_PROBES = (
     "networking_http_channel_page_open_to_first_sent",
     "performance_pageload_fcp",
     "perf_largest_contentful_paint",
+    "performance_interaction_keypress_present_latency",
+    "gfx_content_full_paint_time",
+    "paint_build_displaylist_time",
 )
 
 
