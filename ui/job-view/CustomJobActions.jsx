@@ -31,6 +31,7 @@ class CustomJobActions extends React.PureComponent {
       selectedAction: {},
       schema: '',
       payload: '',
+      dropdownOpen: false,
     };
   }
 
@@ -86,6 +87,10 @@ class CustomJobActions extends React.PureComponent {
   onChangePayload(payload) {
     this.setState({ payload });
   }
+
+  toggleDropdown = () => {
+    this.setState((prevState) => ({ dropdownOpen: !prevState.dropdownOpen }));
+  };
 
   updateSelectedAction = (action) => {
     const { ajv } = this.state;
@@ -202,16 +207,20 @@ class CustomJobActions extends React.PureComponent {
               <div className="form-group">
                 <Form.Label for="action-select-input">Action</Form.Label>
                 <Dropdown
+                  show={this.state.dropdownOpen}
+                  onToggle={this.toggleDropdown}
                   aria-describedby="selectedActionHelp"
                   className="mb-1"
                   id="action-select-input"
                 >
                   <Dropdown.Toggle>{selectedAction.name}</Dropdown.Toggle>
-                  <DropdownMenuItems
-                    selectedItem={selectedAction.name}
-                    updateData={this.onChangeAction}
-                    options={Object.keys(actions)}
-                  />
+                  <Dropdown.Menu>
+                    <DropdownMenuItems
+                      selectedItem={selectedAction.name}
+                      updateData={this.onChangeAction}
+                      options={Object.keys(actions)}
+                    />
+                  </Dropdown.Menu>
                 </Dropdown>
                 <p id="selectedActionHelp" className="help-block">
                   {selectedAction.description}
