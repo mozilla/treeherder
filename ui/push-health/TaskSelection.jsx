@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Row, Col, Form } from 'react-bootstrap';
+import { Row, Col, Input } from 'reactstrap';
 
 class TaskSelection extends React.PureComponent {
   constructor(props) {
@@ -41,12 +41,11 @@ class TaskSelection extends React.PureComponent {
     return (
       <React.Fragment>
         <Col xs="auto">
-          <Form.Check
+          <Input
             type="checkbox"
             checked={isTestSelected}
             onChange={this.selectTest}
             aria-label={`Select ${jobName}`}
-            id={`checkbox-${key}`}
           />
         </Col>
         <Col>

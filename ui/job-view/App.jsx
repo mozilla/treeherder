@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal } from 'react-bootstrap';
+import { Modal } from 'reactstrap';
 import { hot } from 'react-hot-loader/root';
 import SplitPane from 'react-split-pane';
 import pick from 'lodash/pick';

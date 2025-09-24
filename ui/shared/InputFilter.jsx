@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { InputGroup, Form } from 'react-bootstrap';
+import { InputGroup, Input } from 'reactstrap';
 import debounce from 'lodash/debounce';
 
 import { filterText } from '../perfherder/perf-helpers/constants';
@@ -56,7 +56,7 @@ export default class InputFilter extends React.Component {
 
     return (
       <InputGroup>
-        <Form.Control
+        <Input
           onChange={this.updateInput}
           onKeyDown={updateOnEnter ? this.userActionListener : undefined}
           placeholder={placeholder}

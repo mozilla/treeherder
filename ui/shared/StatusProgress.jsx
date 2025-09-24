@@ -4,11 +4,14 @@ import { VictoryPie, VictoryTooltip } from 'victory';
 
 import { getPercentComplete } from '../helpers/display';
 
-const StatusProgress = ({ counts, customStyle = '' }) => {
+const StatusProgress = (props) => {
   // testfailed includes lint, build ("busted") and test failures
   // but excludes intermittent failures
-  const { success, testfailed, running, pending } = counts;
-  const percentComplete = counts ? getPercentComplete(counts) : 0;
+  const {
+    counts: { success, testfailed, running, pending },
+    customStyle,
+  } = props;
+  const percentComplete = props.counts ? getPercentComplete(props.counts) : 0;
   let data = [
     { x: 'success', y: success },
     { x: 'in progress', y: running + pending },
@@ -42,6 +45,10 @@ const StatusProgress = ({ counts, customStyle = '' }) => {
 StatusProgress.propTypes = {
   counts: PropTypes.objectOf(PropTypes.number).isRequired,
   customStyle: PropTypes.string,
+};
+
+StatusProgress.defaultProps = {
+  customStyle: '',
 };
 
 export default StatusProgress;

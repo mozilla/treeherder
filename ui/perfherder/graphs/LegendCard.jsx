@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Badge, Button, Form } from 'react-bootstrap';
+import { Badge, Button, FormGroup, Input } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
@@ -137,7 +137,7 @@ const LegendCard = ({
   const perfdocs = new Perfdocs(framework, suite, platform);
   const hasDocumentation = perfdocs.hasDocumentation();
   return (
-    <Form.Group className="pl-0 border">
+    <FormGroup check className="pl-0 border">
       <Button
         className="close mr-3 my-2 ml-2 bg-transparent"
         onClick={removeTest}
@@ -152,7 +152,8 @@ const LegendCard = ({
       </Button>
       <div className={`${series.color[0]} graph-legend-card p-3`}>
         <Button
-          variant="outline-link"
+          color="link"
+          outline
           className={`p-0 mb-0 pointer border-0 ${
             series.visible ? series.color[0] : 'text-muted'
           } text-left`}
@@ -178,7 +179,8 @@ const LegendCard = ({
           )}
         </div>
         <Button
-          variant="outline-link"
+          color="link"
+          outline
           className={`w-100  ${subtitleStyle}`}
           onClick={() => addTestData('addRelatedBranches')}
           title="Add related branches"
@@ -186,7 +188,8 @@ const LegendCard = ({
           {series.repository_name}
         </Button>
         <Button
-          variant="outline-link"
+          color="link"
+          outline
           className={`w-100  ${subtitleStyle}`}
           onClick={() => addTestData('addRelatedPlatform')}
           title="Add related platforms and branches"
@@ -195,7 +198,8 @@ const LegendCard = ({
         </Button>
         {series.application && (
           <Button
-            variant="outline-link"
+            color="link"
+            outline
             className={`w-100  ${subtitleStyle}`}
             title="Add related applications"
             onClick={() => addTestData('addRelatedApplications')}
@@ -213,7 +217,7 @@ const LegendCard = ({
         <div className="small">{`alert_threshold: ${series.alertThreshold}`}</div>
         <div className="small">{`${series.signatureHash.slice(0, 16)}...`}</div>
       </div>
-      <Form.Control
+      <Input
         className="show-hide-check"
         type="checkbox"
         checked={series.visible}
@@ -221,7 +225,7 @@ const LegendCard = ({
         title="Show/Hide series"
         onChange={updateSelectedTest}
       />
-    </Form.Group>
+    </FormGroup>
   );
 };
 

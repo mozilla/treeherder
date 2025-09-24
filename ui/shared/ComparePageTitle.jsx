@@ -1,7 +1,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import PropTypes from 'prop-types';
-import { Button, Form, InputGroup } from 'react-bootstrap';
+import { Button, Input, InputGroup } from 'reactstrap';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -112,7 +112,7 @@ export default class ComparePageTitle extends React.Component {
           <Button
             className="text-center"
             size="lg"
-            variant="white"
+            color="white"
             onClick={this.goToEditMode}
             title="Click to change the page title"
           >
@@ -126,10 +126,10 @@ export default class ComparePageTitle extends React.Component {
           </Button>
         ) : (
           <InputGroup>
-            <Form.Control
+            <Input
               className="pb-1 col-sm-12 page-title-input"
               ref={this.inputRef}
-              variant="white"
+              color="white"
               style={{
                 textAlign: 'center',
                 fontSize: 'xx-large',
@@ -143,12 +143,12 @@ export default class ComparePageTitle extends React.Component {
               className="ml-3 my-2"
               vertical="center"
               size="lg"
-              variant="secondary"
+              color="secondary"
               onClick={this.injectEnter}
             >
               Save
             </Button>
-            <Button size="lg" variant="link" onClick={this.injectEscape}>
+            <Button size="lg" color="link" onClick={this.injectEscape}>
               Cancel
             </Button>
           </InputGroup>

@@ -53,10 +53,6 @@ afterEach(cleanup);
 test("Summary with no tags shows 'Add tags'", async () => {
   const { getByText } = testStatusDropdown([]);
 
-  // Open the status dropdown first
-  const statusDropdown = await waitFor(() => getByText('untriaged'));
-  fireEvent.click(statusDropdown);
-
   const dropdownItem = await waitFor(() => getByText('Add tags'));
 
   expect(dropdownItem).toBeInTheDocument();
@@ -65,10 +61,6 @@ test("Summary with no tags shows 'Add tags'", async () => {
 test("Summary with tags shows 'Edit tags'", async () => {
   const { getByText } = testStatusDropdown(['harness']);
 
-  // Open the status dropdown first
-  const statusDropdown = await waitFor(() => getByText('untriaged'));
-  fireEvent.click(statusDropdown);
-
   const dropdownItem = await waitFor(() => getByText('Edit tags'));
 
   expect(dropdownItem).toBeInTheDocument();
@@ -76,10 +68,6 @@ test("Summary with tags shows 'Edit tags'", async () => {
 
 test("Tags modal opens from 'Add tags'", async () => {
   const { getByText, getByTestId } = testStatusDropdown([]);
-
-  // Open the status dropdown first
-  const statusDropdown = await waitFor(() => getByText('untriaged'));
-  fireEvent.click(statusDropdown);
 
   const dropdownItem = await waitFor(() => getByText('Add tags'));
 
@@ -92,10 +80,6 @@ test("Tags modal opens from 'Add tags'", async () => {
 
 test("Tags modal opens from 'Edit tags'", async () => {
   const { getByText, getByTestId } = testStatusDropdown(['harness']);
-
-  // Open the status dropdown first
-  const statusDropdown = await waitFor(() => getByText('untriaged'));
-  fireEvent.click(statusDropdown);
 
   const dropdownItem = await waitFor(() => getByText('Edit tags'));
 

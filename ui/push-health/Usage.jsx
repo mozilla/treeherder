@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Alert, Table, Card, Badge } from 'react-bootstrap';
+import { Alert, Table, Jumbotron, Badge } from 'reactstrap';
 import { Link } from 'react-router-dom';
 
 import { getData } from '../helpers/http';
@@ -34,15 +34,13 @@ class Usage extends Component {
 
     return (
       <div>
-        <Card className="mb-3">
-          <Card.Body>
-            <Card.Title>Push Health Try Usage</Card.Title>
-            <Card.Text>
-              This shows the difference in count of need intermittents by push
-              over time.
-            </Card.Text>
-          </Card.Body>
-        </Card>
+        <Jumbotron>
+          <h4>Push Health Try Usage</h4>
+          <p>
+            This shows the difference in count of need intermittents by push
+            over time.
+          </p>
+        </Jumbotron>
         <Table>
           <thead>
             <tr>
@@ -83,7 +81,7 @@ class Usage extends Component {
                   <td>{latestNI}</td>
                   <td>{toShortDateStr(latestTime)}</td>
                   <td>
-                    <Badge bg="success" text="light">
+                    <Badge color="success">
                       {peakNI - latestNI > 0 && peakNI - latestNI}
                     </Badge>
                   </td>
@@ -93,7 +91,7 @@ class Usage extends Component {
             })}
           </tbody>
         </Table>
-        {failureMessage && <Alert variant="danger">{failureMessage}</Alert>}
+        {failureMessage && <Alert color="danger">{failureMessage}</Alert>}
       </div>
     );
   }

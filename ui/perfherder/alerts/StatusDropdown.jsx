@@ -1,6 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Dropdown, Col, Form } from 'react-bootstrap';
+import {
+  UncontrolledDropdown,
+  DropdownMenu,
+  DropdownItem,
+  DropdownToggle,
+  Col,
+  Label,
+} from 'reactstrap';
 import template from 'lodash/template';
 import templateSettings from 'lodash/templateSettings';
 
@@ -354,23 +361,19 @@ The following [documentation link](https://firefox-source-docs.mozilla.org/testi
             submitButtonText="Assign"
             dropdownOption={
               <Col>
-                <Form.Label htmlFor="issueTrackerSelector">
-                  Select Bug Tracker
-                </Form.Label>
-                <Dropdown>
-                  <Dropdown.Toggle variant="secondary">
+                <Label for="issueTrackerSelector">Select Bug Tracker</Label>
+                <UncontrolledDropdown>
+                  <DropdownToggle caret outline>
                     {selectedValue}
-                  </Dropdown.Toggle>
-                  <Dropdown.Menu>
-                    <DropdownMenuItems
-                      updateData={(selectedValue) =>
-                        this.setState({ selectedValue })
-                      }
-                      selectedItem={selectedValue}
-                      options={issueTrackers.map((item) => item.text)}
-                    />
-                  </Dropdown.Menu>
-                </Dropdown>
+                  </DropdownToggle>
+                  <DropdownMenuItems
+                    updateData={(selectedValue) =>
+                      this.setState({ selectedValue })
+                    }
+                    selectedItem={selectedValue}
+                    options={issueTrackers.map((item) => item.text)}
+                  />
+                </UncontrolledDropdown>
               </Col>
             }
           />
@@ -430,44 +433,44 @@ The following [documentation link](https://firefox-source-docs.mozilla.org/testi
           performanceTags={performanceTags}
           updateAndClose={this.updateAndClose}
         />
-        <Dropdown as="span" className="status-drop-down-container">
-          <Dropdown.Toggle className="btn-xs" variant="secondary">
+        <UncontrolledDropdown tag="span" className="status-drop-down-container">
+          <DropdownToggle className="btn-xs" color="darker-secondary" caret>
             {getStatus(alertSummary.status)}
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            <Dropdown.Item as="a" onClick={this.copySummary}>
+          </DropdownToggle>
+          <DropdownMenu>
+            <DropdownItem tag="a" onClick={this.copySummary}>
               Copy Summary
-            </Dropdown.Item>
+            </DropdownItem>
             {!alertSummary.bug_number && user.isStaff && (
-              <Dropdown.Item
-                as="a"
+              <DropdownItem
+                tag="a"
                 onClick={() => this.toggle('showFileBugModal')}
               >
                 File bug
-              </Dropdown.Item>
+              </DropdownItem>
             )}
             {!alertSummary.bug_number &&
               frameworkName in criticalTestsList &&
               user.isStaff && (
-                <Dropdown.Item
-                  as="a"
+                <DropdownItem
+                  tag="a"
                   onClick={() => this.toggle('showCriticalFileBugModal')}
                 >
                   Request backout
-                </Dropdown.Item>
+                </DropdownItem>
               )}
             {user.isStaff && (
               <React.Fragment>
                 {!alertSummary.bug_number ? (
-                  <Dropdown.Item
-                    as="a"
+                  <DropdownItem
+                    tag="a"
                     onClick={() => this.toggle('showBugModal')}
                   >
                     Link to bug
-                  </Dropdown.Item>
+                  </DropdownItem>
                 ) : (
-                  <Dropdown.Item
-                    as="a"
+                  <DropdownItem
+                    tag="a"
                     onClick={() =>
                       this.changeAlertSummary({
                         bug_number: null,
@@ -475,17 +478,17 @@ The following [documentation link](https://firefox-source-docs.mozilla.org/testi
                     }
                   >
                     Unlink from bug
-                  </Dropdown.Item>
+                  </DropdownItem>
                 )}
-                <Dropdown.Item
-                  as="a"
+                <DropdownItem
+                  tag="a"
                   onClick={() => this.toggle('showNotesModal')}
                 >
                   {!alertSummary.notes ? 'Add notes' : 'Edit notes'}
-                </Dropdown.Item>
+                </DropdownItem>
                 {this.isResolved(alertStatus) && (
-                  <Dropdown.Item
-                    as="a"
+                  <DropdownItem
+                    tag="a"
                     onClick={() =>
                       this.changeAlertSummary({
                         status: summaryStatusMap.investigating,
@@ -493,11 +496,11 @@ The following [documentation link](https://firefox-source-docs.mozilla.org/testi
                     }
                   >
                     Re-open
-                  </Dropdown.Item>
+                  </DropdownItem>
                 )}
                 {this.isValidStatus(alertStatus, 'wontfix') && (
-                  <Dropdown.Item
-                    as="a"
+                  <DropdownItem
+                    tag="a"
                     onClick={() =>
                       this.changeAlertSummary({
                         status: summaryStatusMap.wontfix,
@@ -505,12 +508,12 @@ The following [documentation link](https://firefox-source-docs.mozilla.org/testi
                     }
                   >
                     Mark as won&apos;t fix
-                  </Dropdown.Item>
+                  </DropdownItem>
                 )}
 
                 {this.isValidStatus(alertStatus, 'backedout') && (
-                  <Dropdown.Item
-                    as="a"
+                  <DropdownItem
+                    tag="a"
                     onClick={() =>
                       this.changeAlertSummary({
                         status: summaryStatusMap.backedout,
@@ -518,12 +521,12 @@ The following [documentation link](https://firefox-source-docs.mozilla.org/testi
                     }
                   >
                     Mark as backed out
-                  </Dropdown.Item>
+                  </DropdownItem>
                 )}
 
                 {this.isValidStatus(alertStatus, 'fixed') && (
-                  <Dropdown.Item
-                    as="a"
+                  <DropdownItem
+                    tag="a"
                     onClick={() =>
                       this.changeAlertSummary({
                         status: summaryStatusMap.fixed,
@@ -531,20 +534,20 @@ The following [documentation link](https://firefox-source-docs.mozilla.org/testi
                     }
                   >
                     Mark as fixed
-                  </Dropdown.Item>
+                  </DropdownItem>
                 )}
 
-                <Dropdown.Item
-                  as="a"
+                <DropdownItem
+                  tag="a"
                   onClick={() => this.toggle('showTagsModal')}
                 >
                   {!alertSummaryActiveTags.length ? 'Add tags' : 'Edit tags'}
-                </Dropdown.Item>
+                </DropdownItem>
               </React.Fragment>
             )}
-          </Dropdown.Menu>
+          </DropdownMenu>
           {!isWeekend && <AlertStatusCountdown alertSummary={alertSummary} />}
-        </Dropdown>
+        </UncontrolledDropdown>
       </React.Fragment>
     );
   }

@@ -1,6 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Dropdown } from 'react-bootstrap';
+import {
+  Button,
+  UncontrolledDropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
+} from 'reactstrap';
 
 function getLogUrlProps(logKey, logUrl, logViewerUrl, logViewerFullUrl) {
   if (logKey === 'rawlog') {
@@ -53,17 +59,17 @@ export default function LogItem(props) {
     <li key={logKey}>
       {/* Case 1: Two or more logurls - Display a dropdown */}
       {logUrls.length > 1 && (
-        <Dropdown>
-          <Dropdown.Toggle
+        <UncontrolledDropdown>
+          <DropdownToggle
             title={`Select a ${logDescription}`}
             className="logviewer-btn btn-view-nav"
           >
             {props.children}
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
+          </DropdownToggle>
+          <DropdownMenu>
             {logUrls.map((logUrl) => (
-              <Dropdown.Item
-                as="a"
+              <DropdownItem
+                tag="a"
                 {...getLogUrlProps(
                   logKey,
                   logUrl,
@@ -73,10 +79,10 @@ export default function LogItem(props) {
                 key={`${logKey}-${logUrl.id}`}
               >
                 {logUrl.name} ({logUrl.id})
-              </Dropdown.Item>
+              </DropdownItem>
             ))}
-          </Dropdown.Menu>
-        </Dropdown>
+          </DropdownMenu>
+        </UncontrolledDropdown>
       )}
 
       {/* Case 2: Only one logurl - Display a button */}

@@ -1,11 +1,11 @@
 import React from 'react';
-import { Container, Row, Col, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Alert } from 'reactstrap';
 
 const NotFound = () => (
   <Container fluid style={{ marginTop: 40 }}>
     <Row>
       <Col>
-        <Alert variant="danger">
+        <Alert color="danger">
           Missing required URL parameters of <code>repo</code> and{' '}
           <code>revision</code>.
         </Alert>

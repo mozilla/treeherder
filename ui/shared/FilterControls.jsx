@@ -1,12 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Col, Row, Container, Button, Dropdown } from 'react-bootstrap';
+import {
+  Col,
+  Row,
+  Container,
+  Button,
+  UncontrolledDropdown,
+  DropdownToggle,
+} from 'reactstrap';
 
 import SimpleTooltip from './SimpleTooltip';
 import DropdownMenuItems from './DropdownMenuItems';
 import InputFilter from './InputFilter';
 
-export const createDropdowns = (dropdownOptions, colClass) => (
+export const createDropdowns = (dropdownOptions, colClass, outline = false) => (
   <React.Fragment>
     {dropdownOptions.map((dropdown) => (
       <Col
@@ -14,25 +21,23 @@ export const createDropdowns = (dropdownOptions, colClass) => (
         className={colClass}
         key={`dropdown ${dropdown.namespace || ''}${dropdown.selectedItem}`}
       >
-        <Dropdown
+        <UncontrolledDropdown
           className="mr-0 text-nowrap"
           title={dropdown.title}
           aria-label={dropdown.title}
         >
-          <Dropdown.Toggle variant="secondary">
+          <DropdownToggle caret outline={outline}>
             {dropdown.selectedItem}
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            <DropdownMenuItems
-              pinned={dropdown.pinnedProjects || dropdown.pinned}
-              otherPinned={dropdown.otherPinned}
-              options={dropdown.options}
-              selectedItem={dropdown.selectedItem}
-              updateData={dropdown.updateData}
-              namespace={dropdown.namespace}
-            />
-          </Dropdown.Menu>
-        </Dropdown>
+          </DropdownToggle>
+          <DropdownMenuItems
+            pinned={dropdown.pinnedProjects || dropdown.pinned}
+            otherPinned={dropdown.otherPinned}
+            options={dropdown.options}
+            selectedItem={dropdown.selectedItem}
+            updateData={dropdown.updateData}
+            namespace={dropdown.namespace}
+          />
+        </UncontrolledDropdown>
       </Col>
     ))}
   </React.Fragment>
@@ -49,7 +54,8 @@ const FilterControls = ({
 }) => {
   const createButton = (filter) => (
     <Button
-      variant="outline-darker-info"
+      color="darker-info"
+      outline
       onClick={() => updateFilter(filter.stateName)}
       active={filter.state}
       disabled={filter.disable}

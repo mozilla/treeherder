@@ -1,6 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal, Button, Form } from 'react-bootstrap';
+import {
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  Form,
+  FormGroup,
+  Label,
+  CustomInput,
+} from 'reactstrap';
 
 export default class TagsModal extends React.Component {
   constructor(props) {
@@ -34,7 +44,7 @@ export default class TagsModal extends React.Component {
   listTags = () => {
     return this.state.tags.map((tag, index) => {
       return (
-        <Form.Check
+        <CustomInput
           key={tag.name}
           data-testid={`modal-perf-tag ${tag.name}`}
           type="checkbox"
@@ -74,22 +84,16 @@ export default class TagsModal extends React.Component {
     const { showModal, updateAndClose } = this.props;
 
     return (
-      <Modal
-        show={showModal}
-        onHide={this.toggleModal}
-        data-testid="tags-modal"
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Alert Tags</Modal.Title>
-        </Modal.Header>
+      <Modal isOpen={showModal} data-testid="tags-modal">
+        <ModalHeader toggle={this.toggleModal}>Alert Tags</ModalHeader>
         <Form>
-          <Modal.Body>
-            <Form.Label htmlFor="performanceTags" />
-            <Form.Group>{this.listTags()}</Form.Group>
-          </Modal.Body>
-          <Modal.Footer>
+          <ModalBody>
+            <Label for="performanceTags" />
+            <FormGroup>{this.listTags()}</FormGroup>
+          </ModalBody>
+          <ModalFooter>
             <Button
-              variant="darker-secondary"
+              color="darker-secondary"
               onClick={(event) => {
                 updateAndClose(
                   event,
@@ -103,7 +107,7 @@ export default class TagsModal extends React.Component {
             >
               Save
             </Button>
-          </Modal.Footer>
+          </ModalFooter>
         </Form>
       </Modal>
     );

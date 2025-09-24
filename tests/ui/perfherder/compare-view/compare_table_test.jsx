@@ -361,10 +361,14 @@ test('page parameter updates with value 2 when clicking on the second page', asy
   expect(result2).toBeInTheDocument();
   expect(result10).toBeInTheDocument();
 
-  const secondPage = await waitFor(() => findAllByLabelText('Go to page 2'));
+  const secondPage = await waitFor(() =>
+    findAllByLabelText('pagination-button-2'),
+  );
   fireEvent.click(secondPage[0]);
 
-  const firstPage = await waitFor(() => findAllByLabelText('Go to page 1'));
+  const firstPage = await waitFor(() =>
+    findAllByLabelText('pagination-button-1'),
+  );
   expect(firstPage[0]).toBeInTheDocument();
   expect(mockUpdateParams).toHaveBeenLastCalledWith({ page: 2 });
 });

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Container, Form, Table, Row, Col } from 'react-bootstrap';
+import { Container, Form, FormGroup, Table, Row, Col } from 'reactstrap';
 import orderBy from 'lodash/orderBy';
 
 import {
@@ -333,10 +333,7 @@ export default class AlertTable extends React.Component {
                     xs={10}
                     className="text-left alert-summary-header-element"
                   >
-                    <Form.Group
-                      check
-                      className="d-inline-flex align-items-top gap-3"
-                    >
+                    <FormGroup check className="d-inline-flex">
                       <SelectAlertsDropdown
                         setSelectedAlerts={this.setSelectedAlerts}
                         user={user}
@@ -354,7 +351,7 @@ export default class AlertTable extends React.Component {
                         changeRevision={this.changeRevision}
                         updateViewState={updateViewState}
                       />
-                    </Form.Group>
+                    </FormGroup>
                   </Col>
                   <Col className="d-flex justify-content-end p-2">
                     <StatusDropdown
@@ -492,7 +489,7 @@ export default class AlertTable extends React.Component {
                   {alertSummary.notes && (
                     <div className="bg-white px-3 py-4">
                       <TruncatedText
-                        variant="darker-info"
+                        color="darker-info"
                         title="Notes: "
                         maxLength={167}
                         text={alertSummary.notes}

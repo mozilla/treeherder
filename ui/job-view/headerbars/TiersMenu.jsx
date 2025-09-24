@@ -1,6 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Dropdown } from 'react-bootstrap';
+import {
+  UncontrolledDropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
+} from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 
@@ -10,20 +15,20 @@ export default function TiersMenu(props) {
   const TIERS = ['1', '2', '3'];
 
   return (
-    <Dropdown>
-      <Dropdown.Toggle
+    <UncontrolledDropdown>
+      <DropdownToggle
         id="tierLabel"
         title="Show/hide job tiers"
         className="btn-view-nav nav-menu-btn"
         caret
       >
         Tiers
-      </Dropdown.Toggle>
-      <Dropdown.Menu>
+      </DropdownToggle>
+      <DropdownMenu>
         {TIERS.map((tier) => {
           const isOnlyTier = shownTiers.length === 1 && tier === shownTiers[0];
           return (
-            <Dropdown.Item
+            <DropdownItem
               tag="a"
               key={tier}
               onClick={() => filterModel.toggleFilter('tier', tier)}
@@ -39,11 +44,11 @@ export default function TiersMenu(props) {
                 }
               />
               tier {tier}
-            </Dropdown.Item>
+            </DropdownItem>
           );
         })}
-      </Dropdown.Menu>
-    </Dropdown>
+      </DropdownMenu>
+    </UncontrolledDropdown>
   );
 }
 

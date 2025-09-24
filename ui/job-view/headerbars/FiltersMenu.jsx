@@ -1,7 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Dropdown } from 'react-bootstrap';
+import {
+  DropdownMenu,
+  DropdownItem,
+  DropdownToggle,
+  UncontrolledDropdown,
+} from 'reactstrap';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
@@ -47,18 +52,19 @@ function FiltersMenu({
   };
 
   return (
-    <Dropdown>
-      <Dropdown.Toggle
+    <UncontrolledDropdown>
+      <DropdownToggle
         title="Set filters"
         className="btn-view-nav nav-menu-btn"
+        caret
       >
         Filters
-      </Dropdown.Toggle>
-      <Dropdown.Menu>
+      </DropdownToggle>
+      <DropdownMenu>
         {resultStatusMenuItems.map((filterName) => (
-          <Dropdown.Item
+          <DropdownItem
             key={filterName}
-            as="a"
+            tag="a"
             onClick={() => filterModel.toggleResultStatuses([filterName])}
           >
             <FontAwesomeIcon
@@ -69,11 +75,11 @@ function FiltersMenu({
               title={resultStatus.includes(filterName) ? 'Selected' : ''}
             />
             {filterName}
-          </Dropdown.Item>
+          </DropdownItem>
         ))}
-        <Dropdown.Divider />
-        <Dropdown.Item
-          as="a"
+        <DropdownItem divider />
+        <DropdownItem
+          tag="a"
           onClick={() =>
             arraysEqual(resultStatus, thDefaultFilterResultStatuses) &&
             arraysEqual(classifiedState, ['unclassified', 'classified'])
@@ -97,9 +103,9 @@ function FiltersMenu({
             }
           />
           All jobs
-        </Dropdown.Item>
-        <Dropdown.Item
-          as="a"
+        </DropdownItem>
+        <DropdownItem
+          tag="a"
           onClick={() => filterModel.toggleClassifiedFailures(true)}
         >
           <FontAwesomeIcon
@@ -110,9 +116,9 @@ function FiltersMenu({
             title={filterModel.isClassifiedFailures(true) ? 'Selected' : ''}
           />
           All failures
-        </Dropdown.Item>
-        <Dropdown.Item
-          as="a"
+        </DropdownItem>
+        <DropdownItem
+          tag="a"
           onClick={() => filterModel.toggleUnclassifiedFailures()}
         >
           <FontAwesomeIcon
@@ -123,9 +129,9 @@ function FiltersMenu({
             title={filterModel.isUnclassifiedFailures() ? 'Selected' : ''}
           />
           Unclassified failures
-        </Dropdown.Item>
-        <Dropdown.Item
-          as="a"
+        </DropdownItem>
+        <DropdownItem
+          tag="a"
           onClick={() => filterModel.toggleClassifiedFailures()}
         >
           <FontAwesomeIcon
@@ -136,47 +142,47 @@ function FiltersMenu({
             title={filterModel.isClassifiedFailures() ? 'Selected' : ''}
           />
           Classified failures
-        </Dropdown.Item>
-        <Dropdown.Divider />
-        <Dropdown.Item
-          as="a"
+        </DropdownItem>
+        <DropdownItem divider />
+        <DropdownItem
+          tag="a"
           title="Pin all jobs that pass the global filters"
           onClick={pinAllShownJobs}
         >
           Pin all showing
-        </Dropdown.Item>
-        <Dropdown.Item
-          as="a"
+        </DropdownItem>
+        <DropdownItem
+          tag="a"
           title="Show only superseded jobs"
           onClick={filterModel.setOnlySuperseded}
         >
           Superseded only
-        </Dropdown.Item>
-        <Dropdown.Item title={`Show only pushes for ${email}`}>
+        </DropdownItem>
+        <DropdownItem title={`Show only pushes for ${email}`}>
           <Link
             className="dropdown-link"
             to={{ search: updateParams('author', email) }}
           >
             My pushes only
           </Link>
-        </Dropdown.Item>
-        <Dropdown.Item title="Do not show pushes from reviewbot">
+        </DropdownItem>
+        <DropdownItem title="Do not show pushes from reviewbot">
           <Link
             className="dropdown-link"
             to={{ search: updateParams('author', '-reviewbot') }}
           >
             Hide code review pushes
           </Link>
-        </Dropdown.Item>
-        <Dropdown.Item
-          as="a"
+        </DropdownItem>
+        <DropdownItem
+          tag="a"
           title="Reset to default status filters"
           onClick={filterModel.resetNonFieldFilters}
         >
           Reset
-        </Dropdown.Item>
-      </Dropdown.Menu>
-    </Dropdown>
+        </DropdownItem>
+      </DropdownMenu>
+    </UncontrolledDropdown>
   );
 }
 

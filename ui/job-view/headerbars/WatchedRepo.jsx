@@ -10,7 +10,13 @@ import {
   faTimes,
   faTimesCircle,
 } from '@fortawesome/free-solid-svg-icons';
-import { Button, Dropdown } from 'react-bootstrap';
+import {
+  Button,
+  DropdownMenu,
+  DropdownItem,
+  DropdownToggle,
+  UncontrolledDropdown,
+} from 'reactstrap';
 import { Link } from 'react-router-dom';
 
 import TreeStatusModel, { treeStatusUiUrl } from '../../models/treeStatus';
@@ -141,13 +147,13 @@ export default class WatchedRepo extends React.Component {
           />{' '}
           {watchedRepo}
         </Link>
-        <Dropdown>
-          <Dropdown.Toggle className={`btn-view-nav ${activeClass}`}>
+        <UncontrolledDropdown>
+          <DropdownToggle className={`btn-view-nav ${activeClass}`}>
             <FontAwesomeIcon
               icon={faInfoCircle}
               title={`${watchedRepo} info`}
             />
-          </Dropdown.Toggle>
+          </DropdownToggle>
           {watchedRepo !== repoName && (
             <Button
               className={`btn-view-nav ${activeClass}`}
@@ -160,55 +166,55 @@ export default class WatchedRepo extends React.Component {
               />
             </Button>
           )}
-          <Dropdown.Menu>
+          <DropdownMenu>
             {status === 'unsupported' && (
               <React.Fragment>
-                <Dropdown.Item
+                <DropdownItem
                   tag="a"
                   href={`${treeStatusUiUrl()}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   {watchedRepo} is not listed on Tree Status
-                </Dropdown.Item>
-                <Dropdown.Item divider />
+                </DropdownItem>
+                <DropdownItem divider />
               </React.Fragment>
             )}
             {!!reason && (
               <React.Fragment>
-                <Dropdown.Item tag="a">
+                <DropdownItem tag="a">
                   <BugLinkify>{reason}</BugLinkify>
-                </Dropdown.Item>
-                <Dropdown.Item divider />
+                </DropdownItem>
+                <DropdownItem divider />
               </React.Fragment>
             )}
 
             {!!messageOfTheDay && (
               <React.Fragment>
-                <Dropdown.Item tag="a">
+                <DropdownItem tag="a">
                   <BugLinkify>{messageOfTheDay}</BugLinkify>
-                </Dropdown.Item>
-                <Dropdown.Item divider />
+                </DropdownItem>
+                <DropdownItem divider />
               </React.Fragment>
             )}
-            <Dropdown.Item
+            <DropdownItem
               tag="a"
               href={`${treeStatusUiUrl()}${watchedRepo}`}
               target="_blank"
               rel="noopener noreferrer"
             >
               Tree Status
-            </Dropdown.Item>
-            <Dropdown.Item
+            </DropdownItem>
+            <DropdownItem
               tag="a"
               href={repo.pushLogUrl}
               target="_blank"
               rel="noopener noreferrer"
             >
               Pushlog
-            </Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
+            </DropdownItem>
+          </DropdownMenu>
+        </UncontrolledDropdown>
       </div>
     );
   }

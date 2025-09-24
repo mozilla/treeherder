@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
-import { Col, Button, Spinner } from 'react-bootstrap';
+import { Col, Button, Spinner } from 'reactstrap';
 
 import { getArtifactsUrl, getLogViewerUrl } from '../../helpers/url';
 import { formatArtifacts } from '../../helpers/display';
@@ -181,7 +181,7 @@ class DetailsPanel extends React.Component {
                   </span>
                   <Button
                     onClick={closeDetails}
-                    variant="outline"
+                    outline
                     className="border-0"
                     title="Close details view of this task"
                   >

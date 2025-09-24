@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Alert, Button } from 'react-bootstrap';
+import { Alert, Button } from 'reactstrap';
 import {
   faInfoCircle,
   faExternalLinkAlt,
@@ -254,7 +254,7 @@ class PerformanceTab extends React.PureComponent {
           // job list only gets populated later. This notification will help the
           // user know the next action.
           triggeredGeckoProfiles > 0 ? (
-            <Alert variant="info" className="m-1">
+            <Alert color="info" className="m-1">
               <FontAwesomeIcon icon={faInfoCircle} className="mr-1" />
               {triggeredGeckoProfiles === 1
                 ? `Triggered ${triggeredGeckoProfiles} profiler run. It will show up ` +

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Dropdown } from 'react-bootstrap';
+import { Button, DropdownToggle, UncontrolledDropdown } from 'reactstrap';
 
 import DropdownMenuItems from '../../../shared/DropdownMenuItems';
 
@@ -43,20 +43,20 @@ export default class SideBySideVideo extends React.Component {
     return (
       <div className="w-100">
         <div className="d-flex mb-1">
-          <Dropdown
+          <UncontrolledDropdown
             className="mr-1 text-nowrap"
             title={value || videos[0].value}
             aria-label={value || videos[0].value}
           >
-            <Dropdown.Toggle size="sm">
+            <DropdownToggle size="sm" caret outline>
               {value || videos[0].value}
-            </Dropdown.Toggle>
+            </DropdownToggle>
             <DropdownMenuItems
               options={videos.map((item) => item.value)}
               selectedItem={value || videos[0].value}
               updateData={(value) => this.onSetVideoHandler(value, videos)}
             />
-          </Dropdown>
+          </UncontrolledDropdown>
           <Button size="sm" onClick={this.onReplayHandler}>
             Reload
           </Button>

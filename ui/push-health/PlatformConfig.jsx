@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Row, Col } from 'react-bootstrap';
+import { Button, Row, Col } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRedo } from '@fortawesome/free-solid-svg-icons';
 import sortBy from 'lodash/sortBy';
@@ -92,11 +92,10 @@ class PlatformConfig extends React.PureComponent {
                     text={
                       <Button
                         className="py-0"
-                        variant={
-                          !isSelected
-                            ? `outline-${taskResultColorMap[result]}`
-                            : taskResultColorMap[result]
-                        }
+                        color={`${taskResultColorMap[result]} ${
+                          !isSelected && 'bg-white bg-hover-grey'
+                        }`}
+                        outline={!isSelected}
                         size="sm"
                         onClick={() => this.setSelectedTask(task)}
                       >
@@ -122,7 +121,7 @@ class PlatformConfig extends React.PureComponent {
             })}
             <Button
               onClick={() => this.retriggerTask(taskList[0])}
-              variant="outline"
+              outline
               className="mr-2 border-0"
               title="Retrigger task"
               style={{ lineHeight: '10px' }}

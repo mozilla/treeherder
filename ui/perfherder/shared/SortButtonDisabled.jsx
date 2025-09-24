@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'react-bootstrap';
+import { Badge } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSort } from '@fortawesome/free-solid-svg-icons';
 
@@ -10,15 +10,13 @@ export default class SortButtonDisabled extends React.PureComponent {
       column: { name },
     } = this.props;
     return (
-      <Button
-        size="sm"
-        variant="secondary"
-        className="mx-1 py-0 px-1"
-        disabled
+      <Badge
+        className="mx-1 disabled-button"
+        aria-disabled="true"
         title={`Sorted by ${name.toLowerCase()} disabled`}
       >
-        <FontAwesomeIcon icon={faSort} className="text-white" />
-      </Button>
+        <FontAwesomeIcon icon={faSort} />
+      </Badge>
     );
   }
 }

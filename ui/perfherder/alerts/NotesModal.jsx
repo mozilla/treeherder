@@ -1,6 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Form, Button, Modal } from 'react-bootstrap';
+import {
+  Form,
+  FormGroup,
+  Input,
+  Label,
+  Button,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from 'reactstrap';
 
 export default class NotesModal extends React.Component {
   constructor(props) {
@@ -19,27 +29,25 @@ export default class NotesModal extends React.Component {
     const { inputValue } = this.state;
 
     return (
-      <Modal show={showModal} onHide={toggle}>
-        <Modal.Header closeButton>
-          <Modal.Title>Alert Notes</Modal.Title>
-        </Modal.Header>
+      <Modal isOpen={showModal}>
+        <ModalHeader toggle={toggle}>Alert Notes</ModalHeader>
         <Form>
-          <Modal.Body>
-            <Form.Group>
-              <Form.Label htmlFor="editableNotes">Add or edit notes</Form.Label>
-              <Form.Control
+          <ModalBody>
+            <FormGroup>
+              <Label for="editableNotes">Add or edit notes</Label>
+              <Input
                 value={inputValue || ''}
                 onChange={this.updateInput}
                 name="editableNotes"
-                as="textarea"
+                type="textarea"
                 cols="50"
                 rows="10"
               />
-            </Form.Group>
-          </Modal.Body>
-          <Modal.Footer>
+            </FormGroup>
+          </ModalBody>
+          <ModalFooter>
             <Button
-              variant="secondary"
+              color="secondary"
               onClick={(event) =>
                 updateAndClose(
                   event,
@@ -54,7 +62,7 @@ export default class NotesModal extends React.Component {
             >
               Save
             </Button>
-          </Modal.Footer>
+          </ModalFooter>
         </Form>
       </Modal>
     );

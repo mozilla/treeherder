@@ -118,54 +118,14 @@ const graphsViewControls = (
 afterEach(cleanup);
 
 test('Changing the platform dropdown in the Test Data Modal displays expected tests', async () => {
-  const {
-    getByText,
-    getByTitle,
-    getByTestId,
-    queryByText,
-    container,
-  } = graphsViewControls();
+  const { getByText, getByTitle, getByTestId } = graphsViewControls();
 
   fireEvent.click(getByText('Add test data'));
 
-  // Wait for the modal to fully load with platforms
-  const platform = await waitFor(() => getByTitle('Platform'));
+  const platform = getByTitle('Platform');
+  fireEvent.click(platform);
 
-  // The Platform title might be on the dropdown div, find the actual button
-  const platformButton =
-    platform.querySelector('button') ||
-    platform.querySelector('.dropdown-toggle');
-  if (platformButton) {
-    fireEvent.click(platformButton);
-  } else {
-    fireEvent.click(platform);
-  }
-
-  // Small delay to allow dropdown animation
-  await new Promise((resolve) => {
-    setTimeout(resolve, 100);
-  });
-
-  // Try to find windows7-32 in the dropdown
-  let windowsPlatform = queryByText('windows7-32');
-
-  // If not found, try clicking the dropdown again (sometimes it needs a second click)
-  if (!windowsPlatform) {
-    const dropdownButton = container.querySelector(
-      '[title="Platform"] button.dropdown-toggle',
-    );
-    if (dropdownButton) {
-      fireEvent.click(dropdownButton);
-      await new Promise((resolve) => {
-        setTimeout(resolve, 100);
-      });
-    }
-  }
-
-  // Now wait for the platform option to appear
-  windowsPlatform = await waitFor(() => getByText('windows7-32'), {
-    timeout: 3000,
-  });
+  const windowsPlatform = await waitFor(() => getByText('windows7-32'));
   fireEvent.click(windowsPlatform);
 
   // 'mozilla-central windows7-32 a11yr opt e10s stylo'
@@ -359,8 +319,6 @@ test('Changing the platform dropdown while filtered by text in the Test Data Mod
     getByPlaceholderText,
     getByTitle,
     getByTestId,
-    queryByText,
-    container,
   } = graphsViewControls();
 
   fireEvent.click(getByText('Add test data'));
@@ -382,43 +340,10 @@ test('Changing the platform dropdown while filtered by text in the Test Data Mod
   expect(presentTests.children).toHaveLength(1);
   expect(linuxTest).toBeInTheDocument();
 
-  const platform = await waitFor(() => getByTitle('Platform'));
+  const platform = getByTitle('Platform');
+  fireEvent.click(platform);
 
-  // The Platform title might be on the dropdown div, find the actual button
-  const platformButton =
-    platform.querySelector('button') ||
-    platform.querySelector('.dropdown-toggle');
-  if (platformButton) {
-    fireEvent.click(platformButton);
-  } else {
-    fireEvent.click(platform);
-  }
-
-  // Small delay to allow dropdown animation
-  await new Promise((resolve) => {
-    setTimeout(resolve, 100);
-  });
-
-  // Try to find windows7-32 in the dropdown
-  let windowsPlatform = queryByText('windows7-32');
-
-  // If not found, try clicking the dropdown again (sometimes it needs a second click)
-  if (!windowsPlatform) {
-    const dropdownButton = container.querySelector(
-      '[title="Platform"] button.dropdown-toggle',
-    );
-    if (dropdownButton) {
-      fireEvent.click(dropdownButton);
-      await new Promise((resolve) => {
-        setTimeout(resolve, 100);
-      });
-    }
-  }
-
-  // Now wait for the platform option to appear
-  windowsPlatform = await waitFor(() => getByText('windows7-32'), {
-    timeout: 3000,
-  });
+  const windowsPlatform = await waitFor(() => getByText('windows7-32'));
   fireEvent.click(windowsPlatform);
 
   // linux64 (default platform of the modal) and windows7-32 (the platform below)

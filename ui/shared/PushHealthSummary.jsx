@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Col, Row } from 'react-bootstrap';
+import { Col, Row } from 'reactstrap';
 import { faHeart } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -60,7 +60,7 @@ class PushHealthSummary extends PureComponent {
                     icon={faHeart}
                     height={heartSize}
                     width={heartSize}
-                    variant="darker-secondary"
+                    color="darker-secondary"
                   />
                 </span>
               )}

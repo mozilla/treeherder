@@ -1,6 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Navbar, Nav, Dropdown } from 'react-bootstrap';
+import {
+  Collapse,
+  Navbar,
+  Nav,
+  UncontrolledDropdown,
+  DropdownToggle,
+} from 'reactstrap';
 
 import LogoMenu from '../shared/LogoMenu';
 import Login from '../shared/auth/Login';
@@ -27,19 +33,19 @@ export default class Navigation extends React.Component {
           menuText="Intermittent Failures View"
           colorClass="lightorange"
         />
-        <Navbar.Collapse in={this.state.isOpen}>
+        <Collapse isOpen={this.state.isOpen} navbar>
           <Nav navbar />
-          <Dropdown>
-            <Dropdown.Toggle className="btn-navbar navbar-link">
+          <UncontrolledDropdown>
+            <DropdownToggle className="btn-navbar navbar-link" nav caret>
               Tree
-            </Dropdown.Toggle>
+            </DropdownToggle>
             <DropdownMenuItems
               options={treeOptions}
               updateData={(tree) => updateState({ tree })}
               selectedItem={tree}
             />
-          </Dropdown>
-        </Navbar.Collapse>
+          </UncontrolledDropdown>
+        </Collapse>
         <Navbar className="ml-auto">
           <HelpMenu />
           <Login user={user} setUser={setUser} notify={notify} />

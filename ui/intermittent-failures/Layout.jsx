@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container } from 'react-bootstrap';
+import { Container } from 'reactstrap';
 import PropTypes from 'prop-types';
 
 import ErrorBoundary from '../shared/ErrorBoundary';
