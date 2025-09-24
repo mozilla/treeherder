@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Form, InputGroup } from 'react-bootstrap';
+import { Button, Input, InputGroup } from 'reactstrap';
 
 export default class Assignee extends React.Component {
   constructor(props) {
@@ -105,7 +105,7 @@ export default class Assignee extends React.Component {
       <React.Fragment>
         <Button
           className="ml-1"
-          variant="darker-secondary"
+          color="darker-secondary"
           size="xs"
           onClick={this.goToEditMode}
           title="Click to change assignee"
@@ -115,7 +115,7 @@ export default class Assignee extends React.Component {
         {!assigneeUsername && (
           <Button
             className="ml-1"
-            variant="darker-secondary"
+            color="darker-secondary"
             size="xs"
             disabled={!user.isStaff}
             onClick={this.prefillWithLoggedInUsername}
@@ -126,7 +126,7 @@ export default class Assignee extends React.Component {
       </React.Fragment>
     ) : (
       <InputGroup size="sm">
-        <Form.Control
+        <Input
           disabled={!user.isStaff}
           placeholder={placeholder}
           value={newAssigneeUsername}

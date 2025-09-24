@@ -1,5 +1,5 @@
 import React from 'react';
-import { Row, Button, Col } from 'react-bootstrap';
+import { Row, Button, Col } from 'reactstrap';
 import PropTypes from 'prop-types';
 
 import Graph from './Graph';
@@ -48,7 +48,7 @@ export default class GraphsContainer extends React.Component {
               {showAlternateView ? 'Show graph view' : 'Show table view'}
             </Button>
             <Button
-              variant="secondary"
+              color="secondary"
               onClick={this.toggleGraph}
               className="d-inline-block mr-3"
             >

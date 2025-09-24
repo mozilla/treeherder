@@ -2,14 +2,17 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import {
-  Dropdown,
+  UncontrolledDropdown,
+  DropdownMenu,
+  DropdownItem,
+  DropdownToggle,
   Container,
   Row,
   Col,
   Button,
-  Form,
+  Input,
   InputGroup,
-} from 'react-bootstrap';
+} from 'reactstrap';
 
 import { getJobsUrl, getPerfCompareBaseURL } from '../../helpers/url';
 import { toMercurialShortDateStr } from '../../helpers/display';
@@ -122,7 +125,7 @@ const AlertHeader = ({
           <Col className="p-0" xs="auto">
             <Button
               className="ml-1"
-              variant="darker-secondary"
+              color="darker-secondary"
               size="xs"
               onClick={handleEditMode}
               title="Click to edit revision"
@@ -132,17 +135,17 @@ const AlertHeader = ({
           </Col>
         )}
         <Col className="p-0" xs="auto">
-          <Dropdown tag="span">
-            <Dropdown.Toggle
+          <UncontrolledDropdown tag="span">
+            <DropdownToggle
               className="btn-xs ml-1"
-              variant="secondary"
+              color="secondary"
               caret
               data-testid="push-dropdown"
             >
               {formattedSummaryRevision}
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-              <Dropdown.Item
+            </DropdownToggle>
+            <DropdownMenu>
+              <DropdownItem
                 tag="a"
                 className="text-dark"
                 href={getJobsUrl({
@@ -154,8 +157,8 @@ const AlertHeader = ({
                 rel="noopener noreferrer"
               >
                 Jobs
-              </Dropdown.Item>
-              <Dropdown.Item
+              </DropdownItem>
+              <DropdownItem
                 tag="a"
                 className="text-dark"
                 href={repoModel.getPushLogRangeHref({
@@ -166,23 +169,23 @@ const AlertHeader = ({
                 rel="noopener noreferrer"
               >
                 Pushlog
-              </Dropdown.Item>
-              <Dropdown.Item
+              </DropdownItem>
+              <DropdownItem
                 className="text-dark"
                 disabled
                 data-testid="prev-push-revision"
               >
                 From: {`${alertSummary.prev_push_revision.slice(0, 12)}`}
-              </Dropdown.Item>
-              <Dropdown.Item
+              </DropdownItem>
+              <DropdownItem
                 className="text-dark"
                 disabled
                 data-testid="to-push-revision"
               >
                 To: {formattedSummaryRevision}
-              </Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
+              </DropdownItem>
+            </DropdownMenu>
+          </UncontrolledDropdown>
         </Col>
         {bugNumber && (
           <Col className="p-0" xs="auto">
@@ -267,7 +270,7 @@ const AlertHeader = ({
 
             <Col xs="5" className="p-0">
               <InputGroup size="sm">
-                <Form.Control
+                <Input
                   value={newRevisionFrom}
                   placeholder="Enter desired revision"
                   onChange={handleRevisionChange('from')}
@@ -298,7 +301,7 @@ const AlertHeader = ({
             </Col>
             <Col xs="5" className="p-0">
               <InputGroup size="sm">
-                <Form.Control
+                <Input
                   value={newRevisionTo}
                   placeholder="Enter desired revision"
                   onChange={handleRevisionChange('to')}
@@ -322,7 +325,7 @@ const AlertHeader = ({
           <Row>
             <Col className="p-0">
               <Button
-                variant="primary"
+                color="primary"
                 className="ml-1"
                 size="xs"
                 disabled={newRevisionTo === '' && newRevisionFrom === ''}
@@ -331,7 +334,7 @@ const AlertHeader = ({
                 Save
               </Button>
               <Button
-                variant="secondary"
+                color="secondary"
                 className="ml-1"
                 size="xs"
                 onClick={cancelEditMode}

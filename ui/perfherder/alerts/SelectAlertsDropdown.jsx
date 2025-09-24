@@ -1,6 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Dropdown, Form } from 'react-bootstrap';
+import DropdownItem from 'reactstrap/lib/DropdownItem';
+import DropdownMenu from 'reactstrap/lib/DropdownMenu';
+import DropdownToggle from 'reactstrap/lib/DropdownToggle';
+import UncontrolledDropdown from 'reactstrap/lib/UncontrolledDropdown';
+import Input from 'reactstrap/lib/Input';
+import Label from 'reactstrap/lib/Label';
 
 import { alertStatusMap } from '../perf-helpers/constants';
 import { getStatus } from '../perf-helpers/helpers';
@@ -49,8 +54,8 @@ class SelectAlertsDropdown extends React.Component {
 
     return (
       <React.Fragment>
-        <Form.Label className="pl-1 mr-1">
-          <Form.Control
+        <Label check className="pl-1">
+          <Input
             data-testid={`alert summary ${alertSummaryId} checkbox`}
             type="checkbox"
             checked={allSelected}
@@ -60,37 +65,31 @@ class SelectAlertsDropdown extends React.Component {
                 ? this.selectAlertsByStatus(none)
                 : this.selectAlertsByStatus(all);
             }}
-            style={{
-              marginTop: '0',
-              verticalAlign: 'top',
-              position: 'relative',
-              height: '1.5em',
-            }}
           />
-        </Form.Label>
-        <Dropdown size="sm" className="mr-2">
-          <Dropdown.Toggle
-            variant="secondary"
+        </Label>
+        <UncontrolledDropdown size="sm" className="mr-2">
+          <DropdownToggle
             aria-label="alert selection options"
+            caret
             className="d-flex mt-1"
             disabled={!user.isStaff}
           />
-          <Dropdown.Menu>
-            <Dropdown.Header>Check alerts</Dropdown.Header>
-            <Dropdown.Item onClick={() => this.selectAlertsByStatus(all)}>
+          <DropdownMenu>
+            <DropdownItem header>Check alerts</DropdownItem>
+            <DropdownItem onClick={() => this.selectAlertsByStatus(all)}>
               All
-            </Dropdown.Item>
-            <Dropdown.Item onClick={() => this.selectAlertsByStatus(none)}>
+            </DropdownItem>
+            <DropdownItem onClick={() => this.selectAlertsByStatus(none)}>
               None
-            </Dropdown.Item>
-            <Dropdown.Item onClick={() => this.selectAlertsByStatus(triaged)}>
+            </DropdownItem>
+            <DropdownItem onClick={() => this.selectAlertsByStatus(triaged)}>
               Triaged
-            </Dropdown.Item>
-            <Dropdown.Item onClick={() => this.selectAlertsByStatus(untriaged)}>
+            </DropdownItem>
+            <DropdownItem onClick={() => this.selectAlertsByStatus(untriaged)}>
               Untriaged
-            </Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
+            </DropdownItem>
+          </DropdownMenu>
+        </UncontrolledDropdown>
       </React.Fragment>
     );
   }

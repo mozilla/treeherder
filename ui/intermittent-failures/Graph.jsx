@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { VictoryChart, VictoryLine, VictoryLegend } from 'victory';
-import { Col } from 'react-bootstrap';
+import { Col } from 'reactstrap';
 
 const Graph = ({ graphData, title, legendData }) => (
   <Col

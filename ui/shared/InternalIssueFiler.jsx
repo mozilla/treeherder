@@ -1,7 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Button, Modal, Form } from 'react-bootstrap';
+import {
+  Button,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Input,
+  Label,
+} from 'reactstrap';
 
 import { create } from '../helpers/http';
 import { getApiUrl } from '../helpers/url';
@@ -155,15 +163,15 @@ export class InternalIssueFilerClass extends React.Component {
 
     return (
       <div>
-        <Modal show={isOpen} onHide={toggle} size="lg">
-          <Modal.Header closeButton>
+        <Modal isOpen={isOpen} toggle={toggle} size="lg">
+          <ModalHeader toggle={toggle}>
             Intermittent Internal Issue Filer
-          </Modal.Header>
-          <Modal.Body>
+          </ModalHeader>
+          <ModalBody>
             <form className="d-flex flex-column">
-              <Form.Label htmlFor="summary">Summary:</Form.Label>
+              <Label for="summary">Summary:</Label>
               <div className="d-flex">
-                <Form.Control
+                <Input
                   id="summary"
                   className="flex-grow-1"
                   type="text"
@@ -184,15 +192,15 @@ export class InternalIssueFilerClass extends React.Component {
                 </span>
               </div>
             </form>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={this.submitInternalIssue}>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="secondary" onClick={this.submitInternalIssue}>
               Submit Internal Issue
             </Button>{' '}
-            <Button variant="secondary" onClick={toggle}>
+            <Button color="secondary" onClick={toggle}>
               Cancel
             </Button>
-          </Modal.Footer>
+          </ModalFooter>
         </Modal>
       </div>
     );

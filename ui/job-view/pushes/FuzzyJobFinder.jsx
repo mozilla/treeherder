@@ -4,13 +4,15 @@ import { connect } from 'react-redux';
 import {
   Button,
   Col,
-  Form,
+  FormGroup,
+  Label,
   Modal,
   ModalHeader,
   ModalBody,
   ModalFooter,
   InputGroup,
-} from 'react-bootstrap';
+  Input,
+} from 'reactstrap';
 import Fuse from 'fuse.js';
 
 import PushModel from '../../models/push';
@@ -199,18 +201,18 @@ class FuzzyJobFinder extends React.Component {
     return (
       <div>
         <Modal
-          onShow={this.filterJobs}
-          onExited={this.resetForm}
+          onOpened={this.filterJobs}
+          onClosed={this.resetForm}
           size="lg"
-          show={this.props.isOpen}
-          onHide={this.props.toggle}
+          isOpen={this.props.isOpen}
+          toggle={this.props.toggle}
           className={this.props.className}
         >
           <ModalHeader>Add New Jobs (Search)</ModalHeader>
           <ModalBody>
-            <Form.Group as="div" className="row">
+            <FormGroup row>
               <Col sm={10}>
-                <Form.Control
+                <Input
                   type="search"
                   onKeyDown={this.filterJobs}
                   placeholder="Filter runnable jobs: 'Android', 'Mochitest', 'Build', etc..."
@@ -219,38 +221,31 @@ class FuzzyJobFinder extends React.Component {
                 />
               </Col>
               <Col sm={2}>
-                <Form.Label
+                <Label
                   className="my-3"
+                  onChange={(evt) => this.toggleFullList(evt)}
                   title="The full list includes thousands of jobs that don't typically get run, and is much slower to render"
                 >
-                  <Form.Control
-                    type="checkbox"
-                    onChange={(evt) => this.toggleFullList(evt)}
-                  />
-                  Use full job list
-                </Form.Label>
+                  <Input type="checkbox" /> Use full job list
+                </Label>
               </Col>
-            </Form.Group>
+            </FormGroup>
             <h4> Runnable Jobs [{this.state.fuzzyList.length}]</h4>
             <div className="fuzzybuttons">
               <Button
                 onClick={this.addJobs}
-                variant="success"
+                color="success"
                 disabled={this.state.addDisabled}
               >
                 Add selected
               </Button>
               &nbsp;
-              <Button variant="success" onClick={this.addAllJobs}>
+              <Button color="success" onClick={this.addAllJobs}>
                 Add all
               </Button>
             </div>
             <InputGroup id="addJobsGroup">
-              <Form.Control
-                as="select"
-                multiple
-                onChange={this.updateAddButton}
-              >
+              <Input type="select" multiple onChange={this.updateAddButton}>
                 {this.state.fuzzyList.sort(sortAlphaNum).map((e) => (
                   <option
                     data-testid="fuzzyList"
@@ -263,21 +258,21 @@ class FuzzyJobFinder extends React.Component {
                     {e.name}
                   </option>
                 ))}
-              </Form.Control>
+              </Input>
             </InputGroup>
             <hr />
             <h4> Selected Jobs [{this.state.selectedList.length}]</h4>
             <div className="fuzzybuttons">
               <Button
                 onClick={this.removeJobs}
-                variant="danger"
+                color="danger"
                 disabled={this.state.removeDisabled}
               >
                 Remove selected
               </Button>
               &nbsp;
               <Button
-                variant="danger"
+                color="danger"
                 onClick={this.removeAllJobs}
                 disabled={this.state.selectedList.length === 0}
               >
@@ -285,22 +280,18 @@ class FuzzyJobFinder extends React.Component {
               </Button>
             </div>
             <InputGroup id="removeJobsGroup">
-              <Form.Control
-                as="select"
-                multiple
-                onChange={this.updateRemoveButton}
-              >
+              <Input type="select" multiple onChange={this.updateRemoveButton}>
                 {this.state.selectedList.sort(sortAlphaNum).map((e) => (
                   <option title={e} key={e}>
                     {e}
                   </option>
                 ))}
-              </Form.Control>
+              </Input>
             </InputGroup>
           </ModalBody>
           <ModalFooter>
             <Button
-              variant="primary"
+              color="primary"
               onClick={this.submitJobs}
               disabled={
                 this.state.selectedList.length === 0 ||
@@ -309,7 +300,7 @@ class FuzzyJobFinder extends React.Component {
             >
               Trigger ({this.state.selectedList.length}) Selected Jobs
             </Button>{' '}
-            <Button variant="secondary" onClick={this.props.toggle}>
+            <Button color="secondary" onClick={this.props.toggle}>
               Cancel
             </Button>
           </ModalFooter>

@@ -6,7 +6,7 @@ import {
   faExternalLinkAlt,
   faSpinner,
 } from '@fortawesome/free-solid-svg-icons';
-import { Table } from 'react-bootstrap';
+import { Table } from 'reactstrap';
 
 import { getJobsUrl } from '../../../helpers/url';
 import { notify } from '../../redux/stores/notifications';

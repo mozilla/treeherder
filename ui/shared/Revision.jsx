@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-regular-svg-icons';
-import { Row, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Row, UncontrolledTooltip } from 'reactstrap';
 
 import { parseAuthor } from '../helpers/revision';
 
@@ -101,34 +101,33 @@ export class Revision extends React.PureComponent {
           </a>
         </span>
         <AuthorInitials title={`${name}: ${email}`} author={name} />
-        <OverlayTrigger
-          placement="top-start"
-          overlay={
-            <Tooltip className="tooltip-content">
-              {bugSummaryMap &&
-                !!bugMatches &&
-                bugMatches.map((bug) => {
-                  const bugId = bug.split(' ')[1];
-                  return (
-                    <div key={bugId} className="mb-3">
-                      Bug {bugId} - {bugSummaryMap[bugId]}
-                    </div>
-                  );
-                })}
-              <div>Commit:</div>
-              <span>{comment}</span>
-            </Tooltip>
-          }
+        <span
+          data-testid={comment}
+          className={`ml-2 revision-comment overflow-hidden text-truncate ${commentColor} ${commentFont}`}
+          id={`revision${revision}`}
         >
-          <span
-            data-testid={comment}
-            className={`ml-2 revision-comment overflow-hidden text-truncate ${commentColor} ${commentFont}`}
-          >
-            <span className="text-wrap">
-              <BugLinkify id={revision}>{comment}</BugLinkify>
-            </span>
+          <span className="text-wrap">
+            <BugLinkify id={revision}>{comment}</BugLinkify>
           </span>
-        </OverlayTrigger>
+        </span>
+        <UncontrolledTooltip
+          placement="top-start"
+          innerClassName="tooltip-content"
+          target={`revision${revision}`}
+        >
+          {bugSummaryMap &&
+            !!bugMatches &&
+            bugMatches.map((bug) => {
+              const bugId = bug.split(' ')[1];
+              return (
+                <div key={bugId} className="mb-3">
+                  Bug {bugId} - {bugSummaryMap[bugId]}
+                </div>
+              );
+            })}
+          <div>Commit:</div>
+          <span>{comment}</span>
+        </UncontrolledTooltip>
       </Row>
     );
   }

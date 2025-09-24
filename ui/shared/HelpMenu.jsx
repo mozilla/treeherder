@@ -13,7 +13,12 @@ import {
   faQuestion,
   faQuestionCircle,
 } from '@fortawesome/free-solid-svg-icons';
-import { Dropdown } from 'react-bootstrap';
+import {
+  DropdownMenu,
+  DropdownItem,
+  DropdownToggle,
+  UncontrolledDropdown,
+} from 'reactstrap';
 
 const menuItems = [
   {
@@ -66,14 +71,14 @@ const menuItems = [
 ];
 
 const HelpMenu = () => (
-  <Dropdown>
-    <Dropdown.Toggle className="btn-view-nav nav-menu-btn">
+  <UncontrolledDropdown>
+    <DropdownToggle className="btn-view-nav nav-menu-btn" caret>
       Help
-    </Dropdown.Toggle>
-    <Dropdown.Menu align="end" className="icon-menu">
+    </DropdownToggle>
+    <DropdownMenu right className="icon-menu">
       {menuItems.map((item) => (
-        <Dropdown.Item
-          as="a"
+        <DropdownItem
+          tag="a"
           target="_blank"
           rel="noopener noreferrer"
           href={item.href}
@@ -85,10 +90,10 @@ const HelpMenu = () => (
             className="midgray mr-2"
           />
           {item.text}
-        </Dropdown.Item>
+        </DropdownItem>
       ))}
-    </Dropdown.Menu>
-  </Dropdown>
+    </DropdownMenu>
+  </UncontrolledDropdown>
 );
 
 export default HelpMenu;

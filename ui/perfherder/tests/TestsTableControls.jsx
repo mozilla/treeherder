@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Container } from 'react-bootstrap';
+import { Container } from 'reactstrap';
 
 import FilterControls from '../../shared/FilterControls';
 import { containsText } from '../perf-helpers/helpers';

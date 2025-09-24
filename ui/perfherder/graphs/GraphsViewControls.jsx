@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Col, Container, Form, Row } from 'react-bootstrap';
+import { Button, Col, Container, Input, Row } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartArea, faTable } from '@fortawesome/free-solid-svg-icons';
 import moment from 'moment';
@@ -100,7 +100,7 @@ export default class GraphsViewControls extends React.Component {
           {!hasNoData && (
             <Col sm="auto" className="pl-0 py-2 pr-3">
               <Button
-                variant="darker-info"
+                color="darker-info"
                 onClick={toggleTableView}
                 title="Toggle between table view and graphs view"
               >
@@ -120,11 +120,7 @@ export default class GraphsViewControls extends React.Component {
             />
           </Col>
           <Col sm="auto" className="p-2">
-            <Button
-              variant="darker-info"
-              title="Add test data"
-              onClick={toggle}
-            >
+            <Button color="darker-info" title="Add test data" onClick={toggle}>
               Add test data
             </Button>
           </Col>
@@ -151,7 +147,7 @@ export default class GraphsViewControls extends React.Component {
                 highlightedRevisions.map((revision, index) => (
                   // eslint-disable-next-line react/no-array-index-key
                   <Col sm="2" className="pl-0 pr-3" key={index}>
-                    <Form.Control
+                    <Input
                       type="text"
                       name={`revision ${revision}`}
                       placeholder="revision to highlight"
@@ -168,7 +164,8 @@ export default class GraphsViewControls extends React.Component {
               {!showTable && (
                 <Col sm="auto" className="pl-0">
                   <Button
-                    variant="outline-darker-info"
+                    color="darker-info"
+                    outline
                     onClick={() =>
                       updateStateParams({
                         highlightAlerts: !highlightAlerts,
@@ -180,7 +177,8 @@ export default class GraphsViewControls extends React.Component {
                   </Button>
                   <Button
                     className="ml-3"
-                    variant="outline-darker-info"
+                    color="darker-info"
+                    outline
                     onClick={() =>
                       updateStateParams({
                         highlightChangelogData: !highlightChangelogData,
@@ -192,7 +190,8 @@ export default class GraphsViewControls extends React.Component {
                   </Button>
                   <Button
                     className="ml-3"
-                    variant="outline-darker-info"
+                    color="darker-info"
+                    outline
                     onClick={() =>
                       updateStateParams({
                         highlightCommonAlerts: !highlightCommonAlerts,
@@ -204,7 +203,8 @@ export default class GraphsViewControls extends React.Component {
                   </Button>
                   <Button
                     className="ml-3"
-                    variant="outline-darker-info"
+                    color="darker-info"
+                    outline
                     onClick={() =>
                       updateStateParams({
                         replicates: !replicates,

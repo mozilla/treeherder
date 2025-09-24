@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from 'react-bootstrap';
+import { Badge } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -27,18 +27,14 @@ export default class SortButton extends React.Component {
     const { column, onChangeSort } = this.props;
     const { name, currentSort } = column;
     return (
-      <Button
-        size="sm"
-        variant="secondary"
-        className="mx-1 py-0 px-1"
+      <Badge
+        className="mx-1 btn btn-darker-secondary"
+        role="button"
         title={`Sorted in ${currentSort} order by ${name.toLowerCase()}`}
         onClick={() => onChangeSort(column)}
       >
-        <FontAwesomeIcon
-          icon={this.sortTypes[currentSort].icon}
-          className="text-white"
-        />
-      </Button>
+        <FontAwesomeIcon icon={this.sortTypes[currentSort].icon} />
+      </Badge>
     );
   }
 }

@@ -9,7 +9,13 @@ import {
   faExclamationTriangle,
   faInfoCircle,
 } from '@fortawesome/free-solid-svg-icons';
-import { Button, Dropdown } from 'react-bootstrap';
+import {
+  Button,
+  DropdownMenu,
+  DropdownItem,
+  DropdownToggle,
+  UncontrolledDropdown,
+} from 'reactstrap';
 
 import { shortDateFormat } from '../../helpers/display';
 import { clearStoredNotifications } from '../redux/stores/notifications';
@@ -33,21 +39,21 @@ class NotificationsMenu extends React.Component {
     const { storedNotifications, clearStoredNotifications } = this.props;
 
     return (
-      <Dropdown>
-        <Dropdown.Toggle className="btn-view-nav nav-menu-btn">
+      <UncontrolledDropdown>
+        <DropdownToggle className="btn-view-nav nav-menu-btn">
           <FontAwesomeIcon
             icon={faBell}
             className="lightgray"
             title="Recent notifications"
           />
-        </Dropdown.Toggle>
-        <Dropdown.Menu id="notification-dropdown" align="end">
-          <Dropdown.Item as="a" title="Notifications" className="pl-0" header>
+        </DropdownToggle>
+        <DropdownMenu id="notification-dropdown" right>
+          <DropdownItem tag="a" title="Notifications" className="pl-0" header>
             Recent notifications
             {!!storedNotifications.length && (
               <Button
                 size="xs"
-                variant="outline-secondary"
+                outline
                 className="notification-dropdown-btn"
                 title="Clear all notifications"
                 onClick={clearStoredNotifications}
@@ -55,10 +61,10 @@ class NotificationsMenu extends React.Component {
                 Clear all
               </Button>
             )}
-          </Dropdown.Item>
+          </DropdownItem>
           {storedNotifications.length ? (
             storedNotifications.map((notification) => (
-              <Dropdown.Item
+              <DropdownItem
                 className="pl-0 notification-dropdown-line"
                 key={`${notification.created}${notification.message}`}
               >
@@ -86,15 +92,15 @@ class NotificationsMenu extends React.Component {
                     {notification.linkText}
                   </a>
                 </span>
-              </Dropdown.Item>
+              </DropdownItem>
             ))
           ) : (
-            <Dropdown.Item as="a" className="pl-0">
+            <DropdownItem tag="a" className="pl-0">
               No recent notifications
-            </Dropdown.Item>
+            </DropdownItem>
           )}
-        </Dropdown.Menu>
-      </Dropdown>
+        </DropdownMenu>
+      </UncontrolledDropdown>
     );
   }
 }

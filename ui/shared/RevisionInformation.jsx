@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { ListGroup } from 'react-bootstrap';
+import { ListGroup, ListGroupItem } from 'reactstrap';
 
 import { getJobsUrl } from '../helpers/url';
 
@@ -61,17 +61,17 @@ export default function RevisionInformation(props) {
   return (
     <ListGroup className="push-information m-0 list-group">
       {originalRevision && (
-        <ListGroup.Item className="d-inline border-0 p-0">
+        <ListGroupItem className="d-inline border-0 p-0">
           {getRevisionSpecificDetails(
             originalRevision,
             originalProject,
             true,
             originalResultSet,
           )}
-        </ListGroup.Item>
+        </ListGroupItem>
       )}
       {selectedTimeRange && (
-        <ListGroup.Item className="d-inline border-0 p-0">
+        <ListGroupItem className="d-inline border-0 p-0">
           {getRevisionSpecificDetails(
             originalRevision,
             originalProject,
@@ -79,18 +79,18 @@ export default function RevisionInformation(props) {
             null,
             selectedTimeRange,
           )}
-        </ListGroup.Item>
+        </ListGroupItem>
       )}
       —
       {newRevision && (
-        <ListGroup.Item className="d-inline border-0 p-0">
+        <ListGroupItem className="d-inline border-0 p-0">
           {getRevisionSpecificDetails(
             newRevision,
             newProject,
             false,
             newResultSet,
           )}
-        </ListGroup.Item>
+        </ListGroupItem>
       )}
     </ListGroup>
   );

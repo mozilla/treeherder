@@ -1,8 +1,8 @@
 import React from 'react';
-import { Table, Alert } from 'react-bootstrap';
+import { Table, Alert } from 'reactstrap';
 import PropTypes from 'prop-types';
 
-const NoiseTable = ({ testsWithNoise, hasSubtests = false }) => {
+const NoiseTable = ({ testsWithNoise, hasSubtests }) => {
   const valueToString = (value) => {
     if (Number.isNaN(value)) {
       return value.toString();
@@ -11,7 +11,7 @@ const NoiseTable = ({ testsWithNoise, hasSubtests = false }) => {
   };
 
   return (
-    <Alert variant="info">
+    <Alert color="info">
       <p className="font-weight-bold">
         Tests with too much noise to be considered in the noise metric
       </p>
@@ -41,6 +41,10 @@ const NoiseTable = ({ testsWithNoise, hasSubtests = false }) => {
 NoiseTable.propTypes = {
   testsWithNoise: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   hasSubtests: PropTypes.bool,
+};
+
+NoiseTable.defaultProps = {
+  hasSubtests: false,
 };
 
 export default NoiseTable;

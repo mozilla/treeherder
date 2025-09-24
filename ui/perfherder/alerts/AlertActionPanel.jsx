@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Row, Col } from 'react-bootstrap';
+import { Button, Row, Col } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCheck,
@@ -200,7 +200,7 @@ export default class AlertActionPanel extends React.Component {
               <SimpleTooltip
                 text={
                   <Button
-                    variant="warning"
+                    color="warning"
                     onClick={() => this.updateAndFetch('untriaged')}
                   >
                     Reset
@@ -217,7 +217,7 @@ export default class AlertActionPanel extends React.Component {
                 <SimpleTooltip
                   text={
                     <Button
-                      variant="secondary"
+                      color="secondary"
                       onClick={() => this.updateAlerts('acknowledged')}
                     >
                       <FontAwesomeIcon icon={faCheck} /> Acknowledge
@@ -231,7 +231,7 @@ export default class AlertActionPanel extends React.Component {
                 <SimpleTooltip
                   text={
                     <Button
-                      variant="secondary"
+                      color="secondary"
                       onClick={() => this.updateAlerts('invalid')}
                     >
                       <FontAwesomeIcon icon={faBan} /> Mark invalid
@@ -245,7 +245,7 @@ export default class AlertActionPanel extends React.Component {
                 <SimpleTooltip
                   text={
                     <Button
-                      variant="secondary"
+                      color="secondary"
                       onClick={() => this.toggle('showDownstreamModal')}
                     >
                       <FontAwesomeIcon icon={faLevelDownAlt} /> Mark downstream
@@ -259,7 +259,7 @@ export default class AlertActionPanel extends React.Component {
                 <SimpleTooltip
                   text={
                     <Button
-                      variant="secondary"
+                      color="secondary"
                       onClick={() => this.toggle('showReassignedModal')}
                     >
                       <FontAwesomeIcon icon={faArrowAltCircleRight} /> Reassign

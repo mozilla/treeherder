@@ -1,5 +1,5 @@
 import React from 'react';
-import { DropdownButton } from 'react-bootstrap';
+import { ButtonDropdown, DropdownToggle } from 'reactstrap';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 
@@ -12,9 +12,14 @@ export default class DateOptions extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      dropdownOpen: false,
       dateRange: '',
     };
   }
+
+  toggle = () => {
+    this.setState((prevState) => ({ dropdownOpen: !prevState.dropdownOpen }));
+  };
 
   updateDateRange = (dateRange) => {
     this.setState({ dateRange });
@@ -37,7 +42,7 @@ export default class DateOptions extends React.Component {
 
   render() {
     const { updateState } = this.props;
-    const { dateRange } = this.state;
+    const { dropdownOpen, dateRange } = this.state;
     const dateOptions = [
       'last 7 days',
       'last 30 days',
@@ -47,13 +52,18 @@ export default class DateOptions extends React.Component {
 
     return (
       <div className="d-inline-block">
-        <DropdownButton className="mr-3" title="date range">
+        <ButtonDropdown
+          className="mr-3"
+          isOpen={dropdownOpen}
+          toggle={this.toggle}
+        >
+          <DropdownToggle caret>date range</DropdownToggle>
           <DropdownMenuItems
             options={dateOptions}
             updateData={this.updateDateRange}
             selectedItem={dateRange}
           />
-        </DropdownButton>
+        </ButtonDropdown>
         {dateRange === 'custom range' && (
           <DateRangePicker updateState={updateState} />
         )}

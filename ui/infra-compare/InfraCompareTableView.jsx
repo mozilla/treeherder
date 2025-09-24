@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Col, Row, Container, Alert } from 'react-bootstrap';
+import { Col, Row, Container, Alert } from 'reactstrap';
 
 import ErrorMessages from '../shared/ErrorMessages';
 import { genericErrorMessage, errorMessageClass } from '../helpers/constants';
@@ -211,7 +211,7 @@ export default class InfraCompareTableView extends React.Component {
             {jobsNotDisplayed && jobsNotDisplayed.length > 0 && (
               <Row className="pt-5 justify-content-center">
                 <Col small="12" className="px-0 max-width-default">
-                  <Alert variant="warning">
+                  <Alert color="warning">
                     <TruncatedText
                       title="Tests without results: "
                       maxLength={174}

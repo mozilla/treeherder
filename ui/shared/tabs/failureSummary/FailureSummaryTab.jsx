@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'react-bootstrap';
+import { Button } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
@@ -216,7 +216,7 @@ class FailureSummaryTab extends React.Component {
           {selectedJob.newFailure > 0 && (
             <Button
               className="failure-summary-new-message"
-              variant="outline-info"
+              outline
               title="New Test Failure"
             >
               {selectedJob.newFailure} new failure line(s). First one is

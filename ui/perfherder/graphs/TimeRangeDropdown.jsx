@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dropdown } from 'react-bootstrap';
+import { DropdownToggle, UncontrolledDropdown } from 'reactstrap';
 import PropTypes from 'prop-types';
 
 import DropdownMenuItems from '../../shared/DropdownMenuItems';
@@ -10,12 +10,12 @@ class TimeRangeDropdown extends React.PureComponent {
     const { timeRangeText, updateTimeRange } = this.props;
 
     return (
-      <Dropdown
+      <UncontrolledDropdown
         className="mr-0 text-nowrap"
         title="Time range"
         aria-label="Time range"
       >
-        <Dropdown.Toggle>{timeRangeText}</Dropdown.Toggle>
+        <DropdownToggle caret>{timeRangeText}</DropdownToggle>
         <DropdownMenuItems
           options={phTimeRanges.map((item) => item.text)}
           selectedItem={timeRangeText}
@@ -25,7 +25,7 @@ class TimeRangeDropdown extends React.PureComponent {
             )
           }
         />
-      </Dropdown>
+      </UncontrolledDropdown>
     );
   }
 }

@@ -1,7 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Button, Modal, Tooltip, Form } from 'react-bootstrap';
+import {
+  Button,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Tooltip,
+  FormGroup,
+  Input,
+  Label,
+} from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faChevronCircleDown,
@@ -627,14 +637,12 @@ export class BugFilerClass extends React.Component {
 
     return (
       <div>
-        <Modal show={isOpen} onHide={toggle} size="lg">
-          <Modal.Header closeButton>
-            <Modal.Title>Intermittent Bug Filer</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
+        <Modal isOpen={isOpen} toggle={toggle} size="lg">
+          <ModalHeader toggle={toggle}>Intermittent Bug Filer</ModalHeader>
+          <ModalBody>
             <form className="d-flex flex-column">
               <div className="d-inline-flex">
-                <Form.Control
+                <Input
                   name="modalProductFinderSearch"
                   id="modalProductFinderSearch"
                   onKeyDown={this.productSearchEnter}
@@ -653,7 +661,7 @@ export class BugFilerClass extends React.Component {
                   Manually search for a product
                 </Tooltip>
                 <Button
-                  variant="secondary"
+                  color="secondary"
                   className="ml-1 btn-sm"
                   type="button"
                   onClick={this.findProduct}
@@ -673,14 +681,14 @@ export class BugFilerClass extends React.Component {
                     Searching {productSearch}
                   </div>
                 )}
-                <Form.Group tag="fieldset" className="mt-1">
+                <FormGroup tag="fieldset" className="mt-1">
                   {suggestedProducts.map((product) => (
                     <div
                       className="ml-4"
                       key={`modalProductSuggestion${product}`}
                     >
-                      <Form.Label>
-                        <Form.Control
+                      <Label check>
+                        <Input
                           type="radio"
                           value={product}
                           checked={product === selectedProduct}
@@ -690,12 +698,12 @@ export class BugFilerClass extends React.Component {
                           name="productGroup"
                         />
                         {product}
-                      </Form.Label>
+                      </Label>
                     </div>
                   ))}
-                </Form.Group>
+                </FormGroup>
               </div>
-              <Form.Label htmlFor="summary">Summary:</Form.Label>
+              <Label for="summary">Summary:</Label>
               <div className="d-flex">
                 {!!unhelpfulSummaryReason && (
                   <div>
@@ -722,7 +730,7 @@ export class BugFilerClass extends React.Component {
                     ))}
                   </div>
                 )}
-                <Form.Control
+                <Input
                   id="summary"
                   className="flex-grow-1"
                   type="text"
@@ -737,8 +745,8 @@ export class BugFilerClass extends React.Component {
                 />
                 <Tooltip
                   target="toggle-failure-lines"
-                  show={tooltipOpen.toggleFailureLines}
-                  onToggle={() => this.toggleTooltip('toggleFailureLines')}
+                  isOpen={tooltipOpen.toggleFailureLines}
+                  toggle={() => this.toggleTooltip('toggleFailureLines')}
                 >
                   {isFilerSummaryVisible
                     ? 'Hide all failure lines for this job'
@@ -771,9 +779,9 @@ export class BugFilerClass extends React.Component {
               </div>
               {isFilerSummaryVisible && (
                 <span>
-                  <Form.Control
+                  <Input
                     className="w-100"
-                    as="textarea"
+                    type="textarea"
                     value={thisFailure}
                     readOnly
                     onChange={(evt) =>
@@ -784,8 +792,8 @@ export class BugFilerClass extends React.Component {
               )}
               <div className="ml-5 mt-2">
                 <div>
-                  <Form.Label>
-                    <Form.Control
+                  <Label>
+                    <Input
                       type="checkbox"
                       checked={checkedLogLinks.has('Parsed log')}
                       onChange={() =>
@@ -799,11 +807,11 @@ export class BugFilerClass extends React.Component {
                     >
                       Include Parsed Log Link
                     </a>
-                  </Form.Label>
+                  </Label>
                 </div>
                 <div>
-                  <Form.Label>
-                    <Form.Control
+                  <Label>
+                    <Input
                       type="checkbox"
                       checked={checkedLogLinks.has('Full log')}
                       onChange={() =>
@@ -813,12 +821,12 @@ export class BugFilerClass extends React.Component {
                     <a target="_blank" rel="noopener noreferrer" href={fullLog}>
                       Include Full Log Link
                     </a>
-                  </Form.Label>
+                  </Label>
                 </div>
                 {!!reftestUrl && (
                   <div>
-                    <Form.Label>
-                      <Form.Control
+                    <Label>
+                      <Input
                         type="checkbox"
                         checked={checkedLogLinks.has('Reftest URL')}
                         onChange={() =>
@@ -832,19 +840,19 @@ export class BugFilerClass extends React.Component {
                       >
                         Include Reftest Viewer Link
                       </a>
-                    </Form.Label>
+                    </Label>
                   </div>
                 )}
               </div>
               <div className="d-flex flex-column">
-                <Form.Label htmlFor="summary-input">Comment:</Form.Label>
-                <Form.Control
+                <Label for="summary-input">Comment:</Label>
+                <Input
                   onChange={(evt) =>
                     this.setState({ comment: evt.target.value }, () =>
                       this.checkForSecurityIssue(),
                     )
                   }
-                  as="textarea"
+                  type="textarea"
                   id="summary-input"
                   className="flex-grow-1"
                   rows={5}
@@ -852,8 +860,8 @@ export class BugFilerClass extends React.Component {
               </div>
               <div className="d-inline-flex mt-2 ml-5">
                 <div className="mt-2">
-                  <Form.Label>
-                    <Form.Control
+                  <Label>
+                    <Input
                       onChange={() =>
                         this.setState({ isIntermittent: !isIntermittent })
                       }
@@ -861,10 +869,10 @@ export class BugFilerClass extends React.Component {
                       checked={isIntermittent}
                     />
                     This is an intermittent failure
-                  </Form.Label>
+                  </Label>
                 </div>
                 <div className="d-inline-flex ml-2">
-                  <Form.Control
+                  <Input
                     id="regressedBy"
                     type="text"
                     className="ml-1"
@@ -881,7 +889,7 @@ export class BugFilerClass extends React.Component {
                   >
                     Comma-separated list of bugs
                   </Tooltip>
-                  <Form.Control
+                  <Input
                     id="seeAlso"
                     className="ml-1"
                     type="text"
@@ -901,8 +909,8 @@ export class BugFilerClass extends React.Component {
                 </div>
               </div>
               <div className="d-inline-flex mt-2 ml-5">
-                <Form.Label>
-                  <Form.Control
+                <Label>
+                  <Input
                     id="securityIssue"
                     onChange={() =>
                       this.setState({ isSecurityIssue: !isSecurityIssue })
@@ -911,14 +919,14 @@ export class BugFilerClass extends React.Component {
                     checked={isSecurityIssue}
                   />
                   Report this as a security issue
-                </Form.Label>
+                </Label>
               </div>
               {['autoland', 'mozilla-central', 'try'].includes(
                 currentRepo.name,
               ) && (
                 <div className="d-inline-flex mt-2 ml-5">
-                  <Form.Label>
-                    <Form.Control
+                  <Label>
+                    <Input
                       type="checkbox"
                       checked={launchConfirmFailure}
                       onChange={() =>
@@ -928,14 +936,14 @@ export class BugFilerClass extends React.Component {
                       }
                     />
                     Launch the Confirm Failures task at bug submission
-                  </Form.Label>
+                  </Label>
                 </div>
               )}
               {!!crashSignatures.length && (
                 <div>
-                  <Form.Label htmlFor="signature-input">Signature:</Form.Label>
-                  <Form.Control
-                    as="textarea"
+                  <Label for="signature-input">Signature:</Label>
+                  <Input
+                    type="textarea"
                     id="signature-input"
                     onChange={(evt) =>
                       this.setState({ crashSignatures: evt.target.value })
@@ -947,15 +955,15 @@ export class BugFilerClass extends React.Component {
                 </div>
               )}
             </form>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={this.submitFiler}>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="secondary" onClick={this.submitFiler}>
               Submit Bug
             </Button>{' '}
-            <Button variant="secondary" onClick={toggle}>
+            <Button color="secondary" onClick={toggle}>
               Cancel
             </Button>
-          </Modal.Footer>
+          </ModalFooter>
         </Modal>
       </div>
     );

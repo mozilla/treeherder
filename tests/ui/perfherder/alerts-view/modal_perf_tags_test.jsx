@@ -54,9 +54,9 @@ test('An active/checked tag can be unchecked', async () => {
 
 test('Modal closes on X', async () => {
   const handleClose = jest.fn();
-  const { getByLabelText } = testTagsModal(handleClose);
+  const { getByText } = testTagsModal(handleClose);
 
-  const closeButton = await waitFor(() => getByLabelText('Close'));
+  const closeButton = await waitFor(() => getByText('×'));
 
   expect(closeButton).toBeInTheDocument();
 
@@ -69,7 +69,7 @@ test('Modal does not keep unsaved changes', async () => {
   testAlertSummary.performance_tags = ['harness'];
 
   const handleClose = jest.fn();
-  const { getByLabelText, getByTestId } = testTagsModal(handleClose);
+  const { getByText, getByTestId } = testTagsModal(handleClose);
 
   let activeTag = await waitFor(() => getByTestId('modal-perf-tag harness'));
 
@@ -78,7 +78,7 @@ test('Modal does not keep unsaved changes', async () => {
   fireEvent.change(activeTag, { target: { checked: false } });
   expect(activeTag.checked).toBeFalsy();
 
-  const closeButton = await waitFor(() => getByLabelText('Close'));
+  const closeButton = await waitFor(() => getByText('×'));
   fireEvent.click(closeButton);
 
   expect(handleClose).toHaveBeenCalledTimes(1);

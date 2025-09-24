@@ -3,11 +3,18 @@ import PropTypes from 'prop-types';
 import {
   Col,
   Card,
+  CardHeader,
+  CardText,
+  CardBody,
+  DropdownItem,
+  Input,
+  CardSubtitle,
+  ButtonDropdown,
+  DropdownToggle,
+  DropdownMenu,
   InputGroup,
-  DropdownButton,
-  Dropdown,
-  Form,
-} from 'react-bootstrap';
+  InputGroupButtonDropdown,
+} from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 
@@ -179,19 +186,21 @@ export default class SelectorCard extends React.Component {
     return (
       <Col sm="4" className="p-2 text-left">
         <Card className="card-height">
-          <Card.Header className="bg-lightgray">{title}</Card.Header>
-          <Card.Body>
-            <Card.Subtitle className="pb-2 pt-3">Project</Card.Subtitle>
-            <DropdownButton
+          <CardHeader className="bg-lightgray">{title}</CardHeader>
+          <CardBody>
+            <CardSubtitle className="pb-2 pt-3">Project</CardSubtitle>
+            <ButtonDropdown
               className="mr-3 w-25 text-nowrap"
-              show={buttonDropdownOpen}
-              onToggle={() => this.toggle('buttonDropdownOpen')}
-              title={selectedRepo}
+              isOpen={buttonDropdownOpen}
+              toggle={() => this.toggle('buttonDropdownOpen')}
             >
+              <DropdownToggle caret outline>
+                {selectedRepo}
+              </DropdownToggle>
               {projects.length > 0 && (
-                <Dropdown.Menu className="overflow-auto dropdown-menu-height">
+                <DropdownMenu className="overflow-auto dropdown-menu-height">
                   {projects.map((item) => (
-                    <Dropdown.Item
+                    <DropdownItem
                       tag="a"
                       key={item.name}
                       onClick={(event) =>
@@ -206,21 +215,21 @@ export default class SelectorCard extends React.Component {
                         title={selectedRepo === item.name ? 'Checked' : ''}
                       />
                       {item.name}
-                    </Dropdown.Item>
+                    </DropdownItem>
                   ))}
-                </Dropdown.Menu>
+                </DropdownMenu>
               )}
-            </DropdownButton>
+            </ButtonDropdown>
             {invalidProject && (
-              <Card.Text className="text-danger pt-1 mb-0">
+              <CardText className="text-danger pt-1 mb-0">
                 {invalidProject}
-              </Card.Text>
+              </CardText>
             )}
 
             <React.Fragment>
-              <Card.Subtitle className="pt-4 pb-2">Revision</Card.Subtitle>
+              <CardSubtitle className="pt-4 pb-2">Revision</CardSubtitle>
               <InputGroup>
-                <Form.Control
+                <Input
                   valid={!invalidRevision && !validating && validated}
                   placeholder={selectorCardText.revisionPlaceHolder}
                   value={selectedRevision}
@@ -232,17 +241,18 @@ export default class SelectorCard extends React.Component {
                     })
                   }
                 />
-                <DropdownButton
-                  show={inputDropdownOpen}
-                  onToggle={() => this.toggle('inputDropdownOpen')}
-                  title="Recent"
-                  disabled={disabled}
-                  as={InputGroup.Append}
+                <InputGroupButtonDropdown
+                  addonType="append"
+                  isOpen={inputDropdownOpen}
+                  toggle={() => this.toggle('inputDropdownOpen')}
                 >
+                  <DropdownToggle caret outline disabled={disabled}>
+                    Recent
+                  </DropdownToggle>
                   {!!data.results && data.results.length > 0 && (
-                    <Dropdown.Menu>
+                    <DropdownMenu>
                       {data.results.map((item) => (
-                        <Dropdown.Item
+                        <DropdownItem
                           tag="a"
                           key={item.id}
                           onClick={(event) =>
@@ -263,21 +273,21 @@ export default class SelectorCard extends React.Component {
                             }
                           />
                           {`${item.revision} ${item.author}`}
-                        </Dropdown.Item>
+                        </DropdownItem>
                       ))}
-                    </Dropdown.Menu>
+                    </DropdownMenu>
                   )}
-                </DropdownButton>
+                </InputGroupButtonDropdown>
               </InputGroup>
               {(validating || invalidRevision || missingRevision) && (
-                <Card.Text
+                <CardText
                   className={validating ? 'text-info pt-1' : 'text-danger pt-1'}
                 >
                   {validating || invalidRevision || missingRevision}
-                </Card.Text>
+                </CardText>
               )}
             </React.Fragment>
-          </Card.Body>
+          </CardBody>
         </Card>
       </Col>
     );

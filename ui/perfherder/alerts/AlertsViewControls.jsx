@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Row, Button, Container } from 'react-bootstrap';
+import { Row, Button, Container } from 'reactstrap';
 
 import FilterControls from '../../shared/FilterControls';
 import { summaryStatusMap, scrollTypes } from '../perf-helpers/constants';
@@ -200,7 +200,7 @@ export default class AlertsViewControls extends React.Component {
               <div className="d-flex justify-content-end mb-1 mr-2">
                 <Button
                   className="mr-2"
-                  variant="info"
+                  color="info"
                   onClick={() => this.onScrollAlert(scrollTypes.prev)}
                   disabled={disableButtons.prev}
                   data-testid="scroll-prev-alert"
@@ -208,7 +208,7 @@ export default class AlertsViewControls extends React.Component {
                   Previous alert
                 </Button>
                 <Button
-                  variant="info"
+                  color="info"
                   onClick={() => this.onScrollAlert(scrollTypes.next)}
                   disabled={disableButtons.next}
                   data-testid="scroll-next-alert"

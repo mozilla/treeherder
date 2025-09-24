@@ -1,6 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Col, Form, InputGroup, Button, Modal } from 'react-bootstrap';
+import {
+  Col,
+  Form,
+  Input,
+  InputGroup,
+  InputGroupAddon,
+  InputGroupText,
+  Button,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from 'reactstrap';
 
 export default class RetriggerModal extends React.Component {
   constructor(props) {
@@ -121,21 +133,20 @@ export default class RetriggerModal extends React.Component {
 
     return (
       <Modal
-        show={showModal}
-        onShow={this.onOpened}
-        onHide={toggle}
-        onExited={this.onClosed}
+        isOpen={showModal}
+        onOpened={this.onOpened}
+        onClosed={this.onClosed}
       >
-        <Modal.Header closeButton>
-          <Modal.Title>Retrigger Jobs</Modal.Title>
-        </Modal.Header>
+        <ModalHeader toggle={toggle}>Retrigger Jobs</ModalHeader>
         <Form>
-          <Modal.Body>
+          <ModalBody>
             <div className="row">
               <Col className="col-xs-10 col-sm-6 col-md-6 col-lg-6 form-inline">
                 <InputGroup title={this.getInputTitle(true)}>
-                  <InputGroup.Text>Base revision:</InputGroup.Text>
-                  <Form.Control
+                  <InputGroupAddon addonType="prepend">
+                    <InputGroupText>Base revision:</InputGroupText>
+                  </InputGroupAddon>
+                  <Input
                     data-testid="input baseRetriggerTimes"
                     defaultValue={this.getInitialValue(true)}
                     min={0}
@@ -152,8 +163,10 @@ export default class RetriggerModal extends React.Component {
               </Col>
               <Col className="col-xs-10 col-sm-6 col-md-6 col-lg-6 form-inline">
                 <InputGroup title={this.getInputTitle()}>
-                  <InputGroup.Text>New revision:</InputGroup.Text>
-                  <Form.Control
+                  <InputGroupAddon addonType="prepend">
+                    <InputGroupText>New revision:</InputGroupText>
+                  </InputGroupAddon>
+                  <Input
                     data-testid="input newRetriggerTimes"
                     defaultValue={this.getInitialValue()}
                     min={0}
@@ -173,16 +186,16 @@ export default class RetriggerModal extends React.Component {
                 </p>
               )}
             </div>
-          </Modal.Body>
-          <Modal.Footer>
+          </ModalBody>
+          <ModalFooter>
             <Button
-              variant="info"
+              color="info"
               onClick={this.onRetriggerClick}
               disabled={invalidInput}
             >
               Retrigger
             </Button>
-          </Modal.Footer>
+          </ModalFooter>
         </Form>
       </Modal>
     );

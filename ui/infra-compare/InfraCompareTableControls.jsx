@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Container, Form } from 'react-bootstrap';
+import { Container, CustomInput, Label } from 'reactstrap';
 
 import FilterControls from '../shared/FilterControls';
 
@@ -110,11 +110,11 @@ export default class CompareTableControls extends React.Component {
           updateFilter={this.updateFilter}
           updateFilterText={this.updateFilterText}
         />
-        <Form.Label htmlFor="filterPercent">
-          Filter percentage: {filterPercent}%
-        </Form.Label>
-        <Form.Range
+        <Label for="filterPercent">Filter percentage: {filterPercent}%</Label>
+        <CustomInput
+          type="range"
           id="filterPercent"
+          name="customSelect"
           min={0}
           max={20}
           value={filterPercent}
