@@ -328,6 +328,10 @@ def interpret_silverman_kde(base, new, lower_is_better):
 
     ci_warning = None
     silverman_kde = None
+    is_regression = None
+    is_improvement = None
+    more_runs_are_needed = None
+    performance_intepretation = None
     if base_mode_count == new_mode_count:
         base_intervals = find_mode_interval(x_base, y_base, base_peak_locs)
         new_intervals = find_mode_interval(x_new, y_new, new_peak_locs)
