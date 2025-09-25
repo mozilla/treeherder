@@ -654,6 +654,17 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
         ]
 
 
+class StandardStatsSerializer(serializers.Serializer):
+    min = PerfCompareDecimalField()
+    max = PerfCompareDecimalField()
+    mean = PerfCompareDecimalField()
+    median = PerfCompareDecimalField()
+    stddev = PerfCompareDecimalField()
+    count = serializers.IntegerField()
+    variance = PerfCompareDecimalField()
+    stddev_pct = PerfCompareDecimalField()
+
+
 class StatisticsTestSerializer(serializers.Serializer):
     test_name = serializers.CharField()
     stat = PerfCompareDecimalField()
@@ -737,18 +748,8 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
         child=PerfCompareDecimalField(),
         default=[],
     )
-    base_mean = PerfCompareDecimalField()
-    new_mean = PerfCompareDecimalField()
-    base_median = PerfCompareDecimalField()
-    new_median = PerfCompareDecimalField()
-    base_stddev = PerfCompareDecimalField()
-    new_stddev = PerfCompareDecimalField()
-    base_count = serializers.IntegerField()
-    new_count = serializers.IntegerField()
-    base_variance = PerfCompareDecimalField()
-    new_variance = PerfCompareDecimalField()
-    base_stddev_pct = PerfCompareDecimalField()
-    new_stddev_pct = PerfCompareDecimalField()
+    base_standard_stats = StandardStatsSerializer()
+    new_standard_stats = StandardStatsSerializer()
     delta_value = PerfCompareDecimalField()
     delta_percentage = PerfCompareDecimalField()
     new_is_better = OptionalBooleanField()
@@ -790,6 +791,8 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
             "new_rev",
             "base_app",
             "new_app",
+            "base_standard_stats",
+            "new_standard_stats",
             "framework_id",
             "platform",
             "suite",
@@ -805,21 +808,9 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
             "new_runs",
             "base_runs_replicates",
             "new_runs_replicates",
-            "base_mean",
-            "new_mean",
-            "base_median",
-            "new_median",
-            "base_variance",
-            "new_variance",
             "test",
             "option_name",
             "extra_options",
-            "base_count",
-            "new_count",
-            "base_stddev",
-            "new_stddev",
-            "base_stddev_pct",
-            "new_stddev_pct",
             "graphs_link",
             "delta_value",
             "delta_percentage",

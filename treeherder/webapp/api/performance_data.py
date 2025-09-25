@@ -1078,6 +1078,25 @@ class PerfCompareResults(generics.ListAPIView):
                     "new_runs": sorted(new_perf_data_values),
                     "base_runs_replicates": sorted(base_perf_data_replicates),
                     "new_runs_replicates": sorted(new_perf_data_replicates),
+                    # highlighted revisions is the base_revision and the other highlighted revisions is new_revision
+                    "graphs_link": self._create_graph_links(
+                        base_repo_name,
+                        new_repo_name,
+                        base_rev,
+                        new_rev,
+                        str(framework),
+                        push_timestamp,
+                        str(sig_hash),
+                    ),
+                    "base_retriggerable_job_ids": base_grouped_job_ids.get(base_sig_id, []),
+                    "new_retriggerable_job_ids": new_grouped_job_ids.get(new_sig_id, []),
+                    "base_parent_signature": base_sig.get("parent_signature_id", None),
+                    "new_parent_signature": new_sig.get("parent_signature_id", None),
+                    "base_signature_id": base_sig_id,
+                    "new_signature_id": new_sig_id,
+                    "has_subtests": (
+                        base_sig.get("has_subtests", None) or new_sig.get("has_subtests", None)
+                    ),
                 }
                 if no_results_to_show:
                     continue
@@ -1085,28 +1104,10 @@ class PerfCompareResults(generics.ListAPIView):
                     new_stats = self._process_stats(
                         statistics_base_perf_data, statistics_new_perf_data, header, lower_is_better
                     )
+
                     row_result = {
                         **common_result,
                         **new_stats,
-                        # highlighted revisions is the base_revision and the other highlighted revisions is new_revision
-                        "graphs_link": self._create_graph_links(
-                            base_repo_name,
-                            new_repo_name,
-                            base_rev,
-                            new_rev,
-                            str(framework),
-                            push_timestamp,
-                            str(sig_hash),
-                        ),
-                        "base_retriggerable_job_ids": base_grouped_job_ids.get(base_sig_id, []),
-                        "new_retriggerable_job_ids": new_grouped_job_ids.get(new_sig_id, []),
-                        "base_parent_signature": base_sig.get("parent_signature_id", None),
-                        "new_parent_signature": new_sig.get("parent_signature_id", None),
-                        "base_signature_id": base_sig_id,
-                        "new_signature_id": new_sig_id,
-                        "has_subtests": (
-                            base_sig.get("has_subtests", None) or new_sig.get("has_subtests", None)
-                        ),
                     }
                     self.queryset.append(row_result)
                 else:
@@ -1159,37 +1160,17 @@ class PerfCompareResults(generics.ListAPIView):
                         "lower_is_better": lower_is_better,
                         "is_confident": is_confident,
                         "more_runs_are_needed": more_runs_are_needed,
-                        # highlighted revisions is the base_revision and the other highlighted revisions is new_revision
-                        "graphs_link": self._create_graph_links(
-                            base_repo_name,
-                            new_repo_name,
-                            base_rev,
-                            new_rev,
-                            str(framework),
-                            push_timestamp,
-                            str(sig_hash),
-                        ),
                         "is_improvement": is_improvement,
                         "is_regression": is_regression,
                         "is_meaningful": is_meaningful,
                         "base_stddev_pct": base_stddev_pct,
                         "new_stddev_pct": new_stddev_pct,
-                        "base_retriggerable_job_ids": base_grouped_job_ids.get(base_sig_id, []),
-                        "new_retriggerable_job_ids": new_grouped_job_ids.get(new_sig_id, []),
-                        "base_parent_signature": base_sig.get("parent_signature_id", None),
-                        "new_parent_signature": new_sig.get("parent_signature_id", None),
-                        "base_signature_id": base_sig_id,
-                        "new_signature_id": new_sig_id,
-                        "has_subtests": (
-                            base_sig.get("has_subtests", None) or new_sig.get("has_subtests", None)
-                        ),
                     }
 
                     self.queryset.append(row_result)
 
         serializer = self.get_serializer(self.queryset, many=True)
         serialized_data = serializer.data
-
         return Response(data=serialized_data)
 
     def _get_signature_based_properties(self, sig, option_collection_map):
@@ -1398,102 +1379,6 @@ class PerfCompareResults(generics.ListAPIView):
     6. Interpret Common Language Effect Size, with p-value and p-threshold (.05), calculate statistical effect and significance with what level of confidence interval
     7. Estimate out KDE with Silverman bandwidth, check if multimodal or irregular, calc interpretation if regressed, improved, or neutral
     8. Plot KDE with ISJ bandwidth to reduce smoothing
-
-    return object:
-
-        {   "base_data": base_rev,
-            "new_data": new_rev,
-            "base_median": base_median,
-            "base_mean": base_mean,
-            "base_stddev": base_stddev,
-            "base_stddev_pct": base_stddev_pct,
-            "base_min": base_min,
-            "base_max": base_max,
-            "base_count": base_count,
-            "new_mean": new_mean,
-            "new_stddev": new_stddev,
-            "new_stddev_pct": new_stddev_pct,
-            "new_min": new_min,
-            "new_max": new_max,
-            "new_count": new_count,
-            "new_median": new_median,
-            "lower_is_better": lower_is_better,
-            "shapiro_wilk_test": {
-                "test_name": "Shapiro-Wilk",
-                "shapiro_stat_base",
-                "interpretation_base",
-                "is_normal_base",
-                "shapiro_stat_new",
-                "interpretation_new",
-                "is_normal_new",
-            },
-            "ks_test": {
-                "test_name": "Kolmogorov-Smirnov",
-                "stat": ks_stat,
-                "comment": ks_comment,
-            },
-            "ks_warning": ks_warning,
-            "mann_whitney_test": { "test_name": "Mann-Whitney U", "stat": mann_stat, "pvalue": mann_pvalue, "interpretation": interpretation_mann },
-            "delta_value": delta_value,
-            "delta_percentage": delta_percentage,
-            "mann_pvalue": mann_pvalue,
-            "cliffs_delta": cliffs_delta,
-            "cliffs_interpretation": cliffs_interpretation,
-            "cliffs_direction": cliffs_direction,
-            "is_fit_good": is_fit_good,
-            "is_new_better": is_new_better,
-            "is_regression": is_regression,
-            "is_improvement": is_improvement,
-            "more_runs_are_needed": more_runs_are_needed,
-            "direction_of_change": direction,  # 'neutral', 'better', or 'worse'
-            "performance_interpretation": performance_interpretation,
-            "dke_isj_plot_summary_text": summary_text,
-            "dke_isj_plot_base": {
-                "median": base_median,
-                "sample_count": len(base),
-                "kde_x": kde_x_base,
-                "kde_y": kde_y_base,
-            },
-            "dke_isj_plot_new": {
-                "median": new_median,
-                "sample_count": len(new),
-                "kde_x": kde_x_new,
-                "kde_y": kde_y_new,
-            },
-            "silverman_warnings": warning_msgs,
-            "silverman_kde": {
-                "bandwidth": "Silverman",
-                "base_mode_count": base_mode_count,
-                "base_peak_locs": base_peak_locs,
-                "base_prom": base_prom,
-                "new_mode_count": new_mode_count,
-                "new_peak_locs": new_peak_locs,
-                "new_prom": new_prom,
-                "mode_comments": [
-                    f"Estimated modes (Base): {base_mode_count} (location: {base_peak_locs}, prominence: {base_prom})",
-                    f"Estimated modes (New): {new_mode_count} (location: {new_peak_locs}, prominence: {new_prom})",
-                ],
-                "warnings": warning_msgs,
-                "mode_summary": mode_summary,
-                "median_shift_summary": median_shift_summary,
-                "ci_low": ci_low,
-                "ci_high": ci_high,
-                "shift": shift,
-                "shift_summary": ci_intepretation,
-                "is_regression": is_regression,
-                "is_improvement": is_improvement,
-                "ci_warning": ci_warning,
-            },
-            "cles": cles,
-            "cles_direction": cles_direction,
-            "effect_size": effect_size,
-            "cles_explanation": cles_explanation,
-            "mann_whitney_u_cles": mann_whitney_u_cles,
-            "cliffs_delta_cles": cliffs_delta_cles,
-            "p_value_cles": p_value_cles,
-            "is_significant": is_significant,
-        },
-    }
     """
 
     @staticmethod
@@ -1520,22 +1405,22 @@ class PerfCompareResults(generics.ListAPIView):
 
         # get basic statistics for both base and new with mean, median, variance, standard deviation, standard deviation percentage, min, max
 
-        base_min = np.min(base_rev) if len(base_rev) > 0 else 0
-        base_max = np.max(base_rev) if len(base_rev) > 0 else 0
-        base_variance = np.var(base_rev) if base_rev else 0
+        base_min = float(np.min(base_rev) if len(base_rev) > 0 else 0)
+        base_max = float(np.max(base_rev) if len(base_rev) > 0 else 0)
+        base_variance = float(np.var(base_rev) if base_rev else 0)
         base_mean = perfcompare_utils.get_avg(base_rev, header)
         base_stddev = perfcompare_utils.get_stddev(base_rev, header)
         base_count = len(base_rev)
-        base_median = np.median(base_rev) if base_rev else 0
+        base_median = float(np.median(base_rev) if base_rev else 0)
         base_stddev_pct = perfcompare_utils.get_stddev_pct(base_mean, base_stddev)
 
-        new_min = np.min(new_rev) if len(new_rev) > 0 else 0
-        new_max = np.max(new_rev) if len(new_rev) > 0 else 0
-        new_variance = np.var(new_rev) if new_rev else 0
+        new_min = float(np.min(new_rev) if len(new_rev) > 0 else 0)
+        new_max = float(np.max(new_rev) if len(new_rev) > 0 else 0)
+        new_variance = float(np.var(new_rev) if new_rev else 0)
         new_mean = perfcompare_utils.get_avg(new_rev, header)
         new_stddev = perfcompare_utils.get_stddev(new_rev, header)
         new_count = len(new_rev)
-        new_median = np.median(new_rev) if new_rev else 0
+        new_median = float(np.median(new_rev) if new_rev else 0)
         new_stddev_pct = perfcompare_utils.get_stddev_pct(new_mean, new_stddev)
 
         # Basic statistics, normality test"
@@ -1613,22 +1498,26 @@ class PerfCompareResults(generics.ListAPIView):
         stats_data = {
             "base_rev": base_rev,
             "new_rev": new_rev,
-            "base_count": base_count,
-            "new_count": new_count,
-            "base_min": base_min,
-            "base_max": base_max,
-            "base_mean": base_mean,
-            "base_median": base_median,
-            "base_variance": base_variance,
-            "base_stddev": base_stddev,
-            "new_min": new_min,
-            "new_max": new_max,
-            "new_mean": new_mean,
-            "new_median": new_median,
-            "new_variance": new_variance,
-            "new_stddev": new_stddev,
-            "base_stddev_pct": base_stddev_pct,
-            "new_stddev_pct": new_stddev_pct,
+            "base_standard_stats": {
+                "count": base_count,
+                "min": base_min,
+                "max": base_max,
+                "mean": base_mean,
+                "median": base_median,
+                "variance": base_variance,
+                "stddev": base_stddev,
+                "stddev_pct": base_stddev_pct,
+            },
+            "new_standard_stats": {
+                "count": new_count,
+                "min": new_min,
+                "max": new_max,
+                "mean": new_mean,
+                "median": new_median,
+                "variance": new_variance,
+                "stddev": new_stddev,
+                "stddev_pct": new_stddev_pct,
+            },
             "shapiro_wilk_test": shapiro_results,
             "shapiro_warning": shapiro_warning,
             "ks_test": ks_test,
@@ -1636,7 +1525,7 @@ class PerfCompareResults(generics.ListAPIView):
             "mann_whitney_test": mann_whitney,
             "delta_value": delta_value,
             "delta_percentage": delta_percentage,
-            "mann_pvalue": mann_pvalue,
+            "mann_pvalue": float(mann_pvalue),
             "cliffs_delta": c_delta,
             "cliffs_interpretation": cliffs_interpretation,
             "is_fit_good": is_fit_good,
@@ -1651,7 +1540,7 @@ class PerfCompareResults(generics.ListAPIView):
             "dke_isj_plot_summary_text": isj_kde_summary_text,
             "silverman_warnings": warning_msgs,
             "silverman_kde": silverman_kde,
-            "cles": cles,
+            "cles": float(cles),
             "cles_direction": direction,
             "cles_explanation": cles_explanation,
             "mann_whitney_u_cles": mann_whitney_u_cles,

@@ -170,7 +170,7 @@ def interpret_ks_test(base, new, pvalue_threshold):
 
     ks_test = {
         "test_name": "Kolmogorov-Smirnov",
-        "stat": ks_stat,
+        "stat": float(ks_stat),
         "interpretation": ks_comment,
     }
     is_fit_good = True
@@ -194,8 +194,8 @@ def interpret_mann_whitneyu(base, new):
     mann_stat, mann_pvalue = mannwhitneyu(base, new, alternative="two-sided")
     mann_whitney = {
         "test_name": "Mann-Whitney U",
-        "stat": mann_stat,
-        "pvalue": mann_pvalue,
+        "stat": float(mann_stat),
+        "pvalue": float(mann_pvalue),
     }
     return mann_whitney, mann_stat, mann_pvalue
 
@@ -395,8 +395,8 @@ def interpret_silverman_kde(base, new, lower_is_better):
 # Plot KDE with ISJ bandwidth
 def plot_kde_with_isj_bandwidth(base, new, mann_pvalue, cles, delta, interpretation):
     # Median lines
-    base_median = float(np.median(base)) if len(base) > 0 else 0
-    new_median = float(np.median(new)) if len(new) > 0 else 0
+    base_median = np.median(base) if len(base) > 0 else 0
+    new_median = np.median(new) if len(new) > 0 else 0
 
     # Determine range for KDE
     all_data = (
@@ -441,13 +441,13 @@ def plot_kde_with_isj_bandwidth(base, new, mann_pvalue, cles, delta, interpretat
     ]
 
     dke_isj_plot_base = {
-        "median": base_median,
+        "median": float(base_median),
         "sample_count": len(base),
         "kde_x": kde_x_base,
         "kde_y": kde_y_base,
     }
     dke_isj_plot_new = {
-        "median": new_median,
+        "median": float(new_median),
         "sample_count": len(new),
         "kde_x": kde_x_new,
         "kde_y": kde_y_new,
