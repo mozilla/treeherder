@@ -20,7 +20,7 @@ export class InternalIssueFilerClass extends React.Component {
   constructor(props) {
     super(props);
 
-    const { suggestion, jobGroupName, jobTypeName } = props;
+    const { suggestion, jobGroupName, jobTypeName, currentRepo } = props;
 
     const parsedSummary = parseSummary(suggestion);
     let summaryString = parsedSummary[0].join(' | ');
@@ -128,6 +128,9 @@ export class InternalIssueFilerClass extends React.Component {
       }
     }
 
+    if (currentRepo.name === 'try') {
+      summaryString = `[non-prod] ${summaryString}`;
+    }
     this.state = {
       summary: `Intermittent ${summaryString}`,
     };
@@ -215,6 +218,7 @@ InternalIssueFilerClass.propTypes = {
   jobTypeName: PropTypes.string.isRequired,
   successCallback: PropTypes.func.isRequired,
   notify: PropTypes.func.isRequired,
+  currentRepo: PropTypes.shape({}).isRequired,
 };
 
 export default connect(null, { notify })(InternalIssueFilerClass);
