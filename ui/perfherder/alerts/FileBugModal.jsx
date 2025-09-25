@@ -1,18 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Form,
-  FormGroup,
-  Input,
-  Label,
-  Button,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Col,
-  Row,
-} from 'reactstrap';
+import { Form, Button, Modal, Col, Row } from 'react-bootstrap';
 import debounce from 'lodash/debounce';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
@@ -78,24 +66,26 @@ export default class FileBugModal extends React.Component {
       'regression from the referenced bug.';
 
     return (
-      <Modal isOpen={showModal}>
-        <ModalHeader toggle={toggle}>{header}</ModalHeader>
+      <Modal show={showModal} onHide={toggle}>
+        <Modal.Header closeButton>
+          <Modal.Title>{header}</Modal.Title>
+        </Modal.Header>
         <Form>
-          <ModalBody>
+          <Modal.Body>
             {errorMessage && (
               <div className="alert alert-danger">{errorMessage}</div>
             )}
             {user.isLoggedIn ? (
-              <FormGroup>
+              <Form.Group>
                 <Row className="justify-content-left">
                   <Col className="col-6">
-                    <Label for="culpritBugId">
+                    <Form.Label htmlFor="culpritBugId">
                       {title} <i>(optional): </i>
                       <span className="text-secondary">
                         <FontAwesomeIcon icon={faInfoCircle} title={infoText} />
                       </span>
-                    </Label>
-                    <Input
+                    </Form.Label>
+                    <Form.Control
                       value={inputValue}
                       onChange={this.updateInput}
                       name="culpritBugId"
@@ -112,14 +102,14 @@ export default class FileBugModal extends React.Component {
                     )}
                   </Col>
                 </Row>
-              </FormGroup>
+              </Form.Group>
             ) : (
               <div>
                 <p>You need to log in to access this feature.</p>
               </div>
             )}
-          </ModalBody>
-          <ModalFooter>
+          </Modal.Body>
+          <Modal.Footer>
             {user.isLoggedIn ? (
               <Button
                 className="btn-outline-darker-info active"
@@ -141,7 +131,7 @@ export default class FileBugModal extends React.Component {
                 Cancel
               </Button>
             )}
-          </ModalFooter>
+          </Modal.Footer>
         </Form>
       </Modal>
     );

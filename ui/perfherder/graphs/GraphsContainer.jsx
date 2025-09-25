@@ -1,7 +1,7 @@
 // disabling due to a new bug with this rule: https://github.com/eslint/eslint/issues/12117
 /* eslint-disable no-unused-vars */
 import React from 'react';
-import { Row, Col } from 'reactstrap';
+import { Row, Col } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import {
   VictoryBar,
