@@ -30,6 +30,23 @@
       "required": ["name"],
       "type": "object"
     },
+    "os_schema": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Operating system name",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "version": {
+          "title": "Operating system version",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        }
+      }
+    },
     "framework_schema": {
       "properties": {
         "name": {
@@ -231,6 +248,9 @@
   "properties": {
     "application": {
       "$ref": "#/definitions/application_schema"
+    },
+    "os": {
+      "$ref": "#/definitions/os_schema"
     },
     "framework": {
       "$ref": "#/definitions/framework_schema"
