@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'reactstrap';
+import { Button } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import intersection from 'lodash/intersection';
 import isEqual from 'lodash/isEqual';
@@ -193,8 +193,7 @@ class PushList extends React.Component {
           <div className="btn-group">
             {[10, 20, 50].map((count) => (
               <Button
-                color="darker-secondary"
-                outline
+                variant="outline-dark"
                 className="btn-light-bordered"
                 onClick={() => this.fetchNextPushes(count)}
                 key={count}

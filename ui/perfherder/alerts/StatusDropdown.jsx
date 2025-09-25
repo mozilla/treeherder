@@ -1,13 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Col,
-  DropdownItem,
-  DropdownMenu,
-  DropdownToggle,
-  Label,
-  UncontrolledDropdown,
-} from 'reactstrap';
+import { Dropdown, Col, Form } from 'react-bootstrap';
 import template from 'lodash/template';
 import templateSettings from 'lodash/templateSettings';
 
@@ -362,19 +355,23 @@ export default class StatusDropdown extends React.Component {
             submitButtonText="Assign"
             dropdownOption={
               <Col>
-                <Label for="issueTrackerSelector">Select Bug Tracker</Label>
-                <UncontrolledDropdown>
-                  <DropdownToggle caret outline>
+                <Form.Label htmlFor="issueTrackerSelector">
+                  Select Bug Tracker
+                </Form.Label>
+                <Dropdown>
+                  <Dropdown.Toggle variant="secondary">
                     {selectedValue}
-                  </DropdownToggle>
-                  <DropdownMenuItems
-                    updateData={(selectedValue) =>
-                      this.setState({ selectedValue })
-                    }
-                    selectedItem={selectedValue}
-                    options={issueTrackers.map((item) => item.text)}
-                  />
-                </UncontrolledDropdown>
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu>
+                    <DropdownMenuItems
+                      updateData={(selectedValue) =>
+                        this.setState({ selectedValue })
+                      }
+                      selectedItem={selectedValue}
+                      options={issueTrackers.map((item) => item.text)}
+                    />
+                  </Dropdown.Menu>
+                </Dropdown>
               </Col>
             }
           />
@@ -434,47 +431,47 @@ export default class StatusDropdown extends React.Component {
           performanceTags={performanceTags}
           updateAndClose={this.updateAndClose}
         />
-        <UncontrolledDropdown tag="span" className="status-drop-down-container">
-          <DropdownToggle className="btn-xs" color="darker-secondary" caret>
+        <Dropdown as="span" className="status-drop-down-container">
+          <Dropdown.Toggle className="btn-xs" variant="secondary">
             {getStatus(alertSummary.status)}
-          </DropdownToggle>
-          <DropdownMenu>
-            <DropdownItem tag="a" onClick={() => this.copySummary()}>
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            <Dropdown.Item as="a" onClick={() => this.copySummary()}>
               Copy Summary
-            </DropdownItem>
-            <DropdownItem tag="a" onClick={() => this.copySummary(true)}>
+            </Dropdown.Item>
+            <Dropdown.Item as="a" onClick={() => this.copySummary(true)}>
               Copy Reply Summary
-            </DropdownItem>
+            </Dropdown.Item>
             {!alertSummary.bug_number && user.isStaff && (
-              <DropdownItem
-                tag="a"
+              <Dropdown.Item
+                as="a"
                 onClick={() => this.toggle('showFileBugModal')}
               >
                 File bug
-              </DropdownItem>
+              </Dropdown.Item>
             )}
             {!alertSummary.bug_number &&
               frameworkName in criticalTestsList &&
               user.isStaff && (
-                <DropdownItem
-                  tag="a"
+                <Dropdown.Item
+                  as="a"
                   onClick={() => this.toggle('showCriticalFileBugModal')}
                 >
                   Request backout
-                </DropdownItem>
+                </Dropdown.Item>
               )}
             {user.isStaff && (
               <React.Fragment>
                 {!alertSummary.bug_number ? (
-                  <DropdownItem
-                    tag="a"
+                  <Dropdown.Item
+                    as="a"
                     onClick={() => this.toggle('showBugModal')}
                   >
                     Link to bug
-                  </DropdownItem>
+                  </Dropdown.Item>
                 ) : (
-                  <DropdownItem
-                    tag="a"
+                  <Dropdown.Item
+                    as="a"
                     onClick={() =>
                       this.changeAlertSummary({
                         bug_number: null,
@@ -482,17 +479,17 @@ export default class StatusDropdown extends React.Component {
                     }
                   >
                     Unlink from bug
-                  </DropdownItem>
+                  </Dropdown.Item>
                 )}
-                <DropdownItem
-                  tag="a"
+                <Dropdown.Item
+                  as="a"
                   onClick={() => this.toggle('showNotesModal')}
                 >
                   {!alertSummary.notes ? 'Add notes' : 'Edit notes'}
-                </DropdownItem>
+                </Dropdown.Item>
                 {this.isResolved(alertStatus) && (
-                  <DropdownItem
-                    tag="a"
+                  <Dropdown.Item
+                    as="a"
                     onClick={() =>
                       this.changeAlertSummary({
                         status: summaryStatusMap.investigating,
@@ -500,11 +497,11 @@ export default class StatusDropdown extends React.Component {
                     }
                   >
                     Re-open
-                  </DropdownItem>
+                  </Dropdown.Item>
                 )}
                 {this.isValidStatus(alertStatus, 'wontfix') && (
-                  <DropdownItem
-                    tag="a"
+                  <Dropdown.Item
+                    as="a"
                     onClick={() =>
                       this.changeAlertSummary({
                         status: summaryStatusMap.wontfix,
@@ -512,12 +509,12 @@ export default class StatusDropdown extends React.Component {
                     }
                   >
                     Mark as won&apos;t fix
-                  </DropdownItem>
+                  </Dropdown.Item>
                 )}
 
                 {this.isValidStatus(alertStatus, 'backedout') && (
-                  <DropdownItem
-                    tag="a"
+                  <Dropdown.Item
+                    as="a"
                     onClick={() =>
                       this.changeAlertSummary({
                         status: summaryStatusMap.backedout,
@@ -525,12 +522,12 @@ export default class StatusDropdown extends React.Component {
                     }
                   >
                     Mark as backed out
-                  </DropdownItem>
+                  </Dropdown.Item>
                 )}
 
                 {this.isValidStatus(alertStatus, 'fixed') && (
-                  <DropdownItem
-                    tag="a"
+                  <Dropdown.Item
+                    as="a"
                     onClick={() =>
                       this.changeAlertSummary({
                         status: summaryStatusMap.fixed,
@@ -538,20 +535,20 @@ export default class StatusDropdown extends React.Component {
                     }
                   >
                     Mark as fixed
-                  </DropdownItem>
+                  </Dropdown.Item>
                 )}
 
-                <DropdownItem
-                  tag="a"
+                <Dropdown.Item
+                  as="a"
                   onClick={() => this.toggle('showTagsModal')}
                 >
                   {!alertSummaryActiveTags.length ? 'Add tags' : 'Edit tags'}
-                </DropdownItem>
+                </Dropdown.Item>
               </React.Fragment>
             )}
-          </DropdownMenu>
+          </Dropdown.Menu>
           {!isWeekend && <AlertStatusCountdown alertSummary={alertSummary} />}
-        </UncontrolledDropdown>
+        </Dropdown>
       </React.Fragment>
     );
   }

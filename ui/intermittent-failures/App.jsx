@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
-import { Container } from 'reactstrap';
+import { Container } from 'react-bootstrap';
 import { hot } from 'react-hot-loader/root';
 
 import ErrorMessages from '../shared/ErrorMessages';

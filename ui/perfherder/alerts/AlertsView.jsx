@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Alert, Container } from 'reactstrap';
+import { Alert, Container } from 'react-bootstrap';
 import cloneDeep from 'lodash/cloneDeep';
 
 import withValidation from '../Validation';
@@ -369,14 +369,14 @@ class AlertsView extends React.Component {
           )}
 
           {!user.isStaff && (
-            <Alert color="info">
+            <Alert variant="info">
               You must be logged into perfherder/treeherder and be a sheriff to
               make changes
             </Alert>
           )}
 
           {notSupportedAlertFilters.length > 0 && (
-            <Alert color="warning">
+            <Alert variant="warning">
               {notSupportedAlertFiltersMessage(notSupportedAlertFilters)}
             </Alert>
           )}

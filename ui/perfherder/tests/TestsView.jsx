@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Col, Container, Row } from 'reactstrap';
+import { Col, Container, Row } from 'react-bootstrap';
 
 import withValidation from '../Validation';
 import { getFrameworkData } from '../perf-helpers/helpers';

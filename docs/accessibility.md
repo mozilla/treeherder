@@ -54,7 +54,7 @@ For example:
 </Button>
 ```
 
-Known reactstrap components that accept the `color` prop and work with custom Treeherder colors: `Badge`, `Button`, `Card`, `DropdownToggle`, `FormText`, `NavBar`, `Progress`, `Spinner`.
+Known reactstrap components that accept the `color` prop and work with custom Treeherder colors: `Badge`, `Button`, `Card`, `Dropdown.Toggle`, `FormText`, `NavBar`, `Progress`, `Spinner`.
 
 In case you need to add more custom colors, please add on [treeherder-custom-styles.css](https://github.com/mozilla/treeherder/blob/master/ui/css/treeherder-custom-styles.css#L348) style sheet.
 
@@ -102,7 +102,7 @@ If your case is more specific, please check [this guide](https://css-tricks.com/
 
 ## Interactive elements
 
-When creating elements that have event listeners, prefer any component of the reactstrap interactive elements. Examples are: `Button`, `Input`, `DropdownToggle`. You can also choose a HTML `<a>` element.
+When creating elements that have event listeners, prefer any component of the reactstrap interactive elements. Examples are: `Button`, `Input`, `Dropdown.Toggle`. You can also choose a HTML `<a>` element.
 
 If you need to insert an event listener in a non-interactive element, such as a `span`, add also an `aria-role` of `button`, `link`, `checkbox`, or whatever seems closer to the functionality of the element.
 
@@ -116,10 +116,10 @@ If you need to insert an event listener in a non-interactive element, such as a 
 
 There is a special case when you are creating a dropdown menu. First of all, try to follow [reactstrap structure](https://reactstrap.github.io/components/dropdowns/).
 
-Lastly, insert an additional tag `prop` to `DropdownItem` component.
+Lastly, insert an additional tag `prop` to `Dropdown.Item` component.
 
 ```jsx
-<DropdownItem tag="a"> Menu Item </DropdownItem>
+<Dropdown.Item tag="a"> Menu Item </Dropdown.Item>
 ```
 
 ## Forms, inputs and buttons

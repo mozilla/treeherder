@@ -12,7 +12,7 @@ import {
   faThumbtack,
   faTimesCircle,
 } from '@fortawesome/free-solid-svg-icons';
-import { Badge, Button } from 'reactstrap';
+import { Badge, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
 import { getPercentComplete, toDateStr } from '../../helpers/display';
@@ -323,7 +323,7 @@ class PushHeader extends React.Component {
                 onClick={this.triggerNewJobs}
               >
                 Trigger
-                <Badge color="info" className="mx-1">
+                <Badge bg="info" className="mx-1">
                   {countSelectedRunnableJobs}
                 </Badge>
                 New Job{countSelectedRunnableJobs > 1 ? 's' : ''}

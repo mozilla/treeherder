@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, FormGroup, Input, Label } from 'reactstrap';
+import { Button, Form, Badge } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faStar as faStarSolid,
@@ -13,7 +13,6 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 import { Link } from 'react-router-dom';
-import Badge from 'reactstrap/lib/Badge';
 
 import { getPerfCompareBaseSubtestsURL } from '../../helpers/url';
 import {
@@ -142,7 +141,7 @@ export default class AlertTableRow extends React.Component {
       <React.Fragment>
         (
         {statusColor === 'text-success' && (
-          <FontAwesomeIcon icon={faCheck} color="#28a745" />
+          <FontAwesomeIcon icon={faCheck} variant="#28a745" />
         )}
         <span className={statusColor}>{alertStatus}</span>
         {alert.related_summary_id && this.getReassignment(alert)})
@@ -429,9 +428,9 @@ export default class AlertTableRow extends React.Component {
         data-testid={alert.id}
       >
         <td className="table-width-xs px-1">
-          <FormGroup check className="ml-2 pl-4">
-            <Label hidden>alert {alert.id} title</Label>
-            <Input
+          <Form.Group className="ml-2 pl-4">
+            <Form.Label hidden>alert {alert.id} title</Form.Label>
+            <Form.Control
               aria-label={`alert ${alert.id} title`}
               data-testid={`alert ${alert.id} checkbox`}
               type="checkbox"
@@ -444,11 +443,11 @@ export default class AlertTableRow extends React.Component {
                 )
               }
             />
-          </FormGroup>
+          </Form.Group>
         </td>
         <td className="px-0 d-flex flex-column align-items-start border-top-0">
           <Button
-            color="black"
+            variant="black"
             aria-label={
               starred
                 ? 'Remove bookmark from this Alert'
@@ -524,7 +523,7 @@ export default class AlertTableRow extends React.Component {
                 </a>
               </span>
             ) : (
-              <Badge className="mb-1" color="light">
+              <Badge className="mb-1" bg="light">
                 None
               </Badge>
             )}
