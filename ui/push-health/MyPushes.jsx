@@ -3,11 +3,10 @@ import {
   Container,
   Row,
   Col,
-  UncontrolledButtonDropdown,
-  DropdownToggle,
+  DropdownButton,
   Navbar,
   Nav,
-} from 'reactstrap';
+} from 'react-bootstrap';
 import { Helmet } from 'react-helmet';
 
 import faviconBroken from '../img/push-health-broken.png';
@@ -150,15 +149,16 @@ class MyPushes extends React.Component {
 
     return (
       <React.Fragment>
-        <Navbar color="light" light expand="sm" className="w-100">
+        <Navbar variant="light" expand="sm" className="w-100">
           <Nav className="mb-2 pt-2 pl-3 justify-content-between w-100">
             <span />
             <span className="mr-3 d-flex">
-              <UncontrolledButtonDropdown>
-                <DropdownToggle
-                  caret
-                  size="sm"
-                >{`${selectedRepo} pushes`}</DropdownToggle>
+              <DropdownButton
+                variant="secondary"
+                title={`${selectedRepo} pushes`}
+                caret
+                size="sm"
+              >
                 <DropdownMenuItems
                   updateData={(selectedRepo) =>
                     this.setState({ selectedRepo, loading: true }, () =>
@@ -168,7 +168,7 @@ class MyPushes extends React.Component {
                   selectedItem={selectedRepo}
                   options={['try', 'all']}
                 />
-              </UncontrolledButtonDropdown>
+              </DropdownButton>
             </span>
           </Nav>
         </Navbar>
