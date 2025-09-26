@@ -331,34 +331,48 @@ def interpret_silverman_kde(base, new, lower_is_better):
     is_regression = None
     is_improvement = None
     performance_intepretation = None
+
     if base_mode_count == new_mode_count:
-        base_intervals = find_mode_interval(x_base, y_base, base_peak_locs)
-        new_intervals = find_mode_interval(x_new, y_new, new_peak_locs)
+        base_intervals, base_peak_xs = find_mode_interval(x_base, y_base, base_peak_locs)
+        new_intervals, new_peak_xs = find_mode_interval(x_new, y_new, new_peak_locs)
         per_mode_new = split_per_mode(new, new_intervals)
         per_mode_base = split_per_mode(base, base_intervals)
 
         for i, interval in enumerate(base_intervals):
-            if len(interval) != 2:
+            tup = interval
+            if len(tup) != 2:
                 return None, None, None, None, None, None
-            start, end = interval
-            ref_vals = base[per_mode_base == i]
-            new_vals = new[per_mode_new == i]
 
-            if len(ref_vals) == 0 or len(new_vals) == 0:
-                ci_warning = f"Mode {i + 1} [{start:.2f}, {end:.2f}]: Not enough data to compare."
-                more_runs_are_needed = True
-                continue
+            start, end = tup
+            shift = None
+            ci_low = None
+            ci_high = None
+            median_shift_summary = None
 
-        shift, (ci_low, ci_high) = bootstrap_median_diff_ci(ref_vals, new_vals)
+            try:
+                ref_vals = base[int(per_mode_base[0]) == i]
+                new_vals = new[int(per_mode_new[0]) == i]
 
-        mode_summary = f"Mode {i + 1} [{start:.2f}, {end:.2f}]"
-        median_shift_summary = (
-            f"Median shift: {shift:+.3f} (95% CI: {ci_low:+.3f} to {ci_high:+.3f})"
-        )
+                # print(ref_vals, new_vals, 'ref', 'mnew')
 
-        is_regression, is_improvement, performance_intepretation = interpret_performance_direction(
-            ci_low, ci_high, lower_is_better
-        )
+                if len(ref_vals) == 0 or len(new_vals) == 0:
+                    ci_warning = (
+                        f"Mode {i + 1} [{start:.2f}, {end:.2f}]: Not enough data to compare."
+                    )
+                    more_runs_are_needed = True
+                    continue
+
+                shift, (ci_low, ci_high) = bootstrap_median_diff_ci(ref_vals, new_vals)
+                median_shift_summary = (
+                    f"Median shift: {shift:+.3f} (95% CI: {ci_low:+.3f} to {ci_high:+.3f})"
+                )
+                is_regression, is_improvement, performance_intepretation = (
+                    interpret_performance_direction(ci_low, ci_high, lower_is_better)
+                )
+            except Exception:
+                pass
+
+            mode_summary = f"Mode {i + 1} [{start:.2f}, {end:.2f}]"
 
         silverman_kde = {
             "bandwidth": "Silverman",
