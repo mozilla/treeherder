@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import sortBy from 'lodash/sortBy';
-import { Col } from 'reactstrap';
+import { Col } from 'react-bootstrap';
 
 import {
   sxsTaskName,
