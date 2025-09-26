@@ -37,13 +37,13 @@
           "title": "Operating system name",
           "type": "string",
           "minLength": 1,
-          "maxLength": 50
+          "maxLength": 100
         },
         "version": {
           "title": "Operating system version",
           "type": "string",
           "minLength": 1,
-          "maxLength": 40
+          "maxLength": 100
         }
       }
     },
