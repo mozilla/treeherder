@@ -8,6 +8,7 @@ import {
   faChevronCircleUp,
   faSpinner,
   faExclamationTriangle,
+  faTimes,
 } from '@fortawesome/free-solid-svg-icons';
 
 import {
@@ -628,8 +629,16 @@ export class BugFilerClass extends React.Component {
     return (
       <div>
         <Modal show={isOpen} onHide={toggle} size="lg">
-          <Modal.Header closeButton>
+          <Modal.Header>
             <Modal.Title>Intermittent Bug Filer</Modal.Title>
+            <button
+              type="button"
+              className="close"
+              aria-label="Close"
+              onClick={toggle}
+            >
+              <FontAwesomeIcon icon={faTimes} />
+            </button>
           </Modal.Header>
           <Modal.Body>
             <form className="d-flex flex-column">
@@ -673,25 +682,21 @@ export class BugFilerClass extends React.Component {
                     Searching {productSearch}
                   </div>
                 )}
-                <Form.Group tag="fieldset" className="mt-1">
+                <Form.Group tag="fieldset" className="mt-1 mb-3">
                   {suggestedProducts.map((product) => (
-                    <div
-                      className="ml-4"
+                    <Form.Check
+                      // className="ml-4"
                       key={`modalProductSuggestion${product}`}
-                    >
-                      <Form.Label>
-                        <Form.Control
-                          type="radio"
-                          value={product}
-                          checked={product === selectedProduct}
-                          onChange={(evt) =>
-                            this.setState({ selectedProduct: evt.target.value })
-                          }
-                          name="productGroup"
-                        />
-                        {product}
-                      </Form.Label>
-                    </div>
+                      type="radio"
+                      id={`product-${product}`}
+                      label={product}
+                      value={product}
+                      checked={product === selectedProduct}
+                      onChange={(evt) =>
+                        this.setState({ selectedProduct: evt.target.value })
+                      }
+                      name="productGroup"
+                    />
                   ))}
                 </Form.Group>
               </div>
@@ -762,7 +767,7 @@ export class BugFilerClass extends React.Component {
                 />
                 <span
                   id="summaryLength"
-                  className={`ml-1 font-weight-bold lg ${
+                  className={`ml-1 font-weight-bold lg align-self-center ${
                     summary.length > 255 ? 'text-danger' : 'text-success'
                   }`}
                 >
@@ -782,16 +787,16 @@ export class BugFilerClass extends React.Component {
                   />
                 </span>
               )}
-              <div className="ml-5 mt-2">
-                <div>
-                  <Form.Label>
-                    <Form.Control
-                      type="checkbox"
-                      checked={checkedLogLinks.has('Parsed log')}
-                      onChange={() =>
-                        this.toggleCheckedLogLink('Parsed log', parsedLog)
-                      }
-                    />
+              <div className="ml-4 mt-2">
+                <Form.Check
+                  className="mb-2"
+                  type="checkbox"
+                  id="parsed-log-checkbox"
+                  checked={checkedLogLinks.has('Parsed log')}
+                  onChange={() =>
+                    this.toggleCheckedLogLink('Parsed log', parsedLog)
+                  }
+                  label={
                     <a
                       target="_blank"
                       rel="noopener noreferrer"
@@ -799,32 +804,32 @@ export class BugFilerClass extends React.Component {
                     >
                       Include Parsed Log Link
                     </a>
-                  </Form.Label>
-                </div>
-                <div>
-                  <Form.Label>
-                    <Form.Control
-                      type="checkbox"
-                      checked={checkedLogLinks.has('Full log')}
-                      onChange={() =>
-                        this.toggleCheckedLogLink('Full log', fullLog)
-                      }
-                    />
+                  }
+                />
+                <Form.Check
+                  className="mb-1"
+                  type="checkbox"
+                  id="full-log-checkbox"
+                  checked={checkedLogLinks.has('Full log')}
+                  onChange={() =>
+                    this.toggleCheckedLogLink('Full log', fullLog)
+                  }
+                  label={
                     <a target="_blank" rel="noopener noreferrer" href={fullLog}>
                       Include Full Log Link
                     </a>
-                  </Form.Label>
-                </div>
+                  }
+                />
                 {!!reftestUrl && (
-                  <div>
-                    <Form.Label>
-                      <Form.Control
-                        type="checkbox"
-                        checked={checkedLogLinks.has('Reftest URL')}
-                        onChange={() =>
-                          this.toggleCheckedLogLink('Reftest URL', reftestUrl)
-                        }
-                      />
+                  <Form.Check
+                    className="mb-1"
+                    type="checkbox"
+                    id="reftest-url-checkbox"
+                    checked={checkedLogLinks.has('Reftest URL')}
+                    onChange={() =>
+                      this.toggleCheckedLogLink('Reftest URL', reftestUrl)
+                    }
+                    label={
                       <a
                         target="_blank"
                         rel="noopener noreferrer"
@@ -832,8 +837,8 @@ export class BugFilerClass extends React.Component {
                       >
                         Include Reftest Viewer Link
                       </a>
-                    </Form.Label>
-                  </div>
+                    }
+                  />
                 )}
               </div>
               <div className="d-flex flex-column">
@@ -850,102 +855,100 @@ export class BugFilerClass extends React.Component {
                   rows={5}
                 />
               </div>
-              <div className="d-inline-flex mt-2 ml-5">
-                <div className="mt-2">
-                  <Form.Label>
-                    <Form.Control
-                      onChange={() =>
-                        this.setState({ isIntermittent: !isIntermittent })
-                      }
-                      type="checkbox"
-                      checked={isIntermittent}
-                    />
-                    This is an intermittent failure
-                  </Form.Label>
-                </div>
-                <div className="d-inline-flex ml-2">
-                  <Form.Control
-                    id="regressedBy"
-                    type="text"
-                    className="ml-1"
-                    onChange={(evt) =>
-                      this.setState({ regressedBy: evt.target.value })
-                    }
-                    placeholder="Regressed by"
-                  />
-                  <Tooltip
-                    target="regressedBy"
-                    placement="bottom"
-                    isOpen={tooltipOpen.regressedBy}
-                    toggle={() => this.toggleTooltip('regressedBy')}
-                  >
-                    Comma-separated list of bugs
-                  </Tooltip>
-                  <Form.Control
-                    id="seeAlso"
-                    className="ml-1"
-                    type="text"
-                    onChange={(evt) =>
-                      this.setState({ seeAlso: evt.target.value })
-                    }
-                    placeholder="See also"
-                  />
-                  <Tooltip
-                    target="seeAlso"
-                    placement="bottom"
-                    isOpen={tooltipOpen.seeAlso}
-                    toggle={() => this.toggleTooltip('seeAlso')}
-                  >
-                    Comma-separated list of bugs
-                  </Tooltip>
-                </div>
-              </div>
-              <div className="d-inline-flex mt-2 ml-5">
-                <Form.Label>
-                  <Form.Control
-                    id="securityIssue"
-                    onChange={() =>
-                      this.setState({ isSecurityIssue: !isSecurityIssue })
-                    }
+              <div className="ml-4">
+                <div className="d-inline-flex mb-1">
+                  <Form.Check
+                    className="mt-2"
                     type="checkbox"
-                    checked={isSecurityIssue}
+                    id="intermittent-checkbox"
+                    checked={isIntermittent}
+                    onChange={() =>
+                      this.setState({ isIntermittent: !isIntermittent })
+                    }
+                    label="This is an intermittent failure"
                   />
-                  Report this as a security issue
-                </Form.Label>
-              </div>
-              {['autoland', 'mozilla-central', 'try'].includes(
-                currentRepo.name,
-              ) && (
-                <div className="d-inline-flex mt-2 ml-5">
-                  <Form.Label>
+                  <div className="d-inline-flex ml-2">
                     <Form.Control
+                      id="regressedBy"
+                      type="text"
+                      className="ml-1"
+                      onChange={(evt) =>
+                        this.setState({ regressedBy: evt.target.value })
+                      }
+                      placeholder="Regressed by"
+                    />
+                    <Tooltip
+                      target="regressedBy"
+                      placement="bottom"
+                      isOpen={tooltipOpen.regressedBy}
+                      toggle={() => this.toggleTooltip('regressedBy')}
+                    >
+                      Comma-separated list of bugs
+                    </Tooltip>
+                    <Form.Control
+                      id="seeAlso"
+                      className="ml-1"
+                      type="text"
+                      onChange={(evt) =>
+                        this.setState({ seeAlso: evt.target.value })
+                      }
+                      placeholder="See also"
+                    />
+                    <Tooltip
+                      target="seeAlso"
+                      placement="bottom"
+                      isOpen={tooltipOpen.seeAlso}
+                      toggle={() => this.toggleTooltip('seeAlso')}
+                    >
+                      Comma-separated list of bugs
+                    </Tooltip>
+                  </div>
+                </div>
+                <Form.Check
+                  className="mb-2"
+                  type="checkbox"
+                  id="security-issue-checkbox"
+                  checked={isSecurityIssue}
+                  onChange={() =>
+                    this.setState({ isSecurityIssue: !isSecurityIssue })
+                  }
+                  label="Report this as a security issue"
+                />
+                {['autoland', 'mozilla-central', 'try'].includes(
+                  currentRepo.name,
+                ) && (
+                  <div className="mb-2">
+                    <Form.Check
                       type="checkbox"
+                      id="confirm-failure-checkbox"
                       checked={launchConfirmFailure}
                       onChange={() =>
                         this.setState({
                           launchConfirmFailure: !launchConfirmFailure,
                         })
                       }
+                      label="Launch the Confirm Failures task at bug submission"
                     />
-                    Launch the Confirm Failures task at bug submission
-                  </Form.Label>
-                </div>
-              )}
-              {!!crashSignatures.length && (
-                <div>
-                  <Form.Label htmlFor="signature-input">Signature:</Form.Label>
-                  <Form.Control
-                    as="textarea"
-                    id="signature-input"
-                    onChange={(evt) =>
-                      this.setState({ crashSignatures: evt.target.value })
-                    }
-                    maxLength="2048"
-                    readOnly
-                    value={crashSignatures.join('\n')}
-                  />
-                </div>
-              )}
+                  </div>
+                )}
+                {!!crashSignatures.length && (
+                  <div>
+                    <Form.Label htmlFor="signature-input">
+                      Signature:
+                    </Form.Label>
+                    <Form.Control
+                      as="textarea"
+                      id="signature-input"
+                      onChange={(evt) =>
+                        this.setState({ crashSignatures: evt.target.value })
+                      }
+                      maxLength="2048"
+                      readOnly
+                      value={crashSignatures.join('\n')}
+                    />
+                  </div>
+                )}
+              </div>
             </form>
           </Modal.Body>
           <Modal.Footer>
