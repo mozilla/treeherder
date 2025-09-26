@@ -12,6 +12,7 @@
       "job_guid": "037e6659-346e-426c-a3f3-cc8c9c81747c/0",
       "job_symbol": "a11y",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -48,6 +49,7 @@
       "job_guid": "037749f1-b0c8-4112-b31e-264184cd1ce5/0",
       "job_symbol": "bc13",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -84,6 +86,7 @@
       "job_guid": "038ede3c-f21a-4453-96c7-0f2854ebe608/0",
       "job_symbol": "mda2",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -120,6 +123,7 @@
       "job_guid": "038015f4-45d7-4441-8257-e855293d1b95/0",
       "job_symbol": "X5",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -156,6 +160,7 @@
       "job_guid": "0037ec90-e19a-4bb2-948f-402e51bdf6e0/0",
       "job_symbol": "bc2",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -192,6 +197,7 @@
       "job_guid": "01c516b5-17fb-401f-b85d-04bc9d24e296/0",
       "job_symbol": "X3",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -228,6 +234,7 @@
       "job_guid": "022f9b9a-e4f3-4bb7-9105-816148f9d9d7/0",
       "job_symbol": "dt7",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "i-0429b6e2c0ac7474d",
       "machine_platform": {
         "architecture": "-",
@@ -265,6 +272,7 @@
       "job_guid": "02572f2a-6ac6-4bc7-bd15-7ac54d89e1a4/0",
       "job_symbol": "bc14",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -301,6 +309,7 @@
       "job_guid": "029a2d36-0a9a-421e-8e18-35bc4cc49695/0",
       "job_symbol": "en-US",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -337,6 +346,7 @@
       "job_guid": "02a32149-a0ea-4801-bb9d-f8dfc6328b64/0",
       "job_symbol": "dt2",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -373,6 +383,7 @@
       "job_guid": "02c78770-a8cf-4618-be34-1b2fc07e7883/0",
       "job_symbol": "X2",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -416,6 +427,7 @@
           "url": "https://taskcluster.net/api/queue/v1/task/B3EheQ-IQ5aPzw34KS_a6g/runs/0/artifacts/public/logs/live_backing.log"
         }
       ],
+      "perfherder_data_references": [],
       "machine": "t-mojave-r7-153",
       "machine_platform": {
         "architecture": "-",
@@ -453,6 +465,7 @@
       "job_guid": "045aa590-a31a-4d5a-afdd-13929544fa91/0",
       "job_symbol": "wpt7",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -489,6 +502,7 @@
       "job_guid": "0477a30f-f46f-4d6d-8747-64c75dfc0301/0",
       "job_symbol": "11",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -525,6 +539,7 @@
       "job_guid": "05758c69-457b-4c2b-a705-c25010b6d9ab/0",
       "job_symbol": "bc6",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -561,6 +576,7 @@
       "job_guid": "059b986f-63d3-4d0f-a8a4-6cf1bd9bc0f4/0",
       "job_symbol": "14",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -597,6 +613,7 @@
       "job_guid": "05d1df19-41cf-4cb9-b420-acf8ee834994/0",
       "job_symbol": "mda2",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -633,6 +650,7 @@
       "job_guid": "05d1f2ff-8bd0-480d-9942-8c5773eea278/0",
       "job_symbol": "R5",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -669,6 +687,7 @@
       "job_guid": "05f10ad3-417f-4d29-b6d1-30fbf7d19d33/0",
       "job_symbol": "Wr3",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -705,6 +724,7 @@
       "job_guid": "060f21f8-2b7f-48f4-ab10-462ebcf01849/0",
       "job_symbol": "mda1",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -741,6 +761,7 @@
       "job_guid": "0699d0a9-d6b6-4348-b35f-0e24d11513eb/0",
       "job_symbol": "Ru4",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -777,6 +798,7 @@
       "job_guid": "0813b62b-c5c6-4046-8da5-7d4193026637/0",
       "job_symbol": "mda3",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -813,6 +835,7 @@
       "job_guid": "08447b62-61bd-4260-9df9-1ebabdf5a455/0",
       "job_symbol": "rt",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "i-0da13f5d4e5576fd5",
       "machine_platform": {
         "architecture": "-",
@@ -850,6 +873,7 @@
       "job_guid": "0cf0ae64-293e-4960-ba49-e7ed01bcadcf/0",
       "job_symbol": "GTest",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -886,6 +910,7 @@
       "job_guid": "0ffe9649-c5a1-4cbc-acb9-22246ea7e3b2/0",
       "job_symbol": "R4",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -922,6 +947,7 @@
       "job_guid": "0f186356-9fae-42d1-a144-b9b5c34c5d88/0",
       "job_symbol": "X3",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -965,6 +991,7 @@
           "url": "https://taskcluster.net/api/queue/v1/task/ENXQRjSMRWyWK_zAEYEoXg/runs/0/artifacts/public/logs/live_backing.log"
         }
       ],
+      "perfherder_data_references": [],
       "machine": "t-yosemite-r7-098",
       "machine_platform": {
         "architecture": "-",
@@ -1002,6 +1029,7 @@
       "job_guid": "12f36ab3-2048-48d0-87f2-6c1f0d546749/0",
       "job_symbol": "rt",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "i-062aa60828009efec",
       "machine_platform": {
         "architecture": "-",
@@ -1039,6 +1067,7 @@
       "job_guid": "17dddb99-eee2-48fd-a4d1-3b02c2a48157/0",
       "job_symbol": "bc9",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -1075,6 +1104,7 @@
       "job_guid": "1608cd92-bbd7-4b45-830c-9254a555d9b0/0",
       "job_symbol": "R1",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -1111,6 +1141,7 @@
       "job_guid": "163ddf0e-0aef-4578-ad09-55f64622546b/0",
       "job_symbol": "X4",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -1147,6 +1178,7 @@
       "job_guid": "1641f3de-018f-4959-8be9-824eba96015f/0",
       "job_symbol": "C",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -1183,6 +1215,7 @@
       "job_guid": "16c80b31-d2b0-4735-8903-0521632da0d1/0",
       "job_symbol": "c2",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -1219,6 +1252,7 @@
       "job_guid": "19317164-95b3-48a4-8d73-f5c4960b561d/0",
       "job_symbol": "wpt16",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -1262,6 +1296,7 @@
           "url": "https://taskcluster.net/api/queue/v1/task/GWxTc8p_RUa5_Xo4RtMiCA/runs/0/artifacts/public/logs/live_backing.log"
         }
       ],
+      "perfherder_data_references": [],
       "machine": "machine-39",
       "machine_platform": {
         "architecture": "-",
@@ -1306,6 +1341,7 @@
           "url": "https://taskcluster.net/api/queue/v1/task/HsvD9YlDQKaoP4AQsuGeJw/runs/0/artifacts/public/logs/live_backing.log"
         }
       ],
+      "perfherder_data_references": [],
       "machine": "t-yosemite-r7-123",
       "machine_platform": {
         "architecture": "-",
@@ -1343,6 +1379,7 @@
       "job_guid": "24a0ea3b-ecb2-4ad6-bbf7-e63dd83ab6c9/0",
       "job_symbol": "dt10",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -1379,6 +1416,7 @@
       "job_guid": "24ce9e57-a4be-479f-83cb-4f208e8047ad/0",
       "job_symbol": "mda1",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -1415,6 +1453,7 @@
       "job_guid": "2b6219ef-8996-41f8-849f-653a5e754b3d/0",
       "job_symbol": "1",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -1451,6 +1490,7 @@
       "job_guid": "2b947cae-4800-4595-8cbc-7e09a6648fad/0",
       "job_symbol": "3",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -1494,6 +1534,7 @@
           "url": "https://taskcluster.net/api/queue/v1/task/KYZKwkbvRc-qPE22g286yQ/runs/0/artifacts/public/logs/live_backing.log"
         }
       ],
+      "perfherder_data_references": [],
       "machine": "i-06c2c7e06fc36c6c5",
       "machine_platform": {
         "architecture": "-",
@@ -1531,6 +1572,7 @@
       "job_guid": "2a7063d0-a2dc-4e3b-b235-a4f1b792d5ab/0",
       "job_symbol": "rt",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "i-019077061bddb4fe7",
       "machine_platform": {
         "architecture": "-",
@@ -1575,6 +1617,7 @@
           "url": "https://taskcluster.net/api/queue/v1/task/LBJoI2wUTNCteg-5CnaYZQ/runs/0/artifacts/public/logs/live_backing.log"
         }
       ],
+      "perfherder_data_references": [],
       "machine": "i-0b63c3556524f5295",
       "machine_platform": {
         "architecture": "-",
@@ -1612,6 +1655,7 @@
       "job_guid": "2d602bc3-8b79-41a0-8788-7b04268ea114/0",
       "job_symbol": "rt",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "i-0be69dc84b0354bde",
       "machine_platform": {
         "architecture": "-",
@@ -1656,6 +1700,7 @@
           "url": "https://taskcluster.net/api/queue/v1/task/MrYMxyDDSwWXJey-uo4T3g/runs/0/artifacts/public/logs/live_backing.log"
         }
       ],
+      "perfherder_data_references": [],
       "machine": "i-08b6fd26055d2603e",
       "machine_platform": {
         "architecture": "-",
@@ -1693,6 +1738,7 @@
       "job_guid": "356cfeab-d328-48bf-9631-f3bb922c21b6/0",
       "job_symbol": "dt4",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -1736,6 +1782,7 @@
           "url": "https://taskcluster.net/api/queue/v1/task/OiZYxvi5RfKol0A4SBbvOw/runs/0/artifacts/public/logs/live_backing.log"
         }
       ],
+      "perfherder_data_references": [],
       "machine": "i-0d0f91277e3f902cc",
       "machine_platform": {
         "architecture": "-",
@@ -1780,6 +1827,7 @@
           "url": "https://taskcluster.net/api/queue/v1/task/PCVDCxY9QM-lEgaGhrCPrw/runs/0/artifacts/public/logs/live_backing.log"
         }
       ],
+      "perfherder_data_references": [],
       "machine": "i-0bd696849d1151857",
       "machine_platform": {
         "architecture": "-",
@@ -1817,6 +1865,7 @@
       "job_guid": "3ebdf33c-d32a-4bc0-8063-a84707f970a3/0",
       "job_symbol": "Wr3",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -1853,6 +1902,7 @@
       "job_guid": "4397606a-34e6-41a1-b76d-6f317fc99647/0",
       "job_symbol": "bc16",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -1896,6 +1946,7 @@
           "url": "https://taskcluster.net/api/queue/v1/task/QDGdgQTQRC2xZNR3Zs_IhA/runs/0/artifacts/public/logs/live_backing.log"
         }
       ],
+      "perfherder_data_references": [],
       "machine": "i-0de7ae42ffc13af93",
       "machine_platform": {
         "architecture": "-",
@@ -1933,6 +1984,7 @@
       "job_guid": "41485368-dce6-47e4-a72e-e54cb1c9d260/0",
       "job_symbol": "rt",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "i-0da13f5d4e5576fd5",
       "machine_platform": {
         "architecture": "-",
@@ -1970,6 +2022,7 @@
       "job_guid": "41b25c7a-e51b-405f-9200-7a7fb6e3786e/0",
       "job_symbol": "c1",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -2006,6 +2059,7 @@
       "job_guid": "4cd050bd-f164-4742-a854-5cffed022423/0",
       "job_symbol": "16",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -2042,6 +2096,7 @@
       "job_guid": "4da72c4f-5f85-48c8-9ad0-81a460ff9c4d/0",
       "job_symbol": "1",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -2078,6 +2133,7 @@
       "job_guid": "4db3bf93-aeb7-4774-adea-104513dd92b5/0",
       "job_symbol": "Ru3",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -2114,6 +2170,7 @@
       "job_guid": "4f03f140-f422-40b0-b48f-0a740ab7f8b3/0",
       "job_symbol": "wpt2",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -2150,6 +2207,7 @@
       "job_guid": "50011ea6-cf30-48c9-a82f-8af431d8e55c/0",
       "job_symbol": "2",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "i-07dbb95ac410df8f7",
       "machine_platform": {
         "architecture": "-",
@@ -2187,6 +2245,7 @@
       "job_guid": "5168cf32-9b2c-4e0a-b490-0ee18fd42d27/0",
       "job_symbol": "bc3",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -2230,6 +2289,7 @@
           "url": "https://taskcluster.net/api/queue/v1/task/UZ37gpDqTRS1pBNnp0Spsg/runs/0/artifacts/public/logs/live_backing.log"
         }
       ],
+      "perfherder_data_references": [],
       "machine": "i-0d6489faaf7371ecb",
       "machine_platform": {
         "architecture": "-",
@@ -2267,6 +2327,7 @@
       "job_guid": "52818b84-7970-4f89-87de-1dee91c9bf22/0",
       "job_symbol": "Mn",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -2303,6 +2364,7 @@
       "job_guid": "5314b88e-dea5-41dc-9462-73dc98dfb3fb/0",
       "job_symbol": "Wr1",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -2339,6 +2401,7 @@
       "job_guid": "54653845-4285-49c6-8af1-e06290c8bd21/0",
       "job_symbol": "bc15",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -2375,6 +2438,7 @@
       "job_guid": "56a6d16f-a6d9-4a5c-b058-e40deb6b64fa/0",
       "job_symbol": "14",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -2411,6 +2475,7 @@
       "job_guid": "56ca5519-9623-480a-aab2-0e821a0bfeaf/0",
       "job_symbol": "R2",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -2447,6 +2512,7 @@
       "job_guid": "5a4158c5-f970-4fbe-95cd-635cea1af289/0",
       "job_symbol": "Ru2",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -2483,6 +2549,7 @@
       "job_guid": "5cec3615-811d-49bd-a1c1-2fe58f66c302/0",
       "job_symbol": "rt",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "i-019077061bddb4fe7",
       "machine_platform": {
         "architecture": "-",
@@ -2520,6 +2587,7 @@
       "job_guid": "5d075f8e-3002-4490-a6a6-a2a32f12d15c/0",
       "job_symbol": "Wd1",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -2556,6 +2624,7 @@
       "job_guid": "5e266e25-6ecc-43e1-ab0b-b895f3561677/0",
       "job_symbol": "7",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -2592,6 +2661,7 @@
       "job_guid": "5f1ce78f-947d-4024-beee-2aa9b5e825b5/0",
       "job_symbol": "mda3",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -2628,6 +2698,7 @@
       "job_guid": "637dadaf-dc34-4e5b-baed-dcfbe30882ca/0",
       "job_symbol": "c2",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -2664,6 +2735,7 @@
       "job_guid": "63a65daf-4efc-46f7-a633-f9da6df884dc/0",
       "job_symbol": "10",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -2700,6 +2772,7 @@
       "job_guid": "61453abf-cf6f-45de-baf6-46ae44b364e6/0",
       "job_symbol": "Ru5",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -2736,6 +2809,7 @@
       "job_guid": "6180a789-8d48-4ee1-a5d1-f44d82192795/0",
       "job_symbol": "9",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -2772,6 +2846,7 @@
       "job_guid": "6209c932-e913-4b47-9f24-7cd3239fc09c/0",
       "job_symbol": "Wr5",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -2808,6 +2883,7 @@
       "job_guid": "64fae294-065c-4a29-9d98-b8fd7e5336e3/0",
       "job_symbol": "15",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -2844,6 +2920,7 @@
       "job_guid": "66724e31-339c-4700-991b-4f55638227c5/0",
       "job_symbol": "c3",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -2887,6 +2964,7 @@
           "url": "https://taskcluster.net/api/queue/v1/task/ZyNAZZR0SmOcgqC_k_wqsQ/runs/0/artifacts/public/logs/live_backing.log"
         }
       ],
+      "perfherder_data_references": [],
       "machine": "i-01e55895145a2d19c",
       "machine_platform": {
         "architecture": "-",
@@ -2924,6 +3002,7 @@
       "job_guid": "6b5b947a-142f-49c8-b290-ae835143506d/0",
       "job_symbol": "Ru1",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -2960,6 +3039,7 @@
       "job_guid": "6b9505f1-f132-430f-9fc7-fdf6428f968d/0",
       "job_symbol": "tp6m-c-3",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "pixel2-44",
       "machine_platform": {
         "architecture": "-",
@@ -2997,6 +3077,7 @@
       "job_guid": "68d7fc27-f72d-429e-888d-6253c4200f6d/0",
       "job_symbol": "TV",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -3033,6 +3114,7 @@
       "job_guid": "68d944ea-d780-49b1-aab5-22b85d278c92/0",
       "job_symbol": "wpt4",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -3069,6 +3151,7 @@
       "job_guid": "69ceefb0-c2c0-4a5e-974b-53bf57394b5d/0",
       "job_symbol": "Wr1",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -3105,6 +3188,7 @@
       "job_guid": "69e5838d-1714-421b-9d53-86b1062090f0/0",
       "job_symbol": "a11y",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -3141,6 +3225,7 @@
       "job_guid": "6f40e99d-2210-4329-a74d-3497c515a69a/0",
       "job_symbol": "R1",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -3177,6 +3262,7 @@
       "job_guid": "6dadf806-7620-4ff9-afd6-0e41beb9579d/0",
       "job_symbol": "R7",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -3213,6 +3299,7 @@
       "job_guid": "73d4925f-0c77-4e72-a6ec-c9cd122b7438/0",
       "job_symbol": "X5",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -3249,6 +3336,7 @@
       "job_guid": "7547286c-0b8f-4c4a-87a2-4e2ba499750e/0",
       "job_symbol": "dt9",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "unknown",
       "machine_platform": {
         "architecture": "-",
@@ -3292,6 +3380,7 @@
           "url": "https://taskcluster.net/api/queue/v1/task/eokGh4-OSbOqAzVhJypYPg/runs/0/artifacts/public/logs/live_backing.log"
         }
       ],
+      "perfherder_data_references": [],
       "machine": "i-09f5a2a05cb655f08",
       "machine_platform": {
         "architecture": "-",
@@ -3329,6 +3418,7 @@
       "job_guid": "7ae80204-f44d-443f-b3c8-ffc8f49727d7/0",
       "job_symbol": "rt",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "i-0be69dc84b0354bde",
       "machine_platform": {
         "architecture": "-",
@@ -3366,6 +3456,7 @@
       "job_guid": "7eee1db9-28c1-46d7-be57-acbfa10fc1ad/0",
       "job_symbol": "rt",
       "log_references": [],
+      "perfherder_data_references": [],
       "machine": "i-062aa60828009efec",
       "machine_platform": {
         "architecture": "-",

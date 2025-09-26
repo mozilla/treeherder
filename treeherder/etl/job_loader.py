@@ -142,6 +142,7 @@ class JobLoader:
                 "machine": self._get_machine(pulse_job),
                 "option_collection": self._get_option_collection(pulse_job),
                 "log_references": self._get_log_references(pulse_job),
+                "perfherder_data_references": self._get_perfherder_data_references(pulse_job),
             },
             "superseded": pulse_job.get("coalesced", []),
             "revision": pulse_job["origin"]["revision"],
@@ -181,6 +182,25 @@ class JobLoader:
             )
         log_references.extend(self._get_errorsummary_log_references(job))
         return log_references
+
+    def _get_perfherder_data_references(self, job):
+        performance_data_references = []
+        for artifact in job.get("jobInfo", {}).get("links", []):
+            artifact_link = artifact.get("url")
+            if (
+                artifact_link
+                and "perfherder-data" in artifact_link
+                and artifact_link.endswith(".json")
+            ):
+                performance_data_references.append(
+                    {
+                        "name": artifact.get("linkText"),
+                        "url": artifact_link,
+                        "parse_status": "pending",
+                    }
+                )
+
+        return performance_data_references
 
     def _get_errorsummary_log_references(self, job):
         log_references = []

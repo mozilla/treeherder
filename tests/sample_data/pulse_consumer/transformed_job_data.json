@@ -34,6 +34,7 @@
           "parse_status": "pending"
         }
       ],
+      "perfherder_data_references": [],
       "tier": 1,
       "job_symbol": "bc5",
       "job_guid": "008dcdae-bde0-4834-a967-d13d681037ae/0",
@@ -78,6 +79,7 @@
           "parse_status": "pending"
         }
       ],
+      "perfherder_data_references": [],
       "tier": 1,
       "job_symbol": "dt10",
       "job_guid": "0401bb89-f4b5-41b1-820f-088e3fb36495/0",
@@ -122,6 +124,7 @@
           "parse_status": "pending"
         }
       ],
+      "perfherder_data_references": [],
       "tier": 1,
       "job_symbol": "J2",
       "job_guid": "6e58db2d-115d-4f82-8609-6276fc2e91b1/0",
@@ -166,6 +169,7 @@
           "parse_status": "pending"
         }
       ],
+      "perfherder_data_references": [],
       "tier": 1,
       "job_symbol": "bc11",
       "job_guid": "6ff402cc-c8d5-4262-8fc8-ee4897425e77/0",
@@ -210,6 +214,7 @@
           "parse_status": "pending"
         }
       ],
+      "perfherder_data_references": [],
       "tier": 1,
       "job_symbol": "bc11",
       "job_guid": "73677162-e702-48c5-8f95-391bef4afcf6/0",
@@ -254,6 +259,7 @@
           "parse_status": "pending"
         }
       ],
+      "perfherder_data_references": [],
       "tier": 1,
       "job_symbol": "bc9",
       "job_guid": "09a2ba36-57c1-49fe-85f8-d015aeb2890d/0",
@@ -298,6 +304,7 @@
           "parse_status": "pending"
         }
       ],
+      "perfherder_data_references": [],
       "tier": 1,
       "job_symbol": "J3",
       "job_guid": "0a29590a-79a2-4ca9-9a80-97bf87a1eae4/0",
@@ -342,6 +349,7 @@
           "parse_status": "pending"
         }
       ],
+      "perfherder_data_references": [],
       "tier": 1,
       "job_symbol": "bc6",
       "job_guid": "70f7bccb-4ef5-4a96-add3-d765033086ba/0",
@@ -386,6 +394,7 @@
           "parse_status": "pending"
         }
       ],
+      "perfherder_data_references": [],
       "tier": 1,
       "job_symbol": "J1",
       "job_guid": "719ee073-d258-41ad-943c-40bf108c48ba/0",
@@ -430,6 +439,7 @@
           "parse_status": "pending"
         }
       ],
+      "perfherder_data_references": [],
       "tier": 1,
       "job_symbol": "bc16",
       "job_guid": "741f11e4-05ce-4597-82a4-37d0958525a3/0",
@@ -474,6 +484,7 @@
           "parse_status": "pending"
         }
       ],
+      "perfherder_data_references": [],
       "tier": 1,
       "job_symbol": "J1",
       "job_guid": "7b560f96-5cfa-4cc6-b021-2a6e824471d6/0",
@@ -518,6 +529,7 @@
           "parse_status": "pending"
         }
       ],
+      "perfherder_data_references": [],
       "tier": 1,
       "job_symbol": "J3",
       "job_guid": "79dce0cc-2a61-4c04-be40-dfd30277fb78/0",
@@ -562,6 +574,7 @@
           "parse_status": "pending"
         }
       ],
+      "perfherder_data_references": [],
       "tier": 1,
       "job_symbol": "bc12",
       "job_guid": "789f4f1b-8d6d-49a5-b335-4d6e63bfae49/0",
@@ -606,6 +619,7 @@
           "parse_status": "pending"
         }
       ],
+      "perfherder_data_references": [],
       "tier": 1,
       "job_symbol": "bc2",
       "job_guid": "7a441a78-2ff2-4742-bc8c-f2b1dbc13b10/0",
@@ -650,6 +664,7 @@
           "parse_status": "pending"
         }
       ],
+      "perfherder_data_references": [],
       "tier": 1,
       "job_symbol": "J4",
       "job_guid": "15c6c852-855b-4b8b-adc4-5112f38c2b3f/0",
@@ -694,6 +709,7 @@
           "parse_status": "pending"
         }
       ],
+      "perfherder_data_references": [],
       "tier": 1,
       "job_symbol": "J2",
       "job_guid": "15c943ea-003e-4d31-a0be-afebf7e2d20e/0",
@@ -738,6 +754,7 @@
           "parse_status": "pending"
         }
       ],
+      "perfherder_data_references": [],
       "tier": 1,
       "job_symbol": "bc16",
       "job_guid": "14d4f704-b890-4473-b5e0-d360a278d042/0",
@@ -782,6 +799,7 @@
           "parse_status": "pending"
         }
       ],
+      "perfherder_data_references": [],
       "tier": 1,
       "job_symbol": "J4",
       "job_guid": "7ed5ec47-23b0-4607-a289-81f22135d438/0",
@@ -826,6 +844,7 @@
           "parse_status": "pending"
         }
       ],
+      "perfherder_data_references": [],
       "tier": 1,
       "job_symbol": "dt10",
       "job_guid": "19cbc73f-a1cb-49e3-bfac-a603376cbf4e/0",
@@ -870,6 +889,7 @@
           "parse_status": "pending"
         }
       ],
+      "perfherder_data_references": [],
       "tier": 1,
       "job_symbol": "bc",
       "job_guid": "18f2e4ef-c9ba-4b3e-934c-b24555c6b85f/0",
@@ -914,6 +934,7 @@
           "parse_status": "pending"
         }
       ],
+      "perfherder_data_references": [],
       "tier": 1,
       "job_symbol": "bc8",
       "job_guid": "23663e4c-135c-40f4-89ce-c2a507de6b7d/0",
@@ -958,6 +979,7 @@
           "parse_status": "pending"
         }
       ],
+      "perfherder_data_references": [],
       "tier": 1,
       "job_symbol": "bc13",
       "job_guid": "23e1e0ed-b338-4d43-aae0-9aa75f4a6dd2/0",
@@ -1002,6 +1024,7 @@
           "parse_status": "pending"
         }
       ],
+      "perfherder_data_references": [],
       "tier": 1,
       "job_symbol": "dt9",
       "job_guid": "3351028c-f241-4e59-b027-166ae695b2be/0",
@@ -1040,6 +1063,7 @@
       "state": "completed",
       "result": "retry",
       "log_references": [],
+      "perfherder_data_references": [],
       "tier": 1,
       "job_symbol": "J5",
       "job_guid": "30aabc98-c33e-4483-b1ce-d5cee6783efc/0",
@@ -1084,6 +1108,7 @@
           "parse_status": "pending"
         }
       ],
+      "perfherder_data_references": [],
       "tier": 1,
       "job_symbol": "bc9",
       "job_guid": "32badb89-fcc1-4097-9f51-b4b6ca6e106a/0",
@@ -1128,6 +1153,7 @@
           "parse_status": "pending"
         }
       ],
+      "perfherder_data_references": [],
       "tier": 1,
       "job_symbol": "bc8",
       "job_guid": "39161834-c844-4f4c-b118-cbde97826e8e/0",
@@ -1172,6 +1198,7 @@
           "parse_status": "pending"
         }
       ],
+      "perfherder_data_references": [],
       "tier": 1,
       "job_symbol": "bc3",
       "job_guid": "4ea5830c-6a16-49b0-87f7-74534f13c05a/0",
@@ -1210,6 +1237,7 @@
       "state": "completed",
       "result": "retry",
       "log_references": [],
+      "perfherder_data_references": [],
       "tier": 1,
       "job_symbol": "J5",
       "job_guid": "57caed20-3ae8-455f-86f5-bce3260952d0/0",
@@ -1254,6 +1282,7 @@
           "parse_status": "pending"
         }
       ],
+      "perfherder_data_references": [],
       "tier": 1,
       "job_symbol": "bc10",
       "job_guid": "5556b66a-6ccc-4bed-9c48-36e283d447b3/0",
@@ -1298,6 +1327,7 @@
           "parse_status": "pending"
         }
       ],
+      "perfherder_data_references": [],
       "tier": 1,
       "job_symbol": "bc3",
       "job_guid": "60838ae3-4d72-4761-afca-020571f3d506/0",
