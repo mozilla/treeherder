@@ -307,23 +307,31 @@ def _load_perf_datum(job: Job, perf_datum: dict):
                 defaults={"value": value[0], "application_version": application_version},
             )
 
-            if _test_should_gather_replicates_based_on(
-                job.repository, suite["name"], subtest.get("replicates", [])
-            ):
-                try:
-                    # Add the replicates to the PerformanceDatumReplicate table, and
-                    # catch and ignore any exceptions that are produced here so we don't
-                    # impact the standard workflow
-                    PerformanceDatumReplicate.objects.bulk_create(
-                        [
-                            PerformanceDatumReplicate(
-                                value=replicate, performance_datum=subtest_datum
-                            )
-                            for replicate in subtest["replicates"]
-                        ]
-                    )
-                except Exception as e:
-                    logger.info(f"Failed to ingest replicates for datum {subtest_datum}: {e}")
+            replicates = subtest.get("replicates", [])
+            if _test_should_gather_replicates_based_on(job.repository, suite["name"], replicates):
+                existing_replicates = set(
+                    PerformanceDatumReplicate.objects.filter(
+                        performance_datum=subtest_datum
+                    ).values_list("value", flat=True)
+                )
+                new_replicates = [
+                    replicate for replicate in replicates if replicate not in existing_replicates
+                ]
+                if new_replicates:
+                    try:
+                        # Add the replicates to the PerformanceDatumReplicate table, and
+                        # catch and ignore any exceptions that are produced here so we don't
+                        # impact the standard workflow
+                        PerformanceDatumReplicate.objects.bulk_create(
+                            [
+                                PerformanceDatumReplicate(
+                                    value=replicate, performance_datum=subtest_datum
+                                )
+                                for replicate in new_replicates
+                            ]
+                        )
+                    except Exception as e:
+                        logger.info(f"Failed to ingest replicates for datum {subtest_datum}: {e}")
 
             if subtest_datum.should_mark_as_multi_commit(is_multi_commit, datum_created):
                 # keep a register with all multi commit perf data

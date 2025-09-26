@@ -278,6 +278,8 @@ def _load_job(repository, job_datum, push_id):
     )
 
     log_refs = job_datum.get("log_references", [])
+    perfherder_data_refs = job_datum.get("perfherder_data_references", [])
+    log_refs = perfherder_data_refs + log_refs
     job_logs = []
     if log_refs:
         for log in log_refs:
@@ -314,7 +316,7 @@ def _schedule_log_parsing(job, job_logs, result, repository):
     # importing here to avoid an import loop
     from treeherder.log_parser.tasks import parse_logs
 
-    task_types = {"errorsummary_json", "live_backing_log"}
+    task_types = {"errorsummary_json", "live_backing_log", "perfherder_data"}
     sheriffed_repos = {
         "autoland",
         "mozilla-central",
@@ -337,7 +339,11 @@ def _schedule_log_parsing(job, job_logs, result, repository):
             continue
 
         # if this is not a known type of log, abort parse
-        if job_log.name not in task_types:
+        job_log_name = job_log.name.replace("-", "_")
+        if not any(
+            job_log_name == task_type or job_log_name.startswith(task_type)
+            for task_type in task_types
+        ):
             continue
 
         job_log_ids.append(job_log.id)
