@@ -655,6 +655,7 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
 
 
 class StandardStatsSerializer(serializers.Serializer):
+    rev_data = serializers.ListField(child=PerfCompareDecimalField(), default=[])
     min = PerfCompareDecimalField()
     max = PerfCompareDecimalField()
     mean = PerfCompareDecimalField()

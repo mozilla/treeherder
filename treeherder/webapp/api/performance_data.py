@@ -1383,8 +1383,8 @@ class PerfCompareResults(generics.ListAPIView):
 
     @staticmethod
     def _process_stats(
-        base_rev,
-        new_rev,
+        base_rev_data,
+        new_rev_data,
         header,
         lower_is_better,
         remove_outliers=stats.ENABLE_REMOVE_OUTLIERS,
@@ -1392,35 +1392,32 @@ class PerfCompareResults(generics.ListAPIView):
     ):
         # extract data, potentially removing outliers
         if remove_outliers:
-            base_rev = stats.remove_outliers(base_rev)
-            new_rev = stats.remove_outliers(new_rev)
-        else:
-            base_rev = base_rev
-            new_rev = new_rev
+            base_rev_data = stats.remove_outliers(base_rev_data)
+            new_rev_data = stats.remove_outliers(new_rev_data)
 
-        if not base_rev:
-            base_rev = []
-        if not new_rev:
-            new_rev = []
+        if not base_rev_data:
+            base_rev_data = []
+        if not new_rev_data:
+            new_rev_data = []
 
         # get basic statistics for both base and new with mean, median, variance, standard deviation, standard deviation percentage, min, max
 
-        base_min = float(np.min(base_rev) if len(base_rev) > 0 else 0)
-        base_max = float(np.max(base_rev) if len(base_rev) > 0 else 0)
-        base_variance = float(np.var(base_rev) if base_rev else 0)
-        base_mean = perfcompare_utils.get_avg(base_rev, header)
-        base_stddev = perfcompare_utils.get_stddev(base_rev, header)
-        base_count = len(base_rev)
-        base_median = float(np.median(base_rev) if base_rev else 0)
+        base_min = float(np.min(base_rev_data) if len(base_rev_data) > 0 else 0)
+        base_max = float(np.max(base_rev_data) if len(base_rev_data) > 0 else 0)
+        base_variance = float(np.var(base_rev_data) if base_rev_data else 0)
+        base_mean = perfcompare_utils.get_avg(base_rev_data, header)
+        base_stddev = perfcompare_utils.get_stddev(base_rev_data, header)
+        base_count = len(base_rev_data)
+        base_median = float(np.median(base_rev_data) if base_rev_data else 0)
         base_stddev_pct = perfcompare_utils.get_stddev_pct(base_mean, base_stddev)
 
-        new_min = float(np.min(new_rev) if len(new_rev) > 0 else 0)
-        new_max = float(np.max(new_rev) if len(new_rev) > 0 else 0)
-        new_variance = float(np.var(new_rev) if new_rev else 0)
-        new_mean = perfcompare_utils.get_avg(new_rev, header)
-        new_stddev = perfcompare_utils.get_stddev(new_rev, header)
-        new_count = len(new_rev)
-        new_median = float(np.median(new_rev) if new_rev else 0)
+        new_min = float(np.min(new_rev_data) if len(new_rev_data) > 0 else 0)
+        new_max = float(np.max(new_rev_data) if len(new_rev_data) > 0 else 0)
+        new_variance = float(np.var(new_rev_data) if new_rev_data else 0)
+        new_mean = perfcompare_utils.get_avg(new_rev_data, header)
+        new_stddev = perfcompare_utils.get_stddev(new_rev_data, header)
+        new_count = len(new_rev_data)
+        new_median = float(np.median(new_rev_data) if new_rev_data else 0)
         new_stddev_pct = perfcompare_utils.get_stddev_pct(new_mean, new_stddev)
 
         # Basic statistics, normality test"
@@ -1430,18 +1427,20 @@ class PerfCompareResults(generics.ListAPIView):
         # Is both a classic Gaussian distribution or classic bell curve
 
         shapiro_results, shapiro_warning = stats.interpret_normality_shapiro_wilk(
-            base_rev, new_rev, pvalue_threshold
+            base_rev_data, new_rev_data, pvalue_threshold
         )
 
         # Kolmogorov-Smirnov test for goodness of fit
         ks_test, is_fit_good, ks_warning = stats.interpret_ks_test(
-            base_rev, new_rev, pvalue_threshold
+            base_rev_data, new_rev_data, pvalue_threshold
         )
 
         # Mann-Whitney U test, two sided because we're never quite sure what of
         # the intent of the patch, as things stand
         # Tests the null hypothesis that the distributions of the two are identical
-        mann_whitney, mann_stat, mann_pvalue = stats.interpret_mann_whitneyu(base_rev, new_rev)
+        mann_whitney, mann_stat, mann_pvalue = stats.interpret_mann_whitneyu(
+            base_rev_data, new_rev_data
+        )
         delta_value = new_median - base_median
         delta_percentage = (delta_value / base_median * 100) if base_median != 0 else 0
 
@@ -1450,7 +1449,7 @@ class PerfCompareResults(generics.ListAPIView):
         # https://www.researchgate.net/publication/262763337_Cliff's_Delta_Calculator_A_non-parametric_effect_size_program_for_two_groups_of_observations
         # https://stats.stackexchange.com/questions/450495/cliffs-delta-in-python
         # https://github.com/neilernst/cliffsDelta
-        c_delta, _ = cliffs_delta(base_rev, new_rev)
+        c_delta, _ = cliffs_delta(base_rev_data, new_rev_data)
         cliffs_interpretation = stats.interpret_effect_size(c_delta)
         direction, is_new_better = stats.is_new_better(delta_value, lower_is_better)
 
@@ -1468,8 +1467,8 @@ class PerfCompareResults(generics.ListAPIView):
         ) = stats.interpret_cles(
             mann_stat,
             mann_pvalue,
-            new_rev,
-            base_rev,
+            new_rev_data,
+            base_rev_data,
             pvalue_threshold,
             cliffs_interpretation,
             c_delta,
@@ -1485,20 +1484,19 @@ class PerfCompareResults(generics.ListAPIView):
             more_runs_are_needed,
             warning_msgs,
             performance_intepretation,
-        ) = stats.interpret_silverman_kde(base_rev, new_rev, lower_is_better)
+        ) = stats.interpret_silverman_kde(base_rev_data, new_rev_data, lower_is_better)
 
         # Plot Kernel Density Estimator (KDE) with an ISJ (Improved Sheather-Jones) to reduce false positives from over-smoothing in Silverman
 
         dke_isj_plot_base, dke_isj_plot_new, isj_kde_summary_text = (
             stats.plot_kde_with_isj_bandwidth(
-                base_rev, new_rev, mann_pvalue, cles, c_delta, cliffs_interpretation
+                base_rev_data, new_rev_data, mann_pvalue, cles, c_delta, cliffs_interpretation
             )
         )
 
         stats_data = {
-            "base_rev": base_rev,
-            "new_rev": new_rev,
             "base_standard_stats": {
+                "rev_data": base_rev_data,
                 "count": base_count,
                 "min": base_min,
                 "max": base_max,
@@ -1509,6 +1507,7 @@ class PerfCompareResults(generics.ListAPIView):
                 "stddev_pct": base_stddev_pct,
             },
             "new_standard_stats": {
+                "rev_data": new_rev_data,
                 "count": new_count,
                 "min": new_min,
                 "max": new_max,

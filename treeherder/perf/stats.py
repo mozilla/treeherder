@@ -350,10 +350,8 @@ def interpret_silverman_kde(base, new, lower_is_better):
             median_shift_summary = None
 
             try:
-                ref_vals = base[int(per_mode_base[0]) == i]
-                new_vals = new[int(per_mode_new[0]) == i]
-
-                # print(ref_vals, new_vals, 'ref', 'mnew')
+                ref_vals = base[per_mode_base[0] == i]
+                new_vals = new[per_mode_new[0] == i]
 
                 if len(ref_vals) == 0 or len(new_vals) == 0:
                     ci_warning = (
