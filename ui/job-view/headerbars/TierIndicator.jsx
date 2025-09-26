@@ -20,9 +20,19 @@ export default function TierIndicator(props) {
                 ? "Can't Toggle because least one tier must be selected at all times"
                 : `Toggle tier ${tier} jobs`
             }
-            variant={shownTiers.includes(tier) ? 'dark' : 'outline-dark'}
+            variant="link"
             disabled={isOnlyTier}
             key={tier}
+            style={{
+              backgroundColor: shownTiers.includes(tier)
+                ? '#6c757d'
+                : 'transparent',
+              color: shownTiers.includes(tier) ? 'white' : '#6c757d',
+              border: 'none',
+              padding: '0.25rem 0.75rem',
+              textDecoration: 'none',
+              minWidth: '2rem',
+            }}
           >
             {tier}
           </Button>
