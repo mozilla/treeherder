@@ -439,6 +439,26 @@ fieldset[disabled] .btn-view-nav-closed.active {
 /* Used by Perfherder and IFV */
 .top-navbar {
   background-color: #222;
+  height: 40px;
+  align-items: center;
+}
+
+/* Fix dropdown menu positioning to not expand navbar height */
+.top-navbar .dropdown-menu {
+  position: absolute !important;
+  top: 100%;
+  z-index: 1000;
+}
+
+/* Ensure consistent button height in navbar */
+.top-navbar .btn-navbar,
+.top-navbar .btn-view-nav {
+  height: 40px;
+  padding: 0;
+  color: lightgray !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .navbar-link {

@@ -702,3 +702,100 @@ li.pagination-active.active > button {
   background-color: #17a2b8;
   border-color: #17a2b8;
 }
+
+/* Custom pagination styles to hide default Bootstrap text labels */
+.custom-pagination .page-link {
+  position: relative;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 14px;
+  background-color: white !important;
+  border-color: #17a2b8 !important;
+  color: #17a2b8 !important;
+}
+
+.custom-pagination .page-link:hover {
+  background-color: #f8f9fa !important;
+  border-color: #17a2b8 !important;
+  color: #17a2b8 !important;
+}
+
+.custom-pagination .page-item.active .page-link {
+  background-color: #17a2b8 !important;
+  border-color: #17a2b8 !important;
+  color: white !important;
+}
+
+.custom-pagination .page-item.disabled .page-link {
+  background-color: white !important;
+  border-color: #dee2e6 !important;
+  color: #6c757d !important;
+  opacity: 0.65;
+}
+
+/* Ensure chevron symbols are properly sized and centered */
+.custom-pagination .page-link span[aria-hidden='true'] {
+  font-size: 16px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Hide screen reader text visually but keep it for accessibility */
+.custom-pagination .sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Hide any remaining Bootstrap default text */
+.custom-pagination .page-link::before,
+.custom-pagination .page-link::after {
+  display: none !important;
+}
+
+/* Force hide any text nodes that might appear */
+.custom-pagination .page-item:first-child .page-link,
+.custom-pagination .page-item:nth-child(2) .page-link,
+.custom-pagination .page-item:nth-last-child(2) .page-link,
+.custom-pagination .page-item:last-child .page-link {
+  font-size: 0 !important;
+}
+
+.custom-pagination .page-item:first-child .page-link span[aria-hidden='true'],
+.custom-pagination .page-item:nth-child(2) .page-link span[aria-hidden='true'],
+.custom-pagination
+  .page-item:nth-last-child(2)
+  .page-link
+  span[aria-hidden='true'],
+.custom-pagination .page-item:last-child .page-link span[aria-hidden='true'] {
+  font-size: 16px !important;
+}
+
+/* Hide the "(current)" text that appears on active page items */
+.custom-pagination .page-item.active .page-link {
+  text-indent: -9999px !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+/* Show only the page number for active items */
+.custom-pagination .page-item.active .page-link span[aria-hidden] {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  text-indent: 0 !important;
+  font-size: 14px !important;
+  color: white !important;
+}
