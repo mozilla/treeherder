@@ -36,7 +36,7 @@ const Layout = (props) => {
     failureMessage = graphData;
   }
   return (
-    <Container fluid className="my-5">
+    <Container fluid className="">
       <Navigation
         updateState={updateState}
         updateHash={updateHash}

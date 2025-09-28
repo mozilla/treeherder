@@ -21,17 +21,26 @@ class PaginationGroup extends React.Component {
     const lastButtonAvailable = lastViewablePage < count;
 
     return (
-      <Pagination aria-label={`Page ${currentPage}`}>
+      <Pagination
+        aria-label={`Page ${currentPage}`}
+        className="custom-pagination"
+      >
         <Pagination.First
           disabled={!firstButtonAvailable}
           onClick={() => this.navigatePage(1)}
-          linkClassName="text-info d-flex align-items-center justify-content-center"
-        />
+          linkClassName="d-flex align-items-center justify-content-center"
+        >
+          <span aria-hidden="true">«</span>
+          <span className="sr-only">First</span>
+        </Pagination.First>
         <Pagination.Prev
           disabled={!prevButtonAvailable}
           onClick={() => this.navigatePage(currentPage - 1)}
-          linkClassName="text-info d-flex align-items-center justify-content-center"
-        />
+          linkClassName="d-flex align-items-center justify-content-center"
+        >
+          <span aria-hidden="true">‹</span>
+          <span className="sr-only">Previous</span>
+        </Pagination.Prev>
         {viewablePageNums.map((num) => {
           const isActive = num === currentPage;
           return (
@@ -39,23 +48,31 @@ class PaginationGroup extends React.Component {
               key={num}
               active={isActive}
               onClick={() => this.navigatePage(num)}
-              linkClassName="text-info d-flex align-items-center justify-content-center"
+              linkClassName="d-flex align-items-center justify-content-center"
               aria-label={`Go to page ${num}`}
+              aria-current={isActive ? 'page' : undefined}
             >
-              {num}
+              <span aria-hidden={isActive}>{num}</span>
+              {isActive && <span className="sr-only">Current page</span>}
             </Pagination.Item>
           );
         })}
         <Pagination.Next
           disabled={!nextButtonAvailable}
           onClick={() => this.navigatePage(currentPage + 1)}
-          linkClassName="text-info d-flex align-items-center justify-content-center"
-        />
+          linkClassName="d-flex align-items-center justify-content-center"
+        >
+          <span aria-hidden="true">›</span>
+          <span className="sr-only">Next</span>
+        </Pagination.Next>
         <Pagination.Last
           disabled={!lastButtonAvailable}
           onClick={() => this.navigatePage(count)}
-          linkClassName="text-info d-flex align-items-center justify-content-center"
-        />
+          linkClassName="d-flex align-items-center justify-content-center"
+        >
+          <span aria-hidden="true">»</span>
+          <span className="sr-only">Last</span>
+        </Pagination.Last>
       </Pagination>
     );
   }
