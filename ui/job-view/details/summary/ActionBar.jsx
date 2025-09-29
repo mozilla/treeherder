@@ -37,6 +37,7 @@ import {
   getInspectTaskUrl,
   getReftestUrl,
   getPerfAnalysisUrl,
+  isResourceUsageProfile,
 } from '../../../helpers/url';
 import JobModel from '../../../models/job';
 import TaskclusterModel from '../../../models/taskcluster';
@@ -112,11 +113,14 @@ class ActionBar extends React.PureComponent {
 
   // Open the gecko profile and provide notifications if it isn't available
   onOpenGeckoProfile = () => {
-    const { notify } = this.props;
+    const { notify, selectedJobFull } = this.props;
     const resourceUsageProfile = this.getResourceUsageProfile();
 
     if (resourceUsageProfile) {
-      window.open(getPerfAnalysisUrl(resourceUsageProfile.url), '_blank');
+      window.open(
+        getPerfAnalysisUrl(resourceUsageProfile.url, selectedJobFull),
+        '_blank',
+      );
     } else {
       notify('No resource usage profile available for this job');
     }
@@ -125,9 +129,7 @@ class ActionBar extends React.PureComponent {
   getResourceUsageProfile = () => {
     const { jobDetails } = this.props;
     return jobDetails.find((artifact) =>
-      ['profile_build_resources.json', 'profile_resource-usage.json'].includes(
-        artifact.value,
-      ),
+      isResourceUsageProfile(artifact.value),
     );
   };
 
@@ -395,7 +397,10 @@ class ActionBar extends React.PureComponent {
                     className="actionbar-nav-btn btn"
                     target="_blank"
                     rel="noopener noreferrer"
-                    href={getPerfAnalysisUrl(resourceUsageProfile.url)}
+                    href={getPerfAnalysisUrl(
+                      resourceUsageProfile.url,
+                      selectedJobFull,
+                    )}
                   >
                     <FontAwesomeIcon icon={faGaugeHigh} />
                   </a>

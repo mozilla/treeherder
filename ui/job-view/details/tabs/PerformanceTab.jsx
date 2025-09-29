@@ -142,11 +142,12 @@ class PerformanceTab extends React.PureComponent {
 
     // Use the most relevant profile.
     const { jobDetail } = profiles[0];
+    const { selectedJobFull } = this.props;
 
     return (
       <a
         title={jobDetail.value}
-        href={getPerfAnalysisUrl(jobDetail.url)}
+        href={getPerfAnalysisUrl(jobDetail.url, selectedJobFull)}
         className="btn btn-darker-secondary btn-sm"
         target="_blank"
         rel="noopener noreferrer"

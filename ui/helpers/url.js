@@ -121,8 +121,27 @@ export const getLogViewerUrl = function getLogViewerUrl(
   return lineNumber ? `${rv}&lineNumber=${lineNumber}` : rv;
 };
 
-export const getPerfAnalysisUrl = function getPerfAnalysisUrl(url) {
-  return `https://profiler.firefox.com/from-url/${encodeURIComponent(url)}`;
+export const isResourceUsageProfile = function isResourceUsageProfile(
+  fileName,
+) {
+  return [
+    'profile_build_resources.json',
+    'profile_resource-usage.json',
+  ].includes(fileName);
+};
+
+export const getPerfAnalysisUrl = function getPerfAnalysisUrl(url, job) {
+  let profilerUrl = `https://profiler.firefox.com/from-url/${encodeURIComponent(
+    url,
+  )}`;
+
+  // Add a profileName parameter with the job name and id for resource usage profiles.
+  if (job && isResourceUsageProfile(url.split('/').pop())) {
+    const profileName = `${job.job_type_name} (${job.task_id}.${job.retry_id})`;
+    profilerUrl += `?profileName=${encodeURIComponent(profileName)}`;
+  }
+
+  return profilerUrl;
 };
 
 // This takes a plain object, rather than a URLSearchParams object.
