@@ -4,7 +4,7 @@ whitenoise[brotli]==6.11.0  # Used by Whitenoise to provide Brotli-compressed ve
 Django==5.1.12
 celery==5.5.3  # celery needed for data ingestion
 cached-property==2.0.1 # needed for kombu with --require-hashes
-simplejson==3.20.1  # import simplejson
+simplejson==3.20.2  # import simplejson
 newrelic==10.17.0
 certifi==2025.8.3
 
