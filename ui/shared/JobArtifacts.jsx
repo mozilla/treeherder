@@ -80,7 +80,7 @@ export default class JobArtifacts extends React.PureComponent {
                         -{' '}
                         <a
                           title={line.value}
-                          href={getPerfAnalysisUrl(line.url)}
+                          href={getPerfAnalysisUrl(line.url, selectedJob)}
                           target="_blank"
                           rel="noreferrer"
                         >
