@@ -676,11 +676,7 @@ class StatisticsTestSerializer(serializers.Serializer):
 class SilvermanKDESerializer(serializers.Serializer):
     bandwidth = serializers.CharField()
     base_mode_count = serializers.IntegerField()
-    base_peak_locs = serializers.ListField(child=PerfCompareDecimalField(), default=[])
-    base_prom = serializers.ListField(child=PerfCompareDecimalField(), default=[])
     new_mode_count = serializers.IntegerField()
-    new_peak_locs = serializers.ListField(child=PerfCompareDecimalField(), default=[])
-    new_prom = serializers.ListField(child=PerfCompareDecimalField(), default=[])
     mode_comments = serializers.ListField(child=serializers.CharField(), default=[])
     warnings = serializers.ListField(child=serializers.CharField(), default=[])
     mode_summary = serializers.CharField()
@@ -701,15 +697,14 @@ class KDESerializer(serializers.Serializer):
     kde_y = serializers.ListField(child=PerfCompareDecimalField(), default=[])
 
 
-class ISJKDESerializer(serializers.Serializer):
-    bandwidth = serializers.CharField()
-    kernel = serializers.CharField()
-    title = serializers.CharField()
-    xlabel = serializers.CharField()
-    ylabel = serializers.CharField()
-    summary_texts = serializers.ListField(child=serializers.CharField(), default=[])
-    base_kde = KDESerializer(many=False)
-    new_kde = KDESerializer(many=False)
+class CLESSerializer(serializers.Serializer):
+    cles = PerfCompareDecimalField()
+    cles_direction = serializers.CharField(default="")
+    mann_whitney_u_cles = serializers.CharField(default="")
+    p_value_cles = serializers.CharField(default="")
+    cliffs_delta_cles = serializers.CharField(default="")
+    effect_size = serializers.CharField(default="")
+    cles_explanation = serializers.CharField(default="")
 
 
 class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
@@ -774,16 +769,14 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
     cliffs_interpretation = serializers.CharField(default="")
     mann_pvalue = PerfCompareDecimalField()
     silverman_kde = SilvermanKDESerializer(many=False)
-    isj_kde = ISJKDESerializer(many=False, required=False)
+    kde_base = KDESerializer(many=False, required=False)
+    kde_new = KDESerializer(many=False, required=False)
+    kde_summary_text = serializers.ListField(
+        child=serializers.CharField(default=""),
+        default=[],
+    )
     direction_of_change = serializers.CharField(default="")
-    cles = PerfCompareDecimalField()
-    cles_direction = serializers.CharField(default="")
-    mann_whitney_u_cles = serializers.CharField(default="")
-    p_value_cles = serializers.CharField(default="")
-    cliffs_delta_cles = serializers.CharField(default="")
-    effect_size = serializers.CharField(default="")
-    cles_explanation = serializers.CharField(default="")
-    performance_interpretation = serializers.CharField(default="")
+    cles = CLESSerializer(many=False)
 
     class Meta:
         model = PerformanceSignature
@@ -835,16 +828,11 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
             "cliffs_delta",
             "cliffs_interpretation",
             "mann_pvalue",
-            "silverman_kde",
-            "isj_kde",
-            "effect_size",
             "cles",
-            "cles_direction",
-            "mann_whitney_u_cles",
-            "p_value_cles",
-            "cliffs_delta_cles",
-            "cles_explanation",
-            "performance_interpretation",
+            "silverman_kde",
+            "kde_new",
+            "kde_base",
+            "kde_summary_text",
         ]
 
 

@@ -1488,7 +1488,7 @@ class PerfCompareResults(generics.ListAPIView):
 
         # Plot Kernel Density Estimator (KDE) with an ISJ (Improved Sheather-Jones) to reduce false positives from over-smoothing in Silverman
 
-        dke_isj_plot_base, dke_isj_plot_new, isj_kde_summary_text = (
+        kde_isj_plot_base, kde_isj_plot_new, isj_kde_summary_text = (
             stats.plot_kde_with_isj_bandwidth(
                 base_rev_data, new_rev_data, mann_pvalue, cles, c_delta, cliffs_interpretation
             )
@@ -1517,37 +1517,43 @@ class PerfCompareResults(generics.ListAPIView):
                 "stddev": new_stddev,
                 "stddev_pct": new_stddev_pct,
             },
+            "delta_value": delta_value,
+            "delta_percentage": delta_percentage,
+            "mann_pvalue": float(mann_pvalue),
+            # i.i.d tests
             "shapiro_wilk_test": shapiro_results,
             "shapiro_warning": shapiro_warning,
             "ks_test": ks_test,
             "ks_warning": ks_warning,
             "mann_whitney_test": mann_whitney,
-            "delta_value": delta_value,
-            "delta_percentage": delta_percentage,
-            "mann_pvalue": float(mann_pvalue),
+            # cliffs delta
             "cliffs_delta": c_delta,
             "cliffs_interpretation": cliffs_interpretation,
             "is_fit_good": is_fit_good,
             "is_new_better": is_new_better,
-            "is_regression": is_regression,
-            "performance_intepretation": performance_intepretation,
-            "is_improvement": is_improvement,
-            "more_runs_are_needed": more_runs_are_needed,
-            "direction_of_change": direction,  # 'neutral', 'better', or 'worse'
-            "dke_isj_plot_base": dke_isj_plot_base,
-            "dke_isj_plot_new": dke_isj_plot_new,
-            "dke_isj_plot_summary_text": isj_kde_summary_text,
-            "silverman_warnings": warning_msgs,
-            "silverman_kde": silverman_kde,
-            "cles": float(cles),
-            "cles_direction": direction,
-            "cles_explanation": cles_explanation,
-            "mann_whitney_u_cles": mann_whitney_u_cles,
-            "cliffs_delta_cles": cliffs_delta_cles,
-            "p_value_cles": p_value_cles,
-            "effect_size": effect_size,
             "is_significant": is_significant,
             "lower_is_better": lower_is_better,
+            # "is_regression": is_regression,
+            # "performance_intepretation": performance_intepretation,
+            # "is_improvement": is_improvement,
+            # "more_runs_are_needed": more_runs_are_needed,
+            "direction_of_change": direction,  # 'neutral', 'better', or 'worse'
+            # "silverman_warnings": warning_msgs,
+            "silverman_kde": silverman_kde,
+            # CLES
+            "cles": {
+                "cles": float(cles),
+                "cles_direction": direction,
+                "cles_explanation": cles_explanation,
+                "mann_whitney_u_cles": mann_whitney_u_cles,
+                "cliffs_delta_cles": cliffs_delta_cles,
+                "p_value_cles": p_value_cles,
+                "effect_size": effect_size,
+            },
+            # KDE plots and summary
+            "kde_base": kde_isj_plot_base,
+            "kde_new": kde_isj_plot_new,
+            "kde_summary_text": isj_kde_summary_text,
         }
         return stats_data
 

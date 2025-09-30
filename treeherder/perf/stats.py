@@ -344,9 +344,9 @@ def interpret_silverman_kde(base, new, lower_is_better):
                 return None, None, None, None, None, None
 
             start, end = tup
-            shift = None
-            ci_low = None
-            ci_high = None
+            shift = 0
+            ci_low = 0
+            ci_high = 0
             median_shift_summary = None
 
             try:
@@ -361,6 +361,9 @@ def interpret_silverman_kde(base, new, lower_is_better):
                     continue
 
                 shift, (ci_low, ci_high) = bootstrap_median_diff_ci(ref_vals, new_vals)
+                shift = float(shift)
+                ci_low = float(ci_low)
+                ci_high = float(ci_high)
                 median_shift_summary = (
                     f"Median shift: {shift:+.3f} (95% CI: {ci_low:+.3f} to {ci_high:+.3f})"
                 )
@@ -375,11 +378,7 @@ def interpret_silverman_kde(base, new, lower_is_better):
         silverman_kde = {
             "bandwidth": "Silverman",
             "base_mode_count": base_mode_count,
-            "base_peak_locs": base_peak_locs,
-            "base_prom": base_prom,
             "new_mode_count": new_mode_count,
-            "new_peak_locs": new_peak_locs,
-            "new_prom": new_prom,
             "mode_comments": [
                 f"Estimated modes (Base): {base_mode_count} (location: {base_peak_locs}, prominence: {base_prom})",
                 f"Estimated modes (New): {new_mode_count} (location: {new_peak_locs}, prominence: {new_prom})",
@@ -387,9 +386,9 @@ def interpret_silverman_kde(base, new, lower_is_better):
             "warnings": warning_msgs,
             "mode_summary": mode_summary,
             "median_shift_summary": median_shift_summary,
-            "ci_low": ci_low,
-            "ci_high": ci_high,
-            "shift": shift,
+            "ci_low": float(ci_low),
+            "ci_high": float(ci_high),
+            "shift": float(shift),
             "shift_summary": performance_intepretation,
             "is_regression": is_regression,
             "is_improvement": is_improvement,
