@@ -87,6 +87,7 @@ class ErrorParser(ParserBase):
 
     RE_EXCLUDE_2_SEARCH = re.compile(
         r"I[ /](Gecko|TestRunner).*TEST-UNEXPECTED-"
+        r"|Assertion failure$"
         r"|^TEST-UNEXPECTED-WARNING\b"
         r"|^TimeoutException: "
         r"|^ImportError: No module named pygtk$"

@@ -102,6 +102,8 @@ NON_ERROR_TEST_CASES = (
     "01:22:41     INFO -  ImportError: No module named pygtk\r\n",
     # "^non-fatal error"
     "2023-02-28 22:06:01+0000: non-fatal error removing directory: icons/, rv: 0, err: 39",
+    # "Assertion failure$"
+    "PROCESS(1234) | Assertion failure",
 )
 
 
