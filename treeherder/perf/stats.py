@@ -286,7 +286,7 @@ def interpret_cles(
     cles_explanation = interpret_cles_direction(cles)
 
     # Cliff's delta CLES
-    cliffs_delta_cles = f"**Cliff's Delta**: {delta:.2f} → {interpretation}"
+    cliffs_delta_cles = f"Cliff's Delta: {delta:.2f} → {interpretation}"
 
     # Mann-Whitney U  p-value CLES
     p_value_cles = (
@@ -449,8 +449,8 @@ def plot_kde_with_isj_bandwidth(base, new, mann_pvalue, cles, delta, interpretat
 
     # Summary text
     isj_kde_summary_text = [
-        f"p-value: {mann_pvalue:.3f}\n",
-        f"CLES: {cles:.2f} → {'base > new' if cles >= 0.5 else 'new > base'}\n",
+        f"p-value: {mann_pvalue:.3f}",
+        f"CLES: {cles:.2f} → {'base > new' if cles >= 0.5 else 'new > base'}",
         f"Cliff’s delta: {delta:.2f} → {interpretation}",
     ]
 
