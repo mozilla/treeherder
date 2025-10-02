@@ -655,7 +655,6 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
 
 
 class StandardStatsSerializer(serializers.Serializer):
-    rev_data = serializers.ListField(child=PerfCompareDecimalField(), default=[])
     min = PerfCompareDecimalField()
     max = PerfCompareDecimalField()
     mean = PerfCompareDecimalField()
@@ -710,6 +709,8 @@ class CLESSerializer(serializers.Serializer):
 class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
     base_rev = serializers.CharField()
     new_rev = serializers.CharField()
+    base_rev_data = serializers.ListField(child=PerfCompareDecimalField(), default=[])
+    new_rev_data = serializers.ListField(child=PerfCompareDecimalField(), default=[])
     base_app = serializers.CharField(
         max_length=10,
         default="",
@@ -763,12 +764,18 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
     base_signature_id = serializers.IntegerField()
     new_signature_id = serializers.IntegerField()
     has_subtests = serializers.BooleanField()
+    shapiro_wilk_test_base = StatisticsTestSerializer(many=False, default=None)
+    shapiro_wilk_test_new = StatisticsTestSerializer(many=False, default=None)
+    shapiro_wilk_warnings = serializers.ListField(
+        child=serializers.CharField(default=""),
+        default=[],
+    )
     ks_test = StatisticsTestSerializer(many=False)
     mann_whitney_test = StatisticsTestSerializer(many=False)
     cliffs_delta = PerfCompareDecimalField()
     cliffs_interpretation = serializers.CharField(default="")
     mann_pvalue = PerfCompareDecimalField()
-    silverman_kde = SilvermanKDESerializer(many=False)
+    silverman_kde = SilvermanKDESerializer(many=False, default=None)
     kde_base = KDESerializer(many=False, required=False)
     kde_new = KDESerializer(many=False, required=False)
     kde_summary_text = serializers.ListField(
@@ -776,13 +783,15 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
         default=[],
     )
     direction_of_change = serializers.CharField(default="")
-    cles = CLESSerializer(many=False)
+    cles = CLESSerializer(many=False, default=None)
 
     class Meta:
         model = PerformanceSignature
         fields = [
             "base_rev",
             "new_rev",
+            "base_rev_data",
+            "new_rev_data",
             "base_app",
             "new_app",
             "base_standard_stats",
@@ -824,6 +833,9 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
             "new_signature_id",
             "has_subtests",
             "ks_test",
+            "shapiro_wilk_test_base",
+            "shapiro_wilk_test_new",
+            "shapiro_wilk_warnings",
             "mann_whitney_test",
             "cliffs_delta",
             "cliffs_interpretation",

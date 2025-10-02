@@ -1397,27 +1397,28 @@ class PerfCompareResults(generics.ListAPIView):
 
         if not base_rev_data:
             base_rev_data = []
+
         if not new_rev_data:
             new_rev_data = []
 
         # get basic statistics for both base and new with mean, median, variance, standard deviation, standard deviation percentage, min, max
 
-        base_min = float(np.min(base_rev_data) if len(base_rev_data) > 0 else 0)
-        base_max = float(np.max(base_rev_data) if len(base_rev_data) > 0 else 0)
-        base_variance = float(np.var(base_rev_data) if base_rev_data else 0)
+        base_min = float(np.min(base_rev_data)) if len(base_rev_data) > 0 else 0
+        base_max = float(np.max(base_rev_data)) if len(base_rev_data) > 0 else 0
+        base_variance = float(np.var(base_rev_data)) if base_rev_data else 0
         base_mean = perfcompare_utils.get_avg(base_rev_data, header)
         base_stddev = perfcompare_utils.get_stddev(base_rev_data, header)
         base_count = len(base_rev_data)
-        base_median = float(np.median(base_rev_data) if base_rev_data else 0)
+        base_median = float(np.median(base_rev_data)) if base_rev_data else 0
         base_stddev_pct = perfcompare_utils.get_stddev_pct(base_mean, base_stddev)
 
-        new_min = float(np.min(new_rev_data) if len(new_rev_data) > 0 else 0)
-        new_max = float(np.max(new_rev_data) if len(new_rev_data) > 0 else 0)
-        new_variance = float(np.var(new_rev_data) if new_rev_data else 0)
+        new_min = float(np.min(new_rev_data)) if len(new_rev_data) > 0 else 0
+        new_max = float(np.max(new_rev_data)) if len(new_rev_data) > 0 else 0
+        new_variance = float(np.var(new_rev_data)) if new_rev_data else 0
         new_mean = perfcompare_utils.get_avg(new_rev_data, header)
         new_stddev = perfcompare_utils.get_stddev(new_rev_data, header)
         new_count = len(new_rev_data)
-        new_median = float(np.median(new_rev_data) if new_rev_data else 0)
+        new_median = float(np.median(new_rev_data)) if new_rev_data else 0
         new_stddev_pct = perfcompare_utils.get_stddev_pct(new_mean, new_stddev)
 
         # Basic statistics, normality test"
@@ -1426,8 +1427,8 @@ class PerfCompareResults(generics.ListAPIView):
         # <https://en.wikipedia.org/wiki/Shapiro%E2%80%93Wilk_test>
         # Is both a classic Gaussian distribution or classic bell curve
 
-        shapiro_results, shapiro_warning = stats.interpret_normality_shapiro_wilk(
-            base_rev_data, new_rev_data, pvalue_threshold
+        shapiro_results_base, shapiro_results_new, shapiro_warning = (
+            stats.interpret_normality_shapiro_wilk(base_rev_data, new_rev_data, pvalue_threshold)
         )
 
         # Kolmogorov-Smirnov test for goodness of fit
@@ -1449,7 +1450,14 @@ class PerfCompareResults(generics.ListAPIView):
         # https://www.researchgate.net/publication/262763337_Cliff's_Delta_Calculator_A_non-parametric_effect_size_program_for_two_groups_of_observations
         # https://stats.stackexchange.com/questions/450495/cliffs-delta-in-python
         # https://github.com/neilernst/cliffsDelta
-        c_delta, _ = cliffs_delta(base_rev_data, new_rev_data)
+        c_warning = None
+        c_delta = None
+        # Handle for empty data sets
+        if len(base_rev_data) < 1 or len(new_rev_data) < 1:
+            c_warning = "Empty data in one group, cannot compute Cliffs Delta"
+        else:
+            c_delta, _ = cliffs_delta(base_rev_data, new_rev_data)
+
         cliffs_interpretation = stats.interpret_effect_size(c_delta)
         direction, is_new_better = stats.is_new_better(delta_value, lower_is_better)
 
@@ -1458,6 +1466,7 @@ class PerfCompareResults(generics.ListAPIView):
 
         # returns CLES, direction
         (
+            cles_obj,
             cles,
             is_significant,
             cles_explanation,
@@ -1474,6 +1483,9 @@ class PerfCompareResults(generics.ListAPIView):
             c_delta,
             lower_is_better,
         )
+        if cles_obj:
+            cles_obj["effect_size"] = effect_size
+            cles_obj["cles_direction"] = direction
 
         # Compute KDE with Silverman bandwidth, and warn if multimodal.
         # Also compute confidence interval and interperet patch regression or improvement and warnings
@@ -1495,8 +1507,9 @@ class PerfCompareResults(generics.ListAPIView):
         )
 
         stats_data = {
+            "base_rev_data": base_rev_data,
+            "new_rev_data": new_rev_data,
             "base_standard_stats": {
-                "rev_data": base_rev_data,
                 "count": base_count,
                 "min": base_min,
                 "max": base_max,
@@ -1507,7 +1520,6 @@ class PerfCompareResults(generics.ListAPIView):
                 "stddev_pct": base_stddev_pct,
             },
             "new_standard_stats": {
-                "rev_data": new_rev_data,
                 "count": new_count,
                 "min": new_min,
                 "max": new_max,
@@ -1519,42 +1531,37 @@ class PerfCompareResults(generics.ListAPIView):
             },
             "delta_value": delta_value,
             "delta_percentage": delta_percentage,
-            "mann_pvalue": float(mann_pvalue),
+            "mann_pvalue": float(mann_pvalue) if mann_pvalue else None,
             # i.i.d tests
-            "shapiro_wilk_test": shapiro_results,
-            "shapiro_warning": shapiro_warning,
+            "shapiro_wilk_test_base": shapiro_results_base,
+            "shapiro_wilk_test_new": shapiro_results_new,
+            "shapiro_wilk_warnings": shapiro_warning,
             "ks_test": ks_test,
             "ks_warning": ks_warning,
             "mann_whitney_test": mann_whitney,
             # cliffs delta
             "cliffs_delta": c_delta,
             "cliffs_interpretation": cliffs_interpretation,
+            "warning_c_delta": c_warning,
             "is_fit_good": is_fit_good,
             "is_new_better": is_new_better,
             "is_significant": is_significant,
             "lower_is_better": lower_is_better,
-            # "is_regression": is_regression,
-            # "performance_intepretation": performance_intepretation,
-            # "is_improvement": is_improvement,
-            # "more_runs_are_needed": more_runs_are_needed,
+            "is_regression": is_regression,
+            "performance_intepretation": performance_intepretation,
+            "is_improvement": is_improvement,
+            "more_runs_are_needed": more_runs_are_needed,
             "direction_of_change": direction,  # 'neutral', 'better', or 'worse'
-            # "silverman_warnings": warning_msgs,
+            "silverman_warnings": warning_msgs,
             "silverman_kde": silverman_kde,
             # CLES
-            "cles": {
-                "cles": float(cles),
-                "cles_direction": direction,
-                "cles_explanation": cles_explanation,
-                "mann_whitney_u_cles": mann_whitney_u_cles,
-                "cliffs_delta_cles": cliffs_delta_cles,
-                "p_value_cles": p_value_cles,
-                "effect_size": effect_size,
-            },
+            "cles": cles_obj,
             # KDE plots and summary
             "kde_base": kde_isj_plot_base,
             "kde_new": kde_isj_plot_new,
             "kde_summary_text": isj_kde_summary_text,
         }
+        print(stats_data, "stats_data")
         return stats_data
 
 
