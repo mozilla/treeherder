@@ -52,13 +52,13 @@ class LogviewerTab extends React.PureComponent {
       <div className="h-100 w-100" aria-label="Log">
         <span className="log-viewer-top-bar-buttons">
           <a
-            className="p-1 mr-2 text-darker-secondary"
+            className="p-1 me-2 text-darker-secondary"
             href={getLogViewerUrl(selectedTaskFull.id, repoName)}
             target="_blank"
             rel="noopener noreferrer"
             title="Open the full-screen Log Viewer for this task"
           >
-            <FontAwesomeIcon icon={faExpand} className="mr-1" />
+            <FontAwesomeIcon icon={faExpand} className="me-1" />
             Full Screen
           </a>
           <a
@@ -68,7 +68,7 @@ class LogviewerTab extends React.PureComponent {
             rel="noopener noreferrer"
             title="Open the full-screen Log Viewer for this task"
           >
-            <FontAwesomeIcon icon={faFileAlt} className="mr-1" />
+            <FontAwesomeIcon icon={faFileAlt} className="me-1" />
             Text Log
           </a>
         </span>

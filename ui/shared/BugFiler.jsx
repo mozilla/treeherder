@@ -663,7 +663,7 @@ export class BugFilerClass extends React.Component {
                 </Tooltip>
                 <Button
                   variant="secondary"
-                  className="ml-1 btn-sm"
+                  className="ms-1 btn-sm"
                   type="button"
                   onClick={this.findProduct}
                 >
@@ -685,7 +685,7 @@ export class BugFilerClass extends React.Component {
                 <Form.Group tag="fieldset" className="mt-1 mb-3">
                   {suggestedProducts.map((product) => (
                     <Form.Check
-                      // className="ml-4"
+                      // className="ms-4"
                       key={`modalProductSuggestion${product}`}
                       type="radio"
                       id={`product-${product}`}
@@ -721,7 +721,7 @@ export class BugFilerClass extends React.Component {
                       </Tooltip>
                     </div>
                     {searchTerms.map((term) => (
-                      <div className="text-monospace pl-3" key={term}>
+                      <div className="text-monospace ps-3" key={term}>
                         {term}
                       </div>
                     ))}
@@ -761,13 +761,13 @@ export class BugFilerClass extends React.Component {
                       : faChevronCircleDown
                   }
                   size="lg"
-                  className="pointable align-bottom pt-2 ml-1"
+                  className="pointable align-bottom pt-2 ms-1"
                   id="toggle-failure-lines"
                   title={isFilerSummaryVisible ? 'collapse' : 'expand'}
                 />
                 <span
                   id="summaryLength"
-                  className={`ml-1 font-weight-bold lg align-self-center ${
+                  className={`ms-1 font-weight-bold lg align-self-center ${
                     summary.length > 255 ? 'text-danger' : 'text-success'
                   }`}
                 >
@@ -787,7 +787,7 @@ export class BugFilerClass extends React.Component {
                   />
                 </span>
               )}
-              <div className="ml-4 mt-2">
+              <div className="ms-4 mt-2">
                 <Form.Check
                   className="mb-2"
                   type="checkbox"
@@ -855,7 +855,7 @@ export class BugFilerClass extends React.Component {
                   rows={5}
                 />
               </div>
-              <div className="ml-4">
+              <div className="ms-4">
                 <div className="d-inline-flex mb-1">
                   <Form.Check
                     className="mt-2"
@@ -867,11 +867,11 @@ export class BugFilerClass extends React.Component {
                     }
                     label="This is an intermittent failure"
                   />
-                  <div className="d-inline-flex ml-2">
+                  <div className="d-inline-flex ms-2">
                     <Form.Control
                       id="regressedBy"
                       type="text"
-                      className="ml-1"
+                      className="ms-1"
                       onChange={(evt) =>
                         this.setState({ regressedBy: evt.target.value })
                       }
@@ -887,7 +887,7 @@ export class BugFilerClass extends React.Component {
                     </Tooltip>
                     <Form.Control
                       id="seeAlso"
-                      className="ml-1"
+                      className="ms-1"
                       type="text"
                       onChange={(evt) =>
                         this.setState({ seeAlso: evt.target.value })

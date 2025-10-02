@@ -58,14 +58,14 @@ function BugListItem(props) {
         bug.occurrences >= requiredInternalOccurrences &&
         bugzillaButton}
       {bug.bugzilla_id}
-      <span className="ml-1">i{bug.internal_id}</span>
+      <span className="ms-1">i{bug.internal_id}</span>
       {!bug.id && (
         <span>
-          <span className="ml-1" title="Number of recent classifications">
+          <span className="ms-1" title="Number of recent classifications">
             ({bug.occurrences} occurrences{' '}
             <FontAwesomeIcon icon={faThumbtack} />)
           </span>{' '}
-          <span className="mr-2">{bug.summary}</span>
+          <span className="me-2">{bug.summary}</span>
           {!!addBug &&
             bug.occurrences >= requiredInternalOccurrences &&
             internalOccurrenceButton}
@@ -76,7 +76,7 @@ function BugListItem(props) {
       )}
       {bug.id && (
         <a
-          className={`${bugClassName} ml-1 ${
+          className={`${bugClassName} ms-1 ${
             bug.resolution !== '' ? 'strike-through' : ''
           }`}
           href={bugUrl}
@@ -85,7 +85,7 @@ function BugListItem(props) {
           title={title}
         >
           <Highlighter
-            className={`${bugClassName} ml-1`}
+            className={`${bugClassName} ms-1`}
             searchWords={getSearchWords(suggestion.search)}
             textToHighlight={bug.summary}
             caseSensitive
@@ -99,7 +99,7 @@ function BugListItem(props) {
           {' '}
           &gt;
           <a
-            className={`${bugClassName} ml-1`}
+            className={`${bugClassName} ms-1`}
             href={duplicateBugUrl}
             target="_blank"
             rel="noopener noreferrer"

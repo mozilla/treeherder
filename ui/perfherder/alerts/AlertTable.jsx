@@ -466,7 +466,7 @@ export default class AlertTable extends React.Component {
                     >
                       <td
                         colSpan="9"
-                        className="text-left text-muted pl-3 py-4"
+                        className="text-left text-muted ps-3 py-4"
                       >
                         <span className="font-weight-bold">
                           Downstream alert summaries:{' '}

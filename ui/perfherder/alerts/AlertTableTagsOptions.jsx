@@ -24,7 +24,7 @@ export default class AlertTableTagsOptions extends React.Component {
 
     return items.map((item) => (
       <Badge
-        className="mr-1 custom-tooltip"
+        className="me-1 custom-tooltip"
         bg="light"
         key={`${item.name}`}
         data-testid={badgeId[this.getBadgeType(item)]}

@@ -57,13 +57,13 @@ export default class CompareTableRow extends React.PureComponent {
           this.rowTitle = el;
         }}
       >
-        <th className="text-left font-weight-normal pl-1">
+        <th className="text-left font-weight-normal ps-1">
           {rowLevelResults.name}
           <span className="result-links">
             {onPermalinkClick && (
               <span>
                 <Button
-                  className="permalink p-0 ml-1"
+                  className="permalink p-0 ms-1"
                   variant="link"
                   onClick={() =>
                     onPermalinkClick(

@@ -42,7 +42,7 @@ class NotificationsMenu extends React.Component {
           />
         </Dropdown.Toggle>
         <Dropdown.Menu id="notification-dropdown" align="end">
-          <Dropdown.Item as="a" title="Notifications" className="pl-0" header>
+          <Dropdown.Item as="a" title="Notifications" className="ps-0" header>
             Recent notifications
             {!!storedNotifications.length && (
               <Button
@@ -59,7 +59,7 @@ class NotificationsMenu extends React.Component {
           {storedNotifications.length ? (
             storedNotifications.map((notification) => (
               <Dropdown.Item
-                className="pl-0 notification-dropdown-line"
+                className="ps-0 notification-dropdown-line"
                 key={`${notification.created}${notification.message}`}
               >
                 <span
@@ -89,7 +89,7 @@ class NotificationsMenu extends React.Component {
               </Dropdown.Item>
             ))
           ) : (
-            <Dropdown.Item as="a" className="pl-0">
+            <Dropdown.Item as="a" className="ps-0">
               No recent notifications
             </Dropdown.Item>
           )}
