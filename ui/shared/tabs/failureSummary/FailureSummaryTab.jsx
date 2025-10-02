@@ -354,18 +354,22 @@ class FailureSummaryTab extends React.Component {
 FailureSummaryTab.propTypes = {
   selectedJob: PropTypes.shape({}).isRequired,
   selectedJobId: PropTypes.number.isRequired,
-  jobLogUrls: PropTypes.arrayOf({
-    id: PropTypes.number.isRequired,
-    job_id: PropTypes.number.isRequired,
-    name: PropTypes.string.isRequired,
-    url: PropTypes.string.isRequired,
-    parse_status: PropTypes.string.isRequired,
-  }),
-  jobDetails: PropTypes.arrayOf({
-    url: PropTypes.string.isRequired,
-    value: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-  }),
+  jobLogUrls: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      job_id: PropTypes.number.isRequired,
+      name: PropTypes.string.isRequired,
+      url: PropTypes.string.isRequired,
+      parse_status: PropTypes.string.isRequired,
+    }),
+  ),
+  jobDetails: PropTypes.arrayOf(
+    PropTypes.shape({
+      url: PropTypes.string.isRequired,
+      value: PropTypes.string.isRequired,
+      title: PropTypes.string.isRequired,
+    }),
+  ),
   logParseStatus: PropTypes.string,
   logViewerFullUrl: PropTypes.string,
   currentRepo: PropTypes.shape({}).isRequired,
