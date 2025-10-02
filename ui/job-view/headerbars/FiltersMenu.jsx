@@ -63,7 +63,7 @@ function FiltersMenu({
           >
             <FontAwesomeIcon
               icon={faCheck}
-              className={`mr-1 ${
+              className={`me-1 ${
                 resultStatus.includes(filterName) ? '' : 'hide'
               }`}
               title={resultStatus.includes(filterName) ? 'Selected' : ''}
@@ -83,7 +83,7 @@ function FiltersMenu({
         >
           <FontAwesomeIcon
             icon={faCheck}
-            className={`mr-1 ${
+            className={`me-1 ${
               arraysEqual(resultStatus, thDefaultFilterResultStatuses) &&
               arraysEqual(classifiedState, ['unclassified', 'classified'])
                 ? ''
@@ -104,7 +104,7 @@ function FiltersMenu({
         >
           <FontAwesomeIcon
             icon={faCheck}
-            className={`mr-1 ${
+            className={`me-1 ${
               filterModel.isClassifiedFailures(true) ? '' : 'hide'
             }`}
             title={filterModel.isClassifiedFailures(true) ? 'Selected' : ''}
@@ -117,7 +117,7 @@ function FiltersMenu({
         >
           <FontAwesomeIcon
             icon={faCheck}
-            className={`mr-1 ${
+            className={`me-1 ${
               filterModel.isUnclassifiedFailures() ? '' : 'hide'
             }`}
             title={filterModel.isUnclassifiedFailures() ? 'Selected' : ''}
@@ -130,7 +130,7 @@ function FiltersMenu({
         >
           <FontAwesomeIcon
             icon={faCheck}
-            className={`mr-1 ${
+            className={`me-1 ${
               filterModel.isClassifiedFailures() ? '' : 'hide'
             }`}
             title={filterModel.isClassifiedFailures() ? 'Selected' : ''}

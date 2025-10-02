@@ -28,7 +28,7 @@ export default class TruncatedText extends React.Component {
             variant={variant}
             className={`${
               color !== 'link' || 'font-weight-bold text-reset'
-            } d-block ml-auto`}
+            } d-block ms-auto`}
             onClick={() => this.setState({ showMoreResults: !showMoreResults })}
           >
             {`show ${showMoreResults ? 'less' : 'more'}`}

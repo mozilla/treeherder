@@ -98,7 +98,7 @@ function TableRow(props) {
             icon={icon}
             title={failureId === 7 ? 'Auto classified' : 'Classified'}
           />
-          <span className="ml-1">{classificationName.name}</span>
+          <span className="ms-1">{classificationName.name}</span>
         </span>
       </td>
       <td>{text}</td>

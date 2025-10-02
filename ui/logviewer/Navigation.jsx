@@ -28,13 +28,13 @@ export default class Navigation extends React.PureComponent {
     return (
       <nav className="navbar navbar-dark bg-dark p-0" role="navigation">
         <div id="th-global-navbar-top">
-          <div className="nav mr-auto flex-row">
+          <div className="nav me-auto flex-row">
             <span id="lv-logo">
               <LogoMenu menuText="Logviewer" />
             </span>
             {jobExists ? (
               <span
-                className={`lightgray ${resultStatusShading} pt-2 pl-2 pr-2`}
+                className={`lightgray ${resultStatusShading} pt-2 ps-2 pe-2`}
                 style={{ minWidth: '150px' }}
               >
                 <strong>Result: </strong>
@@ -60,7 +60,7 @@ export default class Navigation extends React.PureComponent {
               >
                 <FontAwesomeIcon
                   icon={faTree}
-                  className="actionbtn-icon mr-1"
+                  className="actionbtn-icon me-1"
                 />
                 <span>open Job</span>
               </a>
@@ -75,7 +75,7 @@ export default class Navigation extends React.PureComponent {
               >
                 <FontAwesomeIcon
                   icon={faFileAlt}
-                  className="actionbtn-icon mr-1"
+                  className="actionbtn-icon me-1"
                 />
                 <span>open raw log</span>
               </a>
@@ -91,7 +91,7 @@ export default class Navigation extends React.PureComponent {
                 >
                   <FontAwesomeIcon
                     icon={faChartBar}
-                    className="actionbtn-icon mr-1"
+                    className="actionbtn-icon me-1"
                   />
                   <span>open analyser</span>
                 </a>

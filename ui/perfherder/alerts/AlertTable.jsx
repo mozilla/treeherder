@@ -374,23 +374,25 @@ export default class AlertTable extends React.Component {
               <Table className="compare-table mb-0">
                 <tbody>
                   <tr className="border subtest-header">
-                    <th aria-label="Select alerts"> </th>
+                    <th className="table-width-xs" aria-label="Select alerts">
+                      {' '}
+                    </th>
                     <th aria-label="Star alert or open graph"> </th>
-                    <th className="align-bottom">
+                    <th className="align-middle">
                       <TableColumnHeader
                         column={tableConfig.Test}
                         data-testid={`${alertSummary.id} ${tableConfig.Test}`}
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
-                    <th className="align-bottom">
+                    <th className="align-middle">
                       <TableColumnHeader
                         column={tableConfig.Platform}
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
                     {alertSummary.framework === browsertimeId && (
-                      <th className="align-bottom text-nowrap">
+                      <th className="align-middle text-nowrap">
                         <span
                           data-testid={`${alertSummary.id} ${tableConfig.DebuggingInformation.name}`}
                         >
@@ -401,23 +403,23 @@ export default class AlertTable extends React.Component {
                         />
                       </th>
                     )}
-                    <th className="align-bottom">
+                    <th className="align-middle">
                       <TableColumnHeader
                         column={tableConfig.NoiseProfile}
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
-                    <th className="align-bottom text-nowrap">
+                    <th className="align-middle text-nowrap">
                       <span>{tableConfig.TagsOptions.name}</span>
                       <SortButtonDisabled column={tableConfig.TagsOptions} />
                     </th>
-                    <th className="align-bottom">
+                    <th className="align-middle">
                       <TableColumnHeader
                         column={tableConfig.Magnitude}
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
-                    <th className="align-bottom">
+                    <th className="align-middle">
                       <TableColumnHeader
                         column={tableConfig.Confidence}
                         onChangeSort={this.onChangeSort}
@@ -464,7 +466,7 @@ export default class AlertTable extends React.Component {
                     >
                       <td
                         colSpan="9"
-                        className="text-left text-muted pl-3 py-4"
+                        className="text-left text-muted ps-3 py-4"
                       >
                         <span className="font-weight-bold">
                           Downstream alert summaries:{' '}

@@ -153,7 +153,7 @@ class PerformanceTab extends React.PureComponent {
         rel="noopener noreferrer"
         data-testid="open-profiler"
       >
-        <FontAwesomeIcon icon={faExternalLinkAlt} className="mr-2" />
+        <FontAwesomeIcon icon={faExternalLinkAlt} className="me-2" />
         Open in Firefox Profiler
       </a>
     );
@@ -202,7 +202,7 @@ class PerformanceTab extends React.PureComponent {
               }
               data-testid="generate-profile"
             >
-              <FontAwesomeIcon icon={faRedo} className="mr-2" />
+              <FontAwesomeIcon icon={faRedo} className="me-2" />
               {profilerLink
                 ? 'Re-trigger performance profile'
                 : 'Generate performance profile'}
@@ -221,8 +221,8 @@ class PerformanceTab extends React.PureComponent {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <FontAwesomeIcon icon={faExternalLinkAlt} className="mr-2" />
-              <FontAwesomeIcon icon={faYoutube} className="mr-2" />
+              <FontAwesomeIcon icon={faExternalLinkAlt} className="me-2" />
+              <FontAwesomeIcon icon={faYoutube} className="me-2" />
               Open side-by-side job
             </a>
           )}
@@ -232,7 +232,7 @@ class PerformanceTab extends React.PureComponent {
               onClick={this.createSideBySide}
               title="Generate side-by-side"
             >
-              <FontAwesomeIcon icon={faFilm} className="mr-2" />
+              <FontAwesomeIcon icon={faFilm} className="me-2" />
               Generate side-by-side
             </Button>
           )}
@@ -246,7 +246,7 @@ class PerformanceTab extends React.PureComponent {
             rel="noopener noreferrer"
             className="btn btn-outline-darker-secondary btn-sm"
           >
-            <FontAwesomeIcon icon={faTable} className="mr-2" />
+            <FontAwesomeIcon icon={faTable} className="me-2" />
             Compare against another revision
           </a>
         </div>
@@ -256,7 +256,7 @@ class PerformanceTab extends React.PureComponent {
           // user know the next action.
           triggeredGeckoProfiles > 0 ? (
             <Alert variant="info" className="m-1">
-              <FontAwesomeIcon icon={faInfoCircle} className="mr-1" />
+              <FontAwesomeIcon icon={faInfoCircle} className="me-1" />
               {triggeredGeckoProfiles === 1
                 ? `Triggered ${triggeredGeckoProfiles} profiler run. It will show up ` +
                   `as a new entry in the job list once the task has been scheduled.`

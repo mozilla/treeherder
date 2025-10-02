@@ -17,7 +17,7 @@ const StatusProgress = ({ counts, customStyle = '' }) => {
   if (percentComplete === 100) data = [{ x: 'success', y: percentComplete }];
 
   return (
-    <div className={customStyle}>
+    <div className={`progress-relative ${customStyle}`}>
       <VictoryPie
         data={data}
         colorScale={['#28a745', 'lightgrey', '#dc3545']}

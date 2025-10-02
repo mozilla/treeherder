@@ -231,7 +231,7 @@ class SecondaryNavBar extends React.PureComponent {
           <span className="d-flex push-left watched-repos">
             {watchedRepos.map((watchedRepo) => (
               <ErrorBoundary
-                errorClasses="pl-1 pr-1 btn-view-nav border-right"
+                errorClasses="ps-1 pe-1 btn-view-nav border-right"
                 message={`Error watching ${watchedRepo.name}: `}
                 key={watchedRepo.name}
               >
@@ -306,7 +306,7 @@ class SecondaryNavBar extends React.PureComponent {
             />
             {/* Toggle Group State Button */}
             <Button
-              className="py-0 px-1 btn-view-nav mr-1"
+              className="py-0 px-1 btn-view-nav me-1"
               title={
                 groupCountsExpanded
                   ? 'Collapse job groups'

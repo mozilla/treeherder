@@ -82,12 +82,13 @@ export default class JobInfo extends React.PureComponent {
     const timeFields = getTimeFields(job);
 
     return (
-      <ul id="job-info" className="list-unstyled ml-1">
+      <ul id="job-info" className="list-unstyled ms-1">
         <li className="small">
           <strong>Job: </strong>
           {showJobFilters ? (
             <React.Fragment>
               <Link
+                className="small"
                 title="Filter jobs containing these keywords"
                 to={{ search: getJobSearchStrHref(searchStr) }}
               >
@@ -103,6 +104,7 @@ export default class JobInfo extends React.PureComponent {
             <strong>Task: </strong>
             <a
               id="taskInfo"
+              className="small"
               href={getInspectTaskUrl(
                 taskId,
                 checkRootUrl(currentRepo.tc_root_url),

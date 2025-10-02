@@ -799,3 +799,15 @@ li.pagination-active.active > button {
   font-size: 14px !important;
   color: white !important;
 }
+
+/* Consistent checkbox sizing for alerts table */
+.compare-table .form-check-input {
+  width: 1.25em;
+  height: 1.25em;
+  margin-top: 0.125em;
+  cursor: pointer;
+}
+
+.compare-table .form-check-input:disabled {
+  cursor: not-allowed;
+}

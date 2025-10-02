@@ -47,7 +47,7 @@ export default class DateOptions extends React.Component {
 
     return (
       <div className="d-inline-block">
-        <DropdownButton className="mr-3" title="date range">
+        <DropdownButton className="me-3" title="date range">
           <DropdownMenuItems
             options={dateOptions}
             updateData={this.updateDateRange}

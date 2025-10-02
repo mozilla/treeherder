@@ -235,13 +235,13 @@ class Test extends PureComponent {
           >
             <Button
               onClick={this.toggleDetails}
-              className="pr-0 text-left border-0"
+              className="pe-0 text-left border-0"
               title="Click to expand for test detail"
               variant="outline"
             >
               <FontAwesomeIcon
                 icon={detailsShowing ? faCaretDown : faCaretRight}
-                className="mr-2 min-width-1 mt-1"
+                className="me-2 min-width-1 mt-1"
               />
             </Button>
             <Button
@@ -251,7 +251,7 @@ class Test extends PureComponent {
               variant="outline"
             >
               {key === 'none' ? 'All' : this.getGroupHtml(key)}
-              <span className="ml-2 text-break">
+              <span className="ms-2 text-break">
                 ({tests.length} failure{tests.length > 1 && 's'})
               </span>
             </Button>
@@ -267,7 +267,7 @@ class Test extends PureComponent {
               <Navbar className="mb-3">
                 <Nav>
                   <Nav.Item>
-                    <ButtonGroup size="sm" className="ml-5">
+                    <ButtonGroup size="sm" className="ms-5">
                       <Button
                         title="Retrigger selected jobs once"
                         onClick={() => this.retriggerSelected(1)}
@@ -277,7 +277,7 @@ class Test extends PureComponent {
                         <FontAwesomeIcon
                           icon={faRedo}
                           title="Retrigger"
-                          className="mr-2"
+                          className="me-2"
                           alt=""
                         />
                         Retrigger Selected
@@ -324,7 +324,7 @@ class Test extends PureComponent {
                   </Nav.Item>
                 </Nav>
               </Navbar>
-              <div className="mb-2 ml-4 pl-4">
+              <div className="mb-2 ms-4 ps-4">
                 <Form.Check
                   type="checkbox"
                   id="select-all-platforms"

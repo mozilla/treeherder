@@ -82,7 +82,7 @@ const HelpMenu = () => (
           <FontAwesomeIcon
             icon={item.icon}
             fixedWidth
-            className="midgray mr-2"
+            className="midgray me-2"
           />
           {item.text}
         </Dropdown.Item>

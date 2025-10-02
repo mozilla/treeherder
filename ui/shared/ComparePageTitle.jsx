@@ -140,7 +140,7 @@ export default class ComparePageTitle extends React.Component {
               autoFocus
             />
             <Button
-              className="ml-3 my-2"
+              className="ms-3 my-2"
               vertical="center"
               size="lg"
               variant="secondary"

@@ -24,8 +24,9 @@ export default class AlertTableTagsOptions extends React.Component {
 
     return items.map((item) => (
       <Badge
-        className="mr-1 custom-tooltip"
+        className="me-1 custom-tooltip"
         bg="light"
+        text="dark"
         key={`${item.name}`}
         data-testid={badgeId[this.getBadgeType(item)]}
       >
@@ -78,7 +79,7 @@ export default class AlertTableTagsOptions extends React.Component {
         {displayAllItems && this.showItems(items.slice(this.visibleItems))}
       </div>
     ) : (
-      <Badge className="mb-1" bg="light">
+      <Badge className="mb-1" bg="light" text="dark">
         No tags or options
       </Badge>
     );

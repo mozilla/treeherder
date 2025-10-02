@@ -428,22 +428,20 @@ export default class AlertTableRow extends React.Component {
         data-testid={alert.id}
       >
         <td className="table-width-xs px-1">
-          <Form.Group className="ml-2 pl-4">
-            <Form.Label hidden>alert {alert.id} title</Form.Label>
-            <Form.Control
-              aria-label={`alert ${alert.id} title`}
-              data-testid={`alert ${alert.id} checkbox`}
-              type="checkbox"
-              disabled={!user.isStaff}
-              checked={checkboxSelected}
-              onChange={() =>
-                this.setState(
-                  { checkboxSelected: !checkboxSelected },
-                  this.updateCheckbox,
-                )
-              }
-            />
-          </Form.Group>
+          <Form.Check
+            className="ms-4"
+            aria-label={`alert ${alert.id} title`}
+            data-testid={`alert ${alert.id} checkbox`}
+            type="checkbox"
+            disabled={!user.isStaff}
+            checked={checkboxSelected}
+            onChange={() =>
+              this.setState(
+                { checkboxSelected: !checkboxSelected },
+                this.updateCheckbox,
+              )
+            }
+          />
         </td>
         <td className="px-0 d-flex flex-column align-items-start border-top-0">
           <Button
@@ -523,7 +521,7 @@ export default class AlertTableRow extends React.Component {
                 </a>
               </span>
             ) : (
-              <Badge className="mb-1" bg="light">
+              <Badge className="mb-1" bg="light" text="dark">
                 None
               </Badge>
             )}

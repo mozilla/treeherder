@@ -8,7 +8,7 @@ import {
   faAngleDown,
   faAngleUp,
   faTimes,
-  faAngleDoubleRight,
+  faEllipsisH,
 } from '@fortawesome/free-solid-svg-icons';
 
 import { thEvents } from '../../../helpers/constants';
@@ -107,6 +107,7 @@ const TabsPanel = ({
   const [showOverflowDropdown, setShowOverflowDropdown] = useState(false);
   const [jobId, setJobId] = useState(null);
   const [perfJobDetailSize, setPerfJobDetailSize] = useState(0);
+  const [dropdownShow, setDropdownShow] = useState(false);
 
   const tabListRef = useRef(null);
   const resizeObserverRef = useRef(null);
@@ -185,8 +186,14 @@ const TabsPanel = ({
 
   const setupResizeObserver = useCallback(() => {
     if (tabListRef.current && window.ResizeObserver) {
-      resizeObserverRef.current = new ResizeObserver(() => {
-        checkTabOverflow();
+      resizeObserverRef.current = new ResizeObserver((entries) => {
+        // Use requestAnimationFrame to prevent ResizeObserver loop errors
+        window.requestAnimationFrame(() => {
+          if (!Array.isArray(entries) || !entries.length) {
+            return;
+          }
+          checkTabOverflow();
+        });
       });
       resizeObserverRef.current.observe(tabListRef.current);
     }
@@ -260,16 +267,22 @@ const TabsPanel = ({
               {showPerf && <Tab>Performance</Tab>}
               {enableTestGroupsTab && <Tab>Test Groups</Tab>}
               {showOverflowDropdown && overflowTabs.length > 0 && (
-                <Dropdown className="d-inline-block ms-2" drop="down">
+                <Dropdown
+                  className="d-inline-block ms-2 align-middle"
+                  drop="down"
+                  show={dropdownShow}
+                  onToggle={(isOpen) => setDropdownShow(isOpen)}
+                >
                   <Dropdown.Toggle
                     variant="link"
-                    className="bg-transparent text-light border-0 p-1 tab-overflow-toggle"
+                    className="bg-transparent text-light border-0 p-1 tab-overflow-toggle d-inline-flex align-items-center"
                     title="More tabs"
                     aria-label="More tab options"
                     bsPrefix="custom-dropdown-toggle"
+                    style={{ height: '100%' }}
                   >
                     <FontAwesomeIcon
-                      icon={faAngleDoubleRight}
+                      icon={faEllipsisH}
                       className="text-light"
                     />
                   </Dropdown.Toggle>
@@ -277,11 +290,17 @@ const TabsPanel = ({
                     align="end"
                     className="tab-overflow-menu"
                     style={{
-                      zIndex: 9999,
+                      zIndex: 10000,
                     }}
                     popperConfig={{
                       strategy: 'fixed',
                       modifiers: [
+                        {
+                          name: 'offset',
+                          options: {
+                            offset: [0, 4],
+                          },
+                        },
                         {
                           name: 'preventOverflow',
                           options: {
@@ -292,44 +311,12 @@ const TabsPanel = ({
                         {
                           name: 'flip',
                           options: {
-                            fallbackPlacements: [
-                              'bottom-start',
-                              'top-end',
-                              'top-start',
-                            ],
-                          },
-                        },
-                        {
-                          name: 'offset',
-                          options: {
-                            offset: [0, -2],
-                          },
-                        },
-                        {
-                          name: 'computeStyles',
-                          options: {
-                            adaptive: false,
-                            roundOffsets: false,
-                          },
-                        },
-                        {
-                          name: 'applyStyles',
-                          enabled: true,
-                          phase: 'write',
-                          fn: ({ state }) => {
-                            // Ensure proper initial positioning
-                            if (state.elements.popper) {
-                              Object.assign(state.elements.popper.style, {
-                                position: 'fixed',
-                                transform: state.styles.popper.transform,
-                                top: state.styles.popper.top,
-                                left: state.styles.popper.left,
-                              });
-                            }
+                            fallbackPlacements: ['bottom-end', 'top-end'],
                           },
                         },
                       ],
                     }}
+                    renderOnMount
                   >
                     {overflowTabs.map((tab) => (
                       <Nav.Item key={tab.key}>
@@ -383,7 +370,7 @@ const TabsPanel = ({
                 <FontAwesomeIcon
                   icon={isPinBoardVisible ? faAngleDown : faAngleUp}
                   title={isPinBoardVisible ? 'expand' : 'collapse'}
-                  className="ml-1"
+                  className="ms-1"
                 />
               </Button>
               <Button

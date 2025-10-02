@@ -176,7 +176,7 @@ export class InternalIssueFilerClass extends React.Component {
                 />
                 <span
                   id="summaryLength"
-                  className={`ml-1 font-weight-bold lg ${
+                  className={`ms-1 font-weight-bold lg ${
                     summary.length > 255 ? 'text-danger' : 'text-success'
                   }`}
                 >

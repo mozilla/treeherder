@@ -44,7 +44,7 @@ export default class SideBySideVideo extends React.Component {
       <div className="w-100">
         <div className="d-flex mb-1">
           <Dropdown
-            className="mr-1 text-nowrap"
+            className="me-1 text-nowrap"
             title={value || videos[0].value}
             aria-label={value || videos[0].value}
           >

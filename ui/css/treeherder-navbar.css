@@ -73,14 +73,14 @@ label.dropdown-item.active,
 
 .navbar-right {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
 }
 
 .nav-menu-btn {
   margin-right: -4px;
   padding-left: 14px;
   padding-right: 14px;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .nav-menu-btn.dropdown-toggle {
@@ -127,6 +127,7 @@ secondary-nav-bar {
   width: 100%;
   display: flex;
   background-color: #354048;
+  min-height: 33px;
 }
 
 .tree-closed {
@@ -257,7 +258,8 @@ secondary-nav-bar {
 
 .btn-unclassified-failures {
   margin-top: 1px;
-  padding: 3px 10px;
+  padding: 2px 8px;
+  font-size: 13px;
   background-color: rgba(78, 93, 21, 0.56);
   border-color: #9fa01d;
   color: lightgray;
@@ -303,13 +305,14 @@ fieldset[disabled] .btn-unclassified-failures.active {
   border-bottom: 0;
   border-top: 0;
   border-right: 0;
+  font-size: 0.875rem;
 }
 
 .btn-view-nav:hover,
 .btn-view-nav:focus,
 .btn-view-nav:active,
 .btn-view-nav.active {
-  background-color: #2c3133 !important;
+  background-color: #404446 !important;
   border-color: #1a1d20 !important;
   color: white;
 }
@@ -477,4 +480,9 @@ fieldset[disabled] .btn-view-nav-closed.active {
 
 .btn-watched-repo {
   padding: 0.375rem 0.5rem;
+}
+
+/* Remove caret from repository dropdown toggle */
+.no-caret::after {
+  display: none !important;
 }

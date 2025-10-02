@@ -50,7 +50,7 @@ class Action extends PureComponent {
     const groupedTests = this.getTestGroups(tests);
 
     return (
-      <div className="ml-4 mt-2">
+      <div className="ms-4 mt-2">
         <h5>{name}</h5>
         {groupedTests.map((test) => (
           <div key={test.key}>

@@ -11,7 +11,6 @@ import {
   faTimesCircle,
   faCrosshairs,
   faGaugeHigh,
-  faAngleDoubleRight,
 } from '@fortawesome/free-solid-svg-icons';
 
 import {
@@ -444,21 +443,48 @@ class ActionBar extends React.PureComponent {
                 </Button>
               </li>
             )}
-            <li className="ml-auto">
+            <li className="ms-auto d-flex align-items-center">
               <Dropdown>
                 <Dropdown.Toggle
-                  className="bg-transparent text-light border-0 pr-2 py-2 m-0"
+                  className="bg-transparent text-light border-0 pe-2 py-2 m-0 d-flex align-items-center"
                   bsPrefix="btn"
                 >
                   <FontAwesomeIcon
                     icon={faEllipsisH}
                     title="Other job actions"
-                    className="align-baseline"
                   />
                 </Dropdown.Toggle>
                 <Dropdown.Menu
                   className="actionbar-menu dropdown-menu"
                   align="end"
+                  style={{
+                    zIndex: 10000,
+                  }}
+                  popperConfig={{
+                    strategy: 'fixed',
+                    modifiers: [
+                      {
+                        name: 'offset',
+                        options: {
+                          offset: [0, 4],
+                        },
+                      },
+                      {
+                        name: 'preventOverflow',
+                        options: {
+                          boundary: 'viewport',
+                          padding: 8,
+                        },
+                      },
+                      {
+                        name: 'flip',
+                        options: {
+                          fallbackPlacements: ['bottom-end', 'top-end'],
+                        },
+                      },
+                    ],
+                  }}
+                  renderOnMount
                 >
                   <Dropdown.Item
                     as="a"
@@ -475,7 +501,7 @@ class ActionBar extends React.PureComponent {
                         as="a"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="pl-4"
+                        className="ps-4"
                         href={getInspectTaskUrl(
                           selectedJobFull.task_id,
                           checkRootUrl(currentRepo.tc_root_url),

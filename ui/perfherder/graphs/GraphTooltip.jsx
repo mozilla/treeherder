@@ -172,7 +172,7 @@ const GraphTooltip = ({
       >
         <Button
           variant="outline-secondary"
-          className="close mr-3 my-2 ml-2"
+          className="close me-3 my-2 ms-2"
           onClick={closeTooltip}
         >
           <FontAwesomeIcon

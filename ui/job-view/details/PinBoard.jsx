@@ -518,7 +518,7 @@ class PinBoard extends React.Component {
                   >
                     <FontAwesomeIcon
                       icon={faTimes}
-                      className="text-danger ml-2"
+                      className="text-danger ms-2"
                       title="Close related bugs"
                     />
                   </Button>

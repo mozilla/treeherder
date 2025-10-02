@@ -60,7 +60,7 @@ class TaskSelection extends React.PureComponent {
               <span>{groupedBy !== 'path' && `${testName} `}</span>
               <span>{jobName}</span>
               {tier > 1 && (
-                <span className="ml-1 small text-muted">[tier-{tier}]</span>
+                <span className="ms-1 small text-muted">[tier-{tier}]</span>
               )}
             </span>
           </Row>

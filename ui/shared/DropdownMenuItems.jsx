@@ -20,7 +20,7 @@ const createDropdownItem = (
     >
       <FontAwesomeIcon
         icon={faCheck}
-        className={`mr-1 ${selectedItem === item ? '' : 'hide'}`}
+        className={`me-1 ${selectedItem === item ? '' : 'hide'}`}
         title={selectedItem === item ? 'Selected' : ''}
       />
       {item}

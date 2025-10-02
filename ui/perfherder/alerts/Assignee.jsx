@@ -102,9 +102,8 @@ export default class Assignee extends React.Component {
     );
 
     return !inEditMode ? (
-      <React.Fragment>
+      <div className="d-flex gap-2">
         <Button
-          className="ml-1"
           variant="darker-secondary"
           size="xs"
           onClick={this.goToEditMode}
@@ -114,7 +113,6 @@ export default class Assignee extends React.Component {
         </Button>
         {!assigneeUsername && (
           <Button
-            className="ml-1"
             variant="darker-secondary"
             size="xs"
             disabled={!user.isStaff}
@@ -123,7 +121,7 @@ export default class Assignee extends React.Component {
             Take
           </Button>
         )}
-      </React.Fragment>
+      </div>
     ) : (
       <InputGroup size="sm">
         <Form.Control

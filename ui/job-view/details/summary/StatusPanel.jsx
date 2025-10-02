@@ -7,7 +7,7 @@ function StatusPanel(props) {
 
   return (
     <li id="result-status-pane" className={`small ${shadingClass} p-0`}>
-      <div className="ml-1">
+      <div className="ms-1">
         <strong>Result:</strong>
         <span> {selectedJobFull.result}</span>
       </div>

@@ -100,7 +100,7 @@ class PushHealthStatus extends Component {
               title={`Push Health status - click for details: ${extraTitle}`}
               style={{ color: 'white' }}
             >
-              <FontAwesomeIcon className="mr-1" icon={icon} />
+              <FontAwesomeIcon className="me-1" icon={icon} />
               {healthStatus}
             </Badge>
           </a>

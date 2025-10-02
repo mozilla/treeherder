@@ -11,7 +11,7 @@ class TimeRangeDropdown extends React.PureComponent {
 
     return (
       <Dropdown
-        className="mr-0 text-nowrap"
+        className="me-0 text-nowrap"
         title="Time range"
         aria-label="Time range"
       >

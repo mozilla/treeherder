@@ -195,12 +195,11 @@ export default class AlertsViewControls extends React.Component {
     return (
       <React.Fragment>
         {alertSummaries.length > 1 && (
-          <Container className="sticky-scroll-nav-top max-width-default position-fixed mb-4 p-0 pr-4">
+          <Container className="sticky-scroll-nav-top max-width-default position-fixed mb-4 px-4 py-0">
             <Container className="bg-white max-width-default p-0 pt-5 pb-1">
-              <div className="d-flex justify-content-end mb-1 mr-2">
+              <div className="d-flex justify-content-end mb-1 gap-2">
                 <Button
-                  className="mr-2"
-                  variant="info"
+                  variant="darker-info"
                   onClick={() => this.onScrollAlert(scrollTypes.prev)}
                   disabled={disableButtons.prev}
                   data-testid="scroll-prev-alert"
@@ -208,7 +207,7 @@ export default class AlertsViewControls extends React.Component {
                   Previous alert
                 </Button>
                 <Button
-                  variant="info"
+                  variant="darker-info"
                   onClick={() => this.onScrollAlert(scrollTypes.next)}
                   disabled={disableButtons.next}
                   data-testid="scroll-next-alert"
@@ -230,7 +229,7 @@ export default class AlertsViewControls extends React.Component {
         />
         {pageNums
           ? hasMorePages() && (
-              <div className="d-flex justify-content-center">
+              <div className="d-flex justify-content-center my-3">
                 <PaginationGroup
                   viewablePageNums={pageNums}
                   updateParams={validated.updateParams}
@@ -258,7 +257,7 @@ export default class AlertsViewControls extends React.Component {
           ))}
         {pageNums
           ? hasMorePages() && (
-              <div className="d-flex justify-content-center">
+              <div className="d-flex justify-content-center my-3">
                 <PaginationGroup
                   viewablePageNums={pageNums}
                   updateParams={validated.updateParams}

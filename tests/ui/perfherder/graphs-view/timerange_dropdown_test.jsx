@@ -19,23 +19,32 @@ afterEach(() => {
 });
 
 describe('Selecting different dropdown items in TimeRangeDropdown', () => {
-  let dropdownMenu;
+  test('Dropdown can be opened and item selected', async () => {
+    const { getByText } = timeRangeDropdown();
 
-  beforeEach(async () => {
-    const { getByLabelText, getByText } = timeRangeDropdown();
-
-    dropdownMenu = await waitFor(() => getByLabelText('Time range'));
-    fireEvent.click(dropdownMenu);
+    const dropdownToggle = await waitFor(() => getByText('Last 14 days'));
+    fireEvent.click(dropdownToggle);
 
     const anotherItem = await waitFor(() => getByText('Last 60 days'));
     fireEvent.click(anotherItem);
-  });
 
-  test('Menu updates to new item', async () => {
-    expect(dropdownMenu).toHaveTextContent('Last 60 days');
+    // Component is controlled, so text won't change until parent re-renders
+    // Check that the callback was called with correct values
+    expect(updateTimeRange).toHaveBeenCalledWith({
+      value: 5184000,
+      text: 'Last 60 days',
+    });
   });
 
   test('TimeRangeDropdown calls back with correct time range', async () => {
+    const { getByText } = timeRangeDropdown();
+
+    const dropdownToggle = await waitFor(() => getByText('Last 14 days'));
+    fireEvent.click(dropdownToggle);
+
+    const anotherItem = await waitFor(() => getByText('Last 60 days'));
+    fireEvent.click(anotherItem);
+
     expect(updateTimeRange).toHaveBeenCalledWith({
       value: 5184000,
       text: 'Last 60 days',

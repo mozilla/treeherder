@@ -279,7 +279,7 @@ class CustomJobActions extends React.PureComponent {
           >
             <FontAwesomeIcon
               icon={faCheckSquare}
-              className="mr-1"
+              className="me-1"
               title="Check"
             />
             <span>{triggering ? 'Triggering' : 'Trigger'}</span>
