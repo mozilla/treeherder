@@ -103,8 +103,8 @@ const AlertHeader = ({
   return (
     <Container>
       <AlertHeaderTitle alertSummary={alertSummary} frameworks={frameworks} />
-      <Row className="font-weight-normal">
-        <Col className="p-0 pr-1" xs="auto">
+      <Row className="font-weight-normal gap-2">
+        <Col className="p-0 pe-1" xs="auto">
           <Row className="m-0 px-0 py-0">
             <SimpleTooltip
               text={toMercurialShortDateStr(alertSummaryDatetime)}
@@ -121,7 +121,6 @@ const AlertHeader = ({
         {user.isStaff && (
           <Col className="p-0" xs="auto">
             <Button
-              className="ml-1"
               variant="darker-secondary"
               size="xs"
               onClick={handleEditMode}
@@ -134,7 +133,7 @@ const AlertHeader = ({
         <Col className="p-0" xs="auto">
           <Dropdown tag="span">
             <Dropdown.Toggle
-              className="btn-xs ml-1"
+              className="btn-xs"
               variant="secondary"
               caret
               data-testid="push-dropdown"
@@ -188,7 +187,7 @@ const AlertHeader = ({
           <Col className="p-0" xs="auto">
             {alertSummary.issue_tracker && issueTrackers.length > 0 ? (
               <a
-                className="btn btn-secondary btn-xs ml-1 text-white"
+                className="btn btn-secondary btn-xs text-white"
                 href={getIssueTrackerUrl(alertSummary)}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -233,7 +232,7 @@ const AlertHeader = ({
           Duplicated summaries:
           {alertSummary.duplicated_summaries_ids.map((id, index) => (
             <Link
-              className="text-dark mr-1"
+              className="text-dark me-1"
               target="_blank"
               to={`./alerts?id=${id}&hideDwnToInv=0`}
               id={`duplicated alert summary ${id.toString()} `}
@@ -277,7 +276,7 @@ const AlertHeader = ({
             </Col>
             <Col xs="3" className="p-0">
               <Button
-                className="ml-1"
+                className="ms-1"
                 size="sm"
                 disabled={
                   alertSummary.original_prev_push_revision ===
@@ -308,7 +307,7 @@ const AlertHeader = ({
             </Col>
             <Col xs="3" className="p-0">
               <Button
-                className="ml-1"
+                className="ms-1"
                 size="sm"
                 disabled={
                   alertSummary.original_revision === alertSummary.revision
@@ -323,7 +322,7 @@ const AlertHeader = ({
             <Col className="p-0">
               <Button
                 variant="primary"
-                className="ml-1"
+                className="ms-1"
                 size="xs"
                 disabled={newRevisionTo === '' && newRevisionFrom === ''}
                 onClick={saveRevision}
@@ -332,7 +331,7 @@ const AlertHeader = ({
               </Button>
               <Button
                 variant="secondary"
-                className="ml-1"
+                className="ms-1"
                 size="xs"
                 onClick={cancelEditMode}
               >

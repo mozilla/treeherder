@@ -85,8 +85,8 @@ class TreeherderDBComparator:
 
             # Get table count
             cursor.execute("""
-                SELECT COUNT(*) as table_count 
-                FROM information_schema.tables 
+                SELECT COUNT(*) as table_count
+                FROM information_schema.tables
                 WHERE table_schema = 'public';
             """)
             table_count = cursor.fetchone()["table_count"]
@@ -117,8 +117,8 @@ class TreeherderDBComparator:
                 cursor.execute(
                     """
                     SELECT EXISTS (
-                        SELECT FROM information_schema.tables 
-                        WHERE table_schema = 'public' 
+                        SELECT FROM information_schema.tables
+                        WHERE table_schema = 'public'
                         AND table_name = %s
                     );
                 """,
@@ -131,14 +131,14 @@ class TreeherderDBComparator:
                 # Get column information
                 cursor.execute(
                     """
-                    SELECT 
+                    SELECT
                         column_name,
                         data_type,
                         is_nullable,
                         column_default,
                         character_maximum_length
                     FROM information_schema.columns
-                    WHERE table_schema = 'public' 
+                    WHERE table_schema = 'public'
                     AND table_name = %s
                     ORDER BY ordinal_position;
                 """,
@@ -432,7 +432,7 @@ def main():
 
     try:
         comparison = comparator.run_comparison()
-        report = comparator.generate_report(comparison, args.output)
+        _report = comparator.generate_report(comparison, args.output)
 
         # Exit with error code if there are significant differences
         has_issues = (

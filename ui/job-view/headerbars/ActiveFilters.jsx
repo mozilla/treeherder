@@ -113,7 +113,7 @@ class ActiveFilters extends React.Component {
           <div>
             <Button
               variant="outline-darker-info"
-              className="pointable bg-transparent border-0 pt-0 pr-1 pb-1"
+              className="pointable bg-transparent border-0 pt-0 pe-1 pb-1"
               title="Clear all of these filters"
               onClick={() => this.clearAndUpdateRange()}
             >
@@ -133,7 +133,7 @@ class ActiveFilters extends React.Component {
                 >
                   <Button
                     variant="outline-darker-info"
-                    className="pointable bg-transparent border-0 py-0 pr-1"
+                    className="pointable bg-transparent border-0 py-0 pe-1"
                     title={`Clear filter: ${filter.field}`}
                     onClick={() =>
                       this.clearAndUpdateRange({

@@ -142,7 +142,7 @@ export default class WatchedRepo extends React.Component {
           {watchedRepo}
         </Link>
         <Dropdown>
-          <Dropdown.Toggle className={`btn-view-nav ${activeClass}`}>
+          <Dropdown.Toggle className={`btn-view-nav ${activeClass} no-caret`}>
             <FontAwesomeIcon
               icon={faInfoCircle}
               title={`${watchedRepo} info`}
