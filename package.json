@@ -129,6 +129,7 @@
     "prettier": "npx prettier --check .",
     "start": "node ./node_modules/webpack/bin/webpack.js serve --mode development",
     "start:stage": "BACKEND=https://treeherder.allizom.org node ./node_modules/webpack/bin/webpack.js serve --mode development",
+    "start:stage:port": "BACKEND=https://treeherder.allizom.org node ./node_modules/webpack/bin/webpack.js serve --mode development --port ${PORT:-5000}",
     "start:local": "BACKEND=http://localhost:8000 node ./node_modules/webpack/bin/webpack.js serve --mode development",
     "test:coverage": "node ./node_modules/jest/bin/jest -w 1 --silent --coverage",
     "test": "node ./node_modules/jest/bin/jest",

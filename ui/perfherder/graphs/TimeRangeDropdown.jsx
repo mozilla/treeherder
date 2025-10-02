@@ -15,16 +15,18 @@ class TimeRangeDropdown extends React.PureComponent {
         title="Time range"
         aria-label="Time range"
       >
-        <Dropdown.Toggle>{timeRangeText}</Dropdown.Toggle>
-        <DropdownMenuItems
-          options={phTimeRanges.map((item) => item.text)}
-          selectedItem={timeRangeText}
-          updateData={(newTimeRangeText) =>
-            updateTimeRange(
-              phTimeRanges.find((item) => item.text === newTimeRangeText),
-            )
-          }
-        />
+        <Dropdown.Toggle variant="secondary">{timeRangeText}</Dropdown.Toggle>
+        <Dropdown.Menu className="overflow-auto dropdown-menu-height">
+          <DropdownMenuItems
+            options={phTimeRanges.map((item) => item.text)}
+            selectedItem={timeRangeText}
+            updateData={(newTimeRangeText) =>
+              updateTimeRange(
+                phTimeRanges.find((item) => item.text === newTimeRangeText),
+              )
+            }
+          />
+        </Dropdown.Menu>
       </Dropdown>
     );
   }

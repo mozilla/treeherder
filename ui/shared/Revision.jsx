@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-regular-svg-icons';
-import { Row, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 import { parseAuthor } from '../helpers/revision';
 
@@ -29,7 +29,7 @@ export function AuthorInitials(props) {
       <span className="text-secondary">
         <FontAwesomeIcon icon={faUser} />
       </span>
-      <span className="ml-1 icon-superscript font-italic font-weight-bold text-secondary user-push-initials">
+      <span className="ms-1 icon-superscript font-italic font-weight-bold text-secondary user-push-initials">
         {initials}
       </span>
     </span>
@@ -81,11 +81,11 @@ export class Revision extends React.PureComponent {
       : 'text-secondary';
 
     return (
-      <Row className="revision flex-nowrap" data-testid="revision">
+      <div className="revision d-flex flex-nowrap" data-testid="revision">
         <span
           onMouseEnter={() => this.showClipboard(true)}
           onMouseLeave={() => this.showClipboard(false)}
-          className="pr-1 text-nowrap"
+          className="pe-1 text-nowrap"
         >
           <Clipboard
             description="full hash"
@@ -122,14 +122,14 @@ export class Revision extends React.PureComponent {
         >
           <span
             data-testid={comment}
-            className={`ml-2 revision-comment overflow-hidden text-truncate ${commentColor} ${commentFont}`}
+            className={`ms-2 revision-comment overflow-hidden text-truncate ${commentColor} ${commentFont}`}
           >
             <span className="text-wrap">
               <BugLinkify id={revision}>{comment}</BugLinkify>
             </span>
           </span>
         </OverlayTrigger>
-      </Row>
+      </div>
     );
   }
 }
