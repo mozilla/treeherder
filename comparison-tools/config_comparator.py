@@ -154,14 +154,14 @@ class TreeherderConfigComparator:
             result = subprocess.run(["python", "--version"], capture_output=True, text=True)
             if result.returncode == 0:
                 config["python_version"] = result.stdout.strip()
-        except:
+        except Exception:
             pass
 
         try:
             result = subprocess.run(["node", "--version"], capture_output=True, text=True)
             if result.returncode == 0:
                 config["node_version"] = result.stdout.strip()
-        except:
+        except Exception:
             pass
 
         return config
@@ -421,7 +421,7 @@ def main():
 
     try:
         comparison = comparator.run_comparison()
-        report = comparator.generate_report(comparison, args.output)
+        _report = comparator.generate_report(comparison, args.output)
 
         # Exit with error code if there are significant differences
         significant_diffs = [

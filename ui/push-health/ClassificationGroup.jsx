@@ -121,12 +121,12 @@ class ClassificationGroup extends React.PureComponent {
           >
             <FontAwesomeIcon
               icon={expandIcon}
-              className="mr-1 min-width-1"
+              className="me-1 min-width-1"
               title={expandTitle}
               aria-label={expandTitle}
               alt=""
             />
-            <FontAwesomeIcon icon={icon} className={`mr-2 text-${iconColor}`} />
+            <FontAwesomeIcon icon={icon} className={`me-2 text-${iconColor}`} />
             {name} ({groupLength})
           </Button>
         </span>
@@ -142,7 +142,7 @@ class ClassificationGroup extends React.PureComponent {
                 <FontAwesomeIcon
                   icon={faRedo}
                   title="Retrigger"
-                  className="mr-2"
+                  className="me-2"
                   alt=""
                 />
                 Retrigger all
@@ -171,7 +171,7 @@ class ClassificationGroup extends React.PureComponent {
             </ButtonGroup>
             <DropdownButton
               size="sm"
-              className="ml-1"
+              className="ms-1"
               title={`Group By: ${groupedBy}`}
               variant="outline-secondary"
               id="groupTestsDropdown"
@@ -200,7 +200,7 @@ class ClassificationGroup extends React.PureComponent {
             </DropdownButton>
             <DropdownButton
               size="sm"
-              className="ml-1"
+              className="ms-1"
               title={`Order By: ${orderedBy}`}
               variant="outline-secondary"
               id="orderTestsDropdown"

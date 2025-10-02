@@ -336,7 +336,7 @@ class TreeherderMasterComparator:
         <h1>Treeherder Master Comparison Report</h1>
         <p>Generated: {master_report["comparison_summary"]["timestamp"]}</p>
     </div>
-    
+
     <div class="summary">
         <h2>Summary</h2>
         <p><strong>Local URL:</strong> {master_report["comparison_summary"]["local_base_url"]}</p>
@@ -346,15 +346,15 @@ class TreeherderMasterComparator:
         <p><strong>Failed:</strong> {master_report["comparison_summary"]["failed_tools"]}</p>
         <p><strong>Success Rate:</strong> {master_report["comparison_summary"]["success_rate"]:.1f}%</p>
     </div>
-    
+
     <div class="recommendations">
         <h2>Recommendations</h2>
         {self.format_recommendations_html(master_report["recommendations"])}
     </div>
-    
+
     <h2>Tool Results</h2>
     {self.format_tool_results_html(master_report["tool_results"])}
-    
+
 </body>
 </html>"""
 
@@ -379,11 +379,11 @@ class TreeherderMasterComparator:
             html += f"""
             <div class="tool-result {success_class}">
                 <h3>{result["tool"].replace("_", " ").title()} - {status}</h3>
-                
+
                 {f"<p><strong>Report File:</strong> {result['report_file']}</p>" if result.get("report_file") else ""}
-                
+
                 {f"<h4>Output:</h4><pre>{result['output']}</pre>" if result.get("output") else ""}
-                
+
                 {f"<h4>Error:</h4><pre>{result['error']}</pre>" if result.get("error") else ""}
             </div>
             """

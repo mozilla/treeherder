@@ -4,7 +4,7 @@
 
 .push-bar {
   border-top: 1px solid black;
-  padding: 2px 0 1px 34px;
+  padding: 2px 0 1px 12px;
   white-space: nowrap;
   display: flex;
   flex-flow: row nowrap;
@@ -72,6 +72,7 @@
   padding-left: 9px;
   padding-right: 10px;
   border: 0;
+  font-size: 12px;
 }
 
 .btn-push:hover {
@@ -154,6 +155,7 @@ fieldset[disabled] .btn-push:hover {
   min-width: 14.5em;
   overflow: hidden;
   vertical-align: top;
+  text-align: left;
 }
 
 .job-row {
@@ -162,6 +164,7 @@ fieldset[disabled] .btn-push:hover {
   white-space: normal;
   word-break: normal;
   padding-top: 0;
+  text-align: left;
   padding-bottom: 0;
 }
 

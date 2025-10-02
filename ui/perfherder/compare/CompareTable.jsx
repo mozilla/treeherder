@@ -153,7 +153,7 @@ export default class CompareTable extends React.Component {
                 )}
                 {onPermalinkClick && (
                   <Button
-                    className="permalink p-0 ml-1"
+                    className="permalink p-0 ms-1"
                     variant="link"
                     onClick={() =>
                       onPermalinkClick(

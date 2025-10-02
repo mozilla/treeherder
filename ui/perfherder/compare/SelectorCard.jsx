@@ -176,7 +176,7 @@ export default class SelectorCard extends React.Component {
           <Card.Body>
             <Card.Subtitle className="pb-2 pt-3">Project</Card.Subtitle>
             <Dropdown
-              className="mr-3 w-25 text-nowrap"
+              className="me-3 w-25 text-nowrap"
               show={buttonDropdownOpen}
               onToggle={() => this.toggle('buttonDropdownOpen')}
             >
@@ -195,7 +195,7 @@ export default class SelectorCard extends React.Component {
                     >
                       <FontAwesomeIcon
                         icon={faCheck}
-                        className={`mr-1 ${
+                        className={`me-1 ${
                           selectedRepo === item.name ? '' : 'hide'
                         }`}
                         title={selectedRepo === item.name ? 'Checked' : ''}
@@ -252,7 +252,7 @@ export default class SelectorCard extends React.Component {
                         >
                           <FontAwesomeIcon
                             icon={faCheck}
-                            className={`mr-1 ${
+                            className={`me-1 ${
                               selectedRevision === item.revision ? '' : 'hide'
                             }`}
                             title={

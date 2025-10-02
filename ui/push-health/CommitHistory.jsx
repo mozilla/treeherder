@@ -84,7 +84,7 @@ class CommitHistory extends React.PureComponent {
           </div>
           <div className="text-secondary mt-1">
             Push
-            <span className="font-weight-bold mr-1 ml-1">
+            <span className="font-weight-bold me-1 ms-1">
               <a
                 href={currentRepo.getRevisionHref(revision)}
                 target="_blank"
@@ -96,7 +96,7 @@ class CommitHistory extends React.PureComponent {
             on
             <span
               data-testid="header-repo"
-              className="d-inline-block text-capitalize font-weight-bold ml-1"
+              className="d-inline-block text-capitalize font-weight-bold ms-1"
             >
               {currentRepo.name}
             </span>
@@ -113,7 +113,7 @@ class CommitHistory extends React.PureComponent {
         </div>
         <div className="commit-area mt-2 text-secondary">
           {revisions.length > 1 && (
-            <div className="ml-3">
+            <div className="ms-3">
               <Revision
                 revision={revisions[1]}
                 repo={currentRepo}
@@ -134,7 +134,7 @@ class CommitHistory extends React.PureComponent {
             />
           )}
           {showParent && (
-            <div className="ml-3">
+            <div className="ms-3">
               Base commit:
               <span>
                 {!exactMatch && (
@@ -157,7 +157,7 @@ class CommitHistory extends React.PureComponent {
                     rel="noopener noreferrer"
                     title="View this push"
                     data-testid="parent-commit-sha"
-                    className="mr-1 ml-1 font-weight-bold text-secondary"
+                    className="me-1 ms-1 font-weight-bold text-secondary"
                   >
                     {parentPushRevision || parentSha}
                   </a>
@@ -183,7 +183,7 @@ class CommitHistory extends React.PureComponent {
             <Button
               onClick={this.toggleDetails}
               variant="outline-secondary"
-              className="border-0 pl-0 shadow-none"
+              className="border-0 ps-0 shadow-none"
               role="button"
               aria-expanded={isExpanded}
             >
@@ -193,7 +193,7 @@ class CommitHistory extends React.PureComponent {
                 aria-label={expandTitle}
                 alt=""
               />
-              <span className="ml-1 font-weight-bold">{expandText}</span>
+              <span className="ms-1 font-weight-bold">{expandText}</span>
             </Button>
           </span>
         )}

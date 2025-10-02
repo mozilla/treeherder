@@ -153,7 +153,7 @@ class PushList extends React.Component {
         {repoName &&
           pushList.map((push) => (
             <ErrorBoundary
-              errorClasses="pl-2 border-top border-bottom border-dark d-block"
+              errorClasses="ps-2 border-top border-bottom border-dark d-block"
               message={`Error on push with revision ${push.revision}: `}
               key={push.id}
             >

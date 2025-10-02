@@ -11,7 +11,7 @@ export default function ErrorsList(props) {
         rel="noopener noreferrer"
         href={error.logViewerUrl}
       >
-        <span className="ml-1">View log</span>
+        <span className="ms-1">View log</span>
       </a>
     </li>
   ));
