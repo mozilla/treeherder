@@ -774,7 +774,6 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
     mann_whitney_test = StatisticsTestSerializer(many=False)
     cliffs_delta = PerfCompareDecimalField()
     cliffs_interpretation = serializers.CharField(default="")
-    mann_pvalue = PerfCompareDecimalField()
     silverman_kde = SilvermanKDESerializer(many=False, default=None)
     kde_base = KDESerializer(many=False, required=False)
     kde_new = KDESerializer(many=False, required=False)
@@ -839,7 +838,6 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
             "mann_whitney_test",
             "cliffs_delta",
             "cliffs_interpretation",
-            "mann_pvalue",
             "cles",
             "silverman_kde",
             "kde_new",

@@ -1531,35 +1531,39 @@ class PerfCompareResults(generics.ListAPIView):
             },
             "delta_value": delta_value,
             "delta_percentage": delta_percentage,
-            "mann_pvalue": float(mann_pvalue) if mann_pvalue else None,
-            # i.i.d tests
+            # i.i.d tests: Shapiro-Wilk, Kolmogorov-Smirnov and Mann-Whitney
+            # Shapiro-Wilk: Normality test
             "shapiro_wilk_test_base": shapiro_results_base,
             "shapiro_wilk_test_new": shapiro_results_new,
             "shapiro_wilk_warnings": shapiro_warning,
+            # Kolmogorov-Smirnov: Test for goodness of fit
             "ks_test": ks_test,
             "ks_warning": ks_warning,
+            # Mann-Whitney-U: Tests the null hypothesis, calculate P-Value
             "mann_whitney_test": mann_whitney,
             # cliffs delta
             "cliffs_delta": c_delta,
             "cliffs_interpretation": cliffs_interpretation,
             "warning_c_delta": c_warning,
+            # CLES: Common Language Effect Size, a lot of interpretation esp from Mann-Whitney U
+            "cles": cles_obj,
+            # Silverman KDE multimodal warnings and confidence interval
+            "silverman_warnings": warning_msgs,
+            "silverman_kde": silverman_kde,
+            # KDE plots and summary plot with ISJ bandwidth
+            "kde_base": kde_isj_plot_base,
+            "kde_new": kde_isj_plot_new,
+            "kde_summary_text": isj_kde_summary_text,
+            # short form summary based on former tests shapiro, silverman, etc...
             "is_fit_good": is_fit_good,
             "is_new_better": is_new_better,
             "is_significant": is_significant,
             "lower_is_better": lower_is_better,
             "is_regression": is_regression,
-            "performance_intepretation": performance_intepretation,
             "is_improvement": is_improvement,
             "more_runs_are_needed": more_runs_are_needed,
+            "performance_intepretation": performance_intepretation,
             "direction_of_change": direction,  # 'neutral', 'better', or 'worse'
-            "silverman_warnings": warning_msgs,
-            "silverman_kde": silverman_kde,
-            # CLES
-            "cles": cles_obj,
-            # KDE plots and summary
-            "kde_base": kde_isj_plot_base,
-            "kde_new": kde_isj_plot_new,
-            "kde_summary_text": isj_kde_summary_text,
         }
 
         return stats_data
