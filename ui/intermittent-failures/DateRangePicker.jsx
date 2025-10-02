@@ -91,7 +91,7 @@ export default class DateRangePicker extends React.Component {
           isOutsideRange={(day) => moment().diff(day) < 0}
           phrases={defaultPhrases}
         />
-        <Button variant="secondary" className="ml-3" onClick={this.updateData}>
+        <Button variant="secondary" className="ms-3" onClick={this.updateData}>
           update
         </Button>
       </div>

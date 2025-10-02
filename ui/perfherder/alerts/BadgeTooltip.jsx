@@ -23,7 +23,7 @@ export default class BadgeTooltip extends React.Component {
         overlay={<Tooltip className={innerClassName}>{tooltipText}</Tooltip>}
       >
         <span className={`${textClass} pb-1`}>
-          <Badge bg="light" data-testid="alert-noise-profile">
+          <Badge bg="light" text="dark" data-testid="alert-noise-profile">
             {text}
           </Badge>
         </span>

@@ -12,7 +12,7 @@ const TagsList = ({ tags }) => {
         placement="top"
         overlay={<Tooltip>{tooltipMessages[tag]}</Tooltip>}
       >
-        <Badge className="mr-2" pill>
+        <Badge className="me-2" pill>
           <span data-testid={`performance-tag ${tag}`}>{tag}</span>
         </Badge>
       </OverlayTrigger>

@@ -584,7 +584,7 @@ export default class TestDataModal extends React.Component {
                         <Badge
                           id={`active-tag-${index}`}
                           data-testid={`active-tag ${tag}`}
-                          className="mr-2 btn btn-darker-secondary"
+                          className="me-2 btn btn-darker-secondary"
                           role="button"
                           title="Click to remove tag"
                           pill

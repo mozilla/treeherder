@@ -698,7 +698,7 @@ class Push extends React.PureComponent {
         />
         <div className="push-body-divider" />
         {!collapsed ? (
-          <Row className="push g-0">
+          <Row className="push g-0 flex-nowrap ms-4">
             {currentRepo ? (
               <>
                 <Col xs={5}>
@@ -708,7 +708,7 @@ class Push extends React.PureComponent {
                     revisionCount={revisionCount}
                     repo={currentRepo}
                     bugSummaryMap={bugSummaryMap}
-                    widthClass="ms-4 mb-3"
+                    widthClass="mb-3"
                     commitShaClass="text-monospace"
                   >
                     {showPushHealthSummary && pushHealthStatus && (

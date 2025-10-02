@@ -76,18 +76,18 @@ class PlatformConfig extends React.PureComponent {
 
     return (
       <Row
-        className="ml-5 pt-2 mr-1"
+        className="ms-5 pt-2 me-1"
         key={jobName}
         style={{ background: '#f2f2f2' }}
       >
-        <Row className="ml-2 pl-2 w-100 mb-2 justify-content-between">
+        <Row className="ms-2 ps-2 w-100 mb-2 justify-content-between">
           {children}
-          <Col className="ml-2">
+          <Col className="ms-2">
             {taskList.map((task, idx) => {
               const { id, result, state, start_time: startTime } = task;
               const isSelected = selectedTask && selectedTask.id === id;
               return (
-                <span key={id} className="mr-3">
+                <span key={id} className="me-3">
                   <SimpleTooltip
                     text={
                       <Button
@@ -123,7 +123,7 @@ class PlatformConfig extends React.PureComponent {
             <Button
               onClick={() => this.retriggerTask(taskList[0])}
               variant="outline"
-              className="mr-2 border-0"
+              className="me-2 border-0"
               title="Retrigger task"
               style={{ lineHeight: '10px' }}
             >

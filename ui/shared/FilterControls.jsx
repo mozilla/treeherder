@@ -15,11 +15,11 @@ export const createDropdowns = (dropdownOptions, colClass) => (
         key={`dropdown ${dropdown.namespace || ''}${dropdown.selectedItem}`}
       >
         <Dropdown
-          className="mr-0 text-nowrap"
+          className="me-0 text-nowrap"
           title={dropdown.title}
           aria-label={dropdown.title}
         >
-          <Dropdown.Toggle variant="outline-secondary">
+          <Dropdown.Toggle variant="secondary">
             {dropdown.selectedItem}
           </Dropdown.Toggle>
           <Dropdown.Menu className="overflow-auto dropdown-menu-height">
@@ -62,15 +62,15 @@ const FilterControls = ({
     <Container fluid className="my-3 px-0">
       {!dropdownCol && dropdownOptions.length > 0 && (
         <Row className="p-3 justify-content-left">
-          {createDropdowns(dropdownOptions, 'py-0 pl-0 pr-3')}
+          {createDropdowns(dropdownOptions, 'py-0 ps-0 pe-3')}
         </Row>
       )}
-      <Row className="pb-3 pl-3 justify-content-left">
+      <Row className="pb-3 ps-3 justify-content-left">
         {dropdownCol &&
           dropdownOptions.length > 0 &&
-          createDropdowns(dropdownOptions, 'py-2 pl-0 pr-3')}
+          createDropdowns(dropdownOptions, 'py-2 ps-0 pe-3')}
 
-        <Col className="col-2 py-2 pl-0 pr-2">
+        <Col className="col-2 py-2 ps-0 pe-2">
           <InputFilter
             filteredTextValue={filteredTextValue}
             updateFilterText={updateFilterText}
