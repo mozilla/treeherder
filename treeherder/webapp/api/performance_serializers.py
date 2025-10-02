@@ -709,8 +709,6 @@ class CLESSerializer(serializers.Serializer):
 class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
     base_rev = serializers.CharField()
     new_rev = serializers.CharField()
-    base_rev_data = serializers.ListField(child=PerfCompareDecimalField(), default=[])
-    new_rev_data = serializers.ListField(child=PerfCompareDecimalField(), default=[])
     base_app = serializers.CharField(
         max_length=10,
         default="",
@@ -789,8 +787,6 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
         fields = [
             "base_rev",
             "new_rev",
-            "base_rev_data",
-            "new_rev_data",
             "base_app",
             "new_app",
             "base_standard_stats",
