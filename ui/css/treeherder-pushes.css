@@ -39,7 +39,7 @@
   margin-left: 0;
   margin-top: 2px;
   white-space: normal;
-  width: 100%;
+  /* Removed width: 100% to allow Bootstrap grid to work properly */
 }
 
 .push-counts {
@@ -103,17 +103,17 @@ fieldset[disabled] .btn-push:hover {
 }
 
 .push .job-list-pad {
-  padding-right: 0;
+  /* Bootstrap 5 handles column padding, removed custom padding */
 }
 
 .push .job-list-nopad {
   padding-left: 20px;
   padding-right: 0;
-  display: block;
+  /* Removed display: block to allow Bootstrap grid to control layout */
 }
 
 .push .revision-list {
-  padding-left: 15px;
+  /* Bootstrap 5 handles column padding, removed custom padding */
 }
 
 /*

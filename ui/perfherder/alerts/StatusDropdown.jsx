@@ -362,7 +362,7 @@ export default class StatusDropdown extends React.Component {
                   <Dropdown.Toggle variant="secondary">
                     {selectedValue}
                   </Dropdown.Toggle>
-                  <Dropdown.Menu>
+                  <Dropdown.Menu className="overflow-auto dropdown-menu-height">
                     <DropdownMenuItems
                       updateData={(selectedValue) =>
                         this.setState({ selectedValue })
@@ -435,8 +435,8 @@ export default class StatusDropdown extends React.Component {
           <Dropdown.Toggle className="btn-xs" variant="secondary">
             {getStatus(alertSummary.status)}
           </Dropdown.Toggle>
-          <Dropdown.Menu>
-            <Dropdown.Item as="a" onClick={() => this.copySummary()}>
+          <Dropdown.Menu className="overflow-auto dropdown-menu-height">
+            <Dropdown.Item as="a" onClick={this.copySummary}>
               Copy Summary
             </Dropdown.Item>
             <Dropdown.Item as="a" onClick={() => this.copySummary(true)}>

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Row, Button, Container } from 'react-bootstrap';
+import { Button, Container } from 'react-bootstrap';
 
 import FilterControls from '../../shared/FilterControls';
 import { summaryStatusMap, scrollTypes } from '../perf-helpers/constants';
@@ -230,14 +230,14 @@ export default class AlertsViewControls extends React.Component {
         />
         {pageNums
           ? hasMorePages() && (
-              <Row className="justify-content-center">
+              <div className="d-flex justify-content-center">
                 <PaginationGroup
                   viewablePageNums={pageNums}
                   updateParams={validated.updateParams}
                   currentPage={page}
                   count={count}
                 />
-              </Row>
+              </div>
             )
           : null}
         {alertSummaries.length > 0 &&
@@ -258,14 +258,14 @@ export default class AlertsViewControls extends React.Component {
           ))}
         {pageNums
           ? hasMorePages() && (
-              <Row className="justify-content-center">
+              <div className="d-flex justify-content-center">
                 <PaginationGroup
                   viewablePageNums={pageNums}
                   updateParams={validated.updateParams}
                   currentPage={page}
                   count={count}
                 />
-              </Row>
+              </div>
             )
           : null}
       </React.Fragment>

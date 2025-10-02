@@ -75,7 +75,7 @@ class SelectAlertsDropdown extends React.Component {
             className="d-flex mt-1"
             disabled={!user.isStaff}
           />
-          <Dropdown.Menu>
+          <Dropdown.Menu className="overflow-auto dropdown-menu-height">
             <Dropdown.Header>Check alerts</Dropdown.Header>
             <Dropdown.Item onClick={() => this.selectAlertsByStatus(all)}>
               All
