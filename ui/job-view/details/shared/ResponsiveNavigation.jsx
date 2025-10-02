@@ -74,9 +74,13 @@ const ResponsiveNavigation = ({
   const renderOverflowItem = (item, index) => {
     // Clone the item and extract relevant content for dropdown
     if (React.isValidElement(item)) {
-      const content = item.props.children;
-      const onClick = item.props.onClick;
-      const title = item.props.title || item.props['aria-label'] || '';
+      const {
+        children: content,
+        onClick,
+        title: itemTitle,
+        'aria-label': ariaLabelProp,
+      } = item.props;
+      const title = itemTitle || ariaLabelProp || '';
 
       return (
         <Dropdown.Item
@@ -102,7 +106,11 @@ const ResponsiveNavigation = ({
       {React.Children.map(visibleItems, (child, index) =>
         React.cloneElement(child, {
           className: `${child.props.className || ''} nav-item`,
-          key: index,
+          key:
+            child.key ||
+            child.props.title ||
+            child.props['aria-label'] ||
+            `nav-item-${index}`,
         }),
       )}
 

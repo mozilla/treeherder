@@ -31,7 +31,7 @@ export default function TiersMenu(props) {
             >
               <FontAwesomeIcon
                 icon={faCheck}
-                className={`mr-1 ${shownTiers.includes(tier) ? '' : 'hide'}`}
+                className={`me-1 ${shownTiers.includes(tier) ? '' : 'hide'}`}
                 title={
                   isOnlyTier
                     ? 'Must have at least one tier selected at all times'

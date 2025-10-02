@@ -112,7 +112,7 @@ class Login extends React.Component {
               caret
             >
               <span
-                className="bg-info px-1 mr-1 rounded text-light"
+                className="bg-info px-1 me-1 rounded text-light"
                 aria-label={`Logged in as: ${user.email}`}
               >
                 <FontAwesomeIcon icon={faUser} size="xs" />

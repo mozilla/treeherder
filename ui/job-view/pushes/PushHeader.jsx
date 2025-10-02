@@ -50,7 +50,7 @@ function PushCounts(props) {
     <div>
       {fixedByCommit >= 1 && (
         <span
-          className="badge badge-warning ml-1"
+          className="badge badge-warning ms-1"
           title="Count of Fixed By Commit tasks for this push"
         >
           {fixedByCommit}
@@ -246,7 +246,7 @@ class PushHeader extends React.Component {
               <FontAwesomeIcon
                 onClick={togglePushCollapsed}
                 icon={collapsed ? faPlusSquare : faMinusSquare}
-                className="mr-2 mt-2 text-muted pointable"
+                className="pe-3 mt-2 text-muted pointable"
                 title={`${collapsed ? 'Expand' : 'Collapse'} push data`}
               />
               <span>

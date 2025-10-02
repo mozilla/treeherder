@@ -49,26 +49,19 @@ class SelectAlertsDropdown extends React.Component {
 
     return (
       <React.Fragment>
-        <Form.Label className="pl-1 mr-1">
-          <Form.Control
-            data-testid={`alert summary ${alertSummaryId} checkbox`}
-            type="checkbox"
-            checked={allSelected}
-            disabled={!user.isStaff}
-            onChange={() => {
-              return allSelected
-                ? this.selectAlertsByStatus(none)
-                : this.selectAlertsByStatus(all);
-            }}
-            style={{
-              marginTop: '0',
-              verticalAlign: 'top',
-              position: 'relative',
-              height: '1.5em',
-            }}
-          />
-        </Form.Label>
-        <Dropdown size="sm" className="mr-2">
+        <Form.Check
+          className="ps-1 me-1"
+          data-testid={`alert summary ${alertSummaryId} checkbox`}
+          type="checkbox"
+          checked={allSelected}
+          disabled={!user.isStaff}
+          onChange={() => {
+            return allSelected
+              ? this.selectAlertsByStatus(none)
+              : this.selectAlertsByStatus(all);
+          }}
+        />
+        <Dropdown size="sm" className="me-2">
           <Dropdown.Toggle
             variant="secondary"
             aria-label="alert selection options"

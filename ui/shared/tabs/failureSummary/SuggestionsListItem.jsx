@@ -178,7 +178,7 @@ export default class SuggestionsListItem extends React.Component {
           ) : (
             <span>
               <Button
-                className="bg-light py-1 px-2 mr-2"
+                className="bg-light py-1 px-2 me-2"
                 variant="outline-secondary"
                 style={{ fontSize: '8px' }}
                 onClick={() => toggleInternalIssueFiler(suggestion)}
@@ -225,11 +225,11 @@ export default class SuggestionsListItem extends React.Component {
                 <img
                   alt="Logviewer"
                   src={logviewerIcon}
-                  className="logviewer-icon ml-1"
+                  className="logviewer-icon ms-1"
                 />
               </a>
               <Button
-                className="bg-light py-1 px-2 ml-2"
+                className="bg-light py-1 px-2 ms-2"
                 variant="outline-secondary"
                 style={{ fontSize: '8px' }}
                 onClick={() => toggleBugFiler(suggestion)}
