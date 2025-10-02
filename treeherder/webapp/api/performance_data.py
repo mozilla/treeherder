@@ -1507,8 +1507,6 @@ class PerfCompareResults(generics.ListAPIView):
         )
 
         stats_data = {
-            "base_rev_data": base_rev_data,
-            "new_rev_data": new_rev_data,
             "base_standard_stats": {
                 "count": base_count,
                 "min": base_min,

@@ -210,6 +210,7 @@ def interpret_ks_test(base, new, pvalue_threshold):
         ks_test = {
             "test_name": "Kolmogorov-Smirnov",
             "stat": float(ks_stat) if ks_stat else None,
+            "pvalue": float(ks_p) if ks_p else None,
             "interpretation": ks_comment,
         }
         is_fit_good = True
