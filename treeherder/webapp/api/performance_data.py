@@ -1561,7 +1561,7 @@ class PerfCompareResults(generics.ListAPIView):
             "kde_new": kde_isj_plot_new,
             "kde_summary_text": isj_kde_summary_text,
         }
-        print(stats_data, "stats_data")
+
         return stats_data
 
 
