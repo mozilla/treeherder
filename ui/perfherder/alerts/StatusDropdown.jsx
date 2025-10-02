@@ -368,7 +368,7 @@ The following [documentation link](https://firefox-source-docs.mozilla.org/testi
                   <Dropdown.Toggle variant="secondary">
                     {selectedValue}
                   </Dropdown.Toggle>
-                  <Dropdown.Menu>
+                  <Dropdown.Menu className="overflow-auto dropdown-menu-height">
                     <DropdownMenuItems
                       updateData={(selectedValue) =>
                         this.setState({ selectedValue })
@@ -441,7 +441,7 @@ The following [documentation link](https://firefox-source-docs.mozilla.org/testi
           <Dropdown.Toggle className="btn-xs" variant="secondary">
             {getStatus(alertSummary.status)}
           </Dropdown.Toggle>
-          <Dropdown.Menu>
+          <Dropdown.Menu className="overflow-auto dropdown-menu-height">
             <Dropdown.Item as="a" onClick={this.copySummary}>
               Copy Summary
             </Dropdown.Item>

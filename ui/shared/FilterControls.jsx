@@ -19,10 +19,10 @@ export const createDropdowns = (dropdownOptions, colClass) => (
           title={dropdown.title}
           aria-label={dropdown.title}
         >
-          <Dropdown.Toggle variant="secondary">
+          <Dropdown.Toggle variant="outline-secondary">
             {dropdown.selectedItem}
           </Dropdown.Toggle>
-          <Dropdown.Menu>
+          <Dropdown.Menu className="overflow-auto dropdown-menu-height">
             <DropdownMenuItems
               pinned={dropdown.pinnedProjects || dropdown.pinned}
               otherPinned={dropdown.otherPinned}
@@ -49,7 +49,7 @@ const FilterControls = ({
 }) => {
   const createButton = (filter) => (
     <Button
-      variant="outline-darker-info"
+      variant="outline-secondary"
       onClick={() => updateFilter(filter.stateName)}
       active={filter.state}
       disabled={filter.disable}
