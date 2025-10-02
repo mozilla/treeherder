@@ -141,7 +141,7 @@ const AlertHeader = ({
             >
               {formattedSummaryRevision}
             </Dropdown.Toggle>
-            <Dropdown.Menu>
+            <Dropdown.Menu className="overflow-auto dropdown-menu-height">
               <Dropdown.Item
                 tag="a"
                 className="text-dark"

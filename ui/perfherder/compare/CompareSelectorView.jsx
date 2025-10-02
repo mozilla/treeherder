@@ -5,7 +5,7 @@ import {
   Row,
   Button,
   ButtonGroup,
-  DropdownButton,
+  Dropdown,
   Alert,
 } from 'react-bootstrap';
 
@@ -128,11 +128,13 @@ export default class CompareSelectorView extends React.Component {
               </Col>
             </Row>
             <Row className="justify-content-center">
-              <Alert variant="info">
-                Compare View will be deprecated soon. Please consider using{' '}
-                <a href="https://perf.compare/">PerfCompare</a> as an
-                alternative.
-              </Alert>
+              <Col sm="auto">
+                <Alert variant="info">
+                  Compare View will be deprecated soon. Please consider using{' '}
+                  <a href="https://perf.compare/">PerfCompare</a> as an
+                  alternative.
+                </Alert>
+              </Col>
             </Row>
             <Row className="justify-content-center">
               {showWarning && (
@@ -168,15 +170,20 @@ export default class CompareSelectorView extends React.Component {
             </Row>
 
             <Row className="justify-content-center pt-3">
-              <Col sm="8" className="text-right px-1">
+              <Col sm="8" className="d-flex justify-content-end px-1">
                 <ButtonGroup>
-                  <DropdownButton title={frameworkName} variant="secondary">
-                    <DropdownMenuItems
-                      options={frameworkNames}
-                      selectedItem={frameworkName}
-                      updateData={this.updateFramework}
-                    />
-                  </DropdownButton>
+                  <Dropdown>
+                    <Dropdown.Toggle variant="secondary">
+                      {frameworkName}
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu className="overflow-auto dropdown-menu-height">
+                      <DropdownMenuItems
+                        options={frameworkNames}
+                        selectedItem={frameworkName}
+                        updateData={this.updateFramework}
+                      />
+                    </Dropdown.Menu>
+                  </Dropdown>
                   <Button
                     variant="darker-info"
                     onClick={

@@ -11,6 +11,7 @@ import {
   faTimesCircle,
   faCrosshairs,
   faGaugeHigh,
+  faAngleDoubleRight,
 } from '@fortawesome/free-solid-svg-icons';
 
 import {

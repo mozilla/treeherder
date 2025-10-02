@@ -524,7 +524,12 @@ export default class TestDataModal extends React.Component {
               )}
               <Col sm="auto" className="p-2">
                 <Button
-                  variant="outline-darker-info"
+                  variant="outline-secondary"
+                  className={
+                    includeSubtests
+                      ? 'bg-darker-info text-white'
+                      : 'text-darker-info'
+                  }
                   onClick={() =>
                     this.setState(
                       { includeSubtests: !includeSubtests },
@@ -657,8 +662,8 @@ export default class TestDataModal extends React.Component {
                 )}
               </Col>
             </Row>
-            <Row className="p-2">
-              <Col className="py-2 px-0 text-right">
+            <Row className="p-2 justify-content-end">
+              <Col sm="auto" className="py-2 px-0">
                 <Button
                   variant="darker-info"
                   disabled={!selectedTests.length}
