@@ -4,6 +4,8 @@ from collections import defaultdict
 from urllib.parse import urlencode
 
 import django_filters
+import numpy as np
+from cliffs_delta import cliffs_delta
 from django.conf import settings
 from django.db import transaction
 from django.db.models import Case, CharField, Count, Q, Subquery, Value, When
@@ -12,6 +14,7 @@ from rest_framework import exceptions, filters, generics, pagination, viewsets
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
+import treeherder.perf.stats as stats
 from treeherder.etl.common import to_timestamp
 from treeherder.model import models
 from treeherder.perf.alerts import get_alert_properties
@@ -36,6 +39,7 @@ from .performance_serializers import (
     PerfAlertSummaryTasksQueryParamSerializer,
     PerfCompareResultsQueryParamsSerializer,
     PerfCompareResultsSerializer,
+    PerfCompareResultsSerializerV2,
     PerformanceAlertSerializer,
     PerformanceAlertSummarySerializer,
     PerformanceAlertSummaryTasksSerializer,
@@ -915,6 +919,13 @@ class PerfCompareResults(generics.ListAPIView):
     serializer_class = PerfCompareResultsSerializer
     queryset = None
 
+    def get_serializer_class(self):
+        if self.request.query_params.get("test_version") == "Student-T":
+            return PerfCompareResultsSerializer
+        if self.request.query_params.get("test_version") == "Mann-Whitney-U":
+            return PerfCompareResultsSerializerV2
+        return PerfCompareResultsSerializer
+
     def list(self, request):
         query_params = PerfCompareResultsQueryParamsSerializer(data=request.query_params)
         if not query_params.is_valid():
@@ -1104,10 +1115,7 @@ class PerfCompareResults(generics.ListAPIView):
                     "new_median_value": new_median_value,
                     "base_stddev": base_stddev,
                     "new_stddev": new_stddev,
-                    "base_stddev_pct": base_stddev_pct,
-                    "new_stddev_pct": new_stddev_pct,
-                    "base_retriggerable_job_ids": base_grouped_job_ids.get(base_sig_id, []),
-                    "new_retriggerable_job_ids": new_grouped_job_ids.get(new_sig_id, []),
+                    # previous stats
                     "confidence": confidence,
                     "confidence_text": confidence_text,
                     "delta_value": delta_value,
@@ -1130,6 +1138,10 @@ class PerfCompareResults(generics.ListAPIView):
                     "is_improvement": is_improvement,
                     "is_regression": is_regression,
                     "is_meaningful": is_meaningful,
+                    "base_stddev_pct": base_stddev_pct,
+                    "new_stddev_pct": new_stddev_pct,
+                    "base_retriggerable_job_ids": base_grouped_job_ids.get(base_sig_id, []),
+                    "new_retriggerable_job_ids": new_grouped_job_ids.get(new_sig_id, []),
                     "base_parent_signature": base_sig.get("parent_signature_id", None),
                     "new_parent_signature": new_sig.get("parent_signature_id", None),
                     "base_signature_id": base_sig_id,
@@ -1137,7 +1149,14 @@ class PerfCompareResults(generics.ListAPIView):
                     "has_subtests": (
                         base_sig.get("has_subtests", None) or new_sig.get("has_subtests", None)
                     ),
+                    "new_stats": self._process_stats(
+                        base_rev,
+                        new_rev,
+                        header,
+                        lower_is_better,
+                    ),
                 }
+
                 self.queryset.append(row_result)
 
         serializer = self.get_serializer(self.queryset, many=True)
@@ -1340,6 +1359,233 @@ class PerfCompareResults(generics.ListAPIView):
             platforms.append(platform)
 
         return signatures_map, header_names, platforms
+
+    """
+    _process_new_stats does the following for base and new:
+    1. calculate basic statistics, mean, median, variance, standard deviation, average, min, max
+    2. Runs a Shapiro-Wilk normality test, is it normal and interpretation
+    3. Runs a Kolmogorov-Smirnov test for goodness of fit, is fit good and interpretation
+    4. Runs a Mann-Whitney U test test null hypothesis, data between two base and new, calculates p-value
+    5. Calculate Cliff's delta and interpretation, check if new is better than base based on delta and lower_is_better
+    6. Interpret Common Language Effect Size, with p-value and p-threshold (.05), calculate statistical effect and significance with what level of confidence interval
+    7. Estimate out KDE with Silverman bandwidth, check if multimodal or irregular, calc interpretation if regressed, improved, or neutral
+    8. Plot KDE with ISJ bandwidth to reduce smoothing
+
+    return object:
+
+    {
+            "base_rev_stats": { name, data, header, title, info_link, sample_count, mean, median, variance, standard_deviation, min, max },
+            "new_rev_stats": new_rev_info,
+            "shapiro_wilk_test": {
+                "test_name": "Shapiro-Wilk",
+                "shapiro_stat_base",
+                "pvalue_base",
+                "interpretation_base",
+                "is_normal_base",
+                "shapiro_stat_new",
+                "pvalue_new",
+                "interpretation_new",
+                "is_normal_new",
+            },
+            "ks_test": {
+                "test_name": "Kolmogorov-Smirnov",
+                "stat": ks_stat,
+                "pvalue": ks_p,
+                "comment": ks_comment,
+            },
+            "ks_warning": ks_warning,
+            "mann_whitney_test": { "test_name": "Mann-Whitney U", "stat": mann_stat, "pvalue": mann_pvalue, "interpretation": interpretation_mann },
+            "base_median": base_median,
+            "new_median": new_median,
+            "delta_value": delta_value,
+            "delta_percentage": delta_percentage,
+            "mann_pvalue": mann_pvalue,
+            "cliffs_delta": cliffs_delta,
+            "cliffs_interpretation": cliffs_interpretation,
+            "cliffs_direction": cliffs_direction,
+            "is_fit_good": is_fit_good,
+            "is_new_better": is_new_better,
+            "is_regression": is_regression,
+            "is_improvement": is_improvement,
+            "more_runs_are_needed": more_runs_are_needed,
+            "direction_of_change": direction,  # 'neutral', 'better', or 'worse'
+            "performance_interpretation": performance_interpretation,
+            "dke_isj_plot": {
+                "bandwidth": "Improved Sheather-Jones",
+                "kernel": "Gaussian",
+                "title": "Distribution Comparison Kernel Density Estimate (KDE)",
+                "xlabel": "Value",
+                "ylabel": "Density",
+                "summary_text": summary_text,
+                "base_kde": {
+                    "median": base_median,
+                    "sample_count": len(base),
+                    "kde_x": kde_x_base,
+                    "kde_y": kde_y_base,
+                },
+                "new_kde_plot": {
+                    "median": new_median,
+                    "sample_count": len(new),
+                    "kde_x": kde_x_new,
+                    "kde_y": kde_y_new,
+                },
+            },
+            "silverman_warnings": warning_msgs,
+            "silverman_kde": {
+                "bandwidth": "Silverman",
+                "base_mode_count": base_mode_count,
+                "base_peak_locs": base_peak_locs,
+                "base_prom": base_prom,
+                "new_mode_count": new_mode_count,
+                "new_peak_locs": new_peak_locs,
+                "new_prom": new_prom,
+                "mode_comments": [
+                    f"Estimated modes (Base): {base_mode_count} (location: {base_peak_locs}, prominence: {base_prom})",
+                    f"Estimated modes (New): {new_mode_count} (location: {new_peak_locs}, prominence: {new_prom})",
+                ],
+                "warnings": warning_msgs,
+                "mode_summary": mode_summary,
+                "median_shift_summary": median_shift_summary,
+                "ci_low": ci_low,
+                "ci_high": ci_high,
+                "shift": shift,
+                "shift_summary": ci_intepretation,
+                "is_regression": is_regression,
+                "is_improvement": is_improvement,
+                "ci_warning": ci_warning,
+            },
+            "cles": cles,
+            "cles_direction": cles_direction,
+            "effect_size": effect_size,
+            "cles_explanation": cles_explanation,
+            "cles_interpretations": [
+                f"**Mann-Whitney U Common Language Effect Size**: {cles_direction}",
+                f"**p-value**: {mann_pvalue:.3f}, {'not' if mann_pvalue > pvalue_threshold else ''} significant",
+                f"**Cliff's Delta**: {delta:.2f} → {interpretation}",
+            ],
+            "is_significant": is_significant,
+        },
+    }
+    """
+
+    @staticmethod
+    def _process_stats(
+        base_rev,
+        new_rev,
+        header,
+        lower_is_better,
+        remove_outliers=stats.ENABLE_REMOVE_OUTLIERS,
+        pvalue_threshold=stats.PVALUE_THRESHOLD,
+    ):
+        # extract data, potentially removing outliers
+        if remove_outliers:
+            base_rev = stats.remove_outliers(base_rev.flatten())
+            new_rev = stats.remove_outliers(new_rev.flatten())
+        else:
+            base_rev = base_rev.flatten()
+            new_rev = new_rev.flatten()
+
+        # get basic statistics for both base and new with mean, median, variance, standard deviation, average, min, max
+
+        base_rev_info, new_rev_info = stats.summarize_basic_stats_data(base_rev, new_rev, header)
+
+        # Basic statistics, normality test"
+        # Shapiro-Wilk test
+        # Statistical test for normality — checks whether a dataset is normally distributed.
+        # <https://en.wikipedia.org/wiki/Shapiro%E2%80%93Wilk_test>
+        # Is both a classic Gaussian distribution or classic bell curve
+        shapiro_results = stats.interpret_normality_shapiro_wilk(
+            base_rev, new_rev, pvalue_threshold
+        )
+
+        # Kolmogorov-Smirnov test for goodness of fit
+        ks_test, is_fit_good, ks_warning = stats.interpret_ks_test(
+            base_rev, new_rev, pvalue_threshold
+        )
+
+        # Mann-Whitney U test, two sided because we're never quite sure what of
+        # the intent of the patch, as things stand
+        # Tests the null hypothesis that the distributions of the two are identical
+        mann_whitney, mann_stat, mann_pvalue = stats.interpret_mann_whitneyu(base_rev, new_rev)
+
+        base_median = np.median(base_rev)
+        new_median = np.median(new_rev)
+        delta_value = new_median - base_median
+        delta_percentage = (delta_value / base_median * 100) if base_median != 0 else 0
+
+        # Cliff's delta to take into account effect size:
+        # https://www.researchgate.net/post/What_is_the_most_appropriate_effect_size_type_for_mann_whitney_u_analysis
+        # https://www.researchgate.net/publication/262763337_Cliff's_Delta_Calculator_A_non-parametric_effect_size_program_for_two_groups_of_observations
+        # https://stats.stackexchange.com/questions/450495/cliffs-delta-in-python
+        # https://github.com/neilernst/cliffsDelta
+        c_delta, _ = cliffs_delta(base_rev, new_rev)
+        cliffs_interpretation = stats.interpret_effect_size(c_delta)
+        direction, is_new_better = stats.is_new_better(delta_value, lower_is_better)
+
+        # Interpret effect size
+        effect_size = stats.interpret_effect_size(c_delta)
+
+        # returns CLES, direction
+        cles, is_significant, cles_explanation, cles_interpretations = stats.interpret_cles(
+            mann_stat,
+            mann_pvalue,
+            new_rev,
+            base_rev,
+            pvalue_threshold,
+            cliffs_interpretation,
+            c_delta,
+            lower_is_better,
+        )
+
+        # Compute KDE with Silverman bandwidth, and warn if multimodal.
+        # Also compute confidence interval and interperet patch regression or improvement and warnings
+        (
+            silverman_kde,
+            is_regression,
+            is_improvement,
+            more_runs_are_needed,
+            warning_msgs,
+            performance_intepretation,
+        ) = stats.interpret_silverman_kde(base_rev, new_rev)
+
+        # Plot Kernel Density Estimator (KDE) with an ISJ (Improved Sheather-Jones) to reduce false positives from over-smoothing in Silverman
+
+        dke_isj_plot = stats.plot_kde_with_isj_bandwidth(
+            base_rev, new_rev, mann_pvalue, cles, c_delta, cliffs_interpretation
+        )
+
+        stats_data = {
+            "base_rev_stats": base_rev_info,
+            "new_rev_stats": new_rev_info,
+            "shapiro_wilk_test": shapiro_results,
+            "ks_test": ks_test,
+            "ks_warning": ks_warning,
+            "mann_whitney_test": mann_whitney,
+            "base_median": base_median,
+            "new_median": new_median,
+            "delta_value": delta_value,
+            "delta_percentage": delta_percentage,
+            "mann_pvalue": mann_pvalue,
+            "cliffs_delta": c_delta,
+            "cliffs_interpretation": cliffs_interpretation,
+            "is_fit_good": is_fit_good,
+            "is_new_better": is_new_better,
+            "is_regression": is_regression,
+            "performance_intepretation": performance_intepretation,
+            "is_improvement": is_improvement,
+            "more_runs_are_needed": more_runs_are_needed,
+            "direction_of_change": direction,  # 'neutral', 'better', or 'worse'
+            "dke_isj_plot": dke_isj_plot,
+            "silverman_warnings": warning_msgs,
+            "silverman_kde": silverman_kde,
+            "cles": cles,
+            "cles_direction": direction,
+            "cles_explanation": cles_explanation,
+            "cles_interpretations": cles_interpretations,
+            "effect_size": effect_size,
+            "is_significant": is_significant,
+        }
+        return stats_data
 
 
 class TestSuiteHealthViewSet(viewsets.ViewSet):
