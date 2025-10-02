@@ -133,54 +133,67 @@ def bootstrap_median_diff_ci(a, b, n_iter=1000, alpha=0.05):
 def interpret_normality_shapiro_wilk(base, new, pvalue_threshold):
     try:
         warning = []
-        if len(base) < 1 or len(new) < 1:
-            return None, None, warning
-        else:
-            stat_base = None
-            interpretation_base = ""
-            is_base_normal = None
-            p_base = None
-            stat_new = None
-            interpretation_new = ""
-            is_new_normal = None
-            p_new = None
 
-            base_name = "Base Reversion"
+        stat_base = None
+        interpretation_base = ""
+        is_base_normal = None
+        p_base = None
+        stat_new = None
+        interpretation_new = ""
+        is_new_normal = None
+        p_new = None
+        base_name = "Base Reversion"
+
+        shapiro_results_base = {
+            "test_name": "Shapiro-Wilk",
+            "stat": None,
+            "pvalue": None,
+            "interpretation": interpretation_base,
+        }
+
+        shapiro_results_new = {
+            "test_name": "Shapiro-Wilk",
+            "stat": None,
+            "pvalue": None,
+            "interpretation": interpretation_new,
+        }
+        # shapiro needs minimum 3 data points else NaN values returns
+        if len(base) >= 3:
             stat_base, p_base = stats.shapiro(base)
-            if stat_base:
-                stat_base = float(stat_base)
-            if p_base:
-                is_base_normal = True if p_base > pvalue_threshold else False
-                interpretation_base = f"Shapiro-Wilk result: {p_base:.2f}, {base_name} is {'**likely normal**' if p_base > pvalue_threshold else '**not normal**'}"
+            if not np.isnan(p_base):
+                is_base_normal = p_base > pvalue_threshold
+                shapiro_results_base["stat"] = float(stat_base)
+                shapiro_results_base["pvalue"] = float(p_base)
+                shapiro_results_base["interpretation"] = (
+                    f"Shapiro-Wilk result: {p_base:.2f}, {base_name} is {'**likely normal**' if is_base_normal else '**not normal**'}"
+                )
+                if not is_base_normal:
+                    warning.append("Warning, base is not normal")
+        else:
+            warning.append(
+                "Base revision has fewer than 3 data points; Shapiro-Wilk test cannot be run."
+            )
+            shapiro_results_base["interpretation"] = "Not enough data for normality test."
 
-            new_rev_name = "New Reversion"
+        new_rev_name = "New Reversion"
+        if len(new) >= 3:
             stat_new, p_new = stats.shapiro(new)
-            if stat_new:
-                stat_base = float(stat_new)
-            if p_new:
-                is_new_normal = True if p_new > pvalue_threshold else False
-                interpretation_new = f"Shapiro-Wilk result: {p_new:.2f}, {new_rev_name} is {'**likely normal**' if p_new > pvalue_threshold else '**not normal**'}"
+            if not np.isnan(p_new):
+                is_new_normal = p_new > pvalue_threshold
+                shapiro_results_new["stat"] = float(stat_new)
+                shapiro_results_new["pvalue"] = float(p_new)
+                shapiro_results_new["interpretation"] = (
+                    f"Shapiro-Wilk result: {p_new:.2f}, {new_rev_name} is {'**likely normal**' if is_new_normal else '**not normal**'}"
+                )
+                if not is_new_normal:
+                    warning.append("Warning, new is not normal")
+        else:
+            warning.append(
+                "New revision has fewer than 3 data points; Shapiro-Wilk test cannot be run."
+            )
+            shapiro_results_new["interpretation"] = "Not enough data for normality test."
 
-            if not is_base_normal:
-                warning.append("Warning, base is not normal")
-            if not is_new_normal:
-                warning.append("Warning, new is not normal")
-
-            shapiro_results_base = {
-                "test_name": "Shapiro-Wilk",
-                "stat": None,
-                "pvalue": None,
-                "interpretation": interpretation_base,
-            }
-
-            shapiro_results_new = {
-                "test_name": "Shapiro-Wilk",
-                "stat": None,
-                "pvalue": None,
-                "interpretation": interpretation_new,
-            }
-
-            return shapiro_results_base, shapiro_results_new, warning
+        return shapiro_results_base, shapiro_results_new, warning
     except Exception:
         return None, None, []
 
@@ -489,18 +502,36 @@ def plot_kde_with_isj_bandwidth(base, new, mann_pvalue, cles, delta, interpretat
     kde_x_new = []
     kde_y_new = []
 
+    kde_plot_base = {
+        "median": float(base_median),
+        "sample_count": len(base),
+        "kde_x": kde_x_base,
+        "kde_y": kde_y_base,
+    }
+    kde_plot_new = {
+        "median": float(new_median),
+        "sample_count": len(new),
+        "kde_x": kde_x_new,
+        "kde_y": kde_y_new,
+    }
+
     try:
+        # min 2 data point. FFTKDE(bw="ISJ").fit measure the data's spread or variance. At less than 2, variance is undefined, cannot compute a bandwidth.
         if len(base) > 1:
             kde_base = FFTKDE(bw="ISJ").fit(base)
             y_base = kde_base.evaluate(x_grid)
             kde_x_base = x_grid.tolist()
             kde_y_base = y_base.tolist()
+            kde_plot_base["kde_x"] = kde_x_base
+            kde_plot_base["kde_y"] = kde_y_base
 
         if len(new) > 1:
             kde_new = FFTKDE(bw="ISJ").fit(new)
             y_new = kde_new.evaluate(x_grid)
             kde_x_new = x_grid.tolist()
             kde_y_new = y_new.tolist()
+            kde_plot_new["kde_x"] = kde_x_new
+            kde_plot_new["kde_y"] = kde_y_new
 
     except Exception:
         # KDE failed, charts will show just medians
@@ -513,17 +544,4 @@ def plot_kde_with_isj_bandwidth(base, new, mann_pvalue, cles, delta, interpretat
         f"Cliff’s delta: {delta:.2f} → {interpretation}" if delta else "",
     ]
 
-    dke_isj_plot_base = {
-        "median": float(base_median) if base_median else None,
-        "sample_count": len(base),
-        "kde_x": kde_x_base,
-        "kde_y": kde_y_base,
-    }
-    dke_isj_plot_new = {
-        "median": float(new_median) if new_median else None,
-        "sample_count": len(new),
-        "kde_x": kde_x_new,
-        "kde_y": kde_y_new,
-    }
-
-    return dke_isj_plot_base, dke_isj_plot_new, isj_kde_summary_text
+    return kde_plot_base, kde_plot_new, isj_kde_summary_text
