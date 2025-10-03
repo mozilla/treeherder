@@ -40,7 +40,5 @@ requests==2.32.5
 urllib3==2.0.3
 
 # Statistical methods for performance analysis
-numpy==1.26.4
-scipy==1.15.1
 cliffs-delta==1.0.0
 KDEpy==1.1.12
