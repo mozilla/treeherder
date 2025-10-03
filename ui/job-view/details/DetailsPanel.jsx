@@ -185,6 +185,7 @@ class DetailsPanel extends React.Component {
               ...artifactsParams,
               ...{ artifactPath: 'public/build/built_from.json' },
             }),
+            this.selectJobController.signal,
           );
         }
 
@@ -193,86 +194,60 @@ class DetailsPanel extends React.Component {
           this.selectJobController.signal,
         );
 
-        const performancePromise = PerfSeriesModel.getSeriesData(
+        const performancePromise = PerfSeriesModel.getJobData(
           currentRepo.name,
-          {
-            job_id: selectedJob.id,
-          },
-        ).then(async (phSeriesResult) => {
-          const performanceData = Object.values(phSeriesResult).reduce(
-            (a, b) => [...a, ...b],
-            [],
-          );
-          let perfJobDetail = [];
-
-          if (performanceData.length) {
-            const signatureIds = [
-              ...new Set(performanceData.map((perf) => perf.signature_id)),
-            ];
-            const seriesListList = await Promise.all(
-              chunk(signatureIds, 20).map((signatureIdChunk) =>
-                PerfSeriesModel.getSeriesList(currentRepo.name, {
-                  id: signatureIdChunk,
-                }),
-              ),
-            );
-            const mappedFrameworks = {};
-            frameworks.forEach((element) => {
-              mappedFrameworks[element.id] = element.name;
-            });
-
-            const seriesList = seriesListList
-              .map((item) => item.data)
-              .reduce((a, b) => [...a, ...b], []);
-
-            perfJobDetail = performanceData
-              .map((d) => ({
-                series: seriesList.find((s) => d.signature_id === s.id),
-                ...d,
-              }))
-              .map((d) => ({
-                url: `/perfherder/graphs?series=${[
-                  currentRepo.name,
-                  d.signature_id,
-                  1,
-                  d.series.frameworkId,
-                ]}&selected=${[d.signature_id, d.id]}`,
-                shouldAlert: d.series.should_alert,
-                value: d.value,
-                measurementUnit: d.series.measurementUnit,
-                lowerIsBetter: d.series.lowerIsBetter,
-                title: d.series.name,
-                suite: d.series.suite,
-                options: d.series.options.join(' '),
-                frameworkName: mappedFrameworks[d.series.frameworkId],
-                perfdocs: new Perfdocs(
-                  mappedFrameworks[d.series.frameworkId],
-                  d.series.suite,
-                  d.series.platform,
-                  d.series.name,
-                ),
-              }));
+          { job_id: selectedJob.id },
+        ).then((rowOrResponse) => {
+          const jobData =
+            rowOrResponse && rowOrResponse.data
+              ? rowOrResponse.data
+              : rowOrResponse;
+          if (!jobData || jobData.failureStatus) {
+            this.setState({ perfJobDetail: [] });
+            return;
           }
+
+          const rows = Array.isArray(jobData) ? jobData : [jobData];
+          const mappedFrameworks = {};
+          frameworks.forEach((element) => {
+            mappedFrameworks[element.id] = element.name;
+          });
+
+          const perfJobDetail = rows.map((jobData) => {
+            const signature = jobData.signature_data;
+            return {
+              url: `/perfherder/graphs?series=${[
+                currentRepo.name,
+                signature.id,
+                1,
+                signature.frameworkId,
+              ]}&selected=${[signature.id, jobData.id]}`,
+              shouldAlert: signature.should_alert,
+              value: jobData.value,
+              measurementUnit: signature.measurementUnit,
+              lowerIsBetter: signature.lowerIsBetter,
+              title: signature.name,
+              suite: signature.suite,
+              options: signature.options.join(' '),
+              frameworkName: mappedFrameworks[signature.frameworkId],
+              perfdocs: new Perfdocs(
+                mappedFrameworks[signature.frameworkId],
+                signature.suite,
+                signature.platform,
+                signature.name,
+              ),
+            };
+          });
           perfJobDetail.sort((a, b) => {
             // Sort perfJobDetails by value of shouldAlert in a particular order:
             // first true values, after that null values and then false.
-            if (a.shouldAlert === true) {
-              return -1;
-            }
-            if (a.shouldAlert === false) {
-              return 1;
-            }
-            if (a.shouldAlert === null && b.shouldAlert === true) {
-              return 1;
-            }
-            if (a.shouldAlert === null && b.shouldAlert === false) {
-              return -1;
-            }
+            if (a.shouldAlert === true) return -1;
+            if (a.shouldAlert === false) return 1;
+            if (a.shouldAlert === null && b.shouldAlert === true) return 1;
+            if (a.shouldAlert === null && b.shouldAlert === false) return -1;
             return 0;
           });
-          this.setState({
-            perfJobDetail,
-          });
+          this.setState({ perfJobDetail });
         });
 
         Promise.all([

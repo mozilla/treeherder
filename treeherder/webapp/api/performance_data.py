@@ -213,6 +213,62 @@ class PerformanceFrameworkViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = "id"
 
 
+class PerfomanceJobViewSet(viewsets.ReadOnlyModelViewSet):
+    def list(self, request, project):
+        # Expect exactly one job_id in query params
+        job_id_str = request.query_params.get("job_id")
+        if job_id_str is None:
+            return Response(
+                {"message": "Parameter 'job_id' is required."},
+                status=HTTP_400_BAD_REQUEST,
+            )
+        # Validate that job_id is an integer
+        try:
+            job_id = int(job_id_str)
+        except ValueError:
+            return Response(
+                {"message": "Parameter 'job_id' must be an integer."},
+                status=HTTP_400_BAD_REQUEST,
+            )
+        # Fetch the first PerformanceDatum for this job_id
+        datum = (
+            PerformanceDatum.objects.filter(job_id=job_id)
+            .select_related("signature", "push")
+            .first()
+        )
+        if not datum:
+            return Response(
+                {"message": f"No data found for job_id={job_id}"},
+                status=HTTP_400_BAD_REQUEST,
+            )
+        # Build a single response object
+        result = {
+            "id": datum.id,
+            "signature_data": self.get_signature_data(datum.signature_id),
+            "job_id": datum.job_id,
+            "push_id": datum.push_id,
+            "revision": datum.push.revision,
+            "push_timestamp": int(time.mktime(datum.push_timestamp.timetuple())),
+            "value": round(datum.value, 2),
+        }
+        return Response(result)
+
+    def get_signature_data(self, signature_id):
+        obj = PerformanceSignature.objects.select_related(
+            "option_collection", "platform", "parent_signature"
+        ).get(id=signature_id)
+        return {
+            "id": obj.id,
+            "signature_hash": obj.signature_hash,
+            "framework_id": obj.framework_id,
+            "option_collection_hash": obj.option_collection.option_collection_hash,
+            "machine_platform": obj.platform.platform,
+            "suite": obj.suite,
+            "should_alert": obj.should_alert,
+            "has_subtests": True if obj.has_subtests else False,
+        }
+
+
 class PerformanceDatumViewSet(viewsets.ViewSet):
     """
     This view serves performance test result data

@@ -112,6 +112,29 @@ export default class PerfSeriesModel {
     return { data, failureStatus: null };
   }
 
+  static async getJobData(projectName, params) {
+    if (!this.optionCollectionMap) {
+      this.optionCollectionMap = await OptionCollectionModel.getMap();
+    }
+    const url =
+      `${getProjectUrl('/performance/job-data/', projectName)}?` +
+      queryString.stringify(params);
+    const response = await getData(url);
+    if (response.failureStatus) {
+      return response;
+    }
+    const { data } = response;
+
+    data.signature_data = await getSeriesSummary(
+      projectName,
+      data.signature_data.id,
+      data.signature_data,
+      this.optionCollectionMap,
+    );
+
+    return data;
+  }
+
   static getPlatformList(projectName, params) {
     return getData(
       `${getProjectUrl(
