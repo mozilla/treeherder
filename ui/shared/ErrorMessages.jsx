@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Alert } from 'reactstrap';
+import { Alert } from 'react-bootstrap';
 
 class ErrorMessages extends React.PureComponent {
   constructor(props) {
@@ -33,7 +33,7 @@ class ErrorMessages extends React.PureComponent {
       <div>
         {messages.map((message) => (
           <Alert
-            color="danger"
+            variant="danger"
             isOpen={visible}
             toggle={() => this.setState({ visible: !visible })}
             key={message}

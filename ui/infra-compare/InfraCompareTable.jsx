@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table } from 'reactstrap';
+import { Table } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 
 import { getJobsUrl } from '../helpers/url';
@@ -23,7 +23,7 @@ export default class InfraCompareTable extends React.PureComponent {
         sz="small"
         className="compare-table mb-0 px-0"
         key={platform}
-        innerRef={(el) => {
+        ref={(el) => {
           this.header = el;
         }}
       >

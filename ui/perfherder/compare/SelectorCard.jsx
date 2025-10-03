@@ -1,20 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Col,
-  Card,
-  CardHeader,
-  CardText,
-  CardBody,
-  DropdownItem,
-  Input,
-  CardSubtitle,
-  ButtonDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  InputGroup,
-  InputGroupButtonDropdown,
-} from 'reactstrap';
+import { Col, Card, InputGroup, Dropdown, Form } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 
@@ -186,21 +172,21 @@ export default class SelectorCard extends React.Component {
     return (
       <Col sm="4" className="p-2 text-left">
         <Card className="card-height">
-          <CardHeader className="bg-lightgray">{title}</CardHeader>
-          <CardBody>
-            <CardSubtitle className="pb-2 pt-3">Project</CardSubtitle>
-            <ButtonDropdown
-              className="mr-3 w-25 text-nowrap"
-              isOpen={buttonDropdownOpen}
-              toggle={() => this.toggle('buttonDropdownOpen')}
+          <Card.Header className="bg-lightgray">{title}</Card.Header>
+          <Card.Body>
+            <Card.Subtitle className="pb-2 pt-3">Project</Card.Subtitle>
+            <Dropdown
+              className="me-3 w-25 text-nowrap"
+              show={buttonDropdownOpen}
+              onToggle={() => this.toggle('buttonDropdownOpen')}
             >
-              <DropdownToggle caret outline>
+              <Dropdown.Toggle variant="outline-secondary">
                 {selectedRepo}
-              </DropdownToggle>
-              {projects.length > 0 && (
-                <DropdownMenu className="overflow-auto dropdown-menu-height">
-                  {projects.map((item) => (
-                    <DropdownItem
+              </Dropdown.Toggle>
+              <Dropdown.Menu className="overflow-auto dropdown-menu-height">
+                {projects.length > 0 &&
+                  projects.map((item) => (
+                    <Dropdown.Item
                       tag="a"
                       key={item.name}
                       onClick={(event) =>
@@ -209,27 +195,26 @@ export default class SelectorCard extends React.Component {
                     >
                       <FontAwesomeIcon
                         icon={faCheck}
-                        className={`mr-1 ${
+                        className={`me-1 ${
                           selectedRepo === item.name ? '' : 'hide'
                         }`}
                         title={selectedRepo === item.name ? 'Checked' : ''}
                       />
                       {item.name}
-                    </DropdownItem>
+                    </Dropdown.Item>
                   ))}
-                </DropdownMenu>
-              )}
-            </ButtonDropdown>
+              </Dropdown.Menu>
+            </Dropdown>
             {invalidProject && (
-              <CardText className="text-danger pt-1 mb-0">
+              <Card.Text className="text-danger pt-1 mb-0">
                 {invalidProject}
-              </CardText>
+              </Card.Text>
             )}
 
             <React.Fragment>
-              <CardSubtitle className="pt-4 pb-2">Revision</CardSubtitle>
+              <Card.Subtitle className="pt-4 pb-2">Revision</Card.Subtitle>
               <InputGroup>
-                <Input
+                <Form.Control
                   valid={!invalidRevision && !validating && validated}
                   placeholder={selectorCardText.revisionPlaceHolder}
                   value={selectedRevision}
@@ -241,18 +226,22 @@ export default class SelectorCard extends React.Component {
                     })
                   }
                 />
-                <InputGroupButtonDropdown
-                  addonType="append"
-                  isOpen={inputDropdownOpen}
-                  toggle={() => this.toggle('inputDropdownOpen')}
+                <Dropdown
+                  show={inputDropdownOpen}
+                  onToggle={() => this.toggle('inputDropdownOpen')}
+                  as={InputGroup.Append}
                 >
-                  <DropdownToggle caret outline disabled={disabled}>
+                  <Dropdown.Toggle
+                    variant="outline-secondary"
+                    disabled={disabled}
+                  >
                     Recent
-                  </DropdownToggle>
-                  {!!data.results && data.results.length > 0 && (
-                    <DropdownMenu>
-                      {data.results.map((item) => (
-                        <DropdownItem
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu className="overflow-auto dropdown-menu-height">
+                    {!!data.results &&
+                      data.results.length > 0 &&
+                      data.results.map((item) => (
+                        <Dropdown.Item
                           tag="a"
                           key={item.id}
                           onClick={(event) =>
@@ -263,7 +252,7 @@ export default class SelectorCard extends React.Component {
                         >
                           <FontAwesomeIcon
                             icon={faCheck}
-                            className={`mr-1 ${
+                            className={`me-1 ${
                               selectedRevision === item.revision ? '' : 'hide'
                             }`}
                             title={
@@ -273,21 +262,20 @@ export default class SelectorCard extends React.Component {
                             }
                           />
                           {`${item.revision} ${item.author}`}
-                        </DropdownItem>
+                        </Dropdown.Item>
                       ))}
-                    </DropdownMenu>
-                  )}
-                </InputGroupButtonDropdown>
+                  </Dropdown.Menu>
+                </Dropdown>
               </InputGroup>
               {(validating || invalidRevision || missingRevision) && (
-                <CardText
+                <Card.Text
                   className={validating ? 'text-info pt-1' : 'text-danger pt-1'}
                 >
                   {validating || invalidRevision || missingRevision}
-                </CardText>
+                </Card.Text>
               )}
             </React.Fragment>
-          </CardBody>
+          </Card.Body>
         </Card>
       </Col>
     );

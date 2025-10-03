@@ -1,20 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Badge, UncontrolledTooltip } from 'reactstrap';
+import { Badge, OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 import { tooltipMessages } from '../perf-helpers/constants';
 
 const TagsList = ({ tags }) => {
   if (tags.length > 0) {
     return tags.map((tag) => (
-      <Badge key={tag} className="mr-2" pill>
-        <span data-testid={`performance-tag ${tag}`} id={`${tag}-perf-tag`}>
-          {tag}
-        </span>
-        <UncontrolledTooltip placement="top" target={`${tag}-perf-tag`}>
-          {tooltipMessages[tag]}
-        </UncontrolledTooltip>
-      </Badge>
+      <OverlayTrigger
+        key={tag}
+        placement="top"
+        overlay={<Tooltip>{tooltipMessages[tag]}</Tooltip>}
+      >
+        <Badge className="me-2" pill>
+          <span data-testid={`performance-tag ${tag}`}>{tag}</span>
+        </Badge>
+      </OverlayTrigger>
     ));
   }
 

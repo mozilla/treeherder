@@ -61,6 +61,23 @@ ul {
 }
 
 /* ReactTable style */
+.ReactTable .rt-thead .rt-tr,
+.ReactTable .rt-tbody .rt-tr,
+.ReactTable .rt-td,
+.ReactTable .rt-th {
+  text-align: left;
+}
+
+/* Keep pagination controls on one row */
+.ReactTable .-pagination {
+  flex-wrap: nowrap;
+}
+
+.ReactTable .-pagination .-center {
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
 .ReactTable .-pagination .-btn:focus {
   box-shadow: 0 0 0 0.2rem rgba(130, 138, 145, 0.5);
 }
