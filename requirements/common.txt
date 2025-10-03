@@ -735,9 +735,6 @@ kdepy==1.1.12 \
     --hash=sha256:ff27b711d3e914da68a80bdd8044d7992a9a48be090378be246f6b39d91b6e46 \
     --hash=sha256:ff6a4db7b40a63b9accde48ebfd25e664138f37eda56ad1be34fe37f60ce3d84
     # via -r requirements/common.in
-kombu==5.5.4 \
-    --hash=sha256:886600168275ebeada93b888e831352fe578168342f0d1d5833d88ba0d847363 \
-    --hash=sha256:a12ed0557c238897d8e518f1d1fdf84bd1516c5e305af2dacd85c2015115feb8
 kombu==5.5.2 \
     --hash=sha256:2dd27ec84fd843a4e0a7187424313f87514b344812cb98c25daddafbb6a7ff0e \
     --hash=sha256:40f3674ed19603b8a771b6c74de126dbf8879755a0337caac6602faa82d539cd
@@ -1094,6 +1091,7 @@ numpy==1.26.4 \
     --hash=sha256:ffa75af20b44f8dba823498024771d5ac50620e6915abac414251bd971b4529f
     # via
     #   db-dtypes
+    #   kdepy
     #   moz-measure-noise
     #   pandas
     #   scipy
@@ -1827,6 +1825,7 @@ scipy==1.15.1 \
     --hash=sha256:f735bc41bd1c792c96bc426dece66c8723283695f02df61dcc4d0a707a42fc54 \
     --hash=sha256:f82fcf4e5b377f819542fbc8541f7b5fbcf1c0017d0df0bc22c781bf60abc4d8
     # via
+    #   kdepy
     #   moz-measure-noise
     #   mozdetect
 simplejson==3.20.2 \
