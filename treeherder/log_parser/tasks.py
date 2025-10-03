@@ -11,6 +11,7 @@ from treeherder.log_parser.artifactbuildercollection import (
     LogSizeError,
 )
 from treeherder.model.models import Job, JobLog
+from treeherder.perf.ingest_perf_data_json import post_perfherder_artifacts
 from treeherder.workers.task import retryable_task
 
 from . import failureline, intermittents
@@ -33,6 +34,7 @@ def parse_logs(job_id, job_log_ids, priority):
     parser_tasks = {
         "errorsummary_json": store_failure_lines,
         "live_backing_log": post_log_artifacts,
+        "perfherder_data": post_perfherder_artifacts,
     }
 
     # We don't want to stop parsing logs for most Exceptions however we still
@@ -52,7 +54,10 @@ def parse_logs(job_id, job_log_ids, priority):
             )
             continue
 
-        parser = parser_tasks.get(job_log.name)
+        job_log_name = job_log.name.replace("-", "_")
+        if job_log_name.startswith("perfherder_data"):
+            job_log_name = "perfherder_data"
+        parser = parser_tasks.get(job_log_name)
         if not parser:
             continue
 
