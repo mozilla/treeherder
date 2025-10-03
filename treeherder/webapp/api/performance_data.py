@@ -4,6 +4,8 @@ from collections import defaultdict
 from urllib.parse import urlencode
 
 import django_filters
+import numpy as np
+from cliffs_delta import cliffs_delta
 from django.conf import settings
 from django.db import transaction
 from django.db.models import Case, CharField, Count, Q, Subquery, Value, When
@@ -14,6 +16,7 @@ from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from treeherder.etl.common import to_timestamp
 from treeherder.model import models
+from treeherder.perf import stats
 from treeherder.perf.alerts import get_alert_properties
 from treeherder.perf.models import (
     IssueTracker,
@@ -36,6 +39,7 @@ from .performance_serializers import (
     PerfAlertSummaryTasksQueryParamSerializer,
     PerfCompareResultsQueryParamsSerializer,
     PerfCompareResultsSerializer,
+    PerfCompareResultsSerializerV2,
     PerformanceAlertSerializer,
     PerformanceAlertSummarySerializer,
     PerformanceAlertSummaryTasksSerializer,
@@ -915,6 +919,15 @@ class PerfCompareResults(generics.ListAPIView):
     serializer_class = PerfCompareResultsSerializer
     queryset = None
 
+    def get_serializer_class(self):
+        test_version = self.request.query_params.get("test_version", "")
+        if test_version == "student-t":
+            return PerfCompareResultsSerializer
+        if test_version == "mann-whitney-u":
+            return PerfCompareResultsSerializerV2
+        else:
+            return PerfCompareResultsSerializer
+
     def list(self, request):
         query_params = PerfCompareResultsQueryParamsSerializer(data=request.query_params)
         if not query_params.is_valid():
@@ -930,6 +943,7 @@ class PerfCompareResults(generics.ListAPIView):
         base_parent_signature = query_params.validated_data["base_parent_signature"]
         new_parent_signature = query_params.validated_data["new_parent_signature"]
         replicates = query_params.validated_data["replicates"]
+        test_version = query_params.validated_data["test_version"]
 
         try:
             new_push = models.Push.objects.get(revision=new_rev, repository__name=new_repo_name)
@@ -1043,41 +1057,7 @@ class PerfCompareResults(generics.ListAPIView):
                 new_runs_count = len(statistics_new_perf_data)
                 is_complete = base_runs_count and new_runs_count
                 no_results_to_show = not base_runs_count and not new_runs_count
-                if no_results_to_show:
-                    continue
-                base_avg_value = perfcompare_utils.get_avg(statistics_base_perf_data, header)
-                base_stddev = perfcompare_utils.get_stddev(statistics_base_perf_data, header)
-                base_median_value = perfcompare_utils.get_median(statistics_base_perf_data)
-                new_avg_value = perfcompare_utils.get_avg(statistics_new_perf_data, header)
-                new_stddev = perfcompare_utils.get_stddev(statistics_new_perf_data, header)
-                new_median_value = perfcompare_utils.get_median(statistics_new_perf_data)
-                base_stddev_pct = perfcompare_utils.get_stddev_pct(base_avg_value, base_stddev)
-                new_stddev_pct = perfcompare_utils.get_stddev_pct(new_avg_value, new_stddev)
-                confidence = perfcompare_utils.get_abs_ttest_value(
-                    statistics_base_perf_data, statistics_new_perf_data
-                )
-                confidence_text = perfcompare_utils.get_confidence_text(confidence)
-                delta_value = perfcompare_utils.get_delta_value(new_avg_value, base_avg_value)
-                delta_percentage = perfcompare_utils.get_delta_percentage(
-                    delta_value, base_avg_value
-                )
-                magnitude = perfcompare_utils.get_magnitude(delta_percentage)
-                new_is_better = perfcompare_utils.is_new_better(delta_value, lower_is_better)
-                is_confident = perfcompare_utils.is_confident(
-                    base_runs_count, new_runs_count, confidence
-                )
-                more_runs_are_needed = perfcompare_utils.more_runs_are_needed(
-                    is_complete, is_confident, base_runs_count
-                )
-                class_name = perfcompare_utils.get_class_name(
-                    new_is_better, base_avg_value, new_avg_value, confidence
-                )
-
-                is_improvement = class_name == "success"
-                is_regression = class_name == "danger"
-                is_meaningful = class_name == ""
-
-                row_result = {
+                common_result = {
                     "base_rev": base_rev,
                     "new_rev": new_rev,
                     "header_name": header,
@@ -1098,25 +1078,6 @@ class PerfCompareResults(generics.ListAPIView):
                     "new_runs": sorted(new_perf_data_values),
                     "base_runs_replicates": sorted(base_perf_data_replicates),
                     "new_runs_replicates": sorted(new_perf_data_replicates),
-                    "base_avg_value": base_avg_value,
-                    "new_avg_value": new_avg_value,
-                    "base_median_value": base_median_value,
-                    "new_median_value": new_median_value,
-                    "base_stddev": base_stddev,
-                    "new_stddev": new_stddev,
-                    "base_stddev_pct": base_stddev_pct,
-                    "new_stddev_pct": new_stddev_pct,
-                    "base_retriggerable_job_ids": base_grouped_job_ids.get(base_sig_id, []),
-                    "new_retriggerable_job_ids": new_grouped_job_ids.get(new_sig_id, []),
-                    "confidence": confidence,
-                    "confidence_text": confidence_text,
-                    "delta_value": delta_value,
-                    "delta_percentage": delta_percentage,
-                    "magnitude": magnitude,
-                    "new_is_better": new_is_better,
-                    "lower_is_better": lower_is_better,
-                    "is_confident": is_confident,
-                    "more_runs_are_needed": more_runs_are_needed,
                     # highlighted revisions is the base_revision and the other highlighted revisions is new_revision
                     "graphs_link": self._create_graph_links(
                         base_repo_name,
@@ -1127,9 +1088,8 @@ class PerfCompareResults(generics.ListAPIView):
                         push_timestamp,
                         str(sig_hash),
                     ),
-                    "is_improvement": is_improvement,
-                    "is_regression": is_regression,
-                    "is_meaningful": is_meaningful,
+                    "base_retriggerable_job_ids": base_grouped_job_ids.get(base_sig_id, []),
+                    "new_retriggerable_job_ids": new_grouped_job_ids.get(new_sig_id, []),
                     "base_parent_signature": base_sig.get("parent_signature_id", None),
                     "new_parent_signature": new_sig.get("parent_signature_id", None),
                     "base_signature_id": base_sig_id,
@@ -1138,11 +1098,79 @@ class PerfCompareResults(generics.ListAPIView):
                         base_sig.get("has_subtests", None) or new_sig.get("has_subtests", None)
                     ),
                 }
-                self.queryset.append(row_result)
+                if no_results_to_show:
+                    continue
+                if test_version == "mann-whitney-u":
+                    new_stats = self._process_stats(
+                        statistics_base_perf_data, statistics_new_perf_data, header, lower_is_better
+                    )
+
+                    row_result = {
+                        **common_result,
+                        **new_stats,
+                    }
+                    self.queryset.append(row_result)
+                else:
+                    base_avg_value = perfcompare_utils.get_avg(statistics_base_perf_data, header)
+                    base_stddev = perfcompare_utils.get_stddev(statistics_base_perf_data, header)
+                    base_median_value = perfcompare_utils.get_median(statistics_base_perf_data)
+                    new_avg_value = perfcompare_utils.get_avg(statistics_new_perf_data, header)
+                    new_stddev = perfcompare_utils.get_stddev(statistics_new_perf_data, header)
+                    new_median_value = perfcompare_utils.get_median(statistics_new_perf_data)
+                    base_stddev_pct = perfcompare_utils.get_stddev_pct(base_avg_value, base_stddev)
+                    new_stddev_pct = perfcompare_utils.get_stddev_pct(new_avg_value, new_stddev)
+                    confidence = perfcompare_utils.get_abs_ttest_value(
+                        statistics_base_perf_data, statistics_new_perf_data
+                    )
+                    confidence_text = perfcompare_utils.get_confidence_text(confidence)
+                    delta_value = perfcompare_utils.get_delta_value(new_avg_value, base_avg_value)
+                    delta_percentage = perfcompare_utils.get_delta_percentage(
+                        delta_value, base_avg_value
+                    )
+                    magnitude = perfcompare_utils.get_magnitude(delta_percentage)
+                    new_is_better = perfcompare_utils.is_new_better(delta_value, lower_is_better)
+                    is_confident = perfcompare_utils.is_confident(
+                        base_runs_count, new_runs_count, confidence
+                    )
+                    more_runs_are_needed = perfcompare_utils.more_runs_are_needed(
+                        is_complete, is_confident, base_runs_count
+                    )
+                    class_name = perfcompare_utils.get_class_name(
+                        new_is_better, base_avg_value, new_avg_value, confidence
+                    )
+
+                    is_improvement = class_name == "success"
+                    is_regression = class_name == "danger"
+                    is_meaningful = class_name == ""
+
+                    row_result = {
+                        **common_result,
+                        "base_avg_value": base_avg_value,
+                        "new_avg_value": new_avg_value,
+                        "base_median_value": base_median_value,
+                        "new_median_value": new_median_value,
+                        "base_stddev": base_stddev,
+                        "new_stddev": new_stddev,
+                        "confidence": confidence,
+                        "confidence_text": confidence_text,
+                        "delta_value": delta_value,
+                        "delta_percentage": delta_percentage,
+                        "magnitude": magnitude,
+                        "new_is_better": new_is_better,
+                        "lower_is_better": lower_is_better,
+                        "is_confident": is_confident,
+                        "more_runs_are_needed": more_runs_are_needed,
+                        "is_improvement": is_improvement,
+                        "is_regression": is_regression,
+                        "is_meaningful": is_meaningful,
+                        "base_stddev_pct": base_stddev_pct,
+                        "new_stddev_pct": new_stddev_pct,
+                    }
+
+                    self.queryset.append(row_result)
 
         serializer = self.get_serializer(self.queryset, many=True)
         serialized_data = serializer.data
-
         return Response(data=serialized_data)
 
     def _get_signature_based_properties(self, sig, option_collection_map):
@@ -1340,6 +1368,203 @@ class PerfCompareResults(generics.ListAPIView):
             platforms.append(platform)
 
         return signatures_map, header_names, platforms
+
+    """
+    _process_new_stats does the following for base and new:
+    1. calculate basic statistics, mean, median, variance, standard deviation, average, min, max
+    2. Runs a Shapiro-Wilk normality test, is it normal and interpretation
+    3. Runs a Kolmogorov-Smirnov test for goodness of fit, is fit good and interpretation
+    4. Runs a Mann-Whitney U test test null hypothesis, data between two base and new, calculates p-value
+    5. Calculate Cliff's delta and interpretation, check if new is better than base based on delta and lower_is_better
+    6. Interpret Common Language Effect Size, with p-value and p-threshold (.05), calculate statistical effect and significance with what level of confidence interval
+    7. Estimate out KDE with Silverman bandwidth, check if multimodal or irregular, calc interpretation if regressed, improved, or neutral
+    8. Plot KDE with ISJ bandwidth to reduce smoothing
+    """
+
+    @staticmethod
+    def _process_stats(
+        base_rev_data,
+        new_rev_data,
+        header,
+        lower_is_better,
+        remove_outliers=stats.ENABLE_REMOVE_OUTLIERS,
+        pvalue_threshold=stats.PVALUE_THRESHOLD,
+    ):
+        # extract data, potentially removing outliers
+        if remove_outliers:
+            base_rev_data = stats.remove_outliers(base_rev_data)
+            new_rev_data = stats.remove_outliers(new_rev_data)
+
+        if not base_rev_data:
+            base_rev_data = []
+
+        if not new_rev_data:
+            new_rev_data = []
+
+        # get basic statistics for both base and new with mean, median, variance, standard deviation, standard deviation percentage, min, max
+
+        base_min = float(np.min(base_rev_data)) if len(base_rev_data) > 0 else 0
+        base_max = float(np.max(base_rev_data)) if len(base_rev_data) > 0 else 0
+        base_variance = float(np.var(base_rev_data)) if base_rev_data else 0
+        base_mean = perfcompare_utils.get_avg(base_rev_data, header)
+        base_stddev = perfcompare_utils.get_stddev(base_rev_data, header)
+        base_count = len(base_rev_data)
+        base_median = float(np.median(base_rev_data)) if base_rev_data else 0
+        base_stddev_pct = perfcompare_utils.get_stddev_pct(base_mean, base_stddev)
+
+        new_min = float(np.min(new_rev_data)) if len(new_rev_data) > 0 else 0
+        new_max = float(np.max(new_rev_data)) if len(new_rev_data) > 0 else 0
+        new_variance = float(np.var(new_rev_data)) if new_rev_data else 0
+        new_mean = perfcompare_utils.get_avg(new_rev_data, header)
+        new_stddev = perfcompare_utils.get_stddev(new_rev_data, header)
+        new_count = len(new_rev_data)
+        new_median = float(np.median(new_rev_data)) if new_rev_data else 0
+        new_stddev_pct = perfcompare_utils.get_stddev_pct(new_mean, new_stddev)
+
+        # Basic statistics, normality test"
+        # Shapiro-Wilk test
+        # Statistical test for normality — checks whether a dataset is normally distributed.
+        # <https://en.wikipedia.org/wiki/Shapiro%E2%80%93Wilk_test>
+        # Is both a classic Gaussian distribution or classic bell curve
+
+        shapiro_results_base, shapiro_results_new, shapiro_warning = (
+            stats.interpret_normality_shapiro_wilk(base_rev_data, new_rev_data, pvalue_threshold)
+        )
+
+        # Kolmogorov-Smirnov test for goodness of fit
+        ks_test, is_fit_good, ks_warning = stats.interpret_ks_test(
+            base_rev_data, new_rev_data, pvalue_threshold
+        )
+
+        # Mann-Whitney U test, two sided because we're never quite sure what of
+        # the intent of the patch, as things stand
+        # Tests the null hypothesis that the distributions of the two are identical
+        mann_whitney, mann_stat, mann_pvalue = stats.interpret_mann_whitneyu(
+            base_rev_data, new_rev_data
+        )
+        delta_value = new_median - base_median
+        delta_percentage = (delta_value / base_median * 100) if base_median != 0 else 0
+
+        # Cliff's delta to take into account effect size:
+        # https://www.researchgate.net/post/What_is_the_most_appropriate_effect_size_type_for_mann_whitney_u_analysis
+        # https://www.researchgate.net/publication/262763337_Cliff's_Delta_Calculator_A_non-parametric_effect_size_program_for_two_groups_of_observations
+        # https://stats.stackexchange.com/questions/450495/cliffs-delta-in-python
+        # https://github.com/neilernst/cliffsDelta
+        c_warning = None
+        c_delta = None
+        # Handle for empty data sets
+        if len(base_rev_data) < 1 or len(new_rev_data) < 1:
+            c_warning = "Empty data in one group, cannot compute Cliffs Delta"
+        else:
+            c_delta, _ = cliffs_delta(base_rev_data, new_rev_data)
+
+        cliffs_interpretation = stats.interpret_effect_size(c_delta)
+        direction, is_new_better = stats.is_new_better(delta_value, lower_is_better)
+
+        # Interpret effect size
+        effect_size = stats.interpret_effect_size(c_delta)
+
+        # returns CLES, direction
+        (
+            cles_obj,
+            cles,
+            is_significant,
+            cles_explanation,
+            mann_whitney_u_cles,
+            cliffs_delta_cles,
+            p_value_cles,
+        ) = stats.interpret_cles(
+            mann_stat,
+            mann_pvalue,
+            new_rev_data,
+            base_rev_data,
+            pvalue_threshold,
+            cliffs_interpretation,
+            c_delta,
+            lower_is_better,
+        )
+        if cles_obj:
+            cles_obj["effect_size"] = effect_size
+            cles_obj["cles_direction"] = direction
+
+        # Compute KDE with Silverman bandwidth, and warn if multimodal.
+        # Also compute confidence interval and interperet patch regression or improvement and warnings
+        (
+            silverman_kde,
+            is_regression,
+            is_improvement,
+            more_runs_are_needed,
+            warning_msgs,
+            performance_intepretation,
+        ) = stats.interpret_silverman_kde(base_rev_data, new_rev_data, lower_is_better)
+
+        # Plot Kernel Density Estimator (KDE) with an ISJ (Improved Sheather-Jones) to reduce false positives from over-smoothing in Silverman
+
+        kde_isj_plot_base, kde_isj_plot_new, isj_kde_summary_text = (
+            stats.plot_kde_with_isj_bandwidth(
+                base_rev_data, new_rev_data, mann_pvalue, cles, c_delta, cliffs_interpretation
+            )
+        )
+
+        stats_data = {
+            "base_standard_stats": {
+                "count": base_count,
+                "min": base_min,
+                "max": base_max,
+                "mean": base_mean,
+                "median": base_median,
+                "variance": base_variance,
+                "stddev": base_stddev,
+                "stddev_pct": base_stddev_pct,
+            },
+            "new_standard_stats": {
+                "count": new_count,
+                "min": new_min,
+                "max": new_max,
+                "mean": new_mean,
+                "median": new_median,
+                "variance": new_variance,
+                "stddev": new_stddev,
+                "stddev_pct": new_stddev_pct,
+            },
+            "delta_value": delta_value,
+            "delta_percentage": delta_percentage,
+            # i.i.d tests: Shapiro-Wilk, Kolmogorov-Smirnov and Mann-Whitney
+            # Shapiro-Wilk: Normality test
+            "shapiro_wilk_test_base": shapiro_results_base,
+            "shapiro_wilk_test_new": shapiro_results_new,
+            "shapiro_wilk_warnings": shapiro_warning,
+            # Kolmogorov-Smirnov: Test for goodness of fit
+            "ks_test": ks_test,
+            "ks_warning": ks_warning,
+            # Mann-Whitney-U: Tests the null hypothesis, calculate P-Value
+            "mann_whitney_test": mann_whitney,
+            # cliffs delta
+            "cliffs_delta": c_delta,
+            "cliffs_interpretation": cliffs_interpretation,
+            "warning_c_delta": c_warning,
+            # CLES: Common Language Effect Size, a lot of interpretation esp from Mann-Whitney U
+            "cles": cles_obj,
+            # Silverman KDE multimodal warnings and confidence interval
+            "silverman_warnings": warning_msgs,
+            "silverman_kde": silverman_kde,
+            # KDE plots and summary plot with ISJ bandwidth
+            "kde_base": kde_isj_plot_base,
+            "kde_new": kde_isj_plot_new,
+            "kde_summary_text": isj_kde_summary_text,
+            # short form summary based on former tests shapiro, silverman, etc...
+            "is_fit_good": is_fit_good,
+            "is_new_better": is_new_better,
+            "is_significant": is_significant,
+            "lower_is_better": lower_is_better,
+            "is_regression": is_regression,
+            "is_improvement": is_improvement,
+            "more_runs_are_needed": more_runs_are_needed,
+            "performance_intepretation": performance_intepretation,
+            "direction_of_change": direction,  # 'neutral', 'better', or 'worse'
+        }
+
+        return stats_data
 
 
 class TestSuiteHealthViewSet(viewsets.ViewSet):

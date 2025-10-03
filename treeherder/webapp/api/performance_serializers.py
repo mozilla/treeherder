@@ -517,6 +517,7 @@ class PerfCompareResultsQueryParamsSerializer(serializers.Serializer):
     base_parent_signature = serializers.CharField(required=False, allow_null=True, default=None)
     new_parent_signature = serializers.CharField(required=False, allow_null=True, default=None)
     replicates = serializers.BooleanField(required=False)
+    test_version = serializers.CharField(required=False, default="student-t")
 
     def validate(self, data):
         if data["base_revision"] is None and data["interval"] is None:
@@ -650,6 +651,194 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
             "base_signature_id",
             "new_signature_id",
             "has_subtests",
+        ]
+
+
+class StandardStatsSerializer(serializers.Serializer):
+    min = PerfCompareDecimalField()
+    max = PerfCompareDecimalField()
+    mean = PerfCompareDecimalField()
+    median = PerfCompareDecimalField()
+    stddev = PerfCompareDecimalField()
+    count = serializers.IntegerField()
+    variance = PerfCompareDecimalField()
+    stddev_pct = PerfCompareDecimalField()
+
+
+class StatisticsTestSerializer(serializers.Serializer):
+    test_name = serializers.CharField()
+    stat = PerfCompareDecimalField()
+    pvalue = PerfCompareDecimalField(required=False)
+    interpretation = serializers.CharField(required=False)
+
+
+class SilvermanKDESerializer(serializers.Serializer):
+    bandwidth = serializers.CharField()
+    base_mode_count = serializers.IntegerField()
+    new_mode_count = serializers.IntegerField()
+    mode_comments = serializers.ListField(child=serializers.CharField(), default=[])
+    warnings = serializers.ListField(child=serializers.CharField(), default=[])
+    mode_summary = serializers.CharField()
+    median_shift_summary = serializers.CharField()
+    ci_low = PerfCompareDecimalField()
+    ci_high = PerfCompareDecimalField()
+    shift = PerfCompareDecimalField()
+    shift_summary = serializers.CharField()
+    is_regression = serializers.BooleanField()
+    is_improvement = serializers.BooleanField()
+    ci_warning = serializers.CharField(required=False)
+
+
+class KDESerializer(serializers.Serializer):
+    median = serializers.CharField()
+    sample_count = serializers.IntegerField()
+    kde_x = serializers.ListField(child=PerfCompareDecimalField(), default=[])
+    kde_y = serializers.ListField(child=PerfCompareDecimalField(), default=[])
+
+
+class CLESSerializer(serializers.Serializer):
+    cles = PerfCompareDecimalField()
+    cles_direction = serializers.CharField(default="")
+    mann_whitney_u_cles = serializers.CharField(default="")
+    p_value_cles = serializers.CharField(default="")
+    cliffs_delta_cles = serializers.CharField(default="")
+    effect_size = serializers.CharField(default="")
+    cles_explanation = serializers.CharField(default="")
+
+
+class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
+    base_rev = serializers.CharField()
+    new_rev = serializers.CharField()
+    base_app = serializers.CharField(
+        max_length=10,
+        default="",
+    )
+    new_app = serializers.CharField(
+        max_length=10,
+        default="",
+    )
+    is_complete = serializers.BooleanField()
+    platform = serializers.CharField()
+    header_name = serializers.CharField()
+    base_repository_name = serializers.CharField()
+    new_repository_name = serializers.CharField()
+    base_measurement_unit = serializers.CharField(default="")
+    new_measurement_unit = serializers.CharField(default="")
+    base_retriggerable_job_ids = serializers.ListField(child=serializers.IntegerField(), default=[])
+    new_retriggerable_job_ids = serializers.ListField(child=serializers.IntegerField(), default=[])
+    option_name = serializers.CharField()
+    base_runs = serializers.ListField(
+        child=PerfCompareDecimalField(),
+        default=[],
+    )
+    new_runs = serializers.ListField(
+        child=PerfCompareDecimalField(),
+        default=[],
+    )
+    base_runs_replicates = serializers.ListField(
+        child=PerfCompareDecimalField(),
+        default=[],
+    )
+    new_runs_replicates = serializers.ListField(
+        child=PerfCompareDecimalField(),
+        default=[],
+    )
+    base_standard_stats = StandardStatsSerializer()
+    new_standard_stats = StandardStatsSerializer()
+    delta_value = PerfCompareDecimalField()
+    delta_percentage = PerfCompareDecimalField()
+    new_is_better = OptionalBooleanField()
+    lower_is_better = OptionalBooleanField()
+    is_confident = OptionalBooleanField()
+    noise_metric = OptionalBooleanField(default=False)
+    graphs_link = serializers.CharField()
+    more_runs_are_needed = OptionalBooleanField(default=False)
+    is_fit_good = OptionalBooleanField(default=True)
+    is_improvement = serializers.BooleanField(required=False)
+    is_regression = serializers.BooleanField(required=False)
+    is_meaningful = serializers.BooleanField(required=False)
+    base_parent_signature = serializers.IntegerField()
+    new_parent_signature = serializers.IntegerField()
+    base_signature_id = serializers.IntegerField()
+    new_signature_id = serializers.IntegerField()
+    has_subtests = serializers.BooleanField()
+    shapiro_wilk_test_base = StatisticsTestSerializer(many=False, default=None)
+    shapiro_wilk_test_new = StatisticsTestSerializer(many=False, default=None)
+    shapiro_wilk_warnings = serializers.ListField(
+        child=serializers.CharField(default=""),
+        default=[],
+    )
+    ks_test = StatisticsTestSerializer(many=False)
+    mann_whitney_test = StatisticsTestSerializer(many=False)
+    cliffs_delta = PerfCompareDecimalField()
+    cliffs_interpretation = serializers.CharField(default="")
+    silverman_kde = SilvermanKDESerializer(many=False, default=None)
+    kde_base = KDESerializer(many=False, required=False)
+    kde_new = KDESerializer(many=False, required=False)
+    kde_summary_text = serializers.ListField(
+        child=serializers.CharField(default=""),
+        default=[],
+    )
+    direction_of_change = serializers.CharField(default="")
+    cles = CLESSerializer(many=False, default=None)
+
+    class Meta:
+        model = PerformanceSignature
+        fields = [
+            "base_rev",
+            "new_rev",
+            "base_app",
+            "new_app",
+            "base_standard_stats",
+            "new_standard_stats",
+            "framework_id",
+            "platform",
+            "suite",
+            "header_name",
+            "base_repository_name",
+            "new_repository_name",
+            "is_complete",
+            "base_measurement_unit",
+            "new_measurement_unit",
+            "base_retriggerable_job_ids",
+            "new_retriggerable_job_ids",
+            "base_runs",
+            "new_runs",
+            "base_runs_replicates",
+            "new_runs_replicates",
+            "test",
+            "option_name",
+            "extra_options",
+            "graphs_link",
+            "delta_value",
+            "delta_percentage",
+            "new_is_better",
+            "lower_is_better",
+            "is_confident",
+            "is_fit_good",
+            "more_runs_are_needed",
+            "direction_of_change",
+            "noise_metric",
+            "is_improvement",
+            "is_regression",
+            "is_meaningful",
+            "base_parent_signature",
+            "new_parent_signature",
+            "base_signature_id",
+            "new_signature_id",
+            "has_subtests",
+            "ks_test",
+            "shapiro_wilk_test_base",
+            "shapiro_wilk_test_new",
+            "shapiro_wilk_warnings",
+            "mann_whitney_test",
+            "cliffs_delta",
+            "cliffs_interpretation",
+            "cles",
+            "silverman_kde",
+            "kde_new",
+            "kde_base",
+            "kde_summary_text",
         ]
 
 
