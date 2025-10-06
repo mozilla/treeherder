@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import chunk from 'lodash/chunk';
 import { connect } from 'react-redux';
 import { Queue } from 'taskcluster-client-web';
 

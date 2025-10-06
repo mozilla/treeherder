@@ -116,9 +116,10 @@ export default class PerfSeriesModel {
     if (!this.optionCollectionMap) {
       this.optionCollectionMap = await OptionCollectionModel.getMap();
     }
-    const url =
-      `${getProjectUrl('/performance/job-data/', projectName)}?` +
-      queryString.stringify(params);
+    const url = `${getProjectUrl(
+      '/performance/job-data/',
+      projectName,
+    )}?${queryString.stringify(params)}`;
     const response = await getData(url);
     if (response.failureStatus) {
       return response;
