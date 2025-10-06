@@ -113,17 +113,25 @@ export default class PerfSeriesModel {
   }
 
   static async getJobData(projectName, params) {
+    const url = `${getProjectUrl(
+      '/performance/job-data/',
+      projectName,
+    )}?${queryString.stringify(params)}`;
+    const response = await getData(url);
+
+    if (
+      !response ||
+      response.failureStatus ||
+      !response.data ||
+      !response.data.signature_data
+    ) {
+      return { failureStatus: true, data: ['No data for this job'] };
+    }
+    const data = response.data;
+
     if (!this.optionCollectionMap) {
       this.optionCollectionMap = await OptionCollectionModel.getMap();
     }
-    const url =
-      `${getProjectUrl('/performance/job-data/', projectName)}?` +
-      queryString.stringify(params);
-    const response = await getData(url);
-    if (response.failureStatus) {
-      return response;
-    }
-    const { data } = response;
 
     data.signature_data = await getSeriesSummary(
       projectName,
@@ -132,7 +140,7 @@ export default class PerfSeriesModel {
       this.optionCollectionMap,
     );
 
-    return data;
+    return { failureStatus: false, data: data };
   }
 
   static getPlatformList(projectName, params) {

@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import chunk from 'lodash/chunk';
 import { connect } from 'react-redux';
 import { Queue } from 'taskcluster-client-web';
 
@@ -197,11 +196,10 @@ class DetailsPanel extends React.Component {
           currentRepo.name,
           { job_id: selectedJob.id },
         ).then((rowOrResponse) => {
-          const jobData =
-            rowOrResponse && rowOrResponse.data
-              ? rowOrResponse.data
-              : rowOrResponse;
-          if (!jobData || jobData.failureStatus) {
+          const jobData = !rowOrResponse.failureStatus
+            ? rowOrResponse.data
+            : rowOrResponse;
+          if (jobData.failureStatus) {
             this.setState({ perfJobDetail: [] });
             return;
           }
