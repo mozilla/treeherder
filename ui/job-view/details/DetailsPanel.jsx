@@ -185,7 +185,6 @@ class DetailsPanel extends React.Component {
               ...artifactsParams,
               ...{ artifactPath: 'public/build/built_from.json' },
             }),
-            this.selectJobController.signal,
           );
         }
 
