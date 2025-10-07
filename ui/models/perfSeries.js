@@ -127,7 +127,7 @@ export default class PerfSeriesModel {
     ) {
       return { failureStatus: true, data: ['No data for this job'] };
     }
-    const data = response.data;
+    const { data } = response;
 
     if (!this.optionCollectionMap) {
       this.optionCollectionMap = await OptionCollectionModel.getMap();
@@ -140,7 +140,7 @@ export default class PerfSeriesModel {
       this.optionCollectionMap,
     );
 
-    return { failureStatus: false, data: data };
+    return { failureStatus: false, data };
   }
 
   static getPlatformList(projectName, params) {
