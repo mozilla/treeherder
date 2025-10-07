@@ -55,3 +55,6 @@ docs.egg-info
 mcp-servers/
 .claude
 CLAUDE.md
+
+#Cloud SQL Auth Proxy
+cloud-sql-proxy
