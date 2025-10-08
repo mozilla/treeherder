@@ -83,7 +83,7 @@
     "@pollyjs/core": "6.0.6",
     "@pollyjs/persister-fs": "6.0.6",
     "@testing-library/dom": "10.4.1",
-    "@testing-library/jest-dom": "6.6.4",
+    "@testing-library/jest-dom": "6.9.1",
     "@testing-library/react": "16.2.0",
     "babel-jest": "29.7.0",
     "babel-loader": "10.0.0",
