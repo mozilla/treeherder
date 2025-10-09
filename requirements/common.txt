@@ -393,9 +393,9 @@ distlib==0.3.9 \
     --hash=sha256:47f8c22fd27c27e25a65601af709b38e4f0a45ea4fc2e710f65755fa8caaaf87 \
     --hash=sha256:a60f20dea646b8a33f3e7772f74dc0b2d0772d2837ee1342a00645c81edf9403
     # via virtualenv
-django==5.1.12 \
-    --hash=sha256:8a8991b1ec052ef6a44fefd1ef336ab8daa221287bcb91a4a17d5e1abec5bbcc \
-    --hash=sha256:9eb695636cea3601b65690f1596993c042206729afb320ca0960b55f8ed4477b
+django==5.1.13 \
+    --hash=sha256:06f257f79dc4c17f3f9e23b106a4c5ed1335abecbe731e83c598c941d14fbeed \
+    --hash=sha256:543ff21679f15e80edfc01fe7ea35f8291b6d4ea589433882913626a7c1cf929
     # via
     #   -r requirements/common.in
     #   django-cors-headers
@@ -2000,6 +2000,7 @@ tzdata==2025.2 \
     --hash=sha256:1a403fada01ff9221ca8044d701868fa132215d84beb92242d9acd2147f667a8 \
     --hash=sha256:b60a638fcc0daffadf82fe0f57e53d06bdec2f36c4df66280ae79bce6bd6f2b9
     # via
+    #   django
     #   kombu
     #   pandas
 uritemplate==4.2.0 \
