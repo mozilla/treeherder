@@ -261,3 +261,24 @@ def job_from_try(hundred_job_blobs, create_jobs):
     job.repository.is_try_repo = True
     job.repository.save()
     return job
+
+
+@pytest.fixture
+def mock_bugfiler_settings(monkeypatch):
+    """Mock Django settings for Bugfiler API."""
+    monkeypatch.setattr(
+        "treeherder.perf.auto_perf_sheriffing.base_bug_manager.settings.BUGFILER_API_URL",
+        "https://bugzilla.mozilla.org",
+    )
+    monkeypatch.setattr(
+        "treeherder.perf.auto_perf_sheriffing.base_bug_manager.settings.BUGFILER_API_KEY",
+        "test-api-key",
+    )
+    monkeypatch.setattr(
+        "treeherder.perf.auto_perf_sheriffing.base_bug_manager.settings.COMMENTER_API_KEY",
+        "test-commenter-key",
+    )
+    monkeypatch.setattr(
+        "treeherder.perf.auto_perf_sheriffing.base_bug_manager.settings.SITE_HOSTNAME",
+        "treeherder.mozilla.org",
+    )
