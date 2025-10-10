@@ -123,7 +123,7 @@ export default class PerfSeriesModel {
       !response ||
       response.failureStatus ||
       !response.data ||
-      !response.data.signature_data
+      !response.data.length
     ) {
       return { failureStatus: true, data: ['No data for this job'] };
     }
@@ -132,14 +132,14 @@ export default class PerfSeriesModel {
     if (!this.optionCollectionMap) {
       this.optionCollectionMap = await OptionCollectionModel.getMap();
     }
-
-    data.signature_data = await getSeriesSummary(
-      projectName,
-      data.signature_data.id,
-      data.signature_data,
-      this.optionCollectionMap,
-    );
-
+    for (const item of data) {
+      item.signature_data = getSeriesSummary(
+        projectName,
+        item.signature_data.id,
+        item.signature_data,
+        this.optionCollectionMap,
+      );
+    }
     return { failureStatus: false, data };
   }
 

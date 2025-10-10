@@ -215,48 +215,66 @@ class PerformanceFrameworkViewSet(viewsets.ReadOnlyModelViewSet):
 
 class PerfomanceJobViewSet(viewsets.ReadOnlyModelViewSet):
     def list(self, request, project):
+        repository = models.Repository.objects.get(name=project)
         # Expect exactly one job_id in query params
-        job_id_str = request.query_params.get("job_id")
-        if job_id_str is None:
-            return Response(
-                {"message": "Parameter 'job_id' is required."},
-                status=HTTP_400_BAD_REQUEST,
-            )
-        # Validate that job_id is an integer
         try:
-            job_id = int(job_id_str)
+            job_ids = [int(job_id) for job_id in request.query_params.getlist("job_id")]
+            if not job_ids:
+                raise ValueError("empty")
         except ValueError:
             return Response(
-                {"message": "Parameter 'job_id' must be an integer."},
-                status=HTTP_400_BAD_REQUEST,
+                {"message": "Job id(s) must be specified as integers"}, status=HTTP_400_BAD_REQUEST
             )
-        # Fetch the first PerformanceDatum for this job_id
-        datum = (
-            PerformanceDatum.objects.filter(job_id=job_id)
-            .select_related("signature", "push")
-            .first()
-        )
-        if not datum:
-            return Response(
-                {"message": f"No data found for job_id={job_id}"},
-                status=HTTP_400_BAD_REQUEST,
-            )
-        # Build a single response object
-        result = {
-            "id": datum.id,
-            "signature_data": self.get_signature_data(datum.signature_id),
-            "job_id": datum.job_id,
-            "push_id": datum.push_id,
-            "revision": datum.push.revision,
-            "push_timestamp": int(time.mktime(datum.push_timestamp.timetuple())),
-            "value": round(datum.value, 2),
-        }
-        return Response(result)
 
-    def get_signature_data(self, signature_id):
-        obj = PerformanceSignature.objects.select_related(
-            "option_collection", "platform", "parent_signature"
-        ).get(id=signature_id)
+        datums = PerformanceDatum.objects.filter(
+            repository=repository, job_id__in=job_ids
+        ).select_related("signature", "push")
+
+        if not datums:
+            return Response(
+                {"message": f"No data found for job_id={job_ids}"},
+                status=HTTP_400_BAD_REQUEST,
+            )
+        results = []
+        values_list = datums.values_list(
+            "id",
+            "signature_id",
+            "job_id",
+            "push_id",
+            "push_timestamp",
+            "value",
+            "push__revision",
+        )
+        for (
+            id,
+            signature_id,
+            job_id,
+            push_id,
+            push_timestamp,
+            value,
+            push__revision,
+        ) in values_list:
+            results.append(
+                {
+                    "id": id,
+                    "signature_data": self.get_signature_data(signature_id, project),
+                    "job_id": job_id,
+                    "push_id": push_id,
+                    "revision": push__revision,
+                    "push_timestamp": int(time.mktime(push_timestamp.timetuple())),
+                    "value": round(value, 2),
+                }
+            )
+
+        return Response(results)
+
+    def get_signature_data(self, signature_id, project):
+        repository = models.Repository.objects.get(name=project)
+        obj = (
+            PerformanceSignature.objects.filter(repository=repository)
+            .select_related("option_collection", "platform", "parent_signature")
+            .get(id=signature_id)
+        )
         return {
             "id": obj.id,
             "signature_hash": obj.signature_hash,
@@ -265,7 +283,10 @@ class PerfomanceJobViewSet(viewsets.ReadOnlyModelViewSet):
             "machine_platform": obj.platform.platform,
             "suite": obj.suite,
             "should_alert": obj.should_alert,
-            "has_subtests": True if obj.has_subtests else False,
+            "lower_is_better": False if not obj.lower_is_better else True,
+            "test": obj.test if obj.test else None,
+            "extra_options": obj.extra_options.split(" ") if obj.extra_options else None,
+            "measurement_unit": obj.measurement_unit if obj.measurement_unit else "",
         }
 
 

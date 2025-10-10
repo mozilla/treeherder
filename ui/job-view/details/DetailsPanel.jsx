@@ -204,13 +204,12 @@ class DetailsPanel extends React.Component {
             return;
           }
 
-          const rows = Array.isArray(jobData) ? jobData : [jobData];
           const mappedFrameworks = {};
           frameworks.forEach((element) => {
             mappedFrameworks[element.id] = element.name;
           });
 
-          const perfJobDetail = rows.map((jobData) => {
+          const perfJobDetail = jobData.map((jobData) => {
             const signature = jobData.signature_data;
             return {
               url: `/perfherder/graphs?series=${[
