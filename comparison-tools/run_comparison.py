@@ -90,7 +90,7 @@ class TreeherderMasterComparator:
                 "node",
                 str(self.tools_dir / "ui_comparator.js"),
                 "--local",
-                self.local_base_url.replace("8000", "5001"),  # Frontend port
+                self.local_base_url.replace("8000", "5000"),  # Frontend port
                 "--staging",
                 self.staging_base_url,
                 "--output",
