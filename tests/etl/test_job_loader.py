@@ -91,6 +91,27 @@ def test_job_transformation(pulse_jobs, transformed_pulse_jobs):
         assert transformed_pulse_jobs[idx] == json.loads(json.dumps(jl.transform(pulse_job)))
 
 
+def test_job_transformation_extracts_perfherder_data(pulse_jobs):
+    jl = JobLoader()
+    pulse_job = pulse_jobs[0]
+    links = pulse_job.setdefault("jobInfo", {}).setdefault("links", [])
+    links.append(
+        {
+            "label": "artifact uploaded",
+            "linkText": "perfherder-data-decision.json",
+            "url": "https://example.mozilla.com/perfherder-data-decision.json",
+        }
+    )
+    transformed_job = jl.transform(pulse_job)
+    assert transformed_job["job"]["perfherder_data_references"] == [
+        {
+            "name": "perfherder-data-decision.json",
+            "url": "https://example.mozilla.com/perfherder-data-decision.json",
+            "parse_status": "pending",
+        }
+    ]
+
+
 @responses.activate
 def test_new_job_transformation(new_pulse_jobs, new_transformed_jobs, failure_classifications):
     jl = JobLoader()
@@ -171,6 +192,27 @@ def test_ingest_pulse_jobs(
         {"name": item.name, "url": item.url, "parse_status": item.status}
         for item in job_logs.all().order_by("name")
     ] == logs_expected
+
+
+def test_ingest_pulse_job_with_perfherder_data(
+    pulse_jobs, push_stored, failure_classifications, mock_log_parser
+):
+    jl = JobLoader()
+    pulse_job = copy.deepcopy(pulse_jobs[0])
+    pulse_job["origin"]["revision"] = push_stored[0]["revision"]
+    pulse_job["jobInfo"]["links"] = [
+        {
+            "label": "artifact uploaded",
+            "linkText": "perfherder-data-decision.json",
+            "url": "https://example.mozilla.com/perfherder-data-decision.json",
+        }
+    ]
+
+    jl.process_job(pulse_job, "https://firefox-ci-tc.services.mozilla.com")
+
+    names = list(JobLog.objects.filter(job_id=1).values_list("name", flat=True))
+    assert "live_backing_log" in names
+    assert any(n.startswith("perfherder-data") for n in names)
 
 
 def test_ingest_pulse_job_with_long_job_type_name(

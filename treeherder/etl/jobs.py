@@ -277,7 +277,10 @@ def _load_job(repository, job_datum, push_id):
         push_id=push_id,
     )
 
-    log_refs = job_datum.get("log_references", [])
+    log_refs = [
+        *job_datum.get("log_references", []),
+        *job_datum.get("perfherder_data_references", []),
+    ]
     job_logs = []
     if log_refs:
         for log in log_refs:
@@ -301,8 +304,21 @@ def _load_job(repository, job_datum, push_id):
             job_logs.append(jl)
 
         _schedule_log_parsing(job, job_logs, result, repository)
+        _schedule_perfherder_ingest(job, job_logs)
 
     return job_guid
+
+
+def _schedule_perfherder_ingest(job, job_logs):
+    from treeherder.perf.tasks import ingest_perfherder_data
+
+    for job_log in job_logs:
+        if job_log.status != JobLog.PENDING:
+            continue
+
+        job_log_name = job_log.name.replace("-", "_")
+        if job_log_name.startswith("perfherder_data"):
+            ingest_perfherder_data.apply_async(queue="perf_ingest", args=[job.id, [job_log.id]])
 
 
 def _schedule_log_parsing(job, job_logs, result, repository):
