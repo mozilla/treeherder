@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Badge, Button, Form } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import { Badge, Button, Form, CloseButton } from 'react-bootstrap';
 
 import { getFrameworkName } from '../perf-helpers/helpers';
 import { graphColors } from '../perf-helpers/constants';
@@ -129,7 +127,7 @@ const LegendCard = ({
     }
   };
 
-  const subtitleStyle = 'p-0 mb-0 border-0 text-secondary text-left';
+  const subtitleStyle = 'p-0 mb-0 border-0 text-secondary text-start';
   const symbolType = series.symbol || ['circle', 'outline'];
 
   const { suite, platform, framework_id: frameworkId } = series;
@@ -137,25 +135,19 @@ const LegendCard = ({
   const perfdocs = new Perfdocs(framework, suite, platform);
   const hasDocumentation = perfdocs.hasDocumentation();
   return (
-    <Form.Group className="ps-0 border">
-      <Button
-        className="close me-3 my-2 ms-2 bg-transparent"
+    <Form.Group className="ps-0 border position-relative">
+      <CloseButton
+        className="position-absolute top-0 end-0 m-2"
         onClick={removeTest}
         data-testid="remove-test-button"
-      >
-        <FontAwesomeIcon
-          className="pointer"
-          icon={faTimes}
-          size="xs"
-          title=""
-        />
-      </Button>
+        aria-label="Remove test"
+      />
       <div className={`${series.color[0]} graph-legend-card p-3`}>
         <Button
           variant="outline-link"
           className={`p-0 mb-0 pointer border-0 ${
             series.visible ? series.color[0] : 'text-muted'
-          } text-left`}
+          } text-start`}
           onClick={() => addTestData('addRelatedConfigs')}
           title="Add related configurations"
         >
@@ -213,7 +205,7 @@ const LegendCard = ({
         <div className="small">{`alert_threshold: ${series.alertThreshold}`}</div>
         <div className="small">{`${series.signatureHash.slice(0, 16)}...`}</div>
       </div>
-      <Form.Control
+      <Form.Check
         className="show-hide-check"
         type="checkbox"
         checked={series.visible}
