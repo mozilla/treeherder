@@ -69,10 +69,11 @@ h1 {
 }
 
 .show-hide-check {
-  float: right;
-  position: static;
-  margin-right: 13px !important;
-  margin-top: -27px;
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  margin: 0;
+  cursor: pointer;
 }
 
 .graph-right-padding {

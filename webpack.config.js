@@ -120,7 +120,7 @@ const developmentConfig = {
 
   devServer: {
     host: '0.0.0.0',
-    port: process.env.PORT || 5001,
+    port: process.env.PORT || 5000,
     hot: true,
     historyApiFallback: true,
     open: true,

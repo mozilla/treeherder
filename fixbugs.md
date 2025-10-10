@@ -2,7 +2,7 @@
 
 Think deeply. Create a plan to fix issues within the /perfherder route.
 
-The local running app is at <http://localhost:5001/perfherder>
+The local running app is at <http://localhost:5000/perfherder>
 
 Fixes needed for the /perfherder/graphs route:
 

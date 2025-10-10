@@ -29,6 +29,11 @@ a {
   font-size: 1rem;
 }
 
+/* Remove underlines from links globally */
+a {
+  text-decoration: none;
+}
+
 /* Bootstrap 4 will not show <a> as a link style if it has no href.
    This adds that style back. */
 .link-style {
