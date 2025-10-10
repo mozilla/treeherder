@@ -217,6 +217,83 @@ class PerformanceFrameworkViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = "id"
 
 
+class PerfomanceJobViewSet(viewsets.ReadOnlyModelViewSet):
+    def list(self, request, project):
+        repository = models.Repository.objects.get(name=project)
+        # Expect exactly one job_id in query params
+        try:
+            job_ids = [int(job_id) for job_id in request.query_params.getlist("job_id")]
+            if not job_ids:
+                raise ValueError("empty")
+        except ValueError:
+            return Response(
+                {"message": "Job id(s) must be specified as integers"}, status=HTTP_400_BAD_REQUEST
+            )
+
+        datums = PerformanceDatum.objects.filter(
+            repository=repository, job_id__in=job_ids
+        ).select_related("signature", "push")
+
+        if not datums:
+            return Response(
+                {"message": f"No data found for job_id={job_ids}"},
+                status=HTTP_400_BAD_REQUEST,
+            )
+        results = []
+        values_list = datums.values_list(
+            "id",
+            "signature_id",
+            "job_id",
+            "push_id",
+            "push_timestamp",
+            "value",
+            "push__revision",
+        )
+        for (
+            id,
+            signature_id,
+            job_id,
+            push_id,
+            push_timestamp,
+            value,
+            push__revision,
+        ) in values_list:
+            results.append(
+                {
+                    "id": id,
+                    "signature_data": self.get_signature_data(signature_id, project),
+                    "job_id": job_id,
+                    "push_id": push_id,
+                    "revision": push__revision,
+                    "push_timestamp": int(time.mktime(push_timestamp.timetuple())),
+                    "value": round(value, 2),
+                }
+            )
+
+        return Response(results)
+
+    def get_signature_data(self, signature_id, project):
+        repository = models.Repository.objects.get(name=project)
+        obj = (
+            PerformanceSignature.objects.filter(repository=repository)
+            .select_related("option_collection", "platform", "parent_signature")
+            .get(id=signature_id)
+        )
+        return {
+            "id": obj.id,
+            "signature_hash": obj.signature_hash,
+            "framework_id": obj.framework_id,
+            "option_collection_hash": obj.option_collection.option_collection_hash,
+            "machine_platform": obj.platform.platform,
+            "suite": obj.suite,
+            "should_alert": obj.should_alert,
+            "lower_is_better": False if not obj.lower_is_better else True,
+            "test": obj.test if obj.test else None,
+            "extra_options": obj.extra_options.split(" ") if obj.extra_options else None,
+            "measurement_unit": obj.measurement_unit if obj.measurement_unit else "",
+        }
+
+
 class PerformanceDatumViewSet(viewsets.ViewSet):
     """
     This view serves performance test result data

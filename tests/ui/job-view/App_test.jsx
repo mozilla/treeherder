@@ -104,7 +104,7 @@ describe('App', () => {
       [],
     );
     fetchMock.get(
-      `begin:${getProjectUrl('/performance/data/?job_id=', repoName)}`,
+      `begin:${getProjectUrl('/performance/job-data/?job_id=', repoName)}`,
       [],
     );
     fetchMock.get(`begin:${getApiUrl('/jobs/')}`, jobListFixtureOne);
