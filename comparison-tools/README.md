@@ -138,7 +138,7 @@ Visual regression testing using Puppeteer to compare UI between environments.
 node ui_comparator.js [options]
 
 Options:
-  --local URL       Local base URL (default: http://localhost:5001)
+  --local URL       Local base URL (default: http://localhost:5000)
   --staging URL     Staging base URL (default: https://treeherder.allizom.org)
   --output DIR      Output directory for screenshots and reports
   --timeout MS      Page load timeout (default: 30000)
@@ -268,7 +268,7 @@ Options:
 When running locally via Docker Compose:
 
 - **Backend API**: `http://localhost:8000`
-- **Frontend**: `http://localhost:5001` (note: port may vary)
+- **Frontend**: `http://localhost:5000` (note: port may vary)
 - **Database**: `postgresql://postgres:mozilla1234@localhost:5499/treeherder`
 - **Redis**: `redis://localhost:6388`
 
@@ -304,8 +304,8 @@ When running locally via Docker Compose:
    # Check frontend port
    docker-compose ps frontend
    
-   # Frontend might be on port 5000 or 5001
-   curl http://localhost:5001
+   # Frontend might be on port 5000 or 5000
+   curl http://localhost:5000
    ```
 
 4. **Missing Python dependencies**:
@@ -325,7 +325,7 @@ When running locally via Docker Compose:
 If you encounter port conflicts, check your `docker-compose.yml` for port mappings:
 
 - Backend: `8000:8000`
-- Frontend: `5001:5000` (or `5000:5000`)
+- Frontend: `5000:5000` (or `5000:5000`)
 - PostgreSQL: `5499:5432` (or `5432:5432`)
 - Redis: `6388:6379` (or `6379:6379`)
 
