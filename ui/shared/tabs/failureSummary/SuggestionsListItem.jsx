@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'reactstrap';
+import { Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -91,7 +91,7 @@ export default class SuggestionsListItem extends React.Component {
         suggestions.push(
           <Button
             key="show-hide-more"
-            color="link"
+            variant="link"
             rel="noopener"
             onClick={this.clickShowMore}
             className={`bg-light px-2 py-1 btn btn-outline-secondary btn-xs my-2 show-hide-more ${
@@ -197,8 +197,8 @@ export default class SuggestionsListItem extends React.Component {
           ) : (
             <span>
               <Button
-                className="bg-light py-1 px-2 mr-2"
-                outline
+                className="bg-light py-1 px-2 me-2"
+                variant="outline-secondary"
                 style={{ fontSize: '8px' }}
                 onClick={() => toggleInternalIssueFiler(suggestion)}
                 title="File an internal issue for this failure"
@@ -209,7 +209,7 @@ export default class SuggestionsListItem extends React.Component {
               {suggestion.showNewButton && (
                 <Button
                   className="btn-orange"
-                  outline
+                  variant="outline-warning"
                   title="number of times this error message has been seen until now (including this run)"
                 >
                   NEW
@@ -244,12 +244,12 @@ export default class SuggestionsListItem extends React.Component {
                 <img
                   alt="Logviewer"
                   src={logviewerIcon}
-                  className="logviewer-icon ml-1"
+                  className="logviewer-icon ms-1"
                 />
               </a>
               <Button
-                className="bg-light py-1 px-2 ml-2"
-                outline
+                className="bg-light py-1 px-2 ms-2"
+                variant="outline-secondary"
                 style={{ fontSize: '8px' }}
                 onClick={() => toggleBugFiler(suggestion)}
                 title="File a bug for this failure"
@@ -275,11 +275,13 @@ export default class SuggestionsListItem extends React.Component {
 SuggestionsListItem.propTypes = {
   selectedJob: PropTypes.shape({}).isRequired,
   suggestion: PropTypes.shape({}).isRequired,
-  jobDetails: PropTypes.arrayOf({
-    url: PropTypes.string.isRequired,
-    value: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-  }).isRequired,
+  jobDetails: PropTypes.arrayOf(
+    PropTypes.shape({
+      url: PropTypes.string.isRequired,
+      value: PropTypes.string.isRequired,
+      title: PropTypes.string.isRequired,
+    }),
+  ).isRequired,
   toggleBugFiler: PropTypes.func.isRequired,
   toggleInternalIssueFiler: PropTypes.func.isRequired,
   developerMode: PropTypes.bool.isRequired,

@@ -26,45 +26,85 @@ describe('BugFiler', () => {
   const suggestions = [
     {
       search: 'ShutdownLeaks | process() called before end of test suite',
+      bugs: { open_recent: [], all_others: [] },
+      counter: 1,
+      failure_in_new_rev: false,
+      line_number: 1,
+      path_end: null,
+      search_terms: [],
     },
     {
       search:
         'browser/components/search/test/browser_searchbar_smallpanel_keyboard_navigation.js | application terminated with exit code 11',
+      bugs: { open_recent: [], all_others: [] },
+      counter: 1,
+      failure_in_new_rev: false,
+      line_number: 2,
+      path_end:
+        'browser/components/search/test/browser_searchbar_smallpanel_keyboard_navigation.js',
+      search_terms: [],
     },
     {
       search:
         'browser/components/search/test/browser_searchbar_smallpanel_keyboard_navigation.js | application crashed [@ js::GCMarker::eagerlyMarkChildren]',
+      bugs: { open_recent: [], all_others: [] },
+      counter: 1,
+      failure_in_new_rev: false,
+      line_number: 3,
+      path_end:
+        'browser/components/search/test/browser_searchbar_smallpanel_keyboard_navigation.js',
+      search_terms: [],
     },
     {
       search:
         'leakcheck | default process: missing output line for total leaks!',
+      bugs: { open_recent: [], all_others: [] },
+      counter: 1,
+      failure_in_new_rev: false,
+      line_number: 4,
+      path_end: null,
+      search_terms: [],
     },
-    { search: '# TBPL FAILURE #' },
+    {
+      search: '# TBPL FAILURE #',
+      bugs: { open_recent: [], all_others: [] },
+      counter: 1,
+      failure_in_new_rev: false,
+      line_number: 5,
+      path_end: null,
+      search_terms: [],
+    },
   ];
 
   const PdfSuggestions = [
     {
-      bugs: {},
+      bugs: { open_recent: [], all_others: [] },
       line_number: 10,
       path_end: 'browser/extensions/pdfjs/test/browser_pdfjs_views.js',
       search_terms: [],
       search:
         'TEST-UNEXPECTED-FAIL | browser/extensions/pdfjs/test/browser_pdfjs_views.js | Test timed out -',
+      counter: 1,
+      failure_in_new_rev: false,
     },
     {
-      bugs: {},
+      bugs: { open_recent: [], all_others: [] },
       line_number: 235,
       path_end: 'browser/extensions/pdfjs/test/browser_pdfjs_views.js',
       search_terms: [],
       search:
         'TEST-UNEXPECTED-FAIL | browser/extensions/pdfjs/test/browser_pdfjs_views.js | Found a tab after previous test timed out: about:blank -',
+      counter: 1,
+      failure_in_new_rev: false,
     },
     {
-      bugs: {},
+      bugs: { open_recent: [], all_others: [] },
       line_number: 783,
       path_end: 'flee',
       search_terms: [],
       search: 'REFTEST TEST-UNEXPECTED-PASS | flee | floo',
+      counter: 1,
+      failure_in_new_rev: false,
     },
   ];
 
@@ -79,6 +119,24 @@ describe('BugFiler', () => {
         {
           product: 'Mock Product',
           component: 'Mock Component',
+        },
+      ],
+    );
+    fetchMock.mock(
+      `/api${bzComponentEndpoint}?path=browser%2Fcomponents%2Fsearch%2Ftest%2Fbrowser_searchbar_smallpanel_keyboard_navigation.js`,
+      [
+        {
+          product: 'Firefox',
+          component: 'Search',
+        },
+      ],
+    );
+    fetchMock.mock(
+      `/api${bzComponentEndpoint}?path=browser%2Fcomponents%2Fsessionstore%2Ftest%2Fbrowser_625016.js`,
+      [
+        {
+          product: 'Firefox',
+          component: 'Session Restore',
         },
       ],
     );
@@ -175,6 +233,12 @@ describe('BugFiler', () => {
         'browser_searchbar_smallpanel_keyboard_navigation.js", "[@ js::GCMarker::eagerlyMarkChildren]',
       ],
       search: summary,
+      bugs: { open_recent: [], all_others: [] },
+      counter: 1,
+      failure_in_new_rev: false,
+      line_number: 1,
+      path_end:
+        'browser/components/search/test/browser_searchbar_smallpanel_keyboard_navigation.js',
     };
 
     render(bugFilerComponentSuggestion(suggestion));

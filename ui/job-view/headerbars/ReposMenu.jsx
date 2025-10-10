@@ -2,12 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
-import {
-  DropdownMenu,
-  DropdownItem,
-  DropdownToggle,
-  UncontrolledDropdown,
-} from 'reactstrap';
+import { Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
 import { updateRepoParams } from '../../helpers/location';
@@ -48,27 +43,26 @@ export default function ReposMenu(props) {
   }));
 
   return (
-    <UncontrolledDropdown
+    <Dropdown
       aria-controls="repo-dropdown"
       aria-expanded="false"
       aria-haspopup="menu"
     >
-      <DropdownToggle
+      <Dropdown.Toggle
         id="repoLabel"
         className="btn-view-nav nav-menu-btn"
-        caret
         title="Watch a repo"
       >
         Repos
-      </DropdownToggle>
-      <DropdownMenu right id="repo-dropdown">
+      </Dropdown.Toggle>
+      <Dropdown.Menu align="end" id="repo-dropdown">
         <ul
           className="checkbox-dropdown-menu row"
           role="menu"
           aria-labelledby="repoLabel"
         >
           {groupedRepos.map((group) => (
-            <DropdownItem
+            <Dropdown.Item
               className="repogroup dropdown-item col"
               key={group.name}
             >
@@ -91,11 +85,11 @@ export default function ReposMenu(props) {
                     </Link>
                   </li>
                 ))}
-            </DropdownItem>
+            </Dropdown.Item>
           ))}
         </ul>
-      </DropdownMenu>
-    </UncontrolledDropdown>
+      </Dropdown.Menu>
+    </Dropdown>
   );
 }
 

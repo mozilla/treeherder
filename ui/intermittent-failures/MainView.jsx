@@ -1,5 +1,5 @@
 import React from 'react';
-import { Row, Col, Breadcrumb, BreadcrumbItem } from 'reactstrap';
+import { Row, Col, Breadcrumb, BreadcrumbItem } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import ReactTable from 'react-table-6';
@@ -111,7 +111,7 @@ const MainView = (props) => {
       Cell: (props) => (
         <div>
           <a
-            className="ml-1"
+            className="ms-1"
             target="_blank"
             rel="noopener noreferrer"
             href={`${getBugUrl(props.original.id)}`}

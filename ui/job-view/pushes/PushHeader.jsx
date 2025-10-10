@@ -12,7 +12,7 @@ import {
   faThumbtack,
   faTimesCircle,
 } from '@fortawesome/free-solid-svg-icons';
-import { Badge, Button } from 'reactstrap';
+import { Badge, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
 import { getPercentComplete, toDateStr } from '../../helpers/display';
@@ -50,7 +50,7 @@ function PushCounts(props) {
     <div>
       {fixedByCommit >= 1 && (
         <span
-          className="badge badge-warning ml-1"
+          className="badge badge-warning ms-1"
           title="Count of Fixed By Commit tasks for this push"
         >
           {fixedByCommit}
@@ -246,7 +246,7 @@ class PushHeader extends React.Component {
               <FontAwesomeIcon
                 onClick={togglePushCollapsed}
                 icon={collapsed ? faPlusSquare : faMinusSquare}
-                className="mr-2 mt-2 text-muted pointable"
+                className="pe-3 mt-2 text-muted pointable"
                 title={`${collapsed ? 'Expand' : 'Collapse'} push data`}
               />
               <span>
@@ -323,7 +323,7 @@ class PushHeader extends React.Component {
                 onClick={this.triggerNewJobs}
               >
                 Trigger
-                <Badge color="info" className="mx-1">
+                <Badge bg="info" className="mx-1">
                   {countSelectedRunnableJobs}
                 </Badge>
                 New Job{countSelectedRunnableJobs > 1 ? 's' : ''}
