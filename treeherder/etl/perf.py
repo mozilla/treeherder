@@ -36,13 +36,13 @@ def _get_application_version(validated_perf_datum: dict):
 
 def _get_os_fields(perf_datum):
     """
-    Try to read OS fields from the payload. Returns (name, version) or (None, None).
+    Try to read OS fields from the payload. Returns (name, platform_version) or (None, None).
     Supported formats:
-      - perf_datum["os"] = {"name": "...", "version": "..."}
+      - perf_datum["os"] = {"name": "...", "platform_version": "..."}
     """
     os_obj = perf_datum.get("os")
     if isinstance(os_obj, dict):
-        return os_obj.get("name"), os_obj.get("version")
+        return os_obj.get("name"), os_obj.get("platform_version")
     return None, None
 
 
@@ -190,7 +190,7 @@ def _load_perf_datum(job: Job, perf_datum: dict):
         return
     application = _get_application_name(perf_datum)
     application_version = _get_application_version(perf_datum)
-    os_name, os_version = _get_os_fields(perf_datum)
+    os_name, platform_version = _get_os_fields(perf_datum)
     for suite in perf_datum["suites"]:
         suite_extra_properties = copy.copy(extra_properties)
         ordered_tags = _order_and_concat(suite.get("tags", []))
@@ -252,7 +252,7 @@ def _load_perf_datum(job: Job, perf_datum: dict):
                     "value": suite["value"],
                     "application_version": application_version,
                     "os_name": os_name,
-                    "os_version": os_version,
+                    "platform_version": platform_version,
                 },
             )
             if suite_datum.should_mark_as_multi_commit(is_multi_commit, datum_created):
@@ -326,7 +326,7 @@ def _load_perf_datum(job: Job, perf_datum: dict):
                     "value": value[0],
                     "application_version": application_version,
                     "os_name": os_name,
-                    "os_version": os_version,
+                    "platform_version": platform_version,
                 },
             )
 

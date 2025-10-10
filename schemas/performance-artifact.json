@@ -39,7 +39,7 @@
           "minLength": 1,
           "maxLength": 100
         },
-        "version": {
+        "platform_version": {
           "title": "Operating system version",
           "type": "string",
           "minLength": 1,

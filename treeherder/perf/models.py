@@ -244,7 +244,7 @@ class PerformanceDatum(models.Model):
     push = models.ForeignKey(Push, on_delete=models.CASCADE)
 
     os_name = models.CharField(max_length=100, null=True, blank=True)
-    os_version = models.CharField(max_length=100, null=True, blank=True)
+    platform_version = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
         db_table = "performance_datum"
