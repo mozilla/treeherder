@@ -11,7 +11,7 @@ const { createHash } = require('crypto');
 
 class TreeherderUIComparator {
   constructor(options = {}) {
-    this.localBaseUrl = options.localBaseUrl || 'http://localhost:5001';
+    this.localBaseUrl = options.localBaseUrl || 'http://localhost:5000';
     this.stagingBaseUrl =
       options.stagingBaseUrl || 'https://treeherder.allizom.org';
     this.outputDir = options.outputDir || './comparison-results';

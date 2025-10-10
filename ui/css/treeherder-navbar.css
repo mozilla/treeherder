@@ -87,8 +87,8 @@ label.dropdown-item.active,
   width: 98%;
 }
 
-.nav-menu-btn:after {
-  font-size: 14px;
+.nav-menu-btn::after {
+  display: none !important;
 }
 
 .nav-help-btn {

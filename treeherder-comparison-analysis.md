@@ -2,11 +2,11 @@
 
 ## Overview
 
-This document tracks differences found between the local development version of Treeherder (<http://localhost:5001>) and the staging version (<https://treeherder.allizom.org>) when comparing the Perfherder interface.
+This document tracks differences found between the local development version of Treeherder (<http://localhost:5000>) and the staging version (<https://treeherder.allizom.org>) when comparing the Perfherder interface.
 
 ## Comparison URLs
 
-- **Local**: <http://localhost:5001/perfherder/alerts?hideDwnToInv=1&page=1>
+- **Local**: <http://localhost:5000/perfherder/alerts?hideDwnToInv=1&page=1>
 - **Staging**: <https://treeherder.allizom.org/perfherder/alerts?hideDwnToInv=1&page=1>
 
 ## Navigation Tabs to Compare
@@ -132,7 +132,7 @@ Since no code issues were found, these are optional improvements for development
 ### 🔧 Infrastructure Configuration (Optional)
 
 1. **Backend Configuration**: The local setup is already correctly configured to use staging backend data
-2. **Port Configuration**: Successfully modified webpack config to use port 5001
+2. **Port Configuration**: Successfully modified webpack config to use port 5000
 3. **Development Server**: Running successfully with appropriate proxy settings
 
 ## Action Items
