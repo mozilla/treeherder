@@ -67,7 +67,7 @@ def get_log_lines(failure):
     return messages
 
 
-def get_grouped(failures):
+def get_grouped(failures, skip_ratio_classification=False):
     classified = {
         NEED_INVESTIGATION: [],
         KNOWN_ISSUES: [],
@@ -76,13 +76,24 @@ def get_grouped(failures):
     for failure in failures:
         is_intermittent = failure["suggestedClassification"] == "intermittent"
 
-        if (is_intermittent and failure["confidence"] == 100) or failure["totalFailures"] / failure[
-            "totalJobs"
-        ] <= 0.5:
-            classified[KNOWN_ISSUES].append(failure)
+        # When data is limited (skip_ratio_classification=True), we can't trust the totalFailures/totalJobs
+        # ratio because we may not have seen all failures. In this case, only use the intermittent
+        # classification from history, not the ratio-based classification.
+        if skip_ratio_classification:
+            # Only classify as Known Issue if we have high confidence from history
+            if is_intermittent and failure["confidence"] == 100:
+                classified[KNOWN_ISSUES].append(failure)
+            else:
+                classified[NEED_INVESTIGATION].append(failure)
+                failure["confidence"] = min(failure["confidence"], 90)
         else:
-            classified[NEED_INVESTIGATION].append(failure)
-            # If it needs investigation, we, by definition, don't have 100% confidence.
-            failure["confidence"] = min(failure["confidence"], 90)
+            # Full classification using both history and failure ratio
+            if (is_intermittent and failure["confidence"] == 100) or failure[
+                "totalFailures"
+            ] / failure["totalJobs"] <= 0.5:
+                classified[KNOWN_ISSUES].append(failure)
+            else:
+                classified[NEED_INVESTIGATION].append(failure)
+                failure["confidence"] = min(failure["confidence"], 90)
 
     return classified

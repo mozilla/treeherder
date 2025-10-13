@@ -122,16 +122,30 @@ export default class PushModel {
     );
   }
 
-  static getHealth(repoName, revision) {
+  static getHealthSummary(repoName, revision) {
     return getData(
-      getProjectUrl(`${pushEndpoint}health/?revision=${revision}`, repoName),
+      getProjectUrl(
+        `${pushEndpoint}health_summary_new_failures/?revision=${revision}`,
+        repoName,
+      ),
     );
   }
 
-  static getHealthSummary(repoName, revision, withInProgressTests = true) {
+  static getHealthDetails(
+    repoName,
+    revision,
+    limit = null,
+    classificationIds = '6',
+  ) {
+    const params = new URLSearchParams({ revision });
+    if (limit) {
+      params.append('limit', limit);
+    }
+    params.append('classification_ids', classificationIds);
+
     return getData(
       getProjectUrl(
-        `${pushEndpoint}health_summary/?revision=${revision}&with_in_progress_tests=${withInProgressTests}`,
+        `${pushEndpoint}health_details_new_failures/?${params}`,
         repoName,
       ),
     );

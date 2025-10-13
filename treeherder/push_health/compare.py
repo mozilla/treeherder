@@ -11,19 +11,23 @@ logger = logging.getLogger(__name__)
 
 
 def get_commit_history(repository, revision, push):
-    from mozci.errors import ParentPushNotFound
+    from mozci.errors import ParentPushNotFound, PushNotFound
     from mozci.push import Push as MozciPush
 
-    mozci_push = MozciPush([revision], repository.name)
     parent = None
     parent_sha = None
     parent_repo = None
     parent_push = None
 
     try:
-        parent = mozci_push.parent
-    except ParentPushNotFound:
-        pass
+        mozci_push = MozciPush([revision], repository.name)
+        try:
+            parent = mozci_push.parent
+        except ParentPushNotFound:
+            pass
+    except PushNotFound as e:
+        logger.warning(f"Could not fetch mozci push data for {revision}: {e}")
+        # Continue without parent push information
 
     if parent:
         parent_sha = parent.revs[-1]

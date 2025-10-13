@@ -1,17 +1,52 @@
-from django.db.models import Q
-
-from treeherder.model.models import Job, JobType
+from treeherder.model.models import Job
 from treeherder.push_health.utils import get_job_results
 
 
 def get_build_failures(push):
-    build_types = JobType.objects.filter(Q(name__icontains="build"))
-
+    # Filter jobs directly by job_type__name instead of fetching JobType objects first.
+    # This is more efficient because it only queries jobs for the specific push,
+    # and the JobType filter happens on the join with an already-filtered dataset
+    # (jobs in this push), rather than scanning the entire JobType table first.
     build_results = Job.objects.filter(
         push=push,
         tier__lte=2,
-        job_type__in=build_types,
-    ).select_related("machine_platform", "taskcluster_metadata")
+        job_type__name__icontains="build",
+    ).select_related("machine_platform", "taskcluster_metadata", "job_type")
+
+    result, failures, in_progress_count = get_job_results(build_results, "busted")
+
+    return (result, failures, in_progress_count)
+
+
+def get_build_failures_by_classification(push, classification_ids=None, limit=None):
+    """
+    Get build failures filtered by failure classification IDs with optional limit.
+
+    Args:
+        push: Push object
+        classification_ids: List of classification IDs (default: [6] for new failures only)
+                           Common values: 1=fixed by commit, 6=new failure, 8=intermittent
+        limit: Optional limit on number of failures to return
+    """
+    if classification_ids is None:
+        classification_ids = [6]
+
+    # Filter jobs directly by job_type__name instead of fetching JobType objects first.
+    # This is more efficient because it only queries jobs for the specific push,
+    # and the JobType filter happens on the join with an already-filtered dataset
+    # (jobs in this push), rather than scanning the entire JobType table first.
+    build_query = Job.objects.filter(
+        push=push,
+        tier__lte=2,
+        job_type__name__icontains="build",
+        failure_classification_id__in=classification_ids,
+    ).select_related("machine_platform", "taskcluster_metadata", "job_type")
+
+    # Apply limit if specified
+    if limit:
+        build_results = build_query[:limit]
+    else:
+        build_results = build_query
 
     result, failures, in_progress_count = get_job_results(build_results, "busted")
 

@@ -12,12 +12,20 @@ from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
 from treeherder.log_parser.failureline import get_group_results
 from treeherder.model.models import Commit, Job, JobType, Push, Repository
-from treeherder.push_health.builds import get_build_failures
+from treeherder.push_health.builds import (
+    get_build_failures,
+    get_build_failures_by_classification,
+)
 from treeherder.push_health.compare import get_commit_history
-from treeherder.push_health.linting import get_lint_failures
+from treeherder.push_health.linting import (
+    get_lint_failures,
+    get_lint_failures_by_classification,
+)
 from treeherder.push_health.tests import (
     get_test_failure_jobs,
+    get_test_failure_jobs_by_classification,
     get_test_failures,
+    get_test_failures_by_classification,
     get_test_in_progress_count,
 )
 from treeherder.push_health.usage import get_usage
@@ -385,10 +393,8 @@ class PushViewSet(viewsets.ViewSet):
         push_result = "pass"
         for metric_result in [test_result, lint_result, build_result]:
             if (
-                metric_result == "indeterminate"
-                or metric_result == "unknown"
-                and push_result != "fail"
-            ):
+                metric_result == "indeterminate" or metric_result == "unknown"
+            ) and push_result != "fail":
                 push_result = metric_result
             elif metric_result == "fail":
                 push_result = metric_result
@@ -442,6 +448,269 @@ class PushViewSet(viewsets.ViewSet):
                     },
                 },
                 "status": status,
+            }
+        )
+
+    @action(detail=False)
+    def health_new_failures(self, request, project):
+        """
+        Return a calculated assessment of the health of this push.
+        Only includes jobs with failure_classification_id=6 (new failure not classified).
+
+        Note: Some response fields may be null or empty since this endpoint only fetches
+        jobs with a specific classification. The commit history and status information
+        may not reflect all jobs in the push.
+        """
+        revision = request.query_params.get("revision")
+
+        try:
+            repository = Repository.objects.get(name=project)
+            push = Push.objects.get(revision=revision, repository=repository)
+        except Push.DoesNotExist:
+            return Response(f"No push with revision: {revision}", status=HTTP_404_NOT_FOUND)
+
+        # Get commit history for Hg repos
+        commit_history_details = None
+        if repository.dvcs_type == "hg":
+            commit_history_details = get_commit_history(repository, revision, push)
+
+        # Get only jobs with failure_classification_id=6
+        result_status, jobs = get_test_failure_jobs_by_classification(push)
+
+        test_result, push_health_test_failures = get_test_failures_by_classification(
+            push,
+            jobs,
+            result_status,
+        )
+
+        build_result, build_failures, _unused = get_build_failures_by_classification(push)
+
+        lint_result, lint_failures, _unused = get_lint_failures_by_classification(push)
+
+        push_result = "pass"
+        for metric_result in [test_result, lint_result, build_result]:
+            if (
+                metric_result == "indeterminate" or metric_result == "unknown"
+            ) and push_result != "fail":
+                push_result = metric_result
+            elif metric_result == "fail":
+                push_result = metric_result
+
+        # Note: status will only reflect jobs with failure_classification_id=6
+        status = push.get_status()
+        total_failures = (
+            len(push_health_test_failures["needInvestigation"])
+            + len(build_failures)
+            + len(lint_failures)
+        )
+        # Override the testfailed value to align with the filtered failures count
+        status["testfailed"] = total_failures
+
+        newrelic.agent.record_custom_event(
+            "push_health_new_failures_need_investigation",
+            {
+                "revision": revision,
+                "repo": repository.name,
+                "needInvestigation": len(push_health_test_failures["needInvestigation"]),
+                "author": push.author,
+            },
+        )
+
+        return Response(
+            {
+                "revision": revision,
+                "id": push.id,
+                "result": push_result,
+                "jobs": jobs,
+                "metrics": {
+                    "commitHistory": {
+                        "name": "Commit History",
+                        "result": "none",
+                        "details": commit_history_details,
+                    },
+                    "linting": {
+                        "name": "Linting",
+                        "result": lint_result,
+                        "details": lint_failures,
+                    },
+                    "tests": {
+                        "name": "Tests",
+                        "result": test_result,
+                        "details": push_health_test_failures,
+                    },
+                    "builds": {
+                        "name": "Builds",
+                        "result": build_result,
+                        "details": build_failures,
+                    },
+                },
+                "status": status,
+            }
+        )
+
+    @action(detail=False)
+    def health_summary_new_failures(self, request, project):
+        """
+        Return fast summary data for push health (commit history and status).
+        Only includes basic metrics without the expensive job/failure details.
+        This endpoint is designed to be called concurrently with health_details_new_failures
+        to provide immediate feedback to users while details load in background.
+        """
+        revision = request.query_params.get("revision")
+
+        try:
+            repository = Repository.objects.get(name=project)
+            push = Push.objects.get(revision=revision, repository=repository)
+        except Push.DoesNotExist:
+            return Response(f"No push with revision: {revision}", status=HTTP_404_NOT_FOUND)
+
+        # Get commit history for Hg repos (fast - no heavy queries)
+        commit_history_details = None
+        if repository.dvcs_type == "hg":
+            commit_history_details = get_commit_history(repository, revision, push)
+
+        # Get status counts (fast - simple aggregation)
+        status = push.get_status()
+
+        return Response(
+            {
+                "revision": revision,
+                "id": push.id,
+                "metrics": {
+                    "commitHistory": {
+                        "name": "Commit History",
+                        "result": "none",
+                        "details": commit_history_details,
+                    },
+                },
+                "status": status,
+            }
+        )
+
+    @action(detail=False)
+    def health_details_new_failures(self, request, project):
+        """
+        Return detailed test/build/lint failure data for push health.
+
+        Query Parameters:
+        - revision: Push revision (required)
+        - limit: Max number of failures to return per category (default: None = all)
+        - classification_ids: Comma-separated classification IDs (default: "6")
+                             Common values: "6" (new only) or "1,6,8" (all failures)
+
+        This endpoint is designed to be called concurrently with health_summary_new_failures
+        to provide progressive loading experience.
+        """
+        revision = request.query_params.get("revision")
+        limit = request.query_params.get("limit")
+        classification_ids_str = request.query_params.get("classification_ids", "6")
+
+        # Parse classification IDs
+        classification_ids = [int(id.strip()) for id in classification_ids_str.split(",")]
+
+        # Convert limit to int if provided
+        limit_int = int(limit) if limit else None
+
+        try:
+            repository = Repository.objects.get(name=project)
+            push = Push.objects.get(revision=revision, repository=repository)
+        except Push.DoesNotExist:
+            return Response(f"No push with revision: {revision}", status=HTTP_404_NOT_FOUND)
+
+        # Get jobs with specified classification IDs
+        result_status, jobs = get_test_failure_jobs_by_classification(
+            push, classification_ids=classification_ids
+        )
+
+        test_result, push_health_test_failures = get_test_failures_by_classification(
+            push,
+            jobs,
+            result_status,
+            classification_ids=classification_ids,
+            limit=limit_int,
+        )
+
+        build_result, build_failures, _unused = get_build_failures_by_classification(
+            push, classification_ids=classification_ids, limit=limit_int
+        )
+
+        lint_result, lint_failures, _unused = get_lint_failures_by_classification(
+            push, classification_ids=classification_ids, limit=limit_int
+        )
+
+        push_result = "pass"
+        for metric_result in [test_result, lint_result, build_result]:
+            if (
+                metric_result == "indeterminate" or metric_result == "unknown"
+            ) and push_result != "fail":
+                push_result = metric_result
+            elif metric_result == "fail":
+                push_result = metric_result
+
+        total_failures = (
+            len(push_health_test_failures["needInvestigation"])
+            + len(build_failures)
+            + len(lint_failures)
+        )
+
+        # Get total count of all failed jobs in the push (for context)
+        total_failed_jobs_in_push = (
+            Job.objects.filter(
+                push=push,
+                tier__lte=2,
+                result="testfailed",
+            )
+            .exclude(
+                Q(machine_platform__platform="lint")
+                | Q(job_type__symbol="mozlint")
+                | Q(job_type__name__contains="build"),
+            )
+            .count()
+        )
+
+        newrelic.agent.record_custom_event(
+            "push_health_new_failures_need_investigation",
+            {
+                "revision": revision,
+                "repo": repository.name,
+                "needInvestigation": len(push_health_test_failures["needInvestigation"]),
+                "author": push.author,
+            },
+        )
+
+        return Response(
+            {
+                "revision": revision,
+                "id": push.id,
+                "result": push_result,
+                "jobs": jobs,
+                "totalFailures": total_failures,
+                "displayedFailures": (
+                    len(push_health_test_failures["needInvestigation"])
+                    + len(build_failures)
+                    + len(lint_failures)
+                ),
+                "totalFailedJobsInPush": total_failed_jobs_in_push,
+                "isLimited": limit_int is not None,
+                "limit": limit_int,
+                "classificationIds": classification_ids,
+                "metrics": {
+                    "linting": {
+                        "name": "Linting",
+                        "result": lint_result,
+                        "details": lint_failures,
+                    },
+                    "tests": {
+                        "name": "Tests",
+                        "result": test_result,
+                        "details": push_health_test_failures,
+                    },
+                    "builds": {
+                        "name": "Builds",
+                        "result": build_result,
+                        "details": build_failures,
+                    },
+                },
             }
         )
 

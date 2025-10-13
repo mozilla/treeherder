@@ -4,6 +4,7 @@ import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 
 import ClassificationGroup from './ClassificationGroup';
 import { filterTests } from './helpers';
+import TestMetricBanner from './TestMetricBanner';
 
 export default class TestMetric extends React.PureComponent {
   render() {
@@ -27,6 +28,11 @@ export default class TestMetric extends React.PureComponent {
       investigateTest,
       unInvestigateTest,
       updatePushHealth,
+      isLimited,
+      displayedFailures,
+      totalFailedJobsInPush,
+      handleShowAllFailures,
+      detailsLoading,
     } = this.props;
     const { details } = data;
     const { needInvestigation, knownIssues } = details;
@@ -40,6 +46,13 @@ export default class TestMetric extends React.PureComponent {
 
     return (
       <div className="border-bottom border-secondary">
+        <TestMetricBanner
+          isLimited={isLimited}
+          displayedCount={displayedFailures}
+          totalFailedJobsInPush={totalFailedJobsInPush}
+          onShowAll={handleShowAllFailures}
+          loading={detailsLoading}
+        />
         <ClassificationGroup
           jobs={jobs}
           tests={filteredNeedInvestigation}
@@ -137,6 +150,11 @@ TestMetric.propTypes = {
   knownIssuesOrderBy: PropTypes.string,
   knownIssuesGroupBy: PropTypes.string,
   updateParamsAndState: PropTypes.func.isRequired,
+  isLimited: PropTypes.bool,
+  displayedFailures: PropTypes.number,
+  totalFailedJobsInPush: PropTypes.number,
+  handleShowAllFailures: PropTypes.func,
+  detailsLoading: PropTypes.bool,
 };
 
 TestMetric.defaultProps = {
@@ -145,4 +163,9 @@ TestMetric.defaultProps = {
   knownIssuesOrderBy: 'count',
   knownIssuesGroupBy: 'path',
   testGroup: '',
+  isLimited: false,
+  displayedFailures: 0,
+  totalFailedJobsInPush: null,
+  handleShowAllFailures: null,
+  detailsLoading: false,
 };
