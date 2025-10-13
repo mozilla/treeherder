@@ -131,6 +131,13 @@ describe('App', () => {
       ),
       [],
     );
+    fetchMock.get(
+      getProjectUrl(
+        '/push/health_summary_new_failures/?revision=3333333333335143b8df3f4b3e9b504dfbc589a0',
+        'try',
+      ),
+      [],
+    );
     fetchMock.get(getProjectUrl('/push/?full=true&count=10', 'try'), {
       results: [
         {
