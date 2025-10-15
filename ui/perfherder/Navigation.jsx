@@ -17,9 +17,14 @@ const Navigation = ({ user, setUser, notify }) => (
         </Link>
       </NavItem>
       <NavItem>
-        <Link to="./comparechooser" className="nav-link btn-view-nav">
+        <a
+          href="https://perf.compare"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="nav-link btn-view-nav"
+        >
           Compare
-        </Link>
+        </a>
       </NavItem>
       <NavItem>
         <Link
