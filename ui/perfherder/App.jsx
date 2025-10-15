@@ -12,9 +12,6 @@ import { endpoints } from './perf-helpers/constants';
 import GraphsView from './graphs/GraphsView';
 import AlertsView from './alerts/AlertsView';
 import TestsView from './tests/TestsView';
-import CompareView from './compare/CompareView';
-import CompareSubtestsView from './compare/CompareSubtestsView';
-import CompareSubtestDistributionView from './compare/CompareSubtestDistributionView';
 import Navigation from './Navigation';
 
 import '../css/react-table.css';
@@ -111,19 +108,6 @@ class App extends React.Component {
                   )}
                 />
                 <Route
-                  path={`${path}/compare`}
-                  render={(props) => (
-                    <CompareView
-                      {...props}
-                      user={user}
-                      projects={projects}
-                      frameworks={frameworks}
-                      compareData={compareData}
-                      updateAppState={this.updateAppState}
-                    />
-                  )}
-                />
-                <Route
                   path={`${path}/infracompare`}
                   render={(props) => (
                     <InfraCompareView
@@ -133,28 +117,6 @@ class App extends React.Component {
                       frameworks={frameworks}
                       compareData={compareData}
                       updateAppState={this.updateAppState}
-                    />
-                  )}
-                />
-                <Route
-                  path={`${path}/comparesubtest`}
-                  render={(props) => (
-                    <CompareSubtestsView
-                      {...props}
-                      user={user}
-                      projects={projects}
-                      frameworks={frameworks}
-                    />
-                  )}
-                />
-                <Route
-                  path={`${path}/comparesubtestdistribution`}
-                  render={(props) => (
-                    <CompareSubtestDistributionView
-                      {...props}
-                      user={user}
-                      projects={projects}
-                      frameworks={frameworks}
                     />
                   )}
                 />
