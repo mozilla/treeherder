@@ -17,6 +17,7 @@ import {
   createQueryParams,
   getLogViewerUrl,
   getPerfAnalysisUrl,
+  getCrashViewerUrl,
   parseQueryParams,
 } from '../../../helpers/url';
 
@@ -157,11 +158,38 @@ export default class SuggestionsListItem extends React.Component {
           begin,
           <a
             title="open in Firefox Profiler"
-            href={getPerfAnalysisUrl(artifact.url)}
+            href={getPerfAnalysisUrl(artifact.url, selectedJob)}
             target="_blank"
             rel="noreferrer"
           >
             open {artifact.value} in the Firefox Profiler
+          </a>,
+          end,
+        ];
+      }
+    }
+
+    // Check for PROCESS-CRASH with UUID
+    const processCrash = suggestion.search.match(
+      /PROCESS-CRASH \| ([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i,
+    );
+    if (processCrash) {
+      const crashId = processCrash[1];
+      // Look for the corresponding .json crash artifact
+      const crashArtifact = jobDetails.find(
+        (artifact) => artifact.value === `${crashId}.json`,
+      );
+      if (crashArtifact) {
+        const [begin, end] = suggestion.search.split(crashId);
+        line = [
+          begin,
+          <a
+            title="open in crash viewer"
+            href={getCrashViewerUrl(crashArtifact.url)}
+            target="_blank"
+            rel="noreferrer"
+          >
+            {crashId}
           </a>,
           end,
         ];
