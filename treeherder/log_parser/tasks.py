@@ -114,7 +114,9 @@ def post_log_artifacts(job_log):
         serialized_artifacts = serialize_artifact_json_blobs(artifact_list)
         store_job_artifacts(serialized_artifacts)
         job_log.update_status(JobLog.PARSED)
-        logger.info("Stored artifact for %s %s", job_log.job.repository.name, job_log.job.id)
+        logger.info(
+            "Stored artifact for %s %s %s", job_log.job.repository.name, job_log.job.id, job_log.id
+        )
     except Exception as e:
         logger.error("Failed to store parsed artifact for %s: %s", job_log.id, e)
         raise

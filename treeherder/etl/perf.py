@@ -333,12 +333,53 @@ def _load_perf_datum(job: Job, perf_datum: dict):
                 generate_alerts.apply_async(args=[signature.id], queue="generate_perf_alerts")
 
 
+def _is_suite_allowed(suites: list, framework_name: str) -> bool:
+    allowlist_frameworks_suites = {
+        "build_metrics": ["mach_artifact_toolchain"],
+        "browsertime": ["constant-regression"],
+    }
+    allowed = allowlist_frameworks_suites.get(framework_name)
+    if not allowed:
+        return False
+    if allowed == ["ALL"]:
+        return True
+    return any(suite["name"] in allowed for suite in suites)
+
+
+def _should_ingest(framework_name: str, suites: list, is_perfherder_data_json: bool) -> bool:
+    """
+    This function will be removed after migration to JSON artifact.
+    Ingestion policy:
+      - If (framework, suites) is allowlisted => JSON only
+      - If framework is NOT allowlisted => Log parsing only
+      - If framework is allowlisted but suites don't match => Log parsing only
+    """
+    is_allowed = _is_suite_allowed(suites, framework_name)
+    if is_allowed:
+        # Allowlisted -> only JSON artifact
+        return is_perfherder_data_json
+    else:
+        # Not allowlisted (including unregistered frameworks (e.g, raptor)) -> only logs
+        return not is_perfherder_data_json
+
+
 def store_performance_artifact(job, artifact):
     blob = json.loads(artifact["blob"])
     performance_data = blob["performance_data"]
 
+    log_url = blob.get("logurl", "")
+    is_perfherder_data_json = log_url.endswith(".json") and "perfherder-data" in log_url
+
     if isinstance(performance_data, list):
         for perfdatum in performance_data:
+            framework_name = perfdatum["framework"]["name"]
+            suites = perfdatum.get("suites", [])
+            if not _should_ingest(framework_name, suites, is_perfherder_data_json):
+                continue
             _load_perf_datum(job, perfdatum)
     else:
+        framework_name = performance_data["framework"]["name"]
+        suites = performance_data.get("suites", [])
+        if not _should_ingest(framework_name, suites, is_perfherder_data_json):
+            return
         _load_perf_datum(job, performance_data)

@@ -277,6 +277,7 @@ def _load_job(repository, job_datum, push_id):
         push_id=push_id,
     )
 
+    job_log_status_map = dict([(k, v) for (v, k) in JobLog.STATUSES])
     log_refs = job_datum.get("log_references", [])
     job_logs = []
     if log_refs:
@@ -287,8 +288,7 @@ def _load_job(repository, job_datum, push_id):
             url = log.get("url") or "unknown"
             url = url[0:255]
 
-            parse_status_map = dict([(k, v) for (v, k) in JobLog.STATUSES])
-            mapped_status = parse_status_map.get(log.get("parse_status"))
+            mapped_status = job_log_status_map.get(log.get("parse_status"))
             if mapped_status:
                 parse_status = mapped_status
             else:
@@ -301,6 +301,30 @@ def _load_job(repository, job_datum, push_id):
             job_logs.append(jl)
 
         _schedule_log_parsing(job, job_logs, result, repository)
+
+    perfherder_data_refs = job_datum.get("perfherder_data_references", [])
+    perfherder_datas = []
+    if perfherder_data_refs:
+        for perfherder_data in perfherder_data_refs:
+            name = perfherder_data.get("name") or "unknown"
+            name = name[0:50]
+
+            url = perfherder_data.get("url") or "unknown"
+            url = url[0:255]
+
+            mapped_status = job_log_status_map.get(perfherder_data.get("parse_status"))
+            if mapped_status:
+                parse_status = mapped_status
+            else:
+                parse_status = JobLog.PENDING
+
+            jl, _ = JobLog.objects.get_or_create(
+                job=job, name=name, url=url, defaults={"status": parse_status}
+            )
+
+            perfherder_datas.append(jl)
+
+        _schedule_perfherder_ingest(job, perfherder_datas)
 
     return job_guid
 
@@ -361,6 +385,18 @@ def _schedule_log_parsing(job, job_logs, result, repository):
             priority = "normal"
 
         parse_logs.apply_async(queue=queue, args=[job.id, [job_log.id], priority])
+
+
+def _schedule_perfherder_ingest(job, job_logs):
+    from treeherder.perf.tasks import ingest_perfherder_data
+
+    for job_log in job_logs:
+        if job_log.status != JobLog.PENDING:
+            continue
+
+        job_log_name = job_log.name.replace("-", "_")
+        if job_log_name.startswith("perfherder_data"):
+            ingest_perfherder_data.apply_async(queue="perf_ingest", args=[job.id, [job_log.id]])
 
 
 def store_job_data(repository, original_data):
