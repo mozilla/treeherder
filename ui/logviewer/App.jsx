@@ -345,6 +345,7 @@ class App extends React.PureComponent {
       job,
       rawLogUrl,
       reftestUrl,
+      repoName,
       jobDetails,
       jobError,
       jobExists,
@@ -394,7 +395,11 @@ class App extends React.PureComponent {
                     currentRepo={currentRepo}
                   />
                 )}
-                <JobArtifacts jobDetails={jobDetails} />
+                <JobArtifacts
+                  jobDetails={jobDetails}
+                  repoName={repoName}
+                  selectedJob={job}
+                />
               </div>
               <ErrorLines
                 errors={errors}
