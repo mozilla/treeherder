@@ -585,3 +585,93 @@ def test_push_status(client, test_job, test_user):
     assert resp.status_code == 200
     assert isinstance(resp.json(), dict)
     assert resp.json() == {"completed": 0, "pending": 0, "running": 0}
+
+
+def test_push_health_new_failures(client, test_repository, test_push, test_job):
+    """
+    test retrieving the health_new_failures endpoint which filters by failure_classification_id=6
+    """
+    # Set the job to have failure_classification_id=6 (new failure not classified)
+    new_failure_classification = FailureClassification.objects.get(
+        name="new failure not classified"
+    )
+    test_job.failure_classification = new_failure_classification
+    test_job.result = "testfailed"
+    test_job.save()
+
+    resp = client.get(
+        reverse("push-health_new_failures", kwargs={"project": test_repository.name}),
+        {"revision": test_push.revision},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+
+    # Verify response structure matches the health endpoint
+    assert "revision" in data
+    assert "id" in data
+    assert "result" in data
+    assert "jobs" in data
+    assert "metrics" in data
+    assert "status" in data
+
+    # Verify metrics structure
+    assert "commitHistory" in data["metrics"]
+    assert "linting" in data["metrics"]
+    assert "tests" in data["metrics"]
+    assert "builds" in data["metrics"]
+
+    # Verify commit history is returned for hg repos (test_repository is hg by default)
+    assert data["metrics"]["commitHistory"]["name"] == "Commit History"
+    assert data["metrics"]["commitHistory"]["result"] == "none"
+    # commit history details should be populated for hg repos
+    assert "details" in data["metrics"]["commitHistory"]
+
+    # Verify the response contains the revision
+    assert data["revision"] == test_push.revision
+    assert data["id"] == test_push.id
+
+
+def test_push_health_new_failures_excludes_other_classifications(
+    client, test_repository, test_push, test_job, test_job_2
+):
+    """
+    test that health_new_failures only includes jobs with failure_classification_id=6
+    """
+    # Set one job to failure_classification_id=6
+    new_failure_classification = FailureClassification.objects.get(
+        name="new failure not classified"
+    )
+    test_job.failure_classification = new_failure_classification
+    test_job.result = "testfailed"
+    test_job.save()
+
+    # Set another job to a different failure_classification_id (e.g., intermittent = 4)
+    intermittent_classification = FailureClassification.objects.get(name="intermittent")
+    test_job_2.failure_classification = intermittent_classification
+    test_job_2.result = "testfailed"
+    test_job_2.save()
+
+    resp = client.get(
+        reverse("push-health_new_failures", kwargs={"project": test_repository.name}),
+        {"revision": test_push.revision},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+
+    # The response should only include the job with failure_classification_id=6
+    jobs_dict = data["jobs"]
+
+    # Verify we have job data
+    assert isinstance(jobs_dict, dict)
+
+    # Collect all job IDs from the response
+    all_job_ids = set()
+    for job_type_name, job_list in jobs_dict.items():
+        for job in job_list:
+            all_job_ids.add(job["id"])
+
+    # Verify that only the job with classification_id=6 is included
+    assert test_job.id in all_job_ids, "Job with classification_id=6 should be included"
+    assert test_job_2.id not in all_job_ids, (
+        "Job with classification_id=4 (intermittent) should be excluded"
+    )
