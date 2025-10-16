@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from 'reactstrap';
+import { Button } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRedo } from '@fortawesome/free-solid-svg-icons';
@@ -11,7 +11,7 @@ export default function RetriggerButton(props) {
 
   return (
     <Button
-      className="retrigger-btn icon-green mr-1 py-0 px-1"
+      className="retrigger-btn icon-green me-1 py-0 px-1"
       title={title}
       onClick={onClick}
     >

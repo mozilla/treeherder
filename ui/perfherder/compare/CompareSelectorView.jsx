@@ -5,10 +5,9 @@ import {
   Row,
   Button,
   ButtonGroup,
-  ButtonDropdown,
-  DropdownToggle,
+  Dropdown,
   Alert,
-} from 'reactstrap';
+} from 'react-bootstrap';
 
 import { parseQueryParams, createQueryParams } from '../../helpers/url';
 import ErrorMessages from '../../shared/ErrorMessages';
@@ -36,7 +35,6 @@ export default class CompareSelectorView extends React.Component {
       missingRevision: false,
       framework: 1,
       frameworkName: 'talos',
-      frameworkDropdownIsOpen: false,
       frameworks: [...this.props.frameworks, { id: 0, name: 'infra' }],
     };
   }
@@ -92,12 +90,6 @@ export default class CompareSelectorView extends React.Component {
     }
   };
 
-  toggleFrameworkDropdown = () => {
-    this.setState((prevState) => ({
-      frameworkDropdownIsOpen: !prevState.frameworkDropdownIsOpen,
-    }));
-  };
-
   render() {
     const {
       originalProject,
@@ -108,7 +100,6 @@ export default class CompareSelectorView extends React.Component {
       errorMessages,
       disableButton,
       missingRevision,
-      frameworkDropdownIsOpen,
       frameworks,
     } = this.state;
 
@@ -137,15 +128,17 @@ export default class CompareSelectorView extends React.Component {
               </Col>
             </Row>
             <Row className="justify-content-center">
-              <Alert color="info">
-                Compare View will be deprecated soon. Please consider using{' '}
-                <a href="https://perf.compare/">PerfCompare</a> as an
-                alternative.
-              </Alert>
+              <Col sm="auto">
+                <Alert variant="info">
+                  Compare View will be deprecated soon. Please consider using{' '}
+                  <a href="https://perf.compare/">PerfCompare</a> as an
+                  alternative.
+                </Alert>
+              </Col>
             </Row>
             <Row className="justify-content-center">
               {showWarning && (
-                <Alert color="warning">
+                <Alert variant="warning">
                   It is not recommended to compare a <b>try</b> build against a{' '}
                   <b>mozilla-central</b> build, unless it is based on latest
                   mozilla-central.
@@ -177,21 +170,22 @@ export default class CompareSelectorView extends React.Component {
             </Row>
 
             <Row className="justify-content-center pt-3">
-              <Col sm="8" className="text-right px-1">
+              <Col sm="8" className="d-flex justify-content-end px-1">
                 <ButtonGroup>
-                  <ButtonDropdown
-                    isOpen={frameworkDropdownIsOpen}
-                    toggle={this.toggleFrameworkDropdown}
-                  >
-                    <DropdownToggle caret>{frameworkName}</DropdownToggle>
-                    <DropdownMenuItems
-                      options={frameworkNames}
-                      selectedItem={frameworkName}
-                      updateData={this.updateFramework}
-                    />
-                  </ButtonDropdown>
+                  <Dropdown>
+                    <Dropdown.Toggle variant="secondary">
+                      {frameworkName}
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu className="overflow-auto dropdown-menu-height">
+                      <DropdownMenuItems
+                        options={frameworkNames}
+                        selectedItem={frameworkName}
+                        updateData={this.updateFramework}
+                      />
+                    </Dropdown.Menu>
+                  </Dropdown>
                   <Button
-                    color="darker-info"
+                    variant="darker-info"
                     onClick={
                       newRevision !== '' && disableButton
                         ? null
