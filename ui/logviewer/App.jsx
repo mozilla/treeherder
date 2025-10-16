@@ -18,6 +18,7 @@ import {
   getArtifactsUrl,
   textLogErrorsEndpoint,
 } from '../helpers/url';
+import formatLogLineWithLinks from '../helpers/logFormatting';
 import { getData } from '../helpers/http';
 import JobModel from '../models/job';
 import PushModel from '../models/push';
@@ -63,6 +64,7 @@ class App extends React.PureComponent {
       jobId: queryString.get('job_id'),
       jobUrl: null,
       currentRepo: null,
+      jobDetails: [],
     };
   }
 
@@ -328,7 +330,14 @@ class App extends React.PureComponent {
     else if (/((INFO -)|([\s]+))(Passed|Failed|Todo):/.test(line))
       color = '#55677A';
     else if (/INFO/.test(line)) color = '#566262';
-    return <span style={{ color }}>{line}</span>;
+
+    // Format line with links (crash viewer, profiler)
+    const { job, jobDetails } = this.state;
+    return (
+      <span style={{ color }}>
+        {formatLogLineWithLinks(line, jobDetails, job)}
+      </span>
+    );
   };
 
   render() {
@@ -336,6 +345,7 @@ class App extends React.PureComponent {
       job,
       rawLogUrl,
       reftestUrl,
+      repoName,
       jobDetails,
       jobError,
       jobExists,
@@ -385,9 +395,18 @@ class App extends React.PureComponent {
                     currentRepo={currentRepo}
                   />
                 )}
-                <JobArtifacts jobDetails={jobDetails} />
+                <JobArtifacts
+                  jobDetails={jobDetails}
+                  repoName={repoName}
+                  selectedJob={job}
+                />
               </div>
-              <ErrorLines errors={errors} onClickLine={this.setSelectedLine} />
+              <ErrorLines
+                errors={errors}
+                onClickLine={this.setSelectedLine}
+                jobDetails={jobDetails}
+                job={job}
+              />
             </div>
           </Collapse>
           <div className="log-contents flex-fill">

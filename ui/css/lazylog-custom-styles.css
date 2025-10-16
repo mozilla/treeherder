@@ -19,6 +19,12 @@
   margin: 0 !important;
 }
 
+/* Make crash viewer and profile links more visible than line numbers */
+.react-lazylog a.log-line-link {
+  color: #0066cc !important;
+  text-decoration: underline !important;
+}
+
 .react-lazylog .yellow-highlight {
   background: #f8eec7 !important;
   color: #000 !important;
