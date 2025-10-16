@@ -3,9 +3,40 @@ import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 
-import { getPerfAnalysisUrl, getPernoscoURL } from '../helpers/url';
+import {
+  getPerfAnalysisUrl,
+  getCrashViewerUrl,
+  getPernoscoURL,
+} from '../helpers/url';
 
 const UNTITLED = 'Untitled data';
+// Pattern to match crash dump files: UUID.{dmp,extra,json}
+const CRASH_DUMP_PATTERN = /^([0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12})\.(dmp|extra|json)$/i;
+
+const ArtifactLink = ({ artifact, children }) => (
+  <a
+    data-testid="task-artifact"
+    title={artifact.title || artifact.value}
+    href={artifact.url}
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    {children || artifact.value}
+  </a>
+);
+
+ArtifactLink.propTypes = {
+  artifact: PropTypes.shape({
+    url: PropTypes.string.isRequired,
+    value: PropTypes.string.isRequired,
+    title: PropTypes.string,
+  }).isRequired,
+  children: PropTypes.node,
+};
+
+ArtifactLink.defaultProps = {
+  children: null,
+};
 
 export default class JobArtifacts extends React.PureComponent {
   shouldShowPernoscoLink(repoName, selectedJob) {
@@ -19,6 +50,33 @@ export default class JobArtifacts extends React.PureComponent {
     );
   }
 
+  groupCrashDumps(jobDetails) {
+    const crashDumps = new Map(); // Maps crash ID to {dmp, extra, json} artifacts
+    const completeCrashIds = new Set(); // Crash IDs with all 3 files
+
+    jobDetails.forEach((artifact) => {
+      const match = artifact.value.match(CRASH_DUMP_PATTERN);
+      if (match) {
+        const crashId = match[1];
+        const fileType = match[2];
+
+        if (!crashDumps.has(crashId)) {
+          crashDumps.set(crashId, { crashId });
+        }
+        crashDumps.get(crashId)[fileType] = artifact;
+      }
+    });
+
+    // Identify complete crash dumps (all 3 files present)
+    crashDumps.forEach((crash, crashId) => {
+      if (crash.dmp && crash.extra && crash.json) {
+        completeCrashIds.add(crashId);
+      }
+    });
+
+    return { crashDumps, completeCrashIds };
+  }
+
   render() {
     const {
       jobDetails,
@@ -26,8 +84,10 @@ export default class JobArtifacts extends React.PureComponent {
       repoName,
       selectedJob,
     } = this.props;
-    const sortedDetails = jobDetails.slice();
 
+    const { crashDumps, completeCrashIds } = this.groupCrashDumps(jobDetails);
+
+    const sortedDetails = jobDetails.slice();
     sortedDetails.sort((a, b) => {
       const compareA = a.title || UNTITLED;
       const compareB = b.title || UNTITLED;
@@ -58,38 +118,68 @@ export default class JobArtifacts extends React.PureComponent {
         {!jobArtifactsLoading && (
           <ul className="list-unstyled">
             {sortedDetails.length > 0 &&
-              sortedDetails.map((line) => (
-                <li className="link-style" key={line.value}>
-                  {!!line.url && (
-                    <a
-                      data-testid="task-artifact"
-                      title={line.title ? line.title : line.value}
-                      href={line.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {line.value}
-                    </a>
-                  )}
-                  {line.url &&
-                    line.value.startsWith('profile_') &&
-                    (line.value.endsWith('.zip') ||
-                      line.value.endsWith('.json')) && (
-                      <span>
-                        {' '}
-                        -{' '}
-                        <a
-                          title={line.value}
-                          href={getPerfAnalysisUrl(line.url, selectedJob)}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          open in Firefox Profiler
-                        </a>
-                      </span>
-                    )}
-                </li>
-              ))}
+              sortedDetails.map((line) => {
+                const match = line.value.match(CRASH_DUMP_PATTERN);
+
+                // Handle complete crash dumps
+                if (match) {
+                  const [, crashId, fileType] = match;
+
+                  if (completeCrashIds.has(crashId)) {
+                    // Only render once per complete crash (on .json file)
+                    if (fileType !== 'json') return null;
+
+                    const crash = crashDumps.get(crashId);
+                    return (
+                      <li className="link-style" key={line.value}>
+                        <ArtifactLink artifact={crash.dmp} />
+                        {', '}
+                        <ArtifactLink artifact={crash.extra}>
+                          .extra
+                        </ArtifactLink>
+                        {', '}
+                        <ArtifactLink artifact={crash.json}>.json</ArtifactLink>
+                        <span>
+                          {' '}
+                          -{' '}
+                          <a
+                            title="Open in crash viewer"
+                            href={getCrashViewerUrl(crash.json.url)}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            open in crash viewer
+                          </a>
+                        </span>
+                      </li>
+                    );
+                  }
+                }
+
+                // Render all other artifacts normally
+                return (
+                  <li className="link-style" key={line.value}>
+                    {!!line.url && <ArtifactLink artifact={line} />}
+                    {line.url &&
+                      line.value.startsWith('profile_') &&
+                      (line.value.endsWith('.zip') ||
+                        line.value.endsWith('.json')) && (
+                        <span>
+                          {' '}
+                          -{' '}
+                          <a
+                            title={line.value}
+                            href={getPerfAnalysisUrl(line.url, selectedJob)}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            open in Firefox Profiler
+                          </a>
+                        </span>
+                      )}
+                  </li>
+                );
+              })}
           </ul>
         )}
       </div>

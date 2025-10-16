@@ -144,6 +144,12 @@ export const getPerfAnalysisUrl = function getPerfAnalysisUrl(url, job) {
   return profilerUrl;
 };
 
+export const getCrashViewerUrl = function getCrashViewerUrl(crashJsonUrl) {
+  return `https://fqueze.github.io/aretestsfastyet/crash-viewer.html?url=${encodeURIComponent(
+    crashJsonUrl,
+  )}`;
+};
+
 // This takes a plain object, rather than a URLSearchParams object.
 export const getJobsUrl = function getJobsUrl(params) {
   return `${uiJobsUrlBase}${createQueryParams(params)}`;
