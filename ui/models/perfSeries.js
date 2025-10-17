@@ -123,7 +123,8 @@ export default class PerfSeriesModel {
       !response ||
       response.failureStatus ||
       !response.data ||
-      !response.data.length
+      !Array.isArray(response?.data?.data) ||
+      response.data.data.length === 0
     ) {
       return { failureStatus: true, data: ['No data for this job'] };
     }
@@ -132,7 +133,7 @@ export default class PerfSeriesModel {
     if (!this.optionCollectionMap) {
       this.optionCollectionMap = await OptionCollectionModel.getMap();
     }
-    for (const item of data) {
+    for (const item of data.data) {
       item.signature_data = getSeriesSummary(
         projectName,
         item.signature_data.id,

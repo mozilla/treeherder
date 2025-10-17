@@ -218,76 +218,59 @@ class PerfomanceJobViewSet(viewsets.ReadOnlyModelViewSet):
         repository = models.Repository.objects.get(name=project)
         # Expect exactly one job_id in query params
         try:
-            job_ids = [int(job_id) for job_id in request.query_params.getlist("job_id")]
-            if not job_ids:
-                raise ValueError("empty")
-        except ValueError:
+            job_id = int(request.query_params.get("job_id"))
+        except Exception:
             return Response(
-                {"message": "Job id(s) must be specified as integers"}, status=HTTP_400_BAD_REQUEST
+                {"message": "Job id must be specified as integers"}, status=HTTP_400_BAD_REQUEST
             )
 
         datums = PerformanceDatum.objects.filter(
-            repository=repository, job_id__in=job_ids
-        ).select_related("signature", "push")
+            repository=repository, job_id=job_id
+        ).select_related(
+            "signature",
+            "signature__option_collection",
+            "signature__platform",
+            "signature__parent_signature",
+            "push",
+        )
 
         if not datums:
             return Response(
-                {"message": f"No data found for job_id={job_ids}"},
+                {"message": f"No data found for job_id={job_id}"},
                 status=HTTP_400_BAD_REQUEST,
             )
-        results = []
-        values_list = datums.values_list(
-            "id",
-            "signature_id",
-            "job_id",
-            "push_id",
-            "push_timestamp",
-            "value",
-            "push__revision",
-        )
-        for (
-            id,
-            signature_id,
-            job_id,
-            push_id,
-            push_timestamp,
-            value,
-            push__revision,
-        ) in values_list:
-            results.append(
+        results = {
+            "job_id": datums[0].job_id,
+            "push_id": datums[0].push_id,
+            "push_timestamp": datums[0].push_timestamp,
+            "revision": datums[0].push.revision,
+            "data": [],
+        }
+
+        for datum in datums:
+            sig = datum.signature
+            signature_data = {
+                "id": sig.id,
+                "signature_hash": sig.signature_hash,
+                "framework_id": sig.framework_id,
+                "option_collection_hash": sig.option_collection.option_collection_hash,
+                "machine_platform": sig.platform.platform,
+                "suite": sig.suite,
+                "should_alert": sig.should_alert,
+                "lower_is_better": False if not sig.lower_is_better else True,
+                "test": sig.test if sig.test else None,
+                "extra_options": sig.extra_options.split(" ") if sig.extra_options else None,
+                "measurement_unit": sig.measurement_unit if sig.measurement_unit else "",
+            }
+            results["data"].append(
                 {
-                    "id": id,
-                    "signature_data": self.get_signature_data(signature_id, project),
-                    "job_id": job_id,
-                    "push_id": push_id,
-                    "revision": push__revision,
-                    "push_timestamp": int(time.mktime(push_timestamp.timetuple())),
-                    "value": round(value, 2),
+                    "id": datum.id,
+                    "signature_data": signature_data,
+                    "value": round(datum.value, 2),
                 }
             )
 
         return Response(results)
-
-    def get_signature_data(self, signature_id, project):
-        repository = models.Repository.objects.get(name=project)
-        obj = (
-            PerformanceSignature.objects.filter(repository=repository)
-            .select_related("option_collection", "platform", "parent_signature")
-            .get(id=signature_id)
-        )
-        return {
-            "id": obj.id,
-            "signature_hash": obj.signature_hash,
-            "framework_id": obj.framework_id,
-            "option_collection_hash": obj.option_collection.option_collection_hash,
-            "machine_platform": obj.platform.platform,
-            "suite": obj.suite,
-            "should_alert": obj.should_alert,
-            "lower_is_better": False if not obj.lower_is_better else True,
-            "test": obj.test if obj.test else None,
-            "extra_options": obj.extra_options.split(" ") if obj.extra_options else None,
-            "measurement_unit": obj.measurement_unit if obj.measurement_unit else "",
-        }
 
 
 class PerformanceDatumViewSet(viewsets.ViewSet):
