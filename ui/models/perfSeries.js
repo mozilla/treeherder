@@ -112,6 +112,38 @@ export default class PerfSeriesModel {
     return { data, failureStatus: null };
   }
 
+  static async getJobData(projectName, params) {
+    const url = `${getProjectUrl(
+      '/performance/job-data/',
+      projectName,
+    )}?${queryString.stringify(params)}`;
+    const response = await getData(url);
+
+    if (
+      !response ||
+      response.failureStatus ||
+      !response.data ||
+      !Array.isArray(response?.data?.data) ||
+      response.data.data.length === 0
+    ) {
+      return { failureStatus: true, data: ['No data for this job'] };
+    }
+    const { data } = response;
+
+    if (!this.optionCollectionMap) {
+      this.optionCollectionMap = await OptionCollectionModel.getMap();
+    }
+    for (const item of data.data) {
+      item.signature_data = getSeriesSummary(
+        projectName,
+        item.signature_data.id,
+        item.signature_data,
+        this.optionCollectionMap,
+      );
+    }
+    return { failureStatus: false, data };
+  }
+
   static getPlatformList(projectName, params) {
     return getData(
       `${getProjectUrl(

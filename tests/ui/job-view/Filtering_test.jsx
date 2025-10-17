@@ -266,7 +266,7 @@ describe('Filtering', () => {
         [],
       );
       fetchMock.get(
-        getProjectUrl('/performance/data/?job_id=259537372', 'autoland'),
+        getProjectUrl('/performance/job-data/?job_id=259537372', 'autoland'),
         [],
       );
       fetchMock.get(
