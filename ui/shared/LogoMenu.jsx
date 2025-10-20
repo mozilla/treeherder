@@ -1,11 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  UncontrolledDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
-} from 'reactstrap';
+import { Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
 const choices = [
@@ -21,11 +16,10 @@ export default class LogoMenu extends React.PureComponent {
 
     const menuChoices = choices.filter((choice) => choice.text !== menuText);
     return (
-      <UncontrolledDropdown>
-        <DropdownToggle
+      <Dropdown>
+        <Dropdown.Toggle
           className="btn-view-nav menu-items"
           id="th-logo"
-          caret
           title="Treeherder services"
         >
           {menuImage ? (
@@ -33,15 +27,15 @@ export default class LogoMenu extends React.PureComponent {
           ) : (
             <span className={colorClass}>{menuText}</span>
           )}
-        </DropdownToggle>
-        <DropdownMenu>
+        </Dropdown.Toggle>
+        <Dropdown.Menu>
           {menuChoices.map((choice) => (
-            <DropdownItem key={choice.text}>
+            <Dropdown.Item key={choice.text}>
               <Link to={choice.url}>{choice.text}</Link>
-            </DropdownItem>
+            </Dropdown.Item>
           ))}
-        </DropdownMenu>
-      </UncontrolledDropdown>
+        </Dropdown.Menu>
+      </Dropdown>
     );
   }
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Button } from 'reactstrap';
+import { Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 import {
@@ -37,7 +37,7 @@ function RelatedBugSaved(props) {
         </a>
       )}
       <Button
-        color="link"
+        variant="link"
         size="xs"
         className="classification-delete-icon hover-warning pinned-job-close-btn annotations-bug"
         onClick={() => deleteBug(bug)}
@@ -98,13 +98,13 @@ function TableRow(props) {
             icon={icon}
             title={failureId === 7 ? 'Auto classified' : 'Classified'}
           />
-          <span className="ml-1">{classificationName.name}</span>
+          <span className="ms-1">{classificationName.name}</span>
         </span>
       </td>
       <td>{text}</td>
       <td>
         <Button
-          color="link"
+          variant="link"
           onClick={deleteEvent}
           className="classification-delete-icon hover-warning pointable"
           title="Delete this classification"
