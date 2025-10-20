@@ -12,20 +12,12 @@ from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
 from treeherder.log_parser.failureline import get_group_results
 from treeherder.model.models import Commit, Job, JobType, Push, Repository
-from treeherder.push_health.builds import (
-    get_build_failures,
-    get_build_failures_by_classification,
-)
+from treeherder.push_health.builds import get_build_failures
 from treeherder.push_health.compare import get_commit_history
-from treeherder.push_health.linting import (
-    get_lint_failures,
-    get_lint_failures_by_classification,
-)
+from treeherder.push_health.linting import get_lint_failures
 from treeherder.push_health.tests import (
     get_test_failure_jobs,
-    get_test_failure_jobs_by_classification,
     get_test_failures,
-    get_test_failures_by_classification,
     get_test_in_progress_count,
 )
 from treeherder.push_health.usage import get_usage
@@ -360,100 +352,110 @@ class PushViewSet(viewsets.ViewSet):
         usage = get_usage()
         return Response({"usage": usage})
 
-    @action(detail=False)
-    def health(self, request, project):
-        """
-        Return a calculated assessment of the health of this push.
-        """
-        revision = request.query_params.get("revision")
+    # @action(detail=False)
+    # def health(self, request, project):
+    #     """
+    #     Return a calculated assessment of the health of this push.
+    #     """
+    #     revision = request.query_params.get("revision")
 
-        try:
-            repository = Repository.objects.get(name=project)
-            push = Push.objects.get(revision=revision, repository=repository)
-        except Push.DoesNotExist:
-            return Response(f"No push with revision: {revision}", status=HTTP_404_NOT_FOUND)
+    #     try:
+    #         repository = Repository.objects.get(name=project)
+    #         push = Push.objects.get(revision=revision, repository=repository)
+    #     except Push.DoesNotExist:
+    #         return Response(f"No push with revision: {revision}", status=HTTP_404_NOT_FOUND)
 
-        commit_history_details = None
-        result_status, jobs = get_test_failure_jobs(push)
-        # Parent compare only supported for Hg at this time.
-        # Bug https://bugzilla.mozilla.org/show_bug.cgi?id=1612645
-        if repository.dvcs_type == "hg":
-            commit_history_details = get_commit_history(repository, revision, push)
+    #     commit_history_details = None
+    #     result_status, jobs = get_test_failure_jobs(push)
+    #     # Parent compare only supported for Hg at this time.
+    #     # Bug https://bugzilla.mozilla.org/show_bug.cgi?id=1612645
+    #     if repository.dvcs_type == "hg":
+    #         commit_history_details = get_commit_history(repository, revision, push)
 
-        test_result, push_health_test_failures = get_test_failures(
-            push,
-            jobs,
-            result_status,
-        )
+    #     test_result, push_health_test_failures = get_test_failures(
+    #         push,
+    #         jobs,
+    #         result_status,
+    #     )
 
-        build_result, build_failures, _unused = get_build_failures(push)
+    #     build_result, build_failures, _unused = get_build_failures(push)
 
-        lint_result, lint_failures, _unused = get_lint_failures(push)
+    #     lint_result, lint_failures, _unused = get_lint_failures(push)
 
-        push_result = "pass"
-        for metric_result in [test_result, lint_result, build_result]:
-            if (
-                metric_result == "indeterminate" or metric_result == "unknown"
-            ) and push_result != "fail":
-                push_result = metric_result
-            elif metric_result == "fail":
-                push_result = metric_result
+    #     push_result = "pass"
+    #     for metric_result in [test_result, lint_result, build_result]:
+    #         if (
+    #             metric_result == "indeterminate" or metric_result == "unknown"
+    #         ) and push_result != "fail":
+    #             push_result = metric_result
+    #         elif metric_result == "fail":
+    #             push_result = metric_result
 
-        status = push.get_status()
-        total_failures = (
-            len(push_health_test_failures["needInvestigation"])
-            + len(build_failures)
-            + len(lint_failures)
-        )
-        # Override the testfailed value added in push.get_status so that it aligns with how we detect lint, build and test failures
-        # for the push health API's (total_failures doesn't include known intermittent failures)
-        status["testfailed"] = total_failures
+    #     status = push.get_status()
+    #     total_failures = (
+    #         len(push_health_test_failures["needInvestigation"])
+    #         + len(build_failures)
+    #         + len(lint_failures)
+    #     )
+    #     # Override the testfailed value added in push.get_status so that it aligns with how we detect lint, build and test failures
+    #     # for the push health API's (total_failures doesn't include known intermittent failures)
+    #     status["testfailed"] = total_failures
 
-        newrelic.agent.record_custom_event(
-            "push_health_need_investigation",
-            {
-                "revision": revision,
-                "repo": repository.name,
-                "needInvestigation": len(push_health_test_failures["needInvestigation"]),
-                "author": push.author,
-            },
-        )
+    #     newrelic.agent.record_custom_event(
+    #         "push_health_need_investigation",
+    #         {
+    #             "revision": revision,
+    #             "repo": repository.name,
+    #             "needInvestigation": len(push_health_test_failures["needInvestigation"]),
+    #             "author": push.author,
+    #         },
+    #     )
 
-        return Response(
-            {
-                "revision": revision,
-                "id": push.id,
-                "result": push_result,
-                "jobs": jobs,
-                "metrics": {
-                    "commitHistory": {
-                        "name": "Commit History",
-                        "result": "none",
-                        "details": commit_history_details,
-                    },
-                    "linting": {
-                        "name": "Linting",
-                        "result": lint_result,
-                        "details": lint_failures,
-                    },
-                    "tests": {
-                        "name": "Tests",
-                        "result": test_result,
-                        "details": push_health_test_failures,
-                    },
-                    "builds": {
-                        "name": "Builds",
-                        "result": build_result,
-                        "details": build_failures,
-                    },
-                },
-                "status": status,
-            }
-        )
+    #     return Response(
+    #         {
+    #             "revision": revision,
+    #             "id": push.id,
+    #             "result": push_result,
+    #             "jobs": jobs,
+    #             "metrics": {
+    #                 "commitHistory": {
+    #                     "name": "Commit History",
+    #                     "result": "none",
+    #                     "details": commit_history_details,
+    #                 },
+    #                 "linting": {
+    #                     "name": "Linting",
+    #                     "result": lint_result,
+    #                     "details": lint_failures,
+    #                 },
+    #                 "tests": {
+    #                     "name": "Tests",
+    #                     "result": test_result,
+    #                     "details": push_health_test_failures,
+    #                 },
+    #                 "builds": {
+    #                     "name": "Builds",
+    #                     "result": build_result,
+    #                     "details": build_failures,
+    #                 },
+    #             },
+    #             "status": status,
+    #         }
+    #     )
 
     @action(detail=False)
     def health_new_failures(self, request, project):
         """
+        **DEPRECATED:** This endpoint is deprecated and will be removed in a future release.
+
+        Please use the progressive loading pattern instead:
+        - Call health_summary_new_failures for immediate response with basic data
+        - Call health_details_new_failures concurrently for detailed failure information
+
+        This provides better performance and user experience through progressive page loading.
+
+        ---
+
         Return a calculated assessment of the health of this push.
         Only includes jobs with failure_classification_id=6 (new failure not classified).
 
@@ -461,6 +463,11 @@ class PushViewSet(viewsets.ViewSet):
         jobs with a specific classification. The commit history and status information
         may not reflect all jobs in the push.
         """
+        logger.warning(
+            "health_new_failures endpoint is deprecated. "
+            "Use health_summary_new_failures + health_details_new_failures instead."
+        )
+
         revision = request.query_params.get("revision")
 
         try:
@@ -474,18 +481,19 @@ class PushViewSet(viewsets.ViewSet):
         if repository.dvcs_type == "hg":
             commit_history_details = get_commit_history(repository, revision, push)
 
-        # Get only jobs with failure_classification_id=6
-        result_status, jobs = get_test_failure_jobs_by_classification(push)
+        # Get only jobs with failure_classification_id=6 (using consolidated function)
+        result_status, jobs = get_test_failure_jobs(push, classification_ids=[6])
 
-        test_result, push_health_test_failures = get_test_failures_by_classification(
+        test_result, push_health_test_failures = get_test_failures(
             push,
             jobs,
             result_status,
+            classification_ids=[6],
         )
 
-        build_result, build_failures, _unused = get_build_failures_by_classification(push)
+        build_result, build_failures, _unused = get_build_failures(push)
 
-        lint_result, lint_failures, _unused = get_lint_failures_by_classification(push)
+        lint_result, lint_failures, _unused = get_lint_failures(push)
 
         push_result = "pass"
         for metric_result in [test_result, lint_result, build_result]:
@@ -507,7 +515,7 @@ class PushViewSet(viewsets.ViewSet):
         status["testfailed"] = total_failures
 
         newrelic.agent.record_custom_event(
-            "push_health_new_failures_need_investigation",
+            "push_health_new_failures_deprecated",
             {
                 "revision": revision,
                 "repo": repository.name,
@@ -618,11 +626,9 @@ class PushViewSet(viewsets.ViewSet):
             return Response(f"No push with revision: {revision}", status=HTTP_404_NOT_FOUND)
 
         # Get jobs with specified classification IDs
-        result_status, jobs = get_test_failure_jobs_by_classification(
-            push, classification_ids=classification_ids
-        )
+        result_status, jobs = get_test_failure_jobs(push, classification_ids=classification_ids)
 
-        test_result, push_health_test_failures = get_test_failures_by_classification(
+        test_result, push_health_test_failures = get_test_failures(
             push,
             jobs,
             result_status,
@@ -630,13 +636,9 @@ class PushViewSet(viewsets.ViewSet):
             limit=limit_int,
         )
 
-        build_result, build_failures, _unused = get_build_failures_by_classification(
-            push, classification_ids=classification_ids, limit=limit_int
-        )
+        build_result, build_failures, _unused = get_build_failures(push)
 
-        lint_result, lint_failures, _unused = get_lint_failures_by_classification(
-            push, classification_ids=classification_ids, limit=limit_int
-        )
+        lint_result, lint_failures, _unused = get_lint_failures(push)
 
         push_result = "pass"
         for metric_result in [test_result, lint_result, build_result]:

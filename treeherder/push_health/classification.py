@@ -87,13 +87,10 @@ def get_grouped(failures, skip_ratio_classification=False):
                 classified[NEED_INVESTIGATION].append(failure)
                 failure["confidence"] = min(failure["confidence"], 90)
         else:
-            # Full classification using both history and failure ratio
-            if (is_intermittent and failure["confidence"] == 100) or failure[
-                "totalFailures"
-            ] / failure["totalJobs"] <= 0.5:
+            # Full classification using history
+            if is_intermittent or failure["totalFailures"] / failure["totalJobs"] <= 0.5:
                 classified[KNOWN_ISSUES].append(failure)
             else:
                 classified[NEED_INVESTIGATION].append(failure)
-                failure["confidence"] = min(failure["confidence"], 90)
 
     return classified
