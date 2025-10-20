@@ -332,6 +332,7 @@ CELERY_TASK_QUEUES = [
     ),
     Queue("store_pulse_pushes", Exchange("default"), routing_key="store_pulse_pushes"),
     Queue("statsd", Exchange("default"), routing_key="statsd"),
+    Queue("perf_ingest", Exchange("default"), routing_key="perf_ingest.normal"),
 ]
 
 # Force all queues to be explicitly listed in `CELERY_TASK_QUEUES` to help prevent typos

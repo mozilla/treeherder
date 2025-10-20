@@ -52,6 +52,9 @@ elif [ "$1" == "worker_log_parser_fail_json_sheriffed" ]; then
 elif [ "$1" == "worker_log_parser_fail_json_unsheriffed" ]; then
     export REMAP_SIGTERM=SIGQUIT
     newrelic-admin run-program celery -A treeherder worker --without-gossip --without-mingle --without-heartbeat -Q log_parser_fail_json_unsheriffed --concurrency=7
+elif [ "$1" == "worker_perf_ingest" ]; then
+    export REMAP_SIGTERM=SIGQUIT
+    exec newrelic-admin run-program celery -A treeherder worker --without-gossip --without-mingle --without-heartbeat -Q perf_ingest --concurrency=7
 
 # Tasks that don't need a dedicated worker.
 elif [ "$1" == "worker_misc" ]; then
