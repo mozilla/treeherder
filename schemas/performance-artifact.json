@@ -43,7 +43,8 @@
       "properties": {
         "name": {
           "title": "Subtest name",
-          "type": "string"
+          "type": "string",
+          "maxLength": 80
         },
         "publicName": {
           "title": "Public subtest name",
@@ -115,7 +116,8 @@
       "properties": {
         "name": {
           "title": "Suite name",
-          "type": "string"
+          "type": "string",
+          "maxLength": 80
         },
         "publicName": {
           "title": "Public suite name",
