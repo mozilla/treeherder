@@ -52,7 +52,12 @@ export default class DownstreamSummary extends React.Component {
           <SimpleTooltip
             text={
               <span>
-                <Link to={`./alerts?id=${id}`} className="text-info">
+                <Link
+                  to={`./alerts?id=${id}`}
+                  className="text-info"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   #{id}
                 </Link>
                 {position === 0 ? '' : ', '}
