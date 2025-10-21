@@ -111,6 +111,8 @@ export default class AlertTableRow extends React.Component {
         {` ${text} `}
         <Link
           to={`./alerts?id=${alertId}`}
+          target="_blank"
+          rel="noopener noreferrer"
           className="text-darker-info"
         >{`alert #${alertId}`}</Link>
       </span>
