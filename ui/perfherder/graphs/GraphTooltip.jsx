@@ -319,7 +319,7 @@ const GraphTooltip = ({
                     create alert
                   </Button>
                 ) : (
-                  <span>(log in as a a sheriff to create)</span>
+                  <span>(log in as a sheriff to create)</span>
                 )}
               </p>
             )}
