@@ -13,12 +13,8 @@ import {
   VictoryScatter,
   createContainer,
   VictoryTooltip,
-  VictoryPortal,
 } from 'victory';
 import moment from 'moment';
-import numeral from 'numeral';
-import debounce from 'lodash/debounce';
-import last from 'lodash/last';
 import flatMap from 'lodash/flatMap';
 
 import { abbreviatedNumber } from '../perf-helpers/helpers';
@@ -36,7 +32,6 @@ class GraphsContainer extends React.Component {
 
   constructor(props) {
     super(props);
-    this.tooltip = React.createRef();
     this.leftChartPadding = 25;
     this.rightChartPadding = 10;
     const scatterPlotData = flatMap(this.props.testData, (item) =>
@@ -48,18 +43,20 @@ class GraphsContainer extends React.Component {
       highlightCommonAlertsData: [],
       scatterPlotData,
       zoomDomain,
-      lockTooltip: false,
-      externalMutation: undefined,
       width: window.innerWidth,
+      hoverId: null,
+      lockedId: null,
     };
   }
 
   componentDidMount() {
-    const { zoom, selectedDataPoint } = this.props;
+    const { selectedDataPoint } = this.props;
     const { scatterPlotData } = this.state;
     const zoomDomain = this.initZoomDomain(scatterPlotData);
     this.addHighlights();
-    if (selectedDataPoint) this.verifySelectedDataPoint();
+    if (selectedDataPoint) {
+      this.verifySelectedDataPoint();
+    }
     window.addEventListener('resize', () =>
       this.setState({
         width: window.innerWidth,
@@ -76,6 +73,7 @@ class GraphsContainer extends React.Component {
       highlightedRevisions,
       testData,
       timeRange,
+      selectedDataPoint,
     } = this.props;
     const scatterPlotData = flatMap(testData, (item) =>
       item.visible ? item.data : [],
@@ -95,7 +93,11 @@ class GraphsContainer extends React.Component {
     }
 
     if (prevProps.timeRange !== timeRange) {
-      this.closeTooltip();
+      this.clearLock();
+    }
+
+    if (prevProps.selectedDataPoint !== selectedDataPoint) {
+      this.verifySelectedDataPoint();
     }
   }
 
@@ -147,17 +149,18 @@ class GraphsContainer extends React.Component {
   verifySelectedDataPoint = () => {
     const { selectedDataPoint, testData, updateStateParams } = this.props;
 
-    const dataPointFound = testData.find((item) => {
-      if (item.signature_id === selectedDataPoint.signature_id) {
-        return item.data.find(
-          (datum) => datum.dataPointId === selectedDataPoint.dataPointId,
-        );
-      }
-      return false;
-    });
+    if (!selectedDataPoint || selectedDataPoint.dataPointId == null) return;
 
-    if (dataPointFound) {
-      this.showTooltip(selectedDataPoint);
+    const allPoints = (testData || []).flatMap((s) =>
+      Array.isArray(s?.data) ? s.data : [],
+    );
+
+    const found = allPoints.find(
+      (d) => d?.dataPointId === selectedDataPoint.dataPointId,
+    );
+
+    if (found) {
+      this.setState({ lockedId: selectedDataPoint.dataPointId });
     } else {
       updateStateParams({
         errorMessages: [
@@ -234,29 +237,6 @@ class GraphsContainer extends React.Component {
     this.setState({ highlights, highlightCommonAlertsData });
   };
 
-  getTooltipPosition = (point, yOffset = 15) => ({
-    left: point.x - 280 / 2,
-    top: point.y - yOffset,
-  });
-
-  setTooltip = (dataPoint, lock = false) => {
-    const { lockTooltip } = this.state;
-    const { updateStateParams } = this.props;
-
-    if (lock) {
-      updateStateParams({
-        selectedDataPoint: {
-          signature_id: dataPoint.datum.signature_id,
-          dataPointId: dataPoint.datum.dataPointId,
-        },
-      });
-    }
-    this.setState({
-      lockTooltip: lock,
-    });
-    return { active: true };
-  };
-
   // The Victory library doesn't provide a way of dynamically setting the left
   // padding for the y axis tick labels, so this is a workaround (setting state
   // doesn't work with this callback, which is why a class property is used instead)
@@ -301,57 +281,17 @@ class GraphsContainer extends React.Component {
     return null;
   };
 
-  hideTooltip = () =>
-    this.state.lockTooltip ? { active: true } : { active: undefined };
-
-  showTooltip = (selectedDataPoint) => {
-    this.setState({
-      externalMutation: [
-        {
-          childName: 'scatter-plot',
-          target: 'labels',
-          eventKey: 'all',
-          mutation: (props) => {
-            if (props.datum.dataPointId === selectedDataPoint.dataPointId) {
-              return { active: true };
-            }
-            return {};
-          },
-          callback: this.removeMutation,
-        },
-      ],
-      lockTooltip: true,
-    });
-  };
-
-  closeTooltip = () => {
-    this.setState({
-      externalMutation: [
-        {
-          childName: 'scatter-plot',
-          target: 'labels',
-          eventKey: 'all',
-          mutation: () => ({ active: false }),
-          callback: this.removeMutation,
-        },
-      ],
-      lockTooltip: false,
-    });
-    this.props.updateStateParams({ selectedDataPoint: null });
-  };
-
-  removeMutation = () => {
-    this.setState({
-      externalMutation: undefined,
-    });
+  clearLock = () => {
+    this.setState({ lockedId: null });
+    this.props.updateStateParams?.({ selectedDataPoint: null });
   };
 
   updateZoom = (zoom) => {
-    const { lockTooltip } = this.state;
+    const { lockedId } = this.state;
     const { updateStateParams } = this.props;
 
-    if (lockTooltip) {
-      this.closeTooltip();
+    if (lockedId) {
+      this.clearLock();
     }
     updateStateParams({ zoom });
   };
@@ -390,13 +330,17 @@ class GraphsContainer extends React.Component {
       highlightCommonAlertsData,
       scatterPlotData,
       zoomDomain,
-      lockTooltip,
-      externalMutation,
       width,
     } = this.state;
 
     let infraAffectedData = [];
     const markDataPoints = 5;
+    const hoverDatum = this.state.hoverId
+      ? scatterPlotData.find((d) => d?.dataPointId === this.state.hoverId)
+      : null;
+    const lockedDatum = this.state.lockedId
+      ? scatterPlotData.find((d) => d?.dataPointId === this.state.lockedId)
+      : null;
 
     changelogData.forEach((data) =>
       scatterPlotData.some((dataPoint, index) => {
@@ -495,7 +439,6 @@ class GraphsContainer extends React.Component {
                   domainPadding={{ y: 40 }}
                   minDomain={{ x: zoomDomain.minX, y: zoomDomain.minY }}
                   maxDomain={{ x: zoomDomain.maxX, y: zoomDomain.maxY }}
-                  externalEventMutations={externalMutation}
                   containerComponent={
                     <VictoryZoomSelectionContainer
                       zoomDomain={zoom}
@@ -504,67 +447,6 @@ class GraphsContainer extends React.Component {
                       allowZoom={false}
                     />
                   }
-                  events={[
-                    {
-                      childName: 'scatter-plot',
-                      target: 'data',
-                      eventHandlers: {
-                        onClick: () => {
-                          return [
-                            {
-                              target: 'data',
-                              mutation: (props) => {
-                                const { style } = props;
-                                const fill = style && style.fill;
-                                const stroke = style && style.stroke;
-                                return fill === stroke
-                                  ? null
-                                  : {
-                                      style: {
-                                        fill: stroke,
-                                        stroke,
-                                        strokeOpacity: 0.3,
-                                        strokeWidth: 12,
-                                      },
-                                    };
-                              },
-                            },
-                            {
-                              target: 'labels',
-                              eventKey: 'all',
-                              mutation: () => {},
-                            },
-                            {
-                              target: 'labels',
-                              mutation: (props) => this.setTooltip(props, true),
-                            },
-                          ];
-                        },
-                        onMouseOver: () => {
-                          return [
-                            {
-                              target: 'labels',
-                              mutation: () => {},
-                            },
-                            {
-                              target: 'labels',
-                              mutation: (props) => this.setTooltip(props),
-                            },
-                          ];
-                        },
-                        onMouseOut: () => {
-                          return [
-                            {
-                              target: 'labels',
-                              mutation: this.hideTooltip,
-                            },
-                          ];
-                        },
-                        // work-around to allow onClick events with VictorySelection container
-                        onMouseDown: (evt) => evt.stopPropagation(),
-                      },
-                    },
-                  ]}
                 >
                   {highlights.length > 0 &&
                     highlights.map((item) => (
@@ -684,24 +566,137 @@ class GraphsContainer extends React.Component {
                     }}
                     size={() => DOT_SIZE}
                     data={scatterPlotData}
-                    labels={() => ''}
-                    labelComponent={
-                      <VictoryTooltip
-                        renderInPortal={false}
-                        flyoutComponent={
-                          <VictoryPortal>
+                    events={[
+                      {
+                        target: 'data',
+                        eventHandlers: {
+                          onMouseMove: () => [
+                            {
+                              target: 'data',
+                              mutation: (props) => {
+                                const id = props?.datum?.dataPointId;
+                                if (id != null) this.setState({ hoverId: id });
+                                return null;
+                              },
+                            },
+                          ],
+                          onMouseOut: () => [
+                            {
+                              target: 'data',
+                              mutation: () => {
+                                this.setState({ hoverId: null });
+                                return null;
+                              },
+                            },
+                          ],
+                          onClick: () => [
+                            {
+                              target: 'data',
+                              mutation: (props) => {
+                                const id = props?.datum?.dataPointId;
+                                if (id == null) return null;
+                                this.setState((prev) => ({
+                                  lockedId: prev.lockedId === id ? null : id,
+                                }));
+                                const signatureId =
+                                  props?.datum?.signature_id ?? null;
+                                this.props.updateStateParams?.({
+                                  selectedDataPoint:
+                                    this.state.lockedId === id
+                                      ? null
+                                      : {
+                                          ...(signatureId
+                                            ? { signature_id: signatureId }
+                                            : {}),
+                                          dataPointId: id,
+                                        },
+                                });
+                                return null;
+                              },
+                            },
+                          ],
+                          onMouseDown: (evt) => evt.stopPropagation(),
+                        },
+                      },
+                    ]}
+                  />
+                  {hoverDatum && (
+                    <VictoryScatter
+                      name="hover-layer"
+                      data={[hoverDatum]}
+                      size={() => DOT_SIZE}
+                      groupComponent={<g pointerEvents="none" />}
+                      style={{
+                        data: {
+                          pointerEvents: 'none',
+                          fill: hoverDatum.z,
+                          stroke: hoverDatum.z,
+                          strokeOpacity: 0.3,
+                          strokeWidth: 12,
+                        },
+                      }}
+                      labels={() => ' '}
+                      labelComponent={
+                        <VictoryTooltip
+                          active
+                          renderInPortal
+                          activateData={false}
+                          pointerLength={0}
+                          flyoutStyle={{ pointerEvents: 'none' }}
+                          style={{ pointerEvents: 'none' }}
+                          flyoutComponent={
                             <GraphTooltip
                               infraAffectedData={infraAffectedData}
-                              lockTooltip={lockTooltip}
-                              closeTooltip={this.closeTooltip}
+                              lockTooltip={false}
+                              closeTooltip={() =>
+                                this.setState({ hoverId: null })
+                              }
                               windowWidth={width}
                               {...this.props}
                             />
-                          </VictoryPortal>
-                        }
-                      />
-                    }
-                  />
+                          }
+                        />
+                      }
+                    />
+                  )}
+                  {lockedDatum && (
+                    <VictoryScatter
+                      name="lock-layer"
+                      data={[lockedDatum]}
+                      size={() => DOT_SIZE}
+                      groupComponent={<g pointerEvents="none" />}
+                      style={{
+                        data: {
+                          pointerEvents: 'none',
+                          fill: lockedDatum.z,
+                          stroke: lockedDatum.z,
+                          strokeOpacity: 0.3,
+                          strokeWidth: 12,
+                        },
+                      }}
+                      labels={() => ' '}
+                      labelComponent={
+                        <VictoryTooltip
+                          active
+                          renderInPortal
+                          activateData={false}
+                          pointerLength={0}
+                          flyoutStyle={{ pointerEvents: 'none' }}
+                          style={{ pointerEvents: 'none' }}
+                          flyoutComponent={
+                            <GraphTooltip
+                              infraAffectedData={infraAffectedData}
+                              lockTooltip
+                              closeTooltip={this.clearLock}
+                              windowWidth={width}
+                              {...this.props}
+                            />
+                          }
+                        />
+                      }
+                    />
+                  )}
+
                   <VictoryAxis
                     dependentAxis
                     tickCount={9}
