@@ -16,10 +16,9 @@ import { isReftest } from '../../../helpers/job';
 import {
   createQueryParams,
   getLogViewerUrl,
-  getPerfAnalysisUrl,
-  getCrashViewerUrl,
   parseQueryParams,
 } from '../../../helpers/url';
+import formatLogLineWithLinks from '../../../helpers/logFormatting';
 
 import BugListItem from './BugListItem';
 
@@ -144,57 +143,11 @@ export default class SuggestionsListItem extends React.Component {
     }
     const filterTestPath = suggestion.search.match(/([a-z_\-0-9]+[/])+/gi);
 
-    let line = [suggestion.search];
-    const hasProfile = suggestion.search.match(
-      /profile uploaded in (profile_.*\.js\.json)/,
+    const line = formatLogLineWithLinks(
+      suggestion.search,
+      jobDetails,
+      selectedJob,
     );
-    if (hasProfile) {
-      const artifact = jobDetails.find(
-        (artifact) => artifact.value === hasProfile[1],
-      );
-      if (artifact) {
-        const [begin, end] = suggestion.search.split(hasProfile[0]);
-        line = [
-          begin,
-          <a
-            title="open in Firefox Profiler"
-            href={getPerfAnalysisUrl(artifact.url, selectedJob)}
-            target="_blank"
-            rel="noreferrer"
-          >
-            open {artifact.value} in the Firefox Profiler
-          </a>,
-          end,
-        ];
-      }
-    }
-
-    // Check for PROCESS-CRASH with UUID
-    const processCrash = suggestion.search.match(
-      /PROCESS-CRASH \| ([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i,
-    );
-    if (processCrash) {
-      const crashId = processCrash[1];
-      // Look for the corresponding .json crash artifact
-      const crashArtifact = jobDetails.find(
-        (artifact) => artifact.value === `${crashId}.json`,
-      );
-      if (crashArtifact) {
-        const [begin, end] = suggestion.search.split(crashId);
-        line = [
-          begin,
-          <a
-            title="open in crash viewer"
-            href={getCrashViewerUrl(crashArtifact.url)}
-            target="_blank"
-            rel="noreferrer"
-          >
-            {crashId}
-          </a>,
-          end,
-        ];
-      }
-    }
 
     return (
       <li>

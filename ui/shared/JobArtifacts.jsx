@@ -13,7 +13,7 @@ const UNTITLED = 'Untitled data';
 // Pattern to match crash dump files: UUID.{dmp,extra,json}
 const CRASH_DUMP_PATTERN = /^([0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12})\.(dmp|extra|json)$/i;
 
-const ArtifactLink = ({ artifact, children }) => (
+const ArtifactLink = ({ artifact, children = null }) => (
   <a
     data-testid="task-artifact"
     title={artifact.title || artifact.value}
@@ -32,10 +32,6 @@ ArtifactLink.propTypes = {
     title: PropTypes.string,
   }).isRequired,
   children: PropTypes.node,
-};
-
-ArtifactLink.defaultProps = {
-  children: null,
 };
 
 export default class JobArtifacts extends React.PureComponent {
@@ -188,17 +184,21 @@ export default class JobArtifacts extends React.PureComponent {
 }
 
 JobArtifacts.propTypes = {
-  jobDetails: PropTypes.arrayOf({
-    url: PropTypes.string.isRequired,
-    value: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-  }),
+  jobDetails: PropTypes.arrayOf(
+    PropTypes.shape({
+      url: PropTypes.string.isRequired,
+      value: PropTypes.string.isRequired,
+      title: PropTypes.string,
+    }),
+  ),
   jobArtifactsLoading: PropTypes.bool,
-  repoName: PropTypes.string.isRequired,
-  selectedJob: PropTypes.shape({}).isRequired,
+  repoName: PropTypes.string,
+  selectedJob: PropTypes.shape({}),
 };
 
 JobArtifacts.defaultProps = {
   jobDetails: [],
   jobArtifactsLoading: false,
+  repoName: null,
+  selectedJob: null,
 };
