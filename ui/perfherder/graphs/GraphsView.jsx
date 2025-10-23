@@ -41,7 +41,7 @@ class GraphsView extends React.Component {
       selectedDataPoint: null,
       highlightAlerts: true,
       highlightCommonAlerts: false,
-      highlightChangelogData: true,
+      highlightChangelogData: false,
       highlightedRevisions: ['', ''],
       testData: [],
       errorMessages: [],
