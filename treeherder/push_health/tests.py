@@ -39,7 +39,12 @@ ignored_log_lines = [
 
 
 def get_history(
-    failure_classification_id, push_date, num_days, option_map, repository_ids, force_update=False
+    failure_classification_id,
+    push_date,
+    num_days,
+    option_map,
+    repository_ids,
+    force_update=False,
 ):
     start_date = push_date - datetime.timedelta(days=num_days)
     end_date = push_date - datetime.timedelta(days=2)
@@ -118,6 +123,9 @@ def get_current_test_failures(push, option_map, jobs, investigated_tests=None):
         all_failed_jobs[job.id] = job
         # The 't' ensures the key starts with a character, as required for a query selector
         test_key = re.sub(r"\W+", "", f"t{test_name}{config}{platform}{job_name}{job_group}")
+        # Skip if job_name is not in jobs dict (e.g., when filtering by failure_classification_id)
+        if job_name not in jobs:
+            continue
         is_classified_intermittent = any(
             job["failure_classification_id"] == 4 for job in jobs[job_name]
         )
@@ -179,24 +187,47 @@ def has_line(failure_line, log_line_list):
     )
 
 
-def get_test_failure_jobs(push):
-    testfailed_jobs = (
-        Job.objects.filter(
-            push=push,
-            tier__lte=2,
-            result="testfailed",
-        )
-        .exclude(
-            Q(machine_platform__platform="lint")
-            | Q(job_type__symbol="mozlint")
-            | Q(job_type__name__contains="build"),
-        )
-        .select_related("job_type", "machine_platform", "taskcluster_metadata")
+def get_test_failure_jobs(push, classification_ids=None):
+    """
+    Get test failure jobs for a push.
+
+    Args:
+        push: Push object
+        classification_ids: Optional list of classification IDs to filter by.
+                           If None, returns ALL failed jobs.
+                           Common values: [6] (new), [1,6,8] (all failures)
+
+    Returns:
+        (result_status, jobs) tuple where:
+        - result_status: set of job result statuses
+        - jobs: dict of jobs grouped by job type name
+    """
+    testfailed_jobs_query = Job.objects.filter(
+        push=push,
+        tier__lte=2,
+        result="testfailed",
+    ).exclude(
+        Q(machine_platform__platform="lint")
+        | Q(job_type__symbol="mozlint")
+        | Q(job_type__name__contains="build"),
     )
+
+    # Apply classification filter if provided
+    if classification_ids is not None:
+        testfailed_jobs_query = testfailed_jobs_query.filter(
+            failure_classification_id__in=classification_ids
+        )
+
+    testfailed_jobs = testfailed_jobs_query.select_related(
+        "job_type", "machine_platform", "taskcluster_metadata"
+    )
+
     failed_job_types = [job.job_type.name for job in testfailed_jobs]
 
     passing_jobs = Job.objects.filter(
-        push=push, job_type__name__in=failed_job_types, result__in=["success", "unknown"]
+        push=push,
+        job_type__name__in=failed_job_types,
+        result__in=["success", "unknown"],
     ).select_related("job_type", "machine_platform", "taskcluster_metadata")
 
     jobs = {}
@@ -223,44 +254,185 @@ def get_test_failures(
     push,
     jobs,
     result_status=set(),
+    classification_ids=None,
+    limit=None,
 ):
-    logger.debug(f"Getting test failures for push: {push.id}")
-    # query for jobs for the last two weeks excluding today
-    # find tests that have failed in the last 14 days
-    # this is very cache-able for reuse on other pushes.
+    """
+    Get test failures for a push with optional filtering.
+
+    Args:
+        push: Push object
+        jobs: Dict of jobs by job type name
+        result_status: Set of result statuses
+        classification_ids: Optional list of classification IDs to filter by.
+                           If None, returns ALL failures.
+                           If provided, uses optimized query path.
+                           Common values: [6] (new), [1,6,8] (all failures)
+        limit: Optional limit on number of failures to return.
+               Only applies when classification_ids is provided.
+
+    Returns:
+        (result, failures) tuple where:
+        - result: "pass", "fail", "unknown", or "none"
+        - failures: dict of grouped failures
+
+    Performance optimization: When classification_ids is provided, queries FailureLine
+    directly by push + classification_id instead of by job IDs. When classification_ids=[6],
+    skips expensive history queries.
+    """
+    logger.debug(
+        f"Getting test failures for push: {push.id}, "
+        f"classifications: {classification_ids}, limit: {limit}"
+    )
     result = "pass"
 
     if not len(jobs):
         return ("none", get_grouped([]))
 
-    repository_ids = REPO_GROUPS["trunk"]
-    # option_map is used to map platforms for the job.option_collection_hash
     option_map = OptionCollection.objects.get_option_collection_map()
-    push_date = push.time.date()
-    intermittent_history = get_history(
-        4, push_date, intermittent_history_days, option_map, repository_ids
-    )
-    fixed_by_commit_history = get_history(
-        2, push_date, fixed_by_commit_history_days, option_map, repository_ids
-    )
     investigated_tests = InvestigatedTests.objects.filter(push=push)
 
-    # ``push_failures`` are tests that have FailureLine records created by our Log Parser.
-    #     These are tests we are able to show to examine to see if we can determine they are
-    #     intermittent.  If they are not, we tell the user they need investigation.
-    # These are failures ONLY for the current push, not relative to history.
-    push_failures = get_current_test_failures(push, option_map, jobs, investigated_tests)
-    filtered_push_failures = [failure for failure in push_failures if filter_failure(failure)]
+    # Use optimized query path when filtering by classification
+    if classification_ids is not None:
+        # Query failure lines directly by push and failure_classification_id
+        # This is much faster than querying by job IDs
+        failure_lines_query = FailureLine.objects.filter(
+            action__in=["test_result", "log", "crash"],
+            job_log__job__push=push,
+            job_log__job__result="testfailed",
+            job_log__job__tier__lte=2,
+            job_log__job__failure_classification_id__in=classification_ids,
+        ).select_related(
+            "job_log__job__job_type",
+            "job_log__job__job_group",
+            "job_log__job__machine_platform",
+            "job_log__job__taskcluster_metadata",
+        )
 
-    # Based on the intermittent and FixedByCommit history, set the appropriate classification
-    # where we think each test falls.
-    set_classifications(
-        filtered_push_failures,
-        intermittent_history,
-        fixed_by_commit_history,
-    )
+        # Apply limit if specified
+        if limit:
+            failure_lines = failure_lines_query[:limit]
+        else:
+            failure_lines = failure_lines_query
 
-    failures = get_grouped(filtered_push_failures)
+        # Build test failure data directly from failure lines
+        tests = {}
+        for failure_line in failure_lines:
+            test_name = clean_test(failure_line.test, failure_line.signature, failure_line.message)
+            if not test_name:
+                continue
+
+            job = failure_line.job_log.job
+            config = clean_config(option_map[job.option_collection_hash])
+            platform = clean_platform(job.machine_platform.platform)
+            job_name = job.job_type.name
+            job_symbol = job.job_type.symbol
+            job_group = job.job_group.name
+            job_group_symbol = job.job_group.symbol
+
+            # The 't' ensures the key starts with a character, as required for a query selector
+            test_key = re.sub(r"\W+", "", f"t{test_name}{config}{platform}{job_name}{job_group}")
+
+            # Skip if job_name is not in jobs dict
+            if job_name not in jobs:
+                continue
+
+            # Check if any job in this job type is classified as intermittent
+            is_classified_intermittent = any(
+                job["failure_classification_id"] == 4 for job in jobs[job_name]
+            )
+
+            # Check if this test has been investigated
+            is_investigated = False
+            investigated_test_id = None
+            for investigated_test in investigated_tests:
+                if (
+                    investigated_test.test == test_name
+                    and job.job_type.id == investigated_test.job_type.id
+                ):
+                    is_investigated = True
+                    investigated_test_id = investigated_test.id
+                    break
+
+            if test_key not in tests:
+                line = {
+                    "testName": test_name,
+                    "action": failure_line.action.split("_")[0],
+                    "jobName": job_name,
+                    "jobSymbol": job_symbol,
+                    "jobGroup": job_group,
+                    "jobGroupSymbol": job_group_symbol,
+                    "platform": platform,
+                    "config": config,
+                    "key": test_key,
+                    "jobKey": f"{config}{platform}{job_name}{job_group}",
+                    "suggestedClassification": "New Failure",
+                    "confidence": 0,
+                    "tier": job.tier,
+                    "totalFailures": 0,
+                    "totalJobs": 0,
+                    "failedInParent": False,
+                    "isClassifiedIntermittent": is_classified_intermittent,
+                    "isInvestigated": is_investigated,
+                    "investigatedTestId": investigated_test_id,
+                }
+                tests[test_key] = line
+
+            # Count total jobs for this job type
+            count_jobs = len(
+                list(filter(lambda x: x["result"] in ["success", "testfailed"], jobs[job_name]))
+            )
+            tests[test_key]["totalFailures"] += 1
+            tests[test_key]["totalJobs"] = count_jobs
+
+        push_failures = sorted(tests.values(), key=lambda k: k["testName"])
+        filtered_push_failures = [failure for failure in push_failures if filter_failure(failure)]
+
+        # Only run classification if we're fetching non-new failure types
+        # For performance, skip history queries when only fetching new failures (classification_ids=[6])
+        if classification_ids != [6]:
+            # Fetch history to properly classify intermittent and fixed-by-commit failures
+            repository_ids = REPO_GROUPS["trunk"]
+            push_date = push.time.date()
+            intermittent_history = get_history(
+                4, push_date, intermittent_history_days, option_map, repository_ids
+            )
+            fixed_by_commit_history = get_history(
+                2, push_date, fixed_by_commit_history_days, option_map, repository_ids
+            )
+            set_classifications(
+                filtered_push_failures,
+                intermittent_history,
+                fixed_by_commit_history,
+            )
+
+        # When a limit is applied, skip ratio-based classification
+        # because we only have a partial view of failures
+        failures = get_grouped(filtered_push_failures, skip_ratio_classification=bool(limit))
+
+    else:
+        # Original code path for getting ALL failures (no classification filter)
+        repository_ids = REPO_GROUPS["trunk"]
+        push_date = push.time.date()
+        intermittent_history = get_history(
+            4, push_date, intermittent_history_days, option_map, repository_ids
+        )
+        fixed_by_commit_history = get_history(
+            2, push_date, fixed_by_commit_history_days, option_map, repository_ids
+        )
+
+        # ``push_failures`` are tests that have FailureLine records created by our Log Parser.
+        push_failures = get_current_test_failures(push, option_map, jobs, investigated_tests)
+        filtered_push_failures = [failure for failure in push_failures if filter_failure(failure)]
+
+        # Based on the intermittent and FixedByCommit history, set the appropriate classification
+        set_classifications(
+            filtered_push_failures,
+            intermittent_history,
+            fixed_by_commit_history,
+        )
+
+        failures = get_grouped(filtered_push_failures)
 
     if len(failures["needInvestigation"]):
         result = "fail"

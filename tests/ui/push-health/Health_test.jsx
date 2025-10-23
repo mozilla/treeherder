@@ -112,6 +112,34 @@ describe('Health', () => {
       ),
       [],
     );
+    fetchMock.get(
+      getProjectUrl(
+        '/push/health_summary_new_failures/?revision=cd02b96bdce57d9ae53b632ca4740c871d3ecc32',
+        repo,
+      ),
+      {
+        revision: 'cd02b96bdce57d9ae53b632ca4740c871d3ecc32',
+        id: 630337,
+        metrics: {
+          commitHistory: pushHealth.metrics.commitHistory,
+        },
+        status: { running: 0, pending: 0, completed: 200 },
+      },
+    );
+    fetchMock.get(
+      getProjectUrl(
+        '/push/health_summary_new_failures/?revision=eeb6fd68c0223a72d8714734a34d3e6da69995e1',
+        repo,
+      ),
+      [],
+    );
+    fetchMock.get(
+      getProjectUrl(
+        '/push/health_details_new_failures/?revision=cd02b96bdce57d9ae53b632ca4740c871d3ecc32&limit=50&classification_ids=6',
+        repo,
+      ),
+      pushHealth,
+    );
   });
 
   afterAll(() => {
