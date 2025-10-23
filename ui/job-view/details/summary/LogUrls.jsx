@@ -10,7 +10,7 @@ import LogItem from './LogItem';
 export default function LogUrls(props) {
   const { logUrls, logViewerUrl, logViewerFullUrl } = props;
   const logUrlsUseful = logUrls.filter(
-    (logUrl) => logUrl.name !== 'perfherder-data-resource-usage.json',
+    (logUrl) => !logUrl.name.includes('perfherder-data'),
   );
 
   return (
