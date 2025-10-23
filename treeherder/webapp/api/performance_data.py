@@ -217,6 +217,66 @@ class PerformanceFrameworkViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = "id"
 
 
+class PerfomanceJobViewSet(viewsets.ReadOnlyModelViewSet):
+    def list(self, request, project):
+        repository = models.Repository.objects.get(name=project)
+        # Expect exactly one job_id in query params
+        try:
+            job_id = int(request.query_params.get("job_id"))
+        except Exception:
+            return Response(
+                {"message": "Job id must be specified as integers"}, status=HTTP_400_BAD_REQUEST
+            )
+
+        datums = PerformanceDatum.objects.filter(
+            repository=repository, job_id=job_id
+        ).select_related(
+            "signature",
+            "signature__option_collection",
+            "signature__platform",
+            "signature__parent_signature",
+            "push",
+        )
+
+        if not datums:
+            return Response(
+                {"message": f"No data found for job_id={job_id}"},
+                status=HTTP_400_BAD_REQUEST,
+            )
+        results = {
+            "job_id": datums[0].job_id,
+            "push_id": datums[0].push_id,
+            "push_timestamp": datums[0].push_timestamp,
+            "revision": datums[0].push.revision,
+            "data": [],
+        }
+
+        for datum in datums:
+            sig = datum.signature
+            signature_data = {
+                "id": sig.id,
+                "signature_hash": sig.signature_hash,
+                "framework_id": sig.framework_id,
+                "option_collection_hash": sig.option_collection.option_collection_hash,
+                "machine_platform": sig.platform.platform,
+                "suite": sig.suite,
+                "should_alert": sig.should_alert,
+                "lower_is_better": False if not sig.lower_is_better else True,
+                "test": sig.test if sig.test else None,
+                "extra_options": sig.extra_options.split(" ") if sig.extra_options else None,
+                "measurement_unit": sig.measurement_unit if sig.measurement_unit else "",
+            }
+            results["data"].append(
+                {
+                    "id": datum.id,
+                    "signature_data": signature_data,
+                    "value": round(datum.value, 2),
+                }
+            )
+
+        return Response(results)
+
+
 class PerformanceDatumViewSet(viewsets.ViewSet):
     """
     This view serves performance test result data

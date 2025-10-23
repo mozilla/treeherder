@@ -66,7 +66,7 @@ describe('DetailsPanel', () => {
       [],
     );
     fetchMock.get(
-      getProjectUrl(`/performance/data/?job_id=${selectedJobId}`, repoName),
+      getProjectUrl(`/performance/job-data/?job_id=${selectedJobId}`, repoName),
       [],
     );
     fetchMock.get(
