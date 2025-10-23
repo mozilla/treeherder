@@ -13,7 +13,6 @@ import GraphsView from './graphs/GraphsView';
 import AlertsView from './alerts/AlertsView';
 import TestsView from './tests/TestsView';
 import CompareView from './compare/CompareView';
-import CompareSelectorView from './compare/CompareSelectorView';
 import CompareSubtestsView from './compare/CompareSubtestsView';
 import CompareSubtestDistributionView from './compare/CompareSubtestDistributionView';
 import Navigation from './Navigation';
@@ -104,17 +103,6 @@ class App extends React.Component {
                   path={`${path}/graphs`}
                   render={(props) => (
                     <GraphsView
-                      {...props}
-                      user={user}
-                      projects={projects}
-                      frameworks={frameworks}
-                    />
-                  )}
-                />
-                <Route
-                  path={`${path}/comparechooser`}
-                  render={(props) => (
-                    <CompareSelectorView
                       {...props}
                       user={user}
                       projects={projects}
