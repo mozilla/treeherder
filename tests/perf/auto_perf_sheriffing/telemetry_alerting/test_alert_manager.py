@@ -111,7 +111,7 @@ class TestTelemetryAlertManager:
         with patch(
             "treeherder.perf.auto_perf_sheriffing.telemetry_alerting.alert_manager.TelemetryAlertModifier"
         ) as mock_modifier:
-            mock_modifier.get_alert_updates.return_value = {}
+            mock_modifier.get_alert_updates.return_value = ({}, {})
 
             telemetry_alert_manager.update_alerts([alert_without_bug])
 
@@ -122,9 +122,11 @@ class TestTelemetryAlertManager:
         with patch(
             "treeherder.perf.auto_perf_sheriffing.telemetry_alerting.alert_manager.TelemetryAlertModifier"
         ) as mock_modifier:
-            mock_modifier.get_alert_updates.return_value = {
-                str(alert_without_bug.telemetry_alert.id): {"status": 1}
-            }
+            alert_id = str(alert_without_bug.telemetry_alert.id)
+            mock_modifier.get_alert_updates.return_value = (
+                {alert_id: {"status": 1}},
+                {alert_id: alert_without_bug.telemetry_alert},
+            )
 
             with caplog.at_level(logging.INFO):
                 telemetry_alert_manager.update_alerts([alert_without_bug])
@@ -145,12 +147,16 @@ class TestTelemetryAlertManager:
         with patch(
             "treeherder.perf.auto_perf_sheriffing.telemetry_alerting.alert_manager.TelemetryAlertModifier"
         ) as mock_modifier:
-            mock_modifier.get_alert_updates.return_value = {
-                str(alert_without_bug.telemetry_alert.id): {
-                    "status": 1,
-                    "bug_number": 999999,  # Not in MODIFIABLE_ALERT_FIELDS
-                }
-            }
+            alert_id = str(alert_without_bug.telemetry_alert.id)
+            mock_modifier.get_alert_updates.return_value = (
+                {
+                    alert_id: {
+                        "status": 1,
+                        "bug_number": 999999,  # Not in MODIFIABLE_ALERT_FIELDS
+                    }
+                },
+                {alert_id: alert_without_bug.telemetry_alert},
+            )
 
             telemetry_alert_manager.update_alerts([alert_without_bug])
 
@@ -464,11 +470,17 @@ class TestTelemetryAlertManager:
         with patch(
             "treeherder.perf.auto_perf_sheriffing.telemetry_alerting.alert_manager.TelemetryAlertModifier"
         ) as mock_modifier:
-            mock_modifier.get_alert_updates.return_value = {
+            alert_updates = {
                 str(alerts[0].telemetry_alert.id): {"status": 1},
                 str(alerts[1].telemetry_alert.id): {"status": 2},
                 str(alerts[2].telemetry_alert.id): {"status": 1},
             }
+            alerts_with_updates = {
+                str(alerts[0].telemetry_alert.id): alerts[0].telemetry_alert,
+                str(alerts[1].telemetry_alert.id): alerts[1].telemetry_alert,
+                str(alerts[2].telemetry_alert.id): alerts[2].telemetry_alert,
+            }
+            mock_modifier.get_alert_updates.return_value = (alert_updates, alerts_with_updates)
 
             telemetry_alert_manager.update_alerts(alerts)
 
@@ -494,7 +506,7 @@ class TestTelemetryAlertManager:
         with patch(
             "treeherder.perf.auto_perf_sheriffing.telemetry_alerting.alert_manager.TelemetryAlertModifier"
         ) as mock_modifier:
-            mock_modifier.get_alert_updates.return_value = {}
+            mock_modifier.get_alert_updates.return_value = ({}, {})
 
             # Run the full manage_alerts workflow
             telemetry_alert_manager.manage_alerts([alert])
@@ -546,7 +558,7 @@ class TestTelemetryAlertManager:
         with patch(
             "treeherder.perf.auto_perf_sheriffing.telemetry_alerting.alert_manager.TelemetryAlertModifier"
         ) as mock_modifier:
-            mock_modifier.get_alert_updates.return_value = {}
+            mock_modifier.get_alert_updates.return_value = ({}, {})
 
             with caplog.at_level(logging.INFO):
                 telemetry_alert_manager.manage_alerts([alert_without_bug])
@@ -569,7 +581,7 @@ class TestTelemetryAlertManager:
         with patch(
             "treeherder.perf.auto_perf_sheriffing.telemetry_alerting.alert_manager.TelemetryAlertModifier"
         ) as mock_modifier:
-            mock_modifier.get_alert_updates.return_value = {}
+            mock_modifier.get_alert_updates.return_value = ({}, {})
 
             with caplog.at_level(logging.INFO):  # Changed to INFO to capture house keeping log
                 telemetry_alert_manager.manage_alerts([alert_without_bug])
@@ -605,7 +617,7 @@ class TestTelemetryAlertManager:
         with patch(
             "treeherder.perf.auto_perf_sheriffing.telemetry_alerting.alert_manager.TelemetryAlertModifier"
         ) as mock_modifier:
-            mock_modifier.get_alert_updates.return_value = {}
+            mock_modifier.get_alert_updates.return_value = ({}, {})
 
             # Create a spy on modify_alert_bugs to verify which alerts are passed
             original_modify = telemetry_alert_manager.modify_alert_bugs
@@ -672,7 +684,7 @@ class TestTelemetryAlertManager:
         with patch(
             "treeherder.perf.auto_perf_sheriffing.telemetry_alerting.alert_manager.TelemetryAlertModifier"
         ) as mock_modifier:
-            mock_modifier.get_alert_updates.return_value = {}
+            mock_modifier.get_alert_updates.return_value = ({}, {})
 
             telemetry_alert_manager.manage_alerts([alert1, alert2])
 

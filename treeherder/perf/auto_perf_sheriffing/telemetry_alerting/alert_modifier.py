@@ -46,18 +46,29 @@ class TelemetryAlertModifier:
             ...
         }
 
+        They are also expected to produce a dictionary of alerts that will be modified
+        so that we don't need to perform additional DB queries to find them. They
+        should follow this format:
+        {
+            "alert-id": PerformanceTelemetryAlertObject1,
+            "alert-id2": PerformanceTelemetryAlertObject2,
+            ...
+        }
+
         Warnings will be raised when an updater is found to be modify a field that
         was already modified. The merge will continue but it will ignore the additional
         change to ensure that other alert updates can still be made.
         """
         all_updates = {}
+        all_alerts_to_update = {}
         for updater in TelemetryAlertModifier.get_updaters():
-            updates = updater.update_alerts(**kwargs)
+            updates, alerts_to_update = updater.update_alerts(**kwargs)
             if not updates:
                 continue
             for alert, alert_updates in updates.items():
                 all_updates.setdefault(str(alert), []).append(alert_updates)
-        return TelemetryAlertModifier._merge_updates(all_updates)
+            all_alerts_to_update.update(alerts_to_update)
+        return TelemetryAlertModifier._merge_updates(all_updates), alerts_to_update
 
     @staticmethod
     def _merge_updates(all_updates):
@@ -110,7 +121,7 @@ class ResolutionModifier:
             bugs = bug_searcher.get_bugs()
         except Exception as e:
             logger.warning(f"Failed to get bugs for alert resolution updates: {str(e)}")
-            return
+            return ({}, {})
 
         alerts_to_update = PerformanceTelemetryAlert.objects.filter(
             bug_number__in=[bug_info["id"] for bug_info in bugs["bugs"]]
@@ -126,9 +137,11 @@ class ResolutionModifier:
                         return status_index
 
         updates = {}
+        alerts = {}
         for alert in alerts_to_update:
             bug_status = __get_alert_status(alert.bug_number)
             if bug_status:
                 updates[str(alert.id)] = {"status": bug_status}
+                alerts[str(alert.id)] = alert
 
-        return updates
+        return updates, alerts

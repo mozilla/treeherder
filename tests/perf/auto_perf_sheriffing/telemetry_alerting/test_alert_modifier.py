@@ -42,9 +42,10 @@ class TestTelemetryAlertModifier:
         mock_bug_searcher_class.return_value = mock_searcher
 
         alerts = []
-        updates = TelemetryAlertModifier.get_alert_updates(alerts)
+        updates, alerts_dict = TelemetryAlertModifier.get_alert_updates(alerts)
 
         assert updates == {}
+        assert alerts_dict == {}
 
     @patch("treeherder.perf.auto_perf_sheriffing.telemetry_alerting.alert_modifier.BugSearcher")
     def test_get_alert_updates_with_data(self, mock_bug_searcher_class, test_telemetry_alert):
@@ -60,11 +61,12 @@ class TestTelemetryAlertModifier:
         test_telemetry_alert.save()
 
         alerts = [test_telemetry_alert]
-        updates = TelemetryAlertModifier.get_alert_updates(alerts)
+        updates, alerts_dict = TelemetryAlertModifier.get_alert_updates(alerts)
 
         assert str(test_telemetry_alert.id) in updates
         assert "status" in updates[str(test_telemetry_alert.id)]
         assert updates[str(test_telemetry_alert.id)]["status"] == PerformanceTelemetryAlert.FIXED
+        assert str(test_telemetry_alert.id) in alerts_dict
 
     @patch(
         "treeherder.perf.auto_perf_sheriffing.telemetry_alerting.alert_modifier.MODIFIABLE_ALERT_FIELDS",
@@ -76,12 +78,14 @@ class TestTelemetryAlertModifier:
         class StatusModifier:
             @staticmethod
             def update_alerts(**kwargs):
-                return {str(test_telemetry_alert.id): {"status": 1}}
+                alert_id = str(test_telemetry_alert.id)
+                return ({alert_id: {"status": 1}}, {alert_id: test_telemetry_alert})
 
         class TestFieldModifier:
             @staticmethod
             def update_alerts(**kwargs):
-                return {str(test_telemetry_alert.id): {"test_field": "test_value"}}
+                alert_id = str(test_telemetry_alert.id)
+                return ({alert_id: {"test_field": "test_value"}}, {alert_id: test_telemetry_alert})
 
         # Save original updaters
         original_updaters = TelemetryAlertModifier.updaters.copy()
@@ -90,7 +94,7 @@ class TestTelemetryAlertModifier:
         TelemetryAlertModifier.updaters = [StatusModifier, TestFieldModifier]
 
         try:
-            updates = TelemetryAlertModifier.get_alert_updates([test_telemetry_alert])
+            updates, alerts_dict = TelemetryAlertModifier.get_alert_updates([test_telemetry_alert])
 
             # Both modifiers should contribute their updates
             assert str(test_telemetry_alert.id) in updates
@@ -106,12 +110,14 @@ class TestTelemetryAlertModifier:
         class FirstStatusModifier:
             @staticmethod
             def update_alerts(**kwargs):
-                return {str(test_telemetry_alert.id): {"status": 1}}
+                alert_id = str(test_telemetry_alert.id)
+                return ({alert_id: {"status": 1}}, {alert_id: test_telemetry_alert})
 
         class SecondStatusModifier:
             @staticmethod
             def update_alerts(**kwargs):
-                return {str(test_telemetry_alert.id): {"status": 2}}
+                alert_id = str(test_telemetry_alert.id)
+                return ({alert_id: {"status": 2}}, {alert_id: test_telemetry_alert})
 
         # Save original updaters
         original_updaters = TelemetryAlertModifier.updaters.copy()
@@ -120,7 +126,7 @@ class TestTelemetryAlertModifier:
         TelemetryAlertModifier.updaters = [FirstStatusModifier, SecondStatusModifier]
 
         try:
-            updates = TelemetryAlertModifier.get_alert_updates([test_telemetry_alert])
+            updates, alerts_dict = TelemetryAlertModifier.get_alert_updates([test_telemetry_alert])
 
             # First modifier's value should win, second should be logged as warning
             assert str(test_telemetry_alert.id) in updates
@@ -210,9 +216,10 @@ class TestResolutionModifier:
         mock_searcher.get_bugs.return_value = {"bugs": []}
         mock_bug_searcher_class.return_value = mock_searcher
 
-        updates = resolution_modifier_class.update_alerts()
+        updates, alerts = resolution_modifier_class.update_alerts()
 
         assert updates == {}
+        assert alerts == {}
 
     @patch("treeherder.perf.auto_perf_sheriffing.telemetry_alerting.alert_modifier.BugSearcher")
     def test_update_alerts_with_fixed_bug(
@@ -228,10 +235,11 @@ class TestResolutionModifier:
         test_telemetry_alert.bug_number = 12345
         test_telemetry_alert.save()
 
-        updates = resolution_modifier_class.update_alerts()
+        updates, alerts = resolution_modifier_class.update_alerts()
 
         assert str(test_telemetry_alert.id) in updates
         assert updates[str(test_telemetry_alert.id)]["status"] == PerformanceTelemetryAlert.FIXED
+        assert str(test_telemetry_alert.id) in alerts
 
     @patch("treeherder.perf.auto_perf_sheriffing.telemetry_alerting.alert_modifier.BugSearcher")
     def test_update_alerts_with_multiple_bugs(
@@ -260,12 +268,14 @@ class TestResolutionModifier:
         test_telemetry_alert.bug_number = 12345
         test_telemetry_alert.save()
 
-        updates = resolution_modifier_class.update_alerts()
+        updates, alerts_dict = resolution_modifier_class.update_alerts()
 
         assert str(test_telemetry_alert.id) in updates
         assert str(alert2.id) in updates
         assert updates[str(test_telemetry_alert.id)]["status"] == PerformanceTelemetryAlert.FIXED
         assert updates[str(alert2.id)]["status"] == PerformanceTelemetryAlert.INVALID
+        assert str(test_telemetry_alert.id) in alerts_dict
+        assert str(alert2.id) in alerts_dict
 
     @patch("treeherder.perf.auto_perf_sheriffing.telemetry_alerting.alert_modifier.BugSearcher")
     def test_update_alerts_bug_not_matching_alert(
@@ -281,9 +291,10 @@ class TestResolutionModifier:
         test_telemetry_alert.bug_number = 12345
         test_telemetry_alert.save()
 
-        updates = resolution_modifier_class.update_alerts()
+        updates, alerts = resolution_modifier_class.update_alerts()
 
         assert updates == {}
+        assert alerts == {}
 
     @patch("treeherder.perf.auto_perf_sheriffing.telemetry_alerting.alert_modifier.BugSearcher")
     def test_update_alerts_unknown_resolution(
@@ -298,10 +309,11 @@ class TestResolutionModifier:
         test_telemetry_alert.bug_number = 12345
         test_telemetry_alert.save()
 
-        updates = resolution_modifier_class.update_alerts()
+        updates, alerts = resolution_modifier_class.update_alerts()
 
         # Should not update if resolution is not recognized
         assert updates == {}
+        assert alerts == {}
 
     @patch("treeherder.perf.auto_perf_sheriffing.telemetry_alerting.alert_modifier.BugSearcher")
     def test_update_alerts_exception_handling(
@@ -313,9 +325,10 @@ class TestResolutionModifier:
         mock_searcher.get_bugs.side_effect = Exception("API Error")
         mock_bug_searcher_class.return_value = mock_searcher
 
-        updates = resolution_modifier_class.update_alerts()
+        updates, alerts = resolution_modifier_class.update_alerts()
 
-        assert updates is None
+        assert updates == {}
+        assert alerts == {}
         assert "Failed to get bugs for alert resolution updates" in caplog.text
         assert "API Error" in caplog.text
 
