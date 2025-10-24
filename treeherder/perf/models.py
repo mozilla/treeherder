@@ -502,6 +502,10 @@ class PerformanceTelemetryAlertSummary(PerformanceAlertSummaryBase):
         User, on_delete=models.SET_NULL, null=True, related_name="assigned_telemetry_alerts"
     )
 
+    # This field tells us if all bugs related to this summary were successfully
+    # modified for group-based modifications
+    bugs_modified = models.BooleanField(default=True)
+
     def autodetermine_status(self, alert_model=None):
         return super().autodetermine_status(alert_model=PerformanceTelemetryAlert)
 
@@ -640,6 +644,22 @@ class PerformanceAlertBase(models.Model):
 
         return self.__initial_culprit_job
 
+    def timestamp_first_triage(self):
+        # use only on code triggered by
+        # human interaction
+        if self.first_triaged is None:
+            self.first_triaged = django_now()
+            self.summary.timestamp_first_triage().save()
+        return self
+
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return f"{self.summary} {self.series_signature} {self.amount_pct}%"
+
+
+class PerformanceAlert(PerformanceAlertBase):
     def save(self, *args, **kwargs):
         # validate that we set a status that makes sense for presence
         # or absence of a related summary
@@ -679,22 +699,6 @@ class PerformanceAlertBase(models.Model):
         if self.related_summary:
             self.related_summary.update_status(using=using)
 
-    def timestamp_first_triage(self):
-        # use only on code triggered by
-        # human interaction
-        if self.first_triaged is None:
-            self.first_triaged = django_now()
-            self.summary.timestamp_first_triage().save()
-        return self
-
-    class Meta:
-        abstract = True
-
-    def __str__(self):
-        return f"{self.summary} {self.series_signature} {self.amount_pct}%"
-
-
-class PerformanceAlert(PerformanceAlertBase):
     class Meta:
         db_table = "performance_alert"
         unique_together = ("summary", "series_signature", "sheriffed")
@@ -723,6 +727,40 @@ class PerformanceTelemetryAlert(PerformanceAlertBase):
 
     prev_p95 = models.FloatField(help_text="Previous P95 value of series before change")
     new_p95 = models.FloatField(help_text="New P95 value of series after change")
+
+    # Each alerting probe will get 1 bug, but we still want to group
+    # them together so the bug number field is added to the telemetry alerts as well
+    NEW = 0
+    FIXED = 1
+    INVALID = 2
+    WONTFIX = 5
+    INACTIVE = 3
+    DUPLICATE = 4
+    WORKSFORME = 6
+    INCOMPLETE = 7
+    MOVED = 8
+
+    STATUSES = (
+        (NEW, "NEW"),
+        (FIXED, "FIXED"),
+        (INVALID, "INVALID"),
+        (WONTFIX, "WONTFIX"),
+        (INACTIVE, "INACTIVE"),
+        (DUPLICATE, "DUPLICATE"),
+        (WORKSFORME, "WORKSFORME"),
+        (INCOMPLETE, "INCOMPLETE"),
+        (MOVED, "MOVED"),
+    )
+
+    status = models.IntegerField(choices=STATUSES, default=NEW)
+    bug_number = models.PositiveIntegerField(null=True)
+
+    # This field tells us if the appropriate owners were already notified
+    notified = models.BooleanField(default=False)
+
+    # This field tells us if the bug was modified successfully for individual-based
+    # modifications
+    bug_modified = models.BooleanField(default=True)
 
     class Meta:
         db_table = "performance_telemetry_alert"
