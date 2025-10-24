@@ -154,9 +154,15 @@ class TelemetryBugContent:
         # a row. That way we can decouple the information provided to bugzilla
         # users from the alerting system.
         values = (
-            f"| **Median:** {round(alert.telemetry_alert.prev_median, 2)} | **Median:** {round(alert.telemetry_alert.new_median, 2)} |\n"
-            f"| | | | **P90:** {round(alert.telemetry_alert.prev_p90, 2)} | **P90:** {round(alert.telemetry_alert.new_p90, 2)} |\n"
-            f"| | | | **P95:** {round(alert.telemetry_alert.prev_p95, 2)} | **P95:** {round(alert.telemetry_alert.new_p95, 2)} |"
+            f"| **Median:** {round(alert.telemetry_alert.prev_median, 2)} "
+            f"| **Median:** {round(alert.telemetry_alert.new_median, 2)} |\n"
+            f"| | | | **P90:** {round(alert.telemetry_alert.prev_p90, 2)} "
+            f"| **P90:** {round(alert.telemetry_alert.new_p90, 2)} |\n"
+            f"| | | | **P95:** {round(alert.telemetry_alert.prev_p95, 2)} "
+            f"| **P95:** {round(alert.telemetry_alert.new_p95, 2)} |"
         )
 
-        return f"| [{alert.telemetry_signature.probe}]({get_glean_dictionary_link(alert.telemetry_signature)}) | {alert.telemetry_signature.platform} | {alert.telemetry_alert.confidence} {values} \n"
+        return (
+            f"| [{alert.telemetry_signature.probe}]({get_glean_dictionary_link(alert.telemetry_signature)}) "
+            f"| {alert.telemetry_signature.platform} | {alert.telemetry_alert.confidence} {values} \n"
+        )

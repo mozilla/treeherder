@@ -19,7 +19,7 @@ class TestBugSearcherInitialization:
 
     def test_bug_searcher_initialization(self, bug_searcher):
         """Test BugSearcher initializes with correct defaults."""
-        assert bug_searcher.bz_url == "https://bugzilla.mozilla.org/rest/bug?"
+        assert bug_searcher.bz_url == "https://bugzilla.mozilla.org/rest/bug"
         assert bug_searcher.bz_headers == {}
         assert bug_searcher._include_fields == ["id"]
         assert bug_searcher._products == []
