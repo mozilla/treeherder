@@ -58,7 +58,13 @@ export default class InputFilter extends React.Component {
       <InputGroup>
         <Input
           onChange={this.updateInput}
-          onKeyDown={updateOnEnter ? this.userActionListener : undefined}
+          onKeyDown={(e) => {
+            if (updateOnEnter) {
+              this.userActionListener(e);
+            } else if (e.key === 'Enter') {
+              e.preventDefault();
+            }
+          }}
           placeholder={placeholder}
           value={input}
           disabled={disabled}
