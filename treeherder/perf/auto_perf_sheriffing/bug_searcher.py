@@ -16,7 +16,7 @@ class BugSearcher:
     """
 
     def __init__(self):
-        self.bz_url = settings.BUGFILER_API_URL + "/rest/bug?"
+        self.bz_url = settings.BUGFILER_API_URL + "/rest/bug"
         self.bz_headers = {}
         self._include_fields = ["id"]
         self._products = []
