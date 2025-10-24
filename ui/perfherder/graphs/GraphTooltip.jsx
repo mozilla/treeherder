@@ -198,8 +198,8 @@ const GraphTooltip = ({
               )}
               <span className="text-muted">
                 {testDetails.lowerIsBetter
-                  ? ' (lower is better)'
-                  : ' (higher is better)'}
+                  ? ' (lower is better) ##'
+                  : ' (higher is better) !!'}
               </span>
             </p>
             <p className="small">
