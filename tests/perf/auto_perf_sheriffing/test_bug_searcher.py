@@ -95,20 +95,20 @@ class TestBugSearcherHelperMethods:
         assert result == mock_now.date()
         mock_datetime.now.assert_called_once_with(timezone.utc)
 
-    def test_find_last_query_num_no_queries(self, bug_searcher):
-        """Test _find_last_query_num returns 0 when no query fields exist."""
+    def test_find_last_filter_num_no_queries(self, bug_searcher):
+        """Test _find_last_filter_num returns 0 when no filter fields exist."""
         bug_searcher.set_query({"status": "NEW"})
-        result = bug_searcher._find_last_query_num()
+        result = bug_searcher._find_last_filter_num()
         assert result == 0
 
-    def test_find_last_query_num_single_query(self, bug_searcher):
-        """Test _find_last_query_num with single query field."""
+    def test_find_last_filter_num_single_query(self, bug_searcher):
+        """Test _find_last_filter_num with single filter field."""
         bug_searcher.set_query({"f1": "status", "o1": "equals", "v1": "NEW"})
-        result = bug_searcher._find_last_query_num()
+        result = bug_searcher._find_last_filter_num()
         assert result == 1
 
-    def test_find_last_query_num_multiple_queries(self, bug_searcher):
-        """Test _find_last_query_num with multiple query fields."""
+    def test_find_last_filter_num_multiple_queries(self, bug_searcher):
+        """Test _find_last_filter_num with multiple filter fields."""
         bug_searcher.set_query(
             {
                 "f1": "status",
@@ -122,7 +122,7 @@ class TestBugSearcherHelperMethods:
                 "v5": "Firefox",
             }
         )
-        result = bug_searcher._find_last_query_num()
+        result = bug_searcher._find_last_filter_num()
         assert result == 5
 
 

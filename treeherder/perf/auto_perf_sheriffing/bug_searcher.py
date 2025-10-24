@@ -55,25 +55,25 @@ class BugSearcher:
         """Helper method to get today's date in the YYYY-MM-DD format."""
         return datetime.now(timezone.utc).date()
 
-    def _find_last_query_num(self):
-        """Used to find the last query number used."""
-        query_num = 0
-        for query_field in self._query:
-            if len(query_field) == 2 and query_field.startswith("f"):
-                query_num = max(query_num, int(query_field[1]))
-        return query_num
+    def _find_last_filter_num(self):
+        """Used to find the last filter number used."""
+        filter_num = 0
+        for filter_field in self._query:
+            if len(filter_field) == 2 and filter_field.startswith("f"):
+                filter_num = max(filter_num, int(filter_field[1]))
+        return filter_num
 
     def _build_bugzilla_params(self):
         """Builds the params for the bugzilla query."""
         params = deepcopy(self._query)
 
         if self._products:
-            query_num = self._find_last_query_num()
+            filter_num = self._find_last_filter_num()
             params.update(
                 {
-                    f"f{query_num}": "product",
-                    f"o{query_num}": "anywordssubstr",
-                    f"v{query_num}": ",".join(self._products),
+                    f"f{filter_num}": "product",
+                    f"o{filter_num}": "anywordssubstr",
+                    f"v{filter_num}": ",".join(self._products),
                 }
             )
 
