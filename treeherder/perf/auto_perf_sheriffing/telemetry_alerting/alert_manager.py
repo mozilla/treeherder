@@ -33,8 +33,6 @@ class TelemetryAlertManager(AlertManager):
 
     def __init__(self, probes):
         super().__init__(TelemetryBugManager(), TelemetryEmailManager())
-
-        # Convert it to a dictionary for quicker access
         self.probes = probes
 
     def _get_probe_info(self, probe_name):
@@ -62,25 +60,21 @@ class TelemetryAlertManager(AlertManager):
         that results in many more network requests. However, this approach involves
         more DB queries.
         """
-        alert_updates = TelemetryAlertModifier.get_alert_updates(alerts)
+        alert_updates, alerts_with_updates = TelemetryAlertModifier.get_alert_updates(alerts)
         if not alert_updates:
             return
 
         alerts_to_update = set()
         fields_to_update = set()
-        for alert in alerts:
-            alert_id = str(alert.telemetry_alert.id)
-            if alert_id not in alert_updates:
-                continue
-
+        for alert_id, alert in alerts_with_updates.items():
             updates = alert_updates[alert_id]
             for updated_field, updated_value in updates.items():
                 if updated_field not in MODIFIABLE_ALERT_FIELDS:
                     continue
-                alerts_to_update.add(alert.telemetry_alert)
+                alerts_to_update.add(alert)
                 fields_to_update.add(updated_field)
 
-                setattr(alert.telemetry_alert, updated_field, updated_value)
+                setattr(alert, updated_field, updated_value)
 
         logger.info(
             f"Updating the following alert IDs for changes in Bugzilla fields `"
