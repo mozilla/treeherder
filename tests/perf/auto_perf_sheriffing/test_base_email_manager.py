@@ -43,15 +43,15 @@ class TestEmailManager:
             mock_factory.assert_called_once()
             assert manager.notify_client == mock_client
 
-    def test_get_email_func_returns_client_email(self, email_manager, mock_taskcluster_notify):
-        """Test get_email_func returns the notify_client.email method."""
-        email_func = email_manager.get_email_func()
-        assert email_func is mock_taskcluster_notify.email
+    def test_get_notify_func_returns_client_email(self, email_manager, mock_taskcluster_notify):
+        """Test get_notify_func returns the notify_client.email method."""
+        notify_func = email_manager.get_notify_func()
+        assert notify_func is mock_taskcluster_notify.email
 
-    def test_get_email_func_is_callable(self, email_manager):
-        """Test get_email_func returns a callable."""
-        email_func = email_manager.get_email_func()
-        assert callable(email_func)
+    def test_get_notify_func_is_callable(self, email_manager):
+        """Test get_notify_func returns a callable."""
+        notify_func = email_manager.get_notify_func()
+        assert callable(notify_func)
 
     def test_email_alert_is_no_op(self, email_manager):
         """Test email_alert does nothing by default."""
@@ -94,15 +94,15 @@ class TestEmailManager:
             assert manager2.notify_client is mock_client2
             assert manager1.notify_client is not manager2.notify_client
 
-    def test_get_email_func_can_be_called_multiple_times(
+    def test_get_notify_func_can_be_called_multiple_times(
         self, email_manager, mock_taskcluster_notify
     ):
-        """Test get_email_func can be called multiple times and returns same function."""
-        email_func1 = email_manager.get_email_func()
-        email_func2 = email_manager.get_email_func()
+        """Test get_notify_func can be called multiple times and returns same function."""
+        notify_func1 = email_manager.get_notify_func()
+        notify_func2 = email_manager.get_notify_func()
 
-        assert email_func1 is email_func2
-        assert email_func1 is mock_taskcluster_notify.email
+        assert notify_func1 is notify_func2
+        assert notify_func1 is mock_taskcluster_notify.email
 
     def test_email_manager_with_mocked_notify_client(self):
         """Test EmailManager with a fully mocked notify client."""
@@ -115,10 +115,10 @@ class TestEmailManager:
             mock_factory.return_value = mock_client
 
             manager = EmailManager()
-            email_func = manager.get_email_func()
+            notify_func = manager.get_notify_func()
 
             # Call the email function
-            result = email_func(
+            result = notify_func(
                 address="test@example.com", subject="Test Subject", content="Test Content"
             )
 

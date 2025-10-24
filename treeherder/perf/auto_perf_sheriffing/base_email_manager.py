@@ -7,7 +7,7 @@ class EmailManager:
     def __init__(self):
         self.notify_client = taskcluster.notify_client_factory()
 
-    def get_email_func(self):
+    def get_notify_func(self):
         return self.notify_client.email
 
     def email_alert(self, *args, **kwargs):

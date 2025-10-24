@@ -11,7 +11,7 @@ class TelemetryEmailManager(EmailManager):
     """Formats and emails alert notifications."""
 
     def email_alert(self, probe, alert):
-        telemetry_email = TelemetryEmail(self.get_email_func())
+        telemetry_email = TelemetryEmail(self.get_notify_func())
 
         for email in probe.get_notification_emails():
             telemetry_email.email(email, probe, alert)
@@ -116,6 +116,7 @@ class TelemetryEmailContent:
         ).format(
             channel=telemetry_signature.channel,
             probe=telemetry_signature.probe,
+            glean_dictionary_link=get_glean_dictionary_link(telemetry_signature),
             platform=telemetry_signature.platform,
             date_from=detection_range["from"].time.strftime("%Y-%m-%d"),
             date_to=detection_range["to"].time.strftime("%Y-%m-%d"),
@@ -125,7 +126,6 @@ class TelemetryEmailContent:
             treeherder_push_link=get_treeherder_detection_link(
                 detection_range, telemetry_signature
             ),
-            glean_dictionary_link=get_glean_dictionary_link(telemetry_signature),
         )
 
     def __str__(self):

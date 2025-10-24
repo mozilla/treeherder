@@ -152,7 +152,7 @@ class TestTelemetryEmailManager:
         # Setup email manager
         email_manager = TelemetryEmailManager()
         mock_email_func = Mock()
-        email_manager.get_email_func = Mock(return_value=mock_email_func)
+        email_manager.get_notify_func = Mock(return_value=mock_email_func)
 
         # Execute
         email_manager.email_alert(mock_probe, telemetry_alert_obj)
@@ -181,7 +181,7 @@ class TestTelemetryEmailManager:
 
         email_manager = TelemetryEmailManager()
         mock_email_func = Mock()
-        email_manager.get_email_func = Mock(return_value=mock_email_func)
+        email_manager.get_notify_func = Mock(return_value=mock_email_func)
 
         email_manager.email_alert(mock_probe, telemetry_alert_obj)
 
@@ -190,14 +190,14 @@ class TestTelemetryEmailManager:
             "single@mozilla.com", mock_probe, telemetry_alert_obj
         )
 
-    def test_get_email_func_returns_notify_client_email(self):
-        """Test that get_email_func returns the notify_client.email method."""
+    def test_get_notify_func_returns_notify_client_email(self):
+        """Test that get_notify_func returns the notify_client.email method."""
         email_manager = TelemetryEmailManager()
         mock_email_method = Mock()
         email_manager.notify_client = Mock()
         email_manager.notify_client.email = mock_email_method
 
-        result = email_manager.get_email_func()
+        result = email_manager.get_notify_func()
 
         assert result == mock_email_method
 
