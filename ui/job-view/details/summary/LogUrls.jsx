@@ -9,12 +9,15 @@ import LogItem from './LogItem';
 
 export default function LogUrls(props) {
   const { logUrls, logViewerUrl, logViewerFullUrl } = props;
+  const logUrlsUseful = logUrls.filter(
+    (logUrl) => logUrl.name !== 'perfherder-data-resource-usage.json',
+  );
 
   return (
     <React.Fragment>
       {/* Log Viewer */}
       <LogItem
-        logUrls={logUrls}
+        logUrls={logUrlsUseful}
         logViewerUrl={logViewerUrl}
         logViewerFullUrl={logViewerFullUrl}
         logKey="logviewer"
@@ -25,7 +28,7 @@ export default function LogUrls(props) {
 
       {/* Raw Log */}
       <LogItem
-        logUrls={logUrls}
+        logUrls={logUrlsUseful}
         logViewerUrl={logViewerUrl}
         logViewerFullUrl={logViewerFullUrl}
         logKey="rawlog"
