@@ -828,6 +828,7 @@ class PerformanceBugTemplate(models.Model):
 
     text = models.TextField(max_length=4096)
     critical_text = models.TextField(max_length=4096, default="")
+    no_action_required_text = models.TextField(max_length=4096, default="")
 
     class Meta:
         db_table = "performance_bug_template"

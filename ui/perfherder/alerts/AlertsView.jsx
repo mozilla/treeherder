@@ -48,7 +48,6 @@ class AlertsView extends React.Component {
       optionCollectionMap: null,
       count: 0,
       id: validated.id,
-      bugTemplate: null,
       totalPages: 0,
     };
   }
@@ -347,7 +346,6 @@ class AlertsView extends React.Component {
       issueTrackers,
       notSupportedAlertFilters,
       optionCollectionMap,
-      bugTemplate,
       page,
       count,
     } = this.state;
@@ -396,7 +394,6 @@ class AlertsView extends React.Component {
             }
             updateViewState={(state) => this.setState(state)}
             setFiltersState={this.setFiltersState}
-            bugTemplate={bugTemplate}
             user={user}
             page={page}
             count={count}
