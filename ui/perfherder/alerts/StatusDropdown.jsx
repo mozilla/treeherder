@@ -181,6 +181,15 @@ export default class StatusDropdown extends React.Component {
       };
     }
     window.open(`${bzBaseUrl}show_bug.cgi?id=${createResult.data.id}`);
+
+    // Link to bug from bugzilla
+    const { issueTrackers } = this.props;
+    const params = {
+      bug_number: parseInt(createResult.data.id, 10),
+      issue_tracker: issueTrackers.find((item) => item.text === 'Bugzilla').id,
+    };
+    this.changeAlertSummary(params);
+
     return {
       failureStatus: null,
     };
