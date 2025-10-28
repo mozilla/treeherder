@@ -184,7 +184,9 @@ class FailureSummaryTab extends React.Component {
       suggestions,
       errors,
     } = this.state;
-    const logs = jobLogUrls;
+    const logs = jobLogUrls.filter(
+      (jlu) => !jlu.name.includes('perfherder-data'),
+    );
     const jobLogsAllParsed =
       logs.length > 0 && logs.every((jlu) => jlu.parse_status !== 'pending');
 

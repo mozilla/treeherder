@@ -26,12 +26,30 @@ class SummaryPanel extends React.PureComponent {
       classificationMap,
     } = this.props;
 
+    const logs = jobLogUrls.filter(
+      (log) => !log.name.includes('perfherder-data'),
+    );
+    const artifacts = jobLogUrls.filter((artifact) =>
+      artifact.name.includes('perfherder-data'),
+    );
     const logStatus = [
       {
         title: 'Log parsing status',
-        value: !jobLogUrls.length
+        value: !logs.length
           ? 'No logs'
-          : jobLogUrls.map((log) => log.parse_status).join(', '),
+          : logs.map((log) => log.parse_status).join(', '),
+      },
+    ];
+    const artifactStatus = [
+      {
+        title: 'Artifact parsing status',
+        value: !artifacts.length ? 'No artifacts' : null,
+        subfields: artifacts.length
+          ? artifacts.map((artifact) => ({
+              name: artifact.name,
+              value: artifact.parse_status,
+            }))
+          : null,
       },
     ];
 
@@ -50,7 +68,7 @@ class SummaryPanel extends React.PureComponent {
           jobDetails={jobDetails}
           logViewerUrl={logViewerUrl}
           logViewerFullUrl={logViewerFullUrl}
-          jobLogUrls={jobLogUrls}
+          jobLogUrls={logs}
           user={user}
         />
         <div id="summary-panel-content">
@@ -80,7 +98,7 @@ class SummaryPanel extends React.PureComponent {
             <StatusPanel selectedJobFull={selectedJobFull} />
             <JobInfo
               job={selectedJobFull}
-              extraFields={logStatus}
+              extraFields={[...logStatus, ...artifactStatus]}
               currentRepo={currentRepo}
             />
           </ul>

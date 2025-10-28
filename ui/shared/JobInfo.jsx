@@ -39,6 +39,35 @@ const getTimeFields = function getTimeFields(job) {
 };
 
 export default class JobInfo extends React.PureComponent {
+  renderFieldValue(field) {
+    if (field.url) {
+      return (
+        <a
+          title={field.value}
+          href={field.url}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {field.value}
+        </a>
+      );
+    }
+
+    if (field.subfields) {
+      return (
+        <ul className="list-unstyled ml-1">
+          {field.subfields.map((sf) => (
+            <li key={sf.name}>
+              {sf.name}: <span>{sf.value}</span>
+            </li>
+          ))}
+        </ul>
+      );
+    }
+
+    return <span>{field.value}</span>;
+  }
+
   render() {
     const { job, extraFields, showJobFilters, currentRepo } = this.props;
     const {
@@ -107,20 +136,9 @@ export default class JobInfo extends React.PureComponent {
           <Clipboard description="job Name" text={jobTypeName} />
         </li>
         {[...timeFields, ...extraFields].map((field) => (
-          <li className="small" key={`${field.title}${field.value}`}>
+          <li className="small" key={`${field.title}${field.value ?? ''}`}>
             <strong>{field.title}: </strong>
-            {field.url ? (
-              <a
-                title={field.value}
-                href={field.url}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {field.value}
-              </a>
-            ) : (
-              <span>{field.value}</span>
-            )}
+            {this.renderFieldValue(field)}
             {field.clipboard && (
               <Clipboard
                 description={field.clipboard.description}
@@ -153,6 +171,12 @@ JobInfo.propTypes = {
         description: PropTypes.string.isRequired,
         text: PropTypes.string,
       }),
+      subfields: PropTypes.arrayOf(
+        PropTypes.exact({
+          name: PropTypes.string.isRequired,
+          value: PropTypes.string.isRequired,
+        }),
+      ),
     }),
   ),
   showJobFilters: PropTypes.bool,
