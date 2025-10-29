@@ -500,8 +500,8 @@ NOTIFY_ACCESS_TOKEN = env("NOTIFY_ACCESS_TOKEN", default=None)
 GITHUB_TOKEN = env("GITHUB_TOKEN", default=None)
 
 # Statsd server configuration
-STATSD_HOST = env("STATSD_HOST", default="statsd")
-STATSD_PORT = env("STATSD_PORT", default=8124)
+STATSD_HOST = env("STATSD_HOST", default=None)
+STATSD_PORT = env("STATSD_PORT", default=8125)
 STATSD_PREFIX = env("STATSD_PREFIX", default="treeherder")
 
 # For dockerflow

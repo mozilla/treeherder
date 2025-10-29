@@ -24,6 +24,7 @@ services:
       - PULSE_AUTO_DELETE_QUEUES=True
       - REDIS_URL=redis://redis:6379
       - SITE_URL=http://backend:8000/
+      - STATSD_HOST=graphite
       - TREEHERDER_DEBUG=True
       - NEW_RELIC_INSIGHTS_API_KEY=${NEW_RELIC_INSIGHTS_API_KEY:-}
       - PROJECTS_TO_INGEST=${PROJECTS_TO_INGEST:-autoland,try}
@@ -49,6 +50,7 @@ services:
       - redis
       - postgres
       - rabbitmq
+      - graphite
     stdin_open: true
     tty: true
 
@@ -114,6 +116,7 @@ services:
       - PULSE_URL=${PULSE_URL:-}
       - LOGGING_LEVEL=INFO
       - PULSE_AUTO_DELETE_QUEUES=True
+      - STATSD_HOST=graphite
       - DATABASE_URL=${DATABASE_URL:-psql://postgres:mozilla1234@postgres:5432/treeherder}
       - BROKER_URL=amqp://guest:guest@rabbitmq//
       - SKIP_INGESTION=${SKIP_INGESTION:-False}
@@ -132,6 +135,7 @@ services:
       dockerfile: docker/dev.Dockerfile
     environment:
       - BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+      - STATSD_HOST=graphite
       - DATABASE_URL=${DATABASE_URL:-psql://postgres:mozilla1234@postgres:5432/treeherder}
       - PROJECTS_TO_INGEST=${PROJECTS_TO_INGEST:-autoland,try}
     entrypoint: './docker/entrypoint.sh'
@@ -144,14 +148,15 @@ services:
       - rabbitmq
     platform: linux/amd64
 
-  statsd:
-    container_name: statsd
-    image: statsd/statsd:v0.10.2
-    volumes:
-      - ./docker/statsd_config.js:/usr/src/app/config.js
+  # allows for testing statsd logging locally, including visualizations
+  # visit http://localhost:8050 to view stats
+  # see also: https://github.com/graphite-project/docker-graphite-statsd
+  graphite:
+    image: graphiteapp/graphite-statsd:latest
+    expose:
+      - '8125'
     ports:
-      - '8125:8125'
-    platform: linux/amd64
+      - '8050:80'
 
 volumes:
   # TODO: Experiment with using tmpfs when testing, to speed up database-using Python tests.
