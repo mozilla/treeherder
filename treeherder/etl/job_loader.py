@@ -60,7 +60,8 @@ class JobLoader:
     PLATFORM_FIELD_MAP = {"build_platform": "buildMachine", "machine_platform": "runMachine"}
 
     def process_job(self, pulse_job, root_url):
-        if self._is_valid_job(pulse_job):
+        is_valid = self._is_valid_job(pulse_job)
+        if is_valid:
             try:
                 project = pulse_job["origin"]["project"]
                 newrelic.agent.add_custom_attribute("project", project)
@@ -73,15 +74,18 @@ class JobLoader:
                     )
                     return
 
+                transformed_job = None
                 if pulse_job["state"] != "unscheduled":
                     try:
                         self.validate_revision(repository, pulse_job)
                         transformed_job = self.transform(pulse_job)
-                        store_job_data(repository, [transformed_job])
-                        # Returning the transformed_job is only for testing purposes
-                        return transformed_job
                     except AttributeError:
                         logger.warning("Skipping job due to bad attribute", exc_info=1)
+
+                if transformed_job:
+                    store_job_data(repository, [transformed_job])
+                    # Returning the transformed_job is only for testing purposes
+                    return transformed_job
             except Repository.DoesNotExist:
                 logger.info("Job with unsupported project: %s", project)
 
