@@ -4,6 +4,7 @@ import uuid
 import jsonschema
 import newrelic.agent
 import slugid
+from django.conf import settings
 
 from treeherder.etl.common import to_timestamp
 from treeherder.etl.exceptions import MissingPushError
@@ -60,32 +61,35 @@ class JobLoader:
     PLATFORM_FIELD_MAP = {"build_platform": "buildMachine", "machine_platform": "runMachine"}
 
     def process_job(self, pulse_job, root_url):
-        is_valid = self._is_valid_job(pulse_job)
+        with settings.STATSD_CLIENT.timer("process_job_validate"):
+            is_valid = self._is_valid_job(pulse_job)
         if is_valid:
             try:
-                project = pulse_job["origin"]["project"]
-                newrelic.agent.add_custom_attribute("project", project)
+                with settings.STATSD_CLIENT.timer("process_job_transform"):
+                    project = pulse_job["origin"]["project"]
+                    newrelic.agent.add_custom_attribute("project", project)
 
-                repository = Repository.objects.get(name=project)
-                if repository.active_status != "active":
-                    (real_task_id, _) = task_and_retry_ids(pulse_job["taskId"])
-                    logger.debug(
-                        "Task %s belongs to a repository that is not active.", real_task_id
-                    )
-                    return
+                    repository = Repository.objects.get(name=project)
+                    if repository.active_status != "active":
+                        (real_task_id, _) = task_and_retry_ids(pulse_job["taskId"])
+                        logger.debug(
+                            "Task %s belongs to a repository that is not active.", real_task_id
+                        )
+                        return
 
-                transformed_job = None
-                if pulse_job["state"] != "unscheduled":
-                    try:
-                        self.validate_revision(repository, pulse_job)
-                        transformed_job = self.transform(pulse_job)
-                    except AttributeError:
-                        logger.warning("Skipping job due to bad attribute", exc_info=1)
+                    transformed_job = None
+                    if pulse_job["state"] != "unscheduled":
+                        try:
+                            self.validate_revision(repository, pulse_job)
+                            transformed_job = self.transform(pulse_job)
+                        except AttributeError:
+                            logger.warning("Skipping job due to bad attribute", exc_info=1)
 
                 if transformed_job:
-                    store_job_data(repository, [transformed_job])
-                    # Returning the transformed_job is only for testing purposes
-                    return transformed_job
+                    with settings.STATSD_CLIENT.timer("process_job_store"):
+                        store_job_data(repository, [transformed_job])
+                        # Returning the transformed_job is only for testing purposes
+                        return transformed_job
             except Repository.DoesNotExist:
                 logger.info("Job with unsupported project: %s", project)
 
