@@ -8,6 +8,7 @@ import environ
 from celery.schedules import crontab
 from furl import furl
 from kombu import Exchange, Queue
+from statsd import StatsClient
 
 from treeherder.config.utils import connection_should_use_tls
 from treeherder.middleware import add_headers_function
@@ -503,6 +504,11 @@ GITHUB_TOKEN = env("GITHUB_TOKEN", default=None)
 STATSD_HOST = env("STATSD_HOST", default=None)
 STATSD_PORT = env("STATSD_PORT", default=8125)
 STATSD_PREFIX = env("STATSD_PREFIX", default="treeherder")
+
+if STATSD_HOST:
+    STATSD_CLIENT = StatsClient(STATSD_HOST, STATSD_PORT, prefix=STATSD_PREFIX)
+else:
+    STATSD_CLIENT = None
 
 # For dockerflow
 BASE_DIR = SRC_DIR
