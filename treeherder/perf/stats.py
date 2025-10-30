@@ -188,9 +188,7 @@ def interpret_normality_shapiro_wilk(base, new, pvalue_threshold):
                 if not is_new_normal:
                     warning.append("Warning, new is not normal")
         else:
-            warning.append(
-                "New revision has fewer than 3 data points; Shapiro-Wilk test cannot be run."
-            )
+            warning.append("Shapiro-Wilk test cannot be run with fewer than 3 data points.")
             shapiro_results_new["interpretation"] = "Not enough data for normality test."
 
         return shapiro_results_base, shapiro_results_new, warning
@@ -232,14 +230,22 @@ def interpret_ks_test(base, new, pvalue_threshold):
 # Mann-Whitney U test
 # Tests the null hypothesis that the distributions patch and without patch are identical.
 # Null hypothesis is a statement that there is no significant difference or effect in population, calculates p-value
-def interpret_mann_whitneyu(base, new):
+def interpret_mann_whitneyu(base, new, pvalue_threshold=PVALUE_THRESHOLD):
     if len(base) < 1 or len(new) < 1:
         return None, None, 0
     mann_stat, mann_pvalue = mannwhitneyu(base, new, alternative="two-sided")
+    # Mann-Whitney U  p-value interpretation
+    p_value_interpretation = None
+    if mann_pvalue >= pvalue_threshold:
+        p_value_interpretation = "not significant"
+    if mann_pvalue < pvalue_threshold:
+        p_value_interpretation = "significant"
+
     mann_whitney = {
         "test_name": "Mann-Whitney U",
         "stat": float(mann_stat) if mann_stat else None,
         "pvalue": float(mann_pvalue) if mann_pvalue else None,
+        "interpretation": p_value_interpretation,
     }
     return mann_whitney, mann_stat, mann_pvalue
 
@@ -265,9 +271,9 @@ def interpret_cles_direction(cles, pvalue_threshold=PVALUE_THRESHOLD):
     if cles is None:
         return "CLES cannot be interpreted"
     if cles >= pvalue_threshold:
-        return f"{cles:.0%} chance a base value is greater than a new value"
+        return f"{cles:.0%} chance a base value > a new value"
     else:
-        return f"{1 - cles:.0%} chance a new value is greater than a base value"
+        return f"{1 - cles:.0%} chance a new value > base value"
 
 
 # https://openpublishing.library.umass.edu/pare/article/1977/galley/1980/view/
@@ -347,17 +353,11 @@ def interpret_cles(
         # Cliff's delta CLES
         cliffs_delta_cles = f"Cliff's Delta: {delta:.2f} → {interpretation}" if delta else ""
 
-        # Mann-Whitney U  p-value CLES
-        p_value_cles = (
-            f"{mann_pvalue:.3f}, {'not' if mann_pvalue > pvalue_threshold else ''} significant"
-        )
-
         cles_obj = {
             "cles": float(cles) if cles else None,
             "cles_explanation": cles_explanation,
             "mann_whitney_u_cles": mann_whitney_u_cles,
             "cliffs_delta_cles": cliffs_delta_cles,
-            "p_value_cles": p_value_cles,
         }
 
         return (
@@ -367,7 +367,6 @@ def interpret_cles(
             cles_explanation,
             mann_whitney_u_cles,
             cliffs_delta_cles,
-            p_value_cles,
         )
     except Exception:
         return None, None, None, None, None, None, None
@@ -385,13 +384,13 @@ def interpret_silverman_kde(base_data, new_data, lower_is_better):
 
         warning_msgs = []
         if base_mode_count > 1:
-            warning_msgs.append("⚠️  Warning: Base revision distribution appears multimodal!")
+            warning_msgs.append("Base revision distribution appears multimodal!")
         if new_mode_count > 1:
-            warning_msgs.append("⚠️  Warning: New revision distribution appears multimodal!")
+            warning_msgs.append("New revision distribution appears multimodal!")
         # May be over or under smoothing
         if base_mode_count != new_mode_count:
             warning_msgs.append(
-                "⚠️  Warning: mode count between base and new revision different, look at the KDE!"
+                "Mode count between base and new revision different, look at the KDE!"
             )
 
         # Interperet confidence interval and data

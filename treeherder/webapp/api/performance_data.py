@@ -1532,7 +1532,6 @@ class PerfCompareResults(generics.ListAPIView):
             cles_explanation,
             mann_whitney_u_cles,
             cliffs_delta_cles,
-            p_value_cles,
         ) = stats.interpret_cles(
             mann_stat,
             mann_pvalue,
