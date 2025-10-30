@@ -5,6 +5,7 @@ This module contains tasks related to pulse job ingestion
 import asyncio
 
 import newrelic.agent
+from django.conf import settings
 
 from treeherder.etl.classification_loader import ClassificationLoader
 from treeherder.etl.job_loader import JobLoader
@@ -27,15 +28,16 @@ def store_pulse_tasks(
     newrelic.agent.add_custom_attribute("exchange", exchange)
     newrelic.agent.add_custom_attribute("routing_key", routing_key)
     # handle_message expects messages in this format
-    runs = loop.run_until_complete(
-        handle_message(
-            {
-                "exchange": exchange,
-                "payload": pulse_job,
-                "root_url": root_url,
-            }
+    with settings.STATSD_CLIENT.timer("pulse_handle_message"):
+        runs = loop.run_until_complete(
+            handle_message(
+                {
+                    "exchange": exchange,
+                    "payload": pulse_job,
+                    "root_url": root_url,
+                }
+            )
         )
-    )
     for run in runs:
         if run:
             JobLoader().process_job(run, root_url)
