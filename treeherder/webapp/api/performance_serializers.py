@@ -672,18 +672,27 @@ class StatisticsTestSerializer(serializers.Serializer):
     interpretation = serializers.CharField(required=False)
 
 
-class SilvermanKDESerializer(serializers.Serializer):
-    bandwidth = serializers.CharField()
-    base_mode_count = serializers.IntegerField()
-    new_mode_count = serializers.IntegerField()
-    mode_comments = serializers.ListField(child=serializers.CharField(), default=[])
-    warnings = serializers.ListField(child=serializers.CharField(), default=[])
-    mode_summary = serializers.CharField()
+class ModeSerializer(serializers.Serializer):
     median_shift_summary = serializers.CharField()
+    start = PerfCompareDecimalField()
+    end = PerfCompareDecimalField()
     ci_low = PerfCompareDecimalField()
     ci_high = PerfCompareDecimalField()
     shift = PerfCompareDecimalField()
     shift_summary = serializers.CharField()
+
+
+class SilvermanKDESerializer(serializers.Serializer):
+    bandwidth = serializers.CharField()
+    base_mode_count = serializers.IntegerField()
+    new_mode_count = serializers.IntegerField()
+    base_location = PerfCompareDecimalField()
+    new_location = PerfCompareDecimalField()
+    base_prominence = PerfCompareDecimalField()
+    new_prominence = PerfCompareDecimalField()
+    mode_comments = serializers.ListField(child=serializers.CharField(), default=[])
+    warnings = serializers.ListField(child=serializers.CharField(), default=[])
+    modes = ModeSerializer(many=True)
     is_regression = serializers.BooleanField()
     is_improvement = serializers.BooleanField()
     ci_warning = serializers.CharField(required=False)

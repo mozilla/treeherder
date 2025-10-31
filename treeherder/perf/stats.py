@@ -142,7 +142,7 @@ def interpret_normality_shapiro_wilk(base, new, pvalue_threshold):
         interpretation_new = ""
         is_new_normal = None
         p_new = None
-        base_name = "Base Reversion"
+        base_name = "Base Revision"
 
         shapiro_results_base = {
             "test_name": "Shapiro-Wilk",
@@ -168,14 +168,14 @@ def interpret_normality_shapiro_wilk(base, new, pvalue_threshold):
                     f"Shapiro-Wilk result: {p_base:.2f}, {base_name} is {'**likely normal**' if is_base_normal else '**not normal**'}"
                 )
                 if not is_base_normal:
-                    warning.append("Warning, base is not normal")
+                    warning.append("Base is not normal.")
         else:
             warning.append(
                 "Base revision has fewer than 3 data points; Shapiro-Wilk test cannot be run."
             )
             shapiro_results_base["interpretation"] = "Not enough data for normality test."
 
-        new_rev_name = "New Reversion"
+        new_rev_name = "New Revision"
         if len(new) >= 3:
             stat_new, p_new = stats.shapiro(new)
             if not np.isnan(p_new):
@@ -203,7 +203,19 @@ def interpret_ks_test(base, new, pvalue_threshold):
             return None, None, None
 
         ks_stat, ks_p = ks_2samp(base, new)
-        ks_comment = f"KS test p-value: {ks_p:.4f}"
+        ks_warning = None
+        ks_comment = None
+        is_fit_good = None
+
+        if ks_p > pvalue_threshold:
+            ks_comment = f"KS test p-value: {ks_p:.3f}, good fit"
+            is_fit_good = True
+        else:
+            ks_warning = (
+                "Distributions seem to differ (KS test). Review KDE before drawing conclusions."
+            )
+            ks_comment = f"KS test p-value: {ks_p:.3f}, poor fit"
+            is_fit_good = False
 
         ks_test = {
             "test_name": "Kolmogorov-Smirnov",
@@ -211,16 +223,6 @@ def interpret_ks_test(base, new, pvalue_threshold):
             "pvalue": float(ks_p) if ks_p else None,
             "interpretation": ks_comment,
         }
-        is_fit_good = True
-        ks_warning = None
-
-        if ks_p < pvalue_threshold:
-            ks_warning = (
-                "⚠️ Distributions seem to differ (KS test). Review KDE before drawing conclusions."
-            )
-            ks_test["warning"] = ks_warning
-
-            is_fit_good = False
 
         return ks_test, is_fit_good, ks_warning
     except Exception:
@@ -401,7 +403,7 @@ def interpret_silverman_kde(base_data, new_data, lower_is_better):
         is_regression = None
         is_improvement = None
         performance_intepretation = None
-
+        modes = []
         if base_mode_count == new_mode_count:
             base_intervals, base_peak_xs = find_mode_interval(x_base, y_base, base_peak_locs)
             new_intervals, new_peak_xs = find_mode_interval(x_new, y_new, new_peak_locs)
@@ -442,24 +444,28 @@ def interpret_silverman_kde(base_data, new_data, lower_is_better):
                     )
                 except Exception:
                     pass
-
-                mode_summary = f"Mode {i + 1} [{start:.2f}, {end:.2f}]"
+                mode_info = {
+                    "mode_name": f"Mode {i + 1}",
+                    "mode_start": round(start, 2),
+                    "mode_end": round(end, 2),
+                    "median_shift_summary": median_shift_summary,
+                    "ci_low": float(ci_low) if ci_low else None,
+                    "ci_high": float(ci_high) if ci_high else None,
+                    "shift": float(shift) if shift else None,
+                    "shift_summary": performance_intepretation,
+                }
+                modes.append(mode_info)
 
             silverman_kde = {
                 "bandwidth": "Silverman",
                 "base_mode_count": base_mode_count,
                 "new_mode_count": new_mode_count,
-                "mode_comments": [
-                    f"Estimated modes (Base): {base_mode_count} (location: {base_peak_locs}, prominence: {base_prom})",
-                    f"Estimated modes (New): {new_mode_count} (location: {new_peak_locs}, prominence: {new_prom})",
-                ],
+                "base_location": base_peak_locs,
+                "new_location": new_peak_locs,
+                "base_prominence": base_prom,
+                "new_prominence": new_prom,
+                "modes": modes,
                 "warnings": warning_msgs,
-                "mode_summary": mode_summary,
-                "median_shift_summary": median_shift_summary,
-                "ci_low": float(ci_low) if ci_low else None,
-                "ci_high": float(ci_high) if ci_high else None,
-                "shift": float(shift) if shift else None,
-                "shift_summary": performance_intepretation,
                 "is_regression": is_regression,
                 "is_improvement": is_improvement,
                 "ci_warning": ci_warning,
@@ -494,8 +500,8 @@ def plot_kde_with_isj_bandwidth(base, new, mann_pvalue, cles, delta, interpretat
     padding = 0.05 * (x_max - x_min) if x_max > x_min else 1
     x_min, x_max = x_min - padding, x_max + padding
 
-    # Generate grid points
-    x_grid = np.linspace(x_min, x_max, 200)
+    # Generate grid points defualts to 512 as commonly used
+    x_grid = np.linspace(x_min, x_max, 512)
 
     kde_x_base = []
     kde_y_base = []
