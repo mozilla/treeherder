@@ -20,7 +20,11 @@ import {
 import { getData, create } from '../../helpers/http';
 import TextualSummary from '../perf-helpers/textualSummary';
 import { getApiUrl, bzBaseUrl, bugzillaBugsApi } from '../../helpers/url';
-import { summaryStatusMap, criticalTestsList } from '../perf-helpers/constants';
+import {
+  summaryStatusMap,
+  criticalTestsList,
+  bugzillaIssueTracker,
+} from '../perf-helpers/constants';
 import DropdownMenuItems from '../../shared/DropdownMenuItems';
 import BrowsertimeAlertsExtraData from '../../models/browsertimeAlertsExtraData';
 import { isWeekend } from '../perf-helpers/alertCountdownHelper';
@@ -186,7 +190,9 @@ export default class StatusDropdown extends React.Component {
     const { issueTrackers } = this.props;
     const params = {
       bug_number: parseInt(createResult.data.id, 10),
-      issue_tracker: issueTrackers.find((item) => item.text === 'Bugzilla').id,
+      issue_tracker: issueTrackers.find(
+        (item) => item.text === bugzillaIssueTracker,
+      ).id,
     };
     this.changeAlertSummary(params);
 

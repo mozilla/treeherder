@@ -317,3 +317,5 @@ export const criticalTestsList = {
   browsertime: 'Speedometer 3 on Windows 11',
   mozperftest: 'NewsSite Applink Startup on Android A55',
 };
+
+export const bugzillaIssueTracker = 'Bugzilla';
