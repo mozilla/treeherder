@@ -709,7 +709,6 @@ class CLESSerializer(serializers.Serializer):
     cles = PerfCompareDecimalField()
     cles_direction = serializers.CharField(default="")
     mann_whitney_u_cles = serializers.CharField(default="")
-    p_value_cles = serializers.CharField(default="")
     cliffs_delta_cles = serializers.CharField(default="")
     effect_size = serializers.CharField(default="")
     cles_explanation = serializers.CharField(default="")
@@ -788,6 +787,10 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
         child=serializers.CharField(default=""),
         default=[],
     )
+    kde_warnings = serializers.ListField(
+        child=serializers.CharField(default=""),
+        default=[],
+    )
     direction_of_change = serializers.CharField(default="")
     cles = CLESSerializer(many=False, default=None)
 
@@ -848,6 +851,7 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
             "kde_new",
             "kde_base",
             "kde_summary_text",
+            "kde_warnings",
         ]
 
 

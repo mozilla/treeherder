@@ -1559,7 +1559,7 @@ class PerfCompareResults(generics.ListAPIView):
 
         # Plot Kernel Density Estimator (KDE) with an ISJ (Improved Sheather-Jones) to reduce false positives from over-smoothing in Silverman
 
-        kde_isj_plot_base, kde_isj_plot_new, isj_kde_summary_text = (
+        kde_isj_plot_base, kde_isj_plot_new, isj_kde_summary_text, kde_warnings = (
             stats.plot_kde_with_isj_bandwidth(
                 base_rev_data, new_rev_data, mann_pvalue, cles, c_delta, cliffs_interpretation
             )
@@ -1611,6 +1611,7 @@ class PerfCompareResults(generics.ListAPIView):
             "kde_base": kde_isj_plot_base,
             "kde_new": kde_isj_plot_new,
             "kde_summary_text": isj_kde_summary_text,
+            "kde_warnings": kde_warnings,
             # short form summary based on former tests shapiro, silverman, etc...
             "is_fit_good": is_fit_good,
             "is_new_better": is_new_better,

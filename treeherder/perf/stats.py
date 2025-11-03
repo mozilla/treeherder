@@ -507,6 +507,7 @@ def plot_kde_with_isj_bandwidth(base, new, mann_pvalue, cles, delta, interpretat
     kde_y_base = []
     kde_x_new = []
     kde_y_new = []
+    kde_warnings = []
 
     kde_plot_base = {
         "median": float(base_median),
@@ -530,6 +531,10 @@ def plot_kde_with_isj_bandwidth(base, new, mann_pvalue, cles, delta, interpretat
             kde_y_base = y_base.tolist()
             kde_plot_base["kde_x"] = kde_x_base
             kde_plot_base["kde_y"] = kde_y_base
+        else:
+            kde_warnings.append(
+                "Less than 2 datapoints, cannot fit Kernel Density Estimator (KDE) with an ISJ to Base"
+            )
 
         if len(new) > 1:
             kde_new = FFTKDE(bw="ISJ").fit(new)
@@ -538,6 +543,10 @@ def plot_kde_with_isj_bandwidth(base, new, mann_pvalue, cles, delta, interpretat
             kde_y_new = y_new.tolist()
             kde_plot_new["kde_x"] = kde_x_new
             kde_plot_new["kde_y"] = kde_y_new
+        else:
+            kde_warnings.append(
+                "Less than 2 datapoints, cannot fit Kernel Density Estimator (KDE) with an ISJ to Base"
+            )
 
     except Exception:
         # KDE failed, charts will show just medians
@@ -550,4 +559,4 @@ def plot_kde_with_isj_bandwidth(base, new, mann_pvalue, cles, delta, interpretat
         f"Cliff’s delta: {delta:.2f} → {interpretation}" if delta else "",
     ]
 
-    return kde_plot_base, kde_plot_new, isj_kde_summary_text
+    return kde_plot_base, kde_plot_new, isj_kde_summary_text, kde_warnings
