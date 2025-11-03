@@ -34,7 +34,7 @@ class NotificationsMenu extends React.Component {
 
     return (
       <Dropdown>
-        <Dropdown.Toggle className="btn-view-nav nav-menu-btn">
+        <Dropdown.Toggle className="btn-view-nav nav-menu-btn" bsPrefix="btn">
           <FontAwesomeIcon
             icon={faBell}
             className="lightgray"

@@ -156,7 +156,6 @@ class MyPushes extends React.Component {
               <DropdownButton
                 variant="secondary"
                 title={`${selectedRepo} pushes`}
-                caret
                 size="sm"
               >
                 <DropdownMenuItems

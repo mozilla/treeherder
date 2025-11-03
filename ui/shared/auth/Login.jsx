@@ -108,8 +108,6 @@ class Login extends React.Component {
             <Dropdown.Toggle
               variant="transparent"
               className="navbar-link nav-menu-btn"
-              nav
-              caret
             >
               <span
                 className="bg-info px-1 me-1 rounded text-light"

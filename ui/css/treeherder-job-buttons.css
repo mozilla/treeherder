@@ -9,21 +9,21 @@
 
 .job-btn {
   background: transparent;
-  padding: 0 2px 0 2px;
+  padding: 0 2px 0 2px !important;
   vertical-align: 0;
-  line-height: 1.32;
+  line-height: 1.32 !important;
   display: none;
   transition: transform 0.1s;
-  font-size: 12px;
+  font-size: 12px !important;
 }
 
 .group-btn {
   background: transparent;
-  padding: 0 2px 0 2px;
+  padding: 0 2px 0 2px !important;
   vertical-align: 0;
-  line-height: 1.32;
+  line-height: 1.32 !important;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 12px !important;
 }
 
 .group-btn::before {
@@ -36,10 +36,10 @@
 
 .group-symbol {
   background: transparent;
-  padding: 0 2px 0 2px;
+  padding: 0 2px 0 2px !important;
   border: 0;
   vertical-align: 0;
-  line-height: 1.32;
+  line-height: 1.32 !important;
   cursor: pointer;
   margin-right: -3px;
 }
@@ -75,10 +75,10 @@
   color: rgba(128, 128, 0, 0.5);
   margin: 0;
   background: transparent;
-  padding: 0 2px;
+  padding: 0 2px !important;
   vertical-align: 0;
-  line-height: 1.32;
-  font-size: 12px;
+  line-height: 1.32 !important;
+  font-size: 12px !important;
   border-radius: 0;
   text-align: center;
   white-space: nowrap;

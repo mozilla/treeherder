@@ -10,29 +10,10 @@
  * when adding new styles.
  */
 
-/* Set base font size to match pre-Bootstrap 5 styling */
-html {
-  font-size: 14px;
-}
-
-/* Ensure Bootstrap components inherit the base font size */
-.btn:not(.job-btn):not(.runnable-job-btn):not(.btn-push):not(.btn-view-nav):not(.btn-view-nav-closed):not(.group-btn):not(.group-symbol):not(.group-select-all-runnable),
-.dropdown-toggle,
-.dropdown-item,
-.dropdown-menu,
-.form-control,
-.form-select,
-.input-group-text,
-.alert,
-.nav-link,
-a {
-  font-size: 1rem;
-}
-
-/* Remove underlines from links globally */
-a {
-  text-decoration: none;
-}
+/*
+ * Font sizing is now handled by Bootstrap 5 custom variables in bootstrap-custom.scss
+ * Link text-decoration is handled by Bootstrap 5 variables
+ */
 
 /* Bootstrap 4 will not show <a> as a link style if it has no href.
    This adds that style back. */

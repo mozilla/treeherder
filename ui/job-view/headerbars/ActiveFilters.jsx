@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'react-bootstrap';
+import { Button, Form } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import { connect } from 'react-redux';
@@ -172,81 +172,81 @@ class ActiveFilters extends React.Component {
         )}
         {isFieldFilterVisible && (
           <div>
-            <form className="form-inline">
-              <div className="form-group input-group-sm new-filter-input">
-                <select
-                  id="job-filter-field"
-                  className="form-control"
-                  value={newFilterField}
-                  onChange={(evt) => this.setNewFilterField(evt.target.value)}
-                  placeholder="filter field"
-                  aria-label="Field"
+            {/* Use Bootstrap 5 flexbox utilities instead of form-inline */}
+            <Form className="d-flex flex-row align-items-center gap-2">
+              <Form.Select
+                size="sm"
+                id="job-filter-field"
+                value={newFilterField}
+                onChange={(evt) => this.setNewFilterField(evt.target.value)}
+                className="flex-shrink-0"
+                style={{ width: 'auto' }}
+                aria-label="Field"
+                required
+              >
+                <option value="" disabled>
+                  select filter field
+                </option>
+                {Object.entries(fieldChoices).map(([field, obj]) =>
+                  obj.name !== 'tier' ? (
+                    <option value={field} key={field}>
+                      {obj.name}
+                    </option>
+                  ) : null,
+                )}
+              </Form.Select>
+              {newFilterMatchType !== 'choice' && (
+                <Form.Control
+                  size="sm"
+                  value={newFilterValue}
+                  onChange={(evt) => this.setNewFilterValue(evt.target.value)}
+                  id="job-filter-value"
+                  type="text"
+                  placeholder="enter filter value"
+                  className="flex-grow-1"
+                  style={{ minWidth: '150px' }}
+                  aria-label="Value"
                   required
+                />
+              )}
+              {newFilterMatchType === 'choice' && (
+                <Form.Select
+                  size="sm"
+                  value={newFilterValue}
+                  onChange={(evt) => this.setNewFilterValue(evt.target.value)}
+                  id="job-filter-choice-value"
+                  className="flex-grow-1"
+                  style={{ minWidth: '150px' }}
+                  aria-label="Value"
                 >
                   <option value="" disabled>
-                    select filter field
+                    select value
                   </option>
-                  {Object.entries(fieldChoices).map(([field, obj]) =>
-                    obj.name !== 'tier' ? (
-                      <option value={field} key={field}>
-                        {obj.name}
-                      </option>
-                    ) : null,
-                  )}
-                </select>
-                {newFilterMatchType !== 'choice' && (
-                  <React.Fragment>
-                    <input
-                      className="form-control"
-                      value={newFilterValue}
-                      onChange={(evt) =>
-                        this.setNewFilterValue(evt.target.value)
-                      }
-                      id="job-filter-value"
-                      type="text"
-                      required
-                      placeholder="enter filter value"
-                      aria-label="Value"
-                    />
-                  </React.Fragment>
-                )}
-                {newFilterMatchType === 'choice' && (
-                  <select
-                    className="form-control"
-                    value={newFilterValue}
-                    onChange={(evt) => this.setNewFilterValue(evt.target.value)}
-                    id="job-filter-choice-value"
-                    aria-label="Value"
-                  >
-                    <option value="" disabled>
-                      select value
+                  {Object.entries(newFilterChoices).map(([fci, fciObj]) => (
+                    <option value={fciObj.id} key={fci}>
+                      {fciObj.name}
                     </option>
-                    {Object.entries(newFilterChoices).map(([fci, fciObj]) => (
-                      <option value={fciObj.id} key={fci}>
-                        {fciObj.name}
-                      </option>
-                    ))}
-                  </select>
-                )}
-                <Button
-                  type="submit"
-                  size="sm"
-                  className="bg-light"
-                  onClick={this.addNewFieldFilter}
-                  variant="outline-secondary"
-                >
-                  add
-                </Button>
-                <Button
-                  className="bg-light"
-                  variant="outline-secondary"
-                  size="sm"
-                  onClick={this.clearNewFieldFilter}
-                >
-                  cancel
-                </Button>
-              </div>
-            </form>
+                  ))}
+                </Form.Select>
+              )}
+              <Button
+                type="submit"
+                size="sm"
+                className="bg-light"
+                onClick={this.addNewFieldFilter}
+                variant="outline-secondary"
+              >
+                add
+              </Button>
+              <Button
+                className="bg-light"
+                variant="outline-secondary"
+                size="sm"
+                onClick={this.clearNewFieldFilter}
+              >
+                cancel
+              </Button>
+            </Form>
           </div>
         )}
       </div>
