@@ -10,12 +10,13 @@
 
 #th-global-navbar-top {
   padding-left: 0;
-  padding-top: 1px;
+  padding-top: 2px;
   border-bottom: 1px solid black;
   justify-content: space-between;
   display: flex;
   width: 100%;
   background-color: #222;
+  line-height: 2;
 }
 
 .navbar {
@@ -80,15 +81,17 @@ label.dropdown-item.active,
   margin-right: -4px;
   padding-left: 14px;
   padding-right: 14px;
-  font-size: 14px;
+  /* Use Bootstrap 5 custom properties for sizing */
+  --bs-btn-font-size: 13px;
+  --bs-btn-padding-y: 5.25px;
+  --bs-btn-padding-x: 14px;
+  --bs-btn-line-height: 19.5px;
+  height: 30px;
+  min-height: 30px;
 }
 
 .nav-menu-btn.dropdown-toggle {
   width: 98%;
-}
-
-.nav-menu-btn::after {
-  display: none !important;
 }
 
 .nav-help-btn {
@@ -126,8 +129,25 @@ secondary-nav-bar {
   justify-content: space-between;
   width: 100%;
   display: flex;
+  align-items: center;
   background-color: #354048;
   min-height: 33px;
+}
+
+.watched-repo-navbar form {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.watched-repo-navbar .watched-repos {
+  display: flex;
+  align-items: center;
+}
+
+.watched-repo-navbar .resultStatusChicklets {
+  display: inline-flex;
+  align-items: center;
 }
 
 .tree-closed {
@@ -164,53 +184,105 @@ secondary-nav-bar {
   margin: 0px 1px 2px 1px;
 }
 
+/* Filter chicklets - use Bootstrap 5 custom properties */
 .btn.btn-view-nav.btn-orange-filter-chicklet,
 .btn.btn-view-nav.btn-orange-filter-chicklet:hover {
+  --bs-btn-color: #dd6602;
+  --bs-btn-hover-color: #dd6602;
+  --bs-btn-active-color: #dd6602;
+  --bs-btn-font-size: 1rem;
+  --bs-btn-padding-y: 0.5rem;
+  --bs-btn-padding-x: 0.125rem;
   color: #dd6602;
 }
 
 .btn.btn-view-nav.btn-red-filter-chicklet,
 .btn.btn-view-nav.btn-red-filter-chicklet:hover {
+  --bs-btn-color: #c03a44;
+  --bs-btn-hover-color: #c03a44;
+  --bs-btn-active-color: #c03a44;
+  --bs-btn-padding-y: 0.5rem;
+  --bs-btn-padding-x: 0.125rem;
   color: #c03a44;
 }
 
 .btn.btn-view-nav.btn-purple-filter-chicklet,
 .btn.btn-view-nav.btn-purple-filter-chicklet:hover {
+  --bs-btn-color: #77438d;
+  --bs-btn-hover-color: #77438d;
+  --bs-btn-active-color: #77438d;
+  --bs-btn-padding-y: 0.5rem;
+  --bs-btn-padding-x: 0.125rem;
   color: #77438d;
 }
 
 .btn.btn-view-nav.btn-green-filter-chicklet,
 .btn.btn-view-nav.btn-green:hover {
+  --bs-btn-color: rgba(2, 130, 51, 0.75);
+  --bs-btn-hover-color: rgba(2, 130, 51, 0.75);
+  --bs-btn-active-color: rgba(2, 130, 51, 0.75);
+  --bs-btn-padding-y: 0.5rem;
+  --bs-btn-padding-x: 0.125rem;
   color: rgba(2, 130, 51, 0.75);
 }
 
 .btn.btn-view-nav.btn-dkblue-filter-chicklet,
 .btn.btn-view-nav.btn-dkblue-filter-chicklet:hover {
+  --bs-btn-color: #3656ff;
+  --bs-btn-hover-color: #3656ff;
+  --bs-btn-active-color: #3656ff;
+  --bs-btn-padding-y: 0.5rem;
+  --bs-btn-padding-x: 0.125rem;
   color: #3656ff;
 }
 
 .btn.btn-view-nav.btn-pink-filter-chicklet,
 .btn.btn-view-nav.btn-pink-filter-chicklet:hover {
+  --bs-btn-color: rgba(250, 115, 172, 0.82);
+  --bs-btn-hover-color: rgba(250, 115, 172, 0.82);
+  --bs-btn-active-color: rgba(250, 115, 172, 0.82);
+  --bs-btn-padding-y: 0.5rem;
+  --bs-btn-padding-x: 0.125rem;
   color: rgba(250, 115, 172, 0.82);
 }
 
 .btn.btn-view-nav.btn-ltblue-filter-chicklet,
 .btn.btn-view-nav.btn-ltblue-filter-chicklet:hover {
+  --bs-btn-color: #81b8ed;
+  --bs-btn-hover-color: #81b8ed;
+  --bs-btn-active-color: #81b8ed;
+  --bs-btn-padding-y: 0.5rem;
+  --bs-btn-padding-x: 0.125rem;
   color: #81b8ed;
 }
 
 .btn.btn-view-nav.btn-ltgray-filter-chicklet,
 .btn.btn-view-nav.btn-ltgray-filter-chicklet:hover {
+  --bs-btn-color: #e0e0e0;
+  --bs-btn-hover-color: #e0e0e0;
+  --bs-btn-active-color: #e0e0e0;
+  --bs-btn-padding-y: 0.5rem;
+  --bs-btn-padding-x: 0.125rem;
   color: #e0e0e0;
 }
 
 .btn.btn-view-nav.btn-dkgray-filter-chicklet,
 .btn.btn-view-nav.btn-dkgray-filter-chicklet:hover {
+  --bs-btn-color: #7c7a7d;
+  --bs-btn-hover-color: #7c7a7d;
+  --bs-btn-active-color: #7c7a7d;
+  --bs-btn-padding-y: 0.5rem;
+  --bs-btn-padding-x: 0.125rem;
   color: #7c7a7d;
 }
 
 .btn.btn-view-nav.btn-black-filter-chicklet,
 .btn.btn-view-nav.btn-black-filter-chicklet:hover {
+  --bs-btn-color: black;
+  --bs-btn-hover-color: black;
+  --bs-btn-active-color: black;
+  --bs-btn-padding-y: 0.5rem;
+  --bs-btn-padding-x: 0.125rem;
   color: black;
 }
 
@@ -227,6 +299,8 @@ secondary-nav-bar {
 
 #quick-filter-parent {
   position: relative;
+  display: inline-flex;
+  align-items: center;
 }
 
 @media (min-width: 850px) {
@@ -305,7 +379,6 @@ fieldset[disabled] .btn-unclassified-failures.active {
   border-bottom: 0;
   border-top: 0;
   border-right: 0;
-  font-size: 0.875rem;
 }
 
 .btn-view-nav:hover,
@@ -381,6 +454,8 @@ fieldset[disabled] .btn-view-nav-closed.active {
 
 .navbar-badge.badge {
   margin: 0 5px;
+  display: inline-flex;
+  align-items: center;
 }
 
 #notification-dropdown {
@@ -442,7 +517,7 @@ fieldset[disabled] .btn-view-nav-closed.active {
 /* Used by Perfherder and IFV */
 .top-navbar {
   background-color: #222;
-  height: 40px;
+  height: 41px;
   align-items: center;
 }
 
@@ -456,8 +531,13 @@ fieldset[disabled] .btn-view-nav-closed.active {
 /* Ensure consistent button height in navbar */
 .top-navbar .btn-navbar,
 .top-navbar .btn-view-nav {
-  height: 40px;
-  padding: 0;
+  /* Use Bootstrap 5 custom properties for sizing */
+  --bs-btn-font-size: 13px;
+  --bs-btn-padding-y: 5.25px;
+  --bs-btn-padding-x: 14px;
+  --bs-btn-line-height: 19.5px;
+  height: 30px;
+  min-height: 30px;
   color: lightgray !important;
   display: flex;
   align-items: center;
@@ -479,7 +559,7 @@ fieldset[disabled] .btn-view-nav-closed.active {
 /* Watched repo */
 
 .btn-watched-repo {
-  padding: 0.375rem 0.5rem;
+  padding: 0.3rem 0.5rem;
 }
 
 /* Remove caret from repository dropdown toggle */

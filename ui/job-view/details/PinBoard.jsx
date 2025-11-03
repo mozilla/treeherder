@@ -645,7 +645,6 @@ class PinBoard extends React.Component {
               <Dropdown>
                 <Dropdown.Toggle
                   size="xs"
-                  caret
                   className={`bg-light ${
                     !this.hasPinnedJobs() && !this.pinboardIsDirty()
                       ? 'disabled'

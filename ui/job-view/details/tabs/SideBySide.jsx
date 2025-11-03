@@ -132,7 +132,7 @@ class SideBySide extends React.PureComponent {
                 href={beforeJobLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-monospace ms-1"
+                className="font-monospace ms-1"
               >
                 (<FontAwesomeIcon icon={faExternalLinkAlt} className="me-2" />
                 job)
@@ -151,7 +151,7 @@ class SideBySide extends React.PureComponent {
                 href={afterJobLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-monospace ms-1"
+                className="font-monospace ms-1"
               >
                 (<FontAwesomeIcon icon={faExternalLinkAlt} className="me-2" />
                 job)

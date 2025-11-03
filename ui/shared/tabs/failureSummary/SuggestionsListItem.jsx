@@ -91,10 +91,11 @@ export default class SuggestionsListItem extends React.Component {
         suggestions.push(
           <Button
             key="show-hide-more"
-            variant="link"
+            size="sm"
+            variant="outline-dark"
             rel="noopener"
             onClick={this.clickShowMore}
-            className={`bg-light px-2 py-1 btn btn-outline-secondary btn-xs my-2 show-hide-more ${
+            className={`show-more-suggestions my-2 ${
               developerMode && 'text-darker-secondary small-text'
             }`}
           >
@@ -178,9 +179,8 @@ export default class SuggestionsListItem extends React.Component {
           ) : (
             <span>
               <Button
-                className="bg-light py-1 px-2 me-2"
+                className="bg-light py-1 px-2 me-2 failure-action-btn"
                 variant="outline-secondary"
-                style={{ fontSize: '8px' }}
                 onClick={() => toggleInternalIssueFiler(suggestion)}
                 title="File an internal issue for this failure"
               >
@@ -229,9 +229,8 @@ export default class SuggestionsListItem extends React.Component {
                 />
               </a>
               <Button
-                className="bg-light py-1 px-2 ms-2"
+                className="bg-light py-1 px-2 ms-2 failure-action-btn"
                 variant="outline-secondary"
-                style={{ fontSize: '8px' }}
                 onClick={() => toggleBugFiler(suggestion)}
                 title="File a bug for this failure"
               >
