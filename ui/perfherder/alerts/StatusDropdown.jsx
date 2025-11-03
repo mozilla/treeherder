@@ -20,11 +20,7 @@ import {
 import { getData, create } from '../../helpers/http';
 import TextualSummary from '../perf-helpers/textualSummary';
 import { getApiUrl, bzBaseUrl, bugzillaBugsApi } from '../../helpers/url';
-import {
-  summaryStatusMap,
-  criticalTestsList,
-  bugzillaIssueTracker,
-} from '../perf-helpers/constants';
+import { summaryStatusMap, criticalTestsList } from '../perf-helpers/constants';
 import DropdownMenuItems from '../../shared/DropdownMenuItems';
 import BrowsertimeAlertsExtraData from '../../models/browsertimeAlertsExtraData';
 import { isWeekend } from '../perf-helpers/alertCountdownHelper';
@@ -186,7 +182,7 @@ export default class StatusDropdown extends React.Component {
     }
     window.open(`${bzBaseUrl}show_bug.cgi?id=${createResult.data.id}`);
 
-    // Link to bug from bugzilla
+    // Link to bug
     const params = {
       bug_number: parseInt(createResult.data.id, 10),
     };
