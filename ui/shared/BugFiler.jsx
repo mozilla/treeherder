@@ -721,7 +721,7 @@ export class BugFilerClass extends React.Component {
                       </Tooltip>
                     </div>
                     {searchTerms.map((term) => (
-                      <div className="text-monospace ps-3" key={term}>
+                      <div className="font-monospace ps-3" key={term}>
                         {term}
                       </div>
                     ))}

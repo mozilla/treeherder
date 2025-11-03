@@ -15,7 +15,6 @@ export default function TiersMenu(props) {
         id="tierLabel"
         title="Show/hide job tiers"
         className="btn-view-nav nav-menu-btn"
-        caret
       >
         Tiers
       </Dropdown.Toggle>

@@ -93,7 +93,7 @@ export class Revision extends React.PureComponent {
             visible={clipboardVisible}
           />
           <a
-            title={`Open revision ${commitRevision} on ${repo.url}`}
+            title={`Open that revision ${commitRevision} on ${repo.url}`}
             href={repo.getRevisionHref(commitRevision)}
             className={commitShaClass}
           >

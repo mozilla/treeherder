@@ -9,7 +9,6 @@ const InfraMenu = () => (
     <Dropdown.Toggle
       className="btn-view-nav nav-menu-btn"
       title="Infrastructure status"
-      caret
     >
       Infra
     </Dropdown.Toggle>

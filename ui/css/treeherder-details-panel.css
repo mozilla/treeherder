@@ -7,6 +7,15 @@ strong {
   height: 100%;
 }
 
+#details-panel a {
+  font-size: inherit;
+  color: #337ab7;
+}
+
+#details-panel a:visited {
+  color: purple;
+}
+
 .details-panel-slide {
   animation: details-panel-slide 0.4s ease-out;
   height: 100%;

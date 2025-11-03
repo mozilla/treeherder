@@ -135,7 +135,6 @@ const AlertHeader = ({
             <Dropdown.Toggle
               className="btn-xs"
               variant="secondary"
-              caret
               data-testid="push-dropdown"
             >
               {formattedSummaryRevision}
