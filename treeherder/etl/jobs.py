@@ -6,6 +6,7 @@ from datetime import datetime
 from hashlib import sha1
 
 import newrelic.agent
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import IntegrityError
 
@@ -72,6 +73,7 @@ def _remove_existing_jobs(data):
     return new_data
 
 
+@settings.STATSD_CLIENT.timer("load_job")
 def _load_job(repository, job_datum, push_id):
     """
     Load a job into the treeherder database

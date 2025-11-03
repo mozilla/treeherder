@@ -8,6 +8,7 @@ import slugid
 import taskcluster
 import taskcluster.aio
 import taskcluster_urls
+from django.conf import settings
 
 from treeherder.etl.schema import get_json_schema
 from treeherder.etl.taskcluster_pulse.parse_route import parse_route
@@ -173,8 +174,12 @@ async def handle_message(message, task_definition=None):
         jobs = []
         task_id = message["payload"]["status"]["taskId"]
         run_id = message["payload"]["runId"]
-        async_queue = taskcluster.aio.Queue({"rootUrl": message["root_url"]}, session=session)
-        task = (await async_queue.task(task_id)) if not task_definition else task_definition
+        if task_definition:
+            task = task_definition
+        else:
+            async_queue = taskcluster.aio.Queue({"rootUrl": message["root_url"]}, session=session)
+            with settings.STATSD_CLIENT.timer("taskcluster_fetch_definition"):
+                task = await async_queue.task(task_id)
 
         try:
             parsed_route = parse_route_info("tc-treeherder", task_id, task["routes"], task)
