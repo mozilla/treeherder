@@ -1151,7 +1151,7 @@ def test_perfcompare_results_with_mann_witney_u_against_no_base(
     )
 
     response = client.get(reverse("perfcompare-results") + query_params)
-
+    print(response, "response")
     assert response.status_code == 200
     assert response.json()[0]["base_parent_signature"] is None
     assert response.json()[0]["new_parent_signature"] is None

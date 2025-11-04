@@ -130,9 +130,9 @@ def bootstrap_median_diff_ci(a, b, n_iter=1000, alpha=0.05):
 # <https://en.wikipedia.org/wiki/Shapiro%E2%80%93Wilk_test>
 
 
-def interpret_normality_shapiro_wilk(base, new, pvalue_threshold):
+def interpret_normality_shapiro_wilk(base, new, pvalue_threshold=PVALUE_THRESHOLD):
     try:
-        warning = []
+        warnings = []
 
         stat_base = None
         interpretation_base = ""
@@ -168,10 +168,10 @@ def interpret_normality_shapiro_wilk(base, new, pvalue_threshold):
                     f"Shapiro-Wilk result: {p_base:.2f}, {base_name} is {'**likely normal**' if is_base_normal else '**not normal**'}"
                 )
                 if not is_base_normal:
-                    warning.append("Base is not normal.")
+                    warnings.append("Base is not normal.")
         else:
-            warning.append(
-                "Base revision has fewer than 3 data points; Shapiro-Wilk test cannot be run."
+            warnings.append(
+                "Shapiro-Wilk test cannot be run on Base with fewer than 3 data points."
             )
             shapiro_results_base["interpretation"] = "Not enough data for normality test."
 
@@ -186,18 +186,18 @@ def interpret_normality_shapiro_wilk(base, new, pvalue_threshold):
                     f"Shapiro-Wilk result: {p_new:.2f}, {new_rev_name} is {'**likely normal**' if is_new_normal else '**not normal**'}"
                 )
                 if not is_new_normal:
-                    warning.append("Warning, new is not normal")
+                    warnings.append("Warning, new is not normal")
         else:
-            warning.append("Shapiro-Wilk test cannot be run with fewer than 3 data points.")
-            shapiro_results_new["interpretation"] = "Not enough data for normality test."
+            warnings.append("Shapiro-Wilk test cannot be run on New with fewer than 3 data points.")
+            shapiro_results_new["interpretation"] = "Not enough data for normality test"
 
-        return shapiro_results_base, shapiro_results_new, warning
+        return shapiro_results_base, shapiro_results_new, warnings
     except Exception:
         return None, None, []
 
 
 # Kolmogorov-Smirnov test for goodness of fit
-def interpret_ks_test(base, new, pvalue_threshold):
+def interpret_ks_test(base, new, pvalue_threshold=PVALUE_THRESHOLD):
     try:
         if len(base) < 1 or len(new) < 1:
             return None, None, None
@@ -236,6 +236,8 @@ def interpret_mann_whitneyu(base, new, pvalue_threshold=PVALUE_THRESHOLD):
     if len(base) < 1 or len(new) < 1:
         return None, None, 0
     mann_stat, mann_pvalue = mannwhitneyu(base, new, alternative="two-sided")
+    mann_stat = float(mann_stat) if mann_stat else None
+    mann_pvalue = float(mann_pvalue) if mann_pvalue else None
     # Mann-Whitney U  p-value interpretation
     p_value_interpretation = None
     if mann_pvalue >= pvalue_threshold:
@@ -245,8 +247,8 @@ def interpret_mann_whitneyu(base, new, pvalue_threshold=PVALUE_THRESHOLD):
 
     mann_whitney = {
         "test_name": "Mann-Whitney U",
-        "stat": float(mann_stat) if mann_stat else None,
-        "pvalue": float(mann_pvalue) if mann_pvalue else None,
+        "stat": mann_stat,
+        "pvalue": mann_pvalue,
         "interpretation": p_value_interpretation,
     }
     return mann_whitney, mann_stat, mann_pvalue
@@ -274,8 +276,9 @@ def interpret_cles_direction(cles, pvalue_threshold=PVALUE_THRESHOLD):
         return "CLES cannot be interpreted"
     if cles >= pvalue_threshold:
         return f"{cles:.0%} chance a base value > a new value"
-    else:
+    if cles < pvalue_threshold:
         return f"{1 - cles:.0%} chance a new value > base value"
+    return "CLES cannot be interpreted"
 
 
 # https://openpublishing.library.umass.edu/pare/article/1977/galley/1980/view/
@@ -295,7 +298,9 @@ def interpret_effect_size(delta):
 def interpret_performance_direction(ci_low, ci_high, lower_is_better):
     is_regression = False
     is_improvement = False
-
+    ci_intepretation = None
+    if ci_high is None or ci_low is None:
+        return None, None, None
     if ci_low > 0:
         if lower_is_better:
             is_regression = False
@@ -325,18 +330,19 @@ def interpret_cles(
     mann_pvalue,
     new_revision,
     base_revision,
-    pvalue_threshold,
-    interpretation,
     delta,
+    interpretation,
     lower_is_better,
+    pvalue_threshold=PVALUE_THRESHOLD,
 ):
     try:
         cles = None
-        if len(new_revision) > 0 and len(base_revision) > 0:
+        if (len(new_revision) > 0) and (len(base_revision) > 0) and mann_stat:
             cles = mann_stat / (len(new_revision) * len(base_revision))
         else:
-            return None, None, None, None, None, None, None
+            return None, None, None, None, None, None
 
+        mann_whitney_u_cles = ""
         # Mann-Whitney U Common Language Effect Size
         if cles:
             mann_whitney_u_cles = (
@@ -348,15 +354,13 @@ def interpret_cles(
             mann_whitney_u_cles = ""
 
         is_significant = False if mann_pvalue > pvalue_threshold else True
-
         # Generate CLES explanation
         cles_explanation = interpret_cles_direction(cles) if cles else ""
-
         # Cliff's delta CLES
         cliffs_delta_cles = f"Cliff's Delta: {delta:.2f} → {interpretation}" if delta else ""
 
         cles_obj = {
-            "cles": float(cles) if cles else None,
+            "cles": cles,
             "cles_explanation": cles_explanation,
             "mann_whitney_u_cles": mann_whitney_u_cles,
             "cliffs_delta_cles": cliffs_delta_cles,
@@ -371,7 +375,7 @@ def interpret_cles(
             cliffs_delta_cles,
         )
     except Exception:
-        return None, None, None, None, None, None, None
+        return None, None, None, None, None, None
 
 
 def interpret_silverman_kde(base_data, new_data, lower_is_better):
@@ -386,13 +390,13 @@ def interpret_silverman_kde(base_data, new_data, lower_is_better):
 
         warning_msgs = []
         if base_mode_count > 1:
-            warning_msgs.append("Base revision distribution appears multimodal!")
+            warning_msgs.append("Base revision distribution appears multimodal.")
         if new_mode_count > 1:
-            warning_msgs.append("New revision distribution appears multimodal!")
+            warning_msgs.append("New revision distribution appears multimodal.")
         # May be over or under smoothing
         if base_mode_count != new_mode_count:
             warning_msgs.append(
-                "Mode count between base and new revision different, look at the KDE!"
+                "Mode count between base and new revision different, look at the KDE."
             )
 
         # Interperet confidence interval and data
@@ -420,6 +424,7 @@ def interpret_silverman_kde(base_data, new_data, lower_is_better):
                 ci_low = 0
                 ci_high = 0
                 median_shift_summary = None
+                mode_name = f"Mode {i + 1}"
 
                 try:
                     ref_vals = base_data[per_mode_base[0] == i]
@@ -429,48 +434,48 @@ def interpret_silverman_kde(base_data, new_data, lower_is_better):
                         ci_warning = (
                             f"Mode {i + 1} [{start:.2f}, {end:.2f}]: Not enough data to compare."
                         )
+                        warning_msgs.append(ci_warning)
                         more_runs_are_needed = True
                         continue
 
                     shift, (ci_low, ci_high) = bootstrap_median_diff_ci(ref_vals, new_vals)
                     shift = float(shift)
-                    ci_low = float(ci_low)
-                    ci_high = float(ci_high)
+                    ci_low = float(ci_low) if ci_low else None
+                    ci_high = float(ci_high) if ci_high else None
                     median_shift_summary = (
                         f"Median shift: {shift:+.3f} (95% CI: {ci_low:+.3f} to {ci_high:+.3f})"
                     )
                     is_regression, is_improvement, performance_intepretation = (
                         interpret_performance_direction(ci_low, ci_high, lower_is_better)
                     )
+                    mode_info = {
+                        "mode_name": mode_name,
+                        "mode_start": f"{start:.2f}" if start else None,
+                        "mode_end": f"{end:.2f}" if end else None,
+                        "median_shift_summary": median_shift_summary,
+                        "ci_low": ci_low,
+                        "ci_high": ci_high,
+                        "shift": shift,
+                        "shift_summary": performance_intepretation,
+                        "ci_warning": ci_warning,
+                    }
+                    modes.append(mode_info)
                 except Exception:
                     pass
-                mode_info = {
-                    "mode_name": f"Mode {i + 1}",
-                    "mode_start": round(start, 2),
-                    "mode_end": round(end, 2),
-                    "median_shift_summary": median_shift_summary,
-                    "ci_low": float(ci_low) if ci_low else None,
-                    "ci_high": float(ci_high) if ci_high else None,
-                    "shift": float(shift) if shift else None,
-                    "shift_summary": performance_intepretation,
-                }
-                modes.append(mode_info)
 
-            silverman_kde = {
-                "bandwidth": "Silverman",
-                "base_mode_count": base_mode_count,
-                "new_mode_count": new_mode_count,
-                "base_location": base_peak_locs,
-                "new_location": new_peak_locs,
-                "base_prominence": base_prom,
-                "new_prominence": new_prom,
-                "modes": modes,
-                "warnings": warning_msgs,
-                "is_regression": is_regression,
-                "is_improvement": is_improvement,
-                "ci_warning": ci_warning,
-            }
-
+        silverman_kde = {
+            "bandwidth": "Silverman",
+            "base_mode_count": base_mode_count,
+            "new_mode_count": new_mode_count,
+            "base_locations": base_peak_locs,
+            "new_locations": new_peak_locs,
+            "base_prominence": round(float(base_prom), 5) if base_prom else None,
+            "new_prominence": round(float(new_prom), 5) if new_prom else None,
+            "modes": modes,
+            "warnings": warning_msgs,
+            "is_regression": is_regression,
+            "is_improvement": is_improvement,
+        }
         return (
             silverman_kde,
             is_regression,
@@ -485,7 +490,7 @@ def interpret_silverman_kde(base_data, new_data, lower_is_better):
 
 # Kernel Density Estimator (KDE) with an ISJ (Improved Sheather-Jones) bandwidth for complex or multimodal data distributions.
 # Plot KDE with ISJ bandwidth
-def plot_kde_with_isj_bandwidth(base, new, mann_pvalue, cles, delta, interpretation):
+def plot_kde_with_isj_bandwidth(base, new):
     # Median lines
     base_median = np.median(base) if len(base) > 0 else 0
     new_median = np.median(new) if len(new) > 0 else 0
@@ -500,7 +505,7 @@ def plot_kde_with_isj_bandwidth(base, new, mann_pvalue, cles, delta, interpretat
     padding = 0.05 * (x_max - x_min) if x_max > x_min else 1
     x_min, x_max = x_min - padding, x_max + padding
 
-    # Generate grid points defualts to 512 as commonly used
+    # Generate grid points defaults to 512 as commonly used
     x_grid = np.linspace(x_min, x_max, 512)
 
     kde_x_base = []
@@ -511,13 +516,13 @@ def plot_kde_with_isj_bandwidth(base, new, mann_pvalue, cles, delta, interpretat
 
     kde_plot_base = {
         "median": float(base_median),
-        "sample_count": len(base),
+        "sample_count": len(base) if base else 0,
         "kde_x": kde_x_base,
         "kde_y": kde_y_base,
     }
     kde_plot_new = {
         "median": float(new_median),
-        "sample_count": len(new),
+        "sample_count": len(new) if new else 0,
         "kde_x": kde_x_new,
         "kde_y": kde_y_new,
     }
@@ -533,7 +538,7 @@ def plot_kde_with_isj_bandwidth(base, new, mann_pvalue, cles, delta, interpretat
             kde_plot_base["kde_y"] = kde_y_base
         else:
             kde_warnings.append(
-                "Less than 2 datapoints, cannot fit Kernel Density Estimator (KDE) with an ISJ to Base"
+                "Less than 2 datapoints, cannot fit Kernel Density Estimator (KDE) with an ISJ to Base."
             )
 
         if len(new) > 1:
@@ -545,18 +550,11 @@ def plot_kde_with_isj_bandwidth(base, new, mann_pvalue, cles, delta, interpretat
             kde_plot_new["kde_y"] = kde_y_new
         else:
             kde_warnings.append(
-                "Less than 2 datapoints, cannot fit Kernel Density Estimator (KDE) with an ISJ to Base"
+                "Less than 2 datapoints, cannot fit Kernel Density Estimator (KDE) with an ISJ to New."
             )
 
     except Exception:
         # KDE failed, charts will show just medians
         pass
 
-    # Summary text
-    isj_kde_summary_text = [
-        f"p-value: {mann_pvalue:.3f}",
-        f"CLES: {cles:.2f} → {'base > new' if cles >= 0.5 else 'new > base'}" if cles else "",
-        f"Cliff’s delta: {delta:.2f} → {interpretation}" if delta else "",
-    ]
-
-    return kde_plot_base, kde_plot_new, isj_kde_summary_text, kde_warnings
+    return kde_plot_base, kde_plot_new, kde_warnings

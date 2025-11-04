@@ -1169,6 +1169,7 @@ class PerfCompareResults(generics.ListAPIView):
                         **common_result,
                         **new_stats,
                     }
+                    print(row_result, "row result")
                     self.queryset.append(row_result)
                 else:
                     base_avg_value = perfcompare_utils.get_avg(statistics_base_perf_data, header)
@@ -1500,7 +1501,7 @@ class PerfCompareResults(generics.ListAPIView):
         # the intent of the patch, as things stand
         # Tests the null hypothesis that the distributions of the two are identical
         mann_whitney, mann_stat, mann_pvalue = stats.interpret_mann_whitneyu(
-            base_rev_data, new_rev_data
+            base_rev_data, new_rev_data, pvalue_threshold
         )
         delta_value = new_median - base_median
         delta_percentage = (delta_value / base_median * 100) if base_median != 0 else 0
@@ -1537,10 +1538,10 @@ class PerfCompareResults(generics.ListAPIView):
             mann_pvalue,
             new_rev_data,
             base_rev_data,
-            pvalue_threshold,
             cliffs_interpretation,
             c_delta,
             lower_is_better,
+            pvalue_threshold,
         )
         if cles_obj:
             cles_obj["effect_size"] = effect_size
@@ -1559,10 +1560,9 @@ class PerfCompareResults(generics.ListAPIView):
 
         # Plot Kernel Density Estimator (KDE) with an ISJ (Improved Sheather-Jones) to reduce false positives from over-smoothing in Silverman
 
-        kde_isj_plot_base, kde_isj_plot_new, isj_kde_summary_text, kde_warnings = (
-            stats.plot_kde_with_isj_bandwidth(
-                base_rev_data, new_rev_data, mann_pvalue, cles, c_delta, cliffs_interpretation
-            )
+        kde_isj_plot_base, kde_isj_plot_new, kde_warnings = stats.plot_kde_with_isj_bandwidth(
+            base_rev_data,
+            new_rev_data,
         )
 
         stats_data = {
@@ -1610,12 +1610,11 @@ class PerfCompareResults(generics.ListAPIView):
             # KDE plots and summary plot with ISJ bandwidth
             "kde_base": kde_isj_plot_base,
             "kde_new": kde_isj_plot_new,
-            "kde_summary_text": isj_kde_summary_text,
             "kde_warnings": kde_warnings,
             # short form summary based on former tests shapiro, silverman, etc...
             "is_fit_good": is_fit_good,
             "is_new_better": is_new_better,
-            "is_significant": is_significant,
+            "is_meaningful": is_significant,
             "lower_is_better": lower_is_better,
             "is_regression": is_regression,
             "is_improvement": is_improvement,
