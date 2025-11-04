@@ -1,26 +1,26 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-  UncontrolledDropdown,
-  DropdownMenu,
-  DropdownItem,
-  DropdownToggle,
   Col,
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
   Label,
+  UncontrolledDropdown,
 } from 'reactstrap';
 import template from 'lodash/template';
 import templateSettings from 'lodash/templateSettings';
 
 import {
-  getFrameworkName,
   getFilledBugSummary,
+  getFrameworkName,
   getStatus,
   updateAlertSummary,
 } from '../perf-helpers/helpers';
-import { getData, create } from '../../helpers/http';
+import { create, getData } from '../../helpers/http';
 import TextualSummary from '../perf-helpers/textualSummary';
-import { getApiUrl, bzBaseUrl, bugzillaBugsApi } from '../../helpers/url';
-import { summaryStatusMap, criticalTestsList } from '../perf-helpers/constants';
+import { bugzillaBugsApi, bzBaseUrl, getApiUrl } from '../../helpers/url';
+import { criticalTestsList, summaryStatusMap } from '../perf-helpers/constants';
 import DropdownMenuItems from '../../shared/DropdownMenuItems';
 import BrowsertimeAlertsExtraData from '../../models/browsertimeAlertsExtraData';
 import { isWeekend } from '../perf-helpers/alertCountdownHelper';
@@ -90,20 +90,10 @@ export default class StatusDropdown extends React.Component {
       user,
     } = this.props;
     const { browsertimeAlertsExtraData, showCriticalFileBugModal } = this.state;
-    let result;
-
-    const { data, failureStatus } = await getData(
-      getApiUrl(
-        `/performance/bug-template/?framework=${alertSummary.framework}`,
-      ),
+    const result = await this.getBugTemplate(
+      alertSummary.framework,
+      updateViewState,
     );
-    if (failureStatus) {
-      updateViewState({
-        errorMessages: [`Failed to retrieve bug template: ${data}`],
-      });
-    } else {
-      [result] = data;
-    }
 
     const textualSummary = new TextualSummary(
       frameworks,
@@ -112,20 +102,16 @@ export default class StatusDropdown extends React.Component {
       null,
       await browsertimeAlertsExtraData.enrichAndRetrieveAlerts(),
     );
-    const frameworkName = getFrameworkName(frameworks, alertSummary.framework);
-    const templateArgs = {
-      bugType: 'defect',
-      framework: frameworkName,
-      revision: alertSummary.revision,
-      revisionHref: repoModel.getPushLogHref(alertSummary.revision),
-      alertHref: `${window.location.origin}/perfherder/alerts?id=${alertSummary.id}`,
-      alertSummary: textualSummary.markdown,
-      alertSummaryId: alertSummary.id,
-      user: user.email,
-    };
+    const templateArgs = this.getTemplateArgs(
+      frameworks,
+      alertSummary,
+      repoModel,
+      textualSummary,
+      user,
+    );
 
     if (showCriticalFileBugModal) {
-      templateArgs.criticalTests = criticalTestsList[frameworkName];
+      templateArgs.criticalTests = criticalTestsList[templateArgs.framework];
     }
 
     templateSettings.interpolate = /{{([\s\S]+?)}}/g;
@@ -190,6 +176,20 @@ export default class StatusDropdown extends React.Component {
     };
   };
 
+  getTemplateArgs(frameworks, alertSummary, repoModel, textualSummary, user) {
+    const frameworkName = getFrameworkName(frameworks, alertSummary.framework);
+    return {
+      bugType: 'defect',
+      framework: frameworkName,
+      revision: alertSummary.revision,
+      revisionHref: repoModel.getPushLogHref(alertSummary.revision),
+      alertHref: `${window.location.origin}/perfherder/alerts?id=${alertSummary.id}`,
+      alertSummary: textualSummary.markdown,
+      alertSummaryId: alertSummary.id,
+      user: user.email,
+    };
+  }
+
   copySummary = async (isReply = false) => {
     const {
       alertSummary,
@@ -201,20 +201,10 @@ export default class StatusDropdown extends React.Component {
     } = this.props;
 
     const { browsertimeAlertsExtraData } = this.state;
-    let result;
-
-    const { data, failureStatus } = await getData(
-      getApiUrl(
-        `/performance/bug-template/?framework=${alertSummary.framework}`,
-      ),
+    const result = await this.getBugTemplate(
+      alertSummary.framework,
+      updateViewState,
     );
-    if (failureStatus) {
-      updateViewState({
-        errorMessages: [`Failed to retrieve bug template: ${data}`],
-      });
-    } else {
-      [result] = data;
-    }
 
     const textualSummary = new TextualSummary(
       frameworks,
@@ -223,26 +213,24 @@ export default class StatusDropdown extends React.Component {
       null,
       await browsertimeAlertsExtraData.enrichAndRetrieveAlerts(),
     );
-    const frameworkName = getFrameworkName(frameworks, alertSummary.framework);
+    const templateArgs = this.getTemplateArgs(
+      frameworks,
+      alertSummary,
+      repoModel,
+      textualSummary,
+      user,
+    );
 
-    const templateArgs = {
-      bugType: 'defect',
-      framework: frameworkName,
-      revision: alertSummary.revision,
-      revisionHref: repoModel.getPushLogHref(alertSummary.revision),
-      alertHref: `${window.location.origin}/perfherder/alerts?id=${alertSummary.id}`,
-      alertSummary: textualSummary.markdown,
-      alertSummaryId: alertSummary.id,
-      user: user.email,
-    };
+    let templateText;
 
-    let templateText = isReply ? result.no_action_required_text : result.text;
-    if (!isReply) {
-      const containsRegression = textualSummary.alerts.some(
-        (item) => item.is_regression === true,
-      );
-      const isImprovement = !containsRegression;
-      if (isImprovement) templateText = result.no_action_required_text;
+    const isImprovement = !textualSummary.alerts.some(
+      (item) => item.is_regression === true,
+    );
+    if (isReply || isImprovement) {
+      templateText = result.no_action_required_text;
+    } else {
+      // It's NOT a reply AND there IS a regression
+      templateText = result.text;
     }
 
     templateSettings.interpolate = /{{([\s\S]+?)}}/g;
@@ -253,6 +241,22 @@ export default class StatusDropdown extends React.Component {
     // onCopy, onCut or onPaste props so using this workaround
     navigator.clipboard.writeText(commentText).then(() => {});
   };
+
+  async getBugTemplate(framework, updateViewState) {
+    let result;
+
+    const { data, failureStatus } = await getData(
+      getApiUrl(`/performance/bug-template/?framework=${framework}`),
+    );
+    if (failureStatus) {
+      updateViewState({
+        errorMessages: [`Failed to retrieve bug template: ${data}`],
+      });
+    } else {
+      [result] = data;
+    }
+    return result;
+  }
 
   toggle = (state) => {
     this.setState((prevState) => ({
