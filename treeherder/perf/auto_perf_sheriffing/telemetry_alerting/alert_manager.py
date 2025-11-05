@@ -213,7 +213,7 @@ class TelemetryAlertManager(AlertManager):
         # Limit number of emails due to fxci email rate limit
         alerts_no_emails = PerformanceTelemetryAlert.objects.filter(
             notified=False, bug_number__isnull=True
-        )[:self._emails_left()]
+        )[: self._emails_left()]
 
         for alert_row in alerts_no_emails:
             alert_no_email = TelemetryAlertFactory.construct_alert(alert_row)
