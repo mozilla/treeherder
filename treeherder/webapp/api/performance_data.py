@@ -1169,7 +1169,6 @@ class PerfCompareResults(generics.ListAPIView):
                         **common_result,
                         **new_stats,
                     }
-                    print(row_result, "row result")
                     self.queryset.append(row_result)
                 else:
                     base_avg_value = perfcompare_utils.get_avg(statistics_base_perf_data, header)
