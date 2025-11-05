@@ -210,7 +210,7 @@ class TelemetryAlertManager(AlertManager):
         """Handles re-running emails for alerts that don't have any."""
         logger.info("House keeping: retrying emails for alerts")
 
-        # Limit to 50 emails due to fxci email rate limit
+        # Limit number of emails due to fxci email rate limit
         alerts_no_emails = PerformanceTelemetryAlert.objects.filter(
             notified=False, bug_number__isnull=True
         )[:self._emails_left()]
