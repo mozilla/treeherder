@@ -1389,11 +1389,13 @@ class PerfCompareResults(generics.ListAPIView):
             if value is not None:
                 grouped_values[signature_id].append(value)
                 grouped_job_ids[signature_id].append(job_id)
-        for signature_id, replicate_value in perf_data.values_list(
-            "signature_id", "performancedatumreplicate__value"
+        for signature_id, value, replicate_value in perf_data.values_list(
+            "signature_id", "value", "performancedatumreplicate__value"
         ):
             if replicate_value is not None:
                 grouped_replicate_values[signature_id].append(replicate_value)
+            else:
+                grouped_replicate_values[signature_id].append(value)
         return grouped_job_ids, grouped_values, grouped_replicate_values
 
     @staticmethod
