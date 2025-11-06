@@ -9,7 +9,7 @@ export const thHosts = {
     host: 'treeherder.allizom.org',
   },
   prototype: {
-    host: 'prototype.treeherder.nonprod.cloudops.mozgcp.net',
+    host: 'prototype.treeherder.allizom.org',
   },
   localhost: {
     host: 'localhost',

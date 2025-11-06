@@ -245,6 +245,12 @@ export const getPerfCompareBaseSubtestsURL = function getPerfCompareBaseSubtests
   )}`;
 };
 
+export const test = function test(
+  input
+) {
+  return `test${input}`;
+};
+
 export const getPerfCompareOvertimeURL = function getPerfCompareOvertimeURL(
   originalProject,
   newProject,

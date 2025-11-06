@@ -22,7 +22,8 @@ env = environ.Env()
 IS_WINDOWS = "windows" in platform.system().lower()
 
 # Top Level configuration
-DEBUG = env.bool("TREEHERDER_DEBUG", default=False)
+# DEBUG = env.bool("TREEHERDER_DEBUG", default=False)
+DEBUG = True
 LOGGING_LEVEL = env("LOGGING_LEVEL", default="INFO")
 
 NEW_RELIC_INSIGHTS_API_KEY = env("NEW_RELIC_INSIGHTS_API_KEY", default=None)
@@ -257,9 +258,9 @@ LOGGING = {
 }
 
 # SECURITY
-USE_X_FORWARDED_HOST = True
-USE_X_FORWARDED_PORT = True
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+# USE_X_FORWARDED_HOST = True
+# USE_X_FORWARDED_PORT = True
+# SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 CSRF_TRUSTED_ORIGINS = env.list(
     "CSRF_TRUSTED_ORIGINS", default=["http://localhost:8000", "http://localhost:5000"]

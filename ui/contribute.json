@@ -20,7 +20,7 @@
   "urls": {
     "prod": "https://treeherder.mozilla.org/",
     "stage": "https://treeherder.allizom.org/",
-    "prototype": "https://prototype.treeherder.nonprod.cloudops.mozgcp.net/"
+    "prototype": "https://prototype.treeherder.allizom.org/"
   },
   "keywords": ["css", "django", "react", "js", "python"]
 }

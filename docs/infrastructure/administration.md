@@ -6,7 +6,7 @@ than the other deployments and the ingestion is slower.
 
 - [treeherder-prod](https://treeherder.mozilla.org)
 - [treeherder-stage](https://treeherder.allizom.org)
-- [treeherder-prototype](https://prototype.treeherder.nonprod.cloudops.mozgcp.net)
+- [treeherder-prototype](https://prototype.treeherder.allizom.org)
 - [treeherder-taskcluster-staging](https://tc-staging.treeherder.nonprod.cloudops.mozgcp.net)
 
 ## Common Operations

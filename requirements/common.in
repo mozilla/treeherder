@@ -1,3 +1,6 @@
+django-debug-toolbar==5.2.0
+django-extensions==4.1
+
 # Packages that are shared between deployment and dev environments.
 gunicorn==23.0.0
 whitenoise[brotli]==6.11.0  # Used by Whitenoise to provide Brotli-compressed versions of static files.
