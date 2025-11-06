@@ -694,7 +694,6 @@ class SilvermanKDESerializer(serializers.Serializer):
     new_locations = serializers.ListField(child=PerfCompareDecimalField(required=False), default=[])
     base_prominence = PerfCompareDecimalField(required=False)
     new_prominence = PerfCompareDecimalField(required=False)
-    warnings = serializers.ListField(child=serializers.CharField(default=""), default=[])
     modes = ModeSerializer(many=True)
     is_regression = serializers.BooleanField()
     is_improvement = serializers.BooleanField()

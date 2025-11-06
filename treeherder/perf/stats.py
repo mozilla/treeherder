@@ -1,3 +1,5 @@
+import warnings
+
 import numpy as np
 from KDEpy import FFTKDE
 from scipy import stats
@@ -31,26 +33,29 @@ def count_modes(x, y, min_prom_frac=0.02, max_prom_frac=0.2):
     min_prom_frac: relative minimum of the prominence as a fraction of the maximum of y (smoothed)
     max_prom_frac: relative maximum of the prominence as a fraction of the maximum of y (smoothed)
     """
-    # Smooth outliers out
-    y_smooth = gaussian_filter1d(y, sigma=2)
+    try:
+        # Smooth outliers out
+        y_smooth = gaussian_filter1d(y, sigma=2)
 
-    # Compute derivative, keep high percentile, to find "real" peaks
-    dy = np.gradient(y_smooth, x)
-    noise_est = np.percentile(np.abs(dy), 90)
+        # Compute derivative, keep high percentile, to find "real" peaks
+        dy = np.gradient(y_smooth, x)
+        noise_est = np.percentile(np.abs(dy), 90)
 
-    # Set prominence proportional to that noise, capped to fraction of max
-    max_y = np.max(y_smooth)
-    prom_est = np.clip(noise_est, min_prom_frac * max_y, max_prom_frac * max_y)
+        # Set prominence proportional to that noise, capped to fraction of max
+        max_y = np.max(y_smooth)
+        prom_est = np.clip(noise_est, min_prom_frac * max_y, max_prom_frac * max_y)
 
-    # grid has been fitted by KDEpy already. Consider that peaks should be at
-    # least 5% of the data range appart. This helps keeping out "horns" at the
-    # top of a mode.
-    dx = x[1] - x[0]
-    x_range = x[-1] - x[0]
-    min_distance = max(1, int((x_range * 0.05) / dx))
+        # grid has been fitted by KDEpy already. Consider that peaks should be at
+        # least 5% of the data range appart. This helps keeping out "horns" at the
+        # top of a mode.
+        dx = x[1] - x[0]
+        x_range = x[-1] - x[0]
+        min_distance = max(1, int((x_range * 0.05) / dx))
 
-    peaks, _ = find_peaks(y_smooth, prominence=prom_est, distance=min_distance)
-    return len(peaks), x[peaks], prom_est
+        peaks, _ = find_peaks(y_smooth, prominence=prom_est, distance=min_distance)
+        return len(peaks), x[peaks], prom_est
+    except Exception:
+        return 0, None, None
 
 
 # Return a list of interval correspondings to the modes in the data series,
@@ -109,18 +114,22 @@ def split_per_mode(data, intervals):
 # the data is unimodal (or even normally distributed). Symmetry of the
 # distribution isn't required
 def bootstrap_median_diff_ci(a, b, n_iter=1000, alpha=0.05):
-    data = (a, b)
-    res = bootstrap(
-        data,
-        statistic=lambda *args: np.median(args[1]) - np.median(args[0]),
-        n_resamples=n_iter,
-        confidence_level=1 - alpha,
-        method="percentile",  # percentile doesn't require symmetry
-        vectorized=False,
-        paired=False,
-        random_state=None,
-    )
-    return np.median(b) - np.median(a), res.confidence_interval
+    try:
+        data = (a, b)
+
+        res = bootstrap(
+            data,
+            statistic=lambda *args: np.median(args[1]) - np.median(args[0]),
+            n_resamples=n_iter,
+            confidence_level=1 - alpha,
+            method="percentile",  # percentile doesn't require symmetry
+            vectorized=False,
+            paired=False,
+            random_state=None,
+        )
+        return np.median(b) - np.median(a), res.confidence_interval
+    except Exception:
+        return None, (None, None)
 
 
 # Normality test. using Shapiro-Wilk based on this:
@@ -380,15 +389,40 @@ def interpret_cles(
 
 def interpret_silverman_kde(base_data, new_data, lower_is_better):
     try:
+        warning_msgs = []
+        base_mode_count, base_peak_locs, base_prom = 0, None, None
+        new_mode_count, new_peak_locs, new_prom = 0, None, None
+        x_base, y_base = [], []
+        x_new, y_new = [], []
         # Kernel Density Estimator (KDE) - estimate the probability density function (PDF) of a continuous random variable in a smooth, non-parametric way, based on a finite sample of data.
-        x_base, y_base = FFTKDE(kernel="gaussian", bw="silverman").fit(base_data).evaluate()
-        x_new, y_new = FFTKDE(kernel="gaussian", bw="silverman").fit(new_data).evaluate()
+        # 1 datapoint will result in a Bandwidth = 0 → divide-by-zero warning
+        if len(base_data) > 0:
+            try:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore", category=UserWarning)
+                    x_base, y_base = (
+                        FFTKDE(kernel="gaussian", bw="silverman").fit(base_data).evaluate()
+                    )
+                    base_mode_count, base_peak_locs, base_prom = count_modes(x_base, y_base)
+            except Exception:
+                warning_msgs.append("Cannot Silverman KDE for base. Likely not enough data.")
+        else:
+            warning_msgs.append("Base revision has less than 2 data points to run Silverman KDE.")
+        if len(new_data) > 0:
+            try:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore", category=UserWarning)
+                    x_new, y_new = (
+                        FFTKDE(kernel="gaussian", bw="silverman").fit(new_data).evaluate()
+                    )
+                    new_mode_count, new_peak_locs, new_prom = count_modes(x_new, y_new)
+            except Exception:
+                warning_msgs.append("Cannot Silverman KDE for new. Likely not enough data.")
+        else:
+            warning_msgs.append("New revision has less than 2 data points to run Silverman KDE.")
 
         # Estimate modes, and warn if multimodal. We estimate the modes w/ a bandwidth computed via silverman's method because it smoothes a bit more
-        base_mode_count, base_peak_locs, base_prom = count_modes(x_base, y_base)
-        new_mode_count, new_peak_locs, new_prom = count_modes(x_new, y_new)
 
-        warning_msgs = []
         if base_mode_count > 1:
             warning_msgs.append("Base revision distribution appears multimodal.")
         if new_mode_count > 1:
@@ -473,7 +507,6 @@ def interpret_silverman_kde(base_data, new_data, lower_is_better):
             "base_prominence": round(float(base_prom), 5) if base_prom else None,
             "new_prominence": round(float(new_prom), 5) if new_prom else None,
             "modes": modes,
-            "warnings": warning_msgs,
             "is_regression": is_regression,
             "is_improvement": is_improvement,
         }
@@ -506,8 +539,8 @@ def plot_kde_with_isj_bandwidth(base, new):
     padding = 0.05 * (x_max - x_min) if x_max > x_min else 1
     x_min, x_max = x_min - padding, x_max + padding
 
-    # Generate grid points defaults to 512 as commonly used
-    x_grid = np.linspace(x_min, x_max, 512)
+    # Generate grid points
+    x_grid = np.linspace(x_min, x_max, 256)
 
     kde_x_base = []
     kde_y_base = []
@@ -530,29 +563,62 @@ def plot_kde_with_isj_bandwidth(base, new):
 
     try:
         # min 2 data point. FFTKDE(bw="ISJ").fit measure the data's spread or variance. At less than 2, variance is undefined, cannot compute a bandwidth.
-        if len(base) > 1:
-            kde_base = FFTKDE(bw="ISJ").fit(base)
-            y_base = kde_base.evaluate(x_grid)
-            kde_x_base = x_grid.tolist()
-            kde_y_base = y_base.tolist()
-            kde_plot_base["kde_x"] = kde_x_base
-            kde_plot_base["kde_y"] = kde_y_base
+        if len(base) > 1 and np.std(base) != 0:
+            try:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    kde_base = FFTKDE(bw="ISJ").fit(base)
+                    y_base = kde_base.evaluate(x_grid)
+                    kde_x_base = x_grid.tolist()
+                    kde_y_base = y_base.tolist()
+                    kde_plot_base["kde_x"] = kde_x_base
+                    kde_plot_base["kde_y"] = kde_y_base
+            except Exception:
+                kde_warnings.append(
+                    "KDE with ISJ bandwidth fitting to Base data failed. Likely not enough data or no standard deviation in data."
+                )
+                kde_plot_base["kde_x"] = base
         else:
             kde_warnings.append(
-                "Less than 2 datapoints, cannot fit Kernel Density Estimator (KDE) with an ISJ to Base."
+                "Less than 2 datapoints or no standard variance for a meaningful fit Kernel Density Estimator (KDE) with an ISJ bandwidth to Base."
             )
+            # produce flat line for 0 data points
+            if len(base) == 0:
+                x = np.linspace(-1, 1, 100)
+                y = np.zeros_like(x)
+                kde_plot_base["kde_x"] = x.tolist()
+                kde_plot_base["kde_y"] = y.tolist()
+            else:
+                kde_plot_base["kde_x"] = base
+                kde_plot_base["kde_y"] = []
 
-        if len(new) > 1:
-            kde_new = FFTKDE(bw="ISJ").fit(new)
-            y_new = kde_new.evaluate(x_grid)
-            kde_x_new = x_grid.tolist()
-            kde_y_new = y_new.tolist()
-            kde_plot_new["kde_x"] = kde_x_new
-            kde_plot_new["kde_y"] = kde_y_new
+        if len(new) > 1 and np.std(new) != 0:
+            try:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    kde_new = FFTKDE(bw="ISJ").fit(new)
+                    y_new = kde_new.evaluate(x_grid)
+                    kde_x_new = x_grid.tolist()
+                    kde_y_new = y_new.tolist()
+                    kde_plot_new["kde_x"] = kde_x_new
+                    kde_plot_new["kde_y"] = kde_y_new
+            except Exception:
+                kde_warnings.append(
+                    "KDE with ISJ bandwidth fitting to New data failed. Likely not enough data or no standard deviation in data."
+                )
+                kde_plot_new["kde_x"] = new
         else:
             kde_warnings.append(
-                "Less than 2 datapoints, cannot fit Kernel Density Estimator (KDE) with an ISJ to New."
+                "Less than 2 datapoints or no standard variance for a meaningful fit Kernel Density Estimator (KDE) with an ISJ bandwidth to New."
             )
+            # produce flat line for 0 data points
+            if len(new) == 0:
+                x = np.linspace(-1, 1, 100)
+                y = np.zeros_like(x)
+                kde_plot_new["kde_x"] = x.tolist()
+                kde_plot_new["kde_y"] = y.tolist()
+            else:
+                kde_plot_new["kde_x"] = new
 
     except Exception:
         # KDE failed, charts will show just medians

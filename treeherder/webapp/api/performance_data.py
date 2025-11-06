@@ -1553,7 +1553,7 @@ class PerfCompareResults(generics.ListAPIView):
             is_regression,
             is_improvement,
             more_runs_are_needed,
-            warning_msgs,
+            silverman_warnings,
             performance_intepretation,
         ) = stats.interpret_silverman_kde(base_rev_data, new_rev_data, lower_is_better)
 
@@ -1604,7 +1604,7 @@ class PerfCompareResults(generics.ListAPIView):
             # CLES: Common Language Effect Size, a lot of interpretation esp from Mann-Whitney U
             "cles": cles_obj,
             # Silverman KDE multimodal warnings and confidence interval
-            "silverman_warnings": warning_msgs,
+            "silverman_warnings": silverman_warnings,
             "silverman_kde": silverman_kde,
             # KDE plots and summary plot with ISJ bandwidth
             "kde_base": kde_isj_plot_base,

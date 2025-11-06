@@ -36,14 +36,13 @@ def test_plot_kde_with_isj_bandwidth():
         mock_new,
     )
 
-    "Less than 2 datapoints, cannot fit Kernel Density Estimator (KDE) with an ISJ to Base."
     assert (
         kde_warnings[0]
-        == "Less than 2 datapoints, cannot fit Kernel Density Estimator (KDE) with an ISJ to Base."
+        == "Less than 2 datapoints or no standard variance for a meaningful fit Kernel Density Estimator (KDE) with an ISJ bandwidth to Base."
     )
     assert (
         kde_warnings[1]
-        == "Less than 2 datapoints, cannot fit Kernel Density Estimator (KDE) with an ISJ to New."
+        == "Less than 2 datapoints or no standard variance for a meaningful fit Kernel Density Estimator (KDE) with an ISJ bandwidth to New."
     )
 
     mock_base_2 = [2.74, 2.56, 2.88]
