@@ -145,7 +145,7 @@ export const getPerfAnalysisUrl = function getPerfAnalysisUrl(url, job) {
 };
 
 export const getCrashViewerUrl = function getCrashViewerUrl(crashJsonUrl) {
-  return `https://fqueze.github.io/aretestsfastyet/crash-viewer.html?url=${encodeURIComponent(
+  return `https://tests.firefox.dev/crash-viewer.html?url=${encodeURIComponent(
     crashJsonUrl,
   )}`;
 };
