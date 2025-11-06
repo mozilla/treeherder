@@ -24,6 +24,7 @@ export default class FileBugModal extends React.Component {
       inputValue: '',
       invalidInput: false,
       validated: false,
+      disableButton: false,
     };
   }
 
@@ -52,9 +53,10 @@ export default class FileBugModal extends React.Component {
   };
 
   handleSubmit = async (event, inputValue) => {
+    this.setState({ disableButton: true });
     const { updateAndClose } = this.props;
     await updateAndClose(event, inputValue);
-    this.setState({ inputValue: '' });
+    this.setState({ inputValue: '', disableButton: false });
   };
 
   render() {
@@ -68,7 +70,7 @@ export default class FileBugModal extends React.Component {
       errorMessage,
     } = this.props;
 
-    const { inputValue, invalidInput, validated } = this.state;
+    const { inputValue, invalidInput, validated, disableButton } = this.state;
 
     const infoText =
       'Leaving the input empty will open an enter bug screen prefilled with the default values.\n' +
@@ -122,7 +124,7 @@ export default class FileBugModal extends React.Component {
               <Button
                 className="btn-outline-darker-info active"
                 onClick={(event) => this.handleSubmit(event, inputValue)}
-                disabled={invalidInput && !validated}
+                disabled={(invalidInput && !validated) || disableButton}
                 type="submit"
               >
                 {(inputValue.length &&
