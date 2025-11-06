@@ -427,8 +427,8 @@ def interpret_silverman_kde(base_data, new_data, lower_is_better):
                 mode_name = f"Mode {i + 1}"
 
                 try:
-                    ref_vals = base_data[per_mode_base[0] == i]
-                    new_vals = new_data[per_mode_new[0] == i]
+                    ref_vals = [val for val, mode in zip(base_data, per_mode_base) if mode == i]
+                    new_vals = [val for val, mode in zip(new_data, per_mode_new) if mode == i]
 
                     if len(ref_vals) == 0 or len(new_vals) == 0:
                         ci_warning = (
@@ -439,7 +439,7 @@ def interpret_silverman_kde(base_data, new_data, lower_is_better):
                         continue
 
                     shift, (ci_low, ci_high) = bootstrap_median_diff_ci(ref_vals, new_vals)
-                    shift = float(shift)
+                    shift = float(shift) if shift else None
                     ci_low = float(ci_low) if ci_low else None
                     ci_high = float(ci_high) if ci_high else None
                     median_shift_summary = (
@@ -448,20 +448,21 @@ def interpret_silverman_kde(base_data, new_data, lower_is_better):
                     is_regression, is_improvement, performance_intepretation = (
                         interpret_performance_direction(ci_low, ci_high, lower_is_better)
                     )
-                    mode_info = {
-                        "mode_name": mode_name,
-                        "mode_start": f"{start:.2f}" if start else None,
-                        "mode_end": f"{end:.2f}" if end else None,
-                        "median_shift_summary": median_shift_summary,
-                        "ci_low": ci_low,
-                        "ci_high": ci_high,
-                        "shift": shift,
-                        "shift_summary": performance_intepretation,
-                        "ci_warning": ci_warning,
-                    }
-                    modes.append(mode_info)
                 except Exception:
                     pass
+
+                mode_info = {
+                    "mode_name": mode_name,
+                    "mode_start": f"{start:.2f}" if start else None,
+                    "mode_end": f"{end:.2f}" if end else None,
+                    "median_shift_summary": median_shift_summary,
+                    "ci_low": ci_low,
+                    "ci_high": ci_high,
+                    "shift": shift,
+                    "shift_summary": performance_intepretation,
+                    "ci_warning": ci_warning,
+                }
+                modes.append(mode_info)
 
         silverman_kde = {
             "bandwidth": "Silverman",
