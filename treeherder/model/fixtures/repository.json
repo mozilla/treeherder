@@ -2005,5 +2005,33 @@
       "repository_group": 9,
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
+  },
+  {
+    "pk": 142,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "git",
+      "name": "enterprise",
+      "url": "https://github.com/mozilla/enterprise-firefox",
+      "branch": "enterprise-main",
+      "active_status": "active",
+      "codebase": "enterprise-firefox",
+      "repository_group": 6,
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
+    }
+  },
+  {
+    "pk": 143,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "git",
+      "name": "enterprise-try",
+      "url": "https://github.com/mozilla/enterprise-firefox",
+      "branch": "pull request",
+      "active_status": "active",
+      "codebase": "enterprise-firefox",
+      "repository_group": 6,
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
+    }
   }
 ]
