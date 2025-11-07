@@ -217,8 +217,7 @@ class FailureSummaryTab extends React.Component {
         >
           {selectedJob.newFailure > 0 && (
             <Button
-              className="failure-summary-new-message"
-              variant="outline-info"
+              className="failure-summary-new-message border-0"
               title="New Test Failure"
             >
               {selectedJob.newFailure} new failure line(s). First one is

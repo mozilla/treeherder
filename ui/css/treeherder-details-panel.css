@@ -16,6 +16,15 @@ strong {
   color: purple;
 }
 
+/* Override link colors for actionbar-nav */
+#details-panel .actionbar-nav a {
+  color: inherit;
+}
+
+#details-panel .actionbar-nav a:visited {
+  color: inherit;
+}
+
 .details-panel-slide {
   animation: details-panel-slide 0.4s ease-out;
   height: 100%;
@@ -286,6 +295,23 @@ div#details-panel-content .actionbar-nav > li > button:focus {
 
 .actionbar-nav-btn.disabled {
   cursor: not-allowed;
+}
+
+/* Override Bootstrap link colors for actionbar dropdown items */
+.dropdown-menu.actionbar-menu .dropdown-item,
+.dropdown-menu.actionbar-menu a.dropdown-item {
+  color: #212529 !important;
+  background-color: #fff;
+  text-decoration: none !important;
+}
+
+.dropdown-menu.actionbar-menu .dropdown-item:hover,
+.dropdown-menu.actionbar-menu .dropdown-item:focus,
+.dropdown-menu.actionbar-menu a.dropdown-item:hover,
+.dropdown-menu.actionbar-menu a.dropdown-item:focus {
+  color: #1e2125 !important;
+  background-color: #e9ecef;
+  text-decoration: none !important;
 }
 
 .action-bar-spin {
