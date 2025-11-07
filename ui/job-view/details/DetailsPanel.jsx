@@ -119,14 +119,22 @@ class DetailsPanel extends React.Component {
     return { testGroups, taskQueueId };
   };
 
-  updateClassifications = async () => {
+  updateClassifications = async (signal) => {
     const { selectedJob } = this.props;
-    const [classifications, bugs] = await Promise.all([
-      JobClassificationModel.getList({ job_id: selectedJob.id }),
-      BugJobMapModel.getList({ job_id: selectedJob.id }),
-    ]);
 
-    this.setState({ classifications, bugs });
+    try {
+      const [classifications, bugs] = await Promise.all([
+        JobClassificationModel.getList({ job_id: selectedJob.id }, signal),
+        BugJobMapModel.getList({ job_id: selectedJob.id }, signal),
+      ]);
+
+      this.setState({ classifications, bugs });
+    } catch (error) {
+      // Ignore abort errors when switching jobs
+      if (error.name !== 'AbortError') {
+        throw error;
+      }
+    }
   };
 
   findPush = (pushId) => {
@@ -251,7 +259,7 @@ class DetailsPanel extends React.Component {
           jobLogUrlPromise,
           builtFromArtifactPromise,
           this.fetchTaskData(selectedJob.task_id, currentRepo.tc_root_url),
-          this.updateClassifications(),
+          this.updateClassifications(this.selectJobController.signal),
         ])
           .then(
             async ([
@@ -275,8 +283,8 @@ class DetailsPanel extends React.Component {
 
               addAggregateFields(selectedJobFull);
 
-              Promise.all([jobArtifactsPromise]).then(
-                async ([jobArtifactsResult]) => {
+              Promise.all([jobArtifactsPromise])
+                .then(async ([jobArtifactsResult]) => {
                   let jobDetails = jobArtifactsResult.data.artifacts
                     ? formatArtifacts(jobArtifactsResult.data.artifacts, {
                         ...artifactsParams,
@@ -296,8 +304,13 @@ class DetailsPanel extends React.Component {
                     jobDetails,
                     jobArtifactsLoading: false,
                   });
-                },
-              );
+                })
+                .catch((error) => {
+                  // Ignore abort errors when switching jobs quickly
+                  if (error.name !== 'AbortError') {
+                    throw error;
+                  }
+                });
 
               // the third result comes from the jobLogUrl promise
               // exclude the json log URLs
@@ -346,6 +359,12 @@ class DetailsPanel extends React.Component {
               }
             },
           )
+          .catch((error) => {
+            // Ignore abort errors when switching jobs quickly
+            if (error.name !== 'AbortError') {
+              throw error;
+            }
+          })
           .finally(() => {
             this.selectJobController = null;
           });

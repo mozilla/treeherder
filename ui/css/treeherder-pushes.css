@@ -159,7 +159,7 @@ fieldset[disabled] .btn-push:hover {
 .platform {
   font-size: 12px;
   padding: 0 5px 0 0;
-  line-height: 14px;
+  line-height: 15px;
   width: 14.5em;
   min-width: 14.5em;
   overflow: hidden;
@@ -169,7 +169,7 @@ fieldset[disabled] .btn-push:hover {
 
 .job-row {
   display: table-cell;
-  line-height: 14px;
+  line-height: 15px;
   white-space: normal;
   word-break: normal;
   padding-top: 0;

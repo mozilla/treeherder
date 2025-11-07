@@ -57,3 +57,11 @@
   background-color: var(--failure-bg-color);
   color: var(--failure-color);
 }
+
+.btn-orange {
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 700;
+  background-color: var(--failure-bg-color);
+  color: var(--failure-color);
+}

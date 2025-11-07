@@ -102,7 +102,10 @@ export default class JobButtonComponent extends React.Component {
 
     if (!visible) return null;
     const runnable = state === 'runnable';
-    const btnClass = getBtnClass(resultStatus, failureClassificationId);
+    const { status, isClassified } = getBtnClass(
+      resultStatus,
+      failureClassificationId,
+    );
     let classifiedIcon = null;
 
     if (
@@ -113,11 +116,16 @@ export default class JobButtonComponent extends React.Component {
         failureClassificationId === 7 ? faStarRegular : faStarSolid;
     }
 
-    const classes = ['btn', btnClass, 'filter-shown'];
+    const classes = ['btn', 'filter-shown'];
     const attributes = {
       'data-job-id': id,
+      'data-status': status,
       title: job.hoverText,
     };
+
+    if (isClassified) {
+      attributes['data-classified'] = 'true';
+    }
 
     if (runnable) {
       classes.push('runnable-job-btn', 'runnable');

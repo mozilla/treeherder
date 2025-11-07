@@ -189,8 +189,7 @@ export default class SuggestionsListItem extends React.Component {
 
               {suggestion.showNewButton && (
                 <Button
-                  className="btn-orange"
-                  variant="outline-warning"
+                  className="btn-orange border-outline-secondary"
                   title="number of times this error message has been seen until now (including this run)"
                 >
                   NEW

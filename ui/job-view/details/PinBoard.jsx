@@ -426,35 +426,40 @@ class PinBoard extends React.Component {
                   press spacebar to pin a selected job
                 </span>
               )}
-              {Object.values(pinnedJobs).map((job) => (
-                <span className="btn-group" key={job.id}>
-                  <Button
-                    className={`pinned-job mb-1 ${getBtnClass(
-                      job.resultStatus,
-                      job.failure_classification_id,
-                    )} ${selectedJobId === job.id ? 'selected-job' : ''}`}
-                    title={job.hoverText}
-                    onClick={() => setSelectedJob(job)}
-                    data-job-id={job.job_id}
-                    size={selectedJobId === job.id ? 'large' : 'small'}
-                    variant="outline-secondary"
-                  >
-                    {job.job_type_symbol}
-                  </Button>
-                  <Button
-                    variant="outline-secondary"
-                    className={`pinned-job-close-btn ${
-                      selectedJobId === job.id
-                        ? 'btn-lg selected-job'
-                        : 'btn-xs'
-                    }`}
-                    onClick={() => unPinJob(job)}
-                    title="un-pin this job"
-                  >
-                    <FontAwesomeIcon icon={faTimes} title="Unpin job" />
-                  </Button>
-                </span>
-              ))}
+              {Object.values(pinnedJobs).map((job) => {
+                const { status, isClassified } = getBtnClass(
+                  job.resultStatus,
+                  job.failure_classification_id,
+                );
+                return (
+                  <span className="btn-group" key={job.id}>
+                    <Button
+                      className={`pinned-job mb-1 job-btn ${
+                        selectedJobId === job.id ? 'selected-job' : ''
+                      }`}
+                      title={job.hoverText}
+                      onClick={() => setSelectedJob(job)}
+                      data-job-id={job.job_id}
+                      data-status={status}
+                      data-classified={isClassified ? 'true' : undefined}
+                      size={selectedJobId === job.id ? 'large' : 'small'}
+                    >
+                      {job.job_type_symbol}
+                    </Button>
+                    <Button
+                      className={`pinned-job-close-btn ${
+                        selectedJobId === job.id
+                          ? 'btn-lg selected-job'
+                          : 'btn-xs'
+                      }`}
+                      onClick={() => unPinJob(job)}
+                      title="un-pin this job"
+                    >
+                      <FontAwesomeIcon icon={faTimes} title="Unpin job" />
+                    </Button>
+                  </span>
+                );
+              })}
             </div>
           </div>
 

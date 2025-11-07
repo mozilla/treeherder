@@ -10,13 +10,16 @@
 
 #th-global-navbar-top {
   padding-left: 0;
-  padding-top: 2px;
+  padding-top: 1px;
   border-bottom: 1px solid black;
   justify-content: space-between;
   display: flex;
   width: 100%;
   background-color: #222;
-  line-height: 2;
+  height: 33px;
+  min-height: 33px;
+  max-height: 33px;
+  line-height: 1.25;
 }
 
 .navbar {
@@ -184,106 +187,50 @@ secondary-nav-bar {
   margin: 0px 1px 2px 1px;
 }
 
-/* Filter chicklets - use Bootstrap 5 custom properties */
-.btn.btn-view-nav.btn-orange-filter-chicklet,
-.btn.btn-view-nav.btn-orange-filter-chicklet:hover {
-  --bs-btn-color: #dd6602;
-  --bs-btn-hover-color: #dd6602;
-  --bs-btn-active-color: #dd6602;
+/* Filter chicklets - use data attributes with shared color tokens */
+.btn-view-nav[data-status],
+.btn-view-nav[data-status]:hover {
+  --bs-btn-color: var(--chicklet-color);
+  --bs-btn-hover-color: var(--chicklet-color);
+  --bs-btn-active-color: var(--chicklet-color);
   --bs-btn-font-size: 1rem;
   --bs-btn-padding-y: 0.5rem;
   --bs-btn-padding-x: 0.125rem;
-  color: #dd6602;
+  color: var(--chicklet-color);
 }
 
-.btn.btn-view-nav.btn-red-filter-chicklet,
-.btn.btn-view-nav.btn-red-filter-chicklet:hover {
-  --bs-btn-color: #c03a44;
-  --bs-btn-hover-color: #c03a44;
-  --bs-btn-active-color: #c03a44;
-  --bs-btn-padding-y: 0.5rem;
-  --bs-btn-padding-x: 0.125rem;
-  color: #c03a44;
+/* Map status values to colors using CSS variables */
+.btn-view-nav[data-status='testfailed'] {
+  --chicklet-color: #dd6602;
 }
-
-.btn.btn-view-nav.btn-purple-filter-chicklet,
-.btn.btn-view-nav.btn-purple-filter-chicklet:hover {
-  --bs-btn-color: #77438d;
-  --bs-btn-hover-color: #77438d;
-  --bs-btn-active-color: #77438d;
-  --bs-btn-padding-y: 0.5rem;
-  --bs-btn-padding-x: 0.125rem;
-  color: #77438d;
+.btn-view-nav[data-status='busted'],
+.btn-view-nav[data-status='failures'] {
+  --chicklet-color: #c03a44;
 }
-
-.btn.btn-view-nav.btn-green-filter-chicklet,
-.btn.btn-view-nav.btn-green:hover {
-  --bs-btn-color: rgba(2, 130, 51, 0.75);
-  --bs-btn-hover-color: rgba(2, 130, 51, 0.75);
-  --bs-btn-active-color: rgba(2, 130, 51, 0.75);
-  --bs-btn-padding-y: 0.5rem;
-  --bs-btn-padding-x: 0.125rem;
-  color: rgba(2, 130, 51, 0.75);
+.btn-view-nav[data-status='exception'] {
+  --chicklet-color: #77438d;
 }
-
-.btn.btn-view-nav.btn-dkblue-filter-chicklet,
-.btn.btn-view-nav.btn-dkblue-filter-chicklet:hover {
-  --bs-btn-color: #3656ff;
-  --bs-btn-hover-color: #3656ff;
-  --bs-btn-active-color: #3656ff;
-  --bs-btn-padding-y: 0.5rem;
-  --bs-btn-padding-x: 0.125rem;
-  color: #3656ff;
+.btn-view-nav[data-status='success'] {
+  --chicklet-color: rgba(2, 130, 51, 0.75);
 }
-
-.btn.btn-view-nav.btn-pink-filter-chicklet,
-.btn.btn-view-nav.btn-pink-filter-chicklet:hover {
-  --bs-btn-color: rgba(250, 115, 172, 0.82);
-  --bs-btn-hover-color: rgba(250, 115, 172, 0.82);
-  --bs-btn-active-color: rgba(250, 115, 172, 0.82);
-  --bs-btn-padding-y: 0.5rem;
-  --bs-btn-padding-x: 0.125rem;
-  color: rgba(250, 115, 172, 0.82);
+.btn-view-nav[data-status='retry'] {
+  --chicklet-color: #3656ff;
 }
-
-.btn.btn-view-nav.btn-ltblue-filter-chicklet,
-.btn.btn-view-nav.btn-ltblue-filter-chicklet:hover {
-  --bs-btn-color: #81b8ed;
-  --bs-btn-hover-color: #81b8ed;
-  --bs-btn-active-color: #81b8ed;
-  --bs-btn-padding-y: 0.5rem;
-  --bs-btn-padding-x: 0.125rem;
-  color: #81b8ed;
+.btn-view-nav[data-status='usercancel'] {
+  --chicklet-color: rgba(250, 115, 172, 0.82);
 }
-
-.btn.btn-view-nav.btn-ltgray-filter-chicklet,
-.btn.btn-view-nav.btn-ltgray-filter-chicklet:hover {
-  --bs-btn-color: #e0e0e0;
-  --bs-btn-hover-color: #e0e0e0;
-  --bs-btn-active-color: #e0e0e0;
-  --bs-btn-padding-y: 0.5rem;
-  --bs-btn-padding-x: 0.125rem;
-  color: #e0e0e0;
+.btn-view-nav[data-status='superseded'] {
+  --chicklet-color: #81b8ed;
 }
-
-.btn.btn-view-nav.btn-dkgray-filter-chicklet,
-.btn.btn-view-nav.btn-dkgray-filter-chicklet:hover {
-  --bs-btn-color: #7c7a7d;
-  --bs-btn-hover-color: #7c7a7d;
-  --bs-btn-active-color: #7c7a7d;
-  --bs-btn-padding-y: 0.5rem;
-  --bs-btn-padding-x: 0.125rem;
-  color: #7c7a7d;
+.btn-view-nav[data-status='pending'] {
+  --chicklet-color: #e0e0e0;
 }
-
-.btn.btn-view-nav.btn-black-filter-chicklet,
-.btn.btn-view-nav.btn-black-filter-chicklet:hover {
-  --bs-btn-color: black;
-  --bs-btn-hover-color: black;
-  --bs-btn-active-color: black;
-  --bs-btn-padding-y: 0.5rem;
-  --bs-btn-padding-x: 0.125rem;
-  color: black;
+.btn-view-nav[data-status='running'],
+.btn-view-nav[data-status='in progress'] {
+  --chicklet-color: #7c7a7d;
+}
+.btn-view-nav[data-status='unknown'] {
+  --chicklet-color: black;
 }
 
 /*

@@ -326,12 +326,12 @@ class SecondaryNavBar extends React.PureComponent {
               <span id="filter-chicklets">
                 {this.filterChicklets.map((filterName) => {
                   const isOn = this.isFilterOn(filterName);
+                  const { status } = getBtnClass(filterName);
                   return (
                     <span key={filterName}>
                       <FontAwesomeIcon
-                        className={`btn btn-view-nav btn-nav-filter ${getBtnClass(
-                          filterName,
-                        )}-filter-chicklet`}
+                        className="btn btn-view-nav btn-nav-filter"
+                        data-status={status}
                         icon={isOn ? faDotCircle : faCircle}
                         onClick={() =>
                           this.toggleResultStatusFilterChicklet(filterName)
