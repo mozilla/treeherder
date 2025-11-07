@@ -8,9 +8,9 @@
 }
 
 .job-btn {
-  background: transparent;
+  background-color: transparent;
   padding: 0 2px 0 2px !important;
-  vertical-align: 0;
+  vertical-align: 0 !important;
   line-height: 1.32 !important;
   display: none;
   transition: transform 0.1s;
@@ -20,7 +20,7 @@
 .group-btn {
   background: transparent;
   padding: 0 2px 0 2px !important;
-  vertical-align: 0;
+  vertical-align: 0 !important;
   line-height: 1.32 !important;
   cursor: pointer;
   font-size: 12px !important;
@@ -38,7 +38,7 @@
   background: transparent;
   padding: 0 2px 0 2px !important;
   border: 0;
-  vertical-align: 0;
+  vertical-align: 0 !important;
   line-height: 1.32 !important;
   cursor: pointer;
   margin-right: -3px;
@@ -76,7 +76,7 @@
   margin: 0;
   background: transparent;
   padding: 0 2px !important;
-  vertical-align: 0;
+  vertical-align: 0 !important;
   line-height: 1.32 !important;
   font-size: 12px !important;
   border-radius: 0;
@@ -90,9 +90,29 @@
   overflow: visible;
 }
 
-.selected-job {
+/* Selected jobs: white background for classified failures and non-failures */
+.job-btn.selected-job:not([data-status='testfailed']):not([data-status='busted']):not([data-status='exception']),
+.job-btn.selected-job[data-classified='true'] {
+  background: #fff !important;
+}
+
+/* All selected jobs get outline matching text color */
+.job-btn.selected-job {
   outline: 4px solid;
-  background-color: #fff;
+  outline-color: currentColor;
+}
+
+/* Unclassified failures: darker outline on colored background */
+.job-btn.selected-job[data-status='testfailed']:not([data-classified='true']) {
+  outline-color: var(--status-testfailed-hover);
+}
+
+.job-btn.selected-job[data-status='busted']:not([data-classified='true']) {
+  outline-color: var(--status-busted-hover);
+}
+
+.job-btn.selected-job[data-status='exception']:not([data-classified='true']) {
+  outline-color: var(--status-exception-hover);
 }
 
 .selected-count {
@@ -117,40 +137,45 @@
 }
 
 /*
+ * Shared color tokens for job statuses
+ */
+:root {
+  --status-testfailed: #dd6602;
+  --status-testfailed-hover: #c15700;
+  --status-testfailed-classified: #b45303;
+  --status-busted: #b74c4c;
+  --status-busted-hover: #a1020e;
+  --status-busted-classified: #90010a;
+  --status-exception: #9a7da6;
+  --status-exception-hover: #3a004d;
+  --status-exception-classified: #6f0296;
+  --status-retry: #283aa2;
+  --status-retry-hover: #263fc3;
+  --status-success: rgba(2, 130, 51, 0.95);
+  --status-success-hover: #017722;
+  --status-usercancel: #cf2b9f;
+  --status-superseded: #3f77c6;
+  --status-pending: #757575;
+  --status-pending-hover: #808080;
+  --status-running: black;
+  --status-unknown: #8a6d3b;
+  --status-unknown-bg: #fcf8e3;
+  --status-unknown-border: #fbd890;
+}
+
+/*
  * Job button colors and classification states
  */
 
-.job-btn.btn-dkgray,
-.job-btn.btn-ltgray,
-.job-btn.btn-green,
-.job-btn.btn-dkblue,
-.job-btn.btn-ltblue,
-.job-btn.btn-yellow,
-.job-btn.btn-pink,
-.job-btn.btn-dkgray-classified,
-.job-btn.btn-ltgray-classified,
-.job-btn.btn-green-classified,
-.job-btn.btn-dkblue-classified,
-.job-btn.btn-ltblue-classified,
-.job-btn.btn-yellow-classified,
-.job-btn.btn-pink-classified,
-.job-btn.btn-red-classified,
-.job-btn.btn-orange-classified,
-.job-btn.btn-purple-classified,
-.group-btn.btn-dkgray-count,
-.group-btn.btn-ltgray-count,
-.group-btn.btn-green-count,
-.group-btn.btn-dkblue-count,
-.group-btn.btn-ltblue-count,
-.group-btn.btn-yellow-count,
-.group-btn.btn-pink-count {
+.job-btn[data-status],
+.group-btn[data-status] {
   margin: 0 -2px 0 0;
 }
 
-.job-btn.btn-red,
-.job-btn.btn-orange,
-.job-btn.btn-yellow,
-.job-btn.btn-purple {
+.job-btn[data-status='testfailed'],
+.job-btn[data-status='busted'],
+.job-btn[data-status='unknown'],
+.job-btn[data-status='exception'] {
   margin: 0 -1px 1px 1px;
 }
 
@@ -167,475 +192,215 @@
   vertical-align: sub;
 }
 
-/* Bold buttons */
-
-.btn-green,
-.btn-orange,
-.btn-purple,
-.btn-red,
-.btn-dkblue,
-.btn-pink,
-.btn-yellow,
-.btn-ltblue {
+/* Bold buttons for failure states */
+.job-btn[data-status='testfailed'],
+.job-btn[data-status='busted'],
+.job-btn[data-status='exception'],
+.job-btn[data-status='usercancel'],
+.job-btn[data-status='retry'],
+.job-btn[data-status='success'],
+.job-btn[data-status='superseded'],
+.job-btn[data-status='unknown'] {
   font-weight: bold;
 }
 
-/* Orange, testfailed */
-.btn-orange {
-  background-color: var(--failure-bg-color);
-  color: var(--failure-color);
+/* Testfailed (orange) - unclassified keeps colored background when selected */
+.job-btn[data-status='testfailed']:not([data-classified='true']),
+.group-btn[data-status='testfailed']:not([data-classified='true']) {
+  color: var(--failure-color, white);
+  background-color: var(--failure-bg-color, var(--status-testfailed));
 }
-.btn-orange:hover,
-.btn-orange:focus,
-.btn-orange:active,
-.btn-orange.active {
-  background-color: #c15700;
-  color: white;
-}
-.btn-orange.disabled:hover,
-.btn-orange.disabled:focus,
-.btn-orange.disabled:active,
-.btn-orange.disabled.active,
-.btn-orange:disabled:hover,
-.btn-orange:disabled:focus,
-.btn-orange:disabled:active,
-.btn-orange:disabled.active,
-fieldset[disabled] .btn-orange:hover,
-fieldset[disabled] .btn-orange:focus,
-fieldset[disabled] .btn-orange:active,
-fieldset[disabled] .btn-orange.active {
-  background-color: #dd6602;
-  border-color: #dd6602;
-}
-
-/* Orange, testfailed classified */
-.btn-orange-classified,
-.btn-orange-classified-count {
-  color: #b45303;
-}
-.btn-orange-classified:hover,
-.btn-orange-classified:focus,
-.btn-orange-classified:active,
-.btn-orange-classified.active {
-  background-color: #b45303;
-  border-color: #aa4f02;
-  color: white;
-}
-.btn-orange-classified-count:hover {
-  color: #aa4f02;
-}
-.btn-orange-classified.disabled:hover,
-.btn-orange-classified.disabled:focus,
-.btn-orange-classified.disabled:active,
-.btn-orange-classified.disabled.active,
-.btn-orange-classified:disabled:hover,
-.btn-orange-classified:disabled:focus,
-.btn-orange-classified:disabled:active,
-.btn-orange-classified:disabled.active,
-fieldset[disabled] .btn-orange-classified:hover,
-fieldset[disabled] .btn-orange-classified:focus,
-fieldset[disabled] .btn-orange-classified:active,
-fieldset[disabled] .btn-orange-classified.active {
-  background-color: #dd6602;
-  border-color: #dd6602;
-}
-
-/* Red, busted */
-.btn-red {
-  background-color: #b74c4c;
-  color: white;
-}
-.btn-red:hover,
-.btn-red:focus,
-.btn-red:active,
-.btn-red.active {
-  background-color: #a1020e;
-  color: white;
-}
-.btn-red.disabled:hover,
-.btn-red.disabled:focus,
-.btn-red.disabled:active,
-.btn-red.disabled.active,
-.btn-red:disabled:hover,
-.btn-red:disabled:focus,
-.btn-red:disabled:active,
-.btn-red:disabled.active,
-fieldset[disabled] .btn-red:hover,
-fieldset[disabled] .btn-red:focus,
-fieldset[disabled] .btn-red:active,
-fieldset[disabled] .btn-red.active {
-  background-color: #c2020e;
-  border-color: #c2020e;
-}
-
-/* Red, busted classified */
-.btn-red-classified,
-.btn-red-classified-count,
-.btn-red-classified-count:hover {
-  color: #90010a;
-}
-.btn-red-classified:hover,
-.btn-red-classified:focus,
-.btn-red-classified:active,
-.btn-red-classified.active {
-  background-color: #a9020c;
-  border-color: #90010a;
-  color: white;
-}
-.btn-red-classified.disabled:hover,
-.btn-red-classified.disabled:focus,
-.btn-red-classified.disabled:active,
-.btn-red-classified.disabled.active,
-.btn-red-classified:disabled:hover,
-.btn-red-classified:disabled:focus,
-.btn-red-classified:disabled:active,
-.btn-red-classified:disabled.active,
-fieldset[disabled] .btn-red-classified:hover,
-fieldset[disabled] .btn-red-classified:focus,
-fieldset[disabled] .btn-red-classified:active,
-fieldset[disabled] .btn-red-classified.active {
-  background-color: #c2020e;
-  border-color: #c2020e;
+.job-btn[data-status='testfailed']:not([data-classified='true']):not(.selected-job):hover,
+.job-btn[data-status='testfailed']:not([data-classified='true']):not(.selected-job):focus,
+.job-btn[data-status='testfailed']:not([data-classified='true']):not(.selected-job):active {
+  background-color: var(--status-testfailed-hover);
   color: white;
 }
 
-/* Dark blue, retry */
-.btn-dkblue,
-.btn-dkblue-count,
-.btn-dkblue-classified,
-.btn-dkblue-classified-count,
-.btn-dkblue-count:hover,
-.btn-dkblue-classified-count:hover {
-  color: #283aa2;
-  font-weight: bold;
+/* Testfailed classified */
+.job-btn[data-status='testfailed'][data-classified='true'],
+.group-btn[data-status='testfailed'][data-classified='true'] {
+  color: var(--status-testfailed-classified);
 }
-.btn-dkblue:hover,
-.btn-dkblue-classified:hover,
-.btn-dkblue:focus,
-.btn-dkblue:active,
-.btn-dkblue.active {
-  border-color: #263fc3;
-  background-color: #263fc3;
-  color: white;
-  font-weight: bold;
+.job-btn[data-status='testfailed'][data-classified='true']:not(.selected-job),
+.group-btn[data-status='testfailed'][data-classified='true'] {
+  background-color: transparent;
 }
-.btn-dkblue.disabled:hover,
-.btn-dkblue.disabled:focus,
-.btn-dkblue.disabled:active,
-.btn-dkblue.disabled.active,
-.btn-dkblue:disabled:hover,
-.btn-dkblue:disabled:focus,
-.btn-dkblue:disabled:active,
-.btn-dkblue:disabled.active,
-fieldset[disabled] .btn-dkblue:hover,
-fieldset[disabled] .btn-dkblue:focus,
-fieldset[disabled] .btn-dkblue:active,
-fieldset[disabled] .btn-dkblue.active {
-  background-color: #2d48d6;
-  border-color: #2d48d6;
-}
-
-/* Green, success */
-.btn-green,
-.btn-green-count,
-.btn-green-classified,
-.btn-green-classified-count,
-.btn-green-count:hover,
-.btn-green-classified-count:hover {
-  color: rgba(2, 130, 51, 0.95);
-  font-weight: bold;
-}
-.btn-green:hover,
-.btn-green-classified:hover,
-.btn-green:focus,
-.btn-green:active,
-.btn-green.active {
-  border-color: #019029;
-  background-color: #017722;
+.job-btn[data-status='testfailed'][data-classified='true']:not(.selected-job):hover,
+.job-btn[data-status='testfailed'][data-classified='true']:not(.selected-job):focus,
+.job-btn[data-status='testfailed'][data-classified='true']:not(.selected-job):active {
+  background-color: var(--status-testfailed-classified);
   color: white;
 }
-.btn-green.disabled:hover,
-.btn-green.disabled:focus,
-.btn-green.disabled:active,
-.btn-green.disabled.active,
-.btn-green:disabled:hover,
-.btn-green:disabled:focus,
-.btn-green:disabled:active,
-.btn-green:disabled.active,
-fieldset[disabled] .btn-green:hover,
-fieldset[disabled] .btn-green:focus,
-fieldset[disabled] .btn-green:active,
-fieldset[disabled] .btn-green.active {
-  border-color: #02c238;
+
+/* Busted (red) - unclassified keeps colored background when selected */
+.job-btn[data-status='busted']:not([data-classified='true']),
+.group-btn[data-status='busted']:not([data-classified='true']) {
+  color: white;
+  background-color: var(--status-busted);
+}
+.job-btn[data-status='busted']:not([data-classified='true']):not(.selected-job):hover,
+.job-btn[data-status='busted']:not([data-classified='true']):not(.selected-job):focus,
+.job-btn[data-status='busted']:not([data-classified='true']):not(.selected-job):active {
+  background-color: var(--status-busted-hover);
+  color: white;
 }
 
-/* Purple, infrastructure exception */
-.btn-purple {
-  background-color: #9a7da6;
+/* Busted classified */
+.job-btn[data-status='busted'][data-classified='true'],
+.group-btn[data-status='busted'][data-classified='true'] {
+  color: var(--status-busted-classified);
+}
+.job-btn[data-status='busted'][data-classified='true']:not(.selected-job),
+.group-btn[data-status='busted'][data-classified='true'] {
+  background-color: transparent;
+}
+.job-btn[data-status='busted'][data-classified='true']:not(.selected-job):hover,
+.job-btn[data-status='busted'][data-classified='true']:not(.selected-job):focus,
+.job-btn[data-status='busted'][data-classified='true']:not(.selected-job):active {
+  background-color: var(--status-busted-classified);
+  color: white;
+}
+
+/* Retry (dark blue) */
+.job-btn[data-status='retry'],
+.group-btn[data-status='retry'] {
+  color: var(--status-retry);
+}
+.job-btn[data-status='retry']:not(.selected-job),
+.group-btn[data-status='retry'] {
+  background-color: transparent;
+}
+.job-btn[data-status='retry']:not(.selected-job):hover,
+.job-btn[data-status='retry']:not(.selected-job):focus,
+.job-btn[data-status='retry']:not(.selected-job):active {
+  background-color: var(--status-retry-hover);
+  color: white;
+}
+
+/* Success (green) */
+.job-btn[data-status='success'],
+.group-btn[data-status='success'] {
+  color: var(--status-success);
+}
+.job-btn[data-status='success']:not(.selected-job),
+.group-btn[data-status='success'] {
+  background-color: transparent;
+}
+.job-btn[data-status='success']:not(.selected-job):hover,
+.job-btn[data-status='success']:not(.selected-job):focus,
+.job-btn[data-status='success']:not(.selected-job):active {
+  background-color: var(--status-success-hover);
+  color: white;
+}
+
+/* Exception (purple) - unclassified keeps colored background when selected */
+.job-btn[data-status='exception']:not([data-classified='true']),
+.group-btn[data-status='exception']:not([data-classified='true']) {
   color: #3a004d;
+  background-color: var(--status-exception);
 }
-.btn-purple:hover,
-.btn-purple:focus,
-.btn-purple:active,
-.btn-purple.active {
-  background-color: #3a004d;
-  color: white;
-}
-.btn-purple.disabled:hover,
-.btn-purple.disabled:focus,
-.btn-purple.disabled:active,
-.btn-purple.disabled.active,
-.btn-purple:disabled:hover,
-.btn-purple:disabled:focus,
-.btn-purple:disabled:active,
-.btn-purple:disabled.active,
-fieldset[disabled] .btn-purple:hover,
-fieldset[disabled] .btn-purple:focus,
-fieldset[disabled] .btn-purple:active,
-fieldset[disabled] .btn-purple.active {
-  background-color: #9002c2;
-  border-color: #9002c2;
+.job-btn[data-status='exception']:not([data-classified='true']):not(.selected-job):hover,
+.job-btn[data-status='exception']:not([data-classified='true']):not(.selected-job):focus,
+.job-btn[data-status='exception']:not([data-classified='true']):not(.selected-job):active {
+  background-color: var(--status-exception-hover);
   color: white;
 }
 
-/* Purple, infrastructure exception classified */
-.btn-purple-classified,
-.btn-purple-classified-count,
-.btn-purple-classified-count:hover {
-  color: #6f0296;
+/* Exception classified */
+.job-btn[data-status='exception'][data-classified='true'],
+.group-btn[data-status='exception'][data-classified='true'] {
+  color: var(--status-exception-classified);
 }
-.btn-purple-classified:hover,
-.btn-purple-classified:focus,
-.btn-purple-classified:active,
-.btn-purple-classified.active {
-  background-color: #7d02a9;
-  border-color: #6b0190;
-  color: white;
+.job-btn[data-status='exception'][data-classified='true']:not(.selected-job),
+.group-btn[data-status='exception'][data-classified='true'] {
+  background-color: transparent;
 }
-.btn-purple-classified.disabled:hover,
-.btn-purple-classified.disabled:focus,
-.btn-purple-classified.disabled:active,
-.btn-purple-classified.disabled.active,
-.btn-purple-classified:disabled:hover,
-.btn-purple-classified:disabled:focus,
-.btn-purple-classified:disabled:active,
-.btn-purple-classified:disabled.active,
-fieldset[disabled] .btn-purple-classified:hover,
-fieldset[disabled] .btn-purple-classified:focus,
-fieldset[disabled] .btn-purple-classified:active,
-fieldset[disabled] .btn-purple-classified.active {
-  background-color: #9002c2;
-  border-color: #9002c2;
+.job-btn[data-status='exception'][data-classified='true']:not(.selected-job):hover,
+.job-btn[data-status='exception'][data-classified='true']:not(.selected-job):focus,
+.job-btn[data-status='exception'][data-classified='true']:not(.selected-job):active {
+  background-color: var(--status-exception-classified);
   color: white;
 }
 
-/* Light blue, superseded */
-.btn-ltblue,
-.btn-ltblue-count,
-.btn-ltblue-classified,
-.btn-ltblue-classified-count,
-.btn-ltblue-count:hover,
-.btn-ltblue-classified-count:hover {
-  color: #3f77c6;
+/* Superseded (light blue) */
+.job-btn[data-status='superseded'],
+.group-btn[data-status='superseded'] {
+  color: var(--status-superseded);
 }
-.btn-ltblue:hover,
-.btn-ltblue-classified:hover,
-.btn-ltblue:focus,
-.btn-ltblue:active,
-.btn-ltblue.active {
-  border-color: #3f77c6;
-  background-color: #3f77c6;
-  color: white;
+.job-btn[data-status='superseded']:not(.selected-job),
+.group-btn[data-status='superseded'] {
+  background-color: transparent;
 }
-.btn-ltblue.disabled:hover,
-.btn-ltblue.disabled:focus,
-.btn-ltblue.disabled:active,
-.btn-ltblue.disabled.active,
-.btn-ltblue:disabled:hover,
-.btn-ltblue:disabled:focus,
-.btn-ltblue:disabled:active,
-.btn-ltblue:disabled.active,
-fieldset[disabled] .btn-ltblue:hover,
-fieldset[disabled] .btn-ltblue:focus,
-fieldset[disabled] .btn-ltblue:active,
-fieldset[disabled] .btn-ltblue.active {
-  border-color: #81b8ed;
-}
-
-/* Light gray, pending */
-.btn-ltgray,
-.btn-ltgray-count,
-.btn-ltgray-classified,
-.btn-ltgray-classified-count {
-  color: #757575;
-}
-.btn-ltgray-count:hover,
-.btn-ltgray-classified-count:hover {
-  color: #808080;
-}
-.btn-ltgray:hover,
-.btn-ltgray-classified:hover,
-.btn-ltgray:focus,
-.btn-ltgray:active,
-.btn-ltgray.active {
-  border-color: #808080;
-  color: #808080;
-}
-.btn-ltgray.disabled:hover,
-.btn-ltgray.disabled:focus,
-.btn-ltgray.disabled:active,
-.btn-ltgray.disabled.active,
-.btn-ltgray:disabled:hover,
-.btn-ltgray:disabled:focus,
-.btn-ltgray:disabled:active,
-.btn-ltgray:disabled.active,
-fieldset[disabled] .btn-ltgray:hover,
-fieldset[disabled] .btn-ltgray:focus,
-fieldset[disabled] .btn-ltgray:active,
-fieldset[disabled] .btn-ltgray.active {
-  color: #e0e0e0;
-  border-color: #e0e0e0;
-}
-
-/* Mid gray (presently unused) */
-.btn-mdgray,
-.btn-mdgray-count,
-.btn-mdgray-classified,
-.btn-mdgray-classified-count,
-.btn-mdgray-count:hover,
-.btn-mdgray-classified-count:hover {
-  background-color: #bfbfbf;
-  border-color: #bfbfbf;
-}
-.btn-mdgray:hover,
-.btn-mdgray-classified:hover,
-.btn-mdgray:focus,
-.btn-mdgray:active,
-.btn-mdgray.active {
-  background-color: #b2b2b2;
-  border-color: #a6a6a6;
-}
-.btn-mdgray.disabled:hover,
-.btn-mdgray.disabled:focus,
-.btn-mdgray.disabled:active,
-.btn-mdgray.disabled.active,
-.btn-mdgray:disabled:hover,
-.btn-mdgray:disabled:focus,
-.btn-mdgray:disabled:active,
-.btn-mdgray:disabled.active,
-fieldset[disabled] .btn-mdgray:hover,
-fieldset[disabled] .btn-mdgray:focus,
-fieldset[disabled] .btn-mdgray:active,
-fieldset[disabled] .btn-mdgray.active {
-  background-color: #bfbfbf;
-  border-color: #bfbfbf;
-}
-
-/* Dark gray, running */
-.btn-dkgray,
-.btn-dkgray-count,
-.btn-dkgray-classified,
-.btn-dkgray-classified-count,
-.btn-dkgray-count:hover,
-.btn-dkgray-classified-count:hover {
-  color: black;
-}
-.btn-dkgray:hover,
-.btn-dkgray-classified:hover,
-.btn-dkgray:focus,
-.btn-dkgray:active,
-.btn-dkgray.active {
-  background-color: black;
-  border-color: black;
-  color: white;
-}
-.btn-dkgray.disabled:hover,
-.btn-dkgray.disabled:focus,
-.btn-dkgray.disabled:active,
-.btn-dkgray.disabled.active,
-.btn-dkgray:disabled:hover,
-.btn-dkgray:disabled:focus,
-.btn-dkgray:disabled:active,
-.btn-dkgray:disabled.active,
-fieldset[disabled] .btn-dkgray:hover,
-fieldset[disabled] .btn-dkgray:focus,
-fieldset[disabled] .btn-dkgray:active,
-fieldset[disabled] .btn-dkgray.active {
-  background-color: #7c7a7d;
-  border-color: #7c7a7d;
+.job-btn[data-status='superseded']:not(.selected-job):hover,
+.job-btn[data-status='superseded']:not(.selected-job):focus,
+.job-btn[data-status='superseded']:not(.selected-job):active {
+  background-color: var(--status-superseded);
   color: white;
 }
 
-/* Yellow, unknown */
-.btn-yellow,
-.btn-yellow-count,
-.btn-yellow-classified,
-.btn-yellow-classified-count {
-  background-color: #fcf8e3;
-  border-color: #fbd890;
-  color: #8a6d3b;
+/* Pending (light gray) */
+.job-btn[data-status='pending'],
+.group-btn[data-status='pending'] {
+  color: var(--status-pending);
 }
-.btn-yellow-count:hover,
-.btn-yellow-classified-count:hover {
-  color: #8a6d3b;
+.job-btn[data-status='pending']:not(.selected-job),
+.group-btn[data-status='pending'] {
+  background-color: transparent;
 }
-.btn-yellow:hover,
-.btn-yellow-classified:hover,
-.btn-yellow:focus,
-.btn-yellow:active,
-.btn-yellow.active {
-  background-color: #8a6d3b;
-  border-color: #fbd890;
-  color: #fcf8e3;
-}
-.btn-yellow.disabled:hover,
-.btn-yellow.disabled:focus,
-.btn-yellow.disabled:active,
-.btn-yellow.disabled.active,
-.btn-yellow:disabled:hover,
-.btn-yellow:disabled:focus,
-.btn-yellow:disabled:active,
-.btn-yellow:disabled.active,
-fieldset[disabled] .btn-yellow:hover,
-fieldset[disabled] .btn-yellow:focus,
-fieldset[disabled] .btn-yellow:active,
-fieldset[disabled] .btn-yellow.active {
-  background-color: #fcf8e3;
-  border-color: #fbd890;
+.job-btn[data-status='pending']:not(.selected-job):hover,
+.job-btn[data-status='pending']:not(.selected-job):focus,
+.job-btn[data-status='pending']:not(.selected-job):active {
+  color: var(--status-pending-hover);
 }
 
-/* Pink, cancelled */
-.btn-pink,
-.btn-pink-count,
-.btn-pink-classified,
-.btn-pink-classified-count,
-.btn-pink-count:hover,
-.btn-pink-classified-count:hover {
-  color: #cf2b9f;
+/* Running (dark gray/black) */
+.job-btn[data-status='running'],
+.group-btn[data-status='running'] {
+  color: var(--status-running);
 }
-.btn-pink:hover,
-.btn-pink-classified:hover,
-.btn-pink:focus,
-.btn-pink:active,
-.btn-pink.active {
-  background-color: #cf2b9f;
-  border-color: #cf2b9f;
+.job-btn[data-status='running']:not(.selected-job),
+.group-btn[data-status='running'] {
+  background-color: transparent;
+}
+.job-btn[data-status='running']:not(.selected-job):hover,
+.job-btn[data-status='running']:not(.selected-job):focus,
+.job-btn[data-status='running']:not(.selected-job):active {
+  background-color: var(--status-running);
   color: white;
 }
-.btn-pink.disabled:hover,
-.btn-pink.disabled:focus,
-.btn-pink.disabled:active,
-.btn-pink.disabled.active,
-.btn-pink:disabled:hover,
-.btn-pink:disabled:focus,
-.btn-pink:disabled:active,
-.btn-pink:disabled.active,
-fieldset[disabled] .btn-pink:hover,
-fieldset[disabled] .btn-pink:focus,
-fieldset[disabled] .btn-pink:active,
-fieldset[disabled] .btn-pink.active {
-  background-color: #ff80e5;
-  border-color: #ff80e5;
+
+/* Unknown (yellow) */
+.job-btn[data-status='unknown'],
+.group-btn[data-status='unknown'] {
+  border-color: var(--status-unknown-border);
+  color: var(--status-unknown);
+}
+.job-btn[data-status='unknown']:not(.selected-job),
+.group-btn[data-status='unknown'] {
+  background-color: var(--status-unknown-bg);
+}
+.job-btn[data-status='unknown']:not(.selected-job):hover,
+.job-btn[data-status='unknown']:not(.selected-job):focus,
+.job-btn[data-status='unknown']:not(.selected-job):active {
+  background-color: var(--status-unknown);
+  color: var(--status-unknown-bg);
+}
+
+/* Usercancel (pink) */
+.job-btn[data-status='usercancel'],
+.group-btn[data-status='usercancel'] {
+  color: var(--status-usercancel);
+}
+.job-btn[data-status='usercancel']:not(.selected-job),
+.group-btn[data-status='usercancel'] {
+  background-color: transparent;
+}
+.job-btn[data-status='usercancel']:not(.selected-job):hover,
+.job-btn[data-status='usercancel']:not(.selected-job):focus,
+.job-btn[data-status='usercancel']:not(.selected-job):active {
+  background-color: var(--status-usercancel);
+  color: white;
 }
 
 .group-select-all-runnable {
@@ -644,7 +409,7 @@ fieldset[disabled] .btn-pink.active {
   background: transparent;
   padding: 0 2px 0 2px;
   border: 0;
-  vertical-align: 0;
+  vertical-align: 0 !important;
   line-height: 1.32;
   cursor: pointer;
   margin-right: -3px;

@@ -86,8 +86,13 @@
   width: 100%;
   height: 100%;
   padding: 2px;
+  margin-right: 5px;
   overflow: auto;
   background-color: #ffffff;
+}
+
+#pinned-job-list .content .btn-group {
+  margin-right: 4px;
 }
 
 .pinned-job {
@@ -95,12 +100,20 @@
   margin-bottom: 2px;
   padding: 1px 2px;
   min-width: 2em;
+  height: 22px;
 }
 
 .pinned-job-close-btn {
   font-size: 12px;
-  padding: 1px 2px 1px 2px;
-  border-color: #fafafa #fafafa #fafafa transparent;
+  padding: 1px 4px;
+  height: 100%;
+  align-self: stretch;
+  background-color: inherit;
+  border: 1px solid;
+  border-color: inherit;
+  color: inherit;
+  border-left: none;
+  margin-left: -1px;
 }
 
 .pinboard-preload-txt {

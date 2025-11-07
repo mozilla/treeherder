@@ -341,7 +341,7 @@ export const thJobNavSelectors = {
   UNCLASSIFIED_FAILURES: {
     name: 'unclassified failures',
     selector:
-      '.selected-job, .job-btn.btn-red, .job-btn.btn-orange, .job-btn.btn-purple',
+      '.selected-job, .job-btn[data-status="testfailed"]:not([data-classified="true"]), .job-btn[data-status="busted"]:not([data-classified="true"]), .job-btn[data-status="exception"]:not([data-classified="true"])',
   },
 };
 
