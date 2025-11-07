@@ -38,6 +38,7 @@ CHANNEL_TO_REPO_MAPPING = {
 
 MODIFIABLE_ALERT_FIELDS = ("status",)
 DEFAULT_ALERT_EMAIL = "gmierzwinski@mozilla.com"
+EMAIL_LIMIT = 50
 
 
 def get_glean_dictionary_link(telemetry_signature):
