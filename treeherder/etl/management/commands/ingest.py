@@ -466,7 +466,7 @@ class Command(BaseCommand):
         if type_of_ingestion == "task":
             assert options["taskId"]
             loop.run_until_complete(ingest_task(options["taskId"], root_url))
-        elif type_of_ingestion == "prUrl":
+        elif type_of_ingestion == "pr":
             assert options["prUrl"]
             ingest_pr(options["prUrl"], root_url)
         elif type_of_ingestion.find("git") > -1:
