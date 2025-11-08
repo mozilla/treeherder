@@ -58,6 +58,10 @@
   line-height: 18px;
 }
 
+#pinboard-panel {
+  flex: 0 0 auto;
+}
+
 #pinboard-contents {
   background-color: #e6eef5;
   color: #252c33;
