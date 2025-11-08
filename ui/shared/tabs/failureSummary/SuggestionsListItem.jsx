@@ -179,7 +179,7 @@ export default class SuggestionsListItem extends React.Component {
           ) : (
             <span>
               <Button
-                className="bg-light py-1 px-2 me-2 failure-action-btn"
+                className="bg-light py-2 px-2 me-2 failure-action-btn"
                 variant="outline-secondary"
                 onClick={() => toggleInternalIssueFiler(suggestion)}
                 title="File an internal issue for this failure"
@@ -228,7 +228,7 @@ export default class SuggestionsListItem extends React.Component {
                 />
               </a>
               <Button
-                className="bg-light py-1 px-2 ms-2 failure-action-btn"
+                className="bg-light py-2 px-2 ms-2 failure-action-btn"
                 variant="outline-secondary"
                 onClick={() => toggleBugFiler(suggestion)}
                 title="File a bug for this failure"

@@ -8,7 +8,6 @@ strong {
 }
 
 #details-panel a {
-  font-size: inherit;
   color: #337ab7;
 }
 
@@ -99,7 +98,7 @@ div#details-panel-content .details-panel-navbar > ul.tab-headers > li {
   justify-content: space-between;
   align-items: center;
   flex-wrap: nowrap;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .tab-headers {
@@ -219,7 +218,6 @@ div#details-panel-content .details-panel-navbar > ul.tab-headers > li {
 .details-panel-navbar .actionbar-nav > li > .btn {
   color: #9fa3a5;
   padding: 4px 15px;
-  margin-bottom: 4px;
   display: inline-block;
 }
 
@@ -237,6 +235,7 @@ div#details-panel-content .actionbar-nav > li > button:focus {
   display: flex;
   flex-wrap: nowrap;
   overflow: hidden;
+  align-items: center;
 }
 
 .tab-header-tabs > li.selected-tab {
