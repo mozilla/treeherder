@@ -1,14 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Button, Modal, Tooltip, Form } from 'react-bootstrap';
+import { Button, Modal, OverlayTrigger, Tooltip, Form } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faChevronCircleDown,
   faChevronCircleUp,
   faSpinner,
   faExclamationTriangle,
-  faTimes,
 } from '@fortawesome/free-solid-svg-icons';
 
 import {
@@ -180,7 +179,6 @@ export class BugFilerClass extends React.Component {
     }
 
     this.state = {
-      tooltipOpen: {},
       summary: `Intermittent ${summaryString}`,
       productSearch: null,
       suggestedProducts: [],
@@ -554,13 +552,6 @@ export class BugFilerClass extends React.Component {
     notify(failureString, 'danger', { sticky: true });
   };
 
-  toggleTooltip = (key) => {
-    const { tooltipOpen } = this.state;
-    this.setState({
-      tooltipOpen: { ...tooltipOpen, [key]: !tooltipOpen[key] },
-    });
-  };
-
   checkForSecurityIssue() {
     const { comment, isSecurityIssue, summary } = this.state;
 
@@ -619,7 +610,6 @@ export class BugFilerClass extends React.Component {
       summary,
       searching,
       checkedLogLinks,
-      tooltipOpen,
       selectedProduct,
     } = this.state;
     const searchTerms = suggestion.search_terms;
@@ -629,38 +619,28 @@ export class BugFilerClass extends React.Component {
     return (
       <div>
         <Modal show={isOpen} onHide={toggle} size="lg">
-          <Modal.Header>
+          <Modal.Header closeButton>
             <Modal.Title>Intermittent Bug Filer</Modal.Title>
-            <button
-              type="button"
-              className="close"
-              aria-label="Close"
-              onClick={toggle}
-            >
-              <FontAwesomeIcon icon={faTimes} />
-            </button>
           </Modal.Header>
           <Modal.Body>
             <form className="d-flex flex-column">
               <div className="d-inline-flex">
-                <Form.Control
-                  name="modalProductFinderSearch"
-                  id="modalProductFinderSearch"
-                  onKeyDown={this.productSearchEnter}
-                  onChange={(evt) =>
-                    this.setState({ productSearch: evt.target.value })
-                  }
-                  type="text"
-                  placeholder="e.g. Firefox, Toolkit, Testing"
-                  className="flex-fill flex-grow-1"
-                />
-                <Tooltip
-                  target="modalProductFinderSearch"
-                  isOpen={tooltipOpen.modalProductFinderSearch}
-                  toggle={() => this.toggleTooltip('modalProductFinderSearch')}
+                <OverlayTrigger
+                  placement="top"
+                  overlay={<Tooltip>Manually search for a product</Tooltip>}
                 >
-                  Manually search for a product
-                </Tooltip>
+                  <Form.Control
+                    name="modalProductFinderSearch"
+                    id="modalProductFinderSearch"
+                    onKeyDown={this.productSearchEnter}
+                    onChange={(evt) =>
+                      this.setState({ productSearch: evt.target.value })
+                    }
+                    type="text"
+                    placeholder="e.g. Firefox, Toolkit, Testing"
+                    className="flex-fill flex-grow-1"
+                  />
+                </OverlayTrigger>
                 <Button
                   variant="secondary"
                   className="ms-1 btn-sm"
@@ -705,20 +685,20 @@ export class BugFilerClass extends React.Component {
                 {!!unhelpfulSummaryReason && (
                   <div>
                     <div className="text-danger">
-                      <FontAwesomeIcon
-                        icon={faExclamationTriangle}
-                        id="unhelpful-summary-reason"
-                      />
-                      Warning: {unhelpfulSummaryReason}
-                      <Tooltip
-                        target="unhelpful-summary-reason"
-                        isOpen={tooltipOpen.unhelpfulSummaryReason}
-                        toggle={() =>
-                          this.toggleTooltip('unhelpfulSummaryReason')
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={
+                          <Tooltip>
+                            This can cause poor bug suggestions to be generated
+                          </Tooltip>
                         }
                       >
-                        This can cause poor bug suggestions to be generated
-                      </Tooltip>
+                        <FontAwesomeIcon
+                          icon={faExclamationTriangle}
+                          id="unhelpful-summary-reason"
+                        />
+                      </OverlayTrigger>
+                      Warning: {unhelpfulSummaryReason}
                     </div>
                     {searchTerms.map((term) => (
                       <div className="font-monospace ps-3" key={term}>
@@ -740,31 +720,33 @@ export class BugFilerClass extends React.Component {
                   }
                   value={summary}
                 />
-                <Tooltip
-                  target="toggle-failure-lines"
-                  show={tooltipOpen.toggleFailureLines}
-                  onToggle={() => this.toggleTooltip('toggleFailureLines')}
+                <OverlayTrigger
+                  placement="top"
+                  overlay={
+                    <Tooltip>
+                      {isFilerSummaryVisible
+                        ? 'Hide all failure lines for this job'
+                        : 'Show all failure lines for this job'}
+                    </Tooltip>
+                  }
                 >
-                  {isFilerSummaryVisible
-                    ? 'Hide all failure lines for this job'
-                    : 'Show all failure lines for this job'}
-                </Tooltip>
-                <FontAwesomeIcon
-                  onClick={() =>
-                    this.setState({
-                      isFilerSummaryVisible: !isFilerSummaryVisible,
-                    })
-                  }
-                  icon={
-                    isFilerSummaryVisible
-                      ? faChevronCircleUp
-                      : faChevronCircleDown
-                  }
-                  size="lg"
-                  className="pointable align-bottom pt-2 ms-1"
-                  id="toggle-failure-lines"
-                  title={isFilerSummaryVisible ? 'collapse' : 'expand'}
-                />
+                  <FontAwesomeIcon
+                    onClick={() =>
+                      this.setState({
+                        isFilerSummaryVisible: !isFilerSummaryVisible,
+                      })
+                    }
+                    icon={
+                      isFilerSummaryVisible
+                        ? faChevronCircleUp
+                        : faChevronCircleDown
+                    }
+                    size="lg"
+                    className="pointable align-bottom pt-2 ms-1"
+                    id="toggle-failure-lines"
+                    title={isFilerSummaryVisible ? 'collapse' : 'expand'}
+                  />
+                </OverlayTrigger>
                 <span
                   id="summaryLength"
                   className={`ms-1 font-weight-bold lg align-self-center ${
@@ -856,18 +838,21 @@ export class BugFilerClass extends React.Component {
                 />
               </div>
               <div className="ms-4">
-                <div className="d-inline-flex mb-1">
+                <div className="intermittent-failure-fields d-inline-flex flex-start mb-1 mt-2">
                   <Form.Check
-                    className="mt-2"
                     type="checkbox"
                     id="intermittent-checkbox"
                     checked={isIntermittent}
                     onChange={() =>
                       this.setState({ isIntermittent: !isIntermittent })
                     }
+                    className="mt-4"
                     label="This is an intermittent failure"
                   />
-                  <div className="d-inline-flex ms-2">
+                  <OverlayTrigger
+                    placement="top"
+                    overlay={<Tooltip>Comma-separated list of bugs</Tooltip>}
+                  >
                     <Form.Control
                       id="regressedBy"
                       type="text"
@@ -877,14 +862,11 @@ export class BugFilerClass extends React.Component {
                       }
                       placeholder="Regressed by"
                     />
-                    <Tooltip
-                      target="regressedBy"
-                      placement="bottom"
-                      isOpen={tooltipOpen.regressedBy}
-                      toggle={() => this.toggleTooltip('regressedBy')}
-                    >
-                      Comma-separated list of bugs
-                    </Tooltip>
+                  </OverlayTrigger>
+                  <OverlayTrigger
+                    placement="top"
+                    overlay={<Tooltip>Comma-separated list of bugs</Tooltip>}
+                  >
                     <Form.Control
                       id="seeAlso"
                       className="ms-1"
@@ -894,18 +876,10 @@ export class BugFilerClass extends React.Component {
                       }
                       placeholder="See also"
                     />
-                    <Tooltip
-                      target="seeAlso"
-                      placement="bottom"
-                      isOpen={tooltipOpen.seeAlso}
-                      toggle={() => this.toggleTooltip('seeAlso')}
-                    >
-                      Comma-separated list of bugs
-                    </Tooltip>
-                  </div>
+                  </OverlayTrigger>
                 </div>
                 <Form.Check
-                  className="mb-2"
+                  className="mb-3"
                   type="checkbox"
                   id="security-issue-checkbox"
                   checked={isSecurityIssue}
