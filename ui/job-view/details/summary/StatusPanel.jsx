@@ -6,7 +6,7 @@ function StatusPanel(props) {
   const shadingClass = `result-status-shading-${selectedJobFull.resultStatus}`;
 
   return (
-    <li id="result-status-pane" className={`small ${shadingClass} p-0`}>
+    <li id="result-status-pane" className={`fs-80 ${shadingClass} p-0`}>
       <div className="ms-1">
         <strong>Result:</strong>
         <span> {selectedJobFull.result}</span>

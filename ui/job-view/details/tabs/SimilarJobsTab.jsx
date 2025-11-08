@@ -232,7 +232,7 @@ class SimilarJobsTab extends React.Component {
                 type="checkbox"
                 checked={filterNoSuccessfulJobs}
               />
-              <small>Exclude successful jobs</small>
+              <span className="fs-80">Exclude successful jobs</span>
             </div>
           </form>
           <div className="similar_job_detail">
@@ -287,7 +287,9 @@ class SimilarJobsTab extends React.Component {
                         <ul className="list-unstyled error_list">
                           {selectedSimilarJob.error_lines.map((error) => (
                             <li key={error.id}>
-                              <small title={error.line}>{error.line}</small>
+                              <span className="fs-80" title={error.line}>
+                                {error.line}
+                              </span>
                             </li>
                           ))}
                         </ul>

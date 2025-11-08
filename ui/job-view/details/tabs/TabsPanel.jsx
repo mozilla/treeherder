@@ -287,7 +287,7 @@ const TabsPanel = ({
                     />
                   </Dropdown.Toggle>
                   <Dropdown.Menu
-                    align="end"
+                    align="start"
                     className="tab-overflow-menu"
                     style={{
                       zIndex: 10000,

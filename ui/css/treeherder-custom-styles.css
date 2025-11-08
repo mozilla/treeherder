@@ -64,6 +64,10 @@
   font-size: 24px;
 }
 
+.fs-80 {
+  font-size: 80% !important;
+}
+
 .font-weight-400 {
   font-weight: 400;
 }
@@ -119,6 +123,12 @@
 
 .dropdown-item {
   cursor: pointer;
+  color: #212529 !important;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  color: #1e2125 !important;
 }
 
 .form-control:focus {
@@ -385,20 +395,19 @@
   background-color: #6c757d;
 }
 
-.btn-darker-secondary {
-  color: #ffffff;
+.btn-darker-secondary,
+a.btn-darker-secondary,
+a.btn-darker-secondary:visited {
+  color: #ffffff !important;
   background-color: #6c757d;
   border-color: #6c757d;
 }
 
-.btn-darker-secondary:hover {
-  color: #ffffff;
+.btn-darker-secondary:hover,
+a.btn-darker-secondary:hover {
+  color: #ffffff !important;
   background-color: #5a6268;
   border-color: #545b62;
-}
-
-.btn-darker-secondary:visited {
-  color: #ffffff;
 }
 
 .btn-darker-secondary.disabled {
@@ -424,6 +433,15 @@
 .link-darker-secondary:hover {
   color: #5a6268;
 }
+
+/* Outline Dark Button */
+.btn-outline-dark:hover,
+a.btn-outline-dark:hover {
+  background-color: #e9ecef !important;
+  border-color: #6c757d !important;
+  color: #212529 !important;
+}
+
 /*
  * Tables and panels
  */
