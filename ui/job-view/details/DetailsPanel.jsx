@@ -400,14 +400,11 @@ class DetailsPanel extends React.Component {
       bugs,
       testGroups,
     } = this.state;
-    const detailsPanelHeight = isPinBoardVisible
-      ? resizedHeight - pinboardHeight
-      : resizedHeight;
 
     return (
       <div
         id="details-panel"
-        style={{ height: `${detailsPanelHeight}px` }}
+        style={{ height: `${resizedHeight}px` }}
         className={selectedJobFull ? 'details-panel-slide' : 'hidden'}
       >
         <PinBoard

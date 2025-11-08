@@ -5,6 +5,8 @@ strong {
 #details-panel {
   font-size: 12px;
   height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 #details-panel a {
@@ -272,10 +274,10 @@ div#details-panel-content .actionbar-nav > li > button:focus {
 
 #details-panel-content {
   position: relative; /* So we can absolutely position the loading overlay */
-  height: 100%;
-  flex: auto;
+  flex: 1 1 auto;
   display: flex;
   flex-flow: row;
+  min-height: 0; /* Allow flex item to shrink below content size */
 }
 
 #actionbar {
