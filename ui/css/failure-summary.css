@@ -12,11 +12,10 @@
 
 /* Bug suggestions and links */
 .failure-summary-bugs {
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .failure-summary-bugs a {
-  font-size: inherit;
   color: #337ab7;
 }
 

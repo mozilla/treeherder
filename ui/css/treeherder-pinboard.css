@@ -16,13 +16,14 @@
 #pin-count-group {
   display: inline-block;
   position: relative;
-  top: -14px;
-  left: -3px;
+  top: -10px;
+  left: 2px;
   height: 16px;
   width: 16px;
   border: 1px solid #2398ff;
   border-radius: 8px;
   background: white;
+  z-index: 2002;
 }
 
 .pin-count-pulse {

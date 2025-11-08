@@ -456,7 +456,7 @@ class ActionBar extends React.PureComponent {
                 </Dropdown.Toggle>
                 <Dropdown.Menu
                   className="actionbar-menu dropdown-menu"
-                  align="end"
+                  align="start"
                   style={{
                     zIndex: 10000,
                   }}
