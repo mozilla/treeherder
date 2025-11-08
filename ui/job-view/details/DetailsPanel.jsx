@@ -379,7 +379,6 @@ class DetailsPanel extends React.Component {
       resizedHeight,
       classificationMap,
       classificationTypes,
-      isPinBoardVisible,
       selectedJob,
     } = this.props;
     const {
