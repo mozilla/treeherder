@@ -464,7 +464,7 @@ fieldset[disabled] .btn-view-nav-closed.active {
 /* Used by Perfherder and IFV */
 .top-navbar {
   background-color: #222;
-  height: 41px;
+  height: 36px;
   align-items: center;
 }
 
@@ -489,6 +489,11 @@ fieldset[disabled] .btn-view-nav-closed.active {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Fix for perfherder nav-link font-size - Bootstrap 5 doesn't define --bs-nav-link-font-size */
+.top-navbar .nav-link {
+  font-size: 1rem;
 }
 
 .navbar-link {

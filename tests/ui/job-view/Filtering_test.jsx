@@ -373,8 +373,15 @@ describe('Filtering', () => {
   });
 
   describe('by result status', () => {
+    const statusMap = {
+      green: 'success',
+      red: 'failures',
+      dkgray: 'in progress',
+    };
+
     const clickFilterChicklet = (color) => {
-      fireEvent.click(document.querySelector(`.btn-${color}-filter-chicklet`));
+      const status = statusMap[color];
+      fireEvent.click(document.querySelector(`[data-status="${status}"]`));
     };
 
     test('uncheck success should leave 30 jobs', async () => {

@@ -128,7 +128,11 @@ describe('Health', () => {
     return (
       <Provider store={store}>
         <ConnectedRouter history={history}>
-          <Health location={history.location} notify={() => {}} />
+          <Health
+            location={history.location}
+            notify={() => {}}
+            clearNotification={() => {}}
+          />
         </ConnectedRouter>
       </Provider>
     );
