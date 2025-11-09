@@ -47,11 +47,15 @@ export default class AlertHeaderTitle extends React.Component {
             id={`alert summary ${alertSummary.id.toString()} title`}
             data-testid={`alert summary ${alertSummary.id.toString()} title`}
           >
-            <h6 className="font-weight-bold align-middle d-flex gap-2">
-              <Badge bg="secondary" text="white">
+            <h6 className="font-weight-bold d-flex align-items-start gap-2">
+              <Badge bg="secondary" text="white" className="flex-shrink-0 mt-1">
                 {getFrameworkName(frameworks, alertSummary.framework)}
               </Badge>
-              {isCritical ? <Badge bg="danger">critical</Badge> : null}
+              {isCritical ? (
+                <Badge bg="danger" className="flex-shrink-0">
+                  critical
+                </Badge>
+              ) : null}
               <span>
                 Alert #{alertSummary.id} - {alertSummary.repository} -{' '}
                 {getTitle(alertSummary)}{' '}

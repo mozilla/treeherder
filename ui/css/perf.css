@@ -44,6 +44,14 @@ h1 {
   background: #f8f8f8;
 }
 
+#perf-main {
+  padding-top: 4.5rem;
+}
+
+.btn-view-nav {
+  font-size: 1rem;
+}
+
 .graph-chooser {
   flex: none;
   width: 300px;
@@ -344,6 +352,7 @@ th {
   position: sticky;
   top: 0;
   z-index: 998;
+  padding-top: 3rem;
 }
 
 .alerts-container {
@@ -803,8 +812,8 @@ li.pagination-active.active > button {
 
 /* Consistent checkbox sizing for alerts table */
 .compare-table .form-check-input {
-  width: 1.25em;
-  height: 1.25em;
+  width: 0.8125rem;
+  height: 0.8125rem;
   margin-top: 0.125em;
   cursor: pointer;
 }

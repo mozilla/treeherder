@@ -77,9 +77,9 @@ class App extends React.Component {
         {projects.length > 0 &&
           frameworks.length > 0 &&
           performanceTags.length > 0 && (
-            <main className="pt-5">
+            <main id="perf-main">
               {errorMessages.length > 0 && (
-                <Container className="pt-5 max-width-default">
+                <Container className="pt-6 max-width-default">
                   <ErrorMessages errorMessages={errorMessages} />
                 </Container>
               )}

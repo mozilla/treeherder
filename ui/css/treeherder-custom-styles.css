@@ -111,13 +111,13 @@
   cursor: pointer;
 }
 
-.dropdown-menu > li.disabled > a {
+.dropdown-menu > li:disabled > a {
   pointer-events: none;
   font-style: italic;
   color: grey;
 }
 
-.dropdown-menu > li.disabled {
+.dropdown-menu > li:disabled {
   cursor: not-allowed;
 }
 
@@ -347,8 +347,8 @@
 }
 
 .btn-darker-info {
-  background-color: #0d7d8f;
-  border-color: #0d7d8f;
+  background-color: #17a2b8;
+  border-color: #17a2b8;
   color: #ffffff;
 }
 
@@ -357,9 +357,10 @@
   background-color: #0a5e6d;
 }
 
-.btn-darker-info.disabled {
-  color: black;
-  background-color: #30b9ce80;
+.btn-darker-info:disabled {
+  color: #ffffff;
+  background-color: #5bc0de;
+  border-color: #5bc0de;
 }
 
 .btn-outline-darker-info {
@@ -368,13 +369,13 @@
 }
 
 .btn-outline-darker-info:hover,
-.btn-outline-darker-info:not(:disabled):not(.disabled).active {
+.btn-outline-darker-info:not(:disabled).active {
   background-color: #0d7d8f;
   border-color: #0d7d8f;
   color: #ffffff;
 }
 
-.btn-outline-darker-info.disabled {
+.btn-outline-darker-info:disabled {
   color: #02363f;
   background-color: white;
   border-color: #0d7d8f;
@@ -410,13 +411,19 @@ a.btn-darker-secondary:hover {
   border-color: #545b62;
 }
 
-.btn-darker-secondary.disabled {
+.btn-darker-secondary:disabled {
   color: #242424;
   background-color: white;
   border-color: #6c757d;
 }
 
 .btn-outline-darker-secondary {
+  color: #6c757d;
+  background-color: #fff;
+  border-color: #6c757d;
+}
+
+.btn-outline-darker-secondary:disabled {
   color: #6c757d;
   background-color: #fff;
   border-color: #6c757d;

@@ -113,7 +113,7 @@ export default class Assignee extends React.Component {
         </Button>
         {!assigneeUsername && (
           <Button
-            variant="darker-secondary"
+            variant="outline-darker-secondary"
             size="xs"
             disabled={!user.isStaff}
             onClick={this.prefillWithLoggedInUsername}

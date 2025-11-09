@@ -210,10 +210,11 @@ export default class Health extends React.PureComponent {
             <React.Fragment>
               {showIntermittentAlert && (
                 <Alert
-                  color="info"
+                  variant="info"
                   className="mb-3"
-                  isOpen={showIntermittentAlert}
-                  toggle={this.dismissIntermittentAlert}
+                  dismissible
+                  show={showIntermittentAlert}
+                  onClose={this.dismissIntermittentAlert}
                 >
                   Displaying only issues not known to be intermittents
                 </Alert>
@@ -340,4 +341,5 @@ export default class Health extends React.PureComponent {
 
 Health.propTypes = {
   location: PropTypes.shape({}).isRequired,
+  clearNotification: PropTypes.func.isRequired,
 };

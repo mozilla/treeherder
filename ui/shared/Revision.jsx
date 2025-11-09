@@ -93,7 +93,7 @@ export class Revision extends React.PureComponent {
             visible={clipboardVisible}
           />
           <a
-            title={`Open that revision ${commitRevision} on ${repo.url}`}
+            title={`Open revision ${commitRevision} on ${repo.url}`}
             href={repo.getRevisionHref(commitRevision)}
             className={commitShaClass}
           >
@@ -102,7 +102,7 @@ export class Revision extends React.PureComponent {
         </span>
         <AuthorInitials title={`${name}: ${email}`} author={name} />
         <OverlayTrigger
-          placement="top-start"
+          placement="auto"
           overlay={
             <Tooltip className="tooltip-content">
               {bugSummaryMap &&

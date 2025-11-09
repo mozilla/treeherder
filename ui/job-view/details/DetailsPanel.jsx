@@ -119,8 +119,13 @@ class DetailsPanel extends React.Component {
     return { testGroups, taskQueueId };
   };
 
-  updateClassifications = async (signal) => {
+  updateClassifications = async (signalOrEvent) => {
     const { selectedJob } = this.props;
+
+    // If called as an event listener, signalOrEvent will be an Event object
+    // If called programmatically, it may be an AbortSignal or undefined
+    const signal =
+      signalOrEvent instanceof AbortSignal ? signalOrEvent : undefined;
 
     try {
       const [classifications, bugs] = await Promise.all([

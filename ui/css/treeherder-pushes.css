@@ -147,9 +147,13 @@ fieldset[disabled] .btn-push:hover {
  */
 
 .tooltip-content {
-  text-align: left;
   min-width: 100%;
-  max-width: 100%;
+  /* Override Bootstrap 5's default 200px tooltip max-width */
+  --bs-tooltip-max-width: 600px;
+}
+
+.tooltip-content .tooltip-inner {
+  text-align: left;
 }
 
 /*
