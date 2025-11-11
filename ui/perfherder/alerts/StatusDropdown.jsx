@@ -1,26 +1,26 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-  UncontrolledDropdown,
-  DropdownMenu,
-  DropdownItem,
-  DropdownToggle,
   Col,
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
   Label,
+  UncontrolledDropdown,
 } from 'reactstrap';
 import template from 'lodash/template';
 import templateSettings from 'lodash/templateSettings';
 
 import {
-  getFrameworkName,
   getFilledBugSummary,
+  getFrameworkName,
   getStatus,
   updateAlertSummary,
 } from '../perf-helpers/helpers';
-import { getData, create } from '../../helpers/http';
+import { create, getData } from '../../helpers/http';
 import TextualSummary from '../perf-helpers/textualSummary';
-import { getApiUrl, bzBaseUrl, bugzillaBugsApi } from '../../helpers/url';
-import { summaryStatusMap, criticalTestsList } from '../perf-helpers/constants';
+import { bugzillaBugsApi, bzBaseUrl, getApiUrl } from '../../helpers/url';
+import { criticalTestsList, summaryStatusMap } from '../perf-helpers/constants';
 import DropdownMenuItems from '../../shared/DropdownMenuItems';
 import BrowsertimeAlertsExtraData from '../../models/browsertimeAlertsExtraData';
 import { isWeekend } from '../perf-helpers/alertCountdownHelper';
@@ -84,30 +84,17 @@ export default class StatusDropdown extends React.Component {
     const {
       alertSummary,
       repoModel,
-      bugTemplate,
       updateViewState,
       filteredAlerts,
       frameworks,
       user,
     } = this.props;
     const { browsertimeAlertsExtraData, showCriticalFileBugModal } = this.state;
-    let result = bugTemplate;
+    const result = await this.getBugTemplate(
+      alertSummary.framework,
+      updateViewState,
+    );
 
-    if (!result) {
-      const { data, failureStatus } = await getData(
-        getApiUrl(
-          `/performance/bug-template/?framework=${alertSummary.framework}`,
-        ),
-      );
-      if (failureStatus) {
-        updateViewState({
-          errorMessages: [`Failed to retrieve bug template: ${data}`],
-        });
-      } else {
-        [result] = data;
-        updateViewState({ bugTemplate: result });
-      }
-    }
     const textualSummary = new TextualSummary(
       frameworks,
       filteredAlerts,
@@ -115,20 +102,16 @@ export default class StatusDropdown extends React.Component {
       null,
       await browsertimeAlertsExtraData.enrichAndRetrieveAlerts(),
     );
-    const frameworkName = getFrameworkName(frameworks, alertSummary.framework);
-    const templateArgs = {
-      bugType: 'defect',
-      framework: frameworkName,
-      revision: alertSummary.revision,
-      revisionHref: repoModel.getPushLogHref(alertSummary.revision),
-      alertHref: `${window.location.origin}/perfherder/alerts?id=${alertSummary.id}`,
-      alertSummary: textualSummary.markdown,
-      alertSummaryId: alertSummary.id,
-      user: user.email,
-    };
+    const templateArgs = this.getTemplateArgs(
+      frameworks,
+      alertSummary,
+      repoModel,
+      textualSummary,
+      user,
+    );
 
     if (showCriticalFileBugModal) {
-      templateArgs.criticalTests = criticalTestsList[frameworkName];
+      templateArgs.criticalTests = criticalTestsList[templateArgs.framework];
     }
 
     templateSettings.interpolate = /{{([\s\S]+?)}}/g;
@@ -193,9 +176,36 @@ export default class StatusDropdown extends React.Component {
     };
   };
 
-  copySummary = async () => {
-    const { alertSummary, repoModel, filteredAlerts, frameworks } = this.props;
+  getTemplateArgs(frameworks, alertSummary, repoModel, textualSummary, user) {
+    const frameworkName = getFrameworkName(frameworks, alertSummary.framework);
+    return {
+      bugType: 'defect',
+      framework: frameworkName,
+      revision: alertSummary.revision,
+      revisionHref: repoModel.getPushLogHref(alertSummary.revision),
+      alertHref: `${window.location.origin}/perfherder/alerts?id=${alertSummary.id}`,
+      alertSummary: textualSummary.markdown,
+      alertSummaryId: alertSummary.id,
+      user: user.email,
+    };
+  }
+
+  copySummary = async (isReply = false) => {
+    const {
+      alertSummary,
+      repoModel,
+      filteredAlerts,
+      frameworks,
+      updateViewState,
+      user,
+    } = this.props;
+
     const { browsertimeAlertsExtraData } = this.state;
+    const result = await this.getBugTemplate(
+      alertSummary.framework,
+      updateViewState,
+    );
+
     const textualSummary = new TextualSummary(
       frameworks,
       filteredAlerts,
@@ -203,57 +213,25 @@ export default class StatusDropdown extends React.Component {
       null,
       await browsertimeAlertsExtraData.enrichAndRetrieveAlerts(),
     );
-
-    const templateArgs = {
-      bugType: 'defect',
-      framework: getFrameworkName(frameworks, alertSummary.framework),
-      revision: alertSummary.revision,
-      revisionHref: repoModel.getPushLogHref(alertSummary.revision),
-      alertHref: `${window.location.origin}/perfherder/alerts?id=${alertSummary.id}`,
-      alertSummary: textualSummary.markdown,
-      alertSummaryId: alertSummary.id,
-    };
-    const containsRegression = textualSummary.alerts.some(
-      (item) => item.is_regression === true,
+    const templateArgs = this.getTemplateArgs(
+      frameworks,
+      alertSummary,
+      repoModel,
+      textualSummary,
+      user,
     );
 
-    const regressionTemplate = `
-Perfherder has detected a {{ framework }} performance change from push [{{ revision }}]({{ revisionHref }}). As author of one of the patches included in that push, we need your help to address this regression.
+    let templateText;
 
-Please **acknowledge, and begin investigating this alert within 3 business days, or the patch(es) may be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/). Our [guide to handling regression bugs](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#help-i-have-a-regression-what-do-i-do) has information about how you can proceed with this investigation.
-
-If you have any questions or need any help with the investigation, please reach out to a performance sheriff. Alternatively, you can find help on Slack by joining [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ), and on Matrix you can find help by joining [#perftest](https://matrix.to/#/#perftest:mozilla.org).
-
-{{ alertSummary }}
-
-Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests.
-
-If you need the profiling jobs [you can trigger them yourself from treeherder job view](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) or ask a performance sheriff to do that for you.
-
-You can run all of these tests on try with \`./mach try perf --alert {{ alertSummaryId }}\`
-
-The following [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) provides more information about this command.
-    `;
-
-    const improvementTemplate = `
-Perfherder has detected a {{ framework }} performance change from push [{{ revision }}]({{ revisionHref }}).
-
-If you have any questions, please reach out to a performance sheriff. Alternatively, you can find help on Slack by joining [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ), and on Matrix you can find help by joining [#perftest](https://matrix.to/#/#perftest:mozilla.org).
-
-{{ alertSummary }}
-
-Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests.
-
-If you need the profiling jobs [you can trigger them yourself from treeherder job view](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) or ask a performance sheriff to do that for you.
-
-You can run all of these tests on try with \`./mach try perf --alert {{ alertSummaryId }}\`
-
-The following [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) provides more information about this command.
-    `;
-
-    const templateText = containsRegression
-      ? regressionTemplate
-      : improvementTemplate;
+    const isImprovement = !textualSummary.alerts.some(
+      (item) => item.is_regression === true,
+    );
+    if (isReply || isImprovement) {
+      templateText = result.no_action_required_text;
+    } else {
+      // It's NOT a reply AND there IS a regression
+      templateText = result.text;
+    }
 
     templateSettings.interpolate = /{{([\s\S]+?)}}/g;
     const fillTemplate = template(templateText);
@@ -263,6 +241,22 @@ The following [documentation link](https://firefox-source-docs.mozilla.org/testi
     // onCopy, onCut or onPaste props so using this workaround
     navigator.clipboard.writeText(commentText).then(() => {});
   };
+
+  async getBugTemplate(framework, updateViewState) {
+    let result;
+
+    const { data, failureStatus } = await getData(
+      getApiUrl(`/performance/bug-template/?framework=${framework}`),
+    );
+    if (failureStatus) {
+      updateViewState({
+        errorMessages: [`Failed to retrieve bug template: ${data}`],
+      });
+    } else {
+      [result] = data;
+    }
+    return result;
+  }
 
   toggle = (state) => {
     this.setState((prevState) => ({
@@ -445,8 +439,11 @@ The following [documentation link](https://firefox-source-docs.mozilla.org/testi
             {getStatus(alertSummary.status)}
           </DropdownToggle>
           <DropdownMenu>
-            <DropdownItem tag="a" onClick={this.copySummary}>
+            <DropdownItem tag="a" onClick={() => this.copySummary()}>
               Copy Summary
+            </DropdownItem>
+            <DropdownItem tag="a" onClick={() => this.copySummary(true)}>
+              Copy Reply Summary
             </DropdownItem>
             {!alertSummary.bug_number && user.isStaff && (
               <DropdownItem
@@ -571,13 +568,11 @@ StatusDropdown.propTypes = {
   ),
   repoModel: PropTypes.shape({}).isRequired,
   updateViewState: PropTypes.func.isRequired,
-  bugTemplate: PropTypes.shape({}),
   filteredAlerts: PropTypes.arrayOf(PropTypes.shape({})),
   performanceTags: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
 StatusDropdown.defaultProps = {
   issueTrackers: [],
-  bugTemplate: null,
   filteredAlerts: [],
 };

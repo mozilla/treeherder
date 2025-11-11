@@ -374,6 +374,7 @@ class PerformanceBugTemplateSerializer(serializers.ModelSerializer):
             "cc_list",
             "text",
             "critical_text",
+            "no_action_required_text",
         ]
 
 
