@@ -31,6 +31,7 @@ def sample_perf_datum(framework_name: str, subtest_value: int = 20.0) -> dict:
                     "subtests": [{"name": "some-perf-test", "value": subtest_value, "unit": "ms"}],
                 }
             ],
+            "logurl": "https://sample.com/perfherder-data.json",
         },
     }
 
@@ -133,7 +134,9 @@ def _generate_perf_data_range(
 
         # the perf data adapter expects deserialized performance data
         submit_datum = copy.copy(datum)
-        submit_datum["blob"] = json.dumps({"performance_data": submit_datum["blob"]})
+        blob_data = {"performance_data": submit_datum["blob"]}
+        blob_data["logurl"] = submit_datum["blob"]["logurl"]
+        submit_datum["blob"] = json.dumps(blob_data)
         store_performance_artifact(job, submit_datum)
 
 
@@ -199,7 +202,9 @@ def test_same_signature_multiple_performance_frameworks(test_repository, perf_jo
 
         # the perf data adapter expects deserialized performance data
         submit_datum = copy.copy(datum)
-        submit_datum["blob"] = json.dumps({"performance_data": submit_datum["blob"]})
+        blob_data = {"performance_data": submit_datum["blob"]}
+        blob_data["logurl"] = submit_datum["blob"]["logurl"]
+        submit_datum["blob"] = json.dumps(blob_data)
 
         store_performance_artifact(perf_job, submit_datum)
 
