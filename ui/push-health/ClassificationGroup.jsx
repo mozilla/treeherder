@@ -9,16 +9,14 @@ import {
 import {
   Row,
   Collapse,
-  ButtonGroup,
-  ButtonDropdown,
   Button,
-  DropdownMenu,
-  DropdownToggle,
-  DropdownItem,
   Navbar,
   Nav,
   NavItem,
   UncontrolledButtonDropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
 } from 'reactstrap';
 import groupBy from 'lodash/groupBy';
 
@@ -32,7 +30,6 @@ class ClassificationGroup extends React.PureComponent {
 
     this.state = {
       detailsShowing: props.expanded,
-      retriggerDropdownOpen: false,
     };
   }
 
@@ -44,12 +41,6 @@ class ClassificationGroup extends React.PureComponent {
     });
     this.setState((prevState) => ({
       detailsShowing: !prevState.detailsShowing,
-    }));
-  };
-
-  toggleRetrigger = () => {
-    this.setState((prevState) => ({
-      retriggerDropdownOpen: !prevState.retriggerDropdownOpen,
     }));
   };
 
@@ -87,7 +78,7 @@ class ClassificationGroup extends React.PureComponent {
   };
 
   render() {
-    const { detailsShowing, retriggerDropdownOpen } = this.state;
+    const { detailsShowing } = this.state;
     const {
       jobs,
       tests,
@@ -131,6 +122,8 @@ class ClassificationGroup extends React.PureComponent {
             className="font-size-24 border-0"
             role="button"
             aria-expanded={detailsShowing}
+            tabIndex={-1}
+            style={{ boxShadow: 'none', outline: 'none' }}
           >
             <FontAwesomeIcon
               icon={expandIcon}
@@ -147,41 +140,19 @@ class ClassificationGroup extends React.PureComponent {
           <Navbar className="mb-4">
             <Nav>
               <NavItem>
-                <ButtonGroup size="sm">
-                  <Button
-                    title="Retrigger all 'Need Investigation' jobs once"
-                    onClick={() => this.retriggerAll(1)}
-                    size="sm"
-                  >
-                    <FontAwesomeIcon
-                      icon={faRedo}
-                      title="Retrigger"
-                      className="mr-2"
-                      alt=""
-                    />
-                    Retrigger all
-                  </Button>
-                  <ButtonDropdown
-                    isOpen={retriggerDropdownOpen}
-                    toggle={this.toggleRetrigger}
-                    size="sm"
-                  >
-                    <DropdownToggle caret />
-                    <DropdownMenu>
-                      {[5, 10, 15].map((times) => (
-                        <DropdownItem
-                          key={times}
-                          title={`Retrigger all 'Need Investigation' jobs ${times} times`}
-                          onClick={() => this.retriggerAll(times)}
-                          className="pointable"
-                          tag="a"
-                        >
-                          Retrigger all {times} times
-                        </DropdownItem>
-                      ))}
-                    </DropdownMenu>
-                  </ButtonDropdown>
-                </ButtonGroup>
+                <Button
+                  title="Retrigger all 'Need Investigation' jobs once"
+                  onClick={() => this.retriggerAll(1)}
+                  size="sm"
+                >
+                  <FontAwesomeIcon
+                    icon={faRedo}
+                    title="Retrigger"
+                    className="mr-2"
+                    alt=""
+                  />
+                  Retrigger all
+                </Button>
               </NavItem>
               <NavItem>
                 <UncontrolledButtonDropdown size="sm" className="ml-1">
@@ -225,7 +196,7 @@ class ClassificationGroup extends React.PureComponent {
                 <UncontrolledButtonDropdown size="sm" className="ml-1">
                   <DropdownToggle
                     className="btn-sm ml-1 text-capitalize"
-                    id="groupTestsDropdown"
+                    id="orderTestsDropdown"
                     caret
                     outline
                   >
