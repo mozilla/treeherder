@@ -2,10 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartBar, faFileAlt } from '@fortawesome/free-regular-svg-icons';
-import { faTree } from '@fortawesome/free-solid-svg-icons';
+import { faTree, faGaugeHigh } from '@fortawesome/free-solid-svg-icons';
 import { Button } from 'reactstrap';
 
 import LogoMenu from '../shared/LogoMenu';
+import { getPerfAnalysisUrl, isResourceUsageProfile } from '../helpers/url';
 
 // Get the css class for the result, step buttons and other general use
 const getShadingClass = (result) => `result-status-shading-${result}`;
@@ -22,8 +23,13 @@ export default class Navigation extends React.PureComponent {
       collapseDetails,
       collapseJobDetails,
       copySelectedLogToBugFiler,
+      job,
+      jobDetails,
     } = this.props;
     const resultStatusShading = getShadingClass(result);
+    const resourceUsageProfile = jobDetails?.find((artifact) =>
+      isResourceUsageProfile(artifact.value),
+    );
 
     return (
       <nav className="navbar navbar-dark bg-dark p-0" role="navigation">
@@ -67,7 +73,7 @@ export default class Navigation extends React.PureComponent {
             </span>
             <span>
               <a
-                title="Open the raw log in a new window"
+                title="Open the raw log in a new window (Shift+L)"
                 className="nav-link btn-view-nav"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -80,6 +86,23 @@ export default class Navigation extends React.PureComponent {
                 <span>open raw log</span>
               </a>
             </span>
+            {resourceUsageProfile && (
+              <span>
+                <a
+                  title="Show the resource usage profile in the Firefox Profiler (g)"
+                  className="nav-link btn-view-nav"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={getPerfAnalysisUrl(resourceUsageProfile.url, job)}
+                >
+                  <FontAwesomeIcon
+                    icon={faGaugeHigh}
+                    className="actionbtn-icon mr-1"
+                  />
+                  <span>open profiler</span>
+                </a>
+              </span>
+            )}
             {!!reftestUrl && (
               <span>
                 <a
@@ -129,9 +152,21 @@ Navigation.propTypes = {
   rawLogUrl: PropTypes.string.isRequired,
   jobUrl: PropTypes.string,
   reftestUrl: PropTypes.string,
+  collapseDetails: PropTypes.bool.isRequired,
+  collapseJobDetails: PropTypes.func.isRequired,
+  copySelectedLogToBugFiler: PropTypes.func.isRequired,
+  job: PropTypes.shape({}),
+  jobDetails: PropTypes.arrayOf(
+    PropTypes.shape({
+      url: PropTypes.string.isRequired,
+      value: PropTypes.string.isRequired,
+    }),
+  ),
 };
 
 Navigation.defaultProps = {
   jobUrl: null,
   reftestUrl: null,
+  job: null,
+  jobDetails: [],
 };
