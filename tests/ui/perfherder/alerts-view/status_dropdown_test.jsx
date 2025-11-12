@@ -40,6 +40,7 @@ const testStatusDropdown = (summaryTags, alertSummary) => {
       repoModel={testRepoModel}
       updateViewState={() => {}}
       issueTrackers={testIssueTrackers}
+      bugTemplate={null}
       filteredAlerts={testAlerts}
       performanceTags={testPerformanceTags}
       frameworks={[{ id: 1, name: dummyFrameworkName }]}
