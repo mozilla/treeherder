@@ -37,18 +37,6 @@
       You can run all of these tests on try with `./mach try perf --alert {{ alertSummaryId }}`
 
       The following [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) provides more information about this command.
-    no_action_required_text: |
-      Perfherder has detected a {{ framework }} performance change from push [{{ revision }}]({{ revisionHref }}). 
-
-      _**No action is required from the author; this comment is provided for informational purposes only.**_
-
-      {{ alertSummary }}
-
-      ### Need Help or Information?
-
-      If you have any questions, please reach out to {{ user }}. Alternatively, you can find help on Slack by joining [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ), and on Matrix you can find help by joining [#perftest](https://matrix.to/#/#perftest:mozilla.org).
-
-      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests.
 - model: perf.PerformanceBugTemplate
   pk: 2
   fields:
@@ -86,18 +74,6 @@
       You can run all of these tests on try with `./mach try perf --alert {{ alertSummaryId }}`
 
       The following [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) provides more information about this command.
-    no_action_required_text: |
-      Perfherder has detected a {{ framework }} performance change from push [{{ revision }}]({{ revisionHref }}). 
-
-      _**No action is required from the author; this comment is provided for informational purposes only.**_
-
-      {{ alertSummary }}
-
-      ### Need Help or Information?
-
-      If you have any questions, please reach out to {{ user }}. Alternatively, you can find help on Slack by joining [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ), and on Matrix you can find help by joining [#perftest](https://matrix.to/#/#perftest:mozilla.org).
-
-      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests.
 - model: perf.PerformanceBugTemplate
   pk: 4
   fields:
@@ -137,18 +113,6 @@
       You can run all of these tests on try with `./mach try perf --alert {{ alertSummaryId }}`
 
       The following [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) provides more information about this command.
-    no_action_required_text: |
-      Perfherder has detected a {{ framework }} performance change from push [{{ revision }}]({{ revisionHref }}). 
-
-      _**No action is required from the author; this comment is provided for informational purposes only.**_
-
-      {{ alertSummary }}
-
-      ### Need Help or Information?
-
-      If you have any questions, please reach out to {{ user }}. Alternatively, you can find help on Slack by joining [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ), and on Matrix you can find help by joining [#perftest](https://matrix.to/#/#perftest:mozilla.org).
-
-      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests.
 - model: perf.PerformanceBugTemplate
   pk: 5
   fields:
@@ -188,18 +152,6 @@
       You can run all of these tests on try with `./mach try perf --alert {{ alertSummaryId }}`
 
       The following [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) provides more information about this command.
-    no_action_required_text: |
-      Perfherder has detected a {{ framework }} performance change from push [{{ revision }}]({{ revisionHref }}). 
-
-      _**No action is required from the author; this comment is provided for informational purposes only.**_
-
-      {{ alertSummary }}
-
-      ### Need Help or Information?
-
-      If you have any questions, please reach out to {{ user }}. Alternatively, you can find help on Slack by joining [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ), and on Matrix you can find help by joining [#perftest](https://matrix.to/#/#perftest:mozilla.org).
-
-      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests.
 - model: perf.PerformanceBugTemplate
   pk: 6
   fields:
@@ -239,18 +191,6 @@
       You can run all of these tests on try with `./mach try perf --alert {{ alertSummaryId }}`
 
       The following [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) provides more information about this command.
-    no_action_required_text: |
-      Perfherder has detected a {{ framework }} performance change from push [{{ revision }}]({{ revisionHref }}). 
-
-      _**No action is required from the author; this comment is provided for informational purposes only.**_
-
-      {{ alertSummary }}
-
-      ### Need Help or Information?
-
-      If you have any questions, please reach out to {{ user }}. Alternatively, you can find help on Slack by joining [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ), and on Matrix you can find help by joining [#perftest](https://matrix.to/#/#perftest:mozilla.org).
-
-      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests.
 - model: perf.PerformanceBugTemplate
   pk: 7
   fields:
@@ -290,18 +230,6 @@
       You can run all of these tests on try with `./mach try perf --alert {{ alertSummaryId }}`
 
       The following [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) provides more information about this command.
-    no_action_required_text: |
-      Perfherder has detected a {{ framework }} performance change from push [{{ revision }}]({{ revisionHref }}). 
-
-      _**No action is required from the author; this comment is provided for informational purposes only.**_
-
-      {{ alertSummary }}
-
-      ### Need Help or Information?
-
-      If you have any questions, please reach out to {{ user }}. Alternatively, you can find help on Slack by joining [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ), and on Matrix you can find help by joining [#perftest](https://matrix.to/#/#perftest:mozilla.org).
-
-      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests.
 - model: perf.PerformanceBugTemplate
   pk: 8
   fields:
@@ -341,18 +269,6 @@
       You can run all of these tests on try with `./mach try perf --alert {{ alertSummaryId }}`
 
       The following [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) provides more information about this command.
-    no_action_required_text: |
-      Perfherder has detected a {{ framework }} performance change from push [{{ revision }}]({{ revisionHref }}). 
-
-      _**No action is required from the author; this comment is provided for informational purposes only.**_
-
-      {{ alertSummary }}
-
-      ### Need Help or Information?
-
-      If you have any questions, please reach out to {{ user }}. Alternatively, you can find help on Slack by joining [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ), and on Matrix you can find help by joining [#perftest](https://matrix.to/#/#perftest:mozilla.org).
-
-      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests.
 - model: perf.PerformanceBugTemplate
   pk: 9
   fields:
@@ -392,18 +308,6 @@
       You can run all of these tests on try with `./mach try perf --alert {{ alertSummaryId }}`
 
       The following [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) provides more information about this command.
-    no_action_required_text: |
-      Perfherder has detected a {{ framework }} performance change from push [{{ revision }}]({{ revisionHref }}). 
-
-      _**No action is required from the author; this comment is provided for informational purposes only.**_
-
-      {{ alertSummary }}
-
-      ### Need Help or Information?
-
-      If you have any questions, please reach out to {{ user }}. Alternatively, you can find help on Slack by joining [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ), and on Matrix you can find help by joining [#perftest](https://matrix.to/#/#perftest:mozilla.org).
-
-      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests.
 - model: perf.PerformanceBugTemplate
   pk: 10
   fields:
@@ -443,18 +347,6 @@
       You can run all of these tests on try with `./mach try perf --alert {{ alertSummaryId }}`
 
       The following [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) provides more information about this command.
-    no_action_required_text: |
-      Perfherder has detected a {{ framework }} performance change from push [{{ revision }}]({{ revisionHref }}). 
-
-      _**No action is required from the author; this comment is provided for informational purposes only.**_
-
-      {{ alertSummary }}
-
-      ### Need Help or Information?
-
-      If you have any questions, please reach out to {{ user }}. Alternatively, you can find help on Slack by joining [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ), and on Matrix you can find help by joining [#perftest](https://matrix.to/#/#perftest:mozilla.org).
-
-      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests.
 - model: perf.PerformanceBugTemplate
   pk: 11
   fields:
@@ -494,15 +386,3 @@
       You can run all of these tests on try with `./mach try perf --alert {{ alertSummaryId }}`
 
       The following [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) provides more information about this command.
-    no_action_required_text: |
-      Perfherder has detected a {{ framework }} performance change from push [{{ revision }}]({{ revisionHref }}). 
-
-      _**No action is required from the author; this comment is provided for informational purposes only.**_
-
-      {{ alertSummary }}
-
-      ### Need Help or Information?
-
-      If you have any questions, please reach out to {{ user }}. Alternatively, you can find help on Slack by joining [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ), and on Matrix you can find help by joining [#perftest](https://matrix.to/#/#perftest:mozilla.org).
-
-      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests.

@@ -82,7 +82,7 @@ export default class AlertsViewControls extends React.Component {
     const framework = frameworkOptions.find(
       (item) => item.name === selectedFramework,
     );
-    updateViewState({ page: 1 });
+    updateViewState({ bugTemplate: null, page: 1 });
     setFiltersState({ framework }, this.fetchAlertSummaries);
   };
 
