@@ -667,40 +667,49 @@ class StandardStatsSerializer(serializers.Serializer):
 
 class StatisticsTestSerializer(serializers.Serializer):
     test_name = serializers.CharField()
-    stat = PerfCompareDecimalField()
+    stat = PerfCompareDecimalField(required=False)
     pvalue = PerfCompareDecimalField(required=False)
     interpretation = serializers.CharField(required=False)
 
 
+class ModeSerializer(serializers.Serializer):
+    mode_name = serializers.CharField(default="")
+    mode_start = serializers.CharField(required=False)
+    mode_end = serializers.CharField(required=False)
+    median_shift_summary = serializers.CharField(required=False)
+    ci_low = PerfCompareDecimalField(required=False)
+    ci_high = PerfCompareDecimalField(required=False)
+    ci_warning = serializers.CharField(required=False)
+    shift = PerfCompareDecimalField(required=False)
+    shift_summary = serializers.CharField(required=False)
+
+
 class SilvermanKDESerializer(serializers.Serializer):
-    bandwidth = serializers.CharField()
+    bandwidth = serializers.CharField(default="")
     base_mode_count = serializers.IntegerField()
     new_mode_count = serializers.IntegerField()
-    mode_comments = serializers.ListField(child=serializers.CharField(), default=[])
-    warnings = serializers.ListField(child=serializers.CharField(), default=[])
-    mode_summary = serializers.CharField()
-    median_shift_summary = serializers.CharField()
-    ci_low = PerfCompareDecimalField()
-    ci_high = PerfCompareDecimalField()
-    shift = PerfCompareDecimalField()
-    shift_summary = serializers.CharField()
+    base_locations = serializers.ListField(
+        child=PerfCompareDecimalField(required=False), default=[]
+    )
+    new_locations = serializers.ListField(child=PerfCompareDecimalField(required=False), default=[])
+    base_prominence = PerfCompareDecimalField(required=False)
+    new_prominence = PerfCompareDecimalField(required=False)
+    modes = ModeSerializer(many=True)
     is_regression = serializers.BooleanField()
     is_improvement = serializers.BooleanField()
-    ci_warning = serializers.CharField(required=False)
 
 
 class KDESerializer(serializers.Serializer):
-    median = serializers.CharField()
+    median = PerfCompareDecimalField(required=False)
     sample_count = serializers.IntegerField()
     kde_x = serializers.ListField(child=PerfCompareDecimalField(), default=[])
     kde_y = serializers.ListField(child=PerfCompareDecimalField(), default=[])
 
 
 class CLESSerializer(serializers.Serializer):
-    cles = PerfCompareDecimalField()
+    cles = PerfCompareDecimalField(required=False)
     cles_direction = serializers.CharField(default="")
     mann_whitney_u_cles = serializers.CharField(default="")
-    p_value_cles = serializers.CharField(default="")
     cliffs_delta_cles = serializers.CharField(default="")
     effect_size = serializers.CharField(default="")
     cles_explanation = serializers.CharField(default="")
@@ -743,14 +752,13 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
         child=PerfCompareDecimalField(),
         default=[],
     )
-    base_standard_stats = StandardStatsSerializer()
-    new_standard_stats = StandardStatsSerializer()
-    delta_value = PerfCompareDecimalField()
-    delta_percentage = PerfCompareDecimalField()
-    new_is_better = OptionalBooleanField()
+    base_standard_stats = StandardStatsSerializer(many=False)
+    new_standard_stats = StandardStatsSerializer(many=False)
+    delta_value = PerfCompareDecimalField(required=False)
+    delta_percentage = PerfCompareDecimalField(required=False)
+    is_new_better = OptionalBooleanField()
     lower_is_better = OptionalBooleanField()
     is_confident = OptionalBooleanField()
-    noise_metric = OptionalBooleanField(default=False)
     graphs_link = serializers.CharField()
     more_runs_are_needed = OptionalBooleanField(default=False)
     is_fit_good = OptionalBooleanField(default=True)
@@ -769,13 +777,19 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
         default=[],
     )
     ks_test = StatisticsTestSerializer(many=False)
+    ks_warning = serializers.CharField(required=False)
     mann_whitney_test = StatisticsTestSerializer(many=False)
-    cliffs_delta = PerfCompareDecimalField()
+    cliffs_delta = PerfCompareDecimalField(required=False)
     cliffs_interpretation = serializers.CharField(default="")
+    warning_c_delta = serializers.CharField(required=False)
     silverman_kde = SilvermanKDESerializer(many=False, default=None)
+    silverman_warnings = serializers.ListField(
+        child=serializers.CharField(default=""),
+        default=[],
+    )
     kde_base = KDESerializer(many=False, required=False)
     kde_new = KDESerializer(many=False, required=False)
-    kde_summary_text = serializers.ListField(
+    kde_warnings = serializers.ListField(
         child=serializers.CharField(default=""),
         default=[],
     )
@@ -789,8 +803,6 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
             "new_rev",
             "base_app",
             "new_app",
-            "base_standard_stats",
-            "new_standard_stats",
             "framework_id",
             "platform",
             "suite",
@@ -812,13 +824,12 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
             "graphs_link",
             "delta_value",
             "delta_percentage",
-            "new_is_better",
+            "is_new_better",
             "lower_is_better",
             "is_confident",
             "is_fit_good",
             "more_runs_are_needed",
             "direction_of_change",
-            "noise_metric",
             "is_improvement",
             "is_regression",
             "is_meaningful",
@@ -827,18 +838,23 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
             "base_signature_id",
             "new_signature_id",
             "has_subtests",
+            "base_standard_stats",
+            "new_standard_stats",
             "ks_test",
+            "ks_warning",
             "shapiro_wilk_test_base",
             "shapiro_wilk_test_new",
             "shapiro_wilk_warnings",
             "mann_whitney_test",
             "cliffs_delta",
             "cliffs_interpretation",
+            "warning_c_delta",
             "cles",
             "silverman_kde",
+            "silverman_warnings",
             "kde_new",
             "kde_base",
-            "kde_summary_text",
+            "kde_warnings",
         ]
 
 
