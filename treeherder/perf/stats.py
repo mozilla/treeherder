@@ -168,16 +168,22 @@ def interpret_normality_shapiro_wilk(base, new, pvalue_threshold=PVALUE_THRESHOL
         }
         # shapiro needs minimum 3 data points else NaN values returns
         if len(base) >= 3:
-            stat_base, p_base = stats.shapiro(base)
-            if not np.isnan(p_base):
-                is_base_normal = p_base > pvalue_threshold
-                shapiro_results_base["stat"] = float(stat_base)
-                shapiro_results_base["pvalue"] = float(p_base)
-                shapiro_results_base["interpretation"] = (
-                    f"Shapiro-Wilk result: {p_base:.2f}, {base_name} is {'**likely normal**' if is_base_normal else '**not normal**'}"
+            try:
+                with warnings.catch_warnings():
+                    stat_base, p_base = stats.shapiro(base)
+                    if not np.isnan(p_base):
+                        is_base_normal = p_base > pvalue_threshold
+                        shapiro_results_base["stat"] = float(stat_base)
+                        shapiro_results_base["pvalue"] = float(p_base)
+                        shapiro_results_base["interpretation"] = (
+                            f"Shapiro-Wilk result: {p_base:.2f}, {base_name} is {'**likely normal**' if is_base_normal else '**not normal**'}"
+                        )
+                        if not is_base_normal:
+                            warnings.append("Base is not normal.")
+            except Exception:
+                warnings.append(
+                    "Cannot compute Shapiro-Wilk test for base. Likely not enough data."
                 )
-                if not is_base_normal:
-                    warnings.append("Base is not normal.")
         else:
             warnings.append(
                 "Shapiro-Wilk test cannot be run on Base with fewer than 3 data points."
@@ -186,16 +192,21 @@ def interpret_normality_shapiro_wilk(base, new, pvalue_threshold=PVALUE_THRESHOL
 
         new_rev_name = "New Revision"
         if len(new) >= 3:
-            stat_new, p_new = stats.shapiro(new)
-            if not np.isnan(p_new):
-                is_new_normal = p_new > pvalue_threshold
-                shapiro_results_new["stat"] = float(stat_new)
-                shapiro_results_new["pvalue"] = float(p_new)
-                shapiro_results_new["interpretation"] = (
-                    f"Shapiro-Wilk result: {p_new:.2f}, {new_rev_name} is {'**likely normal**' if is_new_normal else '**not normal**'}"
-                )
-                if not is_new_normal:
-                    warnings.append("Warning, new is not normal")
+            try:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore", category=UserWarning)
+                    stat_new, p_new = stats.shapiro(new)
+                if not np.isnan(p_new):
+                    is_new_normal = p_new > pvalue_threshold
+                    shapiro_results_new["stat"] = float(stat_new)
+                    shapiro_results_new["pvalue"] = float(p_new)
+                    shapiro_results_new["interpretation"] = (
+                        f"Shapiro-Wilk result: {p_new:.2f}, {new_rev_name} is {'**likely normal**' if is_new_normal else '**not normal**'}"
+                    )
+                    if not is_new_normal:
+                        warnings.append("Warning, new is not normal")
+            except Exception:
+                warnings.append("Cannot compute Shapiro-Wilk test for new. Likely not enough data.")
         else:
             warnings.append("Shapiro-Wilk test cannot be run on New with fewer than 3 data points.")
             shapiro_results_new["interpretation"] = "Not enough data for normality test"
@@ -405,7 +416,9 @@ def interpret_silverman_kde(base_data, new_data, lower_is_better):
                     )
                     base_mode_count, base_peak_locs, base_prom = count_modes(x_base, y_base)
             except Exception:
-                warning_msgs.append("Cannot Silverman KDE for base. Likely not enough data.")
+                warning_msgs.append(
+                    "Cannot compute Silverman KDE for base. Likely not enough data."
+                )
         else:
             warning_msgs.append("Base revision has less than 2 data points to run Silverman KDE.")
         if len(new_data) > 0:
@@ -417,7 +430,7 @@ def interpret_silverman_kde(base_data, new_data, lower_is_better):
                     )
                     new_mode_count, new_peak_locs, new_prom = count_modes(x_new, y_new)
             except Exception:
-                warning_msgs.append("Cannot Silverman KDE for new. Likely not enough data.")
+                warning_msgs.append("Cannot compute Silverman KDE for new. Likely not enough data.")
         else:
             warning_msgs.append("New revision has less than 2 data points to run Silverman KDE.")
 
