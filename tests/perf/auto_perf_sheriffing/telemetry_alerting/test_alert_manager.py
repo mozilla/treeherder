@@ -644,6 +644,56 @@ class TestTelemetryAlertManager:
             assert len(passed_alerts) == 1, f"Expected 1 alert, got {len(passed_alerts)}"
             assert passed_alerts[0] == alerts[1]
 
+    def test_redo_bug_modifications_with_mixed_bug_numbers(
+        self,
+        create_telemetry_signature,
+        create_telemetry_alert,
+        test_telemetry_alert_summary,
+        telemetry_alert_manager,
+        caplog,
+    ):
+        """ Test _redo_bug_modifications with alert summary containing alerts with mixed bug numbers.
+
+        Verifies that calls made to the TelemetryAlertManager.modify_alert_bugs method contain
+        only alerts that have bugs.
+        """
+        # Mark the alert summary as not modified to trigger _redo_bug_modifications
+        test_telemetry_alert_summary.bugs_modified = False
+        test_telemetry_alert_summary.save()
+
+        # Create alert 1 WITH a bug number
+        sig1 = create_telemetry_signature(probe="test_probe_1")
+        alert_row_1 = create_telemetry_alert(sig1, bug_number=123456, bug_modified=True)
+        TelemetryAlertFactory.construct_alert(alert_row_1)
+
+        # Create alert 2 WITHOUT a bug number
+        sig2 = create_telemetry_signature(probe="test_probe_2")
+        alert_row_2 = create_telemetry_alert(sig2, bug_number=None, bug_modified=True)
+        TelemetryAlertFactory.construct_alert(alert_row_2)
+
+        # Create alert 3 WITH a bug number
+        sig3 = create_telemetry_signature(probe="test_probe_3")
+        alert_row_3 = create_telemetry_alert(sig3, bug_number=654321, bug_modified=True)
+        TelemetryAlertFactory.construct_alert(alert_row_3)
+
+        # Mock modify_alert_bugs to check if we call it with only alerts that have bugs
+        with patch(
+            "treeherder.perf.auto_perf_sheriffing.telemetry_alerting.alert_manager."
+            "TelemetryAlertManager.modify_alert_bugs"
+        ) as mock_modify_alert_bugs:
+            with caplog.at_level(logging.INFO):
+                telemetry_alert_manager._redo_bug_modifications()
+
+            # Verify that the modify_alert_bugs method is only called with 2 alerts
+            alerts_to_modify = mock_modify_alert_bugs.call_args_list[0][0][0]
+            assert len(alerts_to_modify) == 2
+
+            # Verify that the alerts are only those with the bugs from above
+            for bug_number in (123456, 654321):
+                assert bug_number in [
+                    alert.telemetry_alert.bug_number for alert in alerts_to_modify
+                ]
+
     def test_manage_alerts_with_mixed_bug_and_email_alerts(
         self,
         create_telemetry_signature,
