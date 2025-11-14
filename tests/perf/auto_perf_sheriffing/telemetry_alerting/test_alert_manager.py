@@ -652,7 +652,7 @@ class TestTelemetryAlertManager:
         telemetry_alert_manager,
         caplog,
     ):
-        """ Test _redo_bug_modifications with alert summary containing alerts with mixed bug numbers.
+        """Test _redo_bug_modifications with alert summary containing alerts with mixed bug numbers.
 
         Verifies that calls made to the TelemetryAlertManager.modify_alert_bugs method contain
         only alerts that have bugs.
