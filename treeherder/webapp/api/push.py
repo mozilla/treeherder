@@ -16,6 +16,7 @@ from treeherder.push_health.builds import get_build_failures
 from treeherder.push_health.compare import get_commit_history
 from treeherder.push_health.linting import get_lint_failures
 from treeherder.push_health.tests import (
+    get_new_failure_jobs,
     get_test_failure_jobs,
     get_test_failures,
     get_test_in_progress_count,
@@ -356,6 +357,7 @@ class PushViewSet(viewsets.ViewSet):
     def health(self, request, project):
         """
         Return a calculated assessment of the health of this push.
+        Filtered to show only new failures (failure_classification_id=6).
         """
         revision = request.query_params.get("revision")
 
@@ -366,15 +368,18 @@ class PushViewSet(viewsets.ViewSet):
             return Response(f"No push with revision: {revision}", status=HTTP_404_NOT_FOUND)
 
         commit_history_details = None
-        result_status, jobs = get_test_failure_jobs(push)
+        # NEW: Get both all_jobs and new_failure_jobs (fcid=6 only)
+        all_jobs_dict, new_failure_jobs_dict, result_status = get_new_failure_jobs(push)
+
         # Parent compare only supported for Hg at this time.
         # Bug https://bugzilla.mozilla.org/show_bug.cgi?id=1612645
         if repository.dvcs_type == "hg":
             commit_history_details = get_commit_history(repository, revision, push)
 
+        # Pass tuple of (all_jobs_dict, new_failure_jobs_dict) to get_test_failures
         test_result, push_health_test_failures = get_test_failures(
             push,
-            jobs,
+            (all_jobs_dict, new_failure_jobs_dict),  # Pass as tuple
             result_status,
         )
 
@@ -418,7 +423,7 @@ class PushViewSet(viewsets.ViewSet):
                 "revision": revision,
                 "id": push.id,
                 "result": push_result,
-                "jobs": jobs,
+                "jobs": new_failure_jobs_dict,  # Return only fcid=6 jobs
                 "metrics": {
                     "commitHistory": {
                         "name": "Commit History",

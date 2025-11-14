@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Container, Spinner, Navbar, Nav } from 'reactstrap';
+import { Container, Spinner, Navbar, Nav, Alert } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import camelCase from 'lodash/camelCase';
 import { Helmet } from 'react-helmet';
@@ -47,8 +47,8 @@ export default class Health extends React.PureComponent {
       searchStr: params.get('searchStr') || '',
       regressionsOrderBy: params.get('regressionsOrderBy') || 'count',
       regressionsGroupBy: params.get('regressionsGroupBy') || 'path',
-      knownIssuesOrderBy: params.get('knownIssuesOrderBy') || 'count',
-      knownIssuesGroupBy: params.get('knownIssuesGroupBy') || 'path',
+      showIntermittentAlert:
+        localStorage.getItem('dismissedIntermittentAlert') !== 'true',
     };
   }
 
@@ -121,6 +121,11 @@ export default class Health extends React.PureComponent {
     return newState;
   };
 
+  dismissIntermittentAlert = () => {
+    localStorage.setItem('dismissedIntermittentAlert', 'true');
+    this.setState({ showIntermittentAlert: false });
+  };
+
   setExpanded = (metricName, expanded) => {
     const root = camelCase(metricName);
     const key = `${root}Expanded`;
@@ -171,8 +176,7 @@ export default class Health extends React.PureComponent {
       selectedJobName,
       regressionsOrderBy,
       regressionsGroupBy,
-      knownIssuesOrderBy,
-      knownIssuesGroupBy,
+      showIntermittentAlert,
     } = this.state;
     const { tests, commitHistory, linting, builds } = metrics;
 
@@ -204,6 +208,16 @@ export default class Health extends React.PureComponent {
         <Container fluid className="mt-2 mb-5 max-width-default">
           {!!tests && !!currentRepo && (
             <React.Fragment>
+              {showIntermittentAlert && (
+                <Alert
+                  color="info"
+                  className="mb-3"
+                  isOpen={showIntermittentAlert}
+                  toggle={this.dismissIntermittentAlert}
+                >
+                  Displaying only issues not known to be intermittents
+                </Alert>
+              )}
               <div className="d-flex my-5">
                 <StatusProgress
                   counts={status}
@@ -299,8 +313,6 @@ export default class Health extends React.PureComponent {
                       selectedTest={selectedTest}
                       regressionsOrderBy={regressionsOrderBy}
                       regressionsGroupBy={regressionsGroupBy}
-                      knownIssuesOrderBy={knownIssuesOrderBy}
-                      knownIssuesGroupBy={knownIssuesGroupBy}
                       selectedTaskId={selectedTaskId}
                       selectedJobName={selectedJobName}
                       updateParamsAndState={this.updateParamsAndState}

@@ -14,7 +14,6 @@ from treeherder.model.models import (
     JobType,
     OptionCollection,
 )
-from treeherder.push_health.classification import get_grouped, set_classifications
 from treeherder.push_health.filter import filter_failure
 from treeherder.push_health.utils import (
     clean_config,
@@ -22,7 +21,6 @@ from treeherder.push_health.utils import (
     clean_test,
     job_to_dict,
 )
-from treeherder.webapp.api.utils import REPO_GROUPS
 
 logger = logging.getLogger(__name__)
 
@@ -83,89 +81,75 @@ def get_history(
 
 # For each failure item in ``tests``, we group all jobs of the exact same type into
 # a field called `jobs`.  So it has passed and failed jobs in there.
-#
-def get_current_test_failures(push, option_map, jobs, investigated_tests=None):
-    # Using .distinct(<fields>) here would help by removing duplicate FailureLines
-    # for the same job (with different sub-tests), but it's only supported by
-    # postgres.  Just using .distinct() has no effect.
-    new_failure_lines = FailureLine.objects.filter(
-        action__in=["test_result", "log", "crash"],
-        job_log__job__push=push,
-        job_log__job__result="testfailed",
-        job_log__job__tier__lte=2,
-    ).select_related(
-        "job_log__job__job_type",
-        "job_log__job__job_group",
-        "job_log__job__machine_platform",
-        "job_log__job__taskcluster_metadata",
+# Note: get_current_test_failures was inlined into get_test_failures for clarity
+
+
+def _generate_test_key(test_name, config, platform, job_name, job_group):
+    """Generate unique key for test+platform+config+job combination."""
+    return re.sub(r"\W+", "", f"t{test_name}{config}{platform}{job_name}{job_group}")
+
+
+def _check_investigation_status(test_name, job_type_id, investigated_tests):
+    """Check if a test is marked as investigated.
+
+    Returns:
+        tuple: (is_investigated: bool, investigated_test_id: int or None)
+    """
+    if not investigated_tests:
+        return False, None
+
+    for investigated_test in investigated_tests:
+        if investigated_test.test == test_name and job_type_id == investigated_test.job_type.id:
+            return True, investigated_test.id
+
+    return False, None
+
+
+def _count_total_jobs_for_type(job_name, all_jobs_dict):
+    """Count total jobs (success + testfailed) for a given job type."""
+    return len(
+        [
+            job
+            for job in all_jobs_dict.get(job_name, [])
+            if job["result"] in ["success", "testfailed"]
+        ]
     )
-    # using a dict here to avoid duplicates due to multiple failure_lines for
-    # each job.
-    tests = {}
-    all_failed_jobs = {}
-    for failure_line in new_failure_lines:
-        test_name = clean_test(failure_line.test, failure_line.signature, failure_line.message)
-        if not test_name:
-            continue
-        job = failure_line.job_log.job
-        config = clean_config(option_map[job.option_collection_hash])
-        platform = clean_platform(job.machine_platform.platform)
-        job_name = job.job_type.name
-        job_symbol = job.job_type.symbol
-        job_group = job.job_group.name
-        job_group_symbol = job.job_group.symbol
-        job.job_key = f"{config}{platform}{job_name}{job_group}"
-        all_failed_jobs[job.id] = job
-        # The 't' ensures the key starts with a character, as required for a query selector
-        test_key = re.sub(r"\W+", "", f"t{test_name}{config}{platform}{job_name}{job_group}")
-        is_classified_intermittent = any(
-            job["failure_classification_id"] == 4 for job in jobs[job_name]
-        )
 
-        is_investigated = False
-        investigated_test_id = None
-        for investigated_test in investigated_tests:
-            if (
-                investigated_test.test == test_name
-                and job.job_type.id == investigated_test.job_type.id
-            ):
-                is_investigated = True
-                investigated_test_id = investigated_test.id
-                break
 
-        if test_key not in tests:
-            line = {
-                "testName": test_name,
-                "action": failure_line.action.split("_")[0],
-                "jobName": job_name,
-                "jobSymbol": job_symbol,
-                "jobGroup": job_group,
-                "jobGroupSymbol": job_group_symbol,
-                "platform": platform,
-                "config": config,
-                "key": test_key,
-                "jobKey": job.job_key,
-                "suggestedClassification": "New Failure",
-                "confidence": 0,
-                "tier": job.tier,
-                "totalFailures": 0,
-                "totalJobs": 0,
-                "failedInParent": False,
-                "isClassifiedIntermittent": is_classified_intermittent,
-                "isInvestigated": is_investigated,
-                "investigatedTestId": investigated_test_id,
-            }
-            tests[test_key] = line
-        count_jobs = len(
-            list(filter(lambda x: x["result"] in ["success", "testfailed"], jobs[job_name]))
-        )
-        tests[test_key]["totalFailures"] += 1
-        tests[test_key]["totalJobs"] = count_jobs
-
-    # Each line of the sorted list that is returned here represents one test file per platform/
-    # config.  Each line will have at least one failing job, but may have several
-    # passing/failing jobs associated with it.
-    return sorted(tests.values(), key=lambda k: k["testName"])
+def _create_test_failure_record(
+    test_name,
+    failure_line,
+    job,
+    config,
+    platform,
+    test_key,
+    total_jobs_for_type,
+    is_investigated,
+    investigated_test_id,
+):
+    """Create the test failure record dictionary with all required fields."""
+    return {
+        "testName": test_name,
+        "action": failure_line.action.split("_")[0],
+        "jobName": job.job_type.name,
+        "jobSymbol": job.job_type.symbol,
+        "jobGroup": job.job_group.name,
+        "jobGroupSymbol": job.job_group.symbol,
+        "platform": platform,
+        "config": config,
+        "key": test_key,
+        "jobKey": job.job_key,
+        "suggestedClassification": "New Failure",
+        "confidence": 0,  # Always 0 - no historical lookup
+        "tier": job.tier,
+        "totalFailures": 0,  # Will increment as jobs are added
+        "totalJobs": total_jobs_for_type,
+        "failedInParent": False,
+        "isClassifiedIntermittent": False,  # Always False for fcid=6
+        "isInvestigated": is_investigated,
+        "investigatedTestId": investigated_test_id,
+        "failedInJobs": [],  # Track which jobs failed for this test
+    }
 
 
 def has_job(job, job_list):
@@ -219,48 +203,192 @@ def get_test_failure_jobs(push):
     return (result_status, jobs)
 
 
+def _build_jobs_dict(jobs_queryset):
+    """
+    Helper function to build jobs dictionary from queryset.
+    Groups jobs by job_type.name and converts to dictionaries.
+    """
+    jobs = {}
+    for job in jobs_queryset:
+        job_dict = job_to_dict(job)
+        job_type_name = job.job_type.name
+        if job_type_name in jobs:
+            jobs[job_type_name].append(job_dict)
+        else:
+            jobs[job_type_name] = [job_dict]
+
+    # Sort jobs by start_time within each job type
+    for job_type in jobs:
+        jobs[job_type].sort(key=lambda x: x["start_time"])
+
+    return jobs
+
+
+def get_new_failure_jobs(push):
+    """
+    Get jobs for push health, filtering to only new failures (failure_classification_id=6).
+
+    This function queries for all jobs in the push (for context and totals), then separately
+    filters to only jobs with failure_classification_id=6 (new failures not classified).
+
+    Returns:
+        tuple: (all_jobs_dict, new_failure_jobs_dict, result_status)
+        - all_jobs_dict: All testfailed/passing jobs grouped by job_type.name (for totals)
+        - new_failure_jobs_dict: Only fcid=6 jobs grouped by job_type.name
+        - result_status: Set of result values seen in new_failure_jobs
+    """
+    # Get all testfailed jobs (for calculating totals later)
+    all_testfailed_jobs = (
+        Job.objects.filter(
+            push=push,
+            tier__lte=2,
+            result="testfailed",
+        )
+        .exclude(
+            Q(machine_platform__platform="lint")
+            | Q(job_type__symbol="mozlint")
+            | Q(job_type__name__contains="build")
+        )
+        .select_related("job_type", "job_group", "machine_platform", "taskcluster_metadata")
+    )
+
+    # Get job types from all testfailed jobs (to fetch passing jobs of same types)
+    all_failed_job_types = [job.job_type.name for job in all_testfailed_jobs]
+
+    # Get passing jobs of the same types
+    passing_jobs = Job.objects.filter(
+        push=push, job_type__name__in=all_failed_job_types, result__in=["success", "unknown"]
+    ).select_related("job_type", "job_group", "machine_platform", "taskcluster_metadata")
+
+    # Build dictionary of ALL jobs (testfailed + passing) for context
+    all_jobs_list = list(all_testfailed_jobs) + list(passing_jobs)
+    all_jobs_dict = _build_jobs_dict(all_jobs_list)
+
+    # Filter to ONLY jobs with failure_classification_id=6 (new failures)
+    new_failure_jobs = all_testfailed_jobs.filter(failure_classification_id=6)
+    new_failure_jobs_dict = _build_jobs_dict(new_failure_jobs)
+
+    # Track result status from new failure jobs
+    result_status = set(new_failure_jobs.values_list("result", flat=True))
+
+    return (all_jobs_dict, new_failure_jobs_dict, result_status)
+
+
 def get_test_failures(
     push,
     jobs,
     result_status=set(),
 ):
+    """
+    Get test failures for push health, filtered to only fcid=6 (new failures).
+
+    Args:
+        push: Push object
+        jobs: Tuple of (all_jobs_dict, new_failure_jobs_dict) OR legacy dict for backward compatibility
+        result_status: Set of result values
+
+    Returns:
+        tuple: (result_string, failures_dict) where failures_dict has 'needInvestigation' and 'knownIssues'
+    """
     logger.debug(f"Getting test failures for push: {push.id}")
-    # query for jobs for the last two weeks excluding today
-    # find tests that have failed in the last 14 days
-    # this is very cache-able for reuse on other pushes.
     result = "pass"
 
-    if not len(jobs):
-        return ("none", get_grouped([]))
+    # Handle both new tuple format and legacy dict format for backward compatibility
+    if isinstance(jobs, tuple):
+        all_jobs_dict, new_failure_jobs_dict = jobs
+    else:
+        # Legacy format - treat as all_jobs_dict and new_failure_jobs_dict
+        all_jobs_dict = jobs
+        new_failure_jobs_dict = jobs
 
-    repository_ids = REPO_GROUPS["trunk"]
+    if not len(new_failure_jobs_dict):
+        return ("none", {"needInvestigation": [], "knownIssues": []})
+
     # option_map is used to map platforms for the job.option_collection_hash
     option_map = OptionCollection.objects.get_option_collection_map()
-    push_date = push.time.date()
-    intermittent_history = get_history(
-        4, push_date, intermittent_history_days, option_map, repository_ids
-    )
-    fixed_by_commit_history = get_history(
-        2, push_date, fixed_by_commit_history_days, option_map, repository_ids
-    )
     investigated_tests = InvestigatedTests.objects.filter(push=push)
 
-    # ``push_failures`` are tests that have FailureLine records created by our Log Parser.
-    #     These are tests we are able to show to examine to see if we can determine they are
-    #     intermittent.  If they are not, we tell the user they need investigation.
-    # These are failures ONLY for the current push, not relative to history.
-    push_failures = get_current_test_failures(push, option_map, jobs, investigated_tests)
-    filtered_push_failures = [failure for failure in push_failures if filter_failure(failure)]
-
-    # Based on the intermittent and FixedByCommit history, set the appropriate classification
-    # where we think each test falls.
-    set_classifications(
-        filtered_push_failures,
-        intermittent_history,
-        fixed_by_commit_history,
+    # Query FailureLines ONLY for jobs with failure_classification_id=6
+    # NOTE: Historical lookups (intermittent_history, fixed_by_commit_history) are REMOVED
+    # for performance optimization when filtering to fcid=6 only
+    new_failure_lines = (
+        FailureLine.objects.filter(
+            action__in=["test_result", "log", "crash"],
+            job_log__job__push=push,
+            job_log__job__failure_classification_id=6,  # NEW: Only fcid=6 jobs
+            job_log__job__result="testfailed",
+            job_log__job__tier__lte=2,
+        )
+        .exclude(
+            Q(job_log__job__machine_platform__platform="lint")
+            | Q(job_log__job__job_type__symbol="mozlint")
+            | Q(job_log__job__job_type__name__contains="build")
+        )
+        .select_related(
+            "job_log__job__job_type",
+            "job_log__job__job_group",
+            "job_log__job__machine_platform",
+            "job_log__job__taskcluster_metadata",
+        )
     )
 
-    failures = get_grouped(filtered_push_failures)
+    # Group failures by (test_name, platform, config, job_name)
+    tests = {}
+    all_failed_jobs = {}
+
+    for failure_line in new_failure_lines:
+        test_name = clean_test(failure_line.test, failure_line.signature, failure_line.message)
+        if not test_name:
+            continue
+
+        # Extract job metadata
+        job = failure_line.job_log.job
+        config = clean_config(option_map[job.option_collection_hash])
+        platform = clean_platform(job.machine_platform.platform)
+        job_name = job.job_type.name
+        job_group = job.job_group.name
+        job.job_key = f"{config}{platform}{job_name}{job_group}"
+        all_failed_jobs[job.id] = job
+
+        # Generate unique key for this test+platform+config+job combination
+        test_key = _generate_test_key(test_name, config, platform, job_name, job_group)
+
+        # Check if test is investigated
+        is_investigated, investigated_test_id = _check_investigation_status(
+            test_name, job.job_type.id, investigated_tests
+        )
+
+        # Create test failure record if this is the first time seeing this test key
+        if test_key not in tests:
+            total_jobs_for_type = _count_total_jobs_for_type(job_name, all_jobs_dict)
+            tests[test_key] = _create_test_failure_record(
+                test_name,
+                failure_line,
+                job,
+                config,
+                platform,
+                test_key,
+                total_jobs_for_type,
+                is_investigated,
+                investigated_test_id,
+            )
+
+        # Track which jobs failed for this test (task-to-test matching)
+        job_id = job.id
+        if job_id not in tests[test_key]["failedInJobs"]:
+            tests[test_key]["failedInJobs"].append(job_id)
+            tests[test_key]["totalFailures"] += 1
+
+    # Each line represents one test file per platform/config with at least one failing job
+    push_failures = sorted(tests.values(), key=lambda k: k["testName"])
+    filtered_push_failures = [failure for failure in push_failures if filter_failure(failure)]
+
+    # SIMPLIFIED: All fcid=6 failures go to needInvestigation
+    # No historical classification needed since we're focused on new failures
+    failures = {
+        "needInvestigation": filtered_push_failures,
+        "knownIssues": [],  # Empty - not used for fcid=6 filtering
+    }
 
     if len(failures["needInvestigation"]):
         result = "fail"
