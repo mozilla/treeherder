@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import sortBy from 'lodash/sortBy';
-import { Col } from 'reactstrap';
+import { Col, Row } from 'react-bootstrap';
 
 import {
   sxsTaskName,
@@ -698,55 +698,73 @@ class Push extends React.PureComponent {
         />
         <div className="push-body-divider" />
         {!collapsed ? (
-          <div className="row push clearfix">
-            {currentRepo && (
-              <Col className="col-5">
-                <RevisionList
-                  revision={revision}
-                  revisions={revisions}
-                  revisionCount={revisionCount}
-                  repo={currentRepo}
-                  bugSummaryMap={bugSummaryMap}
-                  widthClass="ml-4 mb-3"
-                  commitShaClass="text-monospace"
-                >
-                  {showPushHealthSummary && pushHealthStatus && (
-                    <div className="mt-4">
-                      <PushHealthSummary
-                        healthStatus={pushHealthStatus}
-                        revision={revision}
-                        repoName={currentRepo.name}
-                      />
-                    </div>
-                  )}
-                </RevisionList>
+          <Row className="push g-1 flex-nowrap ms-5">
+            {currentRepo ? (
+              <>
+                <Col xs={5}>
+                  <RevisionList
+                    revision={revision}
+                    revisions={revisions}
+                    revisionCount={revisionCount}
+                    repo={currentRepo}
+                    bugSummaryMap={bugSummaryMap}
+                    widthClass="mb-3 ms-4"
+                    commitShaClass="font-monospace"
+                  >
+                    {showPushHealthSummary && pushHealthStatus && (
+                      <div className="mt-4">
+                        <PushHealthSummary
+                          healthStatus={pushHealthStatus}
+                          revision={revision}
+                          repoName={currentRepo.name}
+                        />
+                      </div>
+                    )}
+                  </RevisionList>
+                </Col>
+                <Col xs={7} className="job-list job-list-pad">
+                  <PushJobs
+                    push={push}
+                    platforms={platforms}
+                    repoName={currentRepo.name}
+                    filterModel={filterModel}
+                    pushGroupState={pushGroupState}
+                    toggleSelectedRunnableJob={this.toggleSelectedRunnableJob}
+                    runnableVisible={runnableVisible}
+                    duplicateJobsVisible={duplicateJobsVisible}
+                    groupCountsExpanded={groupCountsExpanded}
+                  />
+                </Col>
+              </>
+            ) : (
+              <Col xs={12} className="job-list job-list-pad">
+                <PushJobs
+                  push={push}
+                  platforms={platforms}
+                  repoName={currentRepo.name}
+                  filterModel={filterModel}
+                  pushGroupState={pushGroupState}
+                  toggleSelectedRunnableJob={this.toggleSelectedRunnableJob}
+                  runnableVisible={runnableVisible}
+                  duplicateJobsVisible={duplicateJobsVisible}
+                  groupCountsExpanded={groupCountsExpanded}
+                />
               </Col>
             )}
-            <span className="job-list job-list-pad col-7">
-              <PushJobs
-                push={push}
-                platforms={platforms}
-                repoName={currentRepo.name}
-                filterModel={filterModel}
-                pushGroupState={pushGroupState}
-                toggleSelectedRunnableJob={this.toggleSelectedRunnableJob}
-                runnableVisible={runnableVisible}
-                duplicateJobsVisible={duplicateJobsVisible}
-                groupCountsExpanded={groupCountsExpanded}
-              />
-            </span>
-          </div>
+          </Row>
         ) : (
-          <span className="row push revision-list col-12">
-            <ul className="list-unstyled">
-              <Revision
-                revision={tipRevision}
-                repo={currentRepo}
-                key={tipRevision.revision}
-                commitShaClass="text-monospace"
-              />
-            </ul>
-          </span>
+          <Row className="push revision-list">
+            <Col xs={12}>
+              <ul className="list-unstyled">
+                <Revision
+                  revision={tipRevision}
+                  repo={currentRepo}
+                  key={tipRevision.revision}
+                  commitShaClass="font-monospace"
+                />
+              </ul>
+            </Col>
+          </Row>
         )}
       </div>
     );

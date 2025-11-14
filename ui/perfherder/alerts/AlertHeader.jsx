@@ -2,17 +2,14 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import {
-  UncontrolledDropdown,
-  DropdownMenu,
-  DropdownItem,
-  DropdownToggle,
+  Dropdown,
   Container,
   Row,
   Col,
   Button,
-  Input,
+  Form,
   InputGroup,
-} from 'reactstrap';
+} from 'react-bootstrap';
 
 import { getJobsUrl, getPerfCompareBaseURL } from '../../helpers/url';
 import { toMercurialShortDateStr } from '../../helpers/display';
@@ -106,8 +103,8 @@ const AlertHeader = ({
   return (
     <Container>
       <AlertHeaderTitle alertSummary={alertSummary} frameworks={frameworks} />
-      <Row className="font-weight-normal">
-        <Col className="p-0 pr-1" xs="auto">
+      <Row className="font-weight-normal gap-2">
+        <Col className="p-0 pe-1" xs="auto">
           <Row className="m-0 px-0 py-0">
             <SimpleTooltip
               text={toMercurialShortDateStr(alertSummaryDatetime)}
@@ -124,8 +121,7 @@ const AlertHeader = ({
         {user.isStaff && (
           <Col className="p-0" xs="auto">
             <Button
-              className="ml-1"
-              color="darker-secondary"
+              variant="darker-secondary"
               size="xs"
               onClick={handleEditMode}
               title="Click to edit revision"
@@ -135,17 +131,16 @@ const AlertHeader = ({
           </Col>
         )}
         <Col className="p-0" xs="auto">
-          <UncontrolledDropdown tag="span">
-            <DropdownToggle
-              className="btn-xs ml-1"
-              color="secondary"
-              caret
+          <Dropdown tag="span">
+            <Dropdown.Toggle
+              className="btn-xs"
+              variant="secondary"
               data-testid="push-dropdown"
             >
               {formattedSummaryRevision}
-            </DropdownToggle>
-            <DropdownMenu>
-              <DropdownItem
+            </Dropdown.Toggle>
+            <Dropdown.Menu className="overflow-auto dropdown-menu-height">
+              <Dropdown.Item
                 tag="a"
                 className="text-dark"
                 href={getJobsUrl({
@@ -157,8 +152,8 @@ const AlertHeader = ({
                 rel="noopener noreferrer"
               >
                 Jobs
-              </DropdownItem>
-              <DropdownItem
+              </Dropdown.Item>
+              <Dropdown.Item
                 tag="a"
                 className="text-dark"
                 href={repoModel.getPushLogRangeHref({
@@ -169,29 +164,29 @@ const AlertHeader = ({
                 rel="noopener noreferrer"
               >
                 Pushlog
-              </DropdownItem>
-              <DropdownItem
+              </Dropdown.Item>
+              <Dropdown.Item
                 className="text-dark"
                 disabled
                 data-testid="prev-push-revision"
               >
                 From: {`${alertSummary.prev_push_revision.slice(0, 12)}`}
-              </DropdownItem>
-              <DropdownItem
+              </Dropdown.Item>
+              <Dropdown.Item
                 className="text-dark"
                 disabled
                 data-testid="to-push-revision"
               >
                 To: {formattedSummaryRevision}
-              </DropdownItem>
-            </DropdownMenu>
-          </UncontrolledDropdown>
+              </Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
         </Col>
         {bugNumber && (
           <Col className="p-0" xs="auto">
             {alertSummary.issue_tracker && issueTrackers.length > 0 ? (
               <a
-                className="btn btn-secondary btn-xs ml-1 text-white"
+                className="btn btn-secondary btn-xs text-white"
                 href={getIssueTrackerUrl(alertSummary)}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -236,7 +231,7 @@ const AlertHeader = ({
           Duplicated summaries:
           {alertSummary.duplicated_summaries_ids.map((id, index) => (
             <Link
-              className="text-dark mr-1"
+              className="text-dark me-1"
               target="_blank"
               to={`./alerts?id=${id}&hideDwnToInv=0`}
               id={`duplicated alert summary ${id.toString()} `}
@@ -270,7 +265,7 @@ const AlertHeader = ({
 
             <Col xs="5" className="p-0">
               <InputGroup size="sm">
-                <Input
+                <Form.Control
                   value={newRevisionFrom}
                   placeholder="Enter desired revision"
                   onChange={handleRevisionChange('from')}
@@ -280,7 +275,7 @@ const AlertHeader = ({
             </Col>
             <Col xs="3" className="p-0">
               <Button
-                className="ml-1"
+                className="ms-1"
                 size="sm"
                 disabled={
                   alertSummary.original_prev_push_revision ===
@@ -301,7 +296,7 @@ const AlertHeader = ({
             </Col>
             <Col xs="5" className="p-0">
               <InputGroup size="sm">
-                <Input
+                <Form.Control
                   value={newRevisionTo}
                   placeholder="Enter desired revision"
                   onChange={handleRevisionChange('to')}
@@ -311,7 +306,7 @@ const AlertHeader = ({
             </Col>
             <Col xs="3" className="p-0">
               <Button
-                className="ml-1"
+                className="ms-1"
                 size="sm"
                 disabled={
                   alertSummary.original_revision === alertSummary.revision
@@ -325,8 +320,8 @@ const AlertHeader = ({
           <Row>
             <Col className="p-0">
               <Button
-                color="primary"
-                className="ml-1"
+                variant="primary"
+                className="ms-1"
                 size="xs"
                 disabled={newRevisionTo === '' && newRevisionFrom === ''}
                 onClick={saveRevision}
@@ -334,8 +329,8 @@ const AlertHeader = ({
                 Save
               </Button>
               <Button
-                color="secondary"
-                className="ml-1"
+                variant="secondary"
+                className="ms-1"
                 size="xs"
                 onClick={cancelEditMode}
               >

@@ -7,7 +7,7 @@ import {
   faCircle,
   faExclamationTriangle,
 } from '@fortawesome/free-solid-svg-icons';
-import { Alert, Button } from 'reactstrap';
+import { Alert, Button } from 'react-bootstrap';
 
 class NotificationList extends React.Component {
   static getIcon(severity) {
@@ -31,12 +31,12 @@ class NotificationList extends React.Component {
       <ul id="notification-box" className="list-unstyled">
         {notifications.map((notification, idx) => (
           <li key={notification.created}>
-            <Alert color={notification.severity}>
+            <Alert variant={notification.severity}>
               <FontAwesomeIcon
                 icon={NotificationList.getIcon(notification.severity)}
                 title={notification.severity}
               />
-              <span className="ml-1">{notification.message}</span>
+              <span className="ms-1">{notification.message}</span>
               {notification.url && notification.linkText && (
                 <span>
                   <a href={notification.url}>{notification.linkText}</a>

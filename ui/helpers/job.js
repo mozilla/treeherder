@@ -6,43 +6,27 @@ import { getAllUrlParams, getRepo } from './location';
 import { getAction } from './taskcluster';
 import { formatTaskclusterError } from './errorMessage';
 
-const btnClasses = {
-  busted: 'btn-red',
-  exception: 'btn-purple',
-  testfailed: 'btn-orange',
-  usercancel: 'btn-pink',
-  retry: 'btn-dkblue',
-  success: 'btn-green',
-  running: 'btn-dkgray',
-  pending: 'btn-ltgray',
-  superseded: 'btn-ltblue',
-  failures: 'btn-red',
-  'in progress': 'btn-dkgray',
-};
-
 // failure classification ids that should be shown in "unclassified" mode
 // TODO: consider dropping 8 from this list, only here for full compatibility
 export const thUnclassifiedIds = [1, 6, 7, 8];
 
-// Get the CSS class for job buttons as well as jobs that show in the pinboard.
-// These also apply to result "groupings" like ``failures`` and ``in progress``
-// for the colored filter chicklets on the nav bar.
+// Get the status and classification state for job buttons
+// Returns an object with status value and classified boolean for data attributes
 export const getBtnClass = function getBtnClass(
   resultStatus,
   failureClassificationId,
 ) {
-  let btnClass = btnClasses[resultStatus] || 'btn-default';
+  const status = resultStatus || 'unknown';
 
-  // handle if a job is classified > 1
-  // and not "NEW failure", classification == 6
+  // Check if a job is classified (> 1 and not "NEW failure" classification == 6)
   // TODO: consider dropping 8 from this list, only here for full compatibility
-  if (
-    failureClassificationId > 1 &&
-    ![6, 8].includes(failureClassificationId)
-  ) {
-    btnClass += '-classified';
-  }
-  return btnClass;
+  const isClassified =
+    failureClassificationId > 1 && ![6, 8].includes(failureClassificationId);
+
+  return {
+    status,
+    isClassified,
+  };
 };
 
 export const isReftest = function isReftest(job) {

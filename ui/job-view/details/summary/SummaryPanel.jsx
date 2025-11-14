@@ -116,11 +116,13 @@ SummaryPanel.propTypes = {
   selectedJobFull: PropTypes.shape({}).isRequired,
   latestClassification: PropTypes.shape({}),
   jobLogUrls: PropTypes.arrayOf(PropTypes.shape({})),
-  jobDetails: PropTypes.arrayOf({
-    url: PropTypes.string.isRequired,
-    value: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-  }),
+  jobDetails: PropTypes.arrayOf(
+    PropTypes.shape({
+      url: PropTypes.string.isRequired,
+      value: PropTypes.string.isRequired,
+      title: PropTypes.string.isRequired,
+    }),
+  ),
   jobDetailLoading: PropTypes.bool,
   logParseStatus: PropTypes.string,
   logViewerUrl: PropTypes.string,

@@ -198,6 +198,11 @@ describe('Filtering', () => {
       );
       expect(unfilteredPushes).toHaveLength(10);
 
+      // Open the filters dropdown to reveal menu items
+      const filtersDropdown = await waitFor(() => getByTitle('Set filters'));
+      fireEvent.click(filtersDropdown);
+
+      // Wait for dropdown to open and find "My pushes only"
       const myPushes = await waitFor(() => getByText('My pushes only'));
       fireEvent.click(myPushes);
 
@@ -368,8 +373,15 @@ describe('Filtering', () => {
   });
 
   describe('by result status', () => {
+    const statusMap = {
+      green: 'success',
+      red: 'failures',
+      dkgray: 'in progress',
+    };
+
     const clickFilterChicklet = (color) => {
-      fireEvent.click(document.querySelector(`.btn-${color}-filter-chicklet`));
+      const status = statusMap[color];
+      fireEvent.click(document.querySelector(`[data-status="${status}"]`));
     };
 
     test('uncheck success should leave 30 jobs', async () => {

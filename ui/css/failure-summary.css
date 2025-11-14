@@ -2,6 +2,34 @@
  * Failure summary
  */
 
+/* Failure action buttons - use Bootstrap 5 custom properties */
+.failure-action-btn {
+  --bs-btn-font-size: 8px;
+  --bs-btn-padding-y: 0.25rem;
+  --bs-btn-padding-x: 0.5rem;
+  --bs-btn-line-height: 1;
+}
+
+/* Bug suggestions and links */
+.failure-summary-bugs {
+  font-size: 11px;
+}
+
+.failure-summary-bugs a {
+  color: #337ab7;
+}
+
+.failure-summary-bugs a:visited {
+  color: purple;
+}
+
+/* Show more button */
+.show-more-suggestions {
+  --bs-btn-font-size: 11px;
+  --bs-btn-padding-y: 0.25rem;
+  --bs-btn-padding-x: 0.5rem;
+}
+
 .failure-summary-line-empty {
   padding: 2px 4px 0;
   font-size: 12px;
@@ -25,6 +53,14 @@
 .failure-summary-new-message {
   padding: 2px 4px 0;
   font-size: 11px;
+  background-color: var(--failure-bg-color);
+  color: var(--failure-color);
+}
+
+.btn-orange {
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 700;
   background-color: var(--failure-bg-color);
   color: var(--failure-color);
 }

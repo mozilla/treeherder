@@ -13,7 +13,7 @@ export default class JobTestGroups extends React.PureComponent {
             <strong>Test Groups</strong>
             <ul className="list-unstyled">
               {testGroups.map((testGroup) => (
-                <li className="small" key={testGroup}>
+                <li className="fs-80" key={testGroup}>
                   <a
                     href={`${currentLocation}&test_paths=${testGroup}`}
                     target="_blank"
