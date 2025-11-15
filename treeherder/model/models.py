@@ -114,7 +114,7 @@ class Repository(models.Model):
         db_table = "repository"
         verbose_name_plural = "repositories"
         indexes = [
-            models.Index(fields=['url', 'active_status'], name='repo_url_active_idx'),
+            models.Index(fields=["url", "active_status"], name="repo_url_active_idx"),
         ]
 
     @classmethod
