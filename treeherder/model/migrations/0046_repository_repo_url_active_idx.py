@@ -6,7 +6,7 @@ class Migration(migrations.Migration):
     atomic = False
 
     dependencies = [
-        ('model', '0045_alter_failureline_expected_alter_failureline_level_and_more'),
+        ("model", "0045_alter_failureline_expected_alter_failureline_level_and_more"),
     ]
 
     operations = [
@@ -19,8 +19,8 @@ class Migration(migrations.Migration):
             ],
             state_operations=[
                 migrations.AddIndex(
-                    model_name='repository',
-                    index=models.Index(fields=['url', 'active_status'], name='repo_url_active_idx'),
+                    model_name="repository",
+                    index=models.Index(fields=["url", "active_status"], name="repo_url_active_idx"),
                 ),
             ],
         ),
