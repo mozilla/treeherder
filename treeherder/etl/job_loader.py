@@ -52,6 +52,7 @@ class JobLoader:
         "superseded": "superseded",
         "unknown": "unknown",
     }
+
     TIME_FIELD_MAP = {
         "submit_timestamp": "timeScheduled",
         "start_timestamp": "timeStarted",
