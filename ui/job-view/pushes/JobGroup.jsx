@@ -89,11 +89,11 @@ export class JobGroupComponent extends React.Component {
       const typeSymbolCounts = countBy(jobs, 'job_type_symbol');
       jobs.forEach((job) => {
         const { resultStatus, visible } = job;
-        const btnClass = getBtnClass(resultStatus);
+        const { status } = getBtnClass(resultStatus);
         if (!visible) return;
 
         let countInfo = {
-          btnClass,
+          status,
           countText: resultStatus,
         };
         if (
@@ -103,19 +103,19 @@ export class JobGroupComponent extends React.Component {
           // render the job itself, not a count
           buttons.push(job);
         } else {
-          countInfo = { ...countInfo, ...stateCounts[countInfo.btnClass] };
+          countInfo = { ...countInfo, ...stateCounts[countInfo.status] };
           if (selectedTaskRun === job.task_run || countInfo.selectedClasses) {
             countInfo.selectedClasses = ' selected-count btn-lg-xform';
           } else {
             countInfo.selectedClasses = '';
           }
-          if (stateCounts[countInfo.btnClass]) {
-            countInfo.count = stateCounts[countInfo.btnClass].count + 1;
+          if (stateCounts[countInfo.status]) {
+            countInfo.count = stateCounts[countInfo.status].count + 1;
           } else {
             countInfo.count = 1;
           }
           countInfo.lastJob = job;
-          stateCounts[countInfo.btnClass] = countInfo;
+          stateCounts[countInfo.status] = countInfo;
         }
       });
       Object.entries(stateCounts).forEach(([, countInfo]) => {
@@ -195,7 +195,8 @@ export class JobGroupComponent extends React.Component {
                 <JobCount
                   count={countInfo.count}
                   onClick={this.toggleExpanded}
-                  className={`${countInfo.btnClass}-count${countInfo.selectedClasses}`}
+                  className={countInfo.selectedClasses}
+                  status={countInfo.status}
                   title={`${countInfo.count} ${countInfo.countText} jobs in group`}
                   key={countInfo.lastJob.id}
                 />

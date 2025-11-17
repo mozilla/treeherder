@@ -1,13 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import {
-  Button,
-  DropdownMenu,
-  DropdownItem,
-  DropdownToggle,
-  UncontrolledDropdown,
-} from 'reactstrap';
+import { Button, Dropdown } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartBar } from '@fortawesome/free-regular-svg-icons';
 import {
@@ -372,7 +366,7 @@ class ActionBar extends React.PureComponent {
               <Button
                 id="pin-job-btn"
                 title="Add this job to the pinboard"
-                className="actionbar-nav-btn icon-blue bg-transparent border-0"
+                className="actionbar-nav-btn bg-transparent border-0"
                 onClick={() => pinJob(selectedJobFull)}
               >
                 <FontAwesomeIcon icon={faThumbtack} title="Pin job" />
@@ -427,7 +421,7 @@ class ActionBar extends React.PureComponent {
               <Button
                 id="find-job-btn"
                 title="Scroll to selection"
-                className="actionbar-nav-btn icon-blue bg-transparent border-0"
+                className="actionbar-nav-btn bg-transparent border-0"
                 onClick={() =>
                   findJobInstance(jobLogUrls[0] && jobLogUrls[0].job_id, true)
                 }
@@ -449,32 +443,65 @@ class ActionBar extends React.PureComponent {
                 </Button>
               </li>
             )}
-            <li className="ml-auto">
-              <UncontrolledDropdown>
-                <DropdownToggle className="bg-transparent text-light border-0 pr-2 py-2 m-0">
+            <li className="ms-auto d-flex align-items-center">
+              <Dropdown>
+                <Dropdown.Toggle
+                  className="bg-transparent text-light border-0 pe-2 py-2 m-0 d-flex align-items-center"
+                  bsPrefix="btn"
+                >
                   <FontAwesomeIcon
                     icon={faEllipsisH}
                     title="Other job actions"
-                    className="align-baseline"
                   />
-                </DropdownToggle>
-                <DropdownMenu className="actionbar-menu dropdown-menu-right">
-                  <DropdownItem
-                    tag="a"
+                </Dropdown.Toggle>
+                <Dropdown.Menu
+                  className="actionbar-menu dropdown-menu"
+                  align="start"
+                  style={{
+                    zIndex: 10000,
+                  }}
+                  popperConfig={{
+                    strategy: 'fixed',
+                    modifiers: [
+                      {
+                        name: 'offset',
+                        options: {
+                          offset: [0, 4],
+                        },
+                      },
+                      {
+                        name: 'preventOverflow',
+                        options: {
+                          boundary: 'viewport',
+                          padding: 8,
+                        },
+                      },
+                      {
+                        name: 'flip',
+                        options: {
+                          fallbackPlacements: ['bottom-end', 'top-end'],
+                        },
+                      },
+                    ],
+                  }}
+                  renderOnMount
+                >
+                  <Dropdown.Item
+                    as="a"
                     id="backfill-btn"
                     className={`${!this.canBackfill() ? 'disabled' : ''}`}
                     title={this.backfillButtonTitle()}
                     onClick={() => !this.canBackfill() || this.backfillJob()}
                   >
                     Backfill
-                  </DropdownItem>
+                  </Dropdown.Item>
                   {selectedJobFull.task_id && (
                     <React.Fragment>
-                      <DropdownItem
-                        tag="a"
+                      <Dropdown.Item
+                        as="a"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="pl-4"
+                        className="ps-4"
                         href={getInspectTaskUrl(
                           selectedJobFull.task_id,
                           checkRootUrl(currentRepo.tc_root_url),
@@ -482,53 +509,53 @@ class ActionBar extends React.PureComponent {
                         )}
                       >
                         Inspect Task
-                      </DropdownItem>
-                      <DropdownItem
-                        tag="a"
+                      </Dropdown.Item>
+                      <Dropdown.Item
+                        as="a"
                         className="py-2"
                         onClick={this.createInteractiveTask}
                       >
                         Create Interactive Task
-                      </DropdownItem>
+                      </Dropdown.Item>
                       {isPerfTest(selectedJobFull) && (
-                        <DropdownItem
-                          tag="a"
+                        <Dropdown.Item
+                          as="a"
                           className="py-2"
                           onClick={this.createGeckoProfile}
                         >
                           Create Gecko Profile
-                        </DropdownItem>
+                        </Dropdown.Item>
                       )}
                       {isPerfTest(selectedJobFull) &&
                         !selectedJobFull.hasSideBySide && (
-                          <DropdownItem
-                            tag="a"
+                          <Dropdown.Item
+                            as="a"
                             className="py-2"
                             onClick={this.createSideBySide}
                           >
                             Generate side-by-side
-                          </DropdownItem>
+                          </Dropdown.Item>
                         )}
                       {canConfirmFailure(selectedJobFull) && (
-                        <DropdownItem
-                          tag="a"
+                        <Dropdown.Item
+                          as="a"
                           className="py-2"
                           onClick={this.handleConfirmFailure}
                         >
                           Confirm Test Failures
-                        </DropdownItem>
+                        </Dropdown.Item>
                       )}
-                      <DropdownItem
-                        tag="a"
+                      <Dropdown.Item
+                        as="a"
                         onClick={this.toggleCustomJobActions}
                         className="dropdown-item"
                       >
                         Custom Action...
-                      </DropdownItem>
+                      </Dropdown.Item>
                     </React.Fragment>
                   )}
-                </DropdownMenu>
-              </UncontrolledDropdown>
+                </Dropdown.Menu>
+              </Dropdown>
             </li>
           </ul>
         </nav>

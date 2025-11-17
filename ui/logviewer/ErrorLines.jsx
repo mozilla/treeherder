@@ -17,7 +17,7 @@ export default class ErrorLines extends React.PureComponent {
                 onClick={() => onClickLine([error.lineNumber], true)}
                 className="error-line pointable small"
               >
-                <td className="badge badge-secondary pb-1 pr-1 rounded-0">
+                <td className="badge text-bg-secondary pb-1 pe-1 rounded-0">
                   {error.lineNumber}
                 </td>
                 <td className="error-line-text">

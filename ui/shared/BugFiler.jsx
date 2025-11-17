@@ -1,17 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import {
-  Button,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Tooltip,
-  FormGroup,
-  Input,
-  Label,
-} from 'reactstrap';
+import { Button, Modal, OverlayTrigger, Tooltip, Form } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faChevronCircleDown,
@@ -189,7 +179,6 @@ export class BugFilerClass extends React.Component {
     }
 
     this.state = {
-      tooltipOpen: {},
       summary: `Intermittent ${summaryString}`,
       productSearch: null,
       suggestedProducts: [],
@@ -563,13 +552,6 @@ export class BugFilerClass extends React.Component {
     notify(failureString, 'danger', { sticky: true });
   };
 
-  toggleTooltip = (key) => {
-    const { tooltipOpen } = this.state;
-    this.setState({
-      tooltipOpen: { ...tooltipOpen, [key]: !tooltipOpen[key] },
-    });
-  };
-
   checkForSecurityIssue() {
     const { comment, isSecurityIssue, summary } = this.state;
 
@@ -628,7 +610,6 @@ export class BugFilerClass extends React.Component {
       summary,
       searching,
       checkedLogLinks,
-      tooltipOpen,
       selectedProduct,
     } = this.state;
     const searchTerms = suggestion.search_terms;
@@ -637,32 +618,32 @@ export class BugFilerClass extends React.Component {
 
     return (
       <div>
-        <Modal isOpen={isOpen} toggle={toggle} size="lg">
-          <ModalHeader toggle={toggle}>Intermittent Bug Filer</ModalHeader>
-          <ModalBody>
+        <Modal show={isOpen} onHide={toggle} size="lg">
+          <Modal.Header closeButton>
+            <Modal.Title>Intermittent Bug Filer</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
             <form className="d-flex flex-column">
               <div className="d-inline-flex">
-                <Input
-                  name="modalProductFinderSearch"
-                  id="modalProductFinderSearch"
-                  onKeyDown={this.productSearchEnter}
-                  onChange={(evt) =>
-                    this.setState({ productSearch: evt.target.value })
-                  }
-                  type="text"
-                  placeholder="e.g. Firefox, Toolkit, Testing"
-                  className="flex-fill flex-grow-1"
-                />
-                <Tooltip
-                  target="modalProductFinderSearch"
-                  isOpen={tooltipOpen.modalProductFinderSearch}
-                  toggle={() => this.toggleTooltip('modalProductFinderSearch')}
+                <OverlayTrigger
+                  placement="top"
+                  overlay={<Tooltip>Manually search for a product</Tooltip>}
                 >
-                  Manually search for a product
-                </Tooltip>
+                  <Form.Control
+                    name="modalProductFinderSearch"
+                    id="modalProductFinderSearch"
+                    onKeyDown={this.productSearchEnter}
+                    onChange={(evt) =>
+                      this.setState({ productSearch: evt.target.value })
+                    }
+                    type="text"
+                    placeholder="e.g. Firefox, Toolkit, Testing"
+                    className="flex-fill flex-grow-1"
+                  />
+                </OverlayTrigger>
                 <Button
-                  color="secondary"
-                  className="ml-1 btn-sm"
+                  variant="secondary"
+                  className="ms-1 btn-sm"
                   type="button"
                   onClick={this.findProduct}
                 >
@@ -681,56 +662,52 @@ export class BugFilerClass extends React.Component {
                     Searching {productSearch}
                   </div>
                 )}
-                <FormGroup tag="fieldset" className="mt-1">
+                <Form.Group tag="fieldset" className="mt-1 mb-3">
                   {suggestedProducts.map((product) => (
-                    <div
-                      className="ml-4"
+                    <Form.Check
+                      // className="ms-4"
                       key={`modalProductSuggestion${product}`}
-                    >
-                      <Label check>
-                        <Input
-                          type="radio"
-                          value={product}
-                          checked={product === selectedProduct}
-                          onChange={(evt) =>
-                            this.setState({ selectedProduct: evt.target.value })
-                          }
-                          name="productGroup"
-                        />
-                        {product}
-                      </Label>
-                    </div>
+                      type="radio"
+                      id={`product-${product}`}
+                      label={product}
+                      value={product}
+                      checked={product === selectedProduct}
+                      onChange={(evt) =>
+                        this.setState({ selectedProduct: evt.target.value })
+                      }
+                      name="productGroup"
+                    />
                   ))}
-                </FormGroup>
+                </Form.Group>
               </div>
-              <Label for="summary">Summary:</Label>
+              <Form.Label htmlFor="summary">Summary:</Form.Label>
               <div className="d-flex">
                 {!!unhelpfulSummaryReason && (
                   <div>
                     <div className="text-danger">
-                      <FontAwesomeIcon
-                        icon={faExclamationTriangle}
-                        id="unhelpful-summary-reason"
-                      />
-                      Warning: {unhelpfulSummaryReason}
-                      <Tooltip
-                        target="unhelpful-summary-reason"
-                        isOpen={tooltipOpen.unhelpfulSummaryReason}
-                        toggle={() =>
-                          this.toggleTooltip('unhelpfulSummaryReason')
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={
+                          <Tooltip>
+                            This can cause poor bug suggestions to be generated
+                          </Tooltip>
                         }
                       >
-                        This can cause poor bug suggestions to be generated
-                      </Tooltip>
+                        <FontAwesomeIcon
+                          icon={faExclamationTriangle}
+                          id="unhelpful-summary-reason"
+                        />
+                      </OverlayTrigger>
+                      Warning: {unhelpfulSummaryReason}
                     </div>
                     {searchTerms.map((term) => (
-                      <div className="text-monospace pl-3" key={term}>
+                      <div className="font-monospace ps-3" key={term}>
                         {term}
                       </div>
                     ))}
                   </div>
                 )}
-                <Input
+                <Form.Control
                   id="summary"
                   className="flex-grow-1"
                   type="text"
@@ -743,34 +720,36 @@ export class BugFilerClass extends React.Component {
                   }
                   value={summary}
                 />
-                <Tooltip
-                  target="toggle-failure-lines"
-                  isOpen={tooltipOpen.toggleFailureLines}
-                  toggle={() => this.toggleTooltip('toggleFailureLines')}
+                <OverlayTrigger
+                  placement="top"
+                  overlay={
+                    <Tooltip>
+                      {isFilerSummaryVisible
+                        ? 'Hide all failure lines for this job'
+                        : 'Show all failure lines for this job'}
+                    </Tooltip>
+                  }
                 >
-                  {isFilerSummaryVisible
-                    ? 'Hide all failure lines for this job'
-                    : 'Show all failure lines for this job'}
-                </Tooltip>
-                <FontAwesomeIcon
-                  onClick={() =>
-                    this.setState({
-                      isFilerSummaryVisible: !isFilerSummaryVisible,
-                    })
-                  }
-                  icon={
-                    isFilerSummaryVisible
-                      ? faChevronCircleUp
-                      : faChevronCircleDown
-                  }
-                  size="lg"
-                  className="pointable align-bottom pt-2 ml-1"
-                  id="toggle-failure-lines"
-                  title={isFilerSummaryVisible ? 'collapse' : 'expand'}
-                />
+                  <FontAwesomeIcon
+                    onClick={() =>
+                      this.setState({
+                        isFilerSummaryVisible: !isFilerSummaryVisible,
+                      })
+                    }
+                    icon={
+                      isFilerSummaryVisible
+                        ? faChevronCircleUp
+                        : faChevronCircleDown
+                    }
+                    size="lg"
+                    className="pointable align-bottom pt-2 ms-1"
+                    id="toggle-failure-lines"
+                    title={isFilerSummaryVisible ? 'collapse' : 'expand'}
+                  />
+                </OverlayTrigger>
                 <span
                   id="summaryLength"
-                  className={`ml-1 font-weight-bold lg ${
+                  className={`ms-1 font-weight-bold lg align-self-center ${
                     summary.length > 255 ? 'text-danger' : 'text-success'
                   }`}
                 >
@@ -779,9 +758,9 @@ export class BugFilerClass extends React.Component {
               </div>
               {isFilerSummaryVisible && (
                 <span>
-                  <Input
+                  <Form.Control
                     className="w-100"
-                    type="textarea"
+                    as="textarea"
                     value={thisFailure}
                     readOnly
                     onChange={(evt) =>
@@ -790,16 +769,16 @@ export class BugFilerClass extends React.Component {
                   />
                 </span>
               )}
-              <div className="ml-5 mt-2">
-                <div>
-                  <Label>
-                    <Input
-                      type="checkbox"
-                      checked={checkedLogLinks.has('Parsed log')}
-                      onChange={() =>
-                        this.toggleCheckedLogLink('Parsed log', parsedLog)
-                      }
-                    />
+              <div className="ms-4 mt-2">
+                <Form.Check
+                  className="mb-2"
+                  type="checkbox"
+                  id="parsed-log-checkbox"
+                  checked={checkedLogLinks.has('Parsed log')}
+                  onChange={() =>
+                    this.toggleCheckedLogLink('Parsed log', parsedLog)
+                  }
+                  label={
                     <a
                       target="_blank"
                       rel="noopener noreferrer"
@@ -807,32 +786,32 @@ export class BugFilerClass extends React.Component {
                     >
                       Include Parsed Log Link
                     </a>
-                  </Label>
-                </div>
-                <div>
-                  <Label>
-                    <Input
-                      type="checkbox"
-                      checked={checkedLogLinks.has('Full log')}
-                      onChange={() =>
-                        this.toggleCheckedLogLink('Full log', fullLog)
-                      }
-                    />
+                  }
+                />
+                <Form.Check
+                  className="mb-1"
+                  type="checkbox"
+                  id="full-log-checkbox"
+                  checked={checkedLogLinks.has('Full log')}
+                  onChange={() =>
+                    this.toggleCheckedLogLink('Full log', fullLog)
+                  }
+                  label={
                     <a target="_blank" rel="noopener noreferrer" href={fullLog}>
                       Include Full Log Link
                     </a>
-                  </Label>
-                </div>
+                  }
+                />
                 {!!reftestUrl && (
-                  <div>
-                    <Label>
-                      <Input
-                        type="checkbox"
-                        checked={checkedLogLinks.has('Reftest URL')}
-                        onChange={() =>
-                          this.toggleCheckedLogLink('Reftest URL', reftestUrl)
-                        }
-                      />
+                  <Form.Check
+                    className="mb-1"
+                    type="checkbox"
+                    id="reftest-url-checkbox"
+                    checked={checkedLogLinks.has('Reftest URL')}
+                    onChange={() =>
+                      this.toggleCheckedLogLink('Reftest URL', reftestUrl)
+                    }
+                    label={
                       <a
                         target="_blank"
                         rel="noopener noreferrer"
@@ -840,130 +819,120 @@ export class BugFilerClass extends React.Component {
                       >
                         Include Reftest Viewer Link
                       </a>
-                    </Label>
-                  </div>
+                    }
+                  />
                 )}
               </div>
               <div className="d-flex flex-column">
-                <Label for="summary-input">Comment:</Label>
-                <Input
+                <Form.Label htmlFor="summary-input">Comment:</Form.Label>
+                <Form.Control
                   onChange={(evt) =>
                     this.setState({ comment: evt.target.value }, () =>
                       this.checkForSecurityIssue(),
                     )
                   }
-                  type="textarea"
+                  as="textarea"
                   id="summary-input"
                   className="flex-grow-1"
                   rows={5}
                 />
               </div>
-              <div className="d-inline-flex mt-2 ml-5">
-                <div className="mt-2">
-                  <Label>
-                    <Input
-                      onChange={() =>
-                        this.setState({ isIntermittent: !isIntermittent })
-                      }
-                      type="checkbox"
-                      checked={isIntermittent}
-                    />
-                    This is an intermittent failure
-                  </Label>
-                </div>
-                <div className="d-inline-flex ml-2">
-                  <Input
-                    id="regressedBy"
-                    type="text"
-                    className="ml-1"
-                    onChange={(evt) =>
-                      this.setState({ regressedBy: evt.target.value })
-                    }
-                    placeholder="Regressed by"
-                  />
-                  <Tooltip
-                    target="regressedBy"
-                    placement="bottom"
-                    isOpen={tooltipOpen.regressedBy}
-                    toggle={() => this.toggleTooltip('regressedBy')}
-                  >
-                    Comma-separated list of bugs
-                  </Tooltip>
-                  <Input
-                    id="seeAlso"
-                    className="ml-1"
-                    type="text"
-                    onChange={(evt) =>
-                      this.setState({ seeAlso: evt.target.value })
-                    }
-                    placeholder="See also"
-                  />
-                  <Tooltip
-                    target="seeAlso"
-                    placement="bottom"
-                    isOpen={tooltipOpen.seeAlso}
-                    toggle={() => this.toggleTooltip('seeAlso')}
-                  >
-                    Comma-separated list of bugs
-                  </Tooltip>
-                </div>
-              </div>
-              <div className="d-inline-flex mt-2 ml-5">
-                <Label>
-                  <Input
-                    id="securityIssue"
-                    onChange={() =>
-                      this.setState({ isSecurityIssue: !isSecurityIssue })
-                    }
+              <div className="ms-4">
+                <div className="intermittent-failure-fields d-inline-flex flex-start mb-1 mt-2">
+                  <Form.Check
                     type="checkbox"
-                    checked={isSecurityIssue}
+                    id="intermittent-checkbox"
+                    checked={isIntermittent}
+                    onChange={() =>
+                      this.setState({ isIntermittent: !isIntermittent })
+                    }
+                    className="mt-4"
+                    label="This is an intermittent failure"
                   />
-                  Report this as a security issue
-                </Label>
-              </div>
-              {['autoland', 'mozilla-central', 'try'].includes(
-                currentRepo.name,
-              ) && (
-                <div className="d-inline-flex mt-2 ml-5">
-                  <Label>
-                    <Input
+                  <OverlayTrigger
+                    placement="top"
+                    overlay={<Tooltip>Comma-separated list of bugs</Tooltip>}
+                  >
+                    <Form.Control
+                      id="regressedBy"
+                      type="text"
+                      className="ms-1"
+                      onChange={(evt) =>
+                        this.setState({ regressedBy: evt.target.value })
+                      }
+                      placeholder="Regressed by"
+                    />
+                  </OverlayTrigger>
+                  <OverlayTrigger
+                    placement="top"
+                    overlay={<Tooltip>Comma-separated list of bugs</Tooltip>}
+                  >
+                    <Form.Control
+                      id="seeAlso"
+                      className="ms-1"
+                      type="text"
+                      onChange={(evt) =>
+                        this.setState({ seeAlso: evt.target.value })
+                      }
+                      placeholder="See also"
+                    />
+                  </OverlayTrigger>
+                </div>
+                <Form.Check
+                  className="mb-3"
+                  type="checkbox"
+                  id="security-issue-checkbox"
+                  checked={isSecurityIssue}
+                  onChange={() =>
+                    this.setState({ isSecurityIssue: !isSecurityIssue })
+                  }
+                  label="Report this as a security issue"
+                />
+                {['autoland', 'mozilla-central', 'try'].includes(
+                  currentRepo.name,
+                ) && (
+                  <div className="mb-2">
+                    <Form.Check
                       type="checkbox"
+                      id="confirm-failure-checkbox"
                       checked={launchConfirmFailure}
                       onChange={() =>
                         this.setState({
                           launchConfirmFailure: !launchConfirmFailure,
                         })
                       }
+                      label="Launch the Confirm Failures task at bug submission"
                     />
-                    Launch the Confirm Failures task at bug submission
-                  </Label>
-                </div>
-              )}
-              {!!crashSignatures.length && (
-                <div>
-                  <Label for="signature-input">Signature:</Label>
-                  <Input
-                    type="textarea"
-                    id="signature-input"
-                    onChange={(evt) =>
-                      this.setState({ crashSignatures: evt.target.value })
-                    }
-                    maxLength="2048"
-                    readOnly
-                    value={crashSignatures.join('\n')}
-                  />
-                </div>
-              )}
+                  </div>
+                )}
+                {!!crashSignatures.length && (
+                  <div>
+                    <Form.Label htmlFor="signature-input">
+                      Signature:
+                    </Form.Label>
+                    <Form.Control
+                      as="textarea"
+                      id="signature-input"
+                      onChange={(evt) =>
+                        this.setState({ crashSignatures: evt.target.value })
+                      }
+                      maxLength="2048"
+                      readOnly
+                      value={crashSignatures.join('\n')}
+                    />
+                  </div>
+                )}
+              </div>
             </form>
-          </ModalBody>
-          <ModalFooter>
-            <Button color="secondary" onClick={this.submitFiler}>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={this.submitFiler}>
               Submit Bug
             </Button>{' '}
-            <Button color="secondary" onClick={toggle}>
+            <Button variant="secondary" onClick={toggle}>
               Cancel
             </Button>
-          </ModalFooter>
+          </Modal.Footer>
         </Modal>
       </div>
     );
@@ -974,43 +943,48 @@ BugFilerClass.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   toggle: PropTypes.func.isRequired,
   suggestion: PropTypes.shape({}).isRequired,
-  suggestions: PropTypes.arrayOf({
-    bugs: PropTypes.shape({
-      open_recent: PropTypes.arrayOf({
-        crash_signature: PropTypes.string.isRequired,
-        dupe_of: PropTypes.oneOfType([
-          PropTypes.oneOf([null]),
-          PropTypes.number,
-        ]).isRequired,
-        id: PropTypes.number.isRequired,
-        keywords: PropTypes.string.isRequired,
-        status: PropTypes.string.isRequired,
-        resolution: PropTypes.string.isRequired,
-        summary: PropTypes.string.isRequired,
-        whiteboard: PropTypes.string.isRequired,
+  suggestions: PropTypes.arrayOf(
+    PropTypes.shape({
+      bugs: PropTypes.shape({
+        open_recent: PropTypes.arrayOf(
+          PropTypes.shape({
+            crash_signature: PropTypes.string.isRequired,
+            dupe_of: PropTypes.oneOfType([
+              PropTypes.oneOf([null]),
+              PropTypes.number,
+            ]).isRequired,
+            id: PropTypes.number.isRequired,
+            keywords: PropTypes.string.isRequired,
+            status: PropTypes.string.isRequired,
+            resolution: PropTypes.string.isRequired,
+            summary: PropTypes.string.isRequired,
+            whiteboard: PropTypes.string.isRequired,
+          }),
+        ),
+        all_others: PropTypes.arrayOf(
+          PropTypes.shape({
+            crash_signature: PropTypes.string.isRequired,
+            dupe_of: PropTypes.oneOfType([
+              PropTypes.oneOf([null]),
+              PropTypes.number,
+            ]).isRequired,
+            id: PropTypes.number.isRequired,
+            keywords: PropTypes.string.isRequired,
+            status: PropTypes.string.isRequired,
+            resolution: PropTypes.string.isRequired,
+            summary: PropTypes.string.isRequired,
+            whiteboard: PropTypes.string.isRequired,
+          }),
+        ),
       }),
-      all_others: PropTypes.arrayOf({
-        crash_signature: PropTypes.string.isRequired,
-        dupe_of: PropTypes.oneOfType([
-          PropTypes.oneOf([null]),
-          PropTypes.number,
-        ]).isRequired,
-        id: PropTypes.number.isRequired,
-        keywords: PropTypes.string.isRequired,
-        status: PropTypes.string.isRequired,
-        resolution: PropTypes.string.isRequired,
-        summary: PropTypes.string.isRequired,
-        whiteboard: PropTypes.string.isRequired,
-      }),
+      counter: PropTypes.number.isRequired,
+      failure_in_new_rev: PropTypes.bool.isRequired,
+      line_number: PropTypes.number.isRequired,
+      path_end: PropTypes.string,
+      search: PropTypes.string.isRequired,
+      search_terms: PropTypes.arrayOf(PropTypes.string),
     }),
-    counter: PropTypes.number.isRequired,
-    failure_in_new_rev: PropTypes.bool.isRequired,
-    line_number: PropTypes.number.isRequired,
-    path_end: PropTypes.oneOfType([PropTypes.oneOf([null]), PropTypes.string])
-      .isRequired,
-    search: PropTypes.string.isRequired,
-    search_terms: PropTypes.arrayOf(PropTypes.string),
-  }).isRequired,
+  ).isRequired,
   fullLog: PropTypes.string.isRequired,
   parsedLog: PropTypes.string.isRequired,
   reftestUrl: PropTypes.string.isRequired,
@@ -1018,7 +992,7 @@ BugFilerClass.propTypes = {
   platform: PropTypes.string.isRequired,
   notify: PropTypes.func.isRequired,
   selectedJob: PropTypes.shape({}).isRequired,
-  currentRepo: PropTypes.string.isRequired,
+  currentRepo: PropTypes.shape({ name: PropTypes.string }).isRequired,
 };
 
 const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({

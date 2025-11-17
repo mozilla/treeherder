@@ -6,7 +6,7 @@ import {
   faExternalLinkAlt,
   faSpinner,
 } from '@fortawesome/free-solid-svg-icons';
-import { Table } from 'reactstrap';
+import { Table } from 'react-bootstrap';
 
 import { getJobsUrl } from '../../../helpers/url';
 import { notify } from '../../redux/stores/notifications';
@@ -132,14 +132,14 @@ class SideBySide extends React.PureComponent {
                 href={beforeJobLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-monospace ml-1"
+                className="font-monospace ms-1"
               >
-                (<FontAwesomeIcon icon={faExternalLinkAlt} className="mr-2" />
+                (<FontAwesomeIcon icon={faExternalLinkAlt} className="me-2" />
                 job)
               </a>
             </div>
             <Clipboard description="job link" text={beforeJobLink} />
-            <div className="pt-1 ml-1">
+            <div className="pt-1 ms-1">
               <strong>After: </strong>
 
               <span>
@@ -151,9 +151,9 @@ class SideBySide extends React.PureComponent {
                 href={afterJobLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-monospace ml-1"
+                className="font-monospace ms-1"
               >
-                (<FontAwesomeIcon icon={faExternalLinkAlt} className="mr-2" />
+                (<FontAwesomeIcon icon={faExternalLinkAlt} className="me-2" />
                 job)
               </a>
             </div>

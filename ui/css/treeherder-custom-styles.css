@@ -10,6 +10,11 @@
  * when adding new styles.
  */
 
+/*
+ * Font sizing is now handled by Bootstrap 5 custom variables in bootstrap-custom.scss
+ * Link text-decoration is handled by Bootstrap 5 variables
+ */
+
 /* Bootstrap 4 will not show <a> as a link style if it has no href.
    This adds that style back. */
 .link-style {
@@ -59,6 +64,10 @@
   font-size: 24px;
 }
 
+.fs-80 {
+  font-size: 80% !important;
+}
+
 .font-weight-400 {
   font-weight: 400;
 }
@@ -102,18 +111,24 @@
   cursor: pointer;
 }
 
-.dropdown-menu > li.disabled > a {
+.dropdown-menu > li:disabled > a {
   pointer-events: none;
   font-style: italic;
   color: grey;
 }
 
-.dropdown-menu > li.disabled {
+.dropdown-menu > li:disabled {
   cursor: not-allowed;
 }
 
 .dropdown-item {
   cursor: pointer;
+  color: #212529 !important;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  color: #1e2125 !important;
 }
 
 .form-control:focus {
@@ -315,6 +330,12 @@
   color: #0d7d8f;
 }
 
+.alert-info {
+  color: #0c5460;
+  background-color: #d1ecf1;
+  border-color: #bee5eb;
+}
+
 .alert-darker-info,
 .badge-darker-info {
   background: #0d7d8f;
@@ -326,8 +347,8 @@
 }
 
 .btn-darker-info {
-  background-color: #0d7d8f;
-  border-color: #0d7d8f;
+  background-color: #17a2b8;
+  border-color: #17a2b8;
   color: #ffffff;
 }
 
@@ -336,9 +357,10 @@
   background-color: #0a5e6d;
 }
 
-.btn-darker-info.disabled {
-  color: black;
-  background-color: #30b9ce80;
+.btn-darker-info:disabled {
+  color: #ffffff;
+  background-color: #5bc0de;
+  border-color: #5bc0de;
 }
 
 .btn-outline-darker-info {
@@ -347,13 +369,13 @@
 }
 
 .btn-outline-darker-info:hover,
-.btn-outline-darker-info:not(:disabled):not(.disabled).active {
+.btn-outline-darker-info:not(:disabled).active {
   background-color: #0d7d8f;
   border-color: #0d7d8f;
   color: #ffffff;
 }
 
-.btn-outline-darker-info.disabled {
+.btn-outline-darker-info:disabled {
   color: #02363f;
   background-color: white;
   border-color: #0d7d8f;
@@ -374,29 +396,34 @@
   background-color: #6c757d;
 }
 
-.btn-darker-secondary {
-  color: #ffffff;
+.btn-darker-secondary,
+a.btn-darker-secondary,
+a.btn-darker-secondary:visited {
+  color: #ffffff !important;
   background-color: #6c757d;
   border-color: #6c757d;
 }
 
-.btn-darker-secondary:hover {
-  color: #ffffff;
+.btn-darker-secondary:hover,
+a.btn-darker-secondary:hover {
+  color: #ffffff !important;
   background-color: #5a6268;
   border-color: #545b62;
 }
 
-.btn-darker-secondary:visited {
-  color: #ffffff;
-}
-
-.btn-darker-secondary.disabled {
+.btn-darker-secondary:disabled {
   color: #242424;
   background-color: white;
   border-color: #6c757d;
 }
 
 .btn-outline-darker-secondary {
+  color: #6c757d;
+  background-color: #fff;
+  border-color: #6c757d;
+}
+
+.btn-outline-darker-secondary:disabled {
   color: #6c757d;
   background-color: #fff;
   border-color: #6c757d;
@@ -413,6 +440,15 @@
 .link-darker-secondary:hover {
   color: #5a6268;
 }
+
+/* Outline Dark Button */
+.btn-outline-dark:hover,
+a.btn-outline-dark:hover {
+  background-color: #e9ecef !important;
+  border-color: #6c757d !important;
+  color: #212529 !important;
+}
+
 /*
  * Tables and panels
  */

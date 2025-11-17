@@ -120,10 +120,16 @@ const developmentConfig = {
 
   devServer: {
     host: '0.0.0.0',
-    port: 5000,
+    port: process.env.PORT || 5000,
     hot: true,
     historyApiFallback: true,
     open: true,
+    client: {
+      overlay: {
+        errors: true,
+        warnings: false,
+      },
+    },
     proxy: [
       {
         context: ['/api'],
@@ -190,6 +196,13 @@ const developmentConfig = {
     level: 'warn',
   },
 
+  ignoreWarnings: [
+    {
+      module: /node_modules\/bootstrap\/scss\/bootstrap\.scss/,
+      message: /Sass @import rules are deprecated/,
+    },
+  ],
+
   module: {
     rules: [
       {
@@ -202,6 +215,28 @@ const developmentConfig = {
             loader: 'css-loader',
             options: {
               importLoaders: 0,
+            },
+          },
+        ],
+      },
+      {
+        test: /\.scss$/,
+        use: [
+          {
+            loader: 'style-loader',
+          },
+          {
+            loader: 'css-loader',
+            options: {
+              importLoaders: 1,
+            },
+          },
+          {
+            loader: 'sass-loader',
+            options: {
+              sassOptions: {
+                quietDeps: true,
+              },
             },
           },
         ],
@@ -282,6 +317,26 @@ const productionConfig = {
             loader: 'css-loader',
             options: {
               importLoaders: 0,
+            },
+          },
+        ],
+      },
+      {
+        test: /\.scss$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          {
+            loader: 'css-loader',
+            options: {
+              importLoaders: 1,
+            },
+          },
+          {
+            loader: 'sass-loader',
+            options: {
+              sassOptions: {
+                quietDeps: true,
+              },
             },
           },
         ],
