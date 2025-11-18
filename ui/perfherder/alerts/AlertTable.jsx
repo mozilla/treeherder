@@ -299,7 +299,6 @@ export default class AlertTable extends React.Component {
       issueTrackers,
       fetchAlertSummaries,
       updateViewState,
-      bugTemplate,
       modifyAlert,
       performanceTags,
     } = this.props;
@@ -360,7 +359,6 @@ export default class AlertTable extends React.Component {
                       repoModel={repoModel}
                       updateViewState={updateViewState}
                       issueTrackers={issueTrackers}
-                      bugTemplate={bugTemplate}
                       user={user}
                       filteredAlerts={filteredAlerts}
                       frameworks={frameworks}
@@ -533,7 +531,6 @@ AlertTable.propTypes = {
   }).isRequired,
   fetchAlertSummaries: PropTypes.func.isRequired,
   updateViewState: PropTypes.func.isRequired,
-  bugTemplate: PropTypes.shape({}),
   modifyAlert: PropTypes.func,
   updateAlertSummary: PropTypes.func,
   projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
@@ -543,7 +540,6 @@ AlertTable.propTypes = {
 AlertTable.defaultProps = {
   alertSummary: null,
   issueTrackers: [],
-  bugTemplate: null,
   modifyAlert: undefined,
   // leverage dependency injection
   // to improve code testability
