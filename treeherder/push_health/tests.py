@@ -7,12 +7,14 @@ from collections import defaultdict
 from django.core.cache import cache
 from django.db.models import Q
 
+from treeherder.model import error_summary
 from treeherder.model.models import (
     FailureLine,
     InvestigatedTests,
     Job,
     JobType,
     OptionCollection,
+    TextLogError,
 )
 from treeherder.push_health.filter import filter_failure
 from treeherder.push_health.utils import (
@@ -304,6 +306,14 @@ def get_test_failures(
     if not len(new_failure_jobs_dict):
         return ("none", {"needInvestigation": [], "knownIssues": []})
 
+    # Check if there are any testfailed jobs with fcid=6
+    # This is important for cases where jobs failed but FailureLines haven't been parsed yet
+    has_testfailed_jobs = any(
+        job["result"] == "testfailed"
+        for jobs_list in new_failure_jobs_dict.values()
+        for job in jobs_list
+    )
+
     # option_map is used to map platforms for the job.option_collection_hash
     option_map = OptionCollection.objects.get_option_collection_map()
     investigated_tests = InvestigatedTests.objects.filter(push=push)
@@ -383,6 +393,126 @@ def get_test_failures(
     push_failures = sorted(tests.values(), key=lambda k: k["testName"])
     filtered_push_failures = [failure for failure in push_failures if filter_failure(failure)]
 
+    # If there are testfailed jobs but no FailureLines, fall back to TextLogError
+    # This handles cases like timeout failures that may not create FailureLine objects
+    if has_testfailed_jobs and not filtered_push_failures:
+        # Get job IDs that don't have FailureLines
+        jobs_without_failurelines = [
+            job_dict["id"]
+            for jobs_list in new_failure_jobs_dict.values()
+            for job_dict in jobs_list
+            if job_dict["result"] == "testfailed" and job_dict["id"] not in all_failed_jobs
+        ]
+
+        if jobs_without_failurelines:
+            # Query TextLogError for these jobs
+            text_log_errors = TextLogError.objects.filter(
+                job_id__in=jobs_without_failurelines
+            ).select_related("job__job_type", "job__job_group", "job__machine_platform")
+
+            # Group by job to process each job's errors
+            errors_by_job = {}
+            for error in text_log_errors:
+                job_id = error.job_id
+                if job_id not in errors_by_job:
+                    errors_by_job[job_id] = []
+                errors_by_job[job_id].append(error)
+
+            # Process each job's TextLogErrors
+            for job_id, errors in errors_by_job.items():
+                job = errors[0].job  # Get the job object from the first error
+                config = clean_config(option_map[job.option_collection_hash])
+                platform = clean_platform(job.machine_platform.platform)
+                job_name = job.job_type.name
+                job_group = job.job_group.name
+                job.job_key = f"{config}{platform}{job_name}{job_group}"
+                all_failed_jobs[job.id] = job
+
+                # Process each error line to extract test information
+                for error in errors:
+                    # Parse the error line to extract test name
+                    clean_line = error_summary.get_cleaned_line(error.line)
+                    search_info = error_summary.get_error_search_term_and_path(clean_line)
+
+                    # Skip if we can't extract meaningful test information
+                    if not search_info or not search_info.get("path_end"):
+                        continue
+
+                    test_name = search_info["path_end"]
+
+                    # Generate unique key for this test+platform+config+job combination
+                    test_key = _generate_test_key(test_name, config, platform, job_name, job_group)
+
+                    # Check if test is investigated
+                    is_investigated, investigated_test_id = _check_investigation_status(
+                        test_name, job.job_type.id, investigated_tests
+                    )
+
+                    # Create test failure record if this is the first time seeing this test key
+                    if test_key not in tests:
+                        total_jobs_for_type = _count_total_jobs_for_type(job_name, all_jobs_dict)
+
+                        # Create a minimal failure_line-like object for compatibility
+                        class TextLogErrorAdapter:
+                            def __init__(self):
+                                self.action = "log"
+
+                        tests[test_key] = _create_test_failure_record(
+                            test_name,
+                            TextLogErrorAdapter(),
+                            job,
+                            config,
+                            platform,
+                            test_key,
+                            total_jobs_for_type,
+                            is_investigated,
+                            investigated_test_id,
+                        )
+
+                    # Track which jobs failed for this test (task-to-test matching)
+                    if job_id not in tests[test_key]["failedInJobs"]:
+                        tests[test_key]["failedInJobs"].append(job_id)
+                        tests[test_key]["totalFailures"] += 1
+
+            # Re-sort and filter after adding TextLogError-based failures
+            push_failures = sorted(tests.values(), key=lambda k: k["testName"])
+            filtered_push_failures = [
+                failure for failure in push_failures if filter_failure(failure)
+            ]
+
+        # If still no failures after TextLogError fallback, create placeholder entries
+        if not filtered_push_failures:
+            placeholder_failures = []
+            for job_name, jobs_list in new_failure_jobs_dict.items():
+                for job_dict in jobs_list:
+                    if job_dict["result"] == "testfailed" and job_dict["id"] not in all_failed_jobs:
+                        # Create a placeholder entry for this job
+                        placeholder_failures.append(
+                            {
+                                "testName": f"Log parsing pending for {job_name}",
+                                "action": "test",
+                                "jobName": job_dict["job_type_name"],
+                                "jobSymbol": job_dict["job_type_symbol"],
+                                "jobGroup": "",
+                                "jobGroupSymbol": "",
+                                "platform": job_dict["platform"],
+                                "config": "",
+                                "key": f"pending-{job_dict['id']}",
+                                "jobKey": job_name,
+                                "suggestedClassification": "New Failure (Log Parsing Pending)",
+                                "confidence": 0,
+                                "tier": 1,
+                                "totalFailures": 1,
+                                "totalJobs": 1,
+                                "failedInParent": False,
+                                "isClassifiedIntermittent": False,
+                                "isInvestigated": False,
+                                "investigatedTestId": None,
+                                "failedInJobs": [job_dict["id"]],
+                            }
+                        )
+            filtered_push_failures = placeholder_failures
+
     # SIMPLIFIED: All fcid=6 failures go to needInvestigation
     # No historical classification needed since we're focused on new failures
     failures = {
@@ -391,6 +521,10 @@ def get_test_failures(
     }
 
     if len(failures["needInvestigation"]):
+        result = "fail"
+    elif has_testfailed_jobs:
+        # If there are testfailed jobs with fcid=6 but no FailureLines yet,
+        # still mark as "fail" since these are new failures pending log parsing
         result = "fail"
     elif "unknown" in result_status:
         result = "unknown"
