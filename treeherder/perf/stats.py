@@ -250,18 +250,18 @@ def is_new_better(c_delta, cles, mann_pvalue, lower_is_better, pvalue_threshold=
     if cles > pvalue_threshold and abs(c_delta) > 0.33 and mann_pvalue < pvalue_threshold:
         if lower_is_better:
             is_new_better = True
-            direction = "better"
+            direction = "improvement"
         else:
             is_new_better = False
-            direction = "worse"
+            direction = "regression"
     # Possibility New > Base with a small amount or more significance
     if cles < pvalue_threshold and abs(c_delta) > 0.33 and mann_pvalue < pvalue_threshold:
         if lower_is_better:
             is_new_better = False
-            direction = "worse"
+            direction = "regression"
         else:
             is_new_better = True
-            direction = "better"
+            direction = "improvement"
     else:
         is_new_better = None
         direction = "no change"
