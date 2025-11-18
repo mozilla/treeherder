@@ -244,27 +244,34 @@ def interpret_mann_whitneyu(base, new):
     return mann_whitney, mann_stat, mann_pvalue
 
 
-def is_new_better(delta_value, lower_is_better):
-    """This method returns if the new result is better or worse (even if unsure)"""
-    if delta_value is None:
-        direction = None
-        is_new_better = None
-    is_new_better = None
-    if abs(delta_value) < 0.001:
-        direction = "no change"
-    elif (lower_is_better and delta_value < 0) or (not lower_is_better and delta_value > 0):
-        direction = "better"
-        is_new_better = True
+def is_new_better(c_delta, cles, mann_pvalue, lower_is_better, pvalue_threshold=PVALUE_THRESHOLD):
+    """This method takes in CLES to measure if meaningful, Mann Whitney p-val for significance as well as Cliff's Delta for change"""
+    # Possibility Base > than New with a small amount or more significance
+    if cles > pvalue_threshold and abs(c_delta) > 0.33 and mann_pvalue < pvalue_threshold:
+        if lower_is_better:
+            is_new_better = True
+            direction = "better"
+        else:
+            is_new_better = False
+            direction = "worse"
+    # Possibility New > Base with a small amount or more significance
+    if cles < pvalue_threshold and abs(c_delta) > 0.33 and mann_pvalue < pvalue_threshold:
+        if lower_is_better:
+            is_new_better = False
+            direction = "worse"
+        else:
+            is_new_better = True
+            direction = "better"
     else:
-        direction = "worse"
-        is_new_better = False
+        is_new_better = None
+        direction = "no change"
     return direction, is_new_better
 
 
 def interpret_cles_direction(cles, pvalue_threshold=PVALUE_THRESHOLD):
     if cles is None:
         return "CLES cannot be interpreted"
-    if cles >= pvalue_threshold:
+    if cles > pvalue_threshold:
         return f"{cles:.0%} chance a base value is greater than a new value"
     else:
         return f"{1 - cles:.0%} chance a new value is greater than a base value"
