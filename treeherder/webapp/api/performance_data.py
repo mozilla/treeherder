@@ -1521,12 +1521,8 @@ class PerfCompareResults(generics.ListAPIView):
             c_delta, _ = cliffs_delta(base_rev_data, new_rev_data)
 
         cliffs_interpretation = stats.interpret_effect_size(c_delta)
-        direction, is_new_better = stats.is_new_better(delta_value, lower_is_better)
 
-        # Interpret effect size
-        effect_size = stats.interpret_effect_size(c_delta)
-
-        # returns CLES, direction
+        # returns CLES
         (
             cles_obj,
             cles,
@@ -1544,6 +1540,11 @@ class PerfCompareResults(generics.ListAPIView):
             lower_is_better,
             pvalue_threshold,
         )
+
+        # Interpret effect size
+        effect_size = stats.interpret_effect_size(c_delta)
+        direction, is_new_better = stats.is_new_better(c_delta, cles, mann_pvalue, lower_is_better)
+
         if cles_obj:
             cles_obj["effect_size"] = effect_size
             cles_obj["cles_direction"] = direction

@@ -1182,7 +1182,7 @@ def test_perfcompare_results_with_mann_witney_u_against_no_base(
             "is_improvement": None,
             "is_regression": None,
             "is_meaningful": None,
-            "is_new_better": False,
+            "is_new_better": None,
             "base_parent_signature": response["base_parent_signature"],
             "new_parent_signature": response["new_parent_signature"],
             "base_signature_id": response["base_signature_id"],
@@ -1191,7 +1191,7 @@ def test_perfcompare_results_with_mann_witney_u_against_no_base(
             "cles": None,
             "cliffs_delta": -1.0,
             "cliffs_interpretation": "large",
-            "direction_of_change": "worse",
+            "direction_of_change": "no change",
             "base_standard_stats": {
                 "count": 1,
                 "max": 32.4,

@@ -249,6 +249,15 @@ def interpret_ks_test(base, new, pvalue_threshold=PVALUE_THRESHOLD):
         return None, None, None
 
 
+def mann_whitney_pval_significance(mann_pvalue, pvalue_threshold=PVALUE_THRESHOLD):
+    p_value_interpretation = None
+    if mann_pvalue > pvalue_threshold:
+        p_value_interpretation = "not significant"
+    if mann_pvalue <= pvalue_threshold:
+        p_value_interpretation = "significant"
+    return p_value_interpretation
+
+
 # Mann-Whitney U test
 # Tests the null hypothesis that the distributions patch and without patch are identical.
 # Null hypothesis is a statement that there is no significant difference or effect in population, calculates p-value
@@ -259,11 +268,7 @@ def interpret_mann_whitneyu(base, new, pvalue_threshold=PVALUE_THRESHOLD):
     mann_stat = float(mann_stat) if mann_stat else None
     mann_pvalue = float(mann_pvalue) if mann_pvalue else None
     # Mann-Whitney U  p-value interpretation
-    p_value_interpretation = None
-    if mann_pvalue >= pvalue_threshold:
-        p_value_interpretation = "not significant"
-    if mann_pvalue < pvalue_threshold:
-        p_value_interpretation = "significant"
+    p_value_interpretation = mann_whitney_pval_significance(mann_pvalue, pvalue_threshold)
 
     mann_whitney = {
         "test_name": "Mann-Whitney U",
@@ -272,40 +277,6 @@ def interpret_mann_whitneyu(base, new, pvalue_threshold=PVALUE_THRESHOLD):
         "interpretation": p_value_interpretation,
     }
     return mann_whitney, mann_stat, mann_pvalue
-
-
-def is_new_better(c_delta, cles, mann_pvalue, lower_is_better, pvalue_threshold=PVALUE_THRESHOLD):
-    """This method takes in CLES to measure if meaningful, Mann Whitney p-val for significance as well as Cliff's Delta for change"""
-    # Possibility Base > than New with a small amount or more significance
-    if cles > pvalue_threshold and abs(c_delta) > 0.33 and mann_pvalue < pvalue_threshold:
-        if lower_is_better:
-            is_new_better = True
-            direction = "improvement"
-        else:
-            is_new_better = False
-            direction = "regression"
-    # Possibility New > Base with a small amount or more significance
-    if cles < pvalue_threshold and abs(c_delta) > 0.33 and mann_pvalue < pvalue_threshold:
-        if lower_is_better:
-            is_new_better = False
-            direction = "regression"
-        else:
-            is_new_better = True
-            direction = "improvement"
-    else:
-        is_new_better = None
-        direction = "no change"
-    return direction, is_new_better
-
-
-def interpret_cles_direction(cles, pvalue_threshold=PVALUE_THRESHOLD):
-    if cles is None:
-        return "CLES cannot be interpreted"
-    if cles > pvalue_threshold:
-        return f"{cles:.0%} chance a base value > a new value"
-    if cles < pvalue_threshold:
-        return f"{1 - cles:.0%} chance a new value > base value"
-    return "CLES cannot be interpreted"
 
 
 # https://openpublishing.library.umass.edu/pare/article/1977/galley/1980/view/
@@ -320,6 +291,58 @@ def interpret_effect_size(delta):
         return "moderate"
     else:
         return "large"
+
+
+def interpret_cles_direction(cles, pvalue_threshold=PVALUE_THRESHOLD):
+    greater_rev = None
+    if cles is None:
+        return "CLES cannot be interpreted", greater_rev
+    if cles > pvalue_threshold:
+        greater_rev = "base"
+        return f"{cles:.0%} chance a base value > a new value", greater_rev
+    if cles < pvalue_threshold:
+        greater_rev = "new"
+        return f"{1 - cles:.0%} chance a new value > base value", greater_rev
+    return "CLES cannot be interpreted", greater_rev
+
+
+def is_new_better(c_delta, cles, mann_pvalue, lower_is_better, pvalue_threshold=PVALUE_THRESHOLD):
+    """This method takes in CLES to measure if meaningful, Mann Whitney p-val for significance as well as Cliff's Delta for change"""
+    # Possibility Base > than New with a small amount or more significance
+    cles_interpretation, greater_rev = interpret_cles_direction(
+        cles, pvalue_threshold=PVALUE_THRESHOLD
+    )
+    effect_size = interpret_effect_size(c_delta)
+    effect_value_significance = ["small", "moderate", "large"]
+    p_value_interpretation = mann_whitney_pval_significance(mann_pvalue, pvalue_threshold)
+
+    if (
+        greater_rev == "base"
+        and any(effect_size in effect_value_significance)
+        and p_value_interpretation == "significant"
+    ):
+        if lower_is_better:
+            is_new_better = True
+            direction = "improvement"
+        else:
+            is_new_better = False
+            direction = "regression"
+    # Possibility New > Base with a small amount or more significance
+    if (
+        greater_rev == "new"
+        and any(effect_size in effect_value_significance)
+        and p_value_interpretation == "significant"
+    ):
+        if lower_is_better:
+            is_new_better = False
+            direction = "regression"
+        else:
+            is_new_better = True
+            direction = "improvement"
+    else:
+        is_new_better = None
+        direction = "no change"
+    return direction, is_new_better
 
 
 def interpret_performance_direction(ci_low, ci_high, lower_is_better):
