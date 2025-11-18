@@ -116,4 +116,8 @@ There are a lot of taskid, revisions, and expected fields to update in tests.  F
 - ensure variety of platforms, builds, tests, pass/fail, etc. are included
 - push_data.json - adjust the dates to have multiple days (1st +1, 2nd +2, 3rd +3)
 
+## Writing Tests
+
+For guidance on writing tests (conventions, examples, and recommended frameworks), see the separate guide: [Writing Tests](writing_tests.md).
+
 [eslint]: https://eslint.org
