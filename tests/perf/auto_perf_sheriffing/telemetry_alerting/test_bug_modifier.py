@@ -298,6 +298,61 @@ class TestTelemetryBugModifier:
 
         assert merged == {}
 
+    def test_get_bug_modifications_with_mixed_bug_numbers(
+        self,
+        test_telemetry_alert_summary,
+        create_telemetry_signature,
+        create_telemetry_alert,
+    ):
+        """Test get_bug_modifications with alerts containing both bug numbers and None.
+
+        This test verifies that when processing alerts with mixed bug numbers:
+        1. Only alerts with valid bug numbers are included in modifications
+        2. Alerts with bug_number=None are safely ignored
+        3. No modifications are returned for None bug numbers
+        4. Related alerts without bug numbers don't appear in see_also lists
+        """
+        from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.alert import (
+            TelemetryAlertFactory,
+        )
+
+        # Create alert 1 WITH a bug number
+        sig1 = create_telemetry_signature(probe="test_probe_1")
+        alert_row_1 = create_telemetry_alert(sig1, bug_number=123456)
+        alert1 = TelemetryAlertFactory.construct_alert(alert_row_1)
+
+        # Create alert 2 WITHOUT a bug number
+        sig2 = create_telemetry_signature(probe="test_probe_2")
+        alert_row_2 = create_telemetry_alert(sig2, bug_number=None)
+        alert2 = TelemetryAlertFactory.construct_alert(alert_row_2)
+
+        # Create alert 3 WITH a bug number
+        sig3 = create_telemetry_signature(probe="test_probe_3")
+        alert_row_3 = create_telemetry_alert(sig3, bug_number=654321)
+        alert3 = TelemetryAlertFactory.construct_alert(alert_row_3)
+
+        # Create alert 4 WITHOUT a bug number
+        sig4 = create_telemetry_signature(probe="test_probe_4")
+        alert_row_4 = create_telemetry_alert(sig4, bug_number=None)
+        alert4 = TelemetryAlertFactory.construct_alert(alert_row_4)
+
+        alerts = [alert1, alert2, alert3, alert4]
+
+        # Get modifications from all modifiers (primarily SeeAlsoModifier)
+        modifications = TelemetryBugModifier.get_bug_modifications(alerts, [], [])
+
+        # Verify that only valid bug numbers appear in the modifications
+        assert None not in modifications, "None should never be a key in modifications"
+
+        # Should have modifications for bug 123456 (alert1)
+        assert 123456 in modifications
+
+        # Verify see_also modifications only include bugs with numbers (not None)
+        assert "see_also" in modifications[123456]
+        see_also_bugs = modifications[123456]["see_also"]["add"]
+        assert None not in see_also_bugs, "see_also should not include None"
+        assert 654321 in see_also_bugs, "Alert 1 should see Alert 3's bug"
+
 
 class TestSeeAlsoModifier:
     @pytest.fixture

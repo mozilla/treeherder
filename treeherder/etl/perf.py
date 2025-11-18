@@ -358,14 +358,11 @@ def _load_perf_datum(job: Job, perf_datum: dict):
 
 def _is_suite_allowed(suites: list, framework_name: str) -> bool:
     allowlist_frameworks_suites = {
-        "build_metrics": ["mach_artifact_toolchain"],
-        "browsertime": ["constant-regression"],
+        "build_metrics": ["fetch_content", "compiler_metrics"],
     }
     allowed = allowlist_frameworks_suites.get(framework_name)
     if not allowed:
         return False
-    if allowed == ["ALL"]:
-        return True
     return any(suite["name"] in allowed for suite in suites)
 
 
@@ -373,17 +370,16 @@ def _should_ingest(framework_name: str, suites: list, is_perfherder_data_json: b
     """
     This function will be removed after migration to JSON artifact.
     Ingestion policy:
-      - If (framework, suites) is allowlisted => JSON only
-      - If framework is NOT allowlisted => Log parsing only
-      - If framework is allowlisted but suites don't match => Log parsing only
+      - Default: ingest JSON artifacts
+      - Exception: build_metrics:fetch_content => Log parsing only
     """
     is_allowed = _is_suite_allowed(suites, framework_name)
     if is_allowed:
-        # Allowlisted -> only JSON artifact
-        return is_perfherder_data_json
-    else:
-        # Not allowlisted (including unregistered frameworks (e.g, raptor)) -> only logs
+        # Allowlisted -> log parsing
         return not is_perfherder_data_json
+
+    # Not allowlisted -> JSON artifacts
+    return is_perfherder_data_json
 
 
 def store_performance_artifact(job, artifact):

@@ -644,6 +644,56 @@ class TestTelemetryAlertManager:
             assert len(passed_alerts) == 1, f"Expected 1 alert, got {len(passed_alerts)}"
             assert passed_alerts[0] == alerts[1]
 
+    def test_redo_bug_modifications_with_mixed_bug_numbers(
+        self,
+        create_telemetry_signature,
+        create_telemetry_alert,
+        test_telemetry_alert_summary,
+        telemetry_alert_manager,
+        caplog,
+    ):
+        """Test _redo_bug_modifications with alert summary containing alerts with mixed bug numbers.
+
+        Verifies that calls made to the TelemetryAlertManager.modify_alert_bugs method contain
+        only alerts that have bugs.
+        """
+        # Mark the alert summary as not modified to trigger _redo_bug_modifications
+        test_telemetry_alert_summary.bugs_modified = False
+        test_telemetry_alert_summary.save()
+
+        # Create alert 1 WITH a bug number
+        sig1 = create_telemetry_signature(probe="test_probe_1")
+        alert_row_1 = create_telemetry_alert(sig1, bug_number=123456, bug_modified=True)
+        TelemetryAlertFactory.construct_alert(alert_row_1)
+
+        # Create alert 2 WITHOUT a bug number
+        sig2 = create_telemetry_signature(probe="test_probe_2")
+        alert_row_2 = create_telemetry_alert(sig2, bug_number=None, bug_modified=True)
+        TelemetryAlertFactory.construct_alert(alert_row_2)
+
+        # Create alert 3 WITH a bug number
+        sig3 = create_telemetry_signature(probe="test_probe_3")
+        alert_row_3 = create_telemetry_alert(sig3, bug_number=654321, bug_modified=True)
+        TelemetryAlertFactory.construct_alert(alert_row_3)
+
+        # Mock modify_alert_bugs to check if we call it with only alerts that have bugs
+        with patch(
+            "treeherder.perf.auto_perf_sheriffing.telemetry_alerting.alert_manager."
+            "TelemetryAlertManager.modify_alert_bugs"
+        ) as mock_modify_alert_bugs:
+            with caplog.at_level(logging.INFO):
+                telemetry_alert_manager._redo_bug_modifications()
+
+            # Verify that the modify_alert_bugs method is only called with 2 alerts
+            alerts_to_modify = mock_modify_alert_bugs.call_args_list[0][0][0]
+            assert len(alerts_to_modify) == 2
+
+            # Verify that the alerts are only those with the bugs from above
+            for bug_number in (123456, 654321):
+                assert bug_number in [
+                    alert.telemetry_alert.bug_number for alert in alerts_to_modify
+                ]
+
     def test_manage_alerts_with_mixed_bug_and_email_alerts(
         self,
         create_telemetry_signature,
@@ -700,3 +750,239 @@ class TestTelemetryAlertManager:
             # Verify the correct methods were called
             telemetry_alert_manager.bug_manager.file_bug.assert_called_once()
             telemetry_alert_manager.email_manager.email_alert.assert_called_once()
+
+
+class TestEmailLimiting:
+    """Tests for email limiting functionality."""
+
+    def test_emails_left_never_negative(self, telemetry_alert_manager):
+        """Test emails_left() returns 0 when limit exceeded, never negative."""
+        from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.utils import (
+            EMAIL_LIMIT,
+        )
+
+        # Exceed the limit
+        for _ in range(EMAIL_LIMIT + 10):
+            telemetry_alert_manager._email_made()
+
+        # Should return 0, not a negative number
+        assert telemetry_alert_manager._emails_left() == 0
+
+    def test_email_alert_respects_limit(
+        self, telemetry_alert_manager, alert_without_bug, mock_probe
+    ):
+        """Test _email_alert returns early when email limit is reached."""
+        from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.utils import (
+            EMAIL_LIMIT,
+        )
+
+        mock_probe.should_email.return_value = True
+        alert_without_bug.telemetry_signature.probe = "test_probe"
+
+        # Use up all emails
+        telemetry_alert_manager._emails_made = EMAIL_LIMIT
+
+        # Try to send an email
+        telemetry_alert_manager._email_alert(alert_without_bug)
+
+        # Email manager should not be called
+        telemetry_alert_manager.email_manager.email_alert.assert_not_called()
+
+        # Alert should not be marked as notified
+        alert_without_bug.telemetry_alert.refresh_from_db()
+        assert alert_without_bug.telemetry_alert.notified is False
+
+    def test_email_alert_when_one_email_left(
+        self, telemetry_alert_manager, alert_without_bug, mock_probe
+    ):
+        """Test _email_alert works when exactly one email remains."""
+        from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.utils import (
+            EMAIL_LIMIT,
+        )
+
+        mock_probe.should_email.return_value = True
+        alert_without_bug.telemetry_signature.probe = "test_probe"
+
+        # Use up all but one email
+        telemetry_alert_manager._emails_made = EMAIL_LIMIT - 1
+
+        # Send the last email
+        telemetry_alert_manager._email_alert(alert_without_bug)
+
+        # Email should be sent
+        telemetry_alert_manager.email_manager.email_alert.assert_called_once()
+
+        # Counter should be incremented
+        assert telemetry_alert_manager._emails_made == EMAIL_LIMIT
+
+        # Alert should be marked as notified
+        alert_without_bug.telemetry_alert.refresh_from_db()
+        assert alert_without_bug.telemetry_alert.notified is True
+
+    def test_email_limit_prevents_multiple_alerts(
+        self, create_telemetry_signature, create_telemetry_alert, telemetry_alert_manager
+    ):
+        """Test that email limit prevents emails after limit is reached across multiple alerts."""
+        from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.utils import (
+            EMAIL_LIMIT,
+        )
+
+        # Create probes and alerts
+        telemetry_alert_manager.probes = {}
+        alerts = []
+        for i in range(5):
+            probe = Mock()
+            probe.name = f"email_probe_{i}"
+            probe.should_file_bug.return_value = False
+            probe.should_email.return_value = True
+            telemetry_alert_manager.probes[probe.name] = probe
+
+            signature = create_telemetry_signature(probe=probe.name)
+            alert_row = create_telemetry_alert(signature)
+            alerts.append(TelemetryAlertFactory.construct_alert(alert_row))
+
+        # Set email count to near the limit
+        telemetry_alert_manager._emails_made = EMAIL_LIMIT - 2
+
+        # Process all alerts
+        for alert in alerts:
+            telemetry_alert_manager._email_alert(alert)
+
+        # Only 2 emails should have been sent
+        assert telemetry_alert_manager.email_manager.email_alert.call_count == 2
+        assert telemetry_alert_manager._emails_made == EMAIL_LIMIT
+
+        # Check which alerts were notified
+        alerts[0].telemetry_alert.refresh_from_db()
+        alerts[1].telemetry_alert.refresh_from_db()
+        alerts[2].telemetry_alert.refresh_from_db()
+        alerts[3].telemetry_alert.refresh_from_db()
+        alerts[4].telemetry_alert.refresh_from_db()
+
+        assert alerts[0].telemetry_alert.notified is True
+        assert alerts[1].telemetry_alert.notified is True
+        assert alerts[2].telemetry_alert.notified is False
+        assert alerts[3].telemetry_alert.notified is False
+        assert alerts[4].telemetry_alert.notified is False
+
+    def test_email_limit_with_failures(
+        self, create_telemetry_signature, create_telemetry_alert, telemetry_alert_manager
+    ):
+        """Test that email counter increments even when email sending fails."""
+
+        # Create a probe that should email
+        probe = Mock()
+        probe.name = "email_probe"
+        probe.should_file_bug.return_value = False
+        probe.should_email.return_value = True
+        telemetry_alert_manager.probes = {"email_probe": probe}
+
+        # Create an alert
+        signature = create_telemetry_signature(probe="email_probe")
+        alert_row = create_telemetry_alert(signature)
+        alert = TelemetryAlertFactory.construct_alert(alert_row)
+
+        # Make email_alert raise an exception
+        telemetry_alert_manager.email_manager.email_alert.side_effect = Exception("Email error")
+
+        initial_count = telemetry_alert_manager._emails_made
+
+        # Process the alert
+        telemetry_alert_manager._email_alert(alert)
+
+        # Counter should NOT be incremented because the email failed before _email_made() was called
+        assert telemetry_alert_manager._emails_made == initial_count
+
+        # Alert should not be marked as notified
+        alert.telemetry_alert.refresh_from_db()
+        assert alert.telemetry_alert.notified is False
+
+    def test_redo_email_alerts_respects_limit(
+        self, create_telemetry_signature, create_telemetry_alert, telemetry_alert_manager
+    ):
+        """Test _redo_email_alerts respects the email limit."""
+        from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.utils import (
+            EMAIL_LIMIT,
+        )
+
+        # Create probes and alerts that need emails
+        telemetry_alert_manager.probes = {}
+        for i in range(10):
+            probe = Mock()
+            probe.name = f"email_probe_{i}"
+            probe.should_file_bug.return_value = False
+            probe.should_email.return_value = True
+            telemetry_alert_manager.probes[probe.name] = probe
+
+            signature = create_telemetry_signature(probe=probe.name)
+            create_telemetry_alert(signature)
+
+        # Set email count to near the limit
+        telemetry_alert_manager._emails_made = EMAIL_LIMIT - 3
+
+        # Run redo emails
+        telemetry_alert_manager._redo_email_alerts()
+
+        # Only 3 emails should have been sent (respecting the limit)
+        assert telemetry_alert_manager.email_manager.email_alert.call_count == 3
+        assert telemetry_alert_manager._emails_made == EMAIL_LIMIT
+
+    def test_email_limit_boundary_at_zero(
+        self, telemetry_alert_manager, alert_without_bug, mock_probe
+    ):
+        """Test email limiting at exactly zero emails left."""
+        from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.utils import (
+            EMAIL_LIMIT,
+        )
+
+        mock_probe.should_email.return_value = True
+        alert_without_bug.telemetry_signature.probe = "test_probe"
+
+        # Set to exactly at limit
+        telemetry_alert_manager._emails_made = EMAIL_LIMIT
+        assert telemetry_alert_manager._emails_left() == 0
+
+        # Try to send email
+        telemetry_alert_manager._email_alert(alert_without_bug)
+
+        # Should not send
+        telemetry_alert_manager.email_manager.email_alert.assert_not_called()
+
+    def test_email_counter_persists_across_operations(
+        self, create_telemetry_signature, create_telemetry_alert, telemetry_alert_manager
+    ):
+        """Test that email counter persists correctly across different operations."""
+        # Create probes that should email
+        telemetry_alert_manager.probes = {}
+
+        # Send 5 emails through _email_alert
+        for i in range(5):
+            probe = Mock()
+            probe.name = f"email_probe_{i}"
+            probe.should_file_bug.return_value = False
+            probe.should_email.return_value = True
+            telemetry_alert_manager.probes[probe.name] = probe
+
+            signature = create_telemetry_signature(probe=probe.name)
+            alert_row = create_telemetry_alert(signature)
+            alert = TelemetryAlertFactory.construct_alert(alert_row)
+            telemetry_alert_manager._email_alert(alert)
+
+        assert telemetry_alert_manager._emails_made == 5
+
+        # Create more unnotified alerts for redo
+        for i in range(5, 8):
+            probe = Mock()
+            probe.name = f"email_probe_{i}"
+            probe.should_file_bug.return_value = False
+            probe.should_email.return_value = True
+            telemetry_alert_manager.probes[probe.name] = probe
+
+            signature = create_telemetry_signature(probe=probe.name)
+            create_telemetry_alert(signature)
+
+        # Run redo emails
+        telemetry_alert_manager._redo_email_alerts()
+
+        # Should now have 8 total emails sent (5 + 3)
+        assert telemetry_alert_manager._emails_made == 8

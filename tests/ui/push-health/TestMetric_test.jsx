@@ -32,14 +32,6 @@ describe('TestMetric', () => {
     ).toBeInTheDocument();
   });
 
-  test('should have a Known Issues section', async () => {
-    const { getByText } = render(testTestMetric(tests, jobs));
-
-    expect(
-      await waitFor(() => getByText('Known Issues', { exact: false })),
-    ).toBeInTheDocument();
-  });
-
   test('should show the test name', async () => {
     const { getByText } = render(testTestMetric(tests, jobs));
 

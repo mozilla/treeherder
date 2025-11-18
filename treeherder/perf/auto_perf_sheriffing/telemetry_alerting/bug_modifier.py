@@ -113,6 +113,10 @@ class SeeAlsoModifier:
         for alert in alerts:
             alert_bug = alert.telemetry_alert.bug_number
 
+            # Skip alerts without bug numbers
+            if alert_bug is None:
+                continue
+
             # Get all the related bugs, excluding those we've already done since we don't
             # want to duplicate the see_also changes
             related_bugs = [

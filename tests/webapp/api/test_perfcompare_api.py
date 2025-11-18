@@ -127,8 +127,8 @@ def test_perfcompare_results_against_no_base(
             "new_retriggerable_job_ids": [10],
             "base_runs": base_perf_data_values,
             "new_runs": new_perf_data_values,
-            "base_runs_replicates": [],
-            "new_runs_replicates": [],
+            "base_runs_replicates": [32.4],
+            "new_runs_replicates": [40.2],
             "base_avg_value": round(response["base_avg_value"], 2),
             "new_avg_value": round(response["new_avg_value"], 2),
             "base_median_value": round(response["base_median_value"], 2),
@@ -473,7 +473,7 @@ def test_perfcompare_results_without_base_signature(
             "base_runs": [],
             "new_runs": new_perf_data_values,
             "base_runs_replicates": [],
-            "new_runs_replicates": [],
+            "new_runs_replicates": [40.2],
             "base_avg_value": round(response["base_avg_value"], 2),
             "new_avg_value": round(response["new_avg_value"], 2),
             "base_median_value": round(response["base_median_value"], 2),
@@ -644,8 +644,8 @@ def test_perfcompare_results_subtests_support(
             "new_retriggerable_job_ids": [10],
             "base_runs": base_perf_data_values,
             "new_runs": new_perf_data_values,
-            "base_runs_replicates": [],
-            "new_runs_replicates": [],
+            "base_runs_replicates": [32.4],
+            "new_runs_replicates": [40.2],
             "base_avg_value": round(response["base_avg_value"], 2),
             "new_avg_value": round(response["new_avg_value"], 2),
             "base_median_value": round(response["base_median_value"], 2),
@@ -1138,6 +1138,154 @@ def test_perfcompare_results_with_mann_witney_u_against_no_base(
         base_perf_data_values,
     )
 
+    expected = [
+        {
+            "base_rev": None,
+            "new_rev": test_perfcomp_push_2.revision,
+            "framework_id": base_sig.framework.id,
+            "platform": base_sig.platform.platform,
+            "suite": base_sig.suite,
+            "header_name": response["header_name"],
+            "base_repository_name": base_sig.repository.name,
+            "new_repository_name": new_sig.repository.name,
+            "base_app": base_sig.application,
+            "new_app": new_sig.application,
+            "is_complete": response["is_complete"],
+            "base_measurement_unit": base_sig.measurement_unit,
+            "new_measurement_unit": new_sig.measurement_unit,
+            "base_retriggerable_job_ids": [4],
+            "new_retriggerable_job_ids": [10],
+            "base_runs": base_perf_data_values,
+            "new_runs": new_perf_data_values,
+            "base_runs_replicates": [32.4],
+            "new_runs_replicates": [40.2],
+            "test": base_sig.test,
+            "option_name": response["option_name"],
+            "extra_options": base_sig.extra_options,
+            "delta_value": round(response["delta_value"], 2),
+            "delta_percentage": round(response["delta_pct"], 2),
+            "lower_is_better": response["lower_is_better"],
+            "is_confident": response["is_confident"],
+            "more_runs_are_needed": False,
+            "mann_whitney_test": {
+                "interpretation": "not significant",
+                "pvalue": 1.0,
+                "stat": None,
+                "test_name": "Mann-Whitney U",
+            },
+            "graphs_link": f"https://treeherder.mozilla.org/perfherder/graphs?"
+            f"highlightedRevisions={test_perfcomp_push_2.revision}&"
+            f"series={try_repository.name}%2C{base_sig.signature_hash}%2C1%2C{base_sig.framework.id}&"
+            f"series={test_repository.name}%2C{base_sig.signature_hash}%2C1%2C{base_sig.framework.id}&"
+            f"timerange=86400",
+            "is_fit_good": True,
+            "is_improvement": None,
+            "is_regression": None,
+            "is_meaningful": None,
+            "is_new_better": False,
+            "base_parent_signature": response["base_parent_signature"],
+            "new_parent_signature": response["new_parent_signature"],
+            "base_signature_id": response["base_signature_id"],
+            "new_signature_id": response["new_signature_id"],
+            "has_subtests": response["has_subtests"],
+            "cles": None,
+            "cliffs_delta": -1.0,
+            "cliffs_interpretation": "large",
+            "direction_of_change": "worse",
+            "base_standard_stats": {
+                "count": 1,
+                "max": 32.4,
+                "mean": round(response["base_avg_value"], 2),
+                "median": round(response["base_median_value"], 2),
+                "min": 32.4,
+                "stddev": 0.0,
+                "stddev_pct": 0.0,
+                "variance": 0.0,
+            },
+            "new_standard_stats": {
+                "count": 1,
+                "max": 40.2,
+                "mean": round(response["new_avg_value"], 2),
+                "median": round(response["new_median_value"], 2),
+                "min": 40.2,
+                "stddev": 0.0,
+                "stddev_pct": 0.0,
+                "variance": 0.0,
+            },
+            "kde_base": {
+                "kde_x": [
+                    32.4,
+                ],
+                "kde_y": [],
+                "median": 32.4,
+                "sample_count": 1,
+            },
+            "kde_new": {
+                "kde_x": [
+                    40.2,
+                ],
+                "kde_y": [],
+                "median": 40.2,
+                "sample_count": 1,
+            },
+            "kde_warnings": [
+                "Less than 2 datapoints or no standard variance for a meaningful fit "
+                "Kernel Density Estimator (KDE) with an ISJ bandwidth to Base.",
+                "Less than 2 datapoints or no standard variance for a meaningful fit "
+                "Kernel Density Estimator (KDE) with an ISJ bandwidth to New.",
+            ],
+            "ks_test": {
+                "interpretation": "KS test p-value: 1.000, good fit",
+                "pvalue": 1.0,
+                "stat": 1.0,
+                "test_name": "Kolmogorov-Smirnov",
+            },
+            "ks_warning": None,
+            "shapiro_wilk_test_base": {
+                "interpretation": "Not enough data for normality test.",
+                "pvalue": None,
+                "stat": None,
+                "test_name": "Shapiro-Wilk",
+            },
+            "shapiro_wilk_test_new": {
+                "interpretation": "Not enough data for normality test",
+                "pvalue": None,
+                "stat": None,
+                "test_name": "Shapiro-Wilk",
+            },
+            "shapiro_wilk_warnings": [
+                "Shapiro-Wilk test cannot be run on Base with fewer than 3 data points.",
+                "Shapiro-Wilk test cannot be run on New with fewer than 3 data points.",
+            ],
+            "silverman_kde": {
+                "bandwidth": "Silverman",
+                "base_locations": [32.4],
+                "base_mode_count": 1,
+                "base_prominence": 0.08,
+                "is_improvement": None,
+                "is_regression": None,
+                "modes": [
+                    {
+                        "ci_high": None,
+                        "ci_low": None,
+                        "ci_warning": None,
+                        "median_shift_summary": None,
+                        "mode_end": "36.47",
+                        "mode_name": "Mode 1",
+                        "mode_start": "28.33",
+                        "shift": None,
+                        "shift_summary": None,
+                    },
+                ],
+                "new_locations": [40.2],
+                "new_mode_count": 1,
+                "new_prominence": 0.08,
+            },
+            "silverman_warnings": [],
+            "warning_c_delta": None,
+        },
+    ]
+
     query_params = (
         "?base_repository={}&new_repository={}&new_revision={}&framework={"
         "}&interval={}&no_subtests=true&test_version={}".format(
@@ -1151,7 +1299,7 @@ def test_perfcompare_results_with_mann_witney_u_against_no_base(
     )
 
     response = client.get(reverse("perfcompare-results") + query_params)
-
     assert response.status_code == 200
+    assert expected[0] == response.json()[0]
     assert response.json()[0]["base_parent_signature"] is None
     assert response.json()[0]["new_parent_signature"] is None

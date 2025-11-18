@@ -81,6 +81,7 @@ def sample_perf_artifact() -> dict:
                     "subtests": [{"name": "fcp", "value": 20.0, "unit": MEASUREMENT_UNIT}],
                 },
             ],
+            "logurl": "https://sample.com/perfherder-data.json",
         },
     }
 
@@ -142,6 +143,7 @@ def sample_perf_artifact_with_new_unit():
                     ],
                 }
             ],
+            "logurl": "https://sample.com/perfherder-data.json",
         },
     }
 
@@ -169,7 +171,9 @@ def _prepare_test_data(datum):
     PerformanceFramework.objects.get_or_create(name=FRAMEWORK_NAME, enabled=True)
     # the perf data adapter expects unserialized performance data
     submit_datum = copy.copy(datum)
-    submit_datum["blob"] = json.dumps({"performance_data": submit_datum["blob"]})
+    blob_data = {"performance_data": submit_datum["blob"]}
+    blob_data["logurl"] = submit_datum["blob"]["logurl"]
+    submit_datum["blob"] = json.dumps(blob_data)
     perf_datum = datum["blob"]
     return perf_datum, submit_datum
 

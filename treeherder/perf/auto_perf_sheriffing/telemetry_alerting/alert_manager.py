@@ -18,6 +18,7 @@ from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.email_manager impor
     TelemetryEmailManager,
 )
 from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.utils import (
+    EMAIL_LIMIT,
     MODIFIABLE_ALERT_FIELDS,
 )
 from treeherder.perf.models import (
@@ -34,6 +35,13 @@ class TelemetryAlertManager(AlertManager):
     def __init__(self, probes):
         super().__init__(TelemetryBugManager(), TelemetryEmailManager())
         self.probes = probes
+        self._emails_made = 0
+
+    def _emails_left(self):
+        return max(0, EMAIL_LIMIT - self._emails_made)
+
+    def _email_made(self):
+        self._emails_made += 1
 
     def _get_probe_info(self, probe_name):
         probe = self.probes.get(probe_name)
@@ -105,6 +113,7 @@ class TelemetryAlertManager(AlertManager):
 
             try:
                 self.bug_manager.modify_bug(bug, changes)
+                logger.info(f"Made modifications to telemetry alert bug {bug}")
 
                 bug_alert.telemetry_alert_summary.bugs_modified = True
                 bug_alert.telemetry_alert.bug_modified = True
@@ -176,6 +185,9 @@ class TelemetryAlertManager(AlertManager):
         contains multiple probes that alert, each of those probes will have an email
         sent out.
         """
+        if self._emails_left() <= 0:
+            return
+
         try:
             probe = self._get_probe_info(alert.telemetry_signature.probe)
             if not self.__should_notify(probe, alert):
@@ -183,6 +195,8 @@ class TelemetryAlertManager(AlertManager):
 
             # Send notification emails for the alert
             self.email_manager.email_alert(probe, alert)
+            self._email_made()
+            logger.info(f"Created email notification for {alert}")
 
             # Set the alert to notified
             alert.telemetry_alert.notified = True
@@ -195,9 +209,11 @@ class TelemetryAlertManager(AlertManager):
     def _redo_email_alerts(self):
         """Handles re-running emails for alerts that don't have any."""
         logger.info("House keeping: retrying emails for alerts")
+
+        # Limit number of emails due to fxci email rate limit
         alerts_no_emails = PerformanceTelemetryAlert.objects.filter(
             notified=False, bug_number__isnull=True
-        )
+        )[: self._emails_left()]
 
         for alert_row in alerts_no_emails:
             alert_no_email = TelemetryAlertFactory.construct_alert(alert_row)
@@ -210,7 +226,8 @@ class TelemetryAlertManager(AlertManager):
             bugs_modified=False
         )
         alerts_not_modified = PerformanceTelemetryAlert.objects.filter(
-            summary_id__in=[summary.id for summary in alert_summaries_not_modified]
+            summary_id__in=[summary.id for summary in alert_summaries_not_modified],
+            bug_number__isnull=False,
         )
 
         alerts = []
