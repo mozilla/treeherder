@@ -48,6 +48,8 @@ class Connection:
 
 
 def ingest_pr(pr_url, root_url):
+    if not pr_url.ends_with("/"):
+        pr_url += "/"
     _, _, _, org, repo, _, pull_number, _ = pr_url.split("/", 7)
     pulse = {
         "exchange": "exchange/taskcluster-github/v1/pull-request",
@@ -466,7 +468,7 @@ class Command(BaseCommand):
         if type_of_ingestion == "task":
             assert options["taskId"]
             loop.run_until_complete(ingest_task(options["taskId"], root_url))
-        elif type_of_ingestion == "prUrl":
+        elif type_of_ingestion == "pr":
             assert options["prUrl"]
             ingest_pr(options["prUrl"], root_url)
         elif type_of_ingestion.find("git") > -1:

@@ -6,11 +6,6 @@ import {
   Nav,
   Navbar,
   NavItem,
-  UncontrolledButtonDropdown,
-  ButtonGroup,
-  DropdownMenu,
-  DropdownToggle,
-  DropdownItem,
   Input,
   FormGroup,
   Label,
@@ -272,37 +267,20 @@ class Test extends PureComponent {
             <Navbar className="mb-3">
               <Nav>
                 <NavItem>
-                  <ButtonGroup size="sm" className="ml-5">
-                    <Button
-                      title="Retrigger selected jobs once"
-                      onClick={() => this.retriggerSelected(1)}
-                      size="sm"
-                    >
-                      <FontAwesomeIcon
-                        icon={faRedo}
-                        title="Retrigger"
-                        className="mr-2"
-                        alt=""
-                      />
-                      Retrigger Selected
-                    </Button>
-                    <UncontrolledButtonDropdown size="sm">
-                      <DropdownToggle caret />
-                      <DropdownMenu>
-                        {[5, 10, 15].map((times) => (
-                          <DropdownItem
-                            key={times}
-                            title={`Retrigger selected jobs ${times} times`}
-                            onClick={() => this.retriggerSelected(times)}
-                            className="pointable"
-                            tag="a"
-                          >
-                            Retrigger selected {times} times
-                          </DropdownItem>
-                        ))}
-                      </DropdownMenu>
-                    </UncontrolledButtonDropdown>
-                  </ButtonGroup>
+                  <Button
+                    title="Retrigger selected jobs once"
+                    onClick={() => this.retriggerSelected(1)}
+                    size="sm"
+                    className="ml-5"
+                  >
+                    <FontAwesomeIcon
+                      icon={faRedo}
+                      title="Retrigger"
+                      className="mr-2"
+                      alt=""
+                    />
+                    Retrigger Selected
+                  </Button>
                   <Button
                     size="sm"
                     outline
