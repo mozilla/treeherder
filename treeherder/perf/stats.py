@@ -462,9 +462,10 @@ def interpret_silverman_kde(base_data, new_data, lower_is_better):
         is_improvement = None
         performance_intepretation = None
         modes = []
+        base_intervals, base_peak_xs = find_mode_interval(x_base, y_base, base_peak_locs)
+        new_intervals, new_peak_xs = find_mode_interval(x_new, y_new, new_peak_locs)
+
         if base_mode_count == new_mode_count:
-            base_intervals, base_peak_xs = find_mode_interval(x_base, y_base, base_peak_locs)
-            new_intervals, new_peak_xs = find_mode_interval(x_new, y_new, new_peak_locs)
             per_mode_new = split_per_mode(new_data, new_intervals)
             per_mode_base = split_per_mode(base_data, base_intervals)
 
@@ -505,6 +506,32 @@ def interpret_silverman_kde(base_data, new_data, lower_is_better):
                 except Exception:
                     pass
 
+                mode_info = {
+                    "mode_name": mode_name,
+                    "mode_start": f"{start:.2f}" if start else None,
+                    "mode_end": f"{end:.2f}" if end else None,
+                    "median_shift_summary": median_shift_summary,
+                    "ci_low": ci_low,
+                    "ci_high": ci_high,
+                    "shift": shift,
+                    "shift_summary": performance_intepretation,
+                    "ci_warning": ci_warning,
+                }
+                modes.append(mode_info)
+        else:
+            for i, interval in enumerate(base_intervals):
+                tup = interval
+                if len(tup) != 2:
+                    return None, None, None, None, None, None
+
+                start, end = tup
+                shift = 0
+                ci_low = 0
+                ci_high = 0
+                median_shift_summary = (
+                    "Cannot measure shift, base mode count not equal to new mode count."
+                )
+                mode_name = f"Mode {i + 1}"
                 mode_info = {
                     "mode_name": mode_name,
                     "mode_start": f"{start:.2f}" if start else None,
