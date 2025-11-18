@@ -531,6 +531,7 @@ def interpret_silverman_kde(base_data, new_data, lower_is_better):
                 median_shift_summary = (
                     "Cannot measure shift, base mode count not equal to new mode count."
                 )
+                shift = None
                 mode_name = f"Mode {i + 1}"
                 mode_info = {
                     "mode_name": mode_name,
