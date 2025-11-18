@@ -359,6 +359,16 @@ def _load_perf_datum(job: Job, perf_datum: dict):
 def _is_suite_allowed(suites: list, framework_name: str) -> bool:
     allowlist_frameworks_suites = {
         "build_metrics": ["fetch_content", "compiler_metrics"],
+        "mozperftest": [
+            "test_caching.html",
+            "test_fetch.html",
+            "test_registration.html",
+            "test_update.html",
+            "browser_addManyIds.js",
+            "browser_addManyNodes.js",
+            "browser_reflowPseudoelements.js",
+            "browser_removeManySpellingErrors.js",
+        ],
     }
     allowed = allowlist_frameworks_suites.get(framework_name)
     if not allowed:
