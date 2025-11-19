@@ -360,12 +360,33 @@ def test_transition_pending_retry_fail_stays_retry(
     change_state_result(first_job, jl, "completed", "fail", "completed", "retry")
 
 
-def test_skip_unscheduled(first_job, failure_classifications, mock_log_parser):
+def test_transition_unscheduled_pending_running_complete(
+    first_job, failure_classifications, mock_log_parser
+):
     jl = JobLoader()
-    first_job["state"] = "unscheduled"
-    jl.process_job(first_job, "https://firefox-ci-tc.services.mozilla.com")
 
-    assert not Job.objects.count()
+    change_state_result(first_job, jl, "unscheduled", "unknown", "unscheduled", "unknown")
+    change_state_result(first_job, jl, "pending", "unknown", "pending", "unknown")
+    change_state_result(first_job, jl, "running", "unknown", "running", "unknown")
+    change_state_result(first_job, jl, "completed", "success", "completed", "success")
+
+
+def test_transition_pending_unscheduled_stays_pending(
+    first_job, failure_classifications, mock_log_parser
+):
+    jl = JobLoader()
+
+    change_state_result(first_job, jl, "pending", "unknown", "pending", "unknown")
+    change_state_result(first_job, jl, "unscheduled", "unknown", "pending", "unknown")
+
+
+def test_transition_running_unscheduled_stays_running(
+    first_job, failure_classifications, mock_log_parser
+):
+    jl = JobLoader()
+
+    change_state_result(first_job, jl, "running", "unknown", "running", "unknown")
+    change_state_result(first_job, jl, "unscheduled", "unknown", "running", "unknown")
 
 
 def change_state_result(test_job, job_loader, new_state, new_result, exp_state, exp_result):
@@ -373,10 +394,11 @@ def change_state_result(test_job, job_loader, new_state, new_result, exp_state, 
     job = copy.deepcopy(test_job)
     job["state"] = new_state
     job["result"] = new_result
-    if new_state == "pending":
-        # pending jobs wouldn't have logs and our store_job_data doesn't
+    if new_state in ("pending", "unscheduled"):
+        # pending/unscheduled jobs wouldn't have logs and our store_job_data doesn't
         # support it.
-        del job["logs"]
+        if "logs" in job:
+            del job["logs"]
         errorsummary_indices = [
             i
             for i, item in enumerate(job["jobInfo"].get("links", []))
