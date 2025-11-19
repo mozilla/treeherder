@@ -1624,7 +1624,7 @@ class PerfCompareResults(generics.ListAPIView):
             "is_improvement": is_improvement,
             "more_runs_are_needed": more_runs_are_needed,
             "performance_intepretation": performance_intepretation,
-            "direction_of_change": direction,  # 'neutral', 'better', or 'worse'
+            "direction_of_change": direction,  # 'no change', 'improvement', or 'regression'
         }
 
         return stats_data

@@ -293,13 +293,11 @@ def interpret_effect_size(delta):
         return "Effect cannot be interpreted", is_effect_meaningful
     if abs(delta) < 0.15:
         return "negligible", is_effect_meaningful
+    is_effect_meaningful = True
     if abs(delta) < 0.33:
-        is_effect_meaningful = True
         return "small", is_effect_meaningful
     if abs(delta) < 0.47:
-        is_effect_meaningful = True
         return "moderate", is_effect_meaningful
-    is_effect_meaningful = True
     return "large", is_effect_meaningful
 
 
