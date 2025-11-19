@@ -290,6 +290,77 @@ def build_message(push_info, task, run_id, payload):
     return job
 
 
+def handle_task_defined(push_info, task, message):
+    payload = message["payload"]
+    task_id = payload["status"]["taskId"]
+    treeherder_config = task["extra"]["treeherder"]
+
+    # Unscheduled tasks have no runs yet. Use runId=0 as placeholder.
+    # When task becomes pending, it gets its first run with runId=0, matching our placeholder.
+    run_id = 0
+
+    job = {
+        "buildSystem": "taskcluster",
+        "owner": task["metadata"]["owner"],
+        "taskId": f"{slugid.decode(task_id)}/{run_id}",
+        "retryId": run_id,
+        "isRetried": False,
+        "display": {
+            "jobSymbol": str(treeherder_config["symbol"]),
+            "groupSymbol": treeherder_config.get("groupSymbol", "?"),
+            "jobName": task["metadata"]["name"][0:139],
+        },
+        "state": "unscheduled",
+        "result": "unknown",
+        "tier": treeherder_config.get("tier", 1),
+        "timeScheduled": task["created"],
+        "jobKind": treeherder_config.get("jobKind", "other"),
+        "reason": treeherder_config.get("reason", "scheduled"),
+        "jobInfo": {
+            "links": [],
+            "summary": task["metadata"]["description"],
+        },
+        "version": 1,
+    }
+
+    job["origin"] = {
+        "kind": push_info["origin"],
+        "project": push_info["project"],
+        "revision": push_info["revision"],
+    }
+
+    if push_info["origin"] == "hg.mozilla.org":
+        job["origin"]["pushLogID"] = push_info["id"]
+    else:
+        job["origin"]["pullRequestID"] = push_info["id"]
+        job["origin"]["owner"] = push_info["owner"]
+
+    labels = treeherder_config.get("labels", [])
+    if not labels:
+        if not treeherder_config.get("collection"):
+            labels = ["opt"]
+        else:
+            labels = list(treeherder_config["collection"].keys())
+
+    job["labels"] = labels
+
+    machine = treeherder_config.get("machine", {})
+    job["buildMachine"] = {
+        "name": "unknown",
+        "platform": machine.get("platform", task["workerType"]),
+        "os": machine.get("os", "-"),
+        "architecture": machine.get("architecture", "-"),
+    }
+
+    if treeherder_config.get("productName"):
+        job["productName"] = treeherder_config["productName"]
+
+    if treeherder_config.get("groupName"):
+        job["display"]["groupName"] = treeherder_config["groupName"]
+
+    return job
+
+
 def handle_task_pending(push_info, task, message):
     payload = message["payload"]
     return build_message(push_info, task, payload["runId"], payload)
