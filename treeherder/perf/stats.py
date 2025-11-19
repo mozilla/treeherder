@@ -288,15 +288,18 @@ def interpret_mann_whitneyu(base, new, pvalue_threshold=PVALUE_THRESHOLD):
 
 # https://openpublishing.library.umass.edu/pare/article/1977/galley/1980/view/
 def interpret_effect_size(delta):
-    is_effect_meaningful = True
+    is_effect_meaningful = False
     if delta is None:
-        return "Effect cannot be interpreted"
+        return "Effect cannot be interpreted", is_effect_meaningful
     if abs(delta) < 0.15:
-        return "negligible"
+        return "negligible", is_effect_meaningful
     if abs(delta) < 0.33:
+        is_effect_meaningful = True
         return "small", is_effect_meaningful
     if abs(delta) < 0.47:
+        is_effect_meaningful = True
         return "moderate", is_effect_meaningful
+    is_effect_meaningful = True
     return "large", is_effect_meaningful
 
 
