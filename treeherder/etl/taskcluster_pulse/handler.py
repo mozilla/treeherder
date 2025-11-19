@@ -20,6 +20,7 @@ projects_to_ingest = env("PROJECTS_TO_INGEST", default=None)
 
 # Build a mapping from exchange name to task status
 EXCHANGE_EVENT_MAP = {
+    "exchange/taskcluster-queue/v1/task-defined": "unscheduled",
     "exchange/taskcluster-queue/v1/task-pending": "pending",
     "exchange/taskcluster-queue/v1/task-running": "running",
     "exchange/taskcluster-queue/v1/task-completed": "completed",
