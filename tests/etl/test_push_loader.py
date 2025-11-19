@@ -8,10 +8,10 @@ import responses
 from treeherder.etl.push_loader import (
     GithubPullRequestTransformer,
     GithubPushTransformer,
+    HgPushFetchError,
     HgPushTransformer,
     PulsePushError,
     PushLoader,
-    ResultsetFetchError,
 )
 from treeherder.model.models import Push
 
@@ -222,7 +222,7 @@ def test_ingest_github_push_comma_separated_branches(
 
 
 def test_fetch_push_raises_on_empty_pushes(monkeypatch):
-    """Test that a ResultsetFetchError is raised when fetch_json returns a dict without 'pushes'"""
+    """Test that a HgPushFetchError is raised when fetch_json returns a dict without 'pushes'"""
     monkeypatch.setattr("treeherder.etl.push_loader.fetch_json", lambda url: {})
     transformer = HgPushTransformer(
         {
@@ -232,5 +232,5 @@ def test_fetch_push_raises_on_empty_pushes(monkeypatch):
             }
         }
     )
-    with pytest.raises(ResultsetFetchError):
+    with pytest.raises(HgPushFetchError):
         transformer.fetch_push("http://example", repository="try")

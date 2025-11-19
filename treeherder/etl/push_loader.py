@@ -264,42 +264,44 @@ class HgPushTransformer:
         try:
             data = fetch_json(url)
         except Exception as e:
-            logger.exception("Failed fetching push JSON from %s for %s: %s", url, repository, e)
+            logger.exception(f"Failed fetching push JSON from {url} for {repository}: {e}")
             try:
                 newrelic.agent.record_custom_event(
-                    "resultset_fetch_failure",
+                    "hg_push_fetch_failure",
                     {"url": url, "repository": repository, "error": str(e)},
                 )
             except Exception:
                 # NewRelic failures should not block ingestion
                 logger.debug("NewRelic event failed for fetch error")
-            raise ResultsetFetchError(f"Failed to fecth JSON from {url}: {e}") from e
+            raise HgPushFetchError(f"Failed to fetch JSON from {url}: {e}") from e
 
         pushes = None
         if isinstance(data, dict):
             pushes = data.get("pushes")
 
         if not pushes or not isinstance(pushes, dict):
-            # Log deg info and raise error
+            # Log data in warning and raise error
             data_keys = list(data.keys()) if isinstance(data, dict) else None
             logger.warning(
                 f"Malformed or empty push JSON from {url} for {repository}: data-keys={data_keys}"
             )
             try:
                 newrelic.agent.record_custom_event(
-                    "resultset_fetch_malformed",
+                    "hg_push_fetch_malformed",
                     {"url": url, "repository": repository, "data_keys": data_keys},
                 )
             except Exception:
-                logger.debug("NewRelic event failed for malformed data")
-            raise ResultsetFetchError(f"Malformed or empty 'pushes' for {url}")
+                logger.debug("NewRelic event failed for malformed Hg push data")
+            raise HgPushFetchError(f"Malformed or empty 'pushes' for {url}")
 
         # Safely get the first push
         try:
             push = next(iter(pushes.values()))
         except Exception as e:
-            logger.exception("Failed to extract first push from pushes for {respository} {url}:{e}")
-            raise ResultsetFetchError(f"Unable to extract push from 'pushes' for {url}: {e}") from e
+            logger.exception(
+                f"Failed to extract first push from pushes for {repository} {url}: {e}"
+            )
+            raise HgPushFetchError(f"Unable to extract push from 'pushes' for {url}: {e}") from e
 
         commits = []
         # we only want to ingest the last 200 commits for each push,
@@ -325,7 +327,7 @@ class PulsePushError(ValueError):
     pass
 
 
-class ResultsetFetchError(Exception):
+class HgPushFetchError(Exception):
     """Raised when fetching or parsing a push resultset fails."""
 
     pass
