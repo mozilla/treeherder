@@ -78,12 +78,11 @@ class JobLoader:
                         return
 
                     transformed_job = None
-                    if pulse_job["state"] != "unscheduled":
-                        try:
-                            self.validate_revision(repository, pulse_job)
-                            transformed_job = self.transform(pulse_job)
-                        except AttributeError:
-                            logger.warning("Skipping job due to bad attribute", exc_info=1)
+                    try:
+                        self.validate_revision(repository, pulse_job)
+                        transformed_job = self.transform(pulse_job)
+                    except AttributeError:
+                        logger.warning("Skipping job due to bad attribute", exc_info=1)
 
                 if transformed_job:
                     with settings.STATSD_CLIENT.timer("process_job_store"):
