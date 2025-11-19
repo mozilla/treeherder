@@ -8,6 +8,8 @@ from scipy.signal import find_peaks
 from scipy.stats import bootstrap, iqr, ks_2samp, mannwhitneyu
 
 # New Stats Code
+# various formulas extracted from here:
+# https://colab.research.google.com/gist/padenot/2a408f0a39e269977045fc2fb265663b/end-to-end.ipynb#scrollTo=M8WY0yVIX5Ru&uniqifier=1
 
 # p-value threshold to use throughout
 PVALUE_THRESHOLD = 0.05
@@ -302,14 +304,18 @@ def interpret_effect_size(delta):
         return "large", is_effect_meaningful
 
 
-def interpret_cles_direction(cles, pvalue_threshold=PVALUE_THRESHOLD):
+def interpret_cles_direction(cles):
+    # probability that a randomly selected score from one group will be greater than a randomly selected score from a second group
+    # A CLES of 0.5 indicates a 50% chance for either outcome, 50/50 toss up, no change
+    # A CLES of 0.6 would mean there is a 60% chance that a score Base > New
+    # A CLES of 0.4 would mean there is a 40% chance that a score from Base > New, or a 60% chance that a score from New > Base
     is_base_greater = None
     if cles is None:
         return "CLES cannot be interpreted", is_base_greater
-    elif cles > pvalue_threshold:
+    elif cles > 0.5:
         is_base_greater = True
         return f"{cles:.0%} chance a base value > a new value", is_base_greater
-    elif cles < pvalue_threshold:
+    elif cles < 0.5:
         is_base_greater = False
         return f"{1 - cles:.0%} chance a new value > base value", is_base_greater
     return "CLES cannot be interpreted", is_base_greater
