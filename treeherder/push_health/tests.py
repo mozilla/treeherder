@@ -12,6 +12,7 @@ from treeherder.model.models import (
     FailureLine,
     InvestigatedTests,
     Job,
+    JobLog,
     JobType,
     OptionCollection,
     TextLogError,
@@ -86,6 +87,51 @@ def get_history(
 # Note: get_current_test_failures was inlined into get_test_failures for clarity
 
 
+def _get_failure_priority(action, status):
+    """
+    Determine priority of a failure based on action and status.
+    Higher numbers = higher priority (more severe failures).
+
+    Priority order (highest to lowest):
+    1. crash action (process crashes)
+    2. CRASH status (test crashed)
+    3. TIMEOUT status
+    4. ASSERT status
+    5. ERROR status
+    6. FAIL status
+    7. log action (log errors)
+    8. Other statuses
+    """
+    # Action-based priorities (higher = more severe)
+    action_priority = {
+        "crash": 1000,  # Process crash - highest priority
+        "log": 100,  # Log errors - medium priority
+        "test_result": 0,  # Test results - priority based on status
+        "group_result": 0,  # Group results - priority based on status
+        "truncated": 50,  # Truncated logs - low-medium priority
+    }
+
+    # Status-based priorities (higher = more severe)
+    status_priority = {
+        "CRASH": 900,  # Test crash
+        "TIMEOUT": 800,  # Test timeout
+        "ASSERT": 700,  # Assertion failure
+        "ERROR": 600,  # Error
+        "FAIL": 500,  # Regular failure
+        "PRECONDITION_FAILED": 400,
+        "NOTRUN": 300,
+        "SKIP": 200,
+        "OK": 100,
+        "PASS": 100,
+    }
+
+    # Combine action and status priorities
+    base_priority = action_priority.get(action, 0)
+    status_boost = status_priority.get(status, 0)
+
+    return base_priority + status_boost
+
+
 def _generate_test_key(test_name, config, platform, job_name, job_group):
     """Generate unique key for test+platform+config+job combination."""
     return re.sub(r"\W+", "", f"t{test_name}{config}{platform}{job_name}{job_group}")
@@ -130,6 +176,8 @@ def _create_test_failure_record(
     investigated_test_id,
 ):
     """Create the test failure record dictionary with all required fields."""
+    priority = _get_failure_priority(failure_line.action, failure_line.status)
+
     return {
         "testName": test_name,
         "action": failure_line.action.split("_")[0],
@@ -151,6 +199,7 @@ def _create_test_failure_record(
         "isInvestigated": is_investigated,
         "investigatedTestId": investigated_test_id,
         "failedInJobs": [],  # Track which jobs failed for this test
+        "_priority": priority,  # Internal field to track failure severity
     }
 
 
@@ -163,6 +212,29 @@ def has_line(failure_line, log_line_list):
         (find_line for find_line in log_line_list if find_line["line_number"] == failure_line.line),
         False,
     )
+
+
+def get_jobs_with_pending_parsing(job_ids):
+    """
+    Check which jobs have log parsing still pending.
+
+    Args:
+        job_ids: List of job IDs to check
+
+    Returns:
+        set: Job IDs that have at least one JobLog with status=PENDING
+    """
+    if not job_ids:
+        return set()
+
+    # Get all JobLog entries for these jobs that are still pending
+    pending_logs = (
+        JobLog.objects.filter(job_id__in=job_ids, status=JobLog.PENDING)
+        .values_list("job_id", flat=True)
+        .distinct()
+    )
+
+    return set(pending_logs)
 
 
 def get_test_failure_jobs(push):
@@ -382,6 +454,13 @@ def get_test_failures(
                 is_investigated,
                 investigated_test_id,
             )
+        else:
+            # Test key already exists - check if this failure has higher priority
+            current_priority = _get_failure_priority(failure_line.action, failure_line.status)
+            if current_priority > tests[test_key]["_priority"]:
+                # Update to use the higher priority action
+                tests[test_key]["action"] = failure_line.action.split("_")[0]
+                tests[test_key]["_priority"] = current_priority
 
         # Track which jobs failed for this test (task-to-test matching)
         job_id = job.id
@@ -393,8 +472,8 @@ def get_test_failures(
     push_failures = sorted(tests.values(), key=lambda k: k["testName"])
     filtered_push_failures = [failure for failure in push_failures if filter_failure(failure)]
 
-    # If there are testfailed jobs but no FailureLines, fall back to TextLogError
-    # This handles cases like timeout failures that may not create FailureLine objects
+    # If there are testfailed jobs but no FailureLines, check parsing status before fallback
+    # This handles cases like timeout failures or jobs where parsing is still pending
     if has_testfailed_jobs and not filtered_push_failures:
         # Get job IDs that don't have FailureLines
         jobs_without_failurelines = [
@@ -404,10 +483,26 @@ def get_test_failures(
             if job_dict["result"] == "testfailed" and job_dict["id"] not in all_failed_jobs
         ]
 
+        # Initialize these variables for later use
+        jobs_pending_parsing = []
+        jobs_completed_parsing = []
+
         if jobs_without_failurelines:
-            # Query TextLogError for these jobs
+            # Check which jobs have log parsing still pending
+            jobs_with_pending_parsing = get_jobs_with_pending_parsing(jobs_without_failurelines)
+
+            # Separate jobs into pending vs completed parsing
+            jobs_pending_parsing = [
+                jid for jid in jobs_without_failurelines if jid in jobs_with_pending_parsing
+            ]
+            jobs_completed_parsing = [
+                jid for jid in jobs_without_failurelines if jid not in jobs_with_pending_parsing
+            ]
+
+        if jobs_completed_parsing:
+            # Query TextLogError only for jobs that have completed parsing
             text_log_errors = TextLogError.objects.filter(
-                job_id__in=jobs_without_failurelines
+                job_id__in=jobs_completed_parsing
             ).select_related("job__job_type", "job__job_group", "job__machine_platform")
 
             # Group by job to process each job's errors
@@ -456,6 +551,7 @@ def get_test_failures(
                         class TextLogErrorAdapter:
                             def __init__(self):
                                 self.action = "log"
+                                self.status = "ERROR"  # Default status for log errors
 
                         tests[test_key] = _create_test_failure_record(
                             test_name,
@@ -468,6 +564,14 @@ def get_test_failures(
                             is_investigated,
                             investigated_test_id,
                         )
+                    else:
+                        # Test key already exists - check if this failure has higher priority
+                        # TextLogError entries have action="log" and status="ERROR"
+                        current_priority = _get_failure_priority("log", "ERROR")
+                        if current_priority > tests[test_key]["_priority"]:
+                            # Update to use the higher priority action
+                            tests[test_key]["action"] = "log"
+                            tests[test_key]["_priority"] = current_priority
 
                     # Track which jobs failed for this test (task-to-test matching)
                     if job_id not in tests[test_key]["failedInJobs"]:
@@ -480,38 +584,85 @@ def get_test_failures(
                 failure for failure in push_failures if filter_failure(failure)
             ]
 
-        # If still no failures after TextLogError fallback, create placeholder entries
+        # Create placeholder entries for jobs without failures
         if not filtered_push_failures:
             placeholder_failures = []
-            for job_name, jobs_list in new_failure_jobs_dict.items():
-                for job_dict in jobs_list:
-                    if job_dict["result"] == "testfailed" and job_dict["id"] not in all_failed_jobs:
-                        # Create a placeholder entry for this job
-                        placeholder_failures.append(
-                            {
-                                "testName": f"Log parsing pending for {job_name}",
-                                "action": "test",
-                                "jobName": job_dict["job_type_name"],
-                                "jobSymbol": job_dict["job_type_symbol"],
-                                "jobGroup": "",
-                                "jobGroupSymbol": "",
-                                "platform": job_dict["platform"],
-                                "config": "",
-                                "key": f"pending-{job_dict['id']}",
-                                "jobKey": job_name,
-                                "suggestedClassification": "New Failure (Log Parsing Pending)",
-                                "confidence": 0,
-                                "tier": 1,
-                                "totalFailures": 1,
-                                "totalJobs": 1,
-                                "failedInParent": False,
-                                "isClassifiedIntermittent": False,
-                                "isInvestigated": False,
-                                "investigatedTestId": None,
-                                "failedInJobs": [job_dict["id"]],
-                            }
-                        )
+
+            # Create entries for jobs with pending parsing
+            if jobs_pending_parsing:
+                for job_name, jobs_list in new_failure_jobs_dict.items():
+                    for job_dict in jobs_list:
+                        if (
+                            job_dict["result"] == "testfailed"
+                            and job_dict["id"] in jobs_pending_parsing
+                        ):
+                            # Create a "parsing pending" entry for this job
+                            placeholder_failures.append(
+                                {
+                                    "testName": f"Log parsing pending for {job_name}",
+                                    "action": "test",
+                                    "jobName": job_dict["job_type_name"],
+                                    "jobSymbol": job_dict["job_type_symbol"],
+                                    "jobGroup": "",
+                                    "jobGroupSymbol": "",
+                                    "platform": job_dict["platform"],
+                                    "config": "",
+                                    "key": f"pending-{job_dict['id']}",
+                                    "jobKey": job_name,
+                                    "suggestedClassification": "Log Parsing Pending",
+                                    "confidence": 0,
+                                    "tier": job_dict.get("tier", 1),
+                                    "totalFailures": 1,
+                                    "totalJobs": 1,
+                                    "failedInParent": False,
+                                    "isClassifiedIntermittent": False,
+                                    "isInvestigated": False,
+                                    "investigatedTestId": None,
+                                    "failedInJobs": [job_dict["id"]],
+                                }
+                            )
+
+            # Create entries for jobs that completed parsing but have no failures
+            # (This is unusual but can happen with certain failure types)
+            if jobs_completed_parsing:
+                for job_name, jobs_list in new_failure_jobs_dict.items():
+                    for job_dict in jobs_list:
+                        if (
+                            job_dict["result"] == "testfailed"
+                            and job_dict["id"] in jobs_completed_parsing
+                            and job_dict["id"] not in all_failed_jobs
+                        ):
+                            # Create a placeholder for parsed jobs with no detectable failures
+                            placeholder_failures.append(
+                                {
+                                    "testName": f"No test failures detected for {job_name}",
+                                    "action": "test",
+                                    "jobName": job_dict["job_type_name"],
+                                    "jobSymbol": job_dict["job_type_symbol"],
+                                    "jobGroup": "",
+                                    "jobGroupSymbol": "",
+                                    "platform": job_dict["platform"],
+                                    "config": "",
+                                    "key": f"no-failures-{job_dict['id']}",
+                                    "jobKey": job_name,
+                                    "suggestedClassification": "Unknown Failure",
+                                    "confidence": 0,
+                                    "tier": job_dict.get("tier", 1),
+                                    "totalFailures": 1,
+                                    "totalJobs": 1,
+                                    "failedInParent": False,
+                                    "isClassifiedIntermittent": False,
+                                    "isInvestigated": False,
+                                    "investigatedTestId": None,
+                                    "failedInJobs": [job_dict["id"]],
+                                }
+                            )
+
             filtered_push_failures = placeholder_failures
+
+    # Remove internal _priority field before returning results
+    for failure in filtered_push_failures:
+        failure.pop("_priority", None)
 
     # SIMPLIFIED: All fcid=6 failures go to needInvestigation
     # No historical classification needed since we're focused on new failures
