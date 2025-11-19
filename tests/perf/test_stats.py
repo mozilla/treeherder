@@ -76,4 +76,4 @@ def test_interpret_cles():
 
     assert cles_obj["cles"] == 0.1
     assert cles == 0.1
-    assert is_base_greater is None
+    assert is_base_greater is False
