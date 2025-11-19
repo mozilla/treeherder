@@ -252,7 +252,7 @@ def interpret_ks_test(base, new, pvalue_threshold=PVALUE_THRESHOLD):
 
 
 def mann_whitney_pval_significance(mann_pvalue, pvalue_threshold=PVALUE_THRESHOLD):
-    p_value_interpretation = None
+    p_value_interpretation = ""
     is_significant = False
 
     if mann_pvalue > pvalue_threshold:
@@ -288,20 +288,16 @@ def interpret_mann_whitneyu(base, new, pvalue_threshold=PVALUE_THRESHOLD):
 
 # https://openpublishing.library.umass.edu/pare/article/1977/galley/1980/view/
 def interpret_effect_size(delta):
-    is_effect_meaningful = False
+    is_effect_meaningful = True
     if delta is None:
-        return "Effect cannot be interpreted", is_effect_meaningful
+        return "Effect cannot be interpreted"
     if abs(delta) < 0.15:
-        return "negligible", is_effect_meaningful
+        return "negligible"
     if abs(delta) < 0.33:
-        is_effect_meaningful = True
         return "small", is_effect_meaningful
     if abs(delta) < 0.47:
-        is_effect_meaningful = True
         return "moderate", is_effect_meaningful
-    else:
-        is_effect_meaningful = True
-        return "large", is_effect_meaningful
+    return "large", is_effect_meaningful
 
 
 def interpret_cles_direction(cles):
@@ -400,7 +396,7 @@ def interpret_cles(
             mann_whitney_u_cles = ""
 
         # Generate CLES explanation
-        cles_explanation, is_base_greater = interpret_cles_direction(cles) if cles else "", None
+        cles_explanation, is_base_greater = interpret_cles_direction(cles)
         # Cliff's delta CLES
         cliffs_delta_cles = f"Cliff's Delta: {delta:.2f} → {interpretation}" if delta else ""
 
@@ -483,11 +479,10 @@ def interpret_silverman_kde(base_data, new_data, lower_is_better):
         base_intervals, base_peak_xs = find_mode_interval(x_base, y_base, base_peak_locs)
         new_intervals, new_peak_xs = find_mode_interval(x_new, y_new, new_peak_locs)
         for i, interval in enumerate(base_intervals):
-            tup = interval
-            if len(tup) != 2:
+            if len(interval) != 2:
                 return None, None, None, None, None, None
 
-            start, end = tup
+            start, end = interval
             shift = 0
             ci_low = 0
             ci_high = 0
@@ -549,7 +544,7 @@ def interpret_silverman_kde(base_data, new_data, lower_is_better):
                     "ci_warning": ci_warning,
                 }
 
-                modes.append(mode_info)
+            modes.append(mode_info)
 
         silverman_kde = {
             "bandwidth": "Silverman",
