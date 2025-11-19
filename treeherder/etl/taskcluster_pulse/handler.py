@@ -174,7 +174,8 @@ async def handle_message(message, task_definition=None):
     async with taskcluster.aio.createSession() as session:
         jobs = []
         task_id = message["payload"]["status"]["taskId"]
-        run_id = message["payload"]["runId"]
+        # task-defined messages don't have runId since the task has no runs yet
+        run_id = message["payload"].get("runId", 0)
         if task_definition:
             task = task_definition
         else:
@@ -201,6 +202,8 @@ async def handle_message(message, task_definition=None):
 
         if not task_type:
             raise Exception("Unknown exchange: {exchange}".format(exchange=message["exchange"]))
+        elif task_type == "unscheduled":
+            jobs.append(handle_task_defined(parsed_route, task, message))
         elif task_type == "pending":
             jobs.append(handle_task_pending(parsed_route, task, message))
         elif task_type == "running":
