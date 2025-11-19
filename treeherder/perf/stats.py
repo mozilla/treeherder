@@ -316,6 +316,8 @@ def interpret_cles_direction(cles, pvalue_threshold=PVALUE_THRESHOLD):
 
 
 def is_new_better(is_effect_meaningful, is_base_greater, is_significant, lower_is_better):
+    is_new_better = None
+    direction = "no change"
     # Possibility Base > than New with a small amount or more significance
     if is_base_greater and is_effect_meaningful and is_significant:
         if lower_is_better:
@@ -332,9 +334,6 @@ def is_new_better(is_effect_meaningful, is_base_greater, is_significant, lower_i
         else:
             is_new_better = True
             direction = "improvement"
-    else:
-        is_new_better = None
-        direction = "no change"
     return direction, is_new_better
 
 
