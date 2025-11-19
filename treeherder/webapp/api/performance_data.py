@@ -1501,9 +1501,12 @@ class PerfCompareResults(generics.ListAPIView):
         # Mann-Whitney U test, two sided because we're never quite sure what of
         # the intent of the patch, as things stand
         # Tests the null hypothesis that the distributions of the two are identical
-        mann_whitney, mann_stat, mann_pvalue = stats.interpret_mann_whitneyu(
-            base_rev_data, new_rev_data, pvalue_threshold
-        )
+        (
+            mann_whitney,
+            mann_stat,
+            mann_pvalue,
+            is_significant,
+        ) = stats.interpret_mann_whitneyu(base_rev_data, new_rev_data, pvalue_threshold)
         delta_value = new_median - base_median
         delta_percentage = (delta_value / base_median * 100) if base_median != 0 else 0
 
@@ -1520,33 +1523,32 @@ class PerfCompareResults(generics.ListAPIView):
         else:
             c_delta, _ = cliffs_delta(base_rev_data, new_rev_data)
 
-        cliffs_interpretation = stats.interpret_effect_size(c_delta)
+        # interpret effect size
+        cliffs_interpretation, is_effect_meaningful = stats.interpret_effect_size(c_delta)
 
         # returns CLES
         (
             cles_obj,
             cles,
-            is_significant,
             cles_explanation,
             mann_whitney_u_cles,
             cliffs_delta_cles,
+            is_base_greater,
         ) = stats.interpret_cles(
             mann_stat,
-            mann_pvalue,
             new_rev_data,
             base_rev_data,
-            cliffs_interpretation,
             c_delta,
+            cliffs_interpretation,
             lower_is_better,
-            pvalue_threshold,
         )
 
-        # Interpret effect size
-        effect_size = stats.interpret_effect_size(c_delta)
-        direction, is_new_better = stats.is_new_better(c_delta, cles, mann_pvalue, lower_is_better)
+        direction, is_new_better = stats.is_new_better(
+            is_effect_meaningful, is_base_greater, is_significant, lower_is_better
+        )
 
         if cles_obj:
-            cles_obj["effect_size"] = effect_size
+            cles_obj["effect_size"] = cliffs_interpretation
             cles_obj["cles_direction"] = direction
 
         # Compute KDE with Silverman bandwidth, and warn if multimodal.
@@ -1616,7 +1618,7 @@ class PerfCompareResults(generics.ListAPIView):
             # short form summary based on former tests shapiro, silverman, etc...
             "is_fit_good": is_fit_good,
             "is_new_better": is_new_better,
-            "is_meaningful": is_significant,
+            "is_meaningful": is_effect_meaningful,
             "lower_is_better": lower_is_better,
             "is_regression": is_regression,
             "is_improvement": is_improvement,

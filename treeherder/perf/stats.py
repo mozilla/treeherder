@@ -251,11 +251,14 @@ def interpret_ks_test(base, new, pvalue_threshold=PVALUE_THRESHOLD):
 
 def mann_whitney_pval_significance(mann_pvalue, pvalue_threshold=PVALUE_THRESHOLD):
     p_value_interpretation = None
+    is_significant = False
+
     if mann_pvalue > pvalue_threshold:
         p_value_interpretation = "not significant"
     if mann_pvalue <= pvalue_threshold:
+        is_significant = True
         p_value_interpretation = "significant"
-    return p_value_interpretation
+    return p_value_interpretation, is_significant
 
 
 # Mann-Whitney U test
@@ -268,7 +271,9 @@ def interpret_mann_whitneyu(base, new, pvalue_threshold=PVALUE_THRESHOLD):
     mann_stat = float(mann_stat) if mann_stat else None
     mann_pvalue = float(mann_pvalue) if mann_pvalue else None
     # Mann-Whitney U  p-value interpretation
-    p_value_interpretation = mann_whitney_pval_significance(mann_pvalue, pvalue_threshold)
+    p_value_interpretation, is_significant = mann_whitney_pval_significance(
+        mann_pvalue, pvalue_threshold
+    )
 
     mann_whitney = {
         "test_name": "Mann-Whitney U",
@@ -276,51 +281,43 @@ def interpret_mann_whitneyu(base, new, pvalue_threshold=PVALUE_THRESHOLD):
         "pvalue": mann_pvalue,
         "interpretation": p_value_interpretation,
     }
-    return mann_whitney, mann_stat, mann_pvalue
+    return mann_whitney, mann_stat, mann_pvalue, is_significant
 
 
 # https://openpublishing.library.umass.edu/pare/article/1977/galley/1980/view/
 def interpret_effect_size(delta):
+    is_effect_meaningful = False
     if delta is None:
-        return "Effect cannot be interpreted"
+        return "Effect cannot be interpreted", is_effect_meaningful
     if abs(delta) < 0.15:
-        return "negligible"
-    elif abs(delta) < 0.33:
-        return "small"
-    elif abs(delta) < 0.47:
-        return "moderate"
+        return "negligible", is_effect_meaningful
+    if abs(delta) < 0.33:
+        is_effect_meaningful = True
+        return "small", is_effect_meaningful
+    if abs(delta) < 0.47:
+        is_effect_meaningful = True
+        return "moderate", is_effect_meaningful
     else:
-        return "large"
+        is_effect_meaningful = True
+        return "large", is_effect_meaningful
 
 
 def interpret_cles_direction(cles, pvalue_threshold=PVALUE_THRESHOLD):
-    greater_rev = None
+    is_base_greater = None
     if cles is None:
-        return "CLES cannot be interpreted", greater_rev
-    if cles > pvalue_threshold:
-        greater_rev = "base"
-        return f"{cles:.0%} chance a base value > a new value", greater_rev
-    if cles < pvalue_threshold:
-        greater_rev = "new"
-        return f"{1 - cles:.0%} chance a new value > base value", greater_rev
-    return "CLES cannot be interpreted", greater_rev
+        return "CLES cannot be interpreted", is_base_greater
+    elif cles > pvalue_threshold:
+        is_base_greater = True
+        return f"{cles:.0%} chance a base value > a new value", is_base_greater
+    elif cles < pvalue_threshold:
+        is_base_greater = False
+        return f"{1 - cles:.0%} chance a new value > base value", is_base_greater
+    return "CLES cannot be interpreted", is_base_greater
 
 
-def is_new_better(c_delta, cles, mann_pvalue, lower_is_better, pvalue_threshold=PVALUE_THRESHOLD):
-    """This method takes in CLES to measure if meaningful, Mann Whitney p-val for significance as well as Cliff's Delta for change"""
+def is_new_better(is_effect_meaningful, is_base_greater, is_significant, lower_is_better):
     # Possibility Base > than New with a small amount or more significance
-    cles_interpretation, greater_rev = interpret_cles_direction(
-        cles, pvalue_threshold=PVALUE_THRESHOLD
-    )
-    effect_size = interpret_effect_size(c_delta)
-    effect_value_significance = ["small", "moderate", "large"]
-    p_value_interpretation = mann_whitney_pval_significance(mann_pvalue, pvalue_threshold)
-
-    if (
-        greater_rev == "base"
-        and any(effect_size in effect_value_significance)
-        and p_value_interpretation == "significant"
-    ):
+    if is_base_greater and is_effect_meaningful and is_significant:
         if lower_is_better:
             is_new_better = True
             direction = "improvement"
@@ -328,11 +325,7 @@ def is_new_better(c_delta, cles, mann_pvalue, lower_is_better, pvalue_threshold=
             is_new_better = False
             direction = "regression"
     # Possibility New > Base with a small amount or more significance
-    if (
-        greater_rev == "new"
-        and any(effect_size in effect_value_significance)
-        and p_value_interpretation == "significant"
-    ):
+    elif (is_base_greater is False) and is_effect_meaningful and is_significant:
         if lower_is_better:
             is_new_better = False
             direction = "regression"
@@ -377,13 +370,11 @@ def interpret_performance_direction(ci_low, ci_high, lower_is_better):
 # Common Language Effect Size, and its interpretation in english
 def interpret_cles(
     mann_stat,
-    mann_pvalue,
     new_revision,
     base_revision,
     delta,
     interpretation,
     lower_is_better,
-    pvalue_threshold=PVALUE_THRESHOLD,
 ):
     try:
         cles = None
@@ -403,9 +394,8 @@ def interpret_cles(
         else:
             mann_whitney_u_cles = ""
 
-        is_significant = False if mann_pvalue > pvalue_threshold else True
         # Generate CLES explanation
-        cles_explanation = interpret_cles_direction(cles) if cles else ""
+        cles_explanation, is_base_greater = interpret_cles_direction(cles) if cles else "", None
         # Cliff's delta CLES
         cliffs_delta_cles = f"Cliff's Delta: {delta:.2f} → {interpretation}" if delta else ""
 
@@ -419,10 +409,10 @@ def interpret_cles(
         return (
             cles_obj,
             cles,
-            is_significant,
             cles_explanation,
             mann_whitney_u_cles,
             cliffs_delta_cles,
+            is_base_greater,
         )
     except Exception:
         return None, None, None, None, None, None
@@ -487,22 +477,35 @@ def interpret_silverman_kde(base_data, new_data, lower_is_better):
         modes = []
         base_intervals, base_peak_xs = find_mode_interval(x_base, y_base, base_peak_locs)
         new_intervals, new_peak_xs = find_mode_interval(x_new, y_new, new_peak_locs)
+        for i, interval in enumerate(base_intervals):
+            tup = interval
+            if len(tup) != 2:
+                return None, None, None, None, None, None
 
-        if base_mode_count == new_mode_count:
-            per_mode_new = split_per_mode(new_data, new_intervals)
-            per_mode_base = split_per_mode(base_data, base_intervals)
+            start, end = tup
+            shift = 0
+            ci_low = 0
+            ci_high = 0
+            median_shift_summary = (
+                "Cannot measure shift, base mode count not equal to new mode count"
+            )
+            shift = None
+            mode_name = f"Mode {i + 1}"
+            mode_info = {
+                "mode_name": mode_name,
+                "mode_start": f"{start:.2f}" if start else None,
+                "mode_end": f"{end:.2f}" if end else None,
+                "median_shift_summary": median_shift_summary,
+                "ci_low": ci_low,
+                "ci_high": ci_high,
+                "shift": shift,
+                "shift_summary": performance_intepretation,
+                "ci_warning": ci_warning,
+            }
 
-            for i, interval in enumerate(base_intervals):
-                tup = interval
-                if len(tup) != 2:
-                    return None, None, None, None, None, None
-
-                start, end = tup
-                shift = 0
-                ci_low = 0
-                ci_high = 0
-                median_shift_summary = None
-                mode_name = f"Mode {i + 1}"
+            if base_mode_count == new_mode_count:
+                per_mode_new = split_per_mode(new_data, new_intervals)
+                per_mode_base = split_per_mode(base_data, base_intervals)
 
                 try:
                     ref_vals = [val for val, mode in zip(base_data, per_mode_base) if mode == i]
@@ -540,33 +543,7 @@ def interpret_silverman_kde(base_data, new_data, lower_is_better):
                     "shift_summary": performance_intepretation,
                     "ci_warning": ci_warning,
                 }
-                modes.append(mode_info)
-        else:
-            for i, interval in enumerate(base_intervals):
-                tup = interval
-                if len(tup) != 2:
-                    return None, None, None, None, None, None
 
-                start, end = tup
-                shift = 0
-                ci_low = 0
-                ci_high = 0
-                median_shift_summary = (
-                    "Cannot measure shift, base mode count not equal to new mode count."
-                )
-                shift = None
-                mode_name = f"Mode {i + 1}"
-                mode_info = {
-                    "mode_name": mode_name,
-                    "mode_start": f"{start:.2f}" if start else None,
-                    "mode_end": f"{end:.2f}" if end else None,
-                    "median_shift_summary": median_shift_summary,
-                    "ci_low": ci_low,
-                    "ci_high": ci_high,
-                    "shift": shift,
-                    "shift_summary": performance_intepretation,
-                    "ci_warning": ci_warning,
-                }
                 modes.append(mode_info)
 
         silverman_kde = {
