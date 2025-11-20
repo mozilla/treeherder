@@ -6,7 +6,7 @@ describe('Filter constants', () => {
     expect(thAllResultStatuses).toContain('unscheduled');
   });
 
-  it('thDefaultFilterResultStatuses includes unscheduled', () => {
-    expect(thDefaultFilterResultStatuses).toContain('unscheduled');
+  it('thDefaultFilterResultStatuses does not include unscheduled', () => {
+    expect(thDefaultFilterResultStatuses).not.toContain('unscheduled');
   });
 });
