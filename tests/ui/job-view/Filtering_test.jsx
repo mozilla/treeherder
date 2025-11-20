@@ -452,7 +452,7 @@ describe('Filtering', () => {
       });
 
       expect(history.location.search).toBe(
-        '?repo=autoland&resultStatus=testfailed%2Cbusted%2Cexception%2Csuccess%2Cretry%2Cusercancel%2Crunnable',
+        '?repo=autoland&resultStatus=testfailed%2Cbusted%2Cexception%2Csuccess%2Cretry%2Cusercancel%2Cunscheduled%2Crunnable',
       );
     });
 

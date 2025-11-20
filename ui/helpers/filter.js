@@ -39,6 +39,7 @@ export const thDefaultFilterResultStatuses = [
   'usercancel',
   'running',
   'pending',
+  'unscheduled',
   'runnable',
 ];
 
