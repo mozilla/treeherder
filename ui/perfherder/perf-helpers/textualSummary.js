@@ -90,6 +90,8 @@ export default class TextualSummary {
     const prevValue = numeral(alert.prev_value).format(numFormat);
     const newValue = numeral(alert.new_value).format(numFormat);
 
+    const measurementUnit = alert.series_signature.measurement_unit ?? '';
+
     const { suite, test, machine_platform: platform } = alert.series_signature;
     const extraOptions = alert.series_signature.extra_options.join(' ');
 
@@ -102,17 +104,16 @@ export default class TextualSummary {
     );
     const perfdocs = new Perfdocs(frameworkName, suite, platform);
     const url = perfdocs.documentationURL;
-    const suiteName = perfdocs.hasDocumentation()
-      ? `[${suite}](${url})`
-      : suite;
-    const suiteTestName = suite === test ? suiteName : `${suiteName} ${test}`;
+    const doc = perfdocs.hasDocumentation() ? `[(doc)](${url})` : '';
+    const suiteTestName =
+      suite === test ? `${suite} ${doc}` : `${suite} ${test} ${doc}`;
 
     const alertValues =
       updatedAlert &&
       updatedAlert.results_link &&
       updatedAlert.prev_results_link
         ? `[${prevValue}](${updatedAlert.prev_results_link}) -> [${newValue}](${updatedAlert.results_link})`
-        : `${prevValue} -> ${newValue}`;
+        : `${prevValue} ${measurementUnit} -> ${newValue} ${measurementUnit}`;
 
     let maybeProfileLinks = '';
     if (this.hasProfileUrls) {
@@ -148,7 +149,7 @@ export default class TextualSummary {
       const maybeProfileColumn = this.hasProfileUrls
         ? ' **Performance Profiles** |'
         : '';
-      resultStr += `### Regressions:\n\n| **Ratio** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)** | ${maybeProfileColumn} ${this.headerRow} \n${formattedRegressions}\n`;
+      resultStr += `\n\n| **Regression** | **Test** | **Platform** | **Options** | **Absolute values [old vs new]** | ${maybeProfileColumn} ${this.headerRow} \n${formattedRegressions}\n`;
     }
     if (regressed.length > 15) {
       // add a newline if we displayed the header
@@ -171,7 +172,7 @@ export default class TextualSummary {
       const maybeProfileColumn = this.hasProfileUrls
         ? ' **Performance Profiles** |'
         : '';
-      resultStr += `### Regressions:\n\n| **Ratio** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)** | ${maybeProfileColumn} ${this.headerRow} \n${formattedBiggestRegressions}`;
+      resultStr += `\n\n| **Regression** | **Test** | **Platform** | **Options** | **Absolute values [old vs new]** | ${maybeProfileColumn} ${this.headerRow} \n${formattedBiggestRegressions}`;
       resultStr += this.ellipsesRow;
       resultStr += `\n${formattedSmallestRegressions}\n`;
     }
@@ -190,7 +191,7 @@ export default class TextualSummary {
       const maybeProfileColumn = this.hasProfileUrls
         ? ' **Performance Profiles** |'
         : '';
-      resultStr += `### Improvements:\n\n| **Ratio** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)** | ${maybeProfileColumn} ${this.headerRow} \n${formattedImprovements}\n`;
+      resultStr += `\n\n| **Improvement** | **Test** | **Platform** | **Options** | **Absolute values [old vs new]** | ${maybeProfileColumn} ${this.headerRow} \n${formattedImprovements}\n`;
     } else if (improved.length > 6) {
       // Add a newline if we displayed some regressions
       if (resultStr.length > 0) {
@@ -212,7 +213,7 @@ export default class TextualSummary {
       const maybeProfileColumn = this.hasProfileUrls
         ? ' **Performance Profiles** |'
         : '';
-      resultStr += `### Improvements:\n\n| **Ratio** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)** | ${maybeProfileColumn} ${this.headerRow} \n${formattedBiggestImprovements}`;
+      resultStr += `\n\n| **Improvements** | **Test** | **Platform** | **Options** | **Absolute values [old vs new]** | ${maybeProfileColumn} ${this.headerRow} \n${formattedBiggestImprovements}`;
       resultStr += this.ellipsesRow;
       resultStr += `\n${formattedSmallestImprovement}\n`;
     }
