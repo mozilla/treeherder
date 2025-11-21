@@ -134,6 +134,41 @@ be used directly from the Treeherder repository [here][gcp-cert] for the stage r
 [gcp-cert]: https://github.com/mozilla/treeherder/blob/master/deployment/gcp/ca-cert.pem
 [gcp-prototype-cert]: https://github.com/mozilla/treeherder/blob/master/deployment/gcp/ca-cert-prototype.pem
 
+You can alternatively connect to a staging database with a read-only proxy server. To do this follow these for credentials and treeherder setup:
+
+1. [File a Jira ticket here](https://mozilla-hub.atlassian.net/jira/software/c/projects/SVCSE/boards/316) to get
+credentials to access the databases, give the ticket a title of "Request credentials for Treeherder's Staging database"
+2. Once the credentials are provided, edit the .env to contain: `DATABASE_URL=psql://username:password@host.docker.internal:5432/treeherder` with the credentials that were provided
+3. Edit docker/entrypoint.sh to contain:
+
+```shell
+# Keep these in sync with DATABASE_URL.
+echo "Checking database status at $DATABASE_URL"
+if [[ ${DATABASE_URL:0:8} == "mysql://" ]]; then
+ check_service "MySQL" "mysql" 3306;
+fi
+if [[ ${DATABASE_URL:0:27} == *"@host.docker.internal"* ]]; then
+ check_service "PostgreSQL" "host.docker.internal" 5432;
+elseNinN
+ check_service "PostgreSQL" "postgres" 5432;
+fi
+```
+
+Then, in your local Environment run the following:
+
+1. [Download the Cloud SQL Auth Proxy](https://cloud.google.com/sql/docs/postgres/connect-auth-proxy#install)
+2. [Follow the steps in the Treeherder Dev Resources](https://mozilla-hub.atlassian.net/wiki/spaces/SRE/pages/671514712/Treeherder+Dev+Resources#Database-Instance-Names) the steps being:
+   1) Run `gcloud auth login --update-adc`
+   2) Run `./cloud-sql-proxy --address 127.0.0.1 --port 5432 moz-fx-treeherde-nonprod-34ec:us-west1:treeherder-nonprod-stage-v1-postgres-replica-0`
+
+Notes:
+
+- If you’re having issues on linux related to endpoint postgres, and/or bind: address already in use you can try changing the port in the postgres container to 5432 to 5433, and keeping the rest of the commands the same
+- To find instance connection name for stage run `gcloud sql instances describe treeherder-nonprod-stage-v1-postgres-replica-0 --project moz-fx-treeherde-nonprod-34ec --format='value(connectionName)'`
+- Then copy the resulted *instance connection name* which should be `moz-fx-treeherde-nonprod-34ec:us-west1:treeherder-nonprod-stage-v1-postgres-replica-0`
+- It may be required to add `extra_hosts: - "host.docker.internal:host-gateway"` to the backend container and to use 0.0.0.0 instead of 127.0.0.1 in the cloud-sql-proxy command
+- The check services calls may fail or hang, if you're having issues with this try removing those comments from the command block linked above
+
 ## Import performance data from upstream
 
 If the use-cases above still aren't enough, you should ask for read-only access to one of
