@@ -140,7 +140,12 @@ def _test_should_gather_replicates_based_on(
     mozilla-central.
     """
     if replicates and len(replicates) > 0:
-        if repository.name in ("try",):
+        if repository.name in (
+            "try",
+            "mozilla-release",
+            "mozilla-beta",
+            "firefox-ios",
+        ):
             return True
         elif repository.name in ("mozilla-central",):
             if suite_name == "speedometer3":
