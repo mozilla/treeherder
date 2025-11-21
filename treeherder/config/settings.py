@@ -45,7 +45,13 @@ SITE_URL = env("SITE_URL", default="http://localhost:8000")
 
 SITE_HOSTNAME = furl(SITE_URL).host
 # Including localhost allows using the backend locally
-ALLOWED_HOSTS = [SITE_HOSTNAME, "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = [
+    SITE_HOSTNAME,
+    "localhost",
+    "127.0.0.1",
+    "https://prototype.treeherder.nonprod.cloudops.mozgcp.net",
+    "prototype.treeherder.allizom.org",
+]
 
 # URL handling
 APPEND_SLASH = False
