@@ -268,7 +268,7 @@ def mann_whitney_pval_significance(mann_pvalue, pvalue_threshold=PVALUE_THRESHOL
 # Null hypothesis is a statement that there is no significant difference or effect in population, calculates p-value
 def interpret_mann_whitneyu(base, new, pvalue_threshold=PVALUE_THRESHOLD):
     if len(base) < 1 or len(new) < 1:
-        return None, None, 0
+        return None, None, 0, False
     mann_stat, mann_pvalue = mannwhitneyu(base, new, alternative="two-sided")
     mann_stat = float(mann_stat) if mann_stat else None
     mann_pvalue = float(mann_pvalue) if mann_pvalue else None
