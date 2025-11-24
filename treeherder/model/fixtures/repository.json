@@ -2027,7 +2027,7 @@
       "dvcs_type": "git",
       "name": "enterprise-firefox-try",
       "url": "https://github.com/mozilla/enterprise-firefox",
-      "branch": "pull request",
+      "branch": "enterprise-try",
       "active_status": "active",
       "codebase": "enterprise-firefox",
       "repository_group": 6,
