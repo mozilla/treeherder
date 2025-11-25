@@ -17,6 +17,8 @@ import {
   getReftestUrl,
   getArtifactsUrl,
   textLogErrorsEndpoint,
+  getPerfAnalysisUrl,
+  isResourceUsageProfile,
 } from '../helpers/url';
 import formatLogLineWithLinks from '../helpers/logFormatting';
 import { getData } from '../helpers/http';
@@ -85,7 +87,48 @@ class App extends React.PureComponent {
     return { jobArtifactsPromise, builtFromArtifactPromise };
   };
 
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.handleKeyDown);
+  }
+
+  handleKeyDown = (event) => {
+    const { rawLogUrl, jobDetails, job } = this.state;
+
+    // Ignore if user is typing in an input field
+    if (
+      event.target.tagName === 'INPUT' ||
+      event.target.tagName === 'TEXTAREA'
+    ) {
+      return;
+    }
+
+    // Shift+L - Open raw log
+    if (event.shiftKey && event.key === 'L') {
+      event.preventDefault();
+      if (rawLogUrl) {
+        window.open(rawLogUrl, '_blank');
+      }
+      return;
+    }
+
+    // G - Open resource usage profile in profiler
+    if (event.key === 'g') {
+      event.preventDefault();
+      const resourceUsageProfile = jobDetails.find((artifact) =>
+        isResourceUsageProfile(artifact.value),
+      );
+      if (resourceUsageProfile) {
+        window.open(
+          getPerfAnalysisUrl(resourceUsageProfile.url, job),
+          '_blank',
+        );
+      }
+    }
+  };
+
   async componentDidMount() {
+    window.addEventListener('keydown', this.handleKeyDown);
+
     const { repoName, jobId } = this.state;
 
     const repoPromise = RepositoryModel.getList();
@@ -380,6 +423,8 @@ class App extends React.PureComponent {
           collapseDetails={collapseDetails}
           collapseJobDetails={this.collapseJobDetails}
           copySelectedLogToBugFiler={this.copySelectedLogToBugFiler}
+          job={job}
+          jobDetails={jobDetails}
         />
         <div className="d-flex flex-column flex-fill">
           <Collapse isOpen={!collapseDetails}>
