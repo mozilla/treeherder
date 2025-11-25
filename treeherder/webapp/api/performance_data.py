@@ -1449,14 +1449,8 @@ class PerfCompareResults(generics.ListAPIView):
         new_rev_data,
         header,
         lower_is_better,
-        remove_outliers=stats.ENABLE_REMOVE_OUTLIERS,
         pvalue_threshold=stats.PVALUE_THRESHOLD,
     ):
-        # extract data, potentially removing outliers
-        if remove_outliers:
-            base_rev_data = stats.remove_outliers(base_rev_data)
-            new_rev_data = stats.remove_outliers(new_rev_data)
-
         if not base_rev_data:
             base_rev_data = []
 

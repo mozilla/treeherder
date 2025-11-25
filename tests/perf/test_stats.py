@@ -80,6 +80,7 @@ def test_interpret_cles():
     assert is_base_greater is False
 
 
+# test remove_outliers remove outliers using IQR method, should be empty and None values
 def test_remove_outliers():
     expected = remove_outliers([6.3, 7.4, 7.6, 100000000000000])
     assert expected == [6.3, 7.4, 7.6]
