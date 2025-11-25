@@ -122,6 +122,7 @@
 
 .job-btn.btn-dkgray,
 .job-btn.btn-ltgray,
+.job-btn.btn-unscheduled,
 .job-btn.btn-green,
 .job-btn.btn-dkblue,
 .job-btn.btn-ltblue,
@@ -129,6 +130,7 @@
 .job-btn.btn-pink,
 .job-btn.btn-dkgray-classified,
 .job-btn.btn-ltgray-classified,
+.job-btn.btn-unscheduled-classified,
 .job-btn.btn-green-classified,
 .job-btn.btn-dkblue-classified,
 .job-btn.btn-ltblue-classified,
@@ -139,6 +141,7 @@
 .job-btn.btn-purple-classified,
 .group-btn.btn-dkgray-count,
 .group-btn.btn-ltgray-count,
+.group-btn.btn-unscheduled-count,
 .group-btn.btn-green-count,
 .group-btn.btn-dkblue-count,
 .group-btn.btn-ltblue-count,
@@ -495,6 +498,42 @@ fieldset[disabled] .btn-ltgray:active,
 fieldset[disabled] .btn-ltgray.active {
   color: #e0e0e0;
   border-color: #e0e0e0;
+}
+
+/* Tan/Beige, unscheduled */
+.btn-unscheduled,
+.btn-unscheduled-count,
+.btn-unscheduled-classified,
+.btn-unscheduled-classified-count {
+  color: #edd5b3;
+}
+.btn-unscheduled-count:hover,
+.btn-unscheduled-classified-count:hover {
+  color: #d2b48c;
+}
+.btn-unscheduled:hover,
+.btn-unscheduled-classified:hover,
+.btn-unscheduled:focus,
+.btn-unscheduled:active,
+.btn-unscheduled.active {
+  background-color: #d2b48c;
+  border-color: #c4a577;
+  color: white;
+}
+.btn-unscheduled.disabled:hover,
+.btn-unscheduled.disabled:focus,
+.btn-unscheduled.disabled:active,
+.btn-unscheduled.disabled.active,
+.btn-unscheduled:disabled:hover,
+.btn-unscheduled:disabled:focus,
+.btn-unscheduled:disabled:active,
+.btn-unscheduled:disabled.active,
+fieldset[disabled] .btn-unscheduled:hover,
+fieldset[disabled] .btn-unscheduled:focus,
+fieldset[disabled] .btn-unscheduled:active,
+fieldset[disabled] .btn-unscheduled.active {
+  color: #edd5b3;
+  border-color: #edd5b3;
 }
 
 /* Mid gray (presently unused) */

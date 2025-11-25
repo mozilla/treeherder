@@ -15,6 +15,7 @@ const btnClasses = {
   success: 'btn-green',
   running: 'btn-dkgray',
   pending: 'btn-ltgray',
+  unscheduled: 'btn-unscheduled',
   superseded: 'btn-ltblue',
   failures: 'btn-red',
   'in progress': 'btn-dkgray',

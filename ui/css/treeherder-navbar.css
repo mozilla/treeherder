@@ -203,6 +203,11 @@ secondary-nav-bar {
   color: #e0e0e0;
 }
 
+.btn.btn-view-nav.btn-unscheduled-filter-chicklet,
+.btn.btn-view-nav.btn-unscheduled-filter-chicklet:hover {
+  color: #edd5b3;
+}
+
 .btn.btn-view-nav.btn-dkgray-filter-chicklet,
 .btn.btn-view-nav.btn-dkgray-filter-chicklet:hover {
   color: #7c7a7d;
