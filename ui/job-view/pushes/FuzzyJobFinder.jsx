@@ -218,17 +218,14 @@ class FuzzyJobFinder extends React.Component {
                   title="Filter the list of runnable jobs"
                 />
               </Col>
-              <Col sm={2}>
-                <Form.Label
-                  className="my-3"
+              <Col sm={2} className="d-flex align-items-center">
+                <Form.Check
+                  type="checkbox"
+                  label="Use full job list"
                   title="The full list includes thousands of jobs that don't typically get run, and is much slower to render"
-                >
-                  <Form.Control
-                    type="checkbox"
-                    onChange={(evt) => this.toggleFullList(evt)}
-                  />
-                  Use full job list
-                </Form.Label>
+                  onChange={(evt) => this.toggleFullList(evt)}
+                  className="my-2"
+                />
               </Col>
             </Form.Group>
             <h4> Runnable Jobs [{this.state.fuzzyList.length}]</h4>
