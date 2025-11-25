@@ -3,6 +3,7 @@ from treeherder.perf.stats import (
     interpret_cles,
     interpret_silverman_kde,
     plot_kde_with_isj_bandwidth,
+    remove_outliers,
 )
 
 # p-value threshold to use throughout
@@ -77,3 +78,12 @@ def test_interpret_cles():
     assert cles_obj["cles"] == 0.1
     assert cles == 0.1
     assert is_base_greater is False
+
+
+def test_remove_outliers():
+    expected = remove_outliers([6.3, 7.4, 7.6, 100000000000000])
+    assert expected == [6.3, 7.4, 7.6]
+    expected_empty = remove_outliers([])
+    assert expected_empty == []
+    expected_empty = remove_outliers(None)
+    assert expected_empty == []

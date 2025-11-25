@@ -21,6 +21,8 @@ ENABLE_REMOVE_OUTLIERS = False
 # defaults to false
 def remove_outliers(data):
     """Remove outliers using IQR method"""
+    if not data:
+        return []
     q1, q3 = np.percentile(data, [25, 75])
     iqr_value = iqr(data)
     lower_bound, upper_bound = q1 - 1.5 * iqr_value, q3 + 1.5 * iqr_value
