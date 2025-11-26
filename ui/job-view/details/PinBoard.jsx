@@ -549,8 +549,8 @@ class PinBoard extends React.Component {
                       </a>
                     )}
                     <Button
-                      variant="outline-secondary"
-                      className="btn-xs pinned-job-close-btn"
+                      variant="link"
+                      className="btn-xs pinned-job-close-btn border-0"
                       onClick={() => removeBug(bug)}
                       title="remove this bug"
                     >

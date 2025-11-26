@@ -19,7 +19,7 @@ function RelatedBugSaved(props) {
   const { deleteBug, bug } = props;
 
   return (
-    <span className="btn-group pinboard-related-bugs-btn">
+    <span className="pinboard-related-bugs-btn">
       {!bug.bug_id && (
         <span className="btn btn-xs">
           <em>i{bug.bug_internal_id}</em>
@@ -39,7 +39,7 @@ function RelatedBugSaved(props) {
       <Button
         variant="link"
         size="xs"
-        className="classification-delete-icon hover-warning pinned-job-close-btn annotations-bug"
+        className="classification-delete-icon hover-warning pinned-job-close-btn annotations-bug border-0"
         onClick={() => deleteBug(bug)}
         title={`Delete relation to bug ${bug.bug_internal_id ?? bug.bug_id}`}
       >
