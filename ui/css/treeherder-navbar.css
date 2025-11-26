@@ -492,7 +492,8 @@ fieldset[disabled] .btn-view-nav-closed.active {
 }
 
 /* Fix for perfherder nav-link font-size - Bootstrap 5 doesn't define --bs-nav-link-font-size */
-.top-navbar .nav-link {
+.top-navbar .nav-link,
+.top-navbar .menu-items {
   font-size: 1rem;
 }
 

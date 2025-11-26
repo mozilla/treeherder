@@ -31,5 +31,5 @@ body,
 }
 
 .run-data {
-  height: 250px;
+  max-height: 250px;
 }
