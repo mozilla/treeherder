@@ -98,7 +98,7 @@
 
 /* All selected jobs get outline matching text color */
 .job-btn.selected-job {
-  outline: 4px solid;
+  outline: 4px solid !important;
   outline-color: currentcolor;
 }
 
