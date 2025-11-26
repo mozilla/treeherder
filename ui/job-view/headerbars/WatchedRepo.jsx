@@ -171,7 +171,7 @@ export default class WatchedRepo extends React.Component {
                 >
                   {watchedRepo} is not listed on Tree Status
                 </Dropdown.Item>
-                <Dropdown.Item divider />
+                <Dropdown.Divider />
               </React.Fragment>
             )}
             {!!reason && (
@@ -179,7 +179,7 @@ export default class WatchedRepo extends React.Component {
                 <Dropdown.Item tag="a">
                   <BugLinkify>{reason}</BugLinkify>
                 </Dropdown.Item>
-                <Dropdown.Item divider />
+                <Dropdown.Divider />
               </React.Fragment>
             )}
 
@@ -188,7 +188,7 @@ export default class WatchedRepo extends React.Component {
                 <Dropdown.Item tag="a">
                   <BugLinkify>{messageOfTheDay}</BugLinkify>
                 </Dropdown.Item>
-                <Dropdown.Item divider />
+                <Dropdown.Divider />
               </React.Fragment>
             )}
             <Dropdown.Item

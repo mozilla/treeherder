@@ -154,7 +154,7 @@ class PushActionMenu extends React.PureComponent {
             >
               Set as bottom of range
             </Dropdown.Item>
-            <Dropdown.Item divider />
+            <Dropdown.Divider />
             <Dropdown.Item
               tag="a"
               href={getPushHealthUrl({ repo: currentRepo.name, revision })}
