@@ -178,7 +178,7 @@ def interpret_normality_shapiro_wilk(base, new, pvalue_threshold=PVALUE_THRESHOL
                     shapiro_results_base["stat"] = float(stat_base)
                     shapiro_results_base["pvalue"] = float(p_base)
                     shapiro_results_base["interpretation"] = (
-                        f"Shapiro-Wilk result: {p_base:.2f}, {base_name} is {'**likely normal**' if is_base_normal else '**not normal**'}"
+                        f"Shapiro-Wilk result: {p_base:.2f}, {base_name} is {'likely normal' if is_base_normal else 'not normal'}"
                     )
                     if not is_base_normal:
                         warnings.append("Base is not normal.")
@@ -201,7 +201,7 @@ def interpret_normality_shapiro_wilk(base, new, pvalue_threshold=PVALUE_THRESHOL
                     shapiro_results_new["stat"] = float(stat_new)
                     shapiro_results_new["pvalue"] = float(p_new)
                     shapiro_results_new["interpretation"] = (
-                        f"Shapiro-Wilk result: {p_new:.2f}, {new_rev_name} is {'**likely normal**' if is_new_normal else '**not normal**'}"
+                        f"Shapiro-Wilk result: {p_new:.2f}, {new_rev_name} is {'likely normal' if is_new_normal else 'not normal'}"
                     )
                     if not is_new_normal:
                         warnings.append("New is not normal")
