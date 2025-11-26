@@ -96,8 +96,8 @@ const TabsPanel = ({
   );
 
   const addBugAction = useCallback(
-    (bug) => {
-      dispatch(addBug(bug));
+    (bug, job) => {
+      dispatch(addBug(bug, job));
     },
     [dispatch],
   );

@@ -533,13 +533,13 @@ class PinBoard extends React.Component {
                 <span key={bug.internal_id}>
                   <span className="btn-group pinboard-related-bugs-btn">
                     {!bug.id && (
-                      <span className="btn btn-xs">
+                      <span className="btn btn-xs btn-outline-secondary">
                         <em>i{bug.internal_id}</em>
                       </span>
                     )}
                     {bug.id && (
                       <a
-                        className="btn btn-xs related-bugs-link"
+                        className="btn btn-xs btn-outline-secondary related-bugs-link"
                         href={getBugUrl(bug.dupe_of ?? bug.id)}
                         target="_blank"
                         rel="noopener noreferrer"
