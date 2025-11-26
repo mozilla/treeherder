@@ -16,6 +16,10 @@
   display: flex;
   width: 100%;
   background-color: #222;
+  height: 33px;
+  min-height: 33px;
+  max-height: 33px;
+  line-height: 1.25;
 }
 
 .navbar {
@@ -73,22 +77,24 @@ label.dropdown-item.active,
 
 .navbar-right {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
 }
 
 .nav-menu-btn {
   margin-right: -4px;
   padding-left: 14px;
   padding-right: 14px;
-  font-size: 13px;
+  /* Use Bootstrap 5 custom properties for sizing */
+  --bs-btn-font-size: 13px;
+  --bs-btn-padding-y: 5.25px;
+  --bs-btn-padding-x: 14px;
+  --bs-btn-line-height: 19.5px;
+  height: 30px;
+  min-height: 30px;
 }
 
 .nav-menu-btn.dropdown-toggle {
   width: 98%;
-}
-
-.nav-menu-btn:after {
-  font-size: 14px;
 }
 
 .nav-help-btn {
@@ -126,7 +132,25 @@ secondary-nav-bar {
   justify-content: space-between;
   width: 100%;
   display: flex;
+  align-items: center;
   background-color: #354048;
+  min-height: 33px;
+}
+
+.watched-repo-navbar form {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.watched-repo-navbar .watched-repos {
+  display: flex;
+  align-items: center;
+}
+
+.watched-repo-navbar .resultStatusChicklets {
+  display: inline-flex;
+  align-items: center;
 }
 
 .tree-closed {
@@ -163,54 +187,50 @@ secondary-nav-bar {
   margin: 0px 1px 2px 1px;
 }
 
-.btn.btn-view-nav.btn-orange-filter-chicklet,
-.btn.btn-view-nav.btn-orange-filter-chicklet:hover {
-  color: #dd6602;
+/* Filter chicklets - use data attributes with shared color tokens */
+.btn-view-nav[data-status],
+.btn-view-nav[data-status]:hover {
+  --bs-btn-color: var(--chicklet-color);
+  --bs-btn-hover-color: var(--chicklet-color);
+  --bs-btn-active-color: var(--chicklet-color);
+  --bs-btn-font-size: 1rem;
+  --bs-btn-padding-y: 0.5rem;
+  --bs-btn-padding-x: 0.125rem;
+  color: var(--chicklet-color);
 }
 
-.btn.btn-view-nav.btn-red-filter-chicklet,
-.btn.btn-view-nav.btn-red-filter-chicklet:hover {
-  color: #c03a44;
+/* Map status values to colors using CSS variables */
+.btn-view-nav[data-status='testfailed'] {
+  --chicklet-color: #dd6602;
 }
-
-.btn.btn-view-nav.btn-purple-filter-chicklet,
-.btn.btn-view-nav.btn-purple-filter-chicklet:hover {
-  color: #77438d;
+.btn-view-nav[data-status='busted'],
+.btn-view-nav[data-status='failures'] {
+  --chicklet-color: #c03a44;
 }
-
-.btn.btn-view-nav.btn-green-filter-chicklet,
-.btn.btn-view-nav.btn-green:hover {
-  color: rgba(2, 130, 51, 0.75);
+.btn-view-nav[data-status='exception'] {
+  --chicklet-color: #77438d;
 }
-
-.btn.btn-view-nav.btn-dkblue-filter-chicklet,
-.btn.btn-view-nav.btn-dkblue-filter-chicklet:hover {
-  color: #3656ff;
+.btn-view-nav[data-status='success'] {
+  --chicklet-color: rgba(2, 130, 51, 0.75);
 }
-
-.btn.btn-view-nav.btn-pink-filter-chicklet,
-.btn.btn-view-nav.btn-pink-filter-chicklet:hover {
-  color: rgba(250, 115, 172, 0.82);
+.btn-view-nav[data-status='retry'] {
+  --chicklet-color: #3656ff;
 }
-
-.btn.btn-view-nav.btn-ltblue-filter-chicklet,
-.btn.btn-view-nav.btn-ltblue-filter-chicklet:hover {
-  color: #81b8ed;
+.btn-view-nav[data-status='usercancel'] {
+  --chicklet-color: rgba(250, 115, 172, 0.82);
 }
-
-.btn.btn-view-nav.btn-ltgray-filter-chicklet,
-.btn.btn-view-nav.btn-ltgray-filter-chicklet:hover {
-  color: #e0e0e0;
+.btn-view-nav[data-status='superseded'] {
+  --chicklet-color: #81b8ed;
 }
-
-.btn.btn-view-nav.btn-dkgray-filter-chicklet,
-.btn.btn-view-nav.btn-dkgray-filter-chicklet:hover {
-  color: #7c7a7d;
+.btn-view-nav[data-status='pending'] {
+  --chicklet-color: #e0e0e0;
 }
-
-.btn.btn-view-nav.btn-black-filter-chicklet,
-.btn.btn-view-nav.btn-black-filter-chicklet:hover {
-  color: black;
+.btn-view-nav[data-status='running'],
+.btn-view-nav[data-status='in progress'] {
+  --chicklet-color: #7c7a7d;
+}
+.btn-view-nav[data-status='unknown'] {
+  --chicklet-color: black;
 }
 
 /*
@@ -226,6 +246,8 @@ secondary-nav-bar {
 
 #quick-filter-parent {
   position: relative;
+  display: inline-flex;
+  align-items: center;
 }
 
 @media (min-width: 850px) {
@@ -257,7 +279,8 @@ secondary-nav-bar {
 
 .btn-unclassified-failures {
   margin-top: 1px;
-  padding: 3px 10px;
+  padding: 2px 8px;
+  font-size: 13px;
   background-color: rgba(78, 93, 21, 0.56);
   border-color: #9fa01d;
   color: lightgray;
@@ -309,7 +332,7 @@ fieldset[disabled] .btn-unclassified-failures.active {
 .btn-view-nav:focus,
 .btn-view-nav:active,
 .btn-view-nav.active {
-  background-color: #2c3133 !important;
+  background-color: #404446 !important;
   border-color: #1a1d20 !important;
   color: white;
 }
@@ -378,6 +401,8 @@ fieldset[disabled] .btn-view-nav-closed.active {
 
 .navbar-badge.badge {
   margin: 0 5px;
+  display: inline-flex;
+  align-items: center;
 }
 
 #notification-dropdown {
@@ -439,6 +464,37 @@ fieldset[disabled] .btn-view-nav-closed.active {
 /* Used by Perfherder and IFV */
 .top-navbar {
   background-color: #222;
+  height: 36px;
+  align-items: center;
+}
+
+/* Fix dropdown menu positioning to not expand navbar height */
+.top-navbar .dropdown-menu {
+  position: absolute !important;
+  top: 100%;
+  z-index: 1000;
+}
+
+/* Ensure consistent button height in navbar */
+.top-navbar .btn-navbar,
+.top-navbar .btn-view-nav {
+  /* Use Bootstrap 5 custom properties for sizing */
+  --bs-btn-font-size: 13px;
+  --bs-btn-padding-y: 5.25px;
+  --bs-btn-padding-x: 14px;
+  --bs-btn-line-height: 19.5px;
+  height: 30px;
+  min-height: 30px;
+  color: lightgray !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Fix for perfherder nav-link font-size - Bootstrap 5 doesn't define --bs-nav-link-font-size */
+.top-navbar .nav-link,
+.top-navbar .menu-items {
+  font-size: 1rem;
 }
 
 .navbar-link {
@@ -456,5 +512,10 @@ fieldset[disabled] .btn-view-nav-closed.active {
 /* Watched repo */
 
 .btn-watched-repo {
-  padding: 0.375rem 0.5rem;
+  padding: 0.3rem 0.5rem;
+}
+
+/* Remove caret from repository dropdown toggle */
+.no-caret::after {
+  display: none !important;
 }

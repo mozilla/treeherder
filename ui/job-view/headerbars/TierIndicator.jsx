@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { ButtonGroup, Button } from 'reactstrap';
+import { ButtonGroup, Button } from 'react-bootstrap';
 
 const TIERS = ['1', '2', '3'];
 
@@ -20,9 +20,19 @@ export default function TierIndicator(props) {
                 ? "Can't Toggle because least one tier must be selected at all times"
                 : `Toggle tier ${tier} jobs`
             }
+            variant="link"
             disabled={isOnlyTier}
-            outline={!shownTiers.includes(tier)}
             key={tier}
+            style={{
+              backgroundColor: shownTiers.includes(tier)
+                ? '#6c757d'
+                : 'transparent',
+              color: shownTiers.includes(tier) ? 'white' : '#6c757d',
+              border: 'none',
+              padding: '0.25rem 0.75rem',
+              textDecoration: 'none',
+              minWidth: '2rem',
+            }}
           >
             {tier}
           </Button>

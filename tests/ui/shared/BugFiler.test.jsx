@@ -142,28 +142,24 @@ describe('BugFiler', () => {
     );
 
     // Check that the log links are checked by default
-    const parsedLogCheckbox = screen
-      .getByText('Include Parsed Log Link')
-      .closest('label')
-      .querySelector('input');
-    const fullLogCheckbox = screen
-      .getByText('Include Full Log Link')
-      .closest('label')
-      .querySelector('input');
-    const reftestCheckbox = screen
-      .getByText('Include Reftest Viewer Link')
-      .closest('label')
-      .querySelector('input');
+    const parsedLogCheckbox = screen.getByRole('checkbox', {
+      name: /include parsed log link/i,
+    });
+    const fullLogCheckbox = screen.getByRole('checkbox', {
+      name: /include full log link/i,
+    });
+    const reftestCheckbox = screen.getByRole('checkbox', {
+      name: /include reftest viewer link/i,
+    });
 
     expect(parsedLogCheckbox).toBeChecked();
     expect(fullLogCheckbox).toBeChecked();
     expect(reftestCheckbox).toBeChecked();
 
     // Check that "This is an intermittent failure" is checked by default
-    const intermittentCheckbox = screen
-      .getByText('This is an intermittent failure')
-      .closest('label')
-      .querySelector('input');
+    const intermittentCheckbox = screen.getByRole('checkbox', {
+      name: /this is an intermittent failure/i,
+    });
     expect(intermittentCheckbox).toBeChecked();
   });
 
@@ -181,14 +177,12 @@ describe('BugFiler', () => {
     render(<BugFilerClass {...defaultProps} />);
 
     // Get the checkboxes
-    const parsedLogCheckbox = screen
-      .getByText('Include Parsed Log Link')
-      .closest('label')
-      .querySelector('input');
-    const fullLogCheckbox = screen
-      .getByText('Include Full Log Link')
-      .closest('label')
-      .querySelector('input');
+    const parsedLogCheckbox = screen.getByRole('checkbox', {
+      name: /include parsed log link/i,
+    });
+    const fullLogCheckbox = screen.getByRole('checkbox', {
+      name: /include full log link/i,
+    });
 
     // Initially, they should be checked
     expect(parsedLogCheckbox).toBeChecked();
@@ -208,10 +202,9 @@ describe('BugFiler', () => {
     render(<BugFilerClass {...defaultProps} />);
 
     // Get the checkbox
-    const intermittentCheckbox = screen
-      .getByText('This is an intermittent failure')
-      .closest('label')
-      .querySelector('input');
+    const intermittentCheckbox = screen.getByRole('checkbox', {
+      name: /this is an intermittent failure/i,
+    });
 
     // Initially, it should be checked
     expect(intermittentCheckbox).toBeChecked();
@@ -453,10 +446,9 @@ describe('BugFiler', () => {
     fireEvent.click(productRadio);
 
     // Check the security issue checkbox
-    const securityCheckbox = screen
-      .getByText('Report this as a security issue')
-      .closest('label')
-      .querySelector('input');
+    const securityCheckbox = screen.getByRole('checkbox', {
+      name: /report this as a security issue/i,
+    });
     fireEvent.click(securityCheckbox);
 
     // Click the Submit Bug button
@@ -489,10 +481,9 @@ describe('BugFiler', () => {
     fireEvent.click(productRadio);
 
     // Check that the confirm failure checkbox is rendered and checked by default
-    const confirmFailureCheckbox = screen
-      .getByText('Launch the Confirm Failures task at bug submission')
-      .closest('label')
-      .querySelector('input');
+    const confirmFailureCheckbox = screen.getByRole('checkbox', {
+      name: /launch the confirm failures task at bug submission/i,
+    });
     expect(confirmFailureCheckbox).toBeChecked();
 
     // Click the Submit Bug button
@@ -519,10 +510,9 @@ describe('BugFiler', () => {
     fireEvent.click(productRadio);
 
     // Uncheck the confirm failure checkbox
-    const confirmFailureCheckbox = screen
-      .getByText('Launch the Confirm Failures task at bug submission')
-      .closest('label')
-      .querySelector('input');
+    const confirmFailureCheckbox = screen.getByRole('checkbox', {
+      name: /launch the confirm failures task at bug submission/i,
+    });
     fireEvent.click(confirmFailureCheckbox);
 
     // Click the Submit Bug button

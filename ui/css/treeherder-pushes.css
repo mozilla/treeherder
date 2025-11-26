@@ -39,7 +39,7 @@
   margin-left: 0;
   margin-top: 2px;
   white-space: normal;
-  width: 100%;
+  /* Removed width: 100% to allow Bootstrap grid to work properly */
 }
 
 .push-counts {
@@ -72,6 +72,7 @@
   padding-left: 9px;
   padding-right: 10px;
   border: 0;
+  font-size: 12px;
 }
 
 .btn-push:hover {
@@ -103,17 +104,17 @@ fieldset[disabled] .btn-push:hover {
 }
 
 .push .job-list-pad {
-  padding-right: 0;
+  /* Bootstrap 5 handles column padding, removed custom padding */
 }
 
 .push .job-list-nopad {
   padding-left: 20px;
   padding-right: 0;
-  display: block;
+  /* Removed display: block to allow Bootstrap grid to control layout */
 }
 
 .push .revision-list {
-  padding-left: 15px;
+  /* Bootstrap 5 handles column padding, removed custom padding */
 }
 
 /*
@@ -124,12 +125,21 @@ fieldset[disabled] .btn-push:hover {
   font-size: 12px;
 }
 
+.revision a {
+  font-size: inherit; /* Inherit from parent instead of global anchor styles */
+}
+
 .revision[data-tags~='backout'] .revision-comment {
   color: #e20303;
 }
 
 .commit-sha {
   font-size: 11px;
+  font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+}
+
+.commit-sha a {
+  font-size: inherit; /* Inherit from parent */
 }
 
 /*
@@ -137,9 +147,13 @@ fieldset[disabled] .btn-push:hover {
  */
 
 .tooltip-content {
-  text-align: left;
   min-width: 100%;
-  max-width: 100%;
+  /* Override Bootstrap 5's default 200px tooltip max-width */
+  --bs-tooltip-max-width: 600px;
+}
+
+.tooltip-content .tooltip-inner {
+  text-align: left;
 }
 
 /*
@@ -154,6 +168,7 @@ fieldset[disabled] .btn-push:hover {
   min-width: 14.5em;
   overflow: hidden;
   vertical-align: top;
+  text-align: left;
 }
 
 .job-row {
@@ -162,6 +177,7 @@ fieldset[disabled] .btn-push:hover {
   white-space: normal;
   word-break: normal;
   padding-top: 0;
+  text-align: left;
   padding-bottom: 0;
 }
 
@@ -169,8 +185,18 @@ fieldset[disabled] .btn-push:hover {
   width: 100%;
 }
 
+.job-list table tbody {
+  vertical-align: top;
+}
+
 .job-list table tr {
   border-bottom: 1px dotted lightgrey;
+  line-height: 1;
+}
+
+.job-list table td,
+.job-list table th {
+  border: none;
 }
 
 .job-list table tr:nth-child(even) {

@@ -78,6 +78,10 @@ describe('App', () => {
       [],
     );
     fetchMock.get(getProjectUrl('/jobs/259537375/', repoName), fullJob);
+    fetchMock.get(
+      getProjectUrl('/jobs/259537375/bug_suggestions/', repoName),
+      [],
+    );
     fetchMock.get(getProjectUrl('/jobs/259537372/', repoName), {
       ...fullJob,
       task_id: 'secondTaskId',

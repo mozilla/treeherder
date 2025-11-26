@@ -1,5 +1,5 @@
 import React from 'react';
-import { Row, Button, Col } from 'reactstrap';
+import { Row, Button, Col } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 
 import Graph from './Graph';
@@ -43,15 +43,14 @@ export default class GraphsContainer extends React.Component {
           )}
         </Row>
         <Row>
-          <Col xs="12" className="mx-auto pb-5">
-            <Button onClick={this.toggleAltViewGraph} className="mr-3">
+          <Col
+            xs="12"
+            className="mx-auto pb-5 d-flex gap-2 justify-content-center"
+          >
+            <Button variant="secondary" onClick={this.toggleAltViewGraph}>
               {showAlternateView ? 'Show graph view' : 'Show table view'}
             </Button>
-            <Button
-              color="secondary"
-              onClick={this.toggleGraph}
-              className="d-inline-block mr-3"
-            >
+            <Button variant="secondary" onClick={this.toggleGraph}>
               {`${showGraphTwo ? 'less' : 'more'} ${
                 showAlternateView ? 'tables' : 'graphs'
               }`}

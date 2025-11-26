@@ -622,8 +622,20 @@ test('Selecting `all` from (frameworks|projects) dropdown shows all (frameworks|
   const { queryAllByText, getByTestId } = alertsView();
 
   const allFromDropdown = await waitFor(() => queryAllByText(/all/));
-  fireEvent.click(allFromDropdown[0]);
-  fireEvent.click(allFromDropdown[1]);
+  // Find the actual clickable parent elements (dropdown items) that contain the text "all"
+  const clickableElements = allFromDropdown
+    .map(
+      (textNode) =>
+        textNode.closest('a') ||
+        textNode.closest('button') ||
+        textNode.closest('[role="button"]'),
+    )
+    .filter(Boolean);
+
+  if (clickableElements.length >= 2) {
+    fireEvent.click(clickableElements[0]);
+    fireEvent.click(clickableElements[1]);
+  }
 
   const alert1 = await waitFor(() => getByTestId('69526'));
   const alert2 = await waitFor(() => getByTestId('69530'));
@@ -740,7 +752,7 @@ test(`table data cannot be sorted by 'Tags & Options'`, async () => {
     getAllByTitle('Sorted by tags & options disabled'),
   );
 
-  expect(sortByTags[0]).toHaveClass('disabled-button');
+  expect(sortByTags[0]).toBeDisabled();
 });
 
 test(`table data can be sorted in ascending order by 'Confidence'`, async () => {

@@ -3,11 +3,10 @@ import {
   Container,
   Row,
   Col,
-  UncontrolledButtonDropdown,
-  DropdownToggle,
+  DropdownButton,
   Navbar,
   Nav,
-} from 'reactstrap';
+} from 'react-bootstrap';
 import { Helmet } from 'react-helmet';
 
 import faviconBroken from '../img/push-health-broken.png';
@@ -150,15 +149,15 @@ class MyPushes extends React.Component {
 
     return (
       <React.Fragment>
-        <Navbar color="light" light expand="sm" className="w-100">
-          <Nav className="mb-2 pt-2 pl-3 justify-content-between w-100">
+        <Navbar variant="light" expand="sm" className="w-100">
+          <Nav className="mb-2 pt-2 ps-3 justify-content-between w-100">
             <span />
-            <span className="mr-3 d-flex">
-              <UncontrolledButtonDropdown>
-                <DropdownToggle
-                  caret
-                  size="sm"
-                >{`${selectedRepo} pushes`}</DropdownToggle>
+            <span className="me-3 d-flex">
+              <DropdownButton
+                variant="secondary"
+                title={`${selectedRepo} pushes`}
+                size="sm"
+              >
                 <DropdownMenuItems
                   updateData={(selectedRepo) =>
                     this.setState({ selectedRepo, loading: true }, () =>
@@ -168,7 +167,7 @@ class MyPushes extends React.Component {
                   selectedItem={selectedRepo}
                   options={['try', 'all']}
                 />
-              </UncontrolledButtonDropdown>
+              </DropdownButton>
             </span>
           </Nav>
         </Navbar>
@@ -195,7 +194,7 @@ class MyPushes extends React.Component {
                 className="mt-5 flex-nowrap justify-content-center"
                 key={push.revision}
               >
-                <Col md="2" className="ml-2">
+                <Col md="2" className="ms-2">
                   <StatusProgress counts={push.status} />
                 </Col>
                 <Col md="5" className="mt-4">
@@ -220,7 +219,7 @@ class MyPushes extends React.Component {
                     />
                   )}
                 </Col>
-                <Col md="1" className="align-self-center mr-5 px-0 pb-4">
+                <Col md="1" className="align-self-center me-5 px-0 pb-4">
                   {push.metrics.builds.result !== 'none' && (
                     <StatusButton
                       title="Builds"

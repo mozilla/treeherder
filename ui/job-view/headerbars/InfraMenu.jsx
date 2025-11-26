@@ -1,40 +1,34 @@
 import React from 'react';
-import {
-  DropdownMenu,
-  DropdownItem,
-  DropdownToggle,
-  UncontrolledDropdown,
-} from 'reactstrap';
+import { Dropdown } from 'react-bootstrap';
 
 import { prodFirefoxRootUrl } from '../../taskcluster-auth-callback/constants';
 import { treeStatusUiUrl } from '../../models/treeStatus';
 
 const InfraMenu = () => (
-  <UncontrolledDropdown>
-    <DropdownToggle
+  <Dropdown>
+    <Dropdown.Toggle
       className="btn-view-nav nav-menu-btn"
       title="Infrastructure status"
-      caret
     >
       Infra
-    </DropdownToggle>
-    <DropdownMenu right>
-      <DropdownItem
+    </Dropdown.Toggle>
+    <Dropdown.Menu align="end">
+      <Dropdown.Item
         href={`${prodFirefoxRootUrl}/provisioners`}
         target="_blank"
         rel="noopener noreferrer"
       >
         Taskcluster Workers
-      </DropdownItem>
-      <DropdownItem
+      </Dropdown.Item>
+      <Dropdown.Item
         href={`${treeStatusUiUrl()}`}
         target="_blank"
         rel="noopener noreferrer"
       >
         TreeStatus
-      </DropdownItem>
-    </DropdownMenu>
-  </UncontrolledDropdown>
+      </Dropdown.Item>
+    </Dropdown.Menu>
+  </Dropdown>
 );
 
 export default InfraMenu;

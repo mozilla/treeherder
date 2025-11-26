@@ -11,7 +11,7 @@ class PerfData extends React.PureComponent {
     const sortedDetails = perfJobDetail.slice();
 
     // These styles are shared across all of the table cells.
-    const cellClassName = 'nowrap pl-2 pr-2';
+    const cellClassName = 'nowrap ps-2 pe-2';
 
     return (
       <>

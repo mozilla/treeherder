@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Container } from 'reactstrap';
+import { Container } from 'react-bootstrap';
 import ReactTable from 'react-table-6';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
