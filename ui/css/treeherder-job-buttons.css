@@ -99,7 +99,7 @@
 /* All selected jobs get outline matching text color */
 .job-btn.selected-job {
   outline: 4px solid;
-  outline-color: currentColor;
+  outline-color: currentcolor;
 }
 
 /* Unclassified failures: darker outline on colored background */
