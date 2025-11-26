@@ -1168,10 +1168,10 @@ def test_perfcompare_results_with_mann_witney_u_against_no_base(
             "is_confident": response["is_confident"],
             "more_runs_are_needed": False,
             "mann_whitney_test": {
-                "interpretation": "not significant",
-                "pvalue": 1.0,
-                "stat": None,
                 "test_name": "Mann-Whitney U",
+                "stat": 0.0,
+                "pvalue": 1.0,
+                "interpretation": "not significant",
             },
             "graphs_link": f"https://treeherder.mozilla.org/perfherder/graphs?"
             f"highlightedRevisions={test_perfcomp_push_2.revision}&"
@@ -1188,7 +1188,14 @@ def test_perfcompare_results_with_mann_witney_u_against_no_base(
             "base_signature_id": response["base_signature_id"],
             "new_signature_id": response["new_signature_id"],
             "has_subtests": response["has_subtests"],
-            "cles": None,
+            "cles": {
+                "cles": 0.0,
+                "cles_direction": "no change",
+                "mann_whitney_u_cles": "",
+                "cliffs_delta_cles": "Cliff's Delta: -1.00 → large",
+                "effect_size": "large",
+                "cles_explanation": "100% chance a new value > base value",
+            },
             "cliffs_delta": -1.0,
             "cliffs_interpretation": "large",
             "direction_of_change": "no change",

@@ -1162,7 +1162,11 @@ class PerfCompareResults(generics.ListAPIView):
                     continue
                 if test_version == "mann-whitney-u":
                     new_stats = self._process_stats(
-                        statistics_base_perf_data, statistics_new_perf_data, header, lower_is_better
+                        statistics_base_perf_data,
+                        statistics_new_perf_data,
+                        header,
+                        lower_is_better,
+                        remove_outliers=False,
                     )
 
                     row_result = {
@@ -1522,7 +1526,6 @@ class PerfCompareResults(generics.ListAPIView):
             c_warning = "Empty data in one group, cannot compute Cliffs Delta"
         else:
             c_delta, _ = cliffs_delta(base_rev_data, new_rev_data)
-
         # interpret effect size
         cliffs_interpretation, is_effect_meaningful = stats.interpret_effect_size(c_delta)
 
