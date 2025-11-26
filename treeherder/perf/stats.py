@@ -268,8 +268,8 @@ def interpret_mann_whitneyu(base, new, pvalue_threshold=PVALUE_THRESHOLD):
     if len(base) < 1 or len(new) < 1:
         return None, None, 0, False
     mann_stat, mann_pvalue = mannwhitneyu(base, new, alternative="two-sided")
-    mann_stat = float(mann_stat) if mann_stat else 0
-    mann_pvalue = float(mann_pvalue) if mann_pvalue else 0
+    mann_stat = float(mann_stat) if mann_stat is not None else 0
+    mann_pvalue = float(mann_pvalue) if mann_pvalue is not None else 0
     # Mann-Whitney U  p-value interpretation
     p_value_interpretation, is_significant = mann_whitney_pval_significance(
         mann_pvalue, pvalue_threshold
