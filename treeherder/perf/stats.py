@@ -239,8 +239,8 @@ def interpret_ks_test(base, new, pvalue_threshold=PVALUE_THRESHOLD):
 
         ks_test = {
             "test_name": "Kolmogorov-Smirnov",
-            "stat": float(ks_stat) if ks_stat else None,
-            "pvalue": float(ks_p) if ks_p else None,
+            "stat": float(ks_stat) if ks_stat is not None else None,
+            "pvalue": float(ks_p) if ks_p is not None else None,
             "interpretation": ks_comment,
         }
 
@@ -516,9 +516,9 @@ def interpret_silverman_kde(base_data, new_data, lower_is_better):
                         continue
 
                     shift, (ci_low, ci_high) = bootstrap_median_diff_ci(ref_vals, new_vals)
-                    shift = float(shift) if shift else None
-                    ci_low = float(ci_low) if ci_low else None
-                    ci_high = float(ci_high) if ci_high else None
+                    shift = float(shift) if shift is not None else None
+                    ci_low = float(ci_low) if ci_low is not None else None
+                    ci_high = float(ci_high) if ci_high is not None else None
                     median_shift_summary = (
                         f"Median shift: {shift:+.3f} (95% CI: {ci_low:+.3f} to {ci_high:+.3f})"
                     )
