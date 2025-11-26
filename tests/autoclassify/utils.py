@@ -81,7 +81,7 @@ def create_text_log_errors(job, failure_line_list):
         if not data:
             continue
         error = TextLogError.objects.create(
-            job=job, line=formatter(data).split("\n")[0], line_number=i
+            job=job, line=formatter(data).split("\n")[0], line_number=i, new_failure=True
         )
         errors.append(error)
 
