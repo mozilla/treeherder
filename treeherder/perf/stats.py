@@ -339,32 +339,36 @@ def is_new_better(is_effect_meaningful, is_base_greater, is_significant, lower_i
     return direction, is_new_better
 
 
+# 0 signififies no change in shift between confidence interval range
 def interpret_performance_direction(ci_low, ci_high, lower_is_better):
     is_regression = False
     is_improvement = False
-    ci_intepretation = None
+    ci_intepretation = "Failed to compute. Could be needing more data."
     if ci_high is None or ci_low is None:
-        return None, None, None
-    if ci_low > 0:
-        if lower_is_better:
+        return None, None, ci_intepretation
+
+    if lower_is_better:
+        # the upper bound of the range shift < 0 indicates strong likelyhood of a negative shift
+        if ci_high <= 0:
             is_regression = False
             is_improvement = True
-            ci_intepretation = "Performance improved (median increased)"
-        else:
+            ci_intepretation = "Performance likely improved (median decreased)"
+        # the lower bound of the range shift > 0 indicates strong likelyhood of a positive shift
+        if ci_low >= 0:
             is_regression = True
             is_improvement = False
-            ci_intepretation = "Performance regressed (median increased)"
-    elif ci_high < 0:
-        if lower_is_better:
-            is_regression = True
-            is_improvement = False
-            ci_intepretation = "Performance regressed (median decreased)"
-        else:
-            is_regression = False
-            is_improvement = True
-            ci_intepretation = "Performance improved (median decreased)"
+            ci_intepretation = "Performance likely regressed (median increased)"
     else:
-        ci_intepretation = "No significant shift"
+        # the lower bound of the range shift > 0 indicates strong likelyhood of a positive shift
+        if ci_low >= 0:
+            is_regression = True
+            is_improvement = False
+            ci_intepretation = "Performance likely improved (median increased)"
+        # the upper bound of the range shift < 0 indicates strong likelyhood of a negative shift
+        if ci_high <= 0:
+            is_regression = False
+            is_improvement = True
+            ci_intepretation = "Performance likely regressed (median decreased)"
     return is_regression, is_improvement, ci_intepretation
 
 
