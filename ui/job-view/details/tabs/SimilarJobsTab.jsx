@@ -172,45 +172,52 @@ class SimilarJobsTab extends React.Component {
               </tr>
             </thead>
             <tbody>
-              {similarJobs.map((similarJob) => (
-                <tr
-                  key={similarJob.id}
-                  onClick={() => this.showJobInfo(similarJob)}
-                  className={
-                    selectedSimilarJobId === similarJob.id ? 'table-active' : ''
-                  }
-                >
-                  <td>
-                    <button
-                      className={`btn btn-similar-jobs btn-xs ${getBtnClass(
-                        similarJob.resultStatus,
-                        similarJob.failure_classification_id,
-                      )}`}
-                      type="button"
-                    >
-                      {similarJob.job_type_symbol}
-                      {similarJob.failure_classification_id > 1 &&
-                        ![6, 8].includes(
-                          similarJob.failure_classification_id,
-                        ) && <span>*</span>}
-                    </button>
-                  </td>
-                  <td title={toDateStr(similarJob.result_set.push_timestamp)}>
-                    {toShortDateStr(similarJob.result_set.push_timestamp)}
-                  </td>
-                  <td>
-                    <a href={similarJob.authorResultsetFilterUrl}>
-                      {similarJob.result_set.author}
-                    </a>
-                  </td>
-                  <td>{similarJob.duration} min</td>
-                  <td>
-                    <a href={similarJob.revisionResultsetFilterUrl}>
-                      {similarJob.result_set.revisions[0].revision}
-                    </a>
-                  </td>
-                </tr>
-              ))}
+              {similarJobs.map((similarJob) => {
+                const { status, isClassified } = getBtnClass(
+                  similarJob.resultStatus,
+                  similarJob.failure_classification_id,
+                );
+                return (
+                  <tr
+                    key={similarJob.id}
+                    onClick={() => this.showJobInfo(similarJob)}
+                    className={
+                      selectedSimilarJobId === similarJob.id
+                        ? 'table-active'
+                        : ''
+                    }
+                  >
+                    <td>
+                      <button
+                        className="btn job-btn btn-xs"
+                        type="button"
+                        data-status={status}
+                        data-classified={isClassified ? 'true' : undefined}
+                      >
+                        {similarJob.job_type_symbol}
+                        {similarJob.failure_classification_id > 1 &&
+                          ![6, 8].includes(
+                            similarJob.failure_classification_id,
+                          ) && <span>*</span>}
+                      </button>
+                    </td>
+                    <td title={toDateStr(similarJob.result_set.push_timestamp)}>
+                      {toShortDateStr(similarJob.result_set.push_timestamp)}
+                    </td>
+                    <td>
+                      <a href={similarJob.authorResultsetFilterUrl}>
+                        {similarJob.result_set.author}
+                      </a>
+                    </td>
+                    <td>{similarJob.duration} min</td>
+                    <td>
+                      <a href={similarJob.revisionResultsetFilterUrl}>
+                        {similarJob.result_set.revisions[0].revision}
+                      </a>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
           {hasNextPage && (
