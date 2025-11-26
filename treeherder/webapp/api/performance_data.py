@@ -1522,7 +1522,6 @@ class PerfCompareResults(generics.ListAPIView):
             c_warning = "Empty data in one group, cannot compute Cliffs Delta"
         else:
             c_delta, _ = cliffs_delta(base_rev_data, new_rev_data)
-
         # interpret effect size
         cliffs_interpretation, is_effect_meaningful = stats.interpret_effect_size(c_delta)
 
