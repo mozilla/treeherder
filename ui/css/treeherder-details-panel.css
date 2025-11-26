@@ -143,8 +143,9 @@ div#details-panel-content .details-panel-navbar > ul.tab-headers > li {
   margin-top: 0px;
 }
 
-.tab-overflow-menu .dropdown-item {
-  color: #9fa3a5;
+.tab-overflow-menu .dropdown-item,
+.tab-overflow-menu .nav-link {
+  color: #9fa3a5 !important;
   background-color: transparent;
   border: none;
   font-size: 12px;
@@ -152,14 +153,17 @@ div#details-panel-content .details-panel-navbar > ul.tab-headers > li {
 }
 
 .tab-overflow-menu .dropdown-item:hover,
-.tab-overflow-menu .dropdown-item:focus {
+.tab-overflow-menu .dropdown-item:focus,
+.tab-overflow-menu .nav-link:hover,
+.tab-overflow-menu .nav-link:focus {
   background-color: #6b747b;
-  color: #d3d8da;
+  color: #d3d8da !important;
 }
 
-.tab-overflow-menu .dropdown-item.active {
+.tab-overflow-menu .dropdown-item.active,
+.tab-overflow-menu .nav-link.active {
   background-color: #1a4666;
-  color: #eef0f2;
+  color: #eef0f2 !important;
 }
 
 /* Custom dropdown toggle to remove caret */
