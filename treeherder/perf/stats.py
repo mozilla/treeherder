@@ -339,6 +339,10 @@ def is_new_better(is_effect_meaningful, is_base_greater, is_significant, lower_i
     return direction, is_new_better
 
 
+#   scenario #1                   scenario #2
+#  - median shift                + median shift
+# -----[       ]--------- 0------- [       ]--------
+#   ci_low  ci_high               ci_low ci_high
 # 0 signifies no change in shift between confidence interval range
 def interpret_performance_direction(ci_low, ci_high, lower_is_better):
     is_regression = False
