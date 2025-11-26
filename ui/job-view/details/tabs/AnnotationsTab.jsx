@@ -27,7 +27,7 @@ function RelatedBugSaved(props) {
       )}
       {bug.bug_id && (
         <a
-          className="btn btn-xs annotations-bug related-bugs-link"
+          className="btn btn-xs annotations-bug "
           href={getBugUrl(bug.bug_id)}
           target="_blank"
           rel="noopener noreferrer"

@@ -531,15 +531,15 @@ class PinBoard extends React.Component {
               )}
               {Array.from(pinnedJobBugs).map((bug) => (
                 <span key={bug.internal_id}>
-                  <span className="btn-group pinboard-related-bugs-btn">
+                  <span className="pinboard-related-bugs-btn">
                     {!bug.id && (
-                      <span className="btn btn-xs btn-outline-secondary">
+                      <span className="btn btn-xs text-dark">
                         <em>i{bug.internal_id}</em>
                       </span>
                     )}
                     {bug.id && (
                       <a
-                        className="btn btn-xs btn-outline-secondary related-bugs-link"
+                        className="btn btn-xs related-bugs-link text-dark"
                         href={getBugUrl(bug.dupe_of ?? bug.id)}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -550,7 +550,7 @@ class PinBoard extends React.Component {
                     )}
                     <Button
                       variant="link"
-                      className="btn-xs pinned-job-close-btn border-0"
+                      className="btn btn-xs pinned-job-close-btn border-0 px-0 py-3"
                       onClick={() => removeBug(bug)}
                       title="remove this bug"
                     >
