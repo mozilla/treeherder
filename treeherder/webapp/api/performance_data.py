@@ -1162,7 +1162,11 @@ class PerfCompareResults(generics.ListAPIView):
                     continue
                 if test_version == "mann-whitney-u":
                     new_stats = self._process_stats(
-                        statistics_base_perf_data, statistics_new_perf_data, header, lower_is_better
+                        statistics_base_perf_data,
+                        statistics_new_perf_data,
+                        header,
+                        lower_is_better,
+                        remove_outliers=False,
                     )
 
                     row_result = {
