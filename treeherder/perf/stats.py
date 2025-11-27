@@ -239,8 +239,8 @@ def interpret_ks_test(base, new, pvalue_threshold=PVALUE_THRESHOLD):
 
         ks_test = {
             "test_name": "Kolmogorov-Smirnov",
-            "stat": float(ks_stat) if ks_stat else None,
-            "pvalue": float(ks_p) if ks_p else None,
+            "stat": float(ks_stat) if ks_stat is not None else None,
+            "pvalue": float(ks_p) if ks_p is not None else None,
             "interpretation": ks_comment,
         }
 
@@ -339,33 +339,42 @@ def is_new_better(is_effect_meaningful, is_base_greater, is_significant, lower_i
     return direction, is_new_better
 
 
+#   Scenario #1                   Scenario #2
+#  - median shift                + median shift
+# -----[       ]--------- 0------- [       ]--------
+#   ci_low  ci_high               ci_low ci_high
+# 0 signifies no change in shift between confidence interval range
 def interpret_performance_direction(ci_low, ci_high, lower_is_better):
     is_regression = False
     is_improvement = False
-    ci_intepretation = None
+    ci_interpretation = "Failed to compute. Could be needing more data."
     if ci_high is None or ci_low is None:
-        return None, None, None
-    if ci_low > 0:
-        if lower_is_better:
+        return is_regression, is_improvement, ci_interpretation
+
+    if lower_is_better:
+        # the upper bound of the range shift < 0 indicates strong likelyhood of a negative shift
+        if ci_high < 0:
             is_regression = False
             is_improvement = True
-            ci_intepretation = "Performance improved (median increased)"
-        else:
+            ci_interpretation = "Performance likely improved (median decreased)"
+        # the lower bound of the range shift > 0 indicates strong likelyhood of a positive shift
+        elif ci_low > 0:
             is_regression = True
             is_improvement = False
-            ci_intepretation = "Performance regressed (median increased)"
-    elif ci_high < 0:
-        if lower_is_better:
-            is_regression = True
-            is_improvement = False
-            ci_intepretation = "Performance regressed (median decreased)"
-        else:
-            is_regression = False
-            is_improvement = True
-            ci_intepretation = "Performance improved (median decreased)"
+            ci_interpretation = "Performance likely regressed (median increased)"
     else:
-        ci_intepretation = "No significant shift"
-    return is_regression, is_improvement, ci_intepretation
+        # the lower bound of the range shift > 0 indicates strong likelyhood of a positive shift
+        if ci_low > 0:
+            is_regression = True
+            is_improvement = False
+            ci_interpretation = "Performance likely improved (median increased)"
+        # the upper bound of the range shift < 0 indicates strong likelyhood of a negative shift
+        elif ci_high < 0:
+            is_regression = False
+            is_improvement = True
+            ci_interpretation = "Performance likely regressed (median decreased)"
+
+    return is_regression, is_improvement, ci_interpretation
 
 
 # Common Language Effect Size, and its interpretation in english
@@ -512,9 +521,9 @@ def interpret_silverman_kde(base_data, new_data, lower_is_better):
                         continue
 
                     shift, (ci_low, ci_high) = bootstrap_median_diff_ci(ref_vals, new_vals)
-                    shift = float(shift) if shift else None
-                    ci_low = float(ci_low) if ci_low else None
-                    ci_high = float(ci_high) if ci_high else None
+                    shift = float(shift) if shift is not None else None
+                    ci_low = float(ci_low) if ci_low is not None else None
+                    ci_high = float(ci_high) if ci_high is not None else None
                     median_shift_summary = (
                         f"Median shift: {shift:+.3f} (95% CI: {ci_low:+.3f} to {ci_high:+.3f})"
                     )
