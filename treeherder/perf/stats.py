@@ -339,7 +339,7 @@ def is_new_better(is_effect_meaningful, is_base_greater, is_significant, lower_i
     return direction, is_new_better
 
 
-#   scenario #1                   scenario #2
+#   Scenario #1                   Scenario #2
 #  - median shift                + median shift
 # -----[       ]--------- 0------- [       ]--------
 #   ci_low  ci_high               ci_low ci_high
@@ -349,7 +349,7 @@ def interpret_performance_direction(ci_low, ci_high, lower_is_better):
     is_improvement = False
     ci_interpretation = "Failed to compute. Could be needing more data."
     if ci_high is None or ci_low is None:
-        return None, None, ci_interpretation
+        return is_regression, is_improvement, ci_interpretation
 
     if not lower_is_better:
         # the lower bound of the range shift > 0 indicates strong likelyhood of a positive shift
@@ -358,7 +358,7 @@ def interpret_performance_direction(ci_low, ci_high, lower_is_better):
             is_improvement = False
             ci_interpretation = "Performance likely improved (median increased)"
         # the upper bound of the range shift < 0 indicates strong likelyhood of a negative shift
-        if ci_high < 0:
+        elif ci_high < 0:
             is_regression = False
             is_improvement = True
             ci_interpretation = "Performance likely regressed (median decreased)"
@@ -369,7 +369,7 @@ def interpret_performance_direction(ci_low, ci_high, lower_is_better):
             is_improvement = True
             ci_interpretation = "Performance likely improved (median decreased)"
         # the lower bound of the range shift > 0 indicates strong likelyhood of a positive shift
-        if ci_low > 0:
+        elif ci_low > 0:
             is_regression = True
             is_improvement = False
             ci_interpretation = "Performance likely regressed (median increased)"
