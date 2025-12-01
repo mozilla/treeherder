@@ -82,7 +82,7 @@ class RevisionDatum:
     This class represents a specific revision and the set of values for it
     """
 
-    def __init__(self, push_timestamp, push_id, values, replicates=None):
+    def __init__(self, push_timestamp, push_id, values):
         # Date code was pushed
         self.push_timestamp = push_timestamp
 
@@ -92,9 +92,6 @@ class RevisionDatum:
 
         # data values associated with this revision
         self.values = copy.copy(values)
-
-        # replicates associated with this revision
-        self.replicates = list(replicates or [])
 
         # t-test score
         self.t = 0
