@@ -16,7 +16,7 @@ pytest-watch==4.2.0
 # Required by django-extension's runserver_plus command.
 pytest-django==4.11.1
 pytest==8.4.2
-black==25.9.0
+black==25.11.0
 shellcheck-py==0.11.0.1
 
 # To test async code
