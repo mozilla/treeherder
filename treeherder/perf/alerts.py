@@ -14,7 +14,6 @@ from treeherder.perf.models import (
     PerformanceAlert,
     PerformanceAlertSummary,
     PerformanceDatum,
-    PerformanceDatumReplicate,
     PerformanceSignature,
 )
 from treeherder.perfalert.perfalert import RevisionDatum, detect_changes
@@ -71,23 +70,13 @@ def generate_new_alerts_in_series(signature):
     if latest_alert_timestamp:
         series = series.filter(push_timestamp__gt=latest_alert_timestamp[0])
 
-    series = list(series)
-
-    replicates_map = {}
-    replicates = PerformanceDatumReplicate.objects.filter(
-        performance_datum_id__in=[d.id for d in series]
-    )
-    for replicate in replicates:
-        replicates_map.setdefault(replicate.performance_datum_id, []).append(replicate.value)
-
     revision_data = {}
     for d in series:
         if not revision_data.get(d.push_id):
             revision_data[d.push_id] = RevisionDatum(
-                int(time.mktime(d.push_timestamp.timetuple())), d.push_id, [], []
+                int(time.mktime(d.push_timestamp.timetuple())), d.push_id, []
             )
         revision_data[d.push_id].values.append(d.value)
-        revision_data[d.push_id].replicates.extend(replicates_map.get(d.id, []))
 
     min_back_window = signature.min_back_window
     if min_back_window is None:
