@@ -226,7 +226,8 @@ class TelemetryAlertManager(AlertManager):
             bugs_modified=False
         )
         alerts_not_modified = PerformanceTelemetryAlert.objects.filter(
-            summary_id__in=[summary.id for summary in alert_summaries_not_modified]
+            summary_id__in=[summary.id for summary in alert_summaries_not_modified],
+            bug_number__isnull=False,
         )
 
         alerts = []

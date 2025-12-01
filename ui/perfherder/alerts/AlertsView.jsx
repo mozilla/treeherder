@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Alert, Container } from 'reactstrap';
+import { Alert, Container } from 'react-bootstrap';
 import cloneDeep from 'lodash/cloneDeep';
 
 import withValidation from '../Validation';
@@ -48,7 +48,6 @@ class AlertsView extends React.Component {
       optionCollectionMap: null,
       count: 0,
       id: validated.id,
-      bugTemplate: null,
       totalPages: 0,
     };
   }
@@ -347,7 +346,6 @@ class AlertsView extends React.Component {
       issueTrackers,
       notSupportedAlertFilters,
       optionCollectionMap,
-      bugTemplate,
       page,
       count,
     } = this.state;
@@ -371,14 +369,14 @@ class AlertsView extends React.Component {
           )}
 
           {!user.isStaff && (
-            <Alert color="info">
+            <Alert variant="info">
               You must be logged into perfherder/treeherder and be a sheriff to
               make changes
             </Alert>
           )}
 
           {notSupportedAlertFilters.length > 0 && (
-            <Alert color="warning">
+            <Alert variant="warning">
               {notSupportedAlertFiltersMessage(notSupportedAlertFilters)}
             </Alert>
           )}
@@ -396,7 +394,6 @@ class AlertsView extends React.Component {
             }
             updateViewState={(state) => this.setState(state)}
             setFiltersState={this.setFiltersState}
-            bugTemplate={bugTemplate}
             user={user}
             page={page}
             count={count}

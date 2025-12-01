@@ -82,8 +82,8 @@ export default class JobInfo extends React.PureComponent {
     const timeFields = getTimeFields(job);
 
     return (
-      <ul id="job-info" className="list-unstyled ml-1">
-        <li className="small">
+      <ul id="job-info" className="list-unstyled ms-1 fs-80">
+        <>
           <strong>Job: </strong>
           {showJobFilters ? (
             <React.Fragment>
@@ -97,9 +97,9 @@ export default class JobInfo extends React.PureComponent {
           ) : (
             <span>{searchStr}</span>
           )}
-        </li>
+        </>
         {taskId && currentRepo && (
-          <li className="small">
+          <li>
             <strong>Task: </strong>
             <a
               id="taskInfo"
@@ -117,12 +117,12 @@ export default class JobInfo extends React.PureComponent {
           </li>
         )}
         {taskId && job.taskQueueId && (
-          <li className="small">
+          <li>
             <strong>Task Queue: </strong>
             <span>{job.taskQueueId}</span>
           </li>
         )}
-        <li className="small">
+        <li>
           <strong>Build: </strong>
           <span>
             {[buildArchitecture, buildPlatform, buildOs]
@@ -130,13 +130,13 @@ export default class JobInfo extends React.PureComponent {
               .join(' ')}
           </span>
         </li>
-        <li className="small">
+        <li>
           <strong>Job name: </strong>
           <span>{jobTypeName}</span>
           <Clipboard description="job Name" text={jobTypeName} />
         </li>
         {[...timeFields, ...extraFields].map((field) => (
-          <li className="small" key={`${field.title}${field.value ?? ''}`}>
+          <li key={`${field.title}${field.value ?? ''}`}>
             <strong>{field.title}: </strong>
             {this.renderFieldValue(field)}
             {field.clipboard && (

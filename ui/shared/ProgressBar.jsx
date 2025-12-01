@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Progress } from 'reactstrap';
+import { ProgressBar as BSProgressBar } from 'react-bootstrap';
 
 import SimpleTooltip from './SimpleTooltip';
 
@@ -8,28 +8,31 @@ const ProgressBar = ({ magnitude, regression, color }) => {
   const truncMag = regression
     ? (Math.floor((100 - magnitude) * 100) / 100).toFixed(2)
     : (Math.floor(magnitude * 100) / 100).toFixed(2);
+
+  // For regression, show colored bar on the right
+  // For improvement, show colored bar on the left
+  const leftValue = regression ? 100 - magnitude : magnitude;
+  const rightValue = regression ? magnitude : 100 - magnitude;
+
   return (
     <SimpleTooltip
       text={
-        <Progress
-          multi
+        <BSProgressBar
           aria-label={`Lower is better. Metric: ${truncMag} % regressed`}
         >
-          {/* the % of the bars that are colored and transparent is based on the newIsBetter metric,
-          which determines whether the colored bar for magnitude is displayed on the left or right */}
-          <div aria-hidden="true" className="progress w-100">
-            <Progress
-              bar
-              value={regression ? 100 - magnitude : magnitude}
-              color={regression ? 'transparent' : color}
-            />
-            <Progress
-              bar
-              value={regression ? magnitude : 100 - magnitude}
-              color={regression ? color : 'transparent'}
-            />
-          </div>
-        </Progress>
+          <BSProgressBar
+            now={leftValue}
+            variant={regression ? '' : color}
+            key={1}
+            style={regression ? { backgroundColor: '#e9ecef' } : undefined}
+          />
+          <BSProgressBar
+            now={rightValue}
+            variant={regression ? color : ''}
+            key={2}
+            style={!regression ? { backgroundColor: '#e9ecef' } : undefined}
+          />
+        </BSProgressBar>
       }
       tooltipText="Relative magnitude of change (scale from 0 - 20%+)"
     />

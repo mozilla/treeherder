@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'reactstrap';
+import { Button } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import intersection from 'lodash/intersection';
 import isEqual from 'lodash/isEqual';
@@ -153,7 +153,7 @@ class PushList extends React.Component {
         {repoName &&
           pushList.map((push) => (
             <ErrorBoundary
-              errorClasses="pl-2 border-top border-bottom border-dark d-block"
+              errorClasses="ps-2 border-top border-bottom border-dark d-block"
               message={`Error on push with revision ${push.revision}: `}
               key={push.id}
             >
@@ -193,8 +193,7 @@ class PushList extends React.Component {
           <div className="btn-group">
             {[10, 20, 50].map((count) => (
               <Button
-                color="darker-secondary"
-                outline
+                variant="outline-dark"
                 className="btn-light-bordered"
                 onClick={() => this.fetchNextPushes(count)}
                 key={count}

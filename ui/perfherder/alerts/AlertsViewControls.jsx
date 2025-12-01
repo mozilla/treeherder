@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Row, Button, Container } from 'reactstrap';
+import { Button, Container } from 'react-bootstrap';
 
 import FilterControls from '../../shared/FilterControls';
 import { summaryStatusMap, scrollTypes } from '../perf-helpers/constants';
@@ -82,7 +82,7 @@ export default class AlertsViewControls extends React.Component {
     const framework = frameworkOptions.find(
       (item) => item.name === selectedFramework,
     );
-    updateViewState({ bugTemplate: null, page: 1 });
+    updateViewState({ page: 1 });
     setFiltersState({ framework }, this.fetchAlertSummaries);
   };
 
@@ -195,12 +195,11 @@ export default class AlertsViewControls extends React.Component {
     return (
       <React.Fragment>
         {alertSummaries.length > 1 && (
-          <Container className="sticky-scroll-nav-top max-width-default position-fixed mb-4 p-0 pr-4">
-            <Container className="bg-white max-width-default p-0 pt-5 pb-1">
-              <div className="d-flex justify-content-end mb-1 mr-2">
+          <Container className="sticky-scroll-nav-top max-width-default position-fixed mb-4 px-4">
+            <Container className="bg-white max-width-default pb-1">
+              <div className="d-flex justify-content-end mb-1 gap-2">
                 <Button
-                  className="mr-2"
-                  color="info"
+                  variant="darker-info"
                   onClick={() => this.onScrollAlert(scrollTypes.prev)}
                   disabled={disableButtons.prev}
                   data-testid="scroll-prev-alert"
@@ -208,7 +207,7 @@ export default class AlertsViewControls extends React.Component {
                   Previous alert
                 </Button>
                 <Button
-                  color="info"
+                  variant="darker-info"
                   onClick={() => this.onScrollAlert(scrollTypes.next)}
                   disabled={disableButtons.next}
                   data-testid="scroll-next-alert"
@@ -230,14 +229,14 @@ export default class AlertsViewControls extends React.Component {
         />
         {pageNums
           ? hasMorePages() && (
-              <Row className="justify-content-center">
+              <div className="d-flex justify-content-center my-3">
                 <PaginationGroup
                   viewablePageNums={pageNums}
                   updateParams={validated.updateParams}
                   currentPage={page}
                   count={count}
                 />
-              </Row>
+              </div>
             )
           : null}
         {alertSummaries.length > 0 &&
@@ -258,14 +257,14 @@ export default class AlertsViewControls extends React.Component {
           ))}
         {pageNums
           ? hasMorePages() && (
-              <Row className="justify-content-center">
+              <div className="d-flex justify-content-center my-3">
                 <PaginationGroup
                   viewablePageNums={pageNums}
                   updateParams={validated.updateParams}
                   currentPage={page}
                   count={count}
                 />
-              </Row>
+              </div>
             )
           : null}
       </React.Fragment>

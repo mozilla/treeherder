@@ -5,19 +5,42 @@ strong {
 #details-panel {
   font-size: 12px;
   height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+#details-panel a {
+  color: #337ab7;
+}
+
+#details-panel a:visited {
+  color: purple;
+}
+
+/* Override link colors for actionbar-nav */
+#details-panel .actionbar-nav a {
+  color: inherit;
+}
+
+#details-panel .actionbar-nav a:visited {
+  color: inherit;
 }
 
 .details-panel-slide {
-  animation: details-panel-slide 0.4s;
+  animation: details-panel-slide 0.4s ease-out;
   height: 100%;
+  position: relative;
+  overflow: hidden;
 }
 
 @keyframes details-panel-slide {
   0% {
     transform: translateY(100%);
+    opacity: 0;
   }
   100% {
     transform: translateY(0%);
+    opacity: 1;
   }
 }
 
@@ -60,10 +83,32 @@ div#details-panel-content .details-panel-navbar > ul.tab-headers > li {
   flex-direction: row;
   z-index: 100;
   height: 33px;
+  flex-wrap: nowrap;
+  overflow: hidden;
 }
 
 .details-panel-navbar li {
   align-self: center;
+}
+
+.tab-headers-wrapper {
+  background-color: var(--darker-secondary-bg-color);
+  height: 33px;
+  line-height: 33px;
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: nowrap;
+  overflow: visible;
+}
+
+.tab-headers {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 .tab-header-tabs {
@@ -78,13 +123,86 @@ div#details-panel-content .details-panel-navbar > ul.tab-headers > li {
   color: #9fa3a5;
 }
 
+/* Responsive tab overflow styles */
+.tab-overflow-toggle {
+  color: #9fa3a5 !important;
+  font-size: 14px;
+  line-height: 30px;
+  padding: 4px 8px !important;
+}
+
+.tab-overflow-toggle:hover {
+  color: #d3d8da !important;
+  background-color: #1e252b !important;
+}
+
+.tab-overflow-menu {
+  background-color: #252c33;
+  border: 1px solid #42484f;
+  min-width: 100px;
+  margin-top: 0px;
+}
+
+.tab-overflow-menu .dropdown-item,
+.tab-overflow-menu .nav-link {
+  color: #9fa3a5 !important;
+  background-color: transparent;
+  border: none;
+  font-size: 12px;
+  padding: 1em;
+}
+
+.tab-overflow-menu .dropdown-item:hover,
+.tab-overflow-menu .dropdown-item:focus,
+.tab-overflow-menu .nav-link:hover,
+.tab-overflow-menu .nav-link:focus {
+  background-color: #6b747b;
+  color: #d3d8da !important;
+}
+
+.tab-overflow-menu .dropdown-item.active,
+.tab-overflow-menu .nav-link.active {
+  background-color: #1a4666;
+  color: #eef0f2 !important;
+}
+
+/* Custom dropdown toggle to remove caret */
+.custom-dropdown-toggle::after {
+  display: none !important;
+}
+
+.custom-dropdown-toggle {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.custom-dropdown-toggle:focus,
+.custom-dropdown-toggle:active {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Ensure dropdown menu appears above everything */
+.tab-overflow-menu {
+  z-index: 2001 !important;
+}
+
+/* Force dropdown to appear above all other elements */
+.dropdown-menu.show {
+  z-index: 2001 !important;
+}
+
 #details-panel-content ul.tab-headers {
   list-style: none;
   flex-direction: row;
-  min-width: 550px;
+  min-width: 300px;
   display: flex;
   padding-left: 0;
   font-size: 12px;
+  flex-wrap: nowrap;
+  overflow: hidden;
 }
 
 .details-panel-close-btn {
@@ -106,7 +224,6 @@ div#details-panel-content .details-panel-navbar > ul.tab-headers > li {
 .details-panel-navbar .actionbar-nav > li > .btn {
   color: #9fa3a5;
   padding: 4px 15px;
-  margin-bottom: 4px;
   display: inline-block;
 }
 
@@ -119,7 +236,12 @@ div#details-panel-content .actionbar-nav > li > button:focus {
 }
 
 .details-panel-navbar .actionbar-nav {
-  flex: auto;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  align-items: center;
 }
 
 .tab-header-tabs > li.selected-tab {
@@ -156,10 +278,10 @@ div#details-panel-content .actionbar-nav > li > button:focus {
 
 #details-panel-content {
   position: relative; /* So we can absolutely position the loading overlay */
-  height: 100%;
-  flex: auto;
+  flex: 1 1 auto;
   display: flex;
   flex-flow: row;
+  min-height: 0; /* Allow flex item to shrink below content size */
 }
 
 #actionbar {
@@ -178,6 +300,23 @@ div#details-panel-content .actionbar-nav > li > button:focus {
 
 .actionbar-nav-btn.disabled {
   cursor: not-allowed;
+}
+
+/* Override Bootstrap link colors for actionbar dropdown items */
+.dropdown-menu.actionbar-menu .dropdown-item,
+.dropdown-menu.actionbar-menu a.dropdown-item {
+  color: #212529 !important;
+  background-color: #fff;
+  text-decoration: none !important;
+}
+
+.dropdown-menu.actionbar-menu .dropdown-item:hover,
+.dropdown-menu.actionbar-menu .dropdown-item:focus,
+.dropdown-menu.actionbar-menu a.dropdown-item:hover,
+.dropdown-menu.actionbar-menu a.dropdown-item:focus {
+  color: #1e2125 !important;
+  background-color: #e9ecef;
+  text-decoration: none !important;
 }
 
 .action-bar-spin {

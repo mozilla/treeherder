@@ -1,11 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  UncontrolledDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
-} from 'reactstrap';
+import { Dropdown } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 
@@ -15,20 +10,19 @@ export default function TiersMenu(props) {
   const TIERS = ['1', '2', '3'];
 
   return (
-    <UncontrolledDropdown>
-      <DropdownToggle
+    <Dropdown>
+      <Dropdown.Toggle
         id="tierLabel"
         title="Show/hide job tiers"
         className="btn-view-nav nav-menu-btn"
-        caret
       >
         Tiers
-      </DropdownToggle>
-      <DropdownMenu>
+      </Dropdown.Toggle>
+      <Dropdown.Menu>
         {TIERS.map((tier) => {
           const isOnlyTier = shownTiers.length === 1 && tier === shownTiers[0];
           return (
-            <DropdownItem
+            <Dropdown.Item
               tag="a"
               key={tier}
               onClick={() => filterModel.toggleFilter('tier', tier)}
@@ -36,7 +30,7 @@ export default function TiersMenu(props) {
             >
               <FontAwesomeIcon
                 icon={faCheck}
-                className={`mr-1 ${shownTiers.includes(tier) ? '' : 'hide'}`}
+                className={`me-1 ${shownTiers.includes(tier) ? '' : 'hide'}`}
                 title={
                   isOnlyTier
                     ? 'Must have at least one tier selected at all times'
@@ -44,11 +38,11 @@ export default function TiersMenu(props) {
                 }
               />
               tier {tier}
-            </DropdownItem>
+            </Dropdown.Item>
           );
         })}
-      </DropdownMenu>
-    </UncontrolledDropdown>
+      </Dropdown.Menu>
+    </Dropdown>
   );
 }
 

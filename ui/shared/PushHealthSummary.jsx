@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Col, Row } from 'reactstrap';
+import { Col, Row } from 'react-bootstrap';
 import { faHeart } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -35,7 +35,7 @@ class PushHealthSummary extends PureComponent {
 
     if (noResultsFound) return <React.Fragment />;
     return (
-      <Col xs="8" className="pl-0">
+      <Col xs="8" className="ps-0">
         <span className="d-flex">
           <a
             href={pushHealthUrl}
@@ -52,7 +52,7 @@ class PushHealthSummary extends PureComponent {
                   alt={needInvestigation ? 'Broken' : 'OK'}
                   width={heartSize}
                   height={heartSize}
-                  className="mr-1"
+                  className="me-1"
                 />
               ) : (
                 <span className="mx-1 text-darker-secondary">
@@ -60,7 +60,7 @@ class PushHealthSummary extends PureComponent {
                     icon={faHeart}
                     height={heartSize}
                     width={heartSize}
-                    color="darker-secondary"
+                    variant="darker-secondary"
                   />
                 </span>
               )}
@@ -69,7 +69,7 @@ class PushHealthSummary extends PureComponent {
           </a>
         </span>
         {healthStatus && (
-          <Row className="ml-3 mt-2">
+          <Row className="ms-3 mt-2">
             <Col>
               {linting.result !== 'none' && (
                 <StatusButton

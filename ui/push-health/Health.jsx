@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Container, Spinner, Navbar, Nav } from 'reactstrap';
+import { Container, Spinner, Navbar, Nav, Alert } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import camelCase from 'lodash/camelCase';
 import { Helmet } from 'react-helmet';
@@ -47,8 +47,8 @@ export default class Health extends React.PureComponent {
       searchStr: params.get('searchStr') || '',
       regressionsOrderBy: params.get('regressionsOrderBy') || 'count',
       regressionsGroupBy: params.get('regressionsGroupBy') || 'path',
-      knownIssuesOrderBy: params.get('knownIssuesOrderBy') || 'count',
-      knownIssuesGroupBy: params.get('knownIssuesGroupBy') || 'path',
+      showIntermittentAlert:
+        localStorage.getItem('dismissedIntermittentAlert') !== 'true',
     };
   }
 
@@ -121,6 +121,11 @@ export default class Health extends React.PureComponent {
     return newState;
   };
 
+  dismissIntermittentAlert = () => {
+    localStorage.setItem('dismissedIntermittentAlert', 'true');
+    this.setState({ showIntermittentAlert: false });
+  };
+
   setExpanded = (metricName, expanded) => {
     const root = camelCase(metricName);
     const key = `${root}Expanded`;
@@ -171,19 +176,18 @@ export default class Health extends React.PureComponent {
       selectedJobName,
       regressionsOrderBy,
       regressionsGroupBy,
-      knownIssuesOrderBy,
-      knownIssuesGroupBy,
+      showIntermittentAlert,
     } = this.state;
     const { tests, commitHistory, linting, builds } = metrics;
 
     const { notify } = this.props;
     return (
       <React.Fragment>
-        <Navbar color="light" light expand="sm" className="w-100">
+        <Navbar variant="light" expand="sm" className="w-100">
           {!!tests && (
-            <Nav className="mb-2 pt-2 pl-3 justify-content-between w-100">
+            <Nav className="mb-2 pt-2 ps-3 justify-content-between w-100">
               <span />
-              <span className="mr-2 d-flex">
+              <span className="me-2 d-flex">
                 <InputFilter
                   updateFilterText={this.filter}
                   placeholder="filter path or platform"
@@ -204,12 +208,23 @@ export default class Health extends React.PureComponent {
         <Container fluid className="mt-2 mb-5 max-width-default">
           {!!tests && !!currentRepo && (
             <React.Fragment>
+              {showIntermittentAlert && (
+                <Alert
+                  variant="info"
+                  className="mb-3"
+                  dismissible
+                  show={showIntermittentAlert}
+                  onClose={this.dismissIntermittentAlert}
+                >
+                  Displaying only issues not known to be intermittents
+                </Alert>
+              )}
               <div className="d-flex my-5">
                 <StatusProgress
                   counts={status}
                   customStyle="progress-relative"
                 />
-                <div className="mt-4 ml-2">
+                <div className="mt-4 ms-2">
                   {commitHistory.details && (
                     <CommitHistory
                       history={commitHistory.details}
@@ -222,17 +237,17 @@ export default class Health extends React.PureComponent {
               </div>
               <div className="mb-3" />
               <Tabs
-                className="w-100 h-100 mr-5 mt-2"
+                className="w-100 h-100 me-5 mt-2"
                 selectedTabClassName="selected-detail-tab"
                 defaultIndex={defaultTabIndex}
               >
                 <TabList className="font-weight-500 text-secondary d-flex justify-content-end border-bottom font-size-18">
                   {linting.result !== 'none' && (
-                    <Tab className="pb-2 list-inline-item ml-4 pointable">
+                    <Tab className="pb-2 list-inline-item ms-4 pointable">
                       <span className="text-success">
                         <FontAwesomeIcon
                           icon={getIcon(linting.result)}
-                          className={`mr-1 text-${
+                          className={`me-1 text-${
                             resultColorMap[linting.result]
                           }`}
                         />
@@ -241,20 +256,20 @@ export default class Health extends React.PureComponent {
                     </Tab>
                   )}
                   {builds.result !== 'none' && (
-                    <Tab className="list-inline-item ml-4 pointable">
+                    <Tab className="list-inline-item ms-4 pointable">
                       <FontAwesomeIcon
                         icon={getIcon(builds.result)}
-                        className={`mr-1 text-${resultColorMap[builds.result]}`}
+                        className={`me-1 text-${resultColorMap[builds.result]}`}
                       />
                       Builds
                     </Tab>
                   )}
                   {tests.result !== 'none' && (
-                    <Tab className="list-inline-item ml-4 pointable">
+                    <Tab className="list-inline-item ms-4 pointable">
                       <FontAwesomeIcon
                         fill={resultColorMap[tests.result]}
                         icon={getIcon(tests.result)}
-                        className={`mr-1 text-${resultColorMap[tests.result]}`}
+                        className={`me-1 text-${resultColorMap[tests.result]}`}
                       />
                       Tests
                     </Tab>
@@ -299,8 +314,6 @@ export default class Health extends React.PureComponent {
                       selectedTest={selectedTest}
                       regressionsOrderBy={regressionsOrderBy}
                       regressionsGroupBy={regressionsGroupBy}
-                      knownIssuesOrderBy={knownIssuesOrderBy}
-                      knownIssuesGroupBy={knownIssuesGroupBy}
                       selectedTaskId={selectedTaskId}
                       selectedJobName={selectedJobName}
                       updateParamsAndState={this.updateParamsAndState}
@@ -317,7 +330,7 @@ export default class Health extends React.PureComponent {
           {!failureMessage && !tests && (
             <h4>
               <Spinner />
-              <span className="ml-2 pb-1">Gathering health data...</span>
+              <span className="ms-2 pb-1">Gathering health data...</span>
             </h4>
           )}
         </Container>
@@ -328,4 +341,5 @@ export default class Health extends React.PureComponent {
 
 Health.propTypes = {
   location: PropTypes.shape({}).isRequired,
+  clearNotification: PropTypes.func.isRequired,
 };

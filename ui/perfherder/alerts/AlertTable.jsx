@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Container, Form, FormGroup, Table, Row, Col } from 'reactstrap';
+import { Container, Form, Table, Row, Col } from 'react-bootstrap';
 import orderBy from 'lodash/orderBy';
 
 import {
@@ -299,7 +299,6 @@ export default class AlertTable extends React.Component {
       issueTrackers,
       fetchAlertSummaries,
       updateViewState,
-      bugTemplate,
       modifyAlert,
       performanceTags,
     } = this.props;
@@ -333,7 +332,7 @@ export default class AlertTable extends React.Component {
                     xs={10}
                     className="text-left alert-summary-header-element"
                   >
-                    <FormGroup check className="d-inline-flex">
+                    <Form.Group check className="d-inline-flex align-items-top">
                       <SelectAlertsDropdown
                         setSelectedAlerts={this.setSelectedAlerts}
                         user={user}
@@ -351,7 +350,7 @@ export default class AlertTable extends React.Component {
                         changeRevision={this.changeRevision}
                         updateViewState={updateViewState}
                       />
-                    </FormGroup>
+                    </Form.Group>
                   </Col>
                   <Col className="d-flex justify-content-end p-2">
                     <StatusDropdown
@@ -360,7 +359,6 @@ export default class AlertTable extends React.Component {
                       repoModel={repoModel}
                       updateViewState={updateViewState}
                       issueTrackers={issueTrackers}
-                      bugTemplate={bugTemplate}
                       user={user}
                       filteredAlerts={filteredAlerts}
                       frameworks={frameworks}
@@ -373,23 +371,25 @@ export default class AlertTable extends React.Component {
               <Table className="compare-table mb-0">
                 <tbody>
                   <tr className="border subtest-header">
-                    <th aria-label="Select alerts"> </th>
+                    <th className="table-width-xs" aria-label="Select alerts">
+                      {' '}
+                    </th>
                     <th aria-label="Star alert or open graph"> </th>
-                    <th className="align-bottom">
+                    <th className="align-middle">
                       <TableColumnHeader
                         column={tableConfig.Test}
                         data-testid={`${alertSummary.id} ${tableConfig.Test}`}
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
-                    <th className="align-bottom">
+                    <th className="align-middle">
                       <TableColumnHeader
                         column={tableConfig.Platform}
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
                     {alertSummary.framework === browsertimeId && (
-                      <th className="align-bottom text-nowrap">
+                      <th className="align-middle text-nowrap">
                         <span
                           data-testid={`${alertSummary.id} ${tableConfig.DebuggingInformation.name}`}
                         >
@@ -400,23 +400,23 @@ export default class AlertTable extends React.Component {
                         />
                       </th>
                     )}
-                    <th className="align-bottom">
+                    <th className="align-middle">
                       <TableColumnHeader
                         column={tableConfig.NoiseProfile}
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
-                    <th className="align-bottom text-nowrap">
+                    <th className="align-middle text-nowrap">
                       <span>{tableConfig.TagsOptions.name}</span>
                       <SortButtonDisabled column={tableConfig.TagsOptions} />
                     </th>
-                    <th className="align-bottom">
+                    <th className="align-middle">
                       <TableColumnHeader
                         column={tableConfig.Magnitude}
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
-                    <th className="align-bottom">
+                    <th className="align-middle">
                       <TableColumnHeader
                         column={tableConfig.Confidence}
                         onChangeSort={this.onChangeSort}
@@ -463,7 +463,7 @@ export default class AlertTable extends React.Component {
                     >
                       <td
                         colSpan="9"
-                        className="text-left text-muted pl-3 py-4"
+                        className="text-left text-muted ps-3 py-4"
                       >
                         <span className="font-weight-bold">
                           Downstream alert summaries:{' '}
@@ -489,7 +489,7 @@ export default class AlertTable extends React.Component {
                   {alertSummary.notes && (
                     <div className="bg-white px-3 py-4">
                       <TruncatedText
-                        color="darker-info"
+                        variant="darker-info"
                         title="Notes: "
                         maxLength={167}
                         text={alertSummary.notes}
@@ -533,7 +533,6 @@ AlertTable.propTypes = {
   }).isRequired,
   fetchAlertSummaries: PropTypes.func.isRequired,
   updateViewState: PropTypes.func.isRequired,
-  bugTemplate: PropTypes.shape({}),
   modifyAlert: PropTypes.func,
   updateAlertSummary: PropTypes.func,
   projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
@@ -543,7 +542,6 @@ AlertTable.propTypes = {
 AlertTable.defaultProps = {
   alertSummary: null,
   issueTrackers: [],
-  bugTemplate: null,
   modifyAlert: undefined,
   // leverage dependency injection
   // to improve code testability

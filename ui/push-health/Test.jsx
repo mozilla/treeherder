@@ -5,16 +5,10 @@ import {
   Collapse,
   Nav,
   Navbar,
-  NavItem,
-  UncontrolledButtonDropdown,
   ButtonGroup,
-  DropdownMenu,
-  DropdownToggle,
-  DropdownItem,
-  Input,
-  FormGroup,
-  Label,
-} from 'reactstrap';
+  Dropdown,
+  Form,
+} from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCaretDown,
@@ -75,7 +69,7 @@ class Test extends PureComponent {
       .reduce(
         (acc, test) => ({
           ...acc,
-          ...jobs[test.jobName].reduce((fjAcc, job) => ({ [job.id]: job }), {}),
+          ...jobs[test.jobName].reduce((_, job) => ({ [job.id]: job }), {}),
         }),
         {},
       );
@@ -241,23 +235,23 @@ class Test extends PureComponent {
           >
             <Button
               onClick={this.toggleDetails}
-              className="pr-0 text-left border-0"
+              className="pe-0 text-left border-0"
               title="Click to expand for test detail"
-              outline
+              variant="outline"
             >
               <FontAwesomeIcon
                 icon={detailsShowing ? faCaretDown : faCaretRight}
-                className="mr-2 min-width-1 mt-1"
+                className="me-2 min-width-1 mt-1"
               />
             </Button>
             <Button
               onClick={this.toggleDetails}
               className="text-left border-0"
               title="Click to expand for test detail"
-              outline
+              variant="outline"
             >
               {key === 'none' ? 'All' : this.getGroupHtml(key)}
-              <span className="ml-2 text-break">
+              <span className="ms-2 text-break">
                 ({tests.length} failure{tests.length > 1 && 's'})
               </span>
             </Button>
@@ -268,101 +262,106 @@ class Test extends PureComponent {
             />
           </span>
 
-          <Collapse isOpen={detailsShowing}>
-            <Navbar className="mb-3">
-              <Nav>
-                <NavItem>
-                  <ButtonGroup size="sm" className="ml-5">
+          <Collapse in={detailsShowing}>
+            <div>
+              <Navbar className="mb-3">
+                <Nav>
+                  <Nav.Item>
+                    <ButtonGroup size="sm" className="ms-5">
+                      <Button
+                        title="Retrigger selected jobs once"
+                        onClick={() => this.retriggerSelected(1)}
+                        size="sm"
+                        variant="secondary"
+                      >
+                        <FontAwesomeIcon
+                          icon={faRedo}
+                          title="Retrigger"
+                          className="me-2"
+                          alt=""
+                        />
+                        Retrigger Selected
+                      </Button>
+                      <Dropdown>
+                        <Dropdown.Toggle
+                          split
+                          variant="secondary"
+                          size="sm"
+                          title="Retrigger selected multiple times"
+                        />
+                        <Dropdown.Menu>
+                          {[5, 10, 15].map((times) => (
+                            <Dropdown.Item
+                              key={times}
+                              title={`Retrigger selected jobs ${times} times`}
+                              onClick={() => this.retriggerSelected(times)}
+                              className="pointable"
+                            >
+                              Retrigger selected {times} times
+                            </Dropdown.Item>
+                          ))}
+                        </Dropdown.Menu>
+                      </Dropdown>
+                    </ButtonGroup>
                     <Button
-                      title="Retrigger selected jobs once"
-                      onClick={() => this.retriggerSelected(1)}
                       size="sm"
+                      variant="outline-primary"
+                      className="mx-3"
+                      title="Mark selected jobs as investigated"
+                      onClick={() => this.markAsInvestigated()}
                     >
-                      <FontAwesomeIcon
-                        icon={faRedo}
-                        title="Retrigger"
-                        className="mr-2"
-                        alt=""
-                      />
-                      Retrigger Selected
+                      Mark as investigated
                     </Button>
-                    <UncontrolledButtonDropdown size="sm">
-                      <DropdownToggle caret />
-                      <DropdownMenu>
-                        {[5, 10, 15].map((times) => (
-                          <DropdownItem
-                            key={times}
-                            title={`Retrigger selected jobs ${times} times`}
-                            onClick={() => this.retriggerSelected(times)}
-                            className="pointable"
-                            tag="a"
-                          >
-                            Retrigger selected {times} times
-                          </DropdownItem>
-                        ))}
-                      </DropdownMenu>
-                    </UncontrolledButtonDropdown>
-                  </ButtonGroup>
-                  <Button
-                    size="sm"
-                    outline
-                    color="primary"
-                    className="mx-3"
-                    title="Mark selected jobs as investigated"
-                    onClick={() => this.markAsInvestigated()}
-                  >
-                    Mark as investigated
-                  </Button>
-                  <Button
-                    size="sm"
-                    outline
-                    color="primary"
-                    className="mx-3"
-                    title="Mark selected jobs as Uninvestigated"
-                    onClick={() => this.markAsUninvestigated()}
-                  >
-                    Mark as Uninvestigated
-                  </Button>
-                </NavItem>
-              </Nav>
-            </Navbar>
-            <div className="ml-5 pl-2 position-relative">
-              <FormGroup className="mb-1 pl-4">
-                <Input
-                  aria-label="Select all platforms for this test"
+                    <Button
+                      size="sm"
+                      variant="outline-primary"
+                      className="mx-3"
+                      title="Mark selected jobs as Uninvestigated"
+                      onClick={() => this.markAsUninvestigated()}
+                    >
+                      Mark as Uninvestigated
+                    </Button>
+                  </Nav.Item>
+                </Nav>
+              </Navbar>
+              <div className="mb-2 ms-4 ps-4">
+                <Form.Check
                   type="checkbox"
+                  id="select-all-platforms"
+                  label="select all"
                   checked={allPlatformsSelected}
                   onChange={this.selectAll}
+                  className="text-darker-secondary"
+                  style={{ '--bs-form-check-label-margin-start': '1rem' }}
                 />
-                <Label className="text-darker-secondary ml-4">select all</Label>
-              </FormGroup>
-            </div>
-            {tests.map((failure) => (
-              <PlatformConfig
-                key={failure.key}
-                testName={failure.testName}
-                jobName={failure.jobName}
-                jobs={jobs[failure.jobName]}
-                revision={revision}
-                notify={notify}
-                selectedJobName={selectedJobName}
-                selectedTaskId={selectedTaskId}
-                updateParamsAndState={(stateObj) => {
-                  stateObj.selectedTest = id;
-                  updateParamsAndState(stateObj);
-                }}
-                currentRepo={currentRepo}
-              >
-                <TaskSelection
-                  failure={failure}
-                  groupedBy={groupedBy}
-                  addSelectedTest={this.addSelectedTest}
-                  removeSelectedTest={this.removeSelectedTest}
-                  allPlatformsSelected={allPlatformsSelected}
+              </div>
+              {tests.map((failure) => (
+                <PlatformConfig
+                  key={failure.key}
+                  testName={failure.testName}
+                  jobName={failure.jobName}
+                  jobs={jobs[failure.jobName]}
+                  revision={revision}
+                  notify={notify}
+                  selectedJobName={selectedJobName}
+                  selectedTaskId={selectedTaskId}
+                  updateParamsAndState={(stateObj) => {
+                    stateObj.selectedTest = id;
+                    updateParamsAndState(stateObj);
+                  }}
                   currentRepo={currentRepo}
-                />
-              </PlatformConfig>
-            ))}
+                >
+                  <TaskSelection
+                    failure={failure}
+                    groupedBy={groupedBy}
+                    addSelectedTest={this.addSelectedTest}
+                    removeSelectedTest={this.removeSelectedTest}
+                    allPlatformsSelected={allPlatformsSelected}
+                    currentRepo={currentRepo}
+                  />
+                </PlatformConfig>
+              ))}
+            </div>
           </Collapse>
         </div>
       </div>

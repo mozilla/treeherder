@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Alert, Button } from 'reactstrap';
+import { Alert, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCaretUp, faCaretRight } from '@fortawesome/free-solid-svg-icons';
 
@@ -84,7 +84,7 @@ class CommitHistory extends React.PureComponent {
           </div>
           <div className="text-secondary mt-1">
             Push
-            <span className="font-weight-bold mr-1 ml-1">
+            <span className="font-weight-bold me-1 ms-1">
               <a
                 href={currentRepo.getRevisionHref(revision)}
                 target="_blank"
@@ -96,7 +96,7 @@ class CommitHistory extends React.PureComponent {
             on
             <span
               data-testid="header-repo"
-              className="d-inline-block text-capitalize font-weight-bold ml-1"
+              className="d-inline-block text-capitalize font-weight-bold ms-1"
             >
               {currentRepo.name}
             </span>
@@ -113,7 +113,7 @@ class CommitHistory extends React.PureComponent {
         </div>
         <div className="commit-area mt-2 text-secondary">
           {revisions.length > 1 && (
-            <div className="ml-3">
+            <div className="ms-3">
               <Revision
                 revision={revisions[1]}
                 repo={currentRepo}
@@ -134,12 +134,12 @@ class CommitHistory extends React.PureComponent {
             />
           )}
           {showParent && (
-            <div className="ml-3">
+            <div className="ms-3">
               Base commit:
               <span>
                 {!exactMatch && (
                   <div>
-                    <Alert color="warning" className="m-3 font-italics">
+                    <Alert variant="warning" className="m-3 font-italics">
                       Warning: Could not find an exact match parent Push in
                       Treeherder.
                     </Alert>
@@ -157,7 +157,7 @@ class CommitHistory extends React.PureComponent {
                     rel="noopener noreferrer"
                     title="View this push"
                     data-testid="parent-commit-sha"
-                    className="mr-1 ml-1 font-weight-bold text-secondary"
+                    className="me-1 ms-1 font-weight-bold text-secondary"
                   >
                     {parentPushRevision || parentSha}
                   </a>
@@ -182,9 +182,8 @@ class CommitHistory extends React.PureComponent {
           <span className="font-weight-bold">
             <Button
               onClick={this.toggleDetails}
-              outline
-              color="darker-secondary"
-              className="border-0 pl-0 shadow-none"
+              variant="outline-secondary"
+              className="border-0 ps-0 shadow-none"
               role="button"
               aria-expanded={isExpanded}
             >
@@ -194,7 +193,7 @@ class CommitHistory extends React.PureComponent {
                 aria-label={expandTitle}
                 alt=""
               />
-              <span className="ml-1 font-weight-bold">{expandText}</span>
+              <span className="ms-1 font-weight-bold">{expandText}</span>
             </Button>
           </span>
         )}

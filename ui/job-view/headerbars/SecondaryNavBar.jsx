@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from 'reactstrap';
+import { Button } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -231,7 +231,7 @@ class SecondaryNavBar extends React.PureComponent {
           <span className="d-flex push-left watched-repos">
             {watchedRepos.map((watchedRepo) => (
               <ErrorBoundary
-                errorClasses="pl-1 pr-1 btn-view-nav border-right"
+                errorClasses="ps-1 pe-1 btn-view-nav border-right"
                 message={`Error watching ${watchedRepo.name}: `}
                 key={watchedRepo.name}
               >
@@ -306,7 +306,7 @@ class SecondaryNavBar extends React.PureComponent {
             />
             {/* Toggle Group State Button */}
             <Button
-              className="py-0 px-1 btn-view-nav mr-1"
+              className="py-0 px-1 btn-view-nav me-1"
               title={
                 groupCountsExpanded
                   ? 'Collapse job groups'
@@ -326,12 +326,12 @@ class SecondaryNavBar extends React.PureComponent {
               <span id="filter-chicklets">
                 {this.filterChicklets.map((filterName) => {
                   const isOn = this.isFilterOn(filterName);
+                  const { status } = getBtnClass(filterName);
                   return (
                     <span key={filterName}>
                       <FontAwesomeIcon
-                        className={`btn btn-view-nav btn-nav-filter ${getBtnClass(
-                          filterName,
-                        )}-filter-chicklet`}
+                        className="btn btn-view-nav btn-nav-filter"
+                        data-status={status}
                         icon={isOn ? faDotCircle : faCircle}
                         onClick={() =>
                           this.toggleResultStatusFilterChicklet(filterName)

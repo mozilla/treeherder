@@ -147,14 +147,14 @@ test('legend card closes when pressing x', async () => {
 test('legend card checkbox can be unchecked to hide series', async () => {
   const updateStateMock = jest.fn();
   const updateStateParamsMock = jest.fn();
-  const { getByTitle } = legendCard(
+  const { getByLabelText } = legendCard(
     testData[0],
     testData,
     updateStateMock,
     updateStateParamsMock,
   );
 
-  const input = await waitFor(() => getByTitle('Show/Hide series'));
+  const input = await waitFor(() => getByLabelText('Show/Hide series'));
 
   expect(input).toHaveProperty('checked', true);
 

@@ -8,6 +8,7 @@ import responses
 from treeherder.etl.push_loader import (
     GithubPullRequestTransformer,
     GithubPushTransformer,
+    HgPushFetchError,
     HgPushTransformer,
     PulsePushError,
     PushLoader,
@@ -218,3 +219,18 @@ def test_ingest_github_push_comma_separated_branches(
         "https://firefox-ci-tc.services.mozilla.com",
     )
     assert Push.objects.count() == expected_pushes
+
+
+def test_fetch_push_raises_on_empty_pushes(monkeypatch):
+    """Test that a HgPushFetchError is raised when fetch_json returns a dict without 'pushes'"""
+    monkeypatch.setattr("treeherder.etl.push_loader.fetch_json", lambda url: {})
+    transformer = HgPushTransformer(
+        {
+            "payload": {
+                "repo_url": "https://hg.mozilla.org/try",
+                "pushlog_pushes": [{"push_full_json_url": "http://example"}],
+            }
+        }
+    )
+    with pytest.raises(HgPushFetchError):
+        transformer.fetch_push("http://example", repository="try")

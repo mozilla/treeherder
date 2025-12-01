@@ -1162,7 +1162,11 @@ class PerfCompareResults(generics.ListAPIView):
                     continue
                 if test_version == "mann-whitney-u":
                     new_stats = self._process_stats(
-                        statistics_base_perf_data, statistics_new_perf_data, header, lower_is_better
+                        statistics_base_perf_data,
+                        statistics_new_perf_data,
+                        header,
+                        lower_is_better,
+                        remove_outliers=False,
                     )
 
                     row_result = {
@@ -1389,11 +1393,13 @@ class PerfCompareResults(generics.ListAPIView):
             if value is not None:
                 grouped_values[signature_id].append(value)
                 grouped_job_ids[signature_id].append(job_id)
-        for signature_id, replicate_value in perf_data.values_list(
-            "signature_id", "performancedatumreplicate__value"
+        for signature_id, value, replicate_value in perf_data.values_list(
+            "signature_id", "value", "performancedatumreplicate__value"
         ):
             if replicate_value is not None:
                 grouped_replicate_values[signature_id].append(replicate_value)
+            else:
+                grouped_replicate_values[signature_id].append(value)
         return grouped_job_ids, grouped_values, grouped_replicate_values
 
     @staticmethod
@@ -1499,9 +1505,12 @@ class PerfCompareResults(generics.ListAPIView):
         # Mann-Whitney U test, two sided because we're never quite sure what of
         # the intent of the patch, as things stand
         # Tests the null hypothesis that the distributions of the two are identical
-        mann_whitney, mann_stat, mann_pvalue = stats.interpret_mann_whitneyu(
-            base_rev_data, new_rev_data
-        )
+        (
+            mann_whitney,
+            mann_stat,
+            mann_pvalue,
+            is_significant,
+        ) = stats.interpret_mann_whitneyu(base_rev_data, new_rev_data, pvalue_threshold)
         delta_value = new_median - base_median
         delta_percentage = (delta_value / base_median * 100) if base_median != 0 else 0
 
@@ -1517,34 +1526,32 @@ class PerfCompareResults(generics.ListAPIView):
             c_warning = "Empty data in one group, cannot compute Cliffs Delta"
         else:
             c_delta, _ = cliffs_delta(base_rev_data, new_rev_data)
+        # interpret effect size
+        cliffs_interpretation, is_effect_meaningful = stats.interpret_effect_size(c_delta)
 
-        cliffs_interpretation = stats.interpret_effect_size(c_delta)
-        direction, is_new_better = stats.is_new_better(delta_value, lower_is_better)
-
-        # Interpret effect size
-        effect_size = stats.interpret_effect_size(c_delta)
-
-        # returns CLES, direction
+        # returns CLES
         (
             cles_obj,
             cles,
-            is_significant,
             cles_explanation,
             mann_whitney_u_cles,
             cliffs_delta_cles,
-            p_value_cles,
+            is_base_greater,
         ) = stats.interpret_cles(
             mann_stat,
-            mann_pvalue,
             new_rev_data,
             base_rev_data,
-            pvalue_threshold,
-            cliffs_interpretation,
             c_delta,
+            cliffs_interpretation,
             lower_is_better,
         )
+
+        direction, is_new_better = stats.is_new_better(
+            is_effect_meaningful, is_base_greater, is_significant, lower_is_better
+        )
+
         if cles_obj:
-            cles_obj["effect_size"] = effect_size
+            cles_obj["effect_size"] = cliffs_interpretation
             cles_obj["cles_direction"] = direction
 
         # Compute KDE with Silverman bandwidth, and warn if multimodal.
@@ -1554,16 +1561,15 @@ class PerfCompareResults(generics.ListAPIView):
             is_regression,
             is_improvement,
             more_runs_are_needed,
-            warning_msgs,
+            silverman_warnings,
             performance_intepretation,
         ) = stats.interpret_silverman_kde(base_rev_data, new_rev_data, lower_is_better)
 
         # Plot Kernel Density Estimator (KDE) with an ISJ (Improved Sheather-Jones) to reduce false positives from over-smoothing in Silverman
 
-        kde_isj_plot_base, kde_isj_plot_new, isj_kde_summary_text = (
-            stats.plot_kde_with_isj_bandwidth(
-                base_rev_data, new_rev_data, mann_pvalue, cles, c_delta, cliffs_interpretation
-            )
+        kde_isj_plot_base, kde_isj_plot_new, kde_warnings = stats.plot_kde_with_isj_bandwidth(
+            base_rev_data,
+            new_rev_data,
         )
 
         stats_data = {
@@ -1606,22 +1612,22 @@ class PerfCompareResults(generics.ListAPIView):
             # CLES: Common Language Effect Size, a lot of interpretation esp from Mann-Whitney U
             "cles": cles_obj,
             # Silverman KDE multimodal warnings and confidence interval
-            "silverman_warnings": warning_msgs,
+            "silverman_warnings": silverman_warnings,
             "silverman_kde": silverman_kde,
             # KDE plots and summary plot with ISJ bandwidth
             "kde_base": kde_isj_plot_base,
             "kde_new": kde_isj_plot_new,
-            "kde_summary_text": isj_kde_summary_text,
+            "kde_warnings": kde_warnings,
             # short form summary based on former tests shapiro, silverman, etc...
             "is_fit_good": is_fit_good,
             "is_new_better": is_new_better,
-            "is_significant": is_significant,
+            "is_meaningful": is_effect_meaningful,
             "lower_is_better": lower_is_better,
             "is_regression": is_regression,
             "is_improvement": is_improvement,
             "more_runs_are_needed": more_runs_are_needed,
             "performance_intepretation": performance_intepretation,
-            "direction_of_change": direction,  # 'neutral', 'better', or 'worse'
+            "direction_of_change": direction,  # 'no change', 'improvement', or 'regression'
         }
 
         return stats_data

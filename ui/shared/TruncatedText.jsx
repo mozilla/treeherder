@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from 'reactstrap';
+import { Button } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 
 export default class TruncatedText extends React.Component {
@@ -14,6 +14,9 @@ export default class TruncatedText extends React.Component {
     const { text, maxLength, title, color } = this.props;
     const { showMoreResults } = this.state;
 
+    const isOutline = color !== 'link';
+    const variant = isOutline ? `outline-${color}` : color;
+
     return (
       <React.Fragment>
         <p className={showMoreResults ? '' : 'text-truncate'}>
@@ -22,11 +25,10 @@ export default class TruncatedText extends React.Component {
         </p>
         {text.length > maxLength && (
           <Button
-            color={color}
-            outline={color !== 'link'}
+            variant={variant}
             className={`${
               color !== 'link' || 'font-weight-bold text-reset'
-            } d-block ml-auto`}
+            } d-block ms-auto`}
             onClick={() => this.setState({ showMoreResults: !showMoreResults })}
           >
             {`show ${showMoreResults ? 'less' : 'more'}`}

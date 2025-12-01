@@ -42,7 +42,7 @@ const StatusButton = ({
       <div className="pt-2">
         <FontAwesomeIcon
           icon={getIcon(result)}
-          className={`mr-2 text-${resultColorMap[result]}`}
+          className={`me-2 text-${resultColorMap[result]}`}
         />
         <span className={`text-${resultColorMap[result]}`}>{text}</span>
       </div>

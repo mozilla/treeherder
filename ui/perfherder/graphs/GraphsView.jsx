@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Container, Col, Row } from 'reactstrap';
+import { Button, Container, Col, Row } from 'react-bootstrap';
 import unionBy from 'lodash/unionBy';
 import queryString from 'query-string';
 
@@ -425,7 +425,7 @@ class GraphsView extends React.Component {
         errorClasses={errorMessageClass}
         message={genericErrorMessage}
       >
-        <Container fluid className="pt-5 pr-5 pl-5">
+        <Container fluid className="pt-5 pe-5 ps-5">
           {loading && <LoadingSpinner />}
 
           {errorMessages.length > 0 && (
@@ -448,7 +448,7 @@ class GraphsView extends React.Component {
                 <Container
                   role="region"
                   aria-label="Graph Legend"
-                  className="graph-legend pl-0 pb-4"
+                  className="graph-legend ps-0 pb-4"
                 >
                   {testData.length > 0 &&
                     testData.map((series) => (
@@ -473,7 +473,7 @@ class GraphsView extends React.Component {
               </Col>
             )}
             <Col
-              className={`pl-0 ${
+              className={`ps-0 ${
                 testData.length ? 'custom-col-xxl-auto' : 'col-auto'
               } ${showTable && 'w-100'}`}
             >

@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import UncontrolledTooltip from 'reactstrap/lib/UncontrolledTooltip';
-import Button from 'reactstrap/lib/Button';
-import Badge from 'reactstrap/lib/Badge';
+import { Button, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 import SimpleTooltip from '../../shared/SimpleTooltip';
 
@@ -26,8 +24,9 @@ export default class AlertTableTagsOptions extends React.Component {
 
     return items.map((item) => (
       <Badge
-        className="mr-1 custom-tooltip"
-        color="light"
+        className="me-1 custom-tooltip"
+        bg="light"
+        text="dark"
         key={`${item.name}`}
         data-testid={badgeId[this.getBadgeType(item)]}
       >
@@ -51,7 +50,6 @@ export default class AlertTableTagsOptions extends React.Component {
   };
 
   displayItems = (items) => {
-    const { alertId } = this.props;
     const { displayAllItems } = this.state;
 
     return items.length ? (
@@ -61,29 +59,27 @@ export default class AlertTableTagsOptions extends React.Component {
       >
         {this.showItems(items.slice(0, this.visibleItems))}
         {!displayAllItems && items.length > this.visibleItems && (
-          <Button
-            color="link"
-            size="sm"
-            id={`alert-${alertId}-tags-options`}
-            onClick={() =>
-              this.setState((prevState) => ({
-                displayAllItems: !prevState.displayAllItems,
-              }))
-            }
+          <OverlayTrigger
+            placement="top"
+            overlay={<Tooltip>Show more</Tooltip>}
           >
-            <span data-testid="show-more-tags-options">...</span>
-            <UncontrolledTooltip
-              placement="top"
-              target={`alert-${alertId}-tags-options`}
+            <Button
+              variant="link"
+              size="sm"
+              onClick={() =>
+                this.setState((prevState) => ({
+                  displayAllItems: !prevState.displayAllItems,
+                }))
+              }
             >
-              Show more
-            </UncontrolledTooltip>
-          </Button>
+              <span data-testid="show-more-tags-options">...</span>
+            </Button>
+          </OverlayTrigger>
         )}
         {displayAllItems && this.showItems(items.slice(this.visibleItems))}
       </div>
     ) : (
-      <Badge className="mb-1" color="light">
+      <Badge className="mb-1" bg="light" text="dark">
         No tags or options
       </Badge>
     );
@@ -109,5 +105,4 @@ AlertTableTagsOptions.propTypes = {
       tagAndOption: PropTypes.bool.isRequired,
     }),
   ).isRequired,
-  alertId: PropTypes.number.isRequired,
 };
