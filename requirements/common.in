@@ -8,7 +8,7 @@ simplejson==3.20.2  # import simplejson
 newrelic==11.1.0
 certifi==2025.11.12
 
-psycopg2-binary==2.9.9
+psycopg2-binary==2.9.11
 
 jsonschema==4.25.1  # import jsonschema
 djangorestframework==3.16.1  # Imported as rest_framework
