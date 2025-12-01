@@ -2,10 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartBar, faFileAlt } from '@fortawesome/free-regular-svg-icons';
-import { faTree } from '@fortawesome/free-solid-svg-icons';
+import { faTree, faGaugeHigh } from '@fortawesome/free-solid-svg-icons';
 import { Button, Navbar, Nav } from 'react-bootstrap';
 
 import LogoMenu from '../shared/LogoMenu';
+import { getPerfAnalysisUrl, isResourceUsageProfile } from '../helpers/url';
 
 // Get the css class for the result, step buttons and other general use
 const getShadingClass = (result) => `result-status-shading-${result}`;
@@ -20,7 +21,12 @@ const Navigation = ({
   collapseDetails,
   collapseJobDetails,
   copySelectedLogToBugFiler,
+  job,
+  jobDetails,
 }) => {
+  const resourceUsageProfile = jobDetails?.find((artifact) =>
+    isResourceUsageProfile(artifact.value),
+  );
   const resultStatusShading = getShadingClass(result);
 
   return (
@@ -65,7 +71,7 @@ const Navigation = ({
         </Nav.Item>
         <Nav.Item>
           <a
-            title="Open the raw log in a new window"
+            title="Open the raw log in a new window (Shift+L)"
             className="nav-link btn-view-nav"
             target="_blank"
             rel="noopener noreferrer"
@@ -75,6 +81,23 @@ const Navigation = ({
             <span>open raw log</span>
           </a>
         </Nav.Item>
+        {resourceUsageProfile && (
+          <Nav.Item>
+            <a
+              title="Show the resource usage profile in the Firefox Profiler (g)"
+              className="nav-link btn-view-nav"
+              target="_blank"
+              rel="noopener noreferrer"
+              href={getPerfAnalysisUrl(resourceUsageProfile.url, job)}
+            >
+              <FontAwesomeIcon
+                icon={faGaugeHigh}
+                className="actionbtn-icon mr-1"
+              />
+              <span>open profiler</span>
+            </a>
+          </Nav.Item>
+        )}
         {!!reftestUrl && (
           <Nav.Item>
             <a
@@ -125,11 +148,20 @@ Navigation.propTypes = {
   collapseDetails: PropTypes.bool.isRequired,
   collapseJobDetails: PropTypes.func.isRequired,
   copySelectedLogToBugFiler: PropTypes.func.isRequired,
+  job: PropTypes.shape({}),
+  jobDetails: PropTypes.arrayOf(
+    PropTypes.shape({
+      url: PropTypes.string.isRequired,
+      value: PropTypes.string.isRequired,
+    }),
+  ),
 };
 
 Navigation.defaultProps = {
   jobUrl: null,
   reftestUrl: null,
+  job: null,
+  jobDetails: [],
 };
 
 export default Navigation;
