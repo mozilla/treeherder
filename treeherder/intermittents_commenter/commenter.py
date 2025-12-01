@@ -377,7 +377,7 @@ class Commenter:
                 break
         # architecture
         info.arch = "x86"
-        if "-64" in raw_data:
+        if "x86_64" in raw_data or "-64" in raw_data:
             info.arch = "x86_64"
         elif "-aarch64" in raw_data:
             info.arch = "aarch64"
