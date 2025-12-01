@@ -113,6 +113,9 @@ class Repository(models.Model):
     class Meta:
         db_table = "repository"
         verbose_name_plural = "repositories"
+        indexes = [
+            models.Index(fields=["url", "active_status"], name="repo_url_active_idx"),
+        ]
 
     @classmethod
     def fetch_all_names(cls) -> list[str]:
