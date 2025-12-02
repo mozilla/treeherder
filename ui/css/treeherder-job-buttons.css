@@ -500,24 +500,24 @@ fieldset[disabled] .btn-ltgray.active {
   border-color: #e0e0e0;
 }
 
-/* Tan/Beige, unscheduled */
+/* Turquoise, unscheduled */
 .btn-unscheduled,
 .btn-unscheduled-count,
 .btn-unscheduled-classified,
 .btn-unscheduled-classified-count {
-  color: #edd5b3;
+  color: #26d7b6;
 }
 .btn-unscheduled-count:hover,
 .btn-unscheduled-classified-count:hover {
-  color: #d2b48c;
+  color: #21b69b;
 }
 .btn-unscheduled:hover,
 .btn-unscheduled-classified:hover,
 .btn-unscheduled:focus,
 .btn-unscheduled:active,
 .btn-unscheduled.active {
-  background-color: #d2b48c;
-  border-color: #c4a577;
+  background-color: #21b69b;
+  border-color: #1fb499;
   color: white;
 }
 .btn-unscheduled.disabled:hover,
@@ -532,8 +532,8 @@ fieldset[disabled] .btn-unscheduled:hover,
 fieldset[disabled] .btn-unscheduled:focus,
 fieldset[disabled] .btn-unscheduled:active,
 fieldset[disabled] .btn-unscheduled.active {
-  color: #edd5b3;
-  border-color: #edd5b3;
+  color: #26d7b6;
+  border-color: #26d7b6;
 }
 
 /* Mid gray (presently unused) */
