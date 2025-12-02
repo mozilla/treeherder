@@ -1,8 +1,6 @@
 import json
 import logging
 
-import newrelic.agent
-
 from treeherder.etl.artifact import serialize_artifact_json_blobs
 from treeherder.etl.perf import store_performance_artifact
 from treeherder.log_parser.utils import validate_perf_data
@@ -19,7 +17,6 @@ def post_perfherder_artifacts(job_log):
     try:
         with make_request(job_log.url, stream=False, timeout=60) as response:
             download_size_in_bytes = int(response.headers.get("Content-Length", -1))
-            newrelic.agent.add_custom_attribute("perf_json_size", download_size_in_bytes)
             if download_size_in_bytes > 0 and download_size_in_bytes > MAX_JSON_SIZE:
                 job_log.update_status(JobLog.SKIPPED_SIZE)
                 logger.warning(

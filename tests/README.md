@@ -55,7 +55,7 @@ For Windows, Treeherder requires a number of environment variables that point to
 
 If you plan to use an IDE, here is the same, as a very long line
 
-    BROKER_URL=localhost//guest:guest@rabbitmq//;DATABASE_URL=psql://postgres:mozilla1234@postgres:5432/treeherder;REDIS_URL=redis://localhost:6379;SITE_URL=http://backend:8000/;TREEHERDER_DEBUG=True;TREEHERDER_DJANGO_SECRET_KEY=secret-key-of-at-least-50-characters-to-pass-check-deploy;NEW_RELIC_DEVELOPER_MODE=True
+    BROKER_URL=localhost//guest:guest@rabbitmq//;DATABASE_URL=psql://postgres:mozilla1234@postgres:5432/treeherder;REDIS_URL=redis://localhost:6379;SITE_URL=http://backend:8000/;TREEHERDER_DEBUG=True;TREEHERDER_DJANGO_SECRET_KEY=secret-key-of-at-least-50-characters-to-pass-check-deploy
 
 ## Ensure everything is working
 
