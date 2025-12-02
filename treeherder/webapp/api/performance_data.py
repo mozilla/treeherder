@@ -1,6 +1,7 @@
 import datetime
 import multiprocessing
 import time
+import warnings
 from collections import defaultdict
 from urllib.parse import urlencode
 
@@ -1682,13 +1683,16 @@ class PerfCompareResults(generics.ListAPIView):
         Process a single mann-whitney-u test task for parallel execution.
         This is a static method so it can be pickled by multiprocessing.
         """
-        new_stats = PerfCompareResults._process_stats(
-            statistics_base_perf_data,
-            statistics_new_perf_data,
-            header,
-            lower_is_better,
-            remove_outliers=False,
-        )
+        # Suppress warnings during statistical processing to avoid cluttering output
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            new_stats = PerfCompareResults._process_stats(
+                statistics_base_perf_data,
+                statistics_new_perf_data,
+                header,
+                lower_is_better,
+                remove_outliers=False,
+            )
 
         row_result = {
             **common_result,
