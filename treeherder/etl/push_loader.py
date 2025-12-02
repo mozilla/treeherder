@@ -1,7 +1,6 @@
 import logging
 
 import environ
-import newrelic.agent
 from django.core.exceptions import ObjectDoesNotExist
 
 from treeherder.etl.common import to_timestamp
@@ -20,15 +19,12 @@ class PushLoader:
     def process(self, message_body, exchange, root_url):
         transformer = self.get_transformer_class(exchange)(message_body)
         try:
-            newrelic.agent.add_custom_attribute("url", transformer.repo_url)
-            newrelic.agent.add_custom_attribute("branch", transformer.branch)
             repos = Repository.objects
             if transformer.branch:
                 repos = repos.filter(branch__regex=f"(^|,){transformer.branch}($|,)")
             else:
                 repos = repos.filter(branch=None)
             repo = repos.get(url=transformer.repo_url, active_status="active")
-            newrelic.agent.add_custom_attribute("repository", repo.name)
         except ObjectDoesNotExist:
             repo_info = transformer.get_info()
             repo_info.update(
@@ -37,7 +33,6 @@ class PushLoader:
                     "branch": transformer.branch,
                 }
             )
-            newrelic.agent.record_custom_event("skip_unknown_repository", repo_info)
             logger.warning(
                 "Skipping unsupported repo: %s %s", transformer.repo_url, transformer.branch
             )
@@ -257,8 +252,6 @@ class HgPushTransformer:
         return self.fetch_push(url, repository)
 
     def fetch_push(self, url, repository, sha=None):
-        newrelic.agent.add_custom_attribute("sha", sha)
-
         logger.debug("fetching for %s %s", repository, url)
         # there will only ever be one, with this url
         push = list(fetch_json(url)["pushes"].values())[0]

@@ -26,7 +26,6 @@ DEBUG = env.bool("TREEHERDER_DEBUG", default=False)
 LOGGING_LEVEL = env("LOGGING_LEVEL", default="INFO")
 
 NEW_RELIC_INSIGHTS_API_KEY = env("NEW_RELIC_INSIGHTS_API_KEY", default=None)
-NEW_RELIC_INSIGHTS_API_URL = "https://insights-api.newrelic.com/v1/accounts/677903/query"
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = env(

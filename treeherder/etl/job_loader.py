@@ -2,7 +2,6 @@ import logging
 import uuid
 
 import jsonschema
-import newrelic.agent
 import slugid
 from django.conf import settings
 
@@ -67,7 +66,6 @@ class JobLoader:
             try:
                 with settings.STATSD_CLIENT.timer("process_job_transform"):
                     project = pulse_job["origin"]["project"]
-                    newrelic.agent.add_custom_attribute("project", project)
 
                     repository = Repository.objects.get(name=project)
                     if repository.active_status != "active":
@@ -102,12 +100,6 @@ class JobLoader:
         # retry till it DOES exist.
         revision_field = "revision__startswith" if len(revision) < 40 else "revision"
         filter_kwargs = {"repository": repository, revision_field: revision}
-
-        if revision_field == "revision__startswith":
-            newrelic.agent.record_custom_event(
-                "short_revision_job_loader",
-                {"error": "Revision <40 chars", "revision": revision, "job": pulse_job},
-            )
 
         if not Push.objects.filter(**filter_kwargs).exists():
             (real_task_id, _) = task_and_retry_ids(pulse_job["taskId"])
