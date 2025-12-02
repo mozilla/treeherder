@@ -5,7 +5,6 @@ import time
 from datetime import datetime
 from hashlib import sha1
 
-import newrelic.agent
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import IntegrityError
@@ -500,7 +499,6 @@ def store_job_data(repository, original_data):
             # make more fields visible in new relic for the job
             # where we encountered the error
             datum.update(datum.get("job", {}))
-            newrelic.agent.notice_error(attributes=datum)
 
             # skip any jobs that hit errors in these stages.
             continue

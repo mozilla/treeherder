@@ -3,7 +3,6 @@ import zlib
 from functools import wraps
 
 import jsonschema
-import newrelic.agent
 from celery import shared_task
 from django.db.utils import IntegrityError, ProgrammingError
 
@@ -57,7 +56,6 @@ class retryable_task:  # noqa: N801
                     params = {
                         "number_of_prior_retries": number_of_prior_retries,
                     }
-                    newrelic.agent.notice_error(attributes=params)
                 # Implement exponential backoff with some randomness to prevent
                 # thundering herd type problems. Constant factor chosen so we get
                 # reasonable pause between the fastest retries.
