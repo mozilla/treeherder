@@ -374,7 +374,6 @@ def _is_suite_allowed(suites: list, framework_name: str) -> bool:
             "browser_reflowPseudoelements.js",
             "browser_removeManySpellingErrors.js",
         ],
-        "mozharness": ["ALL"],
     }
     allowed = allowlist_frameworks_suites.get(framework_name)
     if not allowed:
