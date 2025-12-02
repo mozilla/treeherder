@@ -102,5 +102,13 @@
       "name": "telemetry",
       "enabled": true
     }
+  },
+  {
+    "pk": 18,
+    "model": "perf.PerformanceFramework",
+    "fields": {
+      "name": "mozharness",
+      "enabled": true
+    }
   }
 ]
