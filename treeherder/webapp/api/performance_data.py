@@ -1,4 +1,5 @@
 import datetime
+import multiprocessing
 import time
 from collections import defaultdict
 from urllib.parse import urlencode
@@ -1082,99 +1083,187 @@ class PerfCompareResults(generics.ListAPIView):
         platforms = set(base_platforms + new_platforms)
         self.queryset = []
 
-        for header in header_names:
-            for platform in platforms:
-                sig_identifier = perfcompare_utils.get_sig_identifier(header, platform)
-                base_sig = base_signatures_map.get(sig_identifier, {})
-                base_sig_id = base_sig.get("id", None)
-                new_sig = new_signatures_map.get(sig_identifier, {})
-                new_sig_id = new_sig.get("id", None)
-                if base_sig:
-                    (
-                        extra_options,
-                        lower_is_better,
-                        option_name,
-                        sig_hash,
-                        suite,
-                        test,
-                    ) = self._get_signature_based_properties(base_sig, option_collection_map)
-                else:
-                    (
-                        extra_options,
-                        lower_is_better,
-                        option_name,
-                        sig_hash,
-                        suite,
-                        test,
-                    ) = self._get_signature_based_properties(new_sig, option_collection_map)
-                base_perf_data_values = base_grouped_values.get(base_sig_id, [])
-                new_perf_data_values = new_grouped_values.get(new_sig_id, [])
-                base_perf_data_replicates = base_grouped_replicates.get(base_sig_id, [])
-                new_perf_data_replicates = new_grouped_replicates.get(new_sig_id, [])
-                statistics_base_perf_data = statistics_base_grouped_data.get(base_sig_id, [])
-                statistics_new_perf_data = statistics_new_grouped_data.get(new_sig_id, [])
-                base_runs_count = len(statistics_base_perf_data)
-                new_runs_count = len(statistics_new_perf_data)
-                is_complete = base_runs_count and new_runs_count
-                no_results_to_show = not base_runs_count and not new_runs_count
-                common_result = {
-                    "base_rev": base_rev,
-                    "new_rev": new_rev,
-                    "header_name": header,
-                    "platform": platform,
-                    "base_app": base_sig.get("application", ""),
-                    "new_app": new_sig.get("application", ""),
-                    "suite": suite,  # same suite for base_result and new_result
-                    "test": test,  # same test for base_result and new_result
-                    "is_complete": is_complete,
-                    "framework_id": framework,
-                    "option_name": option_name,
-                    "extra_options": extra_options,
-                    "base_repository_name": base_repo_name,
-                    "new_repository_name": new_repo_name,
-                    "base_measurement_unit": base_sig.get("measurement_unit", ""),
-                    "new_measurement_unit": new_sig.get("measurement_unit", ""),
-                    "base_runs": sorted(base_perf_data_values),
-                    "new_runs": sorted(new_perf_data_values),
-                    "base_runs_replicates": sorted(base_perf_data_replicates),
-                    "new_runs_replicates": sorted(new_perf_data_replicates),
-                    # highlighted revisions is the base_revision and the other highlighted revisions is new_revision
-                    "graphs_link": self._create_graph_links(
-                        base_repo_name,
-                        new_repo_name,
-                        base_rev,
-                        new_rev,
-                        str(framework),
-                        push_timestamp,
-                        str(sig_hash),
-                    ),
-                    "base_retriggerable_job_ids": base_grouped_job_ids.get(base_sig_id, []),
-                    "new_retriggerable_job_ids": new_grouped_job_ids.get(new_sig_id, []),
-                    "base_parent_signature": base_sig.get("parent_signature_id", None),
-                    "new_parent_signature": new_sig.get("parent_signature_id", None),
-                    "base_signature_id": base_sig_id,
-                    "new_signature_id": new_sig_id,
-                    "has_subtests": (
-                        base_sig.get("has_subtests", None) or new_sig.get("has_subtests", None)
-                    ),
-                }
-                if no_results_to_show:
-                    continue
-                if test_version == "mann-whitney-u":
-                    new_stats = self._process_stats(
-                        statistics_base_perf_data,
-                        statistics_new_perf_data,
-                        header,
-                        lower_is_better,
-                        remove_outliers=False,
+        # For mann-whitney-u test version, collect tasks for parallel processing
+        if test_version == "mann-whitney-u":
+            tasks = []
+            for header in header_names:
+                for platform in platforms:
+                    sig_identifier = perfcompare_utils.get_sig_identifier(header, platform)
+                    base_sig = base_signatures_map.get(sig_identifier, {})
+                    base_sig_id = base_sig.get("id", None)
+                    new_sig = new_signatures_map.get(sig_identifier, {})
+                    new_sig_id = new_sig.get("id", None)
+                    if base_sig:
+                        (
+                            extra_options,
+                            lower_is_better,
+                            option_name,
+                            sig_hash,
+                            suite,
+                            test,
+                        ) = self._get_signature_based_properties(base_sig, option_collection_map)
+                    else:
+                        (
+                            extra_options,
+                            lower_is_better,
+                            option_name,
+                            sig_hash,
+                            suite,
+                            test,
+                        ) = self._get_signature_based_properties(new_sig, option_collection_map)
+                    base_perf_data_values = base_grouped_values.get(base_sig_id, [])
+                    new_perf_data_values = new_grouped_values.get(new_sig_id, [])
+                    base_perf_data_replicates = base_grouped_replicates.get(base_sig_id, [])
+                    new_perf_data_replicates = new_grouped_replicates.get(new_sig_id, [])
+                    statistics_base_perf_data = statistics_base_grouped_data.get(base_sig_id, [])
+                    statistics_new_perf_data = statistics_new_grouped_data.get(new_sig_id, [])
+                    base_runs_count = len(statistics_base_perf_data)
+                    new_runs_count = len(statistics_new_perf_data)
+                    is_complete = base_runs_count and new_runs_count
+                    no_results_to_show = not base_runs_count and not new_runs_count
+
+                    if no_results_to_show:
+                        continue
+
+                    common_result = {
+                        "base_rev": base_rev,
+                        "new_rev": new_rev,
+                        "header_name": header,
+                        "platform": platform,
+                        "base_app": base_sig.get("application", ""),
+                        "new_app": new_sig.get("application", ""),
+                        "suite": suite,  # same suite for base_result and new_result
+                        "test": test,  # same test for base_result and new_result
+                        "is_complete": is_complete,
+                        "framework_id": framework,
+                        "option_name": option_name,
+                        "extra_options": extra_options,
+                        "base_repository_name": base_repo_name,
+                        "new_repository_name": new_repo_name,
+                        "base_measurement_unit": base_sig.get("measurement_unit", ""),
+                        "new_measurement_unit": new_sig.get("measurement_unit", ""),
+                        "base_runs": sorted(base_perf_data_values),
+                        "new_runs": sorted(new_perf_data_values),
+                        "base_runs_replicates": sorted(base_perf_data_replicates),
+                        "new_runs_replicates": sorted(new_perf_data_replicates),
+                        # highlighted revisions is the base_revision and the other highlighted revisions is new_revision
+                        "graphs_link": self._create_graph_links(
+                            base_repo_name,
+                            new_repo_name,
+                            base_rev,
+                            new_rev,
+                            str(framework),
+                            push_timestamp,
+                            str(sig_hash),
+                        ),
+                        "base_retriggerable_job_ids": base_grouped_job_ids.get(base_sig_id, []),
+                        "new_retriggerable_job_ids": new_grouped_job_ids.get(new_sig_id, []),
+                        "base_parent_signature": base_sig.get("parent_signature_id", None),
+                        "new_parent_signature": new_sig.get("parent_signature_id", None),
+                        "base_signature_id": base_sig_id,
+                        "new_signature_id": new_sig_id,
+                        "has_subtests": (
+                            base_sig.get("has_subtests", None) or new_sig.get("has_subtests", None)
+                        ),
+                    }
+
+                    tasks.append(
+                        (
+                            statistics_base_perf_data,
+                            statistics_new_perf_data,
+                            header,
+                            lower_is_better,
+                            common_result,
+                        )
                     )
 
-                    row_result = {
-                        **common_result,
-                        **new_stats,
+            # Process tasks in parallel using multiprocessing
+            workers = multiprocessing.cpu_count()
+            with multiprocessing.Pool(processes=workers) as pool:
+                results = pool.starmap(self._process_mann_whitney_task, tasks)
+
+            self.queryset.extend(results)
+        else:
+            # Original sequential processing for student-t test version
+            for header in header_names:
+                for platform in platforms:
+                    sig_identifier = perfcompare_utils.get_sig_identifier(header, platform)
+                    base_sig = base_signatures_map.get(sig_identifier, {})
+                    base_sig_id = base_sig.get("id", None)
+                    new_sig = new_signatures_map.get(sig_identifier, {})
+                    new_sig_id = new_sig.get("id", None)
+                    if base_sig:
+                        (
+                            extra_options,
+                            lower_is_better,
+                            option_name,
+                            sig_hash,
+                            suite,
+                            test,
+                        ) = self._get_signature_based_properties(base_sig, option_collection_map)
+                    else:
+                        (
+                            extra_options,
+                            lower_is_better,
+                            option_name,
+                            sig_hash,
+                            suite,
+                            test,
+                        ) = self._get_signature_based_properties(new_sig, option_collection_map)
+                    base_perf_data_values = base_grouped_values.get(base_sig_id, [])
+                    new_perf_data_values = new_grouped_values.get(new_sig_id, [])
+                    base_perf_data_replicates = base_grouped_replicates.get(base_sig_id, [])
+                    new_perf_data_replicates = new_grouped_replicates.get(new_sig_id, [])
+                    statistics_base_perf_data = statistics_base_grouped_data.get(base_sig_id, [])
+                    statistics_new_perf_data = statistics_new_grouped_data.get(new_sig_id, [])
+                    base_runs_count = len(statistics_base_perf_data)
+                    new_runs_count = len(statistics_new_perf_data)
+                    is_complete = base_runs_count and new_runs_count
+                    no_results_to_show = not base_runs_count and not new_runs_count
+                    common_result = {
+                        "base_rev": base_rev,
+                        "new_rev": new_rev,
+                        "header_name": header,
+                        "platform": platform,
+                        "base_app": base_sig.get("application", ""),
+                        "new_app": new_sig.get("application", ""),
+                        "suite": suite,  # same suite for base_result and new_result
+                        "test": test,  # same test for base_result and new_result
+                        "is_complete": is_complete,
+                        "framework_id": framework,
+                        "option_name": option_name,
+                        "extra_options": extra_options,
+                        "base_repository_name": base_repo_name,
+                        "new_repository_name": new_repo_name,
+                        "base_measurement_unit": base_sig.get("measurement_unit", ""),
+                        "new_measurement_unit": new_sig.get("measurement_unit", ""),
+                        "base_runs": sorted(base_perf_data_values),
+                        "new_runs": sorted(new_perf_data_values),
+                        "base_runs_replicates": sorted(base_perf_data_replicates),
+                        "new_runs_replicates": sorted(new_perf_data_replicates),
+                        # highlighted revisions is the base_revision and the other highlighted revisions is new_revision
+                        "graphs_link": self._create_graph_links(
+                            base_repo_name,
+                            new_repo_name,
+                            base_rev,
+                            new_rev,
+                            str(framework),
+                            push_timestamp,
+                            str(sig_hash),
+                        ),
+                        "base_retriggerable_job_ids": base_grouped_job_ids.get(base_sig_id, []),
+                        "new_retriggerable_job_ids": new_grouped_job_ids.get(new_sig_id, []),
+                        "base_parent_signature": base_sig.get("parent_signature_id", None),
+                        "new_parent_signature": new_sig.get("parent_signature_id", None),
+                        "base_signature_id": base_sig_id,
+                        "new_signature_id": new_sig_id,
+                        "has_subtests": (
+                            base_sig.get("has_subtests", None) or new_sig.get("has_subtests", None)
+                        ),
                     }
-                    self.queryset.append(row_result)
-                else:
+                    if no_results_to_show:
+                        continue
+
                     base_avg_value = perfcompare_utils.get_avg(statistics_base_perf_data, header)
                     base_stddev = perfcompare_utils.get_stddev(statistics_base_perf_data, header)
                     base_median_value = perfcompare_utils.get_median(statistics_base_perf_data)
@@ -1446,6 +1535,28 @@ class PerfCompareResults(generics.ListAPIView):
     7. Estimate out KDE with Silverman bandwidth, check if multimodal or irregular, calc interpretation if regressed, improved, or neutral
     8. Plot KDE with ISJ bandwidth to reduce smoothing
     """
+
+    @staticmethod
+    def _process_mann_whitney_task(
+        statistics_base_perf_data, statistics_new_perf_data, header, lower_is_better, common_result
+    ):
+        """
+        Process a single mann-whitney-u test task for parallel execution.
+        This is a static method so it can be pickled by multiprocessing.
+        """
+        new_stats = PerfCompareResults._process_stats(
+            statistics_base_perf_data,
+            statistics_new_perf_data,
+            header,
+            lower_is_better,
+            remove_outliers=False,
+        )
+
+        row_result = {
+            **common_result,
+            **new_stats,
+        }
+        return row_result
 
     @staticmethod
     def _process_stats(
