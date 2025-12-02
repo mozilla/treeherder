@@ -103,7 +103,9 @@ class ClassificationGroup extends React.PureComponent {
     const expandTitle = detailsShowing
       ? 'Click to collapse'
       : 'Click to expand';
-    const groupLength = Object.keys(tests).length;
+    // Count unique test cases (by testName), regardless of platform/config
+    const uniqueTestNames = new Set(tests.map((test) => test.testName));
+    const groupLength = uniqueTestNames.size;
     const testsByAction = this.getTestsByAction(tests);
 
     return (
