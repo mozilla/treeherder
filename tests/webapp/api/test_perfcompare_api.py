@@ -1166,7 +1166,6 @@ def test_perfcompare_results_with_mann_witney_u_against_no_base(
             "delta_percentage": round(response["delta_pct"], 2),
             "lower_is_better": response["lower_is_better"],
             "is_confident": response["is_confident"],
-            "more_runs_are_needed": False,
             "mann_whitney_test": {
                 "test_name": "Mann-Whitney U",
                 "stat": 0.0,
@@ -1179,8 +1178,6 @@ def test_perfcompare_results_with_mann_witney_u_against_no_base(
             f"series={test_repository.name}%2C{base_sig.signature_hash}%2C1%2C{base_sig.framework.id}&"
             f"timerange=86400",
             "is_fit_good": True,
-            "is_improvement": None,
-            "is_regression": None,
             "is_meaningful": True,
             "is_new_better": None,
             "base_parent_signature": response["base_parent_signature"],
@@ -1219,28 +1216,6 @@ def test_perfcompare_results_with_mann_witney_u_against_no_base(
                 "stddev_pct": 0.0,
                 "variance": 0.0,
             },
-            "kde_base": {
-                "kde_x": [
-                    32.4,
-                ],
-                "kde_y": [],
-                "median": 32.4,
-                "sample_count": 1,
-            },
-            "kde_new": {
-                "kde_x": [
-                    40.2,
-                ],
-                "kde_y": [],
-                "median": 40.2,
-                "sample_count": 1,
-            },
-            "kde_warnings": [
-                "Less than 2 datapoints or no standard variance for a meaningful fit "
-                "Kernel Density Estimator (KDE) with an ISJ bandwidth to Base.",
-                "Less than 2 datapoints or no standard variance for a meaningful fit "
-                "Kernel Density Estimator (KDE) with an ISJ bandwidth to New.",
-            ],
             "ks_test": {
                 "interpretation": "KS test p-value: 1.000, good fit",
                 "pvalue": 1.0,
@@ -1264,32 +1239,11 @@ def test_perfcompare_results_with_mann_witney_u_against_no_base(
                 "Shapiro-Wilk test cannot be run on Base with fewer than 3 data points.",
                 "Shapiro-Wilk test cannot be run on New with fewer than 3 data points.",
             ],
-            "silverman_kde": {
-                "bandwidth": "Silverman",
-                "base_locations": [32.4],
-                "base_mode_count": 1,
-                "base_prominence": 0.08,
-                "is_improvement": None,
-                "is_regression": None,
-                "modes": [
-                    {
-                        "ci_high": None,
-                        "ci_low": None,
-                        "ci_warning": None,
-                        "median_shift_summary": "Cannot measure shift, base mode count not equal to new mode count",
-                        "mode_end": "36.47",
-                        "mode_name": "Mode 1",
-                        "mode_start": "28.33",
-                        "shift": None,
-                        "shift_summary": None,
-                    },
-                ],
-                "new_locations": [40.2],
-                "new_mode_count": 1,
-                "new_prominence": 0.08,
-            },
-            "silverman_warnings": [],
             "warning_c_delta": None,
+            "kde_warnings": [],
+            "more_runs_are_needed": False,
+            "silverman_kde": None,
+            "silverman_warnings": [],
         },
     ]
 
