@@ -1,25 +1,17 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import {
-  Button,
-  Collapse,
-  Nav,
-  Navbar,
-  ButtonGroup,
-  Dropdown,
-  Form,
-} from 'react-bootstrap';
+import { Button, Collapse, Nav, Navbar, Form } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCaretDown,
   faCaretRight,
-  faRedo,
+  faCheck,
 } from '@fortawesome/free-solid-svg-icons';
 
 import { create, destroy } from '../helpers/http';
 import { getProjectUrl } from '../helpers/location';
 import { investigatedTestsEndPoint } from '../helpers/url';
-import JobModel from '../models/job';
+import { confirmFailure, canConfirmFailure } from '../helpers/job';
 import Clipboard from '../shared/Clipboard';
 
 import PlatformConfig from './PlatformConfig';
@@ -59,23 +51,31 @@ class Test extends PureComponent {
     });
   };
 
-  retriggerSelected = (times) => {
-    const { notify, currentRepo, jobs } = this.props;
+  confirmFailureSelected = () => {
+    const { notify, currentRepo, jobs, decisionTaskMap } = this.props;
     const { selectedTests } = this.state;
 
-    // Reduce down to the unique jobs
+    // Reduce down to the unique jobs that can have confirm-failure run
     const testJobs = Array.from(selectedTests)
       .filter((test) => test.isInvestigated)
       .reduce(
         (acc, test) => ({
           ...acc,
-          ...jobs[test.jobName].reduce((_, job) => ({ [job.id]: job }), {}),
+          ...jobs[test.jobName].reduce((fjAcc, job) => {
+            if (canConfirmFailure(job)) {
+              return { ...fjAcc, [job.id]: job };
+            }
+            return fjAcc;
+          }, {}),
         }),
         {},
       );
     const uniqueJobs = Object.values(testJobs);
 
-    JobModel.retrigger(uniqueJobs, currentRepo, notify, times);
+    // Call confirmFailure for each unique job
+    uniqueJobs.forEach((job) => {
+      confirmFailure(job, notify, decisionTaskMap, currentRepo);
+    });
   };
 
   markAsInvestigated = async () => {
@@ -218,6 +218,7 @@ class Test extends PureComponent {
       selectedJobName,
       selectedTaskId,
       updateParamsAndState,
+      decisionTaskMap,
     } = this.props;
     const {
       clipboardVisible,
@@ -267,42 +268,21 @@ class Test extends PureComponent {
               <Navbar className="mb-3">
                 <Nav>
                   <Nav.Item>
-                    <ButtonGroup size="sm" className="ms-5">
-                      <Button
-                        title="Retrigger selected jobs once"
-                        onClick={() => this.retriggerSelected(1)}
-                        size="sm"
-                        variant="secondary"
-                      >
-                        <FontAwesomeIcon
-                          icon={faRedo}
-                          title="Retrigger"
-                          className="me-2"
-                          alt=""
-                        />
-                        Retrigger Selected
-                      </Button>
-                      <Dropdown>
-                        <Dropdown.Toggle
-                          split
-                          variant="secondary"
-                          size="sm"
-                          title="Retrigger selected multiple times"
-                        />
-                        <Dropdown.Menu>
-                          {[5, 10, 15].map((times) => (
-                            <Dropdown.Item
-                              key={times}
-                              title={`Retrigger selected jobs ${times} times`}
-                              onClick={() => this.retriggerSelected(times)}
-                              className="pointable"
-                            >
-                              Retrigger selected {times} times
-                            </Dropdown.Item>
-                          ))}
-                        </Dropdown.Menu>
-                      </Dropdown>
-                    </ButtonGroup>
+                    <Button
+                      title="Confirm failures for selected jobs"
+                      onClick={() => this.confirmFailureSelected()}
+                      size="sm"
+                      variant="secondary"
+                      className="ms-5"
+                    >
+                      <FontAwesomeIcon
+                        icon={faCheck}
+                        title="Confirm Failure"
+                        className="me-2"
+                        alt=""
+                      />
+                      Confirm Failure Selected
+                    </Button>
                     <Button
                       size="sm"
                       variant="outline-primary"
@@ -350,6 +330,7 @@ class Test extends PureComponent {
                     updateParamsAndState(stateObj);
                   }}
                   currentRepo={currentRepo}
+                  decisionTaskMap={decisionTaskMap}
                 >
                   <TaskSelection
                     failure={failure}
@@ -378,6 +359,11 @@ Test.propTypes = {
   revision: PropTypes.string.isRequired,
   currentRepo: PropTypes.shape({}).isRequired,
   notify: PropTypes.func.isRequired,
+  decisionTaskMap: PropTypes.shape({}),
+};
+
+Test.defaultProps = {
+  decisionTaskMap: {},
 };
 
 export default Test;
