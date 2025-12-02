@@ -116,6 +116,10 @@ export default class FilterModel {
   getFilterQueryString = () =>
     new URLSearchParams(this.getUrlParamsWithoutDefaults()).toString();
 
+  toggleUnscheduledResultStatus = () => {
+    this.toggleResultStatuses(['unscheduled']);
+  };
+
   setOnlySuperseded = () => {
     this.urlParams.resultStatus = 'superseded';
     this.urlParams.classifiedState = [...thFilterDefaults.classifiedState];
