@@ -1554,24 +1554,6 @@ class PerfCompareResults(generics.ListAPIView):
             cles_obj["effect_size"] = cliffs_interpretation
             cles_obj["cles_direction"] = direction
 
-        # Compute KDE with Silverman bandwidth, and warn if multimodal.
-        # Also compute confidence interval and interperet patch regression or improvement and warnings
-        (
-            silverman_kde,
-            is_regression,
-            is_improvement,
-            more_runs_are_needed,
-            silverman_warnings,
-            performance_intepretation,
-        ) = stats.interpret_silverman_kde(base_rev_data, new_rev_data, lower_is_better)
-
-        # Plot Kernel Density Estimator (KDE) with an ISJ (Improved Sheather-Jones) to reduce false positives from over-smoothing in Silverman
-
-        kde_isj_plot_base, kde_isj_plot_new, kde_warnings = stats.plot_kde_with_isj_bandwidth(
-            base_rev_data,
-            new_rev_data,
-        )
-
         stats_data = {
             "base_standard_stats": {
                 "count": base_count,
@@ -1611,22 +1593,11 @@ class PerfCompareResults(generics.ListAPIView):
             "warning_c_delta": c_warning,
             # CLES: Common Language Effect Size, a lot of interpretation esp from Mann-Whitney U
             "cles": cles_obj,
-            # Silverman KDE multimodal warnings and confidence interval
-            "silverman_warnings": silverman_warnings,
-            "silverman_kde": silverman_kde,
-            # KDE plots and summary plot with ISJ bandwidth
-            "kde_base": kde_isj_plot_base,
-            "kde_new": kde_isj_plot_new,
-            "kde_warnings": kde_warnings,
             # short form summary based on former tests shapiro, silverman, etc...
             "is_fit_good": is_fit_good,
             "is_new_better": is_new_better,
             "is_meaningful": is_effect_meaningful,
             "lower_is_better": lower_is_better,
-            "is_regression": is_regression,
-            "is_improvement": is_improvement,
-            "more_runs_are_needed": more_runs_are_needed,
-            "performance_intepretation": performance_intepretation,
             "direction_of_change": direction,  # 'no change', 'improvement', or 'regression'
         }
 
