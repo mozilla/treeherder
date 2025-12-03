@@ -225,6 +225,9 @@ secondary-nav-bar {
 .btn-view-nav[data-status='pending'] {
   --chicklet-color: #e0e0e0;
 }
+.btn-view-nav[data-status='unscheduled'] {
+  --chicklet-color: #26d7b6;
+}
 .btn-view-nav[data-status='running'],
 .btn-view-nav[data-status='in progress'] {
   --chicklet-color: #7c7a7d;
