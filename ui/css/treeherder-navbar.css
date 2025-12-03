@@ -189,7 +189,9 @@ secondary-nav-bar {
 
 /* Filter chicklets - use data attributes with shared color tokens */
 .btn-view-nav[data-status],
-.btn-view-nav[data-status]:hover {
+.btn-view-nav[data-status]:hover,
+.btn-view-nav[data-status]:focus,
+.btn-view-nav[data-status]:active {
   --bs-btn-color: var(--chicklet-color);
   --bs-btn-hover-color: var(--chicklet-color);
   --bs-btn-active-color: var(--chicklet-color);
