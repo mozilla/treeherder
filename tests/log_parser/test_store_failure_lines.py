@@ -497,7 +497,12 @@ def test_store_error_summary_known_intermittent(activate_responses, test_reposit
         }
     ]
 
-    responses.add(responses.GET, log_url, body=json.dumps(log_content), status=200)
+    responses.add(
+        responses.GET,
+        log_url,
+        body="\n".join(json.dumps(log_line) for log_line in log_content),
+        status=200,
+    )
 
     log_obj = JobLog.objects.create(job=test_job, name="errorsummary_json", url=log_url)
 
