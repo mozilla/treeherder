@@ -1,4 +1,3 @@
-import newrelic.agent
 import requests
 from django.conf import settings
 
@@ -14,7 +13,6 @@ def make_request(url, method="GET", headers=None, timeout=30, **kwargs):
             "redirects": len(response.history),
             "duration": sum(r.elapsed.total_seconds() for r in response.history),
         }
-        newrelic.agent.record_custom_event("RedirectedRequest", params=params)
 
     response.raise_for_status()
     return response
