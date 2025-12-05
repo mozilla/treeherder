@@ -943,7 +943,15 @@ class FailureLine(models.Model):
     )
     # Truncated is a special action that we use to indicate that the list of failure lines
     # was truncated according to settings.FAILURE_LINES_CUTOFF.
-    ACTION_LIST = ("test_result", "log", "crash", "truncated", "group_result")
+    ACTION_LIST = (
+        "test_result",
+        "log",
+        "crash",
+        "truncated",
+        "group_result",
+        "test_status",
+        "test_end",
+    )
     LEVEL_LIST = ("critical", "error", "warning", "info", "debug")
 
     # Python 3's zip produces an iterable rather than a list, which Django's `choices` can't handle.
@@ -969,6 +977,7 @@ class FailureLine(models.Model):
     stack = models.TextField(blank=True, null=True)
     stackwalk_stdout = models.TextField(blank=True, null=True)
     stackwalk_stderr = models.TextField(blank=True, null=True)
+    known_intermittent = models.JSONField(default=list)
 
     # Note that the case of best_classification = None and best_is_verified = True
     # has the special semantic that the line is ignored and should not be considered

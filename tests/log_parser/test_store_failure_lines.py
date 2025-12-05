@@ -481,3 +481,34 @@ def test_reclassify_infra_intermittent(
     # this will parse and check for intermittents
     mock_full_log_parser(job_logs, mock_parser)
     verify_classification_id(jobs, 1, 1)
+
+
+def test_store_error_summary_known_intermittent(activate_responses, test_repository, test_job):
+    log_url = "http://my-log.mozilla.org"
+
+    log_content = [
+        {
+            "action": "test_end",
+            "test": "test_foo.js",
+            "sub_test": "test_bar.js",
+            "status": "FAIL",
+            "known_intermittent": ["FAIL", "TIMEOUT"],
+            "line": 1,
+        }
+    ]
+
+    responses.add(
+        responses.GET,
+        log_url,
+        body="\n".join(json.dumps(log_line) for log_line in log_content),
+        status=200,
+    )
+
+    log_obj = JobLog.objects.create(job=test_job, name="errorsummary_json", url=log_url)
+
+    store_failure_lines(log_obj)
+
+    assert FailureLine.objects.count() == 1
+
+    failure = FailureLine.objects.first()
+    assert failure.known_intermittent == ["FAIL", "TIMEOUT"]

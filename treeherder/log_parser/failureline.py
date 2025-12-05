@@ -97,6 +97,7 @@ _failure_line_keys = [
     "stack",
     "stackwalk_stdout",
     "stackwalk_stderr",
+    "known_intermittent",
 ]
 
 
