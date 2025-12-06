@@ -32,7 +32,7 @@ class PinBoard extends React.Component {
 
     this.state = {
       enteringBugNumber: false,
-      newBugNumber: null,
+      newBugNumber: '',
     };
   }
 
@@ -87,7 +87,7 @@ class PinBoard extends React.Component {
         this.unPinAll();
         this.setState({
           enteringBugNumber: false,
-          newBugNumber: null,
+          newBugNumber: '',
         });
       });
     }
@@ -498,10 +498,10 @@ class PinBoard extends React.Component {
                       pattern="[0-9]*"
                       className="add-related-bugs-input"
                       placeholder="enter bug number"
-                      invalid={!this.isValidBugNumber(newBugNumber)}
+                      isInvalid={!this.isValidBugNumber(newBugNumber)}
                       onKeyPress={this.bugNumberKeyPress}
                       onChange={(ev) => {
-                        this.setState({ newBugNumber: ev.target.value });
+                        this.setState({ newBugNumber: ev.target.value || '' });
                       }}
                       onBlur={this.saveEnteredBugNumber}
                     />
@@ -515,7 +515,7 @@ class PinBoard extends React.Component {
                     onClick={() =>
                       this.setState({
                         enteringBugNumber: false,
-                        newBugNumber: null,
+                        newBugNumber: '',
                       })
                     }
                     className="pointable p-0"
@@ -716,7 +716,7 @@ PinBoard.propTypes = {
   jobMap: PropTypes.shape({}).isRequired,
   classificationTypes: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
-  isStaff: PropTypes.bool.isRequired,
+  isStaff: PropTypes.bool,
   isPinBoardVisible: PropTypes.bool.isRequired,
   pinnedJobs: PropTypes.shape({}).isRequired,
   pinnedJobBugs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
@@ -741,6 +741,7 @@ PinBoard.defaultProps = {
   selectedJobFull: null,
   email: null,
   revisionTips: [],
+  isStaff: false,
 };
 
 const mapStateToProps = ({

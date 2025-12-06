@@ -10,7 +10,7 @@ export default class Assignee extends React.Component {
     this.state = {
       assigneeUsername,
       inEditMode: false,
-      newAssigneeUsername: null,
+      newAssigneeUsername: '',
     };
   }
 
@@ -127,7 +127,7 @@ export default class Assignee extends React.Component {
         <Form.Control
           disabled={!user.isStaff}
           placeholder={placeholder}
-          value={newAssigneeUsername}
+          value={newAssigneeUsername || ''}
           aria-label="Set assignee"
           onChange={(event) => this.editUsername(event.target.value)}
           onKeyPress={(event) => this.pressedEnter(event)}
