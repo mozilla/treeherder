@@ -1301,6 +1301,12 @@ packages:
     peerDependencies:
       styled-components: ^6.0.0
 
+  '@mui/styled-engine-sc@7.3.7':
+    resolution: {integrity: sha512-BJ91ujrXXaYW0wXdEw8K1EoUzsqA6e/sJhxxLlwWjqgRWC8spa+MFP+H+5vCUqAHRiB38dAOcvgZxflUG5oeZg==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      styled-components: ^6.0.0
+
   '@mui/system@7.3.6':
     resolution: {integrity: sha512-8fehAazkHNP1imMrdD2m2hbA9sl7Ur6jfuNweh5o4l9YPty4iaZzRXqYvBCWQNwFaSHmMEj2KPbyXGp7Bt73Rg==}
     engines: {node: '>=14.0.0'}
@@ -7783,11 +7789,22 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
+  '@mui/styled-engine-sc@7.3.7(@types/react@19.2.7)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
+    dependencies:
+      '@babel/runtime': 7.28.4
+      '@types/hoist-non-react-statics': 3.3.7(@types/react@19.2.7)
+      csstype: 3.2.3
+      hoist-non-react-statics: 3.3.2
+      prop-types: 15.8.1
+      styled-components: 6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+    transitivePeerDependencies:
+      - '@types/react'
+
   '@mui/system@7.3.6(@types/react@19.2.7)(react@18.3.1)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
     dependencies:
       '@babel/runtime': 7.28.4
       '@mui/private-theming': 7.3.6(@types/react@19.2.7)(react@18.3.1)
-      '@mui/styled-engine': '@mui/styled-engine-sc@7.3.6(@types/react@19.2.7)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1))'
+      '@mui/styled-engine': '@mui/styled-engine-sc@7.3.7(@types/react@19.2.7)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1))'
       '@mui/types': 7.4.9(@types/react@19.2.7)
       '@mui/utils': 7.3.6(@types/react@19.2.7)(react@18.3.1)
       clsx: 2.1.1
