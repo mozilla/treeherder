@@ -73,4 +73,6 @@ $dropdown-item-padding-y: 0.5rem;
 $dropdown-item-padding-x: 1rem;
 
 // Import Bootstrap 5 with customizations
+// Using @use would require restructuring the entire import
+// For now, suppress the deprecation warning via sass-loader options
 @import '~bootstrap/scss/bootstrap';

@@ -1,5 +1,4 @@
 import React from 'react';
-import { hot } from 'react-hot-loader/root';
 import { LazyLog } from 'react-lazylog';
 import isEqual from 'lodash/isEqual';
 
@@ -477,4 +476,4 @@ class App extends React.PureComponent {
   }
 }
 
-export default hot(App);
+export default App;

@@ -1,14 +1,14 @@
 const path = require('path');
 
-const webpack = require('webpack');
+// eslint-disable-next-line import/no-extraneous-dependencies
+const rspack = require('@rspack/core');
+// eslint-disable-next-line import/no-extraneous-dependencies
 const { merge } = require('webpack-merge');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const HotModuleReplacementPlugin = require('html-webpack-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const { ProvidePlugin } = require('webpack');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const MomentLocalesPlugin = require('moment-locales-webpack-plugin');
+// eslint-disable-next-line import/no-extraneous-dependencies
+const ReactRefreshPlugin = require('@rspack/plugin-react-refresh');
+
+// Note: MomentLocalesPlugin doesn't have a direct Rspack equivalent
+// Consider migrating to dayjs in the future for better tree-shaking
 
 const commonConfig = {
   target: 'web',
@@ -44,7 +44,6 @@ const commonConfig = {
       vm: require.resolve('vm-browserify'),
       fs: false,
       tls: false,
-      vm: false,
     },
   },
   module: {
@@ -52,7 +51,7 @@ const commonConfig = {
       {
         test: /\.(mjs|jsx|js)$/,
         resolve: {
-          fullySpecified: false, // disable the behaviour
+          fullySpecified: false,
         },
       },
       {
@@ -79,34 +78,47 @@ const commonConfig = {
       },
       {
         test: /\.(mjs|jsx|js)$/,
-        type: 'javascript/auto',
         include: [
           path.resolve(__dirname, 'ui'),
           path.resolve(__dirname, 'tests/ui'),
         ],
-        use: [
-          {
-            loader: 'babel-loader',
+        use: {
+          loader: 'builtin:swc-loader',
+          options: {
+            jsc: {
+              parser: {
+                syntax: 'ecmascript',
+                jsx: true,
+              },
+              transform: {
+                react: {
+                  runtime: 'automatic',
+                  development: process.env.NODE_ENV === 'development',
+                  refresh: process.env.NODE_ENV === 'development',
+                },
+              },
+            },
           },
-        ],
+        },
       },
     ],
   },
   plugins: [
-    new webpack.ProvidePlugin({
+    new rspack.ProvidePlugin({
       Buffer: ['buffer', 'Buffer'],
     }),
-    new webpack.ProvidePlugin({
+    new rspack.ProvidePlugin({
       process: 'process/browser',
     }),
-    new CopyWebpackPlugin({
-      patterns: ['ui/contribute.json', 'ui/revision.txt', 'ui/robots.txt'],
+    new rspack.CopyRspackPlugin({
+      patterns: [
+        { from: 'ui/contribute.json', to: 'contribute.json' },
+        { from: 'ui/revision.txt', to: 'revision.txt' },
+        { from: 'ui/robots.txt', to: 'robots.txt' },
+      ],
     }),
-    new ProvidePlugin({
-      jQuery: 'jquery',
-      'window.jQuery': 'jquery',
-    }),
-    new MomentLocalesPlugin(),
+    // Strip moment locales to reduce bundle size (keep only English)
+    new rspack.ContextReplacementPlugin(/moment[/\\]locale$/, /en/),
   ],
   entry: {
     index: ['./ui/index'],
@@ -136,13 +148,10 @@ const developmentConfig = {
         target: process.env.BACKEND || 'https://treeherder.mozilla.org',
         changeOrigin: true,
         headers: {
-          referer: 'https://treeherder.mozilla.org/webpack-dev-server',
+          referer: 'https://treeherder.mozilla.org/rspack-dev-server',
         },
-        // Support BACKEND environment variable provided by npm run scripts
         onProxyRes: (proxyRes) => {
-          // Strip the cookie `secure` attribute, otherwise production's cookies
-          // will be rejected by the browser when using non-HTTPS localhost:
-          // https://github.com/nodejitsu/node-http-proxy/pull/1166
+          // Strip the cookie `secure` attribute for non-HTTPS localhost
           const removeSecure = (str) => str.replace(/; secure/i, '');
           const cookieHeader = proxyRes.headers['set-cookie'];
           if (cookieHeader) {
@@ -179,29 +188,21 @@ const developmentConfig = {
     splitChunks: {
       chunks: 'all',
       maxInitialRequests: Infinity,
-      name: false,
     },
     runtimeChunk: 'single',
   },
 
   plugins: [
-    new HotModuleReplacementPlugin({
+    new rspack.HtmlRspackPlugin({
       template: 'ui/index.html',
-      lang: 'en',
       filename: 'index.html',
     }),
+    new ReactRefreshPlugin(),
   ],
 
   infrastructureLogging: {
     level: 'warn',
   },
-
-  ignoreWarnings: [
-    {
-      module: /node_modules\/bootstrap\/scss\/bootstrap\.scss/,
-      message: /Sass @import rules are deprecated/,
-    },
-  ],
 
   module: {
     rules: [
@@ -236,6 +237,7 @@ const developmentConfig = {
             options: {
               sassOptions: {
                 quietDeps: true,
+                silenceDeprecations: ['import'],
               },
             },
           },
@@ -245,14 +247,14 @@ const developmentConfig = {
         test: /\.(eot|ttf|woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
         type: 'asset/resource',
         generator: {
-          filename: 'assets/[name].[ext]',
+          filename: 'assets/[name][ext]',
         },
       },
       {
         test: /\.(ico|png|jpg|jpeg|gif|svg|webp)(\?v=\d+\.\d+\.\d+)?$/,
         type: 'asset',
         generator: {
-          filename: 'assets/[name].[ext]',
+          filename: 'assets/[name][ext]',
         },
       },
     ],
@@ -265,6 +267,7 @@ const productionConfig = {
 
   output: {
     filename: 'assets/[name].[contenthash:8].js',
+    clean: true, // Rspack has built-in clean
   },
 
   optimization: {
@@ -272,7 +275,6 @@ const productionConfig = {
     splitChunks: {
       chunks: 'all',
       maxInitialRequests: 5,
-      name: false,
       cacheGroups: {
         redoc: {
           test: /[\\/]node_modules[\\/](mobx|redoc|styled-components)[\\/]/,
@@ -291,19 +293,12 @@ const productionConfig = {
   },
 
   plugins: [
-    new HtmlWebpackPlugin({
+    new rspack.HtmlRspackPlugin({
       template: 'ui/index.html',
-      appMountId: 'root',
-      lang: 'en',
-      meta: false,
       filename: 'index.html',
-      chunks: ['index', 'redoc'],
     }),
-    new MiniCssExtractPlugin({
+    new rspack.CssExtractRspackPlugin({
       filename: 'assets/[name].[contenthash:8].css',
-    }),
-    new CleanWebpackPlugin({
-      verbose: false,
     }),
   ],
 
@@ -312,7 +307,7 @@ const productionConfig = {
       {
         test: /\.css$/,
         use: [
-          MiniCssExtractPlugin.loader,
+          rspack.CssExtractRspackPlugin.loader,
           {
             loader: 'css-loader',
             options: {
@@ -324,7 +319,7 @@ const productionConfig = {
       {
         test: /\.scss$/,
         use: [
-          MiniCssExtractPlugin.loader,
+          rspack.CssExtractRspackPlugin.loader,
           {
             loader: 'css-loader',
             options: {
@@ -336,6 +331,7 @@ const productionConfig = {
             options: {
               sassOptions: {
                 quietDeps: true,
+                silenceDeprecations: ['import'],
               },
             },
           },
@@ -345,14 +341,14 @@ const productionConfig = {
         test: /\.(eot|ttf|woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
         type: 'asset/resource',
         generator: {
-          filename: 'assets/[name].[hash:8].[ext]',
+          filename: 'assets/[name].[hash:8][ext]',
         },
       },
       {
         test: /\.(ico|png|jpg|jpeg|gif|svg|webp)(\?v=\d+\.\d+\.\d+)?$/,
         type: 'asset',
         generator: {
-          filename: 'assets/[name].[hash:8].[ext]',
+          filename: 'assets/[name].[hash:8][ext]',
         },
       },
     ],
@@ -360,7 +356,10 @@ const productionConfig = {
 };
 
 module.exports = (env, args) => {
-  switch (args.mode) {
+  const mode = args?.mode || process.env.NODE_ENV || 'development';
+  process.env.NODE_ENV = mode;
+
+  switch (mode) {
     case 'development':
       return merge(commonConfig, developmentConfig);
     case 'production':
