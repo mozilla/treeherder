@@ -1,6 +1,5 @@
 import React from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
-import { hot } from 'react-hot-loader/root';
 import { Container } from 'react-bootstrap';
 
 import { getData, processResponse } from '../helpers/http';
@@ -144,4 +143,4 @@ class App extends React.Component {
   }
 }
 
-export default hot(App);
+export default App;

@@ -28,9 +28,9 @@ From here on, linting checks will be executed every time you commit.
 
 To get started:
 
-- Install [Node.js] and [Yarn] (see [package.json] for known compatible versions, listed under `engines`).
-- Run `yarn install` to install all dependencies.
-- Run `yarn build` to build necessary files.
+- Install [Node.js] and [pnpm] (see [package.json] for known compatible versions, listed under `engines` and `packageManager`).
+- Run `pnpm install` to install all dependencies.
+- Run `pnpm build` to build necessary files.
 
 ### Running the standalone development server
 
@@ -40,7 +40,7 @@ production site. You do not need to set up the Docker environment unless making 
 - Start the development server by running:
 
   ```bash
-  yarn start
+  pnpm start
   ```
 
   <!-- prettier-ignore -->
@@ -54,7 +54,7 @@ production site. You do not need to set up the Docker environment unless making 
   To run the unminified UI with data from the staging site instead of the production site, type:
 
   ```bash
-  yarn start:stage
+  pnpm start:stage
   ```
 
 ## Server and Full-stack Development
@@ -81,7 +81,7 @@ export those env variables in the shell first or inline with the command below. 
 
 - Visit <http://localhost:5000> in your browser (NB: not port 8000).
 
-Both Django's runserver and webpack-dev-server will automatically refresh every time there's a change in the code.
+Both Django's runserver and rspack-dev-server will automatically refresh every time there's a change in the code.
 Proceed to [Running the ingestion tasks](#running-the-ingestion-tasks) to get data.
 
 ### Using the minified UI
@@ -91,7 +91,7 @@ If you would like to use the minified production version of the UI with the deve
 - Run the build task:
 
   ```bash
-  docker-compose run frontend sh -c "yarn && yarn build"
+  docker-compose run frontend sh -c "corepack enable && pnpm install && pnpm build"
   ```
 
 - Start Treeherder's backend:
@@ -102,7 +102,7 @@ If you would like to use the minified production version of the UI with the deve
 
 - Visit <http://localhost:8000> (NB: port 8000, unlike above)
 
-Requests to port 8000 skip webpack-dev-server, causing Django's runserver to serve the
+Requests to port 8000 skip rspack-dev-server, causing Django's runserver to serve the
 production UI from `.build/` instead. In addition to being minified and using the
 non-debug versions of React, the assets are served with the same `Content-Security-Policy`
 header as production.
@@ -224,6 +224,6 @@ Continue to **Working with the Server** section after looking at the [Code Style
 [git]: https://git-scm.com
 [treeherder repo]: https://github.com/mozilla/treeherder
 [node.js]: https://nodejs.org/en/download/current/
-[yarn]: https://yarnpkg.com/en/docs/install
+[pnpm]: https://pnpm.io/installation
 [package.json]: https://github.com/mozilla/treeherder/blob/master/package.json
 [settings]: https://github.com/mozilla/treeherder/blob/master/treeherder/config/settings.py#L318
