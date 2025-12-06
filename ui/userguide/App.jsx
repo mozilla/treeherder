@@ -1,5 +1,3 @@
-
-
 import PerfherderUserGuide from '../perfherder/userguide/PerherderUserGuide';
 
 import UserGuideHeader from './UserGuideHeader';
