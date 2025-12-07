@@ -3,8 +3,8 @@ import {
   faClock,
   faExclamationTriangle,
 } from '@fortawesome/free-solid-svg-icons';
-import moment from 'moment';
 
+import dayjs from './dayjs';
 import { getArtifactsUrl } from './url';
 import { alertsViewDatetimeFormat, mercurialDatetimeFormat } from './constants';
 
@@ -34,14 +34,14 @@ export const toDateStr = function toDateStr(timestamp) {
  * @param { Date } awareDatetime Must contain the time zone information embedded in it
  */
 export function toMercurialDateStr(awareDatetime) {
-  return `${moment.utc(awareDatetime).format(mercurialDatetimeFormat)}`;
+  return `${dayjs.utc(awareDatetime).format(mercurialDatetimeFormat)}`;
 }
 
 /**
  * @param { Date } awareDatetime Must contain the time zone information embedded in it
  */
 export function toMercurialShortDateStr(awareDatetime) {
-  return `${moment.utc(awareDatetime).format(alertsViewDatetimeFormat)}`;
+  return `${dayjs.utc(awareDatetime).format(alertsViewDatetimeFormat)}`;
 }
 
 export const toShortDateStr = function toDateStr(timestamp) {

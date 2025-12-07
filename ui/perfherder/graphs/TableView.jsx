@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactTable from 'react-table-6';
 import { Badge } from 'react-bootstrap';
-import moment from 'moment';
 import { groupBy, forIn } from 'lodash';
 import numeral from 'numeral';
 
+import dayjs from '../../helpers/dayjs';
 import RepositoryModel from '../../models/repository';
 import { getJobsUrl, getPerfCompareBaseSubtestsURL } from '../../helpers/url';
 import { getFrameworkName, displayNumber } from '../perf-helpers/helpers';
@@ -159,7 +159,7 @@ const TableView = ({
     } = getRevisionInfo(dataIndex, dataPoint, item);
 
     return {
-      date: moment(dataPoint.x),
+      date: dayjs(dataPoint.x),
       highlighted:
         highlightAlerts &&
         highlightedRevisions.some(
@@ -207,7 +207,7 @@ const TableView = ({
           const { date, pushUrl, revision } = original;
           return (
             <div>
-              <span>{moment(date).format('MMM DD, h:mm:ss a')}</span>
+              <span>{dayjs(date).format('MMM DD, h:mm:ss a')}</span>
               <br />{' '}
               {pushUrl && (
                 <a
