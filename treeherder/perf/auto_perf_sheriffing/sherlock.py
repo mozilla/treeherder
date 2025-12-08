@@ -300,7 +300,7 @@ class Sherlock:
             logger.info(f"Running detection for {probe.name}")
             cdf_ts_detector = ts_detectors[probe.get_change_detection_technique()]
 
-            for platform in ("Windows", "Darwin", "Linux"):
+            for platform in ("Windows",):
                 if metric_info["platform"] == "mobile" and platform != "Mobile":
                     continue
                 elif metric_info["platform"] == "desktop" and platform == "Mobile":
