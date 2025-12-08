@@ -111,7 +111,7 @@
     "mini-css-extract-plugin": "2.9.4",
     "moment-locales-webpack-plugin": "1.2.0",
     "path": "0.12.7",
-    "prettier": "2.2.1",
+    "prettier": "3.7.4",
     "puppeteer": "24.2.1",
     "sass": "1.93.2",
     "sass-loader": "16.0.6",
