@@ -145,17 +145,9 @@ def _test_should_gather_replicates_based_on(
             "mozilla-release",
             "mozilla-beta",
             "firefox-ios",
+            "mozilla-central",
         ):
             return True
-        elif repository.name in ("mozilla-central",):
-            if suite_name == "speedometer3":
-                return True
-            elif (
-                "applink-startup" in suite_name
-                or "tab-restore" in suite_name
-                or "homeview" in suite_name
-            ):
-                return True
         elif repository.name in ("autoland",):
             if (
                 "applink-startup" in suite_name
