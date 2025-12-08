@@ -127,9 +127,8 @@ class PulseConsumer(ConsumerMixin):
             bindings = self.get_bindings(self.queue_name)["bindings"]
         except Exception:
             logger.error(
-                "Unable to fetch existing bindings for %s. Data ingestion may proceed, "
+                f"Unable to fetch existing bindings for {self.queue_name}. Data ingestion may proceed, "
                 "but no bindings will be pruned",
-                self.queue_name,
             )
 
         # Now prune any bindings from the queue that were not
@@ -142,7 +141,7 @@ class PulseConsumer(ConsumerMixin):
 
                 if binding_str not in new_bindings:
                     self.unbind_from(Exchange(binding["source"]), binding["routing_key"])
-                    logger.info("Unbound from: %s", binding_str)
+                    logger.info(f"Unbound from: {binding_str}")
 
     def get_binding_str(self, exchange, routing_key):
         """Use consistent string format for binding comparisons"""
@@ -163,7 +162,7 @@ class TaskConsumer(PulseConsumer):
     def on_message(self, body, message):
         exchange = message.delivery_info["exchange"]
         routing_key = message.delivery_info["routing_key"]
-        logger.debug("received job message from %s#%s", exchange, routing_key)
+        logger.debug(f"received job message from {exchange}#{routing_key}")
         store_pulse_tasks.apply_async(
             args=[body, exchange, routing_key, self.root_url], queue="store_pulse_tasks"
         )
@@ -190,7 +189,7 @@ class MozciClassificationConsumer(PulseConsumer):
     def on_message(self, body, message):
         exchange = message.delivery_info["exchange"]
         routing_key = message.delivery_info["routing_key"]
-        logger.debug("received mozci classification job message from %s#%s", exchange, routing_key)
+        logger.debug(f"received mozci classification job message from {exchange}#{routing_key}")
         store_pulse_tasks_classification.apply_async(
             args=[body, exchange, routing_key, self.root_url],
             queue="store_pulse_tasks_classification",
@@ -213,7 +212,7 @@ class PushConsumer(PulseConsumer):
     def on_message(self, body, message):
         exchange = message.delivery_info["exchange"]
         routing_key = message.delivery_info["routing_key"]
-        logger.info("received push message from %s#%s", exchange, routing_key)
+        logger.info(f"received push message from {exchange}#{routing_key}")
         store_pulse_pushes.apply_async(
             args=[body, exchange, routing_key, self.root_url], queue="store_pulse_pushes"
         )
@@ -254,7 +253,7 @@ class JointConsumer(PulseConsumer):
     def on_message(self, body, message):
         exchange = message.delivery_info["exchange"]
         routing_key = message.delivery_info["routing_key"]
-        logger.debug("received job message from %s#%s", exchange, routing_key)
+        logger.debug(f"received job message from {exchange}#{routing_key}")
         if exchange.startswith("exchange/taskcluster-queue/v1/"):
             store_pulse_tasks.apply_async(
                 args=[body, exchange, routing_key, self.root_url], queue="store_pulse_tasks"
