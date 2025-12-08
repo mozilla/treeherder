@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 export default function ItemList(props) {
-  const { items, maxSeen } = props;
+  const { items, maxSeen = 2 } = props;
 
   return (
     <span>
@@ -26,8 +26,4 @@ export default function ItemList(props) {
 ItemList.propTypes = {
   items: PropTypes.arrayOf(PropTypes.string).isRequired,
   maxSeen: PropTypes.number,
-};
-
-ItemList.defaultProps = {
-  maxSeen: 2,
 };

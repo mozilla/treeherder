@@ -33,7 +33,7 @@ describe('GraphsViewRecord Test Pupeteer', () => {
 
     await page.setRequestInterception(true);
     await page.setDefaultNavigationTimeout(3000);
-    await page.goto(`${URL}/perfherder/graphs`);
+    await page.goto(`${global.URL}/perfherder/graphs`);
   });
 
   test('Record requests', async () => {
@@ -66,7 +66,7 @@ describe('GraphsViewRecord Test Pupeteer', () => {
     expect(context.polly).not.toBeNull();
 
     await page.goto(
-      `${URL}/perfherder/graphs?highlightAlerts=1&highlightChangelogData=1&highlightCommonAlerts=0&series=mozilla-central,3140832,1,1&series=mozilla-central,3140831,1,1&timerange=86400`,
+      `${global.URL}/perfherder/graphs?highlightAlerts=1&highlightChangelogData=1&highlightCommonAlerts=0&series=mozilla-central,3140832,1,1&series=mozilla-central,3140831,1,1&timerange=86400`,
     );
 
     const toggleButton =
