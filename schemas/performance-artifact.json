@@ -182,6 +182,15 @@
           "minLength": 1,
           "maxLength": 20
         },
+        "replicates": {
+          "title": "Suite replicates",
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": -1000000000000.0,
+            "maximum": 1000000000000.0
+          }
+        },
         "lowerIsBetter": {
           "description": "Whether lower values are better for suite",
           "title": "Lower is better",
