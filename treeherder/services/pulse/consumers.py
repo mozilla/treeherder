@@ -222,7 +222,7 @@ class PushConsumer(PulseConsumer):
 class JointConsumer(PulseConsumer):
     """
     Run a collection of consumers in parallel.  These may be connected to different
-    AMQP servers, and Kombu only supports communicating wiht one connection per
+    AMQP servers, and Kombu only supports communicating with one connection per
     thread, so we use multiple threads, one per consumer.
     """
 
