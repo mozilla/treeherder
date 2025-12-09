@@ -34,7 +34,7 @@ commands:
     steps:
       - run:
           name: Build Docker image
-          command: docker build -f docker/Dockerfile -t app:build .
+          command: DOCKER_BUILDKIT=1 docker build -f docker/Dockerfile -t app:build .
 
   deploy-to-dockerhub:
     description: "Deploy to Docker Hub"
@@ -118,7 +118,7 @@ jobs:
           command: pnpm markdownlint
           name: Check markdown linting
       - run:
-          command: pnpm test:coverage
+          command: pnpm test:ci
           name: Run Jest tests
       - codecov/upload
 
