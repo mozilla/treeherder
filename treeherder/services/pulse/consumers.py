@@ -3,7 +3,6 @@ import socket
 import threading
 
 import environ
-import newrelic.agent
 from django.conf import settings
 from kombu import Connection, Exchange, Queue
 from kombu.mixins import ConsumerMixin
@@ -158,7 +157,6 @@ class TaskConsumer(PulseConsumer):
     def bindings(self):
         return TASKCLUSTER_TASK_BINDINGS
 
-    @newrelic.agent.background_task(name="pulse-listener-tasks.on_message", group="Pulse Listener")
     def on_message(self, body, message):
         exchange = message.delivery_info["exchange"]
         routing_key = message.delivery_info["routing_key"]
@@ -183,9 +181,6 @@ class MozciClassificationConsumer(PulseConsumer):
             )
         return MOZCI_CLASSIFICATION_PRODUCTION_BINDINGS
 
-    @newrelic.agent.background_task(
-        name="pulse-listener-tasks-classification.on_message", group="Pulse Listener"
-    )
     def on_message(self, body, message):
         exchange = message.delivery_info["exchange"]
         routing_key = message.delivery_info["routing_key"]
@@ -208,7 +203,6 @@ class PushConsumer(PulseConsumer):
             rv += GITHUB_PUSH_BINDINGS
         return rv
 
-    @newrelic.agent.background_task(name="pulse-listener-pushes.on_message", group="Pulse Listener")
     def on_message(self, body, message):
         exchange = message.delivery_info["exchange"]
         routing_key = message.delivery_info["routing_key"]
@@ -249,7 +243,6 @@ class JointConsumer(PulseConsumer):
 
         return rv
 
-    @newrelic.agent.background_task(name="pulse-joint-listener.on_message", group="Pulse Listener")
     def on_message(self, body, message):
         exchange = message.delivery_info["exchange"]
         routing_key = message.delivery_info["routing_key"]

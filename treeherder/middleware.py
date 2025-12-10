@@ -1,6 +1,5 @@
 import re
 
-import newrelic.agent
 from django.utils.deprecation import MiddlewareMixin
 from whitenoise.middleware import WhiteNoiseMiddleware
 
@@ -69,12 +68,3 @@ class CustomWhiteNoise(WhiteNoiseMiddleware):
         #   bootstrap.min.abda843684d0.js
         return super().immutable_file_test(path, url)
 
-
-class NewRelicMiddleware(MiddlewareMixin):
-    """Adds custom annotations to New Relic web transactions."""
-
-    def process_request(self, request):
-        # The New Relic Python agent only submits the User Agent to APM (for exceptions and
-        # slow transactions), so for use in Insights we have to add it as a customer parameter.
-        if "HTTP_USER_AGENT" in request.META:
-            newrelic.agent.add_custom_attribute("user_agent", request.META["HTTP_USER_AGENT"])
