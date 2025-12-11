@@ -2,11 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Row, Col } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRedo } from '@fortawesome/free-solid-svg-icons';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import sortBy from 'lodash/sortBy';
 
-import JobModel from '../models/job';
-import { addAggregateFields } from '../helpers/job';
+import {
+  addAggregateFields,
+  confirmFailure,
+  canConfirmFailure,
+} from '../helpers/job';
 import { shortDateFormat } from '../helpers/display';
 import SimpleTooltip from '../shared/SimpleTooltip';
 
@@ -61,10 +64,12 @@ class PlatformConfig extends React.PureComponent {
     }
   };
 
-  retriggerTask = async (task) => {
-    const { notify, currentRepo } = this.props;
+  confirmFailureTask = async (task) => {
+    const { notify, currentRepo, decisionTaskMap } = this.props;
 
-    JobModel.retrigger([task], currentRepo, notify);
+    if (canConfirmFailure(task)) {
+      confirmFailure(task, notify, decisionTaskMap, currentRepo);
+    }
   };
 
   render() {
@@ -121,13 +126,13 @@ class PlatformConfig extends React.PureComponent {
               );
             })}
             <Button
-              onClick={() => this.retriggerTask(taskList[0])}
+              onClick={() => this.confirmFailureTask(taskList[0])}
               variant="outline"
               className="me-2 border-0"
-              title="Retrigger task"
+              title="Confirm failure"
               style={{ lineHeight: '10px' }}
             >
-              <FontAwesomeIcon icon={faRedo} />
+              <FontAwesomeIcon icon={faCheck} />
             </Button>
           </Col>
         </Row>
@@ -151,10 +156,12 @@ PlatformConfig.propTypes = {
   currentRepo: PropTypes.shape({}).isRequired,
   notify: PropTypes.func.isRequired,
   updateParamsAndState: PropTypes.func.isRequired,
+  decisionTaskMap: PropTypes.shape({}),
 };
 
 PlatformConfig.defaultProps = {
   testName: '',
+  decisionTaskMap: {},
 };
 
 export default PlatformConfig;

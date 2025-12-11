@@ -25,6 +25,7 @@ export default class TestMetric extends React.PureComponent {
       investigateTest,
       unInvestigateTest,
       updatePushHealth,
+      decisionTaskMap,
     } = this.props;
     const { details } = data;
     const { needInvestigation } = details;
@@ -72,6 +73,7 @@ export default class TestMetric extends React.PureComponent {
             unInvestigateTest(test, 'needInvestigation')
           }
           updatePushHealth={updatePushHealth}
+          decisionTaskMap={decisionTaskMap}
         />
       </div>
     );
@@ -95,10 +97,12 @@ TestMetric.propTypes = {
   regressionsOrderBy: PropTypes.string,
   regressionsGroupBy: PropTypes.string,
   updateParamsAndState: PropTypes.func.isRequired,
+  decisionTaskMap: PropTypes.shape({}),
 };
 
 TestMetric.defaultProps = {
   regressionsOrderBy: 'count',
   regressionsGroupBy: 'path',
   testGroup: '',
+  decisionTaskMap: {},
 };

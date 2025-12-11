@@ -28,6 +28,11 @@ from treeherder.webapp.api.utils import to_datetime, to_timestamp
 logger = logging.getLogger(__name__)
 
 
+def count_unique_test_failures(failures):
+    """Count unique test names regardless of platform/config."""
+    return len(set(f["testName"] for f in failures))
+
+
 class PushViewSet(viewsets.ViewSet):
     """
     View for ``push`` records
@@ -297,7 +302,9 @@ class PushViewSet(viewsets.ViewSet):
                 push
             )
 
-            test_failure_count = len(push_health_test_failures["needInvestigation"])
+            test_failure_count = count_unique_test_failures(
+                push_health_test_failures["needInvestigation"]
+            )
             build_failure_count = len(push_health_build_failures)
             lint_failure_count = len(push_health_lint_failures)
             test_in_progress_count = 0
@@ -400,7 +407,7 @@ class PushViewSet(viewsets.ViewSet):
 
         status = push.get_status()
         total_failures = (
-            len(push_health_test_failures["needInvestigation"])
+            count_unique_test_failures(push_health_test_failures["needInvestigation"])
             + len(build_failures)
             + len(lint_failures)
         )
@@ -413,7 +420,9 @@ class PushViewSet(viewsets.ViewSet):
             {
                 "revision": revision,
                 "repo": repository.name,
-                "needInvestigation": len(push_health_test_failures["needInvestigation"]),
+                "needInvestigation": count_unique_test_failures(
+                    push_health_test_failures["needInvestigation"]
+                ),
                 "author": push.author,
             },
         )
