@@ -8,12 +8,14 @@ import newrelic.agent
 import numpy as np
 from django.conf import settings
 from django.db import transaction
+from django.db.models import Exists, OuterRef, Subquery
 
 from treeherder.perf.email import AlertNotificationWriter
 from treeherder.perf.models import (
     PerformanceAlert,
     PerformanceAlertSummary,
     PerformanceDatum,
+    PerformanceDatumReplicate,
     PerformanceSignature,
 )
 from treeherder.perfalert.perfalert import RevisionDatum, detect_changes
@@ -59,7 +61,7 @@ def generate_new_alerts_in_series(signature):
     # (1) the last alert, if there is one
     # (2) the alerts max age
     # (use whichever is newer)
-    max_alert_age = datetime.now() - settings.PERFHERDER_ALERTS_MAX_AGE
+    max_alert_age = alert_after_ts = datetime.now() - settings.PERFHERDER_ALERTS_MAX_AGE
     series = PerformanceDatum.objects.filter(signature=signature, push_timestamp__gte=max_alert_age)
     latest_alert_timestamp = (
         PerformanceAlert.objects.filter(series_signature=signature)
@@ -68,15 +70,39 @@ def generate_new_alerts_in_series(signature):
         .values_list("summary__push__time", flat=True)[:1]
     )
     if latest_alert_timestamp:
-        series = series.filter(push_timestamp__gt=latest_alert_timestamp[0])
+        latest_ts = latest_alert_timestamp[0]
+        series = series.filter(push_timestamp__gt=latest_ts)
+        if latest_ts > alert_after_ts:
+            alert_after_ts = latest_ts
+
+    datum_with_replicates = (
+        PerformanceDatum.objects.filter(
+            signature=signature,
+            repository=signature.repository,
+            push_timestamp__gte=alert_after_ts,
+        )
+        .annotate(
+            has_replicate=Exists(
+                PerformanceDatumReplicate.objects.filter(performance_datum_id=OuterRef("pk"))
+            )
+        )
+        .filter(has_replicate=True)
+    )
+    replicates = PerformanceDatumReplicate.objects.filter(
+        performance_datum_id__in=Subquery(datum_with_replicates.values("id"))
+    ).values_list("performance_datum_id", "value")
+    replicates_map: dict[int, list[float]] = {}
+    for datum_id, value in replicates:
+        replicates_map.setdefault(datum_id, []).append(value)
 
     revision_data = {}
     for d in series:
         if not revision_data.get(d.push_id):
             revision_data[d.push_id] = RevisionDatum(
-                int(time.mktime(d.push_timestamp.timetuple())), d.push_id, []
+                int(time.mktime(d.push_timestamp.timetuple())), d.push_id, [], []
             )
         revision_data[d.push_id].values.append(d.value)
+        revision_data[d.push_id].replicates.extend(replicates_map.get(d.id, []))
 
     min_back_window = signature.min_back_window
     if min_back_window is None:
