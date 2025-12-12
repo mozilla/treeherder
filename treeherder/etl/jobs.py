@@ -61,11 +61,15 @@ def _remove_existing_jobs(data):
         if not state_map.get(job["job_guid"]):
             new_data.append(datum)
         else:
-            # should not transition from running to pending,
-            # or completed to any other state
             current_state = state_map[job["job_guid"]]
-            if current_state == "completed" or (
-                job["state"] == "pending" and current_state == "running"
+            # Block invalid state transitions:
+            # - completed is immutable (completed -> any)
+            # - no backwards transitions (running -> pending, pending/running -> unscheduled)
+            # Allowed: unscheduled -> pending/running/completed, pending -> running/completed, running -> completed
+            if (
+                current_state == "completed"
+                or (job["state"] == "pending" and current_state == "running")
+                or (job["state"] == "unscheduled" and current_state in ("pending", "running"))
             ):
                 continue
             new_data.append(datum)

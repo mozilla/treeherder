@@ -309,6 +309,7 @@ export const thAllResultStatuses = [
   'superseded',
   'running',
   'pending',
+  'unscheduled',
   'runnable',
 ];
 
