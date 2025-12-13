@@ -78,7 +78,7 @@ test('select a job updates url', async () => {
   expect(spell).toBeInTheDocument();
 
   fireEvent.mouseDown(spell);
-  expect(spell).toHaveClass('selected-job');
+  await waitFor(() => expect(spell).toHaveClass('selected-job'));
 
   const selTaskRun = getUrlParam('selectedTaskRun');
 
@@ -96,7 +96,7 @@ test('filter change keeps selected job visible', async () => {
   expect(spell).toBeInTheDocument();
 
   fireEvent.mouseDown(spell);
-  expect(spell).toHaveClass('selected-job');
+  await waitFor(() => expect(spell).toHaveClass('selected-job'));
 
   filterModel.addFilter('searchStr', 'linux');
   rerender(testPushJobs(filterModel));
@@ -105,5 +105,5 @@ test('filter change keeps selected job visible', async () => {
 
   expect(spell2).toBeInTheDocument();
   expect(spell2).toHaveClass('filter-shown');
-  expect(spell2).toHaveClass('selected-job');
+  await waitFor(() => expect(spell2).toHaveClass('selected-job'));
 });
