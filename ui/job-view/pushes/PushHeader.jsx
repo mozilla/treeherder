@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useMemo, useCallback, memo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import isEqual from 'lodash/isEqual';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faMinusSquare,
@@ -40,11 +39,10 @@ const SKIPPED_LINK_PARAMS = [
   'author',
 ];
 
-function PushCounts(props) {
-  const { pending, running, completed, fixedByCommit } = props;
+function PushCounts({ pending, running, completed, fixedByCommit }) {
   const inProgress = pending + running;
   const total = completed + inProgress;
-  const percentComplete = getPercentComplete(props);
+  const percentComplete = getPercentComplete({ pending, running, completed });
 
   return (
     <div>
@@ -75,68 +73,45 @@ PushCounts.propTypes = {
   fixedByCommit: PropTypes.number.isRequired,
 };
 
-class PushHeader extends React.Component {
-  constructor(props) {
-    super(props);
-    const { pushTimestamp } = this.props;
+function PushHeader({
+  push,
+  pushId,
+  pushTimestamp,
+  author,
+  revision = null,
+  filterModel,
+  runnableVisible,
+  showRunnableJobs,
+  hideRunnableJobs,
+  showFuzzyJobs,
+  cycleWatchState,
+  setSelectedJob,
+  pinJobs,
+  expandAllPushGroups,
+  notificationSupported,
+  getAllShownJobs,
+  selectedRunnableJobs,
+  collapsed,
+  notify,
+  jobCounts,
+  pushHealthVisibility,
+  decisionTaskMap,
+  watchState = 'none',
+  pushHealthStatusCallback = null,
+  currentRepo,
+  togglePushCollapsed,
+}) {
+  const pushDateStr = useMemo(() => toDateStr(pushTimestamp), [pushTimestamp]);
 
-    this.pushDateStr = toDateStr(pushTimestamp);
-  }
-
-  shouldComponentUpdate(prevProps) {
-    const {
-      jobCounts: prevJobCounts,
-      watchState: prevWatchState,
-      selectedRunnableJobs: prevSelectedRunnableJobs,
-      runnableVisible: prevRunnableVisible,
-      collapsed: prevCollapsed,
-      pushHealthVisibility: prevPushHealthVisibility,
-      filterModel: prevFilterModel,
-      groupCountsExpanded: prevgroupCountsExpanded,
-    } = prevProps;
-    const {
-      jobCounts,
-      watchState,
-      selectedRunnableJobs,
-      runnableVisible,
-      collapsed,
-      pushHealthVisibility,
-      filterModel,
-      groupCountsExpanded,
-    } = this.props;
-
-    return (
-      !isEqual(prevJobCounts, jobCounts) ||
-      prevWatchState !== watchState ||
-      prevSelectedRunnableJobs !== selectedRunnableJobs ||
-      prevRunnableVisible !== runnableVisible ||
-      prevCollapsed !== collapsed ||
-      prevPushHealthVisibility !== pushHealthVisibility ||
-      prevFilterModel !== filterModel ||
-      prevgroupCountsExpanded !== groupCountsExpanded
-    );
-  }
-
-  getLinkParams() {
-    const { filterModel } = this.props;
-
+  const getLinkParams = useCallback(() => {
     return Object.entries(filterModel.getUrlParamsWithoutDefaults()).reduce(
       (acc, [field, values]) =>
         SKIPPED_LINK_PARAMS.includes(field) ? acc : { ...acc, [field]: values },
       {},
     );
-  }
+  }, [filterModel]);
 
-  triggerNewJobs = async () => {
-    const {
-      pushId,
-      selectedRunnableJobs,
-      hideRunnableJobs,
-      notify,
-      decisionTaskMap,
-      currentRepo,
-    } = this.props;
-
+  const triggerNewJobs = useCallback(async () => {
     if (
       !window.confirm(
         'This will trigger all selected jobs. Click "OK" if you want to proceed.',
@@ -150,21 +125,26 @@ class PushHeader extends React.Component {
       .then((result) => {
         notify(result, 'success');
         hideRunnableJobs(pushId);
-        this.props.hideRunnableJobs();
+        hideRunnableJobs();
       })
       .catch((e) => {
         notify(formatTaskclusterError(e), 'danger', { sticky: true });
       });
-  };
+  }, [
+    pushId,
+    selectedRunnableJobs,
+    hideRunnableJobs,
+    notify,
+    decisionTaskMap,
+    currentRepo,
+  ]);
 
-  cancelAllJobs = () => {
+  const cancelAllJobs = useCallback(() => {
     if (
       window.confirm(
         'This will cancel all pending and running jobs for this push. It cannot be undone! Are you sure?',
       )
     ) {
-      const { notify, push, decisionTaskMap, currentRepo } = this.props;
-
       JobModel.cancelAll(
         push.id,
         currentRepo,
@@ -172,17 +152,9 @@ class PushHeader extends React.Component {
         decisionTaskMap[push.id],
       );
     }
-  };
+  }, [push, currentRepo, notify, decisionTaskMap]);
 
-  pinAllShownJobs = () => {
-    const {
-      setSelectedJob,
-      pinJobs,
-      expandAllPushGroups,
-      getAllShownJobs,
-      notify,
-      pushId,
-    } = this.props;
+  const pinAllShownJobs = useCallback(() => {
     const shownJobs = getAllShownJobs(pushId);
     const selectedTaskRun = getUrlParam('selectedTaskRun');
 
@@ -196,153 +168,139 @@ class PushHeader extends React.Component {
     } else {
       notify('No jobs available to pin', 'danger');
     }
-  };
+  }, [
+    pushId,
+    setSelectedJob,
+    pinJobs,
+    expandAllPushGroups,
+    getAllShownJobs,
+    notify,
+  ]);
 
-  render() {
-    const {
-      pushId,
-      jobCounts,
-      author,
-      revision,
-      runnableVisible,
-      watchState,
-      showRunnableJobs,
-      hideRunnableJobs,
-      showFuzzyJobs,
-      cycleWatchState,
-      notificationSupported,
-      selectedRunnableJobs,
-      collapsed,
-      pushHealthVisibility,
-      currentRepo,
-      pushHealthStatusCallback,
-      togglePushCollapsed,
-    } = this.props;
-    const cancelJobsTitle = 'Cancel all jobs';
-    const linkParams = this.getLinkParams();
-    const revisionPushFilterUrl = getJobsUrl({ ...linkParams, revision });
+  const cancelJobsTitle = 'Cancel all jobs';
+  const linkParams = getLinkParams();
+  const revisionPushFilterUrl = getJobsUrl({ ...linkParams, revision });
 
-    // we don't do this for revision because it is handled differently via updateRange.
-    const authorParams = this.getLinkParams();
-    if (authorParams.selectedTaskRun) {
-      delete authorParams.selectedTaskRun;
-    }
-    const authorPushFilterUrl = getJobsUrl({ ...authorParams, author });
-    const showPushHealthStatus =
-      pushHealthVisibility === 'All' ||
-      currentRepo.name === pushHealthVisibility.toLowerCase();
-    const watchStateLabel = {
-      none: 'Watch',
-      push: 'Notifying (per-push)',
-      job: 'Notifying (per-job)',
-    }[watchState];
-    const countSelectedRunnableJobs = selectedRunnableJobs.length;
-
-    return (
-      <div className="push-header" data-testid="push-header">
-        <div className="push-bar">
-          <span className="push-left">
-            <span className="push-title-left">
-              <FontAwesomeIcon
-                onClick={togglePushCollapsed}
-                icon={collapsed ? faPlusSquare : faMinusSquare}
-                className="pe-3 mt-2 text-muted pointable"
-                title={`${collapsed ? 'Expand' : 'Collapse'} push data`}
-              />
-              <span>
-                <Link to={revisionPushFilterUrl} title="View only this push">
-                  {this.pushDateStr}{' '}
-                  <FontAwesomeIcon
-                    icon={faExternalLinkAlt}
-                    className="icon-superscript"
-                  />
-                </Link>{' '}
-                -{' '}
-              </span>
-              <Link to={authorPushFilterUrl}>{author}</Link>
-            </span>
-          </span>
-          {showPushHealthStatus && (
-            <PushHealthStatus
-              repoName={currentRepo.name}
-              revision={revision}
-              jobCounts={jobCounts}
-              statusCallback={pushHealthStatusCallback}
-            />
-          )}
-          <PushCounts
-            className="push-counts"
-            pending={jobCounts.pending}
-            running={jobCounts.running}
-            completed={jobCounts.completed}
-            fixedByCommit={jobCounts.fixedByCommit}
-          />
-          <span className="push-buttons">
-            {jobCounts.pending + jobCounts.running > 0 && (
-              <button
-                type="button"
-                className="btn btn-sm btn-push watch-commit-btn"
-                disabled={!notificationSupported}
-                title={
-                  notificationSupported
-                    ? 'Get Desktop Notifications for this Push'
-                    : 'Desktop notifications not supported in this browser'
-                }
-                data-watch-state={watchState}
-                onClick={() => cycleWatchState()}
-              >
-                {watchStateLabel}
-              </button>
-            )}
-            <button
-              type="button"
-              className="btn btn-sm btn-push cancel-all-jobs-btn"
-              title={cancelJobsTitle}
-              onClick={this.cancelAllJobs}
-              aria-label={cancelJobsTitle}
-            >
-              <FontAwesomeIcon
-                icon={faTimesCircle}
-                className="dim-quarter"
-                title="Cancel jobs"
-              />
-            </button>
-            <button
-              type="button"
-              className="btn btn-sm btn-push pin-all-jobs-btn"
-              title="Pin all available jobs in this push"
-              aria-label="Pin all available jobs in this push"
-              onClick={this.pinAllShownJobs}
-            >
-              <FontAwesomeIcon icon={faThumbtack} title="Pin all jobs" />
-            </button>
-            {!!countSelectedRunnableJobs && runnableVisible && (
-              <Button
-                className="btn btn-sm btn-push trigger-new-jobs-btn"
-                title="Trigger new jobs"
-                onClick={this.triggerNewJobs}
-              >
-                Trigger
-                <Badge bg="info" className="mx-1">
-                  {countSelectedRunnableJobs}
-                </Badge>
-                New Job{countSelectedRunnableJobs > 1 ? 's' : ''}
-              </Button>
-            )}
-            <PushActionMenu
-              runnableVisible={runnableVisible}
-              revision={revision}
-              currentRepo={currentRepo}
-              pushId={pushId}
-              showRunnableJobs={showRunnableJobs}
-              hideRunnableJobs={hideRunnableJobs}
-              showFuzzyJobs={showFuzzyJobs}
-            />
-          </span>
-        </div>
-      </div>
-    );
+  // we don't do this for revision because it is handled differently via updateRange.
+  const authorParams = getLinkParams();
+  if (authorParams.selectedTaskRun) {
+    delete authorParams.selectedTaskRun;
   }
+  const authorPushFilterUrl = getJobsUrl({ ...authorParams, author });
+  const showPushHealthStatus =
+    pushHealthVisibility === 'All' ||
+    currentRepo.name === pushHealthVisibility.toLowerCase();
+  const watchStateLabel = {
+    none: 'Watch',
+    push: 'Notifying (per-push)',
+    job: 'Notifying (per-job)',
+  }[watchState];
+  const countSelectedRunnableJobs = selectedRunnableJobs.length;
+
+  return (
+    <div className="push-header" data-testid="push-header">
+      <div className="push-bar">
+        <span className="push-left">
+          <span className="push-title-left">
+            <FontAwesomeIcon
+              onClick={togglePushCollapsed}
+              icon={collapsed ? faPlusSquare : faMinusSquare}
+              className="pe-3 mt-2 text-muted pointable"
+              title={`${collapsed ? 'Expand' : 'Collapse'} push data`}
+            />
+            <span>
+              <Link to={revisionPushFilterUrl} title="View only this push">
+                {pushDateStr}{' '}
+                <FontAwesomeIcon
+                  icon={faExternalLinkAlt}
+                  className="icon-superscript"
+                />
+              </Link>{' '}
+              -{' '}
+            </span>
+            <Link to={authorPushFilterUrl}>{author}</Link>
+          </span>
+        </span>
+        {showPushHealthStatus && (
+          <PushHealthStatus
+            repoName={currentRepo.name}
+            revision={revision}
+            jobCounts={jobCounts}
+            statusCallback={pushHealthStatusCallback}
+          />
+        )}
+        <PushCounts
+          className="push-counts"
+          pending={jobCounts.pending}
+          running={jobCounts.running}
+          completed={jobCounts.completed}
+          fixedByCommit={jobCounts.fixedByCommit}
+        />
+        <span className="push-buttons">
+          {jobCounts.pending + jobCounts.running > 0 && (
+            <button
+              type="button"
+              className="btn btn-sm btn-push watch-commit-btn"
+              disabled={!notificationSupported}
+              title={
+                notificationSupported
+                  ? 'Get Desktop Notifications for this Push'
+                  : 'Desktop notifications not supported in this browser'
+              }
+              data-watch-state={watchState}
+              onClick={() => cycleWatchState()}
+            >
+              {watchStateLabel}
+            </button>
+          )}
+          <button
+            type="button"
+            className="btn btn-sm btn-push cancel-all-jobs-btn"
+            title={cancelJobsTitle}
+            onClick={cancelAllJobs}
+            aria-label={cancelJobsTitle}
+          >
+            <FontAwesomeIcon
+              icon={faTimesCircle}
+              className="dim-quarter"
+              title="Cancel jobs"
+            />
+          </button>
+          <button
+            type="button"
+            className="btn btn-sm btn-push pin-all-jobs-btn"
+            title="Pin all available jobs in this push"
+            aria-label="Pin all available jobs in this push"
+            onClick={pinAllShownJobs}
+          >
+            <FontAwesomeIcon icon={faThumbtack} title="Pin all jobs" />
+          </button>
+          {!!countSelectedRunnableJobs && runnableVisible && (
+            <Button
+              className="btn btn-sm btn-push trigger-new-jobs-btn"
+              title="Trigger new jobs"
+              onClick={triggerNewJobs}
+            >
+              Trigger
+              <Badge bg="info" className="mx-1">
+                {countSelectedRunnableJobs}
+              </Badge>
+              New Job{countSelectedRunnableJobs > 1 ? 's' : ''}
+            </Button>
+          )}
+          <PushActionMenu
+            runnableVisible={runnableVisible}
+            revision={revision}
+            currentRepo={currentRepo}
+            pushId={pushId}
+            showRunnableJobs={showRunnableJobs}
+            hideRunnableJobs={hideRunnableJobs}
+            showFuzzyJobs={showFuzzyJobs}
+          />
+        </span>
+      </div>
+    </div>
+  );
 }
 
 PushHeader.propTypes = {
@@ -375,16 +333,10 @@ PushHeader.propTypes = {
   currentRepo: PropTypes.shape({}).isRequired,
 };
 
-PushHeader.defaultProps = {
-  watchState: 'none',
-  pushHealthStatusCallback: null,
-  revision: null,
-};
-
 const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({
   decisionTaskMap,
 });
 
 export default connect(mapStateToProps, { notify, setSelectedJob, pinJobs })(
-  PushHeader,
+  memo(PushHeader),
 );
