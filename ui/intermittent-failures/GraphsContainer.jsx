@@ -25,7 +25,7 @@ export default class GraphsContainer extends React.Component {
   };
 
   render() {
-    const { graphOneData, graphTwoData, children } = this.props;
+    const { graphOneData = null, graphTwoData = null, children } = this.props;
     const { showGraphTwo, showAlternateView } = this.state;
 
     return (
@@ -102,9 +102,4 @@ GraphsContainer.propTypes = {
     }),
   ),
   children: PropTypes.element.isRequired,
-};
-
-GraphsContainer.defaultProps = {
-  graphOneData: null,
-  graphTwoData: null,
 };

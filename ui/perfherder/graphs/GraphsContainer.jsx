@@ -34,7 +34,8 @@ class GraphsContainer extends React.Component {
     super(props);
     this.leftChartPadding = 25;
     this.rightChartPadding = 10;
-    const scatterPlotData = flatMap(this.props.testData, (item) =>
+    const testData = props.testData || [];
+    const scatterPlotData = flatMap(testData, (item) =>
       item.visible ? item.data : [],
     );
     const zoomDomain = this.initZoomDomain(scatterPlotData);
@@ -317,11 +318,13 @@ class GraphsContainer extends React.Component {
 
   render() {
     const {
-      testData,
-      changelogData,
+      testData = [],
+      changelogData = [],
       showTable,
-      zoom,
-      highlightedRevisions,
+      zoom = {},
+      selectedDataPoint,
+      highlightAlerts = true,
+      highlightedRevisions = ['', ''],
       highlightChangelogData,
       highlightCommonAlerts,
     } = this.props;
@@ -741,15 +744,6 @@ GraphsContainer.propTypes = {
     PropTypes.arrayOf(PropTypes.string),
   ]),
   timeRange: PropTypes.shape({}).isRequired,
-};
-
-GraphsContainer.defaultProps = {
-  testData: [],
-  changelogData: [],
-  zoom: {},
-  selectedDataPoint: undefined,
-  highlightAlerts: true,
-  highlightedRevisions: ['', ''],
 };
 
 export default GraphsContainer;
