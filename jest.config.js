@@ -9,6 +9,8 @@ module.exports = {
       '<rootDir>/tests/jest/file-mock.js',
     '\\.(css|less|sass|scss)$': '<rootDir>/tests/jest/style-mock.js',
     '^react-native$': '<rootDir>/node_modules/react-native-web',
+    '^react-resizable-panels$':
+      '<rootDir>/tests/jest/react-resizable-panels-mock.js',
   },
   bail: true,
   collectCoverageFrom: ['ui/**/*.{mjs,jsx,js}'],

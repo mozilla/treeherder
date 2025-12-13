@@ -1,8 +1,8 @@
-import moment from 'moment';
 import React from 'react';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 
+import dayjs from '../helpers/dayjs';
 import { setUrlParam } from '../helpers/location';
 
 // be sure to wrap date arg in a moment()
@@ -11,7 +11,7 @@ export const ISODate = function formatISODate(date) {
 };
 
 export const prettyDate = function formatPrettyDate(date) {
-  return moment(date).format('ddd MMM D, YYYY');
+  return dayjs(date).format('ddd MMM D, YYYY');
 };
 
 export const formatBugs = function formatBugsForBugzilla(data) {
@@ -51,8 +51,8 @@ export const calculateMetrics = function calculateMetricsForGraphs(data) {
     const failures = data[i].failure_count;
     const testRuns = data[i].test_runs;
     const freq = testRuns < 1 || failures < 1 ? 0 : failures / testRuns;
-    const date = moment(data[i].date).format('MMM DD');
-    const dateObj = moment(data[i].date).toDate();
+    const date = dayjs(data[i].date).format('MMM DD');
+    const dateObj = dayjs(data[i].date).toDate();
 
     totalFailures += failures;
     totalRuns += testRuns;
