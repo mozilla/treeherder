@@ -23,7 +23,7 @@ const AlertHeader = ({
   frameworks,
   alertSummary,
   repoModel,
-  issueTrackers,
+  issueTrackers = [],
   user,
   updateAssignee,
   changeRevision,
@@ -349,10 +349,6 @@ AlertHeader.propTypes = {
   repoModel: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({}).isRequired,
   issueTrackers: PropTypes.arrayOf(PropTypes.shape({})),
-};
-
-AlertHeader.defaultProps = {
-  issueTrackers: [],
 };
 
 export default AlertHeader;

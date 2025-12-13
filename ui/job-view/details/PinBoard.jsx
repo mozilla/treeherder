@@ -94,7 +94,7 @@ class PinBoard extends React.Component {
   };
 
   createNewClassification = () => {
-    const { email } = this.props;
+    const { email = null } = this.props;
     const {
       failureClassificationId,
       failureClassificationComment,
@@ -216,7 +216,8 @@ class PinBoard extends React.Component {
   };
 
   unclassifyAllPinnedJobsTitle = () => {
-    if (!this.props.isStaff) {
+    const { isStaff = false } = this.props;
+    if (!isStaff) {
       return 'Must be employee or sheriff';
     }
 
@@ -228,9 +229,8 @@ class PinBoard extends React.Component {
   };
 
   canUnclassifyAllPinnedJobs = () => {
-    return (
-      this.props.isStaff && Object.values(this.props.pinnedJobs).length > 0
-    );
+    const { isStaff = false } = this.props;
+    return isStaff && Object.values(this.props.pinnedJobs).length > 0;
   };
 
   unclassifyAllPinnedJobs = async () => {
@@ -398,8 +398,8 @@ class PinBoard extends React.Component {
 
   render() {
     const {
-      selectedJobFull,
-      revisionTips,
+      selectedJobFull = null,
+      revisionTips = [],
       isLoggedIn,
       isPinBoardVisible,
       classificationTypes,
@@ -498,7 +498,7 @@ class PinBoard extends React.Component {
                       pattern="[0-9]*"
                       className="add-related-bugs-input"
                       placeholder="enter bug number"
-                      invalid={!this.isValidBugNumber(newBugNumber)}
+                      isInvalid={!this.isValidBugNumber(newBugNumber)}
                       onKeyPress={this.bugNumberKeyPress}
                       onChange={(ev) => {
                         this.setState({ newBugNumber: ev.target.value });
@@ -716,7 +716,7 @@ PinBoard.propTypes = {
   jobMap: PropTypes.shape({}).isRequired,
   classificationTypes: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
-  isStaff: PropTypes.bool.isRequired,
+  isStaff: PropTypes.bool,
   isPinBoardVisible: PropTypes.bool.isRequired,
   pinnedJobs: PropTypes.shape({}).isRequired,
   pinnedJobBugs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
@@ -738,6 +738,7 @@ PinBoard.propTypes = {
 };
 
 PinBoard.defaultProps = {
+  isStaff: false,
   selectedJobFull: null,
   email: null,
   revisionTips: [],

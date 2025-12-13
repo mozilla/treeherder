@@ -12,7 +12,11 @@ const choices = [
 
 export default class LogoMenu extends React.PureComponent {
   render() {
-    const { menuText, menuImage, colorClass } = this.props;
+    const {
+      menuText,
+      menuImage = null,
+      colorClass = 'text-white',
+    } = this.props;
 
     const menuChoices = choices.filter((choice) => choice.text !== menuText);
     return (
@@ -44,9 +48,4 @@ LogoMenu.propTypes = {
   menuText: PropTypes.string.isRequired,
   menuImage: PropTypes.string,
   colorClass: PropTypes.string,
-};
-
-LogoMenu.defaultProps = {
-  menuImage: null,
-  colorClass: 'text-white',
 };

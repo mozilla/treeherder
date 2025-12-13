@@ -75,10 +75,10 @@ export default class JobArtifacts extends React.PureComponent {
 
   render() {
     const {
-      jobDetails,
-      jobArtifactsLoading,
-      repoName,
-      selectedJob,
+      jobDetails = [],
+      jobArtifactsLoading = false,
+      repoName = null,
+      selectedJob = null,
     } = this.props;
 
     const { crashDumps, completeCrashIds } = this.groupCrashDumps(jobDetails);
@@ -194,11 +194,4 @@ JobArtifacts.propTypes = {
   jobArtifactsLoading: PropTypes.bool,
   repoName: PropTypes.string,
   selectedJob: PropTypes.shape({}),
-};
-
-JobArtifacts.defaultProps = {
-  jobDetails: [],
-  jobArtifactsLoading: false,
-  repoName: null,
-  selectedJob: null,
 };

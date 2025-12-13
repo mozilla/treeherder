@@ -20,7 +20,7 @@ export default class Navigation extends React.Component {
   };
 
   render() {
-    const { updateState, tree, user, setUser, notify } = this.props;
+    const { updateState, tree = null, user, setUser, notify } = this.props;
     return (
       <Navbar
         expand={false}
@@ -76,8 +76,4 @@ Navigation.propTypes = {
   user: PropTypes.shape({}).isRequired,
   setUser: PropTypes.func.isRequired,
   notify: PropTypes.func.isRequired,
-};
-
-Navigation.defaultProps = {
-  tree: null,
 };

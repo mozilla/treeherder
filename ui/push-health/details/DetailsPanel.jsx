@@ -30,7 +30,7 @@ class DetailsPanel extends React.Component {
   }
 
   componentDidMount() {
-    const { selectedTask } = this.props;
+    const { selectedTask = null } = this.props;
 
     if (selectedTask) {
       this.selectTask(selectedTask);
@@ -38,7 +38,7 @@ class DetailsPanel extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { selectedTask } = this.props;
+    const { selectedTask = null } = this.props;
 
     if (selectedTask && prevProps.selectedTask) {
       const {
@@ -75,7 +75,7 @@ class DetailsPanel extends React.Component {
   };
 
   selectTask = async () => {
-    const { currentRepo, selectedTask } = this.props;
+    const { currentRepo, selectedTask = null } = this.props;
     this.setState({ taskDetails: [], taskDetailLoading: true }, () => {
       if (this.selectTaskController !== null) {
         // Cancel the in-progress fetch requests.
@@ -232,10 +232,6 @@ DetailsPanel.propTypes = {
   currentRepo: PropTypes.shape({}).isRequired,
   closeDetails: PropTypes.func.isRequired,
   selectedTask: PropTypes.shape({}),
-};
-
-DetailsPanel.defaultProps = {
-  selectedTask: null,
 };
 
 export default DetailsPanel;

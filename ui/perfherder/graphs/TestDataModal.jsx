@@ -10,8 +10,8 @@ import PerfSeriesModel from '../../models/perfSeries';
 import { thPerformanceBranches } from '../../helpers/constants';
 import {
   containsText,
-  getInitialData,
-  getSeriesData,
+  getInitialData as getInitialDataFunc,
+  getSeriesData as getSeriesDataFunc,
 } from '../perf-helpers/helpers';
 
 import TimeRangeDropdown from './TimeRangeDropdown';
@@ -52,7 +52,7 @@ export default class TestDataModal extends React.Component {
       innerTimeRange,
       repository_name: repositoryName,
     } = this.state;
-    const { getInitialData } = this.props;
+    const { getInitialData = getInitialDataFunc } = this.props;
     const updates = await getInitialData(
       errorMessages,
       repositoryName,
@@ -64,7 +64,7 @@ export default class TestDataModal extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { activeTags, availableTags, platform, platforms } = this.state;
-    const { testData, timeRange } = this.props;
+    const { testData = [], timeRange } = this.props;
 
     if (prevState.platforms !== platforms) {
       const newPlatform = platforms.find((item) => item === platform)
@@ -124,7 +124,7 @@ export default class TestDataModal extends React.Component {
   }
 
   addRelatedApplications = async (params) => {
-    const { relatedSeries: relatedSignature } = this.props.options;
+    const { relatedSeries: relatedSignature } = this.props.options ?? {};
     const { errorMessages } = this.state;
     let relatedTests = [];
 
@@ -167,7 +167,7 @@ export default class TestDataModal extends React.Component {
   };
 
   addRelatedConfigs = async (params) => {
-    const { relatedSeries } = this.props.options;
+    const { relatedSeries } = this.props.options ?? {};
     const { errorMessages, repository_name: repositoryName } = this.state;
 
     const response = await PerfSeriesModel.getSeriesList(
@@ -193,7 +193,7 @@ export default class TestDataModal extends React.Component {
   };
 
   addRelatedBranches = async (params, samePlatform = true) => {
-    const { relatedSeries } = this.props.options;
+    const { relatedSeries } = this.props.options ?? {};
     const { errorMessages } = this.state;
 
     const relatedProjects = thPerformanceBranches.filter(
@@ -229,7 +229,7 @@ export default class TestDataModal extends React.Component {
   };
 
   processOptions = async (relatedTestsMode = false) => {
-    const { option, relatedSeries } = this.props.options;
+    const { option, relatedSeries } = this.props.options ?? {};
     const {
       errorMessages,
       filterText,
@@ -239,7 +239,7 @@ export default class TestDataModal extends React.Component {
       platform,
       repository_name: repositoryName,
     } = this.state;
-    const { getSeriesData, testData } = this.props;
+    const { getSeriesData = getSeriesDataFunc, testData = [] } = this.props;
 
     const params = {
       interval: innerTimeRange.value,
@@ -452,7 +452,7 @@ export default class TestDataModal extends React.Component {
       seriesData,
       showNoRelatedTests,
     } = this.state;
-    const { frameworks, projects, showModal } = this.props;
+    const { frameworks = [], projects, showModal } = this.props;
     const projectOptions = this.getDropdownOptions(projects);
     const modalOptions = [
       {
@@ -688,7 +688,7 @@ TestDataModal.propTypes = {
   showModal: PropTypes.bool.isRequired,
   timeRange: PropTypes.shape({}).isRequired,
   toggle: PropTypes.func.isRequired,
-  updateTestsAndTimeRange: PropTypes.func.isRequired,
+  updateTestsAndTimeRange: PropTypes.func,
   frameworks: PropTypes.arrayOf(PropTypes.shape({})),
   getInitialData: PropTypes.func,
   getSeriesData: PropTypes.func,
@@ -697,12 +697,4 @@ TestDataModal.propTypes = {
     relatedSeries: PropTypes.shape({}),
   }),
   testData: PropTypes.arrayOf(PropTypes.shape({})),
-};
-
-TestDataModal.defaultProps = {
-  frameworks: [],
-  getInitialData,
-  getSeriesData,
-  options: undefined,
-  testData: [],
 };

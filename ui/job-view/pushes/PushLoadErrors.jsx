@@ -11,9 +11,9 @@ function PushLoadErrors(props) {
   const {
     loadingPushes,
     currentRepo,
-    revision,
-    landoCommitID,
-    landoStatus,
+    revision = null,
+    landoCommitID = null,
+    landoStatus = 'unknown',
     repoName,
   } = props;
   const urlParams = getAllUrlParams();
@@ -151,12 +151,6 @@ PushLoadErrors.propTypes = {
   revision: PropTypes.string,
   landoCommitID: PropTypes.string,
   landoStatus: PropTypes.string,
-};
-
-PushLoadErrors.defaultProps = {
-  revision: null,
-  landoCommitID: null,
-  landoStatus: 'unknown',
 };
 
 const mapStateToProps = ({ pushes: { loadingPushes } }) => ({ loadingPushes });
