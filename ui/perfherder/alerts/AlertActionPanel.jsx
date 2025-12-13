@@ -11,7 +11,7 @@ import {
 
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import { alertStatusMap } from '../perf-helpers/constants';
-import { modifyAlert } from '../perf-helpers/helpers';
+import { modifyAlert as modifyAlertHelper } from '../perf-helpers/helpers';
 import { processErrors } from '../../helpers/http';
 
 import AlertModal from './AlertModal';
@@ -25,18 +25,18 @@ export default class AlertActionPanel extends React.Component {
     };
   }
 
-  modifySelectedAlerts = (selectedAlerts, modification) =>
-    Promise.all(
-      selectedAlerts.map((alert) =>
-        this.props.modifyAlert(alert, modification),
-      ),
+  modifySelectedAlerts = (selectedAlerts, modification) => {
+    const { modifyAlert = modifyAlertHelper } = this.props;
+    return Promise.all(
+      selectedAlerts.map((alert) => modifyAlert(alert, modification)),
     );
+  };
 
   updateAndFetch = async (newStatus, alertId = null) => {
     const {
       selectedAlerts,
       alertSummaries,
-      alertSummary,
+      alertSummary = null,
       fetchAlertSummaries,
       updateViewState,
     } = this.props;
@@ -116,7 +116,11 @@ export default class AlertActionPanel extends React.Component {
   };
 
   updateAlerts = async (newStatus) => {
-    const { selectedAlerts, fetchAlertSummaries, alertSummary } = this.props;
+    const {
+      selectedAlerts,
+      fetchAlertSummaries,
+      alertSummary = null,
+    } = this.props;
 
     await this.modifySelectedAlerts(selectedAlerts, {
       status: alertStatusMap[newStatus],
@@ -285,9 +289,4 @@ AlertActionPanel.propTypes = {
   alertSummaries: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   updateViewState: PropTypes.func.isRequired,
   modifyAlert: PropTypes.func,
-};
-
-AlertActionPanel.defaultProps = {
-  alertSummary: null,
-  modifyAlert,
 };

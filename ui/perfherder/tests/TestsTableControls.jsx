@@ -34,7 +34,7 @@ export default class TestsTableControls extends React.Component {
 
   updateFilteredResults = () => {
     const { filterText } = this.state;
-    const { testsOverviewResults } = this.props;
+    const { testsOverviewResults = [] } = this.props;
 
     if (!filterText) {
       return this.setState({ results: testsOverviewResults });
@@ -58,7 +58,7 @@ export default class TestsTableControls extends React.Component {
 
   render() {
     const {
-      dropdownOptions,
+      dropdownOptions = [],
       projectsMap,
       platformsMap,
       allFrameworks,
@@ -94,9 +94,4 @@ TestsTableControls.propTypes = {
     .isRequired,
   platformsMap: PropTypes.oneOfType([PropTypes.bool, PropTypes.shape({})])
     .isRequired,
-};
-
-TestsTableControls.defaultProps = {
-  testsOverviewResults: [],
-  dropdownOptions: [],
 };

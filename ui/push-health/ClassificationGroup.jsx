@@ -23,9 +23,10 @@ import Action from './Action';
 class ClassificationGroup extends React.PureComponent {
   constructor(props) {
     super(props);
+    const { expanded = true } = props;
 
     this.state = {
-      detailsShowing: props.expanded,
+      detailsShowing: expanded,
     };
   }
 
@@ -80,20 +81,20 @@ class ClassificationGroup extends React.PureComponent {
       tests,
       name,
       revision,
-      className,
-      hasRetriggerAll,
+      className = '',
+      hasRetriggerAll = false,
       notify,
       currentRepo,
       icon,
-      iconColor,
-      groupedBy,
-      orderedBy,
+      iconColor = 'darker-info',
+      groupedBy = 'path',
+      orderedBy = 'count',
       testGroup,
       selectedTest,
       selectedJobName,
       selectedTaskId,
-      setGroupedBy,
-      setOrderedBy,
+      setGroupedBy = () => {},
+      setOrderedBy = () => {},
       updateParamsAndState,
       investigateTest,
       unInvestigateTest,
@@ -269,17 +270,6 @@ ClassificationGroup.propTypes = {
   groupedBy: PropTypes.string,
   setOrderedBy: PropTypes.func,
   setGroupedBy: PropTypes.func,
-};
-
-ClassificationGroup.defaultProps = {
-  expanded: true,
-  className: '',
-  iconColor: 'darker-info',
-  hasRetriggerAll: false,
-  orderedBy: 'count',
-  groupedBy: 'path',
-  setOrderedBy: () => {},
-  setGroupedBy: () => {},
 };
 
 export default ClassificationGroup;

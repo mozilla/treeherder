@@ -6,7 +6,7 @@ import { notify } from '../../redux/stores/notifications';
 
 class PerfData extends React.PureComponent {
   render() {
-    const { perfJobDetail, selectedJobFull } = this.props;
+    const { perfJobDetail = [], selectedJobFull } = this.props;
 
     const sortedDetails = perfJobDetail.slice();
 
@@ -99,10 +99,6 @@ class PerfData extends React.PureComponent {
 
 PerfData.propTypes = {
   perfJobDetail: PropTypes.arrayOf(PropTypes.shape({})),
-};
-
-PerfData.defaultProps = {
-  perfJobDetail: [],
 };
 
 const mapStateToProps = (state) => ({
