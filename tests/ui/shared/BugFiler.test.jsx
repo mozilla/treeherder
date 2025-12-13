@@ -43,6 +43,9 @@ describe('BugFiler', () => {
         open_recent: [],
         all_others: [],
       },
+      counter: 0,
+      failure_in_new_rev: false,
+      line_number: 1,
     },
     suggestions: [
       {
@@ -53,6 +56,9 @@ describe('BugFiler', () => {
           open_recent: [],
           all_others: [],
         },
+        counter: 0,
+        failure_in_new_rev: false,
+        line_number: 1,
       },
     ],
     fullLog: 'https://example.com/full-log',
@@ -113,11 +119,13 @@ describe('BugFiler', () => {
     fetchMock.restore();
   });
 
-  it('renders correctly when open', () => {
+  it('renders correctly when open', async () => {
     render(<BugFilerClass {...defaultProps} />);
 
-    // Check that the modal is rendered
-    expect(screen.getByText('Intermittent Bug Filer')).toBeInTheDocument();
+    // Wait for initial async state updates to complete
+    await waitFor(() => {
+      expect(screen.getByText('Intermittent Bug Filer')).toBeInTheDocument();
+    });
 
     // Check that the form elements are rendered
     expect(
@@ -132,8 +140,13 @@ describe('BugFiler', () => {
     expect(screen.getByText('Cancel')).toBeInTheDocument();
   });
 
-  it('initializes state correctly', () => {
+  it('initializes state correctly', async () => {
     render(<BugFilerClass {...defaultProps} />);
+
+    // Wait for initial async state updates to complete
+    await waitFor(() => {
+      expect(screen.getByText('Intermittent Bug Filer')).toBeInTheDocument();
+    });
 
     // Check that the summary field is initialized correctly
     const summaryInput = screen.getByPlaceholderText('Intermittent...');
@@ -163,8 +176,13 @@ describe('BugFiler', () => {
     expect(intermittentCheckbox).toBeChecked();
   });
 
-  it('calls toggle when Cancel is clicked', () => {
+  it('calls toggle when Cancel is clicked', async () => {
     render(<BugFilerClass {...defaultProps} />);
+
+    // Wait for initial async state updates to complete
+    await waitFor(() => {
+      expect(screen.getByText('Cancel')).toBeInTheDocument();
+    });
 
     // Click the Cancel button
     fireEvent.click(screen.getByText('Cancel'));
@@ -173,8 +191,13 @@ describe('BugFiler', () => {
     expect(defaultProps.toggle).toHaveBeenCalled();
   });
 
-  it('toggles log link checkboxes when clicked', () => {
+  it('toggles log link checkboxes when clicked', async () => {
     render(<BugFilerClass {...defaultProps} />);
+
+    // Wait for initial async state updates to complete
+    await waitFor(() => {
+      expect(screen.getByText('Intermittent Bug Filer')).toBeInTheDocument();
+    });
 
     // Get the checkboxes
     const parsedLogCheckbox = screen.getByRole('checkbox', {
@@ -191,15 +214,22 @@ describe('BugFiler', () => {
     // Click the parsed log checkbox
     fireEvent.click(parsedLogCheckbox);
 
-    // Now it should be unchecked
-    expect(parsedLogCheckbox).not.toBeChecked();
+    // Wait for state update to complete
+    await waitFor(() => {
+      expect(parsedLogCheckbox).not.toBeChecked();
+    });
 
     // The full log checkbox should still be checked
     expect(fullLogCheckbox).toBeChecked();
   });
 
-  it('toggles "This is an intermittent failure" checkbox when clicked', () => {
+  it('toggles "This is an intermittent failure" checkbox when clicked', async () => {
     render(<BugFilerClass {...defaultProps} />);
+
+    // Wait for initial async state updates to complete
+    await waitFor(() => {
+      expect(screen.getByText('Intermittent Bug Filer')).toBeInTheDocument();
+    });
 
     // Get the checkbox
     const intermittentCheckbox = screen.getByRole('checkbox', {
@@ -212,12 +242,19 @@ describe('BugFiler', () => {
     // Click the checkbox
     fireEvent.click(intermittentCheckbox);
 
-    // Now it should be unchecked
-    expect(intermittentCheckbox).not.toBeChecked();
+    // Wait for state update to complete
+    await waitFor(() => {
+      expect(intermittentCheckbox).not.toBeChecked();
+    });
   });
 
-  it('updates summary when input changes', () => {
+  it('updates summary when input changes', async () => {
     render(<BugFilerClass {...defaultProps} />);
+
+    // Wait for initial async state updates to complete
+    await waitFor(() => {
+      expect(screen.getByText('Intermittent Bug Filer')).toBeInTheDocument();
+    });
 
     // Get the summary input
     const summaryInput = screen.getByPlaceholderText('Intermittent...');
@@ -230,12 +267,19 @@ describe('BugFiler', () => {
     // Change the input value
     fireEvent.change(summaryInput, { target: { value: 'New summary' } });
 
-    // Now it should have the new value
-    expect(summaryInput).toHaveValue('New summary');
+    // Wait for state update to complete
+    await waitFor(() => {
+      expect(summaryInput).toHaveValue('New summary');
+    });
   });
 
-  it('updates comment when input changes', () => {
+  it('updates comment when input changes', async () => {
     render(<BugFilerClass {...defaultProps} />);
+
+    // Wait for initial async state updates to complete
+    await waitFor(() => {
+      expect(screen.getByText('Intermittent Bug Filer')).toBeInTheDocument();
+    });
 
     // Get the comment textarea
     const commentTextarea = screen.getByLabelText('Comment:');
@@ -246,12 +290,19 @@ describe('BugFiler', () => {
     // Change the input value
     fireEvent.change(commentTextarea, { target: { value: 'New comment' } });
 
-    // Now it should have the new value
-    expect(commentTextarea).toHaveValue('New comment');
+    // Wait for state update to complete
+    await waitFor(() => {
+      expect(commentTextarea).toHaveValue('New comment');
+    });
   });
 
   it('searches for products when Find Product button is clicked', async () => {
     render(<BugFilerClass {...defaultProps} />);
+
+    // Wait for initial async state updates to complete
+    await waitFor(() => {
+      expect(screen.getByText('Intermittent Bug Filer')).toBeInTheDocument();
+    });
 
     // Get the product search input and button
     const productSearchInput = screen.getByPlaceholderText(
@@ -261,6 +312,11 @@ describe('BugFiler', () => {
 
     // Enter a search term
     fireEvent.change(productSearchInput, { target: { value: 'Firefox' } });
+
+    // Wait for state update from input change
+    await waitFor(() => {
+      expect(productSearchInput).toHaveValue('Firefox');
+    });
 
     // Click the Find Product button
     fireEvent.click(findProductButton);
@@ -310,6 +366,11 @@ describe('BugFiler', () => {
     const productRadio = screen.getByLabelText('Core :: DOM');
     fireEvent.click(productRadio);
 
+    // Wait for state update after selecting product
+    await waitFor(() => {
+      expect(productRadio).toBeChecked();
+    });
+
     // Click the Submit Bug button
     fireEvent.click(screen.getByText('Submit Bug'));
 
@@ -342,14 +403,22 @@ describe('BugFiler', () => {
     bugHelpers.getCrashSignatures.mockReturnValue(['SIGNATURE']);
     render(<BugFilerClass {...defaultProps} />);
 
+    // Wait for initial async state updates to complete
+    await waitFor(() => {
+      expect(screen.getByText('Intermittent Bug Filer')).toBeInTheDocument();
+    });
+
     // Click the Submit Bug button
     fireEvent.click(screen.getByText('Submit Bug'));
 
-    // Check that notify was called with an error message
-    expect(defaultProps.notify).toHaveBeenCalledWith(
-      'Please select (or search and select) a product/component pair to continue',
-      'danger',
-    );
+    // Wait for the notification to be called
+    await waitFor(() => {
+      // Check that notify was called with an error message
+      expect(defaultProps.notify).toHaveBeenCalledWith(
+        'Please select (or search and select) a product/component pair to continue',
+        'danger',
+      );
+    });
   });
 
   it('shows an error notification if summary is too long', async () => {
@@ -364,6 +433,11 @@ describe('BugFiler', () => {
     const productRadio = screen.getByLabelText('Core :: DOM');
     fireEvent.click(productRadio);
 
+    // Wait for state update after selecting product
+    await waitFor(() => {
+      expect(productRadio).toBeChecked();
+    });
+
     // Set a very long summary
     const summaryInput = screen.getByPlaceholderText('Intermittent...');
     fireEvent.change(summaryInput, {
@@ -372,14 +446,22 @@ describe('BugFiler', () => {
       },
     });
 
+    // Wait for state update from input change
+    await waitFor(() => {
+      expect(summaryInput.value).toHaveLength(256);
+    });
+
     // Click the Submit Bug button
     fireEvent.click(screen.getByText('Submit Bug'));
 
-    // Check that notify was called with an error message
-    expect(defaultProps.notify).toHaveBeenCalledWith(
-      'Please ensure the summary is no more than 255 characters',
-      'danger',
-    );
+    // Wait for the notification to be called
+    await waitFor(() => {
+      // Check that notify was called with an error message
+      expect(defaultProps.notify).toHaveBeenCalledWith(
+        'Please ensure the summary is no more than 255 characters',
+        'danger',
+      );
+    });
   });
 
   it('handles crash signatures correctly', async () => {
@@ -387,6 +469,11 @@ describe('BugFiler', () => {
     bugHelpers.getCrashSignatures.mockReturnValue(['SIGNATURE']);
 
     render(<BugFilerClass {...defaultProps} />);
+
+    // Wait for initial async state updates to complete
+    await waitFor(() => {
+      expect(screen.getByText('Intermittent Bug Filer')).toBeInTheDocument();
+    });
 
     // Check that the signature field is rendered
     expect(screen.getByText('Signature:')).toBeInTheDocument();
@@ -401,6 +488,11 @@ describe('BugFiler', () => {
     );
     fireEvent.change(productSearchInput, { target: { value: 'Firefox' } });
 
+    // Wait for state update from input change
+    await waitFor(() => {
+      expect(productSearchInput).toHaveValue('Firefox');
+    });
+
     const findProductButton = screen.getByText('Find Product');
     fireEvent.click(findProductButton);
 
@@ -412,6 +504,11 @@ describe('BugFiler', () => {
     // Select a product
     const productRadio = screen.getByLabelText('Firefox :: General');
     fireEvent.click(productRadio);
+
+    // Wait for state update after selecting product
+    await waitFor(() => {
+      expect(productRadio).toBeChecked();
+    });
 
     // Click the Submit Bug button
     fireEvent.click(screen.getByText('Submit Bug'));
@@ -445,11 +542,21 @@ describe('BugFiler', () => {
     const productRadio = screen.getByLabelText('Core :: DOM');
     fireEvent.click(productRadio);
 
+    // Wait for state update after selecting product
+    await waitFor(() => {
+      expect(productRadio).toBeChecked();
+    });
+
     // Check the security issue checkbox
     const securityCheckbox = screen.getByRole('checkbox', {
       name: /report this as a security issue/i,
     });
     fireEvent.click(securityCheckbox);
+
+    // Wait for state update after checking security checkbox
+    await waitFor(() => {
+      expect(securityCheckbox).toBeChecked();
+    });
 
     // Click the Submit Bug button
     fireEvent.click(screen.getByText('Submit Bug'));
@@ -480,6 +587,11 @@ describe('BugFiler', () => {
     const productRadio = screen.getByLabelText('Core :: DOM');
     fireEvent.click(productRadio);
 
+    // Wait for state update after selecting product
+    await waitFor(() => {
+      expect(productRadio).toBeChecked();
+    });
+
     // Check that the confirm failure checkbox is rendered and checked by default
     const confirmFailureCheckbox = screen.getByRole('checkbox', {
       name: /launch the confirm failures task at bug submission/i,
@@ -509,11 +621,21 @@ describe('BugFiler', () => {
     const productRadio = screen.getByLabelText('Core :: DOM');
     fireEvent.click(productRadio);
 
+    // Wait for state update after selecting product
+    await waitFor(() => {
+      expect(productRadio).toBeChecked();
+    });
+
     // Uncheck the confirm failure checkbox
     const confirmFailureCheckbox = screen.getByRole('checkbox', {
       name: /launch the confirm failures task at bug submission/i,
     });
     fireEvent.click(confirmFailureCheckbox);
+
+    // Wait for state update after unchecking checkbox
+    await waitFor(() => {
+      expect(confirmFailureCheckbox).not.toBeChecked();
+    });
 
     // Click the Submit Bug button
     fireEvent.click(screen.getByText('Submit Bug'));
@@ -542,6 +664,11 @@ describe('BugFiler', () => {
     // Select a product
     const productRadio = screen.getByLabelText('Core :: DOM');
     fireEvent.click(productRadio);
+
+    // Wait for state update after selecting product
+    await waitFor(() => {
+      expect(productRadio).toBeChecked();
+    });
 
     // Click the Submit Bug button
     fireEvent.click(screen.getByText('Submit Bug'));
