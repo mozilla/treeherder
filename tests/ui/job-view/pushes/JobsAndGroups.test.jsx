@@ -46,8 +46,17 @@ describe('JobsAndGroups', () => {
     jest.clearAllMocks();
   });
 
+  const renderInTable = (ui) =>
+    render(
+      <table>
+        <tbody>
+          <tr>{ui}</tr>
+        </tbody>
+      </table>,
+    );
+
   it('renders correctly with no groups', () => {
-    render(<JobsAndGroups {...defaultProps} />);
+    renderInTable(<JobsAndGroups {...defaultProps} />);
 
     const jobRow = screen.getByRole('cell');
     expect(jobRow).toHaveClass('job-row');
@@ -72,7 +81,7 @@ describe('JobsAndGroups', () => {
       },
     ];
 
-    render(<JobsAndGroups {...defaultProps} groups={groups} />);
+    renderInTable(<JobsAndGroups {...defaultProps} groups={groups} />);
 
     expect(screen.getByTestId('job-group-group1')).toBeInTheDocument();
     expect(screen.getByTestId('job-group-group2')).toBeInTheDocument();
@@ -96,7 +105,7 @@ describe('JobsAndGroups', () => {
       },
     ];
 
-    render(<JobsAndGroups {...defaultProps} groups={groups} />);
+    renderInTable(<JobsAndGroups {...defaultProps} groups={groups} />);
 
     expect(screen.getByTestId('job-group-group1')).toBeInTheDocument();
     expect(screen.queryByTestId('job-group-group2')).not.toBeInTheDocument();
@@ -130,7 +139,7 @@ describe('JobsAndGroups', () => {
       },
     ];
 
-    render(<JobsAndGroups {...defaultProps} groups={groups} />);
+    renderInTable(<JobsAndGroups {...defaultProps} groups={groups} />);
 
     expect(screen.queryByTestId('job-group-group1')).not.toBeInTheDocument();
     expect(screen.getByTestId('job-button-1')).toBeInTheDocument();
@@ -165,7 +174,7 @@ describe('JobsAndGroups', () => {
       },
     ];
 
-    render(<JobsAndGroups {...defaultProps} groups={groups} />);
+    renderInTable(<JobsAndGroups {...defaultProps} groups={groups} />);
 
     // The second job should be marked as intermittent because there's a passing job with the same name
     expect(screen.getByTestId('job-button-2')).toHaveAttribute(
@@ -197,7 +206,7 @@ describe('JobsAndGroups', () => {
       },
     ];
 
-    render(<JobsAndGroups {...defaultProps} groups={groups} />);
+    renderInTable(<JobsAndGroups {...defaultProps} groups={groups} />);
 
     // The first group should have a confirm group
     expect(

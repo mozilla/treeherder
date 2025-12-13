@@ -1,6 +1,9 @@
 // Entry point for Jest tests
 import '@testing-library/jest-dom/jest-globals';
 
+// Configure React 18 act environment for testing
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+
 const mockBuildUrl = jest.fn((root, taskId, path) => {
   return `${root}/${taskId}/artifacts/${path}`;
 });

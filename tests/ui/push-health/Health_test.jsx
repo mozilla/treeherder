@@ -6,6 +6,7 @@ import {
   waitFor,
   getAllByTestId,
   queryAllByTestId,
+  act,
 } from '@testing-library/react';
 import { createBrowserHistory } from 'history';
 import { ConnectedRouter } from 'connected-react-router';
@@ -201,7 +202,9 @@ describe('Health', () => {
 
     // Click the dismiss button
     const dismissButton = getByRole('button', { name: /close/i });
-    dismissButton.click();
+    await act(async () => {
+      dismissButton.click();
+    });
 
     // Alert should be hidden
     await waitFor(() => {
