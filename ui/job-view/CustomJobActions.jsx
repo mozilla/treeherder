@@ -36,7 +36,13 @@ class CustomJobActions extends React.PureComponent {
   }
 
   async componentDidMount() {
-    const { pushId, job, notify, decisionTaskMap, currentRepo } = this.props;
+    const {
+      pushId,
+      job = null,
+      notify,
+      decisionTaskMap,
+      currentRepo,
+    } = this.props;
     const { id: decisionTaskId } = decisionTaskMap[pushId];
 
     TaskclusterModel.load(decisionTaskId, job, currentRepo).then((results) => {
@@ -300,10 +306,6 @@ CustomJobActions.propTypes = {
   decisionTaskMap: PropTypes.shape({}).isRequired,
   job: PropTypes.shape({}),
   currentRepo: PropTypes.shape({}).isRequired,
-};
-
-CustomJobActions.defaultProps = {
-  job: null,
 };
 
 const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({

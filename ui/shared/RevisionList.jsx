@@ -13,11 +13,11 @@ export class RevisionList extends React.PureComponent {
       revisions,
       revisionCount,
       repo,
-      widthClass,
+      widthClass = '',
       children,
       bugSummaryMap,
-      commitShaClass,
-      commentFont,
+      commitShaClass = '',
+      commentFont = '',
     } = this.props;
 
     return (
@@ -48,7 +48,7 @@ RevisionList.propTypes = {
       author: PropTypes.string.isRequired,
       comments: PropTypes.string.isRequired,
       repository_id: PropTypes.number.isRequired,
-      result_set_id: PropTypes.number.isRequired,
+      result_set_id: PropTypes.number,
       revision: PropTypes.string.isRequired,
     }),
   ).isRequired,
@@ -59,12 +59,6 @@ RevisionList.propTypes = {
   widthClass: PropTypes.string,
   commitShaClass: PropTypes.string,
   commentFont: PropTypes.string,
-};
-
-RevisionList.defaultProps = {
-  widthClass: '',
-  commitShaClass: '',
-  commentFont: '',
 };
 
 export function MoreRevisionsLink(props) {

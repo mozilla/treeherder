@@ -12,15 +12,16 @@ import AlertTable from './AlertTable';
 export default class AlertsViewControls extends React.Component {
   constructor(props) {
     super(props);
-    this.alertsRef = new Array(this.props.alertSummaries.length)
+    const { alertSummaries = [], filters } = this.props;
+    this.alertsRef = new Array(alertSummaries.length)
       .fill(null)
       .map(() => React.createRef());
     this.state = {
       disableHideDownstream: ['invalid', 'reassigned', 'downstream'].includes(
-        props.filters.status,
+        filters.status,
       ),
       currentAlert: -1,
-      alertsLength: this.props.alertSummaries.length,
+      alertsLength: alertSummaries.length,
       disableButtons: {
         prev: true,
         next: false,
@@ -29,7 +30,7 @@ export default class AlertsViewControls extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { alertSummaries } = this.props;
+    const { alertSummaries = [] } = this.props;
     const alertsLength = alertSummaries.length;
 
     if (alertSummaries !== prevProps.alertSummaries) {
@@ -117,15 +118,15 @@ export default class AlertsViewControls extends React.Component {
   render() {
     const { disableButtons } = this.state;
     const {
-      alertSummaries,
+      alertSummaries = [],
       fetchAlertSummaries,
       pageNums,
       validated,
-      page,
-      count,
+      page = 1,
+      count = 1,
       isListMode,
       user,
-      frameworkOptions,
+      frameworkOptions = [],
       filters,
     } = this.props;
     const {
@@ -292,11 +293,4 @@ AlertsViewControls.propTypes = {
   frameworkOptions: PropTypes.arrayOf(PropTypes.shape({})),
   user: PropTypes.shape({}).isRequired,
   performanceTags: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-};
-
-AlertsViewControls.defaultProps = {
-  alertSummaries: [],
-  frameworkOptions: [],
-  page: 1,
-  count: 1,
 };

@@ -39,12 +39,12 @@ export const createDropdowns = (dropdownOptions, colClass) => (
 );
 
 const FilterControls = ({
-  dropdownOptions,
-  filterOptions,
+  dropdownOptions = null,
+  filterOptions = [],
   updateFilterText,
-  updateFilter,
-  updateOnEnter,
-  dropdownCol,
+  updateFilter = null,
+  updateOnEnter = false,
+  dropdownCol = false,
   filteredTextValue,
 }) => {
   const createButton = (filter) => (
@@ -103,14 +103,6 @@ FilterControls.propTypes = {
   updateFilterText: PropTypes.func.isRequired,
   updateOnEnter: PropTypes.bool, // only used by the InputFilter
   dropdownCol: PropTypes.bool,
-};
-
-FilterControls.defaultProps = {
-  dropdownOptions: null,
-  dropdownCol: false,
-  filterOptions: [],
-  updateFilter: null,
-  updateOnEnter: false,
 };
 
 export default FilterControls;

@@ -8,7 +8,7 @@ import logviewerIcon from '../../../img/logviewerIcon.svg';
 import LogItem from './LogItem';
 
 export default function LogUrls(props) {
-  const { logUrls, logViewerUrl, logViewerFullUrl } = props;
+  const { logUrls, logViewerUrl = null, logViewerFullUrl = null } = props;
   const logUrlsUseful = logUrls.filter(
     (logUrl) => !logUrl.name.includes('perfherder-data'),
   );
@@ -48,9 +48,4 @@ LogUrls.propTypes = {
   logUrls: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   logViewerUrl: PropTypes.string,
   logViewerFullUrl: PropTypes.string,
-};
-
-LogUrls.defaultProps = {
-  logViewerUrl: null,
-  logViewerFullUrl: null,
 };

@@ -11,7 +11,7 @@ export default class TruncatedText extends React.Component {
   }
 
   render() {
-    const { text, maxLength, title, color } = this.props;
+    const { text, maxLength, title = '', color = 'link' } = this.props;
     const { showMoreResults } = this.state;
 
     const isOutline = color !== 'link';
@@ -44,9 +44,4 @@ TruncatedText.propTypes = {
   title: PropTypes.string,
   maxLength: PropTypes.number.isRequired,
   color: PropTypes.string,
-};
-
-TruncatedText.defaultProps = {
-  title: '',
-  color: 'link',
 };

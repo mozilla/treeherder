@@ -27,15 +27,17 @@ import AlertStatusCountdown from './AlertStatusCountdown';
 export default class StatusDropdown extends React.Component {
   constructor(props) {
     super(props);
+    const { issueTrackers = [], alertSummary, frameworks } = this.props;
     this.state = {
       showBugModal: false,
       showFileBugModal: false,
+      showCriticalFileBugModal: false,
       showNotesModal: false,
       showTagsModal: false,
-      selectedValue: this.props.issueTrackers[0].text,
+      selectedValue: issueTrackers[0]?.text,
       browsertimeAlertsExtraData: new BrowsertimeAlertsExtraData(
-        this.props.alertSummary,
-        this.props.frameworks,
+        alertSummary,
+        frameworks,
       ),
       isWeekend: isWeekend(),
       fileBugErrorMessage: null,
@@ -78,7 +80,7 @@ export default class StatusDropdown extends React.Component {
       alertSummary,
       repoModel,
       updateViewState,
-      filteredAlerts,
+      filteredAlerts = [],
       frameworks,
       user,
     } = this.props;
@@ -187,7 +189,7 @@ export default class StatusDropdown extends React.Component {
     const {
       alertSummary,
       repoModel,
-      filteredAlerts,
+      filteredAlerts = [],
       frameworks,
       updateViewState,
       user,
@@ -314,7 +316,7 @@ export default class StatusDropdown extends React.Component {
     const {
       alertSummary,
       user,
-      issueTrackers,
+      issueTrackers = [],
       performanceTags,
       frameworks,
     } = this.props;
@@ -567,9 +569,4 @@ StatusDropdown.propTypes = {
   updateViewState: PropTypes.func.isRequired,
   filteredAlerts: PropTypes.arrayOf(PropTypes.shape({})),
   performanceTags: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-};
-
-StatusDropdown.defaultProps = {
-  issueTrackers: [],
-  filteredAlerts: [],
 };
