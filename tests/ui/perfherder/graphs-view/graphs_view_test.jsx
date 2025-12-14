@@ -114,7 +114,6 @@ const graphsViewControls = async (
         replicates={replicates}
       />
     </Router>,
-    { legacyRoot: true },
   );
 
   // Wait for initial async state updates to complete
@@ -546,12 +545,46 @@ test('Changing the platform dropdown while filtered by text in the Test Data Mod
   // linux64 (default platform of the modal) and windows7-32 (the platform below)
   // have this test so we need to make sure the test is first removed before being
   // added back
-  // Only wait for removal if the element still exists
-  if (linuxTest && linuxTest.isConnected) {
-    await waitForElementToBeRemoved(linuxTest);
+  // Only wait for removal if the element still exists and is in the document
+  try {
+    if (
+      linuxTest &&
+      linuxTest.isConnected &&
+      document.body.contains(linuxTest)
+    ) {
+      await waitForElementToBeRemoved(linuxTest);
+    }
+  } catch {
+    // Element was already removed, continue
   }
 
-  presentTests = await waitFor(() => getByTestId('tests'));
+  // With React 18's concurrent mode, re-apply the filter after platform change
+  // to ensure filtering is correctly applied to the new platform's data
+  const reapplyFilter = await waitFor(() =>
+    getByPlaceholderText(inputPlaceholder),
+  );
+  // Clear and re-enter the filter text to trigger filtering on new data
+  fireEvent.change(reapplyFilter, { target: { value: '' } });
+  await act(async () => {
+    await new Promise((resolve) => {
+      setTimeout(resolve, 100);
+    });
+  });
+  setFilterText(reapplyFilter, 'a11yr opt e10s stylo');
+
+  // Wait for the filter to be applied after platform change
+  presentTests = await waitFor(
+    () => {
+      const tests = getByTestId('tests');
+      // Wait until the filter has been applied and we have only 1 result
+      if (tests.children.length !== 1) {
+        throw new Error('Waiting for filter to be applied');
+      }
+      return tests;
+    },
+    { timeout: 3000 },
+  );
+
   const windowsTest = await waitFor(() =>
     getByTitle('a11yr opt e10s stylo firefox'),
   );
