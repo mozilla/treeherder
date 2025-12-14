@@ -33,12 +33,24 @@ export default [
       parser: babelParser,
     },
     files: ['**/*.js', '**/*.jsx'],
+    settings: {
+      'import/resolver': {
+        node: {
+          extensions: ['.js', '.jsx', '.json'],
+          moduleDirectory: ['node_modules', 'ui'],
+        },
+      },
+    },
     rules: {
       'class-methods-use-this': 'off',
       'consistent-return': 'off',
       'default-case': 'off',
       'default-param-last': 'off',
       'import/extensions': 'off',
+      'import/no-unresolved': [
+        'error',
+        { ignore: ['^react-resizable-panels$'] },
+      ],
       'jsx-a11y/click-events-have-key-events': 'off',
       'no-alert': 'off',
       'no-continue': 'off',
