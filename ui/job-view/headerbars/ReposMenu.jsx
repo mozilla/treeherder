@@ -63,6 +63,7 @@ export default function ReposMenu(props) {
         >
           {groupedRepos.map((group) => (
             <Dropdown.Item
+              as="div"
               className="repogroup dropdown-item col"
               key={group.name}
             >

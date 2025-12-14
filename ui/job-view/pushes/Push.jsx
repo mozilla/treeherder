@@ -42,6 +42,26 @@ import PushJobs from './PushJobs';
 const watchCycleStates = ['none', 'push', 'job', 'none'];
 const platformArray = Object.values(thPlatformMap);
 
+export const getJobCount = (jobs) => {
+  const filteredByCommit = jobs.filter(
+    (job) => job.failure_classification_id === 2,
+  );
+
+  return jobs.reduce(
+    (memo, job) =>
+      job.result !== 'superseded'
+        ? { ...memo, [job.state]: memo[job.state] + 1 }
+        : memo,
+    {
+      unscheduled: 0,
+      pending: 0,
+      running: 0,
+      completed: 0,
+      fixedByCommit: filteredByCommit.length,
+    },
+  );
+};
+
 // Bug 1638424 - Transform WPT test paths to look like paths
 // from a local checkout
 export const transformTestPath = (path) => {
@@ -144,26 +164,6 @@ function Push({
   useEffect(() => {
     manifestsByTaskRef.current = manifestsByTask;
   }, [manifestsByTask]);
-
-  const getJobCount = useCallback((jobs) => {
-    const filteredByCommit = jobs.filter(
-      (job) => job.failure_classification_id === 2,
-    );
-
-    return jobs.reduce(
-      (memo, job) =>
-        job.result !== 'superseded'
-          ? { ...memo, [job.state]: memo[job.state] + 1 }
-          : memo,
-      {
-        unscheduled: 0,
-        pending: 0,
-        running: 0,
-        completed: 0,
-        fixedByCommit: filteredByCommit.length,
-      },
-    );
-  }, []);
 
   const getJobGroupInfo = useCallback((job) => {
     const {
@@ -309,7 +309,6 @@ function Push({
       push,
       sortGroupedJobs,
       groupJobByPlatform,
-      getJobCount,
       updateJobMap,
       recalculateUnclassifiedCounts,
     ],
@@ -790,8 +789,6 @@ const mapStateToProps = ({
   bugSummaryMap,
   router,
 });
-
-export { Push as PushClass };
 
 export default connect(mapStateToProps, {
   notify,

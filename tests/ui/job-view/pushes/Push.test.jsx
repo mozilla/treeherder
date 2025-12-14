@@ -1,10 +1,8 @@
-import { PushClass } from '../../../../ui/job-view/pushes/Push';
+import { getJobCount } from '../../../../ui/job-view/pushes/Push';
 
 describe('Push', () => {
   describe('getJobCount', () => {
     it('returns counts including unscheduled jobs', () => {
-      const push = new PushClass({ push: { id: 1 } });
-
       const jobList = [
         {
           id: 1,
@@ -104,7 +102,7 @@ describe('Push', () => {
         },
       ];
 
-      const counts = push.getJobCount(jobList);
+      const counts = getJobCount(jobList);
 
       expect(counts).toHaveProperty('unscheduled');
       expect(counts.unscheduled).toBe(5);
@@ -115,9 +113,7 @@ describe('Push', () => {
     });
 
     it('initializes unscheduled count to 0 when no jobs', () => {
-      const push = new PushClass({ push: { id: 1 } });
-
-      const counts = push.getJobCount([]);
+      const counts = getJobCount([]);
 
       expect(counts.unscheduled).toBe(0);
       expect(counts.pending).toBe(0);

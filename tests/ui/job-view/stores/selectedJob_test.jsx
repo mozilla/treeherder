@@ -1,6 +1,6 @@
 import fetchMock from 'fetch-mock';
 import thunk from 'redux-thunk';
-import { waitFor } from '@testing-library/react';
+import { waitFor, act } from '@testing-library/react';
 import configureMockStore from 'redux-mock-store';
 import keyBy from 'lodash/keyBy';
 import { createBrowserHistory } from 'history';
@@ -40,7 +40,9 @@ describe('SelectedJob Redux store', () => {
 
   afterEach(() => {
     fetchMock.reset();
-    history.push('/');
+    act(() => {
+      history.push('/');
+    });
   });
 
   test('setSelectedJob should select a job', async () => {
@@ -70,7 +72,9 @@ describe('SelectedJob Redux store', () => {
   test('setSelectedJobFromQueryString found', async () => {
     const taskRun = 'UCctvnxZR0--JcxyVGc8VA.0';
 
-    history.push(`/jobs?repo=${repoName}&selectedTaskRun=${taskRun}`);
+    act(() => {
+      history.push(`/jobs?repo=${repoName}&selectedTaskRun=${taskRun}`);
+    });
 
     const reduced = reducer(
       { selectedJob: { initialState } },
@@ -83,7 +87,9 @@ describe('SelectedJob Redux store', () => {
   test('setSelectedJobFromQueryString not in jobMap', async () => {
     const taskRun = 'VaQoWKTbSdGSwBJn6UZV9g.0';
 
-    history.push(`/jobs?repo=${repoName}&selectedTaskRun=${taskRun}`);
+    act(() => {
+      history.push(`/jobs?repo=${repoName}&selectedTaskRun=${taskRun}`);
+    });
 
     const reduced = reducer(
       { selectedJob: { initialState } },
@@ -101,7 +107,9 @@ describe('SelectedJob Redux store', () => {
   test('setSelectedJobFromQueryString not in DB', async () => {
     const taskRun = 'a824gBVmRQSBuEexnVW_Qg.0';
 
-    history.push(`/jobs?repo=${repoName}&selectedTaskRun=${taskRun}`);
+    act(() => {
+      history.push(`/jobs?repo=${repoName}&selectedTaskRun=${taskRun}`);
+    });
 
     const reduced = reducer(
       { selectedJob: { initialState } },
