@@ -8,6 +8,7 @@ import {
   fireEvent,
   getAllByTestId,
   cleanup,
+  act,
 } from '@testing-library/react';
 
 import { getProjectUrl } from '../../../ui/helpers/location';

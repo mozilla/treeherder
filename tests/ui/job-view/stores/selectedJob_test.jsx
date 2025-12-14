@@ -1,6 +1,6 @@
 import fetchMock from 'fetch-mock';
 import thunk from 'redux-thunk';
-import { waitFor } from '@testing-library/react';
+import { waitFor, act } from '@testing-library/react';
 import configureMockStore from 'redux-mock-store';
 import keyBy from 'lodash/keyBy';
 
