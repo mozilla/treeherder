@@ -8,6 +8,7 @@ import {
   fireEvent,
   getAllByTestId,
   cleanup,
+  act,
 } from '@testing-library/react';
 import { createBrowserHistory } from 'history';
 
@@ -38,7 +39,9 @@ describe('PushList', () => {
 
   beforeEach(() => {
     history = createBrowserHistory();
-    history.push(`/jobs?repo=${repoName}`);
+    act(() => {
+      history.push(`/jobs?repo=${repoName}`);
+    });
   });
 
   const currentRepo = {

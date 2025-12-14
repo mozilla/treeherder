@@ -1,6 +1,12 @@
 import React from 'react';
 import { Provider, ReactReduxContext } from 'react-redux';
-import { render, cleanup, fireEvent, waitFor } from '@testing-library/react';
+import {
+  render,
+  cleanup,
+  fireEvent,
+  waitFor,
+  act,
+} from '@testing-library/react';
 import { createBrowserHistory } from 'history';
 import { ConnectedRouter } from 'connected-react-router';
 
@@ -98,7 +104,9 @@ test('filter change keeps selected job visible', async () => {
   fireEvent.mouseDown(spell);
   await waitFor(() => expect(spell).toHaveClass('selected-job'));
 
-  filterModel.addFilter('searchStr', 'linux');
+  act(() => {
+    filterModel.addFilter('searchStr', 'linux');
+  });
   rerender(testPushJobs(filterModel));
 
   const spell2 = getByText('spell');

@@ -8,6 +8,66 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 // JSDOM doesn't implement scrollIntoView, so we mock it
 Element.prototype.scrollIntoView = jest.fn();
 
+// Suppress known act() warnings that don't affect test outcomes
+// These are caused by:
+// 1. React.lazy/Suspense async loading
+// 2. Cross-test async timing in Jest's parallel execution
+// 3. Third-party libraries (Popper.js, react-router) with async state updates
+// 4. AuthService/Login async cleanup after tests complete
+// Note: Some warnings may still appear in Jest's output due to its console capture timing
+const suppressedPatterns = [
+  'suspended resource finished loading inside a test',
+  'An update to App inside a test was not wrapped in act',
+  'An update to Router inside a test was not wrapped in act',
+  'An update to Connect(',
+];
+
+/* eslint-disable no-console */
+const originalConsoleError = console.error;
+console.error = (...args) => {
+  const message = args
+    .map((arg) => (typeof arg === 'string' ? arg : String(arg)))
+    .join(' ');
+  if (suppressedPatterns.some((pattern) => message.includes(pattern))) {
+    return;
+  }
+  originalConsoleError.apply(console, args);
+};
+
+// Mock @restart/ui's usePopper to prevent async positioning updates that cause act() warnings
+// React Bootstrap's DropdownMenu uses Popper.js which triggers async state updates outside React's control
+// This mock provides enough functionality for tooltips and overlays to render while avoiding async warnings
+jest.mock('@restart/ui/usePopper', () => {
+  // eslint-disable-next-line global-require
+  const React = require('react');
+  return function usePopper(referenceElement, popperElement, options) {
+    const [state] = React.useState({
+      placement: options?.placement || 'bottom',
+      styles: {
+        popper: {
+          position: 'absolute',
+          top: '0',
+          left: '0',
+        },
+        arrow: {},
+      },
+      attributes: {
+        popper: {
+          'data-popper-placement': options?.placement || 'bottom',
+        },
+      },
+    });
+
+    return {
+      ...state,
+      update: jest.fn(() => Promise.resolve(state)),
+      forceUpdate: jest.fn(),
+      arrowStyles: {},
+      outOfBoundaries: false,
+    };
+  };
+});
+
 const mockBuildUrl = jest.fn((root, taskId, path) => {
   return `${root}/${taskId}/artifacts/${path}`;
 });
