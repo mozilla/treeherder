@@ -10,7 +10,7 @@ PyPOM==2.2.4
 pre-commit==4.3.0
 
 # for test driven development
-pytest-testmon==2.1.3
+pytest-testmon==2.2.0
 pytest-watch==4.2.0
 
 # Required by django-extension's runserver_plus command.
