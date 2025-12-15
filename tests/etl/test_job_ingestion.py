@@ -307,3 +307,132 @@ def test_ingest_job_with_updated_job_group(
 
     assert second_job.job_group.name == second_job_datum["job"]["group_name"]
     assert first_job.job_group.name == first_job_datum["job"]["group_name"]
+
+
+def test_unscheduled_task_full_lifecycle(
+    test_repository, failure_classifications, sample_data, sample_push, mock_log_parser
+):
+    """Test complete lifecycle: unscheduled -> pending -> running -> completed"""
+    job_datum = copy.deepcopy(sample_data.job_data[0])
+    job_guid = job_datum["job"]["job_guid"]
+    original_logs = job_datum["job"].get("logs", [])
+
+    # 1. Ingest as unscheduled
+    job_datum["job"]["state"] = "unscheduled"
+    job_datum["job"]["result"] = "unknown"
+    if "logs" in job_datum["job"]:
+        del job_datum["job"]["logs"]
+    test_utils.do_job_ingestion(test_repository, [job_datum], sample_push)
+
+    assert Job.objects.count() == 1
+    job = Job.objects.get(guid=job_guid)
+    assert job.state == "unscheduled"
+    assert job.result == "unknown"
+
+    # 2. Transition to pending
+    job_datum["job"]["state"] = "pending"
+    test_utils.do_job_ingestion(test_repository, [job_datum], sample_push)
+
+    job = Job.objects.get(guid=job_guid)
+    assert job.state == "pending"
+    assert job.result == "unknown"
+
+    # 3. Transition to running
+    job_datum["job"]["state"] = "running"
+    test_utils.do_job_ingestion(test_repository, [job_datum], sample_push)
+
+    job = Job.objects.get(guid=job_guid)
+    assert job.state == "running"
+    assert job.result == "unknown"
+
+    # 4. Transition to completed
+    job_datum["job"]["state"] = "completed"
+    job_datum["job"]["result"] = "success"
+    if original_logs:
+        job_datum["job"]["logs"] = original_logs
+    test_utils.do_job_ingestion(test_repository, [job_datum], sample_push)
+
+    job = Job.objects.get(guid=job_guid)
+    assert job.state == "completed"
+    assert job.result == "success"
+
+
+def test_unscheduled_task_out_of_order(
+    test_repository, failure_classifications, sample_data, sample_push, mock_log_parser
+):
+    """Test receiving pending before task-defined"""
+    job_datum = copy.deepcopy(sample_data.job_data[0])
+    job_guid = job_datum["job"]["job_guid"]
+
+    # 1. Ingest as pending first
+    job_datum["job"]["state"] = "pending"
+    job_datum["job"]["result"] = "unknown"
+    if "logs" in job_datum["job"]:
+        del job_datum["job"]["logs"]
+    test_utils.do_job_ingestion(test_repository, [job_datum], sample_push)
+
+    assert Job.objects.count() == 1
+    job = Job.objects.get(guid=job_guid)
+    assert job.state == "pending"
+
+    # 2. Try to transition back to unscheduled (should be rejected)
+    job_datum["job"]["state"] = "unscheduled"
+    test_utils.do_job_ingestion(test_repository, [job_datum], sample_push)
+
+    job = Job.objects.get(guid=job_guid)
+    assert job.state == "pending"  # Should stay pending
+
+
+def test_unscheduled_to_completed_direct(
+    test_repository, failure_classifications, sample_data, sample_push, mock_log_parser
+):
+    """Test task that completes without pending/running states"""
+    job_datum = copy.deepcopy(sample_data.job_data[0])
+    job_guid = job_datum["job"]["job_guid"]
+
+    # 1. Ingest as unscheduled
+    job_datum["job"]["state"] = "unscheduled"
+    job_datum["job"]["result"] = "unknown"
+    if "logs" in job_datum["job"]:
+        del job_datum["job"]["logs"]
+    test_utils.do_job_ingestion(test_repository, [job_datum], sample_push)
+
+    assert Job.objects.count() == 1
+    job = Job.objects.get(guid=job_guid)
+    assert job.state == "unscheduled"
+
+    # 2. Jump directly to completed (valid for tasks that fail immediately)
+    job_datum["job"]["state"] = "completed"
+    job_datum["job"]["result"] = "exception"
+    job_datum["job"]["logs"] = []
+    test_utils.do_job_ingestion(test_repository, [job_datum], sample_push)
+
+    job = Job.objects.get(guid=job_guid)
+    assert job.state == "completed"
+    assert job.result == "exception"
+
+
+def test_unscheduled_ingestion_idempotent(
+    test_repository, failure_classifications, sample_data, sample_push, mock_log_parser
+):
+    """Test that ingesting the same unscheduled job twice doesn't create duplicates"""
+    job_data = copy.deepcopy(sample_data.job_data[:1])
+    job_guid = job_data[0]["job"]["job_guid"]
+
+    # Create unscheduled job
+    job_data[0]["job"]["state"] = "unscheduled"
+    job_data[0]["job"]["result"] = "unknown"
+    if "logs" in job_data[0]["job"]:
+        del job_data[0]["job"]["logs"]
+    test_utils.do_job_ingestion(test_repository, job_data, sample_push)
+
+    assert Job.objects.count() == 1
+    job = Job.objects.get(guid=job_guid)
+    assert job.state == "unscheduled"
+
+    # Ingest same unscheduled job again (should not create duplicate)
+    test_utils.do_job_ingestion(test_repository, job_data, sample_push)
+
+    assert Job.objects.count() == 1
+    job = Job.objects.get(guid=job_guid)
+    assert job.state == "unscheduled"

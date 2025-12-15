@@ -38,6 +38,15 @@ const ShortcutTable = function ShortcutTable() {
             </tr>
             <tr>
               <td>
+                <kbd>s</kbd>
+              </td>
+              <td>
+                Toggle unscheduled jobs which wait on dependening tasks to
+                complete
+              </td>
+            </tr>
+            <tr>
+              <td>
                 <kbd>j</kbd> or <kbd>n</kbd>
               </td>
               <td>Select next unclassified failure</td>

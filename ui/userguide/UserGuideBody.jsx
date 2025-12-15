@@ -67,6 +67,10 @@ const notations = [
     explanation: 'Yellow, unknown',
   },
   {
+    classes: 'btn-unscheduled ug-btn-bg',
+    explanation: 'Turquoise, unscheduled',
+  },
+  {
     classes: 'btn-ltblue ug-btn ug-btn-bg',
     explanation: 'Light blue, superseded',
   },

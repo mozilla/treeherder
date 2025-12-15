@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 PULSE_GUARDIAN_URL = "https://pulseguardian.mozilla.org/"
 
 TASKCLUSTER_TASK_BINDINGS = [
+    "exchange/taskcluster-queue/v1/task-defined.#",
     "exchange/taskcluster-queue/v1/task-pending.#",
     "exchange/taskcluster-queue/v1/task-running.#",
     "exchange/taskcluster-queue/v1/task-completed.#",

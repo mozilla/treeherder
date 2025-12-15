@@ -158,6 +158,8 @@
   --status-pending: #757575;
   --status-pending-hover: #808080;
   --status-running: black;
+  --status-unscheduled: #26d7b6;
+  --status-unscheduled-hover: #21b69b;
   --status-unknown: #8a6d3b;
   --status-unknown-bg: #fcf8e3;
   --status-unknown-border: #fbd890;
@@ -401,6 +403,21 @@
 .job-btn[data-status='usercancel']:not(.selected-job):active {
   background-color: var(--status-usercancel);
   color: white;
+}
+
+/* Unscheduled (tan/beige) */
+.job-btn[data-status='unscheduled'],
+.group-btn[data-status='unscheduled'] {
+  color: var(--status-unscheduled);
+}
+.job-btn[data-status='unscheduled']:not(.selected-job),
+.group-btn[data-status='unscheduled'] {
+  background-color: transparent;
+}
+.job-btn[data-status='unscheduled']:not(.selected-job):hover,
+.job-btn[data-status='unscheduled']:not(.selected-job):focus,
+.job-btn[data-status='unscheduled']:not(.selected-job):active {
+  color: var(--status-unscheduled-hover);
 }
 
 .group-select-all-runnable {

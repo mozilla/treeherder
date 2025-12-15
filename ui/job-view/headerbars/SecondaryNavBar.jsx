@@ -37,6 +37,7 @@ class SecondaryNavBar extends React.PureComponent {
       'failures',
       thFilterGroups.nonfailures,
       'in progress',
+      'unscheduled',
     ].reduce((acc, val) => acc.concat(val), []);
 
     this.state = {

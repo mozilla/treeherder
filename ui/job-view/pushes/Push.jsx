@@ -160,8 +160,9 @@ class Push extends React.PureComponent {
           ? { ...memo, [job.state]: memo[job.state] + 1 }
           : memo,
       {
-        running: 0,
+        unscheduled: 0,
         pending: 0,
+        running: 0,
         completed: 0,
         fixedByCommit: filteredByCommit.length,
       },
@@ -800,6 +801,8 @@ const mapStateToProps = ({
   bugSummaryMap,
   router,
 });
+
+export { Push as PushClass };
 
 export default connect(mapStateToProps, {
   notify,
