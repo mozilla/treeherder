@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import countBy from 'lodash/countBy';
 import { Button } from 'react-bootstrap';
@@ -156,33 +156,58 @@ const GraphTooltip = ({
     );
   };
 
-  const verticalOffset = 15;
+  const tooltipRef = useRef(null);
+  const [tooltipHeight, setTooltipHeight] = useState(0);
+
+  useLayoutEffect(() => {
+    if (!tooltipRef.current) return;
+
+    const element = tooltipRef.current;
+
+    const measure = () => {
+      const h = element.getBoundingClientRect().height;
+      // prevents setting 0 height and avoid re-render loop that cause flickering
+      if (h && Math.abs(h - tooltipHeight) > 1) setTooltipHeight(h);
+    };
+
+    measure();
+    const ro = new ResizeObserver(() => measure());
+    ro.observe(element);
+
+    return () => ro.disconnect();
+  }, []);
+
+  const verticalOffset = 10;
   const horizontalOffset = x >= 1275 && windowWidth <= 1825 ? 100 : 0;
+  const effectiveHeight = tooltipHeight || 186;
   const centered = {
     x: x - 280 / 2 - horizontalOffset,
-    y: y - (186 + verticalOffset),
+    y: y - effectiveHeight - verticalOffset,
   };
 
   return (
     <foreignObject width="100%" height="100%" x={centered.x} y={centered.y}>
       <div
+        ref={tooltipRef}
         className={`graph-tooltip ${lockTooltip ? 'locked' : null}`}
         xmlns="http://www.w3.org/1999/xhtml"
         data-testid="graphTooltip"
       >
-        <Button
-          variant="outline-secondary"
-          className="close me-3 my-2 ms-2"
-          onClick={closeTooltip}
-        >
-          <FontAwesomeIcon
-            className="pointer text-white"
-            icon={faTimes}
-            size="xs"
-            title="close tooltip"
-          />
-        </Button>
         <div className="body">
+          <div className="position-relative m-0">
+            <Button
+              variant="outline-secondary"
+              className="close position-absolute end-0 m-0 px-2"
+              onClick={closeTooltip}
+            >
+              <FontAwesomeIcon
+                className="pointer text-white"
+                icon={faTimes}
+                size="xs"
+                title="close tooltip"
+              />
+            </Button>
+          </div>
           <div>
             <p data-testid="repoName">({testDetails.repository_name})</p>
             <p className="small" data-testid="platform">
@@ -195,7 +220,7 @@ const GraphTooltip = ({
               {testDetails.measurementUnit && (
                 <span> {testDetails.measurementUnit}</span>
               )}
-              <span className="text-muted">
+              <span className="text-secondary">
                 {testDetails.lowerIsBetter
                   ? ' (lower is better)'
                   : ' (higher is better)'}
@@ -260,7 +285,7 @@ const GraphTooltip = ({
                   />
                   {` Alert # ${dataPointDetails.alertSummary.id}`}
                 </Link>
-                <span className="text-muted">
+                <span className="text-secondary">
                   {` - ${alertStatus} `}
                   {alert && alert.related_summary_id && (
                     <span>
@@ -295,7 +320,7 @@ const GraphTooltip = ({
                   />
                   {` Alert # ${datum.commonAlert.id}`}
                 </Link>
-                <span className="text-muted">{` - ${commonAlertStatus} `}</span>
+                <span className="text-secondary">{` - ${commonAlertStatus} `}</span>
                 <Clipboard
                   text={datum.commonAlert.id.toString()}
                   description="Alert Summary id"
