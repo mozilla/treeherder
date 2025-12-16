@@ -2,6 +2,7 @@ import logging
 
 import newrelic.agent
 
+from treeherder.model.models import JobLog
 from treeherder.utils.http import make_request
 
 from .artifactbuilders import LogViewerArtifactBuilder, PerformanceDataArtifactBuilder
@@ -82,6 +83,15 @@ class ArtifactBuilderCollection:
         Stream lines from the gzip file and run each parser against it,
         building the ``artifact`` as we go.
         """
+
+        job_log = JobLog.objects.get(url=self.url)
+        if job_log.parsing_attempts >= 3:
+            job_log.update_status(JobLog.SKIPPED)
+            raise LogSizeError(
+                f"Log failed to parse successfully 3 times, skipping. This is often caused by large log files. {self.url}"
+            )
+        job_log.parsing_attempts += 1
+        job_log.save()
         with make_request(self.url, stream=True) as response:
             download_size_in_bytes = int(response.headers.get("Content-Length", -1))
 
