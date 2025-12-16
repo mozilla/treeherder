@@ -171,6 +171,7 @@ const GraphTooltip = ({
     };
 
     measure();
+    if (typeof ResizeObserver === 'undefined') return undefined;
     const ro = new ResizeObserver(() => measure());
     ro.observe(element);
 
@@ -197,7 +198,7 @@ const GraphTooltip = ({
           <div className="position-relative m-0">
             <Button
               variant="outline-secondary"
-              className="close position-absolute end-0 m-0 px-2"
+              className="close position-absolute end-0 m-0 px-1 py-0"
               onClick={closeTooltip}
             >
               <FontAwesomeIcon
@@ -272,7 +273,6 @@ const GraphTooltip = ({
                 description="Revision"
               />
             </span>
-
             {dataPointDetails.alertSummary && (
               <p>
                 <Link
