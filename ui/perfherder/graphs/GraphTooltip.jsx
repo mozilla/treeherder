@@ -272,6 +272,7 @@ const GraphTooltip = ({
                 description="Revision"
               />
             </span>
+
             {dataPointDetails.alertSummary && (
               <p>
                 <Link
