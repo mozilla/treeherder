@@ -2025,7 +2025,7 @@
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
-      "name": "enterprise-firefox-try",
+      "name": "enterprise-firefox-pr",
       "url": "https://github.com/mozilla/enterprise-firefox",
       "branch": "pull request",
       "active_status": "active",
