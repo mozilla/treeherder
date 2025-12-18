@@ -67,9 +67,9 @@ def _remove_existing_jobs(data):
             # - no backwards transitions (running -> pending, pending/running -> unscheduled)
             # Allowed: unscheduled -> pending/running/completed, pending -> running/completed, running -> completed
             if (
-                current_state == "completed"
-                or (job["state"] == "pending" and current_state == "running")
-                or (job["state"] == "unscheduled" and current_state in ("pending", "running"))
+                current_state == Job.JobState.COMPLETED
+                or (job["state"] == Job.JobState.PENDING and current_state == Job.JobState.RUNNING)
+                or (job["state"] == Job.JobState.UNSCHEDULED and current_state in (Job.JobState.PENDING, Job.JobState.RUNNING))
             ):
                 continue
             new_data.append(datum)
@@ -513,5 +513,5 @@ def store_job_data(repository, original_data):
     if superseded_job_guid_placeholders:
         for job_guid, superseded_by_guid in superseded_job_guid_placeholders:
             Job.objects.filter(guid=superseded_by_guid).update(
-                result="superseded", state="completed"
+                result="superseded", state=Job.JobState.COMPLETED
             )
