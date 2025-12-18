@@ -69,7 +69,10 @@ def _remove_existing_jobs(data):
             if (
                 current_state == Job.JobState.COMPLETED
                 or (job["state"] == Job.JobState.PENDING and current_state == Job.JobState.RUNNING)
-                or (job["state"] == Job.JobState.UNSCHEDULED and current_state in (Job.JobState.PENDING, Job.JobState.RUNNING))
+                or (
+                    job["state"] == Job.JobState.UNSCHEDULED
+                    and current_state in (Job.JobState.PENDING, Job.JobState.RUNNING)
+                )
             ):
                 continue
             new_data.append(datum)
