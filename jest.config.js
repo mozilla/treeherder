@@ -37,7 +37,7 @@ module.exports = {
       },
     ],
   },
-  transformIgnorePatterns: ['node_modules/(?!taskcluster-client-web)'],
+  transformIgnorePatterns: ['node_modules/(?!taskcluster-client-web|zustand)'],
   setupFilesAfterEnv: ['<rootDir>/tests/ui/test-setup.js'],
   testPathIgnorePatterns: ['tests/ui/integration'],
 

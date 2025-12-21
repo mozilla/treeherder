@@ -9,14 +9,12 @@ import {
   act,
 } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
-import { Provider } from 'react-redux';
 
 import Health from '../../../ui/push-health/Health';
 import pushHealth from '../mock/push_health';
 import reposFixture from '../mock/repositories';
 import { getApiUrl } from '../../../ui/helpers/url';
 import { getProjectUrl } from '../../../ui/helpers/location';
-import { configureStore } from '../../../ui/job-view/redux/configureStore';
 
 // Wrapper component that provides location to Health
 function HealthWithLocation(props) {
@@ -131,13 +129,10 @@ describe('Health', () => {
   const testHealth = (
     initialEntries = [`/push-health?repo=${repo}&revision=${revision}`],
   ) => {
-    const store = configureStore();
     return (
-      <Provider store={store}>
-        <MemoryRouter initialEntries={initialEntries}>
-          <HealthWithLocation notify={() => {}} clearNotification={() => {}} />
-        </MemoryRouter>
-      </Provider>
+      <MemoryRouter initialEntries={initialEntries}>
+        <HealthWithLocation notify={() => {}} clearNotification={() => {}} />
+      </MemoryRouter>
     );
   };
 
