@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
@@ -13,7 +12,7 @@ import { thEvents } from '../../../helpers/constants';
 import { getBugUrl } from '../../../helpers/url';
 import { longDateFormat } from '../../../helpers/display';
 import { notify } from '../../stores/notificationStore';
-import { recalculateUnclassifiedCounts } from '../../redux/stores/pushes';
+import { recalculateUnclassifiedCounts } from '../../stores/pushStore';
 
 function RelatedBugSaved(props) {
   const { deleteBug, bug } = props;
@@ -185,7 +184,7 @@ class AnnotationsTab extends React.Component {
   };
 
   deleteClassification = async (classification) => {
-    const { selectedJobFull, recalculateUnclassifiedCounts } = this.props;
+    const { selectedJobFull } = this.props;
 
     selectedJobFull.failure_classification_id = 1;
     recalculateUnclassifiedCounts();
@@ -259,8 +258,7 @@ AnnotationsTab.propTypes = {
   classificationMap: PropTypes.shape({}).isRequired,
   bugs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   classifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  recalculateUnclassifiedCounts: PropTypes.func.isRequired,
   selectedJobFull: PropTypes.shape({}).isRequired,
 };
 
-export default connect(null, { recalculateUnclassifiedCounts })(AnnotationsTab);
+export default AnnotationsTab;

@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { Button, Modal, OverlayTrigger, Tooltip, Form } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -19,7 +18,8 @@ import {
 import { confirmFailure } from '../helpers/job';
 import { create } from '../helpers/http';
 import { omittedLeads, parseSummary, getCrashSignatures } from '../helpers/bug';
-import { notify } from '../job-view/redux/stores/notifications';
+import { notify } from '../job-view/stores/notificationStore';
+import { usePushStore } from '../job-view/stores/pushStore';
 
 export class BugFilerClass extends React.Component {
   constructor(props) {
@@ -195,12 +195,27 @@ export class BugFilerClass extends React.Component {
       thisFailure,
       keywords,
       crashSignatures,
+      // Initialize from Zustand store
+      decisionTaskMap: usePushStore.getState().decisionTaskMap,
     };
   }
 
   componentDidMount() {
+    // Subscribe to Zustand store
+    this.unsubscribePush = usePushStore.subscribe((state) => {
+      this.setState({
+        decisionTaskMap: state.decisionTaskMap,
+      });
+    });
+
     this.checkForSecurityIssue();
     this.findProductByPath();
+  }
+
+  componentWillUnmount() {
+    if (this.unsubscribePush) {
+      this.unsubscribePush();
+    }
   }
 
   getUnhelpfulSummaryReason(summary) {
@@ -584,7 +599,8 @@ export class BugFilerClass extends React.Component {
   }
 
   handleConfirmFailure = async () => {
-    const { selectedJob, notify, decisionTaskMap, currentRepo } = this.props;
+    const { selectedJob, currentRepo } = this.props;
+    const { decisionTaskMap } = this.state;
     confirmFailure(selectedJob, notify, decisionTaskMap, currentRepo);
   };
 
@@ -989,13 +1005,8 @@ BugFilerClass.propTypes = {
   reftestUrl: PropTypes.string.isRequired,
   successCallback: PropTypes.func.isRequired,
   platform: PropTypes.string.isRequired,
-  notify: PropTypes.func.isRequired,
   selectedJob: PropTypes.shape({}).isRequired,
   currentRepo: PropTypes.shape({ name: PropTypes.string }).isRequired,
 };
 
-const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({
-  decisionTaskMap,
-});
-
-export default connect(mapStateToProps, { notify })(BugFilerClass);
+export default BugFilerClass;

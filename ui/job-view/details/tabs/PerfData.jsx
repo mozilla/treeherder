@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 
 class PerfData extends React.PureComponent {
   render() {
@@ -99,8 +98,4 @@ PerfData.propTypes = {
   perfJobDetail: PropTypes.arrayOf(PropTypes.shape({})),
 };
 
-const mapStateToProps = (state) => ({
-  decisionTaskMap: state.pushes.decisionTaskMap,
-});
-
-export default connect(mapStateToProps)(PerfData);
+export default PerfData;

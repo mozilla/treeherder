@@ -7,7 +7,6 @@ import {
 } from 'react';
 import { Modal } from 'react-bootstrap';
 import { PanelGroup, Panel, PanelResizeHandle } from 'react-resizable-panels';
-import { useSelector, useDispatch } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { thFavicons, thDefaultRepo, thEvents } from '../helpers/constants';
@@ -36,7 +35,7 @@ import DetailsPanel from './details/DetailsPanel';
 import PushList from './pushes/PushList';
 import KeyboardShortcuts from './KeyboardShortcuts';
 import { useNotificationStore } from './stores/notificationStore';
-import { fetchPushes } from './redux/stores/pushes';
+import { usePushStore, fetchPushes } from './stores/pushStore';
 
 import '../css/treeherder.css';
 import '../css/treeherder-navbar-panels.css';
@@ -102,11 +101,10 @@ const getOrSetRepo = (navigate) => {
 const App = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const panelGroupRef = useRef();
 
-  // Redux state
-  const jobMap = useSelector((state) => state.pushes.jobMap);
+  // Zustand state
+  const jobMap = usePushStore((state) => state.jobMap);
 
   // Get initial URL params
   const urlParams = getAllUrlParams();
@@ -293,7 +291,7 @@ const App = () => {
     });
 
     // Start (pre)fetching pushes immediately
-    dispatch(fetchPushes());
+    fetchPushes();
 
     window.addEventListener('resize', updateDimensions, false);
     window.addEventListener('storage', handleStorageEvent);
