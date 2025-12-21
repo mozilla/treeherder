@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { VictoryChart, VictoryLine, VictoryLegend } from 'victory';
 import { Col } from 'react-bootstrap';
 
-const Graph = ({ graphData, title, legendData }) => (
+const Graph = ({ graphData = null, title = '', legendData = [] }) => (
   <Col
     className="mx-auto pb-3"
     style={{ maxHeight: '300px', maxWidth: '700px' }}
@@ -50,12 +50,6 @@ Graph.propTypes = {
   ),
   title: PropTypes.string,
   legendData: PropTypes.arrayOf(PropTypes.shape({})),
-};
-
-Graph.defaultProps = {
-  graphData: null,
-  title: '',
-  legendData: [],
 };
 
 export default Graph;

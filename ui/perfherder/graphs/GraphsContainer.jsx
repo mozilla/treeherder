@@ -3,6 +3,7 @@
 import React from 'react';
 import { Row, Col } from 'react-bootstrap';
 import PropTypes from 'prop-types';
+import flatMap from 'lodash/flatMap';
 import {
   VictoryBar,
   VictoryChart,
@@ -14,9 +15,8 @@ import {
   createContainer,
   VictoryTooltip,
 } from 'victory';
-import moment from 'moment';
-import flatMap from 'lodash/flatMap';
 
+import dayjs from '../../helpers/dayjs';
 import { abbreviatedNumber } from '../perf-helpers/helpers';
 
 import TableView from './TableView';
@@ -34,7 +34,8 @@ class GraphsContainer extends React.Component {
     super(props);
     this.leftChartPadding = 25;
     this.rightChartPadding = 10;
-    const scatterPlotData = flatMap(this.props.testData, (item) =>
+    const testData = props.testData || [];
+    const scatterPlotData = flatMap(testData, (item) =>
       item.visible ? item.data : [],
     );
     const zoomDomain = this.initZoomDomain(scatterPlotData);
@@ -268,8 +269,8 @@ class GraphsContainer extends React.Component {
     );
 
     return graphData.length > 0
-      ? moment.utc(x).format('MMM DD')
-      : moment.utc().format('MMM DD');
+      ? dayjs.utc(x).format('MMM DD')
+      : dayjs.utc().format('MMM DD');
   };
 
   computeYAxisLabel = () => {
@@ -317,11 +318,13 @@ class GraphsContainer extends React.Component {
 
   render() {
     const {
-      testData,
-      changelogData,
+      testData = [],
+      changelogData = [],
       showTable,
-      zoom,
-      highlightedRevisions,
+      zoom = {},
+      selectedDataPoint,
+      highlightAlerts = true,
+      highlightedRevisions = ['', ''],
       highlightChangelogData,
       highlightCommonAlerts,
     } = this.props;
@@ -741,15 +744,6 @@ GraphsContainer.propTypes = {
     PropTypes.arrayOf(PropTypes.string),
   ]),
   timeRange: PropTypes.shape({}).isRequired,
-};
-
-GraphsContainer.defaultProps = {
-  testData: [],
-  changelogData: [],
-  zoom: {},
-  selectedDataPoint: undefined,
-  highlightAlerts: true,
-  highlightedRevisions: ['', ''],
 };
 
 export default GraphsContainer;

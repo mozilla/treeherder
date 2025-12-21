@@ -1,5 +1,8 @@
 # Ignore generated directories.
 .*/
+venv/
+node_modules/
+pnpm-lock.yaml
 
 # Ignore our legacy JS since it will be rewritten when converted to React.
 ui/js/

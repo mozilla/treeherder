@@ -167,6 +167,11 @@ describe('Push', () => {
     const { store } = configureStore();
     const { getByText } = render(testPush(store, new FilterModel()));
 
+    // Wait for initial render to complete and state updates to settle
+    await waitFor(() => {
+      expect(getByText('Jit8')).toBeInTheDocument();
+    });
+
     const validateJob = async (name, testPaths) => {
       const jobEl = await waitFor(() => getByText(name));
       // Fetch the React instance of an object from a DOM element.

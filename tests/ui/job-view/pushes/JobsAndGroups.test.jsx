@@ -1,7 +1,9 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
-import JobsAndGroups from '../../../../ui/job-view/pushes/JobsAndGroups';
+import JobsAndGroups, {
+  getIntermittentJobTypeNames,
+} from '../../../../ui/job-view/pushes/JobsAndGroups';
 
 // Mock the child components
 jest.mock('../../../../ui/job-view/pushes/JobButton', () => {
@@ -46,8 +48,17 @@ describe('JobsAndGroups', () => {
     jest.clearAllMocks();
   });
 
+  const renderInTable = (ui) =>
+    render(
+      <table>
+        <tbody>
+          <tr>{ui}</tr>
+        </tbody>
+      </table>,
+    );
+
   it('renders correctly with no groups', () => {
-    render(<JobsAndGroups {...defaultProps} />);
+    renderInTable(<JobsAndGroups {...defaultProps} />);
 
     const jobRow = screen.getByRole('cell');
     expect(jobRow).toHaveClass('job-row');
@@ -72,7 +83,7 @@ describe('JobsAndGroups', () => {
       },
     ];
 
-    render(<JobsAndGroups {...defaultProps} groups={groups} />);
+    renderInTable(<JobsAndGroups {...defaultProps} groups={groups} />);
 
     expect(screen.getByTestId('job-group-group1')).toBeInTheDocument();
     expect(screen.getByTestId('job-group-group2')).toBeInTheDocument();
@@ -96,7 +107,7 @@ describe('JobsAndGroups', () => {
       },
     ];
 
-    render(<JobsAndGroups {...defaultProps} groups={groups} />);
+    renderInTable(<JobsAndGroups {...defaultProps} groups={groups} />);
 
     expect(screen.getByTestId('job-group-group1')).toBeInTheDocument();
     expect(screen.queryByTestId('job-group-group2')).not.toBeInTheDocument();
@@ -130,7 +141,7 @@ describe('JobsAndGroups', () => {
       },
     ];
 
-    render(<JobsAndGroups {...defaultProps} groups={groups} />);
+    renderInTable(<JobsAndGroups {...defaultProps} groups={groups} />);
 
     expect(screen.queryByTestId('job-group-group1')).not.toBeInTheDocument();
     expect(screen.getByTestId('job-button-1')).toBeInTheDocument();
@@ -165,7 +176,7 @@ describe('JobsAndGroups', () => {
       },
     ];
 
-    render(<JobsAndGroups {...defaultProps} groups={groups} />);
+    renderInTable(<JobsAndGroups {...defaultProps} groups={groups} />);
 
     // The second job should be marked as intermittent because there's a passing job with the same name
     expect(screen.getByTestId('job-button-2')).toHaveAttribute(
@@ -197,7 +208,7 @@ describe('JobsAndGroups', () => {
       },
     ];
 
-    render(<JobsAndGroups {...defaultProps} groups={groups} />);
+    renderInTable(<JobsAndGroups {...defaultProps} groups={groups} />);
 
     // The first group should have a confirm group
     expect(
@@ -207,8 +218,6 @@ describe('JobsAndGroups', () => {
 
   describe('getIntermittentJobTypeNames', () => {
     it('identifies intermittent jobs based on failure ratio', () => {
-      const component = new JobsAndGroups(defaultProps);
-
       const groupJobs = [
         {
           id: 1,
@@ -227,17 +236,13 @@ describe('JobsAndGroups', () => {
         },
       ];
 
-      const intermittentJobTypeNames = component.getIntermittentJobTypeNames(
-        groupJobs,
-      );
+      const intermittentJobTypeNames = getIntermittentJobTypeNames(groupJobs);
 
       // test-job-1 should be identified as intermittent because 1/3 of the jobs failed (below the 0.5 threshold)
       expect(intermittentJobTypeNames.has('test-job-1')).toBe(true);
     });
 
     it('does not identify jobs as intermittent if failure ratio is too high', () => {
-      const component = new JobsAndGroups(defaultProps);
-
       const groupJobs = [
         {
           id: 1,
@@ -256,17 +261,13 @@ describe('JobsAndGroups', () => {
         },
       ];
 
-      const intermittentJobTypeNames = component.getIntermittentJobTypeNames(
-        groupJobs,
-      );
+      const intermittentJobTypeNames = getIntermittentJobTypeNames(groupJobs);
 
       // test-job-1 should not be identified as intermittent because 2/3 of the jobs failed (above the 0.5 threshold)
       expect(intermittentJobTypeNames.has('test-job-1')).toBe(false);
     });
 
     it('identifies jobs as intermittent if they have a confirm job', () => {
-      const component = new JobsAndGroups(defaultProps);
-
       const groupJobs = [
         {
           id: 1,
@@ -284,7 +285,7 @@ describe('JobsAndGroups', () => {
         ],
       };
 
-      const intermittentJobTypeNames = component.getIntermittentJobTypeNames(
+      const intermittentJobTypeNames = getIntermittentJobTypeNames(
         groupJobs,
         confirmGroup,
       );
@@ -294,8 +295,6 @@ describe('JobsAndGroups', () => {
     });
 
     it('does not identify jobs as intermittent if they have a failing confirm job', () => {
-      const component = new JobsAndGroups(defaultProps);
-
       const groupJobs = [
         {
           id: 1,
@@ -313,7 +312,7 @@ describe('JobsAndGroups', () => {
         ],
       };
 
-      const intermittentJobTypeNames = component.getIntermittentJobTypeNames(
+      const intermittentJobTypeNames = getIntermittentJobTypeNames(
         groupJobs,
         confirmGroup,
       );

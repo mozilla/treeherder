@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 export default function JobCount(props) {
-  const { className, title, onClick, count, status } = props;
+  const { className = '', title, onClick, count, status } = props;
   const classes = [
     className,
     'btn group-btn btn-xs job-group-count filter-shown',
@@ -28,8 +28,4 @@ JobCount.propTypes = {
   title: PropTypes.string.isRequired,
   onClick: PropTypes.func.isRequired,
   count: PropTypes.number.isRequired,
-};
-
-JobCount.defaultProps = {
-  className: '',
 };
