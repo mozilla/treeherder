@@ -1,5 +1,5 @@
-import React from 'react';
-import { Route, Switch } from 'react-router-dom';
+import React, { useState, useCallback } from 'react';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 
 import {
   clearNotificationAtIndex,
@@ -22,100 +22,80 @@ import '../css/treeherder-notifications.css';
 import './pushhealth.css';
 import 'react-tabs/style/react-tabs.css';
 
-function hasProps(search) {
+const hasProps = (search) => {
   const params = new URLSearchParams(search);
-
   return params.get('repo') && params.get('revision');
-}
+};
 
-class App extends React.Component {
-  constructor(props) {
-    super(props);
+const App = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [user, setUser] = useState({ isLoggedIn: false });
+  const [notifications, setNotifications] = useState([]);
 
-    this.state = {
-      user: { isLoggedIn: false },
-      notifications: [],
-    };
-  }
-
-  notify = (message, severity, options = {}) => {
-    const { notifications } = this.state;
+  const notify = useCallback((message, severity, options = {}) => {
     const notification = {
       ...options,
       message,
       severity: severity || 'darker-info',
       created: Date.now(),
     };
-    const newNotifications = [notification, ...notifications];
+    setNotifications((prev) => [notification, ...prev]);
+  }, []);
 
-    this.setState({
-      notifications: newNotifications,
-    });
-  };
-
-  clearNotification = (index = null) => {
-    const { notifications } = this.state;
-
-    if (index) {
-      this.setState(clearNotificationAtIndex(notifications, index));
+  const clearNotification = useCallback((index = null) => {
+    if (index !== null) {
+      setNotifications(
+        (prev) => clearNotificationAtIndex(prev, index).notifications,
+      );
     } else {
-      this.setState(clearExpiredTransientNotifications(notifications));
+      setNotifications(
+        (prev) => clearExpiredTransientNotifications(prev).notifications,
+      );
     }
-  };
+  }, []);
 
-  render() {
-    const { user, notifications } = this.state;
-    const { path } = this.props.match;
-
-    return (
-      <ErrorBoundary
-        errorClasses={errorMessageClass}
-        message={genericErrorMessage}
-      >
-        <Navigation
-          user={user}
-          setUser={(user) => this.setState({ user })}
-          notify={this.notify}
+  return (
+    <ErrorBoundary
+      errorClasses={errorMessageClass}
+      message={genericErrorMessage}
+    >
+      <Navigation user={user} setUser={setUser} notify={notify} />
+      <NotificationList
+        notifications={notifications}
+        clearNotification={clearNotification}
+      />
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <MyPushes
+              user={user}
+              notify={notify}
+              clearNotification={clearNotification}
+              location={location}
+              navigate={navigate}
+            />
+          }
         />
-        <NotificationList
-          notifications={notifications}
-          clearNotification={this.clearNotification}
-        />
-        <Switch>
-          <Route
-            exact
-            path={`${path}/`}
-            render={(props) => (
-              <MyPushes
-                {...props}
-                user={user}
-                notify={this.notify}
-                clearNotification={this.clearNotification}
+        <Route
+          path="push"
+          element={
+            hasProps(location.search) ? (
+              <Health
+                notify={notify}
+                clearNotification={clearNotification}
+                location={location}
               />
-            )}
-          />
-          <Route
-            path={`${path}/push`}
-            render={(props) =>
-              hasProps(props.location.search) ? (
-                <Health
-                  {...props}
-                  notify={this.notify}
-                  clearNotification={this.clearNotification}
-                />
-              ) : (
-                (<NotFound />)()
-              )
-            }
-          />
-          <Route
-            path={`${path}/usage`}
-            render={(props) => <Usage {...props} />}
-          />
-        </Switch>
-      </ErrorBoundary>
-    );
-  }
-}
+            ) : (
+              <NotFound />
+            )
+          }
+        />
+        <Route path="usage" element={<Usage />} />
+      </Routes>
+    </ErrorBoundary>
+  );
+};
 
 export default App;
