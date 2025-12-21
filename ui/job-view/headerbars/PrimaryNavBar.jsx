@@ -1,13 +1,12 @@
 import React from 'react';
 import { Button } from 'react-bootstrap';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import isEqual from 'lodash/isEqual';
 
 import Logo from '../../img/treeherder-logo.png';
 import Login from '../../shared/auth/Login';
 import LogoMenu from '../../shared/LogoMenu';
-import { notify } from '../redux/stores/notifications';
+import { notify } from '../stores/notificationStore';
 import HelpMenu from '../../shared/HelpMenu';
 
 import NotificationsMenu from './NotificationsMenu';
@@ -51,7 +50,6 @@ class PrimaryNavBar extends React.Component {
       groupCountsExpanded,
       toggleFieldFilterVisible,
       getAllShownJobs,
-      notify,
     } = this.props;
 
     return (
@@ -111,8 +109,7 @@ PrimaryNavBar.propTypes = {
   user: PropTypes.shape({}).isRequired,
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
-  notify: PropTypes.func.isRequired,
   getAllShownJobs: PropTypes.func.isRequired,
 };
 
-export default connect(null, { notify })(PrimaryNavBar);
+export default PrimaryNavBar;

@@ -14,8 +14,8 @@ import BugJobMapModel from '../../models/bugJobMap';
 import JobClassificationModel from '../../models/classification';
 import JobClassificationTypeAndBugsModel from '../../models/classificationTypeAndBugs';
 import JobModel from '../../models/job';
-import { notify } from '../redux/stores/notifications';
 import { setSelectedJob } from '../redux/stores/selectedJob';
+import { notify } from '../stores/notificationStore';
 import { recalculateUnclassifiedCounts } from '../redux/stores/pushes';
 import {
   addBug,
@@ -57,7 +57,6 @@ class PinBoard extends React.Component {
       isLoggedIn,
       pinnedJobs,
       recalculateUnclassifiedCounts,
-      notify,
     } = this.props;
 
     let errorFree = true;
@@ -108,7 +107,7 @@ class PinBoard extends React.Component {
   };
 
   saveClassification = async (pinnedJob) => {
-    const { recalculateUnclassifiedCounts, notify, jobMap } = this.props;
+    const { recalculateUnclassifiedCounts, jobMap } = this.props;
     const classification = this.createNewClassification();
     // Ensure the version of the job we have is the one that is displayed in
     // the main job field.  Not the "full" selected job instance only shown in
@@ -140,7 +139,7 @@ class PinBoard extends React.Component {
   };
 
   saveBugs = (job) => {
-    const { pinnedJobBugs, newBug, notify } = this.props;
+    const { pinnedJobBugs, newBug } = this.props;
 
     pinnedJobBugs.forEach((bug) => {
       const bjm = new BugJobMapModel({
@@ -200,7 +199,7 @@ class PinBoard extends React.Component {
   };
 
   cancelAllPinnedJobs = () => {
-    const { notify, currentRepo, pinnedJobs, decisionTaskMap } = this.props;
+    const { currentRepo, pinnedJobs, decisionTaskMap } = this.props;
 
     if (
       window.confirm('This will cancel all the selected jobs. Are you sure?')
@@ -235,7 +234,6 @@ class PinBoard extends React.Component {
 
   unclassifyAllPinnedJobs = async () => {
     const {
-      notify,
       currentRepo,
       jobMap,
       pinnedJobs,
@@ -390,7 +388,7 @@ class PinBoard extends React.Component {
   };
 
   retriggerAllPinnedJobs = async () => {
-    const { pinnedJobs, notify, currentRepo, decisionTaskMap } = this.props;
+    const { pinnedJobs, currentRepo, decisionTaskMap } = this.props;
     const jobs = Object.values(pinnedJobs);
 
     JobModel.retrigger(jobs, currentRepo, notify, 1, decisionTaskMap);
@@ -730,7 +728,6 @@ PinBoard.propTypes = {
   setClassificationId: PropTypes.func.isRequired,
   setClassificationComment: PropTypes.func.isRequired,
   setSelectedJob: PropTypes.func.isRequired,
-  notify: PropTypes.func.isRequired,
   currentRepo: PropTypes.shape({}).isRequired,
   failureClassificationId: PropTypes.number.isRequired,
   failureClassificationComment: PropTypes.string.isRequired,
@@ -769,7 +766,6 @@ const mapStateToProps = ({
 });
 
 export default connect(mapStateToProps, {
-  notify,
   setSelectedJob,
   recalculateUnclassifiedCounts,
   addBug,
