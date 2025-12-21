@@ -1,6 +1,5 @@
 import React, { useMemo, useCallback, memo } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faMinusSquare,
@@ -24,6 +23,7 @@ import { getUrlParam } from '../../helpers/location';
 import { notify } from '../stores/notificationStore';
 import { setSelectedJob } from '../stores/selectedJobStore';
 import { pinJobs } from '../stores/pinnedJobsStore';
+import { usePushStore } from '../stores/pushStore';
 
 import PushActionMenu from './PushActionMenu';
 
@@ -92,12 +92,12 @@ function PushHeader({
   collapsed,
   jobCounts,
   pushHealthVisibility,
-  decisionTaskMap,
   watchState = 'none',
   pushHealthStatusCallback = null,
   currentRepo,
   togglePushCollapsed,
 }) {
+  const decisionTaskMap = usePushStore((state) => state.decisionTaskMap);
   const pushDateStr = useMemo(() => toDateStr(pushTimestamp), [pushTimestamp]);
 
   const getLinkParams = useCallback(() => {
@@ -313,14 +313,10 @@ PushHeader.propTypes = {
   collapsed: PropTypes.bool.isRequired,
   jobCounts: PropTypes.shape({}).isRequired,
   pushHealthVisibility: PropTypes.string.isRequired,
-  decisionTaskMap: PropTypes.shape({}).isRequired,
   watchState: PropTypes.string,
   pushHealthStatusCallback: PropTypes.func,
   currentRepo: PropTypes.shape({}).isRequired,
+  togglePushCollapsed: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({
-  decisionTaskMap,
-});
-
-export default connect(mapStateToProps)(memo(PushHeader));
+export default memo(PushHeader);

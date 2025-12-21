@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Alert, Button } from 'react-bootstrap';
 import {
@@ -20,6 +19,8 @@ import {
 import { triggerTask } from '../../../helpers/performance';
 import { isPerfTest } from '../../../helpers/job';
 import { geckoProfileTaskName, sxsTaskName } from '../../../helpers/constants';
+import { usePushStore } from '../../stores/pushStore';
+import { notify } from '../../stores/notificationStore';
 
 import SideBySide from './SideBySide';
 import PerfData from './PerfData';
@@ -46,16 +47,29 @@ class PerformanceTab extends React.PureComponent {
     this.state = {
       triggeredGeckoProfiles: 0,
       showSideBySide: selectedJobFull.job_type_symbol.includes(sxsTaskName),
+      // Initialize from Zustand store
+      decisionTaskMap: usePushStore.getState().decisionTaskMap,
     };
   }
 
+  componentDidMount() {
+    // Subscribe to Zustand store
+    this.unsubscribePush = usePushStore.subscribe((state) => {
+      this.setState({
+        decisionTaskMap: state.decisionTaskMap,
+      });
+    });
+  }
+
+  componentWillUnmount() {
+    if (this.unsubscribePush) {
+      this.unsubscribePush();
+    }
+  }
+
   createGeckoProfile = async () => {
-    const {
-      selectedJobFull,
-      notify,
-      decisionTaskMap,
-      currentRepo,
-    } = this.props;
+    const { selectedJobFull, currentRepo } = this.props;
+    const { decisionTaskMap } = this.state;
     await triggerTask(
       selectedJobFull,
       notify,
@@ -69,12 +83,8 @@ class PerformanceTab extends React.PureComponent {
   };
 
   createSideBySide = async () => {
-    const {
-      selectedJobFull,
-      notify,
-      decisionTaskMap,
-      currentRepo,
-    } = this.props;
+    const { selectedJobFull, currentRepo } = this.props;
+    const { decisionTaskMap } = this.state;
     await triggerTask(
       selectedJobFull,
       notify,
@@ -282,11 +292,6 @@ PerformanceTab.propTypes = {
   jobDetails: PropTypes.arrayOf(PropTypes.shape({})),
   perfJobDetail: PropTypes.arrayOf(PropTypes.shape({})),
   revision: PropTypes.string,
-  decisionTaskMap: PropTypes.shape({}).isRequired,
 };
 
-const mapStateToProps = (state) => ({
-  decisionTaskMap: state.pushes.decisionTaskMap,
-});
-
-export default connect(mapStateToProps)(PerformanceTab);
+export default PerformanceTab;

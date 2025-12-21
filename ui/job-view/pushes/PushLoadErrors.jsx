@@ -1,21 +1,23 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import { getAllUrlParams } from '../../helpers/location';
 import { uiJobsUrlBase, getLandoJobsUrl } from '../../helpers/url';
+import { usePushStore } from '../stores/pushStore';
 
 function PushLoadErrors(props) {
   const {
-    loadingPushes,
     currentRepo,
     revision = null,
     landoCommitID = null,
     landoStatus = 'unknown',
     repoName,
   } = props;
+
+  // Zustand state
+  const loadingPushes = usePushStore((state) => state.loadingPushes);
   const urlParams = getAllUrlParams();
   urlParams.delete('revision');
 
@@ -142,7 +144,6 @@ function PushLoadErrors(props) {
 }
 
 PushLoadErrors.propTypes = {
-  loadingPushes: PropTypes.bool.isRequired,
   currentRepo: PropTypes.shape({
     url: PropTypes.string,
     pushLogUrl: PropTypes.string,
@@ -153,6 +154,4 @@ PushLoadErrors.propTypes = {
   landoStatus: PropTypes.string,
 };
 
-const mapStateToProps = ({ pushes: { loadingPushes } }) => ({ loadingPushes });
-
-export default connect(mapStateToProps)(PushLoadErrors);
+export default PushLoadErrors;
