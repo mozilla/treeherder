@@ -10,7 +10,7 @@ import { getUrlParam } from '../../helpers/location';
 import { getLogViewerUrl } from '../../helpers/url';
 import JobModel from '../../models/job';
 import { setSelectedJob } from '../redux/stores/selectedJob';
-import { togglePinJob } from '../redux/stores/pinnedJobs';
+import { togglePinJob } from '../stores/pinnedJobsStore';
 
 import Platform from './Platform';
 
@@ -24,7 +24,6 @@ function PushJobs({
   groupCountsExpanded,
   platforms,
   toggleSelectedRunnableJob,
-  togglePinJob,
   setSelectedJob,
 }) {
   const aggregateId = useMemo(
@@ -141,7 +140,6 @@ function PushJobs({
 }
 
 PushJobs.propTypes = {
-  togglePinJob: PropTypes.func.isRequired,
   setSelectedJob: PropTypes.func.isRequired,
   toggleSelectedRunnableJob: PropTypes.func.isRequired,
   repoName: PropTypes.string.isRequired,
@@ -157,4 +155,4 @@ PushJobs.propTypes = {
   filterModel: PropTypes.shape({}).isRequired,
 };
 
-export default connect(null, { setSelectedJob, togglePinJob })(memo(PushJobs));
+export default connect(null, { setSelectedJob })(memo(PushJobs));

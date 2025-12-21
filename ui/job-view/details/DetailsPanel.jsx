@@ -3,7 +3,10 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Queue } from 'taskcluster-client-web';
 
-import { setPinBoardVisible } from '../redux/stores/pinnedJobs';
+import {
+  usePinnedJobsStore,
+  setPinBoardVisible,
+} from '../stores/pinnedJobsStore';
 import { thEvents } from '../../helpers/constants';
 import { addAggregateFields } from '../../helpers/job';
 import { getLogViewerUrl, getArtifactsUrl } from '../../helpers/url';
@@ -100,8 +103,7 @@ class DetailsPanel extends React.Component {
   }
 
   togglePinBoardVisibility = () => {
-    const { setPinBoardVisible, isPinBoardVisible } = this.props;
-
+    const { isPinBoardVisible } = usePinnedJobsStore.getState();
     setPinBoardVisible(!isPinBoardVisible);
   };
 
@@ -508,8 +510,6 @@ DetailsPanel.propTypes = {
   resizedHeight: PropTypes.number.isRequired,
   classificationTypes: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   classificationMap: PropTypes.shape({}).isRequired,
-  setPinBoardVisible: PropTypes.func.isRequired,
-  isPinBoardVisible: PropTypes.bool.isRequired,
   pushList: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   selectedJob: PropTypes.shape({}),
 };
@@ -517,7 +517,6 @@ DetailsPanel.propTypes = {
 const mapStateToProps = ({
   selectedJob: { selectedJob },
   pushes: { pushList },
-  pinnedJobs: { isPinBoardVisible },
-}) => ({ selectedJob, pushList, isPinBoardVisible });
+}) => ({ selectedJob, pushList });
 
-export default connect(mapStateToProps, { setPinBoardVisible })(DetailsPanel);
+export default connect(mapStateToProps)(DetailsPanel);
