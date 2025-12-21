@@ -1,16 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Hotkeys from 'react-hot-keys';
-import { connect } from 'react-redux';
 
 import { thEvents } from '../helpers/constants';
 
 import { notify, useNotificationStore } from './stores/notificationStore';
 import {
+  useSelectedJobStore,
   changeJob,
   clearSelectedJob,
   updateJobDetails,
-} from './redux/stores/selectedJob';
+} from './stores/selectedJobStore';
 import { pinJob, unPinAll, usePinnedJobsStore } from './stores/pinnedJobsStore';
 
 const handledKeys =
@@ -86,7 +86,7 @@ class KeyboardShortcuts extends React.Component {
   // close any notifications, if they exist.  If not, then close any
   // open panels and selected job
   clearScreen = () => {
-    const { clearSelectedJob, showOnScreenShortcuts } = this.props;
+    const { showOnScreenShortcuts } = this.props;
     const { pinnedJobs } = usePinnedJobsStore.getState();
 
     const {
@@ -108,7 +108,7 @@ class KeyboardShortcuts extends React.Component {
 
   // pin selected job to pinboard
   pinJob = () => {
-    const { selectedJob } = this.props;
+    const { selectedJob } = useSelectedJobStore.getState();
 
     if (selectedJob) {
       pinJob(selectedJob);
@@ -117,7 +117,7 @@ class KeyboardShortcuts extends React.Component {
 
   // pin selected job to pinboard and add a related bug
   addRelatedBug = async () => {
-    const { selectedJob } = this.props;
+    const { selectedJob } = useSelectedJobStore.getState();
 
     if (selectedJob) {
       pinJob(selectedJob);
@@ -127,7 +127,7 @@ class KeyboardShortcuts extends React.Component {
 
   // pin selected job to pinboard and enter classification
   pinEditComment = () => {
-    const { selectedJob } = this.props;
+    const { selectedJob } = useSelectedJobStore.getState();
 
     if (selectedJob) {
       pinJob(selectedJob);
@@ -146,7 +146,7 @@ class KeyboardShortcuts extends React.Component {
 
   // delete classification and related bugs
   deleteClassification = () => {
-    const { selectedJob } = this.props;
+    const { selectedJob } = useSelectedJobStore.getState();
 
     if (selectedJob) {
       window.dispatchEvent(new CustomEvent(thEvents.deleteClassification));
@@ -170,7 +170,7 @@ class KeyboardShortcuts extends React.Component {
 
   // retrigger selected job
   jobRetrigger = () => {
-    const { selectedJob } = this.props;
+    const { selectedJob } = useSelectedJobStore.getState();
 
     if (selectedJob) {
       window.dispatchEvent(
@@ -183,7 +183,7 @@ class KeyboardShortcuts extends React.Component {
 
   // select next job tab
   selectNextTab = () => {
-    const { selectedJob } = this.props;
+    const { selectedJob } = useSelectedJobStore.getState();
 
     if (selectedJob) {
       window.dispatchEvent(new CustomEvent(thEvents.selectNextTab));
@@ -209,7 +209,6 @@ class KeyboardShortcuts extends React.Component {
   changeSelectedJob = (direction, unclassifiedOnly) => {
     // Select the next job without updating the details panel.  That is debounced so
     // it doesn't do too much updating while quickly switching between jobs.
-    const { updateJobDetails } = this.props;
     const { pinnedJobs } = usePinnedJobsStore.getState();
     const { selectedJob } = changeJob(
       direction,
@@ -259,17 +258,7 @@ class KeyboardShortcuts extends React.Component {
 KeyboardShortcuts.propTypes = {
   filterModel: PropTypes.shape({}).isRequired,
   children: PropTypes.arrayOf(PropTypes.element).isRequired,
-  clearSelectedJob: PropTypes.func.isRequired,
-  updateJobDetails: PropTypes.func.isRequired,
   showOnScreenShortcuts: PropTypes.func.isRequired,
-  selectedJob: PropTypes.shape({}),
 };
 
-const mapStateToProps = ({ selectedJob: { selectedJob = null } }) => ({
-  selectedJob,
-});
-
-export default connect(mapStateToProps, {
-  updateJobDetails,
-  clearSelectedJob,
-})(KeyboardShortcuts);
+export default KeyboardShortcuts;
