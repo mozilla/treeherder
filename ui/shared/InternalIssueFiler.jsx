@@ -1,12 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { Button, Modal, Form } from 'react-bootstrap';
 
 import { create } from '../helpers/http';
 import { getApiUrl } from '../helpers/url';
 import { parseSummary, getCrashSignatures } from '../helpers/bug';
-import { notify } from '../job-view/redux/stores/notifications';
+import { notify } from '../job-view/stores/notificationStore';
 
 export class InternalIssueFilerClass extends React.Component {
   constructor(props) {
@@ -127,7 +126,7 @@ export class InternalIssueFilerClass extends React.Component {
 
   submitInternalIssue = async () => {
     const { summary } = this.state;
-    const { notify, successCallback, toggle } = this.props;
+    const { successCallback, toggle } = this.props;
 
     if (summary.length > 255) {
       notify(
@@ -206,7 +205,6 @@ InternalIssueFilerClass.propTypes = {
   jobGroupName: PropTypes.string.isRequired,
   jobTypeName: PropTypes.string.isRequired,
   successCallback: PropTypes.func.isRequired,
-  notify: PropTypes.func.isRequired,
 };
 
-export default connect(null, { notify })(InternalIssueFilerClass);
+export default InternalIssueFilerClass;

@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { Queue } from 'taskcluster-client-web';
 
 import {
@@ -8,6 +7,7 @@ import {
   setPinBoardVisible,
 } from '../stores/pinnedJobsStore';
 import { useSelectedJobStore } from '../stores/selectedJobStore';
+import { usePushStore } from '../stores/pushStore';
 import { thEvents } from '../../helpers/constants';
 import { addAggregateFields } from '../../helpers/job';
 import { getLogViewerUrl, getArtifactsUrl } from '../../helpers/url';
@@ -37,8 +37,9 @@ class DetailsPanel extends React.Component {
     this.selectJobController = null;
     // used to debounce job detail loading when rapidly switching jobs
     this.selectJobDebounceTimer = null;
-    // Zustand store unsubscribe function
+    // Zustand store unsubscribe functions
     this.unsubscribeSelectedJob = null;
+    this.unsubscribePush = null;
 
     this.state = {
       selectedJob: useSelectedJobStore.getState().selectedJob,
@@ -55,6 +56,8 @@ class DetailsPanel extends React.Component {
       classifications: [],
       testGroups: [],
       bugs: [],
+      // Initialize from Zustand store
+      pushList: usePushStore.getState().pushList,
     };
   }
 
@@ -67,6 +70,11 @@ class DetailsPanel extends React.Component {
     // Subscribe to selectedJob changes from Zustand store
     this.unsubscribeSelectedJob = useSelectedJobStore.subscribe((state) => {
       this.setState({ selectedJob: state.selectedJob });
+    });
+
+    // Subscribe to push store for pushList
+    this.unsubscribePush = usePushStore.subscribe((state) => {
+      this.setState({ pushList: state.pushList });
     });
   }
 
@@ -109,9 +117,12 @@ class DetailsPanel extends React.Component {
     if (this.selectJobDebounceTimer) {
       clearTimeout(this.selectJobDebounceTimer);
     }
-    // Unsubscribe from Zustand store
+    // Unsubscribe from Zustand stores
     if (this.unsubscribeSelectedJob) {
       this.unsubscribeSelectedJob();
+    }
+    if (this.unsubscribePush) {
+      this.unsubscribePush();
     }
   }
 
@@ -169,7 +180,7 @@ class DetailsPanel extends React.Component {
   };
 
   findPush = (pushId) => {
-    const { pushList } = this.props;
+    const { pushList } = this.state;
 
     return pushList.find((push) => pushId === push.id);
   };
@@ -524,9 +535,6 @@ DetailsPanel.propTypes = {
   resizedHeight: PropTypes.number.isRequired,
   classificationTypes: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   classificationMap: PropTypes.shape({}).isRequired,
-  pushList: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
-const mapStateToProps = ({ pushes: { pushList } }) => ({ pushList });
-
-export default connect(mapStateToProps)(DetailsPanel);
+export default DetailsPanel;
