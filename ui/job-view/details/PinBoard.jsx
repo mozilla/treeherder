@@ -18,13 +18,14 @@ import { setSelectedJob } from '../redux/stores/selectedJob';
 import { notify } from '../stores/notificationStore';
 import { recalculateUnclassifiedCounts } from '../redux/stores/pushes';
 import {
+  usePinnedJobsStore,
   addBug,
   removeBug,
   unPinJob,
   unPinAll,
   setClassificationId,
   setClassificationComment,
-} from '../redux/stores/pinnedJobs';
+} from '../stores/pinnedJobsStore';
 
 class PinBoard extends React.Component {
   constructor(props) {
@@ -34,18 +35,26 @@ class PinBoard extends React.Component {
       enteringBugNumber: false,
       newBugNumber: null,
     };
+    this.unsubscribe = null;
   }
 
   componentDidMount() {
     window.addEventListener(thEvents.saveClassification, this.save);
+    // Subscribe to Zustand store changes to trigger re-renders
+    this.unsubscribe = usePinnedJobsStore.subscribe(() => {
+      this.forceUpdate();
+    });
   }
 
   componentWillUnmount() {
     window.removeEventListener(thEvents.saveClassification, this.save);
+    if (this.unsubscribe) {
+      this.unsubscribe();
+    }
   }
 
-  unPinAll = () => {
-    this.props.unPinAll();
+  handleUnPinAll = () => {
+    unPinAll();
     this.setState({
       enteringBugNumber: false,
       newBugNumber: null,
@@ -53,11 +62,8 @@ class PinBoard extends React.Component {
   };
 
   save = () => {
-    const {
-      isLoggedIn,
-      pinnedJobs,
-      recalculateUnclassifiedCounts,
-    } = this.props;
+    const { isLoggedIn, recalculateUnclassifiedCounts } = this.props;
+    const { pinnedJobs } = usePinnedJobsStore.getState();
 
     let errorFree = true;
     if (this.state.enteringBugNumber) {
@@ -83,11 +89,7 @@ class PinBoard extends React.Component {
       Promise.all([...classifyPromises, ...bugPromises]).then(() => {
         window.dispatchEvent(new CustomEvent(thEvents.classificationChanged));
         recalculateUnclassifiedCounts();
-        this.unPinAll();
-        this.setState({
-          enteringBugNumber: false,
-          newBugNumber: null,
-        });
+        this.handleUnPinAll();
       });
     }
   };
@@ -97,7 +99,7 @@ class PinBoard extends React.Component {
     const {
       failureClassificationId,
       failureClassificationComment,
-    } = this.props;
+    } = usePinnedJobsStore.getState();
 
     return new JobClassificationModel({
       text: failureClassificationComment,
@@ -139,7 +141,7 @@ class PinBoard extends React.Component {
   };
 
   saveBugs = (job) => {
-    const { pinnedJobBugs, newBug } = this.props;
+    const { pinnedJobBugs, newBug } = usePinnedJobsStore.getState();
 
     pinnedJobBugs.forEach((bug) => {
       const bjm = new BugJobMapModel({
@@ -174,7 +176,7 @@ class PinBoard extends React.Component {
     const pastedData = evt.clipboardData.getData('text');
 
     if (isSHAorCommit(pastedData)) {
-      this.props.setClassificationId(2);
+      setClassificationId(2);
     }
   };
 
@@ -191,7 +193,8 @@ class PinBoard extends React.Component {
   };
 
   canCancelAllPinnedJobs = () => {
-    const cancellableJobs = Object.values(this.props.pinnedJobs).filter(
+    const { pinnedJobs } = usePinnedJobsStore.getState();
+    const cancellableJobs = Object.values(pinnedJobs).filter(
       (job) => job.state === 'pending' || job.state === 'running',
     );
 
@@ -199,7 +202,8 @@ class PinBoard extends React.Component {
   };
 
   cancelAllPinnedJobs = () => {
-    const { currentRepo, pinnedJobs, decisionTaskMap } = this.props;
+    const { currentRepo, decisionTaskMap } = this.props;
+    const { pinnedJobs } = usePinnedJobsStore.getState();
 
     if (
       window.confirm('This will cancel all the selected jobs. Are you sure?')
@@ -210,7 +214,7 @@ class PinBoard extends React.Component {
         notify,
         decisionTaskMap,
       );
-      this.unPinAll();
+      this.handleUnPinAll();
     }
   };
 
@@ -229,16 +233,13 @@ class PinBoard extends React.Component {
 
   canUnclassifyAllPinnedJobs = () => {
     const { isStaff = false } = this.props;
-    return isStaff && Object.values(this.props.pinnedJobs).length > 0;
+    const { pinnedJobs } = usePinnedJobsStore.getState();
+    return isStaff && Object.values(pinnedJobs).length > 0;
   };
 
   unclassifyAllPinnedJobs = async () => {
-    const {
-      currentRepo,
-      jobMap,
-      pinnedJobs,
-      recalculateUnclassifiedCounts,
-    } = this.props;
+    const { currentRepo, jobMap, recalculateUnclassifiedCounts } = this.props;
+    const { pinnedJobs } = usePinnedJobsStore.getState();
 
     const {
       data,
@@ -262,7 +263,7 @@ class PinBoard extends React.Component {
           jobInstance.refilter();
         }
       }
-      this.unPinAll();
+      this.handleUnPinAll();
       window.dispatchEvent(new CustomEvent(thEvents.classificationChanged));
       recalculateUnclassifiedCounts();
     } else {
@@ -272,11 +273,12 @@ class PinBoard extends React.Component {
   };
 
   canSaveClassifications = () => {
-    const { pinnedJobBugs, isLoggedIn, currentRepo } = this.props;
+    const { isLoggedIn, currentRepo } = this.props;
     const {
+      pinnedJobBugs,
       failureClassificationId,
       failureClassificationComment,
-    } = this.props;
+    } = usePinnedJobsStore.getState();
 
     return (
       this.hasPinnedJobs() &&
@@ -295,13 +297,14 @@ class PinBoard extends React.Component {
   // Facilitates Clear all if no jobs pinned to reset pinBoard UI
   pinboardIsDirty = () => {
     const {
+      pinnedJobBugs,
       failureClassificationId,
       failureClassificationComment,
-    } = this.props;
+    } = usePinnedJobsStore.getState();
 
     return (
       failureClassificationComment !== '' ||
-      !!this.props.pinnedJobBugs.length ||
+      !!pinnedJobBugs.length ||
       failureClassificationId !== 4
     );
   };
@@ -338,9 +341,15 @@ class PinBoard extends React.Component {
     return title;
   };
 
-  hasPinnedJobs = () => !!Object.keys(this.props.pinnedJobs).length;
+  hasPinnedJobs = () => {
+    const { pinnedJobs } = usePinnedJobsStore.getState();
+    return !!Object.keys(pinnedJobs).length;
+  };
 
-  hasPinnedJobBugs = () => !!this.props.pinnedJobBugs.length;
+  hasPinnedJobBugs = () => {
+    const { pinnedJobBugs } = usePinnedJobsStore.getState();
+    return !!pinnedJobBugs.length;
+  };
 
   toggleEnterBugNumber = (tf) => {
     this.setState(
@@ -365,9 +374,9 @@ class PinBoard extends React.Component {
         this.toggleEnterBugNumber(false);
       } else if (this.isValidBugNumber(newBugNumber)) {
         if (newBugNumber[0] === 'i') {
-          this.props.addBug({ internal_id: newBugNumber.slice(1) });
+          addBug({ internal_id: newBugNumber.slice(1) });
         } else {
-          this.props.addBug({ id: parseInt(newBugNumber, 10) });
+          addBug({ id: parseInt(newBugNumber, 10) });
         }
         this.toggleEnterBugNumber(false);
       }
@@ -388,7 +397,8 @@ class PinBoard extends React.Component {
   };
 
   retriggerAllPinnedJobs = async () => {
-    const { pinnedJobs, currentRepo, decisionTaskMap } = this.props;
+    const { currentRepo, decisionTaskMap } = this.props;
+    const { pinnedJobs } = usePinnedJobsStore.getState();
     const jobs = Object.values(pinnedJobs);
 
     JobModel.retrigger(jobs, currentRepo, notify, 1, decisionTaskMap);
@@ -399,18 +409,16 @@ class PinBoard extends React.Component {
       selectedJobFull = null,
       revisionTips = [],
       isLoggedIn,
-      isPinBoardVisible,
       classificationTypes,
+      setSelectedJob,
+    } = this.props;
+    const {
+      isPinBoardVisible,
       pinnedJobs,
       pinnedJobBugs,
-      removeBug,
-      unPinJob,
-      setSelectedJob,
-      setClassificationId,
-      setClassificationComment,
       failureClassificationId,
       failureClassificationComment,
-    } = this.props;
+    } = usePinnedJobsStore.getState();
     const { enteringBugNumber, newBugNumber } = this.state;
     const selectedJobId = selectedJobFull ? selectedJobFull.id : null;
 
@@ -697,7 +705,7 @@ class PinBoard extends React.Component {
                   >
                     Unclassify all
                   </Dropdown.Item>
-                  <Dropdown.Item tag="a" onClick={() => this.unPinAll()}>
+                  <Dropdown.Item tag="a" onClick={() => this.handleUnPinAll()}>
                     Clear all
                   </Dropdown.Item>
                 </Dropdown.Menu>
@@ -717,20 +725,8 @@ PinBoard.propTypes = {
   classificationTypes: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
   isStaff: PropTypes.bool,
-  isPinBoardVisible: PropTypes.bool.isRequired,
-  pinnedJobs: PropTypes.shape({}).isRequired,
-  pinnedJobBugs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  newBug: PropTypes.shape({}).isRequired,
-  addBug: PropTypes.func.isRequired,
-  removeBug: PropTypes.func.isRequired,
-  unPinJob: PropTypes.func.isRequired,
-  unPinAll: PropTypes.func.isRequired,
-  setClassificationId: PropTypes.func.isRequired,
-  setClassificationComment: PropTypes.func.isRequired,
   setSelectedJob: PropTypes.func.isRequired,
   currentRepo: PropTypes.shape({}).isRequired,
-  failureClassificationId: PropTypes.number.isRequired,
-  failureClassificationComment: PropTypes.string.isRequired,
   selectedJobFull: PropTypes.shape({}),
   email: PropTypes.string,
   revisionTips: PropTypes.arrayOf(PropTypes.shape({})),
@@ -745,33 +741,13 @@ PinBoard.defaultProps = {
 
 const mapStateToProps = ({
   pushes: { revisionTips, decisionTaskMap, jobMap },
-  pinnedJobs: {
-    isPinBoardVisible,
-    pinnedJobs,
-    pinnedJobBugs,
-    failureClassificationId,
-    failureClassificationComment,
-    newBug,
-  },
 }) => ({
   revisionTips,
   decisionTaskMap,
   jobMap,
-  isPinBoardVisible,
-  pinnedJobs,
-  pinnedJobBugs,
-  failureClassificationId,
-  failureClassificationComment,
-  newBug,
 });
 
 export default connect(mapStateToProps, {
   setSelectedJob,
   recalculateUnclassifiedCounts,
-  addBug,
-  removeBug,
-  unPinJob,
-  unPinAll,
-  setClassificationId,
-  setClassificationComment,
 })(PinBoard);

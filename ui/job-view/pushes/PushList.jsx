@@ -8,6 +8,7 @@ import isEqual from 'lodash/isEqual';
 
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import { notify } from '../stores/notificationStore';
+import { usePinnedJobsStore } from '../stores/pinnedJobsStore';
 import {
   clearSelectedJob,
   setSelectedJobFromQueryString,
@@ -33,7 +34,6 @@ function PushList({
   groupCountsExpanded,
   allUnclassifiedFailureCount,
   clearSelectedJob,
-  pinnedJobs,
   setSelectedJobFromQueryString,
   getAllShownJobs,
   jobMap,
@@ -43,6 +43,7 @@ function PushList({
   currentRepo = {},
   pushHealthVisibility,
 }) {
+  const pinnedJobs = usePinnedJobsStore((state) => state.pinnedJobs);
   const location = useLocation();
   const [notificationSupported] = useState('Notification' in window);
   const pushIntervalId = useRef(null);
@@ -229,7 +230,6 @@ PushList.propTypes = {
   groupCountsExpanded: PropTypes.bool.isRequired,
   allUnclassifiedFailureCount: PropTypes.number.isRequired,
   clearSelectedJob: PropTypes.func.isRequired,
-  pinnedJobs: PropTypes.shape({}).isRequired,
   setSelectedJobFromQueryString: PropTypes.func.isRequired,
   getAllShownJobs: PropTypes.func.isRequired,
   jobMap: PropTypes.shape({}).isRequired,
@@ -247,14 +247,12 @@ const mapStateToProps = ({
     pushList,
     allUnclassifiedFailureCount,
   },
-  pinnedJobs: { pinnedJobs },
 }) => ({
   loadingPushes,
   jobsLoaded,
   jobMap,
   pushList,
   allUnclassifiedFailureCount,
-  pinnedJobs,
 });
 
 export default connect(mapStateToProps, {
