@@ -17,8 +17,8 @@
 
 /* Bootstrap 4 will not show <a> as a link style if it has no href.
    This adds that style back. */
-.link-style {
-  color: #337ab7 !important;
+.link-style.link-style {
+  color: #337ab7;
   cursor: pointer;
 }
 
@@ -121,14 +121,14 @@
   cursor: not-allowed;
 }
 
-.dropdown-item {
+.dropdown-menu .dropdown-item {
   cursor: pointer;
-  color: #212529 !important;
+  color: #212529;
 }
 
-.dropdown-item:hover,
-.dropdown-item:focus {
-  color: #1e2125 !important;
+.dropdown-menu .dropdown-item:hover,
+.dropdown-menu .dropdown-item:focus {
+  color: #1e2125;
 }
 
 .form-control:focus {
@@ -161,22 +161,22 @@
   opacity: 0.9;
 }
 
-.icon-blue:hover,
-.icon-blue:focus,
-.icon-blue:active {
-  color: #68aae2 !important;
+.icon-blue.icon-blue:hover,
+.icon-blue.icon-blue:focus,
+.icon-blue.icon-blue:active {
+  color: #68aae2;
 }
 
-.icon-green:hover,
-.icon-green:focus,
-.icon-green:active {
-  color: #0de00d !important;
+.icon-green.icon-green:hover,
+.icon-green.icon-green:focus,
+.icon-green.icon-green:active {
+  color: #0de00d;
 }
 
-.icon-cyan:hover,
-.icon-cyan:focus,
-.icon-cyan:active {
-  color: #00ffff !important;
+.icon-cyan.icon-cyan:hover,
+.icon-cyan.icon-cyan:focus,
+.icon-cyan.icon-cyan:active {
+  color: #00ffff;
 }
 
 .icon-superscript {
@@ -185,8 +185,8 @@
   margin-left: -0.2em;
 }
 
-.hover-warning:hover {
-  color: #fa4444 !important;
+.hover-warning.hover-warning:hover {
+  color: #fa4444;
 }
 
 .dim-quarter {
@@ -382,8 +382,8 @@
 }
 
 /* Darker Secondary */
-.text-darker-secondary {
-  color: #53595f !important;
+.text-darker-secondary.text-darker-secondary {
+  color: #53595f;
 }
 
 .alert-darker-secondary,
@@ -396,17 +396,17 @@
   background-color: #6c757d;
 }
 
-.btn-darker-secondary,
-a.btn-darker-secondary,
-a.btn-darker-secondary:visited {
-  color: #ffffff !important;
+.btn.btn-darker-secondary,
+a.btn.btn-darker-secondary,
+a.btn.btn-darker-secondary:visited {
+  color: #ffffff;
   background-color: #6c757d;
   border-color: #6c757d;
 }
 
-.btn-darker-secondary:hover,
-a.btn-darker-secondary:hover {
-  color: #ffffff !important;
+.btn.btn-darker-secondary:hover,
+a.btn.btn-darker-secondary:hover {
+  color: #ffffff;
   background-color: #5a6268;
   border-color: #545b62;
 }
@@ -442,11 +442,11 @@ a.btn-darker-secondary:hover {
 }
 
 /* Outline Dark Button */
-.btn-outline-dark:hover,
-a.btn-outline-dark:hover {
-  background-color: #e9ecef !important;
-  border-color: #6c757d !important;
-  color: #212529 !important;
+.btn.btn-outline-dark:hover,
+a.btn.btn-outline-dark:hover {
+  background-color: #e9ecef;
+  border-color: #6c757d;
+  color: #212529;
 }
 
 /*

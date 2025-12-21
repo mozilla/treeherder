@@ -14,6 +14,7 @@ const withValidation = ({ requiredParams }, verifyRevisions = true) => (
   WrappedComponent,
 ) => {
   const Validation = (props) => {
+    const { projects = [], frameworks = [] } = props;
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -126,7 +127,6 @@ const withValidation = ({ requiredParams }, verifyRevisions = true) => (
 
     const validateParams = useCallback(
       (params) => {
-        const { projects, frameworks } = props;
         let errors = [];
 
         for (const [param, value] of Object.entries(params)) {
@@ -173,7 +173,7 @@ const withValidation = ({ requiredParams }, verifyRevisions = true) => (
         }));
         updateParams({ ...params });
       },
-      [props, errorMessage, findParam, checkRevisions, updateParams],
+      [projects, frameworks, errorMessage, findParam, checkRevisions, updateParams],
     );
 
     // Initial validation on mount
@@ -219,11 +219,6 @@ const withValidation = ({ requiredParams }, verifyRevisions = true) => (
   Validation.propTypes = {
     projects: PropTypes.arrayOf(PropTypes.shape({})),
     frameworks: PropTypes.arrayOf(PropTypes.shape({})),
-  };
-
-  Validation.defaultProps = {
-    projects: [],
-    frameworks: [],
   };
 
   return Validation;

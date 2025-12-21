@@ -7,23 +7,23 @@
   cursor: default;
 }
 
-.job-btn {
+.btn.job-btn {
   background-color: transparent;
-  padding: 0 2px 0 2px !important;
-  vertical-align: 0 !important;
-  line-height: 1.32 !important;
+  padding: 0 2px 0 2px;
+  vertical-align: 0;
+  line-height: 1.32;
   display: none;
   transition: transform 0.1s;
-  font-size: 12px !important;
+  font-size: 12px;
 }
 
-.group-btn {
+.btn.group-btn {
   background: transparent;
-  padding: 0 2px 0 2px !important;
-  vertical-align: 0 !important;
-  line-height: 1.32 !important;
+  padding: 0 2px 0 2px;
+  vertical-align: 0;
+  line-height: 1.32;
   cursor: pointer;
-  font-size: 12px !important;
+  font-size: 12px;
 }
 
 .group-btn::before {
@@ -34,12 +34,12 @@
   background-color: rgba(219, 235, 252, 0.51);
 }
 
-.group-symbol {
+.btn.group-symbol {
   background: transparent;
-  padding: 0 2px 0 2px !important;
+  padding: 0 2px 0 2px;
   border: 0;
-  vertical-align: 0 !important;
-  line-height: 1.32 !important;
+  vertical-align: 0;
+  line-height: 1.32;
   cursor: pointer;
   margin-right: -3px;
 }
@@ -70,15 +70,15 @@
   white-space: normal;
 }
 
-.runnable-job-btn {
+.btn.runnable-job-btn {
   display: none;
   color: rgba(128, 128, 0, 0.5);
   margin: 0;
   background: transparent;
-  padding: 0 2px !important;
-  vertical-align: 0 !important;
-  line-height: 1.32 !important;
-  font-size: 12px !important;
+  padding: 0 2px;
+  vertical-align: 0;
+  line-height: 1.32;
+  font-size: 12px;
   border-radius: 0;
   text-align: center;
   white-space: nowrap;
@@ -91,14 +91,14 @@
 }
 
 /* Selected jobs: white background for classified failures and non-failures */
-.job-btn.selected-job:not([data-status='testfailed']):not([data-status='busted']):not([data-status='exception']),
-.job-btn.selected-job[data-classified='true'] {
-  background: #fff !important;
+.btn.job-btn.selected-job:not([data-status='testfailed']):not([data-status='busted']):not([data-status='exception']),
+.btn.job-btn.selected-job[data-classified='true'] {
+  background: #fff;
 }
 
 /* All selected jobs get outline matching text color */
-.job-btn.selected-job {
-  outline: 4px solid !important;
+.btn.job-btn.selected-job {
+  outline: 4px solid;
   outline-color: currentcolor;
 }
 
@@ -132,7 +132,7 @@
   opacity: 0.9;
 }
 
-.filter-shown {
+.btn.filter-shown {
   display: inline-block;
 }
 
@@ -420,13 +420,13 @@
   color: var(--status-unscheduled-hover);
 }
 
-.group-select-all-runnable {
+.group-select-all-runnable.group-select-all-runnable {
   color: rgba(128, 128, 0, 0.5);
   font-size: 12px;
   background: transparent;
   padding: 0 2px 0 2px;
   border: 0;
-  vertical-align: 0 !important;
+  vertical-align: 0;
   line-height: 1.32;
   cursor: pointer;
   margin-right: -3px;
