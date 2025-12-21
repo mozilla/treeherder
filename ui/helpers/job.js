@@ -1,4 +1,5 @@
 import TaskclusterModel from '../models/taskcluster';
+import { getJobButtonInstance } from '../hooks/useJobButtonRegistry';
 
 import { thFailureResults, thPlatformMap } from './constants';
 import { getGroupMapKey } from './aggregateId';
@@ -146,13 +147,12 @@ export const isUnclassifiedFailure = function isUnclassifiedFailure(job) {
   return thFailureResults.includes(job.result) && !isClassified(job);
 };
 
-// Fetch the React instance of an object from a DOM element.
-// Credit for this approach goes to SO: https://stackoverflow.com/a/48335220/333614
+// Fetch the registered instance of a job button from a DOM element.
+// Uses the job button registry which stores imperative handles for functional components.
 export const findInstance = function findInstance(el) {
-  const key = Object.keys(el).find((key) => key.startsWith('__reactFiber$'));
-  if (key) {
-    const fiberNode = el[key];
-    return fiberNode && fiberNode.return && fiberNode.return.stateNode;
+  const jobId = el.getAttribute('data-job-id');
+  if (jobId) {
+    return getJobButtonInstance(jobId);
   }
   return null;
 };

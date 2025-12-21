@@ -18,12 +18,12 @@ The docs will then be available at: <http://localhost:8000>
 
 ## Updating package.json
 
-- Always use `yarn` to make changes, not `npm`, so that `yarn.lock` remains in sync.
-- Add new packages using `yarn add <PACKAGE>` (`yarn.lock` will be automatically updated).
-- After changes to `package.json` use `yarn install` to install them and automatically update `yarn.lock`.
-- For more details see the [Yarn documentation].
+- Always use `pnpm` to make changes, not `npm`, so that `pnpm-lock.yaml` remains in sync.
+- Add new packages using `pnpm add <PACKAGE>` (`pnpm-lock.yaml` will be automatically updated).
+- After changes to `package.json` use `pnpm install` to install them and automatically update `pnpm-lock.yaml`.
+- For more details see the [pnpm documentation].
 
-[yarn documentation]: https://yarnpkg.com/en/docs/usage
+[pnpm documentation]: https://pnpm.io/cli/add
 
 ## Debugging Tools
 

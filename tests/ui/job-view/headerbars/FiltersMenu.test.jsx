@@ -8,8 +8,6 @@ import thunk from 'redux-thunk';
 import FiltersMenu from '../../../../ui/job-view/headerbars/FiltersMenu';
 import { thAllResultStatuses } from '../../../../ui/helpers/constants';
 import * as filterHelpers from '../../../../ui/helpers/filter';
-import * as selectedJobActions from '../../../../ui/job-view/redux/stores/selectedJob';
-import * as pinnedJobsActions from '../../../../ui/job-view/redux/stores/pinnedJobs';
 
 // Mock the filter helpers
 jest.mock('../../../../ui/helpers/filter', () => ({
@@ -20,6 +18,28 @@ jest.mock('../../../../ui/helpers/filter', () => ({
     'exception',
   ],
   arraysEqual: jest.fn((a, b) => JSON.stringify(a) === JSON.stringify(b)),
+}));
+
+// Mock Redux action modules - must use jest.mock for ES modules with SWC
+const mockSetSelectedJob = jest.fn((job) => ({
+  type: 'SET_SELECTED_JOB',
+  job,
+}));
+const mockClearSelectedJob = jest.fn(() => ({
+  type: 'CLEAR_SELECTED_JOB',
+}));
+const mockPinJobs = jest.fn((jobs) => ({
+  type: 'PIN_JOBS',
+  jobs,
+}));
+
+jest.mock('../../../../ui/job-view/redux/stores/selectedJob', () => ({
+  setSelectedJob: (...args) => mockSetSelectedJob(...args),
+  clearSelectedJob: (...args) => mockClearSelectedJob(...args),
+}));
+
+jest.mock('../../../../ui/job-view/redux/stores/pinnedJobs', () => ({
+  pinJobs: (...args) => mockPinJobs(...args),
 }));
 
 // Create a mock store
@@ -69,25 +89,11 @@ describe('FiltersMenu', () => {
       toString: jest.fn(),
     };
 
-    // Mock the Redux actions
-    jest
-      .spyOn(selectedJobActions, 'setSelectedJob')
-      .mockImplementation((job) => ({
-        type: 'SET_SELECTED_JOB',
-        job,
-      }));
-    jest
-      .spyOn(selectedJobActions, 'clearSelectedJob')
-      .mockImplementation(() => ({
-        type: 'CLEAR_SELECTED_JOB',
-      }));
-    jest.spyOn(pinnedJobsActions, 'pinJobs').mockImplementation((jobs) => ({
-      type: 'PIN_JOBS',
-      jobs,
-    }));
-
     // Reset all mocks
     jest.clearAllMocks();
+    mockSetSelectedJob.mockClear();
+    mockClearSelectedJob.mockClear();
+    mockPinJobs.mockClear();
 
     // Create a fresh store for each test
     store = mockStore({
@@ -179,16 +185,14 @@ describe('FiltersMenu', () => {
     // Check that getAllShownJobs and pinJobs were called
     expect(mockGetAllShownJobs).toHaveBeenCalled();
 
-    // Check that the store received the SET_PINNED_JOBS action
+    // Check that the store received the PIN_JOBS action
     const actions = store.getActions();
     expect(actions).toContainEqual({
-      type: 'SET_PINNED_JOBS',
-      payload: {
-        pinnedJobs: {
-          1: { id: 1, jobType: 'test' },
-          2: { id: 2, jobType: 'build' },
-        },
-      },
+      type: 'PIN_JOBS',
+      jobs: [
+        { id: 1, jobType: 'test' },
+        { id: 2, jobType: 'build' },
+      ],
     });
   });
 
@@ -207,10 +211,10 @@ describe('FiltersMenu', () => {
     // Click on "Pin all showing"
     fireEvent.click(screen.getByText('Pin all showing'));
 
-    // Check that the store received the SELECT_JOB action
+    // Check that the store received the SET_SELECTED_JOB action
     const actions = store.getActions();
     expect(actions).toContainEqual({
-      type: 'SELECT_JOB',
+      type: 'SET_SELECTED_JOB',
       job: {
         id: 1,
         jobType: 'test',
@@ -248,7 +252,7 @@ describe('FiltersMenu', () => {
     fireEvent.click(screen.getByText('Pin all showing'));
 
     // Check that setSelectedJob was not called
-    expect(selectedJobActions.setSelectedJob).not.toHaveBeenCalled();
+    expect(mockSetSelectedJob).not.toHaveBeenCalled();
   });
 
   it('calls toggleClassifiedFailures(true) when "All failures" is clicked', () => {

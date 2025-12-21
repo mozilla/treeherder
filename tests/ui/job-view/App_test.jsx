@@ -163,19 +163,24 @@ describe('App', () => {
 
   test('should have links to Perfherder and Intermittent Failures View', async () => {
     const { getByText, getByAltText } = render(testApp());
+
+    // Wait for initial render and data loading
     const appMenu = await waitFor(() => getByAltText('Treeherder'), {
       timeout: 2000,
     });
 
     expect(appMenu).toBeInTheDocument();
-    fireEvent.click(appMenu);
 
-    const phMenu = await waitFor(() => getByText('Perfherder'));
+    // Wait for any state updates after clicking
+    fireEvent.click(appMenu);
+    await waitFor(() => {
+      expect(getByText('Perfherder')).toBeInTheDocument();
+    });
+
+    const phMenu = getByText('Perfherder');
     expect(phMenu.getAttribute('href')).toBe('/perfherder');
 
-    const ifvMenu = await waitFor(() =>
-      getByText('Intermittent Failures View'),
-    );
+    const ifvMenu = getByText('Intermittent Failures View');
     expect(ifvMenu.getAttribute('href')).toBe('/intermittent-failures');
   });
 
@@ -187,19 +192,28 @@ describe('App', () => {
     secondJobTaskId,
   ) => {
     const { getByText, findByText, findByTestId } = render(testApp());
+
+    // Wait for initial data to load
     const firstJob = await findByText(firstJobSymbol);
 
+    // Click on the first job and wait for state updates
     fireEvent.mouseDown(firstJob);
 
+    // Wait for summary panel to appear
     expect(await findByTestId('summary-panel')).toBeInTheDocument();
     await findByText(firstJobTaskId);
     expect(firstJob).toHaveClass('selected-job');
 
+    // Press key and wait for state updates
     fireEvent.keyDown(document.body, keyDown);
 
-    const secondJob = getByText(secondJobSymbol);
+    // Wait for the second job to be selected
+    await waitFor(() => {
+      const secondJob = getByText(secondJobSymbol);
+      expect(secondJob).toHaveClass('selected-job');
+    });
+
     const secondTaskId = await findByText(secondJobTaskId);
-    expect(secondJob).toHaveClass('selected-job');
     expect(secondTaskId).toBeInTheDocument();
 
     return true;
@@ -256,20 +270,30 @@ describe('App', () => {
   test('changing repo updates ``currentRepo``', async () => {
     const { getByText, getByTitle } = render(testApp());
 
+    // Wait for initial autoland data to load
     const autolandRevision = await waitFor(() => getByText('ba9c692786e9'));
     expect(autolandRevision).toBeInTheDocument();
 
+    // Click repos button and wait for menu to open
     const reposButton = await waitFor(() => getByTitle('Watch a repo'));
     fireEvent.click(reposButton);
 
+    // Wait for try repo option to appear in menu
     const tryRepo = await waitFor(() => getByText('try'));
     fireEvent.click(tryRepo);
 
+    // Wait for try repo data to load
     await waitFor(() => getByText('333333333333'));
 
-    expect(autolandRevision).not.toBeInTheDocument();
-    expect(document.querySelector('.revision a').getAttribute('href')).toBe(
-      'https://hg.mozilla.org/try/rev/3333333333335143b8df3f4b3e9b504dfbc589a0',
-    );
+    // Verify autoland revision is gone and try revision is shown
+    await waitFor(() => {
+      expect(autolandRevision).not.toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      expect(document.querySelector('.revision a').getAttribute('href')).toBe(
+        'https://hg.mozilla.org/try/rev/3333333333335143b8df3f4b3e9b504dfbc589a0',
+      );
+    });
   });
 });

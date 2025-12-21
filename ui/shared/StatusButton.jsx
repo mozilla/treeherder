@@ -53,7 +53,7 @@ const StatusButton = ({
 StatusButton.propTypes = {
   title: PropTypes.string.isRequired,
   failureCount: PropTypes.number.isRequired,
-  inProgressCount: PropTypes.number.isRequired,
+  inProgressCount: PropTypes.number,
   status: PropTypes.string.isRequired,
   revision: PropTypes.string.isRequired,
   repo: PropTypes.string.isRequired,
