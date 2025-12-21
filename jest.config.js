@@ -15,10 +15,31 @@ module.exports = {
   testEnvironment: 'jsdom',
   testRegex: 'ui/.*(_test|_spec|\\.test|\\.spec)\\.(mjs|jsx|js)$',
   verbose: true,
+
+  // Use SWC for faster transforms (20-70x faster than babel-jest)
   transform: {
-    '\\.(mjs|jsx|js)$': 'babel-jest',
+    '\\.(mjs|jsx|js)$': [
+      '@swc/jest',
+      {
+        jsc: {
+          parser: {
+            syntax: 'ecmascript',
+            jsx: true,
+          },
+          transform: {
+            react: {
+              runtime: 'automatic',
+            },
+          },
+        },
+      },
+    ],
   },
   transformIgnorePatterns: ['node_modules/(?!taskcluster-client-web)'],
   setupFilesAfterEnv: ['<rootDir>/tests/ui/test-setup.js'],
   testPathIgnorePatterns: ['tests/ui/integration'],
+
+  // Enable Jest caching for faster subsequent runs
+  cache: true,
+  cacheDirectory: '<rootDir>/.jest-cache',
 };
