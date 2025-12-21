@@ -1,5 +1,4 @@
 import React from 'react';
-import { Provider, ReactReduxContext } from 'react-redux';
 import fetchMock from 'fetch-mock';
 import {
   render,
@@ -18,15 +17,11 @@ import taskDefinition from '../../mock/task_definition.json';
 import { getApiUrl } from '../../../../ui/helpers/url';
 import FilterModel from '../../../../ui/models/filter';
 import { getProjectUrl } from '../../../../ui/helpers/location';
-import { configureStore } from '../../../../ui/job-view/redux/configureStore';
-import { setSelectedJob } from '../../../../ui/job-view/redux/stores/selectedJob';
-import {
-  setPushes,
-  updateJobMap,
-} from '../../../../ui/job-view/redux/stores/pushes';
 import reposFixture from '../../mock/repositories';
 import KeyboardShortcuts from '../../../../ui/job-view/KeyboardShortcuts';
-import { pinJobs } from '../../../../ui/job-view/redux/stores/pinnedJobs';
+import { useSelectedJobStore } from '../../../../ui/job-view/stores/selectedJobStore';
+import { usePinnedJobsStore } from '../../../../ui/job-view/stores/pinnedJobsStore';
+import { usePushStore } from '../../../../ui/job-view/stores/pushStore';
 
 const mockLocation = { search: '', pathname: '/jobs' };
 const mockNavigate = jest.fn();
@@ -38,13 +33,27 @@ describe('DetailsPanel', () => {
   const classificationMap = { 4: 'intermittent' };
   let jobList = null;
   const selectedJobId = 259537372;
-  let store = null;
   const currentRepo = reposFixture[2];
   currentRepo.getRevisionHref = () => 'foo';
   currentRepo.getPushLogHref = () => 'foo';
   const router = { location: mockLocation };
 
   beforeEach(async () => {
+    // Reset Zustand stores
+    useSelectedJobStore.setState({
+      selectedJob: null,
+    });
+    usePinnedJobsStore.setState({
+      pinnedJobs: {},
+      isPinBoardVisible: false,
+    });
+    usePushStore.setState({
+      pushList: [],
+      jobMap: {},
+      decisionTaskMap: {},
+      revisionTips: [],
+    });
+
     fetchMock.get(
       getApiUrl('/jobs/?push_id=511138', repoName),
       jobListFixtureOne,
@@ -104,9 +113,13 @@ describe('DetailsPanel', () => {
       taskDefinition,
     );
     fetchMock.delete(getProjectUrl('/classification/', repoName), []);
-    store = configureStore();
-    store.dispatch(setPushes(pushFixture.results, {}, router));
-    store.dispatch(updateJobMap(jobList.data));
+
+    // Set up Zustand store state with jobs nested in pushes
+    const pushesWithJobs = pushFixture.results.map((push) => ({
+      ...push,
+      jobs: jobList.data.filter((job) => job.push_id === push.id),
+    }));
+    usePushStore.getState().setPushes(pushesWithJobs);
   });
 
   afterEach(() => {
@@ -117,26 +130,24 @@ describe('DetailsPanel', () => {
 
   const testDetailsPanel = () => (
     <div id="global-container" className="height-minus-navbars">
-      <Provider store={store} context={ReactReduxContext}>
-        <MemoryRouter>
-          <KeyboardShortcuts
-            filterModel={new FilterModel(mockNavigate, mockLocation)}
-            showOnScreenShortcuts={() => {}}
-          >
-            <div />
-            <div id="th-global-content" data-testid="global-content">
-              <DetailsPanel
-                currentRepo={currentRepo}
-                user={{ isLoggedIn: true, isStaff: true }}
-                resizedHeight={100}
-                classificationTypes={classificationTypes}
-                classificationMap={classificationMap}
-                router={router}
-              />
-            </div>
-          </KeyboardShortcuts>
-        </MemoryRouter>
-      </Provider>
+      <MemoryRouter>
+        <KeyboardShortcuts
+          filterModel={new FilterModel(mockNavigate, mockLocation)}
+          showOnScreenShortcuts={() => {}}
+        >
+          <div />
+          <div id="th-global-content" data-testid="global-content">
+            <DetailsPanel
+              currentRepo={currentRepo}
+              user={{ isLoggedIn: true, isStaff: true }}
+              resizedHeight={100}
+              classificationTypes={classificationTypes}
+              classificationMap={classificationMap}
+              router={router}
+            />
+          </div>
+        </KeyboardShortcuts>
+      </MemoryRouter>
     </div>
   );
 
@@ -157,7 +168,7 @@ describe('DetailsPanel', () => {
     const { getByTitle } = render(testDetailsPanel());
 
     await act(async () => {
-      store.dispatch(setSelectedJob(jobList.data[1], true));
+      useSelectedJobStore.getState().setSelectedJob(jobList.data[1], true);
     });
 
     // Wait for the selected job to render
@@ -180,7 +191,7 @@ describe('DetailsPanel', () => {
     const { getByTitle } = render(testDetailsPanel());
 
     await act(async () => {
-      store.dispatch(setSelectedJob(jobList.data[1], true));
+      useSelectedJobStore.getState().setSelectedJob(jobList.data[1], true);
     });
 
     // Wait for state update from dispatch
@@ -203,7 +214,7 @@ describe('DetailsPanel', () => {
     const { getByPlaceholderText, getByTitle } = render(testDetailsPanel());
 
     await act(async () => {
-      store.dispatch(setSelectedJob(jobList.data[1], true));
+      useSelectedJobStore.getState().setSelectedJob(jobList.data[1], true);
     });
 
     // Wait for state update from dispatch
@@ -232,7 +243,7 @@ describe('DetailsPanel', () => {
     const { getByPlaceholderText, getByTitle } = render(testDetailsPanel());
 
     await act(async () => {
-      store.dispatch(setSelectedJob(jobList.data[1], true));
+      useSelectedJobStore.getState().setSelectedJob(jobList.data[1], true);
     });
 
     // Wait for state update from dispatch
@@ -256,7 +267,7 @@ describe('DetailsPanel', () => {
     const { getByTitle } = render(testDetailsPanel());
 
     await act(async () => {
-      store.dispatch(setSelectedJob(jobList.data[1], true));
+      useSelectedJobStore.getState().setSelectedJob(jobList.data[1], true);
     });
 
     // Wait for state update from dispatch
@@ -288,7 +299,7 @@ describe('DetailsPanel', () => {
     const { getByTitle, getByText } = render(testDetailsPanel());
 
     await act(async () => {
-      store.dispatch(setSelectedJob(jobList.data[1], true));
+      useSelectedJobStore.getState().setSelectedJob(jobList.data[1], true);
     });
 
     // Wait for state update from dispatch
@@ -323,7 +334,7 @@ describe('DetailsPanel', () => {
     const { queryAllByTitle } = render(testDetailsPanel());
 
     await act(async () => {
-      store.dispatch(pinJobs(jobList.data));
+      usePinnedJobsStore.getState().pinJobs(jobList.data);
     });
 
     // Wait for state updates after pinning all jobs
@@ -342,8 +353,8 @@ describe('DetailsPanel', () => {
     } = render(testDetailsPanel());
 
     await act(async () => {
-      store.dispatch(pinJobs(jobList.data));
-      store.dispatch(setSelectedJob(jobList.data[1], true));
+      usePinnedJobsStore.getState().pinJobs(jobList.data);
+      useSelectedJobStore.getState().setSelectedJob(jobList.data[1], true);
     });
 
     // Wait for state updates from dispatch actions
@@ -428,7 +439,7 @@ describe('DetailsPanel', () => {
     checkClassifiedJobs(jobList.data.length);
 
     await act(async () => {
-      store.dispatch(pinJobs(jobList.data));
+      usePinnedJobsStore.getState().pinJobs(jobList.data);
     });
 
     // Wait for jobs to be pinned again

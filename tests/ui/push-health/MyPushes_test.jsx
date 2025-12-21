@@ -2,7 +2,6 @@ import React from 'react';
 import fetchMock from 'fetch-mock';
 import { render, waitFor, fireEvent, act } from '@testing-library/react';
 import { MemoryRouter, useLocation, useNavigate } from 'react-router-dom';
-import { Provider } from 'react-redux';
 
 import MyPushes from '../../../ui/push-health/MyPushes';
 import pushHealthSummaryTryData from '../mock/push_health_summary_try';
@@ -10,7 +9,6 @@ import pushHealthSummaryData from '../mock/push_health_summary_all';
 import reposFixture from '../mock/repositories';
 import { getApiUrl } from '../../../ui/helpers/url';
 import { getProjectUrl } from '../../../ui/helpers/location';
-import { configureStore } from '../../../ui/job-view/redux/configureStore';
 import { myPushesDefaultMessage } from '../../../ui/push-health/helpers';
 
 // Wrapper component that provides location and navigate to MyPushes
@@ -38,17 +36,14 @@ describe('My Pushes', () => {
   });
 
   const testMyPushes = (user = testUser, initialEntries = ['/']) => {
-    const store = configureStore();
     return (
-      <Provider store={store}>
-        <MemoryRouter initialEntries={initialEntries}>
-          <MyPushesWithLocation
-            user={user}
-            notify={() => {}}
-            clearNotification={() => {}}
-          />
-        </MemoryRouter>
-      </Provider>
+      <MemoryRouter initialEntries={initialEntries}>
+        <MyPushesWithLocation
+          user={user}
+          notify={() => {}}
+          clearNotification={() => {}}
+        />
+      </MemoryRouter>
     );
   };
 
