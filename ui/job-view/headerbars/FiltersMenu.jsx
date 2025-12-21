@@ -12,7 +12,7 @@ import {
 } from '../../helpers/filter';
 import { thAllResultStatuses } from '../../helpers/constants';
 import { setSelectedJob, clearSelectedJob } from '../redux/stores/selectedJob';
-import { pinJobs } from '../redux/stores/pinnedJobs';
+import { pinJobs } from '../stores/pinnedJobsStore';
 
 const resultStatusMenuItems = thAllResultStatuses.filter(
   (rs) => rs !== 'runnable',
@@ -20,7 +20,6 @@ const resultStatusMenuItems = thAllResultStatuses.filter(
 
 function FiltersMenu({
   filterModel,
-  pinJobs,
   getAllShownJobs,
   selectedJob = null,
   setSelectedJob,
@@ -182,7 +181,6 @@ function FiltersMenu({
 
 FiltersMenu.propTypes = {
   filterModel: PropTypes.shape({}).isRequired,
-  pinJobs: PropTypes.func.isRequired,
   setSelectedJob: PropTypes.func.isRequired,
   getAllShownJobs: PropTypes.func.isRequired,
   selectedJob: PropTypes.shape({}),
@@ -194,5 +192,4 @@ const mapStateToProps = ({ selectedJob: { selectedJob } }) => ({ selectedJob });
 export default connect(mapStateToProps, {
   setSelectedJob,
   clearSelectedJob,
-  pinJobs,
 })(FiltersMenu);
