@@ -60,13 +60,13 @@ services:
     # https://hub.docker.com/_/node
     image: node:23.5.0-alpine3.20
     # Installing JS dependencies at runtime so that they share the `node_modules` from the
-    # host, improving speed (both install and build due to the webpack cache) and ensuring
+    # host, improving speed (both install and build due to the rspack cache) and ensuring
     # the host copy stays in sync (for people that switch back and forth between UI-only
     # and full stack Treeherder development).
     working_dir: /app
     environment:
       BACKEND: http://backend:8000
-    command: sh -c "yarn && yarn start --host 0.0.0.0"
+    command: sh -c "corepack enable && corepack prepare pnpm@9.15.0 --activate && pnpm install && pnpm start --host 0.0.0.0"
     volumes:
       - .:/app
     ports:
