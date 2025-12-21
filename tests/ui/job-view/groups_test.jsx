@@ -1,7 +1,6 @@
 import React from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import { render, waitFor, fireEvent } from '@testing-library/react';
-import { createBrowserHistory } from 'history';
 
 import { JobGroupComponent } from '../../../ui/job-view/pushes/JobGroup';
 import FilterModel from '../../../ui/models/filter';
@@ -9,19 +8,19 @@ import mappedGroupFixture from '../mock/mappedGroup';
 import mappedGroupDupsFixture from '../mock/mappedGroupDups';
 import { addAggregateFields } from '../../../ui/helpers/job';
 
-const history = createBrowserHistory();
+const mockLocation = { search: '', pathname: '/jobs' };
+const mockNavigate = jest.fn();
 
 describe('JobGroup component', () => {
   let countGroup;
   let dupGroup;
   const repoName = 'autoland';
-  const filterModel = new FilterModel({
-    pushRoute: history.push,
-    router: { location: history.location },
-  });
+  const filterModel = new FilterModel(mockNavigate, mockLocation);
   const pushGroupState = 'collapsed';
 
-  afterEach(() => history.push('/'));
+  afterEach(() => {
+    mockNavigate.mockClear();
+  });
 
   beforeAll(() => {
     mappedGroupFixture.jobs.forEach((job) => addAggregateFields(job));
@@ -47,7 +46,7 @@ describe('JobGroup component', () => {
       platform={<span>windows</span>}
       duplicateJobsVisible={duplicateJobsVisible}
       groupCountsExpanded={groupCountsExpanded}
-      push={history.push}
+      push={mockNavigate}
     />
   );
 

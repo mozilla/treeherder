@@ -7,8 +7,7 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { createBrowserHistory } from 'history';
-import { ConnectedRouter } from 'connected-react-router';
+import { MemoryRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 
 import { getApiUrl } from '../../../ui/helpers/url';
@@ -23,8 +22,7 @@ import repositories from '../mock/repositories.json';
 import { configureStore } from '../../../ui/job-view/redux/configureStore';
 
 const selectedJob = Object.values(jobMap)[0];
-const history = createBrowserHistory();
-const store = configureStore(history);
+const store = configureStore();
 const { dispatch, getState } = store;
 
 describe('FailureSummaryTab', () => {
@@ -50,7 +48,7 @@ describe('FailureSummaryTab', () => {
 
   const testFailureSummaryTab = () => (
     <Provider store={store}>
-      <ConnectedRouter history={history}>
+      <MemoryRouter>
         <PinBoard
           classificationTypes={[{ id: 0, name: 'intermittent' }]}
           isLoggedIn={false}
@@ -69,7 +67,7 @@ describe('FailureSummaryTab', () => {
           pinJob={() => {}}
           currentRepo={currentRepo}
         />
-      </ConnectedRouter>
+      </MemoryRouter>
     </Provider>
   );
 

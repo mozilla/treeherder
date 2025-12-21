@@ -6,9 +6,8 @@ import {
   waitFor,
   waitForElementToBeRemoved,
 } from '@testing-library/react';
-import { createBrowserHistory } from 'history';
 import fetchMock from 'fetch-mock';
-import { ConnectedRouter } from 'connected-react-router';
+import { MemoryRouter } from 'react-router-dom';
 import { Provider, ReactReduxContext } from 'react-redux';
 
 import { configureStore } from '../../../../ui/job-view/redux/configureStore';
@@ -29,8 +28,6 @@ import optionCollectionMap from '../../mock/optionCollectionMap';
 import testAlertSummaries from '../../mock/alert_summaries';
 import testPerformanceTags from '../../mock/performance_tags';
 import TagsList from '../../../../ui/perfherder/alerts/TagsList';
-
-const history = createBrowserHistory();
 
 const testUser = {
   username: 'mozilla-ldap/test_user@mozilla.com',
@@ -71,8 +68,6 @@ const testIssueTrackers = [
 
 const testActiveTags = ['first-tag', 'second-tag'];
 
-afterEach(() => history.push('/alerts'));
-
 const mockModifyAlert = {
   update(alert, params) {
     return {
@@ -86,20 +81,18 @@ const mockModifyAlert = {
 };
 
 const alertsView = () => {
-  const store = configureStore(history);
+  const store = configureStore();
 
   return render(
     <Provider store={store} context={ReactReduxContext}>
-      <ConnectedRouter history={history} context={ReactReduxContext}>
+      <MemoryRouter initialEntries={['/alerts']}>
         <AlertsView
           user={testUser}
           projects={repos}
-          location={history.location}
           frameworks={frameworks}
           performanceTags={testPerformanceTags}
-          history={history}
         />
-      </ConnectedRouter>
+      </MemoryRouter>
     </Provider>,
   );
 };
@@ -109,11 +102,11 @@ const alertsViewControls = ({
   user: userMock = null,
 } = {}) => {
   const user = userMock !== null ? userMock : testUser;
-  const store = configureStore(history);
+  const store = configureStore();
 
   return render(
     <Provider store={store} context={ReactReduxContext}>
-      <ConnectedRouter history={history} context={ReactReduxContext}>
+      <MemoryRouter initialEntries={['/alerts']}>
         <AlertsViewControls
           validated={{
             hideDwnToInv: undefined,
@@ -135,7 +128,6 @@ const alertsViewControls = ({
             })
           }
           projects={repos}
-          location={history.location}
           filters={{
             filterText: '',
             hideDownstream: false,
@@ -147,9 +139,8 @@ const alertsViewControls = ({
           frameworkOptions={[ignoreFrameworkOption, ...frameworks]}
           setFiltersState={() => {}}
           performanceTags={testPerformanceTags}
-          history={history}
         />
-      </ConnectedRouter>
+      </MemoryRouter>
     </Provider>,
   );
 };
