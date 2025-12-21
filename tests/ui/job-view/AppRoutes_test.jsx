@@ -1,13 +1,14 @@
 import fetchMock from 'fetch-mock';
 import { render, waitFor } from '@testing-library/react';
-import { Provider, ReactReduxContext } from 'react-redux';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 
 import { AppRoutes } from '../../../ui/App';
 import reposFixture from '../mock/repositories';
 import { getApiUrl } from '../../../ui/helpers/url';
 import { getProjectUrl } from '../../../ui/helpers/location';
-import { configureStore } from '../../../ui/job-view/redux/configureStore';
+import { usePushStore } from '../../../ui/job-view/stores/pushStore';
+import { useSelectedJobStore } from '../../../ui/job-view/stores/selectedJobStore';
+import { usePinnedJobsStore } from '../../../ui/job-view/stores/pinnedJobsStore';
 
 // Component to capture location for testing
 let testLocation;
@@ -17,14 +18,11 @@ const LocationCapture = () => {
 };
 
 const testApp = (initialEntries) => {
-  const store = configureStore();
   return (
-    <Provider store={store} context={ReactReduxContext}>
-      <MemoryRouter initialEntries={initialEntries}>
-        <LocationCapture />
-        <AppRoutes />
-      </MemoryRouter>
-    </Provider>
+    <MemoryRouter initialEntries={initialEntries}>
+      <LocationCapture />
+      <AppRoutes />
+    </MemoryRouter>
   );
 };
 
@@ -57,6 +55,23 @@ describe('Test for backwards-compatible routes for other apps', () => {
 
   beforeEach(() => {
     testLocation = null;
+
+    // Reset Zustand stores
+    usePushStore.setState({
+      pushList: [],
+      jobMap: {},
+      decisionTaskMap: {},
+      revisionTips: [],
+      allUnclassifiedFailureCount: 0,
+      filteredUnclassifiedFailureCount: 0,
+    });
+    useSelectedJobStore.setState({
+      selectedJob: null,
+    });
+    usePinnedJobsStore.setState({
+      pinnedJobs: {},
+      isPinBoardVisible: false,
+    });
   });
 
   test('old push health url should redirect to correct url', async () => {

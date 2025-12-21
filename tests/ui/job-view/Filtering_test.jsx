@@ -2,7 +2,6 @@
 import fetchMock from 'fetch-mock';
 import { render, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
-import { Provider, ReactReduxContext } from 'react-redux';
 
 import App from '../../../ui/job-view/App';
 import taskDefinition from '../mock/task_definition.json';
@@ -12,7 +11,9 @@ import { getApiUrl, bzBaseUrl } from '../../../ui/helpers/url';
 import { getProjectUrl } from '../../../ui/helpers/location';
 import jobListFixtureOne from '../mock/job_list/job_1';
 import jobMap from '../mock/job_map';
-import { configureStore } from '../../../ui/job-view/redux/configureStore';
+import { usePushStore } from '../../../ui/job-view/stores/pushStore';
+import { useSelectedJobStore } from '../../../ui/job-view/stores/selectedJobStore';
+import { usePinnedJobsStore } from '../../../ui/job-view/stores/pinnedJobsStore';
 
 // Helper component to track location changes
 let locationTracker;
@@ -39,14 +40,11 @@ const emptyBzResponse = {
 };
 
 const testApp = () => {
-  const store = configureStore();
   return (
-    <Provider store={store}>
-      <MemoryRouter initialEntries={[`/jobs?repo=${repoName}`]}>
-        <LocationTracker />
-        <App user={{ email: 'reviewbot' }} context={ReactReduxContext} />
-      </MemoryRouter>
-    </Provider>
+    <MemoryRouter initialEntries={[`/jobs?repo=${repoName}`]}>
+      <LocationTracker />
+      <App user={{ email: 'reviewbot' }} />
+    </MemoryRouter>
   );
 };
 
@@ -84,8 +82,26 @@ describe('Filtering', () => {
       taskDefinition,
     );
   });
+
   beforeEach(() => {
     locationTracker = null;
+    // Reset Zustand stores before each test
+    usePushStore.setState({
+      pushList: [],
+      jobMap: {},
+      decisionTaskMap: {},
+      revisionTips: [],
+      allUnclassifiedFailureCount: 0,
+      filteredUnclassifiedFailureCount: 0,
+      oldestPushTimestamp: null,
+    });
+    useSelectedJobStore.setState({
+      selectedJob: null,
+    });
+    usePinnedJobsStore.setState({
+      pinnedJobs: {},
+      isPinBoardVisible: false,
+    });
   });
 
   afterEach(async () => {

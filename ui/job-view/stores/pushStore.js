@@ -463,9 +463,19 @@ export const updatePushJobs = (pushId, jobs) =>
   usePushStore.getState().updatePushJobs(pushId, jobs);
 
 // For compatibility with existing code that uses updateJobMap
-// eslint-disable-next-line no-unused-vars
 export const updateJobMap = (jobList) => {
-  // This is now handled by updatePushJobs when jobs are added
-  // For now, just recalculate counts
+  // Add jobs to the jobMap directly
+  // This directly updates the jobMap without changing pushList
+  // to maintain backwards compatibility with existing job loading flow
+  if (!jobList || jobList.length === 0) return;
+
+  const currentJobMap = usePushStore.getState().jobMap || {};
+  const newJobMap = { ...currentJobMap };
+
+  jobList.forEach((job) => {
+    newJobMap[job.id] = job;
+  });
+
+  usePushStore.setState({ jobMap: newJobMap });
   usePushStore.getState().recalculateUnclassifiedCounts();
 };

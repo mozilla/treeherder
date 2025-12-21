@@ -36,6 +36,7 @@ import PushList from './pushes/PushList';
 import KeyboardShortcuts from './KeyboardShortcuts';
 import { useNotificationStore } from './stores/notificationStore';
 import { usePushStore, fetchPushes } from './stores/pushStore';
+import { useSelectedJobStore } from './stores/selectedJobStore';
 
 import '../css/treeherder.css';
 import '../css/treeherder-navbar-panels.css';
@@ -105,6 +106,7 @@ const App = () => {
 
   // Zustand state
   const jobMap = usePushStore((state) => state.jobMap);
+  const selectedJob = useSelectedJobStore((state) => state.selectedJob);
 
   // Get initial URL params
   const urlParams = getAllUrlParams();
@@ -380,6 +382,11 @@ const App = () => {
   useEffect(() => {
     updatePanelLayout();
   }, [hasSelectedJob, updatePanelLayout]);
+
+  // Sync hasSelectedJob with Zustand selectedJob store
+  useEffect(() => {
+    setHasSelectedJob(!!selectedJob);
+  }, [selectedJob]);
 
   // Calculate panel sizes
   const pushListPct =

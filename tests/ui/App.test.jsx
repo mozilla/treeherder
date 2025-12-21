@@ -1,13 +1,10 @@
-
 import fetchMock from 'fetch-mock';
 import { render, waitFor } from '@testing-library/react';
-import { Provider, ReactReduxContext } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 
 import { AppRoutes } from '../../ui/App';
 import { getApiUrl } from '../../ui/helpers/url';
 import { getProjectUrl } from '../../ui/helpers/location';
-import { configureStore } from '../../ui/job-view/redux/configureStore';
 
 import reposFixture from './mock/repositories';
 import pushListFixture from './mock/push_list';
@@ -22,13 +19,10 @@ import pushListFixture from './mock/push_list';
  */
 
 const renderApp = (initialEntries = ['/']) => {
-  const store = configureStore();
   return render(
-    <Provider store={store} context={ReactReduxContext}>
-      <MemoryRouter initialEntries={initialEntries}>
-        <AppRoutes />
-      </MemoryRouter>
-    </Provider>,
+    <MemoryRouter initialEntries={initialEntries}>
+      <AppRoutes />
+    </MemoryRouter>,
   );
 };
 
