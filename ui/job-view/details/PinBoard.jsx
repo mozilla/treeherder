@@ -14,7 +14,7 @@ import BugJobMapModel from '../../models/bugJobMap';
 import JobClassificationModel from '../../models/classification';
 import JobClassificationTypeAndBugsModel from '../../models/classificationTypeAndBugs';
 import JobModel from '../../models/job';
-import { setSelectedJob } from '../redux/stores/selectedJob';
+import { setSelectedJob } from '../stores/selectedJobStore';
 import { notify } from '../stores/notificationStore';
 import { recalculateUnclassifiedCounts } from '../redux/stores/pushes';
 import {

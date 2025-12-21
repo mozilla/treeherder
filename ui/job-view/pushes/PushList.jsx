@@ -12,7 +12,7 @@ import { usePinnedJobsStore } from '../stores/pinnedJobsStore';
 import {
   clearSelectedJob,
   setSelectedJobFromQueryString,
-} from '../redux/stores/selectedJob';
+} from '../stores/selectedJobStore';
 import { fetchPushes, updateRange, pollPushes } from '../redux/stores/pushes';
 import { updatePushParams } from '../../helpers/location';
 
@@ -33,8 +33,6 @@ function PushList({
   duplicateJobsVisible,
   groupCountsExpanded,
   allUnclassifiedFailureCount,
-  clearSelectedJob,
-  setSelectedJobFromQueryString,
   getAllShownJobs,
   jobMap,
   revision = null,
@@ -229,8 +227,6 @@ PushList.propTypes = {
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
   allUnclassifiedFailureCount: PropTypes.number.isRequired,
-  clearSelectedJob: PropTypes.func.isRequired,
-  setSelectedJobFromQueryString: PropTypes.func.isRequired,
   getAllShownJobs: PropTypes.func.isRequired,
   jobMap: PropTypes.shape({}).isRequired,
   revision: PropTypes.string,
@@ -256,8 +252,6 @@ const mapStateToProps = ({
 });
 
 export default connect(mapStateToProps, {
-  clearSelectedJob,
-  setSelectedJobFromQueryString,
   fetchPushes,
   updateRange,
   pollPushes,

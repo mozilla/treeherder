@@ -1,6 +1,5 @@
 import React, { useMemo, useCallback, memo } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
@@ -9,7 +8,7 @@ import { findInstance, findSelectedInstance } from '../../helpers/job';
 import { getUrlParam } from '../../helpers/location';
 import { getLogViewerUrl } from '../../helpers/url';
 import JobModel from '../../models/job';
-import { setSelectedJob } from '../redux/stores/selectedJob';
+import { setSelectedJob } from '../stores/selectedJobStore';
 import { togglePinJob } from '../stores/pinnedJobsStore';
 
 import Platform from './Platform';
@@ -24,7 +23,6 @@ function PushJobs({
   groupCountsExpanded,
   platforms,
   toggleSelectedRunnableJob,
-  setSelectedJob,
 }) {
   const aggregateId = useMemo(
     () => getPushTableId(repoName, push.id, push.revision),
@@ -140,7 +138,6 @@ function PushJobs({
 }
 
 PushJobs.propTypes = {
-  setSelectedJob: PropTypes.func.isRequired,
   toggleSelectedRunnableJob: PropTypes.func.isRequired,
   repoName: PropTypes.string.isRequired,
   push: PropTypes.shape({
@@ -155,4 +152,4 @@ PushJobs.propTypes = {
   filterModel: PropTypes.shape({}).isRequired,
 };
 
-export default connect(null, { setSelectedJob })(memo(PushJobs));
+export default memo(PushJobs);

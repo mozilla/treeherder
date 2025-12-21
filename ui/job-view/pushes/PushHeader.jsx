@@ -22,7 +22,7 @@ import JobModel from '../../models/job';
 import PushHealthStatus from '../../shared/PushHealthStatus';
 import { getUrlParam } from '../../helpers/location';
 import { notify } from '../stores/notificationStore';
-import { setSelectedJob } from '../redux/stores/selectedJob';
+import { setSelectedJob } from '../stores/selectedJobStore';
 import { pinJobs } from '../stores/pinnedJobsStore';
 
 import PushActionMenu from './PushActionMenu';
@@ -85,7 +85,6 @@ function PushHeader({
   hideRunnableJobs,
   showFuzzyJobs,
   cycleWatchState,
-  setSelectedJob,
   expandAllPushGroups,
   notificationSupported,
   getAllShownJobs,
@@ -165,7 +164,7 @@ function PushHeader({
     } else {
       notify('No jobs available to pin', 'danger');
     }
-  }, [pushId, setSelectedJob, expandAllPushGroups, getAllShownJobs]);
+  }, [pushId, expandAllPushGroups, getAllShownJobs]);
 
   const cancelJobsTitle = 'Cancel all jobs';
   const linkParams = getLinkParams();
@@ -307,7 +306,6 @@ PushHeader.propTypes = {
   hideRunnableJobs: PropTypes.func.isRequired,
   showFuzzyJobs: PropTypes.func.isRequired,
   cycleWatchState: PropTypes.func.isRequired,
-  setSelectedJob: PropTypes.func.isRequired,
   expandAllPushGroups: PropTypes.func.isRequired,
   notificationSupported: PropTypes.bool.isRequired,
   getAllShownJobs: PropTypes.func.isRequired,
@@ -325,4 +323,4 @@ const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({
   decisionTaskMap,
 });
 
-export default connect(mapStateToProps, { setSelectedJob })(memo(PushHeader));
+export default connect(mapStateToProps)(memo(PushHeader));
