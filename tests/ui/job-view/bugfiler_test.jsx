@@ -1,6 +1,3 @@
-
-import { Provider } from 'react-redux';
-import thunk from 'redux-thunk';
 import fetchMock from 'fetch-mock';
 import {
   render,
@@ -9,13 +6,10 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import configureMockStore from 'redux-mock-store';
 
 import { bzComponentEndpoint, bzBaseUrl } from '../../../ui/helpers/url';
 import { isReftest } from '../../../ui/helpers/job';
 import { BugFilerClass } from '../../../ui/shared/BugFiler';
-
-const mockStore = configureMockStore([thunk]);
 
 describe('BugFiler', () => {
   const fullLog =
@@ -193,43 +187,38 @@ describe('BugFiler', () => {
     revisionHrefPrefix: 'https://hg.mozilla.org/integration/autoland/rev/',
   };
 
-  const store = mockStore({});
   const bugFilerComponentSuggestions = (suggestions) => (
-    <Provider store={store}>
-      <BugFilerClass
-        isOpen={isOpen}
-        toggle={toggle}
-        suggestion={suggestions[0]}
-        suggestions={suggestions}
-        fullLog={fullLog}
-        parsedLog={parsedLog}
-        reftestUrl={isReftest(selectedJob) ? reftest : ''}
-        successCallback={successCallback}
-        selectedJob={selectedJob}
-        platform={selectedJob.platform}
-        notify={() => {}}
-        currentRepo={currentRepo}
-      />
-    </Provider>
+    <BugFilerClass
+      isOpen={isOpen}
+      toggle={toggle}
+      suggestion={suggestions[0]}
+      suggestions={suggestions}
+      fullLog={fullLog}
+      parsedLog={parsedLog}
+      reftestUrl={isReftest(selectedJob) ? reftest : ''}
+      successCallback={successCallback}
+      selectedJob={selectedJob}
+      platform={selectedJob.platform}
+      notify={() => {}}
+      currentRepo={currentRepo}
+    />
   );
 
   const bugFilerComponentSuggestion = (suggestion) => (
-    <Provider store={store}>
-      <BugFilerClass
-        isOpen={isOpen}
-        toggle={toggle}
-        suggestion={suggestion}
-        suggestions={suggestions}
-        fullLog={fullLog}
-        parsedLog={parsedLog}
-        reftestUrl={isReftest(selectedJob) ? reftest : ''}
-        successCallback={successCallback}
-        selectedJob={selectedJob}
-        platform={selectedJob.platform}
-        notify={() => {}}
-        currentRepo={currentRepo}
-      />
-    </Provider>
+    <BugFilerClass
+      isOpen={isOpen}
+      toggle={toggle}
+      suggestion={suggestion}
+      suggestions={suggestions}
+      fullLog={fullLog}
+      parsedLog={parsedLog}
+      reftestUrl={isReftest(selectedJob) ? reftest : ''}
+      successCallback={successCallback}
+      selectedJob={selectedJob}
+      platform={selectedJob.platform}
+      notify={() => {}}
+      currentRepo={currentRepo}
+    />
   );
 
   async function SummaryAndExpected(summary) {
