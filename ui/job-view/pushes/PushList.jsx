@@ -7,7 +7,7 @@ import intersection from 'lodash/intersection';
 import isEqual from 'lodash/isEqual';
 
 import ErrorBoundary from '../../shared/ErrorBoundary';
-import { notify } from '../redux/stores/notifications';
+import { notify } from '../stores/notificationStore';
 import {
   clearSelectedJob,
   setSelectedJobFromQueryString,
@@ -37,7 +37,6 @@ function PushList({
   setSelectedJobFromQueryString,
   getAllShownJobs,
   jobMap,
-  notify,
   revision = null,
   landoCommitID = null,
   landoStatus = 'unknown',
@@ -136,7 +135,7 @@ function PushList({
       setSelectedJobFromQueryString(notify, jobMap);
     }
     prevJobsLoaded.current = jobsLoaded;
-  }, [jobsLoaded, setSelectedJobFromQueryString, notify, jobMap]);
+  }, [jobsLoaded, setSelectedJobFromQueryString, jobMap]);
 
   // componentDidUpdate - handle URL changes
   useEffect(() => {
@@ -234,7 +233,6 @@ PushList.propTypes = {
   setSelectedJobFromQueryString: PropTypes.func.isRequired,
   getAllShownJobs: PropTypes.func.isRequired,
   jobMap: PropTypes.shape({}).isRequired,
-  notify: PropTypes.func.isRequired,
   revision: PropTypes.string,
   landoCommitID: PropTypes.string,
   landoStatus: PropTypes.string,
@@ -260,7 +258,6 @@ const mapStateToProps = ({
 });
 
 export default connect(mapStateToProps, {
-  notify,
   clearSelectedJob,
   setSelectedJobFromQueryString,
   fetchPushes,

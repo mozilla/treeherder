@@ -22,11 +22,11 @@ import JobModel from '../../models/job';
 import RunnableJobModel from '../../models/runnableJob';
 import { getRevisionTitle } from '../../helpers/revision';
 import { getPercentComplete } from '../../helpers/display';
-import { notify } from '../redux/stores/notifications';
 import {
   updateJobMap,
   recalculateUnclassifiedCounts,
 } from '../redux/stores/pushes';
+import { notify } from '../stores/notificationStore';
 import {
   checkRootUrl,
   prodFirefoxRootUrl,
@@ -124,7 +124,6 @@ function Push({
   decisionTaskMap,
   bugSummaryMap,
   allUnclassifiedFailureCount,
-  notify,
   updateJobMap,
   recalculateUnclassifiedCounts,
 }) {
@@ -328,7 +327,7 @@ function Push({
     } else {
       notify(failureStatus, 'danger', { sticky: true });
     }
-  }, [push.id, mapPushJobs, notify]);
+  }, [push.id, mapPushJobs]);
 
   const fetchTestManifests = useCallback(async () => {
     const manifests = await fetchGeckoDecisionArtifact(
@@ -484,7 +483,6 @@ function Push({
     currentRepo.name,
     push.revision,
     push.id,
-    notify,
   ]);
 
   const showRunnableJobs = useCallback(async () => {
@@ -505,7 +503,7 @@ function Push({
         'danger',
       );
     }
-  }, [currentRepo, decisionTaskMap, push.id, mapPushJobs, notify]);
+  }, [currentRepo, decisionTaskMap, push.id, mapPushJobs]);
 
   const hideRunnableJobs = useCallback(() => {
     const newJobList = jobListRef.current.filter(
@@ -559,7 +557,7 @@ function Push({
         'danger',
       );
     }
-  }, [currentRepo, decisionTaskMap, push.id, notify]);
+  }, [currentRepo, decisionTaskMap, push.id]);
 
   const cycleWatchState = useCallback(async () => {
     if (!notificationSupported) {
@@ -578,7 +576,7 @@ function Push({
       }
     }
     setWatched(next);
-  }, [notificationSupported, watched, notify]);
+  }, [notificationSupported, watched]);
 
   const toggleFuzzyModal = useCallback(() => {
     setFuzzyModal((prev) => !prev);
@@ -774,7 +772,6 @@ Push.propTypes = {
   allUnclassifiedFailureCount: PropTypes.number.isRequired,
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
-  notify: PropTypes.func.isRequired,
   isOnlyRevision: PropTypes.bool.isRequired,
   pushHealthVisibility: PropTypes.string.isRequired,
   decisionTaskMap: PropTypes.shape({}).isRequired,
@@ -790,7 +787,6 @@ const mapStateToProps = ({
 });
 
 export default connect(mapStateToProps, {
-  notify,
   updateJobMap,
   recalculateUnclassifiedCounts,
 })(memo(Push));

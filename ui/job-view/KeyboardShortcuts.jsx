@@ -5,10 +5,7 @@ import { connect } from 'react-redux';
 
 import { thEvents } from '../helpers/constants';
 
-import {
-  notify,
-  clearAllOnScreenNotifications,
-} from './redux/stores/notifications';
+import { notify, useNotificationStore } from './stores/notificationStore';
 import {
   changeJob,
   clearSelectedJob,
@@ -89,13 +86,12 @@ class KeyboardShortcuts extends React.Component {
   // close any notifications, if they exist.  If not, then close any
   // open panels and selected job
   clearScreen = () => {
+    const { clearSelectedJob, showOnScreenShortcuts, pinnedJobs } = this.props;
+
     const {
-      clearSelectedJob,
-      showOnScreenShortcuts,
       notifications,
       clearAllOnScreenNotifications,
-      pinnedJobs,
-    } = this.props;
+    } = useNotificationStore.getState();
 
     if (notifications.length) {
       clearAllOnScreenNotifications();
@@ -212,7 +208,7 @@ class KeyboardShortcuts extends React.Component {
   changeSelectedJob = (direction, unclassifiedOnly) => {
     // Select the next job without updating the details panel.  That is debounced so
     // it doesn't do too much updating while quickly switching between jobs.
-    const { updateJobDetails, notify, pinnedJobs } = this.props;
+    const { updateJobDetails, pinnedJobs } = this.props;
     const { selectedJob } = changeJob(
       direction,
       unclassifiedOnly,
@@ -266,33 +262,19 @@ KeyboardShortcuts.propTypes = {
   clearSelectedJob: PropTypes.func.isRequired,
   updateJobDetails: PropTypes.func.isRequired,
   showOnScreenShortcuts: PropTypes.func.isRequired,
-  notifications: PropTypes.arrayOf(
-    PropTypes.shape({
-      created: PropTypes.number.isRequired,
-      message: PropTypes.string.isRequired,
-      severity: PropTypes.string.isRequired,
-      sticky: PropTypes.bool,
-    }),
-  ).isRequired,
-  notify: PropTypes.func.isRequired,
   pinnedJobs: PropTypes.shape({}).isRequired,
-  clearAllOnScreenNotifications: PropTypes.func.isRequired,
   selectedJob: PropTypes.shape({}),
 };
 
 const mapStateToProps = ({
-  notifications: { notifications },
   selectedJob: { selectedJob = null },
   pinnedJobs: { pinnedJobs },
 }) => ({
-  notifications,
   selectedJob,
   pinnedJobs,
 });
 
 export default connect(mapStateToProps, {
-  clearAllOnScreenNotifications,
-  notify,
   updateJobDetails,
   clearSelectedJob,
   pinJob,
