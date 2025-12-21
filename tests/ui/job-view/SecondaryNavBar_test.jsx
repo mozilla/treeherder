@@ -4,8 +4,7 @@ import { Provider } from 'react-redux';
 import { render, waitFor, fireEvent, screen } from '@testing-library/react';
 import thunk from 'redux-thunk';
 import configureMockStore from 'redux-mock-store';
-import { createBrowserHistory } from 'history';
-import { BrowserRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 
 import FilterModel from '../../../ui/models/filter';
 import SecondaryNavBar from '../../../ui/job-view/headerbars/SecondaryNavBar';
@@ -14,8 +13,8 @@ import repos from '../mock/repositories';
 
 const mockStore = configureMockStore([thunk]);
 const repoName = 'autoland';
-const history = createBrowserHistory();
-const router = { location: history.location };
+const mockLocation = { search: `?repo=${repoName}`, pathname: '/jobs' };
+const mockNavigate = jest.fn();
 
 beforeEach(() => {
   fetchMock.get(
@@ -33,23 +32,18 @@ beforeEach(() => {
 
 afterEach(() => {
   fetchMock.reset();
-  history.push('/');
+  mockNavigate.mockClear();
 });
 
 describe('SecondaryNavBar', () => {
   const testSecondaryNavBar = (store, props) => {
     return (
       <Provider store={store}>
-        <BrowserRouter>
+        <MemoryRouter initialEntries={[`/jobs?repo=${repoName}`]}>
           <SecondaryNavBar
             updateButtonClick={() => {}}
             serverChanged={false}
-            filterModel={
-              new FilterModel({
-                pushRoute: history.push,
-                router,
-              })
-            }
+            filterModel={new FilterModel(mockNavigate, mockLocation)}
             repos={repos}
             setCurrentRepoTreeStatus={() => {}}
             duplicateJobsVisible={false}
@@ -57,7 +51,7 @@ describe('SecondaryNavBar', () => {
             toggleFieldFilterVisible={() => {}}
             {...props}
           />
-        </BrowserRouter>
+        </MemoryRouter>
       </Provider>
     );
   };
@@ -69,7 +63,6 @@ describe('SecondaryNavBar', () => {
         allUnclassifiedFailureCount: 52,
         filteredUnclassifiedFailureCount: 0,
       },
-      router,
     });
     render(testSecondaryNavBar(store));
 
@@ -88,7 +81,6 @@ describe('SecondaryNavBar', () => {
         allUnclassifiedFailureCount: 22,
         filteredUnclassifiedFailureCount: 10,
       },
-      router,
     });
     render(testSecondaryNavBar(store));
 
@@ -108,7 +100,6 @@ describe('SecondaryNavBar', () => {
       pushes: {
         ...initialState,
       },
-      router,
     });
 
     const props = {

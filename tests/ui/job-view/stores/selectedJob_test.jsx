@@ -1,9 +1,8 @@
 import fetchMock from 'fetch-mock';
 import thunk from 'redux-thunk';
-import { waitFor, act } from '@testing-library/react';
+import { waitFor } from '@testing-library/react';
 import configureMockStore from 'redux-mock-store';
 import keyBy from 'lodash/keyBy';
-import { createBrowserHistory } from 'history';
 
 import {
   setSelectedJob,
@@ -19,12 +18,10 @@ import jobListFixtureOne from '../../mock/job_list/job_1';
 
 const jobMap = keyBy(group.jobs, 'id');
 let notifications = [];
-const history = createBrowserHistory();
 
 describe('SelectedJob Redux store', () => {
   const mockStore = configureMockStore([thunk]);
   const repoName = 'autoland';
-  const router = { location: history.location };
 
   beforeEach(() => {
     fetchMock.get(
@@ -36,44 +33,51 @@ describe('SelectedJob Redux store', () => {
       { results: [] },
     );
     notifications = [];
+    // Mock window.history.pushState for URL updates
+    jest.spyOn(window.history, 'pushState').mockImplementation(() => {});
   });
 
   afterEach(() => {
     fetchMock.reset();
-    act(() => {
-      history.push('/');
-    });
+    jest.restoreAllMocks();
   });
 
   test('setSelectedJob should select a job', async () => {
     const taskRun = 'UCctvnxZR0--JcxyVGc8VA.0';
     const store = mockStore({
       selectedJob: { initialState },
-      router,
     });
 
-    store.dispatch(setSelectedJob(group.jobs[0], true));
+    await store.dispatch(setSelectedJob(group.jobs[0], true));
     const actions = store.getActions();
+
+    // Should dispatch SELECT_JOB action
     expect(actions).toEqual([
       {
         job: group.jobs[0],
         type: SELECT_JOB,
       },
-      {
-        payload: {
-          args: [{ search: `?selectedTaskRun=${taskRun}` }],
-          method: 'push',
-        },
-        type: '@@router/CALL_HISTORY_METHOD',
-      },
     ]);
+
+    // URL should be updated via window.history.pushState
+    expect(window.history.pushState).toHaveBeenCalledWith(
+      {},
+      '',
+      expect.stringContaining(`selectedTaskRun=${taskRun}`),
+    );
   });
 
   test('setSelectedJobFromQueryString found', async () => {
     const taskRun = 'UCctvnxZR0--JcxyVGc8VA.0';
 
-    act(() => {
-      history.push(`/jobs?repo=${repoName}&selectedTaskRun=${taskRun}`);
+    // Mock window.location.search
+    Object.defineProperty(window, 'location', {
+      value: {
+        ...window.location,
+        search: `?repo=${repoName}&selectedTaskRun=${taskRun}`,
+        pathname: '/jobs',
+      },
+      writable: true,
     });
 
     const reduced = reducer(
@@ -87,8 +91,13 @@ describe('SelectedJob Redux store', () => {
   test('setSelectedJobFromQueryString not in jobMap', async () => {
     const taskRun = 'VaQoWKTbSdGSwBJn6UZV9g.0';
 
-    act(() => {
-      history.push(`/jobs?repo=${repoName}&selectedTaskRun=${taskRun}`);
+    Object.defineProperty(window, 'location', {
+      value: {
+        ...window.location,
+        search: `?repo=${repoName}&selectedTaskRun=${taskRun}`,
+        pathname: '/jobs',
+      },
+      writable: true,
     });
 
     const reduced = reducer(
@@ -107,8 +116,13 @@ describe('SelectedJob Redux store', () => {
   test('setSelectedJobFromQueryString not in DB', async () => {
     const taskRun = 'a824gBVmRQSBuEexnVW_Qg.0';
 
-    act(() => {
-      history.push(`/jobs?repo=${repoName}&selectedTaskRun=${taskRun}`);
+    Object.defineProperty(window, 'location', {
+      value: {
+        ...window.location,
+        search: `?repo=${repoName}&selectedTaskRun=${taskRun}`,
+        pathname: '/jobs',
+      },
+      writable: true,
     });
 
     const reduced = reducer(
@@ -127,27 +141,20 @@ describe('SelectedJob Redux store', () => {
   test('clearSelectedJob', async () => {
     const store = mockStore({
       selectedJob: { selectedJob: group.jobs[0] },
-      router,
     });
 
-    store.dispatch(clearSelectedJob(0));
+    await store.dispatch(clearSelectedJob(0));
     const actions = store.getActions();
+
+    // Should dispatch CLEAR_JOB action
     expect(actions).toEqual([
       {
         countPinnedJobs: 0,
         type: 'CLEAR_JOB',
       },
-      {
-        payload: {
-          args: [
-            {
-              search: '?',
-            },
-          ],
-          method: 'push',
-        },
-        type: '@@router/CALL_HISTORY_METHOD',
-      },
     ]);
+
+    // URL should be updated via window.history.pushState
+    expect(window.history.pushState).toHaveBeenCalled();
   });
 });

@@ -8,7 +8,7 @@ import {
   fireEvent,
   act,
 } from '@testing-library/react';
-import { ConnectedRouter } from 'connected-react-router';
+import { MemoryRouter } from 'react-router-dom';
 
 import JobModel from '../../../../ui/models/job';
 import DetailsPanel from '../../../../ui/job-view/details/DetailsPanel';
@@ -18,10 +18,7 @@ import taskDefinition from '../../mock/task_definition.json';
 import { getApiUrl } from '../../../../ui/helpers/url';
 import FilterModel from '../../../../ui/models/filter';
 import { getProjectUrl } from '../../../../ui/helpers/location';
-import {
-  history,
-  configureStore,
-} from '../../../../ui/job-view/redux/configureStore';
+import { configureStore } from '../../../../ui/job-view/redux/configureStore';
 import { setSelectedJob } from '../../../../ui/job-view/redux/stores/selectedJob';
 import {
   setPushes,
@@ -30,6 +27,9 @@ import {
 import reposFixture from '../../mock/repositories';
 import KeyboardShortcuts from '../../../../ui/job-view/KeyboardShortcuts';
 import { pinJobs } from '../../../../ui/job-view/redux/stores/pinnedJobs';
+
+const mockLocation = { search: '', pathname: '/jobs' };
+const mockNavigate = jest.fn();
 
 describe('DetailsPanel', () => {
   const repoName = 'autoland';
@@ -42,7 +42,7 @@ describe('DetailsPanel', () => {
   const currentRepo = reposFixture[2];
   currentRepo.getRevisionHref = () => 'foo';
   currentRepo.getPushLogHref = () => 'foo';
-  const router = { location: history.location };
+  const router = { location: mockLocation };
 
   beforeEach(async () => {
     fetchMock.get(
@@ -112,20 +112,15 @@ describe('DetailsPanel', () => {
   afterEach(() => {
     cleanup();
     fetchMock.reset();
-    history.push('/');
+    mockNavigate.mockClear();
   });
 
   const testDetailsPanel = () => (
     <div id="global-container" className="height-minus-navbars">
       <Provider store={store} context={ReactReduxContext}>
-        <ConnectedRouter history={history} context={ReactReduxContext}>
+        <MemoryRouter>
           <KeyboardShortcuts
-            filterModel={
-              new FilterModel({
-                pushRoute: history.push,
-                router,
-              })
-            }
+            filterModel={new FilterModel(mockNavigate, mockLocation)}
             showOnScreenShortcuts={() => {}}
           >
             <div />
@@ -140,7 +135,7 @@ describe('DetailsPanel', () => {
               />
             </div>
           </KeyboardShortcuts>
-        </ConnectedRouter>
+        </MemoryRouter>
       </Provider>
     </div>
   );

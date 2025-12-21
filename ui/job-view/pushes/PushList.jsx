@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'react-bootstrap';
 import { connect } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 import intersection from 'lodash/intersection';
 import isEqual from 'lodash/isEqual';
 
@@ -41,12 +42,12 @@ function PushList({
   landoCommitID = null,
   landoStatus = 'unknown',
   currentRepo = {},
-  router,
   pushHealthVisibility,
 }) {
+  const location = useLocation();
   const [notificationSupported] = useState('Notification' in window);
   const pushIntervalId = useRef(null);
-  const prevRouterSearch = useRef(router.location.search);
+  const prevRouterSearch = useRef(location.search);
   const prevJobsLoaded = useRef(jobsLoaded);
 
   const getUrlRangeValues = useCallback((search) => {
@@ -69,13 +70,13 @@ function PushList({
   const handleUrlChanges = useCallback(
     (prevSearch) => {
       const oldRange = getUrlRangeValues(prevSearch);
-      const newRange = getUrlRangeValues(router.location.search);
+      const newRange = getUrlRangeValues(location.search);
 
       if (!isEqual(oldRange, newRange)) {
         updateRange(newRange);
       }
     },
-    [router.location.search, updateRange, getUrlRangeValues],
+    [location.search, updateRange, getUrlRangeValues],
   );
 
   const poll = useCallback(() => {
@@ -106,11 +107,11 @@ function PushList({
 
   const fetchNextPushes = useCallback(
     (count) => {
-      const params = updatePushParams(router.location);
+      const params = updatePushParams(location);
       window.history.pushState(null, null, params);
       fetchPushes(count, true);
     },
-    [fetchPushes, router.location],
+    [fetchPushes, location],
   );
 
   const setWindowTitle = useCallback(() => {
@@ -139,11 +140,11 @@ function PushList({
 
   // componentDidUpdate - handle URL changes
   useEffect(() => {
-    if (prevRouterSearch.current !== router.location.search) {
+    if (prevRouterSearch.current !== location.search) {
       handleUrlChanges(prevRouterSearch.current);
-      prevRouterSearch.current = router.location.search;
+      prevRouterSearch.current = location.search;
     }
-  }, [router.location.search, handleUrlChanges]);
+  }, [location.search, handleUrlChanges]);
 
   if (!revision) {
     setWindowTitle();
@@ -238,7 +239,6 @@ PushList.propTypes = {
   landoCommitID: PropTypes.string,
   landoStatus: PropTypes.string,
   currentRepo: PropTypes.shape({}),
-  router: PropTypes.shape({}).isRequired,
 };
 
 const mapStateToProps = ({
@@ -250,7 +250,6 @@ const mapStateToProps = ({
     allUnclassifiedFailureCount,
   },
   pinnedJobs: { pinnedJobs },
-  router,
 }) => ({
   loadingPushes,
   jobsLoaded,
@@ -258,7 +257,6 @@ const mapStateToProps = ({
   pushList,
   allUnclassifiedFailureCount,
   pinnedJobs,
-  router,
 });
 
 export default connect(mapStateToProps, {
