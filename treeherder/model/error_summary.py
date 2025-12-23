@@ -339,11 +339,12 @@ def get_error_search_term_and_path(error_line):
     if len(tokens) >= 3:
         is_crash = "PROCESS-CRASH" in tokens[0]
         # it's in the "FAILURE-TYPE | testNameOrFilePath | message" type format.
-        test_name_or_path = tokens[1]
         message = tokens[2]
         if is_crash:
-            test_name_or_path = tokens[2]
-            message = tokens[1]
+            # it's in the "FAILURE-TYPE | crash ID | message including crash signature | test path and name" type format.
+            test_name_or_path = tokens[3]
+        else:
+            test_name_or_path = tokens[1]
         # Leak failure messages are of the form:
         # leakcheck | .*\d+ bytes leaked (Object-1, Object-2, Object-3, ...)
         match = LEAK_RE.search(message)

@@ -135,7 +135,7 @@ export class BugFilerClass extends React.Component {
       if (crashSignatures.length > 0) {
         isTestPath = false;
         const parts = summaryString.split(' | ');
-        summaryString = `${parts[0]} | single tracking bug`;
+        summaryString = `${parts[1]} | single tracking bug`;
         keywords.push('intermittent-testcase');
       }
 
