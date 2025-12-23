@@ -46,6 +46,7 @@ class Action extends PureComponent {
       investigateTest,
       unInvestigateTest,
       updatePushHealth,
+      decisionTaskMap,
     } = this.props;
     const groupedTests = this.getTestGroups(tests);
 
@@ -69,6 +70,7 @@ class Action extends PureComponent {
               investigateTest={investigateTest}
               unInvestigateTest={unInvestigateTest}
               updatePushHealth={updatePushHealth}
+              decisionTaskMap={decisionTaskMap}
             />
           </div>
         ))}
@@ -85,6 +87,11 @@ Action.propTypes = {
   revision: PropTypes.string.isRequired,
   currentRepo: PropTypes.shape({}).isRequired,
   notify: PropTypes.func.isRequired,
+  decisionTaskMap: PropTypes.shape({}),
+};
+
+Action.defaultProps = {
+  decisionTaskMap: {},
 };
 
 export default Action;

@@ -49,6 +49,7 @@ export default class Health extends React.PureComponent {
       regressionsGroupBy: params.get('regressionsGroupBy') || 'path',
       showIntermittentAlert:
         localStorage.getItem('dismissedIntermittentAlert') !== 'true',
+      decisionTaskMap: {},
     };
   }
 
@@ -104,6 +105,7 @@ export default class Health extends React.PureComponent {
 
   updatePushHealth = async () => {
     const { repo, revision, status } = this.state;
+    const { notify } = this.props;
 
     if (status) {
       const { running, pending, completed } = status;
@@ -116,6 +118,19 @@ export default class Health extends React.PureComponent {
 
     const { data, failureStatus } = await PushModel.getHealth(repo, revision);
     const newState = !failureStatus ? data : { failureMessage: data };
+
+    // Fetch decision task map if we have a push ID
+    if (data && data.id) {
+      try {
+        const decisionTaskMap = await PushModel.getDecisionTaskMap(
+          [data.id],
+          notify,
+        );
+        newState.decisionTaskMap = decisionTaskMap;
+      } catch {
+        // Decision task map fetch failed, but we can still show the health data
+      }
+    }
 
     this.setState(newState);
     return newState;
@@ -177,6 +192,7 @@ export default class Health extends React.PureComponent {
       regressionsOrderBy,
       regressionsGroupBy,
       showIntermittentAlert,
+      decisionTaskMap,
     } = this.state;
     const { tests, commitHistory, linting, builds } = metrics;
 
@@ -320,6 +336,7 @@ export default class Health extends React.PureComponent {
                       investigateTest={this.investigateTest}
                       unInvestigateTest={this.unInvestigateTest}
                       updatePushHealth={this.updatePushHealth}
+                      decisionTaskMap={decisionTaskMap}
                     />
                   </TabPanel>
                 </div>
