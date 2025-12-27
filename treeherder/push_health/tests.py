@@ -291,7 +291,6 @@ def get_test_failures(
     Returns:
         tuple: (result_string, failures_dict) where failures_dict has 'needInvestigation' and 'knownIssues'
     """
-    logger.debug(f"Getting test failures for push: {push.id}")
     result = "pass"
 
     # Handle both new tuple format and legacy dict format for backward compatibility
@@ -352,10 +351,8 @@ def get_test_failures(
     )  # Only load what we need
 
     # Build lookup dict by job_id for efficient filtering
-    tle_lines_by_job = defaultdict(list)
-    tle_objects_by_job = defaultdict(list)  # For debug output
+    tle_objects_by_job = defaultdict(list)
     for tle in new_failure_tles:
-        tle_lines_by_job[tle["job_id"]].append(tle["line"])
         tle_objects_by_job[tle["job_id"]].append(tle)
 
     # Filter FailureLines to only include those where test matches a TextLogError line_text
@@ -372,73 +369,6 @@ def get_test_failures(
                     filtered_failure_lines.append(fl)
                     matched_tle_ids.add(tle["id"])
                     break  # FailureLine matched, move to next
-
-    # Find unmatched TextLogErrors for debug output
-    unmatched_tles_debug = [tle for tle in new_failure_tles if tle["id"] not in matched_tle_ids]
-
-    # DEBUG OUTPUT: Log FailureLine and TextLogError data for correlation analysis
-    logger.info(f"=== DEBUG: Push {push.id} - Correlation Analysis ===")
-    logger.info(f"Total FailureLines (before filtering): {new_failure_lines.count()}")
-    logger.info(f"Total TextLogErrors (new_failure=True): {len(new_failure_tles)}")
-    logger.info(f"Total FailureLines (after filtering): {len(filtered_failure_lines)}")
-    logger.info(f"Total unmatched TextLogErrors: {len(unmatched_tles_debug)}")
-
-    # Group FailureLines by job for debug comparison
-    failure_lines_by_job = {}
-    for fl in new_failure_lines:
-        job_id = fl.job_log.job.id
-        if job_id not in failure_lines_by_job:
-            failure_lines_by_job[job_id] = []
-        failure_lines_by_job[job_id].append(fl)
-
-    # Log comparison for each job
-    all_job_ids = set(failure_lines_by_job.keys()) | set(tle_objects_by_job.keys())
-    for job_id in sorted(all_job_ids):
-        fls = failure_lines_by_job.get(job_id, [])
-        tles = tle_objects_by_job.get(job_id, [])
-
-        logger.info(f"\n--- Job ID: {job_id} ---")
-        logger.info(f"  FailureLines: {len(fls)}")
-        for fl in fls:
-            logger.info(
-                f"    FL: action={fl.action}, line={fl.line}, test={fl.test}, subtest={fl.subtest}"
-            )
-
-        logger.info(f"  TextLogErrors: {len(tles)}")
-        for tle in tles:
-            logger.info(
-                f"    TLE id={tle['id']}, line_number={tle['line_number']}, line_text={tle['line'][:60] if tle['line'] else 'None'}..."
-            )
-
-        # DEBUG: Find FailureLines where test is substring of TextLogError line_text
-        logger.info("  Matched FailureLines (test in TLE line_text):")
-        matched_count = 0
-        job_matched_tle_ids = set()
-        for fl in fls:
-            if fl.test:
-                for tle in tles:
-                    if tle["line"] and fl.test in tle["line"]:
-                        logger.info(
-                            f"    MATCH: FL(line={fl.line}, test={fl.test}) <-> TLE(line_number={tle['line_number']})"
-                        )
-                        matched_count += 1
-                        job_matched_tle_ids.add(tle["id"])
-                        break  # Only log first match per FailureLine
-        if matched_count == 0:
-            logger.info("    No matches found")
-
-        # DEBUG: Show unmatched TextLogErrors for this job
-        unmatched_tles_for_job = [tle for tle in tles if tle["id"] not in job_matched_tle_ids]
-        if unmatched_tles_for_job:
-            logger.info(
-                f"  Unmatched TextLogErrors (no corresponding FailureLine): {len(unmatched_tles_for_job)}"
-            )
-            for tle in unmatched_tles_for_job:
-                logger.info(
-                    f"    UNMATCHED TLE: line_number={tle['line_number']}, line_text={tle['line'][:80] if tle['line'] else 'None'}..."
-                )
-
-    logger.info("\n=== END DEBUG ===\n")
 
     # Use filtered FailureLines for the rest of the processing
     new_failure_lines = filtered_failure_lines
@@ -493,7 +423,6 @@ def get_test_failures(
 
     # Process unmatched TextLogErrors (e.g., from crashes without FailureLines)
     unmatched_tles = [tle for tle in new_failure_tles if tle["id"] not in matched_tle_ids]
-    logger.info(f"DEBUG: Found {len(unmatched_tles)} unmatched TextLogErrors to process")
 
     # Helper class to wrap TextLogError for _create_test_failure_record
     class TLEWrapper:
@@ -519,7 +448,6 @@ def get_test_failures(
             # Skip lines that are not actual test failures
             # These are crash/error messages without test names
             if "TEST-UNEXPECTED-" not in line_text:
-                logger.debug(f"Skipping TLE id={tle['id']}, not a test failure: {line_text[:80]}")
                 continue
 
             # Try to extract test name from pipe-delimited format first
@@ -536,21 +464,11 @@ def get_test_failures(
                 test_name = clean_test(line_text, None, None)
 
             if not test_name:
-                logger.warning(
-                    f"Could not parse test name from TLE id={tle['id']}, line_text={line_text[:100]}"
-                )
                 continue
-
-            logger.info(
-                f"DEBUG: Processing unmatched TLE id={tle['id']}, parsed test_name='{test_name}'"
-            )
 
             # Get job metadata
             job = jobs_by_id.get(tle["job_id"])
             if not job:
-                logger.warning(
-                    f"Could not find job {tle['job_id']} for TLE id={tle['id']}, skipping"
-                )
                 continue
 
             config = clean_config(option_map[job.option_collection_hash])
@@ -590,24 +508,10 @@ def get_test_failures(
                 tests[test_key]["failedInJobs"].append(job_id)
                 tests[test_key]["totalFailures"] += 1
 
-    logger.info(f"DEBUG: After processing, total test failures: {len(tests)}")
-    logger.info(f"DEBUG: Test keys: {list(tests.keys())[:10]}")  # Show first 10
-
     # Each line represents one test file per platform/config with at least one failing job
     push_failures = sorted(tests.values(), key=lambda k: k["testName"])
-    logger.info(f"DEBUG: push_failures count before filtering: {len(push_failures)}")
 
     filtered_push_failures = [failure for failure in push_failures if filter_failure(failure)]
-    logger.info(
-        f"DEBUG: filtered_push_failures count after filtering: {len(filtered_push_failures)}"
-    )
-
-    # Log any failures that were filtered out
-    filtered_out = [failure for failure in push_failures if not filter_failure(failure)]
-    for failure in filtered_out:
-        logger.info(
-            f"DEBUG: Filtered out: testName={failure['testName']}, jobName={failure['jobName']}"
-        )
 
     # SIMPLIFIED: All fcid=6 failures go to needInvestigation
     # No historical classification needed since we're focused on new failures
