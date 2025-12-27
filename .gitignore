@@ -19,6 +19,8 @@ treeherder_backup_*
 
 # Caches
 .eslintcache
+.jest-cache
+
 # PyCharm
 *.iml
 # Perf sheriffing criteria
