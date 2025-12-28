@@ -1,4 +1,4 @@
-import React from 'react';
+
 import fetchMock from 'fetch-mock';
 import { render, waitFor, fireEvent, act } from '@testing-library/react';
 import { createBrowserHistory } from 'history';

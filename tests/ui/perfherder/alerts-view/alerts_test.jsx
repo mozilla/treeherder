@@ -1,5 +1,4 @@
-/* eslint-disable jest/expect-expect */
-import React from 'react';
+
 import {
   render,
   fireEvent,

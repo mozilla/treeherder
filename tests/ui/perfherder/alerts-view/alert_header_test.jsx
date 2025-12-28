@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { render, waitFor } from '@testing-library/react';
 import { createBrowserHistory } from 'history';
 import { Provider, ReactReduxContext } from 'react-redux';

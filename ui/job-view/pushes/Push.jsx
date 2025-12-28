@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef, memo } from 'react';
+import { useState, useEffect, useCallback, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import sortBy from 'lodash/sortBy';
@@ -608,7 +608,7 @@ function Push({
     return () => {
       window.removeEventListener(thEvents.applyNewJobs, handleApplyNewJobs);
     };
-  }, [handleApplyNewJobs]);
+  }, [handleApplyNewJobs, fetchJobs, fetchTestManifests, testForFilteredTry]);
 
   // componentDidUpdate - show notifications
   useEffect(() => {

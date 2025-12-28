@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { render, cleanup, waitFor, fireEvent } from '@testing-library/react';
 import flatMap from 'lodash/flatMap';
 
