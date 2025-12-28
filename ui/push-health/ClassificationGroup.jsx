@@ -47,7 +47,7 @@ class ClassificationGroup extends React.PureComponent {
     const testJobs = tests.reduce(
       (acc, test) => ({
         ...acc,
-        ...jobs[test.jobName].reduce((fjAcc, job) => ({ [job.id]: job }), {}),
+        ...jobs[test.jobName].reduce((_fjAcc, job) => ({ [job.id]: job }), {}),
       }),
       {},
     );

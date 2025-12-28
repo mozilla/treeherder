@@ -99,7 +99,7 @@ export function useJobButtonRegistry(job, filterModel, filterPlatformCb) {
       unregisterJobButton(job.id);
     };
     // We intentionally only run this on mount/unmount and when job.id changes
-  }, [job.id]);
+  }, [job.id, job, refilter, setSelected, toggleRunnableSelected]);
 
   // Update the registry when callbacks change
   useEffect(() => {

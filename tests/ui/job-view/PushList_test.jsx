@@ -1,4 +1,4 @@
-import React from 'react';
+
 import fetchMock from 'fetch-mock';
 import { Provider, ReactReduxContext } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
