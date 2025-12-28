@@ -42,10 +42,10 @@
         "noStaticOnlyClass": "off"
       },
       "correctness": {
-        "noUnusedVariables": "warn",
+        "noUnusedVariables": "error",
         "noUnusedImports": "warn",
         "noUnusedFunctionParameters": "off",
-        "useJsxKeyInIterable": "warn",
+        "useJsxKeyInIterable": "error",
         "useExhaustiveDependencies": "off",
         "noUnknownProperty": "off"
       },
@@ -59,7 +59,7 @@
         "noAlert": "off",
         "noConsole": "off",
         "noArrayIndexKey": "off",
-        "noImportAssign": "warn",
+        "noImportAssign": "error",
         "useIterableCallbackReturn": "off",
         "noAsyncPromiseExecutor": "warn"
       },

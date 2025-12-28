@@ -81,9 +81,9 @@ describe('InfraCompareView', () => {
     // Reset the mock props
     mockTableViewProps = {};
     // Mock Date.now() to return a fixed timestamp for consistent testing
-    jest
-      .spyOn(Date.prototype, 'getTime')
-      .mockImplementation(() => 1596340000000);
+    // The mock timestamps (push_timestamp) are around 1596240000-1596250000
+    // We need Date.now() to be close to these values (within 30 days = 2592000 seconds)
+    jest.spyOn(Date, 'now').mockImplementation(() => 1596340000 * 1000);
   });
 
   afterEach(() => {

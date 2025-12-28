@@ -322,8 +322,6 @@ class GraphsContainer extends React.Component {
       changelogData = [],
       showTable,
       zoom = {},
-      selectedDataPoint,
-      highlightAlerts = true,
       highlightedRevisions = ['', ''],
       highlightChangelogData,
       highlightCommonAlerts,
