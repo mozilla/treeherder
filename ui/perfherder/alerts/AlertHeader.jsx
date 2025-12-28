@@ -231,6 +231,7 @@ const AlertHeader = ({
           Duplicated summaries:
           {alertSummary.duplicated_summaries_ids.map((id, index) => (
             <Link
+              key={id}
               className="text-dark me-1"
               target="_blank"
               to={`./alerts?id=${id}&hideDwnToInv=0`}

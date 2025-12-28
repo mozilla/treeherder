@@ -162,7 +162,7 @@ const AdditionalInformationTable = function AdditionalInformationTable() {
 
           <tbody>
             {alertViewHoverableItems.map((item) => (
-              <tr>
+              <tr key={item.name}>
                 <td>
                   <span>{item.name}</span>
                 </td>
@@ -180,7 +180,7 @@ const AdditionalInformationTable = function AdditionalInformationTable() {
 
           <tbody>
             {compareViewHoverableItems.map((item) => (
-              <tr>
+              <tr key={item.name}>
                 <td>
                   <span>{item.name}</span>
                 </td>

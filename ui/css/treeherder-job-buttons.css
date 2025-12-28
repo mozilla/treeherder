@@ -9,21 +9,21 @@
 
 .job-btn {
   background-color: transparent;
-  padding: 0 2px 0 2px;
-  vertical-align: 0;
-  line-height: 1.32;
+  padding: 0 2px 0 2px !important;
+  vertical-align: 0 !important;
+  line-height: 1.32 !important;
   display: none;
   transition: transform 0.1s;
-  font-size: 12px;
+  font-size: 12px !important;
 }
 
 .group-btn {
   background: transparent;
-  padding: 0 2px 0 2px;
-  vertical-align: 0;
-  line-height: 1.32;
+  padding: 0 2px 0 2px !important;
+  vertical-align: 0 !important;
+  line-height: 1.32 !important;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 12px !important;
 }
 
 .group-btn::before {
@@ -36,10 +36,10 @@
 
 .group-symbol {
   background: transparent;
-  padding: 0 2px 0 2px;
+  padding: 0 2px 0 2px !important;
   border: 0;
-  vertical-align: 0;
-  line-height: 1.32;
+  vertical-align: 0 !important;
+  line-height: 1.32 !important;
   cursor: pointer;
   margin-right: -3px;
 }
@@ -75,10 +75,10 @@
   color: rgba(128, 128, 0, 0.5);
   margin: 0;
   background: transparent;
-  padding: 0 2px;
-  vertical-align: 0;
-  line-height: 1.32;
-  font-size: 12px;
+  padding: 0 2px !important;
+  vertical-align: 0 !important;
+  line-height: 1.32 !important;
+  font-size: 12px !important;
   border-radius: 0;
   text-align: center;
   white-space: nowrap;
@@ -93,12 +93,12 @@
 /* Selected jobs: white background for classified failures and non-failures */
 .job-btn.selected-job:not([data-status='testfailed']):not([data-status='busted']):not([data-status='exception']),
 .job-btn.selected-job[data-classified='true'] {
-  background: #fff;
+  background: #fff !important;
 }
 
 /* All selected jobs get outline matching text color */
 .job-btn.selected-job {
-  outline: 4px solid;
+  outline: 4px solid !important;
   outline-color: currentcolor;
 }
 
@@ -426,7 +426,7 @@
   background: transparent;
   padding: 0 2px 0 2px;
   border: 0;
-  vertical-align: 0;
+  vertical-align: 0 !important;
   line-height: 1.32;
   cursor: pointer;
   margin-right: -3px;
