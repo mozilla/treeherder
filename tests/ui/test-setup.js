@@ -40,7 +40,7 @@ console.error = (...args) => {
 jest.mock('@restart/ui/usePopper', () => {
   // eslint-disable-next-line global-require
   const React = require('react');
-  return function usePopper(referenceElement, popperElement, options) {
+  return function usePopper(_referenceElement, _popperElement, options) {
     const [state] = React.useState({
       placement: options?.placement || 'bottom',
       styles: {

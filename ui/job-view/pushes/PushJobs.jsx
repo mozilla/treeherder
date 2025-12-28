@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, memo } from 'react';
+import { useMemo, useCallback, memo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -82,7 +82,7 @@ function PushJobs({
       const jobInstance = findInstance(ev.target);
       const selectedTaskRun = getUrlParam('selectedTaskRun');
 
-      if (jobInstance && jobInstance.props && jobInstance.props.job) {
+      if (jobInstance?.props?.job) {
         const { job } = jobInstance.props;
         if (ev.button === 1) {
           // Middle click

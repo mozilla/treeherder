@@ -1,4 +1,4 @@
-import React from 'react';
+
 import fetchMock from 'fetch-mock';
 import { render, fireEvent, waitFor, act } from '@testing-library/react';
 import { ConnectedRouter } from 'connected-react-router';

@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { render, act } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
@@ -15,7 +15,7 @@ jest.mock('../../../ui/perfherder/Validation', () => ({
 }));
 
 jest.mock('../../../ui/infra-compare/helpers', () => ({
-  getCounterMap: jest.fn((jobName, originalData, newData) => {
+  getCounterMap: jest.fn((_jobName, originalData, newData) => {
     if (!originalData && !newData) {
       return { isEmpty: true };
     }

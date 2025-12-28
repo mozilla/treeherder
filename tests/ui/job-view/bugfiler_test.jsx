@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
 import fetchMock from 'fetch-mock';

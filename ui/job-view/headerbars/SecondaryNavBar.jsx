@@ -95,7 +95,7 @@ class SecondaryNavBar extends React.PureComponent {
     const { value } = ev.target;
 
     if (ev.key === 'Enter') {
-      if (value && value.length) {
+      if (value?.length) {
         filterModel.replaceFilter('searchStr', value.split(' '));
       } else {
         filterModel.removeFilter('searchStr');

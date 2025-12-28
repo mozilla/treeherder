@@ -1,4 +1,4 @@
-import React from 'react';
+
 import {
   render,
   cleanup,
@@ -548,8 +548,7 @@ test('Changing the platform dropdown while filtered by text in the Test Data Mod
   // Only wait for removal if the element still exists and is in the document
   try {
     if (
-      linuxTest &&
-      linuxTest.isConnected &&
+      linuxTest?.isConnected &&
       document.body.contains(linuxTest)
     ) {
       await waitForElementToBeRemoved(linuxTest);

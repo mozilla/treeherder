@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 import individualAlert from '../img/individual-alert.png';
 import hoveredIndividualAlert from '../img/individual-alert-hovered.png';
