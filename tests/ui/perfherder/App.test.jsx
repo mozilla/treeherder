@@ -21,20 +21,23 @@ describe('Perfherder App Export', () => {
     expect(typeof AppModule.default).toBe('function');
   });
 
-  it('is a class component with required lifecycle methods', async () => {
+  it('is a functional component', async () => {
     const AppModule = await import('../../../ui/perfherder/App');
 
-    // Verify it's a class component (has prototype with render method)
-    expect(AppModule.default.prototype).toBeDefined();
-    expect(AppModule.default.prototype.render).toBeDefined();
-    expect(AppModule.default.prototype.componentDidMount).toBeDefined();
+    // Verify it's a functional component (no prototype.render)
+    expect(AppModule.default).toBeDefined();
+    expect(typeof AppModule.default).toBe('function');
+    // Functional components don't have prototype.render
+    expect(AppModule.default.prototype?.render).toBeUndefined();
   });
 
   it('is a valid React component', async () => {
     const AppModule = await import('../../../ui/perfherder/App');
 
-    // Verify it's a valid React component class
-    // Check for static properties that indicate it's not wrapped in HOC
-    expect(AppModule.default.prototype.isReactComponent).toBeDefined();
+    // Verify it's a valid React component function
+    // Functional components are just functions
+    expect(typeof AppModule.default).toBe('function');
+    // Functional components don't have isReactComponent on prototype
+    expect(AppModule.default.prototype?.isReactComponent).toBeUndefined();
   });
 });

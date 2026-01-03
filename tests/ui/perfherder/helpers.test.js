@@ -60,7 +60,7 @@ describe('Number Formatting', () => {
 
   describe('displayNumber', () => {
     it('formats valid numbers to 2 decimal places', () => {
-      expect(displayNumber(3.14159)).toBe('3.14');
+      expect(displayNumber(1.2345)).toBe('1.23');
     });
 
     it('returns N/A for NaN', () => {

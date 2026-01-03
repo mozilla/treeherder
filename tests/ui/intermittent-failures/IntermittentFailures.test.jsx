@@ -14,7 +14,7 @@ global.fetch = jest.fn(() =>
 // Mock the http helper to prevent actual API calls
 jest.mock('../../../ui/helpers/http', () => ({
   getData: jest.fn(() =>
-    Promise.resolve({ data: { bugs: [] }, failureStatus: null }),
+    Promise.resolve({ data: [], failureStatus: null }),
   ),
 }));
 
@@ -29,13 +29,11 @@ describe('IntermittentFailuresApp', () => {
     jest.clearAllMocks();
   });
 
-  describe('Route rendering with React Router v6', () => {
+  describe('Route rendering with React Router v6 and hooks', () => {
     it('renders MainView at /intermittent-failures/main without crashing', async () => {
-      // This test verifies that the withView HOC works correctly with React Router v6.
-      // The issue: withView HOC expects location and history props which React Router v6
-      // no longer provides automatically. This causes:
-      // "Cannot read properties of undefined (reading 'state')" at View.jsx line 21:
-      // this.default = this.props.location.state || defaultState;
+      // This test verifies that the useIntermittentFailuresData hook
+      // works correctly with React Router v6.
+      // The hook uses useLocation() and useNavigate() internally.
 
       const { container } = render(
         <MemoryRouter initialEntries={['/main']}>
@@ -50,8 +48,6 @@ describe('IntermittentFailuresApp', () => {
     });
 
     it('renders BugDetailsView at /intermittent-failures/bugdetails without crashing', async () => {
-      // Same issue as MainView - the withView HOC needs location and history props
-
       const { container } = render(
         <MemoryRouter
           initialEntries={[
@@ -75,7 +71,6 @@ describe('IntermittentFailuresApp', () => {
       );
 
       // If the redirect works and MainView renders, we should see the main view content
-      // (or at least not crash due to missing router props)
       await waitFor(() => {
         expect(container).toBeTruthy();
       });
