@@ -78,20 +78,34 @@ Class components still support `defaultProps` in React 19, so these are fine.
 | react-table-6 | 6.11.0 | UNKNOWN | Legacy package, may need testing |
 | redoc | 2.4.0 | UNKNOWN | May need testing |
 
-### react-helmet Warning
+### react-helmet Replacement Plan
 
-`react-helmet` hasn't been updated since 2020 and is considered abandoned. Options:
+`react-helmet` hasn't been updated since 2020 and is considered abandoned.
 
-1. **Test first** - It may still work with React 19
-2. **Use React 19 native** - React 19 has built-in document metadata support (`<title>`, `<meta>` tags auto-hoist to `<head>`)
-3. **Replace with fork** - `@dr.pogodin/react-helmet` officially supports React 19
+**Decision:** Replace with React 19 native document metadata (in follow-up PR after upgrade).
 
-**Files using react-helmet (4 files):**
+React 19 has built-in support for `<title>`, `<meta>`, and `<link>` tags - they auto-hoist
+to `<head>` when rendered anywhere in the component tree. This feature requires React 19.
+
+**Files to update (4 files):**
 
 - `ui/intermittent-failures/BugDetailsView.jsx`
 - `ui/push-health/Health.jsx`
 - `ui/push-health/MyPushes.jsx`
 - `ui/shared/ComparePageTitle.jsx`
+
+**Migration pattern:**
+
+```jsx
+// Before (react-helmet)
+import { Helmet } from 'react-helmet';
+<Helmet><title>My Page</title></Helmet>
+
+// After (React 19 native)
+<title>My Page</title>
+```
+
+After migration, remove `react-helmet` from package.json.
 
 ## React Router v7 Preparation - COMPLETED
 
