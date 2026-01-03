@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import {
   graphsEndpoint,
@@ -42,7 +43,7 @@ const withView = (defaultState) => (WrappedComponent) => {
     }
 
     setQueryParams = () => {
-      const { location, history } = this.props;
+      const { location, navigate } = this.props;
       const { startday, endday, tree, bug } = this.state;
       const params = { startday, endday, tree };
 
@@ -57,7 +58,7 @@ const withView = (defaultState) => (WrappedComponent) => {
         // if the query params are not specified for mainview, set params based on default state
         if (location.search === '') {
           const queryString = createQueryParams(params);
-          updateQueryParams(queryString, history, location);
+          updateQueryParams(queryString, navigate, location);
         }
 
         this.setState({ initialParamsSet: true });
@@ -141,7 +142,7 @@ const withView = (defaultState) => (WrappedComponent) => {
 
         // update query params if dates or tree are updated
         const queryString = createQueryParams(params);
-        updateQueryParams(queryString, this.props.history, this.props.location);
+        updateQueryParams(queryString, this.props.navigate, this.props.location);
       });
     };
 
@@ -201,16 +202,51 @@ const withView = (defaultState) => (WrappedComponent) => {
   }
 
   View.propTypes = {
-    history: PropTypes.shape({}).isRequired,
+    navigate: PropTypes.func.isRequired,
+    history: PropTypes.shape({
+      push: PropTypes.func,
+      replace: PropTypes.func,
+    }).isRequired,
     location: PropTypes.shape({
       search: PropTypes.string,
       state: PropTypes.shape({}),
+      pathname: PropTypes.string,
     }).isRequired,
     mainGraphData: PropTypes.arrayOf(PropTypes.shape({})),
     mainTableData: PropTypes.arrayOf(PropTypes.shape({})),
   };
 
-  return View;
+  // Wrapper to inject React Router v6 hooks as props for backwards compatibility
+  const ViewWithRouter = (props) => {
+    const location = useLocation();
+    const navigate = useNavigate();
+    // Create a history-like object for backwards compatibility with class component
+    const history = {
+      push: (to) => {
+        if (typeof to === 'string') {
+          navigate(to);
+        } else {
+          // Handle object form: { pathname, search, state }
+          navigate(`${to.pathname}${to.search || ''}`, { state: to.state });
+        }
+      },
+      replace: (to) => {
+        if (typeof to === 'string') {
+          navigate(to, { replace: true });
+        } else {
+          navigate(`${to.pathname}${to.search || ''}`, {
+            replace: true,
+            state: to.state,
+          });
+        }
+      },
+    };
+    return (
+      <View {...props} location={location} navigate={navigate} history={history} />
+    );
+  };
+
+  return ViewWithRouter;
 };
 
 export default withView;
