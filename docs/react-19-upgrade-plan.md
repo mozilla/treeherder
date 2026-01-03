@@ -60,46 +60,60 @@ Class components still support `defaultProps` in React 19, so these are fine.
 
 **File:** `ui/job-view/details/PinBoard.jsx` - No change needed (class component)
 
-## Third-Party Dependencies to Verify
+## Third-Party Dependencies - VERIFIED
 
-Before upgrading, verify React 19 compatibility for these key dependencies:
+| Package | Current Version | React 19 Support | Notes |
+|---------|----------------|------------------|-------|
+| react-bootstrap | 2.10.10 | YES | Updated internal code for React 19 |
+| react-router-dom | 6.28.0 | YES | Works with React 19; v7 migration is non-breaking |
+| @mui/material | 7.1.2 | YES | v5 and v6 support React 19 |
+| styled-components | 6.1.19 | YES | Fixed in 6.1.18+ for React 19 ref handling |
+| @testing-library/react | 16.2.0 | YES | Full React 19 support |
+| @fortawesome/react-fontawesome | 0.2.6 | YES | No React-specific APIs affected |
+| react-tabs | 6.1.0 | YES | Standard React patterns |
+| victory | 37.3.6 | YES | Standard React patterns |
+| **react-helmet** | **6.1.0** | **RISK** | Abandoned since 2020 - see note below |
+| react-lazylog | 4.5.3 | UNKNOWN | May need testing |
+| react-hot-keys | 2.7.3 | UNKNOWN | May need testing |
+| react-table-6 | 6.11.0 | UNKNOWN | Legacy package, may need testing |
+| redoc | 2.4.0 | UNKNOWN | May need testing |
 
-| Package | Current Version | React 19 Support |
-|---------|----------------|------------------|
-| react-bootstrap | 2.10.10 | Check changelog |
-| react-router-dom | 6.28.0 | Check changelog |
-| @mui/material | 7.1.2 | Likely supported |
-| @fortawesome/react-fontawesome | 0.2.6 | Check changelog |
-| react-helmet | 6.1.0 | Check changelog |
-| react-lazylog | 4.5.3 | Check changelog |
-| react-hot-keys | 2.7.3 | Check changelog |
-| react-table-6 | 6.11.0 | May need update |
-| react-tabs | 6.1.0 | Check changelog |
-| redoc | 2.4.0 | Check changelog |
-| victory | 37.3.6 | Check changelog |
-| @testing-library/react | 16.2.0 | Supports React 19 |
-| styled-components | 6.1.19 | Check changelog |
+### react-helmet Warning
 
-## React Router v7 Preparation
+`react-helmet` hasn't been updated since 2020 and is considered abandoned. Options:
 
-Console warnings indicate React Router future flags should be enabled:
+1. **Test first** - It may still work with React 19
+2. **Use React 19 native** - React 19 has built-in document metadata support (`<title>`, `<meta>` tags auto-hoist to `<head>`)
+3. **Replace with fork** - `@dr.pogodin/react-helmet` officially supports React 19
+
+**Files using react-helmet (4 files):**
+
+- `ui/intermittent-failures/BugDetailsView.jsx`
+- `ui/push-health/Health.jsx`
+- `ui/push-health/MyPushes.jsx`
+- `ui/shared/ComparePageTitle.jsx`
+
+## React Router v7 Preparation - COMPLETED
+
+Future flags have been added to `ui/App.jsx`:
 
 ```jsx
-// In router configuration, add future flags:
-<BrowserRouter future={{
-  v7_startTransition: true,
-  v7_relativeSplatPath: true
-}}>
+<BrowserRouter
+  future={{
+    v7_startTransition: true,
+    v7_relativeSplatPath: true,
+  }}
+>
 ```
 
 ## Upgrade Steps
 
-### Phase 1: Pre-Upgrade Fixes (Before Upgrading)
+### Phase 1: Pre-Upgrade Fixes (Before Upgrading) - COMPLETED
 
 1. [x] Fix `defaultProps` in `ui/perfherder/Validation.jsx` - DONE
-2. [ ] Add React Router v7 future flags
+2. [x] Add React Router v7 future flags - DONE (added to `ui/App.jsx`)
 3. [x] Run full test suite to establish baseline - All 421 tests pass
-4. [ ] Verify all third-party dependencies support React 19
+4. [x] Verify all third-party dependencies support React 19 - DONE (see table above)
 
 ### Phase 2: Upgrade React
 
