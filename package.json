@@ -41,7 +41,6 @@
     "react": "19.2.3",
     "react-bootstrap": "2.10.10",
     "react-dom": "19.2.3",
-    "react-helmet": "6.1.0",
     "react-highlight-words": "0.20.0",
     "react-hot-keys": "2.7.3",
     "react-lazylog": "4.5.3",

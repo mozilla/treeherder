@@ -102,9 +102,6 @@ importers:
       react-dom:
         specifier: 19.2.3
         version: 19.2.3(react@19.2.3)
-      react-helmet:
-        specifier: 6.1.0
-        version: 6.1.0(react@19.2.3)
       react-highlight-words:
         specifier: 0.20.0
         version: 0.20.0(react@19.2.3)
@@ -4446,11 +4443,6 @@ packages:
   react-fast-compare@3.2.2:
     resolution: {integrity: sha512-nsO+KSNgo1SbJqJEYRE9ERzo7YtYbou/OqjSQKxV7jcKox7+usiUVZOAC+XnDOABXggQTno0Y1CpVnuWEc1boQ==}
 
-  react-helmet@6.1.0:
-    resolution: {integrity: sha512-4uMzEY9nlDlgxr61NL3XbKRy1hEkXmKNXhjbAIOVw5vcFrsdYbH2FEwcNyWvWinl103nXgzYNlns9ca+8kFiWw==}
-    peerDependencies:
-      react: '>=16.3.0'
-
   react-highlight-words@0.20.0:
     resolution: {integrity: sha512-asCxy+jCehDVhusNmCBoxDf2mm1AJ//D+EzDx1m5K7EqsMBIHdZ5G4LdwbSEXqZq1Ros0G0UySWmAtntSph7XA==}
     peerDependencies:
@@ -4508,11 +4500,6 @@ packages:
     engines: {node: '>=14.0.0'}
     peerDependencies:
       react: '>=16.8'
-
-  react-side-effect@2.1.2:
-    resolution: {integrity: sha512-PVjOcvVOyIILrYoyGEpDN3vmYNLdy1CajSFNt4TDsVQC5KpTijDvWVoR+/7Rz2xT978D8/ZtFceXxzsPwZEDvw==}
-    peerDependencies:
-      react: ^16.3.0 || ^17.0.0 || ^18.0.0
 
   react-string-replace@0.4.4:
     resolution: {integrity: sha512-FAMkhxmDpCsGTwTZg7p/2v+/GTmxAp73so3fbSvlAcBBX36ujiGRNEaM/1u+jiYQrArhns+7eE92g2pi5E5FUA==}
@@ -10512,14 +10499,6 @@ snapshots:
 
   react-fast-compare@3.2.2: {}
 
-  react-helmet@6.1.0(react@19.2.3):
-    dependencies:
-      object-assign: 4.1.1
-      prop-types: 15.8.1
-      react: 19.2.3
-      react-fast-compare: 3.2.2
-      react-side-effect: 2.1.2(react@19.2.3)
-
   react-highlight-words@0.20.0(react@19.2.3):
     dependencies:
       highlight-words-core: 1.2.3
@@ -10583,10 +10562,6 @@ snapshots:
   react-router@6.28.0(react@19.2.3):
     dependencies:
       '@remix-run/router': 1.21.0
-      react: 19.2.3
-
-  react-side-effect@2.1.2(react@19.2.3):
-    dependencies:
       react: 19.2.3
 
   react-string-replace@0.4.4:
