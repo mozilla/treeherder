@@ -1,5 +1,4 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Ajv from 'ajv';
 import jsonSchemaDefaults from 'json-schema-defaults';
@@ -15,7 +14,8 @@ import TaskclusterModel from '../models/taskcluster';
 import DropdownMenuItems from '../shared/DropdownMenuItems';
 import { checkRootUrl } from '../taskcluster-auth-callback/constants';
 
-import { notify } from './redux/stores/notifications';
+import { notify } from './stores/notificationStore';
+import { usePushStore } from './stores/pushStore';
 
 class CustomJobActions extends React.PureComponent {
   constructor(props) {
@@ -32,11 +32,21 @@ class CustomJobActions extends React.PureComponent {
       schema: '',
       payload: '',
       dropdownOpen: false,
+      // Initialize from Zustand store
+      decisionTaskMap: usePushStore.getState().decisionTaskMap,
     };
   }
 
   async componentDidMount() {
-    const { pushId, job, notify, decisionTaskMap, currentRepo } = this.props;
+    // Subscribe to Zustand store
+    this.unsubscribePush = usePushStore.subscribe((state) => {
+      this.setState({
+        decisionTaskMap: state.decisionTaskMap,
+      });
+    });
+
+    const { pushId, job = null, currentRepo } = this.props;
+    const { decisionTaskMap } = this.state;
     const { id: decisionTaskId } = decisionTaskMap[pushId];
 
     TaskclusterModel.load(decisionTaskId, job, currentRepo).then((results) => {
@@ -118,7 +128,7 @@ class CustomJobActions extends React.PureComponent {
       selectedAction: action,
       staticActionVariables,
     } = this.state;
-    const { notify, currentRepo } = this.props;
+    const { currentRepo } = this.props;
 
     let input = null;
     if (validate && payload) {
@@ -175,6 +185,12 @@ class CustomJobActions extends React.PureComponent {
       },
     );
   };
+
+  componentWillUnmount() {
+    if (this.unsubscribePush) {
+      this.unsubscribePush();
+    }
+  }
 
   close = () => {
     // prevent closing of dialog while we're triggering
@@ -295,19 +311,9 @@ class CustomJobActions extends React.PureComponent {
 
 CustomJobActions.propTypes = {
   pushId: PropTypes.number.isRequired,
-  notify: PropTypes.func.isRequired,
   toggle: PropTypes.func.isRequired,
-  decisionTaskMap: PropTypes.shape({}).isRequired,
   job: PropTypes.shape({}),
   currentRepo: PropTypes.shape({}).isRequired,
 };
 
-CustomJobActions.defaultProps = {
-  job: null,
-};
-
-const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({
-  decisionTaskMap,
-});
-
-export default connect(mapStateToProps, { notify })(CustomJobActions);
+export default CustomJobActions;

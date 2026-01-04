@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Alert, Button } from 'react-bootstrap';
 import {
@@ -18,9 +17,10 @@ import {
   getPerfAnalysisUrl,
 } from '../../../helpers/url';
 import { triggerTask } from '../../../helpers/performance';
-import { notify } from '../../redux/stores/notifications';
 import { isPerfTest } from '../../../helpers/job';
 import { geckoProfileTaskName, sxsTaskName } from '../../../helpers/constants';
+import { usePushStore } from '../../stores/pushStore';
+import { notify } from '../../stores/notificationStore';
 
 import SideBySide from './SideBySide';
 import PerfData from './PerfData';
@@ -47,16 +47,29 @@ class PerformanceTab extends React.PureComponent {
     this.state = {
       triggeredGeckoProfiles: 0,
       showSideBySide: selectedJobFull.job_type_symbol.includes(sxsTaskName),
+      // Initialize from Zustand store
+      decisionTaskMap: usePushStore.getState().decisionTaskMap,
     };
   }
 
+  componentDidMount() {
+    // Subscribe to Zustand store
+    this.unsubscribePush = usePushStore.subscribe((state) => {
+      this.setState({
+        decisionTaskMap: state.decisionTaskMap,
+      });
+    });
+  }
+
+  componentWillUnmount() {
+    if (this.unsubscribePush) {
+      this.unsubscribePush();
+    }
+  }
+
   createGeckoProfile = async () => {
-    const {
-      selectedJobFull,
-      notify,
-      decisionTaskMap,
-      currentRepo,
-    } = this.props;
+    const { selectedJobFull, currentRepo } = this.props;
+    const { decisionTaskMap } = this.state;
     await triggerTask(
       selectedJobFull,
       notify,
@@ -70,12 +83,8 @@ class PerformanceTab extends React.PureComponent {
   };
 
   createSideBySide = async () => {
-    const {
-      selectedJobFull,
-      notify,
-      decisionTaskMap,
-      currentRepo,
-    } = this.props;
+    const { selectedJobFull, currentRepo } = this.props;
+    const { decisionTaskMap } = this.state;
     await triggerTask(
       selectedJobFull,
       notify,
@@ -85,7 +94,7 @@ class PerformanceTab extends React.PureComponent {
     );
   };
 
-  getProfileRelevance = (jobDetail) => {
+  getProfileRelevance = (jobDetail = {}) => {
     const { url, value } = jobDetail;
     if (!url) {
       return NO_PROFILE_RELEVANCE;
@@ -116,8 +125,9 @@ class PerformanceTab extends React.PureComponent {
 
   // Returns profile-related job details, ordered by the relevance.
   getProfiles = (perfTestOnly) => {
+    const { jobDetails = [] } = this.props;
     const profiles = [];
-    for (const jobDetail of this.props.jobDetails) {
+    for (const jobDetail of jobDetails) {
       const relevance = this.getProfileRelevance(jobDetail);
       if (relevance === NO_PROFILE_RELEVANCE) {
         continue;
@@ -162,10 +172,10 @@ class PerformanceTab extends React.PureComponent {
   render() {
     const {
       repoName,
-      revision,
+      revision = '',
       selectedJobFull,
-      jobDetails,
-      perfJobDetail,
+      jobDetails = [],
+      perfJobDetail = [],
     } = this.props;
     const { triggeredGeckoProfiles, showSideBySide } = this.state;
 
@@ -282,18 +292,6 @@ PerformanceTab.propTypes = {
   jobDetails: PropTypes.arrayOf(PropTypes.shape({})),
   perfJobDetail: PropTypes.arrayOf(PropTypes.shape({})),
   revision: PropTypes.string,
-  decisionTaskMap: PropTypes.shape({}).isRequired,
 };
 
-PerformanceTab.defaultProps = {
-  jobDetails: [],
-  perfJobDetail: [],
-  revision: '',
-};
-
-const mapStateToProps = (state) => ({
-  decisionTaskMap: state.pushes.decisionTaskMap,
-});
-const mapDispatchToProps = { notify };
-
-export default connect(mapStateToProps, mapDispatchToProps)(PerformanceTab);
+export default PerformanceTab;

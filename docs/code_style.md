@@ -8,8 +8,8 @@ Javascript in the [Installation section](installation.md#validating-javascript))
 
 Prettier is also used to format JSON/CSS/HTML/Markdown/YAML. However these are not supported
 by ESLint, so instead are validated using Prettier's CLI. To manually check their formatting
-(as well as that of JS/JSX) using Prettier, run `yarn format:check`, or to apply formatting
-fixes run `yarn format`.
+(as well as that of JS/JSX) using Prettier, run `pnpm format:check`, or to apply formatting
+fixes run `pnpm format`.
 
 However we recommend that you instead
 [add Prettier to your editor/IDE](https://prettier.io/docs/en/editors.html)

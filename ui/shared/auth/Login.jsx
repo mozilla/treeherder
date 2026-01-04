@@ -45,7 +45,7 @@ class Login extends React.Component {
     setUser(newUser);
 
     // start session renewal process
-    if (userSession && userSession.renewAfter) {
+    if (userSession?.renewAfter) {
       this.authService.resetRenewalTimer();
     }
   };
@@ -82,7 +82,7 @@ class Login extends React.Component {
   };
 
   logout = () => {
-    const { notify } = this.props;
+    const { notify = (msg) => console.error(msg) } = this.props; // eslint-disable-line no-console
 
     // only clear taskcluster credentials when a user logs out to make it easier
     // to clear an old token and retrieve a new one
@@ -99,11 +99,11 @@ class Login extends React.Component {
   };
 
   render() {
-    const { user } = this.props;
+    const { user = { isLoggedIn: false } } = this.props;
 
     return (
       <React.Fragment>
-        {user && user.isLoggedIn ? (
+        {user?.isLoggedIn ? (
           <Dropdown>
             <Dropdown.Toggle
               variant="transparent"
@@ -141,11 +141,6 @@ Login.propTypes = {
     fullName: PropTypes.string,
   }),
   notify: PropTypes.func,
-};
-
-Login.defaultProps = {
-  user: { isLoggedIn: false },
-  notify: (msg) => console.error(msg), // eslint-disable-line no-console
 };
 
 export default Login;

@@ -1,5 +1,4 @@
 import React from 'react';
-import { Helmet } from 'react-helmet';
 import PropTypes from 'prop-types';
 import { Button, Form, InputGroup } from 'react-bootstrap';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
@@ -19,7 +18,7 @@ export default class ComparePageTitle extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { pageTitleQueryParam, title } = this.props;
+    const { pageTitleQueryParam = null, title } = this.props;
     if (
       prevProps.pageTitleQueryParam !== pageTitleQueryParam ||
       prevProps.title !== title
@@ -29,7 +28,7 @@ export default class ComparePageTitle extends React.Component {
   }
 
   setPageTitle = () => {
-    const { pageTitleQueryParam, title } = this.props;
+    const { pageTitleQueryParam = null, title } = this.props;
 
     this.setState({
       pageTitle: pageTitleQueryParam || title,
@@ -103,10 +102,8 @@ export default class ComparePageTitle extends React.Component {
 
     return (
       <React.Fragment>
-        <Helmet>
-          <meta charSet="utf-8" />
-          <title>{tabTitle || this.props.defaultPageTitle}</title>
-        </Helmet>
+        <meta charSet="utf-8" />
+        <title>{tabTitle || this.props.defaultPageTitle}</title>
 
         {!inEditMode ? (
           <Button
@@ -161,8 +158,4 @@ export default class ComparePageTitle extends React.Component {
 ComparePageTitle.propTypes = {
   title: PropTypes.string.isRequired,
   pageTitleQueryParam: PropTypes.string,
-};
-
-ComparePageTitle.defaultProps = {
-  pageTitleQueryParam: null,
 };

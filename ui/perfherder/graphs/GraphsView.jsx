@@ -61,7 +61,7 @@ class GraphsView extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { location } = this.props;
+    const { location = {} } = this.props;
     const { testData, loading } = this.state;
     const { replicates } = queryString.parse(this.props.location.search);
     const { replicates: prevReplicates } = queryString.parse(
@@ -87,7 +87,7 @@ class GraphsView extends React.Component {
   }
 
   getDefaultTimeRange = () => {
-    const { location } = this.props;
+    const { location = {} } = this.props;
     const { timerange } = parseQueryParams(location.search);
 
     const defaultValue = timerange
@@ -339,7 +339,7 @@ class GraphsView extends React.Component {
   };
 
   updateParams = (params) => {
-    const { location, history } = this.props;
+    const { location = {}, history } = this.props;
     let newQueryString = queryString.stringify(params);
     newQueryString = newQueryString.replace(/%2C/g, ',');
 
@@ -551,10 +551,6 @@ GraphsView.propTypes = {
       PropTypes.arrayOf(PropTypes.string),
     ]),
   }),
-};
-
-GraphsView.defaultProps = {
-  location: undefined,
 };
 
 export default GraphsView;

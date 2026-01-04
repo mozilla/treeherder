@@ -3,6 +3,7 @@
 import React from 'react';
 import { Row, Col } from 'react-bootstrap';
 import PropTypes from 'prop-types';
+import flatMap from 'lodash/flatMap';
 import {
   VictoryBar,
   VictoryChart,
@@ -14,9 +15,8 @@ import {
   createContainer,
   VictoryTooltip,
 } from 'victory';
-import moment from 'moment';
-import flatMap from 'lodash/flatMap';
 
+import dayjs from '../../helpers/dayjs';
 import { abbreviatedNumber } from '../perf-helpers/helpers';
 
 import TableView from './TableView';
@@ -34,7 +34,8 @@ class GraphsContainer extends React.Component {
     super(props);
     this.leftChartPadding = 25;
     this.rightChartPadding = 10;
-    const scatterPlotData = flatMap(this.props.testData, (item) =>
+    const testData = props.testData || [];
+    const scatterPlotData = flatMap(testData, (item) =>
       item.visible ? item.data : [],
     );
     const zoomDomain = this.initZoomDomain(scatterPlotData);
@@ -75,7 +76,7 @@ class GraphsContainer extends React.Component {
       timeRange,
       selectedDataPoint,
     } = this.props;
-    const scatterPlotData = flatMap(testData, (item) =>
+    const _scatterPlotData = flatMap(testData, (item) =>
       item.visible ? item.data : [],
     );
 
@@ -240,7 +241,7 @@ class GraphsContainer extends React.Component {
   // The Victory library doesn't provide a way of dynamically setting the left
   // padding for the y axis tick labels, so this is a workaround (setting state
   // doesn't work with this callback, which is why a class property is used instead)
-  setLeftPadding = (tick, index, ticks) => {
+  setLeftPadding = (tick, _index, ticks) => {
     const formattedNumber = abbreviatedNumber(tick).toString();
     const highestTick = abbreviatedNumber(ticks[ticks.length - 1]).toString();
     const newLeftPadding = highestTick.length * 8 + 16;
@@ -252,7 +253,7 @@ class GraphsContainer extends React.Component {
     return formattedNumber.toUpperCase();
   };
 
-  setRightPadding = (tick, index, ticks) => {
+  setRightPadding = (tick, _index, ticks) => {
     const highestTick = ticks[ticks.length - 1].toString();
     const newRightPadding = highestTick.length / 2;
     this.rightChartPadding =
@@ -268,8 +269,8 @@ class GraphsContainer extends React.Component {
     );
 
     return graphData.length > 0
-      ? moment.utc(x).format('MMM DD')
-      : moment.utc().format('MMM DD');
+      ? dayjs.utc(x).format('MMM DD')
+      : dayjs.utc().format('MMM DD');
   };
 
   computeYAxisLabel = () => {
@@ -317,11 +318,11 @@ class GraphsContainer extends React.Component {
 
   render() {
     const {
-      testData,
-      changelogData,
+      testData = [],
+      changelogData = [],
       showTable,
-      zoom,
-      highlightedRevisions,
+      zoom = {},
+      highlightedRevisions = ['', ''],
       highlightChangelogData,
       highlightCommonAlerts,
     } = this.props;
@@ -442,7 +443,7 @@ class GraphsContainer extends React.Component {
                   containerComponent={
                     <VictoryZoomSelectionContainer
                       zoomDomain={zoom}
-                      onSelection={(points, bounds) => this.updateZoom(bounds)}
+                      onSelection={(_points, bounds) => this.updateZoom(bounds)}
                       allowPan={false}
                       allowZoom={false}
                     />
@@ -741,15 +742,6 @@ GraphsContainer.propTypes = {
     PropTypes.arrayOf(PropTypes.string),
   ]),
   timeRange: PropTypes.shape({}).isRequired,
-};
-
-GraphsContainer.defaultProps = {
-  testData: [],
-  changelogData: [],
-  zoom: {},
-  selectedDataPoint: undefined,
-  highlightAlerts: true,
-  highlightedRevisions: ['', ''],
 };
 
 export default GraphsContainer;

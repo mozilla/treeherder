@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Badge } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -44,7 +44,7 @@ class PushHealthStatus extends Component {
   }
 
   async loadLatestStatus() {
-    const { repoName, revision, statusCallback } = this.props;
+    const { repoName, revision, statusCallback = () => {} } = this.props;
     const { data, failureStatus } = await PushModel.getHealthSummary(
       repoName,
       revision,
@@ -119,10 +119,6 @@ PushHealthStatus.propTypes = {
     completed: PropTypes.number.isRequired,
   }).isRequired,
   statusCallback: PropTypes.func,
-};
-
-PushHealthStatus.defaultProps = {
-  statusCallback: () => {},
 };
 
 export default PushHealthStatus;
