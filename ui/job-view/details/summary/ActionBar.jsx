@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { Button, Dropdown } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartBar } from '@fortawesome/free-regular-svg-icons';
@@ -36,8 +35,9 @@ import {
 import JobModel from '../../../models/job';
 import TaskclusterModel from '../../../models/taskcluster';
 import CustomJobActions from '../../CustomJobActions';
-import { notify } from '../../redux/stores/notifications';
-import { pinJob } from '../../redux/stores/pinnedJobs';
+import { pinJob } from '../../stores/pinnedJobsStore';
+import { notify } from '../../stores/notificationStore';
+import { usePushStore } from '../../stores/pushStore';
 import { getAction } from '../../../helpers/taskcluster';
 import { checkRootUrl } from '../../../taskcluster-auth-callback/constants';
 
@@ -49,10 +49,19 @@ class ActionBar extends React.PureComponent {
 
     this.state = {
       customJobActionsShowing: false,
+      // Initialize from Zustand store
+      decisionTaskMap: usePushStore.getState().decisionTaskMap,
     };
   }
 
   componentDidMount() {
+    // Subscribe to Zustand store
+    this.unsubscribePush = usePushStore.subscribe((state) => {
+      this.setState({
+        decisionTaskMap: state.decisionTaskMap,
+      });
+    });
+
     window.addEventListener(thEvents.openLogviewer, this.onOpenLogviewer);
     window.addEventListener(thEvents.openRawLog, this.onOpenRawLog);
     window.addEventListener(thEvents.openGeckoProfile, this.onOpenGeckoProfile);
@@ -60,6 +69,10 @@ class ActionBar extends React.PureComponent {
   }
 
   componentWillUnmount() {
+    if (this.unsubscribePush) {
+      this.unsubscribePush();
+    }
+
     window.removeEventListener(thEvents.openLogviewer, this.onOpenLogviewer);
     window.removeEventListener(thEvents.openRawLog, this.onOpenRawLog);
     window.removeEventListener(
@@ -75,7 +88,7 @@ class ActionBar extends React.PureComponent {
 
   // Open the logviewer and provide notifications if it isn't available
   onOpenLogviewer = () => {
-    const { logParseStatus, notify } = this.props;
+    const { logParseStatus } = this.props;
 
     switch (logParseStatus) {
       case 'pending':
@@ -97,7 +110,7 @@ class ActionBar extends React.PureComponent {
 
   // Open the raw log and provide notifications if it isn't available
   onOpenRawLog = () => {
-    const { jobLogUrls, notify } = this.props;
+    const { jobLogUrls } = this.props;
     if (jobLogUrls && jobLogUrls.length > 0) {
       window.open(jobLogUrls[0].url, '_blank');
     } else {
@@ -107,7 +120,7 @@ class ActionBar extends React.PureComponent {
 
   // Open the gecko profile and provide notifications if it isn't available
   onOpenGeckoProfile = () => {
-    const { notify, selectedJobFull } = this.props;
+    const { selectedJobFull } = this.props;
     const resourceUsageProfile = this.getResourceUsageProfile();
 
     if (resourceUsageProfile) {
@@ -135,12 +148,8 @@ class ActionBar extends React.PureComponent {
   };
 
   createGeckoProfile = async () => {
-    const {
-      selectedJobFull,
-      notify,
-      decisionTaskMap,
-      currentRepo,
-    } = this.props;
+    const { selectedJobFull, currentRepo } = this.props;
+    const { decisionTaskMap } = this.state;
     return triggerTask(
       selectedJobFull,
       notify,
@@ -151,12 +160,8 @@ class ActionBar extends React.PureComponent {
   };
 
   createSideBySide = async () => {
-    const {
-      selectedJobFull,
-      notify,
-      decisionTaskMap,
-      currentRepo,
-    } = this.props;
+    const { selectedJobFull, currentRepo } = this.props;
+    const { decisionTaskMap } = this.state;
     await triggerTask(
       selectedJobFull,
       notify,
@@ -167,7 +172,8 @@ class ActionBar extends React.PureComponent {
   };
 
   retriggerJob = async (jobs) => {
-    const { notify, decisionTaskMap, currentRepo } = this.props;
+    const { currentRepo } = this.props;
+    const { decisionTaskMap } = this.state;
 
     // Spin the retrigger button when retriggers happen
     document
@@ -185,12 +191,8 @@ class ActionBar extends React.PureComponent {
   };
 
   backfillJob = async () => {
-    const {
-      selectedJobFull,
-      notify,
-      decisionTaskMap,
-      currentRepo,
-    } = this.props;
+    const { selectedJobFull, currentRepo } = this.props;
+    const { decisionTaskMap } = this.state;
 
     if (!this.canBackfill()) {
       return;
@@ -237,12 +239,8 @@ class ActionBar extends React.PureComponent {
   };
 
   handleConfirmFailure = async () => {
-    const {
-      selectedJobFull,
-      notify,
-      decisionTaskMap,
-      currentRepo,
-    } = this.props;
+    const { selectedJobFull, currentRepo } = this.props;
+    const { decisionTaskMap } = this.state;
     confirmFailure(selectedJobFull, notify, decisionTaskMap, currentRepo);
   };
 
@@ -274,13 +272,8 @@ class ActionBar extends React.PureComponent {
   };
 
   createInteractiveTask = async () => {
-    const {
-      user,
-      selectedJobFull,
-      notify,
-      decisionTaskMap,
-      currentRepo,
-    } = this.props;
+    const { user, selectedJobFull, currentRepo } = this.props;
+    const { decisionTaskMap } = this.state;
 
     const { id: decisionTaskId } = decisionTaskMap[selectedJobFull.push_id];
     const results = await TaskclusterModel.load(
@@ -321,7 +314,8 @@ class ActionBar extends React.PureComponent {
   };
 
   cancelJobs = (jobs) => {
-    const { notify, decisionTaskMap, currentRepo } = this.props;
+    const { currentRepo } = this.props;
+    const { decisionTaskMap } = this.state;
 
     JobModel.cancel(
       jobs.filter(({ state }) => state === 'pending' || state === 'running'),
@@ -344,10 +338,9 @@ class ActionBar extends React.PureComponent {
   render() {
     const {
       selectedJobFull,
-      logViewerUrl,
-      logViewerFullUrl,
-      jobLogUrls,
-      pinJob,
+      logViewerUrl = null,
+      logViewerFullUrl = null,
+      jobLogUrls = [],
       currentRepo,
     } = this.props;
     const { customJobActionsShowing } = this.state;
@@ -423,7 +416,7 @@ class ActionBar extends React.PureComponent {
                 title="Scroll to selection"
                 className="actionbar-nav-btn bg-transparent border-0"
                 onClick={() =>
-                  findJobInstance(jobLogUrls[0] && jobLogUrls[0].job_id, true)
+                  findJobInstance(jobLogUrls[0]?.job_id, true)
                 }
               >
                 <FontAwesomeIcon
@@ -573,12 +566,9 @@ class ActionBar extends React.PureComponent {
 }
 
 ActionBar.propTypes = {
-  pinJob: PropTypes.func.isRequired,
-  decisionTaskMap: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({}).isRequired,
   selectedJobFull: PropTypes.shape({}).isRequired,
   logParseStatus: PropTypes.string.isRequired,
-  notify: PropTypes.func.isRequired,
   jobLogUrls: PropTypes.arrayOf(PropTypes.shape({})),
   currentRepo: PropTypes.shape({}).isRequired,
   isTryRepo: PropTypes.bool,
@@ -586,15 +576,4 @@ ActionBar.propTypes = {
   logViewerFullUrl: PropTypes.string,
 };
 
-ActionBar.defaultProps = {
-  isTryRepo: true, // default to more restrictive for backfilling
-  logViewerUrl: null,
-  logViewerFullUrl: null,
-  jobLogUrls: [],
-};
-
-const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({
-  decisionTaskMap,
-});
-
-export default connect(mapStateToProps, { notify, pinJob })(ActionBar);
+export default ActionBar;

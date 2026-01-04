@@ -11,7 +11,10 @@ import InfraCompareTable from './InfraCompareTable';
 export default class CompareTableControls extends React.Component {
   constructor(props) {
     super(props);
-    this.validated = this.props.validated;
+    const {
+      validated = { showOnlyImportant: undefined, hideUncertain: undefined },
+    } = props;
+    this.validated = validated;
     this.state = {
       showImportant: convertParams(this.validated, 'showOnlyImportant'),
       hideUncertain: convertParams(this.validated, 'showOnlyImportant'),
@@ -129,6 +132,7 @@ export default class CompareTableControls extends React.Component {
         {results.size > 0 ? (
           Array.from(results).map(([platform, data]) => (
             <InfraCompareTable
+              key={platform}
               platform={platform}
               data={data}
               {...this.props}
@@ -148,11 +152,4 @@ CompareTableControls.propTypes = {
     showOnlyImportant: PropTypes.string,
     hideUncertain: PropTypes.string,
   }),
-};
-
-CompareTableControls.defaultProps = {
-  validated: {
-    showOnlyImportant: undefined,
-    hideUncertain: undefined,
-  },
 };

@@ -1,7 +1,6 @@
 import React from 'react';
-import { hot } from 'react-hot-loader/root';
-import moment from 'moment';
 
+import dayjs from '../helpers/dayjs';
 import AuthService from '../shared/auth/AuthService';
 import { webAuth, parseHash } from '../helpers/auth';
 import CallbackMessage from '../shared/CallbackMessage';
@@ -60,7 +59,7 @@ class LoginCallback extends React.PureComponent {
     if (
       !userCredentials ||
       !userCredentials[defaultRootUrl] ||
-      !moment(userCredentials[defaultRootUrl].expires).isAfter(moment())
+      !dayjs(userCredentials[defaultRootUrl].expires).isAfter(dayjs())
     ) {
       taskcluster.getAuthCode(true);
     } else if (window.opener) {
@@ -82,4 +81,4 @@ class LoginCallback extends React.PureComponent {
   }
 }
 
-export default hot(LoginCallback);
+export default LoginCallback;
