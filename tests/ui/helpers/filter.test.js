@@ -1,6 +1,10 @@
+import { thAllResultStatuses } from '../../../ui/helpers/constants';
 import {
   thDefaultFilterResultStatuses,
+  thFilterDefaults,
+  thMatchType,
   thFieldChoices,
+  thFilterGroups,
   arraysEqual,
   matchesDefaults,
   getFieldChoices,
@@ -111,6 +115,104 @@ describe('allFilterParams', () => {
     expect(allFilterParams).toContain('repo');
     expect(allFilterParams).toContain('revision');
     expect(allFilterParams).toContain('author');
+  });
+
+  it('thDefaultFilterResultStatuses contains expected statuses', () => {
+    expect(thDefaultFilterResultStatuses).toContain('testfailed');
+    expect(thDefaultFilterResultStatuses).toContain('busted');
+    expect(thDefaultFilterResultStatuses).toContain('exception');
+    expect(thDefaultFilterResultStatuses).toContain('success');
+    expect(thDefaultFilterResultStatuses).toContain('retry');
+    expect(thDefaultFilterResultStatuses).toContain('usercancel');
+    expect(thDefaultFilterResultStatuses).toContain('running');
+    expect(thDefaultFilterResultStatuses).toContain('pending');
+    expect(thDefaultFilterResultStatuses).toContain('runnable');
+  });
+});
+
+describe('thMatchType', () => {
+  it('defines all expected match types', () => {
+    expect(thMatchType.exactstr).toBe('exactstr');
+    expect(thMatchType.substr).toBe('substr');
+    expect(thMatchType.searchStr).toBe('searchStr');
+    expect(thMatchType.choice).toBe('choice');
+  });
+});
+
+describe('thFieldChoices', () => {
+  it('contains job_type_name with substr match', () => {
+    expect(thFieldChoices.job_type_name).toEqual({
+      name: 'job name',
+      matchType: 'substr',
+    });
+  });
+
+  it('contains job_type_symbol with exactstr match', () => {
+    expect(thFieldChoices.job_type_symbol).toEqual({
+      name: 'job symbol',
+      matchType: 'exactstr',
+    });
+  });
+
+  it('contains platform with substr match', () => {
+    expect(thFieldChoices.platform).toEqual({
+      name: 'platform',
+      matchType: 'substr',
+    });
+  });
+
+  it('contains tier with exactstr match', () => {
+    expect(thFieldChoices.tier).toEqual({
+      name: 'tier',
+      matchType: 'exactstr',
+    });
+  });
+
+  it('contains searchStr field', () => {
+    expect(thFieldChoices.searchStr).toEqual({
+      name: 'search string',
+      matchType: 'searchStr',
+    });
+  });
+});
+
+describe('thFilterDefaults', () => {
+  it('has default resultStatus values', () => {
+    expect(thFilterDefaults.resultStatus).toEqual(
+      thDefaultFilterResultStatuses,
+    );
+  });
+
+  it('has default classifiedState values', () => {
+    expect(thFilterDefaults.classifiedState).toEqual([
+      'classified',
+      'unclassified',
+    ]);
+  });
+
+  it('has default tier values', () => {
+    expect(thFilterDefaults.tier).toEqual(['1', '2']);
+  });
+});
+
+describe('thFilterGroups', () => {
+  it('groups failures correctly', () => {
+    expect(thFilterGroups.failures).toContain('testfailed');
+    expect(thFilterGroups.failures).toContain('busted');
+    expect(thFilterGroups.failures).toContain('exception');
+  });
+
+  it('groups nonfailures correctly', () => {
+    expect(thFilterGroups.nonfailures).toEqual([
+      'success',
+      'retry',
+      'usercancel',
+      'superseded',
+    ]);
+  });
+
+  it('groups in progress correctly', () => {
+    expect(thFilterGroups['in progress']).toEqual(['pending', 'running']);
   });
 });
 

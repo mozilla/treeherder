@@ -1,10 +1,12 @@
 import React from 'react';
 import fetchMock from 'fetch-mock';
-import { render, waitFor } from '@testing-library/react';
+import { render, waitFor, screen } from '@testing-library/react';
 import { Provider, ReactReduxContext } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 
 import App from '../../ui/App';
+import reposFixture from './mock/repositories';
+import pushListFixture from './mock/push_list';
 import { getApiUrl } from '../../ui/helpers/url';
 import { getProjectUrl } from '../../ui/helpers/location';
 import {
@@ -12,8 +14,6 @@ import {
   history,
 } from '../../ui/job-view/redux/configureStore';
 
-import reposFixture from './mock/repositories';
-import pushListFixture from './mock/push_list';
 
 /**
  * Tests for the main App component routing and URL transformation logic.
