@@ -60,13 +60,9 @@ describe('Taskcluster Helpers', () => {
     });
 
     it('error message includes available actions', () => {
-      try {
-        getAction(mockActionArray, 'missing');
-      } catch (error) {
-        expect(error.message).toContain(
-          'Available: retrigger, cancel, schedule',
-        );
-      }
+      expect(() => getAction(mockActionArray, 'missing')).toThrow(
+        'Available: retrigger, cancel, schedule',
+      );
     });
 
     it('handles empty action array', () => {

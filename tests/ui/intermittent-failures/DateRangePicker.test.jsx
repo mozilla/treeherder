@@ -15,21 +15,8 @@ import { render, screen, fireEvent } from '@testing-library/react';
 
 import DateRangePicker from '../../../ui/intermittent-failures/DateRangePicker';
 
-// Mock dayjs to control date behavior in tests
-jest.mock('../../../ui/helpers/dayjs', () => {
-  const actualDayjs = jest.requireActual('dayjs');
-  const utc = require('dayjs/plugin/utc');
-  const customParseFormat = require('dayjs/plugin/customParseFormat');
-  const isSameOrAfter = require('dayjs/plugin/isSameOrAfter');
-  const relativeTime = require('dayjs/plugin/relativeTime');
-
-  actualDayjs.extend(utc);
-  actualDayjs.extend(customParseFormat);
-  actualDayjs.extend(isSameOrAfter);
-  actualDayjs.extend(relativeTime);
-
-  return actualDayjs;
-});
+// Use the real dayjs helper with all plugins already configured
+// No mock needed since the component uses the pre-configured dayjs from ui/helpers/dayjs
 
 describe('DateRangePicker Component', () => {
   const mockUpdateState = jest.fn();
@@ -73,7 +60,7 @@ describe('DateRangePicker Component', () => {
       const muiElements = container.querySelectorAll(
         '.MuiPickersInputBase-root',
       );
-      expect(muiElements.length).toBe(2); // Start and End date pickers
+      expect(muiElements).toHaveLength(2); // Start and End date pickers
     });
   });
 
@@ -107,7 +94,7 @@ describe('DateRangePicker Component', () => {
       const muiDatePickers = container.querySelectorAll(
         '.MuiPickersInputBase-root',
       );
-      expect(muiDatePickers.length).toBe(2);
+      expect(muiDatePickers).toHaveLength(2);
     });
   });
 

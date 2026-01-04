@@ -340,7 +340,7 @@ describe('validateQueryParams', () => {
 
     const result = validateQueryParams(params);
 
-    expect(result.length).toBe(3);
+    expect(result).toHaveLength(3);
   });
 });
 

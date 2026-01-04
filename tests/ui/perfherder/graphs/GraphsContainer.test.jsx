@@ -81,9 +81,7 @@ describe('GraphsContainer Date Formatting (dayjs migration)', () => {
     });
 
     it('handles empty graph data', () => {
-      const graphData = [];
-
-      // When graphData is empty, use current date
+      // When graphData is empty, the component would use current date as fallback
       const fallback = dayjs.utc().format('MMM DD');
 
       expect(fallback).toMatch(/^[A-Z][a-z]{2} \d{2}$/);
