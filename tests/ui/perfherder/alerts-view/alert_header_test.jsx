@@ -1,7 +1,7 @@
 
 import { render, waitFor } from '@testing-library/react';
 import { Provider, ReactReduxContext } from 'react-redux';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 
 import AlertHeaderTitle from '../../../../ui/perfherder/alerts/AlertHeaderTitle';
 import testAlertSummaries from '../../mock/alert_summaries_with_critical_tests.json';

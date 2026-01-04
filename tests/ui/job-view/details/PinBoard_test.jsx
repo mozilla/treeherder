@@ -7,7 +7,7 @@ import {
   fireEvent,
   act,
 } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 
 import JobModel from '../../../../ui/models/job';
 import DetailsPanel from '../../../../ui/job-view/details/DetailsPanel';
