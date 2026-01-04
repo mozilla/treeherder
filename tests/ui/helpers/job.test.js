@@ -12,6 +12,7 @@ import {
   getTaskRun,
 } from '../../../ui/helpers/job';
 import * as jobButtonRegistry from '../../../ui/hooks/useJobButtonRegistry';
+import * as locationHelpers from '../../../ui/helpers/location';
 
 // Mock the job button registry
 jest.mock('../../../ui/hooks/useJobButtonRegistry', () => ({
@@ -208,8 +209,6 @@ describe('job helpers', () => {
   });
 
   describe('canConfirmFailure', () => {
-    const locationHelpers = require('../../../ui/helpers/location');
-
     beforeEach(() => {
       locationHelpers.getRepo.mockReturnValue('autoland');
     });

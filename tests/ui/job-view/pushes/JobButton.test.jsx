@@ -56,7 +56,7 @@ describe('JobButton', () => {
       <JobButtonComponent
         job={job}
         filterModel={filterModel}
-        visible={true}
+        visible
         filterPlatformCb={filterPlatformCb}
       />,
     );
@@ -90,7 +90,7 @@ describe('JobButton', () => {
       <JobButtonComponent
         job={job}
         filterModel={filterModel}
-        visible={true}
+        visible
         filterPlatformCb={filterPlatformCb}
       />,
     );
@@ -109,7 +109,7 @@ describe('JobButton', () => {
       <JobButtonComponent
         job={job}
         filterModel={filterModel}
-        visible={true}
+        visible
         filterPlatformCb={filterPlatformCb}
       />,
     );
@@ -128,7 +128,7 @@ describe('JobButton', () => {
         <JobButtonComponent
           job={job}
           filterModel={filterModel}
-          visible={true}
+          visible
           filterPlatformCb={filterPlatformCb}
         />,
       );
@@ -145,7 +145,7 @@ describe('JobButton', () => {
         <JobButtonComponent
           job={job}
           filterModel={filterModel}
-          visible={true}
+          visible
           filterPlatformCb={filterPlatformCb}
         />,
       );
@@ -162,7 +162,7 @@ describe('JobButton', () => {
         <JobButtonComponent
           job={job}
           filterModel={filterModel}
-          visible={true}
+          visible
           filterPlatformCb={filterPlatformCb}
         />,
       );
@@ -179,7 +179,7 @@ describe('JobButton', () => {
         <JobButtonComponent
           job={job}
           filterModel={filterModel}
-          visible={true}
+          visible
           filterPlatformCb={filterPlatformCb}
         />,
       );
@@ -196,7 +196,7 @@ describe('JobButton', () => {
         <JobButtonComponent
           job={job}
           filterModel={filterModel}
-          visible={true}
+          visible
           filterPlatformCb={filterPlatformCb}
         />,
       );
@@ -216,7 +216,7 @@ describe('JobButton', () => {
         <JobButtonComponent
           job={job}
           filterModel={filterModel}
-          visible={true}
+          visible
           filterPlatformCb={filterPlatformCb}
         />,
       );
@@ -240,7 +240,7 @@ describe('JobButton', () => {
         <JobButtonComponent
           job={job}
           filterModel={filterModel}
-          visible={true}
+          visible
           filterPlatformCb={filterPlatformCb}
         />,
       );
@@ -265,7 +265,7 @@ describe('JobButton', () => {
         <JobButtonComponent
           job={job}
           filterModel={filterModel}
-          visible={true}
+          visible
           filterPlatformCb={filterPlatformCb}
         />,
       );
@@ -289,7 +289,7 @@ describe('JobButton', () => {
         <JobButtonComponent
           job={job}
           filterModel={filterModel}
-          visible={true}
+          visible
           filterPlatformCb={filterPlatformCb}
         />,
       );
@@ -308,7 +308,7 @@ describe('JobButton', () => {
         <JobButtonComponent
           job={job}
           filterModel={filterModel}
-          visible={true}
+          visible
           filterPlatformCb={filterPlatformCb}
         />,
       );
@@ -329,9 +329,9 @@ describe('JobButton', () => {
         <JobButtonComponent
           job={job}
           filterModel={filterModel}
-          visible={true}
+          visible
           filterPlatformCb={filterPlatformCb}
-          intermittent={true}
+          intermittent
         />,
       );
 
@@ -351,7 +351,7 @@ describe('JobButton', () => {
         <JobButtonComponent
           job={job}
           filterModel={filterModel}
-          visible={true}
+          visible
           filterPlatformCb={filterPlatformCb}
         />,
       );
@@ -374,7 +374,7 @@ describe('JobButton', () => {
         <JobButtonComponent
           job={job}
           filterModel={filterModel}
-          visible={true}
+          visible
           filterPlatformCb={filterPlatformCb}
         />,
       );
@@ -395,7 +395,7 @@ describe('JobButton', () => {
         <JobButtonComponent
           job={job}
           filterModel={filterModel}
-          visible={true}
+          visible
           filterPlatformCb={filterPlatformCb}
         />,
       );
@@ -417,7 +417,7 @@ describe('JobButton', () => {
           ref={ref}
           job={job}
           filterModel={filterModel}
-          visible={true}
+          visible
           filterPlatformCb={filterPlatformCb}
         />,
       );
@@ -439,7 +439,7 @@ describe('JobButton', () => {
           ref={ref}
           job={job}
           filterModel={filterModel}
-          visible={true}
+          visible
           filterPlatformCb={filterPlatformCb}
         />,
       );
@@ -458,7 +458,7 @@ describe('JobButton', () => {
           ref={ref}
           job={job}
           filterModel={filterModel}
-          visible={true}
+          visible
           filterPlatformCb={filterPlatformCb}
         />,
       );
@@ -477,7 +477,7 @@ describe('JobButton', () => {
         <JobButtonComponent
           job={job}
           filterModel={filterModel}
-          visible={true}
+          visible
           filterPlatformCb={filterPlatformCb}
         />,
       );
@@ -496,7 +496,7 @@ describe('JobButton', () => {
         <JobButtonComponent
           job={job}
           filterModel={filterModel}
-          visible={true}
+          visible
           filterPlatformCb={filterPlatformCb}
         />,
       );
