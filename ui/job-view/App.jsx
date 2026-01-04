@@ -7,7 +7,7 @@ import {
 } from 'react';
 import { Modal } from 'react-bootstrap';
 import { PanelGroup, Panel, PanelResizeHandle } from 'react-resizable-panels';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router';
 
 import { thFavicons, thDefaultRepo, thEvents } from '../helpers/constants';
 import ShortcutTable from '../shared/ShortcutTable';

@@ -11,7 +11,7 @@ import {
   faTimesCircle,
 } from '@fortawesome/free-solid-svg-icons';
 import { Button, Dropdown } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 import TreeStatusModel, { treeStatusUiUrl } from '../../models/treeStatus';
 import BugLinkify from '../../shared/BugLinkify';

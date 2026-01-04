@@ -8,7 +8,7 @@ import {
   queryAllByTestId,
   act,
 } from '@testing-library/react';
-import { MemoryRouter, useLocation } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router';
 
 import Health from '../../../ui/push-health/Health';
 import pushHealth from '../mock/push_health';

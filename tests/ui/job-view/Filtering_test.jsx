@@ -1,7 +1,7 @@
 
 import fetchMock from 'fetch-mock';
 import { render, fireEvent, waitFor, cleanup } from '@testing-library/react';
-import { MemoryRouter, useLocation } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router';
 
 import App from '../../../ui/job-view/App';
 import taskDefinition from '../mock/task_definition.json';

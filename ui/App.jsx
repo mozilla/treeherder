@@ -5,7 +5,7 @@ import {
   BrowserRouter,
   useNavigate,
   useLocation,
-} from 'react-router-dom';
+} from 'react-router';
 
 import { permaLinkPrefix } from './perfherder/perf-helpers/constants';
 import LoadingSpinner from './shared/LoadingSpinner';
@@ -194,12 +194,7 @@ const AppRoutes = () => {
 
 const App = () => {
   return (
-    <BrowserRouter
-      future={{
-        v7_startTransition: true,
-        v7_relativeSplatPath: true,
-      }}
-    >
+    <BrowserRouter>
       <AppRoutes />
     </BrowserRouter>
   );
