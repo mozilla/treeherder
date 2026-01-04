@@ -3,6 +3,6 @@ module.exports = {
     headless: true,
   },
   server: {
-    command: 'yarn start',
+    command: 'pnpm start',
   },
 };
