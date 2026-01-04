@@ -1,5 +1,5 @@
 import { render, fireEvent, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 
 import FiltersMenu from '../../../../ui/job-view/headerbars/FiltersMenu';
 import { thAllResultStatuses } from '../../../../ui/helpers/constants';

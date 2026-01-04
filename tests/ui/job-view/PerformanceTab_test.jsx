@@ -1,7 +1,7 @@
 
 import { render } from '@testing-library/react';
 import { Provider, ReactReduxContext } from 'react-redux';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 
 import { configureStore } from '../../../ui/job-view/redux/configureStore';
 import PerformanceTab from '../../../ui/job-view/details/tabs/PerformanceTab.jsx';

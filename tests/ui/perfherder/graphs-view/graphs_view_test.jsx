@@ -7,7 +7,7 @@ import {
   waitForElementToBeRemoved,
   act,
 } from '@testing-library/react';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter as Router } from 'react-router';
 import fetchMock from 'fetch-mock';
 import queryString from 'query-string';
 
