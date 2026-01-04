@@ -14,7 +14,6 @@ import {
   history,
 } from '../../ui/job-view/redux/configureStore';
 
-
 /**
  * Tests for the main App component routing and URL transformation logic.
  *
