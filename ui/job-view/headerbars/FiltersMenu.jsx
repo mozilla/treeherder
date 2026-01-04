@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Dropdown } from 'react-bootstrap';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 import {
   thDefaultFilterResultStatuses,

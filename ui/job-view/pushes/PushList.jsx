@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'react-bootstrap';
 import { connect } from 'react-redux';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import intersection from 'lodash/intersection';
 import isEqual from 'lodash/isEqual';
 

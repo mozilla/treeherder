@@ -7,7 +7,7 @@ import {
   faExclamationCircle,
   faTimes,
 } from '@fortawesome/free-solid-svg-icons';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 import { alertStatusMap, endpoints } from '../perf-helpers/constants';
 import {

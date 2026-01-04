@@ -1,6 +1,6 @@
 import React from 'react';
 import { Row, Col, Breadcrumb, BreadcrumbItem } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import PropTypes from 'prop-types';
 import ReactTable from 'react-table-6';
 import Checkbox from '@mui/material/Checkbox';

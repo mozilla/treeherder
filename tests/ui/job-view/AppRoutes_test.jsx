@@ -1,7 +1,7 @@
 import fetchMock from 'fetch-mock';
 import { render, waitFor } from '@testing-library/react';
 import { Provider, ReactReduxContext } from 'react-redux';
-import { MemoryRouter, useLocation } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router';
 
 import { AppRoutes } from '../../../ui/App';
 import reposFixture from '../mock/repositories';

@@ -4,7 +4,7 @@ import { Button, Form } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import { connect } from 'react-redux';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 
 import { updateRange } from '../redux/stores/pushes';
 import { clearSelectedJob } from '../stores/selectedJobStore';

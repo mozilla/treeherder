@@ -1,7 +1,7 @@
 
 import fetchMock from 'fetch-mock';
 import { render, cleanup, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 import { Provider } from 'react-redux';
 
 import { configureStore } from '../../../ui/job-view/redux/configureStore';

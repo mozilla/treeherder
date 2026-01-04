@@ -9,7 +9,7 @@ import {
   faFilter,
   faTimesCircle,
 } from '@fortawesome/free-solid-svg-icons';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router';
 
 import { getBtnClass } from '../../helpers/job';
 import { hasUrlFilterChanges, thFilterGroups } from '../../helpers/filter';

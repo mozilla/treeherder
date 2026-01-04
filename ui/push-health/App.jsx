@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { Routes, Route, useLocation, useNavigate } from 'react-router';
 
 import {
   clearNotificationAtIndex,

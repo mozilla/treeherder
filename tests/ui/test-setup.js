@@ -1,6 +1,11 @@
 /* global globalThis */
 // Entry point for Jest tests
 import '@testing-library/jest-dom/jest-globals';
+import { TextEncoder, TextDecoder } from 'util';
+
+// React Router v7 requires TextEncoder/TextDecoder which aren't in jsdom by default
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
 
 // Configure React 18 act environment for testing
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
