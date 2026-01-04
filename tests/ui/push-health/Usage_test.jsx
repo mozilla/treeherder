@@ -1,11 +1,8 @@
-import React from 'react';
+
 import fetchMock from 'fetch-mock';
 import { render, cleanup, waitFor } from '@testing-library/react';
-import { createBrowserHistory } from 'history';
-import { ConnectedRouter } from 'connected-react-router';
-import { Provider } from 'react-redux';
+import { MemoryRouter } from 'react-router';
 
-import { configureStore } from '../../../ui/job-view/redux/configureStore';
 import healthUsage from '../mock/health_usage';
 import Usage from '../../../ui/push-health/Usage';
 
@@ -18,16 +15,11 @@ afterEach(() => {
   fetchMock.reset();
 });
 
-const history = createBrowserHistory();
-
 const testUsage = () => {
-  const store = configureStore(history);
   return (
-    <Provider store={store}>
-      <ConnectedRouter history={history}>
-        <Usage location={history.location} />
-      </ConnectedRouter>
-    </Provider>
+    <MemoryRouter>
+      <Usage />
+    </MemoryRouter>
   );
 };
 

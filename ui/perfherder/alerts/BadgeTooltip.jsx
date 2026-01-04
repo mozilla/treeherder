@@ -12,9 +12,9 @@ export default class BadgeTooltip extends React.Component {
     const {
       text,
       tooltipText,
-      placement,
-      textClass,
-      innerClassName,
+      placement = 'top',
+      textClass = '',
+      innerClassName = '',
     } = this.props;
 
     return (
@@ -33,15 +33,8 @@ export default class BadgeTooltip extends React.Component {
 }
 BadgeTooltip.propTypes = {
   text: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.string]).isRequired,
-  tooltipText: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.string])
-    .isRequired,
+  tooltipText: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.string]),
   textClass: PropTypes.string,
   placement: PropTypes.string,
   innerClassName: PropTypes.string,
-};
-
-BadgeTooltip.defaultProps = {
-  textClass: '',
-  placement: 'top',
-  innerClassName: '',
 };

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faBug,
@@ -53,7 +53,7 @@ export default class SuggestionsListItem extends React.Component {
       toggleInternalIssueFiler,
       selectedJob,
       jobDetails,
-      addBug,
+      addBug = null,
       currentRepo,
       developerMode,
     } = this.props;
@@ -265,8 +265,4 @@ SuggestionsListItem.propTypes = {
   toggleInternalIssueFiler: PropTypes.func.isRequired,
   developerMode: PropTypes.bool.isRequired,
   addBug: PropTypes.func,
-};
-
-SuggestionsListItem.defaultProps = {
-  addBug: null,
 };

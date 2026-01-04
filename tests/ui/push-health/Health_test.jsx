@@ -1,4 +1,4 @@
-import React from 'react';
+
 import fetchMock from 'fetch-mock';
 import {
   render,
@@ -6,21 +6,24 @@ import {
   waitFor,
   getAllByTestId,
   queryAllByTestId,
+  act,
 } from '@testing-library/react';
-import { createBrowserHistory } from 'history';
-import { ConnectedRouter } from 'connected-react-router';
-import { Provider } from 'react-redux';
+import { MemoryRouter, useLocation } from 'react-router';
 
 import Health from '../../../ui/push-health/Health';
 import pushHealth from '../mock/push_health';
 import reposFixture from '../mock/repositories';
 import { getApiUrl } from '../../../ui/helpers/url';
 import { getProjectUrl } from '../../../ui/helpers/location';
-import { configureStore } from '../../../ui/job-view/redux/configureStore';
+
+// Wrapper component that provides location to Health
+function HealthWithLocation(props) {
+  const location = useLocation();
+  return <Health {...props} location={location} />;
+}
 
 const revision = 'cd02b96bdce57d9ae53b632ca4740c871d3ecc32';
 const repo = 'autoland';
-const history = createBrowserHistory();
 
 describe('Health', () => {
   beforeEach(() => {
@@ -123,24 +126,17 @@ describe('Health', () => {
     cleanup();
   });
 
-  const testHealth = () => {
-    const store = configureStore(history);
+  const testHealth = (
+    initialEntries = [`/push-health?repo=${repo}&revision=${revision}`],
+  ) => {
     return (
-      <Provider store={store}>
-        <ConnectedRouter history={history}>
-          <Health
-            location={history.location}
-            notify={() => {}}
-            clearNotification={() => {}}
-          />
-        </ConnectedRouter>
-      </Provider>
+      <MemoryRouter initialEntries={initialEntries}>
+        <HealthWithLocation notify={() => {}} clearNotification={() => {}} />
+      </MemoryRouter>
     );
   };
 
   test('should show some grouped tests', async () => {
-    history.push(`/push-health?repo=${repo}&revision=${revision}`);
-
     const health = render(testHealth());
     const classificationGroups = await waitFor(() =>
       health.getAllByTestId('classification-group'),
@@ -156,10 +152,11 @@ describe('Health', () => {
   });
 
   test('should filter groups by test path string', async () => {
-    history.push(
-      `/push-health?repo=${repo}&revision=${revision}&searchStr=browser/extensions/`,
+    const health = render(
+      testHealth([
+        `/push-health?repo=${repo}&revision=${revision}&searchStr=browser/extensions/`,
+      ]),
     );
-    const health = render(testHealth());
     const classificationGroups = await waitFor(() =>
       health.getAllByTestId('classification-group'),
     );
@@ -173,15 +170,15 @@ describe('Health', () => {
   });
 
   test('should go to the correct tab if query param exists', async () => {
-    history.push(`/push-health?repo=${repo}&revision=${revision}&tab=builds`);
-    const { getByText } = render(testHealth());
+    const { getByText } = render(
+      testHealth([`/push-health?repo=${repo}&revision=${revision}&tab=builds`]),
+    );
 
     const buildsTab = await waitFor(() => getByText('Builds'));
     expect(buildsTab).toHaveAttribute('aria-selected', 'true');
   });
 
   test('should show dismissible intermittent alert by default', async () => {
-    history.push(`/push-health?repo=${repo}&revision=${revision}`);
     const { getByText } = render(testHealth());
 
     const alertText = await waitFor(() =>
@@ -191,7 +188,6 @@ describe('Health', () => {
   });
 
   test('should hide intermittent alert when dismissed', async () => {
-    history.push(`/push-health?repo=${repo}&revision=${revision}`);
     const { getByText, queryByText, getByRole } = render(testHealth());
 
     // Wait for alert to appear
@@ -201,7 +197,9 @@ describe('Health', () => {
 
     // Click the dismiss button
     const dismissButton = getByRole('button', { name: /close/i });
-    dismissButton.click();
+    await act(async () => {
+      dismissButton.click();
+    });
 
     // Alert should be hidden
     await waitFor(() => {
@@ -216,7 +214,6 @@ describe('Health', () => {
 
   test('should not show intermittent alert if previously dismissed', async () => {
     localStorage.setItem('dismissedIntermittentAlert', 'true');
-    history.push(`/push-health?repo=${repo}&revision=${revision}`);
     const { queryByText } = render(testHealth());
 
     // Wait for page to load

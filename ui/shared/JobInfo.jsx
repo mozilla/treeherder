@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 import { getInspectTaskUrl } from '../helpers/url';
 import { getJobSearchStrHref } from '../helpers/job';
@@ -69,7 +69,12 @@ export default class JobInfo extends React.PureComponent {
   }
 
   render() {
-    const { job, extraFields, showJobFilters, currentRepo } = this.props;
+    const {
+      job,
+      extraFields = [],
+      showJobFilters = true,
+      currentRepo = null,
+    } = this.props;
     const {
       searchStr,
       task_id: taskId,
@@ -181,10 +186,4 @@ JobInfo.propTypes = {
   ),
   showJobFilters: PropTypes.bool,
   currentRepo: PropTypes.shape({}),
-};
-
-JobInfo.defaultProps = {
-  extraFields: [],
-  showJobFilters: true,
-  currentRepo: null,
 };

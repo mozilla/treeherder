@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
 
@@ -53,7 +53,7 @@ const StatusButton = ({
 StatusButton.propTypes = {
   title: PropTypes.string.isRequired,
   failureCount: PropTypes.number.isRequired,
-  inProgressCount: PropTypes.number.isRequired,
+  inProgressCount: PropTypes.number,
   status: PropTypes.string.isRequired,
   revision: PropTypes.string.isRequired,
   repo: PropTypes.string.isRequired,

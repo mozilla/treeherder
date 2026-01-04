@@ -420,10 +420,6 @@ AlertsView.propTypes = {
   performanceTags: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
-AlertsView.defaultProps = {
-  location: null,
-};
-
 export default withValidation(
   { requiredParams: new Set([]) },
   false,

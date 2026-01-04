@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Dropdown } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 const choices = [
   { url: '/jobs', text: 'Treeherder' },
@@ -12,7 +12,11 @@ const choices = [
 
 export default class LogoMenu extends React.PureComponent {
   render() {
-    const { menuText, menuImage, colorClass } = this.props;
+    const {
+      menuText,
+      menuImage = null,
+      colorClass = 'text-white',
+    } = this.props;
 
     const menuChoices = choices.filter((choice) => choice.text !== menuText);
     return (
@@ -30,8 +34,8 @@ export default class LogoMenu extends React.PureComponent {
         </Dropdown.Toggle>
         <Dropdown.Menu>
           {menuChoices.map((choice) => (
-            <Dropdown.Item key={choice.text}>
-              <Link to={choice.url}>{choice.text}</Link>
+            <Dropdown.Item key={choice.text} as={Link} to={choice.url}>
+              {choice.text}
             </Dropdown.Item>
           ))}
         </Dropdown.Menu>
@@ -44,9 +48,4 @@ LogoMenu.propTypes = {
   menuText: PropTypes.string.isRequired,
   menuImage: PropTypes.string,
   colorClass: PropTypes.string,
-};
-
-LogoMenu.defaultProps = {
-  menuImage: null,
-  colorClass: 'text-white',
 };
