@@ -214,17 +214,18 @@ class App extends React.Component {
   }
 
   static getSplitterDimensions(hasSelectedJob) {
-    const defaultPushListPct = hasSelectedJob ? 100 - DEFAULT_DETAILS_PCT : 100;
-    // calculate the height of the details panel to use if it has not been
-    // resized by the user.
-    const defaultDetailsHeight =
-      defaultPushListPct < 100
-        ? (DEFAULT_DETAILS_PCT / 100) * getWindowHeight()
-        : 0;
-
+    if (hasSelectedJob) {
+      const defaultDetailsHeight =
+        (DEFAULT_DETAILS_PCT / 100) * getWindowHeight();
+      const defaultPushListHeight = getWindowHeight() - defaultDetailsHeight;
+      return {
+        defaultPushListHeight,
+        defaultDetailsHeight,
+      };
+    }
     return {
-      defaultPushListPct,
-      defaultDetailsHeight,
+      defaultPushListHeight: getWindowHeight(),
+      defaultDetailsHeight: 0,
     };
   }
 
@@ -377,7 +378,8 @@ class App extends React.Component {
 
   handleSplitChange(latestSplitSize) {
     this.setState({
-      latestSplitPct: (latestSplitSize / getWindowHeight()) * 100,
+      latestSplitSize,
+      latestWindowHeight: getWindowHeight(),
     });
   }
 
@@ -386,9 +388,10 @@ class App extends React.Component {
       user,
       isFieldFilterVisible,
       serverChangedDelayed,
-      defaultPushListPct,
+      defaultPushListHeight,
       defaultDetailsHeight,
-      latestSplitPct,
+      latestSplitSize,
+      latestWindowHeight,
       serverChanged,
       currentRepo,
       repoName,
@@ -412,14 +415,26 @@ class App extends React.Component {
     // we resize.  Therefore, we must calculate the new
     // height of the DetailsPanel based on the current height of the PushList.
     // Reported this upstream: https://github.com/tomkp/react-split-pane/issues/282
-    const pushListPct =
-      latestSplitPct === undefined || !hasSelectedJob
-        ? defaultPushListPct
-        : latestSplitPct;
-    const detailsHeight =
-      latestSplitPct === undefined || !hasSelectedJob
-        ? defaultDetailsHeight
-        : getWindowHeight() * (1 - latestSplitPct / 100);
+
+    let detailsHeight = 0;
+    let pushListHeight = 0;
+    if (
+      hasSelectedJob &&
+      latestSplitSize !== undefined &&
+      latestWindowHeight !== undefined
+    ) {
+      if (latestWindowHeight === getWindowHeight()) {
+        pushListHeight = latestSplitSize;
+        detailsHeight = latestWindowHeight - latestSplitSize;
+      } else {
+        pushListHeight =
+          getWindowHeight() * (latestSplitSize / latestWindowHeight);
+        detailsHeight = getWindowHeight() - pushListHeight;
+      }
+    } else {
+      pushListHeight = defaultPushListHeight;
+      detailsHeight = defaultDetailsHeight;
+    }
     const filterBarFilters = Object.entries(filterModel.urlParams).reduce(
       (acc, [field, value]) =>
         HIDDEN_URL_PARAMS.includes(field) || matchesDefaults(field, value)
@@ -452,7 +467,7 @@ class App extends React.Component {
           />
           <SplitPane
             split="horizontal"
-            size={`${pushListPct}%`}
+            size={pushListHeight}
             onChange={(size) => this.handleSplitChange(size)}
           >
             <div className="d-flex flex-column w-100">
