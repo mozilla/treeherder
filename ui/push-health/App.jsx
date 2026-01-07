@@ -11,7 +11,6 @@ import { genericErrorMessage, errorMessageClass } from '../helpers/constants';
 
 import NotFound from './NotFound';
 import Health from './Health';
-import Usage from './Usage';
 import MyPushes from './MyPushes';
 import Navigation from './Navigation';
 
@@ -107,10 +106,6 @@ class App extends React.Component {
                 (<NotFound />)()
               )
             }
-          />
-          <Route
-            path={`${path}/usage`}
-            render={(props) => <Usage {...props} />}
           />
         </Switch>
       </ErrorBoundary>

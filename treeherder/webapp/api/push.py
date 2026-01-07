@@ -20,7 +20,6 @@ from treeherder.push_health.tests import (
     get_test_failures,
     get_test_in_progress_count,
 )
-from treeherder.push_health.usage import get_usage
 from treeherder.webapp.api.serializers import PushSerializer
 from treeherder.webapp.api.utils import to_datetime, to_timestamp
 
@@ -346,11 +345,6 @@ class PushViewSet(viewsets.ViewSet):
             )
 
         return Response(data)
-
-    @action(detail=False)
-    def health_usage(self, request, project):
-        usage = get_usage()
-        return Response({"usage": usage})
 
     @action(detail=False)
     def health(self, request, project):
