@@ -34,7 +34,7 @@ commands:
     steps:
       - run:
           name: Build Docker image
-          command: docker build -f docker/Dockerfile -t app:build .
+          command: DOCKER_BUILDKIT=1 docker build -f docker/Dockerfile -t app:build .
 
   deploy-to-dockerhub:
     description: "Deploy to Docker Hub"
@@ -100,21 +100,25 @@ jobs:
   javascript-tests:
     executor:
       name: node/default
-      # The Node version here must be kept in sync with that in `package.json`.
-      tag: '22.11.0'
+      # The Node version here should be compatible with `package.json` engines.
+      # Note: cimg/node requires at least a minor version (e.g., '22.0'), not just major version
+      tag: '22.0'
     steps:
       - checkout
-      - node/install-packages:
-          # `yarn install --frozen-lockfile` is run and cache is enabled by default for this orb configuration
-          pkg-manager: yarn
       - run:
-          command: yarn lint
+          name: Install pnpm
+          command: sudo corepack enable && corepack prepare pnpm@9.15.0 --activate
+      - run:
+          name: Install dependencies
+          command: pnpm install --frozen-lockfile
+      - run:
+          command: pnpm lint
           name: Run linting
       - run:
-          command: yarn markdownlint
+          command: pnpm markdownlint
           name: Check markdown linting
       - run:
-          command: yarn test:coverage
+          command: pnpm test:ci
           name: Run Jest tests
       - codecov/upload
 
@@ -123,10 +127,6 @@ jobs:
       - image: 'cimg/python:3.10-node'
     steps:
       - checkout
-      - restore_cache:
-          name: Restore Yarn Package Cache
-          keys:
-            - node-deps-v1-{{ .Branch }}
       - run: pip install tox
       - run:
           command: tox -e docs

@@ -13,26 +13,26 @@ does not match the style requirements.
 To run ESLint by itself, you may run the lint task:
 
 ```shell
-yarn lint
+pnpm lint
 ```
 
 Or to automatically fix issues found (where possible):
 
 ```shell
-yarn lint --fix
+pnpm lint --fix
 ```
 
 You can also check against Prettier:
 
 ```shell
-yarn format:check
+pnpm format:check
 ```
 
 and to have it actually fix (to the best of its ability) any format issues,
 just do:
 
 ```shell
-yarn format
+pnpm format
 ```
 
 See the [code style](code_style.md#ui) section for more details.
@@ -44,19 +44,19 @@ The tests are written with react testing library. For the integration tests Poll
 
 Integration tests are useful when testing higher level components that would be hard to setup with fetch mock.
 They use PollyJS because it helps to automatically record and replay requests/responses.
-To refresh the PollyJS recordings (usually when an endpoint response changes), just delete the recordings folder and run `yarn test:integration` again like described below.
+To refresh the PollyJS recordings (usually when an endpoint response changes), just delete the recordings folder and run `pnpm test:integration` again like described below.
 
 To run the tests:
 
-- If you haven't already done so, install local dependencies by running `yarn install` from the project root.
-- For unit tests run `yarn test` to execute the tests.
-- For integration tests run `yarn test:integration` to execute the tests.
+- If you haven't already done so, install local dependencies by running `pnpm install` from the project root.
+- For unit tests run `pnpm test` to execute the tests.
+- For integration tests run `pnpm test:integration` to execute the tests.
 
 While working on the frontend, you may wish to watch JavaScript files and re-run the unit tests
 automatically when files change. To do this, you may run one of the following commands:
 
 ```shell
-yarn test:watch
+pnpm test:watch
 ```
 
 The tests will perform an initial run and then re-execute each time a project file is changed.
