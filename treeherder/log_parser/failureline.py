@@ -3,7 +3,6 @@ import logging
 from collections import defaultdict
 from itertools import islice
 
-import newrelic.agent
 from django.conf import settings
 from django.db import transaction
 from django.db.utils import DataError, IntegrityError, OperationalError
@@ -120,17 +119,8 @@ def create_group_result(job_log, line):
     # Log to New Relic if it's not in a form we like.  We can enter
     # Bugs to upstream to remedy them.
     if "\\" in group_path or len(group_path) > 255:
-        newrelic.agent.record_custom_event(
-            "malformed_test_group",
-            {
-                "message": "Group paths must be relative, with no backslashes and <255 chars",
-                "group": line["group"],
-                "group_path": group_path,
-                "length": len(group_path),
-                "repository": job_log.job.repository,
-                "job_guid": job_log.job.guid,
-            },
-        )
+        pass
+
     else:
         group, _ = Group.objects.get_or_create(name=group_path[:255])
         duration = line.get("duration", 0)
@@ -158,7 +148,6 @@ def create(job_log, log_list):
     for line in log_list:
         action = line["action"]
         if action not in FailureLine.ACTION_LIST:
-            newrelic.agent.record_custom_event("unsupported_failure_line_action", line)
             # Unfortunately, these errors flood the logs, but we want to report any
             # others that we didn't expect.  We know about the following action we choose
             # to ignore.

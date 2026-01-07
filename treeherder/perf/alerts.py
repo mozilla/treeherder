@@ -4,7 +4,6 @@ from collections import namedtuple
 from datetime import datetime
 
 import moz_measure_noise
-import newrelic.agent
 import numpy as np
 from django.conf import settings
 from django.db import transaction
@@ -154,7 +153,6 @@ def generate_new_alerts_in_series(signature):
                         )
                 except Exception:
                     # Fail without breaking the alert computation
-                    newrelic.agent.notice_error()
                     logger.error("Failed to obtain a noise profile.")
 
                 # ignore regressions below the configured regression
