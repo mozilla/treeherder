@@ -61,8 +61,8 @@ importers:
         specifier: 3.12.1
         version: 3.12.1
       fuse.js:
-        specifier: 6.0.4
-        version: 6.0.4
+        specifier: 7.1.0
+        version: 7.1.0
       history:
         specifier: 4.10.1
         version: 4.10.1
@@ -1029,6 +1029,7 @@ packages:
 
   '@fortawesome/react-fontawesome@0.2.6':
     resolution: {integrity: sha512-mtBFIi1UsYQo7rYonYFkjgYKGoL8T+fEH6NGUpvuqtY3ytMsAoDaPo5rk25KuMtKDipY4bGYM/CkmCHA1N3FUg==}
+    deprecated: v0.2.x is no longer supported. Unless you are still using FontAwesome 5, please update to v3.1.1 or greater.
     peerDependencies:
       '@fortawesome/fontawesome-svg-core': ~1 || ~6 || ~7
       react: ^16.3 || ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -1297,6 +1298,12 @@ packages:
 
   '@mui/styled-engine-sc@7.3.6':
     resolution: {integrity: sha512-AE1tbLGP1o9yyE1vzXcyxf2KAXPH7j0Tfg7qf6Pea4nHsARDC7slgiMh+rGrQVvzpLqZWyH1luaO6L+6cTwXSQ==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      styled-components: ^6.0.0
+
+  '@mui/styled-engine-sc@7.3.7':
+    resolution: {integrity: sha512-BJ91ujrXXaYW0wXdEw8K1EoUzsqA6e/sJhxxLlwWjqgRWC8spa+MFP+H+5vCUqAHRiB38dAOcvgZxflUG5oeZg==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       styled-components: ^6.0.0
@@ -3452,8 +3459,8 @@ packages:
   functions-have-names@1.2.3:
     resolution: {integrity: sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ==}
 
-  fuse.js@6.0.4:
-    resolution: {integrity: sha512-XAeQaT+DV8dxqohN911+Qzkb4iMzTzae04mdb9/XSQbMjbsFasQxe0+UwM+3UWP+8vO7svz1Rj0KuQw6xJ45Ww==}
+  fuse.js@7.1.0:
+    resolution: {integrity: sha512-trLf4SzuuUxfusZADLINj+dE8clK1frKdmqiJNb1Es75fmI5oY6X2mxLVUciLLjxqw/xr72Dhy+lER6dGd02FQ==}
     engines: {node: '>=10'}
 
   generator-function@2.0.1:
@@ -6376,6 +6383,7 @@ packages:
   whatwg-encoding@2.0.0:
     resolution: {integrity: sha512-p41ogyeMUrw3jWclHWTQg1k05DSVXPLcVxRTYsXUk+ZooOCZLcoYgPZ/HL/D/N+uQPOtcp1me1WhBEaX02mhWg==}
     engines: {node: '>=12'}
+    deprecated: Use @exodus/bytes instead for a more spec-conformant and faster implementation
 
   whatwg-fetch@2.0.4:
     resolution: {integrity: sha512-dcQ1GWpOD/eEQ97k66aiEVpNnapVj90/+R+SXTPYGHpYBBypfKJEQjLrvMZ7YXbKm21gXd4NcuxUTjiv1YtLng==}
@@ -7783,11 +7791,22 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
+  '@mui/styled-engine-sc@7.3.7(@types/react@19.2.7)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
+    dependencies:
+      '@babel/runtime': 7.28.4
+      '@types/hoist-non-react-statics': 3.3.7(@types/react@19.2.7)
+      csstype: 3.2.3
+      hoist-non-react-statics: 3.3.2
+      prop-types: 15.8.1
+      styled-components: 6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+    transitivePeerDependencies:
+      - '@types/react'
+
   '@mui/system@7.3.6(@types/react@19.2.7)(react@18.3.1)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
     dependencies:
       '@babel/runtime': 7.28.4
       '@mui/private-theming': 7.3.6(@types/react@19.2.7)(react@18.3.1)
-      '@mui/styled-engine': '@mui/styled-engine-sc@7.3.6(@types/react@19.2.7)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1))'
+      '@mui/styled-engine': '@mui/styled-engine-sc@7.3.7(@types/react@19.2.7)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1))'
       '@mui/types': 7.4.9(@types/react@19.2.7)
       '@mui/utils': 7.3.6(@types/react@19.2.7)(react@18.3.1)
       clsx: 2.1.1
@@ -10290,7 +10309,7 @@ snapshots:
 
   functions-have-names@1.2.3: {}
 
-  fuse.js@6.0.4: {}
+  fuse.js@7.1.0: {}
 
   generator-function@2.0.1: {}
 
