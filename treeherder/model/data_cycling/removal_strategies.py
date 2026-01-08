@@ -3,7 +3,6 @@ from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
-from itertools import cycle
 
 from django.db.backends.utils import CursorWrapper
 
@@ -218,7 +217,7 @@ class IrrelevantDataRemoval(RemovalStrategy):
 
         self._manager = PerformanceDatum.objects
         self.__irrelevant_repos = None
-        self.__circular_repos = None
+        self.__target_repository = None
 
     @property
     def max_timestamp(self):
@@ -235,36 +234,59 @@ class IrrelevantDataRemoval(RemovalStrategy):
         return self.__irrelevant_repos
 
     @property
-    def irrelevant_repo(self):
-        if self.__circular_repos is None:
-            self.__circular_repos = cycle(self.irrelevant_repositories)
-        return next(self.__circular_repos)
+    def target_repository(self):
+        if self.__target_repository is None:
+            _ = self.irrelevant_repositories
+            self.__lookup_new_repository()
+        return self.__target_repository
 
     @property
     def name(self) -> str:
         return "irrelevant data removal strategy"
 
     def remove(self, using: CursorWrapper):
+        while True:
+            try:
+                self.__attempt_remove(using)
+                deleted_rows = using.rowcount
+                if deleted_rows > 0:
+                    break  # deletion was successful
+                self.__lookup_new_repository()
+            except LookupError as ex:
+                logger.debug(
+                    f"Could not target any (new) irrelevant repository to delete data from. {ex}"
+                )
+                break
+
+    def __attempt_remove(self, using: CursorWrapper):
         chunk_size = self._find_ideal_chunk_size()
         deleted, _ = PerformanceDatum.objects.filter(
             id__in=PerformanceDatum.objects.filter(
-                repository_id=self.irrelevant_repo, push_timestamp__lte=self._max_timestamp
+                repository_id=self.target_repository, push_timestamp__lte=self._max_timestamp
             ).values_list("id")[:chunk_size]
         ).delete()
         using.rowcount = deleted
 
+    def __lookup_new_repository(self):
+        if not self.__irrelevant_repos:
+            raise LookupError("Exhausted all irrelevant repositories.")
+        self.__target_repository = self.__irrelevant_repos.pop()
+
     def _find_ideal_chunk_size(self) -> int:
         max_id_of_non_expired_row = (
             self._manager.filter(push_timestamp__gt=self._max_timestamp)
-            .filter(repository_id__in=self.irrelevant_repositories)
-            .order_by("-id")[0]
-            .id
+            .filter(repository_id=self.target_repository)
+            .order_by("-id")
+            .values_list("id", flat=True)
+            .first()
         )
+        if max_id_of_non_expired_row is None:
+            return self._chunk_size
         older_perf_data_rows = (
             self._manager.filter(
                 push_timestamp__lte=self._max_timestamp, id__lte=max_id_of_non_expired_row
             )
-            .filter(repository_id__in=self.irrelevant_repositories)
+            .filter(repository_id=self.target_repository)
             .order_by("id")[: self._chunk_size]
         )
         return len(older_perf_data_rows) or self._chunk_size
