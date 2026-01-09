@@ -26,7 +26,6 @@ services:
       - SITE_URL=http://backend:8000/
       - STATSD_HOST=graphite
       - TREEHERDER_DEBUG=True
-      - NEW_RELIC_INSIGHTS_API_KEY=${NEW_RELIC_INSIGHTS_API_KEY:-}
       - PROJECTS_TO_INGEST=${PROJECTS_TO_INGEST:-autoland,try}
       - BUGZILLA_API_URL=${BUGZILLA_API_URL:-}
       - BUG_FILER_API_KEY=${BUG_FILER_API_KEY:-}
