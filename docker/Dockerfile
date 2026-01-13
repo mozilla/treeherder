@@ -30,7 +30,6 @@ COPY bin/ /app/bin/
 COPY docker/entrypoint_prod.sh /app/docker/entrypoint_prod.sh
 COPY treeherder/ /app/treeherder/
 COPY schemas/ /app/schemas/
-COPY manage.py newrelic.ini version.json /app/
 
 COPY --from=frontend /app/.build/ /app/.build/
 

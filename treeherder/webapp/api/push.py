@@ -1,7 +1,6 @@
 import datetime
 import logging
 
-import newrelic.agent
 from cache_memoize import cache_memoize
 from django.contrib.postgres.search import SearchQuery
 from django.db.models import Exists, OuterRef, Q
@@ -21,7 +20,6 @@ from treeherder.push_health.tests import (
     get_test_failures,
     get_test_in_progress_count,
 )
-from treeherder.push_health.usage import get_usage
 from treeherder.webapp.api.serializers import PushSerializer
 from treeherder.webapp.api.utils import to_datetime, to_timestamp
 
@@ -349,11 +347,6 @@ class PushViewSet(viewsets.ViewSet):
         return Response(data)
 
     @action(detail=False)
-    def health_usage(self, request, project):
-        usage = get_usage()
-        return Response({"usage": usage})
-
-    @action(detail=False)
     def health(self, request, project):
         """
         Return a calculated assessment of the health of this push.
@@ -407,16 +400,6 @@ class PushViewSet(viewsets.ViewSet):
         # Override the testfailed value added in push.get_status so that it aligns with how we detect lint, build and test failures
         # for the push health API's (total_failures doesn't include known intermittent failures)
         status["testfailed"] = total_failures
-
-        newrelic.agent.record_custom_event(
-            "push_health_need_investigation",
-            {
-                "revision": revision,
-                "repo": repository.name,
-                "needInvestigation": len(push_health_test_failures["needInvestigation"]),
-                "author": push.author,
-            },
-        )
 
         return Response(
             {
@@ -486,10 +469,7 @@ class PushViewSet(viewsets.ViewSet):
     # TODO: Remove when we no longer support short revisions: Bug 1306707
     def report_if_short_revision(self, param, revision):
         if len(revision) < 40:
-            newrelic.agent.record_custom_event(
-                "short_revision_push_api",
-                {"error": "Revision <40 chars", "param": param, "revision": revision},
-            )
+            logger.warn(f"short_revision_push_api: Revision <40 chars: ${revision} param: {param}")
 
     @action(detail=False)
     def group_results(self, request, project):

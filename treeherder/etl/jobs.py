@@ -1,11 +1,9 @@
 import copy
 import logging
-import os
 import time
 from datetime import datetime
 from hashlib import sha1
 
-import newrelic.agent
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import IntegrityError
@@ -493,19 +491,13 @@ def store_job_data(repository, original_data):
                     [job_guid, superseded_guid]
                 )
         except Exception as e:
-            # Surface the error immediately unless running in production, where we'd
-            # rather report it on New Relic and not block storing the remaining jobs.
+            # Surface the error immediately unless running in production where we'd
+            # rather not block storing the remaining jobs.
             # TODO: Once buildbot support is removed, remove this as part of
             # refactoring this method to process just one job at a time.
-            if "DYNO" not in os.environ:
+            if settings.DEBUG:
                 raise
-
             logger.exception(e)
-            # make more fields visible in new relic for the job
-            # where we encountered the error
-            datum.update(datum.get("job", {}))
-            newrelic.agent.notice_error(attributes=datum)
-
             # skip any jobs that hit errors in these stages.
             continue
 

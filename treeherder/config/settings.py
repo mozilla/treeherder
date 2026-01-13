@@ -25,9 +25,6 @@ IS_WINDOWS = "windows" in platform.system().lower()
 DEBUG = env.bool("TREEHERDER_DEBUG", default=False)
 LOGGING_LEVEL = env("LOGGING_LEVEL", default="INFO")
 
-NEW_RELIC_INSIGHTS_API_KEY = env("NEW_RELIC_INSIGHTS_API_KEY", default=None)
-NEW_RELIC_INSIGHTS_API_URL = "https://insights-api.newrelic.com/v1/accounts/677903/query"
-
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = env(
     "TREEHERDER_DJANGO_SECRET_KEY",
@@ -90,7 +87,6 @@ INSTALLED_APPS = [
 
 # Docker/outside-of-Docker/CircleCI
 if DEBUG:
-    NEW_RELIC_DEVELOPER_MODE = True
     # This controls whether the Django debug toolbar should be shown or not
     # https://django-debug-toolbar.readthedocs.io/en/latest/configuration.html#show-toolbar-callback
     # "You can provide your own function callback(request) which returns True or False."
@@ -104,8 +100,6 @@ if DEBUG:
 MIDDLEWARE = [
     middleware
     for middleware in [
-        # Adds custom New Relic annotations. Must be first so all transactions are annotated.
-        "treeherder.middleware.NewRelicMiddleware",
         # Redirect to HTTPS/set HSTS and other security headers.
         "django.middleware.security.SecurityMiddleware",
         "django.middleware.clickjacking.XFrameOptionsMiddleware",
