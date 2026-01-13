@@ -222,17 +222,17 @@ class DetailsPanel extends React.Component {
             mappedFrameworks[element.id] = element.name;
           });
 
-          const perfJobDetail = jobData.data.map((performanceData) => {
-            const signature = performanceData.signature_data;
+          const perfJobDetail = jobData.data.map((perfomanceData) => {
+            const signature = perfomanceData.signature_data;
             return {
               url: `/perfherder/graphs?series=${[
                 currentRepo.name,
                 signature.id,
                 1,
                 signature.frameworkId,
-              ]}&selected=${[signature.id, performanceData.id]}`,
+              ]}&selected=${[signature.id, perfomanceData.id]}`,
               shouldAlert: signature.should_alert,
-              value: performanceData.value,
+              value: perfomanceData.value,
               measurementUnit: signature.measurementUnit,
               lowerIsBetter: signature.lowerIsBetter,
               title: signature.name,

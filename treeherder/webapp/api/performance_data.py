@@ -33,7 +33,6 @@ from treeherder.webapp.api import perfcompare_utils
 from treeherder.webapp.api.performance_serializers import OptionalBooleanField
 from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 
-from .backends import TreeherderFilterBackend
 from .exceptions import InsufficientAlertCreationData
 from .performance_serializers import (
     IssueTrackerSerializer,
@@ -218,7 +217,7 @@ class PerformanceFrameworkViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = "id"
 
 
-class PerformanceJobViewSet(viewsets.ViewSet):
+class PerfomanceJobViewSet(viewsets.ReadOnlyModelViewSet):
     def list(self, request, project):
         repository = models.Repository.objects.get(name=project)
         # Expect exactly one job_id in query params
@@ -535,7 +534,7 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
     permission_classes = (IsStaffOrReadOnly,)
 
     serializer_class = PerformanceAlertSummarySerializer
-    filter_backends = (TreeherderFilterBackend, filters.OrderingFilter)
+    filter_backends = (django_filters.rest_framework.DjangoFilterBackend, filters.OrderingFilter)
     filterset_class = PerformanceAlertSummaryFilter
 
     ordering = ("-created", "-id")
@@ -601,7 +600,7 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
     permission_classes = (IsStaffOrReadOnly,)
 
     serializer_class = PerformanceAlertSerializer
-    filter_backends = (TreeherderFilterBackend, filters.OrderingFilter)
+    filter_backends = (django_filters.rest_framework.DjangoFilterBackend, filters.OrderingFilter)
     filterset_fields = ["id"]
     ordering = "-id"
 
@@ -691,7 +690,7 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
 class PerformanceBugTemplateViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = PerformanceBugTemplate.objects.all()
     serializer_class = PerformanceBugTemplateSerializer
-    filter_backends = (TreeherderFilterBackend, filters.OrderingFilter)
+    filter_backends = (django_filters.rest_framework.DjangoFilterBackend, filters.OrderingFilter)
     filterset_fields = ["framework"]
 
 
@@ -981,8 +980,6 @@ class PerfCompareResults(generics.ListAPIView):
     queryset = None
 
     def get_serializer_class(self):
-        if not self.request:
-            return PerfCompareResultsSerializer
         test_version = self.request.query_params.get("test_version", "")
         if test_version == "student-t":
             return PerfCompareResultsSerializer
