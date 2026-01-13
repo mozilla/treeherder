@@ -159,6 +159,9 @@ class GithubPushTransformer(GithubTransformer):
         return super().get_branch()
 
     def transform(self, repository):
+        logger.warning(
+            f"Push data requested: organization {self.message_body['organization']} repository {self.message_body['repository']} base-sha {self.message_body['details']['event.base.sha']} head-sha {self.message_body['details']['event.head.sha']}"
+        )
         push_data = compare_shas(
             self.message_body["organization"],
             self.message_body["repository"],
