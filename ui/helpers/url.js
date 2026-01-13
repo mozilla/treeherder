@@ -216,7 +216,9 @@ export const getPerfCompareBaseURL = function getOldCompareWithBaseViewURL(
     newRepo: newProject,
     framework,
   };
-  return `https://perf.compare/compare-results${createQueryParams(params)}`;
+  return `https://perf.compare/compare-results${createQueryParams(
+    params,
+  )}&sort=delta|desc`;
 };
 
 export const getPerfCompareBaseSubtestsURL = function getPerfCompareBaseSubtestsURL(

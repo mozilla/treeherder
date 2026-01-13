@@ -12,7 +12,12 @@ import {
 } from '../perf-helpers/helpers';
 import { create, getData } from '../../helpers/http';
 import TextualSummary from '../perf-helpers/textualSummary';
-import { bugzillaBugsApi, bzBaseUrl, getApiUrl } from '../../helpers/url';
+import {
+  bugzillaBugsApi,
+  bzBaseUrl,
+  getApiUrl,
+  getPerfCompareBaseURL,
+} from '../../helpers/url';
 import { criticalTestsList, summaryStatusMap } from '../perf-helpers/constants';
 import DropdownMenuItems from '../../shared/DropdownMenuItems';
 import BrowsertimeAlertsExtraData from '../../models/browsertimeAlertsExtraData';
@@ -83,6 +88,15 @@ export default class StatusDropdown extends React.Component {
       user,
     } = this.props;
     const { browsertimeAlertsExtraData, showCriticalFileBugModal } = this.state;
+
+    const perfCompareURL = getPerfCompareBaseURL(
+      alertSummary.repository,
+      alertSummary.prev_push_revision,
+      alertSummary.repository,
+      alertSummary.revision,
+      alertSummary.framework,
+    );
+
     const result = await this.getBugTemplate(
       alertSummary.framework,
       updateViewState,
@@ -101,6 +115,7 @@ export default class StatusDropdown extends React.Component {
       repoModel,
       textualSummary,
       user,
+      perfCompareURL,
     );
 
     if (showCriticalFileBugModal) {
@@ -169,7 +184,14 @@ export default class StatusDropdown extends React.Component {
     };
   };
 
-  getTemplateArgs(frameworks, alertSummary, repoModel, textualSummary, user) {
+  getTemplateArgs(
+    frameworks,
+    alertSummary,
+    repoModel,
+    textualSummary,
+    user,
+    perfCompareURL,
+  ) {
     const frameworkName = getFrameworkName(frameworks, alertSummary.framework);
     return {
       bugType: 'defect',
@@ -180,6 +202,7 @@ export default class StatusDropdown extends React.Component {
       alertSummary: textualSummary.markdown,
       alertSummaryId: alertSummary.id,
       user: user.email,
+      perfCompareURL,
     };
   }
 
@@ -192,6 +215,14 @@ export default class StatusDropdown extends React.Component {
       updateViewState,
       user,
     } = this.props;
+
+    const perfCompareURL = getPerfCompareBaseURL(
+      alertSummary.repository,
+      alertSummary.prev_push_revision,
+      alertSummary.repository,
+      alertSummary.revision,
+      alertSummary.framework,
+    );
 
     const { browsertimeAlertsExtraData } = this.state;
     const result = await this.getBugTemplate(
@@ -212,6 +243,7 @@ export default class StatusDropdown extends React.Component {
       repoModel,
       textualSummary,
       user,
+      perfCompareURL,
     );
 
     let templateText;
@@ -332,6 +364,11 @@ export default class StatusDropdown extends React.Component {
     const alertStatus = getStatus(alertSummary.status);
     const alertSummaryActiveTags = alertSummary.performance_tags || [];
 
+    const COPY_OPTIONS = [
+      { label: 'Copy Summary', isReply: false },
+      { label: 'Copy Reply Summary', isReply: true },
+    ];
+
     return (
       <React.Fragment>
         {issueTrackers.length > 0 && (
@@ -436,12 +473,16 @@ export default class StatusDropdown extends React.Component {
             {getStatus(alertSummary.status)}
           </Dropdown.Toggle>
           <Dropdown.Menu className="overflow-auto dropdown-menu-height">
-            <Dropdown.Item as="a" onClick={this.copySummary}>
-              Copy Summary
-            </Dropdown.Item>
-            <Dropdown.Item as="a" onClick={() => this.copySummary(true)}>
-              Copy Reply Summary
-            </Dropdown.Item>
+            {COPY_OPTIONS.map(({ label, isReply }) => (
+              <Dropdown.Item
+                key={label}
+                as="button"
+                type="button"
+                onClick={() => this.copySummary(isReply)}
+              >
+                {label}
+              </Dropdown.Item>
+            ))}
             {!alertSummary.bug_number && user.isStaff && (
               <Dropdown.Item
                 as="a"
