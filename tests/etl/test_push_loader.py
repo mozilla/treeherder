@@ -49,12 +49,38 @@ def transformed_hg_push(sample_data):
 @pytest.fixture
 def mock_github_pr_commits(activate_responses):
     tests_folder = os.path.dirname(os.path.dirname(__file__))
+    path = os.path.join(
+        tests_folder, "sample_data/pulse_consumer", "github_repository_test_treeherder.json"
+    )
+    with open(path) as f:
+        mocked_content = f.read()
+    responses.add(
+        responses.GET,
+        "https://api.github.com:443/repos/mozilla/test_treeherder",
+        body=mocked_content,
+        status=200,
+        content_type="application/json",
+    )
+
+    path = os.path.join(
+        tests_folder, "sample_data/pulse_consumer", "github_pr_test_treeherder_1692.json"
+    )
+    with open(path) as f:
+        mocked_content = f.read()
+    responses.add(
+        responses.GET,
+        "https://api.github.com:443/repos/mozilla/test_treeherder/pulls/1692",
+        body=mocked_content,
+        status=200,
+        content_type="application/json",
+    )
+
     path = os.path.join(tests_folder, "sample_data/pulse_consumer", "github_pr_commits.json")
     with open(path) as f:
         mocked_content = f.read()
     responses.add(
         responses.GET,
-        "https://api.github.com/repos/mozilla/test_treeherder/pulls/1692/commits",
+        "https://api.github.com:443/repos/mozilla/test_treeherder/pulls/1692/commits",
         body=mocked_content,
         status=200,
         content_type="application/json",
@@ -64,13 +90,37 @@ def mock_github_pr_commits(activate_responses):
 @pytest.fixture
 def mock_github_push_compare(activate_responses):
     tests_folder = os.path.dirname(os.path.dirname(__file__))
+
+    path = os.path.join(
+        tests_folder, "sample_data/pulse_consumer", "github_repository_android-components.json"
+    )
+    with open(path) as f:
+        mocked_content = json.load(f)
+    responses.add(
+        responses.GET,
+        "https://api.github.com:443/repos/mozilla-mobile/android-components",
+        json=mocked_content,
+        status=200,
+        content_type="application/json",
+    )
+
+    path = os.path.join(tests_folder, "sample_data/pulse_consumer", "github_repository_servo.json")
+    with open(path) as f:
+        mocked_content = json.load(f)
+    responses.add(
+        responses.GET,
+        "https://api.github.com:443/repos/servo/servo",
+        json=mocked_content,
+        status=200,
+        content_type="application/json",
+    )
+
     path = os.path.join(tests_folder, "sample_data/pulse_consumer", "github_push_compare.json")
     with open(path) as f:
         mocked_content = json.load(f)
-
     responses.add(
         responses.GET,
-        "https://api.github.com/repos/mozilla-mobile/android-components/compare/"
+        "https://api.github.com:443/repos/mozilla-mobile/android-components/compare/"
         "7285afe57ae6207fdb5d6db45133dac2053b7820..."
         "5fdb785b28b356f50fc1d9cb180d401bb03fc1f1",
         json=mocked_content[0],
@@ -79,7 +129,7 @@ def mock_github_push_compare(activate_responses):
     )
     responses.add(
         responses.GET,
-        "https://api.github.com/repos/servo/servo/compare/"
+        "https://api.github.com:443/repos/servo/servo/compare/"
         "4c25e02f26f7536edbf23a360d56604fb9507378..."
         "ad9bfc2a62b70b9f3dbb1c3a5969f30bacce3d74",
         json=mocked_content[1],
