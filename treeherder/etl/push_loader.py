@@ -4,10 +4,9 @@ import environ
 import newrelic.agent
 from django.core.exceptions import ObjectDoesNotExist
 
-from treeherder.etl.common import to_timestamp
 from treeherder.etl.push import store_push_data
 from treeherder.model.models import Repository
-from treeherder.utils.github import compare_shas, get_pull_request
+from treeherder.utils.github import compare_shas, get_pull_request_commits
 from treeherder.utils.http import fetch_json
 
 env = environ.Env()
@@ -82,36 +81,30 @@ class GithubTransformer:
         return info
 
     def process_push(self, push_data):
-        commits = self.get_cleaned_commits(push_data)
+        commits = push_data
         head_commit = commits[-1]
         push = {
-            "revision": head_commit["sha"],
+            "revision": head_commit.sha,
             # A push can be co-authored
             # The author's date is when the code was committed locally by the author
             # The committer's date is the info as to when the PR is merged (committed) into master
-            "push_timestamp": to_timestamp(head_commit["commit"]["committer"]["date"]),
+            "push_timestamp": head_commit.commit.committer.date.timestamp(),
             # We want the original author's email to show up in the UI
-            "author": head_commit["commit"]["author"]["email"],
+            "author": head_commit.commit.author.email,
         }
 
         revisions = []
         for commit in commits:
             revisions.append(
                 {
-                    "comment": commit["commit"]["message"],
-                    "author": "{} <{}>".format(
-                        commit["commit"]["author"]["name"], commit["commit"]["author"]["email"]
-                    ),
-                    "revision": commit["sha"],
+                    "comment": commit.commit.message,
+                    "author": f"{commit.commit.author.name} <{commit.commit.author.email}>",
+                    "revision": commit.sha,
                 }
             )
 
         push["revisions"] = revisions
         return push
-
-    def get_cleaned_commits(self, commits):
-        """Allow a subclass to change the order of the commits"""
-        return commits
 
 
 class GithubPushTransformer(GithubTransformer):
@@ -159,9 +152,6 @@ class GithubPushTransformer(GithubTransformer):
         return super().get_branch()
 
     def transform(self, repository):
-        logger.warning(
-            f"Push data requested: organization {self.message_body['organization']} repository {self.message_body['repository']} base-sha {self.message_body['details']['event.base.sha']} head-sha {self.message_body['details']['event.head.sha']}"
-        )
         push_data = compare_shas(
             self.message_body["organization"],
             self.message_body["repository"],
@@ -169,9 +159,6 @@ class GithubPushTransformer(GithubTransformer):
             self.message_body["details"]["event.head.sha"],
         )
         return self.process_push(push_data)
-
-    def get_cleaned_commits(self, compare):
-        return compare["commits"]
 
     def get_repo(self):
         return self.message_body["details"]["event.head.repo.url"].replace(".git", "")
@@ -210,13 +197,13 @@ class GithubPullRequestTransformer(GithubTransformer):
         return self.message_body["details"]["event.base.repo.url"].replace(".git", "")
 
     def transform(self, repository):
-        pr_data = get_pull_request(
+        push_data = get_pull_request_commits(
             self.message_body["organization"],
             self.message_body["repository"],
-            self.message_body["details"]["event.pullNumber"],
+            int(self.message_body["details"]["event.pullNumber"]),
         )
 
-        return self.process_push(pr_data)
+        return self.process_push(push_data)
 
 
 class HgPushTransformer:

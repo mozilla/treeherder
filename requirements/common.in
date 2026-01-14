@@ -27,6 +27,8 @@ django-redis==6.0.0  # Listed in CACHES on settings.py
 taskcluster==88.0.5  # import taskcluster
 python-jose[pycryptodome]==3.5.0  # from jose import jwt
 
+PyGithub==2.8.1
+
 furl==2.1.4  # Imported as furl
 first==2.0.2  # Imported as first
 json-e==4.8.1  # import jsone
