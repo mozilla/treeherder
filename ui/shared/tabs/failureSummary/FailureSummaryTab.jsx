@@ -128,6 +128,47 @@ class FailureSummaryTab extends React.Component {
     this.checkInternalFailureOccurrences(data.internal_id);
   };
 
+  isGenericFailure = (search, pathEnd) => {
+    const match =
+      search.match(/^TEST-UNEXPECTED-\w+ \| (.+?) \| finished in \d+ms$/) ||
+      search.match(
+        /^TEST-UNEXPECTED-\w+ \| (.+?) \| xpcshell return code: -?\d+$/,
+      );
+
+    return match && match[1] === pathEnd;
+  };
+
+  filterGenericFailures = (suggestions) => {
+    if (suggestions.length <= 1) {
+      return suggestions;
+    }
+
+    // First pass: collect test paths with at least one non-generic error
+    const testPathsWithSpecificErrors = new Set();
+    suggestions.forEach((suggestion) => {
+      if (
+        suggestion.path_end &&
+        !this.isGenericFailure(suggestion.search, suggestion.path_end)
+      ) {
+        testPathsWithSpecificErrors.add(suggestion.path_end);
+      }
+    });
+
+    // Second pass: filter out generic errors
+    return suggestions.filter((suggestion) => {
+      // Filter taskcluster errors since there are other messages (length > 1)
+      if (/^\[taskcluster:error\] exit status -?\d+$/.test(suggestion.search)) {
+        return false;
+      }
+
+      // Filter generic per-test errors if this test has specific errors
+      return (
+        !this.isGenericFailure(suggestion.search, suggestion.path_end) ||
+        !testPathsWithSpecificErrors.has(suggestion.path_end)
+      );
+    });
+  };
+
   loadBugSuggestions = () => {
     const { selectedJobId } = this.props;
 
@@ -152,16 +193,22 @@ class FailureSummaryTab extends React.Component {
           !suggestion.bugs.too_many_open_recent;
       });
 
-      this.setState({ bugSuggestionsLoading: false, suggestions }, () => {
-        const scrollArea = document.querySelector(
-          '#failure-summary-scroll-area',
-        );
+      // Filter out generic failure messages when specific ones exist for the same test
+      const filteredSuggestions = this.filterGenericFailures(suggestions);
 
-        if (scrollArea.scrollTo) {
-          scrollArea.scrollTo(0, 0);
-          window.getSelection().removeAllRanges();
-        }
-      });
+      this.setState(
+        { bugSuggestionsLoading: false, suggestions: filteredSuggestions },
+        () => {
+          const scrollArea = document.querySelector(
+            '#failure-summary-scroll-area',
+          );
+
+          if (scrollArea.scrollTo) {
+            scrollArea.scrollTo(0, 0);
+            window.getSelection().removeAllRanges();
+          }
+        },
+      );
     });
   };
 
