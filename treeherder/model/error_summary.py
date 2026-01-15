@@ -316,6 +316,7 @@ def cache_clean_error_line(line):
     cache_clean_line = re.sub(
         r" http://localhost:[0-9]+/", " http://localhost:X/", cache_clean_line
     )
+    cache_clean_line = re.sub(r" finished in \d+ms", " finished", cache_clean_line)
     return cache_clean_line
 
 

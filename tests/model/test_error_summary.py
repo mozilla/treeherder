@@ -1,6 +1,7 @@
 import pytest
 
 from treeherder.model.error_summary import (
+    cache_clean_error_line,
     get_cleaned_line,
     get_crash_signature,
     get_error_search_term_and_path,
@@ -353,3 +354,25 @@ def test_get_blacklisted_search_term(line, exp_search_info):
     """Test search term extraction for lines that contain a blacklisted term"""
     actual_search_info = get_error_search_term_and_path(line)
     assert actual_search_info == exp_search_info
+
+
+LINES_TO_CACHE_TEST_CASES = (
+    (
+        "TEST-UNEXPECT-FAIL | test_drag_1digit.html | offset 21.45 pixel is over limit.",
+        "TEST-UNEXPECT-FAIL | test_drag_1digit.html | offset X pixel is over limit.",
+    ),
+    (
+        "TEST-UNEXPECT-FAIL | test_drag_nodigit.html | offset 81px is over limit.",
+        "TEST-UNEXPECT-FAIL | test_drag_nodigit.html | offset 81px is over limit.",
+    ),
+    (
+        "TEST-UNEXPECT-FAIL | test_complete.html | finished in 617ms.",
+        "TEST-UNEXPECT-FAIL | test_complete.html | finished.",
+    ),
+)
+
+
+@pytest.mark.parametrize(("line", "exp_cache_line_cleaned"), LINES_TO_CACHE_TEST_CASES)
+def test_cache_error_line_cleaning(line, exp_cache_line_cleaned):
+    actual_cache_line_cleaned = cache_clean_error_line(line)
+    assert actual_cache_line_cleaned == exp_cache_line_cleaned
