@@ -86,7 +86,7 @@ project_bound_router.register(
 )
 
 project_bound_router.register(
-    r"performance/job-data", performance_data.PerfomanceJobViewSet, basename="performance-job-data"
+    r"performance/job-data", performance_data.PerformanceJobViewSet, basename="performance-job-data"
 )
 
 project_bound_router.register(
