@@ -77,6 +77,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
     "django_filters",
+    "drf_spectacular",
     "dockerflow.django",
     # treeherder apps
     "treeherder.model",
@@ -404,7 +405,7 @@ REST_FRAMEWORK = {
     "DEFAULT_PARSER_CLASSES": ("rest_framework.parsers.JSONParser",),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticatedOrReadOnly",),
     "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
-    "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.openapi.AutoSchema",
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_VERSION": "1.0",
     "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.AcceptHeaderVersioning",
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
