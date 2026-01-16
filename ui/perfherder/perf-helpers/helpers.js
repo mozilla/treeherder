@@ -497,86 +497,78 @@ const getPlatformInfo = (platforms) => {
 };
 
 export const getFilledBugSummary = (alertSummary) => {
-  let filledBugSummary;
-  let maxMagnitudeAlert;
-  let minMagnitudeAlert;
+  const { alerts, id: summaryId, push_timestamp: pushTimestamp } = alertSummary;
 
-  // we should never include downstream alerts in the description
-  let alertsInSummary = alertSummary.alerts.filter(
-    (alert) =>
+  // Filter out downstream, invalid and reassigned alerts
+  let filteredAlerts = alerts.filter((alert) => {
+    const isNotDownstream =
       alert.status !== alertStatusMap.downstream ||
-      alert.summary_id === alertSummary.id,
+      alert.summary_id === summaryId;
+    const isNotInvalid = alert.status !== alertStatusMap.invalid;
+    const isNotReassigned =
+      alert.related_summary_id === summaryId ||
+      alert.related_summary_id === null;
+
+    return isNotDownstream && isNotInvalid && isNotReassigned;
+  });
+
+  if (filteredAlerts.length === 0) {
+    return 'Empty alert';
+  }
+
+  // Prioritize Regressions. If regressions are found, the summary should only include those. Otherwise, use all valid, non-downstream, and non-reassigned alerts.
+  const regressions = filteredAlerts.filter((alert) => alert.is_regression);
+  if (regressions.length > 0) {
+    filteredAlerts = regressions;
+  }
+
+  // Find the max and min magnitude alerts
+  const {
+    maxMagnitudeAlert,
+    maxMagnitude,
+    minMagnitude,
+  } = filteredAlerts.reduce(
+    (acc, alert) => {
+      const val = alert.amount_pct;
+      return {
+        maxMagnitudeAlert:
+          val > acc.maxMagnitude ? alert : acc.maxMagnitudeAlert,
+        maxMagnitude: Math.max(acc.maxMagnitude, val),
+        minMagnitude: Math.min(acc.minMagnitude, val),
+      };
+    },
+    {
+      maxMagnitudeAlert: filteredAlerts[0],
+      maxMagnitude: filteredAlerts[0].amount_pct,
+      minMagnitude: filteredAlerts[0].amount_pct,
+    },
   );
 
-  // figure out if there are any regressions -- if there are,
-  // the summary should only incorporate those. if there
-  // aren't, then use all of them (that aren't downstream,
-  // see above)
-  const regressions = alertsInSummary.filter((alert) => alert.is_regression);
-  if (regressions.length > 0) {
-    alertsInSummary = regressions;
-  }
+  // Build string components
+  const magnitudeStr =
+    maxMagnitude === minMagnitude
+      ? `${maxMagnitude}%`
+      : `${maxMagnitude} - ${minMagnitude}%`;
 
-  // reassigned and invalid alerts are excluded
-  alertsInSummary = [
-    ...new Set(
-      alertsInSummary.filter(
-        (alert) =>
-          (alert.related_summary_id === alertSummary.id ||
-            alert.related_summary_id === null) &&
-          alert.status !== alertStatusMap.invalid,
-      ),
-    ),
-  ];
+  const testName = getTestName(maxMagnitudeAlert.series_signature);
+  const moreAlertCount = filteredAlerts.length - 1;
+  const testInfo =
+    moreAlertCount > 0 ? `${testName} + ${moreAlertCount} more` : testName;
 
-  if (alertsInSummary.length > 1) {
-    const maxMagnitude = Math.max(
-      ...alertsInSummary.map((alert) => alert.amount_pct),
-    );
-    const minMagnitude = Math.min(
-      ...alertsInSummary.map((alert) => alert.amount_pct),
-    );
-    maxMagnitudeAlert = alertsInSummary.find(
-      (alert) => alert.amount_pct === maxMagnitude,
-    );
-    minMagnitudeAlert = alertsInSummary.find(
-      (alert) => alert.amount_pct === minMagnitude,
-    );
-    filledBugSummary = `${maxMagnitude} - ${minMagnitude}%`;
-  } else if (alertsInSummary.length === 1) {
-    filledBugSummary = `${alertsInSummary[0].amount_pct}%`;
-  } else {
-    filledBugSummary = 'Empty alert';
-  }
-
-  // add test info
-  let testInfo = `${getTestName(alertsInSummary[0].series_signature)}`;
-  if (maxMagnitudeAlert && minMagnitudeAlert) {
-    testInfo = `${getTestName(
-      maxMagnitudeAlert.series_signature,
-    )} / ${getTestName(minMagnitudeAlert.series_signature)}`;
-  }
-  if (alertsInSummary.length > 2) {
-    testInfo += ` + ${alertsInSummary.length - 2} more`;
-  }
-  filledBugSummary += ` ${testInfo}`;
-
-  // add platform info
   const platforms = [
     ...new Set(
-      alertsInSummary.map((alert) => alert.series_signature.machine_platform),
+      filteredAlerts.map((alert) => alert.series_signature.machine_platform),
     ),
   ];
   const platformInfo = getPlatformInfo(platforms).sort().join(', ');
-  filledBugSummary += ` (${platformInfo})`;
 
   // add push date info
-  const pushDate = dayjs(alertSummary.push_timestamp * 1000).format(
+  const pushDate = dayjs(pushTimestamp * 1000).format(
     'ddd MMMM D YYYY',
   );
-  filledBugSummary += ` regression on ${pushDate}`;
 
-  return filledBugSummary;
+  // Construct the summary title
+  return `${magnitudeStr} ${testInfo} (${platformInfo}) regression on ${pushDate}`;
 };
 
 export const getTitle = (alertSummary) => {
