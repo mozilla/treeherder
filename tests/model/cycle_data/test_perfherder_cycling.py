@@ -271,6 +271,53 @@ def test_irrelevant_repos_data_removal(
     ).exists()
 
 
+def test_irrelevant_data_removal_cycles_past_empty_repo(
+    monkeypatch,
+    test_repository,
+    try_repository,
+    push_stored,
+    test_perf_signature,
+    taskcluster_notify_mock,
+):
+    test_repository.name = f"{test_repository.name}-test"
+    test_repository.save()
+
+    expired = datetime.now() - timedelta(days=181)
+    push = Push.objects.first()
+
+    PerformanceDatum.objects.create(
+        repository=test_repository,
+        push=push,
+        job=None,
+        signature=test_perf_signature,
+        push_timestamp=datetime.now() - timedelta(days=1),
+        value=1.0,
+    )
+    PerformanceDatum.objects.create(
+        repository=try_repository,
+        push=push,
+        job=None,
+        signature=test_perf_signature,
+        push_timestamp=expired,
+        value=1.0,
+    )
+
+    monkeypatch.setattr(
+        IrrelevantDataRemoval,
+        "_IrrelevantDataRemoval__irrelevant_repos",
+        [try_repository.id, test_repository.id],
+        raising=False,
+    )
+
+    call_command("cycle_data", "from:perfherder")
+    assert PerformanceDatum.objects.filter(repository=test_repository).exists()
+    assert not PerformanceDatum.objects.filter(
+        push_timestamp__lte=expired,
+        repository=try_repository,
+    ).exists()
+    assert PerformanceDatum.objects.count() == 1
+
+
 def test_signature_remover(
     test_perf_signature,
     test_perf_signature_2,
