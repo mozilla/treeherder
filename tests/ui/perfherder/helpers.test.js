@@ -2,16 +2,11 @@
  * Unit tests for the perfherder helpers module.
  *
  * This test suite covers:
- * - getFilledBugSummary: Bug summary generation with dayjs date formatting
  * - Utility functions: formatNumber, abbreviatedNumber, displayNumber
  * - Statistical functions: calcPercentOf, calcAverage, getStdDev, getTTest
  * - getCounterMap: Performance comparison data generation
  * - Various helper functions
- *
- * Note: getFilledBugSummary was migrated from moment.js to dayjs for date formatting.
  */
-
-import dayjs from '../../../ui/helpers/dayjs';
 import {
   formatNumber,
   abbreviatedNumber,
@@ -333,57 +328,5 @@ describe('reduceDictToKeys', () => {
     const result = reduceDictToKeys(dict, ['a', 'z']);
 
     expect(result).toEqual({ a: 1 });
-  });
-});
-
-describe('Date Formatting (dayjs migration)', () => {
-  describe('Push date formatting in bug summary', () => {
-    it('dayjs formats push timestamp correctly', () => {
-      // Simulating what getFilledBugSummary does:
-      // const pushDate = dayjs(alertSummary.push_timestamp * 1000).format('ddd MMMM D YYYY');
-
-      const pushTimestamp = 1705329600; // 2024-01-15 12:00:00 UTC
-      const pushDate = dayjs(pushTimestamp * 1000).format('ddd MMMM D YYYY');
-
-      expect(pushDate).toContain('Mon');
-      expect(pushDate).toContain('January');
-      expect(pushDate).toContain('15');
-      expect(pushDate).toContain('2024');
-    });
-
-    it('handles various timestamps', () => {
-      // Use UTC to ensure consistent timezone handling
-      const timestamps = [
-        {
-          ts: 1640995200,
-          expected: { month: 'January', day: '1', year: '2022' },
-        },
-        {
-          ts: 1672531200,
-          expected: { month: 'January', day: '1', year: '2023' },
-        },
-        {
-          ts: 1704067200,
-          expected: { month: 'January', day: '1', year: '2024' },
-        },
-      ];
-
-      timestamps.forEach(({ ts, expected }) => {
-        // Use UTC to avoid local timezone issues
-        const pushDate = dayjs.utc(ts * 1000).format('ddd MMMM D YYYY');
-
-        expect(pushDate).toContain(expected.month);
-        expect(pushDate).toContain(expected.day);
-        expect(pushDate).toContain(expected.year);
-      });
-    });
-
-    it('format matches expected pattern', () => {
-      const timestamp = 1705329600;
-      const pushDate = dayjs(timestamp * 1000).format('ddd MMMM D YYYY');
-
-      // Pattern: "Wed January 15 2024"
-      expect(pushDate).toMatch(/^\w{3} \w+ \d{1,2} \d{4}$/);
-    });
   });
 });

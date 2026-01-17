@@ -1,4 +1,3 @@
-import { thAllResultStatuses } from '../../../ui/helpers/constants';
 import {
   thDefaultFilterResultStatuses,
   thFilterDefaults,
