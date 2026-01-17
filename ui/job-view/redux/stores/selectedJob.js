@@ -1,5 +1,3 @@
-import { push as pushRoute } from 'connected-react-router';
-
 import {
   findGroupElement,
   findGroupInstance,
@@ -15,6 +13,7 @@ import {
   setUrlParam,
   setUrlParams,
 } from '../../../helpers/location';
+import { updateUrlSearch } from '../../../helpers/router';
 import JobModel from '../../../models/job';
 import { getJobsUrl } from '../../../helpers/url';
 
@@ -32,7 +31,7 @@ export const setSelectedJob = (job, updateDetails = true) => {
     if (updateDetails) {
       const taskRun = job ? getTaskRunStr(job) : null;
       const params = setUrlParams([['selectedTaskRun', taskRun]]);
-      dispatch(pushRoute({ search: params }));
+      updateUrlSearch(params);
     }
   };
 };
@@ -53,7 +52,7 @@ export const clearSelectedJob = (countPinnedJobs) => {
       ['selectedTaskRun', null],
       ['selectedJob', null],
     ]);
-    dispatch(pushRoute({ search: params }));
+    updateUrlSearch(params);
   };
 };
 
@@ -68,7 +67,7 @@ export const updateJobDetails = (job) => {
     });
     const taskRun = job ? getTaskRunStr(job) : null;
     const params = setUrlParams([['selectedTaskRun', taskRun]]);
-    dispatch(pushRoute({ search: params }));
+    updateUrlSearch(params);
   };
 };
 

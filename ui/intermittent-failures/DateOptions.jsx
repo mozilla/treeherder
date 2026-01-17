@@ -1,8 +1,8 @@
 import React from 'react';
 import { DropdownButton } from 'react-bootstrap';
-import moment from 'moment';
 import PropTypes from 'prop-types';
 
+import dayjs from '../helpers/dayjs';
 import DropdownMenuItems from '../shared/DropdownMenuItems';
 
 import DateRangePicker from './DateRangePicker';
@@ -30,8 +30,8 @@ export default class DateOptions extends React.Component {
       // bug history is max 4 months
       from = 120;
     }
-    const startday = ISODate(moment().utc().subtract(from, 'days'));
-    const endday = ISODate(moment().utc());
+    const startday = ISODate(dayjs().utc().subtract(from, 'days'));
+    const endday = ISODate(dayjs().utc());
     this.props.updateState({ startday, endday });
   };
 

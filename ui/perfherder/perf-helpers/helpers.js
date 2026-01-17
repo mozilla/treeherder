@@ -1,7 +1,7 @@
-import moment from 'moment';
 import numeral from 'numeral';
 import queryString from 'query-string';
 
+import dayjs from '../../helpers/dayjs';
 import { getApiUrl, getJobsUrl } from '../../helpers/url';
 import { update, processResponse } from '../../helpers/http';
 import PerfSeriesModel, {
@@ -185,8 +185,8 @@ export const getCounterMap = function getCounterMap(
   newData,
 ) {
   const cmap = { isEmpty: false };
-  const hasOrig = originalData && originalData.values.length;
-  const hasNew = newData && newData.values.length;
+  const hasOrig = originalData?.values.length;
+  const hasNew = newData?.values.length;
 
   if (!hasOrig && !hasNew) {
     cmap.isEmpty = true;
@@ -204,7 +204,7 @@ export const getCounterMap = function getCounterMap(
     cmap.originalStddevPct = orig.stddevPct;
 
     cmap.originalRepoName = originalData.repository_name;
-    if (originalData.job_ids && originalData.job_ids.length) {
+    if (originalData.job_ids?.length) {
       [cmap.originalRetriggerableJobId] = originalData.job_ids;
     }
   } else {
@@ -219,7 +219,7 @@ export const getCounterMap = function getCounterMap(
     cmap.newStddevPct = newd.stddevPct;
 
     cmap.newRepoName = newData.repository_name;
-    if (newData.job_ids && newData.job_ids.length) {
+    if (newData.job_ids?.length) {
       [cmap.newRetriggerableJobId] = newData.job_ids;
     }
   } else {
@@ -571,7 +571,7 @@ export const getFilledBugSummary = (alertSummary) => {
   filledBugSummary += ` (${platformInfo})`;
 
   // add push date info
-  const pushDate = moment(alertSummary.push_timestamp * 1000).format(
+  const pushDate = dayjs(alertSummary.push_timestamp * 1000).format(
     'ddd MMMM D YYYY',
   );
   filledBugSummary += ` regression on ${pushDate}`;

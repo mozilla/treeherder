@@ -272,9 +272,9 @@ select#pinboard-revision-select.classification-select {
 
 .save-btn-dropdown-menu {
   right: 0;
-  left: -88px !important;
-  transform: inherit !important;
-  top: 22px !important;
+  left: -88px;
+  transform: inherit;
+  top: 22px;
 }
 
 .btn-group + .btn + .save-btn-dropdown {
