@@ -3,6 +3,7 @@
 import React from 'react';
 import { Row, Col } from 'react-bootstrap';
 import PropTypes from 'prop-types';
+import flatMap from 'lodash/flatMap';
 import {
   VictoryBar,
   VictoryChart,
@@ -14,9 +15,8 @@ import {
   createContainer,
   VictoryTooltip,
 } from 'victory';
-import moment from 'moment';
-import flatMap from 'lodash/flatMap';
 
+import dayjs from '../../helpers/dayjs';
 import { abbreviatedNumber } from '../perf-helpers/helpers';
 
 import TableView from './TableView';
@@ -268,8 +268,8 @@ class GraphsContainer extends React.Component {
     );
 
     return graphData.length > 0
-      ? moment.utc(x).format('MMM DD')
-      : moment.utc().format('MMM DD');
+      ? dayjs.utc(x).format('MMM DD')
+      : dayjs.utc().format('MMM DD');
   };
 
   computeYAxisLabel = () => {
