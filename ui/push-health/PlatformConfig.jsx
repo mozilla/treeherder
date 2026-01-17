@@ -29,7 +29,7 @@ class PlatformConfig extends React.PureComponent {
       selectedTaskId,
       jobs,
       jobName,
-      testName,
+      testName = '',
     } = this.props;
 
     this.setState({
@@ -44,7 +44,7 @@ class PlatformConfig extends React.PureComponent {
 
   setSelectedTask = (task) => {
     const { selectedTask } = this.state;
-    const { jobName, testName } = this.props;
+    const { jobName, testName = '' } = this.props;
 
     if (selectedTask === task || !task) {
       this.props.updateParamsAndState({
@@ -151,10 +151,6 @@ PlatformConfig.propTypes = {
   currentRepo: PropTypes.shape({}).isRequired,
   notify: PropTypes.func.isRequired,
   updateParamsAndState: PropTypes.func.isRequired,
-};
-
-PlatformConfig.defaultProps = {
-  testName: '',
 };
 
 export default PlatformConfig;

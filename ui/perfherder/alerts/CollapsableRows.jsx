@@ -82,7 +82,3 @@ CollapsableRows.propTypes = {
   selectedAlerts: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   updateViewState: PropTypes.func.isRequired,
 };
-
-CollapsableRows.defaultProps = {
-  user: null,
-};

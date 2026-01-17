@@ -214,14 +214,14 @@ class FailureSummaryTab extends React.Component {
 
   render() {
     const {
-      jobLogUrls,
-      jobDetails,
-      logParseStatus,
-      logViewerFullUrl,
+      jobLogUrls = [],
+      jobDetails = [],
+      logParseStatus = 'pending',
+      logViewerFullUrl = null,
       selectedJob,
-      addBug,
+      addBug = null,
       currentRepo,
-      developerMode,
+      developerMode = false,
     } = this.props;
     const {
       isBugFilerOpen,
@@ -402,11 +402,11 @@ FailureSummaryTab.propTypes = {
   selectedJobId: PropTypes.number.isRequired,
   jobLogUrls: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.number.isRequired,
-      job_id: PropTypes.number.isRequired,
+      id: PropTypes.number,
+      job_id: PropTypes.number,
       name: PropTypes.string.isRequired,
       url: PropTypes.string.isRequired,
-      parse_status: PropTypes.string.isRequired,
+      parse_status: PropTypes.string,
     }),
   ),
   jobDetails: PropTypes.arrayOf(
@@ -422,16 +422,6 @@ FailureSummaryTab.propTypes = {
   addBug: PropTypes.func,
   pinJob: PropTypes.func,
   developerMode: PropTypes.bool,
-};
-
-FailureSummaryTab.defaultProps = {
-  jobLogUrls: [],
-  jobDetails: [],
-  logParseStatus: 'pending',
-  logViewerFullUrl: null,
-  addBug: null,
-  pinJob: null,
-  developerMode: false,
 };
 
 export default FailureSummaryTab;
