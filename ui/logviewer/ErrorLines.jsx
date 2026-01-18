@@ -5,7 +5,7 @@ import formatLogLineWithLinks from '../helpers/logFormatting';
 
 export default class ErrorLines extends React.PureComponent {
   render() {
-    const { errors, onClickLine, jobDetails, job } = this.props;
+    const { errors, onClickLine, jobDetails = [], job = null } = this.props;
 
     return (
       <div className="error-lines">
@@ -49,9 +49,4 @@ ErrorLines.propTypes = {
     }),
   ),
   job: PropTypes.shape({}),
-};
-
-ErrorLines.defaultProps = {
-  jobDetails: [],
-  job: null,
 };

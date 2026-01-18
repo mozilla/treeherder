@@ -1,13 +1,13 @@
 import React from 'react';
 import { Row, Col, Breadcrumb, BreadcrumbItem } from 'react-bootstrap';
 import PropTypes from 'prop-types';
-import moment from 'moment';
 import ReactTable from 'react-table-6';
 import Checkbox from '@mui/material/Checkbox';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import Popper from '@mui/material/Popper';
 
+import dayjs from '../helpers/dayjs';
 import { bugsEndpoint, getBugUrl } from '../helpers/url';
 import { setUrlParam, getUrlParam } from '../helpers/location';
 
@@ -36,15 +36,15 @@ const CustomPopper = (props) => {
 
 const MainView = (props) => {
   const {
-    graphData,
-    tableData,
+    graphData = [],
+    tableData = [],
     initialParamsSet,
     startday,
     endday,
     updateState,
     tree,
     location,
-    updateAppState,
+    updateAppState = null,
   } = props;
 
   const [selectedFilter, setSelectedFilter] = React.useState({
@@ -208,7 +208,7 @@ const MainView = (props) => {
     } = calculateMetrics(graphData));
   }
 
-  const getHeaderAriaLabel = (state, bug, data) => {
+  const getHeaderAriaLabel = (_state, _bug, data) => {
     const ariaLabelValue =
       data.Header === 'Count'
         ? 'Filter not available for count'
@@ -302,7 +302,7 @@ const MainView = (props) => {
             getTheadFilterThProps={getHeaderAriaLabel}
             getTrProps={(state, rowInfo) => {
               const baseProps = tableRowStyling(state, rowInfo);
-              if (rowInfo && rowInfo.original) {
+              if (rowInfo?.original) {
                 const { id, summary } = rowInfo.original;
                 const pathname = '/intermittent-failures/bugdetails';
                 const search = `?startday=${startday}&endday=${endday}&tree=${tree}&bug=${id}`;
@@ -367,16 +367,10 @@ MainView.propTypes = {
   notify: PropTypes.func.isRequired,
 };
 
-MainView.defaultProps = {
-  graphData: [],
-  tableData: [],
-  updateAppState: null,
-};
-
 const defaultState = {
   tree: 'all',
-  startday: ISODate(moment().utc().subtract(7, 'days')),
-  endday: ISODate(moment().utc()),
+  startday: ISODate(dayjs().utc().subtract(7, 'days')),
+  endday: ISODate(dayjs().utc()),
   endpoint: bugsEndpoint,
   route: '/main',
 };

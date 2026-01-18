@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import {
@@ -23,7 +23,7 @@ const AlertHeader = ({
   frameworks,
   alertSummary,
   repoModel,
-  issueTrackers,
+  issueTrackers = [],
   user,
   updateAssignee,
   changeRevision,
@@ -231,6 +231,7 @@ const AlertHeader = ({
           Duplicated summaries:
           {alertSummary.duplicated_summaries_ids.map((id, index) => (
             <Link
+              key={id}
               className="text-dark me-1"
               target="_blank"
               to={`./alerts?id=${id}&hideDwnToInv=0`}
@@ -349,10 +350,6 @@ AlertHeader.propTypes = {
   repoModel: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({}).isRequired,
   issueTrackers: PropTypes.arrayOf(PropTypes.shape({})),
-};
-
-AlertHeader.defaultProps = {
-  issueTrackers: [],
 };
 
 export default AlertHeader;

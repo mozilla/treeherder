@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { Button, Col, Container, Form, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartArea, faTable } from '@fortawesome/free-solid-svg-icons';
-import moment from 'moment';
 
+import dayjs from '../../helpers/dayjs';
 import { endpoints } from '../perf-helpers/constants';
 import { ISODate } from '../../intermittent-failures/helpers';
 import { getData } from '../../helpers/http';
@@ -37,7 +37,7 @@ export default class GraphsViewControls extends React.Component {
   getChangelogData = async () => {
     const { timeRange } = this.props;
     const startDate = ISODate(
-      moment().utc().subtract(timeRange.value, 'seconds'),
+      dayjs().utc().subtract(timeRange.value, 'seconds'),
     );
 
     const rawData = await getData(
@@ -79,9 +79,9 @@ export default class GraphsViewControls extends React.Component {
       toggle,
       toggleTableView,
       replicates,
-      showModal,
+      showModal = false,
       showTable,
-      testData,
+      testData = [],
     } = this.props;
 
     const { changelogData } = this.state;
@@ -243,10 +243,4 @@ GraphsViewControls.propTypes = {
   testData: PropTypes.arrayOf(PropTypes.shape({})),
   showModal: PropTypes.bool,
   toggle: PropTypes.func.isRequired,
-};
-
-GraphsViewControls.defaultProps = {
-  options: undefined,
-  testData: [],
-  showModal: false,
 };

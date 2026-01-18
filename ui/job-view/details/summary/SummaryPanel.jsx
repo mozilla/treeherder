@@ -13,14 +13,14 @@ class SummaryPanel extends React.PureComponent {
   render() {
     const {
       selectedJobFull,
-      latestClassification,
+      latestClassification = null,
       bugs,
-      jobLogUrls,
-      jobDetails,
-      jobDetailLoading,
-      logViewerUrl,
-      logViewerFullUrl,
-      logParseStatus,
+      jobLogUrls = [],
+      jobDetails = [],
+      jobDetailLoading = false,
+      logViewerUrl = null,
+      logViewerFullUrl = null,
+      logParseStatus = 'pending',
       user,
       currentRepo,
       classificationMap,
@@ -127,16 +127,6 @@ SummaryPanel.propTypes = {
   logParseStatus: PropTypes.string,
   logViewerUrl: PropTypes.string,
   logViewerFullUrl: PropTypes.string,
-};
-
-SummaryPanel.defaultProps = {
-  latestClassification: null,
-  jobLogUrls: [],
-  jobDetails: [],
-  jobDetailLoading: false,
-  logParseStatus: 'pending',
-  logViewerUrl: null,
-  logViewerFullUrl: null,
 };
 
 export default SummaryPanel;

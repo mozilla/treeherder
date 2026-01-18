@@ -344,9 +344,9 @@ class ActionBar extends React.PureComponent {
   render() {
     const {
       selectedJobFull,
-      logViewerUrl,
-      logViewerFullUrl,
-      jobLogUrls,
+      logViewerUrl = null,
+      logViewerFullUrl = null,
+      jobLogUrls = [],
       pinJob,
       currentRepo,
     } = this.props;
@@ -423,7 +423,7 @@ class ActionBar extends React.PureComponent {
                 title="Scroll to selection"
                 className="actionbar-nav-btn bg-transparent border-0"
                 onClick={() =>
-                  findJobInstance(jobLogUrls[0] && jobLogUrls[0].job_id, true)
+                  findJobInstance(jobLogUrls[0]?.job_id, true)
                 }
               >
                 <FontAwesomeIcon
@@ -584,13 +584,6 @@ ActionBar.propTypes = {
   isTryRepo: PropTypes.bool,
   logViewerUrl: PropTypes.string,
   logViewerFullUrl: PropTypes.string,
-};
-
-ActionBar.defaultProps = {
-  isTryRepo: true, // default to more restrictive for backfilling
-  logViewerUrl: null,
-  logViewerFullUrl: null,
-  jobLogUrls: [],
 };
 
 const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({
