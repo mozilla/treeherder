@@ -1,4 +1,4 @@
-import React from 'react';
+
 import PropTypes from 'prop-types';
 import { Badge, Button, Form, CloseButton } from 'react-bootstrap';
 
@@ -9,10 +9,10 @@ import GraphIcon from '../../shared/GraphIcon';
 
 const LegendCard = ({
   series,
-  testData,
+  testData = [],
   updateState,
   updateStateParams,
-  selectedDataPoint,
+  selectedDataPoint = null,
   frameworks,
   colors,
   symbols,
@@ -94,7 +94,7 @@ const LegendCard = ({
   };
 
   const removeTest = () => {
-    const index = testData.findIndex((test) => test === series);
+    const index = testData.indexOf(series);
     const newData = [...testData];
 
     if (index === -1) {
@@ -226,11 +226,6 @@ LegendCard.propTypes = {
   updateStateParams: PropTypes.func.isRequired,
   colors: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)).isRequired,
   selectedDataPoint: PropTypes.shape({}),
-};
-
-LegendCard.defaultProps = {
-  testData: [],
-  selectedDataPoint: null,
 };
 
 export default LegendCard;

@@ -9,6 +9,8 @@ module.exports = {
       '<rootDir>/tests/jest/file-mock.js',
     '\\.(css|less|sass|scss)$': '<rootDir>/tests/jest/style-mock.js',
     '^react-native$': '<rootDir>/node_modules/react-native-web',
+    '^react-resizable-panels$':
+      '<rootDir>/tests/jest/react-resizable-panels-mock.js',
   },
   bail: true,
   collectCoverageFrom: ['ui/**/*.{mjs,jsx,js}'],
@@ -35,7 +37,7 @@ module.exports = {
       },
     ],
   },
-  transformIgnorePatterns: ['node_modules/(?!taskcluster-client-web)'],
+  transformIgnorePatterns: ['node_modules/(?!taskcluster-client-web|zustand)'],
   setupFilesAfterEnv: ['<rootDir>/tests/ui/test-setup.js'],
   testPathIgnorePatterns: ['tests/ui/integration'],
 

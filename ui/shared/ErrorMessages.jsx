@@ -12,7 +12,7 @@ class ErrorMessages extends React.PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    const { errorMessages, failureMessage } = this.props;
+    const { errorMessages = [], failureMessage = null } = this.props;
     if (
       (prevProps.errorMessages !== errorMessages ||
         prevProps.failureMessage !== failureMessage) &&
@@ -25,7 +25,7 @@ class ErrorMessages extends React.PureComponent {
   }
 
   render() {
-    const { errorMessages, failureMessage } = this.props;
+    const { errorMessages = [], failureMessage = null } = this.props;
     const { visible } = this.state;
 
     const messages = errorMessages.length ? errorMessages : [failureMessage];
@@ -50,11 +50,6 @@ class ErrorMessages extends React.PureComponent {
 ErrorMessages.propTypes = {
   failureMessage: PropTypes.string,
   errorMessages: PropTypes.arrayOf(PropTypes.string),
-};
-
-ErrorMessages.defaultProps = {
-  failureMessage: null,
-  errorMessages: [],
 };
 
 export default ErrorMessages;

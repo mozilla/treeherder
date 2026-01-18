@@ -83,13 +83,13 @@ class MyPushes extends React.Component {
 
   async fetchMetrics(loading = false) {
     const { selectedRepo, displayedUser } = this.state;
-    const { user, notify, clearNotification, location, history } = this.props;
+    const { user, notify, clearNotification, location, navigate } = this.props;
     const params = parseQueryParams(location.search);
 
     this.setState({ loading });
 
     if (displayedUser !== params.author) {
-      updateQueryParams(`?author=${user.email}`, history, location);
+      updateQueryParams(`?author=${user.email}`, navigate, location);
     }
 
     const options = {

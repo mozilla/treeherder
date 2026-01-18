@@ -1,16 +1,31 @@
-import React from 'react';
-import { render } from '@testing-library/react';
-import { Provider, ReactReduxContext } from 'react-redux';
-import { ConnectedRouter } from 'connected-react-router';
 
-import {
-  configureStore,
-  history,
-} from '../../../ui/job-view/redux/configureStore';
+import { render } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+
 import PerformanceTab from '../../../ui/job-view/details/tabs/PerformanceTab.jsx';
 import { Perfdocs } from '../../../ui/perfherder/perf-helpers/perfdocs';
+import { usePushStore } from '../../../ui/job-view/stores/pushStore';
+import { useSelectedJobStore } from '../../../ui/job-view/stores/selectedJobStore';
+import { usePinnedJobsStore } from '../../../ui/job-view/stores/pinnedJobsStore';
 
 describe('PerformanceTab', () => {
+  beforeEach(() => {
+    // Reset Zustand stores before each test
+    usePushStore.setState({
+      pushList: [],
+      jobMap: {},
+      decisionTaskMap: {},
+      revisionTips: [],
+    });
+    useSelectedJobStore.setState({
+      selectedJob: null,
+    });
+    usePinnedJobsStore.setState({
+      pinnedJobs: {},
+      isPinBoardVisible: false,
+    });
+  });
+
   const testPerformanceTab = ({
     selectedJobFull,
     jobDetails,
@@ -19,21 +34,17 @@ describe('PerformanceTab', () => {
     const repoName = 'try';
     const currentRepo = { name: repoName };
 
-    const store = configureStore();
-
     return (
-      <Provider store={store} context={ReactReduxContext}>
-        <ConnectedRouter history={history} context={ReactReduxContext}>
-          <PerformanceTab
-            selectedJobFull={selectedJobFull}
-            currentRepo={currentRepo}
-            repoName={repoName}
-            jobDetails={jobDetails}
-            perfJobDetail={perfJobDetail}
-            revision="REV1"
-          />
-        </ConnectedRouter>
-      </Provider>
+      <MemoryRouter>
+        <PerformanceTab
+          selectedJobFull={selectedJobFull}
+          currentRepo={currentRepo}
+          repoName={repoName}
+          jobDetails={jobDetails}
+          perfJobDetail={perfJobDetail}
+          revision="REV1"
+        />
+      </MemoryRouter>
     );
   };
 

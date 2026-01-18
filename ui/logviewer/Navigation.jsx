@@ -1,4 +1,4 @@
-import React from 'react';
+
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartBar, faFileAlt } from '@fortawesome/free-regular-svg-icons';
@@ -15,14 +15,14 @@ const Navigation = ({
   jobExists,
   result,
   jobError,
-  jobUrl,
+  jobUrl = null,
   rawLogUrl,
-  reftestUrl,
+  reftestUrl = null,
   collapseDetails,
   collapseJobDetails,
   copySelectedLogToBugFiler,
-  job,
-  jobDetails,
+  job = null,
+  jobDetails = [],
 }) => {
   const resourceUsageProfile = jobDetails?.find((artifact) =>
     isResourceUsageProfile(artifact.value),
@@ -155,13 +155,6 @@ Navigation.propTypes = {
       value: PropTypes.string.isRequired,
     }),
   ),
-};
-
-Navigation.defaultProps = {
-  jobUrl: null,
-  reftestUrl: null,
-  job: null,
-  jobDetails: [],
 };
 
 export default Navigation;

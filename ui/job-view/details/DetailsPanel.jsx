@@ -1,9 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { Queue } from 'taskcluster-client-web';
 
-import { setPinBoardVisible } from '../redux/stores/pinnedJobs';
+import {
+  usePinnedJobsStore,
+  setPinBoardVisible,
+} from '../stores/pinnedJobsStore';
+import { useSelectedJobStore } from '../stores/selectedJobStore';
+import { usePushStore } from '../stores/pushStore';
 import { thEvents } from '../../helpers/constants';
 import { addAggregateFields } from '../../helpers/job';
 import { getLogViewerUrl, getArtifactsUrl } from '../../helpers/url';
@@ -22,14 +26,23 @@ import TabsPanel from './tabs/TabsPanel';
 
 export const pinboardHeight = 100;
 
+// Debounce delay for loading job details when rapidly switching jobs
+const JOB_DETAILS_DEBOUNCE_MS = 200;
+
 class DetailsPanel extends React.Component {
   constructor(props) {
     super(props);
 
     // used to cancel all the ajax requests triggered by selectJob
     this.selectJobController = null;
+    // used to debounce job detail loading when rapidly switching jobs
+    this.selectJobDebounceTimer = null;
+    // Zustand store unsubscribe functions
+    this.unsubscribeSelectedJob = null;
+    this.unsubscribePush = null;
 
     this.state = {
+      selectedJob: useSelectedJobStore.getState().selectedJob,
       selectedJobFull: null,
       jobDetails: [],
       jobLogUrls: [],
@@ -43,6 +56,8 @@ class DetailsPanel extends React.Component {
       classifications: [],
       testGroups: [],
       bugs: [],
+      // Initialize from Zustand store
+      pushList: usePushStore.getState().pushList,
     };
   }
 
@@ -51,18 +66,28 @@ class DetailsPanel extends React.Component {
       thEvents.classificationChanged,
       this.updateClassifications,
     );
+
+    // Subscribe to selectedJob changes from Zustand store
+    this.unsubscribeSelectedJob = useSelectedJobStore.subscribe((state) => {
+      this.setState({ selectedJob: state.selectedJob });
+    });
+
+    // Subscribe to push store for pushList
+    this.unsubscribePush = usePushStore.subscribe((state) => {
+      this.setState({ pushList: state.pushList });
+    });
   }
 
-  componentDidUpdate(prevProps) {
-    const { selectedJob } = this.props;
+  componentDidUpdate(prevProps, prevState) {
+    const { selectedJob } = this.state;
 
-    if (selectedJob && prevProps.selectedJob) {
+    if (selectedJob && prevState.selectedJob) {
       const {
         id: prevId,
-        state: prevState,
+        state: prevJobState,
         result: prevResult,
         failure_classification_id: prevFci,
-      } = prevProps.selectedJob;
+      } = prevState.selectedJob;
       const { id, state, result, failure_classification_id: fci } = selectedJob;
 
       // Check the id in case the user switched to a new job.
@@ -70,13 +95,15 @@ class DetailsPanel extends React.Component {
       // in case they have changed due to polling.
       if (
         prevId !== id ||
-        prevState !== state ||
+        prevJobState !== state ||
         prevResult !== result ||
         prevFci !== fci
       ) {
-        this.selectJob();
+        this.selectJobDebounced();
       }
-    } else if (selectedJob && selectedJob !== prevProps.selectedJob) {
+    } else if (selectedJob && selectedJob !== prevState.selectedJob) {
+      // Initial job selection (from URL or first click) - load immediately without debounce
+      // This ensures the details panel appears promptly on page load
       this.selectJob();
     }
   }
@@ -86,11 +113,21 @@ class DetailsPanel extends React.Component {
       thEvents.classificationChanged,
       this.updateClassifications,
     );
+    // Clean up debounce timer
+    if (this.selectJobDebounceTimer) {
+      clearTimeout(this.selectJobDebounceTimer);
+    }
+    // Unsubscribe from Zustand stores
+    if (this.unsubscribeSelectedJob) {
+      this.unsubscribeSelectedJob();
+    }
+    if (this.unsubscribePush) {
+      this.unsubscribePush();
+    }
   }
 
   togglePinBoardVisibility = () => {
-    const { setPinBoardVisible, isPinBoardVisible } = this.props;
-
+    const { isPinBoardVisible } = usePinnedJobsStore.getState();
     setPinBoardVisible(!isPinBoardVisible);
   };
 
@@ -120,7 +157,7 @@ class DetailsPanel extends React.Component {
   };
 
   updateClassifications = async (signalOrEvent) => {
-    const { selectedJob } = this.props;
+    const { selectedJob } = this.state;
 
     // If called as an event listener, signalOrEvent will be an Event object
     // If called programmatically, it may be an AbortSignal or undefined
@@ -143,13 +180,35 @@ class DetailsPanel extends React.Component {
   };
 
   findPush = (pushId) => {
-    const { pushList } = this.props;
+    const { pushList } = this.state;
 
     return pushList.find((push) => pushId === push.id);
   };
 
+  // Debounced version of selectJob to prevent loading details too rapidly
+  // when navigating quickly between jobs with keyboard shortcuts.
+  // The visual selection updates instantly, but details loading is debounced.
+  selectJobDebounced = () => {
+    // Cancel any pending debounce
+    if (this.selectJobDebounceTimer) {
+      clearTimeout(this.selectJobDebounceTimer);
+    }
+
+    // Cancel any in-progress fetch requests immediately
+    if (this.selectJobController !== null) {
+      this.selectJobController.abort();
+      this.selectJobController = null;
+    }
+
+    this.selectJobDebounceTimer = setTimeout(() => {
+      this.selectJobDebounceTimer = null;
+      this.selectJob();
+    }, JOB_DETAILS_DEBOUNCE_MS);
+  };
+
   selectJob = () => {
-    const { currentRepo, selectedJob, frameworks } = this.props;
+    const { currentRepo, frameworks } = this.props;
+    const { selectedJob } = this.state;
     const push = this.findPush(selectedJob.push_id);
 
     this.setState(
@@ -384,9 +443,9 @@ class DetailsPanel extends React.Component {
       resizedHeight,
       classificationMap,
       classificationTypes,
-      selectedJob,
     } = this.props;
     const {
+      selectedJob,
       selectedJobFull,
       jobDetails,
       jobRevision,
@@ -476,20 +535,6 @@ DetailsPanel.propTypes = {
   resizedHeight: PropTypes.number.isRequired,
   classificationTypes: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   classificationMap: PropTypes.shape({}).isRequired,
-  setPinBoardVisible: PropTypes.func.isRequired,
-  isPinBoardVisible: PropTypes.bool.isRequired,
-  pushList: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  selectedJob: PropTypes.shape({}),
 };
 
-DetailsPanel.defaultProps = {
-  selectedJob: null,
-};
-
-const mapStateToProps = ({
-  selectedJob: { selectedJob },
-  pushes: { pushList },
-  pinnedJobs: { isPinBoardVisible },
-}) => ({ selectedJob, pushList, isPinBoardVisible });
-
-export default connect(mapStateToProps, { setPinBoardVisible })(DetailsPanel);
+export default DetailsPanel;

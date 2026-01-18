@@ -1,5 +1,5 @@
-import React from 'react';
-import { Route, Switch, Redirect } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 
 import { getData, processResponse } from '../helpers/http';
@@ -16,131 +16,123 @@ import Navigation from './Navigation';
 import '../css/react-table.css';
 import '../css/perf.css';
 
-class App extends React.Component {
-  constructor(props) {
-    super(props);
+const App = () => {
+  const [projects, setProjects] = useState([]);
+  const [frameworks, setFrameworks] = useState([]);
+  const [platforms, setPlatforms] = useState([]);
+  const [performanceTags, setPerformanceTags] = useState([]);
+  const [user, setUser] = useState({});
+  const [errorMessages, setErrorMessages] = useState([]);
+  const [compareData, setCompareData] = useState([]);
 
-    // store alerts and compare view data so the API's won't be
-    // called again when navigating back from related views.
-    this.state = {
-      projects: [],
-      frameworks: [],
-      platforms: [],
-      performanceTags: [],
-      user: {},
-      errorMessages: [],
-      compareData: [],
+  const updateAppState = useCallback((state) => {
+    if (state.projects !== undefined) setProjects(state.projects);
+    if (state.frameworks !== undefined) setFrameworks(state.frameworks);
+    if (state.platforms !== undefined) setPlatforms(state.platforms);
+    if (state.performanceTags !== undefined)
+      setPerformanceTags(state.performanceTags);
+    if (state.user !== undefined) setUser(state.user);
+    if (state.errorMessages !== undefined)
+      setErrorMessages(state.errorMessages);
+    if (state.compareData !== undefined) setCompareData(state.compareData);
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const [
+        projectsResp,
+        frameworksResp,
+        performanceTagsResp,
+      ] = await Promise.all([
+        getData(getApiUrl(repoEndpoint)),
+        getData(getApiUrl(endpoints.frameworks)),
+        getData(getApiUrl(endpoints.performanceTags)),
+      ]);
+
+      const errors = [];
+      const updates = {
+        ...processResponse(projectsResp, 'projects', errors),
+        ...processResponse(frameworksResp, 'frameworks', errors),
+        ...processResponse(performanceTagsResp, 'performanceTags', errors),
+      };
+
+      updateAppState({ ...updates, errorMessages: errors });
     };
-  }
 
-  async componentDidMount() {
-    const [projects, frameworks, performanceTags] = await Promise.all([
-      getData(getApiUrl(repoEndpoint)),
-      getData(getApiUrl(endpoints.frameworks)),
-      getData(getApiUrl(endpoints.performanceTags)),
-    ]);
+    fetchData();
+  }, [updateAppState]);
 
-    const errorMessages = [];
-    const updates = {
-      ...processResponse(projects, 'projects', errorMessages),
-      ...processResponse(frameworks, 'frameworks', errorMessages),
-      ...processResponse(performanceTags, 'performanceTags', errorMessages),
-    };
+  const notify = useCallback((message) => {
+    setErrorMessages([message]);
+  }, []);
 
-    this.setState(updates);
-  }
+  const dataLoaded =
+    projects.length > 0 && frameworks.length > 0 && performanceTags.length > 0;
 
-  updateAppState = (state) => {
-    this.setState(state);
-  };
-
-  render() {
-    const {
-      user,
-      projects,
-      frameworks,
-      performanceTags,
-      platforms,
-      errorMessages,
-      compareData,
-    } = this.state;
-    const { path } = this.props.match;
-
-    return (
-      <React.Fragment>
-        <Navigation
-          user={user}
-          setUser={(user) => this.setState({ user })}
-          notify={(message) => this.setState({ errorMessages: [message] })}
-        />
-        {projects.length > 0 &&
-          frameworks.length > 0 &&
-          performanceTags.length > 0 && (
-            <main id="perf-main">
-              {errorMessages.length > 0 && (
-                <Container className="pt-6 max-width-default">
-                  <ErrorMessages errorMessages={errorMessages} />
-                </Container>
-              )}
-              <Switch>
-                <Route
-                  path={`${path}/alerts`}
-                  render={(props) => (
-                    <AlertsView
-                      {...props}
-                      user={user}
-                      projects={projects}
-                      frameworks={frameworks}
-                      performanceTags={performanceTags}
-                    />
-                  )}
-                />
-                <Route
-                  path={`${path}/graphs`}
-                  render={(props) => (
-                    <GraphsView
-                      {...props}
-                      user={user}
-                      projects={projects}
-                      frameworks={frameworks}
-                    />
-                  )}
-                />
-                <Route
-                  path={`${path}/infracompare`}
-                  render={(props) => (
-                    <InfraCompareView
-                      {...props}
-                      user={user}
-                      projects={projects}
-                      frameworks={frameworks}
-                      compareData={compareData}
-                      updateAppState={this.updateAppState}
-                    />
-                  )}
-                />
-                <Route
-                  path={`${path}/tests`}
-                  render={(props) => (
-                    <TestsView
-                      {...props}
-                      projects={projects}
-                      frameworks={frameworks}
-                      platforms={platforms}
-                      updateAppState={this.updateAppState}
-                    />
-                  )}
-                />
-                <Redirect
-                  from={`${path}/`}
-                  to={`${path}/alerts?hideDwnToInv=1&page=1`}
-                />
-              </Switch>
-            </main>
+  return (
+    <React.Fragment>
+      <Navigation user={user} setUser={setUser} notify={notify} />
+      {dataLoaded && (
+        <main id="perf-main">
+          {errorMessages.length > 0 && (
+            <Container className="pt-6 max-width-default">
+              <ErrorMessages errorMessages={errorMessages} />
+            </Container>
           )}
-      </React.Fragment>
-    );
-  }
-}
+          <Routes>
+            <Route
+              path="alerts/*"
+              element={
+                <AlertsView
+                  user={user}
+                  projects={projects}
+                  frameworks={frameworks}
+                  performanceTags={performanceTags}
+                />
+              }
+            />
+            <Route
+              path="graphs/*"
+              element={
+                <GraphsView
+                  user={user}
+                  projects={projects}
+                  frameworks={frameworks}
+                />
+              }
+            />
+            <Route
+              path="infracompare/*"
+              element={
+                <InfraCompareView
+                  user={user}
+                  projects={projects}
+                  frameworks={frameworks}
+                  compareData={compareData}
+                  updateAppState={updateAppState}
+                />
+              }
+            />
+            <Route
+              path="tests/*"
+              element={
+                <TestsView
+                  projects={projects}
+                  frameworks={frameworks}
+                  platforms={platforms}
+                  updateAppState={updateAppState}
+                />
+              }
+            />
+            <Route
+              path="/"
+              element={<Navigate to="alerts?hideDwnToInv=1&page=1" replace />}
+            />
+          </Routes>
+        </main>
+      )}
+    </React.Fragment>
+  );
+};
 
 export default App;
