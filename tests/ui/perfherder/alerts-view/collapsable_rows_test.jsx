@@ -1,5 +1,5 @@
-import React from 'react';
-import { render, cleanup } from '@testing-library/react';
+
+import { render, cleanup, waitFor, screen } from '@testing-library/react';
 
 import CollapsableRows from '../../../../ui/perfherder/alerts/CollapsableRows';
 import testAlertSummary from '../../mock/alert_summary_very_big';
@@ -22,8 +22,8 @@ const frameworks = [
   },
 ];
 
-const collapsableRowsTest = () => {
-  return render(
+const collapsableRowsTest = async () => {
+  const result = render(
     <table>
       <tbody>
         <CollapsableRows
@@ -39,12 +39,19 @@ const collapsableRowsTest = () => {
       </tbody>
     </table>,
   );
+
+  // Wait for the component to fully render
+  await waitFor(() => {
+    expect(screen.getByTestId('show-more-alerts')).toBeInTheDocument();
+  });
+
+  return result;
 };
 
 afterEach(cleanup);
 
 test('Alert summary with more than 26 alerts is collapsable', async () => {
-  const { getAllByLabelText } = collapsableRowsTest();
+  const { getAllByLabelText } = await collapsableRowsTest();
   expect(getAllByLabelText).toBeDefined();
   /*
   const { getAllByLabelText, getByTestId } = collapsableRowsTest();
@@ -68,7 +75,7 @@ test('Alert summary with more than 26 alerts is collapsable', async () => {
 });
 
 test('Alerts can be folded back up', async () => {
-  const { getAllByLabelText } = collapsableRowsTest();
+  const { getAllByLabelText } = await collapsableRowsTest();
   expect(getAllByLabelText).toBeDefined();
   /*
   const { getAllByLabelText, getByTestId } = collapsableRowsTest();

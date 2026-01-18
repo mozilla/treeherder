@@ -464,9 +464,9 @@ button:disabled {
 }
 
 li.pagination-active.active > button {
-  background-color: lightgray !important;
-  border-color: lightgray !important;
-  color: black !important;
+  background-color: lightgray;
+  border-color: lightgray;
+  color: black;
 }
 
 .page-item.disabled {
@@ -474,7 +474,7 @@ li.pagination-active.active > button {
 }
 
 .page-item.disabled .page-link {
-  color: lightgray !important;
+  color: lightgray;
 }
 
 /* Make the size of pagination link consistent */
@@ -618,13 +618,13 @@ li.pagination-active.active > button {
 }
 
 .download-json-container .download-button {
-  background-color: transparent !important;
-  color: #1f7d8e !important;
+  background-color: transparent;
+  color: #1f7d8e;
 }
 
 .download-json-container .download-button:hover {
-  background-color: #1f7d8e !important;
-  color: white !important;
+  background-color: #1f7d8e;
+  color: white;
 }
 
 .download-json-container .download-json-icon {
@@ -688,7 +688,7 @@ li.pagination-active.active > button {
 }
 
 .alert-title-container .alert-title {
-  overflow-wrap: break-word !important;
+  overflow-wrap: break-word;
 }
 
 .tags-and-options-container {
@@ -701,7 +701,7 @@ li.pagination-active.active > button {
 }
 
 .tags-and-options-td {
-  padding: 0.75rem 0px 0px 0px !important;
+  padding: 0.75rem 0px 0px 0px;
 }
 
 .multiline-text {
@@ -718,31 +718,31 @@ li.pagination-active.active > button {
   position: relative;
   min-width: 2.5rem;
   height: 2.5rem;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 14px;
-  background-color: white !important;
-  border-color: #17a2b8 !important;
-  color: #17a2b8 !important;
+  background-color: white;
+  border-color: #17a2b8;
+  color: #17a2b8;
 }
 
 .custom-pagination .page-link:hover {
-  background-color: #f8f9fa !important;
-  border-color: #17a2b8 !important;
-  color: #17a2b8 !important;
+  background-color: #f8f9fa;
+  border-color: #17a2b8;
+  color: #17a2b8;
 }
 
 .custom-pagination .page-item.active .page-link {
-  background-color: #17a2b8 !important;
-  border-color: #17a2b8 !important;
-  color: white !important;
+  background-color: #17a2b8;
+  border-color: #17a2b8;
+  color: white;
 }
 
 .custom-pagination .page-item.disabled .page-link {
-  background-color: white !important;
-  border-color: #dee2e6 !important;
-  color: #6c757d !important;
+  background-color: white;
+  border-color: #dee2e6;
+  color: #6c757d;
   opacity: 0.65;
 }
 
@@ -757,21 +757,21 @@ li.pagination-active.active > button {
 
 /* Hide screen reader text visually but keep it for accessibility */
 .custom-pagination .sr-only {
-  position: absolute !important;
-  width: 1px !important;
-  height: 1px !important;
-  padding: 0 !important;
-  margin: -1px !important;
-  overflow: hidden !important;
-  clip: rect(0, 0, 0, 0) !important;
-  white-space: nowrap !important;
-  border: 0 !important;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* Hide any remaining Bootstrap default text */
 .custom-pagination .page-link::before,
 .custom-pagination .page-link::after {
-  display: none !important;
+  display: none;
 }
 
 /* Force hide any text nodes that might appear */
@@ -779,7 +779,7 @@ li.pagination-active.active > button {
 .custom-pagination .page-item:nth-child(2) .page-link,
 .custom-pagination .page-item:nth-last-child(2) .page-link,
 .custom-pagination .page-item:last-child .page-link {
-  font-size: 0 !important;
+  font-size: 0;
 }
 
 .custom-pagination .page-item:first-child .page-link span[aria-hidden='true'],
@@ -789,25 +789,25 @@ li.pagination-active.active > button {
   .page-link
   span[aria-hidden='true'],
 .custom-pagination .page-item:last-child .page-link span[aria-hidden='true'] {
-  font-size: 16px !important;
+  font-size: 16px;
 }
 
 /* Hide the "(current)" text that appears on active page items */
 .custom-pagination .page-item.active .page-link {
-  text-indent: -9999px !important;
-  overflow: hidden !important;
-  position: relative !important;
+  text-indent: -9999px;
+  overflow: hidden;
+  position: relative;
 }
 
 /* Show only the page number for active items */
 .custom-pagination .page-item.active .page-link span[aria-hidden] {
-  position: absolute !important;
-  top: 50% !important;
-  left: 50% !important;
-  transform: translate(-50%, -50%) !important;
-  text-indent: 0 !important;
-  font-size: 14px !important;
-  color: white !important;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-indent: 0;
+  font-size: 14px;
+  color: white;
 }
 
 /* Consistent checkbox sizing for alerts table */
