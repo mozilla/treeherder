@@ -1,4 +1,4 @@
-import React from 'react';
+
 import PropTypes from 'prop-types';
 import Highlighter from 'react-highlight-words';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -13,10 +13,10 @@ function BugListItem(props) {
   const {
     bug,
     suggestion,
-    bugClassName,
-    title,
+    bugClassName = '',
+    title = null,
     selectedJob,
-    addBug,
+    addBug = null,
     toggleBugFiler,
   } = props;
   const bugUrl = getBugUrl(bug.id);
@@ -120,12 +120,6 @@ BugListItem.propTypes = {
   title: PropTypes.string,
   addBug: PropTypes.func,
   toggleBugFiler: PropTypes.func.isRequired,
-};
-
-BugListItem.defaultProps = {
-  bugClassName: '',
-  title: null,
-  addBug: null,
 };
 
 export default BugListItem;

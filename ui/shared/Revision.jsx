@@ -68,8 +68,8 @@ export class Revision extends React.PureComponent {
       revision: { comments, author, revision },
       repo,
       bugSummaryMap,
-      commitShaClass,
-      commentFont,
+      commitShaClass = 'commit-sha',
+      commentFont = '',
     } = this.props;
     const comment = comments.split('\n')[0];
     const bugMatches = comment.match(/-- ([0-9]+)|bug.([0-9]+)/gi);
@@ -146,9 +146,4 @@ Revision.propTypes = {
   }).isRequired,
   commitShaClass: PropTypes.string,
   commentFont: PropTypes.string,
-};
-
-Revision.defaultProps = {
-  commitShaClass: 'commit-sha',
-  commentFont: '',
 };

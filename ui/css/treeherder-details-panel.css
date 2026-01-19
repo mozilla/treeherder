@@ -125,15 +125,15 @@ div#details-panel-content .details-panel-navbar > ul.tab-headers > li {
 
 /* Responsive tab overflow styles */
 .tab-overflow-toggle {
-  color: #9fa3a5 !important;
+  color: #9fa3a5;
   font-size: 14px;
   line-height: 30px;
-  padding: 4px 8px !important;
+  padding: 4px 8px;
 }
 
 .tab-overflow-toggle:hover {
-  color: #d3d8da !important;
-  background-color: #1e252b !important;
+  color: #d3d8da;
+  background-color: #1e252b;
 }
 
 .tab-overflow-menu {
@@ -145,7 +145,7 @@ div#details-panel-content .details-panel-navbar > ul.tab-headers > li {
 
 .tab-overflow-menu .dropdown-item,
 .tab-overflow-menu .nav-link {
-  color: #9fa3a5 !important;
+  color: #9fa3a5;
   background-color: transparent;
   border: none;
   font-size: 12px;
@@ -157,41 +157,41 @@ div#details-panel-content .details-panel-navbar > ul.tab-headers > li {
 .tab-overflow-menu .nav-link:hover,
 .tab-overflow-menu .nav-link:focus {
   background-color: #6b747b;
-  color: #d3d8da !important;
+  color: #d3d8da;
 }
 
 .tab-overflow-menu .dropdown-item.active,
 .tab-overflow-menu .nav-link.active {
   background-color: #1a4666;
-  color: #eef0f2 !important;
+  color: #eef0f2;
 }
 
 /* Custom dropdown toggle to remove caret */
 .custom-dropdown-toggle::after {
-  display: none !important;
+  display: none;
 }
 
 .custom-dropdown-toggle {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 .custom-dropdown-toggle:focus,
 .custom-dropdown-toggle:active {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 /* Ensure dropdown menu appears above everything */
 .tab-overflow-menu {
-  z-index: 2001 !important;
+  z-index: 2001;
 }
 
 /* Force dropdown to appear above all other elements */
 .dropdown-menu.show {
-  z-index: 2001 !important;
+  z-index: 2001;
 }
 
 #details-panel-content ul.tab-headers {
@@ -217,7 +217,7 @@ div#details-panel-content .details-panel-navbar > ul.tab-headers > li {
 
 .perf-job-selected {
   /* An override to optimize all other non-perf jobs at 550px */
-  min-width: 646px !important;
+  min-width: 646px;
 }
 
 .details-panel-navbar .actionbar-nav > li > a,
@@ -261,7 +261,7 @@ div#details-panel-content .actionbar-nav > li > button:focus {
 }
 
 .react-tabs__tab--disabled {
-  font-style: italic !important;
+  font-style: italic;
 }
 
 #tabs-panel {
@@ -305,18 +305,18 @@ div#details-panel-content .actionbar-nav > li > button:focus {
 /* Override Bootstrap link colors for actionbar dropdown items */
 .dropdown-menu.actionbar-menu .dropdown-item,
 .dropdown-menu.actionbar-menu a.dropdown-item {
-  color: #212529 !important;
+  color: #212529;
   background-color: #fff;
-  text-decoration: none !important;
+  text-decoration: none;
 }
 
 .dropdown-menu.actionbar-menu .dropdown-item:hover,
 .dropdown-menu.actionbar-menu .dropdown-item:focus,
 .dropdown-menu.actionbar-menu a.dropdown-item:hover,
 .dropdown-menu.actionbar-menu a.dropdown-item:focus {
-  color: #1e2125 !important;
+  color: #1e2125;
   background-color: #e9ecef;
-  text-decoration: none !important;
+  text-decoration: none;
 }
 
 .action-bar-spin {
@@ -560,7 +560,7 @@ div.similar-jobs .similar-job-list table tr {
  */
 
 div.performance-panel {
-  display: block !important;
+  display: block;
 }
 
 .performance-panel-actions > * {

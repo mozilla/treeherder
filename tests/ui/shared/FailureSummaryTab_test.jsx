@@ -1,4 +1,4 @@
-import React from 'react';
+
 import fetchMock from 'fetch-mock';
 import {
   render,
@@ -7,8 +7,7 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { createBrowserHistory } from 'history';
-import { ConnectedRouter } from 'connected-react-router';
+import { MemoryRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 
 import { getApiUrl } from '../../../ui/helpers/url';
@@ -23,8 +22,7 @@ import repositories from '../mock/repositories.json';
 import { configureStore } from '../../../ui/job-view/redux/configureStore';
 
 const selectedJob = Object.values(jobMap)[0];
-const history = createBrowserHistory();
-const store = configureStore(history);
+const store = configureStore();
 const { dispatch, getState } = store;
 
 describe('FailureSummaryTab', () => {
@@ -50,7 +48,7 @@ describe('FailureSummaryTab', () => {
 
   const testFailureSummaryTab = () => (
     <Provider store={store}>
-      <ConnectedRouter history={history}>
+      <MemoryRouter>
         <PinBoard
           classificationTypes={[{ id: 0, name: 'intermittent' }]}
           isLoggedIn={false}
@@ -69,7 +67,7 @@ describe('FailureSummaryTab', () => {
           pinJob={() => {}}
           currentRepo={currentRepo}
         />
-      </ConnectedRouter>
+      </MemoryRouter>
     </Provider>
   );
 
@@ -89,6 +87,7 @@ describe('FailureSummaryTab', () => {
     await waitFor(() => screen.getAllByText('Show more bug suggestions'));
     fireEvent.click(screen.getAllByText('Show more bug suggestions')[1]);
     await waitFor(() => screen.getByText('Hide bug suggestions'));
+    await waitFor(() => {}); // Wait for state updates after click
     const duplicateSummary = await findByText('(bug 1725755)');
     const openBugPart = duplicateSummary.nextSibling;
     expect(openBugPart.textContent).toBe(' >1725749');
@@ -100,6 +99,7 @@ describe('FailureSummaryTab', () => {
     await waitFor(() => screen.getAllByText('Show more bug suggestions'));
     fireEvent.click(screen.getAllByText('Show more bug suggestions')[1]);
     await waitFor(() => screen.getByText('Hide bug suggestions'));
+    await waitFor(() => {}); // Wait for state updates after click
     const duplicateSummary = await findByText('(bug 1725755)');
     const openBugPart = duplicateSummary.nextSibling;
     expect(openBugPart.textContent).toBe(' >1725749');
@@ -111,6 +111,7 @@ describe('FailureSummaryTab', () => {
     await waitFor(() => screen.getAllByText('Show more bug suggestions'));
     fireEvent.click(screen.getAllByText('Show more bug suggestions')[1]);
     await waitFor(() => screen.getByText('Hide bug suggestions'));
+    await waitFor(() => {}); // Wait for state updates after click
     const duplicateSummary = await findByText('(bug 1725755)');
     fireEvent.click(duplicateSummary.previousSibling.previousSibling);
     await waitFor(() => screen.getByTestId('pinboard-bug-1725755'));
