@@ -1,4 +1,4 @@
-import React from 'react';
+
 import PropTypes from 'prop-types';
 import { Button, Dropdown } from 'react-bootstrap';
 
@@ -43,8 +43,8 @@ function getLogUrlProps(logKey, logUrl, logViewerUrl, logViewerFullUrl) {
 export default function LogItem(props) {
   const {
     logUrls,
-    logViewerUrl,
-    logViewerFullUrl,
+    logViewerUrl = null,
+    logViewerFullUrl = null,
     logKey,
     logDescription,
   } = props;
@@ -113,9 +113,4 @@ LogItem.propTypes = {
   logUrls: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   logViewerUrl: PropTypes.string,
   logViewerFullUrl: PropTypes.string,
-};
-
-LogItem.defaultProps = {
-  logViewerUrl: null,
-  logViewerFullUrl: null,
 };

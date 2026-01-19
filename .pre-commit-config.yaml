@@ -3,10 +3,11 @@ repos:
     rev: v0.10.0.1
     hooks:
       - id: shellcheck
-  - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v2.2.1
+  - repo: https://github.com/biomejs/pre-commit
+    rev: v2.1.1
     hooks:
-      - id: prettier
+      - id: biome-ci
+        additional_dependencies: ["@biomejs/biome@2.3.10"]
   - repo: https://github.com/igorshubovych/markdownlint-cli
     rev: v0.43.0
     hooks:

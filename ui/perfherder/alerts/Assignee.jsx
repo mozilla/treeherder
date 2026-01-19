@@ -5,12 +5,12 @@ import { Button, Form, InputGroup } from 'react-bootstrap';
 export default class Assignee extends React.Component {
   constructor(props) {
     super(props);
-    const { assigneeUsername } = props;
+    const { assigneeUsername = null } = props;
 
     this.state = {
       assigneeUsername,
       inEditMode: false,
-      newAssigneeUsername: null,
+      newAssigneeUsername: '',
     };
   }
 
@@ -35,7 +35,7 @@ export default class Assignee extends React.Component {
         // we must have it prepared
         newAssigneeUsername: assigneeUsername
           ? assigneeUsername.split('/')[1]
-          : assigneeUsername,
+          : '',
       });
     }
   };
@@ -142,8 +142,4 @@ Assignee.propTypes = {
   updateAssignee: PropTypes.func.isRequired,
   user: PropTypes.shape({}).isRequired,
   assigneeUsername: PropTypes.string,
-};
-
-Assignee.defaultProps = {
-  assigneeUsername: null,
 };

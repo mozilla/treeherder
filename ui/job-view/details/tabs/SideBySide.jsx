@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faExternalLinkAlt,
@@ -9,7 +8,6 @@ import {
 import { Table } from 'react-bootstrap';
 
 import { getJobsUrl } from '../../../helpers/url';
-import { notify } from '../../redux/stores/notifications';
 import { getData } from '../../../helpers/http';
 import Clipboard from '../../../shared/Clipboard';
 
@@ -32,7 +30,7 @@ class SideBySide extends React.PureComponent {
   }
 
   getSideBySideParams() {
-    const { jobDetails } = this.props;
+    const { jobDetails = [] } = this.props;
 
     this.setState(
       {
@@ -63,7 +61,7 @@ class SideBySide extends React.PureComponent {
   }
 
   render() {
-    const { jobDetails } = this.props;
+    const { jobDetails = [] } = this.props;
     const { sideBySideLoading, sideBySideParams } = this.state;
 
     if (!sideBySideParams) {
@@ -189,13 +187,4 @@ SideBySide.propTypes = {
   jobDetails: PropTypes.arrayOf(PropTypes.shape({})),
 };
 
-SideBySide.defaultProps = {
-  jobDetails: [],
-};
-
-const mapStateToProps = (state) => ({
-  decisionTaskMap: state.pushes.decisionTaskMap,
-});
-const mapDispatchToProps = { notify };
-
-export default connect(mapStateToProps, mapDispatchToProps)(SideBySide);
+export default SideBySide;

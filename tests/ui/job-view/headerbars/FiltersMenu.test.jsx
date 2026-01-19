@@ -1,13 +1,12 @@
-import React from 'react';
+
 import { render, fireEvent, screen } from '@testing-library/react';
-import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
-import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
 
 import FiltersMenu from '../../../../ui/job-view/headerbars/FiltersMenu';
 import { thAllResultStatuses } from '../../../../ui/helpers/constants';
 import * as filterHelpers from '../../../../ui/helpers/filter';
+import { useSelectedJobStore } from '../../../../ui/job-view/stores/selectedJobStore';
+import { usePinnedJobsStore } from '../../../../ui/job-view/stores/pinnedJobsStore';
 
 // Mock the filter helpers
 jest.mock('../../../../ui/helpers/filter', () => ({
@@ -20,30 +19,20 @@ jest.mock('../../../../ui/helpers/filter', () => ({
   arraysEqual: jest.fn((a, b) => JSON.stringify(a) === JSON.stringify(b)),
 }));
 
-// Mock Redux action modules - must use jest.mock for ES modules with SWC
-const mockSetSelectedJob = jest.fn((job) => ({
-  type: 'SET_SELECTED_JOB',
-  job,
-}));
-const mockClearSelectedJob = jest.fn(() => ({
-  type: 'CLEAR_SELECTED_JOB',
-}));
-const mockPinJobs = jest.fn((jobs) => ({
-  type: 'PIN_JOBS',
-  jobs,
-}));
+// Mock the standalone functions
+const mockSetSelectedJob = jest.fn();
+const mockPinJobs = jest.fn();
 
-jest.mock('../../../../ui/job-view/redux/stores/selectedJob', () => ({
+// Mock the Zustand stores
+jest.mock('../../../../ui/job-view/stores/selectedJobStore', () => ({
+  useSelectedJobStore: jest.fn(),
   setSelectedJob: (...args) => mockSetSelectedJob(...args),
-  clearSelectedJob: (...args) => mockClearSelectedJob(...args),
 }));
 
-jest.mock('../../../../ui/job-view/redux/stores/pinnedJobs', () => ({
+jest.mock('../../../../ui/job-view/stores/pinnedJobsStore', () => ({
+  usePinnedJobsStore: jest.fn(),
   pinJobs: (...args) => mockPinJobs(...args),
 }));
-
-// Create a mock store
-const mockStore = configureStore([thunk]);
 
 describe('FiltersMenu', () => {
   const mockFilterModel = {
@@ -69,14 +58,8 @@ describe('FiltersMenu', () => {
     email: 'test@example.com',
   };
 
-  let store;
-
   const renderWithRouter = (component) => {
-    return render(
-      <MemoryRouter>
-        <Provider store={store}>{component}</Provider>
-      </MemoryRouter>,
-    );
+    return render(<MemoryRouter>{component}</MemoryRouter>);
   };
   let originalWindowLocation;
 
@@ -92,17 +75,23 @@ describe('FiltersMenu', () => {
     // Reset all mocks
     jest.clearAllMocks();
     mockSetSelectedJob.mockClear();
-    mockClearSelectedJob.mockClear();
     mockPinJobs.mockClear();
 
-    // Create a fresh store for each test
-    store = mockStore({
-      selectedJob: {
+    // Set up Zustand store mocks
+    useSelectedJobStore.mockImplementation((selector) => {
+      const state = {
         selectedJob: null,
-      },
-      pinnedJobs: {
-        pinnedJobs: [],
-      },
+        setSelectedJob: mockSetSelectedJob,
+      };
+      return selector ? selector(state) : state;
+    });
+
+    usePinnedJobsStore.mockImplementation((selector) => {
+      const state = {
+        pinnedJobs: {},
+        pinJobs: mockPinJobs,
+      };
+      return selector ? selector(state) : state;
     });
   });
 
@@ -184,16 +173,10 @@ describe('FiltersMenu', () => {
 
     // Check that getAllShownJobs and pinJobs were called
     expect(mockGetAllShownJobs).toHaveBeenCalled();
-
-    // Check that the store received the PIN_JOBS action
-    const actions = store.getActions();
-    expect(actions).toContainEqual({
-      type: 'PIN_JOBS',
-      jobs: [
-        { id: 1, jobType: 'test' },
-        { id: 2, jobType: 'build' },
-      ],
-    });
+    expect(mockPinJobs).toHaveBeenCalledWith([
+      { id: 1, jobType: 'test' },
+      { id: 2, jobType: 'build' },
+    ]);
   });
 
   it('calls setSelectedJob when pinning jobs and no job is selected', () => {
@@ -211,38 +194,26 @@ describe('FiltersMenu', () => {
     // Click on "Pin all showing"
     fireEvent.click(screen.getByText('Pin all showing'));
 
-    // Check that the store received the SET_SELECTED_JOB action
-    const actions = store.getActions();
-    expect(actions).toContainEqual({
-      type: 'SET_SELECTED_JOB',
-      job: {
-        id: 1,
-        jobType: 'test',
-      },
-    });
+    // Check that setSelectedJob was called with the first job
+    expect(mockSetSelectedJob).toHaveBeenCalledWith({ id: 1, jobType: 'test' });
   });
 
   it('does not call setSelectedJob when pinning jobs and a job is already selected', () => {
-    // Create a store with a selected job
-    const storeWithSelectedJob = mockStore({
-      selectedJob: {
+    // Set up store with a selected job
+    useSelectedJobStore.mockImplementation((selector) => {
+      const state = {
         selectedJob: { id: 3, jobType: 'test' },
-      },
-      pinnedJobs: {
-        pinnedJobs: [],
-      },
+        setSelectedJob: mockSetSelectedJob,
+      };
+      return selector ? selector(state) : state;
     });
 
-    render(
-      <MemoryRouter>
-        <Provider store={storeWithSelectedJob}>
-          <FiltersMenu
-            filterModel={mockFilterModel}
-            getAllShownJobs={mockGetAllShownJobs}
-            user={mockUser}
-          />
-        </Provider>
-      </MemoryRouter>,
+    renderWithRouter(
+      <FiltersMenu
+        filterModel={mockFilterModel}
+        getAllShownJobs={mockGetAllShownJobs}
+        user={mockUser}
+      />,
     );
 
     // Open the dropdown

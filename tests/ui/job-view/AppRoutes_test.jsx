@@ -1,26 +1,28 @@
-import React from 'react';
 import fetchMock from 'fetch-mock';
-import { render } from '@testing-library/react';
-import { Provider, ReactReduxContext } from 'react-redux';
-import { ConnectedRouter } from 'connected-react-router';
+import { render, waitFor } from '@testing-library/react';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 
-import App from '../../../ui/App';
+import { AppRoutes } from '../../../ui/App';
 import reposFixture from '../mock/repositories';
 import { getApiUrl } from '../../../ui/helpers/url';
 import { getProjectUrl } from '../../../ui/helpers/location';
-import {
-  configureStore,
-  history,
-} from '../../../ui/job-view/redux/configureStore';
+import { usePushStore } from '../../../ui/job-view/stores/pushStore';
+import { useSelectedJobStore } from '../../../ui/job-view/stores/selectedJobStore';
+import { usePinnedJobsStore } from '../../../ui/job-view/stores/pinnedJobsStore';
 
-const testApp = () => {
-  const store = configureStore();
+// Component to capture location for testing
+let testLocation;
+const LocationCapture = () => {
+  testLocation = useLocation();
+  return null;
+};
+
+const testApp = (initialEntries) => {
   return (
-    <Provider store={store} context={ReactReduxContext}>
-      <ConnectedRouter history={history} context={ReactReduxContext}>
-        <App />
-      </ConnectedRouter>
-    </Provider>
+    <MemoryRouter initialEntries={initialEntries}>
+      <LocationCapture />
+      <AppRoutes />
+    </MemoryRouter>
   );
 };
 
@@ -43,73 +45,110 @@ describe('Test for backwards-compatible routes for other apps', () => {
       getProjectUrl('/jobs/319893964/text_log_errors/', 'autoland'),
       {},
     );
+    // The LogviewerApp may try to fetch with null job_id before the URL redirect completes
+    fetchMock.get(getProjectUrl('/jobs/null/', 'autoland'), {
+      body: {},
+      status: 200,
+    });
+    fetchMock.get(getProjectUrl('/jobs/null/text_log_errors/', 'autoland'), []);
   });
 
-  test('old push health url should redirect to correct url', () => {
+  beforeEach(() => {
+    testLocation = null;
+
+    // Reset Zustand stores
+    usePushStore.setState({
+      pushList: [],
+      jobMap: {},
+      decisionTaskMap: {},
+      revisionTips: [],
+      allUnclassifiedFailureCount: 0,
+      filteredUnclassifiedFailureCount: 0,
+    });
+    useSelectedJobStore.setState({
+      selectedJob: null,
+    });
+    usePinnedJobsStore.setState({
+      pinnedJobs: {},
+      isPinBoardVisible: false,
+    });
+  });
+
+  test('old push health url should redirect to correct url', async () => {
     fetchMock.get(
       '/api/project/autoland/push/health/?revision=3c8e093335315c42a87eebf0531effe9cd6fdb95',
       [],
     );
 
-    history.push(
-      '/pushhealth.html?repo=autoland&revision=3c8e093335315c42a87eebf0531effe9cd6fdb95',
+    render(
+      testApp([
+        '/pushhealth.html?repo=autoland&revision=3c8e093335315c42a87eebf0531effe9cd6fdb95',
+      ]),
     );
-    render(testApp());
 
-    expect(history.location).toEqual(
-      expect.objectContaining({
-        pathname: '/push-health',
-        search:
-          '?repo=autoland&revision=3c8e093335315c42a87eebf0531effe9cd6fdb95',
-        hash: '',
-      }),
-    );
+    await waitFor(() => {
+      expect(testLocation).toEqual(
+        expect.objectContaining({
+          pathname: '/push-health',
+          search:
+            '?repo=autoland&revision=3c8e093335315c42a87eebf0531effe9cd6fdb95',
+          hash: '',
+        }),
+      );
+    });
   });
 
-  test('old perfherder route should redirect to correct url', () => {
+  test('old perfherder route should redirect to correct url', async () => {
     fetchMock.get('/api/performance/framework/', []);
     fetchMock.get('/api/performance/tag/', []);
 
-    history.push('/perf.html#/alerts?id=27285&hideDwnToInv=0');
-    render(testApp());
+    render(testApp(['/perf.html#/alerts?id=27285&hideDwnToInv=0']));
 
-    expect(history.location).toEqual(
-      expect.objectContaining({
-        pathname: '/perfherder/alerts',
-        search: '?id=27285&hideDwnToInv=0',
-        hash: '',
-      }),
-    );
+    await waitFor(() => {
+      expect(testLocation).toEqual(
+        expect.objectContaining({
+          pathname: '/perfherder/alerts',
+          search: '?id=27285&hideDwnToInv=0',
+          hash: '',
+        }),
+      );
+    });
   });
 
-  test('old logviewer route should redirect to correct url', () => {
-    history.push(
-      '/logviewer.html#/jobs?job_id=319893964&repo=autoland&lineNumber=2728',
+  test('old logviewer route should redirect to correct url', async () => {
+    render(
+      testApp([
+        '/logviewer.html#/jobs?job_id=319893964&repo=autoland&lineNumber=2728',
+      ]),
     );
-    render(testApp());
 
-    expect(history.location).toEqual(
-      expect.objectContaining({
-        pathname: '/logviewer',
-        search: '?job_id=319893964&repo=autoland&lineNumber=2728',
-        hash: '',
-      }),
-    );
+    await waitFor(() => {
+      expect(testLocation).toEqual(
+        expect.objectContaining({
+          pathname: '/logviewer',
+          search: '?job_id=319893964&repo=autoland&lineNumber=2728',
+          hash: '',
+        }),
+      );
+    });
   });
 
   test('url is not broken when it contains a table permalink hash', async () => {
-    history.push(
-      '/perfherder/compare?originalProject=mozilla-central&originalRevision=54e7fb66ad44b8dcb8caab587f929dad60932d71&newProject=mozilla-central&newRevision=54e7fb66ad44b8dcb8caab587f929dad60932d71&framework=1&page=1#tableLink-header-134266337',
+    render(
+      testApp([
+        '/perfherder/compare?originalProject=mozilla-central&originalRevision=54e7fb66ad44b8dcb8caab587f929dad60932d71&newProject=mozilla-central&newRevision=54e7fb66ad44b8dcb8caab587f929dad60932d71&framework=1&page=1#tableLink-header-134266337',
+      ]),
     );
-    render(testApp());
 
-    expect(history.location).toEqual(
-      expect.objectContaining({
-        pathname: '/perfherder/compare',
-        search:
-          '?originalProject=mozilla-central&originalRevision=54e7fb66ad44b8dcb8caab587f929dad60932d71&newProject=mozilla-central&newRevision=54e7fb66ad44b8dcb8caab587f929dad60932d71&framework=1&page=1',
-        hash: '#tableLink-header-134266337',
-      }),
-    );
+    await waitFor(() => {
+      expect(testLocation).toEqual(
+        expect.objectContaining({
+          pathname: '/perfherder/compare',
+          search:
+            '?originalProject=mozilla-central&originalRevision=54e7fb66ad44b8dcb8caab587f929dad60932d71&newProject=mozilla-central&newRevision=54e7fb66ad44b8dcb8caab587f929dad60932d71&framework=1&page=1',
+          hash: '#tableLink-header-134266337',
+        }),
+      );
+    });
   });
 });
