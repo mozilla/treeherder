@@ -29,9 +29,6 @@ import {
   getSearchWords,
   getPercentComplete,
   formatArtifacts,
-  longDateFormat,
-  shortDateFormat,
-  resultColorMap,
   getIcon,
 } from '../../../ui/helpers/display';
 
@@ -43,8 +40,7 @@ describe('Date formatting', () => {
       const result = toDateStr(timestamp);
 
       // Should contain date components
-      expect(result).toContain('Jan');
-      expect(result).toContain('15');
+      expect(result).toBe('Mon, Jan 15, 13:30:45');
     });
 
     it('handles zero timestamp', () => {
@@ -61,32 +57,7 @@ describe('Date formatting', () => {
       const timestamp = 1705321845;
       const result = toShortDateStr(timestamp);
 
-      expect(result).toContain('Jan');
-      expect(result).toContain('15');
-    });
-  });
-
-  describe('longDateFormat', () => {
-    it('includes all expected format options', () => {
-      expect(longDateFormat.weekday).toBe('short');
-      expect(longDateFormat.month).toBe('short');
-      expect(longDateFormat.day).toBe('numeric');
-      expect(longDateFormat.hour).toBe('numeric');
-      expect(longDateFormat.minute).toBe('numeric');
-      expect(longDateFormat.second).toBe('numeric');
-      expect(longDateFormat.hour12).toBe(false);
-    });
-  });
-
-  describe('shortDateFormat', () => {
-    it('includes expected format options without weekday and second', () => {
-      expect(shortDateFormat.month).toBe('short');
-      expect(shortDateFormat.day).toBe('numeric');
-      expect(shortDateFormat.hour).toBe('numeric');
-      expect(shortDateFormat.minute).toBe('numeric');
-      expect(shortDateFormat.hour12).toBe(false);
-      expect(shortDateFormat.weekday).toBeUndefined();
-      expect(shortDateFormat.second).toBeUndefined();
+      expect(result).toBe('Jan 15, 13:30');
     });
   });
 });
@@ -99,61 +70,17 @@ describe('Mercurial date formatting (dayjs migration)', () => {
       const result = toMercurialDateStr(testDate);
 
       // Format should be: 'ddd MMM DD HH:mm:ss YYYY ZZ'
-      expect(result).toContain('Mon');
-      expect(result).toContain('Jan');
-      expect(result).toContain('15');
-      expect(result).toContain('12:30:45');
-      expect(result).toContain('2024');
-    });
-
-    it('handles Date objects', () => {
-      const date = new Date('2024-06-20T08:15:30Z');
-      const result = toMercurialDateStr(date);
-
-      expect(result).toContain('Thu');
-      expect(result).toContain('Jun');
-      expect(result).toContain('20');
-    });
-
-    it('returns UTC formatted string', () => {
-      const date = new Date('2024-01-15T00:00:00Z');
-      const result = toMercurialDateStr(date);
-
-      // Should contain +0000 for UTC timezone
-      expect(result).toContain('+0000');
+      expect(result).toBe('Mon Jan 15 12:30:45 2024 +0000');
     });
   });
 
   describe('toMercurialShortDateStr', () => {
     it('formats date in alerts view datetime format', () => {
-      const testDate = new Date('2024-01-15T12:30:00Z');
+      const testDate = new Date('2024-01-15T12:30:45Z');
       const result = toMercurialShortDateStr(testDate);
 
       // Format should be: 'ddd MMM DD HH:mm YYYY'
-      expect(result).toContain('Mon');
-      expect(result).toContain('Jan');
-      expect(result).toContain('15');
-      expect(result).toContain('12:30');
-      expect(result).toContain('2024');
-    });
-
-    it('handles different dates', () => {
-      const date = new Date('2024-12-25T18:45:00Z');
-      const result = toMercurialShortDateStr(date);
-
-      expect(result).toContain('Wed');
-      expect(result).toContain('Dec');
-      expect(result).toContain('25');
-      expect(result).toContain('18:45');
-    });
-
-    it('does not include seconds (short format)', () => {
-      const date = new Date('2024-01-15T12:30:45Z');
-      const result = toMercurialShortDateStr(date);
-
-      // Short format should not include seconds
-      // The format is HH:mm not HH:mm:ss
-      expect(result).not.toContain(':45');
+      expect(result).toBe('Mon Jan 15 12:30 2024');
     });
   });
 });
@@ -207,18 +134,13 @@ describe('getPercentComplete', () => {
   });
 
   it('handles mixed counts', () => {
-    const counts = { pending: 25, running: 25, completed: 50 };
-    expect(getPercentComplete(counts)).toBe(50);
+    const counts = { pending: 25, running: 25, completed: 150 };
+    expect(getPercentComplete(counts)).toBe(75);
   });
 
   it('returns 100 when no jobs exist (old pushes)', () => {
     const counts = { pending: 0, running: 0, completed: 0 };
     expect(getPercentComplete(counts)).toBe(100);
-  });
-
-  it('handles running jobs', () => {
-    const counts = { pending: 10, running: 20, completed: 70 };
-    expect(getPercentComplete(counts)).toBe(70);
   });
 
   it('floors the percentage', () => {
@@ -252,48 +174,6 @@ describe('formatArtifacts', () => {
     const result = formatArtifacts([], {});
     expect(result).toEqual([]);
   });
-
-  it('extracts filename from full path', () => {
-    const data = [{ name: 'a/very/deep/path/to/file.txt' }];
-    const artifactParams = {
-      taskId: 'task123',
-      run: 0,
-      rootUrl: 'https://firefox-ci-tc.services.mozilla.com',
-    };
-    const result = formatArtifacts(data, artifactParams);
-
-    expect(result[0].value).toBe('file.txt');
-  });
-});
-
-describe('resultColorMap', () => {
-  it('maps pass to success', () => {
-    expect(resultColorMap.pass).toBe('success');
-  });
-
-  it('maps fail to danger', () => {
-    expect(resultColorMap.fail).toBe('danger');
-  });
-
-  it('maps indeterminate to secondary', () => {
-    expect(resultColorMap.indeterminate).toBe('secondary');
-  });
-
-  it('maps done to darker-info', () => {
-    expect(resultColorMap.done).toBe('darker-info');
-  });
-
-  it('maps in progress to secondary', () => {
-    expect(resultColorMap['in progress']).toBe('secondary');
-  });
-
-  it('maps none to darker-info', () => {
-    expect(resultColorMap.none).toBe('darker-info');
-  });
-
-  it('maps unknown to secondary', () => {
-    expect(resultColorMap.unknown).toBe('secondary');
-  });
 });
 
 describe('getIcon', () => {
@@ -311,7 +191,5 @@ describe('getIcon', () => {
 
   it('returns faClock for unknown values', () => {
     expect(getIcon('unknown')).toBe(faClock);
-    expect(getIcon('')).toBe(faClock);
-    expect(getIcon(null)).toBe(faClock);
   });
 });

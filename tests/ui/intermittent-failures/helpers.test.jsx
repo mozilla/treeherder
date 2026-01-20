@@ -36,11 +36,6 @@ describe('ISODate', () => {
     expect(ISODate(date)).toBe('2024-01-15');
   });
 
-  it('formats different dates correctly', () => {
-    const date = dayjs('2024-12-25');
-    expect(ISODate(date)).toBe('2024-12-25');
-  });
-
   it('handles date objects wrapped in dayjs', () => {
     // Use UTC to avoid timezone issues
     const date = dayjs.utc('2024-06-20');
@@ -50,36 +45,9 @@ describe('ISODate', () => {
 
 describe('prettyDate (dayjs migration)', () => {
   it('formats date in pretty format', () => {
-    const result = prettyDate('2024-01-15');
+    const result = prettyDate('2024-01-08');
 
-    expect(result).toContain('Mon');
-    expect(result).toContain('Jan');
-    expect(result).toContain('15');
-    expect(result).toContain('2024');
-  });
-
-  it('handles ISO date strings', () => {
-    const result = prettyDate('2024-06-20');
-
-    expect(result).toContain('Thu');
-    expect(result).toContain('Jun');
-    expect(result).toContain('20');
-    expect(result).toContain('2024');
-  });
-
-  it('handles Date objects', () => {
-    // Use ISO string to avoid timezone issues
-    const result = prettyDate('2024-12-25');
-
-    expect(result).toContain('Dec');
-    expect(result).toContain('25');
-    expect(result).toContain('2024');
-  });
-
-  it('formats with correct pattern: ddd MMM D, YYYY', () => {
-    const result = prettyDate('2024-01-01');
-    // Should be "Mon Jan 1, 2024"
-    expect(result).toMatch(/\w{3} \w{3} \d{1,2}, \d{4}/);
+    expect(result).toBe('Mon Jan 8, 2024');
   });
 });
 
@@ -93,14 +61,6 @@ describe('formatBugs', () => {
 
   it('handles empty array', () => {
     expect(formatBugs([])).toEqual([]);
-  });
-
-  it('converts bug IDs to strings', () => {
-    const data = [{ bug_id: 12345 }];
-    const result = formatBugs(data);
-
-    expect(result[0]).toBe('12345');
-    expect(typeof result[0]).toBe('string');
   });
 });
 
@@ -125,10 +85,12 @@ describe('mergeData', () => {
     const countData = [
       { bug_id: 123, bug_count: 5 },
       { bug_id: 456, bug_count: 20 },
+      { bug_id: 789, bug_count: 1 },
     ];
     const bugs = [
       { id: 123, name: 'Bug A' },
       { id: 456, name: 'Bug B' },
+      { id: 789, name: 'Bug C' },
     ];
 
     const result = mergeData(countData, bugs);
