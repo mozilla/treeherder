@@ -1,5 +1,8 @@
 const path = require('path');
 
+// Consistency for date formatting tests
+process.env.TZ = 'UTC';
+
 module.exports = {
   rootDir: path.resolve(__dirname),
   moduleDirectories: ['node_modules'],

@@ -40,7 +40,7 @@ describe('Date formatting', () => {
       const result = toDateStr(timestamp);
 
       // Should contain date components
-      expect(result).toBe('Mon, Jan 15, 13:30:45');
+      expect(result).toBe('Mon, Jan 15, 12:30:45');
     });
 
     it('handles zero timestamp', () => {
@@ -57,7 +57,7 @@ describe('Date formatting', () => {
       const timestamp = 1705321845;
       const result = toShortDateStr(timestamp);
 
-      expect(result).toBe('Jan 15, 13:30');
+      expect(result).toBe('Jan 15, 12:30');
     });
   });
 });
