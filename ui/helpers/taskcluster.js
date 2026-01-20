@@ -1,6 +1,5 @@
 import { Queue } from 'taskcluster-client-web';
 import debounce from 'lodash/debounce';
-import moment from 'moment';
 
 import {
   clientId,
@@ -9,6 +8,7 @@ import {
   prodFirefoxRootUrl,
 } from '../taskcluster-auth-callback/constants';
 
+import dayjs from './dayjs';
 import { createQueryParams } from './url';
 
 export const tcCredentialsMessage =
@@ -78,7 +78,7 @@ const taskcluster = (() => {
       if (
         userCredentials &&
         userCredentials[_rootUrl] &&
-        moment(userCredentials[_rootUrl].expires).isAfter(moment())
+        dayjs(userCredentials[_rootUrl].expires).isAfter(dayjs())
       ) {
         // eslint-disable-next-line no-promise-executor-return
         return resolve(userCredentials[_rootUrl]);

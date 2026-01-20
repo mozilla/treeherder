@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { createRef } from 'react';
 import { Modal } from 'react-bootstrap';
-import SplitPane from 'react-split-pane';
+import { PanelGroup, Panel, PanelResizeHandle } from 'react-resizable-panels';
 import pick from 'lodash/pick';
 import isEqual from 'lodash/isEqual';
 import { connect } from 'react-redux';
@@ -76,6 +76,8 @@ class App extends React.Component {
     const urlParams = getAllUrlParams();
     const hasSelectedJob =
       urlParams.has('selectedJob') || urlParams.has('selectedTaskRun');
+
+    this.panelGroupRef = createRef();
 
     this.state = {
       repoName: this.getOrSetRepo(),
@@ -188,13 +190,26 @@ class App extends React.Component {
     }, MAX_TRANSIENT_AGE);
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     if (
       prevProps.router.location.search !== this.props.router.location.search
     ) {
       this.handleUrlChanges();
     }
+
+    // Use imperative API to update panel layout when hasSelectedJob changes
+    if (prevState.hasSelectedJob !== this.state.hasSelectedJob) {
+      this.updatePanelLayout();
+    }
   }
+
+  updatePanelLayout = () => {
+    const { hasSelectedJob } = this.state;
+    if (this.panelGroupRef.current) {
+      const pushListPct = hasSelectedJob ? 100 - DEFAULT_DETAILS_PCT : 100;
+      this.panelGroupRef.current.setLayout([pushListPct, 100 - pushListPct]);
+    }
+  };
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.updateDimensions, false);
@@ -374,9 +389,11 @@ class App extends React.Component {
     window.location.reload(true);
   }
 
-  handleSplitChange(latestSplitSize) {
+  handleSplitChange(sizes) {
+    // react-resizable-panels provides sizes as an array of percentages
+    // sizes[0] is the top panel (PushList) percentage
     this.setState({
-      latestSplitPct: (latestSplitSize / getWindowHeight()) * 100,
+      latestSplitPct: sizes[0],
     });
   }
 
@@ -406,11 +423,8 @@ class App extends React.Component {
       frameworks,
     } = this.state;
 
-    // SplitPane will adjust the CSS height of the top component, but not the
-    // bottom component.  So the scrollbars won't work in the DetailsPanel when
-    // we resize.  Therefore, we must calculate the new
-    // height of the DetailsPanel based on the current height of the PushList.
-    // Reported this upstream: https://github.com/tomkp/react-split-pane/issues/282
+    // react-resizable-panels handles height calculations automatically
+    // We still track the percentage for calculating the details panel height
     const pushListPct =
       latestSplitPct === undefined || !hasSelectedJob
         ? defaultPushListPct
@@ -418,7 +432,7 @@ class App extends React.Component {
     const detailsHeight =
       latestSplitPct === undefined || !hasSelectedJob
         ? defaultDetailsHeight
-        : getWindowHeight() * (1 - latestSplitPct / 100);
+        : getWindowHeight() * (1 - pushListPct / 100);
     const filterBarFilters = Object.entries(filterModel.urlParams).reduce(
       (acc, [field, value]) =>
         HIDDEN_URL_PARAMS.includes(field) || matchesDefaults(field, value)
@@ -449,46 +463,49 @@ class App extends React.Component {
             setPushHealthVisibility={this.setPushHealthVisibility}
             {...this.props}
           />
-          <SplitPane
-            split="horizontal"
-            size={`${pushListPct}%`}
-            onChange={(size) => this.handleSplitChange(size)}
+          <PanelGroup
+            ref={this.panelGroupRef}
+            direction="vertical"
+            onLayout={(sizes) => this.handleSplitChange(sizes)}
           >
-            <div className="d-flex flex-column w-100">
-              {(isFieldFilterVisible || !!filterBarFilters.length) && (
-                <ActiveFilters
-                  classificationTypes={classificationTypes}
-                  filterModel={filterModel}
-                  filterBarFilters={filterBarFilters}
-                  isFieldFilterVisible={isFieldFilterVisible}
-                  toggleFieldFilterVisible={this.toggleFieldFilterVisible}
-                />
-              )}
-              {serverChangedDelayed && (
-                <UpdateAvailable updateButtonClick={this.updateButtonClick} />
-              )}
-              {currentRepo && (
-                <div id="th-global-content" className="th-global-content">
-                  <span className="th-view-content" tabIndex={-1}>
-                    <PushList
-                      user={user}
-                      repoName={repoName}
-                      revision={revision}
-                      landoCommitID={landoCommitID}
-                      landoStatus={landoStatus}
-                      currentRepo={currentRepo}
-                      filterModel={filterModel}
-                      duplicateJobsVisible={duplicateJobsVisible}
-                      groupCountsExpanded={groupCountsExpanded}
-                      pushHealthVisibility={pushHealthVisibility}
-                      getAllShownJobs={this.getAllShownJobs}
-                      {...this.props}
-                    />
-                  </span>
-                </div>
-              )}
-            </div>
-            <>
+            <Panel defaultSize={pushListPct} minSize={20}>
+              <div className="d-flex flex-column w-100 h-100">
+                {(isFieldFilterVisible || !!filterBarFilters.length) && (
+                  <ActiveFilters
+                    classificationTypes={classificationTypes}
+                    filterModel={filterModel}
+                    filterBarFilters={filterBarFilters}
+                    isFieldFilterVisible={isFieldFilterVisible}
+                    toggleFieldFilterVisible={this.toggleFieldFilterVisible}
+                  />
+                )}
+                {serverChangedDelayed && (
+                  <UpdateAvailable updateButtonClick={this.updateButtonClick} />
+                )}
+                {currentRepo && (
+                  <div id="th-global-content" className="th-global-content">
+                    <span className="th-view-content" tabIndex={-1}>
+                      <PushList
+                        user={user}
+                        repoName={repoName}
+                        revision={revision}
+                        landoCommitID={landoCommitID}
+                        landoStatus={landoStatus}
+                        currentRepo={currentRepo}
+                        filterModel={filterModel}
+                        duplicateJobsVisible={duplicateJobsVisible}
+                        groupCountsExpanded={groupCountsExpanded}
+                        pushHealthVisibility={pushHealthVisibility}
+                        getAllShownJobs={this.getAllShownJobs}
+                        {...this.props}
+                      />
+                    </span>
+                  </div>
+                )}
+              </div>
+            </Panel>
+            <PanelResizeHandle className="resize-handle" />
+            <Panel defaultSize={100 - pushListPct} minSize={0}>
               {currentRepo && (
                 <DetailsPanel
                   resizedHeight={detailsHeight}
@@ -499,8 +516,8 @@ class App extends React.Component {
                   frameworks={frameworks}
                 />
               )}
-            </>
-          </SplitPane>
+            </Panel>
+          </PanelGroup>
           <Notifications />
           <Modal
             isOpen={showShortCuts}

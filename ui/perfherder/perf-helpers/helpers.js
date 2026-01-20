@@ -1,7 +1,7 @@
-import moment from 'moment';
 import numeral from 'numeral';
 import queryString from 'query-string';
 
+import dayjs from '../../helpers/dayjs';
 import { getApiUrl, getJobsUrl } from '../../helpers/url';
 import { update, processResponse } from '../../helpers/http';
 import PerfSeriesModel, {
@@ -571,7 +571,7 @@ export const getFilledBugSummary = (alertSummary) => {
   filledBugSummary += ` (${platformInfo})`;
 
   // add push date info
-  const pushDate = moment(alertSummary.push_timestamp * 1000).format(
+  const pushDate = dayjs(alertSummary.push_timestamp * 1000).format(
     'ddd MMMM D YYYY',
   );
   filledBugSummary += ` regression on ${pushDate}`;

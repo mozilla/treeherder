@@ -1,10 +1,10 @@
 import {
   thDefaultFilterResultStatuses,
   thFieldChoices,
+  arraysEqual,
   matchesDefaults,
   getFieldChoices,
   hasUrlFilterChanges,
-  reloadOnChangeParameters,
   allFilterParams,
 } from '../../../ui/helpers/filter';
 
@@ -95,30 +95,6 @@ describe('hasUrlFilterChanges', () => {
   });
 });
 
-describe('reloadOnChangeParameters', () => {
-  it('includes repo', () => {
-    expect(reloadOnChangeParameters).toContain('repo');
-  });
-
-  it('includes revision', () => {
-    expect(reloadOnChangeParameters).toContain('revision');
-  });
-
-  it('includes author', () => {
-    expect(reloadOnChangeParameters).toContain('author');
-  });
-
-  it('includes date range parameters', () => {
-    expect(reloadOnChangeParameters).toContain('startdate');
-    expect(reloadOnChangeParameters).toContain('enddate');
-  });
-
-  it('includes change range parameters', () => {
-    expect(reloadOnChangeParameters).toContain('fromchange');
-    expect(reloadOnChangeParameters).toContain('tochange');
-  });
-});
-
 describe('allFilterParams', () => {
   it('includes field choices', () => {
     expect(allFilterParams).toContain('job_type_name');
@@ -135,5 +111,32 @@ describe('allFilterParams', () => {
     expect(allFilterParams).toContain('repo');
     expect(allFilterParams).toContain('revision');
     expect(allFilterParams).toContain('author');
+  });
+});
+
+describe('arraysEqual', () => {
+  it('returns true for identical arrays', () => {
+    expect(arraysEqual(['a', 'b', 'c'], ['a', 'b', 'c'])).toBe(true);
+  });
+
+  it('returns true for arrays with same elements in different order', () => {
+    expect(arraysEqual(['a', 'b', 'c'], ['c', 'a', 'b'])).toBe(true);
+  });
+
+  it('returns false for arrays with different lengths', () => {
+    expect(arraysEqual(['a', 'b'], ['a', 'b', 'c'])).toBe(false);
+  });
+
+  it('returns false for arrays with different elements', () => {
+    expect(arraysEqual(['a', 'b', 'c'], ['a', 'b', 'd'])).toBe(false);
+  });
+
+  it('handles empty arrays', () => {
+    expect(arraysEqual([], [])).toBe(true);
+  });
+
+  it('handles single element arrays', () => {
+    expect(arraysEqual(['a'], ['a'])).toBe(true);
+    expect(arraysEqual(['a'], ['b'])).toBe(false);
   });
 });

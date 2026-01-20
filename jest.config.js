@@ -1,5 +1,8 @@
 const path = require('path');
 
+// Consistency for date formatting tests
+process.env.TZ = 'UTC';
+
 module.exports = {
   rootDir: path.resolve(__dirname),
   moduleDirectories: ['node_modules'],
@@ -9,6 +12,8 @@ module.exports = {
       '<rootDir>/tests/jest/file-mock.js',
     '\\.(css|less|sass|scss)$': '<rootDir>/tests/jest/style-mock.js',
     '^react-native$': '<rootDir>/node_modules/react-native-web',
+    '^react-resizable-panels$':
+      '<rootDir>/tests/jest/react-resizable-panels-mock.js',
   },
   bail: true,
   collectCoverageFrom: ['ui/**/*.{mjs,jsx,js}'],
