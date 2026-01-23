@@ -67,8 +67,8 @@ importers:
         specifier: 1.11.19
         version: 1.11.19
       fuse.js:
-        specifier: 6.0.4
-        version: 6.0.4
+        specifier: 7.1.0
+        version: 7.1.0
       history:
         specifier: 4.10.1
         version: 4.10.1
@@ -3475,8 +3475,8 @@ packages:
   functions-have-names@1.2.3:
     resolution: {integrity: sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ==}
 
-  fuse.js@6.0.4:
-    resolution: {integrity: sha512-XAeQaT+DV8dxqohN911+Qzkb4iMzTzae04mdb9/XSQbMjbsFasQxe0+UwM+3UWP+8vO7svz1Rj0KuQw6xJ45Ww==}
+  fuse.js@7.1.0:
+    resolution: {integrity: sha512-trLf4SzuuUxfusZADLINj+dE8clK1frKdmqiJNb1Es75fmI5oY6X2mxLVUciLLjxqw/xr72Dhy+lER6dGd02FQ==}
     engines: {node: '>=10'}
 
   generator-function@2.0.1:
@@ -10256,7 +10256,7 @@ snapshots:
 
   functions-have-names@1.2.3: {}
 
-  fuse.js@6.0.4: {}
+  fuse.js@7.1.0: {}
 
   generator-function@2.0.1: {}
 
