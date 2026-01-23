@@ -262,7 +262,7 @@ def repo_meta(project):
     }
 
 
-def query_data(repo_meta, commit):
+def query_data(repo_meta, commit, branch):
     """Find the right event base sha to get the right list of commits
 
     This is not an issue in GithubPushTransformer because the PushEvent from Taskcluster
@@ -274,7 +274,7 @@ def query_data(repo_meta, commit):
     # First we try with `master` being the base sha
     # e.g. https://api.github.com/repos/servo/servo/compare/master...1418c0555ff77e5a3d6cf0c6020ba92ece36be2e
     compare_response = github.compare_shas(
-        repo_meta["owner"], repo_meta["repo"], repo_meta["branch"], commit
+        repo_meta["owner"], repo_meta["repo"], branch or repo_meta["branch"], commit
     )
     merge_base_commit = compare_response.get("merge_base_commit")
     if merge_base_commit:
@@ -322,8 +322,8 @@ def query_data(repo_meta, commit):
     return event_base_sha, commits
 
 
-def github_push_to_pulse(repo_meta, commit):
-    event_base_sha, commits = query_data(repo_meta, commit)
+def github_push_to_pulse(repo_meta, commit, branch):
+    event_base_sha, commits = query_data(repo_meta, commit, branch)
 
     return {
         "exchange": "exchange/taskcluster-github/v1/push",
@@ -332,7 +332,7 @@ def github_push_to_pulse(repo_meta, commit):
             "organization": repo_meta["owner"],
             "details": {
                 "event.head.repo.url": "{}.git".format(repo_meta["url"]),
-                "event.base.repo.branch": repo_meta["branch"],
+                "event.base.repo.branch": branch or repo_meta["branch"],
                 "event.base.sha": event_base_sha,
                 "event.head.sha": commit,
             },
@@ -344,10 +344,10 @@ def github_push_to_pulse(repo_meta, commit):
     }
 
 
-def ingest_push(project, revision, fetch_push_id=None):
+def ingest_push(project, revision, branch=None, fetch_push_id=None):
     _repo = repo_meta(project)
     if _repo["url"].startswith("https://github.com"):
-        pulse = github_push_to_pulse(_repo, revision)
+        pulse = github_push_to_pulse(_repo, revision, branch)
         PushLoader().process(pulse["payload"], pulse["exchange"], _repo["tc_root_url"])
     else:
         _ingest_hg_push(project, revision)
@@ -420,6 +420,11 @@ class Command(BaseCommand):
             "ingestion_type", nargs=1, help="Type of ingestion to do: [task|hg-push|git-commit|pr]"
         )
         parser.add_argument("-p", "--project", help="Hg repository to query (e.g. autoland)")
+        parser.add_argument(
+            "-b",
+            "--branch",
+            help="branch to query (e.g. release/vXXX) - required if repository accepts more than one branch",
+        )
         parser.add_argument("-c", "--commit", "-r", "--revision", help="Commit/revision to import")
         parser.add_argument(
             "--enable-eager-celery",
@@ -477,7 +482,7 @@ class Command(BaseCommand):
                     "If you don't set up GITHUB_TOKEN you might hit Github's rate limiting. See docs for info."
                 )
             if type_of_ingestion == "git-push":
-                ingest_push(options["project"], options["commit"])
+                ingest_push(options["project"], options["commit"], options["branch"])
             elif type_of_ingestion == "git-pushes":
                 ingest_git_pushes(options["project"], options["dryRun"])
         elif type_of_ingestion == "push":
