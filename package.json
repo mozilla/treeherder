@@ -29,7 +29,7 @@
     "connected-react-router": "6.9.3",
     "crypto-browserify": "3.12.1",
     "dayjs": "1.11.19",
-    "fuse.js": "6.0.4",
+    "fuse.js": "7.1.0",
     "history": "4.10.1",
     "js-cookie": "3.0.5",
     "js-yaml": "4.1.1",
