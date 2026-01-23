@@ -723,6 +723,7 @@ class JobLog(models.Model):
     name = models.CharField(max_length=50)
     url = models.URLField(max_length=255)
     status = models.IntegerField(choices=STATUSES, default=PENDING)
+    parsing_attempts = models.IntegerField(default=0)
 
     class Meta:
         db_table = "job_log"
