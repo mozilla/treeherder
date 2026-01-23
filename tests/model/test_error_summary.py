@@ -106,30 +106,6 @@ PIPE_DELIMITED_LINE_TEST_CASES = (
     ),
     (
         (
-            "REFTEST PROCESS-CRASH "
-            "| application crashed [@ jemalloc_crash] "
-            "| http://10.0.2.2:8854/tests/dom/canvas/test/reftest/webgl-resize-test.html == "
-            "http://10.0.2.2:8854/tests/dom/canvas/test/reftest/wrapper.html?green.png"
-        ),
-        {
-            "path_end": "http://10.0.2.2:8854/tests/dom/canvas/test/reftest/webgl-resize-test.html",
-            "search_term": ["application crashed [@ jemalloc_crash]"],
-        },
-    ),
-    (
-        (
-            "REFTEST PROCESS-CRASH "
-            "| application crashed [@ jemalloc_crash] "
-            "| http://10.0.2.2:8854/tests/dom/canvas/test/reftest/webgl-resize-test.html != "
-            "http://10.0.2.2:8854/tests/dom/canvas/test/reftest/wrapper.html?green.png"
-        ),
-        {
-            "path_end": "http://10.0.2.2:8854/tests/dom/canvas/test/reftest/webgl-resize-test.html",
-            "search_term": ["application crashed [@ jemalloc_crash]"],
-        },
-    ),
-    (
-        (
             "TEST-UNEXPECTED-FAIL "
             "| /tests/dom/events/test/pointerevents/pointerevent_touch-action-table-test_touch-manual.html "
             "| touch-action attribute test on the cell: assert_true: scroll received while shouldn't expected true got false"
@@ -137,6 +113,20 @@ PIPE_DELIMITED_LINE_TEST_CASES = (
         {
             "path_end": "/tests/dom/events/test/pointerevents/pointerevent_touch-action-table-test_touch-manual.html",
             "search_term": ["pointerevent_touch-action-table-test_touch-manual.html"],
+        },
+    ),
+    (
+        (
+            "REFTEST PROCESS-CRASH "
+            "| 844cb27a-6101-4b86-95c7-24e6d0be12a7 "
+            "| application crashed [@ mozilla::dom::Element::VerifySubtreeBloomFilter] "
+            "| layout/svg/crashtests/1443092.html"
+        ),
+        {
+            "path_end": "layout/svg/crashtests/1443092.html",
+            "search_term": [
+                "application crashed [@ mozilla::dom::Element::VerifySubtreeBloomFilter]"
+            ],
         },
     ),
 )
@@ -338,6 +328,7 @@ BLACKLIST_TEST_CASES = (
     (
         (
             "REFTEST PROCESS-CRASH "
+            "| 844cb27a-6101-4b86-95c7-24e6d0be12a7 "
             "| application crashed [@ mozalloc_abort] "
             "| file:///home/worker/workspace/build/tests/reftest/tests/layout/reftests/font-inflation/video-1.html"
         ),
