@@ -1,7 +1,5 @@
 import re
 
-import newrelic.agent
-from django.utils.deprecation import MiddlewareMixin
 from whitenoise.middleware import WhiteNoiseMiddleware
 
 # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
@@ -33,7 +31,8 @@ def add_headers_function(headers, path, url):
     """
     from django.urls import reverse
 
-    report_uri = "report-uri {}".format(reverse("csp-report"))
+    report_uri = "report-uri {}".format(reverse("csp-report"))  #
+
     if report_uri not in CSP_DIRECTIVES:
         CSP_DIRECTIVES.append(report_uri)
 
@@ -68,13 +67,3 @@ class CustomWhiteNoise(WhiteNoiseMiddleware):
         # style output by GzipManifestStaticFilesStorage during collectstatic. eg:
         #   bootstrap.min.abda843684d0.js
         return super().immutable_file_test(path, url)
-
-
-class NewRelicMiddleware(MiddlewareMixin):
-    """Adds custom annotations to New Relic web transactions."""
-
-    def process_request(self, request):
-        # The New Relic Python agent only submits the User Agent to APM (for exceptions and
-        # slow transactions), so for use in Insights we have to add it as a customer parameter.
-        if "HTTP_USER_AGENT" in request.META:
-            newrelic.agent.add_custom_attribute("user_agent", request.META["HTTP_USER_AGENT"])
