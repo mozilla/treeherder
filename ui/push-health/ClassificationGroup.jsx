@@ -4,19 +4,18 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCaretDown,
   faCaretRight,
-  faRedo,
+  faCheck,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   Row,
   Collapse,
-  ButtonGroup,
   DropdownButton,
   Button,
   Dropdown,
 } from 'react-bootstrap';
 import groupBy from 'lodash/groupBy';
 
-import JobModel from '../models/job';
+import { confirmFailure, canConfirmFailure } from '../helpers/job';
 
 import Action from './Action';
 
@@ -40,19 +39,27 @@ class ClassificationGroup extends React.PureComponent {
     }));
   };
 
-  retriggerAll = (times) => {
-    const { tests, notify, currentRepo, jobs } = this.props;
-    // Reduce down to the unique jobs
+  confirmFailureAll = () => {
+    const { tests, notify, currentRepo, jobs, decisionTaskMap } = this.props;
+    // Reduce down to the unique jobs that can have confirm-failure run
     const testJobs = tests.reduce(
       (acc, test) => ({
         ...acc,
-        ...jobs[test.jobName].reduce((fjAcc, job) => ({ [job.id]: job }), {}),
+        ...jobs[test.jobName].reduce((fjAcc, job) => {
+          if (canConfirmFailure(job)) {
+            return { ...fjAcc, [job.id]: job };
+          }
+          return fjAcc;
+        }, {}),
       }),
       {},
     );
     const uniqueJobs = Object.values(testJobs);
 
-    JobModel.retrigger(uniqueJobs, currentRepo, notify, times);
+    // Call confirmFailure for each unique job
+    uniqueJobs.forEach((job) => {
+      confirmFailure(job, notify, decisionTaskMap, currentRepo);
+    });
   };
 
   getTestsByAction = (tests) => {
@@ -98,12 +105,15 @@ class ClassificationGroup extends React.PureComponent {
       investigateTest,
       unInvestigateTest,
       updatePushHealth,
+      decisionTaskMap,
     } = this.props;
     const expandIcon = detailsShowing ? faCaretDown : faCaretRight;
     const expandTitle = detailsShowing
       ? 'Click to collapse'
       : 'Click to expand';
-    const groupLength = Object.keys(tests).length;
+    // Count unique test cases (by testName), regardless of platform/config
+    const uniqueTestNames = new Set(tests.map((test) => test.testName));
+    const groupLength = uniqueTestNames.size;
     const testsByAction = this.getTestsByAction(tests);
 
     return (
@@ -132,43 +142,20 @@ class ClassificationGroup extends React.PureComponent {
         </span>
         {hasRetriggerAll && groupLength > 0 && detailsShowing && (
           <div className="mb-4 d-flex gap-2">
-            <ButtonGroup size="sm">
-              <Button
-                title="Retrigger all 'Need Investigation' jobs once"
-                onClick={() => this.retriggerAll(1)}
-                size="sm"
-                variant="secondary"
-              >
-                <FontAwesomeIcon
-                  icon={faRedo}
-                  title="Retrigger"
-                  className="me-2"
-                  alt=""
-                />
-                Retrigger all
-              </Button>
-              <Dropdown>
-                <Dropdown.Toggle
-                  split
-                  variant="secondary"
-                  size="sm"
-                  title="Retrigger all multiple times"
-                />
-                <Dropdown.Menu>
-                  {[5, 10, 15].map((times) => (
-                    <Dropdown.Item
-                      key={times}
-                      title={`Retrigger all 'Need Investigation' jobs ${times} times`}
-                      onClick={() => this.retriggerAll(times)}
-                      className="pointable"
-                      tag="a"
-                    >
-                      Retrigger all {times} times
-                    </Dropdown.Item>
-                  ))}
-                </Dropdown.Menu>
-              </Dropdown>
-            </ButtonGroup>
+            <Button
+              title="Confirm failures for all 'Need Investigation' jobs"
+              onClick={() => this.confirmFailureAll()}
+              size="sm"
+              variant="secondary"
+            >
+              <FontAwesomeIcon
+                icon={faCheck}
+                title="Confirm Failure"
+                className="me-2"
+                alt=""
+              />
+              Confirm Failure all
+            </Button>
             <DropdownButton
               size="sm"
               className="ms-1"
@@ -246,6 +233,7 @@ class ClassificationGroup extends React.PureComponent {
                   investigateTest={investigateTest}
                   unInvestigateTest={unInvestigateTest}
                   updatePushHealth={updatePushHealth}
+                  decisionTaskMap={decisionTaskMap}
                 />
               ))}
           </div>
@@ -269,6 +257,7 @@ ClassificationGroup.propTypes = {
   groupedBy: PropTypes.string,
   setOrderedBy: PropTypes.func,
   setGroupedBy: PropTypes.func,
+  decisionTaskMap: PropTypes.shape({}),
 };
 
 ClassificationGroup.defaultProps = {
@@ -280,6 +269,7 @@ ClassificationGroup.defaultProps = {
   groupedBy: 'path',
   setOrderedBy: () => {},
   setGroupedBy: () => {},
+  decisionTaskMap: {},
 };
 
 export default ClassificationGroup;
