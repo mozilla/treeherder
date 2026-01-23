@@ -1,7 +1,6 @@
 import logging
 
 import environ
-import newrelic.agent
 from django.core.exceptions import ObjectDoesNotExist
 
 from treeherder.etl.common import to_timestamp
@@ -20,24 +19,13 @@ class PushLoader:
     def process(self, message_body, exchange, root_url):
         transformer = self.get_transformer_class(exchange)(message_body)
         try:
-            newrelic.agent.add_custom_attribute("url", transformer.repo_url)
-            newrelic.agent.add_custom_attribute("branch", transformer.branch)
             repos = Repository.objects
             if transformer.branch:
                 repos = repos.filter(branch__regex=f"(^|,){transformer.branch}($|,)")
             else:
                 repos = repos.filter(branch=None)
             repo = repos.get(url=transformer.repo_url, active_status="active")
-            newrelic.agent.add_custom_attribute("repository", repo.name)
         except ObjectDoesNotExist:
-            repo_info = transformer.get_info()
-            repo_info.update(
-                {
-                    "url": transformer.repo_url,
-                    "branch": transformer.branch,
-                }
-            )
-            newrelic.agent.record_custom_event("skip_unknown_repository", repo_info)
             logger.warning(
                 "Skipping unsupported repo: %s %s", transformer.repo_url, transformer.branch
             )
@@ -69,17 +57,6 @@ class GithubTransformer:
 
     def get_branch(self):
         return self.message_body["details"]["event.base.repo.branch"]
-
-    def get_info(self):
-        # flatten the data a bit so it will show in new relic as fields
-        info = self.message_body["details"].copy()
-        info.update(
-            {
-                "organization": self.message_body["organization"],
-                "repository": self.message_body["repository"],
-            }
-        )
-        return info
 
     def process_push(self, push_data):
         commits = self.get_cleaned_commits(push_data)
@@ -251,31 +228,18 @@ class HgPushTransformer:
         self.repo_url = message_body["payload"]["repo_url"]
         self.branch = None
 
-    def get_info(self):
-        return self.message_body["payload"]
-
     def transform(self, repository):
         logger.debug("transforming for %s", repository)
         url = self.message_body["payload"]["pushlog_pushes"][0]["push_full_json_url"]
         return self.fetch_push(url, repository)
 
     def fetch_push(self, url, repository, sha=None):
-        newrelic.agent.add_custom_attribute("sha", sha)
-
         logger.debug("fetching for %s %s", repository, url)
         # there will only ever be one, with this url
         try:
             data = fetch_json(url)
         except Exception as e:
             logger.exception(f"Failed fetching push JSON from {url} for {repository}: {e}")
-            try:
-                newrelic.agent.record_custom_event(
-                    "hg_push_fetch_failure",
-                    {"url": url, "repository": repository, "error": str(e)},
-                )
-            except Exception:
-                # NewRelic failures should not block ingestion
-                logger.debug("NewRelic event failed for fetch error")
             raise HgPushFetchError(f"Failed to fetch JSON from {url}: {e}") from e
 
         pushes = None
@@ -288,13 +252,6 @@ class HgPushTransformer:
             logger.warning(
                 f"Malformed or empty push JSON from {url} for {repository}: data-keys={data_keys}"
             )
-            try:
-                newrelic.agent.record_custom_event(
-                    "hg_push_fetch_malformed",
-                    {"url": url, "repository": repository, "data_keys": data_keys},
-                )
-            except Exception:
-                logger.debug("NewRelic event failed for malformed Hg push data")
             raise HgPushFetchError(f"Malformed or empty 'pushes' for {url}")
 
         # Safely get the first push

@@ -1,4 +1,3 @@
 In production this file will be overwritten with the Git revision, for use by:
 * the UI's "New version of Treeherder has been deployed" notification
-* the changelog URL calculated by `bin/pre_deploy` that's sent to New Relic
 * the What's Deployed tool

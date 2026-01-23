@@ -1,6 +1,5 @@
 import logging
 
-import newrelic.agent
 from celery.exceptions import SoftTimeLimitExceeded
 
 from treeherder.model.models import Job, JobLog
@@ -13,7 +12,6 @@ logger = logging.getLogger(__name__)
 
 @retryable_task(name="generate-alerts", max_retries=10)
 def generate_alerts(signature_id):
-    newrelic.agent.add_custom_attribute("signature_id", str(signature_id))
     signature = PerformanceSignature.objects.get(id=signature_id)
     generate_new_alerts_in_series(signature)
 
@@ -21,8 +19,6 @@ def generate_alerts(signature_id):
 @retryable_task(name="ingest-perfherder-data", max_retries=10)
 def ingest_perfherder_data(job_id, job_log_ids):
     from treeherder.perf.ingest_data import post_perfherder_artifacts
-
-    newrelic.agent.add_custom_attribute("job_id", str(job_id))
 
     job = Job.objects.get(id=job_id)
     job_artifacts = JobLog.objects.filter(id__in=job_log_ids, job=job)
@@ -38,7 +34,6 @@ def ingest_perfherder_data(job_id, job_log_ids):
         if not job_artifact_name.startswith("perfherder_data"):
             continue
 
-        newrelic.agent.add_custom_attribute(f"job_log_{job_artifact.name}_url", job_artifact.url)
         logger.info("ingest_perfherder_data for %s", job_artifact.id)
 
         if job_artifact.status not in (JobLog.PENDING, JobLog.FAILED):
@@ -53,14 +48,13 @@ def ingest_perfherder_data(job_id, job_log_ids):
             post_perfherder_artifacts(job_artifact)
         except Exception as e:
             if isinstance(e, SoftTimeLimitExceeded):
-                # stop parsing further logs but raise so NewRelic and
+                # stop parsing further logs but raise so
                 # Papertrail will still show output
                 raise
 
             if first_exception is None:
                 first_exception = e
 
-            newrelic.agent.notice_error()
             logger.exception("Failed ingesting perfherder JSON for log %s", job_artifact.id)
 
     if first_exception:

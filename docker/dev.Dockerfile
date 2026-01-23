@@ -1,8 +1,5 @@
 FROM python:3.10.18-bullseye
 
-# Variables that are not specific to a particular environment.
-ENV NEW_RELIC_CONFIG_FILE newrelic.ini
-
 # netcat is used for the Postgres readiness check in entrypoint.sh.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     netcat \

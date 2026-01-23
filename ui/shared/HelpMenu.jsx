@@ -54,11 +54,6 @@ const menuItems = [
     text: 'Source',
   },
   {
-    href: '/push-health/usage',
-    icon: faCalculator,
-    text: 'Push Health Try Usage',
-  },
-  {
     href: 'https://whatsdeployed.io/s/BIY/Mozilla/Treeherder',
     icon: faQuestion,
     text: "What's Deployed?",

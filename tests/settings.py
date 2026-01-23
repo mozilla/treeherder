@@ -24,9 +24,6 @@ BUGFILER_API_URL = "https://thisisnotbugzilla.org"
 # do that, since we don't have any tests that use the ``ModelBackend``.
 AUTHENTICATION_BACKENDS = ("treeherder.auth.backends.AuthBackend",)
 
-# For Push Health Usage dashboard
-NEW_RELIC_INSIGHTS_API_KEY = "123"
-
 # This controls whether the Django debug toolbar should be shown or not
 # https://django-debug-toolbar.readthedocs.io/en/latest/configuration.html#show-toolbar-callback
 # "You can provide your own function callback(request) which returns True or False."

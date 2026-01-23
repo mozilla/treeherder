@@ -8,27 +8,6 @@ For less urgent issues or general support, you can file a bug with [cloudOps](ht
 
 ## Monitoring & metrics
 
-- New Relic
-  - Overview:
-    [prototype](https://rpm.newrelic.com/accounts/677903/applications/7385291) |
-    [stage](https://rpm.newrelic.com/accounts/677903/applications/14179733) |
-    [prod](https://rpm.newrelic.com/accounts/677903/applications/14179757)
-  - Error analytics:
-    [prototype](https://rpm.newrelic.com/accounts/677903/applications/7385291/filterable_errors) |
-    [stage](https://rpm.newrelic.com/accounts/677903/applications/14179733/filterable_errors) |
-    [prod](https://rpm.newrelic.com/accounts/677903/applications/14179757/filterable_errors)
-  - Web transactions:
-    [prototype](https://rpm.newrelic.com/accounts/677903/applications/7385291/transactions?type=app) |
-    [stage](https://rpm.newrelic.com/accounts/677903/applications/14179733/transactions?type=app) |
-    [prod](https://rpm.newrelic.com/accounts/677903/applications/14179757/transactions?type=app)
-  - Non-web transactions (background tasks):
-    [prototype](https://rpm.newrelic.com/accounts/677903/applications/7385291/transactions?type=other&show_browser=false) |
-    [stage](https://rpm.newrelic.com/accounts/677903/applications/14179733/transactions?type=other&show_browser=false) |
-    [prod](https://rpm.newrelic.com/accounts/677903/applications/14179757/transactions?type=other&show_browser=false)
-  - Postgres/Redis client request stats:
-    [prototype](https://rpm.newrelic.com/accounts/677903/applications/7385291/datastores) |
-    [stage](https://rpm.newrelic.com/accounts/677903/applications/14179733/datastores) |
-    [prod](https://rpm.newrelic.com/accounts/677903/applications/14179757/datastores)
 - Google Cloud Console
   - [prod](https://console.cloud.google.com/kubernetes/list?project=moz-fx-treeherder-prod-c739)
   - [all other deployments](https://console.cloud.google.com/kubernetes/list?project=moz-fx-treeherde-nonprod-34ec)
@@ -46,12 +25,8 @@ indicate some other error.
 
 1. A cloudOps team member should check CloudAMQP "RabbitMQ Manager" dashboard to check the per-queue breakdown
    of incoming and delivery message rates.
-2. Check New Relic's "Error Analytics" section, in case tasks are failing and being
-   retried due to a Python exception.
-3. In the New Relic's "Transactions" section, switch to the "Non-web" transactions view
-   (or use the direct links above), and click the relevant Celery task to see if there
-   has been a change in either throughput or time per task.
-4. Depending on the information discovered above, you may want to try scaling resources or fixing any errors
+2. Check the logs in Google Cloud, in case tasks are failing and being retried due to a Python exception.
+3. Depending on the information discovered above, you may want to try scaling resources or fixing any errors
    causing the backlogged queues.
 
 ### New pushes or jobs not appearing
