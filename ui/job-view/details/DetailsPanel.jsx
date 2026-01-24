@@ -22,12 +22,17 @@ import TabsPanel from './tabs/TabsPanel';
 
 export const pinboardHeight = 100;
 
+// Debounce delay for loading job details when rapidly switching jobs
+const JOB_DETAILS_DEBOUNCE_MS = 200;
+
 class DetailsPanel extends React.Component {
   constructor(props) {
     super(props);
 
     // used to cancel all the ajax requests triggered by selectJob
     this.selectJobController = null;
+    // used to debounce job detail loading when rapidly switching jobs
+    this.selectJobDebounceTimer = null;
 
     this.state = {
       selectedJobFull: null,
@@ -74,9 +79,11 @@ class DetailsPanel extends React.Component {
         prevResult !== result ||
         prevFci !== fci
       ) {
-        this.selectJob();
+        this.selectJobDebounced();
       }
     } else if (selectedJob && selectedJob !== prevProps.selectedJob) {
+      // Initial job selection (from URL or first click) - load immediately without debounce
+      // This ensures the details panel appears promptly on page load
       this.selectJob();
     }
   }
@@ -86,6 +93,10 @@ class DetailsPanel extends React.Component {
       thEvents.classificationChanged,
       this.updateClassifications,
     );
+    // Clean up debounce timer
+    if (this.selectJobDebounceTimer) {
+      clearTimeout(this.selectJobDebounceTimer);
+    }
   }
 
   togglePinBoardVisibility = () => {
@@ -146,6 +157,27 @@ class DetailsPanel extends React.Component {
     const { pushList } = this.props;
 
     return pushList.find((push) => pushId === push.id);
+  };
+
+  // Debounced version of selectJob to prevent loading details too rapidly
+  // when navigating quickly between jobs with keyboard shortcuts.
+  // The visual selection updates instantly, but details loading is debounced.
+  selectJobDebounced = () => {
+    // Cancel any pending debounce
+    if (this.selectJobDebounceTimer) {
+      clearTimeout(this.selectJobDebounceTimer);
+    }
+
+    // Cancel any in-progress fetch requests immediately
+    if (this.selectJobController !== null) {
+      this.selectJobController.abort();
+      this.selectJobController = null;
+    }
+
+    this.selectJobDebounceTimer = setTimeout(() => {
+      this.selectJobDebounceTimer = null;
+      this.selectJob();
+    }, JOB_DETAILS_DEBOUNCE_MS);
   };
 
   selectJob = () => {
@@ -384,7 +416,7 @@ class DetailsPanel extends React.Component {
       resizedHeight,
       classificationMap,
       classificationTypes,
-      selectedJob,
+      selectedJob = null,
     } = this.props;
     const {
       selectedJobFull,
@@ -418,7 +450,7 @@ class DetailsPanel extends React.Component {
           classificationTypes={classificationTypes}
           selectedJobFull={selectedJobFull}
         />
-        {!!selectedJobFull && (
+        {!!selectedJobFull && !!selectedJob && (
           <div id="details-panel-content">
             <SummaryPanel
               selectedJobFull={selectedJobFull}
@@ -480,10 +512,6 @@ DetailsPanel.propTypes = {
   isPinBoardVisible: PropTypes.bool.isRequired,
   pushList: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   selectedJob: PropTypes.shape({}),
-};
-
-DetailsPanel.defaultProps = {
-  selectedJob: null,
 };
 
 const mapStateToProps = ({

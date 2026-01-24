@@ -26,18 +26,18 @@ import DateOptions from './DateOptions';
 
 const BugDetailsView = (props) => {
   const {
-    graphData,
-    tableData,
+    graphData = [],
+    tableData = [],
     initialParamsSet,
     startday,
     endday,
     updateState,
     bug,
     summary,
-    errorMessages,
+    errorMessages = [],
     lastLocation,
-    tableFailureStatus,
-    graphFailureStatus,
+    tableFailureStatus = null,
+    graphFailureStatus = null,
   } = props;
 
   const columns = [
@@ -329,14 +329,6 @@ BugDetailsView.propTypes = {
   user: PropTypes.shape({}),
   setUser: PropTypes.func.isRequired,
   notify: PropTypes.func.isRequired,
-};
-
-BugDetailsView.defaultProps = {
-  graphData: [],
-  tableData: [],
-  errorMessages: [],
-  tableFailureStatus: null,
-  graphFailureStatus: null,
 };
 
 const defaultState = {

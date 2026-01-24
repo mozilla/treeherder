@@ -47,17 +47,15 @@ function getRevisionSpecificDetails(
   );
 }
 
-export default function RevisionInformation(props) {
-  const {
-    originalProject,
-    originalRevision,
-    newProject,
-    newRevision,
-    originalResultSet,
-    newResultSet,
-    selectedTimeRange,
-  } = props;
-
+export default function RevisionInformation({
+  originalProject = '',
+  originalRevision = '',
+  newProject = '',
+  newRevision = '',
+  originalResultSet = {},
+  newResultSet = {},
+  selectedTimeRange = undefined,
+}) {
   return (
     <ListGroup className="push-information m-0 list-group">
       {originalRevision && (
@@ -104,14 +102,4 @@ RevisionInformation.propTypes = {
   originalResultSet: PropTypes.shape({}),
   newResultSet: PropTypes.shape({}),
   selectedTimeRange: PropTypes.shape({}),
-};
-
-RevisionInformation.defaultProps = {
-  originalProject: '',
-  originalRevision: '',
-  originalResultSet: {},
-  newProject: '',
-  newRevision: '',
-  newResultSet: {},
-  selectedTimeRange: undefined,
 };

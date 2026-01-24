@@ -36,7 +36,7 @@ body {
   background: #000;
   opacity: 0.2;
   z-index: 1;
-  height: 3px;
+  height: 11px;
   cursor: row-resize;
   width: 100%;
   position: relative;

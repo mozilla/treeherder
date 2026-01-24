@@ -75,10 +75,10 @@ export default class JobArtifacts extends React.PureComponent {
 
   render() {
     const {
-      jobDetails,
-      jobArtifactsLoading,
-      repoName,
-      selectedJob,
+      jobDetails = [],
+      jobArtifactsLoading = false,
+      repoName = null,
+      selectedJob = null,
     } = this.props;
 
     const { crashDumps, completeCrashIds } = this.groupCrashDumps(jobDetails);
@@ -127,7 +127,7 @@ export default class JobArtifacts extends React.PureComponent {
 
                     const crash = crashDumps.get(crashId);
                     return (
-                      <li className="link-style" key={line.value}>
+                      <li className="link-style" key={line.url}>
                         <ArtifactLink artifact={crash.dmp} />
                         {', '}
                         <ArtifactLink artifact={crash.extra}>
@@ -154,7 +154,7 @@ export default class JobArtifacts extends React.PureComponent {
 
                 // Render all other artifacts normally
                 return (
-                  <li className="link-style" key={line.value}>
+                  <li className="link-style" key={line.url}>
                     {!!line.url && <ArtifactLink artifact={line} />}
                     {line.url &&
                       line.value.startsWith('profile_') &&
@@ -194,11 +194,4 @@ JobArtifacts.propTypes = {
   jobArtifactsLoading: PropTypes.bool,
   repoName: PropTypes.string,
   selectedJob: PropTypes.shape({}),
-};
-
-JobArtifacts.defaultProps = {
-  jobDetails: [],
-  jobArtifactsLoading: false,
-  repoName: null,
-  selectedJob: null,
 };
