@@ -146,7 +146,7 @@ const withView = (defaultState) => (WrappedComponent) => {
     };
 
     updateData = (params, urlChanged = false) => {
-      const { mainGraphData, mainTableData } = this.props;
+      const { mainGraphData = null, mainTableData = null } = this.props;
 
       if (mainGraphData && mainTableData && !urlChanged) {
         this.setState({ graphData: mainGraphData, tableData: mainTableData });
@@ -208,11 +208,6 @@ const withView = (defaultState) => (WrappedComponent) => {
     }).isRequired,
     mainGraphData: PropTypes.arrayOf(PropTypes.shape({})),
     mainTableData: PropTypes.arrayOf(PropTypes.shape({})),
-  };
-
-  View.defaultProps = {
-    mainGraphData: null,
-    mainTableData: null,
   };
 
   return View;

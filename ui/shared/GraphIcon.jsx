@@ -1,7 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const GraphIcon = ({ iconType, fill, stroke }) => {
+const GraphIcon = ({
+  iconType = 'circle',
+  fill = '#ffffff',
+  stroke = '#ccc',
+}) => {
   let iconPath;
 
   switch (iconType) {
@@ -38,12 +42,6 @@ GraphIcon.propTypes = {
   iconType: PropTypes.string,
   fill: PropTypes.string,
   stroke: PropTypes.string,
-};
-
-GraphIcon.defaultProps = {
-  iconType: 'circle',
-  fill: '#ffffff',
-  stroke: '#ccc',
 };
 
 export default GraphIcon;

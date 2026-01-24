@@ -32,7 +32,7 @@ class SideBySide extends React.PureComponent {
   }
 
   getSideBySideParams() {
-    const { jobDetails } = this.props;
+    const { jobDetails = [] } = this.props;
 
     this.setState(
       {
@@ -63,7 +63,7 @@ class SideBySide extends React.PureComponent {
   }
 
   render() {
-    const { jobDetails } = this.props;
+    const { jobDetails = [] } = this.props;
     const { sideBySideLoading, sideBySideParams } = this.state;
 
     if (!sideBySideParams) {
@@ -187,10 +187,6 @@ class SideBySide extends React.PureComponent {
 
 SideBySide.propTypes = {
   jobDetails: PropTypes.arrayOf(PropTypes.shape({})),
-};
-
-SideBySide.defaultProps = {
-  jobDetails: [],
 };
 
 const mapStateToProps = (state) => ({

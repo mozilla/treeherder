@@ -12,7 +12,7 @@ import StatusButton from './StatusButton';
 
 class PushHealthSummary extends PureComponent {
   render() {
-    const { healthStatus, revision, repoName } = this.props;
+    const { healthStatus = {}, revision, repoName } = this.props;
     const status = healthStatus || {};
     const {
       needInvestigation,
@@ -124,10 +124,6 @@ PushHealthSummary.propTypes = {
     buildInProgressCount: PropTypes.number,
     lintingInProgressCount: PropTypes.number,
   }),
-};
-
-PushHealthSummary.defaultProps = {
-  healthStatus: {},
 };
 
 export default PushHealthSummary;

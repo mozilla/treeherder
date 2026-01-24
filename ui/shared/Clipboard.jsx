@@ -25,7 +25,13 @@ export default class Clipboard extends React.Component {
   };
 
   render() {
-    const { description, text, outline, color, variant } = this.props;
+    const {
+      description,
+      text = null,
+      outline = false,
+      color,
+      variant,
+    } = this.props;
     const { copied } = this.state;
 
     if (!text) {
@@ -78,9 +84,4 @@ Clipboard.propTypes = {
   outline: PropTypes.bool,
   color: PropTypes.string,
   variant: PropTypes.string,
-};
-
-Clipboard.defaultProps = {
-  text: null,
-  outline: false,
 };

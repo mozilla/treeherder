@@ -36,15 +36,15 @@ const CustomPopper = (props) => {
 
 const MainView = (props) => {
   const {
-    graphData,
-    tableData,
+    graphData = [],
+    tableData = [],
     initialParamsSet,
     startday,
     endday,
     updateState,
     tree,
     location,
-    updateAppState,
+    updateAppState = null,
   } = props;
 
   const [selectedFilter, setSelectedFilter] = React.useState({
@@ -365,12 +365,6 @@ MainView.propTypes = {
   user: PropTypes.shape({}),
   setUser: PropTypes.func.isRequired,
   notify: PropTypes.func.isRequired,
-};
-
-MainView.defaultProps = {
-  graphData: [],
-  tableData: [],
-  updateAppState: null,
 };
 
 const defaultState = {

@@ -18,7 +18,7 @@ export default class ErrorBoundary extends React.Component {
   }
 
   render() {
-    const { children, errorClasses, message } = this.props;
+    const { children = null, errorClasses = '', message = '' } = this.props;
     const { hasError, error } = this.state;
 
     if (hasError) {
@@ -36,10 +36,4 @@ ErrorBoundary.propTypes = {
   children: PropTypes.node,
   errorClasses: PropTypes.string,
   message: PropTypes.string,
-};
-
-ErrorBoundary.defaultProps = {
-  errorClasses: '',
-  message: '',
-  children: null,
 };

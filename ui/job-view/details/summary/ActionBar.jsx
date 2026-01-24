@@ -344,9 +344,9 @@ class ActionBar extends React.PureComponent {
   render() {
     const {
       selectedJobFull,
-      logViewerUrl,
-      logViewerFullUrl,
-      jobLogUrls,
+      logViewerUrl = null,
+      logViewerFullUrl = null,
+      jobLogUrls = [],
       pinJob,
       currentRepo,
     } = this.props;
@@ -584,13 +584,6 @@ ActionBar.propTypes = {
   isTryRepo: PropTypes.bool,
   logViewerUrl: PropTypes.string,
   logViewerFullUrl: PropTypes.string,
-};
-
-ActionBar.defaultProps = {
-  isTryRepo: true, // default to more restrictive for backfilling
-  logViewerUrl: null,
-  logViewerFullUrl: null,
-  jobLogUrls: [],
 };
 
 const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({

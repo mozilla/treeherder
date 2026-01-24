@@ -79,9 +79,9 @@ export default class GraphsViewControls extends React.Component {
       toggle,
       toggleTableView,
       replicates,
-      showModal,
+      showModal = false,
       showTable,
-      testData,
+      testData = [],
     } = this.props;
 
     const { changelogData } = this.state;
@@ -243,10 +243,4 @@ GraphsViewControls.propTypes = {
   testData: PropTypes.arrayOf(PropTypes.shape({})),
   showModal: PropTypes.bool,
   toggle: PropTypes.func.isRequired,
-};
-
-GraphsViewControls.defaultProps = {
-  options: undefined,
-  testData: [],
-  showModal: false,
 };

@@ -69,7 +69,12 @@ export default class JobInfo extends React.PureComponent {
   }
 
   render() {
-    const { job, extraFields, showJobFilters, currentRepo } = this.props;
+    const {
+      job,
+      extraFields = [],
+      showJobFilters = true,
+      currentRepo = null,
+    } = this.props;
     const {
       searchStr,
       task_id: taskId,
@@ -181,10 +186,4 @@ JobInfo.propTypes = {
   ),
   showJobFilters: PropTypes.bool,
   currentRepo: PropTypes.shape({}),
-};
-
-JobInfo.defaultProps = {
-  extraFields: [],
-  showJobFilters: true,
-  currentRepo: null,
 };
