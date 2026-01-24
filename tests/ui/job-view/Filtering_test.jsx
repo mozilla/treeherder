@@ -84,6 +84,7 @@ describe('Filtering', () => {
       taskDefinition,
     );
   });
+<<<<<<< HEAD
   beforeEach(() => {
     locationTracker = null;
   });
@@ -94,6 +95,11 @@ describe('Filtering', () => {
     // Wait for any pending async operations to complete
     await new Promise((resolve) => {
       setTimeout(resolve, 0);
+=======
+  afterEach(() => {
+    act(() => {
+      history.push('/');
+>>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
     });
   });
 

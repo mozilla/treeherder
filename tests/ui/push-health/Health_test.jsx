@@ -162,6 +162,7 @@ describe('Health', () => {
         `/push-health?repo=${repo}&revision=${revision}&searchStr=browser/extensions/`,
       ]),
     );
+>>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
     const classificationGroups = await waitFor(() =>
       health.getAllByTestId('classification-group'),
     );
