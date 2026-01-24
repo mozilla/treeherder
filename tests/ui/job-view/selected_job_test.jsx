@@ -1,16 +1,16 @@
-import React from 'react';
+
 import { Provider, ReactReduxContext } from 'react-redux';
 import {
-  act,
+  render,
   cleanup,
   fireEvent,
-  render,
   waitFor,
+  act,
 } from '@testing-library/react';
 import { ConnectedRouter } from 'connected-react-router';
 import { createBrowserHistory } from 'history';
 
-import { addAggregateFields, findInstance } from '../../../ui/helpers/job';
+import { addAggregateFields, } from '../../../ui/helpers/job';
 import { getUrlParam, setUrlParam } from '../../../ui/helpers/location';
 import { clearJobButtonRegistry } from '../../../ui/hooks/useJobButtonRegistry';
 import PushJobs from '../../../ui/job-view/pushes/PushJobs';
@@ -47,6 +47,10 @@ beforeAll(() => {
       });
     });
   });
+});
+
+beforeEach(() => {
+  clearJobButtonRegistry();
 });
 
 beforeEach(() => {
@@ -95,22 +99,11 @@ test('select a job updates url', async () => {
 
   // Click the job - this dispatches selectJobViaUrl which updates the URL
   fireEvent.mouseDown(spell);
+  await waitFor(() => expect(spell).toHaveClass('selected-job'));
 
-  // In the real app, PushList listens for URL changes and calls syncSelectionFromUrl,
-  // which then calls setSelected(true) on the job instance.
-  // Since we don't have PushList in this test, we manually trigger the selection sync.
-  await waitFor(() => {
-    const selTaskRun = getUrlParam('selectedTaskRun');
-    expect(selTaskRun).toBe('OeYt2-iLQSaQb2ashZ_VIQ.0');
-  });
+  const selTaskRun = getUrlParam('selectedTaskRun');
 
-  // Manually call setSelected on the job instance to simulate what syncSelectionFromUrl does
-  const jobInstance = findInstance(spell);
-  await act(async () => {
-    jobInstance.setSelected(true);
-  });
-
-  expect(spell).toHaveClass('selected-job');
+  expect(selTaskRun).toBe('OeYt2-iLQSaQb2ashZ_VIQ.0');
 });
 
 test('filter change keeps selected job visible', async () => {
@@ -125,26 +118,16 @@ test('filter change keeps selected job visible', async () => {
 
   // Click the job - this dispatches selectJobViaUrl which updates the URL
   fireEvent.mouseDown(spell);
+  await waitFor(() => expect(spell).toHaveClass('selected-job'));
 
-  // Wait for URL to update
-  await waitFor(() => {
-    expect(getUrlParam('selectedTaskRun')).toBe('OeYt2-iLQSaQb2ashZ_VIQ.0');
+  act(() => {
+    filterModel.addFilter('searchStr', 'linux');
   });
-
-  // Manually call setSelected on the job instance to simulate what syncSelectionFromUrl does
-  const jobInstance = findInstance(spell);
-  await act(async () => {
-    jobInstance.setSelected(true);
-  });
-
-  expect(spell).toHaveClass('selected-job');
-
-  filterModel.addFilter('searchStr', 'linux');
   rerender(testPushJobs(filterModel));
 
   const spell2 = getByText('spell');
 
   expect(spell2).toBeInTheDocument();
   expect(spell2).toHaveClass('filter-shown');
-  expect(spell2).toHaveClass('selected-job');
+  await waitFor(() => expect(spell2).toHaveClass('selected-job'));
 });

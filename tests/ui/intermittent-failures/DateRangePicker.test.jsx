@@ -10,7 +10,6 @@
  * to MUI x-date-pickers with dayjs adapter.
  */
 
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 
 import DateRangePicker from '../../../ui/intermittent-failures/DateRangePicker';

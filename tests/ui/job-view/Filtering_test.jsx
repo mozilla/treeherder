@@ -1,6 +1,6 @@
-import React from 'react';
+
 import fetchMock from 'fetch-mock';
-import { render, fireEvent, waitFor } from '@testing-library/react';
+import { render, fireEvent, waitFor, act } from '@testing-library/react';
 import { ConnectedRouter } from 'connected-react-router';
 import { Provider, ReactReduxContext } from 'react-redux';
 import { createBrowserHistory } from 'history';
@@ -77,7 +77,11 @@ describe('Filtering', () => {
       taskDefinition,
     );
   });
-  afterEach(() => history.push('/'));
+  afterEach(() => {
+    act(() => {
+      history.push('/');
+    });
+  });
 
   afterAll(() => {
     fetchMock.reset();

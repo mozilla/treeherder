@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 import AdditionalInformationTable from '../../shared/AdditionalInformationTable';
 
