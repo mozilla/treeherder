@@ -103,8 +103,8 @@ importers:
         specifier: 19.2.3
         version: 19.2.3(react@19.2.3)
       react-highlight-words:
-        specifier: 0.20.0
-        version: 0.20.0(react@19.2.3)
+        specifier: 0.21.0
+        version: 0.21.0(react@19.2.3)
       react-hot-keys:
         specifier: 2.7.3
         version: 2.7.3(@babel/runtime@7.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -1228,6 +1228,12 @@ packages:
 
   '@mui/styled-engine-sc@7.3.6':
     resolution: {integrity: sha512-AE1tbLGP1o9yyE1vzXcyxf2KAXPH7j0Tfg7qf6Pea4nHsARDC7slgiMh+rGrQVvzpLqZWyH1luaO6L+6cTwXSQ==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      styled-components: ^6.0.0
+
+  '@mui/styled-engine-sc@7.3.7':
+    resolution: {integrity: sha512-BJ91ujrXXaYW0wXdEw8K1EoUzsqA6e/sJhxxLlwWjqgRWC8spa+MFP+H+5vCUqAHRiB38dAOcvgZxflUG5oeZg==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       styled-components: ^6.0.0
@@ -4443,10 +4449,10 @@ packages:
   react-fast-compare@3.2.2:
     resolution: {integrity: sha512-nsO+KSNgo1SbJqJEYRE9ERzo7YtYbou/OqjSQKxV7jcKox7+usiUVZOAC+XnDOABXggQTno0Y1CpVnuWEc1boQ==}
 
-  react-highlight-words@0.20.0:
-    resolution: {integrity: sha512-asCxy+jCehDVhusNmCBoxDf2mm1AJ//D+EzDx1m5K7EqsMBIHdZ5G4LdwbSEXqZq1Ros0G0UySWmAtntSph7XA==}
+  react-highlight-words@0.21.0:
+    resolution: {integrity: sha512-SdWEeU9fIINArEPO1rO5OxPyuhdEKZQhHzZZP1ie6UeXQf+CjycT1kWaB+9bwGcVbR0NowuHK3RqgqNg6bgBDQ==}
     peerDependencies:
-      react: ^0.14.0 || ^15.0.0 || ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
+      react: ^0.14.0 || ^15.0.0 || ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0 || ^19.0.0-0
 
   react-hot-keys@2.7.3:
     resolution: {integrity: sha512-OoX1kTookqQx/OBXBgBLQCANpw3KGUcJNOl+MNv8xJYyH/Rojv+jTjQbksDGQMIOWVfvLqOZi/ZVcVdsWUAUWg==}
@@ -6876,11 +6882,22 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
+  '@mui/styled-engine-sc@7.3.7(@types/react@19.2.7)(styled-components@6.1.19(react-dom@19.2.3(react@19.2.3))(react@19.2.3))':
+    dependencies:
+      '@babel/runtime': 7.28.4
+      '@types/hoist-non-react-statics': 3.3.7(@types/react@19.2.7)
+      csstype: 3.2.3
+      hoist-non-react-statics: 3.3.2
+      prop-types: 15.8.1
+      styled-components: 6.1.19(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+    transitivePeerDependencies:
+      - '@types/react'
+
   '@mui/system@7.3.6(@types/react@19.2.7)(react@19.2.3)(styled-components@6.1.19(react-dom@19.2.3(react@19.2.3))(react@19.2.3))':
     dependencies:
       '@babel/runtime': 7.28.4
       '@mui/private-theming': 7.3.6(@types/react@19.2.7)(react@19.2.3)
-      '@mui/styled-engine': '@mui/styled-engine-sc@7.3.6(@types/react@19.2.7)(styled-components@6.1.19(react-dom@19.2.3(react@19.2.3))(react@19.2.3))'
+      '@mui/styled-engine': '@mui/styled-engine-sc@7.3.7(@types/react@19.2.7)(styled-components@6.1.19(react-dom@19.2.3(react@19.2.3))(react@19.2.3))'
       '@mui/types': 7.4.9(@types/react@19.2.7)
       '@mui/utils': 7.3.6(@types/react@19.2.7)(react@19.2.3)
       clsx: 2.1.1
@@ -10496,11 +10513,10 @@ snapshots:
 
   react-fast-compare@3.2.2: {}
 
-  react-highlight-words@0.20.0(react@19.2.3):
+  react-highlight-words@0.21.0(react@19.2.3):
     dependencies:
       highlight-words-core: 1.2.3
       memoize-one: 4.0.3
-      prop-types: 15.8.1
       react: 19.2.3
 
   react-hot-keys@2.7.3(@babel/runtime@7.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
