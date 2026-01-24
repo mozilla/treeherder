@@ -32,6 +32,7 @@ importers:
         version: 6.3.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mui/material':
         specifier: 7.1.2
+<<<<<<< HEAD
         version: 7.1.2(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(styled-components@6.1.19(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
       '@mui/styled-engine-sc':
         specifier: npm:@mui/styled-engine-sc@latest
@@ -42,6 +43,24 @@ importers:
       '@popperjs/core':
         specifier: 2.11.8
         version: 2.11.8
+=======
+        version: 7.1.2(@types/react@19.2.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
+      '@mui/styled-engine-sc':
+        specifier: npm:@mui/styled-engine-sc@latest
+        version: 7.3.6(@types/react@19.2.7)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
+      '@mui/x-date-pickers':
+        specifier: 8.21.0
+        version: 8.21.0(@mui/material@7.1.2(@types/react@19.2.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1)))(@mui/system@7.3.6(@types/react@19.2.7)(react@18.3.1)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1)))(@types/react@19.2.7)(dayjs@1.11.19)(moment@2.30.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@popperjs/core':
+        specifier: 2.11.8
+        version: 2.11.8
+      '@types/react':
+        specifier: '*'
+        version: 19.2.7
+      '@types/react-dom':
+        specifier: '*'
+        version: 19.2.3(@types/react@19.2.7)
+>>>>>>> cbb4c85df (Migrate from ESLint to Biome)
       ajv:
         specifier: 8.17.1
         version: 8.17.1
@@ -101,7 +120,11 @@ importers:
         version: 19.2.3
       react-bootstrap:
         specifier: 2.10.10
+<<<<<<< HEAD
         version: 2.10.10(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+=======
+        version: 2.10.10(@types/react@19.2.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+>>>>>>> cbb4c85df (Migrate from ESLint to Biome)
       react-dom:
         specifier: 19.2.3
         version: 19.2.3(react@19.2.3)
@@ -110,13 +133,21 @@ importers:
         version: 0.20.0(react@19.2.3)
       react-hot-keys:
         specifier: 2.7.3
+<<<<<<< HEAD
         version: 2.7.3(@babel/runtime@7.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+=======
+        version: 2.7.3(@babel/runtime@7.28.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+>>>>>>> cbb4c85df (Migrate from ESLint to Biome)
       react-linkify:
         specifier: 0.2.2
         version: 0.2.2
       react-redux:
         specifier: 8.0.7
+<<<<<<< HEAD
         version: 8.0.7(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(redux@4.2.1)
+=======
+        version: 8.0.7(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(redux@4.2.1)
+>>>>>>> cbb4c85df (Migrate from ESLint to Biome)
       react-resizable-panels:
         specifier: 3.0.6
         version: 3.0.6(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -219,6 +250,7 @@ importers:
         version: 6.9.1
       '@testing-library/react':
         specifier: 16.2.0
+<<<<<<< HEAD
         version: 16.2.0(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@types/react':
         specifier: ^19.0.0
@@ -226,6 +258,9 @@ importers:
       '@types/react-dom':
         specifier: ^19.0.0
         version: 19.2.3(@types/react@19.2.7)
+=======
+        version: 16.2.0(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+>>>>>>> cbb4c85df (Migrate from ESLint to Biome)
       bootstrap:
         specifier: 5.3.8
         version: 5.3.8(@popperjs/core@2.11.8)
@@ -6935,6 +6970,7 @@ snapshots:
 
   '@mui/core-downloads-tracker@7.3.6': {}
 
+<<<<<<< HEAD
   '@mui/material@7.1.2(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(styled-components@6.1.19(react-dom@19.2.3(react@19.2.3))(react@19.2.3))':
     dependencies:
       '@babel/runtime': 7.28.4
@@ -6942,30 +6978,57 @@ snapshots:
       '@mui/system': 7.3.6(@types/react@19.2.7)(react@19.2.3)(styled-components@6.1.19(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
       '@mui/types': 7.4.9(@types/react@19.2.7)
       '@mui/utils': 7.3.6(@types/react@19.2.7)(react@19.2.3)
+=======
+  '@mui/material@7.1.2(@types/react@19.2.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
+    dependencies:
+      '@babel/runtime': 7.28.4
+      '@mui/core-downloads-tracker': 7.3.6
+      '@mui/system': 7.3.6(@types/react@19.2.7)(react@18.3.1)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
+      '@mui/types': 7.4.9(@types/react@19.2.7)
+      '@mui/utils': 7.3.6(@types/react@19.2.7)(react@18.3.1)
+>>>>>>> cbb4c85df (Migrate from ESLint to Biome)
       '@popperjs/core': 2.11.8
       '@types/react-transition-group': 4.4.12(@types/react@19.2.7)
       clsx: 2.1.1
       csstype: 3.2.3
       prop-types: 15.8.1
+<<<<<<< HEAD
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
       react-is: 19.2.1
       react-transition-group: 4.4.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+=======
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      react-is: 19.2.1
+      react-transition-group: 4.4.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+>>>>>>> cbb4c85df (Migrate from ESLint to Biome)
     optionalDependencies:
       '@types/react': 19.2.7
     transitivePeerDependencies:
       - styled-components
 
+<<<<<<< HEAD
   '@mui/private-theming@7.3.6(@types/react@19.2.7)(react@19.2.3)':
     dependencies:
       '@babel/runtime': 7.28.4
       '@mui/utils': 7.3.6(@types/react@19.2.7)(react@19.2.3)
+=======
+  '@mui/private-theming@7.3.6(@types/react@19.2.7)(react@18.3.1)':
+    dependencies:
+      '@babel/runtime': 7.28.4
+      '@mui/utils': 7.3.6(@types/react@19.2.7)(react@18.3.1)
+>>>>>>> cbb4c85df (Migrate from ESLint to Biome)
       prop-types: 15.8.1
       react: 19.2.3
     optionalDependencies:
       '@types/react': 19.2.7
 
+<<<<<<< HEAD
   '@mui/styled-engine-sc@7.3.6(@types/react@19.2.7)(styled-components@6.1.19(react-dom@19.2.3(react@19.2.3))(react@19.2.3))':
+=======
+  '@mui/styled-engine-sc@7.3.6(@types/react@19.2.7)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
+>>>>>>> cbb4c85df (Migrate from ESLint to Biome)
     dependencies:
       '@babel/runtime': 7.28.4
       '@types/hoist-non-react-statics': 3.3.7(@types/react@19.2.7)
@@ -6976,13 +7039,18 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
+<<<<<<< HEAD
   '@mui/styled-engine-sc@7.3.7(@types/react@19.2.7)(styled-components@6.1.19(react-dom@19.2.3(react@19.2.3))(react@19.2.3))':
+=======
+  '@mui/styled-engine-sc@7.3.7(@types/react@19.2.7)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
+>>>>>>> cbb4c85df (Migrate from ESLint to Biome)
     dependencies:
       '@babel/runtime': 7.28.4
       '@types/hoist-non-react-statics': 3.3.7(@types/react@19.2.7)
       csstype: 3.2.3
       hoist-non-react-statics: 3.3.2
       prop-types: 15.8.1
+<<<<<<< HEAD
       styled-components: 6.1.19(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
     transitivePeerDependencies:
       - '@types/react'
@@ -6994,6 +7062,19 @@ snapshots:
       '@mui/styled-engine': '@mui/styled-engine-sc@7.3.7(@types/react@19.2.7)(styled-components@6.1.19(react-dom@19.2.3(react@19.2.3))(react@19.2.3))'
       '@mui/types': 7.4.9(@types/react@19.2.7)
       '@mui/utils': 7.3.6(@types/react@19.2.7)(react@19.2.3)
+=======
+      styled-components: 6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+    transitivePeerDependencies:
+      - '@types/react'
+
+  '@mui/system@7.3.6(@types/react@19.2.7)(react@18.3.1)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
+    dependencies:
+      '@babel/runtime': 7.28.4
+      '@mui/private-theming': 7.3.6(@types/react@19.2.7)(react@18.3.1)
+      '@mui/styled-engine': '@mui/styled-engine-sc@7.3.7(@types/react@19.2.7)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1))'
+      '@mui/types': 7.4.9(@types/react@19.2.7)
+      '@mui/utils': 7.3.6(@types/react@19.2.7)(react@18.3.1)
+>>>>>>> cbb4c85df (Migrate from ESLint to Biome)
       clsx: 2.1.1
       csstype: 3.2.3
       prop-types: 15.8.1
@@ -7009,18 +7090,27 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.7
 
+<<<<<<< HEAD
   '@mui/utils@7.3.6(@types/react@19.2.7)(react@19.2.3)':
+=======
+  '@mui/utils@7.3.6(@types/react@19.2.7)(react@18.3.1)':
+>>>>>>> cbb4c85df (Migrate from ESLint to Biome)
     dependencies:
       '@babel/runtime': 7.28.4
       '@mui/types': 7.4.9(@types/react@19.2.7)
       '@types/prop-types': 15.7.15
       clsx: 2.1.1
       prop-types: 15.8.1
+<<<<<<< HEAD
       react: 19.2.3
+=======
+      react: 18.3.1
+>>>>>>> cbb4c85df (Migrate from ESLint to Biome)
       react-is: 19.2.1
     optionalDependencies:
       '@types/react': 19.2.7
 
+<<<<<<< HEAD
   '@mui/x-date-pickers@8.21.0(@mui/material@7.1.2(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(styled-components@6.1.19(react-dom@19.2.3(react@19.2.3))(react@19.2.3)))(@mui/system@7.3.6(@types/react@19.2.7)(react@19.2.3)(styled-components@6.1.19(react-dom@19.2.3(react@19.2.3))(react@19.2.3)))(@types/react@19.2.7)(dayjs@1.11.19)(moment@2.30.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
       '@babel/runtime': 7.28.4
@@ -7028,6 +7118,15 @@ snapshots:
       '@mui/system': 7.3.6(@types/react@19.2.7)(react@19.2.3)(styled-components@6.1.19(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
       '@mui/utils': 7.3.6(@types/react@19.2.7)(react@19.2.3)
       '@mui/x-internals': 8.21.0(@types/react@19.2.7)(react@19.2.3)
+=======
+  '@mui/x-date-pickers@8.21.0(@mui/material@7.1.2(@types/react@19.2.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1)))(@mui/system@7.3.6(@types/react@19.2.7)(react@18.3.1)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1)))(@types/react@19.2.7)(dayjs@1.11.19)(moment@2.30.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@babel/runtime': 7.28.4
+      '@mui/material': 7.1.2(@types/react@19.2.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
+      '@mui/system': 7.3.6(@types/react@19.2.7)(react@18.3.1)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
+      '@mui/utils': 7.3.6(@types/react@19.2.7)(react@18.3.1)
+      '@mui/x-internals': 8.21.0(@types/react@19.2.7)(react@18.3.1)
+>>>>>>> cbb4c85df (Migrate from ESLint to Biome)
       '@types/react-transition-group': 4.4.12(@types/react@19.2.7)
       clsx: 2.1.1
       prop-types: 15.8.1
@@ -7040,11 +7139,19 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
+<<<<<<< HEAD
   '@mui/x-internals@8.21.0(@types/react@19.2.7)(react@19.2.3)':
     dependencies:
       '@babel/runtime': 7.28.4
       '@mui/utils': 7.3.6(@types/react@19.2.7)(react@19.2.3)
       react: 19.2.3
+=======
+  '@mui/x-internals@8.21.0(@types/react@19.2.7)(react@18.3.1)':
+    dependencies:
+      '@babel/runtime': 7.28.4
+      '@mui/utils': 7.3.6(@types/react@19.2.7)(react@18.3.1)
+      react: 18.3.1
+>>>>>>> cbb4c85df (Migrate from ESLint to Biome)
       reselect: 5.1.1
       use-sync-external-store: 1.6.0(react@19.2.3)
     transitivePeerDependencies:
@@ -7217,7 +7324,11 @@ snapshots:
   '@react-aria/ssr@3.9.10(react@19.2.3)':
     dependencies:
       '@swc/helpers': 0.5.17
+<<<<<<< HEAD
       react: 19.2.3
+=======
+      react: 18.3.1
+>>>>>>> cbb4c85df (Migrate from ESLint to Biome)
 
   '@redocly/ajv@8.17.1':
     dependencies:
@@ -7462,7 +7573,11 @@ snapshots:
       picocolors: 1.1.1
       redent: 3.0.0
 
+<<<<<<< HEAD
   '@testing-library/react@16.2.0(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
+=======
+  '@testing-library/react@16.2.0(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+>>>>>>> cbb4c85df (Migrate from ESLint to Biome)
     dependencies:
       '@babel/runtime': 7.28.4
       '@testing-library/dom': 10.4.1
@@ -10599,11 +10714,19 @@ snapshots:
       iconv-lite: 0.4.24
       unpipe: 1.0.0
 
+<<<<<<< HEAD
   react-bootstrap@2.10.10(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
     dependencies:
       '@babel/runtime': 7.28.4
       '@restart/hooks': 0.4.16(react@19.2.3)
       '@restart/ui': 1.9.4(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+=======
+  react-bootstrap@2.10.10(@types/react@19.2.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      '@babel/runtime': 7.28.4
+      '@restart/hooks': 0.4.16(react@18.3.1)
+      '@restart/ui': 1.9.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+>>>>>>> cbb4c85df (Migrate from ESLint to Biome)
       '@types/prop-types': 15.7.15
       '@types/react-transition-group': 4.4.12(@types/react@19.2.7)
       classnames: 2.5.1
@@ -10633,7 +10756,11 @@ snapshots:
       prop-types: 15.8.1
       react: 19.2.3
 
+<<<<<<< HEAD
   react-hot-keys@2.7.3(@babel/runtime@7.28.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
+=======
+  react-hot-keys@2.7.3(@babel/runtime@7.28.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+>>>>>>> cbb4c85df (Migrate from ESLint to Biome)
     dependencies:
       '@babel/runtime': 7.28.4
       hotkeys-js: 3.13.15
@@ -10657,7 +10784,11 @@ snapshots:
       prop-types: 15.8.1
       tlds: 1.261.0
 
+<<<<<<< HEAD
   react-redux@8.0.7(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(redux@4.2.1):
+=======
+  react-redux@8.0.7(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(redux@4.2.1):
+>>>>>>> cbb4c85df (Migrate from ESLint to Biome)
     dependencies:
       '@babel/runtime': 7.28.4
       '@types/hoist-non-react-statics': 3.3.7(@types/react@19.2.7)
@@ -10669,7 +10800,11 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.7
       '@types/react-dom': 19.2.3(@types/react@19.2.7)
+<<<<<<< HEAD
       react-dom: 19.2.3(react@19.2.3)
+=======
+      react-dom: 18.3.1(react@18.3.1)
+>>>>>>> cbb4c85df (Migrate from ESLint to Biome)
       redux: 4.2.1
 
   react-refresh@0.17.0: {}
