@@ -182,6 +182,12 @@ class DetailsPanel extends React.Component {
 
   selectJob = () => {
     const { currentRepo, selectedJob, frameworks } = this.props;
+
+    // Guard against selectedJob being null (can happen if job is deselected during debounce)
+    if (!selectedJob) {
+      return;
+    }
+
     const push = this.findPush(selectedJob.push_id);
 
     this.setState(
