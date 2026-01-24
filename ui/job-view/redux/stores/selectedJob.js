@@ -9,6 +9,11 @@ import {
   getTaskRunStr,
   scrollToElement,
 } from '../../../helpers/job';
+import {
+  getCurrentlySelectedInstance,
+  setCurrentlySelectedInstance,
+  clearCurrentlySelectedInstance,
+} from '../../../hooks/useJobButtonRegistry';
 import { thJobNavSelectors } from '../../../helpers/constants';
 import {
   getUrlParam,
@@ -43,17 +48,19 @@ export const setSelectedJobFromQueryString = (notify, jobMap) => ({
   jobMap,
 });
 
-export const clearSelectedJob = (countPinnedJobs) => {
+export const clearSelectedJob = (countPinnedJobs, updateUrl = true) => {
   return async (dispatch) => {
     dispatch({
       type: CLEAR_JOB,
       countPinnedJobs,
     });
-    const params = setUrlParams([
-      ['selectedTaskRun', null],
-      ['selectedJob', null],
-    ]);
-    dispatch(pushRoute({ search: params }));
+    if (updateUrl) {
+      const params = setUrlParams([
+        ['selectedTaskRun', null],
+        ['selectedJob', null],
+      ]);
+      dispatch(pushRoute({ search: params }));
+    }
   };
 };
 
@@ -73,7 +80,8 @@ export const updateJobDetails = (job) => {
 };
 
 export const doSelectJob = (job) => {
-  const selected = findSelectedInstance();
+  // Use the tracked instance first (more reliable), fall back to DOM query
+  const selected = getCurrentlySelectedInstance() || findSelectedInstance();
 
   if (selected) selected.setSelected(false);
 
@@ -81,7 +89,12 @@ export const doSelectJob = (job) => {
 
   if (newSelectedElement) {
     newSelectedElement.setSelected(true);
+    // Track the newly selected instance for reliable deselection later
+    setCurrentlySelectedInstance(job.id, newSelectedElement);
   } else {
+    // Clear tracking since the job element doesn't exist
+    clearCurrentlySelectedInstance();
+
     const group = findGroupInstance(job);
     if (group) {
       group.setExpanded(true);
@@ -100,8 +113,14 @@ export const doSelectJob = (job) => {
 
 export const doClearSelectedJob = (countPinnedJobs) => {
   if (!countPinnedJobs) {
-    const selected = findSelectedInstance();
+    // Use the tracked instance first (more reliable), fall back to DOM query
+    // This fixes a race condition where the DOM might not have updated yet
+    // after setSelected(true) was called but before React re-rendered
+    const selected = getCurrentlySelectedInstance() || findSelectedInstance();
     if (selected) selected.setSelected(false);
+
+    // Clear the tracking
+    clearCurrentlySelectedInstance();
 
     return { selectedJob: null };
   }

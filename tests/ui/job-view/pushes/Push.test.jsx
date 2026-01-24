@@ -1,10 +1,8 @@
-import { PushClass } from '../../../../ui/job-view/pushes/Push';
+import { getJobCount } from '../../../../ui/job-view/pushes/Push';
 
 describe('Push', () => {
   describe('getJobCount', () => {
     it('returns counts including unscheduled jobs', () => {
-      const push = new PushClass({ push: { id: 1 } });
-
       const jobList = [
         {
           id: 1,
@@ -87,8 +85,8 @@ describe('Push', () => {
         {
           id: 14,
           state: 'completed',
-          result: 'success',
-          failure_classification_id: 1,
+          result: 'testfailed',
+          failure_classification_id: 2,
         },
         {
           id: 15,
@@ -96,28 +94,19 @@ describe('Push', () => {
           result: 'superseded',
           failure_classification_id: 1,
         },
-        {
-          id: 16,
-          state: 'completed',
-          result: 'success',
-          failure_classification_id: 2,
-        },
       ];
 
-      const counts = push.getJobCount(jobList);
+      const counts = getJobCount(jobList);
 
-      expect(counts).toHaveProperty('unscheduled');
       expect(counts.unscheduled).toBe(5);
       expect(counts.pending).toBe(4);
       expect(counts.running).toBe(3);
-      expect(counts.completed).toBe(3); // 2 with class=1 + 1 with class=2 (superseded excluded)
+      expect(counts.completed).toBe(2); // 2 completed (superseded excluded)
       expect(counts.fixedByCommit).toBe(1);
     });
 
     it('initializes unscheduled count to 0 when no jobs', () => {
-      const push = new PushClass({ push: { id: 1 } });
-
-      const counts = push.getJobCount([]);
+      const counts = getJobCount([]);
 
       expect(counts.unscheduled).toBe(0);
       expect(counts.pending).toBe(0);

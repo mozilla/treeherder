@@ -8,6 +8,7 @@ import PushJobs from '../../../ui/job-view/pushes/PushJobs';
 import FilterModel from '../../../ui/models/filter';
 import { configureStore } from '../../../ui/job-view/redux/configureStore';
 import { getUrlParam, setUrlParam } from '../../../ui/helpers/location';
+import { clearJobButtonRegistry } from '../../../ui/hooks/useJobButtonRegistry';
 import platforms from '../mock/platforms';
 import { addAggregateFields } from '../../../ui/helpers/job';
 
@@ -40,9 +41,14 @@ beforeAll(() => {
   );
 });
 
+beforeEach(() => {
+  clearJobButtonRegistry();
+});
+
 afterEach(() => {
   cleanup();
   setUrlParam('selectedTaskRun', null);
+  clearJobButtonRegistry();
 });
 
 const testPushJobs = (filtermodel = null) => {
@@ -50,22 +56,24 @@ const testPushJobs = (filtermodel = null) => {
   return (
     <Provider store={store} context={ReactReduxContext}>
       <ConnectedRouter history={history} context={ReactReduxContext}>
-        <PushJobs
-          push={testPush}
-          platforms={platforms}
-          repoName="try"
-          filterModel={
-            filtermodel ||
-            new FilterModel({
-              router: { location: history.location, push: history.push },
-            })
-          }
-          pushGroupState=""
-          toggleSelectedRunnableJob={() => {}}
-          runnableVisible={false}
-          duplicateJobsVisible={false}
-          groupCountsExpanded={false}
-        />
+        <div id="push-list">
+          <PushJobs
+            push={testPush}
+            platforms={platforms}
+            repoName="try"
+            filterModel={
+              filtermodel ||
+              new FilterModel({
+                router: { location: history.location, push: history.push },
+              })
+            }
+            pushGroupState=""
+            toggleSelectedRunnableJob={() => {}}
+            runnableVisible={false}
+            duplicateJobsVisible={false}
+            groupCountsExpanded={false}
+          />
+        </div>
       </ConnectedRouter>
     </Provider>
   );

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useImperativeHandle, forwardRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
@@ -7,177 +7,114 @@ import {
   faMitten,
 } from '@fortawesome/free-solid-svg-icons';
 
-import { getBtnClass, findJobInstance } from '../../helpers/job';
-import { getUrlParam } from '../../helpers/location';
+import { getBtnClass } from '../../helpers/job';
+import { useJobButtonRegistry } from '../../hooks/useJobButtonRegistry';
 
-export default class JobButtonComponent extends React.Component {
-  constructor(props) {
-    super(props);
+const JobButtonComponent = forwardRef(function JobButtonComponent(
+  { job, filterModel, visible, filterPlatformCb, intermittent = false },
+  ref,
+) {
+  const {
+    isSelected,
+    isRunnableSelected,
+    setSelected,
+    toggleRunnableSelected,
+    refilter,
+    buttonRef,
+  } = useJobButtonRegistry(job, filterModel, filterPlatformCb);
 
-    const { job } = this.props;
-    const urlSelectedTaskRun = getUrlParam('selectedTaskRun');
+  // Expose imperative methods to parent via ref
+  useImperativeHandle(
+    ref,
+    () => ({
+      props: { job, visible },
+      setSelected,
+      toggleRunnableSelected,
+      refilter,
+    }),
+    [job, visible, setSelected, toggleRunnableSelected, refilter],
+  );
 
-    this.state = {
-      isSelected: urlSelectedTaskRun === job.task_run,
-      isRunnableSelected: false,
-    };
+  if (!visible) return null;
+
+  const {
+    state,
+    failure_classification_id: jobFailureClassificationId,
+    id,
+    job_type_symbol: jobTypeSymbol,
+    resultStatus: jobResultStatus,
+  } = job;
+
+  const runnable = state === 'runnable';
+  const { status, isClassified } = getBtnClass(
+    jobResultStatus,
+    jobFailureClassificationId,
+  );
+  let classifiedIcon = null;
+
+  if (
+    jobFailureClassificationId > 1 &&
+    ![6, 8].includes(jobFailureClassificationId)
+  ) {
+    classifiedIcon =
+      jobFailureClassificationId === 7 ? faStarRegular : faStarSolid;
   }
 
-  componentDidMount() {
-    if (this.state.isSelected) {
-      // scroll to make this job if it's selected
-      findJobInstance(this.props.job.id, true);
+  const classes = ['btn', 'filter-shown'];
+  const attributes = {
+    'data-job-id': id,
+    'data-status': status,
+    title: job.hoverText,
+  };
+
+  if (isClassified) {
+    attributes['data-classified'] = 'true';
+  }
+
+  if (runnable) {
+    classes.push('runnable-job-btn', 'runnable');
+    if (isRunnableSelected) {
+      classes.push('runnable-job-btn-selected');
     }
+  } else {
+    classes.push('job-btn');
   }
 
-  /**
-   * Rather than making this a PureComponent, which does shallow compares of
-   * props and state, we are using shouldComponentUpdate, because the
-   * ``selectedJobId`` will change for all components, but only the previous
-   * selection and the next selection care and need to re-render.  So our
-   * logic on shouldComponentUpdate is a little more complex than a simple
-   * shallow compare would allow.
-   */
-  shouldComponentUpdate(nextProps, nextState) {
-    const {
-      visible,
-      resultStatus,
-      failureClassificationId,
-      intermittent,
-    } = this.props;
-    const { isSelected, isRunnableSelected } = this.state;
-
-    return (
-      visible !== nextProps.visible ||
-      resultStatus !== nextProps.resultStatus ||
-      failureClassificationId !== nextProps.failureClassificationId ||
-      intermittent !== nextProps.intermittent ||
-      isSelected !== nextState.isSelected ||
-      isRunnableSelected !== nextState.isRunnableSelected
-    );
+  if (isSelected) {
+    classes.push('selected-job btn-lg-xform');
+    attributes['data-testid'] = 'selected-job';
+  } else {
+    classes.push('btn-xs');
   }
 
-  componentWillUnmount() {
-    this.setState({ isRunnableSelected: false, isSelected: false });
-  }
-
-  setSelected(isSelected) {
-    const { job, filterPlatformCb, filterModel } = this.props;
-    // if a job was just classified, and we are in unclassified only mode,
-    // then the job no longer meets the filter criteria.  However, if it
-    // is still selected, then it should stay visible so that next/previous
-    // navigation still works.  Then, as soon as the selection changes, it
-    // it will disappear.  So visible must be contingent on the filters AND
-    // whether it is still selected.
-    job.visible = filterModel.showJob(job);
-    this.setState({ isSelected });
-    // filterPlatformCb will keep a job and platform visible if it contains
-    // the selected job, so we must pass in if this job is selected or not.
-    filterPlatformCb(isSelected ? job.task_run : null);
-  }
-
-  toggleRunnableSelected() {
-    this.setState((prevState) => ({
-      isRunnableSelected: !prevState.isRunnableSelected,
-    }));
-  }
-
-  refilter() {
-    const { filterPlatformCb } = this.props;
-
-    filterPlatformCb(getUrlParam('selectedTaskRun'));
-  }
-
-  render() {
-    const { job, intermittent } = this.props;
-    const { isSelected, isRunnableSelected } = this.state;
-    const {
-      state,
-      failure_classification_id: failureClassificationId,
-      visible,
-      id,
-      job_type_symbol: jobTypeSymbol,
-      resultStatus,
-    } = job;
-
-    if (!visible) return null;
-    const runnable = state === 'runnable';
-    const { status, isClassified } = getBtnClass(
-      resultStatus,
-      failureClassificationId,
-    );
-    let classifiedIcon = null;
-
-    if (
-      failureClassificationId > 1 &&
-      ![6, 8].includes(failureClassificationId)
-    ) {
-      classifiedIcon =
-        failureClassificationId === 7 ? faStarRegular : faStarSolid;
-    }
-
-    const classes = ['btn', 'filter-shown'];
-    const attributes = {
-      'data-job-id': id,
-      'data-status': status,
-      title: job.hoverText,
-    };
-
-    if (isClassified) {
-      attributes['data-classified'] = 'true';
-    }
-
-    if (runnable) {
-      classes.push('runnable-job-btn', 'runnable');
-      if (isRunnableSelected) {
-        classes.push('runnable-job-btn-selected');
-      }
-    } else {
-      classes.push('job-btn');
-    }
-
-    if (isSelected) {
-      classes.push('selected-job btn-lg-xform');
-      attributes['data-testid'] = 'selected-job';
-    } else {
-      classes.push('btn-xs');
-    }
-
-    attributes.className = classes.join(' ');
-    return (
-      <button type="button" {...attributes} data-testid="job-btn">
-        {jobTypeSymbol}
-        {classifiedIcon && (
-          <FontAwesomeIcon
-            icon={classifiedIcon}
-            className="classified-icon"
-            title="classified"
-          />
-        )}
-        {intermittent && (
-          <FontAwesomeIcon
-            icon={faMitten}
-            className="intermittent-icon"
-            title="Intermittent failure - There is a successful run of this task for the same push."
-          />
-        )}
-      </button>
-    );
-  }
-}
+  attributes.className = classes.join(' ');
+  return (
+    <button type="button" ref={buttonRef} {...attributes} data-testid="job-btn">
+      {jobTypeSymbol}
+      {classifiedIcon && (
+        <FontAwesomeIcon
+          icon={classifiedIcon}
+          className="classified-icon"
+          title="classified"
+        />
+      )}
+      {intermittent && (
+        <FontAwesomeIcon
+          icon={faMitten}
+          className="intermittent-icon"
+          title="Intermittent failure - There is a successful run of this task for the same push."
+        />
+      )}
+    </button>
+  );
+});
 
 JobButtonComponent.propTypes = {
   job: PropTypes.shape({}).isRequired,
   filterModel: PropTypes.shape({}).isRequired,
-  repoName: PropTypes.string.isRequired,
   visible: PropTypes.bool.isRequired,
-  resultStatus: PropTypes.string.isRequired,
   filterPlatformCb: PropTypes.func.isRequired,
-  failureClassificationId: PropTypes.number, // runnable jobs won't have this
   intermittent: PropTypes.bool,
 };
 
-JobButtonComponent.defaultProps = {
-  failureClassificationId: 1,
-  intermittent: false,
-};
+export default memo(JobButtonComponent);
