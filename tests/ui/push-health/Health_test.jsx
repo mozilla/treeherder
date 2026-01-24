@@ -176,15 +176,28 @@ describe('Health', () => {
   });
 
   test('should go to the correct tab if query param exists', async () => {
+<<<<<<< HEAD
     const { getByText } = render(
       testHealth([`/push-health?repo=${repo}&revision=${revision}&tab=builds`]),
     );
+=======
+    act(() => {
+      history.push(`/push-health?repo=${repo}&revision=${revision}&tab=builds`);
+    });
+    const { getByText } = render(testHealth());
+>>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
 
     const buildsTab = await waitFor(() => getByText('Builds'));
     expect(buildsTab).toHaveAttribute('aria-selected', 'true');
   });
 
   test('should show dismissible intermittent alert by default', async () => {
+<<<<<<< HEAD
+=======
+    act(() => {
+      history.push(`/push-health?repo=${repo}&revision=${revision}`);
+    });
+>>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
     const { getByText } = render(testHealth());
 
     const alertText = await waitFor(() =>
@@ -194,6 +207,12 @@ describe('Health', () => {
   });
 
   test('should hide intermittent alert when dismissed', async () => {
+<<<<<<< HEAD
+=======
+    act(() => {
+      history.push(`/push-health?repo=${repo}&revision=${revision}`);
+    });
+>>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
     const { getByText, queryByText, getByRole } = render(testHealth());
 
     // Wait for alert to appear
@@ -220,6 +239,12 @@ describe('Health', () => {
 
   test('should not show intermittent alert if previously dismissed', async () => {
     localStorage.setItem('dismissedIntermittentAlert', 'true');
+<<<<<<< HEAD
+=======
+    act(() => {
+      history.push(`/push-health?repo=${repo}&revision=${revision}`);
+    });
+>>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
     const { queryByText } = render(testHealth());
 
     // Wait for page to load
