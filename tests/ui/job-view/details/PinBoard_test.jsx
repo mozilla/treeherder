@@ -173,7 +173,11 @@ describe('DetailsPanel', () => {
     await act(async () => {
       // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
       // This is needed because tests don't have PushList to sync selection from URL
+<<<<<<< HEAD
       setSelectedJob(jobList.data[1], false);
+=======
+      store.dispatch(setSelectedJob(jobList.data[1], false));
+>>>>>>> 1ce595c65 (Migrate from ESLint to Biome)
     });
 
     // Wait for the selected job to render
@@ -197,7 +201,11 @@ describe('DetailsPanel', () => {
 
     await act(async () => {
       // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
+<<<<<<< HEAD
       setSelectedJob(jobList.data[1], false);
+=======
+      store.dispatch(setSelectedJob(jobList.data[1], false));
+>>>>>>> 1ce595c65 (Migrate from ESLint to Biome)
     });
 
     // Wait for state update from dispatch
@@ -221,7 +229,11 @@ describe('DetailsPanel', () => {
 
     await act(async () => {
       // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
+<<<<<<< HEAD
       setSelectedJob(jobList.data[1], false);
+=======
+      store.dispatch(setSelectedJob(jobList.data[1], false));
+>>>>>>> 1ce595c65 (Migrate from ESLint to Biome)
     });
 
     // Wait for state update from dispatch
@@ -251,7 +263,11 @@ describe('DetailsPanel', () => {
 
     await act(async () => {
       // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
+<<<<<<< HEAD
       setSelectedJob(jobList.data[1], false);
+=======
+      store.dispatch(setSelectedJob(jobList.data[1], false));
+>>>>>>> 1ce595c65 (Migrate from ESLint to Biome)
     });
 
     // Wait for state update from dispatch
@@ -276,7 +292,11 @@ describe('DetailsPanel', () => {
 
     await act(async () => {
       // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
+<<<<<<< HEAD
       setSelectedJob(jobList.data[1], false);
+=======
+      store.dispatch(setSelectedJob(jobList.data[1], false));
+>>>>>>> 1ce595c65 (Migrate from ESLint to Biome)
     });
 
     // Wait for state update from dispatch
@@ -309,7 +329,11 @@ describe('DetailsPanel', () => {
 
     await act(async () => {
       // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
+<<<<<<< HEAD
       setSelectedJob(jobList.data[1], false);
+=======
+      store.dispatch(setSelectedJob(jobList.data[1], false));
+>>>>>>> 1ce595c65 (Migrate from ESLint to Biome)
     });
 
     // Wait for state update from dispatch
@@ -344,7 +368,11 @@ describe('DetailsPanel', () => {
     const { queryAllByTitle } = render(testDetailsPanel());
 
     await act(async () => {
+<<<<<<< HEAD
       pinJobs(jobList.data);
+=======
+      store.dispatch(pinJobs(jobList.data));
+>>>>>>> 1ce595c65 (Migrate from ESLint to Biome)
     });
 
     // Wait for state updates after pinning all jobs
@@ -363,9 +391,15 @@ describe('DetailsPanel', () => {
     } = render(testDetailsPanel());
 
     await act(async () => {
+<<<<<<< HEAD
       pinJobs(jobList.data);
       // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
       setSelectedJob(jobList.data[1], false);
+=======
+      store.dispatch(pinJobs(jobList.data));
+      // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
+      store.dispatch(setSelectedJob(jobList.data[1], false));
+>>>>>>> 1ce595c65 (Migrate from ESLint to Biome)
     });
 
     // Wait for state updates from dispatch actions
@@ -450,7 +484,11 @@ describe('DetailsPanel', () => {
     checkClassifiedJobs(jobList.data.length);
 
     await act(async () => {
+<<<<<<< HEAD
       pinJobs(jobList.data);
+=======
+      store.dispatch(pinJobs(jobList.data));
+>>>>>>> 1ce595c65 (Migrate from ESLint to Biome)
     });
 
     // Wait for jobs to be pinned again
