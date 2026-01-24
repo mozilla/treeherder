@@ -399,7 +399,7 @@ class FailureSummaryTab extends React.Component {
 
 FailureSummaryTab.propTypes = {
   selectedJob: PropTypes.shape({}).isRequired,
-  selectedJobId: PropTypes.number.isRequired,
+  selectedJobId: PropTypes.number,
   jobLogUrls: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.number,

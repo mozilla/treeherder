@@ -450,7 +450,7 @@ class DetailsPanel extends React.Component {
           classificationTypes={classificationTypes}
           selectedJobFull={selectedJobFull}
         />
-        {!!selectedJobFull && (
+        {!!selectedJobFull && !!selectedJob && (
           <div id="details-panel-content">
             <SummaryPanel
               selectedJobFull={selectedJobFull}

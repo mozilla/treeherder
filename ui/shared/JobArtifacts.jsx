@@ -127,7 +127,7 @@ export default class JobArtifacts extends React.PureComponent {
 
                     const crash = crashDumps.get(crashId);
                     return (
-                      <li className="link-style" key={line.value}>
+                      <li className="link-style" key={line.url}>
                         <ArtifactLink artifact={crash.dmp} />
                         {', '}
                         <ArtifactLink artifact={crash.extra}>
@@ -154,7 +154,7 @@ export default class JobArtifacts extends React.PureComponent {
 
                 // Render all other artifacts normally
                 return (
-                  <li className="link-style" key={line.value}>
+                  <li className="link-style" key={line.url}>
                     {!!line.url && <ArtifactLink artifact={line} />}
                     {line.url &&
                       line.value.startsWith('profile_') &&
