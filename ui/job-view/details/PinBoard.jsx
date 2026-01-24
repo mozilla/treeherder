@@ -439,7 +439,7 @@ class PinBoard extends React.Component {
                 return (
                   <span className="btn-group" key={job.id}>
                     <Button
-                      className={`pinned-job mb-1 job-btn ${
+                      className={`pinned-job mb-1 job-btn filter-shown ${
                         selectedJobId === job.id ? 'selected-job' : ''
                       }`}
                       title={job.hoverText}

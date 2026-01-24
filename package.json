@@ -41,7 +41,7 @@
     "react": "19.2.3",
     "react-bootstrap": "2.10.10",
     "react-dom": "19.2.3",
-    "react-highlight-words": "0.20.0",
+    "react-highlight-words": "0.21.0",
     "react-hot-keys": "2.7.3",
     "react-lazylog": "4.5.3",
     "react-linkify": "0.2.2",
@@ -117,7 +117,7 @@
     "test": "jest --maxWorkers=50%",
     "test:coverage": "jest --maxWorkers=50% --coverage",
     "test:ci": "jest --maxWorkers=2 --coverage",
-    "test:integration": "node node_modules/puppeteer/install.mjs && set TEST_TYPE=integration && jest",
+    "test:integration": "node node_modules/puppeteer/install.mjs && jest --config jest.integration.config.js",
     "test:watch": "jest --watch --maxWorkers=25%"
   },
   "pnpm": {

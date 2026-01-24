@@ -62,25 +62,27 @@ With React 19.2.3 successfully installed, this document outlines the phased appr
 
 ---
 
-## Phase 2: Replace Inactive/Problematic Dependencies (P1 - High Priority)
+## Phase 2: Replace Inactive/Problematic Dependencies - COMPLETED ✅
 
-### 2.1 react-lazylog Replacement
+**Completed:** January 2026
+
+### Summary
+
+1. **react-highlight-words** updated from 0.20.0 to 0.21.0
+2. **react-lazylog** tested with React 19 - works correctly (react-virtualized supports React 19)
+3. **react-hot-keys** tested with React 19 - works correctly (peer dep `>=16.9.0`)
+4. **react-table-6** deferred to Phase 4 (works at runtime despite peer dep warning)
+5. **react-linkify** kept at 0.2.2 (1.0.0-alpha not production-ready)
+
+### 2.1 react-lazylog Status
 
 **Current:** 4.5.3 (INACTIVE - mozilla-frontend-infra marked as archived)
 **Usage:** 2 files (`ui/logviewer/App.jsx`, `ui/shared/tabs/LogviewerTab.jsx`)
-**Risk:** Medium - Core functionality for log viewing
+**Status:** ✅ Works with React 19
 
-The original `react-lazylog` from Mozilla is no longer maintained. It depends on `react-virtualized` which may have React 19 issues.
+The original `react-lazylog` from Mozilla is no longer maintained, but its dependency `react-virtualized` explicitly supports React 19 (`^16.3.0 || ^17.0.0 || ^18.0.0 || ^19.0.0`). Build and tests pass.
 
-#### Replacement Options
-
-| Option | Pros | Cons |
-|--------|------|------|
-| **[@melloware/react-logviewer](https://github.com/melloware/react-logviewer)** | Active fork of react-lazylog, maintained | Need to verify React 19 support |
-| **Custom implementation with react-window** | Full control, modern virtualization | Development effort |
-| **Keep as-is and test** | No work needed if it works | Technical debt, may break |
-
-**Recommended Approach:** Test current react-lazylog with React 19 first. If issues arise, migrate to `@melloware/react-logviewer`.
+**Future:** If issues arise, migrate to `@melloware/react-logviewer`.
 
 ### 2.2 react-table-6 Replacement (Deferred)
 
@@ -92,30 +94,23 @@ The original `react-lazylog` from Mozilla is no longer maintained. It depends on
 
 **Recommendation:** Defer to Phase 4. Document current behavior and monitor for actual issues.
 
-### 2.3 react-highlight-words
+### 2.3 react-highlight-words ✅
 
-**Current:** 0.20.0 → 0.21.0 available
+**Updated:** 0.20.0 → 0.21.0
 **Usage:** 1 file (`ui/shared/tabs/failureSummary/BugListItem.jsx`)
-
-**Action:** Update to 0.21.0 and verify peer dependency warning is resolved.
-
-```bash
-pnpm add react-highlight-words@^0.21.0
-```
 
 ### 2.4 react-linkify
 
 **Current:** 0.2.2 → 1.0.0-alpha available
 **Usage:** 2 files (`ui/shared/RevisionLinkify.jsx`, `ui/shared/BugLinkify.jsx`)
 
-**Action:** Stay on 0.2.2 for now. Alpha version is not production-ready.
+**Status:** Kept at 0.2.2. Alpha version is not production-ready.
 
-### 2.5 react-hot-keys
+### 2.5 react-hot-keys ✅
 
 **Current:** 2.7.3
 **Usage:** 1 file (`ui/job-view/KeyboardShortcuts.jsx`)
-
-**Action:** Test with React 19. Consider replacement with native keyboard event handling or `@react-hook/hotkey` if issues arise.
+**Status:** Works with React 19 (peer dep `>=16.9.0`)
 
 ---
 
@@ -605,10 +600,9 @@ const BugFiler = () => {
 | Phase | Priority | Dependencies | Recommended Order |
 |-------|----------|--------------|-------------------|
 | Phase 1: React Router v7 | P1 | None | ✅ Done |
+| Phase 2: Problematic Dependencies | P1 | Phase 1 | ✅ Done |
 | **Phase 7: Test Coverage** | **P1** | None | **IMMEDIATE - before merging PRs** |
-| Phase 2.1: react-lazylog | P1 | Phase 1 | If issues arise |
-| Phase 2.3: react-highlight-words | P2 | None | Quick win |
-| Phase 3: Routine updates | P2 | Phase 1 | Batch together |
+| Phase 3: Routine updates | P2 | Phase 2 | Batch together |
 | Phase 5: Class → Functional | P2 | None | After test coverage |
 | Phase 6: API Type Safety | P2 | None | Can run in parallel |
 | Phase 4: Major versions | P3 | Phase 3 | Later |
@@ -627,7 +621,6 @@ NOW:
 ├── Phase 7.3: Add E2E smoke test for jobs view
 ├── Phase 5.1: job-view class → functional (8 components)
 ├── Phase 6.1: OpenAPI type generation setup
-├── Phase 2.3: react-highlight-words update
 └── Phase 3: Routine dependency updates
 
 NEXT:
@@ -680,14 +673,19 @@ LATER:
 
 | Package | Current | Issue |
 |---------|---------|-------|
-| react-table-6 | 6.11.0 | React 19 peer dep warning (works at runtime) |
-| react-highlight-words | 0.20.0 | Update to 0.21.0 available |
+| react-table-6 | 6.11.0 | React 19 peer dep warning (works at runtime, deferred to Phase 4) |
 
-### Inactive/Unmaintained
+### Inactive/Unmaintained (Tested OK)
 
 | Package | Current | Status |
 |---------|---------|--------|
-| react-lazylog | 4.5.3 | INACTIVE (mozilla-frontend-infra) |
+| react-lazylog | 4.5.3 | INACTIVE but ✅ works with React 19 (react-virtualized supports it) |
+
+### Recently Updated
+
+| Package | Previous | Current | Status |
+|---------|----------|---------|--------|
+| react-highlight-words | 0.20.0 | 0.21.0 | ✅ Done |
 
 ### Major Version Updates Available
 
