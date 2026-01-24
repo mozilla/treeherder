@@ -51,7 +51,11 @@ export default class InputFilter extends React.Component {
   };
 
   render() {
-    const { disabled, placeholder, updateOnEnter } = this.props;
+    const {
+      disabled = false,
+      placeholder = filterText.inputPlaceholder,
+      updateOnEnter = false,
+    } = this.props;
     const { input } = this.state;
 
     return (
@@ -80,10 +84,4 @@ InputFilter.propTypes = {
   disabled: PropTypes.bool,
   placeholder: PropTypes.string,
   updateOnEnter: PropTypes.bool,
-};
-
-InputFilter.defaultProps = {
-  disabled: false,
-  placeholder: filterText.inputPlaceholder,
-  updateOnEnter: false,
 };

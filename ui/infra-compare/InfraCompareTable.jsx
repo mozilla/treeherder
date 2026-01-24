@@ -11,7 +11,7 @@ import { getHashBasedId } from './helpers';
 export default class InfraCompareTable extends React.PureComponent {
   render() {
     const {
-      data,
+      data = null,
       platform,
       validated: { originalProject, newProject, originalRevision, newRevision },
     } = this.props;
@@ -90,8 +90,4 @@ export default class InfraCompareTable extends React.PureComponent {
 
 InfraCompareTable.propTypes = {
   data: PropTypes.arrayOf(PropTypes.shape({})),
-};
-
-InfraCompareTable.defaultProps = {
-  data: null,
 };

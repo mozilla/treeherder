@@ -12,21 +12,21 @@ import GraphsContainer from './GraphsContainer';
 
 const Layout = (props) => {
   const {
-    graphData,
-    tableData,
+    graphData = null,
+    tableData = null,
     errorMessages,
-    tree,
-    isFetchingTable,
-    isFetchingGraphs,
-    tableFailureStatus,
-    graphFailureStatus,
+    tree = null,
+    isFetchingTable = null,
+    isFetchingGraphs = null,
+    tableFailureStatus = null,
+    graphFailureStatus = null,
     updateState,
     updateHash,
     graphOneData,
-    graphTwoData,
-    table,
+    graphTwoData = null,
+    table = null,
     datePicker,
-    header,
+    header = null,
   } = props;
 
   let failureMessage = null;
@@ -107,19 +107,6 @@ Layout.propTypes = {
   graphFailureStatus: PropTypes.number,
   isFetchingTable: PropTypes.bool,
   isFetchingGraphs: PropTypes.bool,
-};
-
-Layout.defaultProps = {
-  graphTwoData: null,
-  tableFailureStatus: null,
-  graphFailureStatus: null,
-  isFetchingTable: null,
-  isFetchingGraphs: null,
-  tableData: null,
-  graphData: null,
-  tree: null,
-  table: null,
-  header: null,
 };
 
 export default Layout;

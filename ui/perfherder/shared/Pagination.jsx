@@ -9,7 +9,7 @@ class PaginationGroup extends React.Component {
   };
 
   render() {
-    const { viewablePageNums, currentPage, count } = this.props;
+    const { viewablePageNums, currentPage = 1, count = 1 } = this.props;
     // First and last viewable pages from the pagination. The controls
     // shows maximum 5 pages.
     const firstViewablePage = viewablePageNums[0];
@@ -83,11 +83,6 @@ PaginationGroup.propTypes = {
   currentPage: PropTypes.number,
   count: PropTypes.number,
   updateParams: PropTypes.func.isRequired,
-};
-
-PaginationGroup.defaultProps = {
-  currentPage: 1,
-  count: 1,
 };
 
 export default PaginationGroup;
