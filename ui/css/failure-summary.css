@@ -47,7 +47,7 @@
 
 .show-hide-more {
   /* Override the selector complexity of: "ul.failure-summary-list li .btn-xs" */
-  font-size: 11px !important;
+  font-size: 11px;
 }
 
 .failure-summary-new-message {
