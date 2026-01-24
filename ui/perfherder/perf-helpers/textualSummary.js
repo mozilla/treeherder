@@ -109,8 +109,7 @@ export default class TextualSummary {
       suite === test ? `${suite} ${doc}` : `${suite} ${test} ${doc}`;
 
     const alertValues =
-      updatedAlert &&
-      updatedAlert.results_link &&
+      updatedAlert?.results_link &&
       updatedAlert.prev_results_link
         ? `[${prevValue}](${updatedAlert.prev_results_link}) -> [${newValue}](${updatedAlert.results_link})`
         : `${prevValue} ${measurementUnit} -> ${newValue} ${measurementUnit}`;
@@ -121,8 +120,7 @@ export default class TextualSummary {
       // find the profiler links easily. Only add this column if at least one alert
       // has profile urls.
       maybeProfileLinks =
-        updatedAlert &&
-        updatedAlert.profile_url &&
+        updatedAlert?.profile_url &&
         updatedAlert.prev_profile_url
           ? `[Before](${getPerfAnalysisUrl(
               updatedAlert.prev_profile_url,

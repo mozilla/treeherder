@@ -31,7 +31,7 @@ export async function triggerTask(
 
         if (
           action === undefined ||
-          !Object.prototype.hasOwnProperty.call(action, 'kind')
+          !Object.hasOwn(action, 'kind')
         ) {
           return notify(
             `Job was scheduled without taskcluster support for ${taskName}`,

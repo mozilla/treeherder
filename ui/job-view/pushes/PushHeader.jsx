@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, memo } from 'react';
+import { useMemo, useCallback, memo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

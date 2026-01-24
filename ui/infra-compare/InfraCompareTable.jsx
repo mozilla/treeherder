@@ -71,7 +71,13 @@ export default class InfraCompareTable extends React.PureComponent {
           </tr>
         </thead>
         {data.map((suiteResults) => (
-          <tbody>
+          <tbody
+            key={getHashBasedId(
+              suiteResults.suite,
+              hashFunction,
+              suiteResults.platform,
+            )}
+          >
             <InfraCompareTableRow
               hashkey={getHashBasedId(
                 suiteResults.suite,
