@@ -1,6 +1,12 @@
-import React from 'react';
+
 import { Provider, ReactReduxContext } from 'react-redux';
-import { render, cleanup, fireEvent, waitFor } from '@testing-library/react';
+import {
+  render,
+  cleanup,
+  fireEvent,
+  waitFor,
+  act,
+} from '@testing-library/react';
 import { createBrowserHistory } from 'history';
 import { ConnectedRouter } from 'connected-react-router';
 
@@ -86,7 +92,7 @@ test('select a job updates url', async () => {
   expect(spell).toBeInTheDocument();
 
   fireEvent.mouseDown(spell);
-  expect(spell).toHaveClass('selected-job');
+  await waitFor(() => expect(spell).toHaveClass('selected-job'));
 
   const selTaskRun = getUrlParam('selectedTaskRun');
 
@@ -104,14 +110,16 @@ test('filter change keeps selected job visible', async () => {
   expect(spell).toBeInTheDocument();
 
   fireEvent.mouseDown(spell);
-  expect(spell).toHaveClass('selected-job');
+  await waitFor(() => expect(spell).toHaveClass('selected-job'));
 
-  filterModel.addFilter('searchStr', 'linux');
+  act(() => {
+    filterModel.addFilter('searchStr', 'linux');
+  });
   rerender(testPushJobs(filterModel));
 
   const spell2 = getByText('spell');
 
   expect(spell2).toBeInTheDocument();
   expect(spell2).toHaveClass('filter-shown');
-  expect(spell2).toHaveClass('selected-job');
+  await waitFor(() => expect(spell2).toHaveClass('selected-job'));
 });

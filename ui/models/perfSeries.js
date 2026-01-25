@@ -36,7 +36,7 @@ export const getSeriesName = function getSeriesName(
   const platform = signatureProps.machine_platform;
   let name = getTestName(signatureProps);
 
-  if (displayOptions && displayOptions.includePlatformInName) {
+  if (displayOptions?.includePlatformInName) {
     name = `${name} ${platform}`;
   }
   const options = getSeriesOptions(signatureProps, optionCollectionMap);
@@ -83,8 +83,8 @@ export default class PerfSeriesModel {
   }
 
   static async getSeriesList(projectName, params) {
-    if (!this.optionCollectionMap) {
-      this.optionCollectionMap = await OptionCollectionModel.getMap();
+    if (!PerfSeriesModel.optionCollectionMap) {
+      PerfSeriesModel.optionCollectionMap = await OptionCollectionModel.getMap();
     }
 
     // we use stringify here because for certain params like 'id'
@@ -106,7 +106,7 @@ export default class PerfSeriesModel {
         projectName,
         signatureId,
         signatureProps,
-        this.optionCollectionMap,
+        PerfSeriesModel.optionCollectionMap,
       ),
     );
     return { data, failureStatus: null };
@@ -130,15 +130,15 @@ export default class PerfSeriesModel {
     }
     const { data } = response;
 
-    if (!this.optionCollectionMap) {
-      this.optionCollectionMap = await OptionCollectionModel.getMap();
+    if (!PerfSeriesModel.optionCollectionMap) {
+      PerfSeriesModel.optionCollectionMap = await OptionCollectionModel.getMap();
     }
     for (const item of data.data) {
       item.signature_data = getSeriesSummary(
         projectName,
         item.signature_data.id,
         item.signature_data,
-        this.optionCollectionMap,
+        PerfSeriesModel.optionCollectionMap,
       );
     }
     return { failureStatus: false, data };
