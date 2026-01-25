@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useSelector, useDispatch } from 'react-redux';
 import { Button, Dropdown, Nav } from 'react-bootstrap';
@@ -244,7 +244,7 @@ const TabsPanel = ({
   useEffect(() => {
     const timeoutId = setTimeout(() => checkTabOverflow(), 100);
     return () => clearTimeout(timeoutId);
-  }, [perfJobDetail?.length, checkTabOverflow]);
+  }, [checkTabOverflow]);
 
   const countPinnedJobs = Object.keys(pinnedJobs).length;
   const { showPerf } = showTabsFromProps({ perfJobDetail });
@@ -394,7 +394,7 @@ const TabsPanel = ({
         <TabPanel>
           <FailureSummaryTab
             selectedJob={selectedJobFull}
-            selectedJobId={selectedJob && selectedJob.id}
+            selectedJobId={selectedJob?.id}
             jobLogUrls={jobLogUrls}
             jobDetails={jobDetails}
             logParseStatus={logParseStatus}
@@ -450,7 +450,7 @@ TabsPanel.propTypes = {
   classifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   togglePinBoardVisibility: PropTypes.func.isRequired,
   bugs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  selectedJob: PropTypes.shape({}).isRequired,
+  selectedJob: PropTypes.shape({}),
   selectedJobFull: PropTypes.shape({}).isRequired,
   currentRepo: PropTypes.shape({}).isRequired,
   perfJobDetail: PropTypes.arrayOf(PropTypes.shape({})),

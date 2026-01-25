@@ -1,4 +1,4 @@
-import React from 'react';
+
 import PropTypes from 'prop-types';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 
@@ -26,8 +26,7 @@ const SimpleTooltip = ({
 export default SimpleTooltip;
 SimpleTooltip.propTypes = {
   text: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.string]).isRequired,
-  tooltipText: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.string])
-    .isRequired,
+  tooltipText: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.string]),
   textClass: PropTypes.string,
   placement: PropTypes.string,
   innerClassName: PropTypes.string,

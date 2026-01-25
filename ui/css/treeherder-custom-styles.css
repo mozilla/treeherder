@@ -65,7 +65,7 @@
 }
 
 .fs-80 {
-  font-size: 80% !important;
+  font-size: 80%;
 }
 
 .font-weight-400 {
@@ -484,7 +484,7 @@ a.btn-outline-dark:hover {
 }
 
 .row-height-tight {
-  line-height: 15px !important;
+  line-height: 15px;
 }
 
 /* ReactTable overriding row, button and link color style for contrast pass */

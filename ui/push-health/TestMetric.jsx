@@ -15,13 +15,13 @@ export default class TestMetric extends React.PureComponent {
       currentRepo,
       searchStr,
       jobs,
-      regressionsOrderBy,
-      regressionsGroupBy,
+      regressionsOrderBy = 'count',
+      regressionsGroupBy = 'path',
       updateParamsAndState,
       selectedJobName,
       selectedTaskId,
       selectedTest,
-      testGroup,
+      testGroup = '',
       investigateTest,
       unInvestigateTest,
       updatePushHealth,
@@ -95,10 +95,4 @@ TestMetric.propTypes = {
   regressionsOrderBy: PropTypes.string,
   regressionsGroupBy: PropTypes.string,
   updateParamsAndState: PropTypes.func.isRequired,
-};
-
-TestMetric.defaultProps = {
-  regressionsOrderBy: 'count',
-  regressionsGroupBy: 'path',
-  testGroup: '',
 };

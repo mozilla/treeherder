@@ -36,15 +36,15 @@ const CustomPopper = (props) => {
 
 const MainView = (props) => {
   const {
-    graphData,
-    tableData,
+    graphData = [],
+    tableData = [],
     initialParamsSet,
     startday,
     endday,
     updateState,
     tree,
     location,
-    updateAppState,
+    updateAppState = null,
   } = props;
 
   const [selectedFilter, setSelectedFilter] = React.useState({
@@ -208,7 +208,7 @@ const MainView = (props) => {
     } = calculateMetrics(graphData));
   }
 
-  const getHeaderAriaLabel = (state, bug, data) => {
+  const getHeaderAriaLabel = (_state, _bug, data) => {
     const ariaLabelValue =
       data.Header === 'Count'
         ? 'Filter not available for count'
@@ -302,7 +302,7 @@ const MainView = (props) => {
             getTheadFilterThProps={getHeaderAriaLabel}
             getTrProps={(state, rowInfo) => {
               const baseProps = tableRowStyling(state, rowInfo);
-              if (rowInfo && rowInfo.original) {
+              if (rowInfo?.original) {
                 const { id, summary } = rowInfo.original;
                 const pathname = '/intermittent-failures/bugdetails';
                 const search = `?startday=${startday}&endday=${endday}&tree=${tree}&bug=${id}`;
@@ -365,12 +365,6 @@ MainView.propTypes = {
   user: PropTypes.shape({}),
   setUser: PropTypes.func.isRequired,
   notify: PropTypes.func.isRequired,
-};
-
-MainView.defaultProps = {
-  graphData: [],
-  tableData: [],
-  updateAppState: null,
 };
 
 const defaultState = {
