@@ -8,9 +8,8 @@ import isEqual from 'lodash/isEqual';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import { notify } from '../redux/stores/notifications';
 import {
-  clearSelectedJob,
-  setSelectedJob,
-  setSelectedJobFromQueryString,
+  syncSelectionFromUrl,
+  clearJobViaUrl,
 } from '../redux/stores/selectedJob';
 import { fetchPushes, updateRange, pollPushes } from '../redux/stores/pushes';
 import { updatePushParams } from '../../helpers/location';
@@ -19,6 +18,20 @@ import Push from './Push';
 import PushLoadErrors from './PushLoadErrors';
 
 const PUSH_POLL_INTERVAL = 60000;
+
+/**
+ * URL-FIRST ARCHITECTURE
+ *
+ * Job selection uses the URL as the single source of truth.
+ * This component syncs the Redux state from the URL whenever the URL changes.
+ *
+ * Flow:
+ * 1. User clicks job → PushJobs calls selectJobViaUrl() → URL updates
+ * 2. URL change triggers useEffect below → calls syncSelectionFromUrl()
+ * 3. syncSelectionFromUrl reads URL and updates Redux state + visual selection
+ *
+ * This eliminates race conditions because there's only one path for selection.
+ */
 
 function PushList({
   repoName,
@@ -32,10 +45,8 @@ function PushList({
   duplicateJobsVisible,
   groupCountsExpanded,
   allUnclassifiedFailureCount,
-  clearSelectedJob,
-  setSelectedJob,
-  pinnedJobs,
-  setSelectedJobFromQueryString,
+  clearJobViaUrl,
+  syncSelectionFromUrl,
   getAllShownJobs,
   jobMap,
   notify,
@@ -88,22 +99,23 @@ function PushList({
 
   const clearIfEligibleTarget = useCallback(
     (target) => {
-      // Target must be within the "push" area, but not be a dropdown-item or
-      // a button/btn.
-      // This will exclude the JobDetails and navbars.
+      // Target must be within the "push" area, but not be a dropdown-item,
+      // button/btn, or job element.
+      // This will exclude the JobDetails, navbars, and job buttons.
       const globalContent = document.getElementById('th-global-content');
-      const countPinnedJobs = Object.keys(pinnedJobs).length;
       const isEligible =
         globalContent.contains(target) &&
         target.tagName !== 'A' &&
         target.closest('button') === null &&
+        target.closest('[data-job-id]') === null &&
         !intersection(target.classList, ['btn', 'dropdown-item']).length;
 
       if (isEligible) {
-        clearSelectedJob(countPinnedJobs);
+        // Use URL-first pattern: just update URL, let sync effect handle the rest
+        clearJobViaUrl();
       }
     },
-    [pinnedJobs, clearSelectedJob],
+    [clearJobViaUrl],
   );
 
   const fetchNextPushes = useCallback(
@@ -131,54 +143,28 @@ function PushList({
     };
   }, [poll]);
 
-  // componentDidUpdate - handle jobsLoaded changes
+  // Sync selection from URL when jobs first load
   useEffect(() => {
     if (jobsLoaded && jobsLoaded !== prevJobsLoaded.current) {
-      setSelectedJobFromQueryString(notify, jobMap);
+      // Jobs just finished loading - sync selection from URL
+      syncSelectionFromUrl(jobMap, notify);
     }
     prevJobsLoaded.current = jobsLoaded;
-  }, [jobsLoaded, setSelectedJobFromQueryString, notify, jobMap]);
+  }, [jobsLoaded, syncSelectionFromUrl, notify, jobMap]);
 
-  // componentDidUpdate - handle URL changes
+  // URL-FIRST: Sync selection from URL whenever URL changes
+  // This is the SINGLE place where selection state is updated from URL.
+  // All selection changes (clicks, keyboard, back/forward) go through URL first,
+  // then this effect syncs the state.
   useEffect(() => {
     if (prevRouterSearch.current !== router.location.search) {
+      // Handle range changes (repo, dates, etc.)
       handleUrlChanges(prevRouterSearch.current);
 
-      // Check if selectedTaskRun changed (e.g., via browser back/forward)
-      // Only re-select if the URL change wasn't caused by our own click handler.
-      // We detect this by checking if the currently selected job already matches the URL.
-      const newParams = new URLSearchParams(router.location.search);
-      const newSelectedTaskRun = newParams.get('selectedTaskRun');
-      const currentSelectedBtn = document.querySelector(
-        '#push-list .job-btn.selected-job',
-      );
-      const currentSelectedJobId = currentSelectedBtn?.dataset?.jobId;
-
-      // Find the job matching the URL's selectedTaskRun
-      let urlJob = null;
-      if (newSelectedTaskRun && jobMap) {
-        urlJob = Object.values(jobMap).find(
-          (job) =>
-            `${job.task_id}.${job.retry_id}` === newSelectedTaskRun ||
-            job.task_id === newSelectedTaskRun.split('.')[0],
-        );
-      }
-      const urlJobId = urlJob?.id?.toString();
-
-      // Only sync visual selection if it doesn't match URL
-      // This avoids duplicate URL updates when user clicks (which already updates URL)
-      const visualMatchesUrl =
-        (!newSelectedTaskRun && !currentSelectedJobId) ||
-        (urlJobId && urlJobId === currentSelectedJobId);
-
-      if (!visualMatchesUrl && jobsLoaded) {
-        // Use setSelectedJob/clearSelectedJob with updateUrl=false to sync visual
-        // selection without pushing new history entries (for back/forward nav)
-        if (urlJob) {
-          setSelectedJob(urlJob, false);
-        } else {
-          clearSelectedJob(0, false);
-        }
+      // Sync job selection from URL
+      // This handles: user clicks, keyboard navigation, browser back/forward
+      if (jobsLoaded) {
+        syncSelectionFromUrl(jobMap, notify);
       }
 
       prevRouterSearch.current = router.location.search;
@@ -187,9 +173,9 @@ function PushList({
     router.location.search,
     handleUrlChanges,
     jobsLoaded,
-    setSelectedJob,
-    clearSelectedJob,
+    syncSelectionFromUrl,
     jobMap,
+    notify,
   ]);
 
   if (!revision) {
@@ -275,10 +261,8 @@ PushList.propTypes = {
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
   allUnclassifiedFailureCount: PropTypes.number.isRequired,
-  clearSelectedJob: PropTypes.func.isRequired,
-  setSelectedJob: PropTypes.func.isRequired,
-  pinnedJobs: PropTypes.shape({}).isRequired,
-  setSelectedJobFromQueryString: PropTypes.func.isRequired,
+  clearJobViaUrl: PropTypes.func.isRequired,
+  syncSelectionFromUrl: PropTypes.func.isRequired,
   getAllShownJobs: PropTypes.func.isRequired,
   jobMap: PropTypes.shape({}).isRequired,
   notify: PropTypes.func.isRequired,
@@ -297,7 +281,6 @@ const mapStateToProps = ({
     pushList,
     allUnclassifiedFailureCount,
   },
-  pinnedJobs: { pinnedJobs },
   router,
 }) => ({
   loadingPushes,
@@ -305,15 +288,13 @@ const mapStateToProps = ({
   jobMap,
   pushList,
   allUnclassifiedFailureCount,
-  pinnedJobs,
   router,
 });
 
 export default connect(mapStateToProps, {
   notify,
-  clearSelectedJob,
-  setSelectedJob,
-  setSelectedJobFromQueryString,
+  clearJobViaUrl,
+  syncSelectionFromUrl,
   fetchPushes,
   updateRange,
   pollPushes,

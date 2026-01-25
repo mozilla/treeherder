@@ -9,7 +9,7 @@ import { findInstance } from '../../helpers/job';
 import { getUrlParam } from '../../helpers/location';
 import { getLogViewerUrl } from '../../helpers/url';
 import JobModel from '../../models/job';
-import { setSelectedJob } from '../redux/stores/selectedJob';
+import { selectJobViaUrl } from '../redux/stores/selectedJob';
 import { togglePinJob } from '../redux/stores/pinnedJobs';
 
 import Platform from './Platform';
@@ -25,7 +25,7 @@ function PushJobs({
   platforms,
   toggleSelectedRunnableJob,
   togglePinJob,
-  setSelectedJob,
+  selectJobViaUrl,
 }) {
   const aggregateId = useMemo(
     () => getPushTableId(repoName, push.id, push.revision),
@@ -34,12 +34,13 @@ function PushJobs({
 
   const selectJob = useCallback(
     (job) => {
-      // Let doSelectJob handle all selection logic including deselecting
-      // the old job and selecting the new one. Don't do it here to avoid
-      // race conditions where we select and then immediately deselect.
-      setSelectedJob(job);
+      // URL-FIRST: Only update the URL here.
+      // The URL change will trigger syncSelectionFromUrl in PushList,
+      // which handles updating Redux state and visual selection.
+      // This eliminates race conditions by having a single path for selection.
+      selectJobViaUrl(job);
     },
-    [setSelectedJob],
+    [selectJobViaUrl],
   );
 
   const handleLogViewerClick = useCallback(
@@ -134,7 +135,7 @@ function PushJobs({
 
 PushJobs.propTypes = {
   togglePinJob: PropTypes.func.isRequired,
-  setSelectedJob: PropTypes.func.isRequired,
+  selectJobViaUrl: PropTypes.func.isRequired,
   toggleSelectedRunnableJob: PropTypes.func.isRequired,
   repoName: PropTypes.string.isRequired,
   push: PropTypes.shape({
@@ -149,4 +150,4 @@ PushJobs.propTypes = {
   filterModel: PropTypes.shape({}).isRequired,
 };
 
-export default connect(null, { setSelectedJob, togglePinJob })(memo(PushJobs));
+export default connect(null, { selectJobViaUrl, togglePinJob })(memo(PushJobs));
