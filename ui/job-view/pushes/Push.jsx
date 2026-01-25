@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import sortBy from 'lodash/sortBy';
@@ -59,6 +59,30 @@ export const transformTestPath = (path) => {
   return newPath;
 };
 
+/**
+ * Calculate job counts by state from a list of jobs.
+ * Exported for testing purposes.
+ */
+export const getJobCount = (jobs) => {
+  const filteredByCommit = jobs.filter(
+    (job) => job.failure_classification_id === 2,
+  );
+
+  return jobs.reduce(
+    (memo, job) =>
+      job.result !== 'superseded'
+        ? { ...memo, [job.state]: memo[job.state] + 1 }
+        : memo,
+    {
+      unscheduled: 0,
+      pending: 0,
+      running: 0,
+      completed: 0,
+      fixedByCommit: filteredByCommit.length,
+    },
+  );
+};
+
 export const transformedPaths = (manifestsByTask) => {
   const newManifestsByTask = {};
   Object.keys(manifestsByTask).forEach((taskName) => {
@@ -90,86 +114,62 @@ const fetchGeckoDecisionArtifact = async (project, revision, filePath) => {
   return artifactContents;
 };
 
-class Push extends React.PureComponent {
-  constructor(props) {
-    super(props);
+function Push({
+  push,
+  currentRepo,
+  duplicateJobsVisible,
+  filterModel,
+  notificationSupported,
+  getAllShownJobs,
+  groupCountsExpanded,
+  isOnlyRevision,
+  pushHealthVisibility,
+  decisionTaskMap,
+  bugSummaryMap,
+  allUnclassifiedFailureCount,
+  router,
+  notify,
+  updateJobMap,
+  recalculateUnclassifiedCounts,
+}) {
+  const collapsedPushes = getUrlParam('collapsedPushes') || '';
 
-    const { push } = props;
-    const collapsedPushes = getUrlParam('collapsedPushes') || '';
+  const [fuzzyModal, setFuzzyModal] = useState(false);
+  const [platforms, setPlatforms] = useState([]);
+  const [jobList, setJobList] = useState([]);
+  const [runnableVisible, setRunnableVisible] = useState(false);
+  const [selectedRunnableJobs, setSelectedRunnableJobs] = useState([]);
+  const [watched, setWatched] = useState('none');
+  const [jobCounts, setJobCounts] = useState({
+    pending: 0,
+    running: 0,
+    completed: 0,
+    fixedByCommit: 0,
+  });
+  const [pushGroupState, setPushGroupState] = useState('collapsed');
+  const [collapsed, setCollapsed] = useState(collapsedPushes.includes(push.id));
+  const [filteredTryPush, setFilteredTryPush] = useState(false);
+  const [pushHealthStatus, setPushHealthStatus] = useState(null);
+  const [fuzzyJobList, setFuzzyJobList] = useState([]);
+  const [filteredFuzzyList, setFilteredFuzzyList] = useState([]);
+  const [manifestsByTask, setManifestsByTask] = useState({});
 
-    this.state = {
-      fuzzyModal: false,
-      platforms: [],
-      jobList: [],
-      runnableVisible: false,
-      selectedRunnableJobs: [],
-      watched: 'none',
-      jobCounts: { pending: 0, running: 0, completed: 0, fixedByCommit: 0 },
-      pushGroupState: 'collapsed',
-      collapsed: collapsedPushes.includes(push.id),
-      filteredTryPush: false,
-      pushHealthStatus: null,
-    };
-  }
+  const containerRef = useRef(null);
+  const prevRouterSearch = useRef(router.location.search);
+  const prevJobCounts = useRef(jobCounts);
+  const jobListRef = useRef(jobList);
+  const manifestsByTaskRef = useRef(manifestsByTask);
 
-  async componentDidMount() {
-    // if ``nojobs`` is on the query string, then don't load jobs.
-    // this allows someone to more quickly load ranges of revisions
-    // when they don't care about the specific jobs and results.
-    const allParams = getAllUrlParams();
-    const promises = [];
+  // Keep refs in sync
+  useEffect(() => {
+    jobListRef.current = jobList;
+  }, [jobList]);
 
-    if (!allParams.has('nojobs')) {
-      promises.push(this.fetchJobs());
-    }
-    if (allParams.has('test_paths')) {
-      promises.push(this.fetchTestManifests());
-    }
+  useEffect(() => {
+    manifestsByTaskRef.current = manifestsByTask;
+  }, [manifestsByTask]);
 
-    // Execute jobs and test manifests in parallel
-    await Promise.all(promises);
-
-    this.testForFilteredTry();
-
-    window.addEventListener(thEvents.applyNewJobs, this.handleApplyNewJobs);
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    this.showUpdateNotifications(prevState);
-    this.testForFilteredTry();
-
-    if (
-      prevProps.router.location.search !== this.props.router.location.search
-    ) {
-      this.handleUrlChanges();
-    }
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener(thEvents.applyNewJobs, this.handleApplyNewJobs);
-  }
-
-  getJobCount(jobList) {
-    const filteredByCommit = jobList.filter(
-      (job) => job.failure_classification_id === 2,
-    );
-
-    return jobList.reduce(
-      (memo, job) =>
-        job.result !== 'superseded'
-          ? { ...memo, [job.state]: memo[job.state] + 1 }
-          : memo,
-      {
-        unscheduled: 0,
-        pending: 0,
-        running: 0,
-        completed: 0,
-        fixedByCommit: filteredByCommit.length,
-      },
-    );
-  }
-
-  getJobGroupInfo(job) {
+  const getJobGroupInfo = useCallback((job) => {
     const {
       job_group_name: name,
       job_group_symbol: jobGroupSymbol,
@@ -188,224 +188,48 @@ class Push extends React.PureComponent {
     );
 
     return { name, tier, symbol, mapKey };
-  }
+  }, []);
 
-  setSingleRevisionWindowTitle() {
-    const { allUnclassifiedFailureCount, currentRepo, push } = this.props;
-    const percentComplete = getPercentComplete(this.state.jobCounts);
-    const title = `[${allUnclassifiedFailureCount}] ${currentRepo.name}`;
+  const groupJobByPlatform = useCallback(
+    (jobs) => {
+      const plats = [];
 
-    document.title = `${percentComplete}% - ${title}: ${getRevisionTitle(
-      push.revisions,
-    )}`;
-  }
-
-  togglePushCollapsed = () => {
-    const { push } = this.props;
-    const pushId = `${push.id}`;
-    const collapsedPushesParam = getUrlParam('collapsedPushes');
-    const collapsedPushes = collapsedPushesParam
-      ? new Set(collapsedPushesParam.split(','))
-      : new Set();
-
-    this.setState(
-      (prevState) => ({ collapsed: !prevState.collapsed }),
-      () => {
-        if (!this.state.collapsed) {
-          collapsedPushes.delete(pushId);
-        } else {
-          collapsedPushes.add(pushId);
-        }
-        setUrlParam(
-          'collapsedPushes',
-          collapsedPushes.size ? Array.from(collapsedPushes) : null,
+      if (jobs.length === 0) {
+        return plats;
+      }
+      jobs.forEach((job) => {
+        // search for the right platform
+        const platformName = thPlatformMap[job.platform] || job.platform;
+        let platform = plats.find(
+          (p) => platformName === p.name && job.platform_option === p.option,
         );
-      },
-    );
-  };
-
-  testForFilteredTry = () => {
-    const { currentRepo } = this.props;
-    const filterParams = ['revision', 'author'];
-    const urlParams = getAllUrlParams();
-    const filteredTryPush =
-      filterParams.some((f) => urlParams.has(f)) && currentRepo.name === 'try';
-
-    this.setState({ filteredTryPush });
-  };
-
-  handleUrlChanges = async () => {
-    const { push } = this.props;
-    const allParams = getAllUrlParams();
-    const collapsedPushes = allParams.get('collapsedPushes') || '';
-
-    if (allParams.has('test_paths')) {
-      await this.fetchTestManifests();
-    } else {
-      this.setState({ manifestsByTask: {} });
-    }
-    this.setState({ collapsed: collapsedPushes.includes(push.id) });
-  };
-
-  handleApplyNewJobs = (event) => {
-    const { push } = this.props;
-    const { jobs } = event.detail;
-    const jobList = jobs[push.id];
-
-    if (jobList) {
-      this.mapPushJobs(jobList);
-    }
-  };
-
-  toggleSelectedRunnableJob = (signature) => {
-    const { selectedRunnableJobs } = this.state;
-    const jobIndex = selectedRunnableJobs.indexOf(signature);
-
-    if (jobIndex === -1) {
-      selectedRunnableJobs.push(signature);
-    } else {
-      selectedRunnableJobs.splice(jobIndex, 1);
-    }
-    this.setState({ selectedRunnableJobs: [...selectedRunnableJobs] });
-    return selectedRunnableJobs;
-  };
-
-  fetchTestManifests = async () => {
-    const { currentRepo, push } = this.props;
-
-    const manifestsByTask = await fetchGeckoDecisionArtifact(
-      currentRepo.name,
-      push.revision,
-      'manifests-by-task.json.gz',
-    );
-    // Call setState with callback to guarantee the state of manifestsByTask
-    // to be set since it is read within mapPushJobs and we might have a race
-    // condition. We are also reading jobList now rather than before fetching
-    // the artifact because it gives us an empty list
-    this.setState({ manifestsByTask: transformedPaths(manifestsByTask) }, () =>
-      this.mapPushJobs(this.state.jobList),
-    );
-  };
-
-  fetchJobs = async () => {
-    const { push, notify } = this.props;
-    const { data, failureStatus } = await JobModel.getList(
-      {
-        push_id: push.id,
-      },
-      { fetchAll: true },
-    );
-
-    if (!failureStatus) {
-      this.mapPushJobs(data);
-    } else {
-      notify(failureStatus, 'danger', { sticky: true });
-    }
-  };
-
-  mapPushJobs = (jobs, skipJobMap) => {
-    const { updateJobMap, recalculateUnclassifiedCounts, push } = this.props;
-    const { manifestsByTask = {} } = this.state;
-
-    // whether or not we got any jobs for this push, the operation to fetch
-    // them has completed.
-    push.jobsLoaded = true;
-    if (jobs.length > 0) {
-      const { jobList } = this.state;
-      const newIds = jobs.map((job) => job.id);
-      // remove old versions of jobs we just fetched.
-      const existingJobs = jobList.filter((job) => !newIds.includes(job.id));
-      // Join both lists and add test_paths and task_run property
-      const newJobList = [...existingJobs, ...jobs].map((job) => {
-        if (Object.keys(manifestsByTask).length > 0) {
-          job.test_paths = manifestsByTask[job.job_type_name] || [];
+        if (platform === undefined) {
+          platform = {
+            name: platformName,
+            option: job.platform_option,
+            groups: [],
+          };
+          plats.push(platform);
         }
-        job.task_run = getTaskRunStr(job);
-        return job;
-      });
-      const sideBySideJobs = newJobList.filter((sxsJob) =>
-        sxsJob.job_type_symbol.includes(sxsTaskName),
-      );
-      // If the pageload job has a side-by-side comparison associated
-      // add job.hasSideBySide containing sxsTaskName ("side-by-side")
-      newJobList.forEach((job) => {
-        if (job.job_type_name.includes('browsertime')) {
-          const matchingSxsJobs = sideBySideJobs.filter(
-            (sxsJob) =>
-              sxsJob.job_type_name.includes(
-                job.job_type_name.split('/opt-')[0],
-              ) && // platform
-              sxsJob.job_type_name.includes(
-                job.job_type_name.split('/opt-')[1],
-              ), // testName
-          );
-          if (matchingSxsJobs.length > 0) {
-            job.hasSideBySide = matchingSxsJobs[0].job_type_name;
-          } else {
-            job.hasSideBySide = false;
-          }
+
+        const groupInfo = getJobGroupInfo(job);
+        // search for the right group
+        let group = platform.groups.find(
+          (g) => groupInfo.symbol === g.symbol && groupInfo.tier === g.tier,
+        );
+        if (group === undefined) {
+          group = { ...groupInfo, jobs: [] };
+          platform.groups.push(group);
         }
+        group.jobs.push(job);
       });
-      const platforms = this.sortGroupedJobs(
-        this.groupJobByPlatform(newJobList),
-      );
-      const jobCounts = this.getJobCount(newJobList);
+      return plats;
+    },
+    [getJobGroupInfo],
+  );
 
-      this.setState({
-        platforms,
-        jobList: newJobList,
-        jobCounts,
-      });
-      if (!skipJobMap) {
-        updateJobMap(jobs);
-      }
-      recalculateUnclassifiedCounts();
-    }
-  };
-
-  /*
-   * Convert a flat list of jobs into a structure grouped by platform and job_group.
-   */
-  groupJobByPlatform = (jobList) => {
-    const platforms = [];
-
-    if (jobList.length === 0) {
-      return platforms;
-    }
-    jobList.forEach((job) => {
-      // search for the right platform
-      const platformName = thPlatformMap[job.platform] || job.platform;
-      let platform = platforms.find(
-        (platform) =>
-          platformName === platform.name &&
-          job.platform_option === platform.option,
-      );
-      if (platform === undefined) {
-        platform = {
-          name: platformName,
-          option: job.platform_option,
-          groups: [],
-        };
-        platforms.push(platform);
-      }
-
-      const groupInfo = this.getJobGroupInfo(job);
-      // search for the right group
-      let group = platform.groups.find(
-        (group) =>
-          groupInfo.symbol === group.symbol && groupInfo.tier === group.tier,
-      );
-      if (group === undefined) {
-        group = { ...groupInfo, jobs: [] };
-        platform.groups.push(group);
-      }
-      group.jobs.push(job);
-    });
-    return platforms;
-  };
-
-  sortGroupedJobs = (platforms) => {
-    platforms.forEach((platform) => {
+  const sortGroupedJobs = useCallback((plats) => {
+    plats.forEach((platform) => {
       platform.groups.forEach((group) => {
         group.jobs = sortBy(group.jobs, (job) =>
           // Symbol could be something like 1, 2 or 3. Or A, B, C or R1, R2, R10.
@@ -419,34 +243,201 @@ class Push extends React.PureComponent {
         (a, b) => a.symbol.length + a.tier - b.symbol.length - b.tier,
       );
     });
-    platforms.sort(
+    plats.sort(
       (a, b) =>
         platformArray.indexOf(a.name) * 100 +
         (thOptionOrder[a.option] || 10) -
         (platformArray.indexOf(b.name) * 100 + (thOptionOrder[b.option] || 10)),
     );
-    return platforms;
-  };
+    return plats;
+  }, []);
 
-  expandAllPushGroups = (callback) => {
+  const mapPushJobs = useCallback(
+    (jobs, skipJobMap) => {
+      // whether or not we got any jobs for this push, the operation to fetch
+      // them has completed.
+      push.jobsLoaded = true;
+      if (jobs.length > 0) {
+        const currentJobList = jobListRef.current;
+        const currentManifestsByTask = manifestsByTaskRef.current;
+        const newIds = jobs.map((job) => job.id);
+        // remove old versions of jobs we just fetched.
+        const existingJobs = currentJobList.filter(
+          (job) => !newIds.includes(job.id),
+        );
+        // Join both lists and add test_paths and task_run property
+        const newJobList = [...existingJobs, ...jobs].map((job) => {
+          if (Object.keys(currentManifestsByTask).length > 0) {
+            job.test_paths = currentManifestsByTask[job.job_type_name] || [];
+          }
+          job.task_run = getTaskRunStr(job);
+          return job;
+        });
+        const sideBySideJobs = newJobList.filter((sxsJob) =>
+          sxsJob.job_type_symbol.includes(sxsTaskName),
+        );
+        // If the pageload job has a side-by-side comparison associated
+        // add job.hasSideBySide containing sxsTaskName ("side-by-side")
+        newJobList.forEach((job) => {
+          if (job.job_type_name.includes('browsertime')) {
+            const matchingSxsJobs = sideBySideJobs.filter(
+              (sxsJob) =>
+                sxsJob.job_type_name.includes(
+                  job.job_type_name.split('/opt-')[0],
+                ) && // platform
+                sxsJob.job_type_name.includes(
+                  job.job_type_name.split('/opt-')[1],
+                ), // testName
+            );
+            if (matchingSxsJobs.length > 0) {
+              job.hasSideBySide = matchingSxsJobs[0].job_type_name;
+            } else {
+              job.hasSideBySide = false;
+            }
+          }
+        });
+        const newPlatforms = sortGroupedJobs(groupJobByPlatform(newJobList));
+        const newJobCounts = getJobCount(newJobList);
+
+        setPlatforms(newPlatforms);
+        setJobList(newJobList);
+        setJobCounts(newJobCounts);
+
+        if (!skipJobMap) {
+          updateJobMap(jobs);
+        }
+        recalculateUnclassifiedCounts();
+      }
+    },
+    [
+      push,
+      sortGroupedJobs,
+      groupJobByPlatform,
+      getJobCount,
+      updateJobMap,
+      recalculateUnclassifiedCounts,
+    ],
+  );
+
+  const fetchJobs = useCallback(async () => {
+    const { data, failureStatus } = await JobModel.getList(
+      {
+        push_id: push.id,
+      },
+      { fetchAll: true },
+    );
+
+    if (!failureStatus) {
+      mapPushJobs(data);
+    } else {
+      notify(failureStatus, 'danger', { sticky: true });
+    }
+  }, [push.id, mapPushJobs, notify]);
+
+  const fetchTestManifests = useCallback(async () => {
+    const manifests = await fetchGeckoDecisionArtifact(
+      currentRepo.name,
+      push.revision,
+      'manifests-by-task.json.gz',
+    );
+    const transformed = transformedPaths(manifests);
+    setManifestsByTask(transformed);
+    manifestsByTaskRef.current = transformed;
+    // Re-map jobs with the new manifests
+    mapPushJobs(jobListRef.current);
+  }, [currentRepo.name, push.revision, mapPushJobs]);
+
+  const testForFilteredTry = useCallback(() => {
+    const filterParams = ['revision', 'author'];
+    const urlParams = getAllUrlParams();
+    const isFiltered =
+      filterParams.some((f) => urlParams.has(f)) && currentRepo.name === 'try';
+
+    setFilteredTryPush(isFiltered);
+  }, [currentRepo.name]);
+
+  const handleUrlChanges = useCallback(async () => {
+    const allParams = getAllUrlParams();
+    const collapsedPushesParam = allParams.get('collapsedPushes') || '';
+
+    if (allParams.has('test_paths')) {
+      await fetchTestManifests();
+    } else {
+      setManifestsByTask({});
+    }
+    setCollapsed(collapsedPushesParam.includes(push.id));
+  }, [push.id, fetchTestManifests]);
+
+  const handleApplyNewJobs = useCallback(
+    (event) => {
+      const { jobs } = event.detail;
+      const newJobs = jobs[push.id];
+
+      if (newJobs) {
+        mapPushJobs(newJobs);
+      }
+    },
+    [push.id, mapPushJobs],
+  );
+
+  const toggleSelectedRunnableJob = useCallback((signature) => {
+    setSelectedRunnableJobs((prev) => {
+      const jobIndex = prev.indexOf(signature);
+      if (jobIndex === -1) {
+        return [...prev, signature];
+      }
+      return prev.filter((_, i) => i !== jobIndex);
+    });
+  }, []);
+
+  const setSingleRevisionWindowTitle = useCallback(() => {
+    const percentComplete = getPercentComplete(jobCounts);
+    const title = `[${allUnclassifiedFailureCount}] ${currentRepo.name}`;
+
+    document.title = `${percentComplete}% - ${title}: ${getRevisionTitle(
+      push.revisions,
+    )}`;
+  }, [
+    jobCounts,
+    allUnclassifiedFailureCount,
+    currentRepo.name,
+    push.revisions,
+  ]);
+
+  const togglePushCollapsed = useCallback(() => {
+    const pushId = `${push.id}`;
+    const collapsedPushesParam = getUrlParam('collapsedPushes');
+    const collapsedSet = collapsedPushesParam
+      ? new Set(collapsedPushesParam.split(','))
+      : new Set();
+
+    setCollapsed((prev) => {
+      const newCollapsed = !prev;
+      if (!newCollapsed) {
+        collapsedSet.delete(pushId);
+      } else {
+        collapsedSet.add(pushId);
+      }
+      setUrlParam(
+        'collapsedPushes',
+        collapsedSet.size ? Array.from(collapsedSet) : null,
+      );
+      return newCollapsed;
+    });
+  }, [push.id]);
+
+  const expandAllPushGroups = useCallback((callback) => {
     // This sets the group state once, then unsets it in the callback.  This
     // has the result of triggering an expand on all the groups, but then
     // gives control back to each group to decide to expand or not.
-    this.setState({ pushGroupState: 'expanded' }, () => {
-      this.setState({ pushGroupState: 'collapsed' });
+    setPushGroupState('expanded');
+    setTimeout(() => {
+      setPushGroupState('collapsed');
       callback();
-    });
-  };
+    }, 0);
+  }, []);
 
-  showUpdateNotifications = (prevState) => {
-    const { watched, jobCounts } = this.state;
-    const {
-      currentRepo,
-      notificationSupported,
-      push: { revision, id: pushId },
-      notify,
-    } = this.props;
-
+  const showUpdateNotifications = useCallback(() => {
     if (
       !notificationSupported ||
       Notification.permission !== 'granted' ||
@@ -455,7 +446,7 @@ class Push extends React.PureComponent {
       return;
     }
 
-    const lastCounts = prevState.jobCounts;
+    const lastCounts = prevJobCounts.current;
     if (jobCounts) {
       const lastUncompleted = lastCounts.pending + lastCounts.running;
       const nextUncompleted = jobCounts.pending + jobCounts.running;
@@ -466,7 +457,7 @@ class Push extends React.PureComponent {
       let message;
       if (lastUncompleted > 0 && nextUncompleted === 0) {
         message = 'Push completed';
-        this.setState({ watched: 'none' });
+        setWatched('none');
       } else if (watched === 'job' && lastCompleted < nextCompleted) {
         const completeCount = nextCompleted - lastCompleted;
         message = `${completeCount} jobs completed`;
@@ -474,8 +465,8 @@ class Push extends React.PureComponent {
 
       if (message) {
         const notification = new Notification(message, {
-          body: `${currentRepo.name} rev ${revision.substring(0, 12)}`,
-          tag: pushId,
+          body: `${currentRepo.name} rev ${push.revision.substring(0, 12)}`,
+          tag: push.id,
         });
 
         notification.onerror = (event) => {
@@ -483,53 +474,56 @@ class Push extends React.PureComponent {
         };
 
         notification.onclick = (event) => {
-          if (this.container) {
-            this.container.scrollIntoView();
+          if (containerRef.current) {
+            containerRef.current.scrollIntoView();
             event.target.close();
           }
         };
       }
     }
-  };
+  }, [
+    notificationSupported,
+    watched,
+    jobCounts,
+    currentRepo.name,
+    push.revision,
+    push.id,
+    notify,
+  ]);
 
-  showRunnableJobs = async () => {
-    const { push, notify, decisionTaskMap, currentRepo } = this.props;
-
+  const showRunnableJobs = useCallback(async () => {
     try {
-      const jobList = await RunnableJobModel.getList(currentRepo, {
+      const runJobList = await RunnableJobModel.getList(currentRepo, {
         decisionTask: decisionTaskMap[push.id],
         push_id: push.id,
       });
 
-      if (jobList.length === 0) {
+      if (runJobList.length === 0) {
         notify('No new jobs available');
       }
-      this.mapPushJobs(jobList, true);
-      this.setState({ runnableVisible: jobList.length > 0 });
+      mapPushJobs(runJobList, true);
+      setRunnableVisible(runJobList.length > 0);
     } catch (error) {
       notify(
         `Error fetching runnable jobs: Failed to fetch task ID (${error})`,
         'danger',
       );
     }
-  };
+  }, [currentRepo, decisionTaskMap, push.id, mapPushJobs, notify]);
 
-  hideRunnableJobs = () => {
-    const { jobList } = this.state;
-    const newJobList = jobList.filter((job) => job.state !== 'runnable');
-
-    this.setState(
-      {
-        runnableVisible: false,
-        selectedRunnableJobs: [],
-        jobList: newJobList,
-      },
-      () => this.mapPushJobs(newJobList),
+  const hideRunnableJobs = useCallback(() => {
+    const newJobList = jobListRef.current.filter(
+      (job) => job.state !== 'runnable',
     );
-  };
 
-  showFuzzyJobs = async () => {
-    const { push, currentRepo, notify, decisionTaskMap } = this.props;
+    setRunnableVisible(false);
+    setSelectedRunnableJobs([]);
+    setJobList(newJobList);
+    jobListRef.current = newJobList;
+    mapPushJobs(newJobList);
+  }, [mapPushJobs]);
+
+  const showFuzzyJobs = useCallback(async () => {
     const createRegExp = (str, opts) =>
       new RegExp(str.raw[0].replace(/\s/gm, ''), opts || '');
     const excludedJobNames = createRegExp`
@@ -543,12 +537,12 @@ class Push extends React.PureComponent {
 
     try {
       notify('Fetching runnable jobs... This could take a while...');
-      let fuzzyJobList = await RunnableJobModel.getList(currentRepo, {
+      let fuzzyList = await RunnableJobModel.getList(currentRepo, {
         decisionTask: decisionTaskMap[push.id],
       });
-      fuzzyJobList = [
+      fuzzyList = [
         ...new Set(
-          fuzzyJobList.map((job) => {
+          fuzzyList.map((job) => {
             const obj = {};
             obj.name = job.job_type_name;
             obj.symbol = job.job_type_symbol;
@@ -557,27 +551,22 @@ class Push extends React.PureComponent {
           }),
         ),
       ].sort((a, b) => (a.name > b.name ? 1 : -1));
-      const filteredFuzzyList = fuzzyJobList.filter(
+      const filteredList = fuzzyList.filter(
         (job) => job.name.search(excludedJobNames) < 0,
       );
-      this.setState({
-        fuzzyJobList,
-        filteredFuzzyList,
-      });
-      this.toggleFuzzyModal();
+      setFuzzyJobList(fuzzyList);
+      setFilteredFuzzyList(filteredList);
+      setFuzzyModal(true);
     } catch (error) {
       notify(
         `Error fetching runnable jobs: Failed to fetch task ID (${error})`,
         'danger',
       );
     }
-  };
+  }, [currentRepo, decisionTaskMap, push.id, notify]);
 
-  cycleWatchState = async () => {
-    const { notify } = this.props;
-    const { watched } = this.state;
-
-    if (!this.props.notificationSupported) {
+  const cycleWatchState = useCallback(async () => {
+    if (!notificationSupported) {
       return;
     }
 
@@ -592,184 +581,188 @@ class Push extends React.PureComponent {
         next = 'none';
       }
     }
-    this.setState({ watched: next });
-  };
+    setWatched(next);
+  }, [notificationSupported, watched, notify]);
 
-  toggleFuzzyModal = async () => {
-    this.setState((prevState) => ({
-      fuzzyModal: !prevState.fuzzyModal,
-      jobList: prevState.jobList,
-    }));
-  };
+  const toggleFuzzyModal = useCallback(() => {
+    setFuzzyModal((prev) => !prev);
+  }, []);
 
-  pushHealthStatusCallback = (pushHealthStatus) => {
-    this.setState({ pushHealthStatus });
-  };
+  const pushHealthStatusCallback = useCallback((status) => {
+    setPushHealthStatus(status);
+  }, []);
 
-  render() {
-    const {
-      push,
-      currentRepo,
-      duplicateJobsVisible,
-      filterModel,
-      notificationSupported,
-      getAllShownJobs,
-      groupCountsExpanded,
-      isOnlyRevision,
-      pushHealthVisibility,
-      decisionTaskMap,
-      bugSummaryMap,
-    } = this.props;
-    const {
-      fuzzyJobList,
-      fuzzyModal,
-      filteredFuzzyList,
-      watched,
-      runnableVisible,
-      pushGroupState,
-      platforms,
-      jobCounts,
-      selectedRunnableJobs,
-      collapsed,
-      filteredTryPush,
-      pushHealthStatus,
-    } = this.state;
-    const {
-      id,
-      push_timestamp: pushTimestamp,
-      revision,
-      revisions,
-      revision_count: revisionCount,
-      author,
-    } = push;
-    const tipRevision = push.revisions[0];
-    const decisionTask = decisionTaskMap[push.id];
-    const decisionTaskId = decisionTask ? decisionTask.id : null;
-    const showPushHealthSummary =
-      filteredTryPush &&
-      (pushHealthVisibility === 'All' ||
-        currentRepo.name === pushHealthVisibility.toLowerCase());
+  // componentDidMount
+  useEffect(() => {
+    const allParams = getAllUrlParams();
+    const promises = [];
 
-    if (isOnlyRevision) {
-      this.setSingleRevisionWindowTitle();
+    if (!allParams.has('nojobs')) {
+      promises.push(fetchJobs());
+    }
+    if (allParams.has('test_paths')) {
+      promises.push(fetchTestManifests());
     }
 
-    return (
-      <div
-        className="push"
-        data-testid={`push-${push.id}`}
-        ref={(ref) => {
-          this.container = ref;
-        }}
-      >
-        <FuzzyJobFinder
-          isOpen={fuzzyModal}
-          toggle={this.toggleFuzzyModal}
-          jobList={fuzzyJobList}
-          filteredJobList={filteredFuzzyList}
-          className="fuzzy-modal"
-          pushId={id}
-          decisionTaskId={decisionTaskId}
-          currentRepo={currentRepo}
-        />
-        <PushHeader
-          push={push}
-          pushId={id}
-          pushTimestamp={pushTimestamp}
-          author={author}
-          revision={revision}
-          jobCounts={jobCounts}
-          watchState={watched}
-          currentRepo={currentRepo}
-          filterModel={filterModel}
-          runnableVisible={runnableVisible}
-          showRunnableJobs={this.showRunnableJobs}
-          hideRunnableJobs={this.hideRunnableJobs}
-          showFuzzyJobs={this.showFuzzyJobs}
-          cycleWatchState={this.cycleWatchState}
-          expandAllPushGroups={this.expandAllPushGroups}
-          collapsed={collapsed}
-          getAllShownJobs={getAllShownJobs}
-          selectedRunnableJobs={selectedRunnableJobs}
-          notificationSupported={notificationSupported}
-          pushHealthVisibility={pushHealthVisibility}
-          groupCountsExpanded={groupCountsExpanded}
-          pushHealthStatusCallback={this.pushHealthStatusCallback}
-          togglePushCollapsed={this.togglePushCollapsed}
-        />
-        <div className="push-body-divider" />
-        {!collapsed ? (
-          <Row className="push g-1 flex-nowrap ms-5">
-            {currentRepo ? (
-              <>
-                <Col xs={5}>
-                  <RevisionList
-                    revision={revision}
-                    revisions={revisions}
-                    revisionCount={revisionCount}
-                    repo={currentRepo}
-                    bugSummaryMap={bugSummaryMap}
-                    widthClass="mb-3 ms-4"
-                    commitShaClass="font-monospace"
-                  >
-                    {showPushHealthSummary && pushHealthStatus && (
-                      <div className="mt-4">
-                        <PushHealthSummary
-                          healthStatus={pushHealthStatus}
-                          revision={revision}
-                          repoName={currentRepo.name}
-                        />
-                      </div>
-                    )}
-                  </RevisionList>
-                </Col>
-                <Col xs={7} className="job-list job-list-pad">
-                  <PushJobs
-                    push={push}
-                    platforms={platforms}
-                    repoName={currentRepo.name}
-                    filterModel={filterModel}
-                    pushGroupState={pushGroupState}
-                    toggleSelectedRunnableJob={this.toggleSelectedRunnableJob}
-                    runnableVisible={runnableVisible}
-                    duplicateJobsVisible={duplicateJobsVisible}
-                    groupCountsExpanded={groupCountsExpanded}
-                  />
-                </Col>
-              </>
-            ) : (
-              <Col xs={12} className="job-list job-list-pad">
+    Promise.all(promises).then(() => {
+      testForFilteredTry();
+    });
+
+    window.addEventListener(thEvents.applyNewJobs, handleApplyNewJobs);
+
+    return () => {
+      window.removeEventListener(thEvents.applyNewJobs, handleApplyNewJobs);
+    };
+  }, [handleApplyNewJobs]);
+
+  // componentDidUpdate - show notifications
+  useEffect(() => {
+    showUpdateNotifications();
+    prevJobCounts.current = jobCounts;
+  }, [jobCounts, showUpdateNotifications]);
+
+  // componentDidUpdate - test for filtered try
+  useEffect(() => {
+    testForFilteredTry();
+  }, [testForFilteredTry]);
+
+  // componentDidUpdate - handle URL changes
+  useEffect(() => {
+    if (prevRouterSearch.current !== router.location.search) {
+      handleUrlChanges();
+      prevRouterSearch.current = router.location.search;
+    }
+  }, [router.location.search, handleUrlChanges]);
+
+  const {
+    id,
+    push_timestamp: pushTimestamp,
+    revision,
+    revisions,
+    revision_count: revisionCount,
+    author,
+  } = push;
+  const tipRevision = push.revisions[0];
+  const decisionTask = decisionTaskMap[push.id];
+  const decisionTaskId = decisionTask ? decisionTask.id : null;
+  const showPushHealthSummary =
+    filteredTryPush &&
+    (pushHealthVisibility === 'All' ||
+      currentRepo.name === pushHealthVisibility.toLowerCase());
+
+  if (isOnlyRevision) {
+    setSingleRevisionWindowTitle();
+  }
+
+  return (
+    <div className="push" data-testid={`push-${push.id}`} ref={containerRef}>
+      <FuzzyJobFinder
+        isOpen={fuzzyModal}
+        toggle={toggleFuzzyModal}
+        jobList={fuzzyJobList}
+        filteredJobList={filteredFuzzyList}
+        className="fuzzy-modal"
+        pushId={id}
+        decisionTaskId={decisionTaskId}
+        currentRepo={currentRepo}
+      />
+      <PushHeader
+        push={push}
+        pushId={id}
+        pushTimestamp={pushTimestamp}
+        author={author}
+        revision={revision}
+        jobCounts={jobCounts}
+        watchState={watched}
+        currentRepo={currentRepo}
+        filterModel={filterModel}
+        runnableVisible={runnableVisible}
+        showRunnableJobs={showRunnableJobs}
+        hideRunnableJobs={hideRunnableJobs}
+        showFuzzyJobs={showFuzzyJobs}
+        cycleWatchState={cycleWatchState}
+        expandAllPushGroups={expandAllPushGroups}
+        collapsed={collapsed}
+        getAllShownJobs={getAllShownJobs}
+        selectedRunnableJobs={selectedRunnableJobs}
+        notificationSupported={notificationSupported}
+        pushHealthVisibility={pushHealthVisibility}
+        groupCountsExpanded={groupCountsExpanded}
+        pushHealthStatusCallback={pushHealthStatusCallback}
+        togglePushCollapsed={togglePushCollapsed}
+      />
+      <div className="push-body-divider" />
+      {!collapsed ? (
+        <Row className="push g-1 flex-nowrap ms-5">
+          {currentRepo ? (
+            <>
+              <Col xs={5}>
+                <RevisionList
+                  revision={revision}
+                  revisions={revisions}
+                  revisionCount={revisionCount}
+                  repo={currentRepo}
+                  bugSummaryMap={bugSummaryMap}
+                  widthClass="mb-3 ms-4"
+                  commitShaClass="font-monospace"
+                >
+                  {showPushHealthSummary && pushHealthStatus && (
+                    <div className="mt-4">
+                      <PushHealthSummary
+                        healthStatus={pushHealthStatus}
+                        revision={revision}
+                        repoName={currentRepo.name}
+                      />
+                    </div>
+                  )}
+                </RevisionList>
+              </Col>
+              <Col xs={7} className="job-list job-list-pad">
                 <PushJobs
                   push={push}
                   platforms={platforms}
                   repoName={currentRepo.name}
                   filterModel={filterModel}
                   pushGroupState={pushGroupState}
-                  toggleSelectedRunnableJob={this.toggleSelectedRunnableJob}
+                  toggleSelectedRunnableJob={toggleSelectedRunnableJob}
                   runnableVisible={runnableVisible}
                   duplicateJobsVisible={duplicateJobsVisible}
                   groupCountsExpanded={groupCountsExpanded}
                 />
               </Col>
-            )}
-          </Row>
-        ) : (
-          <Row className="push revision-list">
-            <Col xs={12}>
-              <ul className="list-unstyled">
-                <Revision
-                  revision={tipRevision}
-                  repo={currentRepo}
-                  key={tipRevision.revision}
-                  commitShaClass="font-monospace"
-                />
-              </ul>
+            </>
+          ) : (
+            <Col xs={12} className="job-list job-list-pad">
+              <PushJobs
+                push={push}
+                platforms={platforms}
+                repoName={currentRepo.name}
+                filterModel={filterModel}
+                pushGroupState={pushGroupState}
+                toggleSelectedRunnableJob={toggleSelectedRunnableJob}
+                runnableVisible={runnableVisible}
+                duplicateJobsVisible={duplicateJobsVisible}
+                groupCountsExpanded={groupCountsExpanded}
+              />
             </Col>
-          </Row>
-        )}
-      </div>
-    );
-  }
+          )}
+        </Row>
+      ) : (
+        <Row className="push revision-list">
+          <Col xs={12}>
+            <ul className="list-unstyled">
+              <Revision
+                revision={tipRevision}
+                repo={currentRepo}
+                key={tipRevision.revision}
+                commitShaClass="font-monospace"
+              />
+            </ul>
+          </Col>
+        </Row>
+      )}
+    </div>
+  );
 }
 
 Push.propTypes = {
@@ -808,4 +801,4 @@ export default connect(mapStateToProps, {
   notify,
   updateJobMap,
   recalculateUnclassifiedCounts,
-})(Push);
+})(memo(Push));

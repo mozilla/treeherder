@@ -5,7 +5,7 @@ import { Button, Form, InputGroup } from 'react-bootstrap';
 export default class Assignee extends React.Component {
   constructor(props) {
     super(props);
-    const { assigneeUsername } = props;
+    const { assigneeUsername = null } = props;
 
     this.state = {
       assigneeUsername,
@@ -142,8 +142,4 @@ Assignee.propTypes = {
   updateAssignee: PropTypes.func.isRequired,
   user: PropTypes.shape({}).isRequired,
   assigneeUsername: PropTypes.string,
-};
-
-Assignee.defaultProps = {
-  assigneeUsername: null,
 };
