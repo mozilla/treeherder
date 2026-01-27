@@ -7,7 +7,7 @@ import simplejson as json
 from django.conf import settings
 
 from treeherder.log_parser.utils import validate_perf_data
-from treeherder.model.models import Job, OptionCollection, Repository
+from treeherder.model.models import Job, OptionCollection
 from treeherder.perf.models import (
     MultiCommitDatum,
     PerformanceDatum,
@@ -127,29 +127,6 @@ def _test_should_alert_based_on(
         and job.repository.performance_alerts_enabled
         and job.tier_is_sheriffable
     ) or (signature.monitor and job.repository.name not in ("try",))
-
-
-def _test_should_gather_replicates_based_on(
-    repository: Repository, suite_name: str, replicates: list | None
-) -> bool:
-    """
-    Determine if we should gather/ingest replicates. Currently, it's
-    only available on the try branch. Some tests also don't have replicates
-    available as it's not a required field in our performance artifact
-    schema. Replicates are also gathered for speedometer3 tests from
-    mozilla-central.
-    """
-    if replicates and len(replicates) > 0:
-        if repository.name in (
-            "try",
-            "mozilla-release",
-            "mozilla-beta",
-            "firefox-ios",
-            "mozilla-central",
-            "autoland",
-        ):
-            return True
-    return False
 
 
 def _load_perf_datum(job: Job, perf_datum: dict):
@@ -321,9 +298,8 @@ def _load_perf_datum(job: Job, perf_datum: dict):
                 },
             )
 
-            if _test_should_gather_replicates_based_on(
-                job.repository, suite["name"], subtest.get("replicates", [])
-            ):
+            replicates = subtest.get("replicates", [])
+            if replicates and len(replicates) > 0:
                 try:
                     # Add the replicates to the PerformanceDatumReplicate table, and
                     # catch and ignore any exceptions that are produced here so we don't
@@ -333,7 +309,7 @@ def _load_perf_datum(job: Job, perf_datum: dict):
                             PerformanceDatumReplicate(
                                 value=replicate, performance_datum=subtest_datum
                             )
-                            for replicate in subtest["replicates"]
+                            for replicate in replicates
                         ]
                     )
                 except Exception as e:
