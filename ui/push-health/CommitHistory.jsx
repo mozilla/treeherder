@@ -47,7 +47,7 @@ class CommitHistory extends React.PureComponent {
       },
       revision,
       currentRepo,
-      showParent,
+      showParent = true,
     } = this.props;
     const { clipboardVisible, isExpanded } = this.state;
     const parentRepoModel = new RepositoryModel(parentRepository);
@@ -204,7 +204,7 @@ class CommitHistory extends React.PureComponent {
 
 CommitHistory.propTypes = {
   history: PropTypes.shape({
-    parentRepository: PropTypes.shape({}).isRequired,
+    parentRepository: PropTypes.shape({}),
     revisionCount: PropTypes.number.isRequired,
     parentPushRevision: PropTypes.string,
     job_counts: PropTypes.shape({
@@ -217,10 +217,6 @@ CommitHistory.propTypes = {
   revision: PropTypes.string.isRequired,
   currentRepo: PropTypes.shape({}).isRequired,
   showParent: PropTypes.bool,
-};
-
-CommitHistory.defaultProps = {
-  showParent: true,
 };
 
 export default CommitHistory;

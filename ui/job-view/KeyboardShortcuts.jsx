@@ -280,13 +280,9 @@ KeyboardShortcuts.propTypes = {
   selectedJob: PropTypes.shape({}),
 };
 
-KeyboardShortcuts.defaultProps = {
-  selectedJob: null,
-};
-
 const mapStateToProps = ({
   notifications: { notifications },
-  selectedJob: { selectedJob },
+  selectedJob: { selectedJob = null },
   pinnedJobs: { pinnedJobs },
 }) => ({
   notifications,

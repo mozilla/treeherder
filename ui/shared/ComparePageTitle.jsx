@@ -19,7 +19,7 @@ export default class ComparePageTitle extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { pageTitleQueryParam, title } = this.props;
+    const { pageTitleQueryParam = null, title } = this.props;
     if (
       prevProps.pageTitleQueryParam !== pageTitleQueryParam ||
       prevProps.title !== title
@@ -29,7 +29,7 @@ export default class ComparePageTitle extends React.Component {
   }
 
   setPageTitle = () => {
-    const { pageTitleQueryParam, title } = this.props;
+    const { pageTitleQueryParam = null, title } = this.props;
 
     this.setState({
       pageTitle: pageTitleQueryParam || title,
@@ -161,8 +161,4 @@ export default class ComparePageTitle extends React.Component {
 ComparePageTitle.propTypes = {
   title: PropTypes.string.isRequired,
   pageTitleQueryParam: PropTypes.string,
-};
-
-ComparePageTitle.defaultProps = {
-  pageTitleQueryParam: null,
 };

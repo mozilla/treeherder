@@ -10,7 +10,7 @@ import JobButton from './JobButton';
 import JobCount from './JobCount';
 
 const GroupSymbol = function GroupSymbol(props) {
-  const { symbol, tier, toggleExpanded } = props;
+  const { symbol, tier = 1, toggleExpanded } = props;
 
   return (
     <button type="button" className="btn group-symbol" onClick={toggleExpanded}>
@@ -24,10 +24,6 @@ GroupSymbol.propTypes = {
   symbol: PropTypes.string.isRequired,
   toggleExpanded: PropTypes.func.isRequired,
   tier: PropTypes.number,
-};
-
-GroupSymbol.defaultProps = {
-  tier: 1,
 };
 
 export class JobGroupComponent extends React.Component {

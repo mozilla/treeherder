@@ -40,7 +40,7 @@ export default class AlertModal extends React.Component {
       showModal,
       toggle,
       updateAndClose,
-      dropdownOption,
+      dropdownOption = null,
       header,
       title,
     } = this.props;
@@ -101,8 +101,4 @@ AlertModal.propTypes = {
   dropdownOption: PropTypes.shape({}),
   header: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
-};
-
-AlertModal.defaultProps = {
-  dropdownOption: null,
 };
