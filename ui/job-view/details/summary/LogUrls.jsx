@@ -8,8 +8,11 @@ import logviewerIcon from '../../../img/logviewerIcon.svg';
 import LogItem from './LogItem';
 
 export default function LogUrls(props) {
-  const { logUrls, logViewerUrl, logViewerFullUrl } = props;
+  const { logUrls, rawLogUrls, logViewerUrl, logViewerFullUrl } = props;
   const logUrlsUseful = logUrls.filter(
+    (logUrl) => !logUrl.name.includes('perfherder-data'),
+  );
+  const rawLogUrlsUseful = rawLogUrls.filter(
     (logUrl) => !logUrl.name.includes('perfherder-data'),
   );
 
@@ -28,7 +31,7 @@ export default function LogUrls(props) {
 
       {/* Raw Log */}
       <LogItem
-        logUrls={logUrlsUseful}
+        logUrls={rawLogUrlsUseful}
         logViewerUrl={logViewerUrl}
         logViewerFullUrl={logViewerFullUrl}
         logKey="rawlog"
@@ -46,6 +49,7 @@ export default function LogUrls(props) {
 
 LogUrls.propTypes = {
   logUrls: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  rawLogUrls: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   logViewerUrl: PropTypes.string,
   logViewerFullUrl: PropTypes.string,
 };

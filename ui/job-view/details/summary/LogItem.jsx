@@ -82,7 +82,7 @@ export default function LogItem(props) {
       {/* Case 2: Only one logurl - Display a button */}
       {logUrls.length === 1 && (
         <a
-          className="logviewer-btn"
+          className={`logviewer-btn${logKey === 'rawlog' ? ' rawlog-btn' : ''}`}
           data-testid="logviewer-btn"
           {...getLogUrlProps(
             logKey,
