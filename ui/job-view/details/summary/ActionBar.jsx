@@ -97,9 +97,11 @@ class ActionBar extends React.PureComponent {
 
   // Open the raw log and provide notifications if it isn't available
   onOpenRawLog = () => {
-    const { jobLogUrls, notify } = this.props;
-    if (jobLogUrls && jobLogUrls.length > 0) {
-      window.open(jobLogUrls[0].url, '_blank');
+    const { notify } = this.props;
+    const rawLogButton = document.querySelector('.rawlog-btn');
+
+    if (rawLogButton) {
+      rawLogButton.click();
     } else {
       notify('No logs available for this job');
     }
@@ -349,9 +351,25 @@ class ActionBar extends React.PureComponent {
       jobLogUrls,
       pinJob,
       currentRepo,
+      jobDetails,
     } = this.props;
     const { customJobActionsShowing } = this.state;
     const resourceUsageProfile = this.getResourceUsageProfile();
+
+    // For running tasks, add the live.log from artifacts for raw log only
+    let rawLogUrls = jobLogUrls;
+    if (
+      selectedJobFull.state === 'running' &&
+      jobDetails &&
+      !jobLogUrls.length
+    ) {
+      const liveLog = jobDetails.find((detail) =>
+        detail.value.includes('live.log'),
+      );
+      if (liveLog) {
+        rawLogUrls = [{ url: liveLog.url, name: 'live.log', id: 'live' }];
+      }
+    }
 
     return (
       <div id="actionbar">
@@ -359,6 +377,7 @@ class ActionBar extends React.PureComponent {
           <ul className="nav actionbar-nav">
             <LogUrls
               logUrls={jobLogUrls}
+              rawLogUrls={rawLogUrls}
               logViewerUrl={logViewerUrl}
               logViewerFullUrl={logViewerFullUrl}
             />
@@ -580,6 +599,7 @@ ActionBar.propTypes = {
   logParseStatus: PropTypes.string.isRequired,
   notify: PropTypes.func.isRequired,
   jobLogUrls: PropTypes.arrayOf(PropTypes.shape({})),
+  jobDetails: PropTypes.arrayOf(PropTypes.shape({})),
   currentRepo: PropTypes.shape({}).isRequired,
   isTryRepo: PropTypes.bool,
   logViewerUrl: PropTypes.string,
@@ -591,6 +611,7 @@ ActionBar.defaultProps = {
   logViewerUrl: null,
   logViewerFullUrl: null,
   jobLogUrls: [],
+  jobDetails: [],
 };
 
 const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({
