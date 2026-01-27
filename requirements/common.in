@@ -37,7 +37,7 @@ django-cache-memoize==0.2.1  # Imported as cache_memoize
 mozci[cache]==2.4.3
 
 # Dockerflow/CloudOps APIs
-dockerflow==2024.4.2
+dockerflow==2026.1.26
 
 # Measuring noise of perf data
 moz-measure-noise==2.70.0
