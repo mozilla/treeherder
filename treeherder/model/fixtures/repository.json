@@ -2033,5 +2033,19 @@
       "repository_group": 6,
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
+  },
+  {
+    "pk": 144,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "git",
+      "name": "enterprise-firefox-release",
+      "url": "https://github.com/mozilla/enterprise-firefox",
+      "branch": "enterprise-release",
+      "active_status": "active",
+      "codebase": "enterprise-firefox",
+      "repository_group": 6,
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
+    }
   }
 ]
