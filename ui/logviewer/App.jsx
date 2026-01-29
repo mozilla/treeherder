@@ -1,6 +1,7 @@
 import React from 'react';
 import { LazyLog } from '@melloware/react-logviewer';
 import isEqual from 'lodash/isEqual';
+
 import {
   getAllUrlParams,
   getUrlParam,

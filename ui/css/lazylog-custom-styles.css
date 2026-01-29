@@ -6,12 +6,12 @@
 }
 
 .react-lazylog div:hover {
-  background: transparent;
+  background: transparent !important;
 }
 
 .react-lazylog a:hover {
-  background: #f8eec7;
-  color: #000;
+  background: #f8eec7 !important;
+  color: #000 !important;
 }
 
 .react-lazylog a {
@@ -45,7 +45,7 @@
 }
 
 .react-lazylog-searchbar-filter svg {
-  fill: white;
+  fill: white !important;
 }
 
 .react-lazylog-searchbar-matches {
