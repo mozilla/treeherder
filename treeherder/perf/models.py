@@ -408,6 +408,10 @@ class PerformanceAlertSummaryBase(models.Model):
         self.status = self.autodetermine_status()
         self.save(using=using)
 
+    def update_bug_due_date(self, alert_created, using=None):
+        self.bug_due_date = calculate_time_to(alert_created, BUG_DAYS)
+        self.save(using=using)
+
     def autodetermine_status(self, alert_model=None):
         summary_class = self.__class__
         if not alert_model:
@@ -696,6 +700,7 @@ class PerformanceAlert(PerformanceAlertBase):
         # so the summary properly updates there
         using = kwargs.get("using", None)
         self.summary.update_status(using=using)
+        self.summary.update_bug_due_date(self.created, using=using)
         if self.related_summary:
             self.related_summary.update_status(using=using)
 
