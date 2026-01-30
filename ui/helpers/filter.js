@@ -75,6 +75,10 @@ export const arraysEqual = function arraysEqual(arr1, arr2) {
   }
   const set1 = new Set(arr1);
   const set2 = new Set(arr2);
+  // Check if both sets have the same size (to handle duplicates correctly)
+  if (set1.size !== set2.size) {
+    return false;
+  }
   // Check if all elements in set1 are present in set2
   for (const item of set1) {
     if (!set2.has(item)) {
