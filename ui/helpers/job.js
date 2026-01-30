@@ -1,4 +1,8 @@
 import TaskclusterModel from '../models/taskcluster';
+import {
+  getJobButtonInstance,
+  getCurrentlySelectedInstance,
+} from '../hooks/useJobButtonRegistry';
 
 import { thFailureResults, thPlatformMap } from './constants';
 import { getGroupMapKey } from './aggregateId';
@@ -146,19 +150,43 @@ export const isUnclassifiedFailure = function isUnclassifiedFailure(job) {
   return thFailureResults.includes(job.result) && !isClassified(job);
 };
 
-// Fetch the React instance of an object from a DOM element.
-// Credit for this approach goes to SO: https://stackoverflow.com/a/48335220/333614
+// Fetch the registered instance of a job button from a DOM element.
+// Uses the job button registry which stores imperative handles for functional components.
+// If the element doesn't have a data-job-id, traverse up the DOM tree to find one.
 export const findInstance = function findInstance(el) {
-  const key = Object.keys(el).find((key) => key.startsWith('__reactFiber$'));
-  if (key) {
-    const fiberNode = el[key];
-    return fiberNode && fiberNode.return && fiberNode.return.stateNode;
+  // First check the element itself
+  let jobId = el.getAttribute('data-job-id');
+  if (jobId) {
+    return getJobButtonInstance(jobId);
   }
+
+  // If not found, traverse up the DOM tree to find a parent with data-job-id
+  // This handles clicks on child elements like SVG icons inside job buttons
+  if (typeof el.closest === 'function') {
+    const parentWithJobId = el.closest('[data-job-id]');
+    if (parentWithJobId) {
+      jobId = parentWithJobId.getAttribute('data-job-id');
+      if (jobId) {
+        return getJobButtonInstance(jobId);
+      }
+    }
+  }
+
   return null;
 };
 
 // Fetch the React instance of the currently selected job.
+// Uses the tracked instance first (more reliable), then falls back to DOM query.
+// This avoids race conditions where the DOM might not have the .selected-job class
+// yet because React hasn't re-rendered after setSelected(true) was called.
 export const findSelectedInstance = function findSelectedInstance() {
+  // Try the tracked instance first - this is more reliable
+  const trackedInstance = getCurrentlySelectedInstance();
+  if (trackedInstance) {
+    return trackedInstance;
+  }
+
+  // Fall back to DOM query for backwards compatibility
   const selectedEl = document.querySelector('#push-list .job-btn.selected-job');
 
   if (selectedEl) {

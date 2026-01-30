@@ -9,6 +9,11 @@ import {
   getTaskRunStr,
   scrollToElement,
 } from '../../../helpers/job';
+import {
+  getCurrentlySelectedInstance,
+  setCurrentlySelectedInstance,
+  clearCurrentlySelectedInstance,
+} from '../../../hooks/useJobButtonRegistry';
 import { thJobNavSelectors } from '../../../helpers/constants';
 import {
   getUrlParam,
@@ -18,37 +23,48 @@ import {
 import JobModel from '../../../models/job';
 import { getJobsUrl } from '../../../helpers/url';
 
+// Action types
+export const SYNC_JOB_FROM_URL = 'SYNC_JOB_FROM_URL';
+export const UPDATE_JOB_DETAILS = 'UPDATE_JOB_DETAILS';
+
+// Legacy action types (kept for backwards compatibility during migration)
 export const SELECT_JOB = 'SELECT_JOB';
 export const SELECT_JOB_FROM_QUERY_STRING = 'SELECT_JOB_FROM_QUERY_STRING';
 export const CLEAR_JOB = 'CLEAR_JOB';
-export const UPDATE_JOB_DETAILS = 'UPDATE_JOB_DETAILS';
 
-export const setSelectedJob = (job, updateDetails = true) => {
-  return async (dispatch) => {
-    dispatch({
-      type: SELECT_JOB,
-      job,
-    });
-    if (updateDetails) {
-      const taskRun = job ? getTaskRunStr(job) : null;
-      const params = setUrlParams([['selectedTaskRun', taskRun]]);
-      dispatch(pushRoute({ search: params }));
-    }
+/**
+ * URL-FIRST ARCHITECTURE
+ *
+ * The URL is the single source of truth for job selection.
+ * All selection changes go through the URL, and a single sync effect
+ * reads the URL and updates the Redux state and visual selection.
+ *
+ * Flow:
+ * 1. User clicks job → selectJobViaUrl(job) → URL updates
+ * 2. URL change detected → syncSelectionFromUrl(jobMap) → Redux + visual update
+ *
+ * This eliminates race conditions caused by updating Redux and URL separately.
+ */
+
+/**
+ * Select a job by updating the URL only.
+ * The URL change will trigger syncSelectionFromUrl which updates Redux state.
+ * This is the PRIMARY way to select a job.
+ */
+export const selectJobViaUrl = (job) => {
+  return (dispatch) => {
+    const taskRun = job ? getTaskRunStr(job) : null;
+    const params = setUrlParams([['selectedTaskRun', taskRun]]);
+    dispatch(pushRoute({ search: params }));
   };
 };
 
-export const setSelectedJobFromQueryString = (notify, jobMap) => ({
-  type: SELECT_JOB_FROM_QUERY_STRING,
-  notify,
-  jobMap,
-});
-
-export const clearSelectedJob = (countPinnedJobs) => {
-  return async (dispatch) => {
-    dispatch({
-      type: CLEAR_JOB,
-      countPinnedJobs,
-    });
+/**
+ * Clear the selected job by updating the URL only.
+ * The URL change will trigger syncSelectionFromUrl which updates Redux state.
+ */
+export const clearJobViaUrl = () => {
+  return (dispatch) => {
     const params = setUrlParams([
       ['selectedTaskRun', null],
       ['selectedJob', null],
@@ -57,6 +73,21 @@ export const clearSelectedJob = (countPinnedJobs) => {
   };
 };
 
+/**
+ * Sync the selection state from the URL.
+ * This is the ONLY place where Redux selectedJob state is updated.
+ * Called when URL changes (including initial load, clicks, back/forward).
+ */
+export const syncSelectionFromUrl = (jobMap, notify) => ({
+  type: SYNC_JOB_FROM_URL,
+  jobMap,
+  notify,
+});
+
+/**
+ * Update job details without changing selection.
+ * Used when the selected job's data is refreshed (e.g., state change).
+ */
 export const updateJobDetails = (job) => {
   return async (dispatch) => {
     dispatch({
@@ -66,14 +97,76 @@ export const updateJobDetails = (job) => {
         debounce: 'nextJob',
       },
     });
+    // Also update URL to ensure it reflects the latest task run
     const taskRun = job ? getTaskRunStr(job) : null;
     const params = setUrlParams([['selectedTaskRun', taskRun]]);
     dispatch(pushRoute({ search: params }));
   };
 };
 
+// ============================================================================
+// LEGACY ACTIONS - Kept for backwards compatibility during migration
+// These will be removed once all callers are updated to use URL-first pattern
+// ============================================================================
+
+/**
+ * @deprecated Use selectJobViaUrl instead
+ */
+export const setSelectedJob = (job, updateUrl = true) => {
+  return async (dispatch) => {
+    // During migration, this now just updates the URL
+    // The URL change will trigger syncSelectionFromUrl
+    if (updateUrl) {
+      dispatch(selectJobViaUrl(job));
+    } else {
+      // For cases where we explicitly don't want URL update (internal sync),
+      // directly dispatch the sync action
+      dispatch({
+        type: SELECT_JOB,
+        job,
+      });
+    }
+  };
+};
+
+/**
+ * @deprecated Use syncSelectionFromUrl instead
+ */
+export const setSelectedJobFromQueryString = (notify, jobMap) => ({
+  type: SELECT_JOB_FROM_QUERY_STRING,
+  notify,
+  jobMap,
+});
+
+/**
+ * @deprecated Use clearJobViaUrl instead
+ */
+export const clearSelectedJob = (countPinnedJobs, updateUrl = true) => {
+  return async (dispatch) => {
+    if (updateUrl) {
+      dispatch(clearJobViaUrl());
+    } else {
+      // For cases where we explicitly don't want URL update (internal sync),
+      // directly dispatch the clear action
+      dispatch({
+        type: CLEAR_JOB,
+        countPinnedJobs,
+      });
+    }
+  };
+};
+
+// ============================================================================
+// INTERNAL HELPERS
+// ============================================================================
+
+/**
+ * Update the visual selection state (CSS classes, scroll into view).
+ * Called by the reducer when selection changes.
+ */
 export const doSelectJob = (job) => {
-  const selected = findSelectedInstance();
+  // Use the tracked instance first (more reliable), fall back to DOM query
+  const selected = getCurrentlySelectedInstance() || findSelectedInstance();
 
   if (selected) selected.setSelected(false);
 
@@ -81,7 +174,12 @@ export const doSelectJob = (job) => {
 
   if (newSelectedElement) {
     newSelectedElement.setSelected(true);
+    // Track the newly selected instance for reliable deselection later
+    setCurrentlySelectedInstance(job.id, newSelectedElement);
   } else {
+    // Clear tracking since the job element doesn't exist
+    clearCurrentlySelectedInstance();
+
     const group = findGroupInstance(job);
     if (group) {
       group.setExpanded(true);
@@ -98,10 +196,15 @@ export const doSelectJob = (job) => {
   return { selectedJob: job };
 };
 
+/**
+ * Clear the visual selection state.
+ */
 export const doClearSelectedJob = (countPinnedJobs) => {
   if (!countPinnedJobs) {
-    const selected = findSelectedInstance();
+    const selected = getCurrentlySelectedInstance() || findSelectedInstance();
     if (selected) selected.setSelected(false);
+
+    clearCurrentlySelectedInstance();
 
     return { selectedJob: null };
   }
@@ -124,8 +227,6 @@ const searchDatabaseForTaskRun = async (jobParams, notify) => {
       selectedTaskRun: getTaskRunStr(task),
     });
     const message = taskId ? `Selected task: ${taskId}` : `Selected job: ${id}`;
-    // The task exists, but isn't in any loaded push.
-    // provide a message and link to load the right push
 
     notify(`${message} not within current push range.`, 'danger', {
       sticky: true,
@@ -133,8 +234,6 @@ const searchDatabaseForTaskRun = async (jobParams, notify) => {
       url: newPushUrl,
     });
   } else {
-    // The task wasn't found in the db.  Either never existed,
-    // or was expired and deleted.
     const message = taskId
       ? `Task not found: ${taskId}${runId ? `, run ${runId}` : ''}`
       : `Job ID not found: ${id}`;
@@ -143,22 +242,18 @@ const searchDatabaseForTaskRun = async (jobParams, notify) => {
 };
 
 /**
- * If the URL has a query string param of ``selectedJob`` then select
- * that job on load.
- *
- * If that job isn't in any of the loaded pushes, then throw
- * an error and provide a link to load it with the right push.
+ * Sync selection state from URL parameters.
+ * This is the single source of truth for job selection.
  */
-const doSetSelectedJobFromQueryString = (notify, jobMap) => {
+const doSyncSelectionFromUrl = (jobMap, notify) => {
   const selectedTaskRun = getUrlParam('selectedTaskRun');
+
   if (selectedTaskRun) {
     const { taskId, runId } = getTaskRun(selectedTaskRun);
 
     if (taskId === undefined) {
       setUrlParam('selectedJob');
       setUrlParam('selectedTaskRun');
-      // FIXME: Reducers may not dispatch actions.
-      // notify(`Error parsing selectedTaskRun "${selectedTaskRun}`, 'danger', { sticky: true });
       return doClearSelectedJob({});
     }
 
@@ -176,84 +271,63 @@ const doSetSelectedJobFromQueryString = (notify, jobMap) => {
     }
 
     if (task) {
+      // Normalize URL to use consistent format
       setUrlParam('selectedJob');
       setUrlParam('selectedTaskRun', getTaskRunStr(task));
       return doSelectJob(task);
     }
 
     if (getUrlParam('revision')) {
-      /* A standalone push which got opened deliberately. Either a task of a
-         different push was selected or none. */
       return doClearSelectedJob({});
     }
-    // We are attempting to select a task, but that task is not in the current
-    // range of pushes.  So we search for it in the database to help the user
-    // locate it.
+
+    // Task not in loaded pushes - search database
     searchDatabaseForTaskRun({ task_id: taskId, retry_id: runId }, notify);
     return doClearSelectedJob({});
   }
 
-  // Try to find the Task by selectedJobId
+  // Check legacy selectedJob param
   const selectedJob = getUrlParam('selectedJob');
   if (selectedJob) {
     const selectedJobId = parseInt(selectedJob, 10);
     const task = jobMap[selectedJobId];
 
-    // select the job in question
     if (task) {
+      // Migrate to new URL format
       setUrlParam('selectedJob');
       setUrlParam('selectedTaskRun', getTaskRunStr(task));
-
       return doSelectJob(task);
     }
 
     if (getUrlParam('revision')) {
-      /* A standalone push which got opened deliberately. Either a task of a
-         different push was selected or none. */
       return doClearSelectedJob({});
     }
-    // We are attempting to select a task, but that task is not in the current
-    // range of pushes.  So we search for it in the database to help the user
-    // locate it.
+
     searchDatabaseForTaskRun({ id: selectedJobId }, notify);
     return doClearSelectedJob({});
   }
 
+  // No selection in URL
   return doClearSelectedJob({});
 };
 
-export const changeJob = (
-  direction,
-  unclassifiedOnly,
-  countPinnedJobs,
-  notify,
-) => {
+/**
+ * Navigate to next/previous job.
+ * Returns the job to select (caller should update URL).
+ */
+export const findNextJob = (direction, unclassifiedOnly, notify) => {
   const jobNavSelector = unclassifiedOnly
     ? thJobNavSelectors.UNCLASSIFIED_FAILURES
     : thJobNavSelectors.ALL_JOBS;
   const noMoreText = `No ${
     unclassifiedOnly ? 'unclassified failures' : 'jobs'
   } to select`;
-  // Get the appropriate next index based on the direction and current job
-  // selection (if any).  Must wrap end to end.
+
   const getIndex =
     direction === 'next'
       ? (idx, jobs) => (idx + 1 > jobs.length - 1 ? 0 : idx + 1)
       : (idx, jobs) => (idx - 1 < 0 ? jobs.length - 1 : idx - 1);
 
-  // Filter the list of possible jobs down to ONLY ones in the .th-view-content
-  // div (excluding pinBoard) and then to the specific selector passed
-  // in.  And then to only VISIBLE (not filtered away) jobs.  The exception
-  // is for the .selected-job.  Even if the ``visible`` field is set to false,
-  // this includes it because it is the anchor from which we find
-  // the next/previous job.
-  //
-  // The .selected-job can be ``visible: false``, but still showing to the
-  // user.  This can happen when filtered to unclassified failures only,
-  // and you then classify the selected job.  It's ``visible`` field is set
-  // to false, but it is still showing to the user because it is still
-  // selected.  This is very important to the sheriff workflow.  As soon as
-  // selection changes away from it, the job will no longer be visible.
   const content = document.querySelector('#push-list');
   const jobs = Array.prototype.slice.call(
     content.querySelectorAll(jobNavSelector.selector),
@@ -270,17 +344,34 @@ export const changeJob = (
       const jobInstance = findJobInstance(jobId, true);
 
       if (jobInstance) {
-        // Delay updating details for the new job right away,
-        // in case the user is switching rapidly between jobs
-        return doSelectJob(jobInstance.props.job);
+        return jobInstance.props.job;
       }
     }
   }
-  // if there was no new job selected, then ensure that we clear any job that
-  // was previously selected.
+
   notify(noMoreText);
+  return null;
+};
+
+/**
+ * @deprecated Use findNextJob + selectJobViaUrl instead
+ */
+export const changeJob = (
+  direction,
+  unclassifiedOnly,
+  countPinnedJobs,
+  notify,
+) => {
+  const job = findNextJob(direction, unclassifiedOnly, notify);
+  if (job) {
+    return doSelectJob(job);
+  }
   return doClearSelectedJob(countPinnedJobs);
 };
+
+// ============================================================================
+// REDUCER
+// ============================================================================
 
 export const initialState = {
   selectedJob: null,
@@ -290,14 +381,19 @@ export const reducer = (state = initialState, action) => {
   const { job, jobMap, countPinnedJobs, notify } = action;
 
   switch (action.type) {
+    case SYNC_JOB_FROM_URL:
+      return doSyncSelectionFromUrl(jobMap, notify);
+
+    // Legacy actions - still supported during migration
     case SELECT_JOB:
       return doSelectJob(job);
     case SELECT_JOB_FROM_QUERY_STRING:
-      return doSetSelectedJobFromQueryString(notify, jobMap);
+      return doSyncSelectionFromUrl(jobMap, notify);
     case UPDATE_JOB_DETAILS:
       return { selectedJob: job };
     case CLEAR_JOB:
       return { ...state, ...doClearSelectedJob(countPinnedJobs) };
+
     default:
       return state;
   }

@@ -154,7 +154,9 @@ describe('DetailsPanel', () => {
 
   test('pin selected job with button', async () => {
     const { getByTitle } = render(testDetailsPanel());
-    store.dispatch(setSelectedJob(jobList.data[1], true));
+    // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
+    // This is needed because tests don't have PushList to sync selection from URL
+    store.dispatch(setSelectedJob(jobList.data[1], false));
 
     fireEvent.click(await waitFor(() => getByTitle('Pin job')));
 
@@ -168,7 +170,8 @@ describe('DetailsPanel', () => {
 
   test('KeyboardShortcut space: pin selected job', async () => {
     const { getByTitle } = render(testDetailsPanel());
-    store.dispatch(setSelectedJob(jobList.data[1], true));
+    // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
+    store.dispatch(setSelectedJob(jobList.data[1], false));
 
     const content = await waitFor(() =>
       document.querySelector('#th-global-content'),
@@ -184,7 +187,8 @@ describe('DetailsPanel', () => {
 
   test('KeyboardShortcut b: pin selected task and edit bug', async () => {
     const { getByPlaceholderText } = render(testDetailsPanel());
-    store.dispatch(setSelectedJob(jobList.data[1], true));
+    // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
+    store.dispatch(setSelectedJob(jobList.data[1], false));
 
     const content = await waitFor(() =>
       document.querySelector('#th-global-content'),
@@ -203,7 +207,8 @@ describe('DetailsPanel', () => {
 
   test('KeyboardShortcut c: pin selected task and edit comment', async () => {
     const { getByPlaceholderText } = render(testDetailsPanel());
-    store.dispatch(setSelectedJob(jobList.data[1], true));
+    // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
+    store.dispatch(setSelectedJob(jobList.data[1], false));
 
     const content = await waitFor(() =>
       document.querySelector('#th-global-content'),
@@ -220,7 +225,8 @@ describe('DetailsPanel', () => {
 
   test('KeyboardShortcut ctrl+shift+u: clear PinBoard', async () => {
     const { getByTitle } = render(testDetailsPanel());
-    store.dispatch(setSelectedJob(jobList.data[1], true));
+    // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
+    store.dispatch(setSelectedJob(jobList.data[1], false));
 
     fireEvent.click(await waitFor(() => getByTitle('Pin job')));
 
@@ -240,7 +246,8 @@ describe('DetailsPanel', () => {
 
   test('clear PinBoard', async () => {
     const { getByTitle, getByText } = render(testDetailsPanel());
-    store.dispatch(setSelectedJob(jobList.data[1], true));
+    // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
+    store.dispatch(setSelectedJob(jobList.data[1], false));
 
     fireEvent.click(await waitFor(() => getByTitle('Pin job')));
 
@@ -272,7 +279,8 @@ describe('DetailsPanel', () => {
     } = render(testDetailsPanel());
 
     store.dispatch(pinJobs(jobList.data));
-    store.dispatch(setSelectedJob(jobList.data[1], true));
+    // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
+    store.dispatch(setSelectedJob(jobList.data[1], false));
 
     const content = await waitFor(() =>
       document.querySelector('#th-global-content'),

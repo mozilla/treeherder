@@ -3,7 +3,7 @@ import ReactTable from 'react-table-6';
 import PropTypes from 'prop-types';
 import { zipWith } from 'lodash';
 
-const GraphAlternateView = ({ className, graphData, colNum, title }) => {
+const GraphAlternateView = ({ className, graphData, colNum = 2, title }) => {
   const columnsTwo = [
     {
       Header: 'Date',
@@ -77,12 +77,8 @@ const GraphAlternateView = ({ className, graphData, colNum, title }) => {
   );
 };
 
-export default GraphAlternateView;
-
 GraphAlternateView.propTypes = {
   colNum: PropTypes.number,
 };
 
-GraphAlternateView.defaultProps = {
-  colNum: 2,
-};
+export default GraphAlternateView;

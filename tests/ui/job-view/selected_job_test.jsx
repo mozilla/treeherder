@@ -1,15 +1,22 @@
 import React from 'react';
 import { Provider, ReactReduxContext } from 'react-redux';
-import { render, cleanup, fireEvent, waitFor } from '@testing-library/react';
-import { createBrowserHistory } from 'history';
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  waitFor,
+} from '@testing-library/react';
 import { ConnectedRouter } from 'connected-react-router';
+import { createBrowserHistory } from 'history';
 
-import PushJobs from '../../../ui/job-view/pushes/PushJobs';
-import FilterModel from '../../../ui/models/filter';
-import { configureStore } from '../../../ui/job-view/redux/configureStore';
+import { addAggregateFields, findInstance } from '../../../ui/helpers/job';
 import { getUrlParam, setUrlParam } from '../../../ui/helpers/location';
+import { clearJobButtonRegistry } from '../../../ui/hooks/useJobButtonRegistry';
+import PushJobs from '../../../ui/job-view/pushes/PushJobs';
+import { configureStore } from '../../../ui/job-view/redux/configureStore';
+import FilterModel from '../../../ui/models/filter';
 import platforms from '../mock/platforms';
-import { addAggregateFields } from '../../../ui/helpers/job';
 
 const history = createBrowserHistory();
 const testPush = {
@@ -33,16 +40,23 @@ const testPush = {
 };
 
 beforeAll(() => {
-  platforms.forEach((platform) =>
-    platform.groups.forEach((group) =>
-      group.jobs.forEach((job) => addAggregateFields(job)),
-    ),
-  );
+  platforms.forEach((platform) => {
+    platform.groups.forEach((group) => {
+      group.jobs.forEach((job) => {
+        addAggregateFields(job);
+      });
+    });
+  });
+});
+
+beforeEach(() => {
+  clearJobButtonRegistry();
 });
 
 afterEach(() => {
   cleanup();
   setUrlParam('selectedTaskRun', null);
+  clearJobButtonRegistry();
 });
 
 const testPushJobs = (filtermodel = null) => {
@@ -50,22 +64,24 @@ const testPushJobs = (filtermodel = null) => {
   return (
     <Provider store={store} context={ReactReduxContext}>
       <ConnectedRouter history={history} context={ReactReduxContext}>
-        <PushJobs
-          push={testPush}
-          platforms={platforms}
-          repoName="try"
-          filterModel={
-            filtermodel ||
-            new FilterModel({
-              router: { location: history.location, push: history.push },
-            })
-          }
-          pushGroupState=""
-          toggleSelectedRunnableJob={() => {}}
-          runnableVisible={false}
-          duplicateJobsVisible={false}
-          groupCountsExpanded={false}
-        />
+        <div id="push-list">
+          <PushJobs
+            push={testPush}
+            platforms={platforms}
+            repoName="try"
+            filterModel={
+              filtermodel ||
+              new FilterModel({
+                router: { location: history.location, push: history.push },
+              })
+            }
+            pushGroupState=""
+            toggleSelectedRunnableJob={() => {}}
+            runnableVisible={false}
+            duplicateJobsVisible={false}
+            groupCountsExpanded={false}
+          />
+        </div>
       </ConnectedRouter>
     </Provider>
   );
@@ -77,12 +93,24 @@ test('select a job updates url', async () => {
 
   expect(spell).toBeInTheDocument();
 
+  // Click the job - this dispatches selectJobViaUrl which updates the URL
   fireEvent.mouseDown(spell);
+
+  // In the real app, PushList listens for URL changes and calls syncSelectionFromUrl,
+  // which then calls setSelected(true) on the job instance.
+  // Since we don't have PushList in this test, we manually trigger the selection sync.
+  await waitFor(() => {
+    const selTaskRun = getUrlParam('selectedTaskRun');
+    expect(selTaskRun).toBe('OeYt2-iLQSaQb2ashZ_VIQ.0');
+  });
+
+  // Manually call setSelected on the job instance to simulate what syncSelectionFromUrl does
+  const jobInstance = findInstance(spell);
+  await act(async () => {
+    jobInstance.setSelected(true);
+  });
+
   expect(spell).toHaveClass('selected-job');
-
-  const selTaskRun = getUrlParam('selectedTaskRun');
-
-  expect(selTaskRun).toBe('OeYt2-iLQSaQb2ashZ_VIQ.0');
 });
 
 test('filter change keeps selected job visible', async () => {
@@ -95,7 +123,20 @@ test('filter change keeps selected job visible', async () => {
 
   expect(spell).toBeInTheDocument();
 
+  // Click the job - this dispatches selectJobViaUrl which updates the URL
   fireEvent.mouseDown(spell);
+
+  // Wait for URL to update
+  await waitFor(() => {
+    expect(getUrlParam('selectedTaskRun')).toBe('OeYt2-iLQSaQb2ashZ_VIQ.0');
+  });
+
+  // Manually call setSelected on the job instance to simulate what syncSelectionFromUrl does
+  const jobInstance = findInstance(spell);
+  await act(async () => {
+    jobInstance.setSelected(true);
+  });
+
   expect(spell).toHaveClass('selected-job');
 
   filterModel.addFilter('searchStr', 'linux');

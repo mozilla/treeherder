@@ -28,6 +28,12 @@ describe('Taskcluster Helpers', () => {
       );
     });
 
+    it('error message includes available actions', () => {
+      expect(() => getAction(mockActionArray, 'missing')).toThrow(
+        'Available: retrigger, cancel, schedule',
+      );
+    });
+
     it('handles empty action array', () => {
       expect(() => getAction([], 'retrigger')).toThrow(
         "'retrigger' action is not available for this task.",

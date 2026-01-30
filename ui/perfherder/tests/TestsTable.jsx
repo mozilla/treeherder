@@ -19,12 +19,12 @@ import AlertsLink from './AlertsLink';
 
 export default function TestsTable(props) {
   const {
-    results,
+    results = [],
     framework,
     allFrameworks,
     projectsMap,
     platformsMap,
-    defaultPageSize,
+    defaultPageSize = 20,
   } = props;
 
   const showPagination = results.length > defaultPageSize;
@@ -218,9 +218,4 @@ TestsTable.propTypes = {
     .isRequired,
   platformsMap: PropTypes.oneOfType([PropTypes.bool, PropTypes.shape({})])
     .isRequired,
-};
-
-TestsTable.defaultProps = {
-  results: [],
-  defaultPageSize: 20,
 };

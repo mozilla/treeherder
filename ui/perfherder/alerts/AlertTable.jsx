@@ -98,7 +98,7 @@ export default class AlertTable extends React.Component {
   }
 
   processAlerts = () => {
-    const { alertSummary, optionCollectionMap } = this.props;
+    const { alertSummary = null, optionCollectionMap } = this.props;
 
     const alerts = getInitializedAlerts(alertSummary, optionCollectionMap);
     alertSummary.alerts = orderBy(
@@ -212,15 +212,19 @@ export default class AlertTable extends React.Component {
 
   updateAssignee = async (newAssigneeUsername) => {
     const {
-      updateAlertSummary,
+      updateAlertSummary: updateAlertSummaryProp = updateAlertSummary,
       updateViewState,
       fetchAlertSummaries,
     } = this.props;
+    const updateAlertSummaryFunc = updateAlertSummaryProp;
     const { alertSummary } = this.state;
 
-    const { data, failureStatus } = await updateAlertSummary(alertSummary.id, {
-      assignee_username: newAssigneeUsername,
-    });
+    const { data, failureStatus } = await updateAlertSummaryFunc(
+      alertSummary.id,
+      {
+        assignee_username: newAssigneeUsername,
+      },
+    );
 
     if (!failureStatus) {
       // now refresh UI, by syncing with backend
@@ -238,15 +242,19 @@ export default class AlertTable extends React.Component {
 
   changeRevision = async (newRevisionTo, newRevisionFrom) => {
     const {
-      updateAlertSummary,
+      updateAlertSummary: updateAlertSummaryProp = updateAlertSummary,
       updateViewState,
       fetchAlertSummaries,
     } = this.props;
+    const updateAlertSummaryFunc = updateAlertSummaryProp;
     const { alertSummary } = this.state;
-    const { data, failureStatus } = await updateAlertSummary(alertSummary.id, {
-      revision: newRevisionTo,
-      prev_push_revision: newRevisionFrom,
-    });
+    const { data, failureStatus } = await updateAlertSummaryFunc(
+      alertSummary.id,
+      {
+        revision: newRevisionTo,
+        prev_push_revision: newRevisionFrom,
+      },
+    );
 
     if (!failureStatus) {
       // now refresh UI, by syncing with backend
@@ -296,10 +304,10 @@ export default class AlertTable extends React.Component {
       projects,
       frameworks,
       alertSummaries,
-      issueTrackers,
+      issueTrackers = [],
       fetchAlertSummaries,
       updateViewState,
-      modifyAlert,
+      modifyAlert = undefined,
       performanceTags,
     } = this.props;
     const {
@@ -332,7 +340,7 @@ export default class AlertTable extends React.Component {
                     xs={10}
                     className="text-left alert-summary-header-element"
                   >
-                    <Form.Group check className="d-inline-flex align-items-top">
+                    <Form.Group className="d-inline-flex align-items-top">
                       <SelectAlertsDropdown
                         setSelectedAlerts={this.setSelectedAlerts}
                         user={user}
@@ -537,13 +545,4 @@ AlertTable.propTypes = {
   updateAlertSummary: PropTypes.func,
   projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   performanceTags: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-};
-
-AlertTable.defaultProps = {
-  alertSummary: null,
-  issueTrackers: [],
-  modifyAlert: undefined,
-  // leverage dependency injection
-  // to improve code testability
-  updateAlertSummary,
 };

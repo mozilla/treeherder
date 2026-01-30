@@ -85,7 +85,7 @@ class PerformanceTab extends React.PureComponent {
     );
   };
 
-  getProfileRelevance = (jobDetail) => {
+  getProfileRelevance = (jobDetail = {}) => {
     const { url, value } = jobDetail;
     if (!url) {
       return NO_PROFILE_RELEVANCE;
@@ -116,8 +116,9 @@ class PerformanceTab extends React.PureComponent {
 
   // Returns profile-related job details, ordered by the relevance.
   getProfiles = (perfTestOnly) => {
+    const { jobDetails = [] } = this.props;
     const profiles = [];
-    for (const jobDetail of this.props.jobDetails) {
+    for (const jobDetail of jobDetails) {
       const relevance = this.getProfileRelevance(jobDetail);
       if (relevance === NO_PROFILE_RELEVANCE) {
         continue;
@@ -162,10 +163,10 @@ class PerformanceTab extends React.PureComponent {
   render() {
     const {
       repoName,
-      revision,
+      revision = '',
       selectedJobFull,
-      jobDetails,
-      perfJobDetail,
+      jobDetails = [],
+      perfJobDetail = [],
     } = this.props;
     const { triggeredGeckoProfiles, showSideBySide } = this.state;
 
@@ -283,12 +284,6 @@ PerformanceTab.propTypes = {
   perfJobDetail: PropTypes.arrayOf(PropTypes.shape({})),
   revision: PropTypes.string,
   decisionTaskMap: PropTypes.shape({}).isRequired,
-};
-
-PerformanceTab.defaultProps = {
-  jobDetails: [],
-  perfJobDetail: [],
-  revision: '',
 };
 
 const mapStateToProps = (state) => ({

@@ -450,7 +450,7 @@ TabsPanel.propTypes = {
   classifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   togglePinBoardVisibility: PropTypes.func.isRequired,
   bugs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  selectedJob: PropTypes.shape({}).isRequired,
+  selectedJob: PropTypes.shape({}),
   selectedJobFull: PropTypes.shape({}).isRequired,
   currentRepo: PropTypes.shape({}).isRequired,
   perfJobDetail: PropTypes.arrayOf(PropTypes.shape({})),

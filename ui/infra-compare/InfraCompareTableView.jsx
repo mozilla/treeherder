@@ -18,6 +18,8 @@ import { compareDefaultTimeRange, endpoints, phTimeRanges } from './constants';
 export default class InfraCompareTableView extends React.Component {
   constructor(props) {
     super(props);
+    const { validated = {} } = props;
+    this.props = { ...props, validated };
     this.state = {
       compareResults: new Map(),
       failureMessages: [],
@@ -246,8 +248,4 @@ InfraCompareTableView.propTypes = {
   }),
   getDisplayResults: PropTypes.func.isRequired,
   getQueryParams: PropTypes.func.isRequired,
-};
-
-InfraCompareTableView.defaultProps = {
-  validated: PropTypes.shape({}),
 };

@@ -45,8 +45,9 @@ import BadgeTooltip from './BadgeTooltip';
 export default class AlertTableRow extends React.Component {
   constructor(props) {
     super(props);
+    const { alert } = this.props;
     this.state = {
-      starred: this.props.alert.starred,
+      starred: alert.starred,
       checkboxSelected: false,
       icons: [],
     };
@@ -76,15 +77,17 @@ export default class AlertTableRow extends React.Component {
 
   toggleStar = async () => {
     const { starred } = this.state;
-    const { alert, fetchAlertSummaries, alertSummary } = this.props;
+    const {
+      alert,
+      fetchAlertSummaries,
+      alertSummary,
+      modifyAlert: modifyAlertFn = modifyAlert,
+    } = this.props;
     const updatedStar = {
       starred: !starred,
     };
     // passed as prop only for testing purposes
-    const { data, failureStatus } = await this.props.modifyAlert(
-      alert,
-      updatedStar,
-    );
+    const { data, failureStatus } = await modifyAlertFn(alert, updatedStar);
 
     if (!failureStatus) {
       // now refresh UI, by syncing with backend
@@ -360,7 +363,7 @@ export default class AlertTableRow extends React.Component {
   }
 
   render() {
-    const { user, alert, alertSummary } = this.props;
+    const { user = null, alert, alertSummary } = this.props;
     const { starred, checkboxSelected, icons } = this.state;
     const { repository, framework } = alertSummary;
 
@@ -591,9 +594,4 @@ AlertTableRow.propTypes = {
   selectedAlerts: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   updateViewState: PropTypes.func.isRequired,
   modifyAlert: PropTypes.func,
-};
-
-AlertTableRow.defaultProps = {
-  user: null,
-  modifyAlert,
 };

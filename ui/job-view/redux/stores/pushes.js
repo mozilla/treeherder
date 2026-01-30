@@ -13,7 +13,7 @@ import { thEvents } from '../../../helpers/constants';
 import { processErrors, getData } from '../../../helpers/http';
 
 import { notify } from './notifications';
-import { setSelectedJob, clearSelectedJob } from './selectedJob';
+import { clearJobViaUrl, setSelectedJob } from './selectedJob';
 
 export const LOADING = 'LOADING';
 export const ADD_PUSHES = 'ADD_PUSHES';
@@ -402,7 +402,7 @@ export const updateRange = (range) => {
         }
       }
       if (getUrlParam('selectedJob') || getUrlParam('selectedTaskRun')) {
-        dispatch(clearSelectedJob(0));
+        dispatch(clearJobViaUrl());
       }
       // We already have the one revision they're looking for,
       // so we can just erase everything else.

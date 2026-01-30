@@ -34,7 +34,7 @@ class TestsView extends React.PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    const { location } = this.props;
+    const { location = null } = this.props;
     const { framework, projectsMap, platformsMap } = this.state;
 
     if (
@@ -191,10 +191,6 @@ TestsView.propTypes = {
   projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   platforms: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   updateAppState: PropTypes.func.isRequired,
-};
-
-TestsView.defaultProps = {
-  location: null,
 };
 
 export default withValidation(
