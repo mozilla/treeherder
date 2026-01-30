@@ -217,7 +217,7 @@ class PerformanceFrameworkViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = "id"
 
 
-class PerfomanceJobViewSet(viewsets.ReadOnlyModelViewSet):
+class PerformanceJobViewSet(viewsets.ReadOnlyModelViewSet):
     def list(self, request, project):
         repository = models.Repository.objects.get(name=project)
         # Expect exactly one job_id in query params
