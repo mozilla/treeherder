@@ -70,10 +70,18 @@ export const allFilterParams = [
 
 // compare 2 arrays, but ignore order
 export const arraysEqual = function arraysEqual(arr1, arr2) {
-  return (
-    arr1.length === arr2.length &&
-    new Set(arr1).intersection(new Set(arr2)).size === arr1.length
-  );
+  if (arr1.length !== arr2.length) {
+    return false;
+  }
+  const set1 = new Set(arr1);
+  const set2 = new Set(arr2);
+  // Check if all elements in set1 are present in set2
+  for (const item of set1) {
+    if (!set2.has(item)) {
+      return false;
+    }
+  }
+  return true;
 };
 
 export const matchesDefaults = function matchesDefaults(field, values) {
