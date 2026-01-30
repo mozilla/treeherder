@@ -5,7 +5,9 @@ import '@testing-library/jest-dom/jest-globals';
 // but not available in jsdom
 global.ResizeObserver = class ResizeObserver {
   observe() {}
+
   unobserve() {}
+
   disconnect() {}
 };
 
