@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 
 import { updateRange } from '../redux/stores/pushes';
-import { clearSelectedJob } from '../redux/stores/selectedJob';
+import { clearSelectedJob } from '../stores/selectedJobStore';
 import { getFieldChoices } from '../../helpers/filter';
 
 function ActiveFilters({
@@ -17,7 +17,6 @@ function ActiveFilters({
   toggleFieldFilterVisible,
   classificationTypes,
   updateRange,
-  clearSelectedJob,
 }) {
   const location = useLocation();
   const [newFilterField, setNewFilterFieldState] = useState('');
@@ -89,7 +88,7 @@ function ActiveFilters({
         clearSelectedJob(0);
       }
     },
-    [location.search, filterModel, updateRange, clearSelectedJob],
+    [location.search, filterModel, updateRange],
   );
 
   return (
@@ -241,11 +240,9 @@ ActiveFilters.propTypes = {
   isFieldFilterVisible: PropTypes.bool.isRequired,
   toggleFieldFilterVisible: PropTypes.func.isRequired,
   classificationTypes: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  clearSelectedJob: PropTypes.func.isRequired,
   updateRange: PropTypes.func.isRequired,
 };
 
 export default connect(null, {
   updateRange,
-  clearSelectedJob,
 })(ActiveFilters);

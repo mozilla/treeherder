@@ -1,4 +1,3 @@
-
 import { Provider, ReactReduxContext } from 'react-redux';
 import fetchMock from 'fetch-mock';
 import {
@@ -19,14 +18,20 @@ import { getApiUrl } from '../../../../ui/helpers/url';
 import FilterModel from '../../../../ui/models/filter';
 import { getProjectUrl } from '../../../../ui/helpers/location';
 import { configureStore } from '../../../../ui/job-view/redux/configureStore';
-import { setSelectedJob } from '../../../../ui/job-view/redux/stores/selectedJob';
 import {
   setPushes,
   updateJobMap,
 } from '../../../../ui/job-view/redux/stores/pushes';
 import reposFixture from '../../mock/repositories';
 import KeyboardShortcuts from '../../../../ui/job-view/KeyboardShortcuts';
-import { pinJobs } from '../../../../ui/job-view/redux/stores/pinnedJobs';
+import {
+  pinJobs,
+  usePinnedJobsStore,
+} from '../../../../ui/job-view/stores/pinnedJobsStore';
+import {
+  setSelectedJob,
+  useSelectedJobStore,
+} from '../../../../ui/job-view/stores/selectedJobStore';
 
 const mockLocation = { search: '', pathname: '/jobs' };
 const mockNavigate = jest.fn();
@@ -113,6 +118,15 @@ describe('DetailsPanel', () => {
     cleanup();
     fetchMock.reset();
     mockNavigate.mockClear();
+    // Reset Zustand stores
+    usePinnedJobsStore.setState({
+      pinnedJobs: {},
+      pinnedJobBugs: [],
+      isPinBoardVisible: false,
+    });
+    useSelectedJobStore.setState({
+      selectedJob: null,
+    });
   });
 
   const testDetailsPanel = () => (
@@ -159,7 +173,7 @@ describe('DetailsPanel', () => {
     await act(async () => {
       // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
       // This is needed because tests don't have PushList to sync selection from URL
-      store.dispatch(setSelectedJob(jobList.data[1], false));
+      setSelectedJob(jobList.data[1], false);
     });
 
     // Wait for the selected job to render
@@ -183,7 +197,7 @@ describe('DetailsPanel', () => {
 
     await act(async () => {
       // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
-      store.dispatch(setSelectedJob(jobList.data[1], false));
+      setSelectedJob(jobList.data[1], false);
     });
 
     // Wait for state update from dispatch
@@ -207,7 +221,7 @@ describe('DetailsPanel', () => {
 
     await act(async () => {
       // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
-      store.dispatch(setSelectedJob(jobList.data[1], false));
+      setSelectedJob(jobList.data[1], false);
     });
 
     // Wait for state update from dispatch
@@ -237,7 +251,7 @@ describe('DetailsPanel', () => {
 
     await act(async () => {
       // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
-      store.dispatch(setSelectedJob(jobList.data[1], false));
+      setSelectedJob(jobList.data[1], false);
     });
 
     // Wait for state update from dispatch
@@ -262,7 +276,7 @@ describe('DetailsPanel', () => {
 
     await act(async () => {
       // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
-      store.dispatch(setSelectedJob(jobList.data[1], false));
+      setSelectedJob(jobList.data[1], false);
     });
 
     // Wait for state update from dispatch
@@ -295,7 +309,7 @@ describe('DetailsPanel', () => {
 
     await act(async () => {
       // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
-      store.dispatch(setSelectedJob(jobList.data[1], false));
+      setSelectedJob(jobList.data[1], false);
     });
 
     // Wait for state update from dispatch
@@ -330,7 +344,7 @@ describe('DetailsPanel', () => {
     const { queryAllByTitle } = render(testDetailsPanel());
 
     await act(async () => {
-      store.dispatch(pinJobs(jobList.data));
+      pinJobs(jobList.data);
     });
 
     // Wait for state updates after pinning all jobs
@@ -349,9 +363,9 @@ describe('DetailsPanel', () => {
     } = render(testDetailsPanel());
 
     await act(async () => {
-      store.dispatch(pinJobs(jobList.data));
+      pinJobs(jobList.data);
       // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
-      store.dispatch(setSelectedJob(jobList.data[1], false));
+      setSelectedJob(jobList.data[1], false);
     });
 
     // Wait for state updates from dispatch actions
@@ -436,7 +450,7 @@ describe('DetailsPanel', () => {
     checkClassifiedJobs(jobList.data.length);
 
     await act(async () => {
-      store.dispatch(pinJobs(jobList.data));
+      pinJobs(jobList.data);
     });
 
     // Wait for jobs to be pinned again
