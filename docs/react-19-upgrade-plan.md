@@ -2,8 +2,8 @@
 
 ## Executive Summary
 
-**Current Version:** React 18.3.1
-**Target Version:** React 19.x
+**Current Version:** ~~React 18.3.1~~ → React 19.2.3 ✅
+**Target Version:** React 19.x - COMPLETED
 **Overall Assessment:** The codebase is in good shape for upgrade. No React 18.3 deprecation warnings detected at runtime. Most deprecated patterns have already been avoided.
 
 ## Pre-Upgrade Checklist
@@ -72,40 +72,88 @@ Class components still support `defaultProps` in React 19, so these are fine.
 | @fortawesome/react-fontawesome | 0.2.6 | YES | No React-specific APIs affected |
 | react-tabs | 6.1.0 | YES | Standard React patterns |
 | victory | 37.3.6 | YES | Standard React patterns |
-| **react-helmet** | **6.1.0** | **RISK** | Abandoned since 2020 - see note below |
+| ~~react-helmet~~ | ~~6.1.0~~ | **REMOVED** | Replaced with React 19 native metadata ✅ |
 | react-lazylog | 4.5.3 | UNKNOWN | May need testing |
 | react-hot-keys | 2.7.3 | UNKNOWN | May need testing |
-| react-table-6 | 6.11.0 | UNKNOWN | Legacy package, may need testing |
+| **react-highlight-words** | **0.20.0** | **WORKS** | Peer dep warning but works at runtime - see replacement options below |
+| **react-table-6** | **6.11.0** | **WORKS** | Peer dep warning but works at runtime - see replacement options below |
 | redoc | 2.4.0 | UNKNOWN | May need testing |
 
-### react-helmet Replacement Plan
+### react-helmet Replacement - COMPLETED ✅
 
-`react-helmet` hasn't been updated since 2020 and is considered abandoned.
-
-**Decision:** Replace with React 19 native document metadata (in follow-up PR after upgrade).
+`react-helmet` was removed and replaced with React 19 native document metadata.
 
 React 19 has built-in support for `<title>`, `<meta>`, and `<link>` tags - they auto-hoist
-to `<head>` when rendered anywhere in the component tree. This feature requires React 19.
+to `<head>` when rendered anywhere in the component tree.
 
-**Files to update (4 files):**
+**Files updated:**
 
-- `ui/intermittent-failures/BugDetailsView.jsx`
-- `ui/push-health/Health.jsx`
-- `ui/push-health/MyPushes.jsx`
-- `ui/shared/ComparePageTitle.jsx`
+- [x] `ui/intermittent-failures/BugDetailsView.jsx`
+- [x] `ui/push-health/Health.jsx`
+- [x] `ui/push-health/MyPushes.jsx`
+- [x] `ui/shared/ComparePageTitle.jsx`
 
-**Migration pattern:**
+### react-highlight-words Replacement Options
+
+**Current Usage:** 1 file (`ui/shared/tabs/failureSummary/BugListItem.jsx`)
+
+The package shows a peer dependency warning for React 19 but works at runtime.
+
+**Replacement Options:**
+
+| Option | Pros | Cons |
+|--------|------|------|
+| **Keep as-is** | No work needed, works at runtime | Peer dep warning in logs |
+| **Custom implementation** | No external dependency, ~20 lines of code | Maintenance burden |
+| **Fork/patch** | Can update peer deps | Maintenance burden |
+
+**Recommendation:** Keep as-is for now. The usage is minimal (1 file) and it works at runtime. Consider a custom implementation if the library becomes truly incompatible.
+
+**Custom implementation pattern (if needed):**
 
 ```jsx
-// Before (react-helmet)
-import { Helmet } from 'react-helmet';
-<Helmet><title>My Page</title></Helmet>
-
-// After (React 19 native)
-<title>My Page</title>
+const Highlighter = ({ searchWords, textToHighlight, highlightTag: Tag = 'mark' }) => {
+  if (!searchWords?.length) return textToHighlight;
+  const regex = new RegExp(`(${searchWords.join('|')})`, 'gi');
+  const parts = textToHighlight.split(regex);
+  return parts.map((part, i) =>
+    searchWords.some(w => w.toLowerCase() === part.toLowerCase())
+      ? <Tag key={i}>{part}</Tag>
+      : part
+  );
+};
 ```
 
-After migration, remove `react-helmet` from package.json.
+### react-table-6 Replacement Options
+
+**Current Usage:** 5 files in `ui/intermittent-failures/` and `ui/perfherder/`
+
+- `ui/intermittent-failures/BugDetailsView.jsx`
+- `ui/intermittent-failures/MainView.jsx`
+- `ui/intermittent-failures/GraphAlternateView.jsx`
+- `ui/perfherder/tests/TestsTable.jsx`
+- `ui/perfherder/graphs/TableView.jsx`
+
+The package shows a peer dependency warning for React 19 but works at runtime.
+
+**Replacement Options:**
+
+| Option | Bundle Size | Complexity | Notes |
+|--------|-------------|------------|-------|
+| **Keep as-is** | Current | None | Works at runtime, peer dep warning |
+| **[TanStack Table v8](https://tanstack.com/table)** | ~15KB | Medium | Headless, requires building UI |
+| **[Material React Table](https://www.material-react-table.com/)** | ~50KB | Low | Built on TanStack + MUI, full UI |
+| **[Mantine React Table](https://www.mantine-react-table.com/)** | ~45KB | Low | Built on TanStack + Mantine, full UI |
+| **[AG Grid (Community)](https://www.ag-grid.com/)** | ~200KB | Low | Most features, enterprise options |
+
+**Recommendation:** Keep as-is for now. Migration to TanStack Table v8 would be the best long-term option as it's the official successor, but it requires significant refactoring since it's headless (no built-in UI).
+
+**Migration considerations for TanStack Table:**
+
+- API is completely different from react-table v6
+- Need to build custom filter/sort/pagination UI
+- Good documentation and migration guides available
+- Consider Material React Table if you want pre-built UI with MUI styling
 
 ## React Router v7 Preparation - COMPLETED
 
@@ -129,20 +177,22 @@ Future flags have been added to `ui/App.jsx`:
 3. [x] Run full test suite to establish baseline - All 421 tests pass
 4. [x] Verify all third-party dependencies support React 19 - DONE (see table above)
 
-### Phase 2: Upgrade React
+### Phase 2: Upgrade React - COMPLETED ✅
 
 ```bash
 pnpm add react@^19.0.0 react-dom@^19.0.0
 pnpm add -D @types/react@^19.0.0 @types/react-dom@^19.0.0
 ```
 
-### Phase 3: Post-Upgrade Verification
+**Result:** Upgraded to React 19.2.3
 
-1. [ ] Run `pnpm build` - check for build errors
-2. [ ] Run `pnpm test` - check for test failures
-3. [ ] Run `pnpm lint` - check for lint errors
-4. [ ] Manual testing of key workflows
-5. [ ] Check browser console for new warnings
+### Phase 3: Post-Upgrade Verification - COMPLETED ✅
+
+1. [x] Run `pnpm build` - Passed
+2. [x] Run `pnpm test` - 421 tests pass (fixed `test_data_modal_test.jsx` for React 19 batching)
+3. [x] Run `pnpm lint` - Passed
+4. [x] Manual testing of key workflows - Jobs view, Push Health, Perfherder all working
+5. [x] Check browser console for new warnings - No errors
 
 ### Phase 4: Optional Cleanup (Post-Upgrade)
 
