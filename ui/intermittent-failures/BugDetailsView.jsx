@@ -3,7 +3,6 @@ import { Row, Col, Breadcrumb, BreadcrumbItem } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import ReactTable from 'react-table-6';
 import PropTypes from 'prop-types';
-import { Helmet } from 'react-helmet';
 
 import {
   bugDetailsEndpoint,
@@ -215,9 +214,7 @@ const BugDetailsView = (props) => {
       header={
         <React.Fragment>
           <Row>
-            <Helmet>
-              <title>{`Bug ${bug}${summary ? ` - ${summary}` : ''}`}</title>
-            </Helmet>
+<title>{`Bug ${bug}${summary ? ` - ${summary}` : ''}`}</title>
             <Col xs="12" className="text-left">
               <Breadcrumb listClassName="bg-white">
                 <BreadcrumbItem>
