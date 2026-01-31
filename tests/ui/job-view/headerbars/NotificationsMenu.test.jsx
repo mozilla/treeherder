@@ -5,7 +5,6 @@
  * with icons based on severity and the ability to clear all notifications.
  */
 
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';

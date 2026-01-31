@@ -76,7 +76,7 @@ class GraphsContainer extends React.Component {
       timeRange,
       selectedDataPoint,
     } = this.props;
-    const scatterPlotData = flatMap(testData, (item) =>
+    const _scatterPlotData = flatMap(testData, (item) =>
       item.visible ? item.data : [],
     );
 
@@ -241,7 +241,7 @@ class GraphsContainer extends React.Component {
   // The Victory library doesn't provide a way of dynamically setting the left
   // padding for the y axis tick labels, so this is a workaround (setting state
   // doesn't work with this callback, which is why a class property is used instead)
-  setLeftPadding = (tick, index, ticks) => {
+  setLeftPadding = (tick, _index, ticks) => {
     const formattedNumber = abbreviatedNumber(tick).toString();
     const highestTick = abbreviatedNumber(ticks[ticks.length - 1]).toString();
     const newLeftPadding = highestTick.length * 8 + 16;
@@ -253,7 +253,7 @@ class GraphsContainer extends React.Component {
     return formattedNumber.toUpperCase();
   };
 
-  setRightPadding = (tick, index, ticks) => {
+  setRightPadding = (tick, _index, ticks) => {
     const highestTick = ticks[ticks.length - 1].toString();
     const newRightPadding = highestTick.length / 2;
     this.rightChartPadding =
@@ -322,8 +322,6 @@ class GraphsContainer extends React.Component {
       changelogData = [],
       showTable,
       zoom = {},
-      selectedDataPoint,
-      highlightAlerts = true,
       highlightedRevisions = ['', ''],
       highlightChangelogData,
       highlightCommonAlerts,
@@ -445,7 +443,7 @@ class GraphsContainer extends React.Component {
                   containerComponent={
                     <VictoryZoomSelectionContainer
                       zoomDomain={zoom}
-                      onSelection={(points, bounds) => this.updateZoom(bounds)}
+                      onSelection={(_points, bounds) => this.updateZoom(bounds)}
                       allowPan={false}
                       allowZoom={false}
                     />
