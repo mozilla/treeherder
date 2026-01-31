@@ -1,16 +1,14 @@
 
 import fetchMock from 'fetch-mock';
 import { Provider, ReactReduxContext } from 'react-redux';
-import { ConnectedRouter } from 'connected-react-router';
+import { MemoryRouter } from 'react-router-dom';
 import {
   render,
   waitFor,
   fireEvent,
   getAllByTestId,
   cleanup,
-  act,
 } from '@testing-library/react';
-import { createBrowserHistory } from 'history';
 
 import { getProjectUrl } from '../../../ui/helpers/location';
 import FilterModel from '../../../ui/models/filter';
@@ -33,15 +31,25 @@ global.document.createRange = () => ({
   },
 });
 
+let mockNavigate;
+
+// Module-level mock for useNavigate - this MUST be before imports for proper hoisting
+jest.mock('react-router-dom', () => {
+  const actual = jest.requireActual('react-router-dom');
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
+});
+
 describe('PushList', () => {
   const repoName = 'autoland';
-  let history;
+  const mockLocation = { search: `?repo=${repoName}`, pathname: '/jobs' };
 
   beforeEach(() => {
-    history = createBrowserHistory();
-    act(() => {
-      history.push(`/jobs?repo=${repoName}`);
-    });
+    mockNavigate = jest.fn();
+    // Mock window.history.pushState for URL updates
+    jest.spyOn(window.history, 'pushState').mockImplementation(() => {});
   });
 
   const currentRepo = {
@@ -131,6 +139,7 @@ describe('PushList', () => {
 
   afterEach(() => {
     cleanup();
+    jest.restoreAllMocks();
   });
 
   afterAll(() => {
@@ -138,32 +147,27 @@ describe('PushList', () => {
   });
 
   const testPushList = () => {
-    const store = configureStore(history);
+    const store = configureStore();
 
     // Manually trigger fetchPushes since outside testing the App does it.
     store.dispatch(fetchPushes());
 
     return (
       <Provider store={store} context={ReactReduxContext}>
-        <ConnectedRouter history={history} context={ReactReduxContext}>
+        <MemoryRouter initialEntries={[`/jobs?repo=${repoName}`]}>
           <div id="th-global-content">
             <PushList
               user={{ isLoggedIn: false }}
               repoName={repoName}
               currentRepo={currentRepo}
-              filterModel={
-                new FilterModel({
-                  pushRoute: history.push,
-                  router: { location: history.location },
-                })
-              }
+              filterModel={new FilterModel(mockNavigate, mockLocation)}
               duplicateJobsVisible={false}
               groupCountsExpanded={false}
               pushHealthVisibility="None"
               getAllShownJobs={() => {}}
             />
           </div>
-        </ConnectedRouter>
+        </MemoryRouter>
       </Provider>
     );
   };
@@ -213,8 +217,12 @@ describe('PushList', () => {
     fireEvent.click(setFromRange);
 
     await waitFor(() => {
-      expect(history.location.search).toContain(
-        '?repo=autoland&fromchange=d5b037941b0ebabcc9b843f24d926e9d65961087',
+      expect(mockNavigate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          search: expect.stringContaining(
+            'fromchange=d5b037941b0ebabcc9b843f24d926e9d65961087',
+          ),
+        }),
       );
     });
   });
@@ -238,8 +246,12 @@ describe('PushList', () => {
     fireEvent.click(setTopRange);
 
     await waitFor(() => {
-      expect(history.location.search).toContain(
-        '?repo=autoland&tochange=ba9c692786e95143b8df3f4b3e9b504dfbc589a0',
+      expect(mockNavigate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          search: expect.stringContaining(
+            'tochange=ba9c692786e95143b8df3f4b3e9b504dfbc589a0',
+          ),
+        }),
       );
     });
   });
@@ -292,30 +304,25 @@ describe('PushList', () => {
   });
 
   test('jobs should have fields required for retriggers', async () => {
-    const store = configureStore(history);
+    const store = configureStore();
     store.dispatch(fetchPushes());
 
     const { getByText } = render(
       <Provider store={store} context={ReactReduxContext}>
-        <ConnectedRouter history={history} context={ReactReduxContext}>
+        <MemoryRouter initialEntries={[`/jobs?repo=${repoName}`]}>
           <div id="th-global-content">
             <PushList
               user={{ isLoggedIn: false }}
               repoName={repoName}
               currentRepo={currentRepo}
-              filterModel={
-                new FilterModel({
-                  pushRoute: history.push,
-                  router: { location: history.location },
-                })
-              }
+              filterModel={new FilterModel(mockNavigate, mockLocation)}
               duplicateJobsVisible={false}
               groupCountsExpanded={false}
               pushHealthVisibility="None"
               getAllShownJobs={() => {}}
             />
           </div>
-        </ConnectedRouter>
+        </MemoryRouter>
       </Provider>,
     );
     const jobEl = await waitFor(() => getByText('yaml'));

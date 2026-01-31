@@ -1,5 +1,3 @@
-import { push as pushRoute } from 'connected-react-router';
-
 import {
   findGroupElement,
   findGroupInstance,
@@ -20,6 +18,7 @@ import {
   setUrlParam,
   setUrlParams,
 } from '../../../helpers/location';
+import { updateUrlSearch } from '../../../helpers/router';
 import JobModel from '../../../models/job';
 import { getJobsUrl } from '../../../helpers/url';
 
@@ -84,7 +83,7 @@ export const selectJobViaUrl = (job) => {
     // Update URL for bookmarking/history
     const taskRun = job ? getTaskRunStr(job) : null;
     const params = setUrlParams([['selectedTaskRun', taskRun]]);
-    dispatch(pushRoute({ search: params }));
+    updateUrlSearch(params);
   };
 };
 
@@ -98,7 +97,7 @@ export const clearJobViaUrl = () => {
       ['selectedTaskRun', null],
       ['selectedJob', null],
     ]);
-    dispatch(pushRoute({ search: params }));
+    updateUrlSearch(params);
   };
 };
 
@@ -129,7 +128,7 @@ export const updateJobDetails = (job) => {
     // Also update URL to ensure it reflects the latest task run
     const taskRun = job ? getTaskRunStr(job) : null;
     const params = setUrlParams([['selectedTaskRun', taskRun]]);
-    dispatch(pushRoute({ search: params }));
+    updateUrlSearch(params);
   };
 };
 

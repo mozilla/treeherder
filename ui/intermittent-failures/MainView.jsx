@@ -1,5 +1,6 @@
 import React from 'react';
 import { Row, Col, Breadcrumb, BreadcrumbItem } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import ReactTable from 'react-table-6';
 import Checkbox from '@mui/material/Checkbox';
@@ -20,7 +21,7 @@ import {
   tooltipCell,
   textFilter,
 } from './helpers';
-import withView from './View';
+import useIntermittentFailuresData from './useIntermittentFailuresData';
 import Layout from './Layout';
 import DateRangePicker from './DateRangePicker';
 
@@ -34,18 +35,42 @@ const CustomPopper = (props) => {
   );
 };
 
+const defaultState = {
+  tree: 'all',
+  startday: ISODate(dayjs().utc().subtract(7, 'days')),
+  endday: ISODate(dayjs().utc()),
+  endpoint: bugsEndpoint,
+  route: '/main',
+};
+
 const MainView = (props) => {
   const {
-    graphData = [],
-    tableData = [],
+    mainGraphData = null,
+    mainTableData = null,
+    updateAppState = null,
+    user,
+    setUser,
+    notify,
+  } = props;
+
+  const navigate = useNavigate();
+
+  // Use the custom hook for data management
+  const {
+    graphData,
+    tableData,
     initialParamsSet,
     startday,
     endday,
-    updateState,
     tree,
     location,
-    updateAppState = null,
-  } = props;
+    updateState,
+    errorMessages,
+    tableFailureStatus,
+    graphFailureStatus,
+    isFetchingTable,
+    isFetchingGraphs,
+  } = useIntermittentFailuresData(defaultState, mainGraphData, mainTableData);
 
   const [selectedFilter, setSelectedFilter] = React.useState({
     product: [],
@@ -71,8 +96,8 @@ const MainView = (props) => {
         disableCloseOnSelect
         defaultValue={selectedFilter[column.id]}
         fullWidth
-        renderOption={(props, option, { selected }) => {
-          const { key, ...optionProps } = props;
+        renderOption={(renderProps, option, { selected }) => {
+          const { key, ...optionProps } = renderProps;
           return (
             <li key={key} {...optionProps}>
               <Checkbox style={{ marginRight: 8 }} checked={selected} />
@@ -108,13 +133,13 @@ const MainView = (props) => {
       headerClassName: 'text-left',
       className: 'text-left',
       width: 90,
-      Cell: (props) => (
+      Cell: (cellProps) => (
         <div>
           <a
             className="ms-1"
             target="_blank"
             rel="noopener noreferrer"
-            href={`${getBugUrl(props.original.id)}`}
+            href={`${getBugUrl(cellProps.original.id)}`}
             onClick={(e) => e.stopPropagation()}
             onAuxClick={(e) => {
               // Stop the propagation of middle clicks events to open the bug
@@ -124,7 +149,7 @@ const MainView = (props) => {
               }
             }}
           >
-            {props.original.id}
+            {cellProps.original.id}
           </a>
         </div>
       ),
@@ -135,9 +160,9 @@ const MainView = (props) => {
         }
         return true;
       },
-      Filter: (props) =>
+      Filter: (filterProps) =>
         textFilter({
-          ...props,
+          ...filterProps,
           placeholder: 'Filter by bug ID…',
           columnId: 'id',
         }),
@@ -170,9 +195,9 @@ const MainView = (props) => {
       headerClassName: 'text-left',
       Cell: tooltipCell,
       filterMethod: regexpFilter,
-      Filter: (props) =>
+      Filter: (filterProps) =>
         textFilter({
-          ...props,
+          ...filterProps,
           placeholder: 'Filter by whiteboard…',
           columnId: 'whiteboard',
         }),
@@ -185,9 +210,9 @@ const MainView = (props) => {
       headerClassName: 'text-left',
       Cell: tooltipCell,
       filterMethod: regexpFilter,
-      Filter: (props) =>
+      Filter: (filterProps) =>
         textFilter({
-          ...props,
+          ...filterProps,
           placeholder: 'Filter by summary…',
           columnId: 'summary',
         }),
@@ -244,9 +269,21 @@ const MainView = (props) => {
     return filters;
   };
 
+  // Build props to pass to Layout (for compatibility with existing component)
+  const layoutProps = {
+    user,
+    setUser,
+    notify,
+    errorMessages,
+    tableFailureStatus,
+    graphFailureStatus,
+    isFetchingTable,
+    isFetchingGraphs,
+  };
+
   return (
     <Layout
-      {...props}
+      {...layoutProps}
       graphOneData={graphOneData}
       graphTwoData={graphTwoData}
       header={
@@ -314,11 +351,11 @@ const MainView = (props) => {
                     cursor: 'pointer',
                   },
                   onClick: () => {
-                    updateAppState({ graphData, tableData });
-                    // Use history.push for proper React Router navigation
-                    props.history.push({
-                      pathname,
-                      search,
+                    if (updateAppState) {
+                      updateAppState({ graphData, tableData });
+                    }
+                    // Use navigate for React Router v6
+                    navigate(`${pathname}${search}`, {
                       state: {
                         startday,
                         endday,
@@ -353,26 +390,12 @@ const MainView = (props) => {
 };
 
 MainView.propTypes = {
-  location: PropTypes.shape({}).isRequired,
-  tree: PropTypes.string.isRequired,
+  mainGraphData: PropTypes.arrayOf(PropTypes.shape({})),
+  mainTableData: PropTypes.arrayOf(PropTypes.shape({})),
   updateAppState: PropTypes.func,
-  updateState: PropTypes.func.isRequired,
-  startday: PropTypes.string.isRequired,
-  endday: PropTypes.string.isRequired,
-  tableData: PropTypes.arrayOf(PropTypes.shape({})),
-  graphData: PropTypes.arrayOf(PropTypes.shape({})),
-  initialParamsSet: PropTypes.bool.isRequired,
   user: PropTypes.shape({}),
   setUser: PropTypes.func.isRequired,
   notify: PropTypes.func.isRequired,
 };
 
-const defaultState = {
-  tree: 'all',
-  startday: ISODate(dayjs().utc().subtract(7, 'days')),
-  endday: ISODate(dayjs().utc()),
-  endpoint: bugsEndpoint,
-  route: '/main',
-};
-
-export default withView(defaultState)(MainView);
+export default MainView;
