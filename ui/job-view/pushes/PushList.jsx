@@ -10,6 +10,7 @@ import { notify } from '../redux/stores/notifications';
 import {
   syncSelectionFromUrl,
   clearJobViaUrl,
+  wasJobJustSelected,
 } from '../redux/stores/selectedJob';
 import { fetchPushes, updateRange, pollPushes } from '../redux/stores/pushes';
 import { updatePushParams } from '../../helpers/location';
@@ -111,6 +112,15 @@ function PushList({
         !intersection(target.classList, ['btn', 'dropdown-item']).length;
 
       if (isEligible) {
+        // Don't clear if a job was just selected (within the last ~100ms).
+        // This prevents a race condition where clicking a job triggers:
+        // 1. mousedown -> job selected -> React re-renders button
+        // 2. click event fires with target as a parent element (e.g., <tbody>)
+        //    because the DOM changed between mousedown and mouseup
+        // 3. clearIfEligibleTarget incorrectly clears the just-selected job
+        if (wasJobJustSelected()) {
+          return;
+        }
         // Use URL-first pattern: just update URL, let sync effect handle the rest
         clearJobViaUrl();
       }
