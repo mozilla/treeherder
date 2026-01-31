@@ -1,4 +1,4 @@
-import React from 'react';
+
 import fetchMock from 'fetch-mock';
 import { render } from '@testing-library/react';
 import { Provider, ReactReduxContext } from 'react-redux';
