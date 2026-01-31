@@ -435,10 +435,15 @@ export const reducer = (state = initialState, action) => {
       // Check if Redux state already matches URL (e.g., after a direct click via selectJobViaUrl)
       // This avoids race conditions with stale jobMap during rapid clicks
       const selectedTaskRun = getUrlParam('selectedTaskRun');
+      const selectedJobParam = getUrlParam('selectedJob');
       const currentTaskRun = state.selectedJob
         ? getTaskRunStr(state.selectedJob)
         : null;
-      if (selectedTaskRun === currentTaskRun) {
+
+      // Only skip re-lookup if:
+      // 1. selectedTaskRun is in URL and matches current state, AND
+      // 2. There's no legacy selectedJob param that needs migration
+      if (selectedTaskRun === currentTaskRun && !selectedJobParam) {
         // Already in sync, skip re-lookup from potentially stale jobMap
         return state;
       }
