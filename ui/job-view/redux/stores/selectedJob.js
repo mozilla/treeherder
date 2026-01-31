@@ -205,6 +205,18 @@ export const doSelectJob = (job) => {
     newSelectedElement.setSelected(true);
     // Track the newly selected instance for reliable deselection later
     setCurrentlySelectedInstance(job.id, newSelectedElement);
+
+    // Scroll the job into view after a short delay to ensure the details panel
+    // has rendered. Use 'start' to position the job near the top of the viewport,
+    // above the details panel.
+    requestAnimationFrame(() => {
+      const buttonEl = document.querySelector(
+        `#push-list button[data-job-id='${job.id}']`,
+      );
+      if (buttonEl && typeof buttonEl.scrollIntoView === 'function') {
+        buttonEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
   } else {
     // Clear tracking since the job element doesn't exist
     clearCurrentlySelectedInstance();
