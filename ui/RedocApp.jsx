@@ -1,4 +1,3 @@
-import React from 'react';
 import { RedocStandalone } from 'redoc';
 
 const App = (props) => {

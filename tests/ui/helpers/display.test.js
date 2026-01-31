@@ -29,6 +29,9 @@ import {
   getSearchWords,
   getPercentComplete,
   formatArtifacts,
+  longDateFormat,
+  shortDateFormat,
+  resultColorMap,
   getIcon,
 } from '../../../ui/helpers/display';
 
@@ -58,6 +61,30 @@ describe('Date formatting', () => {
       const result = toShortDateStr(timestamp);
 
       expect(result).toBe('Jan 15, 12:30');
+    });
+  });
+
+  describe('longDateFormat', () => {
+    it('includes all expected format options', () => {
+      expect(longDateFormat.weekday).toBe('short');
+      expect(longDateFormat.month).toBe('short');
+      expect(longDateFormat.day).toBe('numeric');
+      expect(longDateFormat.hour).toBe('numeric');
+      expect(longDateFormat.minute).toBe('numeric');
+      expect(longDateFormat.second).toBe('numeric');
+      expect(longDateFormat.hour12).toBe(false);
+    });
+  });
+
+  describe('shortDateFormat', () => {
+    it('includes expected format options without weekday and second', () => {
+      expect(shortDateFormat.month).toBe('short');
+      expect(shortDateFormat.day).toBe('numeric');
+      expect(shortDateFormat.hour).toBe('numeric');
+      expect(shortDateFormat.minute).toBe('numeric');
+      expect(shortDateFormat.hour12).toBe(false);
+      expect(shortDateFormat.weekday).toBeUndefined();
+      expect(shortDateFormat.second).toBeUndefined();
     });
   });
 });
@@ -174,6 +201,48 @@ describe('formatArtifacts', () => {
     const result = formatArtifacts([], {});
     expect(result).toEqual([]);
   });
+
+  it('extracts filename from full path', () => {
+    const data = [{ name: 'a/very/deep/path/to/file.txt' }];
+    const artifactParams = {
+      taskId: 'task123',
+      run: 0,
+      rootUrl: 'https://firefox-ci-tc.services.mozilla.com',
+    };
+    const result = formatArtifacts(data, artifactParams);
+
+    expect(result[0].value).toBe('file.txt');
+  });
+});
+
+describe('resultColorMap', () => {
+  it('maps pass to success', () => {
+    expect(resultColorMap.pass).toBe('success');
+  });
+
+  it('maps fail to danger', () => {
+    expect(resultColorMap.fail).toBe('danger');
+  });
+
+  it('maps indeterminate to secondary', () => {
+    expect(resultColorMap.indeterminate).toBe('secondary');
+  });
+
+  it('maps done to darker-info', () => {
+    expect(resultColorMap.done).toBe('darker-info');
+  });
+
+  it('maps in progress to secondary', () => {
+    expect(resultColorMap['in progress']).toBe('secondary');
+  });
+
+  it('maps none to darker-info', () => {
+    expect(resultColorMap.none).toBe('darker-info');
+  });
+
+  it('maps unknown to secondary', () => {
+    expect(resultColorMap.unknown).toBe('secondary');
+  });
 });
 
 describe('getIcon', () => {
@@ -191,5 +260,7 @@ describe('getIcon', () => {
 
   it('returns faClock for unknown values', () => {
     expect(getIcon('unknown')).toBe(faClock);
+    expect(getIcon('')).toBe(faClock);
+    expect(getIcon(null)).toBe(faClock);
   });
 });
