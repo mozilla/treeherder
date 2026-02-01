@@ -44,22 +44,12 @@ jest.mock('react-router-dom', () => {
 
 describe('PushList', () => {
   const repoName = 'autoland';
-<<<<<<< HEAD
   const mockLocation = { search: `?repo=${repoName}`, pathname: '/jobs' };
 
   beforeEach(() => {
     mockNavigate = jest.fn();
     // Mock window.history.pushState for URL updates
     jest.spyOn(window.history, 'pushState').mockImplementation(() => {});
-=======
-  let history;
-
-  beforeEach(() => {
-    history = createBrowserHistory();
-    act(() => {
-      history.push(`/jobs?repo=${repoName}`);
-    });
->>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
   });
 
   const currentRepo = {
@@ -149,10 +139,7 @@ describe('PushList', () => {
 
   afterEach(() => {
     cleanup();
-<<<<<<< HEAD
     jest.restoreAllMocks();
-=======
->>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
   });
 
   afterAll(() => {
@@ -230,17 +217,12 @@ describe('PushList', () => {
     fireEvent.click(setFromRange);
 
     await waitFor(() => {
-<<<<<<< HEAD
       expect(mockNavigate).toHaveBeenCalledWith(
         expect.objectContaining({
           search: expect.stringContaining(
             'fromchange=d5b037941b0ebabcc9b843f24d926e9d65961087',
           ),
         }),
-=======
-      expect(history.location.search).toContain(
-        '?repo=autoland&fromchange=d5b037941b0ebabcc9b843f24d926e9d65961087',
->>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
       );
     });
   });
@@ -264,17 +246,12 @@ describe('PushList', () => {
     fireEvent.click(setTopRange);
 
     await waitFor(() => {
-<<<<<<< HEAD
       expect(mockNavigate).toHaveBeenCalledWith(
         expect.objectContaining({
           search: expect.stringContaining(
             'tochange=ba9c692786e95143b8df3f4b3e9b504dfbc589a0',
           ),
         }),
-=======
-      expect(history.location.search).toContain(
-        '?repo=autoland&tochange=ba9c692786e95143b8df3f4b3e9b504dfbc589a0',
->>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
       );
     });
   });
@@ -327,46 +304,25 @@ describe('PushList', () => {
   });
 
   test('jobs should have fields required for retriggers', async () => {
-<<<<<<< HEAD
     const store = configureStore();
-=======
-    const store = configureStore(history);
->>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
     store.dispatch(fetchPushes());
 
     const { getByText } = render(
       <Provider store={store} context={ReactReduxContext}>
-<<<<<<< HEAD
         <MemoryRouter initialEntries={[`/jobs?repo=${repoName}`]}>
-=======
-        <ConnectedRouter history={history} context={ReactReduxContext}>
->>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
           <div id="th-global-content">
             <PushList
               user={{ isLoggedIn: false }}
               repoName={repoName}
               currentRepo={currentRepo}
-<<<<<<< HEAD
               filterModel={new FilterModel(mockNavigate, mockLocation)}
-=======
-              filterModel={
-                new FilterModel({
-                  pushRoute: history.push,
-                  router: { location: history.location },
-                })
-              }
->>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
               duplicateJobsVisible={false}
               groupCountsExpanded={false}
               pushHealthVisibility="None"
               getAllShownJobs={() => {}}
             />
           </div>
-<<<<<<< HEAD
         </MemoryRouter>
-=======
-        </ConnectedRouter>
->>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
       </Provider>,
     );
     const jobEl = await waitFor(() => getByText('yaml'));
