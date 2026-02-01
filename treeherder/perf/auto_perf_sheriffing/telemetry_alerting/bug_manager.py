@@ -97,9 +97,7 @@ class TelemetryBugContent:
         "| :---: | :---: | :---: | :---: |\n"
     )
 
-    REGRESSION_TITLE = "### Regressions\n"
-    IMPROVMENT_TITLE = "### Improvement\n"
-    GENERIC_TITLE = "### Changes Detected\n"
+    CHANGES_DETECTED_TITLE = "### Changes Detected\n"
 
     BUG_TITLE = "Telemetry Alert for {probe} on {date}"
 
@@ -138,13 +136,7 @@ class TelemetryBugContent:
         pass
 
     def _build_change_table(self, alert):
-        change_table = self.GENERIC_TITLE
-
-        if alert.telemetry_alert.is_regression:
-            change_table = self.REGRESSION_TITLE
-
-        change_table += self.TABLE_HEADERS + self._build_probe_alert_row(alert)
-
+        change_table = self.CHANGES_DETECTED_TITLE + self.TABLE_HEADERS + self._build_probe_alert_row(alert)
         return change_table
 
     def _build_probe_alert_row(self, alert):

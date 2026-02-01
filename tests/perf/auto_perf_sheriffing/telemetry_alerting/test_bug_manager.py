@@ -209,25 +209,6 @@ class TestTelemetryBugContent:
             in result["description"]
         )
 
-    def test_build_bug_content_handles_regression_alerts(self, bug_content, telemetry_alert_obj):
-        """Test that regression alerts are labeled correctly."""
-        telemetry_alert_obj.telemetry_alert.is_regression = True
-
-        result = bug_content.build_bug_content(telemetry_alert_obj)
-
-        description = result["description"]
-        assert "Regressions" in description or "### Regressions" in description
-
-    def test_build_bug_content_handles_improvement_alerts(self, bug_content, telemetry_alert_obj):
-        """Test that improvement alerts are labeled correctly."""
-        telemetry_alert_obj.telemetry_alert.is_regression = False
-
-        result = bug_content.build_bug_content(telemetry_alert_obj)
-
-        description = result["description"]
-        # Should show generic title for non-regressions
-        assert "Changes Detected" in description or "### Changes Detected" in description
-
     def test_build_comment_content_not_implemented(self, bug_content, telemetry_alert_obj):
         """Test that build_comment_content is not yet implemented."""
         result = bug_content.build_comment_content(telemetry_alert_obj)
@@ -351,17 +332,17 @@ class TestTelemetryBugContent:
     def test_build_change_table_uses_correct_title_for_regression(
         self, bug_content, telemetry_alert_obj
     ):
-        """Test that _build_change_table uses 'Regressions' title for regressions."""
+        """Test that _build_change_table uses 'Changes Detected' title for regressions."""
         telemetry_alert_obj.telemetry_alert.is_regression = True
 
         result = bug_content._build_change_table(telemetry_alert_obj)
 
-        assert "### Regressions" in result
+        assert "### Changes Detected" in result
 
     def test_build_change_table_uses_generic_title_for_non_regression(
         self, bug_content, telemetry_alert_obj
     ):
-        """Test that _build_change_table uses generic title for non-regressions."""
+        """Test that _build_change_table uses 'Changes Detected' title for non-regressions."""
         telemetry_alert_obj.telemetry_alert.is_regression = False
 
         result = bug_content._build_change_table(telemetry_alert_obj)
