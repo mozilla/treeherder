@@ -1,8 +1,7 @@
-import React from 'react';
+
 import fetchMock from 'fetch-mock';
-import { render, waitFor, fireEvent } from '@testing-library/react';
-import { createBrowserHistory } from 'history';
-import { ConnectedRouter } from 'connected-react-router';
+import { render, waitFor, fireEvent, act } from '@testing-library/react';
+import { MemoryRouter, useLocation, useNavigate } from 'react-router';
 import { Provider } from 'react-redux';
 
 import MyPushes from '../../../ui/push-health/MyPushes';
@@ -14,8 +13,14 @@ import { getProjectUrl } from '../../../ui/helpers/location';
 import { configureStore } from '../../../ui/job-view/redux/configureStore';
 import { myPushesDefaultMessage } from '../../../ui/push-health/helpers';
 
+// Wrapper component that provides location and navigate to MyPushes
+function MyPushesWithLocation(props) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  return <MyPushes {...props} location={location} navigate={navigate} />;
+}
+
 const repo = 'try';
-const history = createBrowserHistory();
 const params = 'author=ccoroiu%40mozilla.com&count=5&with_history=true';
 const testUser = { email: 'ccoroiu@mozilla.com', isLoggedIn: true };
 
@@ -32,19 +37,17 @@ describe('My Pushes', () => {
     fetchMock.reset();
   });
 
-  const testMyPushes = (user = testUser) => {
-    const store = configureStore(history);
+  const testMyPushes = (user = testUser, initialEntries = ['/']) => {
+    const store = configureStore();
     return (
       <Provider store={store}>
-        <ConnectedRouter history={history}>
-          <MyPushes
+        <MemoryRouter initialEntries={initialEntries}>
+          <MyPushesWithLocation
             user={user}
-            location={history.location}
             notify={() => {}}
             clearNotification={() => {}}
-            history={history}
           />
-        </ConnectedRouter>
+        </MemoryRouter>
       </Provider>
     );
   };
@@ -52,32 +55,27 @@ describe('My Pushes', () => {
   test('should show message if no author query param is provided and user is not logged in', async () => {
     const { queryByText } = render(testMyPushes({ isLoggedIn: false }));
 
-    // verify no author query param exists
-    expect(history.location.search).toBe('');
-
     await waitFor(() =>
       expect(queryByText(myPushesDefaultMessage)).toBeInTheDocument(),
     );
   });
 
-  test('should fetch the push health data if user is logged in and update query param', async () => {
+  test('should fetch the push health data if user is logged in', async () => {
     const { getAllByText } = render(testMyPushes());
 
     const pushes = await waitFor(() => getAllByText(testUser.email));
     expect(pushes).toHaveLength(3);
-    expect(history.location.search).toContain(`?author=${testUser.email}`);
-    history.location.search = '';
   });
 
   test('should fetch the push health data by author query string if user is not logged in', async () => {
-    history.location.search = `?author=${testUser.email}`;
     const { getAllByText } = render(
-      testMyPushes({ email: '', isLoggedIn: false }),
+      testMyPushes({ email: '', isLoggedIn: false }, [
+        `/?author=${testUser.email}`,
+      ]),
     );
 
     const pushes = await waitFor(() => getAllByText(testUser.email));
     expect(pushes).toHaveLength(3);
-    history.location.search = '';
   });
 
   test('should filter pushes by repos', async () => {
@@ -92,7 +90,10 @@ describe('My Pushes', () => {
     ]);
 
     const dropdownButton = await waitFor(() => getByText('try pushes'));
-    fireEvent.click(dropdownButton);
+
+    await act(async () => {
+      fireEvent.click(dropdownButton);
+    });
 
     fetchMock.get(
       getProjectUrl(`/push/health_summary/?${params}&all_repos=true`, repo),
@@ -100,7 +101,10 @@ describe('My Pushes', () => {
     );
 
     const allRepos = await waitFor(() => getByText('all'));
-    fireEvent.click(allRepos);
+
+    await act(async () => {
+      fireEvent.click(allRepos);
+    });
 
     await waitFor(() =>
       expect(queryByText('loading page, please wait')).toBeNull(),

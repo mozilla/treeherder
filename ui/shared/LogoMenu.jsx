@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Dropdown } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 const choices = [
   { url: '/jobs', text: 'Treeherder' },
@@ -34,8 +34,8 @@ export default class LogoMenu extends React.PureComponent {
         </Dropdown.Toggle>
         <Dropdown.Menu>
           {menuChoices.map((choice) => (
-            <Dropdown.Item key={choice.text}>
-              <Link to={choice.url}>{choice.text}</Link>
+            <Dropdown.Item key={choice.text} as={Link} to={choice.url}>
+              {choice.text}
             </Dropdown.Item>
           ))}
         </Dropdown.Menu>

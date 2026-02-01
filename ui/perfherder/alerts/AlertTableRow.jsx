@@ -12,7 +12,7 @@ import {
   faPlus,
 } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 import { getPerfCompareBaseSubtestsURL } from '../../helpers/url';
 import {
@@ -406,8 +406,8 @@ export default class AlertTableRow extends React.Component {
       sxsTriggered;
 
     const backfillStatusInfo = this.getBackfillStatusInfo(alert);
-    let sherlockTooltip = backfillStatusInfo && backfillStatusInfo.message;
-    if (backfillStatusInfo && backfillStatusInfo.displayTasksCount) {
+    let sherlockTooltip = backfillStatusInfo?.message;
+    if (backfillStatusInfo?.displayTasksCount) {
       sherlockTooltip = (
         <>
           <i>{backfillStatusInfo.message}</i>

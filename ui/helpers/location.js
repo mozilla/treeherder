@@ -4,7 +4,11 @@ import { createQueryParams, getApiUrl } from './url';
 export const getAllUrlParams = function getAllUrlParams(
   location = window.location,
 ) {
-  return new URLSearchParams(location.search);
+  // URLSearchParams doesn't strip leading '?' - we need to remove it
+  const search = location.search.startsWith('?')
+    ? location.search.slice(1)
+    : location.search;
+  return new URLSearchParams(search);
 };
 
 export const getUrlParam = function getUrlParam(name) {
@@ -55,7 +59,8 @@ export const updateRepoParams = function updateRepoParams(newRepoName) {
   params.delete('revision');
   params.delete('author');
   params.set('repo', newRepoName);
-  return `?${params.toString()}`;
+  // React Router v6 Link's to={{ search: ... }} adds the ? automatically
+  return params.toString();
 };
 
 // Take the repoName, if passed in.  If not, then try to find it on the
