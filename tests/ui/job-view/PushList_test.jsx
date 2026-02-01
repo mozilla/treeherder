@@ -1,7 +1,7 @@
 
 import fetchMock from 'fetch-mock';
 import { Provider, ReactReduxContext } from 'react-redux';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 import {
   render,
   waitFor,
