@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from treeherder.perf.auto_perf_sheriffing.base_bug_manager import BugManager
 from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.utils import (
@@ -22,7 +22,7 @@ class TelemetryBugManager(BugManager):
     def file_bug(self, probe, alert):
         logger.info(f"Filing bug for alert on probe {probe.name}")
         bug_data = self._get_default_bug_creation_data()
-        bug_content = TelemetryBugContent().build_bug_content(alert)
+        bug_content = TelemetryBugContent().build_bug_content(probe, alert)
 
         bug_data["summary"] = bug_content["title"]
         bug_data["description"] = bug_content["description"]
@@ -101,7 +101,7 @@ class TelemetryBugContent:
 
     BUG_TITLE = "Telemetry Alert for {probe} on {date}"
 
-    def build_bug_content(self, alert):
+    def build_bug_content(self, probe, alert):
         bug_content = {"title": "", "description": ""}
 
         detection_range = alert.get_detection_range()
@@ -120,7 +120,7 @@ class TelemetryBugContent:
             detection_push_link=get_treeherder_detection_link(
                 detection_range, alert.telemetry_signature
             ),
-            change_table=self._build_change_table(alert),
+            change_table=self._build_change_table(probe, alert),
             detection_range_link=get_treeherder_detection_range_link(
                 detection_range, alert.telemetry_signature
             ),
@@ -135,10 +135,10 @@ class TelemetryBugContent:
     def build_comment_content(self, alert):
         pass
 
-    def _build_change_table(self, alert):
+    def _build_change_table(self, probe, alert):
         change_table = self.CHANGES_DETECTED_TITLE
         change_table += self._get_detection_warnings(alert)
-        change_table += self.TABLE_HEADERS + self._build_probe_alert_row(alert)
+        change_table += self.TABLE_HEADERS + self._build_probe_alert_row(probe, alert)
         return change_table
 
     def _get_detection_warnings(self, alert):
@@ -162,17 +162,53 @@ class TelemetryBugContent:
 
         return ""
 
-    def _build_probe_alert_row(self, alert):
+    def _normalize_time_unit(self, unit):
+        """Convert full time unit names to shorthand notation."""
+        unit_mapping = {
+            "nanosecond": "ns",
+            "microsecond": "us",
+            "millisecond": "ms",
+            "second": "s",
+        }
+
+        # Normalize to lowercase and return mapped value if it's a full name
+        normalized = unit.lower() if unit else ""
+        return unit_mapping.get(normalized, normalized)
+
+    def _convert_from_nanoseconds(self, value_ns, unit):
+        """Convert a value from nanoseconds to the specified unit."""
+        conversion_factors = {
+            "ns": 1,
+            "us": 1_000,
+            "ms": 1_000_000,
+            "s": 1_000_000_000,
+        }
+
+        return value_ns / conversion_factors.get(unit, 1)
+
+    def _build_probe_alert_row(self, probe, alert):
         # TODO: Have change-detection-technique/mozdetect provide a method for building
         # a row. That way we can decouple the information provided to bugzilla
         # users from the alerting system.
+
+        # Normalize unit to shorthand for both conversion and display
+        unit = self._normalize_time_unit(probe.time_unit)
+
+        # Convert values from nanoseconds to the appropriate unit
+        prev_median = self._convert_from_nanoseconds(alert.telemetry_alert.prev_median, unit)
+        new_median = self._convert_from_nanoseconds(alert.telemetry_alert.new_median, unit)
+        prev_p05 = self._convert_from_nanoseconds(alert.telemetry_alert.prev_p05, unit)
+        new_p05 = self._convert_from_nanoseconds(alert.telemetry_alert.new_p05, unit)
+        prev_p95 = self._convert_from_nanoseconds(alert.telemetry_alert.prev_p95, unit)
+        new_p95 = self._convert_from_nanoseconds(alert.telemetry_alert.new_p95, unit)
+
         values = (
-            f"| **Median:** {round(alert.telemetry_alert.prev_median, 2)} "
-            f"| **Median:** {round(alert.telemetry_alert.new_median, 2)} |\n"
-            f"| | | | **P05:** {round(alert.telemetry_alert.prev_p05, 2)} "
-            f"| **P05:** {round(alert.telemetry_alert.new_p05, 2)} |\n"
-            f"| | | | **P95:** {round(alert.telemetry_alert.prev_p95, 2)} "
-            f"| **P95:** {round(alert.telemetry_alert.new_p95, 2)} |"
+            f"| **Median:** {round(prev_median, 2)}{unit} "
+            f"| **Median:** {round(new_median, 2)}{unit} |\n"
+            f"| | | | **P05:** {round(prev_p05, 2)}{unit} "
+            f"| **P05:** {round(new_p05, 2)}{unit} |\n"
+            f"| | | | **P95:** {round(prev_p95, 2)}{unit} "
+            f"| **P95:** {round(new_p95, 2)}{unit} |"
         )
 
         return (
