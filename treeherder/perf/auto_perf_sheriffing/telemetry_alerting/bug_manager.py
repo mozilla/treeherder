@@ -136,8 +136,31 @@ class TelemetryBugContent:
         pass
 
     def _build_change_table(self, alert):
-        change_table = self.CHANGES_DETECTED_TITLE + self.TABLE_HEADERS + self._build_probe_alert_row(alert)
+        change_table = self.CHANGES_DETECTED_TITLE
+        change_table += self._get_detection_warnings(alert)
+        change_table += self.TABLE_HEADERS + self._build_probe_alert_row(alert)
         return change_table
+
+    def _get_detection_warnings(self, alert):
+        """Get any warnings about the detection that should be displayed."""
+        warnings = self._get_sample_difference_warning(alert)
+        return warnings
+
+    def _get_sample_difference_warning(self, alert):
+        """Check if sample size changed significantly (>=20%) and return a warning if so."""
+        prev_samples = alert.telemetry_alert.prev_value
+        new_samples = alert.telemetry_alert.new_value
+
+        if prev_samples > 0:
+            sample_diff_pct = abs((new_samples - prev_samples) / prev_samples * 100)
+            if sample_diff_pct >= 20:
+                return (
+                    f"\n**Warning: The number of samples changed by {sample_diff_pct:.1f}% "
+                    f"(from {int(prev_samples)} to {int(new_samples)}). "
+                    f"This may affect the reliability of the detection.**\n\n"
+                )
+
+        return ""
 
     def _build_probe_alert_row(self, alert):
         # TODO: Have change-detection-technique/mozdetect provide a method for building

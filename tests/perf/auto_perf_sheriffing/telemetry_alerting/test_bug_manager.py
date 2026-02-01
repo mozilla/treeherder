@@ -348,3 +348,101 @@ class TestTelemetryBugContent:
         result = bug_content._build_change_table(telemetry_alert_obj)
 
         assert "### Changes Detected" in result
+
+    def test_get_sample_difference_warning_returns_empty_when_difference_below_threshold(
+        self, bug_content, telemetry_alert_obj
+    ):
+        """Test that no warning is returned when sample difference is < 20%."""
+        telemetry_alert_obj.telemetry_alert.prev_value = 1000
+        telemetry_alert_obj.telemetry_alert.new_value = 1150  # 15% increase
+
+        result = bug_content._get_sample_difference_warning(telemetry_alert_obj)
+
+        assert result == ""
+
+    def test_get_sample_difference_warning_returns_warning_when_difference_at_threshold(
+        self, bug_content, telemetry_alert_obj
+    ):
+        """Test that warning is returned when sample difference is exactly 20%."""
+        telemetry_alert_obj.telemetry_alert.prev_value = 1000
+        telemetry_alert_obj.telemetry_alert.new_value = 1200  # 20% increase
+
+        result = bug_content._get_sample_difference_warning(telemetry_alert_obj)
+
+        assert "Warning" in result
+        assert "20.0%" in result
+        assert "1000" in result
+        assert "1200" in result
+
+    def test_get_sample_difference_warning_handles_decrease_in_samples(
+        self, bug_content, telemetry_alert_obj
+    ):
+        """Test that warning is returned for sample decrease >= 20%."""
+        telemetry_alert_obj.telemetry_alert.prev_value = 1000
+        telemetry_alert_obj.telemetry_alert.new_value = 750  # 25% decrease
+
+        result = bug_content._get_sample_difference_warning(telemetry_alert_obj)
+
+        assert "Warning" in result
+        assert "25.0%" in result
+        assert "1000" in result
+        assert "750" in result
+
+    def test_get_sample_difference_warning_returns_empty_when_prev_value_is_zero(
+        self, bug_content, telemetry_alert_obj
+    ):
+        """Test that no warning is returned when prev_value is 0 (avoid division by zero)."""
+        telemetry_alert_obj.telemetry_alert.prev_value = 0
+        telemetry_alert_obj.telemetry_alert.new_value = 1000
+
+        result = bug_content._get_sample_difference_warning(telemetry_alert_obj)
+
+        assert result == ""
+
+    def test_get_detection_warnings_calls_sample_difference_warning(
+        self, bug_content, telemetry_alert_obj
+    ):
+        """Test that _get_detection_warnings calls _get_sample_difference_warning."""
+        telemetry_alert_obj.telemetry_alert.prev_value = 1000
+        telemetry_alert_obj.telemetry_alert.new_value = 1500  # 50% increase
+
+        result = bug_content._get_detection_warnings(telemetry_alert_obj)
+
+        assert "Warning" in result
+        assert "50.0%" in result
+
+    def test_get_detection_warnings_returns_empty_when_no_warnings(
+        self, bug_content, telemetry_alert_obj
+    ):
+        """Test that _get_detection_warnings returns empty string when no warnings are needed."""
+        telemetry_alert_obj.telemetry_alert.prev_value = 1000
+        telemetry_alert_obj.telemetry_alert.new_value = 1100  # 10% increase
+
+        result = bug_content._get_detection_warnings(telemetry_alert_obj)
+
+        assert result == ""
+
+    def test_build_change_table_includes_sample_warning(self, bug_content, telemetry_alert_obj):
+        """Test that _build_change_table includes sample warning when threshold is met."""
+        telemetry_alert_obj.telemetry_alert.prev_value = 1000
+        telemetry_alert_obj.telemetry_alert.new_value = 1500  # 50% increase
+
+        result = bug_content._build_change_table(telemetry_alert_obj)
+
+        assert "### Changes Detected" in result
+        assert "Warning" in result
+        assert "50.0%" in result
+        assert "Probe" in result  # Table headers should still be present
+
+    def test_build_change_table_excludes_sample_warning_when_not_needed(
+        self, bug_content, telemetry_alert_obj
+    ):
+        """Test that _build_change_table excludes sample warning when threshold is not met."""
+        telemetry_alert_obj.telemetry_alert.prev_value = 1000
+        telemetry_alert_obj.telemetry_alert.new_value = 1100  # 10% increase
+
+        result = bug_content._build_change_table(telemetry_alert_obj)
+
+        assert "### Changes Detected" in result
+        assert "Warning" not in result
+        assert "Probe" in result  # Table headers should still be present
