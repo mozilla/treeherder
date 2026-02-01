@@ -8,7 +8,7 @@ import { getProjectUrl, replaceLocation } from '../../../ui/helpers/location';
 import FilterModel from '../../../ui/models/filter';
 import pushListFixture from '../mock/push_list';
 import jobListFixture from '../mock/job_list/job_2';
-import configureStore from '../../../ui/job-view/redux/configureStore';
+import { configureStore } from '../../../ui/job-view/redux/configureStore';
 import Push, {
   transformTestPath,
   transformedPaths,

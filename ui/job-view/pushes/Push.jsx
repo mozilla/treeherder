@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 import sortBy from 'lodash/sortBy';
 import { Col, Row } from 'react-bootstrap';
 
@@ -123,11 +124,11 @@ function Push({
   decisionTaskMap,
   bugSummaryMap,
   allUnclassifiedFailureCount,
-  router,
   notify,
   updateJobMap,
   recalculateUnclassifiedCounts,
 }) {
+  const location = useLocation();
   const collapsedPushes = getUrlParam('collapsedPushes') || '';
 
   const [fuzzyModal, setFuzzyModal] = useState(false);
@@ -151,7 +152,7 @@ function Push({
   const [manifestsByTask, setManifestsByTask] = useState({});
 
   const containerRef = useRef(null);
-  const prevRouterSearch = useRef(router.location.search);
+  const prevRouterSearch = useRef(location.search);
   const prevJobCounts = useRef(jobCounts);
   const jobListRef = useRef(jobList);
   const manifestsByTaskRef = useRef(manifestsByTask);
@@ -623,11 +624,11 @@ function Push({
 
   // componentDidUpdate - handle URL changes
   useEffect(() => {
-    if (prevRouterSearch.current !== router.location.search) {
+    if (prevRouterSearch.current !== location.search) {
       handleUrlChanges();
-      prevRouterSearch.current = router.location.search;
+      prevRouterSearch.current = location.search;
     }
-  }, [router.location.search, handleUrlChanges]);
+  }, [location.search, handleUrlChanges]);
 
   const {
     id,
@@ -782,12 +783,10 @@ Push.propTypes = {
 
 const mapStateToProps = ({
   pushes: { allUnclassifiedFailureCount, decisionTaskMap, bugSummaryMap },
-  router,
 }) => ({
   allUnclassifiedFailureCount,
   decisionTaskMap,
   bugSummaryMap,
-  router,
 });
 
 export default connect(mapStateToProps, {

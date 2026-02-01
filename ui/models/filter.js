@@ -16,6 +16,7 @@ import {
   allFilterParams,
 } from '../helpers/filter';
 import { getAllUrlParams } from '../helpers/location';
+import { updateUrlSearch } from '../helpers/router';
 
 export const getNonFilterUrlParams = (location) =>
   [...getAllUrlParams(location).entries()].reduce(
@@ -51,11 +52,11 @@ export const getFilterUrlParamsWithDefaults = (location) => {
 };
 
 export default class FilterModel {
-  constructor(props) {
-    // utilize connected-react-router push prop (this.push is equivalent to history.push)
-    this.push = props.pushRoute;
-    this.location = props.router.location;
-    this.urlParams = getFilterUrlParamsWithDefaults(props.router.location);
+  constructor(navigate, location) {
+    // navigate function from useNavigate hook (or updateUrlSearch for non-hook contexts)
+    this.navigate = navigate;
+    this.location = location;
+    this.urlParams = getFilterUrlParamsWithDefaults(location);
   }
 
   // If a param matches the defaults, then don't include it.
@@ -76,6 +77,16 @@ export default class FilterModel {
     );
   };
 
+  pushNavigation = (search) => {
+    if (typeof this.navigate === 'function') {
+      // If navigate is the useNavigate hook function
+      this.navigate({ search });
+    } else {
+      // Fallback to direct URL update
+      updateUrlSearch(search);
+    }
+  };
+
   addFilter = (field, value) => {
     const currentValue = this.urlParams[field];
 
@@ -89,7 +100,7 @@ export default class FilterModel {
     } else {
       this.urlParams[field] = [value];
     }
-    this.push({ search: this.getFilterQueryString() });
+    this.pushNavigation(this.getFilterQueryString());
   };
 
   // Also used for non-filter params
@@ -110,7 +121,7 @@ export default class FilterModel {
       delete this.urlParams[field];
     }
 
-    this.push({ search: this.getFilterQueryString() });
+    this.pushNavigation(this.getFilterQueryString());
   };
 
   getFilterQueryString = () =>
@@ -123,7 +134,7 @@ export default class FilterModel {
   setOnlySuperseded = () => {
     this.urlParams.resultStatus = 'superseded';
     this.urlParams.classifiedState = [...thFilterDefaults.classifiedState];
-    this.push({ search: this.getFilterQueryString() });
+    this.pushNavigation(this.getFilterQueryString());
   };
 
   toggleFilter = (field, value) => {
@@ -150,7 +161,7 @@ export default class FilterModel {
       ? currentResultStatuses.filter((rs) => !resultStatuses.includes(rs))
       : [...new Set([...resultStatuses, ...currentResultStatuses])];
 
-    this.push({ search: this.getFilterQueryString() });
+    this.pushNavigation(this.getFilterQueryString());
   };
 
   toggleClassifiedFilter = (classifiedState) => {
@@ -163,7 +174,7 @@ export default class FilterModel {
     } else {
       this.urlParams.resultStatus = [...thFailureResults];
       this.urlParams.classifiedState = ['unclassified'];
-      this.push({ search: this.getFilterQueryString() });
+      this.pushNavigation(this.getFilterQueryString());
     }
   };
 
@@ -188,20 +199,20 @@ export default class FilterModel {
         this.urlParams.classifiedState = ['classified'];
       }
 
-      this.push({ search: this.getFilterQueryString() });
+      this.pushNavigation(this.getFilterQueryString());
     }
   };
 
   replaceFilter = (field, value) => {
     this.urlParams[field] = !Array.isArray(value) ? [value] : value;
-    this.push({ search: this.getFilterQueryString() });
+    this.pushNavigation(this.getFilterQueryString());
   };
 
   clearNonStatusFilters = () => {
     const { repo, resultStatus, classifiedState } = this.urlParams;
 
     this.urlParams = { repo, resultStatus, classifiedState };
-    this.push({ search: this.getFilterQueryString() });
+    this.pushNavigation(this.getFilterQueryString());
   };
 
   /**
@@ -214,7 +225,7 @@ export default class FilterModel {
 
     this.urlParams.resultStatus = [...resultStatus];
     this.urlParams.classifiedState = [...classifiedState];
-    this.push({ search: this.getFilterQueryString() });
+    this.pushNavigation(this.getFilterQueryString());
   };
 
   /**

@@ -1,7 +1,7 @@
-import React from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from 'react-bootstrap';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircle, faDotCircle } from '@fortawesome/free-regular-svg-icons';
 import {
@@ -9,11 +9,11 @@ import {
   faFilter,
   faTimesCircle,
 } from '@fortawesome/free-solid-svg-icons';
-import { push as pushRoute } from 'connected-react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { getBtnClass } from '../../helpers/job';
 import { hasUrlFilterChanges, thFilterGroups } from '../../helpers/filter';
-import { getRepo, getUrlParam, setUrlParams } from '../../helpers/location';
+import { getAllUrlParams, getRepo, setUrlParams } from '../../helpers/location';
 import RepositoryModel from '../../models/repository';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import { recalculateUnclassifiedCounts } from '../redux/stores/pushes';
@@ -24,74 +24,116 @@ import WatchedRepo from './WatchedRepo';
 const MAX_WATCHED_REPOS = 3;
 const WATCHED_REPOS_STORAGE_KEY = 'thWatchedRepos';
 
-const getSearchStrFromUrl = function getSearchStrFromUrl() {
-  const searchStr = getUrlParam('searchStr');
+const getSearchStrFromUrl = (location) => {
+  const params = getAllUrlParams(location);
+  const searchStr = params.get('searchStr');
   return searchStr ? searchStr.replace(/,/g, ' ') : '';
 };
 
-class SecondaryNavBar extends React.PureComponent {
-  constructor(props) {
-    super(props);
+const filterChicklets = [
+  'failures',
+  thFilterGroups.nonfailures,
+  'in progress',
+].reduce((acc, val) => acc.concat(val), []);
 
-    this.filterChicklets = [
-      'failures',
-      thFilterGroups.nonfailures,
-      'in progress',
-      'unscheduled',
-    ].reduce((acc, val) => acc.concat(val), []);
+const SecondaryNavBar = ({
+  updateButtonClick,
+  serverChanged,
+  filterModel,
+  repos,
+  setCurrentRepoTreeStatus,
+  duplicateJobsVisible,
+  groupCountsExpanded,
+  toggleFieldFilterVisible,
+}) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const prevLocationSearch = useRef(location.search);
 
-    this.state = {
-      searchQueryStr: getSearchStrFromUrl(),
-      watchedRepoNames: [],
-      repoName: getRepo(),
-    };
-  }
+  // Redux state
+  const allUnclassifiedFailureCount = useSelector(
+    (state) => state.pushes.allUnclassifiedFailureCount,
+  );
+  const filteredUnclassifiedFailureCount = useSelector(
+    (state) => state.pushes.filteredUnclassifiedFailureCount,
+  );
 
-  componentDidMount() {
-    this.loadWatchedRepos();
-  }
+  // Local state - initialize from React Router location
+  const [searchQueryStr, setSearchQueryStr] = useState(() =>
+    getSearchStrFromUrl(location),
+  );
+  const [watchedRepoNames, setWatchedRepoNames] = useState([]);
+  const [repoName, setRepoName] = useState(getRepo());
 
-  componentDidUpdate(prevProps, prevState) {
-    const { repoName } = this.state;
-
-    if (repoName !== prevState.repoName) {
-      this.loadWatchedRepos();
+  const saveWatchedRepos = useCallback((repoList) => {
+    setWatchedRepoNames(repoList);
+    try {
+      localStorage.setItem(WATCHED_REPOS_STORAGE_KEY, JSON.stringify(repoList));
+    } catch {
+      // localStorage is disabled/not supported.
     }
+  }, []);
 
-    if (
-      prevProps.router.location.search !== this.props.router.location.search
-    ) {
-      this.handleUrlChanges(
-        prevProps.router.location.search,
-        this.props.router.location.search,
-      );
+  const loadWatchedRepos = useCallback(() => {
+    try {
+      const storedWatched =
+        JSON.parse(localStorage.getItem(WATCHED_REPOS_STORAGE_KEY)) || [];
+      // Ensure the current repo is first in the list
+      const newWatchedRepoNames = [
+        repoName,
+        ...storedWatched.filter((value) => value !== repoName),
+      ].slice(0, MAX_WATCHED_REPOS);
+
+      // Re-save the list, in case it has now changed
+      saveWatchedRepos(newWatchedRepoNames);
+    } catch {
+      // localStorage is disabled/not supported.
     }
-  }
+  }, [repoName, saveWatchedRepos]);
 
-  setSearchStr(ev) {
-    this.setState({ searchQueryStr: ev.target.value });
-  }
+  const handleUrlChanges = useCallback(
+    (prevParams, currentParams) => {
+      // Parse search string from currentParams (which is the new location.search)
+      const newSearchQueryStr = getSearchStrFromUrl({ search: currentParams });
+      const newRepoName = getRepo();
 
-  handleUrlChanges = (prevParams, currentParams) => {
-    const { repoName } = this.state;
-    const { recalculateUnclassifiedCounts } = this.props;
-    const newState = {
-      searchQueryStr: getSearchStrFromUrl(),
-      repoName: getRepo(),
-    };
+      setSearchQueryStr(newSearchQueryStr);
+      setRepoName(newRepoName);
 
-    this.setState(newState, () => {
       if (
         hasUrlFilterChanges(prevParams, currentParams) ||
-        newState.repoName !== repoName
+        newRepoName !== repoName
       ) {
-        recalculateUnclassifiedCounts();
+        dispatch(recalculateUnclassifiedCounts());
       }
-    });
+    },
+    [repoName, dispatch],
+  );
+
+  // Effect for initial load
+  useEffect(() => {
+    loadWatchedRepos();
+  }, []);
+
+  // Effect for repoName changes
+  useEffect(() => {
+    loadWatchedRepos();
+  }, [repoName, loadWatchedRepos]);
+
+  // Effect for URL changes
+  useEffect(() => {
+    if (prevLocationSearch.current !== location.search) {
+      handleUrlChanges(prevLocationSearch.current, location.search);
+      prevLocationSearch.current = location.search;
+    }
+  }, [location.search, handleUrlChanges]);
+
+  const setSearchStr = (ev) => {
+    setSearchQueryStr(ev.target.value);
   };
 
-  search = (ev) => {
-    const { filterModel } = this.props;
+  const search = (ev) => {
     const { value } = ev.target;
 
     if (ev.key === 'Enter') {
@@ -104,8 +146,7 @@ class SecondaryNavBar extends React.PureComponent {
     }
   };
 
-  isFilterOn = (filter) => {
-    const { filterModel } = this.props;
+  const isFilterOn = (filter) => {
     const { resultStatus } = filterModel.urlParams;
 
     if (filter in thFilterGroups) {
@@ -114,12 +155,7 @@ class SecondaryNavBar extends React.PureComponent {
     return resultStatus.includes(filter);
   };
 
-  /**
-   * Handle toggling one of the individual result status filter chicklets
-   * on the nav bar
-   */
-  toggleResultStatusFilterChicklet = (filter) => {
-    const { filterModel } = this.props;
+  const toggleResultStatusFilterChicklet = (filter) => {
     const filterValues =
       filter in thFilterGroups
         ? thFilterGroups[filter] // this is a filter grouping, so toggle all on/off
@@ -128,274 +164,213 @@ class SecondaryNavBar extends React.PureComponent {
     filterModel.toggleResultStatuses(filterValues);
   };
 
-  toggleShowDuplicateJobs = () => {
-    const { duplicateJobsVisible, pushRoute } = this.props;
+  const toggleShowDuplicateJobs = () => {
     const duplicateJobs = duplicateJobsVisible ? null : 'visible';
-
     const queryParams = setUrlParams([['duplicate_jobs', duplicateJobs]]);
 
-    pushRoute({
+    navigate({
       search: queryParams,
     });
   };
 
-  toggleGroupState = () => {
-    const { groupCountsExpanded, pushRoute } = this.props;
+  const toggleGroupState = () => {
     const groupState = groupCountsExpanded ? null : 'expanded';
-
     const queryParams = setUrlParams([['group_state', groupState]]);
 
-    pushRoute({
+    navigate({
       search: queryParams,
     });
   };
 
-  toggleUnclassifiedFailures = () => {
-    const { filterModel } = this.props;
-
+  const toggleUnclassifiedFailures = () => {
     filterModel.toggleUnclassifiedFailures();
   };
 
-  clearFilterBox = () => {
-    const { filterModel } = this.props;
-
+  const clearFilterBox = () => {
     filterModel.removeFilter('searchStr');
   };
 
-  unwatchRepo = (name) => {
-    const { watchedRepoNames } = this.state;
-
-    this.saveWatchedRepos(watchedRepoNames.filter((repo) => repo !== name));
+  const unwatchRepo = (name) => {
+    saveWatchedRepos(watchedRepoNames.filter((repo) => repo !== name));
   };
 
-  loadWatchedRepos() {
-    const { repoName } = this.state;
+  // This array needs to be RepositoryModel objects, not strings.
+  // If ``repos`` is not yet populated, then leave as empty array.
+  // We need to filter just in case some of these repo names do not exist.
+  const watchedRepos =
+    (repos.length &&
+      watchedRepoNames
+        .map((name) => RepositoryModel.getRepo(name, repos))
+        .filter((name) => name)) ||
+    [];
 
-    try {
-      const storedWatched =
-        JSON.parse(localStorage.getItem(WATCHED_REPOS_STORAGE_KEY)) || [];
-      // Ensure the current repo is first in the list
-      const watchedRepoNames = [
-        repoName,
-        ...storedWatched.filter((value) => value !== repoName),
-      ].slice(0, MAX_WATCHED_REPOS);
-
-      // Re-save the list, in case it has now changed
-      this.saveWatchedRepos(watchedRepoNames);
-    } catch {
-      // localStorage is disabled/not supported.
-      return [];
-    }
-  }
-
-  saveWatchedRepos(repos) {
-    this.setState({ watchedRepoNames: repos });
-    try {
-      localStorage.setItem(WATCHED_REPOS_STORAGE_KEY, JSON.stringify(repos));
-    } catch {
-      // localStorage is disabled/not supported.
-    }
-  }
-
-  render() {
-    const {
-      updateButtonClick,
-      serverChanged,
-      filterModel,
-      setCurrentRepoTreeStatus,
-      repos,
-      allUnclassifiedFailureCount,
-      filteredUnclassifiedFailureCount,
-      groupCountsExpanded,
-      duplicateJobsVisible,
-      toggleFieldFilterVisible,
-    } = this.props;
-    const { watchedRepoNames, searchQueryStr, repoName } = this.state;
-    // This array needs to be RepositoryModel objects, not strings.
-    // If ``repos`` is not yet populated, then leave as empty array.
-    // We need to filter just in case some of these repo names do not exist.
-    // This could happen if the user typed an invalid ``repo`` param on the URL
-    const watchedRepos =
-      (repos.length &&
-        watchedRepoNames
-          .map((name) => RepositoryModel.getRepo(name, repos))
-          .filter((name) => name)) ||
-      [];
-
-    return (
-      <div
-        id="watched-repo-navbar"
-        className="th-context-navbar navbar-dark watched-repo-navbar"
-        tabIndex={-1}
-      >
-        <span className="justify-content-between w-100 d-flex flex-wrap">
-          <span className="d-flex push-left watched-repos">
-            {watchedRepos.map((watchedRepo) => (
-              <ErrorBoundary
-                errorClasses="ps-1 pe-1 btn-view-nav border-right"
-                message={`Error watching ${watchedRepo.name}: `}
-                key={watchedRepo.name}
-              >
-                <WatchedRepo
-                  repo={watchedRepo}
-                  repoName={repoName}
-                  unwatchRepo={this.unwatchRepo}
-                  setCurrentRepoTreeStatus={setCurrentRepoTreeStatus}
-                  {...this.props}
-                />
-              </ErrorBoundary>
-            ))}
-          </span>
-          <form role="search" className="form-inline flex-row">
-            {serverChanged && (
-              <Button
-                size="sm"
-                className="btn-view-nav nav-menu-btn"
-                onClick={updateButtonClick}
-                id="revisionChangedLabel"
-                title="New version of Treeherder has been deployed. Reload to pick up changes."
-              >
-                <FontAwesomeIcon icon={faExclamationCircle} />
-                &nbsp;Treeherder update available
-              </Button>
-            )}
-
-            {/* Unclassified Failures Button */}
-            <Button
-              className={`btn btn-sm ${
-                allUnclassifiedFailureCount
-                  ? 'btn-unclassified-failures'
-                  : 'btn-view-nav'
-              }${filterModel.isUnclassifiedFailures() ? ' active' : ''}`}
-              title="Loaded failures / toggle filtering for unclassified failures"
-              onClick={this.toggleUnclassifiedFailures}
+  return (
+    <div
+      id="watched-repo-navbar"
+      className="th-context-navbar navbar-dark watched-repo-navbar"
+      tabIndex={-1}
+    >
+      <span className="justify-content-between w-100 d-flex flex-wrap">
+        <span className="d-flex push-left watched-repos">
+          {watchedRepos.map((watchedRepo) => (
+            <ErrorBoundary
+              errorClasses="ps-1 pe-1 btn-view-nav border-right"
+              message={`Error watching ${watchedRepo.name}: `}
+              key={watchedRepo.name}
             >
-              <span id="unclassified-failure-count">
-                {allUnclassifiedFailureCount}
-              </span>{' '}
-              unclassified
-            </Button>
-
-            {/* Filtered Unclassified Failures Button */}
-            {filteredUnclassifiedFailureCount !==
-              allUnclassifiedFailureCount && (
-              <span
-                className="navbar-badge badge badge-secondary badge-pill"
-                title="Reflects the unclassified failures which pass the current filters"
-              >
-                <span id="filtered-unclassified-failure-count">
-                  {filteredUnclassifiedFailureCount}
-                </span>
-              </span>
-            )}
-
-            {/* Toggle Duplicate Jobs */}
-            <Button
-              className={`btn btn-view-nav btn-sm btn-toggle-duplicate-jobs bg-transparent border border-0 ${
-                groupCountsExpanded ? 'disabled' : ''
-              } ${!duplicateJobsVisible ? 'strikethrough' : ''}`}
-              tabIndex="0"
-              role="button"
-              title={
-                duplicateJobsVisible
-                  ? 'Hide duplicate jobs'
-                  : 'Show duplicate jobs'
-              }
-              onClick={() =>
-                !groupCountsExpanded && this.toggleShowDuplicateJobs()
-              }
-            />
-            {/* Toggle Group State Button */}
-            <Button
-              className="py-0 px-1 btn-view-nav me-1"
-              title={
-                groupCountsExpanded
-                  ? 'Collapse job groups'
-                  : 'Expand job groups'
-              }
-              onClick={this.toggleGroupState}
-            >
-              (
-              <span className="group-state-nav-icon mx-1">
-                {groupCountsExpanded ? '-' : '+'}
-              </span>
-              )
-            </Button>
-
-            {/* Result Status Filter Chicklets */}
-            <span className="resultStatusChicklets">
-              <span id="filter-chicklets">
-                {this.filterChicklets.map((filterName) => {
-                  const isOn = this.isFilterOn(filterName);
-                  const { status } = getBtnClass(filterName);
-                  return (
-                    <span key={filterName}>
-                      <FontAwesomeIcon
-                        className="btn btn-view-nav btn-nav-filter"
-                        data-status={status}
-                        icon={isOn ? faDotCircle : faCircle}
-                        onClick={() =>
-                          this.toggleResultStatusFilterChicklet(filterName)
-                        }
-                        title={filterName}
-                        aria-label={filterName}
-                        role="checkbox"
-                        aria-checked={isOn}
-                        tabIndex={0}
-                      />
-                    </span>
-                  );
-                })}
-              </span>
-            </span>
-
-            <span>
-              <Button
-                size="sm"
-                className="btn-view-nav"
-                onClick={toggleFieldFilterVisible}
-                title="Filter by a job field"
-              >
-                <FontAwesomeIcon
-                  icon={faFilter}
-                  size="sm"
-                  title="Filter by a job field"
-                />
-              </Button>
-            </span>
-            <span>
-              <TierIndicator filterModel={filterModel} />
-            </span>
-            {/* Quick Filter Field */}
-            <span
-              id="quick-filter-parent"
-              className="form-group form-inline"
-              tabIndex={-1}
-            >
-              <input
-                id="quick-filter"
-                className="form-control form-control-sm"
-                required
-                value={searchQueryStr || ''}
-                title="Click to enter filter values"
-                onChange={(evt) => this.setSearchStr(evt)}
-                onKeyDown={(evt) => this.search(evt)}
-                type="text"
-                placeholder="Filter platforms & jobs"
+              <WatchedRepo
+                repo={watchedRepo}
+                repoName={repoName}
+                unwatchRepo={unwatchRepo}
+                setCurrentRepoTreeStatus={setCurrentRepoTreeStatus}
               />
-              <FontAwesomeIcon
-                id="quick-filter-clear-button"
-                icon={faTimesCircle}
-                title="Clear this filter"
-                onClick={this.clearFilterBox}
-              />
-            </span>
-          </form>
+            </ErrorBoundary>
+          ))}
         </span>
-      </div>
-    );
-  }
-}
+        <form role="search" className="form-inline flex-row">
+          {serverChanged && (
+            <Button
+              size="sm"
+              className="btn-view-nav nav-menu-btn"
+              onClick={updateButtonClick}
+              id="revisionChangedLabel"
+              title="New version of Treeherder has been deployed. Reload to pick up changes."
+            >
+              <FontAwesomeIcon icon={faExclamationCircle} />
+              &nbsp;Treeherder update available
+            </Button>
+          )}
+
+          {/* Unclassified Failures Button */}
+          <Button
+            className={`btn btn-sm ${
+              allUnclassifiedFailureCount
+                ? 'btn-unclassified-failures'
+                : 'btn-view-nav'
+            }${filterModel.isUnclassifiedFailures() ? ' active' : ''}`}
+            title="Loaded failures / toggle filtering for unclassified failures"
+            onClick={toggleUnclassifiedFailures}
+          >
+            <span id="unclassified-failure-count">
+              {allUnclassifiedFailureCount}
+            </span>{' '}
+            unclassified
+          </Button>
+
+          {/* Filtered Unclassified Failures Button */}
+          {filteredUnclassifiedFailureCount !== allUnclassifiedFailureCount && (
+            <span
+              className="navbar-badge badge badge-secondary badge-pill"
+              title="Reflects the unclassified failures which pass the current filters"
+            >
+              <span id="filtered-unclassified-failure-count">
+                {filteredUnclassifiedFailureCount}
+              </span>
+            </span>
+          )}
+
+          {/* Toggle Duplicate Jobs */}
+          <Button
+            className={`btn btn-view-nav btn-sm btn-toggle-duplicate-jobs bg-transparent border border-0 ${
+              groupCountsExpanded ? 'disabled' : ''
+            } ${!duplicateJobsVisible ? 'strikethrough' : ''}`}
+            tabIndex="0"
+            role="button"
+            title={
+              duplicateJobsVisible
+                ? 'Hide duplicate jobs'
+                : 'Show duplicate jobs'
+            }
+            onClick={() => !groupCountsExpanded && toggleShowDuplicateJobs()}
+          />
+          {/* Toggle Group State Button */}
+          <Button
+            className="py-0 px-1 btn-view-nav me-1"
+            title={
+              groupCountsExpanded ? 'Collapse job groups' : 'Expand job groups'
+            }
+            onClick={toggleGroupState}
+          >
+            (
+            <span className="group-state-nav-icon mx-1">
+              {groupCountsExpanded ? '-' : '+'}
+            </span>
+            )
+          </Button>
+
+          {/* Result Status Filter Chicklets */}
+          <span className="resultStatusChicklets">
+            <span id="filter-chicklets">
+              {filterChicklets.map((filterName) => {
+                const isOn = isFilterOn(filterName);
+                const { status } = getBtnClass(filterName);
+                return (
+                  <span key={filterName}>
+                    <FontAwesomeIcon
+                      className="btn btn-view-nav btn-nav-filter"
+                      data-status={status}
+                      icon={isOn ? faDotCircle : faCircle}
+                      onClick={() =>
+                        toggleResultStatusFilterChicklet(filterName)
+                      }
+                      title={filterName}
+                      aria-label={filterName}
+                      role="checkbox"
+                      aria-checked={isOn}
+                      tabIndex={0}
+                    />
+                  </span>
+                );
+              })}
+            </span>
+          </span>
+
+          <span>
+            <Button
+              size="sm"
+              className="btn-view-nav"
+              onClick={toggleFieldFilterVisible}
+              title="Filter by a job field"
+            >
+              <FontAwesomeIcon
+                icon={faFilter}
+                size="sm"
+                title="Filter by a job field"
+              />
+            </Button>
+          </span>
+          <span>
+            <TierIndicator filterModel={filterModel} />
+          </span>
+          {/* Quick Filter Field */}
+          <span
+            id="quick-filter-parent"
+            className="form-group form-inline"
+            tabIndex={-1}
+          >
+            <input
+              id="quick-filter"
+              className="form-control form-control-sm"
+              required
+              value={searchQueryStr || ''}
+              title="Click to enter filter values"
+              onChange={(evt) => setSearchStr(evt)}
+              onKeyDown={(evt) => search(evt)}
+              type="text"
+              placeholder="Filter platforms & jobs"
+            />
+            <FontAwesomeIcon
+              id="quick-filter-clear-button"
+              icon={faTimesCircle}
+              title="Clear this filter"
+              onClick={clearFilterBox}
+            />
+          </span>
+        </form>
+      </span>
+    </div>
+  );
+};
 
 SecondaryNavBar.propTypes = {
   updateButtonClick: PropTypes.func.isRequired,
@@ -403,25 +378,9 @@ SecondaryNavBar.propTypes = {
   filterModel: PropTypes.shape({}).isRequired,
   repos: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   setCurrentRepoTreeStatus: PropTypes.func.isRequired,
-  allUnclassifiedFailureCount: PropTypes.number.isRequired,
-  recalculateUnclassifiedCounts: PropTypes.func.isRequired,
-  filteredUnclassifiedFailureCount: PropTypes.number.isRequired,
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
   toggleFieldFilterVisible: PropTypes.func.isRequired,
-  pushRoute: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = ({
-  pushes: { allUnclassifiedFailureCount, filteredUnclassifiedFailureCount },
-  router,
-}) => ({
-  allUnclassifiedFailureCount,
-  filteredUnclassifiedFailureCount,
-  router,
-});
-
-export default connect(mapStateToProps, {
-  recalculateUnclassifiedCounts,
-  pushRoute,
-})(SecondaryNavBar);
+export default SecondaryNavBar;
