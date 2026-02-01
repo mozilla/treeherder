@@ -36,8 +36,8 @@ import {
 import JobModel from '../../../models/job';
 import TaskclusterModel from '../../../models/taskcluster';
 import CustomJobActions from '../../CustomJobActions';
-import { notify } from '../../redux/stores/notifications';
-import { pinJob } from '../../redux/stores/pinnedJobs';
+import { pinJob } from '../../stores/pinnedJobsStore';
+import { notify } from '../../stores/notificationStore';
 import { getAction } from '../../../helpers/taskcluster';
 import { checkRootUrl } from '../../../taskcluster-auth-callback/constants';
 
@@ -75,7 +75,7 @@ class ActionBar extends React.PureComponent {
 
   // Open the logviewer and provide notifications if it isn't available
   onOpenLogviewer = () => {
-    const { logParseStatus, notify } = this.props;
+    const { logParseStatus } = this.props;
 
     switch (logParseStatus) {
       case 'pending':
@@ -97,7 +97,7 @@ class ActionBar extends React.PureComponent {
 
   // Open the raw log and provide notifications if it isn't available
   onOpenRawLog = () => {
-    const { jobLogUrls, notify } = this.props;
+    const { jobLogUrls } = this.props;
     if (jobLogUrls && jobLogUrls.length > 0) {
       window.open(jobLogUrls[0].url, '_blank');
     } else {
@@ -107,7 +107,7 @@ class ActionBar extends React.PureComponent {
 
   // Open the gecko profile and provide notifications if it isn't available
   onOpenGeckoProfile = () => {
-    const { notify, selectedJobFull } = this.props;
+    const { selectedJobFull } = this.props;
     const resourceUsageProfile = this.getResourceUsageProfile();
 
     if (resourceUsageProfile) {
@@ -167,7 +167,7 @@ class ActionBar extends React.PureComponent {
   };
 
   retriggerJob = async (jobs) => {
-    const { notify, decisionTaskMap, currentRepo } = this.props;
+    const { decisionTaskMap, currentRepo } = this.props;
 
     // Spin the retrigger button when retriggers happen
     document
@@ -185,12 +185,7 @@ class ActionBar extends React.PureComponent {
   };
 
   backfillJob = async () => {
-    const {
-      selectedJobFull,
-      notify,
-      decisionTaskMap,
-      currentRepo,
-    } = this.props;
+    const { selectedJobFull, decisionTaskMap, currentRepo } = this.props;
 
     if (!this.canBackfill()) {
       return;
@@ -274,13 +269,7 @@ class ActionBar extends React.PureComponent {
   };
 
   createInteractiveTask = async () => {
-    const {
-      user,
-      selectedJobFull,
-      notify,
-      decisionTaskMap,
-      currentRepo,
-    } = this.props;
+    const { user, selectedJobFull, decisionTaskMap, currentRepo } = this.props;
 
     const { id: decisionTaskId } = decisionTaskMap[selectedJobFull.push_id];
     const results = await TaskclusterModel.load(
@@ -321,7 +310,7 @@ class ActionBar extends React.PureComponent {
   };
 
   cancelJobs = (jobs) => {
-    const { notify, decisionTaskMap, currentRepo } = this.props;
+    const { decisionTaskMap, currentRepo } = this.props;
 
     JobModel.cancel(
       jobs.filter(({ state }) => state === 'pending' || state === 'running'),
@@ -347,7 +336,6 @@ class ActionBar extends React.PureComponent {
       logViewerUrl = null,
       logViewerFullUrl = null,
       jobLogUrls = [],
-      pinJob,
       currentRepo,
     } = this.props;
     const { customJobActionsShowing } = this.state;
@@ -423,7 +411,7 @@ class ActionBar extends React.PureComponent {
                 title="Scroll to selection"
                 className="actionbar-nav-btn bg-transparent border-0"
                 onClick={() =>
-                  findJobInstance(jobLogUrls[0] && jobLogUrls[0].job_id, true)
+                  findJobInstance(jobLogUrls[0]?.job_id, true)
                 }
               >
                 <FontAwesomeIcon
@@ -573,12 +561,10 @@ class ActionBar extends React.PureComponent {
 }
 
 ActionBar.propTypes = {
-  pinJob: PropTypes.func.isRequired,
   decisionTaskMap: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({}).isRequired,
   selectedJobFull: PropTypes.shape({}).isRequired,
   logParseStatus: PropTypes.string.isRequired,
-  notify: PropTypes.func.isRequired,
   jobLogUrls: PropTypes.arrayOf(PropTypes.shape({})),
   currentRepo: PropTypes.shape({}).isRequired,
   isTryRepo: PropTypes.bool,
@@ -590,4 +576,4 @@ const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({
   decisionTaskMap,
 });
 
-export default connect(mapStateToProps, { notify, pinJob })(ActionBar);
+export default connect(mapStateToProps)(ActionBar);

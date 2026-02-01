@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { Dropdown } from 'react-bootstrap';
-import { push as pushRoute } from 'connected-react-router';
+import { useNavigate } from 'react-router-dom';
 
 import {
   createQueryParams,
@@ -13,7 +13,7 @@ import {
 import { formatTaskclusterError } from '../../helpers/errorMessage';
 import CustomJobActions from '../CustomJobActions';
 import PushModel from '../../models/push';
-import { notify } from '../redux/stores/notifications';
+import { notify } from '../stores/notificationStore';
 import { updateRange } from '../redux/stores/pushes';
 
 function PushActionMenu({
@@ -24,24 +24,25 @@ function PushActionMenu({
   showFuzzyJobs,
   pushId,
   currentRepo,
-  notify,
-  decisionTaskMap,
-  updateRange,
-  pushRoute,
 }) {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [customJobActionsShowing, setCustomJobActionsShowing] = useState(false);
+
+  // Redux state
+  const decisionTaskMap = useSelector((state) => state.pushes.decisionTaskMap);
 
   const updateParamsAndRange = useCallback(
     (param) => {
       let queryParams = parseQueryParams(window.location.search);
       queryParams = { ...queryParams, ...{ [param]: revision } };
 
-      pushRoute({
+      navigate({
         search: createQueryParams(queryParams),
       });
-      updateRange(queryParams);
+      dispatch(updateRange(queryParams));
     },
-    [revision, updateRange, pushRoute],
+    [revision, dispatch, navigate],
   );
 
   const triggerMissingJobs = useCallback(() => {
@@ -63,7 +64,7 @@ function PushActionMenu({
     ).catch((e) => {
       notify(formatTaskclusterError(e), 'danger', { sticky: true });
     });
-  }, [pushId, revision, notify, decisionTaskMap, currentRepo]);
+  }, [pushId, revision, decisionTaskMap, currentRepo, dispatch]);
 
   const toggleCustomJobActions = useCallback(() => {
     setCustomJobActionsShowing((prev) => !prev);
@@ -182,18 +183,10 @@ PushActionMenu.propTypes = {
   currentRepo: PropTypes.shape({
     name: PropTypes.string,
   }).isRequired,
-  decisionTaskMap: PropTypes.shape({}).isRequired,
   pushId: PropTypes.number.isRequired,
   hideRunnableJobs: PropTypes.func.isRequired,
   showRunnableJobs: PropTypes.func.isRequired,
   showFuzzyJobs: PropTypes.func.isRequired,
-  notify: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({
-  decisionTaskMap,
-});
-
-export default connect(mapStateToProps, { notify, updateRange, pushRoute })(
-  PushActionMenu,
-);
+export default PushActionMenu;
