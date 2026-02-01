@@ -52,7 +52,7 @@ describe('PushList', () => {
     jest.spyOn(window.history, 'pushState').mockImplementation(() => {});
   });
 
-  const currentRepo = {
+  const _currentRepo = {
     id: 4,
     repository_group: {
       name: 'development',
@@ -74,7 +74,7 @@ describe('PushList', () => {
     getPushLogHref: () => 'foo',
   };
 
-  const pushCount = () =>
+  const _pushCount = () =>
     waitFor(() => getAllByTestId(document.body, 'push-header'));
 
   beforeAll(() => {
