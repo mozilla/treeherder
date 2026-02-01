@@ -21,24 +21,34 @@ import {
   textFilter,
 } from './helpers';
 import Layout from './Layout';
-import withView from './View';
+import useIntermittentFailuresData from './useIntermittentFailuresData';
 import DateOptions from './DateOptions';
 
+const defaultState = {
+  endpoint: bugDetailsEndpoint,
+  route: '/bugdetails',
+};
+
 const BugDetailsView = (props) => {
+  const { user, setUser, notify } = props;
+
+  // Use the custom hook for data management
   const {
-    graphData = [],
-    tableData = [],
+    graphData,
+    tableData,
     initialParamsSet,
     startday,
     endday,
-    updateState,
     bug,
     summary,
-    errorMessages = [],
+    errorMessages,
     lastLocation,
-    tableFailureStatus = null,
-    graphFailureStatus = null,
-  } = props;
+    tableFailureStatus,
+    graphFailureStatus,
+    isFetchingTable,
+    isFetchingGraphs,
+    updateState,
+  } = useIntermittentFailuresData(defaultState);
 
   const columns = [
     {
@@ -48,8 +58,8 @@ const BugDetailsView = (props) => {
       className: 'text-left',
       headerClassName: 'text-left',
       filterMethod: regexpFilter,
-      Filter: (props) =>
-        textFilter({ ...props, placeholder: 'Filter by push time…' }),
+      Filter: (filterProps) =>
+        textFilter({ ...filterProps, placeholder: 'Filter by push time…' }),
       Cell: (_props) => (
         <a
           href={getJobsUrl({
@@ -72,8 +82,8 @@ const BugDetailsView = (props) => {
       className: 'text-left',
       headerClassName: 'text-left',
       filterMethod: regexpFilter,
-      Filter: (props) =>
-        textFilter({ ...props, placeholder: 'Filter by tree…' }),
+      Filter: (filterProps) =>
+        textFilter({ ...filterProps, placeholder: 'Filter by tree…' }),
       Cell: tooltipCell,
     },
     {
@@ -83,8 +93,8 @@ const BugDetailsView = (props) => {
       className: 'text-left',
       headerClassName: 'text-left',
       filterMethod: regexpFilter,
-      Filter: (props) =>
-        textFilter({ ...props, placeholder: 'Filter by job name…' }),
+      Filter: (filterProps) =>
+        textFilter({ ...filterProps, placeholder: 'Filter by job name…' }),
       Cell: tooltipCell,
     },
     {
@@ -94,10 +104,10 @@ const BugDetailsView = (props) => {
       className: 'text-left',
       headerClassName: 'text-left',
       filterMethod: regexpFilter,
-      Filter: (props) =>
-        textFilter({ ...props, placeholder: 'Filter by machine…' }),
-      Cell: (props) => {
-        const { value } = props;
+      Filter: (filterProps) =>
+        textFilter({ ...filterProps, placeholder: 'Filter by machine…' }),
+      Cell: (cellProps) => {
+        const { value } = cellProps;
         if (value?.startsWith('vm-') || /^\d+$/.test(value)) {
           return (
             <div title={value} className="vm-container">
@@ -105,15 +115,15 @@ const BugDetailsView = (props) => {
             </div>
           );
         }
-        return tooltipCell(props);
+        return tooltipCell(cellProps);
       },
     },
     {
       Header: 'Failure Lines',
       accessor: 'failure_lines_text',
       headerClassName: 'text-left',
-      Filter: (props) =>
-        textFilter({ ...props, placeholder: 'Filter by failure lines…' }),
+      Filter: (filterProps) =>
+        textFilter({ ...filterProps, placeholder: 'Filter by failure lines…' }),
       filterMethod: regexpFilter,
       Cell: (_props) => {
         const { original } = _props;
@@ -185,9 +195,21 @@ const BugDetailsView = (props) => {
     }));
   }
 
+  // Build props to pass to Layout
+  const layoutProps = {
+    user,
+    setUser,
+    notify,
+    errorMessages,
+    tableFailureStatus,
+    graphFailureStatus,
+    isFetchingTable,
+    isFetchingGraphs,
+  };
+
   return (
     <Layout
-      {...props}
+      {...layoutProps}
       graphOneData={graphOneData}
       graphTwoData={graphTwoData}
       header={
@@ -282,58 +304,9 @@ const BugDetailsView = (props) => {
 };
 
 BugDetailsView.propTypes = {
-  location: PropTypes.shape({
-    pathname: PropTypes.string,
-    search: PropTypes.string,
-    state: PropTypes.shape({}),
-    hash: PropTypes.string,
-  }).isRequired,
-  lastLocation: PropTypes.shape({
-    pathname: PropTypes.string,
-    search: PropTypes.string,
-    state: PropTypes.shape({}),
-    hash: PropTypes.string,
-  }).isRequired,
-  tree: PropTypes.string.isRequired,
-  updateState: PropTypes.func.isRequired,
-  startday: PropTypes.string.isRequired,
-  endday: PropTypes.string.isRequired,
-  tableData: PropTypes.arrayOf(
-    PropTypes.shape({
-      // Define the expected structure of tableData objects here
-      push_time: PropTypes.string,
-      tree: PropTypes.string,
-      revision: PropTypes.string,
-      platform: PropTypes.string,
-      build_type: PropTypes.string,
-      test_suite: PropTypes.string,
-      machine_name: PropTypes.string,
-      job_id: PropTypes.string,
-      lines: PropTypes.arrayOf(PropTypes.string),
-    }),
-  ),
-  graphData: PropTypes.arrayOf(
-    PropTypes.shape({
-      // Define the expected structure of graphData objects here
-      // Example:
-      timestamp: PropTypes.number,
-      value: PropTypes.number,
-    }),
-  ),
-  initialParamsSet: PropTypes.bool.isRequired,
-  bug: PropTypes.string.isRequired,
-  summary: PropTypes.string.isRequired,
-  errorMessages: PropTypes.arrayOf(PropTypes.string),
-  tableFailureStatus: PropTypes.string,
-  graphFailureStatus: PropTypes.string,
   user: PropTypes.shape({}),
   setUser: PropTypes.func.isRequired,
   notify: PropTypes.func.isRequired,
 };
 
-const defaultState = {
-  endpoint: bugDetailsEndpoint,
-  route: '/bugdetails',
-};
-
-export default withView(defaultState)(BugDetailsView);
+export default BugDetailsView;

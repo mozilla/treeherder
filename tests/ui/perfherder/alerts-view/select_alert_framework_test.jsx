@@ -1,6 +1,5 @@
 import { render, fireEvent } from '@testing-library/react';
 import { noop } from 'lodash';
-import React from 'react';
 
 import AlertsViewControls from '../../../../ui/perfherder/alerts/AlertsViewControls';
 import FilterControls from '../../../../ui/shared/FilterControls';

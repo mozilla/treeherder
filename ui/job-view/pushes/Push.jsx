@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useCallback, useRef, memo } from 'react';
+import { useState, useEffect, useCallback, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 import sortBy from 'lodash/sortBy';
 import { Col, Row } from 'react-bootstrap';
 
@@ -21,11 +22,11 @@ import JobModel from '../../models/job';
 import RunnableJobModel from '../../models/runnableJob';
 import { getRevisionTitle } from '../../helpers/revision';
 import { getPercentComplete } from '../../helpers/display';
-import { notify } from '../redux/stores/notifications';
 import {
   updateJobMap,
   recalculateUnclassifiedCounts,
 } from '../redux/stores/pushes';
+import { notify } from '../stores/notificationStore';
 import {
   checkRootUrl,
   prodFirefoxRootUrl,
@@ -42,27 +43,6 @@ import PushJobs from './PushJobs';
 const watchCycleStates = ['none', 'push', 'job', 'none'];
 const platformArray = Object.values(thPlatformMap);
 
-// Bug 1638424 - Transform WPT test paths to look like paths
-// from a local checkout
-export const transformTestPath = (path) => {
-  let newPath = path;
-  // WPT path transformations
-  if (path.startsWith('/_mozilla')) {
-    // /_mozilla/<path> => testing/web-platform/mozilla/tests/<path>
-    const modifiedPath = path.replace('/_mozilla', '');
-    newPath = `testing/web-platform/mozilla/tests${modifiedPath}`;
-  } else if (path.startsWith('/')) {
-    // /<path> => testing/web-platform/tests/<path>
-    newPath = `testing/web-platform/tests${path}`;
-  }
-
-  return newPath;
-};
-
-/**
- * Calculate job counts by state from a list of jobs.
- * Exported for testing purposes.
- */
 export const getJobCount = (jobs) => {
   const filteredByCommit = jobs.filter(
     (job) => job.failure_classification_id === 2,
@@ -81,6 +61,23 @@ export const getJobCount = (jobs) => {
       fixedByCommit: filteredByCommit.length,
     },
   );
+};
+
+// Bug 1638424 - Transform WPT test paths to look like paths
+// from a local checkout
+export const transformTestPath = (path) => {
+  let newPath = path;
+  // WPT path transformations
+  if (path.startsWith('/_mozilla')) {
+    // /_mozilla/<path> => testing/web-platform/mozilla/tests/<path>
+    const modifiedPath = path.replace('/_mozilla', '');
+    newPath = `testing/web-platform/mozilla/tests${modifiedPath}`;
+  } else if (path.startsWith('/')) {
+    // /<path> => testing/web-platform/tests/<path>
+    newPath = `testing/web-platform/tests${path}`;
+  }
+
+  return newPath;
 };
 
 export const transformedPaths = (manifestsByTask) => {
@@ -127,11 +124,10 @@ function Push({
   decisionTaskMap,
   bugSummaryMap,
   allUnclassifiedFailureCount,
-  router,
-  notify,
   updateJobMap,
   recalculateUnclassifiedCounts,
 }) {
+  const location = useLocation();
   const collapsedPushes = getUrlParam('collapsedPushes') || '';
 
   const [fuzzyModal, setFuzzyModal] = useState(false);
@@ -155,7 +151,7 @@ function Push({
   const [manifestsByTask, setManifestsByTask] = useState({});
 
   const containerRef = useRef(null);
-  const prevRouterSearch = useRef(router.location.search);
+  const prevRouterSearch = useRef(location.search);
   const prevJobCounts = useRef(jobCounts);
   const jobListRef = useRef(jobList);
   const manifestsByTaskRef = useRef(manifestsByTask);
@@ -313,7 +309,6 @@ function Push({
       push,
       sortGroupedJobs,
       groupJobByPlatform,
-      getJobCount,
       updateJobMap,
       recalculateUnclassifiedCounts,
     ],
@@ -332,7 +327,7 @@ function Push({
     } else {
       notify(failureStatus, 'danger', { sticky: true });
     }
-  }, [push.id, mapPushJobs, notify]);
+  }, [push.id, mapPushJobs]);
 
   const fetchTestManifests = useCallback(async () => {
     const manifests = await fetchGeckoDecisionArtifact(
@@ -488,7 +483,6 @@ function Push({
     currentRepo.name,
     push.revision,
     push.id,
-    notify,
   ]);
 
   const showRunnableJobs = useCallback(async () => {
@@ -509,7 +503,7 @@ function Push({
         'danger',
       );
     }
-  }, [currentRepo, decisionTaskMap, push.id, mapPushJobs, notify]);
+  }, [currentRepo, decisionTaskMap, push.id, mapPushJobs]);
 
   const hideRunnableJobs = useCallback(() => {
     const newJobList = jobListRef.current.filter(
@@ -563,7 +557,7 @@ function Push({
         'danger',
       );
     }
-  }, [currentRepo, decisionTaskMap, push.id, notify]);
+  }, [currentRepo, decisionTaskMap, push.id]);
 
   const cycleWatchState = useCallback(async () => {
     if (!notificationSupported) {
@@ -582,7 +576,7 @@ function Push({
       }
     }
     setWatched(next);
-  }, [notificationSupported, watched, notify]);
+  }, [notificationSupported, watched]);
 
   const toggleFuzzyModal = useCallback(() => {
     setFuzzyModal((prev) => !prev);
@@ -613,7 +607,7 @@ function Push({
     return () => {
       window.removeEventListener(thEvents.applyNewJobs, handleApplyNewJobs);
     };
-  }, [handleApplyNewJobs]);
+  }, [handleApplyNewJobs, fetchJobs, fetchTestManifests, testForFilteredTry]);
 
   // componentDidUpdate - show notifications
   useEffect(() => {
@@ -628,11 +622,11 @@ function Push({
 
   // componentDidUpdate - handle URL changes
   useEffect(() => {
-    if (prevRouterSearch.current !== router.location.search) {
+    if (prevRouterSearch.current !== location.search) {
       handleUrlChanges();
-      prevRouterSearch.current = router.location.search;
+      prevRouterSearch.current = location.search;
     }
-  }, [router.location.search, handleUrlChanges]);
+  }, [location.search, handleUrlChanges]);
 
   const {
     id,
@@ -778,7 +772,6 @@ Push.propTypes = {
   allUnclassifiedFailureCount: PropTypes.number.isRequired,
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
-  notify: PropTypes.func.isRequired,
   isOnlyRevision: PropTypes.bool.isRequired,
   pushHealthVisibility: PropTypes.string.isRequired,
   decisionTaskMap: PropTypes.shape({}).isRequired,
@@ -787,18 +780,13 @@ Push.propTypes = {
 
 const mapStateToProps = ({
   pushes: { allUnclassifiedFailureCount, decisionTaskMap, bugSummaryMap },
-  router,
 }) => ({
   allUnclassifiedFailureCount,
   decisionTaskMap,
   bugSummaryMap,
-  router,
 });
 
-export { Push as PushClass };
-
 export default connect(mapStateToProps, {
-  notify,
   updateJobMap,
   recalculateUnclassifiedCounts,
 })(memo(Push));
