@@ -10,11 +10,7 @@ PUSH_LOG = (
     "https://hg-edge.mozilla.org/mozilla-central/pushloghtml?"
     "startdate={start_date}&enddate={end_date}"
 )
-BZ_TELEMETRY_ALERTS = (
-    "https://bugzilla.mozilla.org/buglist.cgi?"
-    "keywords=telemetry-alert&keywords_type=allwords"
-    "&chfield=[Bug%20creation]&chfieldto={today}&chfieldfrom={prev_day}&"
-)
+TELEMETRY_ALERT_DASHBOARD = "https://gmierz.github.io/telemetry-alert-dashboard/?view=grouped&alertSummaryId={alert_summary_id}"
 BZ_TELEMETRY_ALERTS_CHANGED = (
     "https://bugzilla.mozilla.org/rest/bug?"
     "include_fields=id&include_fields=resolution"

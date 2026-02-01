@@ -1,4 +1,3 @@
-from datetime import datetime
 from unittest.mock import patch
 
 import pytest
@@ -194,22 +193,21 @@ class TestTelemetryBugContent:
         # Check for table elements
         assert "Probe" in description
         assert "Platform" in description
-        assert "Magnitude" in description
         assert "Previous Values" in description
         assert "New Values" in description
 
-    @patch("treeherder.perf.auto_perf_sheriffing.telemetry_alerting.bug_manager.datetime")
-    def test_build_bug_content_uses_current_date_for_bugzilla_query(
-        self, mock_datetime, bug_content, telemetry_alert_obj
+    def test_build_bug_content_includes_telemetry_alert_dashboard_link(
+        self, bug_content, telemetry_alert_obj
     ):
-        """Test that build_bug_content uses current date for the Bugzilla query link."""
-        mock_now = datetime(2024, 3, 15, 10, 30, 0)
-        mock_datetime.now.return_value = mock_now
-
+        """Test that build_bug_content includes telemetry alert dashboard link with alert summary ID."""
         result = bug_content.build_bug_content(telemetry_alert_obj)
 
-        # The description should include a bugzilla query link with today's date
-        assert "2024-03-15" in result["description"]
+        # The description should include the telemetry alert dashboard link with the alert summary ID
+        assert "gmierz.github.io/telemetry-alert-dashboard" in result["description"]
+        assert (
+            f"alertSummaryId={telemetry_alert_obj.telemetry_alert_summary.id}"
+            in result["description"]
+        )
 
     def test_build_bug_content_handles_regression_alerts(self, bug_content, telemetry_alert_obj):
         """Test that regression alerts are labeled correctly."""
@@ -286,14 +284,6 @@ class TestTelemetryBugContent:
             mock_link.assert_called_once_with(telemetry_alert_obj.telemetry_signature)
             assert "https://dictionary.telemetry.mozilla.org/test" in result
 
-    def test_build_probe_alert_row_includes_confidence(self, bug_content, telemetry_alert_obj):
-        """Test that _build_probe_alert_row includes confidence value."""
-        telemetry_alert_obj.telemetry_alert.confidence = 0.95
-
-        result = bug_content._build_probe_alert_row(telemetry_alert_obj)
-
-        assert "0.95" in result
-
     def test_build_bug_content_calculates_date_range_correctly(
         self, bug_content, telemetry_alert_obj
     ):
@@ -335,7 +325,6 @@ class TestTelemetryBugContent:
         """Test that TABLE_HEADERS constant is formatted correctly."""
         assert "Probe" in bug_content.TABLE_HEADERS
         assert "Platform" in bug_content.TABLE_HEADERS
-        assert "Magnitude" in bug_content.TABLE_HEADERS
         assert "Previous Values" in bug_content.TABLE_HEADERS
         assert "New Values" in bug_content.TABLE_HEADERS
         assert "|" in bug_content.TABLE_HEADERS
@@ -352,7 +341,7 @@ class TestTelemetryBugContent:
         assert "{change_table}" in bug_content.BUG_DESCRIPTION
         assert "{detection_range_link}" in bug_content.BUG_DESCRIPTION
         assert "{push_log_link}" in bug_content.BUG_DESCRIPTION
-        assert "{bz_telemetry_alerts}" in bug_content.BUG_DESCRIPTION
+        assert "{telemetry_alert_dashboard}" in bug_content.BUG_DESCRIPTION
 
     def test_bug_comment_constant_format(self, bug_content):
         """Test that BUG_COMMENT constant has correct format placeholders."""
