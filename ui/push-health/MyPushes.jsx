@@ -7,7 +7,6 @@ import {
   Navbar,
   Nav,
 } from 'react-bootstrap';
-import { Helmet } from 'react-helmet';
 
 import faviconBroken from '../img/push-health-broken.png';
 import faviconOk from '../img/push-health-ok.png';
@@ -83,13 +82,13 @@ class MyPushes extends React.Component {
 
   async fetchMetrics(loading = false) {
     const { selectedRepo, displayedUser } = this.state;
-    const { user, notify, clearNotification, location, history } = this.props;
+    const { user, notify, clearNotification, location, navigate } = this.props;
     const params = parseQueryParams(location.search);
 
     this.setState({ loading });
 
     if (displayedUser !== params.author) {
-      updateQueryParams(`?author=${user.email}`, history, location);
+      updateQueryParams(`?author=${user.email}`, navigate, location);
     }
 
     const options = {
@@ -171,13 +170,11 @@ class MyPushes extends React.Component {
             </span>
           </Nav>
         </Navbar>
-        <Helmet>
-          <link
-            rel="shortcut icon"
-            href={totalNeedInvestigation > 0 ? faviconBroken : faviconOk}
-          />
-          <title>{`[${totalNeedInvestigation} failures] Push Health`}</title>
-        </Helmet>
+        <link
+          rel="shortcut icon"
+          href={totalNeedInvestigation > 0 ? faviconBroken : faviconOk}
+        />
+        <title>{`[${totalNeedInvestigation} failures] Push Health`}</title>
         <Container className="mt-2 mb-5 max-width-default">
           {!displayedUser && (
             <p className="pt-5 text-center font-weight-500 font-size-20">

@@ -5,14 +5,21 @@
  * with icons based on severity and the ability to clear all notifications.
  */
 
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { Provider } from 'react-redux';
-import configureStore from 'redux-mock-store';
 
 import NotificationsMenu from '../../../../ui/job-view/headerbars/NotificationsMenu';
 
-const mockStore = configureStore([]);
+// Mock Zustand store
+let mockStoredNotifications = [];
+const mockClearStoredNotifications = jest.fn();
+
+jest.mock('../../../../ui/job-view/stores/notificationStore', () => ({
+  useNotificationStore: (selector) =>
+    selector({
+      storedNotifications: mockStoredNotifications,
+      clearStoredNotifications: mockClearStoredNotifications,
+    }),
+}));
 
 describe('NotificationsMenu', () => {
   const createNotification = (overrides = {}) => ({
@@ -24,39 +31,26 @@ describe('NotificationsMenu', () => {
     ...overrides,
   });
 
-  const renderWithStore = (initialState = {}) => {
-    const store = mockStore({
-      notifications: {
-        storedNotifications: [],
-        ...initialState.notifications,
-      },
-      ...initialState,
-    });
-    return {
-      ...render(
-        <Provider store={store}>
-          <NotificationsMenu />
-        </Provider>,
-      ),
-      store,
-    };
-  };
-
   const openDropdown = () => {
     // Click the dropdown toggle to open the menu
     const toggle = screen.getByTitle('Recent notifications');
     fireEvent.click(toggle);
   };
 
+  beforeEach(() => {
+    mockStoredNotifications = [];
+    mockClearStoredNotifications.mockClear();
+  });
+
   describe('dropdown toggle', () => {
     it('renders bell icon in toggle button', () => {
-      renderWithStore();
+      render(<NotificationsMenu />);
 
       expect(screen.getByTitle('Recent notifications')).toBeInTheDocument();
     });
 
     it('renders dropdown toggle button', () => {
-      renderWithStore();
+      render(<NotificationsMenu />);
 
       const toggle = screen.getByRole('button');
       expect(toggle).toHaveClass('btn-view-nav');
@@ -66,7 +60,7 @@ describe('NotificationsMenu', () => {
 
   describe('dropdown header', () => {
     it('shows "Recent notifications" header when dropdown is opened', () => {
-      renderWithStore();
+      render(<NotificationsMenu />);
       openDropdown();
 
       // The text appears in both the icon title and the dropdown header
@@ -77,14 +71,16 @@ describe('NotificationsMenu', () => {
 
   describe('empty notifications', () => {
     it('shows "No recent notifications" when list is empty', () => {
-      renderWithStore({ notifications: { storedNotifications: [] } });
+      mockStoredNotifications = [];
+      render(<NotificationsMenu />);
       openDropdown();
 
       expect(screen.getByText('No recent notifications')).toBeInTheDocument();
     });
 
     it('does not show "Clear all" button when empty', () => {
-      renderWithStore({ notifications: { storedNotifications: [] } });
+      mockStoredNotifications = [];
+      render(<NotificationsMenu />);
       openDropdown();
 
       expect(screen.queryByText('Clear all')).not.toBeInTheDocument();
@@ -93,13 +89,11 @@ describe('NotificationsMenu', () => {
 
   describe('with notifications', () => {
     it('renders notification messages', () => {
-      const notifications = [
+      mockStoredNotifications = [
         createNotification({ message: 'First notification' }),
         createNotification({ message: 'Second notification' }),
       ];
-      renderWithStore({
-        notifications: { storedNotifications: notifications },
-      });
+      render(<NotificationsMenu />);
       openDropdown();
 
       expect(screen.getByText(/First notification/)).toBeInTheDocument();
@@ -107,25 +101,21 @@ describe('NotificationsMenu', () => {
     });
 
     it('renders notification link text', () => {
-      const notifications = [createNotification({ linkText: 'Click here' })];
-      renderWithStore({
-        notifications: { storedNotifications: notifications },
-      });
+      mockStoredNotifications = [createNotification({ linkText: 'Click here' })];
+      render(<NotificationsMenu />);
       openDropdown();
 
       expect(screen.getByText('Click here')).toBeInTheDocument();
     });
 
     it('renders link with correct URL', () => {
-      const notifications = [
+      mockStoredNotifications = [
         createNotification({
           url: 'https://example.com/details',
           linkText: 'View',
         }),
       ];
-      renderWithStore({
-        notifications: { storedNotifications: notifications },
-      });
+      render(<NotificationsMenu />);
       openDropdown();
 
       const link = screen.getByRole('link', { name: 'View' });
@@ -135,10 +125,8 @@ describe('NotificationsMenu', () => {
     });
 
     it('shows "Clear all" button when notifications exist', () => {
-      const notifications = [createNotification()];
-      renderWithStore({
-        notifications: { storedNotifications: notifications },
-      });
+      mockStoredNotifications = [createNotification()];
+      render(<NotificationsMenu />);
       openDropdown();
 
       expect(screen.getByText('Clear all')).toBeInTheDocument();
@@ -147,58 +135,48 @@ describe('NotificationsMenu', () => {
 
   describe('severity icons', () => {
     it('shows correct icon for danger severity', () => {
-      const notifications = [
+      mockStoredNotifications = [
         createNotification({ severity: 'danger', message: 'Error message' }),
       ];
-      renderWithStore({
-        notifications: { storedNotifications: notifications },
-      });
+      render(<NotificationsMenu />);
       openDropdown();
 
       expect(screen.getByTitle('danger')).toBeInTheDocument();
     });
 
     it('shows correct icon for warning severity', () => {
-      const notifications = [
+      mockStoredNotifications = [
         createNotification({ severity: 'warning', message: 'Warning message' }),
       ];
-      renderWithStore({
-        notifications: { storedNotifications: notifications },
-      });
+      render(<NotificationsMenu />);
       openDropdown();
 
       expect(screen.getByTitle('warning')).toBeInTheDocument();
     });
 
     it('shows correct icon for info severity', () => {
-      const notifications = [
+      mockStoredNotifications = [
         createNotification({ severity: 'info', message: 'Info message' }),
       ];
-      renderWithStore({
-        notifications: { storedNotifications: notifications },
-      });
+      render(<NotificationsMenu />);
       openDropdown();
 
       expect(screen.getByTitle('info')).toBeInTheDocument();
     });
 
     it('shows correct icon for success severity', () => {
-      const notifications = [
+      mockStoredNotifications = [
         createNotification({ severity: 'success', message: 'Success message' }),
       ];
-      renderWithStore({
-        notifications: { storedNotifications: notifications },
-      });
+      render(<NotificationsMenu />);
       openDropdown();
 
       expect(screen.getByTitle('success')).toBeInTheDocument();
     });
 
     it('applies correct text color class based on severity', () => {
-      const notifications = [createNotification({ severity: 'danger' })];
-      const { container } = renderWithStore({
-        notifications: { storedNotifications: notifications },
-      });
+      mockStoredNotifications = [createNotification({ severity: 'danger' })];
+      const { container } = render(<NotificationsMenu />);
       openDropdown();
 
       expect(container.querySelector('.text-danger')).toBeInTheDocument();
@@ -206,25 +184,19 @@ describe('NotificationsMenu', () => {
   });
 
   describe('clear all functionality', () => {
-    it('dispatches clearStoredNotifications when "Clear all" is clicked', () => {
-      const notifications = [createNotification()];
-      const { store } = renderWithStore({
-        notifications: { storedNotifications: notifications },
-      });
+    it('calls clearStoredNotifications when "Clear all" is clicked', () => {
+      mockStoredNotifications = [createNotification()];
+      render(<NotificationsMenu />);
       openDropdown();
 
       fireEvent.click(screen.getByText('Clear all'));
 
-      const actions = store.getActions();
-      expect(actions).toHaveLength(1);
-      expect(actions[0].type).toContain('CLEAR');
+      expect(mockClearStoredNotifications).toHaveBeenCalled();
     });
 
     it('"Clear all" button has correct title when dropdown is open', () => {
-      const notifications = [createNotification()];
-      renderWithStore({
-        notifications: { storedNotifications: notifications },
-      });
+      mockStoredNotifications = [createNotification()];
+      render(<NotificationsMenu />);
       openDropdown();
 
       expect(screen.getByTitle('Clear all notifications')).toBeInTheDocument();
@@ -234,10 +206,8 @@ describe('NotificationsMenu', () => {
   describe('notification item structure', () => {
     it('displays formatted timestamp', () => {
       const timestamp = new Date('2024-01-15T12:30:00').getTime();
-      const notifications = [createNotification({ created: timestamp })];
-      renderWithStore({
-        notifications: { storedNotifications: notifications },
-      });
+      mockStoredNotifications = [createNotification({ created: timestamp })];
+      render(<NotificationsMenu />);
       openDropdown();
 
       // Should contain some part of the formatted time
@@ -246,16 +216,14 @@ describe('NotificationsMenu', () => {
     });
 
     it('renders each notification with message and link', () => {
-      const notifications = [
+      mockStoredNotifications = [
         createNotification({
           message: 'Test message',
           linkText: 'More info',
           url: 'https://example.com',
         }),
       ];
-      renderWithStore({
-        notifications: { storedNotifications: notifications },
-      });
+      render(<NotificationsMenu />);
       openDropdown();
 
       expect(screen.getByText(/Test message/)).toBeInTheDocument();

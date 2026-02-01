@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import {
   Dropdown,
   Container,
@@ -231,6 +231,7 @@ const AlertHeader = ({
           Duplicated summaries:
           {alertSummary.duplicated_summaries_ids.map((id, index) => (
             <Link
+              key={id}
               className="text-dark me-1"
               target="_blank"
               to={`./alerts?id=${id}&hideDwnToInv=0`}

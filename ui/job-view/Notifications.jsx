@@ -1,13 +1,12 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-
 import NotificationList from '../shared/NotificationList';
 
-import { clearNotification } from './redux/stores/notifications';
+import { useNotificationStore } from './stores/notificationStore';
 
-const Notifications = (props) => {
-  const { notifications, clearNotification } = props;
+const Notifications = () => {
+  const notifications = useNotificationStore((state) => state.notifications);
+  const clearNotification = useNotificationStore(
+    (state) => state.clearNotification,
+  );
 
   return (
     <NotificationList
@@ -17,25 +16,4 @@ const Notifications = (props) => {
   );
 };
 
-Notifications.propTypes = {
-  notifications: PropTypes.arrayOf(
-    PropTypes.shape({
-      created: PropTypes.number.isRequired,
-      message: PropTypes.string.isRequired,
-      severity: PropTypes.oneOf([
-        'danger',
-        'warning',
-        'darker-info',
-        'success',
-      ]),
-      sticky: PropTypes.bool,
-    }),
-  ).isRequired,
-  clearNotification: PropTypes.func.isRequired,
-};
-
-const mapStateToProps = ({ notifications: { notifications } }) => ({
-  notifications,
-});
-
-export default connect(mapStateToProps, { clearNotification })(Notifications);
+export default Notifications;
