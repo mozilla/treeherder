@@ -58,11 +58,11 @@ function PushActionMenu({
 
     PushModel.triggerMissingJobs(
       pushId,
-      notify,
+      (msg, severity, options) => dispatch(notify(msg, severity, options)),
       decisionTask,
       currentRepo,
     ).catch((e) => {
-      notify(formatTaskclusterError(e), 'danger', { sticky: true });
+      dispatch(notify(formatTaskclusterError(e), 'danger', { sticky: true }));
     });
   }, [pushId, revision, decisionTaskMap, currentRepo, dispatch]);
 

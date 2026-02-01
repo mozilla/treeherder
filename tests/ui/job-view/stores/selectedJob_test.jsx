@@ -1,6 +1,6 @@
 import fetchMock from 'fetch-mock';
 import thunk from 'redux-thunk';
-import { waitFor, act } from '@testing-library/react';
+import { waitFor } from '@testing-library/react';
 import configureMockStore from 'redux-mock-store';
 import keyBy from 'lodash/keyBy';
 
@@ -116,7 +116,6 @@ describe('SelectedJob Redux store', () => {
   test('setSelectedJobFromQueryString not in jobMap', async () => {
     const taskRun = 'VaQoWKTbSdGSwBJn6UZV9g.0';
 
-<<<<<<< HEAD
     Object.defineProperty(window, 'location', {
       value: {
         ...window.location,
@@ -124,10 +123,6 @@ describe('SelectedJob Redux store', () => {
         pathname: '/jobs',
       },
       writable: true,
-=======
-    act(() => {
-      history.push(`/jobs?repo=${repoName}&selectedTaskRun=${taskRun}`);
->>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
     });
 
     const reduced = reducer(
@@ -146,7 +141,6 @@ describe('SelectedJob Redux store', () => {
   test('setSelectedJobFromQueryString not in DB', async () => {
     const taskRun = 'a824gBVmRQSBuEexnVW_Qg.0';
 
-<<<<<<< HEAD
     Object.defineProperty(window, 'location', {
       value: {
         ...window.location,
@@ -154,10 +148,6 @@ describe('SelectedJob Redux store', () => {
         pathname: '/jobs',
       },
       writable: true,
-=======
-    act(() => {
-      history.push(`/jobs?repo=${repoName}&selectedTaskRun=${taskRun}`);
->>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
     });
 
     const reduced = reducer(

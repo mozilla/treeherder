@@ -197,7 +197,12 @@ const AppRoutes = () => {
 const App = () => {
   return (
     <Provider store={configureStore()}>
-      <BrowserRouter>
+      <BrowserRouter
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true,
+        }}
+      >
         <AppRoutes />
       </BrowserRouter>
     </Provider>

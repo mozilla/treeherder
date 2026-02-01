@@ -344,11 +344,7 @@ describe('DetailsPanel', () => {
     const { queryAllByTitle } = render(testDetailsPanel());
 
     await act(async () => {
-<<<<<<< HEAD
       pinJobs(jobList.data);
-=======
-      store.dispatch(pinJobs(jobList.data));
->>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
     });
 
     // Wait for state updates after pinning all jobs
@@ -367,15 +363,9 @@ describe('DetailsPanel', () => {
     } = render(testDetailsPanel());
 
     await act(async () => {
-<<<<<<< HEAD
       pinJobs(jobList.data);
       // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
       setSelectedJob(jobList.data[1], false);
-=======
-      store.dispatch(pinJobs(jobList.data));
-      // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
-      store.dispatch(setSelectedJob(jobList.data[1], false));
->>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
     });
 
     // Wait for state updates from dispatch actions
@@ -460,11 +450,7 @@ describe('DetailsPanel', () => {
     checkClassifiedJobs(jobList.data.length);
 
     await act(async () => {
-<<<<<<< HEAD
       pinJobs(jobList.data);
-=======
-      store.dispatch(pinJobs(jobList.data));
->>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
     });
 
     // Wait for jobs to be pinned again
