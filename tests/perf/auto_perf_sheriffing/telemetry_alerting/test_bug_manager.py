@@ -252,9 +252,9 @@ class TestTelemetryBugContent:
         assert "650.0" in result  # prev_median
         assert "750.0" in result  # new_median
 
-        # Should include P90 values
-        assert "700.0" in result  # prev_p90
-        assert "800.0" in result  # new_p90
+        # Should include P05 values
+        assert "700.0" in result  # prev_p05
+        assert "800.0" in result  # new_p05
 
         # Should include P95 values
         assert "720.0" in result  # prev_p95
@@ -267,7 +267,7 @@ class TestTelemetryBugContent:
         # Check markdown table format
         assert "|" in result
         assert "Median:" in result
-        assert "P90:" in result
+        assert "P05:" in result
         assert "P95:" in result
 
     def test_build_probe_alert_row_includes_glean_dictionary_link(

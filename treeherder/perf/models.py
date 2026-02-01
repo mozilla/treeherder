@@ -722,8 +722,8 @@ class PerformanceTelemetryAlert(PerformanceAlertBase):
     prev_median = models.FloatField(help_text="Previous median value of series before change")
     new_median = models.FloatField(help_text="New median value of series after change")
 
-    prev_p90 = models.FloatField(help_text="Previous P90 value of series before change")
-    new_p90 = models.FloatField(help_text="New P90 value of series after change")
+    prev_p05 = models.FloatField(help_text="Previous P05 value of series before change")
+    new_p05 = models.FloatField(help_text="New P05 value of series after change")
 
     prev_p95 = models.FloatField(help_text="Previous P95 value of series before change")
     new_p95 = models.FloatField(help_text="New P95 value of series after change")
@@ -788,8 +788,8 @@ class PerformanceAlertTesting(PerformanceAlertBase):
     prev_median = models.FloatField(help_text="Previous median value of series before change")
     new_median = models.FloatField(help_text="New median value of series after change")
 
-    prev_p90 = models.FloatField(help_text="Previous P90 value of series before change")
-    new_p90 = models.FloatField(help_text="New P90 value of series after change")
+    prev_p05 = models.FloatField(help_text="Previous P05 value of series before change")
+    new_p05 = models.FloatField(help_text="New P05 value of series after change")
 
     prev_p95 = models.FloatField(help_text="Previous P95 value of series before change")
     new_p95 = models.FloatField(help_text="New P95 value of series after change")
