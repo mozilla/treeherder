@@ -44,7 +44,7 @@ jest.mock('react-router-dom', () => {
 
 describe('PushList', () => {
   const repoName = 'autoland';
-  const _mockLocation = { search: `?repo=${repoName}`, pathname: '/jobs' };
+  const mockLocation = { search: `?repo=${repoName}`, pathname: '/jobs' };
 
   beforeEach(() => {
     mockNavigate = jest.fn();
@@ -52,7 +52,7 @@ describe('PushList', () => {
     jest.spyOn(window.history, 'pushState').mockImplementation(() => {});
   });
 
-  const _currentRepo = {
+  const currentRepo = {
     id: 4,
     repository_group: {
       name: 'development',
@@ -74,7 +74,7 @@ describe('PushList', () => {
     getPushLogHref: () => 'foo',
   };
 
-  const _pushCount = () =>
+  const pushCount = () =>
     waitFor(() => getAllByTestId(document.body, 'push-header'));
 
   beforeAll(() => {
@@ -141,6 +141,37 @@ describe('PushList', () => {
     cleanup();
     jest.restoreAllMocks();
   });
+
+  const testPushList = () => {
+    const store = configureStore();
+
+    // Manually trigger fetchPushes since outside testing the App does it.
+    store.dispatch(fetchPushes());
+
+    return (
+      <Provider store={store} context={ReactReduxContext}>
+        <MemoryRouter initialEntries={[`/jobs?repo=${repoName}`]}>
+          <div id="th-global-content">
+            <PushList
+              user={{ isLoggedIn: false }}
+              repoName={repoName}
+              currentRepo={currentRepo}
+              filterModel={new FilterModel(mockNavigate, mockLocation)}
+              duplicateJobsVisible={false}
+              groupCountsExpanded={false}
+              pushHealthVisibility="None"
+              getAllShownJobs={() => {}}
+            />
+          </div>
+        </MemoryRouter>
+      </Provider>
+    );
+  };
+
+  // push1Revision is'ba9c692786e95143b8df3f4b3e9b504dfbc589a0';
+  const push1Id = 'push-511138';
+  // push2Revision is 'd5b037941b0ebabcc9b843f24d926e9d65961087';
+  const _push2Id = 'push-511137';
 
   test('should reload pushes when setting tochange', async () => {
     const { getByTestId } = render(testPushList());
