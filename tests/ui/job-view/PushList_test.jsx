@@ -34,8 +34,8 @@ global.document.createRange = () => ({
 let mockNavigate;
 
 // Module-level mock for useNavigate - this MUST be before imports for proper hoisting
-jest.mock('react-router-dom', () => {
-  const actual = jest.requireActual('react-router-dom');
+jest.mock('react-router', () => {
+  const actual = jest.requireActual('react-router');
   return {
     ...actual,
     useNavigate: () => mockNavigate,
