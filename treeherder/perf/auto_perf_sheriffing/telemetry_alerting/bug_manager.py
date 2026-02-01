@@ -3,8 +3,8 @@ from datetime import datetime, timedelta
 
 from treeherder.perf.auto_perf_sheriffing.base_bug_manager import BugManager
 from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.utils import (
-    BZ_TELEMETRY_ALERTS,
     PUSH_LOG,
+    TELEMETRY_ALERT_DASHBOARD,
     get_glean_dictionary_link,
     get_treeherder_detection_link,
     get_treeherder_detection_range_link,
@@ -75,15 +75,14 @@ class TelemetryBugContent:
         "For more information on how to handle these probe changes, and "
         "what the various columns mean [see here]"
         "(https://firefox-source-docs.mozilla.org/testing/perfdocs/telemetry-alerting.html).\n\n"
-        "Note that it’s possible the culprit is from a commit in the day before, "
-        "or the day after these push logs. It’s also possible that these culprits "
+        "Note that it's possible the culprit is from a commit in the day before, "
+        "or the day after these push logs. It's also possible that these culprits "
         "are not the cause, and the change could be coming from a popular "
         "website. Please reach out to the Performance team if you suspect this to be "
         "the case in [#perf on Matrix](https://matrix.to/#/#perf:mozilla.org), or "
         "[#perf-help on Slack](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ)."
         "\n\n"
-        "[See this bugzilla query for other telemetry alerts that were "
-        "produced on this date]({bz_telemetry_alerts})."
+        "[See here for other probes that alerted on, or around, the same push]({telemetry_alert_dashboard})."
     )
 
     BUG_COMMENT = (
@@ -93,9 +92,9 @@ class TelemetryBugContent:
     )
 
     TABLE_HEADERS = (
-        "| **Probe** | **Platform** | **Magnitude** "
+        "| **Probe** | **Platform** "
         "| **Previous Values** | **New Values** |\n"
-        "| :---: | :---: | :---: | :---: | :---: |\n"
+        "| :---: | :---: | :---: | :---: |\n"
     )
 
     REGRESSION_TITLE = "### Regressions\n"
@@ -128,9 +127,8 @@ class TelemetryBugContent:
                 detection_range, alert.telemetry_signature
             ),
             push_log_link=PUSH_LOG.format(start_date=start_date, end_date=end_date),
-            bz_telemetry_alerts=BZ_TELEMETRY_ALERTS.format(
-                today=datetime.now().strftime("%Y-%m-%d"),
-                prev_day=(datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d"),
+            telemetry_alert_dashboard=TELEMETRY_ALERT_DASHBOARD.format(
+                alert_summary_id=alert.telemetry_alert_summary.id
             ),
         )
 
@@ -164,5 +162,5 @@ class TelemetryBugContent:
 
         return (
             f"| [{alert.telemetry_signature.probe}]({get_glean_dictionary_link(alert.telemetry_signature)}) "
-            f"| {alert.telemetry_signature.platform} | {alert.telemetry_alert.confidence} {values} \n"
+            f"| {alert.telemetry_signature.platform} {values} \n"
         )
