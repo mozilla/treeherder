@@ -1,20 +1,23 @@
 
+import { Provider, ReactReduxContext } from 'react-redux';
 import {
   render,
   fireEvent,
   waitFor,
   act,
 } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 
 import { addAggregateFields } from '../../../ui/helpers/job';
 import { clearJobButtonRegistry } from '../../../ui/hooks/useJobButtonRegistry';
+import PushJobs from '../../../ui/job-view/pushes/PushJobs';
 import { configureStore } from '../../../ui/job-view/redux/configureStore';
 import FilterModel from '../../../ui/models/filter';
 import platforms from '../mock/platforms';
 
 const mockLocation = { search: '', pathname: '/jobs' };
 const mockNavigate = jest.fn();
-const _testPush = {
+const testPush = {
   id: 494796,
   revision: '1252c6014d122d48c6782310d5c3f4ae742751cb',
   author: 'reviewbot',
@@ -32,6 +35,31 @@ const _testPush = {
   push_timestamp: 1560354779,
   repository_id: 4,
   jobsLoaded: true,
+};
+
+const testPushJobs = (filtermodel = null, store = null) => {
+  const storeToUse = store || configureStore();
+  return (
+    <Provider store={storeToUse} context={ReactReduxContext}>
+      <MemoryRouter>
+        <div id="push-list">
+          <PushJobs
+            push={testPush}
+            platforms={platforms}
+            repoName="try"
+            filterModel={
+              filtermodel || new FilterModel(mockNavigate, mockLocation)
+            }
+            pushGroupState=""
+            toggleSelectedRunnableJob={() => {}}
+            runnableVisible={false}
+            duplicateJobsVisible={false}
+            groupCountsExpanded={false}
+          />
+        </div>
+      </MemoryRouter>
+    </Provider>
+  );
 };
 
 beforeAll(() => {
