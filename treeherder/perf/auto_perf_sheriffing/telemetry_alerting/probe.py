@@ -28,8 +28,10 @@ class TelemetryProbe:
     def __init__(self, metric_info):
         self.metric_info = metric_info
         self.name = self.metric_info["name"]
+        self._time_unit = ""
         self._should_file_bug = None
         self._should_email = None
+        self._probe_info = None  # Stores full probe info from GLEAN_PROBE_INFO
 
         self.monitor_info = self.metric_info["data"].get("monitor")
         if self.monitor_info["detect_changes"]:
@@ -58,6 +60,14 @@ class TelemetryProbe:
                 f"Found: {type(monitor_info)}",
             )
 
+    @property
+    def time_unit(self):
+        if not self._time_unit:
+            self.fetch_probe_info()
+            if self._probe_info:
+                self._time_unit = self._probe_info.get("time_unit", "")
+        return self._time_unit
+
     def get_change_detection_technique(self):
         return self.monitor_info.get("change-detection-technique", DEFAULT_CHANGE_DETECTION)
 
@@ -78,6 +88,22 @@ class TelemetryProbe:
             "bugzilla_notification_emails", self.monitor_info.get("notification_emails", [default])
         )
 
+    def fetch_probe_info(self):
+        if self._probe_info is not None:
+            return
+
+        try:
+            url = GLEAN_PROBE_INFO.format(probe_name=self.name)
+            response = requests.get(url)
+            response.raise_for_status()
+            self._probe_info = response.json()
+        except Exception:
+            logger.warning(
+                f"Failed to obtain extra information for probe {self.name}: "
+                f"{traceback.format_exc()}"
+            )
+            self._probe_info = {}
+
     def setup_notification_emails(self, default=DEFAULT_ALERT_EMAIL):
         # These emails are only obtained when we have an alert that we need to
         # produce an email for. They are also only obtained if notification emails
@@ -92,17 +118,12 @@ class TelemetryProbe:
             self.monitor_info["notification_emails"] = [default]
             return
 
-        try:
-            url = GLEAN_PROBE_INFO.format(probe_name=self.name)
-            response = requests.get(url)
-            response.raise_for_status()
-            data = response.json()
-            self.monitor_info["notification_emails"] = data["notification_emails"]
-        except Exception:
-            logger.warning(
-                f"Failed to obtain notification emails for probe {self.name}: "
-                f"{traceback.format_exc()}"
+        self.fetch_probe_info()
+        if self._probe_info:
+            self.monitor_info["notification_emails"] = self._probe_info.get(
+                "notification_emails", [default]
             )
+        else:
             self.monitor_info["notification_emails"] = [default]
 
     def verify_probe_definition(self):
