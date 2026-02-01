@@ -720,14 +720,20 @@ class PerformanceTelemetryAlert(PerformanceAlertBase):
     sustained = models.BooleanField(default=False)
     direction = models.CharField(max_length=100, null=True)
 
-    prev_median = models.FloatField(help_text="Previous median value of series before change")
-    new_median = models.FloatField(help_text="New median value of series after change")
+    prev_median = models.FloatField(
+        help_text="Previous median value of series before change", default=0.0
+    )
+    new_median = models.FloatField(help_text="New median value of series after change", default=0.0)
 
-    prev_p90 = models.FloatField(help_text="Previous P90 value of series before change")
-    new_p90 = models.FloatField(help_text="New P90 value of series after change")
+    prev_p05 = models.FloatField(
+        help_text="Previous P05 value of series before change", default=0.0
+    )
+    new_p05 = models.FloatField(help_text="New P05 value of series after change", default=0.0)
 
-    prev_p95 = models.FloatField(help_text="Previous P95 value of series before change")
-    new_p95 = models.FloatField(help_text="New P95 value of series after change")
+    prev_p95 = models.FloatField(
+        help_text="Previous P95 value of series before change", default=0.0
+    )
+    new_p95 = models.FloatField(help_text="New P95 value of series after change", default=0.0)
 
     # Each alerting probe will get 1 bug, but we still want to group
     # them together so the bug number field is added to the telemetry alerts as well
@@ -800,14 +806,20 @@ class PerformanceAlertTesting(PerformanceAlertBase):
     sustained = models.BooleanField(default=False)
     direction = models.CharField(max_length=100, null=True)
 
-    prev_median = models.FloatField(help_text="Previous median value of series before change")
-    new_median = models.FloatField(help_text="New median value of series after change")
+    prev_median = models.FloatField(
+        help_text="Previous median value of series before change", default=0.0
+    )
+    new_median = models.FloatField(help_text="New median value of series after change", default=0.0)
 
-    prev_p90 = models.FloatField(help_text="Previous P90 value of series before change")
-    new_p90 = models.FloatField(help_text="New P90 value of series after change")
+    prev_p05 = models.FloatField(
+        help_text="Previous P05 value of series before change", default=0.0
+    )
+    new_p05 = models.FloatField(help_text="New P05 value of series after change", default=0.0)
 
-    prev_p95 = models.FloatField(help_text="Previous P95 value of series before change")
-    new_p95 = models.FloatField(help_text="New P95 value of series after change")
+    prev_p95 = models.FloatField(
+        help_text="Previous P95 value of series before change", default=0.0
+    )
+    new_p95 = models.FloatField(help_text="New P95 value of series after change", default=0.0)
 
     confidences = models.JSONField(
         help_text="A JSON object that indicates the confidence of the alert for each detection method used. "

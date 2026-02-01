@@ -154,8 +154,8 @@ class TelemetryBugContent:
         values = (
             f"| **Median:** {round(alert.telemetry_alert.prev_median, 2)} "
             f"| **Median:** {round(alert.telemetry_alert.new_median, 2)} |\n"
-            f"| | | | **P90:** {round(alert.telemetry_alert.prev_p90, 2)} "
-            f"| **P90:** {round(alert.telemetry_alert.new_p90, 2)} |\n"
+            f"| | | | **P05:** {round(alert.telemetry_alert.prev_p05, 2)} "
+            f"| **P05:** {round(alert.telemetry_alert.new_p05, 2)} |\n"
             f"| | | | **P95:** {round(alert.telemetry_alert.prev_p95, 2)} "
             f"| **P95:** {round(alert.telemetry_alert.new_p95, 2)} |"
         )
