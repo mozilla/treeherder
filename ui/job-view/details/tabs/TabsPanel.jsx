@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { useSelector, useDispatch } from 'react-redux';
 import { Button, Dropdown, Nav } from 'react-bootstrap';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -14,8 +13,12 @@ import {
 import { thEvents } from '../../../helpers/constants';
 import JobArtifacts from '../../../shared/JobArtifacts';
 import JobTestGroups from '../JobTestGroups';
-import { clearSelectedJob } from '../../redux/stores/selectedJob';
-import { pinJob, addBug } from '../../redux/stores/pinnedJobs';
+import { clearSelectedJob } from '../../stores/selectedJobStore';
+import {
+  usePinnedJobsStore,
+  pinJob,
+  addBug,
+} from '../../stores/pinnedJobsStore';
 import FailureSummaryTab from '../../../shared/tabs/failureSummary/FailureSummaryTab';
 
 import PerformanceTab from './PerformanceTab';
@@ -74,33 +77,24 @@ const TabsPanel = ({
   currentRepo,
   testGroups = [],
 }) => {
-  // Redux hooks
-  const dispatch = useDispatch();
-  const { pinnedJobs, isPinBoardVisible } = useSelector(
-    (state) => state.pinnedJobs,
+  // Zustand hooks
+  const pinnedJobs = usePinnedJobsStore((state) => state.pinnedJobs);
+  const isPinBoardVisible = usePinnedJobsStore(
+    (state) => state.isPinBoardVisible,
   );
 
-  // Action dispatchers
-  const clearSelectedJobAction = useCallback(
-    (countPinnedJobs) => {
-      dispatch(clearSelectedJob(countPinnedJobs));
-    },
-    [dispatch],
-  );
+  // Action handlers using standalone Zustand functions
+  const clearSelectedJobAction = useCallback((countPinnedJobs) => {
+    clearSelectedJob(countPinnedJobs);
+  }, []);
 
-  const pinJobAction = useCallback(
-    (job) => {
-      dispatch(pinJob(job));
-    },
-    [dispatch],
-  );
+  const pinJobAction = useCallback((job) => {
+    pinJob(job);
+  }, []);
 
-  const addBugAction = useCallback(
-    (bug, job) => {
-      dispatch(addBug(bug, job));
-    },
-    [dispatch],
-  );
+  const addBugAction = useCallback((bug, job) => {
+    addBug(bug, job);
+  }, []);
 
   const [tabIndex, setTabIndex] = useState(0);
   const [overflowTabs, setOverflowTabs] = useState([]);
@@ -244,7 +238,7 @@ const TabsPanel = ({
   useEffect(() => {
     const timeoutId = setTimeout(() => checkTabOverflow(), 100);
     return () => clearTimeout(timeoutId);
-  }, [perfJobDetail?.length, checkTabOverflow]);
+  }, [checkTabOverflow]);
 
   const countPinnedJobs = Object.keys(pinnedJobs).length;
   const { showPerf } = showTabsFromProps({ perfJobDetail });
@@ -394,7 +388,7 @@ const TabsPanel = ({
         <TabPanel>
           <FailureSummaryTab
             selectedJob={selectedJobFull}
-            selectedJobId={selectedJob && selectedJob.id}
+            selectedJobId={selectedJob?.id}
             jobLogUrls={jobLogUrls}
             jobDetails={jobDetails}
             logParseStatus={logParseStatus}
