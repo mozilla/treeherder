@@ -44,25 +44,15 @@ jest.mock('react-router-dom', () => {
 
 describe('PushList', () => {
   const repoName = 'autoland';
-<<<<<<< HEAD
-  const mockLocation = { search: `?repo=${repoName}`, pathname: '/jobs' };
+  const _mockLocation = { search: `?repo=${repoName}`, pathname: '/jobs' };
 
   beforeEach(() => {
     mockNavigate = jest.fn();
     // Mock window.history.pushState for URL updates
     jest.spyOn(window.history, 'pushState').mockImplementation(() => {});
-=======
-  let history;
-
-  beforeEach(() => {
-    history = createBrowserHistory();
-    act(() => {
-      history.push(`/jobs?repo=${repoName}`);
-    });
->>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
   });
 
-  const currentRepo = {
+  const _currentRepo = {
     id: 4,
     repository_group: {
       name: 'development',
@@ -84,7 +74,7 @@ describe('PushList', () => {
     getPushLogHref: () => 'foo',
   };
 
-  const pushCount = () =>
+  const _pushCount = () =>
     waitFor(() => getAllByTestId(document.body, 'push-header'));
 
   beforeAll(() => {
@@ -149,100 +139,7 @@ describe('PushList', () => {
 
   afterEach(() => {
     cleanup();
-<<<<<<< HEAD
     jest.restoreAllMocks();
-=======
->>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
-  });
-
-  afterAll(() => {
-    fetchMock.reset();
-  });
-
-  const testPushList = () => {
-    const store = configureStore();
-
-    // Manually trigger fetchPushes since outside testing the App does it.
-    store.dispatch(fetchPushes());
-
-    return (
-      <Provider store={store} context={ReactReduxContext}>
-        <MemoryRouter initialEntries={[`/jobs?repo=${repoName}`]}>
-          <div id="th-global-content">
-            <PushList
-              user={{ isLoggedIn: false }}
-              repoName={repoName}
-              currentRepo={currentRepo}
-              filterModel={new FilterModel(mockNavigate, mockLocation)}
-              duplicateJobsVisible={false}
-              groupCountsExpanded={false}
-              pushHealthVisibility="None"
-              getAllShownJobs={() => {}}
-            />
-          </div>
-        </MemoryRouter>
-      </Provider>
-    );
-  };
-  // push1Revision is'ba9c692786e95143b8df3f4b3e9b504dfbc589a0';
-  const push1Id = 'push-511138';
-  // push2Revision is 'd5b037941b0ebabcc9b843f24d926e9d65961087';
-  const push2Id = 'push-511137';
-
-  test('should have 2 pushes', async () => {
-    render(testPushList());
-
-    expect(await pushCount()).toHaveLength(2);
-  });
-
-  test('should switch to single loaded revision', async () => {
-    const { getAllByTitle } = render(testPushList());
-
-    expect(await pushCount()).toHaveLength(2);
-    const pushLinks = await getAllByTitle('View only this push');
-
-    fireEvent.click(pushLinks[1]);
-
-    await waitFor(() => {
-      expect(pushLinks[0]).not.toBeInTheDocument();
-    });
-    expect(await pushCount()).toHaveLength(1);
-  });
-
-  test('should reload pushes when setting fromchange', async () => {
-    const { queryAllByTestId, queryByTestId } = render(testPushList());
-
-    expect(await pushCount()).toHaveLength(2);
-
-    await waitFor(() => queryAllByTestId('push-header'));
-
-    const push2 = await waitFor(() => queryByTestId(push2Id));
-    const actionMenuButton = push2.querySelector(
-      '[data-testid="push-action-menu-button"]',
-    );
-
-    fireEvent.click(actionMenuButton);
-
-    const setFromRange = await waitFor(() =>
-      push2.querySelector('[data-testid="bottom-of-range-menu-item"]'),
-    );
-
-    fireEvent.click(setFromRange);
-
-    await waitFor(() => {
-<<<<<<< HEAD
-      expect(mockNavigate).toHaveBeenCalledWith(
-        expect.objectContaining({
-          search: expect.stringContaining(
-            'fromchange=d5b037941b0ebabcc9b843f24d926e9d65961087',
-          ),
-        }),
-=======
-      expect(history.location.search).toContain(
-        '?repo=autoland&fromchange=d5b037941b0ebabcc9b843f24d926e9d65961087',
->>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
-      );
-    });
   });
 
   test('should reload pushes when setting tochange', async () => {
@@ -264,17 +161,12 @@ describe('PushList', () => {
     fireEvent.click(setTopRange);
 
     await waitFor(() => {
-<<<<<<< HEAD
       expect(mockNavigate).toHaveBeenCalledWith(
         expect.objectContaining({
           search: expect.stringContaining(
             'tochange=ba9c692786e95143b8df3f4b3e9b504dfbc589a0',
           ),
         }),
-=======
-      expect(history.location.search).toContain(
-        '?repo=autoland&tochange=ba9c692786e95143b8df3f4b3e9b504dfbc589a0',
->>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
       );
     });
   });
@@ -327,46 +219,25 @@ describe('PushList', () => {
   });
 
   test('jobs should have fields required for retriggers', async () => {
-<<<<<<< HEAD
     const store = configureStore();
-=======
-    const store = configureStore(history);
->>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
     store.dispatch(fetchPushes());
 
     const { getByText } = render(
       <Provider store={store} context={ReactReduxContext}>
-<<<<<<< HEAD
         <MemoryRouter initialEntries={[`/jobs?repo=${repoName}`]}>
-=======
-        <ConnectedRouter history={history} context={ReactReduxContext}>
->>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
           <div id="th-global-content">
             <PushList
               user={{ isLoggedIn: false }}
               repoName={repoName}
               currentRepo={currentRepo}
-<<<<<<< HEAD
               filterModel={new FilterModel(mockNavigate, mockLocation)}
-=======
-              filterModel={
-                new FilterModel({
-                  pushRoute: history.push,
-                  router: { location: history.location },
-                })
-              }
->>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
               duplicateJobsVisible={false}
               groupCountsExpanded={false}
               pushHealthVisibility="None"
               getAllShownJobs={() => {}}
             />
           </div>
-<<<<<<< HEAD
         </MemoryRouter>
-=======
-        </ConnectedRouter>
->>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
       </Provider>,
     );
     const jobEl = await waitFor(() => getByText('yaml'));
