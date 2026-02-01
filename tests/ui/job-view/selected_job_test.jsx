@@ -6,7 +6,7 @@ import {
   waitFor,
   act,
 } from '@testing-library/react';
-import { MemoryRouter } from 'react-router';
+import { MemoryRouter } from 'react-router-dom';
 
 import { addAggregateFields } from '../../../ui/helpers/job';
 import { clearJobButtonRegistry } from '../../../ui/hooks/useJobButtonRegistry';
@@ -96,11 +96,7 @@ test('filter change keeps selected job visible', async () => {
   act(() => {
     filterModel.addFilter('searchStr', 'linux');
   });
-<<<<<<< HEAD
   rerender(testPushJobs(filterModel, store));
-=======
-  rerender(testPushJobs(filterModel));
->>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
 
   const spell2 = getByText('spell');
 
