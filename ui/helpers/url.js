@@ -193,10 +193,11 @@ export const getRevisionUrl = (revision, projectName) =>
 
 export const updateQueryParams = function updateHistoryWithQueryParams(
   queryParams,
-  history,
+  navigate,
   location,
 ) {
-  history.push({ pathname: location.pathname, search: queryParams });
+  // React Router v6 uses navigate() instead of history.push()
+  navigate({ pathname: location.pathname, search: queryParams });
 };
 
 export const getPernoscoURL = (taskId) =>
