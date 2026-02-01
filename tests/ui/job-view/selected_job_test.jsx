@@ -55,10 +55,7 @@ beforeEach(() => {
 
 beforeEach(() => {
   clearJobButtonRegistry();
-<<<<<<< HEAD
   jest.spyOn(window.history, 'pushState').mockImplementation(() => {});
-=======
->>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
 });
 
 afterEach(() => {
@@ -103,7 +100,6 @@ test('select a job updates url', async () => {
   fireEvent.mouseDown(spell);
   await waitFor(() => expect(spell).toHaveClass('selected-job'));
 
-<<<<<<< HEAD
   // Verify pushState was called with the correct selectedTaskRun parameter
   await waitFor(() => {
     expect(window.history.pushState).toHaveBeenCalled();
@@ -114,11 +110,6 @@ test('select a job updates url', async () => {
   const url = lastCall[2]; // pushState(state, title, url)
 
   expect(url).toContain('selectedTaskRun=OeYt2-iLQSaQb2ashZ_VIQ.0');
-=======
-  const selTaskRun = getUrlParam('selectedTaskRun');
-
-  expect(selTaskRun).toBe('OeYt2-iLQSaQb2ashZ_VIQ.0');
->>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
 });
 
 test('filter change keeps selected job visible', async () => {
@@ -136,11 +127,7 @@ test('filter change keeps selected job visible', async () => {
   act(() => {
     filterModel.addFilter('searchStr', 'linux');
   });
-<<<<<<< HEAD
   rerender(testPushJobs(filterModel, store));
-=======
-  rerender(testPushJobs(filterModel));
->>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
 
   const spell2 = getByText('spell');
 
