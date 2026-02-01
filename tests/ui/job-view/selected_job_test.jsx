@@ -136,11 +136,7 @@ test('filter change keeps selected job visible', async () => {
   act(() => {
     filterModel.addFilter('searchStr', 'linux');
   });
-<<<<<<< HEAD
   rerender(testPushJobs(filterModel, store));
-=======
-  rerender(testPushJobs(filterModel));
->>>>>>> 9ccb12fc1 (Migrate from ESLint to Biome)
 
   const spell2 = getByText('spell');
 
