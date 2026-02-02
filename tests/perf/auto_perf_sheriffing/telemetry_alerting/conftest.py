@@ -82,6 +82,7 @@ def mock_probe():
     """Mock probe for testing with default configuration."""
     probe = Mock()
     probe.name = "test_probe_metric"
+    probe.time_unit = "nanosecond"
     probe.get_notification_emails.return_value = ["test@mozilla.com"]
     probe.should_file_bug.return_value = True
     probe.should_email.return_value = False
@@ -144,8 +145,8 @@ def alert_without_bug(test_telemetry_alert_summary, test_telemetry_signature):
         confidence=0.95,
         prev_median=650.0,
         new_median=750.0,
-        prev_p90=700.0,
-        new_p90=800.0,
+        prev_p05=700.0,
+        new_p05=800.0,
         prev_p95=720.0,
         new_p95=820.0,
         bug_number=None,
@@ -174,8 +175,8 @@ def alert_with_bug(test_telemetry_alert_summary, test_telemetry_signature):
         confidence=0.95,
         prev_median=650.0,
         new_median=750.0,
-        prev_p90=700.0,
-        new_p90=800.0,
+        prev_p05=700.0,
+        new_p05=800.0,
         prev_p95=720.0,
         new_p95=820.0,
         bug_number=123456,
@@ -200,8 +201,8 @@ def create_telemetry_alert(test_telemetry_alert_summary):
             "confidence": 0.95,
             "prev_median": 650.0,
             "new_median": 750.0,
-            "prev_p90": 700.0,
-            "new_p90": 800.0,
+            "prev_p05": 700.0,
+            "new_p05": 800.0,
             "prev_p95": 720.0,
             "new_p95": 820.0,
             "bug_number": None,
