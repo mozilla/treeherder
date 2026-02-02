@@ -32,7 +32,7 @@ importers:
         version: 7.1.2(@types/react@19.2.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@mui/styled-engine-sc':
         specifier: npm:@mui/styled-engine-sc@latest
-        version: 7.3.6(@types/react@19.2.7)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
+        version: 7.3.7(@types/react@19.2.7)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@mui/x-date-pickers':
         specifier: 8.21.0
         version: 8.21.0(@mui/material@7.1.2(@types/react@19.2.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1)))(@mui/system@7.3.6(@types/react@19.2.7)(react@18.3.1)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1)))(@types/react@19.2.7)(dayjs@1.11.19)(moment@2.30.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -59,7 +59,7 @@ importers:
         version: 6.0.3
       connected-react-router:
         specifier: 6.9.3
-        version: 6.9.3(history@4.10.1)(react-redux@8.0.7(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(redux@4.2.1))(react-router@5.1.2(react@18.3.1))(react@18.3.1)(redux@4.2.1)
+        version: 6.9.3(history@4.10.1)(react-redux@9.2.0(@types/react@19.2.7)(react@18.3.1)(redux@4.2.1))(react-router@5.1.2(react@18.3.1))(react@18.3.1)(redux@4.2.1)
       crypto-browserify:
         specifier: 3.12.1
         version: 3.12.1
@@ -130,8 +130,8 @@ importers:
         specifier: 0.2.2
         version: 0.2.2
       react-redux:
-        specifier: 8.0.7
-        version: 8.0.7(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(redux@4.2.1)
+        specifier: 9.2.0
+        version: 9.2.0(@types/react@19.2.7)(react@18.3.1)(redux@4.2.1)
       react-resizable-panels:
         specifier: 3.0.6
         version: 3.0.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1296,12 +1296,6 @@ packages:
       '@types/react':
         optional: true
 
-  '@mui/styled-engine-sc@7.3.6':
-    resolution: {integrity: sha512-AE1tbLGP1o9yyE1vzXcyxf2KAXPH7j0Tfg7qf6Pea4nHsARDC7slgiMh+rGrQVvzpLqZWyH1luaO6L+6cTwXSQ==}
-    engines: {node: '>=14.0.0'}
-    peerDependencies:
-      styled-components: ^6.0.0
-
   '@mui/styled-engine-sc@7.3.7':
     resolution: {integrity: sha512-BJ91ujrXXaYW0wXdEw8K1EoUzsqA6e/sJhxxLlwWjqgRWC8spa+MFP+H+5vCUqAHRiB38dAOcvgZxflUG5oeZg==}
     engines: {node: '>=14.0.0'}
@@ -1939,8 +1933,8 @@ packages:
   '@types/trusted-types@2.0.7':
     resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
 
-  '@types/use-sync-external-store@0.0.3':
-    resolution: {integrity: sha512-EwmlvuaxPNej9+T4v5AuBPJa2x2UOJVdjCtDHgcDqitUeOtjnJKJ+apYjVcAoBEMjKW1VVFGZLUb5+qqa09XFA==}
+  '@types/use-sync-external-store@0.0.6':
+    resolution: {integrity: sha512-zFDAD+tlpf2r4asuHEj0XH6pY6i0g5NeAHPn+15wk3BV6JA69eERFXC1gyGThDkVa1zCyKr5jox1+2LbV/AMLg==}
 
   '@types/warning@3.0.3':
     resolution: {integrity: sha512-D1XC7WK8K+zZEveUPY+cf4+kgauk8N4eHr/XIHXGlGYkHLud6hK9lYfZk1ry1TNh798cZUCgb6MqGEG8DkJt6Q==}
@@ -5151,26 +5145,14 @@ packages:
   react-linkify@0.2.2:
     resolution: {integrity: sha512-0S8cvUNtEgfJpIGDPKklyrnrTffJ63WuJAc4KaYLBihl5TjgH5cHUmYD+AXLpsV+CVmfoo/56SUNfrZcY4zYMQ==}
 
-  react-redux@8.0.7:
-    resolution: {integrity: sha512-1vRQuCQI5Y2uNmrMXg81RXKiBHY3jBzvCvNmZF437O/Z9/pZ+ba2uYHbemYXb3g8rjsacBGo+/wmfrQKzMhJsg==}
+  react-redux@9.2.0:
+    resolution: {integrity: sha512-ROY9fvHhwOD9ySfrF0wmvu//bKCQ6AeZZq1nJNtbDC+kk5DuSuNX/n6YWYF/SYy7bSba4D4FSz8DJeKY/S/r+g==}
     peerDependencies:
-      '@reduxjs/toolkit': ^1 || ^2.0.0-beta.0
-      '@types/react': ^16.8 || ^17.0 || ^18.0
-      '@types/react-dom': ^16.8 || ^17.0 || ^18.0
-      react: ^16.8 || ^17.0 || ^18.0
-      react-dom: ^16.8 || ^17.0 || ^18.0
-      react-native: '>=0.59'
-      redux: ^4 || ^5.0.0-beta.0
+      '@types/react': ^18.2.25 || ^19
+      react: ^18.0 || ^19
+      redux: ^5.0.0
     peerDependenciesMeta:
-      '@reduxjs/toolkit':
-        optional: true
       '@types/react':
-        optional: true
-      '@types/react-dom':
-        optional: true
-      react-dom:
-        optional: true
-      react-native:
         optional: true
       redux:
         optional: true
@@ -7734,17 +7716,6 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.7
 
-  '@mui/styled-engine-sc@7.3.6(@types/react@19.2.7)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
-    dependencies:
-      '@babel/runtime': 7.28.4
-      '@types/hoist-non-react-statics': 3.3.7(@types/react@19.2.7)
-      csstype: 3.2.3
-      hoist-non-react-statics: 3.3.2
-      prop-types: 15.8.1
-      styled-components: 6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-    transitivePeerDependencies:
-      - '@types/react'
-
   '@mui/styled-engine-sc@7.3.7(@types/react@19.2.7)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
     dependencies:
       '@babel/runtime': 7.28.4
@@ -8446,7 +8417,7 @@ snapshots:
   '@types/trusted-types@2.0.7':
     optional: true
 
-  '@types/use-sync-external-store@0.0.3': {}
+  '@types/use-sync-external-store@0.0.6': {}
 
   '@types/warning@3.0.3': {}
 
@@ -9234,13 +9205,13 @@ snapshots:
 
   connect-history-api-fallback@2.0.0: {}
 
-  connected-react-router@6.9.3(history@4.10.1)(react-redux@8.0.7(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(redux@4.2.1))(react-router@5.1.2(react@18.3.1))(react@18.3.1)(redux@4.2.1):
+  connected-react-router@6.9.3(history@4.10.1)(react-redux@9.2.0(@types/react@19.2.7)(react@18.3.1)(redux@4.2.1))(react-router@5.1.2(react@18.3.1))(react@18.3.1)(redux@4.2.1):
     dependencies:
       history: 4.10.1
       lodash.isequalwith: 4.4.0
       prop-types: 15.8.1
       react: 18.3.1
-      react-redux: 8.0.7(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(redux@4.2.1)
+      react-redux: 9.2.0(@types/react@19.2.7)(react@18.3.1)(redux@4.2.1)
       react-router: 5.1.2(react@18.3.1)
       redux: 4.2.1
     optionalDependencies:
@@ -12224,19 +12195,13 @@ snapshots:
       prop-types: 15.8.1
       tlds: 1.261.0
 
-  react-redux@8.0.7(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(redux@4.2.1):
+  react-redux@9.2.0(@types/react@19.2.7)(react@18.3.1)(redux@4.2.1):
     dependencies:
-      '@babel/runtime': 7.28.4
-      '@types/hoist-non-react-statics': 3.3.7(@types/react@19.2.7)
-      '@types/use-sync-external-store': 0.0.3
-      hoist-non-react-statics: 3.3.2
+      '@types/use-sync-external-store': 0.0.6
       react: 18.3.1
-      react-is: 18.3.1
       use-sync-external-store: 1.6.0(react@18.3.1)
     optionalDependencies:
       '@types/react': 19.2.7
-      '@types/react-dom': 19.2.3(@types/react@19.2.7)
-      react-dom: 18.3.1(react@18.3.1)
       redux: 4.2.1
 
   react-refresh@0.17.0: {}
