@@ -1,5 +1,5 @@
 import React from 'react';
-import { LazyLog } from '@melloware/react-logviewer';
+import { LazyLog } from 'react-lazylog';
 import isEqual from 'lodash/isEqual';
 
 import {

@@ -140,10 +140,6 @@ const developmentConfig = {
       overlay: {
         errors: true,
         warnings: false,
-        runtimeErrors: (error) =>
-          !error.message.includes(
-            'ResizeObserver loop completed with undelivered notifications',
-          ),
       },
     },
     proxy: [
