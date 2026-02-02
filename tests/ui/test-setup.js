@@ -5,20 +5,6 @@ import '@testing-library/jest-dom/jest-globals';
 // Configure React 18 act environment for testing
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
-// Mock ResizeObserver which is required by @melloware/react-logviewer
-// but not available in jsdom
-global.ResizeObserver = class ResizeObserver {
-  constructor(callback) {
-    this.callback = callback;
-  }
-
-  observe() {}
-
-  unobserve() {}
-
-  disconnect() {}
-};
-
 // JSDOM doesn't implement scrollIntoView, so we mock it
 Element.prototype.scrollIntoView = jest.fn();
 
