@@ -30,7 +30,7 @@
     "crypto-browserify": "3.12.1",
     "dayjs": "1.11.19",
     "fuse.js": "6.0.4",
-    "history": "4.10.1",
+    "history": "5.3.0",
     "js-cookie": "3.0.5",
     "js-yaml": "4.1.1",
     "json-e": "4.8.0",
