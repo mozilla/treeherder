@@ -51,6 +51,7 @@ function PushList({
   jobMap,
   notify,
   revision = null,
+  landoInstance = null,
   landoCommitID = null,
   landoStatus = 'unknown',
   currentRepo = {},
@@ -225,6 +226,7 @@ function PushList({
           currentRepo={currentRepo}
           repoName={repoName}
           revision={revision}
+          landoInstance={landoInstance}
           landoCommitID={landoCommitID}
           landoStatus={landoStatus}
         />
@@ -267,6 +269,7 @@ PushList.propTypes = {
   jobMap: PropTypes.shape({}).isRequired,
   notify: PropTypes.func.isRequired,
   revision: PropTypes.string,
+  landoInstance: PropTypes.string,
   landoCommitID: PropTypes.string,
   landoStatus: PropTypes.string,
   currentRepo: PropTypes.shape({}),

@@ -12,6 +12,7 @@ function PushLoadErrors(props) {
     loadingPushes,
     currentRepo,
     revision = null,
+    landoInstance = null,
     landoCommitID = null,
     landoStatus = 'unknown',
     repoName,
@@ -61,24 +62,26 @@ function PushLoadErrors(props) {
         )}
       {!loadingPushes &&
         !revision &&
+        landoInstance &&
         landoCommitID &&
         currentRepo &&
         currentRepo.url && (
           <div className="push-body unknown-message-body">
             <span>
-              {landoCommitID && (
+              {landoInstance && landoCommitID && (
                 <div>
                   <p>
                     Waiting for push with lando commit ID&nbsp;
                     <a
-                      href={getLandoJobsUrl(landoCommitID)}
+                      href={getLandoJobsUrl(landoInstance, landoCommitID)}
                       target="_blank"
                       rel="noopener noreferrer"
                       title="See lando status"
                     >
                       {landoCommitID}
                     </a>
-                    . Lando status is: {landoStatus}&nbsp;
+                    &nbsp;to instance {landoInstance}. Lando status is:{' '}
+                    {landoStatus}&nbsp;
                     <FontAwesomeIcon
                       icon={faSpinner}
                       pulse
@@ -149,6 +152,7 @@ PushLoadErrors.propTypes = {
   }).isRequired,
   repoName: PropTypes.string.isRequired,
   revision: PropTypes.string,
+  landoInstance: PropTypes.string,
   landoCommitID: PropTypes.string,
   landoStatus: PropTypes.string,
 };

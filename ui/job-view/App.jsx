@@ -82,6 +82,7 @@ class App extends React.Component {
     this.state = {
       repoName: this.getOrSetRepo(),
       revision: urlParams.get('revision'),
+      landoInstance: urlParams.get('landoInstance'),
       landoCommitID: urlParams.get('landoCommitID'),
       landoStatus: 'unknown',
       user: { isLoggedIn: false, isStaff: false },
@@ -261,9 +262,12 @@ class App extends React.Component {
   async setLandoRevision() {
     const { pushRoute } = this.props;
     const params = getAllUrlParams();
+    const landoInstance = params.get('landoInstance');
     const landoCommitID = params.get('landoCommitID');
 
-    const { data } = await getData(getLandoJobsUrl(landoCommitID));
+    const { data } = await getData(
+      getLandoJobsUrl(landoInstance, landoCommitID),
+    );
     const revision = data.commit_id;
 
     if (revision) {
@@ -271,6 +275,7 @@ class App extends React.Component {
 
       params.set('revision', revision);
       params.delete('landoCommitID');
+      params.delete('landoInstance');
 
       pushRoute({
         search: createQueryParams(params),
@@ -415,6 +420,7 @@ class App extends React.Component {
       hasSelectedJob,
       revision,
       landoCommitID,
+      landoInstance,
       landoStatus,
       duplicateJobsVisible,
       groupCountsExpanded,
@@ -490,6 +496,7 @@ class App extends React.Component {
                         repoName={repoName}
                         revision={revision}
                         landoCommitID={landoCommitID}
+                        landoInstance={landoInstance}
                         landoStatus={landoStatus}
                         currentRepo={currentRepo}
                         filterModel={filterModel}
