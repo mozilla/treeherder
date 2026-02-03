@@ -110,6 +110,7 @@ const App = () => {
   const [repoName, setRepoName] = useState(() => getOrSetRepo(navigate));
   const [revision, setRevision] = useState(urlParams.get('revision'));
   const [landoCommitID] = useState(urlParams.get('landoCommitID'));
+  const [landoInstance] = useState(urlParams.get('landoInstance'));
   const [landoStatus, setLandoStatus] = useState('unknown');
   const [user, setUser] = useState({ isLoggedIn: false, isStaff: false });
   const [filterModel, setFilterModel] = useState(
@@ -154,8 +155,11 @@ const App = () => {
   const setLandoRevision = useCallback(async () => {
     const params = getAllUrlParams();
     const landoCommitIDParam = params.get('landoCommitID');
+    const landoInstance = params.get('landoInstance');
 
-    const { data } = await getData(getLandoJobsUrl(landoCommitIDParam));
+    const { data } = await getData(
+      getLandoJobsUrl(landoInstance, landoCommitID),
+    );
     const revisionData = data.commit_id;
 
     if (revisionData) {
@@ -163,6 +167,7 @@ const App = () => {
 
       params.set('revision', revisionData);
       params.delete('landoCommitID');
+      params.delete('landoInstance');
 
       navigate({
         search: createQueryParams(params),
@@ -428,6 +433,7 @@ const App = () => {
                       repoName={repoName}
                       revision={revision}
                       landoCommitID={landoCommitID}
+                      landoInstance={landoInstance}
                       landoStatus={landoStatus}
                       currentRepo={currentRepo}
                       filterModel={filterModel}
