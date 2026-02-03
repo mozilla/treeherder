@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 
 import JobButton from './JobButton';
 import JobGroup from './JobGroup';
