@@ -125,7 +125,8 @@
   "pnpm": {
     "overrides": {
       "cacache": "19.0.1",
-      "@mui/styled-engine": "npm:@mui/styled-engine-sc@latest"
+      "@mui/styled-engine": "npm:@mui/styled-engine-sc@latest",
+      "fast-xml-parser": "5.3.4"
     }
   }
 }
