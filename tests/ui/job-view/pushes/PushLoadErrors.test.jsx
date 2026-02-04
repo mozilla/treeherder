@@ -134,6 +134,7 @@ describe('PushLoadErrors', () => {
         <PushLoadErrors
           currentRepo={createMockRepo()}
           repoName="mozilla-central"
+          landoInstance="lando-prod"
           landoCommitID="L12345"
           landoStatus="in_progress"
         />,
@@ -150,6 +151,7 @@ describe('PushLoadErrors', () => {
         <PushLoadErrors
           currentRepo={createMockRepo()}
           repoName="mozilla-central"
+          landoInstance="lando-prod"
           landoCommitID="L12345"
           landoStatus="submitted"
         />,
@@ -165,6 +167,7 @@ describe('PushLoadErrors', () => {
         <PushLoadErrors
           currentRepo={createMockRepo()}
           repoName="mozilla-central"
+          landoInstance="lando-prod"
           landoCommitID="L12345"
         />,
       );
@@ -179,6 +182,7 @@ describe('PushLoadErrors', () => {
         <PushLoadErrors
           currentRepo={createMockRepo()}
           repoName="mozilla-central"
+          landoInstance="lando-prod"
           landoCommitID="L12345"
         />,
       );
