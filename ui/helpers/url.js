@@ -288,13 +288,13 @@ export const getLandoJobsUrl = function getLandoJobsUrl(
   landoInstance,
   landoCommitID,
 ) {
-  const defaultBaseUrl = 'lando.moz.tools';
   const instances = {
     'lando-dev': 'api.dev.lando.nonprod.cloudops.mozgcp.net',
     'lando-dev-new': 'api.dev.lando.nonprod.cloudops.mozgcp.net',
     'lando-prod': 'api.lando.services.mozilla.com',
-    'lando-prod-new': defaultBaseUrl,
+    'lando-prod-new': 'lando.moz.tools',
   };
+  const defaultBaseUrl = instances['lando-prod'];
   const landoBaseUrl = instances[landoInstance] ?? defaultBaseUrl;
   const commitID = Number.parseInt(landoCommitID);
   return `https://${landoBaseUrl}/${landoLandingJobsEndPoint}${commitID}`;
