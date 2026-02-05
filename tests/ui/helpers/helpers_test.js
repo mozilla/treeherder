@@ -105,21 +105,21 @@ describe('displayNumber helper', () => {
 test('getFilledBugSummary downstream regressions', async () => {
   const result = getFilledBugSummary(testAlertSummaryDownstreamRegressions);
   expect(result).toBe(
-    '10.67 - 2.53% MySuite Test3 / MySuite Test4 + 2 more (Android, OSX) regression on Fri March 19 2021',
+    '10.67 - 2.53% MySuite Test3 + 3 more (Android, OSX) regression on Fri March 19 2021',
   );
 });
 
 test('getFilledBugSummary improvements only', async () => {
   const result = getFilledBugSummary(testAlertSummaryImprovementsOnly);
   expect(result).toBe(
-    '10.67 - 2.53% MySuite Test3 / MySuite Test4 + 3 more (Android, Linux, OSX) regression on Fri March 19 2021',
+    '10.67 - 2.53% MySuite Test3 + 4 more (Android, Linux, OSX) regression on Fri March 19 2021',
   );
 });
 
 test('getFilledBugSummary invalid regressions', async () => {
   const result = getFilledBugSummary(testAlertSummaryInvalidRegressions);
   expect(result).toBe(
-    '10.67 - 2.75% MySuite Test3 / MySuite Test1 + 2 more (Linux, OSX) regression on Fri March 19 2021',
+    '10.67 - 2.75% MySuite Test3 + 3 more (Linux, OSX) regression on Fri March 19 2021',
   );
 });
 
@@ -128,14 +128,14 @@ test('getFilledBugSummary regressions and improvements', async () => {
     testAlertSummaryRegressionsAndImprovements,
   );
   expect(result).toBe(
-    '4.58 - 2.75% MySuite Test2 / MySuite Test1 + 1 more (Linux, OSX) regression on Fri March 19 2021',
+    '4.58 - 2.75% MySuite Test2 + 2 more (Linux, OSX) regression on Fri March 19 2021',
   );
 });
 
 test('getFilledBugSummary regressions and reassigned', async () => {
   const result = getFilledBugSummary(testAlertSummaryRegressionsAndReassigned);
   expect(result).toBe(
-    '10.67 - 2.53% MySuite Test3 / MySuite Test4 + 3 more (Android, Linux, OSX) regression on Fri March 19 2021',
+    '10.67 - 2.53% MySuite Test3 + 4 more (Android, Linux, OSX) regression on Fri March 19 2021',
   );
 });
 
@@ -144,7 +144,7 @@ test('getFilledBugSummary regressions and reassigned to other summary', async ()
     testAlertSummaryRegressionsAndReassignedToOther,
   );
   expect(result).toBe(
-    '4.58 - 2.53% MySuite Test2 / MySuite Test4 + 1 more (Android, Linux, OSX) regression on Fri March 19 2021',
+    '4.58 - 2.53% MySuite Test2 + 2 more (Android, Linux, OSX) regression on Fri March 19 2021',
   );
 });
 
