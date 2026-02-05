@@ -37,7 +37,7 @@ ArtifactLink.propTypes = {
 export default class JobArtifacts extends React.PureComponent {
   shouldShowPernoscoLink(repoName, selectedJob) {
     return (
-      (repoName === 'try' || repoName === 'autoland') &&
+      (repoName === 'try' || repoName === 'autoland' || repoName === 'enterprise-firefox-pr') &&
       selectedJob &&
       selectedJob.task_id &&
       selectedJob.result === 'testfailed' &&
