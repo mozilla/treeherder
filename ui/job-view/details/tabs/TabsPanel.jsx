@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useSelector, useDispatch } from 'react-redux';
 import { Button, Dropdown, Nav } from 'react-bootstrap';
@@ -244,7 +244,7 @@ const TabsPanel = ({
   useEffect(() => {
     const timeoutId = setTimeout(() => checkTabOverflow(), 100);
     return () => clearTimeout(timeoutId);
-  }, [checkTabOverflow]);
+  }, [perfJobDetail?.length, checkTabOverflow]);
 
   const countPinnedJobs = Object.keys(pinnedJobs).length;
   const { showPerf } = showTabsFromProps({ perfJobDetail });
@@ -394,7 +394,7 @@ const TabsPanel = ({
         <TabPanel>
           <FailureSummaryTab
             selectedJob={selectedJobFull}
-            selectedJobId={selectedJob?.id}
+            selectedJobId={selectedJob && selectedJob.id}
             jobLogUrls={jobLogUrls}
             jobDetails={jobDetails}
             logParseStatus={logParseStatus}

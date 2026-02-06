@@ -1,4 +1,4 @@
-import { useMemo, useCallback, memo } from 'react';
+import React, { useMemo, useCallback, memo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -33,28 +33,12 @@ function PushJobs({
   );
 
   const selectJob = useCallback(
-    (job, jobInstance) => {
-      // URL-FIRST: Update the URL for persistence and state sync.
+    (job) => {
+      // URL-FIRST: Only update the URL here.
       // The URL change will trigger syncSelectionFromUrl in PushList,
-      // which handles updating Redux state.
+      // which handles updating Redux state and visual selection.
+      // This eliminates race conditions by having a single path for selection.
       selectJobViaUrl(job);
-
-      // Also do an optimistic visual update for immediate feedback.
-      // This ensures the selection appears instantly without waiting
-      // for the URL sync round-trip.
-      if (jobInstance?.setSelected) {
-        // Deselect the currently selected job first
-        const currentSelected = document.querySelector('.selected-job');
-        if (currentSelected) {
-          const currentJobId = currentSelected.getAttribute('data-job-id');
-          const currentInstance = findInstance(currentSelected);
-          if (currentInstance?.setSelected && currentJobId !== String(job.id)) {
-            currentInstance.setSelected(false);
-          }
-        }
-        // Select the new job
-        jobInstance.setSelected(true);
-      }
     },
     [selectJobViaUrl],
   );
@@ -91,7 +75,7 @@ function PushJobs({
       const jobInstance = findInstance(ev.target);
       const selectedTaskRun = getUrlParam('selectedTaskRun');
 
-      if (jobInstance?.props?.job) {
+      if (jobInstance && jobInstance.props && jobInstance.props.job) {
         const { job } = jobInstance.props;
         if (ev.button === 1) {
           // Middle click
@@ -99,14 +83,14 @@ function PushJobs({
         } else if (ev.metaKey || ev.ctrlKey) {
           // Pin job
           if (!selectedTaskRun) {
-            selectJob(job, jobInstance);
+            selectJob(job);
           }
           togglePinJob(job);
         } else if (job && job.state === 'runnable') {
           // Toggle runnable
           handleRunnableClick(jobInstance);
         } else {
-          selectJob(job, jobInstance); // Left click
+          selectJob(job); // Left click
         }
       }
     },

@@ -21,7 +21,7 @@ export const formatModelError = function formatModelError(e, message) {
   }
 
   // If there is nothing in the server message use the HTTP response status.
-  const errorMessage = `${(e.data?.detail) || e.status} ${
+  const errorMessage = `${(e.data && e.data.detail) || e.status} ${
     e.statusText
   }`;
   return `${message}: ${errorMessage}`;

@@ -1,4 +1,4 @@
-
+import React from 'react';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 
@@ -124,7 +124,7 @@ export const validateQueryParams = function validateQueryParams(
   return messages;
 };
 
-export const tableRowStyling = function tableRowStyling(_state, bug) {
+export const tableRowStyling = function tableRowStyling(state, bug) {
   if (bug) {
     const style = {
       color: 'rgb(117, 117, 117)',
@@ -191,7 +191,7 @@ export const textFilter = ({ filter, onChange, placeholder, columnId }) => (
           paddingRight: '0px',
         },
         endAdornment:
-          filter?.value ? (
+          filter && filter.value ? (
             <IconButton
               onClick={() => {
                 if (columnId) setUrlParam(columnId, '');

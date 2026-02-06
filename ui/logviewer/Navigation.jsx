@@ -1,4 +1,4 @@
-
+import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartBar, faFileAlt } from '@fortawesome/free-regular-svg-icons';

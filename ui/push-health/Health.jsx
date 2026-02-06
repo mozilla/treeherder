@@ -63,7 +63,8 @@ export default class Health extends React.PureComponent {
     let defaultTabIndex;
 
     if (params.tab !== undefined) {
-      defaultTabIndex = ['linting', 'builds', 'tests'].indexOf(params.tab,
+      defaultTabIndex = ['linting', 'builds', 'tests'].findIndex(
+        (metric) => metric === params.tab,
       );
     } else if (testGroup) {
       defaultTabIndex = 2;
@@ -201,7 +202,7 @@ export default class Health extends React.PureComponent {
             href={result === 'fail' ? faviconBroken : faviconOk}
           />
           <title>{`[${
-            (status?.testfailed) || 0
+            (status && status.testfailed) || 0
           } failures] Push Health`}</title>
         </Helmet>
         <Container fluid className="mt-2 mb-5 max-width-default">

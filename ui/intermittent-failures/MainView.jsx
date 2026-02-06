@@ -208,7 +208,7 @@ const MainView = (props) => {
     } = calculateMetrics(graphData));
   }
 
-  const getHeaderAriaLabel = (_state, _bug, data) => {
+  const getHeaderAriaLabel = (state, bug, data) => {
     const ariaLabelValue =
       data.Header === 'Count'
         ? 'Filter not available for count'
@@ -302,7 +302,7 @@ const MainView = (props) => {
             getTheadFilterThProps={getHeaderAriaLabel}
             getTrProps={(state, rowInfo) => {
               const baseProps = tableRowStyling(state, rowInfo);
-              if (rowInfo?.original) {
+              if (rowInfo && rowInfo.original) {
                 const { id, summary } = rowInfo.original;
                 const pathname = '/intermittent-failures/bugdetails';
                 const search = `?startday=${startday}&endday=${endday}&tree=${tree}&bug=${id}`;

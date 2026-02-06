@@ -1,6 +1,6 @@
-
+import React from 'react';
 import fetchMock from 'fetch-mock';
-import { render, waitFor, fireEvent, act } from '@testing-library/react';
+import { render, waitFor, fireEvent } from '@testing-library/react';
 import { createBrowserHistory } from 'history';
 import { ConnectedRouter } from 'connected-react-router';
 import { Provider } from 'react-redux';
@@ -92,10 +92,7 @@ describe('My Pushes', () => {
     ]);
 
     const dropdownButton = await waitFor(() => getByText('try pushes'));
-
-    await act(async () => {
-      fireEvent.click(dropdownButton);
-    });
+    fireEvent.click(dropdownButton);
 
     fetchMock.get(
       getProjectUrl(`/push/health_summary/?${params}&all_repos=true`, repo),
@@ -103,10 +100,7 @@ describe('My Pushes', () => {
     );
 
     const allRepos = await waitFor(() => getByText('all'));
-
-    await act(async () => {
-      fireEvent.click(allRepos);
-    });
+    fireEvent.click(allRepos);
 
     await waitFor(() =>
       expect(queryByText('loading page, please wait')).toBeNull(),

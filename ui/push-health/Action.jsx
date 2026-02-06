@@ -1,4 +1,4 @@
-import { PureComponent } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import groupBy from 'lodash/groupBy';
 import orderBy from 'lodash/orderBy';

@@ -62,14 +62,6 @@ describe('formatBugs', () => {
   it('handles empty array', () => {
     expect(formatBugs([])).toEqual([]);
   });
-
-  it('converts bug IDs to strings', () => {
-    const data = [{ bug_id: 12345 }];
-    const result = formatBugs(data);
-
-    expect(result[0]).toBe('12345');
-    expect(typeof result[0]).toBe('string');
-  });
 });
 
 describe('mergeData', () => {

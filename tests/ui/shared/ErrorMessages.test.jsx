@@ -8,6 +8,7 @@
  * - ComponentDidUpdate behavior when messages change
  */
 
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 
 import ErrorMessages from '../../../ui/shared/ErrorMessages';

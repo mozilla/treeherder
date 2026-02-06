@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import React, { Component } from 'react';
 import { Alert, Table, Card, Badge } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 

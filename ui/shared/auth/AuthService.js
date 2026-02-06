@@ -12,26 +12,29 @@ export default class AuthService {
     this.setUser = setUser;
   }
 
-  async _fetchUser(userSession) {
+  _fetchUser(userSession) {
     const loginUrl = getApiUrl('/auth/login/');
 
-    const userResponse = await fetch(loginUrl, {
-      headers: {
-        Authorization: `Bearer ${userSession.accessToken}`,
-        'Access-Token-Expires-At': userSession.accessTokenExpiresAt,
-        'Id-Token': userSession.idToken,
-      },
-      method: 'GET',
-      credentials: 'same-origin',
+    // eslint-disable-next-line no-async-promise-executor
+    return new Promise(async (resolve, reject) => {
+      const userResponse = await fetch(loginUrl, {
+        headers: {
+          Authorization: `Bearer ${userSession.accessToken}`,
+          'Access-Token-Expires-At': userSession.accessTokenExpiresAt,
+          'Id-Token': userSession.idToken,
+        },
+        method: 'GET',
+        credentials: 'same-origin',
+      });
+
+      const user = await userResponse.json();
+
+      if (!userResponse.ok) {
+        reject(new Error(user.detail || userResponse.statusText));
+      }
+
+      resolve(new UserModel(user));
     });
-
-    const user = await userResponse.json();
-
-    if (!userResponse.ok) {
-      throw new Error(user.detail || userResponse.statusText);
-    }
-
-    return new UserModel(user);
   }
 
   _clearRenewalTimer() {

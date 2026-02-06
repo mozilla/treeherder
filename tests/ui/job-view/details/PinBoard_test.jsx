@@ -1,13 +1,7 @@
-
+import React from 'react';
 import { Provider, ReactReduxContext } from 'react-redux';
 import fetchMock from 'fetch-mock';
-import {
-  render,
-  cleanup,
-  waitFor,
-  fireEvent,
-  act,
-} from '@testing-library/react';
+import { render, cleanup, waitFor, fireEvent } from '@testing-library/react';
 import { ConnectedRouter } from 'connected-react-router';
 
 import JobModel from '../../../../ui/models/job';
@@ -160,22 +154,13 @@ describe('DetailsPanel', () => {
 
   test('pin selected job with button', async () => {
     const { getByTitle } = render(testDetailsPanel());
+    // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
+    // This is needed because tests don't have PushList to sync selection from URL
+    store.dispatch(setSelectedJob(jobList.data[1], false));
 
-    await act(async () => {
-      // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
-      // This is needed because tests don't have PushList to sync selection from URL
-      store.dispatch(setSelectedJob(jobList.data[1], false));
-    });
+    fireEvent.click(await waitFor(() => getByTitle('Pin job')));
 
-    // Wait for the selected job to render
-    await waitFor(() => expect(getByTitle('Pin job')).toBeInTheDocument());
-
-    await act(async () => {
-      fireEvent.click(getByTitle('Pin job'));
-    });
-
-    // Wait for state updates after pinning
-    await waitFor(() => expect(getByTitle('Unpin job')).toBeInTheDocument());
+    expect(await waitFor(() => getByTitle('Unpin job'))).toBeInTheDocument();
     const pinnedJob = await waitFor(() =>
       getByTitle('build-android-api-16/debug - busted - 18 mins'),
     );
@@ -185,21 +170,14 @@ describe('DetailsPanel', () => {
 
   test('KeyboardShortcut space: pin selected job', async () => {
     const { getByTitle } = render(testDetailsPanel());
+    // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
+    store.dispatch(setSelectedJob(jobList.data[1], false));
 
-    await act(async () => {
-      // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
-      store.dispatch(setSelectedJob(jobList.data[1], false));
-    });
+    const content = await waitFor(() =>
+      document.querySelector('#th-global-content'),
+    );
+    fireEvent.keyDown(content, { key: 'Space', keyCode: 32 });
 
-    // Wait for state update from dispatch
-    await waitFor(() => expect(getByTitle('Pin job')).toBeInTheDocument());
-
-    const content = document.querySelector('#th-global-content');
-    await act(async () => {
-      fireEvent.keyDown(content, { key: 'Space', keyCode: 32 });
-    });
-
-    // Wait for state updates after pinning
     const pinnedJob = await waitFor(() =>
       getByTitle('build-android-api-16/debug - busted - 18 mins'),
     );
@@ -208,53 +186,36 @@ describe('DetailsPanel', () => {
   });
 
   test('KeyboardShortcut b: pin selected task and edit bug', async () => {
-    const { getByPlaceholderText, getByTitle } = render(testDetailsPanel());
+    const { getByPlaceholderText } = render(testDetailsPanel());
+    // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
+    store.dispatch(setSelectedJob(jobList.data[1], false));
 
-    await act(async () => {
-      // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
-      store.dispatch(setSelectedJob(jobList.data[1], false));
-    });
+    const content = await waitFor(() =>
+      document.querySelector('#th-global-content'),
+    );
 
-    // Wait for state update from dispatch
-    await waitFor(() => expect(getByTitle('Pin job')).toBeInTheDocument());
+    fireEvent.keyDown(content, { key: 'b', keyCode: 66 });
 
-    const content = document.querySelector('#th-global-content');
-
-    await act(async () => {
-      fireEvent.keyDown(content, { key: 'b', keyCode: 66 });
-    });
-
-    // Wait for state updates after pinning and focus
     const bugInput = await waitFor(() =>
       getByPlaceholderText('enter bug number'),
     );
 
     expect(bugInput).toBe(document.activeElement);
-
     // cleanup to avoid an error
-    await act(async () => {
-      fireEvent.keyDown(content, { key: 'Escape', keyCode: 27 });
-    });
+    fireEvent.keyDown(content, { key: 'Escape', keyCode: 27 });
   });
 
   test('KeyboardShortcut c: pin selected task and edit comment', async () => {
-    const { getByPlaceholderText, getByTitle } = render(testDetailsPanel());
+    const { getByPlaceholderText } = render(testDetailsPanel());
+    // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
+    store.dispatch(setSelectedJob(jobList.data[1], false));
 
-    await act(async () => {
-      // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
-      store.dispatch(setSelectedJob(jobList.data[1], false));
-    });
+    const content = await waitFor(() =>
+      document.querySelector('#th-global-content'),
+    );
 
-    // Wait for state update from dispatch
-    await waitFor(() => expect(getByTitle('Pin job')).toBeInTheDocument());
+    fireEvent.keyDown(content, { key: 'c', keyCode: 67 });
 
-    const content = document.querySelector('#th-global-content');
-
-    await act(async () => {
-      fireEvent.keyDown(content, { key: 'c', keyCode: 67 });
-    });
-
-    // Wait for state updates after pinning and focus
     const commentInput = await waitFor(() =>
       getByPlaceholderText('click to add comment'),
     );
@@ -264,85 +225,49 @@ describe('DetailsPanel', () => {
 
   test('KeyboardShortcut ctrl+shift+u: clear PinBoard', async () => {
     const { getByTitle } = render(testDetailsPanel());
+    // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
+    store.dispatch(setSelectedJob(jobList.data[1], false));
 
-    await act(async () => {
-      // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
-      store.dispatch(setSelectedJob(jobList.data[1], false));
-    });
+    fireEvent.click(await waitFor(() => getByTitle('Pin job')));
 
-    // Wait for state update from dispatch
-    await waitFor(() => expect(getByTitle('Pin job')).toBeInTheDocument());
-
-    await act(async () => {
-      fireEvent.click(getByTitle('Pin job'));
-    });
-
-    // Wait for state updates after pinning
     const pinnedJob = await waitFor(() =>
       getByTitle('build-android-api-16/debug - busted - 18 mins'),
     );
 
-    await act(async () => {
-      fireEvent.keyDown(pinnedJob, {
-        key: 'u',
-        keyCode: 85,
-        ctrlKey: true,
-        shiftKey: true,
-      });
+    fireEvent.keyDown(pinnedJob, {
+      key: 'u',
+      keyCode: 85,
+      ctrlKey: true,
+      shiftKey: true,
     });
 
-    // Wait for state updates after clearing
-    await waitFor(() => expect(pinnedJob).not.toBeInTheDocument());
+    expect(pinnedJob).not.toBeInTheDocument();
   });
 
   test('clear PinBoard', async () => {
     const { getByTitle, getByText } = render(testDetailsPanel());
+    // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
+    store.dispatch(setSelectedJob(jobList.data[1], false));
 
-    await act(async () => {
-      // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
-      store.dispatch(setSelectedJob(jobList.data[1], false));
-    });
+    fireEvent.click(await waitFor(() => getByTitle('Pin job')));
 
-    // Wait for state update from dispatch
-    await waitFor(() => expect(getByTitle('Pin job')).toBeInTheDocument());
-
-    await act(async () => {
-      fireEvent.click(getByTitle('Pin job'));
-    });
-
-    // Wait for state updates after pinning
     const unPinJobBtn = await waitFor(() => getByTitle('Unpin job'));
     expect(unPinJobBtn).toBeInTheDocument();
     const pinnedJob = await waitFor(() =>
       getByTitle('build-android-api-16/debug - busted - 18 mins'),
     );
+    fireEvent.click(getByTitle('Additional pinboard functions'));
+    fireEvent.click(getByText('Clear all'));
 
-    await act(async () => {
-      fireEvent.click(getByTitle('Additional pinboard functions'));
-    });
-
-    await waitFor(() => expect(getByText('Clear all')).toBeInTheDocument());
-
-    await act(async () => {
-      fireEvent.click(getByText('Clear all'));
-    });
-
-    // Wait for state updates after clearing
-    await waitFor(() => expect(pinnedJob).not.toBeInTheDocument());
+    expect(pinnedJob).not.toBeInTheDocument();
   });
 
   test('pin all jobs', async () => {
     const { queryAllByTitle } = render(testDetailsPanel());
-
-    await act(async () => {
-      store.dispatch(pinJobs(jobList.data));
-    });
-
-    // Wait for state updates after pinning all jobs
-    await waitFor(() => {
-      const unPinJobBtns = queryAllByTitle('Unpin job');
-      expect(unPinJobBtns).toHaveLength(5);
-    });
+    store.dispatch(pinJobs(jobList.data));
+    await waitFor(() => document.querySelector('#th-global-content'));
+    const unPinJobBtns = queryAllByTitle('Unpin job');
+    expect(unPinJobBtns).toHaveLength(5);
   });
 
   test('classify and unclassify all jobs', async () => {
@@ -353,41 +278,20 @@ describe('DetailsPanel', () => {
       queryAllByTitle,
     } = render(testDetailsPanel());
 
-    await act(async () => {
-      store.dispatch(pinJobs(jobList.data));
-      // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
-      store.dispatch(setSelectedJob(jobList.data[1], false));
-    });
+    store.dispatch(pinJobs(jobList.data));
+    // Use updateUrl=false to directly set Redux state (bypasses URL-first architecture)
+    store.dispatch(setSelectedJob(jobList.data[1], false));
 
-    // Wait for state updates from dispatch actions
-    await waitFor(() => {
-      const unPinJobBtns = queryAllByTitle('Unpin job');
-      expect(unPinJobBtns.length).toBeGreaterThan(0);
-    });
+    const content = await waitFor(() =>
+      document.querySelector('#th-global-content'),
+    );
 
-    const content = document.querySelector('#th-global-content');
-
-    await act(async () => {
-      fireEvent.keyDown(content, { key: 'b', keyCode: 66 });
-    });
-
-    // Wait for bug input to appear
+    fireEvent.keyDown(content, { key: 'b', keyCode: 66 });
     const bugInput = await waitFor(() =>
       getByPlaceholderText('enter bug number'),
     );
-
-    await act(async () => {
-      fireEvent.change(bugInput, { target: { value: classificationBug } });
-    });
-
-    await act(async () => {
-      fireEvent.blur(bugInput);
-    });
-
-    // Wait for bug input to be processed
-    await waitFor(() => {
-      expect(bugInput.value).toBe(String(classificationBug));
-    });
+    fireEvent.change(bugInput, { target: { value: classificationBug } });
+    fireEvent.blur(bugInput);
 
     fetchMock.get(
       {
@@ -420,60 +324,26 @@ describe('DetailsPanel', () => {
       ],
     );
 
-    // Wait for save button to be available and click it
+    fireEvent.click(
+      await waitFor(() => getByTitle('Save classification data')),
+    );
     await waitFor(() =>
-      expect(getByTitle('Save classification data')).toBeInTheDocument(),
+      getByTitle('Ineligible classification data / no pinned jobs'),
     );
 
-    await act(async () => {
-      fireEvent.click(getByTitle('Save classification data'));
-    });
-
-    // Wait for classification to complete
-    await waitFor(() =>
-      expect(
-        getByTitle('Ineligible classification data / no pinned jobs'),
-      ).toBeInTheDocument(),
-    );
-
-    let unPinJobBtns = queryAllByTitle('Unpin job');
+    let unPinJobBtns = await waitFor(() => queryAllByTitle('Unpin job'));
     expect(unPinJobBtns).toHaveLength(0);
     checkClassifiedJobs(jobList.data.length);
 
-    await act(async () => {
-      store.dispatch(pinJobs(jobList.data));
-    });
-
-    // Wait for jobs to be pinned again
-    await waitFor(() => {
-      const unPinJobBtns = queryAllByTitle('Unpin job');
-      expect(unPinJobBtns.length).toBeGreaterThan(0);
-    });
-
-    await waitFor(() =>
-      expect(getByTitle('Additional pinboard functions')).toBeInTheDocument(),
+    store.dispatch(pinJobs(jobList.data));
+    fireEvent.click(
+      await waitFor(() => getByTitle('Additional pinboard functions')),
     );
-
-    await act(async () => {
-      fireEvent.click(getByTitle('Additional pinboard functions'));
-    });
-
+    fireEvent.click(await waitFor(() => getByText('Unclassify all')));
     await waitFor(() =>
-      expect(getByText('Unclassify all')).toBeInTheDocument(),
+      getByTitle('Ineligible classification data / no pinned jobs'),
     );
-
-    await act(async () => {
-      fireEvent.click(getByText('Unclassify all'));
-    });
-
-    // Wait for unclassification to complete
-    await waitFor(() =>
-      expect(
-        getByTitle('Ineligible classification data / no pinned jobs'),
-      ).toBeInTheDocument(),
-    );
-
-    unPinJobBtns = queryAllByTitle('Unpin job');
+    unPinJobBtns = await waitFor(() => queryAllByTitle('Unpin job'));
     expect(unPinJobBtns).toHaveLength(0);
     checkClassifiedJobs(0);
   });

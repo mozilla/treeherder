@@ -185,8 +185,8 @@ export const getCounterMap = function getCounterMap(
   newData,
 ) {
   const cmap = { isEmpty: false };
-  const hasOrig = originalData?.values.length;
-  const hasNew = newData?.values.length;
+  const hasOrig = originalData && originalData.values.length;
+  const hasNew = newData && newData.values.length;
 
   if (!hasOrig && !hasNew) {
     cmap.isEmpty = true;
@@ -204,7 +204,7 @@ export const getCounterMap = function getCounterMap(
     cmap.originalStddevPct = orig.stddevPct;
 
     cmap.originalRepoName = originalData.repository_name;
-    if (originalData.job_ids?.length) {
+    if (originalData.job_ids && originalData.job_ids.length) {
       [cmap.originalRetriggerableJobId] = originalData.job_ids;
     }
   } else {
@@ -219,7 +219,7 @@ export const getCounterMap = function getCounterMap(
     cmap.newStddevPct = newd.stddevPct;
 
     cmap.newRepoName = newData.repository_name;
-    if (newData.job_ids?.length) {
+    if (newData.job_ids && newData.job_ids.length) {
       [cmap.newRetriggerableJobId] = newData.job_ids;
     }
   } else {

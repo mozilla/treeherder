@@ -183,9 +183,6 @@ jobs:
   test-docker-build:
     docker:
       - image: cimg/base:current
-    environment:
-      # Required for compatibility between newer Docker client and docker24 remote daemon
-      DOCKER_API_VERSION: "1.43"
     steps:
       - checkout
       - setup-docker-env
@@ -194,9 +191,6 @@ jobs:
   deploy:
     docker:
       - image: cimg/base:current
-    environment:
-      # Required for compatibility between newer Docker client and docker24 remote daemon
-      DOCKER_API_VERSION: "1.43"
     steps:
       - checkout
       - setup-docker-env

@@ -1,4 +1,4 @@
-
+import React from 'react';
 import fetchMock from 'fetch-mock';
 import { render, cleanup, waitFor } from '@testing-library/react';
 
@@ -31,7 +31,7 @@ describe('CommitHistory', () => {
     />
   );
 
-  test('should show the push header and the author', async () => {
+  test('should show the push header and the author', () => {
     const { details: commitHistory } = pushHealth.metrics.commitHistory;
     const { getByTestId } = render(testCommitHistory(commitHistory));
     const headerText = getByTestId('headerText');
@@ -45,11 +45,6 @@ describe('CommitHistory', () => {
     expect(authorTime).toHaveTextContent(
       toDateStr(commitHistory.currentPush.push_timestamp),
     );
-
-    // Wait for async state updates to complete
-    await waitFor(() => {
-      expect(getByTestId('headerText')).toBeInTheDocument();
-    });
   });
 
   test('should show a parent commit and health icon for that parent', async () => {
@@ -82,16 +77,11 @@ describe('CommitHistory', () => {
     const { getByText, getByTestId, queryByTestId } = render(
       testCommitHistory(commitHistory),
     );
-
-    // Wait for component to render
-    await waitFor(() => {
-      expect(
-        getByText(
-          'Warning: Could not find an exact match parent Push in Treeherder.',
-        ),
-      ).toBeInTheDocument();
-    });
-
+    expect(
+      getByText(
+        'Warning: Could not find an exact match parent Push in Treeherder.',
+      ),
+    ).toBeInTheDocument();
     expect(getByText('Closest match:')).toBeInTheDocument();
     const parentLink = getByTestId('parent-commit-sha');
 

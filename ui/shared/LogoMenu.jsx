@@ -34,8 +34,8 @@ export default class LogoMenu extends React.PureComponent {
         </Dropdown.Toggle>
         <Dropdown.Menu>
           {menuChoices.map((choice) => (
-            <Dropdown.Item key={choice.text} as={Link} to={choice.url}>
-              {choice.text}
+            <Dropdown.Item key={choice.text}>
+              <Link to={choice.url}>{choice.text}</Link>
             </Dropdown.Item>
           ))}
         </Dropdown.Menu>

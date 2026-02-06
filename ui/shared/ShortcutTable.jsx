@@ -1,4 +1,4 @@
-
+import React from 'react';
 
 const ShortcutTable = function ShortcutTable() {
   return (

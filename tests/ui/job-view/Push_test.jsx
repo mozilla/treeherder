@@ -1,4 +1,4 @@
-
+import React from 'react';
 import fetchMock from 'fetch-mock';
 import { Provider } from 'react-redux';
 import { render, cleanup, waitFor } from '@testing-library/react';
@@ -166,11 +166,6 @@ describe('Push', () => {
   test.skip('jobs should have test_path field to filter', async () => {
     const { store } = configureStore();
     const { getByText } = render(testPush(store, new FilterModel()));
-
-    // Wait for initial render to complete and state updates to settle
-    await waitFor(() => {
-      expect(getByText('Jit8')).toBeInTheDocument();
-    });
 
     const validateJob = async (name, testPaths) => {
       const jobEl = await waitFor(() => getByText(name));

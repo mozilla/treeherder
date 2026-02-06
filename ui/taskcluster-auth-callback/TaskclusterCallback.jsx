@@ -25,13 +25,12 @@ export default class TaskclusterCallback extends React.PureComponent {
     if (code && requestState && requestState === state) {
       this.getCredentials(code);
     } else {
-      let message = errorMessage;
-      if (error) {
-        message += `We received error: ${error} from Taskcluster.`;
-      }
+      if (error)
+        // eslint-disable-next-line no-import-assign
+        errorMessage += `We received error: ${error} from Taskcluster.`;
 
       this.setState({
-        errorMessage: message,
+        errorMessage,
       });
     }
   }

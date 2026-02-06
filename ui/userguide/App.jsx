@@ -1,4 +1,4 @@
-
+import React from 'react';
 
 import PerfherderUserGuide from '../perfherder/userguide/PerherderUserGuide';
 

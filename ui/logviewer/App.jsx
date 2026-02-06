@@ -163,7 +163,7 @@ class App extends React.PureComponent {
         // This can be later changed to live_backing_log once all of the old logs
         // called builds-4h are removed
         const log =
-          job.logs?.length
+          job.logs && job.logs.length
             ? job.logs.find((log) => log.name !== 'errorsummary_json')
             : null;
         const rawLogUrl = log.url;

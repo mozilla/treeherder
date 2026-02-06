@@ -47,7 +47,7 @@ class ClassificationGroup extends React.PureComponent {
     const testJobs = tests.reduce(
       (acc, test) => ({
         ...acc,
-        ...jobs[test.jobName].reduce((_fjAcc, job) => ({ [job.id]: job }), {}),
+        ...jobs[test.jobName].reduce((fjAcc, job) => ({ [job.id]: job }), {}),
       }),
       {},
     );
@@ -262,7 +262,6 @@ ClassificationGroup.propTypes = {
   currentRepo: PropTypes.shape({}).isRequired,
   revision: PropTypes.string.isRequired,
   notify: PropTypes.func.isRequired,
-  icon: PropTypes.shape({}).isRequired,
   hasRetriggerAll: PropTypes.bool,
   expanded: PropTypes.bool,
   className: PropTypes.string,

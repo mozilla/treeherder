@@ -152,7 +152,7 @@ export default class AlertsViewControls extends React.Component {
     );
 
     const frameworkNames =
-      sortedFrameworks?.length
+      sortedFrameworks && sortedFrameworks.length
         ? sortedFrameworks.map((item) => item.name)
         : [];
 

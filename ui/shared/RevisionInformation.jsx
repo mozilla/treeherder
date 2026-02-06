@@ -40,7 +40,7 @@ function getRevisionSpecificDetails(
         truncatedRevision
       )}
       &nbsp;({project}) -&nbsp;
-      {resultSet?.author}
+      {resultSet && resultSet.author}
       {!resultSet && selectedTimeRange && selectedTimeRange.text}
       {getRevisionComments(resultSet)}
     </React.Fragment>
