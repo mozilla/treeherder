@@ -30,7 +30,7 @@ python-jose[pycryptodome]==3.5.0  # from jose import jwt
 
 furl==2.1.4  # Imported as furl
 first==2.0.2  # Imported as first
-json-e==4.8.0  # import jsone
+json-e==4.8.1  # import jsone
 django-cache-memoize==0.2.1  # Imported as cache_memoize
 
 # Required for Push Health
