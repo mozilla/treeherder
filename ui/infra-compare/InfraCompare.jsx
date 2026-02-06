@@ -16,7 +16,7 @@ function InfraCompareView({
   const [jobsNotDisplayed, setJobsNotDisplayed] = React.useState([]);
 
   const getInterval = (oldTimestamp, newTimestamp) => {
-    const now = Date.now() / 1000;
+    const now = Date.now()/ 1000;
     let timeRange = Math.min(oldTimestamp, newTimestamp);
     timeRange = Math.round(now - timeRange);
     const newTimeRange = phTimeRanges.find((time) => timeRange <= time.value);
