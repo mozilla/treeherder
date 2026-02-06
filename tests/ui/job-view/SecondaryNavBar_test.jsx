@@ -1,7 +1,7 @@
-
+import React from 'react';
 import fetchMock from 'fetch-mock';
 import { Provider } from 'react-redux';
-import { render, waitFor, fireEvent, screen } from '@testing-library/react';
+import { render, waitFor, fireEvent } from '@testing-library/react';
 import thunk from 'redux-thunk';
 import configureMockStore from 'redux-mock-store';
 import { createBrowserHistory } from 'history';
@@ -71,14 +71,10 @@ describe('SecondaryNavBar', () => {
       },
       router,
     });
-    render(testSecondaryNavBar(store));
+    const { getByText } = render(testSecondaryNavBar(store));
 
-    await waitFor(() => {
-      expect(screen.getByText(repoName)).toBeInTheDocument();
-    });
-    await waitFor(() => {
-      expect(screen.getByText('52')).toBeInTheDocument();
-    });
+    expect(await waitFor(() => getByText(repoName))).toBeInTheDocument();
+    expect(await waitFor(() => getByText('52'))).toBeInTheDocument();
   });
 
   test('should 22 unclassified and 10 filtered unclassified', async () => {
@@ -90,17 +86,11 @@ describe('SecondaryNavBar', () => {
       },
       router,
     });
-    render(testSecondaryNavBar(store));
+    const { getByText } = render(testSecondaryNavBar(store));
 
-    await waitFor(() => {
-      expect(screen.getByText(repoName)).toBeInTheDocument();
-    });
-    await waitFor(() => {
-      expect(screen.getByText('22')).toBeInTheDocument();
-    });
-    await waitFor(() => {
-      expect(screen.getByText('10')).toBeInTheDocument();
-    });
+    expect(await waitFor(() => getByText(repoName))).toBeInTheDocument();
+    expect(await waitFor(() => getByText('22'))).toBeInTheDocument();
+    expect(await waitFor(() => getByText('10'))).toBeInTheDocument();
   });
 
   test('should call updateButtonClick, on revision changed button click', async () => {
@@ -117,17 +107,8 @@ describe('SecondaryNavBar', () => {
     };
 
     const { container } = render(testSecondaryNavBar(store, props));
-
-    // Wait for component to finish initial async operations
-    await waitFor(() => {
-      expect(screen.getByText(repoName)).toBeInTheDocument();
-    });
-
     const el = container.querySelector('#revisionChangedLabel');
     fireEvent.click(el);
-
-    await waitFor(() => {
-      expect(props.updateButtonClick).toHaveBeenCalled();
-    });
+    expect(props.updateButtonClick).toHaveBeenCalled();
   });
 });

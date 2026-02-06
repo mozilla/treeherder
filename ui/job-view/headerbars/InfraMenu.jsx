@@ -1,4 +1,4 @@
-
+import React from 'react';
 import { Dropdown } from 'react-bootstrap';
 
 import { prodFirefoxRootUrl } from '../../taskcluster-auth-callback/constants';

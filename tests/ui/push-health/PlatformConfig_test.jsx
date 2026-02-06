@@ -1,12 +1,6 @@
-
+import React from 'react';
 import fetchMock from 'fetch-mock';
-import {
-  render,
-  cleanup,
-  waitFor,
-  fireEvent,
-  act,
-} from '@testing-library/react';
+import { render, cleanup, waitFor, fireEvent } from '@testing-library/react';
 
 import {
   getProjectUrl,
@@ -106,9 +100,7 @@ describe('PlatformConfig', () => {
     const { getByText } = render(testPlatformConfig(testFailure, jobs));
     const detailsButton = getByText('task');
 
-    await act(async () => {
-      fireEvent.click(detailsButton);
-    });
+    fireEvent.click(detailsButton);
 
     expect(
       await waitFor(() =>
@@ -121,17 +113,13 @@ describe('PlatformConfig', () => {
     const { getByText } = render(testPlatformConfig(testFailure, jobs));
     const detailsButton = getByText('task');
 
-    await act(async () => {
-      fireEvent.click(detailsButton);
-    });
+    fireEvent.click(detailsButton);
 
     const artifactsTab = await waitFor(() =>
       getByText('Artifacts and Debugging Tools'),
     );
 
-    await act(async () => {
-      fireEvent.click(artifactsTab);
-    });
+    fireEvent.click(artifactsTab);
 
     expect(await waitFor(() => getByText('thing.log'))).toBeVisible();
   });

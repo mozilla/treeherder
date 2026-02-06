@@ -8,6 +8,7 @@
  * and DOM measurements which behave differently in the test environment.
  */
 
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 
 import ResponsiveNavigation from '../../../../../ui/job-view/details/shared/ResponsiveNavigation';

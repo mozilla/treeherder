@@ -1,4 +1,4 @@
-
+import React from 'react';
 import fetchMock from 'fetch-mock';
 import { Provider, ReactReduxContext } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
@@ -7,8 +7,6 @@ import {
   waitFor,
   fireEvent,
   getAllByTestId,
-  cleanup,
-  act,
 } from '@testing-library/react';
 import { createBrowserHistory } from 'history';
 
@@ -21,6 +19,7 @@ import { configureStore } from '../../../ui/job-view/redux/configureStore';
 import PushList from '../../../ui/job-view/pushes/PushList';
 import { fetchPushes } from '../../../ui/job-view/redux/stores/pushes';
 import { getApiUrl } from '../../../ui/helpers/url';
+import { findJobInstance } from '../../../ui/helpers/job';
 
 // solution to createRange is not a function error for popper (used by reactstrap)
 // https://github.com/mui-org/material-ui/issues/15726#issuecomment-493124813
@@ -35,14 +34,7 @@ global.document.createRange = () => ({
 
 describe('PushList', () => {
   const repoName = 'autoland';
-  let history;
-
-  beforeEach(() => {
-    history = createBrowserHistory();
-    act(() => {
-      history.push(`/jobs?repo=${repoName}`);
-    });
-  });
+  const history = createBrowserHistory();
 
   const currentRepo = {
     id: 4,
@@ -129,9 +121,7 @@ describe('PushList', () => {
     );
   });
 
-  afterEach(() => {
-    cleanup();
-  });
+  afterEach(() => history.push(`/jobs?repo=${repoName}`));
 
   afterAll(() => {
     fetchMock.reset();
@@ -185,10 +175,7 @@ describe('PushList', () => {
     const pushLinks = await getAllByTitle('View only this push');
 
     fireEvent.click(pushLinks[1]);
-
-    await waitFor(() => {
-      expect(pushLinks[0]).not.toBeInTheDocument();
-    });
+    expect(pushLinks[0]).not.toBeInTheDocument();
     expect(await pushCount()).toHaveLength(1);
   });
 
@@ -212,11 +199,9 @@ describe('PushList', () => {
 
     fireEvent.click(setFromRange);
 
-    await waitFor(() => {
-      expect(history.location.search).toContain(
-        '?repo=autoland&fromchange=d5b037941b0ebabcc9b843f24d926e9d65961087',
-      );
-    });
+    expect(history.location.search).toContain(
+      '?repo=autoland&fromchange=d5b037941b0ebabcc9b843f24d926e9d65961087',
+    );
   });
 
   test('should reload pushes when setting tochange', async () => {
@@ -224,7 +209,7 @@ describe('PushList', () => {
 
     expect(await pushCount()).toHaveLength(2);
 
-    const push1 = await waitFor(() => getByTestId(push1Id));
+    const push1 = getByTestId(push1Id);
     const actionMenuButton = push1.querySelector(
       '[data-testid="push-action-menu-button"]',
     );
@@ -237,17 +222,17 @@ describe('PushList', () => {
 
     fireEvent.click(setTopRange);
 
-    await waitFor(() => {
-      expect(history.location.search).toContain(
-        '?repo=autoland&tochange=ba9c692786e95143b8df3f4b3e9b504dfbc589a0',
-      );
-    });
+    expect(history.location.search).toContain(
+      '?repo=autoland&tochange=ba9c692786e95143b8df3f4b3e9b504dfbc589a0',
+    );
   });
 
   test('should load N more pushes when click next N', async () => {
     const { getByTestId, getAllByTestId } = render(testPushList());
     const nextNUrl = (count) =>
       getProjectUrl(`/push/?full=true&count=${count + 1}&push_timestamp__lte=`);
+    const clickNext = (count) =>
+      fireEvent.click(getByTestId(`get-next-${count}`));
 
     fetchMock.get(`begin:${nextNUrl(10)}`, {
       ...pushListFixture,
@@ -271,7 +256,7 @@ describe('PushList', () => {
 
     expect(await pushCount()).toHaveLength(2);
 
-    fireEvent.click(getByTestId('get-next-10'));
+    clickNext(10);
     await waitFor(() => getByTestId('push-511135'));
     expect(fetchMock.called(`begin:${nextNUrl(10)}`)).toBe(true);
     // It matters less that an actual count of 10 was returned
@@ -280,46 +265,22 @@ describe('PushList', () => {
     // using a shorter return set for simplicity.
     expect(await pushCount()).toHaveLength(4);
 
-    fireEvent.click(getByTestId('get-next-20'));
+    clickNext(20);
     await waitFor(() => getAllByTestId('push-511133'));
     expect(fetchMock.called(`begin:${nextNUrl(20)}`)).toBe(true);
     expect(await pushCount()).toHaveLength(5);
 
-    fireEvent.click(getByTestId('get-next-50'));
+    clickNext(50);
     await waitFor(() => getAllByTestId('push-511132'));
     expect(fetchMock.called(`begin:${nextNUrl(50)}`)).toBe(true);
     expect(await pushCount()).toHaveLength(6);
   });
 
   test('jobs should have fields required for retriggers', async () => {
-    const store = configureStore(history);
-    store.dispatch(fetchPushes());
-
-    const { getByText } = render(
-      <Provider store={store} context={ReactReduxContext}>
-        <ConnectedRouter history={history} context={ReactReduxContext}>
-          <div id="th-global-content">
-            <PushList
-              user={{ isLoggedIn: false }}
-              repoName={repoName}
-              currentRepo={currentRepo}
-              filterModel={
-                new FilterModel({
-                  pushRoute: history.push,
-                  router: { location: history.location },
-                })
-              }
-              duplicateJobsVisible={false}
-              groupCountsExpanded={false}
-              pushHealthVisibility="None"
-              getAllShownJobs={() => {}}
-            />
-          </div>
-        </ConnectedRouter>
-      </Provider>,
-    );
+    const { getByText } = render(testPushList());
     const jobEl = await waitFor(() => getByText('yaml'));
-    const jobId = jobEl.getAttribute('data-job-id');
+    const jobInstance = findJobInstance(jobEl.getAttribute('data-job-id'));
+    const { job } = jobInstance.props;
 
     fetchMock.get(
       `begin:https://bugzilla.mozilla.org/rest/bug`,
@@ -328,10 +289,6 @@ describe('PushList', () => {
       },
       { overwriteRoutes: false },
     );
-
-    // Get job data from the Redux store instead of React component internals
-    const { jobMap } = store.getState().pushes;
-    const job = jobMap[jobId];
 
     expect(job.signature).toBe('306fd1e8d922922cd171fa31f0d914300ff52228');
     expect(job.job_type_name).toBe('source-test-mozlint-yaml');

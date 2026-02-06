@@ -508,7 +508,8 @@ export class BugFilerClass extends React.Component {
         if (data.internal_id) {
           // Directly update internal issue from suggestions
           const internalBugs = suggestions
-            .flatMap((s) => s.bugs.open_recent)
+            .map((s) => s.bugs.open_recent)
+            .flat()
             .filter((bug) => bug.id === null);
           const existingBug = internalBugs.filter(
             (bug) => bug.internal_id === data.internal_id,
@@ -541,7 +542,7 @@ export class BugFilerClass extends React.Component {
     const { notify } = this.props;
 
     let failureString = `${source} returned status ${status} (${statusText})`;
-    if (data?.failure) {
+    if (data && data.failure) {
       failureString += `\n\n${data.failure}`;
     }
     if (status === 403) {

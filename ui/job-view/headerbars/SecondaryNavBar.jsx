@@ -95,7 +95,7 @@ class SecondaryNavBar extends React.PureComponent {
     const { value } = ev.target;
 
     if (ev.key === 'Enter') {
-      if (value?.length) {
+      if (value && value.length) {
         filterModel.replaceFilter('searchStr', value.split(' '));
       } else {
         filterModel.removeFilter('searchStr');
@@ -376,7 +376,7 @@ class SecondaryNavBar extends React.PureComponent {
                 id="quick-filter"
                 className="form-control form-control-sm"
                 required
-                value={searchQueryStr || ''}
+                value={searchQueryStr}
                 title="Click to enter filter values"
                 onChange={(evt) => this.setSearchStr(evt)}
                 onKeyDown={(evt) => this.search(evt)}

@@ -68,28 +68,13 @@ export const clearJobButtonRegistry = () => {
  * @returns {Object} - { isSelected, isRunnableSelected, setSelected, toggleRunnableSelected, refilter }
  */
 export function useJobButtonRegistry(job, filterModel, filterPlatformCb) {
-  const [isSelected, setIsSelected] = useState(() => {
-    const urlSelectedTaskRun = getUrlParam('selectedTaskRun');
-    return urlSelectedTaskRun === job.task_run;
-  });
+  const urlSelectedTaskRun = getUrlParam('selectedTaskRun');
+  const [isSelected, setIsSelected] = useState(
+    urlSelectedTaskRun === job.task_run,
+  );
   const [isRunnableSelected, setIsRunnableSelected] = useState(false);
   const buttonRef = useRef(null);
   const hasScrolledRef = useRef(false);
-
-  // Listen for URL changes (popstate) to update selection state
-  useEffect(() => {
-    const handleUrlChange = () => {
-      const urlSelectedTaskRun = getUrlParam('selectedTaskRun');
-      setIsSelected(urlSelectedTaskRun === job.task_run);
-    };
-
-    // Also listen for custom history changes from connected-react-router
-    window.addEventListener('popstate', handleUrlChange);
-
-    return () => {
-      window.removeEventListener('popstate', handleUrlChange);
-    };
-  }, [job.task_run]);
 
   const setSelected = useCallback(
     (selected) => {
@@ -149,7 +134,7 @@ export function useJobButtonRegistry(job, filterModel, filterPlatformCb) {
       unregisterJobButton(job.id);
     };
     // We intentionally only run this on mount/unmount and when job.id changes
-  }, [job.id, job, refilter, setSelected, toggleRunnableSelected]);
+  }, [job.id]);
 
   // Update the registry when callbacks change
   useEffect(() => {

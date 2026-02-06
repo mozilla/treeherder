@@ -132,7 +132,6 @@ export default class CompareTableControls extends React.Component {
         {results.size > 0 ? (
           Array.from(results).map(([platform, data]) => (
             <InfraCompareTable
-              key={platform}
               platform={platform}
               data={data}
               {...this.props}

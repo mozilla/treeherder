@@ -1,4 +1,4 @@
-
+import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Dropdown } from 'react-bootstrap';
@@ -152,21 +152,21 @@ function FiltersMenu({
         >
           Superseded only
         </Dropdown.Item>
-        <Dropdown.Item
-          as={Link}
-          className="dropdown-link"
-          to={{ search: updateParams('author', email) }}
-          title={`Show only pushes for ${email}`}
-        >
-          My pushes only
+        <Dropdown.Item title={`Show only pushes for ${email}`}>
+          <Link
+            className="dropdown-link"
+            to={{ search: updateParams('author', email) }}
+          >
+            My pushes only
+          </Link>
         </Dropdown.Item>
-        <Dropdown.Item
-          as={Link}
-          className="dropdown-link"
-          to={{ search: updateParams('author', '-reviewbot') }}
-          title="Do not show pushes from reviewbot"
-        >
-          Hide code review pushes
+        <Dropdown.Item title="Do not show pushes from reviewbot">
+          <Link
+            className="dropdown-link"
+            to={{ search: updateParams('author', '-reviewbot') }}
+          >
+            Hide code review pushes
+          </Link>
         </Dropdown.Item>
         <Dropdown.Item
           as="a"

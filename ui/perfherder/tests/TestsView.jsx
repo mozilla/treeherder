@@ -137,7 +137,7 @@ class TestsView extends React.PureComponent {
     } = this.state;
 
     const frameworkNames =
-      frameworks?.length
+      frameworks && frameworks.length
         ? frameworks.map((item) => item.name)
         : [];
 

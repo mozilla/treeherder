@@ -76,7 +76,8 @@ const taskcluster = (() => {
       _rootUrl = checkRootUrl(rootUrl);
 
       if (
-        userCredentials?.[_rootUrl] &&
+        userCredentials &&
+        userCredentials[_rootUrl] &&
         dayjs(userCredentials[_rootUrl].expires).isAfter(dayjs())
       ) {
         // eslint-disable-next-line no-promise-executor-return
@@ -89,7 +90,7 @@ const taskcluster = (() => {
           localStorage.getItem('userCredentials'),
         );
 
-        return userCredentials?.[_rootUrl]
+        return userCredentials && userCredentials[_rootUrl]
           ? resolve(userCredentials[_rootUrl])
           : reject(new Error(tcCredentialsMessage));
       }, 4000);

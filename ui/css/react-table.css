@@ -221,11 +221,11 @@
 
 .ReactTable .rt-th.-hidden,
 .ReactTable .rt-td.-hidden {
-  width: 0;
-  min-width: 0;
-  padding: 0;
-  border: 0;
-  opacity: 0;
+  width: 0 !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  opacity: 0 !important;
 }
 
 .ReactTable .rt-expander {
@@ -496,8 +496,8 @@
 
 .ReactTable .rt-resizing .rt-th,
 .ReactTable .rt-resizing .rt-td {
-  -webkit-transition: none;
-  transition: none;
+  -webkit-transition: none !important;
+  transition: none !important;
   cursor: col-resize;
   -webkit-user-select: none;
   -moz-user-select: none;

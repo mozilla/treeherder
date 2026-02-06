@@ -129,8 +129,9 @@ export default class TaskclusterModel {
               knownKinds.includes(action.kind) &&
               !actions.some(({ name }) => name === action.name) &&
               ((!action.context.length && !originalTask) ||
-                (originalTask?.tags &&
-                  TaskclusterModel.taskInContext(action.context, originalTask.tags)))
+                (originalTask &&
+                  originalTask.tags &&
+                  this.taskInContext(action.context, originalTask.tags)))
             ) {
               return actions.concat(action);
             }

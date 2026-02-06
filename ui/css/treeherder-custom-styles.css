@@ -18,7 +18,7 @@
 /* Bootstrap 4 will not show <a> as a link style if it has no href.
    This adds that style back. */
 .link-style {
-  color: #337ab7;
+  color: #337ab7 !important;
   cursor: pointer;
 }
 
@@ -65,7 +65,7 @@
 }
 
 .fs-80 {
-  font-size: 80%;
+  font-size: 80% !important;
 }
 
 .font-weight-400 {
@@ -123,12 +123,12 @@
 
 .dropdown-item {
   cursor: pointer;
-  color: #212529;
+  color: #212529 !important;
 }
 
 .dropdown-item:hover,
 .dropdown-item:focus {
-  color: #1e2125;
+  color: #1e2125 !important;
 }
 
 .form-control:focus {
@@ -164,19 +164,19 @@
 .icon-blue:hover,
 .icon-blue:focus,
 .icon-blue:active {
-  color: #68aae2;
+  color: #68aae2 !important;
 }
 
 .icon-green:hover,
 .icon-green:focus,
 .icon-green:active {
-  color: #0de00d;
+  color: #0de00d !important;
 }
 
 .icon-cyan:hover,
 .icon-cyan:focus,
 .icon-cyan:active {
-  color: #00ffff;
+  color: #00ffff !important;
 }
 
 .icon-superscript {
@@ -186,7 +186,7 @@
 }
 
 .hover-warning:hover {
-  color: #fa4444;
+  color: #fa4444 !important;
 }
 
 .dim-quarter {
@@ -383,7 +383,7 @@
 
 /* Darker Secondary */
 .text-darker-secondary {
-  color: #53595f;
+  color: #53595f !important;
 }
 
 .alert-darker-secondary,
@@ -399,14 +399,14 @@
 .btn-darker-secondary,
 a.btn-darker-secondary,
 a.btn-darker-secondary:visited {
-  color: #ffffff;
+  color: #ffffff !important;
   background-color: #6c757d;
   border-color: #6c757d;
 }
 
 .btn-darker-secondary:hover,
 a.btn-darker-secondary:hover {
-  color: #ffffff;
+  color: #ffffff !important;
   background-color: #5a6268;
   border-color: #545b62;
 }
@@ -444,9 +444,9 @@ a.btn-darker-secondary:hover {
 /* Outline Dark Button */
 .btn-outline-dark:hover,
 a.btn-outline-dark:hover {
-  background-color: #e9ecef;
-  border-color: #6c757d;
-  color: #212529;
+  background-color: #e9ecef !important;
+  border-color: #6c757d !important;
+  color: #212529 !important;
 }
 
 /*
@@ -484,7 +484,7 @@ a.btn-outline-dark:hover {
 }
 
 .row-height-tight {
-  line-height: 15px;
+  line-height: 15px !important;
 }
 
 /* ReactTable overriding row, button and link color style for contrast pass */

@@ -1,4 +1,4 @@
-
+import React from 'react';
 import { Container, Row, Col, Alert } from 'react-bootstrap';
 
 const NotFound = () => (

@@ -1,4 +1,4 @@
-
+import React from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import { render, waitFor, fireEvent } from '@testing-library/react';
 import { createBrowserHistory } from 'history';

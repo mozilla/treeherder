@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, memo } from 'react';
+import React, { useState, useEffect, useCallback, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import sortBy from 'lodash/sortBy';
@@ -42,6 +42,27 @@ import PushJobs from './PushJobs';
 const watchCycleStates = ['none', 'push', 'job', 'none'];
 const platformArray = Object.values(thPlatformMap);
 
+// Bug 1638424 - Transform WPT test paths to look like paths
+// from a local checkout
+export const transformTestPath = (path) => {
+  let newPath = path;
+  // WPT path transformations
+  if (path.startsWith('/_mozilla')) {
+    // /_mozilla/<path> => testing/web-platform/mozilla/tests/<path>
+    const modifiedPath = path.replace('/_mozilla', '');
+    newPath = `testing/web-platform/mozilla/tests${modifiedPath}`;
+  } else if (path.startsWith('/')) {
+    // /<path> => testing/web-platform/tests/<path>
+    newPath = `testing/web-platform/tests${path}`;
+  }
+
+  return newPath;
+};
+
+/**
+ * Calculate job counts by state from a list of jobs.
+ * Exported for testing purposes.
+ */
 export const getJobCount = (jobs) => {
   const filteredByCommit = jobs.filter(
     (job) => job.failure_classification_id === 2,
@@ -60,23 +81,6 @@ export const getJobCount = (jobs) => {
       fixedByCommit: filteredByCommit.length,
     },
   );
-};
-
-// Bug 1638424 - Transform WPT test paths to look like paths
-// from a local checkout
-export const transformTestPath = (path) => {
-  let newPath = path;
-  // WPT path transformations
-  if (path.startsWith('/_mozilla')) {
-    // /_mozilla/<path> => testing/web-platform/mozilla/tests/<path>
-    const modifiedPath = path.replace('/_mozilla', '');
-    newPath = `testing/web-platform/mozilla/tests${modifiedPath}`;
-  } else if (path.startsWith('/')) {
-    // /<path> => testing/web-platform/tests/<path>
-    newPath = `testing/web-platform/tests${path}`;
-  }
-
-  return newPath;
 };
 
 export const transformedPaths = (manifestsByTask) => {
@@ -309,6 +313,7 @@ function Push({
       push,
       sortGroupedJobs,
       groupJobByPlatform,
+      getJobCount,
       updateJobMap,
       recalculateUnclassifiedCounts,
     ],
@@ -608,7 +613,7 @@ function Push({
     return () => {
       window.removeEventListener(thEvents.applyNewJobs, handleApplyNewJobs);
     };
-  }, [handleApplyNewJobs, fetchJobs, fetchTestManifests, testForFilteredTry]);
+  }, [handleApplyNewJobs]);
 
   // componentDidUpdate - show notifications
   useEffect(() => {
@@ -789,6 +794,8 @@ const mapStateToProps = ({
   bugSummaryMap,
   router,
 });
+
+export { Push as PushClass };
 
 export default connect(mapStateToProps, {
   notify,

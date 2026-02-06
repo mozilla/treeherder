@@ -1,6 +1,6 @@
-
+import React from 'react';
 import fetchMock from 'fetch-mock';
-import { render, act } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { Provider, ReactReduxContext } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 
@@ -67,9 +67,7 @@ describe('history', () => {
   });
 
   afterEach(() => {
-    act(() => {
-      history.push('/');
-    });
+    history.push('/');
   });
 
   afterAll(() => {

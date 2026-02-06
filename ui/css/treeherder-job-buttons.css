@@ -7,26 +7,23 @@
   cursor: default;
 }
 
-/* Use higher specificity to override Bootstrap's .btn variables */
-button.btn.job-btn {
-  --bs-btn-padding-y: 0;
-  --bs-btn-padding-x: 2px;
-  --bs-btn-font-size: 12px;
-  --bs-btn-line-height: 1.32;
+.job-btn {
   background-color: transparent;
-  vertical-align: 0;
+  padding: 0 2px 0 2px !important;
+  vertical-align: 0 !important;
+  line-height: 1.32 !important;
   display: none;
   transition: transform 0.1s;
+  font-size: 12px !important;
 }
 
-button.btn.group-btn {
-  --bs-btn-padding-y: 0;
-  --bs-btn-padding-x: 2px;
-  --bs-btn-font-size: 12px;
-  --bs-btn-line-height: 1.32;
+.group-btn {
   background: transparent;
-  vertical-align: 0;
+  padding: 0 2px 0 2px !important;
+  vertical-align: 0 !important;
+  line-height: 1.32 !important;
   cursor: pointer;
+  font-size: 12px !important;
 }
 
 .group-btn::before {
@@ -37,13 +34,12 @@ button.btn.group-btn {
   background-color: rgba(219, 235, 252, 0.51);
 }
 
-button.btn.group-symbol {
-  --bs-btn-padding-y: 0;
-  --bs-btn-padding-x: 2px;
-  --bs-btn-line-height: 1.32;
+.group-symbol {
   background: transparent;
+  padding: 0 2px 0 2px !important;
   border: 0;
-  vertical-align: 0;
+  vertical-align: 0 !important;
+  line-height: 1.32 !important;
   cursor: pointer;
   margin-right: -3px;
 }
@@ -74,16 +70,15 @@ button.btn.group-symbol {
   white-space: normal;
 }
 
-button.btn.runnable-job-btn {
-  --bs-btn-padding-y: 0;
-  --bs-btn-padding-x: 2px;
-  --bs-btn-font-size: 12px;
-  --bs-btn-line-height: 1.32;
+.runnable-job-btn {
   display: none;
   color: rgba(128, 128, 0, 0.5);
   margin: 0;
   background: transparent;
-  vertical-align: 0;
+  padding: 0 2px !important;
+  vertical-align: 0 !important;
+  line-height: 1.32 !important;
+  font-size: 12px !important;
   border-radius: 0;
   text-align: center;
   white-space: nowrap;
@@ -98,12 +93,12 @@ button.btn.runnable-job-btn {
 /* Selected jobs: white background for classified failures and non-failures */
 .job-btn.selected-job:not([data-status='testfailed']):not([data-status='busted']):not([data-status='exception']),
 .job-btn.selected-job[data-classified='true'] {
-  background: #fff;
+  background: #fff !important;
 }
 
 /* All selected jobs get outline matching text color */
 .job-btn.selected-job {
-  outline: 4px solid;
+  outline: 4px solid !important;
   outline-color: currentcolor;
 }
 
@@ -135,12 +130,6 @@ button.btn.runnable-job-btn {
 
 .btn-lg-xform:hover {
   opacity: 0.9;
-}
-
-/* Override display:none for filtered job buttons with matching specificity */
-button.btn.job-btn.filter-shown,
-button.btn.runnable-job-btn.filter-shown {
-  display: inline-block;
 }
 
 .filter-shown {
@@ -431,15 +420,14 @@ button.btn.runnable-job-btn.filter-shown {
   color: var(--status-unscheduled-hover);
 }
 
-button.btn.group-select-all-runnable {
-  --bs-btn-padding-y: 0;
-  --bs-btn-padding-x: 2px;
-  --bs-btn-font-size: 12px;
-  --bs-btn-line-height: 1.32;
+.group-select-all-runnable {
   color: rgba(128, 128, 0, 0.5);
+  font-size: 12px;
   background: transparent;
+  padding: 0 2px 0 2px;
   border: 0;
-  vertical-align: 0;
+  vertical-align: 0 !important;
+  line-height: 1.32;
   cursor: pointer;
   margin-right: -3px;
 }

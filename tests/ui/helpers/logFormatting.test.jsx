@@ -7,6 +7,7 @@
  *   - Process crash detection and linking to crash viewer
  */
 
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 
 import formatLogLineWithLinks from '../../../ui/helpers/logFormatting';

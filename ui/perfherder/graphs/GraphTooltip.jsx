@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import countBy from 'lodash/countBy';
 import { Button } from 'react-bootstrap';
@@ -66,7 +66,7 @@ const GraphTooltip = ({
   let isCommonAlert = false;
   let commonAlertStatus;
 
-  if (dataPointDetails.alertSummary?.alerts) {
+  if (dataPointDetails.alertSummary && dataPointDetails.alertSummary.alerts) {
     alert = dataPointDetails.alertSummary.alerts.find(
       (alert) => alert.series_signature.id === testDetails.signature_id,
     );
@@ -176,7 +176,7 @@ const GraphTooltip = ({
     ro.observe(element);
 
     return () => ro.disconnect();
-  }, [tooltipHeight]);
+  }, []);
 
   const verticalOffset = 10;
   const horizontalOffset = x >= 1275 && windowWidth <= 1825 ? 100 : 0;
@@ -288,7 +288,7 @@ const GraphTooltip = ({
                 </Link>
                 <span className="text-secondary">
                   {` - ${alertStatus} `}
-                  {alert?.related_summary_id && (
+                  {alert && alert.related_summary_id && (
                     <span>
                       {alert.related_summary_id !==
                       dataPointDetails.alertSummary.id

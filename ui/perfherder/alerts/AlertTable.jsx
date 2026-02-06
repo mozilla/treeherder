@@ -168,7 +168,7 @@ export default class AlertTable extends React.Component {
     if (!filterText) return matchesFilters;
 
     const textToTest = `${alert.title} ${
-      alertSummary.bug_number?.toString()
+      alertSummary.bug_number && alertSummary.bug_number.toString()
     } ${alertSummary.revision.toString()}`;
 
     // searching with filter input and one or more metricFilter buttons on

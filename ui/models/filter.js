@@ -97,7 +97,7 @@ export default class FilterModel {
     if (value) {
       const currentValue = this.urlParams[field];
 
-      if (currentValue?.length) {
+      if (currentValue && currentValue.length) {
         this.urlParams[field] = currentValue.filter(
           (filterValue) => filterValue !== value,
         );

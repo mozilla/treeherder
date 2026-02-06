@@ -1,4 +1,4 @@
-import { useImperativeHandle, forwardRef, memo } from 'react';
+import React, { useImperativeHandle, forwardRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';

@@ -60,8 +60,8 @@ input[type='checkbox'] {
 }
 
 .bg-hover-grey:hover {
-  background-color: grey;
-  color: white;
+  background-color: grey !important;
+  color: white !important;
 }
 
 .commit-header {
@@ -76,21 +76,21 @@ input[type='checkbox'] {
 }
 
 .selected-detail-tab {
-  color: #53595f; /* darker-secondary but needs the `!important` */
+  color: #53595f !important; /* darker-secondary but needs the `!important` */
   border-bottom: solid; /* Thicker than the bootstrap border */
 }
 
 /* Log Viewer Tab */
 
 .react-lazylog-searchbar {
-  background: lightgrey;
+  background: lightgrey !important;
 }
 
 .react-lazylog-searchbar-input {
-  background: lightgrey;
+  background: lightgrey !important;
   border: 1px;
   border-radius: 5px;
-  color: #53595f;
+  color: #53595f !important;
 }
 
 .log-viewer-top-bar-buttons {
@@ -105,5 +105,5 @@ input[type='checkbox'] {
 }
 
 .custom-tooltip-width {
-  max-width: 100%;
+  max-width: 100% !important;
 }

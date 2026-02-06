@@ -1,4 +1,4 @@
-
+import React from 'react';
 import { render, waitFor, cleanup, fireEvent } from '@testing-library/react';
 
 import testAlertSummaries from '../../mock/alert_summaries';
@@ -56,11 +56,9 @@ test("Summary with no tags shows 'Add tags'", async () => {
   const statusDropdown = await waitFor(() => getByText('untriaged'));
   fireEvent.click(statusDropdown);
 
-  // Wait for state update after clicking dropdown
-  await waitFor(() => {
-    const dropdownItem = getByText('Add tags');
-    expect(dropdownItem).toBeInTheDocument();
-  });
+  const dropdownItem = await waitFor(() => getByText('Add tags'));
+
+  expect(dropdownItem).toBeInTheDocument();
 });
 
 test("Summary with tags shows 'Edit tags'", async () => {
@@ -70,11 +68,9 @@ test("Summary with tags shows 'Edit tags'", async () => {
   const statusDropdown = await waitFor(() => getByText('untriaged'));
   fireEvent.click(statusDropdown);
 
-  // Wait for state update after clicking dropdown
-  await waitFor(() => {
-    const dropdownItem = getByText('Edit tags');
-    expect(dropdownItem).toBeInTheDocument();
-  });
+  const dropdownItem = await waitFor(() => getByText('Edit tags'));
+
+  expect(dropdownItem).toBeInTheDocument();
 });
 
 test("Tags modal opens from 'Add tags'", async () => {
@@ -84,16 +80,13 @@ test("Tags modal opens from 'Add tags'", async () => {
   const statusDropdown = await waitFor(() => getByText('untriaged'));
   fireEvent.click(statusDropdown);
 
-  // Wait for dropdown to open
   const dropdownItem = await waitFor(() => getByText('Add tags'));
 
   fireEvent.click(dropdownItem);
 
-  // Wait for state update after clicking dropdown item and modal to appear
-  await waitFor(() => {
-    const modal = getByTestId('tags-modal');
-    expect(modal).toBeInTheDocument();
-  });
+  const modal = await waitFor(() => getByTestId('tags-modal'));
+
+  expect(modal).toBeInTheDocument();
 });
 
 test("Tags modal opens from 'Edit tags'", async () => {
@@ -103,14 +96,11 @@ test("Tags modal opens from 'Edit tags'", async () => {
   const statusDropdown = await waitFor(() => getByText('untriaged'));
   fireEvent.click(statusDropdown);
 
-  // Wait for dropdown to open
   const dropdownItem = await waitFor(() => getByText('Edit tags'));
 
   fireEvent.click(dropdownItem);
 
-  // Wait for state update after clicking dropdown item and modal to appear
-  await waitFor(() => {
-    const modal = getByTestId('tags-modal');
-    expect(modal).toBeInTheDocument();
-  });
+  const modal = await waitFor(() => getByTestId('tags-modal'));
+
+  expect(modal).toBeInTheDocument();
 });

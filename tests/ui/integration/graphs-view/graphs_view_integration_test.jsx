@@ -1,4 +1,4 @@
-import path from 'node:path';
+import path from 'path';
 
 import { Polly } from '@pollyjs/core';
 import PuppeteerAdapter from '@pollyjs/adapter-puppeteer';

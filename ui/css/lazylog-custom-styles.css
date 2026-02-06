@@ -1,8 +1,8 @@
 .react-lazylog {
-  font-family: monospace;
-  background: #f8f8f8;
-  color: #333;
-  font-size: 12px;
+  font-family: monospace !important;
+  background: #f8f8f8 !important;
+  color: #333 !important;
+  font-size: 12px !important;
 }
 
 .react-lazylog div:hover {
@@ -15,33 +15,33 @@
 }
 
 .react-lazylog a {
-  color: #b9b9b9;
-  margin: 0;
+  color: #b9b9b9 !important;
+  margin: 0 !important;
 }
 
 /* Make crash viewer and profile links more visible than line numbers */
 .react-lazylog a.log-line-link {
-  color: #0066cc;
-  text-decoration: underline;
+  color: #0066cc !important;
+  text-decoration: underline !important;
 }
 
 .react-lazylog .yellow-highlight {
-  background: #f8eec7;
-  color: #000;
+  background: #f8eec7 !important;
+  color: #000 !important;
 }
 
 .react-lazylog-searchbar {
-  background: #354048;
+  background: #354048 !important;
 }
 
 .react-lazylog-searchbar-input {
-  background: white;
-  color: black;
+  background: white !important;
+  color: black !important;
 }
 
 .react-lazylog-searchbar-input::placeholder {
-  color: black;
-  opacity: 1;
+  color: black !important;
+  opacity: 1 !important;
 }
 
 .react-lazylog-searchbar-filter svg {
@@ -49,5 +49,5 @@
 }
 
 .react-lazylog-searchbar-matches {
-  color: white;
+  color: white !important;
 }

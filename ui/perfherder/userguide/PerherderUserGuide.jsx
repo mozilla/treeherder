@@ -1,4 +1,4 @@
-
+import React from 'react';
 
 import UserGuideHeader from './UserGuideHeader';
 import UserGuideBody from './UserGuideBody';

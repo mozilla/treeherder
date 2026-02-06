@@ -1,11 +1,5 @@
-
-import {
-  render,
-  waitFor,
-  fireEvent,
-  screen,
-  act,
-} from '@testing-library/react';
+import React from 'react';
+import { render, waitFor, fireEvent } from '@testing-library/react';
 import fetchMock from 'fetch-mock';
 
 import pushHealth from '../../mock/push_health.json';
@@ -89,66 +83,34 @@ describe('DetailsPanel', () => {
   );
 
   test('should have artifacts', async () => {
-    render(testDetailsPanel(task));
+    const { getAllByTestId, findByText } = render(testDetailsPanel(task));
+    const artifactsTab = await findByText('Artifacts and Debugging Tools');
 
-    // Wait for the component to finish loading async data
-    await waitFor(() => {
-      expect(screen.queryByRole('status')).not.toBeInTheDocument();
-    });
+    fireEvent.click(artifactsTab);
 
-    const artifactsTab = await screen.findByText(
-      'Artifacts and Debugging Tools',
+    expect(await waitFor(() => getAllByTestId('task-artifact'))).toHaveLength(
+      2,
     );
-
-    await act(async () => {
-      fireEvent.click(artifactsTab);
-    });
-
-    // Wait for state updates after clicking the tab
-    await waitFor(() => {
-      expect(screen.getAllByTestId('task-artifact')).toHaveLength(2);
-    });
   });
 
   test('should have bug suggestions', async () => {
-    render(testDetailsPanel(task));
+    const { getAllByTestId, findByText } = render(testDetailsPanel(task));
+    const failuresTab = await findByText('Failure Summary');
 
-    // Wait for the component to finish loading async data
-    await waitFor(() => {
-      expect(screen.queryByRole('status')).not.toBeInTheDocument();
-    });
+    fireEvent.click(failuresTab);
 
-    const failuresTab = await screen.findByText('Failure Summary');
-
-    await act(async () => {
-      fireEvent.click(failuresTab);
-    });
-
-    // Wait for state updates after clicking the tab
-    await waitFor(() => {
-      expect(screen.getAllByTestId('bug-list-item')).toHaveLength(2);
-    });
+    expect(await waitFor(() => getAllByTestId('bug-list-item'))).toHaveLength(
+      2,
+    );
   });
 
   test('should have a log viewer with custom buttons', async () => {
-    render(testDetailsPanel(task));
+    const { findByText, getByText } = render(testDetailsPanel(task));
+    const LogViewerTab = await findByText('Log Viewer');
 
-    // Wait for the component to finish loading async data
-    await waitFor(() => {
-      expect(screen.queryByRole('status')).not.toBeInTheDocument();
-    });
+    fireEvent.click(LogViewerTab);
 
-    const LogViewerTab = await screen.findByText('Log Viewer');
-
-    await act(async () => {
-      fireEvent.click(LogViewerTab);
-    });
-
-    // Wait for state updates after clicking the tab
-    await waitFor(() => {
-      expect(screen.getByText('Text Log')).toBeInTheDocument();
-    });
-
-    expect(screen.getByText('Full Screen')).toBeInTheDocument();
+    expect(await waitFor(() => getByText('Text Log'))).toBeInTheDocument();
+    expect(await waitFor(() => getByText('Full Screen'))).toBeInTheDocument();
   });
 });

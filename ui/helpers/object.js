@@ -2,11 +2,11 @@ export const extendProperties = function extendProperties(dest, src) {
   /* Version of _.extend that works with property descriptors */
   if (dest !== src) {
     for (const key in src) {
-      if (!Object.hasOwn(src, key)) {
+      if (!Object.prototype.hasOwnProperty.call(src, key)) {
         continue;
       }
       const descriptor = Object.getOwnPropertyDescriptor(src, key);
-      if (descriptor?.get) {
+      if (descriptor && descriptor.get) {
         Object.defineProperty(dest, key, {
           get: descriptor.get,
           set: descriptor.set,

@@ -1,4 +1,4 @@
-
+import React from 'react';
 import { render, cleanup, waitFor, fireEvent } from '@testing-library/react';
 
 import TimeRangeDropdown from '../../../../ui/perfherder/graphs/TimeRangeDropdown';

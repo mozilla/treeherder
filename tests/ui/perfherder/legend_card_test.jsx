@@ -1,4 +1,4 @@
-
+import React from 'react';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 
 import LegendCard from '../../../ui/perfherder/graphs/LegendCard';

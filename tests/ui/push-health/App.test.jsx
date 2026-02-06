@@ -1,4 +1,4 @@
-
+import React from 'react';
 import fetchMock from 'fetch-mock';
 import { render, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route } from 'react-router-dom';

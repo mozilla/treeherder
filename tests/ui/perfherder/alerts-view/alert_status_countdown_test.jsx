@@ -1,4 +1,4 @@
-
+import React from 'react';
 import { render, waitFor, cleanup, fireEvent } from '@testing-library/react';
 
 import testAlertSummaries from '../../mock/alert_summaries';

@@ -115,7 +115,7 @@ export const getLogViewerUrl = function getLogViewerUrl(
   task,
 ) {
   let rv = `/logviewer?job_id=${jobId}&repo=${repoName}`;
-  if (task?.task_id && task.retry_id !== undefined) {
+  if (task && task.task_id && task.retry_id !== undefined) {
     rv += `&task=${task.task_id}.${task.retry_id}`;
   }
   return lineNumber ? `${rv}&lineNumber=${lineNumber}` : rv;

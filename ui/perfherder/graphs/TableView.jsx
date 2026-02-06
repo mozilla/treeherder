@@ -1,4 +1,4 @@
-
+import React from 'react';
 import ReactTable from 'react-table-6';
 import { Badge } from 'react-bootstrap';
 import { groupBy, forIn } from 'lodash';
@@ -75,7 +75,7 @@ const TableView = ({
 
   const setHighlightedRow = (rowInfo) => {
     let cellProps = {};
-    if (rowInfo?.original.highlighted) {
+    if (rowInfo && rowInfo.original.highlighted) {
       cellProps = {
         className: 'bg-lightgray',
         'aria-label': `highlighted revision: ${rowInfo.original.revision}`,
@@ -138,7 +138,7 @@ const TableView = ({
         }
         return cellElem;
       },
-      getProps: (_state, rowInfo) => setHighlightedRow(rowInfo),
+      getProps: (state, rowInfo) => setHighlightedRow(rowInfo),
     };
   };
 
@@ -224,7 +224,7 @@ const TableView = ({
         },
         headerClassName:
           'text-wrap d-flex justify-content-center align-items-center',
-        getProps: (_state, rowInfo) => setHighlightedRow(rowInfo),
+        getProps: (state, rowInfo) => setHighlightedRow(rowInfo),
       },
     ];
 

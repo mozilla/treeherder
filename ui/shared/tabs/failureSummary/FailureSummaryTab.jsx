@@ -98,7 +98,8 @@ class FailureSummaryTab extends React.Component {
     const { suggestions } = this.state;
 
     const internalBugs = suggestions
-      .flatMap((s) => s.bugs.open_recent)
+      .map((s) => s.bugs.open_recent)
+      .flat()
       .filter((bug) => bug.id === null);
     const existingBug = internalBugs.filter(
       (bug) => bug.internal_id === bugInternalId,
