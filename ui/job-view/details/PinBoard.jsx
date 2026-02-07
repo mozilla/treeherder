@@ -530,7 +530,9 @@ class PinBoard extends React.Component {
                 </span>
               )}
               {Array.from(pinnedJobBugs).map((bug) => (
-                <span key={bug.internal_id}>
+                <span
+                  key={bug.id ? `bug-${bug.id}` : `internal-${bug.internal_id}`}
+                >
                   <span className="pinboard-related-bugs-btn">
                     {!bug.id && (
                       <span className="btn btn-xs text-dark">

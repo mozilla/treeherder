@@ -1,4 +1,4 @@
-import React from 'react';
+
 import fetchMock from 'fetch-mock';
 import {
   render,
@@ -6,6 +6,7 @@ import {
   waitFor,
   getAllByTestId,
   queryAllByTestId,
+  act,
 } from '@testing-library/react';
 import { createBrowserHistory } from 'history';
 import { ConnectedRouter } from 'connected-react-router';
@@ -139,7 +140,9 @@ describe('Health', () => {
   };
 
   test('should show some grouped tests', async () => {
-    history.push(`/push-health?repo=${repo}&revision=${revision}`);
+    act(() => {
+      history.push(`/push-health?repo=${repo}&revision=${revision}`);
+    });
 
     const health = render(testHealth());
     const classificationGroups = await waitFor(() =>
@@ -156,9 +159,11 @@ describe('Health', () => {
   });
 
   test('should filter groups by test path string', async () => {
-    history.push(
-      `/push-health?repo=${repo}&revision=${revision}&searchStr=browser/extensions/`,
-    );
+    act(() => {
+      history.push(
+        `/push-health?repo=${repo}&revision=${revision}&searchStr=browser/extensions/`,
+      );
+    });
     const health = render(testHealth());
     const classificationGroups = await waitFor(() =>
       health.getAllByTestId('classification-group'),
@@ -173,7 +178,9 @@ describe('Health', () => {
   });
 
   test('should go to the correct tab if query param exists', async () => {
-    history.push(`/push-health?repo=${repo}&revision=${revision}&tab=builds`);
+    act(() => {
+      history.push(`/push-health?repo=${repo}&revision=${revision}&tab=builds`);
+    });
     const { getByText } = render(testHealth());
 
     const buildsTab = await waitFor(() => getByText('Builds'));
@@ -181,7 +188,9 @@ describe('Health', () => {
   });
 
   test('should show dismissible intermittent alert by default', async () => {
-    history.push(`/push-health?repo=${repo}&revision=${revision}`);
+    act(() => {
+      history.push(`/push-health?repo=${repo}&revision=${revision}`);
+    });
     const { getByText } = render(testHealth());
 
     const alertText = await waitFor(() =>
@@ -191,7 +200,9 @@ describe('Health', () => {
   });
 
   test('should hide intermittent alert when dismissed', async () => {
-    history.push(`/push-health?repo=${repo}&revision=${revision}`);
+    act(() => {
+      history.push(`/push-health?repo=${repo}&revision=${revision}`);
+    });
     const { getByText, queryByText, getByRole } = render(testHealth());
 
     // Wait for alert to appear
@@ -201,7 +212,9 @@ describe('Health', () => {
 
     // Click the dismiss button
     const dismissButton = getByRole('button', { name: /close/i });
-    dismissButton.click();
+    await act(async () => {
+      dismissButton.click();
+    });
 
     // Alert should be hidden
     await waitFor(() => {
@@ -216,7 +229,9 @@ describe('Health', () => {
 
   test('should not show intermittent alert if previously dismissed', async () => {
     localStorage.setItem('dismissedIntermittentAlert', 'true');
-    history.push(`/push-health?repo=${repo}&revision=${revision}`);
+    act(() => {
+      history.push(`/push-health?repo=${repo}&revision=${revision}`);
+    });
     const { queryByText } = render(testHealth());
 
     // Wait for page to load
