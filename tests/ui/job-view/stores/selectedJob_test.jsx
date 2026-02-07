@@ -1,6 +1,6 @@
 import fetchMock from 'fetch-mock';
 import thunk from 'redux-thunk';
-import { waitFor } from '@testing-library/react';
+import { waitFor, act } from '@testing-library/react';
 import configureMockStore from 'redux-mock-store';
 import keyBy from 'lodash/keyBy';
 import { createBrowserHistory } from 'history';
@@ -40,21 +40,27 @@ describe('SelectedJob Redux store', () => {
 
   afterEach(() => {
     fetchMock.reset();
-    history.push('/');
+    act(() => {
+      history.push('/');
+    });
   });
 
-  test('selectJobViaUrl should update URL with task run', async () => {
+  test('selectJobViaUrl should dispatch SELECT_JOB and update URL', async () => {
     const taskRun = 'UCctvnxZR0--JcxyVGc8VA.0';
     const store = mockStore({
       selectedJob: { initialState },
       router,
     });
 
-    // URL-first architecture: selectJobViaUrl only updates URL
-    // The URL change triggers syncSelectionFromUrl which updates Redux state
+    // selectJobViaUrl dispatches SELECT_JOB directly (to avoid race conditions
+    // with stale jobMap during rapid clicks), then updates the URL
     store.dispatch(selectJobViaUrl(group.jobs[0]));
     const actions = store.getActions();
     expect(actions).toEqual([
+      {
+        type: 'SELECT_JOB',
+        job: group.jobs[0],
+      },
       {
         payload: {
           args: [{ search: `?selectedTaskRun=${taskRun}` }],
@@ -73,9 +79,14 @@ describe('SelectedJob Redux store', () => {
     });
 
     // Legacy API: setSelectedJob(job, true) now delegates to selectJobViaUrl
+    // which dispatches SELECT_JOB then updates URL
     store.dispatch(setSelectedJob(group.jobs[0], true));
     const actions = store.getActions();
     expect(actions).toEqual([
+      {
+        type: 'SELECT_JOB',
+        job: group.jobs[0],
+      },
       {
         payload: {
           args: [{ search: `?selectedTaskRun=${taskRun}` }],
@@ -89,7 +100,9 @@ describe('SelectedJob Redux store', () => {
   test('setSelectedJobFromQueryString found', async () => {
     const taskRun = 'UCctvnxZR0--JcxyVGc8VA.0';
 
-    history.push(`/jobs?repo=${repoName}&selectedTaskRun=${taskRun}`);
+    act(() => {
+      history.push(`/jobs?repo=${repoName}&selectedTaskRun=${taskRun}`);
+    });
 
     const reduced = reducer(
       { selectedJob: { initialState } },
@@ -102,14 +115,16 @@ describe('SelectedJob Redux store', () => {
   test('setSelectedJobFromQueryString not in jobMap', async () => {
     const taskRun = 'VaQoWKTbSdGSwBJn6UZV9g.0';
 
-    history.push(`/jobs?repo=${repoName}&selectedTaskRun=${taskRun}`);
+    act(() => {
+      history.push(`/jobs?repo=${repoName}&selectedTaskRun=${taskRun}`);
+    });
 
     const reduced = reducer(
       { selectedJob: { initialState } },
       setSelectedJobFromQueryString((msg) => notifications.push(msg), jobMap),
     );
 
-    expect(reduced.selectedJob).toBeUndefined();
+    expect(reduced.selectedJob).toBeNull();
     await waitFor(() =>
       expect(notifications[0]).toBe(
         'Selected task: VaQoWKTbSdGSwBJn6UZV9g not within current push range.',
@@ -120,14 +135,16 @@ describe('SelectedJob Redux store', () => {
   test('setSelectedJobFromQueryString not in DB', async () => {
     const taskRun = 'a824gBVmRQSBuEexnVW_Qg.0';
 
-    history.push(`/jobs?repo=${repoName}&selectedTaskRun=${taskRun}`);
+    act(() => {
+      history.push(`/jobs?repo=${repoName}&selectedTaskRun=${taskRun}`);
+    });
 
     const reduced = reducer(
       { selectedJob: { initialState } },
       setSelectedJobFromQueryString((msg) => notifications.push(msg), jobMap),
     );
 
-    expect(reduced.selectedJob).toBeUndefined();
+    expect(reduced.selectedJob).toBeNull();
     await waitFor(() =>
       expect(notifications[0]).toBe(
         'Task not found: a824gBVmRQSBuEexnVW_Qg, run 0',

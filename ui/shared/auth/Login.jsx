@@ -45,7 +45,7 @@ class Login extends React.Component {
     setUser(newUser);
 
     // start session renewal process
-    if (userSession && userSession.renewAfter) {
+    if (userSession?.renewAfter) {
       this.authService.resetRenewalTimer();
     }
   };
@@ -103,7 +103,7 @@ class Login extends React.Component {
 
     return (
       <React.Fragment>
-        {user && user.isLoggedIn ? (
+        {user?.isLoggedIn ? (
           <Dropdown>
             <Dropdown.Toggle
               variant="transparent"
