@@ -1,7 +1,7 @@
-import React from 'react';
+
 import fetchMock from 'fetch-mock';
 import { render, waitFor } from '@testing-library/react';
-import { MemoryRouter, Route } from 'react-router-dom';
+import { MemoryRouter, Routes, Route } from 'react-router';
 
 import App from '../../../ui/push-health/App';
 import { getApiUrl } from '../../../ui/helpers/url';
@@ -30,7 +30,9 @@ const renderPushHealthApp = (
 ) => {
   return render(
     <MemoryRouter initialEntries={[route]}>
-      <Route path="/push-health" render={(props) => <App {...props} />} />
+      <Routes>
+        <Route path="/push-health/*" element={<App />} />
+      </Routes>
     </MemoryRouter>,
   );
 };
@@ -158,11 +160,13 @@ describe('Push Health App Export', () => {
     expect(typeof AppModule.default).toBe('function');
   });
 
-  it('is a class component with expected methods', async () => {
+  it('is a functional component', async () => {
     const AppModule = await import('../../../ui/push-health/App');
 
-    // Verify it's a class component (has prototype)
-    expect(AppModule.default.prototype).toBeDefined();
-    expect(AppModule.default.prototype.render).toBeDefined();
+    // Verify it's a functional component (no prototype.render)
+    expect(AppModule.default).toBeDefined();
+    expect(typeof AppModule.default).toBe('function');
+    // Functional components don't have prototype.render
+    expect(AppModule.default.prototype?.render).toBeUndefined();
   });
 });

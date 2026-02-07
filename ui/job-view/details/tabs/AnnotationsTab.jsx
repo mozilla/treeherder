@@ -12,7 +12,7 @@ import {
 import { thEvents } from '../../../helpers/constants';
 import { getBugUrl } from '../../../helpers/url';
 import { longDateFormat } from '../../../helpers/display';
-import { notify } from '../../redux/stores/notifications';
+import { notify } from '../../stores/notificationStore';
 import { recalculateUnclassifiedCounts } from '../../redux/stores/pushes';
 
 function RelatedBugSaved(props) {
@@ -171,7 +171,7 @@ class AnnotationsTab extends React.Component {
   }
 
   onDeleteClassification = () => {
-    const { classifications, bugs, notify } = this.props;
+    const { classifications, bugs } = this.props;
 
     if (classifications.length) {
       this.deleteClassification(classifications[0]);
@@ -185,11 +185,7 @@ class AnnotationsTab extends React.Component {
   };
 
   deleteClassification = async (classification) => {
-    const {
-      selectedJobFull,
-      recalculateUnclassifiedCounts,
-      notify,
-    } = this.props;
+    const { selectedJobFull, recalculateUnclassifiedCounts } = this.props;
 
     selectedJobFull.failure_classification_id = 1;
     recalculateUnclassifiedCounts();
@@ -207,7 +203,6 @@ class AnnotationsTab extends React.Component {
   };
 
   deleteBug = async (bug) => {
-    const { notify } = this.props;
     const { failureStatus } = await bug.destroy();
 
     if (!failureStatus) {
@@ -265,10 +260,7 @@ AnnotationsTab.propTypes = {
   bugs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   classifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   recalculateUnclassifiedCounts: PropTypes.func.isRequired,
-  notify: PropTypes.func.isRequired,
   selectedJobFull: PropTypes.shape({}).isRequired,
 };
 
-export default connect(null, { notify, recalculateUnclassifiedCounts })(
-  AnnotationsTab,
-);
+export default connect(null, { recalculateUnclassifiedCounts })(AnnotationsTab);

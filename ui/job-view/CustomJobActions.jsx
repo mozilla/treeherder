@@ -15,7 +15,7 @@ import TaskclusterModel from '../models/taskcluster';
 import DropdownMenuItems from '../shared/DropdownMenuItems';
 import { checkRootUrl } from '../taskcluster-auth-callback/constants';
 
-import { notify } from './redux/stores/notifications';
+import { notify } from './stores/notificationStore';
 
 class CustomJobActions extends React.PureComponent {
   constructor(props) {
@@ -36,13 +36,7 @@ class CustomJobActions extends React.PureComponent {
   }
 
   async componentDidMount() {
-    const {
-      pushId,
-      job = null,
-      notify,
-      decisionTaskMap,
-      currentRepo,
-    } = this.props;
+    const { pushId, job = null, decisionTaskMap, currentRepo } = this.props;
     const { id: decisionTaskId } = decisionTaskMap[pushId];
 
     TaskclusterModel.load(decisionTaskId, job, currentRepo).then((results) => {
@@ -124,7 +118,7 @@ class CustomJobActions extends React.PureComponent {
       selectedAction: action,
       staticActionVariables,
     } = this.state;
-    const { notify, currentRepo } = this.props;
+    const { currentRepo } = this.props;
 
     let input = null;
     if (validate && payload) {
@@ -301,7 +295,6 @@ class CustomJobActions extends React.PureComponent {
 
 CustomJobActions.propTypes = {
   pushId: PropTypes.number.isRequired,
-  notify: PropTypes.func.isRequired,
   toggle: PropTypes.func.isRequired,
   decisionTaskMap: PropTypes.shape({}).isRequired,
   job: PropTypes.shape({}),
@@ -312,4 +305,4 @@ const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({
   decisionTaskMap,
 });
 
-export default connect(mapStateToProps, { notify })(CustomJobActions);
+export default connect(mapStateToProps)(CustomJobActions);

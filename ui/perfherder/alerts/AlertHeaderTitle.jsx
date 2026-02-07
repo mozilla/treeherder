@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { Row, Col, Badge } from 'react-bootstrap';
 
 import Clipboard from '../../shared/Clipboard';

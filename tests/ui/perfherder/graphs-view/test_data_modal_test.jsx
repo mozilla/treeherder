@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { render, cleanup, waitFor, fireEvent } from '@testing-library/react';
 import flatMap from 'lodash/flatMap';
 
@@ -39,17 +39,14 @@ const updatesWithRepeatedTag = {
   showNoRelatedTests: false,
 };
 
-const mockGetSeriesData = jest
-  .fn()
-  .mockResolvedValueOnce(updatesWithNoTags)
-  .mockResolvedValueOnce(updates)
-  .mockResolvedValueOnce(updatesWithRepeatedTag)
-  .mockResolvedValueOnce(updatesWithRepeatedTag)
-  .mockResolvedValue(updates);
+const mockGetSeriesData = jest.fn();
 
-const testDataModel = () => {
+const testDataModel = async (mockData = updates) => {
+  // Reset and set up mock for this specific test
+  mockGetSeriesData.mockReset();
+  mockGetSeriesData.mockResolvedValue(mockData);
   const plottedUnits = new Set([]);
-  return render(
+  const renderResult = render(
     <TestDataModal
       projects={repos}
       plottedUnits={plottedUnits}
@@ -64,28 +61,35 @@ const testDataModel = () => {
         platforms,
       })}
       getSeriesData={mockGetSeriesData}
+      updateTestsAndTimeRange={() => {}}
     />,
-    { legacyRoot: true },
   );
+
+  // Wait for async state updates from componentDidMount and processOptions
+  await waitFor(() => {
+    expect(renderResult.container).toBeInTheDocument();
+  });
+
+  return renderResult;
 };
 
 afterEach(cleanup);
 
 test('Tags multi select is not shown if series data has no tags', async () => {
-  const { queryByLabelText } = testDataModel();
+  const { queryByLabelText } = await testDataModel(updatesWithNoTags);
 
   expect(queryByLabelText('Tags')).toBeNull();
 });
 
 test('Tags multi select is shown if series data has tags', async () => {
-  const { getByLabelText } = testDataModel();
+  const { getByLabelText } = await testDataModel();
   const multiSelect = await waitFor(() => getByLabelText('Tags'));
 
   expect(multiSelect).toBeInTheDocument();
 });
 
 test('Tag used in multiple tests appears once in the tags list', async () => {
-  const { getAllByTestId } = testDataModel();
+  const { getAllByTestId } = await testDataModel(updatesWithRepeatedTag);
   const tags = flatMap(seriesDataWithRepeatedTag, (data) => data.tags);
   const tagOccurency = tags.filter((tag) => tag === 'repeated-tag').length;
 
@@ -97,16 +101,21 @@ test('Tag used in multiple tests appears once in the tags list', async () => {
 });
 
 test('Selecting two tags from tags multi select shows the tests that have both tags', async () => {
-  const { queryByTestId, getByText, queryAllByTestId } = testDataModel();
+  const { queryByTestId, getByText, queryAllByTestId } = await testDataModel(
+    updatesWithRepeatedTag,
+  );
   const activeTag1 = seriesDataWithRepeatedTag[0].tags[0];
   const activeTag2 = seriesDataWithRepeatedTag[0].tags[1];
   const activeTags = [activeTag1, activeTag2];
   const taggedTests = seriesDataWithRepeatedTag.filter((test) =>
     activeTags.every((activeTag) => test.tags.includes(activeTag)),
   );
-  let tests = await waitFor(() => queryByTestId('tests'));
 
-  expect(tests).toHaveLength(seriesDataWithRepeatedTag.length);
+  // Wait for options to be populated in the tests select
+  await waitFor(() => {
+    const tests = queryByTestId('tests');
+    expect(tests).toHaveLength(seriesDataWithRepeatedTag.length);
+  });
 
   const tag1 = await waitFor(() => getByText(activeTag1));
   const tag2 = await waitFor(() => getByText(activeTag2));
@@ -114,15 +123,19 @@ test('Selecting two tags from tags multi select shows the tests that have both t
   fireEvent.click(tag1);
   fireEvent.click(tag2);
 
-  expect(queryAllByTestId(/active-tag/)).toHaveLength(activeTags.length);
+  await waitFor(() => {
+    expect(queryAllByTestId(/active-tag/)).toHaveLength(activeTags.length);
+  });
 
-  tests = await waitFor(() => queryByTestId('tests'));
-
-  expect(tests).toHaveLength(taggedTests.length);
+  // Wait for the filtered tests list to update
+  await waitFor(() => {
+    const tests = queryByTestId('tests');
+    expect(tests).toHaveLength(taggedTests.length);
+  });
 });
 
 test('Selecting a tag from tags multi select shows the tests that have the specific tag', async () => {
-  const { queryByTestId, getByText, getByTestId } = testDataModel();
+  const { queryByTestId, getByText, getByTestId } = await testDataModel();
   const tag = await waitFor(() => getByText(seriesData[0].tags[0]));
 
   fireEvent.click(tag);
@@ -140,7 +153,7 @@ test('Selecting a tag from tags multi select shows the tests that have the speci
 });
 
 test('Active tag can be deactivated by clicking on it from available tags list', async () => {
-  const { queryByTestId, getByTestId } = testDataModel();
+  const { queryByTestId, getByTestId } = await testDataModel();
   const availableTag = await waitFor(() =>
     getByTestId(`available-tag ${seriesData[0].tags[0]}`),
   );
@@ -163,7 +176,7 @@ test('Active tag can be deactivated by clicking on it from available tags list',
 });
 
 test('Active tag can be deactivated by clicking on it from active tags list', async () => {
-  const { queryByTestId, getByTestId } = testDataModel();
+  const { queryByTestId, getByTestId } = await testDataModel();
   const availableTag = await waitFor(() =>
     getByTestId(`available-tag ${seriesData[0].tags[0]}`),
   );

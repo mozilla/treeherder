@@ -1,5 +1,4 @@
 import React from 'react';
-import { Helmet } from 'react-helmet';
 import PropTypes from 'prop-types';
 import { Button, Form, InputGroup } from 'react-bootstrap';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
@@ -103,10 +102,8 @@ export default class ComparePageTitle extends React.Component {
 
     return (
       <React.Fragment>
-        <Helmet>
-          <meta charSet="utf-8" />
-          <title>{tabTitle || this.props.defaultPageTitle}</title>
-        </Helmet>
+        <meta charSet="utf-8" />
+        <title>{tabTitle || this.props.defaultPageTitle}</title>
 
         {!inEditMode ? (
           <Button

@@ -1,8 +1,7 @@
-import React from 'react';
+
 import fetchMock from 'fetch-mock';
 import { render, cleanup, waitFor } from '@testing-library/react';
-import { createBrowserHistory } from 'history';
-import { ConnectedRouter } from 'connected-react-router';
+import { MemoryRouter } from 'react-router';
 import { Provider } from 'react-redux';
 
 import { configureStore } from '../../../ui/job-view/redux/configureStore';
@@ -18,15 +17,13 @@ afterEach(() => {
   fetchMock.reset();
 });
 
-const history = createBrowserHistory();
-
 const testUsage = () => {
-  const store = configureStore(history);
+  const store = configureStore();
   return (
     <Provider store={store}>
-      <ConnectedRouter history={history}>
-        <Usage location={history.location} />
-      </ConnectedRouter>
+      <MemoryRouter>
+        <Usage />
+      </MemoryRouter>
     </Provider>
   );
 };
