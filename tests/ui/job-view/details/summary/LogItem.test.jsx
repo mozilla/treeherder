@@ -6,7 +6,6 @@
  * - Log parse status (parsed, failed, skipped-size, pending)
  */
 
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 
 import LogItem from '../../../../../ui/job-view/details/summary/LogItem';

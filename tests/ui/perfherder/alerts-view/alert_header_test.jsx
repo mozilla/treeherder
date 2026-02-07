@@ -1,14 +1,11 @@
-import React from 'react';
+
 import { render, waitFor } from '@testing-library/react';
-import { createBrowserHistory } from 'history';
 import { Provider, ReactReduxContext } from 'react-redux';
-import { ConnectedRouter } from 'connected-react-router';
+import { MemoryRouter } from 'react-router';
 
 import AlertHeaderTitle from '../../../../ui/perfherder/alerts/AlertHeaderTitle';
 import testAlertSummaries from '../../mock/alert_summaries_with_critical_tests.json';
 import { configureStore } from '../../../../ui/job-view/redux/configureStore';
-
-const history = createBrowserHistory();
 
 const frameworks = [
   {
@@ -21,16 +18,14 @@ const frameworks = [
   },
 ];
 
-afterEach(() => history.push('/alerts'));
-
 const alertHeaderTitleTest = (alertSummary) => {
-  const store = configureStore(history);
+  const store = configureStore();
 
   return render(
     <Provider store={store} context={ReactReduxContext}>
-      <ConnectedRouter history={history} context={ReactReduxContext}>
+      <MemoryRouter initialEntries={['/alerts']}>
         <AlertHeaderTitle alertSummary={alertSummary} frameworks={frameworks} />
-      </ConnectedRouter>
+      </MemoryRouter>
     </Provider>,
   );
 };

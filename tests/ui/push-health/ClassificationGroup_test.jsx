@@ -1,5 +1,6 @@
-import React from 'react';
+
 import { render, waitFor } from '@testing-library/react';
+import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 
 import pushHealth from '../mock/push_health';
 import ClassificationGroup from '../../../ui/push-health/ClassificationGroup';
@@ -21,6 +22,7 @@ describe('ClassificationGroup', () => {
       hasRetriggerAll
       notify={() => {}}
       groupedBy={groupedBy}
+      icon={faExclamationTriangle}
     />
   );
 

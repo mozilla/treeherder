@@ -41,7 +41,7 @@ docker-compose up -d
 ### ENV vars
 
 ```code
-FRONTEND_PORT=5001
+FRONTEND_PORT=5000
 POSTGRES_PORT=5499
 REDIS_PORT=6388
 ```
