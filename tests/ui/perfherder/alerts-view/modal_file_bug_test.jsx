@@ -1,7 +1,5 @@
-import React from 'react';
+
 import { render, fireEvent, waitFor } from '@testing-library/react';
-// eslint-disable-next-line no-unused-vars
-import { getByText } from '@testing-library/dom';
 
 import FileBugModal from '../../../../ui/perfherder/alerts/FileBugModal';
 import testRegressions from '../../mock/performance_regressions';

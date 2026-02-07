@@ -1,10 +1,15 @@
-import React, { Suspense, lazy } from 'react';
-import { Route, Switch } from 'react-router-dom';
-import { ConnectedRouter } from 'connected-react-router';
+import { Suspense, lazy, useEffect } from 'react';
+import {
+  Routes,
+  Route,
+  BrowserRouter,
+  useNavigate,
+  useLocation,
+} from 'react-router-dom';
 import { Provider } from 'react-redux';
 
 import { permaLinkPrefix } from './perfherder/perf-helpers/constants';
-import { configureStore, history } from './job-view/redux/configureStore';
+import { configureStore } from './job-view/redux/configureStore';
 import LoadingSpinner from './shared/LoadingSpinner';
 import LoginCallback from './login-callback/LoginCallback';
 import TaskclusterCallback from './taskcluster-auth-callback/TaskclusterCallback';
@@ -27,55 +32,6 @@ const LogviewerApp = lazy(() => import('./logviewer/App'));
 
 const RedocApp = lazy(() => import('./RedocApp'));
 
-// backwards compatibility for routes like this: treeherder.mozilla.org/perf.html#/alerts?id=26622&hideDwnToInv=0
-const updateOldUrls = () => {
-  const { pathname, hash, search } = history.location;
-  const updates = {};
-
-  const urlMatch = {
-    '/perf.html': '/perfherder',
-    '/pushhealth.html': '/push-health',
-    '/': '/jobs',
-  };
-
-  if (
-    pathname.endsWith('.html') ||
-    (pathname === '/' && hash.length) ||
-    urlMatch[pathname]
-  ) {
-    updates.pathname = urlMatch[pathname] || pathname.replace(/.html|\//g, '');
-  }
-
-  if (hash.length) {
-    const index = hash.indexOf('?');
-    updates.search = hash.substring(index);
-    const subRoute = hash.substring(1, index);
-
-    // there are old subroutes such as with the logviewer we want to ignore, i.e.:
-    // https://treeherder.mozilla.org/logviewer.html#/jobs?job_id=319893964&repo=autoland&lineNumber=2728
-    if (index >= 2 && updates.pathname !== subRoute && subRoute !== '/jobs') {
-      updates.pathname += subRoute;
-    }
-  } else if (search.length) {
-    updates.search = search;
-  }
-
-  if (Object.keys(updates).length === 0) {
-    return;
-  }
-
-  history.push(updates);
-};
-
-// the urls need to be update for compatibility reasons, but we need to have exceptions from this
-// the link created by the permalink functionality is broken by the updateOldUrls function
-// for more information - https://bugzilla.mozilla.org/show_bug.cgi?id=1725329
-const updateUrls = () => {
-  if (!history.location.hash.includes(permaLinkPrefix)) {
-    updateOldUrls();
-  }
-};
-
 const faviconPaths = {
   '/jobs': { title: 'Treeherder Jobs View', favicon: treeFavicon },
   '/logviewer': {
@@ -97,91 +53,161 @@ const faviconPaths = {
   },
 };
 
-const withFavicon = (element, route) => {
-  let { title } = faviconPaths[route];
-  const { favicon } = faviconPaths[route];
+// Component to handle favicon and title updates
+const WithFavicon = ({ children, route }) => {
+  const location = useLocation();
 
-  document.querySelector('link[rel="icon"]').href = favicon;
+  useEffect(() => {
+    const faviconConfig = faviconPaths[route];
+    if (faviconConfig) {
+      let { title } = faviconConfig;
+      const { favicon } = faviconConfig;
 
-  const searchParams = new URLSearchParams(history.location.search);
-  const id = searchParams.get('id');
+      document.querySelector('link[rel="icon"]').href = favicon;
 
-  if (history.location.pathname === '/perfherder/alerts' && id) {
-    title = `Alert #${id.toString()}`;
-  }
-  document.title = title;
+      const searchParams = new URLSearchParams(location.search);
+      const id = searchParams.get('id');
 
-  return <React.Fragment>{element}</React.Fragment>;
+      if (location.pathname === '/perfherder/alerts' && id) {
+        title = `Alert #${id.toString()}`;
+      }
+      document.title = title;
+    }
+  }, [route, location]);
+
+  return children;
+};
+
+// Component to handle URL updates for backwards compatibility
+const UrlUpdater = ({ children }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const { pathname, hash, search } = location;
+
+    // Skip if this is a permalink
+    if (hash.includes(permaLinkPrefix)) {
+      return;
+    }
+
+    const updates = {};
+
+    const urlMatch = {
+      '/perf.html': '/perfherder',
+      '/pushhealth.html': '/push-health',
+      '/': '/jobs',
+    };
+
+    if (
+      pathname.endsWith('.html') ||
+      (pathname === '/' && hash.length) ||
+      urlMatch[pathname]
+    ) {
+      updates.pathname = urlMatch[pathname] || pathname.replace(/\.html$/, '');
+    }
+
+    if (hash.length) {
+      const index = hash.indexOf('?');
+      updates.search = hash.substring(index);
+      const subRoute = hash.substring(1, index);
+
+      // there are old subroutes such as with the logviewer we want to ignore, i.e.:
+      // https://treeherder.mozilla.org/logviewer.html#/jobs?job_id=319893964&repo=autoland&lineNumber=2728
+      if (index >= 2 && updates.pathname !== subRoute && subRoute !== '/jobs') {
+        updates.pathname += subRoute;
+      }
+    }
+
+    // Only navigate if we have a pathname update (i.e., an actual URL rewrite needed)
+    // Don't navigate just for search params as that causes infinite loops
+    if (updates.pathname) {
+      if (!updates.search && search.length) {
+        updates.search = search;
+      }
+      navigate(updates, { replace: true });
+    }
+  }, [location, navigate]);
+
+  return children;
+};
+
+const AppRoutes = () => {
+  return (
+    <UrlUpdater>
+      <Suspense fallback={<LoadingSpinner />}>
+        <Routes>
+          <Route path="/login" element={<LoginCallback />} />
+          <Route path="/taskcluster-auth" element={<TaskclusterCallback />} />
+          <Route
+            path="/jobs/*"
+            element={
+              <WithFavicon route="/jobs">
+                <JobsViewApp />
+              </WithFavicon>
+            }
+          />
+          <Route
+            path="/logviewer/*"
+            element={
+              <WithFavicon route="/logviewer">
+                <LogviewerApp />
+              </WithFavicon>
+            }
+          />
+          <Route
+            path="/userguide/*"
+            element={
+              <WithFavicon route="/userguide">
+                <UserGuideApp />
+              </WithFavicon>
+            }
+          />
+          <Route
+            path="/push-health/*"
+            element={
+              <WithFavicon route="/push-health">
+                <PushHealthApp />
+              </WithFavicon>
+            }
+          />
+          <Route
+            path="/intermittent-failures/*"
+            element={
+              <WithFavicon route="/intermittent-failures">
+                <IntermittentFailuresApp />
+              </WithFavicon>
+            }
+          />
+          <Route
+            path="/perfherder/*"
+            element={
+              <WithFavicon route="/perfherder">
+                <PerfherderApp />
+              </WithFavicon>
+            }
+          />
+          <Route path="/docs/*" element={<RedocApp />} />
+        </Routes>
+      </Suspense>
+    </UrlUpdater>
+  );
 };
 
 const App = () => {
-  updateUrls();
   return (
     <Provider store={configureStore()}>
-      <ConnectedRouter history={history}>
-        <Suspense fallback={<LoadingSpinner />}>
-          <Switch>
-            <Route
-              exact
-              path="/login"
-              render={(props) => <LoginCallback {...props} />}
-            />
-            <Route
-              exact
-              path="/taskcluster-auth"
-              render={(props) => <TaskclusterCallback {...props} />}
-            />
-            <Route
-              path="/jobs"
-              render={(props) =>
-                withFavicon(<JobsViewApp {...props} />, props.location.pathname)
-              }
-            />
-            <Route
-              path="/logviewer"
-              render={(props) =>
-                withFavicon(
-                  <LogviewerApp {...props} />,
-                  props.location.pathname,
-                )
-              }
-            />
-            <Route
-              path="/userguide"
-              render={(props) =>
-                withFavicon(
-                  <UserGuideApp {...props} />,
-                  props.location.pathname,
-                )
-              }
-            />
-            <Route
-              path="/push-health"
-              render={(props) =>
-                withFavicon(<PushHealthApp {...props} />, '/push-health')
-              }
-            />
-            <Route
-              path="/intermittent-failures"
-              render={(props) =>
-                withFavicon(
-                  <IntermittentFailuresApp {...props} />,
-                  '/intermittent-failures',
-                )
-              }
-            />
-            <Route
-              path="/perfherder"
-              render={(props) =>
-                withFavicon(<PerfherderApp {...props} />, '/perfherder')
-              }
-            />
-            <Route path="/docs" render={(props) => <RedocApp {...props} />} />
-          </Switch>
-        </Suspense>
-      </ConnectedRouter>
+      <BrowserRouter
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true,
+        }}
+      >
+        <AppRoutes />
+      </BrowserRouter>
     </Provider>
   );
 };
 
+export { AppRoutes };
 export default App;

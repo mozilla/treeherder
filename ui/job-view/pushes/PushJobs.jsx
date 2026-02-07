@@ -1,6 +1,5 @@
-import React, { useMemo, useCallback, memo } from 'react';
+import { useMemo, useCallback, memo } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
@@ -9,8 +8,8 @@ import { findInstance } from '../../helpers/job';
 import { getUrlParam } from '../../helpers/location';
 import { getLogViewerUrl } from '../../helpers/url';
 import JobModel from '../../models/job';
-import { selectJobViaUrl } from '../redux/stores/selectedJob';
-import { togglePinJob } from '../redux/stores/pinnedJobs';
+import { selectJobViaUrl } from '../stores/selectedJobStore';
+import { togglePinJob } from '../stores/pinnedJobsStore';
 
 import Platform from './Platform';
 
@@ -24,8 +23,6 @@ function PushJobs({
   groupCountsExpanded,
   platforms,
   toggleSelectedRunnableJob,
-  togglePinJob,
-  selectJobViaUrl,
 }) {
   const aggregateId = useMemo(
     () => getPushTableId(repoName, push.id, push.revision),
@@ -33,12 +30,28 @@ function PushJobs({
   );
 
   const selectJob = useCallback(
-    (job) => {
-      // URL-FIRST: Only update the URL here.
+    (job, jobInstance) => {
+      // URL-FIRST: Update the URL for persistence and state sync.
       // The URL change will trigger syncSelectionFromUrl in PushList,
-      // which handles updating Redux state and visual selection.
-      // This eliminates race conditions by having a single path for selection.
+      // which handles updating Redux state.
       selectJobViaUrl(job);
+
+      // Also do an optimistic visual update for immediate feedback.
+      // This ensures the selection appears instantly without waiting
+      // for the URL sync round-trip.
+      if (jobInstance?.setSelected) {
+        // Deselect the currently selected job first
+        const currentSelected = document.querySelector('.selected-job');
+        if (currentSelected) {
+          const currentJobId = currentSelected.getAttribute('data-job-id');
+          const currentInstance = findInstance(currentSelected);
+          if (currentInstance?.setSelected && currentJobId !== String(job.id)) {
+            currentInstance.setSelected(false);
+          }
+        }
+        // Select the new job
+        jobInstance.setSelected(true);
+      }
     },
     [selectJobViaUrl],
   );
@@ -75,7 +88,7 @@ function PushJobs({
       const jobInstance = findInstance(ev.target);
       const selectedTaskRun = getUrlParam('selectedTaskRun');
 
-      if (jobInstance && jobInstance.props && jobInstance.props.job) {
+      if (jobInstance?.props?.job) {
         const { job } = jobInstance.props;
         if (ev.button === 1) {
           // Middle click
@@ -83,14 +96,14 @@ function PushJobs({
         } else if (ev.metaKey || ev.ctrlKey) {
           // Pin job
           if (!selectedTaskRun) {
-            selectJob(job);
+            selectJob(job, jobInstance);
           }
           togglePinJob(job);
         } else if (job && job.state === 'runnable') {
           // Toggle runnable
           handleRunnableClick(jobInstance);
         } else {
-          selectJob(job); // Left click
+          selectJob(job, jobInstance); // Left click
         }
       }
     },
@@ -134,8 +147,6 @@ function PushJobs({
 }
 
 PushJobs.propTypes = {
-  togglePinJob: PropTypes.func.isRequired,
-  selectJobViaUrl: PropTypes.func.isRequired,
   toggleSelectedRunnableJob: PropTypes.func.isRequired,
   repoName: PropTypes.string.isRequired,
   push: PropTypes.shape({
@@ -150,4 +161,4 @@ PushJobs.propTypes = {
   filterModel: PropTypes.shape({}).isRequired,
 };
 
-export default connect(null, { selectJobViaUrl, togglePinJob })(memo(PushJobs));
+export default memo(PushJobs);

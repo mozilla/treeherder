@@ -115,7 +115,7 @@ export const getLogViewerUrl = function getLogViewerUrl(
   task,
 ) {
   let rv = `/logviewer?job_id=${jobId}&repo=${repoName}`;
-  if (task && task.task_id && task.retry_id !== undefined) {
+  if (task?.task_id && task.retry_id !== undefined) {
     rv += `&task=${task.task_id}.${task.retry_id}`;
   }
   return lineNumber ? `${rv}&lineNumber=${lineNumber}` : rv;
@@ -193,10 +193,11 @@ export const getRevisionUrl = (revision, projectName) =>
 
 export const updateQueryParams = function updateHistoryWithQueryParams(
   queryParams,
-  history,
+  navigate,
   location,
 ) {
-  history.push({ pathname: location.pathname, search: queryParams });
+  // React Router v6 uses navigate() instead of history.push()
+  navigate({ pathname: location.pathname, search: queryParams });
 };
 
 export const getPernoscoURL = (taskId) =>

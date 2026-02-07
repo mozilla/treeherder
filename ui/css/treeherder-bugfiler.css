@@ -61,27 +61,27 @@
 
 /* Adjust margins for sections */
 .modal-body .ms-4 {
-  margin-left: 1.5rem !important;
+  margin-left: 1.5rem;
 }
 
 .modal-body .mb-1 {
-  margin-bottom: 0.25rem !important;
+  margin-bottom: 0.25rem;
 }
 
 .modal-body .mb-2 {
-  margin-bottom: 0.5rem !important;
+  margin-bottom: 0.5rem;
 }
 
 .modal-body .mb-3 {
-  margin-bottom: 1rem !important;
+  margin-bottom: 1rem;
 }
 
 .modal-body .mt-1 {
-  margin-top: 0.25rem !important;
+  margin-top: 0.25rem;
 }
 
 .modal-body .mt-2 {
-  margin-top: 0.5rem !important;
+  margin-top: 0.5rem;
 }
 
 /* Form labels */
