@@ -9,11 +9,11 @@ strong {
   flex-direction: column;
 }
 
-#details-panel a {
+#details-panel a:not(.btn-darker-secondary):not(.text-darker-secondary) {
   color: #337ab7;
 }
 
-#details-panel a:visited {
+#details-panel a:visited:not(.btn-darker-secondary):not(.text-darker-secondary) {
   color: purple;
 }
 
@@ -528,6 +528,11 @@ div.similar-jobs .similar-job-detail-panel .similar_job_detail table {
 div.similar-jobs .similar-job-list {
   overflow: auto;
   flex: 1 1;
+}
+
+/* Override the default display:none on job-btn so similar job buttons are visible */
+div.similar-jobs .similar-job-list button.btn.job-btn {
+  display: inline-block;
 }
 
 div.similar-jobs .similar-job-list table {
