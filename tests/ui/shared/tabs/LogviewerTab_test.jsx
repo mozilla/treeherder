@@ -5,8 +5,8 @@ import LogviewerTab from '../../../../ui/shared/tabs/LogviewerTab';
 import { getProjectJobUrl } from '../../../../ui/helpers/location';
 import { textLogErrorsEndpoint } from '../../../../ui/helpers/url';
 
-// Mock @melloware/react-logviewer
-jest.mock('@melloware/react-logviewer', () => ({
+// Mock react-lazylog
+jest.mock('react-lazylog', () => ({
   LazyLog: jest.fn(({ url, scrollToLine, highlight, rowHeight }) => (
     <div
       data-testid="lazy-log"

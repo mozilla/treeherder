@@ -10,7 +10,7 @@ global.TextDecoder = TextDecoder;
 // Configure React 18 act environment for testing
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
-// Mock ResizeObserver which is required by @melloware/react-logviewer
+// Mock ResizeObserver which is required by react-lazylog
 // but not available in jsdom
 global.ResizeObserver = class ResizeObserver {
   constructor(callback) {
