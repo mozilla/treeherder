@@ -1,5 +1,3 @@
-import { push as pushRoute } from 'connected-react-router';
-
 import {
   findGroupElement,
   findGroupInstance,
@@ -20,6 +18,7 @@ import {
   setUrlParam,
   setUrlParams,
 } from '../../../helpers/location';
+import { updateUrlSearch } from '../../../helpers/router';
 import JobModel from '../../../models/job';
 import { getJobsUrl } from '../../../helpers/url';
 
@@ -47,15 +46,44 @@ export const CLEAR_JOB = 'CLEAR_JOB';
  */
 
 /**
- * Select a job by updating the URL only.
- * The URL change will trigger syncSelectionFromUrl which updates Redux state.
+ * Select a job by updating Redux state directly, then updating the URL.
  * This is the PRIMARY way to select a job.
+ *
+ * We dispatch SELECT_JOB first to avoid a race condition:
+ * - The click handler already has the job object
+ * - If we only update URL and wait for SYNC_JOB_FROM_URL, the jobMap
+ *   in that effect's closure may be stale during rapid clicks
+ * - By dispatching SELECT_JOB directly, we ensure Redux is updated immediately
+ * - SYNC_JOB_FROM_URL will then see Redux matches URL and skip re-lookup
  */
+// Track the timestamp of the last job selection to detect race conditions
+// between mousedown (which selects) and click (which might incorrectly clear)
+let lastJobSelectionTime = 0;
+
+/**
+ * Check if a job was selected very recently (within the last 100ms).
+ * Used to prevent a race condition where:
+ * 1. mousedown on job → job selected → React re-renders button
+ * 2. click fires with different target (e.g., <tbody>) due to DOM change
+ * 3. clearIfEligibleTarget incorrectly tries to clear the just-selected job
+ */
+export const wasJobJustSelected = () => {
+  return Date.now() - lastJobSelectionTime < 100;
+};
+
 export const selectJobViaUrl = (job) => {
   return (dispatch) => {
+    if (job) {
+      // Update Redux state directly with the job object.
+      // This avoids the race condition of looking up from jobMap,
+      // since we already have the job object from the click handler.
+      lastJobSelectionTime = Date.now();
+      dispatch({ type: SELECT_JOB, job });
+    }
+    // Update URL for bookmarking/history
     const taskRun = job ? getTaskRunStr(job) : null;
     const params = setUrlParams([['selectedTaskRun', taskRun]]);
-    dispatch(pushRoute({ search: params }));
+    updateUrlSearch(params);
   };
 };
 
@@ -69,7 +97,7 @@ export const clearJobViaUrl = () => {
       ['selectedTaskRun', null],
       ['selectedJob', null],
     ]);
-    dispatch(pushRoute({ search: params }));
+    updateUrlSearch(params);
   };
 };
 
@@ -100,7 +128,7 @@ export const updateJobDetails = (job) => {
     // Also update URL to ensure it reflects the latest task run
     const taskRun = job ? getTaskRunStr(job) : null;
     const params = setUrlParams([['selectedTaskRun', taskRun]]);
-    dispatch(pushRoute({ search: params }));
+    updateUrlSearch(params);
   };
 };
 
@@ -176,6 +204,17 @@ export const doSelectJob = (job) => {
     newSelectedElement.setSelected(true);
     // Track the newly selected instance for reliable deselection later
     setCurrentlySelectedInstance(job.id, newSelectedElement);
+
+    // Scroll the job into view if not already visible.
+    // Uses 'center' to position in the middle of the visible area.
+    requestAnimationFrame(() => {
+      const buttonEl = document.querySelector(
+        `#push-list button[data-job-id='${job.id}']`,
+      );
+      if (buttonEl) {
+        scrollToElement(buttonEl);
+      }
+    });
   } else {
     // Clear tracking since the job element doesn't exist
     clearCurrentlySelectedInstance();
@@ -198,9 +237,18 @@ export const doSelectJob = (job) => {
 
 /**
  * Clear the visual selection state.
+ * @param {number|object} countPinnedJobs - Number of pinned jobs, or empty object {} when called from sync
  */
 export const doClearSelectedJob = (countPinnedJobs) => {
-  if (!countPinnedJobs) {
+  // Check if there are actually pinned jobs. Handle both:
+  // - countPinnedJobs as a number (0 means no pinned jobs)
+  // - countPinnedJobs as {} (empty object, also means no pinned jobs)
+  const hasPinnedJobs =
+    typeof countPinnedJobs === 'number'
+      ? countPinnedJobs > 0
+      : Object.keys(countPinnedJobs || {}).length > 0;
+
+  if (!hasPinnedJobs) {
     const selected = getCurrentlySelectedInstance() || findSelectedInstance();
     if (selected) selected.setSelected(false);
 
@@ -381,8 +429,24 @@ export const reducer = (state = initialState, action) => {
   const { job, jobMap, countPinnedJobs, notify } = action;
 
   switch (action.type) {
-    case SYNC_JOB_FROM_URL:
+    case SYNC_JOB_FROM_URL: {
+      // Check if Redux state already matches URL (e.g., after a direct click via selectJobViaUrl)
+      // This avoids race conditions with stale jobMap during rapid clicks
+      const selectedTaskRun = getUrlParam('selectedTaskRun');
+      const selectedJobParam = getUrlParam('selectedJob');
+      const currentTaskRun = state.selectedJob
+        ? getTaskRunStr(state.selectedJob)
+        : null;
+
+      // Only skip re-lookup if:
+      // 1. selectedTaskRun is in URL and matches current state, AND
+      // 2. There's no legacy selectedJob param that needs migration
+      if (selectedTaskRun === currentTaskRun && !selectedJobParam) {
+        // Already in sync, skip re-lookup from potentially stale jobMap
+        return state;
+      }
       return doSyncSelectionFromUrl(jobMap, notify);
+    }
 
     // Legacy actions - still supported during migration
     case SELECT_JOB:

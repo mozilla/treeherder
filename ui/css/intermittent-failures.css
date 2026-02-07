@@ -46,7 +46,7 @@ input {
   color: black;
   font-size: 14px;
   border: 1px solid lightgray;
-  max-width: 100% !important;
+  max-width: 100%;
 }
 
 ul {
@@ -116,7 +116,7 @@ button.DateRangePickerInput_clearDates {
 }
 
 .rt-td:hover .vm-text {
-  visibility: visible !important;
+  visibility: visible;
   color: #666;
 }
 
