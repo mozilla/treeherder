@@ -1,16 +1,18 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'react-bootstrap';
 import { connect } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 import intersection from 'lodash/intersection';
 import isEqual from 'lodash/isEqual';
 
 import ErrorBoundary from '../../shared/ErrorBoundary';
-import { notify } from '../redux/stores/notifications';
+import { notify } from '../stores/notificationStore';
 import {
   syncSelectionFromUrl,
   clearJobViaUrl,
-} from '../redux/stores/selectedJob';
+  wasJobJustSelected,
+} from '../stores/selectedJobStore';
 import { fetchPushes, updateRange, pollPushes } from '../redux/stores/pushes';
 import { updatePushParams } from '../../helpers/location';
 
@@ -45,21 +47,18 @@ function PushList({
   duplicateJobsVisible,
   groupCountsExpanded,
   allUnclassifiedFailureCount,
-  clearJobViaUrl,
-  syncSelectionFromUrl,
   getAllShownJobs,
   jobMap,
-  notify,
   revision = null,
   landoCommitID = null,
   landoStatus = 'unknown',
   currentRepo = {},
-  router,
   pushHealthVisibility,
 }) {
+  const location = useLocation();
   const [notificationSupported] = useState('Notification' in window);
   const pushIntervalId = useRef(null);
-  const prevRouterSearch = useRef(router.location.search);
+  const prevRouterSearch = useRef(location.search);
   const prevJobsLoaded = useRef(jobsLoaded);
 
   const getUrlRangeValues = useCallback((search) => {
@@ -82,13 +81,13 @@ function PushList({
   const handleUrlChanges = useCallback(
     (prevSearch) => {
       const oldRange = getUrlRangeValues(prevSearch);
-      const newRange = getUrlRangeValues(router.location.search);
+      const newRange = getUrlRangeValues(location.search);
 
       if (!isEqual(oldRange, newRange)) {
         updateRange(newRange);
       }
     },
-    [router.location.search, updateRange, getUrlRangeValues],
+    [location.search, updateRange, getUrlRangeValues],
   );
 
   const poll = useCallback(() => {
@@ -111,6 +110,15 @@ function PushList({
         !intersection(target.classList, ['btn', 'dropdown-item']).length;
 
       if (isEligible) {
+        // Don't clear if a job was just selected (within the last ~100ms).
+        // This prevents a race condition where clicking a job triggers:
+        // 1. mousedown -> job selected -> React re-renders button
+        // 2. click event fires with target as a parent element (e.g., <tbody>)
+        //    because the DOM changed between mousedown and mouseup
+        // 3. clearIfEligibleTarget incorrectly clears the just-selected job
+        if (wasJobJustSelected()) {
+          return;
+        }
         // Use URL-first pattern: just update URL, let sync effect handle the rest
         clearJobViaUrl();
       }
@@ -120,11 +128,11 @@ function PushList({
 
   const fetchNextPushes = useCallback(
     (count) => {
-      const params = updatePushParams(router.location);
+      const params = updatePushParams(location);
       window.history.pushState(null, null, params);
       fetchPushes(count, true);
     },
-    [fetchPushes, router.location],
+    [fetchPushes, location],
   );
 
   const setWindowTitle = useCallback(() => {
@@ -157,7 +165,7 @@ function PushList({
   // All selection changes (clicks, keyboard, back/forward) go through URL first,
   // then this effect syncs the state.
   useEffect(() => {
-    if (prevRouterSearch.current !== router.location.search) {
+    if (prevRouterSearch.current !== location.search) {
       // Handle range changes (repo, dates, etc.)
       handleUrlChanges(prevRouterSearch.current);
 
@@ -167,10 +175,10 @@ function PushList({
         syncSelectionFromUrl(jobMap, notify);
       }
 
-      prevRouterSearch.current = router.location.search;
+      prevRouterSearch.current = location.search;
     }
   }, [
-    router.location.search,
+    location.search,
     handleUrlChanges,
     jobsLoaded,
     syncSelectionFromUrl,
@@ -261,16 +269,12 @@ PushList.propTypes = {
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
   allUnclassifiedFailureCount: PropTypes.number.isRequired,
-  clearJobViaUrl: PropTypes.func.isRequired,
-  syncSelectionFromUrl: PropTypes.func.isRequired,
   getAllShownJobs: PropTypes.func.isRequired,
   jobMap: PropTypes.shape({}).isRequired,
-  notify: PropTypes.func.isRequired,
   revision: PropTypes.string,
   landoCommitID: PropTypes.string,
   landoStatus: PropTypes.string,
   currentRepo: PropTypes.shape({}),
-  router: PropTypes.shape({}).isRequired,
 };
 
 const mapStateToProps = ({
@@ -281,20 +285,15 @@ const mapStateToProps = ({
     pushList,
     allUnclassifiedFailureCount,
   },
-  router,
 }) => ({
   loadingPushes,
   jobsLoaded,
   jobMap,
   pushList,
   allUnclassifiedFailureCount,
-  router,
 });
 
 export default connect(mapStateToProps, {
-  notify,
-  clearJobViaUrl,
-  syncSelectionFromUrl,
   fetchPushes,
   updateRange,
   pollPushes,

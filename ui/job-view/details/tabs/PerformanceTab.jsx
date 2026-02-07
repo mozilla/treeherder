@@ -18,7 +18,6 @@ import {
   getPerfAnalysisUrl,
 } from '../../../helpers/url';
 import { triggerTask } from '../../../helpers/performance';
-import { notify } from '../../redux/stores/notifications';
 import { isPerfTest } from '../../../helpers/job';
 import { geckoProfileTaskName, sxsTaskName } from '../../../helpers/constants';
 
@@ -289,6 +288,5 @@ PerformanceTab.propTypes = {
 const mapStateToProps = (state) => ({
   decisionTaskMap: state.pushes.decisionTaskMap,
 });
-const mapDispatchToProps = { notify };
 
-export default connect(mapStateToProps, mapDispatchToProps)(PerformanceTab);
+export default connect(mapStateToProps)(PerformanceTab);

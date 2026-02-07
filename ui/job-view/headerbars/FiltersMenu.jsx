@@ -1,6 +1,5 @@
-import React from 'react';
+
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { Dropdown } from 'react-bootstrap';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -11,21 +10,18 @@ import {
   arraysEqual,
 } from '../../helpers/filter';
 import { thAllResultStatuses } from '../../helpers/constants';
-import { setSelectedJob, clearSelectedJob } from '../redux/stores/selectedJob';
-import { pinJobs } from '../redux/stores/pinnedJobs';
+import {
+  useSelectedJobStore,
+  setSelectedJob,
+} from '../stores/selectedJobStore';
+import { pinJobs } from '../stores/pinnedJobsStore';
 
 const resultStatusMenuItems = thAllResultStatuses.filter(
   (rs) => rs !== 'runnable',
 );
 
-function FiltersMenu({
-  filterModel,
-  pinJobs,
-  getAllShownJobs,
-  selectedJob = null,
-  setSelectedJob,
-  user,
-}) {
+function FiltersMenu({ filterModel, getAllShownJobs, user }) {
+  const selectedJob = useSelectedJobStore((state) => state.selectedJob);
   const {
     urlParams: { resultStatus, classifiedState },
   } = filterModel;
@@ -152,21 +148,21 @@ function FiltersMenu({
         >
           Superseded only
         </Dropdown.Item>
-        <Dropdown.Item title={`Show only pushes for ${email}`}>
-          <Link
-            className="dropdown-link"
-            to={{ search: updateParams('author', email) }}
-          >
-            My pushes only
-          </Link>
+        <Dropdown.Item
+          as={Link}
+          className="dropdown-link"
+          to={{ search: updateParams('author', email) }}
+          title={`Show only pushes for ${email}`}
+        >
+          My pushes only
         </Dropdown.Item>
-        <Dropdown.Item title="Do not show pushes from reviewbot">
-          <Link
-            className="dropdown-link"
-            to={{ search: updateParams('author', '-reviewbot') }}
-          >
-            Hide code review pushes
-          </Link>
+        <Dropdown.Item
+          as={Link}
+          className="dropdown-link"
+          to={{ search: updateParams('author', '-reviewbot') }}
+          title="Do not show pushes from reviewbot"
+        >
+          Hide code review pushes
         </Dropdown.Item>
         <Dropdown.Item
           as="a"
@@ -182,17 +178,8 @@ function FiltersMenu({
 
 FiltersMenu.propTypes = {
   filterModel: PropTypes.shape({}).isRequired,
-  pinJobs: PropTypes.func.isRequired,
-  setSelectedJob: PropTypes.func.isRequired,
   getAllShownJobs: PropTypes.func.isRequired,
-  selectedJob: PropTypes.shape({}),
   user: PropTypes.shape({}).isRequired,
 };
 
-const mapStateToProps = ({ selectedJob: { selectedJob } }) => ({ selectedJob });
-
-export default connect(mapStateToProps, {
-  setSelectedJob,
-  clearSelectedJob,
-  pinJobs,
-})(FiltersMenu);
+export default FiltersMenu;

@@ -1,4 +1,4 @@
-import React from 'react';
+
 import PropTypes from 'prop-types';
 import { Badge, Button, Form, CloseButton } from 'react-bootstrap';
 
@@ -94,7 +94,7 @@ const LegendCard = ({
   };
 
   const removeTest = () => {
-    const index = testData.findIndex((test) => test === series);
+    const index = testData.indexOf(series);
     const newData = [...testData];
 
     if (index === -1) {

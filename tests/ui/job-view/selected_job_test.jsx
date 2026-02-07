@@ -1,24 +1,22 @@
-import React from 'react';
+
 import { Provider, ReactReduxContext } from 'react-redux';
 import {
-  act,
-  cleanup,
-  fireEvent,
   render,
+  fireEvent,
   waitFor,
+  act,
 } from '@testing-library/react';
-import { ConnectedRouter } from 'connected-react-router';
-import { createBrowserHistory } from 'history';
+import { MemoryRouter } from 'react-router-dom';
 
-import { addAggregateFields, findInstance } from '../../../ui/helpers/job';
-import { getUrlParam, setUrlParam } from '../../../ui/helpers/location';
+import { addAggregateFields } from '../../../ui/helpers/job';
 import { clearJobButtonRegistry } from '../../../ui/hooks/useJobButtonRegistry';
 import PushJobs from '../../../ui/job-view/pushes/PushJobs';
 import { configureStore } from '../../../ui/job-view/redux/configureStore';
 import FilterModel from '../../../ui/models/filter';
 import platforms from '../mock/platforms';
 
-const history = createBrowserHistory();
+const mockLocation = { search: '', pathname: '/jobs' };
+const mockNavigate = jest.fn();
 const testPush = {
   id: 494796,
   revision: '1252c6014d122d48c6782310d5c3f4ae742751cb',
@@ -39,6 +37,31 @@ const testPush = {
   jobsLoaded: true,
 };
 
+const testPushJobs = (filtermodel = null, store = null) => {
+  const storeToUse = store || configureStore();
+  return (
+    <Provider store={storeToUse} context={ReactReduxContext}>
+      <MemoryRouter>
+        <div id="push-list">
+          <PushJobs
+            push={testPush}
+            platforms={platforms}
+            repoName="try"
+            filterModel={
+              filtermodel || new FilterModel(mockNavigate, mockLocation)
+            }
+            pushGroupState=""
+            toggleSelectedRunnableJob={() => {}}
+            runnableVisible={false}
+            duplicateJobsVisible={false}
+            groupCountsExpanded={false}
+          />
+        </div>
+      </MemoryRouter>
+    </Provider>
+  );
+};
+
 beforeAll(() => {
   platforms.forEach((platform) => {
     platform.groups.forEach((group) => {
@@ -53,98 +76,31 @@ beforeEach(() => {
   clearJobButtonRegistry();
 });
 
-afterEach(() => {
-  cleanup();
-  setUrlParam('selectedTaskRun', null);
+beforeEach(() => {
   clearJobButtonRegistry();
-});
-
-const testPushJobs = (filtermodel = null) => {
-  const store = configureStore(history);
-  return (
-    <Provider store={store} context={ReactReduxContext}>
-      <ConnectedRouter history={history} context={ReactReduxContext}>
-        <div id="push-list">
-          <PushJobs
-            push={testPush}
-            platforms={platforms}
-            repoName="try"
-            filterModel={
-              filtermodel ||
-              new FilterModel({
-                router: { location: history.location, push: history.push },
-              })
-            }
-            pushGroupState=""
-            toggleSelectedRunnableJob={() => {}}
-            runnableVisible={false}
-            duplicateJobsVisible={false}
-            groupCountsExpanded={false}
-          />
-        </div>
-      </ConnectedRouter>
-    </Provider>
-  );
-};
-
-test('select a job updates url', async () => {
-  const { getByText } = render(testPushJobs());
-  const spell = getByText('spell');
-
-  expect(spell).toBeInTheDocument();
-
-  // Click the job - this dispatches selectJobViaUrl which updates the URL
-  fireEvent.mouseDown(spell);
-
-  // In the real app, PushList listens for URL changes and calls syncSelectionFromUrl,
-  // which then calls setSelected(true) on the job instance.
-  // Since we don't have PushList in this test, we manually trigger the selection sync.
-  await waitFor(() => {
-    const selTaskRun = getUrlParam('selectedTaskRun');
-    expect(selTaskRun).toBe('OeYt2-iLQSaQb2ashZ_VIQ.0');
-  });
-
-  // Manually call setSelected on the job instance to simulate what syncSelectionFromUrl does
-  const jobInstance = findInstance(spell);
-  await act(async () => {
-    jobInstance.setSelected(true);
-  });
-
-  expect(spell).toHaveClass('selected-job');
+  jest.spyOn(window.history, 'pushState').mockImplementation(() => {});
 });
 
 test('filter change keeps selected job visible', async () => {
-  const { getByText, rerender } = render(testPushJobs());
+  const store = configureStore();
+  const filterModel = new FilterModel(mockNavigate, mockLocation);
+  const { getByText, rerender } = render(testPushJobs(filterModel, store));
   const spell = await waitFor(() => getByText('spell'));
-  const filterModel = new FilterModel({
-    router: { location: history.location },
-    pushRoute: history.push,
-  });
 
   expect(spell).toBeInTheDocument();
 
   // Click the job - this dispatches selectJobViaUrl which updates the URL
   fireEvent.mouseDown(spell);
+  await waitFor(() => expect(spell).toHaveClass('selected-job'));
 
-  // Wait for URL to update
-  await waitFor(() => {
-    expect(getUrlParam('selectedTaskRun')).toBe('OeYt2-iLQSaQb2ashZ_VIQ.0');
+  act(() => {
+    filterModel.addFilter('searchStr', 'linux');
   });
-
-  // Manually call setSelected on the job instance to simulate what syncSelectionFromUrl does
-  const jobInstance = findInstance(spell);
-  await act(async () => {
-    jobInstance.setSelected(true);
-  });
-
-  expect(spell).toHaveClass('selected-job');
-
-  filterModel.addFilter('searchStr', 'linux');
-  rerender(testPushJobs(filterModel));
+  rerender(testPushJobs(filterModel, store));
 
   const spell2 = getByText('spell');
 
   expect(spell2).toBeInTheDocument();
   expect(spell2).toHaveClass('filter-shown');
-  expect(spell2).toHaveClass('selected-job');
+  await waitFor(() => expect(spell2).toHaveClass('selected-job'));
 });

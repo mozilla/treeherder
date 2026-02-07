@@ -406,8 +406,8 @@ export default class AlertTableRow extends React.Component {
       sxsTriggered;
 
     const backfillStatusInfo = this.getBackfillStatusInfo(alert);
-    let sherlockTooltip = backfillStatusInfo && backfillStatusInfo.message;
-    if (backfillStatusInfo && backfillStatusInfo.displayTasksCount) {
+    let sherlockTooltip = backfillStatusInfo?.message;
+    if (backfillStatusInfo?.displayTasksCount) {
       sherlockTooltip = (
         <>
           <i>{backfillStatusInfo.message}</i>
