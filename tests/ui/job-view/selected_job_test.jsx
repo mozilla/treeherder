@@ -5,10 +5,12 @@ import {
   fireEvent,
   waitFor,
   act,
+  cleanup,
 } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
 import { addAggregateFields } from '../../../ui/helpers/job';
+import { setUrlParam } from '../../../ui/helpers/location';
 import { clearJobButtonRegistry } from '../../../ui/hooks/useJobButtonRegistry';
 import PushJobs from '../../../ui/job-view/pushes/PushJobs';
 import { configureStore } from '../../../ui/job-view/redux/configureStore';
@@ -74,10 +76,6 @@ beforeAll(() => {
 
 beforeEach(() => {
   clearJobButtonRegistry();
-});
-
-beforeEach(() => {
-  clearJobButtonRegistry();
   jest.spyOn(window.history, 'pushState').mockImplementation(() => {});
 });
 
@@ -87,31 +85,6 @@ afterEach(() => {
   clearJobButtonRegistry();
   jest.restoreAllMocks();
 });
-
-const testPushJobs = (filtermodel = null, store = null) => {
-  const storeToUse = store || configureStore();
-  return (
-    <Provider store={storeToUse} context={ReactReduxContext}>
-      <MemoryRouter>
-        <div id="push-list">
-          <PushJobs
-            push={testPush}
-            platforms={platforms}
-            repoName="try"
-            filterModel={
-              filtermodel || new FilterModel(mockNavigate, mockLocation)
-            }
-            pushGroupState=""
-            toggleSelectedRunnableJob={() => {}}
-            runnableVisible={false}
-            duplicateJobsVisible={false}
-            groupCountsExpanded={false}
-          />
-        </div>
-      </MemoryRouter>
-    </Provider>
-  );
-};
 
 test('select a job updates url', async () => {
   const { getByText } = render(testPushJobs());
