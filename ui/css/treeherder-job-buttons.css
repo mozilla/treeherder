@@ -7,23 +7,26 @@
   cursor: default;
 }
 
-.job-btn {
+/* Use higher specificity to override Bootstrap's .btn variables */
+button.btn.job-btn {
+  --bs-btn-padding-y: 0;
+  --bs-btn-padding-x: 2px;
+  --bs-btn-font-size: 12px;
+  --bs-btn-line-height: 1.32;
   background-color: transparent;
-  padding: 0 2px 0 2px !important;
-  vertical-align: 0 !important;
-  line-height: 1.32 !important;
+  vertical-align: 0;
   display: none;
   transition: transform 0.1s;
-  font-size: 12px !important;
 }
 
-.group-btn {
+button.btn.group-btn {
+  --bs-btn-padding-y: 0;
+  --bs-btn-padding-x: 2px;
+  --bs-btn-font-size: 12px;
+  --bs-btn-line-height: 1.32;
   background: transparent;
-  padding: 0 2px 0 2px !important;
-  vertical-align: 0 !important;
-  line-height: 1.32 !important;
+  vertical-align: 0;
   cursor: pointer;
-  font-size: 12px !important;
 }
 
 .group-btn::before {
@@ -34,12 +37,13 @@
   background-color: rgba(219, 235, 252, 0.51);
 }
 
-.group-symbol {
+button.btn.group-symbol {
+  --bs-btn-padding-y: 0;
+  --bs-btn-padding-x: 2px;
+  --bs-btn-line-height: 1.32;
   background: transparent;
-  padding: 0 2px 0 2px !important;
   border: 0;
-  vertical-align: 0 !important;
-  line-height: 1.32 !important;
+  vertical-align: 0;
   cursor: pointer;
   margin-right: -3px;
 }
@@ -70,15 +74,16 @@
   white-space: normal;
 }
 
-.runnable-job-btn {
+button.btn.runnable-job-btn {
+  --bs-btn-padding-y: 0;
+  --bs-btn-padding-x: 2px;
+  --bs-btn-font-size: 12px;
+  --bs-btn-line-height: 1.32;
   display: none;
   color: rgba(128, 128, 0, 0.5);
   margin: 0;
   background: transparent;
-  padding: 0 2px !important;
-  vertical-align: 0 !important;
-  line-height: 1.32 !important;
-  font-size: 12px !important;
+  vertical-align: 0;
   border-radius: 0;
   text-align: center;
   white-space: nowrap;
@@ -93,12 +98,14 @@
 /* Selected jobs: white background for classified failures and non-failures */
 .job-btn.selected-job:not([data-status='testfailed']):not([data-status='busted']):not([data-status='exception']),
 .job-btn.selected-job[data-classified='true'] {
-  background: #fff !important;
+  background: #fff;
 }
 
-/* All selected jobs get outline matching text color */
-.job-btn.selected-job {
-  outline: 4px solid !important;
+/* All selected jobs get outline matching text color.
+   Uses button.btn to beat Bootstrap's button:focus:not(:focus-visible) { outline: 0 }
+   which has specificity (0, 2, 1). This selector has (0, 3, 1). */
+button.btn.job-btn.selected-job {
+  outline: 4px solid;
   outline-color: currentcolor;
 }
 
@@ -130,6 +137,12 @@
 
 .btn-lg-xform:hover {
   opacity: 0.9;
+}
+
+/* Override display:none for filtered job buttons with matching specificity */
+button.btn.job-btn.filter-shown,
+button.btn.runnable-job-btn.filter-shown {
+  display: inline-block;
 }
 
 .filter-shown {
@@ -420,14 +433,15 @@
   color: var(--status-unscheduled-hover);
 }
 
-.group-select-all-runnable {
+button.btn.group-select-all-runnable {
+  --bs-btn-padding-y: 0;
+  --bs-btn-padding-x: 2px;
+  --bs-btn-font-size: 12px;
+  --bs-btn-line-height: 1.32;
   color: rgba(128, 128, 0, 0.5);
-  font-size: 12px;
   background: transparent;
-  padding: 0 2px 0 2px;
   border: 0;
-  vertical-align: 0 !important;
-  line-height: 1.32;
+  vertical-align: 0;
   cursor: pointer;
   margin-right: -3px;
 }

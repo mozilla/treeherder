@@ -423,7 +423,7 @@ class ActionBar extends React.PureComponent {
                 title="Scroll to selection"
                 className="actionbar-nav-btn bg-transparent border-0"
                 onClick={() =>
-                  findJobInstance(jobLogUrls[0] && jobLogUrls[0].job_id, true)
+                  findJobInstance(jobLogUrls[0]?.job_id, true)
                 }
               >
                 <FontAwesomeIcon

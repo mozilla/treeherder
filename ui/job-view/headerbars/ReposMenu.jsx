@@ -1,4 +1,4 @@
-import React from 'react';
+
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
@@ -27,7 +27,7 @@ const DEV_GROUP_ORDER = {
 export default function ReposMenu(props) {
   const { repos } = props;
   const groups = repos.reduce(
-    (acc, repo, idx, arr, group = (repo) => repo.repository_group.name) => ({
+    (acc, repo, _idx, _arr, group = (repo) => repo.repository_group.name) => ({
       ...acc,
       [group(repo)]: [...(acc[group(repo)] || []), repo],
     }),
@@ -58,11 +58,11 @@ export default function ReposMenu(props) {
       <Dropdown.Menu align="end" id="repo-dropdown">
         <ul
           className="checkbox-dropdown-menu row"
-          role="menu"
           aria-labelledby="repoLabel"
         >
           {groupedRepos.map((group) => (
             <Dropdown.Item
+              as="div"
               className="repogroup dropdown-item col"
               key={group.name}
             >

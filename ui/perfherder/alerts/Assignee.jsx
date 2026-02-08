@@ -10,7 +10,7 @@ export default class Assignee extends React.Component {
     this.state = {
       assigneeUsername,
       inEditMode: false,
-      newAssigneeUsername: null,
+      newAssigneeUsername: '',
     };
   }
 
@@ -35,7 +35,7 @@ export default class Assignee extends React.Component {
         // we must have it prepared
         newAssigneeUsername: assigneeUsername
           ? assigneeUsername.split('/')[1]
-          : assigneeUsername,
+          : '',
       });
     }
   };

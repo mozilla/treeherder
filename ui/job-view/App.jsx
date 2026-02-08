@@ -101,7 +101,7 @@ class App extends React.Component {
     };
   }
 
-  static getDerivedStateFromProps(props, state) {
+  static getDerivedStateFromProps(_props, state) {
     return {
       ...App.getSplitterDimensions(state.hasSelectedJob),
     };
