@@ -258,7 +258,7 @@ secondary-nav-bar {
 @media (min-width: 850px) {
   #quick-filter:focus,
   #quick-filter:valid {
-    width: 300px !important;
+    width: 300px;
     padding-right: 20px;
   }
 }
@@ -337,8 +337,8 @@ fieldset[disabled] .btn-unclassified-failures.active {
 .btn-view-nav:focus,
 .btn-view-nav:active,
 .btn-view-nav.active {
-  background-color: #404446 !important;
-  border-color: #1a1d20 !important;
+  background-color: #404446;
+  border-color: #1a1d20;
   color: white;
 }
 .btn-view-nav.disabled:hover,
@@ -475,7 +475,7 @@ fieldset[disabled] .btn-view-nav-closed.active {
 
 /* Fix dropdown menu positioning to not expand navbar height */
 .top-navbar .dropdown-menu {
-  position: absolute !important;
+  position: absolute;
   top: 100%;
   z-index: 1000;
 }
@@ -490,7 +490,7 @@ fieldset[disabled] .btn-view-nav-closed.active {
   --bs-btn-line-height: 19.5px;
   height: 30px;
   min-height: 30px;
-  color: lightgray !important;
+  color: lightgray;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -522,5 +522,5 @@ fieldset[disabled] .btn-view-nav-closed.active {
 
 /* Remove caret from repository dropdown toggle */
 .no-caret::after {
-  display: none !important;
+  display: none;
 }

@@ -1,7 +1,6 @@
 import pick from 'lodash/pick';
 import keyBy from 'lodash/keyBy';
 import max from 'lodash/max';
-import { push as pushRoute } from 'connected-react-router';
 
 import { parseQueryParams, bugzillaBugsApi } from '../../../helpers/url';
 import { getUrlParam, replaceLocation } from '../../../helpers/location';
@@ -11,6 +10,7 @@ import FilterModel from '../../../models/filter';
 import JobModel from '../../../models/job';
 import { thEvents } from '../../../helpers/constants';
 import { processErrors, getData } from '../../../helpers/http';
+import { updateUrlSearch } from '../../../helpers/router';
 
 import { notify } from './notifications';
 import { clearJobViaUrl, setSelectedJob } from './selectedJob';
@@ -92,8 +92,10 @@ const getLastModifiedJobTime = (jobMap) => {
  * gives us the difference in unclassified failures and, of those jobs, the
  * ones that have been filtered out
  */
-const doRecalculateUnclassifiedCounts = (jobMap, router) => {
-  const filterModel = new FilterModel({ pushRoute, router });
+const doRecalculateUnclassifiedCounts = (jobMap) => {
+  // Create a minimal navigate function for FilterModel
+  const navigate = ({ search }) => updateUrlSearch(search);
+  const filterModel = new FilterModel(navigate, window.location);
   const tiers = filterModel.urlParams.tier;
   let allUnclassifiedFailureCount = 0;
   let filteredUnclassifiedFailureCount = 0;
@@ -118,7 +120,6 @@ const addPushes = (
   jobMap,
   setFromchange,
   dispatch,
-  router,
   oldBugSummaryMap,
 ) => {
   if (data.results.length > 0) {
@@ -137,7 +138,7 @@ const addPushes = (
     const newStuff = {
       pushList: newPushList,
       oldestPushTimestamp,
-      ...doRecalculateUnclassifiedCounts(jobMap, router),
+      ...doRecalculateUnclassifiedCounts(jobMap),
       ...getRevisionTips(newPushList),
     };
 
@@ -249,7 +250,6 @@ export const fetchPushes = (
   return async (dispatch, getState) => {
     const {
       pushes: { pushList, jobMap, oldestPushTimestamp },
-      router,
     } = getState();
 
     dispatch({ type: LOADING });
@@ -288,7 +288,6 @@ export const fetchPushes = (
           jobMap,
           setFromchange,
           dispatch,
-          router,
         ),
       });
     }
@@ -301,7 +300,6 @@ export const pollPushes = () => {
   return async (dispatch, getState) => {
     const {
       pushes: { pushList, jobMap },
-      router,
     } = getState();
     // these params will be passed in each time we poll to remain
     // within the constraints of the URL params
@@ -339,7 +337,6 @@ export const pollPushes = () => {
             jobMap,
             false,
             dispatch,
-            router,
           ),
         });
         dispatch(fetchNewJobs());
@@ -354,23 +351,25 @@ export const pollPushes = () => {
 
 export const clearPushes = () => ({ type: CLEAR_PUSHES });
 
-export const setPushes = (pushList, jobMap, router) => ({
+export const setPushes = (pushList, jobMap) => ({
   type: SET_PUSHES,
   pushResults: {
     pushList,
     jobMap,
     ...getRevisionTips(pushList),
-    ...doRecalculateUnclassifiedCounts(jobMap, router),
+    ...doRecalculateUnclassifiedCounts(jobMap),
     oldestPushTimestamp: pushList[pushList.length - 1].push_timestamp,
   },
 });
 
 export const recalculateUnclassifiedCounts = () => {
   return (dispatch, getState) => {
-    const { router } = getState();
+    const {
+      pushes: { jobMap },
+    } = getState();
     return dispatch({
       type: RECALCULATE_UNCLASSIFIED_COUNTS,
-      router,
+      jobMap,
     });
   };
 };
@@ -384,7 +383,6 @@ export const updateRange = (range) => {
   return (dispatch, getState) => {
     const {
       pushes: { pushList, jobMap },
-      router,
     } = getState();
     const { revision } = range;
     // change the range of pushes.  might already have them.
@@ -406,7 +404,7 @@ export const updateRange = (range) => {
       }
       // We already have the one revision they're looking for,
       // so we can just erase everything else.
-      dispatch(setPushes(revisionPushList, revisionJobMap, router));
+      dispatch(setPushes(revisionPushList, revisionJobMap));
     } else {
       // Clear and refetch everything.  We can't be sure if what we
       // already have is partially correct and just needs fill-in.
@@ -430,7 +428,7 @@ export const initialState = {
 };
 
 export const reducer = (state = initialState, action) => {
-  const { jobList, pushResults, setFromchange, router } = action;
+  const { jobList, pushResults, setFromchange, jobMap: actionJobMap } = action;
   const { pushList, jobMap, decisionTaskMap } = state;
 
   switch (action.type) {
@@ -445,7 +443,10 @@ export const reducer = (state = initialState, action) => {
     case SET_PUSHES:
       return { ...state, loadingPushes: false, ...pushResults };
     case RECALCULATE_UNCLASSIFIED_COUNTS:
-      return { ...state, ...doRecalculateUnclassifiedCounts(jobMap, router) };
+      return {
+        ...state,
+        ...doRecalculateUnclassifiedCounts(actionJobMap || jobMap),
+      };
     case UPDATE_JOB_MAP:
       return {
         ...state,

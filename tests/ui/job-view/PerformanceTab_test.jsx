@@ -1,12 +1,9 @@
-import React from 'react';
+
 import { render } from '@testing-library/react';
 import { Provider, ReactReduxContext } from 'react-redux';
-import { ConnectedRouter } from 'connected-react-router';
+import { MemoryRouter } from 'react-router-dom';
 
-import {
-  configureStore,
-  history,
-} from '../../../ui/job-view/redux/configureStore';
+import { configureStore } from '../../../ui/job-view/redux/configureStore';
 import PerformanceTab from '../../../ui/job-view/details/tabs/PerformanceTab.jsx';
 import { Perfdocs } from '../../../ui/perfherder/perf-helpers/perfdocs';
 
@@ -23,7 +20,7 @@ describe('PerformanceTab', () => {
 
     return (
       <Provider store={store} context={ReactReduxContext}>
-        <ConnectedRouter history={history} context={ReactReduxContext}>
+        <MemoryRouter>
           <PerformanceTab
             selectedJobFull={selectedJobFull}
             currentRepo={currentRepo}
@@ -32,7 +29,7 @@ describe('PerformanceTab', () => {
             perfJobDetail={perfJobDetail}
             revision="REV1"
           />
-        </ConnectedRouter>
+        </MemoryRouter>
       </Provider>
     );
   };

@@ -1,4 +1,4 @@
-import React from 'react';
+
 import fetchMock from 'fetch-mock';
 import { Provider } from 'react-redux';
 import { render, cleanup, waitFor } from '@testing-library/react';
@@ -8,7 +8,7 @@ import { getProjectUrl, replaceLocation } from '../../../ui/helpers/location';
 import FilterModel from '../../../ui/models/filter';
 import pushListFixture from '../mock/push_list';
 import jobListFixture from '../mock/job_list/job_2';
-import configureStore from '../../../ui/job-view/redux/configureStore';
+import { configureStore } from '../../../ui/job-view/redux/configureStore';
 import Push, {
   transformTestPath,
   transformedPaths,
@@ -166,6 +166,11 @@ describe('Push', () => {
   test.skip('jobs should have test_path field to filter', async () => {
     const { store } = configureStore();
     const { getByText } = render(testPush(store, new FilterModel()));
+
+    // Wait for initial render to complete and state updates to settle
+    await waitFor(() => {
+      expect(getByText('Jit8')).toBeInTheDocument();
+    });
 
     const validateJob = async (name, testPaths) => {
       const jobEl = await waitFor(() => getByText(name));

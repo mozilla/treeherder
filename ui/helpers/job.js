@@ -318,7 +318,8 @@ export const getJobSearchStrHref = function getJobSearchStrHref(jobSearchStr) {
   const params = getAllUrlParams();
   params.set('searchStr', jobSearchStr.split(' '));
 
-  return `?${params.toString()}`;
+  // React Router v6 Link's to={{ search: ... }} adds the ? automatically
+  return params.toString();
 };
 
 export const getTaskRunStr = (job) => `${job.task_id}.${job.retry_id}`;
