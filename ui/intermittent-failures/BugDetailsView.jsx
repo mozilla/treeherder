@@ -214,7 +214,7 @@ const BugDetailsView = (props) => {
       header={
         <React.Fragment>
           <Row>
-<title>{`Bug ${bug}${summary ? ` - ${summary}` : ''}`}</title>
+            <title>{`Bug ${bug}${summary ? ` - ${summary}` : ''}`}</title>
             <Col xs="12" className="text-left">
               <Breadcrumb listClassName="bg-white">
                 <BreadcrumbItem>
