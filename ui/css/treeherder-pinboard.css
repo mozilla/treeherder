@@ -100,6 +100,11 @@
   margin-right: 4px;
 }
 
+/* Override the default display:none on job-btn so pinned job buttons are visible */
+#pinned-job-list button.btn.job-btn {
+  display: inline-block;
+}
+
 .pinned-job {
   font-size: 12px;
   margin-bottom: 2px;
