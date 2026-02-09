@@ -81,7 +81,7 @@
     "@rspack/cli": "1.6.6",
     "@rspack/core": "1.6.6",
     "@rspack/plugin-react-refresh": "1.5.3",
-    "@swc/core": "1.15.3",
+    "@swc/core": "1.15.11",
     "@swc/jest": "0.2.39",
     "@testing-library/dom": "10.4.1",
     "@testing-library/jest-dom": "6.9.1",
