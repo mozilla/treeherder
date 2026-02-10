@@ -563,9 +563,7 @@ export const getFilledBugSummary = (alertSummary) => {
   const platformInfo = getPlatformInfo(platforms).sort().join(', ');
 
   // add push date info
-  const pushDate = dayjs(pushTimestamp * 1000).format(
-    'ddd MMMM D YYYY',
-  );
+  const pushDate = dayjs(pushTimestamp * 1000).format('ddd MMMM D YYYY');
 
   // Construct the summary title
   return `${magnitudeStr} ${testInfo} (${platformInfo}) regression on ${pushDate}`;
