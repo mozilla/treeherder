@@ -10,6 +10,8 @@ from django.conf import settings
 from django.db import transaction
 from django.db.models import Exists, OuterRef, Subquery
 
+from treeherder.perf.methods import StudentTMagDetector
+
 from treeherder.perf.email import AlertNotificationWriter
 from treeherder.perf.models import (
     PerformanceAlert,
@@ -23,6 +25,21 @@ from treeherder.services import taskcluster
 
 logger = logging.getLogger(__name__)
 
+def define_methods():
+    # Scaffolding to include more methods later on
+    studenttmag = StudentTMagDetector.StudentTMagDetector(
+            min_back_window=12,
+            max_back_window=24,
+            fore_window=12,
+            alert_threshold=2.0,
+            alpha_threshold=7,
+            mag_check=True,
+            above_threshold_is_anomaly=True,
+        )
+    methods = {
+        "studenttmag": studenttmag
+    }
+    return methods
 
 def send_alert_emails(emails, alert, alert_summary):
     notify_client = taskcluster.notify_client_factory()
@@ -117,13 +134,10 @@ def generate_new_alerts_in_series(signature):
     if alert_threshold is None:
         alert_threshold = settings.PERFHERDER_REGRESSION_THRESHOLD
 
-    data = revision_data.values()
-    analyzed_series = detect_changes(
-        data,
-        min_back_window=min_back_window,
-        max_back_window=max_back_window,
-        fore_window=fore_window,
-    )
+    data = list(revision_data.values())
+    methods = define_methods()
+    student_t_mag_method = methods["studenttmag"]
+    analyzed_series = student_t_mag_method.detect_changes(data, signature)
 
     with transaction.atomic():
         for prev, cur in zip(analyzed_series, analyzed_series[1:]):
@@ -206,3 +220,4 @@ def generate_new_alerts_in_series(signature):
 
                 if signature.alert_notify_emails:
                     send_alert_emails(signature.alert_notify_emails.split(), alert, summary)
+
