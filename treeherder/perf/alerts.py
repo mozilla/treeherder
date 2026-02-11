@@ -41,6 +41,68 @@ def define_methods():
     }
     return methods
 
+def create_alerting(signature, method, analyzed_series):
+    
+    for prev, cur in zip(analyzed_series, analyzed_series[1:]):
+        if cur.change_detected:
+            prev_value = cur.historical_stats["avg"]
+            new_value = cur.forward_stats["avg"]
+
+            alert_properties = method.get_alert_properties(
+                prev_value, new_value, signature.lower_is_better
+            )
+            noise_profile = "N/A"
+            try:
+                noise_data = []
+                for point in analyzed_series:
+                    if point == cur:
+                        break
+                    noise_data.append(geomean(point.values))
+                noise_profile, _ = moz_measure_noise.deviance(noise_data)
+
+                if not isinstance(noise_profile, str):
+                    raise Exception(
+                        f"Expecting a string as a noise profile, got: {type(noise_profile)}"
+                    )
+            except Exception:
+                pass
+
+            summary, _ = PerformanceAlertSummary.objects.get_or_create(
+                repository=signature.repository,
+                framework=signature.framework,
+                push_id=cur.push_id,
+                prev_push_id=prev.push_id,
+                sheriffed=not signature.monitor,
+                defaults={
+                    "manually_created": False,
+                    "created": datetime.utcfromtimestamp(cur.push_timestamp),
+                },
+            )
+
+            confidence = cur.t
+            if confidence == float("inf"):
+                confidence = 1000
+
+            alert, _ = PerformanceAlert.objects.update_or_create(
+                    summary=summary,
+                    series_signature=signature,
+                    sheriffed=not signature.monitor,
+                    detection_method=method.name,
+                    defaults={
+                        "noise_profile": noise_profile,
+                        "is_regression": alert_properties.is_regression,
+                        "amount_pct": alert_properties.pct_change,
+                        "amount_abs": alert_properties.delta,
+                        "prev_value": prev_value,
+                        "new_value": new_value,
+                        "t_value": confidence,
+                    },
+                )
+            # Email notifications getting disabled to not bother Sheriffs while doing testing
+            if signature.alert_notify_emails:
+                send_alert_emails(signature.alert_notify_emails.split(), alert, summary)
+
+
 def send_alert_emails(emails, alert, alert_summary):
     notify_client = taskcluster.notify_client_factory()
 
@@ -140,84 +202,4 @@ def generate_new_alerts_in_series(signature):
     analyzed_series = student_t_mag_method.detect_changes(data, signature)
 
     with transaction.atomic():
-        for prev, cur in zip(analyzed_series, analyzed_series[1:]):
-            if cur.change_detected:
-                prev_value = cur.historical_stats["avg"]
-                new_value = cur.forward_stats["avg"]
-                alert_properties = get_alert_properties(
-                    prev_value, new_value, signature.lower_is_better
-                )
-
-                noise_profile = "N/A"
-                try:
-                    # Gather all data up to the current data point that
-                    # shows the regression and obtain a noise profile on it.
-                    # This helps us to ignore this alert and others in the
-                    # calculation that could influence the profile.
-                    noise_data = []
-                    for point in analyzed_series:
-                        if point == cur:
-                            break
-                        noise_data.append(geomean(point.values))
-
-                    noise_profile, _ = moz_measure_noise.deviance(noise_data)
-
-                    if not isinstance(noise_profile, str):
-                        raise Exception(
-                            f"Expecting a string as a noise profile, got: {type(noise_profile)}"
-                        )
-                except Exception:
-                    # Fail without breaking the alert computation
-                    newrelic.agent.notice_error()
-                    logger.error("Failed to obtain a noise profile.")
-
-                # ignore regressions below the configured regression
-                # threshold
-                if (
-                    (
-                        signature.alert_change_type is None
-                        or signature.alert_change_type == PerformanceSignature.ALERT_PCT
-                    )
-                    and alert_properties.pct_change < alert_threshold
-                ) or (
-                    signature.alert_change_type == PerformanceSignature.ALERT_ABS
-                    and abs(alert_properties.delta) < alert_threshold
-                ):
-                    continue
-
-                summary, _ = PerformanceAlertSummary.objects.get_or_create(
-                    repository=signature.repository,
-                    framework=signature.framework,
-                    push_id=cur.push_id,
-                    prev_push_id=prev.push_id,
-                    sheriffed=not signature.monitor,
-                    defaults={
-                        "manually_created": False,
-                        "created": datetime.utcfromtimestamp(cur.push_timestamp),
-                    },
-                )
-
-                # django/mysql doesn't understand "inf", so just use some
-                # arbitrarily high value for that case
-                t_value = cur.t
-                if t_value == float("inf"):
-                    t_value = 1000
-
-                alert, _ = PerformanceAlert.objects.update_or_create(
-                    summary=summary,
-                    series_signature=signature,
-                    sheriffed=not signature.monitor,
-                    defaults={
-                        "noise_profile": noise_profile,
-                        "is_regression": alert_properties.is_regression,
-                        "amount_pct": alert_properties.pct_change,
-                        "amount_abs": alert_properties.delta,
-                        "prev_value": prev_value,
-                        "new_value": new_value,
-                        "t_value": t_value,
-                    },
-                )
-
-                if signature.alert_notify_emails:
-                    send_alert_emails(signature.alert_notify_emails.split(), alert, summary)
-
+        create_alerting(signature, student_t_mag_method, analyzed_series)
