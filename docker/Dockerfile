@@ -1,5 +1,5 @@
 ## Frontend stage
-FROM node:22-slim AS frontend
+FROM node:22.22.0-slim AS frontend
 
 WORKDIR /app
 
