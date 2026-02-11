@@ -4,45 +4,41 @@ from collections import namedtuple
 from datetime import datetime
 
 import moz_measure_noise
-import newrelic.agent
 import numpy as np
 from django.conf import settings
 from django.db import transaction
 from django.db.models import Exists, OuterRef, Subquery
 
-from treeherder.perf.methods import StudentTMagDetector
-
 from treeherder.perf.email import AlertNotificationWriter
+from treeherder.perf.methods import StudentTMagDetector
 from treeherder.perf.models import (
     PerformanceAlert,
     PerformanceAlertSummary,
     PerformanceDatum,
     PerformanceDatumReplicate,
-    PerformanceSignature,
 )
-from treeherder.perfalert.perfalert import RevisionDatum, detect_changes
+from treeherder.perfalert.perfalert import RevisionDatum
 from treeherder.services import taskcluster
 
 logger = logging.getLogger(__name__)
 
+
 def define_methods():
     # Scaffolding to include more methods later on
     studenttmag = StudentTMagDetector.StudentTMagDetector(
-            min_back_window=12,
-            max_back_window=24,
-            fore_window=12,
-            alert_threshold=2.0,
-            alpha_threshold=7,
-            mag_check=True,
-            above_threshold_is_anomaly=True,
-        )
-    methods = {
-        "studenttmag": studenttmag
-    }
+        min_back_window=12,
+        max_back_window=24,
+        fore_window=12,
+        alert_threshold=2.0,
+        alpha_threshold=7,
+        mag_check=True,
+        above_threshold_is_anomaly=True,
+    )
+    methods = {"studenttmag": studenttmag}
     return methods
 
+
 def create_alerting(signature, method, analyzed_series):
-    
     for prev, cur in zip(analyzed_series, analyzed_series[1:]):
         if cur.change_detected:
             prev_value = cur.historical_stats["avg"]
@@ -84,20 +80,20 @@ def create_alerting(signature, method, analyzed_series):
                 confidence = 1000
 
             alert, _ = PerformanceAlert.objects.update_or_create(
-                    summary=summary,
-                    series_signature=signature,
-                    sheriffed=not signature.monitor,
-                    detection_method=method.name,
-                    defaults={
-                        "noise_profile": noise_profile,
-                        "is_regression": alert_properties.is_regression,
-                        "amount_pct": alert_properties.pct_change,
-                        "amount_abs": alert_properties.delta,
-                        "prev_value": prev_value,
-                        "new_value": new_value,
-                        "t_value": confidence,
-                    },
-                )
+                summary=summary,
+                series_signature=signature,
+                sheriffed=not signature.monitor,
+                detection_method=method.name,
+                defaults={
+                    "noise_profile": noise_profile,
+                    "is_regression": alert_properties.is_regression,
+                    "amount_pct": alert_properties.pct_change,
+                    "amount_abs": alert_properties.delta,
+                    "prev_value": prev_value,
+                    "new_value": new_value,
+                    "t_value": confidence,
+                },
+            )
             # Email notifications getting disabled to not bother Sheriffs while doing testing
             if signature.alert_notify_emails:
                 send_alert_emails(signature.alert_notify_emails.split(), alert, summary)

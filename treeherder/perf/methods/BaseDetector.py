@@ -1,18 +1,27 @@
 from abc import ABC, abstractmethod
+from collections import namedtuple
+
 from django.db import transaction
-from django.conf import settings
-from django.db import models
 
 from treeherder.perf.models import PerformanceSignature
-from collections import namedtuple
+
+
 class BaseDetector(ABC):
     """
     A base class that other classes can inherit from.
     """
-    
-    def __init__(self, name, min_back_window, max_back_window, fore_window,
-                 alert_threshold, alpha_threshold, mag_check, 
-                 above_threshold_is_anomaly):
+
+    def __init__(
+        self,
+        name,
+        min_back_window,
+        max_back_window,
+        fore_window,
+        alert_threshold,
+        alpha_threshold,
+        mag_check,
+        above_threshold_is_anomaly,
+    ):
         """Initialize the base class."""
         self.name = name
         self.min_back_window = min_back_window
@@ -22,12 +31,10 @@ class BaseDetector(ABC):
         self.alpha_threshold = alpha_threshold
         self.mag_check = mag_check
         self.above_threshold_is_anomaly = above_threshold_is_anomaly
-        
 
     def default_weights(self, i, n):
         """A window function that weights all points uniformly."""
         return 1.0
-
 
     def linear_weights(self, i, n):
         """A window function that falls off arithmetically.
@@ -56,7 +63,7 @@ class BaseDetector(ABC):
             return alpha <= alpha_threshold
         else:
             return alpha >= alpha_threshold
-        
+
     def check_adjacent_points(self, entry_1, entry_2, above_threshold_is_anomaly):
         """
         Check if adjacent points meet the threshold condition.
@@ -65,7 +72,7 @@ class BaseDetector(ABC):
             return entry_1.t > entry_2.t
         else:
             return entry_1.t < entry_2.t
-            
+
     def analyze(self, revision_data, weight_fn=None):
         """Returns the average and sample variance (s**2) of a list of floats.
 
@@ -101,7 +108,6 @@ class BaseDetector(ABC):
         )
 
         return {"avg": weighted_avg, "n": len(all_data), "variance": variance}
-    
 
     def get_alert_properties(self, prev_value, new_value, lower_is_better):
         AlertProperties = namedtuple(
@@ -117,11 +123,9 @@ class BaseDetector(ABC):
         is_regression = (delta > 0 and lower_is_better) or (delta < 0 and not lower_is_better)
 
         return AlertProperties(pct_change, delta, is_regression, prev_value, new_value)
-    
 
     def check_magnitude_of_change(self, signature, analyzed_series, alert_threshold):
         with transaction.atomic():
-
             for cur in range(len(analyzed_series[1:])):
                 curr_series = analyzed_series[cur]
                 if curr_series.change_detected:
@@ -161,7 +165,7 @@ class BaseDetector(ABC):
         alpha_threshold = self.alpha_threshold
         mag_check = self.mag_check
         above_threshold_is_anomaly = self.above_threshold_is_anomaly
-        
+
         data = sorted(data)
 
         last_seen_regression = 0
@@ -197,7 +201,9 @@ class BaseDetector(ABC):
             di.historical_stats = self.analyze(jw)
             di.forward_stats = self.analyze(kw)
 
-            di.t, last_seen_regression = self.calc_alpha(jw, kw, alpha_threshold, last_seen_regression)
+            di.t, last_seen_regression = self.calc_alpha(
+                jw, kw, alpha_threshold, last_seen_regression
+            )
 
         # Now that the t-test scores are calculated, go back through the data to
         # find where changes most likely happened.
@@ -213,7 +219,7 @@ class BaseDetector(ABC):
 
             # Check the adjacent points
             prev = data[i - 1]
-            
+
             if self.check_adjacent_points(prev, di, above_threshold_is_anomaly):
                 continue
             # next may or may not exist if it's the last in the series
@@ -221,10 +227,10 @@ class BaseDetector(ABC):
                 next = data[i + 1]
                 if self.check_adjacent_points(next, di, above_threshold_is_anomaly):
                     continue
-                
+
             # This datapoint has a t value higher than the threshold and higher
             # than either neighbor.  Mark it as the cause of a regression.
             di.change_detected = True
         if mag_check:
-            data  = self.check_magnitude_of_change(signature, data, alert_threshold)
+            data = self.check_magnitude_of_change(signature, data, alert_threshold)
         return data
