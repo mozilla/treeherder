@@ -4,7 +4,10 @@ import newrelic.agent
 from celery.exceptions import SoftTimeLimitExceeded
 
 from treeherder.model.models import Job, JobLog
-from treeherder.perf.alerts import generate_new_alerts_in_series
+from treeherder.perf.alerts import (
+    generate_new_alerts_in_series,
+    generate_new_test_alerts_in_series,
+)
 from treeherder.perf.models import PerformanceSignature
 from treeherder.workers.task import retryable_task
 
@@ -16,6 +19,10 @@ def generate_alerts(signature_id):
     newrelic.agent.add_custom_attribute("signature_id", str(signature_id))
     signature = PerformanceSignature.objects.get(id=signature_id)
     generate_new_alerts_in_series(signature)
+    try:
+        generate_new_test_alerts_in_series(signature)
+    except Exception:
+        logger.warning("Failed to generate test alerts for signature %s", signature_id)
 
 
 @retryable_task(name="ingest-perfherder-data", max_retries=10)
