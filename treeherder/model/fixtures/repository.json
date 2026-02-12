@@ -2011,12 +2011,12 @@
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
-      "name": "enterprise-firefox",
+      "name": "enterprise-main",
       "url": "https://github.com/mozilla/enterprise-firefox",
       "branch": "enterprise-main",
       "active_status": "active",
       "codebase": "enterprise-firefox",
-      "repository_group": 6,
+      "repository_group": 13,
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
@@ -2030,7 +2030,7 @@
       "branch": "pull request",
       "active_status": "active",
       "codebase": "enterprise-firefox",
-      "repository_group": 6,
+      "repository_group": 13,
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
@@ -2039,12 +2039,12 @@
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
-      "name": "enterprise-firefox-release",
+      "name": "enterprise-release",
       "url": "https://github.com/mozilla/enterprise-firefox",
       "branch": "enterprise-release",
       "active_status": "active",
       "codebase": "enterprise-firefox",
-      "repository_group": 6,
+      "repository_group": 13,
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   }

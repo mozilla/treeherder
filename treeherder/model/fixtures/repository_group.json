@@ -94,5 +94,13 @@
       "name": "kaios",
       "description": "Repositories for KaiOS integration"
     }
+  },
+  {
+    "pk": 13,
+    "model": "model.repositorygroup",
+    "fields": {
+      "name": "enterprise-firefox",
+      "description": "Projects for Enterprise Firefox"
+    }
   }
 ]
