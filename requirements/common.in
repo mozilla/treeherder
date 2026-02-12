@@ -52,7 +52,7 @@ statsd==4.0.1
 inflection==0.5.1
 
 # Change detection tooling
-mozdetect==0.0.9
+mozdetect==0.1.0
 
 # Statistical methods for performance analysis
 cliffs-delta==1.0.0
