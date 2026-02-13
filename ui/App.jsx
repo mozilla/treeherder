@@ -6,8 +6,10 @@ import {
   useNavigate,
   useLocation,
 } from 'react-router';
+import { Provider } from 'react-redux';
 
 import { permaLinkPrefix } from './perfherder/perf-helpers/constants';
+import { configureStore } from './job-view/redux/configureStore';
 import LoadingSpinner from './shared/LoadingSpinner';
 import LoginCallback from './login-callback/LoginCallback';
 import TaskclusterCallback from './taskcluster-auth-callback/TaskclusterCallback';
@@ -194,9 +196,11 @@ const AppRoutes = () => {
 
 const App = () => {
   return (
-    <BrowserRouter>
-      <AppRoutes />
-    </BrowserRouter>
+    <Provider store={configureStore()}>
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
+    </Provider>
   );
 };
 
