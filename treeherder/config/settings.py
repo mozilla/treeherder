@@ -396,7 +396,10 @@ CORS_ORIGIN_ALLOW_ALL = True  # allow requests from any host
 
 # Rest Framework
 REST_FRAMEWORK = {
-    "ALLOWED_VERSIONS": ("1.0",),
+    "ALLOWED_VERSIONS": (
+        "1.0",
+        "1.1",
+    ),
     "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework.authentication.SessionAuthentication",),
     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
     "DEFAULT_PARSER_CLASSES": ("rest_framework.parsers.JSONParser",),
