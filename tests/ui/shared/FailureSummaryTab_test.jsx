@@ -1,4 +1,3 @@
-
 import fetchMock from 'fetch-mock';
 import {
   render,
@@ -13,7 +12,10 @@ import { Provider } from 'react-redux';
 import { getApiUrl } from '../../../ui/helpers/url';
 import { getProjectUrl } from '../../../ui/helpers/location';
 import PinBoard from '../../../ui/job-view/details/PinBoard';
-import { addBug } from '../../../ui/job-view/redux/stores/pinnedJobs';
+import {
+  addBug,
+  usePinnedJobsStore,
+} from '../../../ui/job-view/stores/pinnedJobsStore';
 import FailureSummaryTab from '../../../ui/shared/tabs/failureSummary/FailureSummaryTab';
 import jobMap from '../mock/job_map';
 import bugSuggestions from '../mock/bug_suggestions.json';
@@ -23,7 +25,6 @@ import { configureStore } from '../../../ui/job-view/redux/configureStore';
 
 const selectedJob = Object.values(jobMap)[0];
 const store = configureStore();
-const { dispatch, getState } = store;
 
 describe('FailureSummaryTab', () => {
   const repoName = 'autoland';
@@ -41,9 +42,12 @@ describe('FailureSummaryTab', () => {
   afterEach(() => {
     cleanup();
     fetchMock.reset();
-    const { pinnedJobs } = getState();
-    pinnedJobs.pinnedJobBugs = [];
-    pinnedJobs.pinnedJobs = {};
+    // Reset Zustand pinned jobs store
+    usePinnedJobsStore.setState({
+      pinnedJobs: {},
+      pinnedJobBugs: [],
+      isPinBoardVisible: false,
+    });
   });
 
   const testFailureSummaryTab = () => (
@@ -63,7 +67,7 @@ describe('FailureSummaryTab', () => {
           logViewerFullUrl="ber/baz"
           /* Calling addBug will show the pinboard which gets checked if the
              correct bug got added. */
-          addBug={(bug, job) => addBug(bug, job)(dispatch, getState)}
+          addBug={addBug}
           pinJob={() => {}}
           currentRepo={currentRepo}
         />

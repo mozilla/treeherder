@@ -1,6 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import {
   Button,
   Col,
@@ -16,7 +15,7 @@ import Fuse from 'fuse.js';
 import PushModel from '../../models/push';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
 import { sortAlphaNum } from '../../helpers/sort';
-import { notify } from '../redux/stores/notifications';
+import { notify } from '../stores/notificationStore';
 
 function FuzzyJobFinder({
   className,
@@ -26,7 +25,6 @@ function FuzzyJobFinder({
   filteredJobList = [],
   decisionTaskId = '',
   currentRepo,
-  notify,
 }) {
   const [fuzzySearch, setFuzzySearch] = useState('');
   const [fuzzyList, setFuzzyList] = useState([]);
@@ -273,7 +271,6 @@ function FuzzyJobFinder({
 FuzzyJobFinder.propTypes = {
   className: PropTypes.string.isRequired,
   isOpen: PropTypes.bool.isRequired,
-  notify: PropTypes.func.isRequired,
   toggle: PropTypes.func.isRequired,
   decisionTaskId: PropTypes.string,
   jobList: PropTypes.arrayOf(PropTypes.shape({})),
@@ -281,4 +278,4 @@ FuzzyJobFinder.propTypes = {
   currentRepo: PropTypes.shape({}).isRequired,
 };
 
-export default connect(null, { notify })(FuzzyJobFinder);
+export default FuzzyJobFinder;

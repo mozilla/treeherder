@@ -64,7 +64,8 @@
     "taskcluster-lib-urls": "13.0.1",
     "url": "0.11.4",
     "victory": "37.3.6",
-    "vm-browserify": "1.1.2"
+    "vm-browserify": "1.1.2",
+    "zustand": "5.0.9"
   },
   "devDependencies": {
     "@babel/core": "7.26.10",
