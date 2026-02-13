@@ -22,7 +22,7 @@ from treeherder.etl.pushlog import HgPushlogProcess, last_push_id_from_server
 from treeherder.etl.taskcluster_pulse.handler import EXCHANGE_EVENT_MAP, handle_message
 from treeherder.model.models import Repository
 from treeherder.utils import github
-from treeherder.utils.github import fetch_json
+from treeherder.utils.github import fetch_api_full_url
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -285,7 +285,7 @@ def query_data(repo_meta, commit):
         parents = compare_response["merge_base_commit"]["parents"]
         if len(parents) == 1:
             parent = parents[0]
-            commit_info = fetch_json(parent["url"])
+            commit_info = fetch_api_full_url(parent["url"])
             committer_date = commit_info["commit"]["committer"]["date"]
             # All commits involved in a PR share the same committer's date
             if merge_base_commit["commit"]["committer"]["date"] == committer_date:
@@ -295,7 +295,7 @@ def query_data(repo_meta, commit):
                 event_base_sha = parent["sha"]
         else:
             for parent in parents:
-                _commit = fetch_json(parent["url"])
+                _commit = fetch_api_full_url(parent["url"])
                 # All commits involved in a merge share the same committer's date
                 if commiter_date != _commit["commit"]["committer"]["date"]:
                     event_base_sha = _commit["sha"]

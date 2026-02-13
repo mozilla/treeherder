@@ -3,11 +3,15 @@ from treeherder.utils.http import fetch_json
 
 
 def fetch_api(path, params=None):
+    return fetch_api_full_url(f"https://api.github.com/{path}", params)
+
+
+def fetch_api_full_url(url, params=None):
     if GITHUB_TOKEN:
         headers = {"Authorization": f"token {GITHUB_TOKEN}"}
     else:
         headers = {}
-    return fetch_json(f"https://api.github.com/{path}", params, headers)
+    return fetch_json(url, params, headers)
 
 
 def get_releases(owner, repo, params=None):
