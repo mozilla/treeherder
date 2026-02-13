@@ -7,7 +7,7 @@ from treeherder.model.models import (
     FilesBugzillaMap,
     Repository,
 )
-from treeherder.utils.github import fetch_json
+from treeherder.utils.http import fetch_json
 
 logger = logging.getLogger(__name__)
 

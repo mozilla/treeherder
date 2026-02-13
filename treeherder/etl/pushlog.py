@@ -8,7 +8,7 @@ from django.core.cache import cache
 from treeherder.etl.exceptions import CollectionNotStoredError
 from treeherder.etl.push import store_push
 from treeherder.model.models import Repository
-from treeherder.utils.github import fetch_json
+from treeherder.utils.http import fetch_json
 
 logger = logging.getLogger(__name__)
 ONE_WEEK_IN_SECONDS = 604800

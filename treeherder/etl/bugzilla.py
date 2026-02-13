@@ -7,8 +7,7 @@ from django.conf import settings
 from django.db.models import Count, Max
 
 from treeherder.model.models import BugJobMap, Bugscache
-from treeherder.utils.github import fetch_json
-from treeherder.utils.http import make_request
+from treeherder.utils.http import fetch_json, make_request
 
 logger = logging.getLogger(__name__)
 
