@@ -2,12 +2,12 @@
 import { Provider, ReactReduxContext } from 'react-redux';
 import {
   render,
-  cleanup,
   fireEvent,
   waitFor,
   act,
+  cleanup,
 } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 
 import { addAggregateFields } from '../../../ui/helpers/job';
 import { setUrlParam } from '../../../ui/helpers/location';
@@ -39,32 +39,6 @@ const testPush = {
   jobsLoaded: true,
 };
 
-beforeAll(() => {
-  platforms.forEach((platform) => {
-    platform.groups.forEach((group) => {
-      group.jobs.forEach((job) => {
-        addAggregateFields(job);
-      });
-    });
-  });
-});
-
-beforeEach(() => {
-  clearJobButtonRegistry();
-});
-
-beforeEach(() => {
-  clearJobButtonRegistry();
-  jest.spyOn(window.history, 'pushState').mockImplementation(() => {});
-});
-
-afterEach(() => {
-  cleanup();
-  setUrlParam('selectedTaskRun', null);
-  clearJobButtonRegistry();
-  jest.restoreAllMocks();
-});
-
 const testPushJobs = (filtermodel = null, store = null) => {
   const storeToUse = store || configureStore();
   return (
@@ -89,6 +63,28 @@ const testPushJobs = (filtermodel = null, store = null) => {
     </Provider>
   );
 };
+
+beforeAll(() => {
+  platforms.forEach((platform) => {
+    platform.groups.forEach((group) => {
+      group.jobs.forEach((job) => {
+        addAggregateFields(job);
+      });
+    });
+  });
+});
+
+beforeEach(() => {
+  clearJobButtonRegistry();
+  jest.spyOn(window.history, 'pushState').mockImplementation(() => {});
+});
+
+afterEach(() => {
+  cleanup();
+  setUrlParam('selectedTaskRun', null);
+  clearJobButtonRegistry();
+  jest.restoreAllMocks();
+});
 
 test('select a job updates url', async () => {
   const { getByText } = render(testPushJobs());

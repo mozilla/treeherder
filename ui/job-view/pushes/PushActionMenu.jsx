@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useSelector, useDispatch } from 'react-redux';
 import { Dropdown } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import {
   createQueryParams,
@@ -13,7 +13,7 @@ import {
 import { formatTaskclusterError } from '../../helpers/errorMessage';
 import CustomJobActions from '../CustomJobActions';
 import PushModel from '../../models/push';
-import { notify } from '../redux/stores/notifications';
+import { notify } from '../stores/notificationStore';
 import { updateRange } from '../redux/stores/pushes';
 
 function PushActionMenu({

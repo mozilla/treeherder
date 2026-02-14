@@ -73,7 +73,7 @@ describe('SelectedJob Redux store', () => {
 
     // Legacy API: setSelectedJob(job, true) now delegates to selectJobViaUrl
     // which dispatches SELECT_JOB then updates URL
-    await store.dispatch(setSelectedJob(group.jobs[0], true));
+    store.dispatch(setSelectedJob(group.jobs[0], true));
     const actions = store.getActions();
 
     // Should dispatch SELECT_JOB action

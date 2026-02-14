@@ -1,7 +1,7 @@
 
 import fetchMock from 'fetch-mock';
 import { render, fireEvent, waitFor, cleanup } from '@testing-library/react';
-import { MemoryRouter, useLocation } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router';
 import { Provider, ReactReduxContext } from 'react-redux';
 
 import App from '../../../ui/job-view/App';
