@@ -522,12 +522,12 @@ class Job(models.Model):
     class JobState(models.TextChoices):
         """A representation of Job State."""
 
-        PENDING = "pending"
-        RUNNING = "running"
-        COMPLETED = "completed"
-        FAILED = "failed"
-        EXCEPTION = "exception"
-        UNSCHEDULED = "unscheduled"
+        PENDING = ("pending", "pending")
+        RUNNING = ("running", "running")
+        COMPLETED = ("completed", "completed")
+        FAILED = ("failed", "failed")
+        EXCEPTION = ("exception", "exception")
+        UNSCHEDULED = ("unscheduled", "unscheduled")
 
     failures = FailuresQuerySet.as_manager()
     objects = JobManager()
