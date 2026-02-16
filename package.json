@@ -70,7 +70,7 @@
     "@babel/core": "7.26.10",
     "@babel/preset-env": "7.26.9",
     "@babel/preset-react": "7.27.1",
-    "@biomejs/biome": "2.3.10",
+    "@biomejs/biome": "2.3.15",
     "@pollyjs/adapter-fetch": "6.0.7",
     "@pollyjs/adapter-node-http": "6.0.6",
     "@pollyjs/adapter-puppeteer": "6.0.6",
