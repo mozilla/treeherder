@@ -570,7 +570,7 @@ class Job(models.Model):
     who = models.CharField(max_length=50)
     reason = models.CharField(max_length=125)
     result = models.CharField(max_length=25)
-    state = models.CharField(max_length=25, choices=JobState.choices, default=JobState.PENDING)
+    state = models.CharField(max_length=25, choices=JobState.choices)
 
     submit_time = models.DateTimeField()
     start_time = models.DateTimeField()
