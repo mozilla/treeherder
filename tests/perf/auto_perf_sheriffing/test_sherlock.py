@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from json import JSONDecodeError
 
 import pytest
 import simplejson as json
@@ -7,7 +6,6 @@ from django.db import models
 
 from tests import settings as test_settings
 from tests.perf.auto_perf_sheriffing.conftest import prepare_record_with_search_str
-from treeherder.model.models import Job, Push
 from treeherder.perf.auto_perf_sheriffing.sherlock import Sherlock
 from treeherder.perf.exceptions import MaxRuntimeExceededError
 from treeherder.perf.models import BackfillRecord, BackfillReport
@@ -180,31 +178,25 @@ def test_db_limits_update_if_backfills_left(
 
     record_ready_for_processing.refresh_from_db()
     assert record_ready_for_processing.status == BackfillRecord.BACKFILLED
-    assert (initial_backfills - 4) == secretary.backfills_left(on_platform=targeted_platform)
+    assert (initial_backfills - 1) == secretary.backfills_left(on_platform=targeted_platform)
 
 
-def test_backfilling_gracefully_handles_invalid_json_contexts_without_blowing_up(
+def test_record_fails_when_no_datum_at_anchor_push_id(
     report_maintainer_mock,
     backfill_tool_mock,
     secretary,
     record_ready_for_processing,
     sherlock_settings,
-    broken_context_str,  # Note: parametrizes the test
 ):
-    record_ready_for_processing.context = broken_context_str
+    record_ready_for_processing.anchor_push_id = 999999
     record_ready_for_processing.save()
 
     sherlock = Sherlock(report_maintainer_mock, backfill_tool_mock, secretary)
-    try:
-        sherlock.sheriff(
-            since=EPOCH,
-            frameworks=["test_talos"],
-            repositories=[test_settings.TREEHERDER_TEST_REPOSITORY_NAME],
-        )
-    except (JSONDecodeError, KeyError, Job.DoesNotExist, Push.DoesNotExist):
-        pytest.fail()
+    sherlock.sheriff(
+        since=EPOCH,
+        frameworks=["test_talos"],
+        repositories=[test_settings.TREEHERDER_TEST_REPOSITORY_NAME],
+    )
 
     record_ready_for_processing.refresh_from_db()
-
     assert record_ready_for_processing.status == BackfillRecord.FAILED
-    assert not has_changed(sherlock_settings)

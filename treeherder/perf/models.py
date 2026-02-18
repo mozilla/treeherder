@@ -889,6 +889,7 @@ class BackfillRecord(models.Model):
     BACKFILLED = 2
     SUCCESSFUL = 3
     FAILED = 4
+    VERIFICATION_FAILED = 5
 
     STATUSES = (
         (PRELIMINARY, "Preliminary"),
@@ -896,6 +897,7 @@ class BackfillRecord(models.Model):
         (BACKFILLED, "Backfilled"),
         (SUCCESSFUL, "Successful"),
         (FAILED, "Failed"),
+        (VERIFICATION_FAILED, "Verification Failed"),
     )
 
     status = models.IntegerField(choices=STATUSES, default=PRELIMINARY)
@@ -915,6 +917,15 @@ class BackfillRecord(models.Model):
     total_backfills_failed = models.IntegerField(default=0)
     total_backfills_successful = models.IntegerField(default=0)
     total_backfills_in_progress = models.IntegerField(default=0)
+
+    # Number of smart backfill iterations
+    iteration_count = models.IntegerField(default=0)
+    # Most recently detected culprit push id
+    last_detected_push_id = models.IntegerField(null=True, blank=True)
+    # Anchor push id used for the next search step
+    anchor_push_id = models.IntegerField(null=True, blank=True)
+    # JSON history of smart backfill iterations
+    backfill_logs = models.TextField(default="[]")
 
     @property
     def id(self):
@@ -984,6 +995,28 @@ class BackfillRecord(models.Model):
             repository=self.repository, time__gte=from_time, time__lte=to_time
         ).all()
 
+    def get_pushes_from_anchor(self, max_depth: int = 50) -> list[Push]:
+        """
+        Return pushes from the anchor up to `max_depth`.
+
+        Taskcluster scans up to 100 pushes to detect gaps, but Sherlock
+        only needs a reasonable candidate window to check job states.
+        """
+        if self.anchor_push_id is None:
+            return []
+
+        try:
+            anchor_push = Push.objects.get(id=self.anchor_push_id, repository=self.repository)
+        except Push.DoesNotExist:
+            return []
+
+        pushes = Push.objects.filter(
+            repository=self.repository,
+            time__lte=anchor_push.time,
+        ).order_by("-time")[:max_depth]
+
+        return pushes
+
     def get_job_search_str(self) -> str:
         platform = deepgetattr(self, "platform.platform")
         platform_option = deepgetattr(self, "job_platform_option")
@@ -1004,6 +1037,17 @@ class BackfillRecord(models.Model):
 
     def set_log_details(self, value: dict):
         self.log_details = json.dumps(value, default=str)
+
+    def get_backfill_logs(self) -> list[dict]:
+        try:
+            return json.loads(self.backfill_logs)
+        except (json.JSONDecodeError, TypeError):
+            return []
+
+    def append_to_backfill_logs(self, entry: dict):
+        log = self.get_backfill_logs()
+        log.append(entry)
+        self.backfill_logs = json.dumps(log, default=str)
 
     def save(self, *args, **kwargs):
         # refresh parent's latest update time

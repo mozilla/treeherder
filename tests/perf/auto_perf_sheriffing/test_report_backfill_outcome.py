@@ -6,7 +6,7 @@ from django.core.management import call_command
 from tests import settings as test_settings
 from treeherder.perf.auto_perf_sheriffing.sherlock import Sherlock
 from treeherder.perf.exceptions import MaxRuntimeExceededError
-from treeherder.perf.models import BackfillNotificationRecord
+from treeherder.perf.models import BackfillNotificationRecord, BackfillRecord
 
 EPOCH = datetime.utcfromtimestamp(0)
 
@@ -36,18 +36,23 @@ def test_email_is_sent_after_successful_backfills(
     assert BackfillNotificationRecord.objects.count() == 0
 
 
-def test_email_is_still_sent_if_context_is_too_corrupt_to_be_actionable(
+def test_email_is_still_sent_if_backfill_job_is_missing(
     report_maintainer_mock,
     backfill_tool_mock,
     secretary,
     record_ready_for_processing,
     sherlock_settings,
-    broken_context_str,
     tc_notify_mock,
-    # Note: parametrizes the test
 ):
-    record_ready_for_processing.context = broken_context_str
-    record_ready_for_processing.save()
+    # Simulate a job that has expired/been deleted: datum exists at anchor_push_id but job=None.
+    # The backfill is skipped (no valid job_id), record ends up FAILED,
+    # but the notification must still be sent.
+    from treeherder.perf.models import PerformanceDatum
+
+    PerformanceDatum.objects.filter(
+        signature=record_ready_for_processing.alert.series_signature,
+        push_id=record_ready_for_processing.anchor_push_id,
+    ).update(job=None)
 
     sherlock = Sherlock(
         report_maintainer_mock,
@@ -60,6 +65,8 @@ def test_email_is_still_sent_if_context_is_too_corrupt_to_be_actionable(
         repositories=[test_settings.TREEHERDER_TEST_REPOSITORY_NAME],
     )
 
+    record_ready_for_processing.refresh_from_db()
+    assert record_ready_for_processing.status == BackfillRecord.FAILED
     assert BackfillNotificationRecord.objects.count() == 1
     call_command("report_backfill_outcome")
     assert BackfillNotificationRecord.objects.count() == 0
