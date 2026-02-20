@@ -158,11 +158,13 @@ function GraphsView({ projects, frameworks, user }) {
           getAlertSummaries(series.signature_id, series.repository_id),
         ),
       );
-      const commonAlerts = await Promise.all(
-        seriesData.map((series) =>
-          getCommonAlerts(series.framework_id, timeRangeRef.current.value),
-        ),
-      );
+      const uniqueFrameworkIds = [
+        ...new Set(seriesData.map((series) => series.framework_id)),
+      ];
+      const commonAlertsFlat = (await Promise.all(
+        uniqueFrameworkIds.map(id => getCommonAlerts(id, timeRangeRef.current.value))
+      )).flat();
+      const commonAlerts = [commonAlertsFlat];
       const newColors = [...colorsRef.current];
       const newSymbols = [...symbolsRef.current];
 
