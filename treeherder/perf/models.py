@@ -1,7 +1,8 @@
+import copy
+import functools
 import json
 import logging
 from datetime import datetime
-from functools import reduce
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -802,6 +803,60 @@ class PerformanceAlertTesting(PerformanceAlertBase):
         )
 
 
+@functools.total_ordering
+class RevisionDatumTest:
+    """
+    This class represents a specific revision and the set of values for it
+    """
+
+    def __init__(self, push_timestamp, push_id, values, replicates=None):
+        # Date code was pushed
+        self.push_timestamp = push_timestamp
+
+        # What revision this data is for (usually, but not guaranteed
+        # to be increasing with push_timestamp)
+        self.push_id = push_id
+
+        # data values associated with this revision
+        self.values = copy.copy(values)
+
+        # replicates associated with this revision
+        self.replicates = list(replicates or [])
+
+        # alpha
+        self.confidence = {
+            "ks": float("inf"),
+            "cvm": float("inf"),
+            "mwu": float("inf"),
+            "student": -float("inf"),
+            "levene": float("inf"),
+            "welch": float("inf"),
+        }
+
+        # Whether a perf regression or improvement was found
+        self.change_detected = {
+            "ks": False,
+            "cvm": False,
+            "mwu": False,
+            "student": False,
+            "levene": False,
+            "welch": False,
+        }
+
+    def __eq__(self, o):
+        return self.push_timestamp == o.push_timestamp
+
+    def __lt__(self, o):
+        return self.push_timestamp < o.push_timestamp
+
+    def __repr__(self):
+        values_csv = ", ".join([f"{value:.3f}" for value in self.values])
+        values_str = f"[ {values_csv} ]"
+        changes_str = ", ".join(str(v) for v in self.change_detected.values())
+        confidences_str = ", ".join(f"{confidence:.3f}" for confidence in self.confidence.values())
+        return f"<{self.push_timestamp}: {self.push_id}, {values_str}, {confidences_str}, changes={changes_str}>"
+
+
 class PerformanceTag(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30, unique=True)
@@ -1061,7 +1116,7 @@ def deepgetattr(obj: object, attr_chain: str) -> object | None:
     @return: None if any attribute within chain does not exist.
     """
     try:
-        return reduce(getattr, attr_chain.split("."), obj)
+        return functools.reduce(getattr, attr_chain.split("."), obj)
     except AttributeError:
         logger.debug(
             f"Failed to access deeply nested attribute `{attr_chain}` on object of type {type(obj)}."

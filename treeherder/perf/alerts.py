@@ -11,7 +11,7 @@ from django.db import transaction
 from django.db.models import Exists, OuterRef, Subquery
 
 from treeherder.perf.email import AlertNotificationWriter
-from treeherder.perf.methods import StudentTMagDetector
+from treeherder.perf.methods import StudentDetector
 from treeherder.perf.models import (
     PerformanceAlert,
     PerformanceAlertSummary,
@@ -20,6 +20,7 @@ from treeherder.perf.models import (
     PerformanceDatum,
     PerformanceDatumReplicate,
     PerformanceSignature,
+    RevisionDatumTest,
 )
 from treeherder.perfalert.perfalert import RevisionDatum, detect_changes
 from treeherder.services import taskcluster
@@ -211,22 +212,23 @@ def generate_new_alerts_in_series(signature):
                     send_alert_emails(signature.alert_notify_emails.split(), alert, summary)
 
 
-def define_methods():
-    # Scaffolding to include more methods later on
-    studenttmag = StudentTMagDetector.StudentTMagDetector(
+def build_cpd_methods():
+    student = StudentDetector.StudentDetector(
         min_back_window=12,
         max_back_window=24,
         fore_window=12,
-        alert_threshold=2.0,
-        alpha_threshold=7,
+        magnitude_threshold=2.0,
+        confidence_threshold=7,
         mag_check=True,
         above_threshold_is_anomaly=True,
     )
-    methods = {"studenttmag": studenttmag}
+    methods = {
+        "student": student,
+    }
     return methods
 
 
-def create_alerting(signature, method, analyzed_series):
+def create_alerts(signature, method, analyzed_series):
     for prev, cur in zip(analyzed_series, analyzed_series[1:]):
         if cur.change_detected:
             prev_value = cur.historical_stats["avg"]
@@ -263,7 +265,7 @@ def create_alerting(signature, method, analyzed_series):
                 },
             )
 
-            confidence = cur.t
+            confidence = cur.confidence[method.name]
             if confidence == float("inf"):
                 confidence = 1000
 
@@ -329,29 +331,16 @@ def generate_new_test_alerts_in_series(signature):
     revision_data = {}
     for d in series:
         if not revision_data.get(d.push_id):
-            revision_data[d.push_id] = RevisionDatum(
+            revision_data[d.push_id] = RevisionDatumTest(
                 int(time.mktime(d.push_timestamp.timetuple())), d.push_id, [], []
             )
         revision_data[d.push_id].values.append(d.value)
         revision_data[d.push_id].replicates.extend(replicates_map.get(d.id, []))
 
-    min_back_window = signature.min_back_window
-    if min_back_window is None:
-        min_back_window = settings.PERFHERDER_ALERTS_MIN_BACK_WINDOW
-    max_back_window = signature.max_back_window
-    if max_back_window is None:
-        max_back_window = settings.PERFHERDER_ALERTS_MAX_BACK_WINDOW
-    fore_window = signature.fore_window
-    if fore_window is None:
-        fore_window = settings.PERFHERDER_ALERTS_FORE_WINDOW
-    alert_threshold = signature.alert_threshold
-    if alert_threshold is None:
-        alert_threshold = settings.PERFHERDER_REGRESSION_THRESHOLD
-
     data = list(revision_data.values())
-    methods = define_methods()
-    student_t_mag_method = methods["studenttmag"]
-    analyzed_series = student_t_mag_method.detect_changes(data, signature)
+    methods = build_cpd_methods()
+    student_method = methods["student"]
+    analyzed_series = student_method.detect_changes(data, signature)
 
     with transaction.atomic():
-        create_alerting(signature, student_t_mag_method, analyzed_series)
+        create_alerts(signature, student_method, analyzed_series)

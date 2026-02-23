@@ -17,8 +17,8 @@ class BaseDetector(ABC):
         min_back_window,
         max_back_window,
         fore_window,
-        alert_threshold,
-        alpha_threshold,
+        magnitude_threshold,
+        confidence_threshold,
         mag_check,
         above_threshold_is_anomaly,
     ):
@@ -27,8 +27,8 @@ class BaseDetector(ABC):
         self.min_back_window = min_back_window
         self.max_back_window = max_back_window
         self.fore_window = fore_window
-        self.alert_threshold = alert_threshold
-        self.alpha_threshold = alpha_threshold
+        self.magnitude_threshold = magnitude_threshold
+        self.confidence_threshold = confidence_threshold
         self.mag_check = mag_check
         self.above_threshold_is_anomaly = above_threshold_is_anomaly
 
@@ -48,30 +48,30 @@ class BaseDetector(ABC):
         return float(n - i) / float(n)
 
     @abstractmethod
-    def calc_alpha(self, jw, kw, alpha_threshold, last_seen_regression):
+    def calc_confidence(self, jw, kw, confidence_threshold, last_seen_regression):
         # replaces calc_t function
         """
-        Abstract method that must be implemented by subclasses to calculate alpha (p-value or T-value).
+        Abstract method that must be implemented by subclasses to calculate confidence (p-value or T-value).
         """
         pass
 
-    def check_threshold(self, alpha, alpha_threshold, above_threshold_is_anomaly):
+    def check_threshold(self, confidence, confidence_threshold, above_threshold_is_anomaly):
         """
         Abstract method that must be implemented by subclasses to check threshold.
         """
         if above_threshold_is_anomaly:
-            return alpha <= alpha_threshold
+            return confidence <= confidence_threshold
         else:
-            return alpha >= alpha_threshold
+            return confidence >= confidence_threshold
 
     def check_adjacent_points(self, entry_1, entry_2, above_threshold_is_anomaly):
         """
         Check if adjacent points meet the threshold condition.
         """
         if above_threshold_is_anomaly:
-            return entry_1.t > entry_2.t
+            return entry_1.confidence[self.name] > entry_2.confidence[self.name]
         else:
-            return entry_1.t < entry_2.t
+            return entry_1.confidence[self.name] < entry_2.confidence[self.name]
 
     def analyze(self, revision_data, weight_fn=None):
         """Returns the average and sample variance (s**2) of a list of floats.
@@ -124,7 +124,7 @@ class BaseDetector(ABC):
 
         return AlertProperties(pct_change, delta, is_regression, prev_value, new_value)
 
-    def check_magnitude_of_change(self, signature, analyzed_series, alert_threshold):
+    def check_magnitude_of_change(self, signature, analyzed_series, magnitude_threshold):
         with transaction.atomic():
             for cur in range(len(analyzed_series[1:])):
                 curr_series = analyzed_series[cur]
@@ -141,10 +141,10 @@ class BaseDetector(ABC):
                             signature.alert_change_type is None
                             or signature.alert_change_type == PerformanceSignature.ALERT_PCT
                         )
-                        and alert_properties.pct_change < alert_threshold
+                        and alert_properties.pct_change < magnitude_threshold
                     ) or (
                         signature.alert_change_type == PerformanceSignature.ALERT_ABS
-                        and abs(alert_properties.delta) < alert_threshold
+                        and abs(alert_properties.delta) < magnitude_threshold
                     ):
                         analyzed_series[cur].change_detected = False
         return analyzed_series
@@ -159,10 +159,10 @@ class BaseDetector(ABC):
         fore_window = signature.fore_window
         if fore_window is None:
             fore_window = self.fore_window
-        alert_threshold = signature.alert_threshold
-        if alert_threshold is None:
-            alert_threshold = self.alert_threshold
-        alpha_threshold = self.alpha_threshold
+        magnitude_threshold = signature.alert_threshold
+        if magnitude_threshold is None:
+            magnitude_threshold = self.magnitude_threshold
+        confidence_threshold = self.confidence_threshold
         mag_check = self.mag_check
         above_threshold_is_anomaly = self.above_threshold_is_anomaly
 
@@ -201,8 +201,8 @@ class BaseDetector(ABC):
             di.historical_stats = self.analyze(jw)
             di.forward_stats = self.analyze(kw)
 
-            di.t, last_seen_regression = self.calc_alpha(
-                jw, kw, alpha_threshold, last_seen_regression
+            di.confidence[self.name], last_seen_regression = self.calc_confidence(
+                jw, kw, confidence_threshold, last_seen_regression
             )
 
         # Now that the t-test scores are calculated, go back through the data to
@@ -214,7 +214,9 @@ class BaseDetector(ABC):
             if di.amount_prev_data < min_back_window or di.amount_next_data < fore_window:
                 continue
 
-            if self.check_threshold(di.t, alpha_threshold, above_threshold_is_anomaly):
+            if self.check_threshold(
+                di.confidence[self.name], confidence_threshold, above_threshold_is_anomaly
+            ):
                 continue
 
             # Check the adjacent points
@@ -232,5 +234,5 @@ class BaseDetector(ABC):
             # than either neighbor.  Mark it as the cause of a regression.
             di.change_detected = True
         if mag_check:
-            data = self.check_magnitude_of_change(signature, data, alert_threshold)
+            data = self.check_magnitude_of_change(signature, data, magnitude_threshold)
         return data
