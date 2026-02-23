@@ -300,7 +300,7 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
         queryset=User.objects.all(),
     )
     assignee_email = serializers.SerializerMethodField()
-    duplicated_summaries_ids = serializers.SerializerMethodField()
+    duplicated_summaries = serializers.SerializerMethodField()
     # marking these fields as readonly, the user should not be modifying them
     # (after the item is first created, where we don't use this serializer
     # class)
@@ -319,13 +319,13 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     def get_assignee_email(self, performance_alert_summary):
         return getattr(performance_alert_summary.assignee, "email", None)
 
-    def get_duplicated_summaries_ids(self, performance_alert_summary):
+    def get_duplicated_summaries(self, performance_alert_summary):
         return (
             PerformanceAlertSummary.objects.filter(
                 push=performance_alert_summary.push, framework=performance_alert_summary.framework
             )
             .exclude(id=performance_alert_summary.id)
-            .values_list("id", flat=True)
+            .values("id", "status")
         )
 
     class Meta:
@@ -355,7 +355,7 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
             "assignee_username",
             "assignee_email",
             "performance_tags",
-            "duplicated_summaries_ids",
+            "duplicated_summaries",
             "monitored_alerts",
         ]
 
