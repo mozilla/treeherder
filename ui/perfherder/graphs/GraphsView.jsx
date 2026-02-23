@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Button, Container, Col, Row } from 'react-bootstrap';
 import unionBy from 'lodash/unionBy';
 import queryString from 'query-string';
@@ -339,11 +340,11 @@ class GraphsView extends React.Component {
   };
 
   updateParams = (params) => {
-    const { location = {}, history } = this.props;
+    const { location = {}, navigate } = this.props;
     let newQueryString = queryString.stringify(params);
     newQueryString = newQueryString.replace(/%2C/g, ',');
 
-    updateQueryParams(newQueryString, history, location);
+    updateQueryParams(newQueryString, navigate, location);
   };
 
   changeParams = () => {
@@ -539,18 +540,16 @@ class GraphsView extends React.Component {
 
 GraphsView.propTypes = {
   location: PropTypes.shape({
-    zoom: PropTypes.string,
-    selected: PropTypes.string,
-    highlightAlerts: PropTypes.string,
-    highlightedRevisions: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.arrayOf(PropTypes.string),
-    ]),
-    series: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.arrayOf(PropTypes.string),
-    ]),
-  }),
+    search: PropTypes.string,
+    pathname: PropTypes.string,
+  }).isRequired,
+  navigate: PropTypes.func.isRequired,
 };
 
-export default GraphsView;
+function GraphsViewWrapper(props) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  return <GraphsView {...props} location={location} navigate={navigate} />;
+}
+
+export default GraphsViewWrapper;
