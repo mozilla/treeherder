@@ -6,6 +6,7 @@ import {
   useMemo,
 } from 'react';
 import { Modal } from 'react-bootstrap';
+import { flushSync } from 'react-dom';
 import { PanelGroup, Panel, PanelResizeHandle } from 'react-resizable-panels';
 import { useSelector, useDispatch } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -188,7 +189,9 @@ const App = () => {
 
   const handleStorageEvent = useCallback((e) => {
     if (e.key === 'user') {
-      setUser(JSON.parse(e.newValue) || { isLoggedIn: false, isStaff: false });
+      flushSync(() => { 
+        setUser(JSON.parse(e.newValue) || { isLoggedIn: false, isStaff: false });
+      });
     }
   }, []);
 
