@@ -520,6 +520,16 @@ class PerfCompareResultsQueryParamsSerializer(serializers.Serializer):
     replicates = serializers.BooleanField(required=False)
     test_version = serializers.CharField(required=False, default="student-t")
 
+    def validate_base_parent_signature(self, value):
+        if value in ["null", None]:
+            return None
+        return value
+
+    def validate_new_parent_signature(self, value):
+        if value in ["null", None]:
+            return None
+        return value
+
     def validate(self, data):
         if data["base_revision"] is None and data["interval"] is None:
             raise serializers.ValidationError("Field required: interval.")
