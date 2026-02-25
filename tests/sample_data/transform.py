@@ -245,7 +245,6 @@ def generate_pulse_job_data(tasks, revision, output_file):
         blob = {
             "taskId": task["job_guid"],
             "origin": {
-                "kind": "hg.mozilla.org",
                 "project": "set by test",
                 "revision": revision,
             },

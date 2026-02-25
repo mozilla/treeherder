@@ -38,57 +38,28 @@ properties:
     maxLength: 25
 
   origin:
-    oneOf:
-      - type: 'object'
-        description: |
-          PREFERRED: An HG job that only has a revision.  This is for all
-          jobs going forward.
-        additionalProperties: false
-        title: 'HG Push'
-        properties:
-          kind:
-            type: 'string'
-            enum: ['hg.mozilla.org']
-          project:
-            type: 'string'
-            pattern: "^[\\w-]+$"
-            minLength: 1
-            maxLength: 50
-          revision:
-            type: 'string'
-            pattern: '^[0-9a-f]+$'
-            minLength: 40
-            maxLength: 40
-          pushLogID:
-            type: 'integer'
-        required: [kind, project, revision]
-
-      - type: 'object'
-        title: 'Github push or pull request'
-        additionalProperties: false
-        properties:
-          kind:
-            type: 'string'
-            enum: ['github.com']
-          owner:
-            description: Unused
-            type: 'string'
-            pattern: "^[\\w-]+$"
-            minLength: 1
-            maxLength: 50
-          project:
-            description: 'The repository name as known to Treeherder'
-            type: 'string'
-            pattern: "^[\\w-]+$"
-            minLength: 1
-            maxLength: 50
-          revision:
-            type: 'string'
-            minLength: 40
-            maxLength: 40
-          pullRequestID:
-            type: 'integer'
-        required: [kind, project, revision]
+      type: 'object'
+      description: Describes a Mercurial or Git event.
+      additionalProperties: false
+      title: 'Origin event metadata'
+      properties:
+        project:
+          description: 'The repository name as known to Treeherder'
+          type: 'string'
+          pattern: "^[\\w-]+$"
+          minLength: 1
+          maxLength: 50
+        revision:
+          type: 'string'
+          pattern: '^[0-9a-f]+$'
+          minLength: 40
+          maxLength: 40
+        id:
+          description: |
+            For Mercurial refers to the `pushLogID`. For Git it refers to the
+            `pullRequestID`.
+          type: 'integer'
+      required: [project, revision]
 
   display:
     type: 'object'

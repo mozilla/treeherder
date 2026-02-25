@@ -254,16 +254,10 @@ def build_message(push_info, task, run_id, payload):
     }
 
     job["origin"] = {
-        "kind": push_info["origin"],
         "project": push_info["project"],
         "revision": push_info["revision"],
+        "id": push_info["id"],
     }
-
-    if push_info["origin"] == "hg.mozilla.org":
-        job["origin"]["pushLogID"] = push_info["id"]
-    else:
-        job["origin"]["pullRequestID"] = push_info["id"]
-        job["origin"]["owner"] = push_info["owner"]
 
     # Transform "collection" into an array of labels if task doesn't
     # define "labels".
@@ -327,16 +321,10 @@ def handle_task_defined(push_info, task, message):
     }
 
     job["origin"] = {
-        "kind": push_info["origin"],
         "project": push_info["project"],
         "revision": push_info["revision"],
+        "id": push_info["id"],
     }
-
-    if push_info["origin"] == "hg.mozilla.org":
-        job["origin"]["pushLogID"] = push_info["id"]
-    else:
-        job["origin"]["pullRequestID"] = push_info["id"]
-        job["origin"]["owner"] = push_info["owner"]
 
     labels = treeherder_config.get("labels", [])
     if not labels:
