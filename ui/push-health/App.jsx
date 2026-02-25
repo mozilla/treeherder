@@ -86,6 +86,7 @@ const App = () => {
                 notify={notify}
                 clearNotification={clearNotification}
                 location={location}
+                navigate={navigate}
               />
             ) : (
               <NotFound />

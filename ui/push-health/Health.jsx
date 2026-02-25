@@ -90,14 +90,14 @@ export default class Health extends React.PureComponent {
   }
 
   updateParamsAndState = (stateObj) => {
-    const { location, history } = this.props;
+    const { location, navigate } = this.props;
     const newParams = {
       ...parseQueryParams(location.search),
       ...stateObj,
     };
     const queryString = createQueryParams(newParams);
 
-    updateQueryParams(queryString, history, location);
+    updateQueryParams(queryString, navigate, location);
     this.setState(stateObj);
   };
 
@@ -340,5 +340,6 @@ export default class Health extends React.PureComponent {
 
 Health.propTypes = {
   location: PropTypes.shape({}).isRequired,
+  navigate: PropTypes.shape({}).isRequired,
   clearNotification: PropTypes.func.isRequired,
 };
