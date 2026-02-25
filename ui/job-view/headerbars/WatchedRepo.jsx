@@ -129,7 +129,9 @@ export default class WatchedRepo extends React.Component {
     return (
       <div className="btn-group" role="group">
         <Link
-          to={updateRepoParams(watchedRepo)}
+          to={{
+            search: updateRepoParams(watchedRepo),
+          }}
           className={`btn btn-sm btn-view-nav ${btnClass} ${activeClass} btn-watched-repo`}
           title={status}
         >
