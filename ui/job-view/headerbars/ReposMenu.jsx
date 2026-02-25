@@ -10,6 +10,7 @@ import { updateRepoParams } from '../../helpers/location';
 const GROUP_ORDER = [
   'development',
   'release-stabilization',
+  'enterprise-firefox',
   'project repositories',
   'comm-repositories',
   'ci',
