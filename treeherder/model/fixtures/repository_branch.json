@@ -1,0 +1,458 @@
+[
+  {
+    "pk": 1,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 44,
+      "branch": "pull request"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 47,
+      "branch": "master"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 61,
+      "branch": "master"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 62,
+      "branch": "master"
+    }
+  },
+  {
+    "pk": 5,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 65,
+      "branch": "5.0"
+    }
+  },
+  {
+    "pk": 6,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 66,
+      "branch": "4.4"
+    }
+  },
+  {
+    "pk": 7,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 67,
+      "branch": "4.2"
+    }
+  },
+  {
+    "pk": 8,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 68,
+      "branch": "development"
+    }
+  },
+  {
+    "pk": 9,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 71,
+      "branch": "upstream-merge"
+    }
+  },
+  {
+    "pk": 10,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 75,
+      "branch": "master"
+    }
+  },
+  {
+    "pk": 11,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 78,
+      "branch": "master"
+    }
+  },
+  {
+    "pk": 12,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 81,
+      "branch": "master"
+    }
+  },
+  {
+    "pk": 13,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 86,
+      "branch": "master"
+    }
+  },
+  {
+    "pk": 14,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 87,
+      "branch": "master"
+    }
+  },
+  {
+    "pk": 15,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 88,
+      "branch": "master"
+    }
+  },
+  {
+    "pk": 16,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 89,
+      "branch": "master"
+    }
+  },
+  {
+    "pk": 17,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 90,
+      "branch": "master"
+    }
+  },
+  {
+    "pk": 18,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 91,
+      "branch": "master"
+    }
+  },
+  {
+    "pk": 19,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 92,
+      "branch": "master"
+    }
+  },
+  {
+    "pk": 20,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 93,
+      "branch": "master"
+    }
+  },
+  {
+    "pk": 21,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 94,
+      "branch": "master"
+    }
+  },
+  {
+    "pk": 22,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 99,
+      "branch": "try"
+    }
+  },
+  {
+    "pk": 23,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 99,
+      "branch": "try-taskcluster"
+    }
+  },
+  {
+    "pk": 24,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 99,
+      "branch": "try-linux"
+    }
+  },
+  {
+    "pk": 25,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 99,
+      "branch": "try-mac"
+    }
+  },
+  {
+    "pk": 26,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 99,
+      "branch": "try-windows"
+    }
+  },
+  {
+    "pk": 27,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 99,
+      "branch": "try-windows-rdp"
+    }
+  },
+  {
+    "pk": 28,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 99,
+      "branch": "try-wpt"
+    }
+  },
+  {
+    "pk": 29,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 99,
+      "branch": "try-wpt-2020"
+    }
+  },
+  {
+    "pk": 30,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 99,
+      "branch": "try-wpt-mac"
+    }
+  },
+  {
+    "pk": 31,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 99,
+      "branch": "try-wpt-android"
+    }
+  },
+  {
+    "pk": 32,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 99,
+      "branch": "try-android"
+    }
+  },
+  {
+    "pk": 33,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 99,
+      "branch": "try-magicleap"
+    }
+  },
+  {
+    "pk": 34,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 99,
+      "branch": "try-arm"
+    }
+  },
+  {
+    "pk": 35,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 100,
+      "branch": "auto"
+    }
+  },
+  {
+    "pk": 36,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 102,
+      "branch": "pull request"
+    }
+  },
+  {
+    "pk": 37,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 103,
+      "branch": "main"
+    }
+  },
+  {
+    "pk": 38,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 107,
+      "branch": "master"
+    }
+  },
+  {
+    "pk": 39,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 108,
+      "branch": "main"
+    }
+  },
+  {
+    "pk": 40,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 111,
+      "branch": "main"
+    }
+  },
+  {
+    "pk": 41,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 118,
+      "branch": "main"
+    }
+  },
+  {
+    "pk": 42,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 119,
+      "branch": "main"
+    }
+  },
+  {
+    "pk": 43,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 120,
+      "branch": "main"
+    }
+  },
+  {
+    "pk": 44,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 121,
+      "branch": "main"
+    }
+  },
+  {
+    "pk": 45,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 122,
+      "branch": "releases/2.8"
+    }
+  },
+  {
+    "pk": 46,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 127,
+      "branch": "main"
+    }
+  },
+  {
+    "pk": 47,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 128,
+      "branch": "main"
+    }
+  },
+  {
+    "pk": 48,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 129,
+      "branch": "main"
+    }
+  },
+  {
+    "pk": 49,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 130,
+      "branch": "main"
+    }
+  },
+  {
+    "pk": 50,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 131,
+      "branch": "main"
+    }
+  },
+  {
+    "pk": 51,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 134,
+      "branch": "main"
+    }
+  },
+  {
+    "pk": 52,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 138,
+      "branch": "main"
+    }
+  },
+  {
+    "pk": 53,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 141,
+      "branch": "main"
+    }
+  },
+  {
+    "pk": 54,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 142,
+      "branch": "enterprise-main"
+    }
+  },
+  {
+    "pk": 55,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 143,
+      "branch": "pull request"
+    }
+  },
+  {
+    "pk": 56,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 144,
+      "branch": "enterprise-release"
+    }
+  },
+  {
+    "pk": 57,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 145,
+      "branch": "enterprise-beta"
+    }
+  }
+]

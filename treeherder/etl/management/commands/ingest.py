@@ -255,7 +255,7 @@ def repo_meta(project):
     split_url = _repo.url.split("/")
     return {
         "url": _repo.url,
-        "branch": _repo.branch,
+        "branch": _repo.branches.values_list("branch", flat=True).first() or "",
         "owner": split_url[3],
         "repo": split_url[4],
         "tc_root_url": _repo.tc_root_url,

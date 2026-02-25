@@ -67,7 +67,7 @@ class GithubTransformer:
         return self.message_body["details"]["event.base.repo.branch"]
 
     def resolve_repo(self):
-        return self.repos.get(branch__regex=f"(^|,){self.branch}($|,)")
+        return self.repos.get(branches__branch=self.branch)
 
     def get_info(self):
         # flatten the data a bit so it will show in new relic as fields
@@ -260,7 +260,7 @@ class HgPushTransformer:
         self.repos = Repository.objects.filter(url=self.repo_url, active_status="active")
 
     def resolve_repo(self):
-        return self.repos.get(branch=None)
+        return self.repos.get()
 
     def get_info(self):
         return self.message_body["payload"]

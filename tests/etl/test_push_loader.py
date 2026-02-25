@@ -13,7 +13,7 @@ from treeherder.etl.push_loader import (
     PulsePushError,
     PushLoader,
 )
-from treeherder.model.models import Push
+from treeherder.model.models import Push, RepositoryBranch
 
 
 @pytest.fixture
@@ -244,8 +244,11 @@ def test_ingest_github_push_merge_commit(github_push, test_repository, mock_gith
     test_repository.url = github_push[1]["payload"]["details"]["event.head.repo.url"].replace(
         ".git", ""
     )
-    test_repository.branch = github_push[1]["payload"]["details"]["event.base.repo.branch"]
     test_repository.save()
+    RepositoryBranch.objects.create(
+        repository=test_repository,
+        branch=github_push[1]["payload"]["details"]["event.base.repo.branch"],
+    )
     PushLoader().process(
         github_push[1]["payload"],
         github_push[1]["exchange"],
@@ -267,12 +270,13 @@ def test_ingest_github_push_merge_commit(github_push, test_repository, mock_gith
 def test_ingest_github_push_comma_separated_branches(
     branch, expected_pushes, github_push, test_repository, mock_github_push_compare
 ):
-    """Test a repository accepting pushes for multiple branches"""
+    """Test a repository accepting pushes for multiple explicitly-listed branches"""
     test_repository.url = github_push[0]["payload"]["details"]["event.head.repo.url"].replace(
         ".git", ""
     )
-    test_repository.branch = "master,foo,bar"
     test_repository.save()
+    for b in ["master", "foo", "bar"]:
+        RepositoryBranch.objects.create(repository=test_repository, branch=b)
     github_push[0]["payload"]["details"]["event.base.repo.branch"] = branch
     assert Push.objects.count() == 0
     PushLoader().process(

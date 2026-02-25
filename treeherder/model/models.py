@@ -100,7 +100,6 @@ class Repository(models.Model):
     name = models.CharField(max_length=50, unique=True, db_index=True)
     dvcs_type = models.CharField(max_length=25, db_index=True)
     url = models.CharField(max_length=255)
-    branch = models.CharField(max_length=255, null=True, db_index=True)
     codebase = models.CharField(max_length=50, blank=True, db_index=True)
     description = models.TextField(blank=True)
     active_status = models.CharField(max_length=7, blank=True, default="active", db_index=True)
@@ -123,6 +122,20 @@ class Repository(models.Model):
 
     def __str__(self):
         return f"{self.name} {self.repository_group}"
+
+
+class RepositoryBranch(models.Model):
+    # Fields are pre-defined in fixtures/repository_branch.json
+    id = models.BigAutoField(primary_key=True)
+    repository = models.ForeignKey(Repository, on_delete=models.CASCADE, related_name="branches")
+    branch = models.CharField(max_length=255, db_index=True)
+
+    class Meta:
+        db_table = "repository_branch"
+        unique_together = ("repository", "branch")
+
+    def __str__(self):
+        return f"{self.repository.name}:{self.branch}"
 
 
 class Push(models.Model):
