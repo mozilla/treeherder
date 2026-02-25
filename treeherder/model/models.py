@@ -109,12 +109,15 @@ class Repository(models.Model):
     expire_performance_data = models.BooleanField(default=True)
     is_try_repo = models.BooleanField(default=False)
     tc_root_url = models.CharField(max_length=255, null=False, db_index=True)
+    trust_domain = models.CharField(max_length=100, null=True, blank=True, db_index=True)
+    project = models.CharField(max_length=100, null=True, blank=True, db_index=True)
 
     class Meta:
         db_table = "repository"
         verbose_name_plural = "repositories"
         indexes = [
             models.Index(fields=["url", "active_status"], name="repo_url_active_idx"),
+            models.Index(fields=["trust_domain", "project", "branch"], name="repo_v2_route_idx"),
         ]
 
     @classmethod
