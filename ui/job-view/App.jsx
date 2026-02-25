@@ -187,14 +187,11 @@ const App = () => {
     setFilterModel(new FilterModel(navigate, window.location));
   }, [navigate]);
 
-  const handleStorageEvent = useCallback((e) => {
+  const handleStorageEvent = flushSync(() => { useCallback((e) => {
     if (e.key === 'user') {
-      flushSync(() => { 
-        setUser(JSON.parse(e.newValue) || { isLoggedIn: false, isStaff: false });
-      });
+      setUser(JSON.parse(e.newValue) || { isLoggedIn: false, isStaff: false });
     }
-  }, []);
-
+  }, []); });
   const getAllShownJobs = useCallback(
     (pushId) => {
       const jobList = Object.values(jobMap);
