@@ -11,7 +11,11 @@ from django.contrib.auth.models import User
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchVectorField, TrigramSimilarity
 from django.core.cache import cache
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import (
+    MultipleObjectsReturned,
+    ObjectDoesNotExist,
+    ValidationError,
+)
 from django.core.validators import MinLengthValidator
 from django.db import models, transaction
 from django.db.models import Count, Max, Min, Q, Subquery
@@ -120,6 +124,31 @@ class Repository(models.Model):
     def fetch_all_names(cls) -> list[str]:
         return cls.objects.values_list("name", flat=True)
 
+    @classmethod
+    def resolve_branch(cls, url, branch):
+        """Return the single active Repository for (url, branch).
+
+        Tries exact branch match first, then suffix-wildcard patterns
+        (e.g. ``releases/*``).  Raises DoesNotExist / MultipleObjectsReturned
+        like Manager.get().
+        """
+        repos = cls.objects.filter(url=url, active_status="active")
+        try:
+            return repos.get(branches__branch=branch)
+        except cls.DoesNotExist:
+            pass
+        candidates = RepositoryBranch.objects.filter(
+            repository__in=repos, branch__endswith="*"
+        ).select_related("repository")
+        matches = [rb.repository for rb in candidates if branch.startswith(rb.branch[:-1])]
+        if not matches:
+            raise cls.DoesNotExist(f"No active repository for url={url} branch={branch}")
+        if len(matches) > 1:
+            raise MultipleObjectsReturned(
+                f"Multiple repositories matched url={url} branch={branch}"
+            )
+        return matches[0]
+
     def __str__(self):
         return f"{self.name} {self.repository_group}"
 
@@ -133,6 +162,17 @@ class RepositoryBranch(models.Model):
     class Meta:
         db_table = "repository_branch"
         unique_together = ("repository", "branch")
+
+    def clean(self):
+        count = self.branch.count("*")
+        if count > 1 or (count == 1 and not self.branch.endswith("*")):
+            raise ValidationError(
+                {"branch": "Only suffix wildcards are allowed (e.g. 'releases/*' or '*')."}
+            )
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.repository.name}:{self.branch}"

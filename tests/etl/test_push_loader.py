@@ -227,6 +227,27 @@ def test_ingest_hg_push_bad_repo(hg_push):
 
 
 @pytest.mark.django_db
+def test_ingest_hg_push_ignores_wildcard_repo(hg_push, test_repository, mock_hg_push_commits):
+    """Repos with wildcard branches are not matched for Hg pushes"""
+    from treeherder.model.models import Repository
+
+    hg_push["payload"]["repo_url"] = test_repository.url
+    wildcard_repo = Repository.objects.create(
+        name="wildcard-hg",
+        repository_group=test_repository.repository_group,
+        dvcs_type="hg",
+        url=test_repository.url,
+        tc_root_url=test_repository.tc_root_url,
+    )
+    RepositoryBranch.objects.create(repository=wildcard_repo, branch="*")
+    PushLoader().process(
+        hg_push, "exchange/hgpushes/v1", "https://firefox-ci-tc.services.mozilla.com"
+    )
+    assert Push.objects.count() == 1
+    assert Push.objects.first().repository == test_repository
+
+
+@pytest.mark.django_db
 def test_ingest_github_push_bad_repo(github_push):
     """Test graceful handling of an unknown GH repo"""
     github_push[0]["payload"]["details"]["event.head.repo.url"] = "https://bad.repo.com"
@@ -285,6 +306,133 @@ def test_ingest_github_push_comma_separated_branches(
         "https://firefox-ci-tc.services.mozilla.com",
     )
     assert Push.objects.count() == expected_pushes
+
+
+@pytest.mark.django_db
+def test_ingest_github_push_wildcard_repo(github_push, test_repository, mock_github_push_compare):
+    """Repo with branch='*' accepts a push on any branch"""
+    test_repository.url = github_push[0]["payload"]["details"]["event.head.repo.url"].replace(
+        ".git", ""
+    )
+    test_repository.save()
+    RepositoryBranch.objects.create(repository=test_repository, branch="*")
+    github_push[0]["payload"]["details"]["event.base.repo.branch"] = "my-feature-branch"
+    assert Push.objects.count() == 0
+    PushLoader().process(
+        github_push[0]["payload"],
+        github_push[0]["exchange"],
+        "https://firefox-ci-tc.services.mozilla.com",
+    )
+    assert Push.objects.count() == 1
+
+
+@pytest.mark.django_db
+def test_ingest_github_push_explicit_beats_wildcard(
+    github_push, test_repository, mock_github_push_compare
+):
+    """Explicit branch match takes precedence over wildcard for the same URL"""
+    from treeherder.model.models import Repository
+
+    url = github_push[0]["payload"]["details"]["event.head.repo.url"].replace(".git", "")
+    branch = github_push[0]["payload"]["details"]["event.base.repo.branch"]
+
+    test_repository.url = url
+    test_repository.save()
+    RepositoryBranch.objects.create(repository=test_repository, branch=branch)
+
+    wildcard_repo = Repository.objects.create(
+        name="wildcard-repo",
+        repository_group=test_repository.repository_group,
+        dvcs_type="git",
+        url=url,
+        tc_root_url=test_repository.tc_root_url,
+    )
+    RepositoryBranch.objects.create(repository=wildcard_repo, branch="*")
+
+    PushLoader().process(
+        github_push[0]["payload"],
+        github_push[0]["exchange"],
+        "https://firefox-ci-tc.services.mozilla.com",
+    )
+    assert Push.objects.count() == 1
+    push = Push.objects.first()
+    assert push.repository == test_repository
+    assert push.repository != wildcard_repo
+
+
+@pytest.mark.django_db
+def test_ingest_github_push_special_char_branch(
+    github_push, test_repository, mock_github_push_compare
+):
+    """Branch names with special chars are handled safely via wildcard branch record"""
+    test_repository.url = github_push[0]["payload"]["details"]["event.head.repo.url"].replace(
+        ".git", ""
+    )
+    test_repository.save()
+    RepositoryBranch.objects.create(repository=test_repository, branch="*")
+    github_push[0]["payload"]["details"]["event.base.repo.branch"] = "release/v1.2+hotfix"
+    PushLoader().process(
+        github_push[0]["payload"],
+        github_push[0]["exchange"],
+        "https://firefox-ci-tc.services.mozilla.com",
+    )
+    assert Push.objects.count() == 1
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "branch, expected_pushes",
+    [
+        ("releases/v1.2", 1),
+        ("master", 0),
+    ],
+)
+def test_ingest_github_push_prefix_wildcard(
+    branch, expected_pushes, github_push, test_repository, mock_github_push_compare
+):
+    """A prefix wildcard like 'releases/*' matches branches under that prefix only"""
+    test_repository.url = github_push[0]["payload"]["details"]["event.head.repo.url"].replace(
+        ".git", ""
+    )
+    test_repository.save()
+    RepositoryBranch.objects.create(repository=test_repository, branch="releases/*")
+    github_push[0]["payload"]["details"]["event.base.repo.branch"] = branch
+    PushLoader().process(
+        github_push[0]["payload"],
+        github_push[0]["exchange"],
+        "https://firefox-ci-tc.services.mozilla.com",
+    )
+    assert Push.objects.count() == expected_pushes
+
+
+@pytest.mark.django_db
+def test_ingest_github_push_ambiguous_wildcards_skipped(
+    github_push, test_repository, mock_github_push_compare
+):
+    """When two wildcard patterns both match, the push is skipped"""
+    from treeherder.model.models import Repository
+
+    url = github_push[0]["payload"]["details"]["event.head.repo.url"].replace(".git", "")
+    test_repository.url = url
+    test_repository.save()
+    RepositoryBranch.objects.create(repository=test_repository, branch="releases/*")
+
+    catchall_repo = Repository.objects.create(
+        name="catchall-repo",
+        repository_group=test_repository.repository_group,
+        dvcs_type="git",
+        url=url,
+        tc_root_url=test_repository.tc_root_url,
+    )
+    RepositoryBranch.objects.create(repository=catchall_repo, branch="*")
+
+    github_push[0]["payload"]["details"]["event.base.repo.branch"] = "releases/v1"
+    PushLoader().process(
+        github_push[0]["payload"],
+        github_push[0]["exchange"],
+        "https://firefox-ci-tc.services.mozilla.com",
+    )
+    assert Push.objects.count() == 0
 
 
 def test_fetch_push_raises_on_empty_pushes(monkeypatch):
