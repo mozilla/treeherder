@@ -46,8 +46,10 @@ class BaseDetector(ABC):
         return float(n - i) / float(n)
 
     @abstractmethod
-    def calc_confidence(self, jw, kw, confidence_threshold, last_seen_regression):
-        # replaces calc_t function
+    def calc_confidence(
+        self, jw, kw, confidence_threshold, last_seen_regression, replicates_enabled
+    ):
+        # replaces calc_confidence function
         """
         Abstract method that must be implemented by subclasses to calculate confidence (p-value or T-value).
         """
@@ -113,7 +115,7 @@ class BaseDetector(ABC):
         # No future consecutive points with same value, so this IS the representative
         return True
 
-    def analyze(self, revision_data, weight_fn=None):
+    def analyze(self, revision_data, replicates_enabled, weight_fn=None):
         """Returns the average and sample variance (s**2) of a list of floats.
 
         `weight_fn` is a function that takes a list index and a window width, and
@@ -133,14 +135,17 @@ class BaseDetector(ABC):
         weights = [weight_fn(i, num_revisions) for i in range(num_revisions)]
         weighted_sum = 0
         sum_of_weights = 0
+        source_attr = "replicates" if replicates_enabled else "values"
         for i in range(num_revisions):
-            weighted_sum += sum(value * weights[i] for value in revision_data[i].values)
-            sum_of_weights += weights[i] * len(revision_data[i].values)
+            weighted_sum += sum(
+                value * weights[i] for value in getattr(revision_data[i], source_attr)
+            )
+            sum_of_weights += weights[i] * len(getattr(revision_data[i], source_attr))
         weighted_avg = weighted_sum / sum_of_weights if num_revisions > 0 else 0.0
 
         # now that we have a weighted average, we can calculate the variance of the
         # whole series
-        all_data = [v for datum in revision_data for v in datum.values]
+        all_data = [v for datum in revision_data for v in getattr(datum, source_attr)]
         variance = (
             (sum(pow(d - weighted_avg, 2) for d in all_data) / (len(all_data) - 1))
             if len(all_data) > 1
@@ -181,7 +186,7 @@ class BaseDetector(ABC):
             return True
         return False
 
-    def detect_changes(self, data, signature):
+    def detect_changes(self, data, signature, replicates_enabled):
         min_back_window = signature.min_back_window
         if min_back_window is None:
             min_back_window = self.min_back_window
@@ -230,11 +235,11 @@ class BaseDetector(ABC):
                 di.amount_next_data += len(kw[-1].values)
                 next_indice += 1
 
-            di.historical_stats = self.analyze(jw)
-            di.forward_stats = self.analyze(kw)
+            di.historical_stats = self.analyze(jw, replicates_enabled)
+            di.forward_stats = self.analyze(kw, replicates_enabled)
 
             di.confidence[self.name], last_seen_regression = self.calc_confidence(
-                jw, kw, confidence_threshold, last_seen_regression
+                jw, kw, confidence_threshold, last_seen_regression, replicates_enabled
             )
 
         # Now that the confidence scores are calculated, go back through the data to
