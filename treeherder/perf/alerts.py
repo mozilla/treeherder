@@ -20,6 +20,7 @@ from treeherder.perf.models import (
     PerformanceDatum,
     PerformanceDatumReplicate,
     PerformanceSignature,
+    PerformanceTelemetrySignature,
     RevisionDatumTest,
 )
 from treeherder.perfalert.perfalert import RevisionDatum, detect_changes
@@ -229,8 +230,15 @@ def build_cpd_methods():
 
 
 def create_alerts(signature, method, analyzed_series):
+    telemetry_sig, _ = PerformanceTelemetrySignature.objects.get_or_create(
+        channel=PerformanceTelemetrySignature.NIGHTLY,
+        probe="test_probe",
+        probe_type=PerformanceTelemetrySignature.GLEAN,
+        platform=signature.platform,
+        application=signature.application,
+    )
     for prev, cur in zip(analyzed_series, analyzed_series[1:]):
-        if cur.change_detected:
+        if cur.change_detected[method.name]:
             prev_value = cur.historical_stats["avg"]
             new_value = cur.forward_stats["avg"]
 
@@ -253,7 +261,7 @@ def create_alerts(signature, method, analyzed_series):
             except Exception:
                 pass
 
-            summary, _ = PerformanceAlertSummaryTesting.objects.get_or_create(
+            summary, created_new = PerformanceAlertSummaryTesting.objects.get_or_create(
                 repository=signature.repository,
                 framework=signature.framework,
                 push_id=cur.push_id,
@@ -265,6 +273,13 @@ def create_alerts(signature, method, analyzed_series):
                 },
             )
 
+            if created_new:
+                # Set custom timestamp after creation
+                PerformanceAlertSummaryTesting.objects.filter(pk=summary.pk).update(
+                    created=datetime.utcfromtimestamp(cur.push_timestamp)
+                )
+                summary.refresh_from_db()
+
             confidence = cur.confidence[method.name]
             if confidence == float("inf"):
                 confidence = 1000
@@ -274,6 +289,7 @@ def create_alerts(signature, method, analyzed_series):
                 series_signature=signature,
                 sheriffed=not signature.monitor,
                 detection_method=method.name,
+                telemetry_series_signature=telemetry_sig,
                 defaults={
                     "noise_profile": noise_profile,
                     "is_regression": alert_properties.is_regression,
@@ -282,6 +298,12 @@ def create_alerts(signature, method, analyzed_series):
                     "prev_value": prev_value,
                     "new_value": new_value,
                     "t_value": confidence,
+                    "prev_median": 0,
+                    "new_median": 0,
+                    "prev_p90": 0,
+                    "new_p90": 0,
+                    "prev_p95": 0,
+                    "new_p95": 0,
                 },
             )
             # Email notifications getting disabled to not bother Sheriffs while doing testing

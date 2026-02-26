@@ -126,9 +126,9 @@ class BaseDetector(ABC):
 
     def check_magnitude_of_change(self, signature, analyzed_series, magnitude_threshold):
         with transaction.atomic():
-            for cur in range(len(analyzed_series[1:])):
+            for cur in range(1, len(analyzed_series[1:])):
                 curr_series = analyzed_series[cur]
-                if curr_series.change_detected:
+                if curr_series.change_detected[self.name]:
                     prev_value = curr_series.historical_stats["avg"]
                     new_value = curr_series.forward_stats["avg"]
                     alert_properties = self.get_alert_properties(
@@ -146,7 +146,7 @@ class BaseDetector(ABC):
                         signature.alert_change_type == PerformanceSignature.ALERT_ABS
                         and abs(alert_properties.delta) < magnitude_threshold
                     ):
-                        analyzed_series[cur].change_detected = False
+                        analyzed_series[cur].change_detected[self.name] = False
         return analyzed_series
 
     def detect_changes(self, data, signature):
@@ -232,7 +232,7 @@ class BaseDetector(ABC):
 
             # This datapoint has a t value higher than the threshold and higher
             # than either neighbor.  Mark it as the cause of a regression.
-            di.change_detected = True
+            di.change_detected[self.name] = True
         if mag_check:
             data = self.check_magnitude_of_change(signature, data, magnitude_threshold)
         return data
