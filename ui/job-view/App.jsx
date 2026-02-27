@@ -1,12 +1,5 @@
-import {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-  useMemo,
-} from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Modal } from 'react-bootstrap';
-import { flushSync } from 'react-dom';
 import { PanelGroup, Panel, PanelResizeHandle } from 'react-resizable-panels';
 import { useSelector, useDispatch } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -187,11 +180,6 @@ const App = () => {
     setFilterModel(new FilterModel(navigate, window.location));
   }, [navigate]);
 
-  const handleStorageEvent = flushSync(() => { useCallback((e) => {
-    if (e.key === 'user') {
-      setUser(JSON.parse(e.newValue) || { isLoggedIn: false, isStaff: false });
-    }
-  }, []); });
   const getAllShownJobs = useCallback(
     (pushId) => {
       const jobList = Object.values(jobMap);
@@ -291,7 +279,6 @@ const App = () => {
     dispatch(fetchPushes());
 
     window.addEventListener('resize', updateDimensions, false);
-    window.addEventListener('storage', handleStorageEvent);
     window.addEventListener(thEvents.filtersUpdated, handleFiltersUpdated);
 
     // Handle lando commit ID
@@ -334,7 +321,6 @@ const App = () => {
 
     return () => {
       window.removeEventListener('resize', updateDimensions, false);
-      window.removeEventListener('storage', handleStorageEvent);
       window.removeEventListener(thEvents.filtersUpdated, handleFiltersUpdated);
 
       if (updateIntervalRef.current) {

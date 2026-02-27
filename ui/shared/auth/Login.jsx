@@ -1,5 +1,4 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { Button, Dropdown } from 'react-bootstrap';
 import isEqual from 'lodash/isEqual';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -13,76 +12,80 @@ import AuthService from './AuthService';
 
 // This component handles user Authentication with Auth0
 
-class Login extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.authService = new AuthService(this.props.setUser);
+const Login = ({ setUser, user = { isLoggedIn: false }, notify }) => {
+  const authServiceRef = useRef(null);
+  if (!authServiceRef.current) {
+    authServiceRef.current = new AuthService(setUser);
   }
 
-  componentDidMount() {
-    window.addEventListener('storage', this.handleStorageEvent);
+  const setLoggedIn = useCallback(
+    (newUser) => {
+      const userSession = JSON.parse(localStorage.getItem('userSession'));
+      setUser({
+        ...newUser,
+        isLoggedIn: true,
+        fullName: userSession.fullName,
+      });
+
+      // start session renewal process
+      if (userSession?.renewAfter) {
+        authServiceRef.current.resetRenewalTimer();
+      }
+    },
+    [setUser],
+  );
+
+  const setLoggedOut = useCallback(() => {
+    authServiceRef.current.logout();
+    setUser(loggedOutUser);
+  }, [setUser]);
+
+  const handleStorageEvent = useCallback(
+    (e) => {
+      if (e.key === 'user') {
+        const oldUser = JSON.parse(e.oldValue);
+        const newUser = JSON.parse(e.newValue);
+
+        if (!!newUser && newUser.email && !isEqual(newUser, oldUser)) {
+          // User was saved to local storage. Use it.
+          setLoggedIn(newUser);
+        } else if (newUser && !newUser.email) {
+          // Show the user as logged out in all other opened tabs
+          setLoggedOut();
+        }
+      }
+    },
+    [setLoggedIn, setLoggedOut],
+  );
+
+  useEffect(() => {
+    window.addEventListener('storage', handleStorageEvent);
 
     // Ask the back-end if a user is logged in on page load
-    UserModel.get().then(async (currentUser) => {
+    UserModel.get().then((currentUser) => {
       if (currentUser.email && localStorage.getItem('userSession')) {
-        this.setLoggedIn(currentUser);
+        setLoggedIn(currentUser);
       } else {
-        this.setLoggedOut();
+        setLoggedOut();
       }
     });
-  }
 
-  componentWillUnmount() {
-    window.removeEventListener('storage', this.handleStorageEvent);
-  }
-
-  setLoggedIn = (newUser) => {
-    const { setUser } = this.props;
-    const userSession = JSON.parse(localStorage.getItem('userSession'));
-    newUser.isLoggedIn = true;
-    newUser.fullName = userSession.fullName;
-    setUser(newUser);
-
-    // start session renewal process
-    if (userSession?.renewAfter) {
-      this.authService.resetRenewalTimer();
-    }
-  };
-
-  setLoggedOut = () => {
-    const { setUser } = this.props;
-
-    this.authService.logout();
-    setUser(loggedOutUser);
-  };
-
-  handleStorageEvent = (e) => {
-    if (e.key === 'user') {
-      const oldUser = JSON.parse(e.oldValue);
-      const newUser = JSON.parse(e.newValue);
-
-      if (!!newUser && newUser.email && !isEqual(newUser, oldUser)) {
-        // User was saved to local storage. Use it.
-        this.setLoggedIn(newUser);
-      } else if (newUser && !newUser.email) {
-        // Show the user as logged out in all other opened tabs
-        this.setLoggedOut();
-      }
-    }
-  };
+    return () => {
+      window.removeEventListener('storage', handleStorageEvent);
+    };
+  }, [handleStorageEvent, setLoggedIn, setLoggedOut]);
 
   /**
    * Opens a new tab to handle authentication, which will get closed
    * if it's successful.
    */
-  login = () => {
+  const login = useCallback(() => {
     // Intentionally not using `noopener` since `window.opener` used in LoginCallback.
     window.open(loginCallbackUrl, '_blank');
-  };
+  }, []);
 
-  logout = () => {
-    const { notify = (msg) => console.error(msg) } = this.props; // eslint-disable-line no-console
+  const logout = useCallback(() => {
+    const notifyFn = notify || ((msg) => console.error(msg)); // eslint-disable-line no-console
 
     // only clear taskcluster credentials when a user logs out to make it easier
     // to clear an old token and retrieve a new one
@@ -90,57 +93,43 @@ class Login extends React.Component {
 
     fetch(getApiUrl('/auth/logout/')).then(async (resp) => {
       if (resp.ok) {
-        this.setLoggedOut();
+        setLoggedOut();
       } else {
         const msg = await resp.text();
-        notify(`Logout failed: ${msg}`, 'danger', { sticky: true });
+        notifyFn(`Logout failed: ${msg}`, 'danger', { sticky: true });
       }
     });
-  };
+  }, [notify, setLoggedOut]);
 
-  render() {
-    const { user = { isLoggedIn: false } } = this.props;
-
-    return (
-      <React.Fragment>
-        {user?.isLoggedIn ? (
-          <Dropdown>
-            <Dropdown.Toggle
-              variant="transparent"
-              className="navbar-link nav-menu-btn"
+  return (
+    <React.Fragment>
+      {user?.isLoggedIn ? (
+        <Dropdown>
+          <Dropdown.Toggle
+            variant="transparent"
+            className="navbar-link nav-menu-btn"
+          >
+            <span
+              className="bg-info px-1 me-1 rounded text-light"
+              aria-label={`Logged in as: ${user.email}`}
             >
-              <span
-                className="bg-info px-1 me-1 rounded text-light"
-                aria-label={`Logged in as: ${user.email}`}
-              >
-                <FontAwesomeIcon icon={faUser} size="xs" />
-              </span>
-              <span>{user.fullName}</span>
-            </Dropdown.Toggle>
-            <Dropdown.Menu right>
-              <Dropdown.Item tag="a" onClick={this.logout}>
-                Logout
-              </Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
-        ) : (
-          <Button onClick={this.login} className="btn-view-nav nav-menu-btn">
-            Login / Register
-          </Button>
-        )}
-      </React.Fragment>
-    );
-  }
-}
-
-Login.propTypes = {
-  setUser: PropTypes.func.isRequired,
-  user: PropTypes.shape({
-    email: PropTypes.string,
-    isLoggedIn: PropTypes.bool,
-    fullName: PropTypes.string,
-  }),
-  notify: PropTypes.func,
+              <FontAwesomeIcon icon={faUser} size="xs" />
+            </span>
+            <span>{user.fullName}</span>
+          </Dropdown.Toggle>
+          <Dropdown.Menu right>
+            <Dropdown.Item tag="a" onClick={logout}>
+              Logout
+            </Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
+      ) : (
+        <Button onClick={login} className="btn-view-nav nav-menu-btn">
+          Login / Register
+        </Button>
+      )}
+    </React.Fragment>
+  );
 };
 
 export default Login;
