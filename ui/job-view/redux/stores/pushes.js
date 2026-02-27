@@ -12,8 +12,8 @@ import { thEvents } from '../../../helpers/constants';
 import { processErrors, getData } from '../../../helpers/http';
 import { updateUrlSearch } from '../../../helpers/router';
 
-import { notify } from './notifications';
-import { clearJobViaUrl, setSelectedJob } from './selectedJob';
+import { notify } from '../../stores/notificationStore';
+import { clearJobViaUrl, setSelectedJob } from '../../stores/selectedJobStore';
 
 export const LOADING = 'LOADING';
 export const ADD_PUSHES = 'ADD_PUSHES';
@@ -204,7 +204,7 @@ const fetchNewJobs = () => {
         }),
       );
       if (updatedSelectedJob) {
-        dispatch(setSelectedJob(updatedSelectedJob));
+        setSelectedJob(updatedSelectedJob);
       }
     } else {
       for (const error of errors) {
@@ -291,7 +291,7 @@ export const fetchPushes = (
         ),
       });
     }
-    dispatch(notify('Error retrieving push data!', 'danger', { sticky: true }));
+    notify('Error retrieving push data!', 'danger', { sticky: true });
     return {};
   };
 };
@@ -400,7 +400,7 @@ export const updateRange = (range) => {
         }
       }
       if (getUrlParam('selectedJob') || getUrlParam('selectedTaskRun')) {
-        dispatch(clearJobViaUrl());
+        clearJobViaUrl();
       }
       // We already have the one revision they're looking for,
       // so we can just erase everything else.

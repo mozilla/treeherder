@@ -29,7 +29,8 @@ import UpdateAvailable from './headerbars/UpdateAvailable';
 import DetailsPanel from './details/DetailsPanel';
 import PushList from './pushes/PushList';
 import KeyboardShortcuts from './KeyboardShortcuts';
-import { clearExpiredNotifications } from './redux/stores/notifications';
+import { useNotificationStore } from './stores/notificationStore';
+import { useSelectedJobStore } from './stores/selectedJobStore';
 import { fetchPushes } from './redux/stores/pushes';
 
 import '../css/treeherder.css';
@@ -99,10 +100,12 @@ const App = () => {
   const dispatch = useDispatch();
   const panelGroupRef = useRef();
 
-  // Redux state
-  const jobMap = useSelector((state) => state.pushes.jobMap);
-  const selectedJob = useSelector((state) => state.selectedJob.selectedJob);
+  // Zustand state
+  const selectedJob = useSelectedJobStore((state) => state.selectedJob);
   const hasSelectedJob = !!selectedJob;
+
+  // Redux state (pushes store not yet migrated to Zustand)
+  const jobMap = useSelector((state) => state.pushes.jobMap);
 
   // Get initial URL params
   const urlParams = getAllUrlParams();
@@ -315,8 +318,9 @@ const App = () => {
     });
 
     // clear expired notifications
+    const { clearExpiredNotifications } = useNotificationStore.getState();
     notificationIntervalRef.current = setInterval(() => {
-      dispatch(clearExpiredNotifications());
+      clearExpiredNotifications();
     }, MAX_TRANSIENT_AGE);
 
     return () => {

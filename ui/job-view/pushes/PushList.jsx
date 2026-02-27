@@ -7,12 +7,12 @@ import intersection from 'lodash/intersection';
 import isEqual from 'lodash/isEqual';
 
 import ErrorBoundary from '../../shared/ErrorBoundary';
-import { notify } from '../redux/stores/notifications';
+import { notify } from '../stores/notificationStore';
 import {
   syncSelectionFromUrl,
   clearJobViaUrl,
   wasJobJustSelected,
-} from '../redux/stores/selectedJob';
+} from '../stores/selectedJobStore';
 import { fetchPushes, updateRange, pollPushes } from '../redux/stores/pushes';
 import { updatePushParams } from '../../helpers/location';
 
@@ -47,11 +47,8 @@ function PushList({
   duplicateJobsVisible,
   groupCountsExpanded,
   allUnclassifiedFailureCount,
-  clearJobViaUrl,
-  syncSelectionFromUrl,
   getAllShownJobs,
   jobMap,
-  notify,
   revision = null,
   landoCommitID = null,
   landoStatus = 'unknown',
@@ -272,11 +269,8 @@ PushList.propTypes = {
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
   allUnclassifiedFailureCount: PropTypes.number.isRequired,
-  clearJobViaUrl: PropTypes.func.isRequired,
-  syncSelectionFromUrl: PropTypes.func.isRequired,
   getAllShownJobs: PropTypes.func.isRequired,
   jobMap: PropTypes.shape({}).isRequired,
-  notify: PropTypes.func.isRequired,
   revision: PropTypes.string,
   landoCommitID: PropTypes.string,
   landoStatus: PropTypes.string,
@@ -300,9 +294,6 @@ const mapStateToProps = ({
 });
 
 export default connect(mapStateToProps, {
-  notify,
-  clearJobViaUrl,
-  syncSelectionFromUrl,
   fetchPushes,
   updateRange,
   pollPushes,

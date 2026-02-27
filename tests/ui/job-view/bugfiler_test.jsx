@@ -193,7 +193,7 @@ describe('BugFiler', () => {
     revisionHrefPrefix: 'https://hg.mozilla.org/integration/autoland/rev/',
   };
 
-  const store = mockStore({});
+  const store = mockStore({ pushes: { decisionTaskMap: {} } });
   const bugFilerComponentSuggestions = (suggestions) => (
     <Provider store={store}>
       <BugFilerClass
@@ -207,7 +207,6 @@ describe('BugFiler', () => {
         successCallback={successCallback}
         selectedJob={selectedJob}
         platform={selectedJob.platform}
-        notify={() => {}}
         currentRepo={currentRepo}
       />
     </Provider>
@@ -226,7 +225,6 @@ describe('BugFiler', () => {
         successCallback={successCallback}
         selectedJob={selectedJob}
         platform={selectedJob.platform}
-        notify={() => {}}
         currentRepo={currentRepo}
       />
     </Provider>

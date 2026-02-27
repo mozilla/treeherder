@@ -13,7 +13,7 @@ import {
 import { formatTaskclusterError } from '../../helpers/errorMessage';
 import CustomJobActions from '../CustomJobActions';
 import PushModel from '../../models/push';
-import { notify } from '../redux/stores/notifications';
+import { notify } from '../stores/notificationStore';
 import { updateRange } from '../redux/stores/pushes';
 
 function PushActionMenu({
@@ -58,11 +58,11 @@ function PushActionMenu({
 
     PushModel.triggerMissingJobs(
       pushId,
-      (msg, severity, options) => dispatch(notify(msg, severity, options)),
+      notify,
       decisionTask,
       currentRepo,
     ).catch((e) => {
-      dispatch(notify(formatTaskclusterError(e), 'danger', { sticky: true }));
+      notify(formatTaskclusterError(e), 'danger', { sticky: true });
     });
   }, [pushId, revision, decisionTaskMap, currentRepo, dispatch]);
 

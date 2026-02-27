@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { Button } from 'react-bootstrap';
@@ -11,7 +10,7 @@ import { addAggregateFields, getBtnClass } from '../../../helpers/job';
 import { getJobsUrl, textLogErrorsEndpoint } from '../../../helpers/url';
 import JobModel from '../../../models/job';
 import PushModel from '../../../models/push';
-import { notify } from '../../redux/stores/notifications';
+import { notify } from '../../stores/notificationStore';
 import { getProjectJobUrl } from '../../../helpers/location';
 import { getData } from '../../../helpers/http';
 
@@ -37,7 +36,7 @@ class SimilarJobsTab extends React.Component {
 
   getSimilarJobs = async () => {
     const { page, similarJobs, selectedSimilarJob } = this.state;
-    const { repoName, selectedJobFull, notify } = this.props;
+    const { repoName, selectedJobFull } = this.props;
     const options = {
       // get one extra to detect if there are more jobs that can be loaded (hasNextPage)
       count: this.pageSize + 1,
@@ -328,8 +327,7 @@ class SimilarJobsTab extends React.Component {
 SimilarJobsTab.propTypes = {
   repoName: PropTypes.string.isRequired,
   classificationMap: PropTypes.shape({}).isRequired,
-  notify: PropTypes.func.isRequired,
   selectedJobFull: PropTypes.shape({}).isRequired,
 };
 
-export default connect(null, { notify })(SimilarJobsTab);
+export default SimilarJobsTab;
