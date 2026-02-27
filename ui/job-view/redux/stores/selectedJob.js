@@ -5,8 +5,8 @@ import {
   findSelectedInstance,
   getTaskRun,
   getTaskRunStr,
-  scrollToElement,
 } from '../../../helpers/job';
+import { scrollToElement } from '../../../helpers/scrollToElement';
 import {
   getCurrentlySelectedInstance,
   setCurrentlySelectedInstance,

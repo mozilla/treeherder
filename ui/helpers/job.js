@@ -9,6 +9,7 @@ import { getGroupMapKey } from './aggregateId';
 import { getAllUrlParams, getRepo } from './location';
 import { getAction } from './taskcluster';
 import { formatTaskclusterError } from './errorMessage';
+import { scrollToElement } from './scrollToElement';
 
 // failure classification ids that should be shown in "unclassified" mode
 // TODO: consider dropping 8 from this list, only here for full compatibility
@@ -191,42 +192,6 @@ export const findSelectedInstance = function findSelectedInstance() {
 
   if (selectedEl) {
     return findInstance(selectedEl);
-  }
-};
-
-// Check if the element is visible on screen or not,
-// with the screen being the area between the top bars and the details panel.
-const isOnScreen = function isOnScreen(el) {
-  const offset = el.getBoundingClientRect();
-
-  const topBarSelectors = [
-    // At the top, always shown.
-    "#global-navbar-container",
-    // If shown, .active-filters-bar is below #global-navbar-container
-    ".active-filters-bar",
-    // Shown if the web app has updated and the page should be reloaded.
-    ".update-alert-panel",
-  ];
-  let topBound = 0;
-  for (const selector of topBarSelectors) {
-    const topElem = document.querySelector(selector);
-    if (topElem) {
-      topBound = Math.max(topBound, topElem.getBoundingClientRect().bottom);
-    }
-  }
-
-  // The details view, always shown at the bottom.
-  const bottomPanelElem = document.querySelector("#details-panel");
-  const bottomBound = bottomPanelElem.getBoundingClientRect().top;
-
-  return offset.top >= topBound && offset.bottom <= bottomBound;
-};
-
-// Scroll the element into view, if needed to be visible between the top bar
-// and the details panel at the bottom.
-export const scrollToElement = function scrollToElement(el) {
-  if (!isOnScreen(el)) {
-    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 };
 
