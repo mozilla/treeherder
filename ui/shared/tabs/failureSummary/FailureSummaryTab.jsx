@@ -369,10 +369,10 @@ class FailureSummaryTab extends React.Component {
             toggle={this.toggleBugFiler}
             suggestion={suggestion}
             suggestions={suggestions}
-            fullLog={jobLogUrls[0].url}
+            fullLog={logs[0].url}
             parsedLog={logViewerFullUrl}
             reftestUrl={
-              isReftest(selectedJob) ? getReftestUrl(jobLogUrls[0].url) : ''
+              isReftest(selectedJob) ? getReftestUrl(logs[0].url) : ''
             }
             successCallback={this.bugFilerCallback}
             selectedJob={selectedJob}
