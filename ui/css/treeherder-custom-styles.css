@@ -123,7 +123,7 @@
 
 .dropdown-item {
   cursor: pointer;
-  color: #212529;
+  color: #212529 !important;
 }
 
 .dropdown-item:hover,
