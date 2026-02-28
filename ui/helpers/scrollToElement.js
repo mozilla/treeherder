@@ -21,7 +21,12 @@ const isOnScreen = function isOnScreen(el) {
 
   // The details view, always shown at the bottom.
   const bottomPanelElem = document.querySelector("#details-panel");
-  const bottomBound = bottomPanelElem.getBoundingClientRect().top;
+  let bottomBound;
+  if (bottomPanelElem) {
+    bottomBound = bottomPanelElem.getBoundingClientRect().top;
+  } else {
+    bottomBound = window.innerHeight;
+  }
 
   return offset.top >= topBound && offset.bottom <= bottomBound;
 };
