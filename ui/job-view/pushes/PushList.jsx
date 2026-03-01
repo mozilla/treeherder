@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'react-bootstrap';
-import { connect } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import intersection from 'lodash/intersection';
 import isEqual from 'lodash/isEqual';
@@ -13,7 +12,12 @@ import {
   clearJobViaUrl,
   wasJobJustSelected,
 } from '../stores/selectedJobStore';
-import { fetchPushes, updateRange, pollPushes } from '../redux/stores/pushes';
+import {
+  usePushesStore,
+  fetchPushes,
+  updateRange,
+  pollPushes,
+} from '../stores/pushesStore';
 import { updatePushParams } from '../../helpers/location';
 
 import Push from './Push';
@@ -38,23 +42,22 @@ const PUSH_POLL_INTERVAL = 60000;
 function PushList({
   repoName,
   filterModel,
-  pushList,
-  fetchPushes,
-  pollPushes,
-  updateRange,
-  loadingPushes,
-  jobsLoaded,
   duplicateJobsVisible,
   groupCountsExpanded,
-  allUnclassifiedFailureCount,
   getAllShownJobs,
-  jobMap,
   revision = null,
   landoCommitID = null,
   landoStatus = 'unknown',
   currentRepo = {},
   pushHealthVisibility,
 }) {
+  const pushList = usePushesStore((state) => state.pushList);
+  const loadingPushes = usePushesStore((state) => state.loadingPushes);
+  const jobsLoaded = usePushesStore((state) => state.jobsLoaded);
+  const jobMap = usePushesStore((state) => state.jobMap);
+  const allUnclassifiedFailureCount = usePushesStore(
+    (state) => state.allUnclassifiedFailureCount,
+  );
   const location = useLocation();
   const [notificationSupported] = useState('Notification' in window);
   const pushIntervalId = useRef(null);
@@ -260,41 +263,13 @@ function PushList({
 PushList.propTypes = {
   repoName: PropTypes.string.isRequired,
   filterModel: PropTypes.shape({}).isRequired,
-  pushList: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  fetchPushes: PropTypes.func.isRequired,
-  pollPushes: PropTypes.func.isRequired,
-  updateRange: PropTypes.func.isRequired,
-  loadingPushes: PropTypes.bool.isRequired,
-  jobsLoaded: PropTypes.bool.isRequired,
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
-  allUnclassifiedFailureCount: PropTypes.number.isRequired,
   getAllShownJobs: PropTypes.func.isRequired,
-  jobMap: PropTypes.shape({}).isRequired,
   revision: PropTypes.string,
   landoCommitID: PropTypes.string,
   landoStatus: PropTypes.string,
   currentRepo: PropTypes.shape({}),
 };
 
-const mapStateToProps = ({
-  pushes: {
-    loadingPushes,
-    jobsLoaded,
-    jobMap,
-    pushList,
-    allUnclassifiedFailureCount,
-  },
-}) => ({
-  loadingPushes,
-  jobsLoaded,
-  jobMap,
-  pushList,
-  allUnclassifiedFailureCount,
-});
-
-export default connect(mapStateToProps, {
-  fetchPushes,
-  updateRange,
-  pollPushes,
-})(PushList);
+export default PushList;

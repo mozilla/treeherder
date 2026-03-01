@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
 import { Button, ButtonGroup, Form, Dropdown } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlusSquare, faTimes } from '@fortawesome/free-solid-svg-icons';
@@ -15,7 +14,10 @@ import JobClassificationTypeAndBugsModel from '../../models/classificationTypeAn
 import JobModel from '../../models/job';
 import { setSelectedJob } from '../stores/selectedJobStore';
 import { notify } from '../stores/notificationStore';
-import { recalculateUnclassifiedCounts } from '../redux/stores/pushes';
+import {
+  usePushesStore,
+  recalculateUnclassifiedCounts,
+} from '../stores/pushesStore';
 import {
   usePinnedJobsStore,
   addBug,
@@ -33,10 +35,9 @@ function PinBoard({
   classificationTypes,
   currentRepo,
 }) {
-  const dispatch = useDispatch();
-  const { revisionTips = [], decisionTaskMap, jobMap } = useSelector(
-    (state) => state.pushes,
-  );
+  const revisionTips = usePushesStore((state) => state.revisionTips) || [];
+  const decisionTaskMap = usePushesStore((state) => state.decisionTaskMap);
+  const jobMap = usePushesStore((state) => state.jobMap);
 
   const {
     isPinBoardVisible,
@@ -83,7 +84,7 @@ function PinBoard({
 
       if (classification.failure_classification_id > 0) {
         job.failure_classification_id = classification.failure_classification_id;
-        dispatch(recalculateUnclassifiedCounts());
+        recalculateUnclassifiedCounts();
 
         classification.job_id = job.id;
         const { data, failureStatus } = await classification.create();
@@ -95,7 +96,7 @@ function PinBoard({
       }
       return null;
     },
-    [createNewClassification, jobMap, dispatch],
+    [createNewClassification, jobMap],
   );
 
   const saveBugs = useCallback((job) => {
@@ -242,7 +243,7 @@ function PinBoard({
           window.dispatchEvent(
             new CustomEvent(thEvents.classificationChanged),
           );
-          dispatch(recalculateUnclassifiedCounts());
+          recalculateUnclassifiedCounts();
           handleUnPinAll();
         },
       );
@@ -252,7 +253,6 @@ function PinBoard({
     currentRepo,
     saveClassification,
     saveBugs,
-    dispatch,
     handleUnPinAll,
   ]);
 
@@ -340,7 +340,7 @@ function PinBoard({
       );
       handleUnPinAll();
       window.dispatchEvent(new CustomEvent(thEvents.classificationChanged));
-      dispatch(recalculateUnclassifiedCounts());
+      recalculateUnclassifiedCounts();
     } else {
       const message = `Error deleting classifications: ${data}`;
       notify(message, 'danger');

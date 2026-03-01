@@ -7,7 +7,6 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { Provider } from 'react-redux';
 
 import { getApiUrl } from '../../../ui/helpers/url';
 import { getProjectUrl } from '../../../ui/helpers/location';
@@ -21,10 +20,8 @@ import jobMap from '../mock/job_map';
 import bugSuggestions from '../mock/bug_suggestions.json';
 import jobLogUrls from '../mock/job_log_urls.json';
 import repositories from '../mock/repositories.json';
-import { configureStore } from '../../../ui/job-view/redux/configureStore';
 
 const selectedJob = Object.values(jobMap)[0];
-const store = configureStore();
 
 describe('FailureSummaryTab', () => {
   const repoName = 'autoland';
@@ -51,28 +48,26 @@ describe('FailureSummaryTab', () => {
   });
 
   const testFailureSummaryTab = () => (
-    <Provider store={store}>
-      <MemoryRouter>
-        <PinBoard
-          classificationTypes={[{ id: 0, name: 'intermittent' }]}
-          isLoggedIn={false}
-          currentRepo={repositories[0]}
-        />
-        <FailureSummaryTab
-          selectedJob={selectedJob}
-          selectedJobId={selectedJob.id}
-          jobLogUrls={jobLogUrls}
-          logParseStatus="parsed"
-          reftestUrl="boo"
-          logViewerFullUrl="ber/baz"
-          /* Calling addBug will show the pinboard which gets checked if the
-             correct bug got added. */
-          addBug={addBug}
-          pinJob={() => {}}
-          currentRepo={currentRepo}
-        />
-      </MemoryRouter>
-    </Provider>
+    <MemoryRouter>
+      <PinBoard
+        classificationTypes={[{ id: 0, name: 'intermittent' }]}
+        isLoggedIn={false}
+        currentRepo={repositories[0]}
+      />
+      <FailureSummaryTab
+        selectedJob={selectedJob}
+        selectedJobId={selectedJob.id}
+        jobLogUrls={jobLogUrls}
+        logParseStatus="parsed"
+        reftestUrl="boo"
+        logViewerFullUrl="ber/baz"
+        /* Calling addBug will show the pinboard which gets checked if the
+           correct bug got added. */
+        addBug={addBug}
+        pinJob={() => {}}
+        currentRepo={currentRepo}
+      />
+    </MemoryRouter>
   );
 
   test('failures should be visible', async () => {

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useSelector } from 'react-redux';
+import { usePushesStore } from '../job-view/stores/pushesStore';
 import { Button, Modal, OverlayTrigger, Tooltip, Form } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -209,8 +209,8 @@ export function BugFilerClass(props) {
     currentRepo,
   } = props;
 
-  const decisionTaskMap = useSelector(
-    (state) => state.pushes.decisionTaskMap,
+  const decisionTaskMap = usePushesStore(
+    (state) => state.decisionTaskMap,
   );
 
   const [state, setState] = useState(() =>

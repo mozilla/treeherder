@@ -3,10 +3,9 @@ import PropTypes from 'prop-types';
 import { Button, Form } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
-import { connect } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 
-import { updateRange } from '../redux/stores/pushes';
+import { updateRange } from '../stores/pushesStore';
 import { clearSelectedJob } from '../stores/selectedJobStore';
 import { getFieldChoices } from '../../helpers/filter';
 
@@ -16,7 +15,6 @@ function ActiveFilters({
   isFieldFilterVisible,
   toggleFieldFilterVisible,
   classificationTypes,
-  updateRange,
 }) {
   const location = useLocation();
   const [newFilterField, setNewFilterFieldState] = useState('');
@@ -240,9 +238,6 @@ ActiveFilters.propTypes = {
   isFieldFilterVisible: PropTypes.bool.isRequired,
   toggleFieldFilterVisible: PropTypes.func.isRequired,
   classificationTypes: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  updateRange: PropTypes.func.isRequired,
 };
 
-export default connect(null, {
-  updateRange,
-})(ActiveFilters);
+export default ActiveFilters;

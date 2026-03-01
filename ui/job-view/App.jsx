@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Modal } from 'react-bootstrap';
 import { PanelGroup, Panel, PanelResizeHandle } from 'react-resizable-panels';
-import { useSelector, useDispatch } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { thFavicons, thDefaultRepo, thEvents } from '../helpers/constants';
@@ -31,7 +30,7 @@ import PushList from './pushes/PushList';
 import KeyboardShortcuts from './KeyboardShortcuts';
 import { useNotificationStore } from './stores/notificationStore';
 import { useSelectedJobStore } from './stores/selectedJobStore';
-import { fetchPushes } from './redux/stores/pushes';
+import { usePushesStore, fetchPushes } from './stores/pushesStore';
 
 import '../css/treeherder.css';
 import '../css/treeherder-navbar-panels.css';
@@ -97,15 +96,12 @@ const getOrSetRepo = (navigate) => {
 const App = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const panelGroupRef = useRef();
 
   // Zustand state
   const selectedJob = useSelectedJobStore((state) => state.selectedJob);
   const hasSelectedJob = !!selectedJob;
-
-  // Redux state (pushes store not yet migrated to Zustand)
-  const jobMap = useSelector((state) => state.pushes.jobMap);
+  const jobMap = usePushesStore((state) => state.jobMap);
 
   // Get initial URL params
   const urlParams = getAllUrlParams();
@@ -279,7 +275,7 @@ const App = () => {
     });
 
     // Start (pre)fetching pushes immediately
-    dispatch(fetchPushes());
+    fetchPushes();
 
     window.addEventListener('resize', updateDimensions, false);
     window.addEventListener(thEvents.filtersUpdated, handleFiltersUpdated);

@@ -1,5 +1,4 @@
 
-import { Provider, ReactReduxContext } from 'react-redux';
 import {
   render,
   cleanup,
@@ -13,7 +12,6 @@ import { addAggregateFields } from '../../../ui/helpers/job';
 import { setUrlParam } from '../../../ui/helpers/location';
 import { clearJobButtonRegistry } from '../../../ui/hooks/useJobButtonRegistry';
 import PushJobs from '../../../ui/job-view/pushes/PushJobs';
-import { configureStore } from '../../../ui/job-view/redux/configureStore';
 import FilterModel from '../../../ui/models/filter';
 import platforms from '../mock/platforms';
 
@@ -65,28 +63,25 @@ afterEach(() => {
   jest.restoreAllMocks();
 });
 
-const testPushJobs = (filtermodel = null, store = null) => {
-  const storeToUse = store || configureStore();
+const testPushJobs = (filtermodel = null) => {
   return (
-    <Provider store={storeToUse} context={ReactReduxContext}>
-      <MemoryRouter>
-        <div id="push-list">
-          <PushJobs
-            push={testPush}
-            platforms={platforms}
-            repoName="try"
-            filterModel={
-              filtermodel || new FilterModel(mockNavigate, mockLocation)
-            }
-            pushGroupState=""
-            toggleSelectedRunnableJob={() => {}}
-            runnableVisible={false}
-            duplicateJobsVisible={false}
-            groupCountsExpanded={false}
-          />
-        </div>
-      </MemoryRouter>
-    </Provider>
+    <MemoryRouter>
+      <div id="push-list">
+        <PushJobs
+          push={testPush}
+          platforms={platforms}
+          repoName="try"
+          filterModel={
+            filtermodel || new FilterModel(mockNavigate, mockLocation)
+          }
+          pushGroupState=""
+          toggleSelectedRunnableJob={() => {}}
+          runnableVisible={false}
+          duplicateJobsVisible={false}
+          groupCountsExpanded={false}
+        />
+      </div>
+    </MemoryRouter>
   );
 };
 
@@ -113,9 +108,8 @@ test('select a job updates url', async () => {
 });
 
 test('filter change keeps selected job visible', async () => {
-  const store = configureStore();
   const filterModel = new FilterModel(mockNavigate, mockLocation);
-  const { getByText, rerender } = render(testPushJobs(filterModel, store));
+  const { getByText, rerender } = render(testPushJobs(filterModel));
   const spell = await waitFor(() => getByText('spell'));
 
   expect(spell).toBeInTheDocument();
@@ -127,7 +121,7 @@ test('filter change keeps selected job visible', async () => {
   act(() => {
     filterModel.addFilter('searchStr', 'linux');
   });
-  rerender(testPushJobs(filterModel, store));
+  rerender(testPushJobs(filterModel));
 
   const spell2 = getByText('spell');
 

@@ -1,6 +1,5 @@
 import React, { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { useSelector, useDispatch } from 'react-redux';
 import { Dropdown } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
@@ -14,7 +13,10 @@ import { formatTaskclusterError } from '../../helpers/errorMessage';
 import CustomJobActions from '../CustomJobActions';
 import PushModel from '../../models/push';
 import { notify } from '../stores/notificationStore';
-import { updateRange } from '../redux/stores/pushes';
+import {
+  usePushesStore,
+  updateRange,
+} from '../stores/pushesStore';
 
 function PushActionMenu({
   revision = null,
@@ -26,11 +28,9 @@ function PushActionMenu({
   currentRepo,
 }) {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const [customJobActionsShowing, setCustomJobActionsShowing] = useState(false);
 
-  // Redux state
-  const decisionTaskMap = useSelector((state) => state.pushes.decisionTaskMap);
+  const decisionTaskMap = usePushesStore((state) => state.decisionTaskMap);
 
   const updateParamsAndRange = useCallback(
     (param) => {
@@ -40,9 +40,9 @@ function PushActionMenu({
       navigate({
         search: createQueryParams(queryParams),
       });
-      dispatch(updateRange(queryParams));
+      updateRange(queryParams);
     },
-    [revision, dispatch, navigate],
+    [revision, navigate],
   );
 
   const triggerMissingJobs = useCallback(() => {
@@ -64,7 +64,7 @@ function PushActionMenu({
     ).catch((e) => {
       notify(formatTaskclusterError(e), 'danger', { sticky: true });
     });
-  }, [pushId, revision, decisionTaskMap, currentRepo, dispatch]);
+  }, [pushId, revision, decisionTaskMap, currentRepo]);
 
   const toggleCustomJobActions = useCallback(() => {
     setCustomJobActionsShowing((prev) => !prev);

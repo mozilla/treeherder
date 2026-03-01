@@ -1,6 +1,5 @@
 import { useMemo, useCallback, memo } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faMinusSquare,
@@ -319,8 +318,4 @@ PushHeader.propTypes = {
   currentRepo: PropTypes.shape({}).isRequired,
 };
 
-const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({
-  decisionTaskMap,
-});
-
-export default connect(mapStateToProps)(memo(PushHeader));
+export default memo(PushHeader);

@@ -1,7 +1,6 @@
 
 import fetchMock from 'fetch-mock';
 import { render, waitFor, fireEvent } from '@testing-library/react';
-import { Provider, ReactReduxContext } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 
 import { AppRoutes } from '../../../ui/App';
@@ -11,16 +10,12 @@ import { getApiUrl } from '../../../ui/helpers/url';
 import { getProjectUrl } from '../../../ui/helpers/location';
 import jobListFixtureOne from '../mock/job_list/job_1.json';
 import fullJob from '../mock/full_job.json';
-import { configureStore } from '../../../ui/job-view/redux/configureStore';
 
 const testApp = (initialEntries = ['/jobs?repo=autoland']) => {
-  const store = configureStore();
   return (
-    <Provider store={store} context={ReactReduxContext}>
-      <MemoryRouter initialEntries={initialEntries}>
-        <AppRoutes />
-      </MemoryRouter>
-    </Provider>
+    <MemoryRouter initialEntries={initialEntries}>
+      <AppRoutes />
+    </MemoryRouter>
   );
 };
 

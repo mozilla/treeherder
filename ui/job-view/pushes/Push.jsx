@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import sortBy from 'lodash/sortBy';
 import { Col, Row } from 'react-bootstrap';
@@ -23,9 +22,10 @@ import RunnableJobModel from '../../models/runnableJob';
 import { getRevisionTitle } from '../../helpers/revision';
 import { getPercentComplete } from '../../helpers/display';
 import {
+  usePushesStore,
   updateJobMap,
   recalculateUnclassifiedCounts,
-} from '../redux/stores/pushes';
+} from '../stores/pushesStore';
 import { notify } from '../stores/notificationStore';
 import {
   checkRootUrl,
@@ -121,12 +121,12 @@ function Push({
   groupCountsExpanded,
   isOnlyRevision,
   pushHealthVisibility,
-  decisionTaskMap,
-  bugSummaryMap,
-  allUnclassifiedFailureCount,
-  updateJobMap,
-  recalculateUnclassifiedCounts,
 }) {
+  const decisionTaskMap = usePushesStore((state) => state.decisionTaskMap);
+  const bugSummaryMap = usePushesStore((state) => state.bugSummaryMap);
+  const allUnclassifiedFailureCount = usePushesStore(
+    (state) => state.allUnclassifiedFailureCount,
+  );
   const location = useLocation();
   const collapsedPushes = getUrlParam('collapsedPushes') || '';
 
@@ -767,26 +767,10 @@ Push.propTypes = {
   filterModel: PropTypes.shape({}).isRequired,
   notificationSupported: PropTypes.bool.isRequired,
   getAllShownJobs: PropTypes.func.isRequired,
-  updateJobMap: PropTypes.func.isRequired,
-  recalculateUnclassifiedCounts: PropTypes.func.isRequired,
-  allUnclassifiedFailureCount: PropTypes.number.isRequired,
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
   isOnlyRevision: PropTypes.bool.isRequired,
   pushHealthVisibility: PropTypes.string.isRequired,
-  decisionTaskMap: PropTypes.shape({}).isRequired,
-  bugSummaryMap: PropTypes.shape({}).isRequired,
 };
 
-const mapStateToProps = ({
-  pushes: { allUnclassifiedFailureCount, decisionTaskMap, bugSummaryMap },
-}) => ({
-  allUnclassifiedFailureCount,
-  decisionTaskMap,
-  bugSummaryMap,
-});
-
-export default connect(mapStateToProps, {
-  updateJobMap,
-  recalculateUnclassifiedCounts,
-})(memo(Push));
+export default memo(Push);
