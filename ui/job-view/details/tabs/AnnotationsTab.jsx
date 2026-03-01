@@ -1,6 +1,5 @@
-import React from 'react';
+import { useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
@@ -13,7 +12,7 @@ import { thEvents } from '../../../helpers/constants';
 import { getBugUrl } from '../../../helpers/url';
 import { longDateFormat } from '../../../helpers/display';
 import { notify } from '../../stores/notificationStore';
-import { recalculateUnclassifiedCounts } from '../../redux/stores/pushes';
+import { recalculateUnclassifiedCounts } from '../../stores/pushesStore';
 
 function RelatedBugSaved(props) {
   const { deleteBug, bug } = props;
@@ -155,38 +154,8 @@ AnnotationsTable.propTypes = {
   classificationMap: PropTypes.shape({}).isRequired,
 };
 
-class AnnotationsTab extends React.Component {
-  componentDidMount() {
-    window.addEventListener(
-      thEvents.deleteClassification,
-      this.onDeleteClassification,
-    );
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener(
-      thEvents.deleteClassification,
-      this.onDeleteClassification,
-    );
-  }
-
-  onDeleteClassification = () => {
-    const { classifications, bugs } = this.props;
-
-    if (classifications.length) {
-      this.deleteClassification(classifications[0]);
-      // Delete any number of bugs if they exist
-      bugs.forEach((bug) => {
-        this.deleteBug(bug);
-      });
-    } else {
-      notify('No classification on this job to delete', 'warning');
-    }
-  };
-
-  deleteClassification = async (classification) => {
-    const { selectedJobFull, recalculateUnclassifiedCounts } = this.props;
-
+function AnnotationsTab({ classifications, classificationMap, bugs, selectedJobFull }) {
+  const deleteClassification = useCallback(async (classification) => {
     selectedJobFull.failure_classification_id = 1;
     recalculateUnclassifiedCounts();
 
@@ -205,9 +174,9 @@ class AnnotationsTab extends React.Component {
     } else {
       notify('Classification deletion failed', 'danger', { sticky: true });
     }
-  };
+  }, [selectedJobFull]);
 
-  deleteBug = async (bug) => {
+  const deleteBug = useCallback(async (bug) => {
     const { failureStatus } = await bug.destroy();
 
     if (!failureStatus) {
@@ -229,43 +198,62 @@ class AnnotationsTab extends React.Component {
         },
       );
     }
-  };
+  }, []);
 
-  render() {
-    const { classifications, classificationMap, bugs } = this.props;
+  const onDeleteClassification = useCallback(() => {
+    if (classifications.length) {
+      deleteClassification(classifications[0]);
+      bugs.forEach((bug) => {
+        deleteBug(bug);
+      });
+    } else {
+      notify('No classification on this job to delete', 'warning');
+    }
+  }, [classifications, bugs, deleteClassification, deleteBug]);
 
-    return (
-      <div className="container-fluid" role="region" aria-label="Annotations">
-        <div className="row h-100">
-          <div className="col-sm-10 classifications-pane">
-            {classifications.length ? (
-              <AnnotationsTable
-                classifications={classifications}
-                deleteClassification={this.deleteClassification}
-                classificationMap={classificationMap}
-              />
-            ) : (
-              <p>This job has not been classified</p>
-            )}
-          </div>
+  useEffect(() => {
+    window.addEventListener(
+      thEvents.deleteClassification,
+      onDeleteClassification,
+    );
+    return () => {
+      window.removeEventListener(
+        thEvents.deleteClassification,
+        onDeleteClassification,
+      );
+    };
+  }, [onDeleteClassification]);
 
-          {!!classifications.length && !!bugs.length && (
-            <div className="col-sm-2 bug-list-pane">
-              <RelatedBug bugs={bugs} deleteBug={this.deleteBug} />
-            </div>
+  return (
+    <div className="container-fluid" role="region" aria-label="Annotations">
+      <div className="row h-100">
+        <div className="col-sm-10 classifications-pane">
+          {classifications.length ? (
+            <AnnotationsTable
+              classifications={classifications}
+              deleteClassification={deleteClassification}
+              classificationMap={classificationMap}
+            />
+          ) : (
+            <p>This job has not been classified</p>
           )}
         </div>
+
+        {!!classifications.length && !!bugs.length && (
+          <div className="col-sm-2 bug-list-pane">
+            <RelatedBug bugs={bugs} deleteBug={deleteBug} />
+          </div>
+        )}
       </div>
-    );
-  }
+    </div>
+  );
 }
 
 AnnotationsTab.propTypes = {
   classificationMap: PropTypes.shape({}).isRequired,
   bugs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   classifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  recalculateUnclassifiedCounts: PropTypes.func.isRequired,
   selectedJobFull: PropTypes.shape({}).isRequired,
 };
 
-export default connect(null, { recalculateUnclassifiedCounts })(AnnotationsTab);
+export default AnnotationsTab;

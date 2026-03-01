@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Alert, Button } from 'react-bootstrap';
 import {
@@ -20,6 +19,7 @@ import {
 import { triggerTask } from '../../../helpers/performance';
 import { isPerfTest } from '../../../helpers/job';
 import { geckoProfileTaskName, sxsTaskName } from '../../../helpers/constants';
+import { usePushesStore } from '../../stores/pushesStore';
 
 import SideBySide from './SideBySide';
 import PerfData from './PerfData';
@@ -285,8 +285,10 @@ PerformanceTab.propTypes = {
   decisionTaskMap: PropTypes.shape({}).isRequired,
 };
 
-const mapStateToProps = (state) => ({
-  decisionTaskMap: state.pushes.decisionTaskMap,
-});
+// Wrapper to inject Zustand state into class component
+function PerformanceTabWrapper(props) {
+  const decisionTaskMap = usePushesStore((state) => state.decisionTaskMap);
+  return <PerformanceTab {...props} decisionTaskMap={decisionTaskMap} />;
+}
 
-export default connect(mapStateToProps)(PerformanceTab);
+export default PerformanceTabWrapper;

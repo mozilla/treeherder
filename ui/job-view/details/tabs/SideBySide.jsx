@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faExternalLinkAlt,
@@ -188,8 +187,4 @@ SideBySide.propTypes = {
   jobDetails: PropTypes.arrayOf(PropTypes.shape({})),
 };
 
-const mapStateToProps = (state) => ({
-  decisionTaskMap: state.pushes.decisionTaskMap,
-});
-
-export default connect(mapStateToProps)(SideBySide);
+export default SideBySide;

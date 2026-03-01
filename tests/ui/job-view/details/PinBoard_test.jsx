@@ -1,4 +1,3 @@
-import { Provider, ReactReduxContext } from 'react-redux';
 import fetchMock from 'fetch-mock';
 import {
   render,
@@ -17,11 +16,10 @@ import taskDefinition from '../../mock/task_definition.json';
 import { getApiUrl } from '../../../../ui/helpers/url';
 import FilterModel from '../../../../ui/models/filter';
 import { getProjectUrl } from '../../../../ui/helpers/location';
-import { configureStore } from '../../../../ui/job-view/redux/configureStore';
 import {
-  setPushes,
-  updateJobMap,
-} from '../../../../ui/job-view/redux/stores/pushes';
+  usePushesStore,
+  initialState as pushesInitialState,
+} from '../../../../ui/job-view/stores/pushesStore';
 import reposFixture from '../../mock/repositories';
 import KeyboardShortcuts from '../../../../ui/job-view/KeyboardShortcuts';
 import {
@@ -43,11 +41,9 @@ describe('DetailsPanel', () => {
   const classificationMap = { 4: 'intermittent' };
   let jobList = null;
   const selectedJobId = 259537372;
-  let store = null;
   const currentRepo = reposFixture[2];
   currentRepo.getRevisionHref = () => 'foo';
   currentRepo.getPushLogHref = () => 'foo';
-  const router = { location: mockLocation };
 
   beforeEach(async () => {
     fetchMock.get(
@@ -109,9 +105,11 @@ describe('DetailsPanel', () => {
       taskDefinition,
     );
     fetchMock.delete(getProjectUrl('/classification/', repoName), []);
-    store = configureStore();
-    store.dispatch(setPushes(pushFixture.results, {}, router));
-    store.dispatch(updateJobMap(jobList.data));
+
+    // Set up Zustand pushes store with push and job data
+    const { setPushes, updateJobMap } = usePushesStore.getState();
+    setPushes(pushFixture.results, {});
+    updateJobMap(jobList.data);
   });
 
   afterEach(() => {
@@ -119,6 +117,7 @@ describe('DetailsPanel', () => {
     fetchMock.reset();
     mockNavigate.mockClear();
     // Reset Zustand stores
+    usePushesStore.setState({ ...pushesInitialState });
     usePinnedJobsStore.setState({
       pinnedJobs: {},
       pinnedJobBugs: [],
@@ -131,26 +130,24 @@ describe('DetailsPanel', () => {
 
   const testDetailsPanel = () => (
     <div id="global-container" className="height-minus-navbars">
-      <Provider store={store} context={ReactReduxContext}>
-        <MemoryRouter>
-          <KeyboardShortcuts
-            filterModel={new FilterModel(mockNavigate, mockLocation)}
-            showOnScreenShortcuts={() => {}}
-          >
-            <div />
-            <div id="th-global-content" data-testid="global-content">
-              <DetailsPanel
-                currentRepo={currentRepo}
-                user={{ isLoggedIn: true, isStaff: true }}
-                resizedHeight={100}
-                classificationTypes={classificationTypes}
-                classificationMap={classificationMap}
-                router={router}
-              />
-            </div>
-          </KeyboardShortcuts>
-        </MemoryRouter>
-      </Provider>
+      <MemoryRouter>
+        <KeyboardShortcuts
+          filterModel={new FilterModel(mockNavigate, mockLocation)}
+          showOnScreenShortcuts={() => {}}
+        >
+          <div />
+          <div id="th-global-content" data-testid="global-content">
+            <DetailsPanel
+              currentRepo={currentRepo}
+              user={{ isLoggedIn: true, isStaff: true }}
+              resizedHeight={100}
+              classificationTypes={classificationTypes}
+              classificationMap={classificationMap}
+              router={{ location: mockLocation }}
+            />
+          </div>
+        </KeyboardShortcuts>
+      </MemoryRouter>
     </div>
   );
 

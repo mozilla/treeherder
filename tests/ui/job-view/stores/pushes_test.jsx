@@ -1,7 +1,5 @@
 import fetchMock from 'fetch-mock';
-import thunk from 'redux-thunk';
 import { cleanup } from '@testing-library/react';
-import configureMockStore from 'redux-mock-store';
 
 import {
   getProjectUrl,
@@ -12,48 +10,36 @@ import pushListFromChangeFixture from '../../mock/pushListFromchange';
 import pollPushListFixture from '../../mock/poll_push_list';
 import jobListFixtureOne from '../../mock/job_list/job_1';
 import jobListFixtureTwo from '../../mock/job_list/job_2';
-import revisionTips from '../../mock/revisionTips';
+import revisionTips from '../../mock/revisionTips.json';
 import {
-  LOADING,
-  ADD_PUSHES,
-  CLEAR_PUSHES,
-  SET_PUSHES,
-  RECALCULATE_UNCLASSIFIED_COUNTS,
-  UPDATE_JOB_MAP,
+  usePushesStore,
   initialState,
-  reducer,
-  fetchPushes,
-  pollPushes,
-  updateRange,
-} from '../../../../ui/job-view/redux/stores/pushes';
+} from '../../../../ui/job-view/stores/pushesStore';
 import { getApiUrl } from '../../../../ui/helpers/url';
 import JobModel from '../../../../ui/models/job';
 
-const mockStore = configureMockStore([thunk]);
-const mockLocation = { search: '', pathname: '/jobs' };
 const emptyBugzillaResponse = {
   bugs: [],
 };
 
-describe('Pushes Redux store', () => {
+describe('Pushes Zustand store', () => {
   const repoName = 'autoland';
   const originalLocation = window.location;
 
   beforeEach(() => {
     fetchMock.get(getApiUrl('/jobs/?push_id=1', repoName), jobListFixtureOne);
     fetchMock.get(getApiUrl('/jobs/?push_id=2', repoName), jobListFixtureTwo);
-    // Mock window.history.pushState for URL updates
     jest.spyOn(window.history, 'pushState').mockImplementation(() => {});
-    // Reset window.location to default for each test
     delete window.location;
     window.location = { ...originalLocation, search: '', pathname: '/jobs' };
+    // Reset store to initial state before each test
+    usePushesStore.setState(initialState);
   });
 
   afterEach(() => {
     cleanup();
     fetchMock.reset();
     jest.restoreAllMocks();
-    // Restore original window.location
     delete window.location;
     window.location = originalLocation;
   });
@@ -67,25 +53,16 @@ describe('Pushes Redux store', () => {
       `https://bugzilla.mozilla.org/rest/bug?id=1556854%2C1555861%2C1559418%2C1563766%2C1561537%2C1563692`,
       emptyBugzillaResponse,
     );
-    const store = mockStore({
-      pushes: initialState,
-      router: { location: mockLocation },
-    });
 
-    await store.dispatch(fetchPushes());
-    const actions = store.getActions();
+    await usePushesStore.getState().fetchPushes();
+    const state = usePushesStore.getState();
 
-    expect(actions[0]).toEqual({ type: LOADING });
-    expect(actions[1]).toEqual({
-      type: ADD_PUSHES,
-      pushResults: {
-        pushList: pushListFixture.results,
-        oldestPushTimestamp: 1562867109,
-        allUnclassifiedFailureCount: 0,
-        filteredUnclassifiedFailureCount: 0,
-        revisionTips,
-      },
-    });
+    expect(state.loadingPushes).toBe(false);
+    expect(state.pushList).toEqual(pushListFixture.results);
+    expect(state.oldestPushTimestamp).toBe(1562867109);
+    expect(state.allUnclassifiedFailureCount).toBe(0);
+    expect(state.filteredUnclassifiedFailureCount).toBe(0);
+    expect(state.revisionTips).toEqual(revisionTips);
   });
 
   test('should add new push and jobs when polling', async () => {
@@ -97,10 +74,7 @@ describe('Pushes Redux store', () => {
       pollPushListFixture,
     );
     fetchMock.mock(
-      `begin:${getApiUrl(
-        '/jobs/?push_id__in=511138&last_modified__gt',
-        repoName,
-      )}`,
+      `begin:${getApiUrl('/jobs/?push_id__in=', repoName)}`,
       jobListFixtureTwo,
     );
 
@@ -110,41 +84,34 @@ describe('Pushes Redux store', () => {
     );
 
     const initialPush = pushListFixture.results[0];
-    const store = mockStore({
-      pushes: { ...initialState, pushList: [initialPush] },
-      router: { location: mockLocation },
-    });
+    usePushesStore.setState({ ...initialState, pushList: [initialPush] });
 
-    await store.dispatch(pollPushes());
-    const actions = store.getActions();
+    await usePushesStore.getState().pollPushes();
+    const state = usePushesStore.getState();
 
-    expect(actions).toEqual([
+    expect(state.pushList).toEqual([
+      initialPush,
+      ...pollPushListFixture.results,
+    ]);
+    expect(state.allUnclassifiedFailureCount).toBe(0);
+    expect(state.filteredUnclassifiedFailureCount).toBe(0);
+    expect(state.oldestPushTimestamp).toBe(1562707488);
+    expect(state.revisionTips).toEqual([
       {
-        type: ADD_PUSHES,
-        pushResults: {
-          pushList: [initialPush, ...pollPushListFixture.results],
-          allUnclassifiedFailureCount: 0,
-          filteredUnclassifiedFailureCount: 0,
-          oldestPushTimestamp: 1562707488,
-          revisionTips: [
-            {
-              author: 'jarilvalenciano@gmail.com',
-              revision: 'ba9c692786e95143b8df3f4b3e9b504dfbc589a0',
-              title:
-                "Fuzzy query='debugger | 'node-devtools&query='mozlint-eslint&query='mochitest-devtools",
-            },
-            {
-              author: 'reviewbot',
-              revision: '750b802afc594b92aba99de82a51772c75526c44',
-              title: 'try_task_config for code-review',
-            },
-            {
-              author: 'reviewbot',
-              revision: '90da061f588d1315ee4087225d041d7474d9dfd8',
-              title: 'try_task_config for code-review',
-            },
-          ],
-        },
+        author: 'jarilvalenciano@gmail.com',
+        revision: 'ba9c692786e95143b8df3f4b3e9b504dfbc589a0',
+        title:
+          "Fuzzy query='debugger | 'node-devtools&query='mozlint-eslint&query='mochitest-devtools",
+      },
+      {
+        author: 'reviewbot',
+        revision: '750b802afc594b92aba99de82a51772c75526c44',
+        title: 'try_task_config for code-review',
+      },
+      {
+        author: 'reviewbot',
+        revision: '90da061f588d1315ee4087225d041d7474d9dfd8',
+        title: 'try_task_config for code-review',
       },
     ]);
   });
@@ -170,20 +137,16 @@ describe('Pushes Redux store', () => {
     };
     const params = updatePushParams(testLocation);
 
-    // Set window.location to match the updated params
     window.location = { search: params, pathname: '/jobs' };
 
-    const store = mockStore({
-      pushes: {
-        ...initialState,
-        pushList: [push],
-        oldestPushTimestamp: push.push_timestamp,
-      },
-      router: { location: { search: params, pathname: '/jobs' } },
+    usePushesStore.setState({
+      ...initialState,
+      pushList: [push],
+      oldestPushTimestamp: push.push_timestamp,
     });
-    await store.dispatch(fetchPushes(10, true));
 
-    // replaceLocation uses null, null for pushState
+    await usePushesStore.getState().fetchPushes(10, true);
+
     expect(window.history.pushState).toHaveBeenCalledWith(
       null,
       null,
@@ -194,33 +157,25 @@ describe('Pushes Redux store', () => {
   });
 
   test('should pare down to single revision updateRange', async () => {
-    const store = mockStore({
-      pushes: { ...initialState, pushList: pushListFixture.results },
-      router: { location: mockLocation },
+    usePushesStore.setState({
+      ...initialState,
+      pushList: pushListFixture.results,
     });
 
-    await store.dispatch(
-      updateRange({ revision: '9692347caff487cdcd889489b8e89a825fe6bbd1' }),
-    );
-    const actions = store.getActions();
+    usePushesStore
+      .getState()
+      .updateRange({ revision: '9692347caff487cdcd889489b8e89a825fe6bbd1' });
+    const state = usePushesStore.getState();
 
-    expect(actions).toEqual([
-      {
-        type: SET_PUSHES,
-        pushResults: {
-          pushList: [pushListFixture.results[2]],
-          allUnclassifiedFailureCount: 0,
-          filteredUnclassifiedFailureCount: 0,
-          oldestPushTimestamp: 1562867702,
-          revisionTips: [revisionTips[2]],
-          jobMap: {},
-        },
-      },
-    ]);
+    expect(state.pushList).toEqual([pushListFixture.results[2]]);
+    expect(state.allUnclassifiedFailureCount).toBe(0);
+    expect(state.filteredUnclassifiedFailureCount).toBe(0);
+    expect(state.oldestPushTimestamp).toBe(1562867702);
+    expect(state.revisionTips).toEqual([revisionTips[2]]);
+    expect(state.jobMap).toEqual({});
   });
 
   test('should fetch a new set of pushes with updateRange', async () => {
-    // PushModel.getList adds count=100 by default
     fetchMock.get(
       getProjectUrl(
         '/push/?full=true&count=100&fromchange=9692347caff487cdcd889489b8e89a825fe6bbd1',
@@ -234,114 +189,98 @@ describe('Pushes Redux store', () => {
       emptyBugzillaResponse,
     );
 
-    // Set window.location to have the fromchange param
     window.location = {
       search: '?fromchange=9692347caff487cdcd889489b8e89a825fe6bbd1',
       pathname: '/jobs',
     };
 
-    const store = mockStore({
-      pushes: initialState,
-      router: { location: mockLocation },
+    usePushesStore.setState(initialState);
+
+    // updateRange with no matching revision will clearPushes then fetchPushes
+    usePushesStore.getState().updateRange({
+      fromchange: '9692347caff487cdcd889489b8e89a825fe6bbd1',
     });
 
-    await store.dispatch(
-      updateRange({ fromchange: '9692347caff487cdcd889489b8e89a825fe6bbd1' }),
-    );
-    const actions = store.getActions();
+    // Wait for the async fetchPushes to complete
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
-    expect(actions).toEqual([
-      {
-        type: CLEAR_PUSHES,
-      },
-      {
-        type: LOADING,
-      },
-      {
-        type: ADD_PUSHES,
-        pushResults: {
-          pushList: pushListFromChangeFixture.results,
-          allUnclassifiedFailureCount: 0,
-          filteredUnclassifiedFailureCount: 0,
-          oldestPushTimestamp: 1562867702,
-          revisionTips: revisionTips.slice(0, 3),
-        },
-      },
-    ]);
+    const state = usePushesStore.getState();
+
+    expect(state.pushList).toEqual(pushListFromChangeFixture.results);
+    expect(state.allUnclassifiedFailureCount).toBe(0);
+    expect(state.filteredUnclassifiedFailureCount).toBe(0);
+    expect(state.oldestPushTimestamp).toBe(1562867702);
+    expect(state.revisionTips).toEqual(revisionTips.slice(0, 3));
   });
 
   test('should clear the pushList with clearPushes', async () => {
     const push = pushListFixture.results[0];
-    const reduced = reducer(
-      {
-        ...initialState,
-        pushList: pushListFixture.results,
-        oldestPushTimestamp: push.push_timestamp,
-      },
-      { type: CLEAR_PUSHES },
-    );
+    usePushesStore.setState({
+      ...initialState,
+      pushList: pushListFixture.results,
+      oldestPushTimestamp: push.push_timestamp,
+    });
 
-    expect(reduced.pushList).toStrictEqual([]);
-    expect(reduced.allUnclassifiedFailureCount).toBe(0);
-    expect(reduced.filteredUnclassifiedFailureCount).toBe(0);
+    usePushesStore.getState().clearPushes();
+    const state = usePushesStore.getState();
+
+    expect(state.pushList).toStrictEqual([]);
+    expect(state.allUnclassifiedFailureCount).toBe(0);
+    expect(state.filteredUnclassifiedFailureCount).toBe(0);
   });
 
   test('should replace the pushList with setPushes', async () => {
     const push = pushListFixture.results[0];
     const push2 = pushListFixture.results[1];
-    const reduced = reducer(
-      {
-        ...initialState,
-        pushList: [push],
-        oldestPushTimestamp: push.push_timestamp,
-      },
-      { type: SET_PUSHES, pushResults: { pushList: [push2] } },
-    );
+    usePushesStore.setState({
+      ...initialState,
+      pushList: [push],
+      oldestPushTimestamp: push.push_timestamp,
+    });
 
-    expect(reduced.pushList).toEqual([push2]);
-    expect(reduced.allUnclassifiedFailureCount).toBe(0);
-    expect(reduced.filteredUnclassifiedFailureCount).toBe(0);
+    usePushesStore.getState().setPushes([push2], {});
+    const state = usePushesStore.getState();
+
+    expect(state.pushList).toEqual([push2]);
+    expect(state.allUnclassifiedFailureCount).toBe(0);
+    expect(state.filteredUnclassifiedFailureCount).toBe(0);
   });
 
   test('should get new unclassified counts with recalculateUnclassifiedCounts', async () => {
-    // Set window.location to have the filter that will limit results
     window.location = { search: '?job_type_symbol=B', pathname: '/' };
 
     const { data: jobList } = await JobModel.getList({ push_id: 1 });
 
-    const state = reducer(
-      { ...initialState },
-      { type: UPDATE_JOB_MAP, jobList },
-    );
+    usePushesStore.setState(initialState);
+    usePushesStore.getState().updateJobMap(jobList);
 
-    const reduced = reducer(state, {
-      type: RECALCULATE_UNCLASSIFIED_COUNTS,
-    });
+    usePushesStore.getState().recalculateUnclassifiedCounts();
+    const state = usePushesStore.getState();
 
-    expect(Object.keys(reduced.jobMap)).toHaveLength(5);
-    expect(reduced.allUnclassifiedFailureCount).toBe(2);
-    expect(reduced.filteredUnclassifiedFailureCount).toBe(1);
+    expect(Object.keys(state.jobMap)).toHaveLength(5);
+    expect(state.allUnclassifiedFailureCount).toBe(2);
+    expect(state.filteredUnclassifiedFailureCount).toBe(1);
   });
 
   test('should add to the jobMap with updateJobMap', async () => {
     const { data: jobList } = await JobModel.getList({ push_id: 2 });
-    const reduced = reducer(
-      { ...initialState },
-      { type: UPDATE_JOB_MAP, jobList },
-    );
 
-    expect(Object.keys(reduced.jobMap)).toHaveLength(4);
+    usePushesStore.setState(initialState);
+    usePushesStore.getState().updateJobMap(jobList);
+    const state = usePushesStore.getState();
+
+    expect(Object.keys(state.jobMap)).toHaveLength(4);
   });
 
   test('jobMap jobs should have fields required for retriggering', async () => {
     const { data: jobList } = await JobModel.getList({ push_id: 2 });
-    const reduced = reducer(
-      { ...initialState },
-      { type: UPDATE_JOB_MAP, jobList },
-    );
 
-    expect(Object.keys(reduced.jobMap)).toHaveLength(4);
-    const job = reduced.jobMap['259539684'];
+    usePushesStore.setState(initialState);
+    usePushesStore.getState().updateJobMap(jobList);
+    const state = usePushesStore.getState();
+
+    expect(Object.keys(state.jobMap)).toHaveLength(4);
+    const job = state.jobMap['259539684'];
     expect(job.signature).toBe('f64069faca8636e9dc415bef8e9a4ee055d56687');
     expect(job.job_type_name).toBe(
       'test-android-hw-p2-8-0-arm7-api-16/debug-fennec-jittest-1proc-2',

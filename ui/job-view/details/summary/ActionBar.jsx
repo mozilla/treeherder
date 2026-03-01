@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { Button, Dropdown } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartBar } from '@fortawesome/free-regular-svg-icons';
@@ -40,6 +39,7 @@ import { pinJob } from '../../stores/pinnedJobsStore';
 import { notify } from '../../stores/notificationStore';
 import { getAction } from '../../../helpers/taskcluster';
 import { checkRootUrl } from '../../../taskcluster-auth-callback/constants';
+import { usePushesStore } from '../../stores/pushesStore';
 
 import LogUrls from './LogUrls';
 
@@ -572,8 +572,10 @@ ActionBar.propTypes = {
   logViewerFullUrl: PropTypes.string,
 };
 
-const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({
-  decisionTaskMap,
-});
+// Wrapper to inject Zustand state into class component
+function ActionBarWrapper(props) {
+  const decisionTaskMap = usePushesStore((state) => state.decisionTaskMap);
+  return <ActionBar {...props} decisionTaskMap={decisionTaskMap} />;
+}
 
-export default connect(mapStateToProps)(ActionBar);
+export default ActionBarWrapper;

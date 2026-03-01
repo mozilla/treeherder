@@ -1,15 +1,13 @@
 
 import { render, fireEvent, screen, waitFor } from '@testing-library/react';
 import fetchMock from 'fetch-mock';
-import { Provider } from 'react-redux';
-import configureMockStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
 
 import { BugFilerClass } from '../../../ui/shared/BugFiler';
 import * as httpHelpers from '../../../ui/helpers/http';
 import * as jobHelpers from '../../../ui/helpers/job';
 import * as bugHelpers from '../../../ui/helpers/bug';
 import * as notificationStore from '../../../ui/job-view/stores/notificationStore';
+import { usePushesStore } from '../../../ui/job-view/stores/pushesStore';
 
 // Mock the helpers
 jest.mock('../../../ui/helpers/http', () => ({
@@ -38,8 +36,6 @@ jest.mock('../../../ui/helpers/url', () => ({
   bzComponentEndpoint: '/component_search',
   getApiUrl: jest.fn().mockReturnValue('/api/bugzilla/create_bug/'),
 }));
-
-const mockStore = configureMockStore([thunk]);
 
 describe('BugFiler', () => {
   const defaultProps = {
@@ -83,14 +79,10 @@ describe('BugFiler', () => {
     currentRepo: { name: 'mozilla-central' },
   };
 
-  const store = mockStore({ pushes: { decisionTaskMap: {} } });
-
-  const renderWithProvider = (props = {}) =>
-    render(
-      <Provider store={store}>
-        <BugFilerClass {...defaultProps} {...props} />
-      </Provider>,
-    );
+  const renderWithProvider = (props = {}) => {
+    usePushesStore.setState({ decisionTaskMap: {} });
+    return render(<BugFilerClass {...defaultProps} {...props} />);
+  };
 
   beforeEach(() => {
     // Reset all mocks

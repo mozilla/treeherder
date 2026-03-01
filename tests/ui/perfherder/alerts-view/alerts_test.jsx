@@ -7,9 +7,7 @@ import {
 } from '@testing-library/react';
 import fetchMock from 'fetch-mock';
 import { MemoryRouter } from 'react-router-dom';
-import { Provider, ReactReduxContext } from 'react-redux';
 
-import { configureStore } from '../../../../ui/job-view/redux/configureStore';
 import {
   endpoints,
   filterText,
@@ -80,19 +78,15 @@ const mockModifyAlert = {
 };
 
 const alertsView = () => {
-  const store = configureStore();
-
   return render(
-    <Provider store={store} context={ReactReduxContext}>
-      <MemoryRouter initialEntries={['/alerts']}>
-        <AlertsView
-          user={testUser}
-          projects={repos}
-          frameworks={frameworks}
-          performanceTags={testPerformanceTags}
-        />
-      </MemoryRouter>
-    </Provider>,
+    <MemoryRouter initialEntries={['/alerts']}>
+      <AlertsView
+        user={testUser}
+        projects={repos}
+        frameworks={frameworks}
+        performanceTags={testPerformanceTags}
+      />
+    </MemoryRouter>,
   );
 };
 
@@ -101,46 +95,43 @@ const alertsViewControls = ({
   user: userMock = null,
 } = {}) => {
   const user = userMock !== null ? userMock : testUser;
-  const store = configureStore();
 
   return render(
-    <Provider store={store} context={ReactReduxContext}>
-      <MemoryRouter initialEntries={['/alerts']}>
-        <AlertsViewControls
-          validated={{
-            hideDwnToInv: undefined,
-            filter: undefined,
-            updateParams: () => {},
-          }}
-          isListMode={isListMode}
-          alertSummaries={testAlertSummaries}
-          issueTrackers={testIssueTrackers}
-          optionCollectionMap={optionCollectionMap}
-          fetchAlertSummaries={() => {}}
-          updateViewState={() => {}}
-          user={user}
-          modifyAlert={(alert, params) => mockModifyAlert.update(alert, params)}
-          updateAlertSummary={() =>
-            Promise.resolve({
-              failureStatus: false,
-              data: 'alert summary data',
-            })
-          }
-          projects={repos}
-          filters={{
-            filterText: '',
-            hideDownstream: false,
-            hideAssignedToOthers: false,
-            framework: { name: 'talos', id: 1 },
-            status: 'untriaged',
-          }}
-          frameworks={[{ id: 1, name: dummyFrameworkName }]}
-          frameworkOptions={[ignoreFrameworkOption, ...frameworks]}
-          setFiltersState={() => {}}
-          performanceTags={testPerformanceTags}
-        />
-      </MemoryRouter>
-    </Provider>,
+    <MemoryRouter initialEntries={['/alerts']}>
+      <AlertsViewControls
+        validated={{
+          hideDwnToInv: undefined,
+          filter: undefined,
+          updateParams: () => {},
+        }}
+        isListMode={isListMode}
+        alertSummaries={testAlertSummaries}
+        issueTrackers={testIssueTrackers}
+        optionCollectionMap={optionCollectionMap}
+        fetchAlertSummaries={() => {}}
+        updateViewState={() => {}}
+        user={user}
+        modifyAlert={(alert, params) => mockModifyAlert.update(alert, params)}
+        updateAlertSummary={() =>
+          Promise.resolve({
+            failureStatus: false,
+            data: 'alert summary data',
+          })
+        }
+        projects={repos}
+        filters={{
+          filterText: '',
+          hideDownstream: false,
+          hideAssignedToOthers: false,
+          framework: { name: 'talos', id: 1 },
+          status: 'untriaged',
+        }}
+        frameworks={[{ id: 1, name: dummyFrameworkName }]}
+        frameworkOptions={[ignoreFrameworkOption, ...frameworks]}
+        setFiltersState={() => {}}
+        performanceTags={testPerformanceTags}
+      />
+    </MemoryRouter>,
   );
 };
 

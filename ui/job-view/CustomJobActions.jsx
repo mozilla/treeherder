@@ -1,5 +1,4 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Ajv from 'ajv';
 import jsonSchemaDefaults from 'json-schema-defaults';
@@ -16,6 +15,7 @@ import DropdownMenuItems from '../shared/DropdownMenuItems';
 import { checkRootUrl } from '../taskcluster-auth-callback/constants';
 
 import { notify } from './stores/notificationStore';
+import { usePushesStore } from './stores/pushesStore';
 
 class CustomJobActions extends React.PureComponent {
   constructor(props) {
@@ -301,8 +301,10 @@ CustomJobActions.propTypes = {
   currentRepo: PropTypes.shape({}).isRequired,
 };
 
-const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({
-  decisionTaskMap,
-});
+// Wrapper to inject Zustand state into class component
+function CustomJobActionsWrapper(props) {
+  const decisionTaskMap = usePushesStore((state) => state.decisionTaskMap);
+  return <CustomJobActions {...props} decisionTaskMap={decisionTaskMap} />;
+}
 
-export default connect(mapStateToProps)(CustomJobActions);
+export default CustomJobActionsWrapper;
