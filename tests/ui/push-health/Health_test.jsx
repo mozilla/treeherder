@@ -8,7 +8,7 @@ import {
   queryAllByTestId,
   act,
 } from '@testing-library/react';
-import { MemoryRouter, useLocation } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 
 import Health from '../../../ui/push-health/Health';
@@ -17,12 +17,6 @@ import reposFixture from '../mock/repositories';
 import { getApiUrl } from '../../../ui/helpers/url';
 import { getProjectUrl } from '../../../ui/helpers/location';
 import { configureStore } from '../../../ui/job-view/redux/configureStore';
-
-// Wrapper component that provides location to Health
-function HealthWithLocation(props) {
-  const location = useLocation();
-  return <Health {...props} location={location} />;
-}
 
 const revision = 'cd02b96bdce57d9ae53b632ca4740c871d3ecc32';
 const repo = 'autoland';
@@ -135,7 +129,7 @@ describe('Health', () => {
     return (
       <Provider store={store}>
         <MemoryRouter initialEntries={initialEntries}>
-          <HealthWithLocation notify={() => {}} clearNotification={() => {}} />
+          <Health notify={() => {}} clearNotification={() => {}} />
         </MemoryRouter>
       </Provider>
     );
