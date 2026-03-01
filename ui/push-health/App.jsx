@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 
 import {
   clearNotificationAtIndex,
@@ -29,7 +29,6 @@ const hasProps = (search) => {
 
 const App = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const [user, setUser] = useState({ isLoggedIn: false });
   const [notifications, setNotifications] = useState([]);
 
@@ -73,8 +72,6 @@ const App = () => {
               user={user}
               notify={notify}
               clearNotification={clearNotification}
-              location={location}
-              navigate={navigate}
             />
           }
         />
@@ -85,8 +82,6 @@ const App = () => {
               <Health
                 notify={notify}
                 clearNotification={clearNotification}
-                location={location}
-                navigate={navigate}
               />
             ) : (
               <NotFound />

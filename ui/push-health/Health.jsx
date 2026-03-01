@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Container, Spinner, Navbar, Nav, Alert } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import camelCase from 'lodash/camelCase';
@@ -25,321 +26,347 @@ import TestMetric from './TestMetric';
 import JobListMetric from './JobListMetric';
 import CommitHistory from './CommitHistory';
 
-export default class Health extends React.PureComponent {
-  constructor(props) {
-    super(props);
+// Previously a PureComponent; wrap with React.memo if memoization is needed
+function Health({ notify, clearNotification }) {
+  const location = useLocation();
+  const navigate = useNavigate();
 
-    const params = new URLSearchParams(props.location.search);
+  const params = new URLSearchParams(location.search);
 
-    this.state = {
-      revision: params.get('revision'),
-      repo: params.get('repo'),
-      currentRepo: null,
-      metrics: {},
-      jobs: null,
-      result: null,
-      failureMessage: null,
-      defaultTabIndex: 0,
-      testGroup: params.get('testGroup') || '',
-      selectedTest: params.get('selectedTest') || '',
-      selectedTaskId: params.get('selectedTaskId') || '',
-      selectedJobName: params.get('selectedJobName') || '',
-      searchStr: params.get('searchStr') || '',
-      regressionsOrderBy: params.get('regressionsOrderBy') || 'count',
-      regressionsGroupBy: params.get('regressionsGroupBy') || 'path',
-      showIntermittentAlert:
-        localStorage.getItem('dismissedIntermittentAlert') !== 'true',
-    };
-  }
+  const [revision] = useState(() => params.get('revision'));
+  const [repo] = useState(() => params.get('repo'));
+  const [currentRepo, setCurrentRepo] = useState(null);
+  const [healthData, setHealthData] = useState({});
+  const [failureMessage, setFailureMessage] = useState(null);
+  const [defaultTabIndex, setDefaultTabIndex] = useState(0);
+  const [testGroup, setTestGroup] = useState(
+    () => params.get('testGroup') || '',
+  );
+  const [selectedTest, setSelectedTest] = useState(
+    () => params.get('selectedTest') || '',
+  );
+  const [selectedTaskId, setSelectedTaskId] = useState(
+    () => params.get('selectedTaskId') || '',
+  );
+  const [selectedJobName, setSelectedJobName] = useState(
+    () => params.get('selectedJobName') || '',
+  );
+  const [searchStr, setSearchStr] = useState(
+    () => params.get('searchStr') || '',
+  );
+  const [regressionsOrderBy, setRegressionsOrderBy] = useState(
+    () => params.get('regressionsOrderBy') || 'count',
+  );
+  const [regressionsGroupBy, setRegressionsGroupBy] = useState(
+    () => params.get('regressionsGroupBy') || 'path',
+  );
+  const [showIntermittentAlert, setShowIntermittentAlert] = useState(
+    () => localStorage.getItem('dismissedIntermittentAlert') !== 'true',
+  );
+  const [expandedState, setExpandedState] = useState({});
 
-  async componentDidMount() {
-    const { repo, testGroup } = this.state;
-    const { location } = this.props;
-    const {
-      metrics: { linting, builds, tests },
-    } = await this.updatePushHealth();
+  const testTimerRef = useRef(null);
+  const notificationsTimerRef = useRef(null);
 
-    const params = parseQueryParams(location.search);
-    let defaultTabIndex;
+  // Refs for latest values in async callbacks
+  const healthDataRef = useRef(healthData);
+  healthDataRef.current = healthData;
+  const locationRef = useRef(location);
+  locationRef.current = location;
 
-    if (params.tab !== undefined) {
-      defaultTabIndex = ['linting', 'builds', 'tests'].indexOf(params.tab,
-      );
-    } else if (testGroup) {
-      defaultTabIndex = 2;
-    } else {
-      defaultTabIndex = [linting, builds, tests].findIndex(
-        (metric) => metric.result === 'fail',
-      );
-    }
+  const updateParamsAndState = useCallback(
+    (stateObj) => {
+      const currentLocation = locationRef.current;
+      const newParams = {
+        ...parseQueryParams(currentLocation.search),
+        ...stateObj,
+      };
+      const queryStr = createQueryParams(newParams);
 
-    const repos = await RepositoryModel.getList();
-    const currentRepo = repos.find((repoObj) => repoObj.name === repo);
+      updateQueryParams(queryStr, navigate, currentLocation);
 
-    this.setState({ defaultTabIndex, currentRepo });
+      // Apply known state fields
+      if (stateObj.testGroup !== undefined) setTestGroup(stateObj.testGroup);
+      if (stateObj.selectedTest !== undefined)
+        setSelectedTest(stateObj.selectedTest);
+      if (stateObj.selectedTaskId !== undefined)
+        setSelectedTaskId(stateObj.selectedTaskId);
+      if (stateObj.selectedJobName !== undefined)
+        setSelectedJobName(stateObj.selectedJobName);
+      if (stateObj.searchStr !== undefined) setSearchStr(stateObj.searchStr);
+      if (stateObj.regressionsOrderBy !== undefined)
+        setRegressionsOrderBy(stateObj.regressionsOrderBy);
+      if (stateObj.regressionsGroupBy !== undefined)
+        setRegressionsGroupBy(stateObj.regressionsGroupBy);
+    },
+    [navigate],
+  );
 
-    // Update the tests every two minutes.
-    this.testTimerId = setInterval(() => this.updatePushHealth(), 120000);
-    this.notificationsId = setInterval(() => {
-      this.props.clearNotification();
-    }, 4000);
-  }
+  const updatePushHealth = useCallback(async () => {
+    const currentHealthData = healthDataRef.current;
 
-  componentWillUnmount() {
-    clearInterval(this.testTimerId);
-  }
-
-  updateParamsAndState = (stateObj) => {
-    const { location, navigate } = this.props;
-    const newParams = {
-      ...parseQueryParams(location.search),
-      ...stateObj,
-    };
-    const queryString = createQueryParams(newParams);
-
-    updateQueryParams(queryString, navigate, location);
-    this.setState(stateObj);
-  };
-
-  updatePushHealth = async () => {
-    const { repo, revision, status } = this.state;
-
-    if (status) {
-      const { running, pending, completed } = status;
+    if (currentHealthData.status) {
+      const { running, pending, completed } = currentHealthData.status;
 
       if (completed > 0 && pending === 0 && running === 0) {
-        clearInterval(this.testTimerId);
+        clearInterval(testTimerRef.current);
         return;
       }
     }
 
     const { data, failureStatus } = await PushModel.getHealth(repo, revision);
-    const newState = !failureStatus ? data : { failureMessage: data };
 
-    this.setState(newState);
-    return newState;
-  };
+    if (!failureStatus) {
+      setHealthData((prev) => ({ ...prev, ...data }));
+      setFailureMessage(null);
+      return data;
+    }
+    setFailureMessage(data);
+    return { failureMessage: data };
+  }, [repo, revision]);
 
-  dismissIntermittentAlert = () => {
+  // componentDidMount
+  useEffect(() => {
+    const init = async () => {
+      const healthResult = await updatePushHealth();
+
+      if (healthResult?.metrics) {
+        const { linting, builds, tests } = healthResult.metrics;
+        const urlParams = parseQueryParams(location.search);
+        let tabIndex;
+
+        if (urlParams.tab !== undefined) {
+          tabIndex = ['linting', 'builds', 'tests'].indexOf(urlParams.tab);
+        } else if (testGroup) {
+          tabIndex = 2;
+        } else {
+          tabIndex = [linting, builds, tests].findIndex(
+            (metric) => metric.result === 'fail',
+          );
+        }
+
+        setDefaultTabIndex(tabIndex);
+      }
+
+      const reposList = await RepositoryModel.getList();
+      const foundRepo = reposList.find((repoObj) => repoObj.name === repo);
+      setCurrentRepo(foundRepo);
+
+      // Update the tests every two minutes
+      testTimerRef.current = setInterval(() => updatePushHealth(), 120000);
+      notificationsTimerRef.current = setInterval(() => {
+        clearNotification();
+      }, 4000);
+    };
+
+    init();
+
+    return () => {
+      clearInterval(testTimerRef.current);
+      clearInterval(notificationsTimerRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const dismissIntermittentAlert = () => {
     localStorage.setItem('dismissedIntermittentAlert', 'true');
-    this.setState({ showIntermittentAlert: false });
+    setShowIntermittentAlert(false);
   };
 
-  setExpanded = (metricName, expanded) => {
-    const root = camelCase(metricName);
-    const key = `${root}Expanded`;
-    const { [key]: oldExpanded } = this.state;
+  const setExpanded = useCallback(
+    (metricName, expanded) => {
+      const root = camelCase(metricName);
+      const key = `${root}Expanded`;
+      const oldExpanded = expandedState[key];
 
-    if (oldExpanded !== expanded) {
-      this.setState({
-        [key]: expanded,
-      });
-    } else if (expanded) {
-      scrollToLine(`#${root}Metric`, 0, 0, {
-        behavior: 'smooth',
-        block: 'center',
-      });
-    }
-  };
+      if (oldExpanded !== expanded) {
+        setExpandedState((prev) => ({ ...prev, [key]: expanded }));
+      } else if (expanded) {
+        scrollToLine(`#${root}Metric`, 0, 0, {
+          behavior: 'smooth',
+          block: 'center',
+        });
+      }
+    },
+    [expandedState],
+  );
 
-  filter = (searchStr) => {
-    const { location, history } = this.props;
-    const newParams = { ...parseQueryParams(location.search), searchStr };
+  const filter = useCallback(
+    (newSearchStr) => {
+      const newParams = {
+        ...parseQueryParams(locationRef.current.search),
+        searchStr: newSearchStr,
+      };
 
-    if (!searchStr.length) {
-      delete newParams.searchStr;
-    }
+      if (!newSearchStr.length) {
+        delete newParams.searchStr;
+      }
 
-    const queryString = createQueryParams(newParams);
+      const queryStr = createQueryParams(newParams);
+      updateQueryParams(queryStr, navigate, locationRef.current);
+      setSearchStr(newSearchStr);
+    },
+    [navigate],
+  );
 
-    updateQueryParams(queryString, history, location);
+  const { metrics = {}, result, jobs, status } = healthData;
+  const { tests, commitHistory, linting, builds } = metrics;
 
-    this.setState({ searchStr });
-  };
-
-  render() {
-    const {
-      metrics,
-      result,
-      repo,
-      revision,
-      jobs,
-      failureMessage,
-      status,
-      searchStr,
-      currentRepo,
-      testGroup,
-      selectedTest,
-      defaultTabIndex,
-      selectedTaskId,
-      selectedJobName,
-      regressionsOrderBy,
-      regressionsGroupBy,
-      showIntermittentAlert,
-    } = this.state;
-    const { tests, commitHistory, linting, builds } = metrics;
-
-    const { notify } = this.props;
-    return (
-      <React.Fragment>
-        <Navbar variant="light" expand="sm" className="w-100">
-          {!!tests && (
-            <Nav className="mb-2 pt-2 ps-3 justify-content-between w-100">
-              <span />
-              <span className="me-2 d-flex">
-                <InputFilter
-                  updateFilterText={this.filter}
-                  placeholder="filter path or platform"
-                />
-              </span>
-            </Nav>
-          )}
-        </Navbar>
-        <Helmet>
-          <link
-            rel="shortcut icon"
-            href={result === 'fail' ? faviconBroken : faviconOk}
-          />
-          <title>{`[${
-            (status?.testfailed) || 0
-          } failures] Push Health`}</title>
-        </Helmet>
-        <Container fluid className="mt-2 mb-5 max-width-default">
-          {!!tests && !!currentRepo && (
-            <React.Fragment>
-              {showIntermittentAlert && (
-                <Alert
-                  variant="info"
-                  className="mb-3"
-                  dismissible
-                  show={showIntermittentAlert}
-                  onClose={this.dismissIntermittentAlert}
-                >
-                  Displaying only issues not known to be intermittents
-                </Alert>
-              )}
-              <div className="d-flex my-5">
-                <StatusProgress
-                  counts={status}
-                  customStyle="progress-relative"
-                />
-                <div className="mt-4 ms-2">
-                  {commitHistory.details && (
-                    <CommitHistory
-                      history={commitHistory.details}
-                      revision={revision}
-                      currentRepo={currentRepo}
-                      compareWithParent={this.compareWithParent}
-                    />
-                  )}
-                </div>
-              </div>
-              <div className="mb-3" />
-              <Tabs
-                className="w-100 h-100 me-5 mt-2"
-                selectedTabClassName="selected-detail-tab"
-                defaultIndex={defaultTabIndex}
+  return (
+    <React.Fragment>
+      <Navbar variant="light" expand="sm" className="w-100">
+        {!!tests && (
+          <Nav className="mb-2 pt-2 ps-3 justify-content-between w-100">
+            <span />
+            <span className="me-2 d-flex">
+              <InputFilter
+                updateFilterText={filter}
+                placeholder="filter path or platform"
+              />
+            </span>
+          </Nav>
+        )}
+      </Navbar>
+      <Helmet>
+        <link
+          rel="shortcut icon"
+          href={result === 'fail' ? faviconBroken : faviconOk}
+        />
+        <title>{`[${status?.testfailed || 0} failures] Push Health`}</title>
+      </Helmet>
+      <Container fluid className="mt-2 mb-5 max-width-default">
+        {!!tests && !!currentRepo && (
+          <React.Fragment>
+            {showIntermittentAlert && (
+              <Alert
+                variant="info"
+                className="mb-3"
+                dismissible
+                show={showIntermittentAlert}
+                onClose={dismissIntermittentAlert}
               >
-                <TabList className="font-weight-500 text-secondary d-flex justify-content-end border-bottom font-size-18">
-                  {linting.result !== 'none' && (
-                    <Tab className="pb-2 list-inline-item ms-4 pointable">
-                      <span className="text-success">
-                        <FontAwesomeIcon
-                          icon={getIcon(linting.result)}
-                          className={`me-1 text-${
-                            resultColorMap[linting.result]
-                          }`}
-                        />
-                      </span>
-                      Linting
-                    </Tab>
-                  )}
-                  {builds.result !== 'none' && (
-                    <Tab className="list-inline-item ms-4 pointable">
+                Displaying only issues not known to be intermittents
+              </Alert>
+            )}
+            <div className="d-flex my-5">
+              <StatusProgress
+                counts={status}
+                customStyle="progress-relative"
+              />
+              <div className="mt-4 ms-2">
+                {commitHistory.details && (
+                  <CommitHistory
+                    history={commitHistory.details}
+                    revision={revision}
+                    currentRepo={currentRepo}
+                  />
+                )}
+              </div>
+            </div>
+            <div className="mb-3" />
+            <Tabs
+              className="w-100 h-100 me-5 mt-2"
+              selectedTabClassName="selected-detail-tab"
+              defaultIndex={defaultTabIndex}
+            >
+              <TabList className="font-weight-500 text-secondary d-flex justify-content-end border-bottom font-size-18">
+                {linting.result !== 'none' && (
+                  <Tab className="pb-2 list-inline-item ms-4 pointable">
+                    <span className="text-success">
                       <FontAwesomeIcon
-                        icon={getIcon(builds.result)}
-                        className={`me-1 text-${resultColorMap[builds.result]}`}
+                        icon={getIcon(linting.result)}
+                        className={`me-1 text-${
+                          resultColorMap[linting.result]
+                        }`}
                       />
-                      Builds
-                    </Tab>
-                  )}
-                  {tests.result !== 'none' && (
-                    <Tab className="list-inline-item ms-4 pointable">
-                      <FontAwesomeIcon
-                        fill={resultColorMap[tests.result]}
-                        icon={getIcon(tests.result)}
-                        className={`me-1 text-${resultColorMap[tests.result]}`}
-                      />
-                      Tests
-                    </Tab>
-                  )}
-                </TabList>
-                <div>
-                  <TabPanel>
-                    <JobListMetric
-                      data={linting}
-                      currentRepo={currentRepo}
-                      revision={revision}
-                      setExpanded={this.setExpanded}
-                      updateParamsAndState={this.updateParamsAndState}
-                      notify={notify}
-                      selectedTaskId={selectedTaskId}
-                      selectedJobName={selectedJobName}
+                    </span>
+                    Linting
+                  </Tab>
+                )}
+                {builds.result !== 'none' && (
+                  <Tab className="list-inline-item ms-4 pointable">
+                    <FontAwesomeIcon
+                      icon={getIcon(builds.result)}
+                      className={`me-1 text-${resultColorMap[builds.result]}`}
                     />
-                  </TabPanel>
-                  <TabPanel>
-                    <JobListMetric
-                      data={builds}
-                      currentRepo={currentRepo}
-                      revision={revision}
-                      setExpanded={this.setExpanded}
-                      updateParamsAndState={this.updateParamsAndState}
-                      notify={notify}
-                      selectedTaskId={selectedTaskId}
-                      selectedJobName={selectedJobName}
+                    Builds
+                  </Tab>
+                )}
+                {tests.result !== 'none' && (
+                  <Tab className="list-inline-item ms-4 pointable">
+                    <FontAwesomeIcon
+                      fill={resultColorMap[tests.result]}
+                      icon={getIcon(tests.result)}
+                      className={`me-1 text-${resultColorMap[tests.result]}`}
                     />
-                  </TabPanel>
-                  <TabPanel>
-                    <TestMetric
-                      jobs={jobs}
-                      data={tests}
-                      repo={repo}
-                      currentRepo={currentRepo}
-                      revision={revision}
-                      notify={notify}
-                      setExpanded={this.setExpanded}
-                      searchStr={searchStr}
-                      testGroup={testGroup}
-                      selectedTest={selectedTest}
-                      regressionsOrderBy={regressionsOrderBy}
-                      regressionsGroupBy={regressionsGroupBy}
-                      selectedTaskId={selectedTaskId}
-                      selectedJobName={selectedJobName}
-                      updateParamsAndState={this.updateParamsAndState}
-                      investigateTest={this.investigateTest}
-                      unInvestigateTest={this.unInvestigateTest}
-                      updatePushHealth={this.updatePushHealth}
-                    />
-                  </TabPanel>
-                </div>
-              </Tabs>
-            </React.Fragment>
-          )}
-          {failureMessage && <ErrorMessages failureMessage={failureMessage} />}
-          {!failureMessage && !tests && (
-            <h4>
-              <Spinner />
-              <span className="ms-2 pb-1">Gathering health data...</span>
-            </h4>
-          )}
-        </Container>
-      </React.Fragment>
-    );
-  }
+                    Tests
+                  </Tab>
+                )}
+              </TabList>
+              <div>
+                <TabPanel>
+                  <JobListMetric
+                    data={linting}
+                    currentRepo={currentRepo}
+                    revision={revision}
+                    setExpanded={setExpanded}
+                    updateParamsAndState={updateParamsAndState}
+                    notify={notify}
+                    selectedTaskId={selectedTaskId}
+                    selectedJobName={selectedJobName}
+                  />
+                </TabPanel>
+                <TabPanel>
+                  <JobListMetric
+                    data={builds}
+                    currentRepo={currentRepo}
+                    revision={revision}
+                    setExpanded={setExpanded}
+                    updateParamsAndState={updateParamsAndState}
+                    notify={notify}
+                    selectedTaskId={selectedTaskId}
+                    selectedJobName={selectedJobName}
+                  />
+                </TabPanel>
+                <TabPanel>
+                  <TestMetric
+                    jobs={jobs}
+                    data={tests}
+                    repo={repo}
+                    currentRepo={currentRepo}
+                    revision={revision}
+                    notify={notify}
+                    setExpanded={setExpanded}
+                    searchStr={searchStr}
+                    testGroup={testGroup}
+                    selectedTest={selectedTest}
+                    regressionsOrderBy={regressionsOrderBy}
+                    regressionsGroupBy={regressionsGroupBy}
+                    selectedTaskId={selectedTaskId}
+                    selectedJobName={selectedJobName}
+                    updateParamsAndState={updateParamsAndState}
+                    updatePushHealth={updatePushHealth}
+                  />
+                </TabPanel>
+              </div>
+            </Tabs>
+          </React.Fragment>
+        )}
+        {failureMessage && <ErrorMessages failureMessage={failureMessage} />}
+        {!failureMessage && !tests && (
+          <h4>
+            <Spinner />
+            <span className="ms-2 pb-1">Gathering health data...</span>
+          </h4>
+        )}
+      </Container>
+    </React.Fragment>
+  );
 }
 
 Health.propTypes = {
-  location: PropTypes.shape({}).isRequired,
-  navigate: PropTypes.shape({}).isRequired,
+  notify: PropTypes.func.isRequired,
   clearNotification: PropTypes.func.isRequired,
 };
+
+export default Health;

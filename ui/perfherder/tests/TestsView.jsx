@@ -1,5 +1,6 @@
-import React from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
+import { useLocation } from 'react-router-dom';
 import { Col, Container, Row } from 'react-bootstrap';
 
 import withValidation from '../Validation';
@@ -17,172 +18,163 @@ import ErrorMessages from '../../shared/ErrorMessages';
 
 import TestsTableControls from './TestsTableControls';
 
-class TestsView extends React.PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {
-      framework: getFrameworkData(this.props),
-      loading: false,
-      errorMessages: [],
-      projectsMap: false,
-      platformsMap: false,
-    };
-  }
+function TestsView({
+  validated,
+  frameworks,
+  projects,
+  platforms,
+  updateAppState,
+}) {
+  const location = useLocation();
+  const [framework, setFramework] = useState(() =>
+    getFrameworkData({ validated, frameworks }),
+  );
+  const [loading, setLoading] = useState(false);
+  const [errorMessages, setErrorMessages] = useState([]);
+  const [projectsMap, setProjectsMap] = useState(false);
+  const [platformsMap, setPlatformsMap] = useState(false);
+  const [results, setResults] = useState(undefined);
 
-  componentDidMount() {
-    this.getTestsOverviewData();
-  }
+  const prevLocationSearch = useRef(location.search);
 
-  componentDidUpdate(prevProps) {
-    const { location = null } = this.props;
-    const { framework, projectsMap, platformsMap } = this.state;
+  const createObjectsMap = useCallback((objects, propertyName) => {
+    return objects.reduce((result, currentObject) => {
+      result[currentObject.id] = currentObject[propertyName];
+      return result;
+    }, {});
+  }, []);
 
+  const fetchTestSuiteData = useCallback(
+    async (params) => {
+      const response = await getData(
+        createApiUrl(endpoints.validityDashboard, params),
+      );
+      return processResponse(response, 'results', errorMessages);
+    },
+    [errorMessages],
+  );
+
+  const createPlatformsMap = useCallback(async () => {
+    if (platforms.length) {
+      return createObjectsMap(platforms, 'platform');
+    }
+
+    const { data, failureStatus } = await getData(
+      createApiUrl(platformsEndpoint),
+    );
+    if (failureStatus) {
+      setErrorMessages((prev) => [data, ...prev]);
+      return null;
+    }
+    updateAppState({ platforms: data });
+    return createObjectsMap(data, 'platform');
+  }, [platforms, updateAppState, createObjectsMap]);
+
+  const getTestsOverviewData = useCallback(
+    async (currentFramework) => {
+      setLoading(true);
+
+      const newPlatformsMap = await createPlatformsMap();
+      if (newPlatformsMap) {
+        setPlatformsMap(newPlatformsMap);
+      }
+
+      const newProjectsMap = createObjectsMap(projects, 'name');
+      setProjectsMap(newProjectsMap);
+
+      const updates = await fetchTestSuiteData({
+        framework: currentFramework.id,
+      });
+      if (updates.results !== undefined) {
+        setResults(updates.results);
+      }
+      if (updates.errorMessages) {
+        setErrorMessages(updates.errorMessages);
+      }
+      setLoading(false);
+    },
+    [createPlatformsMap, createObjectsMap, projects, fetchTestSuiteData],
+  );
+
+  // componentDidMount
+  useEffect(() => {
+    getTestsOverviewData(framework);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // componentDidUpdate - detect location.search changes
+  useEffect(() => {
     if (
-      location.search !== prevProps.location.search &&
+      location.search !== prevLocationSearch.current &&
       framework !== null &&
       projectsMap !== false &&
       platformsMap !== false &&
       location.search === ''
     ) {
-      this.setState(
-        {
-          framework: { id: 1, name: 'talos' },
-          projectsMap: false,
-          platformsMap: false,
-          loading: false,
-          results: [],
-        },
-        () => {
-          this.getTestsOverviewData();
-        },
-      );
+      const defaultFramework = { id: 1, name: 'talos' };
+      setFramework(defaultFramework);
+      setProjectsMap(false);
+      setPlatformsMap(false);
+      setLoading(false);
+      setResults([]);
+      getTestsOverviewData(defaultFramework);
     }
-  }
+    prevLocationSearch.current = location.search;
+  }, [location.search, framework, projectsMap, platformsMap, getTestsOverviewData]);
 
-  getTestsOverviewData = async () => {
-    const { projects } = this.props;
-    const { framework } = this.state;
+  const updateFramework = (selection) => {
+    const { updateParams } = validated;
+    const newFramework = frameworks.find((item) => item.name === selection);
 
-    this.setState({ loading: true });
-
-    await this.createPlatformsMap();
-    // create projectsMap
-    await this.createObjectsMap(projects, 'projectsMap', 'name');
-
-    const updates = await this.fetchTestSuiteData({
-      framework: framework.id,
-    });
-    this.setState({ ...updates, loading: false });
+    updateParams({ framework: newFramework.id });
+    setFramework(newFramework);
+    getTestsOverviewData(newFramework);
   };
 
-  createPlatformsMap = async () => {
-    const { platforms, updateAppState } = this.props;
-    const { errorMessages } = this.state;
+  const frameworkNames = frameworks?.length
+    ? frameworks.map((item) => item.name)
+    : [];
 
-    if (platforms.length) {
-      // if the platforms were already cached, use those
-      this.createObjectsMap(platforms, 'platformsMap', 'platform');
-    } else {
-      // get the platforms, cache them and create the platformsMap
-      getData(createApiUrl(platformsEndpoint)).then(
-        ({ data, failureStatus }) => {
-          if (failureStatus) {
-            this.setState({ errorMessages: [data, ...errorMessages] });
-          } else {
-            updateAppState({ platforms: data });
-            this.createObjectsMap(data, 'platformsMap', 'platform');
-          }
-        },
-      );
-    }
-  };
+  const dropdowns = [
+    {
+      options: frameworkNames,
+      selectedItem: framework.name,
+      updateData: updateFramework,
+    },
+  ];
 
-  fetchTestSuiteData = async (params) => {
-    const { errorMessages } = this.state;
-
-    const response = await getData(
-      createApiUrl(endpoints.validityDashboard, params),
-    );
-
-    return processResponse(response, 'results', errorMessages);
-  };
-
-  createObjectsMap = (objects, state, propertyName) => {
-    const objectsMap = objects.reduce((result, currentObject) => {
-      result[currentObject.id] = currentObject[propertyName];
-      return result;
-    }, {});
-
-    this.setState({ [state]: objectsMap });
-  };
-
-  updateFramework = (selection) => {
-    const { updateParams } = this.props.validated;
-    const { frameworks } = this.props;
-    const framework = frameworks.find((item) => item.name === selection);
-
-    updateParams({ framework: framework.id });
-    this.setState({ framework }, () => this.getTestsOverviewData());
-  };
-
-  render() {
-    const { frameworks } = this.props;
-    const {
-      framework,
-      results,
-      loading,
-      errorMessages,
-      projectsMap,
-      platformsMap,
-    } = this.state;
-
-    const frameworkNames =
-      frameworks?.length
-        ? frameworks.map((item) => item.name)
-        : [];
-
-    const dropdowns = [
-      {
-        options: frameworkNames,
-        selectedItem: framework.name,
-        updateData: this.updateFramework,
-      },
-    ];
-
-    return (
-      <ErrorBoundary
-        errorClasses={errorMessageClass}
-        message={genericErrorMessage}
-      >
-        <Container fluid className="max-width-default">
-          {loading && !errorMessages.length && <LoadingSpinner />}
-          <Row className="justify-content-center">
-            <Col sm="8" className="text-center">
-              {errorMessages.length !== 0 && (
-                <ErrorMessages errorMessages={errorMessages} />
-              )}
-            </Col>
-          </Row>
-          <Row>
-            <Col sm="12" className="text-center pb-1">
-              <h1>Perfherder Tests</h1>
-            </Col>
-          </Row>
-          <TestsTableControls
-            testsOverviewResults={results}
-            dropdownOptions={dropdowns}
-            projectsMap={projectsMap}
-            platformsMap={platformsMap}
-            allFrameworks={frameworks}
-          />
-        </Container>
-      </ErrorBoundary>
-    );
-  }
+  return (
+    <ErrorBoundary
+      errorClasses={errorMessageClass}
+      message={genericErrorMessage}
+    >
+      <Container fluid className="max-width-default">
+        {loading && !errorMessages.length && <LoadingSpinner />}
+        <Row className="justify-content-center">
+          <Col sm="8" className="text-center">
+            {errorMessages.length !== 0 && (
+              <ErrorMessages errorMessages={errorMessages} />
+            )}
+          </Col>
+        </Row>
+        <Row>
+          <Col sm="12" className="text-center pb-1">
+            <h1>Perfherder Tests</h1>
+          </Col>
+        </Row>
+        <TestsTableControls
+          testsOverviewResults={results}
+          dropdownOptions={dropdowns}
+          projectsMap={projectsMap}
+          platformsMap={platformsMap}
+          allFrameworks={frameworks}
+        />
+      </Container>
+    </ErrorBoundary>
+  );
 }
 
 TestsView.propTypes = {
-  location: PropTypes.shape({}),
   validated: PropTypes.shape({
     updateParams: PropTypes.func.isRequired,
     framework: PropTypes.string,
