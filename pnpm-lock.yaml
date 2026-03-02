@@ -73,8 +73,8 @@ importers:
         specifier: 4.1.1
         version: 4.1.1
       json-e:
-        specifier: 4.8.1
-        version: 4.8.1
+        specifier: 4.8.2
+        version: 4.8.2
       json-schema-defaults:
         specifier: 0.4.0
         version: 0.4.0
@@ -3713,8 +3713,8 @@ packages:
     engines: {node: '>=6'}
     hasBin: true
 
-  json-e@4.8.1:
-    resolution: {integrity: sha512-YNs17r8NtHwvRcjtYnregqoLphY2pB2jnLoKxtK+Vujj28ieVxnfPB3yp2nZPg3Umiea8SM9hRJDZSqPNwIA+g==}
+  json-e@4.8.2:
+    resolution: {integrity: sha512-0EzcoDOkNdiAG66q9d1FGHaWJbFy6Sz2Tf9U4kXyV+nMEbA3NUnpiQBdJm3qTqa9js7fATq35/fRYT+RHZcvNw==}
     engines: {node: '>=12'}
 
   json-parse-even-better-errors@2.3.1:
@@ -9811,7 +9811,7 @@ snapshots:
 
   jsesc@3.1.0: {}
 
-  json-e@4.8.1:
+  json-e@4.8.2:
     dependencies:
       json-stable-stringify-without-jsonify: 1.0.1
 
