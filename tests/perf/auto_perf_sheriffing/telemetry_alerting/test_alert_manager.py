@@ -269,6 +269,53 @@ class TestTelemetryAlertManager:
         # Verify the alert was deleted
         assert not PerformanceTelemetryAlert.objects.filter(id=alert_id).exists()
 
+    def test_file_alert_bug_attaches_attachment(
+        self, telemetry_alert_manager, alert_without_bug, mock_probe
+    ):
+        """Test _file_alert_bug calls attach for each attachment in optional_detection_info."""
+        mock_probe.should_file_bug.return_value = True
+        telemetry_alert_manager.bug_manager.file_bug.return_value = {"id": 123456}
+        alert_without_bug.telemetry_signature.probe = "test_probe"
+        attachment = {
+            "data": "base64encodedcontent==",
+            "content_type": "application/json",
+            "file_name": "results.json",
+            "summary": "Detection results",
+        }
+        alert_without_bug.optional_detection_info = {"attachments": [attachment]}
+
+        bug_id = telemetry_alert_manager._file_alert_bug(alert_without_bug)
+
+        assert bug_id == 123456
+        telemetry_alert_manager.bug_manager.attach.assert_called_once_with(123456, attachment)
+
+    def test_file_alert_bug_attach_failure_does_not_fail_bug_filing(
+        self, telemetry_alert_manager, alert_without_bug, mock_probe, caplog
+    ):
+        """Test _file_alert_bug still returns the bug ID when attaching an attachment fails."""
+        mock_probe.should_file_bug.return_value = True
+        telemetry_alert_manager.bug_manager.file_bug.return_value = {"id": 123456}
+        telemetry_alert_manager.bug_manager.attach.side_effect = Exception("Attach failed")
+        alert_without_bug.telemetry_signature.probe = "test_probe"
+        alert_without_bug.optional_detection_info = {
+            "attachments": [
+                {
+                    "data": "abc",
+                    "content_type": "text/plain",
+                    "file_name": "f.txt",
+                    "summary": "s",
+                }
+            ]
+        }
+
+        with caplog.at_level(logging.WARNING):
+            bug_id = telemetry_alert_manager._file_alert_bug(alert_without_bug)
+
+        assert bug_id == 123456
+        assert "Failed to attach an attachment" in caplog.text
+        alert_without_bug.telemetry_alert.refresh_from_db()
+        assert alert_without_bug.telemetry_alert.bug_number == 123456
+
     def test_should_notify_with_probe_that_should_email(
         self, telemetry_alert_manager, alert_without_bug, mock_probe
     ):

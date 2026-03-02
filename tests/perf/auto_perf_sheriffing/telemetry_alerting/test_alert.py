@@ -131,7 +131,7 @@ class TestTelemetryAlertFactory:
     ):
         """Test the private _build_alert method."""
         alert = TelemetryAlertFactory._build_alert(
-            test_telemetry_alert, test_telemetry_alert_summary, test_telemetry_signature
+            test_telemetry_alert, test_telemetry_alert_summary, test_telemetry_signature, None
         )
 
         assert isinstance(alert, TelemetryAlert)

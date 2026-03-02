@@ -444,6 +444,7 @@ class Sherlock:
                 telemetry_alert=detection_alert,
                 telemetry_alert_summary=detection_summary,
                 telemetry_signature=probe_signature,
+                optional_detection_info=detection.optional_detection_info,
             )
 
     def _get_metric_definitions(self) -> list[dict]:

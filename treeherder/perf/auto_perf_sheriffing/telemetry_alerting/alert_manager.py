@@ -158,6 +158,17 @@ class TelemetryAlertManager(AlertManager):
             alert.telemetry_alert.bug_number = int(bug_info["id"])
             alert.telemetry_alert.save()
 
+            # Add attachments after the DB changes to prevent failures from
+            # impacting the association
+            for attachment in alert.optional_detection_info.get("attachments", []):
+                try:
+                    self.bug_manager.attach(bug_info["id"], attachment)
+                except Exception:
+                    logger.warning(
+                        f"Failed to attach an attachment for alert {alert}: "
+                        f"{traceback.format_exc()}"
+                    )
+
             return bug_info["id"]
         except Exception:
             # If we fail to create a bug, output the warning and delete the alert

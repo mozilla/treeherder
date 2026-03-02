@@ -191,6 +191,63 @@ class TestBugManager:
         assert request.headers["User-Agent"] == "treeherder/treeherder.mozilla.org"
         assert request.headers["Accept"] == "application/json"
 
+    @responses.activate
+    def test_attach_success(self, bug_manager):
+        """Test attach posts to the correct URL, sends correct headers and body, and returns the response."""
+        import json
+
+        expected_response = {"attachments": {"123456": {"id": 789}}}
+        responses.add(
+            responses.POST,
+            "https://bugzilla.mozilla.org/rest/bug/123456/attachment",
+            json=expected_response,
+            status=200,
+        )
+
+        attachment = {
+            "data": "base64encodedcontent==",
+            "content_type": "application/json",
+            "file_name": "results.json",
+            "summary": "Test results attachment",
+        }
+        result = bug_manager.attach(123456, attachment)
+
+        assert result == expected_response
+        assert len(responses.calls) == 1
+
+        request = responses.calls[0].request
+        assert request.url == "https://bugzilla.mozilla.org/rest/bug/123456/attachment"
+        assert request.headers["x-bugzilla-api-key"] == "test-commenter-key"
+        assert request.headers["User-Agent"] == "treeherder/treeherder.mozilla.org"
+        assert request.headers["Accept"] == "application/json"
+
+        request_body = json.loads(request.body)
+        assert request_body["ids"] == [123456]
+        assert request_body["data"] == "base64encodedcontent=="
+        assert request_body["content_type"] == "application/json"
+        assert request_body["file_name"] == "results.json"
+        assert request_body["summary"] == "Test results attachment"
+
+    @responses.activate
+    def test_attach_failure_raises_http_error(self, bug_manager):
+        """Test attach raises HTTPError on a failed response."""
+        responses.add(
+            responses.POST,
+            "https://bugzilla.mozilla.org/rest/bug/123456/attachment",
+            json={"error": True, "message": "Not authorized"},
+            status=401,
+        )
+
+        attachment = {
+            "data": "abc",
+            "content_type": "text/plain",
+            "file_name": "f.txt",
+            "summary": "s",
+        }
+
+        with pytest.raises(requests.exceptions.HTTPError):
+            bug_manager.attach(123456, attachment)
+
     def test_file_bug_not_implemented(self, bug_manager):
         """Test that file_bug raises NotImplementedError."""
         with pytest.raises(NotImplementedError):

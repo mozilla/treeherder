@@ -79,6 +79,36 @@ class BugManager:
 
         return resp.json()
 
+    def attach(self, bug, attachment):
+        """Add an attachment to a bug.
+
+        See `_get_default_bug_comment_data` for what the `bug_data`
+        should be.
+        """
+        modification_url = self.bz_url + f"/{bug}/attachment"
+        headers = self.bz_headers
+        headers["x-bugzilla-api-key"] = settings.COMMENTER_API_KEY
+        headers["User-Agent"] = f"treeherder/{settings.SITE_HOSTNAME}"
+
+        json_data = {
+            "ids": [int(bug)],
+            "data": attachment["data"],
+            "content_type": attachment["content_type"],
+            "file_name": attachment["file_name"],
+            "summary": attachment["summary"],
+        }
+
+        resp = requests.post(
+            url=modification_url,
+            json=json_data,
+            headers=headers,
+            verify=True,
+            timeout=30,
+        )
+        resp.raise_for_status()
+
+        return resp.json()
+
     def file_bug(self, *args, **kwargs):
         raise NotImplementedError()
 

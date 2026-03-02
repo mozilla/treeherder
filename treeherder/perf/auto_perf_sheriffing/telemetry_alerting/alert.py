@@ -9,13 +9,22 @@ class TelemetryAlertBuildError(Exception):
 
 
 class TelemetryAlert(Alert):
-    def __init__(self, telemetry_alert, telemetry_alert_summary, telemetry_signature):
+    def __init__(
+        self,
+        telemetry_alert,
+        telemetry_alert_summary,
+        telemetry_signature,
+        optional_detection_info=None,
+    ):
         super().__init__()
         self.telemetry_alert = telemetry_alert
         self.telemetry_alert_summary = telemetry_alert_summary
         self.telemetry_signature = telemetry_signature
         self.related_telemetry_alerts = None
         self.detection_range = None
+        self.optional_detection_info = (
+            optional_detection_info if optional_detection_info is not None else {}
+        )
 
     def get_related_alerts(self):
         if self.related_telemetry_alerts:
@@ -56,8 +65,15 @@ class TelemetryAlertFactory:
     """
 
     @staticmethod
-    def _build_alert(telemetry_alert, telemetry_alert_summary, telemetry_signature):
-        return TelemetryAlert(telemetry_alert, telemetry_alert_summary, telemetry_signature)
+    def _build_alert(
+        telemetry_alert, telemetry_alert_summary, telemetry_signature, optional_detection_info
+    ):
+        return TelemetryAlert(
+            telemetry_alert,
+            telemetry_alert_summary,
+            telemetry_signature,
+            optional_detection_info=optional_detection_info,
+        )
 
     @staticmethod
     def _build_alert_from_row(telemetry_alert):
@@ -71,6 +87,7 @@ class TelemetryAlertFactory:
         telemetry_alert=None,
         telemetry_alert_summary=None,
         telemetry_signature=None,
+        optional_detection_info=None,
     ):
         if (
             telemetry_alert is not None
@@ -78,7 +95,10 @@ class TelemetryAlertFactory:
             and telemetry_signature is not None
         ):
             return TelemetryAlertFactory._build_alert(
-                telemetry_alert, telemetry_alert_summary, telemetry_signature
+                telemetry_alert,
+                telemetry_alert_summary,
+                telemetry_signature,
+                optional_detection_info,
             )
         elif telemetry_alert is not None:
             return TelemetryAlertFactory._build_alert_from_row(telemetry_alert)
