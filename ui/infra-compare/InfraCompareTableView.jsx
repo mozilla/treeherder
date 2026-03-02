@@ -1,5 +1,6 @@
-import React from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
+import { useLocation } from 'react-router-dom';
 import { Col, Row, Container, Alert } from 'react-bootstrap';
 
 import ErrorMessages from '../shared/ErrorMessages';
@@ -15,68 +16,46 @@ import ComparePageTitle from '../shared/ComparePageTitle';
 import InfraCompareTableControls from './InfraCompareTableControls';
 import { compareDefaultTimeRange, endpoints, phTimeRanges } from './constants';
 
-export default class InfraCompareTableView extends React.Component {
-  constructor(props) {
-    super(props);
-    const { validated = {} } = props;
-    this.props = { ...props, validated };
-    this.state = {
-      compareResults: new Map(),
-      failureMessages: [],
-      loading: false,
-      timeRange: this.setTimeRange(),
-      tabTitle: null,
-    };
-  }
+export default function InfraCompareTableView({
+  validated = {},
+  compareData,
+  getQueryParams,
+  getDisplayResults,
+  jobsNotDisplayed,
+  ...otherProps
+}) {
+  const location = useLocation();
+  const prevLocationSearch = useRef(location.search);
 
-  componentDidMount() {
-    const { compareData, location } = this.props;
-
-    if (
-      compareData &&
-      compareData.size > 0 &&
-      location.pathname === '/infracompare'
-    ) {
-      this.setState({ compareResults: compareData });
-    } else {
-      this.getInfraData();
-    }
-  }
-
-  componentDidUpdate(prevProps) {
-    if (this.props.location.search !== prevProps.location.search) {
-      this.getInfraData();
-    }
-  }
-
-  setTimeRange = () => {
-    const { selectedTimeRange, originalRevision } = this.props.validated;
-
+  const getInitialTimeRange = () => {
+    const { selectedTimeRange, originalRevision } = validated;
     if (originalRevision) {
       return null;
     }
-
     let timeRange;
     if (selectedTimeRange) {
       timeRange = phTimeRanges.find(
-        (timeRange) => timeRange.value === parseInt(selectedTimeRange, 10),
+        (tr) => tr.value === parseInt(selectedTimeRange, 10),
       );
     }
-
     return timeRange || compareDefaultTimeRange;
   };
 
-  getInfraData = async () => {
-    const { getQueryParams, getDisplayResults } = this.props;
+  const [compareResults, setCompareResults] = useState(new Map());
+  const [failureMessages, setFailureMessages] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [timeRange, setTimeRange] = useState(getInitialTimeRange);
+  const [tabTitle, setTabTitle] = useState(null);
+
+  const getInfraData = useCallback(async () => {
     const {
       originalProject,
       originalRevision,
       newProject,
       newRevision,
-    } = this.props.validated;
-    const { timeRange, failureMessages } = this.state;
+    } = validated;
 
-    this.setState({ loading: true });
+    setLoading(true);
 
     const [originalParams, newParams] = getQueryParams(timeRange);
     const [originalResults, newResults] = await Promise.all([
@@ -84,24 +63,22 @@ export default class InfraCompareTableView extends React.Component {
       getData(createApiUrl(endpoints.infra_compare, newParams)),
     ]);
     if (originalResults.failureStatus) {
-      return this.setState({
-        failureMessages: [originalResults.data, ...failureMessages],
-        loading: false,
-      });
+      setFailureMessages((prev) => [originalResults.data, ...prev]);
+      setLoading(false);
+      return;
     }
 
     if (newResults.failureStatus) {
-      return this.setState({
-        failureMessages: [newResults.data, ...failureMessages],
-        loading: false,
-      });
+      setFailureMessages((prev) => [newResults.data, ...prev]);
+      setLoading(false);
+      return;
     }
 
     const data = [...originalResults.data, ...newResults.data];
-    let title;
 
     if (!data.length) {
-      return this.setState({ loading: false });
+      setLoading(false);
+      return;
     }
 
     const tableNames = [
@@ -112,127 +89,160 @@ export default class InfraCompareTableView extends React.Component {
       ? `${originalRevision} (${originalProject})`
       : originalProject;
 
-    this.setState({
-      tabTitle:
-        title ||
-        `Comparison between ${text} and ${newRevision} (${newProject})`,
-    });
+    setTabTitle(
+      `Comparison between ${text} and ${newRevision} (${newProject})`,
+    );
+
     const updates = getDisplayResults(
       originalResults.data,
       newResults.data,
       tableNames,
     );
-    updates.title = title;
-    return this.setState(updates);
+    if (updates.compareResults) {
+      setCompareResults(updates.compareResults);
+    }
+    setLoading(false);
+  }, [validated, getQueryParams, getDisplayResults, timeRange]);
+
+  // componentDidMount
+  useEffect(() => {
+    if (
+      compareData &&
+      compareData.size > 0 &&
+      location.pathname === '/infracompare'
+    ) {
+      setCompareResults(compareData);
+    } else {
+      getInfraData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // componentDidUpdate - detect location.search changes
+  useEffect(() => {
+    if (location.search !== prevLocationSearch.current) {
+      getInfraData();
+    }
+    prevLocationSearch.current = location.search;
+  }, [location.search, getInfraData]);
+
+  const updateTimeRange = (selection) => {
+    const { updateParams } = validated;
+    const newTimeRange = phTimeRanges.find((item) => item.text === selection);
+
+    updateParams({ selectedTimeRange: newTimeRange.value });
+    setTimeRange(newTimeRange);
   };
 
-  updateTimeRange = (selection) => {
-    const { updateParams } = this.props.validated;
-    const timeRange = phTimeRanges.find((item) => item.text === selection);
+  // Re-fetch when timeRange changes (from updateTimeRange)
+  const isInitialMount = useRef(true);
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    getInfraData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeRange]);
 
-    updateParams({ selectedTimeRange: timeRange.value });
-    this.setState({ timeRange }, () => this.getInfraData());
+  const {
+    originalProject,
+    newProject,
+    originalRevision,
+    newRevision,
+    originalResultSet,
+    newResultSet,
+    pageTitle,
+  } = validated;
+
+  const compareDropdowns = [];
+  const params = {
+    originalProject,
+    newProject,
+    newRevision,
   };
 
-  render() {
-    const {
-      originalProject,
-      newProject,
-      originalRevision,
-      newRevision,
-      originalResultSet,
-      newResultSet,
-      pageTitle,
-    } = this.props.validated;
-    const { jobsNotDisplayed } = this.props;
-    const {
-      compareResults,
-      loading,
-      failureMessages,
-      timeRange,
-      tabTitle,
-    } = this.state;
-    const compareDropdowns = [];
-    const params = {
-      originalProject,
-      newProject,
-      newRevision,
-    };
+  if (originalRevision) {
+    params.originalRevision = originalRevision;
+  } else if (timeRange) {
+    params.selectedTimeRange = timeRange.value;
+  }
 
-    if (originalRevision) {
-      params.originalRevision = originalRevision;
-    } else if (timeRange) {
-      params.selectedTimeRange = timeRange.value;
-    }
+  if (!originalRevision) {
+    compareDropdowns.push({
+      options: phTimeRanges.map((option) => option.text),
+      selectedItem: timeRange.text,
+      updateData: (tr) => updateTimeRange(tr),
+    });
+  }
 
-    if (!originalRevision) {
-      compareDropdowns.push({
-        options: phTimeRanges.map((option) => option.text),
-        selectedItem: timeRange.text,
-        updateData: (timeRange) => this.updateTimeRange(timeRange),
-      });
-    }
-
-    return (
-      <Container fluid className="max-width-default">
-        {loading && !failureMessages.length && <LoadingSpinner />}
-        <ErrorBoundary
-          errorClasses={errorMessageClass}
-          message={genericErrorMessage}
-        >
-          <div className="mx-auto">
-            <Row className="justify-content-center">
-              <Col sm="8" className="text-center">
-                {failureMessages.length !== 0 && (
-                  <ErrorMessages errorMessages={failureMessages} />
-                )}
+  return (
+    <Container fluid className="max-width-default">
+      {loading && !failureMessages.length && <LoadingSpinner />}
+      <ErrorBoundary
+        errorClasses={errorMessageClass}
+        message={genericErrorMessage}
+      >
+        <div className="mx-auto">
+          <Row className="justify-content-center">
+            <Col sm="8" className="text-center">
+              {failureMessages.length !== 0 && (
+                <ErrorMessages errorMessages={failureMessages} />
+              )}
+            </Col>
+          </Row>
+          {newRevision && newProject && (originalRevision || timeRange) && (
+            <Row>
+              <Col sm="12" className="text-center pb-1">
+                <h1>
+                  <ComparePageTitle
+                    title="Infra Compare Revisions"
+                    pageTitleQueryParam={pageTitle}
+                    defaultPageTitle={tabTitle}
+                  />
+                </h1>
+                <RevisionInformation
+                  originalProject={originalProject}
+                  originalRevision={originalRevision}
+                  originalResultSet={originalResultSet}
+                  newProject={newProject}
+                  newRevision={newRevision}
+                  newResultSet={newResultSet}
+                  selectedTimeRange={timeRange}
+                />
               </Col>
             </Row>
-            {newRevision && newProject && (originalRevision || timeRange) && (
-              <Row>
-                <Col sm="12" className="text-center pb-1">
-                  <h1>
-                    <ComparePageTitle
-                      title="Infra Compare Revisions"
-                      pageTitleQueryParam={pageTitle}
-                      defaultPageTitle={tabTitle}
-                    />
-                  </h1>
-                  <RevisionInformation
-                    originalProject={originalProject}
-                    originalRevision={originalRevision}
-                    originalResultSet={originalResultSet}
-                    newProject={newProject}
-                    newRevision={newRevision}
-                    newResultSet={newResultSet}
-                    selectedTimeRange={timeRange}
+          )}
+          {jobsNotDisplayed && jobsNotDisplayed.length > 0 && (
+            <Row className="pt-5 justify-content-center">
+              <Col small="12" className="px-0 max-width-default">
+                <Alert variant="warning">
+                  <TruncatedText
+                    title="Tests without results: "
+                    maxLength={174}
+                    text={jobsNotDisplayed.join(', ')}
                   />
-                </Col>
-              </Row>
-            )}
-            {jobsNotDisplayed && jobsNotDisplayed.length > 0 && (
-              <Row className="pt-5 justify-content-center">
-                <Col small="12" className="px-0 max-width-default">
-                  <Alert variant="warning">
-                    <TruncatedText
-                      title="Tests without results: "
-                      maxLength={174}
-                      text={jobsNotDisplayed.join(', ')}
-                    />
-                  </Alert>
-                </Col>
-              </Row>
-            )}
-            <InfraCompareTableControls
-              {...this.props}
-              updateState={(state) => this.setState(state)}
-              compareResults={compareResults}
-            />
-          </div>
-        </ErrorBoundary>
-      </Container>
-    );
-  }
+                </Alert>
+              </Col>
+            </Row>
+          )}
+          <InfraCompareTableControls
+            validated={validated}
+            compareData={compareData}
+            getQueryParams={getQueryParams}
+            getDisplayResults={getDisplayResults}
+            jobsNotDisplayed={jobsNotDisplayed}
+            {...otherProps}
+            updateState={(state) => {
+              if (state.compareResults) setCompareResults(state.compareResults);
+              if (state.loading !== undefined) setLoading(state.loading);
+            }}
+            compareResults={compareResults}
+          />
+        </div>
+      </ErrorBoundary>
+    </Container>
+  );
 }
 
 InfraCompareTableView.propTypes = {

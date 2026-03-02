@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button, Container, Col, Row } from 'react-bootstrap';
@@ -33,334 +33,167 @@ import LoadingSpinner from '../../shared/LoadingSpinner';
 import LegendCard from './LegendCard';
 import GraphsViewControls from './GraphsViewControls';
 
-class GraphsView extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      timeRange: this.getDefaultTimeRange(),
-      zoom: {},
-      selectedDataPoint: null,
-      highlightAlerts: true,
-      highlightCommonAlerts: false,
-      highlightChangelogData: false,
-      highlightedRevisions: ['', ''],
-      testData: [],
-      errorMessages: [],
-      options: {},
-      loading: false,
-      colors: [...graphColors],
-      symbols: [...graphSymbols],
-      showModal: false,
-      showTable: false,
-      visibilityChanged: false,
-      replicates: false,
-    };
-  }
+function GraphsView({ projects, frameworks, user }) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const prevLocationSearch = useRef(location.search);
 
-  async componentDidMount() {
-    this.checkQueryParams();
-  }
-
-  componentDidUpdate(prevProps) {
-    const { location = {} } = this.props;
-    const { testData, loading } = this.state;
-    const { replicates } = queryString.parse(this.props.location.search);
-    const { replicates: prevReplicates } = queryString.parse(
-      prevProps.location.search,
-    );
-
-    if (
-      location.search === '' &&
-      testData.length !== 0 &&
-      loading !== true &&
-      location.search !== prevProps.location.search
-    ) {
-      this.setState({
-        testData: [],
-      });
-    }
-
-    if (prevReplicates !== undefined) {
-      if (replicates !== prevReplicates) {
-        window.location.reload(false);
-      }
-    }
-  }
-
-  getDefaultTimeRange = () => {
-    const { location = {} } = this.props;
+  const getDefaultTimeRange = () => {
     const { timerange } = parseQueryParams(location.search);
-
     const defaultValue = timerange
       ? parseInt(timerange, 10)
       : phDefaultTimeRangeValue;
     return phTimeRanges.find((time) => time.value === defaultValue);
   };
 
-  checkQueryParams = () => {
-    const {
-      series,
-      zoom,
-      selected,
-      highlightAlerts,
-      highlightCommonAlerts,
-      highlightChangelogData,
-      highlightedRevisions,
-      replicates,
-    } = queryString.parse(this.props.location.search);
+  const [timeRange, setTimeRange] = useState(getDefaultTimeRange);
+  const [zoom, setZoom] = useState({});
+  const [selectedDataPoint, setSelectedDataPoint] = useState(null);
+  const [highlightAlerts, setHighlightAlerts] = useState(true);
+  const [highlightCommonAlerts, setHighlightCommonAlerts] = useState(false);
+  const [highlightChangelogData, setHighlightChangelogData] = useState(false);
+  const [highlightedRevisions, setHighlightedRevisions] = useState(['', '']);
+  const [testData, setTestData] = useState([]);
+  const [errorMessages, setErrorMessages] = useState([]);
+  const [options] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [colors, setColors] = useState([...graphColors]);
+  const [symbols, setSymbols] = useState([...graphSymbols]);
+  const [showModal, setShowModal] = useState(false);
+  const [showTable, setShowTable] = useState(false);
+  const [visibilityChanged, setVisibilityChanged] = useState(false);
+  const [replicates, setReplicates] = useState(false);
 
-    const updates = {};
+  // Refs for latest state in async callbacks
+  const timeRangeRef = useRef(timeRange);
+  timeRangeRef.current = timeRange;
+  const testDataRef = useRef(testData);
+  testDataRef.current = testData;
+  const colorsRef = useRef(colors);
+  colorsRef.current = colors;
+  const symbolsRef = useRef(symbols);
+  symbolsRef.current = symbols;
+  const errorMessagesRef = useRef(errorMessages);
+  errorMessagesRef.current = errorMessages;
+  const replicatesRef = useRef(replicates);
+  replicatesRef.current = replicates;
 
-    if (series) {
-      // TODO: Move series/test data fetch to after the params are parsed, and
-      // the component is updated. Here, it's using default settings even if
-      // the parameters are different.
-      const _series = typeof series === 'string' ? [series] : series;
-      const seriesParams = this.parseSeriesParam(
-        _series,
-        Boolean(parseInt(replicates, 10)),
-      );
-      this.getTestData(seriesParams, true);
-    }
+  // Track whether changeParams should run after state updates
+  const pendingChangeParams = useRef(false);
 
-    if (highlightAlerts) {
-      updates.highlightAlerts = Boolean(parseInt(highlightAlerts, 10));
-    }
-
-    if (highlightCommonAlerts) {
-      updates.highlightCommonAlerts = Boolean(
-        parseInt(highlightCommonAlerts, 10),
-      );
-    }
-
-    if (highlightChangelogData) {
-      updates.highlightChangelogData = Boolean(
-        parseInt(highlightChangelogData, 10),
-      );
-    }
-
-    if (replicates) {
-      updates.replicates = Boolean(parseInt(replicates, 10));
-    }
-
-    if (highlightedRevisions) {
-      updates.highlightedRevisions =
-        typeof highlightedRevisions === 'string'
-          ? [highlightedRevisions]
-          : highlightedRevisions;
-    }
-
-    if (zoom) {
-      const zoomArray = zoom.replace(/[[{}\]"]+/g, '').split(',');
-      const zoomObject = {
-        x: zoomArray.map((x) => new Date(parseInt(x, 10))).slice(0, 2),
-        y: zoomArray.slice(2, 4),
+  const parseSeriesParam = (series, replicatesVal) =>
+    series.map((encodedSeries) => {
+      const partialSeriesArray = encodedSeries.split(',');
+      return {
+        repository_name: partialSeriesArray[0],
+        signature_id:
+          partialSeriesArray[1] && partialSeriesArray[1].length === 40
+            ? partialSeriesArray[1]
+            : parseInt(partialSeriesArray[1], 10),
+        framework_id: parseInt(partialSeriesArray[3], 10),
+        replicates: replicatesVal,
       };
-      updates.zoom = zoomObject;
-    }
+    });
 
-    if (selected) {
-      const tooltipArray = selected.replace(/[[]"]/g, '').split(',');
-      const tooltipValues = processSelectedParam(tooltipArray);
-      updates.selectedDataPoint = tooltipValues;
-    }
-
-    this.setState(updates);
-  };
-
-  createSeriesParams = (series) => {
+  const createSeriesParams = useCallback((series) => {
     const {
       repository_name: repositoryName,
       signature_id: signatureId,
       framework_id: frameworkId,
-      replicates,
+      replicates: seriesReplicates,
     } = series;
-    const { timeRange } = this.state;
 
     return {
       repository: repositoryName,
       signature: signatureId,
       framework: frameworkId,
-      interval: timeRange.value,
+      interval: timeRangeRef.current.value,
       all_data: true,
-      replicates,
+      replicates: seriesReplicates,
     };
-  };
+  }, []);
 
-  getTestData = async (newDisplayedTests = [], init = false) => {
-    const { testData } = this.state;
-    const tests = newDisplayedTests.length ? newDisplayedTests : testData;
-    this.setState({ loading: true });
-
-    const responses = await Promise.all(
-      tests.map((series) =>
-        getData(
-          createApiUrl(endpoints.summary, this.createSeriesParams(series)),
-        ),
-      ),
-    );
-    const errorMessages = processErrors(responses);
-
-    if (errorMessages.length) {
-      this.setState({ errorMessages, loading: false });
-    } else {
-      // If the server returns an empty array instead of signature data with data: [],
-      // that test won't be shown in the graph or legend; this will prevent the UI from breaking
-      const data = responses
-        .filter((response) => response.data.length)
-        .map((reponse) => reponse.data[0]);
-      let newTestData = await this.createGraphObject(data);
-
-      if (newDisplayedTests.length) {
-        newTestData = [...testData, ...newTestData];
-      }
-      this.setState(
-        { testData: newTestData, loading: false, visibilityChanged: false },
-        () => {
-          if (!init) {
-            // we don't need to change params when getData is called on initial page load
-            this.changeParams();
-          }
-        },
+  const getAlertSummaries = useCallback(
+    async (signatureId, repository) => {
+      const data = await getData(
+        createApiUrl(endpoints.alertSummary, {
+          alerts__series_signature: signatureId,
+          repository,
+          limit: alertSummaryLimit,
+          timerange: timeRangeRef.current.value,
+        }),
       );
-    }
-  };
+      const response = processResponse(
+        data,
+        'alertSummaries',
+        errorMessagesRef.current,
+      );
 
-  createGraphObject = async (seriesData) => {
-    const { colors, symbols, timeRange, replicates } = this.state;
-    const alertSummaries = await Promise.all(
-      seriesData.map((series) =>
-        this.getAlertSummaries(series.signature_id, series.repository_id),
-      ),
-    );
-    const commonAlerts = await Promise.all(
-      seriesData.map((series) =>
-        this.getCommonAlerts(series.framework_id, timeRange.value),
-      ),
-    );
-    const newColors = [...colors];
-    const newSymbols = [...symbols];
+      if (response.alertSummaries) {
+        return response.alertSummaries.results;
+      }
+      setErrorMessages(response.errorMessages);
+      return [];
+    },
+    [],
+  );
 
-    const graphData = createGraphData(
-      seriesData,
-      alertSummaries.flat(),
-      newColors,
-      newSymbols,
-      commonAlerts,
-      replicates,
-    );
-
-    this.setState({ colors: newColors, symbols: newSymbols });
-    return graphData;
-  };
-
-  getAlertSummaries = async (signatureId, repository) => {
-    const { errorMessages, timeRange } = this.state;
-
-    const data = await getData(
-      createApiUrl(endpoints.alertSummary, {
-        alerts__series_signature: signatureId,
-        repository,
-        limit: alertSummaryLimit,
-        timerange: timeRange.value,
-      }),
-    );
-    const response = processResponse(data, 'alertSummaries', errorMessages);
-
-    if (response.alertSummaries) {
-      return response.alertSummaries.results;
-    }
-    this.setState({ errorMessages: response.errorMessages });
-    return [];
-  };
-
-  getCommonAlerts = async (frameworkId, timeRange) => {
+  const getCommonAlerts = useCallback(async (frameworkId, timeRangeValue) => {
     const params = {
       framework: frameworkId,
       limit: alertSummaryLimit,
-      timerange: timeRange,
+      timerange: timeRangeValue,
     };
     const url = getApiUrl(
       `${endpoints.alertSummary}${createQueryParams(params)}`,
     );
     const response = await getData(url);
-    const commonAlerts = [...response.data.results];
+    return [...response.data.results];
+  }, []);
 
-    return commonAlerts;
-  };
+  const createGraphObject = useCallback(
+    async (seriesData) => {
+      const alertSummariesData = await Promise.all(
+        seriesData.map((series) =>
+          getAlertSummaries(series.signature_id, series.repository_id),
+        ),
+      );
+      const commonAlerts = await Promise.all(
+        seriesData.map((series) =>
+          getCommonAlerts(series.framework_id, timeRangeRef.current.value),
+        ),
+      );
+      const newColors = [...colorsRef.current];
+      const newSymbols = [...symbolsRef.current];
 
-  updateData = async (
-    signatureId,
-    repositoryName,
-    alertSummaryId,
-    dataPointIndex,
-  ) => {
-    const { testData } = this.state;
+      const graphData = createGraphData(
+        seriesData,
+        alertSummariesData.flat(),
+        newColors,
+        newSymbols,
+        commonAlerts,
+        replicatesRef.current,
+      );
 
-    const updatedData = testData.find(
-      (test) => test.signature_id === signatureId,
-    );
-    const alertSummaries = await this.getAlertSummaries(
-      signatureId,
-      repositoryName,
-    );
-    const alertSummary = alertSummaries.find(
-      (result) => result.id === alertSummaryId,
-    );
-    updatedData.data[dataPointIndex].alertSummary = alertSummary;
-    const newTestData = unionBy([updatedData], testData, 'signature_id');
+      setColors(newColors);
+      setSymbols(newSymbols);
+      return graphData;
+    },
+    [getAlertSummaries, getCommonAlerts],
+  );
 
-    this.setState({ testData: newTestData });
-  };
+  const updateUrlParams = useCallback(
+    (params) => {
+      let newQueryString = queryString.stringify(params);
+      newQueryString = newQueryString.replace(/%2C/g, ',');
+      updateQueryParams(newQueryString, navigate, location);
+    },
+    [navigate, location],
+  );
 
-  parseSeriesParam = (series, replicates) =>
-    series.map((encodedSeries) => {
-      const partialSeriesArray = encodedSeries.split(',');
-      const partialSeriesObject = {
-        repository_name: partialSeriesArray[0],
-        // TODO deprecate signature_hash
-        signature_id:
-          partialSeriesArray[1] && partialSeriesArray[1].length === 40
-            ? partialSeriesArray[1]
-            : parseInt(partialSeriesArray[1], 10),
-        // TODO partialSeriesArray[2] is for the 1 that's inserted in the url
-        // for visibility of test legend cards but isn't actually being used
-        // to control visibility so it should be removed at some point
-        framework_id: parseInt(partialSeriesArray[3], 10),
-        replicates,
-      };
-
-      return partialSeriesObject;
-    });
-
-  toggle = (state) => {
-    this.setState((prevState) => ({
-      [state]: !prevState[state],
-    }));
-  };
-
-  updateParams = (params) => {
-    const { location = {}, navigate } = this.props;
-    let newQueryString = queryString.stringify(params);
-    newQueryString = newQueryString.replace(/%2C/g, ',');
-
-    updateQueryParams(newQueryString, navigate, location);
-  };
-
-  changeParams = () => {
-    const {
-      testData,
-      selectedDataPoint,
-      zoom,
-      highlightAlerts,
-      highlightCommonAlerts,
-      highlightChangelogData,
-      highlightedRevisions,
-      timeRange,
-      replicates,
-    } = this.state;
-
-    const newSeries = testData.map(
+  const changeParams = useCallback(() => {
+    const currentTestData = testDataRef.current;
+    const newSeries = currentTestData.map(
       (series) =>
         `${series.repository_name},${series.signature_id},1,${series.framework_id}`,
     );
@@ -369,8 +202,8 @@ class GraphsView extends React.Component {
       highlightAlerts: +highlightAlerts,
       highlightCommonAlerts: +highlightCommonAlerts,
       highlightChangelogData: +highlightChangelogData,
-      timerange: timeRange.value,
-      replicates: +replicates,
+      timerange: timeRangeRef.current.value,
+      replicates: +replicatesRef.current,
       zoom,
     };
 
@@ -386,7 +219,6 @@ class GraphsView extends React.Component {
       delete params.selected;
     } else {
       const { signature_id: signatureId, dataPointId } = selectedDataPoint;
-
       params.selected = [signatureId, dataPointId].join(',');
     }
 
@@ -396,160 +228,339 @@ class GraphsView extends React.Component {
       params.zoom = [...zoom.x.map((z) => z.getTime()), ...zoom.y].toString();
     }
 
-    this.updateParams(params);
-  };
+    updateUrlParams(params);
+  }, [
+    highlightAlerts,
+    highlightCommonAlerts,
+    highlightChangelogData,
+    highlightedRevisions,
+    selectedDataPoint,
+    zoom,
+    updateUrlParams,
+  ]);
 
-  render() {
+  // Run changeParams when pendingChangeParams is set
+  useEffect(() => {
+    if (pendingChangeParams.current) {
+      pendingChangeParams.current = false;
+      changeParams();
+    }
+  });
+
+  const getTestData = useCallback(
+    async (newDisplayedTests = [], init = false) => {
+      const currentTestData = testDataRef.current;
+      const tests = newDisplayedTests.length
+        ? newDisplayedTests
+        : currentTestData;
+      setLoading(true);
+
+      const responses = await Promise.all(
+        tests.map((series) =>
+          getData(createApiUrl(endpoints.summary, createSeriesParams(series))),
+        ),
+      );
+      const errors = processErrors(responses);
+
+      if (errors.length) {
+        setErrorMessages(errors);
+        setLoading(false);
+      } else {
+        const data = responses
+          .filter((response) => response.data.length)
+          .map((reponse) => reponse.data[0]);
+        let newTestData = await createGraphObject(data);
+
+        if (newDisplayedTests.length) {
+          newTestData = [...currentTestData, ...newTestData];
+        }
+        setTestData(newTestData);
+        setLoading(false);
+        setVisibilityChanged(false);
+
+        if (!init) {
+          pendingChangeParams.current = true;
+        }
+      }
+    },
+    [createSeriesParams, createGraphObject],
+  );
+
+  const updateData = useCallback(
+    async (signatureId, repositoryName, alertSummaryId, dataPointIndex) => {
+      const currentTestData = testDataRef.current;
+
+      const updatedData = currentTestData.find(
+        (test) => test.signature_id === signatureId,
+      );
+      const alertSummariesData = await getAlertSummaries(
+        signatureId,
+        repositoryName,
+      );
+      const alertSummary = alertSummariesData.find(
+        (result) => result.id === alertSummaryId,
+      );
+      updatedData.data[dataPointIndex].alertSummary = alertSummary;
+      const newTestData = unionBy(
+        [updatedData],
+        currentTestData,
+        'signature_id',
+      );
+
+      setTestData(newTestData);
+    },
+    [getAlertSummaries],
+  );
+
+  const updateStateParams = useCallback((state) => {
+    if (state.testData !== undefined) setTestData(state.testData);
+    if (state.selectedDataPoint !== undefined)
+      setSelectedDataPoint(state.selectedDataPoint);
+    if (state.zoom !== undefined) setZoom(state.zoom);
+    if (state.highlightAlerts !== undefined)
+      setHighlightAlerts(state.highlightAlerts);
+    if (state.highlightCommonAlerts !== undefined)
+      setHighlightCommonAlerts(state.highlightCommonAlerts);
+    if (state.highlightChangelogData !== undefined)
+      setHighlightChangelogData(state.highlightChangelogData);
+    if (state.highlightedRevisions !== undefined)
+      setHighlightedRevisions(state.highlightedRevisions);
+    if (state.visibilityChanged !== undefined)
+      setVisibilityChanged(state.visibilityChanged);
+    if (state.replicates !== undefined) setReplicates(state.replicates);
+    if (state.colors !== undefined) setColors(state.colors);
+    if (state.symbols !== undefined) setSymbols(state.symbols);
+    pendingChangeParams.current = true;
+  }, []);
+
+  // componentDidMount - check query params
+  useEffect(() => {
     const {
-      timeRange,
-      testData,
-      highlightAlerts,
-      highlightCommonAlerts,
-      highlightChangelogData,
-      highlightedRevisions,
-      selectedDataPoint,
-      loading,
-      errorMessages,
-      zoom,
-      options,
-      colors,
-      symbols,
-      showModal,
-      showTable,
-      visibilityChanged,
-      replicates,
-    } = this.state;
+      series,
+      zoom: zoomParam,
+      selected,
+      highlightAlerts: hlAlerts,
+      highlightCommonAlerts: hlCommonAlerts,
+      highlightChangelogData: hlChangelogData,
+      highlightedRevisions: hlRevisions,
+      replicates: replicatesParam,
+    } = queryString.parse(location.search);
 
-    const { projects, frameworks, user } = this.props;
-    return (
-      <ErrorBoundary
-        errorClasses={errorMessageClass}
-        message={genericErrorMessage}
-      >
-        <Container fluid className="pt-5 pe-5 ps-5">
-          {loading && <LoadingSpinner />}
+    const updates = {};
 
-          {errorMessages.length > 0 && (
-            <Container className="pb-4 px-0 max-width-default">
-              <ErrorMessages errorMessages={errorMessages} />
-            </Container>
-          )}
+    if (series) {
+      const _series = typeof series === 'string' ? [series] : series;
+      const seriesParams = parseSeriesParam(
+        _series,
+        Boolean(parseInt(replicatesParam, 10)),
+      );
+      getTestData(seriesParams, true);
+    }
 
-          <Row className="justify-content-center">
-            {!showTable && (
-              <Col
-                className={`${testData.length ? 'graph-chooser' : 'col-12'}`}
-              >
-                <Button
-                  className="sr-only"
-                  onClick={() => this.setState({ showTable: !showTable })}
-                >
-                  Table View
-                </Button>
-                <Container
-                  role="region"
-                  aria-label="Graph Legend"
-                  className="graph-legend ps-0 pb-4"
-                >
-                  {testData.length > 0 &&
-                    testData.map((series) => (
-                      <div
-                        key={`${series.name} ${series.repository_name} ${series.platform}`}
-                      >
-                        <LegendCard
-                          series={series}
-                          testData={testData}
-                          {...this.props}
-                          updateState={(state) => this.setState(state)}
-                          updateStateParams={(state) =>
-                            this.setState(state, this.changeParams)
-                          }
-                          colors={colors}
-                          symbols={symbols}
-                          selectedDataPoint={selectedDataPoint}
-                        />
-                      </div>
-                    ))}
-                </Container>
-              </Col>
-            )}
-            <Col
-              className={`ps-0 ${
-                testData.length ? 'custom-col-xxl-auto' : 'col-auto'
-              } ${showTable && 'w-100'}`}
-            >
-              <GraphsViewControls
-                colors={colors}
-                symbols={symbols}
-                timeRange={timeRange}
-                frameworks={frameworks}
-                user={user}
-                projects={projects}
-                options={options}
-                getTestData={this.getTestData}
-                testData={testData}
-                showModal={showModal}
-                showTable={showTable}
-                highlightAlerts={highlightAlerts}
-                highlightChangelogData={highlightChangelogData}
-                highlightedRevisions={highlightedRevisions}
-                highlightCommonAlerts={highlightCommonAlerts}
-                zoom={zoom}
-                selectedDataPoint={selectedDataPoint}
-                updateStateParams={(state) =>
-                  this.setState(state, this.changeParams)
-                }
-                visibilityChanged={visibilityChanged}
-                updateData={this.updateData}
-                toggle={() => this.setState({ showModal: !showModal })}
-                toggleTableView={() => this.setState({ showTable: !showTable })}
-                replicates={replicates}
-                updateTimeRange={(newTimeRange) =>
-                  this.setState(
-                    {
-                      timeRange: newTimeRange,
-                      zoom: {},
-                      selectedDataPoint: null,
-                      colors: [...graphColors],
-                      symbols: [...graphSymbols],
-                    },
-                    this.getTestData,
-                  )
-                }
-                updateTestsAndTimeRange={(newDisplayedTests, newTimeRange) =>
-                  this.setState(
-                    {
-                      timeRange: newTimeRange,
-                      zoom: {},
-                      selectedDataPoint: null,
-                      colors: [...graphColors],
-                      symbols: [...graphSymbols],
-                    },
-                    () => this.getTestData(newDisplayedTests),
-                  )
-                }
-                hasNoData={!testData.length && !loading}
-              />
-            </Col>
-          </Row>
-        </Container>
-      </ErrorBoundary>
+    if (hlAlerts) {
+      updates.highlightAlerts = Boolean(parseInt(hlAlerts, 10));
+    }
+    if (hlCommonAlerts) {
+      updates.highlightCommonAlerts = Boolean(parseInt(hlCommonAlerts, 10));
+    }
+    if (hlChangelogData) {
+      updates.highlightChangelogData = Boolean(parseInt(hlChangelogData, 10));
+    }
+    if (replicatesParam) {
+      updates.replicates = Boolean(parseInt(replicatesParam, 10));
+    }
+    if (hlRevisions) {
+      updates.highlightedRevisions =
+        typeof hlRevisions === 'string' ? [hlRevisions] : hlRevisions;
+    }
+    if (zoomParam) {
+      const zoomArray = zoomParam.replace(/[[{}\]"]+/g, '').split(',');
+      updates.zoom = {
+        x: zoomArray.map((x) => new Date(parseInt(x, 10))).slice(0, 2),
+        y: zoomArray.slice(2, 4),
+      };
+    }
+    if (selected) {
+      const tooltipArray = selected.replace(/[[]"]/g, '').split(',');
+      updates.selectedDataPoint = processSelectedParam(tooltipArray);
+    }
+
+    if (updates.highlightAlerts !== undefined)
+      setHighlightAlerts(updates.highlightAlerts);
+    if (updates.highlightCommonAlerts !== undefined)
+      setHighlightCommonAlerts(updates.highlightCommonAlerts);
+    if (updates.highlightChangelogData !== undefined)
+      setHighlightChangelogData(updates.highlightChangelogData);
+    if (updates.replicates !== undefined) setReplicates(updates.replicates);
+    if (updates.highlightedRevisions !== undefined)
+      setHighlightedRevisions(updates.highlightedRevisions);
+    if (updates.zoom !== undefined) setZoom(updates.zoom);
+    if (updates.selectedDataPoint !== undefined)
+      setSelectedDataPoint(updates.selectedDataPoint);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // componentDidUpdate - detect location.search changes
+  useEffect(() => {
+    const prevSearch = prevLocationSearch.current;
+    prevLocationSearch.current = location.search;
+
+    if (prevSearch === location.search) return;
+
+    const { replicates: currentReplicates } = queryString.parse(
+      location.search,
     );
-  }
+    const { replicates: prevReplicates } = queryString.parse(prevSearch);
+
+    if (
+      location.search === '' &&
+      testDataRef.current.length !== 0 &&
+      !loading
+    ) {
+      setTestData([]);
+    }
+
+    if (prevReplicates !== undefined) {
+      if (currentReplicates !== prevReplicates) {
+        window.location.reload(false);
+      }
+    }
+  }, [location.search, loading]);
+
+  const handleUpdateTimeRange = useCallback(
+    (newTimeRange) => {
+      setTimeRange(newTimeRange);
+      setZoom({});
+      setSelectedDataPoint(null);
+      setColors([...graphColors]);
+      setSymbols([...graphSymbols]);
+      // Need to update ref before getTestData uses it
+      timeRangeRef.current = newTimeRange;
+      getTestData();
+    },
+    [getTestData],
+  );
+
+  const handleUpdateTestsAndTimeRange = useCallback(
+    (newDisplayedTests, newTimeRange) => {
+      setTimeRange(newTimeRange);
+      setZoom({});
+      setSelectedDataPoint(null);
+      setColors([...graphColors]);
+      setSymbols([...graphSymbols]);
+      timeRangeRef.current = newTimeRange;
+      getTestData(newDisplayedTests);
+    },
+    [getTestData],
+  );
+
+  return (
+    <ErrorBoundary
+      errorClasses={errorMessageClass}
+      message={genericErrorMessage}
+    >
+      <Container fluid className="pt-5 pe-5 ps-5">
+        {loading && <LoadingSpinner />}
+
+        {errorMessages.length > 0 && (
+          <Container className="pb-4 px-0 max-width-default">
+            <ErrorMessages errorMessages={errorMessages} />
+          </Container>
+        )}
+
+        <Row className="justify-content-center">
+          {!showTable && (
+            <Col
+              className={`${testData.length ? 'graph-chooser' : 'col-12'}`}
+            >
+              <Button
+                className="sr-only"
+                onClick={() => setShowTable(!showTable)}
+              >
+                Table View
+              </Button>
+              <Container
+                role="region"
+                aria-label="Graph Legend"
+                className="graph-legend ps-0 pb-4"
+              >
+                {testData.length > 0 &&
+                  testData.map((series) => (
+                    <div
+                      key={`${series.name} ${series.repository_name} ${series.platform}`}
+                    >
+                      <LegendCard
+                        series={series}
+                        testData={testData}
+                        projects={projects}
+                        frameworks={frameworks}
+                        user={user}
+                        updateState={(state) => {
+                          if (state.testData !== undefined)
+                            setTestData(state.testData);
+                          if (state.selectedDataPoint !== undefined)
+                            setSelectedDataPoint(state.selectedDataPoint);
+                          if (state.visibilityChanged !== undefined)
+                            setVisibilityChanged(state.visibilityChanged);
+                          if (state.colors !== undefined)
+                            setColors(state.colors);
+                          if (state.symbols !== undefined)
+                            setSymbols(state.symbols);
+                        }}
+                        updateStateParams={updateStateParams}
+                        colors={colors}
+                        symbols={symbols}
+                        selectedDataPoint={selectedDataPoint}
+                      />
+                    </div>
+                  ))}
+              </Container>
+            </Col>
+          )}
+          <Col
+            className={`ps-0 ${
+              testData.length ? 'custom-col-xxl-auto' : 'col-auto'
+            } ${showTable && 'w-100'}`}
+          >
+            <GraphsViewControls
+              colors={colors}
+              symbols={symbols}
+              timeRange={timeRange}
+              frameworks={frameworks}
+              user={user}
+              projects={projects}
+              options={options}
+              getTestData={getTestData}
+              testData={testData}
+              showModal={showModal}
+              showTable={showTable}
+              highlightAlerts={highlightAlerts}
+              highlightChangelogData={highlightChangelogData}
+              highlightedRevisions={highlightedRevisions}
+              highlightCommonAlerts={highlightCommonAlerts}
+              zoom={zoom}
+              selectedDataPoint={selectedDataPoint}
+              updateStateParams={updateStateParams}
+              visibilityChanged={visibilityChanged}
+              updateData={updateData}
+              toggle={() => setShowModal(!showModal)}
+              toggleTableView={() => setShowTable(!showTable)}
+              replicates={replicates}
+              updateTimeRange={handleUpdateTimeRange}
+              updateTestsAndTimeRange={handleUpdateTestsAndTimeRange}
+              hasNoData={!testData.length && !loading}
+            />
+          </Col>
+        </Row>
+      </Container>
+    </ErrorBoundary>
+  );
 }
 
 GraphsView.propTypes = {
-  location: PropTypes.shape({
-    search: PropTypes.string,
-    pathname: PropTypes.string,
-  }).isRequired,
-  navigate: PropTypes.func.isRequired,
+  projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  frameworks: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  user: PropTypes.shape({}).isRequired,
 };
 
-function GraphsViewWrapper(props) {
-  const location = useLocation();
-  const navigate = useNavigate();
-  return <GraphsView {...props} location={location} navigate={navigate} />;
-}
-
-export default GraphsViewWrapper;
+export default GraphsView;
