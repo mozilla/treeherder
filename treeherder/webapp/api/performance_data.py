@@ -1162,12 +1162,6 @@ class PerfCompareResults(generics.ListAPIView):
         tasks = []
         for header in header_names:
             for platform in platforms:
-                sig_identifier = perfcompare_utils.get_sig_identifier(header, platform)
-                base_sig = base_signatures_map.get(sig_identifier, {})
-                base_sig_id = base_sig.get("id", None)
-                new_sig = new_signatures_map.get(sig_identifier, {})
-                new_sig_id = new_sig.get("id", None)
-
                 # Build common result using shared method
                 (
                     lower_is_better,
@@ -1178,10 +1172,8 @@ class PerfCompareResults(generics.ListAPIView):
                 ) = self._build_common_result(
                     header,
                     platform,
-                    base_sig,
-                    new_sig,
-                    base_sig_id,
-                    new_sig_id,
+                    base_signatures_map,
+                    new_signatures_map,
                     base_grouped_values,
                     new_grouped_values,
                     base_grouped_replicates,
@@ -1246,12 +1238,6 @@ class PerfCompareResults(generics.ListAPIView):
         """
         for header in header_names:
             for platform in platforms:
-                sig_identifier = perfcompare_utils.get_sig_identifier(header, platform)
-                base_sig = base_signatures_map.get(sig_identifier, {})
-                base_sig_id = base_sig.get("id", None)
-                new_sig = new_signatures_map.get(sig_identifier, {})
-                new_sig_id = new_sig.get("id", None)
-
                 # Build common result using shared method
                 (
                     lower_is_better,
@@ -1262,10 +1248,8 @@ class PerfCompareResults(generics.ListAPIView):
                 ) = self._build_common_result(
                     header,
                     platform,
-                    base_sig,
-                    new_sig,
-                    base_sig_id,
-                    new_sig_id,
+                    base_signatures_map,
+                    new_signatures_map,
                     base_grouped_values,
                     new_grouped_values,
                     base_grouped_replicates,
@@ -1353,10 +1337,8 @@ class PerfCompareResults(generics.ListAPIView):
         self,
         header,
         platform,
-        base_sig,
-        new_sig,
-        base_sig_id,
-        new_sig_id,
+        base_signatures_map,
+        new_signatures_map,
         base_grouped_values,
         new_grouped_values,
         base_grouped_replicates,
@@ -1381,6 +1363,12 @@ class PerfCompareResults(generics.ListAPIView):
         (lower_is_better, statistics_base_perf_data, statistics_new_perf_data,
          no_results_to_show, common_result)
         """
+        sig_identifier = perfcompare_utils.get_sig_identifier(header, platform)
+        base_sig = base_signatures_map.get(sig_identifier, {})
+        base_sig_id = base_sig.get("id", None)
+        new_sig = new_signatures_map.get(sig_identifier, {})
+        new_sig_id = new_sig.get("id", None)
+
         # Get signature-based properties
         if base_sig:
             (
