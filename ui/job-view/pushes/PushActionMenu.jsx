@@ -13,7 +13,7 @@ import {
 import { formatTaskclusterError } from '../../helpers/errorMessage';
 import CustomJobActions from '../CustomJobActions';
 import PushModel from '../../models/push';
-import { notify } from '../redux/stores/notifications';
+import { notify } from '../stores/notificationStore';
 import { updateRange } from '../redux/stores/pushes';
 
 function PushActionMenu({

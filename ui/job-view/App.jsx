@@ -29,7 +29,7 @@ import UpdateAvailable from './headerbars/UpdateAvailable';
 import DetailsPanel from './details/DetailsPanel';
 import PushList from './pushes/PushList';
 import KeyboardShortcuts from './KeyboardShortcuts';
-import { clearExpiredNotifications } from './redux/stores/notifications';
+import { useNotificationStore } from './stores/notificationStore';
 import { fetchPushes } from './redux/stores/pushes';
 
 import '../css/treeherder.css';
@@ -315,8 +315,9 @@ const App = () => {
     });
 
     // clear expired notifications
+    const { clearExpiredNotifications } = useNotificationStore.getState();
     notificationIntervalRef.current = setInterval(() => {
-      dispatch(clearExpiredNotifications());
+      clearExpiredNotifications();
     }, MAX_TRANSIENT_AGE);
 
     return () => {
