@@ -1,7 +1,7 @@
 
 import PropTypes from 'prop-types';
 import { Navbar, Nav } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 import LogoMenu from '../shared/LogoMenu';
 import Login from '../shared/auth/Login';

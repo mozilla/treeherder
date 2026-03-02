@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import { Alert, Container } from 'react-bootstrap';
 import cloneDeep from 'lodash/cloneDeep';
 
