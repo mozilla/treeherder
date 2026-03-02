@@ -6,7 +6,7 @@ import {
   act,
   cleanup,
 } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 
 import { addAggregateFields } from '../../../ui/helpers/job';
 import { setUrlParam } from '../../../ui/helpers/location';

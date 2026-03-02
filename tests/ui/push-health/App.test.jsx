@@ -1,7 +1,7 @@
 
 import fetchMock from 'fetch-mock';
 import { render, waitFor } from '@testing-library/react';
-import { MemoryRouter, Routes, Route } from 'react-router-dom';
+import { MemoryRouter, Routes, Route } from 'react-router';
 
 import App from '../../../ui/push-health/App';
 import { getApiUrl } from '../../../ui/helpers/url';

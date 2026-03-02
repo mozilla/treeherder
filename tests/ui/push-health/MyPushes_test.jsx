@@ -1,7 +1,7 @@
 
 import fetchMock from 'fetch-mock';
 import { render, waitFor, fireEvent, act } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 
 import MyPushes from '../../../ui/push-health/MyPushes';
 import pushHealthSummaryTryData from '../mock/push_health_summary_try';

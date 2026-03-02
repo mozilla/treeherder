@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Button, Form } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 
 import { updateRange } from '../stores/pushesStore';
 import { clearSelectedJob } from '../stores/selectedJobStore';

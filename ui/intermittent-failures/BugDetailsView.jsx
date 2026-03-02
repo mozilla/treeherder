@@ -1,6 +1,6 @@
 import React from 'react';
 import { Row, Col, Breadcrumb, BreadcrumbItem } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import ReactTable from 'react-table-6';
 import PropTypes from 'prop-types';
 

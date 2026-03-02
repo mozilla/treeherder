@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router';
 import { Button, Container, Col, Row } from 'react-bootstrap';
 import unionBy from 'lodash/unionBy';
 import queryString from 'query-string';

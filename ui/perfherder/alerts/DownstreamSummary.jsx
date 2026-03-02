@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 import { getTitle } from '../perf-helpers/helpers';
 import SimpleTooltip from '../../shared/SimpleTooltip';
@@ -53,7 +53,7 @@ export default class DownstreamSummary extends React.Component {
             text={
               <span>
                 <Link
-                  to={`./alerts?id=${id}`}
+                  to={`/perfherder/alerts?id=${id}`}
                   className="text-info"
                   target="_blank"
                   rel="noopener noreferrer"

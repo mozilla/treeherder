@@ -1,6 +1,6 @@
 
 import { render } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 
 import PerformanceTab from '../../../ui/job-view/details/tabs/PerformanceTab.jsx';
 import { Perfdocs } from '../../../ui/perfherder/perf-helpers/perfdocs';

@@ -1,6 +1,6 @@
 
 import { render, cleanup, waitFor, fireEvent } from '@testing-library/react';
-import { MemoryRouter as Router } from 'react-router-dom';
+import { MemoryRouter as Router } from 'react-router';
 
 import { noResultsMessage } from '../../../ui/perfherder/perf-helpers/constants';
 import TestsTable from '../../../ui/perfherder/tests/TestsTable';

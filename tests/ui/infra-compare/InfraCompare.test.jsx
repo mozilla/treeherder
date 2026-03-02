@@ -1,6 +1,6 @@
 
 import { render, act } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 
 // Import the component under test
 import InfraCompareView from '../../../ui/infra-compare/InfraCompare';

@@ -1,7 +1,7 @@
 
 import fetchMock from 'fetch-mock';
 import { render, cleanup, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 
 import healthUsage from '../mock/health_usage';
 import Usage from '../../../ui/push-health/Usage';
