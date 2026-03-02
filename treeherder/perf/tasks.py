@@ -21,8 +21,10 @@ def generate_alerts(signature_id):
     generate_new_alerts_in_series(signature)
     try:
         generate_new_test_alerts_in_series(signature)
-    except Exception:
-        logger.warning("Failed to generate test alerts for signature %s", signature_id)
+    except Exception as e:
+        logger.exception(
+            "Failed to generate test alerts for signature %s: %s", signature_id, str(e)
+        )
 
 
 @retryable_task(name="ingest-perfherder-data", max_retries=10)
