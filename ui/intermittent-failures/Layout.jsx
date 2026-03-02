@@ -87,10 +87,6 @@ Container.propTypes = {
 };
 
 Layout.propTypes = {
-  history: PropTypes.shape({}).isRequired,
-  location: PropTypes.shape({
-    search: PropTypes.string,
-  }).isRequired,
   datePicker: PropTypes.element.isRequired,
   header: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.bool]),
   table: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.bool]),

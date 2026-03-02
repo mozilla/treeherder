@@ -4,6 +4,10 @@ import { VictoryPie, VictoryTooltip } from 'victory';
 
 import { getPercentComplete } from '../helpers/display';
 
+// Absorbs Victory's non-DOM props (pointerLength, activePoints, etc.)
+// to prevent React warnings when used as a flyoutComponent.
+const EmptyFlyout = () => <g />;
+
 const StatusProgress = ({ counts, customStyle = '' }) => {
   // testfailed includes lint, build ("busted") and test failures
   // but excludes intermittent failures
@@ -23,7 +27,7 @@ const StatusProgress = ({ counts, customStyle = '' }) => {
         colorScale={['#28a745', 'lightgrey', '#dc3545']}
         labels={({ datum }) => (datum.y > 0 ? `${datum.x}: ${datum.y}` : '')}
         labelComponent={
-          <VictoryTooltip pointerLength={0} flyoutComponent={<div />} />
+          <VictoryTooltip pointerLength={0} flyoutComponent={<EmptyFlyout />} />
         }
         labelRadius={({ innerRadius }) => innerRadius}
         height={250}

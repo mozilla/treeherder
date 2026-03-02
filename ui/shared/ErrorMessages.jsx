@@ -34,8 +34,9 @@ class ErrorMessages extends React.PureComponent {
         {messages.map((message) => (
           <Alert
             variant="danger"
-            isOpen={visible}
-            toggle={() => this.setState({ visible: !visible })}
+            show={visible}
+            onClose={() => this.setState({ visible: !visible })}
+            dismissible
             key={message}
             className="text-center"
           >

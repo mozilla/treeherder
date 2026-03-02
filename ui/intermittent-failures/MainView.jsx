@@ -274,6 +274,7 @@ const MainView = (props) => {
     user,
     setUser,
     notify,
+    updateState,
     errorMessages,
     tableFailureStatus,
     graphFailureStatus,
@@ -291,11 +292,12 @@ const MainView = (props) => {
           <React.Fragment>
             <Row>
               <Col xs="12" className="text-left">
-                <Breadcrumb listClassName="bg-white">
-                  <BreadcrumbItem>
-                    <a title="Treeherder home page" href="/">
-                      Treeherder
-                    </a>
+                <Breadcrumb className="bg-white">
+                  <BreadcrumbItem
+                    href="/"
+                    title="Treeherder home page"
+                  >
+                    Treeherder
                   </BreadcrumbItem>
                   <BreadcrumbItem
                     active

@@ -200,6 +200,7 @@ const BugDetailsView = (props) => {
     user,
     setUser,
     notify,
+    updateState,
     errorMessages,
     tableFailureStatus,
     graphFailureStatus,
@@ -219,19 +220,21 @@ const BugDetailsView = (props) => {
               <title>{`Bug ${bug}${summary ? ` - ${summary}` : ''}`}</title>
             </Helmet>
             <Col xs="12" className="text-left">
-              <Breadcrumb listClassName="bg-white">
-                <BreadcrumbItem>
-                  <a title="Treeherder home page" href="/">
-                    Treeherder
-                  </a>
+              <Breadcrumb className="bg-white">
+                <BreadcrumbItem
+                  href="/"
+                  title="Treeherder home page"
+                >
+                  Treeherder
                 </BreadcrumbItem>
-                <BreadcrumbItem>
-                  <Link
-                    title="Intermittent Failures View main page"
-                    to={lastLocation || '/intermittent-failures/'}
-                  >
-                    Main view
-                  </Link>
+                <BreadcrumbItem
+                  linkAs={Link}
+                  linkProps={{
+                    to: lastLocation || '/intermittent-failures/',
+                    title: 'Intermittent Failures View main page',
+                  }}
+                >
+                  Main view
                 </BreadcrumbItem>
                 <BreadcrumbItem active title="Bugdetails view">
                   Bugdetails view
