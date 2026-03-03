@@ -25,7 +25,7 @@ export class InternalIssueFilerClass extends React.Component {
 
     if (crashSignatures.length > 0) {
       const parts = summaryString.split(' | ');
-      summaryString = `${parts[0]} | single tracking bug`;
+      summaryString = `${parts[1]} | single tracking bug`;
     }
 
     const isAssertion = [
