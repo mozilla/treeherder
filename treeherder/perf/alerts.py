@@ -218,14 +218,12 @@ def build_cpd_methods():
         min_back_window=12,
         max_back_window=24,
         fore_window=12,
-        magnitude_threshold=2.0,
+        alert_threshold=2.0,
         confidence_threshold=7,
         mag_check=True,
         above_threshold_is_anomaly=True,
     )
-    methods = {
-        "student": student,
-    }
+    methods = {"student": student}
     return methods
 
 
