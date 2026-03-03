@@ -521,12 +521,12 @@ class PerfCompareResultsQueryParamsSerializer(serializers.Serializer):
     test_version = serializers.CharField(required=False, default="student-t")
 
     def validate_base_parent_signature(self, value):
-        if value in ["null", None]:
+        if value == "null":
             return None
         return value
 
     def validate_new_parent_signature(self, value):
-        if value in ["null", None]:
+        if value == "null":
             return None
         return value
 
