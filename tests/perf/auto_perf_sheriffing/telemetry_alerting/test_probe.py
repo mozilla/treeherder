@@ -295,3 +295,84 @@ class TestTelemetryProbeValidationError:
         error = TelemetryProbeValidationError("test_probe", "Something went wrong")
 
         assert "Probe test_probe: Something went wrong" == str(error)
+
+
+class TestTelemetryProbeInfo:
+    def test_time_unit_returns_empty_when_no_probe_info(self, metric_info_with_alert):
+        """Test time_unit returns empty string when probe info fails to be fetched."""
+        with patch(
+            "treeherder.perf.auto_perf_sheriffing.telemetry_alerting.probe.requests.get"
+        ) as mock_get:
+            mock_get.side_effect = Exception("Network error")
+
+            probe = TelemetryProbe(metric_info_with_alert)
+
+            assert probe.time_unit == ""
+
+    def test_time_unit_returns_value_from_probe_info(self, metric_info_with_bool_true):
+        """Test time_unit returns value from fetched probe info."""
+        with patch(
+            "treeherder.perf.auto_perf_sheriffing.telemetry_alerting.probe.requests.get"
+        ) as mock_get:
+            mock_response = Mock()
+            mock_response.json.return_value = {
+                "notification_emails": ["test@mozilla.com"],
+                "time_unit": "ms",
+            }
+            mock_response.raise_for_status = Mock()
+            mock_get.return_value = mock_response
+
+            probe = TelemetryProbe(metric_info_with_bool_true)
+            probe.fetch_probe_info()
+
+            assert probe.time_unit == "ms"
+
+    def test_time_unit_returns_empty_when_not_in_probe_info(self, metric_info_with_bool_true):
+        """Test time_unit returns empty string when not in probe info."""
+        with patch(
+            "treeherder.perf.auto_perf_sheriffing.telemetry_alerting.probe.requests.get"
+        ) as mock_get:
+            mock_response = Mock()
+            mock_response.json.return_value = {
+                "notification_emails": ["test@mozilla.com"],
+            }
+            mock_response.raise_for_status = Mock()
+            mock_get.return_value = mock_response
+
+            probe = TelemetryProbe(metric_info_with_bool_true)
+            probe.fetch_probe_info()
+
+            assert probe.time_unit == ""
+
+    def test_fetch_probe_info_caches_result(self, metric_info_with_bool_true):
+        """Test fetch_probe_info only makes one network request."""
+        with patch(
+            "treeherder.perf.auto_perf_sheriffing.telemetry_alerting.probe.requests.get"
+        ) as mock_get:
+            mock_response = Mock()
+            mock_response.json.return_value = {
+                "notification_emails": ["test@mozilla.com"],
+                "time_unit": "ms",
+            }
+            mock_response.raise_for_status = Mock()
+            mock_get.return_value = mock_response
+
+            probe = TelemetryProbe(metric_info_with_bool_true)
+            probe.fetch_probe_info()
+            probe.fetch_probe_info()  # Call again
+
+            # Should only be called once due to caching
+            mock_get.assert_called_once()
+
+    def test_fetch_probe_info_handles_network_error(self, metric_info_with_bool_true):
+        """Test fetch_probe_info handles network errors gracefully."""
+        with patch(
+            "treeherder.perf.auto_perf_sheriffing.telemetry_alerting.probe.requests.get"
+        ) as mock_get:
+            mock_get.side_effect = Exception("Network error")
+
+            probe = TelemetryProbe(metric_info_with_bool_true)
+            probe.fetch_probe_info()
+
+            # Should not raise, probe_info should be an empty dict
+            assert probe._probe_info == {}
