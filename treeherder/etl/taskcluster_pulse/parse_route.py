@@ -13,12 +13,12 @@
 # https://github.com/taskcluster/taskcluster/blob/32629c562f8d6f5a6b608a3141a8ee2e0984619f/services/treeherder/src/util/route_parser.js
 def parse_route(route):
     id = None
-    owner = None
     parsed_project = None
     parsed_route = route.split(".")
     project = parsed_route[2]
+
     if len(project.split("/")) == 2:
-        [owner, parsed_project] = project.split("/")
+        _, parsed_project = project.split("/")
     else:
         parsed_project = project
 
@@ -31,11 +31,5 @@ def parse_route(route):
         "project": parsed_project,
         "revision": parsed_route[3],
     }
-
-    if owner and parsed_project:
-        push_info["owner"] = owner
-        push_info["origin"] = "github.com"
-    else:
-        push_info["origin"] = "hg.mozilla.org"
 
     return push_info
