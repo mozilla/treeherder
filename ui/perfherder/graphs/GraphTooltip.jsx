@@ -276,7 +276,7 @@ const GraphTooltip = ({
             {dataPointDetails.alertSummary && (
               <p>
                 <Link
-                  to={`./alerts?id=${dataPointDetails.alertSummary.id}`}
+                  to={`/perfherder/alerts?id=${dataPointDetails.alertSummary.id}`}
                   target="_blank"
                 >
                   <FontAwesomeIcon
@@ -295,7 +295,7 @@ const GraphTooltip = ({
                         ? 'to'
                         : 'from'}
                       <Link
-                        to={`./alerts?id=${alert.related_summary_id}`}
+                        to={`/perfherder/alerts?id=${alert.related_summary_id}`}
                         target="_blank"
                         rel="noopener noreferrer"
                       >{` alert # ${alert.related_summary_id}`}</Link>
@@ -311,7 +311,7 @@ const GraphTooltip = ({
             {isCommonAlert && !dataPointDetails.alertSummary && (
               <p>
                 <Link
-                  to={`./alerts?id=${datum.commonAlert.id}`}
+                  to={`/perfherder/alerts?id=${datum.commonAlert.id}`}
                   target="_blank"
                 >
                   <FontAwesomeIcon
