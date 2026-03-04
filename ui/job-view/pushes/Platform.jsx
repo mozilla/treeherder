@@ -122,6 +122,7 @@ function Platform({
     (thSimplePlatforms.includes(filteredPlatform.name) &&
       filteredPlatform.option === 'opt') ||
     filteredPlatform.name.includes('Shippable') ||
+    filteredPlatform.name.includes('DevEdition') ||
     ['asan', 'tsan', 'ccov', 'mingw', 'nightlyasrelease'].some((type) =>
       filteredPlatform.name.toLowerCase().includes(type),
     )
