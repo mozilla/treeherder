@@ -175,6 +175,7 @@ export const thPlatformMap = {
   win64: 'Windows',
   'win64-aarch64-shippable': 'Windows AArch64 Shippable',
   'win64-aarch64-devedition': 'Windows AArch64 DevEdition',
+  'win64-aarch64': 'Windows AArch64',
   'win64-nightlyasrelease': 'Windows NightlyAsRelease',
   'windows10-64-nightlyasrelease-qr': 'Windows 10 NightlyAsRelease',
   'windows11-64-nightlyasrelease-qr': 'Windows 11 NightlyAsRelease',
