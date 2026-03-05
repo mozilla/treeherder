@@ -18,6 +18,7 @@ import SimpleTooltip from '../../shared/SimpleTooltip';
 import Assignee from './Assignee';
 import TagsList from './TagsList';
 import AlertHeaderTitle from './AlertHeaderTitle';
+import { getStatus } from '../perf-helpers/helpers';
 
 const AlertHeader = ({
   frameworks,
@@ -226,21 +227,20 @@ const AlertHeader = ({
           <span className="px-2">Revisions have been modified.</span>
         )}
       </Row>
-      {alertSummary.duplicated_summaries_ids.length > 0 && (
+      {alertSummary.duplicated_summaries.length > 0 && (
         <Row>
           Duplicated summaries:
-          {alertSummary.duplicated_summaries_ids.map((id, index) => (
+          {alertSummary.duplicated_summaries.map((summary, index) => (
             <Link
-              key={id}
+              key={summary.id}
               className="text-dark me-1"
               target="_blank"
-              to={`./alerts?id=${id}&hideDwnToInv=0`}
-              id={`duplicated alert summary ${id.toString()} `}
+              to={`./alerts?id=${summary.id}&hideDwnToInv=0`}
+              id={`duplicated alert summary ${summary.id.toString()} `}
               style={{ marginLeft: '5px' }}
             >
-              Alert #{id}
-              {alertSummary.duplicated_summaries_ids.length - 1 !== index &&
-                ', '}
+              Alert #{summary.id} - {getStatus(summary.status)}
+              {alertSummary.duplicated_summaries.length - 1 !== index && ', '}
             </Link>
           ))}
         </Row>

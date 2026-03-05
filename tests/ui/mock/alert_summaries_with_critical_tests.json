@@ -5869,7 +5869,7 @@
     "assignee_username": "mozilla-ldap/asignee@mozilla.com",
     "assignee_email": "asignee@mozilla.com",
     "performance_tags": ["regression-backedout"],
-    "duplicated_summaries_ids": []
+    "duplicated_summaries": []
   },
   {
     "id": 44661,
@@ -6008,6 +6008,6 @@
     "assignee_username": "mozilla-ldap/asignee@mozilla.com",
     "assignee_email": "asignee@mozilla.com",
     "performance_tags": [],
-    "duplicated_summaries_ids": []
+    "duplicated_summaries": []
   }
 ]

@@ -99,7 +99,7 @@ def test_alert_summaries_get(
         "prev_push_revision",
         "original_prev_push_revision",
         "performance_tags",
-        "duplicated_summaries_ids",
+        "duplicated_summaries",
     }
     assert len(resp.json()["results"][0]["alerts"]) == 1
     assert set(resp.json()["results"][0]["alerts"][0].keys()) == {
@@ -229,7 +229,7 @@ def test_alert_summaries_get_onhold(
         "prev_push_revision",
         "original_prev_push_revision",
         "performance_tags",
-        "duplicated_summaries_ids",
+        "duplicated_summaries",
     }
     assert len(resp.json()["results"][0]["alerts"]) == 1
     assert set(resp.json()["results"][0]["alerts"][0].keys()) == {
