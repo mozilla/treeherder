@@ -13,6 +13,7 @@ import AuthService from '../../../ui/shared/auth/AuthService';
 import UserModel from '../../../ui/models/user';
 
 const mockRenew = jest.fn();
+const mockCleanupAuth0Cookies = jest.fn();
 
 // Mock dependencies
 jest.mock('../../../ui/helpers/url', () => ({
@@ -23,6 +24,7 @@ jest.mock('../../../ui/helpers/auth', () => ({
   userSessionFromAuthResult: jest.fn(),
   renew: (...args) => mockRenew(...args),
   loggedOutUser: { isLoggedIn: false },
+  cleanupAuth0Cookies: (...args) => mockCleanupAuth0Cookies(...args),
 }));
 
 jest.mock('../../../ui/models/user');
@@ -43,6 +45,7 @@ describe('AuthService', () => {
     // Clear all mocks
     jest.clearAllMocks();
     mockRenew.mockReset();
+    mockCleanupAuth0Cookies.mockReset();
     localStorage.clear();
     jest.useFakeTimers();
   });
@@ -342,6 +345,36 @@ describe('AuthService', () => {
       authService.logout();
 
       expect(localStorage.getItem('userSession')).toBeNull();
+    });
+
+    it('calls cleanupAuth0Cookies on logout', () => {
+      authService.logout();
+
+      expect(mockCleanupAuth0Cookies).toHaveBeenCalled();
+    });
+  });
+
+  describe('auth0 cookie cleanup (Bug 1749962)', () => {
+    const pastDate = new Date(Date.now() - 1000).toISOString();
+    const expiredSession = JSON.stringify({
+      renewAfter: pastDate,
+      accessToken: 'tok',
+      accessTokenExpiresAt: Math.floor(Date.now() / 1000) + 3600,
+      idToken: 'id',
+    });
+
+    it('cleans up auth0 cookies before calling renew', async () => {
+      localStorage.setItem('userSession', expiredSession);
+      mockRenew.mockResolvedValue(null);
+
+      await authService._renewAuth();
+
+      expect(mockCleanupAuth0Cookies).toHaveBeenCalled();
+      // cleanup should happen before renew
+      const cleanupOrder =
+        mockCleanupAuth0Cookies.mock.invocationCallOrder[0];
+      const renewOrder = mockRenew.mock.invocationCallOrder[0];
+      expect(cleanupOrder).toBeLessThan(renewOrder);
     });
   });
 });

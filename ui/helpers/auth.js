@@ -66,10 +66,30 @@ export const userSessionFromAuthResult = (authResult) => {
   return userSession;
 };
 
-// Wrapper around webAuth's renewAuth
+// Clean up stale auth0 state cookies that accumulate from failed renewals.
+// Each renewAuth/checkSession call creates com.auth0.auth.{state} cookies.
+// On success they're removed, but on failure they linger. Over time this can
+// exceed browser cookie limits, causing further auth failures (Bug 1749962).
+export const cleanupAuth0Cookies = () => {
+  const isSecure = window.location.protocol === 'https:';
+  document.cookie.split(';').forEach((cookie) => {
+    const name = cookie.split('=')[0].trim();
+    if (
+      name.startsWith('com.auth0.auth.') ||
+      name.startsWith('_com.auth0.auth.')
+    ) {
+      const base = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+      document.cookie = isSecure ? `${base}; secure` : base;
+    }
+  });
+};
+
+// Use checkSession (web_message flow) instead of renewAuth (redirect flow).
+// checkSession cleans up its state cookies even on failure, preventing the
+// cookie accumulation that causes Bug 1749962.
 export const renew = () =>
   new Promise((resolve, reject) => {
-    webAuth.renewAuth({}, (error, authResult) => {
+    webAuth.checkSession({}, (error, authResult) => {
       if (error) {
         return reject(error);
       }

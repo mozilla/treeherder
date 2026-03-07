@@ -12,6 +12,7 @@
 import {
   userSessionFromAuthResult,
   loggedOutUser,
+  cleanupAuth0Cookies,
 } from '../../../ui/helpers/auth';
 
 // Mock taskcluster-client-web's fromNow function
@@ -140,5 +141,62 @@ describe('loggedOutUser', () => {
       email: '',
       isLoggedIn: false,
     });
+  });
+});
+
+describe('cleanupAuth0Cookies (Bug 1749962)', () => {
+  let originalCookie;
+
+  beforeEach(() => {
+    originalCookie = Object.getOwnPropertyDescriptor(document, 'cookie');
+  });
+
+  afterEach(() => {
+    if (originalCookie) {
+      Object.defineProperty(document, 'cookie', originalCookie);
+    }
+  });
+
+  it('removes com.auth0.auth.* cookies', () => {
+    const setCalls = [];
+    Object.defineProperty(document, 'cookie', {
+      get: () =>
+        'com.auth0.auth.abc123=val1; csrftoken=tok; _com.auth0.auth.abc123_compat=val2; sessionid=sid',
+      set: (val) => setCalls.push(val),
+      configurable: true,
+    });
+
+    cleanupAuth0Cookies();
+
+    expect(setCalls).toHaveLength(2);
+    expect(setCalls[0]).toContain('com.auth0.auth.abc123=');
+    expect(setCalls[0]).toContain('expires=Thu, 01 Jan 1970');
+    expect(setCalls[1]).toContain('_com.auth0.auth.abc123_compat=');
+  });
+
+  it('does not remove non-auth0 cookies', () => {
+    const setCalls = [];
+    Object.defineProperty(document, 'cookie', {
+      get: () => 'csrftoken=tok; sessionid=sid',
+      set: (val) => setCalls.push(val),
+      configurable: true,
+    });
+
+    cleanupAuth0Cookies();
+
+    expect(setCalls).toHaveLength(0);
+  });
+
+  it('handles empty cookie string', () => {
+    const setCalls = [];
+    Object.defineProperty(document, 'cookie', {
+      get: () => '',
+      set: (val) => setCalls.push(val),
+      configurable: true,
+    });
+
+    cleanupAuth0Cookies();
+
+    expect(setCalls).toHaveLength(0);
   });
 });

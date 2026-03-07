@@ -2,6 +2,7 @@ import {
   userSessionFromAuthResult,
   renew,
   loggedOutUser,
+  cleanupAuth0Cookies,
 } from '../../helpers/auth';
 import { getApiUrl } from '../../helpers/url';
 import UserModel from '../../models/user';
@@ -76,6 +77,10 @@ export default class AuthService {
         return;
       }
 
+      // Remove stale auth0 state cookies from previous failed renewals
+      // before starting a new one (Bug 1749962)
+      cleanupAuth0Cookies();
+
       const authResult = await renew();
 
       localStorage.removeItem(LOCK_KEY);
@@ -131,6 +136,7 @@ export default class AuthService {
   logout() {
     localStorage.removeItem('userSession');
     localStorage.removeItem('renewalLock');
+    cleanupAuth0Cookies();
     localStorage.setItem('user', JSON.stringify(loggedOutUser));
 
     if (this.setUser) this.setUser(loggedOutUser);
