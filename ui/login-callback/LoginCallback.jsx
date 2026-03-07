@@ -61,12 +61,16 @@ class LoginCallback extends React.PureComponent {
       !userCredentials[defaultRootUrl] ||
       !dayjs(userCredentials[defaultRootUrl].expires).isAfter(dayjs())
     ) {
+      // Navigate this popup window to TC auth. The entire auth flow stays
+      // contained in this popup window.
       taskcluster.getAuthCode(true);
-    } else if (window.opener) {
-      window.close();
     } else {
-      // handle case where the user navigates directly to the login route
-      window.location.href = window.origin;
+      // The original Treeherder tab detects login via storage events.
+      window.close();
+      // Fallback if window.close() doesn't work (e.g. user navigated directly)
+      setTimeout(() => {
+        window.location.href = window.origin;
+      }, 500);
     }
   };
 
