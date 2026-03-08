@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router';
 import { Container, Spinner, Navbar, Nav, Alert } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import camelCase from 'lodash/camelCase';
-import { Helmet } from 'react-helmet';
 import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
 
 import faviconBroken from '../img/push-health-broken.png';
@@ -227,13 +226,11 @@ function Health({ notify, clearNotification }) {
           </Nav>
         )}
       </Navbar>
-      <Helmet>
-        <link
-          rel="shortcut icon"
-          href={result === 'fail' ? faviconBroken : faviconOk}
-        />
-        <title>{`[${status?.testfailed || 0} failures] Push Health`}</title>
-      </Helmet>
+      <link
+        rel="shortcut icon"
+        href={result === 'fail' ? faviconBroken : faviconOk}
+      />
+      <title>{`[${status?.testfailed || 0} failures] Push Health`}</title>
       <Container fluid className="mt-2 mb-5 max-width-default">
         {!!tests && !!currentRepo && (
           <React.Fragment>

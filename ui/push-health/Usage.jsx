@@ -1,6 +1,6 @@
 import { Component } from 'react';
 import { Alert, Table, Card, Badge } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 import { getData } from '../helpers/http';
 import { getProjectUrl } from '../helpers/location';

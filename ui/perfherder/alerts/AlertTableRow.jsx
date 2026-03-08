@@ -12,7 +12,7 @@ import {
   faPlus,
 } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 import { getPerfCompareBaseSubtestsURL } from '../../helpers/url';
 import {

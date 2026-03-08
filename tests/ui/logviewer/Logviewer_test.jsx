@@ -1,8 +1,7 @@
 
 import fetchMock from 'fetch-mock';
 import { render, fireEvent } from '@testing-library/react';
-import { Provider, ReactReduxContext } from 'react-redux';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 
 import { AppRoutes } from '../../../ui/App';
 import reposFixture from '../mock/repositories';
@@ -10,18 +9,14 @@ import pushListFixture from '../mock/push_list';
 import { getApiUrl } from '../../../ui/helpers/url';
 import { getProjectUrl } from '../../../ui/helpers/location';
 import fullJob from '../mock/full_job.json';
-import { configureStore } from '../../../ui/job-view/redux/configureStore';
 
 const testApp = () => {
-  const store = configureStore();
   return (
-    <Provider store={store} context={ReactReduxContext}>
-      <MemoryRouter
-        initialEntries={['/logviewer?job_id=259537375&repo=autoland']}
-      >
-        <AppRoutes />
-      </MemoryRouter>
-    </Provider>
+    <MemoryRouter
+      initialEntries={['/logviewer?job_id=259537375&repo=autoland']}
+    >
+      <AppRoutes />
+    </MemoryRouter>
   );
 };
 

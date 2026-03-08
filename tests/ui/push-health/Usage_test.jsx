@@ -1,10 +1,8 @@
 
 import fetchMock from 'fetch-mock';
 import { render, cleanup, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
-import { Provider } from 'react-redux';
+import { MemoryRouter } from 'react-router';
 
-import { configureStore } from '../../../ui/job-view/redux/configureStore';
 import healthUsage from '../mock/health_usage';
 import Usage from '../../../ui/push-health/Usage';
 
@@ -18,13 +16,10 @@ afterEach(() => {
 });
 
 const testUsage = () => {
-  const store = configureStore();
   return (
-    <Provider store={store}>
-      <MemoryRouter>
-        <Usage />
-      </MemoryRouter>
-    </Provider>
+    <MemoryRouter>
+      <Usage />
+    </MemoryRouter>
   );
 };
 
