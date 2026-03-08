@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faExternalLinkAlt,
@@ -9,7 +8,6 @@ import {
 import { Table } from 'react-bootstrap';
 
 import { getJobsUrl } from '../../../helpers/url';
-import { notify } from '../../redux/stores/notifications';
 import { getData } from '../../../helpers/http';
 import Clipboard from '../../../shared/Clipboard';
 
@@ -189,9 +187,4 @@ SideBySide.propTypes = {
   jobDetails: PropTypes.arrayOf(PropTypes.shape({})),
 };
 
-const mapStateToProps = (state) => ({
-  decisionTaskMap: state.pushes.decisionTaskMap,
-});
-const mapDispatchToProps = { notify };
-
-export default connect(mapStateToProps, mapDispatchToProps)(SideBySide);
+export default SideBySide;

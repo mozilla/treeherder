@@ -1,6 +1,5 @@
 
 import fetchMock from 'fetch-mock';
-import { Provider } from 'react-redux';
 import { render, cleanup, waitFor } from '@testing-library/react';
 import { gzip } from 'pako';
 
@@ -8,7 +7,6 @@ import { getProjectUrl, replaceLocation } from '../../../ui/helpers/location';
 import FilterModel from '../../../ui/models/filter';
 import pushListFixture from '../mock/push_list';
 import jobListFixture from '../mock/job_list/job_2';
-import { configureStore } from '../../../ui/job-view/redux/configureStore';
 import Push, {
   transformTestPath,
   transformedPaths,
@@ -113,23 +111,21 @@ describe('Push', () => {
   };
   const push = pushListFixture.results[1];
   const revision = 'd5b037941b0ebabcc9b843f24d926e9d65961087';
-  const testPush = (store, filterModel) => (
-    <Provider store={store}>
-      <div id="th-global-content">
-        <Push
-          push={push}
-          isLoggedIn={false}
-          currentRepo={currentRepo}
-          filterModel={filterModel}
-          notificationSupported={false}
-          duplicateJobsVisible={false}
-          groupCountsExpanded={false}
-          isOnlyRevision={push.revision === revision}
-          pushHealthVisibility="None"
-          getAllShownJobs={() => {}}
-        />
-      </div>
-    </Provider>
+  const testPush = (filterModel) => (
+    <div id="th-global-content">
+      <Push
+        push={push}
+        isLoggedIn={false}
+        currentRepo={currentRepo}
+        filterModel={filterModel}
+        notificationSupported={false}
+        duplicateJobsVisible={false}
+        groupCountsExpanded={false}
+        isOnlyRevision={push.revision === revision}
+        pushHealthVisibility="None"
+        getAllShownJobs={() => {}}
+      />
+    </div>
   );
 
   beforeAll(async () => {
@@ -164,8 +160,7 @@ describe('Push', () => {
 
   // eslint-disable-next-line jest/no-disabled-tests
   test.skip('jobs should have test_path field to filter', async () => {
-    const { store } = configureStore();
-    const { getByText } = render(testPush(store, new FilterModel()));
+    const { getByText } = render(testPush(new FilterModel()));
 
     // Wait for initial render to complete and state updates to settle
     await waitFor(() => {

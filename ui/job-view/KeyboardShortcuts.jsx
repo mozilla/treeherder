@@ -1,101 +1,28 @@
-import React from 'react';
+import { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import Hotkeys from 'react-hot-keys';
-import { connect } from 'react-redux';
 
 import { thEvents } from '../helpers/constants';
 
+import { notify, useNotificationStore } from './stores/notificationStore';
 import {
-  notify,
-  clearAllOnScreenNotifications,
-} from './redux/stores/notifications';
-import {
+  useSelectedJobStore,
   changeJob,
   clearSelectedJob,
   updateJobDetails,
-} from './redux/stores/selectedJob';
-import { pinJob, unPinAll } from './redux/stores/pinnedJobs';
+} from './stores/selectedJobStore';
+import { pinJob, unPinAll, usePinnedJobsStore } from './stores/pinnedJobsStore';
 
 const handledKeys =
   'b,c,f,ctrl+shift+f,f,g,i,j,k,l,shift+l,n,p,q,r,s,t,u,v,ctrl+shift+u,left,right,space,shift+/,escape,ctrl+enter,ctrl+backspace';
 
-class KeyboardShortcuts extends React.Component {
-  onKeyDown = (key, e) => {
-    const { showOnScreenShortcuts, filterModel } = this.props;
-
-    e.preventDefault();
-
-    switch (key) {
-      case 'b':
-        return this.addRelatedBug();
-      case 'c':
-        return this.pinEditComment();
-      case 'f':
-        return this.quickFilter();
-      case 'ctrl+shift+f':
-        return this.clearFilter();
-      case 'g':
-        return this.openGeckoProfile();
-      case 'i':
-        return filterModel.toggleInProgress();
-      case 'j':
-        return this.changeSelectedJob('next', true);
-      case 'k':
-        return this.changeSelectedJob('previous', true);
-      case 'l':
-        return this.openLogviewer();
-      case 'shift+l':
-        return this.openRawLog();
-      case 'n':
-        return this.changeSelectedJob('next', true);
-      case 'p':
-        return this.changeSelectedJob('previous', true);
-      case 'q':
-        return filterModel.toggleClassifiedFailures(true);
-      case 'r':
-        return this.jobRetrigger();
-      case 's':
-        return filterModel.toggleUnscheduledResultStatus();
-      case 't':
-        return this.selectNextTab();
-      case 'u':
-        return filterModel.toggleUnclassifiedFailures();
-      case 'ctrl+shift+u':
-        return this.clearPinboard();
-      case 'left':
-        return this.changeSelectedJob('previous', false);
-      case 'right':
-        return this.changeSelectedJob('next', false);
-      case 'space':
-        return this.pinJob();
-      case 'shift+/':
-        return showOnScreenShortcuts();
-
-      // These should happen regardless of being in an input field.
-      // Handled by the `filter` function.
-      case 'escape':
-        return this.clearScreen();
-      case 'ctrl+enter':
-        return this.saveClassification();
-      case 'ctrl+backspace':
-        return this.deleteClassification();
-    }
-  };
-
-  /**
-   * Job Navigation Shortcuts
-   */
-
-  // close any notifications, if they exist.  If not, then close any
-  // open panels and selected job
-  clearScreen = () => {
+function KeyboardShortcuts({ filterModel, showOnScreenShortcuts, children }) {
+  const clearScreen = useCallback(() => {
+    const { pinnedJobs } = usePinnedJobsStore.getState();
     const {
-      clearSelectedJob,
-      showOnScreenShortcuts,
       notifications,
       clearAllOnScreenNotifications,
-      pinnedJobs,
-    } = this.props;
+    } = useNotificationStore.getState();
 
     if (notifications.length) {
       clearAllOnScreenNotifications();
@@ -103,78 +30,60 @@ class KeyboardShortcuts extends React.Component {
       clearSelectedJob(Object.keys(pinnedJobs).length);
       showOnScreenShortcuts(false);
     }
-  };
+  }, [showOnScreenShortcuts]);
 
-  /**
-   * Details Panel Shortcuts
-   */
-
-  // pin selected job to pinboard
-  pinJob = () => {
-    const { selectedJob, pinJob } = this.props;
-
+  const doPinJob = useCallback(() => {
+    const { selectedJob } = useSelectedJobStore.getState();
     if (selectedJob) {
       pinJob(selectedJob);
     }
-  };
+  }, []);
 
-  // pin selected job to pinboard and add a related bug
-  addRelatedBug = async () => {
-    const { selectedJob, pinJob } = this.props;
-
+  const addRelatedBug = useCallback(async () => {
+    const { selectedJob } = useSelectedJobStore.getState();
     if (selectedJob) {
-      await pinJob(selectedJob);
+      pinJob(selectedJob);
       document.getElementById('add-related-bug-button').click();
     }
-  };
+  }, []);
 
-  // pin selected job to pinboard and enter classification
-  pinEditComment = () => {
-    const { selectedJob, pinJob } = this.props;
-
+  const pinEditComment = useCallback(() => {
+    const { selectedJob } = useSelectedJobStore.getState();
     if (selectedJob) {
       pinJob(selectedJob);
       document.getElementById('classification-comment').focus();
     }
-  };
+  }, []);
 
-  // clear the PinBoard
-  clearPinboard = () => {
-    this.props.unPinAll();
-  };
+  const clearPinboard = useCallback(() => {
+    unPinAll();
+  }, []);
 
-  saveClassification = () => {
+  const saveClassification = useCallback(() => {
     window.dispatchEvent(new CustomEvent(thEvents.saveClassification));
-  };
+  }, []);
 
-  // delete classification and related bugs
-  deleteClassification = () => {
-    const { selectedJob } = this.props;
-
+  const deleteClassification = useCallback(() => {
+    const { selectedJob } = useSelectedJobStore.getState();
     if (selectedJob) {
       window.dispatchEvent(new CustomEvent(thEvents.deleteClassification));
     }
-  };
+  }, []);
 
-  // open the logviewer for the selected job
-  openLogviewer = () => {
+  const openLogviewer = useCallback(() => {
     window.dispatchEvent(new CustomEvent(thEvents.openLogviewer));
-  };
+  }, []);
 
-  // open the raw log for the selected job
-  openRawLog = () => {
+  const openRawLog = useCallback(() => {
     window.dispatchEvent(new CustomEvent(thEvents.openRawLog));
-  };
+  }, []);
 
-  // open the resource usage profile in the Firefox Profiler
-  openGeckoProfile = () => {
+  const openGeckoProfile = useCallback(() => {
     window.dispatchEvent(new CustomEvent(thEvents.openGeckoProfile));
-  };
+  }, []);
 
-  // retrigger selected job
-  jobRetrigger = () => {
-    const { selectedJob } = this.props;
-
+  const jobRetrigger = useCallback(() => {
+    const { selectedJob } = useSelectedJobStore.getState();
     if (selectedJob) {
       window.dispatchEvent(
         new CustomEvent(thEvents.jobRetrigger, {
@@ -182,37 +91,25 @@ class KeyboardShortcuts extends React.Component {
         }),
       );
     }
-  };
+  }, []);
 
-  // select next job tab
-  selectNextTab = () => {
-    const { selectedJob } = this.props;
-
+  const selectNextTab = useCallback(() => {
+    const { selectedJob } = useSelectedJobStore.getState();
     if (selectedJob) {
       window.dispatchEvent(new CustomEvent(thEvents.selectNextTab));
     }
-  };
+  }, []);
 
-  /**
-   * Filter and Help Shortcuts
-   */
-
-  // enter a quick filter
-  quickFilter = () => {
+  const quickFilter = useCallback(() => {
     document.getElementById('quick-filter').focus();
-  };
+  }, []);
 
-  // clear the quick filter field
-  clearFilter = () => {
-    const { filterModel } = this.props;
-
+  const clearFilter = useCallback(() => {
     filterModel.removeFilter('searchStr');
-  };
+  }, [filterModel]);
 
-  changeSelectedJob = (direction, unclassifiedOnly) => {
-    // Select the next job without updating the details panel.  That is debounced so
-    // it doesn't do too much updating while quickly switching between jobs.
-    const { updateJobDetails, notify, pinnedJobs } = this.props;
+  const changeSelectedJob = useCallback((direction, unclassifiedOnly) => {
+    const { pinnedJobs } = usePinnedJobsStore.getState();
     const { selectedJob } = changeJob(
       direction,
       unclassifiedOnly,
@@ -223,15 +120,9 @@ class KeyboardShortcuts extends React.Component {
     if (selectedJob) {
       updateJobDetails(selectedJob);
     }
-  };
+  }, []);
 
-  /*
-   * If we are in an input or select field, then only handle the keys of
-   * escape, ctrl+enter, ctrl+backspace.
-   * Otherwise, handle as normal.
-   */
-  filter = (e) => {
-    // If a modal dialog is opened, don't let these shortcuts work
+  const filter = useCallback((e) => {
     if (document.getElementsByClassName('modal show').length) {
       return false;
     }
@@ -242,59 +133,85 @@ class KeyboardShortcuts extends React.Component {
       );
     }
     return true;
-  };
+  }, []);
 
-  render() {
-    return (
-      <Hotkeys
-        keyName={handledKeys}
-        onKeyDown={this.onKeyDown}
-        onKeyUp={this.onKeyUp}
-        filter={this.filter}
-      >
-        {this.props.children}
-      </Hotkeys>
-    );
-  }
+  const onKeyDown = useCallback((key, e) => {
+    e.preventDefault();
+
+    switch (key) {
+      case 'b':
+        return addRelatedBug();
+      case 'c':
+        return pinEditComment();
+      case 'f':
+        return quickFilter();
+      case 'ctrl+shift+f':
+        return clearFilter();
+      case 'g':
+        return openGeckoProfile();
+      case 'i':
+        return filterModel.toggleInProgress();
+      case 'j':
+        return changeSelectedJob('next', true);
+      case 'k':
+        return changeSelectedJob('previous', true);
+      case 'l':
+        return openLogviewer();
+      case 'shift+l':
+        return openRawLog();
+      case 'n':
+        return changeSelectedJob('next', true);
+      case 'p':
+        return changeSelectedJob('previous', true);
+      case 'q':
+        return filterModel.toggleClassifiedFailures(true);
+      case 'r':
+        return jobRetrigger();
+      case 's':
+        return filterModel.toggleUnscheduledResultStatus();
+      case 't':
+        return selectNextTab();
+      case 'u':
+        return filterModel.toggleUnclassifiedFailures();
+      case 'ctrl+shift+u':
+        return clearPinboard();
+      case 'left':
+        return changeSelectedJob('previous', false);
+      case 'right':
+        return changeSelectedJob('next', false);
+      case 'space':
+        return doPinJob();
+      case 'shift+/':
+        return showOnScreenShortcuts();
+      case 'escape':
+        return clearScreen();
+      case 'ctrl+enter':
+        return saveClassification();
+      case 'ctrl+backspace':
+        return deleteClassification();
+    }
+  }, [
+    addRelatedBug, pinEditComment, quickFilter, clearFilter, openGeckoProfile,
+    filterModel, changeSelectedJob, openLogviewer, openRawLog, jobRetrigger,
+    selectNextTab, clearPinboard, doPinJob, showOnScreenShortcuts, clearScreen,
+    saveClassification, deleteClassification,
+  ]);
+
+  return (
+    <Hotkeys
+      keyName={handledKeys}
+      onKeyDown={onKeyDown}
+      filter={filter}
+    >
+      {children}
+    </Hotkeys>
+  );
 }
 
 KeyboardShortcuts.propTypes = {
   filterModel: PropTypes.shape({}).isRequired,
-  pinJob: PropTypes.func.isRequired,
-  unPinAll: PropTypes.func.isRequired,
   children: PropTypes.arrayOf(PropTypes.element).isRequired,
-  clearSelectedJob: PropTypes.func.isRequired,
-  updateJobDetails: PropTypes.func.isRequired,
   showOnScreenShortcuts: PropTypes.func.isRequired,
-  notifications: PropTypes.arrayOf(
-    PropTypes.shape({
-      created: PropTypes.number.isRequired,
-      message: PropTypes.string.isRequired,
-      severity: PropTypes.string.isRequired,
-      sticky: PropTypes.bool,
-    }),
-  ).isRequired,
-  notify: PropTypes.func.isRequired,
-  pinnedJobs: PropTypes.shape({}).isRequired,
-  clearAllOnScreenNotifications: PropTypes.func.isRequired,
-  selectedJob: PropTypes.shape({}),
 };
 
-const mapStateToProps = ({
-  notifications: { notifications },
-  selectedJob: { selectedJob = null },
-  pinnedJobs: { pinnedJobs },
-}) => ({
-  notifications,
-  selectedJob,
-  pinnedJobs,
-});
-
-export default connect(mapStateToProps, {
-  clearAllOnScreenNotifications,
-  notify,
-  updateJobDetails,
-  clearSelectedJob,
-  pinJob,
-  unPinAll,
-})(KeyboardShortcuts);
+export default KeyboardShortcuts;

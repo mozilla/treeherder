@@ -1,8 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-
-import { notify } from '../../redux/stores/notifications';
 
 class PerfData extends React.PureComponent {
   render() {
@@ -101,9 +98,4 @@ PerfData.propTypes = {
   perfJobDetail: PropTypes.arrayOf(PropTypes.shape({})),
 };
 
-const mapStateToProps = (state) => ({
-  decisionTaskMap: state.pushes.decisionTaskMap,
-});
-const mapDispatchToProps = { notify };
-
-export default connect(mapStateToProps, mapDispatchToProps)(PerfData);
+export default PerfData;

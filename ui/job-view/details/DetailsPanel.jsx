@@ -1,8 +1,12 @@
 import { useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 
-import { setPinBoardVisible } from '../redux/stores/pinnedJobs';
+import {
+  usePinnedJobsStore,
+  setPinBoardVisible,
+} from '../stores/pinnedJobsStore';
+import { useSelectedJobStore } from '../stores/selectedJobStore';
+import { usePushesStore } from '../stores/pushesStore';
 
 import PinBoard from './PinBoard';
 import SummaryPanel from './summary/SummaryPanel';
@@ -15,12 +19,15 @@ function DetailsPanel({
   resizedHeight,
   classificationMap,
   classificationTypes,
-  selectedJob = null,
-  pushList,
-  isPinBoardVisible,
-  setPinBoardVisible: setPinBoardVisibleAction,
   frameworks = [],
 }) {
+  const pushList = usePushesStore((state) => state.pushList);
+  // Subscribe to Zustand stores for reactive updates
+  const selectedJob = useSelectedJobStore((state) => state.selectedJob);
+  const isPinBoardVisible = usePinnedJobsStore(
+    (state) => state.isPinBoardVisible,
+  );
+
   const {
     selectedJobFull,
     jobDetails,
@@ -38,8 +45,8 @@ function DetailsPanel({
   } = useJobDetails(selectedJob, currentRepo, pushList, frameworks);
 
   const togglePinBoardVisibility = useCallback(() => {
-    setPinBoardVisibleAction(!isPinBoardVisible);
-  }, [setPinBoardVisibleAction, isPinBoardVisible]);
+    setPinBoardVisible(!isPinBoardVisible);
+  }, [isPinBoardVisible]);
 
   return (
     <div
@@ -117,26 +124,7 @@ DetailsPanel.propTypes = {
   resizedHeight: PropTypes.number.isRequired,
   classificationTypes: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   classificationMap: PropTypes.shape({}).isRequired,
-  setPinBoardVisible: PropTypes.func.isRequired,
-  isPinBoardVisible: PropTypes.bool.isRequired,
-  pushList: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  selectedJob: PropTypes.shape({
-    id: PropTypes.number,
-    push_id: PropTypes.number,
-    task_id: PropTypes.string,
-    retry_id: PropTypes.number,
-    state: PropTypes.string,
-    result: PropTypes.string,
-    failure_classification_id: PropTypes.number,
-    hasSideBySide: PropTypes.bool,
-  }),
   frameworks: PropTypes.arrayOf(PropTypes.shape({})),
 };
 
-const mapStateToProps = ({
-  selectedJob: { selectedJob },
-  pushes: { pushList },
-  pinnedJobs: { isPinBoardVisible },
-}) => ({ selectedJob, pushList, isPinBoardVisible });
-
-export default connect(mapStateToProps, { setPinBoardVisible })(DetailsPanel);
+export default DetailsPanel;

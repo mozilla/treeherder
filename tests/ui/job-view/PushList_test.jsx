@@ -1,6 +1,5 @@
 
 import fetchMock from 'fetch-mock';
-import { Provider, ReactReduxContext } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import {
   render,
@@ -15,9 +14,12 @@ import FilterModel from '../../../ui/models/filter';
 import pushListFixture from '../mock/push_list';
 import jobListFixtureOne from '../mock/job_list/job_1';
 import jobListFixtureTwo from '../mock/job_list/job_2';
-import { configureStore } from '../../../ui/job-view/redux/configureStore';
 import PushList from '../../../ui/job-view/pushes/PushList';
-import { fetchPushes } from '../../../ui/job-view/redux/stores/pushes';
+import {
+  usePushesStore,
+  fetchPushes,
+  initialState as pushesInitialState,
+} from '../../../ui/job-view/stores/pushesStore';
 import { getApiUrl } from '../../../ui/helpers/url';
 
 // solution to createRange is not a function error for popper (used by reactstrap)
@@ -140,6 +142,8 @@ describe('PushList', () => {
   afterEach(() => {
     cleanup();
     jest.restoreAllMocks();
+    // Reset Zustand pushes store between tests
+    usePushesStore.setState({ ...pushesInitialState });
   });
 
   afterAll(() => {
@@ -147,28 +151,24 @@ describe('PushList', () => {
   });
 
   const testPushList = () => {
-    const store = configureStore();
-
     // Manually trigger fetchPushes since outside testing the App does it.
-    store.dispatch(fetchPushes());
+    fetchPushes();
 
     return (
-      <Provider store={store} context={ReactReduxContext}>
-        <MemoryRouter initialEntries={[`/jobs?repo=${repoName}`]}>
-          <div id="th-global-content">
-            <PushList
-              user={{ isLoggedIn: false }}
-              repoName={repoName}
-              currentRepo={currentRepo}
-              filterModel={new FilterModel(mockNavigate, mockLocation)}
-              duplicateJobsVisible={false}
-              groupCountsExpanded={false}
-              pushHealthVisibility="None"
-              getAllShownJobs={() => {}}
-            />
-          </div>
-        </MemoryRouter>
-      </Provider>
+      <MemoryRouter initialEntries={[`/jobs?repo=${repoName}`]}>
+        <div id="th-global-content">
+          <PushList
+            user={{ isLoggedIn: false }}
+            repoName={repoName}
+            currentRepo={currentRepo}
+            filterModel={new FilterModel(mockNavigate, mockLocation)}
+            duplicateJobsVisible={false}
+            groupCountsExpanded={false}
+            pushHealthVisibility="None"
+            getAllShownJobs={() => {}}
+          />
+        </div>
+      </MemoryRouter>
     );
   };
   // push1Revision is'ba9c692786e95143b8df3f4b3e9b504dfbc589a0';
@@ -304,26 +304,23 @@ describe('PushList', () => {
   });
 
   test('jobs should have fields required for retriggers', async () => {
-    const store = configureStore();
-    store.dispatch(fetchPushes());
+    fetchPushes();
 
     const { getByText } = render(
-      <Provider store={store} context={ReactReduxContext}>
-        <MemoryRouter initialEntries={[`/jobs?repo=${repoName}`]}>
-          <div id="th-global-content">
-            <PushList
-              user={{ isLoggedIn: false }}
-              repoName={repoName}
-              currentRepo={currentRepo}
-              filterModel={new FilterModel(mockNavigate, mockLocation)}
-              duplicateJobsVisible={false}
-              groupCountsExpanded={false}
-              pushHealthVisibility="None"
-              getAllShownJobs={() => {}}
-            />
-          </div>
-        </MemoryRouter>
-      </Provider>,
+      <MemoryRouter initialEntries={[`/jobs?repo=${repoName}`]}>
+        <div id="th-global-content">
+          <PushList
+            user={{ isLoggedIn: false }}
+            repoName={repoName}
+            currentRepo={currentRepo}
+            filterModel={new FilterModel(mockNavigate, mockLocation)}
+            duplicateJobsVisible={false}
+            groupCountsExpanded={false}
+            pushHealthVisibility="None"
+            getAllShownJobs={() => {}}
+          />
+        </div>
+      </MemoryRouter>,
     );
     const jobEl = await waitFor(() => getByText('yaml'));
     const jobId = jobEl.getAttribute('data-job-id');
@@ -336,8 +333,8 @@ describe('PushList', () => {
       { overwriteRoutes: false },
     );
 
-    // Get job data from the Redux store instead of React component internals
-    const { jobMap } = store.getState().pushes;
+    // Get job data from the Zustand store
+    const { jobMap } = usePushesStore.getState();
     const job = jobMap[jobId];
 
     expect(job.signature).toBe('306fd1e8d922922cd171fa31f0d914300ff52228');

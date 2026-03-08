@@ -2,7 +2,6 @@
 import fetchMock from 'fetch-mock';
 import { render, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
-import { Provider, ReactReduxContext } from 'react-redux';
 
 import App from '../../../ui/job-view/App';
 import taskDefinition from '../mock/task_definition.json';
@@ -12,7 +11,6 @@ import { getApiUrl, bzBaseUrl } from '../../../ui/helpers/url';
 import { getProjectUrl } from '../../../ui/helpers/location';
 import jobListFixtureOne from '../mock/job_list/job_1';
 import jobMap from '../mock/job_map';
-import { configureStore } from '../../../ui/job-view/redux/configureStore';
 
 // Helper component to track location changes
 let locationTracker;
@@ -39,14 +37,11 @@ const emptyBzResponse = {
 };
 
 const testApp = () => {
-  const store = configureStore();
   return (
-    <Provider store={store}>
-      <MemoryRouter initialEntries={[`/jobs?repo=${repoName}`]}>
-        <LocationTracker />
-        <App user={{ email: 'reviewbot' }} context={ReactReduxContext} />
-      </MemoryRouter>
-    </Provider>
+    <MemoryRouter initialEntries={[`/jobs?repo=${repoName}`]}>
+      <LocationTracker />
+      <App user={{ email: 'reviewbot' }} />
+    </MemoryRouter>
   );
 };
 
