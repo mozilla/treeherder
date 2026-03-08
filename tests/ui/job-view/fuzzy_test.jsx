@@ -1,7 +1,4 @@
 
-import { Provider } from 'react-redux';
-import thunk from 'redux-thunk';
-import configureMockStore from 'redux-mock-store';
 import { render, fireEvent, waitFor } from '@testing-library/react';
 
 import fuzzyJobList from '../mock/job_list/fuzzy_jobs/fuzzyJobList.json';
@@ -9,8 +6,6 @@ import initialJobList from '../mock/job_list/fuzzy_jobs/initial_job_list.json';
 import searchLinuxResults from '../mock/job_list/fuzzy_jobs/search_linux_results.json';
 import searchDebugResults from '../mock/job_list/fuzzy_jobs/search_debug_results.json';
 import FuzzyJobFinder from '../../../ui/job-view/pushes/FuzzyJobFinder';
-
-const mockStore = configureMockStore([thunk]);
 
 describe('FuzzyJobFinder', () => {
   const isOpen = true;
@@ -37,21 +32,18 @@ describe('FuzzyJobFinder', () => {
     pushLogUrl: 'https://hg.mozilla.org/integration/autoland/pushloghtml',
     revisionHrefPrefix: 'https://hg.mozilla.org/integration/autoland/rev/',
   };
-  const store = mockStore({});
   const testFuzzyJobFinder = (
-    <Provider store={store}>
-      <FuzzyJobFinder
-        isOpen={isOpen}
-        toggle={() => {}}
-        jobList={fuzzyJobList}
-        filteredJobList={fuzzyJobList}
-        className="fuzzy-modal"
-        pushId={id}
-        decisionTaskId={decisionTaskId}
-        currentRepo={currentRepo}
-        notify={() => {}}
-      />
-    </Provider>
+    <FuzzyJobFinder
+      isOpen={isOpen}
+      toggle={() => {}}
+      jobList={fuzzyJobList}
+      filteredJobList={fuzzyJobList}
+      className="fuzzy-modal"
+      pushId={id}
+      decisionTaskId={decisionTaskId}
+      currentRepo={currentRepo}
+      notify={() => {}}
+    />
   );
 
   test('Fuzzy search gives expected results', async () => {

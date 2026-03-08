@@ -1,9 +1,7 @@
 
 import { render } from '@testing-library/react';
-import { Provider, ReactReduxContext } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 
-import { configureStore } from '../../../ui/job-view/redux/configureStore';
 import PerformanceTab from '../../../ui/job-view/details/tabs/PerformanceTab.jsx';
 import { Perfdocs } from '../../../ui/perfherder/perf-helpers/perfdocs';
 
@@ -16,21 +14,17 @@ describe('PerformanceTab', () => {
     const repoName = 'try';
     const currentRepo = { name: repoName };
 
-    const store = configureStore();
-
     return (
-      <Provider store={store} context={ReactReduxContext}>
-        <MemoryRouter>
-          <PerformanceTab
-            selectedJobFull={selectedJobFull}
-            currentRepo={currentRepo}
-            repoName={repoName}
-            jobDetails={jobDetails}
-            perfJobDetail={perfJobDetail}
-            revision="REV1"
-          />
-        </MemoryRouter>
-      </Provider>
+      <MemoryRouter>
+        <PerformanceTab
+          selectedJobFull={selectedJobFull}
+          currentRepo={currentRepo}
+          repoName={repoName}
+          jobDetails={jobDetails}
+          perfJobDetail={perfJobDetail}
+          revision="REV1"
+        />
+      </MemoryRouter>
     );
   };
 

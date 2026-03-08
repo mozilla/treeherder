@@ -6,10 +6,16 @@ import { BugFilerClass } from '../../../ui/shared/BugFiler';
 import * as httpHelpers from '../../../ui/helpers/http';
 import * as jobHelpers from '../../../ui/helpers/job';
 import * as bugHelpers from '../../../ui/helpers/bug';
+import * as notificationStore from '../../../ui/job-view/stores/notificationStore';
+import { usePushesStore } from '../../../ui/job-view/stores/pushesStore';
 
 // Mock the helpers
 jest.mock('../../../ui/helpers/http', () => ({
   create: jest.fn(),
+}));
+
+jest.mock('../../../ui/job-view/stores/notificationStore', () => ({
+  notify: jest.fn(),
 }));
 
 jest.mock('../../../ui/helpers/job', () => ({
@@ -66,13 +72,16 @@ describe('BugFiler', () => {
     reftestUrl: 'https://example.com/reftest',
     successCallback: jest.fn(),
     platform: 'linux',
-    notify: jest.fn(),
     selectedJob: {
       job_group_name: 'test-group',
       job_type_name: 'test-job',
     },
     currentRepo: { name: 'mozilla-central' },
-    decisionTaskMap: {},
+  };
+
+  const renderWithProvider = (props = {}) => {
+    usePushesStore.setState({ decisionTaskMap: {} });
+    return render(<BugFilerClass {...defaultProps} {...props} />);
   };
 
   beforeEach(() => {
@@ -120,7 +129,7 @@ describe('BugFiler', () => {
   });
 
   it('renders correctly when open', async () => {
-    render(<BugFilerClass {...defaultProps} />);
+    renderWithProvider();
 
     // Wait for initial async state updates to complete
     await waitFor(() => {
@@ -141,7 +150,7 @@ describe('BugFiler', () => {
   });
 
   it('initializes state correctly', async () => {
-    render(<BugFilerClass {...defaultProps} />);
+    renderWithProvider();
 
     // Wait for initial async state updates to complete
     await waitFor(() => {
@@ -177,7 +186,7 @@ describe('BugFiler', () => {
   });
 
   it('calls toggle when Cancel is clicked', async () => {
-    render(<BugFilerClass {...defaultProps} />);
+    renderWithProvider();
 
     // Wait for initial async state updates to complete
     await waitFor(() => {
@@ -192,7 +201,7 @@ describe('BugFiler', () => {
   });
 
   it('toggles log link checkboxes when clicked', async () => {
-    render(<BugFilerClass {...defaultProps} />);
+    renderWithProvider();
 
     // Wait for initial async state updates to complete
     await waitFor(() => {
@@ -224,7 +233,7 @@ describe('BugFiler', () => {
   });
 
   it('toggles "This is an intermittent failure" checkbox when clicked', async () => {
-    render(<BugFilerClass {...defaultProps} />);
+    renderWithProvider();
 
     // Wait for initial async state updates to complete
     await waitFor(() => {
@@ -249,7 +258,7 @@ describe('BugFiler', () => {
   });
 
   it('updates summary when input changes', async () => {
-    render(<BugFilerClass {...defaultProps} />);
+    renderWithProvider();
 
     // Wait for initial async state updates to complete
     await waitFor(() => {
@@ -274,7 +283,7 @@ describe('BugFiler', () => {
   });
 
   it('updates comment when input changes', async () => {
-    render(<BugFilerClass {...defaultProps} />);
+    renderWithProvider();
 
     // Wait for initial async state updates to complete
     await waitFor(() => {
@@ -297,7 +306,7 @@ describe('BugFiler', () => {
   });
 
   it('searches for products when Find Product button is clicked', async () => {
-    render(<BugFilerClass {...defaultProps} />);
+    renderWithProvider();
 
     // Wait for initial async state updates to complete
     await waitFor(() => {
@@ -337,7 +346,7 @@ describe('BugFiler', () => {
   });
 
   it('finds product by path on component mount', async () => {
-    render(<BugFilerClass {...defaultProps} />);
+    renderWithProvider();
 
     // Wait for the search to complete
     await waitFor(() => {
@@ -355,7 +364,7 @@ describe('BugFiler', () => {
   });
 
   it('submits the bug when Submit Bug button is clicked', async () => {
-    render(<BugFilerClass {...defaultProps} />);
+    renderWithProvider();
 
     // Wait for the product search to complete
     await waitFor(() => {
@@ -401,7 +410,7 @@ describe('BugFiler', () => {
   it('shows an error notification if product is not selected', async () => {
     // Render with no suggested products
     bugHelpers.getCrashSignatures.mockReturnValue(['SIGNATURE']);
-    render(<BugFilerClass {...defaultProps} />);
+    renderWithProvider();
 
     // Wait for initial async state updates to complete
     await waitFor(() => {
@@ -414,7 +423,7 @@ describe('BugFiler', () => {
     // Wait for the notification to be called
     await waitFor(() => {
       // Check that notify was called with an error message
-      expect(defaultProps.notify).toHaveBeenCalledWith(
+      expect(notificationStore.notify).toHaveBeenCalledWith(
         'Please select (or search and select) a product/component pair to continue',
         'danger',
       );
@@ -422,7 +431,7 @@ describe('BugFiler', () => {
   });
 
   it('shows an error notification if summary is too long', async () => {
-    render(<BugFilerClass {...defaultProps} />);
+    renderWithProvider();
 
     // Wait for the product search to complete
     await waitFor(() => {
@@ -457,7 +466,7 @@ describe('BugFiler', () => {
     // Wait for the notification to be called
     await waitFor(() => {
       // Check that notify was called with an error message
-      expect(defaultProps.notify).toHaveBeenCalledWith(
+      expect(notificationStore.notify).toHaveBeenCalledWith(
         'Please ensure the summary is no more than 255 characters',
         'danger',
       );
@@ -468,7 +477,7 @@ describe('BugFiler', () => {
     // Mock getCrashSignatures to return a signature
     bugHelpers.getCrashSignatures.mockReturnValue(['SIGNATURE']);
 
-    render(<BugFilerClass {...defaultProps} />);
+    renderWithProvider();
 
     // Wait for initial async state updates to complete
     await waitFor(() => {
@@ -531,7 +540,7 @@ describe('BugFiler', () => {
   });
 
   it('handles security issues correctly', async () => {
-    render(<BugFilerClass {...defaultProps} />);
+    renderWithProvider();
 
     // Wait for the product search to complete
     await waitFor(() => {
@@ -576,7 +585,7 @@ describe('BugFiler', () => {
   });
 
   it('does not launch confirm failure task for regular intermittent failures', async () => {
-    render(<BugFilerClass {...defaultProps} />);
+    renderWithProvider();
 
     // Wait for the product search to complete
     await waitFor(() => {
@@ -610,7 +619,7 @@ describe('BugFiler', () => {
   });
 
   it('does not launch confirm failure task when checkbox is unchecked', async () => {
-    render(<BugFilerClass {...defaultProps} />);
+    renderWithProvider();
 
     // Wait for the product search to complete
     await waitFor(() => {
@@ -654,7 +663,7 @@ describe('BugFiler', () => {
       failureStatus: 403,
     });
 
-    render(<BugFilerClass {...defaultProps} />);
+    renderWithProvider();
 
     // Wait for the product search to complete
     await waitFor(() => {
@@ -676,7 +685,7 @@ describe('BugFiler', () => {
     // Wait for the submission to complete
     await waitFor(() => {
       // Check that notify was called with an error message
-      expect(defaultProps.notify).toHaveBeenCalledWith(
+      expect(notificationStore.notify).toHaveBeenCalledWith(
         expect.stringContaining('Treeherder Bug Filer API returned status 403'),
         'danger',
         { sticky: true },

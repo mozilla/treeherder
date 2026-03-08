@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from 'react-bootstrap';
 import PropTypes from 'prop-types';
-import { useSelector, useDispatch } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircle, faDotCircle } from '@fortawesome/free-regular-svg-icons';
 import {
@@ -16,7 +15,10 @@ import { hasUrlFilterChanges, thFilterGroups } from '../../helpers/filter';
 import { getAllUrlParams, getRepo, setUrlParams } from '../../helpers/location';
 import RepositoryModel from '../../models/repository';
 import ErrorBoundary from '../../shared/ErrorBoundary';
-import { recalculateUnclassifiedCounts } from '../redux/stores/pushes';
+import {
+  usePushesStore,
+  recalculateUnclassifiedCounts,
+} from '../stores/pushesStore';
 
 import TierIndicator from './TierIndicator';
 import WatchedRepo from './WatchedRepo';
@@ -48,15 +50,13 @@ const SecondaryNavBar = ({
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const prevLocationSearch = useRef(location.search);
 
-  // Redux state
-  const allUnclassifiedFailureCount = useSelector(
-    (state) => state.pushes.allUnclassifiedFailureCount,
+  const allUnclassifiedFailureCount = usePushesStore(
+    (state) => state.allUnclassifiedFailureCount,
   );
-  const filteredUnclassifiedFailureCount = useSelector(
-    (state) => state.pushes.filteredUnclassifiedFailureCount,
+  const filteredUnclassifiedFailureCount = usePushesStore(
+    (state) => state.filteredUnclassifiedFailureCount,
   );
 
   // Local state - initialize from React Router location
@@ -105,10 +105,10 @@ const SecondaryNavBar = ({
         hasUrlFilterChanges(prevParams, currentParams) ||
         newRepoName !== repoName
       ) {
-        dispatch(recalculateUnclassifiedCounts());
+        recalculateUnclassifiedCounts();
       }
     },
-    [repoName, dispatch],
+    [repoName],
   );
 
   // Effect for initial load

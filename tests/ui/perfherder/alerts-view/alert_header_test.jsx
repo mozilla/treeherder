@@ -1,11 +1,9 @@
 
 import { render, waitFor } from '@testing-library/react';
-import { Provider, ReactReduxContext } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 
 import AlertHeaderTitle from '../../../../ui/perfherder/alerts/AlertHeaderTitle';
 import testAlertSummaries from '../../mock/alert_summaries_with_critical_tests.json';
-import { configureStore } from '../../../../ui/job-view/redux/configureStore';
 
 const frameworks = [
   {
@@ -19,14 +17,10 @@ const frameworks = [
 ];
 
 const alertHeaderTitleTest = (alertSummary) => {
-  const store = configureStore();
-
   return render(
-    <Provider store={store} context={ReactReduxContext}>
-      <MemoryRouter initialEntries={['/alerts']}>
-        <AlertHeaderTitle alertSummary={alertSummary} frameworks={frameworks} />
-      </MemoryRouter>
-    </Provider>,
+    <MemoryRouter initialEntries={['/alerts']}>
+      <AlertHeaderTitle alertSummary={alertSummary} frameworks={frameworks} />
+    </MemoryRouter>,
   );
 };
 
