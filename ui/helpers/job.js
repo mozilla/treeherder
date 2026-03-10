@@ -9,6 +9,7 @@ import { getGroupMapKey } from './aggregateId';
 import { getAllUrlParams, getRepo } from './location';
 import { getAction } from './taskcluster';
 import { formatTaskclusterError } from './errorMessage';
+import { scrollToElement } from './scrollToElement';
 
 // failure classification ids that should be shown in "unclassified" mode
 // TODO: consider dropping 8 from this list, only here for full compatibility
@@ -191,23 +192,6 @@ export const findSelectedInstance = function findSelectedInstance() {
 
   if (selectedEl) {
     return findInstance(selectedEl);
-  }
-};
-
-// Check if the element is visible on screen or not.
-const isOnScreen = function isOnScreen(el) {
-  const bounding = el.getBoundingClientRect();
-  const offset = el.getBoundingClientRect();
-  const top = offset.top + document.body.scrollTop;
-  const bottom = top + el.offsetHeight;
-
-  return top >= bounding.bottom && bottom <= bounding.top;
-};
-
-// Scroll the element into view.
-export const scrollToElement = function scrollToElement(el) {
-  if (!isOnScreen(el)) {
-    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 };
 

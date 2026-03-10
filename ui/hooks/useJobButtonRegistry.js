@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 import { getUrlParam } from '../helpers/location';
+import { scrollToElement } from '../helpers/scrollToElement';
 
 // Registry for JobButton component instances (functional components)
 // This allows finding job buttons by their job ID without traversing React internals
@@ -125,9 +126,7 @@ export function useJobButtonRegistry(job, filterModel, filterPlatformCb) {
         hasScrolledRef.current = true;
         // Use requestAnimationFrame to ensure the DOM has fully rendered
         requestAnimationFrame(() => {
-          if (element && typeof element.scrollIntoView === 'function') {
-            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
+          scrollToElement(element);
         });
       }
     },
