@@ -11,7 +11,12 @@ from django.db import transaction
 from django.db.models import Exists, OuterRef, Subquery
 
 from treeherder.perf.email import AlertNotificationWriter
-from treeherder.perf.methods import StudentDetector
+from treeherder.perf.methods.CramerVonMisesDetector import CramerVonMisesDetector
+from treeherder.perf.methods.KolmogorovSmirnovDetector import KolmogorovSmirnovDetector
+from treeherder.perf.methods.LeveneDetector import LeveneDetector
+from treeherder.perf.methods.MannWhitneyUDetector import MannWhitneyUDetector
+from treeherder.perf.methods.StudentDetector import StudentDetector
+from treeherder.perf.methods.WelchDetector import WelchDetector
 from treeherder.perf.models import (
     PerformanceAlert,
     PerformanceAlertSummary,
@@ -27,6 +32,8 @@ from treeherder.perfalert.perfalert import RevisionDatum, detect_changes
 from treeherder.services import taskcluster
 
 logger = logging.getLogger(__name__)
+
+REPLICATES = False
 
 
 def send_alert_emails(emails, alert, alert_summary):
@@ -214,7 +221,8 @@ def generate_new_alerts_in_series(signature):
 
 
 def build_cpd_methods():
-    student = StudentDetector.StudentDetector(
+    student = StudentDetector(
+        name="student",
         min_back_window=12,
         max_back_window=24,
         fore_window=12,
@@ -223,7 +231,64 @@ def build_cpd_methods():
         mag_check=True,
         above_threshold_is_anomaly=True,
     )
-    methods = {"student": student}
+    cvm = CramerVonMisesDetector(
+        name="cvm",
+        min_back_window=12,
+        max_back_window=24,
+        fore_window=12,
+        alert_threshold=2.0,
+        confidence_threshold=0.05,
+        mag_check=False,
+        above_threshold_is_anomaly=False,
+    )
+    ks = KolmogorovSmirnovDetector(
+        name="ks",
+        min_back_window=12,
+        max_back_window=24,
+        fore_window=12,
+        alert_threshold=2.0,
+        confidence_threshold=0.05,
+        mag_check=False,
+        above_threshold_is_anomaly=False,
+    )
+    welch = WelchDetector(
+        name="welch",
+        min_back_window=12,
+        max_back_window=24,
+        fore_window=12,
+        alert_threshold=2.0,
+        confidence_threshold=0.05,
+        mag_check=False,
+        above_threshold_is_anomaly=False,
+    )
+    levene = LeveneDetector(
+        name="levene",
+        min_back_window=12,
+        max_back_window=24,
+        fore_window=12,
+        alert_threshold=2.0,
+        confidence_threshold=0.05,
+        mag_check=False,
+        above_threshold_is_anomaly=False,
+    )
+    mwu = MannWhitneyUDetector(
+        name="mwu",
+        min_back_window=12,
+        max_back_window=24,
+        fore_window=12,
+        alert_threshold=2.0,
+        confidence_threshold=0.05,
+        mag_check=False,
+        above_threshold_is_anomaly=False,
+    )
+    methods = {
+        "student": student,
+        "cvm": cvm,
+        "ks": ks,
+        "welch": welch,
+        "levene": levene,
+        "mwu": mwu,
+    }
     return methods
 
 
@@ -313,7 +378,7 @@ def generate_new_test_alerts_in_series(signature):
     # get series data starting from either:
     # (1) the last alert, if there is one
     # (2) the alerts max age
-    # (use whichever is newer)
+    # use whichever is newer
     max_alert_age = alert_after_ts = datetime.now() - settings.PERFHERDER_ALERTS_MAX_AGE
     series = PerformanceDatum.objects.filter(signature=signature, push_timestamp__gte=max_alert_age)
     latest_alert_timestamp = (
@@ -360,7 +425,7 @@ def generate_new_test_alerts_in_series(signature):
     data = list(revision_data.values())
     methods = build_cpd_methods()
     student_method = methods["student"]
-    analyzed_series = student_method.detect_changes(data, signature)
+    analyzed_series = student_method.detect_changes(data, signature, replicates_enabled=REPLICATES)
 
     with transaction.atomic():
         create_alerts(signature, student_method, analyzed_series)
