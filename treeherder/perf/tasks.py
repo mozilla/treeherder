@@ -20,7 +20,8 @@ def generate_alerts(signature_id):
     signature = PerformanceSignature.objects.get(id=signature_id)
     generate_new_alerts_in_series(signature)
     try:
-        generate_new_test_alerts_in_series(signature)
+        generate_new_test_alerts_in_series(signature, strategy="priority", cons_th=3, margin=1)
+        generate_new_test_alerts_in_series(signature, strategy="equal", cons_th=3, margin=1)
     except Exception as e:
         logger.exception(
             "Failed to generate test alerts for signature %s: %s", signature_id, str(e)

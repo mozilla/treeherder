@@ -1,15 +1,22 @@
 import datetime
 import time
 
-import pytest
-
+import treeherder.perf.alerts as alerts_module
 from treeherder.model.models import Push
-from treeherder.perf.alerts import generate_new_test_alerts_in_series
+from treeherder.perf.alerts import (
+    build_cpd_methods,
+    detect_methods_changes,
+    equal_voting_strategy,
+    generate_new_test_alerts_in_series,
+    get_methods_detecting_at_index,
+    get_weighted_average_push,
+    name_voting_strategy,
+)
 from treeherder.perf.models import (
     PerformanceAlertSummaryTesting,
     PerformanceAlertTesting,
     PerformanceDatum,
-    PerformanceSignature,
+    RevisionDatumTest,
 )
 from treeherder.perf.utils import BUG_DAYS, TRIAGE_DAYS, calculate_time_to
 
@@ -256,93 +263,6 @@ def test_no_alerts_with_old_data(
     assert PerformanceAlertSummaryTesting.objects.count() == 0
 
 
-def test_custom_alert_threshold(
-    test_repository,
-    test_issue_tracker,
-    failure_classifications,
-    generic_reference_data,
-    test_perf_signature,
-):
-    test_perf_signature.alert_threshold = 200.0
-    test_perf_signature.save()
-
-    # under default settings, this set of data would generate
-    # 2 alerts, but we'll set an artificially high threshold
-    # of 200% that should only generate 1
-    interval = 60
-    base_time = time.time()
-    _generate_performance_data(
-        test_repository,
-        test_perf_signature,
-        base_time,
-        1,
-        0.5,
-        int(interval / 3),
-    )
-    _generate_performance_data(
-        test_repository,
-        test_perf_signature,
-        base_time,
-        int(interval / 3) + 1,
-        0.6,
-        int(interval / 3),
-    )
-    _generate_performance_data(
-        test_repository,
-        test_perf_signature,
-        base_time,
-        2 * int(interval / 3) + 1,
-        2.0,
-        int(interval / 3),
-    )
-
-    generate_new_test_alerts_in_series(test_perf_signature)
-
-    assert PerformanceAlertTesting.objects.count() == 1
-    assert PerformanceAlertSummaryTesting.objects.count() == 1
-
-
-@pytest.mark.parametrize(("new_value", "expected_num_alerts"), [(1.0, 1), (0.25, 0)])
-def test_alert_change_type_absolute(
-    test_repository,
-    test_issue_tracker,
-    failure_classifications,
-    generic_reference_data,
-    test_perf_signature,
-    new_value,
-    expected_num_alerts,
-):
-    # modify the test signature to say that we alert on absolute value
-    # (as opposed to percentage change)
-    test_perf_signature.alert_change_type = PerformanceSignature.ALERT_ABS
-    test_perf_signature.alert_threshold = 0.3
-    test_perf_signature.save()
-
-    base_time = time.time()  # generate it based off current time
-    interval = 30
-    _generate_performance_data(
-        test_repository,
-        test_perf_signature,
-        base_time,
-        1,
-        0.5,
-        int(interval / 2),
-    )
-    _generate_performance_data(
-        test_repository,
-        test_perf_signature,
-        base_time,
-        int(interval / 2) + 1,
-        new_value,
-        int(interval / 2),
-    )
-
-    generate_new_test_alerts_in_series(test_perf_signature)
-
-    assert PerformanceAlertTesting.objects.count() == expected_num_alerts
-    assert PerformanceAlertSummaryTesting.objects.count() == expected_num_alerts
-
-
 def test_alert_monitor_no_sheriff(
     test_repository,
     test_issue_tracker,
@@ -382,3 +302,315 @@ def test_alert_monitor_no_sheriff(
     # When monitor is true, then alert should not be sheriffed
     # regardless of should_alert settings
     assert [not alert.sheriffed for alert in PerformanceAlertTesting.objects.all()]
+
+
+def test_high_cons_th_suppresses_alert_on_weak_signal(
+    test_repository,
+    test_issue_tracker,
+    failure_classifications,
+    generic_reference_data,
+    test_perf_signature,
+    mock_deviance,
+):
+    """
+    A weak regression (0.5 → 0.6) should be suppressed when
+    CONS_TH=6 for the 'equal' voting and should yield an alert when
+    the voting strategy is 'priority' because Student Test at least would detect it
+    """
+    base_time = time.time()
+    interval = 30
+
+    _generate_performance_data(
+        test_repository, test_perf_signature, base_time, 1, 0.5, int(interval / 2)
+    )
+    _generate_performance_data(
+        test_repository,
+        test_perf_signature,
+        base_time,
+        int(interval / 2) + 1,
+        0.6,
+        int(interval / 2),
+    )
+
+    generate_new_test_alerts_in_series(test_perf_signature, strategy="equal", cons_th=6, margin=0)
+
+    assert PerformanceAlertTesting.objects.count() == 0
+    assert PerformanceAlertSummaryTesting.objects.count() == 0
+
+    generate_new_test_alerts_in_series(
+        test_perf_signature, strategy="priority", cons_th=6, margin=0
+    )
+
+    assert PerformanceAlertTesting.objects.count() == 1
+    assert PerformanceAlertSummaryTesting.objects.count() == 1
+
+
+def test_low_cons_th_detects_alert_on_weak_signal(
+    test_repository,
+    test_issue_tracker,
+    failure_classifications,
+    generic_reference_data,
+    test_perf_signature,
+    mock_deviance,
+):
+    """
+    The same weak regression (0.5 → 0.6) should produce at least one alert
+    when CONS_TH=1, since only a single method needs to agree.
+    """
+    base_time = time.time()
+    interval = 30
+
+    _generate_performance_data(
+        test_repository, test_perf_signature, base_time, 1, 0.5, int(interval / 2)
+    )
+    _generate_performance_data(
+        test_repository,
+        test_perf_signature,
+        base_time,
+        int(interval / 2) + 1,
+        0.6,
+        int(interval / 2),
+    )
+
+    generate_new_test_alerts_in_series(test_perf_signature, cons_th=1, margin=1)
+
+    assert PerformanceAlertTesting.objects.count() >= 1
+    assert PerformanceAlertSummaryTesting.objects.count() >= 1
+
+
+def test_cons_th_monotonicity_on_strong_signal(
+    test_repository,
+    test_issue_tracker,
+    failure_classifications,
+    generic_reference_data,
+    test_perf_signature,
+    mock_deviance,
+):
+    """
+    For a strong regression (0.5 → 1.0), raising CONS_TH from 1 to 4
+    should never increase the alert count — it must be non-increasing.
+    """
+    base_time = time.time()
+    interval = 30
+    counts = []
+
+    for cons_th in [1, 2, 3, 4]:
+        PerformanceAlertTesting.objects.all().delete()
+        PerformanceAlertSummaryTesting.objects.all().delete()
+        PerformanceDatum.objects.all().delete()
+        Push.objects.filter(repository=test_repository).delete()
+
+        _generate_performance_data(
+            test_repository, test_perf_signature, base_time, 1, 0.5, int(interval / 2)
+        )
+        _generate_performance_data(
+            test_repository,
+            test_perf_signature,
+            base_time,
+            int(interval / 2) + 1,
+            1.0,
+            int(interval / 2),
+        )
+
+        generate_new_test_alerts_in_series(test_perf_signature, cons_th=cons_th, margin=1)
+        counts.append(PerformanceAlertTesting.objects.count())
+
+    for i in range(len(counts) - 1):
+        assert counts[i] >= counts[i + 1], (
+            f"Alert count should be non-increasing as cons_th rises, got counts={counts}"
+        )
+
+
+def test_large_margin_does_not_duplicate_alerts_for_single_regression(
+    test_repository,
+    test_issue_tracker,
+    failure_classifications,
+    generic_reference_data,
+    test_perf_signature,
+    mock_deviance,
+):
+    """
+    A single step-change with MARGIN=5 should still produce exactly one alert —
+    the wide tolerance window should not cause duplicates.
+    """
+    base_time = time.time()
+    interval = 30
+
+    _generate_performance_data(
+        test_repository, test_perf_signature, base_time, 1, 0.5, int(interval / 2)
+    )
+    _generate_performance_data(
+        test_repository,
+        test_perf_signature,
+        base_time,
+        int(interval / 2) + 1,
+        1.0,
+        int(interval / 2),
+    )
+
+    generate_new_test_alerts_in_series(test_perf_signature, cons_th=3, margin=5)
+
+    assert PerformanceAlertTesting.objects.count() == 1
+    assert PerformanceAlertSummaryTesting.objects.count() == 1
+
+
+def test_combined_high_cons_th_low_margin_is_strictest(
+    test_repository,
+    test_issue_tracker,
+    failure_classifications,
+    generic_reference_data,
+    test_perf_signature,
+    mock_deviance,
+):
+    """
+    High CONS_TH (5) + low MARGIN (0) is the strictest combination.
+    A permissive config (CONS_TH=1, MARGIN=5) on the same weak signal
+    should find at least as many alerts as the strict one.
+    """
+    base_time = time.time()
+    interval = 30
+
+    _generate_performance_data(
+        test_repository, test_perf_signature, base_time, 1, 0.5, int(interval / 2)
+    )
+    _generate_performance_data(
+        test_repository,
+        test_perf_signature,
+        base_time,
+        int(interval / 2) + 1,
+        0.55,
+        int(interval / 2),
+    )
+    generate_new_test_alerts_in_series(test_perf_signature, cons_th=5, margin=0)
+    strict_count = PerformanceAlertTesting.objects.count()
+
+    PerformanceAlertTesting.objects.all().delete()
+    PerformanceAlertSummaryTesting.objects.all().delete()
+    PerformanceDatum.objects.all().delete()
+    Push.objects.filter(repository=test_repository).delete()
+
+    _generate_performance_data(
+        test_repository, test_perf_signature, base_time, 1, 0.5, int(interval / 2)
+    )
+    _generate_performance_data(
+        test_repository,
+        test_perf_signature,
+        base_time,
+        int(interval / 2) + 1,
+        0.55,
+        int(interval / 2),
+    )
+    generate_new_test_alerts_in_series(test_perf_signature, cons_th=1, margin=5)
+    permissive_count = PerformanceAlertTesting.objects.count()
+
+    assert permissive_count >= strict_count, (
+        f"Permissive config should find at least as many alerts as strict config. "
+        f"Got strict={strict_count}, permissive={permissive_count}"
+    )
+
+
+def test_margin_deduplication_guard_suppresses_nearby_duplicate_alerts(
+    test_repository,
+    test_issue_tracker,
+    failure_classifications,
+    generic_reference_data,
+    test_perf_signature,
+    mock_deviance,
+    monkeypatch,
+):
+    """
+    Verifies the deduplication guard in equal_voting_strategy (alerts.py in equal_voting_strategy and priority_voting_strategy functions):
+        if any(abs(i - alerted_idx) <= margin for alerted_idx in alerted_indices):
+            continue
+    Compares create_alert call counts between the real implementation (guard active)
+    and a guard-free copy. The guard must suppress at least one redundant call for
+    adjacent indices near the detected regression.
+    Note: DB row counts cannot be used here because update_or_create silently
+    merges duplicate calls with the same push_id regardless of the guard.
+    """
+    base_time = time.time()
+    interval = 30
+    margin = 2
+    cons_th = 1
+    _generate_performance_data(
+        test_repository, test_perf_signature, base_time, 1, 0.5, int(interval / 2)
+    )
+    _generate_performance_data(
+        test_repository,
+        test_perf_signature,
+        base_time,
+        int(interval / 2) + 1,
+        1.0,
+        int(interval / 2),
+    )
+    series = PerformanceDatum.objects.filter(signature=test_perf_signature).order_by(
+        "push_timestamp"
+    )
+    revision_data = {}
+    for d in series:
+        if d.push_id not in revision_data:
+            revision_data[d.push_id] = RevisionDatumTest(
+                int(time.mktime(d.push_timestamp.timetuple())), d.push_id, [], []
+            )
+        revision_data[d.push_id].values.append(d.value)
+    analyzed_series = detect_methods_changes(
+        test_perf_signature, list(revision_data.values()), build_cpd_methods()
+    )
+
+    def equal_without_guard(
+        signature,
+        analyzed_series,
+        cons_th=3,
+        margin=2,
+        alerted_indices=None,
+        detection_method_naming=None,
+        replicates_enabled=False,
+    ):
+        if not analyzed_series or len(analyzed_series) < 2:
+            return
+        detection_method_naming = name_voting_strategy(
+            "equal", cons_th, margin, replicates_enabled, detection_method_naming
+        )
+        alerted_indices = alerted_indices if alerted_indices is not None else set()
+        for i in range(1, len(analyzed_series)):
+            methods_detecting_data = get_methods_detecting_at_index(analyzed_series, i, margin)
+            if len(methods_detecting_data) >= cons_th:
+                start_idx, end_idx = max(0, i - margin), min(len(analyzed_series) - 1, i + margin)
+                weighted_index, prev_index = get_weighted_average_push(
+                    analyzed_series, methods_detecting_data, start_idx, end_idx
+                )
+                if weighted_index is not None:
+                    alerts_module.create_alert(
+                        signature,
+                        analyzed_series,
+                        analyzed_series[prev_index],
+                        analyzed_series[weighted_index],
+                        weighted_index,
+                        methods_detecting_data,
+                        detection_method_naming,
+                    )
+                    alerted_indices.add(weighted_index)
+
+    call_counts = {"with_guard": 0, "without_guard": 0}
+    original = alerts_module.create_alert
+    monkeypatch.setattr(
+        alerts_module,
+        "create_alert",
+        lambda *a, **kw: call_counts.__setitem__("with_guard", call_counts["with_guard"] + 1)
+        or original(*a, **kw),
+    )
+    equal_voting_strategy(test_perf_signature, analyzed_series, cons_th=cons_th, margin=margin)
+    PerformanceAlertTesting.objects.all().delete()
+    PerformanceAlertSummaryTesting.objects.all().delete()
+    monkeypatch.setattr(
+        alerts_module,
+        "create_alert",
+        lambda *a, **kw: call_counts.__setitem__("without_guard", call_counts["without_guard"] + 1)
+        or original(*a, **kw),
+    )
+    equal_without_guard(test_perf_signature, analyzed_series, cons_th=cons_th, margin=margin)
+    assert call_counts["without_guard"] > call_counts["with_guard"], (
+        f"Deduplication guard missing in equal_voting_strategy (~line 490): "
+        f"expected fewer create_alert calls with guard ({call_counts['with_guard']}) "
+        f"than without ({call_counts['without_guard']})."
+    )

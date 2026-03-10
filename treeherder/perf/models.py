@@ -768,6 +768,18 @@ class PerformanceTelemetryAlert(PerformanceAlertBase):
         unique_together = ("summary", "series_signature")
 
 
+def default_detection_methods():
+    methods = ("ks", "cvm", "mwu", "student", "levene", "welch")
+    detected_changes = {
+        method: {
+            "push_id": None,
+            "confidence": None,
+        }
+        for method in methods
+    }
+    return detected_changes
+
+
 class PerformanceAlertTesting(PerformanceAlertBase):
     summary = models.ForeignKey(
         PerformanceAlertSummaryTesting, on_delete=models.CASCADE, related_name="alerts"
@@ -794,6 +806,18 @@ class PerformanceAlertTesting(PerformanceAlertBase):
 
     prev_p95 = models.FloatField(help_text="Previous P95 value of series before change")
     new_p95 = models.FloatField(help_text="New P95 value of series after change")
+
+    detected_changes = models.JSONField(
+        help_text="A JSON object that indicates the confidence of the alert for each detection method used."
+        "It has methods detecting changes on the culprit revision or in one of the revisions aorund it, the push_id"
+        "field indicates the revision where the change was detected for the given method.",
+        default=default_detection_methods,
+    )
+
+    confidences = models.JSONField(
+        help_text="A JSON object that contains the confidence values of different methods at the culprit revision.",
+        default=dict,
+    )
 
     class Meta:
         db_table = "performance_alert_testing"
