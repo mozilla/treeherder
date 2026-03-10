@@ -2,7 +2,6 @@ import logging
 import re
 
 import environ
-import newrelic.agent
 
 from treeherder.model.models import (
     BugJobMap,
@@ -106,16 +105,12 @@ class ClassificationLoader:
             raise
 
         try:
-            newrelic.agent.add_custom_attribute("project", project)
-
             repository = Repository.objects.get(name=project)
         except Repository.DoesNotExist:
             logger.info("Job with unsupported project: %s", project)
             raise
 
         try:
-            newrelic.agent.add_custom_attribute("revision", revision)
-
             revision_field = "revision__startswith" if len(revision) < 40 else "revision"
             filter_kwargs = {"repository": repository, revision_field: revision}
 

@@ -2,7 +2,6 @@ import datetime
 import logging
 import re
 
-import newrelic.agent
 from django.core.cache import caches
 
 from treeherder.model.models import Bugscache, TextLogError
@@ -174,7 +173,6 @@ def get_error_summary(job, queryset=None):
     try:
         cache.set(cache_key, error_summary, BUG_SUGGESTION_CACHE_TIMEOUT)
     except Exception as e:
-        newrelic.agent.record_custom_event("error caching error_summary for job", job.id)
         logger.error("error caching error_summary for job %s: %s", job.id, e, exc_info=True)
 
     try:
@@ -182,7 +180,6 @@ def get_error_summary(job, queryset=None):
         # TODO: consider reducing this, each date is ~5%, so it will be faster
         lcache.update_db_cache(date, line_cache[date])
     except Exception as e:
-        newrelic.agent.record_custom_event("error caching error_lines for job", job.id)
         logger.error("error caching error_lines for job %s: %s", job.id, e, exc_info=True)
 
     return error_summary

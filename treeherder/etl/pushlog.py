@@ -1,7 +1,6 @@
 import logging
 import traceback
 
-import newrelic.agent
 import requests
 from django.core.cache import cache
 
@@ -123,7 +122,6 @@ class HgPushlogProcess:
             try:
                 store_push(repository, self.transform_push(push))
             except Exception:
-                newrelic.agent.notice_error()
                 errors.append(
                     {
                         "project": repository,

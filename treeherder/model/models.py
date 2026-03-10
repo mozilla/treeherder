@@ -2,10 +2,8 @@ import datetime
 import itertools
 import logging
 import time
-import warnings
 from hashlib import sha1
 
-import newrelic.agent
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.postgres.indexes import GinIndex
@@ -20,8 +18,6 @@ from django.forms import model_to_dict
 from django.utils import timezone
 
 from treeherder.webapp.api.utils import REPO_GROUPS, to_timestamp
-
-warnings.filterwarnings("ignore", category=DeprecationWarning, module="newrelic")
 
 logger = logging.getLogger(__name__)
 
@@ -297,7 +293,6 @@ class Bugscache(models.Model):
             open_recent = [x for x in all_data if x["resolution"] == ""]
             all_others = [x for x in all_data if x["resolution"] != ""]
         except ProgrammingError as e:
-            newrelic.agent.notice_error()
             logger.error(
                 f"Failed to execute FULLTEXT search on Bugscache, error={e}, SQL={recent_qs.query.__str__()}"
             )
@@ -1303,18 +1298,9 @@ class TextLogError(models.Model):
             self.metadata.best_is_verified = True
             self.metadata.save(update_fields=["best_classification", "best_is_verified"])
 
-        # Send event to NewRelic when a verifing an autoclassified failure.
         match = self.matches.filter(classified_failure=classification).first()
         if not match:
             return
-
-        newrelic.agent.record_custom_event(
-            "user_verified_classification",
-            {
-                "matcher": match.matcher_name,
-                "job_id": self.id,
-            },
-        )
 
     def get_failure_line(self):
         """Get a related FailureLine instance if one exists."""
