@@ -72,6 +72,7 @@ export default class GraphsViewControls extends React.Component {
       updateStateParams,
       highlightAlerts,
       highlightChangelogData,
+      highlightInitialDataPoints,
       highlightedRevisions,
       highlightCommonAlerts,
       updateTimeRange,
@@ -146,11 +147,11 @@ export default class GraphsViewControls extends React.Component {
               />
             )}
 
-            <Row className="justify-content-start pt-2 pb-5 max-width-default mx-auto">
+            <Row className="justify-content-start pt-2 max-width-default mx-auto">
               {highlightedRevisions.length > 0 &&
                 highlightedRevisions.map((revision, index) => (
                   // eslint-disable-next-line react/no-array-index-key
-                  <Col sm="2" className="ps-0 pe-3" key={index}>
+                  <Col sm="auto" className="ps-0 pe-3" key={index}>
                     <Form.Control
                       type="text"
                       name={`revision ${revision}`}
@@ -165,7 +166,9 @@ export default class GraphsViewControls extends React.Component {
                     />
                   </Col>
                 ))}
-              {!showTable && (
+            </Row>
+            {!showTable && (
+              <Row className="justify-content-start pt-3 pb-5 max-width-default mx-auto">
                 <Col sm="auto" className="ps-0">
                   <Button
                     variant="outline-darker-info"
@@ -178,6 +181,7 @@ export default class GraphsViewControls extends React.Component {
                   >
                     Highlight alerts
                   </Button>
+
                   <Button
                     className="ms-3"
                     variant="outline-darker-info"
@@ -202,6 +206,20 @@ export default class GraphsViewControls extends React.Component {
                   >
                     Highlight common alerts
                   </Button>
+
+                  <Button
+                    className="ms-3"
+                    variant="outline-darker-info"
+                    onClick={() =>
+                      updateStateParams({
+                        highlightInitialDataPoints: !highlightInitialDataPoints,
+                      })
+                    }
+                    active={highlightInitialDataPoints}
+                  >
+                    Highlight initial data points
+                  </Button>
+
                   <Button
                     className="ms-3"
                     variant="outline-darker-info"
@@ -215,8 +233,8 @@ export default class GraphsViewControls extends React.Component {
                     Use replicates
                   </Button>
                 </Col>
-              )}
-            </Row>
+              </Row>
+            )}
           </React.Fragment>
         )}
       </Container>
@@ -229,6 +247,7 @@ GraphsViewControls.propTypes = {
   timeRange: PropTypes.shape({}).isRequired,
   highlightAlerts: PropTypes.bool.isRequired,
   highlightChangelogData: PropTypes.bool.isRequired,
+  highlightInitialDataPoints: PropTypes.bool.isRequired,
   highlightedRevisions: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.arrayOf(PropTypes.string),

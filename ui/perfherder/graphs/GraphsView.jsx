@@ -52,6 +52,8 @@ function GraphsView({ projects, frameworks, user }) {
   const [highlightAlerts, setHighlightAlerts] = useState(true);
   const [highlightCommonAlerts, setHighlightCommonAlerts] = useState(false);
   const [highlightChangelogData, setHighlightChangelogData] = useState(false);
+  const [highlightInitialDataPoints, setHighlightInitialDataPoints] =
+    useState(false);
   const [highlightedRevisions, setHighlightedRevisions] = useState(['', '']);
   const [testData, setTestData] = useState([]);
   const [errorMessages, setErrorMessages] = useState([]);
@@ -202,6 +204,7 @@ function GraphsView({ projects, frameworks, user }) {
       highlightAlerts: +highlightAlerts,
       highlightCommonAlerts: +highlightCommonAlerts,
       highlightChangelogData: +highlightChangelogData,
+      highlightInitialDataPoints: +highlightInitialDataPoints,
       timerange: timeRangeRef.current.value,
       replicates: +replicatesRef.current,
       zoom,
@@ -233,6 +236,7 @@ function GraphsView({ projects, frameworks, user }) {
     highlightAlerts,
     highlightCommonAlerts,
     highlightChangelogData,
+    highlightInitialDataPoints,
     highlightedRevisions,
     selectedDataPoint,
     zoom,
@@ -323,6 +327,8 @@ function GraphsView({ projects, frameworks, user }) {
       setHighlightCommonAlerts(state.highlightCommonAlerts);
     if (state.highlightChangelogData !== undefined)
       setHighlightChangelogData(state.highlightChangelogData);
+    if (state.highlightInitialDataPoints !== undefined)
+      setHighlightInitialDataPoints(state.highlightInitialDataPoints);
     if (state.highlightedRevisions !== undefined)
       setHighlightedRevisions(state.highlightedRevisions);
     if (state.visibilityChanged !== undefined)
@@ -342,6 +348,7 @@ function GraphsView({ projects, frameworks, user }) {
       highlightAlerts: hlAlerts,
       highlightCommonAlerts: hlCommonAlerts,
       highlightChangelogData: hlChangelogData,
+      highlightInitialDataPoints: hlInitialDataPoints,
       highlightedRevisions: hlRevisions,
       replicates: replicatesParam,
     } = queryString.parse(location.search);
@@ -365,6 +372,11 @@ function GraphsView({ projects, frameworks, user }) {
     }
     if (hlChangelogData) {
       updates.highlightChangelogData = Boolean(parseInt(hlChangelogData, 10));
+    }
+    if (hlInitialDataPoints) {
+      updates.highlightInitialDataPoints = Boolean(
+        parseInt(hlInitialDataPoints, 10),
+      );
     }
     if (replicatesParam) {
       updates.replicates = Boolean(parseInt(replicatesParam, 10));
@@ -391,6 +403,8 @@ function GraphsView({ projects, frameworks, user }) {
       setHighlightCommonAlerts(updates.highlightCommonAlerts);
     if (updates.highlightChangelogData !== undefined)
       setHighlightChangelogData(updates.highlightChangelogData);
+    if (updates.highlightInitialDataPoints !== undefined)
+      setHighlightInitialDataPoints(updates.highlightInitialDataPoints);
     if (updates.replicates !== undefined) setReplicates(updates.replicates);
     if (updates.highlightedRevisions !== undefined)
       setHighlightedRevisions(updates.highlightedRevisions);
@@ -536,6 +550,7 @@ function GraphsView({ projects, frameworks, user }) {
               showTable={showTable}
               highlightAlerts={highlightAlerts}
               highlightChangelogData={highlightChangelogData}
+              highlightInitialDataPoints={highlightInitialDataPoints}
               highlightedRevisions={highlightedRevisions}
               highlightCommonAlerts={highlightCommonAlerts}
               zoom={zoom}

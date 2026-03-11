@@ -84,6 +84,7 @@ const graphsViewControls = async (
     dataPointId: testData[0].data[1].id,
   },
   skipWait = false,
+  highlightInitialDataPoints = false,
 ) => {
   const updateStateParams = () => {};
 
@@ -93,6 +94,7 @@ const graphsViewControls = async (
         updateStateParams={handleUpdateStateParams || updateStateParams}
         highlightAlerts={false}
         highlightChangelogData
+        highlightInitialDataPoints={highlightInitialDataPoints}
         highlightedRevisions={['', '']}
         updateTimeRange={() => {}}
         hasNoData={hasNoData}
@@ -718,6 +720,64 @@ describe('Mocked API calls', () => {
 
     expect(updateStateParams).toHaveBeenCalledTimes(1);
   });
+
+  test("'Highlight initial data points' button can be turned on", async () => {
+  const updateStateParams = jest.fn();
+  const { getByText } = await graphsViewControls(
+    graphData,
+    false,
+    false,
+    updateStateParams,
+    undefined,
+    false,
+    false,
+  );
+
+  const initialDataPointsButton = await waitFor(() =>
+    getByText('Highlight initial data points'),
+  );
+
+  expect(initialDataPointsButton.classList).not.toContain('active');
+
+  fireEvent.click(initialDataPointsButton);
+
+  await waitFor(() => {
+    expect(updateStateParams).toHaveBeenCalledTimes(1);
+  });
+
+  expect(updateStateParams).toHaveBeenCalledWith({
+    highlightInitialDataPoints: true,
+  });
+});
+
+test("'Highlight initial data points' button can be turned off", async () => {
+  const updateStateParams = jest.fn();
+  const { getByText } = await graphsViewControls(
+    graphData,
+    false,
+    false,
+    updateStateParams,
+    undefined,
+    false,
+    true,
+  );
+
+  const initialDataPointsButton = await waitFor(() =>
+    getByText('Highlight initial data points'),
+  );
+
+  expect(initialDataPointsButton.classList).toContain('active');
+
+  fireEvent.click(initialDataPointsButton);
+
+  await waitFor(() => {
+    expect(updateStateParams).toHaveBeenCalledTimes(1);
+  });
+
+  expect(updateStateParams).toHaveBeenCalledWith({
+    highlightInitialDataPoints: false,
+  });
+});
 
   test("'Use replicates' button can be turned on", async () => {
     const updateStateParams = jest.fn();
