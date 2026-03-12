@@ -1,4 +1,5 @@
 import datetime
+import logging
 import multiprocessing
 import time
 import warnings
@@ -54,6 +55,8 @@ from .performance_serializers import (
     TestSuiteHealthSerializer,
 )
 from .utils import SHERIFFED_FRAMEWORKS, GroupConcat, get_profile_artifact_url
+
+logger = logging.getLogger(__name__)
 
 
 class PerformanceSignatureViewSet(viewsets.ViewSet):
@@ -1206,6 +1209,7 @@ class PerfCompareResults(generics.ListAPIView):
 
         # Process tasks in parallel using multiprocessing
         workers = multiprocessing.cpu_count()
+        logger.warning(f"Workers used for MWU analysis: {workers}")
         with multiprocessing.Pool(processes=workers) as pool:
             results = pool.starmap(self._process_mann_whitney_task, tasks)
 
