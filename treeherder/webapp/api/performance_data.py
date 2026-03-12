@@ -56,7 +56,6 @@ from .performance_serializers import (
 )
 from .utils import SHERIFFED_FRAMEWORKS, GroupConcat, get_profile_artifact_url
 
-
 logger = logging.getLogger(__name__)
 
 
