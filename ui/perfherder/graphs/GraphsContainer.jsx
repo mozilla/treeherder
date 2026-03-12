@@ -250,6 +250,13 @@ isInitialWithRetriggers = (datum) => {
   }
 
   const currentTime = new Date(datum.retrigger_time).getTime();
+
+  // Invalid retrigger_time should never be highlighted
+  // For "Use replicates" button
+  if (Number.isNaN(currentTime)) {
+    return false;
+  }
+
   const currentIndex = seriesData.findIndex(
     (point) => point.dataPointId === datum.dataPointId,
   );
