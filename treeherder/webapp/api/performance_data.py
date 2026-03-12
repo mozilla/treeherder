@@ -1,4 +1,5 @@
 import datetime
+import logging
 import multiprocessing
 import time
 import warnings
@@ -54,6 +55,9 @@ from .performance_serializers import (
     TestSuiteHealthSerializer,
 )
 from .utils import SHERIFFED_FRAMEWORKS, GroupConcat, get_profile_artifact_url
+
+
+logger = logging.getLogger(__name__)
 
 
 class PerformanceSignatureViewSet(viewsets.ViewSet):
@@ -1160,8 +1164,10 @@ class PerfCompareResults(generics.ListAPIView):
         Process performance comparison results using Mann-Whitney U test with parallel processing.
         """
         tasks = []
+        count = 0
         for header in header_names:
             for platform in platforms:
+                count += 1
                 # Build common result using shared method
                 (
                     lower_is_better,
@@ -1201,11 +1207,13 @@ class PerfCompareResults(generics.ListAPIView):
                         header,
                         lower_is_better,
                         common_result,
+                        count
                     )
                 )
 
         # Process tasks in parallel using multiprocessing
         workers = multiprocessing.cpu_count()
+        logger.warning(f"[sparky] workers: {workers}")
         with multiprocessing.Pool(processes=workers) as pool:
             results = pool.starmap(self._process_mann_whitney_task, tasks)
 
@@ -1665,12 +1673,13 @@ class PerfCompareResults(generics.ListAPIView):
 
     @staticmethod
     def _process_mann_whitney_task(
-        statistics_base_perf_data, statistics_new_perf_data, header, lower_is_better, common_result
+        statistics_base_perf_data, statistics_new_perf_data, header, lower_is_better, common_result, count
     ):
         """
         Process a single mann-whitney-u test task for parallel execution.
         This is a static method so it can be pickled by multiprocessing.
         """
+        logger.warning(f"[sparky] running new process for {count}")
         # Suppress warnings during statistical processing to avoid cluttering output
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
