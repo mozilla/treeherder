@@ -1264,3 +1264,135 @@ def test_perfcompare_results_with_mann_witney_u_against_no_base(
     assert expected[0] == response.json()[0]
     assert response.json()[0]["base_parent_signature"] is None
     assert response.json()[0]["new_parent_signature"] is None
+
+
+def test_perfcompare_results_with_silverman_kde_enabled(
+    client,
+    create_signature,
+    test_perf_signature,
+    test_repository,
+    try_repository,
+    eleven_jobs_stored,
+    test_perfcomp_push,
+    test_perfcomp_push_2,
+    test_linux_platform,
+    test_option_collection,
+):
+    """Test that enabling silverman_kde parameter includes KDE analysis in response"""
+    perf_jobs = Job.objects.filter(pk__in=range(1, 11)).order_by("push__time").all()
+
+    test_perfcomp_push.time = FOUR_DAYS_AGO
+    test_perfcomp_push.repository = try_repository
+    test_perfcomp_push.save()
+    test_perfcomp_push_2.time = datetime.datetime.now()
+    test_perfcomp_push_2.save()
+
+    suite = "a11yr"
+    test = "dhtml.html"
+    extra_options = "e10s fission stylo webrender"
+    measurement_unit = "ms"
+
+    # Create base signature
+    base_sig = create_signature(
+        signature_hash=(20 * "k1"),
+        extra_options=extra_options,
+        platform=test_linux_platform,
+        measurement_unit=measurement_unit,
+        suite=suite,
+        test=test,
+        test_perf_signature=test_perf_signature,
+        repository=try_repository,
+    )
+
+    # Create base data point with replicates
+    base_job = perf_jobs[0]
+    base_job.push = test_perfcomp_push
+    base_job.save()
+    base_perf_datum = PerformanceDatum.objects.create(
+        value=103.0,
+        push_timestamp=base_job.push.time,
+        job=base_job,
+        push=base_job.push,
+        repository=try_repository,
+        signature=base_sig,
+    )
+    base_perf_datum.push.time = base_job.push.time
+    base_perf_datum.push.save()
+    # Add replicates for base
+    for replicate_value in [100.0, 105.0, 102.0, 104.0]:
+        PerformanceDatumReplicate.objects.create(
+            performance_datum=base_perf_datum, value=replicate_value
+        )
+
+    # Create new signature
+    new_sig = create_signature(
+        signature_hash=(20 * "k2"),
+        extra_options=extra_options,
+        platform=test_linux_platform,
+        measurement_unit=measurement_unit,
+        suite=suite,
+        test=test,
+        test_perf_signature=test_perf_signature,
+        repository=test_repository,
+    )
+
+    # Create new data point with replicates
+    new_job = perf_jobs[1]
+    new_job.push = test_perfcomp_push_2
+    new_job.save()
+    new_perf_datum = PerformanceDatum.objects.create(
+        value=113.0,
+        push_timestamp=new_job.push.time,
+        job=new_job,
+        push=new_job.push,
+        repository=test_repository,
+        signature=new_sig,
+    )
+    new_perf_datum.push.time = new_job.push.time
+    new_perf_datum.push.save()
+    # Add replicates for new
+    for replicate_value in [110.0, 115.0, 112.0, 114.0]:
+        PerformanceDatumReplicate.objects.create(
+            performance_datum=new_perf_datum, value=replicate_value
+        )
+
+    # Test without enable_silverman_kde (should not include KDE data)
+    query_params_without_kde = (
+        f"?base_repository={try_repository.name}&new_repository={test_repository.name}"
+        f"&new_revision={test_perfcomp_push_2.revision}"
+        f"&framework={test_perf_signature.framework_id}"
+        f"&interval=604800&no_subtests=true&test_version=mann-whitney-u"
+    )
+
+    response = client.get(reverse("perfcompare-results") + query_params_without_kde)
+    assert response.status_code == 200
+    results = response.json()
+    assert len(results) > 0, "Expected at least one result"
+    result_without_kde = results[0]
+    # Should have silverman_kde fields but set to None/empty
+    assert result_without_kde["silverman_kde"] is None
+    assert result_without_kde["silverman_warnings"] == []
+
+    # Test with enable_silverman_kde=true (should include KDE data)
+    query_params_with_kde = query_params_without_kde + "&enable_silverman_kde=true&replicates=true"
+
+    response = client.get(reverse("perfcompare-results") + query_params_with_kde)
+    assert response.status_code == 200
+    results_with_kde = response.json()
+    assert len(results_with_kde) > 0, "Expected at least one result with KDE enabled"
+    result_with_kde = results_with_kde[0]
+
+    # Verify silverman_kde data is present and has expected structure
+    assert result_with_kde["silverman_kde"] is not None
+    silverman_data = result_with_kde["silverman_kde"]
+
+    # Check for expected keys in silverman_kde response
+    assert "bandwidth" in silverman_data
+    assert silverman_data["bandwidth"] == "Silverman"
+    assert "base_mode_count" in silverman_data
+    assert "new_mode_count" in silverman_data
+    assert "modes" in silverman_data
+    assert isinstance(silverman_data["modes"], list)
+
+    # Verify warnings is a list (may be empty or contain warnings)
+    assert isinstance(result_with_kde["silverman_warnings"], list)

@@ -519,6 +519,7 @@ class PerfCompareResultsQueryParamsSerializer(serializers.Serializer):
     new_parent_signature = serializers.CharField(required=False, allow_null=True, default=None)
     replicates = serializers.BooleanField(required=False)
     test_version = serializers.CharField(required=False, default="student-t")
+    enable_silverman_kde = serializers.BooleanField(required=False, default=False)
 
     def validate_base_parent_signature(self, value):
         if value == "null":
