@@ -1207,7 +1207,7 @@ class PerfCompareResults(generics.ListAPIView):
                         header,
                         lower_is_better,
                         common_result,
-                        count
+                        count,
                     )
                 )
 
@@ -1673,7 +1673,12 @@ class PerfCompareResults(generics.ListAPIView):
 
     @staticmethod
     def _process_mann_whitney_task(
-        statistics_base_perf_data, statistics_new_perf_data, header, lower_is_better, common_result, count
+        statistics_base_perf_data,
+        statistics_new_perf_data,
+        header,
+        lower_is_better,
+        common_result,
+        count,
     ):
         """
         Process a single mann-whitney-u test task for parallel execution.
