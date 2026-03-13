@@ -154,7 +154,7 @@ class FailureSummaryTab extends React.Component {
     });
 
     // Second pass: filter out generic errors
-    return suggestions.filter((suggestion) => {
+    const filtered = suggestions.filter((suggestion) => {
       // Filter taskcluster errors since there are other messages (length > 1)
       if (/^\[taskcluster:error\] exit status -?\d+$/.test(suggestion.search)) {
         return false;
@@ -166,6 +166,20 @@ class FailureSummaryTab extends React.Component {
         !testPathsWithSpecificErrors.has(suggestion.path_end)
       );
     });
+
+    // Third pass: mark first occurrence of each test path to show bugs
+    const seenTestPaths = new Set();
+    filtered.forEach((suggestion) => {
+      if (!suggestion.path_end) {
+        suggestion.showBugSuggestions = true;
+        return;
+      }
+
+      suggestion.showBugSuggestions = !seenTestPaths.has(suggestion.path_end);
+      seenTestPaths.add(suggestion.path_end);
+    });
+
+    return filtered;
   };
 
   loadBugSuggestions = () => {

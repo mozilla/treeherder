@@ -62,85 +62,87 @@ export default class SuggestionsListItem extends React.Component {
 
     const suggestions = [];
 
-    // Open recent bugs
-    if (suggestion.valid_open_recent) {
-      suggestions.push(
-        <ul
-          className="list-unstyled failure-summary-bugs"
-          key="open-recent-bugs"
-        >
-          {suggestion.bugs.open_recent.map((bug) => (
-            <BugListItem
-              key={bug.internal_id}
-              bug={bug}
-              suggestion={suggestion}
-              selectedJob={selectedJob}
-              addBug={addBug}
-              toggleBugFiler={toggleBugFiler}
-              bugClassName={
-                developerMode ? 'text-darker-secondary small-text' : ''
-              }
-              title={bug.resolution !== '' ? bug.resolution : ''}
-            />
-          ))}
-        </ul>,
-      );
-
-      // All other bugs
-      if (suggestion.valid_all_others) {
+    if (suggestion.showBugSuggestions) {
+      // Open recent bugs
+      if (suggestion.valid_open_recent) {
         suggestions.push(
-          <Button
-            key="show-hide-more"
-            size="sm"
-            variant="outline-dark"
-            rel="noopener"
-            onClick={this.clickShowMore}
-            className={`show-more-suggestions my-2 ${
-              developerMode && 'text-darker-secondary small-text'
-            }`}
+          <ul
+            className="list-unstyled failure-summary-bugs"
+            key="open-recent-bugs"
           >
-            {suggestionShowMore
-              ? 'Hide bug suggestions'
-              : 'Show more bug suggestions'}
-          </Button>,
+            {suggestion.bugs.open_recent.map((bug) => (
+              <BugListItem
+                key={bug.internal_id}
+                bug={bug}
+                suggestion={suggestion}
+                selectedJob={selectedJob}
+                addBug={addBug}
+                toggleBugFiler={toggleBugFiler}
+                bugClassName={
+                  developerMode ? 'text-darker-secondary small-text' : ''
+                }
+                title={bug.resolution !== '' ? bug.resolution : ''}
+              />
+            ))}
+          </ul>,
+        );
+
+        // All other bugs
+        if (suggestion.valid_all_others) {
+          suggestions.push(
+            <Button
+              key="show-hide-more"
+              size="sm"
+              variant="outline-dark"
+              rel="noopener"
+              onClick={this.clickShowMore}
+              className={`show-more-suggestions my-2 ${
+                developerMode && 'text-darker-secondary small-text'
+              }`}
+            >
+              {suggestionShowMore
+                ? 'Hide bug suggestions'
+                : 'Show more bug suggestions'}
+            </Button>,
+          );
+        }
+      }
+
+      if (
+        suggestion.valid_all_others &&
+        (suggestionShowMore || !suggestion.valid_open_recent)
+      ) {
+        suggestions.push(
+          <ul className="list-unstyled failure-summary-bugs" key="all-others">
+            {suggestion.bugs.all_others.map((bug) => (
+              <BugListItem
+                key={bug.id}
+                bug={bug}
+                suggestion={suggestion}
+                bugClassName={`${
+                  developerMode ? 'text-darker-secondary small-text' : ''
+                }`}
+                title={bug.resolution !== '' ? bug.resolution : ''}
+                selectedJob={selectedJob}
+                addBug={addBug}
+                toggleBugFiler={toggleBugFiler}
+              />
+            ))}
+          </ul>,
         );
       }
-    }
 
-    if (
-      suggestion.valid_all_others &&
-      (suggestionShowMore || !suggestion.valid_open_recent)
-    ) {
-      suggestions.push(
-        <ul className="list-unstyled failure-summary-bugs" key="all-others">
-          {suggestion.bugs.all_others.map((bug) => (
-            <BugListItem
-              key={bug.id}
-              bug={bug}
-              suggestion={suggestion}
-              bugClassName={`${
-                developerMode ? 'text-darker-secondary small-text' : ''
-              }`}
-              title={bug.resolution !== '' ? bug.resolution : ''}
-              selectedJob={selectedJob}
-              addBug={addBug}
-              toggleBugFiler={toggleBugFiler}
-            />
-          ))}
-        </ul>,
-      );
-    }
-
-    if (
-      suggestion.bugs.too_many_open_recent ||
-      (suggestion.bugs.too_many_all_others && !suggestion.valid_open_recent)
-    ) {
-      suggestions.push(
-        <mark key="too-many">
-          Exceeded max {thBugSuggestionLimit} bug suggestions, most of which are
-          likely false positives.
-        </mark>,
-      );
+      if (
+        suggestion.bugs.too_many_open_recent ||
+        (suggestion.bugs.too_many_all_others && !suggestion.valid_open_recent)
+      ) {
+        suggestions.push(
+          <mark key="too-many">
+            Exceeded max {thBugSuggestionLimit} bug suggestions, most of which
+            are likely false positives.
+          </mark>,
+        );
+      }
     }
     const filterTestPath = suggestion.search.match(/([a-z_\-0-9]+[/])+/gi);
 
