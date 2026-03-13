@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  cacache: 19.0.1
+  cacache: 20.0.3
   '@mui/styled-engine': npm:@mui/styled-engine-sc@latest
 
 importers:
