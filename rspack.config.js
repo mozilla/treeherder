@@ -115,6 +115,7 @@ const commonConfig = {
         { from: 'ui/contribute.json', to: 'contribute.json' },
         { from: 'ui/revision.txt', to: 'revision.txt' },
         { from: 'ui/robots.txt', to: 'robots.txt' },
+        { from: 'ui/.well-known', to: '.well-known' },
       ],
     }),
     // Strip moment locales to reduce bundle size (keep only English)
