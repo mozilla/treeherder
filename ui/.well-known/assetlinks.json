@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "org.mozilla.tryfox",
+    "sha256_cert_fingerprints": [
+      "8B:D3:17:55:F3:9E:51:81:62:3F:0B:E3:1D:64:8D:A2:24:0E:C0:F2:88:38:EB:A3:D8:89:67:DE:F5:4D:FF:36"
+    ]
+  }
+}]
