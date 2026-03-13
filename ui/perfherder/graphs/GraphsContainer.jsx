@@ -238,6 +238,56 @@ class GraphsContainer extends React.Component {
     this.setState({ highlights, highlightCommonAlertsData });
   };
 
+isInitialWithRetriggers = (datum) => {
+  const testDetails = this.props.testData.find(
+    (item) => item.signature_id === datum.signature_id,
+  );
+
+  const seriesData = testDetails?.data || [];
+
+  if (!datum?.pushId || seriesData.length === 0 || !datum?.retrigger_time) {
+    return false;
+  }
+
+  const currentTime = new Date(datum.retrigger_time).getTime();
+
+  // Invalid retrigger_time should never be highlighted
+  // For "Use replicates" button
+  if (Number.isNaN(currentTime)) {
+    return false;
+  }
+
+  const currentIndex = seriesData.findIndex(
+    (point) => point.dataPointId === datum.dataPointId,
+  );
+  let retriggerCount = 0;
+
+  for (let i = 0; i < seriesData.length; i++) {
+    const point = seriesData[i];
+
+    if (point.pushId !== datum.pushId || !point.retrigger_time) {
+      continue;
+    }
+
+    retriggerCount += 1;
+
+    const pointTime = new Date(point.retrigger_time).getTime();
+
+    // If another point happened earlier → this is not the first
+    if (pointTime < currentTime) {
+      return false;
+    }
+
+    // If the time is equal but the other point appears earlier in the array → this is not the first
+    if (pointTime === currentTime && i < currentIndex) {
+      return false;
+    }
+  }
+
+  // Only highlight if there are retriggers
+  return retriggerCount > 1;
+};
+
   // The Victory library doesn't provide a way of dynamically setting the left
   // padding for the y axis tick labels, so this is a workaround (setting state
   // doesn't work with this callback, which is why a class property is used instead)
@@ -325,6 +375,7 @@ class GraphsContainer extends React.Component {
       highlightedRevisions = ['', ''],
       highlightChangelogData,
       highlightCommonAlerts,
+      highlightInitialDataPoints,
     } = this.props;
     const {
       highlights,
@@ -534,6 +585,23 @@ class GraphsContainer extends React.Component {
                     />
                   )}
 
+                  {highlightInitialDataPoints && (
+                    <VictoryScatter
+                      name="retrigger-ring"
+                      data={scatterPlotData.filter((d) =>
+                        this.isInitialWithRetriggers(d),
+                      )}
+                      size={() => DOT_SIZE + 3}
+                      style={{
+                        data: {
+                          fill: 'transparent',
+                          stroke:({ datum }) => datum.z,
+                          strokeWidth: 2,
+                        },
+                      }}
+                    />
+                  )}
+
                   <VictoryScatter
                     name="scatter-plot"
                     symbol={({ datum }) => (datum._z ? datum._z[0] : 'circle')}
@@ -737,6 +805,7 @@ GraphsContainer.propTypes = {
   zoom: PropTypes.shape({}),
   selectedDataPoint: PropTypes.shape({}),
   highlightAlerts: PropTypes.bool,
+  highlightInitialDataPoints: PropTypes.bool,
   highlightedRevisions: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.arrayOf(PropTypes.string),
