@@ -1006,6 +1006,7 @@ class PerfCompareResults(generics.ListAPIView):
         new_parent_signature = query_params.validated_data["new_parent_signature"]
         replicates = query_params.validated_data["replicates"]
         test_version = query_params.validated_data["test_version"]
+        enable_silverman_kde = query_params.validated_data["enable_silverman_kde"]
 
         try:
             new_push = models.Push.objects.get(revision=new_rev, repository__name=new_repo_name)
@@ -1106,6 +1107,7 @@ class PerfCompareResults(generics.ListAPIView):
                 new_repo_name,
                 framework,
                 push_timestamp,
+                enable_silverman_kde,
             )
         else:
             self._process_student_t_version(
@@ -1155,6 +1157,7 @@ class PerfCompareResults(generics.ListAPIView):
         new_repo_name,
         framework,
         push_timestamp,
+        enable_silverman_kde,
     ):
         """
         Process performance comparison results using Mann-Whitney U test with parallel processing.
@@ -1201,6 +1204,7 @@ class PerfCompareResults(generics.ListAPIView):
                         header,
                         lower_is_better,
                         common_result,
+                        enable_silverman_kde,
                     )
                 )
 
@@ -1665,7 +1669,12 @@ class PerfCompareResults(generics.ListAPIView):
 
     @staticmethod
     def _process_mann_whitney_task(
-        statistics_base_perf_data, statistics_new_perf_data, header, lower_is_better, common_result
+        statistics_base_perf_data,
+        statistics_new_perf_data,
+        header,
+        lower_is_better,
+        common_result,
+        enable_silverman_kde,
     ):
         """
         Process a single mann-whitney-u test task for parallel execution.
@@ -1680,6 +1689,7 @@ class PerfCompareResults(generics.ListAPIView):
                 header,
                 lower_is_better,
                 remove_outliers=False,
+                enable_silverman_kde=enable_silverman_kde,
             )
 
         row_result = {
@@ -1696,6 +1706,7 @@ class PerfCompareResults(generics.ListAPIView):
         lower_is_better,
         remove_outliers=stats.ENABLE_REMOVE_OUTLIERS,
         pvalue_threshold=stats.PVALUE_THRESHOLD,
+        enable_silverman_kde=False,
     ):
         # extract data, potentially removing outliers
         if remove_outliers:
@@ -1795,6 +1806,19 @@ class PerfCompareResults(generics.ListAPIView):
             cles_obj["effect_size"] = cliffs_interpretation
             cles_obj["cles_direction"] = direction
 
+        # Silverman KDE analysis (optional)
+        silverman_kde = None
+        silverman_warnings = []
+        if enable_silverman_kde:
+            (
+                silverman_kde,
+                silverman_is_regression,
+                silverman_is_improvement,
+                silverman_more_runs_needed,
+                silverman_warnings,
+                silverman_performance_interpretation,
+            ) = stats.interpret_silverman_kde(base_rev_data, new_rev_data, lower_is_better)
+
         stats_data = {
             "base_standard_stats": {
                 "count": base_count,
@@ -1840,6 +1864,9 @@ class PerfCompareResults(generics.ListAPIView):
             "is_meaningful": is_effect_meaningful,
             "lower_is_better": lower_is_better,
             "direction_of_change": direction,  # 'no change', 'improvement', or 'regression'
+            # Silverman KDE analysis (optional)
+            "silverman_kde": silverman_kde,
+            "silverman_warnings": silverman_warnings,
         }
 
         return stats_data
