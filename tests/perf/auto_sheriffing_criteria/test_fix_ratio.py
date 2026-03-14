@@ -24,10 +24,10 @@ pytestmark = [pytest.mark.freeze_time(CASSETTES_RECORDING_DATE, tick=True)]
         ("raptor", "raptor-webaudio-firefox"),  # 100%
     ],
 )
-def test_formula_confirms_sheriffed_tests(framework, suite, betamax_recorder):
-    fix_ratio = FixRatioFormula(betamax_recorder.session)
+def test_formula_confirms_sheriffed_tests(framework, suite, vcr_recorder, nonblock_session):
+    fix_ratio = FixRatioFormula(nonblock_session)
 
-    with betamax_recorder.use_cassette(f"{framework}-{suite}", serialize_with="prettyjson"):
+    with vcr_recorder.use_cassette(f"{framework}-{suite}.yaml"):
         assert fix_ratio(framework, suite) >= 0.3
 
 
@@ -39,8 +39,10 @@ def test_formula_confirms_sheriffed_tests(framework, suite, betamax_recorder):
         ("talos", "tp5n", "nonmain_startup_fileio"),  # 0%
     ],
 )
-def test_formula_confirms_non_sheriffed_tests(framework, suite, test, betamax_recorder):
-    fix_ratio = FixRatioFormula(betamax_recorder.session)
+def test_formula_confirms_non_sheriffed_tests(
+    framework, suite, test, vcr_recorder, nonblock_session
+):
+    fix_ratio = FixRatioFormula(nonblock_session)
 
-    with betamax_recorder.use_cassette(f"{framework}-{suite}", serialize_with="prettyjson"):
+    with vcr_recorder.use_cassette(f"{framework}-{suite}.yaml"):
         assert fix_ratio(framework, suite, test) < 0.3

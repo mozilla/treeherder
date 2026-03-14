@@ -111,8 +111,10 @@ def test_accessing_breakdown_without_prior_calculus_errors_out(formula, nonblock
 
 
 @pytest.mark.parametrize("formula_class", concrete_formula_classes())
-def test_formula_demands_at_least_framework_and_suite(formula_class, betamax_recorder):
-    formula = formula_class(betamax_recorder.session)
+def test_formula_demands_at_least_framework_and_suite(
+    formula_class, vcr_recorder, nonblock_session
+):
+    formula = formula_class(nonblock_session)
 
     with pytest.raises(TypeError):
         formula("some_framework")
@@ -120,7 +122,7 @@ def test_formula_demands_at_least_framework_and_suite(formula_class, betamax_rec
     with pytest.raises(TypeError):
         formula()
 
-    with betamax_recorder.use_cassette("awsy-JS", serialize_with="prettyjson"):
+    with vcr_recorder.use_cassette("awsy-JS.yaml"):
         try:
             formula("awsy", "JS")
         except TypeError:
@@ -128,8 +130,8 @@ def test_formula_demands_at_least_framework_and_suite(formula_class, betamax_rec
 
 
 @pytest.mark.parametrize("formula_class", concrete_formula_classes())
-def test_breakdown_updates_between_calculations(formula_class, betamax_recorder):
-    formula = formula_class(betamax_recorder.session)
+def test_breakdown_updates_between_calculations(formula_class, vcr_recorder, nonblock_session):
+    formula = formula_class(nonblock_session)
 
     test_moniker_a = ("build_metrics", "build times")
     test_moniker_b = ("talos", "tp5n", "nonmain_startup_fileio")
@@ -137,11 +139,11 @@ def test_breakdown_updates_between_calculations(formula_class, betamax_recorder)
     cassette_preffix_a = "-".join(filter(None, test_moniker_a))
     cassette_preffix_b = "-".join(filter(None, test_moniker_b))
 
-    with betamax_recorder.use_cassette(f"{cassette_preffix_a}", serialize_with="prettyjson"):
+    with vcr_recorder.use_cassette(f"{cassette_preffix_a}.yaml"):
         formula(*test_moniker_a)  # let it perform calculus & cache breakdown
         breakdown_a = formula.breakdown()
 
-    with betamax_recorder.use_cassette(f"{cassette_preffix_b}", serialize_with="prettyjson"):
+    with vcr_recorder.use_cassette(f"{cassette_preffix_b}.yaml"):
         formula(*test_moniker_b)  # let it perform calculus & cache breakdown
         breakdown_b = formula.breakdown()
 
@@ -149,8 +151,10 @@ def test_breakdown_updates_between_calculations(formula_class, betamax_recorder)
 
 
 @pytest.mark.parametrize("formula_class", concrete_formula_classes())
-def test_breakdown_resets_to_null_when_calculus_errors_out(formula_class, betamax_recorder):
-    formula = formula_class(betamax_recorder.session)
+def test_breakdown_resets_to_null_when_calculus_errors_out(
+    formula_class, vcr_recorder, nonblock_session
+):
+    formula = formula_class(nonblock_session)
 
     test_moniker_a = ("build_metrics", "build times")
     test_moniker_b = ("nonexistent_framework", "nonexistent_suite")
@@ -159,12 +163,12 @@ def test_breakdown_resets_to_null_when_calculus_errors_out(formula_class, betama
     cassette_preffix_b = "-".join(filter(None, test_moniker_b))
 
     # run happy path calculus
-    with betamax_recorder.use_cassette(f"{cassette_preffix_a}", serialize_with="prettyjson"):
+    with vcr_recorder.use_cassette(f"{cassette_preffix_a}.yaml"):
         formula(*test_moniker_a)  # let it perform calculus & cache breakdown
         _ = formula.breakdown()
 
     # now run alternated path calculus
-    with betamax_recorder.use_cassette(f"{cassette_preffix_b}", serialize_with="prettyjson"):
+    with vcr_recorder.use_cassette(f"{cassette_preffix_b}.yaml"):
         with pytest.raises(NoFiledBugsError):
             formula(*test_moniker_b)  # intentionally blows up while doing calculus
 
@@ -184,12 +188,12 @@ def test_breakdown_resets_to_null_when_calculus_errors_out(formula_class, betama
     ],
 )
 def test_formula_fetches_bugs_from_quantifying_period(
-    framework, suite, test, formula_class, betamax_recorder
+    framework, suite, test, formula_class, vcr_recorder, nonblock_session
 ):
-    formula = formula_class(betamax_recorder.session)
+    formula = formula_class(nonblock_session)
     cassette = "-".join(filter(None, [framework, suite, test]))
 
-    with betamax_recorder.use_cassette(f"{cassette}", serialize_with="prettyjson"):
+    with vcr_recorder.use_cassette(f"{cassette}.yaml"):
         formula(framework, suite, test)  # let it perform calculus & cache breakdown
 
     all_filed_bugs, except_new_bugs = formula.breakdown()
@@ -211,12 +215,12 @@ def test_formula_fetches_bugs_from_quantifying_period(
     ],
 )
 def test_formula_filters_out_bugs_that_didnt_cool_down_yet(
-    framework, suite, test, formula_class, betamax_recorder
+    framework, suite, test, formula_class, vcr_recorder, nonblock_session
 ):
-    formula = formula_class(betamax_recorder.session)
+    formula = formula_class(nonblock_session)
     cassette = "-".join(filter(None, [framework, suite, test]))
 
-    with betamax_recorder.use_cassette(f"{cassette}", serialize_with="prettyjson"):
+    with vcr_recorder.use_cassette(f"{cassette}.yaml"):
         formula(framework, suite, test)  # let it perform calculus & cache breakdown
 
     # left with cooled down bugs only
@@ -226,13 +230,11 @@ def test_formula_filters_out_bugs_that_didnt_cool_down_yet(
 
 
 @pytest.mark.parametrize("formula_class", concrete_formula_classes())
-def test_formula_errors_up_when_no_bugs_were_filed(formula_class, betamax_recorder):
-    formula = formula_class(betamax_recorder.session)
+def test_formula_errors_up_when_no_bugs_were_filed(formula_class, vcr_recorder, nonblock_session):
+    formula = formula_class(nonblock_session)
     nonexistent_framework = "nonexistent_framework"
     nonexistent_suite = "nonexistent_suite"
 
-    with betamax_recorder.use_cassette(
-        f"{nonexistent_framework}-{nonexistent_suite}", serialize_with="prettyjson"
-    ):
+    with vcr_recorder.use_cassette(f"{nonexistent_framework}-{nonexistent_suite}.yaml"):
         with pytest.raises(NoFiledBugsError):
             formula(nonexistent_framework, nonexistent_suite)
