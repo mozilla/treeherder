@@ -121,7 +121,7 @@ export default class AuthService {
 
       // apply jitter to stagger tabs. After laptop wake (timeout === 0)
       // use a small 0-5s jitter; otherwise use up to 5 minutes.
-      if (timeout <= 0) {
+      if (timeout === 0) {
         timeout = Math.random() * 5 * 1000;
       } else {
         timeout += Math.random() * 5 * 1000 * 60;
