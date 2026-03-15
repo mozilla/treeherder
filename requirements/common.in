@@ -1,7 +1,7 @@
 # Packages that are shared between deployment and dev environments.
 gunicorn==25.0.3
 whitenoise[brotli]==6.11.0  # Used by Whitenoise to provide Brotli-compressed versions of static files.
-Django==5.1.15
+Django==5.2.12
 celery==5.6.2  # celery needed for data ingestion
 simplejson==3.20.2  # import simplejson
 newrelic==11.2.0
