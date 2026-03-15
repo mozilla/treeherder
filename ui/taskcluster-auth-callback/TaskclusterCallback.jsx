@@ -58,11 +58,11 @@ export default class TaskclusterCallback extends React.PureComponent {
       'userCredentials',
       JSON.stringify({ [rootUrl]: response.data }),
     );
-    if (window.opener) {
-      window.close();
-    } else {
+    // Try to close this window/tab first, then fall back to redirecting
+    window.close();
+    setTimeout(() => {
       window.location.href = window.origin;
-    }
+    }, 500);
   };
 
   fetchToken = async (code, rootUrl) => {

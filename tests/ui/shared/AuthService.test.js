@@ -5,13 +5,26 @@
  * - _fetchUser: Fetching and validating user data from the API
  * - Error handling for failed authentication responses
  * - Proper async/await behavior (no async-promise-executor anti-pattern)
+ * - Tab renewal deduplication (_renewAuth freshness check and lock)
+ * - resetRenewalTimer jitter behavior
+ * - logout clearing renewalLock
  */
 import AuthService from '../../../ui/shared/auth/AuthService';
 import UserModel from '../../../ui/models/user';
 
+const mockRenew = jest.fn();
+const mockCleanupAuth0Cookies = jest.fn();
+
 // Mock dependencies
 jest.mock('../../../ui/helpers/url', () => ({
   getApiUrl: jest.fn((path) => `https://api.test.com${path}`),
+}));
+
+jest.mock('../../../ui/helpers/auth', () => ({
+  userSessionFromAuthResult: jest.fn(),
+  renew: (...args) => mockRenew(...args),
+  loggedOutUser: { isLoggedIn: false },
+  cleanupAuth0Cookies: (...args) => mockCleanupAuth0Cookies(...args),
 }));
 
 jest.mock('../../../ui/models/user');
@@ -31,10 +44,15 @@ describe('AuthService', () => {
 
     // Clear all mocks
     jest.clearAllMocks();
+    mockRenew.mockReset();
+    mockCleanupAuth0Cookies.mockReset();
+    localStorage.clear();
+    jest.useFakeTimers();
   });
 
   afterEach(() => {
     global.fetch = originalFetch;
+    jest.useRealTimers();
   });
 
   describe('constructor', () => {
@@ -188,6 +206,175 @@ describe('AuthService', () => {
 
       expect(caughtError).toBeInstanceOf(Error);
       expect(caughtError.message).toBe('Access denied');
+    });
+  });
+
+  describe('_renewAuth tab deduplication', () => {
+    const futureDate = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+    const pastDate = new Date(Date.now() - 1000).toISOString();
+
+    const freshSession = JSON.stringify({
+      renewAfter: futureDate,
+      accessToken: 'tok',
+      accessTokenExpiresAt: Math.floor(Date.now() / 1000) + 3600,
+      idToken: 'id',
+    });
+
+    const expiredSession = JSON.stringify({
+      renewAfter: pastDate,
+      accessToken: 'tok',
+      accessTokenExpiresAt: Math.floor(Date.now() / 1000) + 3600,
+      idToken: 'id',
+    });
+
+    it('skips renewal when renewAfter is in the future', async () => {
+      localStorage.setItem('userSession', freshSession);
+
+      await authService._renewAuth();
+
+      expect(mockRenew).not.toHaveBeenCalled();
+    });
+
+    it('skips renewal when another tab holds a fresh lock', async () => {
+      localStorage.setItem('userSession', expiredSession);
+      localStorage.setItem('renewalLock', Date.now().toString());
+
+      await authService._renewAuth();
+
+      expect(mockRenew).not.toHaveBeenCalled();
+    });
+
+    it('proceeds when lock is stale (>30s old)', async () => {
+      localStorage.setItem('userSession', expiredSession);
+      localStorage.setItem(
+        'renewalLock',
+        (Date.now() - 31000).toString(),
+      );
+      mockRenew.mockResolvedValue(null);
+
+      await authService._renewAuth();
+
+      expect(mockRenew).toHaveBeenCalled();
+    });
+
+    it('clears lock on successful renewal', async () => {
+      localStorage.setItem('userSession', expiredSession);
+      mockRenew.mockResolvedValue({ accessToken: 'new' });
+      authService.saveCredentialsFromAuthResult = jest.fn();
+      authService.resetRenewalTimer = jest.fn();
+
+      await authService._renewAuth();
+
+      expect(localStorage.getItem('renewalLock')).toBeNull();
+    });
+
+    it('clears lock on renewal failure', async () => {
+      localStorage.setItem('userSession', expiredSession);
+      mockRenew.mockRejectedValue(new Error('network'));
+
+      // suppress expected console.error
+      jest.spyOn(console, 'error').mockImplementation(() => {});
+
+      await authService._renewAuth();
+
+      expect(localStorage.getItem('renewalLock')).toBeNull();
+      console.error.mockRestore();
+    });
+
+    it('does not call renew when no userSession exists', async () => {
+      await authService._renewAuth();
+
+      expect(mockRenew).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('resetRenewalTimer', () => {
+    it('applies small jitter (0-5s) when timeout is 0 or negative', () => {
+      const pastDate = new Date(Date.now() - 1000).toISOString();
+      localStorage.setItem(
+        'userSession',
+        JSON.stringify({ renewAfter: pastDate }),
+      );
+
+      // Mock Math.random to return a known value
+      const randomSpy = jest.spyOn(Math, 'random').mockReturnValue(0.5);
+
+      authService.resetRenewalTimer();
+
+      // With Math.random() = 0.5, jitter = 0.5 * 5 * 1000 = 2500ms
+      expect(authService.renewalTimer).not.toBeNull();
+      randomSpy.mockRestore();
+    });
+
+    it('applies larger jitter (up to 5min) when timeout is positive', () => {
+      const futureDate = new Date(Date.now() + 60000).toISOString();
+      localStorage.setItem(
+        'userSession',
+        JSON.stringify({ renewAfter: futureDate }),
+      );
+
+      const randomSpy = jest.spyOn(Math, 'random').mockReturnValue(0.5);
+
+      authService.resetRenewalTimer();
+
+      expect(authService.renewalTimer).not.toBeNull();
+      randomSpy.mockRestore();
+    });
+
+    it('clears timer and does not set a new one when no session', () => {
+      authService.renewalTimer = setTimeout(() => {}, 1000);
+
+      authService.resetRenewalTimer();
+
+      expect(authService.renewalTimer).toBeNull();
+    });
+  });
+
+  describe('logout', () => {
+    it('clears renewalLock from localStorage', () => {
+      localStorage.setItem('renewalLock', Date.now().toString());
+
+      authService.logout();
+
+      expect(localStorage.getItem('renewalLock')).toBeNull();
+    });
+
+    it('clears userSession from localStorage', () => {
+      localStorage.setItem('userSession', '{}');
+
+      authService.logout();
+
+      expect(localStorage.getItem('userSession')).toBeNull();
+    });
+
+    it('calls cleanupAuth0Cookies on logout', () => {
+      authService.logout();
+
+      expect(mockCleanupAuth0Cookies).toHaveBeenCalled();
+    });
+  });
+
+  describe('auth0 cookie cleanup (Bug 1749962)', () => {
+    const pastDate = new Date(Date.now() - 1000).toISOString();
+    const expiredSession = JSON.stringify({
+      renewAfter: pastDate,
+      accessToken: 'tok',
+      accessTokenExpiresAt: Math.floor(Date.now() / 1000) + 3600,
+      idToken: 'id',
+    });
+
+    it('cleans up auth0 cookies before calling renew', async () => {
+      localStorage.setItem('userSession', expiredSession);
+      mockRenew.mockResolvedValue(null);
+
+      await authService._renewAuth();
+
+      expect(mockCleanupAuth0Cookies).toHaveBeenCalled();
+      // cleanup should happen before renew
+      const cleanupOrder =
+        mockCleanupAuth0Cookies.mock.invocationCallOrder[0];
+      const renewOrder = mockRenew.mock.invocationCallOrder[0];
+      expect(cleanupOrder).toBeLessThan(renewOrder);
     });
   });
 });

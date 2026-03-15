@@ -4,7 +4,7 @@ import isEqual from 'lodash/isEqual';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 
-import { loggedOutUser } from '../../helpers/auth';
+import { loggedOutUser, cleanupAuth0Cookies } from '../../helpers/auth';
 import { getApiUrl, loginCallbackUrl } from '../../helpers/url';
 import UserModel from '../../models/user';
 
@@ -53,12 +53,18 @@ const Login = ({ setUser, user = { isLoggedIn: false }, notify }) => {
           // Show the user as logged out in all other opened tabs
           setLoggedOut();
         }
+      } else if (e.key === 'userSession') {
+        // Another tab renewed or cleared the session; realign our timer
+        authServiceRef.current.resetRenewalTimer();
       }
     },
     [setLoggedIn, setLoggedOut],
   );
 
   useEffect(() => {
+    // Clean up stale auth0 state cookies on page load (Bug 1749962)
+    cleanupAuth0Cookies();
+
     window.addEventListener('storage', handleStorageEvent);
 
     // Ask the back-end if a user is logged in on page load
@@ -76,12 +82,13 @@ const Login = ({ setUser, user = { isLoggedIn: false }, notify }) => {
   }, [handleStorageEvent, setLoggedIn, setLoggedOut]);
 
   /**
-   * Opens a new tab to handle authentication, which will get closed
-   * if it's successful.
+   * Opens a popup window to handle authentication. Using a separate window
+   * ensures any tabs opened during the Auth0/TC OAuth flow (like TC's
+   * dashboard) stay contained in that window instead of the main window.
+   * The window closes itself when authentication completes.
    */
   const login = useCallback(() => {
-    // Intentionally not using `noopener` since `window.opener` used in LoginCallback.
-    window.open(loginCallbackUrl, '_blank');
+    window.open(loginCallbackUrl, 'auth', 'width=600,height=700,popup');
   }, []);
 
   const logout = useCallback(() => {

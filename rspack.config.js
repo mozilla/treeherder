@@ -136,7 +136,7 @@ const developmentConfig = {
     port: process.env.PORT || 5000,
     hot: true,
     historyApiFallback: true,
-    open: true,
+    open: process.env.BROWSER !== 'none',
     client: {
       overlay: {
         errors: true,
