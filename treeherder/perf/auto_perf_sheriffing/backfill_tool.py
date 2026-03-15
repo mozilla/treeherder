@@ -43,6 +43,7 @@ class BackfillTool:
             decision_task_id=decision_task_id,
             input={
                 "retrigger": False,
+                "slices": 25,
             },
             root_url=job.repository.tc_root_url,
         )

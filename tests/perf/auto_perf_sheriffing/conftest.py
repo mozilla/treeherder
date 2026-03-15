@@ -1,4 +1,3 @@
-from copy import copy, deepcopy
 from datetime import datetime, timedelta
 from unittest.mock import MagicMock
 
@@ -12,12 +11,13 @@ from tests.conftest import (
     create_perf_alert,
     create_perf_signature,
 )
-from treeherder.model.models import Job, JobGroup, JobType, MachinePlatform
+from treeherder.model.models import Job, JobGroup, JobType, MachinePlatform, Push
 from treeherder.perf.auto_perf_sheriffing.secretary import Secretary
 from treeherder.perf.models import (
     BackfillRecord,
     BackfillReport,
     PerformanceAlert,
+    PerformanceDatum,
     PerformanceSettings,
     PerformanceSignature,
 )
@@ -33,26 +33,6 @@ load_json_fixture = SampleDataJSONLoader("sherlock")
 def record_context_sample():
     # contains 5 data points that can be backfilled
     return load_json_fixture("recordContext.json")
-
-
-@pytest.fixture(params=["totally_broken_json", "missing_job_fields", "null_job_fields"])
-def broken_context_str(record_context_sample: dict, request) -> list:
-    context_str = json.dumps(record_context_sample)
-    specific = request.param
-
-    if specific == "totally_broken_json":
-        return copy(context_str).replace(r'"', "<")
-
-    else:
-        record_copy = deepcopy(record_context_sample)
-        if specific == "missing_job_fields":
-            for data_point in record_copy:
-                del data_point["job_id"]
-
-        elif specific == "null_job_fields":
-            for data_point in record_copy:
-                data_point["job_id"] = None
-        return json.dumps(record_copy)
 
 
 @pytest.fixture(params=["preliminary", "from_non_linux"])
@@ -131,12 +111,27 @@ def platform_specific_perf_alert(
 
 
 @pytest.fixture
-def record_ready_for_processing(platform_specific_perf_alert, record_context_sample):
-    report = BackfillReport.objects.create(summary=platform_specific_perf_alert.summary)
+def record_ready_for_processing(platform_specific_perf_alert, record_context_sample, test_job_2):
+    alert = platform_specific_perf_alert
+    push_id = alert.summary.push_id
+    push = Push.objects.get(id=push_id)
+
+    PerformanceDatum.objects.create(
+        repository=alert.series_signature.repository,
+        signature=alert.series_signature,
+        push=push,
+        push_timestamp=push.time,
+        job=test_job_2,
+        value=10.0,
+    )
+
+    report = BackfillReport.objects.create(summary=alert.summary)
     record = BackfillRecord.objects.create(
-        alert=platform_specific_perf_alert,
+        alert=alert,
         report=report,
         status=BackfillRecord.READY_FOR_PROCESSING,
+        anchor_push_id=push_id,
+        last_detected_push_id=push_id,
     )
     record.set_context(record_context_sample)
     record.save()

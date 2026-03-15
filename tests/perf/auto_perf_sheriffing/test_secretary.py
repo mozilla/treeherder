@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime, timedelta
+from unittest.mock import patch
 
 import pytest
 import simplejson as json
@@ -12,7 +13,12 @@ from treeherder.perf.auto_perf_sheriffing.outcome_checker import (
     OutcomeStatus,
 )
 from treeherder.perf.auto_perf_sheriffing.secretary import Secretary
-from treeherder.perf.models import BackfillRecord, BackfillReport, PerformanceSettings
+from treeherder.perf.models import (
+    BackfillRecord,
+    BackfillReport,
+    PerformanceDatum,
+    PerformanceSettings,
+)
 
 # we're testing against this (automatically provided by fixtures)
 JOB_TYPE_ID = 1
@@ -299,3 +305,126 @@ class TestOutcomeChecker:
         assert record_backfilled.total_backfills_in_progress == 1
         assert record_backfilled.total_backfills_failed == 1
         assert response == OutcomeStatus.IN_PROGRESS
+
+
+class TestVerifyAndIterate:
+    @pytest.fixture
+    def secretary(self):
+        return Secretary()
+
+    @pytest.fixture
+    def anchor_push(self, create_push, test_repository):
+        return create_push(test_repository, revision=uuid.uuid4(), time=datetime.utcnow())
+
+    @pytest.fixture
+    def record_successful(self, test_perf_alert, record_context_sample, anchor_push):
+        report = BackfillReport.objects.create(summary=test_perf_alert.summary)
+        record = BackfillRecord.objects.create(
+            alert=test_perf_alert,
+            report=report,
+            status=BackfillRecord.SUCCESSFUL,
+            last_detected_push_id=anchor_push.id,
+            anchor_push_id=anchor_push.id,
+        )
+        record.set_context(record_context_sample)
+        record.save()
+        return record
+
+    def test_stops_at_max_iterations(self, secretary, record_successful):
+        record_successful.iteration_count = 5
+        record_successful.save()
+
+        with patch.object(secretary, "re_run_detect_changes") as mock_detect:
+            secretary.verify_and_iterate(record_successful, max_iterations=5)
+            mock_detect.assert_not_called()
+
+        record_successful.refresh_from_db()
+        assert record_successful.status == BackfillRecord.SUCCESSFUL
+
+    def test_stops_when_no_change_detected(self, secretary, record_successful):
+        with patch.object(secretary, "re_run_detect_changes", return_value=(None, None, [])):
+            secretary.verify_and_iterate(record_successful)
+
+        record_successful.refresh_from_db()
+        assert record_successful.status == BackfillRecord.SUCCESSFUL
+
+    def test_stops_when_culprit_stabilized(self, secretary, record_successful):
+        push_id = record_successful.last_detected_push_id
+
+        with patch.object(secretary, "re_run_detect_changes", return_value=(push_id, 2.5, [])):
+            secretary.verify_and_iterate(record_successful)
+
+        record_successful.refresh_from_db()
+        assert record_successful.status == BackfillRecord.SUCCESSFUL
+        logs = record_successful.get_backfill_logs()
+        assert len(logs) == 1
+        assert logs[0]["direction"] == "stabilized"
+
+    def test_queues_next_iteration_when_culprit_moves_left(
+        self, secretary, record_successful, create_push, test_repository, anchor_push
+    ):
+        earlier_push = create_push(
+            test_repository,
+            revision=uuid.uuid4(),
+            time=anchor_push.time - timedelta(days=5),
+        )
+
+        with patch.object(
+            secretary, "re_run_detect_changes", return_value=(earlier_push.id, 3.0, [])
+        ):
+            secretary.verify_and_iterate(record_successful)
+
+        record_successful.refresh_from_db()
+        assert record_successful.status == BackfillRecord.READY_FOR_PROCESSING
+        assert record_successful.last_detected_push_id == earlier_push.id
+        assert record_successful.anchor_push_id == earlier_push.id
+        assert record_successful.get_backfill_logs()[0]["direction"] == "left"
+
+    def test_queues_next_iteration_when_culprit_moves_right(
+        self, secretary, record_successful, create_push, test_repository, anchor_push
+    ):
+        later_push = create_push(
+            test_repository,
+            revision=uuid.uuid4(),
+            time=anchor_push.time + timedelta(days=1),
+        )
+        # gap: push with no performance datum
+        create_push(
+            test_repository,
+            revision=uuid.uuid4(),
+            time=anchor_push.time + timedelta(days=2),
+        )
+        # first datum push after the gap — expected anchor
+        after_gap_push = create_push(
+            test_repository,
+            revision=uuid.uuid4(),
+            time=anchor_push.time + timedelta(days=3),
+        )
+        signature = record_successful.alert.series_signature
+        PerformanceDatum.objects.create(
+            repository=test_repository,
+            signature=signature,
+            push=after_gap_push,
+            push_timestamp=after_gap_push.time,
+            value=10.0,
+        )
+
+        with patch.object(
+            secretary, "re_run_detect_changes", return_value=(later_push.id, 3.0, [])
+        ):
+            secretary.verify_and_iterate(record_successful)
+
+        record_successful.refresh_from_db()
+        assert record_successful.status == BackfillRecord.READY_FOR_PROCESSING
+        assert record_successful.last_detected_push_id == later_push.id
+        assert record_successful.anchor_push_id == after_gap_push.id
+        assert record_successful.get_backfill_logs()[0]["direction"] == "right"
+
+    def test_sets_verification_failed_on_exception(self, secretary, record_successful):
+        with patch.object(
+            secretary, "re_run_detect_changes", side_effect=Exception("unexpected error")
+        ):
+            secretary.verify_and_iterate(record_successful)
+
+        record_successful.refresh_from_db()
+        assert record_successful.status == BackfillRecord.VERIFICATION_FAILED

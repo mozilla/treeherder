@@ -325,6 +325,8 @@ class BackfillReportMaintainer:
                 alert=alert,
                 report=backfill_report,
                 context=json.dumps(retrigger_context, default=default_serializer),
+                last_detected_push_id=alert.summary.push_id,
+                anchor_push_id=alert.summary.push_id,
             )
 
     def __fetch_summaries_to_retrigger(
