@@ -92,7 +92,13 @@ RECORDS_WITH_UPDATED_DATA = [
 RECORDS_UNALLOWED_TO_SYNC = list(
     map(
         copy.deepcopy,
-        chain(*zip(RECORDS_WITH_NO_DATA, RECORDS_WITH_EXPIRED_DATA, RECORDS_WITH_UPDATED_DATA)),
+        chain(
+            *zip(
+                RECORDS_WITH_NO_DATA,
+                RECORDS_WITH_EXPIRED_DATA,
+                RECORDS_WITH_UPDATED_DATA,
+            )
+        ),
     )
 )[:10]
 RECORDS_UNALLOWED_TO_SYNC = [replace(rec, AllowSync=False) for rec in RECORDS_UNALLOWED_TO_SYNC]

@@ -15,12 +15,12 @@ pytestmark = [pytest.mark.freeze_time(CASSETTES_RECORDING_DATE, tick=True)]
 # Considers only
 #  bugs filed by perf sheriffs
 #  bugs that date back to last quantifying period
-#  bugs’ state by the end of the 2nd week
+#  bugs' state by the end of the 2nd week
 #  bugs that are at least 2 weeks old
 
 
 @pytest.fixture
-def quantified_bugs(betamax_recorder) -> list:
+def quantified_bugs(vcr_recorder, nonblock_session) -> list:
     params = {
         "longdesc": "raptor speedometer",
         "longdesc_type": "allwords",
@@ -31,8 +31,8 @@ def quantified_bugs(betamax_recorder) -> list:
         "query_format": "advanced",
     }
 
-    with betamax_recorder.use_cassette("quantified-bugs", serialize_with="prettyjson"):
-        bug_resp = betamax_recorder.session.get(
+    with vcr_recorder.use_cassette("quantified-bugs.yaml"):
+        bug_resp = nonblock_session.get(
             "https://bugzilla.mozilla.org/rest/bug",
             headers={"Accept": "application/json"},
             params=params,
@@ -54,10 +54,10 @@ def cooled_down_bugs(nonblock_session, quantified_bugs) -> list[dict]:
 # Leveraging HTTP VCR
 
 
-def test_formula_counts_tracted_bugs(cooled_down_bugs, betamax_recorder):
-    engineer_traction = EngineerTractionFormula(betamax_recorder.session)
+def test_formula_counts_tracted_bugs(cooled_down_bugs, vcr_recorder, nonblock_session):
+    engineer_traction = EngineerTractionFormula(nonblock_session)
 
-    with betamax_recorder.use_cassette("cooled-down-bug-history", serialize_with="prettyjson"):
+    with vcr_recorder.use_cassette("cooled-down-bug-history.yaml"):
         tracted_bugs = engineer_traction._filter_numerator_bugs(cooled_down_bugs)
         assert len(tracted_bugs) == 2
 
@@ -72,10 +72,12 @@ def test_formula_counts_tracted_bugs(cooled_down_bugs, betamax_recorder):
         ("talos", "tp5n", "main_startup_fileio"),  # 50%
     ],
 )
-def test_final_formula_confirms_sheriffed_tests(framework, suite, test, betamax_recorder):
-    engineer_traction = EngineerTractionFormula(betamax_recorder.session)
+def test_final_formula_confirms_sheriffed_tests(
+    framework, suite, test, vcr_recorder, nonblock_session
+):
+    engineer_traction = EngineerTractionFormula(nonblock_session)
 
-    with betamax_recorder.use_cassette(f"{framework}-{suite}", serialize_with="prettyjson"):
+    with vcr_recorder.use_cassette(f"{framework}-{suite}.yaml"):
         assert engineer_traction(framework, suite) >= 0.35
 
 
@@ -88,8 +90,10 @@ def test_final_formula_confirms_sheriffed_tests(framework, suite, test, betamax_
         ("raptor", "raptor-tp6-google-mail-firefox-cold", "replayed"),  # 0%
     ],
 )
-def test_final_formula_confirms_non_sheriffed_tests(framework, suite, test, betamax_recorder):
-    engineer_traction = EngineerTractionFormula(betamax_recorder.session)
+def test_final_formula_confirms_non_sheriffed_tests(
+    framework, suite, test, vcr_recorder, nonblock_session
+):
+    engineer_traction = EngineerTractionFormula(nonblock_session)
 
-    with betamax_recorder.use_cassette(f"{framework}-{suite}", serialize_with="prettyjson"):
+    with vcr_recorder.use_cassette(f"{framework}-{suite}.yaml"):
         assert engineer_traction(framework, suite, test) < 0.35

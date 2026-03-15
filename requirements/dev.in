@@ -20,18 +20,14 @@ black==25.9.0
 shellcheck-py==0.11.0.1
 
 # To test async code
-pytest-asyncio==1.2.0  # required to pass test_new_job_transformation
+pytest-asyncio==1.3.0
 
 # To test code that's making system time calls
-# pytest-freezegun is not compatible with recent Django versions
-# as long as that issue is not fixed https://github.com/ktosiek/pytest-freezegun/issues/35
-# we need to rely on a fork with a patch: https://github.com/hugovk/pytest-freezegun/tree/require-pytest-3.6
-https://github.com/hugovk/pytest-freezegun/archive/03d7107a877e8f07617f931a379f567d89060085.zip#egg=pytest-freezegun
+pytest-freezer==0.4.9
 
 # To test code that's doing advanced communication
 # with web services via `requests` library
-betamax==0.9.0
-betamax-serializers==0.2.1
+vcrpy==8.1.1
 
 # pip-compile for pinning versions
 pip-tools==7.5.3
