@@ -27,7 +27,7 @@
     "auth0-js": "9.22.1",
     "buffer": "6.0.3",
     "crypto-browserify": "3.12.1",
-    "dayjs": "1.11.19",
+    "dayjs": "1.11.20",
     "fuse.js": "6.0.4",
     "js-cookie": "3.0.5",
     "js-yaml": "4.1.1",
