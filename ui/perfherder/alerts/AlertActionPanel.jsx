@@ -258,22 +258,23 @@ export default class AlertActionPanel extends React.Component {
                   tooltipText="Mark selected alerts as downstream from an alert summary on another branch"
                 />
               </Col>
-
-              <Col sm="auto" className="p-2">
-                <SimpleTooltip
-                  text={
-                    <Button
-                      variant="secondary"
-                      onClick={() => this.toggle('showReassignedModal')}
-                    >
-                      <FontAwesomeIcon icon={faArrowAltCircleRight} /> Reassign
-                    </Button>
-                  }
-                  tooltipText="Reassign selected alerts to another alert summary on the same branch"
-                />
-              </Col>
             </React.Fragment>
           )}
+
+          <Col sm="auto" className="p-2">
+            <SimpleTooltip
+                text={
+                  <Button
+                      variant="secondary"
+                      onClick={() => this.toggle('showReassignedModal')}
+                  >
+                      <FontAwesomeIcon icon={faArrowAltCircleRight} /> Reassign
+                  </Button>
+                  }
+                tooltipText="Reassign selected alerts to another alert summary on the same branch"
+            />
+          </Col>
+
         </Row>
       </div>
     );
