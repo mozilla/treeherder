@@ -681,6 +681,7 @@ function Push({
         selectedRunnableJobs={selectedRunnableJobs}
         notificationSupported={notificationSupported}
         pushHealthVisibility={pushHealthVisibility}
+        decisionTaskMap={decisionTaskMap}
         groupCountsExpanded={groupCountsExpanded}
         pushHealthStatusCallback={pushHealthStatusCallback}
         togglePushCollapsed={togglePushCollapsed}
