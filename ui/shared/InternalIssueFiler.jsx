@@ -97,8 +97,10 @@ function computeInitialSummary(suggestion, jobGroupName, jobTypeName) {
       trimParams = true;
     }
 
+    const isLeakcheckLarge = /leakcheck large/i.test(summaryString);
+
     // If not leak
-    if (!isAssertion && isTestPath) {
+    if (!isAssertion && !isLeakcheckLarge && isTestPath) {
       const parts = summaryString.split(' | ');
       // split('?') is for removing `?params...` from the test name
       if (parts.length === 2 || parts.length === 1) {
