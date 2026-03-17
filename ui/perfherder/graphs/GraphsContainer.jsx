@@ -34,6 +34,7 @@ class GraphsContainer extends React.Component {
     super(props);
     this.leftChartPadding = 25;
     this.rightChartPadding = 10;
+    this.initialRuns = {};
     const testData = props.testData || [];
     const scatterPlotData = flatMap(testData, (item) =>
       item.visible ? item.data : [],
@@ -55,6 +56,7 @@ class GraphsContainer extends React.Component {
     const { scatterPlotData } = this.state;
     const zoomDomain = this.initZoomDomain(scatterPlotData);
     this.addHighlights();
+    this.buildInitialRunsCache();
     if (selectedDataPoint) {
       this.verifySelectedDataPoint();
     }
@@ -101,6 +103,77 @@ class GraphsContainer extends React.Component {
       this.verifySelectedDataPoint();
     }
   }
+
+  buildInitialRunsCache = () => {
+    const initialRuns = {};
+
+    for (const series of this.props.testData) {
+      const signatureId = series.signature_id;
+
+      if (!initialRuns[signatureId]) {
+        initialRuns[signatureId] = {};
+      }
+
+      const signatureRuns = initialRuns[signatureId];
+
+      for (const point of series.data) {
+        if (!point.pushId || !point.retrigger_time) {
+          continue;
+        }
+
+        const time = new Date(point.retrigger_time).getTime();
+
+        if (Number.isNaN(time)) {
+          continue;
+        }
+
+        const pushId = point.pushId;
+
+        if (!signatureRuns[pushId]) {
+          signatureRuns[pushId] = {
+            firstDataPointId: point.dataPointId,
+            firstTimestamp: time,
+            retriggerCount: 1,
+          };
+          continue;
+        }
+
+        const pushData = signatureRuns[pushId];
+
+        pushData.retriggerCount += 1;
+
+        if (time < pushData.firstTimestamp) {
+          pushData.firstTimestamp = time;
+          pushData.firstDataPointId = point.dataPointId;
+        }
+      }
+    }
+
+    this.initialRuns = initialRuns;
+  };
+
+  isInitialWithRetriggers = (datum) => {
+    if (!datum?.signature_id || !datum?.pushId) {
+      return false;
+    }
+
+    const signatureRuns = this.initialRuns?.[datum.signature_id];
+
+    if (!signatureRuns) {
+      return false;
+    }
+
+    const pushData = signatureRuns[datum.pushId];
+
+    if (!pushData) {
+      return false;
+    }
+
+    return (
+      pushData.retriggerCount > 1 &&
+      pushData.firstDataPointId === datum.dataPointId
+    );
+  };
 
   // limits for the zoomDomain of VictoryChart
   initZoomDomain = (plotData) => {
@@ -178,6 +251,7 @@ class GraphsContainer extends React.Component {
       item.visible ? item.data : [],
     );
     this.addHighlights();
+    this.buildInitialRunsCache();
     if (scatterPlotData.length) {
       zoomDomain = this.updateZoomDomain(scatterPlotData);
     }
@@ -237,56 +311,6 @@ class GraphsContainer extends React.Component {
     }
     this.setState({ highlights, highlightCommonAlertsData });
   };
-
-isInitialWithRetriggers = (datum) => {
-  const testDetails = this.props.testData.find(
-    (item) => item.signature_id === datum.signature_id,
-  );
-
-  const seriesData = testDetails?.data || [];
-
-  if (!datum?.pushId || seriesData.length === 0 || !datum?.retrigger_time) {
-    return false;
-  }
-
-  const currentTime = new Date(datum.retrigger_time).getTime();
-
-  // Invalid retrigger_time should never be highlighted
-  // For "Use replicates" button
-  if (Number.isNaN(currentTime)) {
-    return false;
-  }
-
-  const currentIndex = seriesData.findIndex(
-    (point) => point.dataPointId === datum.dataPointId,
-  );
-  let retriggerCount = 0;
-
-  for (let i = 0; i < seriesData.length; i++) {
-    const point = seriesData[i];
-
-    if (point.pushId !== datum.pushId || !point.retrigger_time) {
-      continue;
-    }
-
-    retriggerCount += 1;
-
-    const pointTime = new Date(point.retrigger_time).getTime();
-
-    // If another point happened earlier → this is not the first
-    if (pointTime < currentTime) {
-      return false;
-    }
-
-    // If the time is equal but the other point appears earlier in the array → this is not the first
-    if (pointTime === currentTime && i < currentIndex) {
-      return false;
-    }
-  }
-
-  // Only highlight if there are retriggers
-  return retriggerCount > 1;
-};
 
   // The Victory library doesn't provide a way of dynamically setting the left
   // padding for the y axis tick labels, so this is a workaround (setting state
@@ -622,9 +646,7 @@ isInitialWithRetriggers = (datum) => {
                           highlightPoints
                             ? 0.3
                             : 100,
-                        stroke: ({ datum }) => {
-                          return datum.z;
-                        },
+                        stroke: ({ datum }) => datum.z,
                         strokeWidth: ({ datum }) =>
                           (datum.alertSummary ||
                             hasHighlightedRevision(datum)) &&
