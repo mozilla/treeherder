@@ -322,7 +322,7 @@ export const getGraphsLink = function getGraphsLink(
     params.timerange = timeRange;
   }
 
-  return `./graphs?${queryString.stringify(params)}`;
+  return `/perfherder/graphs?${queryString.stringify(params)}`;
 };
 
 export const createNoiseMetric = function createNoiseMetric(
@@ -434,7 +434,7 @@ export const getGraphsURL = (
   alertRepository,
   performanceFrameworkId,
 ) => {
-  let url = `./graphs?timerange=${timeRange}&series=${alertRepository},${alert.series_signature.id},1,${alert.series_signature.framework_id}`;
+  let url = `/perfherder/graphs?timerange=${timeRange}&series=${alertRepository},${alert.series_signature.id},1,${alert.series_signature.framework_id}`;
 
   // automatically add related branches (we take advantage of
   // the otherwise rather useless signature hash to avoid having to fetch this
