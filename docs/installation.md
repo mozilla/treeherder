@@ -40,22 +40,16 @@ production site. You do not need to set up the Docker environment unless making 
 - Start the development server by running:
 
   ```bash
-  pnpm start
+  pnpm start:stage
   ```
 
   <!-- prettier-ignore -->
   !!! note
-      Any action you take, such as classifying a job, will affect the live production
-      front-end of Treeherder, so we recommend developing against `stage` (details below)
-      unless there's something data-specific that must be addressed on production.
+      We recommend developing against `stage` to avoid accidentally affecting the live
+      production front-end of Treeherder (e.g. classifying a job). If you need production
+      data specifically, you can use `pnpm start` instead, which proxies to production.
 
 - The server will perform an initial build and then watch for new changes. Once the server is running, you can navigate to: <http://localhost:5000> to see the UI.
-
-  To run the unminified UI with data from the staging site instead of the production site, type:
-
-  ```bash
-  pnpm start:stage
-  ```
 
 ## Server and Full-stack Development
 

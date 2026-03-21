@@ -2,13 +2,7 @@
 
 ## Running the tests
 
-You can run the linter and the pytest suite inside Docker, using:
-
-```bash
-docker-compose run backend ./runtests.sh
-```
-
-Or for more control, run each tool individually, by first running:
+For more control, run each tool individually by first running:
 
 ```bash
 docker-compose run backend bash
@@ -51,7 +45,7 @@ hidden by default. For TaskCluster, edit the task definition to include the
 
 ## Profiling API endpoint performance
 
-On our development (vagrant) instance we have [django-debug-toolbar] installed, which can
+On a local development instance we have [django-debug-toolbar] installed, which can
 give information on exactly what SQL is run to generate individual API endpoints. Navigate
 to an endpoint (example: <http://localhost:8000/api/repository/>) and you should see the
 toolbar to your right.
@@ -75,7 +69,7 @@ ports:
 
 <!-- prettier-ignore -->
 !!! note
-    Any forwarded ports will block usage of that port on the host OS even if there isn't a service running inside the VM talking to it.
+    Any forwarded ports will block usage of that port on the host OS even if there isn't a service running inside the container talking to it.
 
 With Postgres exposed at port 5432 you can connect to it from your host OS with the following credentials:
 

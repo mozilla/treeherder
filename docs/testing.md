@@ -4,13 +4,9 @@
 
 ### Validating JavaScript
 
-We run our JavaScript code in the frontend through [ESLint] to ensure
-that new code has a consistent style and doesn't suffer from common
-errors. ESLint will run automatically when you build the JavaScript code
-or run the development server. A production build will fail if your code
-does not match the style requirements.
+We use [Biome] for linting JavaScript/JSX code and [Prettier] for formatting.
 
-To run ESLint by itself, you may run the lint task:
+To run the linter:
 
 ```shell
 pnpm lint
@@ -19,10 +15,10 @@ pnpm lint
 Or to automatically fix issues found (where possible):
 
 ```shell
-pnpm lint --fix
+pnpm lint --write
 ```
 
-You can also check against Prettier:
+You can also check formatting against Prettier:
 
 ```shell
 pnpm format:check
@@ -116,4 +112,5 @@ There are a lot of taskid, revisions, and expected fields to update in tests.  F
 - ensure variety of platforms, builds, tests, pass/fail, etc. are included
 - push_data.json - adjust the dates to have multiple days (1st +1, 2nd +2, 3rd +3)
 
-[eslint]: https://eslint.org
+[biome]: https://biomejs.dev
+[prettier]: https://prettier.io

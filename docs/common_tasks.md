@@ -6,13 +6,9 @@ The docs are built using MkDocs, which has a live-reloading development server,
 that makes working on the docs locally much easier.
 
 ```console
-% pip install poetry
-% poetry run mkdocs serve
+% pip install -e ".[docs]"
+% mkdocs serve
 ```
-
-<!-- prettier-ignore -->
-!!! note
-    On Windows you might need to fallback ```python -m venv venv``` or ```virtualenv``` to manage your virtualenv if ```poetry``` does not work for you.
 
 The docs will then be available at: <http://localhost:8000>
 

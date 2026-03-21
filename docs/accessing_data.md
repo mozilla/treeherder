@@ -58,10 +58,10 @@ from thclient import TreeherderClient
 client = TreeherderClient()
 
 pushes = client.get_pushes('mozilla-central') # gets last 10 by default
-for pushes in pushes:
-    jobs = client.get_jobs('mozilla-central', push_id=pushes['id'])
+for push in pushes:
+    jobs = client.get_jobs('mozilla-central', push_id=push['id'])
     for job in jobs:
-        print job['start_timestamp']
+        print(job['start_timestamp'])
 ```
 
 When using the Python client, don't forget to set up logging in the
@@ -96,7 +96,7 @@ r = requests.get(url, headers={'User-Agent': ...})
 ## Redash
 
 Mozilla's [Redash] instance at <https://sql.telemetry.mozilla.org> is configured to use
-Treeherder's read-only MySQL replica as a data source. Users with LDAP credentials
+Treeherder's read-only PostgreSQL replica as a data source. Users with LDAP credentials
 can find Treeherder's data under the `Treeherder` data source and cross-reference it with
 other data sets available there.
 
@@ -105,7 +105,7 @@ other data sets available there.
 ## Direct database access
 
 If the use-cases above aren't sufficient or you're working on a fullstack Perfherder bug,
-we can provide read-only access to Treeherder's stage MySQL replica.
+we can provide read-only access to Treeherder's stage PostgreSQL replica.
 Please [file a bug] requesting that someone from the cloudOps team grant access to the read-only stage replica.
 Be sure to follow the instructions for [connecting to the databases](#connecting-to-databases) if you're using it
 outside of the docker container.
@@ -121,16 +121,17 @@ For users with permission to access the prototype database locally, you'll need 
 Connections **must** be made using TLS otherwise the connection will fail, but not before
 having already leaked the credentials over plain-text.
 
-A tool such as [MySQL Workbench] is recommended, since it's possible to save connection
+A tool such as [pgAdmin] or [DBeaver] is recommended, since it's possible to save connection
 settings for each database, speeding up future use and reducing the chance of forgetting
 to enable TLS.
 
-When setting up a connection make sure to change the "Use SSL" option to `require` and set
-the "SSL CA File" option to point at the public CA certificate, which for convenience can
+When setting up a connection make sure to set the SSL mode to `require` and set
+the SSL CA certificate option to point at the public CA certificate, which for convenience can
 be used directly from the Treeherder repository [here][gcp-cert] for the stage replica or
 [here][gcp-prototype-cert] for prototype.
 
-[MySQL workbench]: https://www.MySQL.com/products/workbench/
+[pgAdmin]: https://www.pgadmin.org/
+[DBeaver]: https://dbeaver.io/
 [gcp-cert]: https://github.com/mozilla/treeherder/blob/master/deployment/gcp/ca-cert.pem
 [gcp-prototype-cert]: https://github.com/mozilla/treeherder/blob/master/deployment/gcp/ca-cert-prototype.pem
 
@@ -172,7 +173,7 @@ Notes:
 ## Import performance data from upstream
 
 If the use-cases above still aren't enough, you should ask for read-only access to one of
-Treeherder's MySQL replicas. Please [file a bug] requesting that
+Treeherder's PostgreSQL replicas. Please [file a bug] requesting that
 someone from the cloudOps team grant access to the read-only replica.
 
 You should be given the credentials in [connection URL format].
@@ -182,7 +183,7 @@ Once you have the connection URL pointing to the MySQL replica, please create a 
 It should look something like this:
 
 ```bash
-UPSTREAM_DATABASE_URL=mysql://<username>:<password>@<database_host>/treeherder
+UPSTREAM_DATABASE_URL=psql://<username>:<password>@<database_host>/treeherder
 ```
 
 Now you're ready to import real data, right from the upstream database!
