@@ -1,4 +1,14 @@
+import os
+
 from treeherder.config.settings import *  # noqa: F403
+
+# Use TEST_DATABASE_URL if set, so tests hit the local Postgres container
+# instead of a read-only staging database configured via DATABASE_URL.
+TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL")
+if TEST_DATABASE_URL:
+    import environ
+
+    DATABASES["default"] = environ.Env.db_url_config(TEST_DATABASE_URL)  # noqa: F405
 
 DATABASES["default"]["TEST"] = {"NAME": "test_treeherder"}  # noqa: F405
 KEY_PREFIX = "test"
