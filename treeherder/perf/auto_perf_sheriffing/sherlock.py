@@ -1,7 +1,7 @@
 import logging
 import os
 import traceback
-from datetime import datetime, time, timedelta, timezone
+from datetime import UTC, datetime, time, timedelta
 from json import JSONDecodeError, loads
 from logging import INFO, WARNING
 
@@ -403,7 +403,7 @@ class Sherlock:
                 sheriffed=False,
                 defaults={
                     "manually_created": False,
-                    "created": datetime.now(timezone.utc),
+                    "created": datetime.now(UTC),
                 },
             )
 

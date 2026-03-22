@@ -1,6 +1,6 @@
 import logging
 from copy import deepcopy
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import requests
 from django.conf import settings
@@ -53,7 +53,7 @@ class BugSearcher:
 
     def get_today_date(self):
         """Helper method to get today's date in the YYYY-MM-DD format."""
-        return datetime.now(timezone.utc).date()
+        return datetime.now(UTC).date()
 
     def _find_last_filter_num(self):
         """Used to find the last filter number used."""
