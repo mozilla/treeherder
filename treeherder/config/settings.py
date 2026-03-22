@@ -68,7 +68,7 @@ X_FRAME_OPTIONS = "SAMEORIGIN"
 INSTALLED_APPS = [
     "django.contrib.auth",
     "django.contrib.contenttypes",
-    "django.contrib.postgres.search",
+    "django.contrib.postgres",
     # Disable Django's own staticfiles handling in favour of WhiteNoise, for
     # greater consistency between gunicorn and `./manage.py runserver`.
     "whitenoise.runserver_nostatic",
@@ -222,7 +222,7 @@ LOGGING = {
         "standard": {
             "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
         },
-        "json": {"()": "dockerflow.logging.JsonLogFormatter", "logger_name": "treeherder"},
+        "json": {"()": "dockerflow.logging.MozlogFormatter", "logger_name": "treeherder"},
     },
     "handlers": {
         "console": {"class": "logging.StreamHandler", "formatter": "standard"},
@@ -280,6 +280,10 @@ SILENCED_SYSTEM_CHECKS = [
     # made using Angular's `httpProvider` require access to the cookie.
     "security.W017",
     "security.W019",
+    # django-debug-toolbar 6.x raises E001 when DEBUG=False but toolbar is in
+    # INSTALLED_APPS. The toolbar is only added conditionally (when DEBUG=True at
+    # startup), but tests may toggle DEBUG at runtime, triggering this check.
+    "debug_toolbar.E001",
 ]
 
 # User Agents
