@@ -504,7 +504,10 @@ STATSD_PREFIX = env("STATSD_PREFIX", default="treeherder")
 if STATSD_HOST:
     STATSD_CLIENT = StatsClient(STATSD_HOST, STATSD_PORT, prefix=STATSD_PREFIX)
 else:
-    STATSD_CLIENT = None
+    # Provide a no-op StatsClient so .timer() works as a decorator/context manager
+    # even when no statsd host is configured (e.g., local dev, tests).
+    # UDP packets to localhost are silently dropped.
+    STATSD_CLIENT = StatsClient(prefix=STATSD_PREFIX)
 
 # For dockerflow
 BASE_DIR = SRC_DIR
