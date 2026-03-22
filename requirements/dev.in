@@ -33,4 +33,4 @@ vcrpy==8.1.1
 pip-tools==7.5.3
 
 requests==2.32.5
-urllib3==2.0.3
+urllib3==2.6.3
