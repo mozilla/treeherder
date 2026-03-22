@@ -14,7 +14,7 @@ RUN pnpm build
 
 
 ## Backend stage
-FROM python:3.10.18-slim-bullseye
+FROM python:3.13-slim-bookworm
 
 WORKDIR /app
 

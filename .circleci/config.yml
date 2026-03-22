@@ -124,7 +124,7 @@ jobs:
 
   builds:
     docker:
-      - image: 'cimg/python:3.10-node'
+      - image: 'cimg/python:3.13-node'
     steps:
       - checkout
       - run: pip install tox
