@@ -1,6 +1,6 @@
 import logging
 import traceback
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import Mock
 
 from django.core.management.base import BaseCommand, CommandError
@@ -161,7 +161,7 @@ class Command(BaseCommand):
             defaults={
                 "original_push": detection_push,
                 "manually_created": False,
-                "created": datetime.now(timezone.utc),
+                "created": datetime.now(UTC),
             },
         )
 
