@@ -151,8 +151,8 @@ importers:
         specifier: 11.0.0
         version: 11.0.0
       taskcluster-lib-urls:
-        specifier: 13.0.1
-        version: 13.0.1
+        specifier: 13.0.2
+        version: 13.0.2
       url:
         specifier: 0.11.4
         version: 0.11.4
@@ -5041,8 +5041,8 @@ packages:
     resolution: {integrity: sha512-C1tPcPjAycCA2i9+DGf1FX8qXiBkEzdJqKY6A0JeeOHnEjNgnhvxEtMkRuZj5hV2OScxsp8j05Mnp3vkLfga0Q==}
     engines: {node: '>=8.0.0'}
 
-  taskcluster-lib-urls@13.0.1:
-    resolution: {integrity: sha512-WrhKMbiWmpPrB0vbzLZq4W35mhdPVLklZY+qrBoI7KQzFAjO/qsgS8ssHL6eYmvBf4fE7C+C9ZFxQpQOUynQvg==}
+  taskcluster-lib-urls@13.0.2:
+    resolution: {integrity: sha512-onspRpWupIjB15vkvvSAXdtpvgWsKNOCRhcjg1p9GrxodJeW45Os7BK7azMlX7aNqi8uOj4zqB6cokxsLp2uFw==}
 
   terser-webpack-plugin@5.3.16:
     resolution: {integrity: sha512-h9oBFCWrq78NyWWVcSwZarJkZ01c2AyGrzs1crmHZO3QUg9D61Wu4NPjBy69n7JqylFF5y+CsUZYmYEIZ3mR+Q==}
@@ -11193,13 +11193,13 @@ snapshots:
       crypto-js: 4.2.0
       hawk: 9.0.2
       query-string: 7.0.1
-      taskcluster-lib-urls: 13.0.1
+      taskcluster-lib-urls: 13.0.2
 
   taskcluster-lib-scopes@11.0.0:
     dependencies:
       fast-json-stable-stringify: 2.1.0
 
-  taskcluster-lib-urls@13.0.1: {}
+  taskcluster-lib-urls@13.0.2: {}
 
   terser-webpack-plugin@5.3.16(@swc/core@1.15.18(@swc/helpers@0.5.18))(webpack@5.104.1(@swc/core@1.15.18(@swc/helpers@0.5.18))):
     dependencies:
