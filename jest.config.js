@@ -14,6 +14,8 @@ module.exports = {
     '^react-native$': '<rootDir>/node_modules/react-native-web',
     '^react-resizable-panels$':
       '<rootDir>/tests/jest/react-resizable-panels-mock.js',
+    '^@auth0/auth0-spa-js$':
+      '<rootDir>/tests/jest/auth0-spa-js-mock.js',
   },
   bail: true,
   collectCoverageFrom: ['ui/**/*.{mjs,jsx,js}'],

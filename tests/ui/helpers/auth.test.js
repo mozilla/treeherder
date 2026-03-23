@@ -2,23 +2,45 @@
  * Unit tests for the auth helper module.
  *
  * This test suite covers:
- * - userSessionFromAuthResult: Transforms auth0 authResult to user session object
+ * - userSessionFromAuthResult: Transforms auth result to user session object
  * - loggedOutUser: Default user object for logged out state
+ * - renew: Gets fresh tokens via Auth0 SPA SDK (refresh tokens)
+ * - handleCallback: Handles Auth0 redirect callback
  *
- * Note: renew and parseHash are wrappers around auth0's webAuth methods and
- * are not tested here to avoid testing third-party library behavior.
+ * Note: The Auth0 SPA SDK client methods (getTokenSilently, getIdTokenClaims,
+ * handleRedirectCallback) are mocked to avoid testing third-party library behavior.
  */
 
-import {
-  userSessionFromAuthResult,
-  loggedOutUser,
-  cleanupAuth0Cookies,
-} from '../../../ui/helpers/auth';
+// Mock @auth0/auth0-spa-js before importing auth module.
+// The mock methods are accessed via the shared mock instance after import.
+jest.mock('@auth0/auth0-spa-js', () => {
+  const methods = {
+    getTokenSilently: jest.fn(),
+    getIdTokenClaims: jest.fn(),
+    handleRedirectCallback: jest.fn(),
+    loginWithRedirect: jest.fn(),
+  };
+  return {
+    Auth0Client: jest.fn(() => methods),
+    __mockMethods: methods,
+  };
+});
 
 // Mock taskcluster-client-web's fromNow function
 jest.mock('taskcluster-client-web', () => ({
   fromNow: jest.fn(() => new Date('2024-01-15T12:45:00Z')),
 }));
+
+import {
+  userSessionFromAuthResult,
+  loggedOutUser,
+  cleanupAuth0Cookies,
+  renew,
+  handleCallback,
+} from '../../../ui/helpers/auth';
+
+// eslint-disable-next-line import/no-extraneous-dependencies
+const { __mockMethods: mockAuth0Methods } = require('@auth0/auth0-spa-js');
 
 describe('userSessionFromAuthResult', () => {
   const mockAuthResult = {
@@ -144,59 +166,98 @@ describe('loggedOutUser', () => {
   });
 });
 
-describe('cleanupAuth0Cookies (Bug 1749962)', () => {
-  let originalCookie;
+describe('cleanupAuth0Cookies', () => {
+  it('is a no-op function (iframe cookies no longer generated)', () => {
+    // Should not throw
+    expect(() => cleanupAuth0Cookies()).not.toThrow();
+  });
+});
 
+describe('renew', () => {
   beforeEach(() => {
-    originalCookie = Object.getOwnPropertyDescriptor(document, 'cookie');
+    mockAuth0Methods.getTokenSilently.mockReset();
+    mockAuth0Methods.getIdTokenClaims.mockReset();
   });
 
-  afterEach(() => {
-    if (originalCookie) {
-      Object.defineProperty(document, 'cookie', originalCookie);
-    }
-  });
-
-  it('removes com.auth0.auth.* cookies', () => {
-    const setCalls = [];
-    Object.defineProperty(document, 'cookie', {
-      get: () =>
-        'com.auth0.auth.abc123=val1; csrftoken=tok; _com.auth0.auth.abc123_compat=val2; sessionid=sid',
-      set: (val) => setCalls.push(val),
-      configurable: true,
+  it('calls getTokenSilently with detailedResponse and returns normalized auth result', async () => {
+    mockAuth0Methods.getTokenSilently.mockResolvedValue({
+      access_token: 'new-access-token',
+      id_token: 'new-id-token',
+      expires_in: 86400,
+    });
+    mockAuth0Methods.getIdTokenClaims.mockResolvedValue({
+      nickname: 'Jane Doe',
+      picture: 'https://gravatar.com/avatar/456',
+      sub: 'ad|Mozilla-LDAP|jdoe',
     });
 
-    cleanupAuth0Cookies();
+    const result = await renew();
 
-    expect(setCalls).toHaveLength(2);
-    expect(setCalls[0]).toContain('com.auth0.auth.abc123=');
-    expect(setCalls[0]).toContain('expires=Thu, 01 Jan 1970');
-    expect(setCalls[1]).toContain('_com.auth0.auth.abc123_compat=');
+    expect(mockAuth0Methods.getTokenSilently).toHaveBeenCalledWith({
+      detailedResponse: true,
+    });
+    expect(mockAuth0Methods.getIdTokenClaims).toHaveBeenCalled();
+    expect(result).toEqual({
+      accessToken: 'new-access-token',
+      idToken: 'new-id-token',
+      expiresIn: 86400,
+      idTokenPayload: {
+        nickname: 'Jane Doe',
+        picture: 'https://gravatar.com/avatar/456',
+        sub: 'ad|Mozilla-LDAP|jdoe',
+      },
+    });
   });
 
-  it('does not remove non-auth0 cookies', () => {
-    const setCalls = [];
-    Object.defineProperty(document, 'cookie', {
-      get: () => 'csrftoken=tok; sessionid=sid',
-      set: (val) => setCalls.push(val),
-      configurable: true,
-    });
+  it('propagates errors from getTokenSilently', async () => {
+    mockAuth0Methods.getTokenSilently.mockRejectedValue(
+      new Error('Token refresh failed'),
+    );
 
-    cleanupAuth0Cookies();
+    await expect(renew()).rejects.toThrow('Token refresh failed');
+  });
+});
 
-    expect(setCalls).toHaveLength(0);
+describe('handleCallback', () => {
+  beforeEach(() => {
+    mockAuth0Methods.handleRedirectCallback.mockReset();
+    mockAuth0Methods.getTokenSilently.mockReset();
+    mockAuth0Methods.getIdTokenClaims.mockReset();
   });
 
-  it('handles empty cookie string', () => {
-    const setCalls = [];
-    Object.defineProperty(document, 'cookie', {
-      get: () => '',
-      set: (val) => setCalls.push(val),
-      configurable: true,
+  it('calls handleRedirectCallback and returns normalized auth result', async () => {
+    mockAuth0Methods.handleRedirectCallback.mockResolvedValue({ appState: null });
+    mockAuth0Methods.getTokenSilently.mockResolvedValue({
+      access_token: 'cb-access-token',
+      id_token: 'cb-id-token',
+      expires_in: 86400,
+    });
+    mockAuth0Methods.getIdTokenClaims.mockResolvedValue({
+      nickname: 'Callback User',
+      picture: 'https://gravatar.com/avatar/789',
+      sub: 'ad|Mozilla-LDAP|cbuser',
     });
 
-    cleanupAuth0Cookies();
+    const result = await handleCallback();
 
-    expect(setCalls).toHaveLength(0);
+    expect(mockAuth0Methods.handleRedirectCallback).toHaveBeenCalled();
+    expect(result).toEqual({
+      accessToken: 'cb-access-token',
+      idToken: 'cb-id-token',
+      expiresIn: 86400,
+      idTokenPayload: {
+        nickname: 'Callback User',
+        picture: 'https://gravatar.com/avatar/789',
+        sub: 'ad|Mozilla-LDAP|cbuser',
+      },
+    });
+  });
+
+  it('propagates errors from handleRedirectCallback', async () => {
+    mockAuth0Methods.handleRedirectCallback.mockRejectedValue(
+      new Error('Invalid state'),
+    );
+
+    await expect(handleCallback()).rejects.toThrow('Invalid state');
   });
 });

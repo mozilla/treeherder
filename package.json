@@ -11,6 +11,7 @@
   },
   "packageManager": "pnpm@10.30.3",
   "dependencies": {
+    "@auth0/auth0-spa-js": "2.18.0",
     "@fortawesome/fontawesome-svg-core": "6.7.2",
     "@fortawesome/free-brands-svg-icons": "6.7.2",
     "@fortawesome/free-regular-svg-icons": "6.7.2",
@@ -24,7 +25,6 @@
     "@types/react-dom": "*",
     "ajv": "8.17.1",
     "assert": "2.1.0",
-    "auth0-js": "9.22.1",
     "buffer": "6.0.3",
     "crypto-browserify": "3.12.1",
     "dayjs": "1.11.20",

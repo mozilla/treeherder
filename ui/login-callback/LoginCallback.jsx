@@ -2,7 +2,7 @@ import React from 'react';
 
 import dayjs from '../helpers/dayjs';
 import AuthService from '../shared/auth/AuthService';
-import { webAuth, parseHash } from '../helpers/auth';
+import { auth0Client, handleCallback } from '../helpers/auth';
 import CallbackMessage from '../shared/CallbackMessage';
 import taskcluster from '../helpers/taskcluster';
 import {
@@ -22,20 +22,17 @@ class LoginCallback extends React.PureComponent {
   }
 
   async componentDidMount() {
-    // make the user login if there is no access token
-    if (!window.location.hash) {
-      return webAuth.authorize();
-    }
+    const params = new URLSearchParams(window.location.search);
 
-    // for silent renewal, auth0-js opens this page in an iframe, and expects
-    // a postMessage back, and that's it.
-    if (window !== window.top) {
-      window.parent.postMessage(window.location.hash, window.origin);
-      return;
+    // If no authorization code in query params, redirect to Auth0 login.
+    // Auth0 SPA SDK uses Authorization Code + PKCE flow, so the code
+    // comes back as a query parameter (not a hash fragment).
+    if (!params.has('code')) {
+      return auth0Client.loginWithRedirect();
     }
 
     try {
-      const authResult = await parseHash({ hash: window.location.hash });
+      const authResult = await handleCallback();
 
       if (authResult.accessToken) {
         await this.authService.saveCredentialsFromAuthResult(authResult);
@@ -76,10 +73,11 @@ class LoginCallback extends React.PureComponent {
 
   render() {
     const { loginError } = this.state;
+    const hasCode = new URLSearchParams(window.location.search).has('code');
     return (
       <CallbackMessage
         errorMessage={loginError}
-        text={window.location.hash ? 'Logging in...' : 'Redirecting...'}
+        text={hasCode ? 'Logging in...' : 'Redirecting...'}
       />
     );
   }

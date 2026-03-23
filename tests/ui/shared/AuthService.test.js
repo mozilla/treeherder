@@ -7,13 +7,12 @@
  * - Proper async/await behavior (no async-promise-executor anti-pattern)
  * - Tab renewal deduplication (_renewAuth freshness check and lock)
  * - resetRenewalTimer jitter behavior
- * - logout clearing renewalLock
+ * - logout clearing renewalLock and auth0-spa-js cache
  */
 import AuthService from '../../../ui/shared/auth/AuthService';
 import UserModel from '../../../ui/models/user';
 
 const mockRenew = jest.fn();
-const mockCleanupAuth0Cookies = jest.fn();
 
 // Mock dependencies
 jest.mock('../../../ui/helpers/url', () => ({
@@ -24,7 +23,7 @@ jest.mock('../../../ui/helpers/auth', () => ({
   userSessionFromAuthResult: jest.fn(),
   renew: (...args) => mockRenew(...args),
   loggedOutUser: { isLoggedIn: false },
-  cleanupAuth0Cookies: (...args) => mockCleanupAuth0Cookies(...args),
+  getRenewInterval: jest.fn(() => '15 minutes'),
 }));
 
 jest.mock('../../../ui/models/user');
@@ -45,7 +44,6 @@ describe('AuthService', () => {
     // Clear all mocks
     jest.clearAllMocks();
     mockRenew.mockReset();
-    mockCleanupAuth0Cookies.mockReset();
     localStorage.clear();
     jest.useFakeTimers();
   });
@@ -347,34 +345,30 @@ describe('AuthService', () => {
       expect(localStorage.getItem('userSession')).toBeNull();
     });
 
-    it('calls cleanupAuth0Cookies on logout', () => {
+    it('clears auth0-spa-js SDK cache keys from localStorage', () => {
+      localStorage.setItem(
+        '@@auth0spajs@@::q8fZZFfGEmSB2c5uSI8hOkKdDGXnlo5z::@@user@@',
+        '{}',
+      );
+      localStorage.setItem(
+        '@@auth0spajs@@::q8fZZFfGEmSB2c5uSI8hOkKdDGXnlo5z::openid profile email',
+        '{}',
+      );
+      localStorage.setItem('unrelated-key', 'keep-this');
+
       authService.logout();
 
-      expect(mockCleanupAuth0Cookies).toHaveBeenCalled();
-    });
-  });
-
-  describe('auth0 cookie cleanup (Bug 1749962)', () => {
-    const pastDate = new Date(Date.now() - 1000).toISOString();
-    const expiredSession = JSON.stringify({
-      renewAfter: pastDate,
-      accessToken: 'tok',
-      accessTokenExpiresAt: Math.floor(Date.now() / 1000) + 3600,
-      idToken: 'id',
-    });
-
-    it('cleans up auth0 cookies before calling renew', async () => {
-      localStorage.setItem('userSession', expiredSession);
-      mockRenew.mockResolvedValue(null);
-
-      await authService._renewAuth();
-
-      expect(mockCleanupAuth0Cookies).toHaveBeenCalled();
-      // cleanup should happen before renew
-      const cleanupOrder =
-        mockCleanupAuth0Cookies.mock.invocationCallOrder[0];
-      const renewOrder = mockRenew.mock.invocationCallOrder[0];
-      expect(cleanupOrder).toBeLessThan(renewOrder);
+      expect(
+        localStorage.getItem(
+          '@@auth0spajs@@::q8fZZFfGEmSB2c5uSI8hOkKdDGXnlo5z::@@user@@',
+        ),
+      ).toBeNull();
+      expect(
+        localStorage.getItem(
+          '@@auth0spajs@@::q8fZZFfGEmSB2c5uSI8hOkKdDGXnlo5z::openid profile email',
+        ),
+      ).toBeNull();
+      expect(localStorage.getItem('unrelated-key')).toBe('keep-this');
     });
   });
 });

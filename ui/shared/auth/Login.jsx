@@ -4,7 +4,7 @@ import isEqual from 'lodash/isEqual';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 
-import { loggedOutUser, cleanupAuth0Cookies } from '../../helpers/auth';
+import { loggedOutUser } from '../../helpers/auth';
 import { getApiUrl, loginCallbackUrl } from '../../helpers/url';
 import UserModel from '../../models/user';
 
@@ -62,9 +62,6 @@ const Login = ({ setUser, user = { isLoggedIn: false }, notify }) => {
   );
 
   useEffect(() => {
-    // Clean up stale auth0 state cookies on page load (Bug 1749962)
-    cleanupAuth0Cookies();
-
     window.addEventListener('storage', handleStorageEvent);
 
     // Ask the back-end if a user is logged in on page load

@@ -1,54 +1,51 @@
+import { Auth0Client } from '@auth0/auth0-spa-js';
 import { fromNow } from 'taskcluster-client-web';
-import { WebAuth } from 'auth0-js';
 
 import { loginCallbackUrl } from './url';
 
-export const webAuth = new WebAuth({
-  clientID: 'q8fZZFfGEmSB2c5uSI8hOkKdDGXnlo5z',
+export const auth0Client = new Auth0Client({
+  clientId: 'q8fZZFfGEmSB2c5uSI8hOkKdDGXnlo5z',
   domain: 'auth.mozilla.auth0.com',
-  responseType: 'id_token token',
-  redirectUri: `${window.location.protocol}//${window.location.host}${loginCallbackUrl}`,
-  scope: 'openid profile email',
+  authorizationParams: {
+    redirect_uri: `${window.location.protocol}//${window.location.host}${loginCallbackUrl}`,
+    scope: 'openid profile email',
+  },
+  useRefreshTokens: true,
+  cacheLocation: 'localstorage',
 });
 
+// Renewal interval for Auth0 token refresh. Override via localStorage
+// key 'authRenewIntervalMinutes' for testing (e.g. set to 2 for 2-minute renewal).
+// Default: 15 minutes per Mozilla OIDC guidelines.
+export const getRenewInterval = () => {
+  const override = localStorage.getItem('authRenewIntervalMinutes');
+  if (override) {
+    const minutes = parseInt(override, 10);
+    if (!Number.isNaN(minutes) && minutes > 0) {
+      return `${minutes} minutes`;
+    }
+  }
+  return '15 minutes';
+};
+
+// Normalize the auth0-spa-js token response into the same shape that
+// userSessionFromAuthResult expects (matching the old auth0-js authResult).
+const buildAuthResult = async () => {
+  const tokenResult = await auth0Client.getTokenSilently({
+    detailedResponse: true,
+  });
+  const claims = await auth0Client.getIdTokenClaims();
+
+  return {
+    accessToken: tokenResult.access_token,
+    idToken: tokenResult.id_token,
+    expiresIn: tokenResult.expires_in,
+    idTokenPayload: claims,
+  };
+};
+
 export const userSessionFromAuthResult = (authResult) => {
-  // Example authResult:
-  // {
-  //   "accessToken": "<TOKEN>",
-  //   "idToken": "<TOKEN>",
-  //   "idTokenPayload": {
-  //     "https://sso.mozilla.com/claim/groups": [
-  //       "all_scm_level_1",
-  //       "all_scm_level_2",
-  //       "all_scm_level_3"
-  //     ],
-  //     "given_name": "Firstname",
-  //     "family_name": "Surname",
-  //     "nickname": "Firstname Surname",
-  //     "name": "Firstname Surname",
-  //     "picture": "<GRAVATAR_URL>",
-  //     "updated_at": "2019-02-13T17:26:19.538Z",
-  //     "email": "fsurname@mozilla.com",
-  //     "email_verified": true,
-  //     "iss": "https://auth.mozilla.auth0.com/",
-  //     "sub": "ad|Mozilla-LDAP|fsurname",
-  //     "aud": "<HASH>",
-  //     "iat": 1550078779,
-  //     "exp": 1550683579,
-  //     "at_hash": "<HASH>",
-  //     "nonce": "<HASH>"
-  //   },
-  //   "appState": null,
-  //   "refreshToken": null,
-  //   "state": "<HASH>",
-  //   "expiresIn": 86400,
-  //   "tokenType": "Bearer",
-  //   "scope": "openid profile email"
-  // }
-  //
-  // For more details, see:
-  // https://auth0.com/docs/libraries/auth0js/v9#extract-the-authresult-and-get-user-info
-  //
+  const renewInterval = getRenewInterval();
   const userSession = {
     idToken: authResult.idToken,
     accessToken: authResult.accessToken,
@@ -56,59 +53,34 @@ export const userSessionFromAuthResult = (authResult) => {
     picture: authResult.idTokenPayload.picture,
     oidcSubject: authResult.idTokenPayload.sub,
     url: authResult.url,
-    // `accessTokenexpiresAt` is the unix timestamp (in seconds) at which the access token expires.
+    // `accessTokenExpiresAt` is the unix timestamp (in seconds) at which the access token expires.
     // It is used by the Django backend along with idToken's `exp` to determine session expiry.
     accessTokenExpiresAt: authResult.expiresIn + Math.floor(Date.now() / 1000),
     // per https://wiki.mozilla.org/Security/Guidelines/OpenID_connect#Session_handling
-    renewAfter: fromNow('15 minutes'),
+    renewAfter: fromNow(renewInterval),
   };
+
+  console.debug(
+    `[Auth] Session created: renewAfter=${renewInterval}, accessTokenExpiresIn=${authResult.expiresIn}s, renewAt=${userSession.renewAfter}`,
+  );
 
   return userSession;
 };
 
-// Clean up stale auth0 state cookies that accumulate from failed renewals.
-// Each renewAuth/checkSession call creates com.auth0.auth.{state} cookies.
-// On success they're removed, but on failure they linger. Over time this can
-// exceed browser cookie limits, causing further auth failures (Bug 1749962).
-export const cleanupAuth0Cookies = () => {
-  const isSecure = window.location.protocol === 'https:';
-  document.cookie.split(';').forEach((cookie) => {
-    const name = cookie.split('=')[0].trim();
-    if (
-      name.startsWith('com.auth0.auth.') ||
-      name.startsWith('_com.auth0.auth.')
-    ) {
-      const base = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
-      document.cookie = isSecure ? `${base}; secure` : base;
-    }
-  });
+// No longer needed with refresh token renewal (no iframe cookies).
+// Kept as no-op for backward compatibility during transition.
+export const cleanupAuth0Cookies = () => {};
+
+// Use refresh tokens to silently get new tokens (no iframe, no 3rd-party cookies).
+export const renew = async () => {
+  return buildAuthResult();
 };
 
-// Use checkSession (web_message flow) instead of renewAuth (redirect flow).
-// checkSession cleans up its state cookies even on failure, preventing the
-// cookie accumulation that causes Bug 1749962.
-export const renew = () =>
-  new Promise((resolve, reject) => {
-    webAuth.checkSession({}, (error, authResult) => {
-      if (error) {
-        return reject(error);
-      }
-
-      return resolve(authResult);
-    });
-  });
-
-// Wrapper around webAuth's parseHash
-export const parseHash = (options) =>
-  new Promise((resolve, reject) => {
-    webAuth.parseHash(options, (error, authResult) => {
-      if (error) {
-        return reject(error);
-      }
-
-      return resolve(authResult);
-    });
-  });
+// Handle the redirect callback after Auth0 login (Authorization Code + PKCE).
+export const handleCallback = async () => {
+  await auth0Client.handleRedirectCallback();
+  return buildAuthResult();
+};
 
 export const loggedOutUser = {
   isStaff: false,
