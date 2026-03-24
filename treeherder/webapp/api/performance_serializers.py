@@ -205,6 +205,13 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
 
     def get_taskcluster_metadata(self, alert):
         try:
+            tc_metadata_map = self.context.get("tc_metadata_map")
+            if tc_metadata_map is not None:
+                key = (alert.series_signature_id, alert.summary.push_id)
+                metadata = tc_metadata_map.get(key, {})
+                if metadata:
+                    cache.set("tc_root_url", alert.summary.repository.tc_root_url, FIVE_DAYS)
+                return metadata
             taskcluster_metadata = get_tc_metadata(alert, alert.summary.push)
             cache.set("tc_root_url", alert.summary.repository.tc_root_url, FIVE_DAYS)
             return taskcluster_metadata
@@ -213,6 +220,13 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
 
     def get_prev_taskcluster_metadata(self, alert):
         try:
+            tc_metadata_map = self.context.get("tc_metadata_map")
+            if tc_metadata_map is not None:
+                key = (alert.series_signature_id, alert.summary.prev_push_id)
+                metadata = tc_metadata_map.get(key, {})
+                if metadata:
+                    cache.set("prev_task_metadata", metadata, FIVE_DAYS)
+                return metadata
             taskcluster_metadata = get_tc_metadata(alert, alert.summary.prev_push)
             cache.set("prev_task_metadata", taskcluster_metadata, FIVE_DAYS)
             return taskcluster_metadata
@@ -320,7 +334,15 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
         return getattr(performance_alert_summary.assignee, "email", None)
 
     def get_duplicated_summaries(self, performance_alert_summary):
-        return (
+        duplicated_summaries_map = self.context.get("duplicated_summaries_map")
+        if duplicated_summaries_map is not None:
+            key = (performance_alert_summary.push_id, performance_alert_summary.framework_id)
+            return [
+                summary
+                for summary in duplicated_summaries_map.get(key, [])
+                if summary["id"] != performance_alert_summary.id
+            ]
+        return list(
             PerformanceAlertSummary.objects.filter(
                 push=performance_alert_summary.push, framework=performance_alert_summary.framework
             )

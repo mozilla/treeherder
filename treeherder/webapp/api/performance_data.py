@@ -519,7 +519,15 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
 
     queryset = (
         PerformanceAlertSummary.objects.filter(repository__active_status="active")
-        .select_related("repository", "push")
+        .select_related(
+            "repository",
+            "push",
+            "prev_push",
+            "original_push",
+            "original_prev_push",
+            "framework",
+            "assignee",
+        )
         .prefetch_related(
             "alerts",
             "alerts__classifier",
@@ -527,12 +535,17 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
             "alerts__series_signature__platform",
             "alerts__series_signature__option_collection",
             "alerts__series_signature__option_collection__option",
+            "alerts__series_signature__repository",
+            "alerts__backfill_record",
             "related_alerts",
             "related_alerts__classifier",
             "related_alerts__series_signature",
             "related_alerts__series_signature__platform",
             "related_alerts__series_signature__option_collection",
             "related_alerts__series_signature__option_collection__option",
+            "related_alerts__series_signature__repository",
+            "related_alerts__backfill_record",
+            "related_alerts__summary",
             "performance_tags",
         )
     )
@@ -545,6 +558,77 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
     ordering = ("-created", "-id")
     pagination_class = AlertSummaryPagination
 
+    def _build_duplicated_summaries_map(self, page):
+        """
+        Returns a dict mapping (push_id, framework_id) -> list of {"id": ..., "status": ...}
+        for summaries sharing the same (push, framework), replacing per-object queries in the serializer.
+        """
+        keys = {(summary.push_id, summary.framework_id) for summary in page}
+        if not keys:
+            return {}
+        q = Q()
+        for push_id, framework_id in keys:
+            q |= Q(push_id=push_id, framework_id=framework_id)
+        rows = PerformanceAlertSummary.objects.filter(q).values(
+            "id", "status", "push_id", "framework_id"
+        )
+        result = defaultdict(list)
+        for row in rows:
+            result[(row["push_id"], row["framework_id"])].append(
+                {"id": row["id"], "status": row["status"]}
+            )
+        return dict(result)
+
+    def _build_tc_metadata_map(self, page):
+        """
+        Returns a dict mapping (signature_id, push_id) -> {"task_id": ..., "retry_id": ...}
+        for all alerts on this page, replacing per-alert TC metadata queries.
+        """
+        datum_keys = set()
+        for summary in page:
+            push_id = summary.push_id
+            prev_push_id = summary.prev_push_id
+            for alert in summary.alerts.all():
+                sig = alert.series_signature
+                datum_keys.add((sig.repository_id, sig.id, push_id))
+                datum_keys.add((sig.repository_id, sig.id, prev_push_id))
+            for alert in summary.related_alerts.all():
+                sig = alert.series_signature
+                datum_keys.add((sig.repository_id, sig.id, alert.summary.push_id))
+                datum_keys.add((sig.repository_id, sig.id, alert.summary.prev_push_id))
+        if not datum_keys:
+            return {}
+        result = {}
+        datum_keys_list = list(datum_keys)
+        chunk_size = 500
+        for i in range(0, len(datum_keys_list), chunk_size):
+            chunk = datum_keys_list[i : i + chunk_size]
+            q = Q()
+            for repo_id, sig_id, push_id in chunk:
+                q |= Q(repository_id=repo_id, signature_id=sig_id, push_id=push_id)
+            rows = PerformanceDatum.objects.filter(q).values(
+                "repository_id",
+                "signature_id",
+                "push_id",
+                "job__taskcluster_metadata__task_id",
+                "job__taskcluster_metadata__retry_id",
+            )
+            for row in rows:
+                key = (row["signature_id"], row["push_id"])
+                if key in result:
+                    continue
+                task_id = row["job__taskcluster_metadata__task_id"]
+                retry_id = row["job__taskcluster_metadata__retry_id"]
+                if task_id is not None:
+                    result[key] = {"task_id": task_id, "retry_id": retry_id}
+        return result
+
+    def get_serializer_context(self):
+        ctx = super().get_serializer_context()
+        ctx["duplicated_summaries_map"] = None
+        ctx["tc_metadata_map"] = None
+        return ctx
+
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.queryset)
         pk = request.query_params.get("id")
@@ -556,7 +640,10 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
 
         page = self.paginate_queryset(queryset)
         if page is not None:
-            serializer = self.get_serializer(page, many=True)
+            context = self.get_serializer_context()
+            context["duplicated_summaries_map"] = self._build_duplicated_summaries_map(page)
+            context["tc_metadata_map"] = self._build_tc_metadata_map(page)
+            serializer = self.get_serializer(page, many=True, context=context)
             if pk:
                 for summary in serializer.data:
                     if summary["id"] == int(pk):
