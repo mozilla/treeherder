@@ -246,193 +246,195 @@ const TabsPanel = ({
 
   return (
     <div id="tabs-panel" role="region" aria-label="Job">
-      <Tabs
-        selectedTabClassName="selected-tab"
-        selectedIndex={tabIndex}
-        onSelect={setTabIndex}
-      >
-        <div className="tab-headers-wrapper" ref={tabListRef}>
-          <TabList className="tab-headers">
-            <span className="tab-header-tabs">
-              <Tab>Artifacts and Debugging Tools</Tab>
-              <Tab>Failure Summary</Tab>
-              <Tab>Annotations</Tab>
-              <Tab>Similar Jobs</Tab>
-              {showPerf && <Tab>Performance</Tab>}
-              {enableTestGroupsTab && <Tab>Test Groups</Tab>}
-              {showOverflowDropdown && overflowTabs.length > 0 && (
-                <Dropdown
-                  className="d-inline-block ms-2 align-middle"
-                  drop="down"
-                  show={dropdownShow}
-                  onToggle={(isOpen) => setDropdownShow(isOpen)}
-                >
-                  <Dropdown.Toggle
-                    variant="link"
-                    className="bg-transparent text-light border-0 p-1 tab-overflow-toggle d-inline-flex align-items-center"
-                    title="More tabs"
-                    aria-label="More tab options"
-                    bsPrefix="custom-dropdown-toggle"
-                    style={{ height: '100%' }}
+      {!!selectedJobFull && !!selectedJob && (
+        <Tabs
+          selectedTabClassName="selected-tab"
+          selectedIndex={tabIndex}
+          onSelect={setTabIndex}
+        >
+          <div className="tab-headers-wrapper" ref={tabListRef}>
+            <TabList className="tab-headers">
+              <span className="tab-header-tabs">
+                <Tab>Artifacts and Debugging Tools</Tab>
+                <Tab>Failure Summary</Tab>
+                <Tab>Annotations</Tab>
+                <Tab>Similar Jobs</Tab>
+                {showPerf && <Tab>Performance</Tab>}
+                {enableTestGroupsTab && <Tab>Test Groups</Tab>}
+                {showOverflowDropdown && overflowTabs.length > 0 && (
+                  <Dropdown
+                    className="d-inline-block ms-2 align-middle"
+                    drop="down"
+                    show={dropdownShow}
+                    onToggle={(isOpen) => setDropdownShow(isOpen)}
                   >
-                    <FontAwesomeIcon
-                      icon={faEllipsisH}
-                      className="text-light"
-                    />
-                  </Dropdown.Toggle>
-                  <Dropdown.Menu
-                    align="start"
-                    className="tab-overflow-menu"
-                    style={{
-                      zIndex: 10000,
-                    }}
-                    popperConfig={{
-                      strategy: 'fixed',
-                      modifiers: [
-                        {
-                          name: 'offset',
-                          options: {
-                            offset: [0, 4],
+                    <Dropdown.Toggle
+                      variant="link"
+                      className="bg-transparent text-light border-0 p-1 tab-overflow-toggle d-inline-flex align-items-center"
+                      title="More tabs"
+                      aria-label="More tab options"
+                      bsPrefix="custom-dropdown-toggle"
+                      style={{ height: '100%' }}
+                    >
+                      <FontAwesomeIcon
+                        icon={faEllipsisH}
+                        className="text-light"
+                      />
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu
+                      align="start"
+                      className="tab-overflow-menu"
+                      style={{
+                        zIndex: 10000,
+                      }}
+                      popperConfig={{
+                        strategy: 'fixed',
+                        modifiers: [
+                          {
+                            name: 'offset',
+                            options: {
+                              offset: [0, 4],
+                            },
                           },
-                        },
-                        {
-                          name: 'preventOverflow',
-                          options: {
-                            boundary: 'viewport',
-                            padding: 8,
+                          {
+                            name: 'preventOverflow',
+                            options: {
+                              boundary: 'viewport',
+                              padding: 8,
+                            },
                           },
-                        },
-                        {
-                          name: 'flip',
-                          options: {
-                            fallbackPlacements: ['bottom-end', 'top-end'],
+                          {
+                            name: 'flip',
+                            options: {
+                              fallbackPlacements: ['bottom-end', 'top-end'],
+                            },
                           },
-                        },
-                      ],
-                    }}
-                    renderOnMount
-                  >
-                    {overflowTabs.map((tab) => (
-                      <Nav.Item key={tab.key}>
-                        <Nav.Link
-                          onClick={() => handleOverflowTabClick(tab.index)}
-                          className={`py-2 text-light dropdown-item ${
-                            tabIndex === tab.index ? 'active' : ''
-                          }`}
-                          style={{ cursor: 'pointer', display: 'block' }}
-                        >
-                          {tab.label}
-                        </Nav.Link>
-                      </Nav.Item>
-                    ))}
-                  </Dropdown.Menu>
-                </Dropdown>
-              )}
-            </span>
-            <span
-              id="tab-header-buttons"
-              className="details-panel-controls pull-right"
-            >
-              <Button
-                id="pinboard-btn"
-                className="btn pinboard-btn-text"
-                onClick={togglePinBoardVisibility}
-                title={
-                  isPinBoardVisible ? 'Close the pinboard' : 'Open the pinboard'
-                }
+                        ],
+                      }}
+                      renderOnMount
+                    >
+                      {overflowTabs.map((tab) => (
+                        <Nav.Item key={tab.key}>
+                          <Nav.Link
+                            onClick={() => handleOverflowTabClick(tab.index)}
+                            className={`py-2 text-light dropdown-item ${
+                              tabIndex === tab.index ? 'active' : ''
+                            }`}
+                            style={{ cursor: 'pointer', display: 'block' }}
+                          >
+                            {tab.label}
+                          </Nav.Link>
+                        </Nav.Item>
+                      ))}
+                    </Dropdown.Menu>
+                  </Dropdown>
+                )}
+              </span>
+              <span
+                id="tab-header-buttons"
+                className="details-panel-controls pull-right"
               >
-                PinBoard
-                {!!countPinnedJobs && (
-                  <div
-                    id="pin-count-group"
-                    title={`You have ${countPinnedJobs} job${
-                      countPinnedJobs > 1 ? 's' : ''
-                    } pinned`}
-                    className={`${
-                      countPinnedJobs > 99 ? 'pin-count-group-3-digit' : ''
-                    }`}
-                  >
+                <Button
+                  id="pinboard-btn"
+                  className="btn pinboard-btn-text"
+                  onClick={togglePinBoardVisibility}
+                  title={
+                    isPinBoardVisible ? 'Close the pinboard' : 'Open the pinboard'
+                  }
+                >
+                  PinBoard
+                  {!!countPinnedJobs && (
                     <div
-                      className={`pin-count-text ${
+                      id="pin-count-group"
+                      title={`You have ${countPinnedJobs} job${
+                        countPinnedJobs > 1 ? 's' : ''
+                      } pinned`}
+                      className={`${
                         countPinnedJobs > 99 ? 'pin-count-group-3-digit' : ''
                       }`}
                     >
-                      {countPinnedJobs}
+                      <div
+                        className={`pin-count-text ${
+                          countPinnedJobs > 99 ? 'pin-count-group-3-digit' : ''
+                        }`}
+                      >
+                        {countPinnedJobs}
+                      </div>
                     </div>
-                  </div>
-                )}
-                <FontAwesomeIcon
-                  icon={isPinBoardVisible ? faAngleDown : faAngleUp}
-                  title={isPinBoardVisible ? 'expand' : 'collapse'}
-                  className="ms-1"
-                />
-              </Button>
-              <Button
-                onClick={() => clearSelectedJobAction(countPinnedJobs)}
-                className="btn details-panel-close-btn bg-transparent border-0"
-                aria-label="Close"
-              >
-                <FontAwesomeIcon icon={faTimes} title="Close" />
-              </Button>
-            </span>
-          </TabList>
-        </div>
-        <TabPanel>
-          <JobArtifacts
-            jobDetails={jobDetails}
-            jobArtifactsLoading={jobArtifactsLoading}
-            repoName={currentRepo.name}
-            selectedJob={selectedJobFull}
-          />
-        </TabPanel>
-        <TabPanel>
-          <FailureSummaryTab
-            selectedJob={selectedJobFull}
-            selectedJobId={selectedJob?.id}
-            jobLogUrls={jobLogUrls}
-            jobDetails={jobDetails}
-            logParseStatus={logParseStatus}
-            logViewerFullUrl={logViewerFullUrl}
-            addBug={addBugAction}
-            pinJob={pinJobAction}
-            currentRepo={currentRepo}
-            fontSize="font-size-11"
-          />
-        </TabPanel>
-        <TabPanel>
-          <AnnotationsTab
-            classificationMap={classificationMap}
-            classifications={classifications}
-            bugs={bugs}
-            selectedJobFull={selectedJobFull}
-          />
-        </TabPanel>
-        <TabPanel>
-          <SimilarJobsTab
-            repoName={currentRepo.name}
-            classificationMap={classificationMap}
-            selectedJobFull={selectedJobFull}
-          />
-        </TabPanel>
-        {showPerf && (
+                  )}
+                  <FontAwesomeIcon
+                    icon={isPinBoardVisible ? faAngleDown : faAngleUp}
+                    title={isPinBoardVisible ? 'expand' : 'collapse'}
+                    className="ms-1"
+                  />
+                </Button>
+                <Button
+                  onClick={() => clearSelectedJobAction(countPinnedJobs)}
+                  className="btn details-panel-close-btn bg-transparent border-0"
+                  aria-label="Close"
+                >
+                  <FontAwesomeIcon icon={faTimes} title="Close" />
+                </Button>
+              </span>
+            </TabList>
+          </div>
           <TabPanel>
-            <PerformanceTab
-              key={selectedJobFull.id}
-              selectedJobFull={selectedJobFull}
-              currentRepo={currentRepo}
-              repoName={currentRepo.name}
+            <JobArtifacts
               jobDetails={jobDetails}
-              perfJobDetail={perfJobDetail}
-              revision={jobRevision}
+              jobArtifactsLoading={jobArtifactsLoading}
+              repoName={currentRepo.name}
+              selectedJob={selectedJobFull}
             />
           </TabPanel>
-        )}
-        {enableTestGroupsTab && (
           <TabPanel>
-            <JobTestGroups testGroups={testGroups} />
+            <FailureSummaryTab
+              selectedJob={selectedJobFull}
+              selectedJobId={selectedJob.id}
+              jobLogUrls={jobLogUrls}
+              jobDetails={jobDetails}
+              logParseStatus={logParseStatus}
+              logViewerFullUrl={logViewerFullUrl}
+              addBug={addBugAction}
+              pinJob={pinJobAction}
+              currentRepo={currentRepo}
+              fontSize="font-size-11"
+            />
           </TabPanel>
-        )}
-      </Tabs>
+          <TabPanel>
+            <AnnotationsTab
+              classificationMap={classificationMap}
+              classifications={classifications}
+              bugs={bugs}
+              selectedJobFull={selectedJobFull}
+            />
+          </TabPanel>
+          <TabPanel>
+            <SimilarJobsTab
+              repoName={currentRepo.name}
+              classificationMap={classificationMap}
+              selectedJobFull={selectedJobFull}
+            />
+          </TabPanel>
+          {showPerf && (
+            <TabPanel>
+              <PerformanceTab
+                key={selectedJobFull.id}
+                selectedJobFull={selectedJobFull}
+                currentRepo={currentRepo}
+                repoName={currentRepo.name}
+                jobDetails={jobDetails}
+                perfJobDetail={perfJobDetail}
+                revision={jobRevision}
+              />
+            </TabPanel>
+          )}
+          {enableTestGroupsTab && (
+            <TabPanel>
+              <JobTestGroups testGroups={testGroups} />
+            </TabPanel>
+          )}
+        </Tabs>
+      )}
     </div>
   );
 };

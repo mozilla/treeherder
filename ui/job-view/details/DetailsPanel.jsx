@@ -1,5 +1,7 @@
 import { useCallback } from 'react';
 import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import {
   usePinnedJobsStore,
@@ -52,7 +54,7 @@ function DetailsPanel({
     <div
       id="details-panel"
       style={{ height: `${resizedHeight}px` }}
-      className={selectedJobFull ? 'details-panel-slide' : 'hidden'}
+      className="details-panel-slide"
     >
       <PinBoard
         currentRepo={currentRepo}
@@ -61,50 +63,59 @@ function DetailsPanel({
         classificationTypes={classificationTypes}
         selectedJobFull={selectedJobFull}
       />
-      {!!selectedJobFull && !!selectedJob && (
-        <div id="details-panel-content">
-          <SummaryPanel
-            selectedJobFull={selectedJobFull}
-            currentRepo={currentRepo}
-            classificationMap={classificationMap}
-            jobLogUrls={jobLogUrls}
-            logParseStatus={logParseStatus}
-            jobDetails={jobDetails}
-            jobDetailLoading={jobDetailLoading}
-            latestClassification={
-              classifications.length
-                ? classifications[classifications.length - 1]
-                : null
-            }
-            logViewerUrl={logViewerUrl}
-            logViewerFullUrl={logViewerFullUrl}
-            bugs={bugs}
-            user={user}
-          />
-          <span className="job-tabs-divider" />
-          <TabsPanel
-            selectedJob={selectedJob}
-            selectedJobFull={selectedJobFull}
-            currentRepo={currentRepo}
-            jobDetails={jobDetails}
-            jobArtifactsLoading={jobArtifactsLoading}
-            perfJobDetail={perfJobDetail}
-            repoName={currentRepo.name}
-            jobRevision={jobRevision}
-            suggestions={[]}
-            errors={undefined}
-            bugSuggestionsLoading={false}
-            logParseStatus={logParseStatus}
-            classifications={classifications}
-            classificationMap={classificationMap}
-            jobLogUrls={jobLogUrls}
-            bugs={bugs}
-            togglePinBoardVisibility={togglePinBoardVisibility}
-            logViewerFullUrl={logViewerFullUrl}
-            testGroups={testGroups}
-          />
-        </div>
-      )}
+      <div id="details-panel-content">
+        {(jobDetailLoading || jobArtifactsLoading) && (
+          <div className="overlay">
+            <div>
+              <FontAwesomeIcon
+                icon={faSpinner}
+                pulse
+                className="th-spinner-lg"
+                title="Loading..."
+              />
+            </div>
+          </div>
+        )}
+        <SummaryPanel
+          selectedJobFull={selectedJobFull}
+          currentRepo={currentRepo}
+          classificationMap={classificationMap}
+          jobLogUrls={jobLogUrls}
+          logParseStatus={logParseStatus}
+          jobDetails={jobDetails}
+          latestClassification={
+            classifications.length
+              ? classifications[classifications.length - 1]
+              : null
+          }
+          logViewerUrl={logViewerUrl}
+          logViewerFullUrl={logViewerFullUrl}
+          bugs={bugs}
+          user={user}
+        />
+        <span className="job-tabs-divider" />
+        <TabsPanel
+          selectedJob={selectedJob}
+          selectedJobFull={selectedJobFull}
+          currentRepo={currentRepo}
+          jobDetails={jobDetails}
+          jobArtifactsLoading={jobArtifactsLoading}
+          perfJobDetail={perfJobDetail}
+          repoName={currentRepo?.name}
+          jobRevision={jobRevision}
+          suggestions={[]}
+          errors={undefined}
+          bugSuggestionsLoading={false}
+          logParseStatus={logParseStatus}
+          classifications={classifications}
+          classificationMap={classificationMap}
+          jobLogUrls={jobLogUrls}
+          bugs={bugs}
+          togglePinBoardVisibility={togglePinBoardVisibility}
+          logViewerFullUrl={logViewerFullUrl}
+          testGroups={testGroups}
+        />
+      </div>
       <div id="clipboard-container">
         <textarea id="clipboard" />
       </div>

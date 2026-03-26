@@ -1,7 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import JobInfo from '../../../shared/JobInfo';
 
@@ -17,7 +15,6 @@ class SummaryPanel extends React.PureComponent {
       bugs,
       jobLogUrls = [],
       jobDetails = [],
-      jobDetailLoading = false,
       logViewerUrl = null,
       logViewerFullUrl = null,
       logParseStatus = 'pending',
@@ -60,49 +57,40 @@ class SummaryPanel extends React.PureComponent {
         aria-label="Summary"
         data-testid="summary-panel"
       >
-        <ActionBar
-          selectedJobFull={selectedJobFull}
-          logParseStatus={logParseStatus}
-          currentRepo={currentRepo}
-          isTryRepo={currentRepo.is_try_repo}
-          jobDetails={jobDetails}
-          logViewerUrl={logViewerUrl}
-          logViewerFullUrl={logViewerFullUrl}
-          jobLogUrls={logs}
-          user={user}
-        />
-        <div id="summary-panel-content">
-          {jobDetailLoading && (
-            <div className="overlay">
-              <div>
-                <FontAwesomeIcon
-                  icon={faSpinner}
-                  pulse
-                  className="th-spinner-lg"
-                  title="Loading..."
-                />
-              </div>
-            </div>
-          )}
-
-          <ul className="list-unstyled">
-            {latestClassification && (
-              <ClassificationsPanel
-                job={selectedJobFull}
-                classification={latestClassification}
-                classificationMap={classificationMap}
-                bugs={bugs}
-                currentRepo={currentRepo}
-              />
-            )}
-            <StatusPanel selectedJobFull={selectedJobFull} />
-            <JobInfo
-              job={selectedJobFull}
-              extraFields={[...logStatus, ...artifactStatus]}
+        {!!selectedJobFull && (
+          <>
+            <ActionBar
+              selectedJobFull={selectedJobFull}
+              logParseStatus={logParseStatus}
               currentRepo={currentRepo}
+              isTryRepo={currentRepo.is_try_repo}
+              jobDetails={jobDetails}
+              logViewerUrl={logViewerUrl}
+              logViewerFullUrl={logViewerFullUrl}
+              jobLogUrls={logs}
+              user={user}
             />
-          </ul>
-        </div>
+            <div id="summary-panel-content">
+              <ul className="list-unstyled">
+                {latestClassification && (
+                  <ClassificationsPanel
+                    job={selectedJobFull}
+                    classification={latestClassification}
+                    classificationMap={classificationMap}
+                    bugs={bugs}
+                    currentRepo={currentRepo}
+                  />
+                )}
+                <StatusPanel selectedJobFull={selectedJobFull} />
+                <JobInfo
+                  job={selectedJobFull}
+                  extraFields={[...logStatus, ...artifactStatus]}
+                  currentRepo={currentRepo}
+                />
+              </ul>
+            </div>
+          </>
+        )}
       </div>
     );
   }
@@ -123,7 +111,6 @@ SummaryPanel.propTypes = {
       title: PropTypes.string.isRequired,
     }),
   ),
-  jobDetailLoading: PropTypes.bool,
   logParseStatus: PropTypes.string,
   logViewerUrl: PropTypes.string,
   logViewerFullUrl: PropTypes.string,

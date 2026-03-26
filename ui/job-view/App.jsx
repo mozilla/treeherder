@@ -443,16 +443,14 @@ const App = () => {
           </Panel>
           <PanelResizeHandle className="resize-handle" />
           <Panel defaultSize={100 - pushListPct} minSize={0}>
-            {currentRepo && (
-              <DetailsPanel
-                resizedHeight={detailsHeight}
-                currentRepo={currentRepo}
-                user={user}
-                classificationTypes={classificationTypes}
-                classificationMap={classificationMap}
-                frameworks={frameworks}
-              />
-            )}
+            <DetailsPanel
+              resizedHeight={detailsHeight}
+              currentRepo={currentRepo}
+              user={user}
+              classificationTypes={classificationTypes}
+              classificationMap={classificationMap}
+              frameworks={frameworks}
+            />
           </Panel>
         </PanelGroup>
         <Notifications />
