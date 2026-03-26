@@ -284,6 +284,7 @@ function PushHeader({
             showRunnableJobs={showRunnableJobs}
             hideRunnableJobs={hideRunnableJobs}
             showFuzzyJobs={showFuzzyJobs}
+            getAllShownJobs={getAllShownJobs}
           />
         </span>
       </div>

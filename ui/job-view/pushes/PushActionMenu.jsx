@@ -12,6 +12,7 @@ import {
 import { formatTaskclusterError } from '../../helpers/errorMessage';
 import CustomJobActions from '../CustomJobActions';
 import PushModel from '../../models/push';
+import JobModel from '../../models/job';
 import { notify } from '../stores/notificationStore';
 import {
   usePushesStore,
@@ -26,6 +27,7 @@ function PushActionMenu({
   showFuzzyJobs,
   pushId,
   currentRepo,
+  getAllShownJobs,
 }) {
   const navigate = useNavigate();
   const [customJobActionsShowing, setCustomJobActionsShowing] = useState(false);
@@ -66,6 +68,31 @@ function PushActionMenu({
     });
   }, [pushId, revision, decisionTaskMap, currentRepo]);
 
+  const retriggerAllFailedJobs = useCallback(() => {
+    const failedJobs = getAllShownJobs(pushId).filter(
+      (job) =>
+        job.resultStatus === 'testfailed' &&
+        job.platform !== 'lint' &&
+        job.job_type_symbol !== 'mozlint' &&
+        !job.job_type_name.includes('build'),
+    );
+
+    if (!failedJobs.length) {
+      notify('No failed test jobs to retrigger', 'warning');
+      return;
+    }
+
+    if (
+      !window.confirm(
+        `This will retrigger ${failedJobs.length} failed test job${failedJobs.length > 1 ? 's' : ''} for revision ${revision}!\n\nClick "OK" if you want to proceed.`,
+      )
+    ) {
+      return;
+    }
+
+    JobModel.retrigger(failedJobs, currentRepo, notify, 1, decisionTaskMap);
+  }, [pushId, revision, getAllShownJobs, currentRepo, decisionTaskMap]);
+
   const toggleCustomJobActions = useCallback(() => {
     setCustomJobActionsShowing((prev) => !prev);
   }, []);
@@ -103,6 +130,13 @@ function PushActionMenu({
             onClick={showFuzzyJobs}
           >
             Add new jobs (Search)
+          </Dropdown.Item>
+          <Dropdown.Item
+            tag="a"
+            title="Retrigger all jobs with failed test results in this push"
+            onClick={retriggerAllFailedJobs}
+          >
+            Retrigger all failed test jobs
           </Dropdown.Item>
           <Dropdown.Item
             tag="a"
@@ -187,6 +221,7 @@ PushActionMenu.propTypes = {
   hideRunnableJobs: PropTypes.func.isRequired,
   showRunnableJobs: PropTypes.func.isRequired,
   showFuzzyJobs: PropTypes.func.isRequired,
+  getAllShownJobs: PropTypes.func.isRequired,
 };
 
 export default PushActionMenu;
