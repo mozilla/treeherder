@@ -12,7 +12,7 @@ import StatusButton from './StatusButton';
 
 class PushHealthSummary extends PureComponent {
   render() {
-    const { healthStatus = {}, revision, repoName } = this.props;
+    const { healthStatus = {}, revision, repoName, jobList = [] } = this.props;
     const status = healthStatus || {};
     const {
       needInvestigation,
@@ -25,6 +25,13 @@ class PushHealthSummary extends PureComponent {
       metrics,
     } = status;
     const { linting, builds, tests } = metrics;
+    // tests.firefox.dev/try.html currently supports only mochitest and xpcshell tests
+    const failedMochitestXpcshellCount = jobList.filter(
+      (job) =>
+        job.result === 'testfailed' &&
+        (job.job_type_name.includes('xpcshell') ||
+          job.job_type_name.includes('mochitest')),
+    ).length;
     const heartSize = 20;
     const pushHealthUrl = getPushHealthUrl({ revision, repo: repoName });
     const noResultsFound =
@@ -103,6 +110,16 @@ class PushHealthSummary extends PureComponent {
                   title="Tests"
                   repo={repoName}
                   revision={revision}
+                  externalFailureUrl={
+                    failedMochitestXpcshellCount > 0
+                      ? `https://tests.firefox.dev/try.html?rev=${revision}`
+                      : null
+                  }
+                  externalFailureTooltip={
+                    failedMochitestXpcshellCount > 0
+                      ? `View aggregated failures from ${failedMochitestXpcshellCount} failed mochitest/xpcshell test jobs`
+                      : null
+                  }
                 />
               )}
             </Col>
@@ -124,6 +141,7 @@ PushHealthSummary.propTypes = {
     buildInProgressCount: PropTypes.number,
     lintingInProgressCount: PropTypes.number,
   }),
+  jobList: PropTypes.arrayOf(PropTypes.object),
 };
 
 export default PushHealthSummary;

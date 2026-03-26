@@ -707,6 +707,7 @@ function Push({
                         healthStatus={pushHealthStatus}
                         revision={revision}
                         repoName={currentRepo.name}
+                        jobList={jobListRef.current}
                       />
                     </div>
                   )}

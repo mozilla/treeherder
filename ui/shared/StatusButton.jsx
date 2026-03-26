@@ -13,6 +13,8 @@ const StatusButton = ({
   status,
   repo,
   revision,
+  externalFailureUrl,
+  externalFailureTooltip,
 }) => {
   let result = 'in progress';
   let text = `In Progress`;
@@ -30,6 +32,17 @@ const StatusButton = ({
     text = 'Passed';
     result = 'pass';
   }
+
+  const statusContent = (
+    <React.Fragment>
+      <FontAwesomeIcon
+        icon={getIcon(result)}
+        className={`me-2 text-${resultColorMap[result]}`}
+      />
+      <span className={`text-${resultColorMap[result]}`}>{text}</span>
+    </React.Fragment>
+  );
+
   return (
     <React.Fragment>
       <Link
@@ -40,11 +53,18 @@ const StatusButton = ({
       </Link>
       <br />
       <div className="pt-2">
-        <FontAwesomeIcon
-          icon={getIcon(result)}
-          className={`me-2 text-${resultColorMap[result]}`}
-        />
-        <span className={`text-${resultColorMap[result]}`}>{text}</span>
+        {externalFailureUrl && failureCount ? (
+          <a
+            href={externalFailureUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={externalFailureTooltip}
+          >
+            {statusContent}
+          </a>
+        ) : (
+          statusContent
+        )}
       </div>
     </React.Fragment>
   );
@@ -57,6 +77,8 @@ StatusButton.propTypes = {
   status: PropTypes.string.isRequired,
   revision: PropTypes.string.isRequired,
   repo: PropTypes.string.isRequired,
+  externalFailureUrl: PropTypes.string,
+  externalFailureTooltip: PropTypes.string,
 };
 
 export default StatusButton;
