@@ -74,6 +74,9 @@ export const summaryStatusMap = {
   'all statuses': -2,
   'all regressions': -1,
   untriaged: 0,
+  // Positioned here (instead of appending) so they show up in the dropdown under "untriaged"
+  'untriaged regressions': 10,
+  'untriaged improvements': 11,
   downstream: 1,
   // Reassigned is in the performance_alert_summary model but it isn't a valid status parameter
   // with get requests
@@ -166,7 +169,8 @@ export const tooltipMessages = {
   improvement: 'patch that generated an actual improvement',
   'regression-backedout': 'patch backed out due to causing regressions',
   'regression-fix': 'patch fixing a reported regression bug',
-  bisection: 'bisection identified the exact revision causing the performance shifts',
+  bisection:
+    'bisection identified the exact revision causing the performance shifts',
 };
 
 export const alertBackfillResultVisual = {

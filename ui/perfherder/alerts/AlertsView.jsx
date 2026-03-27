@@ -219,6 +219,12 @@ function AlertsView({
         if (status === 'all regressions') {
           delete params.status;
           params.hide_improvements = true;
+        } else if (status === 'untriaged regressions') {
+          delete params.status;
+          params.untriaged_regressions = true;
+        } else if (status === 'untriaged improvements') {
+          delete params.status;
+          params.untriaged_improvements = true;
         }
         if (hideDownstream) {
           params.hide_related_and_invalid = hideDownstream;
