@@ -128,6 +128,9 @@ def _add_annotation(client, job, test_user):
     assert content["message"] == f"note stored for job {job.id}"
 
 
+@pytest.mark.xfail(
+    reason="Bug 2026428 - identification of failure line as 'NEW' turned off after performance regression"
+)
 @pytest.mark.django_db
 def test_new_failure_annotation(client, test_jobs, test_user):
     db_cache = caches["db_cache"]
