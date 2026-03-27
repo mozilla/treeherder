@@ -901,3 +901,182 @@ def test_alert_summaries_filter_with_assignee(
     summary_ids = [summary["id"] for summary in retrieved_summaries]
 
     assert summary_ids == [test_perf_alert_summary.id]
+
+
+def test_untriaged_regressions_filter(
+    client,
+    test_perf_alert_summary,
+    test_perf_alert_summary_2,
+    test_perf_signature,
+    test_perf_signature_2,
+):
+    # Summary 1: one untriaged regression alert should be returned
+    create_perf_alert(
+        summary=test_perf_alert_summary,
+        series_signature=test_perf_signature,
+        is_regression=True,
+        status=PerformanceAlert.UNTRIAGED,
+    )
+    # Summary 2: one untriaged improvement alert should NOT be returned
+    create_perf_alert(
+        summary=test_perf_alert_summary_2,
+        series_signature=test_perf_signature_2,
+        is_regression=False,
+        status=PerformanceAlert.UNTRIAGED,
+    )
+
+    resp = client.get(
+        reverse("performance-alert-summaries-list"),
+        data={"untriaged_regressions": "true"},
+    )
+    assert resp.status_code == 200
+    result_ids = [summary["id"] for summary in resp.json()["results"]]
+    assert test_perf_alert_summary.id in result_ids
+    assert test_perf_alert_summary_2.id not in result_ids
+
+
+def test_untriaged_regressions_excludes_acknowledged(
+    client,
+    test_perf_alert_summary,
+    test_perf_signature,
+):
+    # Acknowledged regression should NOT be returned by untriaged_regressions filter
+    create_perf_alert(
+        summary=test_perf_alert_summary,
+        series_signature=test_perf_signature,
+        is_regression=True,
+        status=PerformanceAlert.ACKNOWLEDGED,
+    )
+
+    resp = client.get(
+        reverse("performance-alert-summaries-list"),
+        data={"untriaged_regressions": "true"},
+    )
+    assert resp.status_code == 200
+    result_ids = [summary["id"] for summary in resp.json()["results"]]
+    assert test_perf_alert_summary.id not in result_ids
+
+
+def test_untriaged_improvements_filter(
+    client,
+    test_perf_alert_summary,
+    test_perf_alert_summary_2,
+    test_perf_signature,
+    test_perf_signature_2,
+):
+    # Summary 1: one untriaged improvement alert should be returned
+    create_perf_alert(
+        summary=test_perf_alert_summary,
+        series_signature=test_perf_signature,
+        is_regression=False,
+        status=PerformanceAlert.UNTRIAGED,
+    )
+    # Summary 2: one untriaged regression alert should NOT be returned
+    create_perf_alert(
+        summary=test_perf_alert_summary_2,
+        series_signature=test_perf_signature_2,
+        is_regression=True,
+        status=PerformanceAlert.UNTRIAGED,
+    )
+
+    resp = client.get(
+        reverse("performance-alert-summaries-list"),
+        data={"untriaged_improvements": "true"},
+    )
+    assert resp.status_code == 200
+    result_ids = [summary["id"] for summary in resp.json()["results"]]
+    assert test_perf_alert_summary.id in result_ids
+    assert test_perf_alert_summary_2.id not in result_ids
+
+
+def test_untriaged_improvements_excludes_acknowledged(
+    client,
+    test_perf_alert_summary,
+    test_perf_signature,
+):
+    # Acknowledged improvement should NOT be returned by untriaged_improvements filter
+    create_perf_alert(
+        summary=test_perf_alert_summary,
+        series_signature=test_perf_signature,
+        is_regression=False,
+        status=PerformanceAlert.ACKNOWLEDGED,
+    )
+
+    resp = client.get(
+        reverse("performance-alert-summaries-list"),
+        data={"untriaged_improvements": "true"},
+    )
+    assert resp.status_code == 200
+    result_ids = [summary["id"] for summary in resp.json()["results"]]
+    assert test_perf_alert_summary.id not in result_ids
+
+
+def test_untriaged_improvements_excludes_regressions(
+    client,
+    test_perf_alert_summary,
+    test_perf_signature,
+    test_perf_alert_summary_2,
+    test_perf_signature_2,
+    test_perf_signature_3,
+):
+    # Summary 1: one untriaged improvement alert should be returned
+    create_perf_alert(
+        summary=test_perf_alert_summary,
+        series_signature=test_perf_signature,
+        is_regression=False,
+        status=PerformanceAlert.UNTRIAGED,
+    )
+    # Summary 2: one untriaged improvement and one untriaged regression alert should NOT be returned
+    create_perf_alert(
+        summary=test_perf_alert_summary_2,
+        series_signature=test_perf_signature_2,
+        is_regression=False,
+        status=PerformanceAlert.UNTRIAGED,
+    )
+    create_perf_alert(
+        summary=test_perf_alert_summary_2,
+        series_signature=test_perf_signature_3,
+        is_regression=True,
+        status=PerformanceAlert.UNTRIAGED,
+    )
+
+    resp = client.get(
+        reverse("performance-alert-summaries-list"),
+        data={"untriaged_improvements": "true"},
+    )
+    assert resp.status_code == 200
+    result_ids = [summary["id"] for summary in resp.json()["results"]]
+    assert test_perf_alert_summary.id in result_ids
+    assert test_perf_alert_summary_2.id not in result_ids
+
+
+def test_untriaged_regressions_include_reassignments(
+    client,
+    test_perf_alert_summary,
+    test_perf_alert_summary_2,
+    test_perf_signature,
+    test_perf_signature_2,
+):
+    # Summary 1: has only an untriaged improvement alert
+    create_perf_alert(
+        summary=test_perf_alert_summary,
+        series_signature=test_perf_signature,
+        is_regression=False,
+        status=PerformanceAlert.UNTRIAGED,
+    )
+    # A regression from summary 2 is reassigned to summary 1
+    create_perf_alert(
+        summary=test_perf_alert_summary_2,
+        series_signature=test_perf_signature_2,
+        is_regression=True,
+        related_summary=test_perf_alert_summary,
+        status=PerformanceAlert.REASSIGNED,
+    )
+
+    resp = client.get(
+        reverse("performance-alert-summaries-list"),
+        data={"untriaged_regressions": "true"},
+    )
+    assert resp.status_code == 200
+    result_ids = [summary["id"] for summary in resp.json()["results"]]
+    assert test_perf_alert_summary.id in result_ids
