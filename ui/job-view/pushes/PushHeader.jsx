@@ -13,18 +13,18 @@ import {
 import { Badge, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
-import { getPercentComplete, toDateStr } from '../../helpers/display';
+import { toDateStr } from '../../helpers/display';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
 import { getJobsUrl } from '../../helpers/url';
 import PushModel from '../../models/push';
 import JobModel from '../../models/job';
-import PushHealthStatus from '../../shared/PushHealthStatus';
 import { getUrlParam } from '../../helpers/location';
 import { notify } from '../stores/notificationStore';
 import { setSelectedJob } from '../stores/selectedJobStore';
 import { pinJobs } from '../stores/pinnedJobsStore';
 
 import PushActionMenu from './PushActionMenu';
+import PushCounts from './PushCounts';
 
 // url params we don't want added from the current querystring to the revision
 // and author links.
@@ -37,40 +37,6 @@ const SKIPPED_LINK_PARAMS = [
   'enddate',
   'author',
 ];
-
-function PushCounts({ pending, running, completed, fixedByCommit }) {
-  const inProgress = pending + running;
-  const total = completed + inProgress;
-  const percentComplete = getPercentComplete({ pending, running, completed });
-
-  return (
-    <div>
-      {fixedByCommit >= 1 && (
-        <span
-          className="badge text-bg-warning ms-1"
-          title="Count of Fixed By Commit tasks for this push"
-        >
-          {fixedByCommit}
-        </span>
-      )}
-      <span className="push-progress">
-        {percentComplete === 100 && <span>- Complete -</span>}
-        {percentComplete < 100 && total > 0 && (
-          <span title="Proportion of jobs that are complete">
-            {percentComplete}% - {inProgress} in progress
-          </span>
-        )}
-      </span>
-    </div>
-  );
-}
-
-PushCounts.propTypes = {
-  pending: PropTypes.number.isRequired,
-  running: PropTypes.number.isRequired,
-  completed: PropTypes.number.isRequired,
-  fixedByCommit: PropTypes.number.isRequired,
-};
 
 function PushHeader({
   push,
@@ -93,7 +59,6 @@ function PushHeader({
   pushHealthVisibility,
   decisionTaskMap,
   watchState = 'none',
-  pushHealthStatusCallback = null,
   currentRepo,
   togglePushCollapsed,
 }) {
@@ -175,9 +140,6 @@ function PushHeader({
     delete authorParams.selectedTaskRun;
   }
   const authorPushFilterUrl = getJobsUrl({ ...authorParams, author });
-  const showPushHealthStatus =
-    pushHealthVisibility === 'All' ||
-    currentRepo.name === pushHealthVisibility.toLowerCase();
   const watchStateLabel = {
     none: 'Watch',
     push: 'Notifying (per-push)',
@@ -209,51 +171,48 @@ function PushHeader({
             <Link to={authorPushFilterUrl}>{author}</Link>
           </span>
         </span>
-        {showPushHealthStatus && (
-          <PushHealthStatus
-            repoName={currentRepo.name}
-            revision={revision}
-            jobCounts={jobCounts}
-            statusCallback={pushHealthStatusCallback}
-          />
-        )}
         <PushCounts
-          className="push-counts"
-          pending={jobCounts.pending}
-          running={jobCounts.running}
           completed={jobCounts.completed}
           fixedByCommit={jobCounts.fixedByCommit}
+          pending={jobCounts.pending}
+          running={jobCounts.running}
+          test_failed={jobCounts.test_failed}
+          build_failed={jobCounts.build_failed}
+          lint_failed={jobCounts.lint_failed}
         />
         <span className="push-buttons">
           {jobCounts.pending + jobCounts.running > 0 && (
-            <button
-              type="button"
-              className="btn btn-sm btn-push watch-commit-btn"
-              disabled={!notificationSupported}
-              title={
-                notificationSupported
-                  ? 'Get Desktop Notifications for this Push'
-                  : 'Desktop notifications not supported in this browser'
-              }
-              data-watch-state={watchState}
-              onClick={() => cycleWatchState()}
-            >
-              {watchStateLabel}
-            </button>
+            <>
+              <button
+                type="button"
+                className="btn btn-sm btn-push watch-commit-btn"
+                disabled={!notificationSupported}
+                title={
+                  notificationSupported
+                    ? 'Get Desktop Notifications for this Push'
+                    : 'Desktop notifications not supported in this browser'
+                }
+                data-watch-state={watchState}
+                onClick={() => cycleWatchState()}
+              >
+                {watchStateLabel}
+              </button>
+              <button
+                type="button"
+                className="btn btn-sm btn-push cancel-all-jobs-btn"
+                title={cancelJobsTitle}
+                onClick={cancelAllJobs}
+                aria-label={cancelJobsTitle}
+              >
+                <FontAwesomeIcon
+                  icon={faTimesCircle}
+                  className="dim-quarter"
+                  title="Cancel jobs"
+                />
+              </button>
+            </>
           )}
-          <button
-            type="button"
-            className="btn btn-sm btn-push cancel-all-jobs-btn"
-            title={cancelJobsTitle}
-            onClick={cancelAllJobs}
-            aria-label={cancelJobsTitle}
-          >
-            <FontAwesomeIcon
-              icon={faTimesCircle}
-              className="dim-quarter"
-              title="Cancel jobs"
-            />
-          </button>
+
           <button
             type="button"
             className="btn btn-sm btn-push pin-all-jobs-btn"

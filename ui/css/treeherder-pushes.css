@@ -43,8 +43,7 @@
 }
 
 .push-counts {
-  flex: none;
-  padding-right: 10px;
+  min-width: 100px;
 }
 
 .push-health .badge.badge-success {

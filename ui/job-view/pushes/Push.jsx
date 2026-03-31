@@ -33,35 +33,15 @@ import {
 } from '../../taskcluster-auth-callback/constants';
 import { RevisionList } from '../../shared/RevisionList';
 import { Revision } from '../../shared/Revision';
-import PushHealthSummary from '../../shared/PushHealthSummary';
-import { getTaskRunStr } from '../../helpers/job';
+import { getJobCount, getTaskRunStr } from '../../helpers/job';
 
 import FuzzyJobFinder from './FuzzyJobFinder';
 import PushHeader from './PushHeader';
 import PushJobs from './PushJobs';
+import PushCountsDetails from './PushCountsDetails';
 
 const watchCycleStates = ['none', 'push', 'job', 'none'];
 const platformArray = Object.values(thPlatformMap);
-
-export const getJobCount = (jobs) => {
-  const filteredByCommit = jobs.filter(
-    (job) => job.failure_classification_id === 2,
-  );
-
-  return jobs.reduce(
-    (memo, job) =>
-      job.result !== 'superseded'
-        ? { ...memo, [job.state]: memo[job.state] + 1 }
-        : memo,
-    {
-      unscheduled: 0,
-      pending: 0,
-      running: 0,
-      completed: 0,
-      fixedByCommit: filteredByCommit.length,
-    },
-  );
-};
 
 // Bug 1638424 - Transform WPT test paths to look like paths
 // from a local checkout
@@ -137,15 +117,20 @@ function Push({
   const [selectedRunnableJobs, setSelectedRunnableJobs] = useState([]);
   const [watched, setWatched] = useState('none');
   const [jobCounts, setJobCounts] = useState({
-    pending: 0,
-    running: 0,
+    build_failed: 0,
     completed: 0,
     fixedByCommit: 0,
+    lint_failed: 0,
+    pending: 0,
+    running: 0,
+    test_failed: 0,
+    intermittentBuild: 0,
+    intermittentLint: 0,
+    intermittentTests: 0,
   });
   const [pushGroupState, setPushGroupState] = useState('collapsed');
   const [collapsed, setCollapsed] = useState(collapsedPushes.includes(push.id));
   const [filteredTryPush, setFilteredTryPush] = useState(false);
-  const [pushHealthStatus, setPushHealthStatus] = useState(null);
   const [fuzzyJobList, setFuzzyJobList] = useState([]);
   const [filteredFuzzyList, setFilteredFuzzyList] = useState([]);
   const [manifestsByTask, setManifestsByTask] = useState({});
@@ -344,12 +329,13 @@ function Push({
 
   const testForFilteredTry = useCallback(() => {
     const filterParams = ['revision', 'author'];
-    const urlParams = getAllUrlParams();
+    const urlParams = new URLSearchParams(location.search);
+
     const isFiltered =
       filterParams.some((f) => urlParams.has(f)) && currentRepo.name === 'try';
 
     setFilteredTryPush(isFiltered);
-  }, [currentRepo.name]);
+  }, [currentRepo.name, location]);
 
   const handleUrlChanges = useCallback(async () => {
     const allParams = getAllUrlParams();
@@ -582,10 +568,6 @@ function Push({
     setFuzzyModal((prev) => !prev);
   }, []);
 
-  const pushHealthStatusCallback = useCallback((status) => {
-    setPushHealthStatus(status);
-  }, []);
-
   // componentDidMount
   useEffect(() => {
     const allParams = getAllUrlParams();
@@ -639,10 +621,6 @@ function Push({
   const tipRevision = push.revisions[0];
   const decisionTask = decisionTaskMap[push.id];
   const decisionTaskId = decisionTask ? decisionTask.id : null;
-  const showPushHealthSummary =
-    filteredTryPush &&
-    (pushHealthVisibility === 'All' ||
-      currentRepo.name === pushHealthVisibility.toLowerCase());
 
   if (isOnlyRevision) {
     setSingleRevisionWindowTitle();
@@ -683,7 +661,6 @@ function Push({
         pushHealthVisibility={pushHealthVisibility}
         decisionTaskMap={decisionTaskMap}
         groupCountsExpanded={groupCountsExpanded}
-        pushHealthStatusCallback={pushHealthStatusCallback}
         togglePushCollapsed={togglePushCollapsed}
       />
       <div className="push-body-divider" />
@@ -701,15 +678,7 @@ function Push({
                   widthClass="mb-3 ms-4"
                   commitShaClass="font-monospace"
                 >
-                  {showPushHealthSummary && pushHealthStatus && (
-                    <div className="mt-4">
-                      <PushHealthSummary
-                        healthStatus={pushHealthStatus}
-                        revision={revision}
-                        repoName={currentRepo.name}
-                      />
-                    </div>
-                  )}
+                  {filteredTryPush && <PushCountsDetails {...jobCounts} />}
                 </RevisionList>
               </Col>
               <Col xs={7} className="job-list job-list-pad">
