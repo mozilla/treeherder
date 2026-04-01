@@ -3,6 +3,7 @@ import {
   Routes,
   Route,
   BrowserRouter,
+  Navigate,
   useNavigate,
   useLocation,
 } from 'react-router-dom';
@@ -14,14 +15,11 @@ import UserGuideApp from './userguide/App';
 import treeFavicon from './img/tree_open.png';
 import logFavicon from './img/logviewerIcon.png';
 import perfFavicon from './img/line_chart.png';
-import healthFavicon from './img/push-health-ok.png';
 
-const IntermittentFailuresApp = lazy(() =>
-  import('./intermittent-failures/App'),
+const IntermittentFailuresApp = lazy(
+  () => import('./intermittent-failures/App'),
 );
 const PerfherderApp = lazy(() => import('./perfherder/App'));
-
-const PushHealthApp = lazy(() => import('./push-health/App'));
 
 const JobsViewApp = lazy(() => import('./job-view/App'));
 
@@ -43,10 +41,6 @@ const faviconPaths = {
   '/intermittent-failures': {
     title: 'Intermittent Failures View',
     favicon: treeFavicon,
-  },
-  '/push-health': {
-    title: 'Push Health',
-    favicon: healthFavicon,
   },
 };
 
@@ -92,7 +86,6 @@ const UrlUpdater = ({ children }) => {
 
     const urlMatch = {
       '/perf.html': '/perfherder',
-      '/pushhealth.html': '/push-health',
       '/': '/jobs',
     };
 
@@ -161,14 +154,6 @@ const AppRoutes = () => {
             }
           />
           <Route
-            path="/push-health/*"
-            element={
-              <WithFavicon route="/push-health">
-                <PushHealthApp />
-              </WithFavicon>
-            }
-          />
-          <Route
             path="/intermittent-failures/*"
             element={
               <WithFavicon route="/intermittent-failures">
@@ -185,6 +170,7 @@ const AppRoutes = () => {
             }
           />
           <Route path="/docs/*" element={<RedocApp />} />
+          <Route path="*" element={<Navigate to="/jobs" replace />} />
         </Routes>
       </Suspense>
     </UrlUpdater>

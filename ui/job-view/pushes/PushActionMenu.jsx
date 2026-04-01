@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 
 import {
   createQueryParams,
-  getPushHealthUrl,
   getPerfCompareChooserUrl,
   parseQueryParams,
 } from '../../helpers/url';
@@ -13,10 +12,7 @@ import { formatTaskclusterError } from '../../helpers/errorMessage';
 import CustomJobActions from '../CustomJobActions';
 import PushModel from '../../models/push';
 import { notify } from '../stores/notificationStore';
-import {
-  usePushesStore,
-  updateRange,
-} from '../stores/pushesStore';
+import { usePushesStore, updateRange } from '../stores/pushesStore';
 
 function PushActionMenu({
   revision = null,
@@ -142,15 +138,6 @@ function PushActionMenu({
             Set as bottom of range
           </Dropdown.Item>
           <Dropdown.Divider />
-          <Dropdown.Item
-            tag="a"
-            href={getPushHealthUrl({ repo: currentRepo.name, revision })}
-            target="_blank"
-            rel="noopener noreferrer"
-            title="Enable Health Badges in the Health menu"
-          >
-            Push Health
-          </Dropdown.Item>
           <Dropdown.Item
             tag="a"
             href={getPerfCompareChooserUrl({

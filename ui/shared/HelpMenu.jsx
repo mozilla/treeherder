@@ -1,4 +1,3 @@
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import {
@@ -8,7 +7,6 @@ import {
 } from '@fortawesome/free-regular-svg-icons';
 import {
   faBug,
-  faCalculator,
   faCode,
   faQuestion,
   faQuestionCircle,
@@ -32,8 +30,7 @@ const menuItems = [
     text: 'API Reference',
   },
   {
-    href:
-      'https://wiki.mozilla.org/EngineeringProductivity/Projects/Treeherder',
+    href: 'https://wiki.mozilla.org/EngineeringProductivity/Projects/Treeherder',
     icon: faFileWord,
     text: 'Project Wiki',
   },
@@ -43,8 +40,7 @@ const menuItems = [
     text: 'Mailing List',
   },
   {
-    href:
-      'https://bugzilla.mozilla.org/enter_bug.cgi?product=Tree+Management&component=Treeherder',
+    href: 'https://bugzilla.mozilla.org/enter_bug.cgi?product=Tree+Management&component=Treeherder',
     icon: faBug,
     text: 'Report a Bug',
   },
@@ -52,11 +48,6 @@ const menuItems = [
     href: 'https://github.com/mozilla/treeherder',
     icon: faGithub,
     text: 'Source',
-  },
-  {
-    href: '/push-health/usage',
-    icon: faCalculator,
-    text: 'Push Health Try Usage',
   },
   {
     href: 'https://whatsdeployed.io/s/BIY/Mozilla/Treeherder',
