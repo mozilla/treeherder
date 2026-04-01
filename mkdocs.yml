@@ -34,7 +34,9 @@ nav:
   - About: 'index.md'
   - Development:
       - Installation: 'installation.md'
-      - Testing: 'testing.md'
+      - Testing:
+          - Testing: 'testing.md'
+          - Writing Tests: 'writing_tests.md'
       - Loading Pulse data: 'pulseload.md'
       - Code Style: 'code_style.md'
       - Accessibility: 'accessibility.md'
