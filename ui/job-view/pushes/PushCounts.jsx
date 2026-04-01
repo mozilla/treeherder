@@ -1,6 +1,8 @@
 import { memo } from 'react';
 import PropTypes from 'prop-types';
 import { Badge } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
 
 import { getPercentComplete } from '../../helpers/display';
 
@@ -19,49 +21,59 @@ function PushCounts({
 
   if (percentComplete < 100) {
     return (
-      <Badge
-        {...(totalFailedJobs > 0
-          ? { bg: 'warning', text: 'dark' }
-          : { bg: 'secondary' })}
-        title={`${inProgress} jobs pending`}
-        className="push-counts"
-      >
-        {totalFailedJobs > 0
-          ? `${totalFailedJobs} ${totalFailedJobs === 1 ? 'job' : 'jobs'} failed - `
-          : ''}
-        {fixedByCommit >= 1 && (
-          <span
-            className="badge text-bg-warning ms-1"
-            title="Count of Fixed By Commit tasks for this push"
+      <>
+        {totalFailedJobs > 0 && (
+          <Badge
+            bg="warning"
+            text="dark"
+            title={`${totalFailedJobs} jobs failed`}
+            className="push-counts"
           >
-            {fixedByCommit}
-          </span>
+            {totalFailedJobs} {totalFailedJobs === 1 ? 'job' : 'jobs'} failed
+          </Badge>
         )}
-        {percentComplete}% - {inProgress} pending
-      </Badge>
+        <div>
+          {fixedByCommit >= 1 && (
+            <span
+              className="badge text-bg-warning ms-1"
+              title="Count of Fixed By Commit tasks for this push"
+            >
+              {fixedByCommit}
+            </span>
+          )}
+          <span className="push-progress">
+            <span title="Proportion of jobs that are complete">
+              {percentComplete}% - {inProgress} in progress
+            </span>
+          </span>
+        </div>
+      </>
     );
   }
 
   if (percentComplete === 100) {
-    if (totalFailedJobs > 0) {
-      return (
-        <Badge
-          bg="danger"
-          title={`${totalFailedJobs} jobs failures`}
-          className="push-counts"
-        >
-          {totalFailedJobs} {totalFailedJobs === 1 ? 'job' : 'jobs'} failed
-        </Badge>
-      );
-    }
     return (
-      <Badge
-        bg="success"
-        title={`${completed} completed jobs`}
-        className="push-counts"
-      >
-        All {completed} jobs completed
-      </Badge>
+      <>
+        {totalFailedJobs === 0 ? (
+          <FontAwesomeIcon
+            title={`${completed} completed jobs`}
+            icon={faCheck}
+            className="text-success"
+          />
+        ) : (
+          <Badge
+            bg="danger"
+            title={`${totalFailedJobs} jobs failures`}
+            className="push-counts"
+          >
+            {totalFailedJobs} {totalFailedJobs === 1 ? 'job' : 'jobs'} failed
+          </Badge>
+        )}
+
+        <span className="push-progress">
+          <span>- Complete -</span>
+        </span>
+      </>
     );
   }
 }
