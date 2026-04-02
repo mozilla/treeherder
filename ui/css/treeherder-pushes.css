@@ -46,10 +46,6 @@
   min-width: 50px;
 }
 
-.push-health .badge.badge-success {
-  background-color: #1b7e32;
-}
-
 .push-progress {
   color: #6f6d70;
   font-style: italic;

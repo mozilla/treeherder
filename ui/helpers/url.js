@@ -5,8 +5,6 @@ import tcLibUrls from 'taskcluster-lib-urls';
 
 export const uiJobsUrlBase = '/jobs';
 
-export const uiPushHealthBase = '/push-health';
-
 export const uiPerfherderBase = '/perfherder';
 
 export const thBaseUrl = 'https://treeherder.mozilla.org/';
@@ -153,11 +151,6 @@ export const getJobsUrl = function getJobsUrl(params) {
   return `${uiJobsUrlBase}${createQueryParams(params)}`;
 };
 
-// This takes a plain object, rather than a URLSearchParams object.
-export const getPushHealthUrl = function getPushHealthUrl(params) {
-  return `${uiPushHealthBase}/push${createQueryParams(params)}`;
-};
-
 export const getPerfCompareChooserUrl = function getPerfCompareChooserUrl(
   params,
 ) {
@@ -220,28 +213,29 @@ export const getPerfCompareBaseURL = function getOldCompareWithBaseViewURL(
   )}&sort=delta|desc`;
 };
 
-export const getPerfCompareBaseSubtestsURL = function getPerfCompareBaseSubtestsURL(
-  originalProject,
-  originalRevision,
-  newProject,
-  newRevision,
-  framework,
-  originalSignature,
-  newSignature,
-) {
-  const params = {
-    baseRev: originalRevision,
-    baseRepo: originalProject,
-    newRev: newRevision,
-    newRepo: newProject,
+export const getPerfCompareBaseSubtestsURL =
+  function getPerfCompareBaseSubtestsURL(
+    originalProject,
+    originalRevision,
+    newProject,
+    newRevision,
     framework,
-    baseParentSignature: originalSignature,
-    newParentSignature: newSignature,
+    originalSignature,
+    newSignature,
+  ) {
+    const params = {
+      baseRev: originalRevision,
+      baseRepo: originalProject,
+      newRev: newRevision,
+      newRepo: newProject,
+      framework,
+      baseParentSignature: originalSignature,
+      newParentSignature: newSignature,
+    };
+    return `https://perf.compare/subtests-compare-results${createQueryParams(
+      params,
+    )}`;
   };
-  return `https://perf.compare/subtests-compare-results${createQueryParams(
-    params,
-  )}`;
-};
 
 export const getPerfCompareOvertimeURL = function getPerfCompareOvertimeURL(
   originalProject,
@@ -262,28 +256,29 @@ export const getPerfCompareOvertimeURL = function getPerfCompareOvertimeURL(
   )}`;
 };
 
-export const getPerfCompareOvertimeSubtestsURL = function getPerfCompareOvertimeSubtestsURL(
-  originalProject,
-  newProject,
-  newRevision,
-  framework,
-  timeRange,
-  originalSignature,
-  newSignature,
-) {
-  const params = {
-    baseRepo: originalProject,
-    newRev: newRevision,
-    newRepo: newProject,
+export const getPerfCompareOvertimeSubtestsURL =
+  function getPerfCompareOvertimeSubtestsURL(
+    originalProject,
+    newProject,
+    newRevision,
     framework,
-    selectedTimeRange: timeRange,
-    baseParentSignature: originalSignature,
-    newParentSignature: newSignature,
+    timeRange,
+    originalSignature,
+    newSignature,
+  ) {
+    const params = {
+      baseRepo: originalProject,
+      newRev: newRevision,
+      newRepo: newProject,
+      framework,
+      selectedTimeRange: timeRange,
+      baseParentSignature: originalSignature,
+      newParentSignature: newSignature,
+    };
+    return `https://perf.compare/subtests-compare-over-time-results${createQueryParams(
+      params,
+    )}`;
   };
-  return `https://perf.compare/subtests-compare-over-time-results${createQueryParams(
-    params,
-  )}`;
-};
 
 export const getLandoJobsUrl = function getLandoJobsUrl(
   landoInstance,
