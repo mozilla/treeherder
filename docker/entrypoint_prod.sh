@@ -61,6 +61,11 @@ elif [ "$1" == "worker_misc" ]; then
     export REMAP_SIGTERM=SIGQUIT
     exec newrelic-admin run-program celery -A treeherder worker --without-gossip --without-mingle --without-heartbeat -Q default,generate_perf_alerts,pushlog,statsd --concurrency=3
 
+# Handles performance alert generation
+elif [ "$1" == "worker_perf_alert" ]; then
+    export REMAP_SIGTERM=SIGQUIT
+    exec newrelic-admin run-program celery -A treeherder worker --without-gossip --without-mingle --without-heartbeat -Q generate_perf_alerts --concurrency=3
+
 # Cron jobs
 elif [ "$1" == "run_intermittents_commenter" ]; then
     newrelic-admin run-program ./manage.py run_intermittents_commenter -m auto
