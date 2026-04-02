@@ -36,6 +36,7 @@ const filterChicklets = [
   'failures',
   thFilterGroups.nonfailures,
   'in progress',
+  'unscheduled',
 ].reduce((acc, val) => acc.concat(val), []);
 
 const SecondaryNavBar = ({
