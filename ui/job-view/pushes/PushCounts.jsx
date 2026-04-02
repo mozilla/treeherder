@@ -24,8 +24,7 @@ function PushCounts({
       <>
         {totalFailedJobs > 0 && (
           <Badge
-            bg="warning"
-            text="dark"
+            bg="danger"
             title={`${totalFailedJobs} jobs failed`}
             className="push-counts"
           >
@@ -33,7 +32,7 @@ function PushCounts({
           </Badge>
         )}
         <div>
-          {fixedByCommit >= 1 && (
+          {fixedByCommit > 0 && (
             <span
               className="badge text-bg-warning ms-1"
               title="Count of Fixed By Commit tasks for this push"
@@ -63,7 +62,7 @@ function PushCounts({
         ) : (
           <Badge
             bg="danger"
-            title={`${totalFailedJobs} jobs failures`}
+            title={`${totalFailedJobs} jobs failed`}
             className="push-counts"
           >
             {totalFailedJobs} {totalFailedJobs === 1 ? 'job' : 'jobs'} failed
