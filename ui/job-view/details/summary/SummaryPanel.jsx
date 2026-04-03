@@ -63,7 +63,7 @@ class SummaryPanel extends React.PureComponent {
               selectedJobFull={selectedJobFull}
               logParseStatus={logParseStatus}
               currentRepo={currentRepo}
-              isTryRepo={currentRepo.is_try_repo}
+              isTryRepo={currentRepo?.is_try_repo}
               jobDetails={jobDetails}
               logViewerUrl={logViewerUrl}
               logViewerFullUrl={logViewerFullUrl}
@@ -99,9 +99,9 @@ class SummaryPanel extends React.PureComponent {
 SummaryPanel.propTypes = {
   bugs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   user: PropTypes.shape({}).isRequired,
-  currentRepo: PropTypes.shape({}).isRequired,
+  currentRepo: PropTypes.shape({}),
   classificationMap: PropTypes.shape({}).isRequired,
-  selectedJobFull: PropTypes.shape({}).isRequired,
+  selectedJobFull: PropTypes.shape({}),
   latestClassification: PropTypes.shape({}),
   jobLogUrls: PropTypes.arrayOf(PropTypes.shape({})),
   jobDetails: PropTypes.arrayOf(

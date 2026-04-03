@@ -127,7 +127,7 @@ DetailsPanel.propTypes = {
   currentRepo: PropTypes.shape({
     name: PropTypes.string,
     tc_root_url: PropTypes.string,
-  }).isRequired,
+  }),
   user: PropTypes.shape({
     isLoggedIn: PropTypes.bool,
     isStaff: PropTypes.bool,

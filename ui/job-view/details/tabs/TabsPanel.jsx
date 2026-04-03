@@ -339,7 +339,9 @@ const TabsPanel = ({
                   className="btn pinboard-btn-text"
                   onClick={togglePinBoardVisibility}
                   title={
-                    isPinBoardVisible ? 'Close the pinboard' : 'Open the pinboard'
+                    isPinBoardVisible
+                      ? 'Close the pinboard'
+                      : 'Open the pinboard'
                   }
                 >
                   PinBoard
@@ -410,7 +412,7 @@ const TabsPanel = ({
           </TabPanel>
           <TabPanel>
             <SimilarJobsTab
-              repoName={currentRepo.name}
+              repoName={currentRepo?.name}
               classificationMap={classificationMap}
               selectedJobFull={selectedJobFull}
             />
@@ -418,10 +420,10 @@ const TabsPanel = ({
           {showPerf && (
             <TabPanel>
               <PerformanceTab
-                key={selectedJobFull.id}
+                key={selectedJobFull?.id}
                 selectedJobFull={selectedJobFull}
                 currentRepo={currentRepo}
-                repoName={currentRepo.name}
+                repoName={currentRepo?.name}
                 jobDetails={jobDetails}
                 perfJobDetail={perfJobDetail}
                 revision={jobRevision}
@@ -447,8 +449,8 @@ TabsPanel.propTypes = {
   togglePinBoardVisibility: PropTypes.func.isRequired,
   bugs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   selectedJob: PropTypes.shape({}),
-  selectedJobFull: PropTypes.shape({}).isRequired,
-  currentRepo: PropTypes.shape({}).isRequired,
+  selectedJobFull: PropTypes.shape({}),
+  currentRepo: PropTypes.shape({}),
   perfJobDetail: PropTypes.arrayOf(PropTypes.shape({})),
   jobRevision: PropTypes.string,
   jobLogUrls: PropTypes.arrayOf(PropTypes.shape({})),
