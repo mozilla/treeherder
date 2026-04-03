@@ -197,6 +197,7 @@ button.btn.runnable-job-btn.filter-shown {
 .classified-icon,
 .intermittent-icon {
   font-size: 0.62em;
+  margin-left: 1px;
 }
 
 .classified-icon {
