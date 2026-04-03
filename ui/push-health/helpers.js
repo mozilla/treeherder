@@ -6,13 +6,18 @@ export const taskResultColorMap = {
 };
 
 export const filterTests = (tests, searchStr) => {
-  const filters = searchStr.split(' ').map((filter) => new RegExp(filter, 'i'));
+  const filters = searchStr
+    .toLowerCase()
+    .trim()
+    .slice(0, 200)
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 20);
 
-  return tests.filter((test) =>
-    filters.every((f) =>
-      f.test(`${test.testName} ${test.platform} ${test.config}`),
-    ),
-  );
+  return tests.filter((test) => {
+    const haystack = `${test.testName} ${test.platform} ${test.config}`.toLowerCase();
+    return filters.every((filter) => haystack.includes(filter));
+  });
 };
 
 export const myPushesDefaultMessage =
