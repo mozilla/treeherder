@@ -82,6 +82,7 @@ export class Revision extends React.PureComponent {
       commentFont = '',
       hideCommitSha = false,
       mobile = false,
+      isGitRevision = false,
     } = this.props;
     const comment = comments.split('\n')[0];
     const bugMatches = comment.match(/-- ([0-9]+)|bug.([0-9]+)/gi);
@@ -125,8 +126,8 @@ export class Revision extends React.PureComponent {
               <div className="d-flex flex-wrap align-items-center gap-2">
                 {!hideCommitSha && (
                   <a
-                    title={`Open revision ${revision} on ${repo.url}`}
-                    href={repo.getRevisionHref(revision)}
+                    title={`Open revision ${revision} on ${repo.getRevisionBaseUrl(isGitRevision)}`}
+                    href={repo.getRevisionHref(revision, isGitRevision)}
                     className={commitShaClass}
                   >
                     {revision.substring(0, 12)}
@@ -168,8 +169,8 @@ export class Revision extends React.PureComponent {
               visible={clipboardVisible}
             />
             <a
-              title={`Open revision ${revision} on ${repo.url}`}
-              href={repo.getRevisionHref(revision)}
+              title={`Open revision ${revision} on ${repo.getRevisionBaseUrl(isGitRevision)}`}
+              href={repo.getRevisionHref(revision, isGitRevision)}
               className={commitShaClass}
             >
               {revision.substring(0, 12)}
@@ -237,4 +238,5 @@ Revision.propTypes = {
   hideCommitSha: PropTypes.bool,
   // Collapse to the commit message and expand details on tap.
   mobile: PropTypes.bool,
+  isGitRevision: PropTypes.bool,
 };
