@@ -113,6 +113,8 @@ class Repository(models.Model):
     is_try_repo = models.BooleanField(default=False)
     tc_root_url = models.CharField(max_length=255, null=False, db_index=True)
     accepts_pull_requests = models.BooleanField(default=False, db_index=True)
+    git_url = models.CharField(max_length=255, null=True, blank=True)
+    git_branch = models.CharField(max_length=255, null=True, blank=True, default="main")
 
     class Meta:
         db_table = "repository"
@@ -258,6 +260,24 @@ class Commit(models.Model):
 
     def __str__(self):
         return f"{self.push.repository.name} {self.revision}"
+
+
+class RevisionMapping(models.Model):
+    """Maps Mercurial changeset node IDs to Git commit SHAs for migrating repos."""
+
+    repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
+    hg_revision = models.CharField(max_length=40, db_index=True)
+    git_revision = models.CharField(max_length=40, db_index=True)
+
+    class Meta:
+        db_table = "revision_mapping"
+        unique_together = ("repository", "hg_revision")
+        indexes = [
+            models.Index(fields=["repository", "git_revision"], name="revmap_repo_git_idx"),
+        ]
+
+    def __str__(self):
+        return f"{self.repository.name} hg:{self.hg_revision[:12]} -> git:{self.git_revision[:12]}"
 
 
 class MachinePlatform(models.Model):
@@ -652,7 +672,14 @@ class Job(models.Model):
             # queries
             models.Index(fields=["repository", "job_type", "start_time"]),
             models.Index(fields=["repository", "build_platform", "job_type", "start_time"]),
-            models.Index(fields=["repository", "option_collection_hash", "job_type", "start_time"]),
+            models.Index(
+                fields=[
+                    "repository",
+                    "option_collection_hash",
+                    "job_type",
+                    "start_time",
+                ]
+            ),
             models.Index(
                 fields=[
                     "repository",
@@ -771,7 +798,10 @@ class TaskclusterMetadata(models.Model):
     """
 
     job = models.OneToOneField(
-        Job, on_delete=models.CASCADE, primary_key=True, related_name="taskcluster_metadata"
+        Job,
+        on_delete=models.CASCADE,
+        primary_key=True,
+        related_name="taskcluster_metadata",
     )
 
     task_id = models.CharField(max_length=22, validators=[MinLengthValidator(22)], db_index=True)
@@ -853,7 +883,15 @@ class BugJobMap(models.Model):
             return "autoclassifier"
 
     @classmethod
-    def create(cls, *, job_id, internal_bug_id=None, bugzilla_id=None, user=None, bug_open=False):
+    def create(
+        cls,
+        *,
+        job_id,
+        internal_bug_id=None,
+        bugzilla_id=None,
+        user=None,
+        bug_open=False,
+    ):
         if (bool(internal_bug_id) ^ bool(bugzilla_id)) is False:
             raise ValueError("Only one of internal bug ID or Bugzilla ID must be set")
         if internal_bug_id:
@@ -962,7 +1000,10 @@ class JobNote(models.Model):
             return
 
         # if the failure type isn't intermittent, ignore
-        if self.failure_classification.name not in ["intermittent", "intermittent needs bugid"]:
+        if self.failure_classification.name not in [
+            "intermittent",
+            "intermittent needs bugid",
+        ]:
             return
 
         # if the linked Job has more than one TextLogError, ignore
@@ -1145,7 +1186,7 @@ class FailureLine(models.Model):
             "stack": self.stack,
             "stackwalk_stdout": self.stackwalk_stdout,
             "stackwalk_stderr": self.stackwalk_stderr,
-            "best_classification": metadata.best_classification_id if metadata else None,
+            "best_classification": (metadata.best_classification_id if metadata else None),
             "best_is_verified": metadata.best_is_verified if metadata else False,
             "created": self.created,
             "modified": self.modified,
@@ -1377,7 +1418,9 @@ class TextLogError(models.Model):
         # None as opposed to RelatedManager.
         if self.metadata is None:
             TextLogErrorMetadata.objects.create(
-                text_log_error=self, best_classification=classification, best_is_verified=True
+                text_log_error=self,
+                best_classification=classification,
+                best_is_verified=True,
             )
         else:
             self.metadata.best_classification = classification
@@ -1415,18 +1458,27 @@ class TextLogErrorMetadata(models.Model):
     """
 
     text_log_error = models.OneToOneField(
-        TextLogError, primary_key=True, related_name="_metadata", on_delete=models.CASCADE
+        TextLogError,
+        primary_key=True,
+        related_name="_metadata",
+        on_delete=models.CASCADE,
     )
 
     failure_line = models.OneToOneField(
-        FailureLine, on_delete=models.CASCADE, related_name="text_log_error_metadata", null=True
+        FailureLine,
+        on_delete=models.CASCADE,
+        related_name="text_log_error_metadata",
+        null=True,
     )
 
     # Note that the case of best_classification = None and best_is_verified = True
     # has the special semantic that the line is ignored and should not be considered
     # for future autoclassifications.
     best_classification = models.ForeignKey(
-        ClassifiedFailure, related_name="best_for_errors", null=True, on_delete=models.SET_NULL
+        ClassifiedFailure,
+        related_name="best_for_errors",
+        null=True,
+        on_delete=models.SET_NULL,
     )
     best_is_verified = models.BooleanField(default=False)
 
