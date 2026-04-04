@@ -366,20 +366,30 @@ def ingest_push(project, revision, fetch_push_id=None):
 
 
 def _ingest_git_first(repo_obj, revision):
-    """Attempt to ingest a push from the Git source for a transitioning repo."""
+    """Attempt to ingest a push from the Git source for a transitioning repo.
+
+    The revision can be either a git SHA or an hg revision. We first check
+    if it exists directly in the git repo; if not, we try hg-to-git mapping.
+    """
     from treeherder.etl.git_pushlog import fetch_git_push
     from treeherder.etl.push import store_push_data
     from treeherder.etl.revision_mapper import RevisionMapper
 
     mapper = RevisionMapper(repo_obj)
-    git_revision = mapper.map_hg_to_git(revision)
-    if not git_revision:
-        raise ValueError(f"No git mapping found for hg revision {revision} in {repo_obj.name}")
+
+    # First, check if the revision is already a valid git SHA
+    if mapper.verify_revision_in_git(revision):
+        git_revision = revision
+    else:
+        # Try hg-to-git mapping
+        git_revision = mapper.map_hg_to_git(revision)
+        if not git_revision:
+            raise ValueError(f"No git mapping found for hg revision {revision} in {repo_obj.name}")
 
     push_data = fetch_git_push(repo_obj.git_url, git_revision)
     store_push_data(repo_obj, [push_data])
     logger.info(
-        "Ingested push via Git for %s: hg %s -> git %s",
+        "Ingested push via Git for %s: revision %s (git %s)",
         repo_obj.name,
         revision,
         git_revision,

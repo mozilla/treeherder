@@ -18,6 +18,7 @@ export class RevisionList extends React.PureComponent {
       bugSummaryMap,
       commitShaClass = '',
       commentFont = '',
+      isGitRevision = false,
     } = this.props;
 
     return (
@@ -30,10 +31,14 @@ export class RevisionList extends React.PureComponent {
             bugSummaryMap={bugSummaryMap}
             commitShaClass={commitShaClass}
             commentFont={commentFont}
+            isGitRevision={isGitRevision}
           />
         ))}
         {revisionCount > revisions.length && (
-          <MoreRevisionsLink key="more" href={repo.getPushLogHref(revision)} />
+          <MoreRevisionsLink
+            key="more"
+            href={repo.getPushLogHref(revision, isGitRevision)}
+          />
         )}
         {children}
       </div>

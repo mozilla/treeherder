@@ -61,7 +61,11 @@ class CommitHistory extends React.PureComponent {
       revision,
       repo: currentRepo.name,
     });
-    const { author, push_timestamp: pushTimestamp } = currentPush;
+    const {
+      author,
+      push_timestamp: pushTimestamp,
+      is_git_revision: isGitRevision,
+    } = currentPush;
     const headerText = revisions[0].comments.split('\n')[0];
     const authorMatch = author.match(/<(.*?)>+/);
     const authorEmail = authorMatch ? authorMatch[1] : author;
@@ -86,7 +90,7 @@ class CommitHistory extends React.PureComponent {
             Push
             <span className="font-weight-bold me-1 ms-1">
               <a
-                href={currentRepo.getRevisionHref(revision)}
+                href={currentRepo.getRevisionHref(revision, isGitRevision)}
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -120,6 +124,7 @@ class CommitHistory extends React.PureComponent {
                 key={revision.revision}
                 commitShaClass="font-weight-bold text-secondary h6"
                 commentFont="h6"
+                isGitRevision={isGitRevision}
               />
             </div>
           )}
@@ -131,6 +136,7 @@ class CommitHistory extends React.PureComponent {
               repo={currentRepo}
               commitShaClass="font-weight-bold text-secondary h6"
               commentFont="h6"
+              isGitRevision={isGitRevision}
             />
           )}
           {showParent && (
