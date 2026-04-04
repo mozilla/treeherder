@@ -71,6 +71,7 @@ export class Revision extends React.PureComponent {
       commitShaClass = 'commit-sha',
       commentFont = '',
       hideCommitSha = false,
+      isGitRevision = false,
     } = this.props;
     const comment = comments.split('\n')[0];
     const bugMatches = comment.match(/-- ([0-9]+)|bug.([0-9]+)/gi);
@@ -94,8 +95,8 @@ export class Revision extends React.PureComponent {
               visible={clipboardVisible}
             />
             <a
-              title={`Open revision ${revision} on ${repo.url}`}
-              href={repo.getRevisionHref(revision)}
+              title={`Open revision ${revision} on ${repo.getRevisionBaseUrl(isGitRevision)}`}
+              href={repo.getRevisionHref(revision, isGitRevision)}
               className={commitShaClass}
             >
               {revision.substring(0, 12)}
@@ -150,4 +151,5 @@ Revision.propTypes = {
   commentFont: PropTypes.string,
   // Lando pushes have no commit hash to show or link to yet.
   hideCommitSha: PropTypes.bool,
+  isGitRevision: PropTypes.bool,
 };
