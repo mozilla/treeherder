@@ -19,6 +19,7 @@ export class RevisionList extends React.PureComponent {
       commitShaClass = '',
       commentFont = '',
       hideCommitSha = false,
+      isGitRevision = false,
     } = this.props;
 
     return (
@@ -32,10 +33,14 @@ export class RevisionList extends React.PureComponent {
             commitShaClass={commitShaClass}
             commentFont={commentFont}
             hideCommitSha={hideCommitSha}
+            isGitRevision={isGitRevision}
           />
         ))}
         {revisionCount > revisions.length && (
-          <MoreRevisionsLink key="more" href={repo.getPushLogHref(revision)} />
+          <MoreRevisionsLink
+            key="more"
+            href={repo.getPushLogHref(revision, isGitRevision)}
+          />
         )}
         {children}
       </div>
@@ -63,6 +68,7 @@ RevisionList.propTypes = {
   commitShaClass: PropTypes.string,
   commentFont: PropTypes.string,
   hideCommitSha: PropTypes.bool,
+  isGitRevision: PropTypes.bool,
 };
 
 export function MoreRevisionsLink(props) {
