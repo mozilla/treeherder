@@ -34,7 +34,6 @@ jest.mock('taskcluster-client-web', () => ({
 import {
   userSessionFromAuthResult,
   loggedOutUser,
-  cleanupAuth0Cookies,
   renew,
   handleCallback,
 } from '../../../ui/helpers/auth';
@@ -163,13 +162,6 @@ describe('loggedOutUser', () => {
       email: '',
       isLoggedIn: false,
     });
-  });
-});
-
-describe('cleanupAuth0Cookies', () => {
-  it('is a no-op function (iframe cookies no longer generated)', () => {
-    // Should not throw
-    expect(() => cleanupAuth0Cookies()).not.toThrow();
   });
 });
 

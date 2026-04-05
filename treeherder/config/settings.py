@@ -59,10 +59,6 @@ SECURE_REFERRER_POLICY = "origin-when-cross-origin"
 # Prevent window.opener from always being null while it's used in the frontend
 SECURE_CROSS_ORIGIN_OPENER_POLICY = None
 
-# With refresh-token-based auth renewal (no iframe), we can use DENY
-# for better clickjacking protection.
-X_FRAME_OPTIONS = "DENY"
-
 # Application definition
 INSTALLED_APPS = [
     "django.contrib.auth",

@@ -23,7 +23,7 @@ jest.mock('../../../ui/helpers/auth', () => ({
   userSessionFromAuthResult: jest.fn(),
   renew: (...args) => mockRenew(...args),
   loggedOutUser: { isLoggedIn: false },
-  getRenewInterval: jest.fn(() => '15 minutes'),
+  RENEW_INTERVAL: '15 minutes',
 }));
 
 jest.mock('../../../ui/models/user');

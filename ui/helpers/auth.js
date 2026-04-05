@@ -14,19 +14,8 @@ export const auth0Client = new Auth0Client({
   cacheLocation: 'localstorage',
 });
 
-// Renewal interval for Auth0 token refresh. Override via localStorage
-// key 'authRenewIntervalMinutes' for testing (e.g. set to 2 for 2-minute renewal).
-// Default: 15 minutes per Mozilla OIDC guidelines.
-export const getRenewInterval = () => {
-  const override = localStorage.getItem('authRenewIntervalMinutes');
-  if (override) {
-    const minutes = parseInt(override, 10);
-    if (!Number.isNaN(minutes) && minutes > 0) {
-      return `${minutes} minutes`;
-    }
-  }
-  return '15 minutes';
-};
+// per https://wiki.mozilla.org/Security/Guidelines/OpenID_connect#Session_handling
+export const RENEW_INTERVAL = '15 minutes';
 
 // Normalize the auth0-spa-js token response into the same shape that
 // userSessionFromAuthResult expects (matching the old auth0-js authResult).
@@ -45,7 +34,7 @@ const buildAuthResult = async () => {
 };
 
 export const userSessionFromAuthResult = (authResult) => {
-  const renewInterval = getRenewInterval();
+  const renewInterval = RENEW_INTERVAL;
   const userSession = {
     idToken: authResult.idToken,
     accessToken: authResult.accessToken,
@@ -66,10 +55,6 @@ export const userSessionFromAuthResult = (authResult) => {
 
   return userSession;
 };
-
-// No longer needed with refresh token renewal (no iframe cookies).
-// Kept as no-op for backward compatibility during transition.
-export const cleanupAuth0Cookies = () => {};
 
 // Use refresh tokens to silently get new tokens (no iframe, no 3rd-party cookies).
 export const renew = async () => {

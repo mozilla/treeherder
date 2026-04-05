@@ -2,7 +2,7 @@ import {
   userSessionFromAuthResult,
   renew,
   loggedOutUser,
-  getRenewInterval,
+  RENEW_INTERVAL,
 } from '../../helpers/auth';
 import { getApiUrl } from '../../helpers/url';
 import UserModel from '../../models/user';
@@ -187,7 +187,7 @@ export default class AuthService {
         'Renewal timer set: %ds from now (renewAfter=%s, interval=%s)',
         Math.round(timeout / 1000),
         userSession.renewAfter,
-        getRenewInterval(),
+        RENEW_INTERVAL,
       );
     }
   }
