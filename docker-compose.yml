@@ -66,6 +66,8 @@ services:
     working_dir: /app
     environment:
       BACKEND: http://backend:8000
+      COREPACK_INTEGRITY_KEYS: '0'
+      CI: 'true'
     command: sh -c "corepack enable && corepack prepare pnpm@9.15.0 --activate && pnpm install && pnpm start --host 0.0.0.0"
     volumes:
       - .:/app
