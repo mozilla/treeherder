@@ -3,7 +3,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("model", "0053_push_branch"),
     ]
@@ -17,9 +16,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="repository",
             name="git_branch",
-            field=models.CharField(
-                blank=True, default="main", max_length=255, null=True
-            ),
+            field=models.CharField(blank=True, default="main", max_length=255, null=True),
         ),
         migrations.CreateModel(
             name="RevisionMapping",
