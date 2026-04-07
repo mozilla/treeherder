@@ -284,9 +284,6 @@ export const setSelectedJobFromQueryString = (notify, jobMap) =>
 // These preserve the fixes from camd/fix-job-click-clear-bug
 // ============================================================================
 
-// Track when a job was last selected (for clearing race condition fix)
-let lastJobSelectionTime = 0;
-
 /**
  * Select a job via URL update (URL-first pattern).
  * This updates the Redux state directly and then updates the URL.
@@ -296,9 +293,6 @@ let lastJobSelectionTime = 0;
 export const selectJobViaUrl = (job) => {
   const store = useSelectedJobStore.getState();
   if (job) {
-    // Update state directly with the job object.
-    // This avoids the race condition of looking up from jobMap.
-    lastJobSelectionTime = Date.now();
     store.setSelectedJob(job, true); // true = update URL
   }
 };
@@ -322,10 +316,3 @@ export const syncSelectionFromUrl = (jobMap, notify) => {
   store.setSelectedJobFromQueryString(notify, jobMap);
 };
 
-/**
- * Check if a job was just selected (within the last ~100ms).
- * Used to prevent clearing the selection immediately after selecting.
- */
-export const wasJobJustSelected = () => {
-  return Date.now() - lastJobSelectionTime < 100;
-};
