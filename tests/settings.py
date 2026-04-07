@@ -28,6 +28,7 @@ WHITENOISE_USE_FINDERS = True
 
 # Set a fake api key for testing bug filing
 BUGFILER_API_KEY = "12345helloworld"
+PERF_SHERIFF_API_KEY = "12345helloworld"
 BUGFILER_API_URL = "https://thisisnotbugzilla.org"
 
 # some of the auth/login tests can be faster if we don't require "django_db"
