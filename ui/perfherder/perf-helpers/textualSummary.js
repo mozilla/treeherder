@@ -3,7 +3,6 @@ import sortBy from 'lodash/sortBy';
 
 import {
   thBaseUrl,
-  uiPerfherderBase,
   getPerfAnalysisUrl,
 } from '../../helpers/url';
 
@@ -77,9 +76,8 @@ export default class TextualSummary {
     let amountPct;
     const { repository, framework } = this.alertSummary;
     const timeRange = getTimeRange(this.alertSummary);
-    const baseURL = thBaseUrl + uiPerfherderBase.slice(1);
     const graphLink =
-      baseURL + getGraphsURL(alert, timeRange, repository, framework).slice(1);
+      thBaseUrl + getGraphsURL(alert, timeRange, repository, framework).slice(1);
     if (alert.amount_pct.toFixed(0) === '0') {
       // have extra fraction digits when rounding ends up with 0%
       amountPct = alert.amount_pct.toFixed(2);
