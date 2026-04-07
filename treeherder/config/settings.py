@@ -442,6 +442,9 @@ BZ_DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 # For intermittents commenter
 COMMENTER_API_KEY = env("BUG_COMMENTER_API_KEY", default=None)
 
+# For performance sheriff bot
+PERF_SHERIFF_API_KEY = env("BUG_PERF_SHERIFF_API_KEY", default=None)
+
 # Log Parsing
 MAX_ERROR_LINES = 40
 FAILURE_LINES_CUTOFF = 150

@@ -56,6 +56,7 @@ export default class FileBugModal extends React.Component {
       submitButtonText,
       user,
       errorMessage,
+      requireInput,
     } = this.props;
 
     const { inputValue, invalidInput, validated, disableButton } = this.state;
@@ -80,7 +81,7 @@ export default class FileBugModal extends React.Component {
                 <Row className="justify-content-left">
                   <Col className="col-6">
                     <Form.Label htmlFor="culpritBugId">
-                      {title} <i>(optional): </i>
+                      {title}{requireInput ? ':' : <i> (optional): </i>}
                       <span className="text-secondary">
                         <FontAwesomeIcon icon={faInfoCircle} title={infoText} />
                       </span>
@@ -114,7 +115,7 @@ export default class FileBugModal extends React.Component {
               <Button
                 className="btn-outline-darker-info active"
                 onClick={(event) => this.handleSubmit(event, inputValue)}
-                disabled={(invalidInput && !validated) || disableButton}
+                disabled={(invalidInput && !validated) || (requireInput && !inputValue.length) || disableButton}
                 type="submit"
               >
                 {(inputValue.length &&
@@ -146,4 +147,9 @@ FileBugModal.propTypes = {
   title: PropTypes.string.isRequired,
   submitButtonText: PropTypes.string.isRequired,
   user: PropTypes.shape({}).isRequired,
+  requireInput: PropTypes.bool,
+};
+
+FileBugModal.defaultProps = {
+  requireInput: false,
 };

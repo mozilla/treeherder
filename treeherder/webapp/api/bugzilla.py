@@ -121,3 +121,43 @@ class BugzillaViewSet(viewsets.ViewSet):
                 "url": get_bug_url(bug_id, settings.BUGFILER_API_URL),
             }
         )
+
+    @action(detail=False, methods=["post"])
+    def post_comment(self, request):
+        """
+        Post a comment to an existing Bugzilla bug
+        """
+        if settings.PERF_SHERIFF_API_KEY is None:
+            return Response(
+                {"failure": "Performance sheriff bot API key not set!"}, status=HTTP_400_BAD_REQUEST
+            )
+
+        params = request.data
+        bug_id = params.get("bug_id")
+        comment = params.get("comment")
+
+        if not bug_id:
+            return Response({"failure": "bug_id is required"}, status=HTTP_400_BAD_REQUEST)
+        if not comment:
+            return Response({"failure": "comment is required"}, status=HTTP_400_BAD_REQUEST)
+
+        url = f"{settings.BUGFILER_API_URL}/rest/bug/{bug_id}/comment"
+        headers = {
+            "x-bugzilla-api-key": settings.PERF_SHERIFF_API_KEY,
+            "Accept": "application/json",
+        }
+        data = {
+            "comment": comment,
+            "comment_tags": ["perf-alert"],
+        }
+
+        try:
+            response = make_request(url, method="POST", headers=headers, json=data)
+        except requests.exceptions.HTTPError as e:
+            try:
+                message = e.response.json()["message"]
+            except (ValueError, KeyError):
+                message = e.response.text
+            return Response({"failure": message}, status=HTTP_400_BAD_REQUEST)
+
+        return Response({"id": response.json().get("id")})

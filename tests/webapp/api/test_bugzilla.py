@@ -209,6 +209,78 @@ def test_create_unauthenticated_bug(client, eleven_jobs_stored, activate_respons
     assert resp.json()["detail"] == "Authentication credentials were not provided."
 
 
+def test_post_comment(client, activate_responses, test_user):
+    """
+    test successfully posting a comment to a Bugzilla bug
+    """
+
+    def request_callback(request):
+        headers = {}
+        requestdata = json.loads(request.body)
+        requestheaders = request.headers
+        assert requestheaders["x-bugzilla-api-key"] == "12345helloworld"
+        assert requestdata["comment"] == "Performance improvement detected."
+        assert requestdata["comment_tags"] == ["perf-alert"]
+        resp_body = {"id": 101}
+        return (200, headers, json.dumps(resp_body))
+
+    responses.add_callback(
+        responses.POST,
+        "https://thisisnotbugzilla.org/rest/bug/323/comment",
+        callback=request_callback,
+        content_type="application/json",
+    )
+
+    client.force_authenticate(user=test_user)
+
+    resp = client.post(
+        reverse("bugzilla-post-comment"),
+        {"bug_id": 323, "comment": "Performance improvement detected."},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["id"] == 101
+
+
+def test_post_comment_missing_bug_id(client, activate_responses, test_user):
+    """
+    test that post_comment returns 400 when bug_id is missing
+    """
+    client.force_authenticate(user=test_user)
+
+    resp = client.post(
+        reverse("bugzilla-post-comment"),
+        {"comment": "Performance improvement detected."},
+    )
+    assert resp.status_code == 400
+    assert resp.json()["failure"] == "bug_id is required"
+
+
+def test_post_comment_missing_comment(client, activate_responses, test_user):
+    """
+    test that post_comment returns 400 when comment is missing
+    """
+    client.force_authenticate(user=test_user)
+
+    resp = client.post(
+        reverse("bugzilla-post-comment"),
+        {"bug_id": 323},
+    )
+    assert resp.status_code == 400
+    assert resp.json()["failure"] == "comment is required"
+
+
+def test_post_comment_unauthenticated(client, activate_responses):
+    """
+    test that post_comment requires authentication
+    """
+    resp = client.post(
+        reverse("bugzilla-post-comment"),
+        {"bug_id": 323, "comment": "Performance improvement detected."},
+    )
+    assert resp.status_code == 403
+    assert resp.json()["detail"] == "Authentication credentials were not provided."
+
+
 def test_create_bug_with_long_crash_signature(
     client, eleven_jobs_stored, activate_responses, test_user
 ):
