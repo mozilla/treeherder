@@ -634,9 +634,9 @@ class TestTelemetryAlertManager:
             # Verify modify_alert_bugs was called (could be multiple times due to house_keeping)
             # Find the call with non-empty alerts
             non_empty_calls = [call for call in modify_calls if len(call) > 0]
-            assert len(non_empty_calls) >= 1, (
-                "modify_alert_bugs should be called with at least one non-empty alert list"
-            )
+            assert (
+                len(non_empty_calls) >= 1
+            ), "modify_alert_bugs should be called with at least one non-empty alert list"
 
             # Check the first non-empty call (the main manage_alerts call)
             passed_alerts = non_empty_calls[0]

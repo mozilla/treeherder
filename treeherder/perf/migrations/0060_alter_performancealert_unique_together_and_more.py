@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("model", "0042_alter_jobgroup_name"),
         ("perf", "0059_performancebugtemplate_critical_text"),
@@ -65,8 +64,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name="performancealertsummary",
-            unique_together={
-                ("repository", "framework", "prev_push", "push", "sheriffed")
-            },
+            unique_together={("repository", "framework", "prev_push", "push", "sheriffed")},
         ),
     ]

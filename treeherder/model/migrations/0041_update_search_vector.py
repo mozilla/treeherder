@@ -10,14 +10,16 @@ from django.db.models.functions import Substr
 def update_search_vector(apps, schema_editor):
     Commit = apps.get_model("model", "Commit")
     Commit.objects.update(
-        search_vector=SearchVector("revision", "author", Substr("comments", 1, 100000), config="english")
+        search_vector=SearchVector(
+            "revision", "author", Substr("comments", 1, 100000), config="english"
+        )
     )
 
 
 class Migration(migrations.Migration):
     dependencies = [
-            ("model", "0040_alter_textlogerror_unique_together_and_more"),
-        ]
+        ("model", "0040_alter_textlogerror_unique_together_and_more"),
+    ]
 
     operations = [
         migrations.RemoveIndex(

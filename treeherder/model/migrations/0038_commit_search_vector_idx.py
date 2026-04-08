@@ -7,7 +7,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("model", "0037_bugjobmap_internal_bug_refs"),
     ]
