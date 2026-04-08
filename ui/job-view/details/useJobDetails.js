@@ -29,11 +29,18 @@ const fetchTaskData = async (taskId, rootUrl) => {
   if (taskDefinition) {
     taskQueueId = taskDefinition.taskQueueId;
     if (taskDefinition.payload.env?.MOZHARNESS_TEST_PATHS) {
-      const testGroupsData = Object.values(
-        JSON.parse(taskDefinition.payload.env.MOZHARNESS_TEST_PATHS),
-      );
-      if (testGroupsData.length) {
-        [testGroups] = testGroupsData;
+      try {
+        const testPathsData = JSON.parse(
+          taskDefinition.payload.env.MOZHARNESS_TEST_PATHS,
+        );
+        const testGroupsData = Object.values(testPathsData);
+
+        if (testGroupsData.length) {
+          [testGroups] = testGroupsData;
+        }
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error('Error parsing MOZHARNESS_TEST_PATHS:', error);
       }
     }
   }
