@@ -1,0 +1,146 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  javascript-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.0'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+        name: Run linting
+      - run: pnpm markdownlint
+        name: Check markdown linting
+      - run: pnpm test:ci
+        name: Run Jest tests
+      - uses: codecov/codecov-action@v5
+
+  builds:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - run: pip install tox
+      - run: tox -e docs
+        name: Build docs
+      - run: tox -e linters
+        name: Run linters
+
+  python-tests-general:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      # tox.ini calls docker-compose (v1 CLI); ubuntu-latest only ships the v2 plugin.
+      # This shim bridges the two so existing scripts work unmodified.
+      - name: Install docker-compose compatibility shim
+        run: printf '#!/bin/sh\nexec docker compose "$@"\n' | sudo tee /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose
+      - run: pip install tox
+      - name: Run tests and coverage within Docker container
+        run: tox -e docker-general
+      - uses: codecov/codecov-action@v5
+
+  python-tests-perf:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install docker-compose compatibility shim
+        run: printf '#!/bin/sh\nexec docker compose "$@"\n' | sudo tee /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose
+      - run: pip install tox
+      - name: Run tests and coverage within Docker container
+        run: tox -e docker-perf
+      - uses: codecov/codecov-action@v5
+
+  python-tests-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install docker-compose compatibility shim
+        run: printf '#!/bin/sh\nexec docker compose "$@"\n' | sudo tee /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose
+      - run: pip install tox
+      - name: Run tests and coverage within Docker container
+        run: tox -e docker-frontend
+      - uses: codecov/codecov-action@v5
+
+  test-docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/build-docker
+
+  deploy:
+    needs: [javascript-tests, builds, python-tests-general, python-tests-perf, python-tests-frontend, test-docker-build]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/prototype' || startsWith(github.ref, 'refs/tags/'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/build-docker
+
+      # Deploy to Docker Hub
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASS }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
+      - name: Tag and push to Docker Hub
+        run: |
+          tag_and_push() {
+            local tag=$1
+            docker tag app:build "${{ secrets.DOCKERHUB_REPO }}:${tag}"
+            docker push "${{ secrets.DOCKERHUB_REPO }}:${tag}"
+          }
+
+          if [ "${{ github.ref }}" == "refs/heads/master" ]; then
+            tag_and_push "latest"
+            tag_and_push "master-${GITHUB_SHA}"
+          elif [ "${{ github.ref }}" == "refs/heads/prototype" ]; then
+            tag_and_push "prototype-${GITHUB_SHA}"
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            tag_and_push "${{ github.ref_name }}"
+          fi
+
+      # Deploy to GCP Artifact Registry
+      - id: gcp-auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/${{ secrets.GCP_WIP_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ secrets.GCP_WIP_ID }}/providers/${{ secrets.GCP_WIP_PROVIDER_ID }}
+          service_account: ${{ secrets.GCP_GAR_PUSHER_SERVICE_ACCOUNT_EMAIL }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Configure Docker for GAR
+        run: gcloud auth configure-docker ${{ secrets.GCP_GAR_REGISTRY }}
+      - name: Tag and push to GCP GAR
+        run: |
+          GCP_GAR_REPO="${{ secrets.GCP_GAR_REGISTRY }}/${{ secrets.GCP_PROJECT_ID_OF_GCP_GAR }}/treeherder-prod/treeherder"
+
+          tag_and_push_gar() {
+            local tag=$1
+            docker tag app:build "${GCP_GAR_REPO}:${tag}"
+            docker push "${GCP_GAR_REPO}:${tag}"
+          }
+
+          if [ "${{ github.ref }}" == "refs/heads/master" ]; then
+            tag_and_push_gar "latest"
+            tag_and_push_gar "master-${GITHUB_SHA}"
+          elif [ "${{ github.ref }}" == "refs/heads/prototype" ]; then
+            tag_and_push_gar "prototype-${GITHUB_SHA}"
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            tag_and_push_gar "${{ github.ref_name }}"
+          fi

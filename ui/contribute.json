@@ -4,7 +4,7 @@
   "repository": {
     "url": "https://github.com/mozilla/treeherder",
     "license": "MPL2",
-    "tests": "https://app.circleci.com/pipelines/github/mozilla/treeherder"
+    "tests": "https://github.com/mozilla/treeherder/actions"
   },
   "participate": {
     "home": "https://wiki.mozilla.org/EngineeringProductivity/Projects/Treeherder",
