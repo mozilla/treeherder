@@ -291,9 +291,9 @@ export const getLandoJobsUrl = function getLandoJobsUrl(
 ) {
   const instances = {
     'lando-dev': 'api.dev.lando.nonprod.cloudops.mozgcp.net',
-    'lando-dev-new': 'api.dev.lando.nonprod.cloudops.mozgcp.net',
+    'lando-dev-2025': 'lando-dev.allizom.org',
     'lando-prod': 'api.lando.services.mozilla.com',
-    'lando-prod-new': 'lando.moz.tools',
+    'lando-prod-2025': 'lando.moz.tools',
   };
   const defaultBaseUrl = instances['lando-prod'];
   const landoBaseUrl = instances[landoInstance] ?? defaultBaseUrl;

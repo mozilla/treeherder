@@ -154,7 +154,7 @@ const App = () => {
 
   const setLandoRevision = useCallback(async () => {
     const params = getAllUrlParams();
-    const landoCommitIDParam = params.get('landoCommitID');
+    const landoCommitID = params.get('landoCommitID');
     const landoInstance = params.get('landoInstance');
 
     const { data } = await getData(
