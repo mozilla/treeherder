@@ -70,7 +70,7 @@ class TelemetryBugContent:
         "\n\n{change_table}\n"
         "[See these Treeherder pushes for possible culprits for this detected change]"
         "({detection_range_link}).\n\n"
-        "[A push log can be found here for a quicker overview of the changes that"
+        "[A push log can be found here for a quicker overview of the changes that "
         "occurred around this change]({push_log_link}).\n\n"
         "For more information on how to handle these probe changes, and "
         "what the various columns mean [see here]"
@@ -205,9 +205,9 @@ class TelemetryBugContent:
         values = (
             f"| **Median:** {round(prev_median, 2)}{unit} "
             f"| **Median:** {round(new_median, 2)}{unit} |\n"
-            f"| | | | **P05:** {round(prev_p05, 2)}{unit} "
+            f"| | | **P05:** {round(prev_p05, 2)}{unit} "
             f"| **P05:** {round(new_p05, 2)}{unit} |\n"
-            f"| | | | **P95:** {round(prev_p95, 2)}{unit} "
+            f"| | | **P95:** {round(prev_p95, 2)}{unit} "
             f"| **P95:** {round(new_p95, 2)}{unit} |"
         )
 
