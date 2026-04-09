@@ -100,6 +100,36 @@ class TestTelemetryBugManager:
             mock_build.assert_called_once_with(mock_probe, telemetry_alert_obj)
 
     @responses.activate
+    def test_file_bug_adds_cc_when_multiple_notification_emails(
+        self, bug_manager, mock_probe, telemetry_alert_obj
+    ):
+        """Test that file_bug adds CC emails when there are multiple notification emails."""
+        mock_probe.get_notification_emails.return_value = [
+            "owner@mozilla.com",
+            "cc1@mozilla.com",
+            "cc2@mozilla.com",
+        ]
+        responses.add(
+            responses.POST,
+            "https://bugzilla.mozilla.org/rest/bug",
+            json={"id": 123456},
+            status=200,
+        )
+
+        bug_manager.file_bug(mock_probe, telemetry_alert_obj)
+
+        import json
+
+        request_body = json.loads(responses.calls[0].request.body)
+
+        # First email gets needinfo, not CC
+        assert request_body["flags"][0]["requestee"] == "owner@mozilla.com"
+
+        # Remaining emails go into CC
+        assert "cc" in request_body
+        assert request_body["cc"] == ["cc1@mozilla.com", "cc2@mozilla.com"]
+
+    @responses.activate
     def test_modify_bug_success(self, bug_manager):
         """Test successfully modifying a bug."""
         expected_response = {"bugs": [{"id": 123456, "changes": {}}]}

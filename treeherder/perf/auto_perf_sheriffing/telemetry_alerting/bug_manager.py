@@ -39,6 +39,8 @@ class TelemetryBugManager(BugManager):
         # Only set a needinfo on the first email in the notification list
         needinfo_emails = probe.get_notification_emails()
         self._add_needinfo(needinfo_emails[0], bug_data)
+        if len(needinfo_emails) > 1:
+            self._add_cc(needinfo_emails[1:], bug_data)
 
         bug_info = self._create(bug_data)
         logger.info(f"Filed bug {bug_info['id']}")
