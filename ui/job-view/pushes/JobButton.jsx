@@ -1,4 +1,4 @@
-import { useImperativeHandle, forwardRef, memo } from 'react';
+import { useImperativeHandle, forwardRef, memo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
@@ -7,7 +7,7 @@ import {
   faMitten,
 } from '@fortawesome/free-solid-svg-icons';
 
-import { getBtnClass } from '../../helpers/job';
+import { getBtnClass, formatDuration } from '../../helpers/job';
 import { useJobButtonRegistry } from '../../hooks/useJobButtonRegistry';
 
 const JobButtonComponent = forwardRef(function JobButtonComponent(
@@ -35,8 +35,6 @@ const JobButtonComponent = forwardRef(function JobButtonComponent(
     [job, visible, setSelected, toggleRunnableSelected, refilter],
   );
 
-  if (!visible) return null;
-
   const {
     state,
     failure_classification_id: jobFailureClassificationId,
@@ -44,6 +42,24 @@ const JobButtonComponent = forwardRef(function JobButtonComponent(
     job_type_symbol: jobTypeSymbol,
     resultStatus: jobResultStatus,
   } = job;
+
+  const onMouseEnter = useCallback(
+    (e) => {
+      if (state === 'running' && job._durationFetchedAt) {
+        const elapsed = Math.floor(
+          (Date.now() - job._durationFetchedAt) / 60000,
+        );
+        const currentDuration = job.duration + elapsed;
+        e.currentTarget.title = job.hoverText.replace(
+          /\d+ mins?$/,
+          formatDuration(currentDuration),
+        );
+      }
+    },
+    [state, job],
+  );
+
+  if (!visible) return null;
 
   const runnable = state === 'runnable';
   const { status, isClassified } = getBtnClass(
@@ -89,7 +105,7 @@ const JobButtonComponent = forwardRef(function JobButtonComponent(
 
   attributes.className = classes.join(' ');
   return (
-    <button type="button" ref={buttonRef} {...attributes} data-testid="job-btn">
+    <button type="button" ref={buttonRef} onMouseEnter={state === 'running' ? onMouseEnter : undefined} {...attributes} data-testid="job-btn">
       {jobTypeSymbol}
       {classifiedIcon && (
         <FontAwesomeIcon

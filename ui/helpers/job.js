@@ -259,6 +259,9 @@ export const getResultState = function getResultState(job) {
   return state === 'completed' ? result : state;
 };
 
+export const formatDuration = (minutes) =>
+  `${minutes} min${minutes > 1 ? 's' : ''}`;
+
 export const addAggregateFields = function addAggregateFields(job) {
   const {
     job_group_name: jobGroupName,
@@ -307,10 +310,11 @@ export const addAggregateFields = function addAggregateFields(job) {
 
     job.duration = Math.round(diff / 60, 0);
   }
+  if (job.state === 'running') {
+    job._durationFetchedAt = Date.now();
+  }
 
-  job.hoverText = `${jobTypeName} - ${job.resultStatus} - ${job.duration} min${
-    job.duration > 1 ? 's' : ''
-  }`;
+  job.hoverText = `${jobTypeName} - ${job.resultStatus} - ${formatDuration(job.duration)}`;
   return job;
 };
 
