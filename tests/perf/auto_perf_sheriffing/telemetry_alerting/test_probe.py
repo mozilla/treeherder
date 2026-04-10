@@ -7,6 +7,7 @@ from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.probe import (
     TelemetryProbeValidationError,
 )
 from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.utils import (
+    DEFAULT_BUGZILLA_INFO,
     DEFAULT_CHANGE_DETECTION,
 )
 
@@ -376,3 +377,72 @@ class TestTelemetryProbeInfo:
 
             # Should not raise, probe_info should be an empty dict
             assert probe._probe_info == {}
+
+
+class TestTelemetryProbeBugzillaInfo:
+    def test_get_bugzilla_info_returns_default_on_network_failure(self, metric_info_with_bool_true):
+        """Test get_bugzilla_info returns the default when probe info cannot be fetched."""
+        with patch(
+            "treeherder.perf.auto_perf_sheriffing.telemetry_alerting.probe.requests.get"
+        ) as mock_get:
+            mock_get.side_effect = Exception("Network error")
+
+            probe = TelemetryProbe(metric_info_with_bool_true)
+            result = probe.get_bugzilla_info()
+
+            assert result == DEFAULT_BUGZILLA_INFO
+
+    def test_get_bugzilla_info_returns_custom_default_on_network_failure(
+        self, metric_info_with_bool_true
+    ):
+        """Test get_bugzilla_info returns the custom default when provided."""
+        with patch(
+            "treeherder.perf.auto_perf_sheriffing.telemetry_alerting.probe.requests.get"
+        ) as mock_get:
+            mock_get.side_effect = Exception("Network error")
+
+            probe = TelemetryProbe(metric_info_with_bool_true)
+            custom_default = ("Firefox", "General")
+            result = probe.get_bugzilla_info(default=custom_default)
+
+            assert result == custom_default
+
+    def test_get_bugzilla_info_parsed_from_bugzilla_tag(self, metric_info_with_bool_true):
+        """Test get_bugzilla_info parses product and component from a matching tag."""
+        with patch(
+            "treeherder.perf.auto_perf_sheriffing.telemetry_alerting.probe.requests.get"
+        ) as mock_get:
+            mock_response = Mock()
+            mock_response.json.return_value = {
+                "tags": [
+                    {"name": "Core :: Networking", "description": "Bugzilla component"},
+                ]
+            }
+            mock_response.raise_for_status = Mock()
+            mock_get.return_value = mock_response
+
+            probe = TelemetryProbe(metric_info_with_bool_true)
+            result = probe.get_bugzilla_info()
+
+            assert result == ("Core", "Networking")
+
+    def test_get_bugzilla_info_returns_default_when_no_bugzilla_tag(
+        self, metric_info_with_bool_true
+    ):
+        """Test get_bugzilla_info returns default when no tag has 'bugzilla' in its description."""
+        with patch(
+            "treeherder.perf.auto_perf_sheriffing.telemetry_alerting.probe.requests.get"
+        ) as mock_get:
+            mock_response = Mock()
+            mock_response.json.return_value = {
+                "tags": [
+                    {"name": "Core :: Networking", "description": "Some other tag"},
+                ]
+            }
+            mock_response.raise_for_status = Mock()
+            mock_get.return_value = mock_response
+
+            probe = TelemetryProbe(metric_info_with_bool_true)
+            result = probe.get_bugzilla_info()
+
+            assert result == DEFAULT_BUGZILLA_INFO

@@ -84,6 +84,7 @@ def mock_probe():
     probe.name = "test_probe_metric"
     probe.time_unit = "nanosecond"
     probe.get_notification_emails.return_value = ["test@mozilla.com"]
+    probe.get_bugzilla_info.return_value = ("Testing", "Performance")
     probe.should_file_bug.return_value = True
     probe.should_email.return_value = False
     return probe

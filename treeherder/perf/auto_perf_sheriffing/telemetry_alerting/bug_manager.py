@@ -27,10 +27,9 @@ class TelemetryBugManager(BugManager):
         bug_data["summary"] = bug_content["title"]
         bug_data["description"] = bug_content["description"]
 
-        # For testing use Testing :: Performance, later switch to
-        # using tags from metrics_info
-        bug_data["product"] = "Testing"
-        bug_data["component"] = "Performance"
+        bugzilla_info = probe.get_bugzilla_info()
+        bug_data["product"] = bugzilla_info[0]
+        bug_data["component"] = bugzilla_info[1]
 
         bug_data["severity"] = "S4"
         bug_data["priority"] = "P5"

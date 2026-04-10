@@ -34,6 +34,7 @@ CHANNEL_TO_REPO_MAPPING = {
 
 MODIFIABLE_ALERT_FIELDS = ("status",)
 DEFAULT_ALERT_EMAIL = "gmierzwinski@mozilla.com"
+DEFAULT_BUGZILLA_INFO = ("Testing", "Performance")
 EMAIL_LIMIT = 50
 
 
