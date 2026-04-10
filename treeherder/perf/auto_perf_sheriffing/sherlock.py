@@ -45,20 +45,6 @@ ACCESS_TOKEN = settings.PERF_SHERIFF_BOT_ACCESS_TOKEN
 
 BUILDID_MAPPING = "https://hg.mozilla.org/mozilla-central/json-firefoxreleases"
 
-INITIAL_PROBES = (
-    "memory_ghost_windows",
-    "cycle_collector_time",
-    "mouseup_followed_by_click_present_latency",
-    "network_tcp_connection",
-    "network_tls_handshake",
-    "networking_http_channel_page_open_to_first_sent",
-    "performance_pageload_fcp",
-    "perf_largest_contentful_paint",
-    "performance_interaction_keypress_present_latency",
-    "gfx_content_full_paint_time",
-    "paint_build_displaylist_time",
-)
-
 
 class Sherlock:
     """
@@ -285,8 +271,7 @@ class Sherlock:
             if metric_info["platform"] == "mobile":
                 # Skip mobile detection since it's currently broken
                 continue
-            if metric_info["name"] not in INITIAL_PROBES:
-                continue
+
             try:
                 probe = TelemetryProbe(metric_info)
             except TelemetryProbeValidationError as e:
@@ -294,10 +279,7 @@ class Sherlock:
                 continue
 
             if not probe.should_detect_changes():
-                # We should not currently be skipping probes since we're
-                # only detecting changes on the allowlisted ones. Later, this
-                # should be a continue
-                probe.monitor_info["detect_changes"] = True
+                continue
             probes.setdefault(probe.name, probe)
 
             logger.info(f"Running detection for {probe.name}")

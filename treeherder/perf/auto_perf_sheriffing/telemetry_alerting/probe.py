@@ -11,11 +11,6 @@ from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.utils import (
 
 logger = logging.getLogger(__name__)
 
-ALERTING_PROBES = (
-    "networking_http_channel_page_open_to_first_sent",
-    "perf_largest_contentful_paint",
-)
-
 
 class TelemetryProbeValidationError(Exception):
     """Raised when a probes information is incorrect, or missing."""
@@ -111,11 +106,6 @@ class TelemetryProbe:
         if self.monitor_info.get("bugzilla_notification_emails", None) or self.monitor_info.get(
             "notification_emails", None
         ):
-            return
-
-        # XXX: Remove once prototyping is complete
-        if self.name not in ALERTING_PROBES:
-            self.monitor_info["notification_emails"] = [default]
             return
 
         self.fetch_probe_info()
