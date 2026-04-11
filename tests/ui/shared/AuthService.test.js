@@ -13,6 +13,13 @@ import AuthService from '../../../ui/shared/auth/AuthService';
 import UserModel from '../../../ui/models/user';
 
 const mockRenew = jest.fn();
+const mockFromNow = jest.fn(
+  () => new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+);
+
+jest.mock('taskcluster-client-web', () => ({
+  fromNow: (...args) => mockFromNow(...args),
+}));
 
 // Mock dependencies
 jest.mock('../../../ui/helpers/url', () => ({
@@ -277,6 +284,32 @@ describe('AuthService', () => {
 
       expect(localStorage.getItem('renewalLock')).toBeNull();
       console.error.mockRestore();
+    });
+
+    it('advances renewAfter on failure to prevent tight retry loop', async () => {
+      const pastDate = new Date(Date.now() - 1000).toISOString();
+      const session = {
+        renewAfter: pastDate,
+        accessToken: 'tok',
+        accessTokenExpiresAt: Math.floor(Date.now() / 1000) + 3600,
+        idToken: 'id',
+      };
+      localStorage.setItem('userSession', JSON.stringify(session));
+      mockRenew.mockRejectedValue(new Error('network'));
+
+      jest.spyOn(console, 'error').mockImplementation(() => {});
+      jest.spyOn(console, 'debug').mockImplementation(() => {});
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+      await authService._renewAuth();
+
+      const updated = JSON.parse(localStorage.getItem('userSession'));
+      // renewAfter should now be in the future, not still in the past
+      expect(new Date(updated.renewAfter).getTime()).toBeGreaterThan(Date.now());
+
+      console.error.mockRestore();
+      console.debug.mockRestore();
+      console.warn.mockRestore();
     });
 
     it('does not call renew when no userSession exists', async () => {

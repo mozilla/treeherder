@@ -1,3 +1,5 @@
+import { fromNow } from 'taskcluster-client-web';
+
 import {
   userSessionFromAuthResult,
   renew,
@@ -154,6 +156,14 @@ export default class AuthService {
         }
       } else {
         authWarn('No userSession found after renewal failure (unexpected)');
+      }
+
+      // Advance renewAfter so the retry waits a full interval instead of
+      // spinning in a 0-5 s loop (renewAfter is still in the past on failure).
+      if (userSession) {
+        userSession.renewAfter = fromNow(RENEW_INTERVAL);
+        localStorage.setItem('userSession', JSON.stringify(userSession));
+        authLog('Advanced renewAfter to %s to avoid tight retry loop', userSession.renewAfter);
       }
 
       // Schedule a retry even on failure so renewal doesn't die permanently
