@@ -8,7 +8,6 @@ import {
   Navbar,
   Nav,
 } from 'react-bootstrap';
-import { Helmet } from 'react-helmet';
 
 import faviconBroken from '../img/push-health-broken.png';
 import faviconOk from '../img/push-health-ok.png';
@@ -183,13 +182,11 @@ function MyPushes({ user, notify, clearNotification }) {
           </span>
         </Nav>
       </Navbar>
-      <Helmet>
-        <link
-          rel="shortcut icon"
-          href={totalNeedInvestigation > 0 ? faviconBroken : faviconOk}
-        />
-        <title>{`[${totalNeedInvestigation} failures] Push Health`}</title>
-      </Helmet>
+      <link
+        rel="shortcut icon"
+        href={totalNeedInvestigation > 0 ? faviconBroken : faviconOk}
+      />
+      <title>{`[${totalNeedInvestigation} failures] Push Health`}</title>
       <Container className="mt-2 mb-5 max-width-default">
         {!displayedUser && (
           <p className="pt-5 text-center font-weight-500 font-size-20">

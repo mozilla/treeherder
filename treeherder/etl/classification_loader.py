@@ -86,9 +86,7 @@ class ClassificationLoader:
 
     def get_push(self, task_route):
         mozci_env = env("PULSE_MOZCI_ENVIRONMENT", default="production")
-        logger.error(
-            f"PULSE_MOZCI_ENVIRONMENT: {env('PULSE_MOZCI_ENVIRONMENT')}, with default {env('PULSE_MOZCI_ENVIRONMENT', default='production')}"
-        )
+        logger.info(f"PULSE_MOZCI_ENVIRONMENT: {mozci_env}")
         if mozci_env == "testing":
             route_regex = CLASSIFICATION_TESTING_ROUTE_REGEX
         else:
