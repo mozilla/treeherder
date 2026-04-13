@@ -4,7 +4,10 @@ import newrelic.agent
 from celery.exceptions import SoftTimeLimitExceeded
 
 from treeherder.model.models import Job, JobLog
-from treeherder.perf.alerts import generate_new_alerts_in_series
+from treeherder.perf.alerts import (
+    generate_new_alerts_in_series,
+    generate_new_test_alerts_in_series,
+)
 from treeherder.perf.models import PerformanceSignature
 from treeherder.workers.task import retryable_task
 
@@ -16,25 +19,25 @@ def generate_alerts(signature_id):
     newrelic.agent.add_custom_attribute("signature_id", str(signature_id))
     signature = PerformanceSignature.objects.get(id=signature_id)
     generate_new_alerts_in_series(signature)
-    # try:
-    #     generate_new_test_alerts_in_series(
-    #         signature,
-    #         voting_strategy="priority",
-    #         min_method_agreement=3,
-    #         detection_index_tolerance=1,
-    #         replicates_enabled=False,
-    #     )
-    #     generate_new_test_alerts_in_series(
-    #         signature,
-    #         voting_strategy="equal",
-    #         min_method_agreement=3,
-    #         detection_index_tolerance=1,
-    #         replicates_enabled=False,
-    #     )
-    # except Exception as e:
-    #     logger.exception(
-    #         "Failed to generate test alerts for signature %s: %s", signature_id, str(e)
-    #     )
+    try:
+        generate_new_test_alerts_in_series(
+            signature,
+            voting_strategy="priority",
+            min_method_agreement=3,
+            detection_index_tolerance=1,
+            replicates_enabled=False,
+        )
+        generate_new_test_alerts_in_series(
+            signature,
+            voting_strategy="equal",
+            min_method_agreement=3,
+            detection_index_tolerance=1,
+            replicates_enabled=False,
+        )
+    except Exception as e:
+        logger.exception(
+            "Failed to generate test alerts for signature %s: %s", signature_id, str(e)
+        )
 
 
 @retryable_task(name="ingest-perfherder-data", max_retries=10)
