@@ -305,13 +305,31 @@ class Sherlock:
 
             for platform in ("Windows",):
                 logger.info(f"On Platform {platform}")
+
+                # Create the probe signature now so that we can capture when it was first
+                # seen with change detection enabled. This is used to limit how far back
+                # we go for getting historical data which reduces the risk for a large
+                # influx of bugs/emails when a probe is first analyzed.
+                # XXX: Allow multiple channels, legacy probes, and different apps
+                probe_signature, _ = PerformanceTelemetrySignature.objects.update_or_create(
+                    channel="Nightly",
+                    platform=platform,
+                    probe=probe.name,
+                    probe_type="Glean",
+                    application="Firefox",
+                )
+
                 try:
+                    # Get data from 30 days before the signature creation date to now
                     data = get_metric_table(
                         probe.name,
                         platform,
                         android=(platform == "Mobile"),
                         use_fog=True,
                         project=project,
+                        from_build_date=str(
+                            (probe_signature.created - timedelta(days=30)).strftime("%Y-%m-%d")
+                        ),
                     )
                     if data.empty:
                         logger.info("No data found")
@@ -327,7 +345,7 @@ class Sherlock:
                         if not self._buildid_mappings:
                             self._make_buildid_to_date_mapping()
                         alert = self._create_detection_alert(
-                            detection, probe, platform, repository, framework
+                            detection, probe, platform, repository, framework, probe_signature
                         )
                         if alert:
                             alerts.append(alert)
@@ -351,17 +369,8 @@ class Sherlock:
         platform: str,
         repository: Repository,
         framework: PerformanceFramework,
+        probe_signature: PerformanceTelemetrySignature,
     ):
-        # Get, or create the signature
-        # TODO: Allow multiple channels, legacy probes, and different apps
-        probe_signature, _ = PerformanceTelemetrySignature.objects.update_or_create(
-            channel="Nightly",
-            platform=platform,
-            probe=probe.name,
-            probe_type="Glean",
-            application="Firefox",
-        )
-
         detection_date = str(detection.location)
         if detection_date not in self._buildid_mappings[platform]:
             # TODO: See if we should expand the range in this situation

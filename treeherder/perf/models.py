@@ -222,6 +222,7 @@ class PerformanceTelemetrySignature(models.Model):
         help_text="Application that runs the signature's tests. "
         "Generally used to record browser's name, but not necessarily.",
     )
+    created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = "performance_telemetry_signature"
