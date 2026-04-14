@@ -459,7 +459,7 @@ class Commenter:
             bug_testrun_matrix = []
             run_count = 0
             if test_name:
-                manifest = all_tests[test_name][0]
+                manifest = all_tests[test_name][0] if len(all_tests[test_name][0]) else None
                 if manifest:
                     job_name = bug["job__signature__job_type_name"]
                     if len(job_name.rsplit("-", 1)) == 2 and job_name.rsplit("-", 1)[1].isdigit():
@@ -550,8 +550,9 @@ class Commenter:
             for item in manifests["tests"][component]:
                 if item["test"] not in all_tests:
                     all_tests[item["test"]] = []
-                # split(':') allows for parent:child where we want to keep parent
-                all_tests[item["test"]].append(item["manifest"][0].split(":")[0])
+                if "manifest" in item:
+                    # split(':') allows for parent:child where we want to keep parent
+                    all_tests[item["test"]].append(item["manifest"][0].split(":")[0])
         self.all_tests = all_tests
         return all_tests
 
