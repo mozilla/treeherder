@@ -664,10 +664,6 @@ def create_alert(
         },
     )
 
-    # Note: Email notifications are disabled for testing as per original code
-    if signature.alert_notify_emails:
-        send_alert_emails(signature.alert_notify_emails.split(), alert, summary)
-
 
 def generate_new_test_alerts_in_series(
     signature,
