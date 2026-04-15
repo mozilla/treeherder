@@ -29,8 +29,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         mode = options["mode"]
-        is_wednesday = calendar.day_name[date.today().weekday()] == "Wednesday"
-        weekly_mode = (mode == "weekly") or (mode == "auto" and is_wednesday)
+        is_monday = calendar.day_name[date.today().weekday()] == "Monday"
+        weekly_mode = (mode == "weekly") or (mode == "auto" and is_monday)
 
         process = Commenter(weekly_mode=weekly_mode, dry_run=options["dry_run"])
         process.run()
