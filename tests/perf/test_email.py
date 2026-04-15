@@ -1,6 +1,10 @@
 import pytest
 
-from treeherder.perf.email import DeletionNotificationWriter, DeletionReportContent
+from treeherder.perf.email import (
+    AlertNotificationWriter,
+    DeletionNotificationWriter,
+    DeletionReportContent,
+)
 
 
 class TestDeletionReportContent:
@@ -53,3 +57,35 @@ class TestDeletionNotificationWriter:
             )
         )
         return expected_content
+
+
+class TestAlertNotificationWriter:
+    def test_subject_and_content_use_suite_when_test_field_is_empty(
+        self, test_perf_alert, test_perf_alert_summary
+    ):
+        test_perf_alert.series_signature.test = ""
+        test_perf_alert.series_signature.save()
+
+        writer = AlertNotificationWriter()
+        email = writer.prepare_new_email(
+            "test@example.com", test_perf_alert, test_perf_alert_summary
+        )
+
+        suite = test_perf_alert.series_signature.suite
+        assert suite in email["subject"]
+        assert suite in email["content"]
+
+    def test_subject_and_content_use_suite_dot_test_when_test_field_is_set(
+        self, test_perf_alert, test_perf_alert_summary
+    ):
+        suite = test_perf_alert.series_signature.suite
+        test = test_perf_alert.series_signature.test
+        expected_test_name = f"{suite}.{test}"
+
+        writer = AlertNotificationWriter()
+        email = writer.prepare_new_email(
+            "test@example.com", test_perf_alert, test_perf_alert_summary
+        )
+
+        assert expected_test_name in email["subject"]
+        assert expected_test_name in email["content"]

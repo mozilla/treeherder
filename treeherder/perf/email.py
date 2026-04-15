@@ -321,15 +321,21 @@ class AlertNotificationWriter(EmailWriter):
         self, email: str, alert: PerformanceAlert, alert_summary: PerformanceAlertSummary
     ) -> dict:
         self._write_address(email)
-        self._write_subject(alert.series_signature.test)
-        self._write_content(alert.series_signature.test, str(alert_summary.id))
+
+        if not alert.series_signature.test:
+            test_name = alert.series_signature.suite
+        else:
+            test_name = f"{alert.series_signature.suite}.{alert.series_signature.test}"
+
+        self._write_subject(test_name)
+        self._write_content(test_name, str(alert_summary.id))
         return self.email
 
     def _write_address(self, email: str):
         self._email.address = email
 
     def _write_subject(self, test: str):
-        self._email.subject = f"Alert: Test {test} detected a performance change"
+        self._email.subject = f"Alert: Detected a performance change to {test} "
 
     def _write_content(self, test: str, alert_summary_id: str):
         content = AlertNotificationContent()
