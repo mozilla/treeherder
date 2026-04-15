@@ -199,7 +199,17 @@ describe('PerformanceTab', () => {
             value: 'profile_something.json.gz',
           },
         ],
-        perfJobDetail: [],
+        perfJobDetail: [
+          {
+            frameworkName: 'browsertime',
+            perfdocs: new Perfdocs(
+              'browsertime',
+              'outlook',
+              'macosx1015-64-shippable-qr',
+              'outlook ContentfulSpeedIndex opt cold fission webrender',
+            ),
+          },
+        ],
       }),
     );
 
