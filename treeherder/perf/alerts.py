@@ -13,7 +13,6 @@ from django.db.models import Exists, OuterRef, Subquery
 from treeherder.perf.email import AlertNotificationWriter
 from treeherder.perf.methods.CramerVonMisesDetector import CramerVonMisesDetector
 from treeherder.perf.methods.KolmogorovSmirnovDetector import KolmogorovSmirnovDetector
-from treeherder.perf.methods.LeveneDetector import LeveneDetector
 from treeherder.perf.methods.MannWhitneyUDetector import MannWhitneyUDetector
 from treeherder.perf.methods.StudentDetector import StudentDetector
 from treeherder.perf.methods.WelchDetector import WelchDetector
@@ -33,7 +32,7 @@ from treeherder.services import taskcluster
 
 logger = logging.getLogger(__name__)
 
-# Selects which voting algorithm is used to combine detections across methods. The avaiable strategies are equal and priority voting.
+# Selects which voting algorithm is used to combine detections across methods. The available strategies are equal and priority voting.
 VOTING_STRATEGY = "equal"
 # Sets how many methods must agree before an alert is raised.
 MIN_METHOD_AGREEMENT = 3
@@ -233,8 +232,8 @@ def build_cpd_methods():
         min_back_window=12,
         max_back_window=24,
         fore_window=12,
-        alert_threshold=2.0,
-        confidence_threshold=7,
+        alert_threshold=1.0,
+        confidence_threshold=5,
         mag_check=True,
         above_threshold_is_anomaly=True,
     )
@@ -243,9 +242,9 @@ def build_cpd_methods():
         min_back_window=12,
         max_back_window=24,
         fore_window=12,
-        alert_threshold=2.0,
-        confidence_threshold=0.05,
-        mag_check=False,
+        alert_threshold=3.0,
+        confidence_threshold=0.005,
+        mag_check=True,
         above_threshold_is_anomaly=False,
     )
     ks = KolmogorovSmirnovDetector(
@@ -253,9 +252,9 @@ def build_cpd_methods():
         min_back_window=12,
         max_back_window=24,
         fore_window=12,
-        alert_threshold=2.0,
-        confidence_threshold=0.05,
-        mag_check=False,
+        alert_threshold=3.0,
+        confidence_threshold=0.005,
+        mag_check=True,
         above_threshold_is_anomaly=False,
     )
     welch = WelchDetector(
@@ -263,29 +262,31 @@ def build_cpd_methods():
         min_back_window=12,
         max_back_window=24,
         fore_window=12,
-        alert_threshold=2.0,
-        confidence_threshold=0.05,
-        mag_check=False,
+        alert_threshold=3.0,
+        confidence_threshold=0.005,
+        mag_check=True,
         above_threshold_is_anomaly=False,
     )
+    """
     levene = LeveneDetector(
         name="levene",
         min_back_window=12,
         max_back_window=24,
         fore_window=12,
-        alert_threshold=2.0,
-        confidence_threshold=0.05,
-        mag_check=False,
+        alert_threshold=3.0,
+        confidence_threshold=0.035,
+        mag_check=True,
         above_threshold_is_anomaly=False,
     )
+    """
     mwu = MannWhitneyUDetector(
         name="mwu",
         min_back_window=12,
         max_back_window=24,
         fore_window=12,
-        alert_threshold=2.0,
-        confidence_threshold=0.05,
-        mag_check=False,
+        alert_threshold=3.0,
+        confidence_threshold=0.005,
+        mag_check=True,
         above_threshold_is_anomaly=False,
     )
     methods = {
@@ -293,7 +294,6 @@ def build_cpd_methods():
         "cvm": cvm,
         "ks": ks,
         "welch": welch,
-        "levene": levene,
         "mwu": mwu,
     }
     return methods
@@ -304,14 +304,11 @@ def name_voting_strategy(
     min_method_agreement,
     detection_index_tolerance,
     replicates_enabled,
-    existing_name=None,
 ):
     """
     Builds a string label encoding the active voting configuration, used to tag
     alerts with the strategy that produced them.
     """
-    if existing_name is not None:
-        return existing_name
     suffix = "replicates_enabled" if replicates_enabled else "replicates_not_enabled"
 
     voting_strategy_naming = (
@@ -339,8 +336,8 @@ def vote(
     analyzed_series,
     voting_strategy="equal",
     min_method_agreement=3,
-    detection_index_tolerance=2,
-    replicates_enabled=False,
+    detection_index_tolerance=1,
+    detection_method_name=None,
 ):
     """
     Apply voting logic to determine which alerts to create based on multiple detection methods.
@@ -349,18 +346,16 @@ def vote(
     alert is created per agreed-upon change point regardless of which voting strategy is used.
     """
     if voting_strategy == "equal":
-        detections, detection_method_naming = equal_voting_strategy(
+        detections = equal_voting_strategy(
             analyzed_series=analyzed_series,
             min_method_agreement=min_method_agreement,
             detection_index_tolerance=detection_index_tolerance,
-            replicates_enabled=replicates_enabled,
         )
     elif voting_strategy == "priority":
-        detections, detection_method_naming = priority_voting_strategy(
+        detections = priority_voting_strategy(
             analyzed_series=analyzed_series,
             min_method_agreement=min_method_agreement,
             detection_index_tolerance=detection_index_tolerance,
-            replicates_enabled=replicates_enabled,
         )
     else:
         raise ValueError(f"Unknown voting strategy: {voting_strategy}")
@@ -375,7 +370,7 @@ def vote(
             cur,
             weighted_index,
             methods_data,
-            detection_method_naming,
+            detection_method_name,
         )
 
 
@@ -444,20 +439,13 @@ def get_weighted_average_push(analyzed_series, methods, start_idx, end_idx):
     return weighted_avg_index, prev_index
 
 
-def priority_voting_strategy(
-    analyzed_series, min_method_agreement=3, detection_index_tolerance=1, replicates_enabled=False
-):
+def priority_voting_strategy(analyzed_series, min_method_agreement=3, detection_index_tolerance=1):
     """
     Priority voting strategy where student method has voting priority.
     Returns a list of (weighted_index, prev_index, methods_data) tuples and a naming string.
     """
     if not analyzed_series or len(analyzed_series) < 2:
-        return [], name_voting_strategy(
-            "priority", min_method_agreement, detection_index_tolerance, replicates_enabled
-        )
-    detection_method_naming = name_voting_strategy(
-        "priority", min_method_agreement, detection_index_tolerance, replicates_enabled
-    )
+        return []
 
     detections = []
     # Track which indices we've already added detections for (to avoid duplicates
@@ -487,16 +475,15 @@ def priority_voting_strategy(
     # Phase 2: Fall back to equal voting strategy for indices not caught by Student
     # Student won't influence the vote here since change_detected["student"]
     # is False for all remaining candidates
-    equal_detections, _ = equal_voting_strategy(
+    equal_detections = equal_voting_strategy(
         analyzed_series=analyzed_series,
         min_method_agreement=min_method_agreement,
         detection_index_tolerance=detection_index_tolerance,
         alerted_indices=alerted_indices,
-        replicates_enabled=replicates_enabled,
     )
     detections.extend(equal_detections)
 
-    return detections, detection_method_naming
+    return detections
 
 
 def equal_voting_strategy(
@@ -504,22 +491,13 @@ def equal_voting_strategy(
     min_method_agreement=3,
     detection_index_tolerance=1,
     alerted_indices=None,
-    detection_method_naming=None,
-    replicates_enabled=False,
 ):
     """
     Equal voting strategy where all methods have equal weight.
     Returns a list of (weighted_index, prev_index, methods_data) tuples and a naming string.
     """
-    detection_method_naming = name_voting_strategy(
-        "equal",
-        min_method_agreement,
-        detection_index_tolerance,
-        replicates_enabled,
-        detection_method_naming,
-    )
     if not analyzed_series or len(analyzed_series) < 2:
-        return [], detection_method_naming
+        return []
 
     alerted_indices = alerted_indices if alerted_indices is not None else set()
     detections = []
@@ -549,7 +527,7 @@ def equal_voting_strategy(
                 detections.append((weighted_index, prev_index, methods_detecting_data))
                 alerted_indices.add(weighted_index)
 
-    return detections, detection_method_naming
+    return detections
 
 
 def create_alert(
@@ -646,6 +624,7 @@ def create_alert(
         summary=summary,
         series_signature=signature,
         telemetry_series_signature=telemetry_sig,
+        detection_method=detection_method_naming,
         defaults={
             "noise_profile": noise_profile,
             "is_regression": alert_properties.is_regression,
@@ -654,7 +633,6 @@ def create_alert(
             "prev_value": prev_value,
             "new_value": new_value,
             "t_value": student_confidence,  # Student's confidence for backwards compatibility
-            "detection_method": detection_method_naming,
             "confidences": confidences,
             "sheriffed": not signature.monitor,
             "prev_median": 0,
@@ -674,6 +652,12 @@ def generate_new_test_alerts_in_series(
     detection_index_tolerance=DETECTION_INDEX_TOLERANCE,
     replicates_enabled=REPLICATES,
 ):
+    detection_method_name = name_voting_strategy(
+        voting_strategy,
+        min_method_agreement,
+        detection_index_tolerance,
+        replicates_enabled,
+    )
     # get series data starting from either:
     # (1) the last alert, if there is one
     # (2) the alerts max age
@@ -684,7 +668,9 @@ def generate_new_test_alerts_in_series(
             signature=signature, push_timestamp__gte=max_alert_age
         )
         latest_alert_timestamp = (
-            PerformanceAlertTesting.objects.filter(series_signature=signature)
+            PerformanceAlertTesting.objects.filter(
+                series_signature=signature, detection_method=detection_method_name
+            )
             .select_related("summary__push__time")
             .order_by("-summary__push__time")
             .values_list("summary__push__time", flat=True)[:1]
@@ -739,5 +725,5 @@ def generate_new_test_alerts_in_series(
             voting_strategy=voting_strategy,
             min_method_agreement=min_method_agreement,
             detection_index_tolerance=detection_index_tolerance,
-            replicates_enabled=replicates_enabled,
+            detection_method_name=detection_method_name,
         )

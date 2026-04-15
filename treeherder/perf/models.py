@@ -832,8 +832,7 @@ class PerformanceAlertTesting(PerformanceAlertBase):
     class Meta:
         db_table = "performance_alert_testing"
         unique_together = (
-            ("summary", "series_signature"),
-            ("summary", "telemetry_series_signature"),
+            ("summary", "series_signature", "telemetry_series_signature", "detection_method"),
         )
 
 
