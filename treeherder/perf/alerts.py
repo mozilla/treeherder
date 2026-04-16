@@ -18,6 +18,7 @@ from treeherder.perf.methods.MannWhitneyUDetector import MannWhitneyUDetector
 from treeherder.perf.methods.StudentDetector import StudentDetector
 from treeherder.perf.methods.WelchDetector import WelchDetector
 from treeherder.perf.models import (
+    ChangePointDetectionResult,
     PerformanceAlert,
     PerformanceAlertSummary,
     PerformanceAlertSummaryTesting,
@@ -36,7 +37,7 @@ logger = logging.getLogger(__name__)
 # Selects which voting algorithm is used to combine detections across methods. The avaiable strategies are equal and priority voting.
 VOTING_STRATEGY = "equal"
 # Sets how many methods must agree before an alert is raised.
-MIN_METHOD_AGREEMENT = 3
+MIN_METHOD_AGREEMENT = 4
 # Controls how far apart two detections can be while still being counted as the same change.
 DETECTION_INDEX_TOLERANCE = 1
 # Toggles whether raw repeated measurements are passed to the detectors instead of aggregated values.
@@ -233,8 +234,8 @@ def build_cpd_methods():
         min_back_window=12,
         max_back_window=24,
         fore_window=12,
-        alert_threshold=2.0,
-        confidence_threshold=7,
+        alert_threshold=1.0,
+        confidence_threshold=5,
         mag_check=True,
         above_threshold_is_anomaly=True,
     )
@@ -243,9 +244,9 @@ def build_cpd_methods():
         min_back_window=12,
         max_back_window=24,
         fore_window=12,
-        alert_threshold=2.0,
-        confidence_threshold=0.05,
-        mag_check=False,
+        alert_threshold=3.0,
+        confidence_threshold=0.005,
+        mag_check=True,
         above_threshold_is_anomaly=False,
     )
     ks = KolmogorovSmirnovDetector(
@@ -253,9 +254,9 @@ def build_cpd_methods():
         min_back_window=12,
         max_back_window=24,
         fore_window=12,
-        alert_threshold=2.0,
-        confidence_threshold=0.05,
-        mag_check=False,
+        alert_threshold=3.0,
+        confidence_threshold=0.005,
+        mag_check=True,
         above_threshold_is_anomaly=False,
     )
     welch = WelchDetector(
@@ -263,9 +264,9 @@ def build_cpd_methods():
         min_back_window=12,
         max_back_window=24,
         fore_window=12,
-        alert_threshold=2.0,
-        confidence_threshold=0.05,
-        mag_check=False,
+        alert_threshold=3.0,
+        confidence_threshold=0.005,
+        mag_check=True,
         above_threshold_is_anomaly=False,
     )
     levene = LeveneDetector(
@@ -273,9 +274,9 @@ def build_cpd_methods():
         min_back_window=12,
         max_back_window=24,
         fore_window=12,
-        alert_threshold=2.0,
-        confidence_threshold=0.05,
-        mag_check=False,
+        alert_threshold=3.0,
+        confidence_threshold=0.005,
+        mag_check=True,
         above_threshold_is_anomaly=False,
     )
     mwu = MannWhitneyUDetector(
@@ -283,17 +284,17 @@ def build_cpd_methods():
         min_back_window=12,
         max_back_window=24,
         fore_window=12,
-        alert_threshold=2.0,
-        confidence_threshold=0.05,
-        mag_check=False,
+        alert_threshold=3.0,
+        confidence_threshold=0.005,
+        mag_check=True,
         above_threshold_is_anomaly=False,
     )
     methods = {
         "student": student,
         "cvm": cvm,
         "ks": ks,
-        "welch": welch,
         "levene": levene,
+        "welch": welch,
         "mwu": mwu,
     }
     return methods
@@ -304,14 +305,11 @@ def name_voting_strategy(
     min_method_agreement,
     detection_index_tolerance,
     replicates_enabled,
-    existing_name=None,
 ):
     """
     Builds a string label encoding the active voting configuration, used to tag
     alerts with the strategy that produced them.
     """
-    if existing_name is not None:
-        return existing_name
     suffix = "replicates_enabled" if replicates_enabled else "replicates_not_enabled"
 
     voting_strategy_naming = (
@@ -334,79 +332,185 @@ def detect_methods_changes(signature, data, methods, replicates_enabled=False):
     return analyzed_series
 
 
-def vote(
-    signature,
-    analyzed_series,
-    voting_strategy="equal",
-    min_method_agreement=3,
-    detection_index_tolerance=2,
-    replicates_enabled=False,
+def get_methods_detecting_at_index(
+    analyzed_series, index, detection_index_tolerance=1, voting_methods=None
 ):
     """
-    Apply voting logic to determine which alerts to create based on multiple detection methods.
-    Each voting strategy returns a list of (weighted_index, prev_index, methods_data) tuples and
-    a detection method naming string. Alert creation is handled here to ensure exactly one
-    alert is created per agreed-upon change point regardless of which voting strategy is used.
-    """
-    if voting_strategy == "equal":
-        detections, detection_method_naming = equal_voting_strategy(
-            analyzed_series=analyzed_series,
-            min_method_agreement=min_method_agreement,
-            detection_index_tolerance=detection_index_tolerance,
-            replicates_enabled=replicates_enabled,
-        )
-    elif voting_strategy == "priority":
-        detections, detection_method_naming = priority_voting_strategy(
-            analyzed_series=analyzed_series,
-            min_method_agreement=min_method_agreement,
-            detection_index_tolerance=detection_index_tolerance,
-            replicates_enabled=replicates_enabled,
-        )
-    else:
-        raise ValueError(f"Unknown voting strategy: {voting_strategy}")
-
-    for weighted_index, prev_index, methods_data in detections:
-        cur = analyzed_series[weighted_index]
-        prev = analyzed_series[prev_index]
-        create_alert(
-            signature,
-            analyzed_series,
-            prev,
-            cur,
-            weighted_index,
-            methods_data,
-            detection_method_naming,
-        )
-
-
-def get_methods_detecting_at_index(analyzed_series, index, detection_index_tolerance=1):
-    """
     Get detection data for all methods within detection tolerance margin of the given index.
+    Only methods present in voting_methods are considered. Defaults to all built-in CPD methods.
     """
-    all_methods = build_cpd_methods().keys()
+    if voting_methods is None:
+        voting_methods = build_cpd_methods().keys()
     methods_data = {}
 
-    # Check within the detection tolerance
     start_idx = max(0, index - detection_index_tolerance)
     end_idx = min(len(analyzed_series), index + detection_index_tolerance + 1)
 
     for i in range(start_idx, end_idx):
         datum = analyzed_series[i]
-        for method_name in all_methods:
+        for method_name in voting_methods:
             if datum.change_detected.get(method_name, False):
-                # Only record first detection for each method
                 if method_name not in methods_data:
                     confidence_value = datum.confidence.get(method_name, None)
-
-                    # Handle inf values
                     if confidence_value == float("inf"):
                         confidence_value = 1000
-
                     methods_data[method_name] = {
                         "push_id": datum.push_id,
                         "confidence": confidence_value,
                     }
     return methods_data
+
+
+def run_detection(
+    signature,
+    detection_method_name,
+    data,
+    replicates_enabled=REPLICATES,
+    voting_strategy=VOTING_STRATEGY,
+    min_method_agreement=MIN_METHOD_AGREEMENT,
+    detection_index_tolerance=DETECTION_INDEX_TOLERANCE,
+    voting_methods=None,
+):
+    """
+    Run change point detection across a stream of revision data.
+    Supports two combination modes: Voting mode (voting_strategy="equal" or "priority")
+    and Single-method mode (voting_strategy=None).
+    In both modes the function has no side effects and does not touch the
+    database, making it safe to call from the backfill bot or any other
+    consumer that needs detection results without triggering alert creation.
+    """
+    all_methods = build_cpd_methods()
+
+    if voting_strategy is None:
+        # Single-method mode: only run and read from the one named method.
+        if detection_method_name not in all_methods:
+            raise ValueError(
+                f"detection_method_name '{detection_method_name}' is not a known method. "
+                f"Available methods: {list(all_methods.keys())}"
+            )
+        methods = {detection_method_name: all_methods[detection_method_name]}
+    else:
+        # Voting mode: run all methods, then restrict the vote to voting_methods.
+        methods = all_methods
+        if voting_methods is None:
+            voting_methods = set(methods.keys())
+        else:
+            unknown = set(voting_methods) - set(methods.keys())
+            if unknown:
+                raise ValueError(
+                    f"voting_methods contains unknown method names: {unknown}. "
+                    f"Available methods: {list(methods.keys())}"
+                )
+            voting_methods = set(voting_methods)
+
+    analyzed_series = detect_methods_changes(
+        signature, data, methods, replicates_enabled=replicates_enabled
+    )
+
+    if voting_strategy is None:
+        # Single-method mode: it just collects the detections from the one method without any voting logic.
+        raw_detections = _collect_detections_single_method(analyzed_series, detection_method_name)
+    elif voting_strategy == "equal":
+        raw_detections = equal_voting_strategy(
+            analyzed_series=analyzed_series,
+            min_method_agreement=min_method_agreement,
+            detection_index_tolerance=detection_index_tolerance,
+            voting_methods=voting_methods,
+        )
+    elif voting_strategy == "priority":
+        raw_detections = priority_voting_strategy(
+            analyzed_series=analyzed_series,
+            min_method_agreement=min_method_agreement,
+            detection_index_tolerance=detection_index_tolerance,
+            voting_methods=voting_methods,
+            priority_method="student",
+        )
+    else:
+        raise ValueError(f"Unknown voting strategy: {voting_strategy}")
+
+    results = []
+    for weighted_index, prev_index, methods_data in raw_detections:
+        cur = analyzed_series[weighted_index]
+        prev = analyzed_series[prev_index]
+
+        prev_value = cur.historical_stats["avg"]
+        new_value = cur.forward_stats["avg"]
+        alert_properties = get_alert_properties(prev_value, new_value, signature.lower_is_better)
+
+        method_confidences = {}
+        for method_name in methods.keys():
+            confidence_value = cur.confidence.get(method_name, None)
+            if confidence_value == float("inf"):
+                confidence_value = 1000
+            if method_name in methods_data:
+                data_for_method = methods_data[method_name]
+                method_confidences[method_name] = {
+                    "push_id": data_for_method["push_id"],
+                    "confidence": confidence_value,
+                    "change_detected": True,
+                    "detection_push_confidence": data_for_method["confidence"],
+                }
+            else:
+                method_confidences[method_name] = {
+                    "push_id": cur.push_id,
+                    "confidence": confidence_value,
+                    "change_detected": False,
+                    "detection_push_confidence": confidence_value,
+                }
+
+        results.append(
+            ChangePointDetectionResult(
+                push_id=cur.push_id,
+                prev_push_id=prev.push_id,
+                push_timestamp=cur.push_timestamp,
+                prev_value=alert_properties.prev_value,
+                new_value=alert_properties.new_value,
+                amount_pct=alert_properties.pct_change,
+                amount_abs=alert_properties.delta,
+                is_regression=alert_properties.is_regression,
+                detection_method=detection_method_name,
+                alert_index=weighted_index,
+                method_confidences=method_confidences,
+            )
+        )
+
+    return results, analyzed_series
+
+
+def _collect_detections_single_method(analyzed_series, method_name):
+    """
+    Collect change points flagged directly by a single named method.
+
+    Returns detections in the same (weighted_index, prev_index, methods_data)
+    shape as the voting strategies so the result-building loop in run_detection
+    handles both paths uniformly.
+    """
+    detections = []
+    for i in range(1, len(analyzed_series)):
+        datum = analyzed_series[i]
+        if datum.change_detected.get(method_name, False):
+            confidence_value = datum.confidence.get(method_name, None)
+            if confidence_value == float("inf"):
+                confidence_value = 1000
+            methods_data = {
+                method_name: {
+                    "push_id": datum.push_id,
+                    "confidence": confidence_value,
+                }
+            }
+            detections.append((i, i - 1, methods_data))
+    return detections
+
+
+def create_alerts_from_results(results, analyzed_series, signature):
+    for result in results:
+        create_alert(
+            signature=signature,
+            analyzed_series=analyzed_series,
+            alert_index=result.alert_index,
+            detected_changes=result.method_confidences,
+            detection_method_naming=result.detection_method,
+        )
 
 
 def get_weighted_average_push(analyzed_series, methods, start_idx, end_idx):
@@ -445,19 +549,18 @@ def get_weighted_average_push(analyzed_series, methods, start_idx, end_idx):
 
 
 def priority_voting_strategy(
-    analyzed_series, min_method_agreement=3, detection_index_tolerance=1, replicates_enabled=False
+    analyzed_series,
+    min_method_agreement=3,
+    detection_index_tolerance=1,
+    voting_methods=None,
+    priority_method="student",
 ):
     """
     Priority voting strategy where student method has voting priority.
     Returns a list of (weighted_index, prev_index, methods_data) tuples and a naming string.
     """
     if not analyzed_series or len(analyzed_series) < 2:
-        return [], name_voting_strategy(
-            "priority", min_method_agreement, detection_index_tolerance, replicates_enabled
-        )
-    detection_method_naming = name_voting_strategy(
-        "priority", min_method_agreement, detection_index_tolerance, replicates_enabled
-    )
+        return []
 
     detections = []
     # Track which indices we've already added detections for (to avoid duplicates
@@ -475,10 +578,13 @@ def priority_voting_strategy(
 
         cur = analyzed_series[i]
 
-        if cur.change_detected.get("student", False):
+        if cur.change_detected.get(priority_method, False):
             prev_index = i - 1
             methods_data = get_methods_detecting_at_index(
-                analyzed_series, i, detection_index_tolerance=detection_index_tolerance
+                analyzed_series,
+                i,
+                detection_index_tolerance=detection_index_tolerance,
+                voting_methods=voting_methods,
             )
 
             detections.append((i, prev_index, methods_data))
@@ -487,16 +593,16 @@ def priority_voting_strategy(
     # Phase 2: Fall back to equal voting strategy for indices not caught by Student
     # Student won't influence the vote here since change_detected["student"]
     # is False for all remaining candidates
-    equal_detections, _ = equal_voting_strategy(
+    equal_detections = equal_voting_strategy(
         analyzed_series=analyzed_series,
         min_method_agreement=min_method_agreement,
         detection_index_tolerance=detection_index_tolerance,
         alerted_indices=alerted_indices,
-        replicates_enabled=replicates_enabled,
+        voting_methods=voting_methods,
     )
     detections.extend(equal_detections)
 
-    return detections, detection_method_naming
+    return detections
 
 
 def equal_voting_strategy(
@@ -504,22 +610,14 @@ def equal_voting_strategy(
     min_method_agreement=3,
     detection_index_tolerance=1,
     alerted_indices=None,
-    detection_method_naming=None,
-    replicates_enabled=False,
+    voting_methods=None,
 ):
     """
     Equal voting strategy where all methods have equal weight.
     Returns a list of (weighted_index, prev_index, methods_data) tuples and a naming string.
     """
-    detection_method_naming = name_voting_strategy(
-        "equal",
-        min_method_agreement,
-        detection_index_tolerance,
-        replicates_enabled,
-        detection_method_naming,
-    )
     if not analyzed_series or len(analyzed_series) < 2:
-        return [], detection_method_naming
+        return []
 
     alerted_indices = alerted_indices if alerted_indices is not None else set()
     detections = []
@@ -533,7 +631,7 @@ def equal_voting_strategy(
 
         # Check how many methods detected a change within the detection tolerance
         methods_detecting_data = get_methods_detecting_at_index(
-            analyzed_series, i, detection_index_tolerance
+            analyzed_series, i, detection_index_tolerance, voting_methods
         )
 
         # Check if enough methods agree
@@ -549,131 +647,126 @@ def equal_voting_strategy(
                 detections.append((weighted_index, prev_index, methods_detecting_data))
                 alerted_indices.add(weighted_index)
 
-    return detections, detection_method_naming
+    return detections
 
 
 def create_alert(
     signature,
     analyzed_series,
-    prev,
-    cur,
     alert_index,
     detected_changes,
     detection_method_naming,
 ):
-    telemetry_sig, _ = PerformanceTelemetrySignature.objects.get_or_create(
-        channel=PerformanceTelemetrySignature.NIGHTLY,
-        probe="test_probe",
-        probe_type=PerformanceTelemetrySignature.GLEAN,
-        platform=signature.platform,
-        application=signature.application,
-    )
-
-    all_methods = build_cpd_methods().keys()
-    confidences = {}
-
-    for method in all_methods:
-        confidence_value = cur.confidence.get(method, None)
-        if confidence_value == float("inf"):
-            confidence_value = 1000
-        if method in detected_changes:
-            data = detected_changes[method]
-            confidences[method] = {
-                "push_id": data["push_id"],
-                "confidence": confidence_value,
-                "change_detected": True,
-                "detection_push_confidence": data["confidence"],
-            }
-        else:
-            confidences[method] = {
-                "push_id": cur.push_id,
-                "confidence": confidence_value,
-                "change_detected": False,
-                "detection_push_confidence": confidence_value,
-            }
-
-    # Get Student's confidence for t_value field
-    student_confidence = confidences["student"]["confidence"] or None
-
-    prev_value = cur.historical_stats["avg"]
-    new_value = cur.forward_stats["avg"]
-
-    alert_properties = get_alert_properties(prev_value, new_value, signature.lower_is_better)
-
-    # Calculate noise profile
-    noise_profile = "N/A"
-    try:
-        noise_data = []
-        for idx, point in enumerate(analyzed_series):
-            if idx >= alert_index:
-                break
-            noise_data.append(geomean(point.values))
-
-        if noise_data:
-            noise_profile, _ = moz_measure_noise.deviance(noise_data)
-
-            if not isinstance(noise_profile, str):
-                raise Exception(
-                    f"Expecting a string as a noise profile, got: {type(noise_profile)}"
-                )
-    except Exception:
-        # Fail without breaking the alert computation
-        newrelic.agent.notice_error()
-        logger.error("Failed to obtain a noise profile.")
-
-    # Create or get alert summary using the weighted average push's IDs
-    summary, created_new = PerformanceAlertSummaryTesting.objects.get_or_create(
-        repository=signature.repository,
-        framework=signature.framework,
-        push_id=cur.push_id,
-        prev_push_id=prev.push_id,
-        defaults={
-            "manually_created": False,
-            "created": datetime.utcfromtimestamp(cur.push_timestamp),
-            "sheriffed": not signature.monitor,
-        },
-    )
-
-    if created_new:
-        # Set custom timestamp after creation
-        PerformanceAlertSummaryTesting.objects.filter(pk=summary.pk).update(
-            created=datetime.utcfromtimestamp(cur.push_timestamp)
+    with transaction.atomic():
+        telemetry_sig, _ = PerformanceTelemetrySignature.objects.get_or_create(
+            channel=PerformanceTelemetrySignature.NIGHTLY,
+            probe="test_probe",
+            probe_type=PerformanceTelemetrySignature.GLEAN,
+            platform=signature.platform,
+            application=signature.application,
         )
-        summary.refresh_from_db()
 
-    # Create or update the alert
-    alert, _ = PerformanceAlertTesting.objects.update_or_create(
-        summary=summary,
-        series_signature=signature,
-        telemetry_series_signature=telemetry_sig,
-        defaults={
-            "noise_profile": noise_profile,
-            "is_regression": alert_properties.is_regression,
-            "amount_pct": alert_properties.pct_change,
-            "amount_abs": alert_properties.delta,
-            "prev_value": prev_value,
-            "new_value": new_value,
-            "t_value": student_confidence,  # Student's confidence for backwards compatibility
-            "detection_method": detection_method_naming,
-            "confidences": confidences,
-            "sheriffed": not signature.monitor,
-            "prev_median": 0,
-            "new_median": 0,
-            "prev_p05": 0,
-            "new_p05": 0,
-            "prev_p95": 0,
-            "new_p95": 0,
-        },
-    )
+        cur = analyzed_series[alert_index]
+        prev = analyzed_series[alert_index - 1]
+        all_methods = build_cpd_methods().keys()
+        confidences = {}
+
+        for method in all_methods:
+            confidence_value = cur.confidence.get(method, None)
+            if confidence_value == float("inf"):
+                confidence_value = 1000
+            if method in detected_changes:
+                data = detected_changes[method]
+                confidences[method] = {
+                    "push_id": data["push_id"],
+                    "confidence": confidence_value,
+                    "change_detected": True,
+                    "detection_push_confidence": data["confidence"],
+                }
+            else:
+                confidences[method] = {
+                    "push_id": cur.push_id,
+                    "confidence": confidence_value,
+                    "change_detected": False,
+                    "detection_push_confidence": confidence_value,
+                }
+
+        # Get Student's confidence for t_value field
+        student_confidence = confidences["student"]["confidence"] or None
+
+        prev_value = cur.historical_stats["avg"]
+        new_value = cur.forward_stats["avg"]
+
+        alert_properties = get_alert_properties(prev_value, new_value, signature.lower_is_better)
+
+        # Calculate noise profile
+        noise_profile = "N/A"
+        try:
+            noise_data = []
+            for idx, point in enumerate(analyzed_series):
+                if idx >= alert_index:
+                    break
+                noise_data.append(geomean(point.values))
+
+            if noise_data:
+                noise_profile, _ = moz_measure_noise.deviance(noise_data)
+
+                if not isinstance(noise_profile, str):
+                    raise Exception(
+                        f"Expecting a string as a noise profile, got: {type(noise_profile)}"
+                    )
+        except Exception:
+            # Fail without breaking the alert computation
+            newrelic.agent.notice_error()
+            logger.error("Failed to obtain a noise profile.")
+
+        # Create or get alert summary using the weighted average push's IDs
+        summary, created_new = PerformanceAlertSummaryTesting.objects.get_or_create(
+            repository=signature.repository,
+            framework=signature.framework,
+            push_id=cur.push_id,
+            prev_push_id=prev.push_id,
+            defaults={
+                "manually_created": False,
+                "created": datetime.utcfromtimestamp(cur.push_timestamp),
+                "sheriffed": not signature.monitor,
+            },
+        )
+
+        if created_new:
+            # Set custom timestamp after creation
+            PerformanceAlertSummaryTesting.objects.filter(pk=summary.pk).update(
+                created=datetime.utcfromtimestamp(cur.push_timestamp)
+            )
+            summary.refresh_from_db()
+
+        # Create or update the alert
+        alert, _ = PerformanceAlertTesting.objects.update_or_create(
+            summary=summary,
+            series_signature=signature,
+            telemetry_series_signature=telemetry_sig,
+            detection_method=detection_method_naming,
+            defaults={
+                "noise_profile": noise_profile,
+                "is_regression": alert_properties.is_regression,
+                "amount_pct": alert_properties.pct_change,
+                "amount_abs": alert_properties.delta,
+                "prev_value": prev_value,
+                "new_value": new_value,
+                "t_value": student_confidence,  # Student's confidence for backwards compatibility
+                "confidences": confidences,
+                "sheriffed": not signature.monitor,
+                "prev_median": 0,
+                "new_median": 0,
+                "prev_p05": 0,
+                "new_p05": 0,
+                "prev_p95": 0,
+                "new_p95": 0,
+            },
+        )
 
 
-def generate_new_test_alerts_in_series(
-    signature,
-    voting_strategy=VOTING_STRATEGY,
-    min_method_agreement=MIN_METHOD_AGREEMENT,
-    detection_index_tolerance=DETECTION_INDEX_TOLERANCE,
-    replicates_enabled=REPLICATES,
-):
+def build_revision_data(signature, detection_method_name=None):
     # get series data starting from either:
     # (1) the last alert, if there is one
     # (2) the alerts max age
@@ -684,7 +777,9 @@ def generate_new_test_alerts_in_series(
             signature=signature, push_timestamp__gte=max_alert_age
         )
         latest_alert_timestamp = (
-            PerformanceAlertTesting.objects.filter(series_signature=signature)
+            PerformanceAlertTesting.objects.filter(
+                series_signature=signature, detection_method=detection_method_name
+            )
             .select_related("summary__push__time")
             .order_by("-summary__push__time")
             .values_list("summary__push__time", flat=True)[:1]
@@ -725,19 +820,34 @@ def generate_new_test_alerts_in_series(
             revision_data[d.push_id].replicates.extend(replicates_map.get(d.id, []))
 
         data = list(revision_data.values())
-        methods = build_cpd_methods()
-        analyzed_series = detect_methods_changes(
-            signature, data, methods, replicates_enabled=replicates_enabled
-        )
+        return data
 
-        # Apply voting with configurable parameters
-        # min_method_agreement: consensus threshold (absolute number: 3 means 3 methods must agree out of 6 total)
-        # detection_index_tolerance: tolerance for matching detections (±2 indices)
-        vote(
-            signature,
-            analyzed_series,
-            voting_strategy=voting_strategy,
-            min_method_agreement=min_method_agreement,
-            detection_index_tolerance=detection_index_tolerance,
-            replicates_enabled=replicates_enabled,
-        )
+
+def generate_new_test_alerts_in_series(
+    signature,
+    voting_strategy=VOTING_STRATEGY,
+    min_method_agreement=MIN_METHOD_AGREEMENT,
+    detection_index_tolerance=DETECTION_INDEX_TOLERANCE,
+    replicates_enabled=REPLICATES,
+):
+    detection_method_name = name_voting_strategy(
+        voting_strategy,
+        min_method_agreement,
+        detection_index_tolerance,
+        replicates_enabled,
+    )
+    voting_methods = ["student", "cvm", "ks", "welch", "mwu"]
+
+    data = build_revision_data(signature, detection_method_name)
+    results, analyzed_series = run_detection(
+        signature=signature,
+        detection_method_name=detection_method_name,
+        data=data,
+        replicates_enabled=replicates_enabled,
+        voting_strategy=voting_strategy,
+        min_method_agreement=min_method_agreement,
+        detection_index_tolerance=detection_index_tolerance,
+        voting_methods=voting_methods,
+    )
+
+    create_alerts_from_results(results, analyzed_series, signature)

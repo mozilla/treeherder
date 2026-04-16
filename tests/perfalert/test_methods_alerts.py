@@ -5,13 +5,15 @@ import time
 from treeherder.model.models import Push
 from treeherder.perf.alerts import (
     build_cpd_methods,
+    build_revision_data,
     create_alert,
+    create_alerts_from_results,
     detect_methods_changes,
     generate_new_test_alerts_in_series,
     get_methods_detecting_at_index,
     get_weighted_average_push,
     name_voting_strategy,
-    vote,
+    run_detection,
 )
 from treeherder.perf.models import (
     PerformanceAlertSummaryTesting,
@@ -577,17 +579,38 @@ def test_detection_tolerance_deduplication_guard_suppresses_nearby_duplicate_ale
     )
 
     _alerts_mod = sys.modules["treeherder.perf.alerts"]
-    original = create_alert
+    original_create_alert = create_alert
     call_counts = {"with_guard": 0, "without_guard": 0}
 
-    def vote_without_guard(
-        signature, analyzed_series, min_method_agreement=3, detection_index_tolerance=2
-    ):
-        """Guard-free version: collects detections without deduplication, then calls create_alert."""
+    detection_method_name = name_voting_strategy(
+        "equal", min_method_agreement, detection_index_tolerance, False
+    )
+
+    def make_counter(key):
+        return lambda *a, **kw: call_counts.__setitem__(
+            key, call_counts[key] + 1
+        ) or original_create_alert(*a, **kw)
+
+    # --- With guard: use run_detection which calls equal_voting_strategy with deduplication ---
+    monkeypatch.setattr(_alerts_mod, "create_alert", make_counter("with_guard"))
+    data = build_revision_data(test_perf_signature, detection_method_name)
+    results, _ = run_detection(
+        signature=test_perf_signature,
+        detection_method_name=detection_method_name,
+        data=data,
+        voting_strategy="equal",
+        min_method_agreement=min_method_agreement,
+        detection_index_tolerance=detection_index_tolerance,
+        voting_methods=["student", "cvm", "ks", "welch", "mwu"],
+    )
+    create_alerts_from_results(results, analyzed_series, test_perf_signature)
+
+    PerformanceAlertTesting.objects.all().delete()
+    PerformanceAlertSummaryTesting.objects.all().delete()
+
+    # --- Without guard: bypass equal_voting_strategy's deduplication entirely ---
+    def vote_without_guard():
         detections = []
-        detection_method_naming = name_voting_strategy(
-            "equal", min_method_agreement, detection_index_tolerance, False, None
-        )
         for i in range(1, len(analyzed_series)):
             methods_detecting_data = get_methods_detecting_at_index(
                 analyzed_series, i, detection_index_tolerance
@@ -600,44 +623,78 @@ def test_detection_tolerance_deduplication_guard_suppresses_nearby_duplicate_ale
                 )
                 if weighted_index is not None:
                     detections.append((weighted_index, prev_index, methods_detecting_data))
-        for weighted_index, prev_index, methods_data in detections:
-            _alerts_mod.create_alert(
-                signature,
-                analyzed_series,
-                analyzed_series[prev_index],
-                analyzed_series[weighted_index],
-                weighted_index,
-                methods_data,
-                detection_method_naming,
-            )
-
-    def make_counter(key):
-        return lambda *a, **kw: call_counts.__setitem__(key, call_counts[key] + 1) or original(
-            *a, **kw
-        )
-
-    monkeypatch.setattr(_alerts_mod, "create_alert", make_counter("with_guard"))
-    vote(
-        test_perf_signature,
-        analyzed_series,
-        voting_strategy="equal",
-        min_method_agreement=min_method_agreement,
-        detection_index_tolerance=detection_index_tolerance,
-    )
-
-    PerformanceAlertTesting.objects.all().delete()
-    PerformanceAlertSummaryTesting.objects.all().delete()
+        return detections
 
     monkeypatch.setattr(_alerts_mod, "create_alert", make_counter("without_guard"))
-    vote_without_guard(
-        test_perf_signature,
-        analyzed_series,
-        min_method_agreement=min_method_agreement,
-        detection_index_tolerance=detection_index_tolerance,
-    )
+    for weighted_index, prev_index, methods_data in vote_without_guard():
+        _alerts_mod.create_alert(
+            test_perf_signature,
+            analyzed_series,
+            weighted_index,
+            methods_data,
+            detection_method_name,
+        )
 
     assert call_counts["without_guard"] > call_counts["with_guard"], (
         f"Deduplication guard missing in equal_voting_strategy: "
         f"expected fewer create_alert calls with guard ({call_counts['with_guard']}) "
         f"than without ({call_counts['without_guard']})."
     )
+
+
+def test_run_detection_single_method_returns_only_mwu_detections(
+    test_repository,
+    test_issue_tracker,
+    failure_classifications,
+    generic_reference_data,
+    test_perf_signature,
+    mock_deviance,
+):
+    """
+    When voting_strategy=None and detection_method_name="mwu", run_detection
+    should bypass the voting system entirely and return change points flagged
+    directly by the mwu detector alone.
+    Verified by comparing the result against the mwu change_detected flags on
+    the analyzed_series — every detected push_id in the results must correspond
+    to a point where mwu flagged a change, and no voting-only detections should
+    appear.
+    """
+    base_time = time.time()
+    interval = 30
+
+    _generate_performance_data(
+        test_repository, test_perf_signature, base_time, 1, 0.5, int(interval / 2)
+    )
+    _generate_performance_data(
+        test_repository,
+        test_perf_signature,
+        base_time,
+        int(interval / 2) + 1,
+        1.0,
+        int(interval / 2),
+    )
+
+    data = build_revision_data(test_perf_signature, "mwu")
+    results, analyzed_series = run_detection(
+        signature=test_perf_signature,
+        detection_method_name="mwu",
+        data=data,
+        voting_strategy=None,
+    )
+
+    assert len(results) >= 1, "Expected mwu to detect the step change"
+
+    mwu_detected_push_ids = {
+        datum.push_id for datum in analyzed_series if datum.change_detected.get("mwu", False)
+    }
+    for result in results:
+        assert result.push_id in mwu_detected_push_ids, (
+            f"push_id {result.push_id} in results was not flagged by mwu. "
+            f"mwu detections: {mwu_detected_push_ids}"
+        )
+
+    for result in results:
+        assert set(result.method_confidences.keys()) == {"mwu"}, (
+            f"Expected only 'mwu' in method_confidences, "
+            f"got {set(result.method_confidences.keys())}"
+        )
