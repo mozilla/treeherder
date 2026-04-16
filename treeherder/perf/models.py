@@ -832,8 +832,7 @@ class PerformanceAlertTesting(PerformanceAlertBase):
     class Meta:
         db_table = "performance_alert_testing"
         unique_together = (
-            ("summary", "series_signature"),
-            ("summary", "telemetry_series_signature"),
+            ("summary", "series_signature", "telemetry_series_signature", "detection_method"),
         )
 
 
@@ -888,6 +887,62 @@ class RevisionDatumTest:
         values_str = f"[ {values_csv} ]"
         confidences_str = ", ".join(f"{confidence:.3f}" for confidence in self.confidence.values())
         return f"<{self.push_timestamp}: {self.push_id}, {values_str}, {confidences_str}>"
+
+
+@functools.total_ordering
+class ChangePointDetectionResult:
+    def __init__(
+        self,
+        push_id: int,
+        prev_push_id: int,
+        push_timestamp: int,
+        prev_value: float,
+        new_value: float,
+        amount_pct: float,
+        amount_abs: float,
+        is_regression: bool,
+        detection_method: str,
+        alert_index: int,
+        method_confidences: dict = None,
+    ):
+        self.push_id = push_id
+        self.prev_push_id = prev_push_id
+        self.push_timestamp = push_timestamp
+        self.prev_value = prev_value
+        self.new_value = new_value
+        self.amount_pct = amount_pct
+        self.amount_abs = amount_abs
+        self.is_regression = is_regression
+        self.detection_method = detection_method
+        self.alert_index = alert_index
+        self.method_confidences = method_confidences or {}
+
+    def __eq__(self, other):
+        if not isinstance(other, ChangePointDetectionResult):
+            return NotImplemented
+        return self.push_id == other.push_id
+
+    def __lt__(self, other):
+        if not isinstance(other, ChangePointDetectionResult):
+            return NotImplemented
+        return self.push_id < other.push_id
+
+    def __repr__(self):
+        return (
+            "ChangePointDetectionResult("
+            f"push_id={self.push_id}, "
+            f"prev_push_id={self.prev_push_id}, "
+            f"timestamp={self.push_timestamp}, "
+            f"prev_value={self.prev_value:.4f}, "
+            f"new_value={self.new_value:.4f}, "
+            f"amount_pct={self.amount_pct:.2f}%, "
+            f"amount_abs={self.amount_abs:.4f}, "
+            f"is_regression={self.is_regression}, "
+            f"method='{self.detection_method}', "
+            f"alert_index={self.alert_index}, "
+            f"methods={len(self.method_confidences)}"
+            ")"
+        )
 
 
 class PerformanceTag(models.Model):
