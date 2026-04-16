@@ -770,6 +770,15 @@ class PerformanceTelemetryAlert(PerformanceAlertBase):
     # modifications
     bug_modified = models.BooleanField(default=True)
 
+    additional_data = models.JSONField(
+        help_text=(
+            "This field can be used to store additional data in JSON format that doesn't fit in "
+            "any of the other fields. Custom CDP techniques can use this field to store extra "
+            "non-standard data."
+        ),
+        default=dict,
+    )
+
     class Meta:
         db_table = "performance_telemetry_alert"
         unique_together = ("summary", "series_signature")

@@ -428,6 +428,7 @@ class Sherlock:
                     "new_p05": detection.optional_detection_info["Interpolated p05"][1],
                     "prev_p95": detection.optional_detection_info["Interpolated p95"][0],
                     "new_p95": detection.optional_detection_info["Interpolated p95"][1],
+                    "additional_data": detection.optional_detection_info.get("additional_data", {}),
                 },
             )
 
