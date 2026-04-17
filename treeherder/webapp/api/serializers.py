@@ -272,9 +272,15 @@ class PushSerializer(serializers.ModelSerializer):
     def get_push_timestamp(self, push):
         return to_timestamp(push.time)
 
+    def get_is_git_revision(self, push):
+        return models.RevisionMapping.objects.filter(
+            repository=push.repository, git_revision=push.revision
+        ).exists()
+
     revisions = serializers.SerializerMethodField()
     revision_count = serializers.SerializerMethodField()
     push_timestamp = serializers.SerializerMethodField()
+    is_git_revision = serializers.SerializerMethodField()
     repository_id = serializers.PrimaryKeyRelatedField(source="repository", read_only=True)
 
     class Meta:
@@ -287,6 +293,7 @@ class PushSerializer(serializers.ModelSerializer):
             "revision_count",
             "push_timestamp",
             "repository_id",
+            "is_git_revision",
         ]
 
 

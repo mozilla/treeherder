@@ -350,7 +350,50 @@ def ingest_push(project, revision, fetch_push_id=None):
         pulse = github_push_to_pulse(_repo, revision)
         PushLoader().process(pulse["payload"], pulse["exchange"], _repo["tc_root_url"])
     else:
+        # For hg repos with a git_url configured, try git-first ingestion
+        repo_obj = Repository.objects.get(name=project)
+        if repo_obj.git_url:
+            try:
+                _ingest_git_first(repo_obj, revision)
+                return
+            except Exception:
+                logger.warning(
+                    "Git-first ingest failed for %s, falling back to hg",
+                    project,
+                    exc_info=True,
+                )
         _ingest_hg_push(project, revision)
+
+
+def _ingest_git_first(repo_obj, revision):
+    """Attempt to ingest a push from the Git source for a transitioning repo.
+
+    The revision can be either a git SHA or an hg revision. We first check
+    if it exists directly in the git repo; if not, we try hg-to-git mapping.
+    """
+    from treeherder.etl.git_pushlog import fetch_git_push
+    from treeherder.etl.push import store_push_data
+    from treeherder.etl.revision_mapper import RevisionMapper
+
+    mapper = RevisionMapper(repo_obj)
+
+    # First, check if the revision is already a valid git SHA
+    if mapper.verify_revision_in_git(revision):
+        git_revision = revision
+    else:
+        # Try hg-to-git mapping
+        git_revision = mapper.map_hg_to_git(revision)
+        if not git_revision:
+            raise ValueError(f"No git mapping found for hg revision {revision} in {repo_obj.name}")
+
+    push_data = fetch_git_push(repo_obj.git_url, git_revision)
+    store_push_data(repo_obj, [push_data])
+    logger.info(
+        "Ingested push via Git for %s: revision %s (git %s)",
+        repo_obj.name,
+        revision,
+        git_revision,
+    )
 
 
 def ingest_git_pushes(project, dry_run=False):
@@ -417,7 +460,9 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "ingestion_type", nargs=1, help="Type of ingestion to do: [task|hg-push|git-commit|pr]"
+            "ingestion_type",
+            nargs=1,
+            help="Type of ingestion to do: [task|hg-push|git-commit|pr]",
         )
         parser.add_argument("-p", "--project", help="Hg repository to query (e.g. autoland)")
         parser.add_argument("-c", "--commit", "-r", "--revision", help="Commit/revision to import")
@@ -451,7 +496,9 @@ class Command(BaseCommand):
             help="Do not make changes to the database",
         )
         parser.add_argument(
-            "--last-n-pushes", type=int, help="fetch the last N pushes from the repository"
+            "--last-n-pushes",
+            type=int,
+            help="fetch the last N pushes from the repository",
         )
 
     def handle(self, *args, **options):

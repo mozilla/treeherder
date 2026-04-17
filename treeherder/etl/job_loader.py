@@ -11,7 +11,7 @@ from treeherder.etl.exceptions import MissingPushError
 from treeherder.etl.jobs import store_job_data
 from treeherder.etl.schema import get_json_schema
 from treeherder.etl.taskcluster_pulse.handler import ignore_task
-from treeherder.model.models import Push, Repository
+from treeherder.model.models import Push, Repository, RevisionMapping
 from treeherder.utils.taskcluster import get_task_definition
 
 logger = logging.getLogger(__name__)
@@ -109,6 +109,22 @@ class JobLoader:
             )
 
         if not Push.objects.filter(**filter_kwargs).exists():
+            # For repos transitioning from hg to git, the push may be stored
+            # under a git revision while the task references an hg revision.
+            # Check the revision mapping to find the corresponding git push.
+            mapping = RevisionMapping.objects.filter(
+                repository=repository, hg_revision=revision
+            ).first()
+            if (
+                mapping
+                and Push.objects.filter(
+                    repository=repository, revision=mapping.git_revision
+                ).exists()
+            ):
+                # Rewrite the origin revision so downstream code uses the git SHA
+                pulse_job["origin"]["revision"] = mapping.git_revision
+                return
+
             (real_task_id, _) = task_and_retry_ids(pulse_job["taskId"])
             project = pulse_job["origin"]["project"]
             repository = Repository.objects.get(name=project)

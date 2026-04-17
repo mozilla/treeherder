@@ -39,16 +39,60 @@ class PushLoader:
             )
             newrelic.agent.record_custom_event("skip_unknown_repository", repo_info)
             logger.warning(
-                "Skipping unsupported repo: %s %s", transformer.repo_url, transformer.branch
+                "Skipping unsupported repo: %s %s",
+                transformer.repo_url,
+                transformer.branch,
             )
             return
 
         transformed_data = transformer.transform(repo.name)
 
+        # Git-first: for transitioning hg repos with a git_url configured,
+        # attempt to fetch/map the push data from Git before storing.
+        if repo.git_url and repo.dvcs_type == "hg":
+            transformed_data = self._try_git_first(repo, transformed_data)
+
         logger.info(
             f"Storing push for repository '{repo.name}' revision '{transformed_data['revision']}' branch '{transformer.branch}' url {transformer.repo_url}",
         )
         store_push_data(repo, [transformed_data])
+
+    def _try_git_first(self, repo, hg_push_data):
+        """Try to fetch equivalent push data from Git, mapping hg revisions to git.
+
+        If the mapping succeeds, returns git-sourced push data.
+        If it fails for any reason, returns the original hg push data as fallback.
+        """
+        try:
+            from treeherder.etl.git_pushlog import fetch_git_push
+            from treeherder.etl.revision_mapper import RevisionMapper
+
+            mapper = RevisionMapper(repo)
+            git_revision = mapper.map_hg_to_git(hg_push_data["revision"])
+
+            if git_revision:
+                git_push_data = fetch_git_push(repo.git_url, git_revision)
+                logger.info(
+                    "Used Git source for push %s->%s in %s",
+                    hg_push_data["revision"],
+                    git_revision,
+                    repo.name,
+                )
+                return git_push_data
+            else:
+                logger.info(
+                    "No git mapping found for %s in %s, using hg data",
+                    hg_push_data["revision"],
+                    repo.name,
+                )
+        except Exception:
+            logger.warning(
+                "Git fetch failed for %s in %s, using Hg fallback",
+                hg_push_data["revision"],
+                repo.name,
+                exc_info=True,
+            )
+        return hg_push_data
 
     def get_transformer_class(self, exchange):
         if "github" in exchange:
@@ -100,7 +144,8 @@ class GithubTransformer:
                 {
                     "comment": commit["commit"]["message"],
                     "author": "{} <{}>".format(
-                        commit["commit"]["author"]["name"], commit["commit"]["author"]["email"]
+                        commit["commit"]["author"]["name"],
+                        commit["commit"]["author"]["email"],
                     ),
                     "revision": commit["sha"],
                 }

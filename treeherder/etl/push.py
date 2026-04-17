@@ -25,7 +25,10 @@ def store_push(repository, push_dict):
             Commit.objects.update_or_create(
                 push=push,
                 revision=revision["revision"],
-                defaults={"author": revision["author"], "comments": revision["comment"]},
+                defaults={
+                    "author": revision["author"],
+                    "comments": revision["comment"],
+                },
             )
 
 

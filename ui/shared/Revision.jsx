@@ -70,6 +70,7 @@ export class Revision extends React.PureComponent {
       bugSummaryMap,
       commitShaClass = 'commit-sha',
       commentFont = '',
+      isGitRevision = false,
     } = this.props;
     const comment = comments.split('\n')[0];
     const bugMatches = comment.match(/-- ([0-9]+)|bug.([0-9]+)/gi);
@@ -93,8 +94,8 @@ export class Revision extends React.PureComponent {
             visible={clipboardVisible}
           />
           <a
-            title={`Open revision ${commitRevision} on ${repo.url}`}
-            href={repo.getRevisionHref(commitRevision)}
+            title={`Open revision ${commitRevision} on ${repo.getRevisionBaseUrl(isGitRevision)}`}
+            href={repo.getRevisionHref(commitRevision, isGitRevision)}
             className={commitShaClass}
           >
             {commitRevision.substring(0, 12)}

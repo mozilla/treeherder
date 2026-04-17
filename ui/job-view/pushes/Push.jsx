@@ -677,6 +677,7 @@ function Push({
                   bugSummaryMap={bugSummaryMap}
                   widthClass="mb-3 ms-4"
                   commitShaClass="font-monospace"
+                  isGitRevision={push.is_git_revision}
                 >
                   {filteredTryPush && <PushCountsDetails {...jobCounts} />}
                 </RevisionList>
@@ -720,6 +721,7 @@ function Push({
                 repo={currentRepo}
                 key={tipRevision.revision}
                 commitShaClass="font-monospace"
+                isGitRevision={push.is_git_revision}
               />
             </ul>
           </Col>
