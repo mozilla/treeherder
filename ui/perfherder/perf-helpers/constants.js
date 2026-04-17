@@ -182,11 +182,6 @@ export const alertBackfillResultVisual = {
   },
 };
 
-export const scrollTypes = {
-  prev: 'prev',
-  next: 'next',
-};
-
 export const permaLinkPrefix = 'tableLink';
 
 export const maximumVisibleAlertSummaryRows = 26;
