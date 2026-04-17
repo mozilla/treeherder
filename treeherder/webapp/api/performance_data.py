@@ -355,7 +355,7 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
             datums = datums.filter(push_timestamp__lt=end_date)
 
         ret, seen_push_ids = defaultdict(list), defaultdict(set)
-        values_list = datums.order_by("id").values_list(
+        values_list = datums.values_list(
             "id",
             "signature_id",
             "signature__signature_hash",
