@@ -65,7 +65,7 @@ class TelemetryProbe:
         return self._time_unit
 
     def get_change_detection_technique(self):
-        return self.monitor_info.get("change-detection-technique", DEFAULT_CHANGE_DETECTION)
+        return self.monitor_info.get("change_detection_technique", DEFAULT_CHANGE_DETECTION)
 
     def should_file_bug(self):
         # Only file bugs when alert is set to True
