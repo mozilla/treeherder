@@ -223,6 +223,7 @@ export default class GraphsViewControls extends React.Component {
                   <Button
                     className="ms-3"
                     variant="outline-darker-info"
+                    title="Shows the raw data points that produced each of the individual summarized data points"
                     onClick={() =>
                       updateStateParams({
                         replicates: !replicates,
