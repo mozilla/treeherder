@@ -446,6 +446,19 @@ class TestTelemetryAlertManager:
         # Should not be called because alert is already notified
         telemetry_alert_manager.email_manager.email_alert.assert_not_called()
 
+    def test_redo_email_alerts_marks_notified_when_probe_no_longer_alerting(
+        self, create_telemetry_signature, create_telemetry_alert, telemetry_alert_manager
+    ):
+        """Test _redo_email_alerts marks alert notified when its probe is no longer in probes."""
+        signature = create_telemetry_signature(probe="removed_probe")
+        alert_row = create_telemetry_alert(signature, notified=False)
+
+        telemetry_alert_manager._redo_email_alerts()
+
+        alert_row.refresh_from_db()
+        assert alert_row.notified is True
+        telemetry_alert_manager.email_manager.email_alert.assert_not_called()
+
     def test_redo_bug_modifications(
         self, telemetry_alert_manager, test_telemetry_alert_summary, caplog
     ):
@@ -482,6 +495,34 @@ class TestTelemetryAlertManager:
 
         assert "House keeping: retrying bug modifications" in caplog.text
         # This test ensures line 244 is covered (alert construction in loop)
+
+    def test_redo_bug_modifications_marks_modified_when_probe_no_longer_alerting(
+        self,
+        create_telemetry_signature,
+        create_telemetry_alert,
+        test_telemetry_alert_summary,
+        telemetry_alert_manager,
+    ):
+        """Test _redo_bug_modifications marks summary/alert modified when probe is no longer alerting."""
+        test_telemetry_alert_summary.bugs_modified = False
+        test_telemetry_alert_summary.save()
+
+        signature = create_telemetry_signature(probe="removed_probe")
+        alert_row = create_telemetry_alert(signature, bug_number=123456, bug_modified=False)
+
+        with patch(
+            "treeherder.perf.auto_perf_sheriffing.telemetry_alerting.alert_manager."
+            "TelemetryAlertManager.modify_alert_bugs"
+        ) as mock_modify:
+            telemetry_alert_manager._redo_bug_modifications()
+
+        alert_row.refresh_from_db()
+        test_telemetry_alert_summary.refresh_from_db()
+        assert alert_row.bug_modified is True
+        assert test_telemetry_alert_summary.bugs_modified is True
+        # Alert with unknown probe must not be passed to modify_alert_bugs
+        alerts_passed = mock_modify.call_args[0][0]
+        assert alert_row.id not in [a.telemetry_alert.id for a in alerts_passed]
 
     def test_house_keeping_calls_all_methods(
         self, telemetry_alert_manager, alert_without_bug, caplog
@@ -621,6 +662,7 @@ class TestTelemetryAlertManager:
         mock_probe.should_file_bug.return_value = False
         mock_probe.should_email.return_value = True
         alert_without_bug.telemetry_signature.probe = "test_probe"
+        alert_without_bug.telemetry_signature.save()
 
         # Make email_alert fail
         telemetry_alert_manager.email_manager.email_alert.side_effect = Exception("Email error")

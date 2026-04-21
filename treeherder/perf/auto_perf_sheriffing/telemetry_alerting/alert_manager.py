@@ -228,6 +228,13 @@ class TelemetryAlertManager(AlertManager):
 
         for alert_row in alerts_no_emails:
             alert_no_email = TelemetryAlertFactory.construct_alert(alert_row)
+
+            if not self.probes.get(alert_no_email.telemetry_signature.probe):
+                # Probe is no longer alerting, skip it
+                alert_no_email.telemetry_alert.notified = True
+                alert_no_email.telemetry_alert.save()
+                continue
+
             self._email_alert(alert_no_email)
 
     def _redo_bug_modifications(self):
@@ -243,7 +250,17 @@ class TelemetryAlertManager(AlertManager):
 
         alerts = []
         for alert_row in alerts_not_modified:
-            alerts.append(TelemetryAlertFactory.construct_alert(alert_row))
+            alert_not_modified = TelemetryAlertFactory.construct_alert(alert_row)
+
+            if not self.probes.get(alert_not_modified.telemetry_signature.probe):
+                # Probe no longer alerting, skip it
+                alert_not_modified.telemetry_alert_summary.bugs_modified = True
+                alert_not_modified.telemetry_alert.bug_modified = True
+                alert_not_modified.telemetry_alert_summary.save()
+                alert_not_modified.telemetry_alert.save()
+                continue
+
+            alerts.append(alert_not_modified)
 
         self.modify_alert_bugs(alerts, [], [])
 
