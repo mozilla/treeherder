@@ -107,7 +107,7 @@ jobs:
       - checkout
       - run:
           name: Install pnpm
-          command: sudo corepack enable && corepack prepare pnpm@9.15.0 --activate
+          command: sudo corepack enable && corepack prepare pnpm@10.30.3 --activate
       - run:
           name: Install dependencies
           command: pnpm install --frozen-lockfile
