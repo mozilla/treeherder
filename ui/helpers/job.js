@@ -341,58 +341,71 @@ export const getTaskRun = function getTaskRun(taskRunStr) {
   return { taskId: match[1], runId: match[2] };
 };
 
-export const getJobCount = (jobs) => {
-  return jobs.reduce(
-    (memo, job) => {
-      if (job.result === 'superseded') return memo;
+export const defaultJobCount = {
+  build_completed: 0,
+  build_failed: 0,
+  build_pending: 0,
+  build_running: 0,
+  completed: 0,
+  fixedByCommit: 0,
+  intermittentBuild: 0,
+  intermittentLint: 0,
+  intermittentTests: 0,
+  lint_completed: 0,
+  lint_failed: 0,
+  lint_pending: 0,
+  lint_running: 0,
+  pending: 0,
+  running: 0,
+  test_failed: 0,
+  total: 0,
+};
 
-      const state = {
-        ...memo,
-        [job.state]: memo[job.state] + 1,
-      };
-      if (job.result === 'testfailed') {
-        if (job.platform === 'lint') {
-          state['lint_failed'] = (memo['lint_failed'] || 0) + 1;
-          if (
-            job.failure_classification_id === 4 ||
-            job.failure_classification_id === 8
-          ) {
-            state['intermittentLint'] = (memo['intermittentLint'] || 0) + 1;
+export const getJobCount = (jobs) => {
+  return jobs.reduce((memo, job) => {
+    if (job.result === 'superseded') return memo;
+
+    const state = {
+      ...memo,
+      [job.state]: memo[job.state] + 1,
+      total: memo.total + 1,
+      ...(job.platform === 'lint' || job.job_type_name.includes('build')
+        ? {
+            [`${job.platform === 'lint' ? 'lint' : 'build'}_${job.state}`]:
+              memo[job.state] + 1,
           }
-        } else if (job.job_type_name.includes('build')) {
-          state['build_failed'] = (memo['build_failed'] || 0) + 1;
-          if (
-            job.failure_classification_id === 4 ||
-            job.failure_classification_id === 8
-          ) {
-            state['intermittentBuild'] = (memo['intermittentBuild'] || 0) + 1;
-          }
-        } else {
-          state['test_failed'] = (memo['test_failed'] || 0) + 1;
-          if (
-            job.failure_classification_id === 4 ||
-            job.failure_classification_id === 8
-          ) {
-            state['intermittentTests'] = (memo['intermittentTests'] || 0) + 1;
-          }
+        : {}),
+    };
+    if (job.result === 'testfailed') {
+      if (job.platform === 'lint') {
+        state['lint_failed'] = (memo['lint_failed'] || 0) + 1;
+        if (
+          job.failure_classification_id === 4 ||
+          job.failure_classification_id === 8
+        ) {
+          state['intermittentLint'] = (memo['intermittentLint'] || 0) + 1;
+        }
+      } else if (job.job_type_name.includes('build')) {
+        state['build_failed'] = (memo['build_failed'] || 0) + 1;
+        if (
+          job.failure_classification_id === 4 ||
+          job.failure_classification_id === 8
+        ) {
+          state['intermittentBuild'] = (memo['intermittentBuild'] || 0) + 1;
+        }
+      } else {
+        state['test_failed'] = (memo['test_failed'] || 0) + 1;
+        if (
+          job.failure_classification_id === 4 ||
+          job.failure_classification_id === 8
+        ) {
+          state['intermittentTests'] = (memo['intermittentTests'] || 0) + 1;
         }
       }
-      if (job.failure_classification_id === 2) {
-        state['fixedByCommit'] = (memo['fixedByCommit'] || 0) + 1;
-      }
-      return state;
-    },
-    {
-      build_failed: 0,
-      completed: 0,
-      fixedByCommit: 0,
-      lint_failed: 0,
-      pending: 0,
-      running: 0,
-      test_failed: 0,
-      intermittentBuild: 0,
-      intermittentLint: 0,
-      intermittentTests: 0,
-    },
-  );
+    }
+    if (job.failure_classification_id === 2) {
+      state['fixedByCommit'] = (memo['fixedByCommit'] || 0) + 1;
+    }
+    return state;
+  }, defaultJobCount);
 };

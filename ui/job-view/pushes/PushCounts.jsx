@@ -19,6 +19,10 @@ function PushCounts({
   const inProgress = pending + running;
   const percentComplete = getPercentComplete({ pending, running, completed });
 
+  if (completed + pending + running === 0) {
+    return null;
+  }
+
   if (percentComplete < 100) {
     return (
       <>
