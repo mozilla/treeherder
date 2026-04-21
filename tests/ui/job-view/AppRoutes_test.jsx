@@ -1,7 +1,6 @@
-
 import fetchMock from 'fetch-mock';
 import { render, waitFor } from '@testing-library/react';
-import { MemoryRouter, useLocation } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router';
 
 import { AppRoutes } from '../../../ui/App';
 import reposFixture from '../mock/repositories';
@@ -53,30 +52,6 @@ describe('Test for backwards-compatible routes for other apps', () => {
 
   beforeEach(() => {
     testLocation = null;
-  });
-
-  test('old push health url should redirect to correct url', async () => {
-    fetchMock.get(
-      '/api/project/autoland/push/health/?revision=3c8e093335315c42a87eebf0531effe9cd6fdb95',
-      [],
-    );
-
-    render(
-      testApp([
-        '/pushhealth.html?repo=autoland&revision=3c8e093335315c42a87eebf0531effe9cd6fdb95',
-      ]),
-    );
-
-    await waitFor(() => {
-      expect(testLocation).toEqual(
-        expect.objectContaining({
-          pathname: '/push-health',
-          search:
-            '?repo=autoland&revision=3c8e093335315c42a87eebf0531effe9cd6fdb95',
-          hash: '',
-        }),
-      );
-    });
   });
 
   test('old perfherder route should redirect to correct url', async () => {

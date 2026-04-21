@@ -27,10 +27,9 @@ class TelemetryBugManager(BugManager):
         bug_data["summary"] = bug_content["title"]
         bug_data["description"] = bug_content["description"]
 
-        # For testing use Testing :: Performance, later switch to
-        # using tags from metrics_info
-        bug_data["product"] = "Testing"
-        bug_data["component"] = "Performance"
+        bugzilla_info = probe.get_bugzilla_info()
+        bug_data["product"] = bugzilla_info[0]
+        bug_data["component"] = bugzilla_info[1]
 
         bug_data["severity"] = "S4"
         bug_data["priority"] = "P5"
@@ -39,6 +38,8 @@ class TelemetryBugManager(BugManager):
         # Only set a needinfo on the first email in the notification list
         needinfo_emails = probe.get_notification_emails()
         self._add_needinfo(needinfo_emails[0], bug_data)
+        if len(needinfo_emails) > 1:
+            self._add_cc(needinfo_emails[1:], bug_data)
 
         bug_info = self._create(bug_data)
         logger.info(f"Filed bug {bug_info['id']}")

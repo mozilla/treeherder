@@ -45,20 +45,6 @@ ACCESS_TOKEN = settings.PERF_SHERIFF_BOT_ACCESS_TOKEN
 
 BUILDID_MAPPING = "https://hg.mozilla.org/mozilla-central/json-firefoxreleases"
 
-INITIAL_PROBES = (
-    "memory_ghost_windows",
-    "cycle_collector_time",
-    "mouseup_followed_by_click_present_latency",
-    "network_tcp_connection",
-    "network_tls_handshake",
-    "networking_http_channel_page_open_to_first_sent",
-    "performance_pageload_fcp",
-    "perf_largest_contentful_paint",
-    "performance_interaction_keypress_present_latency",
-    "gfx_content_full_paint_time",
-    "paint_build_displaylist_time",
-)
-
 
 class Sherlock:
     """
@@ -285,8 +271,7 @@ class Sherlock:
             if metric_info["platform"] == "mobile":
                 # Skip mobile detection since it's currently broken
                 continue
-            if metric_info["name"] not in INITIAL_PROBES:
-                continue
+
             try:
                 probe = TelemetryProbe(metric_info)
             except TelemetryProbeValidationError as e:
@@ -294,10 +279,7 @@ class Sherlock:
                 continue
 
             if not probe.should_detect_changes():
-                # We should not currently be skipping probes since we're
-                # only detecting changes on the allowlisted ones. Later, this
-                # should be a continue
-                probe.monitor_info["detect_changes"] = True
+                continue
             probes.setdefault(probe.name, probe)
 
             logger.info(f"Running detection for {probe.name}")
@@ -305,13 +287,31 @@ class Sherlock:
 
             for platform in ("Windows",):
                 logger.info(f"On Platform {platform}")
+
+                # Create the probe signature now so that we can capture when it was first
+                # seen with change detection enabled. This is used to limit how far back
+                # we go for getting historical data which reduces the risk for a large
+                # influx of bugs/emails when a probe is first analyzed.
+                # XXX: Allow multiple channels, legacy probes, and different apps
+                probe_signature, _ = PerformanceTelemetrySignature.objects.update_or_create(
+                    channel="Nightly",
+                    platform=platform,
+                    probe=probe.name,
+                    probe_type="Glean",
+                    application="Firefox",
+                )
+
                 try:
+                    # Get data from 30 days before the signature creation date to now
                     data = get_metric_table(
                         probe.name,
                         platform,
                         android=(platform == "Mobile"),
                         use_fog=True,
                         project=project,
+                        from_build_date=str(
+                            (probe_signature.created - timedelta(days=30)).strftime("%Y-%m-%d")
+                        ),
                     )
                     if data.empty:
                         logger.info("No data found")
@@ -327,7 +327,7 @@ class Sherlock:
                         if not self._buildid_mappings:
                             self._make_buildid_to_date_mapping()
                         alert = self._create_detection_alert(
-                            detection, probe, platform, repository, framework
+                            detection, probe, platform, repository, framework, probe_signature
                         )
                         if alert:
                             alerts.append(alert)
@@ -351,17 +351,8 @@ class Sherlock:
         platform: str,
         repository: Repository,
         framework: PerformanceFramework,
+        probe_signature: PerformanceTelemetrySignature,
     ):
-        # Get, or create the signature
-        # TODO: Allow multiple channels, legacy probes, and different apps
-        probe_signature, _ = PerformanceTelemetrySignature.objects.update_or_create(
-            channel="Nightly",
-            platform=platform,
-            probe=probe.name,
-            probe_type="Glean",
-            application="Firefox",
-        )
-
         detection_date = str(detection.location)
         if detection_date not in self._buildid_mappings[platform]:
             # TODO: See if we should expand the range in this situation
@@ -437,6 +428,7 @@ class Sherlock:
                     "new_p05": detection.optional_detection_info["Interpolated p05"][1],
                     "prev_p95": detection.optional_detection_info["Interpolated p95"][0],
                     "new_p95": detection.optional_detection_info["Interpolated p95"][1],
+                    "additional_data": detection.optional_detection_info.get("additional_data", {}),
                 },
             )
 

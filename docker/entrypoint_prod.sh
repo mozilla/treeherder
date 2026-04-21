@@ -59,7 +59,7 @@ elif [ "$1" == "worker_perf_ingest" ]; then
 # Tasks that don't need a dedicated worker.
 elif [ "$1" == "worker_misc" ]; then
     export REMAP_SIGTERM=SIGQUIT
-    exec newrelic-admin run-program celery -A treeherder worker --without-gossip --without-mingle --without-heartbeat -Q default,generate_perf_alerts,pushlog,statsd --concurrency=3
+    exec newrelic-admin run-program celery -A treeherder worker --without-gossip --without-mingle --without-heartbeat -Q default,pushlog,statsd --concurrency=3
 
 # Handles performance alert generation
 elif [ "$1" == "worker_perf_alert" ]; then

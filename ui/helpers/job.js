@@ -259,6 +259,9 @@ export const getResultState = function getResultState(job) {
   return state === 'completed' ? result : state;
 };
 
+export const formatDuration = (minutes) =>
+  `${minutes} min${minutes > 1 ? 's' : ''}`;
+
 export const addAggregateFields = function addAggregateFields(job) {
   const {
     job_group_name: jobGroupName,
@@ -307,10 +310,11 @@ export const addAggregateFields = function addAggregateFields(job) {
 
     job.duration = Math.round(diff / 60, 0);
   }
+  if (job.state === 'running') {
+    job._durationFetchedAt = Date.now();
+  }
 
-  job.hoverText = `${jobTypeName} - ${job.resultStatus} - ${job.duration} min${
-    job.duration > 1 ? 's' : ''
-  }`;
+  job.hoverText = `${jobTypeName} - ${job.resultStatus} - ${formatDuration(job.duration)}`;
   return job;
 };
 
@@ -326,7 +330,8 @@ export const getTaskRunStr = (job) => `${job.task_id}.${job.retry_id}`;
 
 // This matches as taskId, optionally followed by `.` or`-` and a runId.
 // We support `-` for backwards compatability with the original format used.
-const taskRunPattern = /^([A-Za-z0-9_-]{8}[Q-T][A-Za-z0-9_-][CGKOSWaeimquy26-][A-Za-z0-9_-]{10}[AQgw])(?:[-.]([0-9]+))?$/;
+const taskRunPattern =
+  /^([A-Za-z0-9_-]{8}[Q-T][A-Za-z0-9_-][CGKOSWaeimquy26-][A-Za-z0-9_-]{10}[AQgw])(?:[-.]([0-9]+))?$/;
 
 export const getTaskRun = function getTaskRun(taskRunStr) {
   const match = taskRunPattern.exec(taskRunStr);
@@ -334,4 +339,60 @@ export const getTaskRun = function getTaskRun(taskRunStr) {
     return {};
   }
   return { taskId: match[1], runId: match[2] };
+};
+
+export const getJobCount = (jobs) => {
+  return jobs.reduce(
+    (memo, job) => {
+      if (job.result === 'superseded') return memo;
+
+      const state = {
+        ...memo,
+        [job.state]: memo[job.state] + 1,
+      };
+      if (job.result === 'testfailed') {
+        if (job.platform === 'lint') {
+          state['lint_failed'] = (memo['lint_failed'] || 0) + 1;
+          if (
+            job.failure_classification_id === 4 ||
+            job.failure_classification_id === 8
+          ) {
+            state['intermittentLint'] = (memo['intermittentLint'] || 0) + 1;
+          }
+        } else if (job.job_type_name.includes('build')) {
+          state['build_failed'] = (memo['build_failed'] || 0) + 1;
+          if (
+            job.failure_classification_id === 4 ||
+            job.failure_classification_id === 8
+          ) {
+            state['intermittentBuild'] = (memo['intermittentBuild'] || 0) + 1;
+          }
+        } else {
+          state['test_failed'] = (memo['test_failed'] || 0) + 1;
+          if (
+            job.failure_classification_id === 4 ||
+            job.failure_classification_id === 8
+          ) {
+            state['intermittentTests'] = (memo['intermittentTests'] || 0) + 1;
+          }
+        }
+      }
+      if (job.failure_classification_id === 2) {
+        state['fixedByCommit'] = (memo['fixedByCommit'] || 0) + 1;
+      }
+      return state;
+    },
+    {
+      build_failed: 0,
+      completed: 0,
+      fixedByCommit: 0,
+      lint_failed: 0,
+      pending: 0,
+      running: 0,
+      test_failed: 0,
+      intermittentBuild: 0,
+      intermittentLint: 0,
+      intermittentTests: 0,
+    },
+  );
 };

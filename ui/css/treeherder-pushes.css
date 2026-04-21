@@ -43,12 +43,7 @@
 }
 
 .push-counts {
-  flex: none;
-  padding-right: 10px;
-}
-
-.push-health .badge.badge-success {
-  background-color: #1b7e32;
+  min-width: 50px;
 }
 
 .push-progress {

@@ -1,5 +1,4 @@
 import React from 'react';
-import { Button } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
 
@@ -38,14 +37,6 @@ function PrimaryNavBar({
             <LogoMenu menuText="Treeherder" menuImage={Logo} />
             <span className="navbar-right">
               <NotificationsMenu />
-              <Button
-                className="btn-view-nav nav-menu-btn"
-                title="Go to Push Health"
-                tag="a"
-                href="/push-health"
-              >
-                Push Health
-              </Button>
               <InfraMenu />
               <ReposMenu repos={repos} />
               <TiersMenu filterModel={filterModel} />

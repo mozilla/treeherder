@@ -72,6 +72,13 @@ class TelemetryEmailContent:
         "\n---\n"
     )
 
+    DASHBOARD_SECTION = (
+        "\n---\n"
+        "**[View this alert on the Telemetry Alert Dashboard.]"
+        "(https://gmierz.github.io/telemetry-alert-dashboard/index.html"
+        "?view=without-bugs&alertSummaryId={summary_id})**\n"
+    )
+
     def __init__(self):
         self._raw_content = None
 
@@ -84,6 +91,8 @@ class TelemetryEmailContent:
         if alert.get_related_alerts():
             self._include_additional_probes(alert)
 
+        self._include_dashboard_link(alert.telemetry_alert_summary.id)
+
     def _initialize_report_intro(self):
         if self._raw_content is None:
             self._raw_content = self.DESCRIPTION + self.TABLE_HEADERS
@@ -93,6 +102,9 @@ class TelemetryEmailContent:
             detection_range, telemetry_signature, telemetry_alert_summary
         )
         self._raw_content += f"{new_table_row}\n"
+
+    def _include_dashboard_link(self, summary_id):
+        self._raw_content += self.DASHBOARD_SECTION.format(summary_id=summary_id)
 
     def _include_additional_probes(self, alert):
         self._raw_content += f"\n{self.ADDITIONAL_PROBES}{self.TABLE_HEADERS}"

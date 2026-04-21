@@ -1,6 +1,6 @@
 
 import { render } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 
 import PerformanceTab from '../../../ui/job-view/details/tabs/PerformanceTab.jsx';
 import { Perfdocs } from '../../../ui/perfherder/perf-helpers/perfdocs';
@@ -180,6 +180,45 @@ describe('PerformanceTab', () => {
     const openProfiler = getByTestId('open-profiler');
     expect(openProfiler.href).toBe(
       'https://profiler.firefox.com/from-url/profile_something.json',
+    );
+  });
+
+  test('perf test job with json.gz profile should show retrigger button and open button', async () => {
+    const { getByTestId } = render(
+      testPerformanceTab({
+        selectedJobFull: {
+          job_type_name:
+            'test-macosx1015-64-shippable-qr/opt-browsertime-something',
+          job_type_symbol: 'some',
+          job_group_name: 'Browsertime performance tests on Firefox',
+          hasSideBySide: false,
+        },
+        jobDetails: [
+          {
+            url: 'profile_something.json.gz',
+            value: 'profile_something.json.gz',
+          },
+        ],
+        perfJobDetail: [
+          {
+            frameworkName: 'browsertime',
+            perfdocs: new Perfdocs(
+              'browsertime',
+              'outlook',
+              'macosx1015-64-shippable-qr',
+              'outlook ContentfulSpeedIndex opt cold fission webrender',
+            ),
+          },
+        ],
+      }),
+    );
+
+    const generateProfile = getByTestId('generate-profile');
+    expect(generateProfile.textContent).toBe('Re-trigger performance profile');
+
+    const openProfiler = getByTestId('open-profiler');
+    expect(openProfiler.href).toBe(
+      'https://profiler.firefox.com/from-url/profile_something.json.gz',
     );
   });
 

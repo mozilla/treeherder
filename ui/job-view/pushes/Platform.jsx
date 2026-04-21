@@ -123,7 +123,7 @@ function Platform({
       filteredPlatform.option === 'opt') ||
     filteredPlatform.name.includes('Shippable') ||
     filteredPlatform.name.includes('DevEdition') ||
-    ['asan', 'tsan', 'ccov', 'mingw', 'nightlyasrelease'].some((type) =>
+    ['asan', 'tsan', 'ccov', 'nightlyasrelease'].some((type) =>
       filteredPlatform.name.toLowerCase().includes(type),
     )
       ? ''

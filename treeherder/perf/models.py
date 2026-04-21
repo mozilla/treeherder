@@ -222,6 +222,7 @@ class PerformanceTelemetrySignature(models.Model):
         help_text="Application that runs the signature's tests. "
         "Generally used to record browser's name, but not necessarily.",
     )
+    created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = "performance_telemetry_signature"
@@ -769,6 +770,15 @@ class PerformanceTelemetryAlert(PerformanceAlertBase):
     # modifications
     bug_modified = models.BooleanField(default=True)
 
+    additional_data = models.JSONField(
+        help_text=(
+            "This field can be used to store additional data in JSON format that doesn't fit in "
+            "any of the other fields. Custom CDP techniques can use this field to store extra "
+            "non-standard data."
+        ),
+        default=dict,
+    )
+
     class Meta:
         db_table = "performance_telemetry_alert"
         unique_together = ("summary", "series_signature")
@@ -831,8 +841,7 @@ class PerformanceAlertTesting(PerformanceAlertBase):
     class Meta:
         db_table = "performance_alert_testing"
         unique_together = (
-            ("summary", "series_signature"),
-            ("summary", "telemetry_series_signature"),
+            ("summary", "series_signature", "telemetry_series_signature", "detection_method"),
         )
 
 

@@ -37,6 +37,9 @@ class BugManager:
             }
         )
 
+    def _add_cc(self, bugzilla_emails, bug_data):
+        bug_data.setdefault("cc", []).extend(bugzilla_emails)
+
     def _create(self, bug_data):
         """Create a new bug.
 

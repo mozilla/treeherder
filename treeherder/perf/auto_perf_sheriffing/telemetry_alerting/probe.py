@@ -5,16 +5,12 @@ import requests
 
 from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.utils import (
     DEFAULT_ALERT_EMAIL,
+    DEFAULT_BUGZILLA_INFO,
     DEFAULT_CHANGE_DETECTION,
     GLEAN_PROBE_INFO,
 )
 
 logger = logging.getLogger(__name__)
-
-ALERTING_PROBES = (
-    "networking_http_channel_page_open_to_first_sent",
-    "perf_largest_contentful_paint",
-)
 
 
 class TelemetryProbeValidationError(Exception):
@@ -88,6 +84,10 @@ class TelemetryProbe:
             "bugzilla_notification_emails", self.monitor_info.get("notification_emails", [default])
         )
 
+    def get_bugzilla_info(self, default=DEFAULT_BUGZILLA_INFO):
+        self.setup_bugzilla_info(default=default)
+        return self.monitor_info.get("bugzilla_info", default)
+
     def fetch_probe_info(self):
         if self._probe_info is not None:
             return
@@ -113,11 +113,6 @@ class TelemetryProbe:
         ):
             return
 
-        # XXX: Remove once prototyping is complete
-        if self.name not in ALERTING_PROBES:
-            self.monitor_info["notification_emails"] = [default]
-            return
-
         self.fetch_probe_info()
         if self._probe_info:
             self.monitor_info["notification_emails"] = self._probe_info.get(
@@ -125,6 +120,25 @@ class TelemetryProbe:
             )
         else:
             self.monitor_info["notification_emails"] = [default]
+
+    def setup_bugzilla_info(self, default=DEFAULT_BUGZILLA_INFO):
+        if self.monitor_info.get("bugzilla_info"):
+            return
+
+        self.fetch_probe_info()
+        self.monitor_info["bugzilla_info"] = default
+        if self._probe_info:
+            raw_bugzilla_info = ""
+            for tag in self._probe_info["tags"]:
+                # Bug 2030837 - Best effort to find the bugzilla info
+                # reliably before that bug is looked at.
+                if "bugzilla" in tag.get("description", "").lower():
+                    raw_bugzilla_info = tag.get("name", "")
+                    break
+            if raw_bugzilla_info:
+                self.monitor_info["bugzilla_info"] = tuple(
+                    el.strip() for el in raw_bugzilla_info.split("::")
+                )
 
     def verify_probe_definition(self):
         if self.monitor_info.get("alert", False) and not self.monitor_info.get(

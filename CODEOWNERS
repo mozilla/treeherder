@@ -1,16 +1,9 @@
 # Visit https://help.github.com/en/github/creating-cloning-and-archiving-repositories/about-code-owners#codeowners-syntax
 # for learning about the syntax
 
-/.config.yml                @mozilla/treeherder-admins
-/app.json                   @mozilla/treeherder-admins
 /docker-compose.yml         @mozilla/treeherder-admins
-ui/helpers/constants.js     @mozilla/treeherder-admins
-repository.json             @mozilla/treeherder-admins
-push-health/**              @mozilla/treeherder-admins
 infra-compare/              @beatrice-acasandrei @esanuandra
-intermittent-failures/**    @mozilla/treeherder-admins
-intermittents-commenter/**  @mozilla/treeherder-admins
-job-view/**                 @mozilla/treeherder-admins
 perf/                       @beatrice-acasandrei @esanuandra
 perfalert/                  @beatrice-acasandrei @esanuandra
 perfherder/                 @beatrice-acasandrei @esanuandra
+treeherder/model/fixtures/  @mozilla/treeherder-admins

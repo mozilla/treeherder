@@ -95,6 +95,7 @@ class ClassificationLoader:
                 )
             route_regex = CLASSIFICATION_PRODUCTION_ROUTE_REGEX
 
+        logger.error(f"task_route: {task_route}, route_regex: {route_regex}")
         try:
             project, revision = route_regex.search(task_route).groups()
         except AttributeError as e:

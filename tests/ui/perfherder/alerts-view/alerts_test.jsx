@@ -6,7 +6,7 @@ import {
   waitForElementToBeRemoved,
 } from '@testing-library/react';
 import fetchMock from 'fetch-mock';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 
 import {
   endpoints,
@@ -895,34 +895,6 @@ test('Data can be sorted only by one column', async () => {
     [alert2, alert1, alert3, alert4],
     alertTableRows,
   );
-});
-
-test('Previous alert button should be disable at first', async () => {
-  const { getByTestId } = alertsViewControls();
-
-  const prevScrollButton = await waitFor(() =>
-    getByTestId('scroll-prev-alert'),
-  );
-
-  expect(prevScrollButton).toBeDisabled();
-});
-
-test('Next alert button should be disable when reaching the last alert', async () => {
-  const { getByTestId } = alertsViewControls();
-  Element.prototype.scrollIntoView = jest.fn();
-
-  let nextScrollButton = await waitFor(() => getByTestId('scroll-next-alert'));
-
-  expect(nextScrollButton).not.toBeDisabled();
-
-  fireEvent.click(nextScrollButton);
-  fireEvent.click(nextScrollButton);
-  fireEvent.click(nextScrollButton);
-
-  await waitFor(() => {
-    nextScrollButton = getByTestId('scroll-next-alert');
-    expect(nextScrollButton).toBeDisabled();
-  });
 });
 
 test('Sherlock backfill status icons are displayed correctly', async () => {

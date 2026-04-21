@@ -1,7 +1,7 @@
 
 import fetchMock from 'fetch-mock';
 import { render, waitFor, fireEvent, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 
 import FilterModel from '../../../ui/models/filter';
 import SecondaryNavBar from '../../../ui/job-view/headerbars/SecondaryNavBar';

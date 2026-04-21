@@ -586,7 +586,7 @@ def test_detection_tolerance_deduplication_guard_suppresses_nearby_duplicate_ale
         """Guard-free version: collects detections without deduplication, then calls create_alert."""
         detections = []
         detection_method_naming = name_voting_strategy(
-            "equal", min_method_agreement, detection_index_tolerance, False, None
+            "equal", min_method_agreement, detection_index_tolerance, False
         )
         for i in range(1, len(analyzed_series)):
             methods_detecting_data = get_methods_detecting_at_index(
