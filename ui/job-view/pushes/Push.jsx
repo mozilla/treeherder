@@ -316,16 +316,6 @@ function Push({
     mapPushJobs(jobListRef.current);
   }, [currentRepo.name, push.revision, mapPushJobs]);
 
-  const testForFilteredTry = useCallback(() => {
-    const filterParams = ['revision', 'author'];
-    const urlParams = new URLSearchParams(location.search);
-
-    const isFiltered =
-      filterParams.some((f) => urlParams.has(f)) && currentRepo.name === 'try';
-
-    setFilteredTryPush(isFiltered);
-  }, [currentRepo.name, location]);
-
   const handleUrlChanges = useCallback(async () => {
     const allParams = getAllUrlParams();
     const collapsedPushesParam = allParams.get('collapsedPushes') || '';
@@ -569,16 +559,12 @@ function Push({
       promises.push(fetchTestManifests());
     }
 
-    Promise.all(promises).then(() => {
-      testForFilteredTry();
-    });
-
     window.addEventListener(thEvents.applyNewJobs, handleApplyNewJobs);
 
     return () => {
       window.removeEventListener(thEvents.applyNewJobs, handleApplyNewJobs);
     };
-  }, [handleApplyNewJobs, fetchJobs, fetchTestManifests, testForFilteredTry]);
+  }, [handleApplyNewJobs, fetchJobs, fetchTestManifests]);
 
   // componentDidUpdate - show notifications
   useEffect(() => {
@@ -588,8 +574,14 @@ function Push({
 
   // componentDidUpdate - test for filtered try
   useEffect(() => {
-    testForFilteredTry();
-  }, [testForFilteredTry]);
+    const filterParams = ['revision', 'author'];
+    const urlParams = new URLSearchParams(location.search);
+
+    const isFiltered =
+      filterParams.some((f) => urlParams.has(f)) && currentRepo.name === 'try';
+
+    setFilteredTryPush(isFiltered);
+  }, [location.search]);
 
   // componentDidUpdate - handle URL changes
   useEffect(() => {
