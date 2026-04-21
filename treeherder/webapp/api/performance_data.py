@@ -4,6 +4,7 @@ import multiprocessing
 import time
 import warnings
 from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urlencode
 
 import django_filters
@@ -629,6 +630,13 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
         ctx["tc_metadata_map"] = None
         return ctx
 
+    @staticmethod
+    def _fetch_profile_urls(alert):
+        return (
+            get_profile_artifact_url(alert, metadata_key="taskcluster_metadata"),
+            get_profile_artifact_url(alert, metadata_key="prev_taskcluster_metadata"),
+        )
+
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.queryset)
         pk = request.query_params.get("id")
@@ -647,14 +655,19 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
             if pk:
                 for summary in serializer.data:
                     if summary["id"] == int(pk):
-                        for alert in summary["alerts"]:
-                            if alert["is_regression"]:
-                                alert["profile_url"] = get_profile_artifact_url(
-                                    alert, metadata_key="taskcluster_metadata"
+                        regression_alerts = [
+                            alert for alert in summary["alerts"] if alert["is_regression"]
+                        ]
+                        if regression_alerts:
+                            with ThreadPoolExecutor(max_workers=10) as executor:
+                                url_pairs = list(
+                                    executor.map(self._fetch_profile_urls, regression_alerts)
                                 )
-                                alert["prev_profile_url"] = get_profile_artifact_url(
-                                    alert, metadata_key="prev_taskcluster_metadata"
-                                )
+                            for alert, (profile_url, prev_profile_url) in zip(
+                                regression_alerts, url_pairs
+                            ):
+                                alert["profile_url"] = profile_url
+                                alert["prev_profile_url"] = prev_profile_url
             return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(many=True, data=queryset)
