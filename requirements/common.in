@@ -21,7 +21,7 @@ django-environ==0.11.2  # Imported as environ
 uritemplate==4.2.0  # For OpenAPI schema
 
 python-dateutil==2.9.0.post0
-django-filter==25.1  # Listed in DEFAULT_FILTER_BACKENDS on settings.py
+django-filter==25.2  # Listed in DEFAULT_FILTER_BACKENDS on settings.py
 django-redis==6.0.0  # Listed in CACHES on settings.py
 
 taskcluster==88.0.5  # import taskcluster
