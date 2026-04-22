@@ -25,14 +25,13 @@ export default class AlertsViewControls extends React.Component {
   };
 
   updateFilter = (filter) => {
-    const { setFiltersState, filters, updateViewState } = this.props;
+    const { setFiltersState, filters } = this.props;
     const prevValue = filters[filter];
     setFiltersState({ [filter]: !prevValue });
-    updateViewState({ page: 1 });
   };
 
   updateStatus = (status) => {
-    const { setFiltersState, updateViewState } = this.props;
+    const { setFiltersState } = this.props;
 
     const isInvalidStatus = [
       'invalid',
@@ -46,16 +45,14 @@ export default class AlertsViewControls extends React.Component {
         status === 'all statuses' ? false : isInvalidStatus,
     });
     setFiltersState({ status, hideDownstream: !isInvalidStatus });
-    updateViewState({ page: 1 });
   };
 
   updateFramework = (selectedFramework) => {
-    const { frameworkOptions, updateViewState, setFiltersState } = this.props;
+    const { frameworkOptions, setFiltersState } = this.props;
     const framework = frameworkOptions.find(
       (item) => item.name === selectedFramework,
     );
-    updateViewState({ page: 1 });
-    setFiltersState({ framework }, this.fetchAlertSummaries);
+    setFiltersState({ framework });
   };
 
   render() {
