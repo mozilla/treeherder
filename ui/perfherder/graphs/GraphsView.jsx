@@ -102,7 +102,6 @@ function GraphsView({ projects, frameworks, user }) {
       repository_name: repositoryName,
       signature_id: signatureId,
       framework_id: frameworkId,
-      replicates: seriesReplicates,
     } = series;
 
     return {
@@ -111,7 +110,7 @@ function GraphsView({ projects, frameworks, user }) {
       framework: frameworkId,
       interval: timeRangeRef.current.value,
       all_data: true,
-      replicates: seriesReplicates,
+      replicates: replicatesRef.current,
     };
   }, []);
 
@@ -319,6 +318,10 @@ function GraphsView({ projects, frameworks, user }) {
   );
 
   const updateStateParams = useCallback((state) => {
+    const replicatesChanged =
+      state.replicates !== undefined &&
+      state.replicates !== replicatesRef.current;
+
     if (state.testData !== undefined) setTestData(state.testData);
     if (state.selectedDataPoint !== undefined)
       setSelectedDataPoint(state.selectedDataPoint);
@@ -335,11 +338,24 @@ function GraphsView({ projects, frameworks, user }) {
       setHighlightedRevisions(state.highlightedRevisions);
     if (state.visibilityChanged !== undefined)
       setVisibilityChanged(state.visibilityChanged);
-    if (state.replicates !== undefined) setReplicates(state.replicates);
     if (state.colors !== undefined) setColors(state.colors);
     if (state.symbols !== undefined) setSymbols(state.symbols);
-    pendingChangeParams.current = true;
-  }, []);
+
+    if (state.replicates !== undefined) {
+      setReplicates(state.replicates);
+      replicatesRef.current = state.replicates;
+    }
+
+    if (replicatesChanged) {
+      setZoom({});
+      setSelectedDataPoint(null);
+      setColors([...graphColors]);
+      setSymbols([...graphSymbols]);
+      getTestData();
+    } else {
+      pendingChangeParams.current = true;
+    }
+  }, [getTestData]);
 
   // componentDidMount - check query params
   useEffect(() => {
@@ -423,23 +439,12 @@ function GraphsView({ projects, frameworks, user }) {
 
     if (prevSearch === location.search) return;
 
-    const { replicates: currentReplicates } = queryString.parse(
-      location.search,
-    );
-    const { replicates: prevReplicates } = queryString.parse(prevSearch);
-
     if (
       location.search === '' &&
       testDataRef.current.length !== 0 &&
       !loading
     ) {
       setTestData([]);
-    }
-
-    if (prevReplicates !== undefined) {
-      if (currentReplicates !== prevReplicates) {
-        window.location.reload(false);
-      }
     }
   }, [location.search, loading]);
 
