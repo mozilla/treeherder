@@ -69,12 +69,54 @@ export const getPercentComplete = function getPercentComplete(counts) {
 
 export const formatArtifacts = function formatArtifacts(data, artifactParams) {
   return data.map((item) => {
-    const value = item.name.replace(/.*\//, '');
+    const [path, value] = item.name
+      .replace(/^public\//, '')
+      .match(/^(?:(.*)\/)?(.*)$/)
+      .slice(1);
     artifactParams.artifactPath = item.name;
-    // for backwards compatibility with JobDetail API
-    const title = 'artifact uploaded';
-    return { url: getArtifactsUrl(artifactParams), value, title };
+    return {
+      url: getArtifactsUrl(artifactParams),
+      value,
+      path: path || '',
+      contentLength: item.contentLength,
+      expires: item.expires,
+      // for backwards compatibility with JobDetail API
+      title: 'artifact uploaded',
+    };
   });
+};
+
+export const formatByteSize = function formatByteSize(bytes) {
+  if (!Number.isFinite(bytes) || bytes < 0) return '';
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  let size = bytes;
+  let i = 0;
+  while (size >= 1024 && i < units.length - 1) {
+    size /= 1024;
+    i += 1;
+  }
+  return `${size.toFixed(i === 0 || size >= 10 ? 0 : 1)} ${units[i]}`;
+};
+
+export const formatExpires = function formatExpires(expires) {
+  if (!expires) return '';
+  const days = Math.floor((new Date(expires).getTime() - Date.now()) / 86400000);
+  if (Number.isNaN(days)) return '';
+  if (days <= 0) return 'expired';
+  if (days < 60) return `${days}d`;
+  return `${Math.floor(days / 30)}mo`;
+};
+
+export const formatSizeTooltip = function formatSizeTooltip(bytes) {
+  if (!Number.isFinite(bytes) || bytes < 0) return '';
+  return `${bytes.toLocaleString()} bytes`;
+};
+
+export const formatExpiresTooltip = function formatExpiresTooltip(expires) {
+  if (!expires) return '';
+  const date = new Date(expires);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleString('en-US', longDateFormat);
 };
 
 export const errorLinesCss = function errorLinesCss(errors) {
