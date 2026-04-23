@@ -78,6 +78,9 @@ class TelemetryProbe:
     def is_mobile(self):
         return self.platform == MOBILE
 
+    def lower_is_better(self):
+        return self.monitor_info.get("lower_is_better")
+
     def get_change_detection_technique(self):
         return self.monitor_info.get("change_detection_technique", DEFAULT_CHANGE_DETECTION)
 

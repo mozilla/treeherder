@@ -423,6 +423,29 @@ class Sherlock:
     def _can_run_telemetry(self):
         return not self._is_prod() or (time(22, 0) <= datetime.utcnow().time() < time(23, 0))
 
+    def _is_regression(self, detection: object, probe: TelemetryProbe):
+        # detection.confidence is a subtraction of before - after
+        # in decimal form of percentage (multiply by 100)
+        # Use it in combination with probe.lower_is_better to
+        # determine if a difference is a regression or not
+        # Default to True as a regression
+
+        # confidence being negative means a shift to the left (improvement if lowerisbetter is true)
+        # confidence being positive means a shift to the right (regression if lowerisbetter is true)
+
+        if probe.lower_is_better is not None:
+            if probe.lower_is_better:
+                if detection.confidence >= 0:
+                    return True
+                return False
+            else:
+                if detection.confidence < 0:
+                    return False
+                return True
+
+        # When lower_is_better is not specified, assume everything is a regression
+        return True
+
     def _create_detection_alert(
         self,
         detection: object,
@@ -489,7 +512,7 @@ class Sherlock:
                 summary_id=detection_summary.id,
                 series_signature=probe_signature,
                 defaults={
-                    "is_regression": True,
+                    "is_regression": self._is_regression(detection, probe),
                     "amount_pct": round(
                         (100.0 * abs(detection.new_value - detection.previous_value))
                         / float(detection.previous_value),
