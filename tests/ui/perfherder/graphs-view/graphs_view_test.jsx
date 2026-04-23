@@ -85,7 +85,6 @@ const graphsViewControls = async (
   },
   skipWait = false,
   highlightInitialDataPoints = false,
-  customGetInitialData,
 ) => {
   const updateStateParams = () => {};
 
