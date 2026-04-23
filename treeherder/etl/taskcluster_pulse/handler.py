@@ -12,6 +12,7 @@ from django.conf import settings
 
 from treeherder.etl.schema import get_json_schema
 from treeherder.etl.taskcluster_pulse.parse_route import parse_route
+from treeherder.model.models import Job
 
 env = environ.Env()
 logger = logging.getLogger(__name__)
@@ -20,12 +21,12 @@ projects_to_ingest = env("PROJECTS_TO_INGEST", default=None)
 
 # Build a mapping from exchange name to task status
 EXCHANGE_EVENT_MAP = {
-    "exchange/taskcluster-queue/v1/task-defined": "unscheduled",
-    "exchange/taskcluster-queue/v1/task-pending": "pending",
-    "exchange/taskcluster-queue/v1/task-running": "running",
-    "exchange/taskcluster-queue/v1/task-completed": "completed",
-    "exchange/taskcluster-queue/v1/task-failed": "failed",
-    "exchange/taskcluster-queue/v1/task-exception": "exception",
+    "exchange/taskcluster-queue/v1/task-defined": Job.JobState.UNSCHEDULED,
+    "exchange/taskcluster-queue/v1/task-pending": Job.JobState.PENDING,
+    "exchange/taskcluster-queue/v1/task-running": Job.JobState.RUNNING,
+    "exchange/taskcluster-queue/v1/task-completed": Job.JobState.COMPLETED,
+    "exchange/taskcluster-queue/v1/task-failed": Job.JobState.FAILED,
+    "exchange/taskcluster-queue/v1/task-exception": Job.JobState.EXCEPTION,
 }
 
 
@@ -36,13 +37,15 @@ class PulseHandlerError(Exception):
 
 
 def state_from_run(job_run):
-    return "completed" if job_run["state"] in ("exception", "failed") else job_run["state"]
+    return (
+        Job.JobState.COMPLETED if job_run["state"] in ("exception", "failed") else job_run["state"]
+    )
 
 
 def result_from_run(job_run):
     run_to_result = {
-        "completed": "success",
-        "failed": "fail",
+        Job.JobState.COMPLETED: "success",
+        Job.JobState.FAILED: "fail",
     }
     state = job_run["state"]
     if state in list(run_to_result.keys()):
@@ -202,15 +205,15 @@ async def handle_message(message, task_definition=None):
 
         if not task_type:
             raise Exception("Unknown exchange: {exchange}".format(exchange=message["exchange"]))
-        elif task_type == "unscheduled":
+        elif task_type == Job.JobState.UNSCHEDULED:
             jobs.append(handle_task_defined(parsed_route, task, message))
-        elif task_type == "pending":
+        elif task_type == Job.JobState.PENDING:
             jobs.append(handle_task_pending(parsed_route, task, message))
-        elif task_type == "running":
+        elif task_type == Job.JobState.RUNNING:
             jobs.append(handle_task_running(parsed_route, task, message))
-        elif task_type in ("completed", "failed"):
+        elif task_type in (Job.JobState.COMPLETED, Job.JobState.FAILED):
             jobs.append(await handle_task_completed(parsed_route, task, message, session))
-        elif task_type == "exception":
+        elif task_type == Job.JobState.EXCEPTION:
             jobs.append(await handle_task_exception(parsed_route, task, message, session))
 
         return jobs
