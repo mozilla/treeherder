@@ -67,7 +67,7 @@ services:
     working_dir: /app
     environment:
       BACKEND: http://backend:8000
-    command: sh -c "corepack enable && corepack prepare pnpm@9.15.0 --activate && pnpm install --force && pnpm start --host 0.0.0.0"
+    command: sh -c "npm install -g corepack@latest && corepack enable && corepack prepare pnpm@10.30.3 --activate && pnpm install --force && pnpm start --host 0.0.0.0"
     volumes:
       - .:/app
     ports:
