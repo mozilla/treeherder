@@ -23,6 +23,23 @@ const StatusIcon = ({ value, isInProgress }) => {
   );
 };
 
+const ExternalFailureLink = ({ url, tooltip, children }) => {
+  if (url) {
+    return (
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="link-underline-none link-danger"
+        title={tooltip}
+      >
+        {children}
+      </a>
+    );
+  }
+  return children;
+};
+
 const PushCountsDetails = ({
   build_failed,
   build_pending,
@@ -37,6 +54,8 @@ const PushCountsDetails = ({
   running,
   test_failed,
   total,
+  externalFailureUrl,
+  externalFailureTooltip,
 }) => {
   const inProgress = pending + running;
   if (total === 0) {
@@ -103,13 +122,18 @@ const PushCountsDetails = ({
               className="text-danger mt-1"
               title={`${test_failed} job failures`}
             >
-              {test_failed} {test_failed === 1 ? 'job' : 'jobs'} failed
-              {intermittentTests > 0 && (
-                <>
-                  <br />({intermittentTests} intermittent
-                  {intermittentTests === 1 ? '' : 's'})
-                </>
-              )}
+              <ExternalFailureLink
+                url={externalFailureUrl}
+                tooltip={externalFailureTooltip}
+              >
+                {test_failed} {test_failed === 1 ? 'job' : 'jobs'} failed
+                {intermittentTests > 0 && (
+                  <>
+                    <br />({intermittentTests} intermittent
+                    {intermittentTests === 1 ? '' : 's'})
+                  </>
+                )}
+              </ExternalFailureLink>
             </div>
           )}
         </Col>
@@ -132,6 +156,8 @@ PushCountsDetails.propTypes = {
   running: PropTypes.number.isRequired,
   test_failed: PropTypes.number.isRequired,
   total: PropTypes.number.isRequired,
+  externalFailureUrl: PropTypes.string,
+  externalFailureTooltip: PropTypes.string,
 };
 
 export default memo(PushCountsDetails);

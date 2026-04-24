@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, memo } from 'react';
+import { useState, useEffect, useCallback, useRef, memo, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { useLocation } from 'react-router';
 import sortBy from 'lodash/sortBy';
@@ -591,6 +591,15 @@ function Push({
     }
   }, [location.search, handleUrlChanges]);
 
+  const failedMochitestXpcshellCount = useMemo(() => {
+    return jobList.filter(
+      (job) =>
+        job.result === 'testfailed' &&
+        (job.job_type_name.includes('xpcshell') ||
+          job.job_type_name.includes('mochitest')),
+    ).length;
+  }, [jobList]);
+
   const {
     id,
     push_timestamp: pushTimestamp,
@@ -606,6 +615,16 @@ function Push({
   if (isOnlyRevision) {
     setSingleRevisionWindowTitle();
   }
+
+  const externalFailureUrl =
+    failedMochitestXpcshellCount > 0
+      ? `https://tests.firefox.dev/try.html?rev=${revision}`
+      : '';
+
+  const externalFailureTooltip =
+    failedMochitestXpcshellCount > 0
+      ? `View aggregated failures from ${failedMochitestXpcshellCount} failed mochitest/xpcshell test jobs`
+      : '';
 
   return (
     <div className="push" data-testid={`push-${push.id}`} ref={containerRef}>
@@ -659,7 +678,13 @@ function Push({
                   widthClass="mb-3 ms-4"
                   commitShaClass="font-monospace"
                 >
-                  {filteredTryPush && <PushCountsDetails {...jobCounts} />}
+                  {filteredTryPush && (
+                    <PushCountsDetails
+                      {...jobCounts}
+                      externalFailureUrl={externalFailureUrl}
+                      externalFailureTooltip={externalFailureTooltip}
+                    />
+                  )}
                 </RevisionList>
               </Col>
               <Col xs={7} className="job-list job-list-pad">
