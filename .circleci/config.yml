@@ -180,6 +180,21 @@ jobs:
             tox -e docker-frontend
       - codecov/upload
 
+  python-tests-telemetry:
+    machine:
+      image: default
+    steps:
+      - checkout
+      - docker/install-docker-compose:
+          version: 1.29.2
+      - run:
+          name: Run tests and coverage within Docker container
+          command: |
+            pip install --upgrade pip
+            pip install tox
+            tox -e docker-telemetry
+      - codecov/upload
+
   test-docker-build:
     docker:
       - image: cimg/base:current
@@ -212,6 +227,7 @@ workflows:
       - python-tests-frontend
       - python-tests-general
       - python-tests-perf
+      - python-tests-telemetry
       - test-docker-build
       - deploy:
           filters:
