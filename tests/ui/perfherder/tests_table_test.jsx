@@ -117,7 +117,7 @@ test('Improvement alerts number has the corresponding link', async () => {
 
   const improvements = await waitFor(() => getAllByTestId('improvements'));
 
-  const link = `/alerts?hideDwnToInv=0&filterText=Base Content Explicit+test1&page=1&status=4&framework=4`;
+  const link = `/perfherder/alerts?hideDwnToInv=0&filterText=Base Content Explicit+test1&page=1&status=4&framework=4`;
   expect(improvements[0].children[0]).toHaveAttribute('href', link);
 });
 
@@ -126,6 +126,6 @@ test('Regression alerts number has the corresponding link', async () => {
 
   const regressions = await waitFor(() => getAllByTestId('regressions'));
 
-  const link = `/alerts?hideDwnToInv=0&filterText=Base Content Explicit+test1&page=1&status=9&framework=4`;
+  const link = `/perfherder/alerts?hideDwnToInv=0&filterText=Base Content Explicit+test1&page=1&status=9&framework=4`;
   expect(regressions[0].children[0]).toHaveAttribute('href', link);
 });

@@ -6,12 +6,16 @@ import { MemoryRouter } from 'react-router';
 import InfraCompareView from '../../../ui/infra-compare/InfraCompare';
 import { getCounterMap } from '../../../ui/infra-compare/helpers';
 
-// Mock dependencies
-jest.mock('../../../ui/perfherder/Validation', () => ({
+// Mock the validation hook so the component renders synchronously with the
+// `validated` value supplied by each test (no URL parsing or revision fetch).
+let mockValidatedValue = {};
+jest.mock('../../../ui/perfherder/useValidation', () => ({
   __esModule: true,
-  default: () => (Component) => (props) => (
-    <Component {...props} validated={props.validated || {}} />
-  ),
+  default: () => ({
+    validated: mockValidatedValue,
+    isLoading: false,
+    errorMessages: [],
+  }),
 }));
 
 jest.mock('../../../ui/infra-compare/helpers', () => ({
@@ -80,6 +84,7 @@ describe('InfraCompareView', () => {
     jest.clearAllMocks();
     // Reset the mock props
     mockTableViewProps = {};
+    mockValidatedValue = mockValidated;
     // Mock Date.now() to return a fixed timestamp for consistent testing
     // The mock timestamps (push_timestamp) are around 1596240000-1596250000
     // We need Date.now() to be close to these values (within 30 days = 2592000 seconds)
@@ -93,7 +98,7 @@ describe('InfraCompareView', () => {
   it('renders correctly', () => {
     const { getByTestId } = render(
       <MemoryRouter>
-        <InfraCompareView {...defaultProps} validated={mockValidated} />
+        <InfraCompareView {...defaultProps} />
       </MemoryRouter>,
     );
 
@@ -103,7 +108,7 @@ describe('InfraCompareView', () => {
   it('passes the correct props to InfraCompareTableView', () => {
     render(
       <MemoryRouter>
-        <InfraCompareView {...defaultProps} validated={mockValidated} />
+        <InfraCompareView {...defaultProps} />
       </MemoryRouter>,
     );
 
@@ -120,7 +125,7 @@ describe('InfraCompareView', () => {
     it('calculates the correct interval based on timestamps', () => {
       render(
         <MemoryRouter>
-          <InfraCompareView {...defaultProps} validated={mockValidated} />
+          <InfraCompareView {...defaultProps} />
         </MemoryRouter>,
       );
 
@@ -149,7 +154,7 @@ describe('InfraCompareView', () => {
     it('returns correct params with originalRevision', () => {
       render(
         <MemoryRouter>
-          <InfraCompareView {...defaultProps} validated={mockValidated} />
+          <InfraCompareView {...defaultProps} />
         </MemoryRouter>,
       );
 
@@ -169,17 +174,14 @@ describe('InfraCompareView', () => {
     });
 
     it('returns correct params without originalRevision', () => {
-      const validatedWithoutOriginalRevision = {
+      mockValidatedValue = {
         ...mockValidated,
         originalRevision: null,
       };
 
       render(
         <MemoryRouter>
-          <InfraCompareView
-            {...defaultProps}
-            validated={validatedWithoutOriginalRevision}
-          />
+          <InfraCompareView {...defaultProps} />
         </MemoryRouter>,
       );
 
@@ -207,7 +209,7 @@ describe('InfraCompareView', () => {
     it('processes empty results correctly', () => {
       render(
         <MemoryRouter>
-          <InfraCompareView {...defaultProps} validated={mockValidated} />
+          <InfraCompareView {...defaultProps} />
         </MemoryRouter>,
       );
 
@@ -231,7 +233,7 @@ describe('InfraCompareView', () => {
     it('processes valid results correctly', () => {
       render(
         <MemoryRouter>
-          <InfraCompareView {...defaultProps} validated={mockValidated} />
+          <InfraCompareView {...defaultProps} />
         </MemoryRouter>,
       );
 
@@ -282,7 +284,7 @@ describe('InfraCompareView', () => {
       // Render the component
       const { rerender } = render(
         <MemoryRouter>
-          <InfraCompareView {...defaultProps} validated={mockValidated} />
+          <InfraCompareView {...defaultProps} />
         </MemoryRouter>,
       );
 
@@ -306,7 +308,7 @@ describe('InfraCompareView', () => {
       // Force a re-render to ensure the updated state is reflected in the props
       rerender(
         <MemoryRouter>
-          <InfraCompareView {...defaultProps} validated={mockValidated} />
+          <InfraCompareView {...defaultProps} />
         </MemoryRouter>,
       );
 

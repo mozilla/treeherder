@@ -28,7 +28,7 @@ export default class AlertsLink extends React.PureComponent {
       <div className="d-flex justify-content-center">
         <div data-testid={type} className="w-50">
           <Link
-            to={`./alerts?hideDwnToInv=0&filterText=${filterText}&page=1&status=${summaryStatus[type]}&framework=${framework.id}`}
+            to={`/perfherder/alerts?hideDwnToInv=0&filterText=${filterText}&page=1&status=${summaryStatus[type]}&framework=${framework.id}`}
             target="_blank"
           >
             <SimpleTooltip

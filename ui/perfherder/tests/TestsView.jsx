@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import { useLocation } from 'react-router';
 import { Col, Container, Row } from 'react-bootstrap';
 
-import withValidation from '../Validation';
+import useValidation from '../useValidation';
+import ValidationGate from '../ValidationGate';
 import { getFrameworkData } from '../perf-helpers/helpers';
 import LoadingSpinner from '../../shared/LoadingSpinner';
 import {
@@ -13,21 +14,38 @@ import {
 import { endpoints } from '../perf-helpers/constants';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import { getData, processResponse } from '../../helpers/http';
-import { createApiUrl, platformsEndpoint } from '../../helpers/url';
+import {
+  createApiUrl,
+  parseQueryParams,
+  platformsEndpoint,
+} from '../../helpers/url';
 import ErrorMessages from '../../shared/ErrorMessages';
 
 import TestsTableControls from './TestsTableControls';
 
-function TestsView({
-  validated,
-  frameworks,
-  projects,
-  platforms,
-  updateAppState,
-}) {
+const testsRequiredParams = new Set([]);
+
+function TestsView({ frameworks, projects, platforms, updateAppState }) {
+  const {
+    validated,
+    isLoading: validationLoading,
+    errorMessages: validationErrors,
+  } = useValidation({
+    requiredParams: testsRequiredParams,
+    verifyRevisions: false,
+    projects,
+    frameworks,
+  });
   const location = useLocation();
+  // useValidation populates `validated` asynchronously after first render, so
+  // the initial framework must be derived directly from the URL — otherwise
+  // ?framework=... is ignored on mount and defaults are used instead.
+  const initialParamsRef = useRef(null);
+  if (initialParamsRef.current === null) {
+    initialParamsRef.current = parseQueryParams(location.search);
+  }
   const [framework, setFramework] = useState(() =>
-    getFrameworkData({ validated, frameworks }),
+    getFrameworkData({ validated: initialParamsRef.current, frameworks }),
   );
   const [loading, setLoading] = useState(false);
   const [errorMessages, setErrorMessages] = useState([]);
@@ -144,11 +162,15 @@ function TestsView({
   ];
 
   return (
-    <ErrorBoundary
-      errorClasses={errorMessageClass}
-      message={genericErrorMessage}
+    <ValidationGate
+      isLoading={validationLoading}
+      errorMessages={validationErrors}
     >
-      <Container fluid className="max-width-default">
+      <ErrorBoundary
+        errorClasses={errorMessageClass}
+        message={genericErrorMessage}
+      >
+        <Container fluid className="max-width-default">
         {loading && !errorMessages.length && <LoadingSpinner />}
         <Row className="justify-content-center">
           <Col sm="8" className="text-center">
@@ -170,22 +192,16 @@ function TestsView({
           allFrameworks={frameworks}
         />
       </Container>
-    </ErrorBoundary>
+      </ErrorBoundary>
+    </ValidationGate>
   );
 }
 
 TestsView.propTypes = {
-  validated: PropTypes.shape({
-    updateParams: PropTypes.func.isRequired,
-    framework: PropTypes.string,
-  }).isRequired,
   frameworks: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   platforms: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   updateAppState: PropTypes.func.isRequired,
 };
 
-export default withValidation(
-  { requiredParams: new Set([]) },
-  false,
-)(TestsView);
+export default TestsView;

@@ -43,7 +43,7 @@ export default class AlertHeaderTitle extends React.Component {
           <Link
             className="text-dark me-1"
             target="_blank"
-            to={`./alerts?id=${alertSummary.id}&hideDwnToInv=0`}
+            to={`/perfherder/alerts?id=${alertSummary.id}&hideDwnToInv=0`}
             id={`alert summary ${alertSummary.id.toString()} title`}
             data-testid={`alert summary ${alertSummary.id.toString()} title`}
           >

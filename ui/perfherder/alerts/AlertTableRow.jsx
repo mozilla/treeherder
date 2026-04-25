@@ -112,7 +112,7 @@ export default class AlertTableRow extends React.Component {
       <span>
         {` ${text} `}
         <Link
-          to={`./alerts?id=${alertId}`}
+          to={`/perfherder/alerts?id=${alertId}`}
           target="_blank"
           rel="noopener noreferrer"
           className="text-darker-info"

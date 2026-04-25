@@ -235,7 +235,7 @@ const AlertHeader = ({
               key={summary.id}
               className="text-dark me-1"
               target="_blank"
-              to={`./alerts?id=${summary.id}&hideDwnToInv=0`}
+              to={`/perfherder/alerts?id=${summary.id}&hideDwnToInv=0`}
               id={`duplicated alert summary ${summary.id.toString()} `}
               style={{ marginLeft: '5px' }}
             >

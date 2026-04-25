@@ -4,7 +4,8 @@ import { useLocation } from 'react-router';
 import { Alert, Container } from 'react-bootstrap';
 import cloneDeep from 'lodash/cloneDeep';
 
-import withValidation from '../Validation';
+import useValidation from '../useValidation';
+import ValidationGate from '../ValidationGate';
 import {
   convertParams,
   getFrameworkData,
@@ -32,16 +33,37 @@ import LoadingSpinner from '../../shared/LoadingSpinner';
 
 import AlertsViewControls from './AlertsViewControls';
 
+const alertsRequiredParams = new Set([]);
+
 function AlertsView({
-  validated,
   frameworks,
   user,
   projects,
   performanceTags,
   ...otherProps
 }) {
+  const {
+    validated,
+    isLoading: validationLoading,
+    errorMessages: validationErrors,
+  } = useValidation({
+    requiredParams: alertsRequiredParams,
+    verifyRevisions: false,
+    projects,
+    frameworks,
+  });
   const location = useLocation();
   const prevLocationSearch = useRef(location.search);
+
+  // useValidation populates `validated` asynchronously after first render, so
+  // initial state must be derived directly from the URL — otherwise mount-time
+  // reads see undefined values and the page fetches the full alert list even
+  // when ?id=... is in the URL.
+  const initialParamsRef = useRef(null);
+  if (initialParamsRef.current === null) {
+    initialParamsRef.current = parseQueryParams(location.search);
+  }
+  const initialParams = initialParamsRef.current;
 
   const extendedOptions = useMemo(() => {
     const frameworkOptions = cloneDeep(frameworks);
@@ -86,10 +108,10 @@ function AlertsView({
   );
 
   const [filters, setFilters] = useState(() =>
-    getFiltersFromParams(validated),
+    getFiltersFromParams(initialParams),
   );
   const [page, setPage] = useState(
-    validated.page ? parseInt(validated.page, 10) : 1,
+    initialParams.page ? parseInt(initialParams.page, 10) : 1,
   );
   const [errorMessages, setErrorMessages] = useState([]);
   const [alertSummaries, setAlertSummaries] = useState([]);
@@ -98,7 +120,7 @@ function AlertsView({
   const [loading, setLoading] = useState(false);
   const [optionCollectionMap, setOptionCollectionMap] = useState(null);
   const [count, setCount] = useState(0);
-  const [id, setId] = useState(validated.id);
+  const [id, setId] = useState(initialParams.id);
   const [totalPages, setTotalPages] = useState(0);
 
   // Refs to hold latest state for use in callbacks
@@ -383,11 +405,15 @@ function AlertsView({
   const pageNums = getCurrentPages();
 
   return (
-    <ErrorBoundary
-      errorClasses={errorMessageClass}
-      message={genericErrorMessage}
+    <ValidationGate
+      isLoading={validationLoading}
+      errorMessages={validationErrors}
     >
-      <Container fluid className="pt-5 max-width-default">
+      <ErrorBoundary
+        errorClasses={errorMessageClass}
+        message={genericErrorMessage}
+      >
+        <Container fluid className="pt-5 max-width-default">
         {loading && <LoadingSpinner />}
 
         {errorMessages.length > 0 && (
@@ -437,26 +463,20 @@ function AlertsView({
           performanceTags={performanceTags}
           {...otherProps}
         />
-        {!loading && alertSummaries.length === 0 && (
-          <p className="lead text-center">No alerts to show</p>
-        )}
-      </Container>
-    </ErrorBoundary>
+          {!loading && alertSummaries.length === 0 && (
+            <p className="lead text-center">No alerts to show</p>
+          )}
+        </Container>
+      </ErrorBoundary>
+    </ValidationGate>
   );
 }
 
 AlertsView.propTypes = {
   user: PropTypes.shape({}).isRequired,
-  validated: PropTypes.shape({
-    updateParams: PropTypes.func.isRequired,
-    framework: PropTypes.string,
-  }).isRequired,
   projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   frameworks: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   performanceTags: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
-export default withValidation(
-  { requiredParams: new Set([]) },
-  false,
-)(AlertsView);
+export default AlertsView;

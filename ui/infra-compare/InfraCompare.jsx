@@ -1,18 +1,24 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import withValidation from '../perfherder/Validation';
+import useValidation from '../perfherder/useValidation';
+import ValidationGate from '../perfherder/ValidationGate';
 
 import { getCounterMap } from './helpers';
 import { phTimeRanges } from './constants';
 import InfraCompareTableView from './InfraCompareTableView';
 
-function InfraCompareView({
-  projects,
-  validated = {},
-  updateAppState,
-  ...otherProps
-}) {
+const requiredParams = new Set([
+  'originalProject',
+  'newProject',
+  'newRevision',
+]);
+
+function InfraCompareView({ projects, updateAppState, ...otherProps }) {
+  const { validated, isLoading, errorMessages } = useValidation({
+    requiredParams,
+    projects,
+  });
   const [jobsNotDisplayed, setJobsNotDisplayed] = React.useState([]);
 
   const getInterval = (oldTimestamp, newTimestamp) => {
@@ -101,35 +107,23 @@ function InfraCompareView({
   };
 
   return (
-    <InfraCompareTableView
-      projects={projects}
-      validated={validated}
-      updateAppState={updateAppState}
-      {...otherProps}
-      jobsNotDisplayed={jobsNotDisplayed}
-      getQueryParams={getQueryParams}
-      getDisplayResults={getDisplayResults}
-    />
+    <ValidationGate isLoading={isLoading} errorMessages={errorMessages}>
+      <InfraCompareTableView
+        projects={projects}
+        validated={validated}
+        updateAppState={updateAppState}
+        {...otherProps}
+        jobsNotDisplayed={jobsNotDisplayed}
+        getQueryParams={getQueryParams}
+        getDisplayResults={getDisplayResults}
+      />
+    </ValidationGate>
   );
 }
 
 InfraCompareView.propTypes = {
   projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  validated: PropTypes.shape({
-    originalResultSet: PropTypes.shape({}),
-    newResultSet: PropTypes.shape({}),
-    newRevision: PropTypes.string,
-    originalProject: PropTypes.string,
-    newProject: PropTypes.string,
-    originalRevision: PropTypes.string,
-  }),
   updateAppState: PropTypes.func.isRequired,
 };
 
-const requiredParams = new Set([
-  'originalProject',
-  'newProject',
-  'newRevision',
-]);
-
-export default withValidation({ requiredParams })(InfraCompareView);
+export default InfraCompareView;

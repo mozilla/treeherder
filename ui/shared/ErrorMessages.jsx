@@ -1,52 +1,33 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Alert } from 'react-bootstrap';
 
-class ErrorMessages extends React.PureComponent {
-  constructor(props) {
-    super(props);
+const ErrorMessages = ({ errorMessages = [], failureMessage = null }) => {
+  const [visible, setVisible] = useState(true);
 
-    this.state = {
-      visible: true,
-    };
-  }
+  useEffect(() => {
+    setVisible(true);
+  }, [errorMessages, failureMessage]);
 
-  componentDidUpdate(prevProps) {
-    const { errorMessages = [], failureMessage = null } = this.props;
-    if (
-      (prevProps.errorMessages !== errorMessages ||
-        prevProps.failureMessage !== failureMessage) &&
-      !this.state.visible
-    ) {
-      // reset Alert if previouly dismissed
+  const messages = errorMessages.length ? errorMessages : [failureMessage];
 
-      this.setState({ visible: true });
-    }
-  }
-
-  render() {
-    const { errorMessages = [], failureMessage = null } = this.props;
-    const { visible } = this.state;
-
-    const messages = errorMessages.length ? errorMessages : [failureMessage];
-    return (
-      <div>
-        {messages.map((message) => (
-          <Alert
-            variant="danger"
-            show={visible}
-            onClose={() => this.setState({ visible: !visible })}
-            dismissible
-            key={message}
-            className="text-center"
-          >
-            {message}
-          </Alert>
-        ))}
-      </div>
-    );
-  }
-}
+  return (
+    <div>
+      {messages.map((message) => (
+        <Alert
+          variant="danger"
+          show={visible}
+          onClose={() => setVisible((v) => !v)}
+          dismissible
+          key={message}
+          className="text-center"
+        >
+          {message}
+        </Alert>
+      ))}
+    </div>
+  );
+};
 
 ErrorMessages.propTypes = {
   failureMessage: PropTypes.string,
