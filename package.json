@@ -43,12 +43,12 @@
     "react-dom": "19.2.3",
     "react-highlight-words": "0.20.0",
     "react-hot-keys": "2.7.3",
-    "react-lazylog": "4.5.3",
     "react-linkify": "0.2.2",
     "react-resizable-panels": "3.0.6",
     "react-router": "^7.11.0",
     "react-table-6": "6.11.0",
     "react-tabs": "6.1.1",
+    "react-virtuoso": "4.18.5",
     "redoc": "2.4.0",
     "stream-browserify": "3.0.0",
     "styled-components": "6.1.19",
@@ -112,7 +112,7 @@
     "test": "jest --maxWorkers=50%",
     "test:coverage": "jest --maxWorkers=50% --coverage",
     "test:ci": "jest --maxWorkers=2 --coverage",
-    "test:integration": "node node_modules/puppeteer/install.mjs && set TEST_TYPE=integration && jest",
+    "test:integration": "jest --config jest.integration.config.js",
     "test:watch": "jest --watch --maxWorkers=25%"
   },
   "pnpm": {

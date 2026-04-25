@@ -122,7 +122,7 @@ export const formatExpiresTooltip = function formatExpiresTooltip(expires) {
 export const errorLinesCss = function errorLinesCss(errors) {
   const style = document.createElement('style');
   const rule = errors
-    .map(({ lineNumber }) => `a[id="${lineNumber}"]+span`)
+    .map(({ lineNumber }) => `.classic-log-line[data-line="${lineNumber}"]`)
     .join(',')
     .concat('{background:#fbe3e3;color:#a94442}');
 

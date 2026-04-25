@@ -17,6 +17,21 @@ body,
   background-color: lightgrey;
 }
 
+.error-line-indicator {
+  width: 14px;
+  text-align: center;
+  color: #856404;
+  padding: 0 2px;
+}
+
+.error-line-selected {
+  background-color: #fff8e1;
+}
+
+.error-line td {
+  vertical-align: top;
+}
+
 .error-line-text {
   word-break: break-all;
 }
@@ -33,3 +48,4 @@ body,
 .run-data {
   max-height: 250px;
 }
+
