@@ -92,6 +92,11 @@ class PerformanceSignature(models.Model):
     ALERT_ABS = 1
     ALERT_CHANGE_TYPES = ((ALERT_PCT, "percentage"), (ALERT_ABS, "absolute"))
 
+    CRITICAL = "critical"
+    SUBCRITICAL = "subcritical"
+    NORMAL = "normal"
+    ALERT_SEVERITIES = ((CRITICAL, "critical"), (SUBCRITICAL, "subcritical"), (NORMAL, "normal"))
+
     should_alert = models.BooleanField(null=True)
     monitor = models.BooleanField(null=True)
     alert_notify_emails = models.CharField(max_length=422, null=True)
@@ -100,6 +105,7 @@ class PerformanceSignature(models.Model):
     min_back_window = models.IntegerField(null=True)
     max_back_window = models.IntegerField(null=True)
     fore_window = models.IntegerField(null=True)
+    alert_severity = models.CharField(max_length=80, choices=ALERT_SEVERITIES, default=NORMAL)
 
     @staticmethod
     def _get_alert_change_type(alert_change_type_input):

@@ -203,6 +203,7 @@ def _load_perf_datum(job: Job, perf_datum: dict):
                         suite.get("alertChangeType")
                     ),
                     "alert_threshold": suite.get("alertThreshold"),
+                    "alert_severity": suite.get("alertSeverity", "normal"),
                     "min_back_window": suite.get("minBackWindow"),
                     "max_back_window": suite.get("maxBackWindow"),
                     "fore_window": suite.get("foreWindow"),
@@ -277,6 +278,9 @@ def _load_perf_datum(job: Job, perf_datum: dict):
                         subtest.get("alertChangeType")
                     ),
                     "alert_threshold": subtest.get("alertThreshold"),
+                    "alert_severity": subtest.get(
+                        "alertSeverity", suite.get("alertSeverity", "normal")
+                    ),
                     "min_back_window": subtest.get("minBackWindow"),
                     "max_back_window": subtest.get("maxBackWindow"),
                     "fore_window": subtest.get("foreWindow"),

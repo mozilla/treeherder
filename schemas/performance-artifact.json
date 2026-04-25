@@ -104,6 +104,12 @@
           "type": "number",
           "minimum": 0.0
         },
+        "alertSeverity": {
+          "description": "Severity level for alerts produced by this subtest",
+          "title": "Alert severity",
+          "enum": ["critical", "subcritical", "normal"],
+          "type": "string"
+        },
         "minBackWindow": {
           "description": "Minimum back window to use for alerting",
           "title": "Minimum back window",
@@ -206,6 +212,12 @@
           "title": "Alert threshold",
           "type": "number",
           "minimum": 0.0
+        },
+        "alertSeverity": {
+          "description": "Severity level for alerts produced by this suite",
+          "title": "Alert severity",
+          "enum": ["critical", "subcritical", "normal"],
+          "type": "string"
         },
         "alertChangeType": {
           "description": "Type of change to alert on (absolute or percentage)",
