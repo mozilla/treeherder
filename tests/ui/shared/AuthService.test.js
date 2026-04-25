@@ -31,6 +31,7 @@ jest.mock('../../../ui/helpers/auth', () => ({
   renew: (...args) => mockRenew(...args),
   loggedOutUser: { isLoggedIn: false },
   RENEW_INTERVAL: '15 minutes',
+  isAuthDebugEnabled: () => false,
 }));
 
 jest.mock('../../../ui/models/user');

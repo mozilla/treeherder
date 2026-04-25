@@ -5,11 +5,17 @@ import {
   renew,
   loggedOutUser,
   RENEW_INTERVAL,
+  isAuthDebugEnabled,
 } from '../../helpers/auth';
 import { getApiUrl } from '../../helpers/url';
 import UserModel from '../../models/user';
 
-const authLog = (msg, ...args) => console.debug(`[Auth]`, msg, ...args);
+// Verbose breadcrumbs (renewal cycle, lock contention, timer details) are
+// hidden by default. Enable with `localStorage.setItem('authDebug', '1')`.
+const authLog = (msg, ...args) => {
+  if (isAuthDebugEnabled()) console.debug(`[Auth]`, msg, ...args);
+};
+const authInfo = (msg, ...args) => console.log(`[Auth]`, msg, ...args);
 const authWarn = (msg, ...args) => console.warn(`[Auth]`, msg, ...args);
 const authError = (msg, ...args) => console.error(`[Auth]`, msg, ...args);
 
@@ -203,7 +209,7 @@ export default class AuthService {
   }
 
   logout() {
-    authLog('Logging out user');
+    authInfo('Logging out user');
     localStorage.removeItem('userSession');
     localStorage.removeItem('renewalLock');
     // Clear auth0-spa-js SDK token cache from localStorage
