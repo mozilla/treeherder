@@ -100,9 +100,12 @@ export const formatByteSize = function formatByteSize(bytes) {
 
 export const formatExpires = function formatExpires(expires) {
   if (!expires) return '';
-  const days = Math.floor((new Date(expires).getTime() - Date.now()) / 86400000);
-  if (Number.isNaN(days)) return '';
-  if (days <= 0) return 'expired';
+  const ms = new Date(expires).getTime() - Date.now();
+  if (Number.isNaN(ms)) return '';
+  if (ms <= 0) return 'expired';
+  const hours = Math.floor(ms / 3600000);
+  if (hours < 24) return `${hours}h`;
+  const days = Math.floor(hours / 24);
   if (days < 60) return `${days}d`;
   return `${Math.floor(days / 30)}mo`;
 };
