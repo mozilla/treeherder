@@ -208,11 +208,20 @@ function AlertsView({
         monitoredAlerts,
       } = currentFilters;
 
-      setPage(pg);
       const updates = {};
-      const params = composeParams(alertId, pg, framework, status);
+      const listMode = !idRef.current;
 
-      const listMode = !alertId;
+      // refresh to page 1 after updating the last summary of a page
+      if (listMode && update && pg > 1 && currentAlertSummaries.length === 1) {
+        validated.updateParams({ page: 1 });
+        setLoading(false);
+        return;
+      }
+
+      setPage(pg);
+
+      const requestAlertId = listMode ? null : alertId;
+      const params = composeParams(requestAlertId, pg, framework, status);
 
       if (listMode) {
         if (filterText) {
@@ -266,18 +275,36 @@ function AlertsView({
 
       if (response.alertSummaries) {
         const summary = response.alertSummaries;
+        const nextCount = Math.ceil(summary.count / 10);
 
-        if (update && summary.results.length !== 0) {
+        if (listMode) {
+          const lastValidPage = Math.max(nextCount, 1);
+
+          if (pg > lastValidPage) {
+            setCount(nextCount);
+            validated.updateParams({ page: lastValidPage });
+            setLoading(false);
+            return;
+          }
+
+          setAlertSummaries(summary.results);
+          setCount(nextCount);
+        } else if (update && summary.results.length !== 0) {
           const newSummaries = [...currentAlertSummaries];
           const index = newSummaries.findIndex(
             (item) => item.id === summary.results[0].id,
           );
-          newSummaries.splice(index, 1, summary.results[0]);
-          setAlertSummaries(newSummaries);
+          
+          if (index !== -1) {
+            newSummaries.splice(index, 1, summary.results[0]);
+            setAlertSummaries(newSummaries);
+          }
+
+          setCount(currentCount);
         } else {
-          setAlertSummaries(update ? currentAlertSummaries : summary.results);
+          setAlertSummaries(summary.results);
+          setCount(nextCount);
         }
-        setCount(update ? currentCount : Math.ceil(summary.count / 10));
       } else if (response.errorMessages) {
         setErrorMessages(response.errorMessages);
       }
@@ -287,7 +314,7 @@ function AlertsView({
       }
       setLoading(false);
     },
-    [composeParams, user],
+    [composeParams, user, validated],
   );
 
   const selectNotSupportedFilters = useCallback(
