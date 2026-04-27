@@ -1,6 +1,48 @@
 import pytest
 
-from treeherder.etl.taskcluster_pulse.handler import handle_message, handle_task_defined
+from treeherder.etl.taskcluster_pulse.handler import (
+    create_log_reference,
+    handle_message,
+    handle_task_defined,
+)
+
+ROOT_URL = "https://firefox-ci-tc.services.mozilla.com"
+TASK_ID = "AJBb7wqZT6K9kz4niYAatg"
+
+
+def test_create_log_reference_emits_live_backing_log_by_default():
+    logs = create_log_reference(ROOT_URL, TASK_ID, 0)
+    assert len(logs) == 1
+    assert logs[0]["name"] == "live_backing_log"
+    assert logs[0]["url"].endswith(f"task/{TASK_ID}/runs/0/artifacts/public/logs/live_backing.log")
+
+
+def test_create_log_reference_only_live_backing_log_when_no_raw_log():
+    artifacts = [
+        {"name": "public/logs/live_backing.log"},
+        {"name": "public/test_info/something.txt"},
+    ]
+    logs = create_log_reference(ROOT_URL, TASK_ID, 0, artifacts=artifacts)
+    assert len(logs) == 1
+    assert logs[0]["url"].endswith("artifacts/public/logs/live_backing.log")
+
+
+def test_create_log_reference_appends_raw_log_when_present():
+    artifacts = [
+        {"name": "public/logs/live_backing.log"},
+        {"name": "public/test_info/xpcshell_raw.log"},
+        {"name": "public/test_info/mochitest_raw.log"},
+    ]
+    logs = create_log_reference(ROOT_URL, TASK_ID, 0, artifacts=artifacts)
+    assert [log["name"] for log in logs] == [
+        "live_backing_log",
+        "structured_log",
+        "structured_log",
+    ]
+    urls = [log["url"] for log in logs]
+    assert urls[0].endswith("artifacts/public/logs/live_backing.log")
+    assert urls[1].endswith("artifacts/public/test_info/xpcshell_raw.log")
+    assert urls[2].endswith("artifacts/public/test_info/mochitest_raw.log")
 
 
 @pytest.mark.asyncio
