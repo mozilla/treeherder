@@ -705,49 +705,6 @@ def test_filter_text_accounts_for_related_alerts_also(
     assert len(summary_ids) == 2
 
 
-# create second active repository to verify repository-based filtering does not return summaries from the wrong repo.
-@pytest.fixture
-def other_active_repository(transactional_db):
-    from treeherder.model.models import Repository
-
-    return Repository.objects.create(
-        dvcs_type="hg",
-        name="treeherder_test_active_other",
-        url="https://hg.mozilla.org/integration/autoland",
-        active_status="active",
-        codebase="gecko",
-        repository_group_id=1,
-        description="",
-        performance_alerts_enabled=True,
-    )
-
-
-# creates a PerformanceAlertSummary attached to the second repository.
-@pytest.fixture
-def test_perf_alert_summary_other_repository(other_active_repository, test_perf_framework):
-    prev_push = Push.objects.create(
-        repository=other_active_repository,
-        revision="active-other-prev",
-        author="foo@bar.com",
-        time=datetime.now(),
-    )
-    push = Push.objects.create(
-        repository=other_active_repository,
-        revision="active-other-push",
-        author="foo@bar.com",
-        time=datetime.now(),
-    )
-
-    return PerformanceAlertSummary.objects.create(
-        repository=other_active_repository,
-        framework=test_perf_framework,
-        prev_push_id=prev_push.id,
-        push_id=push.id,
-        manually_created=False,
-        created=datetime.now(),
-    )
-
-
 def test_alert_summaries_filter_by_id(client, test_perf_alert_summary, test_perf_alert_summary_2):
     resp = client.get(
         reverse("performance-alert-summaries-list"),
@@ -785,9 +742,17 @@ def test_alert_summaries_filter_by_status(
 def test_alert_summaries_filter_by_repository(
     client,
     test_perf_alert_summary,
+    test_perf_alert_summary_2,
     test_repository,
-    test_perf_alert_summary_other_repository,
+    try_repository,
+    try_push_stored,
 ):
+    try_pushes = Push.objects.filter(repository=try_repository).order_by("id")
+    test_perf_alert_summary_2.repository = try_repository
+    test_perf_alert_summary_2.prev_push = try_pushes[0]
+    test_perf_alert_summary_2.push = try_pushes[1]
+    test_perf_alert_summary_2.save()
+
     resp = client.get(
         reverse("performance-alert-summaries-list"),
         data={"repository": test_repository.id},
@@ -798,41 +763,57 @@ def test_alert_summaries_filter_by_repository(
     summary_ids = [summary["id"] for summary in retrieved_summaries]
 
     assert test_perf_alert_summary.id in summary_ids
-    assert test_perf_alert_summary_other_repository.id not in summary_ids
+    assert test_perf_alert_summary_2.id not in summary_ids
 
 
-def test_alert_summaries_filter_by_series_signature(
-    client,
-    test_perf_alert_summary_2,
-    test_perf_signature_2,
-):
-    create_perf_alert(
-        summary=test_perf_alert_summary_2,
-        series_signature=test_perf_signature_2,
-    )
-
+def test_alert_summaries_filter_by_series_signature(client, test_perf_alert_2):
     resp = client.get(
         reverse("performance-alert-summaries-list"),
-        data={"alerts__series_signature": test_perf_signature_2.id},
+        data={"alerts__series_signature": test_perf_alert_2.series_signature_id},
     )
     assert resp.status_code == 200
 
     summary_ids = [summary["id"] for summary in resp.json()["results"]]
 
-    assert summary_ids == [test_perf_alert_summary_2.id]
+    assert summary_ids == [test_perf_alert_2.summary_id]
 
 
+@pytest.mark.parametrize(
+    "filter_target",
+    [
+        "suite",
+        "test",
+        "platform",
+        "extra_options",
+        "bug_number",
+        "revision",
+    ],
+)
 def test_alert_summaries_filter_text_matches_primary_alert_fields(
-    client, test_perf_alert_summary, test_perf_alert_summary_2, test_perf_alert
+    client,
+    test_perf_alert_summary,
+    test_perf_alert_summary_2,
+    test_perf_alert,
+    filter_target,
 ):
+    test_perf_alert_summary.bug_number = 123456
+    test_perf_alert_summary.save()
+
     signature = test_perf_alert.series_signature
-    text_to_filter = f"{signature.suite} {signature.test}"
+    filter_values = {
+        "suite": signature.suite,
+        "test": signature.test,
+        "platform": signature.platform.platform,
+        "extra_options": signature.extra_options,
+        "bug_number": str(test_perf_alert_summary.bug_number),
+        "revision": test_perf_alert_summary.push.revision,
+    }
 
     resp = client.get(
         reverse("performance-alert-summaries-list"),
         data={
             "framework": test_perf_alert_summary.framework_id,
-            "filter_text": text_to_filter,
+            "filter_text": filter_values[filter_target],
         },
     )
     assert resp.status_code == 200
@@ -848,17 +829,10 @@ def test_alert_summaries_hide_improvements(
     test_perf_alert_summary,
     test_perf_alert_summary_2,
     test_perf_alert,
-    test_perf_signature_2,
+    test_perf_alert_2,
 ):
     test_perf_alert.is_regression = False
     test_perf_alert.save()
-
-    regression_alert = create_perf_alert(
-        summary=test_perf_alert_summary_2,
-        series_signature=test_perf_signature_2,
-    )
-    regression_alert.is_regression = True
-    regression_alert.save()
 
     resp = client.get(
         reverse("performance-alert-summaries-list"),
