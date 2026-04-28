@@ -7,6 +7,7 @@ import asyncio
 import newrelic.agent
 from django.conf import settings
 
+from treeherder.etl.classification_loader import ClassificationLoader
 from treeherder.etl.job_loader import JobLoader
 from treeherder.etl.push_loader import PushLoader
 from treeherder.etl.taskcluster_pulse.handler import handle_message
@@ -68,5 +69,4 @@ def store_pulse_tasks_classification(
     newrelic.agent.add_custom_attribute("exchange", exchange)
     newrelic.agent.add_custom_attribute("routing_key", routing_key)
 
-    # Temporarily disabled for Kubernets Pod crashes
-    # ClassificationLoader().process(pulse_job, root_url)
+    ClassificationLoader().process(pulse_job, root_url)
