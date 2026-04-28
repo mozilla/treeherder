@@ -19,7 +19,7 @@ export PROJECTS_TO_INGEST=autoland,try
 Visit [Pulse Guardian], sign in, and create a **Pulse User**. It will ask you to set a
 username and password. Remember these as you'll use them in the next step.
 This is recommended, because using the default value **MAY** cause you to miss some data,
-if it was already ingested by another user  Unfortunately, **Pulse** doesn't support creating
+if it was already ingested by another user. Unfortunately, **Pulse** doesn't support creating
 queues with a guest account.
 
 If your **Pulse User** was username: `foo` and password: `bar`, your Pulse URL
