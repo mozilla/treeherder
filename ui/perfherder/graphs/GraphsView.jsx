@@ -373,6 +373,11 @@ function GraphsView({ projects, frameworks, user }) {
 
     const updates = {};
 
+    if (replicatesParam) {
+      updates.replicates = Boolean(parseInt(replicatesParam, 10));
+      replicatesRef.current = updates.replicates;
+    }
+    
     if (series) {
       const _series = typeof series === 'string' ? [series] : series;
       const seriesParams = parseSeriesParam(
@@ -395,9 +400,6 @@ function GraphsView({ projects, frameworks, user }) {
       updates.highlightInitialDataPoints = Boolean(
         parseInt(hlInitialDataPoints, 10),
       );
-    }
-    if (replicatesParam) {
-      updates.replicates = Boolean(parseInt(replicatesParam, 10));
     }
     if (hlRevisions) {
       updates.highlightedRevisions =
