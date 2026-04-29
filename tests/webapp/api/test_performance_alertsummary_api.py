@@ -831,6 +831,7 @@ def test_alert_summaries_hide_improvements(
     test_perf_alert,
     test_perf_alert_2,
 ):
+    # ensure test_perf_alert_summary is an improvement summary
     test_perf_alert.is_regression = False
     test_perf_alert.save()
 
