@@ -35,7 +35,7 @@ th-db
 
 ```code
 use-prod
-docker-compose up -d
+docker compose up -d
 ```
 
 ### ENV vars
