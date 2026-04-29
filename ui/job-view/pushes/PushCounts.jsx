@@ -72,10 +72,19 @@ function PushCounts({
             {totalFailedJobs} {totalFailedJobs === 1 ? 'job' : 'jobs'} failed
           </Badge>
         )}
-
-        <span className="push-progress">
-          <span>- Complete -</span>
-        </span>
+        <div>
+          {fixedByCommit > 0 && (
+            <span
+              className="badge text-bg-warning ms-1"
+              title="Count of Fixed By Commit tasks for this push"
+            >
+              {fixedByCommit}
+            </span>
+          )}
+          <span className="push-progress">
+            <span>- Complete -</span>
+          </span>
+        </div>
       </>
     );
   }
