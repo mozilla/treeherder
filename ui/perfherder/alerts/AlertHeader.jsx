@@ -14,6 +14,7 @@ import {
 import { getJobsUrl, getPerfCompareBaseURL } from '../../helpers/url';
 import { toMercurialShortDateStr } from '../../helpers/display';
 import SimpleTooltip from '../../shared/SimpleTooltip';
+import Clipboard from '../../shared/Clipboard';
 
 import Assignee from './Assignee';
 import TagsList from './TagsList';
@@ -230,19 +231,34 @@ const AlertHeader = ({
       {alertSummary.duplicated_summaries.length > 0 && (
         <Row>
           Duplicated summaries:
-          {alertSummary.duplicated_summaries.map((summary, index) => (
-            <Link
-              key={summary.id}
-              className="text-dark me-1"
-              target="_blank"
-              to={`/perfherder/alerts?id=${summary.id}&hideDwnToInv=0`}
-              id={`duplicated alert summary ${summary.id.toString()} `}
-              style={{ marginLeft: '5px' }}
-            >
-              Alert #{summary.id} - {getStatus(summary.status)}
-              {alertSummary.duplicated_summaries.length - 1 !== index && ', '}
-            </Link>
-          ))}
+          {alertSummary.duplicated_summaries.map((summary, index) => {
+            const isReassigned = getStatus(summary.status) === 'reassigned';
+            return (
+              <span 
+                key={summary.id} 
+                className="d-inline-flex align-items-center" 
+                style={{ marginLeft: '5px' }}
+              >
+                <Link
+                  className="text-dark me-1"
+                  target="_blank"
+                  to={`/perfherder/alerts?id=${summary.id}&hideDwnToInv=0`}
+                  id={`duplicated alert summary ${summary.id.toString()} `}
+                >
+                  Alert #{summary.id} - {getStatus(summary.status)}
+                  {isReassigned && summary.reassigned_to && ` to #${summary.reassigned_to}`}
+                </Link>
+                {isReassigned && summary.reassigned_to && (
+                  <Clipboard
+                    text={`${summary.reassigned_to}`}
+                    description="Alert ID"
+                    variant="transparent"
+                  />
+                )}
+                {alertSummary.duplicated_summaries.length - 1 !== index && ', '}
+              </span>
+            );
+          })}
         </Row>
       )}
       <Row>
