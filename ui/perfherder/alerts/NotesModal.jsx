@@ -6,7 +6,7 @@ export default class NotesModal extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      inputValue: this.props.alertSummary.notes,
+      inputValue: this.props.alertSummary.notes || '',
     };
   }
 
@@ -14,8 +14,23 @@ export default class NotesModal extends React.Component {
     this.setState({ inputValue: event.target.value });
   };
 
+  handleSubmit = (event) => {
+    event.preventDefault();
+
+    const { updateAndClose } = this.props;
+    const { inputValue } = this.state;
+
+    updateAndClose(
+      event,
+      {
+        notes: inputValue.length ? inputValue : null,
+      },
+      'showNotesModal',
+    );
+  };
+
   render() {
-    const { showModal, toggle, alertSummary, updateAndClose } = this.props;
+    const { showModal, toggle, alertSummary } = this.props;
     const { inputValue } = this.state;
 
     return (
@@ -23,12 +38,13 @@ export default class NotesModal extends React.Component {
         <Modal.Header closeButton>
           <Modal.Title>Alert Notes</Modal.Title>
         </Modal.Header>
-        <Form>
+        <Form onSubmit={this.handleSubmit}>
           <Modal.Body>
             <Form.Group>
               <Form.Label htmlFor="editableNotes">Add or edit notes</Form.Label>
               <Form.Control
-                value={inputValue || ''}
+                id="editableNotes"
+                value={inputValue}
                 onChange={this.updateInput}
                 name="editableNotes"
                 as="textarea"
@@ -40,16 +56,7 @@ export default class NotesModal extends React.Component {
           <Modal.Footer>
             <Button
               variant="secondary"
-              onClick={(event) =>
-                updateAndClose(
-                  event,
-                  {
-                    notes: inputValue.length ? inputValue : null,
-                  },
-                  'showNotesModal',
-                )
-              }
-              disabled={inputValue === alertSummary.notes}
+              disabled={inputValue === (alertSummary.notes || '')}
               type="submit"
             >
               Save
