@@ -178,6 +178,9 @@ These steps should help you set up everything you need to ingest data locally wh
 
 #### Create a pulse guardian account and run
 
+!!! note
+    This step is optional and used if you want to ingest from pulse messages.
+
 ```bash
 export PULSE_URL=amqp://USER:PASSWORD@pulse.mozilla.org:5671/?ssl=1
 pnpm install
@@ -199,14 +202,14 @@ You can use any database viewer of your choice `(e.g. dbeaver-ce, mysql workbenc
 **Connect to the following while `docker compose up --build` from the previous step is running:**
 
 `Serverhost: localhost`
-`Port: 3306`
+`Port: 5432`
 `Database: treeherder`
-`Username: root`
-`No password`
+`Username: postgres`
+`Password: mozilla1234`
 
 ---
 
-#### Run the following in separate window while running above to do ingestion
+#### Run the following in a separate window while running above to do ingestion
 
 <!-- prettier-ignore -->
 !!! note
@@ -232,6 +235,12 @@ docker compose exec backend ./manage.py ingest push -p autoland -r 1ee42a54a431a
 
 ```bash
 docker compose exec backend ./manage.py ingest push -p autoland --last-n-pushes 100
+```
+
+#### Ingest a single task
+
+```bash
+docker-compose exec backend ./manage.py ingest task -p autoland -r 1ee42a54a431acdd6cbe43b49de0237fe67eddd9 --task-id <TASK-ID> --enable-eager-celery
 ```
 
 #### Ingest a single Github push or the last 10
