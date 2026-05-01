@@ -207,7 +207,7 @@ const SearchBar = ({
         {renderMatchCount()}
         <button
           type="button"
-          className="classic-log-searchbar-case"
+          className={`classic-log-searchbar-case${caseInsensitive ? '' : ' active'}`}
           onClick={onToggleCase}
           title={caseInsensitive ? 'Case insensitive' : 'Case sensitive'}
         >

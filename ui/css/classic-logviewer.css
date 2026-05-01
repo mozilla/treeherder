@@ -173,10 +173,18 @@
 
 .classic-log-searchbar-case {
   background: none;
-  border: none;
+  border: 1px solid #6c757d;
+  border-radius: 3px;
   cursor: pointer;
-  padding: 2px;
+  padding: 2px 6px;
   color: white;
   display: flex;
   align-items: center;
+  font-size: 12px;
+}
+
+.classic-log-searchbar-case.active {
+  background: #ffc107;
+  color: black;
+  border-color: #ffc107;
 }
