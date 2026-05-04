@@ -4,7 +4,7 @@ FROM node:22.22.2-slim AS frontend
 WORKDIR /app
 
 # Install pnpm
-RUN corepack enable && corepack prepare pnpm@10.30.3 --activate
+RUN npm install -g corepack@0.34.7 && corepack enable && corepack prepare pnpm@10.30.3 --activate
 
 COPY ui/ /app/ui/
 COPY package.json rspack.config.js pnpm-lock.yaml .npmrc /app/
