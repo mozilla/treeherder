@@ -379,26 +379,17 @@ export const getJobCount = (jobs) => {
     if (job.result === 'testfailed') {
       if (job.platform === 'lint') {
         state['lint_failed'] = (memo['lint_failed'] || 0) + 1;
-        if (
-          job.failure_classification_id === 4 ||
-          job.failure_classification_id === 8
-        ) {
+        if (job.failure_classification_id === 4) {
           state['intermittentLint'] = (memo['intermittentLint'] || 0) + 1;
         }
       } else if (job.job_type_name.includes('build')) {
         state['build_failed'] = (memo['build_failed'] || 0) + 1;
-        if (
-          job.failure_classification_id === 4 ||
-          job.failure_classification_id === 8
-        ) {
+        if (job.failure_classification_id === 4) {
           state['intermittentBuild'] = (memo['intermittentBuild'] || 0) + 1;
         }
       } else {
         state['test_failed'] = (memo['test_failed'] || 0) + 1;
-        if (
-          job.failure_classification_id === 4 ||
-          job.failure_classification_id === 8
-        ) {
+        if (job.failure_classification_id === 4) {
           state['intermittentTests'] = (memo['intermittentTests'] || 0) + 1;
         }
       }
