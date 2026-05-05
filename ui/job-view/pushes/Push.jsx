@@ -678,7 +678,7 @@ function Push({
                   widthClass="mb-3 ms-4"
                   commitShaClass="font-monospace"
                 >
-                  {filteredTryPush && (
+                  {filteredTryPush && decisionTask && (
                     <PushCountsDetails
                       {...jobCounts}
                       externalFailureUrl={externalFailureUrl}
