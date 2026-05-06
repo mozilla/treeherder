@@ -22,12 +22,7 @@ class PushLoader:
         try:
             newrelic.agent.add_custom_attribute("url", transformer.repo_url)
             newrelic.agent.add_custom_attribute("branch", transformer.branch)
-            repos = Repository.objects
-            if transformer.branch:
-                repos = repos.filter(branch__regex=f"(^|,){transformer.branch}($|,)")
-            else:
-                repos = repos.filter(branch=None)
-            repo = repos.get(url=transformer.repo_url, active_status="active")
+            repo = transformer.resolve_repo()
             newrelic.agent.add_custom_attribute("repository", repo.name)
         except ObjectDoesNotExist:
             repo_info = transformer.get_info()
@@ -66,9 +61,13 @@ class GithubTransformer:
         self.message_body = message_body
         self.repo_url = self.get_repo()
         self.branch = self.get_branch()
+        self.repos = Repository.objects.filter(url=self.repo_url, active_status="active")
 
     def get_branch(self):
         return self.message_body["details"]["event.base.repo.branch"]
+
+    def resolve_repo(self):
+        return self.repos.get(branch__regex=f"(^|,){self.branch}($|,)")
 
     def get_info(self):
         # flatten the data a bit so it will show in new relic as fields
@@ -258,6 +257,10 @@ class HgPushTransformer:
         self.message_body = message_body
         self.repo_url = message_body["payload"]["repo_url"]
         self.branch = None
+        self.repos = Repository.objects.filter(url=self.repo_url, active_status="active")
+
+    def resolve_repo(self):
+        return self.repos.get(branch=None)
 
     def get_info(self):
         return self.message_body["payload"]
