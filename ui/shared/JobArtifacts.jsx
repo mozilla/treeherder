@@ -64,7 +64,11 @@ export default class JobArtifacts extends React.PureComponent {
     this.setState((prev) => {
       const toggle = { asc: 'desc', desc: 'asc' };
       const sortDir =
-        prev.sortKey === key ? toggle[prev.sortDir] : key === 'size' ? 'desc' : 'asc';
+        prev.sortKey === key
+          ? toggle[prev.sortDir]
+          : key === 'size'
+          ? 'desc'
+          : 'asc';
       return { sortKey: key, sortDir };
     });
   };
@@ -90,7 +94,9 @@ export default class JobArtifacts extends React.PureComponent {
 
   shouldShowPernoscoLink(repoName, selectedJob) {
     return (
-      (repoName === 'try' || repoName === 'autoland' || repoName === 'enterprise-firefox-pr') &&
+      (repoName === 'try' ||
+        repoName === 'autoland' ||
+        repoName === 'enterprise-firefox-pr') &&
       selectedJob &&
       selectedJob.task_id &&
       selectedJob.result === 'testfailed' &&
@@ -173,8 +179,12 @@ export default class JobArtifacts extends React.PureComponent {
     const mul = sortDir === 'asc' ? 1 : -1;
     const sortedDetails = rows.sort((a, b) => {
       if (sortKey === 'size') {
-        const av = Number.isFinite(a.contentLength) ? a.contentLength : -Infinity;
-        const bv = Number.isFinite(b.contentLength) ? b.contentLength : -Infinity;
+        const av = Number.isFinite(a.contentLength)
+          ? a.contentLength
+          : -Infinity;
+        const bv = Number.isFinite(b.contentLength)
+          ? b.contentLength
+          : -Infinity;
         return (av - bv) * mul;
       }
       if (sortKey === 'expires') {
@@ -212,7 +222,11 @@ export default class JobArtifacts extends React.PureComponent {
             <thead>
               <tr>
                 {this.sortHeader('name', 'Name')}
-                {this.sortHeader('expires', 'Expires in', 'text-nowrap text-end')}
+                {this.sortHeader(
+                  'expires',
+                  'Expires in',
+                  'text-nowrap text-end',
+                )}
                 {this.sortHeader('size', 'Size', 'text-end')}
               </tr>
             </thead>
@@ -224,14 +238,19 @@ export default class JobArtifacts extends React.PureComponent {
                   return (
                     <tr key={line.url}>
                       <td>
-                        <CellLink href={viewerUrl} label="Open in crash viewer" />
+                        <CellLink
+                          href={viewerUrl}
+                          label="Open in crash viewer"
+                        />
                         <ArtifactLink artifact={crash.dmp} />
                         {', '}
                         <ArtifactLink artifact={crash.extra}>
                           .extra
                         </ArtifactLink>
                         {', '}
-                        <ArtifactLink artifact={crash.json}>.json</ArtifactLink>{' '}
+                        <ArtifactLink artifact={crash.json}>
+                          .json
+                        </ArtifactLink>{' '}
                         -{' '}
                         <a
                           title="Open in crash viewer"
@@ -246,14 +265,20 @@ export default class JobArtifacts extends React.PureComponent {
                         className="text-end text-nowrap text-muted"
                         title={formatExpiresTooltip(line.expires)}
                       >
-                        <CellLink href={viewerUrl} label="Open in crash viewer" />
+                        <CellLink
+                          href={viewerUrl}
+                          label="Open in crash viewer"
+                        />
                         <span>{formatExpires(line.expires)}</span>
                       </td>
                       <td
                         className="text-end text-nowrap text-muted"
                         title={formatSizeTooltip(line.contentLength)}
                       >
-                        <CellLink href={viewerUrl} label="Open in crash viewer" />
+                        <CellLink
+                          href={viewerUrl}
+                          label="Open in crash viewer"
+                        />
                         <span>{formatByteSize(line.contentLength)}</span>
                       </td>
                     </tr>
@@ -263,7 +288,9 @@ export default class JobArtifacts extends React.PureComponent {
                 const isProfileArtifact =
                   !!line.url &&
                   line.value.startsWith('profile_') &&
-                  (line.value.endsWith('.zip') || line.value.endsWith('.json'));
+                  (line.value.endsWith('.zip') ||
+                    line.value.endsWith('.json') ||
+                    line.value.endsWith('.json.gz'));
                 const primaryUrl = isProfileArtifact
                   ? getPerfAnalysisUrl(line.url, selectedJob)
                   : line.url;
@@ -274,7 +301,9 @@ export default class JobArtifacts extends React.PureComponent {
                 return (
                   <tr key={line.url}>
                     <td>
-                      {primaryUrl && <CellLink href={primaryUrl} label={primaryTitle} />}
+                      {primaryUrl && (
+                        <CellLink href={primaryUrl} label={primaryTitle} />
+                      )}
                       {line.path && (
                         <span className="text-muted">{line.path}/</span>
                       )}
@@ -298,14 +327,18 @@ export default class JobArtifacts extends React.PureComponent {
                       className="text-end text-nowrap text-muted"
                       title={formatExpiresTooltip(line.expires)}
                     >
-                      {primaryUrl && <CellLink href={primaryUrl} label={primaryTitle} />}
+                      {primaryUrl && (
+                        <CellLink href={primaryUrl} label={primaryTitle} />
+                      )}
                       <span>{formatExpires(line.expires)}</span>
                     </td>
                     <td
                       className="text-end text-nowrap text-muted"
                       title={formatSizeTooltip(line.contentLength)}
                     >
-                      {primaryUrl && <CellLink href={primaryUrl} label={primaryTitle} />}
+                      {primaryUrl && (
+                        <CellLink href={primaryUrl} label={primaryTitle} />
+                      )}
                       <span>{formatByteSize(line.contentLength)}</span>
                     </td>
                   </tr>
