@@ -240,7 +240,7 @@ docker compose exec backend ./manage.py ingest push -p autoland --last-n-pushes 
 #### Ingest a single task
 
 ```bash
-docker-compose exec backend ./manage.py ingest task -p autoland -r 1ee42a54a431acdd6cbe43b49de0237fe67eddd9 --task-id <TASK-ID> --enable-eager-celery
+docker compose exec backend ./manage.py ingest task -p autoland -r 1ee42a54a431acdd6cbe43b49de0237fe67eddd9 --task-id <TASK-ID> --enable-eager-celery
 ```
 
 #### Ingest a single Github push or the last 10
