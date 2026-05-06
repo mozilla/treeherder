@@ -78,7 +78,7 @@ def test_records_change_to_ready_for_processing(
         backfill_tool_mock,
         secretary,
     )
-    sherlock.sheriff(since=EPOCH, frameworks=["raptor", "talos"], repositories=["autoland"])
+    sherlock.sheriff(since=EPOCH, frameworks=["talos"], repositories=["autoland"])
 
     assert preliminary_records.count() == 1
     assert ready_records.count() == 1
@@ -152,7 +152,7 @@ def test_records_and_db_limits_remain_unchanged_if_runtime_exceeded(
     no_time_left = timedelta(seconds=0)
     sherlock = Sherlock(report_maintainer_mock, backfill_tool_mock, secretary, no_time_left)
     try:
-        sherlock.sheriff(since=EPOCH, frameworks=["raptor", "talos"], repositories=["autoland"])
+        sherlock.sheriff(since=EPOCH, frameworks=["talos"], repositories=["autoland"])
     except MaxRuntimeExceededError:
         pass
 

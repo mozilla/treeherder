@@ -32,21 +32,18 @@ EXPECTED_VALUE = 0.5
 TESTS_WITH_NO_DATA = [
     ("awsy", "Base Content Explicit", ""),
     ("browsertime", "allrecipes-cold", ""),
-    ("raptor", "os-baseline-power", ""),
     ("talos", "a11yr", ""),
 ]
 TESTS_WITH_EXPIRED_DATA = [
     ("awsy", "Base Content Heap Unclassified", ""),
     ("browsertime", "amazon", ""),
     ("build_metrics", "compiler warnings", ""),
-    ("raptor", "raptor-ares6-firefox", ""),
     ("talos", "about_newtab_with_snippets", ""),
 ]
 TESTS_WITH_UPDATED_DATA = [
     ("awsy", "Base Content JS", ""),
     ("browsertime", "amazon-cold", ""),
     ("build_metrics", "installer size", ""),
-    ("raptor", "raptor-assorted-dom-firefox", ""),
     ("talos", "about_preferences_basic", ""),
 ]
 recording_date = dateutil_parse(CASSETTES_RECORDING_DATE).isoformat()
@@ -197,7 +194,7 @@ def test_tracker_has_a_list_of_records():
     tracker.load_records()
 
     record_list = list(iter(tracker))
-    assert len(record_list) == 5
+    assert len(record_list) == 3
 
 
 @pytest.mark.parametrize("criteria_record", RECORDS_WITH_NO_DATA)

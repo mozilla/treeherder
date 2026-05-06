@@ -20,8 +20,6 @@ pytestmark = [pytest.mark.freeze_time(CASSETTES_RECORDING_DATE, tick=True)]
         # Sheriffed tests
         ("build_metrics", "build times"),  # 37.5%
         ("build_metrics", "installer size"),  # 41.6%
-        ("raptor", "raptor-speedometer-firefox"),  # 100%
-        ("raptor", "raptor-webaudio-firefox"),  # 100%
     ],
 )
 def test_formula_confirms_sheriffed_tests(framework, suite, vcr_recorder, nonblock_session):

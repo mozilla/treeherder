@@ -57,7 +57,7 @@ test('For framework browsertime the documentation url is correct', () => {
 
   const perfdocs = new Perfdocs(framework, suite, platform);
   expect(perfdocs.documentationURL).toBe(
-    'https://firefox-source-docs.mozilla.org/testing/perfdocs/raptor.html#web-de-m',
+    'https://firefox-source-docs.mozilla.org/testing/perfdocs/',
   );
 });
 
