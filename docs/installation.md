@@ -55,7 +55,7 @@ production site. You do not need to set up the Docker environment unless making 
 
 To get started:
 
-- Install Docker & docker-compose (both are installed if using Docker for Windows/Mac).
+- Install [Docker] (Docker Compose is included with Docker Desktop for Windows/Mac; on Linux, install the Docker Compose plugin).
 
 - If you just wish to [run the tests](backend_tasks.md#running-the-tests),
   you can stop now without performing the remaining steps.
@@ -68,7 +68,7 @@ export those env variables in the shell first or inline with the command below. 
 - Open a shell, cd into the root of the Treeherder repository, and type:
 
   ```bash
-  docker-compose up --build
+  docker compose up --build
   ```
 
 - Wait for the Docker images to be downloaded/built and container steps to complete.
@@ -85,13 +85,13 @@ If you would like to use the minified production version of the UI with the deve
 - Run the build task:
 
   ```bash
-  docker-compose run frontend sh -c "corepack enable && pnpm install && pnpm build"
+  docker compose run frontend sh -c "corepack enable && pnpm install && pnpm build"
   ```
 
 - Start Treeherder's backend:
 
   ```bash
-  docker-compose up --build
+  docker compose up --build
   ```
 
 - Visit <http://localhost:8000> (NB: port 8000, unlike above)
@@ -115,10 +115,10 @@ DATABASE_URL=psql://user:password@hostname/treeherder
 ```
 
 Alternatively, you can `export` that value in your terminal prior to executing
-`docker-compose up` or just specify it on the command line as you execute:
+`docker compose up` or just specify it on the command line as you execute:
 
 ```bash
-DATABASE_URL=psql://user:password@hostname/treeherder SKIP_INGESTION=True docker-compose up
+DATABASE_URL=psql://user:password@hostname/treeherder SKIP_INGESTION=True docker compose up
 ```
 
 <!-- prettier-ignore -->
@@ -134,7 +134,7 @@ The Postgres database is kept locally and is not destroyed when the Docker conta
 If you want to start from scratch type the following commands:
 
 ```bash
-docker-compose down
+docker compose down
 docker volume rm treeherder_postgres_data
 ```
 
@@ -145,7 +145,7 @@ Celery tasks include storing of pushes, tasks and parsing logs (which provides f
 Open a new shell tab. To run all the queues type:
 
 ```bash
-docker-compose run -e PROJECTS_TO_INGEST=autoland backend celery -A treeherder worker --concurrency 1
+docker compose run -e PROJECTS_TO_INGEST=autoland backend celery -A treeherder worker --concurrency 1
 ```
 
 <!-- prettier-ignore -->
@@ -156,14 +156,14 @@ You can find a list of different celery queues in the the CELERY_TASK_QUEUES var
 only store tasks and pushes and omit log parsing:
 
 ```bash
-docker-compose run -e PROJECTS_TO_INGEST=autoland backend celery -A treeherder worker -Q store_pulse_tasks,store_pulse_pushes --concurrency 1
+docker compose run -e PROJECTS_TO_INGEST=autoland backend celery -A treeherder worker -Q store_pulse_tasks,store_pulse_pushes --concurrency 1
 ```
 
 ### Manual ingestion
 
 `NOTE`: You have to include `--root-url https://community-tc.services.mozilla.com` in order to ingest from the [Taskcluster Community instance](https://community-tc.services.mozilla.com), otherwise, it will default to the Firefox CI.
 
-Open a terminal window and run `docker-compose up`. All following sections assume this step.
+Open a terminal window and run `docker compose up`. All following sections assume this step.
 
 #### Ingesting pushes
 
@@ -175,15 +175,15 @@ changesets from the web interface into subsequent commands to ingest all tasks.
 Ingest a single Mercurial push or the last N pushes:
 
 ```console
-docker-compose exec backend ./manage.py ingest push -p autoland -r 63f8a47cfdf5
-docker-compose exec backend ./manage.py ingest push -p mozilla-central --last-n-pushes 100
+docker compose exec backend ./manage.py ingest push -p autoland -r 63f8a47cfdf5
+docker compose exec backend ./manage.py ingest push -p mozilla-central --last-n-pushes 100
 ```
 
 Ingest a single Github push or the last 10:
 
 ```console
-docker-compose exec backend ./manage.py ingest git-push -p servo-try -c 92fc94588f3b6987082923c0003012fd696b1a2d
-docker-compose exec -e GITHUB_TOKEN=<foo> backend ./manage.py ingest git-pushes -p android-components
+docker compose exec backend ./manage.py ingest git-push -p servo-try -c 92fc94588f3b6987082923c0003012fd696b1a2d
+docker compose exec -e GITHUB_TOKEN=<foo> backend ./manage.py ingest git-pushes -p android-components
 ```
 
 `NOTE`: You can ingest all tasks for a push. Check the help output for the script to determine the
@@ -198,7 +198,7 @@ to grant scopes for it.
 `NOTE`: This will only ingest the commits if there's an active Github PRs project. It will only ingest the commits.
 
 ```bash
-docker-compose exec backend ./manage.py ingest pr --pr-url https://github.com/mozilla-mobile/android-components/pull/4821
+docker compose exec backend ./manage.py ingest pr --pr-url https://github.com/mozilla-mobile/android-components/pull/4821
 ```
 
 #### Ingesting individual task
@@ -207,7 +207,7 @@ This will work if the push associated to the task exists in the database.
 
 ```bash
 # Make sure to ingest 1bd9d4f431c4c9f93388bd04a6368cb07398f646 for autoland first
-docker-compose exec backend ./manage.py ingest task --task-id KQ5h1BVYTBy_XT21wFpLog
+docker compose exec backend ./manage.py ingest task --task-id KQ5h1BVYTBy_XT21wFpLog
 ```
 
 ## Learn more

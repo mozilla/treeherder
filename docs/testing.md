@@ -77,19 +77,19 @@ of specificity:
 All tests:
 
 ```shell
-docker-compose run backend pytest tests/
+docker compose run backend pytest tests/
 ```
 
 Just `/etl` tests
 
 ```shell
-docker-compose run backend pytest tests/etl/
+docker compose run backend pytest tests/etl/
 ```
 
 Just the `test_ingest_pending_pulse_job` within the `/etl` tests
 
 ```shell
-docker-compose run backend pytest tests/ -k test_ingest_pending_pulse_job
+docker compose run backend pytest tests/ -k test_ingest_pending_pulse_job
 ```
 
 ### Updating backend python test data

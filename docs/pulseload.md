@@ -1,6 +1,6 @@
 # Pulse Ingestion Configuration
 
-By default, running the Docker container with `docker-compose up` will ingest data
+By default, running the Docker container with `docker compose up` will ingest data
 from the `autoland` and `try` repositories using a shared [Pulse Guardian] user.  You can configure this the following ways:
 
 1. Specify a custom set of repositories for which to ingest data
