@@ -83,7 +83,10 @@ class ErrorParser(ParserBase):
         r"|mozmake\.(?:exe|EXE)(?:\[\d+\])?: \*\*\*"
     )
 
-    RE_EXCLUDE_1_SEARCH = re.compile(r"TEST-(?:INFO|PASS) ")
+    RE_EXCLUDE_1_SEARCH = re.compile(
+        r"TEST-(?:INFO|PASS) "
+        r"|A content process crashed and MOZ_CRASHREPORTER_SHUTDOWN is set, shutting down"
+    )
 
     RE_EXCLUDE_2_SEARCH = re.compile(
         r"I[ /](Gecko|TestRunner).*TEST-UNEXPECTED-"
