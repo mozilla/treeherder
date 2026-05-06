@@ -1,13 +1,5 @@
 [
   {
-    "pk": 1,
-    "model": "model.repositorybranch",
-    "fields": {
-      "repository": 44,
-      "branch": "pull request"
-    }
-  },
-  {
     "pk": 2,
     "model": "model.repositorybranch",
     "fields": {
@@ -280,14 +272,6 @@
     }
   },
   {
-    "pk": 36,
-    "model": "model.repositorybranch",
-    "fields": {
-      "repository": 102,
-      "branch": "pull request"
-    }
-  },
-  {
     "pk": 37,
     "model": "model.repositorybranch",
     "fields": {
@@ -429,14 +413,6 @@
     "fields": {
       "repository": 142,
       "branch": "enterprise-main"
-    }
-  },
-  {
-    "pk": 55,
-    "model": "model.repositorybranch",
-    "fields": {
-      "repository": 143,
-      "branch": "pull request"
     }
   },
   {

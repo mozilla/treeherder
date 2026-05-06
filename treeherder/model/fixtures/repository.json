@@ -586,6 +586,7 @@
       "codebase": "gaia",
       "repository_group": 1,
       "description": "",
+      "accepts_pull_requests": true,
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
@@ -1407,6 +1408,7 @@
       "repository_group": 10,
       "description": "The Servo Parallel Browser Engine − pull requests",
       "expire_performance_data": false,
+      "accepts_pull_requests": true,
       "tc_root_url": "https://community-tc.services.mozilla.com"
     }
   },
@@ -1987,6 +1989,7 @@
       "active_status": "active",
       "codebase": "enterprise-firefox",
       "repository_group": 13,
+      "accepts_pull_requests": true,
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },

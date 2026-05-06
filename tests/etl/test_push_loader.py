@@ -435,6 +435,21 @@ def test_ingest_github_push_ambiguous_wildcards_skipped(
     assert Push.objects.count() == 0
 
 
+@pytest.mark.django_db
+def test_ingest_github_pull_request_routing(github_pr, test_repository, mock_github_pr_commits):
+    """PR events route to repos with accepts_pull_requests=True"""
+    test_repository.url = github_pr["details"]["event.base.repo.url"].replace(".git", "")
+    test_repository.accepts_pull_requests = True
+    test_repository.save()
+    assert Push.objects.count() == 0
+    PushLoader().process(
+        github_pr,
+        "exchange/taskcluster-github/v1/pull-request",
+        "https://firefox-ci-tc.services.mozilla.com",
+    )
+    assert Push.objects.count() == 1
+
+
 def test_fetch_push_raises_on_empty_pushes(monkeypatch):
     """Test that a HgPushFetchError is raised when fetch_json returns a dict without 'pushes'"""
     monkeypatch.setattr("treeherder.etl.push_loader.fetch_json", lambda url: {})
