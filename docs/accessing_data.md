@@ -198,7 +198,7 @@ From there, just use the `import_perf_data` Django management command.
 A typical import looks like the following:
 
 ```bash
-./manage.py import_perf_data --time-window 2 --frameworks raptor talos --repositories autoland mozilla-beta --num-workers 4
+./manage.py import_perf_data --time-window 2 --frameworks talos --repositories autoland mozilla-beta --num-workers 4
 ```
 
 In about 10 minutes you should have a subset of that data available on your local database.

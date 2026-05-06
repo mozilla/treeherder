@@ -122,7 +122,6 @@ export const graphSymbols = [
 
 export const phFrameworksWithRelatedBranches = [
   1, // talos
-  10, // raptor
   11, // js-bench
   12, // devtools
 ];
@@ -214,7 +213,7 @@ export const browsertimeEssentialTests = [
 
 /**
  * Used for building the documentation links (Perfdocs) and side-by-side links.
- * @link https://firefox-source-docs.mozilla.org/testing/perfdocs/raptor.html#benchmarks
+ * @link https://firefox-source-docs.mozilla.org/testing/perfdocs/
  */
 export const browsertimeBenchmarksTests = [
   'ares6',
@@ -223,43 +222,6 @@ export const browsertimeBenchmarksTests = [
   'matrix-react-bench',
   'motionmark-animometer',
   'motionmark-htmlsuite',
-  'raptor-speedometer-geckoview',
-  'raptor-youtube-playback-av1-sfr-chrome',
-  'raptor-youtube-playback-av1-sfr-fenix',
-  'raptor-youtube-playback-av1-sfr-firefox',
-  'raptor-youtube-playback-av1-sfr-geckoview',
-  'raptor-youtube-playback-h264-1080p30-firefox',
-  'raptor-youtube-playback-h264-1080p60-firefox',
-  'raptor-youtube-playback-h264-full-1080p30-firefox',
-  'raptor-youtube-playback-h264-full-1080p60-firefox',
-  'raptor-youtube-playback-h264-sfr-chrome',
-  'raptor-youtube-playback-h264-sfr-fenix',
-  'raptor-youtube-playback-h264-sfr-firefox',
-  'raptor-youtube-playback-h264-sfr-geckoview',
-  'raptor-youtube-playback-hfr-chrome',
-  'raptor-youtube-playback-hfr-fenix',
-  'raptor-youtube-playback-hfr-firefox',
-  'raptor-youtube-playback-hfr-geckoview',
-  'raptor-youtube-playback-v9-1080p30-firefox',
-  'raptor-youtube-playback-v9-1080p60-firefox',
-  'raptor-youtube-playback-v9-full-1080p30-firefox',
-  'raptor-youtube-playback-v9-full-1080p60-firefox',
-  'raptor-youtube-playback-vp9-sfr-chrome',
-  'raptor-youtube-playback-vp9-sfr-fenix',
-  'raptor-youtube-playback-vp9-sfr-firefox',
-  'raptor-youtube-playback-vp9-sfr-geckoview',
-  'raptor-youtube-playback-widevine-h264-sfr-chrome',
-  'raptor-youtube-playback-widevine-h264-sfr-fenix',
-  'raptor-youtube-playback-widevine-h264-sfr-firefox',
-  'raptor-youtube-playback-widevine-h264-sfr-geckoview',
-  'raptor-youtube-playback-widevine-hfr-chrome',
-  'raptor-youtube-playback-widevine-hfr-fenix',
-  'raptor-youtube-playback-widevine-hfr-firefox',
-  'raptor-youtube-playback-widevine-hfr-geckoview',
-  'raptor-youtube-playback-widevine-vp9-sfr-chrome',
-  'raptor-youtube-playback-widevine-vp9-sfr-fenix',
-  'raptor-youtube-playback-widevine-vp9-sfr-firefox',
-  'raptor-youtube-playback-widevine-vp9-sfr-geckoview',
   'speedometer',
   'stylebench',
   'sunspider',

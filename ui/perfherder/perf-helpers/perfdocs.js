@@ -23,13 +23,12 @@ const browsertimeDocsUnavailableViews = [
 const supportedPerfdocsFrameworks = {
   talos: 'talos',
   awsy: 'awsy',
-  browsertime: 'raptor',
   devtools: 'performance-tests-overview',
 };
 
 /**
  * TODO: remove hardcoded names once suffixes are removed from Perfdocs
- * @link https://firefox-source-docs.mozilla.org/testing/perfdocs/raptor.html#interactive
+ * @link https://firefox-source-docs.mozilla.org/testing/perfdocs/
  */
 const browsertimeInteractiveTests = [
   'cnn-nav',
@@ -41,7 +40,7 @@ const browsertimeInteractiveTests = [
 
 /**
  * TODO: remove hardcoded names once suffixes are removed from Perfdocs
- * @link https://firefox-source-docs.mozilla.org/testing/perfdocs/raptor.html#custom
+ * @link https://firefox-source-docs.mozilla.org/testing/perfdocs/
  */
 const browsertimeCustomTests = ['process-switch', 'welcome'];
 
@@ -104,23 +103,14 @@ export class Perfdocs {
 
     this.url = this.url.concat(frameworkName, '.html#');
 
-    if (frameworkName === 'raptor') {
-      // amazon-sec doesn't have yet documentation added
-      if (this.suite === 'amazon-sec') {
-        this.url = this.url.slice(0, -1);
-        return this.url;
-      }
-      this.url = this.updatedURLWithSuffix;
-    } else {
-      // framework is either awsy, talos or devtools
-      if (this.suite === 'about_newtab_with_snippets') {
-        // talos
-        this.suite = 'about-newtab-with-snippets';
-      }
-      this.url = this.url.concat(
-        this.suite.replace(/:|\s|\./g, '-').toLowerCase(),
-      );
+    // framework is either awsy, talos or devtools
+    if (this.suite === 'about_newtab_with_snippets') {
+      // talos
+      this.suite = 'about-newtab-with-snippets';
     }
+    this.url = this.url.concat(
+      this.suite.replace(/:|\s|\./g, '-').toLowerCase(),
+    );
     return this.url;
   }
 
