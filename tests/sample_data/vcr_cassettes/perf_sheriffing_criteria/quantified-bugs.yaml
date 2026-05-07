@@ -7,7 +7,7 @@ interactions:
       User-Agent:
       - treeherder/backend
     method: GET
-    uri: https://bugzilla.mozilla.org/rest/bug?longdesc=speedometer&longdesc_type=allwords&longdesc_initial=1&keywords=perf%2Cperf-alert&keywords_type=anywords&creation_time=2019-12-17&query_format=advanced
+    uri: https://bugzilla.mozilla.org/rest/bug?longdesc=raptor+speedometer&longdesc_type=allwords&longdesc_initial=1&keywords=perf%2Cperf-alert&keywords_type=anywords&creation_time=2019-12-17&query_format=advanced
   response:
     body:
       string: '{"bugs":[{"regressed_by":[1604578],"cf_has_regression_range":"---","cf_root_cause":"---","cf_status_firefox73":"fixed","cf_fission_milestone":"---","cf_tracking_thunderbird_esr60":"---","type":"defect","cf_tracking_firefox79":"---","whiteboard":"","id":1605344,"mentors_detail":[],"creator_detail":{"real_name":"Florin
@@ -74,5 +74,5 @@ interactions:
     status:
       code: 200
       message: OK
-    url: https://bugzilla.mozilla.org/rest/bug?longdesc=speedometer&longdesc_type=allwords&longdesc_initial=1&keywords=perf%2Cperf-alert&keywords_type=anywords&creation_time=2019-12-17&query_format=advanced
+    url: https://bugzilla.mozilla.org/rest/bug?longdesc=raptor+speedometer&longdesc_type=allwords&longdesc_initial=1&keywords=perf%2Cperf-alert&keywords_type=anywords&creation_time=2019-12-17&query_format=advanced
 version: 1

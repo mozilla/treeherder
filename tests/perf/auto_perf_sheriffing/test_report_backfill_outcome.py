@@ -77,7 +77,9 @@ def test_no_email_is_sent_if_runtime_exceeded(
 
     sherlock = Sherlock(report_maintainer_mock, backfill_tool_mock, secretary, no_time_left)
     try:
-        sherlock.sheriff(since=EPOCH, frameworks=["talos"], repositories=["autoland"])
+        sherlock.sheriff(
+            since=EPOCH, frameworks=["browsertime", "talos"], repositories=["autoland"]
+        )
     except MaxRuntimeExceededError:
         pass
 

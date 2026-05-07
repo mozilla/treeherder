@@ -2,3 +2,5 @@ Framework,Suite,Test,EngineerTraction,FixRatio,TotalAlerts,LastUpdatedOn,AllowSy
 awsy,JS,,,,,,
 build_metrics,build times,,,,,,
 build_metrics,installer size,,,,,,
+raptor,raptor-speedometer-firefox,,,,,,
+raptor,raptor-webaudio-firefox,,,,,,

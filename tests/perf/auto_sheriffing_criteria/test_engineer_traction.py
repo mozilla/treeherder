@@ -22,7 +22,7 @@ pytestmark = [pytest.mark.freeze_time(CASSETTES_RECORDING_DATE, tick=True)]
 @pytest.fixture
 def quantified_bugs(vcr_recorder, nonblock_session) -> list:
     params = {
-        "longdesc": "speedometer",
+        "longdesc": "raptor speedometer",
         "longdesc_type": "allwords",
         "longdesc_initial": 1,
         "keywords": "perf,perf-alert",
@@ -79,3 +79,21 @@ def test_final_formula_confirms_sheriffed_tests(
 
     with vcr_recorder.use_cassette(f"{framework}-{suite}.yaml"):
         assert engineer_traction(framework, suite) >= 0.35
+
+
+@pytest.mark.parametrize(
+    "framework, suite, test",
+    [
+        # Non-sheriffed tests
+        ("raptor", "raptor-speedometer-firefox", None),  # 33%
+        ("raptor", "raptor-webaudio-firefox", None),  # 0%
+        ("raptor", "raptor-tp6-google-mail-firefox-cold", "replayed"),  # 0%
+    ],
+)
+def test_final_formula_confirms_non_sheriffed_tests(
+    framework, suite, test, vcr_recorder, nonblock_session
+):
+    engineer_traction = EngineerTractionFormula(nonblock_session)
+
+    with vcr_recorder.use_cassette(f"{framework}-{suite}.yaml"):
+        assert engineer_traction(framework, suite, test) < 0.35
