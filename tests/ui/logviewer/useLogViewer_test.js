@@ -427,4 +427,406 @@ describe('useLogViewer', () => {
 
     expect(mockWriteText).toHaveBeenCalledWith('line three');
   });
+
+  // --- handleCopy (browser native copy interception) ---
+
+  describe('handleCopy', () => {
+    let container;
+
+    // Build a fake rendered logviewer DOM matching the structure produced by
+    // LogRow.jsx: a `.classic-log-viewer` container holding `.classic-log-line`
+    // rows, each with an `<a class="classic-log-number">` and a
+    // `<span class="classic-log-text">`.
+    const buildContainer = () => {
+      const root = document.createElement('div');
+      root.className = 'classic-log-viewer';
+      const lineTexts = sampleLog.split('\n');
+      lineTexts.forEach((text, i) => {
+        const row = document.createElement('div');
+        row.className = 'classic-log-line';
+        row.dataset.line = String(i + 1);
+        const num = document.createElement('a');
+        num.className = 'classic-log-number';
+        num.textContent = String(i + 1);
+        const span = document.createElement('span');
+        span.className = 'classic-log-text';
+        span.textContent = text;
+        row.appendChild(num);
+        row.appendChild(span);
+        root.appendChild(row);
+      });
+      document.body.appendChild(root);
+      return root;
+    };
+
+    const buildEvent = () => ({
+      currentTarget: container,
+      preventDefault: jest.fn(),
+      clipboardData: { setData: jest.fn() },
+    });
+
+    const setSelection = ({ startEl, endEl, text, isCollapsed = false }) => {
+      const range = {
+        startContainer: startEl,
+        endContainer: endEl,
+        intersectsNode: (el) => {
+          // Naive intersection: between startEl and endEl by data-line ordering
+          const startRow =
+            startEl?.nodeType === Node.TEXT_NODE
+              ? startEl.parentElement?.closest?.('.classic-log-line')
+              : startEl?.closest?.('.classic-log-line');
+          const endRow =
+            endEl?.nodeType === Node.TEXT_NODE
+              ? endEl.parentElement?.closest?.('.classic-log-line')
+              : endEl?.closest?.('.classic-log-line');
+          if (!startRow || !endRow) return false;
+          const a = parseInt(startRow.dataset.line, 10);
+          const b = parseInt(endRow.dataset.line, 10);
+          const n = parseInt(el.dataset.line, 10);
+          return n >= Math.min(a, b) && n <= Math.max(a, b);
+        },
+      };
+      jest.spyOn(window, 'getSelection').mockReturnValue({
+        isCollapsed,
+        toString: () => text,
+        getRangeAt: () => range,
+        rangeCount: isCollapsed ? 0 : 1,
+      });
+    };
+
+    beforeEach(() => {
+      container = buildContainer();
+    });
+
+    afterEach(() => {
+      if (container?.parentNode) container.parentNode.removeChild(container);
+    });
+
+    test('overrides multi-row selection with normalized text from lines[]', async () => {
+      global.fetch.mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve(sampleLog),
+      });
+      const { result } = renderHook(() =>
+        useLogViewer({ url: 'http://log.txt' }),
+      );
+      await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+      const rows = container.querySelectorAll('.classic-log-line');
+      // Selection from line 2 text → line 4 text
+      setSelection({
+        startEl: rows[1].querySelector('.classic-log-text').firstChild,
+        endEl: rows[3].querySelector('.classic-log-text').firstChild,
+        text: 'line two\nline three\nline four',
+      });
+
+      const event = buildEvent();
+      result.current.handleCopy(event);
+
+      expect(event.preventDefault).toHaveBeenCalled();
+      expect(event.clipboardData.setData).toHaveBeenCalledWith(
+        'text/plain',
+        'line two\nline three\nline four',
+      );
+    });
+
+    test('does not override single-row partial selection (lets default fire)', async () => {
+      global.fetch.mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve(sampleLog),
+      });
+      const { result } = renderHook(() =>
+        useLogViewer({ url: 'http://log.txt' }),
+      );
+      await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+      const rows = container.querySelectorAll('.classic-log-line');
+      const textNode = rows[2].querySelector('.classic-log-text').firstChild;
+      // Both ends inside line 3's text span
+      setSelection({ startEl: textNode, endEl: textNode, text: 'three' });
+
+      const event = buildEvent();
+      result.current.handleCopy(event);
+
+      expect(event.preventDefault).not.toHaveBeenCalled();
+      expect(event.clipboardData.setData).not.toHaveBeenCalled();
+    });
+
+    test('does nothing on collapsed selection', async () => {
+      global.fetch.mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve(sampleLog),
+      });
+      const { result } = renderHook(() =>
+        useLogViewer({ url: 'http://log.txt' }),
+      );
+      await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+      jest.spyOn(window, 'getSelection').mockReturnValue({
+        isCollapsed: true,
+        toString: () => '',
+        getRangeAt: () => null,
+        rangeCount: 0,
+      });
+
+      const event = buildEvent();
+      result.current.handleCopy(event);
+
+      expect(event.preventDefault).not.toHaveBeenCalled();
+      expect(event.clipboardData.setData).not.toHaveBeenCalled();
+    });
+
+    test('does nothing when selection is outside log rows', async () => {
+      global.fetch.mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve(sampleLog),
+      });
+      const { result } = renderHook(() =>
+        useLogViewer({ url: 'http://log.txt' }),
+      );
+      await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+      const outside = document.createElement('p');
+      outside.textContent = 'unrelated';
+      document.body.appendChild(outside);
+
+      setSelection({
+        startEl: outside.firstChild,
+        endEl: outside.firstChild,
+        text: 'unrelated',
+      });
+
+      const event = buildEvent();
+      result.current.handleCopy(event);
+
+      expect(event.preventDefault).not.toHaveBeenCalled();
+      expect(event.clipboardData.setData).not.toHaveBeenCalled();
+
+      outside.parentNode.removeChild(outside);
+    });
+
+    test('reversed multi-row selection still produces in-order text', async () => {
+      global.fetch.mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve(sampleLog),
+      });
+      const { result } = renderHook(() =>
+        useLogViewer({ url: 'http://log.txt' }),
+      );
+      await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+      const rows = container.querySelectorAll('.classic-log-line');
+      // querySelectorAll returns rows in DOM order regardless of selection
+      // direction, so the handler always derives [first row, last row].
+      // intersectsNode uses min/max so reversing endpoints is still in-range.
+      setSelection({
+        startEl: rows[3].querySelector('.classic-log-text').firstChild,
+        endEl: rows[1].querySelector('.classic-log-text').firstChild,
+        text: 'line two\nline three\nline four',
+      });
+
+      const event = buildEvent();
+      result.current.handleCopy(event);
+
+      expect(event.clipboardData.setData).toHaveBeenCalledWith(
+        'text/plain',
+        'line two\nline three\nline four',
+      );
+    });
+  });
+
+  // --- handleKeyDown (Cmd/Ctrl+C fallback for off-screen highlight ranges) ---
+
+  describe('handleKeyDown', () => {
+    const buildKeyEvent = (overrides = {}) => ({
+      metaKey: false,
+      ctrlKey: false,
+      shiftKey: false,
+      altKey: false,
+      key: 'c',
+      preventDefault: jest.fn(),
+      ...overrides,
+    });
+
+    const mockEmptySelection = () =>
+      jest.spyOn(window, 'getSelection').mockReturnValue({
+        isCollapsed: true,
+        toString: () => '',
+      });
+
+    test('Cmd+C copies highlight range when no native selection', async () => {
+      global.fetch.mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve(sampleLog),
+      });
+      const { result } = renderHook(() =>
+        useLogViewer({ url: 'http://log.txt' }),
+      );
+      await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+      act(() => {
+        result.current.onLineClick(2, false);
+      });
+      act(() => {
+        result.current.onLineClick(4, true);
+      });
+      mockEmptySelection();
+
+      const event = buildKeyEvent({ metaKey: true });
+      await act(async () => {
+        result.current.handleKeyDown(event);
+        await Promise.resolve();
+      });
+
+      expect(event.preventDefault).toHaveBeenCalled();
+      expect(mockWriteText).toHaveBeenCalledWith(
+        'line two\nline three\nline four',
+      );
+    });
+
+    test('Ctrl+C also triggers copy', async () => {
+      global.fetch.mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve(sampleLog),
+      });
+      const { result } = renderHook(() =>
+        useLogViewer({ url: 'http://log.txt' }),
+      );
+      await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+      act(() => {
+        result.current.onLineClick(1, false);
+      });
+      act(() => {
+        result.current.onLineClick(3, true);
+      });
+      mockEmptySelection();
+
+      const event = buildKeyEvent({ ctrlKey: true });
+      await act(async () => {
+        result.current.handleKeyDown(event);
+        await Promise.resolve();
+      });
+
+      expect(event.preventDefault).toHaveBeenCalled();
+      expect(mockWriteText).toHaveBeenCalledWith(
+        'line one\nline two\nline three',
+      );
+    });
+
+    test('does nothing when there is a non-empty native selection', async () => {
+      global.fetch.mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve(sampleLog),
+      });
+      const { result } = renderHook(() =>
+        useLogViewer({ url: 'http://log.txt' }),
+      );
+      await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+      act(() => {
+        result.current.onLineClick(2, false);
+      });
+      act(() => {
+        result.current.onLineClick(4, true);
+      });
+
+      jest.spyOn(window, 'getSelection').mockReturnValue({
+        isCollapsed: false,
+        toString: () => 'a partial substring',
+      });
+
+      const event = buildKeyEvent({ metaKey: true });
+      result.current.handleKeyDown(event);
+
+      expect(event.preventDefault).not.toHaveBeenCalled();
+      expect(mockWriteText).not.toHaveBeenCalled();
+    });
+
+    test('does nothing when no highlight is set', async () => {
+      global.fetch.mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve(sampleLog),
+      });
+      const { result } = renderHook(() =>
+        useLogViewer({ url: 'http://log.txt' }),
+      );
+      await waitFor(() => expect(result.current.isLoading).toBe(false));
+      mockEmptySelection();
+
+      const event = buildKeyEvent({ metaKey: true });
+      result.current.handleKeyDown(event);
+
+      expect(event.preventDefault).not.toHaveBeenCalled();
+      expect(mockWriteText).not.toHaveBeenCalled();
+    });
+
+    test('ignores keys other than C', async () => {
+      global.fetch.mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve(sampleLog),
+      });
+      const { result } = renderHook(() =>
+        useLogViewer({ url: 'http://log.txt' }),
+      );
+      await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+      act(() => {
+        result.current.onLineClick(2, false);
+      });
+      mockEmptySelection();
+
+      const event = buildKeyEvent({ metaKey: true, key: 'v' });
+      result.current.handleKeyDown(event);
+
+      expect(event.preventDefault).not.toHaveBeenCalled();
+      expect(mockWriteText).not.toHaveBeenCalled();
+    });
+
+    test('ignores Cmd+C with shift modifier', async () => {
+      global.fetch.mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve(sampleLog),
+      });
+      const { result } = renderHook(() =>
+        useLogViewer({ url: 'http://log.txt' }),
+      );
+      await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+      act(() => {
+        result.current.onLineClick(2, false);
+      });
+      mockEmptySelection();
+
+      const event = buildKeyEvent({ metaKey: true, shiftKey: true });
+      result.current.handleKeyDown(event);
+
+      expect(event.preventDefault).not.toHaveBeenCalled();
+      expect(mockWriteText).not.toHaveBeenCalled();
+    });
+
+    test('handles single-line highlight with keyboard shortcut', async () => {
+      global.fetch.mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve(sampleLog),
+      });
+      const { result } = renderHook(() =>
+        useLogViewer({ url: 'http://log.txt' }),
+      );
+      await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+      act(() => {
+        result.current.onLineClick(3, false);
+      });
+      mockEmptySelection();
+
+      const event = buildKeyEvent({ metaKey: true });
+      await act(async () => {
+        result.current.handleKeyDown(event);
+        await Promise.resolve();
+      });
+
+      expect(mockWriteText).toHaveBeenCalledWith('line three');
+    });
+  });
 });

@@ -30,6 +30,8 @@ const ClassicLogViewer = ({
     setHighlight,
     onLineClick,
     copyHighlightedLines,
+    handleCopy,
+    handleKeyDown,
     virtuosoRef,
     scrollToLine,
     visibleRangeRef,
@@ -194,7 +196,11 @@ const ClassicLogViewer = ({
   }
 
   return (
-    <div className="classic-log-viewer">
+    <div
+      className="classic-log-viewer"
+      onCopy={handleCopy}
+      onKeyDown={handleKeyDown}
+    >
       <SearchBar
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
