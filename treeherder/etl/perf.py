@@ -228,6 +228,23 @@ def _load_perf_datum(job: Job, perf_datum: dict):
                 # keep a register with all multi commit perf data
                 MultiCommitDatum.objects.create(perf_datum=suite_datum)
 
+            replicates = suite.get("replicates", [])
+            if replicates and len(replicates) > 0:
+                try:
+                    # Add the replicates to the PerformanceDatumReplicate table, and
+                    # catch and ignore any exceptions that are produced here so we don't
+                    # impact the standard workflow
+                    PerformanceDatumReplicate.objects.bulk_create(
+                        [
+                            PerformanceDatumReplicate(
+                                value=replicate, performance_datum=suite_datum
+                            )
+                            for replicate in replicates
+                        ]
+                    )
+                except Exception as e:
+                    logger.info(f"Failed to ingest replicates for suite datum {suite_datum}: {e}")
+
             if _suite_should_alert_based_on(signature, job, datum_created):
                 generate_alerts.apply_async(args=[signature.id], queue="generate_perf_alerts")
 
