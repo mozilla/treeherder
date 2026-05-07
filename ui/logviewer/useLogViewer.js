@@ -177,6 +177,75 @@ export function useLogViewer({ url, caseInsensitive = true } = {}) {
     await navigator.clipboard.writeText(text);
   }, [highlight, lines]);
 
+  // Override the browser's native copy when the selection spans multiple log
+  // rows. Building the text from `lines[]` instead of from DOM serialization
+  // gives us clean LF-only line endings (no extra blank lines on Windows from
+  // CRLF + the `display:flex`/`white-space:pre` quirk in Chromium's clipboard
+  // writer) and works correctly for any rows still in the rendered DOM.
+  // Single-line partial selections fall through to default behavior so
+  // substring copy still works.
+  const handleCopy = useCallback(
+    (event) => {
+      const sel = window.getSelection();
+      if (!sel || sel.isCollapsed || sel.toString().length === 0) return;
+
+      const range = sel.getRangeAt(0);
+      const getLineEl = (node) => {
+        const el = node.nodeType === Node.TEXT_NODE ? node.parentElement : node;
+        return el?.closest?.('.classic-log-line') ?? null;
+      };
+      const startLineEl = getLineEl(range.startContainer);
+      const endLineEl = getLineEl(range.endContainer);
+
+      // Selection doesn't touch any log row
+      if (!startLineEl && !endLineEl) return;
+      // Single-row partial selection — let default copy fire
+      if (startLineEl && startLineEl === endLineEl) return;
+
+      const container = event.currentTarget;
+      const lineEls = container.querySelectorAll('.classic-log-line');
+      const inSelection = Array.from(lineEls).filter((el) =>
+        range.intersectsNode(el),
+      );
+      if (inSelection.length === 0) return;
+
+      const startLine = parseInt(inSelection[0].dataset.line, 10);
+      const endLine = parseInt(
+        inSelection[inSelection.length - 1].dataset.line,
+        10,
+      );
+      if (!startLine || !endLine) return;
+
+      const text = lines.slice(startLine - 1, endLine).join('\n');
+      event.preventDefault();
+      event.clipboardData.setData('text/plain', text);
+    },
+    [lines],
+  );
+
+  // Cmd/Ctrl+C fallback for the off-screen case: shift-click sets
+  // `highlight = [start, end]` without creating a native browser selection,
+  // so the browser would otherwise fire no `copy` event at all. When there's
+  // no native selection but a highlight range exists, copy from `lines[]`.
+  const handleKeyDown = useCallback(
+    (event) => {
+      const isCopyKey =
+        (event.metaKey || event.ctrlKey) &&
+        event.key === 'c' &&
+        !event.shiftKey &&
+        !event.altKey;
+      if (!isCopyKey) return;
+      if (!highlight || highlight.length === 0) return;
+
+      const sel = window.getSelection();
+      if (sel && !sel.isCollapsed && sel.toString().length > 0) return;
+
+      event.preventDefault();
+      copyHighlightedLines();
+    },
+    [highlight, copyHighlightedLines],
+  );
+
   return useMemo(
     () => ({
       // Data
@@ -204,6 +273,8 @@ export function useLogViewer({ url, caseInsensitive = true } = {}) {
       scrollToLine,
       // Copy
       copyHighlightedLines,
+      handleCopy,
+      handleKeyDown,
     }),
     [
       lines,
@@ -222,6 +293,8 @@ export function useLogViewer({ url, caseInsensitive = true } = {}) {
       clearHighlight,
       scrollToLine,
       copyHighlightedLines,
+      handleCopy,
+      handleKeyDown,
     ],
   );
 }
