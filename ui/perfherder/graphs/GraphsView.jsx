@@ -57,7 +57,7 @@ function GraphsView({ projects, frameworks, user }) {
   const [highlightedRevisions, setHighlightedRevisions] = useState(['', '']);
   const [testData, setTestData] = useState([]);
   const [errorMessages, setErrorMessages] = useState([]);
-  const [options] = useState({});
+  const [options, setOptions] = useState({});
   const [loading, setLoading] = useState(false);
   const [colors, setColors] = useState([...graphColors]);
   const [symbols, setSymbols] = useState([...graphSymbols]);
@@ -522,6 +522,12 @@ function GraphsView({ projects, frameworks, user }) {
                             setColors(state.colors);
                           if (state.symbols !== undefined)
                             setSymbols(state.symbols);
+                          if (state.options !== undefined)
+                            setOptions(state.options);
+                          if (state.showModal !== undefined)
+                            setShowModal(state.showModal);
+                          if (state.errorMessages !== undefined)
+                            setErrorMessages(state.errorMessages);
                         }}
                         updateStateParams={updateStateParams}
                         colors={colors}
