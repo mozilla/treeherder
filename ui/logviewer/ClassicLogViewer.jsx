@@ -32,7 +32,13 @@ const ClassicLogViewer = ({
     copyHighlightedLines,
     virtuosoRef,
     scrollToLine,
+    visibleRangeRef,
+    setVisibleRange,
   } = useLogViewer({ url, caseInsensitive });
+
+  // Anchor line to scroll to after a filter toggle, captured from the
+  // pre-toggle viewport so a visible match stays in view across the change.
+  const pendingFilterAnchorRef = useRef(null);
 
   // Only skip the first programmatic scroll if initialLine was set at mount
   // (meaning initialTopMostItemIndex already handled positioning).
@@ -56,14 +62,57 @@ const ClassicLogViewer = ({
   }, []);
 
   const handleFilter = useCallback(() => {
-    if (matchLineNumbers.length > 0) {
-      setIsFiltered(true);
+    if (matchLineNumbers.length === 0) return;
+
+    // Capture the topmost visible match line (in unfiltered space) as anchor.
+    // After the filter applies, we'll scroll to that match's index in filteredData.
+    const range = visibleRangeRef.current;
+    let anchorIdx = 0;
+    if (range) {
+      const anchorMatch = matchLineNumbers.find(
+        (lineNum) => lineNum - 1 >= range.startIndex,
+      );
+      if (anchorMatch != null) {
+        anchorIdx = matchLineNumbers.indexOf(anchorMatch);
+      }
     }
-  }, [matchLineNumbers, setIsFiltered]);
+    pendingFilterAnchorRef.current = { type: 'filtered', value: anchorIdx };
+    setIsFiltered(true);
+  }, [matchLineNumbers, setIsFiltered, visibleRangeRef]);
 
   const handleClearFilter = useCallback(() => {
+    // Capture the topmost visible filtered row's actual line number as anchor.
+    // After the filter clears, we'll scroll to that line in the unfiltered view.
+    const range = visibleRangeRef.current;
+    let anchorLine = null;
+    if (range && matchLineNumbers.length > 0) {
+      const idx = Math.max(0, range.startIndex);
+      if (idx < matchLineNumbers.length) {
+        anchorLine = matchLineNumbers[idx];
+      }
+    }
+    pendingFilterAnchorRef.current =
+      anchorLine != null ? { type: 'unfiltered', value: anchorLine } : null;
     setIsFiltered(false);
-  }, [setIsFiltered]);
+  }, [matchLineNumbers, setIsFiltered, visibleRangeRef]);
+
+  // After the filter state flips, scroll to the captured anchor so the user's
+  // place is preserved across the toggle.
+  useEffect(() => {
+    const pending = pendingFilterAnchorRef.current;
+    if (!pending) return;
+    pendingFilterAnchorRef.current = null;
+    const targetIndex =
+      pending.type === 'filtered' ? pending.value : pending.value - 1;
+    requestAnimationFrame(() => {
+      if (virtuosoRef.current) {
+        virtuosoRef.current.scrollToIndex({
+          index: targetIndex,
+          align: 'start',
+        });
+      }
+    });
+  }, [isFiltered, virtuosoRef]);
 
   const filteredData = useMemo(() => {
     if (!isFiltered || matchLineNumbers.length === 0) return null;
@@ -169,6 +218,7 @@ const ClassicLogViewer = ({
         fixedItemHeight={13}
         style={{ flex: 1 }}
         overscan={200}
+        rangeChanged={setVisibleRange}
         initialTopMostItemIndex={
           !isFiltered && initialLine ? Math.max(0, initialLine - 1) : 0
         }
