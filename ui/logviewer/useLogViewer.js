@@ -24,6 +24,12 @@ export function useLogViewer({ url, caseInsensitive = true } = {}) {
   const virtuosoRef = useRef(null);
   // Track the anchor line for shift-click range selection
   const anchorLineRef = useRef(null);
+  // Track the currently visible range of Virtuoso indices (0-indexed)
+  const visibleRangeRef = useRef(null);
+
+  const setVisibleRange = useCallback((range) => {
+    visibleRangeRef.current = range;
+  }, []);
 
   // --- Fetch + Parse ---
 
@@ -72,6 +78,15 @@ export function useLogViewer({ url, caseInsensitive = true } = {}) {
 
   // --- Search ---
 
+  const scrollToLine = useCallback((lineNumber) => {
+    if (virtuosoRef.current) {
+      virtuosoRef.current.scrollToIndex({
+        index: lineNumber - 1,
+        align: 'start',
+      });
+    }
+  }, []);
+
   const setSearchTerm = useCallback(
     (term) => {
       setSearchTermState(term);
@@ -95,40 +110,47 @@ export function useLogViewer({ url, caseInsensitive = true } = {}) {
       }
 
       setMatchLineNumbers(matches);
-      setCurrentMatchIndex(matches.length > 0 ? 0 : -1);
+
+      if (matches.length === 0) {
+        setCurrentMatchIndex(-1);
+        return;
+      }
+
+      // If a match is already in the visible viewport, anchor to it instead of
+      // scrolling to the first match. Only scroll when nothing on screen matches.
+      const range = visibleRangeRef.current;
+      const visibleMatchIdx = range
+        ? matches.findIndex(
+            (lineNum) =>
+              lineNum - 1 >= range.startIndex && lineNum - 1 <= range.endIndex,
+          )
+        : -1;
+
+      if (visibleMatchIdx !== -1) {
+        setCurrentMatchIndex(visibleMatchIdx);
+      } else {
+        setCurrentMatchIndex(0);
+        scrollToLine(matches[0]);
+      }
     },
-    [lines, caseInsensitive],
+    [lines, caseInsensitive, scrollToLine],
   );
 
   const nextMatch = useCallback(() => {
     if (matchLineNumbers.length === 0) return;
-    setCurrentMatchIndex(
-      (prev) => (prev + 1) % matchLineNumbers.length,
-    );
-  }, [matchLineNumbers]);
+    const nextIdx = (currentMatchIndex + 1) % matchLineNumbers.length;
+    setCurrentMatchIndex(nextIdx);
+    scrollToLine(matchLineNumbers[nextIdx]);
+  }, [matchLineNumbers, currentMatchIndex, scrollToLine]);
 
   const prevMatch = useCallback(() => {
     if (matchLineNumbers.length === 0) return;
-    setCurrentMatchIndex(
-      (prev) =>
-        (prev - 1 + matchLineNumbers.length) % matchLineNumbers.length,
-    );
-  }, [matchLineNumbers]);
-
-  // Scroll to current search match when navigating matches
-  useEffect(() => {
-    if (
-      currentMatchIndex >= 0 &&
-      currentMatchIndex < matchLineNumbers.length &&
-      virtuosoRef.current
-    ) {
-      const lineNumber = matchLineNumbers[currentMatchIndex];
-      virtuosoRef.current.scrollToIndex({
-        index: lineNumber - 1,
-        align: 'start',
-      });
-    }
-  }, [currentMatchIndex, matchLineNumbers]);
+    const prevIdx =
+      (currentMatchIndex - 1 + matchLineNumbers.length) %
+      matchLineNumbers.length;
+    setCurrentMatchIndex(prevIdx);
+    scrollToLine(matchLineNumbers[prevIdx]);
+  }, [matchLineNumbers, currentMatchIndex, scrollToLine]);
 
   // --- Selection ---
 
@@ -149,17 +171,6 @@ export function useLogViewer({ url, caseInsensitive = true } = {}) {
   const clearHighlight = useCallback(() => {
     setHighlight(null);
     anchorLineRef.current = null;
-  }, []);
-
-  // --- Scroll ---
-
-  const scrollToLine = useCallback((lineNumber) => {
-    if (virtuosoRef.current) {
-      virtuosoRef.current.scrollToIndex({
-        index: lineNumber - 1,
-        align: 'start',
-      });
-    }
   }, []);
 
   // --- Copy ---
@@ -202,6 +213,8 @@ export function useLogViewer({ url, caseInsensitive = true } = {}) {
       // Scroll
       virtuosoRef,
       scrollToLine,
+      visibleRangeRef,
+      setVisibleRange,
       // Copy
       copyHighlightedLines,
     }),
@@ -221,6 +234,7 @@ export function useLogViewer({ url, caseInsensitive = true } = {}) {
       onLineClick,
       clearHighlight,
       scrollToLine,
+      setVisibleRange,
       copyHighlightedLines,
     ],
   );

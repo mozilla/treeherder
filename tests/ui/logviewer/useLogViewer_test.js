@@ -283,6 +283,102 @@ describe('useLogViewer', () => {
     });
   });
 
+  // --- Search scroll behavior ---
+
+  test('typing search does not scroll when a match is in the visible viewport', async () => {
+    global.fetch.mockResolvedValue({
+      ok: true,
+      text: () => Promise.resolve('aaa\nbbb\naaa\nbbb\naaa'),
+    });
+
+    const { result } = renderHook(() => useLogViewer({ url: 'http://log.txt' }));
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    const mockScrollToIndex = jest.fn();
+    result.current.virtuosoRef.current = {
+      scrollToIndex: mockScrollToIndex,
+    };
+
+    // Viewport currently shows lines 3-5 (0-indexed: 2-4). Match line 3 (idx 2) is visible.
+    act(() => {
+      result.current.setVisibleRange({ startIndex: 2, endIndex: 4 });
+    });
+
+    act(() => {
+      result.current.setSearchTerm('aaa');
+    });
+
+    expect(result.current.matchLineNumbers).toEqual([1, 3, 5]);
+    // currentMatchIndex should anchor to the in-viewport match (line 3 = index 1)
+    expect(result.current.currentMatchIndex).toBe(1);
+    expect(mockScrollToIndex).not.toHaveBeenCalled();
+  });
+
+  test('typing search scrolls to first match when no match is in viewport', async () => {
+    global.fetch.mockResolvedValue({
+      ok: true,
+      text: () => Promise.resolve('aaa\nbbb\nccc\nddd\neee'),
+    });
+
+    const { result } = renderHook(() => useLogViewer({ url: 'http://log.txt' }));
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    const mockScrollToIndex = jest.fn();
+    result.current.virtuosoRef.current = {
+      scrollToIndex: mockScrollToIndex,
+    };
+
+    // Viewport shows lines 3-5 (0-indexed: 2-4). Searching for 'aaa' (line 1) — not visible.
+    act(() => {
+      result.current.setVisibleRange({ startIndex: 2, endIndex: 4 });
+    });
+
+    act(() => {
+      result.current.setSearchTerm('aaa');
+    });
+
+    expect(result.current.matchLineNumbers).toEqual([1]);
+    expect(result.current.currentMatchIndex).toBe(0);
+    expect(mockScrollToIndex).toHaveBeenCalledWith({
+      index: 0,
+      align: 'start',
+    });
+  });
+
+  test('nextMatch scrolls to the new match line', async () => {
+    global.fetch.mockResolvedValue({
+      ok: true,
+      text: () => Promise.resolve('aaa\nbbb\naaa\nbbb\naaa'),
+    });
+
+    const { result } = renderHook(() => useLogViewer({ url: 'http://log.txt' }));
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    const mockScrollToIndex = jest.fn();
+    result.current.virtuosoRef.current = {
+      scrollToIndex: mockScrollToIndex,
+    };
+
+    // Anchor search on line 3 (in viewport) so setSearchTerm doesn't scroll on its own.
+    act(() => {
+      result.current.setVisibleRange({ startIndex: 2, endIndex: 4 });
+    });
+    act(() => {
+      result.current.setSearchTerm('aaa');
+    });
+    mockScrollToIndex.mockClear();
+
+    act(() => {
+      result.current.nextMatch();
+    });
+
+    // Anchored at index 1 (line 3) — next is index 2 (line 5)
+    expect(mockScrollToIndex).toHaveBeenCalledWith({
+      index: 4,
+      align: 'start',
+    });
+  });
+
   // --- Copy ---
 
   test('copyHighlightedLines extracts correct range and writes to clipboard', async () => {
