@@ -84,6 +84,7 @@ export const summaryStatusMap = {
   fixed: 7,
   backedout: 8,
   'all regressions': 9,
+  infra: 10,
 };
 
 export const alertStatusMap = {
@@ -92,6 +93,7 @@ export const alertStatusMap = {
   reassigned: 2,
   invalid: 3,
   acknowledged: 4,
+  infra: 5,
 };
 
 export const bugStatusMap = {
