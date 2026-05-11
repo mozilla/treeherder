@@ -7,6 +7,7 @@ import {
   faBan,
   faLevelDownAlt,
   faArrowAltCircleRight,
+  faTools,
 } from '@fortawesome/free-solid-svg-icons';
 
 import SimpleTooltip from '../../shared/SimpleTooltip';
@@ -242,6 +243,20 @@ export default class AlertActionPanel extends React.Component {
                     </Button>
                   }
                   tooltipText="Mark selected alerts as invalid"
+                />
+              </Col>
+
+              <Col sm="auto" className="p-2">
+                <SimpleTooltip
+                  text={
+                    <Button
+                      variant="secondary"
+                      onClick={() => this.updateAlerts('infra')}
+                    >
+                      <FontAwesomeIcon icon={faTools} /> Mark Infra
+                    </Button>
+                  }
+                  tooltipText="Mark selected alerts as caused by infra changes"
                 />
               </Col>
 
