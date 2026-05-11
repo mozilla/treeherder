@@ -1,6 +1,8 @@
 import copy
+import datetime
 import json
 import os
+import types
 
 import pytest
 import responses
@@ -46,45 +48,60 @@ def transformed_hg_push(sample_data):
     return copy.deepcopy(sample_data.transformed_hg_push)
 
 
-@pytest.fixture
-def mock_github_pr_commits(activate_responses):
-    tests_folder = os.path.dirname(os.path.dirname(__file__))
-    path = os.path.join(tests_folder, "sample_data/pulse_consumer", "github_pr_commits.json")
-    with open(path) as f:
-        mocked_content = f.read()
-    responses.add(
-        responses.GET,
-        "https://api.github.com/repos/mozilla/test_treeherder/pulls/1692/commits",
-        body=mocked_content,
-        status=200,
-        content_type="application/json",
+def _make_commit_object(data):
+    """Build a SimpleNamespace that mimics a PyGithub Commit object from raw JSON."""
+    return types.SimpleNamespace(
+        sha=data["sha"],
+        commit=types.SimpleNamespace(
+            author=types.SimpleNamespace(
+                name=data["commit"]["author"]["name"],
+                email=data["commit"]["author"]["email"],
+            ),
+            committer=types.SimpleNamespace(
+                date=datetime.datetime.fromisoformat(
+                    data["commit"]["committer"]["date"].replace("Z", "+00:00")
+                ),
+            ),
+            message=data["commit"]["message"],
+        ),
     )
 
 
 @pytest.fixture
-def mock_github_push_compare(activate_responses):
+def mock_github_pr_commits(monkeypatch):
+    tests_folder = os.path.dirname(os.path.dirname(__file__))
+    path = os.path.join(tests_folder, "sample_data/pulse_consumer", "github_pr_commits.json")
+    with open(path) as f:
+        raw_commits = json.load(f)
+
+    mock_commits = [_make_commit_object(c) for c in raw_commits]
+
+    monkeypatch.setattr(
+        "treeherder.etl.push_loader.get_pull_request_commits",
+        lambda org, repo, pr_id: mock_commits,
+    )
+
+
+@pytest.fixture
+def mock_github_push_compare(monkeypatch):
     tests_folder = os.path.dirname(os.path.dirname(__file__))
     path = os.path.join(tests_folder, "sample_data/pulse_consumer", "github_push_compare.json")
     with open(path) as f:
         mocked_content = json.load(f)
 
-    responses.add(
-        responses.GET,
-        "https://api.github.com/repos/mozilla-mobile/android-components/compare/"
-        "7285afe57ae6207fdb5d6db45133dac2053b7820..."
-        "5fdb785b28b356f50fc1d9cb180d401bb03fc1f1",
-        json=mocked_content[0],
-        status=200,
-        content_type="application/json",
-    )
-    responses.add(
-        responses.GET,
-        "https://api.github.com/repos/servo/servo/compare/"
-        "4c25e02f26f7536edbf23a360d56604fb9507378..."
-        "ad9bfc2a62b70b9f3dbb1c3a5969f30bacce3d74",
-        json=mocked_content[1],
-        status=200,
-        content_type="application/json",
+    # Build a lookup: (base_sha, head_sha) -> list of mock commit objects
+    compare_map = {}
+    for item in mocked_content:
+        compare_part = item["url"].split("/compare/")[1]
+        base, head = compare_part.split("...")
+        compare_map[(base, head)] = [_make_commit_object(c) for c in item["commits"]]
+
+    def mock_compare_shas(org, repo_name, base, head):
+        return compare_map.get((base, head), [])
+
+    monkeypatch.setattr(
+        "treeherder.etl.push_loader.compare_shas",
+        mock_compare_shas,
     )
 
 
