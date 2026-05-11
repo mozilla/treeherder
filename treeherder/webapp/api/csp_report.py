@@ -1,7 +1,6 @@
 import json
 import logging
 
-import newrelic.agent
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -29,5 +28,4 @@ def csp_report_collector(request):
         return HttpResponseBadRequest("Invalid CSP violation report")
 
     logger.warning("CSP violation: %s", report)
-    newrelic.agent.record_custom_event("CSP violation", report)
     return HttpResponse()

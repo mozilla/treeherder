@@ -1,7 +1,5 @@
 import logging
 
-import newrelic.agent
-
 from treeherder.utils.http import make_request
 
 from .artifactbuilders import LogViewerArtifactBuilder, PerformanceDataArtifactBuilder
@@ -86,10 +84,6 @@ class ArtifactBuilderCollection:
             download_size_in_bytes = int(response.headers.get("Content-Length", -1))
 
             # Temporary annotation of log size to help set thresholds in bug 1295997.
-            newrelic.agent.add_custom_attribute("unstructured_log_size", download_size_in_bytes)
-            newrelic.agent.add_custom_attribute(
-                "unstructured_log_encoding", response.headers.get("Content-Encoding", "None")
-            )
 
             if download_size_in_bytes > MAX_DOWNLOAD_SIZE_IN_BYTES:
                 raise LogSizeError(f"Download size of {download_size_in_bytes} bytes exceeds limit")

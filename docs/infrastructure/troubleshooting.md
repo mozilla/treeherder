@@ -8,27 +8,6 @@ For less urgent issues or general support, you can file a bug with [cloudOps](ht
 
 ## Monitoring & metrics
 
-- New Relic
-  - Overview:
-    [prototype](https://rpm.newrelic.com/accounts/677903/applications/7385291) |
-    [stage](https://rpm.newrelic.com/accounts/677903/applications/14179733) |
-    [prod](https://rpm.newrelic.com/accounts/677903/applications/14179757)
-  - Error analytics:
-    [prototype](https://rpm.newrelic.com/accounts/677903/applications/7385291/filterable_errors) |
-    [stage](https://rpm.newrelic.com/accounts/677903/applications/14179733/filterable_errors) |
-    [prod](https://rpm.newrelic.com/accounts/677903/applications/14179757/filterable_errors)
-  - Web transactions:
-    [prototype](https://rpm.newrelic.com/accounts/677903/applications/7385291/transactions?type=app) |
-    [stage](https://rpm.newrelic.com/accounts/677903/applications/14179733/transactions?type=app) |
-    [prod](https://rpm.newrelic.com/accounts/677903/applications/14179757/transactions?type=app)
-  - Non-web transactions (background tasks):
-    [prototype](https://rpm.newrelic.com/accounts/677903/applications/7385291/transactions?type=other&show_browser=false) |
-    [stage](https://rpm.newrelic.com/accounts/677903/applications/14179733/transactions?type=other&show_browser=false) |
-    [prod](https://rpm.newrelic.com/accounts/677903/applications/14179757/transactions?type=other&show_browser=false)
-  - Postgres/Redis client request stats:
-    [prototype](https://rpm.newrelic.com/accounts/677903/applications/7385291/datastores) |
-    [stage](https://rpm.newrelic.com/accounts/677903/applications/14179733/datastores) |
-    [prod](https://rpm.newrelic.com/accounts/677903/applications/14179757/datastores)
 - Google Cloud Console
   - [prod](https://console.cloud.google.com/kubernetes/list?project=moz-fx-treeherder-prod-c739)
   - [all other deployments](https://console.cloud.google.com/kubernetes/list?project=moz-fx-treeherde-nonprod-34ec)
