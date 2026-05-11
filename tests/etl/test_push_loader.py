@@ -58,9 +58,7 @@ def _make_commit_object(data):
                 email=data["commit"]["author"]["email"],
             ),
             committer=types.SimpleNamespace(
-                date=datetime.datetime.fromisoformat(
-                    data["commit"]["committer"]["date"].replace("Z", "+00:00")
-                ),
+                date=datetime.datetime.fromisoformat(data["commit"]["committer"]["date"]),
             ),
             message=data["commit"]["message"],
         ),
