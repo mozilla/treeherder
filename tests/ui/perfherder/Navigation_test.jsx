@@ -50,18 +50,12 @@ describe('Perfherder Navigation', () => {
     });
 
     test('Monitoring link has correct absolute path with query params', () => {
-      renderNavigation('/perfherder/tests');
+      renderNavigation('/perfherder/alerts');
       const monitoringLink = screen.getByRole('link', { name: 'Monitoring' });
       expect(monitoringLink).toHaveAttribute(
         'href',
         '/perfherder/alerts?monitoredAlerts=1&page=1',
       );
-    });
-
-    test('Tests link has correct absolute path', () => {
-      renderNavigation('/perfherder/alerts');
-      const testsLink = screen.getByRole('link', { name: 'Tests' });
-      expect(testsLink).toHaveAttribute('href', '/perfherder/tests');
     });
 
     test('Links work correctly when rendered from nested alert route', () => {
@@ -71,11 +65,9 @@ describe('Perfherder Navigation', () => {
       renderNavigation('/perfherder/alerts?id=12345');
 
       const graphsLink = screen.getByRole('link', { name: 'Graphs' });
-      const testsLink = screen.getByRole('link', { name: 'Tests' });
 
       // These should NOT include 'alerts' in the path
       expect(graphsLink).toHaveAttribute('href', '/perfherder/graphs');
-      expect(testsLink).toHaveAttribute('href', '/perfherder/tests');
     });
   });
 
