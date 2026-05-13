@@ -6,7 +6,7 @@ export default class NotesModal extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      inputValue: this.props.alertSummary.notes || '',
+      inputValue: this.props.alertSummary.notes || null,
     };
   }
 
@@ -56,7 +56,7 @@ export default class NotesModal extends React.Component {
           <Modal.Footer>
             <Button
               variant="secondary"
-              disabled={inputValue === (alertSummary.notes || '')}
+              disabled={inputValue === (alertSummary.notes)}
               type="submit"
             >
               Save
