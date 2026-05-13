@@ -4,7 +4,7 @@ whitenoise[brotli]==6.11.0  # Used by Whitenoise to provide Brotli-compressed ve
 Django==5.2.12
 celery==5.6.2  # celery needed for data ingestion
 simplejson==3.20.2  # import simplejson
-newrelic==11.2.0
+newrelic==13.0.0
 certifi==2026.1.4
 
 psycopg2-binary==2.9.12
