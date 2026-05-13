@@ -77,6 +77,8 @@ ERROR_TEST_CASES = (
     "src/gl.cc(2249): error C2065: 'BLEND_1': undeclared identifier",
     # "YOU ARE LEAKING THE WORLD"
     "20:28:29     INFO - WARNING: YOU ARE LEAKING THE WORLD (at least one JSRuntime and everything alive inside it, that is) AT JS_ShutDown TIME.  FIX THIS!",
+    # "^error: " (Rust/Cargo style errors)
+    "error: failed to parse lock file at: /builds/worker/workspace/build/src/tools/lint/moz-linter/Cargo.lock",
 )
 
 NON_ERROR_TEST_CASES = (
