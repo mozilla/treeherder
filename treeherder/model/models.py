@@ -1324,6 +1324,29 @@ class TextLogError(models.Model):
             return None
 
 
+class StructuredLogError(models.Model):
+    """A detected error entry from a structured (mozlog JSON-lines) log."""
+
+    id = models.BigAutoField(primary_key=True)
+    job_log = models.ForeignKey(
+        JobLog, on_delete=models.CASCADE, related_name="structured_log_error"
+    )
+    action = models.CharField(max_length=32, blank=True)
+    time = models.BigIntegerField(null=True, blank=True)
+    thread = models.CharField(max_length=255, blank=True)
+    pid = models.PositiveIntegerField(null=True, blank=True)
+    source = models.CharField(max_length=255, blank=True)
+    message = models.TextField(blank=True)
+    level = models.CharField(max_length=16, blank=True)
+
+    class Meta:
+        db_table = "structured_log_error"
+        indexes = [models.Index(fields=["job_log"])]
+
+    def __str__(self):
+        return f"{self.id} {self.job_log_id}"
+
+
 class TextLogErrorMetadata(models.Model):
     """
     Link matching TextLogError and FailureLine instances.
