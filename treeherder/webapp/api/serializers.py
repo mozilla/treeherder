@@ -189,6 +189,12 @@ class TextLogErrorSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class StructuredLogErrorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.StructuredLogError
+        fields = ("id", "action", "time", "thread", "pid", "source", "message", "level")
+
+
 class BugJobMapSerializer(serializers.ModelSerializer):
     job_id = serializers.PrimaryKeyRelatedField(source="job", read_only=True)
     bug_id = serializers.IntegerField(source="bug.bugzilla_id", read_only=True)

@@ -14,9 +14,11 @@ import { getReftestUrl } from '../../../helpers/url';
 import BugFiler from '../../BugFiler';
 import InternalIssueFiler from '../../InternalIssueFiler';
 import BugSuggestionsModel from '../../../models/bugSuggestions';
+import StructuredLogErrorsModel from '../../../models/structuredLogErrors';
 
 import ErrorsList from './ErrorsList';
 import ListItem from './ListItem';
+import StructuredErrorsList from './StructuredErrorsList';
 import SuggestionsListItem from './SuggestionsListItem';
 
 class FailureSummaryTab extends React.Component {
@@ -28,12 +30,13 @@ class FailureSummaryTab extends React.Component {
       isInternalIssueFilerOpen: false,
       suggestions: [],
       errors: [],
+      structuredErrors: [],
       bugSuggestionsLoading: false,
     };
   }
 
   componentDidMount() {
-    this.loadBugSuggestions();
+    this.loadErrors();
 
     window.addEventListener(thEvents.internalIssueClassification, (event) =>
       this.checkInternalFailureOccurrences(event.detail.internalBugId),
@@ -48,9 +51,34 @@ class FailureSummaryTab extends React.Component {
       !!prevProps.selectedJob &&
       selectedJobId !== prevProps.selectedJobId
     ) {
-      this.loadBugSuggestions();
+      this.loadErrors();
     }
   }
+
+  loadErrors = async () => {
+    const { selectedJobId } = this.props;
+
+    if (!selectedJobId) {
+      return;
+    }
+    this.setState({ bugSuggestionsLoading: true });
+    let structuredErrors = [];
+    try {
+      structuredErrors = await StructuredLogErrorsModel.get(selectedJobId);
+    } catch {
+      structuredErrors = [];
+    }
+    if (structuredErrors.length > 0) {
+      this.setState({
+        structuredErrors,
+        suggestions: [],
+        bugSuggestionsLoading: false,
+      });
+      return;
+    }
+    this.setState({ structuredErrors: [] });
+    this.loadBugSuggestions();
+  };
 
   fileBug = (suggestion) => {
     const { selectedJob, pinJob } = this.props;
@@ -243,7 +271,9 @@ class FailureSummaryTab extends React.Component {
       bugSuggestionsLoading,
       suggestions,
       errors,
+      structuredErrors,
     } = this.state;
+    const hasStructuredErrors = structuredErrors.length > 0;
     const logs = jobLogUrls.filter(
       (jlu) => !jlu.name.includes('perfherder-data'),
     );
@@ -275,106 +305,114 @@ class FailureSummaryTab extends React.Component {
           ref={this.fsMount}
           id="failure-summary-scroll-area"
         >
-          {selectedJob.newFailure > 0 && (
-            <Button
-              className="failure-summary-new-message border-0"
-              title="New Test Failure"
-            >
-              {selectedJob.newFailure} new failure line(s). First one is
-              flagged, it might be good to look at all failures in this job.
-            </Button>
-          )}
+          {hasStructuredErrors ? (
+            <StructuredErrorsList errors={structuredErrors} />
+          ) : (
+            <>
+              {selectedJob.newFailure > 0 && (
+                <Button
+                  className="failure-summary-new-message border-0"
+                  title="New Test Failure"
+                >
+                  {selectedJob.newFailure} new failure line(s). First one is
+                  flagged, it might be good to look at all failures in this job.
+                </Button>
+              )}
 
-          {suggestions.map((suggestion, index) => (
-            <SuggestionsListItem
-              key={`${selectedJob.id}-${index}`} // eslint-disable-line react/no-array-index-key
-              index={index}
-              suggestion={suggestion}
-              toggleBugFiler={() => this.fileBug(suggestion)}
-              toggleInternalIssueFiler={() =>
-                this.fileInternalIssue(suggestion)
-              }
-              selectedJob={selectedJob}
-              addBug={addBug}
-              currentRepo={currentRepo}
-              developerMode={developerMode}
-              jobDetails={jobDetails}
-            />
-          ))}
-
-          {!!errors.length && <ErrorsList errors={errors} />}
-
-          {!jobLogsAllParsed && <ListItem text="Log parsing not complete" />}
-
-          {!bugSuggestionsLoading &&
-            jobLogsAllParsed &&
-            !logs.length &&
-            !suggestions.length &&
-            !errors.length && <ListItem text="Failure summary is empty" />}
-
-          {!bugSuggestionsLoading &&
-            jobLogsAllParsed &&
-            !!logs.length &&
-            logParseStatus === 'success' && (
-              <li>
-                <p className="failure-summary-line-empty mb-0">
-                  Log parsing complete. Generating bug suggestions.
-                  <br />
-                  <span>
-                    The content of this panel will refresh in 5 seconds.
-                  </span>
-                </p>
-              </li>
-            )}
-
-          {!bugSuggestionsLoading &&
-            !jobLogsAllParsed &&
-            logs.map((jobLog) => (
-              <li key={jobLog.id}>
-                <p className="failure-summary-line-empty mb-0">
-                  Log parsing in progress.
-                  <br />
-                  <a
-                    title="Open the raw log in a new window"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href={jobLog.url}
-                  >
-                    The raw log
-                  </a>{' '}
-                  is available. This panel will automatically recheck every 5
-                  seconds.
-                </p>
-              </li>
-            ))}
-
-          {!bugSuggestionsLoading && logParseStatus === 'failed' && (
-            <ListItem text="Log parsing failed.  Unable to generate failure summary." />
-          )}
-
-          {!bugSuggestionsLoading && logParseStatus === 'skipped-size' && (
-            <ListItem text="Log parsing was skipped since the log exceeds the size limit." />
-          )}
-
-          {!bugSuggestionsLoading && !logs.length && (
-            <ListItem
-              text={`No logs yet available for this ${getResultState(
-                selectedJob,
-              )} job.`}
-            />
-          )}
-
-          {bugSuggestionsLoading && (
-            <div className="overlay">
-              <div>
-                <FontAwesomeIcon
-                  icon={faSpinner}
-                  pulse
-                  className="th-spinner-lg"
-                  title="Loading..."
+              {suggestions.map((suggestion, index) => (
+                <SuggestionsListItem
+                  key={`${selectedJob.id}-${index}`} // eslint-disable-line react/no-array-index-key
+                  index={index}
+                  suggestion={suggestion}
+                  toggleBugFiler={() => this.fileBug(suggestion)}
+                  toggleInternalIssueFiler={() =>
+                    this.fileInternalIssue(suggestion)
+                  }
+                  selectedJob={selectedJob}
+                  addBug={addBug}
+                  currentRepo={currentRepo}
+                  developerMode={developerMode}
+                  jobDetails={jobDetails}
                 />
-              </div>
-            </div>
+              ))}
+
+              {!!errors.length && <ErrorsList errors={errors} />}
+
+              {!jobLogsAllParsed && (
+                <ListItem text="Log parsing not complete" />
+              )}
+
+              {!bugSuggestionsLoading &&
+                jobLogsAllParsed &&
+                !logs.length &&
+                !suggestions.length &&
+                !errors.length && <ListItem text="Failure summary is empty" />}
+
+              {!bugSuggestionsLoading &&
+                jobLogsAllParsed &&
+                !!logs.length &&
+                logParseStatus === 'success' && (
+                  <li>
+                    <p className="failure-summary-line-empty mb-0">
+                      Log parsing complete. Generating bug suggestions.
+                      <br />
+                      <span>
+                        The content of this panel will refresh in 5 seconds.
+                      </span>
+                    </p>
+                  </li>
+                )}
+
+              {!bugSuggestionsLoading &&
+                !jobLogsAllParsed &&
+                logs.map((jobLog) => (
+                  <li key={jobLog.id}>
+                    <p className="failure-summary-line-empty mb-0">
+                      Log parsing in progress.
+                      <br />
+                      <a
+                        title="Open the raw log in a new window"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        href={jobLog.url}
+                      >
+                        The raw log
+                      </a>{' '}
+                      is available. This panel will automatically recheck every
+                      5 seconds.
+                    </p>
+                  </li>
+                ))}
+
+              {!bugSuggestionsLoading && logParseStatus === 'failed' && (
+                <ListItem text="Log parsing failed.  Unable to generate failure summary." />
+              )}
+
+              {!bugSuggestionsLoading && logParseStatus === 'skipped-size' && (
+                <ListItem text="Log parsing was skipped since the log exceeds the size limit." />
+              )}
+
+              {!bugSuggestionsLoading && !logs.length && (
+                <ListItem
+                  text={`No logs yet available for this ${getResultState(
+                    selectedJob,
+                  )} job.`}
+                />
+              )}
+
+              {bugSuggestionsLoading && (
+                <div className="overlay">
+                  <div>
+                    <FontAwesomeIcon
+                      icon={faSpinner}
+                      pulse
+                      className="th-spinner-lg"
+                      title="Loading..."
+                    />
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </ul>
         {isBugFilerOpen && (
