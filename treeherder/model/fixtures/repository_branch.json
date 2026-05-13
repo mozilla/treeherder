@@ -1,441 +1,496 @@
 [
   {
-    "pk": 2,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 47,
+      "repository": [
+        "gaia-master"
+      ],
       "branch": "master"
     }
   },
   {
-    "pk": 3,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 61,
+      "repository": [
+        "bugzilla-master"
+      ],
       "branch": "master"
     }
   },
   {
-    "pk": 4,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 62,
+      "repository": [
+        "bmo-master"
+      ],
       "branch": "master"
     }
   },
   {
-    "pk": 5,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 65,
+      "repository": [
+        "bugzilla-5_0"
+      ],
       "branch": "5.0"
     }
   },
   {
-    "pk": 6,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 66,
+      "repository": [
+        "bugzilla-4_4"
+      ],
       "branch": "4.4"
     }
   },
   {
-    "pk": 7,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 67,
+      "repository": [
+        "bugzilla-4_2"
+      ],
       "branch": "4.2"
     }
   },
   {
-    "pk": 8,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 68,
+      "repository": [
+        "bmo-development"
+      ],
       "branch": "development"
     }
   },
   {
-    "pk": 9,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 71,
+      "repository": [
+        "bmo-upstream-merge"
+      ],
       "branch": "upstream-merge"
     }
   },
   {
-    "pk": 10,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 75,
+      "repository": [
+        "servo-master"
+      ],
       "branch": "master"
     }
   },
   {
-    "pk": 11,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 78,
+      "repository": [
+        "autopush"
+      ],
       "branch": "master"
     }
   },
   {
-    "pk": 12,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 81,
+      "repository": [
+        "example-addon"
+      ],
       "branch": "master"
     }
   },
   {
-    "pk": 13,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 86,
+      "repository": [
+        "webrender"
+      ],
       "branch": "master"
     }
   },
   {
-    "pk": 14,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 87,
+      "repository": [
+        "addon-tests"
+      ],
       "branch": "master"
     }
   },
   {
-    "pk": 15,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 88,
+      "repository": [
+        "fxapom"
+      ],
       "branch": "master"
     }
   },
   {
-    "pk": 16,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 89,
+      "repository": [
+        "go-bouncer"
+      ],
       "branch": "master"
     }
   },
   {
-    "pk": 17,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 90,
+      "repository": [
+        "mozillians-tests"
+      ],
       "branch": "master"
     }
   },
   {
-    "pk": 18,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 91,
+      "repository": [
+        "snippets-service"
+      ],
       "branch": "master"
     }
   },
   {
-    "pk": 19,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 92,
+      "repository": [
+        "socorro"
+      ],
       "branch": "master"
     }
   },
   {
-    "pk": 20,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 93,
+      "repository": [
+        "stubattribution-tests"
+      ],
       "branch": "master"
     }
   },
   {
-    "pk": 21,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 94,
+      "repository": [
+        "treeherder"
+      ],
       "branch": "master"
     }
   },
   {
-    "pk": 22,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 99,
+      "repository": [
+        "servo-try"
+      ],
       "branch": "try"
     }
   },
   {
-    "pk": 23,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 99,
+      "repository": [
+        "servo-try"
+      ],
       "branch": "try-taskcluster"
     }
   },
   {
-    "pk": 24,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 99,
+      "repository": [
+        "servo-try"
+      ],
       "branch": "try-linux"
     }
   },
   {
-    "pk": 25,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 99,
+      "repository": [
+        "servo-try"
+      ],
       "branch": "try-mac"
     }
   },
   {
-    "pk": 26,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 99,
+      "repository": [
+        "servo-try"
+      ],
       "branch": "try-windows"
     }
   },
   {
-    "pk": 27,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 99,
+      "repository": [
+        "servo-try"
+      ],
       "branch": "try-windows-rdp"
     }
   },
   {
-    "pk": 28,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 99,
+      "repository": [
+        "servo-try"
+      ],
       "branch": "try-wpt"
     }
   },
   {
-    "pk": 29,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 99,
+      "repository": [
+        "servo-try"
+      ],
       "branch": "try-wpt-2020"
     }
   },
   {
-    "pk": 30,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 99,
+      "repository": [
+        "servo-try"
+      ],
       "branch": "try-wpt-mac"
     }
   },
   {
-    "pk": 31,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 99,
+      "repository": [
+        "servo-try"
+      ],
       "branch": "try-wpt-android"
     }
   },
   {
-    "pk": 32,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 99,
+      "repository": [
+        "servo-try"
+      ],
       "branch": "try-android"
     }
   },
   {
-    "pk": 33,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 99,
+      "repository": [
+        "servo-try"
+      ],
       "branch": "try-magicleap"
     }
   },
   {
-    "pk": 34,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 99,
+      "repository": [
+        "servo-try"
+      ],
       "branch": "try-arm"
     }
   },
   {
-    "pk": 35,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 100,
+      "repository": [
+        "servo-auto"
+      ],
       "branch": "auto"
     }
   },
   {
-    "pk": 37,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 103,
+      "repository": [
+        "taskgraph"
+      ],
       "branch": "main"
     }
   },
   {
-    "pk": 38,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 107,
+      "repository": [
+        "reference-browser"
+      ],
       "branch": "master"
     }
   },
   {
-    "pk": 39,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 108,
+      "repository": [
+        "fenix"
+      ],
       "branch": "main"
     }
   },
   {
-    "pk": 40,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 111,
+      "repository": [
+        "android-components"
+      ],
       "branch": "main"
     }
   },
   {
-    "pk": 41,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 118,
+      "repository": [
+        "mozilla-vpn-client"
+      ],
       "branch": "main"
     }
   },
   {
-    "pk": 42,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 119,
+      "repository": [
+        "focus-android"
+      ],
       "branch": "main"
     }
   },
   {
-    "pk": 43,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 120,
+      "repository": [
+        "staging-focus-android"
+      ],
       "branch": "main"
     }
   },
   {
-    "pk": 44,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 121,
+      "repository": [
+        "staging-fenix"
+      ],
       "branch": "main"
     }
   },
   {
-    "pk": 45,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 122,
+      "repository": [
+        "mozilla-vpn-client-release"
+      ],
       "branch": "releases/2.8"
     }
   },
   {
-    "pk": 46,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 127,
+      "repository": [
+        "firefox-android"
+      ],
       "branch": "main"
     }
   },
   {
-    "pk": 47,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 128,
+      "repository": [
+        "staging-android-components"
+      ],
       "branch": "main"
     }
   },
   {
-    "pk": 48,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 129,
+      "repository": [
+        "firefox-translations-training"
+      ],
       "branch": "main"
     }
   },
   {
-    "pk": 49,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 130,
+      "repository": [
+        "staging-firefox-translations-training"
+      ],
       "branch": "main"
     }
   },
   {
-    "pk": 50,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 131,
+      "repository": [
+        "firefox-ios"
+      ],
       "branch": "main"
     }
   },
   {
-    "pk": 51,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 134,
+      "repository": [
+        "application-services"
+      ],
       "branch": "main"
     }
   },
   {
-    "pk": 52,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 138,
+      "repository": [
+        "staging-firefox-ios"
+      ],
       "branch": "main"
     }
   },
   {
-    "pk": 53,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 141,
+      "repository": [
+        "worker-images"
+      ],
       "branch": "main"
     }
   },
   {
-    "pk": 54,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 142,
+      "repository": [
+        "enterprise-main"
+      ],
       "branch": "enterprise-main"
     }
   },
   {
-    "pk": 56,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 144,
+      "repository": [
+        "enterprise-release"
+      ],
       "branch": "enterprise-release"
     }
   },
   {
-    "pk": 57,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 145,
+      "repository": [
+        "enterprise-beta"
+      ],
       "branch": "enterprise-beta"
     }
   },
   {
-    "pk": 58,
     "model": "model.repositorybranch",
     "fields": {
-      "repository": 146,
+      "repository": [
+        "enterprise-firefox-try"
+      ],
       "branch": "*"
     }
   }
