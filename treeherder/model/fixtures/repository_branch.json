@@ -430,5 +430,13 @@
       "repository": 145,
       "branch": "enterprise-beta"
     }
+  },
+  {
+    "pk": 58,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 146,
+      "branch": "*"
+    }
   }
 ]
