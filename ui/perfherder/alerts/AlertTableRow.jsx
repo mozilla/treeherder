@@ -424,9 +424,9 @@ export default class AlertTableRow extends React.Component {
 
     return (
       <tr
-        className={
+        className={`align-middle ${
           alertSummary.notes ? 'border-top border-left border-right' : 'border'
-        }
+        }`}
         aria-label="Alert table row"
         data-testid={alert.id}
       >
@@ -446,32 +446,34 @@ export default class AlertTableRow extends React.Component {
             }
           />
         </td>
-        <td className="px-0 d-flex flex-column align-items-start border-top-0">
-          <Button
-            variant="black"
-            aria-label={
-              starred
-                ? 'Remove bookmark from this Alert'
-                : 'Bookmark this Alert'
-            }
-            className={`${bookmarkClass} border p-0 border-0 bg-transparent`}
-            data-testid={`alert ${alert.id.toString()} star`}
-            onClick={this.toggleStar}
-          >
-            <FontAwesomeIcon
-              title={starred ? 'starred' : 'not starred'}
-              icon={starred ? faStarSolid : faStarRegular}
-            />
-          </Button>
-          <a
-            href={getGraphsURL(alert, timeRange, repository, framework)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-dark button btn border p-0 border-0 bg-transparent"
-            aria-label="graph-link"
-          >
-            <FontAwesomeIcon title="Open graph" icon={faChartLine} />
-          </a>
+        <td className="px-0 border-top-0">
+          <div className="d-flex flex-column align-items-start">
+            <Button
+              variant="black"
+              aria-label={
+                starred
+                  ? 'Remove bookmark from this Alert'
+                  : 'Bookmark this Alert'
+              }
+              className={`${bookmarkClass} border p-0 border-0 bg-transparent`}
+              data-testid={`alert ${alert.id.toString()} star`}
+              onClick={this.toggleStar}
+            >
+              <FontAwesomeIcon
+                title={starred ? 'starred' : 'not starred'}
+                icon={starred ? faStarSolid : faStarRegular}
+              />
+            </Button>
+            <a
+              href={getGraphsURL(alert, timeRange, repository, framework)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-dark button btn border p-0 border-0 bg-transparent"
+              aria-label="graph-link"
+            >
+              <FontAwesomeIcon title="Open graph" icon={faChartLine} />
+            </a>
+          </div>
         </td>
         <td className="text-left">
           {alertStatus !== 'untriaged' ? (
