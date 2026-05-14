@@ -480,9 +480,9 @@ pyyaml==6.0.3 \
     #   pre-commit
     #   responses
     #   vcrpy
-requests==2.32.5 \
-    --hash=sha256:2462f94637a34fd532264295e186976db0f5d453d1cdd31473c85a6a161affb6 \
-    --hash=sha256:dbba0bac56e100853db0ea71b82b4dfd5fe2bf6d3754a8893c3af500cec7d7cf
+requests==2.34.1 \
+    --hash=sha256:0fc5669f2b69704449fe1552360bd2a73a54512dfd03e65529157f1513322beb \
+    --hash=sha256:bf38a3ff993960d3dd819c08862c40b3c703306eb7c744fcd9f4ddbb95b548f0
     # via
     #   -r requirements/dev.in
     #   responses
@@ -501,15 +501,6 @@ shellcheck-py==0.11.0.1 \
     --hash=sha256:784156289ecb17e91c692cd783ab5152333309588cabb10032a047331c63e759 \
     --hash=sha256:b6a3fee28efda2e16e38d6e6d59faf7224300256456639727370d404730849e8
     # via -r requirements/dev.in
-setuptools==80.9.0 \
-    --hash=sha256:062d34222ad13e0cc312a4c02d73f059e86a4acbfbdea8f8f76b28c99f306922 \
-    --hash=sha256:f36b47402ecde768dbfafc46e8e4207b4360c654f1f3bb84475f0a28628fb19c
-    # via
-    #   pip-tools
-    #   zope-component
-    #   zope-event
-    #   zope-hookable
-    #   zope-interface
 six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
     --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254
@@ -541,7 +532,9 @@ trio-websocket==0.11.1 \
 typing-extensions==4.15.0 \
     --hash=sha256:0cea48d173cc12fa28ecabc3b837ea3cf6f38c6d1136f85cbaaf598984861466 \
     --hash=sha256:f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548
-    # via selenium
+    # via
+    #   pytest-asyncio
+    #   selenium
 urllib3[socks]==2.0.3 \
     --hash=sha256:48e7fafa40319d358848e1bc6809b208340fafe2096f1725d05d67443d0483d1 \
     --hash=sha256:bee28b5e56addb8226c96f7f13ac28cb4c301dd5ea8a6ca179c0b9835e032825
@@ -773,9 +766,3 @@ zope-interface==6.1 \
     # via
     #   pypom
     #   zope-component
-
-# WARNING: The following packages were not pinned, but pip requires them to be
-# pinned when the requirements file includes hashes and the requirement is not
-# satisfied by a package already installed. Consider using the --allow-unsafe flag.
-# pip
-# setuptools
