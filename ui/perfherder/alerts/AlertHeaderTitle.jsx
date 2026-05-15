@@ -52,7 +52,7 @@ export default class AlertHeaderTitle extends React.Component {
                 {getFrameworkName(frameworks, alertSummary.framework)}
               </Badge>
               {isCritical ? (
-                <Badge bg="danger" className="flex-shrink-0">
+                <Badge bg="danger" className="flex-shrink-0 mt-1">
                   critical
                 </Badge>
               ) : null}
