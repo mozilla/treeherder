@@ -1,20 +1,35 @@
 # Code imported from https://github.com/taskcluster/taskcluster/blob/32629c562f8d6f5a6b608a3141a8ee2e0984619f/services/treeherder/src/util/route_parser.js
 
 
-# A Taskcluster routing key will be in the form:
-# treeherder.<version>.<user/project>|<project>.<revision>.<pushLogId/pullRequestId>
-# [0] Routing key prefix used for listening to only treeherder relevant messages
-# [1] Routing key version
-# [2] In the form of user/project for github repos and just project for hg.mozilla.org
-# [3] Top level revision for the push
-# [4] Pull Request ID (github) or Push Log ID (hg.mozilla.org) of the push
-#     Note: pushes on a branch on Github would not have a PR ID
+# A Taskcluster routing key can be in two formats:
+#
+# v1: tc-treeherder.v1.<project>.<revision>.<pushLogId/pullRequestId>
+# v2: tc-treeherder.v2.<trust_domain>.<project>.<branch>.<revision>.<pushLogId/pullRequestId>
+#
 # Function extracted from
 # https://github.com/taskcluster/taskcluster/blob/32629c562f8d6f5a6b608a3141a8ee2e0984619f/services/treeherder/src/util/route_parser.js
 def parse_route(route):
+    parsed_route = route.split(".")
+
+    if len(parsed_route) < 4:
+        raise ValueError(f"Route has too few segments: {route}")
+
+    version = parsed_route[1]
+
+    if version == "v1":
+        return parse_route_v1(parsed_route)
+    elif version == "v2":
+        return parse_route_v2(parsed_route)
+    else:
+        raise ValueError(f"Unrecognized route version '{version}': {route}")
+
+
+def parse_route_v1(parsed_route):
+    """
+    Parse v1 format: tc-treeherder.v1.<project>.<revision>.<id>
+    """
     id = None
     parsed_project = None
-    parsed_route = route.split(".")
     project = parsed_route[2]
 
     if len(project.split("/")) == 2:
@@ -27,9 +42,30 @@ def parse_route(route):
 
     push_info = {
         "destination": parsed_route[0],
+        "version": "v1",
         "id": int(id) if id else 0,
         "project": parsed_project,
         "revision": parsed_route[3],
+    }
+
+    return push_info
+
+
+def parse_route_v2(parsed_route):
+    """
+    Parse v2 format: tc-treeherder.v2.<trust_domain>.<project>.<branch>.<revision>.<id>
+    """
+    if len(parsed_route) < 6:
+        raise ValueError(f"v2 route has too few segments: {'.'.join(parsed_route)}")
+
+    push_info = {
+        "destination": parsed_route[0],
+        "version": "v2",
+        "trust_domain": parsed_route[2],
+        "project": parsed_route[3],
+        "branch": parsed_route[4],
+        "revision": parsed_route[5],
+        "id": int(parsed_route[6]) if len(parsed_route) > 6 else 0,
     }
 
     return push_info

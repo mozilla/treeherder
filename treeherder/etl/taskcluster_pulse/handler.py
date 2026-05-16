@@ -8,10 +8,13 @@ import slugid
 import taskcluster
 import taskcluster.aio
 import taskcluster_urls
+from asgiref.sync import sync_to_async
 from django.conf import settings
+from django.db import connections
 
 from treeherder.etl.schema import get_json_schema
 from treeherder.etl.taskcluster_pulse.parse_route import parse_route
+from treeherder.model.models import Repository
 
 env = environ.Env()
 logger = logging.getLogger(__name__)
@@ -82,8 +85,28 @@ def parse_route_info(prefix, task_id, routes, task):
             + f"Task ID: {task_id} Routes: {routes}"
         )
 
-    parsed_route = parse_route(matching_routes[0])
+    try:
+        parsed_route = parse_route(matching_routes[0])
+    except ValueError as e:
+        raise PulseHandlerError(
+            f"Could not parse route. Task ID: {task_id} Route: {matching_routes[0]}"
+        ) from e
 
+    try:
+        if parsed_route["version"] == "v1":
+            repository = Repository.objects.get(name=parsed_route["project"])
+        else:
+            repository = Repository.objects.get(
+                trust_domain=parsed_route["trust_domain"],
+                project=parsed_route["project"],
+                branch=parsed_route["branch"],
+            )
+    except Repository.DoesNotExist:
+        raise PulseHandlerError(
+            f"Could not find repository for route '{matching_routes[0]}'. Task ID: {task_id}"
+        )
+
+    parsed_route["repository"] = repository
     return parsed_route
 
 
@@ -184,12 +207,15 @@ async def handle_message(message, task_definition=None):
                 task = await async_queue.task(task_id)
 
         try:
-            parsed_route = parse_route_info("tc-treeherder", task_id, task["routes"], task)
+            parsed_route = await sync_to_async(parse_route_info)(
+                "tc-treeherder", task_id, task["routes"], task
+            )
+            await sync_to_async(connections.close_all)()
         except PulseHandlerError as e:
             logger.debug("%s", str(e))
             return jobs
 
-        if ignore_task(task, task_id, message["root_url"], parsed_route["project"]):
+        if ignore_task(task, task_id, message["root_url"], parsed_route["repository"].name):
             return jobs
 
         logger.debug("Message received for task %s", task_id)
@@ -254,7 +280,7 @@ def build_message(push_info, task, run_id, payload):
     }
 
     job["origin"] = {
-        "project": push_info["project"],
+        "project": push_info["repository"].name,
         "revision": push_info["revision"],
         "id": push_info["id"],
     }
@@ -321,7 +347,7 @@ def handle_task_defined(push_info, task, message):
     }
 
     job["origin"] = {
-        "project": push_info["project"],
+        "project": push_info["repository"].name,
         "revision": push_info["revision"],
         "id": push_info["id"],
     }
