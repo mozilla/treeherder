@@ -18,6 +18,7 @@ from rest_framework import exceptions, filters, generics, pagination, viewsets
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
+from treeherder.config.db_routing import ReadReplicaMixin
 from treeherder.etl.common import to_timestamp
 from treeherder.model import models
 from treeherder.perf import stats
@@ -216,7 +217,7 @@ class PerformancePlatformViewSet(viewsets.ViewSet):
         return Response(signature_data.values_list("platform__platform", flat=True).distinct())
 
 
-class PerformanceFrameworkViewSet(viewsets.ReadOnlyModelViewSet):
+class PerformanceFrameworkViewSet(ReadReplicaMixin, viewsets.ReadOnlyModelViewSet):
     queryset = PerformanceFramework.objects.filter(enabled=True)
     serializer_class = PerformanceFrameworkSerializer
     filter_backends = [filters.OrderingFilter]
