@@ -87,7 +87,7 @@ from .utils import SHERIFFED_FRAMEWORKS, GroupConcat, get_profile_artifact_url
 logger = logging.getLogger(__name__)
 
 
-class PerformanceSignatureViewSet(viewsets.ViewSet):
+class PerformanceSignatureViewSet(ReadReplicaMixin, viewsets.ViewSet):
     def list(self, request: Request, project: str) -> Response:
         repository = models.Repository.objects.get(name=project)
 
@@ -222,7 +222,7 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
         return Response(signature_map)
 
 
-class PerformancePlatformViewSet(viewsets.ViewSet):
+class PerformancePlatformViewSet(ReadReplicaMixin, viewsets.ViewSet):
     """
     All platforms for a particular branch that have performance data
     """
@@ -251,7 +251,7 @@ class PerformanceFrameworkViewSet(ReadReplicaMixin, viewsets.ReadOnlyModelViewSe
     ordering = "id"
 
 
-class PerformanceJobViewSet(viewsets.ReadOnlyModelViewSet):
+class PerformanceJobViewSet(ReadReplicaMixin, viewsets.ReadOnlyModelViewSet):
     def list(self, request: Request, project: str) -> Response:
         repository = models.Repository.objects.get(name=project)
         # Expect exactly one job_id in query params
@@ -311,7 +311,7 @@ class PerformanceJobViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(results)
 
 
-class PerformanceDatumViewSet(viewsets.ViewSet):
+class PerformanceDatumViewSet(ReadReplicaMixin, viewsets.ViewSet):
     """
     This view serves performance test result data
     """
@@ -932,21 +932,21 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
         raise exceptions.APIException("Nudging has been disabled", 400)
 
 
-class PerformanceBugTemplateViewSet(viewsets.ReadOnlyModelViewSet):
+class PerformanceBugTemplateViewSet(ReadReplicaMixin, viewsets.ReadOnlyModelViewSet):
     queryset = PerformanceBugTemplate.objects.all()
     serializer_class = PerformanceBugTemplateSerializer
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend, filters.OrderingFilter)
     filterset_fields = ["framework"]
 
 
-class PerformanceIssueTrackerViewSet(viewsets.ReadOnlyModelViewSet):
+class PerformanceIssueTrackerViewSet(ReadReplicaMixin, viewsets.ReadOnlyModelViewSet):
     queryset = IssueTracker.objects.all()
     serializer_class = IssueTrackerSerializer
     filter_backends = [filters.OrderingFilter]
     ordering = "id"
 
 
-class PerformanceSummary(generics.ListAPIView):
+class PerformanceSummary(ReadReplicaMixin, generics.ListAPIView):
     serializer_class = PerformanceSummarySerializer
     queryset = None
 
@@ -1199,7 +1199,7 @@ class PerformanceSummary(generics.ListAPIView):
         return serialized_data
 
 
-class PerformanceAlertSummaryTasks(generics.ListAPIView):
+class PerformanceAlertSummaryTasks(ReadReplicaMixin, generics.ListAPIView):
     serializer_class = PerformanceAlertSummaryTasksSerializer
     queryset = None
 
@@ -1284,7 +1284,7 @@ class MwuTask:
     enable_silverman_kde: bool
 
 
-class PerfCompareResults(generics.ListAPIView):
+class PerfCompareResults(ReadReplicaMixin, generics.ListAPIView):
     serializer_class = PerfCompareResultsSerializer
 
     def get_serializer_class(self) -> type[serializers.ModelSerializer]:
@@ -2118,7 +2118,7 @@ class DecimalEncoder(json.JSONEncoder):
         return super().default(obj)
 
 
-class TestSuiteHealthViewSet(viewsets.ViewSet):
+class TestSuiteHealthViewSet(ReadReplicaMixin, viewsets.ViewSet):
     def list(self, request):
         query_params = TestSuiteHealthParamsSerializer(data=request.query_params)
         if not query_params.is_valid():

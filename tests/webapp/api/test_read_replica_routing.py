@@ -39,3 +39,27 @@ def test_performance_alert_summary_list_stays_on_default(client, test_perf_alert
     assert len(replica_ctx.captured_queries) == 0, (
         "PerformanceAlertSummaryViewSet must remain on primary"
     )
+
+
+def test_performance_signatures_list_hits_replica(client, test_perf_signature):
+    with CaptureQueriesContext(connections["read_replica"]) as replica_ctx:
+        response = client.get(
+            reverse(
+                "performance-signatures-list",
+                kwargs={"project": test_perf_signature.repository.name},
+            )
+        )
+
+    assert response.status_code == 200
+    assert len(replica_ctx.captured_queries) > 0
+
+
+def test_performance_summary_hits_replica(client, test_perf_signature):
+    with CaptureQueriesContext(connections["read_replica"]) as replica_ctx:
+        response = client.get(
+            reverse("performance-summary")
+            + f"?repository={test_perf_signature.repository.name}&interval=86400"
+        )
+
+    assert response.status_code == 200
+    assert len(replica_ctx.captured_queries) > 0
