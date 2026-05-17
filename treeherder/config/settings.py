@@ -138,6 +138,16 @@ UPSTREAM_DATABASE_URL = env("UPSTREAM_DATABASE_URL", default=None)
 if UPSTREAM_DATABASE_URL:
     DATABASES["upstream"] = env.db_url_config(UPSTREAM_DATABASE_URL)
 
+# Optional read-only replica for offloading specific GET endpoints from the
+# primary. Both env vars must be set for routing to activate. See
+# treeherder/config/db_routing.py and .claude/plans/READ_REPLICA_DESIGN.md.
+READ_REPLICA_DATABASE_URL = env("READ_REPLICA_DATABASE_URL", default=None)
+READ_REPLICA_ENABLED = env.bool("READ_REPLICA_ENABLED", default=False)
+
+if READ_REPLICA_DATABASE_URL and READ_REPLICA_ENABLED:
+    DATABASES["read_replica"] = env.db_url_config(READ_REPLICA_DATABASE_URL)
+    DATABASE_ROUTERS = ["treeherder.config.db_routing.ReadReplicaRouter"]
+
 # We're intentionally not using django-environ's query string options feature,
 # since it hides configuration outside of the repository, plus could lead to
 # drift between environments.
