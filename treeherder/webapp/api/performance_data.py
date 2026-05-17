@@ -113,7 +113,7 @@ class ORJSONRenderer(JSONRenderer):
         )
 
 
-class PerformanceSignatureViewSet(viewsets.ViewSet):
+class PerformanceSignatureViewSet(ReadReplicaMixin, viewsets.ViewSet):
     renderer_classes = [ORJSONRenderer]
 
     def list(self, request: Request, project: str) -> Response:
@@ -250,7 +250,7 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
         return Response(signature_map)
 
 
-class PerformancePlatformViewSet(viewsets.ViewSet):
+class PerformancePlatformViewSet(ReadReplicaMixin, viewsets.ViewSet):
     """
     All platforms for a particular branch that have performance data
     """
@@ -282,7 +282,7 @@ class PerformanceFrameworkViewSet(ReadReplicaMixin, viewsets.ReadOnlyModelViewSe
     ordering = "id"
 
 
-class PerformanceJobViewSet(viewsets.ReadOnlyModelViewSet):
+class PerformanceJobViewSet(ReadReplicaMixin, viewsets.ReadOnlyModelViewSet):
     renderer_classes = [ORJSONRenderer]
 
     def list(self, request: Request, project: str) -> Response:
@@ -344,7 +344,7 @@ class PerformanceJobViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(results)
 
 
-class PerformanceDatumViewSet(viewsets.ViewSet):
+class PerformanceDatumViewSet(ReadReplicaMixin, viewsets.ViewSet):
     """
     This view serves performance test result data
     """
@@ -998,7 +998,7 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
         raise exceptions.APIException("Nudging has been disabled", 400)
 
 
-class PerformanceBugTemplateViewSet(viewsets.ReadOnlyModelViewSet):
+class PerformanceBugTemplateViewSet(ReadReplicaMixin, viewsets.ReadOnlyModelViewSet):
     queryset = PerformanceBugTemplate.objects.all()
     serializer_class = PerformanceBugTemplateSerializer
     renderer_classes = [ORJSONRenderer]
@@ -1006,7 +1006,7 @@ class PerformanceBugTemplateViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_fields = ["framework"]
 
 
-class PerformanceIssueTrackerViewSet(viewsets.ReadOnlyModelViewSet):
+class PerformanceIssueTrackerViewSet(ReadReplicaMixin, viewsets.ReadOnlyModelViewSet):
     queryset = IssueTracker.objects.all()
     serializer_class = IssueTrackerSerializer
     renderer_classes = [ORJSONRenderer]
@@ -1014,7 +1014,7 @@ class PerformanceIssueTrackerViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = "id"
 
 
-class PerformanceSummary(generics.ListAPIView):
+class PerformanceSummary(ReadReplicaMixin, generics.ListAPIView):
     serializer_class = PerformanceSummarySerializer
     renderer_classes = [ORJSONRenderer]
 
@@ -1269,7 +1269,7 @@ class PerformanceSummary(generics.ListAPIView):
         return serialized_data
 
 
-class PerformanceAlertSummaryTasks(generics.ListAPIView):
+class PerformanceAlertSummaryTasks(ReadReplicaMixin, generics.ListAPIView):
     serializer_class = PerformanceAlertSummaryTasksSerializer
     renderer_classes = [ORJSONRenderer]
 
@@ -1353,7 +1353,7 @@ class MwuTask:
     row: ComparisonRow
 
 
-class PerfCompareResults(generics.ListAPIView):
+class PerfCompareResults(ReadReplicaMixin, generics.ListAPIView):
     serializer_class = PerfCompareResultsSerializer
     renderer_classes = [ORJSONRenderer]
 
@@ -2158,7 +2158,7 @@ class DecimalEncoder(json.JSONEncoder):
         return super().default(obj)
 
 
-class TestSuiteHealthViewSet(viewsets.ViewSet):
+class TestSuiteHealthViewSet(ReadReplicaMixin, viewsets.ViewSet):
     renderer_classes = [ORJSONRenderer]
 
     def list(self, request: Request) -> Response:
