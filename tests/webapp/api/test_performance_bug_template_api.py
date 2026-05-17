@@ -3,7 +3,10 @@ from django.urls import reverse
 
 from treeherder.perf.models import PerformanceBugTemplate, PerformanceFramework
 
-pytestmark = pytest.mark.perf
+pytestmark = [
+    pytest.mark.perf,
+    pytest.mark.django_db(databases=["default", "read_replica"]),
+]
 
 
 def test_perf_bug_template_api(client, test_perf_framework):
