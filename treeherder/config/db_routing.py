@@ -76,6 +76,12 @@ class ReadReplicaMixin:
         if request.method not in _SAFE_METHODS:
             return super().dispatch(request, *args, **kwargs)
 
+        # No-op when the replica alias is not configured (kill switch off).
+        # Without this guard the fallback log line below would fire on any
+        # primary failure, misleading on-call into investigating the replica.
+        if "read_replica" not in connections.databases:
+            return super().dispatch(request, *args, **kwargs)
+
         _state.use_replica = True
         try:
             try:
