@@ -8,7 +8,10 @@ from treeherder.model.models import Job
 from treeherder.perf.models import PerformanceDatum, PerformanceDatumReplicate
 from treeherder.webapp.api import perfcompare_utils
 
-pytestmark = pytest.mark.perf
+pytestmark = [
+    pytest.mark.perf,
+    pytest.mark.django_db(databases=["default", "read_replica"]),
+]
 
 NOW = datetime.datetime.now()
 ONE_DAY_AGO = NOW - datetime.timedelta(days=1)
