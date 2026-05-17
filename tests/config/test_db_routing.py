@@ -162,3 +162,32 @@ def test_mixin_retries_only_once(reset_view):
     with pytest.raises(OperationalError):
         view(factory.get("/x"))
     assert _RecordingView.call_count == 2  # original + 1 retry
+
+
+def test_mixin_is_noop_when_replica_alias_not_configured(reset_view, caplog):
+    """When the kill switch is off (no replica alias), the mixin must not
+    flip the thread-local and must not emit fallback logs on primary errors.
+    """
+
+    from django.db import connections
+
+    _RecordingView.raise_on_call = 99  # always raise — simulates primary error
+    factory = APIRequestFactory()
+    view = _RecordingView.as_view()
+
+    # Temporarily drop the replica alias from the connection handler so the
+    # mixin sees the kill switch as off.
+    saved = connections.databases.pop("read_replica")
+    try:
+        with caplog.at_level(logging.WARNING):
+            with pytest.raises(OperationalError):
+                view(factory.get("/x"))
+    finally:
+        connections.databases["read_replica"] = saved
+
+    # Mixin did not flip the thread-local (no replica to route to).
+    assert _RecordingView.saw_use_replica == [False]
+    # Mixin did not retry — one call only, not two.
+    assert _RecordingView.call_count == 1
+    # No misleading fallback log.
+    assert not any("db_routing_fallback" in rec.message for rec in caplog.records)
