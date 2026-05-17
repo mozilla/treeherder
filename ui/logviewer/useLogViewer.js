@@ -7,9 +7,14 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
  * @param {Object} params
  * @param {string} [params.url] - URL of the log file to fetch
  * @param {boolean} [params.caseInsensitive=true] - Whether search is case-insensitive
+ * @param {number[]|null} [params.initialHighlight=null] - Initial highlight ([line] or [start, end])
  * @returns {Object} Log viewer state and actions
  */
-export function useLogViewer({ url, caseInsensitive = true } = {}) {
+export function useLogViewer({
+  url,
+  caseInsensitive = true,
+  initialHighlight = null,
+} = {}) {
   const [lines, setLines] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -19,7 +24,7 @@ export function useLogViewer({ url, caseInsensitive = true } = {}) {
   const [currentMatchIndex, setCurrentMatchIndex] = useState(-1);
   const [isFiltered, setIsFiltered] = useState(false);
 
-  const [highlight, setHighlight] = useState(null);
+  const [highlight, setHighlight] = useState(initialHighlight);
 
   const virtuosoRef = useRef(null);
   // Track the anchor line for shift-click range selection
