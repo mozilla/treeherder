@@ -11,10 +11,14 @@ const ClassicLogViewer = ({
   url,
   formatLine,
   initialLine,
+  initialHighlight,
   onHighlightChange,
   errorLineNumbers,
 }) => {
   const [caseInsensitive, setCaseInsensitive] = useState(true);
+
+  // Capture initialHighlight ONCE so later prop changes don't reseed state.
+  const initialHighlightRef = useRef(initialHighlight);
 
   const {
     lines,
@@ -36,7 +40,11 @@ const ClassicLogViewer = ({
     scrollToLine,
     visibleRangeRef,
     setVisibleRange,
-  } = useLogViewer({ url, caseInsensitive });
+  } = useLogViewer({
+    url,
+    caseInsensitive,
+    initialHighlight: initialHighlightRef.current,
+  });
 
   // Anchor line to scroll to after a filter toggle, captured from the
   // pre-toggle viewport so a visible match stays in view across the change.
@@ -51,11 +59,13 @@ const ClassicLogViewer = ({
   useEffect(() => {
     if (!initialLine || !lineCount) return;
     if (mountedWithInitialLine.current) {
-      // First run with a line that was in the URL at mount — Virtuoso handled it
+      // First run with a line that was in the URL at mount — Virtuoso already
+      // scrolled via initialTopMostItemIndex and useLogViewer was seeded with
+      // initialHighlight (which may be a range). Skip both to preserve the URL.
       mountedWithInitialLine.current = false;
-    } else {
-      scrollToLine(initialLine);
+      return;
     }
+    scrollToLine(initialLine);
     setHighlight([initialLine]);
   }, [initialLine, lineCount, scrollToLine, setHighlight]);
 
@@ -237,6 +247,7 @@ ClassicLogViewer.propTypes = {
   url: PropTypes.string.isRequired,
   formatLine: PropTypes.func,
   initialLine: PropTypes.number,
+  initialHighlight: PropTypes.arrayOf(PropTypes.number),
   onHighlightChange: PropTypes.func,
   errorLineNumbers: PropTypes.arrayOf(PropTypes.number),
 };
@@ -244,6 +255,7 @@ ClassicLogViewer.propTypes = {
 ClassicLogViewer.defaultProps = {
   formatLine: undefined,
   initialLine: undefined,
+  initialHighlight: null,
   onHighlightChange: undefined,
   errorLineNumbers: [],
 };

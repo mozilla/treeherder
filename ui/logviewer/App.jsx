@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 import formatLogLineWithLinks, {
   getLogLineColor,
@@ -49,11 +49,13 @@ const App = () => {
     const stored = localStorage.getItem(JOB_DETAILS_COLLAPSED);
     return stored !== null ? JSON.parse(stored) : true;
   });
-  const [initialLine, setInitialLine] = useState(() => {
-    const urlLN = getUrlLineNumber();
-    return urlLN ? urlLN[0] : null;
-  });
-  const [highlight, setHighlightState] = useState(null);
+  // Snapshot the URL-pinned highlight at mount so the full range (e.g.
+  // ?lineNumber=100-200) survives the first child-effect round-trip.
+  const initialHighlightRef = useRef(getUrlLineNumber());
+  const [initialLine, setInitialLine] = useState(
+    () => initialHighlightRef.current?.[0] ?? null,
+  );
+  const [highlight, setHighlightState] = useState(initialHighlightRef.current);
 
   // When errors arrive, default to scrolling to the first one (unless URL pinned a line)
   useEffect(() => {
@@ -173,6 +175,7 @@ const App = () => {
               url={rawLogUrl}
               formatLine={logFormatter}
               initialLine={initialLine}
+              initialHighlight={initialHighlightRef.current}
               onHighlightChange={onHighlightChange}
               errorLineNumbers={errorLineNumbers}
             />

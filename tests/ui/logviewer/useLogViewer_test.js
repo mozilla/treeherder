@@ -176,6 +176,14 @@ describe('useLogViewer', () => {
 
   // --- Selection ---
 
+  test('seeds highlight from initialHighlight (preserves URL-pinned range)', () => {
+    const { result } = renderHook(() =>
+      useLogViewer({ initialHighlight: [17657, 19403] }),
+    );
+
+    expect(result.current.highlight).toEqual([17657, 19403]);
+  });
+
   test('single click sets highlight to [lineNumber]', async () => {
     global.fetch.mockResolvedValue({
       ok: true,
