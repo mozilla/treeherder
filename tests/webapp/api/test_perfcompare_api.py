@@ -2,7 +2,7 @@ import datetime
 from unittest import skip
 
 import pytest
-from django.db import connection
+from django.db import connections
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 
@@ -15,7 +15,10 @@ from treeherder.perf.models import (
 from treeherder.webapp.api import perfcompare_utils
 from treeherder.webapp.api.performance_data import PerfCompareResults
 
-pytestmark = pytest.mark.perf
+pytestmark = [
+    pytest.mark.perf,
+    pytest.mark.django_db(databases=["default", "read_replica"]),
+]
 
 NOW = datetime.datetime.now()
 ONE_DAY_AGO = NOW - datetime.timedelta(days=1)
@@ -378,8 +381,9 @@ def test_perfcompare_results_queries_perf_datum_once_per_repo(
         f"&interval=604800&no_subtests=true"
     )
 
-    # When: the comparison is requested
-    with CaptureQueriesContext(connection) as captured:
+    # When: the comparison is requested. PerfCompareResults is routed to the
+    # read replica, so capture queries on that alias rather than the default.
+    with CaptureQueriesContext(connections["read_replica"]) as captured:
         response = client.get(reverse("perfcompare-results") + query_params)
 
     # Then: exactly one performance_datum query per side (two total)
