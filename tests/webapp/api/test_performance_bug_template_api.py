@@ -5,7 +5,9 @@ from treeherder.perf.models import PerformanceBugTemplate, PerformanceFramework
 
 pytestmark = [
     pytest.mark.perf,
-    pytest.mark.django_db(databases=["default", "read_replica"]),
+    # transaction=True is required because the routed viewset reads through the
+    # separate ``read_replica`` connection, which only sees committed data.
+    pytest.mark.django_db(transaction=True, databases=["default", "read_replica"]),
 ]
 
 
