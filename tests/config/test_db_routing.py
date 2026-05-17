@@ -1,9 +1,15 @@
+import logging
 from unittest.mock import MagicMock
 
 import pytest
+from django.db.utils import OperationalError
+from rest_framework.response import Response
+from rest_framework.test import APIRequestFactory
+from rest_framework.views import APIView
 
 from treeherder.config.db_routing import (
     READ_REPLICA_APP_ALLOW_LIST,
+    ReadReplicaMixin,
     ReadReplicaRouter,
     _state,
 )
@@ -73,3 +79,86 @@ def test_allow_migrate_blocks_replica():
 
 def test_allow_list_is_perf_and_model():
     assert READ_REPLICA_APP_ALLOW_LIST == {"perf", "model"}
+
+
+class _RecordingView(ReadReplicaMixin, APIView):
+    """Test view that records the thread-local state at the moment it ran."""
+
+    # Disable auth/permission so CSRF does not interfere with mixin tests.
+    authentication_classes = []
+    permission_classes = []
+
+    raise_on_call = None  # set per-test
+    call_count = 0
+    saw_use_replica = []
+
+    def get(self, request):
+        type(self).call_count += 1
+        type(self).saw_use_replica.append(getattr(_state, "use_replica", False))
+        if type(self).raise_on_call and type(self).call_count <= type(self).raise_on_call:
+            raise OperationalError("simulated replica failure")
+        return Response({"ok": True})
+
+    def post(self, request):
+        type(self).call_count += 1
+        type(self).saw_use_replica.append(getattr(_state, "use_replica", False))
+        return Response({"ok": True})
+
+
+@pytest.fixture
+def reset_view():
+    _RecordingView.raise_on_call = 0
+    _RecordingView.call_count = 0
+    _RecordingView.saw_use_replica = []
+    yield
+
+
+def test_mixin_flips_state_on_get(reset_view):
+    factory = APIRequestFactory()
+    view = _RecordingView.as_view()
+    response = view(factory.get("/x"))
+    assert response.status_code == 200
+    assert _RecordingView.saw_use_replica == [True]
+    assert not hasattr(_state, "use_replica")  # cleared after dispatch
+
+
+def test_mixin_does_not_flip_state_on_post(reset_view):
+    factory = APIRequestFactory()
+    view = _RecordingView.as_view()
+    response = view(factory.post("/x", data={}))
+    assert response.status_code == 200
+    assert _RecordingView.saw_use_replica == [False]
+
+
+def test_mixin_clears_state_when_view_raises(reset_view):
+    _RecordingView.raise_on_call = 99  # always raise
+    factory = APIRequestFactory()
+    view = _RecordingView.as_view()
+    # The second dispatch (retry) also raises, so the OperationalError
+    # propagates. The important thing is that _state is cleared.
+    with pytest.raises(OperationalError):
+        view(factory.get("/x"))
+    assert not hasattr(_state, "use_replica")
+
+
+def test_mixin_retries_once_on_operational_error(reset_view, caplog):
+    _RecordingView.raise_on_call = 1  # fail first call, succeed second
+    factory = APIRequestFactory()
+    view = _RecordingView.as_view()
+    with caplog.at_level(logging.WARNING):
+        response = view(factory.get("/x"))
+    assert response.status_code == 200
+    assert _RecordingView.call_count == 2
+    # First attempt had the flag, retry did not.
+    assert _RecordingView.saw_use_replica == [True, False]
+    # Fallback log emitted exactly once.
+    assert any("db_routing_fallback" in rec.message for rec in caplog.records)
+
+
+def test_mixin_retries_only_once(reset_view):
+    _RecordingView.raise_on_call = 2  # fail twice
+    factory = APIRequestFactory()
+    view = _RecordingView.as_view()
+    with pytest.raises(OperationalError):
+        view(factory.get("/x"))
+    assert _RecordingView.call_count == 2  # original + 1 retry
