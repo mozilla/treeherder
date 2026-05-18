@@ -4,7 +4,7 @@ from django.db import migrations
 def remove_raptor_framework(apps, schema_editor):
     PerformanceFramework = apps.get_model('perf', 'PerformanceFramework')
 
-    PerformanceFramework.objects.filter(name='raptor')
+    PerformanceFramework.objects.filter(name='raptor').delete()
 
 class Migration(migrations.Migration):
 
