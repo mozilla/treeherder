@@ -170,23 +170,6 @@ Notes:
 - It may be required to add `extra_hosts: - "host.docker.internal:host-gateway"` to the backend container and to use 0.0.0.0 instead of 127.0.0.1 in the cloud-sql-proxy command
 - The check services calls may fail or hang, if you're having issues with this try removing those comments from the command block linked above
 
-## Exercising read-replica routing locally
-
-A subset of Perfherder GET endpoints is routed to a PostgreSQL read replica in
-production (configured via `READ_REPLICA_DATABASE_URL` and
-`READ_REPLICA_ENABLED`). To exercise the routing code path locally against your
-existing development DB, point both at the same DSN:
-
-```bash
-export READ_REPLICA_DATABASE_URL="$DATABASE_URL"
-export READ_REPLICA_ENABLED=true
-```
-
-The router and mixin are then active in dev. Routing is a no-op unless an
-endpoint opts in via `ReadReplicaMixin`; see
-`treeherder/config/db_routing.py` and the design at
-`.claude/plans/READ_REPLICA_DESIGN.md`.
-
 ## Import performance data from upstream
 
 If the use-cases above still aren't enough, you should ask for read-only access to one of
