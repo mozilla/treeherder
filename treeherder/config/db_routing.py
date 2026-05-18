@@ -3,8 +3,6 @@
 A thread-local flag, set by :class:`ReadReplicaMixin`, opts a single request
 into reading from the ``read_replica`` database alias. The router only routes
 models whose Django app label is in :data:`READ_REPLICA_APP_ALLOW_LIST`.
-
-Design: .claude/plans/READ_REPLICA_DESIGN.md
 """
 
 from __future__ import annotations
@@ -83,6 +81,11 @@ class ReadReplicaMixin:
             return super().dispatch(request, *args, **kwargs)
 
         _state.use_replica = True
+        logger.debug(
+            "db_routing routed_to=read_replica path=%s method=%s",
+            request.path,
+            request.method,
+        )
         try:
             try:
                 return super().dispatch(request, *args, **kwargs)
