@@ -110,7 +110,6 @@ def reset_view():
     _RecordingView.raise_on_call = 0
     _RecordingView.call_count = 0
     _RecordingView.saw_use_replica = []
-    yield
 
 
 def test_mixin_flips_state_on_get(reset_view):
