@@ -40,7 +40,6 @@ const frameworks = [
   { id: 4, name: 'awsy' },
   { id: 5, name: 'awfy' },
   { id: 6, name: 'platform_microbench' },
-  { id: 10, name: 'raptor' },
   { id: 11, name: 'js-bench' },
   { id: 12, name: 'devtools' },
   { id: 13, name: 'browsertime' },

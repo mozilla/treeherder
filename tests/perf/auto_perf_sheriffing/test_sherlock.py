@@ -78,7 +78,7 @@ def test_records_change_to_ready_for_processing(
         backfill_tool_mock,
         secretary,
     )
-    sherlock.sheriff(since=EPOCH, frameworks=["raptor", "talos"], repositories=["autoland"])
+    sherlock.sheriff(since=EPOCH, frameworks=["browsertime", "talos"], repositories=["autoland"])
 
     assert preliminary_records.count() == 1
     assert ready_records.count() == 1

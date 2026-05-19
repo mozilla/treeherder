@@ -162,15 +162,6 @@ describe('job helpers', () => {
       expect(isPerfTest(job)).toBe(true);
     });
 
-    it('returns true when job_type_name contains raptor', () => {
-      const job = {
-        job_group_name: 'Some Group',
-        job_type_name: 'raptor-speedometer',
-      };
-
-      expect(isPerfTest(job)).toBe(true);
-    });
-
     it('returns true when job_type_name contains browsertime', () => {
       const job = {
         job_group_name: 'Some Group',
