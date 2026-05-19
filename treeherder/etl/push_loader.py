@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 import environ
 import newrelic.agent
@@ -152,13 +153,33 @@ class GithubPushTransformer(GithubTransformer):
         return super().get_branch()
 
     def transform(self, repository):
+        base = self.message_body["details"]["event.base.sha"]
+        if base == "0" * 40:
+            return self._process_webhook_commits()
         push_data = compare_shas(
             self.message_body["organization"],
             self.message_body["repository"],
-            self.message_body["details"]["event.base.sha"],
+            base,
             self.message_body["details"]["event.head.sha"],
         )
         return self.process_push(push_data)
+
+    def _process_webhook_commits(self):
+        commits = self.message_body["body"]["commits"]
+        head = commits[-1]
+        return {
+            "revision": head["id"],
+            "push_timestamp": datetime.fromisoformat(head["timestamp"]).timestamp(),
+            "author": head["author"]["email"],
+            "revisions": [
+                {
+                    "comment": c["message"],
+                    "author": f"{c['author']['name']} <{c['author']['email']}>",
+                    "revision": c["id"],
+                }
+                for c in commits
+            ],
+        }
 
     def get_repo(self):
         return self.message_body["details"]["event.head.repo.url"].replace(".git", "")

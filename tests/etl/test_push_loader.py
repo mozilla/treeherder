@@ -187,6 +187,18 @@ def test_ingest_github_push(
     assert transformed_github_push == push
 
 
+def test_ingest_github_push_new_branch(github_push):
+    """Webhook body commits are used when base SHA is all zeroes (new branch)."""
+    github_push[0]["payload"]["details"]["event.base.sha"] = "0" * 40
+    commits = github_push[0]["payload"]["body"]["commits"]
+
+    xformer = GithubPushTransformer(github_push[0]["payload"])
+    push = xformer.transform("some-repo")
+
+    assert push["revision"] == commits[-1]["id"]
+    assert len(push["revisions"]) == len(commits)
+
+
 def test_ingest_hg_push(test_repository, hg_push, transformed_hg_push, mock_hg_push_commits):
     xformer = HgPushTransformer(hg_push)
     push = xformer.transform(test_repository.name)
