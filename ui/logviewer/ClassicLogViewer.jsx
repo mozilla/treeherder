@@ -21,6 +21,7 @@ const ClassicLogViewer = ({
     lineCount,
     isLoading,
     error,
+    errorStatus,
     searchTerm,
     setSearchTerm,
     matchLineNumbers,
@@ -188,6 +189,13 @@ const ClassicLogViewer = ({
   );
 
   if (error) {
+    if (errorStatus === 404) {
+      return (
+        <div className="classic-log-error">
+          This log has expired and is no longer available.
+        </div>
+      );
+    }
     return <div className="classic-log-error">Error loading log: {error}</div>;
   }
 

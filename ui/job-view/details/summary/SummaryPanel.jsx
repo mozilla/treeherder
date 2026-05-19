@@ -7,93 +7,102 @@ import ActionBar from './ActionBar';
 import ClassificationsPanel from './ClassificationsPanel';
 import StatusPanel from './StatusPanel';
 
-class SummaryPanel extends React.PureComponent {
-  render() {
-    const {
-      selectedJobFull,
-      latestClassification = null,
-      bugs,
-      jobLogUrls = [],
-      jobDetails = [],
-      logViewerUrl = null,
-      logViewerFullUrl = null,
-      logParseStatus = 'pending',
-      user,
-      currentRepo,
-      classificationMap,
-    } = this.props;
+function SummaryPanel({
+  selectedJobFull,
+  latestClassification = null,
+  bugs,
+  jobLogUrls = [],
+  jobDetails = [],
+  logViewerUrl = null,
+  logViewerFullUrl = null,
+  logParseStatus = 'pending',
+  user,
+  currentRepo,
+  classificationMap,
+  taskExpired = false,
+}) {
+  const logs = jobLogUrls.filter(
+    (log) => !log.name.includes('perfherder-data'),
+  );
+  const artifacts = jobLogUrls.filter((artifact) =>
+    artifact.name.includes('perfherder-data'),
+  );
 
-    const logs = jobLogUrls.filter(
-      (log) => !log.name.includes('perfherder-data'),
-    );
-    const artifacts = jobLogUrls.filter((artifact) =>
-      artifact.name.includes('perfherder-data'),
-    );
-    const logStatus = [
-      {
-        title: 'Log parsing status',
-        value: !logs.length
-          ? 'No logs'
-          : logs.map((log) => log.parse_status).join(', '),
-      },
-    ];
-    const artifactStatus = [
-      {
-        title: 'Artifact parsing status',
-        value: !artifacts.length ? 'No artifacts' : null,
-        subfields: artifacts.length
-          ? artifacts.map((artifact) => ({
-              name: artifact.name,
-              value: artifact.parse_status,
-            }))
-          : null,
-      },
-    ];
+  let logParsingValue;
+  if (taskExpired) {
+    logParsingValue = 'Expired, not available';
+  } else if (!logs.length) {
+    logParsingValue = 'No logs';
+  } else {
+    logParsingValue = logs.map((log) => log.parse_status).join(', ');
+  }
+  const logStatus = [
+    {
+      title: 'Log parsing status',
+      value: logParsingValue,
+    },
+  ];
 
-    return (
-      <div
-        id="summary-panel"
-        role="region"
-        aria-label="Summary"
-        data-testid="summary-panel"
-      >
-        {!!selectedJobFull && (
-          <>
-            <ActionBar
-              selectedJobFull={selectedJobFull}
-              logParseStatus={logParseStatus}
-              currentRepo={currentRepo}
-              isTryRepo={currentRepo?.is_try_repo}
-              jobDetails={jobDetails}
-              logViewerUrl={logViewerUrl}
-              logViewerFullUrl={logViewerFullUrl}
-              jobLogUrls={logs}
-              user={user}
-            />
-            <div id="summary-panel-content">
-              <ul className="list-unstyled">
-                {latestClassification && (
-                  <ClassificationsPanel
-                    job={selectedJobFull}
-                    classification={latestClassification}
-                    classificationMap={classificationMap}
-                    bugs={bugs}
-                    currentRepo={currentRepo}
-                  />
-                )}
-                <StatusPanel selectedJobFull={selectedJobFull} />
-                <JobInfo
+  const artifactStatus = [
+    {
+      title: 'Artifact parsing status',
+      value: !artifacts.length ? 'No artifacts' : null,
+      subfields: artifacts.length
+        ? artifacts.map((artifact) => ({
+            name: artifact.name,
+            value: artifact.parse_status,
+          }))
+        : null,
+    },
+  ];
+
+  return (
+    <div
+      id="summary-panel"
+      role="region"
+      aria-label="Summary"
+      data-testid="summary-panel"
+    >
+      {!!selectedJobFull && (
+        <>
+          <ActionBar
+            selectedJobFull={selectedJobFull}
+            logParseStatus={logParseStatus}
+            currentRepo={currentRepo}
+            isTryRepo={currentRepo?.is_try_repo}
+            jobDetails={jobDetails}
+            logViewerUrl={logViewerUrl}
+            logViewerFullUrl={logViewerFullUrl}
+            jobLogUrls={logs}
+            user={user}
+            taskExpired={taskExpired}
+          />
+          <div id="summary-panel-content">
+            <ul className="list-unstyled">
+              {latestClassification && (
+                <ClassificationsPanel
                   job={selectedJobFull}
-                  extraFields={[...logStatus, ...artifactStatus]}
+                  classification={latestClassification}
+                  classificationMap={classificationMap}
+                  bugs={bugs}
                   currentRepo={currentRepo}
                 />
-              </ul>
-            </div>
-          </>
-        )}
-      </div>
-    );
-  }
+              )}
+              <StatusPanel
+                selectedJobFull={selectedJobFull}
+                taskExpired={taskExpired}
+              />
+              <JobInfo
+                job={selectedJobFull}
+                extraFields={[...logStatus, ...artifactStatus]}
+                currentRepo={currentRepo}
+              />
+            </ul>
+          </div>
+        </>
+      )}
+    </div>
+  );
 }
 
 SummaryPanel.propTypes = {
@@ -114,6 +123,7 @@ SummaryPanel.propTypes = {
   logParseStatus: PropTypes.string,
   logViewerUrl: PropTypes.string,
   logViewerFullUrl: PropTypes.string,
+  taskExpired: PropTypes.bool,
 };
 
-export default SummaryPanel;
+export default React.memo(SummaryPanel);

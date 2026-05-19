@@ -8,7 +8,13 @@ import logviewerIcon from '../../../img/logviewerIcon.svg';
 import LogItem from './LogItem';
 
 export default function LogUrls(props) {
-  const { logUrls, rawLogUrls = [], logViewerUrl = null, logViewerFullUrl = null } = props;
+  const {
+    logUrls,
+    rawLogUrls = [],
+    logViewerUrl = null,
+    logViewerFullUrl = null,
+    taskExpired = false,
+  } = props;
   const logUrlsUseful = logUrls.filter(
     (logUrl) => !logUrl.name.includes('perfherder-data'),
   );
@@ -25,6 +31,7 @@ export default function LogUrls(props) {
         logViewerFullUrl={logViewerFullUrl}
         logKey="logviewer"
         logDescription="log viewer"
+        taskExpired={taskExpired}
       >
         <img alt="Logviewer" src={logviewerIcon} className="logviewer-icon" />
       </LogItem>
@@ -36,6 +43,7 @@ export default function LogUrls(props) {
         logViewerFullUrl={logViewerFullUrl}
         logKey="rawlog"
         logDescription="raw log"
+        taskExpired={taskExpired}
       >
         <FontAwesomeIcon
           icon={faFileAlt}
@@ -52,4 +60,5 @@ LogUrls.propTypes = {
   rawLogUrls: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   logViewerUrl: PropTypes.string,
   logViewerFullUrl: PropTypes.string,
+  taskExpired: PropTypes.bool,
 };

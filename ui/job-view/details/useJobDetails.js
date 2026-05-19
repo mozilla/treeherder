@@ -16,16 +16,26 @@ import { Perfdocs } from '../../perfherder/perf-helpers/perfdocs';
 // Debounce delay for loading job details when rapidly switching jobs
 const JOB_DETAILS_DEBOUNCE_MS = 200;
 
-const fetchTaskData = async (taskId, rootUrl) => {
+export const fetchTaskData = async (taskId, rootUrl) => {
   let testGroups = [];
   let taskQueueId = null;
 
   if (!taskId || !rootUrl) {
-    return { testGroups, taskQueueId };
+    return { testGroups, taskQueueId, taskExpired: false };
   }
 
   const queue = new Queue({ rootUrl });
-  const taskDefinition = await queue.task(taskId);
+  let taskDefinition;
+  try {
+    taskDefinition = await queue.task(taskId);
+  } catch (error) {
+    // Task definition may be unavailable (e.g. expired in Taskcluster).
+    // Fall back to defaults so the rest of the details panel can still render,
+    // and flag the task as expired so the UI can communicate the degraded state.
+    // eslint-disable-next-line no-console
+    console.error('Error fetching Taskcluster task definition:', error);
+    return { testGroups, taskQueueId, taskExpired: true };
+  }
   if (taskDefinition) {
     taskQueueId = taskDefinition.taskQueueId;
     if (taskDefinition.payload.env?.MOZHARNESS_TEST_PATHS) {
@@ -45,7 +55,7 @@ const fetchTaskData = async (taskId, rootUrl) => {
     }
   }
 
-  return { testGroups, taskQueueId };
+  return { testGroups, taskQueueId, taskExpired: false };
 };
 
 const fetchClassifications = async (jobId, signal) => {
@@ -132,6 +142,7 @@ function useJobDetails(selectedJob, currentRepo, pushList, frameworks) {
   const [classifications, setClassifications] = useState([]);
   const [testGroups, setTestGroups] = useState([]);
   const [bugs, setBugs] = useState([]);
+  const [taskExpired, setTaskExpired] = useState(false);
 
   // Refs for cleanup
   const abortControllerRef = useRef(null);
@@ -180,6 +191,7 @@ function useJobDetails(selectedJob, currentRepo, pushList, frameworks) {
     // If no job is selected, clear the state
     if (!selectedJob) {
       setSelectedJobFull(null);
+      setTaskExpired(false);
       previousJobIdRef.current = null;
       isFirstLoadRef.current = true;
       return;
@@ -304,6 +316,7 @@ function useJobDetails(selectedJob, currentRepo, pushList, frameworks) {
         setLogViewerFullUrl(fullLogUrl);
         setJobRevision(push ? push.revision : null);
         setTestGroups(taskData.testGroups);
+        setTaskExpired(taskData.taskExpired);
         setClassifications(classificationsResult.classifications);
         setBugs(classificationsResult.bugs);
 
@@ -440,6 +453,7 @@ function useJobDetails(selectedJob, currentRepo, pushList, frameworks) {
     classifications,
     testGroups,
     bugs,
+    taskExpired,
   };
 }
 
