@@ -12,6 +12,7 @@ from django.conf import settings
 
 from treeherder.etl.schema import get_json_schema
 from treeherder.etl.taskcluster_pulse.parse_route import parse_route
+from treeherder.model.models import Repository
 
 env = environ.Env()
 logger = logging.getLogger(__name__)
@@ -112,55 +113,47 @@ def ignore_task(task, task_id, root_url, project):
         logger.debug("Ignoring tasks not matching PROJECTS_TO_INGEST (Task id: %s)", task_id)
         return True
 
-    mobile_repos = (
-        "reference-browser",
-        "mozilla-vpn-client",
-        "mozilla-vpn-client-release",
-    )
-    if project in mobile_repos:
+    repo = Repository.objects.filter(name=project).first()
+    if repo and repo.branch:
+        # Default to ignore, unless we find a matching branch
+        ignore = True
+
+        # Find branch in env vars
+        # Check if *any* env var ending in _HEAD_REF matches the repo branch
         envs = task["payload"].get("env", {})
-        if envs.get("MOBILE_BASE_REPOSITORY"):
-            try:
-                base_repo = envs["MOBILE_BASE_REPOSITORY"].rsplit("/", 1)[1]
-                if base_repo in mobile_repos:
-                    # Ignore tasks that are associated to a pull request
-                    if envs["MOBILE_BASE_REPOSITORY"] != envs["MOBILE_HEAD_REPOSITORY"]:
-                        logger.debug(
-                            "Task: %s belong to a pull request OR branch which we ignore.", task_id
-                        )
-                        ignore = True
-                    # Bug 1587542 - Temporary change to ignore Github tasks not associated to 'master'
-                    if envs["MOBILE_HEAD_REF"] not in (
-                        "refs/heads/master",
-                        "master",
-                        "refs/heads/main",
-                        "main",
-                    ):
-                        logger.info("Task: %s is not for the `master` branch.", task_id)
-                        ignore = True
-            except KeyError:
-                pass
-        else:
-            # The decision task is the ultimate source for determining this information
+        branch_found_in_env = False
+        for key, value in envs.items():
+            if key.endswith("_HEAD_REF"):
+                logger.debug(f"Checking env {key}={value} against repo.branch={repo.branch}")
+                branch_found_in_env = True
+                if value == repo.branch:
+                    ignore = False
+                    logger.info(f"Task {task_id} matched branch {repo.branch} via env var {key}")
+                    break
+
+        # If not found in env, check decision task (fallback)
+        if ignore and not branch_found_in_env:
+            # The decision task is the best source for determining this information
             queue = taskcluster.Queue({"rootUrl": root_url})
             decision_task = queue.task(task["taskGroupId"])
-            scopes = decision_task["metadata"].get("source")
-            ignore = True
+
+            # Check scopes
+            scopes = decision_task["metadata"].get("source", [])
             for scope in scopes:
-                # e.g. assume:repo:github.com/mozilla-mobile/fenix:branch:master
-                if scope.find("branch:master") != -1 or scope.find("branch:main") != -1:
+                if f"branch:{repo.branch}" in scope:
                     ignore = False
                     break
 
-            # This handles nightly tasks
-            # e.g. index.mobile.v2.fenix.branch.master.latest.taskgraph.decision-nightly
-            for route in decision_task["routes"]:
-                if route.find("master") != -1 or route.find("main") != -1:
-                    ignore = False
-                    break
+            # Check routes
+            if ignore:
+                for route in decision_task["routes"]:
+                    if repo.branch in route:  # Simple substring check as before
+                        ignore = False
+                        break
 
-    if ignore:
-        logger.debug(f"Task to be ignored ({task_id})")
+        if ignore:
+            logger.debug(f"Task {task_id} ignored: branch does not match '{repo.branch}'")
+            return True
 
     return ignore
 
