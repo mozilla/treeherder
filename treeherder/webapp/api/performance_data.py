@@ -567,17 +567,19 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
         keys = {(summary.push_id, summary.framework_id) for summary in page}
         if not keys:
             return {}
-        q = Q()
-        for push_id, framework_id in keys:
-            q |= Q(push_id=push_id, framework_id=framework_id)
-        rows = PerformanceAlertSummary.objects.filter(q).values(
-            "id", "status", "push_id", "framework_id"
-        )
+        push_ids = {push_id for push_id, _ in keys}
+        framework_ids = {framework_id for _, framework_id in keys}
+        rows = PerformanceAlertSummary.objects.filter(
+            push_id__in=push_ids,
+            framework_id__in=framework_ids,
+        ).values("id", "status", "push_id", "framework_id")
         result = defaultdict(list)
         for row in rows:
-            result[(row["push_id"], row["framework_id"])].append(
-                {"id": row["id"], "status": row["status"]}
-            )
+            key = (row["push_id"], row["framework_id"])
+            if key not in keys:
+                # Cartesian over-fetch from independent IN clauses; ignore.
+                continue
+            result[key].append({"id": row["id"], "status": row["status"]})
         return dict(result)
 
     def _build_tc_metadata_map(self, page):
@@ -585,43 +587,55 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
         Returns a dict mapping (signature_id, push_id) -> {"task_id": ..., "retry_id": ...}
         for all alerts on this page, replacing per-alert TC metadata queries.
         """
-        datum_keys = set()
+        target_keys = set()
+        all_repo_ids = set()
+        all_sig_ids = set()
+        all_push_ids = set()
         for summary in page:
             push_id = summary.push_id
             prev_push_id = summary.prev_push_id
             for alert in summary.alerts.all():
                 sig = alert.series_signature
-                datum_keys.add((sig.repository_id, sig.id, push_id))
-                datum_keys.add((sig.repository_id, sig.id, prev_push_id))
+                target_keys.add((sig.id, push_id))
+                target_keys.add((sig.id, prev_push_id))
+                all_repo_ids.add(sig.repository_id)
+                all_sig_ids.add(sig.id)
+                all_push_ids.add(push_id)
+                all_push_ids.add(prev_push_id)
             for alert in summary.related_alerts.all():
                 sig = alert.series_signature
-                datum_keys.add((sig.repository_id, sig.id, alert.summary.push_id))
-                datum_keys.add((sig.repository_id, sig.id, alert.summary.prev_push_id))
-        if not datum_keys:
+                rs_push_id = alert.summary.push_id
+                rs_prev_push_id = alert.summary.prev_push_id
+                target_keys.add((sig.id, rs_push_id))
+                target_keys.add((sig.id, rs_prev_push_id))
+                all_repo_ids.add(sig.repository_id)
+                all_sig_ids.add(sig.id)
+                all_push_ids.add(rs_push_id)
+                all_push_ids.add(rs_prev_push_id)
+        all_push_ids.discard(None)
+        if not target_keys or not all_push_ids:
             return {}
+        rows = PerformanceDatum.objects.filter(
+            repository_id__in=all_repo_ids,
+            signature_id__in=all_sig_ids,
+            push_id__in=all_push_ids,
+        ).values(
+            "signature_id",
+            "push_id",
+            "job__taskcluster_metadata__task_id",
+            "job__taskcluster_metadata__retry_id",
+        )
         result = {}
-        datum_keys_list = list(datum_keys)
-        chunk_size = 500
-        for i in range(0, len(datum_keys_list), chunk_size):
-            chunk = datum_keys_list[i : i + chunk_size]
-            q = Q()
-            for repo_id, sig_id, push_id in chunk:
-                q |= Q(repository_id=repo_id, signature_id=sig_id, push_id=push_id)
-            rows = PerformanceDatum.objects.filter(q).values(
-                "repository_id",
-                "signature_id",
-                "push_id",
-                "job__taskcluster_metadata__task_id",
-                "job__taskcluster_metadata__retry_id",
-            )
-            for row in rows:
-                key = (row["signature_id"], row["push_id"])
-                if key in result:
-                    continue
-                task_id = row["job__taskcluster_metadata__task_id"]
-                retry_id = row["job__taskcluster_metadata__retry_id"]
-                if task_id is not None:
-                    result[key] = {"task_id": task_id, "retry_id": retry_id}
+        for row in rows:
+            key = (row["signature_id"], row["push_id"])
+            if key not in target_keys or key in result:
+                # Cartesian over-fetch (key wasn't requested) or duplicate datum
+                # for the same (signature, push) — keep the first one with a task_id.
+                continue
+            task_id = row["job__taskcluster_metadata__task_id"]
+            retry_id = row["job__taskcluster_metadata__retry_id"]
+            if task_id is not None:
+                result[key] = {"task_id": task_id, "retry_id": retry_id}
         return result
 
     def get_serializer_context(self):
