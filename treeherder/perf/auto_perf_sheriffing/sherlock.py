@@ -14,6 +14,9 @@ from treeherder.perf.auto_perf_sheriffing.backfill_reports import (
     BackfillReportMaintainer,
 )
 from treeherder.perf.auto_perf_sheriffing.backfill_tool import BackfillTool
+from treeherder.perf.auto_perf_sheriffing.performance_alerting.alert_manager import (
+    PerformanceAlertManager,
+)
 from treeherder.perf.auto_perf_sheriffing.secretary import Secretary
 from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.alert import (
     TelemetryAlertFactory,
@@ -85,7 +88,7 @@ class Sherlock:
         self.assert_can_run()
 
         # reporter tool should always run *(only handles preliminary records/reports)*
-        logger.info("Sherlock: Reporter tool is creating/maintaining  reports...")
+        logger.info("Sherlock: Reporter tool is creating/maintaining reports...")
         self._report(since, frameworks, repositories)
         self.assert_can_run()
 
@@ -93,6 +96,9 @@ class Sherlock:
         logger.info("Sherlock: Starting to backfill...")
         self._backfill(frameworks, repositories)
         self.assert_can_run()
+
+        logger.info("Sherlock: Syncing performance alert summary statuses...")
+        self._sync_performance_alert_summary_status()
 
     def runtime_exceeded(self) -> bool:
         elapsed_runtime = datetime.now() - self._wake_up_time
@@ -237,6 +243,10 @@ class Sherlock:
             start = 1
 
         return context[start:]
+
+    def _sync_performance_alert_summary_status(self):
+        alert_manager = PerformanceAlertManager()
+        alert_manager.manage_alerts([])
 
     def telemetry_alert(self):
         if not self._can_run_telemetry():

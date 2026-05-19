@@ -500,6 +500,29 @@ class PerformanceAlertSummaryBase(models.Model):
 
 
 class PerformanceAlertSummary(PerformanceAlertSummaryBase):
+    BUG_NEW = 0
+    BUG_FIXED = 1
+    BUG_INVALID = 2
+    BUG_INACTIVE = 3
+    BUG_DUPLICATE = 4
+    BUG_WONTFIX = 5
+    BUG_WORKSFORME = 6
+    BUG_INCOMPLETE = 7
+    BUG_MOVED = 8
+
+    BUG_STATUSES = (
+        (BUG_NEW, "NEW"),
+        (BUG_FIXED, "FIXED"),
+        (BUG_INVALID, "INVALID"),
+        (BUG_INACTIVE, "INACTIVE"),
+        (BUG_DUPLICATE, "DUPLICATE"),
+        (BUG_WONTFIX, "WONTFIX"),
+        (BUG_WORKSFORME, "WORKSFORME"),
+        (BUG_INCOMPLETE, "INCOMPLETE"),
+        (BUG_MOVED, "MOVED"),
+    )
+    bug_status = models.IntegerField(choices=BUG_STATUSES, null=True, default=None)
+
     class Meta:
         db_table = "performance_alert_summary"
         unique_together = ("repository", "framework", "prev_push", "push", "sheriffed")
