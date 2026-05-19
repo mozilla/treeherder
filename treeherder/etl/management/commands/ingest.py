@@ -1,4 +1,5 @@
 import asyncio
+import copy
 import inspect
 import logging
 import os
@@ -228,7 +229,8 @@ def process_job_with_threads(pulse_job, root_url):
     logger.info("Loading into DB:\t%s", task_id)
     with Connection():
         try:
-            JobLoader().process_job(pulse_job, root_url)
+            pulse_job_copy = copy.deepcopy(pulse_job)
+            JobLoader().process_job(pulse_job_copy, root_url)
         except MissingPushError:
             logger.warning("The push was not in the DB. We are going to try that first")
             ingest_push(pulse_job["origin"]["project"], pulse_job["origin"]["revision"])
