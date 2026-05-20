@@ -197,7 +197,6 @@ function AlertsView({
       const currentIssueTrackers = issueTrackersRef.current;
       const currentOptionCollectionMap = optionCollectionMapRef.current;
       const currentAlertSummaries = alertSummariesRef.current;
-      const currentCount = countRef.current;
 
       const {
         status,
@@ -211,7 +210,6 @@ function AlertsView({
       setPage(pg);
       const updates = {};
       const params = composeParams(alertId, pg, framework, status);
-
       const listMode = !alertId;
 
       if (listMode) {
@@ -263,23 +261,40 @@ function AlertsView({
         'alertSummaries',
         currentErrorMessages,
       );
+      
+      if(data.failureStatus === 404 && !update && !alertId && pg > 1) {
+        const currentParams = parseQueryParams(window.location.search);
+        currentParams.page = 1
+        const newSearch = createQueryParams(currentParams);
+        window.history.replaceState(null, '', `${location.pathname}${newSearch}`);
+        prevLocationSearch.current = newSearch;
+
+        setLoading(false);
+        return fetchAlertSummaries(alertId, false, 1)
+      }
 
       if (response.alertSummaries) {
         const summary = response.alertSummaries;
+        const nextCount = Math.ceil(summary.count / 10);
 
-        if (update && summary.results.length !== 0) {
-          const newSummaries = [...currentAlertSummaries];
-          const index = newSummaries.findIndex(
-            (item) => item.id === summary.results[0].id,
-          );
-          newSummaries.splice(index, 1, summary.results[0]);
-          setAlertSummaries(newSummaries);
+        if (update) {
+          if(summary.results.length !== 0) {
+            const newSummaries = [...currentAlertSummaries];
+            const index = newSummaries.findIndex(
+              (item) => item.id === summary.results[0].id,
+            );     
+
+            if (index !== -1) {
+              newSummaries.splice(index, 1, summary.results[0]);
+              setAlertSummaries(newSummaries);
+            }
+          }
         } else {
-          setAlertSummaries(update ? currentAlertSummaries : summary.results);
+          setAlertSummaries(summary.results);
+          setCount(nextCount);
         }
-        setCount(update ? currentCount : Math.ceil(summary.count / 10));
       } else if (response.errorMessages) {
-        setErrorMessages(response.errorMessages);
+          setErrorMessages(response.errorMessages);
       }
 
       if (updates.errorMessages) {
