@@ -192,7 +192,7 @@ class TextLogErrorSerializer(serializers.ModelSerializer):
 class StructuredLogErrorSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.StructuredLogError
-        fields = ("id", "action", "time", "thread", "pid", "source", "message", "level")
+        fields = ("id", "action", "time", "thread", "pid", "source", "message", "level", "test")
 
 
 class BugJobMapSerializer(serializers.ModelSerializer):

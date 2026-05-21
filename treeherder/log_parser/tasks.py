@@ -179,6 +179,7 @@ def post_structured_log_artifacts(job_log):
                 source=astral_filter(str(entry.get("source") or ""))[:255],
                 message=astral_filter(str(entry.get("message") or "")),
                 level=level[:16],
+                test=astral_filter(str(entry.get("test") or ""))[:512],
             )
         )
 

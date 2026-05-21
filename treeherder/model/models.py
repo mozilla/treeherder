@@ -1338,6 +1338,7 @@ class StructuredLogError(models.Model):
     source = models.CharField(max_length=255, blank=True)
     message = models.TextField(blank=True)
     level = models.CharField(max_length=16, blank=True)
+    test = models.CharField(max_length=512, blank=True)
 
     class Meta:
         db_table = "structured_log_error"
