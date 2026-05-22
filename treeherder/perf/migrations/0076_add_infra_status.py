@@ -4,7 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("perf", "0074_remove_raptor_framework"),
+        ("perf", "0075_performancealertsummary_bug_status"),
     ]
 
     operations = [
