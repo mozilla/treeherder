@@ -46,6 +46,31 @@ describe('useLogViewer', () => {
     expect(result.current.error).toBeNull();
   });
 
+  test('splits bare CR and CRLF so line numbers match the backend parser', async () => {
+    // Logs commonly mix bare carriage returns (progress output) with CRLF.
+    // The backend records error line_numbers via bytes.splitlines(), which
+    // breaks on \r, \r\n and \n. The viewer must split identically or the
+    // red error highlight drifts off the real failure line.
+    global.fetch.mockResolvedValue({
+      ok: true,
+      text: () =>
+        Promise.resolve('header\rprogress\r\nTEST-UNEXPECTED-FAIL\ntrailer'),
+    });
+
+    const { result } = renderHook(() => useLogViewer({ url: 'http://log.txt' }));
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(result.current.lines).toEqual([
+      'header',
+      'progress',
+      'TEST-UNEXPECTED-FAIL',
+      'trailer',
+    ]);
+    // Backend would report this failure at 0-indexed line_number 2; the viewer
+    // displays it at the matching array index 2 (display line 3).
+    expect(result.current.lines[2]).toBe('TEST-UNEXPECTED-FAIL');
+  });
+
   test('sets error on fetch failure', async () => {
     global.fetch.mockResolvedValue({
       ok: false,
