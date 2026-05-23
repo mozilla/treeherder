@@ -8,7 +8,6 @@ import newrelic.agent
 import numpy as np
 from django.conf import settings
 from django.db import transaction
-from django.db.models import Exists, OuterRef, Subquery
 
 from treeherder.perf.email import AlertNotificationWriter
 from treeherder.perf.methods.CramerVonMisesDetector import CramerVonMisesDetector
@@ -74,13 +73,39 @@ def get_alert_properties(prev_value, new_value, lower_is_better):
     return AlertProperties(pct_change, delta, is_regression, prev_value, new_value)
 
 
+def _collect_replicates_map(signature, alert_after_ts) -> dict[int, list[float]]:
+    """Map each performance datum id to the list of its replicate values.
+
+    Only datums for ``signature`` (and its repository) with a ``push_timestamp``
+    on or after ``alert_after_ts`` are considered. Filtering the replicates by
+    their parent datum is a plain join, which lets PostgreSQL seek the
+    ``(repository, signature, push_timestamp)`` index on ``performance_datum``.
+    The previous ``IN (SELECT ... WHERE EXISTS (...))`` form was equivalent --
+    a replicate row's parent datum is in the set by definition, so the EXISTS
+    only re-confirmed what the join already guarantees -- but more expensive.
+    """
+    replicates = PerformanceDatumReplicate.objects.filter(
+        performance_datum__signature=signature,
+        performance_datum__repository=signature.repository,
+        performance_datum__push_timestamp__gte=alert_after_ts,
+    ).values_list("performance_datum_id", "value")
+    replicates_map: dict[int, list[float]] = {}
+    for datum_id, value in replicates:
+        replicates_map.setdefault(datum_id, []).append(value)
+    return replicates_map
+
+
 def generate_new_alerts_in_series(signature):
     # get series data starting from either:
     # (1) the last alert, if there is one
     # (2) the alerts max age
     # (use whichever is newer)
     max_alert_age = alert_after_ts = datetime.now() - settings.PERFHERDER_ALERTS_MAX_AGE
-    series = PerformanceDatum.objects.filter(signature=signature, push_timestamp__gte=max_alert_age)
+    series = PerformanceDatum.objects.filter(
+        signature=signature,
+        repository=signature.repository,
+        push_timestamp__gte=max_alert_age,
+    )
     latest_alert_timestamp = (
         PerformanceAlert.objects.filter(series_signature=signature)
         .select_related("summary__push__time")
@@ -93,25 +118,7 @@ def generate_new_alerts_in_series(signature):
         if latest_ts > alert_after_ts:
             alert_after_ts = latest_ts
 
-    datum_with_replicates = (
-        PerformanceDatum.objects.filter(
-            signature=signature,
-            repository=signature.repository,
-            push_timestamp__gte=alert_after_ts,
-        )
-        .annotate(
-            has_replicate=Exists(
-                PerformanceDatumReplicate.objects.filter(performance_datum_id=OuterRef("pk"))
-            )
-        )
-        .filter(has_replicate=True)
-    )
-    replicates = PerformanceDatumReplicate.objects.filter(
-        performance_datum_id__in=Subquery(datum_with_replicates.values("id"))
-    ).values_list("performance_datum_id", "value")
-    replicates_map: dict[int, list[float]] = {}
-    for datum_id, value in replicates:
-        replicates_map.setdefault(datum_id, []).append(value)
+    replicates_map = _collect_replicates_map(signature, alert_after_ts)
 
     revision_data = {}
     for d in series:
@@ -665,7 +672,9 @@ def generate_new_test_alerts_in_series(
     with transaction.atomic():
         max_alert_age = alert_after_ts = datetime.now() - settings.PERFHERDER_ALERTS_MAX_AGE
         series = PerformanceDatum.objects.filter(
-            signature=signature, push_timestamp__gte=max_alert_age
+            signature=signature,
+            repository=signature.repository,
+            push_timestamp__gte=max_alert_age,
         )
         latest_alert_timestamp = (
             PerformanceAlertTesting.objects.filter(
@@ -681,25 +690,7 @@ def generate_new_test_alerts_in_series(
             if latest_ts > alert_after_ts:
                 alert_after_ts = latest_ts
 
-        datum_with_replicates = (
-            PerformanceDatum.objects.filter(
-                signature=signature,
-                repository=signature.repository,
-                push_timestamp__gte=alert_after_ts,
-            )
-            .annotate(
-                has_replicate=Exists(
-                    PerformanceDatumReplicate.objects.filter(performance_datum_id=OuterRef("pk"))
-                )
-            )
-            .filter(has_replicate=True)
-        )
-        replicates = PerformanceDatumReplicate.objects.filter(
-            performance_datum_id__in=Subquery(datum_with_replicates.values("id"))
-        ).values_list("performance_datum_id", "value")
-        replicates_map: dict[int, list[float]] = {}
-        for datum_id, value in replicates:
-            replicates_map.setdefault(datum_id, []).append(value)
+        replicates_map = _collect_replicates_map(signature, alert_after_ts)
 
         revision_data = {}
         for d in series:
