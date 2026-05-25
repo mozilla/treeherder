@@ -95,9 +95,9 @@ def _collect_replicates_map(signature, alert_after_ts) -> dict[int, list[float]]
     return replicates_map
 
 
-def generate_new_alerts_in_series(signature):
+def _load_revision_data(signature, latest_alert_timestamp, revision_datum_cls):
     # get series data starting from either:
-    # (1) the last alert, if there is one
+    # (1) the last alert, if there is one (latest_alert_timestamp)
     # (2) the alerts max age
     # (use whichever is newer)
     max_alert_age = alert_after_ts = datetime.now() - settings.PERFHERDER_ALERTS_MAX_AGE
@@ -105,13 +105,7 @@ def generate_new_alerts_in_series(signature):
         signature=signature,
         repository=signature.repository,
         push_timestamp__gte=max_alert_age,
-    )
-    latest_alert_timestamp = (
-        PerformanceAlert.objects.filter(series_signature=signature)
-        .select_related("summary__push__time")
-        .order_by("-summary__push__time")
-        .values_list("summary__push__time", flat=True)[:1]
-    )
+    ).only("id", "push_id", "push_timestamp", "value")
     if latest_alert_timestamp:
         latest_ts = latest_alert_timestamp[0]
         series = series.filter(push_timestamp__gt=latest_ts)
@@ -123,11 +117,22 @@ def generate_new_alerts_in_series(signature):
     revision_data = {}
     for d in series:
         if not revision_data.get(d.push_id):
-            revision_data[d.push_id] = RevisionDatum(
+            revision_data[d.push_id] = revision_datum_cls(
                 int(time.mktime(d.push_timestamp.timetuple())), d.push_id, [], []
             )
         revision_data[d.push_id].values.append(d.value)
         revision_data[d.push_id].replicates.extend(replicates_map.get(d.id, []))
+
+    return revision_data
+
+
+def generate_new_alerts_in_series(signature):
+    latest_alert_timestamp = (
+        PerformanceAlert.objects.filter(series_signature=signature)
+        .order_by("-summary__push__time")
+        .values_list("summary__push__time", flat=True)[:1]
+    )
+    revision_data = _load_revision_data(signature, latest_alert_timestamp, RevisionDatum)
 
     min_back_window = signature.min_back_window
     if min_back_window is None:
@@ -665,41 +670,15 @@ def generate_new_test_alerts_in_series(
         detection_index_tolerance,
         replicates_enabled,
     )
-    # get series data starting from either:
-    # (1) the last alert, if there is one
-    # (2) the alerts max age
-    # use whichever is newer
     with transaction.atomic():
-        max_alert_age = alert_after_ts = datetime.now() - settings.PERFHERDER_ALERTS_MAX_AGE
-        series = PerformanceDatum.objects.filter(
-            signature=signature,
-            repository=signature.repository,
-            push_timestamp__gte=max_alert_age,
-        )
         latest_alert_timestamp = (
             PerformanceAlertTesting.objects.filter(
                 series_signature=signature, detection_method=detection_method_name
             )
-            .select_related("summary__push__time")
             .order_by("-summary__push__time")
             .values_list("summary__push__time", flat=True)[:1]
         )
-        if latest_alert_timestamp:
-            latest_ts = latest_alert_timestamp[0]
-            series = series.filter(push_timestamp__gt=latest_ts)
-            if latest_ts > alert_after_ts:
-                alert_after_ts = latest_ts
-
-        replicates_map = _collect_replicates_map(signature, alert_after_ts)
-
-        revision_data = {}
-        for d in series:
-            if not revision_data.get(d.push_id):
-                revision_data[d.push_id] = RevisionDatumTest(
-                    int(time.mktime(d.push_timestamp.timetuple())), d.push_id, [], []
-                )
-            revision_data[d.push_id].values.append(d.value)
-            revision_data[d.push_id].replicates.extend(replicates_map.get(d.id, []))
+        revision_data = _load_revision_data(signature, latest_alert_timestamp, RevisionDatumTest)
 
         data = list(revision_data.values())
         methods = build_cpd_methods()
