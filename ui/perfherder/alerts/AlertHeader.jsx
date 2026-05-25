@@ -96,6 +96,13 @@ const AlertHeader = ({
   const bugNumber = alertSummary.bug_number
     ? `Bug ${alertSummary.bug_number}`
     : '';
+  const getDuplicatedAlertTitle = (summary, status) => {
+    if (status === 'reassigned' && summary.reassigned_to) {
+      return `Alert #${summary.id} - ${status} to #${summary.reassigned_to}`;
+    }
+
+    return `Alert #${summary.id} - ${status}`;
+  };
 
   const performanceTags = alertSummary.performance_tags || [];
   const alertSummaryDatetime = new Date(alertSummary.push_timestamp * 1000);
@@ -232,11 +239,13 @@ const AlertHeader = ({
         <Row>
           Duplicated summaries:
           {alertSummary.duplicated_summaries.map((summary, index) => {
-            const isReassigned = getStatus(summary.status) === 'reassigned';
+            const status = getStatus(summary.status);
+            const isReassigned = status === 'reassigned';
+
             return (
-              <span 
-                key={summary.id} 
-                className="d-inline-flex align-items-center" 
+              <span
+                key={summary.id}
+                className="d-inline-flex align-items-center"
                 style={{ marginLeft: '5px' }}
               >
                 <Link
@@ -245,8 +254,7 @@ const AlertHeader = ({
                   to={`/perfherder/alerts?id=${summary.id}&hideDwnToInv=0`}
                   id={`duplicated alert summary ${summary.id.toString()} `}
                 >
-                  Alert #{summary.id} - {getStatus(summary.status)}
-                  {isReassigned && summary.reassigned_to && ` to #${summary.reassigned_to}`}
+                  {getDuplicatedAlertTitle(summary, status)}
                 </Link>
                 {isReassigned && summary.reassigned_to && (
                   <Clipboard
