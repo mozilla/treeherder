@@ -278,7 +278,9 @@ class Bugscache(models.Model):
 
     status = models.CharField(max_length=64, db_index=True)
     resolution = models.CharField(max_length=64, blank=True, db_index=True)
-    # Is covered by a FULLTEXT index created via a migrations RunSQL operation.
+    # Backed by a GIN trigram index (bugscache_summary_gin_trgm_idx, created via
+    # a RunSQL migration) so the ILIKE + trigram similarity search in search()
+    # can use an index scan. The btree Index below only covers exact lookups.
     summary = models.CharField(max_length=255)
     dupe_of = models.PositiveIntegerField(null=True)
     crash_signature = models.TextField(blank=True)
