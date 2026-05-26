@@ -17,6 +17,7 @@ import {
 } from 'victory';
 
 import dayjs from '../../helpers/dayjs';
+import { getJobsUrl } from '../../helpers/url';
 import { abbreviatedNumber } from '../perf-helpers/helpers';
 
 import TableView from './TableView';
@@ -400,6 +401,7 @@ class GraphsContainer extends React.Component {
       highlightChangelogData,
       highlightCommonAlerts,
       highlightInitialDataPoints,
+      highlightMissingJobs,
     } = this.props;
     const {
       highlights,
@@ -634,6 +636,88 @@ class GraphsContainer extends React.Component {
                     />
                   )}
 
+                  {highlightMissingJobs &&
+                    testData.map((series) => {
+                      if (
+                        !series.visible ||
+                        !series.missingData ||
+                        series.missingData.length === 0
+                      )
+                        return null;
+                      // color is [cssClassName, hexValue]; index 1 is the hex for SVG stroke.
+                      const seriesColor = series.color[1];
+                      return (
+                        <VictoryScatter
+                          key={`missing-${series.id}`}
+                          name={`missing-${series.id}`}
+                          data={series.missingData}
+                          size={3}
+                          symbol="circle"
+                          style={{
+                            data: {
+                              fill: 'transparent',
+                              stroke: seriesColor,
+                              strokeWidth: 1,
+                              strokeDasharray: '2,2',
+                              opacity: 0.7,
+                              cursor: 'pointer',
+                            },
+                          }}
+                          labels={({ datum }) => {
+                            const shortRev = (datum.revision || '').slice(0, 12);
+                            const dateStr = dayjs(datum.x).format(
+                              'MMM D, YYYY HH:mm',
+                            );
+                            const statusLabel =
+                              datum.status === 'failed'
+                                ? 'Job failed'
+                                : 'Job not run';
+                            return `${shortRev}\n${dateStr}\n${statusLabel}`;
+                          }}
+                          labelComponent={
+                            <VictoryTooltip
+                              renderInPortal
+                              pointerLength={6}
+                              flyoutStyle={{ fill: 'white', stroke: '#ccc' }}
+                            />
+                          }
+                          events={[
+                            {
+                              target: 'data',
+                              eventHandlers: {
+                                onClick: (_evt, props) => {
+                                  const {
+                                    repository_name: repo,
+                                    jobId,
+                                    revision,
+                                  } = props.datum;
+                                  const url = jobId
+                                    ? getJobsUrl({
+                                        repo,
+                                        revision,
+                                        selectedJob: jobId,
+                                        group_state: 'expanded',
+                                      })
+                                    : getJobsUrl({
+                                        repo,
+                                        revision,
+                                        group_state: 'expanded',
+                                      });
+                                  window.open(
+                                    url,
+                                    '_blank',
+                                    'noopener,noreferrer',
+                                  );
+                                  // Victory event handlers must return a value; null means no chart state mutation.
+                                  return null;
+                                },
+                              },
+                            },
+                          ]}
+                        />
+                      );
+                    })}
+
                   <VictoryScatter
                     name="scatter-plot"
                     symbol={({ datum }) => (datum._z ? datum._z[0] : 'circle')}
@@ -836,6 +920,7 @@ GraphsContainer.propTypes = {
   selectedDataPoint: PropTypes.shape({}),
   highlightAlerts: PropTypes.bool,
   highlightInitialDataPoints: PropTypes.bool,
+  highlightMissingJobs: PropTypes.bool,
   highlightedRevisions: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.arrayOf(PropTypes.string),

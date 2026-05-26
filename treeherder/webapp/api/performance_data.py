@@ -841,6 +841,7 @@ class PerformanceSummary(generics.ListAPIView):
         all_data = query_params.validated_data["all_data"]
         no_retriggers = query_params.validated_data["no_retriggers"]
         replicates = query_params.validated_data["replicates"]
+        include_missing_data = query_params.validated_data["include_missing_data"]
 
         signature_data = PerformanceSignature.objects.select_related(
             "framework", "repository", "platform", "push", "job"
@@ -879,8 +880,10 @@ class PerformanceSummary(generics.ListAPIView):
             "suite",
             "signature_hash",
             "platform__platform",
+            "platform_id",
             "test",
             "option_collection_id",
+            "option_collection__option_collection_hash",
             "parent_signature_id",
             "repository_id",
             "tags",
@@ -982,6 +985,9 @@ class PerformanceSummary(generics.ListAPIView):
                 item["option_name"] = option_collection_map[item["option_collection_id"]]
                 item["repository_name"] = repository_name
 
+                if include_missing_data:
+                    item["missing_data"] = self._compute_missing_data(item, data)
+
         else:
             grouped_values = defaultdict(list)
             grouped_job_ids = defaultdict(list)
@@ -1043,6 +1049,80 @@ class PerformanceSummary(generics.ListAPIView):
                 ).exists()
             ):
                 signature["should_alert"] = False
+
+    # Job results treated as "failed" for the purposes of the missing-jobs overlay:
+    # the job ran but did not produce a PerformanceDatum.
+    _MISSING_FAILED_RESULTS = frozenset({"testfailed", "busted", "exception"})
+
+    @staticmethod
+    def _compute_missing_data(item, data_qs):
+        """
+        Return a list of pushes within the data's time range that produced no
+        PerformanceDatum for this signature, classified as 'failed' or 'not_run'.
+        One entry per push (deduped).
+        """
+        existing = list(data_qs.values_list("push_id", "job__job_type_id", "push_timestamp"))
+        if not existing:
+            return []
+
+        existing_push_ids = {push_id for push_id, _, _ in existing}
+        # Infer which job types "should" run for this signature from the types that
+        # actually produced existing data — no separate configuration needed.
+        expected_job_type_ids = {jt_id for _, jt_id, _ in existing if jt_id is not None}
+        timestamps = [ts for _, _, ts in existing if ts is not None]
+        if not expected_job_type_ids or not timestamps:
+            return []
+
+        candidate_pushes = list(
+            models.Push.objects.filter(
+                repository_id=item["repository_id"],
+                time__gte=min(timestamps),
+                time__lte=max(timestamps),
+            )
+            .exclude(id__in=existing_push_ids)
+            .values("id", "revision", "time")
+        )
+        if not candidate_pushes:
+            return []
+
+        matching_jobs = models.Job.objects.filter(
+            push_id__in=[p["id"] for p in candidate_pushes],
+            job_type_id__in=expected_job_type_ids,
+            machine_platform_id=item["platform_id"],
+            option_collection_hash=item["option_collection__option_collection_hash"],
+        ).values("id", "push_id", "result")
+
+        jobs_by_push = defaultdict(list)
+        for j in matching_jobs:
+            jobs_by_push[j["push_id"]].append(j)
+
+        failed_results = PerformanceSummary._MISSING_FAILED_RESULTS
+        missing = []
+        for p in candidate_pushes:
+            jobs = jobs_by_push.get(p["id"], [])
+            if not jobs:
+                status = "not_run"
+                job_id = None
+            elif all(j["result"] in failed_results for j in jobs):
+                status = "failed"
+                job_id = min(j["id"] for j in jobs)  # lowest ID for deterministic linking
+            else:
+                # At least one matching job produced a non-failed, non-datum result
+                # (e.g. success without datum, retry, in-progress). Don't flag.
+                continue
+
+            missing.append(
+                {
+                    "push_id": p["id"],
+                    "push_timestamp": p["time"],
+                    "push__revision": p["revision"],
+                    "job_id": job_id,
+                    "status": status,
+                }
+            )
+
+        missing.sort(key=lambda m: m["push_timestamp"])
+        return missing
 
     @staticmethod
     def _filter_out_retriggers(serialized_data):

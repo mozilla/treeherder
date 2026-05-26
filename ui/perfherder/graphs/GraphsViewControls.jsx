@@ -73,6 +73,7 @@ export default class GraphsViewControls extends React.Component {
       highlightAlerts,
       highlightChangelogData,
       highlightInitialDataPoints,
+      highlightMissingJobs,
       highlightedRevisions,
       highlightCommonAlerts,
       updateTimeRange,
@@ -223,6 +224,20 @@ export default class GraphsViewControls extends React.Component {
                   <Button
                     className="ms-3"
                     variant="outline-darker-info"
+                    title="Show markers between data points for pushes where the perf job failed or never ran"
+                    onClick={() =>
+                      updateStateParams({
+                        highlightMissingJobs: !highlightMissingJobs,
+                      })
+                    }
+                    active={highlightMissingJobs}
+                  >
+                    Highlight missing jobs
+                  </Button>
+
+                  <Button
+                    className="ms-3"
+                    variant="outline-darker-info"
                     title="Shows the raw data points that produced each of the individual summarized data points"
                     onClick={() =>
                       updateStateParams({
@@ -249,6 +264,7 @@ GraphsViewControls.propTypes = {
   highlightAlerts: PropTypes.bool.isRequired,
   highlightChangelogData: PropTypes.bool.isRequired,
   highlightInitialDataPoints: PropTypes.bool.isRequired,
+  highlightMissingJobs: PropTypes.bool.isRequired,
   highlightedRevisions: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.arrayOf(PropTypes.string),
