@@ -571,14 +571,23 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
         for push_id, framework_id in keys:
             q |= Q(push_id=push_id, framework_id=framework_id)
         rows = PerformanceAlertSummary.objects.filter(q).values(
-            "id", "status", "push_id", "framework_id"
+            "id", "status", "push_id", "framework_id", "alerts__related_summary_id"
         )
-        result = defaultdict(list)
+        result_map = defaultdict(dict)
         for row in rows:
-            result[(row["push_id"], row["framework_id"])].append(
-                {"id": row["id"], "status": row["status"]}
-            )
-        return dict(result)
+            key = (row["push_id"], row["framework_id"])
+            summary_id = row["id"]
+
+            if summary_id not in result_map[key]:
+                result_map[key][summary_id] = {
+                    "id": summary_id,
+                    "status": row["status"],
+                    "reassigned_to": row["alerts__related_summary_id"],
+                }
+            elif row["alerts__related_summary_id"]:
+                result_map[key][summary_id]["reassigned_to"] = row["alerts__related_summary_id"]
+
+        return {k: list(v.values()) for k, v in result_map.items()}
 
     def _build_tc_metadata_map(self, page):
         """

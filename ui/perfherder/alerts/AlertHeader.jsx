@@ -14,6 +14,7 @@ import {
 import { getJobsUrl, getPerfCompareBaseURL } from '../../helpers/url';
 import { toMercurialShortDateStr } from '../../helpers/display';
 import SimpleTooltip from '../../shared/SimpleTooltip';
+import Clipboard from '../../shared/Clipboard';
 
 import Assignee from './Assignee';
 import TagsList from './TagsList';
@@ -95,6 +96,13 @@ const AlertHeader = ({
   const bugNumber = alertSummary.bug_number
     ? `Bug ${alertSummary.bug_number}`
     : '';
+  const getDuplicatedAlertTitle = (summary, status) => {
+    if (status === 'reassigned' && summary.reassigned_to) {
+      return `Alert #${summary.id} - ${status} to #${summary.reassigned_to}`;
+    }
+
+    return `Alert #${summary.id} - ${status}`;
+  };
 
   const performanceTags = alertSummary.performance_tags || [];
   const alertSummaryDatetime = new Date(alertSummary.push_timestamp * 1000);
@@ -230,19 +238,35 @@ const AlertHeader = ({
       {alertSummary.duplicated_summaries.length > 0 && (
         <Row>
           Duplicated summaries:
-          {alertSummary.duplicated_summaries.map((summary, index) => (
-            <Link
-              key={summary.id}
-              className="text-dark me-1"
-              target="_blank"
-              to={`/perfherder/alerts?id=${summary.id}&hideDwnToInv=0`}
-              id={`duplicated alert summary ${summary.id.toString()} `}
-              style={{ marginLeft: '5px' }}
-            >
-              Alert #{summary.id} - {getStatus(summary.status)}
-              {alertSummary.duplicated_summaries.length - 1 !== index && ', '}
-            </Link>
-          ))}
+          {alertSummary.duplicated_summaries.map((summary, index) => {
+            const status = getStatus(summary.status);
+            const isReassigned = status === 'reassigned';
+
+            return (
+              <span
+                key={summary.id}
+                className="d-inline-flex align-items-center"
+                style={{ marginLeft: '5px' }}
+              >
+                <Link
+                  className="text-dark me-1"
+                  target="_blank"
+                  to={`/perfherder/alerts?id=${summary.id}&hideDwnToInv=0`}
+                  id={`duplicated alert summary ${summary.id.toString()} `}
+                >
+                  {getDuplicatedAlertTitle(summary, status)}
+                </Link>
+                {isReassigned && summary.reassigned_to && (
+                  <Clipboard
+                    text={`${summary.reassigned_to}`}
+                    description="Alert ID"
+                    variant="transparent"
+                  />
+                )}
+                {alertSummary.duplicated_summaries.length - 1 !== index && ', '}
+              </span>
+            );
+          })}
         </Row>
       )}
       <Row>

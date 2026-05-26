@@ -342,13 +342,28 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
                 for summary in duplicated_summaries_map.get(key, [])
                 if summary["id"] != performance_alert_summary.id
             ]
-        return list(
+
+        rows = (
             PerformanceAlertSummary.objects.filter(
                 push=performance_alert_summary.push, framework=performance_alert_summary.framework
             )
             .exclude(id=performance_alert_summary.id)
-            .values("id", "status")
+            .values("id", "status", "alerts__related_summary_id")
         )
+
+        result_map = {}
+        for row in rows:
+            summary_id = row["id"]
+            if summary_id not in result_map:
+                result_map[summary_id] = {
+                    "id": summary_id,
+                    "status": row["status"],
+                    "reassigned_to": row["alerts__related_summary_id"],
+                }
+            elif row["alerts__related_summary_id"]:
+                result_map[summary_id]["reassigned_to"] = row["alerts__related_summary_id"]
+
+        return list(result_map.values())
 
     class Meta:
         model = PerformanceAlertSummary
