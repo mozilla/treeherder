@@ -63,6 +63,7 @@ function GraphsView({ projects, frameworks, user }) {
   const [highlightChangelogData, setHighlightChangelogData] = useState(false);
   const [highlightInitialDataPoints, setHighlightInitialDataPoints] =
     useState(false);
+  const [highlightMissingJobs, setHighlightMissingJobs] = useState(true);
   const [highlightedRevisions, setHighlightedRevisions] = useState(['', '']);
   const [highlightedToRevision, setHighlightedToRevision] = useState(
     getHighlightedToRevision(),
@@ -123,6 +124,7 @@ function GraphsView({ projects, frameworks, user }) {
       interval: timeRangeRef.current.value,
       all_data: true,
       replicates: replicatesRef.current,
+      include_missing_data: true,
     };
   }, []);
 
@@ -219,6 +221,7 @@ function GraphsView({ projects, frameworks, user }) {
       highlightCommonAlerts: +highlightCommonAlerts,
       highlightChangelogData: +highlightChangelogData,
       highlightInitialDataPoints: +highlightInitialDataPoints,
+      highlightMissingJobs: +highlightMissingJobs,
       timerange: timeRangeRef.current.value,
       replicates: +replicatesRef.current,
       showTable: +showTable,
@@ -256,6 +259,7 @@ function GraphsView({ projects, frameworks, user }) {
     highlightCommonAlerts,
     highlightChangelogData,
     highlightInitialDataPoints,
+    highlightMissingJobs,
     highlightedRevisions,
     highlightedToRevision,
     selectedDataPoint,
@@ -373,6 +377,8 @@ function GraphsView({ projects, frameworks, user }) {
       if (state.colors !== undefined) setColors(state.colors);
       if (state.symbols !== undefined) setSymbols(state.symbols);
       if (state.showTable !== undefined) setShowTable(state.showTable);
+    if (state.highlightMissingJobs !== undefined)
+      setHighlightMissingJobs(state.highlightMissingJobs);
 
       if (state.replicates !== undefined) {
         setReplicates(state.replicates);
@@ -402,6 +408,7 @@ function GraphsView({ projects, frameworks, user }) {
       highlightCommonAlerts: hlCommonAlerts,
       highlightChangelogData: hlChangelogData,
       highlightInitialDataPoints: hlInitialDataPoints,
+      highlightMissingJobs: hlMissingJobs,
       highlightedRevisions: hlRevisions,
       highlightedToRevision: hlToRevision,
       replicates: replicatesParam,
@@ -442,6 +449,9 @@ function GraphsView({ projects, frameworks, user }) {
         parseInt(hlInitialDataPoints, 10),
       );
     }
+    if (hlMissingJobs !== undefined) {
+      updates.highlightMissingJobs = Boolean(parseInt(hlMissingJobs, 10));
+    }
     if (hlRevisions) {
       updates.highlightedRevisions =
         typeof hlRevisions === 'string' ? [hlRevisions] : hlRevisions;
@@ -469,6 +479,8 @@ function GraphsView({ projects, frameworks, user }) {
       setHighlightChangelogData(updates.highlightChangelogData);
     if (updates.highlightInitialDataPoints !== undefined)
       setHighlightInitialDataPoints(updates.highlightInitialDataPoints);
+    if (updates.highlightMissingJobs !== undefined)
+      setHighlightMissingJobs(updates.highlightMissingJobs);
     if (updates.replicates !== undefined) setReplicates(updates.replicates);
     if (updates.showTable !== undefined) setShowTable(updates.showTable);
     if (updates.highlightedRevisions !== undefined)
@@ -612,6 +624,7 @@ function GraphsView({ projects, frameworks, user }) {
               highlightAlerts={highlightAlerts}
               highlightChangelogData={highlightChangelogData}
               highlightInitialDataPoints={highlightInitialDataPoints}
+              highlightMissingJobs={highlightMissingJobs}
               highlightedRevisions={highlightedRevisions}
               highlightedToRevision={highlightedToRevision}
               highlightCommonAlerts={highlightCommonAlerts}
