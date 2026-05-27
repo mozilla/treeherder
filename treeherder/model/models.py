@@ -648,6 +648,14 @@ class Job(models.Model):
             models.Index(fields=["machine_platform", "option_collection_hash", "push"]),
             # speed up cycle data
             models.Index(fields=["repository", "submit_time"]),
+            # speed up intermittent-failure classification
+            # (treeherder/log_parser/intermittents.py): equality on repository
+            # and job_type, range on push. Matches both the group-history query
+            # and the infra-check query, which scan a repository's jobs of a
+            # given type within a recent push-id window.
+            models.Index(
+                fields=["repository", "job_type", "push"], name="job_repo_jobtype_push_idx"
+            ),
         ]
 
     @property
