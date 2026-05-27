@@ -2,7 +2,7 @@
   "logurl": "http://my-log.mozilla.org/reftest-timeout.log.gz",
   "errors": [
     {
-      "linenumber": 7487,
+      "linenumber": 7470,
       "line": "22:07:05     INFO - TEST-UNEXPECTED-TIMEOUT | /css/css-inline/initial-letter/Initial-letter-breaking-rtl.html | expected FAIL"
     }
   ]
