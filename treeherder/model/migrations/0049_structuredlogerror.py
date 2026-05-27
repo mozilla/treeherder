@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
             options={
                 "db_table": "structured_log_error",
                 "indexes": [
-                    models.Index(fields=["job_log"], name="structured__job_log_idx"),
+                    models.Index(fields=["job_log"], name="structured__job_log_2258e4_idx"),
                 ],
             },
         ),
