@@ -115,7 +115,7 @@ importers:
         specifier: 3.0.6
         version: 3.0.6(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       react-router:
-        specifier: ^7.13.1
+        specifier: 7.13.1
         version: 7.13.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       react-table-6:
         specifier: 6.11.0
