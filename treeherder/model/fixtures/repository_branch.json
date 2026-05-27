@@ -438,5 +438,13 @@
       "repository": 146,
       "branch": "*"
     }
+  },
+  {
+    "pk": 59,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 147,
+      "branch": "*"
+    }
   }
 ]
