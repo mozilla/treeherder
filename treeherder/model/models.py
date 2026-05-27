@@ -305,7 +305,7 @@ class Bugscache(models.Model):
         return f"{self.id}"
 
     def serialize(self):
-        exclude_fields = ["modified", "processed_update", "jobmap"]
+        exclude_fields = ["modified", "processed_update"]
 
         attrs = model_to_dict(self, exclude=exclude_fields)
         # Serialize bug ID as the bugzilla number for compatibility reasons
@@ -333,6 +333,19 @@ class Bugscache(models.Model):
         # Django already escapes special characters, so we do not need to handle that here
         recent_qs = (
             Bugscache.objects.filter(summary__icontains=search_term)
+            # Only fetch the fields that serialize() returns; modified and
+            # processed_update are excluded there, so there's no need to load them.
+            .only(
+                "id",
+                "bugzilla_id",
+                "status",
+                "resolution",
+                "summary",
+                "dupe_of",
+                "crash_signature",
+                "keywords",
+                "whiteboard",
+            )
             .annotate(similarity=TrigramSimilarity("summary", search_term))
             .order_by("-similarity")[0:max_size]
         )

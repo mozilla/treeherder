@@ -2,6 +2,9 @@ import json
 
 import responses
 from django.urls import reverse
+from django.utils import timezone
+
+from treeherder.model.models import Bugscache
 
 
 def test_create_bug(client, eleven_jobs_stored, activate_responses, test_user):
@@ -264,3 +267,86 @@ def test_create_bug_with_long_crash_signature(
     )
     assert resp.status_code == 400
     assert resp.json()["failure"] == "Crash signature can't be more than 2048 characters."
+
+
+def _make_bug_response(bug_id=323):
+    def request_callback(request):
+        return (200, {}, json.dumps({"id": bug_id}))
+
+    responses.add_callback(
+        responses.POST,
+        "https://thisisnotbugzilla.org/rest/bug",
+        callback=request_callback,
+        content_type="application/json",
+    )
+
+
+def test_create_bug_returns_existing_internal_id(
+    client, eleven_jobs_stored, activate_responses, test_user
+):
+    """When a Bugscache row already exists for the new bugzilla id, its pk is returned."""
+    _make_bug_response(bug_id=323)
+    existing = Bugscache.objects.create(
+        bugzilla_id=323,
+        status="NEW",
+        resolution="",
+        summary="some pre-existing summary",
+        crash_signature="",
+        keywords="",
+        modified=timezone.now(),
+    )
+
+    client.force_authenticate(user=test_user)
+    resp = client.post(
+        reverse("bugzilla-create-bug"),
+        {
+            "type": "defect",
+            "product": "Bugzilla",
+            "component": "Administration",
+            "summary": "Intermittent summary",
+            "version": "4.0.17",
+            "comment": "Intermittent Description",
+            "comment_tags": "treeherder",
+            "keywords": ["intermittent-failure"],
+            "is_security_issue": False,
+        },
+    )
+    assert resp.status_code == 200
+    assert resp.json()["internal_id"] == existing.id
+
+
+def test_create_bug_links_internal_bug_by_summary(
+    client, eleven_jobs_stored, activate_responses, test_user
+):
+    """An internal bug matching by summary gets the new bugzilla id and its pk is returned."""
+    _make_bug_response(bug_id=323)
+    existing = Bugscache.objects.create(
+        bugzilla_id=None,
+        status="NEW",
+        resolution="",
+        summary="Intermittent summary",
+        crash_signature="",
+        keywords="",
+        modified=timezone.now(),
+    )
+
+    client.force_authenticate(user=test_user)
+    resp = client.post(
+        reverse("bugzilla-create-bug"),
+        {
+            "type": "defect",
+            "product": "Bugzilla",
+            "component": "Administration",
+            "summary": "Intermittent summary",
+            "version": "4.0.17",
+            "comment": "Intermittent Description",
+            "comment_tags": "treeherder",
+            "keywords": ["intermittent-failure"],
+            "is_security_issue": False,
+        },
+    )
+    assert resp.status_code == 200
+    assert resp.json()["internal_id"] == existing.id
+
+    existing.refresh_from_db()
+    assert existing.bugzilla_id == 323
