@@ -152,6 +152,7 @@ export const tooltipMessages = {
   improvement: 'patch that generated an actual improvement',
   'regression-backedout': 'patch backed out due to causing regressions',
   'regression-fix': 'patch fixing a reported regression bug',
+  bisection: 'alert identified via bisection',
 };
 
 export const alertBackfillResultVisual = {
