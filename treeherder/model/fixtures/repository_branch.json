@@ -454,5 +454,13 @@
       "repository": 148,
       "branch": "user/*"
     }
+  },
+  {
+    "pk": 61,
+    "model": "model.repositorybranch",
+    "fields": {
+      "repository": 131,
+      "branch": "release/*"
+    }
   }
 ]
