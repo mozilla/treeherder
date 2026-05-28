@@ -1,6 +1,5 @@
 [
   {
-    "pk": 1,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -8,7 +7,9 @@
       "url": "https://hg.mozilla.org/mozilla-central",
       "active_status": "active",
       "codebase": "gecko",
-      "repository_group": 1,
+      "repository_group": [
+        "development"
+      ],
       "life_cycle_order": 10,
       "description": "",
       "expire_performance_data": false,
@@ -16,7 +17,6 @@
     }
   },
   {
-    "pk": 2,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -24,7 +24,9 @@
       "url": "https://hg.mozilla.org/integration/mozilla-inbound",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 1,
+      "repository_group": [
+        "development"
+      ],
       "description": "",
       "performance_alerts_enabled": true,
       "expire_performance_data": false,
@@ -32,7 +34,6 @@
     }
   },
   {
-    "pk": 3,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -40,13 +41,14 @@
       "url": "https://hg.mozilla.org/integration/b2g-inbound",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 1,
+      "repository_group": [
+        "development"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 4,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -54,14 +56,15 @@
       "url": "https://hg.mozilla.org/try",
       "active_status": "active",
       "codebase": "gecko",
-      "repository_group": 1,
+      "repository_group": [
+        "development"
+      ],
       "description": "",
       "is_try_repo": true,
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 5,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -69,7 +72,9 @@
       "url": "https://hg.mozilla.org/releases/mozilla-aurora",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 2,
+      "repository_group": [
+        "release-stabilization"
+      ],
       "description": "",
       "performance_alerts_enabled": true,
       "expire_performance_data": false,
@@ -77,7 +82,6 @@
     }
   },
   {
-    "pk": 6,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -85,7 +89,9 @@
       "url": "https://hg.mozilla.org/releases/mozilla-beta",
       "active_status": "active",
       "codebase": "gecko",
-      "repository_group": 2,
+      "repository_group": [
+        "release-stabilization"
+      ],
       "life_cycle_order": 100,
       "description": "",
       "performance_alerts_enabled": true,
@@ -94,7 +100,6 @@
     }
   },
   {
-    "pk": 7,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -102,7 +107,9 @@
       "url": "https://hg.mozilla.org/releases/mozilla-release",
       "active_status": "active",
       "codebase": "gecko",
-      "repository_group": 2,
+      "repository_group": [
+        "release-stabilization"
+      ],
       "life_cycle_order": 1000,
       "description": "",
       "performance_alerts_enabled": true,
@@ -111,7 +118,6 @@
     }
   },
   {
-    "pk": 8,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -119,13 +125,14 @@
       "url": "https://hg.mozilla.org/releases/mozilla-esr17",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 2,
+      "repository_group": [
+        "release-stabilization"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 9,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -133,13 +140,14 @@
       "url": "https://hg.mozilla.org/releases/mozilla-esr24",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 2,
+      "repository_group": [
+        "release-stabilization"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 10,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -147,13 +155,14 @@
       "url": "https://hg.mozilla.org/releases/mozilla-b2g18",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 2,
+      "repository_group": [
+        "release-stabilization"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 11,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -161,13 +170,14 @@
       "url": "https://hg.mozilla.org/releases/mozilla-b2g18_v1_1_0_hd",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 2,
+      "repository_group": [
+        "release-stabilization"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 12,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -175,13 +185,14 @@
       "url": "https://hg.mozilla.org/projects/addon-sdk",
       "active_status": "onhold",
       "codebase": "jetpack",
-      "repository_group": 1,
+      "repository_group": [
+        "development"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 13,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -189,13 +200,14 @@
       "url": "https://hg.mozilla.org/projects/build-system",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 6,
+      "repository_group": [
+        "project repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 14,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -203,7 +215,9 @@
       "url": "https://hg.mozilla.org/integration/fx-team",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 1,
+      "repository_group": [
+        "development"
+      ],
       "description": "",
       "performance_alerts_enabled": false,
       "expire_performance_data": false,
@@ -211,7 +225,6 @@
     }
   },
   {
-    "pk": 15,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -219,13 +232,14 @@
       "url": "https://hg.mozilla.org/projects/graphics",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 6,
+      "repository_group": [
+        "project repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 18,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -233,13 +247,14 @@
       "url": "https://hg.mozilla.org/services/services-central",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 6,
+      "repository_group": [
+        "project repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 19,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -247,13 +262,14 @@
       "url": "https://hg.mozilla.org/projects/ux",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 6,
+      "repository_group": [
+        "project repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 20,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -261,13 +277,14 @@
       "url": "https://hg.mozilla.org/projects/alder",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 6,
+      "repository_group": [
+        "project repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 21,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -275,13 +292,14 @@
       "url": "https://hg.mozilla.org/projects/ash",
       "active_status": "active",
       "codebase": "gecko",
-      "repository_group": 6,
+      "repository_group": [
+        "project repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 22,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -289,13 +307,14 @@
       "url": "https://hg.mozilla.org/projects/birch",
       "active_status": "active",
       "codebase": "gecko",
-      "repository_group": 6,
+      "repository_group": [
+        "project repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 23,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -303,13 +322,14 @@
       "url": "https://hg.mozilla.org/projects/cedar",
       "active_status": "active",
       "codebase": "gecko",
-      "repository_group": 6,
+      "repository_group": [
+        "project repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 24,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -317,13 +337,14 @@
       "url": "https://hg.mozilla.org/projects/cypress",
       "active_status": "active",
       "codebase": "gecko",
-      "repository_group": 6,
+      "repository_group": [
+        "project repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 25,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -331,13 +352,14 @@
       "url": "https://hg.mozilla.org/projects/date",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 6,
+      "repository_group": [
+        "project repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 26,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -345,13 +367,14 @@
       "url": "https://hg.mozilla.org/projects/elm",
       "active_status": "active",
       "codebase": "gecko",
-      "repository_group": 6,
+      "repository_group": [
+        "project repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 27,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -359,13 +382,14 @@
       "url": "https://hg.mozilla.org/projects/fig",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 6,
+      "repository_group": [
+        "project repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 28,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -373,13 +397,14 @@
       "url": "https://hg.mozilla.org/projects/gum",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 6,
+      "repository_group": [
+        "project repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 29,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -387,13 +412,14 @@
       "url": "https://hg.mozilla.org/projects/holly",
       "active_status": "active",
       "codebase": "gecko",
-      "repository_group": 6,
+      "repository_group": [
+        "project repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 30,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -401,13 +427,14 @@
       "url": "https://hg.mozilla.org/projects/jamun",
       "active_status": "active",
       "codebase": "gecko",
-      "repository_group": 6,
+      "repository_group": [
+        "project repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 31,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -415,13 +442,14 @@
       "url": "https://hg.mozilla.org/projects/larch",
       "active_status": "active",
       "codebase": "gecko",
-      "repository_group": 6,
+      "repository_group": [
+        "project repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 32,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -429,13 +457,14 @@
       "url": "https://hg.mozilla.org/projects/maple",
       "active_status": "active",
       "codebase": "gecko",
-      "repository_group": 6,
+      "repository_group": [
+        "project repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 33,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -443,13 +472,14 @@
       "url": "https://hg.mozilla.org/projects/oak",
       "active_status": "active",
       "codebase": "gecko",
-      "repository_group": 6,
+      "repository_group": [
+        "project repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 34,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -457,13 +487,14 @@
       "url": "https://hg.mozilla.org/projects/pine",
       "active_status": "active",
       "codebase": "gecko",
-      "repository_group": 6,
+      "repository_group": [
+        "project repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 35,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -471,13 +502,14 @@
       "url": "https://hg.mozilla.org/comm-central",
       "active_status": "active",
       "codebase": "comm",
-      "repository_group": 8,
+      "repository_group": [
+        "comm-repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 36,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -485,14 +517,15 @@
       "url": "https://hg.mozilla.org/try-comm-central",
       "active_status": "active",
       "codebase": "comm",
-      "repository_group": 8,
+      "repository_group": [
+        "comm-repositories"
+      ],
       "description": "",
       "is_try_repo": true,
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 37,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -500,13 +533,14 @@
       "url": "https://hg.mozilla.org/releases/comm-aurora",
       "active_status": "onhold",
       "codebase": "comm",
-      "repository_group": 8,
+      "repository_group": [
+        "comm-repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 38,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -514,13 +548,14 @@
       "url": "https://hg.mozilla.org/releases/comm-beta",
       "active_status": "active",
       "codebase": "comm",
-      "repository_group": 8,
+      "repository_group": [
+        "comm-repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 39,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -528,13 +563,14 @@
       "url": "https://hg.mozilla.org/releases/comm-esr24",
       "active_status": "onhold",
       "codebase": "comm",
-      "repository_group": 8,
+      "repository_group": [
+        "comm-repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 41,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -542,13 +578,14 @@
       "url": "https://hg.mozilla.org/projects/accessibility",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 6,
+      "repository_group": [
+        "project repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 42,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -556,13 +593,14 @@
       "url": "",
       "active_status": "onhold",
       "codebase": "",
-      "repository_group": 1,
+      "repository_group": [
+        "development"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 43,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -570,13 +608,14 @@
       "url": "https://hg.mozilla.org/releases/mozilla-b2g26_v1_2",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 2,
+      "repository_group": [
+        "release-stabilization"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 44,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -584,14 +623,15 @@
       "url": "https://github.com/mozilla-b2g/gaia",
       "active_status": "onhold",
       "codebase": "gaia",
-      "repository_group": 1,
+      "repository_group": [
+        "development"
+      ],
       "description": "",
       "accepts_pull_requests": true,
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 45,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -599,13 +639,14 @@
       "url": "https://hg.mozilla.org/releases/mozilla-b2g28_v1_3",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 2,
+      "repository_group": [
+        "release-stabilization"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 46,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -613,13 +654,14 @@
       "url": "https://github.com/taskcluster/github-graph-example",
       "active_status": "onhold",
       "codebase": "taskcluster",
-      "repository_group": 4,
+      "repository_group": [
+        "taskcluster"
+      ],
       "description": "taskcluster integration test dumping ground.",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 47,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -627,13 +669,14 @@
       "url": "https://github.com/mozilla-b2g/gaia",
       "active_status": "onhold",
       "codebase": "gaia",
-      "repository_group": 4,
+      "repository_group": [
+        "taskcluster"
+      ],
       "description": "Gaia master branch",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 48,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -641,13 +684,14 @@
       "url": "https://github.com/mozilla-b2g/gaia",
       "active_status": "onhold",
       "codebase": "gaia",
-      "repository_group": 4,
+      "repository_group": [
+        "taskcluster"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 49,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -655,13 +699,14 @@
       "url": "https://github.com/mozilla",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 4,
+      "repository_group": [
+        "taskcluster"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 50,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -669,13 +714,14 @@
       "url": "https://hg.mozilla.org/integration/gaia-try",
       "active_status": "onhold",
       "codebase": "gaia",
-      "repository_group": 1,
+      "repository_group": [
+        "development"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 51,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -683,13 +729,14 @@
       "url": "https://hg.mozilla.org/releases/mozilla-b2g30_v1_4",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 2,
+      "repository_group": [
+        "release-stabilization"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 52,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -697,13 +744,14 @@
       "url": "https://github.com/mozilla",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 5,
+      "repository_group": [
+        "qa automation tests"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 53,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -711,13 +759,14 @@
       "url": "https://hg.mozilla.org/releases/mozilla-b2g32_v2_0",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 2,
+      "repository_group": [
+        "release-stabilization"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 54,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -725,13 +774,14 @@
       "url": "https://hg.mozilla.org/releases/mozilla-b2g28_v1_3t",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 2,
+      "repository_group": [
+        "release-stabilization"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 55,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -739,13 +789,14 @@
       "url": "https://hg.mozilla.org/users/jford_mozilla.com/gaia-try",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 1,
+      "repository_group": [
+        "development"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 56,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -753,13 +804,14 @@
       "url": "https://hg.mozilla.org/releases/mozilla-esr31",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 2,
+      "repository_group": [
+        "release-stabilization"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 57,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -767,13 +819,14 @@
       "url": "https://hg.mozilla.org/releases/mozilla-b2g34_v2_1",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 2,
+      "repository_group": [
+        "release-stabilization"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 58,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -781,13 +834,14 @@
       "url": "https://hg.mozilla.org/releases/comm-esr31",
       "active_status": "onhold",
       "codebase": "comm",
-      "repository_group": 8,
+      "repository_group": [
+        "comm-repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 59,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -795,13 +849,14 @@
       "url": "https://hg.mozilla.org/releases/mozilla-b2g34_v2_1s",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 2,
+      "repository_group": [
+        "release-stabilization"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 60,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -809,13 +864,14 @@
       "url": "https://hg.mozilla.org/releases/mozilla-b2g37_v2_2",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 2,
+      "repository_group": [
+        "release-stabilization"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 61,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -823,13 +879,14 @@
       "url": "https://github.com/bugzilla/bugzilla",
       "active_status": "onhold",
       "codebase": "bugzilla",
-      "repository_group": 4,
+      "repository_group": [
+        "taskcluster"
+      ],
       "description": "A suite of tests to check the quality of the Bugzilla codebase.",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 62,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -837,13 +894,14 @@
       "url": "https://github.com/mozilla-bteam/bmo",
       "active_status": "onhold",
       "codebase": "bugzilla",
-      "repository_group": 4,
+      "repository_group": [
+        "taskcluster"
+      ],
       "description": "A suite of tests to check the quality of the BMO codebase.",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 63,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -851,13 +909,14 @@
       "url": "https://hg.mozilla.org/releases/mozilla-esr38",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 2,
+      "repository_group": [
+        "release-stabilization"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 64,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -865,13 +924,14 @@
       "url": "https://hg.mozilla.org/releases/comm-esr38",
       "active_status": "onhold",
       "codebase": "comm",
-      "repository_group": 8,
+      "repository_group": [
+        "comm-repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 65,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -879,13 +939,14 @@
       "url": "https://github.com/bugzilla/bugzilla",
       "active_status": "onhold",
       "codebase": "bugzilla",
-      "repository_group": 4,
+      "repository_group": [
+        "taskcluster"
+      ],
       "description": "A suite of tests to check the quality of the Bugzilla 5.0 codebase.",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 66,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -893,13 +954,14 @@
       "url": "https://github.com/bugzilla/bugzilla",
       "active_status": "onhold",
       "codebase": "bugzilla",
-      "repository_group": 4,
+      "repository_group": [
+        "taskcluster"
+      ],
       "description": "A suite of tests to check the quality of the Bugzilla 4.4 codebase.",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 67,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -907,13 +969,14 @@
       "url": "https://github.com/bugzilla/bugzilla",
       "active_status": "onhold",
       "codebase": "bugzilla",
-      "repository_group": 4,
+      "repository_group": [
+        "taskcluster"
+      ],
       "description": "A suite of tests to check the quality of the Bugzilla 4.2 codebase.",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 68,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -921,13 +984,14 @@
       "url": "https://github.com/mozilla-bteam/bmo",
       "active_status": "onhold",
       "codebase": "bugzilla",
-      "repository_group": 4,
+      "repository_group": [
+        "taskcluster"
+      ],
       "description": "A suite of tests to check the quality of the BMO codebase.",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 69,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -935,13 +999,14 @@
       "url": "https://hg.mozilla.org/releases/mozilla-b2g37_v2_2r",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 2,
+      "repository_group": [
+        "release-stabilization"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 70,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -949,13 +1014,14 @@
       "url": "https://hg.mozilla.org/releases/mozilla-b2g44_v2_5",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 2,
+      "repository_group": [
+        "release-stabilization"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 71,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -963,13 +1029,14 @@
       "url": "https://github.com/mozilla-bteam/bmo",
       "active_status": "onhold",
       "codebase": "bugzilla",
-      "repository_group": 4,
+      "repository_group": [
+        "taskcluster"
+      ],
       "description": "A suite of tests to check the quality of the BMO codebase.",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 72,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -977,13 +1044,14 @@
       "url": "https://hg.mozilla.org/releases/b2g-ota",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 2,
+      "repository_group": [
+        "release-stabilization"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 73,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -991,13 +1059,14 @@
       "url": "https://hg.mozilla.org/releases/mozilla-esr45",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 2,
+      "repository_group": [
+        "release-stabilization"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 74,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1005,13 +1074,14 @@
       "url": "https://hg.mozilla.org/releases/comm-esr45",
       "active_status": "onhold",
       "codebase": "comm",
-      "repository_group": 8,
+      "repository_group": [
+        "comm-repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 75,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1019,14 +1089,15 @@
       "url": "https://github.com/servo/servo",
       "active_status": "active",
       "codebase": "servo",
-      "repository_group": 10,
+      "repository_group": [
+        "servo"
+      ],
       "description": "The Servo Parallel Browser Engine − master",
       "expire_performance_data": false,
       "tc_root_url": "https://community-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 76,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1034,13 +1105,14 @@
       "url": "https://hg.mozilla.org/hgcustom/version-control-tools",
       "active_status": "onhold",
       "codebase": "version-control-tools",
-      "repository_group": 7,
+      "repository_group": [
+        "other"
+      ],
       "description": "Version control infrastructure and tooling.",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 77,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1048,7 +1120,9 @@
       "url": "https://hg.mozilla.org/integration/autoland",
       "active_status": "active",
       "codebase": "gecko",
-      "repository_group": 1,
+      "repository_group": [
+        "development"
+      ],
       "description": "The destination for automatically landed Firefox commits.",
       "performance_alerts_enabled": true,
       "expire_performance_data": false,
@@ -1056,7 +1130,6 @@
     }
   },
   {
-    "pk": 78,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1064,13 +1137,14 @@
       "url": "https://github.com/mozilla-services/autopush",
       "active_status": "onhold",
       "codebase": "autopush",
-      "repository_group": 7,
+      "repository_group": [
+        "other"
+      ],
       "description": "Mozilla Push server and Push Endpoint.",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 79,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1078,13 +1152,14 @@
       "url": "https://hg.mozilla.org/projects/nss",
       "active_status": "active",
       "codebase": "nss",
-      "repository_group": 7,
+      "repository_group": [
+        "other"
+      ],
       "description": "Network Security Services.",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 80,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1092,14 +1167,15 @@
       "url": "https://hg.mozilla.org/projects/nss-try",
       "active_status": "active",
       "codebase": "nss",
-      "repository_group": 7,
+      "repository_group": [
+        "other"
+      ],
       "description": "Network Security Services.",
       "is_try_repo": true,
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 81,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1107,13 +1183,14 @@
       "url": "https://github.com/mozilla/example-addon-repo",
       "active_status": "onhold",
       "codebase": "example-addon-repo",
-      "repository_group": 7,
+      "repository_group": [
+        "other"
+      ],
       "description": "Example add-on repository for templates and best practices.",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 82,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1121,13 +1198,14 @@
       "url": "https://hg.mozilla.org/incubator/stylo",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 1,
+      "repository_group": [
+        "development"
+      ],
       "description": "Testing Servo integration with Gecko",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 83,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1135,14 +1213,15 @@
       "url": "https://hg.mozilla.org/incubator/stylo-try",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 1,
+      "repository_group": [
+        "development"
+      ],
       "description": "Try repo for Servo integration",
       "is_try_repo": true,
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 84,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1150,13 +1229,14 @@
       "url": "https://hg.mozilla.org/releases/mozilla-esr52",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 2,
+      "repository_group": [
+        "release-stabilization"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 85,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1164,13 +1244,14 @@
       "url": "https://hg.mozilla.org/releases/comm-esr52",
       "active_status": "onhold",
       "codebase": "comm",
-      "repository_group": 8,
+      "repository_group": [
+        "comm-repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 86,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1178,13 +1259,14 @@
       "url": "https://github.com/servo/webrender",
       "active_status": "active",
       "codebase": "servo",
-      "repository_group": 7,
+      "repository_group": [
+        "other"
+      ],
       "description": "GPU renderer for Servo",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 87,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1192,13 +1274,14 @@
       "url": "https://github.com/mozilla/Addon-Tests",
       "active_status": "onhold",
       "codebase": "addon-tests",
-      "repository_group": 5,
+      "repository_group": [
+        "qa automation tests"
+      ],
       "description": "Tests for Add-ons",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 88,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1206,13 +1289,14 @@
       "url": "https://github.com/mozilla/fxapom",
       "active_status": "onhold",
       "codebase": "fxapom",
-      "repository_group": 5,
+      "repository_group": [
+        "qa automation tests"
+      ],
       "description": "Firefox Account Page Object Model",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 89,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1220,13 +1304,14 @@
       "url": "https://github.com/mozilla-services/go-bouncer",
       "active_status": "onhold",
       "codebase": "go-bouncer",
-      "repository_group": 5,
+      "repository_group": [
+        "qa automation tests"
+      ],
       "description": "Go version of the redirector portion of bouncer",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 90,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1234,13 +1319,14 @@
       "url": "https://github.com/mozilla/mozillians-tests",
       "active_status": "onhold",
       "codebase": "mozillians-tests",
-      "repository_group": 5,
+      "repository_group": [
+        "qa automation tests"
+      ],
       "description": "Tests for Mozillians",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 91,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1248,13 +1334,14 @@
       "url": "https://github.com/mozmeao/snippets-service",
       "active_status": "onhold",
       "codebase": "snippets-service",
-      "repository_group": 5,
+      "repository_group": [
+        "qa automation tests"
+      ],
       "description": "Snippets Service",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 92,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1262,13 +1349,14 @@
       "url": "https://github.com/mozilla-services/socorro",
       "active_status": "onhold",
       "codebase": "socorro",
-      "repository_group": 5,
+      "repository_group": [
+        "qa automation tests"
+      ],
       "description": "Server for collecting, processing, and displaying crash reports from clients using the Breakpad libraries",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 93,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1276,13 +1364,14 @@
       "url": "https://github.com/mozilla/stubattribution-tests",
       "active_status": "onhold",
       "codebase": "stubattribution-tests",
-      "repository_group": 5,
+      "repository_group": [
+        "qa automation tests"
+      ],
       "description": "Tests for the stub attribution service",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 94,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1290,13 +1379,14 @@
       "url": "https://github.com/mozilla/treeherder",
       "active_status": "onhold",
       "codebase": "treeherder",
-      "repository_group": 5,
+      "repository_group": [
+        "qa automation tests"
+      ],
       "description": "A system for managing CI data for Mozilla projects",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 95,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1304,13 +1394,14 @@
       "url": "https://hg.mozilla.org/releases/mozilla-esr60",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 2,
+      "repository_group": [
+        "release-stabilization"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 96,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1318,13 +1409,14 @@
       "url": "https://hg.mozilla.org/releases/comm-esr60",
       "active_status": "onhold",
       "codebase": "comm",
-      "repository_group": 8,
+      "repository_group": [
+        "comm-repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 97,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1332,13 +1424,14 @@
       "url": "https://hg.mozilla.org/ci/ci-admin",
       "active_status": "onhold",
       "codebase": "ci-admin",
-      "repository_group": 9,
+      "repository_group": [
+        "ci"
+      ],
       "description": "Administrative scripts for Firefox CI",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 98,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1346,13 +1439,14 @@
       "url": "https://hg.mozilla.org/ci/ci-configuration",
       "active_status": "onhold",
       "codebase": "ci-admin",
-      "repository_group": 9,
+      "repository_group": [
+        "ci"
+      ],
       "description": "Administrative configuration for Firefox CI",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 99,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1360,14 +1454,15 @@
       "url": "https://github.com/servo/servo",
       "active_status": "active",
       "codebase": "servo",
-      "repository_group": 10,
+      "repository_group": [
+        "servo"
+      ],
       "description": "The Servo Parallel Browser Engine − try (multiple branches)",
       "expire_performance_data": false,
       "tc_root_url": "https://community-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 100,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1375,14 +1470,15 @@
       "url": "https://github.com/servo/servo",
       "active_status": "active",
       "codebase": "servo",
-      "repository_group": 10,
+      "repository_group": [
+        "servo"
+      ],
       "description": "The Servo Parallel Browser Engine − auto: testing PRs after review and before merging to master.",
       "expire_performance_data": false,
       "tc_root_url": "https://community-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 101,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1390,14 +1486,15 @@
       "url": "https://github.com/servo/servo",
       "active_status": "onhold",
       "codebase": "servo",
-      "repository_group": 10,
+      "repository_group": [
+        "servo"
+      ],
       "description": "The Servo Parallel Browser Engine − try, Taskcluster only",
       "expire_performance_data": false,
       "tc_root_url": "https://community-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 102,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1405,7 +1502,9 @@
       "url": "https://github.com/servo/servo",
       "active_status": "onhold",
       "codebase": "servo",
-      "repository_group": 10,
+      "repository_group": [
+        "servo"
+      ],
       "description": "The Servo Parallel Browser Engine − pull requests",
       "expire_performance_data": false,
       "accepts_pull_requests": true,
@@ -1413,7 +1512,6 @@
     }
   },
   {
-    "pk": 103,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1421,13 +1519,14 @@
       "url": "https://github.com/taskcluster/taskgraph",
       "active_status": "active",
       "codebase": "taskgraph",
-      "repository_group": 9,
+      "repository_group": [
+        "ci"
+      ],
       "description": "Tools for defining graphs for taskclutser tasks",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 104,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1435,14 +1534,15 @@
       "url": "https://hg.mozilla.org/ci/taskgraph-try",
       "active_status": "onhold",
       "codebase": "taskgraph",
-      "repository_group": 9,
+      "repository_group": [
+        "ci"
+      ],
       "description": "Tools for defining graphs fo taskclutser tasks",
       "is_try_repo": true,
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 105,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1450,13 +1550,14 @@
       "url": "https://hg.mozilla.org/ci/ci-admin-try",
       "active_status": "onhold",
       "codebase": "ci-admin",
-      "repository_group": 9,
+      "repository_group": [
+        "ci"
+      ],
       "description": "Administrative scripts for Firefox CI",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 106,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1464,13 +1565,14 @@
       "url": "https://hg.mozilla.org/ci/ci-configuration-try",
       "active_status": "onhold",
       "codebase": "ci-admin",
-      "repository_group": 9,
+      "repository_group": [
+        "ci"
+      ],
       "description": "Administrative configuration for Firefox CI",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 107,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1478,13 +1580,14 @@
       "url": "https://github.com/mozilla-mobile/reference-browser",
       "active_status": "active",
       "codebase": "reference-browser",
-      "repository_group": 11,
+      "repository_group": [
+        "mobile"
+      ],
       "description": "A full-featured browser reference implementation using Mozilla Android Components",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 108,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1492,13 +1595,14 @@
       "url": "https://github.com/mozilla-mobile/fenix",
       "active_status": "onhold",
       "codebase": "fenix",
-      "repository_group": 11,
+      "repository_group": [
+        "mobile"
+      ],
       "description": "Fenix is not your parent's Android browser",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 109,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1506,13 +1610,14 @@
       "url": "https://hg.mozilla.org/releases/mozilla-esr68",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 2,
+      "repository_group": [
+        "release-stabilization"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 110,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1520,13 +1625,14 @@
       "url": "https://hg.mozilla.org/releases/comm-esr68",
       "active_status": "onhold",
       "codebase": "comm",
-      "repository_group": 8,
+      "repository_group": [
+        "comm-repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 111,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1534,13 +1640,14 @@
       "url": "https://github.com/mozilla-mobile/android-components",
       "active_status": "onhold",
       "codebase": "android-components",
-      "repository_group": 11,
+      "repository_group": [
+        "mobile"
+      ],
       "description": "A collection of Android libraries to build browsers or browser-like applications.",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 112,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1548,13 +1655,14 @@
       "url": "https://hg.mozilla.org/projects/kaios",
       "active_status": "onhold",
       "codebase": "kaios",
-      "repository_group": 12,
+      "repository_group": [
+        "kaios"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 113,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1562,13 +1670,14 @@
       "url": "https://hg.mozilla.org/projects/kaios-try",
       "active_status": "onhold",
       "codebase": "kaios",
-      "repository_group": 12,
+      "repository_group": [
+        "kaios"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 114,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1576,14 +1685,15 @@
       "url": "https://hg.mozilla.org/releases/mozilla-esr78",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 2,
+      "repository_group": [
+        "release-stabilization"
+      ],
       "life_cycle_order": 10000,
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 115,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1591,13 +1701,14 @@
       "url": "https://hg.mozilla.org/releases/comm-esr78",
       "active_status": "onhold",
       "codebase": "comm",
-      "repository_group": 8,
+      "repository_group": [
+        "comm-repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 116,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1605,14 +1716,15 @@
       "url": "https://hg.mozilla.org/releases/mozilla-esr91",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 2,
+      "repository_group": [
+        "release-stabilization"
+      ],
       "life_cycle_order": 9999,
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 117,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1620,13 +1732,14 @@
       "url": "https://hg.mozilla.org/releases/comm-esr91",
       "active_status": "onhold",
       "codebase": "comm",
-      "repository_group": 8,
+      "repository_group": [
+        "comm-repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 118,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1634,13 +1747,14 @@
       "url": "https://github.com/mozilla-mobile/mozilla-vpn-client",
       "active_status": "active",
       "codebase": "mozilla-vpn-client",
-      "repository_group": 7,
+      "repository_group": [
+        "other"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 119,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1648,13 +1762,14 @@
       "url": "https://github.com/mozilla-mobile/focus-android",
       "active_status": "onhold",
       "codebase": "focus-android",
-      "repository_group": 11,
+      "repository_group": [
+        "mobile"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 120,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1662,13 +1777,14 @@
       "url": "https://github.com/mozilla-releng/staging-focus-android",
       "active_status": "onhold",
       "codebase": "staging-focus-android",
-      "repository_group": 11,
+      "repository_group": [
+        "mobile"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 121,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1676,13 +1792,14 @@
       "url": "https://github.com/mozilla-releng/staging-fenix",
       "active_status": "onhold",
       "codebase": "staging-fenix",
-      "repository_group": 11,
+      "repository_group": [
+        "mobile"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 122,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1690,13 +1807,14 @@
       "url": "https://github.com/mozilla-mobile/mozilla-vpn-client",
       "active_status": "active",
       "codebase": "mozilla-vpn-client",
-      "repository_group": 7,
+      "repository_group": [
+        "other"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 123,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1704,14 +1822,15 @@
       "url": "https://hg.mozilla.org/releases/mozilla-esr102",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 2,
+      "repository_group": [
+        "release-stabilization"
+      ],
       "life_cycle_order": 9998,
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 124,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1719,13 +1838,14 @@
       "url": "https://hg.mozilla.org/releases/comm-esr102",
       "active_status": "onhold",
       "codebase": "comm",
-      "repository_group": 8,
+      "repository_group": [
+        "comm-repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 125,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1733,13 +1853,14 @@
       "url": "https://hg.mozilla.org/projects/pine-stable",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 6,
+      "repository_group": [
+        "project repositories"
+      ],
       "description": "Stabilization for pine repository",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 126,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1747,13 +1868,14 @@
       "url": "https://hg.mozilla.org/projects/toolchains",
       "active_status": "active",
       "codebase": "gecko",
-      "repository_group": 6,
+      "repository_group": [
+        "project repositories"
+      ],
       "description": "project branch for clang-trunk builds",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 127,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1761,14 +1883,15 @@
       "url": "https://github.com/mozilla-mobile/firefox-android",
       "active_status": "onhold",
       "codebase": "firefox-android",
-      "repository_group": 11,
+      "repository_group": [
+        "mobile"
+      ],
       "performance_alerts_enabled": true,
       "expire_performance_data": false,
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 128,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1776,13 +1899,14 @@
       "url": "https://github.com/mozilla-releng/staging-android-components",
       "active_status": "onhold",
       "codebase": "staging-android-components",
-      "repository_group": 11,
+      "repository_group": [
+        "mobile"
+      ],
       "description": "staging repository for android-components release engineering",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 129,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1790,13 +1914,14 @@
       "url": "https://github.com/mozilla/firefox-translations-training",
       "active_status": "active",
       "codebase": "firefox-translations-training",
-      "repository_group": 7,
+      "repository_group": [
+        "other"
+      ],
       "description": "firefox translations training",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 130,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1804,13 +1929,14 @@
       "url": "https://github.com/mozilla-releng/staging-firefox-translations-training",
       "active_status": "active",
       "codebase": "staging-firefox-translations-training",
-      "repository_group": 7,
+      "repository_group": [
+        "other"
+      ],
       "description": "staging repository for firefox translations training release engineering work",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 131,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1818,14 +1944,15 @@
       "url": "https://github.com/mozilla-mobile/firefox-ios",
       "active_status": "active",
       "codebase": "firefox-ios",
-      "repository_group": 11,
+      "repository_group": [
+        "mobile"
+      ],
       "performance_alerts_enabled": true,
       "expire_performance_data": false,
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 132,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1833,14 +1960,15 @@
       "url": "https://hg.mozilla.org/releases/mozilla-esr115",
       "active_status": "active",
       "codebase": "gecko",
-      "repository_group": 2,
+      "repository_group": [
+        "release-stabilization"
+      ],
       "life_cycle_order": 9997,
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 133,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1848,13 +1976,14 @@
       "url": "https://hg.mozilla.org/releases/comm-esr115",
       "active_status": "active",
       "codebase": "comm",
-      "repository_group": 8,
+      "repository_group": [
+        "comm-repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 134,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1862,12 +1991,13 @@
       "url": "https://github.com/mozilla/application-services",
       "active_status": "active",
       "codebase": "application-services",
-      "repository_group": 11,
+      "repository_group": [
+        "mobile"
+      ],
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 135,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1875,13 +2005,14 @@
       "url": "https://hg.mozilla.org/releases/comm-release",
       "active_status": "active",
       "codebase": "comm",
-      "repository_group": 8,
+      "repository_group": [
+        "comm-repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 136,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1889,14 +2020,15 @@
       "url": "https://hg.mozilla.org/releases/mozilla-esr128",
       "active_status": "onhold",
       "codebase": "gecko",
-      "repository_group": 2,
+      "repository_group": [
+        "release-stabilization"
+      ],
       "life_cycle_order": 9996,
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 137,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1904,13 +2036,14 @@
       "url": "https://hg.mozilla.org/releases/comm-esr128",
       "active_status": "onhold",
       "codebase": "comm",
-      "repository_group": 8,
+      "repository_group": [
+        "comm-repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 138,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1918,14 +2051,15 @@
       "url": "https://github.com/mozilla-mobile/staging-firefox-ios",
       "active_status": "active",
       "codebase": "firefox-ios",
-      "repository_group": 11,
+      "repository_group": [
+        "mobile"
+      ],
       "performance_alerts_enabled": false,
       "expire_performance_data": false,
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 139,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1933,14 +2067,15 @@
       "url": "https://hg.mozilla.org/releases/mozilla-esr140",
       "active_status": "active",
       "codebase": "gecko",
-      "repository_group": 2,
+      "repository_group": [
+        "release-stabilization"
+      ],
       "life_cycle_order": 9995,
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 140,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "hg",
@@ -1948,13 +2083,14 @@
       "url": "https://hg.mozilla.org/releases/comm-esr140",
       "active_status": "active",
       "codebase": "comm",
-      "repository_group": 8,
+      "repository_group": [
+        "comm-repositories"
+      ],
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 141,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1962,12 +2098,13 @@
       "url": "https://github.com/mozilla-platform-ops/worker-images",
       "active_status": "active",
       "codebase": "worker-images",
-      "repository_group": 9,
+      "repository_group": [
+        "ci"
+      ],
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 142,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1975,12 +2112,13 @@
       "url": "https://github.com/mozilla/enterprise-firefox",
       "active_status": "active",
       "codebase": "enterprise-firefox",
-      "repository_group": 13,
+      "repository_group": [
+        "enterprise-firefox"
+      ],
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 143,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -1988,13 +2126,14 @@
       "url": "https://github.com/mozilla/enterprise-firefox",
       "active_status": "active",
       "codebase": "enterprise-firefox",
-      "repository_group": 13,
+      "repository_group": [
+        "enterprise-firefox"
+      ],
       "accepts_pull_requests": true,
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 144,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -2002,12 +2141,13 @@
       "url": "https://github.com/mozilla/enterprise-firefox",
       "active_status": "active",
       "codebase": "enterprise-firefox",
-      "repository_group": 13,
+      "repository_group": [
+        "enterprise-firefox"
+      ],
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 145,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -2015,12 +2155,13 @@
       "url": "https://github.com/mozilla/enterprise-firefox",
       "active_status": "active",
       "codebase": "enterprise-firefox",
-      "repository_group": 13,
+      "repository_group": [
+        "enterprise-firefox"
+      ],
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
-    "pk": 146,
     "model": "model.repository",
     "fields": {
       "dvcs_type": "git",
@@ -2028,7 +2169,9 @@
       "url": "https://github.com/mozilla/enterprise-firefox-try",
       "active_status": "active",
       "codebase": "enterprise-firefox",
-      "repository_group": 13,
+      "repository_group": [
+        "enterprise-firefox"
+      ],
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   }
