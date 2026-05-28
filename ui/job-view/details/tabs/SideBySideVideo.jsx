@@ -27,6 +27,7 @@ function SideBySideVideo({ videos }) {
   }, [videos]);
 
   const { url, value } = activeVideo;
+  const mp4Url = url.replace(/\.gif$/, '.mp4');
 
   return (
     <div className="w-100">
@@ -51,10 +52,10 @@ function SideBySideVideo({ videos }) {
       </div>
       <div>
         <a
-          href={url}
+          href={mp4Url}
           target="_blank"
           rel="noopener noreferrer"
-          title="Open artifact in new tab"
+          title="Open MP4 video in new tab"
         >
           <img src={url} width="100%" alt={activeVideo.value} />
         </a>
