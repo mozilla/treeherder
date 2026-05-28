@@ -25,11 +25,15 @@ export default class AlertActionPanel extends React.Component {
     };
   }
 
-  modifySelectedAlerts = (selectedAlerts, modification) => {
+  modifySelectedAlerts = async (selectedAlerts, modification) => {
     const { modifyAlert = modifyAlertHelper } = this.props;
-    return Promise.all(
-      selectedAlerts.map((alert) => modifyAlert(alert, modification)),
-    );
+    const responses = [];
+
+    for (const alert of selectedAlerts) {
+      const response = await modifyAlert(alert, modification);
+      responses.push(response);
+    }
+    return responses
   };
 
   updateAndFetch = async (newStatus, alertId = null) => {
