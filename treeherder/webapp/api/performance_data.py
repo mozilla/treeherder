@@ -594,14 +594,14 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
         for summary in page:
             push_id = summary.push_id
             prev_push_id = summary.prev_push_id
+            all_push_ids.add(push_id)
+            all_push_ids.add(prev_push_id)
             for alert in summary.alerts.all():
                 sig = alert.series_signature
                 target_keys.add((sig.id, push_id))
                 target_keys.add((sig.id, prev_push_id))
                 all_repo_ids.add(sig.repository_id)
                 all_sig_ids.add(sig.id)
-                all_push_ids.add(push_id)
-                all_push_ids.add(prev_push_id)
             for alert in summary.related_alerts.all():
                 sig = alert.series_signature
                 rs_push_id = alert.summary.push_id
