@@ -425,7 +425,7 @@ export default class AlertTableRow extends React.Component {
     return (
       <tr
         className={`align-middle ${
-          alertSummary.notes ? 'border-top border-left border-right' : 'border'
+          alertSummary.notes ? 'border-top border-start border-end' : 'border'
         }`}
         aria-label="Alert table row"
         data-testid={alert.id}

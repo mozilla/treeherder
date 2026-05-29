@@ -465,7 +465,7 @@ export default class AlertTable extends React.Component {
                     <tr
                       className={`${
                         alertSummary.notes
-                          ? 'border-top border-left border-right'
+                          ? 'border-top border-start border-end'
                           : 'border'
                       }`}
                     >
