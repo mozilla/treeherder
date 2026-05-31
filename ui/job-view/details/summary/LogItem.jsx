@@ -47,7 +47,24 @@ export default function LogItem(props) {
     logViewerFullUrl = null,
     logKey,
     logDescription,
+    taskExpired = false,
   } = props;
+
+  // When the Taskcluster task has expired, its log artifacts are gone too, so
+  // render a disabled button explaining why rather than a dead link.
+  if (taskExpired) {
+    return (
+      <li key={logKey}>
+        <Button
+          className="logviewer-btn disabled bg-transparent border-0"
+          title="Taskcluster task expired — log no longer available"
+          aria-label="Taskcluster task expired — log no longer available"
+        >
+          {props.children}
+        </Button>
+      </li>
+    );
+  }
 
   return (
     <li key={logKey}>
@@ -113,4 +130,5 @@ LogItem.propTypes = {
   logUrls: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   logViewerUrl: PropTypes.string,
   logViewerFullUrl: PropTypes.string,
+  taskExpired: PropTypes.bool,
 };

@@ -18,6 +18,7 @@ export function useLogViewer({
   const [lines, setLines] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [errorStatus, setErrorStatus] = useState(null);
 
   const [searchTerm, setSearchTermState] = useState('');
   const [matchLineNumbers, setMatchLineNumbers] = useState([]);
@@ -43,19 +44,23 @@ export function useLogViewer({
       setLines([]);
       setIsLoading(false);
       setError(null);
+      setErrorStatus(null);
       return;
     }
 
     let cancelled = false;
     setIsLoading(true);
     setError(null);
+    setErrorStatus(null);
 
     fetch(url)
       .then((response) => {
         if (!response.ok) {
-          throw new Error(
+          const err = new Error(
             `Failed to fetch log: ${response.status} ${response.statusText}`,
           );
+          err.status = response.status;
+          throw err;
         }
         return response.text();
       })
@@ -68,6 +73,7 @@ export function useLogViewer({
       .catch((err) => {
         if (cancelled) return;
         setError(err.message);
+        setErrorStatus(err.status ?? null);
         setLines([]);
         setIsLoading(false);
       });
@@ -269,6 +275,7 @@ export function useLogViewer({
       lineCount,
       isLoading,
       error,
+      errorStatus,
       // Search
       searchTerm,
       setSearchTerm,
@@ -299,6 +306,7 @@ export function useLogViewer({
       lineCount,
       isLoading,
       error,
+      errorStatus,
       searchTerm,
       setSearchTerm,
       matchLineNumbers,

@@ -58,8 +58,20 @@ describe('useLogViewer', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     expect(result.current.error).toBe('Failed to fetch log: 404 Not Found');
+    expect(result.current.errorStatus).toBe(404);
     expect(result.current.lines).toEqual([]);
     expect(result.current.lineCount).toBe(0);
+  });
+
+  test('errorStatus is null for non-HTTP failures', async () => {
+    global.fetch.mockRejectedValue(new Error('Network down'));
+
+    const { result } = renderHook(() => useLogViewer({ url: 'http://bad.txt' }));
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(result.current.error).toBe('Network down');
+    expect(result.current.errorStatus).toBeNull();
   });
 
   test('returns empty state when no URL', () => {
