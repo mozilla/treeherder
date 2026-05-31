@@ -8,6 +8,7 @@ import newrelic.agent
 import numpy as np
 from django.conf import settings
 from django.db import transaction
+from django.db.models import Exists, OuterRef, Subquery
 
 from treeherder.perf.email import AlertNotificationWriter
 from treeherder.perf.methods.CramerVonMisesDetector import CramerVonMisesDetector
@@ -77,17 +78,32 @@ def _collect_replicates_map(signature, alert_after_ts) -> dict[int, list[float]]
     """Map each performance datum id to the list of its replicate values.
 
     Only datums for ``signature`` (and its repository) with a ``push_timestamp``
-    on or after ``alert_after_ts`` are considered. Filtering the replicates by
-    their parent datum is a plain join, which lets PostgreSQL seek the
-    ``(repository, signature, push_timestamp)`` index on ``performance_datum``.
-    The previous ``IN (SELECT ... WHERE EXISTS (...))`` form was equivalent --
-    a replicate row's parent datum is in the set by definition, so the EXISTS
-    only re-confirmed what the join already guarantees -- but more expensive.
+    on or after ``alert_after_ts`` are considered.
+
+    The two-step ``IN (SELECT ... WHERE EXISTS (...))`` shape looks redundant --
+    a replicate row's parent datum is in the set by definition -- but it is
+    load-bearing for the query planner. It first resolves the small set of datum
+    ids via the ``(repository, signature, push_timestamp)`` composite index, then
+    probes ``performance_datum_replicate`` by its ``performance_datum_id`` index.
+    A plain join instead lets PostgreSQL seq-scan a multi-hundred-million-row
+    table (measured on staging: ~22s vs ~53ms warm / 5.4s cold for this shape;
+    dropping the EXISTS alone regressed to ~65s). See PR #9550 review discussion.
     """
+    datum_with_replicates = (
+        PerformanceDatum.objects.filter(
+            signature=signature,
+            repository=signature.repository,
+            push_timestamp__gte=alert_after_ts,
+        )
+        .annotate(
+            has_replicate=Exists(
+                PerformanceDatumReplicate.objects.filter(performance_datum_id=OuterRef("pk"))
+            )
+        )
+        .filter(has_replicate=True)
+    )
     replicates = PerformanceDatumReplicate.objects.filter(
-        performance_datum__signature=signature,
-        performance_datum__repository=signature.repository,
-        performance_datum__push_timestamp__gte=alert_after_ts,
+        performance_datum_id__in=Subquery(datum_with_replicates.values("id"))
     ).values_list("performance_datum_id", "value")
     replicates_map: dict[int, list[float]] = {}
     for datum_id, value in replicates:
