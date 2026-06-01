@@ -1,6 +1,22 @@
 import { getUrlParam, setUrlParam } from '../helpers/location';
 
 /**
+ * Split raw log text into display lines using the SAME line-boundary rules the
+ * backend log parser uses, so displayed line numbers line up with the error
+ * `line_number`s the backend records.
+ *
+ * The parser counts lines via `requests.iter_lines()` (Python's
+ * `bytes.splitlines()`), which breaks on `\n`, `\r`, AND `\r\n`. A plain
+ * `text.split('\n')` misses bare carriage returns — common in test progress
+ * output — so every line after a `\r` drifts, and the red error highlight lands
+ * a few lines off from the actual failure line. Splitting on the same set of
+ * separators keeps the viewer aligned with the parser. Handling `\r\n` as one
+ * break (rather than splitting on `\n` alone) also drops the stray trailing
+ * `\r` that CRLF logs would otherwise leave on every line.
+ */
+export const splitLogIntoLines = (text) => text.split(/\r\n|\r|\n/);
+
+/**
  * Read the lineNumber URL param as an array of one or two ints, or null.
  */
 export const getUrlLineNumber = () => {
