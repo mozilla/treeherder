@@ -84,7 +84,6 @@ class MainRemovalStrategy(RemovalStrategy):
         Although the WHERE clause in del_replicate looks redundant, it is intentionally kept to guide
         the PostgreSQL planner toward a more efficient execution plan.
         """
-        chunk_size = self._find_ideal_chunk_size()
         using.execute(
             """
             WITH target_datum AS (
@@ -116,20 +115,12 @@ class MainRemovalStrategy(RemovalStrategy):
             USING target_datum td
             WHERE pd.id = td.id
             """,
-            [self._max_timestamp, chunk_size, self._max_timestamp],
+            [self._max_timestamp, self._chunk_size, self._max_timestamp],
         )
 
     @property
     def name(self) -> str:
         return "main removal strategy"
-
-    def _find_ideal_chunk_size(self) -> int:
-        max_id = self._manager.filter(push_timestamp__gt=self._max_timestamp).order_by("-id")[0].id
-        older_ids = self._manager.filter(
-            push_timestamp__lte=self._max_timestamp, id__lte=max_id
-        ).order_by("id")[: self._chunk_size]
-
-        return len(older_ids) or self._chunk_size
 
 
 class TryDataRemoval(RemovalStrategy):
@@ -323,7 +314,6 @@ class IrrelevantDataRemoval(RemovalStrategy):
         Although the WHERE clause in del_replicate looks redundant, it is intentionally kept to guide
         the PostgreSQL planner toward a more efficient execution plan.
         """
-        chunk_size = self._find_ideal_chunk_size()
         repository_id = self.irrelevant_repo
         using.execute(
             """
@@ -357,24 +347,14 @@ class IrrelevantDataRemoval(RemovalStrategy):
             USING target_datum td
             WHERE pd.id = td.id
             """,
-            [repository_id, self._max_timestamp, chunk_size, repository_id, self._max_timestamp],
+            [
+                repository_id,
+                self._max_timestamp,
+                self._chunk_size,
+                repository_id,
+                self._max_timestamp,
+            ],
         )
-
-    def _find_ideal_chunk_size(self) -> int:
-        max_id_of_non_expired_row = (
-            self._manager.filter(push_timestamp__gt=self._max_timestamp)
-            .filter(repository_id__in=self.irrelevant_repositories)
-            .order_by("-id")[0]
-            .id
-        )
-        older_perf_data_rows = (
-            self._manager.filter(
-                push_timestamp__lte=self._max_timestamp, id__lte=max_id_of_non_expired_row
-            )
-            .filter(repository_id__in=self.irrelevant_repositories)
-            .order_by("id")[: self._chunk_size]
-        )
-        return len(older_perf_data_rows) or self._chunk_size
 
 
 class StalledDataRemoval(RemovalStrategy):
