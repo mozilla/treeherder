@@ -58,8 +58,8 @@ importers:
         specifier: 1.11.20
         version: 1.11.20
       fuse.js:
-        specifier: 6.0.4
-        version: 6.0.4
+        specifier: 7.3.0
+        version: 7.3.0
       js-cookie:
         specifier: 3.0.7
         version: 3.0.7
@@ -3051,8 +3051,8 @@ packages:
   function-bind@1.1.2:
     resolution: {integrity: sha512-7XHNxH7qX9xG5mIwxkhumTox/MIRNcOgDrxWsMt2pAr23WHp6MrRlN7FBSFpCpr+oVO0F744iUgR82nJMfG2SA==}
 
-  fuse.js@6.0.4:
-    resolution: {integrity: sha512-XAeQaT+DV8dxqohN911+Qzkb4iMzTzae04mdb9/XSQbMjbsFasQxe0+UwM+3UWP+8vO7svz1Rj0KuQw6xJ45Ww==}
+  fuse.js@7.3.0:
+    resolution: {integrity: sha512-plz8RVjfcDedTGfVngWH1jmJvBvAwi1v2jecfDerbEnMcmOYUEEwKFTHbNoCiYyzaK2Ws8lABkTCcRSqCY1q4w==}
     engines: {node: '>=10'}
 
   generator-function@2.0.1:
@@ -8769,7 +8769,7 @@ snapshots:
 
   function-bind@1.1.2: {}
 
-  fuse.js@6.0.4: {}
+  fuse.js@7.3.0: {}
 
   generator-function@2.0.1: {}
 
