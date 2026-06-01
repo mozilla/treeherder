@@ -94,6 +94,18 @@ export const alertStatusMap = {
   acknowledged: 4,
 };
 
+export const bugStatusMap = {
+  new: 0,
+  fixed: 1,
+  invalid: 2,
+  inactive: 3,
+  duplicate: 4,
+  wontfix: 5,
+  worksforme: 6,
+  incomplete: 7,
+  moved: 8,
+};
+
 export const alertBackfillResultStatusMap = {
   preliminary: 0,
   readyForProcessing: 1,
