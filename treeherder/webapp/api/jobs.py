@@ -17,6 +17,7 @@ from treeherder.model.models import (
     JobLog,
     OptionCollection,
     Repository,
+    StructuredLogError,
     TextLogError,
 )
 from treeherder.webapp.api import pagination, serializers
@@ -399,6 +400,21 @@ class JobsProjectViewSet(viewsets.ViewSet):
             return Response(f"No job with id: {pk}", status=HTTP_404_NOT_FOUND)
 
         return Response(get_error_summary(job))
+
+    @action(detail=True, methods=["get"])
+    def structured_log_errors(self, request, project, pk=None):
+        """
+        Gets parsed structured log errors for this job, if any have been ingested.
+        """
+        try:
+            job = Job.objects.get(repository__name=project, id=pk)
+        except ObjectDoesNotExist:
+            return Response(f"No job with id: {pk}", status=HTTP_404_NOT_FOUND)
+
+        errors = StructuredLogError.objects.filter(job_log__job=job).order_by("id")
+        return Response(
+            serializers.StructuredLogErrorSerializer(errors, many=True, read_only=True).data
+        )
 
     @action(detail=True, methods=["get"])
     def similar_jobs(self, request, project, pk=None):

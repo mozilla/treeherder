@@ -344,7 +344,7 @@ def _schedule_log_parsing(job, job_logs, result, repository):
     # importing here to avoid an import loop
     from treeherder.log_parser.tasks import parse_logs
 
-    task_types = {"errorsummary_json", "live_backing_log"}
+    task_types = {"errorsummary_json", "live_backing_log", "structured_log"}
     sheriffed_repos = {
         "autoland",
         "mozilla-central",
