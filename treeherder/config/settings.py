@@ -279,6 +279,9 @@ SILENCED_SYSTEM_CHECKS = [
     # INSTALLED_APPS. The toolbar is only added conditionally (when DEBUG=True at
     # startup), but tests may toggle DEBUG at runtime, triggering this check.
     "debug_toolbar.E001",
+    # drf-spectacular raises E001 on Python 3.14 due to _UnionGenericAlias
+    # deprecation in typing module. Safe to silence until drf-spectacular is updated.
+    "drf_spectacular.E001",
 ]
 
 # User Agents
