@@ -261,9 +261,7 @@ export default class JobArtifacts extends React.PureComponent {
                 }
 
                 const isProfileArtifact =
-                  !!line.url &&
-                  line.value.startsWith('profile_') &&
-                  (line.value.endsWith('.zip') || line.value.endsWith('.json'));
+                  !!line.url && line.value.startsWith('profile_');
                 const primaryUrl = isProfileArtifact
                   ? getPerfAnalysisUrl(line.url, selectedJob)
                   : line.url;

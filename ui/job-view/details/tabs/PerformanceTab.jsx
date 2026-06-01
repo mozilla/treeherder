@@ -98,10 +98,6 @@ class PerformanceTab extends React.PureComponent {
       return PROFILE_ZIP_RELEVANCE;
     }
 
-    if (!value.endsWith('.json') && !value.endsWith('.json.gz')) {
-      return NO_PROFILE_RELEVANCE;
-    }
-
     if (value === 'profile_resource-usage.json') {
       return PROFILE_RESOURCE_RELEVANCE;
     }
