@@ -6,6 +6,7 @@ import {
   faPlusSquare,
 } from '@fortawesome/free-regular-svg-icons';
 import {
+  faCodeBranch,
   faExternalLinkAlt,
   faThumbtack,
   faTimesCircle,
@@ -43,6 +44,7 @@ function PushHeader({
   pushId,
   pushTimestamp,
   author,
+  branch = null,
   revision = null,
   filterModel,
   runnableVisible,
@@ -169,6 +171,17 @@ function PushHeader({
               -{' '}
             </span>
             <Link to={authorPushFilterUrl}>{author}</Link>
+            {branch && (
+              <Badge
+                bg="secondary"
+                className="ms-2 push-branch-badge"
+                title={`This push came from the "${branch}" branch`}
+                data-testid="push-branch-badge"
+              >
+                <FontAwesomeIcon icon={faCodeBranch} className="me-1" />
+                {branch}
+              </Badge>
+            )}
           </span>
         </span>
         <PushCounts
@@ -258,6 +271,7 @@ PushHeader.propTypes = {
   pushId: PropTypes.number.isRequired,
   pushTimestamp: PropTypes.number.isRequired,
   author: PropTypes.string.isRequired,
+  branch: PropTypes.string,
   revision: PropTypes.string,
   filterModel: PropTypes.shape({}).isRequired,
   runnableVisible: PropTypes.bool.isRequired,

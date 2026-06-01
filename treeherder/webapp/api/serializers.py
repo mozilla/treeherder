@@ -283,6 +283,7 @@ class PushSerializer(serializers.ModelSerializer):
             "id",
             "revision",
             "author",
+            "branch",
             "revisions",
             "revision_count",
             "push_timestamp",
