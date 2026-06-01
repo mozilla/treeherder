@@ -19,6 +19,7 @@ def store_push(repository, push_dict):
             defaults={
                 "author": push_dict["author"],
                 "time": datetime.utcfromtimestamp(push_dict["push_timestamp"]),
+                "branch": push_dict.get("branch"),
             },
         )
         for revision in push_dict["revisions"]:

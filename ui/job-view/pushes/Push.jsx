@@ -607,6 +607,7 @@ function Push({
     revisions,
     revision_count: revisionCount,
     author,
+    branch,
   } = push;
   const tipRevision = push.revisions[0];
   const decisionTask = decisionTaskMap[push.id];
@@ -643,6 +644,7 @@ function Push({
         pushId={id}
         pushTimestamp={pushTimestamp}
         author={author}
+        branch={branch}
         revision={revision}
         jobCounts={jobCounts}
         watchState={watched}
