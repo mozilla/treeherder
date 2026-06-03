@@ -232,6 +232,8 @@ If you need the profiling jobs [you can trigger them yourself from treeherder jo
 
 You can run all of these tests on try with \`./mach try perf --alert {{ alertSummaryId }}\`
 
+You can run all of these tests locally with \`./mach try perftest {{ alertSummaryId }}\`
+
 The following [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) provides more information about this command.
     `;
 
@@ -247,6 +249,8 @@ Details of the alert can be found in the [alert summary]({{ alertHref }}), inclu
 If you need the profiling jobs [you can trigger them yourself from treeherder job view](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) or ask a performance sheriff to do that for you.
 
 You can run all of these tests on try with \`./mach try perf --alert {{ alertSummaryId }}\`
+
+You can run all of these tests locally with \`./mach try perftest {{ alertSummaryId }}\`
 
 The following [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) provides more information about this command.
     `;
