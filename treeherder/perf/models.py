@@ -353,7 +353,7 @@ class PerformanceAlertSummaryBase(models.Model):
     WONTFIX = 6
     FIXED = 7
     BACKED_OUT = 8
-    INFRA = 10  # skip 9 to avoid collision with "all regressions: 9"
+    INFRA = 9
 
     STATUSES = (
         (UNTRIAGED, "Untriaged"),

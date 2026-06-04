@@ -71,7 +71,8 @@ export const phPlatformsIconsMap = {
 };
 
 export const summaryStatusMap = {
-  'all statuses': -1,
+  'all statuses': -2,
+  'all regressions': -1,
   untriaged: 0,
   downstream: 1,
   // Reassigned is in the performance_alert_summary model but it isn't a valid status parameter
@@ -83,8 +84,7 @@ export const summaryStatusMap = {
   wontfix: 6,
   fixed: 7,
   backedout: 8,
-  'all regressions': 9,
-  infra: 10,
+  infra: 9,
 };
 
 export const alertStatusMap = {
