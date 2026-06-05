@@ -13,7 +13,7 @@ class BackfillTool:
     def __init__(self, taskcluster_model: TaskclusterModel):
         self.__taskcluster = taskcluster_model
 
-    def backfill_job(self, job: Job | str) -> str:
+    def backfill_job(self, job: Job | str, alert_id=None) -> str:
         if not isinstance(job, Job):
             job = self._fetch_job_by_id(job)
 
@@ -25,7 +25,9 @@ class BackfillTool:
         decision_task_id = decision_job.taskcluster_metadata.task_id
 
         if "browsertime" in job.job_group.name.lower():
-            logger.debug(f"Requesting side_by_side for task {task_id_to_backfill}...")
+            logger.info(
+                f"Requesting side_by_side for task {task_id_to_backfill} [alert_id={alert_id}, job_id={job.id}]"
+            )
             side_by_side_task_id = self.__taskcluster.trigger_action(
                 action="side-by-side",
                 task_id=task_id_to_backfill,
@@ -34,9 +36,11 @@ class BackfillTool:
                 root_url=job.repository.tc_root_url,
             )
             logger.info(
-                f"Task id {side_by_side_task_id} created when triggered side_by_side for job id {task_id_to_backfill}"
+                f"side_by_side triggered, result task_id={side_by_side_task_id} [alert_id={alert_id}, job_id={job.id}]"
             )
-        logger.debug(f"Requesting backfill for task {task_id_to_backfill}...")
+        logger.info(
+            f"Requesting backfill for task {task_id_to_backfill} [alert_id={alert_id}, job_id={job.id}]"
+        )
         task_id = self.__taskcluster.trigger_action(
             action="backfill",
             task_id=task_id_to_backfill,
@@ -46,6 +50,9 @@ class BackfillTool:
                 "slices": 3,
             },
             root_url=job.repository.tc_root_url,
+        )
+        logger.info(
+            f"Backfill triggered, result task_id={task_id} [alert_id={alert_id}, job_id={job.id}]"
         )
         return task_id
 

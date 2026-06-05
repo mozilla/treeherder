@@ -347,7 +347,9 @@ class TestVerifyAndIterate:
 
         with (
             patch.object(secretary, "re_run_detect_changes", return_value=(push_id, 2.5, [])),
-            patch.object(secretary, "_calculate_gap_size", return_value=0),
+            patch(
+                "treeherder.perf.auto_perf_sheriffing.secretary.calculate_gap_size", return_value=0
+            ),
         ):
             secretary.verify_and_iterate(record_successful)
 
@@ -362,7 +364,9 @@ class TestVerifyAndIterate:
 
         with (
             patch.object(secretary, "re_run_detect_changes", return_value=(push_id, 2.5, [])),
-            patch.object(secretary, "_calculate_gap_size", return_value=3),
+            patch(
+                "treeherder.perf.auto_perf_sheriffing.secretary.calculate_gap_size", return_value=3
+            ),
         ):
             secretary.verify_and_iterate(record_successful)
 
@@ -418,14 +422,17 @@ class TestVerifyAndIterate:
         push_id = record_successful.last_detected_push_id
 
         # Simulate a previous log entry with gap_size=3
+        record_successful.iteration_count = 1
         record_successful.append_to_backfill_logs(
-            {"iteration": 0, "detected_push_gap_size": 3, "status": "stabilized_with_gap"}
+            {"iteration": 0, "detected_push_gap_size": 3, "status": "initial"}
         )
         record_successful.save()
 
         with (
             patch.object(secretary, "re_run_detect_changes", return_value=(push_id, 2.5, [])),
-            patch.object(secretary, "_calculate_gap_size", return_value=3),
+            patch(
+                "treeherder.perf.auto_perf_sheriffing.secretary.calculate_gap_size", return_value=3
+            ),
         ):
             secretary.verify_and_iterate(record_successful)
 
