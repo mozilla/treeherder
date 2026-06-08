@@ -13,7 +13,10 @@ import {
 import { Button, Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router';
 
-import TreeStatusModel, { treeStatusUiUrl } from '../../models/treeStatus';
+import TreeStatusModel, {
+  treeStatusUiUrl,
+  treeStatusName,
+} from '../../models/treeStatus';
 import BugLinkify from '../../shared/BugLinkify';
 import { updateRepoParams } from '../../helpers/location';
 
@@ -171,7 +174,7 @@ function WatchedRepo({ repoName, unwatchRepo, repo, setCurrentRepoTreeStatus }) 
           )}
           <Dropdown.Item
             tag="a"
-            href={`${treeStatusUiUrl()}${watchedRepo}`}
+            href={`${treeStatusUiUrl()}${treeStatusName(watchedRepo)}`}
             target="_blank"
             rel="noopener noreferrer"
           >

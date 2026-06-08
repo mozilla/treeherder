@@ -28,16 +28,21 @@ export function treeStatusUiUrl() {
   return _treeStatusUiUrl;
 }
 
+export function treeStatusName(repoName) {
+  if (repoMap.has(repoName)) {
+    return repoMap.get(repoName);
+  }
+  if (repoName.includes('-esr')) {
+    return `firefox-esr${repoName.split('-esr')[1]}`;
+  }
+  return repoName;
+}
+
 const apiUrl = `${_treeStatusApiUrl}trees/`;
 
 export default class TreeStatusModel {
   static get(repoName) {
-    let repoNameGit = repoName;
-    if (repoMap.has(repoName)) {
-      repoNameGit = repoMap.get(repoName);
-    } else if (repoName.includes('-esr')) {
-      repoNameGit = `firefox-esr${repoName.split('-esr')[1]}`;
-    }
+    const repoNameGit = treeStatusName(repoName);
     return fetch(`${apiUrl}${repoNameGit}`)
       .then(async (resp) => {
         if (resp.ok) {
