@@ -136,12 +136,7 @@ class ActionBar extends React.PureComponent {
   };
 
   createGeckoProfile = async () => {
-    const {
-      selectedJobFull,
-      notify,
-      decisionTaskMap,
-      currentRepo,
-    } = this.props;
+    const { selectedJobFull, decisionTaskMap, currentRepo } = this.props;
     return triggerTask(
       selectedJobFull,
       notify,
@@ -152,12 +147,7 @@ class ActionBar extends React.PureComponent {
   };
 
   createSideBySide = async () => {
-    const {
-      selectedJobFull,
-      notify,
-      decisionTaskMap,
-      currentRepo,
-    } = this.props;
+    const { selectedJobFull, decisionTaskMap, currentRepo } = this.props;
     await triggerTask(
       selectedJobFull,
       notify,

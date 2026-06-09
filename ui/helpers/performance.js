@@ -49,7 +49,7 @@ export async function triggerTask(
         }).then(
           () => {
             notify(
-              'Request sent to collect gecko profile job via actions.json',
+              `Request sent to generate ${taskName} job via actions.json`,
               'success',
             );
           },
