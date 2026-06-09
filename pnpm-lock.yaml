@@ -35,7 +35,7 @@ importers:
         version: 7.1.2(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(styled-components@6.1.19(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
       '@mui/styled-engine-sc':
         specifier: npm:@mui/styled-engine-sc@latest
-        version: 9.0.1(@types/react@19.2.8)(styled-components@6.1.19(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
+        version: 9.1.0(@types/react@19.2.8)(styled-components@6.1.19(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
       '@mui/x-date-pickers':
         specifier: 8.21.0
         version: 8.21.0(@mui/material@7.1.2(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(styled-components@6.1.19(react-dom@19.2.3(react@19.2.3))(react@19.2.3)))(@mui/system@7.3.7(@types/react@19.2.8)(react@19.2.3)(styled-components@6.1.19(react-dom@19.2.3(react@19.2.3))(react@19.2.3)))(@types/react@19.2.8)(dayjs@1.11.21)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -61,8 +61,8 @@ importers:
         specifier: 6.0.4
         version: 6.0.4
       js-cookie:
-        specifier: 3.0.7
-        version: 3.0.7
+        specifier: 3.0.8
+        version: 3.0.8
       js-yaml:
         specifier: 4.1.1
         version: 4.1.1
@@ -1236,8 +1236,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@mui/styled-engine-sc@9.0.1':
-    resolution: {integrity: sha512-v2gPwdxbdRLtS2Vg56YfD5UXYqen6hpWK+QOpa/TTG1t6tAsu2HnYljWOSfW5/3Pf+69oZxpCa6EnmU4CES3Jg==}
+  '@mui/styled-engine-sc@9.1.0':
+    resolution: {integrity: sha512-1RDdUfKhX931TMTMxM7t9LAxK2YDf0idwl5QbEa8MOfBS6viUEhnPwuBzbdyMnEm2mpr4/qhxt/+tPDEAdZD6w==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       styled-components: ^6.0.0
@@ -3651,9 +3651,8 @@ packages:
   jose@6.2.2:
     resolution: {integrity: sha512-d7kPDd34KO/YnzaDOlikGpOurfF0ByC2sEV4cANCtdqLlTfBlw2p14O/5d/zv40gJPbIQxfES3nSx1/oYNyuZQ==}
 
-  js-cookie@3.0.7:
-    resolution: {integrity: sha512-z/wZZgDrkNV1eA0ULjM/F9/50Ya8fbzgKneSpoPsXSGd0KnpdtHfOZWK+GcwLk+EZbS4F9RBhU+K2RgzuDaItw==}
-    engines: {node: '>=20'}
+  js-cookie@3.0.8:
+    resolution: {integrity: sha512-yeJd4aNAdYZQjaon2bpD/Gb0B/omw7HQOsynXXcOiWVCacbBcPlgn8S/d1X6blFSaHao7ozqtW7NZW19xpCtIw==}
 
   js-levenshtein@1.1.6:
     resolution: {integrity: sha512-X2BB11YZtrRqY4EnQcLX5Rh373zbK4alC1FW7D7MBhL2gtcC17cTnr6DmfHZeS0s2rTHjUTMMHfG7gO8SSdw+g==}
@@ -6824,7 +6823,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.8
 
-  '@mui/styled-engine-sc@9.0.1(@types/react@19.2.8)(styled-components@6.1.19(react-dom@19.2.3(react@19.2.3))(react@19.2.3))':
+  '@mui/styled-engine-sc@9.1.0(@types/react@19.2.8)(styled-components@6.1.19(react-dom@19.2.3(react@19.2.3))(react@19.2.3))':
     dependencies:
       '@babel/runtime': 7.29.2
       '@types/hoist-non-react-statics': 3.3.7(@types/react@19.2.8)
@@ -6839,7 +6838,7 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.29.2
       '@mui/private-theming': 7.3.7(@types/react@19.2.8)(react@19.2.3)
-      '@mui/styled-engine': '@mui/styled-engine-sc@9.0.1(@types/react@19.2.8)(styled-components@6.1.19(react-dom@19.2.3(react@19.2.3))(react@19.2.3))'
+      '@mui/styled-engine': '@mui/styled-engine-sc@9.1.0(@types/react@19.2.8)(styled-components@6.1.19(react-dom@19.2.3(react@19.2.3))(react@19.2.3))'
       '@mui/types': 7.4.10(@types/react@19.2.8)
       '@mui/utils': 7.3.7(@types/react@19.2.8)(react@19.2.3)
       clsx: 2.1.1
@@ -9596,7 +9595,7 @@ snapshots:
 
   jose@6.2.2: {}
 
-  js-cookie@3.0.7: {}
+  js-cookie@3.0.8: {}
 
   js-levenshtein@1.1.6: {}
 
