@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   node: circleci/node@7.1.1
-  codecov: codecov/codecov@5.0.3
+  codecov: codecov/codecov@6.0.0
   gcp-cli: circleci/gcp-cli@3.3.2
 
 # Reusable commands for Docker jobs
