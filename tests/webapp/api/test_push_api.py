@@ -9,6 +9,12 @@ from treeherder.etl.push import store_push_data
 from treeherder.model.models import Commit, FailureClassification, JobNote, Push
 from treeherder.webapp.api import utils
 
+# PushViewSet routes safe-method reads to the read_replica alias
+# (JOBS_POLLING_READ_REPLICA_DESIGN.md). transaction=True is required because
+# the routed viewset reads through the separate ``read_replica`` connection,
+# which only sees committed data.
+pytestmark = pytest.mark.django_db(transaction=True, databases=["default", "read_replica"])
+
 
 def test_push_list_basic(client, eleven_jobs_stored, test_repository):
     """
