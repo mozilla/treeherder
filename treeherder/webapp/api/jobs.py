@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
+from treeherder.config.db_routing import ReadReplicaMixin
 from treeherder.model.error_summary import get_error_summary
 from treeherder.model.models import (
     Job,
@@ -82,7 +83,7 @@ class JobFilter(django_filters.FilterSet):
         }
 
 
-class JobsViewSet(viewsets.ReadOnlyModelViewSet):
+class JobsViewSet(ReadReplicaMixin, viewsets.ReadOnlyModelViewSet):
     """
     This viewset is the jobs endpoint.
     """
@@ -158,7 +159,7 @@ class JobsViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(resp.data)
 
 
-class JobsProjectViewSet(viewsets.ViewSet):
+class JobsProjectViewSet(ReadReplicaMixin, viewsets.ViewSet):
     """
     This viewset is the project bound version of the jobs endpoint.
     """
