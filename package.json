@@ -27,7 +27,7 @@
     "crypto-browserify": "3.12.1",
     "dayjs": "1.11.21",
     "fuse.js": "6.0.4",
-    "js-cookie": "3.0.7",
+    "js-cookie": "3.0.8",
     "js-yaml": "4.1.1",
     "json-e": "4.8.2",
     "json-schema-defaults": "0.4.0",
