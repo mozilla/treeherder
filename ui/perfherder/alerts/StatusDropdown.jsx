@@ -37,6 +37,7 @@ export default class StatusDropdown extends React.Component {
       showBugModal: false,
       showFileBugModal: false,
       showCriticalFileBugModal: false,
+      showAddCommentModal: false,
       showNotesModal: false,
       showTagsModal: false,
       selectedValue: issueTrackers[0]?.text,
@@ -46,6 +47,7 @@ export default class StatusDropdown extends React.Component {
       ),
       isWeekend: isWeekend(),
       fileBugErrorMessage: null,
+      addCommentErrorMessage: null,
     };
   }
 
@@ -317,6 +319,81 @@ export default class StatusDropdown extends React.Component {
     }
   };
 
+  addComment = async (bugId) => {
+    const {
+      alertSummary,
+      repoModel,
+      updateViewState,
+      filteredAlerts = [],
+      frameworks,
+      user,
+    } = this.props;
+    const { browsertimeAlertsExtraData } = this.state;
+
+    const perfCompareURL = getPerfCompareBaseURL(
+      alertSummary.repository,
+      alertSummary.prev_push_revision,
+      alertSummary.repository,
+      alertSummary.revision,
+      alertSummary.framework,
+    );
+
+    const result = await this.getBugTemplate(
+      alertSummary.framework,
+      updateViewState,
+    );
+    if (!result) {
+      return { failureStatus: 'Failed to retrieve bug template' };
+    }
+
+    const textualSummary = new TextualSummary(
+      frameworks,
+      filteredAlerts,
+      alertSummary,
+      null,
+      await browsertimeAlertsExtraData.enrichAndRetrieveAlerts(),
+    );
+    const templateArgs = this.getTemplateArgs(
+      frameworks,
+      alertSummary,
+      repoModel,
+      textualSummary,
+      user,
+      perfCompareURL,
+    );
+    templateSettings.interpolate = /{{([\s\S]+?)}}/g;
+    const fillTemplate = template(result.no_action_required_text);
+    const commentText = fillTemplate(templateArgs);
+    const createResult = await create(getApiUrl('/bugzilla/post_comment/'), {
+      bug_id: bugId,
+      comment: commentText,
+    });
+    if (createResult.failureStatus) {
+      return {
+        failureStatus: createResult.failureStatus,
+        data: createResult.data,
+      };
+    }
+    window.open(`${bzBaseUrl}show_bug.cgi?id=${bugId}`);
+    this.changeAlertSummary({ bug_number: bugId });
+
+    return { failureStatus: null };
+  };
+
+  addCommentAndClose = async (event, params, state) => {
+    event.preventDefault();
+    const bugId = params.bug_number;
+    const result = await this.addComment(bugId);
+
+    if (result.failureStatus) {
+      this.setState({
+        addCommentErrorMessage: `Failure: ${result.data}`,
+      });
+    } else {
+      this.toggle(state);
+    }
+  };
+
   changeAlertSummary = async (params) => {
     const { alertSummary, updateState, updateViewState } = this.props;
 
@@ -356,6 +433,7 @@ export default class StatusDropdown extends React.Component {
       showBugModal,
       showFileBugModal,
       showCriticalFileBugModal,
+      showAddCommentModal,
       showNotesModal,
       showTagsModal,
       selectedValue,
@@ -457,6 +535,23 @@ export default class StatusDropdown extends React.Component {
           user={user}
           errorMessage={this.state.fileBugErrorMessage}
         />
+        <FileBugModal
+          showModal={showAddCommentModal}
+          toggle={() => this.toggle('showAddCommentModal')}
+          updateAndClose={(event, inputValue) =>
+            this.addCommentAndClose(
+              event,
+              { bug_number: parseInt(inputValue, 10) },
+              'showAddCommentModal',
+            )
+          }
+          header="Add Comment to Bug"
+          title="Enter Bug Number"
+          submitButtonText="Add Comment"
+          requireInput
+          user={user}
+          errorMessage={this.state.addCommentErrorMessage}
+        />
         <NotesModal
           showModal={showNotesModal}
           toggle={() => this.toggle('showNotesModal')}
@@ -524,6 +619,12 @@ export default class StatusDropdown extends React.Component {
                     Unlink from bug
                   </Dropdown.Item>
                 )}
+                <Dropdown.Item
+                  as="a"
+                  onClick={() => this.toggle('showAddCommentModal')}
+                >
+                  Add comment to bug
+                </Dropdown.Item>
                 <Dropdown.Item
                   as="a"
                   onClick={() => this.toggle('showNotesModal')}
