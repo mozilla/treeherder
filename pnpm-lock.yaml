@@ -35,7 +35,7 @@ importers:
         version: 7.1.2(@types/react@19.2.8)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7))
       '@mui/styled-engine-sc':
         specifier: npm:@mui/styled-engine-sc@latest
-        version: 9.1.0(@types/react@19.2.8)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7))
+        version: 9.1.1(@types/react@19.2.8)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7))
       '@mui/x-date-pickers':
         specifier: 8.21.0
         version: 8.21.0(@mui/material@7.1.2(@types/react@19.2.8)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7)))(@mui/system@7.3.7(@types/react@19.2.8)(react@19.2.7)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7)))(@types/react@19.2.8)(dayjs@1.11.21)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -58,8 +58,8 @@ importers:
         specifier: 1.11.21
         version: 1.11.21
       fuse.js:
-        specifier: 6.0.4
-        version: 6.0.4
+        specifier: 7.4.2
+        version: 7.4.2
       js-cookie:
         specifier: 3.0.8
         version: 3.0.8
@@ -1236,8 +1236,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@mui/styled-engine-sc@9.1.0':
-    resolution: {integrity: sha512-1RDdUfKhX931TMTMxM7t9LAxK2YDf0idwl5QbEa8MOfBS6viUEhnPwuBzbdyMnEm2mpr4/qhxt/+tPDEAdZD6w==}
+  '@mui/styled-engine-sc@9.1.1':
+    resolution: {integrity: sha512-exYYEpBelwi/cDFqOKCzbVOHbROFXnUdffCeiU9hZMaTGXxQocQmYgtiXUG8raOJUzGMpV73qjzZg1+5xr/G/w==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       styled-components: ^6.0.0
@@ -3051,8 +3051,8 @@ packages:
   function-bind@1.1.2:
     resolution: {integrity: sha512-7XHNxH7qX9xG5mIwxkhumTox/MIRNcOgDrxWsMt2pAr23WHp6MrRlN7FBSFpCpr+oVO0F744iUgR82nJMfG2SA==}
 
-  fuse.js@6.0.4:
-    resolution: {integrity: sha512-XAeQaT+DV8dxqohN911+Qzkb4iMzTzae04mdb9/XSQbMjbsFasQxe0+UwM+3UWP+8vO7svz1Rj0KuQw6xJ45Ww==}
+  fuse.js@7.4.2:
+    resolution: {integrity: sha512-LVbzjD4WA6UP5B1UnP8wuaXJiLnqMdM/E4fiJXTJ5haJ5b/MBNsK29h2fm6swEoQaVQjvYFWKLE2RanyZIoRVQ==}
     engines: {node: '>=10'}
 
   generator-function@2.0.1:
@@ -6823,7 +6823,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.8
 
-  '@mui/styled-engine-sc@9.1.0(@types/react@19.2.8)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7))':
+  '@mui/styled-engine-sc@9.1.1(@types/react@19.2.8)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7))':
     dependencies:
       '@babel/runtime': 7.29.2
       '@types/hoist-non-react-statics': 3.3.7(@types/react@19.2.8)
@@ -6838,7 +6838,7 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.29.2
       '@mui/private-theming': 7.3.7(@types/react@19.2.8)(react@19.2.7)
-      '@mui/styled-engine': '@mui/styled-engine-sc@9.1.0(@types/react@19.2.8)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7))'
+      '@mui/styled-engine': '@mui/styled-engine-sc@9.1.1(@types/react@19.2.8)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7))'
       '@mui/types': 7.4.10(@types/react@19.2.8)
       '@mui/utils': 7.3.7(@types/react@19.2.8)(react@19.2.7)
       clsx: 2.1.1
@@ -8768,7 +8768,7 @@ snapshots:
 
   function-bind@1.1.2: {}
 
-  fuse.js@6.0.4: {}
+  fuse.js@7.4.2: {}
 
   generator-function@2.0.1: {}
 
