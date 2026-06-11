@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 
+import { splitLogIntoLines } from './logviewerHelpers';
+
 /**
  * Core hook for log viewing. Handles fetching, parsing, search, line selection,
  * scroll, and copy operations.
@@ -61,7 +63,7 @@ export function useLogViewer({
       })
       .then((text) => {
         if (cancelled) return;
-        const parsed = text.split('\n');
+        const parsed = splitLogIntoLines(text);
         setLines(parsed);
         setIsLoading(false);
       })
