@@ -20,6 +20,7 @@ import { triggerTask } from '../../../helpers/performance';
 import { isPerfTest } from '../../../helpers/job';
 import { geckoProfileTaskName, sxsTaskName } from '../../../helpers/constants';
 import { usePushesStore } from '../../stores/pushesStore';
+import { notify } from '../../stores/notificationStore';
 
 import SideBySide from './SideBySide';
 import PerfData from './PerfData';
@@ -50,12 +51,7 @@ class PerformanceTab extends React.PureComponent {
   }
 
   createGeckoProfile = async () => {
-    const {
-      selectedJobFull,
-      notify,
-      decisionTaskMap,
-      currentRepo,
-    } = this.props;
+    const { selectedJobFull, decisionTaskMap, currentRepo } = this.props;
     await triggerTask(
       selectedJobFull,
       notify,
@@ -69,12 +65,7 @@ class PerformanceTab extends React.PureComponent {
   };
 
   createSideBySide = async () => {
-    const {
-      selectedJobFull,
-      notify,
-      decisionTaskMap,
-      currentRepo,
-    } = this.props;
+    const { selectedJobFull, decisionTaskMap, currentRepo } = this.props;
     await triggerTask(
       selectedJobFull,
       notify,
