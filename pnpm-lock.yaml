@@ -35,7 +35,7 @@ importers:
         version: 7.1.2(@types/react@19.2.8)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7))
       '@mui/styled-engine-sc':
         specifier: npm:@mui/styled-engine-sc@latest
-        version: 9.1.0(@types/react@19.2.8)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7))
+        version: 9.1.1(@types/react@19.2.8)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7))
       '@mui/x-date-pickers':
         specifier: 8.21.0
         version: 8.21.0(@mui/material@7.1.2(@types/react@19.2.8)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7)))(@mui/system@7.3.7(@types/react@19.2.8)(react@19.2.7)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7)))(@types/react@19.2.8)(dayjs@1.11.21)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -112,8 +112,8 @@ importers:
         specifier: 0.2.2
         version: 0.2.2
       react-resizable-panels:
-        specifier: 3.0.6
-        version: 3.0.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        specifier: 4.11.2
+        version: 4.11.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react-router:
         specifier: 7.13.2
         version: 7.13.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -1236,8 +1236,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@mui/styled-engine-sc@9.1.0':
-    resolution: {integrity: sha512-1RDdUfKhX931TMTMxM7t9LAxK2YDf0idwl5QbEa8MOfBS6viUEhnPwuBzbdyMnEm2mpr4/qhxt/+tPDEAdZD6w==}
+  '@mui/styled-engine-sc@9.1.1':
+    resolution: {integrity: sha512-exYYEpBelwi/cDFqOKCzbVOHbROFXnUdffCeiU9hZMaTGXxQocQmYgtiXUG8raOJUzGMpV73qjzZg1+5xr/G/w==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       styled-components: ^6.0.0
@@ -4467,11 +4467,11 @@ packages:
     resolution: {integrity: sha512-QgT5//D3jfjJb6Gsjxv0Slpj23ip+HtOpnNgnb2S5zU3CB26G/IDPGoy4RJB42wzFE46DRsstbW6tKHoKbhAxw==}
     engines: {node: '>=0.10.0'}
 
-  react-resizable-panels@3.0.6:
-    resolution: {integrity: sha512-b3qKHQ3MLqOgSS+FRYKapNkJZf5EQzuf6+RLiq1/IlTHw99YrZ2NJZLk4hQIzTnnIkRg2LUqyVinu6YWWpUYew==}
+  react-resizable-panels@4.11.2:
+    resolution: {integrity: sha512-+kfFbDZ8mygc7g0vxOcDzCVGuwiIUOnILqPoUHo6/uP+Mmyx6HzZU+kj1aOPDlktXuobYbr6BtQekvJwHRX4Eg==}
     peerDependencies:
-      react: ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc
-      react-dom: ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
 
   react-router@7.13.2:
     resolution: {integrity: sha512-tX1Aee+ArlKQP+NIUd7SE6Li+CiGKwQtbS+FfRxPX6Pe4vHOo6nr9d++u5cwg+Z8K/x8tP+7qLmujDtfrAoUJA==}
@@ -6823,7 +6823,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.8
 
-  '@mui/styled-engine-sc@9.1.0(@types/react@19.2.8)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7))':
+  '@mui/styled-engine-sc@9.1.1(@types/react@19.2.8)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7))':
     dependencies:
       '@babel/runtime': 7.29.2
       '@types/hoist-non-react-statics': 3.3.7(@types/react@19.2.8)
@@ -6838,7 +6838,7 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.29.2
       '@mui/private-theming': 7.3.7(@types/react@19.2.8)(react@19.2.7)
-      '@mui/styled-engine': '@mui/styled-engine-sc@9.1.0(@types/react@19.2.8)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7))'
+      '@mui/styled-engine': '@mui/styled-engine-sc@9.1.1(@types/react@19.2.8)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7))'
       '@mui/types': 7.4.10(@types/react@19.2.8)
       '@mui/utils': 7.3.7(@types/react@19.2.8)(react@19.2.7)
       clsx: 2.1.1
@@ -10433,7 +10433,7 @@ snapshots:
 
   react-refresh@0.18.0: {}
 
-  react-resizable-panels@3.0.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
+  react-resizable-panels@4.11.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
     dependencies:
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
