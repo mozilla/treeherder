@@ -353,6 +353,7 @@ class PerformanceAlertSummaryBase(models.Model):
     WONTFIX = 6
     FIXED = 7
     BACKED_OUT = 8
+    INFRA = 9
 
     STATUSES = (
         (UNTRIAGED, "Untriaged"),
@@ -364,6 +365,7 @@ class PerformanceAlertSummaryBase(models.Model):
         (WONTFIX, "Won't fix"),
         (FIXED, "Fixed"),
         (BACKED_OUT, "Backed out"),
+        (INFRA, "Infra"),
     )
 
     status = models.IntegerField(choices=STATUSES, default=UNTRIAGED)
@@ -452,8 +454,12 @@ class PerformanceAlertSummaryBase(models.Model):
         if all(alert.status == alert_model.INVALID for alert in alerts):
             return summary_class.INVALID
 
+        # if all infra, then set to infra
+        if all(alert.status == alert_model.INFRA for alert in alerts):
+            return summary_class.INFRA
+
         # otherwise filter out invalid alerts
-        alerts = [a for a in alerts if a.status != alert_model.INVALID]
+        alerts = [a for a in alerts if a.status not in (alert_model.INVALID, alert_model.INFRA)]
 
         # if there are any "acknowledged" alerts, then set to investigating
         # if not one of the resolved statuses and there are regressions,
@@ -597,12 +603,13 @@ class PerformanceAlertBase(models.Model):
     REASSIGNED = 2
     INVALID = 3
     ACKNOWLEDGED = 4
+    INFRA = 5
 
     # statuses where we relate this alert to another summary
     RELATIONAL_STATUS_IDS = (DOWNSTREAM, REASSIGNED)
     # statuses where this alert is related only to the summary it was
     # originally assigned to
-    UNRELATIONAL_STATUS_IDS = (UNTRIAGED, INVALID, ACKNOWLEDGED)
+    UNRELATIONAL_STATUS_IDS = (UNTRIAGED, INVALID, ACKNOWLEDGED, INFRA)
 
     STATUSES = (
         (UNTRIAGED, "Untriaged"),
@@ -610,6 +617,7 @@ class PerformanceAlertBase(models.Model):
         (REASSIGNED, "Reassigned"),
         (INVALID, "Invalid"),
         (ACKNOWLEDGED, "Acknowledged"),
+        (INFRA, "Infra"),
     )
 
     status = models.IntegerField(choices=STATUSES, default=UNTRIAGED)

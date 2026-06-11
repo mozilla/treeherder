@@ -80,7 +80,7 @@ function AlertsView({
   const getDefaultStatus = (params) => {
     const statusParam = convertParams(params, 'status');
     if (!statusParam) {
-      return Object.keys(summaryStatusMap)[1];
+      return getStatus(summaryStatusMap.untriaged);
     }
     return getStatus(parseInt(params.status, 10));
   };
@@ -163,11 +163,11 @@ function AlertsView({
             status: summaryStatusMap[status],
           };
 
-      const doNotFilter = -1;
+      const allFrameworksID = -1;
       const allSheriffedFrameworksID = -2;
       const listMode = !alertId;
 
-      if (listMode && params.status === doNotFilter) {
+      if (listMode && params.status === summaryStatusMap['all statuses']) {
         delete params.status;
       }
 
@@ -176,7 +176,7 @@ function AlertsView({
           params.show_sheriffed_frameworks = true;
         }
         if (
-          [doNotFilter, allSheriffedFrameworksID].includes(params.framework)
+          [allFrameworksID, allSheriffedFrameworksID].includes(params.framework)
         ) {
           delete params.framework;
         }
