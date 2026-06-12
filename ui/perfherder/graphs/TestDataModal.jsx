@@ -371,6 +371,10 @@ export default class TestDataModal extends React.Component {
   closeModal = () => {
     this.setState(
       {
+        framework: { name: 'talos', id: 1 },
+        repository_name: this.findObject(this.props.projects, 'name', 'mozilla-central'),
+        platform: 'linux64',
+        selectedTests: [],
         relatedTests: [],
         filteredData: [],
         showNoRelatedTests: false,
