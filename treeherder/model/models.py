@@ -588,6 +588,16 @@ class Job(models.Model):
     This class represents a build or test job in Treeherder
     """
 
+    class JobState(models.TextChoices):
+        """A representation of Job State."""
+
+        PENDING = ("pending", "pending")
+        RUNNING = ("running", "running")
+        COMPLETED = ("completed", "completed")
+        FAILED = ("failed", "failed")
+        EXCEPTION = ("exception", "exception")
+        UNSCHEDULED = ("unscheduled", "unscheduled")
+
     failures = FailuresQuerySet.as_manager()
     objects = JobManager()
 
@@ -629,7 +639,7 @@ class Job(models.Model):
     who = models.CharField(max_length=50)
     reason = models.CharField(max_length=125)
     result = models.CharField(max_length=25)
-    state = models.CharField(max_length=25)
+    state = models.CharField(max_length=25, choices=JobState.choices)
 
     submit_time = models.DateTimeField()
     start_time = models.DateTimeField()
