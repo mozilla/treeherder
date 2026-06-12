@@ -798,6 +798,53 @@ export const reduceDictToKeys = function reduceDictToKeys(dict, keys) {
   return reducedDict;
 };
 
+const buildMissingData = (series) => {
+  const missing = series.missing_data;
+  if (!missing || missing.length === 0) return [];
+
+  // series.data is sorted by push_timestamp by the backend.
+  // Append 'Z' because backend timestamps are UTC strings without a timezone suffix,
+  // and Date.parse treats bare ISO strings as local time in some environments.
+  const realPoints = series.data.map((dp) => ({
+    t: Date.parse(`${dp.push_timestamp}Z`),
+    y: dp.value,
+  }));
+
+  return missing.map((entry) => {
+    const t = Date.parse(`${entry.push_timestamp}Z`);
+    // Binary search for the first real point with t >= entry timestamp.
+    let lo = 0;
+    let hi = realPoints.length;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1; // integer divide by 2
+      if (realPoints[mid].t < t) lo = mid + 1;
+      else hi = mid;
+    }
+    const right = realPoints[lo];
+    const left = lo > 0 ? realPoints[lo - 1] : null;
+    let y;
+    if (left && right && right.t !== left.t) {
+      y = left.y + ((right.y - left.y) * (t - left.t)) / (right.t - left.t);
+    } else if (left) {
+      y = left.y;
+    } else if (right) {
+      y = right.y;
+    } else {
+      y = 0; // no real points at all — shouldn't happen in practice
+    }
+    return {
+      x: new Date(`${entry.push_timestamp}Z`),
+      y,
+      revision: entry.push__revision,
+      pushId: entry.push_id,
+      jobId: entry.job_id,
+      status: entry.status,
+      signature_id: series.signature_id,
+      repository_name: series.repository_name,
+    };
+  });
+};
+
 export const createGraphData = (
   seriesData,
   alertSummaries,
@@ -826,6 +873,7 @@ export const createGraphData = (
       repository_name: series.repository_name,
       projectId: series.repository_id,
       id: `${series.repository_name} ${series.name}`,
+      missingData: buildMissingData(series),
       data: series.data.map((dataPoint) => ({
         // Backend implicitly provides all dates as UTC.
         // Let's make this explicit, so frontend doesn't get confused.
