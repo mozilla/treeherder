@@ -46,6 +46,7 @@ class PushLoader:
             return
 
         transformed_data = transformer.transform(repo.name)
+        transformed_data["branch"] = transformer.get_push_branch(repo)
 
         logger.info(
             f"Storing push for repository '{repo.name}' revision '{transformed_data['revision']}' branch '{transformer.branch}' url {transformer.repo_url}",
@@ -75,6 +76,20 @@ class GithubTransformer:
 
     def resolve_repo(self):
         return Repository.resolve_branch(self.repo_url, self.branch)
+
+    def get_push_branch(self, repo):
+        """Return the branch to record on the push, or None.
+
+        Only recorded when the push matched a wildcard branch rule (e.g.
+        ``releases/*`` or the catch-all ``*``). For an exact branch rule the
+        branch is implied by the repository, so there is nothing to surface.
+        """
+        if not self.branch:
+            return None
+        if repo.branches.filter(branch=self.branch).exists():
+            # Exact branch match: redundant with the repository itself.
+            return None
+        return self.branch
 
     def get_info(self):
         # flatten the data a bit so it will show in new relic as fields
@@ -268,6 +283,10 @@ class HgPushTransformer:
 
     def resolve_repo(self):
         return self.repos.exclude(branches__branch__endswith="*").get()
+
+    def get_push_branch(self, repo):
+        # Hg pushes never resolve through wildcard branches (see resolve_repo).
+        return None
 
     def get_info(self):
         return self.message_body["payload"]

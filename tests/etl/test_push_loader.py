@@ -324,6 +324,28 @@ def test_ingest_github_push_wildcard_repo(github_push, test_repository, mock_git
         "https://firefox-ci-tc.services.mozilla.com",
     )
     assert Push.objects.count() == 1
+    # The catch-all wildcard match records the branch the push came from
+    assert Push.objects.first().branch == "my-feature-branch"
+
+
+@pytest.mark.django_db
+def test_ingest_github_push_exact_branch_records_no_branch(
+    github_push, test_repository, mock_github_push_compare
+):
+    """An exact branch match leaves push.branch null (it's implied by the repository)"""
+    test_repository.url = github_push[0]["payload"]["details"]["event.head.repo.url"].replace(
+        ".git", ""
+    )
+    test_repository.save()
+    RepositoryBranch.objects.create(repository=test_repository, branch="master")
+    github_push[0]["payload"]["details"]["event.base.repo.branch"] = "master"
+    PushLoader().process(
+        github_push[0]["payload"],
+        github_push[0]["exchange"],
+        "https://firefox-ci-tc.services.mozilla.com",
+    )
+    assert Push.objects.count() == 1
+    assert Push.objects.first().branch is None
 
 
 @pytest.mark.django_db
@@ -403,6 +425,9 @@ def test_ingest_github_push_prefix_wildcard(
         "https://firefox-ci-tc.services.mozilla.com",
     )
     assert Push.objects.count() == expected_pushes
+    if expected_pushes:
+        # A prefix-wildcard match records the specific branch that matched
+        assert Push.objects.first().branch == branch
 
 
 @pytest.mark.django_db

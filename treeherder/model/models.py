@@ -191,6 +191,10 @@ class Push(models.Model):
     revision = models.CharField(max_length=40, db_index=True)
     author = models.CharField(max_length=150)
     time = models.DateTimeField(db_index=True)
+    # The specific branch this push came from, recorded only when it matched a
+    # wildcard branch rule (e.g. 'releases/*' or the catch-all '*'). For exact
+    # branch rules the branch is implied by the repository, so this stays null.
+    branch = models.CharField(max_length=255, null=True, blank=True, default=None)
 
     failures = FailuresQuerySet.as_manager()
     objects = models.Manager()
