@@ -189,6 +189,7 @@ export default class AlertActionPanel extends React.Component {
           showModal={showReassignedModal}
           header="Reassign Alerts"
           title="Alert Number"
+          autoFocusInput
           updateAndClose={(event, inputValue) =>
             this.updateAndClose(
               event,
