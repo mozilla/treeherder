@@ -111,3 +111,17 @@ def test_project_jobs_detail_hits_replica(client, eleven_jobs_stored, test_repos
     assert len(replica_ctx.captured_queries) > 0, (
         "Expected JobsProjectViewSet reads to be routed to the replica alias"
     )
+
+
+def test_groupsummary_hits_replica(client, group_data):
+    """The group summary aggregation (SummaryByGroupName) reads from the replica."""
+    startdate = str(group_data["query_string"]).split("=")[-1]
+
+    with CaptureQueriesContext(connections["read_replica"]) as replica_ctx:
+        response = client.get(reverse("groupsummary") + f"?startdate={startdate}")
+
+    assert response.status_code == 200
+    assert response.json() == group_data["expected"]
+    assert len(replica_ctx.captured_queries) > 0, (
+        "Expected SummaryByGroupName reads to be routed to the replica alias"
+    )
