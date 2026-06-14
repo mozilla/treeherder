@@ -8,7 +8,12 @@ from treeherder.model.models import Job
 from treeherder.perf.models import PerformanceDatum, PerformanceDatumReplicate
 from treeherder.webapp.api import perfcompare_utils
 
-pytestmark = pytest.mark.perf
+pytestmark = [
+    pytest.mark.perf,
+    # transaction=True is required because the routed viewset reads through the
+    # separate ``read_replica`` connection, which only sees committed data.
+    pytest.mark.django_db(transaction=True, databases=["default", "read_replica"]),
+]
 
 NOW = datetime.datetime.now()
 ONE_DAY_AGO = NOW - datetime.timedelta(days=1)
