@@ -256,11 +256,73 @@ class Commit(models.Model):
         return f"{self.push.repository.name} {self.revision}"
 
 
+class CachedIdMapManager(models.Manager):
+    """
+    Base manager that caches a ``{id: value}`` map for a small, append-mostly
+    reference table. This lets hot queries (e.g. the jobs list) drop the join to
+    the table and resolve the referenced values from cache instead.
+
+    On a cache miss for an id (a row added since the map was last cached) the
+    map is rebuilt once via :meth:`refresh_id_map`, so callers never get stale
+    "missing" values for newly ingested reference data.
+    """
+
+    cache_key = None  # subclasses must set this
+
+    def _build_map(self):
+        raise NotImplementedError
+
+    def get_id_map(self):
+        id_map = cache.get(self.cache_key)
+        if id_map is None:
+            id_map = self._build_map()
+            # Caches for the default of 5 minutes.
+            cache.set(self.cache_key, id_map)
+        return id_map
+
+    def refresh_id_map(self):
+        id_map = self._build_map()
+        cache.set(self.cache_key, id_map)
+        return id_map
+
+
+class LazyRefreshMap:
+    """
+    Dict-like wrapper around a :class:`CachedIdMapManager` for use within a
+    single request (e.g. as serializer context). It serves lookups from the
+    cached map and, the first time an id is missing, rebuilds the map once from
+    the database before giving up. This keeps the common path query-free while
+    guaranteeing freshly ingested reference data still resolves correctly.
+    """
+
+    def __init__(self, manager):
+        self._manager = manager
+        self._map = manager.get_id_map()
+        self._refreshed = False
+
+    def get(self, key, default=None):
+        if key in self._map:
+            return self._map[key]
+        if not self._refreshed:
+            self._map = self._manager.refresh_id_map()
+            self._refreshed = True
+        return self._map.get(key, default)
+
+
+class MachinePlatformManager(CachedIdMapManager):
+    cache_key = "machine_platform_id_map"
+
+    def _build_map(self):
+        return {id: platform for id, platform in self.get_queryset().values_list("id", "platform")}
+
+
 class MachinePlatform(models.Model):
     id = models.AutoField(primary_key=True)
     os_name = models.CharField(max_length=25)
     platform = models.CharField(max_length=100, db_index=True)
     architecture = models.CharField(max_length=25, blank=True, db_index=True)
+
+    objects = MachinePlatformManager()
 
     class Meta:
         db_table = "machine_platform"
@@ -416,11 +478,23 @@ class Machine(NamedModel):
         db_table = "machine"
 
 
+class JobGroupManager(CachedIdMapManager):
+    cache_key = "job_group_id_map"
+
+    def _build_map(self):
+        return {
+            id: {"name": name, "symbol": symbol}
+            for id, name, symbol in self.get_queryset().values_list("id", "name", "symbol")
+        }
+
+
 class JobGroup(models.Model):
     id = models.AutoField(primary_key=True)
     symbol = models.CharField(max_length=25, default="?", db_index=True)
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
+
+    objects = JobGroupManager()
 
     class Meta:
         db_table = "job_group"
@@ -480,11 +554,23 @@ class OptionCollection(models.Model):
         return f"{self.option}"
 
 
+class JobTypeManager(CachedIdMapManager):
+    cache_key = "job_type_id_map"
+
+    def _build_map(self):
+        return {
+            id: {"name": name, "symbol": symbol}
+            for id, name, symbol in self.get_queryset().values_list("id", "name", "symbol")
+        }
+
+
 class JobType(models.Model):
     id = models.AutoField(primary_key=True)
     symbol = models.CharField(max_length=25, default="?", db_index=True)
     name = models.CharField(max_length=140)
     description = models.TextField(blank=True)
+
+    objects = JobTypeManager()
 
     class Meta:
         db_table = "job_type"

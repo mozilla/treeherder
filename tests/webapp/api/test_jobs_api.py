@@ -5,7 +5,8 @@ from dateutil import parser
 from django.urls import reverse
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
-from treeherder.model.models import Job, TextLogError
+from treeherder.model.models import Job, JobType, LazyRefreshMap, TextLogError
+from treeherder.webapp.api.jobs import JobsViewSet
 
 
 @pytest.mark.parametrize(
@@ -301,3 +302,52 @@ def test_last_modified(
     assert resp.status_code == exp_status
     if exp_status == 200:
         assert len(resp.json()["results"]) == exp_job_count
+
+
+def test_global_job_list_reference_data(client, eleven_jobs_stored):
+    """
+    The global /api/jobs/ endpoint (the one the job-view polls) resolves
+    job_type, job_group and machine_platform from cached id->value maps rather
+    than SQL joins. Verify the serialized values still match the job records.
+    """
+    resp = client.get(reverse("jobs-list"))
+    assert resp.status_code == 200
+
+    data = resp.json()
+    property_names = data["job_property_names"]
+    assert property_names == JobsViewSet._output_field_names
+
+    results_by_id = {
+        row[property_names.index("id")]: dict(zip(property_names, row)) for row in data["results"]
+    }
+    jobs = Job.objects.select_related("job_type", "job_group", "machine_platform", "signature")
+    assert results_by_id  # sanity: we got jobs back
+    for job in jobs:
+        row = results_by_id[job.id]
+        assert row["job_type_name"] == job.job_type.name
+        assert row["job_type_symbol"] == job.job_type.symbol
+        assert row["job_group_name"] == job.job_group.name
+        assert row["job_group_symbol"] == job.job_group.symbol
+        assert row["platform"] == job.machine_platform.platform
+        assert row["signature"] == job.signature.signature
+
+
+def test_lazy_refresh_map_refreshes_on_miss(transactional_db):
+    """
+    LazyRefreshMap serves lookups from the cached reference map and, on the
+    first miss (e.g. a reference row ingested after the map was cached), rebuilds
+    the map once from the database so newly added ids still resolve.
+    """
+    existing = JobType.objects.create(name="test-type-existing", symbol="e")
+    # Prime the cache so the map is built without the row we add next.
+    JobType.objects.get_id_map()
+    added = JobType.objects.create(name="test-type-added", symbol="a")
+
+    lazy = LazyRefreshMap(JobType.objects)
+
+    # The cached map predates `added`; the miss should trigger a single rebuild.
+    assert lazy.get(added.id) == {"name": "test-type-added", "symbol": "a"}
+    # Entries present in the original cached map still resolve.
+    assert lazy.get(existing.id) == {"name": "test-type-existing", "symbol": "e"}
+    # A genuinely unknown id falls back to the provided default.
+    assert lazy.get(-1, "missing") == "missing"

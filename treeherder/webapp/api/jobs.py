@@ -14,7 +14,11 @@ from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 from treeherder.model.error_summary import get_error_summary
 from treeherder.model.models import (
     Job,
+    JobGroup,
     JobLog,
+    JobType,
+    LazyRefreshMap,
+    MachinePlatform,
     OptionCollection,
     Repository,
     TextLogError,
@@ -87,10 +91,11 @@ class JobsViewSet(viewsets.ReadOnlyModelViewSet):
     This viewset is the jobs endpoint.
     """
 
+    # job_type, job_group and machine_platform are intentionally NOT joined here:
+    # they are small, append-mostly reference tables that we resolve from a
+    # cached id->value map in the serializer instead (see get_serializer_context).
+    # Dropping those joins keeps this hot, frequently polled query lean.
     _default_select_related = [
-        "job_type",
-        "job_group",
-        "machine_platform",
         "signature",
         "taskcluster_metadata",
         "push",
@@ -101,14 +106,11 @@ class JobsViewSet(viewsets.ReadOnlyModelViewSet):
         "end_time",
         "failure_classification_id",
         "id",
-        "job_group__name",
-        "job_group__symbol",
-        "job_type__name",
-        "job_type__symbol",
+        "job_group_id",
+        "job_type_id",
         "last_modified",
         "option_collection_hash",
-        "machine_platform__platform",
-        "option_collection_hash",
+        "machine_platform_id",
         "push_id",
         "push__revision",
         "result",
@@ -149,8 +151,12 @@ class JobsViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = pagination.JobPagination
 
     def get_serializer_context(self):
-        option_collection_map = OptionCollection.objects.get_option_collection_map()
-        return {"option_collection_map": option_collection_map}
+        return {
+            "option_collection_map": OptionCollection.objects.get_option_collection_map(),
+            "job_type_map": LazyRefreshMap(JobType.objects),
+            "job_group_map": LazyRefreshMap(JobGroup.objects),
+            "machine_platform_map": LazyRefreshMap(MachinePlatform.objects),
+        }
 
     def list(self, request, *args, **kwargs):
         resp = super().list(request, *args, **kwargs)
