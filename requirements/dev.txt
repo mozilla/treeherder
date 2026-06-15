@@ -5,8 +5,8 @@
 #    pip-compile --generate-hashes --output-file=requirements/dev.txt requirements/dev.in
 #
 asgiref==3.11.1 \
-    --hash=sha256:e8667a091e69529631969fd45dc268fa79b99c92c5fcdda727757e52146ec133 \
-    --hash=sha256:5f184dc43b7e763efe848065441eac62229c9f7b0475f41f80e207a114eda4ce
+    --hash=sha256:5f184dc43b7e763efe848065441eac62229c9f7b0475f41f80e207a114eda4ce \
+    --hash=sha256:e8667a091e69529631969fd45dc268fa79b99c92c5fcdda727757e52146ec133
     # via django
 attrs==23.2.0 \
     --hash=sha256:935dc3b529c262f6cf76e50877d35a4bd3c1de194fd41f47a2b7ae8f19971f30 \
@@ -37,7 +37,7 @@ black==25.9.0 \
     --hash=sha256:e593466de7b998374ea2585a471ba90553283fb9beefcfa430d84a2651ed5933 \
     --hash=sha256:ef69351df3c84485a8beb6f7b8f9721e2009e20ef80a8d619e2d1788b7816d47 \
     --hash=sha256:f96b6726d690c96c60ba682955199f8c39abc1ae0c3a494a9c62c0184049a713
-    # via -r requirements/dev.in
+    # via -r dev.in
 build==1.0.3 \
     --hash=sha256:538aab1b64f9828977f84bc63ae570b060a8ed1be419e7870b8b4fc5e6ea553b \
     --hash=sha256:589bf99a67df7c9cf07ec0ac0e5e2ea5d4b37ac63301c4986d1acb126aa83f8f
@@ -259,11 +259,11 @@ django==6.0.3 \
 django-debug-toolbar==6.2.0 \
     --hash=sha256:1575461954e6befa720e999dec13fe4f1cc8baf40b6c3ac2aec5f340c0f9c85f \
     --hash=sha256:dc1c174d8fb0ea01435e02d9ceef735cf62daf37c1a6a5692d33b4127327679b
-    # via -r requirements/dev.in
+    # via -r dev.in
 django-extensions==4.1 \
     --hash=sha256:0699a7af28f2523bf8db309a80278519362cd4b6e1fd0a8cd4bf063e1e023336 \
     --hash=sha256:7b70a4d28e9b840f44694e3f7feb54f55d495f8b3fa6c5c0e5e12bcb2aa3cdeb
-    # via -r requirements/dev.in
+    # via -r dev.in
 docopt==0.6.2 \
     --hash=sha256:49b3a825280bd66b3aa83585ef59c4a8c82f2c8a522dbe754a8bc8d08c85c491
     # via pytest-watch
@@ -296,7 +296,7 @@ iniconfig==2.0.0 \
 mock==5.2.0 \
     --hash=sha256:4e460e818629b4b173f32d08bf30d3af8123afbb8e04bb5707a1fd4799e503f0 \
     --hash=sha256:7ba87f72ca0e915175596069dbbcc7c75af7b5e9b9bc107ad6349ede0819982f
-    # via -r requirements/dev.in
+    # via -r dev.in
 mypy-extensions==1.0.0 \
     --hash=sha256:4392f6c0eb8a5668a69e23d168ffa70f0be9ccfd32b5cc2d26a34ae5b844552d \
     --hash=sha256:75dbf8955dc00442a438fc4d0666508a9a97b6bd41aa2f0ffe9d2f2725af0782
@@ -323,7 +323,7 @@ pathspec==0.12.1 \
 pip-tools==7.5.3 \
     --hash=sha256:3aac0c473240ae90db7213c033401f345b05197293ccbdd2704e52e7a783785e \
     --hash=sha256:8fa364779ebc010cbfe17cb9de404457ac733e100840423f28f6955de7742d41
-    # via -r requirements/dev.in
+    # via -r dev.in
 platformdirs==4.3.6 \
     --hash=sha256:357fb2acbc885b0419afd3ce3ed34564c13c9b95c89360cd9563f73aa5e2b907 \
     --hash=sha256:73e575e1408ab8103900836b97580d5307456908a03e92031bab39e4554cc3fb
@@ -340,7 +340,7 @@ pluggy==1.5.0 \
 pre-commit==4.5.1 \
     --hash=sha256:3b3afd891e97337708c1674210f8eba659b52a38ea5f822ff142d10786221f77 \
     --hash=sha256:eb545fcff725875197837263e977ea257a402056661f09dae08e4b149b030a61
-    # via -r requirements/dev.in
+    # via -r dev.in
 pygments==2.19.1 \
     --hash=sha256:61c16d2a8576dc0649d9f39e089b5f02bcd27fba10d8fb4dcc28173f7a45151f \
     --hash=sha256:9ea1544ad55cecf4b8242fab6dd35a93bbce657034b0611ee383099054ab6d8c
@@ -348,7 +348,7 @@ pygments==2.19.1 \
 pypom==2.2.4 \
     --hash=sha256:5da52cf447e62f43a0cfa47dfe52eb822eff07b2fdad759f930d1d227c15220b \
     --hash=sha256:8b4dc6d1a24580298bf5ad8ad6c586f33b73c326c10a4419f83aee1abb20077d
-    # via -r requirements/dev.in
+    # via -r dev.in
 pyproject-hooks==1.0.0 \
     --hash=sha256:283c11acd6b928d2f6a7c73fa0d01cb2bdc5f07c57a2eeb6e83d5e56b97976f8 \
     --hash=sha256:f271b298b97f5955d53fb12b72c1fb1948c22c1a6b70b315c54cedaca0264ef5
@@ -360,11 +360,11 @@ pysocks==1.7.1 \
     --hash=sha256:2725bd0a9925919b9b51739eea5f9e2bae91e83288108a9ad338b2e3a4435ee5 \
     --hash=sha256:3f8804571ebe159c380ac6de37643bb4685970655d3bba243530d6558b799aa0
     # via urllib3
-pytest==8.4.2 \
-    --hash=sha256:86c0d0b93306b961d58d62a4db4879f27fe25513d4b969df351abdddb3c30e01 \
-    --hash=sha256:872f880de3fc3a5bdc88a11b39c9710c3497a547cfa9320bc3c5e62fbf272e79
+pytest==9.1.0 \
+    --hash=sha256:41dd9148c08072446394cefd3d79701701335a9f4cae69ba92e39f6c7f5c061c \
+    --hash=sha256:8ebb0e7888bdf2bdfc602ec51f8f62d50200af37356c74e503c79a94f5c81f32
     # via
-    #   -r requirements/dev.in
+    #   -r dev.in
     #   pytest-asyncio
     #   pytest-cov
     #   pytest-django
@@ -374,26 +374,26 @@ pytest==8.4.2 \
 pytest-asyncio==1.3.0 \
     --hash=sha256:611e26147c7f77640e6d0a92a38ed17c3e9848063698d5c93d5aa7aa11cebff5 \
     --hash=sha256:d7f52f36d231b80ee124cd216ffb19369aa168fc10095013c6b014a34d3ee9e5
-    # via -r requirements/dev.in
+    # via -r dev.in
 pytest-cov==7.0.0 \
     --hash=sha256:33c97eda2e049a0c5298e91f519302a1334c26ac65c1a483d6206fd458361af1 \
     --hash=sha256:3b8e9558b16cc1479da72058bdecf8073661c7f57f7d3c5f22a1c23507f2d861
-    # via -r requirements/dev.in
+    # via -r dev.in
 pytest-django==4.11.1 \
     --hash=sha256:1b63773f648aa3d8541000c26929c1ea63934be1cfa674c76436966d73fe6a10 \
     --hash=sha256:a949141a1ee103cb0e7a20f1451d355f83f5e4a5d07bdd4dcfdd1fd0ff227991
-    # via -r requirements/dev.in
+    # via -r dev.in
 pytest-freezer==0.4.9 \
     --hash=sha256:21bf16bc9cc46bf98f94382c4b5c3c389be7056ff0be33029111ae11b3f1c82a \
     --hash=sha256:8b6c50523b7d4aec4590b52bfa5ff766d772ce506e2bf4846c88041ea9ccae59
-    # via -r requirements/dev.in
+    # via -r dev.in
 pytest-testmon==2.2.0 \
     --hash=sha256:01f488e955ed0e0049777bee598bf1f647dd524e06f544c31a24e68f8d775a51 \
     --hash=sha256:2604ca44a54d61a2e830d9ce828b41a837075e4ebc1f81b148add8e90d34815b
-    # via -r requirements/dev.in
+    # via -r dev.in
 pytest-watch==4.2.0 \
     --hash=sha256:06136f03d5b361718b8d0d234042f7b2f203910d8568f63df2f866b547b3d4b9
-    # via -r requirements/dev.in
+    # via -r dev.in
 python-dateutil==2.9.0.post0 \
     --hash=sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3 \
     --hash=sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427
@@ -484,12 +484,12 @@ requests==2.32.5 \
     --hash=sha256:2462f94637a34fd532264295e186976db0f5d453d1cdd31473c85a6a161affb6 \
     --hash=sha256:dbba0bac56e100853db0ea71b82b4dfd5fe2bf6d3754a8893c3af500cec7d7cf
     # via
-    #   -r requirements/dev.in
+    #   -r dev.in
     #   responses
 responses==0.25.8 \
     --hash=sha256:0c710af92def29c8352ceadff0c3fe340ace27cf5af1bbe46fb71275bcd2831c \
     --hash=sha256:9374d047a575c8f781b94454db5cab590b6029505f488d12899ddb10a4af1cf4
-    # via -r requirements/dev.in
+    # via -r dev.in
 selenium==4.17.2 \
     --hash=sha256:5aee79026c07985dc1b0c909f34084aa996dfe5b307602de9016d7a621a473f2 \
     --hash=sha256:d43d6972e516855fb242ef9ce4ce759057b115070e702e7b1c1032fe7b38d87b
@@ -500,16 +500,7 @@ shellcheck-py==0.11.0.1 \
     --hash=sha256:6b88d0a244c82ed07e06a53e444da841f69330ca59ae15d4a66c391655dae7a0 \
     --hash=sha256:784156289ecb17e91c692cd783ab5152333309588cabb10032a047331c63e759 \
     --hash=sha256:b6a3fee28efda2e16e38d6e6d59faf7224300256456639727370d404730849e8
-    # via -r requirements/dev.in
-setuptools==80.9.0 \
-    --hash=sha256:062d34222ad13e0cc312a4c02d73f059e86a4acbfbdea8f8f76b28c99f306922 \
-    --hash=sha256:f36b47402ecde768dbfafc46e8e4207b4360c654f1f3bb84475f0a28628fb19c
-    # via
-    #   pip-tools
-    #   zope-component
-    #   zope-event
-    #   zope-hookable
-    #   zope-interface
+    # via -r dev.in
 six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
     --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254
@@ -541,19 +532,21 @@ trio-websocket==0.11.1 \
 typing-extensions==4.15.0 \
     --hash=sha256:0cea48d173cc12fa28ecabc3b837ea3cf6f38c6d1136f85cbaaf598984861466 \
     --hash=sha256:f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548
-    # via selenium
+    # via
+    #   pytest-asyncio
+    #   selenium
 urllib3[socks]==2.0.3 \
     --hash=sha256:48e7fafa40319d358848e1bc6809b208340fafe2096f1725d05d67443d0483d1 \
     --hash=sha256:bee28b5e56addb8226c96f7f13ac28cb4c301dd5ea8a6ca179c0b9835e032825
     # via
-    #   -r requirements/dev.in
+    #   -r dev.in
     #   requests
     #   responses
     #   selenium
 vcrpy==8.1.1 \
     --hash=sha256:2d16f31ad56493efb6165182dd99767207031b0da3f68b18f975545ede8ac4b9 \
     --hash=sha256:58e3053e33b423f3594031cb758c3f4d1df931307f1e67928e30cf352df7709f
-    # via -r requirements/dev.in
+    # via -r dev.in
 virtualenv==20.29.2 \
     --hash=sha256:fdaabebf6d03b5ba83ae0a02cfe96f48a716f4fae556461d180825866f75b728 \
     --hash=sha256:febddfc3d1ea571bdb1dc0f98d7b45d24def7428214d4fb73cc486c9568cce6a
@@ -773,9 +766,3 @@ zope-interface==6.1 \
     # via
     #   pypom
     #   zope-component
-
-# WARNING: The following packages were not pinned, but pip requires them to be
-# pinned when the requirements file includes hashes and the requirement is not
-# satisfied by a package already installed. Consider using the --allow-unsafe flag.
-# pip
-# setuptools
