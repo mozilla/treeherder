@@ -14,7 +14,7 @@ export default class AlertsViewControls extends React.Component {
     const { filters } = this.props;
 
     this.state = {
-      disableHideDownstream: ['invalid', 'reassigned', 'downstream'].includes(
+      disableHideDownstream: ['invalid', 'reassigned', 'downstream', 'infra'].includes(
         filters.status,
       ),
     };
@@ -37,6 +37,7 @@ export default class AlertsViewControls extends React.Component {
       'invalid',
       'reassigned',
       'downstream',
+      'infra',
       'all statuses',
     ].includes(status);
 
@@ -114,7 +115,7 @@ export default class AlertsViewControls extends React.Component {
 
     const alertCheckboxes = [
       {
-        text: 'Hide downstream / reassigned to / invalid',
+        text: 'Hide downstream / reassigned to / invalid / infra',
         state: hideDownstream,
         stateName: 'hideDownstream',
         disable: this.state.disableHideDownstream,
