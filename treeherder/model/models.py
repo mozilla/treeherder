@@ -313,7 +313,12 @@ class MachinePlatformManager(CachedIdMapManager):
     cache_key = "machine_platform_id_map"
 
     def _build_map(self):
-        return {id: platform for id, platform in self.get_queryset().values_list("id", "platform")}
+        return {
+            id: {"platform": platform, "os_name": os_name, "architecture": architecture}
+            for id, platform, os_name, architecture in self.get_queryset().values_list(
+                "id", "platform", "os_name", "architecture"
+            )
+        }
 
 
 class MachinePlatform(models.Model):
@@ -483,8 +488,10 @@ class JobGroupManager(CachedIdMapManager):
 
     def _build_map(self):
         return {
-            id: {"name": name, "symbol": symbol}
-            for id, name, symbol in self.get_queryset().values_list("id", "name", "symbol")
+            id: {"name": name, "symbol": symbol, "description": description}
+            for id, name, symbol, description in self.get_queryset().values_list(
+                "id", "name", "symbol", "description"
+            )
         }
 
 
@@ -559,8 +566,10 @@ class JobTypeManager(CachedIdMapManager):
 
     def _build_map(self):
         return {
-            id: {"name": name, "symbol": symbol}
-            for id, name, symbol in self.get_queryset().values_list("id", "name", "symbol")
+            id: {"name": name, "symbol": symbol, "description": description}
+            for id, name, symbol, description in self.get_queryset().values_list(
+                "id", "name", "symbol", "description"
+            )
         }
 
 

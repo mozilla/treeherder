@@ -104,7 +104,7 @@ class JobSerializer(serializers.ModelSerializer):
         option_collection_map = context["option_collection_map"]
         job_type = context["job_type_map"].get(job["job_type_id"]) or {}
         job_group = context["job_group_map"].get(job["job_group_id"]) or {}
-        platform = context["machine_platform_map"].get(job["machine_platform_id"], "")
+        machine_platform = context["machine_platform_map"].get(job["machine_platform_id"]) or {}
 
         return [
             job["failure_classification_id"],
@@ -114,7 +114,7 @@ class JobSerializer(serializers.ModelSerializer):
             job_type.get("name", ""),
             job_type.get("symbol", ""),
             job["last_modified"],
-            platform,
+            machine_platform.get("platform", ""),
             job["push_id"],
             job["push__revision"],
             job["result"],

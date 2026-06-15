@@ -221,9 +221,39 @@ class JobsProjectViewSet(viewsets.ViewSet):
         ("retry_id", "taskcluster_metadata__retry_id", None),
     ]
 
-    _option_collection_hash_idx = [pq[0] for pq in _property_query_mapping].index(
-        "option_collection_hash"
+    # Output properties resolved from cached reference-data maps (keyed by the
+    # job's FK id) instead of joining the reference table. Maps output property
+    # name -> the key within the cached reference dict. See JobsViewSet for the
+    # same approach on the global jobs endpoint.
+    _job_group_props = {
+        "job_group_description": "description",
+        "job_group_name": "name",
+        "job_group_symbol": "symbol",
+    }
+    _job_type_props = {
+        "job_type_description": "description",
+        "job_type_name": "name",
+        "job_type_symbol": "symbol",
+    }
+    _machine_platform_props = {
+        "machine_platform_architecture": "architecture",
+        "machine_platform_os": "os_name",
+        "platform": "platform",
+    }
+    _cached_property_names = (
+        _job_group_props.keys() | _job_type_props.keys() | _machine_platform_props.keys()
     )
+    # Columns fetched directly from the job row. The reference props above are
+    # resolved from cache, so we only need each FK id (job_group_id/job_type_id
+    # are already output props; machine_platform_id is added explicitly).
+    # Built with a loop rather than a comprehension so it can reference the
+    # sibling class attributes above (class-body comprehensions get their own
+    # scope and cannot see them).
+    _direct_query_fields = {"machine_platform_id"}
+    for _pq in _property_query_mapping:
+        if _pq[0] not in _cached_property_names:
+            _direct_query_fields.add(_pq[1])
+    del _pq
 
     def _get_job_list_response(self, job_qs, offset, count, return_type):
         """
@@ -234,41 +264,44 @@ class JobsProjectViewSet(viewsets.ViewSet):
         this function is often in the critical path
         """
         option_collection_map = OptionCollection.objects.get_option_collection_map()
+        job_type_map = LazyRefreshMap(JobType.objects)
+        job_group_map = LazyRefreshMap(JobGroup.objects)
+        machine_platform_map = LazyRefreshMap(MachinePlatform.objects)
+
+        property_names = [pq[0] for pq in self._property_query_mapping]
         results = []
-        for values in job_qs[offset : (offset + count)].values_list(
-            *[pq[1] for pq in self._property_query_mapping]
-        ):
-            platform_option = option_collection_map.get(
-                values[self._option_collection_hash_idx], ""
-            )
-            # some values need to be transformed
-            values = list(values)
-            for i, _ in enumerate(values):
-                func = self._property_query_mapping[i][2]
-                if func:
-                    values[i] = func(values[i])
+        for row in job_qs[offset : (offset + count)].values(*self._direct_query_fields):
+            platform_option = option_collection_map.get(row["option_collection_hash"], "")
+            job_group = job_group_map.get(row["job_group_id"]) or {}
+            job_type = job_type_map.get(row["job_type_id"]) or {}
+            machine_platform = machine_platform_map.get(row["machine_platform_id"]) or {}
+
+            values = []
+            for name, query_field, func in self._property_query_mapping:
+                if name in self._job_group_props:
+                    value = job_group.get(self._job_group_props[name], "")
+                elif name in self._job_type_props:
+                    value = job_type.get(self._job_type_props[name], "")
+                elif name in self._machine_platform_props:
+                    value = machine_platform.get(self._machine_platform_props[name], "")
+                else:
+                    value = row[query_field]
+                    if func:
+                        value = func(value)
+                values.append(value)
+
             # append results differently depending on if we are returning
             # a dictionary or a list
             if return_type == "dict":
                 results.append(
-                    dict(
-                        zip(
-                            [pq[0] for pq in self._property_query_mapping] + ["platform_option"],
-                            values + [platform_option],
-                        )
-                    )
+                    dict(zip(property_names + ["platform_option"], values + [platform_option]))
                 )
             else:
                 results.append(values + [platform_option])
 
         response_dict = {"results": results}
         if return_type == "list":
-            response_dict.update(
-                {
-                    "job_property_names": [pq[0] for pq in self._property_query_mapping]
-                    + ["platform_option"]
-                }
-            )
+            response_dict.update({"job_property_names": property_names + ["platform_option"]})
 
         return response_dict
 

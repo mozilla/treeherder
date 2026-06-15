@@ -332,6 +332,33 @@ def test_global_job_list_reference_data(client, eleven_jobs_stored):
         assert row["signature"] == job.signature.signature
 
 
+def test_project_job_list_reference_data(client, eleven_jobs_stored, test_repository):
+    """
+    The project-bound jobs list resolves job_type, job_group and
+    machine_platform (including their description/os/architecture fields) from
+    cached id->value maps rather than SQL joins. Verify the serialized values
+    still match the job records.
+    """
+    url = reverse("jobs-list", kwargs={"project": test_repository.name})
+    resp = client.get(f"{url}?count=2000")
+    assert resp.status_code == 200
+
+    results_by_id = {row["id"]: row for row in resp.json()["results"]}
+    jobs = Job.objects.select_related("job_type", "job_group", "machine_platform")
+    assert results_by_id  # sanity: we got jobs back
+    for job in jobs:
+        row = results_by_id[job.id]
+        assert row["job_type_name"] == job.job_type.name
+        assert row["job_type_symbol"] == job.job_type.symbol
+        assert row["job_type_description"] == job.job_type.description
+        assert row["job_group_name"] == job.job_group.name
+        assert row["job_group_symbol"] == job.job_group.symbol
+        assert row["job_group_description"] == job.job_group.description
+        assert row["platform"] == job.machine_platform.platform
+        assert row["machine_platform_os"] == job.machine_platform.os_name
+        assert row["machine_platform_architecture"] == job.machine_platform.architecture
+
+
 def test_lazy_refresh_map_refreshes_on_miss(transactional_db):
     """
     LazyRefreshMap serves lookups from the cached reference map and, on the
@@ -346,8 +373,12 @@ def test_lazy_refresh_map_refreshes_on_miss(transactional_db):
     lazy = LazyRefreshMap(JobType.objects)
 
     # The cached map predates `added`; the miss should trigger a single rebuild.
-    assert lazy.get(added.id) == {"name": "test-type-added", "symbol": "a"}
+    assert lazy.get(added.id) == {"name": "test-type-added", "symbol": "a", "description": ""}
     # Entries present in the original cached map still resolve.
-    assert lazy.get(existing.id) == {"name": "test-type-existing", "symbol": "e"}
+    assert lazy.get(existing.id) == {
+        "name": "test-type-existing",
+        "symbol": "e",
+        "description": "",
+    }
     # A genuinely unknown id falls back to the provided default.
     assert lazy.get(-1, "missing") == "missing"
