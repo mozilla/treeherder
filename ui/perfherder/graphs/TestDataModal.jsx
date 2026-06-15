@@ -168,10 +168,10 @@ export default class TestDataModal extends React.Component {
 
   addRelatedConfigs = async (params) => {
     const { relatedSeries } = this.props.options ?? {};
-    const { errorMessages, repository_name: repositoryName } = this.state;
+    const { errorMessages } = this.state;
 
     const response = await PerfSeriesModel.getSeriesList(
-      repositoryName.name,
+      relatedSeries.repository_name,
       params,
     );
     const updates = processResponse(response, 'relatedTests', errorMessages);
@@ -180,10 +180,10 @@ export default class TestDataModal extends React.Component {
       const tests = updates.relatedTests.filter(
         (series) =>
           series.platform === relatedSeries.platform &&
-          series.testName === relatedSeries.test &&
+          series.suite === relatedSeries.suite &&
           series.name !== relatedSeries.name,
       );
-
+      
       updates.relatedTests = tests;
     }
     updates.showNoRelatedTests = updates.relatedTests.length === 0;
@@ -262,8 +262,26 @@ export default class TestDataModal extends React.Component {
       this.setState({ ...updates, availableTags });
       this.applyFilters(filterText);
     } else {
+      const { frameworks = [], projects = [] } = this.props;
       params.framework = relatedSeries.framework_id;
-      if (option === 'addRelatedPlatform') {
+
+      const relatedFramework = this.findObject(frameworks, 'id', relatedSeries.framework_id) || framework;
+      const relatedRepository = this.findObject(projects, 'name', relatedSeries.repository_name) || repositoryName;
+
+      const platformResponse = await PerfSeriesModel.getPlatformList(
+        relatedRepository.name,
+        { interval: innerTimeRange.value, framework: relatedSeries.framework_id },
+      );
+      const platformUpdates = processResponse(platformResponse, 'platforms', errorMessages);
+
+      this.setState({
+        ...platformUpdates,
+        framework: relatedFramework,
+        repository_name: relatedRepository,
+        platform: relatedSeries.platform,
+      });
+      
+      if (option === 'addRelatedPlatform') {        
         this.addRelatedBranches(params, false);
       } else if (option === 'addRelatedConfigs') {
         this.addRelatedConfigs(params);
@@ -353,6 +371,10 @@ export default class TestDataModal extends React.Component {
   closeModal = () => {
     this.setState(
       {
+        framework: { name: 'talos', id: 1 },
+        repository_name: this.findObject(this.props.projects, 'name', 'mozilla-central'),
+        platform: 'linux64',
+        selectedTests: [],
         relatedTests: [],
         filteredData: [],
         showNoRelatedTests: false,
