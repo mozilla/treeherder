@@ -1,10 +1,11 @@
 import logging
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from itertools import groupby, zip_longest
 
 import simplejson as json
 from django.db.models import F, Q, QuerySet
 
+from treeherder.perf.auto_perf_sheriffing.secretary import calculate_gap_size
 from treeherder.perf.exceptions import MissingRecordsError
 from treeherder.perf.models import (
     BackfillRecord,
@@ -12,6 +13,7 @@ from treeherder.perf.models import (
     PerformanceAlert,
     PerformanceAlertSummary,
     PerformanceDatum,
+    Push,
 )
 from treeherder.utils import default_serializer
 
@@ -321,12 +323,31 @@ class BackfillReportMaintainer:
 
     def _provide_records(self, backfill_report: BackfillReport, alert_context_map: list[tuple]):
         for alert, retrigger_context in alert_context_map:
-            BackfillRecord.objects.create(
+            record = BackfillRecord.objects.create(
                 alert=alert,
                 report=backfill_report,
                 context=json.dumps(retrigger_context, default=default_serializer),
                 last_detected_push_id=alert.summary.push_id,
             )
+            try:
+                detected_push = Push.objects.get(id=record.last_detected_push_id)
+            except Push.DoesNotExist:
+                self.log.warning(
+                    f"Push {record.last_detected_push_id} not found for initial log: [alert_id={record.alert.id}]"
+                )
+                continue
+            record.append_to_backfill_logs(
+                {
+                    "iteration": record.iteration_count,
+                    "status": "initial",
+                    "detected_push_id": record.last_detected_push_id,
+                    "detected_push_revision": detected_push.revision,
+                    "detected_push_gap_size": calculate_gap_size(record, detected_push),
+                    "timestamp": datetime.now(UTC).isoformat(),
+                    "notes": "Initial detection from the alert.",
+                }
+            )
+            record.save()
 
     def __fetch_summaries_to_retrigger(
         self, since: datetime, frameworks: list[str], repositories: list[str]

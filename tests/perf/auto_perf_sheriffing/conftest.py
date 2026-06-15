@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from unittest.mock import MagicMock
 
 import pytest
@@ -156,7 +156,7 @@ def report_maintainer_mock():
 
 @pytest.fixture
 def backfill_tool_mock():
-    def backfill_job(job_id):
+    def backfill_job(job_id, alert_id=None):
         if job_id is None:
             raise Job.DoesNotExist
         return "RANDOM_TASK_ID"
@@ -190,7 +190,7 @@ def empty_sheriff_settings(secretary):
 def performance_settings(db):
     settings = {
         "limits": 500,
-        "last_reset_date": datetime.utcnow(),
+        "last_reset_date": datetime.now(UTC),
     }
     return PerformanceSettings.objects.create(
         name="perf_sheriff_bot",
@@ -202,7 +202,7 @@ def performance_settings(db):
 def expired_performance_settings(db):
     settings = {
         "limits": 500,
-        "last_reset_date": datetime.utcnow() - timedelta(days=30),
+        "last_reset_date": datetime.now(UTC) - timedelta(days=30),
     }
     return PerformanceSettings.objects.create(
         name="perf_sheriff_bot",

@@ -1093,9 +1093,8 @@ class BackfillRecord(models.Model):
             job = Job.objects.get(id=job_id)
             self.__remember_job_properties(job)
         except Job.DoesNotExist as ex:
-            logger.warning(ex)
-            logger.debug(
-                f"Failed to set properties of job ID {job_id} to record ID {self.alert_id}."
+            logger.warning(
+                f"Failed to set properties of job ID [{job_id}] to record ID [{self.alert.id}]: {ex}"
             )
 
     def __remember_job_properties(self, job: Job):
@@ -1177,6 +1176,16 @@ class BackfillRecord(models.Model):
     def append_to_backfill_logs(self, entry: dict):
         log = self.get_backfill_logs()
         log.append(entry)
+        self.backfill_logs = json.dumps(log, default=str)
+
+    def update_backfill_log(self, iteration: int, updates: dict):
+        log = self.get_backfill_logs()
+        for entry in log:
+            if entry.get("iteration") == iteration:
+                entry.update(updates)
+                break
+        else:
+            log.append(updates)
         self.backfill_logs = json.dumps(log, default=str)
 
     def save(self, *args, **kwargs):
