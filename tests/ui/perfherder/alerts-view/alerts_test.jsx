@@ -166,7 +166,7 @@ beforeAll(() => {
 
 test('toggle buttons should filter alert summary and alerts by selected filter', async () => {
   const { getByText, getByTestId } = alertsView();
-  const hideDownstream = getByText('Hide downstream / reassigned to / invalid');
+  const hideDownstream = getByText('Hide downstream / reassigned to / invalid / infra');
 
   const alertSummary1 = await waitFor(() =>
     getByTestId(`alert summary ${testAlertSummaries[0].id.toString()} title`),
