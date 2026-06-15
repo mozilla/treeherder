@@ -287,7 +287,6 @@ export default class AlertTableRow extends React.Component {
     }
     const jobUrl = getSideBySideLink(
       alertSummary.repository,
-      alertSummary.prev_push_revision,
       alertSummary.revision,
       platform,
       testName,
@@ -389,21 +388,13 @@ export default class AlertTableRow extends React.Component {
     const noiseProfileTooltip = alert.noise_profile
       ? noiseProfiles[alert.noise_profile.replace('/', '')]
       : noiseProfiles.NA;
-    // TODO: make a side-by-side status of its own. We know that side-by-side was triggered
-    //  if only backfill bot has one of the three statuses below
-    const backfillResultStatuses = [
-      alertBackfillResultStatusMap.backfilled,
-      alertBackfillResultStatusMap.successful,
-      alertBackfillResultStatusMap.failed,
-    ];
-    const sxsTriggered =
-      alert.backfill_record &&
-      backfillResultStatuses.includes(alert.backfill_record.status);
+    // side_by_side_available is computed per-alert on the backend: it's true only
+    // when a successful side-by-side job for this alert's platform + suite exists.
     const showSideBySideLink =
       alert.series_signature.framework_id === browsertimeId &&
       !alert.series_signature.tags.includes('interactive') &&
       !browsertimeBenchmarksTests.includes(alert.series_signature.suite) &&
-      sxsTriggered;
+      alert.side_by_side_available;
 
     const backfillStatusInfo = this.getBackfillStatusInfo(alert);
     let sherlockTooltip = backfillStatusInfo?.message;

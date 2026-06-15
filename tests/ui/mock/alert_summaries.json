@@ -249,6 +249,7 @@
       {
         "id": 177726,
         "status": 0,
+        "side_by_side_available": true,
         "series_signature": {
           "id": 3777239,
           "framework_id": 13,
