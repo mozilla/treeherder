@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  cacache: 19.0.1
+  cacache: 21.0.1
   '@mui/styled-engine': npm:@mui/styled-engine-sc@latest
 
 importers:
@@ -35,7 +35,7 @@ importers:
         version: 7.1.2(@types/react@19.2.8)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7))
       '@mui/styled-engine-sc':
         specifier: npm:@mui/styled-engine-sc@latest
-        version: 9.1.0(@types/react@19.2.8)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7))
+        version: 9.1.1(@types/react@19.2.8)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7))
       '@mui/x-date-pickers':
         specifier: 8.21.0
         version: 8.21.0(@mui/material@7.1.2(@types/react@19.2.8)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7)))(@mui/system@7.3.7(@types/react@19.2.8)(react@19.2.7)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7)))(@types/react@19.2.8)(dayjs@1.11.21)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -1236,8 +1236,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@mui/styled-engine-sc@9.1.0':
-    resolution: {integrity: sha512-1RDdUfKhX931TMTMxM7t9LAxK2YDf0idwl5QbEa8MOfBS6viUEhnPwuBzbdyMnEm2mpr4/qhxt/+tPDEAdZD6w==}
+  '@mui/styled-engine-sc@9.1.1':
+    resolution: {integrity: sha512-exYYEpBelwi/cDFqOKCzbVOHbROFXnUdffCeiU9hZMaTGXxQocQmYgtiXUG8raOJUzGMpV73qjzZg1+5xr/G/w==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       styled-components: ^6.0.0
@@ -6823,7 +6823,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.8
 
-  '@mui/styled-engine-sc@9.1.0(@types/react@19.2.8)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7))':
+  '@mui/styled-engine-sc@9.1.1(@types/react@19.2.8)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7))':
     dependencies:
       '@babel/runtime': 7.29.2
       '@types/hoist-non-react-statics': 3.3.7(@types/react@19.2.8)
@@ -6838,7 +6838,7 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.29.2
       '@mui/private-theming': 7.3.7(@types/react@19.2.8)(react@19.2.7)
-      '@mui/styled-engine': '@mui/styled-engine-sc@9.1.0(@types/react@19.2.8)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7))'
+      '@mui/styled-engine': '@mui/styled-engine-sc@9.1.1(@types/react@19.2.8)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7))'
       '@mui/types': 7.4.10(@types/react@19.2.8)
       '@mui/utils': 7.3.7(@types/react@19.2.8)(react@19.2.7)
       clsx: 2.1.1
