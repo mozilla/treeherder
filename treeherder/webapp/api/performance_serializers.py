@@ -6,7 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from rest_framework import exceptions, serializers
 
-from treeherder.model.models import Repository, TaskclusterMetadata
+from treeherder.model.models import Job, Repository, TaskclusterMetadata
 from treeherder.perf.models import (
     BackfillRecord,
     IssueTracker,
@@ -160,6 +160,7 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
     )
     classifier_email = serializers.SerializerMethodField()
     backfill_record = BackfillRecordSerializer(read_only=True, allow_null=True)
+    side_by_side_available = serializers.SerializerMethodField()
 
     # Force `is_regression` to be an optional field, even when using PUT, since in
     # Django 2.1 BooleanField no longer has an implicit `blank=True` on the model.
@@ -242,6 +243,26 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
     def get_classifier_email(self, performance_alert):
         return getattr(performance_alert.classifier, "email", None)
 
+    def get_side_by_side_available(self, alert):
+        # Whether a successful side-by-side job for this alert's platform + suite
+        # exists on its summary's culprit (regression) push. side-by-side jobs are
+        # identified by their job type symbol ("side-by-side-*"), and their job
+        # type name encodes the compared platform and suite, which is how we match
+        # a job to a specific alert. The frontend uses this to show the link.
+        sxs_map = self.context.get("sxs_availability_map")
+        if sxs_map is not None:
+            return sxs_map.get(alert.id, False)
+        summary = alert.summary
+        platform = alert.series_signature.platform.platform.lower()
+        suite = alert.series_signature.suite.lower()
+        names = Job.objects.filter(
+            repository_id=summary.repository_id,
+            push_id=summary.push_id,
+            job_type__symbol__icontains="side-by-side",
+            result="success",
+        ).values_list("job_type__name", flat=True)
+        return any(platform in name.lower() and suite in name.lower() for name in names)
+
     class Meta:
         model = PerformanceAlert
         fields = [
@@ -265,6 +286,7 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
             "starred",
             "classifier_email",
             "backfill_record",
+            "side_by_side_available",
             "noise_profile",
         ]
 

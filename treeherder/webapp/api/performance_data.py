@@ -638,10 +638,54 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
                 result[key] = {"task_id": task_id, "retry_id": retry_id}
         return result
 
+    def _build_sxs_availability_map(self, page):
+        """
+        Returns a dict mapping alert_id -> bool, indicating whether a successful
+        side-by-side job for that alert's platform + suite exists on its summary's
+        culprit (regression) push. side-by-side jobs are identified by their job
+        type symbol ("side-by-side-*"); the compared platform and suite are encoded
+        in the job type name, which is how a job is matched to a specific alert.
+        Batched per page so the serializer doesn't query per alert.
+        """
+        # (alert, its own summary) pairs, covering both alerts and related_alerts
+        alert_summary_pairs = []
+        for summary in page:
+            for alert in summary.alerts.all():
+                alert_summary_pairs.append((alert, summary))
+            for alert in summary.related_alerts.all():
+                alert_summary_pairs.append((alert, alert.summary))
+
+        push_keys = {(sm.repository_id, sm.push_id) for _, sm in alert_summary_pairs}
+        if not push_keys:
+            return {}
+        sxs_jobs = [
+            (repo_id, push_id, name.lower())
+            for repo_id, push_id, name in models.Job.objects.filter(
+                repository_id__in={repo_id for repo_id, _ in push_keys},
+                push_id__in={push_id for _, push_id in push_keys},
+                job_type__symbol__icontains="side-by-side",
+                result="success",
+            ).values_list("repository_id", "push_id", "job_type__name")
+        ]
+
+        result = {}
+        for alert, sm in alert_summary_pairs:
+            platform = alert.series_signature.platform.platform.lower()
+            suite = alert.series_signature.suite.lower()
+            result[alert.id] = any(
+                repo_id == sm.repository_id
+                and push_id == sm.push_id
+                and platform in name
+                and suite in name
+                for repo_id, push_id, name in sxs_jobs
+            )
+        return result
+
     def get_serializer_context(self):
         ctx = super().get_serializer_context()
         ctx["duplicated_summaries_map"] = None
         ctx["tc_metadata_map"] = None
+        ctx["sxs_availability_map"] = None
         return ctx
 
     @staticmethod
@@ -665,6 +709,7 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
             context = self.get_serializer_context()
             context["duplicated_summaries_map"] = self._build_duplicated_summaries_map(page)
             context["tc_metadata_map"] = self._build_tc_metadata_map(page)
+            context["sxs_availability_map"] = self._build_sxs_availability_map(page)
             serializer = self.get_serializer(page, many=True, context=context)
             if pk:
                 for summary in serializer.data:

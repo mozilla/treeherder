@@ -928,26 +928,16 @@ test('Sherlock status 0 in tooltip on alerts', async () => {
   });
 });
 
-test(`Side-by-side icon is not displayed in Debug Tools column when Sherlock status is 0 (Not backfilled) in tooltip alerts`, async () => {
+test(`Side-by-side icon is displayed in Debug Tools column when a side-by-side comparison is available for the alert`, async () => {
   const alert = testAlertSummaries[2].alerts[0];
-  alert.backfill_record.status = alertBackfillResultStatusMap.preliminary;
+  alert.side_by_side_available = true;
   expect(alert.id).toBe(177726);
 
-  const { getByTestId, getByText, queryByTestId } = alertsViewControls();
-  // hovering over the Sherlock icon should display the tooltip
-  const sherlockIcon = await waitFor(() =>
-    getByTestId(`alert ${alert.id.toString()} sherlock icon`),
+  const { getByTestId } = alertsViewControls();
+  const sxsIcon = await waitFor(() =>
+    getByTestId(`alert ${alert.id.toString()} side-by-side icon`),
   );
-  fireEvent.mouseOver(sherlockIcon);
-  await waitFor(() => {
-    const tooltipText = getByText(
-      alertBackfillResultVisual.preliminary.message,
-    );
-    expect(tooltipText).toBeInTheDocument();
-    expect(
-      queryByTestId(`alert ${alert.id.toString()} side-by-side icon`),
-    ).not.toBeInTheDocument();
-  });
+  expect(sxsIcon).toBeInTheDocument();
 });
 
 test('Sherlock status 1 in tooltip on alerts', async () => {
@@ -970,27 +960,20 @@ test('Sherlock status 1 in tooltip on alerts', async () => {
   });
 });
 
-test(`Side-by-side icon is not displayed in Debug Tools column when Sherlock status is 1 (Soon to be backfilled) in tooltip on alerts`, async () => {
+test(`Side-by-side icon is not displayed in Debug Tools column when no side-by-side comparison is available for the alert`, async () => {
   const alert = testAlertSummaries[2].alerts[0];
-  alert.backfill_record.status =
-    alertBackfillResultStatusMap.readyForProcessing;
+  alert.side_by_side_available = false;
   expect(alert.id).toBe(177726);
 
-  const { getByTestId, getByText, queryByTestId } = alertsViewControls();
-  // hovering over the Sherlock icon should display the tooltip
-  const sherlockIcon = await waitFor(() =>
-    getByTestId(`alert ${alert.id.toString()} sherlock icon`),
-  );
-  fireEvent.mouseOver(sherlockIcon);
-  await waitFor(() => {
-    const tooltipText = getByText(
-      alertBackfillResultVisual.readyForProcessing.message,
-    );
-    expect(tooltipText).toBeInTheDocument();
-    expect(
-      queryByTestId(`alert ${alert.id.toString()} side-by-side icon`),
-    ).not.toBeInTheDocument();
-  });
+  const { getByTestId, queryByTestId } = alertsViewControls();
+  // the Sherlock icon still renders; the side-by-side icon must not
+  await waitFor(() => getByTestId(`alert ${alert.id.toString()} sherlock icon`));
+  expect(
+    queryByTestId(`alert ${alert.id.toString()} side-by-side icon`),
+  ).not.toBeInTheDocument();
+
+  // restore for other tests sharing this mock alert
+  alert.side_by_side_available = true;
 });
 
 test('Sherlock status 2 in tooltip on alerts', async () => {
@@ -1010,24 +993,6 @@ test('Sherlock status 2 in tooltip on alerts', async () => {
   });
 });
 
-test(`Side-by-side icon is not displayed in Debug Tools column when Sherlock status is 2 (Backfilling in progress) in tooltip on alerts`, async () => {
-  const alert = testAlertSummaries[2].alerts[0];
-  alert.backfill_record.status = alertBackfillResultStatusMap.backfilled;
-  expect(alert.id).toBe(177726);
-
-  const { getByTestId, getByText } = alertsViewControls();
-  // hovering over the Sherlock icon should display the tooltip
-  const sherlockIcon = await waitFor(() =>
-    getByTestId(`alert ${alert.id.toString()} sherlock icon`),
-  );
-  fireEvent.mouseOver(sherlockIcon);
-  await waitFor(() => getByText(alertBackfillResultVisual.backfilled.message));
-  const sxsIcon = await waitFor(() =>
-    getByTestId(`alert ${alert.id.toString()} side-by-side icon`),
-  );
-  expect(sxsIcon).toBeInTheDocument();
-});
-
 test('Sherlock status 3 in tooltip on alerts', async () => {
   const alert = testAlertSummaries[0].alerts[3];
   alert.backfill_record.status = alertBackfillResultStatusMap.successful;
@@ -1045,24 +1010,6 @@ test('Sherlock status 3 in tooltip on alerts', async () => {
   });
 });
 
-test(`Side-by-side icon is displayed in Debug Tools column when Sherlock status is 3 (Backfilled successfully some jobs) in tooltip on alerts`, async () => {
-  const alert = testAlertSummaries[2].alerts[0];
-  alert.backfill_record.status = alertBackfillResultStatusMap.successful;
-  expect(alert.id).toBe(177726);
-
-  const { getByTestId, getByText } = alertsViewControls();
-  // hovering over the Sherlock icon should display the tooltip
-  const sherlockIcon = await waitFor(() =>
-    getByTestId(`alert ${alert.id.toString()} sherlock icon`),
-  );
-  fireEvent.mouseOver(sherlockIcon);
-  await waitFor(() => getByText(alertBackfillResultVisual.successful.message));
-  const sxsIcon = await waitFor(() =>
-    getByTestId(`alert ${alert.id.toString()} side-by-side icon`),
-  );
-  expect(sxsIcon).toBeInTheDocument();
-});
-
 test('Sherlock status 4 in tooltip on alerts', async () => {
   const alert = testAlertSummaries[0].alerts[3];
   alert.backfill_record.status = alertBackfillResultStatusMap.failed;
@@ -1078,24 +1025,6 @@ test('Sherlock status 4 in tooltip on alerts', async () => {
     const tooltipText = getByText(alertBackfillResultVisual.failed.message);
     expect(tooltipText).toBeInTheDocument();
   });
-});
-
-test(`Side-by-side icon is displayed in Debug Tools column when Sherlock status is 4 (Backfilling failed for some jobs) in tooltip on alerts`, async () => {
-  const alert = testAlertSummaries[2].alerts[0];
-  alert.backfill_record.status = alertBackfillResultStatusMap.failed;
-  expect(alert.id).toBe(177726);
-
-  const { getByTestId, getByText } = alertsViewControls();
-  // hovering over the Sherlock icon should display the tooltip
-  const sherlockIcon = await waitFor(() =>
-    getByTestId(`alert ${alert.id.toString()} sherlock icon`),
-  );
-  fireEvent.mouseOver(sherlockIcon);
-  await waitFor(() => getByText(alertBackfillResultVisual.failed.message));
-  const sxsIcon = await waitFor(() =>
-    getByTestId(`alert ${alert.id.toString()} side-by-side icon`),
-  );
-  expect(sxsIcon).toBeInTheDocument();
 });
 
 test("Alert's ID can be copied to clipboard", async () => {

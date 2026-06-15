@@ -5,7 +5,7 @@ import pytest
 from django.urls import reverse
 
 from tests.conftest import create_perf_alert
-from treeherder.model.models import Push
+from treeherder.model.models import Job, JobType, Push
 from treeherder.perf.models import (
     PerformanceAlert,
     PerformanceAlertSummary,
@@ -124,6 +124,7 @@ def test_alert_summaries_get(
         "classifier",
         "classifier_email",
         "backfill_record",
+        "side_by_side_available",
         "noise_profile",
     }
     assert resp.json()["results"][0]["related_alerts"] == []
@@ -156,6 +157,105 @@ def test_alert_summaries_get_multiple_alerts(
 
     # make sure the 2 alert summaries are unique
     assert len(set([result["id"] for result in data["results"]])) == 2
+
+
+def _create_side_by_side_job(
+    repository,
+    push_id,
+    refdata,
+    platform,
+    suite,
+    result="success",
+):
+    # side-by-side jobs are identified by their job type symbol ("side-by-side-*");
+    # the compared platform and suite are encoded in the job type name, which is how
+    # a job is matched to a specific alert.
+    job_type = JobType.objects.create(
+        symbol=f"side-by-side-{suite}",
+        name=f"test-{platform} browsertime-tp6-firefox-{suite} aaaaaaaaaaaa bbbbbbbbbbbb",
+    )
+    now = datetime.now()
+    return Job.objects.create(
+        guid=str(uuid.uuid4()),
+        repository=repository,
+        push_id=push_id,
+        signature=refdata.signature,
+        build_platform=refdata.build_platform,
+        machine_platform=refdata.machine_platform,
+        machine=refdata.machine,
+        option_collection_hash=refdata.option_collection_hash,
+        job_type=job_type,
+        job_group=refdata.job_group,
+        product=refdata.product,
+        failure_classification_id=1,
+        who="test@example.com",
+        reason="scheduled",
+        result=result,
+        state="completed",
+        submit_time=now,
+        start_time=now,
+        end_time=now,
+        tier=1,
+    )
+
+
+def _alert_sbs(resp, alert_id):
+    alerts = resp.json()["results"][0]["alerts"]
+    return next(a["side_by_side_available"] for a in alerts if a["id"] == alert_id)
+
+
+def test_side_by_side_available_when_matching_job_on_push(
+    client, test_repository, test_perf_alert, generic_reference_data, failure_classifications
+):
+    # test_perf_alert: platform "win7", suite "mysuite", on the summary's push
+    _create_side_by_side_job(
+        test_repository, test_perf_alert.summary.push_id, generic_reference_data, "win7", "mysuite"
+    )
+
+    resp = client.get(reverse("performance-alert-summaries-list"))
+    assert resp.status_code == 200
+    assert _alert_sbs(resp, test_perf_alert.id) is True
+
+
+def test_side_by_side_not_available_without_job(client, test_perf_alert):
+    resp = client.get(reverse("performance-alert-summaries-list"))
+    assert resp.status_code == 200
+    assert _alert_sbs(resp, test_perf_alert.id) is False
+
+
+def test_side_by_side_not_available_when_platform_differs(
+    client, test_repository, test_perf_alert, generic_reference_data, failure_classifications
+):
+    # a side-by-side job exists for the same suite but a different platform
+    _create_side_by_side_job(
+        test_repository,
+        test_perf_alert.summary.push_id,
+        generic_reference_data,
+        "linux64",
+        "mysuite",
+    )
+
+    resp = client.get(reverse("performance-alert-summaries-list"))
+    assert resp.status_code == 200
+    assert _alert_sbs(resp, test_perf_alert.id) is False
+
+
+def test_side_by_side_not_available_when_job_unsuccessful(
+    client, test_repository, test_perf_alert, generic_reference_data, failure_classifications
+):
+    # a side-by-side job that ran but did not succeed must not count
+    _create_side_by_side_job(
+        test_repository,
+        test_perf_alert.summary.push_id,
+        generic_reference_data,
+        "win7",
+        "mysuite",
+        result="testfailed",
+    )
+
+    resp = client.get(reverse("performance-alert-summaries-list"))
+    assert resp.status_code == 200
+    assert _alert_sbs(resp, test_perf_alert.id) is False
 
 
 def test_alert_summaries_sheriffed_frameworks(
@@ -255,6 +355,7 @@ def test_alert_summaries_get_onhold(
         "classifier",
         "classifier_email",
         "backfill_record",
+        "side_by_side_available",
         "noise_profile",
     }
     assert resp.json()["results"][0]["related_alerts"] == []

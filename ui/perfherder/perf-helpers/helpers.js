@@ -381,20 +381,11 @@ export const createGraphsLinks = (
   return links;
 };
 
-export const getSideBySideLink = (
-  repository,
-  baseRevision,
-  newRevision,
-  platform,
-  testName,
-) => {
-  const revisions = `${baseRevision.slice(0, 12)} ${newRevision.slice(0, 12)}`;
-
+export const getSideBySideLink = (repository, revision, platform, testName) => {
   const jobUrl = getJobsUrl({
     repo: repository,
-    tochange: newRevision,
-    fromchange: baseRevision,
-    searchStr: `${platform} ${testName} ${revisions} ${sxsTaskName}`,
+    revision,
+    searchStr: `${platform} ${testName} ${sxsTaskName}`,
     group_state: 'expanded',
   });
 
