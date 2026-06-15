@@ -155,6 +155,8 @@ export default class AlertTable extends React.Component {
       hideDownstream && alert.status === alertStatusMap.downstream;
     const concealableInvalid =
       hideDownstream && alert.status === alertStatusMap.invalid;
+    const concealableInfra =
+      hideDownstream && alert.status === alertStatusMap.infra;
     const concealableAssignedToOthers =
       hideAssignedToOthers && alertSummary.assignee_username !== username;
 
@@ -163,6 +165,7 @@ export default class AlertTable extends React.Component {
       !concealableReassigned &&
       !concealableDownstream &&
       !concealableInvalid &&
+      !concealableInfra &&
       !concealableAssignedToOthers;
 
     if (!filterText) return matchesFilters;

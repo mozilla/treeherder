@@ -137,9 +137,9 @@ export default class AlertActionPanel extends React.Component {
         selectedAlerts.includes(alert),
       );
     }
-    const refreshStatus = 'invalid';
+    const refreshStatus = ['invalid', 'infra'];
 
-    if (newStatus === refreshStatus && refreshAlertsSummaries) {
+    if (newStatus in refreshStatus && refreshAlertsSummaries) {
       fetchAlertSummaries(undefined, false);
     } else {
       fetchAlertSummaries(alertSummary.id);
