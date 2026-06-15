@@ -433,6 +433,7 @@ export const getGraphsURL = (
   timeRange,
   alertRepository,
   performanceFrameworkId,
+  highlightedToRevision,
 ) => {
   let url = `/perfherder/graphs?timerange=${timeRange}&series=${alertRepository},${alert.series_signature.id},1,${alert.series_signature.framework_id}`;
 
@@ -448,6 +449,7 @@ export const getGraphsURL = (
       )
       .join('');
   }
+  url = url.concat(`&highlightedToRevision=${highlightedToRevision}`);
 
   return url;
 };
@@ -523,26 +525,23 @@ export const getFilledBugSummary = (alertSummary) => {
   }
 
   // Find the max and min magnitude alerts
-  const {
-    maxMagnitudeAlert,
-    maxMagnitude,
-    minMagnitude,
-  } = filteredAlerts.reduce(
-    (acc, alert) => {
-      const val = alert.amount_pct;
-      return {
-        maxMagnitudeAlert:
-          val > acc.maxMagnitude ? alert : acc.maxMagnitudeAlert,
-        maxMagnitude: Math.max(acc.maxMagnitude, val),
-        minMagnitude: Math.min(acc.minMagnitude, val),
-      };
-    },
-    {
-      maxMagnitudeAlert: filteredAlerts[0],
-      maxMagnitude: filteredAlerts[0].amount_pct,
-      minMagnitude: filteredAlerts[0].amount_pct,
-    },
-  );
+  const { maxMagnitudeAlert, maxMagnitude, minMagnitude } =
+    filteredAlerts.reduce(
+      (acc, alert) => {
+        const val = alert.amount_pct;
+        return {
+          maxMagnitudeAlert:
+            val > acc.maxMagnitude ? alert : acc.maxMagnitudeAlert,
+          maxMagnitude: Math.max(acc.maxMagnitude, val),
+          minMagnitude: Math.min(acc.minMagnitude, val),
+        };
+      },
+      {
+        maxMagnitudeAlert: filteredAlerts[0],
+        maxMagnitude: filteredAlerts[0].amount_pct,
+        minMagnitude: filteredAlerts[0].amount_pct,
+      },
+    );
 
   // Build string components
   const magnitudeStr =

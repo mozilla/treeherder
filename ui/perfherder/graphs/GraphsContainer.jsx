@@ -397,6 +397,7 @@ class GraphsContainer extends React.Component {
       showTable,
       zoom = {},
       highlightedRevisions = ['', ''],
+      highlightedToRevision = '',
       highlightChangelogData,
       highlightCommonAlerts,
       highlightInitialDataPoints,
@@ -530,7 +531,11 @@ class GraphsContainer extends React.Component {
                       <VictoryLine
                         key={item}
                         style={{
-                          data: { stroke: 'gray', strokeWidth: 1 },
+                          data: {
+                            stroke: 'gray',
+                            strokeWidth:
+                              item.revision === highlightedToRevision ? 2 : 1,
+                          },
                         }}
                         x={() => item.x}
                       />
@@ -562,10 +567,7 @@ class GraphsContainer extends React.Component {
                       }))}
                       labels={({ datum }) => datum.label}
                       labelComponent={
-                        <VictoryTooltip
-                          renderInPortal
-                          pointerLength={6}
-                        />
+                        <VictoryTooltip renderInPortal pointerLength={6} />
                       }
                       style={{
                         data: { fill: this.infraChangeColor, width: 1 },
@@ -627,7 +629,7 @@ class GraphsContainer extends React.Component {
                       style={{
                         data: {
                           fill: 'transparent',
-                          stroke:({ datum }) => datum.z,
+                          stroke: ({ datum }) => datum.z,
                           strokeWidth: 2,
                         },
                       }}

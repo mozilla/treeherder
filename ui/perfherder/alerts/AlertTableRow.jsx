@@ -365,7 +365,7 @@ export default class AlertTableRow extends React.Component {
   render() {
     const { user = null, alert, alertSummary } = this.props;
     const { starred, checkboxSelected, icons } = this.state;
-    const { repository, framework } = alertSummary;
+    const { repository, framework, revision } = alertSummary;
 
     const { tags, extra_options: options } = alert.series_signature;
 
@@ -465,7 +465,13 @@ export default class AlertTableRow extends React.Component {
               />
             </Button>
             <a
-              href={getGraphsURL(alert, timeRange, repository, framework)}
+              href={getGraphsURL(
+                alert,
+                timeRange,
+                repository,
+                framework,
+                revision,
+              )}
               target="_blank"
               rel="noopener noreferrer"
               className="text-dark button btn border p-0 border-0 bg-transparent"
