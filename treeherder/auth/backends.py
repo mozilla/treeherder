@@ -72,9 +72,6 @@ class AuthBackend:
         Set users in sheriffing group in jwt response as is_staff
         """
 
-        if "https://sso.mozilla.com/claim/groups" not in user_info:
-            return None
-
         groups = (
             user_info["https://sso.mozilla.com/claim/groups"]
             if "https://sso.mozilla.com/claim/groups" in user_info
@@ -220,6 +217,7 @@ class AuthBackend:
             user_info = self._get_user_info(access_token, id_token)
             username = self._get_username_from_userinfo(user_info)
             is_sheriff = self._get_is_sheriff_from_userinfo(user_info)
+            groups_claim_present = "https://sso.mozilla.com/claim/groups" in user_info
             logger.debug("User info retrieved for: %s", username)
 
             seconds_until_expiry = self._calculate_session_expiry(request, user_info)
@@ -239,7 +237,7 @@ class AuthBackend:
             try:
                 user = User.objects.get(username=username)
                 logger.debug("Existing user authenticated: %s", username)
-                if is_sheriff is not None and user.is_staff != is_sheriff:
+                if groups_claim_present and user.is_staff != is_sheriff:
                     user.is_staff = is_sheriff
                     user.save()
                     logger.debug("Updated staff status for user %s to %s", username, is_sheriff)
