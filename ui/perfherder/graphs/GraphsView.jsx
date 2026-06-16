@@ -32,6 +32,10 @@ import LoadingSpinner from '../../shared/LoadingSpinner';
 
 import LegendCard from './LegendCard';
 import GraphsViewControls from './GraphsViewControls';
+import Notifications from '../../job-view/Notifications';
+import '../../css/treeherder-notifications.css';
+import { useNotificationStore } from '../../job-view/stores/notificationStore';
+import { MAX_TRANSIENT_AGE } from '../../helpers/notifications';
 
 function GraphsView({ projects, frameworks, user }) {
   const location = useLocation();
@@ -265,6 +269,15 @@ function GraphsView({ projects, frameworks, user }) {
       changeParams();
     }
   });
+
+  useEffect(() => {
+    const { clearExpiredNotifications } = useNotificationStore.getState();
+    const id = setInterval(
+      () => clearExpiredNotifications(),
+      MAX_TRANSIENT_AGE,
+    );
+    return () => clearInterval(id);
+  }, []);
 
   const getTestData = useCallback(
     async (newDisplayedTests = [], init = false) => {
@@ -507,6 +520,7 @@ function GraphsView({ projects, frameworks, user }) {
       errorClasses={errorMessageClass}
       message={genericErrorMessage}
     >
+      <Notifications />
       <Container fluid className="pt-5 pe-5 ps-5">
         {loading && <LoadingSpinner />}
 

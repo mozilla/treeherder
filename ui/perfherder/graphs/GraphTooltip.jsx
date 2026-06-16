@@ -20,6 +20,12 @@ import RepositoryModel from '../../models/repository';
 import { displayNumber, getStatus } from '../perf-helpers/helpers';
 import Clipboard from '../../shared/Clipboard';
 import { toMercurialDateStr } from '../../helpers/display';
+import JobModel from '../../models/job';
+import PushModel from '../../models/push';
+import TaskclusterModel from '../../models/taskcluster';
+import { notify } from '../../job-view/stores/notificationStore';
+import { getAction } from '../../helpers/taskcluster';
+import { formatTaskclusterError } from '../../helpers/errorMessage';
 
 const GraphTooltip = ({
   testData,
@@ -88,6 +94,10 @@ const GraphTooltip = ({
   const repositoryName = projects.find(
     (repositoryName) => repositoryName.name === testDetails.repository_name,
   );
+  const currentRepo = RepositoryModel.getRepo(
+    testDetails.repository_name,
+    projects,
+  );
 
   let prevRevision;
   let prevPushId;
@@ -154,6 +164,38 @@ const GraphTooltip = ({
       newAlertSummaryId,
       flotIndex,
     );
+  };
+
+  const retriggerJob = async () => {
+    const job = await JobModel.get(currentRepo.name, dataPointDetails.jobId);
+    JobModel.retrigger([job], currentRepo, notify, 1);
+  };
+
+  const backfillJob = async () => {
+    try {
+      const job = await JobModel.get(currentRepo.name, dataPointDetails.jobId);
+      const { id: decisionTaskId } = await PushModel.getDecisionTaskId(
+        dataPointDetails.pushId,
+        notify,
+      );
+      const results = await TaskclusterModel.load(
+        decisionTaskId,
+        job,
+        currentRepo,
+      );
+      const backfilltask = getAction(results.actions, 'backfill');
+      await TaskclusterModel.submit({
+        action: backfilltask,
+        decisionTaskId,
+        taskId: results.originalTaskId,
+        input: {},
+        staticActionVariables: results.staticActionVariables,
+        currentRepo,
+      });
+      notify('Request sent to backfill job via action.json', 'success');
+    } catch (e) {
+      notify(formatTaskclusterError(e), 'danger', { sticky: true });
+    }
   };
 
   const tooltipRef = useRef(null);
@@ -341,6 +383,30 @@ const GraphTooltip = ({
                   </Button>
                 ) : (
                   <span>(log in as a sheriff to create)</span>
+                )}
+              </p>
+            )}
+            {dataPointDetails.jobId && (
+              <p className="pt-2">
+                {user.isStaff ? (
+                  <>
+                    <Button
+                      variant="outline-darker-info"
+                      size="sm"
+                      onClick={retriggerJob}
+                    >
+                      retrigger
+                    </Button>{' '}
+                    <Button
+                      variant="ouline-darker-info"
+                      size="sm"
+                      onClick={backfillJob}
+                    >
+                      backfill
+                    </Button>
+                  </>
+                ) : (
+                  <span>(log in as a sheriff to backfill/retrigger)</span>
                 )}
               </p>
             )}
