@@ -1,4 +1,3 @@
-
 import { render, cleanup, waitFor, fireEvent } from '@testing-library/react';
 
 import AlertTableRow from '../../../../ui/perfherder/alerts/AlertTableRow';
@@ -381,7 +380,7 @@ test('Chart icon opens the graph link for an alert in a new tab', async () => {
   expect(graphLink).toBeInTheDocument();
   expect(graphLink).toHaveAttribute(
     'href',
-    '/perfherder/graphs?timerange=31536000&series=autoland,1944439,1,1',
+    '/perfherder/graphs?timerange=31536000&series=autoland,1944439,1,1&highlightedToRevision=930f0f51b681aea2a5e915a2770f80a9914ed3df',
   );
   expect(graphLink).toHaveAttribute('target', '_blank');
 });
