@@ -72,6 +72,9 @@ class AuthBackend:
         Set users in sheriffing group in jwt response as is_staff
         """
 
+        if "https://sso.mozilla.com/claim/groups" not in user_info:
+            return None
+
         groups = (
             user_info["https://sso.mozilla.com/claim/groups"]
             if "https://sso.mozilla.com/claim/groups" in user_info
@@ -236,7 +239,7 @@ class AuthBackend:
             try:
                 user = User.objects.get(username=username)
                 logger.debug("Existing user authenticated: %s", username)
-                if user.is_staff != is_sheriff:
+                if is_sheriff is not None and user.is_staff != is_sheriff:
                     user.is_staff = is_sheriff
                     user.save()
                     logger.debug("Updated staff status for user %s to %s", username, is_sheriff)
