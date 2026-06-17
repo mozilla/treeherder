@@ -22,7 +22,7 @@ from treeherder.etl.pushlog import HgPushlogProcess, last_push_id_from_server
 from treeherder.etl.taskcluster_pulse.handler import EXCHANGE_EVENT_MAP, handle_message
 from treeherder.model.models import Repository
 from treeherder.utils import github
-from treeherder.utils.github import fetch_api_full_url
+from treeherder.utils.github import fetch_api, fetch_api_full_url
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -276,8 +276,8 @@ def query_data(repo_meta, commit):
     event_base_sha = repo_meta["branch"]
     # First we try with `master` being the base sha
     # e.g. https://api.github.com/repos/servo/servo/compare/master...1418c0555ff77e5a3d6cf0c6020ba92ece36be2e
-    compare_response = github.compare_shas(
-        repo_meta["owner"], repo_meta["repo"], repo_meta["branch"], commit
+    compare_response = fetch_api(
+        f"repos/{repo_meta['owner']}/{repo_meta['repo']}/compare/{event_base_sha}...{commit}"
     )
     merge_base_commit = compare_response.get("merge_base_commit")
     if merge_base_commit:
@@ -307,8 +307,8 @@ def query_data(repo_meta, commit):
         assert event_base_sha != repo_meta["branch"]
         logger.info("We have a new base: %s", event_base_sha)
         # When using the correct event_base_sha the "commits" field will be correct
-        compare_response = github.compare_shas(
-            repo_meta["owner"], repo_meta["repo"], event_base_sha, commit
+        compare_response = fetch_api(
+            f"repos/{repo_meta['owner']}/{repo_meta['repo']}/compare/{event_base_sha}...{commit}"
         )
 
     commits = []
