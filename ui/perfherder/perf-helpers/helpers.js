@@ -449,7 +449,10 @@ export const getGraphsURL = (
       )
       .join('');
   }
-  url = url.concat(`&highlightedToRevision=${highlightedToRevision}`);
+
+  if (highlightedToRevision) {
+    url = url.concat(`&highlightedToRevision=${highlightedToRevision}`);
+  }
 
   return url;
 };
