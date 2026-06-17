@@ -348,6 +348,13 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     bug_due_date = serializers.ReadOnlyField()
     monitored_alerts = serializers.BooleanField(required=False)
 
+    def validate(self, data):
+        push = data.get("push", getattr(self.instance, "push", None))
+        prev_push = data.get("prev_push", getattr(self.instance, "prev_push", None))
+        if push and prev_push and push.revision == prev_push.revision:
+            raise serializers.ValidationError("From and To revisions should be distinct.")
+        return data
+
     def update(self, instance, validated_data):
         instance.timestamp_first_triage()
         return super().update(instance, validated_data)

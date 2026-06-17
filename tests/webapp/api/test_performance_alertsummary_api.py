@@ -430,6 +430,19 @@ def test_performance_alert_summary_change_from_revision(
     assert PerformanceAlertSummary.objects.get(id=1).prev_push.revision == original_revision
 
 
+def test_performance_alert_summary_same_from_to_revision(
+    client, test_perf_alert_summary, test_sheriff, test_push
+):
+    client.force_authenticate(user=test_sheriff)
+
+    # verify we cannot set the same revision for both from and to revision
+    resp = client.put(
+        reverse("performance-alert-summaries-list") + "1/",
+        {"revision": test_push.revision, "prev_push_revision": test_push.revision},
+    )
+    assert resp.status_code == 400
+
+
 def test_performance_alert_summary_change_revision(
     client, test_perf_alert_summary, test_sheriff, test_push
 ):
