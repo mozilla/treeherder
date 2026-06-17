@@ -165,6 +165,20 @@ class Secretary:
         backfilled_records = BackfillRecord.objects.filter(status=BackfillRecord.BACKFILLED)
 
         for record in backfilled_records:
+            logs = record.get_backfill_logs()
+            last_log = logs[-1] if logs else None
+            if last_log:
+                log_timestamp = datetime.fromisoformat(last_log["timestamp"])
+                if log_timestamp < datetime.now(UTC) - timedelta(hours=72):
+                    record.status = BackfillRecord.FAILED
+                    new_note = "Backfill exceeded 72-hour limit, marking as FAILED."
+                    log_entry = {
+                        "notes": f"{last_log.get('notes', '')} {new_note}".strip(),
+                    }
+                    record.update_backfill_log(last_log["iteration"], log_entry)
+                    record.save()
+                    continue
+
             # ensure each push in push range has at least one job of job type
             try:
                 outcome = self.outcome_checker.check(record)
@@ -243,13 +257,7 @@ class Secretary:
 
             if detected_push_id == record.last_detected_push_id:
                 if log_entry["detected_push_gap_size"] > 0:
-                    previous_logs = record.get_backfill_logs()
-                    previous_iteration = record.iteration_count - 1
-                    previous_log = None
-                    for log in previous_logs:
-                        if log.get("iteration") == previous_iteration:
-                            previous_log = log
-                            break
+                    previous_log = record.get_backfill_log(record.iteration_count - 1)
                     previous_gap_size = (
                         previous_log.get("detected_push_gap_size") if previous_log else None
                     )

@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from unittest.mock import patch
 
 import pytest
@@ -242,6 +242,27 @@ def test_no_action_when_in_progress(get_outcome_checker_mock, record_backfilled)
     assert BackfillRecord.objects.filter(status=BackfillRecord.BACKFILLED).count() == 1
     secretary.check_outcome()
     assert BackfillRecord.objects.filter(status=BackfillRecord.BACKFILLED).count() == 1
+
+
+def test_check_outcome_marks_failed_after_72h(get_outcome_checker_mock, record_backfilled):
+    outcome_checker_mock = get_outcome_checker_mock(OutcomeStatus.IN_PROGRESS)
+    secretary = Secretary(outcome_checker_mock)
+
+    stale_timestamp = (datetime.now(UTC) - timedelta(hours=73)).isoformat()
+    record_backfilled.append_to_backfill_logs(
+        {"iteration": 0, "timestamp": stale_timestamp, "notes": "some notes."}
+    )
+    record_backfilled.save()
+
+    assert BackfillRecord.objects.filter(status=BackfillRecord.BACKFILLED).count() == 1
+    assert BackfillRecord.objects.filter(status=BackfillRecord.FAILED).count() == 0
+    secretary.check_outcome()
+    assert BackfillRecord.objects.filter(status=BackfillRecord.BACKFILLED).count() == 0
+    assert BackfillRecord.objects.filter(status=BackfillRecord.FAILED).count() == 1
+
+    record_backfilled.refresh_from_db()
+    last_log = record_backfilled.get_backfill_logs()[-1]
+    assert last_log["notes"] == "some notes. Backfill exceeded 72-hour limit, marking as FAILED."
 
 
 class TestOutcomeChecker:

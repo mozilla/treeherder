@@ -1188,6 +1188,13 @@ class BackfillRecord(models.Model):
             log.append(updates)
         self.backfill_logs = json.dumps(log, default=str)
 
+    def get_backfill_log(self, iteration: int) -> dict:
+        log = self.get_backfill_logs()
+        for entry in log:
+            if entry.get("iteration") == iteration:
+                return entry
+        return None
+
     def save(self, *args, **kwargs):
         # refresh parent's latest update time
         super().save(*args, **kwargs)
