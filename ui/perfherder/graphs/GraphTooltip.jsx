@@ -398,7 +398,7 @@ const GraphTooltip = ({
                       retrigger
                     </Button>{' '}
                     <Button
-                      variant="ouline-darker-info"
+                      variant="outline-darker-info"
                       size="sm"
                       onClick={backfillJob}
                     >
