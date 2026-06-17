@@ -91,9 +91,6 @@ const GraphTooltip = ({
     commonAlertStatus = getStatus(datum.commonAlert.status);
   }
 
-  const repositoryName = projects.find(
-    (repositoryName) => repositoryName.name === testDetails.repository_name,
-  );
   const currentRepo = RepositoryModel.getRepo(
     testDetails.repository_name,
     projects,
@@ -108,7 +105,7 @@ const GraphTooltip = ({
 
   if (prevFlotDataPointIndex !== -1 && originalDataPointIdx > 0) {
     const prevDataPointIdx = originalDataPointIdx - 1;
-    const repoModel = new RepositoryModel(repositoryName);
+    const repoModel = new RepositoryModel(currentRepo);
 
     prevRevision = testDetails.data[prevDataPointIdx].revision;
     prevPushId = testDetails.data[prevDataPointIdx].pushId;
@@ -167,11 +164,35 @@ const GraphTooltip = ({
   };
 
   const retriggerJob = async () => {
-    const job = await JobModel.get(currentRepo.name, dataPointDetails.jobId);
-    JobModel.retrigger([job], currentRepo, notify, 1);
+    if (!currentRepo) {
+      notify(
+        'Unknown repository for this data point; cannot retrigger.',
+        'danger',
+      );
+      return;
+    }
+    try {
+      const job = await JobModel.get(currentRepo.name, dataPointDetails.jobId);
+      await JobModel.retrigger([job], currentRepo, notify, 1);
+    } catch (e) {
+      notify(formatTaskclusterError(e), 'danger', { sticky: true });
+    }
   };
 
   const backfillJob = async () => {
+    if (!currentRepo) {
+      notify(
+        'Unknown repository for this data point; cannot backfill.',
+        'danger',
+      );
+      return;
+    }
+
+    if (currentRepo.is_try_repo) {
+      notify('Backfill is not available for try repositories.', 'warning');
+      return;
+    }
+
     try {
       const job = await JobModel.get(currentRepo.name, dataPointDetails.jobId);
       const { id: decisionTaskId } = await PushModel.getDecisionTaskId(
@@ -192,7 +213,7 @@ const GraphTooltip = ({
         staticActionVariables: results.staticActionVariables,
         currentRepo,
       });
-      notify('Request sent to backfill job via action.json', 'success');
+      notify('Request sent to backfill job via actions.json', 'success');
     } catch (e) {
       notify(formatTaskclusterError(e), 'danger', { sticky: true });
     }
