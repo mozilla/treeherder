@@ -20,12 +20,12 @@ const mockSetSelectedJob = jest.fn();
 const mockPinJobs = jest.fn();
 let mockSelectedJob = null;
 
-jest.mock('../../../../ui/job-view/stores/selectedJobStore', () => ({
+jest.mock('../../../../ui/shared/stores/selectedJobStore', () => ({
   useSelectedJobStore: (selector) => selector({ selectedJob: mockSelectedJob }),
   setSelectedJob: (...args) => mockSetSelectedJob(...args),
 }));
 
-jest.mock('../../../../ui/job-view/stores/pinnedJobsStore', () => ({
+jest.mock('../../../../ui/shared/stores/pinnedJobsStore', () => ({
   usePinnedJobsStore: jest.fn(),
   pinJobs: (...args) => mockPinJobs(...args),
 }));

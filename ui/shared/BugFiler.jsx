@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { usePushesStore } from '../job-view/stores/pushesStore';
+import { usePushesStore } from './stores/pushesStore';
 import { Button, Modal, OverlayTrigger, Tooltip, Form } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -18,7 +18,7 @@ import {
 import { confirmFailure } from '../helpers/job';
 import { create } from '../helpers/http';
 import { omittedLeads, parseSummary, getCrashSignatures } from '../helpers/bug';
-import { notify } from '../job-view/stores/notificationStore';
+import { notify } from './stores/notificationStore';
 
 function computeInitialBugFilerState(props) {
   const {

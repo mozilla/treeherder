@@ -4,14 +4,14 @@ import Hotkeys from 'react-hot-keys';
 
 import { thEvents } from '../helpers/constants';
 
-import { notify, useNotificationStore } from './stores/notificationStore';
+import { notify, useNotificationStore } from '../shared/stores/notificationStore';
 import {
   useSelectedJobStore,
   changeJob,
   clearSelectedJob,
   updateJobDetails,
-} from './stores/selectedJobStore';
-import { pinJob, unPinAll, usePinnedJobsStore } from './stores/pinnedJobsStore';
+} from '../shared/stores/selectedJobStore';
+import { pinJob, unPinAll, usePinnedJobsStore } from '../shared/stores/pinnedJobsStore';
 
 const handledKeys =
   'b,c,f,ctrl+shift+f,f,g,i,j,k,l,shift+l,n,p,q,r,s,t,u,v,ctrl+shift+u,left,right,space,shift+/,escape,ctrl+enter,ctrl+backspace';

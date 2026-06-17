@@ -23,7 +23,7 @@ import { toMercurialDateStr } from '../../helpers/display';
 import JobModel from '../../models/job';
 import PushModel from '../../models/push';
 import TaskclusterModel from '../../models/taskcluster';
-import { notify } from '../../job-view/stores/notificationStore';
+import { notify } from '../../shared/stores/notificationStore';
 import { getAction } from '../../helpers/taskcluster';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
 

@@ -14,7 +14,7 @@ import revisionTips from '../../mock/revisionTips.json';
 import {
   usePushesStore,
   initialState,
-} from '../../../../ui/job-view/stores/pushesStore';
+} from '../../../../ui/shared/stores/pushesStore';
 import { getApiUrl } from '../../../../ui/helpers/url';
 import JobModel from '../../../../ui/models/job';
 

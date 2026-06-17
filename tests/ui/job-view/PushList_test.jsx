@@ -19,7 +19,7 @@ import {
   usePushesStore,
   fetchPushes,
   initialState as pushesInitialState,
-} from '../../../ui/job-view/stores/pushesStore';
+} from '../../../ui/shared/stores/pushesStore';
 import { getApiUrl } from '../../../ui/helpers/url';
 
 // solution to createRange is not a function error for popper (used by reactstrap)

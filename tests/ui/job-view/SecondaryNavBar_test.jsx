@@ -8,7 +8,7 @@ import SecondaryNavBar from '../../../ui/job-view/headerbars/SecondaryNavBar';
 import {
   usePushesStore,
   initialState,
-} from '../../../ui/job-view/stores/pushesStore';
+} from '../../../ui/shared/stores/pushesStore';
 import repos from '../mock/repositories';
 
 const repoName = 'autoland';

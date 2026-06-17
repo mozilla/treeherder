@@ -14,8 +14,8 @@ import TaskclusterModel from '../models/taskcluster';
 import DropdownMenuItems from '../shared/DropdownMenuItems';
 import { checkRootUrl } from '../taskcluster-auth-callback/constants';
 
-import { notify } from './stores/notificationStore';
-import { usePushesStore } from './stores/pushesStore';
+import { notify } from '../shared/stores/notificationStore';
+import { usePushesStore } from '../shared/stores/pushesStore';
 
 class CustomJobActions extends React.PureComponent {
   constructor(props) {

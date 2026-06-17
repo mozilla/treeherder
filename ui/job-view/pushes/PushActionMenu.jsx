@@ -12,8 +12,8 @@ import { formatTaskclusterError } from '../../helpers/errorMessage';
 import CustomJobActions from '../CustomJobActions';
 import PushModel from '../../models/push';
 import JobModel from '../../models/job';
-import { notify } from '../stores/notificationStore';
-import { usePushesStore, updateRange } from '../stores/pushesStore';
+import { notify } from '../../shared/stores/notificationStore';
+import { usePushesStore, updateRange } from '../../shared/stores/pushesStore';
 
 function PushActionMenu({
   revision = null,

@@ -4,7 +4,7 @@ import { Button, Modal, Form } from 'react-bootstrap';
 import { create } from '../helpers/http';
 import { getApiUrl } from '../helpers/url';
 import { parseSummary, getCrashSignatures } from '../helpers/bug';
-import { notify } from '../job-view/stores/notificationStore';
+import { notify } from './stores/notificationStore';
 
 function computeInitialSummary(suggestion, jobGroupName, jobTypeName) {
   const parsedSummary = parseSummary(suggestion);

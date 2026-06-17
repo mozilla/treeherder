@@ -25,8 +25,8 @@ import {
   usePushesStore,
   updateJobMap,
   recalculateUnclassifiedCounts,
-} from '../stores/pushesStore';
-import { notify } from '../stores/notificationStore';
+} from '../../shared/stores/pushesStore';
+import { notify } from '../../shared/stores/notificationStore';
 import {
   checkRootUrl,
   prodFirefoxRootUrl,

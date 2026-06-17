@@ -13,8 +13,8 @@ import { thAllResultStatuses } from '../../helpers/constants';
 import {
   useSelectedJobStore,
   setSelectedJob,
-} from '../stores/selectedJobStore';
-import { pinJobs } from '../stores/pinnedJobsStore';
+} from '../../shared/stores/selectedJobStore';
+import { pinJobs } from '../../shared/stores/pinnedJobsStore';
 
 const resultStatusMenuItems = thAllResultStatuses.filter(
   (rs) => rs !== 'runnable',

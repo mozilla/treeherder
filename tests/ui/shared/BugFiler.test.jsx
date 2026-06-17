@@ -6,15 +6,15 @@ import { BugFilerClass } from '../../../ui/shared/BugFiler';
 import * as httpHelpers from '../../../ui/helpers/http';
 import * as jobHelpers from '../../../ui/helpers/job';
 import * as bugHelpers from '../../../ui/helpers/bug';
-import * as notificationStore from '../../../ui/job-view/stores/notificationStore';
-import { usePushesStore } from '../../../ui/job-view/stores/pushesStore';
+import * as notificationStore from '../../../ui/shared/stores/notificationStore';
+import { usePushesStore } from '../../../ui/shared/stores/pushesStore';
 
 // Mock the helpers
 jest.mock('../../../ui/helpers/http', () => ({
   create: jest.fn(),
 }));
 
-jest.mock('../../../ui/job-view/stores/notificationStore', () => ({
+jest.mock('../../../ui/shared/stores/notificationStore', () => ({
   notify: jest.fn(),
 }));
 

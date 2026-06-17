@@ -19,17 +19,17 @@ import { getProjectUrl } from '../../../../ui/helpers/location';
 import {
   usePushesStore,
   initialState as pushesInitialState,
-} from '../../../../ui/job-view/stores/pushesStore';
+} from '../../../../ui/shared/stores/pushesStore';
 import reposFixture from '../../mock/repositories';
 import KeyboardShortcuts from '../../../../ui/job-view/KeyboardShortcuts';
 import {
   pinJobs,
   usePinnedJobsStore,
-} from '../../../../ui/job-view/stores/pinnedJobsStore';
+} from '../../../../ui/shared/stores/pinnedJobsStore';
 import {
   setSelectedJob,
   useSelectedJobStore,
-} from '../../../../ui/job-view/stores/selectedJobStore';
+} from '../../../../ui/shared/stores/selectedJobStore';
 
 const mockLocation = { search: '', pathname: '/jobs' };
 const mockNavigate = jest.fn();

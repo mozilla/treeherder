@@ -6,9 +6,9 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import {
   usePinnedJobsStore,
   setPinBoardVisible,
-} from '../stores/pinnedJobsStore';
-import { useSelectedJobStore } from '../stores/selectedJobStore';
-import { usePushesStore } from '../stores/pushesStore';
+} from '../../shared/stores/pinnedJobsStore';
+import { useSelectedJobStore } from '../../shared/stores/selectedJobStore';
+import { usePushesStore } from '../../shared/stores/pushesStore';
 
 import PinBoard from './PinBoard';
 import SummaryPanel from './summary/SummaryPanel';

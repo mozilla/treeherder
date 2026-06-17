@@ -18,7 +18,7 @@ import ErrorBoundary from '../../shared/ErrorBoundary';
 import {
   usePushesStore,
   recalculateUnclassifiedCounts,
-} from '../stores/pushesStore';
+} from '../../shared/stores/pushesStore';
 
 import TierIndicator from './TierIndicator';
 import WatchedRepo from './WatchedRepo';

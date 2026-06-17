@@ -35,11 +35,11 @@ import {
 import JobModel from '../../../models/job';
 import TaskclusterModel from '../../../models/taskcluster';
 import CustomJobActions from '../../CustomJobActions';
-import { pinJob } from '../../stores/pinnedJobsStore';
-import { notify } from '../../stores/notificationStore';
+import { pinJob } from '../../../shared/stores/pinnedJobsStore';
+import { notify } from '../../../shared/stores/notificationStore';
 import { getAction } from '../../../helpers/taskcluster';
 import { checkRootUrl } from '../../../taskcluster-auth-callback/constants';
-import { usePushesStore } from '../../stores/pushesStore';
+import { usePushesStore } from '../../../shared/stores/pushesStore';
 
 import LogUrls from './LogUrls';
 

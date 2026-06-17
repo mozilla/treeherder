@@ -19,8 +19,8 @@ import {
 import { triggerTask } from '../../../helpers/performance';
 import { isPerfTest } from '../../../helpers/job';
 import { geckoProfileTaskName, sxsTaskName } from '../../../helpers/constants';
-import { usePushesStore } from '../../stores/pushesStore';
-import { notify } from '../../stores/notificationStore';
+import { usePushesStore } from '../../../shared/stores/pushesStore';
+import { notify } from '../../../shared/stores/notificationStore';
 
 import SideBySide from './SideBySide';
 import PerfData from './PerfData';

@@ -12,12 +12,12 @@ import BugJobMapModel from '../../models/bugJobMap';
 import JobClassificationModel from '../../models/classification';
 import JobClassificationTypeAndBugsModel from '../../models/classificationTypeAndBugs';
 import JobModel from '../../models/job';
-import { setSelectedJob } from '../stores/selectedJobStore';
-import { notify } from '../stores/notificationStore';
+import { setSelectedJob } from '../../shared/stores/selectedJobStore';
+import { notify } from '../../shared/stores/notificationStore';
 import {
   usePushesStore,
   recalculateUnclassifiedCounts,
-} from '../stores/pushesStore';
+} from '../../shared/stores/pushesStore';
 import {
   usePinnedJobsStore,
   addBug,
@@ -26,7 +26,7 @@ import {
   unPinAll,
   setClassificationId,
   setClassificationComment,
-} from '../stores/pinnedJobsStore';
+} from '../../shared/stores/pinnedJobsStore';
 
 function PinBoard({
   selectedJobFull = null,

@@ -32,9 +32,9 @@ import LoadingSpinner from '../../shared/LoadingSpinner';
 
 import LegendCard from './LegendCard';
 import GraphsViewControls from './GraphsViewControls';
-import Notifications from '../../job-view/Notifications';
+import Notifications from '../../shared/Notifications';
 import '../../css/treeherder-notifications.css';
-import { useNotificationStore } from '../../job-view/stores/notificationStore';
+import { useNotificationStore } from '../../shared/stores/notificationStore';
 import { MAX_TRANSIENT_AGE } from '../../helpers/notifications';
 
 function GraphsView({ projects, frameworks, user }) {

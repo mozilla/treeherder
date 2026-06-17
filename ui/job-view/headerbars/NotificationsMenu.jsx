@@ -9,7 +9,7 @@ import {
 import { Button, Dropdown } from 'react-bootstrap';
 
 import { shortDateFormat } from '../../helpers/display';
-import { useNotificationStore } from '../stores/notificationStore';
+import { useNotificationStore } from '../../shared/stores/notificationStore';
 
 const getIcon = (severity) => {
   // TODO: Move this and the usage in NotificationsList to a shared component.

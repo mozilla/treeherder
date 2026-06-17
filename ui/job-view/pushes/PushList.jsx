@@ -6,17 +6,17 @@ import intersection from 'lodash/intersection';
 import isEqual from 'lodash/isEqual';
 
 import ErrorBoundary from '../../shared/ErrorBoundary';
-import { notify } from '../stores/notificationStore';
+import { notify } from '../../shared/stores/notificationStore';
 import {
   syncSelectionFromUrl,
   clearJobViaUrl,
-} from '../stores/selectedJobStore';
+} from '../../shared/stores/selectedJobStore';
 import {
   usePushesStore,
   fetchPushes,
   updateRange,
   pollPushes,
-} from '../stores/pushesStore';
+} from '../../shared/stores/pushesStore';
 import { updatePushParams } from '../../helpers/location';
 
 import Push from './Push';

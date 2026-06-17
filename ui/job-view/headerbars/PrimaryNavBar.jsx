@@ -5,7 +5,7 @@ import isEqual from 'lodash/isEqual';
 import Logo from '../../img/treeherder-logo.png';
 import Login from '../../shared/auth/Login';
 import LogoMenu from '../../shared/LogoMenu';
-import { notify } from '../stores/notificationStore';
+import { notify } from '../../shared/stores/notificationStore';
 import HelpMenu from '../../shared/HelpMenu';
 
 import NotificationsMenu from './NotificationsMenu';

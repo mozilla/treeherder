@@ -14,7 +14,7 @@ import PinBoard from '../../../ui/job-view/details/PinBoard';
 import {
   addBug,
   usePinnedJobsStore,
-} from '../../../ui/job-view/stores/pinnedJobsStore';
+} from '../../../ui/shared/stores/pinnedJobsStore';
 import FailureSummaryTab from '../../../ui/shared/tabs/failureSummary/FailureSummaryTab';
 import jobMap from '../mock/job_map';
 import bugSuggestions from '../mock/bug_suggestions.json';

@@ -5,8 +5,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import { useLocation } from 'react-router';
 
-import { updateRange } from '../stores/pushesStore';
-import { clearSelectedJob } from '../stores/selectedJobStore';
+import { updateRange } from '../../shared/stores/pushesStore';
+import { clearSelectedJob } from '../../shared/stores/selectedJobStore';
 import { getFieldChoices } from '../../helpers/filter';
 
 function ActiveFilters({
