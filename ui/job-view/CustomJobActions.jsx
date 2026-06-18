@@ -218,7 +218,7 @@ class CustomJobActions extends React.PureComponent {
                     <DropdownMenuItems
                       selectedItem={selectedAction.name}
                       updateData={this.onChangeAction}
-                      options={Object.keys(actions)}
+                      options={Object.keys(actions).sort()}
                     />
                   </Dropdown.Menu>
                 </Dropdown>
