@@ -14,7 +14,10 @@ from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 from treeherder.model.error_summary import get_error_summary
 from treeherder.model.models import (
     Job,
+    JobGroup,
     JobLog,
+    JobType,
+    MachinePlatform,
     OptionCollection,
     Repository,
     TextLogError,
@@ -23,6 +26,22 @@ from treeherder.webapp.api import pagination, serializers
 from treeherder.webapp.api.utils import CharInFilter, NumberInFilter, to_timestamp
 
 logger = logging.getLogger(__name__)
+
+
+def build_ref_map(model, ids, fields):
+    """
+    Batch-fetch a ``{id: {field: value}}`` map for a small set of reference-table
+    ids via a single indexed primary-key query (``WHERE id IN (...)``).
+
+    This replaces the per-row SQL join to large reference tables (job_type in
+    particular has ~70k rows, so the planner hash-scans the whole table to join
+    it). By collecting the FK ids actually present on the page and fetching only
+    those rows, the cost scales with the page's distinct reference values
+    (median ~27 per push) instead of the whole table, and needs no cache/TTL.
+    """
+    if not ids:
+        return {}
+    return {row["id"]: row for row in model.objects.filter(id__in=ids).values("id", *fields)}
 
 
 class JobFilter(django_filters.FilterSet):
@@ -87,10 +106,10 @@ class JobsViewSet(viewsets.ReadOnlyModelViewSet):
     This viewset is the jobs endpoint.
     """
 
+    # job_type, job_group and machine_platform are intentionally NOT joined:
+    # they are resolved from a per-page batch-fetch (see list()/build_ref_map)
+    # instead of joining the (large) reference tables on every row.
     _default_select_related = [
-        "job_type",
-        "job_group",
-        "machine_platform",
         "signature",
         "taskcluster_metadata",
         "push",
@@ -101,14 +120,11 @@ class JobsViewSet(viewsets.ReadOnlyModelViewSet):
         "end_time",
         "failure_classification_id",
         "id",
-        "job_group__name",
-        "job_group__symbol",
-        "job_type__name",
-        "job_type__symbol",
+        "job_group_id",
+        "job_type_id",
         "last_modified",
         "option_collection_hash",
-        "machine_platform__platform",
-        "option_collection_hash",
+        "machine_platform_id",
         "push_id",
         "push__revision",
         "result",
@@ -149,11 +165,37 @@ class JobsViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = pagination.JobPagination
 
     def get_serializer_context(self):
-        option_collection_map = OptionCollection.objects.get_option_collection_map()
-        return {"option_collection_map": option_collection_map}
+        return {
+            "option_collection_map": OptionCollection.objects.get_option_collection_map(),
+            # Populated per-page in list() once the page's FK ids are known.
+            "job_type_map": {},
+            "job_group_map": {},
+            "machine_platform_map": {},
+        }
 
     def list(self, request, *args, **kwargs):
-        resp = super().list(request, *args, **kwargs)
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is None:
+            page = list(queryset)
+
+        # Resolve job_type/job_group/machine_platform for just this page's rows
+        # via three indexed id__in fetches, rather than joining the reference
+        # tables in the main query (see build_ref_map).
+        ref_fields = ("name", "symbol")
+        context = self.get_serializer_context()
+        context["job_type_map"] = build_ref_map(
+            JobType, {row["job_type_id"] for row in page}, ref_fields
+        )
+        context["job_group_map"] = build_ref_map(
+            JobGroup, {row["job_group_id"] for row in page}, ref_fields
+        )
+        context["machine_platform_map"] = build_ref_map(
+            MachinePlatform, {row["machine_platform_id"] for row in page}, ("platform",)
+        )
+
+        serializer = self.get_serializer(page, many=True, context=context)
+        resp = self.get_paginated_response(serializer.data)
         resp.data["job_property_names"] = self._output_field_names
         return Response(resp.data)
 
@@ -215,9 +257,38 @@ class JobsProjectViewSet(viewsets.ViewSet):
         ("retry_id", "taskcluster_metadata__retry_id", None),
     ]
 
-    _option_collection_hash_idx = [pq[0] for pq in _property_query_mapping].index(
-        "option_collection_hash"
+    # Output properties resolved from per-page batch-fetched reference maps
+    # (keyed by the job's FK id) instead of joining the reference table. Each
+    # maps output-property name -> key within the fetched reference dict.
+    _job_group_props = {
+        "job_group_description": "description",
+        "job_group_name": "name",
+        "job_group_symbol": "symbol",
+    }
+    _job_type_props = {
+        "job_type_description": "description",
+        "job_type_name": "name",
+        "job_type_symbol": "symbol",
+    }
+    _machine_platform_props = {
+        "machine_platform_architecture": "architecture",
+        "machine_platform_os": "os_name",
+        "platform": "platform",
+    }
+    _cached_property_names = (
+        _job_group_props.keys() | _job_type_props.keys() | _machine_platform_props.keys()
     )
+    # Columns fetched directly from the job row. The reference props above are
+    # resolved from the batch-fetched maps, so we only need each FK id
+    # (job_group_id/job_type_id are already output props; machine_platform_id is
+    # added explicitly). Built with a loop rather than a comprehension so it can
+    # reference the sibling class attributes (class-body comprehensions get their
+    # own scope and cannot see them).
+    _direct_query_fields = {"machine_platform_id"}
+    for _pq in _property_query_mapping:
+        if _pq[0] not in _cached_property_names:
+            _direct_query_fields.add(_pq[1])
+    del _pq
 
     def _get_job_list_response(self, job_qs, offset, count, return_type):
         """
@@ -228,29 +299,50 @@ class JobsProjectViewSet(viewsets.ViewSet):
         this function is often in the critical path
         """
         option_collection_map = OptionCollection.objects.get_option_collection_map()
+        page = list(job_qs[offset : (offset + count)].values(*self._direct_query_fields))
+
+        # Resolve job_type/job_group/machine_platform for just this page's rows
+        # via three indexed id__in fetches instead of joining the reference
+        # tables (see build_ref_map).
+        job_group_map = build_ref_map(
+            JobGroup, {row["job_group_id"] for row in page}, ("name", "symbol", "description")
+        )
+        job_type_map = build_ref_map(
+            JobType, {row["job_type_id"] for row in page}, ("name", "symbol", "description")
+        )
+        machine_platform_map = build_ref_map(
+            MachinePlatform,
+            {row["machine_platform_id"] for row in page},
+            ("platform", "os_name", "architecture"),
+        )
+
+        property_names = [pq[0] for pq in self._property_query_mapping]
         results = []
-        for values in job_qs[offset : (offset + count)].values_list(
-            *[pq[1] for pq in self._property_query_mapping]
-        ):
-            platform_option = option_collection_map.get(
-                values[self._option_collection_hash_idx], ""
-            )
-            # some values need to be transformed
-            values = list(values)
-            for i, _ in enumerate(values):
-                func = self._property_query_mapping[i][2]
-                if func:
-                    values[i] = func(values[i])
+        for row in page:
+            platform_option = option_collection_map.get(row["option_collection_hash"], "")
+            job_group = job_group_map.get(row["job_group_id"]) or {}
+            job_type = job_type_map.get(row["job_type_id"]) or {}
+            machine_platform = machine_platform_map.get(row["machine_platform_id"]) or {}
+
+            values = []
+            for name, query_field, func in self._property_query_mapping:
+                if name in self._job_group_props:
+                    value = job_group.get(self._job_group_props[name], "")
+                elif name in self._job_type_props:
+                    value = job_type.get(self._job_type_props[name], "")
+                elif name in self._machine_platform_props:
+                    value = machine_platform.get(self._machine_platform_props[name], "")
+                else:
+                    value = row[query_field]
+                    if func:
+                        value = func(value)
+                values.append(value)
+
             # append results differently depending on if we are returning
             # a dictionary or a list
             if return_type == "dict":
                 results.append(
-                    dict(
-                        zip(
-                            [pq[0] for pq in self._property_query_mapping] + ["platform_option"],
-                            values + [platform_option],
-                        )
-                    )
+                    dict(zip(property_names + ["platform_option"], values + [platform_option]))
                 )
             else:
                 results.append(values + [platform_option])
