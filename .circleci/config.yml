@@ -183,6 +183,8 @@ jobs:
   python-tests-general:
     machine:
       image: default
+    # 4 vCPU so `pytest -n auto` gets more workers (default machine class is 2 vCPU).
+    resource_class: large
     steps:
       - checkout
       - install-tox
@@ -194,6 +196,7 @@ jobs:
   python-tests-perf:
     machine:
       image: default
+    resource_class: large
     steps:
       - checkout
       - install-tox
@@ -205,6 +208,7 @@ jobs:
   python-tests-frontend:
     machine:
       image: default
+    resource_class: large
     steps:
       - checkout
       - install-tox
@@ -216,6 +220,7 @@ jobs:
   python-tests-telemetry:
     machine:
       image: default
+    resource_class: large
     steps:
       - checkout
       - install-tox
