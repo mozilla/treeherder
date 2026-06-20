@@ -13,6 +13,9 @@ pre-commit==4.5.1
 pytest-testmon==2.2.0
 pytest-watch==4.2.0
 
+# for parallel test execution (pytest -n)
+pytest-xdist==3.8.0
+
 # Required by django-extension's runserver_plus command.
 pytest-django==4.11.1
 pytest==8.4.2

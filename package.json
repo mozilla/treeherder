@@ -111,7 +111,7 @@
     "start:local": "BACKEND=http://localhost:8000 rspack serve --mode development",
     "test": "jest --maxWorkers=50%",
     "test:coverage": "jest --maxWorkers=50% --coverage",
-    "test:ci": "jest --maxWorkers=2 --coverage",
+    "test:ci": "jest --maxWorkers=4 --coverage",
     "test:integration": "jest --config jest.integration.config.js",
     "test:watch": "jest --watch --maxWorkers=25%"
   },
