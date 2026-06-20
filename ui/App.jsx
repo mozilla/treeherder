@@ -9,6 +9,7 @@ import {
 } from 'react-router';
 import { permaLinkPrefix } from './perfherder/perf-helpers/constants';
 import LoadingSpinner from './shared/LoadingSpinner';
+import ChunkErrorBoundary from './shared/ChunkErrorBoundary';
 import LoginCallback from './login-callback/LoginCallback';
 import TaskclusterCallback from './taskcluster-auth-callback/TaskclusterCallback';
 import UserGuideApp from './userguide/App';
@@ -125,8 +126,9 @@ const UrlUpdater = ({ children }) => {
 const AppRoutes = () => {
   return (
     <UrlUpdater>
-      <Suspense fallback={<LoadingSpinner />}>
-        <Routes>
+      <ChunkErrorBoundary>
+        <Suspense fallback={<LoadingSpinner />}>
+          <Routes>
           <Route path="/login" element={<LoginCallback />} />
           <Route path="/taskcluster-auth" element={<TaskclusterCallback />} />
           <Route
@@ -171,8 +173,9 @@ const AppRoutes = () => {
           />
           <Route path="/docs/*" element={<RedocApp />} />
           <Route path="*" element={<Navigate to="/jobs" replace />} />
-        </Routes>
-      </Suspense>
+          </Routes>
+        </Suspense>
+      </ChunkErrorBoundary>
     </UrlUpdater>
   );
 };
