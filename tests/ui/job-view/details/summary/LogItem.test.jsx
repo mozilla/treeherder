@@ -216,6 +216,35 @@ describe('LogItem', () => {
     });
   });
 
+  describe('expired Taskcluster task', () => {
+    it('renders a disabled button with an expired tooltip even when the log was parsed', () => {
+      const logUrls = [createLogUrl({ parse_status: 'parsed' })];
+
+      render(
+        <LogItem
+          logUrls={logUrls}
+          logKey="logviewer"
+          logDescription="log"
+          logViewerUrl="/logviewer/1"
+          logViewerFullUrl="https://example.com/logviewer/1"
+          taskExpired
+        >
+          View Log
+        </LogItem>,
+      );
+
+      // No active link should be rendered
+      expect(screen.queryByTestId('logviewer-btn')).not.toBeInTheDocument();
+
+      const button = screen.getByRole('button');
+      expect(button).toHaveClass('disabled');
+      expect(button).toHaveAttribute(
+        'title',
+        'Taskcluster task expired — log no longer available',
+      );
+    });
+  });
+
   describe('list item wrapper', () => {
     it('renders inside an li element', () => {
       const logUrls = [createLogUrl()];

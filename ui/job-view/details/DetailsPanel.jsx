@@ -44,6 +44,7 @@ function DetailsPanel({
     classifications,
     testGroups,
     bugs,
+    taskExpired,
   } = useJobDetails(selectedJob, currentRepo, pushList, frameworks);
 
   const togglePinBoardVisibility = useCallback(() => {
@@ -92,6 +93,7 @@ function DetailsPanel({
           logViewerFullUrl={logViewerFullUrl}
           bugs={bugs}
           user={user}
+          taskExpired={taskExpired}
         />
         <span className="job-tabs-divider" />
         <TabsPanel

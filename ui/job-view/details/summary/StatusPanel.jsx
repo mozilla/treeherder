@@ -1,8 +1,8 @@
-
 import PropTypes from 'prop-types';
+import { Badge } from 'react-bootstrap';
 
 function StatusPanel(props) {
-  const { selectedJobFull } = props;
+  const { selectedJobFull, taskExpired = false } = props;
   const shadingClass = `result-status-shading-${selectedJobFull.resultStatus}`;
 
   return (
@@ -15,12 +15,24 @@ function StatusPanel(props) {
         <strong>State:</strong>
         <span> {selectedJobFull.state}</span>
       </div>
+      {taskExpired && (
+        <div className="ms-1 pb-1">
+          <Badge
+            bg="secondary"
+            title="The Taskcluster task definition is no longer available. Some details and actions are unavailable."
+            data-testid="taskcluster-expired-badge"
+          >
+            Expired
+          </Badge>
+        </div>
+      )}
     </li>
   );
 }
 
 StatusPanel.propTypes = {
   selectedJobFull: PropTypes.shape({}).isRequired,
+  taskExpired: PropTypes.bool,
 };
 
 export default StatusPanel;

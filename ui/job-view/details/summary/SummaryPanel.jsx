@@ -21,6 +21,7 @@ class SummaryPanel extends React.PureComponent {
       user,
       currentRepo,
       classificationMap,
+      taskExpired = false,
     } = this.props;
 
     const logs = jobLogUrls.filter(
@@ -29,12 +30,19 @@ class SummaryPanel extends React.PureComponent {
     const artifacts = jobLogUrls.filter((artifact) =>
       artifact.name.includes('perfherder-data'),
     );
+
+    let logParsingValue;
+    if (taskExpired) {
+      logParsingValue = 'Expired, not available';
+    } else if (!logs.length) {
+      logParsingValue = 'No logs';
+    } else {
+      logParsingValue = logs.map((log) => log.parse_status).join(', ');
+    }
     const logStatus = [
       {
         title: 'Log parsing status',
-        value: !logs.length
-          ? 'No logs'
-          : logs.map((log) => log.parse_status).join(', '),
+        value: logParsingValue,
       },
     ];
     const artifactStatus = [
@@ -69,6 +77,7 @@ class SummaryPanel extends React.PureComponent {
               logViewerFullUrl={logViewerFullUrl}
               jobLogUrls={logs}
               user={user}
+              taskExpired={taskExpired}
             />
             <div id="summary-panel-content">
               <ul className="list-unstyled">
@@ -81,7 +90,10 @@ class SummaryPanel extends React.PureComponent {
                     currentRepo={currentRepo}
                   />
                 )}
-                <StatusPanel selectedJobFull={selectedJobFull} />
+                <StatusPanel
+                  selectedJobFull={selectedJobFull}
+                  taskExpired={taskExpired}
+                />
                 <JobInfo
                   job={selectedJobFull}
                   extraFields={[...logStatus, ...artifactStatus]}
@@ -114,6 +126,7 @@ SummaryPanel.propTypes = {
   logParseStatus: PropTypes.string,
   logViewerUrl: PropTypes.string,
   logViewerFullUrl: PropTypes.string,
+  taskExpired: PropTypes.bool,
 };
 
 export default SummaryPanel;
