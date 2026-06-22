@@ -229,6 +229,7 @@ class Secretary:
                 record.save()
                 return
 
+            detected_push_gap_size = calculate_gap_size(record, detected_push)
             log_entry = {
                 "iteration": record.iteration_count,
                 "detected_push_id": detected_push_id,
@@ -238,7 +239,7 @@ class Secretary:
                 "timestamp": datetime.now(UTC).isoformat(),
                 "previous_push_id": record.last_detected_push_id,
                 "previous_push_revision": previous_push.revision,
-                "detected_push_gap_size": calculate_gap_size(record, detected_push),
+                "detected_push_gap_size": detected_push_gap_size,
             }
 
             if detected_push_id == record.last_detected_push_id:
@@ -298,17 +299,29 @@ class Secretary:
             else:
                 direction = "right"
 
+            record.last_detected_push_id = detected_push_id
+            move_note = f"Detected push moved {direction} (from {previous_push.revision[:7]} to {detected_push.revision[:7]})"
+
+            if detected_push_gap_size == 0:
+                log_entry["status"] = "stabilized"
+                log_entry["notes"] = f"{move_note}; gap size is already 0, marking as stabilized."
+                record.update_backfill_log(record.iteration_count, log_entry)
+                record.save()
+                logger.info(
+                    f"Backfill Record [alert_id={record.alert.id}]: Detected push moved {direction} "
+                    f"from {log_entry['previous_push_id']} to {detected_push_id} with gap size 0, "
+                    f"stabilized without re-triggering backfill."
+                )
+                return
+
             log_entry["status"] = direction
-            log_entry["notes"] = (
-                f"Detected push moved {direction} (from {previous_push.revision[:7]} to {detected_push.revision[:7]})"
-            )
+            log_entry["notes"] = move_note
             logger.info(
                 f"Backfill Record [alert_id={record.alert.id}]: Detected push moved {direction} "
-                f"from {record.last_detected_push_id} to {detected_push_id}, "
+                f"from {log_entry['previous_push_id']} to {detected_push_id}, "
                 f"iteration {record.iteration_count}/{max_iterations}, triggering next backfill."
             )
 
-            record.last_detected_push_id = detected_push_id
             record.update_backfill_log(record.iteration_count, log_entry)
             record.status = BackfillRecord.READY_FOR_PROCESSING
             record.save()

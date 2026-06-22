@@ -386,8 +386,13 @@ class TestVerifyAndIterate:
             time=anchor_push.time - timedelta(days=5),
         )
 
-        with patch.object(
-            secretary, "re_run_detect_changes", return_value=(earlier_push.id, 3.0, [])
+        with (
+            patch.object(
+                secretary, "re_run_detect_changes", return_value=(earlier_push.id, 3.0, [])
+            ),
+            patch(
+                "treeherder.perf.auto_perf_sheriffing.secretary.calculate_gap_size", return_value=2
+            ),
         ):
             secretary.verify_and_iterate(record_successful)
 
@@ -405,8 +410,11 @@ class TestVerifyAndIterate:
             time=anchor_push.time + timedelta(days=1),
         )
 
-        with patch.object(
-            secretary, "re_run_detect_changes", return_value=(later_push.id, 3.0, [])
+        with (
+            patch.object(secretary, "re_run_detect_changes", return_value=(later_push.id, 3.0, [])),
+            patch(
+                "treeherder.perf.auto_perf_sheriffing.secretary.calculate_gap_size", return_value=2
+            ),
         ):
             secretary.verify_and_iterate(record_successful)
 
@@ -416,6 +424,32 @@ class TestVerifyAndIterate:
         logs = record_successful.get_backfill_logs()
         assert len(logs) == 1
         assert logs[0]["status"] == "right"
+
+    def test_stops_when_culprit_moves_left_with_zero_gap(
+        self, secretary, record_successful, create_push, test_repository, anchor_push
+    ):
+        earlier_push = create_push(
+            test_repository,
+            revision=uuid.uuid4(),
+            time=anchor_push.time - timedelta(days=5),
+        )
+
+        with (
+            patch.object(
+                secretary, "re_run_detect_changes", return_value=(earlier_push.id, 3.0, [])
+            ),
+            patch(
+                "treeherder.perf.auto_perf_sheriffing.secretary.calculate_gap_size", return_value=0
+            ),
+        ):
+            secretary.verify_and_iterate(record_successful)
+
+        record_successful.refresh_from_db()
+        assert record_successful.status == BackfillRecord.SUCCESSFUL
+        assert record_successful.last_detected_push_id == earlier_push.id
+        logs = record_successful.get_backfill_logs()
+        assert len(logs) == 1
+        assert logs[0]["status"] == "stabilized"
 
     def test_stops_when_gap_not_shrinking(self, secretary, record_successful):
         """If gap_size doesn't decrease between iterations, pushes lack the target job — stop."""
