@@ -5,6 +5,15 @@ import {
   usePushesStore,
   initialState as pushesInitialState,
 } from '../../../../../ui/job-view/stores/pushesStore';
+import { thEvents } from '../../../../../ui/helpers/constants';
+import JobModel from '../../../../../ui/models/job';
+
+jest.mock('../../../../../ui/models/job', () => ({
+  __esModule: true,
+  default: {
+    retrigger: jest.fn(),
+  },
+}));
 
 const baseProps = {
   selectedJobFull: {
@@ -27,6 +36,7 @@ const baseProps = {
 
 describe('ActionBar expired-task disabling', () => {
   beforeEach(() => {
+    JobModel.retrigger.mockClear();
     usePushesStore.setState({
       ...pushesInitialState,
       decisionTaskMap: { 1: { id: 'DEC_TASK' } },
@@ -47,5 +57,31 @@ describe('ActionBar expired-task disabling', () => {
     expect(retrigger.getAttribute('title')).toContain(
       'Taskcluster task expired',
     );
+  });
+
+  // The jobRetrigger event (fired by the "r" keyboard shortcut) bypasses the
+  // disabled button, so retriggerJob must guard against expired tasks itself.
+  it('retriggers via the jobRetrigger event when not expired', () => {
+    render(<ActionBar {...baseProps} />);
+
+    window.dispatchEvent(
+      new CustomEvent(thEvents.jobRetrigger, {
+        detail: { job: baseProps.selectedJobFull },
+      }),
+    );
+
+    expect(JobModel.retrigger).toHaveBeenCalledTimes(1);
+  });
+
+  it('ignores the jobRetrigger event when taskExpired is true', () => {
+    render(<ActionBar {...baseProps} taskExpired />);
+
+    window.dispatchEvent(
+      new CustomEvent(thEvents.jobRetrigger, {
+        detail: { job: baseProps.selectedJobFull },
+      }),
+    );
+
+    expect(JobModel.retrigger).not.toHaveBeenCalled();
   });
 });

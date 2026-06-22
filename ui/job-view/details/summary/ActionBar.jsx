@@ -136,7 +136,13 @@ class ActionBar extends React.PureComponent {
   };
 
   createGeckoProfile = async () => {
-    const { selectedJobFull, decisionTaskMap, currentRepo } = this.props;
+    const { selectedJobFull, decisionTaskMap, currentRepo, taskExpired } =
+      this.props;
+
+    if (taskExpired) {
+      return undefined;
+    }
+
     return triggerTask(
       selectedJobFull,
       notify,
@@ -147,7 +153,13 @@ class ActionBar extends React.PureComponent {
   };
 
   createSideBySide = async () => {
-    const { selectedJobFull, decisionTaskMap, currentRepo } = this.props;
+    const { selectedJobFull, decisionTaskMap, currentRepo, taskExpired } =
+      this.props;
+
+    if (taskExpired) {
+      return;
+    }
+
     await triggerTask(
       selectedJobFull,
       notify,
@@ -158,7 +170,13 @@ class ActionBar extends React.PureComponent {
   };
 
   retriggerJob = async (jobs) => {
-    const { decisionTaskMap, currentRepo } = this.props;
+    const { decisionTaskMap, currentRepo, taskExpired } = this.props;
+
+    // The retrigger keyboard shortcut and jobRetrigger event can reach this
+    // even though the button is disabled, so guard here too.
+    if (taskExpired) {
+      return;
+    }
 
     // Spin the retrigger button when retriggers happen
     document
@@ -228,7 +246,13 @@ class ActionBar extends React.PureComponent {
       notify,
       decisionTaskMap,
       currentRepo,
+      taskExpired,
     } = this.props;
+
+    if (taskExpired) {
+      return;
+    }
+
     confirmFailure(selectedJobFull, notify, decisionTaskMap, currentRepo);
   };
 
@@ -268,7 +292,12 @@ class ActionBar extends React.PureComponent {
   };
 
   createInteractiveTask = async () => {
-    const { user, selectedJobFull, decisionTaskMap, currentRepo } = this.props;
+    const { user, selectedJobFull, decisionTaskMap, currentRepo, taskExpired } =
+      this.props;
+
+    if (taskExpired) {
+      return;
+    }
 
     const { id: decisionTaskId } = decisionTaskMap[selectedJobFull.push_id];
     const results = await TaskclusterModel.load(
@@ -324,6 +353,10 @@ class ActionBar extends React.PureComponent {
   };
 
   toggleCustomJobActions = () => {
+    if (this.props.taskExpired) {
+      return;
+    }
+
     const { customJobActionsShowing } = this.state;
 
     this.setState({ customJobActionsShowing: !customJobActionsShowing });
@@ -523,26 +556,28 @@ class ActionBar extends React.PureComponent {
                       </Dropdown.Item>
                       <Dropdown.Item
                         as="a"
-                        className={`py-2 ${taskExpired ? 'disabled' : ''}`}
+                        className="py-2"
+                        disabled={taskExpired}
                         title={
                           taskExpired
                             ? 'Taskcluster task expired — action unavailable'
                             : undefined
                         }
-                        onClick={() => !taskExpired && this.createInteractiveTask()}
+                        onClick={() => this.createInteractiveTask()}
                       >
                         Create Interactive Task
                       </Dropdown.Item>
                       {isPerfTest(selectedJobFull) && (
                         <Dropdown.Item
                           as="a"
-                          className={`py-2 ${taskExpired ? 'disabled' : ''}`}
+                          className="py-2"
+                          disabled={taskExpired}
                           title={
                             taskExpired
                               ? 'Taskcluster task expired — action unavailable'
                               : undefined
                           }
-                          onClick={() => !taskExpired && this.createGeckoProfile()}
+                          onClick={() => this.createGeckoProfile()}
                         >
                           Create Gecko Profile
                         </Dropdown.Item>
@@ -551,13 +586,14 @@ class ActionBar extends React.PureComponent {
                         !selectedJobFull.hasSideBySide && (
                           <Dropdown.Item
                             as="a"
-                            className={`py-2 ${taskExpired ? 'disabled' : ''}`}
+                            className="py-2"
+                            disabled={taskExpired}
                             title={
                               taskExpired
                                 ? 'Taskcluster task expired — action unavailable'
                                 : undefined
                             }
-                            onClick={() => !taskExpired && this.createSideBySide()}
+                            onClick={() => this.createSideBySide()}
                           >
                             Generate side-by-side
                           </Dropdown.Item>
@@ -565,23 +601,23 @@ class ActionBar extends React.PureComponent {
                       {canConfirmFailure(selectedJobFull) && (
                         <Dropdown.Item
                           as="a"
-                          className={`py-2 ${taskExpired ? 'disabled' : ''}`}
+                          className="py-2"
+                          disabled={taskExpired}
                           title={
                             taskExpired
                               ? 'Taskcluster task expired — action unavailable'
                               : undefined
                           }
-                          onClick={() => !taskExpired && this.handleConfirmFailure()}
+                          onClick={() => this.handleConfirmFailure()}
                         >
                           Confirm Test Failures
                         </Dropdown.Item>
                       )}
                       <Dropdown.Item
                         as="a"
-                        onClick={() => !taskExpired && this.toggleCustomJobActions()}
-                        className={`dropdown-item ${
-                          taskExpired ? 'disabled' : ''
-                        }`}
+                        onClick={() => this.toggleCustomJobActions()}
+                        className="dropdown-item"
+                        disabled={taskExpired}
                         title={
                           taskExpired
                             ? 'Taskcluster task expired — action unavailable'
