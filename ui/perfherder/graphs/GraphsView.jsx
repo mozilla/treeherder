@@ -221,6 +221,7 @@ function GraphsView({ projects, frameworks, user }) {
       highlightInitialDataPoints: +highlightInitialDataPoints,
       timerange: timeRangeRef.current.value,
       replicates: +replicatesRef.current,
+      showTable: +showTable,
       zoom,
     };
 
@@ -258,6 +259,7 @@ function GraphsView({ projects, frameworks, user }) {
     highlightedRevisions,
     highlightedToRevision,
     selectedDataPoint,
+    showTable,
     zoom,
     updateUrlParams,
   ]);
@@ -370,6 +372,7 @@ function GraphsView({ projects, frameworks, user }) {
         setVisibilityChanged(state.visibilityChanged);
       if (state.colors !== undefined) setColors(state.colors);
       if (state.symbols !== undefined) setSymbols(state.symbols);
+      if (state.showTable !== undefined) setShowTable(state.showTable);
 
       if (state.replicates !== undefined) {
         setReplicates(state.replicates);
@@ -402,6 +405,7 @@ function GraphsView({ projects, frameworks, user }) {
       highlightedRevisions: hlRevisions,
       highlightedToRevision: hlToRevision,
       replicates: replicatesParam,
+      showTable: showTableParam,
     } = queryString.parse(location.search);
 
     const updates = {};
@@ -409,6 +413,10 @@ function GraphsView({ projects, frameworks, user }) {
     if (replicatesParam) {
       updates.replicates = Boolean(parseInt(replicatesParam, 10));
       replicatesRef.current = updates.replicates;
+    }
+
+    if (showTableParam !== undefined) {
+      updates.showTable = Boolean(parseInt(showTableParam, 10));
     }
 
     if (series) {
@@ -462,6 +470,7 @@ function GraphsView({ projects, frameworks, user }) {
     if (updates.highlightInitialDataPoints !== undefined)
       setHighlightInitialDataPoints(updates.highlightInitialDataPoints);
     if (updates.replicates !== undefined) setReplicates(updates.replicates);
+    if (updates.showTable !== undefined) setShowTable(updates.showTable);
     if (updates.highlightedRevisions !== undefined)
       setHighlightedRevisions(updates.highlightedRevisions);
     if (updates.highlightedToRevision !== undefined)
@@ -612,7 +621,7 @@ function GraphsView({ projects, frameworks, user }) {
               visibilityChanged={visibilityChanged}
               updateData={updateData}
               toggle={() => setShowModal(!showModal)}
-              toggleTableView={() => setShowTable(!showTable)}
+              toggleTableView={() => updateStateParams({ showTable: !showTable })}
               replicates={replicates}
               updateTimeRange={handleUpdateTimeRange}
               updateTestsAndTimeRange={handleUpdateTestsAndTimeRange}
