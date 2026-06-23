@@ -446,6 +446,7 @@
   const form = document.getElementById("compare-form");
   const hostSelect = document.getElementById("host");
   const localWarning = document.getElementById("local-warning");
+  const projectSelect = document.getElementById("project");
   const revisionInput = document.getElementById("revision");
   const pushIdInput = document.getElementById("push-id");
   const verboseCheckbox = document.getElementById("verbose");
@@ -458,15 +459,72 @@
   const statMismatch = document.getElementById("stat-mismatch");
   const statSkipped = document.getElementById("stat-skipped");
 
+  const DEFAULTS = { host: "production", project: "try" };
+
+  function pushModeRadio() {
+    return form.querySelector('input[name="push-mode"]:checked').value;
+  }
+
+  function setPushMode(mode) {
+    for (const radio of form.querySelectorAll('input[name="push-mode"]')) radio.checked = radio.value === mode;
+    revisionInput.hidden = mode !== "revision";
+    pushIdInput.hidden = mode !== "push-id";
+  }
+
+  // Reflects the current form into the URL query string, omitting anything
+  // at its default, so a link only carries what's needed to reproduce a run.
+  function syncUrlFromForm() {
+    const params = new URLSearchParams();
+    if (hostSelect.value !== DEFAULTS.host) params.set("instance", hostSelect.value);
+    if (projectSelect.value !== DEFAULTS.project) params.set("project", projectSelect.value);
+
+    if (pushModeRadio() === "revision") {
+      if (revisionInput.value.trim()) params.set("revision", revisionInput.value.trim());
+    } else if (pushIdInput.value) {
+      params.set("push-id", pushIdInput.value);
+    }
+
+    const qs = params.toString();
+    history.replaceState(null, "", qs ? `?${qs}` : location.pathname);
+  }
+
+  // Applies ?instance=&project=&revision=|push-id= from the URL to the form,
+  // so a shared link reproduces the same run.
+  function applyUrlParams() {
+    const params = new URLSearchParams(location.search);
+
+    const instance = params.get("instance");
+    if (instance && instance in HOSTS) hostSelect.value = instance;
+    localWarning.hidden = hostSelect.value !== "localhost";
+
+    const project = params.get("project");
+    if (project) projectSelect.value = project;
+
+    const pushId = params.get("push-id");
+    const revision = params.get("revision");
+    if (pushId) {
+      setPushMode("push-id");
+      pushIdInput.value = pushId;
+    } else if (revision) {
+      setPushMode("revision");
+      revisionInput.value = revision;
+    }
+  }
+
+  applyUrlParams();
+
   hostSelect.addEventListener("change", () => {
     localWarning.hidden = hostSelect.value !== "localhost";
+    syncUrlFromForm();
   });
+  projectSelect.addEventListener("change", syncUrlFromForm);
+  revisionInput.addEventListener("input", syncUrlFromForm);
+  pushIdInput.addEventListener("input", syncUrlFromForm);
 
   for (const radio of form.querySelectorAll('input[name="push-mode"]')) {
     radio.addEventListener("change", () => {
-      const byRevision = form.querySelector('input[name="push-mode"]:checked').value === "revision";
-      revisionInput.hidden = !byRevision;
-      pushIdInput.hidden = byRevision;
+      setPushMode(form.querySelector('input[name="push-mode"]:checked').value);
+      syncUrlFromForm();
     });
   }
 
