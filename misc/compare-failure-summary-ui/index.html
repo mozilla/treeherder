@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Compare Failure Summary — Treeherder</title>
+<style>
+  :root {
+    --color-bg: #0f1115;
+    --color-surface: #171a21;
+    --color-border: #2a2e38;
+    --color-text: #e4e6eb;
+    --color-text-dim: #9aa0ad;
+    --color-accent: #5b8cff;
+    --color-match: #3fb950;
+    --color-mismatch: #f85149;
+    --color-skip: #d29922;
+    --space-1: 4px; --space-2: 8px; --space-3: 12px;
+    --space-4: 16px; --space-6: 24px; --space-8: 32px;
+    --radius-sm: 4px; --radius-md: 8px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.5;
+  }
+
+  main {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: var(--space-8) var(--space-4) var(--space-8);
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    margin: 0 0 var(--space-2);
+  }
+
+  p.intro {
+    color: var(--color-text-dim);
+    margin: 0 0 var(--space-6);
+    max-width: 70ch;
+  }
+
+  p.intro a { color: var(--color-accent); }
+
+  form {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-6);
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .field {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  label {
+    font-size: 0.85rem;
+    color: var(--color-text-dim);
+  }
+
+  select, input[type="text"], input[type="number"] {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    border-radius: var(--radius-sm);
+    padding: var(--space-2) var(--space-3);
+    font-size: 0.95rem;
+  }
+
+  select:focus, input:focus, button:focus, input[type="radio"]:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .radio-row {
+    display: flex;
+    gap: var(--space-4);
+    align-items: center;
+  }
+
+  .radio-row label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--color-text);
+    font-size: 0.95rem;
+  }
+
+  .push-inputs {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .warning {
+    font-size: 0.85rem;
+    color: var(--color-skip);
+    margin: 0;
+  }
+
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 0.9rem;
+    color: var(--color-text-dim);
+  }
+
+  button[type="submit"] {
+    background: var(--color-accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: var(--space-3) var(--space-4);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    justify-self: start;
+    min-height: 44px;
+    min-width: 140px;
+  }
+
+  button[type="submit"]:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  button[type="submit"]:hover:not(:disabled) {
+    background: #4978e6;
+  }
+
+  .progress {
+    font-size: 0.9rem;
+    color: var(--color-text-dim);
+  }
+
+  #error-banner {
+    display: none;
+    margin-top: var(--space-4);
+    background: #2a1416;
+    border: 1px solid var(--color-mismatch);
+    color: #ffb4ae;
+    border-radius: var(--radius-sm);
+    padding: var(--space-3) var(--space-4);
+  }
+
+  #summary-banner {
+    display: none;
+    margin-top: var(--space-6);
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    flex: 1;
+    min-width: 120px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    text-align: center;
+  }
+
+  .stat .value { font-size: 1.75rem; font-weight: 700; }
+  .stat .label { font-size: 0.8rem; color: var(--color-text-dim); }
+  .stat.match .value { color: var(--color-match); }
+  .stat.mismatch .value { color: var(--color-mismatch); }
+  .stat.skipped .value { color: var(--color-skip); }
+
+  #log-panel {
+    display: none;
+    margin-top: var(--space-6);
+    background: #0a0c10;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    max-height: 480px;
+    overflow-y: auto;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.85rem;
+    white-space: pre-wrap;
+  }
+
+  .log-line { padding: 1px 0; }
+  .log-line.mismatch { color: var(--color-mismatch); }
+  .log-line.debug { color: var(--color-text-dim); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Compare Failure Summary</h1>
+  <p class="intro">
+    Runs the same comparison as
+    <code>misc/compare_failure_summary.py</code> entirely in your browser:
+    for every completed job in a push, it checks whether the classic Failure
+    Summary (<code>bug_suggestions</code>) and the new Summary tab
+    (<code>*_testsummary.jsonl</code> artifact) agree on what failed.
+  </p>
+
+  <form id="compare-form">
+    <div class="field">
+      <label for="host">Treeherder instance</label>
+      <select id="host" name="host">
+        <option value="production" selected>Production (treeherder.mozilla.org)</option>
+        <option value="stage">Staging (treeherder.allizom.org)</option>
+        <option value="localhost">Local (localhost:8000)</option>
+      </select>
+      <p class="warning" id="local-warning" hidden>
+        This page is served over HTTPS, so a browser will block requests to
+        <code>http://localhost:8000</code> (mixed content) unless this page
+        is itself being opened from <code>localhost</code>/<code>file://</code>.
+      </p>
+    </div>
+
+    <div class="field">
+      <label for="project">Project (repository name)</label>
+      <select id="project" name="project" required>
+        <option value="try" selected>try</option>
+        <option value="mozilla-central">mozilla-central</option>
+        <option value="autoland">autoland</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label id="push-mode-label">Identify the push by</label>
+      <div class="radio-row" role="radiogroup" aria-labelledby="push-mode-label">
+        <label><input type="radio" name="push-mode" value="revision" checked /> Revision</label>
+        <label><input type="radio" name="push-mode" value="push-id" /> Push ID</label>
+      </div>
+      <div class="push-inputs">
+        <input type="text" id="revision" name="revision" placeholder="e.g. 4f6e1c2..." />
+        <input type="number" id="push-id" name="push-id" placeholder="e.g. 1953427" min="1" hidden />
+      </div>
+    </div>
+
+    <div class="checkbox-row">
+      <input type="checkbox" id="verbose" name="verbose" />
+      <label for="verbose">Show skip reasons (jobs with no testsummary artifact/metadata)</label>
+    </div>
+
+    <div>
+      <button type="submit" id="run-button">Run comparison</button>
+      <div class="progress" id="progress" hidden></div>
+    </div>
+  </form>
+
+  <div id="error-banner" role="alert"></div>
+
+  <div id="summary-banner">
+    <div class="stat match"><div class="value" id="stat-match">0</div><div class="label">match</div></div>
+    <div class="stat mismatch"><div class="value" id="stat-mismatch">0</div><div class="label">mismatch</div></div>
+    <div class="stat skipped"><div class="value" id="stat-skipped">0</div><div class="label">skipped</div></div>
+  </div>
+
+  <div id="log-panel" aria-live="polite"></div>
+</main>
+
+<script type="module">
+  const HOSTS = {
+    localhost: "http://localhost:8000",
+    stage: "https://treeherder.allizom.org",
+    production: "https://treeherder.mozilla.org",
+  };
+  const SUMMARY_ARTIFACT_SUFFIX = "_testsummary.jsonl";
+  const JOBS_PAGE_SIZE = 2000;
+
+  class HttpError extends Error {
+    constructor(status, url) {
+      super(`HTTP ${status} for ${url}`);
+      this.status = status;
+    }
+  }
+
+  async function fetchJson(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new HttpError(res.status, url);
+    return res.json();
+  }
+
+  async function getBugSuggestionTests(serverUrl, project, jobId) {
+    const data = await fetchJson(
+      `${serverUrl}/api/project/${encodeURIComponent(project)}/jobs/${jobId}/bug_suggestions/`,
+    );
+    return new Set(data.filter((s) => s.path_end).map((s) => s.path_end));
+  }
+
+  async function findTestsummaryArtifactUrl(tcRootUrl, taskId, runId) {
+    const listUrl = `${tcRootUrl}/api/queue/v1/task/${taskId}/runs/${runId}/artifacts`;
+    const data = await fetchJson(listUrl);
+    const artifact = (data.artifacts || []).find((a) => a.name.endsWith(SUMMARY_ARTIFACT_SUFFIX));
+    return artifact ? `${listUrl}/${artifact.name}` : null;
+  }
+
+  async function getUnexpectedTests(artifactUrl) {
+    const res = await fetch(artifactUrl);
+    if (!res.ok) throw new HttpError(res.status, artifactUrl);
+    const text = await res.text();
+
+    const successByTest = new Map();
+    for (const rawLine of text.split("\n")) {
+      const line = rawLine.trim();
+      if (!line) continue;
+
+      let event;
+      try {
+        event = JSON.parse(line);
+      } catch {
+        continue;
+      }
+
+      let test;
+      let success;
+      if (event.action === "test_result" && event.test) {
+        test = event.test;
+        success = !("expected" in event);
+      } else if (event.action === "crash") {
+        test = event.test || event.signature || "(unknown test)";
+        success = false;
+      } else {
+        continue;
+      }
+
+      // Later lines for the same test overwrite earlier ones (retries),
+      // so this ends up holding only the last result per test.
+      successByTest.set(test, success);
+    }
+
+    const unexpected = new Set();
+    for (const [test, success] of successByTest) {
+      if (!success) unexpected.add(test);
+    }
+    return unexpected;
+  }
+
+  async function compareJob(serverUrl, project, tcRootUrl, job, log) {
+    const jobId = job.id;
+    const taskId = job.task_id;
+    const label = `${job.job_type_name} (job ${jobId}, task ${taskId})`;
+
+    let fsTests;
+    try {
+      fsTests = await getBugSuggestionTests(serverUrl, project, jobId);
+    } catch (e) {
+      log.debug(`${label}: failed to fetch bug_suggestions: ${e.message}`);
+      return null;
+    }
+
+    if (!job.task_id || job.retry_id == null) {
+      if (fsTests.size) log.debug(`${label}: no taskcluster metadata, can't check for the artifact`);
+      return null;
+    }
+
+    let artifactUrl;
+    try {
+      artifactUrl = await findTestsummaryArtifactUrl(tcRootUrl, job.task_id, job.retry_id);
+    } catch (e) {
+      log.debug(`${label}: failed to list taskcluster artifacts: ${e.message}`);
+      return null;
+    }
+
+    if (!artifactUrl) {
+      if (fsTests.size) {
+        log.debug(`${label}: ${fsTests.size} failure-summary test(s), but no ${SUMMARY_ARTIFACT_SUFFIX} artifact`);
+      }
+      return null;
+    }
+
+    let tsTests;
+    try {
+      tsTests = await getUnexpectedTests(artifactUrl);
+    } catch (e) {
+      log.debug(`${label}: failed to fetch ${SUMMARY_ARTIFACT_SUFFIX}: ${e.message}`);
+      return null;
+    }
+
+    const onlyFs = [...fsTests].filter((t) => !tsTests.has(t)).sort();
+    const onlyTs = [...tsTests].filter((t) => !fsTests.has(t)).sort();
+
+    if (!onlyFs.length && !onlyTs.length) return "match";
+
+    log.mismatch(`${label}: MISMATCH`);
+    if (onlyFs.length) log.mismatch(`  only in Failure Summary (${onlyFs.length}): ${JSON.stringify(onlyFs)}`);
+    if (onlyTs.length) log.mismatch(`  only in Test Summary (${onlyTs.length}): ${JSON.stringify(onlyTs)}`);
+    return "mismatch";
+  }
+
+  async function resolvePushId(serverUrl, project, revision) {
+    const data = await fetchJson(
+      `${serverUrl}/api/project/${encodeURIComponent(project)}/push/?revision=${encodeURIComponent(revision)}`,
+    );
+    if (!data.results.length) throw new Error(`No push with revision ${revision} on ${project}`);
+    return data.results[0].id;
+  }
+
+  async function getCompletedJobs(serverUrl, project, pushId) {
+    const jobs = [];
+    let offset = 0;
+    while (true) {
+      const data = await fetchJson(
+        `${serverUrl}/api/project/${encodeURIComponent(project)}/jobs/?push_id=${pushId}&state=completed&count=${JOBS_PAGE_SIZE}&offset=${offset}`,
+      );
+      jobs.push(...data.results);
+      if (data.results.length < JOBS_PAGE_SIZE) break;
+      offset += JOBS_PAGE_SIZE;
+    }
+    return jobs;
+  }
+
+  async function run(opts, log, onProgress) {
+    const serverUrl = HOSTS[opts.host];
+
+    const repos = await fetchJson(`${serverUrl}/api/repository/`);
+    const repository = repos.find((r) => r.name === opts.project);
+    if (!repository) throw new Error(`Unknown project: ${opts.project}`);
+    const tcRootUrl = repository.tc_root_url;
+
+    const pushId = opts.pushId || (await resolvePushId(serverUrl, opts.project, opts.revision));
+
+    const jobs = await getCompletedJobs(serverUrl, opts.project, pushId);
+    log.info(`Comparing ${jobs.length} completed job(s) for push ${pushId} on ${opts.project}`);
+
+    const outcomes = { match: 0, mismatch: 0, skipped: 0 };
+    for (let i = 0; i < jobs.length; i++) {
+      onProgress(i + 1, jobs.length);
+      const outcome = await compareJob(serverUrl, opts.project, tcRootUrl, jobs[i], log);
+      outcomes[outcome || "skipped"]++;
+    }
+
+    log.info(
+      `Done: ${outcomes.match} match, ${outcomes.mismatch} mismatch, ${outcomes.skipped} skipped (no testsummary artifact/metadata)`,
+    );
+    return outcomes;
+  }
+
+  // --- UI wiring ---
+
+  const form = document.getElementById("compare-form");
+  const hostSelect = document.getElementById("host");
+  const localWarning = document.getElementById("local-warning");
+  const revisionInput = document.getElementById("revision");
+  const pushIdInput = document.getElementById("push-id");
+  const verboseCheckbox = document.getElementById("verbose");
+  const runButton = document.getElementById("run-button");
+  const progressEl = document.getElementById("progress");
+  const errorBanner = document.getElementById("error-banner");
+  const summaryBanner = document.getElementById("summary-banner");
+  const logPanel = document.getElementById("log-panel");
+  const statMatch = document.getElementById("stat-match");
+  const statMismatch = document.getElementById("stat-mismatch");
+  const statSkipped = document.getElementById("stat-skipped");
+
+  hostSelect.addEventListener("change", () => {
+    localWarning.hidden = hostSelect.value !== "localhost";
+  });
+
+  for (const radio of form.querySelectorAll('input[name="push-mode"]')) {
+    radio.addEventListener("change", () => {
+      const byRevision = form.querySelector('input[name="push-mode"]:checked').value === "revision";
+      revisionInput.hidden = !byRevision;
+      pushIdInput.hidden = byRevision;
+    });
+  }
+
+  function appendLogLine(text, kind) {
+    const line = document.createElement("div");
+    line.className = kind ? `log-line ${kind}` : "log-line";
+    line.textContent = text;
+    logPanel.appendChild(line);
+    logPanel.scrollTop = logPanel.scrollHeight;
+  }
+
+  function makeLogger(verbose) {
+    return {
+      info: (text) => appendLogLine(text),
+      mismatch: (text) => appendLogLine(text, "mismatch"),
+      debug: (text) => {
+        if (verbose) appendLogLine(text, "debug");
+      },
+    };
+  }
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const byRevision = form.querySelector('input[name="push-mode"]:checked').value === "revision";
+    const opts = {
+      host: hostSelect.value,
+      project: document.getElementById("project").value.trim(),
+      revision: byRevision ? revisionInput.value.trim() : "",
+      pushId: byRevision ? null : Number(pushIdInput.value),
+    };
+
+    if (!opts.project) return;
+    if (byRevision && !opts.revision) return;
+    if (!byRevision && !opts.pushId) return;
+
+    errorBanner.style.display = "none";
+    summaryBanner.style.display = "none";
+    logPanel.style.display = "none";
+    logPanel.textContent = "";
+    runButton.disabled = true;
+    progressEl.hidden = false;
+    progressEl.textContent = "Starting…";
+
+    const log = makeLogger(verboseCheckbox.checked);
+
+    try {
+      logPanel.style.display = "block";
+      const outcomes = await run(opts, log, (done, total) => {
+        progressEl.textContent = `Processing job ${done}/${total}…`;
+      });
+      statMatch.textContent = outcomes.match;
+      statMismatch.textContent = outcomes.mismatch;
+      statSkipped.textContent = outcomes.skipped;
+      summaryBanner.style.display = "flex";
+    } catch (e) {
+      errorBanner.textContent = e.message;
+      errorBanner.style.display = "block";
+    } finally {
+      runButton.disabled = false;
+      progressEl.hidden = true;
+    }
+  });
+</script>
+</body>
+</html>
