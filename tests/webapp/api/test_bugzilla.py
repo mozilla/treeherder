@@ -1,10 +1,44 @@
 import json
 
 import responses
+from django.test import override_settings
 from django.urls import reverse
 from django.utils import timezone
 
 from treeherder.model.models import Bugscache
+
+PERF_BUG_PAYLOAD = {
+    "type": "defect",
+    "product": "Firefox",
+    "component": "General",
+    "summary": "Perf regression",
+    "version": "unspecified",
+    "description": "Perf description",
+    "needinfo_from": "dev@example.com",
+    "cc": [],
+}
+
+
+@responses.activate
+@override_settings(PERF_SHERIFF_API_KEY="perf-key", BUGFILER_API_KEY="bug-key")
+def test_create_perf_bug_uses_perf_sheriff_api_key(client, test_user):
+    responses.add(responses.POST, "https://thisisnotbugzilla.org/rest/bug", json={"id": 1})
+    client.force_authenticate(user=test_user)
+
+    resp = client.post(reverse("bugzilla-create-bug"), PERF_BUG_PAYLOAD)
+
+    assert resp.status_code == 200
+    assert responses.calls[0].request.headers["x-bugzilla-api-key"] == "perf-key"
+
+
+@override_settings(PERF_SHERIFF_API_KEY=None)
+def test_create_perf_bug_without_api_key_returns_400(client, test_user):
+    client.force_authenticate(user=test_user)
+
+    resp = client.post(reverse("bugzilla-create-bug"), PERF_BUG_PAYLOAD)
+
+    assert resp.status_code == 400
+    assert resp.json()["failure"] == "Performance sheriff bot API key not set!"
 
 
 def test_create_bug(client, eleven_jobs_stored, activate_responses, test_user):

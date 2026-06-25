@@ -17,10 +17,22 @@ class BugzillaViewSet(viewsets.ViewSet):
         """
         Create a bugzilla bug with passed params
         """
-        if settings.BUGFILER_API_KEY is None:
-            return Response({"failure": "Bugzilla API key not set!"}, status=HTTP_400_BAD_REQUEST)
-
         params = request.data
+        # Only Perfherder is setting the param needinfo_from when filing a regression bug
+        is_perf_bug = bool(params.get("needinfo_from"))
+        if is_perf_bug:
+            if settings.PERF_SHERIFF_API_KEY is None:
+                return Response(
+                    {"failure": "Performance sheriff bot API key not set!"},
+                    status=HTTP_400_BAD_REQUEST,
+                )
+            api_key = settings.PERF_SHERIFF_API_KEY
+        else:
+            if settings.BUGFILER_API_KEY is None:
+                return Response(
+                    {"failure": "Bugzilla API key not set!"}, status=HTTP_400_BAD_REQUEST
+                )
+            api_key = settings.BUGFILER_API_KEY
 
         # Arbitrarily cap crash signatures at 2048 characters to prevent perf issues on bmo
         crash_signature = params.get("crash_signature")
@@ -36,7 +48,7 @@ class BugzillaViewSet(viewsets.ViewSet):
         summary = params.get("summary").encode("utf-8").strip()
         url = settings.BUGFILER_API_URL + "/rest/bug"
         headers = {
-            "x-bugzilla-api-key": settings.BUGFILER_API_KEY,
+            "x-bugzilla-api-key": api_key,
             "Accept": "application/json",
         }
         data = {
@@ -56,8 +68,7 @@ class BugzillaViewSet(viewsets.ViewSet):
             "comment_tags": "treeherder",
         }
 
-        # Only Perfherder is setting the param needinfo_from when filing a regression bug
-        if params.get("needinfo_from"):
+        if is_perf_bug:
             data["type"] = params.get("type")
             data["description"] = params.get("description").encode("utf-8")
             data["cc"] = params.get("cc")
