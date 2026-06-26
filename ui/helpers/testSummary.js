@@ -391,7 +391,8 @@ const decorateBugs = (suggestion) => {
  * @returns {typeof failureSuggestions} the same suggestions, bugs attached.
  */
 export const matchBugSuggestions = (failureSuggestions, bugSuggestions) => {
-  if (!failureSuggestions || !failureSuggestions.length) return failureSuggestions;
+  if (!failureSuggestions || !failureSuggestions.length)
+    return failureSuggestions;
   if (!bugSuggestions || !bugSuggestions.length) {
     failureSuggestions.forEach(decorateBugs);
     return failureSuggestions;

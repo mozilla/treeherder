@@ -25,7 +25,6 @@ import PerformanceTab from './PerformanceTab';
 import AnnotationsTab from './AnnotationsTab';
 import SimilarJobsTab from './SimilarJobsTab';
 import SummaryTab from './summaryTab/SummaryTab';
-
 const getTabNames = ({ showPerf, showSummary }) => {
   // The order in here has to match the order within the render method
   return [
@@ -50,9 +49,13 @@ const getDefaultTabIndex = (status, { showPerf, showSummary }) => {
     {},
   );
 
-  let tabIndex = showPerf ? tabIndexes.perf : tabIndexes.artifacts;
+  let tabIndex = showSummary
+    ? tabIndexes.summary
+    : showPerf
+      ? tabIndexes.perf
+      : tabIndexes.artifacts;
   if (['busted', 'testfailed', 'exception'].includes(status)) {
-    tabIndex = tabIndexes.failure;
+    tabIndex = showSummary ? tabIndexes.summary : tabIndexes.failure;
   }
   return tabIndex;
 };

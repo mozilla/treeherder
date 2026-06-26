@@ -21,19 +21,39 @@ import {
 } from '../helpers/display';
 
 // Pattern to match crash dump files: UUID.{dmp,extra,json}
-const CRASH_DUMP_PATTERN = /^([0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12})\.(dmp|extra|json)$/i;
+const CRASH_DUMP_PATTERN =
+  /^([0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12})\.(dmp|extra|json)$/i;
 
-const ArtifactLink = ({ artifact, children = null }) => (
-  <a
-    data-testid="task-artifact"
-    title={artifact.value}
-    href={artifact.url}
-    target="_blank"
-    rel="noopener noreferrer"
-  >
-    {children || artifact.value}
-  </a>
-);
+// Browsers download .jsonl files instead of displaying them. Fetch the content
+// and open it as a text/plain blob so it renders inline in a new tab.
+const openAsPlainText = async (url, event) => {
+  event.preventDefault();
+  try {
+    const resp = await fetch(url);
+    const text = await resp.text();
+    const blob = new Blob([text], { type: 'text/plain' });
+    const blobUrl = URL.createObjectURL(blob);
+    window.open(blobUrl, '_blank', 'noopener,noreferrer');
+  } catch {
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
+};
+
+const ArtifactLink = ({ artifact, children = null }) => {
+  const isJsonl = artifact.value?.endsWith('.jsonl');
+  return (
+    <a
+      data-testid="task-artifact"
+      title={artifact.value}
+      href={artifact.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={isJsonl ? (e) => openAsPlainText(artifact.url, e) : undefined}
+    >
+      {children || artifact.value}
+    </a>
+  );
+};
 
 ArtifactLink.propTypes = {
   artifact: PropTypes.shape({
@@ -64,7 +84,11 @@ export default class JobArtifacts extends React.PureComponent {
     this.setState((prev) => {
       const toggle = { asc: 'desc', desc: 'asc' };
       const sortDir =
-        prev.sortKey === key ? toggle[prev.sortDir] : key === 'size' ? 'desc' : 'asc';
+        prev.sortKey === key
+          ? toggle[prev.sortDir]
+          : key === 'size'
+            ? 'desc'
+            : 'asc';
       return { sortKey: key, sortDir };
     });
   };
@@ -90,7 +114,9 @@ export default class JobArtifacts extends React.PureComponent {
 
   shouldShowPernoscoLink(repoName, selectedJob) {
     return (
-      (repoName === 'try' || repoName === 'autoland' || repoName === 'enterprise-firefox-pr') &&
+      (repoName === 'try' ||
+        repoName === 'autoland' ||
+        repoName === 'enterprise-firefox-pr') &&
       selectedJob &&
       selectedJob.task_id &&
       selectedJob.result === 'testfailed' &&
@@ -173,8 +199,12 @@ export default class JobArtifacts extends React.PureComponent {
     const mul = sortDir === 'asc' ? 1 : -1;
     const sortedDetails = rows.sort((a, b) => {
       if (sortKey === 'size') {
-        const av = Number.isFinite(a.contentLength) ? a.contentLength : -Infinity;
-        const bv = Number.isFinite(b.contentLength) ? b.contentLength : -Infinity;
+        const av = Number.isFinite(a.contentLength)
+          ? a.contentLength
+          : -Infinity;
+        const bv = Number.isFinite(b.contentLength)
+          ? b.contentLength
+          : -Infinity;
         return (av - bv) * mul;
       }
       if (sortKey === 'expires') {
@@ -212,7 +242,11 @@ export default class JobArtifacts extends React.PureComponent {
             <thead>
               <tr>
                 {this.sortHeader('name', 'Name')}
-                {this.sortHeader('expires', 'Expires in', 'text-nowrap text-end')}
+                {this.sortHeader(
+                  'expires',
+                  'Expires in',
+                  'text-nowrap text-end',
+                )}
                 {this.sortHeader('size', 'Size', 'text-end')}
               </tr>
             </thead>
@@ -224,14 +258,19 @@ export default class JobArtifacts extends React.PureComponent {
                   return (
                     <tr key={line.url}>
                       <td>
-                        <CellLink href={viewerUrl} label="Open in crash viewer" />
+                        <CellLink
+                          href={viewerUrl}
+                          label="Open in crash viewer"
+                        />
                         <ArtifactLink artifact={crash.dmp} />
                         {', '}
                         <ArtifactLink artifact={crash.extra}>
                           .extra
                         </ArtifactLink>
                         {', '}
-                        <ArtifactLink artifact={crash.json}>.json</ArtifactLink>{' '}
+                        <ArtifactLink artifact={crash.json}>
+                          .json
+                        </ArtifactLink>{' '}
                         -{' '}
                         <a
                           title="Open in crash viewer"
@@ -246,14 +285,20 @@ export default class JobArtifacts extends React.PureComponent {
                         className="text-end text-nowrap text-muted"
                         title={formatExpiresTooltip(line.expires)}
                       >
-                        <CellLink href={viewerUrl} label="Open in crash viewer" />
+                        <CellLink
+                          href={viewerUrl}
+                          label="Open in crash viewer"
+                        />
                         <span>{formatExpires(line.expires)}</span>
                       </td>
                       <td
                         className="text-end text-nowrap text-muted"
                         title={formatSizeTooltip(line.contentLength)}
                       >
-                        <CellLink href={viewerUrl} label="Open in crash viewer" />
+                        <CellLink
+                          href={viewerUrl}
+                          label="Open in crash viewer"
+                        />
                         <span>{formatByteSize(line.contentLength)}</span>
                       </td>
                     </tr>
@@ -272,7 +317,9 @@ export default class JobArtifacts extends React.PureComponent {
                 return (
                   <tr key={line.url}>
                     <td>
-                      {primaryUrl && <CellLink href={primaryUrl} label={primaryTitle} />}
+                      {primaryUrl && (
+                        <CellLink href={primaryUrl} label={primaryTitle} />
+                      )}
                       {line.path && (
                         <span className="text-muted">{line.path}/</span>
                       )}
@@ -296,14 +343,18 @@ export default class JobArtifacts extends React.PureComponent {
                       className="text-end text-nowrap text-muted"
                       title={formatExpiresTooltip(line.expires)}
                     >
-                      {primaryUrl && <CellLink href={primaryUrl} label={primaryTitle} />}
+                      {primaryUrl && (
+                        <CellLink href={primaryUrl} label={primaryTitle} />
+                      )}
                       <span>{formatExpires(line.expires)}</span>
                     </td>
                     <td
                       className="text-end text-nowrap text-muted"
                       title={formatSizeTooltip(line.contentLength)}
                     >
-                      {primaryUrl && <CellLink href={primaryUrl} label={primaryTitle} />}
+                      {primaryUrl && (
+                        <CellLink href={primaryUrl} label={primaryTitle} />
+                      )}
                       <span>{formatByteSize(line.contentLength)}</span>
                     </td>
                   </tr>

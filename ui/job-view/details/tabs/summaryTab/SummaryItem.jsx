@@ -13,10 +13,7 @@ import Clipboard from '../../../../shared/Clipboard';
 import BugListItem from '../../../../shared/tabs/failureSummary/BugListItem';
 import { isReftest } from '../../../../helpers/job';
 import { thBugSuggestionLimit } from '../../../../helpers/constants';
-import {
-  createQueryParams,
-  parseQueryParams,
-} from '../../../../helpers/url';
+import { createQueryParams, parseQueryParams } from '../../../../helpers/url';
 import formatLogLineWithLinks from '../../../../helpers/logFormatting';
 
 const getPathFilter = (filterTestPath) => {
@@ -66,7 +63,10 @@ const SummaryItem = ({
             <FontAwesomeIcon icon={faCircleExclamation} />
           </Button>
           <span className="align-middle">{line} </span>
-          <Clipboard description=" text of error line" text={suggestion.search} />
+          <Clipboard
+            description=" text of error line"
+            text={suggestion.search}
+          />
           {filterTestPath && !isReftest(selectedJob) && (
             <Link
               to={getPathFilter(filterTestPath)}
