@@ -12,7 +12,7 @@ Once tasks are processed, the log parsing is scheduled, and depending on the sta
 
 The live backing log is parsed for a number of reasons - to extract and store performance data for tests that add PERFORMANCE_DATA objects in the logs and to extract and store failure lines for failed tasks. These failure lines are stored and displayed in the job details panel in the Treeherder jobs view, and are used by code sheriffs to classify intermittent failures against bugzilla bugs.
 
- All exchange bindings that a Pulse user account is subscribed to can be viewed in the Pulse Guardian admin account (under the queues tab); the RabbitMQ dashboard will show which queues are registered and receiving messages. Troubleshooting steps for various data ingestion problems can be found [here](./troubleshooting.md#scenarios).
+ All exchange bindings that a Pulse user account is subscribed to can be viewed in the Pulse Guardian admin account (under the queues tab); the RabbitMQ dashboard will show which queues are registered and receiving messages. Troubleshooting steps for various data ingestion problems can be found in the [troubleshooting scenarios](./troubleshooting.md#scenarios).
 
 ## Adding New Queues or Workers
 
