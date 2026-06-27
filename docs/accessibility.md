@@ -30,11 +30,11 @@ Treeherder uses [Bootstrap color](https://getbootstrap.com/docs/5.3/utilities/co
 
 Please use this custom color according to the following table:
 
-| Bootstrap Color  | Treeherder Color       |
-| ---------------: | :--------------------- |
-|       `btn-info` | `btn-darker-info`      |
-|      `text-info` | `text-darker-info`     |
-|  `btn-secondary` | `btn-darker-secondary` |
+| Bootstrap Color  | Treeherder Color        |
+| ---------------: | :---------------------- |
+|       `btn-info` | `btn-darker-info`       |
+|      `text-info` | `text-darker-info`      |
+|  `btn-secondary` | `btn-darker-secondary`  |
 | `text-secondary` | `text-darker-secondary` |
 
 For example, if inserting a text color into an element, use `className="text-darker-info"`, instead of using `className="text-info"`.
