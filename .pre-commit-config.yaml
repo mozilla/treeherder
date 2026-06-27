@@ -9,7 +9,7 @@ repos:
       - id: biome-ci
         additional_dependencies: ["@biomejs/biome@2.3.10"]
   - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.43.0
+    rev: v0.49.1
     hooks:
       - id: markdownlint
         args: [--fix]
