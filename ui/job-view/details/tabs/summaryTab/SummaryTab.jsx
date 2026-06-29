@@ -6,12 +6,14 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import {
   buildTestSummary,
   buildFailureSuggestions,
+  matchBugSuggestions,
 } from '../../../../helpers/testSummary';
 import { thEvents } from '../../../../helpers/constants';
 import { isReftest } from '../../../../helpers/job';
 import { getReftestUrl } from '../../../../helpers/url';
 import BugFiler from '../../../../shared/BugFiler';
 import InternalIssueFiler from '../../../../shared/InternalIssueFiler';
+import BugSuggestionsModel from '../../../../models/bugSuggestions';
 
 import SummaryItem from './SummaryItem';
 
@@ -26,6 +28,7 @@ const SummaryTab = ({
   currentRepo,
 }) => {
   const [summary, setSummary] = useState(null);
+  const [bugSuggestions, setBugSuggestions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isBugFilerOpen, setIsBugFilerOpen] = useState(false);
@@ -71,9 +74,35 @@ const SummaryTab = ({
     };
   }, [artifactUrl]);
 
+  const jobId = selectedJob?.id;
+
+  useEffect(() => {
+    if (!jobId) {
+      setBugSuggestions([]);
+      return undefined;
+    }
+
+    let cancelled = false;
+    BugSuggestionsModel.get(jobId)
+      .then((data) => {
+        if (!cancelled) {
+          setBugSuggestions(Array.isArray(data) ? data : []);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setBugSuggestions([]);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [jobId]);
+
   const suggestions = useMemo(
-    () => buildFailureSuggestions(summary),
-    [summary],
+    () => matchBugSuggestions(buildFailureSuggestions(summary), bugSuggestions),
+    [summary, bugSuggestions],
   );
 
   const fileBug = useCallback(
@@ -162,6 +191,7 @@ const SummaryTab = ({
             toggleInternalIssueFiler={fileInternalIssue}
             selectedJob={selectedJob}
             jobDetails={jobDetails}
+            addBug={addBug}
           />
         ))}
       </ul>

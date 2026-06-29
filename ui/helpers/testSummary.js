@@ -1,4 +1,5 @@
 import { getSearchWords } from './display';
+import { thBugSuggestionLimit } from './constants';
 
 // Parses the contents of a `*_testsummary.jsonl` artifact into a structured
 // object for the job-view Summary tab.
@@ -216,6 +217,86 @@ export const buildFailureSuggestions = (summary) => {
     });
   });
   return suggestions;
+};
+
+// Normalize a test path so the testsummary test name and the bug_suggestions
+// `path_end` (which the backend trims/cleans) can be compared. We keep only the
+// trailing slash-free form so a full manifest path matches its `path_end`.
+const normalizePath = (path) =>
+  (path || '').replace(/\\/g, '/').replace(/\/+$/, '').toLowerCase();
+
+// True when a bug_suggestion's path matches a failing test's path. The backend
+// may store either the full path or only its tail in `path_end`, so we accept
+// an exact match or one being the suffix of the other.
+const pathsMatch = (testPath, bugPath) => {
+  if (!testPath || !bugPath) return false;
+  const a = normalizePath(testPath);
+  const b = normalizePath(bugPath);
+  if (!a || !b) return false;
+  return a === b || a.endsWith(`/${b}`) || b.endsWith(`/${a}`);
+};
+
+const bugKey = (bug) => bug.id ?? bug.internal_id;
+
+const mergeBugs = (target, incoming) => {
+  const seen = new Set(target.map(bugKey));
+  incoming.forEach((bug) => {
+    const key = bugKey(bug);
+    if (!seen.has(key)) {
+      seen.add(key);
+      target.push(bug);
+    }
+  });
+};
+
+// Mirror the validity flags FailureSummaryTab derives from the bug_suggestions
+// API, so SummaryItem can reuse the same display logic.
+const decorateBugs = (suggestion) => {
+  const { bugs } = suggestion;
+  bugs.too_many_open_recent = bugs.open_recent.length > thBugSuggestionLimit;
+  bugs.too_many_all_others = bugs.all_others.length > thBugSuggestionLimit;
+  suggestion.valid_open_recent =
+    bugs.open_recent.length > 0 && !bugs.too_many_open_recent;
+  suggestion.valid_all_others =
+    bugs.all_others.length > 0 &&
+    !bugs.too_many_all_others &&
+    !bugs.too_many_open_recent;
+  suggestion.showBugSuggestions =
+    suggestion.valid_open_recent || suggestion.valid_all_others;
+};
+
+/**
+ * Enrich the testsummary-derived failure suggestions with the Bugzilla bug
+ * suggestions returned by the `/bug_suggestions/` API, matching on test path.
+ *
+ * The testsummary artifact gives us the canonical list of failing tests, but
+ * carries no Bugzilla data; the API gives us bugs keyed by log error line. We
+ * match the two by test path (`path_end`) and attach every matching bug to the
+ * corresponding failing test, merging when several error lines map to one test.
+ *
+ * @param {ReturnType<typeof buildFailureSuggestions>} failureSuggestions
+ * @param {Array<{ path_end: ?string, bugs: { open_recent: [], all_others: [] } }>} bugSuggestions
+ * @returns {typeof failureSuggestions} the same suggestions, bugs attached.
+ */
+export const matchBugSuggestions = (failureSuggestions, bugSuggestions) => {
+  if (!failureSuggestions || !failureSuggestions.length) return failureSuggestions;
+  if (!bugSuggestions || !bugSuggestions.length) {
+    failureSuggestions.forEach(decorateBugs);
+    return failureSuggestions;
+  }
+
+  failureSuggestions.forEach((suggestion) => {
+    const matches = bugSuggestions.filter((bugSuggestion) =>
+      pathsMatch(suggestion.path_end, bugSuggestion.path_end),
+    );
+    matches.forEach((match) => {
+      mergeBugs(suggestion.bugs.open_recent, match.bugs?.open_recent || []);
+      mergeBugs(suggestion.bugs.all_others, match.bugs?.all_others || []);
+    });
+    decorateBugs(suggestion);
+  });
+
+  return failureSuggestions;
 };
 
 export default buildTestSummary;

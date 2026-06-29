@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'react-bootstrap';
 import { Link } from 'react-router';
@@ -9,7 +10,9 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import Clipboard from '../../../../shared/Clipboard';
+import BugListItem from '../../../../shared/tabs/failureSummary/BugListItem';
 import { isReftest } from '../../../../helpers/job';
+import { thBugSuggestionLimit } from '../../../../helpers/constants';
 import {
   createQueryParams,
   parseQueryParams,
@@ -32,13 +35,23 @@ const SummaryItem = ({
   toggleInternalIssueFiler,
   selectedJob,
   jobDetails,
+  addBug = null,
 }) => {
+  const [showMore, setShowMore] = useState(false);
   const filterTestPath = suggestion.search.match(/([a-z_\-0-9]+[/])+/gi);
   const line = formatLogLineWithLinks(
     suggestion.search,
     jobDetails,
     selectedJob,
   );
+
+  const { bugs } = suggestion;
+  const showOpenRecent = suggestion.valid_open_recent;
+  const showAllOthers =
+    suggestion.valid_all_others && (showMore || !showOpenRecent);
+  const tooMany =
+    bugs?.too_many_open_recent ||
+    (bugs?.too_many_all_others && !suggestion.valid_open_recent);
 
   return (
     <li>
@@ -73,6 +86,57 @@ const SummaryItem = ({
           </Button>
         </span>
       </div>
+      {suggestion.showBugSuggestions && (
+        <div className="failure-summary-bugs-container">
+          {showOpenRecent && (
+            <ul className="list-unstyled failure-summary-bugs">
+              {bugs.open_recent.map((bug) => (
+                <BugListItem
+                  key={bug.internal_id ?? bug.id}
+                  bug={bug}
+                  suggestion={suggestion}
+                  selectedJob={selectedJob}
+                  addBug={addBug}
+                  toggleBugFiler={toggleBugFiler}
+                  title={bug.resolution !== '' ? bug.resolution : ''}
+                />
+              ))}
+            </ul>
+          )}
+          {showOpenRecent && suggestion.valid_all_others && (
+            <Button
+              size="sm"
+              variant="outline-dark"
+              rel="noopener"
+              onClick={() => setShowMore((prev) => !prev)}
+              className="show-more-suggestions my-2"
+            >
+              {showMore ? 'Hide bug suggestions' : 'Show more bug suggestions'}
+            </Button>
+          )}
+          {showAllOthers && (
+            <ul className="list-unstyled failure-summary-bugs">
+              {bugs.all_others.map((bug) => (
+                <BugListItem
+                  key={bug.id ?? bug.internal_id}
+                  bug={bug}
+                  suggestion={suggestion}
+                  selectedJob={selectedJob}
+                  addBug={addBug}
+                  toggleBugFiler={toggleBugFiler}
+                  title={bug.resolution !== '' ? bug.resolution : ''}
+                />
+              ))}
+            </ul>
+          )}
+          {tooMany && (
+            <mark>
+              Exceeded max {thBugSuggestionLimit} bug suggestions, most of which
+              are likely false positives.
+            </mark>
+          )}
+        </div>
+      )}
     </li>
   );
 };
@@ -89,6 +153,7 @@ SummaryItem.propTypes = {
   ).isRequired,
   toggleBugFiler: PropTypes.func.isRequired,
   toggleInternalIssueFiler: PropTypes.func.isRequired,
+  addBug: PropTypes.func,
 };
 
 export default SummaryItem;
