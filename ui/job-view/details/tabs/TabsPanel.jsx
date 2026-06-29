@@ -67,13 +67,9 @@ const getDefaultTabIndex = (status, props) => {
     {},
   );
 
-  let tabIndex = showSummary
-    ? tabIndexes.summary
-    : showPerf
-      ? tabIndexes.perf
-      : tabIndexes.artifacts;
+  let tabIndex = showPerf ? tabIndexes.perf : tabIndexes.artifacts;
   if (['busted', 'testfailed', 'exception'].includes(status)) {
-    tabIndex = showSummary ? tabIndexes.summary : tabIndexes.failure;
+    tabIndex = tabIndexes.failure;
   }
   return tabIndex;
 };
