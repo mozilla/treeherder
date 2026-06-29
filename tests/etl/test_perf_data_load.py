@@ -16,6 +16,7 @@ from treeherder.model.models import Push
 from treeherder.perf.models import (
     MultiCommitDatum,
     PerformanceDatum,
+    PerformanceDatumReplicate,
     PerformanceFramework,
     PerformanceSignature,
 )
@@ -523,3 +524,21 @@ def test_multi_commit_data_is_removed_by_dedicated_management_script(
     assert (
         PerformanceDatum.objects.all().count() == DATA_PER_ARTIFACT
     )  # data ingested in the old way remains intact
+
+
+def test_suite_replicates_are_ingested(test_repository, perf_job, sample_perf_artifact):
+    suite_replicates = [1.0, 2.0, 3.0]
+    sample_perf_artifact["blob"]["suites"][0]["replicates"] = suite_replicates
+    _, submit_datum = _prepare_test_data(sample_perf_artifact)
+
+    store_performance_artifact(perf_job, submit_datum)
+
+    suite_datum = PerformanceDatum.objects.get(
+        signature=PerformanceSignature.objects.get(suite="youtube-watch", test="")
+    )
+    stored_replicates = list(
+        PerformanceDatumReplicate.objects.filter(performance_datum=suite_datum).values_list(
+            "value", flat=True
+        )
+    )
+    assert sorted(stored_replicates) == sorted(suite_replicates)

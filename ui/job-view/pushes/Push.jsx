@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, memo } from 'react';
+import { useState, useEffect, useCallback, useRef, memo, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { useLocation } from 'react-router';
 import sortBy from 'lodash/sortBy';
@@ -25,15 +25,15 @@ import {
   usePushesStore,
   updateJobMap,
   recalculateUnclassifiedCounts,
-} from '../stores/pushesStore';
-import { notify } from '../stores/notificationStore';
+} from '../../shared/stores/pushesStore';
+import { notify } from '../../shared/stores/notificationStore';
 import {
   checkRootUrl,
   prodFirefoxRootUrl,
 } from '../../taskcluster-auth-callback/constants';
 import { RevisionList } from '../../shared/RevisionList';
 import { Revision } from '../../shared/Revision';
-import { getJobCount, getTaskRunStr } from '../../helpers/job';
+import { defaultJobCount, getJobCount, getTaskRunStr } from '../../helpers/job';
 
 import FuzzyJobFinder from './FuzzyJobFinder';
 import PushHeader from './PushHeader';
@@ -116,18 +116,7 @@ function Push({
   const [runnableVisible, setRunnableVisible] = useState(false);
   const [selectedRunnableJobs, setSelectedRunnableJobs] = useState([]);
   const [watched, setWatched] = useState('none');
-  const [jobCounts, setJobCounts] = useState({
-    build_failed: 0,
-    completed: 0,
-    fixedByCommit: 0,
-    lint_failed: 0,
-    pending: 0,
-    running: 0,
-    test_failed: 0,
-    intermittentBuild: 0,
-    intermittentLint: 0,
-    intermittentTests: 0,
-  });
+  const [jobCounts, setJobCounts] = useState(defaultJobCount);
   const [pushGroupState, setPushGroupState] = useState('collapsed');
   const [collapsed, setCollapsed] = useState(collapsedPushes.includes(push.id));
   const [filteredTryPush, setFilteredTryPush] = useState(false);
@@ -326,16 +315,6 @@ function Push({
     // Re-map jobs with the new manifests
     mapPushJobs(jobListRef.current);
   }, [currentRepo.name, push.revision, mapPushJobs]);
-
-  const testForFilteredTry = useCallback(() => {
-    const filterParams = ['revision', 'author'];
-    const urlParams = new URLSearchParams(location.search);
-
-    const isFiltered =
-      filterParams.some((f) => urlParams.has(f)) && currentRepo.name === 'try';
-
-    setFilteredTryPush(isFiltered);
-  }, [currentRepo.name, location]);
 
   const handleUrlChanges = useCallback(async () => {
     const allParams = getAllUrlParams();
@@ -580,16 +559,12 @@ function Push({
       promises.push(fetchTestManifests());
     }
 
-    Promise.all(promises).then(() => {
-      testForFilteredTry();
-    });
-
     window.addEventListener(thEvents.applyNewJobs, handleApplyNewJobs);
 
     return () => {
       window.removeEventListener(thEvents.applyNewJobs, handleApplyNewJobs);
     };
-  }, [handleApplyNewJobs, fetchJobs, fetchTestManifests, testForFilteredTry]);
+  }, [handleApplyNewJobs, fetchJobs, fetchTestManifests]);
 
   // componentDidUpdate - show notifications
   useEffect(() => {
@@ -599,8 +574,14 @@ function Push({
 
   // componentDidUpdate - test for filtered try
   useEffect(() => {
-    testForFilteredTry();
-  }, [testForFilteredTry]);
+    const filterParams = ['revision', 'author'];
+    const urlParams = new URLSearchParams(location.search);
+
+    const isFiltered =
+      filterParams.some((f) => urlParams.has(f)) && currentRepo.name === 'try';
+
+    setFilteredTryPush(isFiltered);
+  }, [location.search]);
 
   // componentDidUpdate - handle URL changes
   useEffect(() => {
@@ -609,6 +590,15 @@ function Push({
       prevRouterSearch.current = location.search;
     }
   }, [location.search, handleUrlChanges]);
+
+  const failedMochitestXpcshellCount = useMemo(() => {
+    return jobList.filter(
+      (job) =>
+        job.result === 'testfailed' &&
+        (job.job_type_name.includes('xpcshell') ||
+          job.job_type_name.includes('mochitest')),
+    ).length;
+  }, [jobList]);
 
   const {
     id,
@@ -625,6 +615,16 @@ function Push({
   if (isOnlyRevision) {
     setSingleRevisionWindowTitle();
   }
+
+  const externalFailureUrl =
+    failedMochitestXpcshellCount > 0
+      ? `https://tests.firefox.dev/try.html?rev=${revision}`
+      : '';
+
+  const externalFailureTooltip =
+    failedMochitestXpcshellCount > 0
+      ? `View aggregated failures from ${failedMochitestXpcshellCount} failed mochitest/xpcshell test jobs`
+      : '';
 
   return (
     <div className="push" data-testid={`push-${push.id}`} ref={containerRef}>
@@ -678,7 +678,13 @@ function Push({
                   widthClass="mb-3 ms-4"
                   commitShaClass="font-monospace"
                 >
-                  {filteredTryPush && <PushCountsDetails {...jobCounts} />}
+                  {filteredTryPush && decisionTask && (
+                    <PushCountsDetails
+                      {...jobCounts}
+                      externalFailureUrl={externalFailureUrl}
+                      externalFailureTooltip={externalFailureTooltip}
+                    />
+                  )}
                 </RevisionList>
               </Col>
               <Col xs={7} className="job-list job-list-pad">

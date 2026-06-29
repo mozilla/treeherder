@@ -1,23 +1,36 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCaretRight } from '@fortawesome/free-solid-svg-icons';
 
 import formatLogLineWithLinks from '../helpers/logFormatting';
 
-export default class ErrorLines extends React.PureComponent {
-  render() {
-    const { errors, onClickLine, jobDetails = [], job = null } = this.props;
-
-    return (
-      <div className="error-lines">
-        <table>
-          <tbody>
-            {errors.map((error) => (
+const ErrorLines = React.memo(
+  ({ errors, onClickLine, jobDetails = [], job = null, highlight }) => (
+    <div className="error-lines">
+      <table>
+        <tbody>
+          {errors.map((error) => {
+            const isSelected =
+              Array.isArray(highlight) &&
+              highlight.length > 0 &&
+              error.lineNumber >= highlight[0] &&
+              error.lineNumber <=
+                (highlight.length > 1 ? highlight[1] : highlight[0]);
+            return (
               <tr
                 key={error.lineNumber}
-                onClick={() => onClickLine([error.lineNumber], true)}
-                className="error-line pointable small"
+                onClick={() => onClickLine([error.lineNumber])}
+                className={`error-line pointable small${isSelected ? ' error-line-selected' : ''}`}
               >
-                <td className="badge text-bg-secondary pb-1 pe-1 rounded-0">
+                <td className="error-line-indicator">
+                  {isSelected && (
+                    <FontAwesomeIcon icon={faCaretRight} />
+                  )}
+                </td>
+                <td
+                  className={`badge pb-1 pe-1 rounded-0 ${isSelected ? 'text-bg-warning' : 'text-bg-secondary'}`}
+                >
                   {error.lineNumber}
                 </td>
                 <td className="error-line-text">
@@ -26,13 +39,15 @@ export default class ErrorLines extends React.PureComponent {
                   })}
                 </td>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    );
-  }
-}
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  ),
+);
+
+ErrorLines.displayName = 'ErrorLines';
 
 ErrorLines.propTypes = {
   errors: PropTypes.arrayOf(
@@ -49,4 +64,7 @@ ErrorLines.propTypes = {
     }),
   ),
   job: PropTypes.shape({}),
+  highlight: PropTypes.arrayOf(PropTypes.number),
 };
+
+export default ErrorLines;

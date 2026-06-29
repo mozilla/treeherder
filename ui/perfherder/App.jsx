@@ -10,7 +10,6 @@ import ErrorMessages from '../shared/ErrorMessages';
 import { endpoints } from './perf-helpers/constants';
 import GraphsView from './graphs/GraphsView';
 import AlertsView from './alerts/AlertsView';
-import TestsView from './tests/TestsView';
 import Navigation from './Navigation';
 
 import '../css/react-table.css';
@@ -19,7 +18,6 @@ import '../css/perf.css';
 const App = () => {
   const [projects, setProjects] = useState([]);
   const [frameworks, setFrameworks] = useState([]);
-  const [platforms, setPlatforms] = useState([]);
   const [performanceTags, setPerformanceTags] = useState([]);
   const [user, setUser] = useState({});
   const [errorMessages, setErrorMessages] = useState([]);
@@ -28,7 +26,6 @@ const App = () => {
   const updateAppState = useCallback((state) => {
     if (state.projects !== undefined) setProjects(state.projects);
     if (state.frameworks !== undefined) setFrameworks(state.frameworks);
-    if (state.platforms !== undefined) setPlatforms(state.platforms);
     if (state.performanceTags !== undefined)
       setPerformanceTags(state.performanceTags);
     if (state.user !== undefined) setUser(state.user);
@@ -109,17 +106,6 @@ const App = () => {
                   projects={projects}
                   frameworks={frameworks}
                   compareData={compareData}
-                  updateAppState={updateAppState}
-                />
-              }
-            />
-            <Route
-              path="tests/*"
-              element={
-                <TestsView
-                  projects={projects}
-                  frameworks={frameworks}
-                  platforms={platforms}
                   updateAppState={updateAppState}
                 />
               }

@@ -19,9 +19,9 @@ import { getJobsUrl } from '../../helpers/url';
 import PushModel from '../../models/push';
 import JobModel from '../../models/job';
 import { getUrlParam } from '../../helpers/location';
-import { notify } from '../stores/notificationStore';
-import { setSelectedJob } from '../stores/selectedJobStore';
-import { pinJobs } from '../stores/pinnedJobsStore';
+import { notify } from '../../shared/stores/notificationStore';
+import { setSelectedJob } from '../../shared/stores/selectedJobStore';
+import { pinJobs } from '../../shared/stores/pinnedJobsStore';
 
 import PushActionMenu from './PushActionMenu';
 import PushCounts from './PushCounts';

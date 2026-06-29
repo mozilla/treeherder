@@ -58,6 +58,7 @@ docs.egg-info
 mcp-servers/
 .claude
 CLAUDE.md
+.superpowers/
 
 # Cloud SQL Auth Proxy
 cloud-sql-proxy

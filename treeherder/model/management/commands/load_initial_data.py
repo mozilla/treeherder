@@ -10,6 +10,7 @@ class Command(BaseCommand):
             "loaddata",
             "repository_group",
             "repository",
+            "repository_branch",
             "failure_classification",
             "issue_tracker",
             "performance_framework",

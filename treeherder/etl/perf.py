@@ -203,6 +203,7 @@ def _load_perf_datum(job: Job, perf_datum: dict):
                         suite.get("alertChangeType")
                     ),
                     "alert_threshold": suite.get("alertThreshold"),
+                    "alert_severity": suite.get("alertSeverity", "normal"),
                     "min_back_window": suite.get("minBackWindow"),
                     "max_back_window": suite.get("maxBackWindow"),
                     "fore_window": suite.get("foreWindow"),
@@ -226,6 +227,23 @@ def _load_perf_datum(job: Job, perf_datum: dict):
             if suite_datum.should_mark_as_multi_commit(is_multi_commit, datum_created):
                 # keep a register with all multi commit perf data
                 MultiCommitDatum.objects.create(perf_datum=suite_datum)
+
+            replicates = suite.get("replicates", [])
+            if replicates and len(replicates) > 0:
+                try:
+                    # Add the replicates to the PerformanceDatumReplicate table, and
+                    # catch and ignore any exceptions that are produced here so we don't
+                    # impact the standard workflow
+                    PerformanceDatumReplicate.objects.bulk_create(
+                        [
+                            PerformanceDatumReplicate(
+                                value=replicate, performance_datum=suite_datum
+                            )
+                            for replicate in replicates
+                        ]
+                    )
+                except Exception as e:
+                    logger.info(f"Failed to ingest replicates for suite datum {suite_datum}: {e}")
 
             if _suite_should_alert_based_on(signature, job, datum_created):
                 generate_alerts.apply_async(args=[signature.id], queue="generate_perf_alerts")
@@ -277,6 +295,9 @@ def _load_perf_datum(job: Job, perf_datum: dict):
                         subtest.get("alertChangeType")
                     ),
                     "alert_threshold": subtest.get("alertThreshold"),
+                    "alert_severity": subtest.get(
+                        "alertSeverity", suite.get("alertSeverity", "normal")
+                    ),
                     "min_back_window": subtest.get("minBackWindow"),
                     "max_back_window": subtest.get("maxBackWindow"),
                     "fore_window": subtest.get("foreWindow"),

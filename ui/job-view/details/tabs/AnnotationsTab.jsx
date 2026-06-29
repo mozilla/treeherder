@@ -11,8 +11,8 @@ import {
 import { thEvents } from '../../../helpers/constants';
 import { getBugUrl } from '../../../helpers/url';
 import { longDateFormat } from '../../../helpers/display';
-import { notify } from '../../stores/notificationStore';
-import { recalculateUnclassifiedCounts } from '../../stores/pushesStore';
+import { notify } from '../../../shared/stores/notificationStore';
+import { recalculateUnclassifiedCounts } from '../../../shared/stores/pushesStore';
 
 function RelatedBugSaved(props) {
   const { deleteBug, bug } = props;

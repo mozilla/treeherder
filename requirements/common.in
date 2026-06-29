@@ -1,16 +1,16 @@
 # Packages that are shared between deployment and dev environments.
-gunicorn==25.0.3
-whitenoise[brotli]==6.11.0  # Used by Whitenoise to provide Brotli-compressed versions of static files.
-Django==5.1.15
-celery==5.6.2  # celery needed for data ingestion
+gunicorn==26.0.0
+whitenoise[brotli]==6.12.0  # Used by Whitenoise to provide Brotli-compressed versions of static files.
+Django==6.0.3
+celery==5.6.3  # celery needed for data ingestion
 simplejson==3.20.2  # import simplejson
 newrelic==11.2.0
 certifi==2026.1.4
 
-psycopg2-binary==2.9.11
+psycopg2-binary==2.9.12
 
 jsonschema==4.26.0  # import jsonschema
-djangorestframework==3.16.1  # Imported as rest_framework
+djangorestframework==3.17.0  # Imported as rest_framework
 django-cors-headers==4.9.0  # Listed as 3rd party app on settings.py
 drf-spectacular==0.29.0  # Used for REST API Schema Generation
 mozlog==8.0.0
@@ -21,11 +21,13 @@ django-environ==0.11.2  # Imported as environ
 uritemplate==4.2.0  # For OpenAPI schema
 
 python-dateutil==2.9.0.post0
-django-filter==25.1  # Listed in DEFAULT_FILTER_BACKENDS on settings.py
+django-filter==25.2  # Listed in DEFAULT_FILTER_BACKENDS on settings.py
 django-redis==6.0.0  # Listed in CACHES on settings.py
 
 taskcluster==88.0.5  # import taskcluster
 python-jose[pycryptodome]==3.5.0  # from jose import jwt
+
+PyGithub==2.9.1
 
 furl==2.1.4  # Imported as furl
 first==2.0.2  # Imported as first
@@ -36,7 +38,7 @@ django-cache-memoize==0.2.1  # Imported as cache_memoize
 mozci[cache]==2.4.3
 
 # Dockerflow/CloudOps APIs
-dockerflow==2024.4.2
+dockerflow==2026.3.4
 
 # Measuring noise of perf data
 moz-measure-noise==2.70.0

@@ -11,7 +11,7 @@ import {
 import { bzComponentEndpoint, bzBaseUrl } from '../../../ui/helpers/url';
 import { isReftest } from '../../../ui/helpers/job';
 import { BugFilerClass } from '../../../ui/shared/BugFiler';
-import { usePushesStore } from '../../../ui/job-view/stores/pushesStore';
+import { usePushesStore } from '../../../ui/shared/stores/pushesStore';
 
 describe('BugFiler', () => {
   const fullLog =

@@ -1,11 +1,11 @@
-FROM python:3.10.18-bullseye
+FROM python:3.13-bookworm
 
 # Variables that are not specific to a particular environment.
-ENV NEW_RELIC_CONFIG_FILE newrelic.ini
+ENV NEW_RELIC_CONFIG_FILE=newrelic.ini
 
 # netcat is used for the Postgres readiness check in entrypoint.sh.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    netcat \
+    netcat-openbsd \
     && rm -rf /var/lib/apt/lists/*
 
 # Bug in Firefox which requires GTK+ and GLib in headless mode

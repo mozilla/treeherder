@@ -130,7 +130,7 @@ class TestTelemetryProbeChangeDetection:
         base_metric_info["data"]["monitor"] = {
             "alert": True,
             "bugzilla_notification_emails": ["test@test.com"],
-            "change-detection-technique": "custom_technique",
+            "change_detection_technique": "custom_technique",
         }
         probe = TelemetryProbe(base_metric_info)
 

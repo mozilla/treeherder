@@ -4,6 +4,7 @@ import multiprocessing
 import time
 import warnings
 from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urlencode
 
 import django_filters
@@ -11,7 +12,17 @@ import numpy as np
 from cliffs_delta import cliffs_delta
 from django.conf import settings
 from django.db import transaction
-from django.db.models import Case, CharField, Count, Q, Subquery, Value, When
+from django.db.models import (
+    Case,
+    CharField,
+    Count,
+    Exists,
+    OuterRef,
+    Q,
+    Subquery,
+    Value,
+    When,
+)
 from django.db.models.functions import Concat
 from rest_framework import exceptions, filters, generics, pagination, viewsets
 from rest_framework.response import Response
@@ -414,6 +425,8 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
     filter_text = django_filters.CharFilter(method="_filter_text")
     hide_improvements = django_filters.BooleanFilter(method="_hide_improvements")
     hide_related_and_invalid = django_filters.BooleanFilter(method="_hide_related_and_invalid")
+    untriaged_regressions = django_filters.BooleanFilter(method="_untriaged_regressions")
+    untriaged_improvements = django_filters.BooleanFilter(method="_untriaged_improvements")
     with_assignee = django_filters.CharFilter(method="_with_assignee")
     timerange = django_filters.NumberFilter(method="_timerange")
     show_sheriffed_frameworks = django_filters.BooleanFilter(method="_show_sheriffed_frameworks")
@@ -480,6 +493,35 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
             ]
         )
 
+    def _untriaged_regressions(self, queryset, name, value):
+        return queryset.filter(
+            Q(alerts__is_regression=True, alerts__status=PerformanceAlert.UNTRIAGED)
+            | Q(related_alerts__is_regression=True)
+        ).distinct()
+
+    def _untriaged_improvements(self, queryset, name, value):
+        untriaged_regression_alerts = PerformanceAlert.objects.filter(
+            summary_id=OuterRef("pk"),
+            is_regression=True,
+            status=PerformanceAlert.UNTRIAGED,
+        )
+        related_regression_alerts = PerformanceAlert.objects.filter(
+            related_summary_id=OuterRef("pk"),
+            is_regression=True,
+        )
+        return (
+            queryset.filter(
+                alerts__is_regression=False,
+                alerts__status=PerformanceAlert.UNTRIAGED,
+            )
+            .annotate(
+                has_untriaged_regression=Exists(untriaged_regression_alerts),
+                has_related_regression=Exists(related_regression_alerts),
+            )
+            .filter(has_untriaged_regression=False, has_related_regression=False)
+            .distinct()
+        )
+
     def _with_assignee(self, queryset, name, value):
         return queryset.filter(assignee__username=value)
 
@@ -502,6 +544,8 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
             "filter_text",
             "hide_improvements",
             "hide_related_and_invalid",
+            "untriaged_regressions",
+            "untriaged_improvements",
             "with_assignee",
             "timerange",
         ]
@@ -566,17 +610,19 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
         keys = {(summary.push_id, summary.framework_id) for summary in page}
         if not keys:
             return {}
-        q = Q()
-        for push_id, framework_id in keys:
-            q |= Q(push_id=push_id, framework_id=framework_id)
-        rows = PerformanceAlertSummary.objects.filter(q).values(
-            "id", "status", "push_id", "framework_id"
-        )
+        push_ids = {push_id for push_id, _ in keys}
+        framework_ids = {framework_id for _, framework_id in keys}
+        rows = PerformanceAlertSummary.objects.filter(
+            push_id__in=push_ids,
+            framework_id__in=framework_ids,
+        ).values("id", "status", "push_id", "framework_id")
         result = defaultdict(list)
         for row in rows:
-            result[(row["push_id"], row["framework_id"])].append(
-                {"id": row["id"], "status": row["status"]}
-            )
+            key = (row["push_id"], row["framework_id"])
+            if key not in keys:
+                # Cartesian over-fetch from independent IN clauses; ignore.
+                continue
+            result[key].append({"id": row["id"], "status": row["status"]})
         return dict(result)
 
     def _build_tc_metadata_map(self, page):
@@ -584,50 +630,113 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
         Returns a dict mapping (signature_id, push_id) -> {"task_id": ..., "retry_id": ...}
         for all alerts on this page, replacing per-alert TC metadata queries.
         """
-        datum_keys = set()
+        target_keys = set()
+        all_repo_ids = set()
+        all_sig_ids = set()
+        all_push_ids = set()
         for summary in page:
             push_id = summary.push_id
             prev_push_id = summary.prev_push_id
+            all_push_ids.add(push_id)
+            all_push_ids.add(prev_push_id)
             for alert in summary.alerts.all():
                 sig = alert.series_signature
-                datum_keys.add((sig.repository_id, sig.id, push_id))
-                datum_keys.add((sig.repository_id, sig.id, prev_push_id))
+                target_keys.add((sig.id, push_id))
+                target_keys.add((sig.id, prev_push_id))
+                all_repo_ids.add(sig.repository_id)
+                all_sig_ids.add(sig.id)
             for alert in summary.related_alerts.all():
                 sig = alert.series_signature
-                datum_keys.add((sig.repository_id, sig.id, alert.summary.push_id))
-                datum_keys.add((sig.repository_id, sig.id, alert.summary.prev_push_id))
-        if not datum_keys:
+                rs_push_id = alert.summary.push_id
+                rs_prev_push_id = alert.summary.prev_push_id
+                target_keys.add((sig.id, rs_push_id))
+                target_keys.add((sig.id, rs_prev_push_id))
+                all_repo_ids.add(sig.repository_id)
+                all_sig_ids.add(sig.id)
+                all_push_ids.add(rs_push_id)
+                all_push_ids.add(rs_prev_push_id)
+        all_push_ids.discard(None)
+        if not target_keys or not all_push_ids:
             return {}
+        rows = PerformanceDatum.objects.filter(
+            repository_id__in=all_repo_ids,
+            signature_id__in=all_sig_ids,
+            push_id__in=all_push_ids,
+        ).values(
+            "signature_id",
+            "push_id",
+            "job__taskcluster_metadata__task_id",
+            "job__taskcluster_metadata__retry_id",
+        )
         result = {}
-        datum_keys_list = list(datum_keys)
-        chunk_size = 500
-        for i in range(0, len(datum_keys_list), chunk_size):
-            chunk = datum_keys_list[i : i + chunk_size]
-            q = Q()
-            for repo_id, sig_id, push_id in chunk:
-                q |= Q(repository_id=repo_id, signature_id=sig_id, push_id=push_id)
-            rows = PerformanceDatum.objects.filter(q).values(
-                "repository_id",
-                "signature_id",
-                "push_id",
-                "job__taskcluster_metadata__task_id",
-                "job__taskcluster_metadata__retry_id",
+        for row in rows:
+            key = (row["signature_id"], row["push_id"])
+            if key not in target_keys or key in result:
+                # Cartesian over-fetch (key wasn't requested) or duplicate datum
+                # for the same (signature, push) — keep the first one with a task_id.
+                continue
+            task_id = row["job__taskcluster_metadata__task_id"]
+            retry_id = row["job__taskcluster_metadata__retry_id"]
+            if task_id is not None:
+                result[key] = {"task_id": task_id, "retry_id": retry_id}
+        return result
+
+    def _build_sxs_availability_map(self, page):
+        """
+        Returns a dict mapping alert_id -> bool, indicating whether a successful
+        side-by-side job for that alert's platform + suite exists on its summary's
+        culprit (regression) push. side-by-side jobs are identified by their job
+        type symbol ("side-by-side-*"); the compared platform and suite are encoded
+        in the job type name, which is how a job is matched to a specific alert.
+        Batched per page so the serializer doesn't query per alert.
+        """
+        # (alert, its own summary) pairs, covering both alerts and related_alerts
+        alert_summary_pairs = []
+        for summary in page:
+            for alert in summary.alerts.all():
+                alert_summary_pairs.append((alert, summary))
+            for alert in summary.related_alerts.all():
+                alert_summary_pairs.append((alert, alert.summary))
+
+        push_keys = {(sm.repository_id, sm.push_id) for _, sm in alert_summary_pairs}
+        if not push_keys:
+            return {}
+        sxs_jobs = [
+            (repo_id, push_id, name.lower())
+            for repo_id, push_id, name in models.Job.objects.filter(
+                repository_id__in={repo_id for repo_id, _ in push_keys},
+                push_id__in={push_id for _, push_id in push_keys},
+                job_type__symbol__icontains="side-by-side",
+                result="success",
+            ).values_list("repository_id", "push_id", "job_type__name")
+        ]
+
+        result = {}
+        for alert, sm in alert_summary_pairs:
+            platform = alert.series_signature.platform.platform.lower()
+            suite = alert.series_signature.suite.lower()
+            result[alert.id] = any(
+                repo_id == sm.repository_id
+                and push_id == sm.push_id
+                and platform in name
+                and suite in name
+                for repo_id, push_id, name in sxs_jobs
             )
-            for row in rows:
-                key = (row["signature_id"], row["push_id"])
-                if key in result:
-                    continue
-                task_id = row["job__taskcluster_metadata__task_id"]
-                retry_id = row["job__taskcluster_metadata__retry_id"]
-                if task_id is not None:
-                    result[key] = {"task_id": task_id, "retry_id": retry_id}
         return result
 
     def get_serializer_context(self):
         ctx = super().get_serializer_context()
         ctx["duplicated_summaries_map"] = None
         ctx["tc_metadata_map"] = None
+        ctx["sxs_availability_map"] = None
         return ctx
+
+    @staticmethod
+    def _fetch_profile_urls(alert):
+        return (
+            get_profile_artifact_url(alert, metadata_key="taskcluster_metadata"),
+            get_profile_artifact_url(alert, metadata_key="prev_taskcluster_metadata"),
+        )
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.queryset)
@@ -643,18 +752,24 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
             context = self.get_serializer_context()
             context["duplicated_summaries_map"] = self._build_duplicated_summaries_map(page)
             context["tc_metadata_map"] = self._build_tc_metadata_map(page)
+            context["sxs_availability_map"] = self._build_sxs_availability_map(page)
             serializer = self.get_serializer(page, many=True, context=context)
             if pk:
                 for summary in serializer.data:
                     if summary["id"] == int(pk):
-                        for alert in summary["alerts"]:
-                            if alert["is_regression"]:
-                                alert["profile_url"] = get_profile_artifact_url(
-                                    alert, metadata_key="taskcluster_metadata"
+                        regression_alerts = [
+                            alert for alert in summary["alerts"] if alert["is_regression"]
+                        ]
+                        if regression_alerts:
+                            with ThreadPoolExecutor(max_workers=10) as executor:
+                                url_pairs = list(
+                                    executor.map(self._fetch_profile_urls, regression_alerts)
                                 )
-                                alert["prev_profile_url"] = get_profile_artifact_url(
-                                    alert, metadata_key="prev_taskcluster_metadata"
-                                )
+                            for alert, (profile_url, prev_profile_url) in zip(
+                                regression_alerts, url_pairs
+                            ):
+                                alert["profile_url"] = profile_url
+                                alert["prev_profile_url"] = prev_profile_url
             return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(many=True, data=queryset)

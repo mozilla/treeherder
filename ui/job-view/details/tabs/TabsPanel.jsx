@@ -13,12 +13,12 @@ import {
 import { thEvents } from '../../../helpers/constants';
 import JobArtifacts from '../../../shared/JobArtifacts';
 import JobTestGroups from '../JobTestGroups';
-import { clearSelectedJob } from '../../stores/selectedJobStore';
+import { clearSelectedJob } from '../../../shared/stores/selectedJobStore';
 import {
   usePinnedJobsStore,
   pinJob,
   addBug,
-} from '../../stores/pinnedJobsStore';
+} from '../../../shared/stores/pinnedJobsStore';
 import FailureSummaryTab from '../../../shared/tabs/failureSummary/FailureSummaryTab';
 
 import PerformanceTab from './PerformanceTab';

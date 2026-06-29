@@ -1,4 +1,4 @@
-import NotificationList from '../shared/NotificationList';
+import NotificationList from './NotificationList';
 
 import { useNotificationStore } from './stores/notificationStore';
 

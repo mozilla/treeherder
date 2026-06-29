@@ -5,7 +5,7 @@ import pytest
 from django.urls import reverse
 
 from tests.conftest import create_perf_alert
-from treeherder.model.models import Push
+from treeherder.model.models import Job, JobType, Push
 from treeherder.perf.models import (
     PerformanceAlert,
     PerformanceAlertSummary,
@@ -79,6 +79,7 @@ def test_alert_summaries_get(
         "bug_number",
         "bug_updated",
         "bug_due_date",
+        "bug_status",
         "issue_tracker",
         "notes",
         "assignee_username",
@@ -123,6 +124,7 @@ def test_alert_summaries_get(
         "classifier",
         "classifier_email",
         "backfill_record",
+        "side_by_side_available",
         "noise_profile",
     }
     assert resp.json()["results"][0]["related_alerts"] == []
@@ -155,6 +157,105 @@ def test_alert_summaries_get_multiple_alerts(
 
     # make sure the 2 alert summaries are unique
     assert len(set([result["id"] for result in data["results"]])) == 2
+
+
+def _create_side_by_side_job(
+    repository,
+    push_id,
+    refdata,
+    platform,
+    suite,
+    result="success",
+):
+    # side-by-side jobs are identified by their job type symbol ("side-by-side-*");
+    # the compared platform and suite are encoded in the job type name, which is how
+    # a job is matched to a specific alert.
+    job_type = JobType.objects.create(
+        symbol=f"side-by-side-{suite}",
+        name=f"test-{platform} browsertime-tp6-firefox-{suite} aaaaaaaaaaaa bbbbbbbbbbbb",
+    )
+    now = datetime.now()
+    return Job.objects.create(
+        guid=str(uuid.uuid4()),
+        repository=repository,
+        push_id=push_id,
+        signature=refdata.signature,
+        build_platform=refdata.build_platform,
+        machine_platform=refdata.machine_platform,
+        machine=refdata.machine,
+        option_collection_hash=refdata.option_collection_hash,
+        job_type=job_type,
+        job_group=refdata.job_group,
+        product=refdata.product,
+        failure_classification_id=1,
+        who="test@example.com",
+        reason="scheduled",
+        result=result,
+        state="completed",
+        submit_time=now,
+        start_time=now,
+        end_time=now,
+        tier=1,
+    )
+
+
+def _alert_sbs(resp, alert_id):
+    alerts = resp.json()["results"][0]["alerts"]
+    return next(a["side_by_side_available"] for a in alerts if a["id"] == alert_id)
+
+
+def test_side_by_side_available_when_matching_job_on_push(
+    client, test_repository, test_perf_alert, generic_reference_data, failure_classifications
+):
+    # test_perf_alert: platform "win7", suite "mysuite", on the summary's push
+    _create_side_by_side_job(
+        test_repository, test_perf_alert.summary.push_id, generic_reference_data, "win7", "mysuite"
+    )
+
+    resp = client.get(reverse("performance-alert-summaries-list"))
+    assert resp.status_code == 200
+    assert _alert_sbs(resp, test_perf_alert.id) is True
+
+
+def test_side_by_side_not_available_without_job(client, test_perf_alert):
+    resp = client.get(reverse("performance-alert-summaries-list"))
+    assert resp.status_code == 200
+    assert _alert_sbs(resp, test_perf_alert.id) is False
+
+
+def test_side_by_side_not_available_when_platform_differs(
+    client, test_repository, test_perf_alert, generic_reference_data, failure_classifications
+):
+    # a side-by-side job exists for the same suite but a different platform
+    _create_side_by_side_job(
+        test_repository,
+        test_perf_alert.summary.push_id,
+        generic_reference_data,
+        "linux64",
+        "mysuite",
+    )
+
+    resp = client.get(reverse("performance-alert-summaries-list"))
+    assert resp.status_code == 200
+    assert _alert_sbs(resp, test_perf_alert.id) is False
+
+
+def test_side_by_side_not_available_when_job_unsuccessful(
+    client, test_repository, test_perf_alert, generic_reference_data, failure_classifications
+):
+    # a side-by-side job that ran but did not succeed must not count
+    _create_side_by_side_job(
+        test_repository,
+        test_perf_alert.summary.push_id,
+        generic_reference_data,
+        "win7",
+        "mysuite",
+        result="testfailed",
+    )
+
+    resp = client.get(reverse("performance-alert-summaries-list"))
+    assert resp.status_code == 200
+    assert _alert_sbs(resp, test_perf_alert.id) is False
 
 
 def test_alert_summaries_sheriffed_frameworks(
@@ -209,6 +310,7 @@ def test_alert_summaries_get_onhold(
         "bug_number",
         "bug_updated",
         "bug_due_date",
+        "bug_status",
         "issue_tracker",
         "notes",
         "assignee_username",
@@ -253,6 +355,7 @@ def test_alert_summaries_get_onhold(
         "classifier",
         "classifier_email",
         "backfill_record",
+        "side_by_side_available",
         "noise_profile",
     }
     assert resp.json()["results"][0]["related_alerts"] == []
@@ -325,6 +428,19 @@ def test_performance_alert_summary_change_from_revision(
     )
     assert resp.status_code == 200
     assert PerformanceAlertSummary.objects.get(id=1).prev_push.revision == original_revision
+
+
+def test_performance_alert_summary_same_from_to_revision(
+    client, test_perf_alert_summary, test_sheriff, test_push
+):
+    client.force_authenticate(user=test_sheriff)
+
+    # verify we cannot set the same revision for both from and to revision
+    resp = client.put(
+        reverse("performance-alert-summaries-list") + "1/",
+        {"revision": test_push.revision, "prev_push_revision": test_push.revision},
+    )
+    assert resp.status_code == 400
 
 
 def test_performance_alert_summary_change_revision(
@@ -703,3 +819,444 @@ def test_filter_text_accounts_for_related_alerts_also(
     assert summary_id in summary_ids
     # also ensure original & related summary are both fetched
     assert len(summary_ids) == 2
+
+
+def test_alert_summaries_filter_by_id(client, test_perf_alert_summary, test_perf_alert_summary_2):
+    resp = client.get(
+        reverse("performance-alert-summaries-list"),
+        data={"id": test_perf_alert_summary.id},
+    )
+    assert resp.status_code == 200
+
+    retrieved_summaries = resp.json()["results"]
+    summary_ids = [summary["id"] for summary in retrieved_summaries]
+
+    assert summary_ids == [test_perf_alert_summary.id]
+
+
+def test_alert_summaries_filter_by_status(
+    client, test_perf_alert_summary, test_perf_alert_summary_2
+):
+    test_perf_alert_summary.status = PerformanceAlertSummary.UNTRIAGED
+    test_perf_alert_summary.save()
+
+    test_perf_alert_summary_2.status = PerformanceAlertSummary.INVALID
+    test_perf_alert_summary_2.save()
+
+    resp = client.get(
+        reverse("performance-alert-summaries-list"),
+        data={"status": PerformanceAlertSummary.INVALID},
+    )
+    assert resp.status_code == 200
+
+    retrieved_summaries = resp.json()["results"]
+    summary_ids = [summary["id"] for summary in retrieved_summaries]
+
+    assert summary_ids == [test_perf_alert_summary_2.id]
+
+
+def test_alert_summaries_filter_by_repository(
+    client,
+    test_perf_alert_summary,
+    test_perf_alert_summary_2,
+    test_repository,
+    try_repository,
+    try_push_stored,
+):
+    try_pushes = Push.objects.filter(repository=try_repository).order_by("id")
+    test_perf_alert_summary_2.repository = try_repository
+    test_perf_alert_summary_2.prev_push = try_pushes[0]
+    test_perf_alert_summary_2.push = try_pushes[1]
+    test_perf_alert_summary_2.save()
+
+    resp = client.get(
+        reverse("performance-alert-summaries-list"),
+        data={"repository": test_repository.id},
+    )
+    assert resp.status_code == 200
+
+    retrieved_summaries = resp.json()["results"]
+    summary_ids = [summary["id"] for summary in retrieved_summaries]
+
+    assert test_perf_alert_summary.id in summary_ids
+    assert test_perf_alert_summary_2.id not in summary_ids
+
+
+def test_alert_summaries_filter_by_series_signature(client, test_perf_alert_2):
+    resp = client.get(
+        reverse("performance-alert-summaries-list"),
+        data={"alerts__series_signature": test_perf_alert_2.series_signature_id},
+    )
+    assert resp.status_code == 200
+
+    summary_ids = [summary["id"] for summary in resp.json()["results"]]
+
+    assert summary_ids == [test_perf_alert_2.summary_id]
+
+
+@pytest.mark.parametrize(
+    "filter_target",
+    [
+        "suite",
+        "test",
+        "platform",
+        "extra_options",
+        "bug_number",
+        "revision",
+    ],
+)
+def test_alert_summaries_filter_text_matches_primary_alert_fields(
+    client,
+    test_perf_alert_summary,
+    test_perf_alert_summary_2,
+    test_perf_alert,
+    filter_target,
+):
+    test_perf_alert_summary.bug_number = 123456
+    test_perf_alert_summary.save()
+
+    signature = test_perf_alert.series_signature
+    filter_values = {
+        "suite": signature.suite,
+        "test": signature.test,
+        "platform": signature.platform.platform,
+        "extra_options": signature.extra_options,
+        "bug_number": str(test_perf_alert_summary.bug_number),
+        "revision": test_perf_alert_summary.push.revision,
+    }
+
+    resp = client.get(
+        reverse("performance-alert-summaries-list"),
+        data={
+            "framework": test_perf_alert_summary.framework_id,
+            "filter_text": filter_values[filter_target],
+        },
+    )
+    assert resp.status_code == 200
+
+    summary_ids = [summary["id"] for summary in resp.json()["results"]]
+
+    assert test_perf_alert_summary.id in summary_ids
+    assert test_perf_alert_summary_2.id not in summary_ids
+
+
+def test_alert_summaries_hide_improvements(
+    client,
+    test_perf_alert_summary,
+    test_perf_alert_summary_2,
+    test_perf_alert,
+    test_perf_alert_2,
+):
+    # ensure test_perf_alert_summary is an improvement summary
+    test_perf_alert.is_regression = False
+    test_perf_alert.save()
+
+    resp = client.get(
+        reverse("performance-alert-summaries-list"),
+        data={"hide_improvements": True},
+    )
+    assert resp.status_code == 200
+
+    retrieved_summaries = resp.json()["results"]
+    summary_ids = [summary["id"] for summary in retrieved_summaries]
+
+    assert test_perf_alert_summary.id not in summary_ids
+    assert test_perf_alert_summary_2.id in summary_ids
+    assert len(summary_ids) == 1
+
+
+@pytest.mark.parametrize(
+    "excluded_status",
+    [
+        PerformanceAlertSummary.DOWNSTREAM,
+        PerformanceAlertSummary.REASSIGNED,
+        PerformanceAlertSummary.INVALID,
+    ],
+)
+def test_alert_summaries_hide_related_and_invalid(
+    client,
+    excluded_status,
+    test_perf_alert_summary,
+    test_perf_alert_summary_2,
+):
+    test_perf_alert_summary.status = PerformanceAlertSummary.UNTRIAGED
+    test_perf_alert_summary.save()
+
+    test_perf_alert_summary_2.status = excluded_status
+    test_perf_alert_summary_2.save()
+
+    resp = client.get(
+        reverse("performance-alert-summaries-list"),
+        data={"hide_related_and_invalid": True},
+    )
+    assert resp.status_code == 200
+
+    retrieved_summaries = resp.json()["results"]
+    summary_ids = [summary["id"] for summary in retrieved_summaries]
+
+    assert test_perf_alert_summary.id in summary_ids
+    assert test_perf_alert_summary_2.id not in summary_ids
+
+
+def test_alert_summaries_filter_with_assignee(
+    client, test_perf_alert_summary, test_perf_alert_summary_2, test_user, test_sheriff
+):
+    test_perf_alert_summary.assignee = test_user
+    test_perf_alert_summary.save()
+
+    test_perf_alert_summary_2.assignee = test_sheriff
+    test_perf_alert_summary_2.save()
+
+    resp = client.get(
+        reverse("performance-alert-summaries-list"),
+        data={"with_assignee": test_user.username},
+    )
+    assert resp.status_code == 200
+
+    retrieved_summaries = resp.json()["results"]
+    summary_ids = [summary["id"] for summary in retrieved_summaries]
+
+    assert summary_ids == [test_perf_alert_summary.id]
+
+
+def test_untriaged_regressions_filter(
+    client,
+    test_perf_alert_summary,
+    test_perf_alert_summary_2,
+    test_perf_signature,
+    test_perf_signature_2,
+):
+    # Summary 1: one untriaged regression alert should be returned
+    create_perf_alert(
+        summary=test_perf_alert_summary,
+        series_signature=test_perf_signature,
+        is_regression=True,
+        status=PerformanceAlert.UNTRIAGED,
+    )
+    # Summary 2: one untriaged improvement alert should NOT be returned
+    create_perf_alert(
+        summary=test_perf_alert_summary_2,
+        series_signature=test_perf_signature_2,
+        is_regression=False,
+        status=PerformanceAlert.UNTRIAGED,
+    )
+
+    resp = client.get(
+        reverse("performance-alert-summaries-list"),
+        data={"untriaged_regressions": "true"},
+    )
+    assert resp.status_code == 200
+    result_ids = [summary["id"] for summary in resp.json()["results"]]
+    assert test_perf_alert_summary.id in result_ids
+    assert test_perf_alert_summary_2.id not in result_ids
+
+
+def test_untriaged_regressions_excludes_acknowledged(
+    client,
+    test_perf_alert_summary,
+    test_perf_signature,
+):
+    # Acknowledged regression should NOT be returned by untriaged_regressions filter
+    create_perf_alert(
+        summary=test_perf_alert_summary,
+        series_signature=test_perf_signature,
+        is_regression=True,
+        status=PerformanceAlert.ACKNOWLEDGED,
+    )
+
+    resp = client.get(
+        reverse("performance-alert-summaries-list"),
+        data={"untriaged_regressions": "true"},
+    )
+    assert resp.status_code == 200
+    result_ids = [summary["id"] for summary in resp.json()["results"]]
+    assert test_perf_alert_summary.id not in result_ids
+
+
+def test_untriaged_improvements_filter(
+    client,
+    test_perf_alert_summary,
+    test_perf_alert_summary_2,
+    test_perf_signature,
+    test_perf_signature_2,
+):
+    # Summary 1: one untriaged improvement alert should be returned
+    create_perf_alert(
+        summary=test_perf_alert_summary,
+        series_signature=test_perf_signature,
+        is_regression=False,
+        status=PerformanceAlert.UNTRIAGED,
+    )
+    # Summary 2: one untriaged regression alert should NOT be returned
+    create_perf_alert(
+        summary=test_perf_alert_summary_2,
+        series_signature=test_perf_signature_2,
+        is_regression=True,
+        status=PerformanceAlert.UNTRIAGED,
+    )
+
+    resp = client.get(
+        reverse("performance-alert-summaries-list"),
+        data={"untriaged_improvements": "true"},
+    )
+    assert resp.status_code == 200
+    result_ids = [summary["id"] for summary in resp.json()["results"]]
+    assert test_perf_alert_summary.id in result_ids
+    assert test_perf_alert_summary_2.id not in result_ids
+
+
+def test_untriaged_improvements_excludes_acknowledged(
+    client,
+    test_perf_alert_summary,
+    test_perf_signature,
+):
+    # Acknowledged improvement should NOT be returned by untriaged_improvements filter
+    create_perf_alert(
+        summary=test_perf_alert_summary,
+        series_signature=test_perf_signature,
+        is_regression=False,
+        status=PerformanceAlert.ACKNOWLEDGED,
+    )
+
+    resp = client.get(
+        reverse("performance-alert-summaries-list"),
+        data={"untriaged_improvements": "true"},
+    )
+    assert resp.status_code == 200
+    result_ids = [summary["id"] for summary in resp.json()["results"]]
+    assert test_perf_alert_summary.id not in result_ids
+
+
+def test_untriaged_improvements_excludes_regressions(
+    client,
+    test_perf_alert_summary,
+    test_perf_signature,
+    test_perf_alert_summary_2,
+    test_perf_signature_2,
+    test_perf_signature_3,
+):
+    # Summary 1: one untriaged improvement alert should be returned
+    create_perf_alert(
+        summary=test_perf_alert_summary,
+        series_signature=test_perf_signature,
+        is_regression=False,
+        status=PerformanceAlert.UNTRIAGED,
+    )
+    # Summary 2: one untriaged improvement and one untriaged regression alert should NOT be returned
+    create_perf_alert(
+        summary=test_perf_alert_summary_2,
+        series_signature=test_perf_signature_2,
+        is_regression=False,
+        status=PerformanceAlert.UNTRIAGED,
+    )
+    create_perf_alert(
+        summary=test_perf_alert_summary_2,
+        series_signature=test_perf_signature_3,
+        is_regression=True,
+        status=PerformanceAlert.UNTRIAGED,
+    )
+
+    resp = client.get(
+        reverse("performance-alert-summaries-list"),
+        data={"untriaged_improvements": "true"},
+    )
+    assert resp.status_code == 200
+    result_ids = [summary["id"] for summary in resp.json()["results"]]
+    assert test_perf_alert_summary.id in result_ids
+    assert test_perf_alert_summary_2.id not in result_ids
+
+
+def test_untriaged_improvements_includes_regression_reassigned_to_other_summaries(
+    client,
+    test_perf_alert_summary,
+    test_perf_alert_summary_2,
+    test_perf_signature,
+    test_perf_signature_2,
+):
+    # One untriaged improvement and one reassigned regression should still be returned
+    # since the regression no longer applies to this summary.
+    create_perf_alert(
+        summary=test_perf_alert_summary,
+        series_signature=test_perf_signature,
+        is_regression=False,
+        status=PerformanceAlert.UNTRIAGED,
+    )
+    create_perf_alert(
+        summary=test_perf_alert_summary,
+        series_signature=test_perf_signature_2,
+        is_regression=True,
+        status=PerformanceAlert.REASSIGNED,
+        related_summary=test_perf_alert_summary_2,
+    )
+
+    resp = client.get(
+        reverse("performance-alert-summaries-list"),
+        data={"untriaged_improvements": "true"},
+    )
+    assert resp.status_code == 200
+    result_ids = [summary["id"] for summary in resp.json()["results"]]
+    assert test_perf_alert_summary.id in result_ids
+
+
+def test_untriaged_improvements_excludes_regression_reassigned_from_other_summaries(
+    client,
+    test_perf_alert_summary,
+    test_perf_alert_summary_2,
+    test_perf_signature,
+    test_perf_signature_2,
+):
+    # Summary 1: has only an untriaged improvement alert of its own
+    create_perf_alert(
+        summary=test_perf_alert_summary,
+        series_signature=test_perf_signature,
+        is_regression=False,
+        status=PerformanceAlert.UNTRIAGED,
+    )
+    # A regression from summary 2 is reassigned to summary 1
+    create_perf_alert(
+        summary=test_perf_alert_summary_2,
+        series_signature=test_perf_signature_2,
+        is_regression=True,
+        related_summary=test_perf_alert_summary,
+        status=PerformanceAlert.REASSIGNED,
+    )
+
+    resp = client.get(
+        reverse("performance-alert-summaries-list"),
+        data={"untriaged_improvements": "true"},
+    )
+    assert resp.status_code == 200
+    result_ids = [summary["id"] for summary in resp.json()["results"]]
+    assert test_perf_alert_summary.id not in result_ids
+
+
+def test_untriaged_regressions_include_reassignments(
+    client,
+    test_perf_alert_summary,
+    test_perf_alert_summary_2,
+    test_perf_signature,
+    test_perf_signature_2,
+):
+    # Summary 1: has only an untriaged improvement alert
+    create_perf_alert(
+        summary=test_perf_alert_summary,
+        series_signature=test_perf_signature,
+        is_regression=False,
+        status=PerformanceAlert.UNTRIAGED,
+    )
+    # A regression from summary 2 is reassigned to summary 1
+    create_perf_alert(
+        summary=test_perf_alert_summary_2,
+        series_signature=test_perf_signature_2,
+        is_regression=True,
+        related_summary=test_perf_alert_summary,
+        status=PerformanceAlert.REASSIGNED,
+    )
+
+    resp = client.get(
+        reverse("performance-alert-summaries-list"),
+        data={"untriaged_regressions": "true"},
+    )
+    assert resp.status_code == 200
+    result_ids = [summary["id"] for summary in resp.json()["results"]]
+    assert test_perf_alert_summary.id in result_ids

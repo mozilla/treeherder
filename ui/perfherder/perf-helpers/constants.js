@@ -71,8 +71,12 @@ export const phPlatformsIconsMap = {
 };
 
 export const summaryStatusMap = {
-  'all statuses': -1,
+  'all statuses': -2,
+  'all regressions': -1,
   untriaged: 0,
+  // Positioned here (instead of appending) so they show up in the dropdown under "untriaged"
+  'untriaged regressions': 10,
+  'untriaged improvements': 11,
   downstream: 1,
   // Reassigned is in the performance_alert_summary model but it isn't a valid status parameter
   // with get requests
@@ -83,7 +87,7 @@ export const summaryStatusMap = {
   wontfix: 6,
   fixed: 7,
   backedout: 8,
-  'all regressions': 9,
+  infra: 9,
 };
 
 export const alertStatusMap = {
@@ -92,6 +96,19 @@ export const alertStatusMap = {
   reassigned: 2,
   invalid: 3,
   acknowledged: 4,
+  infra: 5,
+};
+
+export const bugStatusMap = {
+  new: 0,
+  fixed: 1,
+  invalid: 2,
+  inactive: 3,
+  duplicate: 4,
+  wontfix: 5,
+  worksforme: 6,
+  incomplete: 7,
+  moved: 8,
 };
 
 export const alertBackfillResultStatusMap = {
@@ -152,6 +169,8 @@ export const tooltipMessages = {
   improvement: 'patch that generated an actual improvement',
   'regression-backedout': 'patch backed out due to causing regressions',
   'regression-fix': 'patch fixing a reported regression bug',
+  bisection:
+    'bisection identified the exact revision causing the performance shifts',
 };
 
 export const alertBackfillResultVisual = {

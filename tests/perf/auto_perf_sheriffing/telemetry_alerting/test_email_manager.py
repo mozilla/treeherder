@@ -373,6 +373,7 @@ class TestTelemetryEmailContent:
             detection_range,
             telemetry_alert_obj.telemetry_signature,
             telemetry_alert_obj.telemetry_alert_summary,
+            telemetry_alert_obj.telemetry_alert.id,
         )
 
         assert len(content._raw_content) > len(initial_content)
@@ -387,12 +388,13 @@ class TestTelemetryEmailContent:
             detection_range,
             telemetry_alert_obj.telemetry_signature,
             telemetry_alert_obj.telemetry_alert_summary,
+            telemetry_alert_obj.telemetry_alert.id,
         )
 
         # Should be a markdown table row with pipes
         assert row.startswith("|")
         assert row.endswith("|")
-        assert row.count("|") == 6  # 5 columns means 6 pipes
+        assert row.count("|") == 7  # 6 columns means 7 pipes
 
         # Should include key information
         assert "Nightly" in row  # channel
@@ -411,6 +413,7 @@ class TestTelemetryEmailContent:
             detection_range,
             telemetry_alert_obj.telemetry_signature,
             telemetry_alert_obj.telemetry_alert_summary,
+            telemetry_alert_obj.telemetry_alert.id,
         )
 
         # Should include dates in YYYY-MM-DD format
@@ -421,11 +424,13 @@ class TestTelemetryEmailContent:
         """Test _build_table_row includes proper links."""
         content = TelemetryEmailContent()
         detection_range = telemetry_alert_obj.get_detection_range()
+        alert_id = telemetry_alert_obj.telemetry_alert.id
 
         row = content._build_table_row(
             detection_range,
             telemetry_alert_obj.telemetry_signature,
             telemetry_alert_obj.telemetry_alert_summary,
+            alert_id,
         )
 
         # Should include Glean Dictionary link
@@ -434,8 +439,9 @@ class TestTelemetryEmailContent:
         # Should include Treeherder links
         assert "treeherder.mozilla.org" in row
 
-        # Should have markdown link format
-        assert "[Detection Push]" in row
+        # Should include alert details link
+        assert "gmierz.github.io/telemetry-alert-dashboard" in row
+        assert f"alertId={alert_id}" in row
 
     def test_str_returns_raw_content(self, telemetry_alert_obj, mock_probe):
         """Test __str__ returns the raw content."""
@@ -481,8 +487,14 @@ class TestTelemetryEmailContent:
     def test_table_headers_constant(self):
         """Test that TABLE_HEADERS constant is properly defined."""
         headers = TelemetryEmailContent.TABLE_HEADERS
-        assert "| Channel | Probe | Platform | Date Range | Detection Push |" in headers
+        assert "Channel" in headers
+        assert "Probe" in headers
+        assert "Platform" in headers
+        assert "Date" in headers
+        assert "Detection" in headers
+        assert "Alert" in headers
         assert ":---:" in headers  # Markdown center alignment
+        assert headers.count(":---:") == 6  # 6 columns
 
     def test_additional_probes_constant(self):
         """Test that ADDITIONAL_PROBES constant is properly defined."""

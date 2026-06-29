@@ -575,3 +575,34 @@ div.performance-panel {
   top: -1px;
   line-height: 17px;
 }
+
+.artifacts-table td {
+  position: relative;
+}
+
+.artifacts-table td a:not(.overlay-link) {
+  position: relative;
+  z-index: 1;
+}
+
+.artifacts-table .overlay-link {
+  position: absolute;
+  inset: 0;
+  color: transparent;
+  text-decoration: none;
+}
+
+.artifacts-table td span {
+  pointer-events: none;
+}
+
+.artifacts-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Leave room for the vertical scrollbar so it doesn't overlap the size text. */
+.artifacts-table th:last-child,
+.artifacts-table td:last-child {
+  padding-right: 12px;
+}

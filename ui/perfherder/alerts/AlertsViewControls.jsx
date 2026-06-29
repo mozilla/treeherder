@@ -14,7 +14,7 @@ export default class AlertsViewControls extends React.Component {
     const { filters } = this.props;
 
     this.state = {
-      disableHideDownstream: ['invalid', 'reassigned', 'downstream'].includes(
+      disableHideDownstream: ['invalid', 'reassigned', 'downstream', 'infra'].includes(
         filters.status,
       ),
     };
@@ -25,19 +25,19 @@ export default class AlertsViewControls extends React.Component {
   };
 
   updateFilter = (filter) => {
-    const { setFiltersState, filters, updateViewState } = this.props;
+    const { setFiltersState, filters } = this.props;
     const prevValue = filters[filter];
     setFiltersState({ [filter]: !prevValue });
-    updateViewState({ page: 1 });
   };
 
   updateStatus = (status) => {
-    const { setFiltersState, updateViewState } = this.props;
+    const { setFiltersState } = this.props;
 
     const isInvalidStatus = [
       'invalid',
       'reassigned',
       'downstream',
+      'infra',
       'all statuses',
     ].includes(status);
 
@@ -46,16 +46,14 @@ export default class AlertsViewControls extends React.Component {
         status === 'all statuses' ? false : isInvalidStatus,
     });
     setFiltersState({ status, hideDownstream: !isInvalidStatus });
-    updateViewState({ page: 1 });
   };
 
   updateFramework = (selectedFramework) => {
-    const { frameworkOptions, updateViewState, setFiltersState } = this.props;
+    const { frameworkOptions, setFiltersState } = this.props;
     const framework = frameworkOptions.find(
       (item) => item.name === selectedFramework,
     );
-    updateViewState({ page: 1 });
-    setFiltersState({ framework }, this.fetchAlertSummaries);
+    setFiltersState({ framework });
   };
 
   render() {
@@ -117,7 +115,7 @@ export default class AlertsViewControls extends React.Component {
 
     const alertCheckboxes = [
       {
-        text: 'Hide downstream / reassigned to / invalid',
+        text: 'Hide downstream / reassigned to / invalid / infra',
         state: hideDownstream,
         stateName: 'hideDownstream',
         disable: this.state.disableHideDownstream,

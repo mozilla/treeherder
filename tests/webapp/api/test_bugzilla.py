@@ -2,6 +2,9 @@ import json
 
 import responses
 from django.urls import reverse
+from django.utils import timezone
+
+from treeherder.model.models import Bugscache
 
 
 def test_create_bug(client, eleven_jobs_stored, activate_responses, test_user):
@@ -209,6 +212,78 @@ def test_create_unauthenticated_bug(client, eleven_jobs_stored, activate_respons
     assert resp.json()["detail"] == "Authentication credentials were not provided."
 
 
+def test_post_comment(client, activate_responses, test_user):
+    """
+    test successfully posting a comment to a Bugzilla bug
+    """
+
+    def request_callback(request):
+        headers = {}
+        requestdata = json.loads(request.body)
+        requestheaders = request.headers
+        assert requestheaders["x-bugzilla-api-key"] == "12345helloworld"
+        assert requestdata["comment"] == "Performance improvement detected."
+        assert requestdata["comment_tags"] == ["perf-alert"]
+        resp_body = {"id": 101}
+        return (200, headers, json.dumps(resp_body))
+
+    responses.add_callback(
+        responses.POST,
+        "https://thisisnotbugzilla.org/rest/bug/323/comment",
+        callback=request_callback,
+        content_type="application/json",
+    )
+
+    client.force_authenticate(user=test_user)
+
+    resp = client.post(
+        reverse("bugzilla-post-comment"),
+        {"bug_id": 323, "comment": "Performance improvement detected."},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["id"] == 101
+
+
+def test_post_comment_missing_bug_id(client, activate_responses, test_user):
+    """
+    test that post_comment returns 400 when bug_id is missing
+    """
+    client.force_authenticate(user=test_user)
+
+    resp = client.post(
+        reverse("bugzilla-post-comment"),
+        {"comment": "Performance improvement detected."},
+    )
+    assert resp.status_code == 400
+    assert resp.json()["failure"] == "bug_id is required"
+
+
+def test_post_comment_missing_comment(client, activate_responses, test_user):
+    """
+    test that post_comment returns 400 when comment is missing
+    """
+    client.force_authenticate(user=test_user)
+
+    resp = client.post(
+        reverse("bugzilla-post-comment"),
+        {"bug_id": 323},
+    )
+    assert resp.status_code == 400
+    assert resp.json()["failure"] == "comment is required"
+
+
+def test_post_comment_unauthenticated(client, activate_responses):
+    """
+    test that post_comment requires authentication
+    """
+    resp = client.post(
+        reverse("bugzilla-post-comment"),
+        {"bug_id": 323, "comment": "Performance improvement detected."},
+    )
+    assert resp.status_code == 403
+    assert resp.json()["detail"] == "Authentication credentials were not provided."
+
+
 def test_create_bug_with_long_crash_signature(
     client, eleven_jobs_stored, activate_responses, test_user
 ):
@@ -264,3 +339,86 @@ def test_create_bug_with_long_crash_signature(
     )
     assert resp.status_code == 400
     assert resp.json()["failure"] == "Crash signature can't be more than 2048 characters."
+
+
+def _make_bug_response(bug_id=323):
+    def request_callback(request):
+        return (200, {}, json.dumps({"id": bug_id}))
+
+    responses.add_callback(
+        responses.POST,
+        "https://thisisnotbugzilla.org/rest/bug",
+        callback=request_callback,
+        content_type="application/json",
+    )
+
+
+def test_create_bug_returns_existing_internal_id(
+    client, eleven_jobs_stored, activate_responses, test_user
+):
+    """When a Bugscache row already exists for the new bugzilla id, its pk is returned."""
+    _make_bug_response(bug_id=323)
+    existing = Bugscache.objects.create(
+        bugzilla_id=323,
+        status="NEW",
+        resolution="",
+        summary="some pre-existing summary",
+        crash_signature="",
+        keywords="",
+        modified=timezone.now(),
+    )
+
+    client.force_authenticate(user=test_user)
+    resp = client.post(
+        reverse("bugzilla-create-bug"),
+        {
+            "type": "defect",
+            "product": "Bugzilla",
+            "component": "Administration",
+            "summary": "Intermittent summary",
+            "version": "4.0.17",
+            "comment": "Intermittent Description",
+            "comment_tags": "treeherder",
+            "keywords": ["intermittent-failure"],
+            "is_security_issue": False,
+        },
+    )
+    assert resp.status_code == 200
+    assert resp.json()["internal_id"] == existing.id
+
+
+def test_create_bug_links_internal_bug_by_summary(
+    client, eleven_jobs_stored, activate_responses, test_user
+):
+    """An internal bug matching by summary gets the new bugzilla id and its pk is returned."""
+    _make_bug_response(bug_id=323)
+    existing = Bugscache.objects.create(
+        bugzilla_id=None,
+        status="NEW",
+        resolution="",
+        summary="Intermittent summary",
+        crash_signature="",
+        keywords="",
+        modified=timezone.now(),
+    )
+
+    client.force_authenticate(user=test_user)
+    resp = client.post(
+        reverse("bugzilla-create-bug"),
+        {
+            "type": "defect",
+            "product": "Bugzilla",
+            "component": "Administration",
+            "summary": "Intermittent summary",
+            "version": "4.0.17",
+            "comment": "Intermittent Description",
+            "comment_tags": "treeherder",
+            "keywords": ["intermittent-failure"],
+            "is_security_issue": False,
+        },
+    )
+    assert resp.status_code == 200
+    assert resp.json()["internal_id"] == existing.id
+
+    existing.refresh_from_db()
+    assert existing.bugzilla_id == 323

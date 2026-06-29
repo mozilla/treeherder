@@ -1,3 +1,4 @@
+import pathlib
 from datetime import datetime
 from unittest.mock import Mock
 
@@ -9,6 +10,15 @@ from treeherder.perf.models import (
     PerformanceTelemetryAlertSummary,
     PerformanceTelemetrySignature,
 )
+
+
+def pytest_collection_modifyitems(config, items):
+    telemetry_path = pathlib.Path(__file__).parent
+    for item in items:
+        if telemetry_path in pathlib.Path(item.fspath).parents or str(item.fspath).startswith(
+            str(telemetry_path)
+        ):
+            item.add_marker(pytest.mark.telemetry_alerting)
 
 
 @pytest.fixture

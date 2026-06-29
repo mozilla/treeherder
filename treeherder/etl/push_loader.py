@@ -1,13 +1,13 @@
 import logging
+from datetime import datetime
 
 import environ
 import newrelic.agent
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 
-from treeherder.etl.common import to_timestamp
 from treeherder.etl.push import store_push_data
 from treeherder.model.models import Repository
-from treeherder.utils.github import compare_shas, get_pull_request
+from treeherder.utils.github import compare_shas, get_pull_request_commits
 from treeherder.utils.http import fetch_json
 
 env = environ.Env()
@@ -22,13 +22,15 @@ class PushLoader:
         try:
             newrelic.agent.add_custom_attribute("url", transformer.repo_url)
             newrelic.agent.add_custom_attribute("branch", transformer.branch)
-            repos = Repository.objects
-            if transformer.branch:
-                repos = repos.filter(branch__regex=f"(^|,){transformer.branch}($|,)")
-            else:
-                repos = repos.filter(branch=None)
-            repo = repos.get(url=transformer.repo_url, active_status="active")
+            repo = transformer.resolve_repo()
             newrelic.agent.add_custom_attribute("repository", repo.name)
+        except MultipleObjectsReturned:
+            logger.error(
+                "Multiple repositories matched url=%s branch=%s; skipping push",
+                transformer.repo_url,
+                transformer.branch,
+            )
+            return
         except ObjectDoesNotExist:
             repo_info = transformer.get_info()
             repo_info.update(
@@ -66,9 +68,13 @@ class GithubTransformer:
         self.message_body = message_body
         self.repo_url = self.get_repo()
         self.branch = self.get_branch()
+        self.repos = Repository.objects.filter(url=self.repo_url, active_status="active")
 
     def get_branch(self):
         return self.message_body["details"]["event.base.repo.branch"]
+
+    def resolve_repo(self):
+        return Repository.resolve_branch(self.repo_url, self.branch)
 
     def get_info(self):
         # flatten the data a bit so it will show in new relic as fields
@@ -82,36 +88,30 @@ class GithubTransformer:
         return info
 
     def process_push(self, push_data):
-        commits = self.get_cleaned_commits(push_data)
+        commits = push_data
         head_commit = commits[-1]
         push = {
-            "revision": head_commit["sha"],
+            "revision": head_commit.sha,
             # A push can be co-authored
             # The author's date is when the code was committed locally by the author
             # The committer's date is the info as to when the PR is merged (committed) into master
-            "push_timestamp": to_timestamp(head_commit["commit"]["committer"]["date"]),
+            "push_timestamp": head_commit.commit.committer.date.timestamp(),
             # We want the original author's email to show up in the UI
-            "author": head_commit["commit"]["author"]["email"],
+            "author": head_commit.commit.author.email,
         }
 
         revisions = []
         for commit in commits:
             revisions.append(
                 {
-                    "comment": commit["commit"]["message"],
-                    "author": "{} <{}>".format(
-                        commit["commit"]["author"]["name"], commit["commit"]["author"]["email"]
-                    ),
-                    "revision": commit["sha"],
+                    "comment": commit.commit.message,
+                    "author": f"{commit.commit.author.name} <{commit.commit.author.email}>",
+                    "revision": commit.sha,
                 }
             )
 
         push["revisions"] = revisions
         return push
-
-    def get_cleaned_commits(self, commits):
-        """Allow a subclass to change the order of the commits"""
-        return commits
 
 
 class GithubPushTransformer(GithubTransformer):
@@ -159,19 +159,33 @@ class GithubPushTransformer(GithubTransformer):
         return super().get_branch()
 
     def transform(self, repository):
-        logger.warning(
-            f"Push data requested: organization {self.message_body['organization']} repository {self.message_body['repository']} base-sha {self.message_body['details']['event.base.sha']} head-sha {self.message_body['details']['event.head.sha']}"
-        )
+        base = self.message_body["details"]["event.base.sha"]
+        if base == "0" * 40:
+            return self._process_webhook_commits()
         push_data = compare_shas(
             self.message_body["organization"],
             self.message_body["repository"],
-            self.message_body["details"]["event.base.sha"],
+            base,
             self.message_body["details"]["event.head.sha"],
         )
         return self.process_push(push_data)
 
-    def get_cleaned_commits(self, compare):
-        return compare["commits"]
+    def _process_webhook_commits(self):
+        commits = self.message_body["body"]["commits"]
+        head = commits[-1]
+        return {
+            "revision": head["id"],
+            "push_timestamp": datetime.fromisoformat(head["timestamp"]).timestamp(),
+            "author": head["author"]["email"],
+            "revisions": [
+                {
+                    "comment": c["message"],
+                    "author": f"{c['author']['name']} <{c['author']['email']}>",
+                    "revision": c["id"],
+                }
+                for c in commits
+            ],
+        }
 
     def get_repo(self):
         return self.message_body["details"]["event.head.repo.url"].replace(".git", "")
@@ -201,22 +215,22 @@ class GithubPullRequestTransformer(GithubTransformer):
     # }
 
     def get_branch(self):
-        """
-        Pull requests don't use the actual branch, just the string "pull request"
-        """
-        return "pull request"
+        return None
+
+    def resolve_repo(self):
+        return self.repos.get(accepts_pull_requests=True)
 
     def get_repo(self):
         return self.message_body["details"]["event.base.repo.url"].replace(".git", "")
 
     def transform(self, repository):
-        pr_data = get_pull_request(
+        push_data = get_pull_request_commits(
             self.message_body["organization"],
             self.message_body["repository"],
-            self.message_body["details"]["event.pullNumber"],
+            int(self.message_body["details"]["event.pullNumber"]),
         )
 
-        return self.process_push(pr_data)
+        return self.process_push(push_data)
 
 
 class HgPushTransformer:
@@ -250,6 +264,10 @@ class HgPushTransformer:
         self.message_body = message_body
         self.repo_url = message_body["payload"]["repo_url"]
         self.branch = None
+        self.repos = Repository.objects.filter(url=self.repo_url, active_status="active")
+
+    def resolve_repo(self):
+        return self.repos.exclude(branches__branch__endswith="*").get()
 
     def get_info(self):
         return self.message_body["payload"]

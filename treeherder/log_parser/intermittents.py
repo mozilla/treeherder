@@ -142,7 +142,11 @@ def check_and_mark_intermittent(job_id):
     all_groups = (
         Group.objects.filter(
             job_logs__job__push__id__range=(ids[-1], ids[0]),
-            job_logs__job__push__repository__id=current_job.repository.id,
+            # Filter on job.repository_id directly rather than push.repository_id:
+            # a job's repository always matches its push's repository, so this is
+            # equivalent but lets PostgreSQL drop the join to the push table and
+            # use the (repository, job_type, push) index on job.
+            job_logs__job__repository__id=current_job.repository.id,
             job_logs__job__job_type__name__startswith=jtname,
             job_logs__job__failure_classification__id__in=[
                 1,

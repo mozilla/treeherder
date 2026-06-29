@@ -267,6 +267,7 @@ def test_repository_2(test_repository):
         dvcs_type=test_repository.dvcs_type,
         url=test_repository.url + "_2",
         codebase=test_repository.codebase,
+        tc_root_url=test_repository.tc_root_url,
     )
 
 

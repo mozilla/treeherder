@@ -17,6 +17,16 @@ export const auth0Client = new Auth0Client({
 // per https://wiki.mozilla.org/Security/Guidelines/OpenID_connect#Session_handling
 export const RENEW_INTERVAL = '15 minutes';
 
+// Verbose auth breadcrumbs are hidden by default; opt in with
+// `localStorage.setItem('authDebug', '1')` in the browser console.
+export const isAuthDebugEnabled = () => {
+  try {
+    return localStorage.getItem('authDebug') === '1';
+  } catch {
+    return false;
+  }
+};
+
 // Normalize the auth0-spa-js token response into the same shape that
 // userSessionFromAuthResult expects (matching the old auth0-js authResult).
 const buildAuthResult = async () => {
@@ -49,9 +59,11 @@ export const userSessionFromAuthResult = (authResult) => {
     renewAfter: fromNow(renewInterval),
   };
 
-  console.debug(
-    `[Auth] Session created: renewAfter=${renewInterval}, accessTokenExpiresIn=${authResult.expiresIn}s, renewAt=${userSession.renewAfter}`,
-  );
+  if (isAuthDebugEnabled()) {
+    console.debug(
+      `[Auth] Session created: renewAfter=${renewInterval}, accessTokenExpiresIn=${authResult.expiresIn}s, renewAt=${userSession.renewAfter}`,
+    );
+  }
 
   return userSession;
 };

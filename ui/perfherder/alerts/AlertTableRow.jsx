@@ -112,7 +112,7 @@ export default class AlertTableRow extends React.Component {
       <span>
         {` ${text} `}
         <Link
-          to={`./alerts?id=${alertId}`}
+          to={`/perfherder/alerts?id=${alertId}`}
           target="_blank"
           rel="noopener noreferrer"
           className="text-darker-info"
@@ -287,7 +287,6 @@ export default class AlertTableRow extends React.Component {
     }
     const jobUrl = getSideBySideLink(
       alertSummary.repository,
-      alertSummary.prev_push_revision,
       alertSummary.revision,
       platform,
       testName,
@@ -365,7 +364,7 @@ export default class AlertTableRow extends React.Component {
   render() {
     const { user = null, alert, alertSummary } = this.props;
     const { starred, checkboxSelected, icons } = this.state;
-    const { repository, framework } = alertSummary;
+    const { repository, framework, revision } = alertSummary;
 
     const { tags, extra_options: options } = alert.series_signature;
 
@@ -389,21 +388,13 @@ export default class AlertTableRow extends React.Component {
     const noiseProfileTooltip = alert.noise_profile
       ? noiseProfiles[alert.noise_profile.replace('/', '')]
       : noiseProfiles.NA;
-    // TODO: make a side-by-side status of its own. We know that side-by-side was triggered
-    //  if only backfill bot has one of the three statuses below
-    const backfillResultStatuses = [
-      alertBackfillResultStatusMap.backfilled,
-      alertBackfillResultStatusMap.successful,
-      alertBackfillResultStatusMap.failed,
-    ];
-    const sxsTriggered =
-      alert.backfill_record &&
-      backfillResultStatuses.includes(alert.backfill_record.status);
+    // side_by_side_available is computed per-alert on the backend: it's true only
+    // when a successful side-by-side job for this alert's platform + suite exists.
     const showSideBySideLink =
       alert.series_signature.framework_id === browsertimeId &&
       !alert.series_signature.tags.includes('interactive') &&
       !browsertimeBenchmarksTests.includes(alert.series_signature.suite) &&
-      sxsTriggered;
+      alert.side_by_side_available;
 
     const backfillStatusInfo = this.getBackfillStatusInfo(alert);
     let sherlockTooltip = backfillStatusInfo?.message;
@@ -424,9 +415,9 @@ export default class AlertTableRow extends React.Component {
 
     return (
       <tr
-        className={
-          alertSummary.notes ? 'border-top border-left border-right' : 'border'
-        }
+        className={`align-middle ${
+          alertSummary.notes ? 'border-top border-start border-end' : 'border'
+        }`}
         aria-label="Alert table row"
         data-testid={alert.id}
       >
@@ -446,32 +437,40 @@ export default class AlertTableRow extends React.Component {
             }
           />
         </td>
-        <td className="px-0 d-flex flex-column align-items-start border-top-0">
-          <Button
-            variant="black"
-            aria-label={
-              starred
-                ? 'Remove bookmark from this Alert'
-                : 'Bookmark this Alert'
-            }
-            className={`${bookmarkClass} border p-0 border-0 bg-transparent`}
-            data-testid={`alert ${alert.id.toString()} star`}
-            onClick={this.toggleStar}
-          >
-            <FontAwesomeIcon
-              title={starred ? 'starred' : 'not starred'}
-              icon={starred ? faStarSolid : faStarRegular}
-            />
-          </Button>
-          <a
-            href={getGraphsURL(alert, timeRange, repository, framework)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-dark button btn border p-0 border-0 bg-transparent"
-            aria-label="graph-link"
-          >
-            <FontAwesomeIcon title="Open graph" icon={faChartLine} />
-          </a>
+        <td className="px-0 border-top-0">
+          <div className="d-flex flex-column align-items-start">
+            <Button
+              variant="black"
+              aria-label={
+                starred
+                  ? 'Remove bookmark from this Alert'
+                  : 'Bookmark this Alert'
+              }
+              className={`${bookmarkClass} border p-0 border-0 bg-transparent`}
+              data-testid={`alert ${alert.id.toString()} star`}
+              onClick={this.toggleStar}
+            >
+              <FontAwesomeIcon
+                title={starred ? 'starred' : 'not starred'}
+                icon={starred ? faStarSolid : faStarRegular}
+              />
+            </Button>
+            <a
+              href={getGraphsURL(
+                alert,
+                timeRange,
+                repository,
+                framework,
+                revision,
+              )}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-dark button btn border p-0 border-0 bg-transparent"
+              aria-label="graph-link"
+            >
+              <FontAwesomeIcon title="Open graph" icon={faChartLine} />
+            </a>
+          </div>
         </td>
         <td className="text-left">
           {alertStatus !== 'untriaged' ? (

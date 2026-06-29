@@ -43,7 +43,7 @@ export default class CollapsableRows extends React.Component {
           <AlertTableRow key={alert.id} alert={alert} {...this.props} />
         ))}
         <tr
-          className="border-left border-right"
+          className="border-start border-end"
           role="button"
           onClick={() => this.toggleRows()}
           data-testid={isOpen ? 'show-less-alerts' : 'show-more-alerts'}

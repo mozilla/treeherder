@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 from django.db import OperationalError, connection
 from django.db.backends.utils import CursorWrapper
-from django.db.models import Count
+from django.db.models import Count, Q
 
 from treeherder.model.data_cycling.removal_strategies import RemovalStrategy
 from treeherder.model.models import (
@@ -172,7 +172,7 @@ class PerfherderCycler(DataCycler):
             # WARNING! Don't change this without proper approval!           #
             # Otherwise we risk deleting data that's actively investigated  #
             # and cripple the perf sheriffing process!                      #
-            created__lt=(datetime.now() - timedelta(days=365))
+            Q(created__lt=datetime.now() - timedelta(days=365)) | Q(created__isnull=True),
             #################################################################
         ).delete()
 

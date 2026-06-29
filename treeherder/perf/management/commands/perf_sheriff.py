@@ -18,7 +18,6 @@ class Command(BaseCommand):
 
     SHERIFFED_FRAMEWORKS = [
         "browsertime",
-        "raptor",
         "talos",
         "awsy",
         "build_metrics",

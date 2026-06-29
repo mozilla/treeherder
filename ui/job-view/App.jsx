@@ -21,16 +21,16 @@ import RepositoryModel from '../models/repository';
 import { getData } from '../helpers/http';
 import { endpoints } from '../perfherder/perf-helpers/constants';
 
-import Notifications from './Notifications';
+import Notifications from '../shared/Notifications';
 import PrimaryNavBar from './headerbars/PrimaryNavBar';
 import ActiveFilters from './headerbars/ActiveFilters';
 import UpdateAvailable from './headerbars/UpdateAvailable';
 import DetailsPanel from './details/DetailsPanel';
 import PushList from './pushes/PushList';
 import KeyboardShortcuts from './KeyboardShortcuts';
-import { useNotificationStore } from './stores/notificationStore';
-import { useSelectedJobStore } from './stores/selectedJobStore';
-import { usePushesStore, fetchPushes } from './stores/pushesStore';
+import { useNotificationStore } from '../shared/stores/notificationStore';
+import { useSelectedJobStore } from '../shared/stores/selectedJobStore';
+import { usePushesStore, fetchPushes } from '../shared/stores/pushesStore';
 
 import '../css/treeherder.css';
 import '../css/treeherder-navbar-panels.css';

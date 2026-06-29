@@ -12,8 +12,8 @@ import { formatTaskclusterError } from '../../helpers/errorMessage';
 import CustomJobActions from '../CustomJobActions';
 import PushModel from '../../models/push';
 import JobModel from '../../models/job';
-import { notify } from '../stores/notificationStore';
-import { usePushesStore, updateRange } from '../stores/pushesStore';
+import { notify } from '../../shared/stores/notificationStore';
+import { usePushesStore, updateRange } from '../../shared/stores/pushesStore';
 
 function PushActionMenu({
   revision = null,
@@ -29,6 +29,12 @@ function PushActionMenu({
   const [customJobActionsShowing, setCustomJobActionsShowing] = useState(false);
 
   const decisionTaskMap = usePushesStore((state) => state.decisionTaskMap);
+  const decisionTask = decisionTaskMap[pushId];
+  const taskGroupProfileUrl = decisionTask
+    ? `https://profiler.firefox.com/from-url/${encodeURIComponent(
+        `https://firefox-ci-tc.services.mozilla.com/api/web-server/v1/task-group/${decisionTask.id}/profile`,
+      )}`
+    : null;
 
   const updateParamsAndRange = useCallback(
     (param) => {
@@ -172,6 +178,16 @@ function PushActionMenu({
             Set as bottom of range
           </Dropdown.Item>
           <Dropdown.Divider />
+          <Dropdown.Item
+            tag="a"
+            href={taskGroupProfileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            disabled={!taskGroupProfileUrl}
+            title="Show a profile of all tasks in this push's task group"
+          >
+            Show task group profile
+          </Dropdown.Item>
           <Dropdown.Item
             tag="a"
             href={getPerfCompareChooserUrl({

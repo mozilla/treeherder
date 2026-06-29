@@ -1,5 +1,7 @@
 import logging
-from datetime import datetime, timedelta
+import time
+from datetime import UTC, datetime, timedelta
+from typing import Any
 
 import simplejson as json
 from django.conf import settings as django_settings
@@ -8,10 +10,49 @@ from treeherder.perf.auto_perf_sheriffing.outcome_checker import (
     OutcomeChecker,
     OutcomeStatus,
 )
-from treeherder.perf.models import BackfillRecord, BackfillReport, PerformanceSettings
+from treeherder.perf.models import (
+    BackfillRecord,
+    BackfillReport,
+    PerformanceAlert,
+    PerformanceDatum,
+    PerformanceSettings,
+    Push,
+)
+from treeherder.perfalert.perfalert import RevisionDatum, detect_changes
 from treeherder.utils import default_serializer
 
 logger = logging.getLogger(__name__)
+
+
+def calculate_gap_size(record: BackfillRecord, target_push: Push) -> int:
+    """
+    Count consecutive pushes without performance data immediately before `target_push`.
+    """
+    signature = record.alert.series_signature
+    repository = record.repository
+    pushes_before = list(
+        Push.objects.filter(repository=repository, time__lt=target_push.time).order_by("-time")[
+            :100
+        ]
+    )
+    if not pushes_before:
+        return 0
+
+    datum_push_ids = set(
+        PerformanceDatum.objects.filter(
+            repository=repository,
+            signature=signature,
+            push_id__in=[p.id for p in pushes_before],
+        ).values_list("push_id", flat=True)
+    )
+
+    gap_count = 0
+    for p in pushes_before:
+        if p.id not in datum_push_ids:
+            gap_count += 1
+        else:
+            break
+    return gap_count
 
 
 # TODO: update the backfill status using data (bug 1626548)
@@ -55,7 +96,7 @@ class Secretary:
     @classmethod
     def mark_reports_for_backfill(cls):
         # get the backfill reports that are mature, but not frozen
-        mature_date_limit = datetime.utcnow() - django_settings.TIME_TO_MATURE
+        mature_date_limit = datetime.now(UTC) - django_settings.TIME_TO_MATURE
         mature_reports = BackfillReport.objects.filter(
             frozen=False, last_updated__lte=mature_date_limit
         )
@@ -63,7 +104,7 @@ class Secretary:
         logger.info(f"Sherlock: {mature_reports.count()} mature reports found.")
 
         # Only for logging alternative strategy for choosing maturity limit
-        alternative_date_limit = datetime.utcnow() - timedelta(days=1)
+        alternative_date_limit = datetime.now(UTC) - timedelta(days=1)
         alternative_mature_reports = BackfillReport.objects.filter(
             frozen=False, created__lte=alternative_date_limit
         )
@@ -73,11 +114,13 @@ class Secretary:
 
         for report in mature_reports:
             should_freeze = False
-            logger.info(f"Sherlock: Marking report with id {report.summary.id} for backfill...")
+            logger.info(
+                f"Sherlock: Marking report [summary_id={report.summary.id}] for backfill..."
+            )
             for record in report.records.all():
                 if record.status == BackfillRecord.PRELIMINARY:
                     logger.info(
-                        f"Sherlock: Marking record with id {record.alert.id} READY_FOR_PROCESSING..."
+                        f"Sherlock: Marking record [alert_id={record.alert.id}] as READY_FOR_PROCESSING..."
                     )
                     record.status = BackfillRecord.READY_FOR_PROCESSING
                     record.save()
@@ -89,7 +132,9 @@ class Secretary:
     @classmethod
     def are_expired(cls, settings):
         last_reset_date = datetime.fromisoformat(settings["last_reset_date"])
-        return datetime.utcnow() > last_reset_date + django_settings.RESET_BACKFILL_LIMITS
+        if last_reset_date.tzinfo is None:
+            last_reset_date = last_reset_date.replace(tzinfo=UTC)
+        return datetime.now(UTC) > last_reset_date + django_settings.RESET_BACKFILL_LIMITS
 
     def backfills_left(self, on_platform: str) -> int:
         self.__assert_platform_is_supported(on_platform)
@@ -120,6 +165,20 @@ class Secretary:
         backfilled_records = BackfillRecord.objects.filter(status=BackfillRecord.BACKFILLED)
 
         for record in backfilled_records:
+            logs = record.get_backfill_logs()
+            last_log = logs[-1] if logs else None
+            if last_log:
+                log_timestamp = datetime.fromisoformat(last_log["timestamp"])
+                if log_timestamp < datetime.now(UTC) - timedelta(hours=72):
+                    record.status = BackfillRecord.FAILED
+                    new_note = "Backfill exceeded 72-hour limit, marking as FAILED."
+                    log_entry = {
+                        "notes": f"{last_log.get('notes', '')} {new_note}".strip(),
+                    }
+                    record.update_backfill_log(last_log["iteration"], log_entry)
+                    record.save()
+                    continue
+
             # ensure each push in push range has at least one job of job type
             try:
                 outcome = self.outcome_checker.check(record)
@@ -129,8 +188,159 @@ class Secretary:
                 elif outcome == OutcomeStatus.FAILED:
                     record.status = BackfillRecord.FAILED
                 record.save()
+                if outcome == OutcomeStatus.SUCCESSFUL or outcome == OutcomeStatus.FAILED:
+                    self.verify_and_iterate(record)
             except ValueError as ex:
                 logger.error(ex)
+
+    def verify_and_iterate(self, record: BackfillRecord, max_iterations: int = 5):
+        if record.iteration_count >= max_iterations:
+            logger.info(
+                f"Record [alert_id={record.alert.id}] reached max iterations ({max_iterations}), stopping verification."
+            )
+            return
+
+        if record.last_detected_push_id is None:
+            logger.warning(
+                f"Record [alert_id={record.alert.id}]: last_detected_push_id is None; "
+                f"skipping iteration (legacy record, no culprit push to compare)."
+            )
+            return
+
+        try:
+            detected_push_id, detected_t_value, candidates = self.re_run_detect_changes(record)
+
+            if detected_push_id is None:
+                logger.info(
+                    f"Record [alert_id={record.alert.id}]: No change detected in verification, stopping iteration."
+                )
+                log_entry = {
+                    "status": "no_candidate_detected",
+                    "notes": "No candidate detected during verification, stopping iteration.",
+                    "timestamp": datetime.now(UTC).isoformat(),
+                }
+                record.update_backfill_log(record.iteration_count, log_entry)
+                record.save()
+                return
+
+            try:
+                detected_push = Push.objects.get(id=detected_push_id)
+            except Push.DoesNotExist as ex:
+                logger.warning(
+                    f"Record [alert_id={record.alert.id}]: Could not find push for comparison: {ex}"
+                )
+                record.status = BackfillRecord.VERIFICATION_FAILED
+                record.save()
+                return
+
+            try:
+                previous_push = Push.objects.get(id=record.last_detected_push_id)
+            except Push.DoesNotExist as ex:
+                logger.warning(
+                    f"Record [alert_id={record.alert.id}]: Could not find push for comparison: {ex}"
+                )
+                record.status = BackfillRecord.VERIFICATION_FAILED
+                record.save()
+                return
+
+            detected_push_gap_size = calculate_gap_size(record, detected_push)
+            log_entry = {
+                "iteration": record.iteration_count,
+                "detected_push_id": detected_push_id,
+                "detected_push_revision": detected_push.revision,
+                "detected_t_value": detected_t_value,
+                "candidates": candidates,
+                "timestamp": datetime.now(UTC).isoformat(),
+                "previous_push_id": record.last_detected_push_id,
+                "previous_push_revision": previous_push.revision,
+                "detected_push_gap_size": detected_push_gap_size,
+            }
+
+            if detected_push_id == record.last_detected_push_id:
+                if log_entry["detected_push_gap_size"] > 0:
+                    previous_log = record.get_backfill_log(record.iteration_count - 1)
+                    previous_gap_size = (
+                        previous_log.get("detected_push_gap_size") if previous_log else None
+                    )
+                    current_gap_size = log_entry["detected_push_gap_size"]
+                    if previous_gap_size is not None and current_gap_size == previous_gap_size:
+                        log_entry["status"] = "stabilized_gap_stuck"
+                        log_entry["notes"] = (
+                            f"Gap before {detected_push.revision[:7]} did not shrink "
+                            f"(was {previous_gap_size}, still {current_gap_size}); "
+                            f"stopping iteration."
+                        )
+                        record.update_backfill_log(record.iteration_count, log_entry)
+                        record.save()
+                        logger.info(
+                            f"Backfill Record [alert_id={record.alert.id}]: Gap stuck at size {current_gap_size} "
+                            f"(was {previous_gap_size}), stopping iteration."
+                        )
+                        return
+
+                    log_entry["status"] = "stabilized_with_gap"
+                    log_entry["notes"] = (
+                        f"Detection stabilized at {detected_push.revision[:7]} but gap remains before it, re-triggering"
+                    )
+                    record.last_detected_push_id = detected_push_id
+                    record.update_backfill_log(record.iteration_count, log_entry)
+                    record.status = BackfillRecord.READY_FOR_PROCESSING
+                    record.save()
+                    logger.info(
+                        f"Backfill Record [alert_id={record.alert.id}]: Detection stabilized at {detected_push.revision[:7]} "
+                        f"but gap remains, iteration {record.iteration_count}/{max_iterations}, "
+                        f"triggering next backfill."
+                    )
+                else:
+                    log_entry["status"] = "stabilized"
+                    log_entry["notes"] = "Detected push same as previous, culprit stabilized"
+                    record.update_backfill_log(record.iteration_count, log_entry)
+                    record.save()
+                    logger.info(
+                        f"Backfill Record [alert_id={record.alert.id}]: Detected push {detected_push.revision[:7]} stabilized, "
+                        f"stopping iteration."
+                    )
+                return
+
+            if detected_push.time < previous_push.time:
+                direction = "left"
+            else:
+                direction = "right"
+
+            record.last_detected_push_id = detected_push_id
+            move_note = f"Detected push moved {direction} (from {previous_push.revision[:7]} to {detected_push.revision[:7]})"
+
+            if detected_push_gap_size == 0:
+                log_entry["status"] = "stabilized"
+                log_entry["notes"] = f"{move_note}; gap size is already 0, marking as stabilized."
+                record.update_backfill_log(record.iteration_count, log_entry)
+                record.save()
+                logger.info(
+                    f"Backfill Record [alert_id={record.alert.id}]: Detected push moved {direction} "
+                    f"from {log_entry['previous_push_id']} to {detected_push_id} with gap size 0, "
+                    f"stabilized without re-triggering backfill."
+                )
+                return
+
+            log_entry["status"] = direction
+            log_entry["notes"] = move_note
+            logger.info(
+                f"Backfill Record [alert_id={record.alert.id}]: Detected push moved {direction} "
+                f"from {log_entry['previous_push_id']} to {detected_push_id}, "
+                f"iteration {record.iteration_count}/{max_iterations}, triggering next backfill."
+            )
+
+            record.update_backfill_log(record.iteration_count, log_entry)
+            record.status = BackfillRecord.READY_FOR_PROCESSING
+            record.save()
+
+        except Exception as ex:
+            logger.error(
+                f"Record [alert_id={record.alert.id}]: Error during verification/iteration: {ex}",
+                exc_info=True,
+            )
+            record.status = BackfillRecord.VERIFICATION_FAILED
+            record.save()
 
     def __assert_platform_is_supported(self, on_platform: str):
         if on_platform not in self.supported_platforms:
@@ -140,7 +350,7 @@ class Secretary:
     def _get_default_settings(cls, as_json=True):
         default_settings = {
             "limits": django_settings.MAX_BACKFILLS_PER_PLATFORM,
-            "last_reset_date": datetime.utcnow(),
+            "last_reset_date": datetime.now(UTC),
         }
 
         return (
@@ -148,3 +358,110 @@ class Secretary:
             if as_json
             else default_settings
         )
+
+    def re_run_detect_changes(
+        self, record: BackfillRecord
+    ) -> tuple[int | None, float | None, list[dict[str, Any]]]:
+        """
+        Re-run detect_changes on the alert's signature and return the detected push_id.
+        Returns None if no change is detected.
+        Returns:
+            tuple: (detected_push_id, detected_t_value, candidates)
+        """
+        signature = record.alert.series_signature
+        repository = record.repository
+        min_back_window = signature.min_back_window
+        if min_back_window is None:
+            min_back_window = django_settings.PERFHERDER_ALERTS_MIN_BACK_WINDOW
+        max_back_window = signature.max_back_window
+        if max_back_window is None:
+            max_back_window = django_settings.PERFHERDER_ALERTS_MAX_BACK_WINDOW
+        fore_window = signature.fore_window
+        if fore_window is None:
+            fore_window = django_settings.PERFHERDER_ALERTS_FORE_WINDOW
+
+        try:
+            last_detected_push = Push.objects.get(
+                id=record.last_detected_push_id, repository=repository
+            )
+        except Push.DoesNotExist as ex:
+            logger.warning(f"Record {record.alert.id}: Could not find last detected push: {ex}")
+            return None, None, []
+
+        start_time = last_detected_push.time - django_settings.PERFHERDER_ALERTS_MAX_AGE
+        prev_alert = (
+            PerformanceAlert.objects.filter(
+                series_signature=signature,
+                summary__push__time__gte=start_time,
+                summary__push__time__lt=last_detected_push.time,
+            )
+            .order_by("-summary__push__time")
+            .first()
+        )
+        if prev_alert:
+            start_time = prev_alert.summary.push.time
+        fore_pushes = list(
+            PerformanceDatum.objects.filter(
+                signature=signature,
+                repository=repository,
+                push_timestamp__gte=last_detected_push.time,
+            ).order_by("push_timestamp")[:fore_window]
+        )
+        if fore_pushes:
+            end_time = fore_pushes[-1].push_timestamp
+        else:
+            end_time = last_detected_push.time + timedelta(days=7)
+        series = (
+            PerformanceDatum.objects.filter(
+                signature=signature,
+                repository=repository,
+                push_timestamp__gte=start_time,
+                push_timestamp__lte=end_time,
+            )
+            .values_list("push_id", "push_timestamp", "value")
+            .order_by("push_timestamp")
+        )
+
+        revision_data = {}
+        for push_id, push_timestamp, value in series:
+            if not revision_data.get(push_id):
+                revision_data[push_id] = RevisionDatum(
+                    int(time.mktime(push_timestamp.timetuple())), push_id, [], []
+                )
+            revision_data[push_id].values.append(value)
+        if not revision_data:
+            logger.warning(
+                f"No performance data found for signature {signature.id} in verification range."
+            )
+            return None, None, []
+
+        data = list(revision_data.values())
+        analyzed_series = detect_changes(
+            data,
+            min_back_window=min_back_window,
+            max_back_window=max_back_window,
+            fore_window=fore_window,
+        )
+
+        candidates: list[dict[str, Any]] = []
+        for prev, cur in zip(analyzed_series, analyzed_series[1:]):
+            if cur.change_detected:
+                try:
+                    push = Push.objects.get(id=cur.push_id)
+                except Push.DoesNotExist as ex:
+                    logger.warning(f"Push {cur.push_id} not found for candidate: {ex}")
+                    continue
+                candidates.append(
+                    {
+                        "push_id": int(push.id),
+                        "revision": push.revision,
+                        "t_value": float(cur.t),
+                        "push_timestamp": int(cur.push_timestamp),
+                    }
+                )
+        if not candidates:
+            return None, None, []
+
+        # Pick the earliest push from the detected candidates
+        culprit = min(candidates, key=lambda c: c["push_timestamp"])
+        return culprit["push_id"], culprit["t_value"], candidates

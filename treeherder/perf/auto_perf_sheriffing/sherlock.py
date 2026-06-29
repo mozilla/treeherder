@@ -1,7 +1,7 @@
 import logging
 import os
 import traceback
-from datetime import datetime, time, timedelta, timezone
+from datetime import UTC, datetime, time, timedelta
 from json import JSONDecodeError, loads
 from logging import INFO, WARNING
 
@@ -14,6 +14,9 @@ from treeherder.perf.auto_perf_sheriffing.backfill_reports import (
     BackfillReportMaintainer,
 )
 from treeherder.perf.auto_perf_sheriffing.backfill_tool import BackfillTool
+from treeherder.perf.auto_perf_sheriffing.performance_alerting.alert_manager import (
+    PerformanceAlertManager,
+)
 from treeherder.perf.auto_perf_sheriffing.secretary import Secretary
 from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.alert import (
     TelemetryAlertFactory,
@@ -30,6 +33,7 @@ from treeherder.perf.models import (
     BackfillNotificationRecord,
     BackfillRecord,
     BackfillReport,
+    PerformanceDatum,
     PerformanceFramework,
     PerformanceTelemetryAlert,
     PerformanceTelemetryAlertSummary,
@@ -85,7 +89,7 @@ class Sherlock:
         self.assert_can_run()
 
         # reporter tool should always run *(only handles preliminary records/reports)*
-        logger.info("Sherlock: Reporter tool is creating/maintaining  reports...")
+        logger.info("Sherlock: Reporter tool is creating/maintaining reports...")
         self._report(since, frameworks, repositories)
         self.assert_can_run()
 
@@ -93,6 +97,9 @@ class Sherlock:
         logger.info("Sherlock: Starting to backfill...")
         self._backfill(frameworks, repositories)
         self.assert_can_run()
+
+        logger.info("Sherlock: Syncing performance alert summary statuses...")
+        self._sync_performance_alert_summary_status()
 
     def runtime_exceeded(self) -> bool:
         elapsed_runtime = datetime.now() - self._wake_up_time
@@ -119,21 +126,25 @@ class Sherlock:
             platform, frameworks, repositories
         )
         logger.info(
-            f"Sherlock: {records_to_backfill.count()} records found to backfill on {platform.title()}."
+            f"Sherlock: {records_to_backfill.count()} records found to backfill on {platform.title()}, {left} backfills remaining."
         )
 
         for record in records_to_backfill:
             if left <= 0 or self.runtime_exceeded():
+                logger.info(
+                    f"Sherlock: Max runtime exceeded. Stopping backfill on {platform.title()}."
+                )
                 break
             left, consumed = self._backfill_record(record, left)
-            logger.info(f"Sherlock: Backfilled record with id {record.alert.id}.")
+            logger.info(f"Sherlock: Processed backfill record [alert_id={record.alert.id}].")
             # Model used for reporting backfill outcome
-            BackfillNotificationRecord.objects.create(record=record)
+            BackfillNotificationRecord.objects.get_or_create(record=record)
             total_consumed += consumed
 
         self.secretary.consume_backfills(platform, total_consumed)
-        logger.info(f"Sherlock: Consumed {total_consumed} backfills for {platform.title()}.")
-        logger.debug(f"Sherlock: Having {left} backfills left on {platform.title()}.")
+        logger.info(
+            f"Sherlock: Consumed {total_consumed} backfills, {left} remaining on {platform.title()}."
+        )
 
     @staticmethod
     def __fetch_records_requiring_backfills_on(
@@ -156,41 +167,74 @@ class Sherlock:
     def _backfill_record(self, record: BackfillRecord, left: int) -> tuple[int, int]:
         consumed = 0
 
-        try:
-            context = record.get_context()
-        except JSONDecodeError:
-            logger.warning(f"Failed to backfill record {record.alert.id}: invalid JSON context.")
+        if record.last_detected_push_id is None:
+            # Legacy record
+            try:
+                context = record.get_context()
+            except JSONDecodeError:
+                logger.warning(
+                    f"Failed to backfill [alert_id={record.alert.id}]: invalid JSON context."
+                )
+                record.status = BackfillRecord.FAILED
+                record.save()
+            else:
+                data_points_to_backfill = self.__get_data_points_to_backfill_from_context(context)
+        else:
+            data_points_to_backfill = self.__get_data_points_to_backfill(record)
+
+        if not data_points_to_backfill:
+            logger.warning(f"No data points found to backfill [alert_id={record.alert.id}].")
             record.status = BackfillRecord.FAILED
             record.save()
-        else:
-            data_points_to_backfill = self.__get_data_points_to_backfill(context)
-            for data_point in data_points_to_backfill:
-                if left <= 0 or self.runtime_exceeded():
-                    break
-                try:
-                    using_job_id = data_point["job_id"]
-                    self.backfill_tool.backfill_job(using_job_id)
-                    left, consumed = left - 1, consumed + 1
-                except (KeyError, CannotBackfillError, Exception) as ex:
-                    logger.debug(f"Failed to backfill record {record.alert.id}: {ex}")
-                else:
-                    record.try_remembering_job_properties(using_job_id)
+            return left, consumed
 
-            success, outcome = self._note_backfill_outcome(
-                record, len(data_points_to_backfill), consumed
-            )
-            log_level = INFO if success else WARNING
-            logger.log(log_level, f"{outcome} (for backfill record {record.alert.id})")
+        task_ids = {}
+        for data_point in data_points_to_backfill:
+            if left <= 0 or self.runtime_exceeded():
+                break
+            try:
+                if isinstance(data_point, dict):
+                    using_job_id = data_point["job_id"]
+                else:
+                    using_job_id = data_point.job_id
+                if not using_job_id:
+                    logger.warning(
+                        f"Failed to backfill [alert_id={record.alert.id}]: invalid job id."
+                    )
+                    continue
+                task_id = self.backfill_tool.backfill_job(using_job_id, alert_id=record.alert.id)
+                task_ids[using_job_id] = task_id
+                left, consumed = left - 1, consumed + 1
+            except (KeyError, CannotBackfillError, Exception) as ex:
+                logger.warning(f"Failed to backfill [alert_id={record.alert.id}]: {ex}")
+            else:
+                record.try_remembering_job_properties(using_job_id)
+
+        success, outcome = self._note_backfill_outcome(
+            record, len(data_points_to_backfill), consumed, task_ids
+        )
+        log_level = INFO if success else WARNING
+        logger.log(log_level, f"{outcome} [alert_id={record.alert.id}]")
 
         return left, consumed
 
     @staticmethod
     def _note_backfill_outcome(
-        record: BackfillRecord, to_backfill: int, actually_backfilled: int
+        record: BackfillRecord, to_backfill: int, actually_backfilled: int, task_ids: dict[str, str]
     ) -> tuple[bool, str]:
         success = False
 
         record.total_actions_triggered = actually_backfilled
+        record.iteration_count += 1
+        now = datetime.now(UTC).isoformat()
+        log_entry = {
+            "status": "backfill_requested",
+            "iteration": record.iteration_count,
+            "job_task_ids": task_ids,
+            "backfill_requested_at": now,
+            "timestamp": now,
+        }
+        record.append_to_backfill_logs(log_entry)
 
         if actually_backfilled == to_backfill:
             record.status = BackfillRecord.BACKFILLED
@@ -227,7 +271,7 @@ class Sherlock:
         return pending_tasks_count > acceptable_limit
 
     @staticmethod
-    def __get_data_points_to_backfill(context: list[dict]) -> list[dict]:
+    def __get_data_points_to_backfill_from_context(context: list[dict]) -> list[dict]:
         context_len = len(context)
         start = None
 
@@ -237,6 +281,25 @@ class Sherlock:
             start = 1
 
         return context[start:]
+
+    @staticmethod
+    def __get_data_points_to_backfill(record: BackfillRecord) -> list[PerformanceDatum]:
+        signature = record.alert.series_signature
+        repository = signature.repository
+        data_point = (
+            PerformanceDatum.objects.filter(
+                repository=repository,
+                signature=signature,
+                push_id=record.last_detected_push_id,
+            )
+            .order_by("push_timestamp")
+            .first()
+        )
+        return [data_point] if data_point else []
+
+    def _sync_performance_alert_summary_status(self):
+        alert_manager = PerformanceAlertManager()
+        alert_manager.manage_alerts([])
 
     def telemetry_alert(self):
         if not self._can_run_telemetry():
@@ -394,7 +457,7 @@ class Sherlock:
                 sheriffed=False,
                 defaults={
                     "manually_created": False,
-                    "created": datetime.now(timezone.utc),
+                    "created": datetime.now(UTC),
                 },
             )
 

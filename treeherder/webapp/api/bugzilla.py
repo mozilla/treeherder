@@ -105,15 +105,21 @@ class BugzillaViewSet(viewsets.ViewSet):
         bug_id = response.json()["id"]
         summary = summary.decode("utf-8")
         # Creation API only returns the ID, but the bug will be updated later on by `treeherder.etl.bugzilla.BzApiBugProcess`
-        bug = Bugscache.objects.filter(bugzilla_id=bug_id).first()
-        if not bug:
-            bugs = list(Bugscache.objects.filter(summary=summary).order_by("modified"))
+        internal_id = (
+            Bugscache.objects.filter(bugzilla_id=bug_id).values_list("id", flat=True).first()
+        )
+        if internal_id is None:
+            bugs = list(
+                Bugscache.objects.filter(summary=summary)
+                .only("id", "bugzilla_id", "modified")
+                .order_by("modified")
+            )
             if bugs and not (bug := next((b.bugzilla_id == bug_id for b in bugs), None)):
                 bug = bugs[-1]
                 bug.modified = timezone.now()
                 bug.bugzilla_id = bug_id
-                bug.save()
-        internal_id = bug.id if bug else None
+                bug.save(update_fields=["bugzilla_id", "modified"])
+                internal_id = bug.id
         return Response(
             {
                 "id": bug_id,
@@ -121,3 +127,43 @@ class BugzillaViewSet(viewsets.ViewSet):
                 "url": get_bug_url(bug_id, settings.BUGFILER_API_URL),
             }
         )
+
+    @action(detail=False, methods=["post"])
+    def post_comment(self, request):
+        """
+        Post a comment to an existing Bugzilla bug
+        """
+        if settings.PERF_SHERIFF_API_KEY is None:
+            return Response(
+                {"failure": "Performance sheriff bot API key not set!"}, status=HTTP_400_BAD_REQUEST
+            )
+
+        params = request.data
+        bug_id = params.get("bug_id")
+        comment = params.get("comment")
+
+        if not bug_id:
+            return Response({"failure": "bug_id is required"}, status=HTTP_400_BAD_REQUEST)
+        if not comment:
+            return Response({"failure": "comment is required"}, status=HTTP_400_BAD_REQUEST)
+
+        url = f"{settings.BUGFILER_API_URL}/rest/bug/{bug_id}/comment"
+        headers = {
+            "x-bugzilla-api-key": settings.PERF_SHERIFF_API_KEY,
+            "Accept": "application/json",
+        }
+        data = {
+            "comment": comment,
+            "comment_tags": ["perf-alert"],
+        }
+
+        try:
+            response = make_request(url, method="POST", headers=headers, json=data)
+        except requests.exceptions.HTTPError as e:
+            try:
+                message = e.response.json()["message"]
+            except (ValueError, KeyError):
+                message = e.response.text
+            return Response({"failure": message}, status=HTTP_400_BAD_REQUEST)
+
+        return Response({"id": response.json().get("id")})

@@ -92,6 +92,11 @@ class PerformanceSignature(models.Model):
     ALERT_ABS = 1
     ALERT_CHANGE_TYPES = ((ALERT_PCT, "percentage"), (ALERT_ABS, "absolute"))
 
+    CRITICAL = "critical"
+    SUBCRITICAL = "subcritical"
+    NORMAL = "normal"
+    ALERT_SEVERITIES = ((CRITICAL, "critical"), (SUBCRITICAL, "subcritical"), (NORMAL, "normal"))
+
     should_alert = models.BooleanField(null=True)
     monitor = models.BooleanField(null=True)
     alert_notify_emails = models.CharField(max_length=422, null=True)
@@ -100,6 +105,7 @@ class PerformanceSignature(models.Model):
     min_back_window = models.IntegerField(null=True)
     max_back_window = models.IntegerField(null=True)
     fore_window = models.IntegerField(null=True)
+    alert_severity = models.CharField(max_length=80, choices=ALERT_SEVERITIES, default=NORMAL)
 
     @staticmethod
     def _get_alert_change_type(alert_change_type_input):
@@ -347,6 +353,7 @@ class PerformanceAlertSummaryBase(models.Model):
     WONTFIX = 6
     FIXED = 7
     BACKED_OUT = 8
+    INFRA = 9
 
     STATUSES = (
         (UNTRIAGED, "Untriaged"),
@@ -358,6 +365,7 @@ class PerformanceAlertSummaryBase(models.Model):
         (WONTFIX, "Won't fix"),
         (FIXED, "Fixed"),
         (BACKED_OUT, "Backed out"),
+        (INFRA, "Infra"),
     )
 
     status = models.IntegerField(choices=STATUSES, default=UNTRIAGED)
@@ -446,8 +454,12 @@ class PerformanceAlertSummaryBase(models.Model):
         if all(alert.status == alert_model.INVALID for alert in alerts):
             return summary_class.INVALID
 
+        # if all infra, then set to infra
+        if all(alert.status == alert_model.INFRA for alert in alerts):
+            return summary_class.INFRA
+
         # otherwise filter out invalid alerts
-        alerts = [a for a in alerts if a.status != alert_model.INVALID]
+        alerts = [a for a in alerts if a.status not in (alert_model.INVALID, alert_model.INFRA)]
 
         # if there are any "acknowledged" alerts, then set to investigating
         # if not one of the resolved statuses and there are regressions,
@@ -494,6 +506,29 @@ class PerformanceAlertSummaryBase(models.Model):
 
 
 class PerformanceAlertSummary(PerformanceAlertSummaryBase):
+    BUG_NEW = 0
+    BUG_FIXED = 1
+    BUG_INVALID = 2
+    BUG_INACTIVE = 3
+    BUG_DUPLICATE = 4
+    BUG_WONTFIX = 5
+    BUG_WORKSFORME = 6
+    BUG_INCOMPLETE = 7
+    BUG_MOVED = 8
+
+    BUG_STATUSES = (
+        (BUG_NEW, "NEW"),
+        (BUG_FIXED, "FIXED"),
+        (BUG_INVALID, "INVALID"),
+        (BUG_INACTIVE, "INACTIVE"),
+        (BUG_DUPLICATE, "DUPLICATE"),
+        (BUG_WONTFIX, "WONTFIX"),
+        (BUG_WORKSFORME, "WORKSFORME"),
+        (BUG_INCOMPLETE, "INCOMPLETE"),
+        (BUG_MOVED, "MOVED"),
+    )
+    bug_status = models.IntegerField(choices=BUG_STATUSES, null=True, default=None)
+
     class Meta:
         db_table = "performance_alert_summary"
         unique_together = ("repository", "framework", "prev_push", "push", "sheriffed")
@@ -568,12 +603,13 @@ class PerformanceAlertBase(models.Model):
     REASSIGNED = 2
     INVALID = 3
     ACKNOWLEDGED = 4
+    INFRA = 5
 
     # statuses where we relate this alert to another summary
     RELATIONAL_STATUS_IDS = (DOWNSTREAM, REASSIGNED)
     # statuses where this alert is related only to the summary it was
     # originally assigned to
-    UNRELATIONAL_STATUS_IDS = (UNTRIAGED, INVALID, ACKNOWLEDGED)
+    UNRELATIONAL_STATUS_IDS = (UNTRIAGED, INVALID, ACKNOWLEDGED, INFRA)
 
     STATUSES = (
         (UNTRIAGED, "Untriaged"),
@@ -581,6 +617,7 @@ class PerformanceAlertBase(models.Model):
         (REASSIGNED, "Reassigned"),
         (INVALID, "Invalid"),
         (ACKNOWLEDGED, "Acknowledged"),
+        (INFRA, "Infra"),
     )
 
     status = models.IntegerField(choices=STATUSES, default=UNTRIAGED)
@@ -985,6 +1022,7 @@ class BackfillRecord(models.Model):
     BACKFILLED = 2
     SUCCESSFUL = 3
     FAILED = 4
+    VERIFICATION_FAILED = 5
 
     STATUSES = (
         (PRELIMINARY, "Preliminary"),
@@ -992,6 +1030,7 @@ class BackfillRecord(models.Model):
         (BACKFILLED, "Backfilled"),
         (SUCCESSFUL, "Successful"),
         (FAILED, "Failed"),
+        (VERIFICATION_FAILED, "Verification Failed"),
     )
 
     status = models.IntegerField(choices=STATUSES, default=PRELIMINARY)
@@ -1011,6 +1050,13 @@ class BackfillRecord(models.Model):
     total_backfills_failed = models.IntegerField(default=0)
     total_backfills_successful = models.IntegerField(default=0)
     total_backfills_in_progress = models.IntegerField(default=0)
+
+    # Number of backfill iterations
+    iteration_count = models.IntegerField(default=0)
+    # Most recently detected culprit push id
+    last_detected_push_id = models.IntegerField(null=True, blank=True)
+    # JSON history of backfill iterations
+    backfill_logs = models.TextField(default="[]")
 
     @property
     def id(self):
@@ -1047,9 +1093,8 @@ class BackfillRecord(models.Model):
             job = Job.objects.get(id=job_id)
             self.__remember_job_properties(job)
         except Job.DoesNotExist as ex:
-            logger.warning(ex)
-            logger.debug(
-                f"Failed to set properties of job ID {job_id} to record ID {self.alert_id}."
+            logger.warning(
+                f"Failed to set properties of job ID [{job_id}] to record ID [{self.alert.id}]: {ex}"
             )
 
     def __remember_job_properties(self, job: Job):
@@ -1080,6 +1125,27 @@ class BackfillRecord(models.Model):
             repository=self.repository, time__gte=from_time, time__lte=to_time
         ).all()
 
+    def get_pushes_from_anchor(self, max_depth: int = 100) -> list[Push]:
+        """
+        Taskcluster scans up to 100 pushes to detect gaps. We use a similar
+        bound here to check job states.
+        Return pushes from the anchor up to `max_depth`.
+        """
+        if self.last_detected_push_id is None:
+            return []
+
+        try:
+            anchor_push = Push.objects.get(id=self.last_detected_push_id)
+        except Push.DoesNotExist:
+            return []
+
+        pushes = Push.objects.filter(
+            repository=self.repository,
+            time__lte=anchor_push.time,
+        ).order_by("-time")[:max_depth]
+
+        return pushes
+
     def get_job_search_str(self) -> str:
         platform = deepgetattr(self, "platform.platform")
         platform_option = deepgetattr(self, "job_platform_option")
@@ -1100,6 +1166,34 @@ class BackfillRecord(models.Model):
 
     def set_log_details(self, value: dict):
         self.log_details = json.dumps(value, default=str)
+
+    def get_backfill_logs(self) -> list[dict]:
+        try:
+            return json.loads(self.backfill_logs)
+        except (json.JSONDecodeError, TypeError):
+            return []
+
+    def append_to_backfill_logs(self, entry: dict):
+        log = self.get_backfill_logs()
+        log.append(entry)
+        self.backfill_logs = json.dumps(log, default=str)
+
+    def update_backfill_log(self, iteration: int, updates: dict):
+        log = self.get_backfill_logs()
+        for entry in log:
+            if entry.get("iteration") == iteration:
+                entry.update(updates)
+                break
+        else:
+            log.append(updates)
+        self.backfill_logs = json.dumps(log, default=str)
+
+    def get_backfill_log(self, iteration: int) -> dict:
+        log = self.get_backfill_logs()
+        for entry in log:
+            if entry.get("iteration") == iteration:
+                return entry
+        return None
 
     def save(self, *args, **kwargs):
         # refresh parent's latest update time

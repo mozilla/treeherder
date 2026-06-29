@@ -27,6 +27,8 @@ const Login = ({ setUser, user = { isLoggedIn: false }, notify }) => {
         fullName: userSession.fullName,
       });
 
+      console.log('[Auth] Logged in as:', newUser.email); // eslint-disable-line no-console
+
       // start session renewal process
       if (userSession?.renewAfter) {
         authServiceRef.current.resetRenewalTimer();

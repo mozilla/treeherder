@@ -1,5 +1,6 @@
 import copy
 import uuid
+from datetime import datetime
 
 import pytest
 import responses
@@ -8,7 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from treeherder.etl.job_loader import JobLoader
 from treeherder.etl.taskcluster_pulse.handler import handle_message
-from treeherder.model.models import Job, JobLog, TaskclusterMetadata
+from treeherder.model.models import Job, JobLog, Push, TaskclusterMetadata
 
 
 @pytest.fixture
@@ -387,6 +388,45 @@ def test_transition_running_unscheduled_stays_running(
 
     change_state_result(first_job, jl, "running", "unknown", "running", "unknown")
     change_state_result(first_job, jl, "unscheduled", "unknown", "running", "unknown")
+
+
+@responses.activate
+def test_github_repo_origin(
+    pulse_jobs, push_stored, failure_classifications, mock_log_parser, test_repository_2
+):
+    test_repository_2.url = "https://github.com/mozilla-mobile/fenix"
+    test_repository_2.save()
+
+    jl = JobLoader()
+    job = pulse_jobs[0]
+
+    responses.add(
+        responses.GET,
+        "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/AI3Nrr3gSDSpZ9E9aBA3rg",
+        json={"extra": {"treeherder": {}}},
+        status=200,
+    )
+
+    revision = push_stored[0]["revision"]
+    Push.objects.create(
+        repository=test_repository_2,
+        revision=revision,
+        author=push_stored[0]["author"],
+        time=datetime.fromtimestamp(push_stored[0]["push_timestamp"]),
+    )
+
+    job["origin"]["revision"] = revision
+    job["origin"]["project"] = test_repository_2.name
+    job["origin"]["id"] = 42
+
+    jl.process_job(job, "https://firefox-ci-tc.services.mozilla.com")
+
+    jobs = Job.objects.all()
+    assert len(jobs) == 1
+
+    # Verify the job was processed successfully with the correct repository
+    job_obj = jobs[0]
+    assert job_obj.repository_id == test_repository_2.id
 
 
 def change_state_result(test_job, job_loader, new_state, new_result, exp_state, exp_result):

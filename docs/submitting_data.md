@@ -16,8 +16,10 @@ this exists in the GitHub group `mozilla`. (For example, `github.com/mozilla/tre
 
 The following steps are required:
 
-1. Create a PR with the new repository information added to the fixtures file:
-   `treeherder/model/fixtures/repository.json`
+1. Create a PR with the new repository information added to the fixture files:
+   - `treeherder/model/fixtures/repository.json`
+   - `treeherder/model/fixtures/repository_branch.json`
+   - `treeherder/model/fixtures/repository_group.json`
 
 2. Open a bug request to enable the webhook that will trigger pulse messages for
    every push from your repo. Use the following information:

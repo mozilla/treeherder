@@ -15,7 +15,7 @@ import Fuse from 'fuse.js';
 import PushModel from '../../models/push';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
 import { sortAlphaNum } from '../../helpers/sort';
-import { notify } from '../stores/notificationStore';
+import { notify } from '../../shared/stores/notificationStore';
 
 function FuzzyJobFinder({
   className,

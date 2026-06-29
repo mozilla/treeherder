@@ -264,59 +264,6 @@
 
       Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests.
 - model: perf.PerformanceBugTemplate
-  pk: 7
-  fields:
-    framework: 10
-    keywords: perf, perf-alert, regression
-    default_component: Performance
-    default_product: Testing
-    text: |
-      Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). As author of one of the patches included in that push, we need your help to address this regression.
-
-      Please **acknowledge, and begin investigating this alert within 3 business days, or the patch(es) may be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).
-
-      {{ alertSummary }}
-
-      ### Support & Actionable Steps
-
-      For questions, please contact {{ user }}. You can also find help on Slack ([#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ)) or Matrix ([#perftest](https://matrix.to/#/#perftest:mozilla.org)).
-
-      **_Action guide details_**:
-      - See the [guide to handling regression bugs](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#help-i-have-a-regression-what-do-i-do) for investigation steps.
-      - Review the [alert summary]({{ alertHref }}) for affected tests, graphs, and comparisons.
-      - Check the [PerfCompare results]({{ perfCompareURL }}).
-      - Tests on Try: Run all tests using `./mach try perf --alert {{ alertSummaryId }}` (See [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) for details).
-      - Profiling jobs: [Trigger jobs from Treeherder job view](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) or request them from {{ user }}.
-    critical_text: |
-      Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). We would like to inform you that we are requesting an immediate back out from sheriffs@mozilla.bugs of the current patch due to performance regressions on the following critical test(s):  {{ criticalTests }}.
-
-      Please review our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/) for additional details regarding the reasons for the immediate backout.
-
-      {{ alertSummary }}
-
-      ### Support & Actionable Steps
-
-      For questions, please contact {{ user }}. You can also find help on Slack ([#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ)) or Matrix ([#perftest](https://matrix.to/#/#perftest:mozilla.org)).
-
-      **_Action guide details_**:
-      - See the [guide to handling regression bugs](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#help-i-have-a-regression-what-do-i-do) for investigation steps.
-      - Review the [alert summary]({{ alertHref }}) for affected tests, graphs, and comparisons.
-      - Check the [PerfCompare results]({{ perfCompareURL }}).
-      - Tests on Try: Run all tests using `./mach try perf --alert {{ alertSummaryId }}` (See [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) for details).
-      - Profiling jobs: [Trigger jobs from Treeherder job view](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) or request them from {{ user }}.
-    no_action_required_text: |
-      Perfherder has detected a {{ framework }} performance change from push [{{ revision }}]({{ revisionHref }}). 
-
-      _**No action is required from the author; this comment is provided for informational purposes only.**_
-
-      {{ alertSummary }}
-
-      ### Need Help or Information?
-
-      If you have any questions, please reach out to {{ user }}. Alternatively, you can find help on Slack by joining [#perf-help](https://mozilla.enterprise.slack.com/archives/C03U19JCSFQ), and on Matrix you can find help by joining [#perftest](https://matrix.to/#/#perftest:mozilla.org).
-
-      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests.
-- model: perf.PerformanceBugTemplate
   pk: 8
   fields:
     framework: 13

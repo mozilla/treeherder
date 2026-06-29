@@ -2,6 +2,8 @@ import os
 
 from treeherder.config.settings import *  # noqa: F403
 
+os.environ.setdefault("GITHUB_TOKEN", "ghp_mockTokenToFakeCredentialsForTesting")
+
 # Use TEST_DATABASE_URL if set, so tests hit the local Postgres container
 # instead of a read-only staging database configured via DATABASE_URL.
 TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL")
@@ -26,6 +28,7 @@ WHITENOISE_USE_FINDERS = True
 
 # Set a fake api key for testing bug filing
 BUGFILER_API_KEY = "12345helloworld"
+PERF_SHERIFF_API_KEY = "12345helloworld"
 BUGFILER_API_URL = "https://thisisnotbugzilla.org"
 
 # some of the auth/login tests can be faster if we don't require "django_db"

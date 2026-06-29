@@ -459,6 +459,53 @@ test('InputFilter from TestDataModal can filter by application name', async () =
   expect(selectedTests.children[0].text).toBe(fullTestName);
 });
 
+test('Platform dropdown in Test Data Modal always shows values sorted alphabetically', async () => {
+  const originalPlatforms = [...platforms];
+
+  // inject unsorted input data to verify that the UI sorts it
+  platforms.splice(0, platforms.length, 'windows7-32', 'linux64', 'windows10-64');
+
+  try {
+    const { getByText, getByTitle } = await graphsViewControls();
+
+    fireEvent.click(getByText('Add test data'));
+
+    await waitFor(() => {
+      expect(getByText('Add Test Data')).toBeInTheDocument();
+      expect(getByTitle('Platform')).toBeInTheDocument();
+    });
+
+    const platformDropdown = getByTitle('Platform');
+    const platformButton =
+      platformDropdown.querySelector('button') ||
+      platformDropdown.querySelector('.dropdown-toggle');
+
+    fireEvent.click(platformButton || platformDropdown);
+
+    await act(async () => {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 100);
+      });
+    });
+
+  const renderedPlatformOptions = await waitFor(() => {
+    const items = Array.from(
+      document.querySelectorAll('.dropdown-menu.show .dropdown-item'),
+    ).map((item) =>
+      item.textContent.replace(/^Selected\s*/i, '').trim(),
+    );
+
+    expect(items).toHaveLength(platforms.length);
+    return items;
+  });
+
+    expect(renderedPlatformOptions).toEqual([...platforms].sort());
+  } finally {
+    // restore shared global state so other tests are unaffected
+    platforms.splice(0, platforms.length, ...originalPlatforms);
+  }
+});
+
 test('Changing the platform dropdown while filtered by text in the Test Data Modal displays expected tests', async () => {
   mockShowModal.mockClear();
   const {

@@ -54,7 +54,7 @@ describe('job helpers', () => {
           task_run: 'T2b-HDM2Rsa26AgbwcNdsA.0',
         },
         {
-          failure_classification_id: 8,
+          failure_classification_id: 4,
           id: 555848998,
           job_group_name: 'pedantic checks',
           job_group_symbol: 'pedantic',

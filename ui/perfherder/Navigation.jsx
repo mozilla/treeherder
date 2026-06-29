@@ -56,11 +56,6 @@ const Navigation = ({ user, setUser, notify }) => (
             Monitoring
           </Link>
         </Nav.Item>
-        <Nav.Item>
-          <Link to="/perfherder/tests" className="nav-link btn-view-nav">
-            Tests
-          </Link>
-        </Nav.Item>
       </Nav>
     </div>
 

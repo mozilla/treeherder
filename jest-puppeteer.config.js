@@ -3,6 +3,9 @@ module.exports = {
     headless: true,
   },
   server: {
-    command: 'pnpm start',
+    command: 'BROWSER=none pnpm start',
+    port: 5000,
+    launchTimeout: 30000,
+    usedPortAction: 'ignore',
   },
 };

@@ -13,7 +13,7 @@ import NotificationsMenu from '../../../../ui/job-view/headerbars/NotificationsM
 let mockStoredNotifications = [];
 const mockClearStoredNotifications = jest.fn();
 
-jest.mock('../../../../ui/job-view/stores/notificationStore', () => ({
+jest.mock('../../../../ui/shared/stores/notificationStore', () => ({
   useNotificationStore: (selector) =>
     selector({
       storedNotifications: mockStoredNotifications,

@@ -1,5 +1,6 @@
 import logging
 import uuid
+from urllib.parse import urlparse
 
 import jsonschema
 import newrelic.agent
@@ -76,6 +77,20 @@ class JobLoader:
                             "Task %s belongs to a repository that is not active.", real_task_id
                         )
                         return
+
+                    # Set origin data based on the repo url
+                    parsed_url = urlparse(repository.url)
+                    is_github = parsed_url.netloc == "github.com"
+                    pulse_job["origin"]["kind"] = parsed_url.netloc
+
+                    if origin_id := pulse_job["origin"].pop("id", None):
+                        key = "pullRequestID" if is_github else "pushLogID"
+                        pulse_job["origin"][key] = origin_id
+
+                    if is_github and parsed_url.path:
+                        path_parts = parsed_url.path.strip("/").split("/")
+                        if len(path_parts) >= 2:
+                            pulse_job["origin"]["owner"] = path_parts[0]
 
                     transformed_job = None
                     try:

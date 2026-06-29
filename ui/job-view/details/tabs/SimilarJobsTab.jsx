@@ -10,7 +10,7 @@ import { addAggregateFields, getBtnClass } from '../../../helpers/job';
 import { getJobsUrl, textLogErrorsEndpoint } from '../../../helpers/url';
 import JobModel from '../../../models/job';
 import PushModel from '../../../models/push';
-import { notify } from '../../stores/notificationStore';
+import { notify } from '../../../shared/stores/notificationStore';
 import { getProjectJobUrl } from '../../../helpers/location';
 import { getData } from '../../../helpers/http';
 

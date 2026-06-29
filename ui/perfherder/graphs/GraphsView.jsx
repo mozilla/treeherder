@@ -32,6 +32,10 @@ import LoadingSpinner from '../../shared/LoadingSpinner';
 
 import LegendCard from './LegendCard';
 import GraphsViewControls from './GraphsViewControls';
+import Notifications from '../../shared/Notifications';
+import '../../css/treeherder-notifications.css';
+import { useNotificationStore } from '../../shared/stores/notificationStore';
+import { MAX_TRANSIENT_AGE } from '../../helpers/notifications';
 
 function GraphsView({ projects, frameworks, user }) {
   const location = useLocation();
@@ -45,6 +49,11 @@ function GraphsView({ projects, frameworks, user }) {
       : phDefaultTimeRangeValue;
     return phTimeRanges.find((time) => time.value === defaultValue);
   };
+  const getHighlightedToRevision = () => {
+    const { highlightedToRevision } = parseQueryParams(location.search);
+
+    return highlightedToRevision;
+  };
 
   const [timeRange, setTimeRange] = useState(getDefaultTimeRange);
   const [zoom, setZoom] = useState({});
@@ -55,9 +64,12 @@ function GraphsView({ projects, frameworks, user }) {
   const [highlightInitialDataPoints, setHighlightInitialDataPoints] =
     useState(false);
   const [highlightedRevisions, setHighlightedRevisions] = useState(['', '']);
+  const [highlightedToRevision, setHighlightedToRevision] = useState(
+    getHighlightedToRevision(),
+  );
   const [testData, setTestData] = useState([]);
   const [errorMessages, setErrorMessages] = useState([]);
-  const [options] = useState({});
+  const [options, setOptions] = useState({});
   const [loading, setLoading] = useState(false);
   const [colors, setColors] = useState([...graphColors]);
   const [symbols, setSymbols] = useState([...graphSymbols]);
@@ -102,7 +114,6 @@ function GraphsView({ projects, frameworks, user }) {
       repository_name: repositoryName,
       signature_id: signatureId,
       framework_id: frameworkId,
-      replicates: seriesReplicates,
     } = series;
 
     return {
@@ -111,34 +122,31 @@ function GraphsView({ projects, frameworks, user }) {
       framework: frameworkId,
       interval: timeRangeRef.current.value,
       all_data: true,
-      replicates: seriesReplicates,
+      replicates: replicatesRef.current,
     };
   }, []);
 
-  const getAlertSummaries = useCallback(
-    async (signatureId, repository) => {
-      const data = await getData(
-        createApiUrl(endpoints.alertSummary, {
-          alerts__series_signature: signatureId,
-          repository,
-          limit: alertSummaryLimit,
-          timerange: timeRangeRef.current.value,
-        }),
-      );
-      const response = processResponse(
-        data,
-        'alertSummaries',
-        errorMessagesRef.current,
-      );
+  const getAlertSummaries = useCallback(async (signatureId, repository) => {
+    const data = await getData(
+      createApiUrl(endpoints.alertSummary, {
+        alerts__series_signature: signatureId,
+        repository,
+        limit: alertSummaryLimit,
+        timerange: timeRangeRef.current.value,
+      }),
+    );
+    const response = processResponse(
+      data,
+      'alertSummaries',
+      errorMessagesRef.current,
+    );
 
-      if (response.alertSummaries) {
-        return response.alertSummaries.results;
-      }
-      setErrorMessages(response.errorMessages);
-      return [];
-    },
-    [],
-  );
+    if (response.alertSummaries) {
+      return response.alertSummaries.results;
+    }
+    setErrorMessages(response.errorMessages);
+    return [];
+  }, []);
 
   const getCommonAlerts = useCallback(async (frameworkId, timeRangeValue) => {
     const params = {
@@ -163,9 +171,13 @@ function GraphsView({ projects, frameworks, user }) {
       const uniqueFrameworkIds = [
         ...new Set(seriesData.map((series) => series.framework_id)),
       ];
-      const commonAlertsFlat = (await Promise.all(
-        uniqueFrameworkIds.map(id => getCommonAlerts(id, timeRangeRef.current.value))
-      )).flat();
+      const commonAlertsFlat = (
+        await Promise.all(
+          uniqueFrameworkIds.map((id) =>
+            getCommonAlerts(id, timeRangeRef.current.value),
+          ),
+        )
+      ).flat();
       const commonAlerts = [commonAlertsFlat];
       const newColors = [...colorsRef.current];
       const newSymbols = [...symbolsRef.current];
@@ -209,6 +221,7 @@ function GraphsView({ projects, frameworks, user }) {
       highlightInitialDataPoints: +highlightInitialDataPoints,
       timerange: timeRangeRef.current.value,
       replicates: +replicatesRef.current,
+      showTable: +showTable,
       zoom,
     };
 
@@ -227,6 +240,10 @@ function GraphsView({ projects, frameworks, user }) {
       params.selected = [signatureId, dataPointId].join(',');
     }
 
+    if (highlightedToRevision) {
+      params.highlightedToRevision = highlightedToRevision;
+    }
+
     if (Object.keys(zoom).length === 0) {
       delete params.zoom;
     } else {
@@ -240,7 +257,9 @@ function GraphsView({ projects, frameworks, user }) {
     highlightChangelogData,
     highlightInitialDataPoints,
     highlightedRevisions,
+    highlightedToRevision,
     selectedDataPoint,
+    showTable,
     zoom,
     updateUrlParams,
   ]);
@@ -252,6 +271,15 @@ function GraphsView({ projects, frameworks, user }) {
       changeParams();
     }
   });
+
+  useEffect(() => {
+    const { clearExpiredNotifications } = useNotificationStore.getState();
+    const id = setInterval(
+      () => clearExpiredNotifications(),
+      MAX_TRANSIENT_AGE,
+    );
+    return () => clearInterval(id);
+  }, []);
 
   const getTestData = useCallback(
     async (newDisplayedTests = [], init = false) => {
@@ -318,28 +346,51 @@ function GraphsView({ projects, frameworks, user }) {
     [getAlertSummaries],
   );
 
-  const updateStateParams = useCallback((state) => {
-    if (state.testData !== undefined) setTestData(state.testData);
-    if (state.selectedDataPoint !== undefined)
-      setSelectedDataPoint(state.selectedDataPoint);
-    if (state.zoom !== undefined) setZoom(state.zoom);
-    if (state.highlightAlerts !== undefined)
-      setHighlightAlerts(state.highlightAlerts);
-    if (state.highlightCommonAlerts !== undefined)
-      setHighlightCommonAlerts(state.highlightCommonAlerts);
-    if (state.highlightChangelogData !== undefined)
-      setHighlightChangelogData(state.highlightChangelogData);
-    if (state.highlightInitialDataPoints !== undefined)
-      setHighlightInitialDataPoints(state.highlightInitialDataPoints);
-    if (state.highlightedRevisions !== undefined)
-      setHighlightedRevisions(state.highlightedRevisions);
-    if (state.visibilityChanged !== undefined)
-      setVisibilityChanged(state.visibilityChanged);
-    if (state.replicates !== undefined) setReplicates(state.replicates);
-    if (state.colors !== undefined) setColors(state.colors);
-    if (state.symbols !== undefined) setSymbols(state.symbols);
-    pendingChangeParams.current = true;
-  }, []);
+  const updateStateParams = useCallback(
+    (state) => {
+      const replicatesChanged =
+        state.replicates !== undefined &&
+        state.replicates !== replicatesRef.current;
+
+      if (state.testData !== undefined) setTestData(state.testData);
+      if (state.selectedDataPoint !== undefined)
+        setSelectedDataPoint(state.selectedDataPoint);
+      if (state.zoom !== undefined) setZoom(state.zoom);
+      if (state.highlightAlerts !== undefined)
+        setHighlightAlerts(state.highlightAlerts);
+      if (state.highlightCommonAlerts !== undefined)
+        setHighlightCommonAlerts(state.highlightCommonAlerts);
+      if (state.highlightChangelogData !== undefined)
+        setHighlightChangelogData(state.highlightChangelogData);
+      if (state.highlightInitialDataPoints !== undefined)
+        setHighlightInitialDataPoints(state.highlightInitialDataPoints);
+      if (state.highlightedRevisions !== undefined)
+        setHighlightedRevisions(state.highlightedRevisions);
+      if (state.highlightedToRevision !== undefined)
+        setHighlightedToRevision(state.highlightedToRevision);
+      if (state.visibilityChanged !== undefined)
+        setVisibilityChanged(state.visibilityChanged);
+      if (state.colors !== undefined) setColors(state.colors);
+      if (state.symbols !== undefined) setSymbols(state.symbols);
+      if (state.showTable !== undefined) setShowTable(state.showTable);
+
+      if (state.replicates !== undefined) {
+        setReplicates(state.replicates);
+        replicatesRef.current = state.replicates;
+      }
+
+      if (replicatesChanged) {
+        setZoom({});
+        setSelectedDataPoint(null);
+        setColors([...graphColors]);
+        setSymbols([...graphSymbols]);
+        getTestData();
+      } else {
+        pendingChangeParams.current = true;
+      }
+    },
+    [getTestData],
+  );
 
   // componentDidMount - check query params
   useEffect(() => {
@@ -352,10 +403,21 @@ function GraphsView({ projects, frameworks, user }) {
       highlightChangelogData: hlChangelogData,
       highlightInitialDataPoints: hlInitialDataPoints,
       highlightedRevisions: hlRevisions,
+      highlightedToRevision: hlToRevision,
       replicates: replicatesParam,
+      showTable: showTableParam,
     } = queryString.parse(location.search);
 
     const updates = {};
+
+    if (replicatesParam) {
+      updates.replicates = Boolean(parseInt(replicatesParam, 10));
+      replicatesRef.current = updates.replicates;
+    }
+
+    if (showTableParam !== undefined) {
+      updates.showTable = Boolean(parseInt(showTableParam, 10));
+    }
 
     if (series) {
       const _series = typeof series === 'string' ? [series] : series;
@@ -380,12 +442,12 @@ function GraphsView({ projects, frameworks, user }) {
         parseInt(hlInitialDataPoints, 10),
       );
     }
-    if (replicatesParam) {
-      updates.replicates = Boolean(parseInt(replicatesParam, 10));
-    }
     if (hlRevisions) {
       updates.highlightedRevisions =
         typeof hlRevisions === 'string' ? [hlRevisions] : hlRevisions;
+    }
+    if (hlToRevision) {
+      updates.highlightedToRevision = hlToRevision;
     }
     if (zoomParam) {
       const zoomArray = zoomParam.replace(/[[{}\]"]+/g, '').split(',');
@@ -408,8 +470,11 @@ function GraphsView({ projects, frameworks, user }) {
     if (updates.highlightInitialDataPoints !== undefined)
       setHighlightInitialDataPoints(updates.highlightInitialDataPoints);
     if (updates.replicates !== undefined) setReplicates(updates.replicates);
+    if (updates.showTable !== undefined) setShowTable(updates.showTable);
     if (updates.highlightedRevisions !== undefined)
       setHighlightedRevisions(updates.highlightedRevisions);
+    if (updates.highlightedToRevision !== undefined)
+      setHighlightedToRevision(updates.highlightedToRevision);
     if (updates.zoom !== undefined) setZoom(updates.zoom);
     if (updates.selectedDataPoint !== undefined)
       setSelectedDataPoint(updates.selectedDataPoint);
@@ -423,23 +488,12 @@ function GraphsView({ projects, frameworks, user }) {
 
     if (prevSearch === location.search) return;
 
-    const { replicates: currentReplicates } = queryString.parse(
-      location.search,
-    );
-    const { replicates: prevReplicates } = queryString.parse(prevSearch);
-
     if (
       location.search === '' &&
       testDataRef.current.length !== 0 &&
       !loading
     ) {
       setTestData([]);
-    }
-
-    if (prevReplicates !== undefined) {
-      if (currentReplicates !== prevReplicates) {
-        window.location.reload(false);
-      }
     }
   }, [location.search, loading]);
 
@@ -475,6 +529,7 @@ function GraphsView({ projects, frameworks, user }) {
       errorClasses={errorMessageClass}
       message={genericErrorMessage}
     >
+      <Notifications />
       <Container fluid className="pt-5 pe-5 ps-5">
         {loading && <LoadingSpinner />}
 
@@ -486,9 +541,7 @@ function GraphsView({ projects, frameworks, user }) {
 
         <Row className="justify-content-center">
           {!showTable && (
-            <Col
-              className={`${testData.length ? 'graph-chooser' : 'col-12'}`}
-            >
+            <Col className={`${testData.length ? 'graph-chooser' : 'col-12'}`}>
               <Button
                 className="sr-only"
                 onClick={() => setShowTable(!showTable)}
@@ -522,6 +575,12 @@ function GraphsView({ projects, frameworks, user }) {
                             setColors(state.colors);
                           if (state.symbols !== undefined)
                             setSymbols(state.symbols);
+                          if (state.options !== undefined)
+                            setOptions(state.options);
+                          if (state.showModal !== undefined)
+                            setShowModal(state.showModal);
+                          if (state.errorMessages !== undefined)
+                            setErrorMessages(state.errorMessages);
                         }}
                         updateStateParams={updateStateParams}
                         colors={colors}
@@ -554,6 +613,7 @@ function GraphsView({ projects, frameworks, user }) {
               highlightChangelogData={highlightChangelogData}
               highlightInitialDataPoints={highlightInitialDataPoints}
               highlightedRevisions={highlightedRevisions}
+              highlightedToRevision={highlightedToRevision}
               highlightCommonAlerts={highlightCommonAlerts}
               zoom={zoom}
               selectedDataPoint={selectedDataPoint}
@@ -561,7 +621,7 @@ function GraphsView({ projects, frameworks, user }) {
               visibilityChanged={visibilityChanged}
               updateData={updateData}
               toggle={() => setShowModal(!showModal)}
-              toggleTableView={() => setShowTable(!showTable)}
+              toggleTableView={() => updateStateParams({ showTable: !showTable })}
               replicates={replicates}
               updateTimeRange={handleUpdateTimeRange}
               updateTestsAndTimeRange={handleUpdateTestsAndTimeRange}

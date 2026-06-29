@@ -11,7 +11,11 @@ from django.contrib.auth.models import User
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchVectorField, TrigramSimilarity
 from django.core.cache import cache
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import (
+    MultipleObjectsReturned,
+    ObjectDoesNotExist,
+    ValidationError,
+)
 from django.core.validators import MinLengthValidator
 from django.db import models, transaction
 from django.db.models import Count, Max, Min, Q, Subquery
@@ -100,7 +104,6 @@ class Repository(models.Model):
     name = models.CharField(max_length=50, unique=True, db_index=True)
     dvcs_type = models.CharField(max_length=25, db_index=True)
     url = models.CharField(max_length=255)
-    branch = models.CharField(max_length=255, null=True, db_index=True)
     codebase = models.CharField(max_length=50, blank=True, db_index=True)
     description = models.TextField(blank=True)
     active_status = models.CharField(max_length=7, blank=True, default="active", db_index=True)
@@ -109,6 +112,7 @@ class Repository(models.Model):
     expire_performance_data = models.BooleanField(default=True)
     is_try_repo = models.BooleanField(default=False)
     tc_root_url = models.CharField(max_length=255, null=False, db_index=True)
+    accepts_pull_requests = models.BooleanField(default=False, db_index=True)
 
     class Meta:
         db_table = "repository"
@@ -121,8 +125,58 @@ class Repository(models.Model):
     def fetch_all_names(cls) -> list[str]:
         return cls.objects.values_list("name", flat=True)
 
+    @classmethod
+    def resolve_branch(cls, url, branch):
+        """Return the single active Repository for (url, branch).
+
+        Tries exact branch match first, then suffix-wildcard patterns
+        (e.g. ``releases/*``).  Raises DoesNotExist / MultipleObjectsReturned
+        like Manager.get().
+        """
+        repos = cls.objects.filter(url=url, active_status="active")
+        try:
+            return repos.get(branches__branch=branch)
+        except cls.DoesNotExist:
+            pass
+        candidates = RepositoryBranch.objects.filter(
+            repository__in=repos, branch__endswith="*"
+        ).select_related("repository")
+        matches = [rb.repository for rb in candidates if branch.startswith(rb.branch[:-1])]
+        if not matches:
+            raise cls.DoesNotExist(f"No active repository for url={url} branch={branch}")
+        if len(matches) > 1:
+            raise MultipleObjectsReturned(
+                f"Multiple repositories matched url={url} branch={branch}"
+            )
+        return matches[0]
+
     def __str__(self):
         return f"{self.name} {self.repository_group}"
+
+
+class RepositoryBranch(models.Model):
+    # Fields are pre-defined in fixtures/repository_branch.json
+    id = models.BigAutoField(primary_key=True)
+    repository = models.ForeignKey(Repository, on_delete=models.CASCADE, related_name="branches")
+    branch = models.CharField(max_length=255, db_index=True)
+
+    class Meta:
+        db_table = "repository_branch"
+        unique_together = ("repository", "branch")
+
+    def clean(self):
+        count = self.branch.count("*")
+        if count > 1 or (count == 1 and not self.branch.endswith("*")):
+            raise ValidationError(
+                {"branch": "Only suffix wildcards are allowed (e.g. 'releases/*' or '*')."}
+            )
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.repository.name}:{self.branch}"
 
 
 class Push(models.Model):
@@ -224,7 +278,9 @@ class Bugscache(models.Model):
 
     status = models.CharField(max_length=64, db_index=True)
     resolution = models.CharField(max_length=64, blank=True, db_index=True)
-    # Is covered by a FULLTEXT index created via a migrations RunSQL operation.
+    # Backed by a GIN trigram index (bugscache_summary_gin_trgm_idx, created via
+    # a RunSQL migration) so the ILIKE + trigram similarity search in search()
+    # can use an index scan. The btree Index below only covers exact lookups.
     summary = models.CharField(max_length=255)
     dupe_of = models.PositiveIntegerField(null=True)
     crash_signature = models.TextField(blank=True)
@@ -251,7 +307,7 @@ class Bugscache(models.Model):
         return f"{self.id}"
 
     def serialize(self):
-        exclude_fields = ["modified", "processed_update", "jobmap"]
+        exclude_fields = ["modified", "processed_update"]
 
         attrs = model_to_dict(self, exclude=exclude_fields)
         # Serialize bug ID as the bugzilla number for compatibility reasons
@@ -279,6 +335,19 @@ class Bugscache(models.Model):
         # Django already escapes special characters, so we do not need to handle that here
         recent_qs = (
             Bugscache.objects.filter(summary__icontains=search_term)
+            # Only fetch the fields that serialize() returns; modified and
+            # processed_update are excluded there, so there's no need to load them.
+            .only(
+                "id",
+                "bugzilla_id",
+                "status",
+                "resolution",
+                "summary",
+                "dupe_of",
+                "crash_signature",
+                "keywords",
+                "whiteboard",
+            )
             .annotate(similarity=TrigramSimilarity("summary", search_term))
             .order_by("-similarity")[0:max_size]
         )
@@ -594,6 +663,14 @@ class Job(models.Model):
             models.Index(fields=["machine_platform", "option_collection_hash", "push"]),
             # speed up cycle data
             models.Index(fields=["repository", "submit_time"]),
+            # speed up intermittent-failure classification
+            # (treeherder/log_parser/intermittents.py): equality on repository
+            # and job_type, range on push. Matches both the group-history query
+            # and the infra-check query, which scan a repository's jobs of a
+            # given type within a recent push-id window.
+            models.Index(
+                fields=["repository", "job_type", "push"], name="job_repo_jobtype_push_idx"
+            ),
         ]
 
     @property

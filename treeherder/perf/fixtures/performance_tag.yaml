@@ -26,3 +26,7 @@
   pk: 7
   fields:
     name: early-beta-or-earlier
+- model: perf.PerformanceTag
+  pk: 8
+  fields:
+    name: bisection

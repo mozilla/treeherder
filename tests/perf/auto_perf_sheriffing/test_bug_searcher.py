@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import patch
 
 import pytest
@@ -87,13 +87,13 @@ class TestBugSearcherHelperMethods:
     @patch("treeherder.perf.auto_perf_sheriffing.bug_searcher.datetime")
     def test_get_today_date(self, mock_datetime, bug_searcher):
         """Test get_today_date returns correct format."""
-        mock_now = datetime(2024, 3, 15, 10, 30, 0, tzinfo=timezone.utc)
+        mock_now = datetime(2024, 3, 15, 10, 30, 0, tzinfo=UTC)
         mock_datetime.now.return_value = mock_now
 
         result = bug_searcher.get_today_date()
 
         assert result == mock_now.date()
-        mock_datetime.now.assert_called_once_with(timezone.utc)
+        mock_datetime.now.assert_called_once_with(UTC)
 
     def test_find_last_filter_num_no_queries(self, bug_searcher):
         """Test _find_last_filter_num returns 0 when no filter fields exist."""

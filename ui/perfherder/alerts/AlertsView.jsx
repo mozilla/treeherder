@@ -4,7 +4,8 @@ import { useLocation } from 'react-router';
 import { Alert, Container } from 'react-bootstrap';
 import cloneDeep from 'lodash/cloneDeep';
 
-import withValidation from '../Validation';
+import useValidation from '../useValidation';
+import ValidationGate from '../ValidationGate';
 import {
   convertParams,
   getFrameworkData,
@@ -32,16 +33,37 @@ import LoadingSpinner from '../../shared/LoadingSpinner';
 
 import AlertsViewControls from './AlertsViewControls';
 
+const alertsRequiredParams = new Set([]);
+
 function AlertsView({
-  validated,
   frameworks,
   user,
   projects,
   performanceTags,
   ...otherProps
 }) {
+  const {
+    validated,
+    isLoading: validationLoading,
+    errorMessages: validationErrors,
+  } = useValidation({
+    requiredParams: alertsRequiredParams,
+    verifyRevisions: false,
+    projects,
+    frameworks,
+  });
   const location = useLocation();
   const prevLocationSearch = useRef(location.search);
+
+  // useValidation populates `validated` asynchronously after first render, so
+  // initial state must be derived directly from the URL — otherwise mount-time
+  // reads see undefined values and the page fetches the full alert list even
+  // when ?id=... is in the URL.
+  const initialParamsRef = useRef(null);
+  if (initialParamsRef.current === null) {
+    initialParamsRef.current = parseQueryParams(location.search);
+  }
+  const initialParams = initialParamsRef.current;
 
   const extendedOptions = useMemo(() => {
     const frameworkOptions = cloneDeep(frameworks);
@@ -58,7 +80,7 @@ function AlertsView({
   const getDefaultStatus = (params) => {
     const statusParam = convertParams(params, 'status');
     if (!statusParam) {
-      return Object.keys(summaryStatusMap)[1];
+      return getStatus(summaryStatusMap.untriaged);
     }
     return getStatus(parseInt(params.status, 10));
   };
@@ -86,10 +108,10 @@ function AlertsView({
   );
 
   const [filters, setFilters] = useState(() =>
-    getFiltersFromParams(validated),
+    getFiltersFromParams(initialParams),
   );
   const [page, setPage] = useState(
-    validated.page ? parseInt(validated.page, 10) : 1,
+    initialParams.page ? parseInt(initialParams.page, 10) : 1,
   );
   const [errorMessages, setErrorMessages] = useState([]);
   const [alertSummaries, setAlertSummaries] = useState([]);
@@ -98,7 +120,7 @@ function AlertsView({
   const [loading, setLoading] = useState(false);
   const [optionCollectionMap, setOptionCollectionMap] = useState(null);
   const [count, setCount] = useState(0);
-  const [id, setId] = useState(validated.id);
+  const [id, setId] = useState(initialParams.id);
   const [totalPages, setTotalPages] = useState(0);
 
   // Refs to hold latest state for use in callbacks
@@ -141,11 +163,11 @@ function AlertsView({
             status: summaryStatusMap[status],
           };
 
-      const doNotFilter = -1;
+      const allFrameworksID = -1;
       const allSheriffedFrameworksID = -2;
       const listMode = !alertId;
 
-      if (listMode && params.status === doNotFilter) {
+      if (listMode && params.status === summaryStatusMap['all statuses']) {
         delete params.status;
       }
 
@@ -154,7 +176,7 @@ function AlertsView({
           params.show_sheriffed_frameworks = true;
         }
         if (
-          [doNotFilter, allSheriffedFrameworksID].includes(params.framework)
+          [allFrameworksID, allSheriffedFrameworksID].includes(params.framework)
         ) {
           delete params.framework;
         }
@@ -175,7 +197,6 @@ function AlertsView({
       const currentIssueTrackers = issueTrackersRef.current;
       const currentOptionCollectionMap = optionCollectionMapRef.current;
       const currentAlertSummaries = alertSummariesRef.current;
-      const currentCount = countRef.current;
 
       const {
         status,
@@ -189,7 +210,6 @@ function AlertsView({
       setPage(pg);
       const updates = {};
       const params = composeParams(alertId, pg, framework, status);
-
       const listMode = !alertId;
 
       if (listMode) {
@@ -199,6 +219,12 @@ function AlertsView({
         if (status === 'all regressions') {
           delete params.status;
           params.hide_improvements = true;
+        } else if (status === 'untriaged regressions') {
+          delete params.status;
+          params.untriaged_regressions = true;
+        } else if (status === 'untriaged improvements') {
+          delete params.status;
+          params.untriaged_improvements = true;
         }
         if (hideDownstream) {
           params.hide_related_and_invalid = hideDownstream;
@@ -241,23 +267,40 @@ function AlertsView({
         'alertSummaries',
         currentErrorMessages,
       );
+      
+      if(data.failureStatus === 404 && !update && !alertId && pg > 1) {
+        const currentParams = parseQueryParams(window.location.search);
+        currentParams.page = 1
+        const newSearch = createQueryParams(currentParams);
+        window.history.replaceState(null, '', `${location.pathname}${newSearch}`);
+        prevLocationSearch.current = newSearch;
+
+        setLoading(false);
+        return fetchAlertSummaries(alertId, false, 1)
+      }
 
       if (response.alertSummaries) {
         const summary = response.alertSummaries;
+        const nextCount = Math.ceil(summary.count / 10);
 
-        if (update && summary.results.length !== 0) {
-          const newSummaries = [...currentAlertSummaries];
-          const index = newSummaries.findIndex(
-            (item) => item.id === summary.results[0].id,
-          );
-          newSummaries.splice(index, 1, summary.results[0]);
-          setAlertSummaries(newSummaries);
+        if (update) {
+          if(summary.results.length !== 0) {
+            const newSummaries = [...currentAlertSummaries];
+            const index = newSummaries.findIndex(
+              (item) => item.id === summary.results[0].id,
+            );     
+
+            if (index !== -1) {
+              newSummaries.splice(index, 1, summary.results[0]);
+              setAlertSummaries(newSummaries);
+            }
+          }
         } else {
-          setAlertSummaries(update ? currentAlertSummaries : summary.results);
+          setAlertSummaries(summary.results);
+          setCount(nextCount);
         }
-        setCount(update ? currentCount : Math.ceil(summary.count / 10));
       } else if (response.errorMessages) {
-        setErrorMessages(response.errorMessages);
+          setErrorMessages(response.errorMessages);
       }
 
       if (updates.errorMessages) {
@@ -348,7 +391,7 @@ function AlertsView({
     const prevParams = parseQueryParams(prevLocationSearch.current);
     prevLocationSearch.current = location.search;
 
-    if (
+    const filtersChanged =
       params.id !== prevParams.id ||
       params.status !== prevParams.status ||
       params.framework !== prevParams.framework ||
@@ -356,17 +399,38 @@ function AlertsView({
       params.hideDwnToInv !== prevParams.hideDwnToInv ||
       params.hideAssignedToOthers !== prevParams.hideAssignedToOthers ||
       params.monitoredAlerts !== prevParams.monitoredAlerts
-    ) {
+      
+    // check if page displays an alerts list or a specific alert
+    const isDetailMode = Boolean(params.id);
+
+    if (filtersChanged) {
       const newId = params.id || null;
       const newFilters = getFiltersFromParams(params);
       setId(newId);
       setFilters(newFilters);
       // Need to fetch with the new values
+      
       idRef.current = newId;
       filtersRef.current = newFilters;
-      fetchAlertSummaries(newId);
-    } else if (params.page && params.page !== prevParams.page) {
-      fetchAlertSummaries(undefined, false, parseInt(params.page, 10));
+      
+      if (isDetailMode) {
+        fetchAlertSummaries(newId, false);
+      } else {
+        const nextPage = 1;
+
+        setPage(nextPage);
+        pageRef.current = nextPage;
+
+        fetchAlertSummaries(newId, false, nextPage);
+      }
+    } else {
+      const nextPage = parseInt(params.page, 10) || 1;
+      const prevPage = parseInt(prevParams.page, 10) || 1;
+
+      if (!isDetailMode && nextPage !== prevPage) {
+        pageRef.current = nextPage;
+        fetchAlertSummaries(undefined, false, nextPage);
+      }
     }
   }, [location.search, getFiltersFromParams, fetchAlertSummaries]);
 
@@ -383,11 +447,15 @@ function AlertsView({
   const pageNums = getCurrentPages();
 
   return (
-    <ErrorBoundary
-      errorClasses={errorMessageClass}
-      message={genericErrorMessage}
+    <ValidationGate
+      isLoading={validationLoading}
+      errorMessages={validationErrors}
     >
-      <Container fluid className="pt-5 max-width-default">
+      <ErrorBoundary
+        errorClasses={errorMessageClass}
+        message={genericErrorMessage}
+      >
+        <Container fluid className="pt-5 max-width-default">
         {loading && <LoadingSpinner />}
 
         {errorMessages.length > 0 && (
@@ -437,26 +505,20 @@ function AlertsView({
           performanceTags={performanceTags}
           {...otherProps}
         />
-        {!loading && alertSummaries.length === 0 && (
-          <p className="lead text-center">No alerts to show</p>
-        )}
-      </Container>
-    </ErrorBoundary>
+          {!loading && alertSummaries.length === 0 && (
+            <p className="lead text-center">No alerts to show</p>
+          )}
+        </Container>
+      </ErrorBoundary>
+    </ValidationGate>
   );
 }
 
 AlertsView.propTypes = {
   user: PropTypes.shape({}).isRequired,
-  validated: PropTypes.shape({
-    updateParams: PropTypes.func.isRequired,
-    framework: PropTypes.string,
-  }).isRequired,
   projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   frameworks: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   performanceTags: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
-export default withValidation(
-  { requiredParams: new Set([]) },
-  false,
-)(AlertsView);
+export default AlertsView;

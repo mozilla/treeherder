@@ -7,6 +7,7 @@ import {
   faBan,
   faLevelDownAlt,
   faArrowAltCircleRight,
+  faTools,
 } from '@fortawesome/free-solid-svg-icons';
 
 import SimpleTooltip from '../../shared/SimpleTooltip';
@@ -136,9 +137,9 @@ export default class AlertActionPanel extends React.Component {
         selectedAlerts.includes(alert),
       );
     }
-    const refreshStatus = 'invalid';
+    const refreshStatus = ['invalid', 'infra'];
 
-    if (newStatus === refreshStatus && refreshAlertsSummaries) {
+    if (newStatus in refreshStatus && refreshAlertsSummaries) {
       fetchAlertSummaries(undefined, false);
     } else {
       fetchAlertSummaries(alertSummary.id);
@@ -188,6 +189,7 @@ export default class AlertActionPanel extends React.Component {
           showModal={showReassignedModal}
           header="Reassign Alerts"
           title="Alert Number"
+          autoFocusInput
           updateAndClose={(event, inputValue) =>
             this.updateAndClose(
               event,
@@ -242,6 +244,20 @@ export default class AlertActionPanel extends React.Component {
                     </Button>
                   }
                   tooltipText="Mark selected alerts as invalid"
+                />
+              </Col>
+
+              <Col sm="auto" className="p-2">
+                <SimpleTooltip
+                  text={
+                    <Button
+                      variant="secondary"
+                      onClick={() => this.updateAlerts('infra')}
+                    >
+                      <FontAwesomeIcon icon={faTools} /> Mark Infra
+                    </Button>
+                  }
+                  tooltipText="Mark selected alerts as caused by infra changes"
                 />
               </Col>
 

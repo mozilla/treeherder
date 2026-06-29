@@ -17,7 +17,7 @@ export default class Magnitude extends React.PureComponent {
   render() {
     const { alert } = this.props;
     return (
-      <div className="d-flex align-items-end justify-content-center">
+      <div className="d-flex align-items-center justify-content-center">
         <div
           className="w-50 text-right text-nowrap"
           data-testid="previous-value"
@@ -45,6 +45,16 @@ export default class Magnitude extends React.PureComponent {
               color={!alert.is_regression ? 'success' : 'danger'}
             />
           </div>
+          {alert.series_signature.measurement_unit && 
+          <div className="align-self-center pt-1">
+            <SimpleTooltip
+              textClass="detail-hint"
+              text={`${alert.series_signature.measurement_unit}`}
+              tooltipText={`Alert measurement unit: ${alert.series_signature.measurement_unit}`}
+              autohide={false}
+            />
+          </div>          
+          }
         </div>
         <div className="w-50 text-nowrap" data-testid="new-value">
           <SimpleTooltip

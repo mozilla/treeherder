@@ -8,8 +8,8 @@ import { findInstance } from '../../helpers/job';
 import { getUrlParam } from '../../helpers/location';
 import { getLogViewerUrl } from '../../helpers/url';
 import JobModel from '../../models/job';
-import { selectJobViaUrl } from '../stores/selectedJobStore';
-import { togglePinJob } from '../stores/pinnedJobsStore';
+import { selectJobViaUrl } from '../../shared/stores/selectedJobStore';
+import { togglePinJob } from '../../shared/stores/pinnedJobsStore';
 
 import Platform from './Platform';
 

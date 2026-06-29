@@ -27,8 +27,17 @@ class OutcomeChecker:
         total_backfills_failed = 0
         total_backfills_successful = 0
 
-        pushes_in_range = record.get_pushes_in_context_range()
+        if record.last_detected_push_id is None:
+            # legacy: every push in the context range have been backfilled
+            pushes_in_range = record.get_pushes_in_context_range()
+        else:
+            pushes_in_range = record.get_pushes_from_anchor()
+
         for push in pushes_in_range:
+            has_any_job = push.jobs.filter(job_type=of_type).exists()
+            if not has_any_job:
+                continue
+
             # make sure it has at least one successful job of job type
             if push.total_jobs(of_type, with_successful_results) == 0:
                 # either (at least) one job is in progress or it failed

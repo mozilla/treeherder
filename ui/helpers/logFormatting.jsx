@@ -3,6 +3,28 @@ import React from 'react';
 import { getCrashViewerUrl, getPerfAnalysisUrl } from './url';
 
 /**
+ * Returns a color string for a log line based on common Mozilla test-log
+ * patterns (TEST-PASS, TEST-START, summaries, etc.), or null if the line
+ * should render with the default color.
+ */
+export function getLogLineColor(line) {
+  if (
+    /INFO - GECKO\(\d+\)/.test(line) ||
+    /INFO - TEST-UNEXPECTED-FAIL/.test(line)
+  ) {
+    return null;
+  }
+  if (/INFO - TEST-(OK)|(PASS)/.test(line)) return '#3B7A3B';
+  if (/INFO - TEST-START/.test(line)) return 'blue';
+  if (/INFO - TEST-/.test(line)) return '#7A7A24';
+  if (/!!!/.test(line)) return '#985E98';
+  if (/Browser Chrome Test Summary$/.test(line)) return '#55677A';
+  if (/((INFO -)|([\s]+))(Passed|Failed|Todo):/.test(line)) return '#55677A';
+  if (/INFO/.test(line)) return '#566262';
+  return null;
+}
+
+/**
  * Helper to insert a link into a log line by replacing text
  * @param {string} line - The full log line
  * @param {string} textToReplace - The text to turn into a link

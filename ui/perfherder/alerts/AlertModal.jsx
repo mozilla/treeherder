@@ -11,7 +11,17 @@ export default class AlertModal extends React.Component {
       invalidInput: false,
       validated: false,
     };
+
+    this.inputRef = React.createRef();
   }
+
+  focusInput = () => {
+    const { autoFocusInput = false } = this.props;
+
+    if (autoFocusInput && this.inputRef.current) {
+      this.inputRef.current.focus();
+    }
+  };
 
   validateInput = debounce(() => {
     const { inputValue } = this.state;
@@ -48,7 +58,7 @@ export default class AlertModal extends React.Component {
     const { inputValue, invalidInput, validated } = this.state;
 
     return (
-      <Modal show={showModal} onHide={toggle}>
+      <Modal show={showModal} onHide={toggle} onEntered={this.focusInput}>
         <Modal.Header closeButton>
           <Modal.Title>{header}</Modal.Title>
         </Modal.Header>
@@ -59,6 +69,7 @@ export default class AlertModal extends React.Component {
                 <Col className="col-4">
                   <Form.Label htmlFor="taskId">{title}</Form.Label>
                   <Form.Control
+                    ref={this.inputRef}
                     value={inputValue}
                     onChange={this.updateInput}
                     name="taskId"
@@ -101,4 +112,5 @@ AlertModal.propTypes = {
   dropdownOption: PropTypes.shape({}),
   header: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
+  autoFocusInput: PropTypes.bool,
 };

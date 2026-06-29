@@ -19,6 +19,7 @@ import Assignee from './Assignee';
 import TagsList from './TagsList';
 import AlertHeaderTitle from './AlertHeaderTitle';
 import { getStatus } from '../perf-helpers/helpers';
+import { bugStatusMap } from '../perf-helpers/constants';
 
 const AlertHeader = ({
   frameworks,
@@ -94,6 +95,9 @@ const AlertHeader = ({
   };
   const bugNumber = alertSummary.bug_number
     ? `Bug ${alertSummary.bug_number}`
+    : '';
+  const bugStatus = (alertSummary.bug_status != null && alertSummary.issue_tracker === 1)
+    ? `(${getStatus(alertSummary.bug_status, bugStatusMap)})`
     : '';
 
   const performanceTags = alertSummary.performance_tags || [];
@@ -192,7 +196,8 @@ const AlertHeader = ({
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {bugNumber}
+                {bugNumber}{' '}
+                <span style={{ fontSize: '0.9em' }}>{bugStatus}</span>
               </a>
             ) : (
               { bugNumber }
@@ -235,7 +240,7 @@ const AlertHeader = ({
               key={summary.id}
               className="text-dark me-1"
               target="_blank"
-              to={`./alerts?id=${summary.id}&hideDwnToInv=0`}
+              to={`/perfherder/alerts?id=${summary.id}&hideDwnToInv=0`}
               id={`duplicated alert summary ${summary.id.toString()} `}
               style={{ marginLeft: '5px' }}
             >

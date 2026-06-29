@@ -19,7 +19,8 @@ import {
 import { triggerTask } from '../../../helpers/performance';
 import { isPerfTest } from '../../../helpers/job';
 import { geckoProfileTaskName, sxsTaskName } from '../../../helpers/constants';
-import { usePushesStore } from '../../stores/pushesStore';
+import { usePushesStore } from '../../../shared/stores/pushesStore';
+import { notify } from '../../../shared/stores/notificationStore';
 
 import SideBySide from './SideBySide';
 import PerfData from './PerfData';
@@ -50,12 +51,7 @@ class PerformanceTab extends React.PureComponent {
   }
 
   createGeckoProfile = async () => {
-    const {
-      selectedJobFull,
-      notify,
-      decisionTaskMap,
-      currentRepo,
-    } = this.props;
+    const { selectedJobFull, decisionTaskMap, currentRepo } = this.props;
     await triggerTask(
       selectedJobFull,
       notify,
@@ -69,12 +65,7 @@ class PerformanceTab extends React.PureComponent {
   };
 
   createSideBySide = async () => {
-    const {
-      selectedJobFull,
-      notify,
-      decisionTaskMap,
-      currentRepo,
-    } = this.props;
+    const { selectedJobFull, decisionTaskMap, currentRepo } = this.props;
     await triggerTask(
       selectedJobFull,
       notify,
@@ -96,10 +87,6 @@ class PerformanceTab extends React.PureComponent {
 
     if (value.endsWith('.zip')) {
       return PROFILE_ZIP_RELEVANCE;
-    }
-
-    if (!value.endsWith('.json') && !value.endsWith('.json.gz')) {
-      return NO_PROFILE_RELEVANCE;
     }
 
     if (value === 'profile_resource-usage.json') {
