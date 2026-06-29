@@ -1,10 +1,11 @@
-name: Deploy compare-failure-summary-ui to GitHub Pages
+name: Deploy misc UIs to GitHub Pages
 
 on:
   push:
     branches: [master]
     paths:
       - "misc/compare-failure-summary-ui/**"
+      - "misc/testsummary-inventory-ui/**"
       - ".github/workflows/deploy-compare-failure-summary-ui.yml"
   workflow_dispatch:
 
@@ -25,9 +26,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # Assemble a single Pages site: compare-failure-summary-ui at the root
+      # (preserving its existing URL) and testsummary-inventory-ui under a
+      # subpath.
+      - name: Assemble site
+        run: |
+          mkdir -p _site/testsummary-inventory
+          cp -r misc/compare-failure-summary-ui/. _site/
+          cp -r misc/testsummary-inventory-ui/. _site/testsummary-inventory/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: misc/compare-failure-summary-ui
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4
