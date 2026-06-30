@@ -4,20 +4,34 @@ import { thBugSuggestionLimit } from './constants';
 // Parses the contents of a `*_testsummary.jsonl` artifact into a structured
 // object for the job-view Summary tab.
 //
-// Each line of the artifact is a JSON object describing an event. The events we
-// care about are:
+// Each line of the artifact is a JSON object describing a mozlog structured-log
+// event. A test run is no longer a single `test_result` line — it is a
+// `test_start` / `test_end` pair:
 //
-//   {"action": "test_result", "group": "<manifest>", "test": "<path>",
-//    "status": "PASS", "start": <ms>, "end": <ms>, "message": "..."}
+//   {"action": "test_start", "time": <ms>, "group": "<manifest>",
+//    "test": "<path>"}
+//
+//   {"action": "test_end", "time": <ms>, "group": "<manifest>",
+//    "test": "<path>", "status": "PASS", "message": "...",
+//    "expected": "<status>"}   // `expected` present only when unexpected
 //
 //   {"action": "crash", "group": "<manifest>", "test": "<path>",
 //    "signature": "<crash signature>", ...}
+//
+// The `end` event is not guaranteed: a test that crashes or hangs gets a
+// `test_start` with no matching `test_end`. We pair the two events to recover
+// each run's duration, and treat an unpaired `test_start` as a run that never
+// finished (status CRASH).
 //
 // A single test can appear more than once (e.g. when it is retried), and a few
 // results carry no `group`. We regroup the lines first by test (collapsing the
 // repeated runs of the same test into one entry), then by group.
 
 export const NO_GROUP = '(no group)';
+
+// Status given to a test that emitted a `test_start` but never a matching
+// `test_end` — the harness died mid-run, which almost always means a crash.
+export const INCOMPLETE_STATUS = 'CRASH';
 
 // Status buckets we report counts for. Anything unexpected falls back to its
 // raw status string so nothing is silently dropped.
@@ -75,8 +89,10 @@ const tallyStatus = (counts, status) => {
   }
 };
 
-const durationOf = ({ start, end }) =>
+const durationOf = (start, end) =>
   Number.isFinite(start) && Number.isFinite(end) ? end - start : null;
+
+const finiteOrNull = (value) => (Number.isFinite(value) ? value : null);
 
 /**
  * Build the Summary tab data from a `*_testsummary.jsonl` artifact.
@@ -104,37 +120,7 @@ export const buildTestSummary = (content) => {
   // group name -> Map(test name -> { name, results })
   const groups = new Map();
 
-  lines.forEach((line) => {
-    if (!line) return;
-
-    let entry;
-    if (line.action === 'test_result' && line.test) {
-      entry = {
-        test: line.test,
-        group: line.group,
-        status: line.status,
-        success: !('expected' in line),
-        message: line.message || null,
-        start: Number.isFinite(line.start) ? line.start : null,
-        end: Number.isFinite(line.end) ? line.end : null,
-        duration: durationOf(line),
-      };
-    } else if (line.action === 'crash') {
-      const testName = line.test || line.signature || '(unknown test)';
-      entry = {
-        test: testName,
-        group: line.group,
-        status: 'CRASH',
-        success: false,
-        message: line.signature || null,
-        start: null,
-        end: null,
-        duration: null,
-      };
-    } else {
-      return;
-    }
-
+  const recordEntry = (entry) => {
     const groupName = entry.group || NO_GROUP;
     if (!groups.has(groupName)) {
       groups.set(groupName, new Map());
@@ -151,6 +137,114 @@ export const buildTestSummary = (content) => {
       start: entry.start,
       end: entry.end,
       duration: entry.duration,
+    });
+  };
+
+  // Open `test_start` events awaiting their `test_end`, queued per test name so
+  // retries of the same test pair up in order (FIFO).
+  const pending = new Map();
+  // The group most recently opened by `group_start`, used as a fallback when a
+  // test event carries no `group` of its own.
+  let currentGroup = null;
+
+  const takePending = (testName) => {
+    const queue = pending.get(testName);
+    return queue && queue.length ? queue.shift() : null;
+  };
+
+  lines.forEach((line) => {
+    if (!line) return;
+
+    switch (line.action) {
+      case 'group_start':
+        currentGroup = line.name || currentGroup;
+        return;
+      case 'group_end':
+        currentGroup = null;
+        return;
+      case 'test_start': {
+        if (!line.test) return;
+        const run = {
+          group: line.group || currentGroup,
+          start: finiteOrNull(line.time),
+          // Messages from unexpected `test_status` (subtest) events, which are
+          // usually more descriptive than the parent `test_end` message.
+          subtestFailures: [],
+        };
+        if (!pending.has(line.test)) pending.set(line.test, []);
+        pending.get(line.test).push(run);
+        return;
+      }
+      case 'test_status': {
+        // A subtest result. We only keep the unexpected ones (those carrying an
+        // `expected` field) to enrich the parent test's failure message. The
+        // pending run's *first* queued start owns the in-progress subtests.
+        if (!line.test || !('expected' in line)) return;
+        const queue = pending.get(line.test);
+        const run = queue && queue.length ? queue[0] : null;
+        if (run && line.message) {
+          const label = line.subtest ? `${line.subtest}: ` : '';
+          run.subtestFailures.push(`${label}${line.message}`);
+        }
+        return;
+      }
+      case 'test_end': {
+        if (!line.test) return;
+        const run = takePending(line.test);
+        const start = run ? run.start : null;
+        const end = finiteOrNull(line.time);
+        const success = !('expected' in line);
+        const subtestFailures = run?.subtestFailures || [];
+        // For a failing test prefer the (more informative) subtest messages;
+        // otherwise fall back to the test_end message.
+        const message =
+          (!success && subtestFailures.length
+            ? subtestFailures.join(' | ')
+            : line.message) || null;
+        recordEntry({
+          test: line.test,
+          group: line.group || run?.group || currentGroup,
+          status: line.status,
+          success,
+          message,
+          start,
+          end,
+          duration: durationOf(start, end),
+        });
+        return;
+      }
+      case 'crash': {
+        const testName = line.test || line.signature || '(unknown test)';
+        recordEntry({
+          test: testName,
+          group: line.group || currentGroup,
+          status: 'CRASH',
+          success: false,
+          message: line.signature || null,
+          start: null,
+          end: null,
+          duration: null,
+        });
+        return;
+      }
+      default:
+    }
+  });
+
+  // Any `test_start` left unpaired never produced a `test_end`: the run did not
+  // finish, which we surface as a crash so it is not silently dropped.
+  pending.forEach((queue, testName) => {
+    queue.forEach((run) => {
+      recordEntry({
+        test: testName,
+        group: run.group,
+        status: INCOMPLETE_STATUS,
+        success: false,
+        message: 'Test started but never finished',
+        start: run.start,
+        end: null,
+        duration: null,
+      });
     });
   });
 
