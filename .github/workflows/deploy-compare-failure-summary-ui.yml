@@ -6,6 +6,7 @@ on:
     paths:
       - "misc/compare-failure-summary-ui/**"
       - "misc/testsummary-inventory-ui/**"
+      - "misc/testsummary-audit-ui/**"
       - ".github/workflows/deploy-compare-failure-summary-ui.yml"
   workflow_dispatch:
 
@@ -27,13 +28,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       # Assemble a single Pages site: compare-failure-summary-ui at the root
-      # (preserving its existing URL) and testsummary-inventory-ui under a
-      # subpath.
+      # (preserving its existing URL), testsummary-inventory-ui and
+      # testsummary-audit-ui under their own subpaths.
       - name: Assemble site
         run: |
-          mkdir -p _site/testsummary-inventory
+          mkdir -p _site/testsummary-inventory _site/testsummary-audit
           cp -r misc/compare-failure-summary-ui/. _site/
           cp -r misc/testsummary-inventory-ui/. _site/testsummary-inventory/
+          cp -r misc/testsummary-audit-ui/. _site/testsummary-audit/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

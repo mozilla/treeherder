@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>TestSummary Inventory — Treeherder</title>
+    <title>TestSummary Inventory (local file) — Treeherder</title>
     <style>
       :root {
         --color-bg: #0f1115;
@@ -85,48 +85,132 @@
         color: var(--color-text-dim);
       }
 
-      select,
-      input[type='text'],
-      input[type='number'] {
+      /* Drop zone for local files */
+      .dropzone {
+        border: 1.5px dashed var(--color-border);
+        border-radius: var(--radius-md);
+        padding: var(--space-8) var(--space-4);
+        text-align: center;
+        color: var(--color-text-dim);
+        cursor: pointer;
+        transition:
+          border-color 150ms ease,
+          background 150ms ease;
+      }
+
+      .dropzone:hover,
+      .dropzone:focus-visible,
+      .dropzone.dragover {
+        border-color: var(--color-accent);
+        background: #11151d;
+        color: var(--color-text);
+        outline: none;
+      }
+
+      .dropzone strong {
+        color: var(--color-accent);
+      }
+
+      .dropzone .hint {
+        display: block;
+        margin-top: var(--space-2);
+        font-size: 0.8rem;
+      }
+
+      input[type='file'] {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      #file-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: var(--space-1);
+      }
+
+      #file-list:empty {
+        display: none;
+      }
+
+      #file-list li {
+        display: flex;
+        justify-content: space-between;
+        gap: var(--space-3);
+        font-size: 0.85rem;
+        padding: var(--space-1) var(--space-2);
         background: var(--color-bg);
         border: 1px solid var(--color-border);
-        color: var(--color-text);
         border-radius: var(--radius-sm);
-        padding: var(--space-2) var(--space-3);
+      }
+
+      #file-list li .name {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      #file-list li .meta {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        flex-shrink: 0;
+      }
+
+      #file-list li .size {
+        color: var(--color-text-dim);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .remove-file {
+        background: none;
+        border: none;
+        color: var(--color-text-dim);
+        font-size: 1.1rem;
+        line-height: 1;
+        cursor: pointer;
+        padding: var(--space-1);
+        border-radius: var(--radius-sm);
+      }
+
+      .remove-file:hover,
+      .remove-file:focus-visible {
+        color: var(--color-mismatch);
+        outline: none;
+        background: #2a1416;
+      }
+
+      .form-actions {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        flex-wrap: wrap;
+      }
+
+      button.secondary {
+        background: none;
+        color: var(--color-text-dim);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
+        padding: var(--space-3) var(--space-4);
         font-size: 0.95rem;
+        cursor: pointer;
+        min-height: 44px;
       }
 
-      select:focus,
-      input:focus,
-      button:focus,
-      input[type='radio']:focus-visible {
-        outline: 2px solid var(--color-accent);
-        outline-offset: 2px;
-      }
-
-      .radio-row {
-        display: flex;
-        gap: var(--space-4);
-        align-items: center;
-      }
-
-      .radio-row label {
-        display: flex;
-        align-items: center;
-        gap: var(--space-2);
+      button.secondary:hover:not(:disabled) {
         color: var(--color-text);
-        font-size: 0.95rem;
+        border-color: var(--color-text-dim);
       }
 
-      .push-inputs {
-        display: grid;
-        gap: var(--space-2);
-      }
-
-      .warning {
-        font-size: 0.85rem;
-        color: var(--color-skip);
-        margin: 0;
+      button.secondary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
       }
 
       button[type='submit'] {
@@ -278,85 +362,50 @@
   </head>
   <body>
     <main>
-      <h1>TestSummary Inventory</h1>
-      <p class="nav">
-        <a href="../">← Compare Failure Summary</a> ·
-        <a href="../testsummary-audit/">TestSummary Field Audit →</a>
-      </p>
+      <h1>TestSummary Inventory <small style="color: var(--color-text-dim); font-weight: 400;">(local file)</small></h1>
       <p class="intro">
         Runs the same analysis as
-        <code>scripts/testsummary-inventory.mjs</code> entirely in your browser,
-        without downloading anything to disk. For a push, it fetches every
-        <code>*_testsummary.jsonl</code> artifact in parallel and builds an
-        inventory of what <em>survives</em> the
-        <code>TestSummaryFormatter</code> — which record actions, fields, and
-        values are <em>not</em> filtered out — and flags anything still present
-        that the formatter's rules say to drop or strip.
+        <code>scripts/testsummary-inventory.mjs</code> entirely in your browser
+        — but over <em>local</em> files you pick or drop here. Nothing is
+        uploaded; the files are read directly off disk. For each
+        <code>*_testsummary.jsonl</code> artifact it builds an inventory of what
+        <em>survives</em> the <code>TestSummaryFormatter</code> — which record
+        actions, fields, and values are <em>not</em> filtered out — and flags
+        anything still present that the formatter's rules say to drop or strip.
+        Select multiple files to aggregate them into a single inventory.
       </p>
 
       <form id="inventory-form">
         <div class="field">
-          <label for="host">Treeherder instance</label>
-          <select id="host" name="host">
-            <option value="production" selected>
-              Production (treeherder.mozilla.org)
-            </option>
-            <option value="stage">Staging (treeherder.allizom.org)</option>
-            <option value="localhost">Local (localhost:8000)</option>
-          </select>
-          <p class="warning" id="local-warning" hidden>
-            This page is served over HTTPS, so a browser will block requests to
-            <code>http://localhost:8000</code> (mixed content) unless this page
-            is itself being opened from
-            <code>localhost</code>/<code>file://</code>.
-          </p>
-        </div>
-
-        <div class="field">
-          <label for="project">Project (repository name)</label>
-          <select id="project" name="project" required>
-            <option value="try">try</option>
-            <option value="mozilla-central">mozilla-central</option>
-            <option value="autoland" selected>autoland</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label id="push-mode-label">Identify the push by</label>
+          <label for="file-input">TestSummary JSONL file(s)</label>
           <div
-            class="radio-row"
-            role="radiogroup"
-            aria-labelledby="push-mode-label"
+            class="dropzone"
+            id="dropzone"
+            role="button"
+            tabindex="0"
+            aria-describedby="dropzone-hint"
           >
-            <label
-              ><input type="radio" name="push-mode" value="revision" checked />
-              Revision</label
-            >
-            <label
-              ><input type="radio" name="push-mode" value="push-id" /> Push
-              ID</label
+            <strong>Choose files</strong> or drag &amp; drop here
+            <span class="hint" id="dropzone-hint"
+              >accepts <code>*.jsonl</code> testsummary artifacts — multiple
+              files are aggregated</span
             >
           </div>
-          <div class="push-inputs">
-            <input
-              type="text"
-              id="revision"
-              name="revision"
-              placeholder="e.g. 4f6e1c2..."
-            />
-            <input
-              type="number"
-              id="push-id"
-              name="push-id"
-              placeholder="e.g. 1953427"
-              min="1"
-              hidden
-            />
-          </div>
+          <input
+            type="file"
+            id="file-input"
+            name="file-input"
+            accept=".jsonl,.json,.log,.txt,application/json"
+            multiple
+          />
+          <ul id="file-list" aria-live="polite"></ul>
         </div>
 
-        <div>
-          <button type="submit" id="run-button">Build inventory</button>
+        <div class="form-actions">
+          <button type="submit" id="run-button" disabled>Build inventory</button>
+          <button type="button" class="secondary" id="restart-button" disabled>
+            Restart
+          </button>
           <div class="progress" id="progress" hidden></div>
         </div>
       </form>
@@ -365,12 +414,8 @@
 
       <div id="summary-banner">
         <div class="stat">
-          <div class="value" id="stat-jobs">0</div>
-          <div class="label">completed jobs</div>
-        </div>
-        <div class="stat">
-          <div class="value" id="stat-artifacts">0</div>
-          <div class="label">summary artifacts</div>
+          <div class="value" id="stat-files">0</div>
+          <div class="label">files scanned</div>
         </div>
         <div class="stat">
           <div class="value" id="stat-records">0</div>
@@ -380,6 +425,10 @@
           <div class="value" id="stat-bytes">0</div>
           <div class="label">bytes</div>
         </div>
+        <div class="stat">
+          <div class="value" id="stat-errors">0</div>
+          <div class="label">parse errors</div>
+        </div>
       </div>
 
       <div id="report" aria-live="polite"></div>
@@ -388,15 +437,6 @@
     </main>
 
     <script type="module">
-      const HOSTS = {
-        localhost: 'http://localhost:8000',
-        stage: 'https://treeherder.allizom.org',
-        production: 'https://treeherder.mozilla.org',
-      };
-      const SUMMARY_ARTIFACT_SUFFIX = '_testsummary.jsonl';
-      const JOBS_PAGE_SIZE = 2000;
-      const JOB_CONCURRENCY = 12;
-
       // Reference: the TestSummaryFormatter's own rules, mirrored from
       // mozlog/formatters/testsummary.py, so the report can label findings as
       // "expected to survive" vs "should be filtered".
@@ -406,66 +446,6 @@
         ALWAYS_STRIP: ['thread', 'pid', 'source', 'extra', 'tests'],
         STRIP_PREFIX: 'stackwalk_',
       };
-
-      class HttpError extends Error {
-        constructor(status, url) {
-          super(`HTTP ${status} for ${url}`);
-          this.status = status;
-        }
-      }
-
-      async function fetchJson(url) {
-        const res = await fetch(url);
-        if (!res.ok) throw new HttpError(res.status, url);
-        return res.json();
-      }
-
-      async function resolvePushId(serverUrl, project, revision) {
-        const data = await fetchJson(
-          `${serverUrl}/api/project/${encodeURIComponent(project)}/push/?revision=${encodeURIComponent(revision)}`,
-        );
-        if (!data.results.length)
-          throw new Error(`No push with revision ${revision} on ${project}`);
-        return data.results[0].id;
-      }
-
-      async function getCompletedJobs(serverUrl, project, pushId) {
-        const jobs = [];
-        let offset = 0;
-        while (true) {
-          const data = await fetchJson(
-            `${serverUrl}/api/project/${encodeURIComponent(project)}/jobs/?push_id=${pushId}&state=completed&count=${JOBS_PAGE_SIZE}&offset=${offset}`,
-          );
-          jobs.push(...data.results);
-          if (data.results.length < JOBS_PAGE_SIZE) break;
-          offset += JOBS_PAGE_SIZE;
-        }
-        return jobs;
-      }
-
-      async function findTestsummaryArtifactUrl(tcRootUrl, taskId, runId) {
-        const listUrl = `${tcRootUrl}/api/queue/v1/task/${taskId}/runs/${runId}/artifacts`;
-        const data = await fetchJson(listUrl);
-        const artifact = (data.artifacts || []).find((a) =>
-          a.name.endsWith(SUMMARY_ARTIFACT_SUFFIX),
-        );
-        return artifact ? `${listUrl}/${artifact.name}` : null;
-      }
-
-      // Runs `worker` over `items` with at most `limit` in flight at once, so a
-      // large push doesn't fire thousands of simultaneous requests.
-      async function mapWithConcurrency(items, limit, worker) {
-        let nextIndex = 0;
-        async function runNext() {
-          while (nextIndex < items.length) {
-            const index = nextIndex++;
-            await worker(items[index], index);
-          }
-        }
-        await Promise.all(
-          Array.from({ length: Math.min(limit, items.length) }, runNext),
-        );
-      }
 
       // --- inventory accumulation (mirrors scripts/testsummary-inventory.mjs) ---
 
@@ -523,8 +503,7 @@
           bump(inv.leakage.droppedActions, action);
       }
 
-      // Fetch one artifact and fold its records into the shared inventory.
-      // JS is single-threaded, so accumulation from parallel workers is safe.
+      // Fold one file's records into the shared inventory.
       function ingestText(inv, text) {
         inv.filesScanned++;
         inv.totalBytes += text.length;
@@ -543,57 +522,24 @@
         }
       }
 
-      async function run(opts, inv, log, onProgress) {
-        const serverUrl = HOSTS[opts.host];
-
-        const repos = await fetchJson(`${serverUrl}/api/repository/`);
-        const repository = repos.find((r) => r.name === opts.project);
-        if (!repository) throw new Error(`Unknown project: ${opts.project}`);
-        const tcRootUrl = repository.tc_root_url;
-
-        const pushId =
-          opts.pushId ||
-          (await resolvePushId(serverUrl, opts.project, opts.revision));
-
-        const jobs = await getCompletedJobs(serverUrl, opts.project, pushId);
-        log.info(
-          `Scanning ${jobs.length} completed job(s) for push ${pushId} on ${opts.project}`,
-        );
-
-        let artifacts = 0;
-        let completed = 0;
-        await mapWithConcurrency(jobs, JOB_CONCURRENCY, async (job) => {
+      // Read each selected file off disk and ingest it. No network at all.
+      async function run(files, inv, log, onProgress) {
+        log.info(`Reading ${files.length} local file(s)`);
+        let done = 0;
+        for (const file of files) {
           try {
-            if (job.task_id && job.retry_id != null) {
-              const artifactUrl = await findTestsummaryArtifactUrl(
-                tcRootUrl,
-                job.task_id,
-                job.retry_id,
-              );
-              if (artifactUrl) {
-                const res = await fetch(artifactUrl);
-                if (res.ok) {
-                  ingestText(inv, await res.text());
-                  artifacts++;
-                } else {
-                  log.debug(
-                    `${job.job_type_name} (job ${job.id}): HTTP ${res.status} for artifact`,
-                  );
-                }
-              }
-            }
+            const text = await file.text();
+            ingestText(inv, text);
           } catch (e) {
-            log.debug(`${job.job_type_name} (job ${job.id}): ${e.message}`);
+            log.debug(`${file.name}: ${e.message}`);
           } finally {
-            completed++;
-            onProgress(completed, jobs.length);
+            done++;
+            onProgress(done, files.length);
           }
-        });
-
+        }
         log.info(
-          `Done: ${artifacts} artifact(s), ${inv.totalRecords} record(s)`,
+          `Done: ${inv.filesScanned} file(s), ${inv.totalRecords} record(s)`,
         );
-        return { jobCount: jobs.length, artifacts, pushId };
       }
 
       // --- report rendering ---
@@ -744,79 +690,123 @@
       // --- UI wiring ---
 
       const form = document.getElementById('inventory-form');
-      const hostSelect = document.getElementById('host');
-      const localWarning = document.getElementById('local-warning');
-      const projectSelect = document.getElementById('project');
-      const revisionInput = document.getElementById('revision');
-      const pushIdInput = document.getElementById('push-id');
+      const dropzone = document.getElementById('dropzone');
+      const fileInput = document.getElementById('file-input');
+      const fileList = document.getElementById('file-list');
       const runButton = document.getElementById('run-button');
+      const restartButton = document.getElementById('restart-button');
       const progressEl = document.getElementById('progress');
       const errorBanner = document.getElementById('error-banner');
       const summaryBanner = document.getElementById('summary-banner');
       const logPanel = document.getElementById('log-panel');
 
-      const DEFAULTS = { host: 'production', project: 'autoland' };
+      // Selected files live here; a FileList from <input> can't be merged with
+      // dropped files, so we keep our own array.
+      let selectedFiles = [];
 
-      function pushModeRadio() {
-        return form.querySelector('input[name="push-mode"]:checked').value;
+      const humanBytes = (n) => {
+        if (n < 1024) return `${n} B`;
+        if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+        return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+      };
+
+      // Hide any previous results so the report never lags behind the current
+      // file selection.
+      function resetResults() {
+        errorBanner.style.display = 'none';
+        summaryBanner.style.display = 'none';
+        document.getElementById('report').style.display = 'none';
+        logPanel.style.display = 'none';
+        logPanel.textContent = '';
+        progressEl.hidden = true;
       }
 
-      function setPushMode(mode) {
-        for (const radio of form.querySelectorAll('input[name="push-mode"]'))
-          radio.checked = radio.value === mode;
-        revisionInput.hidden = mode !== 'revision';
-        pushIdInput.hidden = mode !== 'push-id';
+      function removeFile(index) {
+        selectedFiles.splice(index, 1);
+        renderFileList();
+        // The displayed inventory is now stale — clear it; the user re-runs.
+        resetResults();
       }
 
-      function syncUrlFromForm() {
-        const params = new URLSearchParams();
-        if (hostSelect.value !== DEFAULTS.host)
-          params.set('instance', hostSelect.value);
-        if (projectSelect.value !== DEFAULTS.project)
-          params.set('project', projectSelect.value);
-        if (pushModeRadio() === 'revision') {
-          if (revisionInput.value.trim())
-            params.set('revision', revisionInput.value.trim());
-        } else if (pushIdInput.value) {
-          params.set('push-id', pushIdInput.value);
+      function renderFileList() {
+        fileList.textContent = '';
+        selectedFiles.forEach((file, index) => {
+          const removeBtn = el('button', {
+            type: 'button',
+            class: 'remove-file',
+            'aria-label': `Remove ${file.name}`,
+            title: `Remove ${file.name}`,
+            text: '×',
+          });
+          removeBtn.addEventListener('click', () => removeFile(index));
+          fileList.appendChild(
+            el('li', {}, [
+              el('span', { class: 'name', text: file.name }),
+              el('span', { class: 'meta' }, [
+                el('span', { class: 'size', text: humanBytes(file.size) }),
+                removeBtn,
+              ]),
+            ]),
+          );
+        });
+        runButton.disabled = selectedFiles.length === 0;
+        restartButton.disabled = selectedFiles.length === 0;
+      }
+
+      function addFiles(fileLike) {
+        const incoming = Array.from(fileLike);
+        // De-dup by name+size so re-dropping the same file doesn't double-count.
+        const seen = new Set(selectedFiles.map((f) => `${f.name}:${f.size}`));
+        for (const file of incoming) {
+          const key = `${file.name}:${file.size}`;
+          if (!seen.has(key)) {
+            selectedFiles.push(file);
+            seen.add(key);
+          }
         }
-        const qs = params.toString();
-        history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
+        renderFileList();
+        // Selection changed — any shown inventory no longer matches it.
+        resetResults();
       }
 
-      function applyUrlParams() {
-        const params = new URLSearchParams(location.search);
-        const instance = params.get('instance');
-        if (instance && instance in HOSTS) hostSelect.value = instance;
-        localWarning.hidden = hostSelect.value !== 'localhost';
-        const project = params.get('project');
-        if (project) projectSelect.value = project;
-        const pushId = params.get('push-id');
-        const revision = params.get('revision');
-        if (pushId) {
-          setPushMode('push-id');
-          pushIdInput.value = pushId;
-        } else if (revision) {
-          setPushMode('revision');
-          revisionInput.value = revision;
-        }
-      }
-
-      applyUrlParams();
-
-      hostSelect.addEventListener('change', () => {
-        localWarning.hidden = hostSelect.value !== 'localhost';
-        syncUrlFromForm();
+      // Clear everything back to the initial state.
+      restartButton.addEventListener('click', () => {
+        selectedFiles = [];
+        fileInput.value = '';
+        renderFileList();
+        resetResults();
+        dropzone.focus();
       });
-      projectSelect.addEventListener('change', syncUrlFromForm);
-      revisionInput.addEventListener('input', syncUrlFromForm);
-      pushIdInput.addEventListener('input', syncUrlFromForm);
-      for (const radio of form.querySelectorAll('input[name="push-mode"]')) {
-        radio.addEventListener('change', () => {
-          setPushMode(pushModeRadio());
-          syncUrlFromForm();
+
+      dropzone.addEventListener('click', () => fileInput.click());
+      dropzone.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          fileInput.click();
+        }
+      });
+
+      fileInput.addEventListener('change', () => {
+        addFiles(fileInput.files);
+        // Reset so selecting the same file again still fires "change".
+        fileInput.value = '';
+      });
+
+      for (const type of ['dragenter', 'dragover']) {
+        dropzone.addEventListener(type, (event) => {
+          event.preventDefault();
+          dropzone.classList.add('dragover');
         });
       }
+      for (const type of ['dragleave', 'drop']) {
+        dropzone.addEventListener(type, (event) => {
+          event.preventDefault();
+          dropzone.classList.remove('dragover');
+        });
+      }
+      dropzone.addEventListener('drop', (event) => {
+        if (event.dataTransfer?.files?.length) addFiles(event.dataTransfer.files);
+      });
 
       function appendLogLine(text, kind) {
         const line = document.createElement('div');
@@ -833,17 +823,7 @@
 
       form.addEventListener('submit', async (event) => {
         event.preventDefault();
-
-        const byRevision = pushModeRadio() === 'revision';
-        const opts = {
-          host: hostSelect.value,
-          project: projectSelect.value.trim(),
-          revision: byRevision ? revisionInput.value.trim() : '',
-          pushId: byRevision ? null : Number(pushIdInput.value),
-        };
-        if (!opts.project) return;
-        if (byRevision && !opts.revision) return;
-        if (!byRevision && !opts.pushId) return;
+        if (selectedFiles.length === 0) return;
 
         errorBanner.style.display = 'none';
         summaryBanner.style.display = 'none';
@@ -856,12 +836,11 @@
 
         const inv = newInventory();
         try {
-          const meta = await run(opts, inv, log, (done, total) => {
-            progressEl.textContent = `Processing job ${done}/${total}…`;
+          await run(selectedFiles, inv, log, (done, total) => {
+            progressEl.textContent = `Reading file ${done}/${total}…`;
           });
-          document.getElementById('stat-jobs').textContent = fmt(meta.jobCount);
-          document.getElementById('stat-artifacts').textContent = fmt(
-            meta.artifacts,
+          document.getElementById('stat-files').textContent = fmt(
+            inv.filesScanned,
           );
           document.getElementById('stat-records').textContent = fmt(
             inv.totalRecords,
@@ -869,13 +848,16 @@
           document.getElementById('stat-bytes').textContent = fmt(
             inv.totalBytes,
           );
+          document.getElementById('stat-errors').textContent = fmt(
+            inv.parseErrors,
+          );
           summaryBanner.style.display = 'flex';
           renderReport(inv);
         } catch (e) {
           errorBanner.textContent = e.message;
           errorBanner.style.display = 'block';
         } finally {
-          runButton.disabled = false;
+          runButton.disabled = selectedFiles.length === 0;
           progressEl.hidden = true;
         }
       });

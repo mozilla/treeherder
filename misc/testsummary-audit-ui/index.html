@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>TestSummary Inventory — Treeherder</title>
+    <title>TestSummary Field Audit — Treeherder</title>
     <style>
       :root {
         --color-bg: #0f1115;
@@ -211,6 +211,12 @@
         margin: 0 0 var(--space-3);
       }
 
+      section.report-block > p.help {
+        color: var(--color-text-dim);
+        font-size: 0.85rem;
+        margin: 0 0 var(--space-3);
+      }
+
       table {
         width: 100%;
         border-collapse: collapse;
@@ -222,6 +228,7 @@
         text-align: left;
         padding: var(--space-1) var(--space-2);
         border-bottom: 1px solid var(--color-border);
+        vertical-align: top;
       }
 
       th {
@@ -235,13 +242,15 @@
         font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       }
 
-      td.note {
-        color: var(--color-skip);
-        font-size: 0.8rem;
+      td.mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       }
 
       .action-group {
         margin-top: var(--space-4);
+      }
+      .action-group:first-child {
+        margin-top: 0;
       }
       .action-group h3 {
         font-size: 0.95rem;
@@ -252,6 +261,39 @@
 
       .ok {
         color: var(--color-match);
+      }
+
+      .examples {
+        display: grid;
+        gap: var(--space-2);
+        margin: var(--space-2) 0 var(--space-4);
+      }
+
+      .example {
+        background: #0a0c10;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
+        padding: var(--space-2) var(--space-3);
+      }
+
+      .example .example-source {
+        color: var(--color-text-dim);
+        font-size: 0.75rem;
+        margin: 0 0 var(--space-1);
+      }
+
+      .example pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.8rem;
+      }
+
+      .example-note {
+        color: var(--color-skip);
+        font-size: 0.75rem;
+        margin: 0;
       }
 
       #log-panel {
@@ -278,23 +320,24 @@
   </head>
   <body>
     <main>
-      <h1>TestSummary Inventory</h1>
-      <p class="nav">
-        <a href="../">← Compare Failure Summary</a> ·
-        <a href="../testsummary-audit/">TestSummary Field Audit →</a>
-      </p>
+      <h1>TestSummary Field Audit</h1>
+      <p class="nav"><a href="../testsummary-inventory/">← TestSummary Inventory</a></p>
       <p class="intro">
         Runs the same analysis as
-        <code>scripts/testsummary-inventory.mjs</code> entirely in your browser,
-        without downloading anything to disk. For a push, it fetches every
-        <code>*_testsummary.jsonl</code> artifact in parallel and builds an
-        inventory of what <em>survives</em> the
-        <code>TestSummaryFormatter</code> — which record actions, fields, and
-        values are <em>not</em> filtered out — and flags anything still present
-        that the formatter's rules say to drop or strip.
+        <code>scripts/audit-testsummary-fields.mjs</code> entirely in your
+        browser, without downloading anything to disk. For a push, it fetches
+        every <code>*_testsummary.jsonl</code> artifact in parallel and
+        reports which mozlog actions and fields appear in those artifacts but
+        are <em>never</em> consumed by the job-view Summary tab
+        (<code>ui/helpers/testSummary.js</code> →
+        <code>buildTestSummary</code>). Anything flagged is dead weight in the
+        artifact and a candidate for removal from whatever emits
+        <code>_testsummary.jsonl</code>. For every action that isn't
+        consumed, up to 2 example records are shown, pulled from 2 different
+        files when possible.
       </p>
 
-      <form id="inventory-form">
+      <form id="audit-form">
         <div class="field">
           <label for="host">Treeherder instance</label>
           <select id="host" name="host">
@@ -355,8 +398,19 @@
           </div>
         </div>
 
+        <div class="field">
+          <label for="max-jobs">Max jobs to inspect (optional)</label>
+          <input
+            type="number"
+            id="max-jobs"
+            name="max-jobs"
+            placeholder="all jobs"
+            min="1"
+          />
+        </div>
+
         <div>
-          <button type="submit" id="run-button">Build inventory</button>
+          <button type="submit" id="run-button">Run audit</button>
           <div class="progress" id="progress" hidden></div>
         </div>
       </form>
@@ -366,19 +420,19 @@
       <div id="summary-banner">
         <div class="stat">
           <div class="value" id="stat-jobs">0</div>
-          <div class="label">completed jobs</div>
+          <div class="label">jobs w/ artifact</div>
         </div>
         <div class="stat">
           <div class="value" id="stat-artifacts">0</div>
           <div class="label">summary artifacts</div>
         </div>
         <div class="stat">
-          <div class="value" id="stat-records">0</div>
-          <div class="label">records</div>
+          <div class="value" id="stat-lines">0</div>
+          <div class="label">JSONL lines</div>
         </div>
         <div class="stat">
-          <div class="value" id="stat-bytes">0</div>
-          <div class="label">bytes</div>
+          <div class="value" id="stat-actions">0</div>
+          <div class="label">distinct actions</div>
         </div>
       </div>
 
@@ -396,16 +450,33 @@
       const SUMMARY_ARTIFACT_SUFFIX = '_testsummary.jsonl';
       const JOBS_PAGE_SIZE = 2000;
       const JOB_CONCURRENCY = 12;
+      // Cap the number of distinct-file examples kept per unused action.
+      const MAX_EXAMPLES_PER_ACTION = 2;
 
-      // Reference: the TestSummaryFormatter's own rules, mirrored from
-      // mozlog/formatters/testsummary.py, so the report can label findings as
-      // "expected to survive" vs "should be filtered".
-      const FORMATTER = {
-        DROPPED_ACTIONS: ['process_output', 'mozleak_total'],
-        LOG_KEPT_LEVEL: 'ERROR',
-        ALWAYS_STRIP: ['thread', 'pid', 'source', 'extra', 'tests'],
-        STRIP_PREFIX: 'stackwalk_',
+      // ---------------------------------------------------------------------
+      // What the Summary tab actually reads. This is the browser-side mirror
+      // of `USED` in scripts/audit-testsummary-fields.mjs, which in turn
+      // mirrors `buildTestSummary` / `buildFailureSuggestions` in
+      // ui/helpers/testSummary.js. If that parser changes, update both.
+      // ---------------------------------------------------------------------
+      const USED = {
+        group_start: ['action', 'name'],
+        group_end: ['action'],
+        test_start: ['action', 'test', 'group', 'time'],
+        test_status: ['action', 'test', 'expected', 'subtest', 'message'],
+        test_end: [
+          'action',
+          'test',
+          'group',
+          'status',
+          'time',
+          'expected',
+          'message',
+        ],
+        crash: ['action', 'test', 'group', 'signature'],
       };
+      const USED_ACTIONS = new Set(Object.keys(USED));
+      const GLOBALLY_USED_FIELDS = new Set(['action']);
 
       class HttpError extends Error {
         constructor(status, url) {
@@ -420,6 +491,13 @@
         return res.json();
       }
 
+      async function getTcRootUrl(serverUrl, project) {
+        const repos = await fetchJson(`${serverUrl}/api/repository/`);
+        const repository = repos.find((r) => r.name === project);
+        if (!repository) throw new Error(`Unknown project: ${project}`);
+        return repository.tc_root_url;
+      }
+
       async function resolvePushId(serverUrl, project, revision) {
         const data = await fetchJson(
           `${serverUrl}/api/project/${encodeURIComponent(project)}/push/?revision=${encodeURIComponent(revision)}`,
@@ -429,31 +507,46 @@
         return data.results[0].id;
       }
 
-      async function getCompletedJobs(serverUrl, project, pushId) {
+      // The jobs endpoint returns a columnar form: `results` is an array of
+      // arrays, decoded against `job_property_names`.
+      async function getJobs(serverUrl, project, pushId) {
         const jobs = [];
         let offset = 0;
-        while (true) {
+        for (;;) {
           const data = await fetchJson(
-            `${serverUrl}/api/project/${encodeURIComponent(project)}/jobs/?push_id=${pushId}&state=completed&count=${JOBS_PAGE_SIZE}&offset=${offset}`,
+            `${serverUrl}/api/project/${encodeURIComponent(project)}/jobs/?push_id=${pushId}&count=${JOBS_PAGE_SIZE}&offset=${offset}`,
           );
-          jobs.push(...data.results);
-          if (data.results.length < JOBS_PAGE_SIZE) break;
+          const names = data.job_property_names;
+          const page = (data.results || []).map((row) =>
+            Array.isArray(row)
+              ? Object.fromEntries(names.map((n, idx) => [n, row[idx]]))
+              : row,
+          );
+          jobs.push(...page);
+          if (page.length < JOBS_PAGE_SIZE) break;
           offset += JOBS_PAGE_SIZE;
         }
         return jobs;
       }
 
-      async function findTestsummaryArtifactUrl(tcRootUrl, taskId, runId) {
-        const listUrl = `${tcRootUrl}/api/queue/v1/task/${taskId}/runs/${runId}/artifacts`;
-        const data = await fetchJson(listUrl);
-        const artifact = (data.artifacts || []).find((a) =>
-          a.name.endsWith(SUMMARY_ARTIFACT_SUFFIX),
-        );
-        return artifact ? `${listUrl}/${artifact.name}` : null;
+      async function listArtifacts(tcRootUrl, taskId, run) {
+        const url = `${tcRootUrl}/api/queue/v1/task/${taskId}/runs/${run}/artifacts`;
+        try {
+          const data = await fetchJson(url);
+          return data.artifacts || [];
+        } catch {
+          // Expired tasks / missing runs are expected; skip silently.
+          return [];
+        }
       }
 
-      // Runs `worker` over `items` with at most `limit` in flight at once, so a
-      // large push doesn't fire thousands of simultaneous requests.
+      async function fetchText(url) {
+        const res = await fetch(url);
+        if (!res.ok) throw new HttpError(res.status, url);
+        return res.text();
+      }
+
+      // Runs `worker` over `items` with at most `limit` in flight at once.
       async function mapWithConcurrency(items, limit, worker) {
         let nextIndex = 0;
         async function runNext() {
@@ -467,123 +560,133 @@
         );
       }
 
-      // --- inventory accumulation (mirrors scripts/testsummary-inventory.mjs) ---
+      // --- inventory accumulation (mirrors scripts/audit-testsummary-fields.mjs) ---
 
-      function newInventory() {
+      function makeInventory() {
         return {
-          actionCounts: {},
-          fieldsByAction: {},
-          logLevels: {},
-          testStatus: { expected: 0, unexpected: 0, noExpected: 0 },
-          leakage: {
-            strippedFields: {},
-            droppedActions: {},
-            nonErrorLogs: {},
-          },
-          totalRecords: 0,
-          totalBytes: 0,
-          parseErrors: 0,
-          filesScanned: 0,
+          totalLines: 0,
+          totalArtifacts: 0,
+          // action -> { lines, fields: Map(field -> count), examples: Map(fileId -> record) }
+          actions: new Map(),
         };
       }
 
-      function bump(obj, key, by = 1) {
-        obj[key] = (obj[key] ?? 0) + by;
+      function recordLine(inv, obj, fileId) {
+        inv.totalLines += 1;
+        const action = obj.action ?? '(no action field)';
+        if (!inv.actions.has(action)) {
+          inv.actions.set(action, {
+            lines: 0,
+            fields: new Map(),
+            examples: new Map(),
+          });
+        }
+        const bucket = inv.actions.get(action);
+        bucket.lines += 1;
+        for (const field of Object.keys(obj)) {
+          bucket.fields.set(field, (bucket.fields.get(field) || 0) + 1);
+        }
+        // Keep up to MAX_EXAMPLES_PER_ACTION examples, preferring one per
+        // distinct source file. Only used for actions that end up "unused",
+        // but cheap enough to collect for every action as we stream through.
+        if (
+          bucket.examples.size < MAX_EXAMPLES_PER_ACTION &&
+          !bucket.examples.has(fileId)
+        ) {
+          bucket.examples.set(fileId, obj);
+        }
       }
 
-      function recordOne(inv, rec) {
-        const action = rec.action ?? '<no-action>';
-        bump(inv.actionCounts, action);
-
-        inv.fieldsByAction[action] ??= {};
-        for (const field of Object.keys(rec)) {
-          bump(inv.fieldsByAction[action], field);
-          if (
-            FORMATTER.ALWAYS_STRIP.includes(field) ||
-            field.startsWith(FORMATTER.STRIP_PREFIX)
-          ) {
-            bump(inv.leakage.strippedFields, field);
-          }
-        }
-
-        if (action === 'log') {
-          const level = rec.level ?? '<no-level>';
-          bump(inv.logLevels, level);
-          if (level !== FORMATTER.LOG_KEPT_LEVEL)
-            bump(inv.leakage.nonErrorLogs, level);
-        }
-
-        if (action === 'test_status') {
-          if (rec.expected === undefined) inv.testStatus.noExpected++;
-          else if (rec.status === rec.expected) inv.testStatus.expected++;
-          else inv.testStatus.unexpected++;
-        }
-
-        if (FORMATTER.DROPPED_ACTIONS.includes(action))
-          bump(inv.leakage.droppedActions, action);
-      }
-
-      // Fetch one artifact and fold its records into the shared inventory.
-      // JS is single-threaded, so accumulation from parallel workers is safe.
-      function ingestText(inv, text) {
-        inv.filesScanned++;
-        inv.totalBytes += text.length;
+      function ingestArtifact(inv, text, fileId) {
+        inv.totalArtifacts += 1;
         for (const rawLine of text.split('\n')) {
           const line = rawLine.trim();
           if (!line) continue;
-          let rec;
+          let obj;
           try {
-            rec = JSON.parse(line);
+            obj = JSON.parse(line);
           } catch {
-            inv.parseErrors++;
             continue;
           }
-          inv.totalRecords++;
-          recordOne(inv, rec);
+          if (obj && typeof obj === 'object') recordLine(inv, obj, fileId);
         }
+      }
+
+      function buildReport(inv) {
+        const unusedActions = [];
+        const unusedFields = [];
+        const usedSummary = [];
+
+        for (const [action, bucket] of [...inv.actions.entries()].sort()) {
+          const fieldEntries = [...bucket.fields.entries()].sort(
+            (a, b) => b[1] - a[1],
+          );
+          if (!USED_ACTIONS.has(action)) {
+            unusedActions.push({
+              action,
+              lines: bucket.lines,
+              fields: fieldEntries.map(([f]) => f),
+              examples: [...bucket.examples.entries()].map(
+                ([file, record]) => ({ file, record }),
+              ),
+            });
+            continue;
+          }
+          const usedFields = new Set([...USED[action], ...GLOBALLY_USED_FIELDS]);
+          const deadHere = fieldEntries.filter(([field]) => !usedFields.has(field));
+          const liveHere = fieldEntries.filter(([field]) => usedFields.has(field));
+          usedSummary.push({
+            action,
+            lines: bucket.lines,
+            usedFields: liveHere.map(([f]) => f),
+          });
+          for (const [field, count] of deadHere) {
+            unusedFields.push({ action, field, count, lines: bucket.lines });
+          }
+        }
+        return { unusedActions, unusedFields, usedSummary };
       }
 
       async function run(opts, inv, log, onProgress) {
         const serverUrl = HOSTS[opts.host];
 
-        const repos = await fetchJson(`${serverUrl}/api/repository/`);
-        const repository = repos.find((r) => r.name === opts.project);
-        if (!repository) throw new Error(`Unknown project: ${opts.project}`);
-        const tcRootUrl = repository.tc_root_url;
+        const tcRootUrl = await getTcRootUrl(serverUrl, opts.project);
 
         const pushId =
           opts.pushId ||
           (await resolvePushId(serverUrl, opts.project, opts.revision));
 
-        const jobs = await getCompletedJobs(serverUrl, opts.project, pushId);
+        let jobs = await getJobs(serverUrl, opts.project, pushId);
+        const totalJobs = jobs.length;
+        if (opts.maxJobs) jobs = jobs.slice(0, opts.maxJobs);
         log.info(
-          `Scanning ${jobs.length} completed job(s) for push ${pushId} on ${opts.project}`,
+          `${totalJobs} job(s) on push ${pushId} (inspecting ${jobs.length}).`,
         );
 
-        let artifacts = 0;
+        let jobsWithArtifact = 0;
         let completed = 0;
         await mapWithConcurrency(jobs, JOB_CONCURRENCY, async (job) => {
           try {
-            if (job.task_id && job.retry_id != null) {
-              const artifactUrl = await findTestsummaryArtifactUrl(
-                tcRootUrl,
-                job.task_id,
-                job.retry_id,
-              );
-              if (artifactUrl) {
-                const res = await fetch(artifactUrl);
-                if (res.ok) {
-                  ingestText(inv, await res.text());
-                  artifacts++;
-                } else {
-                  log.debug(
-                    `${job.job_type_name} (job ${job.id}): HTTP ${res.status} for artifact`,
-                  );
-                }
+            const taskId = job.task_id;
+            const run = job.retry_id ?? 0;
+            if (!taskId) return;
+            const artifacts = await listArtifacts(tcRootUrl, taskId, run);
+            const summaries = artifacts.filter((a) =>
+              a.name.endsWith(SUMMARY_ARTIFACT_SUFFIX),
+            );
+            if (!summaries.length) return;
+            jobsWithArtifact += 1;
+            for (const artifact of summaries) {
+              const url = `${tcRootUrl}/api/queue/v1/task/${taskId}/runs/${run}/artifacts/${artifact.name}`;
+              const fileId = `${job.job_type_name || 'job'} (task ${taskId}/${run})`;
+              try {
+                ingestArtifact(inv, await fetchText(url), fileId);
+              } catch (e) {
+                log.debug(`${fileId}: failed to fetch ${artifact.name}: ${e.message}`);
               }
             }
           } catch (e) {
-            log.debug(`${job.job_type_name} (job ${job.id}): ${e.message}`);
+            log.debug(`job ${job.id}: ${e.message}`);
           } finally {
             completed++;
             onProgress(completed, jobs.length);
@@ -591,18 +694,14 @@
         });
 
         log.info(
-          `Done: ${artifacts} artifact(s), ${inv.totalRecords} record(s)`,
+          `Done: ${jobsWithArtifact} job(s) with an artifact, ${inv.totalArtifacts} artifact(s), ${inv.totalLines} line(s).`,
         );
-        return { jobCount: jobs.length, artifacts, pushId };
+        return { totalJobs, scannedJobs: jobs.length, jobsWithArtifact, pushId };
       }
 
       // --- report rendering ---
 
       const fmt = (n) => Number(n).toLocaleString('en-US');
-
-      function sortedEntries(obj) {
-        return Object.entries(obj).sort((a, b) => b[1] - a[1]);
-      }
 
       function el(tag, attrs = {}, children = []) {
         const node = document.createElement(tag);
@@ -615,140 +714,174 @@
         return node;
       }
 
-      function countTable(entries, headers, noteFor) {
+      function block(title, help) {
+        const children = [el('h2', { text: title })];
+        if (help) children.push(el('p', { class: 'help', text: help }));
+        return el('section', { class: 'report-block' }, children);
+      }
+
+      function renderUsedTable(usedSummary) {
         const table = el('table');
-        const thead = el('tr', {}, [
-          el('th', { text: headers[0] }),
-          el('th', { class: 'num', text: headers[1] }),
-        ]);
-        table.appendChild(el('thead', {}, [thead]));
+        table.appendChild(
+          el('thead', {}, [
+            el('tr', {}, [
+              el('th', { text: 'action' }),
+              el('th', { class: 'num', text: 'lines' }),
+              el('th', { text: 'used fields' }),
+            ]),
+          ]),
+        );
         const tbody = el('tbody');
-        for (const [key, count] of entries) {
-          const note = noteFor ? noteFor(key) : '';
-          const row = el('tr', {}, [
-            el('td', { text: key }),
-            el('td', { class: 'num', text: fmt(count) }),
-          ]);
-          if (note) row.appendChild(el('td', { class: 'note', text: note }));
-          tbody.appendChild(row);
+        for (const a of usedSummary) {
+          tbody.appendChild(
+            el('tr', {}, [
+              el('td', { class: 'mono', text: a.action }),
+              el('td', { class: 'num', text: fmt(a.lines) }),
+              el('td', { text: a.usedFields.join(', ') }),
+            ]),
+          );
         }
         table.appendChild(tbody);
         return table;
       }
 
-      function block(title) {
-        return el('section', { class: 'report-block' }, [
-          el('h2', { text: title }),
-        ]);
+      function renderExample(example) {
+        const wrap = el('div', { class: 'example' });
+        wrap.appendChild(
+          el('p', { class: 'example-source', text: `from: ${example.file}` }),
+        );
+        const pre = el('pre');
+        pre.textContent = JSON.stringify(example.record, null, 2);
+        wrap.appendChild(pre);
+        return wrap;
       }
 
-      function renderReport(inv) {
-        const report = document.getElementById('report');
-        report.textContent = '';
+      function renderUnusedActions(unusedActions) {
+        const container = el('div');
+        if (!unusedActions.length) {
+          container.appendChild(
+            el('p', { class: 'ok', text: 'none — every action present is used' }),
+          );
+          return container;
+        }
+        for (const a of unusedActions) {
+          const group = el('div', { class: 'action-group' });
+          group.appendChild(
+            el('h3', { text: `${a.action} — ${fmt(a.lines)} lines` }),
+          );
+          group.appendChild(
+            el('p', {
+              class: 'example-note',
+              text: `fields: ${a.fields.join(', ')}`,
+            }),
+          );
+          const examplesWrap = el('div', { class: 'examples' });
+          if (!a.examples.length) {
+            examplesWrap.appendChild(
+              el('p', { class: 'example-note', text: '(no example captured)' }),
+            );
+          } else {
+            for (const example of a.examples) {
+              examplesWrap.appendChild(renderExample(example));
+            }
+            if (a.examples.length < MAX_EXAMPLES_PER_ACTION) {
+              examplesWrap.appendChild(
+                el('p', {
+                  class: 'example-note',
+                  text: `only ${a.examples.length} distinct file(s) had this action`,
+                }),
+              );
+            }
+          }
+          group.appendChild(examplesWrap);
+          container.appendChild(group);
+        }
+        return container;
+      }
 
-        // Actions
-        const actionsBlock = block('Actions that survive (by record count)');
-        actionsBlock.appendChild(
-          countTable(sortedEntries(inv.actionCounts), ['action', 'records'], (a) =>
-            FORMATTER.DROPPED_ACTIONS.includes(a)
-              ? 'formatter is supposed to DROP this action'
-              : '',
-          ),
-        );
-        report.appendChild(actionsBlock);
-
-        // Per-action fields
-        const fieldsBlock = block('Fields present per surviving action');
-        for (const [action] of sortedEntries(inv.actionCounts)) {
+      function renderUnusedFields(unusedFields) {
+        const container = el('div');
+        if (!unusedFields.length) {
+          container.appendChild(
+            el('p', {
+              class: 'ok',
+              text: 'none — every field on every used action is consumed',
+            }),
+          );
+          return container;
+        }
+        const byAction = new Map();
+        for (const f of unusedFields) {
+          if (!byAction.has(f.action)) byAction.set(f.action, []);
+          byAction.get(f.action).push(f);
+        }
+        for (const [action, fields] of byAction) {
           const group = el('div', { class: 'action-group' }, [
             el('h3', { text: action }),
           ]);
-          group.appendChild(
-            countTable(
-              sortedEntries(inv.fieldsByAction[action]),
-              ['field', 'records'],
-              (f) =>
-                FORMATTER.ALWAYS_STRIP.includes(f) ||
-                f.startsWith(FORMATTER.STRIP_PREFIX)
-                  ? 'formatter is supposed to STRIP this field'
-                  : '',
-            ),
+          const table = el('table');
+          table.appendChild(
+            el('thead', {}, [
+              el('tr', {}, [
+                el('th', { text: 'field' }),
+                el('th', { class: 'num', text: 'present on' }),
+                el('th', { class: 'num', text: '%' }),
+              ]),
+            ]),
           );
-          fieldsBlock.appendChild(group);
+          const tbody = el('tbody');
+          for (const f of fields) {
+            const pct = ((f.count / f.lines) * 100).toFixed(0);
+            tbody.appendChild(
+              el('tr', {}, [
+                el('td', { class: 'mono', text: f.field }),
+                el('td', { class: 'num', text: `${fmt(f.count)}/${fmt(f.lines)}` }),
+                el('td', { class: 'num', text: `${pct}%` }),
+              ]),
+            );
+          }
+          table.appendChild(tbody);
+          group.appendChild(table);
+          container.appendChild(group);
         }
-        report.appendChild(fieldsBlock);
+        return container;
+      }
 
-        // log levels
-        const logBlock = block('log level distribution (action === "log")');
-        if (Object.keys(inv.logLevels).length === 0) {
-          logBlock.appendChild(el('p', { text: '(no log records survived)' }));
-        } else {
-          logBlock.appendChild(
-            countTable(sortedEntries(inv.logLevels), ['level', 'records'], (l) =>
-              l !== FORMATTER.LOG_KEPT_LEVEL
-                ? 'only ERROR is supposed to survive'
-                : '',
-            ),
-          );
-        }
-        report.appendChild(logBlock);
+      function renderReport(inv, report) {
+        const reportEl = document.getElementById('report');
+        reportEl.textContent = '';
 
-        // test_status
-        const tsBlock = block('test_status: expected vs unexpected');
-        tsBlock.appendChild(
-          countTable(
-            [
-              ['unexpected (status != expected)', inv.testStatus.unexpected],
-              ['expected (status == expected)', inv.testStatus.expected],
-              ['no "expected" field', inv.testStatus.noExpected],
-            ],
-            ['kind', 'records'],
-            (k) =>
-              k.startsWith('expected (')
-                ? 'docstring says drop these; current code keeps them'
-                : '',
-          ),
+        const usedBlock = block('Actions CONSUMED by SummaryTab (kept)');
+        usedBlock.appendChild(renderUsedTable(report.usedSummary));
+        reportEl.appendChild(usedBlock);
+
+        const unusedActionsBlock = block(
+          'Actions NOT consumed by SummaryTab (removable)',
+          'Up to 2 example records per action, pulled from 2 different files when possible.',
         );
-        report.appendChild(tsBlock);
-
-        // leakage
-        const leakBlock = block(
-          'Leakage check (present but the formatter rules say to remove)',
+        unusedActionsBlock.appendChild(
+          renderUnusedActions(report.unusedActions),
         );
-        const leakRows = [
-          ...sortedEntries(inv.leakage.droppedActions).map(([k, v]) => [
-            `dropped action present: ${k}`,
-            v,
-          ]),
-          ...sortedEntries(inv.leakage.strippedFields).map(([k, v]) => [
-            `stripped field present: ${k}`,
-            v,
-          ]),
-          ...sortedEntries(inv.leakage.nonErrorLogs).map(([k, v]) => [
-            `non-ERROR log present: ${k}`,
-            v,
-          ]),
-        ];
-        if (leakRows.length === 0) {
-          leakBlock.appendChild(
-            el('p', { class: 'ok', text: 'none — output matches the formatter rules' }),
-          );
-        } else {
-          leakBlock.appendChild(countTable(leakRows, ['finding', 'records']));
-        }
-        report.appendChild(leakBlock);
+        reportEl.appendChild(unusedActionsBlock);
 
-        report.style.display = 'block';
+        const unusedFieldsBlock = block(
+          'Fields present on USED actions but never read (removable)',
+        );
+        unusedFieldsBlock.appendChild(renderUnusedFields(report.unusedFields));
+        reportEl.appendChild(unusedFieldsBlock);
+
+        reportEl.style.display = 'block';
       }
 
       // --- UI wiring ---
 
-      const form = document.getElementById('inventory-form');
+      const form = document.getElementById('audit-form');
       const hostSelect = document.getElementById('host');
       const localWarning = document.getElementById('local-warning');
       const projectSelect = document.getElementById('project');
       const revisionInput = document.getElementById('revision');
       const pushIdInput = document.getElementById('push-id');
+      const maxJobsInput = document.getElementById('max-jobs');
       const runButton = document.getElementById('run-button');
       const progressEl = document.getElementById('progress');
       const errorBanner = document.getElementById('error-banner');
@@ -780,6 +913,7 @@
         } else if (pushIdInput.value) {
           params.set('push-id', pushIdInput.value);
         }
+        if (maxJobsInput.value) params.set('max-jobs', maxJobsInput.value);
         const qs = params.toString();
         history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
       }
@@ -800,6 +934,8 @@
           setPushMode('revision');
           revisionInput.value = revision;
         }
+        const maxJobs = params.get('max-jobs');
+        if (maxJobs) maxJobsInput.value = maxJobs;
       }
 
       applyUrlParams();
@@ -811,6 +947,7 @@
       projectSelect.addEventListener('change', syncUrlFromForm);
       revisionInput.addEventListener('input', syncUrlFromForm);
       pushIdInput.addEventListener('input', syncUrlFromForm);
+      maxJobsInput.addEventListener('input', syncUrlFromForm);
       for (const radio of form.querySelectorAll('input[name="push-mode"]')) {
         radio.addEventListener('change', () => {
           setPushMode(pushModeRadio());
@@ -840,6 +977,7 @@
           project: projectSelect.value.trim(),
           revision: byRevision ? revisionInput.value.trim() : '',
           pushId: byRevision ? null : Number(pushIdInput.value),
+          maxJobs: maxJobsInput.value ? Number(maxJobsInput.value) : 0,
         };
         if (!opts.project) return;
         if (byRevision && !opts.revision) return;
@@ -854,23 +992,25 @@
         progressEl.hidden = false;
         progressEl.textContent = 'Starting…';
 
-        const inv = newInventory();
+        const inv = makeInventory();
         try {
           const meta = await run(opts, inv, log, (done, total) => {
             progressEl.textContent = `Processing job ${done}/${total}…`;
           });
-          document.getElementById('stat-jobs').textContent = fmt(meta.jobCount);
+          document.getElementById('stat-jobs').textContent = fmt(
+            meta.jobsWithArtifact,
+          );
           document.getElementById('stat-artifacts').textContent = fmt(
-            meta.artifacts,
+            inv.totalArtifacts,
           );
-          document.getElementById('stat-records').textContent = fmt(
-            inv.totalRecords,
+          document.getElementById('stat-lines').textContent = fmt(
+            inv.totalLines,
           );
-          document.getElementById('stat-bytes').textContent = fmt(
-            inv.totalBytes,
+          document.getElementById('stat-actions').textContent = fmt(
+            inv.actions.size,
           );
           summaryBanner.style.display = 'flex';
-          renderReport(inv);
+          renderReport(inv, buildReport(inv));
         } catch (e) {
           errorBanner.textContent = e.message;
           errorBanner.style.display = 'block';
