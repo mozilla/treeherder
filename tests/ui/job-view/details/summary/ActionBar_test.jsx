@@ -4,7 +4,7 @@ import ActionBar from '../../../../../ui/job-view/details/summary/ActionBar';
 import {
   usePushesStore,
   initialState as pushesInitialState,
-} from '../../../../../ui/job-view/stores/pushesStore';
+} from '../../../../../ui/shared/stores/pushesStore';
 import { thEvents } from '../../../../../ui/helpers/constants';
 import JobModel from '../../../../../ui/models/job';
 

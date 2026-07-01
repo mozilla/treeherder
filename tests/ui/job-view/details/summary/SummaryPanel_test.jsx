@@ -5,7 +5,7 @@ import SummaryPanel from '../../../../../ui/job-view/details/summary/SummaryPane
 import {
   usePushesStore,
   initialState as pushesInitialState,
-} from '../../../../../ui/job-view/stores/pushesStore';
+} from '../../../../../ui/shared/stores/pushesStore';
 
 const selectedJobFull = {
   id: 1,
