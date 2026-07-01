@@ -169,6 +169,8 @@ class Secretary:
             last_log = logs[-1] if logs else None
             if last_log:
                 log_timestamp = datetime.fromisoformat(last_log["timestamp"])
+                if log_timestamp.tzinfo is None:
+                    log_timestamp = log_timestamp.replace(tzinfo=UTC)
                 if log_timestamp < datetime.now(UTC) - timedelta(hours=72):
                     record.status = BackfillRecord.FAILED
                     new_note = "Backfill exceeded 72-hour limit, marking as FAILED."
