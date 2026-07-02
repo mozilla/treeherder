@@ -1,0 +1,2083 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Summary Tab Preview — Treeherder</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    />
+    <style>
+      /* Base page look, ported verbatim from ui/css/treeherder-base.css and
+       * ui/css/treeherder.css so the page matches Treeherder's own chrome. */
+      body {
+        line-height: inherit;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      }
+
+      html,
+      body {
+        font-size: 14px;
+        line-height: 1.42;
+      }
+
+      main {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 2rem 1rem 4rem;
+      }
+
+      p.intro {
+        color: #6c757d;
+        max-width: 70ch;
+      }
+
+      #local-warning {
+        color: #b45f06;
+      }
+
+      /* --------------------------------------------------------------------
+       * Verbatim from ui/job-view/details/tabs/summaryTab (rendered here as
+       * plain HTML/CSS instead of React). Scoped under .th-details-panel to
+       * match #details-panel in ui/css/treeherder-details-panel.css.
+       * ------------------------------------------------------------------ */
+      .th-details-panel {
+        font-size: 12px;
+      }
+
+      .th-details-panel a:not(.text-darker-secondary) {
+        color: #337ab7;
+      }
+
+      .th-details-panel a:visited:not(.text-darker-secondary) {
+        color: purple;
+      }
+
+      /* ui/css/failure-summary.css */
+      .failure-action-btn {
+        --bs-btn-font-size: 8px;
+        --bs-btn-padding-y: 0.25rem;
+        --bs-btn-padding-x: 0.5rem;
+        --bs-btn-line-height: 1;
+      }
+
+      /* Icons that mirror the real Summary tab's buttons but have no action
+       * on this read-only page (filing a bug/internal issue needs an
+       * authenticated Treeherder session). Shown for visual fidelity only. */
+      .failure-action-icon-disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+
+      /* The "file a bug" icon opens the BugFiler-style modal. */
+      .pointable {
+        cursor: pointer;
+      }
+
+      #bugFilerBody .form-check-label {
+        cursor: pointer;
+      }
+
+      .failure-summary-bugs {
+        font-size: 11px;
+      }
+
+      .failure-summary-bugs a {
+        color: #337ab7;
+      }
+
+      .failure-summary-bugs a:visited {
+        color: purple;
+      }
+
+      .show-more-suggestions {
+        --bs-btn-font-size: 11px;
+        --bs-btn-padding-y: 0.25rem;
+        --bs-btn-padding-x: 0.5rem;
+      }
+
+      .failure-summary-line-empty {
+        padding: 2px 4px 0;
+        font-size: 12px;
+        background: #ffffff;
+      }
+
+      .failure-summary-bugs-container {
+        margin: 0 11px;
+        padding: 10px 15px;
+        border-left: 2px solid #0004;
+      }
+
+      /* ui/css/treeherder-custom-styles.css */
+      .font-size-11 {
+        font-size: 11px;
+      }
+
+      .strike-through {
+        text-decoration: line-through;
+      }
+
+      .text-darker-secondary {
+        color: #53595f;
+      }
+
+      /* Job section chrome — not part of the real Summary tab (which only
+       * ever shows one job at a time), just a wrapper so many jobs can be
+       * told apart on one page. */
+      .job-block {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #dee2e6;
+      }
+
+      .job-block:first-of-type {
+        margin-top: 1.5rem;
+        padding-top: 0;
+        border-top: none;
+      }
+
+      .job-block .job-meta {
+        color: #6c757d;
+        font-size: 0.8rem;
+      }
+
+      #log-panel {
+        display: none;
+        margin-top: 1.5rem;
+        background: #212529;
+        color: #e9ecef;
+        border-radius: 0.375rem;
+        padding: 1rem;
+        max-height: 320px;
+        overflow-y: auto;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.85rem;
+        white-space: pre-wrap;
+      }
+
+      .log-line.debug {
+        color: #adb5bd;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1 class="h3">Summary Tab Preview</h1>
+      <p class="mb-3">
+        <a href="../testsummary-inventory/">← TestSummary Inventory</a> ·
+        <a href="../testsummary-audit/">TestSummary Field Audit</a>
+      </p>
+      <p class="intro">
+        Renders the job-view Summary tab
+        (<code>ui/job-view/details/tabs/summaryTab/SummaryTab.jsx</code>) for
+        every job in a push that produced a
+        <code>*_testsummary.jsonl</code> artifact, all on one page — useful for
+        scanning a whole push's failures without clicking through jobs one at a
+        time. Failures are matched against Bugzilla bug suggestions the same way
+        the real Summary tab does, but this page is read-only: there are no
+        bug-filing buttons. Styling reuses Treeherder's own classes/colors so
+        each job section looks like the real tab.
+      </p>
+
+      <form id="preview-form" class="card card-body">
+        <div class="mb-3">
+          <label for="host" class="form-label">Treeherder instance</label>
+          <select id="host" name="host" class="form-select">
+            <option value="production" selected>
+              Production (treeherder.mozilla.org)
+            </option>
+            <option value="stage">Staging (treeherder.allizom.org)</option>
+            <option value="localhost">Local (localhost:8000)</option>
+          </select>
+          <p class="form-text" id="local-warning" hidden>
+            This page is served over HTTPS, so a browser will block requests to
+            <code>http://localhost:8000</code> (mixed content) unless this page
+            is itself being opened from
+            <code>localhost</code>/<code>file://</code>.
+          </p>
+        </div>
+
+        <div class="mb-3">
+          <label for="project" class="form-label"
+            >Project (repository name)</label
+          >
+          <select id="project" name="project" class="form-select" required>
+            <option value="try">try</option>
+            <option value="mozilla-central">mozilla-central</option>
+            <option value="autoland" selected>autoland</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label id="push-mode-label" class="form-label"
+            >Identify the push by</label
+          >
+          <div
+            class="d-flex gap-4 mb-2"
+            role="radiogroup"
+            aria-labelledby="push-mode-label"
+          >
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="push-mode"
+                id="push-mode-revision"
+                value="revision"
+                checked
+              />
+              <label class="form-check-label" for="push-mode-revision"
+                >Revision</label
+              >
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="push-mode"
+                id="push-mode-push-id"
+                value="push-id"
+              />
+              <label class="form-check-label" for="push-mode-push-id"
+                >Push ID</label
+              >
+            </div>
+          </div>
+          <input
+            type="text"
+            id="revision"
+            name="revision"
+            class="form-control mb-2"
+            placeholder="e.g. 4f6e1c2..."
+          />
+          <input
+            type="number"
+            id="push-id"
+            name="push-id"
+            class="form-control"
+            placeholder="e.g. 1953427"
+            min="1"
+            hidden
+          />
+        </div>
+
+        <div>
+          <button type="submit" id="run-button" class="btn btn-primary">
+            Load summary
+          </button>
+          <span class="text-muted ms-2" id="progress" hidden></span>
+        </div>
+      </form>
+
+      <div
+        id="error-banner"
+        class="alert alert-danger mt-3"
+        role="alert"
+        hidden
+      ></div>
+
+      <div id="summary-banner" class="row g-3 mt-1" hidden>
+        <div class="col">
+          <div class="card card-body text-center">
+            <div class="fs-4 fw-bold" id="stat-jobs">0</div>
+            <div class="text-muted small">jobs w/ summary</div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card card-body text-center">
+            <div class="fs-4 fw-bold" id="stat-tests">0</div>
+            <div class="text-muted small">tests total</div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card card-body text-center">
+            <div class="fs-4 fw-bold" id="stat-failed">0</div>
+            <div class="text-muted small">failures</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="report" aria-live="polite"></div>
+
+      <div id="log-panel"></div>
+    </main>
+
+    <!-- Mirrors ui/shared/BugFiler.jsx. Filing the bug for real requires a
+     Treeherder backend session (it holds the Bugzilla API key), which this
+     static page doesn't have, so "Submit Bug" opens a prefilled
+     bugzilla.mozilla.org/enter_bug.cgi in a new tab instead. -->
+    <div
+      class="modal fade"
+      id="bugFilerModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Intermittent Bug Filer</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body" id="bugFilerBody"></div>
+          <div class="modal-footer">
+            <p class="text-muted small me-auto mb-0">
+              Opens bugzilla.mozilla.org with these fields prefilled — this
+              page has no Treeherder session to file directly.
+            </p>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              id="bugFilerSubmit"
+            >
+              Submit Bug
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mirrors ui/shared/InternalIssueFiler.jsx. Submitting for real POSTs
+     to /api/internal_issue/, which requires an authenticated Treeherder
+     session (CSRF cookie) that a cross-origin static page can't obtain, so
+     submission attempts it anyway (it'll succeed if you're logged into
+     Treeherder in this browser and the request isn't blocked by CORS) and
+     falls back to a copy-summary prompt if it fails. -->
+    <div
+      class="modal fade"
+      id="internalIssueModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Intermittent Internal Issue Filer</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body" id="internalIssueBody"></div>
+          <div class="modal-footer">
+            <p class="text-muted small me-auto mb-0" id="internalIssueNote">
+              Submitting needs a logged-in Treeherder session — this page
+              will try, and offer to copy the summary if that fails.
+            </p>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              id="internalIssueSubmit"
+            >
+              Submit Internal Issue
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+      const HOSTS = {
+        localhost: 'http://localhost:8000',
+        stage: 'https://treeherder.allizom.org',
+        production: 'https://treeherder.mozilla.org',
+      };
+      const SUMMARY_ARTIFACT_SUFFIX = '_testsummary.jsonl';
+      const JOBS_PAGE_SIZE = 2000;
+      const JOB_CONCURRENCY = 50;
+      const BZ_BASE_URL = 'https://bugzilla.mozilla.org/';
+      // Mirrors ui/helpers/constants.js#thBugSuggestionLimit.
+      const BUG_SUGGESTION_LIMIT = 20;
+      // Mirrors ui/helpers/constants.js#requiredInternalOccurrences.
+      const REQUIRED_INTERNAL_OCCURRENCES = 3;
+
+      // ---------------------------------------------------------------------
+      // HTTP + Treeherder/Taskcluster helpers (shared logic with
+      // misc/testsummary-audit-ui/index.html).
+      // ---------------------------------------------------------------------
+
+      class HttpError extends Error {
+        constructor(status, url) {
+          super(`HTTP ${status} for ${url}`);
+          this.status = status;
+        }
+      }
+
+      async function fetchJson(url) {
+        const res = await fetch(url);
+        if (!res.ok) throw new HttpError(res.status, url);
+        return res.json();
+      }
+
+      async function fetchText(url) {
+        const res = await fetch(url);
+        if (!res.ok) throw new HttpError(res.status, url);
+        return res.text();
+      }
+
+      async function getTcRootUrl(serverUrl, project) {
+        const repos = await fetchJson(`${serverUrl}/api/repository/`);
+        const repository = repos.find((r) => r.name === project);
+        if (!repository) throw new Error(`Unknown project: ${project}`);
+        return repository.tc_root_url;
+      }
+
+      async function resolvePushId(serverUrl, project, revision) {
+        const data = await fetchJson(
+          `${serverUrl}/api/project/${encodeURIComponent(project)}/push/?revision=${encodeURIComponent(revision)}`,
+        );
+        if (!data.results.length)
+          throw new Error(`No push with revision ${revision} on ${project}`);
+        return data.results[0].id;
+      }
+
+      // The jobs endpoint returns a columnar form: `results` is an array of
+      // arrays, decoded against `job_property_names`.
+      async function getJobs(serverUrl, project, pushId) {
+        const jobs = [];
+        let offset = 0;
+        for (;;) {
+          const data = await fetchJson(
+            `${serverUrl}/api/project/${encodeURIComponent(project)}/jobs/?push_id=${pushId}&count=${JOBS_PAGE_SIZE}&offset=${offset}`,
+          );
+          const names = data.job_property_names;
+          const page = (data.results || []).map((row) =>
+            Array.isArray(row)
+              ? Object.fromEntries(names.map((n, idx) => [n, row[idx]]))
+              : row,
+          );
+          jobs.push(...page);
+          if (page.length < JOBS_PAGE_SIZE) break;
+          offset += JOBS_PAGE_SIZE;
+        }
+        return jobs;
+      }
+
+      async function listArtifacts(tcRootUrl, taskId, run) {
+        const url = `${tcRootUrl}/api/queue/v1/task/${taskId}/runs/${run}/artifacts`;
+        try {
+          const data = await fetchJson(url);
+          return data.artifacts || [];
+        } catch {
+          // Expired tasks / missing runs are expected; skip silently.
+          return [];
+        }
+      }
+
+      async function getBugSuggestions(serverUrl, project, jobId) {
+        try {
+          const data = await fetchJson(
+            `${serverUrl}/api/project/${encodeURIComponent(project)}/jobs/${jobId}/bug_suggestions/`,
+          );
+          return Array.isArray(data) ? data : [];
+        } catch {
+          return [];
+        }
+      }
+
+      // Runs `worker` over `items` with at most `limit` in flight at once.
+      async function mapWithConcurrency(items, limit, worker) {
+        let nextIndex = 0;
+        async function runNext() {
+          while (nextIndex < items.length) {
+            const index = nextIndex++;
+            await worker(items[index], index);
+          }
+        }
+        await Promise.all(
+          Array.from({ length: Math.min(limit, items.length) }, runNext),
+        );
+      }
+
+      // ---------------------------------------------------------------------
+      // Ported from ui/helpers/testSummary.js. Keep in sync with that file —
+      // this is a browser-side mirror, not an import, since this page has no
+      // build step.
+      // ---------------------------------------------------------------------
+
+      const NO_GROUP = '(no group)';
+      const INCOMPLETE_STATUS = 'CRASH';
+      const TEST_STATUSES = [
+        'PASS',
+        'FAIL',
+        'SKIP',
+        'TIMEOUT',
+        'ERROR',
+        'CRASH',
+      ];
+
+      const safeParseLine = (line) => {
+        try {
+          return JSON.parse(line);
+        } catch {
+          return null;
+        }
+      };
+
+      const parseLines = (content) => {
+        if (typeof content !== 'string') return [];
+        return content
+          .split('\n')
+          .map((line) => line.trim())
+          .filter(Boolean)
+          .map(safeParseLine)
+          .filter(Boolean);
+      };
+
+      const emptyCounts = () => {
+        const counts = { total: 0 };
+        TEST_STATUSES.forEach((status) => {
+          counts[status] = 0;
+        });
+        return counts;
+      };
+
+      const tallyStatus = (counts, status) => {
+        counts.total += 1;
+        if (status in counts) {
+          counts[status] += 1;
+        } else {
+          counts[status] = (counts[status] || 0) + 1;
+        }
+      };
+
+      const durationOf = (start, end) =>
+        Number.isFinite(start) && Number.isFinite(end) ? end - start : null;
+
+      const finiteOrNull = (value) => (Number.isFinite(value) ? value : null);
+
+      function buildTestSummary(content) {
+        const lines = parseLines(content);
+
+        const groups = new Map();
+
+        const recordEntry = (entry) => {
+          const groupName = entry.group || NO_GROUP;
+          if (!groups.has(groupName)) {
+            groups.set(groupName, new Map());
+          }
+          const tests = groups.get(groupName);
+
+          if (!tests.has(entry.test)) {
+            tests.set(entry.test, { name: entry.test, results: [] });
+          }
+          tests.get(entry.test).results.push({
+            status: entry.status,
+            success: entry.success,
+            message: entry.message,
+            start: entry.start,
+            end: entry.end,
+            duration: entry.duration,
+          });
+        };
+
+        const pending = new Map();
+        let currentGroup = null;
+
+        const takePending = (testName) => {
+          const queue = pending.get(testName);
+          return queue && queue.length ? queue.shift() : null;
+        };
+
+        lines.forEach((line) => {
+          if (!line) return;
+
+          switch (line.action) {
+            case 'group_start':
+              currentGroup = line.name || currentGroup;
+              return;
+            case 'group_end':
+              currentGroup = null;
+              return;
+            case 'test_start': {
+              if (!line.test) return;
+              const run = {
+                group: line.group || currentGroup,
+                start: finiteOrNull(line.time),
+                subtestFailures: [],
+              };
+              if (!pending.has(line.test)) pending.set(line.test, []);
+              pending.get(line.test).push(run);
+              return;
+            }
+            case 'test_status': {
+              if (!line.test || !('expected' in line)) return;
+              const queue = pending.get(line.test);
+              const run = queue && queue.length ? queue[0] : null;
+              if (run && line.message) {
+                const label = line.subtest ? `${line.subtest}: ` : '';
+                run.subtestFailures.push(`${label}${line.message}`);
+              }
+              return;
+            }
+            case 'test_end': {
+              if (!line.test) return;
+              const run = takePending(line.test);
+              const start = run ? run.start : null;
+              const end = finiteOrNull(line.time);
+              const success = !('expected' in line);
+              const subtestFailures = run?.subtestFailures || [];
+              const message =
+                (!success && subtestFailures.length
+                  ? subtestFailures.join(' | ')
+                  : line.message) || null;
+              recordEntry({
+                test: line.test,
+                group: line.group || run?.group || currentGroup,
+                status: line.status,
+                success,
+                message,
+                start,
+                end,
+                duration: durationOf(start, end),
+              });
+              return;
+            }
+            case 'crash': {
+              const testName = line.test || line.signature || '(unknown test)';
+              recordEntry({
+                test: testName,
+                group: line.group || currentGroup,
+                status: 'CRASH',
+                success: false,
+                message: line.signature || null,
+                start: null,
+                end: null,
+                duration: null,
+              });
+              return;
+            }
+            default:
+          }
+        });
+
+        pending.forEach((queue, testName) => {
+          queue.forEach((run) => {
+            recordEntry({
+              test: testName,
+              group: run.group,
+              status: INCOMPLETE_STATUS,
+              success: false,
+              message: 'Test started but never finished',
+              start: run.start,
+              end: null,
+              duration: null,
+            });
+          });
+        });
+
+        const overallCounts = emptyCounts();
+        const overallRealFailCounts = {};
+
+        const groupList = Array.from(groups.entries()).map(([name, tests]) => {
+          const groupCounts = emptyCounts();
+
+          const testList = Array.from(tests.values()).map((test) => {
+            const lastResult = test.results[test.results.length - 1];
+            const { status, success } = lastResult;
+            tallyStatus(groupCounts, status);
+            tallyStatus(overallCounts, status);
+            if (!success) {
+              overallRealFailCounts[status] =
+                (overallRealFailCounts[status] || 0) + 1;
+            }
+            return {
+              ...test,
+              status,
+              success,
+              retried: test.results.length > 1,
+            };
+          });
+
+          return { name, counts: groupCounts, tests: testList };
+        });
+
+        return {
+          groups: groupList,
+          counts: overallCounts,
+          realFailCounts: overallRealFailCounts,
+        };
+      }
+
+      function buildFailureSuggestions(summary) {
+        if (!summary) return [];
+
+        const suggestions = [];
+        summary.groups.forEach((group) => {
+          group.tests.forEach((test) => {
+            if (test.success) return;
+            const lastResult = test.results[test.results.length - 1];
+            const search = `TEST-UNEXPECTED-${test.status} | ${test.name}${
+              lastResult.message ? ` | ${lastResult.message}` : ''
+            }`;
+            suggestions.push({
+              search,
+              path_end: test.name,
+              bugs: { open_recent: [], all_others: [] },
+            });
+          });
+        });
+        return suggestions;
+      }
+
+      const normalizePath = (path) =>
+        (path || '').replace(/\\/g, '/').replace(/\/+$/, '').toLowerCase();
+
+      const pathsMatch = (testPath, bugPath) => {
+        if (!testPath || !bugPath) return false;
+        const a = normalizePath(testPath);
+        const b = normalizePath(bugPath);
+        if (!a || !b) return false;
+        return a === b || a.endsWith(`/${b}`) || b.endsWith(`/${a}`);
+      };
+
+      const bugKey = (bug) => bug.id ?? bug.internal_id;
+
+      const mergeBugs = (target, incoming) => {
+        const seen = new Set(target.map(bugKey));
+        incoming.forEach((bug) => {
+          const key = bugKey(bug);
+          if (!seen.has(key)) {
+            seen.add(key);
+            target.push(bug);
+          }
+        });
+      };
+
+      const decorateBugs = (suggestion) => {
+        const { bugs } = suggestion;
+        bugs.too_many_open_recent =
+          bugs.open_recent.length > BUG_SUGGESTION_LIMIT;
+        bugs.too_many_all_others =
+          bugs.all_others.length > BUG_SUGGESTION_LIMIT;
+        suggestion.valid_open_recent =
+          bugs.open_recent.length > 0 && !bugs.too_many_open_recent;
+        suggestion.valid_all_others =
+          bugs.all_others.length > 0 &&
+          !bugs.too_many_all_others &&
+          !bugs.too_many_open_recent;
+        suggestion.showBugSuggestions =
+          suggestion.valid_open_recent || suggestion.valid_all_others;
+      };
+
+      function matchBugSuggestions(failureSuggestions, bugSuggestions) {
+        if (!failureSuggestions || !failureSuggestions.length)
+          return failureSuggestions;
+        if (!bugSuggestions || !bugSuggestions.length) {
+          failureSuggestions.forEach(decorateBugs);
+          return failureSuggestions;
+        }
+
+        failureSuggestions.forEach((suggestion) => {
+          const matches = bugSuggestions.filter((bugSuggestion) =>
+            pathsMatch(suggestion.path_end, bugSuggestion.path_end),
+          );
+          matches.forEach((match) => {
+            mergeBugs(
+              suggestion.bugs.open_recent,
+              match.bugs?.open_recent || [],
+            );
+            mergeBugs(suggestion.bugs.all_others, match.bugs?.all_others || []);
+          });
+          decorateBugs(suggestion);
+        });
+
+        return failureSuggestions;
+      }
+
+      // ---------------------------------------------------------------------
+      // Rendering — mirrors the markup/classes of SummaryTab.jsx,
+      // SummaryItem.jsx and BugListItem.jsx (minus the bug-filing buttons,
+      // since this page is read-only) so each job section looks like the
+      // real Summary tab.
+      // ---------------------------------------------------------------------
+
+      const fmt = (n) => Number(n).toLocaleString('en-US');
+
+      function el(tag, attrs = {}, children = []) {
+        const node = document.createElement(tag);
+        for (const [k, v] of Object.entries(attrs)) {
+          if (k === 'class') node.className = v;
+          else if (k === 'text') node.textContent = v;
+          else if (k === 'html') node.innerHTML = v;
+          else node.setAttribute(k, v);
+        }
+        for (const child of children) node.appendChild(child);
+        return node;
+      }
+
+      function getBugUrl(bugId) {
+        return `${BZ_BASE_URL}show_bug.cgi?id=${bugId}`;
+      }
+
+      // A FontAwesome <i> icon. `enabled: false` mirrors a button that exists
+      // in the real Summary tab but has no action here (filing a bug/internal
+      // issue needs an authenticated Treeherder session) — shown dimmed, for
+      // visual fidelity only.
+      function icon(faClass, { title = '', enabled = true } = {}) {
+        return el('i', {
+          class:
+            `${faClass} ${enabled ? '' : 'failure-action-icon-disabled'}`.trim(),
+          title,
+          'aria-hidden': 'true',
+        });
+      }
+
+      // Mirrors BugListItem.jsx.
+      function renderBugListItem(bug, suggestion, job, serverUrl, project) {
+        const li = el('li', { 'data-testid': 'bug-list-item' });
+
+        if (bug.id) {
+          const link = el('a', {
+            class: `ms-1 ${bug.resolution ? 'strike-through' : ''}`.trim(),
+            href: getBugUrl(bug.id),
+            target: '_blank',
+            rel: 'noopener noreferrer',
+            text: `${bug.summary} (bug ${bug.id})`,
+          });
+          li.appendChild(link);
+          if (bug.dupe_of) {
+            li.appendChild(document.createTextNode(' > '));
+            li.appendChild(
+              el('a', {
+                class: 'ms-1',
+                href: getBugUrl(bug.dupe_of),
+                target: '_blank',
+                rel: 'noopener noreferrer',
+                text: `${bug.dupe_of}`,
+              }),
+            );
+          }
+          return li;
+        }
+
+        // Internal (unpublished) issue: no Bugzilla link yet. BugListItem.jsx
+        // shows one action icon before "i{id}" and its opposite after the
+        // summary, depending on whether the occurrence threshold is met.
+        const belowThreshold = bug.occurrences < REQUIRED_INTERNAL_OCCURRENCES;
+        const pinIcon = () =>
+          icon('fa-solid fa-thumbtack', {
+            title: 'Add to list of bugs to associate with all pinned jobs',
+            enabled: false,
+          });
+        const bugIcon = () => {
+          const iconEl = icon('fa-solid fa-bug', {
+            title: 'File a bug for this internal issue',
+          });
+          iconEl.classList.add('pointable');
+          iconEl.addEventListener('click', () =>
+            openBugFiler(suggestion, job, serverUrl, project),
+          );
+          return iconEl;
+        };
+
+        li.appendChild(belowThreshold ? pinIcon() : bugIcon());
+        const occurrencesSpan = el('span', {
+          class: 'ms-1',
+          title: 'Number of recent classifications',
+          text: `i${bug.internal_id} (${bug.occurrences} occurrences `,
+        });
+        occurrencesSpan.appendChild(icon('fa-solid fa-thumbtack'));
+        occurrencesSpan.appendChild(document.createTextNode(')'));
+        li.appendChild(occurrencesSpan);
+        li.appendChild(document.createTextNode(' '));
+        li.appendChild(el('span', { class: 'me-2', text: bug.summary }));
+        li.appendChild(belowThreshold ? bugIcon() : pinIcon());
+        return li;
+      }
+
+      // Mirrors ui/shared/Clipboard.jsx — a working copy-to-clipboard button
+      // (no auth needed, so unlike the file-bug icons this one is live).
+      function renderCopyButton(text) {
+        const iconEl = icon('fa-regular fa-clipboard');
+        const btn = el(
+          'button',
+          {
+            type: 'button',
+            class: 'btn btn-sm bg-light py-2 px-2 ms-1 failure-action-btn',
+            title: 'Copy text of error line',
+          },
+          [iconEl],
+        );
+        btn.addEventListener('click', () => {
+          navigator.clipboard?.writeText(text);
+          iconEl.className = 'fa-solid fa-check-circle';
+          setTimeout(() => {
+            iconEl.className = 'fa-regular fa-clipboard';
+          }, 700);
+        });
+        return btn;
+      }
+
+      // Mirrors SummaryItem.jsx.
+      function renderFailureItem(suggestion, job, serverUrl, project) {
+        const li = el('li');
+        const line = el('div');
+        const internalIssueIconEl = icon('fa-solid fa-circle-exclamation', {
+          title: 'File an internal issue for this failure',
+        });
+        internalIssueIconEl.classList.add('pointable');
+        internalIssueIconEl.addEventListener('click', () =>
+          openInternalIssueFiler(suggestion, job, serverUrl),
+        );
+        line.appendChild(internalIssueIconEl);
+        line.appendChild(
+          el('span', {
+            class: 'align-middle ms-1',
+            text: `${suggestion.search} `,
+          }),
+        );
+        line.appendChild(renderCopyButton(suggestion.search));
+        const bugIconEl = icon('fa-solid fa-bug', {
+          title: 'File a bug for this failure',
+        });
+        bugIconEl.classList.add('pointable');
+        bugIconEl.addEventListener('click', () =>
+          openBugFiler(suggestion, job, serverUrl, project),
+        );
+        line.appendChild(bugIconEl);
+        li.appendChild(line);
+
+        if (suggestion.showBugSuggestions) {
+          const container = el('div', {
+            class: 'failure-summary-bugs-container',
+          });
+          const { bugs } = suggestion;
+          const showOpenRecent = suggestion.valid_open_recent;
+          let showMore = false;
+
+          const openList = el('ul', {
+            class: 'list-unstyled failure-summary-bugs',
+          });
+          bugs.open_recent.forEach((bug) =>
+            openList.appendChild(
+              renderBugListItem(bug, suggestion, job, serverUrl, project),
+            ),
+          );
+
+          const allOthersList = el('ul', {
+            class: 'list-unstyled failure-summary-bugs',
+            style: 'display: none;',
+          });
+          bugs.all_others.forEach((bug) =>
+            allOthersList.appendChild(
+              renderBugListItem(bug, suggestion, job, serverUrl, project),
+            ),
+          );
+
+          if (showOpenRecent) {
+            container.appendChild(openList);
+          }
+
+          if (showOpenRecent && suggestion.valid_all_others) {
+            const toggleBtn = el('button', {
+              type: 'button',
+              class: 'btn btn-outline-dark btn-sm show-more-suggestions my-2',
+              text: 'Show more bug suggestions',
+            });
+            toggleBtn.addEventListener('click', () => {
+              showMore = !showMore;
+              allOthersList.style.display = showMore ? 'block' : 'none';
+              toggleBtn.textContent = showMore
+                ? 'Hide bug suggestions'
+                : 'Show more bug suggestions';
+            });
+            container.appendChild(toggleBtn);
+            container.appendChild(allOthersList);
+          } else if (suggestion.valid_all_others) {
+            allOthersList.style.display = 'block';
+            container.appendChild(allOthersList);
+          }
+
+          const tooMany =
+            bugs.too_many_open_recent ||
+            (bugs.too_many_all_others && !suggestion.valid_open_recent);
+          if (tooMany) {
+            container.appendChild(
+              el('mark', {
+                text: `Exceeded max ${BUG_SUGGESTION_LIMIT} bug suggestions, most of which are likely false positives.`,
+              }),
+            );
+          }
+
+          li.appendChild(container);
+        }
+
+        return li;
+      }
+
+      // ---------------------------------------------------------------------
+      // Ported from ui/helpers/bug.js — used to derive the BugFiler modal's
+      // initial summary text the same way the real Summary tab does.
+      // ---------------------------------------------------------------------
+
+      const OMITTED_LEADS = [
+        'TEST-UNEXPECTED-FAIL',
+        'PROCESS-CRASH',
+        'TEST-UNEXPECTED-ERROR',
+        'REFTEST ERROR',
+      ];
+
+      function findFilename(summary) {
+        summary = summary.split('==')[0];
+        summary = summary.split('/').pop();
+        summary = summary.split('\\').pop();
+        summary = summary.trim();
+        summary = summary.split(' ')[0];
+        return summary;
+      }
+
+      function parseSummary(suggestion) {
+        let summary = suggestion.search;
+        const searchTerms = suggestion.search_terms || [];
+        summary = summary.replace(
+          /file:\/\/\/.*?\/build\/tests\/reftest\/tests\//gi,
+          '',
+        );
+        summary = summary.replace(/chrome:\/\/mochitests\/content\/a11y\//gi, '');
+        summary = summary.replace(
+          /http:\/\/([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+):([0-9]+)\/tests\//gi,
+          '',
+        );
+        summary = summary.replace(/xpcshell([-a-zA-Z0-9]+)?.(ini|toml):/gi, '');
+        summary = summary.replace('/_mozilla/', 'mozilla/tests/');
+        summary = summary.replace(
+          'REFTEST TEST-UNEXPECTED-PASS',
+          'TEST-UNEXPECTED-PASS',
+        );
+        const summaryParts = summary.split(' | ');
+
+        if (searchTerms.length && summaryParts.length > 1) {
+          OMITTED_LEADS.forEach((lead) => {
+            if (
+              !searchTerms[0].includes(lead) &&
+              summaryParts[0].includes(lead)
+            ) {
+              summaryParts.shift();
+            }
+          });
+        }
+
+        const summaryName =
+          summaryParts[0].startsWith('TEST-') && summaryParts.length > 1
+            ? summaryParts[1]
+            : summaryParts[0];
+        return [summaryParts, findFilename(summaryName)];
+      }
+
+      function getCrashSignatures(suggestion) {
+        const matches = suggestion.search.match(/(\[@ .+\])/g);
+        return matches ? [matches[0]] : [];
+      }
+
+      // Mirrors BugFiler.jsx#computeInitialBugFilerState — derives the
+      // prefilled summary/keywords from the failure line and job metadata.
+      function computeBugFilerState(suggestion, job) {
+        const jobGroupName = job.job_group_name || '';
+        const jobTypeName = job.job_type_name || '';
+        const jg = jobGroupName.toLowerCase();
+
+        const [parsedSummaryParts] = parseSummary(suggestion);
+        let summaryString = parsedSummaryParts.join(' | ');
+        if (jg.includes('reftest')) {
+          summaryString = summaryString.replace(/layout\/reftests\//gi, '');
+        }
+
+        const crashSignatures = getCrashSignatures(suggestion);
+        const keywords = [];
+
+        let isAssertion = [
+          /ASSERTION:/,
+          /assertion fail/i,
+          /assertion count \d+ is \w+ than expected \d+ assertion/,
+        ].some((re) => re.test(summaryString));
+        if (isAssertion) {
+          if (
+            /java.lang.AssertionError/.test(summaryString) &&
+            jobTypeName.includes('junit')
+          ) {
+            isAssertion = false;
+          } else {
+            keywords.push('assertion');
+          }
+        }
+
+        if (jg.includes('test-verify')) {
+          keywords.push('test-verify-fail');
+        }
+
+        if (
+          jg.includes('xpcshell') ||
+          jg.includes('mochitest') ||
+          jg.includes('web platform tests') ||
+          jg.includes('reftest') ||
+          jg.includes('talos') ||
+          jobTypeName.includes('junit') ||
+          jobTypeName.includes('marionette')
+        ) {
+          let isTestPath = [
+            /.*test_.*\.js/,
+            /.*test_.*\.html/,
+            /.*test_.*\.xhtml/,
+            /.*browser_.*\.html/,
+            /.*browser_.*\.js/,
+            /.*test_.*\.py/,
+            /.*\.ini/,
+            /.*\.toml/,
+            /.*org.mozilla.geckoview.test.*/,
+          ].some((re) => re.test(summaryString));
+
+          if (jg.includes('talos')) {
+            isTestPath = /.*PROCESS-CRASH \| .*/.test(suggestion.search);
+          } else if (jg.includes('web platform tests') || jg.includes('reftest')) {
+            isTestPath = [
+              /.*\.js(\?.*| )\|/,
+              /.*\.html(\?.*| )\|/,
+              /.*\.htm(\?.*| )\|/,
+              /.*\.xhtml(\?.*| )\|/,
+              /.*\.xht(\?.*| )\|/,
+              /.*\.mp4 \|/,
+              /.*\.webm \|/,
+              / \| .*\.js(\?.*)?/,
+              / \| .*\.html(\?.*)?/,
+              / \| .*\.htm(\?.*)?/,
+              / \| .*\.xhtml(\?.*)?/,
+              / \| .*\.xht(\?.*)?/,
+              / \| .*.mp4/,
+              / \| .*\.webm/,
+            ].some((re) => re.test(summaryString));
+          }
+
+          if (crashSignatures.length > 0) {
+            isTestPath = false;
+            const parts = summaryString.split(' | ');
+            summaryString = `${parts[0]} | single tracking bug`;
+            keywords.push('intermittent-testcase');
+          }
+
+          let trimParams = false;
+          if (
+            isTestPath &&
+            jobGroupName.includes('reftest') &&
+            !/.*image comparison, max difference.*/.test(summaryString)
+          ) {
+            isTestPath = false;
+          } else if (
+            jg.includes('web platform tests') ||
+            jobTypeName.includes('marionette')
+          ) {
+            trimParams = true;
+          }
+
+          const isPerfTest = /.*browser\/base\/content\/test\/performance.*/.test(
+            summaryString,
+          );
+          const isLeakcheckLarge = /leakcheck large/i.test(summaryString);
+
+          if (!isAssertion && !isPerfTest && !isLeakcheckLarge && isTestPath) {
+            const parts = summaryString.split(' | ');
+            if (parts.length === 2 || parts.length === 1) {
+              summaryString = `${
+                trimParams ? parts[0].split('?')[0].split(' ')[0] : parts[0]
+              } | single tracking bug`;
+              keywords.push('intermittent-testcase');
+            } else if (parts.length === 3) {
+              summaryString = `${
+                trimParams ? parts[1].split('?')[0].split(' ')[0] : parts[1]
+              } | single tracking bug`;
+              keywords.push('intermittent-testcase');
+            }
+          }
+        }
+
+        return {
+          summary: `Intermittent ${summaryString}`,
+          keywords,
+          crashSignatures,
+        };
+      }
+
+      // ---------------------------------------------------------------------
+      // BugFiler modal — mirrors ui/shared/BugFiler.jsx's fields/layout.
+      // Product/component search hits Bugzilla's public REST API directly (no
+      // auth needed). Actually filing needs a Treeherder backend session (it
+      // holds the Bugzilla API key) that this static page doesn't have, so
+      // "Submit Bug" opens a prefilled bugzilla.mozilla.org/enter_bug.cgi in a
+      // new tab instead of POSTing to /api/bugzilla/create_bug/.
+      // ---------------------------------------------------------------------
+
+      const bugFilerModalEl = document.getElementById('bugFilerModal');
+      const bugFilerBodyEl = document.getElementById('bugFilerBody');
+      const bugFilerSubmitBtn = document.getElementById('bugFilerSubmit');
+      const bugFilerModal = new bootstrap.Modal(bugFilerModalEl);
+
+      async function findProductByPath(serverUrl, pathEnd, platform) {
+        if (platform && (platform.startsWith('AC-') || platform.startsWith('fenix-'))) {
+          return ['Firefox for Android :: General'];
+        }
+        if (platform && platform.startsWith('focus-')) {
+          return ['Focus :: General'];
+        }
+        if (!pathEnd) return [];
+        try {
+          const data = await fetchJson(
+            `${serverUrl}/api/bugzilla-component/?path=${encodeURIComponent(pathEnd)}`,
+          );
+          return data
+            .filter((item) => item.product && item.component)
+            .map((item) => `${item.product} :: ${item.component}`);
+        } catch {
+          return [];
+        }
+      }
+
+      async function findProductBySearch(search) {
+        if (!search) return [];
+        try {
+          const data = await fetchJson(
+            `${BZ_BASE_URL}rest/prod_comp_search/find/${encodeURIComponent(search)}?limit=5`,
+          );
+          return (data.products || [])
+            .filter((item) => item.product && item.component)
+            .map((item) => `${item.product} :: ${item.component}`);
+        } catch {
+          return [];
+        }
+      }
+
+      function renderProductRadios(products, selected) {
+        const group = bugFilerBodyEl.querySelector('#bugFilerProducts');
+        group.textContent = '';
+        products.forEach((product, i) => {
+          const id = `bugFilerProduct${i}`;
+          const wrap = el('div', { class: 'form-check' });
+          const input = el('input', {
+            class: 'form-check-input',
+            type: 'radio',
+            name: 'bugFilerProductGroup',
+            id,
+            value: product,
+          });
+          if (product === selected) input.checked = true;
+          const label = el('label', {
+            class: 'form-check-label',
+            for: id,
+            text: product,
+          });
+          wrap.appendChild(input);
+          wrap.appendChild(label);
+          group.appendChild(wrap);
+        });
+      }
+
+      function buildEnterBugUrl({
+        product,
+        component,
+        summary,
+        comment,
+        keywords,
+        seeAlso,
+        regressedBy,
+        crashSignature,
+        priority,
+        severity,
+      }) {
+        const params = new URLSearchParams();
+        if (product) params.set('product', product);
+        if (component) params.set('component', component);
+        params.set('short_desc', summary);
+        params.set('comment', comment);
+        if (keywords.length) params.set('keywords', keywords.join(', '));
+        if (seeAlso) params.set('see_also', seeAlso);
+        if (regressedBy) params.set('regressed_by', regressedBy);
+        if (crashSignature) params.set('cf_crash_signature', crashSignature);
+        params.set('priority', priority);
+        params.set('bug_severity', severity);
+        return `${BZ_BASE_URL}enter_bug.cgi?${params.toString()}`;
+      }
+
+      async function openBugFiler(suggestion, job, serverUrl, project) {
+        const { summary: initialSummary, keywords, crashSignatures } =
+          computeBugFilerState(suggestion, job);
+        const searchTerms = suggestion.search_terms || [];
+        const allFailureLines = suggestion.search;
+
+        bugFilerBodyEl.innerHTML = '';
+        const form = el('form', { class: 'd-flex flex-column' });
+
+        // Product search + suggestions.
+        const searchRow = el('div', { class: 'd-inline-flex' });
+        const searchInput = el('input', {
+          type: 'text',
+          class: 'form-control flex-fill flex-grow-1',
+          placeholder: 'e.g. Firefox, Toolkit, Testing',
+          title: 'Manually search for a product',
+        });
+        const findBtn = el('button', {
+          type: 'button',
+          class: 'btn btn-secondary ms-1 btn-sm',
+          text: 'Find Product',
+        });
+        searchRow.appendChild(searchInput);
+        searchRow.appendChild(findBtn);
+        form.appendChild(searchRow);
+
+        const searchStatus = el('div', { class: 'text-muted small mt-1' });
+        form.appendChild(searchStatus);
+
+        const productGroup = el('fieldset', {
+          id: 'bugFilerProducts',
+          class: 'mt-1 mb-3',
+        });
+        form.appendChild(productGroup);
+
+        const doProductSearch = async () => {
+          const search = searchInput.value.trim();
+          if (!search) return;
+          searchStatus.textContent = `Searching ${search}…`;
+          const products = await findProductBySearch(search);
+          searchStatus.textContent = '';
+          renderProductRadios(products, products[0]);
+        };
+        findBtn.addEventListener('click', doProductSearch);
+        searchInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            doProductSearch();
+          }
+        });
+
+        // Summary.
+        form.appendChild(el('label', { class: 'form-label', text: 'Summary:' }));
+        if (searchTerms.length) {
+          const warn = el('div', { class: 'text-danger small' });
+          warn.appendChild(icon('fa-solid fa-triangle-exclamation', { title: 'This can cause poor bug suggestions to be generated' }));
+          warn.appendChild(
+            document.createTextNode(
+              " Warning: Summary does not include the full text of any of the selected failure's search terms:",
+            ),
+          );
+          form.appendChild(warn);
+        }
+
+        const summaryRow = el('div', { class: 'd-flex align-items-start' });
+        const summaryInput = el('input', {
+          type: 'text',
+          class: 'form-control flex-grow-1',
+          maxlength: '255',
+          value: initialSummary,
+        });
+        const toggleIcon = icon('fa-solid fa-chevron-circle-down', {
+          title: 'Show all failure lines for this job',
+        });
+        toggleIcon.classList.add('pointable', 'align-self-center', 'ms-1');
+        const lengthSpan = el('span', {
+          class: 'ms-1 fw-bold align-self-center text-success',
+          text: String(initialSummary.length),
+        });
+        summaryInput.addEventListener('input', () => {
+          lengthSpan.textContent = String(summaryInput.value.length);
+          lengthSpan.className = `ms-1 fw-bold align-self-center ${
+            summaryInput.value.length > 255 ? 'text-danger' : 'text-success'
+          }`;
+        });
+        summaryRow.appendChild(summaryInput);
+        summaryRow.appendChild(toggleIcon);
+        summaryRow.appendChild(lengthSpan);
+        form.appendChild(summaryRow);
+
+        const failureLinesBox = el('textarea', {
+          class: 'form-control w-100 mt-1',
+          readonly: 'readonly',
+          rows: '4',
+          style: 'display: none;',
+          text: allFailureLines,
+        });
+        toggleIcon.addEventListener('click', () => {
+          const showing = failureLinesBox.style.display !== 'none';
+          failureLinesBox.style.display = showing ? 'none' : 'block';
+          toggleIcon.className = `fa-solid ${
+            showing ? 'fa-chevron-circle-down' : 'fa-chevron-circle-up'
+          } pointable align-self-center ms-1`;
+        });
+        form.appendChild(failureLinesBox);
+
+        // Comment.
+        form.appendChild(
+          el('label', { class: 'form-label mt-2', text: 'Comment:' }),
+        );
+        const commentInput = el('textarea', {
+          class: 'form-control',
+          rows: '5',
+        });
+        form.appendChild(commentInput);
+
+        // Intermittent / regressed-by / see-also.
+        const extraRow = el('div', { class: 'd-flex gap-2 align-items-end mt-2' });
+        const intermittentCheck = el('div', { class: 'form-check' }, [
+          el('input', {
+            class: 'form-check-input',
+            type: 'checkbox',
+            id: 'bugFilerIntermittent',
+            checked: 'checked',
+          }),
+          el('label', {
+            class: 'form-check-label',
+            for: 'bugFilerIntermittent',
+            text: 'This is an intermittent failure',
+          }),
+        ]);
+        const regressedByInput = el('input', {
+          type: 'text',
+          class: 'form-control',
+          placeholder: 'Regressed by',
+          title: 'Comma-separated list of bugs',
+        });
+        const seeAlsoInput = el('input', {
+          type: 'text',
+          class: 'form-control',
+          placeholder: 'See also',
+          title: 'Comma-separated list of bugs',
+        });
+        extraRow.appendChild(intermittentCheck);
+        extraRow.appendChild(regressedByInput);
+        extraRow.appendChild(seeAlsoInput);
+        form.appendChild(extraRow);
+
+        const securityCheck = el('div', { class: 'form-check mt-2' }, [
+          el('input', {
+            class: 'form-check-input',
+            type: 'checkbox',
+            id: 'bugFilerSecurity',
+          }),
+          el('label', {
+            class: 'form-check-label',
+            for: 'bugFilerSecurity',
+            text: 'Report this as a security issue',
+          }),
+        ]);
+        form.appendChild(securityCheck);
+
+        if (crashSignatures.length) {
+          form.appendChild(
+            el('label', { class: 'form-label mt-2', text: 'Signature:' }),
+          );
+          form.appendChild(
+            el('textarea', {
+              class: 'form-control',
+              readonly: 'readonly',
+              text: crashSignatures.join('\n'),
+            }),
+          );
+        }
+
+        bugFilerBodyEl.appendChild(form);
+
+        // Kick off the by-path product lookup the same way the real modal
+        // does on mount.
+        (async () => {
+          searchStatus.textContent = 'Searching…';
+          const products = await findProductByPath(
+            serverUrl,
+            suggestion.path_end,
+            job.platform,
+          );
+          searchStatus.textContent = '';
+          renderProductRadios(products, products[0]);
+        })();
+
+        bugFilerSubmitBtn.onclick = () => {
+          const selectedProductEl = bugFilerBodyEl.querySelector(
+            'input[name="bugFilerProductGroup"]:checked',
+          );
+          if (!selectedProductEl) {
+            window.alert(
+              'Please select (or search and select) a product/component pair to continue',
+            );
+            return;
+          }
+          if (summaryInput.value.length > 255) {
+            window.alert('Please ensure the summary is no more than 255 characters');
+            return;
+          }
+          const [product, component] = selectedProductEl.value.split(' :: ');
+
+          const isSecurity = securityCheck.querySelector('input').checked;
+          const keywordsCopy = [...keywords];
+          if (intermittentCheck.querySelector('input').checked) {
+            keywordsCopy.push('intermittent-failure');
+          }
+          const crashSignature = crashSignatures.join('\n');
+          if (crashSignature) keywordsCopy.push('crash');
+          if (regressedByInput.value.trim()) keywordsCopy.push('regression');
+
+          const priority = crashSignature || isSecurity ? '--' : 'P5';
+          const severity = crashSignature || isSecurity ? '--' : 'S4';
+
+          const url = buildEnterBugUrl({
+            product,
+            component,
+            summary: summaryInput.value,
+            comment: commentInput.value,
+            keywords: keywordsCopy,
+            seeAlso: seeAlsoInput.value.trim(),
+            regressedBy: regressedByInput.value.trim(),
+            crashSignature,
+            priority,
+            severity,
+          });
+          window.open(url, '_blank', 'noopener,noreferrer');
+          bugFilerModal.hide();
+        };
+
+        bugFilerModal.show();
+      }
+
+      // ---------------------------------------------------------------------
+      // Internal Issue Filer modal — mirrors ui/shared/InternalIssueFiler.jsx.
+      // Submitting for real POSTs to /api/internal_issue/ with a CSRF token
+      // read from the Treeherder session cookie, which a cross-origin static
+      // page can't read or send. Submission is still attempted (it can
+      // succeed if this page happens to share an authenticated, CORS-
+      // permitted session), with a copy-to-clipboard fallback on failure.
+      // ---------------------------------------------------------------------
+
+      const internalIssueModalEl = document.getElementById(
+        'internalIssueModal',
+      );
+      const internalIssueBodyEl = document.getElementById(
+        'internalIssueBody',
+      );
+      const internalIssueSubmitBtn = document.getElementById(
+        'internalIssueSubmit',
+      );
+      const internalIssueNoteEl = document.getElementById(
+        'internalIssueNote',
+      );
+      const internalIssueModal = new bootstrap.Modal(internalIssueModalEl);
+      const INTERNAL_ISSUE_NOTE_DEFAULT = internalIssueNoteEl.textContent;
+
+      // Mirrors InternalIssueFiler.jsx#computeInitialSummary.
+      function computeInitialInternalIssueSummary(suggestion, job) {
+        const jobGroupName = job.job_group_name || '';
+        const jobTypeName = job.job_type_name || '';
+        const jg = jobGroupName.toLowerCase();
+
+        const [parsedSummaryParts] = parseSummary(suggestion);
+        let summaryString = parsedSummaryParts.join(' | ');
+        if (jg.includes('reftest')) {
+          summaryString = summaryString.replace(/layout\/reftests\//gi, '');
+        }
+
+        const crashSignatures = getCrashSignatures(suggestion);
+        if (crashSignatures.length > 0) {
+          const parts = summaryString.split(' | ');
+          summaryString = `${parts[0]} | single tracking bug`;
+        }
+
+        const isAssertion = [
+          /ASSERTION:/,
+          /assertion fail/i,
+          /assertion count \d+ is \w+ than expected \d+ assertion/,
+        ].some((re) => re.test(summaryString));
+
+        if (
+          jg.includes('xpcshell') ||
+          jg.includes('mochitest') ||
+          jg.includes('web platform tests') ||
+          jg.includes('reftest') ||
+          jg.includes('talos') ||
+          jobTypeName.includes('junit') ||
+          jobTypeName.includes('marionette')
+        ) {
+          let isTestPath = [
+            /.*test_.*\.js/,
+            /.*test_.*\.html/,
+            /.*test_.*\.xhtml/,
+            /.*browser_.*\.html/,
+            /.*browser_.*\.js/,
+            /.*test_.*\.py/,
+            /.*\.ini/,
+            /.*\.toml/,
+            /.*org.mozilla.geckoview.test.*/,
+          ].some((re) => re.test(summaryString));
+
+          if (jg.includes('talos')) {
+            isTestPath = /.*PROCESS-CRASH \| .*/.test(suggestion.search);
+          } else if (jg.includes('web platform tests') || jg.includes('reftest')) {
+            isTestPath = [
+              /.*\.js(\?.*| )\|/,
+              /.*\.html(\?.*| )\|/,
+              /.*\.htm(\?.*| )\|/,
+              /.*\.xhtml(\?.*| )\|/,
+              /.*\.xht(\?.*| )\|/,
+              /.*\.mp4 \|/,
+              /.*\.webm \|/,
+              / \| .*\.js(\?.*)?/,
+              / \| .*\.html(\?.*)?/,
+              / \| .*\.htm(\?.*)?/,
+              / \| .*\.xhtml(\?.*)?/,
+              / \| .*\.xht(\?.*)?/,
+              / \| .*.mp4/,
+              / \| .*\.webm/,
+            ].some((re) => re.test(summaryString));
+          }
+
+          if (crashSignatures.length > 0) {
+            isTestPath = false;
+            const parts = summaryString.split(' | ');
+            summaryString = `${parts[0]} | single tracking bug`;
+          }
+
+          let trimParams = false;
+          if (
+            isTestPath &&
+            jobGroupName.includes('reftest') &&
+            !/.*image comparison, max difference.*/.test(summaryString)
+          ) {
+            isTestPath = false;
+          } else if (
+            jg.includes('web platform tests') ||
+            jobTypeName.includes('marionette')
+          ) {
+            trimParams = true;
+          }
+
+          const isLeakcheckLarge = /leakcheck large/i.test(summaryString);
+
+          if (!isAssertion && !isLeakcheckLarge && isTestPath) {
+            const parts = summaryString.split(' | ');
+            if (parts.length === 2 || parts.length === 1) {
+              summaryString = `${
+                trimParams ? parts[0].split('?')[0].split(' ')[0] : parts[0]
+              } | single tracking bug`;
+            } else if (parts.length === 3) {
+              summaryString = `${
+                trimParams ? parts[1].split('?')[0].split(' ')[0] : parts[1]
+              } | single tracking bug`;
+            }
+          }
+        }
+
+        return `Intermittent ${summaryString}`;
+      }
+
+      function openInternalIssueFiler(suggestion, job, serverUrl) {
+        const initialSummary = computeInitialInternalIssueSummary(
+          suggestion,
+          job,
+        );
+
+        internalIssueBodyEl.innerHTML = '';
+        internalIssueNoteEl.textContent = INTERNAL_ISSUE_NOTE_DEFAULT;
+        internalIssueNoteEl.classList.remove('text-danger');
+
+        const form = el('form', { class: 'd-flex flex-column' });
+        form.appendChild(
+          el('label', { class: 'form-label', for: 'internalIssueSummary', text: 'Summary:' }),
+        );
+        const row = el('div', { class: 'd-flex' });
+        const summaryInput = el('input', {
+          id: 'internalIssueSummary',
+          type: 'text',
+          class: 'form-control flex-grow-1',
+          maxlength: '255',
+          value: initialSummary,
+        });
+        const lengthSpan = el('span', {
+          class: 'ms-1 fw-bold align-self-center text-success',
+          text: String(initialSummary.length),
+        });
+        summaryInput.addEventListener('input', () => {
+          lengthSpan.textContent = String(summaryInput.value.length);
+          lengthSpan.className = `ms-1 fw-bold align-self-center ${
+            summaryInput.value.length > 255 ? 'text-danger' : 'text-success'
+          }`;
+        });
+        row.appendChild(summaryInput);
+        row.appendChild(lengthSpan);
+        form.appendChild(row);
+        internalIssueBodyEl.appendChild(form);
+
+        internalIssueSubmitBtn.onclick = async () => {
+          if (summaryInput.value.length > 255) {
+            window.alert(
+              'Please ensure the summary is no more than 255 characters',
+            );
+            return;
+          }
+
+          internalIssueSubmitBtn.disabled = true;
+          try {
+            const resp = await fetch(`${serverUrl}/api/internal_issue/`, {
+              method: 'POST',
+              credentials: 'include',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ summary: summaryInput.value }),
+            });
+            if (!resp.ok) throw new HttpError(resp.status, resp.url);
+            internalIssueModal.hide();
+          } catch (e) {
+            internalIssueNoteEl.textContent =
+              'Filing failed — this static page has no authenticated ' +
+              'Treeherder session to submit with. Copy the summary below ' +
+              'and file it from the job in job-view instead.';
+            internalIssueNoteEl.classList.add('text-danger');
+            const copyBtn = el('button', {
+              type: 'button',
+              class: 'btn btn-sm btn-outline-secondary mt-2',
+              text: 'Copy summary',
+            });
+            copyBtn.addEventListener('click', () =>
+              navigator.clipboard?.writeText(summaryInput.value),
+            );
+            if (!internalIssueBodyEl.querySelector('.btn-outline-secondary')) {
+              internalIssueBodyEl.appendChild(copyBtn);
+            }
+          } finally {
+            internalIssueSubmitBtn.disabled = false;
+          }
+        };
+
+        internalIssueModal.show();
+      }
+
+      function jobLabel(job) {
+        const symbol = job.job_type_symbol ? `[${job.job_type_symbol}] ` : '';
+        return `${symbol}${job.job_type_name || 'job'}`;
+      }
+
+      // Mirrors SummaryTab.jsx's #summary-tab render.
+      function renderJobSection(serverUrl, project, job, suggestions, counts) {
+        const section = el('section', { class: 'job-block' });
+
+        const heading = el('h2', { class: 'h6 mb-1 font-monospace' });
+        heading.appendChild(document.createTextNode(jobLabel(job)));
+        section.appendChild(heading);
+
+        const jobUrl = `${serverUrl}/jobs?repo=${encodeURIComponent(project)}&selectedTaskRun=${job.task_id}.${job.retry_id ?? 0}`;
+        const meta = el('p', { class: 'job-meta mb-2' });
+        meta.appendChild(document.createTextNode(`${job.platform || ''} — `));
+        meta.appendChild(
+          el('a', {
+            href: jobUrl,
+            target: '_blank',
+            rel: 'noopener noreferrer',
+            text: 'open in job-view',
+          }),
+        );
+        section.appendChild(meta);
+
+        const panel = el('div', {
+          id: 'summary-tab',
+          class: 'th-details-panel',
+          role: 'region',
+          'aria-label': 'Summary',
+        });
+
+        const countsLine = el('p', {
+          class: 'failure-summary-line-empty mb-0',
+        });
+        countsLine.appendChild(el('strong', { text: fmt(counts.total) }));
+        countsLine.appendChild(document.createTextNode(' tests: '));
+        countsLine.appendChild(
+          el('span', {
+            class: 'text-success',
+            text: `${fmt(counts.PASS || 0)} passed`,
+          }),
+        );
+        countsLine.appendChild(document.createTextNode(', '));
+        countsLine.appendChild(
+          el('span', {
+            class: 'text-danger',
+            text: `${fmt(suggestions.length)} failed`,
+          }),
+        );
+        if (counts.SKIP > 0) {
+          countsLine.appendChild(document.createTextNode(', '));
+          countsLine.appendChild(
+            el('span', {
+              class: 'text-muted',
+              text: `${fmt(counts.SKIP)} skipped`,
+            }),
+          );
+        }
+        panel.appendChild(countsLine);
+
+        const list = el('ul', {
+          class: 'list-unstyled w-100 mb-0 text-small font-size-11',
+        });
+        if (!suggestions.length) {
+          list.appendChild(
+            el('li', {}, [
+              el('p', {
+                class: 'failure-summary-line-empty mb-0',
+                text: 'No failures found in the summary.',
+              }),
+            ]),
+          );
+        } else {
+          suggestions.forEach((suggestion) =>
+            list.appendChild(
+              renderFailureItem(suggestion, job, serverUrl, project),
+            ),
+          );
+        }
+        panel.appendChild(list);
+
+        section.appendChild(panel);
+        return section;
+      }
+
+      // --- run ---
+
+      async function run(opts, log, onProgress) {
+        const serverUrl = HOSTS[opts.host];
+
+        const tcRootUrl = await getTcRootUrl(serverUrl, opts.project);
+
+        const pushId =
+          opts.pushId ||
+          (await resolvePushId(serverUrl, opts.project, opts.revision));
+
+        const jobs = await getJobs(serverUrl, opts.project, pushId);
+        log.info(`${jobs.length} job(s) on push ${pushId}.`);
+
+        const jobResults = [];
+        let completed = 0;
+        await mapWithConcurrency(jobs, JOB_CONCURRENCY, async (job) => {
+          try {
+            const taskId = job.task_id;
+            const run = job.retry_id ?? 0;
+            if (!taskId) return;
+            const artifacts = await listArtifacts(tcRootUrl, taskId, run);
+            const summaryArtifact = artifacts.find((a) =>
+              a.name.endsWith(SUMMARY_ARTIFACT_SUFFIX),
+            );
+            if (!summaryArtifact) return;
+
+            const artifactUrl = `${tcRootUrl}/api/queue/v1/task/${taskId}/runs/${run}/artifacts/${summaryArtifact.name}`;
+            const [text, bugSuggestions] = await Promise.all([
+              fetchText(artifactUrl),
+              getBugSuggestions(serverUrl, opts.project, job.id),
+            ]);
+
+            const summary = buildTestSummary(text);
+            const suggestions = matchBugSuggestions(
+              buildFailureSuggestions(summary),
+              bugSuggestions,
+            );
+
+            jobResults.push({ job, summary, suggestions });
+          } catch (e) {
+            log.debug(`job ${job.id}: ${e.message}`);
+          } finally {
+            completed++;
+            onProgress(completed, jobs.length);
+          }
+        });
+
+        // Jobs with failures first (most useful to scan), then by
+        // job_type_name within each group.
+        jobResults.sort((a, b) => {
+          const failedDiff =
+            (b.suggestions.length > 0) - (a.suggestions.length > 0);
+          if (failedDiff !== 0) return failedDiff;
+          return jobLabel(a.job).localeCompare(jobLabel(b.job));
+        });
+
+        return { serverUrl, jobResults };
+      }
+
+      function renderReport(serverUrl, project, jobResults) {
+        const reportEl = document.getElementById('report');
+        reportEl.textContent = '';
+
+        jobResults.forEach(({ job, summary, suggestions }) => {
+          reportEl.appendChild(
+            renderJobSection(
+              serverUrl,
+              project,
+              job,
+              suggestions,
+              summary.counts,
+            ),
+          );
+        });
+      }
+
+      // --- UI wiring ---
+
+      const form = document.getElementById('preview-form');
+      const hostSelect = document.getElementById('host');
+      const localWarning = document.getElementById('local-warning');
+      const projectSelect = document.getElementById('project');
+      const revisionInput = document.getElementById('revision');
+      const pushIdInput = document.getElementById('push-id');
+      const runButton = document.getElementById('run-button');
+      const progressEl = document.getElementById('progress');
+      const errorBanner = document.getElementById('error-banner');
+      const summaryBanner = document.getElementById('summary-banner');
+      const logPanel = document.getElementById('log-panel');
+
+      const DEFAULTS = { host: 'production', project: 'autoland' };
+
+      function pushModeRadio() {
+        return form.querySelector('input[name="push-mode"]:checked').value;
+      }
+
+      function setPushMode(mode) {
+        for (const radio of form.querySelectorAll('input[name="push-mode"]'))
+          radio.checked = radio.value === mode;
+        revisionInput.hidden = mode !== 'revision';
+        pushIdInput.hidden = mode !== 'push-id';
+      }
+
+      function syncUrlFromForm() {
+        const params = new URLSearchParams();
+        if (hostSelect.value !== DEFAULTS.host)
+          params.set('instance', hostSelect.value);
+        if (projectSelect.value !== DEFAULTS.project)
+          params.set('project', projectSelect.value);
+        if (pushModeRadio() === 'revision') {
+          if (revisionInput.value.trim())
+            params.set('revision', revisionInput.value.trim());
+        } else if (pushIdInput.value) {
+          params.set('push-id', pushIdInput.value);
+        }
+        const qs = params.toString();
+        history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
+      }
+
+      function applyUrlParams() {
+        const params = new URLSearchParams(location.search);
+        const instance = params.get('instance');
+        if (instance && instance in HOSTS) hostSelect.value = instance;
+        localWarning.hidden = hostSelect.value !== 'localhost';
+        const project = params.get('project');
+        if (project) projectSelect.value = project;
+        const pushId = params.get('push-id');
+        const revision = params.get('revision');
+        if (pushId) {
+          setPushMode('push-id');
+          pushIdInput.value = pushId;
+        } else if (revision) {
+          setPushMode('revision');
+          revisionInput.value = revision;
+        }
+      }
+
+      applyUrlParams();
+
+      hostSelect.addEventListener('change', () => {
+        localWarning.hidden = hostSelect.value !== 'localhost';
+        syncUrlFromForm();
+      });
+      projectSelect.addEventListener('change', syncUrlFromForm);
+      revisionInput.addEventListener('input', syncUrlFromForm);
+      pushIdInput.addEventListener('input', syncUrlFromForm);
+      for (const radio of form.querySelectorAll('input[name="push-mode"]')) {
+        radio.addEventListener('change', () => {
+          setPushMode(pushModeRadio());
+          syncUrlFromForm();
+        });
+      }
+
+      function appendLogLine(text, kind) {
+        const line = document.createElement('div');
+        line.className = kind ? `log-line ${kind}` : 'log-line';
+        line.textContent = text;
+        logPanel.appendChild(line);
+        logPanel.scrollTop = logPanel.scrollHeight;
+      }
+
+      const log = {
+        info: (text) => appendLogLine(text),
+        debug: (text) => appendLogLine(text, 'debug'),
+      };
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const byRevision = pushModeRadio() === 'revision';
+        const opts = {
+          host: hostSelect.value,
+          project: projectSelect.value.trim(),
+          revision: byRevision ? revisionInput.value.trim() : '',
+          pushId: byRevision ? null : Number(pushIdInput.value),
+        };
+        if (!opts.project) return;
+        if (byRevision && !opts.revision) return;
+        if (!byRevision && !opts.pushId) return;
+
+        errorBanner.hidden = true;
+        summaryBanner.hidden = true;
+        document.getElementById('report').textContent = '';
+        logPanel.style.display = 'block';
+        logPanel.textContent = '';
+        runButton.disabled = true;
+        progressEl.hidden = false;
+        progressEl.textContent = 'Starting…';
+
+        try {
+          const { serverUrl, jobResults } = await run(
+            opts,
+            log,
+            (done, total) => {
+              progressEl.textContent = `Processing job ${done}/${total}…`;
+            },
+          );
+
+          const totalTests = jobResults.reduce(
+            (sum, r) => sum + (r.summary.counts.total || 0),
+            0,
+          );
+          const totalFailed = jobResults.reduce(
+            (sum, r) => sum + r.suggestions.length,
+            0,
+          );
+          document.getElementById('stat-jobs').textContent = fmt(
+            jobResults.length,
+          );
+          document.getElementById('stat-tests').textContent = fmt(totalTests);
+          document.getElementById('stat-failed').textContent = fmt(totalFailed);
+          summaryBanner.hidden = false;
+
+          renderReport(serverUrl, opts.project, jobResults);
+        } catch (e) {
+          errorBanner.textContent = e.message;
+          errorBanner.hidden = false;
+        } finally {
+          runButton.disabled = false;
+          progressEl.hidden = true;
+        }
+      });
+    </script>
+  </body>
+</html>
