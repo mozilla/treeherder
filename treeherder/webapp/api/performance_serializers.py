@@ -74,6 +74,15 @@ class WordsField(serializers.CharField):
         return []
 
 
+class RepositoryScopedRevisionField(serializers.SlugRelatedField):
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        repository_id = getattr(self.root.instance, "repository_id", None)
+        if repository_id is not None:
+            queryset = queryset.filter(repository_id=repository_id)
+        return queryset
+
+
 class BackfillRecordSerializer(serializers.Serializer):
     context = serializers.JSONField()
     status = serializers.IntegerField()
@@ -307,7 +316,7 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     )
     repository = serializers.SlugRelatedField(read_only=True, slug_field="name")
     framework = serializers.SlugRelatedField(read_only=True, slug_field="id")
-    revision = serializers.SlugRelatedField(
+    revision = RepositoryScopedRevisionField(
         read_only=False,
         slug_field="revision",
         source="push",
@@ -318,7 +327,7 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
         read_only=True, slug_field="revision", source="original_push"
     )
     push_timestamp = TimestampField(source="push", read_only=True)
-    prev_push_revision = serializers.SlugRelatedField(
+    prev_push_revision = RepositoryScopedRevisionField(
         read_only=False,
         slug_field="revision",
         source="prev_push",
