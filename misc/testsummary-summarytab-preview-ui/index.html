@@ -27,9 +27,14 @@
       }
 
       main {
+        max-width: none;
+        margin: 0 auto;
+        padding: 2rem 2rem 4rem;
+      }
+
+      .page-intro {
         max-width: 960px;
         margin: 0 auto;
-        padding: 2rem 1rem 4rem;
       }
 
       p.intro {
@@ -167,6 +172,7 @@
   </head>
   <body>
     <main>
+      <div class="page-intro">
       <h1 class="h3">Summary Tab Preview</h1>
       <p class="mb-3">
         <a href="../testsummary-inventory/">← TestSummary Inventory</a> ·
@@ -181,7 +187,12 @@
         time. Failures are matched against Bugzilla bug suggestions the same way
         the real Summary tab does, but this page is read-only: there are no
         bug-filing buttons. Styling reuses Treeherder's own classes/colors so
-        each job section looks like the real tab.
+        each job section looks like the real tab. Each job also shows the
+        Failure Summary tab's view
+        (<code
+          >ui/shared/tabs/failureSummary/FailureSummaryTab.jsx</code
+        >) side by side, so the two failure sources can be compared directly —
+        this page is meant for a large screen.
       </p>
 
       <form id="preview-form" class="card card-body">
@@ -300,6 +311,7 @@
             <div class="text-muted small">failures</div>
           </div>
         </div>
+      </div>
       </div>
 
       <div id="report" aria-live="polite"></div>
@@ -809,6 +821,55 @@
         });
 
         return failureSuggestions;
+      }
+
+      // Ported from FailureSummaryTab.jsx#isGenericFailure /
+      // #filterGenericFailures — used to build the Failure Summary Tab
+      // column's suggestion list from the raw bug_suggestions response, the
+      // same way the real FailureSummaryTab does in #loadBugSuggestions.
+      function isGenericFailure(search, pathEnd) {
+        const match =
+          search.match(/^TEST-UNEXPECTED-\w+ \| (.+?) \| finished in \d+ms$/) ||
+          search.match(
+            /^TEST-UNEXPECTED-\w+ \| (.+?) \| xpcshell return code: -?\d+$/,
+          );
+        return match && match[1] === pathEnd;
+      }
+
+      function filterGenericFailures(suggestions) {
+        if (suggestions.length <= 1) return suggestions;
+
+        const testPathsWithSpecificErrors = new Set();
+        suggestions.forEach((suggestion) => {
+          if (
+            suggestion.path_end &&
+            !isGenericFailure(suggestion.search, suggestion.path_end)
+          ) {
+            testPathsWithSpecificErrors.add(suggestion.path_end);
+          }
+        });
+
+        const filtered = suggestions.filter((suggestion) => {
+          if (/^\[taskcluster:error\] exit status -?\d+$/.test(suggestion.search)) {
+            return false;
+          }
+          return (
+            !isGenericFailure(suggestion.search, suggestion.path_end) ||
+            !testPathsWithSpecificErrors.has(suggestion.path_end)
+          );
+        });
+
+        const seenTestPaths = new Set();
+        filtered.forEach((suggestion) => {
+          if (!suggestion.path_end) {
+            suggestion.showBugSuggestions = true;
+            return;
+          }
+          suggestion.showBugSuggestions = !seenTestPaths.has(suggestion.path_end);
+          seenTestPaths.add(suggestion.path_end);
+        });
+
+        return filtered;
       }
 
       // ---------------------------------------------------------------------
@@ -1773,8 +1834,59 @@
         return `${symbol}${job.job_type_name || 'job'}`;
       }
 
-      // Mirrors SummaryTab.jsx's #summary-tab render.
-      function renderJobSection(serverUrl, project, job, suggestions, counts) {
+      // Mirrors SummaryTab.jsx's #summary-tab render. `countsLine` is an
+      // already-built <p> summarizing the pass/fail/skip counts (SummaryTab
+      // has real counts to show; FailureSummaryTab has none, so it just
+      // shows a suggestion count instead).
+      function renderFailureListPanel(
+        panelId,
+        ariaLabel,
+        countsLine,
+        suggestions,
+        emptyText,
+        job,
+        serverUrl,
+        project,
+      ) {
+        const panel = el('div', {
+          id: panelId,
+          class: 'th-details-panel',
+          role: 'region',
+          'aria-label': ariaLabel,
+        });
+        panel.appendChild(countsLine);
+
+        const list = el('ul', {
+          class: 'list-unstyled w-100 mb-0 text-small font-size-11',
+        });
+        if (!suggestions.length) {
+          list.appendChild(
+            el('li', {}, [
+              el('p', {
+                class: 'failure-summary-line-empty mb-0',
+                text: emptyText,
+              }),
+            ]),
+          );
+        } else {
+          suggestions.forEach((suggestion) =>
+            list.appendChild(
+              renderFailureItem(suggestion, job, serverUrl, project),
+            ),
+          );
+        }
+        panel.appendChild(list);
+        return panel;
+      }
+
+      function renderJobSection(
+        serverUrl,
+        project,
+        job,
+        suggestions,
+        counts,
+        failureSuggestions,
+      ) {
         const section = el('section', { class: 'job-block' });
 
         const heading = el('h2', { class: 'h6 mb-1 font-monospace' });
@@ -1794,64 +1906,86 @@
         );
         section.appendChild(meta);
 
-        const panel = el('div', {
-          id: 'summary-tab',
-          class: 'th-details-panel',
-          role: 'region',
-          'aria-label': 'Summary',
-        });
-
-        const countsLine = el('p', {
+        const summaryCountsLine = el('p', {
           class: 'failure-summary-line-empty mb-0',
         });
-        countsLine.appendChild(el('strong', { text: fmt(counts.total) }));
-        countsLine.appendChild(document.createTextNode(' tests: '));
-        countsLine.appendChild(
+        summaryCountsLine.appendChild(el('strong', { text: fmt(counts.total) }));
+        summaryCountsLine.appendChild(document.createTextNode(' tests: '));
+        summaryCountsLine.appendChild(
           el('span', {
             class: 'text-success',
             text: `${fmt(counts.PASS || 0)} passed`,
           }),
         );
-        countsLine.appendChild(document.createTextNode(', '));
-        countsLine.appendChild(
+        summaryCountsLine.appendChild(document.createTextNode(', '));
+        summaryCountsLine.appendChild(
           el('span', {
             class: 'text-danger',
             text: `${fmt(suggestions.length)} failed`,
           }),
         );
         if (counts.SKIP > 0) {
-          countsLine.appendChild(document.createTextNode(', '));
-          countsLine.appendChild(
+          summaryCountsLine.appendChild(document.createTextNode(', '));
+          summaryCountsLine.appendChild(
             el('span', {
               class: 'text-muted',
               text: `${fmt(counts.SKIP)} skipped`,
             }),
           );
         }
-        panel.appendChild(countsLine);
 
-        const list = el('ul', {
-          class: 'list-unstyled w-100 mb-0 text-small font-size-11',
+        const failureCountsLine = el('p', {
+          class: 'failure-summary-line-empty mb-0',
         });
-        if (!suggestions.length) {
-          list.appendChild(
-            el('li', {}, [
-              el('p', {
-                class: 'failure-summary-line-empty mb-0',
-                text: 'No failures found in the summary.',
-              }),
-            ]),
-          );
-        } else {
-          suggestions.forEach((suggestion) =>
-            list.appendChild(
-              renderFailureItem(suggestion, job, serverUrl, project),
-            ),
-          );
-        }
-        panel.appendChild(list);
+        failureCountsLine.appendChild(
+          el('span', {
+            class: failureSuggestions.length ? 'text-danger' : 'text-success',
+            text: `${fmt(failureSuggestions.length)} failure line(s)`,
+          }),
+        );
 
-        section.appendChild(panel);
+        const columns = el('div', { class: 'row g-3' });
+
+        const summaryCol = el('div', { class: 'col-6' });
+        summaryCol.appendChild(
+          el('h3', { class: 'h6 text-muted mb-1', text: 'Summary Tab' }),
+        );
+        summaryCol.appendChild(
+          renderFailureListPanel(
+            'summary-tab',
+            'Summary',
+            summaryCountsLine,
+            suggestions,
+            'No failures found in the summary.',
+            job,
+            serverUrl,
+            project,
+          ),
+        );
+        columns.appendChild(summaryCol);
+
+        const failureCol = el('div', { class: 'col-6' });
+        failureCol.appendChild(
+          el('h3', {
+            class: 'h6 text-muted mb-1',
+            text: 'Failure Summary Tab',
+          }),
+        );
+        failureCol.appendChild(
+          renderFailureListPanel(
+            'failure-summary',
+            'Failure Summary',
+            failureCountsLine,
+            failureSuggestions,
+            'Failure summary is empty.',
+            job,
+            serverUrl,
+            project,
+          ),
+        );
+        columns.appendChild(failureCol);
+
+        section.appendChild(columns);
         return section;
       }
 
@@ -1893,8 +2027,14 @@
               buildFailureSuggestions(summary),
               bugSuggestions,
             );
+            const failureSuggestions = filterGenericFailures(
+              bugSuggestions.map((s) => {
+                decorateBugs(s);
+                return s;
+              }),
+            );
 
-            jobResults.push({ job, summary, suggestions });
+            jobResults.push({ job, summary, suggestions, failureSuggestions });
           } catch (e) {
             log.debug(`job ${job.id}: ${e.message}`);
           } finally {
@@ -1919,7 +2059,7 @@
         const reportEl = document.getElementById('report');
         reportEl.textContent = '';
 
-        jobResults.forEach(({ job, summary, suggestions }) => {
+        jobResults.forEach(({ job, summary, suggestions, failureSuggestions }) => {
           reportEl.appendChild(
             renderJobSection(
               serverUrl,
@@ -1927,6 +2067,7 @@
               job,
               suggestions,
               summary.counts,
+              failureSuggestions,
             ),
           );
         });
