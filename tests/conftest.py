@@ -6,6 +6,7 @@ import platform
 import time
 from os.path import dirname, join
 from unittest.mock import MagicMock
+from urllib.parse import urlparse, urlunparse
 
 import kombu
 import moz_measure_noise
@@ -15,6 +16,10 @@ import yaml
 from _pytest.monkeypatch import MonkeyPatch
 from django.conf import settings
 from django.core.management import call_command
+
+# Importing this module registers the ``setting_changed`` receiver that resets
+# Django's cache handler when ``settings.CACHES`` changes (see pytest_configure).
+from django.test.signals import setting_changed
 from rest_framework.test import APIClient
 
 import treeherder.etl.bugzilla
@@ -41,6 +46,53 @@ def pytest_addoption(parser):
         action="store_true",
         help="run slow tests",
     )
+
+
+# Redis exposes 16 logical databases (0-15) by default.
+REDIS_DB_COUNT = 16
+
+
+def redis_url_for_worker(base_url, worker_id):
+    """
+    Return ``base_url`` pointing at a per-xdist-worker Redis logical database.
+
+    Sessions and other cached data live in a single shared Redis instance, and
+    ``pytest_runtest_setup`` clears the cache (a Redis ``FLUSHDB``) before every
+    test. Under ``-n auto`` that means one worker's flush wipes another worker's
+    in-flight session, which intermittently breaks the auth session tests (see
+    Bug 2051952). Giving each worker its own database keeps a ``FLUSHDB`` local
+    to the worker that issued it.
+
+    Non-Redis locations (and an empty ``worker_id``) are returned unchanged.
+    """
+    if not worker_id or not isinstance(base_url, str):
+        return base_url
+    if not base_url.startswith(("redis://", "rediss://")):
+        return base_url
+
+    # xdist worker ids look like "gw0", "gw1", ...
+    db_index = int(worker_id.removeprefix("gw")) % REDIS_DB_COUNT
+    return urlunparse(urlparse(base_url)._replace(path=f"/{db_index}"))
+
+
+def pytest_configure(config):
+    """
+    Isolate each xdist worker's Redis cache into its own logical database so the
+    per-test ``cache.clear()`` cannot wipe another worker's session mid-request.
+    """
+    worker_id = os.environ.get("PYTEST_XDIST_WORKER")
+    if not worker_id:
+        return
+
+    caches = copy.deepcopy(settings.CACHES)
+    for cache_config in caches.values():
+        cache_config["LOCATION"] = redis_url_for_worker(cache_config.get("LOCATION"), worker_id)
+
+    settings.CACHES = caches
+    # Force Django's cache handler to drop its cached settings/connections so the
+    # rewritten LOCATION takes effect. This is the same reset Django performs for
+    # ``override_settings(CACHES=...)``.
+    setting_changed.send(sender=None, setting="CACHES", value=caches, enter=True)
 
 
 def pytest_runtest_setup(item):
