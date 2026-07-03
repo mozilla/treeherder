@@ -1,6 +1,6 @@
 {
   "name": "treeherder",
-  "description": "Mozilla Treeherder reporting dashboard",
+  "description": "Mozilla Treeherder reporting dashboard diff",
   "repository": {
     "type": "git",
     "url": "https://github.com/mozilla/treeherder.git"
