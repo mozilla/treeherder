@@ -3,7 +3,7 @@ lockfileVersion: '9.0'
 settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
-
+# checksum diff
 overrides:
   cacache: 19.0.1
   '@mui/styled-engine': npm:@mui/styled-engine-sc@latest
