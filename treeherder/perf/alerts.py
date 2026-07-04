@@ -106,13 +106,33 @@ def get_ttest_confidence_level(t_value):
     return PerformanceAlert.HIGH_CONFIDENCE
 
 
-def get_alerting_series(signature, detection_technique):
+def _get_alerting_window(signature, latest_alert_timestamp):
     # get series data starting from either:
-    # (1) the last alert found by this detection technique, if there is one
+    # (1) the last alert, if there is one (latest_alert_timestamp)
     # (2) the alerts max age
     # (use whichever is newer)
+    #
+    # Filtering on repository as well as signature lets Postgres seek the
+    # (repository, signature, push_timestamp) composite index instead of
+    # scanning a signature's entire history via the signature_id-only index.
+    # A signature has exactly one repository, so results are unchanged.
     max_alert_age = alert_after_ts = datetime.now() - settings.PERFHERDER_ALERTS_MAX_AGE
-    series = PerformanceDatum.objects.filter(signature=signature, push_timestamp__gte=max_alert_age)
+    series = PerformanceDatum.objects.filter(
+        signature=signature,
+        repository=signature.repository,
+        push_timestamp__gte=max_alert_age,
+    )
+    if latest_alert_timestamp:
+        latest_ts = latest_alert_timestamp[0]
+        series = series.filter(push_timestamp__gt=latest_ts)
+        if latest_ts > alert_after_ts:
+            alert_after_ts = latest_ts
+
+    return series, alert_after_ts
+
+
+def get_alerting_series(signature, detection_technique):
+    # Starts after the last alert found by this detection technique, if any
     separator = re.escape(DETECTION_METHOD_SEPARATOR)
     found_by_technique = Q(
         detection_method__regex=(
@@ -123,17 +143,63 @@ def get_alerting_series(signature, detection_technique):
         found_by_technique |= Q(detection_method__isnull=True)
     latest_alert_timestamp = (
         PerformanceAlert.objects.filter(found_by_technique, series_signature=signature)
-        .select_related("summary__push__time")
         .order_by("-summary__push__time")
         .values_list("summary__push__time", flat=True)[:1]
     )
-    if latest_alert_timestamp:
-        latest_ts = latest_alert_timestamp[0]
-        series = series.filter(push_timestamp__gt=latest_ts)
-        if latest_ts > alert_after_ts:
-            alert_after_ts = latest_ts
+    return _get_alerting_window(signature, latest_alert_timestamp)
 
-    return series, alert_after_ts
+
+def _collect_replicates_map(signature, alert_after_ts) -> dict[int, list[float]]:
+    """Map each performance datum id to the list of its replicate values.
+
+    Only datums for ``signature`` (and its repository) with a ``push_timestamp``
+    on or after ``alert_after_ts`` are considered.
+
+    The two-step ``IN (SELECT ... WHERE EXISTS (...))`` shape looks redundant --
+    a replicate row's parent datum is in the set by definition -- but it is
+    load-bearing for the query planner. It first resolves the small set of datum
+    ids via the ``(repository, signature, push_timestamp)`` composite index, then
+    probes ``performance_datum_replicate`` by its ``performance_datum_id`` index.
+    A plain join instead lets PostgreSQL seq-scan a multi-hundred-million-row
+    table (measured on staging: ~22s vs ~53ms warm / 5.4s cold for this shape;
+    dropping the EXISTS alone regressed to ~65s). See PR #9550 review discussion.
+    """
+    datum_with_replicates = (
+        PerformanceDatum.objects.filter(
+            signature=signature,
+            repository=signature.repository,
+            push_timestamp__gte=alert_after_ts,
+        )
+        .annotate(
+            has_replicate=Exists(
+                PerformanceDatumReplicate.objects.filter(performance_datum_id=OuterRef("pk"))
+            )
+        )
+        .filter(has_replicate=True)
+    )
+    replicates = PerformanceDatumReplicate.objects.filter(
+        performance_datum_id__in=Subquery(datum_with_replicates.values("id"))
+    ).values_list("performance_datum_id", "value")
+    replicates_map: dict[int, list[float]] = {}
+    for datum_id, value in replicates:
+        replicates_map.setdefault(datum_id, []).append(value)
+    return replicates_map
+
+
+def _load_revision_data(signature, series, alert_after_ts, revision_datum_cls):
+    replicates_map = _collect_replicates_map(signature, alert_after_ts)
+
+    revision_data = {}
+    # Only the columns read below are needed
+    for d in series.only("id", "push_id", "push_timestamp", "value"):
+        if not revision_data.get(d.push_id):
+            revision_data[d.push_id] = revision_datum_cls(
+                int(time.mktime(d.push_timestamp.timetuple())), d.push_id, [], []
+            )
+        revision_data[d.push_id].values.append(d.value)
+        revision_data[d.push_id].replicates.extend(replicates_map.get(d.id, []))
+
+    return revision_data
 
 
 def get_noise_profile(values_by_point):
@@ -278,34 +344,7 @@ def store_alert(
 def generate_new_ttest_alerts_in_series(signature, detection_technique):
     series, alert_after_ts = get_alerting_series(signature, detection_technique)
 
-    datum_with_replicates = (
-        PerformanceDatum.objects.filter(
-            signature=signature,
-            repository=signature.repository,
-            push_timestamp__gte=alert_after_ts,
-        )
-        .annotate(
-            has_replicate=Exists(
-                PerformanceDatumReplicate.objects.filter(performance_datum_id=OuterRef("pk"))
-            )
-        )
-        .filter(has_replicate=True)
-    )
-    replicates = PerformanceDatumReplicate.objects.filter(
-        performance_datum_id__in=Subquery(datum_with_replicates.values("id"))
-    ).values_list("performance_datum_id", "value")
-    replicates_map: dict[int, list[float]] = {}
-    for datum_id, value in replicates:
-        replicates_map.setdefault(datum_id, []).append(value)
-
-    revision_data = {}
-    for d in series:
-        if not revision_data.get(d.push_id):
-            revision_data[d.push_id] = RevisionDatum(
-                int(time.mktime(d.push_timestamp.timetuple())), d.push_id, [], []
-            )
-        revision_data[d.push_id].values.append(d.value)
-        revision_data[d.push_id].replicates.extend(replicates_map.get(d.id, []))
+    revision_data = _load_revision_data(signature, series, alert_after_ts, RevisionDatum)
 
     min_back_window = signature.min_back_window
     if min_back_window is None:
@@ -912,57 +951,16 @@ def generate_new_test_alerts_in_series(
         detection_index_tolerance,
         replicates_enabled,
     )
-    # get series data starting from either:
-    # (1) the last alert, if there is one
-    # (2) the alerts max age
-    # use whichever is newer
     with transaction.atomic():
-        max_alert_age = alert_after_ts = datetime.now() - settings.PERFHERDER_ALERTS_MAX_AGE
-        series = PerformanceDatum.objects.filter(
-            signature=signature, push_timestamp__gte=max_alert_age
-        )
         latest_alert_timestamp = (
             PerformanceAlertTesting.objects.filter(
                 series_signature=signature, detection_method=detection_method_name
             )
-            .select_related("summary__push__time")
             .order_by("-summary__push__time")
             .values_list("summary__push__time", flat=True)[:1]
         )
-        if latest_alert_timestamp:
-            latest_ts = latest_alert_timestamp[0]
-            series = series.filter(push_timestamp__gt=latest_ts)
-            if latest_ts > alert_after_ts:
-                alert_after_ts = latest_ts
-
-        datum_with_replicates = (
-            PerformanceDatum.objects.filter(
-                signature=signature,
-                repository=signature.repository,
-                push_timestamp__gte=alert_after_ts,
-            )
-            .annotate(
-                has_replicate=Exists(
-                    PerformanceDatumReplicate.objects.filter(performance_datum_id=OuterRef("pk"))
-                )
-            )
-            .filter(has_replicate=True)
-        )
-        replicates = PerformanceDatumReplicate.objects.filter(
-            performance_datum_id__in=Subquery(datum_with_replicates.values("id"))
-        ).values_list("performance_datum_id", "value")
-        replicates_map: dict[int, list[float]] = {}
-        for datum_id, value in replicates:
-            replicates_map.setdefault(datum_id, []).append(value)
-
-        revision_data = {}
-        for d in series:
-            if not revision_data.get(d.push_id):
-                revision_data[d.push_id] = RevisionDatumTest(
-                    int(time.mktime(d.push_timestamp.timetuple())), d.push_id, [], []
-                )
-            revision_data[d.push_id].values.append(d.value)
-            revision_data[d.push_id].replicates.extend(replicates_map.get(d.id, []))
+        series, alert_after_ts = _get_alerting_window(signature, latest_alert_timestamp)
+        revision_data = _load_revision_data(signature, series, alert_after_ts, RevisionDatumTest)
 
         data = list(revision_data.values())
         methods = build_cpd_methods()
