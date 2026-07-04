@@ -5,11 +5,15 @@ from unittest import mock
 import pytest
 
 from treeherder.model.models import Push
-from treeherder.perf.alerts import generate_new_alerts_in_series
+from treeherder.perf.alerts import (
+    _collect_replicates_map,
+    generate_new_alerts_in_series,
+)
 from treeherder.perf.models import (
     PerformanceAlert,
     PerformanceAlertSummary,
     PerformanceDatum,
+    PerformanceDatumReplicate,
     PerformanceSignature,
 )
 from treeherder.perf.utils import BUG_DAYS, TRIAGE_DAYS, calculate_time_to
@@ -440,3 +444,50 @@ def test_alert_emails(
                 for call_arg in mocked_email_client.email.call_args_list
             ]
         )
+
+
+def test_collect_replicates_map_groups_values_for_in_window_datums(
+    test_repository,
+    test_perf_signature,
+    test_perf_signature_2,
+):
+    base_time = time.time()
+    alert_after_ts = datetime.datetime.utcfromtimestamp(base_time)
+
+    def _make_datum(signature, offset, value):
+        push, _ = Push.objects.get_or_create(
+            repository=test_repository,
+            revision=f"replicaterev{offset}",
+            defaults={
+                "author": "foo@bar.com",
+                "time": datetime.datetime.fromtimestamp(base_time + offset),
+            },
+        )
+        return PerformanceDatum.objects.create(
+            repository=signature.repository,
+            push=push,
+            signature=signature,
+            push_timestamp=datetime.datetime.utcfromtimestamp(base_time + offset),
+            value=value,
+        )
+
+    # in-window datum with two replicates -> grouped under its id
+    datum_with_replicates = _make_datum(test_perf_signature, 10, 1.0)
+    PerformanceDatumReplicate.objects.create(performance_datum=datum_with_replicates, value=1.1)
+    PerformanceDatumReplicate.objects.create(performance_datum=datum_with_replicates, value=1.2)
+
+    # in-window datum with no replicates -> absent from the map
+    _make_datum(test_perf_signature, 20, 2.0)
+
+    # datum before alert_after_ts with a replicate -> excluded by the window
+    old_datum = _make_datum(test_perf_signature, -100, 3.0)
+    PerformanceDatumReplicate.objects.create(performance_datum=old_datum, value=3.1)
+
+    # in-window datum for a different signature -> excluded by the signature filter
+    other_datum = _make_datum(test_perf_signature_2, 30, 4.0)
+    PerformanceDatumReplicate.objects.create(performance_datum=other_datum, value=4.1)
+
+    result = _collect_replicates_map(test_perf_signature, alert_after_ts)
+
+    assert set(result.keys()) == {datum_with_replicates.id}
+    assert sorted(result[datum_with_replicates.id]) == [1.1, 1.2]
