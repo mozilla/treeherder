@@ -12,6 +12,7 @@ from django.conf import settings
 
 from treeherder.etl.schema import get_json_schema
 from treeherder.etl.taskcluster_pulse.parse_route import parse_route
+from treeherder.utils.logging_context import log_context
 
 env = environ.Env()
 logger = logging.getLogger(__name__)
@@ -176,44 +177,50 @@ async def handle_message(message, task_definition=None):
         task_id = message["payload"]["status"]["taskId"]
         # task-defined messages don't have runId since the task has no runs yet
         run_id = message["payload"].get("runId", 0)
-        if task_definition:
-            task = task_definition
-        else:
-            async_queue = taskcluster.aio.Queue({"rootUrl": message["root_url"]}, session=session)
-            with settings.STATSD_CLIENT.timer("taskcluster_fetch_definition"):
-                task = await async_queue.task(task_id)
 
-        try:
-            parsed_route = parse_route_info("tc-treeherder", task_id, task["routes"], task)
-        except PulseHandlerError as e:
-            logger.debug("%s", str(e))
+        # Attach task_id/run_id as GCP log labels to every line emitted while
+        # ingesting this task (route parsing, task filtering, validation, etc.).
+        with log_context(task_id=task_id, run_id=str(run_id), component="ingestion"):
+            if task_definition:
+                task = task_definition
+            else:
+                async_queue = taskcluster.aio.Queue(
+                    {"rootUrl": message["root_url"]}, session=session
+                )
+                with settings.STATSD_CLIENT.timer("taskcluster_fetch_definition"):
+                    task = await async_queue.task(task_id)
+
+            try:
+                parsed_route = parse_route_info("tc-treeherder", task_id, task["routes"], task)
+            except PulseHandlerError as e:
+                logger.debug("%s", str(e))
+                return jobs
+
+            if ignore_task(task, task_id, message["root_url"], parsed_route["project"]):
+                return jobs
+
+            logger.debug("Message received for task %s", task_id)
+
+            # Validation failures are common and logged, so do nothing more.
+            if not validate_task(task, task_id, run_id):
+                return jobs
+
+            task_type = EXCHANGE_EVENT_MAP.get(message["exchange"])
+
+            if not task_type:
+                raise Exception("Unknown exchange: {exchange}".format(exchange=message["exchange"]))
+            elif task_type == "unscheduled":
+                jobs.append(handle_task_defined(parsed_route, task, message))
+            elif task_type == "pending":
+                jobs.append(handle_task_pending(parsed_route, task, message))
+            elif task_type == "running":
+                jobs.append(handle_task_running(parsed_route, task, message))
+            elif task_type in ("completed", "failed"):
+                jobs.append(await handle_task_completed(parsed_route, task, message, session))
+            elif task_type == "exception":
+                jobs.append(await handle_task_exception(parsed_route, task, message, session))
+
             return jobs
-
-        if ignore_task(task, task_id, message["root_url"], parsed_route["project"]):
-            return jobs
-
-        logger.debug("Message received for task %s", task_id)
-
-        # Validation failures are common and logged, so do nothing more.
-        if not validate_task(task, task_id, run_id):
-            return jobs
-
-        task_type = EXCHANGE_EVENT_MAP.get(message["exchange"])
-
-        if not task_type:
-            raise Exception("Unknown exchange: {exchange}".format(exchange=message["exchange"]))
-        elif task_type == "unscheduled":
-            jobs.append(handle_task_defined(parsed_route, task, message))
-        elif task_type == "pending":
-            jobs.append(handle_task_pending(parsed_route, task, message))
-        elif task_type == "running":
-            jobs.append(handle_task_running(parsed_route, task, message))
-        elif task_type in ("completed", "failed"):
-            jobs.append(await handle_task_completed(parsed_route, task, message, session))
-        elif task_type == "exception":
-            jobs.append(await handle_task_exception(parsed_route, task, message, session))
-
-        return jobs
 
 
 # Builds the basic Treeherder job message that's universal for all

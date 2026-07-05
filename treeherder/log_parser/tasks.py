@@ -11,6 +11,7 @@ from treeherder.log_parser.artifactbuildercollection import (
     LogSizeError,
 )
 from treeherder.model.models import Job, JobLog
+from treeherder.utils.logging_context import job_log_labels, log_context
 from treeherder.workers.task import retryable_task
 
 from . import failureline, intermittents
@@ -23,59 +24,63 @@ def parse_logs(job_id, job_log_ids, priority):
     newrelic.agent.add_custom_attribute("job_id", str(job_id))
 
     job = Job.objects.get(id=job_id)
-    job_logs = JobLog.objects.filter(id__in=job_log_ids, job=job)
 
-    if len(job_log_ids) != len(job_logs):
-        logger.warning(
-            "Failed to load all expected job ids: %s", ", ".join([str(j) for j in job_log_ids])
-        )
+    # Attach task_id/run_id/job_id as GCP log labels to every line emitted while
+    # parsing this job's logs (including deeper failure-line processing).
+    with log_context(**job_log_labels(job), component="log_parser"):
+        job_logs = JobLog.objects.filter(id__in=job_log_ids, job=job)
 
-    parser_tasks = {
-        "errorsummary_json": store_failure_lines,
-        "live_backing_log": post_log_artifacts,
-    }
-
-    # We don't want to stop parsing logs for most Exceptions however we still
-    # need to know one occurred so we can skip further steps and reraise to
-    # trigger the retry decorator.
-    first_exception = None
-    completed_names = set()
-    for job_log in job_logs:
-        newrelic.agent.add_custom_attribute(f"job_log_{job_log.name}_url", job_log.url)
-        logger.info("parser_task for %s", job_log.id)
-
-        # Only parse logs which haven't yet been processed or else failed on the last attempt.
-        if job_log.status not in (JobLog.PENDING, JobLog.FAILED):
-            logger.info(
-                f"Skipping parsing for job %s since log already processed.  Log Status: {job_log.status}",
-                job_log.id,
+        if len(job_log_ids) != len(job_logs):
+            logger.warning(
+                "Failed to load all expected job ids: %s", ", ".join([str(j) for j in job_log_ids])
             )
-            continue
 
-        parser = parser_tasks.get(job_log.name)
-        if not parser:
-            continue
+        parser_tasks = {
+            "errorsummary_json": store_failure_lines,
+            "live_backing_log": post_log_artifacts,
+        }
 
-        try:
-            parser(job_log)
-        except Exception as e:
-            if isinstance(e, SoftTimeLimitExceeded):
-                # stop parsing further logs but raise so NewRelic and
-                # Papertrail will still show output
-                raise
+        # We don't want to stop parsing logs for most Exceptions however we still
+        # need to know one occurred so we can skip further steps and reraise to
+        # trigger the retry decorator.
+        first_exception = None
+        completed_names = set()
+        for job_log in job_logs:
+            newrelic.agent.add_custom_attribute(f"job_log_{job_log.name}_url", job_log.url)
+            logger.info("parser_task for %s", job_log.id)
 
-            if first_exception is None:
-                first_exception = e
+            # Only parse logs which haven't yet been processed or else failed on the last attempt.
+            if job_log.status not in (JobLog.PENDING, JobLog.FAILED):
+                logger.info(
+                    f"Skipping parsing for job %s since log already processed.  Log Status: {job_log.status}",
+                    job_log.id,
+                )
+                continue
 
-            # track the exception on NewRelic but don't stop parsing future
-            # log lines.
-            newrelic.agent.notice_error()
-        else:
-            completed_names.add(job_log.name)
+            parser = parser_tasks.get(job_log.name)
+            if not parser:
+                continue
 
-    # Raise so we trigger the retry decorator.
-    if first_exception:
-        raise first_exception
+            try:
+                parser(job_log)
+            except Exception as e:
+                if isinstance(e, SoftTimeLimitExceeded):
+                    # stop parsing further logs but raise so NewRelic and
+                    # Papertrail will still show output
+                    raise
+
+                if first_exception is None:
+                    first_exception = e
+
+                # track the exception on NewRelic but don't stop parsing future
+                # log lines.
+                newrelic.agent.notice_error()
+            else:
+                completed_names.add(job_log.name)
+
+        # Raise so we trigger the retry decorator.
+        if first_exception:
+            raise first_exception
 
 
 def store_failure_lines(job_log):
