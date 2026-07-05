@@ -148,4 +148,66 @@ describe('FailureSummaryTab', () => {
       screen.getByTitle('Filter by test path: css/css-break/'),
     ).toBeInTheDocument();
   });
+
+  describe('new failure lines', () => {
+    const newFailureSuggestion = (path, message) => ({
+      search: `TEST-UNEXPECTED-FAIL | ${path} | ${message}`,
+      search_terms: [path],
+      path_end: path,
+      failure_new_in_rev: true,
+      bugs: { open_recent: [], all_others: [] },
+    });
+
+    const mockSuggestions = (suggestions) => {
+      fetchMock.reset();
+      fetchMock.get(getApiUrl('/jobs/?push_id=511138', repoName), selectedJob);
+      fetchMock.get(
+        getProjectUrl('/jobs/255514014/bug_suggestions/', repoName),
+        suggestions,
+      );
+    };
+
+    test('banner counts every new failure line and flags only the first', async () => {
+      mockSuggestions([
+        newFailureSuggestion('path/one.js', 'first new failure'),
+        newFailureSuggestion('path/two.js', 'second new failure'),
+        {
+          // Not a new failure: three-part search but not flagged new in rev.
+          ...newFailureSuggestion('path/three.js', 'not new'),
+          failure_new_in_rev: false,
+        },
+      ]);
+      render(testFailureSummaryTab());
+
+      // Banner reflects the count of qualifying lines (2, not 3).
+      expect(
+        await screen.findByText(/2 new failure line\(s\)/),
+      ).toBeInTheDocument();
+
+      // Only the first qualifying line is flagged with the NEW button.
+      const newButtons = screen.getAllByTitle(
+        /number of times this error message has been seen/,
+      );
+      expect(newButtons).toHaveLength(1);
+    });
+
+    test('renders no banner or NEW button when there are no new failure lines', async () => {
+      mockSuggestions([
+        {
+          ...newFailureSuggestion('path/one.js', 'old failure'),
+          failure_new_in_rev: false,
+        },
+      ]);
+      render(testFailureSummaryTab());
+
+      // Wait for the (non-new) failure line to render before asserting absence.
+      expect(await screen.findByText(/old failure/)).toBeInTheDocument();
+      expect(screen.queryByText(/new failure line\(s\)/)).toBeNull();
+      expect(
+        screen.queryByTitle(
+          /number of times this error message has been seen/,
+        ),
+      ).toBeNull();
+    });
+  });
 });

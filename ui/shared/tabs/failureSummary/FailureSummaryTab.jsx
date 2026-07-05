@@ -250,21 +250,18 @@ class FailureSummaryTab extends React.Component {
     const jobLogsAllParsed =
       logs.length > 0 && logs.every((jlu) => jlu.parse_status !== 'pending');
 
-    selectedJob.newFailure = 0;
-    suggestions.forEach((suggestion) => {
-      suggestion.showNewButton = false;
-      // small hack here to use counter==0 and try for display only
-      if (
-        suggestion.search.split(' | ').length === 3 &&
-        (suggestion.failure_new_in_rev === true ||
-          (suggestion.counter === 0 && currentRepo.name === 'try'))
-      ) {
-        if (selectedJob.newFailure === 0) {
-          suggestion.showNewButton = true;
-        }
-        selectedJob.newFailure++;
-      }
-    });
+    // A "new failure" line has a three-part `search` and is either flagged new
+    // in the revision, or (on try) has never been seen before (counter === 0).
+    // Derived at render time rather than mutated onto the props so render stays
+    // a pure function of props/state.
+    const isNewFailureLine = (candidate) =>
+      candidate.search.split(' | ').length === 3 &&
+      (candidate.failure_new_in_rev === true ||
+        (candidate.counter === 0 && currentRepo.name === 'try'));
+
+    const newFailureCount = suggestions.filter(isNewFailureLine).length;
+    // Only the first new-failure line is flagged with the "NEW" button.
+    const firstNewFailureIndex = suggestions.findIndex(isNewFailureLine);
 
     return (
       <div className="w-100 h-100" role="region" aria-label="Failure Summary">
@@ -275,13 +272,13 @@ class FailureSummaryTab extends React.Component {
           ref={this.fsMount}
           id="failure-summary-scroll-area"
         >
-          {selectedJob.newFailure > 0 && (
+          {newFailureCount > 0 && (
             <Button
               className="failure-summary-new-message border-0"
               title="New Test Failure"
             >
-              {selectedJob.newFailure} new failure line(s). First one is
-              flagged, it might be good to look at all failures in this job.
+              {newFailureCount} new failure line(s). First one is flagged, it
+              might be good to look at all failures in this job.
             </Button>
           )}
 
@@ -290,6 +287,7 @@ class FailureSummaryTab extends React.Component {
               key={`${selectedJob.id}-${index}`} // eslint-disable-line react/no-array-index-key
               index={index}
               suggestion={suggestion}
+              showNewButton={index === firstNewFailureIndex}
               toggleBugFiler={() => this.fileBug(suggestion)}
               toggleInternalIssueFiler={() =>
                 this.fileInternalIssue(suggestion)

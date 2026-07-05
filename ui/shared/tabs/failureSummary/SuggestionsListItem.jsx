@@ -56,6 +56,7 @@ export default class SuggestionsListItem extends React.Component {
       addBug = null,
       currentRepo,
       developerMode,
+      showNewButton = false,
     } = this.props;
     const repoName = currentRepo.name;
     const { suggestionShowMore } = this.state;
@@ -189,7 +190,7 @@ export default class SuggestionsListItem extends React.Component {
                 <FontAwesomeIcon icon={faCircleExclamation} />
               </Button>
 
-              {suggestion.showNewButton && (
+              {showNewButton && (
                 <Button
                   className="btn-orange border-outline-secondary"
                   title="number of times this error message has been seen until now (including this run)"
@@ -267,4 +268,5 @@ SuggestionsListItem.propTypes = {
   toggleInternalIssueFiler: PropTypes.func.isRequired,
   developerMode: PropTypes.bool.isRequired,
   addBug: PropTypes.func,
+  showNewButton: PropTypes.bool,
 };
