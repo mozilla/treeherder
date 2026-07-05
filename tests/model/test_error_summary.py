@@ -1,3 +1,6 @@
+import datetime
+from unittest.mock import MagicMock, patch
+
 import pytest
 
 from treeherder.model.error_summary import (
@@ -5,6 +8,7 @@ from treeherder.model.error_summary import (
     get_cleaned_line,
     get_crash_signature,
     get_error_search_term_and_path,
+    get_error_summary,
 )
 
 LINE_CLEANING_TEST_CASES = (
@@ -376,3 +380,39 @@ LINES_TO_CACHE_TEST_CASES = (
 def test_cache_error_line_cleaning(line, exp_cache_line_cleaned):
     actual_cache_line_cleaned = cache_clean_error_line(line)
     assert actual_cache_line_cleaned == exp_cache_line_cleaned
+
+
+def _fake_job(repository_name):
+    """A minimal stand-in for a Job with just what get_error_summary reads
+    before it returns early on an empty queryset."""
+    job = MagicMock()
+    job.id = 1
+    job.repository.name = repository_name
+    job.submit_time = datetime.datetime(2024, 1, 15, 12, 0, 0)
+    return job
+
+
+ERROR_LINE_CACHE_KEYROOT_CASES = (
+    ("comm-central", "cc_error_lines"),
+    ("autoland", "mc_error_lines"),
+    ("mozilla-central", "mc_error_lines"),
+    ("try", "mc_error_lines"),
+)
+
+
+@pytest.mark.parametrize(("repository_name", "expected_keyroot"), ERROR_LINE_CACHE_KEYROOT_CASES)
+@patch("treeherder.model.error_summary.MemDBCache")
+@patch("treeherder.model.error_summary.cache")
+def test_error_line_cache_selected_by_repository_name(
+    mock_cache, mock_memdbcache, repository_name, expected_keyroot
+):
+    """Only comm-central uses the cc_error_lines cache; everything else uses
+    mc_error_lines. The keyroot is chosen from the repository *name*, so a
+    comm-central job must not fall through to the mozilla-central namespace."""
+    # No cached error summary, so we proceed to the error-line cache selection.
+    mock_cache.get.return_value = None
+    # Empty queryset makes get_error_summary return early right after it picks
+    # the error-line cache, so no DB/log processing is needed.
+    get_error_summary(_fake_job(repository_name), queryset=[])
+
+    mock_memdbcache.assert_called_once_with(expected_keyroot)
