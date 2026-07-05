@@ -14,6 +14,12 @@ import { notify } from '../../../shared/stores/notificationStore';
 import { getProjectJobUrl } from '../../../helpers/location';
 import { getData } from '../../../helpers/http';
 
+import {
+  getSimilarJobsSnapshot,
+  setSimilarJobsSnapshot,
+  isSnapshotFresh,
+} from './similarJobsCache';
+
 const PAGE_SIZE = 20;
 
 function SimilarJobsTab({ repoName, classificationMap, selectedJobFull }) {
@@ -22,15 +28,89 @@ function SimilarJobsTab({ repoName, classificationMap, selectedJobFull }) {
   const [page, setPage] = useState(1);
   const [selectedSimilarJob, setSelectedSimilarJob] = useState(null);
   const [hasNextPage, setHasNextPage] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  // Start without a spinner when we already have a snapshot to restore, so the
+  // cache hit renders instantly. The mount effect below manages it thereafter.
+  const [isLoading, setIsLoading] = useState(
+    () => !getSimilarJobsSnapshot(selectedJobFull.id),
+  );
 
-  const similarJobsRef = useRef(similarJobs);
-  const selectedSimilarJobRef = useRef(selectedSimilarJob);
-  similarJobsRef.current = similarJobs;
-  selectedSimilarJobRef.current = selectedSimilarJob;
+  // Tracks whether the component is still mounted, so a background revalidate
+  // that resolves after the user tabs away updates the cache but skips setState.
+  const isMountedRef = useRef(true);
+  // Time of the last successful *list* fetch, used as the cache snapshot's
+  // freshness timestamp (selection/pagination writes preserve it).
+  const lastFetchTimeRef = useRef(0);
 
-  const showJobInfo = useCallback((job) => {
-    JobModel.get(repoName, job.id).then(async (nextJob) => {
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  // Fetch a slice of similar jobs and enrich each with its push data. Returns
+  // { jobs, hasNext } or null on error. `wanted` is the number of rows to
+  // display; we request one extra to detect a further page.
+  const fetchAndEnrich = useCallback(
+    async ({ offset, wanted, currentFilter }) => {
+      const options = { count: wanted + 1, offset };
+      if (currentFilter) {
+        options.nosuccess = '';
+      }
+
+      const { data: raw, failureStatus } = await JobModel.getSimilarJobs(
+        selectedJobFull.id,
+        options,
+      );
+      if (failureStatus) {
+        notify(`Error fetching similar jobs: ${failureStatus}`, 'danger', {
+          sticky: true,
+        });
+        return null;
+      }
+
+      const hasNext = raw.length > wanted;
+      const jobs = hasNext ? raw.slice(0, wanted) : raw;
+
+      const pushIds = [...new Set(jobs.map((job) => job.push_id))];
+      const { data: pushData, failureStatus: pushFailureStatus } =
+        await PushModel.getList({
+          id__in: pushIds.join(','),
+          count: thMaxPushFetchSize,
+        });
+      if (pushFailureStatus) {
+        notify(`Error fetching similar jobs push data: ${pushData}`, 'danger', {
+          sticky: true,
+        });
+        return null;
+      }
+
+      const pushes = pushData.results.reduce(
+        (acc, push) => ({ ...acc, [push.id]: push }),
+        {},
+      );
+      jobs.forEach((simJob) => {
+        simJob.result_set = pushes[simJob.push_id];
+        simJob.revisionResultsetFilterUrl = getJobsUrl({
+          repo: repoName,
+          revision: simJob.result_set.revisions[0].revision,
+        });
+        simJob.authorResultsetFilterUrl = getJobsUrl({
+          repo: repoName,
+          author: simJob.result_set.author,
+        });
+      });
+
+      return { jobs, hasNext };
+    },
+    [selectedJobFull.id, repoName],
+  );
+
+  // Fetch a single similar job's detail (classification + error lines) for the
+  // detail panel. Returns the enriched job.
+  const fetchJobDetail = useCallback(
+    async (job) => {
+      const nextJob = await JobModel.get(repoName, job.id);
       addAggregateFields(nextJob);
       nextJob.failure_classification =
         classificationMap[nextJob.failure_classification_id];
@@ -41,90 +121,164 @@ function SimilarJobsTab({ repoName, classificationMap, selectedJobFull }) {
       if (!failureStatus && data.length) {
         nextJob.error_lines = data;
       }
-      setSelectedSimilarJob(nextJob);
-    });
-  }, [repoName, classificationMap]);
+      return nextJob;
+    },
+    [repoName, classificationMap],
+  );
 
-  const getSimilarJobs = useCallback(async (currentPage, currentFilterNoSuccess) => {
-    const options = {
-      count: PAGE_SIZE + 1,
-      offset: (currentPage - 1) * PAGE_SIZE,
-    };
+  const showJobInfo = useCallback(
+    (job) => {
+      fetchJobDetail(job).then((nextJob) => {
+        if (isMountedRef.current) {
+          setSelectedSimilarJob(nextJob);
+        }
+      });
+    },
+    [fetchJobDetail],
+  );
 
-    if (currentFilterNoSuccess) {
-      options.nosuccess = '';
-    }
+  // Load the first page from scratch (cache miss, or filter change).
+  const loadInitial = useCallback(
+    async (currentFilter) => {
+      setIsLoading(true);
+      const result = await fetchAndEnrich({
+        offset: 0,
+        wanted: PAGE_SIZE,
+        currentFilter,
+      });
+      if (!isMountedRef.current) return;
+      setIsLoading(false);
+      if (!result) return;
 
-    const {
-      data: newSimilarJobs,
-      failureStatus,
-    } = await JobModel.getSimilarJobs(selectedJobFull.id, options);
-
-    if (!failureStatus) {
-      const nextPage = newSimilarJobs.length > PAGE_SIZE;
-      setHasNextPage(nextPage);
-      if (nextPage) {
-        newSimilarJobs.pop();
+      lastFetchTimeRef.current = Date.now();
+      setPage(1);
+      setSimilarJobs(result.jobs);
+      setHasNextPage(result.hasNext);
+      if (result.jobs.length > 0) {
+        showJobInfo(result.jobs[0]);
       }
-      const pushIds = [...new Set(newSimilarJobs.map((job) => job.push_id))];
-      let pushList = { results: [] };
-      const { data, failureStatus: pushFailureStatus } = await PushModel.getList({
-        id__in: pushIds.join(','),
-        count: thMaxPushFetchSize,
+    },
+    [fetchAndEnrich, showJobInfo],
+  );
+
+  // Stale-while-revalidate: refetch every currently-loaded page in one request,
+  // refresh the selected job's detail, then update the cache (always) and the
+  // component state (only if still mounted).
+  const revalidate = useCallback(
+    async (snapshot) => {
+      const {
+        page: snapPage,
+        filterNoSuccessfulJobs: snapFilter,
+        selectedSimilarJob: snapSelected,
+      } = snapshot;
+
+      const result = await fetchAndEnrich({
+        offset: 0,
+        wanted: snapPage * PAGE_SIZE,
+        currentFilter: snapFilter,
+      });
+      if (!result) return;
+      lastFetchTimeRef.current = Date.now();
+
+      let refreshedSelected = snapSelected;
+      if (snapSelected && result.jobs.some((job) => job.id === snapSelected.id)) {
+        refreshedSelected = await fetchJobDetail(snapSelected).catch(
+          () => snapSelected,
+        );
+      }
+
+      // Always refresh the cache so the next tab open is up to date, even if the
+      // user has already tabbed away.
+      setSimilarJobsSnapshot(selectedJobFull.id, {
+        similarJobs: result.jobs,
+        page: snapPage,
+        filterNoSuccessfulJobs: snapFilter,
+        selectedSimilarJob: refreshedSelected,
+        hasNextPage: result.hasNext,
+        timestamp: lastFetchTimeRef.current,
       });
 
-      if (!pushFailureStatus) {
-        pushList = data;
-        const pushes = pushList.results.reduce(
-          (acc, push) => ({ ...acc, [push.id]: push }),
-          {},
-        );
-        newSimilarJobs.forEach((simJob) => {
-          simJob.result_set = pushes[simJob.push_id];
-          simJob.revisionResultsetFilterUrl = getJobsUrl({
-            repo: repoName,
-            revision: simJob.result_set.revisions[0].revision,
-          });
-          simJob.authorResultsetFilterUrl = getJobsUrl({
-            repo: repoName,
-            author: simJob.result_set.author,
-          });
-        });
-        setSimilarJobs((prev) => [...prev, ...newSimilarJobs]);
-        if (!selectedSimilarJobRef.current && newSimilarJobs.length > 0) {
-          showJobInfo(newSimilarJobs[0]);
-        }
-      } else {
-        notify(`Error fetching similar jobs push data: ${data}`, 'danger', {
-          sticky: true,
-        });
+      if (isMountedRef.current) {
+        setSimilarJobs(result.jobs);
+        setHasNextPage(result.hasNext);
+        setSelectedSimilarJob(refreshedSelected);
+      }
+    },
+    [fetchAndEnrich, fetchJobDetail, selectedJobFull.id],
+  );
+
+  // On mount (or when the investigated job changes): restore from cache and
+  // revalidate if stale, otherwise load fresh.
+  useEffect(() => {
+    const snapshot = getSimilarJobsSnapshot(selectedJobFull.id);
+    if (snapshot) {
+      setSimilarJobs(snapshot.similarJobs);
+      setPage(snapshot.page);
+      setFilterNoSuccessfulJobs(snapshot.filterNoSuccessfulJobs);
+      setSelectedSimilarJob(snapshot.selectedSimilarJob);
+      setHasNextPage(snapshot.hasNextPage);
+      setIsLoading(false);
+      lastFetchTimeRef.current = snapshot.timestamp;
+      if (!isSnapshotFresh(snapshot)) {
+        revalidate(snapshot);
       }
     } else {
-      notify(`Error fetching similar jobs: ${failureStatus}`, 'danger', {
-        sticky: true,
-      });
+      loadInitial(false);
     }
-    setIsLoading(false);
-  }, [selectedJobFull.id, repoName, showJobInfo]);
+    // Intentionally keyed only on the investigated job id; loadInitial/revalidate
+    // are stable per job and we do not want to re-run on their identity changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedJobFull.id]);
 
+  // Persist the tab state so a remount restores exactly where the user left off.
+  // Uses the last *fetch* time (not now) so the revalidate dedup stays accurate.
   useEffect(() => {
-    getSimilarJobs(1, false);
-  }, [getSimilarJobs]);
+    if (isLoading || similarJobs.length === 0) {
+      return;
+    }
+    setSimilarJobsSnapshot(selectedJobFull.id, {
+      similarJobs,
+      page,
+      filterNoSuccessfulJobs,
+      selectedSimilarJob,
+      hasNextPage,
+      timestamp: lastFetchTimeRef.current,
+    });
+  }, [
+    similarJobs,
+    page,
+    filterNoSuccessfulJobs,
+    selectedSimilarJob,
+    hasNextPage,
+    isLoading,
+    selectedJobFull.id,
+  ]);
 
-  const showNext = useCallback(() => {
+  const showNext = useCallback(async () => {
     const nextPage = page + 1;
-    setPage(nextPage);
     setIsLoading(true);
-    getSimilarJobs(nextPage, filterNoSuccessfulJobs);
-  }, [page, filterNoSuccessfulJobs, getSimilarJobs]);
+    const result = await fetchAndEnrich({
+      offset: page * PAGE_SIZE,
+      wanted: PAGE_SIZE,
+      currentFilter: filterNoSuccessfulJobs,
+    });
+    if (!isMountedRef.current) return;
+    setIsLoading(false);
+    if (!result) return;
+
+    lastFetchTimeRef.current = Date.now();
+    setPage(nextPage);
+    setSimilarJobs((prev) => [...prev, ...result.jobs]);
+    setHasNextPage(result.hasNext);
+  }, [page, filterNoSuccessfulJobs, fetchAndEnrich]);
 
   const toggleFilter = useCallback(() => {
     const newValue = !filterNoSuccessfulJobs;
     setFilterNoSuccessfulJobs(newValue);
+    setSelectedSimilarJob(null);
     setSimilarJobs([]);
-    setIsLoading(true);
-    getSimilarJobs(1, newValue);
-  }, [filterNoSuccessfulJobs, getSimilarJobs]);
+    loadInitial(newValue);
+  }, [filterNoSuccessfulJobs, loadInitial]);
 
   const selectedSimilarJobId = selectedSimilarJob
     ? selectedSimilarJob.id
