@@ -13,6 +13,7 @@ import taskcluster_urls as liburls
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.db import connection
+from github.Commit import Commit
 
 from treeherder.client.thclient import TreeherderClient
 from treeherder.config.settings import GITHUB_TOKEN
@@ -374,29 +375,40 @@ def ingest_git_pushes(project, dry_run=False):
     logger.info("--> Converting Github commits to pushes")
     _repo = repo_meta(project)
     owner, repo = _repo["owner"], _repo["repo"]
-    github_commits = github.get_all_commits(owner, repo)
-    not_push_revision = []
+    github_commits: list[Commit] = github.get_all_commits(owner, repo)
+    not_push_revision = set()  # Use a set for faster lookups
     push_revision = []
     push_to_date = {}
-    for _commit in github_commits:
-        info = github.get_commit(owner, repo, _commit["sha"])
+    for commit in github_commits:
+        # Get the entire commit object with all attributes
+        detailed_commit_obj = github.get_commit(owner, repo, commit.sha)
+
         # Revisions that are marked as non-push should be ignored
-        if _commit["sha"] in not_push_revision:
-            logger.debug("Not a revision of a push: {}".format(_commit["sha"]))
+        if commit.sha in not_push_revision:
+            logger.debug(f"Not a revision of a push: {commit.sha}")
             continue
 
         # Establish which revisions to ignore
-        for index, parent in enumerate(info["parents"]):
-            if index != 0:
-                not_push_revision.append(parent["sha"])
+        # If a commit has multiple parents, treat only the first parent as push
+        # All other parents are to be treated as merges and should not be treated as separate pushes
+        if len(detailed_commit_obj.parents) > 1:
+            for index, parent in enumerate(detailed_commit_obj.parents[1:]):
+                not_push_revision.append(parent.sha)
 
         # The 1st parent is the push from `master` from which we forked
-        oldest_parent_revision = info["parents"][0]["sha"]
-        push_to_date[oldest_parent_revision] = info["commit"]["committer"]["date"]
-        logger.info(
-            f"Push: {oldest_parent_revision} - Date: {push_to_date[oldest_parent_revision]}"
-        )
-        push_revision.append(_commit["sha"])
+        if detailed_commit_obj.parents:
+            oldest_parent_revision = detailed_commit_obj.parents[0].sha
+            push_to_date = detailed_commit_obj.commit.committer.date.isoformat()
+            logger.info(
+                f"Push: {oldest_parent_revision} - Date: {push_to_date[oldest_parent_revision]}"
+            )
+        else:
+            # Initial commit case
+            oldest_parent_revision = detailed_commit_obj.sha
+            push_to_date = detailed_commit_obj.commit.committer.date.isoformat()
+            f"Initial Push: {oldest_parent_revision} - Date: {push_to_date[oldest_parent_revision]}"
+
+        push_revision.append(commit["sha"])
 
     if not dry_run:
         logger.info("--> Ingest Github pushes")
