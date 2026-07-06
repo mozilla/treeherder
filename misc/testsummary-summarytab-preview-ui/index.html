@@ -168,6 +168,28 @@
       .log-line.debug {
         color: #adb5bd;
       }
+
+      /* Highlights failure lines present in one tab's list but not the
+       * other's — helps spot where Summary Tab and Failure Summary Tab
+       * diverge. */
+      .failure-diff-unique {
+        background: #fff3cd;
+        border-left: 3px solid #ffc107;
+        padding-left: 4px;
+      }
+
+      .failure-diff-badge {
+        font-size: 10px;
+        font-weight: 600;
+        color: #856404;
+        margin-left: 6px;
+        white-space: nowrap;
+      }
+
+      .job-diff-note {
+        font-size: 0.8rem;
+        color: #856404;
+      }
     </style>
   </head>
   <body>
@@ -312,6 +334,34 @@
           </div>
         </div>
       </div>
+      </div>
+
+      <div id="job-filter-bar" class="row g-3 mt-1 align-items-end" hidden>
+        <div class="col-auto">
+          <label for="filter-include" class="form-label mb-1 small"
+            >Include job names</label
+          >
+          <input
+            type="text"
+            id="filter-include"
+            class="form-control form-control-sm"
+            placeholder="comma-separated, e.g. mochitest, xpcshell"
+          />
+        </div>
+        <div class="col-auto">
+          <label for="filter-exclude" class="form-label mb-1 small"
+            >Exclude job names</label
+          >
+          <input
+            type="text"
+            id="filter-exclude"
+            class="form-control form-control-sm"
+            placeholder="comma-separated, e.g. wpt, jsreftest"
+          />
+        </div>
+        <div class="col-auto">
+          <span class="text-muted small" id="filter-count"></span>
+        </div>
       </div>
 
       <div id="report" aria-live="polite"></div>
@@ -460,13 +510,20 @@
         return repository.tc_root_url;
       }
 
-      async function resolvePushId(serverUrl, project, revision) {
+      async function resolvePush(serverUrl, project, revision) {
         const data = await fetchJson(
           `${serverUrl}/api/project/${encodeURIComponent(project)}/push/?revision=${encodeURIComponent(revision)}`,
         );
         if (!data.results.length)
           throw new Error(`No push with revision ${revision} on ${project}`);
-        return data.results[0].id;
+        return data.results[0];
+      }
+
+      async function getPushRevision(serverUrl, project, pushId) {
+        const push = await fetchJson(
+          `${serverUrl}/api/project/${encodeURIComponent(project)}/push/${pushId}/`,
+        );
+        return push.revision;
       }
 
       // The jobs endpoint returns a columnar form: `results` is an array of
@@ -500,6 +557,23 @@
           // Expired tasks / missing runs are expected; skip silently.
           return [];
         }
+      }
+
+      // Mirrors ui/helpers/url.js's isResourceUsageProfile/getPerfAnalysisUrl.
+      function isResourceUsageProfile(fileName) {
+        return [
+          'profile_build_resources.json',
+          'profile_resource-usage.json',
+        ].includes(fileName);
+      }
+
+      function getPerfAnalysisUrl(url, job) {
+        let profilerUrl = `https://profiler.firefox.com/from-url/${encodeURIComponent(url)}`;
+        if (job && isResourceUsageProfile(url.split('/').pop())) {
+          const profileName = `${job.job_type_name} (${job.task_id}.${job.retry_id})`;
+          profilerUrl += `?profileName=${encodeURIComponent(profileName)}`;
+        }
+        return profilerUrl;
       }
 
       async function getBugSuggestions(serverUrl, project, jobId) {
@@ -881,6 +955,14 @@
 
       const fmt = (n) => Number(n).toLocaleString('en-US');
 
+      function debounce(fn, ms) {
+        let timer = null;
+        return (...args) => {
+          clearTimeout(timer);
+          timer = setTimeout(() => fn(...args), ms);
+        };
+      }
+
       function el(tag, attrs = {}, children = []) {
         const node = document.createElement(tag);
         for (const [k, v] of Object.entries(attrs)) {
@@ -996,9 +1078,24 @@
         return btn;
       }
 
-      // Mirrors SummaryItem.jsx.
-      function renderFailureItem(suggestion, job, serverUrl, project) {
+      function normalizeSearch(search) {
+        return (search || '').trim();
+      }
+
+      // Mirrors SummaryItem.jsx. `otherSearches`/`diffLabel` are preview-only
+      // additions to highlight failure lines missing from the other tab.
+      function renderFailureItem(
+        suggestion,
+        job,
+        serverUrl,
+        project,
+        otherSearches,
+        diffLabel,
+      ) {
         const li = el('li');
+        const isDiffOnly =
+          otherSearches && !otherSearches.has(normalizeSearch(suggestion.search));
+        if (isDiffOnly) li.classList.add('failure-diff-unique');
         const line = el('div');
         const internalIssueIconEl = icon('fa-solid fa-circle-exclamation', {
           title: 'File an internal issue for this failure',
@@ -1023,6 +1120,14 @@
           openBugFiler(suggestion, job, serverUrl, project),
         );
         line.appendChild(bugIconEl);
+        if (isDiffOnly) {
+          line.appendChild(
+            el('span', {
+              class: 'failure-diff-badge',
+              text: `only here — missing from ${diffLabel}`,
+            }),
+          );
+        }
         li.appendChild(line);
 
         if (suggestion.showBugSuggestions) {
@@ -1834,6 +1939,21 @@
         return `${symbol}${job.job_type_name || 'job'}`;
       }
 
+      function parseFilterTerms(raw) {
+        return (raw || '')
+          .split(',')
+          .map((t) => t.trim().toLowerCase())
+          .filter((t) => t.length > 0);
+      }
+
+      function jobMatchesFilter(job, includeTerms, excludeTerms) {
+        const name = (job.job_type_name || '').toLowerCase();
+        const matchesAny = (terms) => terms.some((t) => name.includes(t));
+        if (includeTerms.length > 0 && !matchesAny(includeTerms)) return false;
+        if (excludeTerms.length > 0 && matchesAny(excludeTerms)) return false;
+        return true;
+      }
+
       // Mirrors SummaryTab.jsx's #summary-tab render. `countsLine` is an
       // already-built <p> summarizing the pass/fail/skip counts (SummaryTab
       // has real counts to show; FailureSummaryTab has none, so it just
@@ -1847,6 +1967,8 @@
         job,
         serverUrl,
         project,
+        otherSearches,
+        diffLabel,
       ) {
         const panel = el('div', {
           id: panelId,
@@ -1871,7 +1993,14 @@
         } else {
           suggestions.forEach((suggestion) =>
             list.appendChild(
-              renderFailureItem(suggestion, job, serverUrl, project),
+              renderFailureItem(
+                suggestion,
+                job,
+                serverUrl,
+                project,
+                otherSearches,
+                diffLabel,
+              ),
             ),
           );
         }
@@ -1882,10 +2011,12 @@
       function renderJobSection(
         serverUrl,
         project,
+        revisionId,
         job,
         suggestions,
         counts,
         failureSuggestions,
+        profileArtifactUrl,
       ) {
         const section = el('section', { class: 'job-block' });
 
@@ -1893,7 +2024,7 @@
         heading.appendChild(document.createTextNode(jobLabel(job)));
         section.appendChild(heading);
 
-        const jobUrl = `${serverUrl}/jobs?repo=${encodeURIComponent(project)}&selectedTaskRun=${job.task_id}.${job.retry_id ?? 0}`;
+        const jobUrl = `${serverUrl}/jobs?repo=${encodeURIComponent(project)}&revision=${encodeURIComponent(revisionId)}&selectedTaskRun=${job.task_id}.${job.retry_id ?? 0}`;
         const meta = el('p', { class: 'job-meta mb-2' });
         meta.appendChild(document.createTextNode(`${job.platform || ''} — `));
         meta.appendChild(
@@ -1904,7 +2035,47 @@
             text: 'open in job-view',
           }),
         );
+        if (profileArtifactUrl) {
+          meta.appendChild(document.createTextNode(' — '));
+          meta.appendChild(
+            el('a', {
+              href: getPerfAnalysisUrl(profileArtifactUrl, job),
+              target: '_blank',
+              rel: 'noopener noreferrer',
+              text: 'open profiler',
+            }),
+          );
+        }
         section.appendChild(meta);
+
+        const summarySearches = new Set(
+          suggestions.map((s) => normalizeSearch(s.search)),
+        );
+        const failureSearches = new Set(
+          failureSuggestions.map((s) => normalizeSearch(s.search)),
+        );
+        const onlyInSummary = [...summarySearches].filter(
+          (search) => !failureSearches.has(search),
+        ).length;
+        const onlyInFailureSummary = [...failureSearches].filter(
+          (search) => !summarySearches.has(search),
+        ).length;
+        if (onlyInSummary > 0 || onlyInFailureSummary > 0) {
+          const diffNote = el('p', { class: 'job-diff-note mb-2' });
+          const parts = [];
+          if (onlyInSummary > 0) {
+            parts.push(
+              `${fmt(onlyInSummary)} only in Summary Tab`,
+            );
+          }
+          if (onlyInFailureSummary > 0) {
+            parts.push(
+              `${fmt(onlyInFailureSummary)} only in Failure Summary Tab`,
+            );
+          }
+          diffNote.textContent = `⚠ Tabs differ: ${parts.join(', ')}.`;
+          section.appendChild(diffNote);
+        }
 
         const summaryCountsLine = el('p', {
           class: 'failure-summary-line-empty mb-0',
@@ -1960,6 +2131,8 @@
             job,
             serverUrl,
             project,
+            failureSearches,
+            'Failure Summary Tab',
           ),
         );
         columns.appendChild(summaryCol);
@@ -1981,6 +2154,8 @@
             job,
             serverUrl,
             project,
+            summarySearches,
+            'Summary Tab',
           ),
         );
         columns.appendChild(failureCol);
@@ -1998,10 +2173,18 @@
 
         const pushId =
           opts.pushId ||
-          (await resolvePushId(serverUrl, opts.project, opts.revision));
+          (await resolvePush(serverUrl, opts.project, opts.revision)).id;
+        const revisionId =
+          opts.pushId || !opts.revision
+            ? await getPushRevision(serverUrl, opts.project, pushId)
+            : opts.revision;
 
-        const jobs = await getJobs(serverUrl, opts.project, pushId);
+        const allJobs = await getJobs(serverUrl, opts.project, pushId);
+        const jobs = allJobs.filter((job) => job.result !== 'retry');
         log.info(`${jobs.length} job(s) on push ${pushId}.`);
+        if (jobs.length < allJobs.length) {
+          log.debug(`Ignored ${allJobs.length - jobs.length} retry job(s).`);
+        }
 
         const jobResults = [];
         let completed = 0;
@@ -2017,6 +2200,12 @@
             if (!summaryArtifact) return;
 
             const artifactUrl = `${tcRootUrl}/api/queue/v1/task/${taskId}/runs/${run}/artifacts/${summaryArtifact.name}`;
+            const profileArtifact = artifacts.find((a) =>
+              isResourceUsageProfile(a.name.split('/').pop()),
+            );
+            const profileArtifactUrl = profileArtifact
+              ? `${tcRootUrl}/api/queue/v1/task/${taskId}/runs/${run}/artifacts/${profileArtifact.name}`
+              : null;
             const [text, bugSuggestions] = await Promise.all([
               fetchText(artifactUrl),
               getBugSuggestions(serverUrl, opts.project, job.id),
@@ -2034,7 +2223,13 @@
               }),
             );
 
-            jobResults.push({ job, summary, suggestions, failureSuggestions });
+            jobResults.push({
+              job,
+              summary,
+              suggestions,
+              failureSuggestions,
+              profileArtifactUrl,
+            });
           } catch (e) {
             log.debug(`job ${job.id}: ${e.message}`);
           } finally {
@@ -2052,25 +2247,37 @@
           return jobLabel(a.job).localeCompare(jobLabel(b.job));
         });
 
-        return { serverUrl, jobResults };
+        return { serverUrl, revisionId, jobResults };
       }
 
-      function renderReport(serverUrl, project, jobResults) {
+      function renderEmptyFilterMessage() {
+        return el('div', {
+          class: 'alert alert-secondary',
+          role: 'status',
+          text: 'No jobs match the current filter.',
+        });
+      }
+
+      function renderReport(serverUrl, project, revisionId, jobResults) {
         const reportEl = document.getElementById('report');
         reportEl.textContent = '';
 
-        jobResults.forEach(({ job, summary, suggestions, failureSuggestions }) => {
-          reportEl.appendChild(
-            renderJobSection(
-              serverUrl,
-              project,
-              job,
-              suggestions,
-              summary.counts,
-              failureSuggestions,
-            ),
-          );
-        });
+        jobResults.forEach(
+          ({ job, summary, suggestions, failureSuggestions, profileArtifactUrl }) => {
+            reportEl.appendChild(
+              renderJobSection(
+                serverUrl,
+                project,
+                revisionId,
+                job,
+                suggestions,
+                summary.counts,
+                failureSuggestions,
+                profileArtifactUrl,
+              ),
+            );
+          },
+        );
       }
 
       // --- UI wiring ---
@@ -2086,6 +2293,45 @@
       const errorBanner = document.getElementById('error-banner');
       const summaryBanner = document.getElementById('summary-banner');
       const logPanel = document.getElementById('log-panel');
+      const jobFilterBar = document.getElementById('job-filter-bar');
+      const filterIncludeInput = document.getElementById('filter-include');
+      const filterExcludeInput = document.getElementById('filter-exclude');
+      const filterCountEl = document.getElementById('filter-count');
+
+      let lastRun = null; // { serverUrl, project, revisionId, jobResults } | null
+
+      function applyJobFilter() {
+        if (!lastRun) return;
+
+        const includeTerms = parseFilterTerms(filterIncludeInput.value);
+        const excludeTerms = parseFilterTerms(filterExcludeInput.value);
+        const filtered = lastRun.jobResults.filter(({ job }) =>
+          jobMatchesFilter(job, includeTerms, excludeTerms),
+        );
+
+        const total = lastRun.jobResults.length;
+        const shown = filtered.length;
+        filterCountEl.textContent =
+          includeTerms.length || excludeTerms.length
+            ? `Showing ${fmt(shown)} of ${fmt(total)} jobs`
+            : '';
+
+        const reportEl = document.getElementById('report');
+        if (shown === 0 && (includeTerms.length || excludeTerms.length)) {
+          reportEl.textContent = '';
+          reportEl.appendChild(renderEmptyFilterMessage());
+          return;
+        }
+
+        renderReport(
+          lastRun.serverUrl,
+          lastRun.project,
+          lastRun.revisionId,
+          filtered,
+        );
+      }
+
+      const applyJobFilterDebounced = debounce(applyJobFilter, 200);
 
       const DEFAULTS = { host: 'production', project: 'autoland' };
 
@@ -2143,6 +2389,8 @@
       projectSelect.addEventListener('change', syncUrlFromForm);
       revisionInput.addEventListener('input', syncUrlFromForm);
       pushIdInput.addEventListener('input', syncUrlFromForm);
+      filterIncludeInput.addEventListener('input', applyJobFilterDebounced);
+      filterExcludeInput.addEventListener('input', applyJobFilterDebounced);
       for (const radio of form.querySelectorAll('input[name="push-mode"]')) {
         radio.addEventListener('change', () => {
           setPushMode(pushModeRadio());
@@ -2185,15 +2433,21 @@
         runButton.disabled = true;
         progressEl.hidden = false;
         progressEl.textContent = 'Starting…';
+        filterIncludeInput.value = '';
+        filterExcludeInput.value = '';
+        filterCountEl.textContent = '';
+        jobFilterBar.hidden = true;
 
         try {
-          const { serverUrl, jobResults } = await run(
+          const { serverUrl, revisionId, jobResults } = await run(
             opts,
             log,
             (done, total) => {
               progressEl.textContent = `Processing job ${done}/${total}…`;
             },
           );
+
+          lastRun = { serverUrl, project: opts.project, revisionId, jobResults };
 
           const totalTests = jobResults.reduce(
             (sum, r) => sum + (r.summary.counts.total || 0),
@@ -2209,8 +2463,9 @@
           document.getElementById('stat-tests').textContent = fmt(totalTests);
           document.getElementById('stat-failed').textContent = fmt(totalFailed);
           summaryBanner.hidden = false;
+          jobFilterBar.hidden = false;
 
-          renderReport(serverUrl, opts.project, jobResults);
+          renderReport(serverUrl, opts.project, revisionId, jobResults);
         } catch (e) {
           errorBanner.textContent = e.message;
           errorBanner.hidden = false;
