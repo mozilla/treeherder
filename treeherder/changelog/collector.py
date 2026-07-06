@@ -21,17 +21,18 @@ class GitHub:
         owner = kw["user"]
         repository = kw["repository"]
         filters = kw.get("filters")
-        gh_options = {"number": kw.get("number", MAX_ITEMS)}
+        gh_options = {}
 
         for release in github.get_releases(owner, repository):
             # no "since" option for releases() we filter manually here
+            print(f"kw={kw}")
+            print(f"relase={release}")
             if "since" in kw and release.published_at <= kw["since"]:
                 continue
-            name = release.name or release.tag_name
             yield {
                 "date": release.published_at,
                 "author": release.author.login,
-                "message": "Released " + name,
+                "message": "Released " + (release.name or release.tag_name),
                 "remote_id": release.id,
                 "type": "release",
                 "url": release.html_url,
@@ -40,13 +41,18 @@ class GitHub:
         if "since" in kw:
             gh_options["since"] = kw["since"]
 
-        # TODO: Limit the number of commits to MAX_ITEMS
-        for commit in github.get_all_commits(owner, repository, params=gh_options):
+        # Limit the number of commits
+        commits = github.get_all_commits(owner, repository, params=gh_options)
+        for i, commit in enumerate(commits):
+            if i >= kw.get("number", MAX_ITEMS):
+                break
+
+            files = []
             if filters:
-                for filter in filters:
-                    if isinstance(filter, list) and filter[0] == "filter_by_path":
-                        commit_info = github.get_commit(owner, repository, commit.sha)
-                        files = [f.filename for f in commit_info.files]
+                for filter_obj in filters:
+                    if isinstance(filter_obj, list) and filter_obj[0] == "filter_by_path":
+                        commit_detailed = github.get_commit(owner, repository, commit.sha)
+                        files = [f.filename for f in commit_detailed.files]
                         break
 
             message = commit.commit.message.split("\n")[0]
