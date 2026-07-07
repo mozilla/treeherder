@@ -1,5 +1,6 @@
 from github import Auth, Github
 from github.Commit import Commit
+from github.Comparison import Comparison
 from github.GitRelease import GitRelease
 from github.PullRequest import PullRequest
 from github.Repository import Repository
@@ -50,6 +51,13 @@ def compare_shas(owner: str, repo_name: str, base: str, head: str) -> list[Commi
         .compare(base=base, head=head)
         .commits
     ]
+
+
+def get_comparison(owner: str, repo_name: str, base: str, head: str) -> Comparison:
+    """
+    Returns a PyGithub Comparison for a comparison of the base branch against head revision.
+    """
+    return get_repository(owner=owner, repo_name=repo_name).compare(base=base, head=head)
 
 
 def get_all_commits(owner: str, repo: str, params: None) -> list[Commit]:

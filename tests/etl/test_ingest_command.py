@@ -1,3 +1,5 @@
+from unittest.mock import MagicMock
+
 from treeherder.etl.management.commands import ingest
 
 REPO_META = {
@@ -10,64 +12,59 @@ REPO_META = {
 
 
 def test_query_data_consumes_compare_dict(monkeypatch):
-    """query_data must read the GitHub compare REST response as a dict.
+    """query_data must use PyGithub objects correctly.
 
-    Regression guard for Bug 2009865, which switched ``compare_shas`` to return
-    a list of PyGithub commit objects (for the Pulse push loader) but left
-    query_data doing dict access (``.get("merge_base_commit")`` / ``["commits"]``),
-    breaking the ``ingest push`` command for GitHub repos.
+    Regression guard for Bug 2038705 refactor.
     """
-    compare_by_range = {
-        # base branch vs head: the head isn't on the base branch, so the API
-        # reports a merge base whose parent is the real fork point.
-        "main...HEAD": {
-            "merge_base_commit": {
-                "sha": "BASE",
-                "commit": {"committer": {"date": "2026-01-01T00:00:00Z"}},
-                "parents": [
-                    {
-                        "sha": "PARENT",
-                        "url": "https://api.github.com/repos/o/r/commits/PARENT",
-                    }
-                ],
-            },
-            "commits": [],
-        },
-        # re-compare with the corrected base yields the push's commits
-        "PARENT...HEAD": {
-            "merge_base_commit": {"sha": "PARENT", "parents": []},
-            "commits": [
-                {
-                    "sha": "C1",
-                    "commit": {
-                        "message": "Fix the thing",
-                        "author": {"name": "Dev", "email": "dev@example.com"},
-                        "committer": {"date": "2026-02-02T00:00:00Z"},
-                    },
-                }
-            ],
-        },
-    }
 
-    def fake_fetch_api(path, params=None):
-        return compare_by_range[path.split("/compare/")[1]]
+    mock_repo = MagicMock()
 
-    def fake_fetch_api_full_url(url, params=None):
-        # The merge-base parent, with a committer date different from the merge
-        # base so query_data takes the simple (non-recursive) branch.
-        return {"sha": "PARENT", "commit": {"committer": {"date": "2026-02-02T00:00:00Z"}}}
+    def create_mock_commit(sha, date, parents=None, message="Fix the issue"):
+        mock_commit = MagicMock()
+        mock_commit.sha = sha
+        mock_commit.commit.committer.name = "Dev"
+        mock_commit.commit.committer.email = "dev@example.com"
+        mock_commit.commit.committer.date = date
+        mock_commit.commit.author.name = "Dev"
+        mock_commit.commit.author.email = "dev@example.com"
+        mock_commit.commit.author.date = date
+        mock_commit.commit.message = message
+        mock_commit.parents = parents or []
+        return mock_commit
 
-    monkeypatch.setattr(ingest, "fetch_api", fake_fetch_api)
-    monkeypatch.setattr(ingest, "fetch_api_full_url", fake_fetch_api_full_url)
+    date1 = "2026-01-01T00:00:00Z"
+    date2 = "2026-02-02T00:00:00Z"
+
+    parent_commit = create_mock_commit("PARENT", date2)
+    base_commit = create_mock_commit("BASE", date1, parents=[parent_commit])
+    c1 = create_mock_commit("C1", date2)
+
+    mock_comparison1 = MagicMock()
+    mock_comparison1.merge_base_commit = base_commit
+    mock_comparison1.commits = []
+
+    mock_comparison2 = MagicMock()
+    mock_comparison2.merge_base_commit = parent_commit
+    mock_comparison2.commits = [c1]
+
+    def fake_compare(base, head):
+        if base == "main":
+            return mock_comparison1
+        if base == "PARENT":
+            return mock_comparison2
+        return MagicMock()
+
+    mock_repo.compare.side_effect = fake_compare
+    monkeypatch.setattr(ingest.github, "get_repository", lambda owner, repo_name: mock_repo)
 
     event_base_sha, commits = ingest.query_data(REPO_META, "HEAD")
 
     assert event_base_sha == "PARENT"
     assert commits == [
         {
-            "message": "Fix the thing",
-            "author": {"name": "Dev", "email": "dev@example.com"},
-            "committer": {"date": "2026-02-02T00:00:00Z"},
+            "message": "Fix the issue",
+            "author": {"name": "Dev", "email": "dev@example.com", "date": date2},
+            "committer": {"name": "Dev", "email": "dev@example.com", "date": date2},
             "id": "C1",
         }
     ]
