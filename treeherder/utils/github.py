@@ -6,26 +6,6 @@ from github.PullRequest import PullRequest
 from github.Repository import Repository
 
 from treeherder.config.settings import GITHUB_TOKEN
-from treeherder.utils.http import fetch_json
-
-
-def fetch_api(path, params=None):
-    """
-    Deprecated. Use the pygithub methods instead.
-    """
-    return fetch_api_full_url(f"https://api.github.com/{path}", params)
-
-
-def fetch_api_full_url(url, params=None):
-    """
-    Deprecated. Use the pygithub methods instead.
-    """
-    if GITHUB_TOKEN:
-        headers = {"Authorization": f"token {GITHUB_TOKEN}"}
-    else:
-        headers = {}
-    return fetch_json(url, params, headers)
-
 
 if GITHUB_TOKEN:
     auth = Auth.Token(GITHUB_TOKEN)
@@ -82,7 +62,7 @@ def get_pull_request(owner: str, repo_name: str, pr_number: int) -> PullRequest:
     return get_repository(owner, repo_name).get_pull(pr_number)
 
 
-def get_pull_request_commits(owner: str, repo_name: str, pr_number: str) -> list[Commit]:
+def get_pull_request_commits(owner: str, repo_name: str, pr_number: int) -> list[Commit]:
     """
     Returns a list of PyGithub Commit objects associated with a given PR.
     """
