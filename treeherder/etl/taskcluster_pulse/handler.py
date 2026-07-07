@@ -56,16 +56,31 @@ def result_from_run(job_run):
         return "unknown"
 
 
-# Creates a log entry for Treeherder to retrieve and parse.  This log is
-# displayed on the Treeherder Log Viewer once parsed.
-def create_log_reference(root_url, task_id, run_id):
-    log_url = taskcluster_urls.api(
-        root_url, "queue", "v1", "task/{taskId}/runs/{runId}/artifacts/public/logs/live_backing.log"
-    ).format(taskId=task_id, runId=run_id)
-    return {
-        "name": "live_backing_log",
-        "url": log_url,
-    }
+# Creates the log entries for Treeherder to retrieve and parse. These logs
+# are displayed on the Treeherder Log Viewer once parsed.
+# `public/logs/live_backing.log` is always included. Any artifact whose name
+# ends with `_raw.log` is appended as an additional reference. All entries
+# share the `live_backing_log` JobLog name so the existing parser dispatch
+# (jobs.py:_schedule_log_parsing, log_parser/tasks.py:parser_tasks) handles
+# them; JobLog's `(job, name, url)` unique constraint allows the duplicates.
+def create_log_reference(root_url, task_id, run_id, artifacts=None):
+    def _ref(name, artifact_path):
+        return {
+            "name": name,
+            "url": taskcluster_urls.api(
+                root_url,
+                "queue",
+                "v1",
+                f"task/{{taskId}}/runs/{{runId}}/artifacts/{artifact_path}",
+            ).format(taskId=task_id, runId=run_id),
+        }
+
+    logs = [_ref("live_backing_log", "public/logs/live_backing.log")]
+    for artifact in artifacts or []:
+        name = artifact.get("name", "")
+        if name.endswith("_raw.log"):
+            logs.append(_ref("structured_log", name))
+    return logs
 
 
 # Filters the task routes for the treeherder specific route.  Once found,
@@ -371,11 +386,23 @@ async def handle_task_completed(push_info, task, message, session):
 
     job["timeStarted"] = job_run["started"]
     job["timeCompleted"] = job_run["resolved"]
-    job["logs"] = [
-        create_log_reference(message["root_url"], payload["status"]["taskId"], job_run["runId"]),
-    ]
+
+    task_id = payload["status"]["taskId"]
+    run_id = job_run["runId"]
+    try:
+        artifacts = await fetch_artifacts(message["root_url"], task_id, run_id, session)
+    except Exception:
+        logger.debug("Artifacts could not be found for task: %s run: %s", task_id, run_id)
+        artifacts = []
+
+    job["logs"] = create_log_reference(message["root_url"], task_id, run_id, artifacts=artifacts)
     job = await add_artifact_uploaded_links(
-        message["root_url"], payload["status"]["taskId"], payload["runId"], job, session
+        message["root_url"],
+        task_id,
+        payload["runId"],
+        job,
+        session,
+        artifacts=artifacts,
     )
     return job
 
@@ -434,13 +461,13 @@ async def fetch_artifacts(root_url, task_id, run_id, session):
 # fetch them in order to determine if there is an error_summary log;
 # TODO refactor this when there is a way to only retrieve the error_summary
 # artifact: https://bugzilla.mozilla.org/show_bug.cgi?id=1629716
-async def add_artifact_uploaded_links(root_url, task_id, run_id, job, session):
-    artifacts = []
-    try:
-        artifacts = await fetch_artifacts(root_url, task_id, run_id, session)
-    except Exception:
-        logger.debug("Artifacts could not be found for task: %s run: %s", task_id, run_id)
-        return job
+async def add_artifact_uploaded_links(root_url, task_id, run_id, job, session, artifacts=None):
+    if artifacts is None:
+        try:
+            artifacts = await fetch_artifacts(root_url, task_id, run_id, session)
+        except Exception:
+            logger.debug("Artifacts could not be found for task: %s run: %s", task_id, run_id)
+            return job
 
     seen = {}
     links = []
