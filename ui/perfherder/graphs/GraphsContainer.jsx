@@ -17,11 +17,11 @@ import {
 } from 'victory';
 
 import dayjs from '../../helpers/dayjs';
-import { getJobsUrl } from '../../helpers/url';
 import { abbreviatedNumber } from '../perf-helpers/helpers';
 
 import TableView from './TableView';
 import GraphTooltip from './GraphTooltip';
+import MissingJobTooltip from './MissingJobTooltip';
 
 const DOT_SIZE = 5;
 const CHART_WIDTH = 1350;
@@ -59,6 +59,8 @@ class GraphsContainer extends React.Component {
       width: window.innerWidth,
       hoverId: null,
       lockedId: null,
+      hoverMissingDatum: null,
+      lockedMissingDatum: null,
     };
   }
 
@@ -411,6 +413,8 @@ class GraphsContainer extends React.Component {
     this.props.updateStateParams?.({ selectedDataPoint: null });
   };
 
+  clearMissingLock = () => this.setState({ lockedMissingDatum: null });
+
   updateZoom = (zoom) => {
     const { lockedId } = this.state;
     const { updateStateParams } = this.props;
@@ -460,10 +464,15 @@ class GraphsContainer extends React.Component {
       width,
       scatterPlotData,
       infraAffectedData,
+      hoverMissingDatum,
+      lockedMissingDatum,
     } = this.state;
 
     const hoverDatum = this.state.hoverId ? this.state.scatterPlotMap[this.state.hoverId] : null;
     const lockedDatum = this.state.lockedId ? this.state.scatterPlotMap[this.state.lockedId] : null;
+    const getMissingColor = (d) =>
+      testData.find((s) => s.signature_id === d?.signature_id)?.color[1] ??
+      '#888';
 
     const yAxisLabel = this.computeYAxisLabel();
     const positionedTick = <VictoryLabel dx={-2} />;
@@ -693,51 +702,31 @@ class GraphsContainer extends React.Component {
                               cursor: 'pointer',
                             },
                           }}
-                          labels={({ datum }) => {
-                            const shortRev = (datum.revision || '').slice(0, 12);
-                            const dateStr = dayjs(datum.x).format(
-                              'MMM D, YYYY HH:mm',
-                            );
-                            const statusLabel =
-                              datum.status === 'failed'
-                                ? 'Job failed'
-                                : 'Job not run';
-                            return `${shortRev}\n${dateStr}\n${statusLabel}`;
-                          }}
-                          labelComponent={
-                            <VictoryTooltip
-                              renderInPortal
-                              pointerLength={6}
-                              flyoutStyle={{ fill: 'white', stroke: '#ccc' }}
-                            />
-                          }
                           events={[
                             {
                               target: 'data',
                               eventHandlers: {
+                                onMouseOver: (_evt, props) => {
+                                  this.setState({
+                                    hoverMissingDatum: props.datum,
+                                  });
+                                  return null;
+                                },
+                                onMouseOut: () => {
+                                  this.setState({ hoverMissingDatum: null });
+                                  return null;
+                                },
                                 onClick: (_evt, props) => {
-                                  const {
-                                    repository_name: repo,
-                                    jobId,
-                                    revision,
-                                  } = props.datum;
-                                  const url = jobId
-                                    ? getJobsUrl({
-                                        repo,
-                                        revision,
-                                        selectedJob: jobId,
-                                        group_state: 'expanded',
-                                      })
-                                    : getJobsUrl({
-                                        repo,
-                                        revision,
-                                        group_state: 'expanded',
-                                      });
-                                  window.open(
-                                    url,
-                                    '_blank',
-                                    'noopener,noreferrer',
-                                  );
+                                  const d = props.datum;
+                                  this.setState((prev) => ({
+                                    lockedMissingDatum:
+                                      prev.lockedMissingDatum?.signature_id ===
+                                        d.signature_id &&
+                                      prev.lockedMissingDatum?.pushId ===
+                                        d.pushId
+                                        ? null
+                                        : d,
+                                  }));
                                   // Victory event handlers must return a value; null means no chart state mutation.
                                   return null;
                                 },
@@ -747,6 +736,85 @@ class GraphsContainer extends React.Component {
                         />
                       );
                     })}
+
+                  {hoverMissingDatum && (
+                    <VictoryScatter
+                      name="hover-missing-layer"
+                      data={[hoverMissingDatum]}
+                      size={() => DOT_SIZE}
+                      symbol="circle"
+                      groupComponent={<g pointerEvents="none" />}
+                      style={{
+                        data: {
+                          pointerEvents: 'none',
+                          fill: 'transparent',
+                          stroke: getMissingColor(hoverMissingDatum),
+                          strokeWidth: 2,
+                          strokeDasharray: '2,2',
+                          opacity: 0.7,
+                        },
+                      }}
+                      labels={() => ' '}
+                      labelComponent={
+                        <VictoryTooltip
+                          active
+                          renderInPortal
+                          activateData={false}
+                          pointerLength={0}
+                          flyoutStyle={{ pointerEvents: 'none' }}
+                          style={{ pointerEvents: 'none' }}
+                          flyoutComponent={
+                            <MissingJobTooltip
+                              lockTooltip={false}
+                              closeTooltip={() =>
+                                this.setState({ hoverMissingDatum: null })
+                              }
+                              windowWidth={width}
+                              {...this.props}
+                            />
+                          }
+                        />
+                      }
+                    />
+                  )}
+                  {lockedMissingDatum && (
+                    <VictoryScatter
+                      name="lock-missing-layer"
+                      data={[lockedMissingDatum]}
+                      size={() => DOT_SIZE}
+                      symbol="circle"
+                      groupComponent={<g pointerEvents="none" />}
+                      style={{
+                        data: {
+                          pointerEvents: 'none',
+                          fill: 'transparent',
+                          stroke: getMissingColor(lockedMissingDatum),
+                          strokeWidth: 2,
+                          strokeDasharray: '2,2',
+                          opacity: 0.7,
+                        },
+                      }}
+                      labels={() => ' '}
+                      labelComponent={
+                        <VictoryTooltip
+                          active
+                          renderInPortal
+                          activateData={false}
+                          pointerLength={0}
+                          flyoutStyle={{ pointerEvents: 'none' }}
+                          style={{ pointerEvents: 'none' }}
+                          flyoutComponent={
+                            <MissingJobTooltip
+                              lockTooltip
+                              closeTooltip={this.clearMissingLock}
+                              windowWidth={width}
+                              {...this.props}
+                            />
+                          }
+                        />
+                      }
+                    />
+                  )}
 
                   <VictoryScatter
                     name="scatter-plot"
