@@ -28,7 +28,7 @@ LOGGING_LEVEL = env("LOGGING_LEVEL", default="INFO")
 # When enabled, the `treeherder` logger emits GCP-structured JSON to stdout with
 # task_id/run_id/component attached as queryable Cloud Logging labels (see
 # treeherder.utils.gcp_logging). Off by default so local/dev stays human-readable.
-GCP_STRUCTURED_LOGGING = env.bool("GCP_STRUCTURED_LOGGING", default=False)
+GCP_STRUCTURED_LOGGING = True
 
 NEW_RELIC_INSIGHTS_API_KEY = env("NEW_RELIC_INSIGHTS_API_KEY", default=None)
 NEW_RELIC_INSIGHTS_API_URL = "https://insights-api.newrelic.com/v1/accounts/677903/query"
