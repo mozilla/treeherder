@@ -312,6 +312,8 @@ export default class AlertTable extends React.Component {
       updateViewState,
       modifyAlert = undefined,
       performanceTags,
+      lastClickedGraphAlertId,
+      setLastClickedGraphAlertId,
     } = this.props;
     const {
       alertSummary,
@@ -448,6 +450,8 @@ export default class AlertTable extends React.Component {
                         updateViewState={updateViewState}
                         modifyAlert={modifyAlert}
                         fetchAlertSummaries={fetchAlertSummaries}
+                        lastClickedGraphAlertId={lastClickedGraphAlertId}
+                        setLastClickedGraphAlertId={setLastClickedGraphAlertId}
                       />
                     ))}
                   {filteredAndSortedAlerts.length >
@@ -462,6 +466,8 @@ export default class AlertTable extends React.Component {
                       updateViewState={updateViewState}
                       modifyAlert={modifyAlert}
                       fetchAlertSummaries={fetchAlertSummaries}
+                      lastClickedGraphAlertId={lastClickedGraphAlertId}
+                      setLastClickedGraphAlertId={setLastClickedGraphAlertId}
                     />
                   )}
                   {downstreamIdsLength > 0 && (

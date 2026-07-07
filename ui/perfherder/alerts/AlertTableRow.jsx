@@ -362,7 +362,7 @@ export default class AlertTableRow extends React.Component {
   }
 
   render() {
-    const { user = null, alert, alertSummary } = this.props;
+    const { user = null, alert, alertSummary, lastClickedGraphAlertId, setLastClickedGraphAlertId } = this.props;
     const { starred, checkboxSelected, icons } = this.state;
     const { repository, framework, revision } = alertSummary;
 
@@ -384,6 +384,7 @@ export default class AlertTableRow extends React.Component {
       ? `Classified by ${alert.classifier_email}`
       : 'Classified automatically';
     const bookmarkClass = starred ? 'visible' : '';
+    const graphActive = lastClickedGraphAlertId != null && lastClickedGraphAlertId === alert.id;
     const noiseProfile = alert.noise_profile || 'N\\A';
     const noiseProfileTooltip = alert.noise_profile
       ? noiseProfiles[alert.noise_profile.replace('/', '')]
@@ -465,7 +466,10 @@ export default class AlertTableRow extends React.Component {
               )}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-dark button btn border p-0 border-0 bg-transparent"
+              onClick={() => setLastClickedGraphAlertId(alert.id)}
+              className={`text-dark button btn border p-0 border-0 
+                ${graphActive ? 'graph-link-active' : 'bg-transparent'}`
+              }
               aria-label="graph-link"
             >
               <FontAwesomeIcon title="Open graph" icon={faChartLine} />

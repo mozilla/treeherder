@@ -639,6 +639,11 @@ li.pagination-active.active > button {
   padding: 3px;
 }
 
+.graph-link-active {
+  background-color: #d3d3d3;
+  border-radius: 3px;
+}
+
 .due-date-container {
   width: 50px;
 }
