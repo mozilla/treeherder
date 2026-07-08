@@ -1173,31 +1173,48 @@ class PerformanceSummary(generics.ListAPIView):
         if not candidate_pushes:
             return []
 
-        matching_jobs = models.Job.objects.filter(
+        all_matching_jobs = models.Job.objects.filter(
             push_id__in=[p["id"] for p in candidate_pushes],
             job_type_id__in=expected_job_type_ids,
             machine_platform_id=item["platform_id"],
             option_collection_hash=item["option_collection__option_collection_hash"],
-        ).values("id", "push_id", "result")
+            state__in=("pending", "running", "completed"),
+        ).values("id", "push_id", "result", "state")
 
-        jobs_by_push = defaultdict(list)
-        for j in matching_jobs:
-            jobs_by_push[j["push_id"]].append(j)
+        jobs_by_push = defaultdict(list)  # completed jobs only
+        in_progress_push_ids = set()
+        for j in all_matching_jobs:
+            if j["state"] == "completed":
+                jobs_by_push[j["push_id"]].append(j)
+            else:
+                in_progress_push_ids.add(j["push_id"])
 
         failed_results = PerformanceSummary._MISSING_FAILED_RESULTS
         missing = []
         for p in candidate_pushes:
             jobs = jobs_by_push.get(p["id"], [])
             if not jobs:
-                status = "not_run"
+                status = "in_progress" if p["id"] in in_progress_push_ids else "not_run"
                 job_id = None
-            elif all(j["result"] in failed_results for j in jobs):
-                status = "failed"
-                job_id = min(j["id"] for j in jobs)  # lowest ID for deterministic linking
             else:
-                # At least one matching job produced a non-failed, non-datum result
-                # (e.g. success without datum, retry, in-progress). Don't flag.
-                continue
+                _inconclusive = {"retry", "superseded", "usercancel"}
+                has_failure = any(j["result"] in failed_results for j in jobs)
+                all_inconclusive = all(j["result"] in _inconclusive for j in jobs)
+                if all_inconclusive:
+                    # Every completed job was retried/superseded/cancelled with no
+                    # definitive outcome — skip rather than flag a false positive.
+                    continue
+                elif has_failure:
+                    # At least one job definitively failed. A co-existing success
+                    # (e.g. a later retrigger that succeeded but lost its datum, or
+                    # a different attempt) does not override the failure.
+                    status = "failed"
+                    job_id = min(j["id"] for j in jobs if j["result"] in failed_results)
+                else:
+                    # Jobs completed (possibly with success) but produced no datum —
+                    # data-collection gap. Show as not_run so the gap is visible.
+                    status = "not_run"
+                    job_id = None
 
             missing.append(
                 {

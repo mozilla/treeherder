@@ -175,10 +175,18 @@ const MissingJobTooltip = ({
           <div>
             <p
               className={`small ${
-                datum.status === 'failed' ? 'text-danger' : 'text-warning'
+                datum.status === 'failed'
+                  ? 'text-danger'
+                  : datum.status === 'in_progress'
+                  ? 'text-info'
+                  : 'text-warning'
               }`}
             >
-              {datum.status === 'failed' ? 'Job failed' : 'Job not run'}
+              {datum.status === 'failed'
+                ? 'Job failed'
+                : datum.status === 'in_progress'
+                ? 'Job in progress'
+                : 'Job not run'}
             </p>
           </div>
           <div>

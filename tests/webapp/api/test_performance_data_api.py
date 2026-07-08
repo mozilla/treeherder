@@ -728,6 +728,270 @@ def test_perf_summary_missing_data_classifies_failed_and_not_run(
     assert by_push[6]["job_id"] is None
 
 
+def test_perf_summary_missing_data_success_job_no_datum(
+    client, test_repository, test_perf_signature, test_perf_data
+):
+    """
+    A push whose matching job completed with result='success' but produced no
+    PerformanceDatum should still appear in missing_data as 'not_run' (data-collection
+    gap). A push where a failure co-exists with a success should appear as 'failed'.
+    """
+    base = datetime.datetime(2024, 10, 1, 0, 0, 0)
+
+    pushes = list(Push.objects.filter(id__in=[1, 2, 3, 4, 5, 6]).order_by("id"))
+    pushes[0].time = base
+    pushes[1].time = base + datetime.timedelta(days=1)
+    # push 5: success but no datum → should appear as 'not_run'
+    pushes[4].time = base + datetime.timedelta(days=1, hours=12)
+    # push 6: one success + one testfailed, no datum → should appear as 'failed'
+    pushes[5].time = base + datetime.timedelta(days=2, hours=12)
+    pushes[2].time = base + datetime.timedelta(days=2)
+    pushes[3].time = base + datetime.timedelta(days=3)
+    for p in pushes:
+        p.save()
+
+    for pd in PerformanceDatum.objects.filter(signature=test_perf_signature):
+        pd.push_timestamp = pd.push.time
+        pd.save()
+
+    template_job = Job.objects.filter(push_id=1).first()
+    template_job.machine_platform = test_perf_signature.platform
+    template_job.option_collection_hash = (
+        test_perf_signature.option_collection.option_collection_hash
+    )
+    template_job.save()
+    for job in Job.objects.filter(push_id__in=[1, 2, 3, 4]):
+        job.job_type = template_job.job_type
+        job.machine_platform = template_job.machine_platform
+        job.option_collection_hash = template_job.option_collection_hash
+        job.save()
+
+    # Push 5: matching job succeeded but left no datum → 'not_run'
+    push5_job = Job.objects.filter(push_id=5).first()
+    push5_job.job_type = template_job.job_type
+    push5_job.machine_platform = template_job.machine_platform
+    push5_job.option_collection_hash = template_job.option_collection_hash
+    push5_job.result = "success"
+    push5_job.state = "completed"
+    push5_job.save()
+
+    # Push 6: one success attempt + one failed attempt, no datum → 'failed'
+    push6_jobs = list(Job.objects.filter(push_id=6)[:2])
+    push6_jobs[0].job_type = template_job.job_type
+    push6_jobs[0].machine_platform = template_job.machine_platform
+    push6_jobs[0].option_collection_hash = template_job.option_collection_hash
+    push6_jobs[0].result = "success"
+    push6_jobs[0].state = "completed"
+    push6_jobs[0].save()
+    push6_jobs[1].job_type = template_job.job_type
+    push6_jobs[1].machine_platform = template_job.machine_platform
+    push6_jobs[1].option_collection_hash = template_job.option_collection_hash
+    push6_jobs[1].result = "testfailed"
+    push6_jobs[1].state = "completed"
+    push6_jobs[1].save()
+
+    query_params = (
+        f"?repository={test_perf_signature.repository.name}"
+        f"&framework={test_perf_signature.framework_id}"
+        f"&startday=2023-01-01T00%3A00%3A00"
+        f"&endday=2025-01-01T00%3A00%3A00"
+        f"&signature={test_perf_signature.id}"
+        f"&all_data=true"
+        f"&include_missing_data=true"
+    )
+    response = client.get(reverse("performance-summary") + query_params)
+    assert response.status_code == 200
+
+    missing = response.json()[0]["missing_data"]
+    by_push = {m["push_id"]: m for m in missing}
+
+    # Push 5: success job, no datum → data-collection gap, show as not_run
+    assert 5 in by_push, "Push with success-but-no-datum job should appear in missing_data"
+    assert by_push[5]["status"] == "not_run"
+    assert by_push[5]["job_id"] is None
+
+    # Push 6: failure exists alongside success → show as failed
+    assert 6 in by_push, "Push with success+testfailed jobs should appear in missing_data"
+    assert by_push[6]["status"] == "failed"
+    assert by_push[6]["job_id"] is not None
+
+
+def test_perf_summary_missing_data_handles_retried_jobs(
+    client, test_repository, test_perf_signature, test_perf_data
+):
+    """
+    Pushes where the matching job was auto-retried (result='retry') and the retry
+    itself also failed should still appear in missing_data as 'failed'.
+    Pushes where ALL matching jobs are 'retry' with no final result should be skipped.
+    """
+    base = datetime.datetime(2024, 6, 1, 0, 0, 0)
+
+    pushes = list(Push.objects.filter(id__in=[1, 2, 3, 4, 5, 6]).order_by("id"))
+    pushes[0].time = base
+    pushes[1].time = base + datetime.timedelta(days=1)
+    # push 5: auto-retried then failed — should appear as 'failed'
+    pushes[4].time = base + datetime.timedelta(days=1, hours=12)
+    # push 6: all attempts still 'retry', no final result — should be skipped
+    pushes[5].time = base + datetime.timedelta(days=2, hours=12)
+    pushes[2].time = base + datetime.timedelta(days=2)
+    pushes[3].time = base + datetime.timedelta(days=3)
+    for p in pushes:
+        p.save()
+
+    for pd in PerformanceDatum.objects.filter(signature=test_perf_signature):
+        pd.push_timestamp = pd.push.time
+        pd.save()
+
+    template_job = Job.objects.filter(push_id=1).first()
+    template_job.machine_platform = test_perf_signature.platform
+    template_job.option_collection_hash = (
+        test_perf_signature.option_collection.option_collection_hash
+    )
+    template_job.save()
+    for job in Job.objects.filter(push_id__in=[1, 2, 3, 4]):
+        job.job_type = template_job.job_type
+        job.machine_platform = template_job.machine_platform
+        job.option_collection_hash = template_job.option_collection_hash
+        job.save()
+
+    # Push 5: first attempt auto-retried, retry also failed → expect 'failed'
+    push5_jobs = list(Job.objects.filter(push_id=5)[:2])
+    push5_jobs[0].job_type = template_job.job_type
+    push5_jobs[0].machine_platform = template_job.machine_platform
+    push5_jobs[0].option_collection_hash = template_job.option_collection_hash
+    push5_jobs[0].result = "retry"
+    push5_jobs[0].save()
+    push5_jobs[1].job_type = template_job.job_type
+    push5_jobs[1].machine_platform = template_job.machine_platform
+    push5_jobs[1].option_collection_hash = template_job.option_collection_hash
+    push5_jobs[1].result = "busted"
+    push5_jobs[1].save()
+
+    # Push 6: all matching jobs are 'retry' (no final result) → should be skipped
+    push6_jobs = list(Job.objects.filter(push_id=6)[:2])
+    for job in push6_jobs:
+        job.job_type = template_job.job_type
+        job.machine_platform = template_job.machine_platform
+        job.option_collection_hash = template_job.option_collection_hash
+        job.result = "retry"
+        job.save()
+
+    query_params = (
+        f"?repository={test_perf_signature.repository.name}"
+        f"&framework={test_perf_signature.framework_id}"
+        f"&startday=2023-01-01T00%3A00%3A00"
+        f"&endday=2025-01-01T00%3A00%3A00"
+        f"&signature={test_perf_signature.id}"
+        f"&all_data=true"
+        f"&include_missing_data=true"
+    )
+    response = client.get(reverse("performance-summary") + query_params)
+    assert response.status_code == 200
+
+    missing = response.json()[0]["missing_data"]
+    push_ids_in_missing = {m["push_id"] for m in missing}
+    by_push = {m["push_id"]: m for m in missing}
+
+    # Push 5 (retry + busted) must appear as failed
+    assert 5 in push_ids_in_missing, "Push with retry+busted jobs should appear in missing_data"
+    assert by_push[5]["status"] == "failed"
+    assert by_push[5]["job_id"] is not None
+
+    # Push 6 (all retry, no final result) must NOT appear
+    assert 6 not in push_ids_in_missing, (
+        "Push with only retry jobs should not appear in missing_data"
+    )
+
+
+def test_perf_summary_missing_data_inconclusive_results(
+    client, test_repository, test_perf_signature, test_perf_data
+):
+    """
+    Pushes with inconclusive results (superseded, unknown, usercancel) mixed with
+    a definitive failure should still be classified as 'failed'. Pushes where all
+    matching jobs are inconclusive should be skipped entirely.
+    """
+    base = datetime.datetime(2024, 8, 1, 0, 0, 0)
+
+    pushes = list(Push.objects.filter(id__in=[1, 2, 3, 4, 5, 6]).order_by("id"))
+    pushes[0].time = base
+    pushes[1].time = base + datetime.timedelta(days=1)
+    # push 5: superseded + testfailed — should appear as 'failed'
+    pushes[4].time = base + datetime.timedelta(days=1, hours=12)
+    # push 6: only superseded jobs — should be skipped
+    pushes[5].time = base + datetime.timedelta(days=2, hours=12)
+    pushes[2].time = base + datetime.timedelta(days=2)
+    pushes[3].time = base + datetime.timedelta(days=3)
+    for p in pushes:
+        p.save()
+
+    for pd in PerformanceDatum.objects.filter(signature=test_perf_signature):
+        pd.push_timestamp = pd.push.time
+        pd.save()
+
+    template_job = Job.objects.filter(push_id=1).first()
+    template_job.machine_platform = test_perf_signature.platform
+    template_job.option_collection_hash = (
+        test_perf_signature.option_collection.option_collection_hash
+    )
+    template_job.save()
+    for job in Job.objects.filter(push_id__in=[1, 2, 3, 4]):
+        job.job_type = template_job.job_type
+        job.machine_platform = template_job.machine_platform
+        job.option_collection_hash = template_job.option_collection_hash
+        job.save()
+
+    # Push 5: superseded job + testfailed job → expect 'failed'
+    push5_jobs = list(Job.objects.filter(push_id=5)[:2])
+    push5_jobs[0].job_type = template_job.job_type
+    push5_jobs[0].machine_platform = template_job.machine_platform
+    push5_jobs[0].option_collection_hash = template_job.option_collection_hash
+    push5_jobs[0].result = "superseded"
+    push5_jobs[0].save()
+    push5_jobs[1].job_type = template_job.job_type
+    push5_jobs[1].machine_platform = template_job.machine_platform
+    push5_jobs[1].option_collection_hash = template_job.option_collection_hash
+    push5_jobs[1].result = "testfailed"
+    push5_jobs[1].save()
+
+    # Push 6: only superseded (no definitive result) → should be skipped
+    push6_jobs = list(Job.objects.filter(push_id=6)[:2])
+    for job in push6_jobs:
+        job.job_type = template_job.job_type
+        job.machine_platform = template_job.machine_platform
+        job.option_collection_hash = template_job.option_collection_hash
+        job.result = "superseded"
+        job.save()
+
+    query_params = (
+        f"?repository={test_perf_signature.repository.name}"
+        f"&framework={test_perf_signature.framework_id}"
+        f"&startday=2023-01-01T00%3A00%3A00"
+        f"&endday=2025-01-01T00%3A00%3A00"
+        f"&signature={test_perf_signature.id}"
+        f"&all_data=true"
+        f"&include_missing_data=true"
+    )
+    response = client.get(reverse("performance-summary") + query_params)
+    assert response.status_code == 200
+
+    missing = response.json()[0]["missing_data"]
+    push_ids_in_missing = {m["push_id"] for m in missing}
+    by_push = {m["push_id"]: m for m in missing}
+
+    # Push 5 (superseded + testfailed) must appear as failed
+    assert 5 in push_ids_in_missing, (
+        "Push with superseded+testfailed jobs should appear in missing_data"
+    )
+    assert by_push[5]["status"] == "failed"
+    assert by_push[5]["job_id"] is not None
+
+    # Push 6 (all superseded) must NOT appear
+    assert 6 not in push_ids_in_missing, (
+        "Push with only superseded jobs should not appear in missing_data"
+    )
+
+
 def test_no_retriggers_perf_summary(
     client, push_stored, test_perf_signature, test_perf_signature_2, test_perf_data
 ):
