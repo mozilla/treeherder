@@ -34,6 +34,21 @@ import {
 
 fetchMock.mock(`begin:${getApiUrl(endpoints.changelog)}`, changelogData);
 
+// Mock the single-job endpoint so that request resolves in tests
+fetchMock.mock(/\/jobs\/\d+\/$/, {
+  id: 1,
+  job_type_name: 'test-linux64/opt-talos-tp5o',
+  job_type_symbol: 'tp5o',
+  job_group_name: 'Talos performance tests',
+  platform: 'linux64',
+  platform_option: 'opt',
+  result: 'success',
+  state: 'completed',
+  submit_timestamp: 0,
+  start_timestamp: 0,
+  end_timestamp: 0,
+});
+
 const graphData = createGraphData(
   testData,
   alertSummaries,
@@ -346,6 +361,20 @@ test('Using select query param displays tooltip for correct datapoint', async ()
   expect(revision).toBeInTheDocument();
   expect(repoName).toHaveTextContent(testData[0].repository_name);
   expect(platform).toHaveTextContent(testData[0].platform);
+});
+
+test('Job link includes searchStr query param to filter to the single job', async () => {
+  const { getByRole } = await graphsViewControls(graphData, false);
+
+  const jobLink = await waitFor(() => getByRole('link', { name: 'job' }));
+
+  // The tokens come from the mocked job's searchStr, so the Job View filters
+  // down to this job instead of showing every job on the push.
+  await waitFor(() =>
+    expect(decodeURIComponent(jobLink.search)).toContain(
+      'searchStr=Linux,opt,Talos,performance,tests,test-linux64/opt-talos-tp5o,tp5o',
+    ),
+  );
 });
 
 test("Alert's ID can be copied to clipboard from tooltip", async () => {
