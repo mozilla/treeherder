@@ -63,7 +63,7 @@ function GraphsView({ projects, frameworks, user }) {
   const [highlightChangelogData, setHighlightChangelogData] = useState(false);
   const [highlightInitialDataPoints, setHighlightInitialDataPoints] =
     useState(false);
-  const [highlightMissingJobs, setHighlightMissingJobs] = useState(true);
+  const [highlightMissingJobs, setHighlightMissingJobs] = useState(false);
   const [highlightedRevisions, setHighlightedRevisions] = useState(['', '']);
   const [highlightedToRevision, setHighlightedToRevision] = useState(
     getHighlightedToRevision(),
@@ -124,6 +124,8 @@ function GraphsView({ projects, frameworks, user }) {
       interval: timeRangeRef.current.value,
       all_data: true,
       replicates: replicatesRef.current,
+      // Always request missing data so the overlay appears instantly when
+      // the user enables it, without needing a second API call.
       include_missing_data: true,
     };
   }, []);
@@ -377,8 +379,8 @@ function GraphsView({ projects, frameworks, user }) {
       if (state.colors !== undefined) setColors(state.colors);
       if (state.symbols !== undefined) setSymbols(state.symbols);
       if (state.showTable !== undefined) setShowTable(state.showTable);
-    if (state.highlightMissingJobs !== undefined)
-      setHighlightMissingJobs(state.highlightMissingJobs);
+      if (state.highlightMissingJobs !== undefined)
+        setHighlightMissingJobs(state.highlightMissingJobs);
 
       if (state.replicates !== undefined) {
         setReplicates(state.replicates);

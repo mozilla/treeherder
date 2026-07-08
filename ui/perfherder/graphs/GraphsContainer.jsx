@@ -415,6 +415,56 @@ class GraphsContainer extends React.Component {
 
   clearMissingLock = () => this.setState({ lockedMissingDatum: null });
 
+  renderMissingTooltipLayer(datum, locked) {
+    const { width } = this.state;
+    const { testData } = this.props;
+    const color =
+      testData.find((s) => s.signature_id === datum?.signature_id)?.color[1] ??
+      '#888';
+    return (
+      <VictoryScatter
+        name={locked ? 'lock-missing-layer' : 'hover-missing-layer'}
+        data={[datum]}
+        size={() => DOT_SIZE}
+        symbol="circle"
+        groupComponent={<g pointerEvents="none" />}
+        style={{
+          data: {
+            pointerEvents: 'none',
+            fill: 'transparent',
+            stroke: color,
+            strokeWidth: 2,
+            strokeDasharray: '2,2',
+            opacity: 0.7,
+          },
+        }}
+        labels={() => ' '}
+        labelComponent={
+          <VictoryTooltip
+            active
+            renderInPortal
+            activateData={false}
+            pointerLength={0}
+            flyoutStyle={{ pointerEvents: 'none' }}
+            style={{ pointerEvents: 'none' }}
+            flyoutComponent={
+              <MissingJobTooltip
+                lockTooltip={locked}
+                closeTooltip={
+                  locked
+                    ? this.clearMissingLock
+                    : () => this.setState({ hoverMissingDatum: null })
+                }
+                windowWidth={width}
+                {...this.props}
+              />
+            }
+          />
+        }
+      />
+    );
+  }
+
   updateZoom = (zoom) => {
     const { lockedId } = this.state;
     const { updateStateParams } = this.props;
@@ -470,9 +520,6 @@ class GraphsContainer extends React.Component {
 
     const hoverDatum = this.state.hoverId ? this.state.scatterPlotMap[this.state.hoverId] : null;
     const lockedDatum = this.state.lockedId ? this.state.scatterPlotMap[this.state.lockedId] : null;
-    const getMissingColor = (d) =>
-      testData.find((s) => s.signature_id === d?.signature_id)?.color[1] ??
-      '#888';
 
     const yAxisLabel = this.computeYAxisLabel();
     const positionedTick = <VictoryLabel dx={-2} />;
@@ -699,7 +746,6 @@ class GraphsContainer extends React.Component {
                               strokeWidth: 2,
                               strokeDasharray: '2,2',
                               opacity: 0.7,
-                              cursor: 'pointer',
                             },
                           }}
                           events={[
@@ -716,17 +762,24 @@ class GraphsContainer extends React.Component {
                                   this.setState({ hoverMissingDatum: null });
                                   return null;
                                 },
+                                onMouseDown: (evt) =>
+                                  evt.stopPropagation(),
                                 onClick: (_evt, props) => {
                                   const d = props.datum;
-                                  this.setState((prev) => ({
-                                    lockedMissingDatum:
-                                      prev.lockedMissingDatum?.signature_id ===
-                                        d.signature_id &&
-                                      prev.lockedMissingDatum?.pushId ===
-                                        d.pushId
-                                        ? null
-                                        : d,
-                                  }));
+                                  const isToggleOff =
+                                    this.state.lockedMissingDatum
+                                      ?.signature_id === d.signature_id &&
+                                    this.state.lockedMissingDatum?.pushId ===
+                                      d.pushId;
+                                  this.setState({
+                                    lockedMissingDatum: isToggleOff ? null : d,
+                                    lockedId: null,
+                                  });
+                                  if (!isToggleOff) {
+                                    this.props.updateStateParams?.({
+                                      selectedDataPoint: null,
+                                    });
+                                  }
                                   // Victory event handlers must return a value; null means no chart state mutation.
                                   return null;
                                 },
@@ -737,84 +790,10 @@ class GraphsContainer extends React.Component {
                       );
                     })}
 
-                  {hoverMissingDatum && (
-                    <VictoryScatter
-                      name="hover-missing-layer"
-                      data={[hoverMissingDatum]}
-                      size={() => DOT_SIZE}
-                      symbol="circle"
-                      groupComponent={<g pointerEvents="none" />}
-                      style={{
-                        data: {
-                          pointerEvents: 'none',
-                          fill: 'transparent',
-                          stroke: getMissingColor(hoverMissingDatum),
-                          strokeWidth: 2,
-                          strokeDasharray: '2,2',
-                          opacity: 0.7,
-                        },
-                      }}
-                      labels={() => ' '}
-                      labelComponent={
-                        <VictoryTooltip
-                          active
-                          renderInPortal
-                          activateData={false}
-                          pointerLength={0}
-                          flyoutStyle={{ pointerEvents: 'none' }}
-                          style={{ pointerEvents: 'none' }}
-                          flyoutComponent={
-                            <MissingJobTooltip
-                              lockTooltip={false}
-                              closeTooltip={() =>
-                                this.setState({ hoverMissingDatum: null })
-                              }
-                              windowWidth={width}
-                              {...this.props}
-                            />
-                          }
-                        />
-                      }
-                    />
-                  )}
-                  {lockedMissingDatum && (
-                    <VictoryScatter
-                      name="lock-missing-layer"
-                      data={[lockedMissingDatum]}
-                      size={() => DOT_SIZE}
-                      symbol="circle"
-                      groupComponent={<g pointerEvents="none" />}
-                      style={{
-                        data: {
-                          pointerEvents: 'none',
-                          fill: 'transparent',
-                          stroke: getMissingColor(lockedMissingDatum),
-                          strokeWidth: 2,
-                          strokeDasharray: '2,2',
-                          opacity: 0.7,
-                        },
-                      }}
-                      labels={() => ' '}
-                      labelComponent={
-                        <VictoryTooltip
-                          active
-                          renderInPortal
-                          activateData={false}
-                          pointerLength={0}
-                          flyoutStyle={{ pointerEvents: 'none' }}
-                          style={{ pointerEvents: 'none' }}
-                          flyoutComponent={
-                            <MissingJobTooltip
-                              lockTooltip
-                              closeTooltip={this.clearMissingLock}
-                              windowWidth={width}
-                              {...this.props}
-                            />
-                          }
-                        />
-                      }
-                    />
-                  )}
+                  {hoverMissingDatum &&
+                    this.renderMissingTooltipLayer(hoverMissingDatum, false)}
+                  {lockedMissingDatum &&
+                    this.renderMissingTooltipLayer(lockedMissingDatum, true)}
 
                   <VictoryScatter
                     name="scatter-plot"
@@ -878,6 +857,7 @@ class GraphsContainer extends React.Component {
                                 if (id == null) return null;
                                 this.setState((prev) => ({
                                   lockedId: prev.lockedId === id ? null : id,
+                                  lockedMissingDatum: null,
                                 }));
                                 const signatureId =
                                   props?.datum?.signature_id ?? null;
