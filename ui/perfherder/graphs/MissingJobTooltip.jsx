@@ -15,6 +15,12 @@ import TaskclusterModel from '../../models/taskcluster';
 import { getAction } from '../../helpers/taskcluster';
 import Clipboard from '../../shared/Clipboard';
 
+const STATUS_DISPLAY = {
+  failed: { label: 'Job failed', className: 'text-danger' },
+  in_progress: { label: 'Job in progress', className: 'text-info' },
+  not_run: { label: 'Job not run', className: 'text-warning' },
+};
+
 const MissingJobTooltip = ({
   testData,
   user,
@@ -26,9 +32,35 @@ const MissingJobTooltip = ({
   y,
   windowWidth,
 }) => {
+  const tooltipRef = useRef(null);
+  const [tooltipHeight, setTooltipHeight] = useState(0);
+
   const testDetails = testData.find(
     (item) => item.signature_id === datum.signature_id,
   );
+
+  useLayoutEffect(() => {
+    if (!tooltipRef.current) return;
+
+    const element = tooltipRef.current;
+
+    const measure = () => {
+      const h = element.getBoundingClientRect().height;
+      if (h && Math.abs(h - tooltipHeight) > 1) setTooltipHeight(h);
+    };
+
+    measure();
+    if (typeof ResizeObserver === 'undefined') return undefined;
+    const ro = new ResizeObserver(() => measure());
+    ro.observe(element);
+
+    return () => ro.disconnect();
+  }, [tooltipHeight]);
+
+  if (!testDetails) return null;
+
+  const { label: statusLabel, className: statusClass } =
+    STATUS_DISPLAY[datum.status] ?? STATUS_DISPLAY.not_run;
 
   const currentRepo = RepositoryModel.getRepo(
     testDetails.repository_name,
@@ -114,27 +146,6 @@ const MissingJobTooltip = ({
     }
   };
 
-  const tooltipRef = useRef(null);
-  const [tooltipHeight, setTooltipHeight] = useState(0);
-
-  useLayoutEffect(() => {
-    if (!tooltipRef.current) return;
-
-    const element = tooltipRef.current;
-
-    const measure = () => {
-      const h = element.getBoundingClientRect().height;
-      if (h && Math.abs(h - tooltipHeight) > 1) setTooltipHeight(h);
-    };
-
-    measure();
-    if (typeof ResizeObserver === 'undefined') return undefined;
-    const ro = new ResizeObserver(() => measure());
-    ro.observe(element);
-
-    return () => ro.disconnect();
-  }, [tooltipHeight]);
-
   const verticalOffset = 10;
   const horizontalOffset = x >= 1275 && windowWidth <= 1825 ? 100 : 0;
   const effectiveHeight = tooltipHeight || 186;
@@ -147,7 +158,7 @@ const MissingJobTooltip = ({
     <foreignObject width="100%" height="100%" x={centered.x} y={centered.y}>
       <div
         ref={tooltipRef}
-        className={`graph-tooltip ${lockTooltip ? 'locked' : null}`}
+        className={`graph-tooltip ${lockTooltip ? 'locked' : ''}`}
         xmlns="http://www.w3.org/1999/xhtml"
         data-testid="missingJobTooltip"
       >
@@ -173,13 +184,7 @@ const MissingJobTooltip = ({
             </p>
           </div>
           <div>
-            <p
-              className={`small ${
-                datum.status === 'failed' ? 'text-danger' : 'text-warning'
-              }`}
-            >
-              {datum.status === 'failed' ? 'Job failed' : 'Job not run'}
-            </p>
+            <p className={`small ${statusClass}`}>{statusLabel}</p>
           </div>
           <div>
             <span>

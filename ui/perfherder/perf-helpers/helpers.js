@@ -805,16 +805,14 @@ const buildMissingData = (series) => {
 
   return missing.map((entry) => {
     const t = Date.parse(`${entry.push_timestamp}Z`);
-    // Binary search for the first real point with t >= entry timestamp.
-    let lo = 0;
-    let hi = realPoints.length;
-    while (lo < hi) {
-      const mid = (lo + hi) >> 1; // integer divide by 2
-      if (realPoints[mid].t < t) lo = mid + 1;
-      else hi = mid;
-    }
-    const right = realPoints[lo];
-    const left = lo > 0 ? realPoints[lo - 1] : null;
+    // Find the nearest neighbours for interpolation: the first real point at or
+    // after the missing timestamp (right) and the one immediately before it (left).
+    const rightIdx = realPoints.findIndex((p) => p.t >= t);
+    // insertionIdx mirrors what a binary search would return: realPoints.length when
+    // all points fall before t, so left/right derivations stay consistent.
+    const insertionIdx = rightIdx === -1 ? realPoints.length : rightIdx;
+    const right = rightIdx !== -1 ? realPoints[rightIdx] : null;
+    const left = insertionIdx > 0 ? realPoints[insertionIdx - 1] : null;
     let y;
     if (left && right && right.t !== left.t) {
       y = left.y + ((right.y - left.y) * (t - left.t)) / (right.t - left.t);
