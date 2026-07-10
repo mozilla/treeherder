@@ -464,6 +464,12 @@ class Command(BaseCommand):
         type_of_ingestion = options["ingestion_type"][0]
         root_url = options["root_url"]
 
+        # Use the verbosity option provided by Django to set log level
+        verbosity = options.get("verbosity", 2)  # Set default to INFO
+        levels = {0: logging.ERROR, 1: logging.WARNING, 2: logging.INFO, 3: logging.DEBUG}
+        log_level = levels.get(verbosity, logging.INFO)
+        logger.setLevel(level=log_level)
+
         if not options["enable_eager_celery"]:
             logger.info("If you want all logs to be parsed use --enable-eager-celery")
         else:
