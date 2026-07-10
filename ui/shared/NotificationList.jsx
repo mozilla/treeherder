@@ -28,7 +28,7 @@ class NotificationList extends React.Component {
     const { notifications, clearNotification, clearAllNotifications } = this.props;
 
     return (
-      <ul id="notification-box" className="list-unstyledm">
+      <ul id="notification-box" className="list-unstyled">
         {notifications.length > 0 && (
           <li>
             <Button
