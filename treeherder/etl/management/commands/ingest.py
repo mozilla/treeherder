@@ -420,7 +420,9 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "ingestion_type", nargs=1, help="Type of ingestion to do: [task|hg-push|git-commit|pr]"
+            "ingestion_type",
+            nargs=1,
+            help="Type of ingestion to do: [task|push|git-push|git-pushes|pr]",
         )
         parser.add_argument("-p", "--project", help="Hg repository to query (e.g. autoland)")
         parser.add_argument("-c", "--commit", "-r", "--revision", help="Commit/revision to import")
