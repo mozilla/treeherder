@@ -7,11 +7,15 @@ const Notifications = () => {
   const clearNotification = useNotificationStore(
     (state) => state.clearNotification,
   );
+  const clearAllNotifications = useNotificationStore(
+    (state) => state.clearAllOnScreenNotifications,
+  );
 
   return (
     <NotificationList
       notifications={notifications}
       clearNotification={clearNotification}
+      clearAllNotifications={clearAllNotifications}
     />
   );
 };

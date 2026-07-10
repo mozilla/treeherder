@@ -25,10 +25,21 @@ class NotificationList extends React.Component {
   }
 
   render() {
-    const { notifications, clearNotification } = this.props;
+    const { notifications, clearNotification, clearAllNotifications } = this.props;
 
     return (
-      <ul id="notification-box" className="list-unstyled">
+      <ul id="notification-box" className="list-unstyledm">
+        {notifications.length > 0 && (
+          <li>
+            <Button
+              onClick={() => clearAllNotifications()}
+              className="clear-all-notifications w-100 mb-1"
+              size="sm"
+            >
+              Clear all notifications
+            </Button>
+          </li>
+        )}
         {notifications.map((notification, idx) => (
           <li key={notification.created}>
             <Alert variant={notification.severity}>
@@ -73,6 +84,7 @@ NotificationList.propTypes = {
     }),
   ).isRequired,
   clearNotification: PropTypes.func.isRequired,
+  clearAllNotifications: PropTypes.func.isRequired,
 };
 
 export default NotificationList;
