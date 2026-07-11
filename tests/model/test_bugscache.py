@@ -3,8 +3,9 @@ import os
 from datetime import datetime, timedelta
 
 import pytest
+from django.utils import timezone
 
-from treeherder.model.models import Bugscache
+from treeherder.model.models import BugJobMap, Bugscache, Job
 
 fifty_days_ago = datetime.now() - timedelta(days=50)
 
@@ -160,6 +161,50 @@ def test_search_uses_trigram_ilike_not_upper(transactional_db):
     assert "UPPER(" not in sql.upper()
     # \ % _ escaped, then wrapped as a "contains" pattern, matching __icontains.
     assert params[-1] == r"%Some\_Term\%%"
+
+
+def _internal_bug(summary):
+    return Bugscache.objects.create(
+        bugzilla_id=None,
+        status="",
+        resolution="",
+        summary=summary,
+        dupe_of=None,
+        crash_signature="",
+        keywords="",
+        modified=datetime.now(),
+        whiteboard="",
+    )
+
+
+def test_internal_occurrences_batches_counts(
+    transactional_db, eleven_jobs_stored, test_user, django_assert_num_queries
+):
+    """internal_occurrences returns per-bug counts within the window, in one query.
+
+    This replaces the per-row jobmap.count() that serialize() used to run for
+    every internal issue in a search result.
+    """
+    jobs = list(Job.objects.all()[:3])
+    bug_a = _internal_bug("internal issue a")
+    bug_b = _internal_bug("internal issue b")
+
+    # bug_a: two recent maps -> 2; bug_b: one recent map -> 1
+    BugJobMap.objects.create(job=jobs[0], bug=bug_a, user=test_user)
+    BugJobMap.objects.create(job=jobs[1], bug=bug_a, user=test_user)
+    BugJobMap.objects.create(job=jobs[0], bug=bug_b, user=test_user)
+
+    # An old map for bug_a, outside the 7-day window, must be excluded.
+    old = BugJobMap.objects.create(job=jobs[2], bug=bug_a, user=test_user)
+    BugJobMap.objects.filter(pk=old.pk).update(created=timezone.now() - timedelta(days=30))
+
+    with django_assert_num_queries(1):
+        counts = Bugscache.internal_occurrences([bug_a.id, bug_b.id])
+
+    assert counts == {bug_a.id: 2, bug_b.id: 1}
+    # No ids -> no query, empty result.
+    with django_assert_num_queries(0):
+        assert Bugscache.internal_occurrences([]) == {}
 
 
 @pytest.mark.django_db(transaction=True)
