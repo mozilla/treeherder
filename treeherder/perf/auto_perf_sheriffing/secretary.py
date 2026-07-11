@@ -390,7 +390,7 @@ class Secretary:
             logger.warning(f"Record {record.alert.id}: Could not find last detected push: {ex}")
             return None, None, []
 
-        start_time = last_detected_push.time - django_settings.PERFHERDER_ALERTS_MAX_AGE
+        start_time = last_detected_push.time - timedelta(days=6)
         prev_alert = (
             PerformanceAlert.objects.filter(
                 series_signature=signature,
@@ -412,7 +412,7 @@ class Secretary:
         if fore_pushes:
             end_time = fore_pushes[-1].push_timestamp
         else:
-            end_time = last_detected_push.time + timedelta(days=7)
+            end_time = last_detected_push.time + timedelta(days=6)
         series = (
             PerformanceDatum.objects.filter(
                 signature=signature,
