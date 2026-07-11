@@ -339,7 +339,7 @@ class Bugscache(models.Model):
     def __str__(self):
         return f"{self.id}"
 
-    def serialize(self):
+    def serialize(self, occurrences=None):
         exclude_fields = ["modified", "processed_update"]
 
         attrs = model_to_dict(self, exclude=exclude_fields)
@@ -347,14 +347,31 @@ class Bugscache(models.Model):
         attrs["internal_id"] = attrs["id"]
         attrs["id"] = attrs.pop("bugzilla_id")
 
-        attrs["occurrences"] = None
-        if attrs["id"] is None:
-            # Only fetch occurrences for internal issues. It causes one extra query
-            attrs["occurrences"] = self.jobmap.filter(
-                created__gte=timezone.now()
-                - datetime.timedelta(days=settings.INTERNAL_OCCURRENCES_DAYS_WINDOW)
-            ).count()
+        # occurrences is only meaningful for internal issues (no bugzilla id).
+        # The count is passed in (see internal_occurrences) so serializing a
+        # list of bugs doesn't fire one query per row.
+        attrs["occurrences"] = occurrences if attrs["id"] is None else None
         return attrs
+
+    @staticmethod
+    def internal_occurrences(bug_ids):
+        """Count recent job maps per internal-issue bug in a single query.
+
+        Returns {bugscache_id: count} for the given ids, so callers can serialize
+        a batch of bugs without the per-row jobmap.count() that serialize() would
+        otherwise do for each internal issue.
+        """
+        if not bug_ids:
+            return {}
+        window_start = timezone.now() - datetime.timedelta(
+            days=settings.INTERNAL_OCCURRENCES_DAYS_WINDOW
+        )
+        rows = (
+            BugJobMap.objects.filter(bug_id__in=bug_ids, created__gte=window_start)
+            .values("bug_id")
+            .annotate(occurrences=Count("id"))
+        )
+        return {row["bug_id"]: row["occurrences"] for row in rows}
 
     @classmethod
     def search(cls, search_term):
@@ -389,7 +406,15 @@ class Bugscache(models.Model):
         )
 
         try:
-            open_recent_match_string = [item.serialize() for item in recent_qs]
+            recent = list(recent_qs)
+            # One grouped query for all internal issues in the result set,
+            # instead of a per-row count inside serialize().
+            occurrences_by_id = Bugscache.internal_occurrences(
+                [bug.id for bug in recent if bug.bugzilla_id is None]
+            )
+            open_recent_match_string = [
+                item.serialize(occurrences=occurrences_by_id.get(item.id)) for item in recent
+            ]
             all_data = [
                 match
                 for match in open_recent_match_string
