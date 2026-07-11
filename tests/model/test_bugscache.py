@@ -144,6 +144,24 @@ def test_bug_properties(transactional_db, sample_bugs):
     assert set(suggestions["open_recent"][0].keys()) == expected_keys
 
 
+def test_search_uses_trigram_ilike_not_upper(transactional_db):
+    """The bug search must apply ILIKE directly to the summary column.
+
+    Django's __icontains compiles to UPPER(summary) LIKE UPPER(%s), which the
+    planner cannot serve with the gin_trgm_ops index on the plain summary
+    column (it falls back to a full sequential scan). This guards against a
+    regression back to __icontains by asserting the compiled SQL uses ILIKE on
+    the bare column, with the same wildcard-escaping semantics as __icontains.
+    """
+    qs = Bugscache.objects.filter(summary__trigram_ilike="Some_Term%")
+    sql, params = qs.query.sql_with_params()
+
+    assert "ILIKE" in sql.upper()
+    assert "UPPER(" not in sql.upper()
+    # \ % _ escaped, then wrapped as a "contains" pattern, matching __icontains.
+    assert params[-1] == r"%Some\_Term\%%"
+
+
 @pytest.mark.django_db(transaction=True)
 def test_import(mock_bugscache_bugzilla_request):
     """
