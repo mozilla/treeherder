@@ -18,7 +18,7 @@ from django.core.exceptions import (
 )
 from django.core.validators import MinLengthValidator
 from django.db import models, transaction
-from django.db.models import Count, Max, Min, Q, Subquery
+from django.db.models import Count, Lookup, Max, Min, Q, Subquery
 from django.db.utils import ProgrammingError
 from django.forms import model_to_dict
 from django.utils import timezone
@@ -274,6 +274,35 @@ class MachinePlatform(models.Model):
         return f"{self.os_name} {self.platform} {self.architecture}"
 
 
+@models.CharField.register_lookup
+class TrigramILike(Lookup):
+    """Case-insensitive substring match that compiles to ``col ILIKE %s``.
+
+    Django's built-in ``__icontains`` compiles to ``UPPER(col) LIKE UPPER(%s)``
+    on PostgreSQL. Because the predicate is on ``UPPER(col)`` rather than the
+    bare column, the planner cannot use a ``gin_trgm_ops`` index defined on the
+    plain column (e.g. bugscache_summary_gin_trgm_idx) and falls back to a full
+    sequential scan. Applying ILIKE (``~~*``) directly to the column lets that
+    trigram GIN index serve the search.
+
+    LIKE wildcards are escaped so matching is literal, identical to the
+    semantics of ``__icontains``.
+    """
+
+    lookup_name = "trigram_ilike"
+
+    def get_prep_lookup(self):
+        # Mirror Django's prep_for_like_query escaping, then wrap as a
+        # "contains" pattern (%term%), so behaviour matches __icontains.
+        escaped = str(self.rhs).replace("\\", "\\\\").replace("%", r"\%").replace("_", r"\_")
+        return f"%{escaped}%"
+
+    def as_sql(self, compiler, connection):
+        lhs, lhs_params = self.process_lhs(compiler, connection)
+        rhs, rhs_params = self.process_rhs(compiler, connection)
+        return f"{lhs} ILIKE {rhs}", lhs_params + rhs_params
+
+
 class Bugscache(models.Model):
     id = models.BigAutoField(primary_key=True)
 
@@ -336,9 +365,12 @@ class Bugscache(models.Model):
         # as the ranking algorithm expects english words, not paths
         # So we use standard pattern matching AND trigram similarity to compare suite of characters
         # instead of words
-        # Django already escapes special characters, so we do not need to handle that here
+        # LIKE wildcards in the term are escaped by the trigram_ilike lookup below.
         recent_qs = (
-            Bugscache.objects.filter(summary__icontains=search_term)
+            # Use ILIKE directly on the column (not UPPER(...) LIKE UPPER(...),
+            # which is what __icontains compiles to) so the trigram GIN index
+            # on summary is used instead of a full sequential scan.
+            Bugscache.objects.filter(summary__trigram_ilike=search_term)
             # Only fetch the fields that serialize() returns; modified and
             # processed_update are excluded there, so there's no need to load them.
             .only(
