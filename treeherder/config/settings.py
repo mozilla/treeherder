@@ -200,6 +200,23 @@ AUTHENTICATION_BACKENDS = [
 # Use the cache-based backend rather than the default of database.
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 
+# Cap on the Django session lifetime, in seconds.
+#
+# The frontend silently renews the SSO session every RENEW_INTERVAL (15 minutes,
+# see ui/helpers/auth.js), and each renewal re-extends this session by calling
+# /auth/login/ again. So while the user's SSO access is valid, the renewal
+# heartbeat keeps them logged in indefinitely regardless of this cap.
+#
+# Without a cap the session inherits the identity token's much longer lifetime,
+# which means a user whose SSO access has been revoked (e.g. a terminated
+# employee) could keep acting through their existing session -- authorized by the
+# Django session cookie, not the now-unrenewable token -- until that long-lived
+# token finally expired. Capping the session to a small multiple of the renewal
+# interval means that once renewals start failing, the session lapses within this
+# window instead. The default (45 min = 3x the renewal interval) tolerates one
+# missed renewal without logging out an active user.
+AUTH_MAX_SESSION_AGE_SECONDS = env.int("AUTH_MAX_SESSION_AGE_SECONDS", default=45 * 60)
+
 # Path to redirect to on successful login.
 LOGIN_REDIRECT_URL = "/"
 

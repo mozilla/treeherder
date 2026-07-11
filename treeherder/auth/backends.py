@@ -2,12 +2,15 @@ import json
 import logging
 import time
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from jose import jwt
 from rest_framework.exceptions import AuthenticationFailed
 
 from treeherder.config.settings import AUTH0_CLIENTID, AUTH0_DOMAIN
+
+GROUPS_CLAIM = "https://sso.mozilla.com/claim/groups"
 
 logger = logging.getLogger(__name__)
 
@@ -72,11 +75,7 @@ class AuthBackend:
         Set users in sheriffing group in jwt response as is_staff
         """
 
-        groups = (
-            user_info["https://sso.mozilla.com/claim/groups"]
-            if "https://sso.mozilla.com/claim/groups" in user_info
-            else []
-        )
+        groups = user_info.get(GROUPS_CLAIM, [])
 
         return 1 if ("sheriff" in groups or "perf_sheriff" in groups) else 0
 
@@ -205,7 +204,13 @@ class AuthBackend:
             )
             raise AuthError("Session expiry time has already passed!")
 
-        return seconds_until_expiry
+        # Cap the session so it can't outlive the frontend's renewal heartbeat.
+        # The renewal re-extends the session every RENEW_INTERVAL, so this never
+        # shortens an actively-renewing user's session; it only ensures that once
+        # renewals stop (e.g. SSO access revoked) the session lapses promptly
+        # instead of coasting on the token's much longer lifetime.
+        # See AUTH_MAX_SESSION_AGE_SECONDS in settings.py.
+        return min(seconds_until_expiry, settings.AUTH_MAX_SESSION_AGE_SECONDS)
 
     def authenticate(self, request):
         logger.debug("Authentication attempt started")
@@ -217,7 +222,7 @@ class AuthBackend:
             user_info = self._get_user_info(access_token, id_token)
             username = self._get_username_from_userinfo(user_info)
             is_sheriff = self._get_is_sheriff_from_userinfo(user_info)
-            groups_claim_present = "https://sso.mozilla.com/claim/groups" in user_info
+            groups_claim_present = GROUPS_CLAIM in user_info
             logger.debug("User info retrieved for: %s", username)
 
             seconds_until_expiry = self._calculate_session_expiry(request, user_info)
@@ -237,10 +242,33 @@ class AuthBackend:
             try:
                 user = User.objects.get(username=username)
                 logger.debug("Existing user authenticated: %s", username)
-                if groups_claim_present and user.is_staff != is_sheriff:
-                    user.is_staff = is_sheriff
-                    user.save()
-                    logger.debug("Updated staff status for user %s to %s", username, is_sheriff)
+                if groups_claim_present:
+                    # An empty groups claim demotes just like a claim that lacks
+                    # the sheriff groups. This is expected on a genuine login by a
+                    # user who has lost their groups, but if it shows up on silent
+                    # renewals it would mean the "absent claim" assumption below is
+                    # wrong -- log it so that case is visible.
+                    if not user_info.get(GROUPS_CLAIM) and user.is_staff:
+                        logger.warning(
+                            "Groups claim present but empty for %s; demoting is_staff. "
+                            "If this recurs on token renewals, the absent-claim "
+                            "assumption in this backend needs revisiting.",
+                            username,
+                        )
+                    if user.is_staff != is_sheriff:
+                        user.is_staff = is_sheriff
+                        user.save()
+                        logger.debug("Updated staff status for user %s to %s", username, is_sheriff)
+                elif user.is_staff:
+                    # No groups claim on this token. This is typical of a silent
+                    # token renewal, where Auth0 omits the large custom claim.
+                    # Preserve the user's existing is_staff rather than demoting
+                    # them; logged at info so we can confirm how often it fires.
+                    logger.info(
+                        "Preserving is_staff=True for %s: groups claim absent from token "
+                        "(expected on silent renewals)",
+                        username,
+                    )
                 return user
             except ObjectDoesNotExist:
                 # The user doesn't already exist, so create it since we allow
