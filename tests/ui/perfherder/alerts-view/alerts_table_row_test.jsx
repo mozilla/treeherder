@@ -24,9 +24,14 @@ const frameworks = [
   },
 ];
 
-const alertTableRowTest = (
-  { alert, tags, options, noiseProfile } = { alert: testAlert },
-) => {
+const alertTableRowTest = ({
+  alert = testAlert,
+  tags,
+  options,
+  noiseProfile,
+  lastClickedGraphAlertId = null,
+  setLastClickedGraphAlertId = jest.fn(),
+} = {}) => {
   if (tags) {
     testAlert.series_signature.tags = [...tags];
   }
@@ -51,6 +56,8 @@ const alertTableRowTest = (
           selectedAlerts={[{}]}
           updateViewState={() => {}}
           modifyAlert={() => {}}
+          lastClickedGraphAlertId={lastClickedGraphAlertId}
+          setLastClickedGraphAlertId={setLastClickedGraphAlertId}
         />
       </tbody>
     </table>,
@@ -383,4 +390,71 @@ test('Chart icon opens the graph link for an alert in a new tab', async () => {
     '/perfherder/graphs?timerange=31536000&series=autoland,1944439,1,1&highlightedToRevision=930f0f51b681aea2a5e915a2770f80a9914ed3df',
   );
   expect(graphLink).toHaveAttribute('target', '_blank');
+});
+
+test('Chart icon opens the graph link for an alert in a new tab', () => {
+  const { getByRole } = alertTableRowTest({
+    alert: testAlert,
+    tags: false,
+  });
+
+  const graphLink = getByRole('link', { name: 'graph-link' });
+
+  expect(graphLink).toHaveAttribute('target', '_blank');
+  expect(graphLink).toHaveAttribute('rel', 'noopener noreferrer');
+  expect(graphLink).toHaveAttribute('href', expect.stringContaining('/perfherder/graphs?'),);
+});
+
+describe('graph link highlight', () => {
+  test('graph link is not highlighted when no alert is active', () => {
+    const { getByRole } = alertTableRowTest({
+      alert: testAlert,
+      lastClickedGraphAlertId: null,
+    });
+
+    const graphLink = getByRole('link', { name: 'graph-link' });
+
+    expect(graphLink).not.toHaveClass('graph-link-active');
+    expect(graphLink).toHaveClass('bg-transparent');
+  });
+
+  test('graph link is highlighted when lastClickedGraphAlertId matches', () => {
+    const { getByRole } = alertTableRowTest({
+      alert: testAlert,
+      lastClickedGraphAlertId: testAlert.id,
+    });
+
+    const graphLink = getByRole('link', { name: 'graph-link' });
+
+    expect(graphLink).toHaveClass('graph-link-active');
+    expect(graphLink).not.toHaveClass('bg-transparent');
+  });
+
+  test('graph link is not highlighted when a different alert is active', () => {
+    const { getByRole } = alertTableRowTest({
+      alert: testAlert,
+      lastClickedGraphAlertId: testAlert.id + 1,
+    });
+
+    const graphLink = getByRole('link', { name: 'graph-link' });
+
+    expect(graphLink).not.toHaveClass('graph-link-active');
+    expect(graphLink).toHaveClass('bg-transparent');
+  });
+
+  test('clicking the graph link calls setLastClickedGraphAlertId with the alert id', () => {
+    const setLastClickedGraphAlertId = jest.fn();
+
+    const { getByRole } = alertTableRowTest({
+      alert: testAlert,
+      setLastClickedGraphAlertId,
+    });
+
+    const graphLink = getByRole('link', { name: 'graph-link' });
+
+    fireEvent.click(graphLink);
+
+    expect(setLastClickedGraphAlertId).toHaveBeenCalledTimes(1);
+    expect(setLastClickedGraphAlertId).toHaveBeenCalledWith(testAlert.id);
+  });
 });
