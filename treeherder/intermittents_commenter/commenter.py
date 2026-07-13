@@ -621,7 +621,7 @@ class Commenter:
             m = test_name_re.match(summary)
             if m:
                 test_name = m.group(1)
-            if not test_name:
+            else:
                 return None
 
             # TODO: fix reftest
