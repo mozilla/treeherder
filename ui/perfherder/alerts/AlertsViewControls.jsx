@@ -11,6 +11,7 @@ import AlertTable from './AlertTable';
 export default class AlertsViewControls extends React.Component {
   constructor(props) {
     super(props);
+    this.graphHighlightTimer = null;
     const { filters } = this.props;
 
     this.state = {
@@ -19,6 +20,15 @@ export default class AlertsViewControls extends React.Component {
       ),
       lastClickedGraphAlertId: null,
     };
+  }
+
+  componentDidMount() {
+    document.addEventListener('visibilitychange', this.handleVisibilityChange);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('visibilitychange', this.handleVisibilityChange);
+    clearTimeout(this.graphHighlightTimer);
   }
 
   updateFilterText = (filterText) => {
@@ -60,15 +70,6 @@ export default class AlertsViewControls extends React.Component {
   setLastClickedGraphAlertId = (alertId) => {
     this.setState({ lastClickedGraphAlertId: alertId });
   };
-
-  componentDidMount() {
-    document.addEventListener('visibilitychange', this.handleVisibilityChange);
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('visibilitychange', this.handleVisibilityChange);
-    clearTimeout(this.graphHighlightTimer);
-  }
 
   handleVisibilityChange = () => {
     if (document.visibilityState === 'hidden') {
