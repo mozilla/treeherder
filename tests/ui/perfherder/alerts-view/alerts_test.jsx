@@ -140,6 +140,10 @@ const tagsList = (tags = []) => {
 
 const modifyAlertSpy = jest.spyOn(mockModifyAlert, 'update');
 
+afterEach(() => {
+  modifyAlertSpy.mockClear();
+});
+
 beforeAll(() => {
   fetchMock.mock(getApiUrl(endpoints.issueTrackers), testIssueTrackers);
 
@@ -271,7 +275,6 @@ test('clicking the star icon for an alert updates that alert', async () => {
       failureStatus: null,
     });
   });
-  modifyAlertSpy.mockClear();
 });
 
 test('selecting all alerts and marking them as acknowledged updates all alerts', async () => {
@@ -294,7 +297,7 @@ test('selecting all alerts and marking them as acknowledged updates all alerts',
 
   // all alerts have been updated
   await waitFor(() => {
-    expect(modifyAlertSpy).toHaveBeenCalled();
+    expect(modifyAlertSpy).toHaveBeenCalledTimes(4);
     expect(modifyAlertSpy.mock.results[0].value).toStrictEqual({
       data: {
         ...testAlertSummaries[0].alerts[0],
@@ -313,16 +316,12 @@ test('selecting all alerts and marking them as acknowledged updates all alerts',
   });
 
   // action panel has closed and all checkboxes reset
-  acknowledgeButton = await waitForElementToBeRemoved(() =>
-    queryByText('Acknowledge'),
-  );
   await waitFor(() => {
+    expect(queryByText('Acknowledge')).toBeNull();
     expect(summaryCheckbox).toHaveProperty('checked', false);
     expect(alertCheckbox1).toHaveProperty('checked', false);
     expect(alertCheckbox2).toHaveProperty('checked', false);
   });
-
-  modifyAlertSpy.mockClear();
 });
 
 test('selecting an alert and marking it as invalid only updates that alert', async () => {
@@ -343,7 +342,7 @@ test('selecting an alert and marking it as invalid only updates that alert', asy
   fireEvent.click(invalidButton);
   // alert has been updated
   await waitFor(() => {
-    expect(modifyAlertSpy).toHaveBeenCalled();
+    expect(modifyAlertSpy).toHaveBeenCalledTimes(1);
     expect(modifyAlertSpy.mock.results[0].value).toStrictEqual({
       data: {
         ...testAlertSummaries[0].alerts[1],
@@ -361,8 +360,6 @@ test('selecting an alert and marking it as invalid only updates that alert', asy
   await waitFor(() => {
     expect(alertCheckbox1).toHaveProperty('checked', false);
   });
-
-  modifyAlertSpy.mockClear();
 });
 
 test('selecting the alert summary checkbox then deselecting one alert only updates the selected alerts', async () => {
@@ -399,8 +396,7 @@ test('selecting the alert summary checkbox then deselecting one alert only updat
 
   // only the selected alert has been updated
   await waitFor(() => {
-    expect(modifyAlertSpy).toHaveBeenCalled();
-    expect(modifyAlertSpy.mock.results).toHaveLength(3);
+    expect(modifyAlertSpy).toHaveBeenCalledTimes(3);
     expect(modifyAlertSpy.mock.results[0].value.data.id).toBe(69345);
     expect(modifyAlertSpy.mock.results[0].value).toStrictEqual({
       data: {
@@ -412,18 +408,14 @@ test('selecting the alert summary checkbox then deselecting one alert only updat
   });
 
   // action panel has closed and all checkboxes reset
-  acknowledgeButton = await waitForElementToBeRemoved(() =>
-    queryByText('Acknowledge'),
-  );
   await waitFor(() => {
+    expect(queryByText('Acknowledge')).toBeNull();
     expect(summaryCheckbox).toHaveProperty('checked', false);
     expect(alertCheckbox1).toHaveProperty('checked', false);
     expect(alertCheckbox2).toHaveProperty('checked', false);
     expect(alertCheckbox3).toHaveProperty('checked', false);
     expect(alertCheckbox4).toHaveProperty('checked', false);
   });
-
-  modifyAlertSpy.mockClear();
 });
 
 test('selecting the alert summary checkbox then clicking on the reassign button opens the alert modal', async () => {
