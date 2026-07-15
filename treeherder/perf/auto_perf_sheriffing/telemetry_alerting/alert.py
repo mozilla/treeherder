@@ -26,6 +26,11 @@ class TelemetryAlert(Alert):
             optional_detection_info if optional_detection_info is not None else {}
         )
 
+    @property
+    def status(self):
+        """Human-readable label for whether this alert is a regression."""
+        return "Regression" if self.telemetry_alert.is_regression else "Improvement"
+
     def get_related_alerts(self):
         if self.related_telemetry_alerts:
             return self.related_telemetry_alerts

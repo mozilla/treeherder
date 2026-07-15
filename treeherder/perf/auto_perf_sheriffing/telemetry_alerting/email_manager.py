@@ -41,7 +41,7 @@ class TelemetryEmail:
 class TelemetryEmailWriter(EmailWriter):
     def prepare_email(self, email, probe, alert, **kwargs):
         self._write_address(email)
-        self._write_subject(probe)
+        self._write_subject(probe, alert)
         self._write_content(probe, alert)
 
         return self.email
@@ -49,8 +49,8 @@ class TelemetryEmailWriter(EmailWriter):
     def _write_address(self, email):
         self._email.address = email
 
-    def _write_subject(self, probe):
-        self._email.subject = f"Telemetry Alert for Probe {probe.name}"
+    def _write_subject(self, probe, alert):
+        self._email.subject = f"Telemetry Alert for {alert.status} in Probe {probe.name}"
 
     def _write_content(self, probe, alert):
         content = TelemetryEmailContent()
@@ -76,9 +76,10 @@ class TelemetryEmailContent:
 
     TABLE_HEADERS = (
         f"| {format_header('Channel')} | {format_header('Probe')} | {format_header('Platform')} "
+        f"| {format_header('Status')} "
         f"| {format_header('Date Range')} | {format_header('Detection Push')} "
         f"| {format_header('Alert Details')} |\n"
-        f"| :---: | :---: | :---: | :---: | :---: | :---: |\n"
+        f"| :---: | :---: | :---: | :---: | :---: | :---: | :---: |\n"
     )
 
     ADDITIONAL_PROBES = (
@@ -101,6 +102,7 @@ class TelemetryEmailContent:
             alert.telemetry_signature,
             alert.telemetry_alert_summary,
             alert.telemetry_alert.id,
+            alert.status,
         )
 
         if alert.get_related_alerts():
@@ -113,10 +115,10 @@ class TelemetryEmailContent:
             self._raw_content = self.DESCRIPTION + self.TABLE_HEADERS
 
     def _include_probe(
-        self, detection_range, telemetry_signature, telemetry_alert_summary, alert_id
+        self, detection_range, telemetry_signature, telemetry_alert_summary, alert_id, status
     ):
         new_table_row = self._build_table_row(
-            detection_range, telemetry_signature, telemetry_alert_summary, alert_id
+            detection_range, telemetry_signature, telemetry_alert_summary, alert_id, status
         )
         self._raw_content += f"{new_table_row}\n"
 
@@ -133,16 +135,18 @@ class TelemetryEmailContent:
                 related_alert.series_signature,
                 alert.telemetry_alert_summary,
                 related_alert.id,
+                related_alert.is_regression,
             )
 
     def _build_table_row(
-        self, detection_range, telemetry_signature, telemetry_alert_summary, alert_id
+        self, detection_range, telemetry_signature, telemetry_alert_summary, alert_id, status
     ) -> str:
         # TODO: Have change-detection-technique/mozdetect provide a method for building
         # a row. That way we can decouple the information provided to bugzilla
         # users from the alerting system.
         return (
             "| {channel} | [{probe}]({glam_dashboard_link})&nbsp;&nbsp;&nbsp;&nbsp; | {platform} "
+            "| {status}&nbsp;&nbsp;&nbsp;&nbsp; "
             "| [{date_from} - {date_to}]({treeherder_date_link})"
             "| [{commit_hash}]({treeherder_push_link}) "
             "| [{alert_id}]({alert_details_link}) |"
@@ -151,6 +155,7 @@ class TelemetryEmailContent:
             probe=telemetry_signature.probe,
             glam_dashboard_link=get_glam_dashboard_link(telemetry_signature),
             platform=telemetry_signature.platform,
+            status=status,
             date_from=detection_range["from"].time.strftime("%Y-%m-%d"),
             date_to=detection_range["to"].time.strftime("%Y-%m-%d"),
             commit_hash=detection_range["detection"].revision[:12],

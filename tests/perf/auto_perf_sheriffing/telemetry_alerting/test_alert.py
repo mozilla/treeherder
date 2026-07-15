@@ -74,6 +74,14 @@ class TestTelemetryAlert:
 
         assert first_call is second_call
 
+    def test_status(self, telemetry_alert_obj):
+        """Test the status label reflects the alert's is_regression flag."""
+        telemetry_alert_obj.telemetry_alert.is_regression = True
+        assert telemetry_alert_obj.status == "Regression"
+
+        telemetry_alert_obj.telemetry_alert.is_regression = False
+        assert telemetry_alert_obj.status == "Improvement"
+
     def test_str_representation(self, telemetry_alert_obj, test_telemetry_alert):
         """Test string representation of TelemetryAlert."""
         str_repr = str(telemetry_alert_obj)

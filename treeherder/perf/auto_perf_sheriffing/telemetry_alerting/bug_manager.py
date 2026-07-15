@@ -93,9 +93,9 @@ class TelemetryBugContent:
     )
 
     TABLE_HEADERS = (
-        "| **Probe** | **Platform** "
+        "| **Probe** | **Platform** | **Status** "
         "| **Previous Values** | **New Values** |\n"
-        "| :---: | :---: | :---: | :---: |\n"
+        "| :---: | :---: | :---: | :---: | :---: |\n"
     )
 
     CHANGES_DETECTED_TITLE = "### Changes Detected\n"
@@ -206,13 +206,13 @@ class TelemetryBugContent:
         values = (
             f"| **Median:** {round(prev_median, 2)}{unit} "
             f"| **Median:** {round(new_median, 2)}{unit} |\n"
-            f"| | | **P05:** {round(prev_p05, 2)}{unit} "
+            f"| | | | **P05:** {round(prev_p05, 2)}{unit} "
             f"| **P05:** {round(new_p05, 2)}{unit} |\n"
-            f"| | | **P95:** {round(prev_p95, 2)}{unit} "
+            f"| | | | **P95:** {round(prev_p95, 2)}{unit} "
             f"| **P95:** {round(new_p95, 2)}{unit} |"
         )
 
         return (
             f"| [{alert.telemetry_signature.probe}]({get_glam_dashboard_link(alert.telemetry_signature)}) "
-            f"| {alert.telemetry_signature.platform} {values} \n"
+            f"| {alert.telemetry_signature.platform} | {alert.status} {values} \n"
         )

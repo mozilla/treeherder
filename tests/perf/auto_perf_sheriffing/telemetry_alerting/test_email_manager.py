@@ -52,7 +52,9 @@ class TestTelemetryEmailManagerIntegration:
         # Verify the email payload
         email_payload = mock_email_func.call_args[0][0]
         assert email_payload["address"] == "test@mozilla.com"
-        assert email_payload["subject"] == "Telemetry Alert for Probe test_probe_metric"
+        assert (
+            email_payload["subject"] == "Telemetry Alert for Regression in Probe test_probe_metric"
+        )
         assert "MozDetect has detected a telemetry change" in email_payload["content"]
 
     @patch(
@@ -229,7 +231,7 @@ class TestTelemetryEmail:
         # Verify the email payload was passed
         email_payload = mock_email_func.call_args[0][0]
         assert email_payload["address"] == "test@mozilla.com"
-        assert email_payload["subject"] == "Telemetry Alert for Probe test_probe"
+        assert email_payload["subject"] == "Telemetry Alert for Regression in Probe test_probe"
         assert "MozDetect has detected a telemetry change" in email_payload["content"]
 
     def test_set_email_method(self):
@@ -253,7 +255,7 @@ class TestTelemetryEmail:
         result = telemetry_email._prepare_email("test@mozilla.com", mock_probe, telemetry_alert_obj)
 
         assert result["address"] == "test@mozilla.com"
-        assert result["subject"] == "Telemetry Alert for Probe test_probe"
+        assert result["subject"] == "Telemetry Alert for Regression in Probe test_probe"
         assert result["content"] is not None
 
 
@@ -266,7 +268,7 @@ class TestTelemetryEmailWriter:
         result = writer.prepare_email("test@mozilla.com", mock_probe, telemetry_alert_obj)
 
         assert result["address"] == "test@mozilla.com"
-        assert result["subject"] == "Telemetry Alert for Probe test_probe"
+        assert result["subject"] == "Telemetry Alert for Regression in Probe test_probe"
         assert "MozDetect has detected a telemetry change" in result["content"]
 
     def test_write_address_sets_email_address(self):
@@ -276,14 +278,19 @@ class TestTelemetryEmailWriter:
 
         assert writer._email.address == "test@mozilla.com"
 
-    def test_write_subject_includes_probe_name(self, mock_probe):
-        """Test _write_subject includes the probe name in the subject."""
+    def test_write_subject_includes_probe_name_and_status(self, mock_probe, telemetry_alert_obj):
+        """Test _write_subject includes the probe name and status in the subject."""
         mock_probe.name = "memory_total"
 
         writer = TelemetryEmailWriter()
-        writer._write_subject(mock_probe)
 
-        assert writer._email.subject == "Telemetry Alert for Probe memory_total"
+        telemetry_alert_obj.telemetry_alert.is_regression = True
+        writer._write_subject(mock_probe, telemetry_alert_obj)
+        assert writer._email.subject == "Telemetry Alert for Regression in Probe memory_total"
+
+        telemetry_alert_obj.telemetry_alert.is_regression = False
+        writer._write_subject(mock_probe, telemetry_alert_obj)
+        assert writer._email.subject == "Telemetry Alert for Improvement in Probe memory_total"
 
     def test_write_content_sets_email_content(self, telemetry_alert_obj, mock_probe):
         """Test _write_content sets the email content."""
@@ -374,6 +381,7 @@ class TestTelemetryEmailContent:
             telemetry_alert_obj.telemetry_signature,
             telemetry_alert_obj.telemetry_alert_summary,
             telemetry_alert_obj.telemetry_alert.id,
+            telemetry_alert_obj.telemetry_alert.is_regression,
         )
 
         assert len(content._raw_content) > len(initial_content)
@@ -389,12 +397,13 @@ class TestTelemetryEmailContent:
             telemetry_alert_obj.telemetry_signature,
             telemetry_alert_obj.telemetry_alert_summary,
             telemetry_alert_obj.telemetry_alert.id,
+            telemetry_alert_obj.telemetry_alert.is_regression,
         )
 
         # Should be a markdown table row with pipes
         assert row.startswith("|")
         assert row.endswith("|")
-        assert row.count("|") == 7  # 6 columns means 7 pipes
+        assert row.count("|") == 8  # 7 columns means 8 pipes
 
         # Should include key information
         assert "Nightly" in row  # channel
@@ -414,6 +423,7 @@ class TestTelemetryEmailContent:
             telemetry_alert_obj.telemetry_signature,
             telemetry_alert_obj.telemetry_alert_summary,
             telemetry_alert_obj.telemetry_alert.id,
+            telemetry_alert_obj.telemetry_alert.is_regression,
         )
 
         # Should include dates in YYYY-MM-DD format
@@ -431,6 +441,7 @@ class TestTelemetryEmailContent:
             telemetry_alert_obj.telemetry_signature,
             telemetry_alert_obj.telemetry_alert_summary,
             alert_id,
+            telemetry_alert_obj.telemetry_alert.is_regression,
         )
 
         # Should include GLAM dashboard link
@@ -443,6 +454,20 @@ class TestTelemetryEmailContent:
         # Should include alert details link
         assert "gmierz.github.io/telemetry-alert-dashboard" in row
         assert f"alertId={alert_id}" in row
+
+    def test_build_table_row_includes_status(self, telemetry_alert_obj):
+        """Test _build_table_row includes the improvement/regression status."""
+        content = TelemetryEmailContent()
+        detection_range = telemetry_alert_obj.get_detection_range()
+        args = (
+            detection_range,
+            telemetry_alert_obj.telemetry_signature,
+            telemetry_alert_obj.telemetry_alert_summary,
+            telemetry_alert_obj.telemetry_alert.id,
+        )
+
+        assert "Regression" in content._build_table_row(*args, True)
+        assert "Improvement" in content._build_table_row(*args, False)
 
     def test_str_returns_raw_content(self, telemetry_alert_obj, mock_probe):
         """Test __str__ returns the raw content."""
@@ -491,11 +516,12 @@ class TestTelemetryEmailContent:
         assert "Channel" in headers
         assert "Probe" in headers
         assert "Platform" in headers
+        assert "Status" in headers
         assert "Date" in headers
         assert "Detection" in headers
         assert "Alert" in headers
         assert ":---:" in headers  # Markdown center alignment
-        assert headers.count(":---:") == 6  # 6 columns
+        assert headers.count(":---:") == 7  # 7 columns
 
     def test_additional_probes_constant(self):
         """Test that ADDITIONAL_PROBES constant is properly defined."""

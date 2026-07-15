@@ -299,6 +299,16 @@ class TestTelemetryBugContent:
             mock_link.assert_called_once_with(telemetry_alert_obj.telemetry_signature)
             assert "https://glam.telemetry.mozilla.org/test" in result
 
+    def test_build_probe_alert_row_includes_status(
+        self, bug_content, mock_probe, telemetry_alert_obj
+    ):
+        """Test that _build_probe_alert_row includes the improvement/regression status."""
+        telemetry_alert_obj.telemetry_alert.is_regression = True
+        assert "Regression" in bug_content._build_probe_alert_row(mock_probe, telemetry_alert_obj)
+
+        telemetry_alert_obj.telemetry_alert.is_regression = False
+        assert "Improvement" in bug_content._build_probe_alert_row(mock_probe, telemetry_alert_obj)
+
     def test_build_bug_content_calculates_date_range_correctly(
         self, bug_content, mock_probe, telemetry_alert_obj
     ):
