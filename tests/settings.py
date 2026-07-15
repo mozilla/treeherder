@@ -48,3 +48,18 @@ DEBUG_TOOLBAR_CONFIG = {
 }
 
 INSTALLED_APPS.remove("django.contrib.staticfiles")  # noqa: F405
+
+# Use local memory cache instead of live Redis database for testing
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "unique-snowflake",
+    },
+    "db_cache": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "db_cache",
+    },
+}
+
+# Use memory transport instead of active RabbitMQ for Kombu and Celery testing
+CELERY_BROKER_URL = "memory://"
