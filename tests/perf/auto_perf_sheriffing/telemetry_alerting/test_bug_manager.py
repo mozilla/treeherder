@@ -285,19 +285,19 @@ class TestTelemetryBugContent:
         assert "P05:" in result
         assert "P95:" in result
 
-    def test_build_probe_alert_row_includes_glean_dictionary_link(
+    def test_build_probe_alert_row_includes_glam_dashboard_link(
         self, bug_content, mock_probe, telemetry_alert_obj
     ):
-        """Test that _build_probe_alert_row includes Glean Dictionary link."""
+        """Test that _build_probe_alert_row includes GLAM dashboard link."""
         with patch(
-            "treeherder.perf.auto_perf_sheriffing.telemetry_alerting.bug_manager.get_glean_dictionary_link"
+            "treeherder.perf.auto_perf_sheriffing.telemetry_alerting.bug_manager.get_glam_dashboard_link"
         ) as mock_link:
-            mock_link.return_value = "https://dictionary.telemetry.mozilla.org/test"
+            mock_link.return_value = "https://glam.telemetry.mozilla.org/test"
 
             result = bug_content._build_probe_alert_row(mock_probe, telemetry_alert_obj)
 
             mock_link.assert_called_once_with(telemetry_alert_obj.telemetry_signature)
-            assert "https://dictionary.telemetry.mozilla.org/test" in result
+            assert "https://glam.telemetry.mozilla.org/test" in result
 
     def test_build_bug_content_calculates_date_range_correctly(
         self, bug_content, mock_probe, telemetry_alert_obj

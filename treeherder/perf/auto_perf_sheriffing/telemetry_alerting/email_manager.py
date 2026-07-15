@@ -2,7 +2,7 @@ from treeherder.perf.auto_perf_sheriffing.base_email_manager import EmailManager
 from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.utils import (
     TELEMETRY_ALERT_DASHBOARD_ALERT,
     TELEMETRY_ALERT_DASHBOARD_SUMMARY,
-    get_glean_dictionary_link,
+    get_glam_dashboard_link,
     get_treeherder_detection_link,
     get_treeherder_detection_range_link,
 )
@@ -142,14 +142,14 @@ class TelemetryEmailContent:
         # a row. That way we can decouple the information provided to bugzilla
         # users from the alerting system.
         return (
-            "| {channel} | [{probe}]({glean_dictionary_link})&nbsp;&nbsp;&nbsp;&nbsp; | {platform} "
+            "| {channel} | [{probe}]({glam_dashboard_link})&nbsp;&nbsp;&nbsp;&nbsp; | {platform} "
             "| [{date_from} - {date_to}]({treeherder_date_link})"
             "| [{commit_hash}]({treeherder_push_link}) "
             "| [{alert_id}]({alert_details_link}) |"
         ).format(
             channel=telemetry_signature.channel,
             probe=telemetry_signature.probe,
-            glean_dictionary_link=get_glean_dictionary_link(telemetry_signature),
+            glam_dashboard_link=get_glam_dashboard_link(telemetry_signature),
             platform=telemetry_signature.platform,
             date_from=detection_range["from"].time.strftime("%Y-%m-%d"),
             date_to=detection_range["to"].time.strftime("%Y-%m-%d"),

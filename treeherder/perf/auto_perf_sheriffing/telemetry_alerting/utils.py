@@ -1,4 +1,7 @@
-GLEAN_DICTIONARY = "https://dictionary.telemetry.mozilla.org/apps/{page}/metrics/{probe}"
+GLAM_DASHBOARD = (
+    "https://glam.telemetry.mozilla.org/{product}/probe/{probe}/explore"
+    "?normalizationType=non_normalized&os={os}"
+)
 GLEAN_PROBE_INFO = (
     "https://dictionary.telemetry.mozilla.org/data/firefox_desktop/metrics/data_{probe_name}.json"
 )
@@ -62,12 +65,16 @@ ANDROID_PROBE_ALLOWLIST = (
 )
 
 
-def get_glean_dictionary_link(telemetry_signature):
+def get_glam_dashboard_link(telemetry_signature):
     if telemetry_signature.platform in DESKTOP_PLATFORMS:
-        dictionary_page = "firefox_desktop"
+        product = "fog"
     else:
-        dictionary_page = "fenix"
-    return GLEAN_DICTIONARY.format(page=dictionary_page, probe=telemetry_signature.probe)
+        product = "fenix"
+    return GLAM_DASHBOARD.format(
+        product=product,
+        probe=telemetry_signature.probe,
+        os=telemetry_signature.platform,
+    )
 
 
 def get_treeherder_detection_link(detection_range, telemetry_signature):

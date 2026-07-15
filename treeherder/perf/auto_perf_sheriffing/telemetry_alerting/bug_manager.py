@@ -5,7 +5,7 @@ from treeherder.perf.auto_perf_sheriffing.base_bug_manager import BugManager
 from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.utils import (
     PUSH_LOG,
     TELEMETRY_ALERT_DASHBOARD,
-    get_glean_dictionary_link,
+    get_glam_dashboard_link,
     get_treeherder_detection_link,
     get_treeherder_detection_range_link,
 )
@@ -213,6 +213,6 @@ class TelemetryBugContent:
         )
 
         return (
-            f"| [{alert.telemetry_signature.probe}]({get_glean_dictionary_link(alert.telemetry_signature)}) "
+            f"| [{alert.telemetry_signature.probe}]({get_glam_dashboard_link(alert.telemetry_signature)}) "
             f"| {alert.telemetry_signature.platform} {values} \n"
         )

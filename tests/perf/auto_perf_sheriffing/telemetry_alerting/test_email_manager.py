@@ -433,8 +433,9 @@ class TestTelemetryEmailContent:
             alert_id,
         )
 
-        # Should include Glean Dictionary link
-        assert "dictionary.telemetry.mozilla.org" in row
+        # Should include GLAM dashboard link
+        assert "glam.telemetry.mozilla.org" in row
+        assert "normalizationType=non_normalized" in row
 
         # Should include Treeherder links
         assert "treeherder.mozilla.org" in row

@@ -1,31 +1,34 @@
 from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.utils import (
-    get_glean_dictionary_link,
+    get_glam_dashboard_link,
     get_treeherder_detection_link,
     get_treeherder_detection_range_link,
 )
 
 
-class TestGetGleanDictionaryLink:
+class TestGetGlamDashboardLink:
     def test_desktop_platform_windows(self, test_telemetry_signature):
-        """Test Glean dictionary link generation for Windows platform."""
+        """Test GLAM dashboard link generation for Windows platform."""
         test_telemetry_signature.platform = "Windows"
         test_telemetry_signature.probe = "test_probe"
 
-        link = get_glean_dictionary_link(test_telemetry_signature)
+        link = get_glam_dashboard_link(test_telemetry_signature)
 
-        assert (
-            link
-            == "https://dictionary.telemetry.mozilla.org/apps/firefox_desktop/metrics/test_probe"
+        assert link == (
+            "https://glam.telemetry.mozilla.org/fog/probe/test_probe/explore"
+            "?normalizationType=non_normalized&os=Windows"
         )
 
     def test_mobile_platform_fenix(self, test_telemetry_signature):
-        """Test Glean dictionary link generation for mobile (non-desktop) platform."""
+        """Test GLAM dashboard link generation for mobile (non-desktop) platform."""
         test_telemetry_signature.platform = "Android"
         test_telemetry_signature.probe = "mobile_probe"
 
-        link = get_glean_dictionary_link(test_telemetry_signature)
+        link = get_glam_dashboard_link(test_telemetry_signature)
 
-        assert link == "https://dictionary.telemetry.mozilla.org/apps/fenix/metrics/mobile_probe"
+        assert link == (
+            "https://glam.telemetry.mozilla.org/fenix/probe/mobile_probe/explore"
+            "?normalizationType=non_normalized&os=Android"
+        )
 
 
 class TestGetTreeherderDetectionLink:
