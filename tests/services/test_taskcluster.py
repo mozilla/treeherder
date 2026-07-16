@@ -1,6 +1,7 @@
 import logging
-import pytest
 from unittest.mock import MagicMock
+
+import pytest
 
 from tests.conftest import SampleDataJSONLoader
 from treeherder.services.taskcluster import (
@@ -54,7 +55,9 @@ class TestTaskclusterModelImpl:
 
     def test_can_instantiate_with_credentials(self):
         """Test instantiation of TaskclusterModelImpl with provided client ID and access token."""
-        model = TaskclusterModelImpl(self.FAKE_ROOT_URL, client_id="my-client", access_token="my-token")
+        model = TaskclusterModelImpl(
+            self.FAKE_ROOT_URL, client_id="my-client", access_token="my-token"
+        )
         client_id_val = model.hooks.options["credentials"]["clientId"]
         if isinstance(client_id_val, bytes):
             client_id_val = client_id_val.decode("utf-8")
@@ -139,7 +142,9 @@ class TestTaskclusterModelImpl:
         """Test that submitting an action of an unsupported kind raises NotImplementedError."""
         model = TaskclusterModelImpl(self.FAKE_ROOT_URL)
         action = {"kind": "not-hook"}
-        with pytest.raises(NotImplementedError, match="Unable to submit actions with 'not-hook' kind"):
+        with pytest.raises(
+            NotImplementedError, match="Unable to submit actions with 'not-hook' kind"
+        ):
             model._submit(
                 action=action,
                 decision_task_id="decision123",
@@ -197,7 +202,9 @@ class TestTaskclusterModelImpl:
         }
 
         monkeypatch.setattr(model.queue, "task", lambda task_id: {"scopes": ["scope1"]})
-        monkeypatch.setattr(model.auth, "expandScopes", lambda req: {"scopes": ["some-other-scope"]})
+        monkeypatch.setattr(
+            model.auth, "expandScopes", lambda req: {"scopes": ["some-other-scope"]}
+        )
 
         with pytest.raises(
             RuntimeError, match="Action is misconfigured: decision task's scopes do not satisfy"
@@ -249,7 +256,9 @@ class TestTaskclusterModelImpl:
     def test_get_action_lookup_error(self):
         """Test that get_action raises LookupError when the requested action is missing."""
         action_array = [{"name": "foo"}]
-        with pytest.raises(LookupError, match="bar action is not available for this task.  Available: foo"):
+        with pytest.raises(
+            LookupError, match="bar action is not available for this task.  Available: foo"
+        ):
             TaskclusterModelImpl._get_action(action_array, "bar")
 
     def test_taskcluster_model_null_object(self):

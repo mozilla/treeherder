@@ -5,24 +5,24 @@ from django.conf import settings
 
 from tests.conftest import IS_WINDOWS
 from treeherder.etl.tasks.pulse_tasks import (
+    store_pulse_pushes,
     store_pulse_tasks,
     store_pulse_tasks_classification,
-    store_pulse_pushes,
 )
 from treeherder.services.pulse.consumers import (
-    Consumers,
-    JointConsumer,
-    PulseConsumer,
-    TaskConsumer,
-    MozciClassificationConsumer,
-    PushConsumer,
-    prepare_consumers,
-    prepare_joint_consumers,
-    TASKCLUSTER_TASK_BINDINGS,
     GITHUB_PUSH_BINDINGS,
     HGMO_PUSH_BINDINGS,
     MOZCI_CLASSIFICATION_PRODUCTION_BINDINGS,
     MOZCI_CLASSIFICATION_TESTING_BINDINGS,
+    TASKCLUSTER_TASK_BINDINGS,
+    Consumers,
+    JointConsumer,
+    MozciClassificationConsumer,
+    PulseConsumer,
+    PushConsumer,
+    TaskConsumer,
+    prepare_consumers,
+    prepare_joint_consumers,
 )
 from treeherder.services.pulse.exchange import get_exchange
 
@@ -31,6 +31,7 @@ from .utils import create_and_destroy_exchange
 
 def test_consumers():
     """Test parallel consumers run setup and start threads as expected."""
+
     class TestConsumer:
         def prepare(self):
             self.prepared = True
@@ -53,6 +54,7 @@ def test_consumers():
 @pytest.mark.skipif(IS_WINDOWS, reason="celery does not work on windows")
 def test_pulse_consumer(pulse_connection):
     """Test PulseConsumer setup prepares connection and exchange."""
+
     class TestConsumer(PulseConsumer):
         queue_suffix = "test"
 
@@ -149,6 +151,7 @@ def test_joint_consumer_on_message_call_classification_ingestion(monkeypatch):
 
 # Additional Unit Tests for 100% Coverage of treeherder/services/pulse/consumers.py
 
+
 class DummyPulseConsumer(PulseConsumer):
     queue_suffix = "dummy"
 
@@ -230,12 +233,14 @@ def test_pulse_consumer_prune_bindings(pulse_connection, monkeypatch):
     cons.bind_to(exchange, "new_key")
 
     # Case 1: get_bindings succeeds and has an old binding to prune
-    mock_fetch = MagicMock(return_value={
-        "bindings": [
-            {"source": "test_exchange", "routing_key": "new_key"},
-            {"source": "test_exchange", "routing_key": "old_key"},
-        ]
-    })
+    mock_fetch = MagicMock(
+        return_value={
+            "bindings": [
+                {"source": "test_exchange", "routing_key": "new_key"},
+                {"source": "test_exchange", "routing_key": "old_key"},
+            ]
+        }
+    )
     monkeypatch.setattr("treeherder.services.pulse.consumers.fetch_json", mock_fetch)
 
     mock_unbind = MagicMock()
@@ -251,8 +256,10 @@ def test_pulse_consumer_prune_bindings(pulse_connection, monkeypatch):
 
 def test_pulse_consumer_prepare(pulse_connection, monkeypatch):
     """Test prepare method sets up all routing key bindings and prunes stale ones."""
+
     class SimpleConsumer(PulseConsumer):
         queue_suffix = "simple"
+
         def bindings(self):
             return ["test_exchange.key1:key2"]
 
@@ -268,11 +275,15 @@ def test_pulse_consumer_prepare(pulse_connection, monkeypatch):
     )
 
     # Mock get_exchange to return a dummy exchange
-    monkeypatch.setattr("treeherder.services.pulse.consumers.get_exchange", lambda conn, name: MagicMock(name=name))
+    monkeypatch.setattr(
+        "treeherder.services.pulse.consumers.get_exchange", lambda conn, name: MagicMock(name=name)
+    )
 
     # Mock bind_to and prune_bindings
     bound_keys = []
-    monkeypatch.setattr(cons, "bind_to", lambda exchange, key: bound_keys.append(key) or f"{exchange.name} {key}")
+    monkeypatch.setattr(
+        cons, "bind_to", lambda exchange, key: bound_keys.append(key) or f"{exchange.name} {key}"
+    )
     monkeypatch.setattr(cons, "prune_bindings", lambda bindings: None)
 
     cons.prepare()
@@ -299,7 +310,9 @@ def test_task_consumer(monkeypatch):
 def test_mozci_classification_consumer(monkeypatch):
     """Test MozciClassificationConsumer environment configurations and message routing."""
     # Default production env
-    cons = MozciClassificationConsumer({"root_url": "https://foo.com", "pulse_url": "memory://"}, None)
+    cons = MozciClassificationConsumer(
+        {"root_url": "https://foo.com", "pulse_url": "memory://"}, None
+    )
     assert cons.bindings() == MOZCI_CLASSIFICATION_PRODUCTION_BINDINGS
 
     # Testing env
@@ -326,19 +339,31 @@ def test_mozci_classification_consumer(monkeypatch):
 def test_push_consumer(monkeypatch):
     """Test PushConsumer bindings conditionally active for hgmo and github source types."""
     # Both hgmo and github disabled
-    cons = PushConsumer({"root_url": "https://foo.com", "pulse_url": "memory://", "hgmo": False, "github": False}, None)
+    cons = PushConsumer(
+        {"root_url": "https://foo.com", "pulse_url": "memory://", "hgmo": False, "github": False},
+        None,
+    )
     assert cons.bindings() == []
 
     # hgmo enabled
-    cons_hg = PushConsumer({"root_url": "https://foo.com", "pulse_url": "memory://", "hgmo": True, "github": False}, None)
+    cons_hg = PushConsumer(
+        {"root_url": "https://foo.com", "pulse_url": "memory://", "hgmo": True, "github": False},
+        None,
+    )
     assert cons_hg.bindings() == HGMO_PUSH_BINDINGS
 
     # github enabled
-    cons_git = PushConsumer({"root_url": "https://foo.com", "pulse_url": "memory://", "hgmo": False, "github": True}, None)
+    cons_git = PushConsumer(
+        {"root_url": "https://foo.com", "pulse_url": "memory://", "hgmo": False, "github": True},
+        None,
+    )
     assert cons_git.bindings() == GITHUB_PUSH_BINDINGS
 
     # both enabled
-    cons_both = PushConsumer({"root_url": "https://foo.com", "pulse_url": "memory://", "hgmo": True, "github": True}, None)
+    cons_both = PushConsumer(
+        {"root_url": "https://foo.com", "pulse_url": "memory://", "hgmo": True, "github": True},
+        None,
+    )
     assert cons_both.bindings() == HGMO_PUSH_BINDINGS + GITHUB_PUSH_BINDINGS
 
     # on_message
@@ -358,26 +383,40 @@ def test_joint_consumer_bindings(monkeypatch):
     """Test JointConsumer bindings collection based on enabled flags in source."""
     # Test various branches in JointConsumer.bindings()
     # 1. hgmo and github
-    cons1 = JointConsumer({"hgmo": True, "github": True, "pulse_url": "memory://", "root_url": "https://foo.com"}, None)
+    cons1 = JointConsumer(
+        {"hgmo": True, "github": True, "pulse_url": "memory://", "root_url": "https://foo.com"},
+        None,
+    )
     assert cons1.bindings() == HGMO_PUSH_BINDINGS + GITHUB_PUSH_BINDINGS
 
     # 2. tasks
-    cons2 = JointConsumer({"tasks": True, "pulse_url": "memory://", "root_url": "https://foo.com"}, None)
+    cons2 = JointConsumer(
+        {"tasks": True, "pulse_url": "memory://", "root_url": "https://foo.com"}, None
+    )
     assert cons2.bindings() == TASKCLUSTER_TASK_BINDINGS
 
     # 3. mozci-classification testing env
     monkeypatch.setenv("PULSE_MOZCI_ENVIRONMENT", "testing")
-    cons3 = JointConsumer({"mozci-classification": True, "pulse_url": "memory://", "root_url": "https://foo.com"}, None)
+    cons3 = JointConsumer(
+        {"mozci-classification": True, "pulse_url": "memory://", "root_url": "https://foo.com"},
+        None,
+    )
     assert cons3.bindings() == MOZCI_CLASSIFICATION_TESTING_BINDINGS
 
     # 4. mozci-classification production env
     monkeypatch.setenv("PULSE_MOZCI_ENVIRONMENT", "production")
-    cons4 = JointConsumer({"mozci-classification": True, "pulse_url": "memory://", "root_url": "https://foo.com"}, None)
+    cons4 = JointConsumer(
+        {"mozci-classification": True, "pulse_url": "memory://", "root_url": "https://foo.com"},
+        None,
+    )
     assert cons4.bindings() == MOZCI_CLASSIFICATION_PRODUCTION_BINDINGS
 
     # 5. mozci-classification invalid env (should fallback to production)
     monkeypatch.setenv("PULSE_MOZCI_ENVIRONMENT", "invalid")
-    cons5 = JointConsumer({"mozci-classification": True, "pulse_url": "memory://", "root_url": "https://foo.com"}, None)
+    cons5 = JointConsumer(
+        {"mozci-classification": True, "pulse_url": "memory://", "root_url": "https://foo.com"},
+        None,
+    )
     assert cons5.bindings() == MOZCI_CLASSIFICATION_PRODUCTION_BINDINGS
 
 
@@ -407,6 +446,7 @@ def test_consumers_runner():
     class DummyConsumer:
         def prepare(self):
             mock_prepare()
+
         def run(self):
             mock_run()
 
@@ -419,6 +459,7 @@ def test_consumers_runner():
 
 def test_prepare_consumers_factory():
     """Test prepare_consumers factory correctly initializes Consumers container with list of class instances."""
+
     class DummyConsumerClass:
         def __init__(self, source, build_routing_key):
             self.source = source
@@ -433,6 +474,7 @@ def test_prepare_consumers_factory():
 
 def test_prepare_joint_consumers_factory():
     """Test prepare_joint_consumers factory correctly unpacks tuple arguments and instantiates consumers."""
+
     class DummyConsumerClass:
         def __init__(self, source, build_routing_key):
             self.source = source
