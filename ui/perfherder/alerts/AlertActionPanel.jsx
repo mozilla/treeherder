@@ -30,11 +30,13 @@ export default class AlertActionPanel extends React.Component {
     const { modifyAlert = modifyAlertHelper } = this.props;
     const responses = [];
 
+    // Sequential (not parallel) to avoid a race condition where concurrent
+    // requests cause the backend to inconsistently update summary's status.
     for (const alert of selectedAlerts) {
       const response = await modifyAlert(alert, modification);
       responses.push(response);
     }
-    return responses
+    return responses;
   };
 
   updateAndFetch = async (newStatus, alertId = null) => {
