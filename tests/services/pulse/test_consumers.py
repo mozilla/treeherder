@@ -149,9 +149,6 @@ def test_joint_consumer_on_message_call_classification_ingestion(monkeypatch):
     assert mock_called
 
 
-# Additional Unit Tests for 100% Coverage of treeherder/services/pulse/consumers.py
-
-
 class DummyPulseConsumer(PulseConsumer):
     queue_suffix = "dummy"
 

@@ -18,25 +18,21 @@ load_json_fixture = SampleDataJSONLoader("sherlock")
 
 @pytest.fixture(scope="module")
 def actions_json():
-    """Load actions json sample fixture data."""
     return load_json_fixture("initialActions.json")
 
 
 @pytest.fixture(scope="module")
 def expected_actions_json():
-    """Load expected actions json sample fixture data."""
     return load_json_fixture("reducedActions.json")
 
 
 @pytest.fixture(scope="module")
 def original_task():
-    """Load original task sample fixture data."""
     return load_json_fixture("originalTask.json")
 
 
 @pytest.fixture(scope="module")
 def expected_backfill_task():
-    """Load expected backfill task sample fixture data."""
     return load_json_fixture("backfillTask.json")
 
 
