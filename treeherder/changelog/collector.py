@@ -22,24 +22,19 @@ class GitHub:
         repository = kw["repository"]
         filters = kw.get("filters")
         gh_options = {"number": kw.get("number", MAX_ITEMS)}
-
-        for release in github.get_releases(owner, repository, params=gh_options):
-            release["files"] = []
-            # no "since" option for releases() we filter manually here
-            if "since" in kw and release["published_at"] <= kw["since"]:
-                continue
-            name = release["name"] or release["tag_name"]
-            yield {
-                "date": release["published_at"],
-                "author": release["author"]["login"],
-                "message": "Released " + name,
-                "remote_id": release["id"],
-                "type": "release",
-                "url": release["html_url"],
-            }
-
         if "since" in kw:
             gh_options["since"] = kw["since"]
+
+        for release in github.get_releases(owner, repository, params=gh_options):
+            name = release.name or release.tag_name
+            yield {
+                "date": release.published_at.isoformat(),
+                "author": release.author.login,
+                "message": "Released " + name,
+                "remote_id": release.id,
+                "type": "release",
+                "url": release.html_url,
+            }
 
         for commit in github.get_all_commits(owner, repository, params=gh_options):
             if filters:
