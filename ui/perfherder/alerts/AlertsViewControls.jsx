@@ -71,6 +71,8 @@ export default class AlertsViewControls extends React.Component {
     this.setState({ lastClickedGraphAlertId: alertId });
   };
 
+  // highlighted ID is set immediately, but the timer only starts
+  // clearing it on tab return, as long as it remains in focus
   handleVisibilityChange = () => {
     if (document.visibilityState === 'hidden') {
       clearTimeout(this.graphHighlightTimer);
