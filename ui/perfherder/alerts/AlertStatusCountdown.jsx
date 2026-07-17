@@ -89,6 +89,16 @@ export default class AlertStatusCountdown extends React.Component {
     let showTriageCountdown;
     let showBugCountdown;
     let showReady;
+    let { triage_due_date: triageDueDate, bug_due_date: bugDueDate } = alertSummary;
+
+    const dateOptions = { 
+      day: 'numeric',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit'
+    };
+    triageDueDate = new Date(triageDueDate).toLocaleString('en-UK', dateOptions);
+    bugDueDate = new Date(bugDueDate).toLocaleString('en-UK', dateOptions);
 
     if (!alertIsTriaged(alertSummary)) {
       countdownClass = this.getCountdownClass(countdown.triage);
@@ -121,16 +131,16 @@ export default class AlertStatusCountdown extends React.Component {
                   tooltipText={
                     <div data-testid="due-date-status">
                       {showTriageCountdown && (
-                        <>
-                          <h5>Due date:</h5>
-                          <p>Triage: {countdown.triage}</p>
-                        </>
+                        <div className="countdown-section">
+                          <h5>Triage Due: {triageDueDate}</h5>
+                          <p>Time left: {countdown.triage}</p>
+                        </div>
                       )}
                       {showBugCountdown && (
-                        <>
-                          <h5>Due date:</h5>
-                          <p>Bug: {countdown.bug}</p>
-                        </>
+                        <div className="countdown-section">
+                          <h5>Bug Due: {bugDueDate}</h5>
+                          <p>Time left: {countdown.bug}</p>
+                        </div>
                       )}
                       {showReady && <h5>Ready for acknowledge</h5>}
                     </div>
