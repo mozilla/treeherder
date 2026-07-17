@@ -392,19 +392,6 @@ test('Chart icon opens the graph link for an alert in a new tab', async () => {
   expect(graphLink).toHaveAttribute('target', '_blank');
 });
 
-test('Chart icon opens the graph link for an alert in a new tab', () => {
-  const { getByRole } = alertTableRowTest({
-    alert: testAlert,
-    tags: false,
-  });
-
-  const graphLink = getByRole('link', { name: 'graph-link' });
-
-  expect(graphLink).toHaveAttribute('target', '_blank');
-  expect(graphLink).toHaveAttribute('rel', 'noopener noreferrer');
-  expect(graphLink).toHaveAttribute('href', expect.stringContaining('/perfherder/graphs?'),);
-});
-
 describe('graph link highlight', () => {
   test('graph link is not highlighted when no alert is active', () => {
     const { getByRole } = alertTableRowTest({
