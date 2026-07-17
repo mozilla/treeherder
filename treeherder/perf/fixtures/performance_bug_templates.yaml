@@ -21,6 +21,7 @@
       - Review the [alert summary]({{ alertHref }}) for affected tests, graphs, and comparisons.
       - Check the [PerfCompare results]({{ perfCompareURL }}).
       - Tests on Try: Run all tests using `./mach try perf --alert {{ alertSummaryId }}` (See [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) for details).
+      - For more information on how to run perftests locally, see [this perfdocs documentation section](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#running-regressed-tests-locally).
       - Profiling jobs: [Trigger jobs from Treeherder job view](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) or request them from {{ user }}.
     critical_text: |
       Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). We would like to inform you that we are requesting an immediate back out from sheriffs@mozilla.bugs of the current patch due to performance regressions on the following critical test(s):  {{ criticalTests }}.
@@ -38,6 +39,7 @@
       - Review the [alert summary]({{ alertHref }}) for affected tests, graphs, and comparisons.
       - Check the [PerfCompare results]({{ perfCompareURL }}).
       - Tests on Try: Run all tests using `./mach try perf --alert {{ alertSummaryId }}` (See [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) for details).
+      - For more information on how to run perftests locally, see [this perfdocs documentation section](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#running-regressed-tests-locally).
       - Profiling jobs: [Trigger jobs from Treeherder job view](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) or request them from {{ user }}.
     no_action_required_text: |
       Perfherder has detected a {{ framework }} performance change from push [{{ revision }}]({{ revisionHref }}). 
@@ -74,6 +76,7 @@
       - Review the [alert summary]({{ alertHref }}) for affected tests, graphs, and comparisons.
       - Check the [PerfCompare results]({{ perfCompareURL }}).
       - Tests on Try: Run all tests using `./mach try perf --alert {{ alertSummaryId }}` (See [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) for details).
+      - For more information on how to run perftests locally, see [this perfdocs documentation section](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#running-regressed-tests-locally).
       - Profiling jobs: [Trigger jobs from Treeherder job view](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) or request them from {{ user }}.
     critical_text: |
       Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). We would like to inform you that we are requesting an immediate back out from sheriffs@mozilla.bugs of the current patch due to performance regressions on the following critical test(s):  {{ criticalTests }}.
@@ -91,6 +94,7 @@
       - Review the [alert summary]({{ alertHref }}) for affected tests, graphs, and comparisons.
       - Check the [PerfCompare results]({{ perfCompareURL }}).
       - Tests on Try: Run all tests using `./mach try perf --alert {{ alertSummaryId }}` (See [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) for details).
+      - For more information on how to run perftests locally, see [this perfdocs documentation section](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#running-regressed-tests-locally).
       - Profiling jobs: [Trigger jobs from Treeherder job view](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) or request them from {{ user }}.
     no_action_required_text: |
       Perfherder has detected a {{ framework }} performance change from push [{{ revision }}]({{ revisionHref }}). 
@@ -127,6 +131,7 @@
       - Review the [alert summary]({{ alertHref }}) for affected tests, graphs, and comparisons.
       - Check the [PerfCompare results]({{ perfCompareURL }}).
       - Tests on Try: Run all tests using `./mach try perf --alert {{ alertSummaryId }}` (See [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) for details).
+      - For more information on how to run perftests locally, see [this perfdocs documentation section](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#running-regressed-tests-locally).
       - Profiling jobs: [Trigger jobs from Treeherder job view](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) or request them from {{ user }}.
     critical_text: |
       Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). We would like to inform you that we are requesting an immediate back out from sheriffs@mozilla.bugs of the current patch due to performance regressions on the following critical test(s):  {{ criticalTests }}.
@@ -144,6 +149,7 @@
       - Review the [alert summary]({{ alertHref }}) for affected tests, graphs, and comparisons.
       - Check the [PerfCompare results]({{ perfCompareURL }}).
       - Tests on Try: Run all tests using `./mach try perf --alert {{ alertSummaryId }}` (See [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) for details).
+      - For more information on how to run perftests locally, see [this perfdocs documentation section](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#running-regressed-tests-locally).
       - Profiling jobs: [Trigger jobs from Treeherder job view](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) or request them from {{ user }}.
     no_action_required_text: |
       Perfherder has detected a {{ framework }} performance change from push [{{ revision }}]({{ revisionHref }}). 
@@ -180,6 +186,7 @@
       - Review the [alert summary]({{ alertHref }}) for affected tests, graphs, and comparisons.
       - Check the [PerfCompare results]({{ perfCompareURL }}).
       - Tests on Try: Run all tests using `./mach try perf --alert {{ alertSummaryId }}` (See [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) for details).
+      - For more information on how to run perftests locally, see [this perfdocs documentation section](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#running-regressed-tests-locally).
       - Profiling jobs: [Trigger jobs from Treeherder job view](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) or request them from {{ user }}.
     critical_text: |
       Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). We would like to inform you that we are requesting an immediate back out from sheriffs@mozilla.bugs of the current patch due to performance regressions on the following critical test(s):  {{ criticalTests }}.
@@ -197,6 +204,7 @@
       - Review the [alert summary]({{ alertHref }}) for affected tests, graphs, and comparisons.
       - Check the [PerfCompare results]({{ perfCompareURL }}).
       - Tests on Try: Run all tests using `./mach try perf --alert {{ alertSummaryId }}` (See [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) for details).
+      - For more information on how to run perftests locally, see [this perfdocs documentation section](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#running-regressed-tests-locally).
       - Profiling jobs: [Trigger jobs from Treeherder job view](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) or request them from {{ user }}.
     no_action_required_text: |
       Perfherder has detected a {{ framework }} performance change from push [{{ revision }}]({{ revisionHref }}). 
@@ -233,6 +241,7 @@
       - Review the [alert summary]({{ alertHref }}) for affected tests, graphs, and comparisons.
       - Check the [PerfCompare results]({{ perfCompareURL }}).
       - Tests on Try: Run all tests using `./mach try perf --alert {{ alertSummaryId }}` (See [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) for details).
+      - For more information on how to run perftests locally, see [this perfdocs documentation section](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#running-regressed-tests-locally).
       - Profiling jobs: [Trigger jobs from Treeherder job view](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) or request them from {{ user }}.
     critical_text: |
       Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). We would like to inform you that we are requesting an immediate back out from sheriffs@mozilla.bugs of the current patch due to performance regressions on the following critical test(s):  {{ criticalTests }}.
@@ -250,6 +259,7 @@
       - Review the [alert summary]({{ alertHref }}) for affected tests, graphs, and comparisons.
       - Check the [PerfCompare results]({{ perfCompareURL }}).
       - Tests on Try: Run all tests using `./mach try perf --alert {{ alertSummaryId }}` (See [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) for details).
+      - For more information on how to run perftests locally, see [this perfdocs documentation section](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#running-regressed-tests-locally).
       - Profiling jobs: [Trigger jobs from Treeherder job view](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) or request them from {{ user }}.
     no_action_required_text: |
       Perfherder has detected a {{ framework }} performance change from push [{{ revision }}]({{ revisionHref }}). 
@@ -286,6 +296,7 @@
       - Review the [alert summary]({{ alertHref }}) for affected tests, graphs, and comparisons.
       - Check the [PerfCompare results]({{ perfCompareURL }}).
       - Tests on Try: Run all tests using `./mach try perf --alert {{ alertSummaryId }}` (See [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) for details).
+      - For more information on how to run perftests locally, see [this perfdocs documentation section](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#running-regressed-tests-locally).
       - Profiling jobs: [Trigger jobs from Treeherder job view](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) or request them from {{ user }}.
     critical_text: |
       Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). We would like to inform you that we are requesting an immediate back out from sheriffs@mozilla.bugs of the current patch due to performance regressions on the following critical test(s):  {{ criticalTests }}.
@@ -303,6 +314,7 @@
       - Review the [alert summary]({{ alertHref }}) for affected tests, graphs, and comparisons.
       - Check the [PerfCompare results]({{ perfCompareURL }}).
       - Tests on Try: Run all tests using `./mach try perf --alert {{ alertSummaryId }}` (See [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) for details).
+      - For more information on how to run perftests locally, see [this perfdocs documentation section](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#running-regressed-tests-locally).
       - Profiling jobs: [Trigger jobs from Treeherder job view](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) or request them from {{ user }}.
     no_action_required_text: |
       Perfherder has detected a {{ framework }} performance change from push [{{ revision }}]({{ revisionHref }}). 
@@ -339,6 +351,7 @@
       - Review the [alert summary]({{ alertHref }}) for affected tests, graphs, and comparisons.
       - Check the [PerfCompare results]({{ perfCompareURL }}).
       - Tests on Try: Run all tests using `./mach try perf --alert {{ alertSummaryId }}` (See [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) for details).
+      - For more information on how to run perftests locally, see [this perfdocs documentation section](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#running-regressed-tests-locally).
       - Profiling jobs: [Trigger jobs from Treeherder job view](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) or request them from {{ user }}.
     critical_text: |
       Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). We would like to inform you that we are requesting an immediate back out from sheriffs@mozilla.bugs of the current patch due to performance regressions on the following critical test(s):  {{ criticalTests }}.
@@ -356,6 +369,7 @@
       - Review the [alert summary]({{ alertHref }}) for affected tests, graphs, and comparisons.
       - Check the [PerfCompare results]({{ perfCompareURL }}).
       - Tests on Try: Run all tests using `./mach try perf --alert {{ alertSummaryId }}` (See [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) for details).
+      - For more information on how to run perftests locally, see [this perfdocs documentation section](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#running-regressed-tests-locally).
       - Profiling jobs: [Trigger jobs from Treeherder job view](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) or request them from {{ user }}.
     no_action_required_text: |
       Perfherder has detected a {{ framework }} performance change from push [{{ revision }}]({{ revisionHref }}). 
@@ -392,6 +406,7 @@
       - Review the [alert summary]({{ alertHref }}) for affected tests, graphs, and comparisons.
       - Check the [PerfCompare results]({{ perfCompareURL }}).
       - Tests on Try: Run all tests using `./mach try perf --alert {{ alertSummaryId }}` (See [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) for details).
+      - For more information on how to run perftests locally, see [this perfdocs documentation section](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#running-regressed-tests-locally).
       - Profiling jobs: [Trigger jobs from Treeherder job view](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) or request them from {{ user }}.
     critical_text: |
       Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). We would like to inform you that we are requesting an immediate back out from sheriffs@mozilla.bugs of the current patch due to performance regressions on the following critical test(s):  {{ criticalTests }}.
@@ -409,6 +424,7 @@
       - Review the [alert summary]({{ alertHref }}) for affected tests, graphs, and comparisons.
       - Check the [PerfCompare results]({{ perfCompareURL }}).
       - Tests on Try: Run all tests using `./mach try perf --alert {{ alertSummaryId }}` (See [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) for details).
+      - For more information on how to run perftests locally, see [this perfdocs documentation section](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#running-regressed-tests-locally).
       - Profiling jobs: [Trigger jobs from Treeherder job view](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) or request them from {{ user }}.
     no_action_required_text: |
       Perfherder has detected a {{ framework }} performance change from push [{{ revision }}]({{ revisionHref }}). 
@@ -445,6 +461,7 @@
       - Review the [alert summary]({{ alertHref }}) for affected tests, graphs, and comparisons.
       - Check the [PerfCompare results]({{ perfCompareURL }}).
       - Tests on Try: Run all tests using `./mach try perf --alert {{ alertSummaryId }}` (See [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) for details).
+      - For more information on how to run perftests locally, see [this perfdocs documentation section](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#running-regressed-tests-locally).
       - Profiling jobs: [Trigger jobs from Treeherder job view](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) or request them from {{ user }}.
     critical_text: |
       Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). We would like to inform you that we are requesting an immediate back out from sheriffs@mozilla.bugs of the current patch due to performance regressions on the following critical test(s):  {{ criticalTests }}.
@@ -462,6 +479,7 @@
       - Review the [alert summary]({{ alertHref }}) for affected tests, graphs, and comparisons.
       - Check the [PerfCompare results]({{ perfCompareURL }}).
       - Tests on Try: Run all tests using `./mach try perf --alert {{ alertSummaryId }}` (See [documentation link](https://firefox-source-docs.mozilla.org/testing/perfdocs/mach-try-perf.html#running-alert-tests) for details).
+      - For more information on how to run perftests locally, see [this perfdocs documentation section](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#running-regressed-tests-locally).
       - Profiling jobs: [Trigger jobs from Treeherder job view](https://firefox-source-docs.mozilla.org/testing/perfdocs/perftest-in-a-nutshell.html#using-the-firefox-profiler) or request them from {{ user }}.
     no_action_required_text: |
       Perfherder has detected a {{ framework }} performance change from push [{{ revision }}]({{ revisionHref }}). 
