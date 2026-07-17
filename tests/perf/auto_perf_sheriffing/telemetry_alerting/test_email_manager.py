@@ -381,7 +381,7 @@ class TestTelemetryEmailContent:
             telemetry_alert_obj.telemetry_signature,
             telemetry_alert_obj.telemetry_alert_summary,
             telemetry_alert_obj.telemetry_alert.id,
-            telemetry_alert_obj.telemetry_alert.is_regression,
+            telemetry_alert_obj.status,
         )
 
         assert len(content._raw_content) > len(initial_content)
@@ -397,7 +397,7 @@ class TestTelemetryEmailContent:
             telemetry_alert_obj.telemetry_signature,
             telemetry_alert_obj.telemetry_alert_summary,
             telemetry_alert_obj.telemetry_alert.id,
-            telemetry_alert_obj.telemetry_alert.is_regression,
+            telemetry_alert_obj.status,
         )
 
         # Should be a markdown table row with pipes
@@ -423,7 +423,7 @@ class TestTelemetryEmailContent:
             telemetry_alert_obj.telemetry_signature,
             telemetry_alert_obj.telemetry_alert_summary,
             telemetry_alert_obj.telemetry_alert.id,
-            telemetry_alert_obj.telemetry_alert.is_regression,
+            telemetry_alert_obj.status,
         )
 
         # Should include dates in YYYY-MM-DD format
@@ -441,7 +441,7 @@ class TestTelemetryEmailContent:
             telemetry_alert_obj.telemetry_signature,
             telemetry_alert_obj.telemetry_alert_summary,
             alert_id,
-            telemetry_alert_obj.telemetry_alert.is_regression,
+            telemetry_alert_obj.status,
         )
 
         # Should include GLAM dashboard link
@@ -466,8 +466,8 @@ class TestTelemetryEmailContent:
             telemetry_alert_obj.telemetry_alert.id,
         )
 
-        assert "Regression" in content._build_table_row(*args, True)
-        assert "Improvement" in content._build_table_row(*args, False)
+        assert "Regression" in content._build_table_row(*args, "Regression")
+        assert "Improvement" in content._build_table_row(*args, "Improvement")
 
     def test_str_returns_raw_content(self, telemetry_alert_obj, mock_probe):
         """Test __str__ returns the raw content."""

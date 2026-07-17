@@ -120,9 +120,10 @@ class SeeAlsoModifier:
             # Get all the related bugs, excluding those we've already done since we don't
             # want to duplicate the see_also changes
             related_bugs = [
-                related_alert.bug_number
+                related_alert.telemetry_alert.bug_number
                 for related_alert in alert.get_related_alerts()
-                if related_alert.bug_number is not None and related_alert.bug_number not in changes
+                if related_alert.telemetry_alert.bug_number is not None
+                and related_alert.telemetry_alert.bug_number not in changes
             ]
 
             if related_bugs:

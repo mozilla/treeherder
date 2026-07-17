@@ -132,10 +132,10 @@ class TelemetryEmailContent:
         for related_alert in alert.get_related_alerts():
             self._include_probe(
                 alert.get_detection_range(),
-                related_alert.series_signature,
+                related_alert.telemetry_signature,
                 alert.telemetry_alert_summary,
-                related_alert.id,
-                related_alert.is_regression,
+                related_alert.telemetry_alert.id,
+                related_alert.status,
             )
 
     def _build_table_row(

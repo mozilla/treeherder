@@ -35,9 +35,14 @@ class TelemetryAlert(Alert):
         if self.related_telemetry_alerts:
             return self.related_telemetry_alerts
 
-        self.related_telemetry_alerts = PerformanceTelemetryAlert.objects.filter(
+        related_rows = PerformanceTelemetryAlert.objects.filter(
             summary_id=self.telemetry_alert_summary.id
         ).exclude(id=self.telemetry_alert.id)
+
+        self.related_telemetry_alerts = [
+            TelemetryAlertFactory.construct_alert(telemetry_alert=related_row)
+            for related_row in related_rows
+        ]
 
         return self.related_telemetry_alerts
 
