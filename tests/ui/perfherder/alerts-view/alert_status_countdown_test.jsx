@@ -102,7 +102,7 @@ test('Alert is created on Monday, Triage countdown shows Overdue', async () => {
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
   const dueDateStatusText = dueDateStatus.querySelector('p').innerHTML;
-  expect(dueDateStatusText).toBe('Triage: Overdue');
+  expect(dueDateStatusText).toBe('Time left: Overdue');
 });
 
 test('Alert is created on Monday, Bug countdown shows 4 working days', async () => {
@@ -228,7 +228,7 @@ test('Alert is created on Monday, Bug countdown shows Overdue', async () => {
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
   const dueDateStatusText = dueDateStatus.querySelector('p').innerHTML;
-  expect(dueDateStatusText).toBe('Bug: Overdue');
+  expect(dueDateStatusText).toBe('Time left: Overdue');
 });
 
 // testing what the tooltip shows for the cases when the alert is created either on Wednesday, Thursday, Friday or the weekend
@@ -315,7 +315,7 @@ test('Alert is created on Wednesday, Triage countdown shows Overdue', async () =
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
   const dueDateStatusText = dueDateStatus.querySelector('p').innerHTML;
-  expect(dueDateStatusText).toBe('Triage: Overdue');
+  expect(dueDateStatusText).toBe('Time left: Overdue');
 });
 
 test('Alert is created on Wednesday, Bug countdown shows 4 working days', async () => {
@@ -441,7 +441,7 @@ test('Alert is created on Wednesday, Bug countdown shows Overdue', async () => {
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
   const dueDateStatusText = dueDateStatus.querySelector('p').innerHTML;
-  expect(dueDateStatusText).toBe('Bug: Overdue');
+  expect(dueDateStatusText).toBe('Time left: Overdue');
 });
 
 test('Alert is ready, countdown shows Ready for acknowledge', async () => {
