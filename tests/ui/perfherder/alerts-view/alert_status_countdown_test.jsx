@@ -494,7 +494,7 @@ test('Alert is created on Wednesday, Bug countdown shows hours left', async () =
   alert.bug_due_date = '2022-02-16T12:41:31.419156';
 
   // current day is set to Wednesday
-  Date.now = jest.fn(() => Date.parse('2022-02-16T10:40:31.419156'));
+  Date.now = jest.fn(() => Date.parse('2022-02-16T10:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
