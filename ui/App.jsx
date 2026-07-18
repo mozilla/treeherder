@@ -129,50 +129,50 @@ const AppRoutes = () => {
       <ChunkErrorBoundary>
         <Suspense fallback={<LoadingSpinner />}>
           <Routes>
-          <Route path="/login" element={<LoginCallback />} />
-          <Route path="/taskcluster-auth" element={<TaskclusterCallback />} />
-          <Route
-            path="/jobs/*"
-            element={
-              <WithFavicon route="/jobs">
-                <JobsViewApp />
-              </WithFavicon>
-            }
-          />
-          <Route
-            path="/logviewer/*"
-            element={
-              <WithFavicon route="/logviewer">
-                <LogviewerApp />
-              </WithFavicon>
-            }
-          />
-          <Route
-            path="/userguide/*"
-            element={
-              <WithFavicon route="/userguide">
-                <UserGuideApp />
-              </WithFavicon>
-            }
-          />
-          <Route
-            path="/intermittent-failures/*"
-            element={
-              <WithFavicon route="/intermittent-failures">
-                <IntermittentFailuresApp />
-              </WithFavicon>
-            }
-          />
-          <Route
-            path="/perfherder/*"
-            element={
-              <WithFavicon route="/perfherder">
-                <PerfherderApp />
-              </WithFavicon>
-            }
-          />
-          <Route path="/docs/*" element={<RedocApp />} />
-          <Route path="*" element={<Navigate to="/jobs" replace />} />
+            <Route path="/login" element={<LoginCallback />} />
+            <Route path="/taskcluster-auth" element={<TaskclusterCallback />} />
+            <Route
+              path="/jobs/*"
+              element={
+                <WithFavicon route="/jobs">
+                  <JobsViewApp />
+                </WithFavicon>
+              }
+            />
+            <Route
+              path="/logviewer/*"
+              element={
+                <WithFavicon route="/logviewer">
+                  <LogviewerApp />
+                </WithFavicon>
+              }
+            />
+            <Route
+              path="/userguide/*"
+              element={
+                <WithFavicon route="/userguide">
+                  <UserGuideApp />
+                </WithFavicon>
+              }
+            />
+            <Route
+              path="/intermittent-failures/*"
+              element={
+                <WithFavicon route="/intermittent-failures">
+                  <IntermittentFailuresApp />
+                </WithFavicon>
+              }
+            />
+            <Route
+              path="/perfherder/*"
+              element={
+                <WithFavicon route="/perfherder">
+                  <PerfherderApp />
+                </WithFavicon>
+              }
+            />
+            <Route path="/docs/*" element={<RedocApp />} />
+            <Route path="*" element={<Navigate to="/jobs" replace />} />
           </Routes>
         </Suspense>
       </ChunkErrorBoundary>
