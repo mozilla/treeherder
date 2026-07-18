@@ -48,6 +48,11 @@ describe('chunkError helper', () => {
       expect(isChunkLoadError(error)).toBe(true);
     });
 
+    it('returns true for Safari\'s "Importing a module script failed" message', () => {
+      const error = chunkError('Importing a module script failed.', 'TypeError');
+      expect(isChunkLoadError(error)).toBe(true);
+    });
+
     it('returns false for an ordinary application error', () => {
       expect(isChunkLoadError(new Error('Cannot read properties of undefined'))).toBe(
         false,

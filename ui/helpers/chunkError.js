@@ -22,7 +22,12 @@ export const isChunkLoadError = function isChunkLoadError(error) {
   return (
     name === 'ChunkLoadError' ||
     /Loading (CSS )?chunk [\d]+ failed/i.test(message) ||
-    /(failed to fetch|error loading) dynamically imported module/i.test(message)
+    // Chrome/Firefox native-ESM import failures, plus Safari's variant
+    // ("Importing a module script failed.").
+    /(failed to fetch|error loading) dynamically imported module/i.test(
+      message,
+    ) ||
+    /importing a module script failed/i.test(message)
   );
 };
 
