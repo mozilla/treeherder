@@ -65,6 +65,23 @@ describe('Pushes Zustand store', () => {
     expect(state.revisionTips).toEqual(revisionTips);
   });
 
+  test('retainedPushLimit rises to the loaded push count on explicit fetchPushes', async () => {
+    fetchMock.get(
+      getProjectUrl('/push/?full=true&count=10', repoName),
+      pushListFixture,
+    );
+    fetchMock.get(
+      `https://bugzilla.mozilla.org/rest/bug?id=1556854%2C1555861%2C1559418%2C1563766%2C1561537%2C1563692`,
+      emptyBugzillaResponse,
+    );
+
+    usePushesStore.setState(initialState);
+    await usePushesStore.getState().fetchPushes();
+
+    // BASE_RETAINED_PUSHES is 50; the 6-push fixture keeps the limit at BASE.
+    expect(usePushesStore.getState().retainedPushLimit).toBe(50);
+  });
+
   test('should add new push and jobs when polling', async () => {
     fetchMock.get(
       getProjectUrl(
