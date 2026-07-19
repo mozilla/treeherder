@@ -336,6 +336,8 @@ export const usePushesStore = create(
               bugSummaryMap,
             );
             set({ loadingPushes: false, ...pushResults });
+            // Bound poll-driven push growth before fetching jobs for them.
+            set((state) => enforcePushLimit(state));
             fetchNewJobs();
           } else {
             notify('Error fetching new push data', 'danger', { sticky: true });
