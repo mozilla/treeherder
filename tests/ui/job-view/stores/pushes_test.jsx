@@ -14,7 +14,10 @@ import revisionTips from '../../mock/revisionTips.json';
 import {
   usePushesStore,
   initialState,
+  enforcePushLimit,
 } from '../../../../ui/shared/stores/pushesStore';
+import { useSelectedJobStore } from '../../../../ui/shared/stores/selectedJobStore';
+import { usePinnedJobsStore } from '../../../../ui/shared/stores/pinnedJobsStore';
 import { getApiUrl } from '../../../../ui/helpers/url';
 import JobModel from '../../../../ui/models/job';
 
@@ -34,6 +37,8 @@ describe('Pushes Zustand store', () => {
     window.location = { ...originalLocation, search: '', pathname: '/jobs' };
     // Reset store to initial state before each test
     usePushesStore.setState(initialState);
+    useSelectedJobStore.setState({ selectedJob: null });
+    usePinnedJobsStore.setState({ pinnedJobs: {} });
   });
 
   afterEach(() => {
@@ -80,6 +85,59 @@ describe('Pushes Zustand store', () => {
 
     // BASE_RETAINED_PUSHES is 50; the 6-push fixture keeps the limit at BASE.
     expect(usePushesStore.getState().retainedPushLimit).toBe(50);
+  });
+
+  const buildPushList = (ids) =>
+    ids.map((id) => ({
+      id,
+      revision: `rev${id}`,
+      author: 'a@b.com',
+      push_timestamp: 1000 + id,
+      revisions: [{ comments: `title ${id}` }],
+      jobsLoaded: true,
+    }));
+
+  test('enforcePushLimit evicts oldest pushes beyond retainedPushLimit and prunes jobMap', () => {
+    const pushList = buildPushList([5, 4, 3, 2, 1]); // newest-first
+    const jobMap = {};
+    pushList.forEach((p) => {
+      jobMap[p.id * 10] = {
+        id: p.id * 10,
+        push_id: p.id,
+        state: 'completed',
+        result: 'success',
+        last_modified: '2019-08-05T20:00:00',
+      };
+    });
+
+    usePushesStore.setState({
+      ...initialState,
+      pushList,
+      jobMap,
+      retainedPushLimit: 3,
+    });
+
+    usePushesStore.setState((state) => enforcePushLimit(state));
+    const state = usePushesStore.getState();
+
+    expect(state.pushList.map((p) => p.id)).toEqual([5, 4, 3]);
+    expect(Object.keys(state.jobMap).sort()).toEqual(['30', '40', '50']);
+    expect(state.oldestPushTimestamp).toBe(1003);
+  });
+
+  test('enforcePushLimit never evicts the selected or a pinned push', () => {
+    const pushList = buildPushList([5, 4, 3, 2, 1]);
+
+    usePushesStore.setState({ ...initialState, pushList, retainedPushLimit: 3 });
+    // Select a job on the oldest push (id 1); pin a job on push id 2.
+    useSelectedJobStore.setState({ selectedJob: { id: 999, push_id: 1 } });
+    usePinnedJobsStore.setState({ pinnedJobs: { 998: { id: 998, push_id: 2 } } });
+
+    usePushesStore.setState((state) => enforcePushLimit(state));
+    const keptIds = usePushesStore.getState().pushList.map((p) => p.id);
+
+    // 3 newest kept, plus protected pushes 1 and 2.
+    expect(keptIds.sort((a, b) => b - a)).toEqual([5, 4, 3, 2, 1]);
   });
 
   test('should add new push and jobs when polling', async () => {
