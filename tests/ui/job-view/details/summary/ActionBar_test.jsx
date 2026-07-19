@@ -84,4 +84,21 @@ describe('ActionBar expired-task disabling', () => {
 
     expect(JobModel.retrigger).not.toHaveBeenCalled();
   });
+
+  it('marks the push active for polling when a job is retriggered', () => {
+    usePushesStore.setState({
+      ...pushesInitialState,
+      decisionTaskMap: { 1: { id: 'DEC_TASK' } },
+      forcePollPushIds: new Set(),
+    });
+    render(<ActionBar {...baseProps} />);
+
+    window.dispatchEvent(
+      new CustomEvent(thEvents.jobRetrigger, {
+        detail: { job: baseProps.selectedJobFull },
+      }),
+    );
+
+    expect(usePushesStore.getState().forcePollPushIds.has(1)).toBe(true);
+  });
 });
