@@ -255,6 +255,10 @@ export const usePushesStore = create(
   devtools(
     (set, get) => ({
       ...initialState,
+      // Push ids to keep polling even though their jobs look complete, e.g.
+      // after a local retrigger/backfill. Not in initialState so each store
+      // instance gets its own Set (and resets don't share a reference).
+      forcePollPushIds: new Set(),
 
       fetchPushes: async (
         count = DEFAULT_PUSH_COUNT,
@@ -402,7 +406,13 @@ export const usePushesStore = create(
       },
 
       clearPushes: () => {
-        set({ ...initialState });
+        set({ ...initialState, forcePollPushIds: new Set() });
+      },
+
+      markPushActive: (pushId) => {
+        const forcePollPushIds = new Set(get().forcePollPushIds);
+        forcePollPushIds.add(pushId);
+        set({ forcePollPushIds });
       },
 
       setPushes: (pushList, jobMap) => {
@@ -472,3 +482,5 @@ export const updateJobMap = (jobList) =>
   usePushesStore.getState().updateJobMap(jobList);
 export const updateRange = (range) =>
   usePushesStore.getState().updateRange(range);
+export const markPushActive = (pushId) =>
+  usePushesStore.getState().markPushActive(pushId);
