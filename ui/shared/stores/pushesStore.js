@@ -15,7 +15,12 @@ import { processErrors, getData } from '../../helpers/http';
 import { updateUrlSearch } from '../../helpers/router';
 
 import { notify } from './notificationStore';
-import { clearJobViaUrl, setSelectedJob } from './selectedJobStore';
+import {
+  clearJobViaUrl,
+  setSelectedJob,
+  useSelectedJobStore,
+} from './selectedJobStore';
+import { usePinnedJobsStore } from './pinnedJobsStore';
 
 const DEFAULT_PUSH_COUNT = 10;
 // Upper bound on pushes retained while polling. Generous enough that normal
@@ -101,6 +106,63 @@ const doRecalculateUnclassifiedCounts = (jobMap) => {
   return {
     allUnclassifiedFailureCount,
     filteredUnclassifiedFailureCount,
+  };
+};
+
+// Pushes that must never be evicted: the selected push and any push with a
+// pinned job. Read from the other stores at call time (no circular import).
+const getProtectedPushIds = () => {
+  const ids = new Set();
+  const { selectedJob } = useSelectedJobStore.getState();
+  if (selectedJob) {
+    ids.add(selectedJob.push_id);
+  }
+  const { pinnedJobs } = usePinnedJobsStore.getState();
+  Object.values(pinnedJobs).forEach((job) => ids.add(job.push_id));
+  return ids;
+};
+
+// Bound retained pushes so a long-open, polling tab does not grow unbounded.
+// Keeps the newest `retainedPushLimit` pushes plus any protected push, and
+// prunes the evicted pushes' jobs from jobMap/decisionTaskMap. Returns a
+// partial state object (empty when nothing needs evicting).
+export const enforcePushLimit = (state) => {
+  const { pushList, jobMap, decisionTaskMap, retainedPushLimit } = state;
+  if (pushList.length <= retainedPushLimit) {
+    return {};
+  }
+
+  const protectedIds = getProtectedPushIds();
+  // pushList is sorted newest-first; keep the newest retainedPushLimit, plus
+  // any protected push that would otherwise be evicted.
+  const kept = pushList.slice(0, retainedPushLimit);
+  const protectedOverflow = pushList
+    .slice(retainedPushLimit)
+    .filter((push) => protectedIds.has(push.id));
+  const newPushList = [...kept, ...protectedOverflow];
+  const keptPushIds = new Set(newPushList.map((push) => push.id));
+
+  const newJobMap = {};
+  for (const [id, job] of Object.entries(jobMap)) {
+    if (keptPushIds.has(job.push_id)) {
+      newJobMap[id] = job;
+    }
+  }
+
+  const newDecisionTaskMap = {};
+  for (const [pushId, entry] of Object.entries(decisionTaskMap)) {
+    if (keptPushIds.has(Number(pushId))) {
+      newDecisionTaskMap[pushId] = entry;
+    }
+  }
+
+  return {
+    pushList: newPushList,
+    jobMap: newJobMap,
+    decisionTaskMap: newDecisionTaskMap,
+    oldestPushTimestamp: newPushList[newPushList.length - 1].push_timestamp,
+    ...getRevisionTips(newPushList),
+    ...doRecalculateUnclassifiedCounts(newJobMap),
   };
 };
 
