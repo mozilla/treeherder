@@ -191,6 +191,37 @@ describe('Pushes Zustand store', () => {
     ]);
   });
 
+  test('pollPushes trims the pushList back to retainedPushLimit', async () => {
+    fetchMock.get(
+      getProjectUrl(
+        '/push/?full=true&count=100&fromchange=ba9c692786e95143b8df3f4b3e9b504dfbc589a0',
+        repoName,
+      ),
+      pollPushListFixture,
+    );
+    fetchMock.mock(`begin:${getApiUrl('/jobs/?push_id__in=', repoName)}`, {
+      count: 0,
+      next: null,
+      results: [],
+    });
+    fetchMock.get(
+      `https://bugzilla.mozilla.org/rest/bug?id=1506219`,
+      emptyBugzillaResponse,
+    );
+
+    const initialPush = pushListFixture.results[0];
+    // limit 1 => after polling prepends pushes, only the newest remains.
+    usePushesStore.setState({
+      ...initialState,
+      pushList: [initialPush],
+      retainedPushLimit: 1,
+    });
+
+    await usePushesStore.getState().pollPushes();
+
+    expect(usePushesStore.getState().pushList).toHaveLength(1);
+  });
+
   test('fetchPushes should update revision param on url', async () => {
     fetchMock.get(
       getProjectUrl(
