@@ -18,6 +18,11 @@ import { notify } from './notificationStore';
 import { clearJobViaUrl, setSelectedJob } from './selectedJobStore';
 
 const DEFAULT_PUSH_COUNT = 10;
+// Upper bound on pushes retained while polling. Generous enough that normal
+// short sessions never evict a push from the initial viewport, small enough to
+// bound memory for a multi-hour tab. Explicit "get more pushes" loads raise the
+// effective limit (see retainedPushLimit) so the user is never fought.
+const BASE_RETAINED_PUSHES = 50;
 const PUSH_POLLING_KEYS = ['tochange', 'enddate', 'revision', 'author'];
 const PUSH_FETCH_KEYS = [...PUSH_POLLING_KEYS, 'fromchange', 'startdate'];
 
@@ -175,6 +180,7 @@ export const initialState = {
   oldestPushTimestamp: null,
   allUnclassifiedFailureCount: 0,
   filteredUnclassifiedFailureCount: 0,
+  retainedPushLimit: BASE_RETAINED_PUSHES,
 };
 
 export const usePushesStore = create(
@@ -219,7 +225,17 @@ export const usePushesStore = create(
             setFromchange,
             bugSummaryMap,
           );
-          set({ loadingPushes: false, ...pushResults });
+          // Explicit push loads (initial load and the "get more pushes" button)
+          // set the high-water mark that polling-driven eviction respects.
+          const nextPushList = pushResults.pushList || pushList;
+          set({
+            loadingPushes: false,
+            ...pushResults,
+            retainedPushLimit: Math.max(
+              get().retainedPushLimit,
+              nextPushList.length,
+            ),
+          });
         } else {
           notify('Error retrieving push data!', 'danger', { sticky: true });
           set({ loadingPushes: false });
