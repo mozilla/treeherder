@@ -332,6 +332,14 @@ describe('Pushes Zustand store', () => {
     expect(state.revisionTips).toEqual(revisionTips.slice(0, 3));
   });
 
+  test('markPushActive adds a push id to forcePollPushIds', () => {
+    usePushesStore.setState({ ...initialState, forcePollPushIds: new Set() });
+
+    usePushesStore.getState().markPushActive(42);
+
+    expect(usePushesStore.getState().forcePollPushIds.has(42)).toBe(true);
+  });
+
   test('should clear the pushList with clearPushes', async () => {
     const push = pushListFixture.results[0];
     usePushesStore.setState({
