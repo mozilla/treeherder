@@ -50,6 +50,14 @@ def metric_info_with_none(base_metric_info):
     return base_metric_info
 
 
+@pytest.fixture
+def mobile_metric_info(base_metric_info):
+    """Metric info for a mobile probe with no monitor config."""
+    base_metric_info["platform"] = "mobile"
+    base_metric_info["data"]["monitor"] = None
+    return base_metric_info
+
+
 class TestTelemetryProbeInitialization:
     def test_initialization_with_alert_true(self, metric_info_with_alert):
         """Test probe initialization with alert=True."""
@@ -94,6 +102,22 @@ class TestTelemetryProbeInitialization:
 
         assert probe.monitor_info["detect_changes"] is False
 
+    def test_initialization_desktop_platform(self, base_metric_info):
+        """Test probe reflects the desktop platform from its metric info."""
+        probe = TelemetryProbe(base_metric_info)
+
+        assert probe.platform == "desktop"
+        assert probe.is_desktop is True
+        assert probe.is_mobile is False
+
+    def test_initialization_mobile_platform(self, mobile_metric_info):
+        """Test probe reflects the mobile platform from its metric info."""
+        probe = TelemetryProbe(mobile_metric_info)
+
+        assert probe.platform == "mobile"
+        assert probe.is_mobile is True
+        assert probe.is_desktop is False
+
 
 class TestTelemetryProbeMonitorInfoSetter:
     def test_monitor_info_dict_with_detect_changes(self, base_metric_info):
@@ -116,6 +140,23 @@ class TestTelemetryProbeMonitorInfoSetter:
 
         assert "must by either a boolean or dictionary" in str(exc_info.value)
         assert "networking_http_channel_page_open_to_first_sent" in str(exc_info.value)
+
+    def test_monitor_info_reassignment_enables_detection_and_emails(self, mobile_metric_info):
+        """Reassigning monitor_info enables detection and email-only notifications."""
+        probe = TelemetryProbe(mobile_metric_info)
+        assert probe.should_detect_changes() is False
+
+        probe.monitor_info = {
+            "detect_changes": True,
+            "alert": False,
+            "notification_emails": ["fake@mozilla"],
+        }
+
+        assert probe.should_detect_changes() is True
+        # alert=False -> emails, never bugs.
+        assert probe.should_email() is True
+        assert probe.should_file_bug() is False
+        assert probe.get_notification_emails() == ["fake@mozilla"]
 
 
 class TestTelemetryProbeChangeDetection:

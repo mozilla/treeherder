@@ -28,6 +28,10 @@ from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.probe import (
     TelemetryProbe,
     TelemetryProbeValidationError,
 )
+from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.utils import (
+    ANDROID_ALERT_EMAIL,
+    ANDROID_PROBE_ALLOWLIST,
+)
 from treeherder.perf.exceptions import CannotBackfillError, MaxRuntimeExceededError
 from treeherder.perf.models import (
     BackfillNotificationRecord,
@@ -331,24 +335,34 @@ class Sherlock:
         repository = Repository.objects.get(name="mozilla-central")
         framework = PerformanceFramework.objects.get(name="telemetry")
         for metric_info in metric_definitions:
-            if metric_info["platform"] == "mobile":
-                # Skip mobile detection since it's currently broken
-                continue
-
             try:
                 probe = TelemetryProbe(metric_info)
             except TelemetryProbeValidationError as e:
                 logger.warning(f"Failed probe validation: {str(e)}")
                 continue
 
+            # Force some android probes to be monitored if they aren't already
+            if probe.is_mobile and probe.name in ANDROID_PROBE_ALLOWLIST:
+                probe.monitor_info = {
+                    "detect_changes": True,
+                    "alert": False,
+                    "notification_emails": [ANDROID_ALERT_EMAIL],
+                }
+
             if not probe.should_detect_changes():
                 continue
             probes.setdefault(probe.name, probe)
 
-            logger.info(f"Running detection for {probe.name}")
+            logger.info(f"Running detection for {probe.name} on {probe.platform}")
             cdf_ts_detector = ts_detectors[probe.get_change_detection_technique()]
 
-            for platform in ("Windows",):
+            # Probes can have slightly different defintions between mobile and desktop
+            # so we need to account for that here
+            platforms = ("Windows",)
+            if probe.is_mobile:
+                platforms = ("Android",)
+
+            for platform in platforms:
                 logger.info(f"On Platform {platform}")
 
                 # Create the probe signature now so that we can capture when it was first
@@ -361,7 +375,7 @@ class Sherlock:
                     platform=platform,
                     probe=probe.name,
                     probe_type="Glean",
-                    application="Firefox",
+                    application="Fenix" if probe.is_mobile else "Firefox",
                 )
 
                 try:
@@ -369,7 +383,7 @@ class Sherlock:
                     data = get_metric_table(
                         probe.name,
                         platform,
-                        android=(platform == "Mobile"),
+                        android=probe.is_mobile,
                         use_fog=True,
                         project=project,
                         from_build_date=str(
@@ -559,6 +573,17 @@ class Sherlock:
                     platform_builds[curr_date]["next_build"] = curr_date
 
             prev_date[platform] = curr_date
+
+        # Android (Fenix/GeckoView) nightlies are built from mozilla-central, so
+        # the daily changeset matches the desktop builds. hg.mozilla.org doesn't
+        # expose Android builds in json-firefoxreleases, so reuse the desktop
+        # daily mapping rather than fetching a separate Android build source.
+        for desktop_platform in ("Windows", "Linux", "Darwin"):
+            if desktop_platform in self._buildid_mappings:
+                self._buildid_mappings.setdefault(
+                    "Android", self._buildid_mappings[desktop_platform]
+                )
+                break
 
     def _get_buildid_mappings(self) -> dict:
         try:

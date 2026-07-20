@@ -64,6 +64,18 @@ class TelemetryProbe:
                 self._time_unit = self._probe_info.get("time_unit", "")
         return self._time_unit
 
+    @property
+    def platform(self):
+        return self.metric_info["platform"]
+
+    @property
+    def is_desktop(self):
+        return self.platform == "desktop"
+
+    @property
+    def is_mobile(self):
+        return self.platform == "mobile"
+
     def get_change_detection_technique(self):
         return self.monitor_info.get("change_detection_technique", DEFAULT_CHANGE_DETECTION)
 

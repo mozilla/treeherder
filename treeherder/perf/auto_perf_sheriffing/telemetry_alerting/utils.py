@@ -44,6 +44,20 @@ DEFAULT_ALERT_EMAIL = "gmierzwinski@mozilla.com"
 DEFAULT_BUGZILLA_INFO = ("Testing", "Performance")
 EMAIL_LIMIT = 50
 
+# Android telemetry alerting is still being rolled out, so it is intentionally
+# limited to a hardcoded allowlist of probes. Alerts for these probes only ever
+# produce emails (never bugs), and those emails are always routed to
+# ANDROID_ALERT_EMAIL regardless of what the probe definition specifies.
+ANDROID_ALERT_EMAIL = "perf-telemetry-alerts@mozilla.com"
+ANDROID_PROBE_ALLOWLIST = (
+    "perf_largest_contentful_paint",
+    "performance_pageload_fcp",
+    "networking_http_channel_page_open_to_first_sent",
+    "networking_dns_lookup_time",
+    "network_tcp_connection",
+    "dns_native_lookup_time",
+)
+
 
 def get_glean_dictionary_link(telemetry_signature):
     if telemetry_signature.platform in DESKTOP_PLATFORMS:
