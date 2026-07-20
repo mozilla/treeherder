@@ -484,11 +484,6 @@ def test_performance_alert_summary_change_revision_duplicated_across_repositorie
 ):
     client.force_authenticate(user=test_sheriff)
 
-    from treeherder.webapp.api.performance_serializers import (
-        PerformanceAlertSummarySerializer,
-    )
-
-    print(PerformanceAlertSummarySerializer().fields["revision"].__class__)
     assert Push.objects.filter(revision=test_push.revision).count() == 2
 
     resp = client.put(
