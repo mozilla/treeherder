@@ -26,22 +26,6 @@ import AnnotationsTab from './AnnotationsTab';
 import SimilarJobsTab from './SimilarJobsTab';
 import SummaryTab from './summaryTab/SummaryTab';
 
-const SUMMARY_ARTIFACT_SUFFIX = '_testsummary.jsonl';
-
-const getSummaryArtifact = (jobDetails = []) =>
-  jobDetails.find((detail) => detail.value?.endsWith(SUMMARY_ARTIFACT_SUFFIX));
-
-const hasSummaryArtifact = (jobDetails = []) =>
-  !!getSummaryArtifact(jobDetails);
-
-const showTabsFromProps = (props) => {
-  const { perfJobDetail, jobDetails } = props;
-  return {
-    showPerf: !!perfJobDetail.length,
-    showSummary: hasSummaryArtifact(jobDetails),
-  };
-};
-
 const getTabNames = ({ showPerf, showSummary }) => {
   // The order in here has to match the order within the render method
   return [
@@ -58,8 +42,7 @@ const getTabNames = ({ showPerf, showSummary }) => {
   );
 };
 
-const getDefaultTabIndex = (status, props) => {
-  const { showPerf, showSummary } = showTabsFromProps(props);
+const getDefaultTabIndex = (status, { showPerf, showSummary }) => {
   let idx = 0;
   const tabNames = getTabNames({ showPerf, showSummary });
   const tabIndexes = tabNames.reduce(
@@ -111,14 +94,14 @@ const TabsPanel = ({
   }, []);
 
   const [tabIndex, setTabIndex] = useState(0);
+  const [summaryUrl, setSummaryUrl] = useState(null);
   const [overflowTabs, setOverflowTabs] = useState([]);
   const [showOverflowDropdown, setShowOverflowDropdown] = useState(false);
-  const [jobId, setJobId] = useState(null);
-  const [perfJobDetailSize, setPerfJobDetailSize] = useState(0);
   const [dropdownShow, setDropdownShow] = useState(false);
 
   const tabListRef = useRef(null);
   const resizeObserverRef = useRef(null);
+  const defaultTabKeyRef = useRef(null);
 
   const checkTabOverflow = useCallback(() => {
     if (!tabListRef.current) return;
@@ -144,10 +127,8 @@ const TabsPanel = ({
       }
     });
 
-    const { showPerf, showSummary } = showTabsFromProps({
-      perfJobDetail,
-      jobDetails,
-    });
+    const showPerf = !!perfJobDetail.length;
+    const showSummary = !!summaryUrl;
     const enableTestGroupsTab = testGroups && testGroups.length > 0;
 
     // Create tab data array (order must match the render method)
@@ -215,7 +196,7 @@ const TabsPanel = ({
       setOverflowTabs([]);
       setShowOverflowDropdown(false);
     }
-  }, [perfJobDetail, testGroups, jobDetails]);
+  }, [perfJobDetail, testGroups, summaryUrl]);
 
   const setupResizeObserver = useCallback(() => {
     if (tabListRef.current && window.ResizeObserver) {
@@ -234,31 +215,58 @@ const TabsPanel = ({
 
   const onSelectNextTab = useCallback(() => {
     const nextIndex = tabIndex + 1;
-    const tabCount = getTabNames(
-      showTabsFromProps({ perfJobDetail, jobDetails }),
-    ).length;
+    const tabCount = getTabNames({
+      showPerf: !!perfJobDetail.length,
+      showSummary: !!summaryUrl,
+    }).length;
     setTabIndex(nextIndex < tabCount ? nextIndex : 0);
-  }, [tabIndex, perfJobDetail, jobDetails]);
+  }, [tabIndex, perfJobDetail, summaryUrl]);
 
   const handleOverflowTabClick = useCallback((newTabIndex) => {
     setTabIndex(newTabIndex);
   }, []);
 
-  // Effect for handling job changes and setting default tab index
+  // Probe for the summary.jsonl artifact; only show the Summary tab when it exists
   useEffect(() => {
-    if (
-      selectedJob &&
-      (jobId !== selectedJob.id || perfJobDetailSize !== perfJobDetail.length)
-    ) {
-      const newTabIndex = getDefaultTabIndex(selectedJob.resultStatus, {
-        perfJobDetail,
-        jobDetails,
+    const url =
+      jobDetails?.find((detail) => detail.value === 'summary.jsonl')?.url ||
+      jobDetails?.find((detail) => detail.value?.endsWith('_testsummary.jsonl'))
+        ?.url;
+
+    console.log('Probing for summary artifact at URL:', url);
+    setSummaryUrl(null);
+    if (!url) return undefined;
+
+    let cancelled = false;
+    fetch(url, { method: 'HEAD' })
+      .then((resp) => {
+        if (!cancelled && resp.ok) {
+          setSummaryUrl(url);
+        }
+      })
+      .catch(() => {
+        // No summary artifact for this task; leave the Summary tab hidden.
       });
-      setTabIndex(newTabIndex);
-      setJobId(selectedJob.id);
-      setPerfJobDetailSize(perfJobDetail.length);
-    }
-  }, [selectedJob, perfJobDetail, jobId, perfJobDetailSize, jobDetails]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedJob?.task_id, selectedJob?.retry_id, jobDetails]);
+
+  // Effect for handling job changes and setting default tab index.
+  // Re-runs when the summary probe resolves so tab indexes stay in sync.
+  useEffect(() => {
+    if (!selectedJob) return;
+    const key = `${selectedJob.id}-${perfJobDetail.length}-${!!summaryUrl}`;
+    if (defaultTabKeyRef.current === key) return;
+    defaultTabKeyRef.current = key;
+    setTabIndex(
+      getDefaultTabIndex(selectedJob.resultStatus, {
+        showPerf: !!perfJobDetail.length,
+        showSummary: !!summaryUrl,
+      }),
+    );
+  }, [selectedJob, perfJobDetail, summaryUrl]);
 
   // Effect for setting up event listeners and resize observer
   useEffect(() => {
@@ -283,10 +291,8 @@ const TabsPanel = ({
   }, [checkTabOverflow]);
 
   const countPinnedJobs = Object.keys(pinnedJobs).length;
-  const { showPerf, showSummary } = showTabsFromProps({
-    perfJobDetail,
-    jobDetails,
-  });
+  const showPerf = !!perfJobDetail.length;
+  const showSummary = !!summaryUrl;
   const enableTestGroupsTab = testGroups && testGroups.length > 0;
 
   return (
@@ -429,8 +435,8 @@ const TabsPanel = ({
           {showSummary && (
             <TabPanel>
               <SummaryTab
-                key={getSummaryArtifact(jobDetails)?.url}
-                artifactUrl={getSummaryArtifact(jobDetails)?.url}
+                key={summaryUrl}
+                artifactUrl={summaryUrl}
                 selectedJob={selectedJobFull}
                 jobLogUrls={jobLogUrls}
                 jobDetails={jobDetails}
