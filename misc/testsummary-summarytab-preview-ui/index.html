@@ -487,7 +487,7 @@
       };
       const SUMMARY_ARTIFACT_SUFFIX = '_testsummary.jsonl';
       const JOBS_PAGE_SIZE = 2000;
-      const JOB_CONCURRENCY = 50;
+      const JOB_CONCURRENCY = 100;
       const BZ_BASE_URL = 'https://bugzilla.mozilla.org/';
       // Mirrors ui/helpers/constants.js#thBugSuggestionLimit.
       const BUG_SUGGESTION_LIMIT = 20;
@@ -577,7 +577,8 @@
         const seconds = Math.round((Date.now() - ts) / 1000);
         if (seconds < 60) return 'just now';
         const minutes = Math.round(seconds / 60);
-        if (minutes < 60) return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
+        if (minutes < 60)
+          return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
         const hours = Math.round(minutes / 60);
         if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
         const days = Math.round(hours / 24);
@@ -822,7 +823,7 @@
               const queue = pending.get(line.test);
               const run = queue && queue.length ? queue[0] : null;
               if (run && line.message) {
-                const label = line.subtest ? `${line.subtest}: ` : '';
+                const label = line.subtest ? `${line.subtest} - ` : '';
                 run.subtestFailures.push(`${label}${line.message}`);
               }
               return;
