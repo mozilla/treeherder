@@ -307,7 +307,17 @@ class Sherlock:
         alert_manager = PerformanceAlertManager()
         alert_manager.manage_alerts([])
 
-    def telemetry_alert(self):
+    def telemetry_alert(self, probe_filter=None, max_detections=None, platform_filter=None):
+        """Run telemetry change detection and alert management.
+
+        :param probe_filter: If set, only the probe with this name is processed.
+            Useful for locally testing a single probe.
+        :param max_detections: If set, at most this many detections per platform
+            are turned into alerts. Set to 1 to exercise the alert manager with a
+            single detection.
+        :param platform_filter: If set to DESKTOP or MOBILE, only probes for that
+            platform type are processed.
+        """
         if not self._can_run_telemetry():
             return
         if not settings.TELEMETRY_ENABLE_ALERTS:
@@ -337,6 +347,12 @@ class Sherlock:
         repository = Repository.objects.get(name="mozilla-central")
         framework = PerformanceFramework.objects.get(name="telemetry")
         for metric_info in metric_definitions:
+            if probe_filter and metric_info.get("name") != probe_filter:
+                continue
+
+            if platform_filter and metric_info.get("platform") != platform_filter:
+                continue
+
             try:
                 probe = TelemetryProbe(metric_info)
             except TelemetryProbeValidationError as e:
@@ -400,6 +416,9 @@ class Sherlock:
 
                     ts_detector = cdf_ts_detector(timeseries)
                     detections = ts_detector.detect_changes()
+
+                    if max_detections is not None:
+                        detections = detections[:max_detections]
 
                     for detection in detections:
                         # Only get buildids if there might be a detection
