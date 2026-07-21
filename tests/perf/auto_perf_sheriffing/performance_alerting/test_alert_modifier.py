@@ -174,7 +174,10 @@ class TestResolutionModifier:
         self,
         mock_bug_searcher_class,
         resolution_modifier_class,
-        test_perf_alert_summary_for_modifier,
+        test_repository,
+        push_stored,
+        test_perf_framework,
+        test_issue_tracker,
     ):
         mock_searcher = Mock()
         mock_searcher.get_today_date.return_value = datetime.now().date()
@@ -183,13 +186,21 @@ class TestResolutionModifier:
         }
         mock_bug_searcher_class.return_value = mock_searcher
 
-        test_perf_alert_summary_for_modifier.bug_number = 12345
-        test_perf_alert_summary_for_modifier.bug_status = PerformanceAlertSummary.BUG_FIXED
-        test_perf_alert_summary_for_modifier.save()
+        summary = PerformanceAlertSummary.objects.create(
+            repository=test_repository,
+            framework=test_perf_framework,
+            prev_push_id=1,
+            push_id=2,
+            manually_created=False,
+            created=datetime.now(),
+            bug_number=12345,
+        )
+        summary.bug_status = PerformanceAlertSummary.BUG_FIXED
+        summary.save()
 
         updates, summaries = resolution_modifier_class.update_alerts()
 
-        assert str(test_perf_alert_summary_for_modifier.id) not in updates
+        assert str(summary.id) not in updates
 
     @patch("treeherder.perf.auto_perf_sheriffing.performance_alerting.alert_modifier.BugSearcher")
     def test_update_alerts_exception_handling(

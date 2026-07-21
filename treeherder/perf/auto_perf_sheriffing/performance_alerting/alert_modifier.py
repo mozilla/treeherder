@@ -74,6 +74,10 @@ class ResolutionModifier:
                 continue
             if summary.bug_status == new_bug_status:
                 continue
+            logger.info(
+                f"summary {summary.id}, bug {summary.bug_number}: resolution={bug['resolution']!r}, "
+                f"status={bug['status']!r}, bug_status={summary.bug_status} to {new_bug_status}"
+            )
             updates[str(summary.id)] = {"bug_status": new_bug_status}
             summaries_to_update[str(summary.id)] = summary
 
@@ -122,6 +126,10 @@ class NullBugStatusModifier:
                 new_bug_status = PerformanceAlertSummary.BUG_NEW
             if new_bug_status is None:
                 continue
+            logger.info(
+                f"summary {summary.id}, bug {summary.bug_number}: resolution={bug['resolution']!r}, "
+                f"status={bug['status']!r}, bug_status={summary.bug_status} to {new_bug_status}"
+            )
             updates[str(summary.id)] = {"bug_status": new_bug_status}
             summaries_to_update[str(summary.id)] = summary
 

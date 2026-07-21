@@ -384,10 +384,16 @@ class PerformanceAlertSummaryBase(models.Model):
 
     def save(self, *args, update_fields=None, **kwargs):
         if self.bug_number is not None and self.bug_number != self.__prev_bug_number:
+            has_bug_status = hasattr(self, "bug_status")
             self.bug_updated = datetime.now()
+            if has_bug_status:
+                # always reset bug_status, even if the caller set bug_status in this same save() call
+                self.bug_status = None
 
             if update_fields is not None:
                 update_fields = {"bug_updated"}.union(update_fields)
+                if has_bug_status:
+                    update_fields.add("bug_status")
 
         triage_due = calculate_time_to(self.created, TRIAGE_DAYS)
         # created is initially PerformanceDatum.push_timestamp and due to a potential race condition
