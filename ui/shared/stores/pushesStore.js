@@ -23,11 +23,14 @@ import {
 import { usePinnedJobsStore } from './pinnedJobsStore';
 
 const DEFAULT_PUSH_COUNT = 10;
-// Upper bound on pushes retained while polling. Generous enough that normal
-// short sessions never evict a push from the initial viewport, small enough to
-// bound memory for a multi-hour tab. Explicit "get more pushes" loads raise the
-// effective limit (see retainedPushLimit) so the user is never fought.
-const BASE_RETAINED_PUSHES = 50;
+// Rolling cap on pushes retained while polling. autoland gets a larger window
+// (sheriffs watch it closely); other repos are capped tighter. This is only a
+// floor: explicit "get more pushes" loads raise retainedPushLimit above it, so
+// polling growth is bounded while the user can still browse deeper history.
+const AUTOLAND_PUSH_CAP = 200;
+const DEFAULT_PUSH_CAP = 100;
+export const getRepoPushCap = () =>
+  getUrlParam('repo') === 'autoland' ? AUTOLAND_PUSH_CAP : DEFAULT_PUSH_CAP;
 const PUSH_POLLING_KEYS = ['tochange', 'enddate', 'revision', 'author'];
 const PUSH_FETCH_KEYS = [...PUSH_POLLING_KEYS, 'fromchange', 'startdate'];
 
@@ -128,7 +131,8 @@ const getProtectedPushIds = () => {
 // partial state object (empty when nothing needs evicting).
 export const enforcePushLimit = (state) => {
   const { pushList, jobMap, decisionTaskMap, retainedPushLimit } = state;
-  if (pushList.length <= retainedPushLimit) {
+  // A falsy limit (unset before the first fetchPushes) means "no eviction yet".
+  if (!retainedPushLimit || pushList.length <= retainedPushLimit) {
     return {};
   }
 
@@ -242,7 +246,9 @@ export const initialState = {
   oldestPushTimestamp: null,
   allUnclassifiedFailureCount: 0,
   filteredUnclassifiedFailureCount: 0,
-  retainedPushLimit: BASE_RETAINED_PUSHES,
+  // Effective eviction limit; raised to at least getRepoPushCap() (and to any
+  // larger explicit "load more" count) on the first fetchPushes.
+  retainedPushLimit: 0,
 };
 
 export const usePushesStore = create(
@@ -287,14 +293,16 @@ export const usePushesStore = create(
             setFromchange,
             bugSummaryMap,
           );
-          // Explicit push loads (initial load and the "get more pushes" button)
-          // set the high-water mark that polling-driven eviction respects.
+          // The eviction limit is at least the repo cap, and rises with explicit
+          // push loads (initial load and the "get more pushes" button) so those
+          // are never fought.
           const nextPushList = pushResults.pushList || pushList;
           set({
             loadingPushes: false,
             ...pushResults,
             retainedPushLimit: Math.max(
               get().retainedPushLimit,
+              getRepoPushCap(),
               nextPushList.length,
             ),
           });
