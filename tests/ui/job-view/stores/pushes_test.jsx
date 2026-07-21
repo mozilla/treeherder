@@ -15,6 +15,7 @@ import {
   usePushesStore,
   initialState,
   enforcePushLimit,
+  getRepoPushCap,
 } from '../../../../ui/shared/stores/pushesStore';
 import { useSelectedJobStore } from '../../../../ui/shared/stores/selectedJobStore';
 import { usePinnedJobsStore } from '../../../../ui/shared/stores/pinnedJobsStore';
@@ -70,7 +71,18 @@ describe('Pushes Zustand store', () => {
     expect(state.revisionTips).toEqual(revisionTips);
   });
 
-  test('retainedPushLimit rises to the loaded push count on explicit fetchPushes', async () => {
+  test('getRepoPushCap returns 200 for autoland and 100 for other repos', () => {
+    window.location = { ...originalLocation, search: '?repo=autoland' };
+    expect(getRepoPushCap()).toBe(200);
+
+    window.location = { ...originalLocation, search: '?repo=try' };
+    expect(getRepoPushCap()).toBe(100);
+
+    window.location = { ...originalLocation, search: '' };
+    expect(getRepoPushCap()).toBe(100);
+  });
+
+  test('fetchPushes floors retainedPushLimit at the repo push cap', async () => {
     fetchMock.get(
       getProjectUrl('/push/?full=true&count=10', repoName),
       pushListFixture,
@@ -80,11 +92,12 @@ describe('Pushes Zustand store', () => {
       emptyBugzillaResponse,
     );
 
+    // No repo in the URL => default cap of 100 is the floor, above the 6-push
+    // fixture, so the limit lands on the cap rather than the loaded count.
     usePushesStore.setState(initialState);
     await usePushesStore.getState().fetchPushes();
 
-    // BASE_RETAINED_PUSHES is 50; the 6-push fixture keeps the limit at BASE.
-    expect(usePushesStore.getState().retainedPushLimit).toBe(50);
+    expect(usePushesStore.getState().retainedPushLimit).toBe(100);
   });
 
   const buildPushList = (ids) =>
