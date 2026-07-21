@@ -8,7 +8,10 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
 from treeherder.perf.auto_perf_sheriffing.factories import sherlock_factory
-from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.utils import DESKTOP, MOBILE
+from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.utils import (
+    DESKTOP,
+    MOBILE,
+)
 
 
 class Command(BaseCommand):
