@@ -428,7 +428,6 @@ class Sherlock:
         # in decimal form of percentage (multiply by 100)
         # Use it in combination with probe.lower_is_better to
         # determine if a difference is a regression or not
-        # Default to True as a regression
 
         # confidence being negative means a shift to the left (improvement if lowerisbetter is true)
         # confidence being positive means a shift to the right (regression if lowerisbetter is true)
@@ -440,8 +439,8 @@ class Sherlock:
                 return False
             else:
                 if detection.confidence < 0:
-                    return False
-                return True
+                    return True
+                return False
 
         # When lower_is_better is not specified, assume everything is a regression
         return True
