@@ -44,6 +44,9 @@ DEFAULT_ALERT_EMAIL = "gmierzwinski@mozilla.com"
 DEFAULT_BUGZILLA_INFO = ("Testing", "Performance")
 EMAIL_LIMIT = 50
 
+DESKTOP = "desktop"
+MOBILE = "mobile"
+
 # Android telemetry alerting is still being rolled out, so it is intentionally
 # limited to a hardcoded allowlist of probes. Alerts for these probes only ever
 # produce emails (never bugs), and those emails are always routed to

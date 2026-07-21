@@ -31,6 +31,8 @@ from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.probe import (
 from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.utils import (
     ANDROID_ALERT_EMAIL,
     ANDROID_PROBE_ALLOWLIST,
+    DESKTOP,
+    MOBILE,
 )
 from treeherder.perf.exceptions import CannotBackfillError, MaxRuntimeExceededError
 from treeherder.perf.models import (
@@ -518,8 +520,8 @@ class Sherlock:
 
     def _get_metric_definitions(self) -> list[dict]:
         metric_definition_urls = [
-            ("https://dictionary.telemetry.mozilla.org/data/firefox_desktop/index.json", "desktop"),
-            ("https://dictionary.telemetry.mozilla.org/data/fenix/index.json", "mobile"),
+            ("https://dictionary.telemetry.mozilla.org/data/firefox_desktop/index.json", DESKTOP),
+            ("https://dictionary.telemetry.mozilla.org/data/fenix/index.json", MOBILE),
         ]
 
         merged_metrics = []
