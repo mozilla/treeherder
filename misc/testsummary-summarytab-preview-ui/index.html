@@ -372,6 +372,18 @@
           />
         </div>
         <div class="col-auto">
+          <div class="form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              id="filter-show-nofail"
+            />
+            <label class="form-check-label small" for="filter-show-nofail"
+              >Show jobs with no failures</label
+            >
+          </div>
+        </div>
+        <div class="col-auto">
           <span class="text-muted small" id="filter-count"></span>
         </div>
       </div>
@@ -2423,6 +2435,8 @@
       const jobFilterBar = document.getElementById('job-filter-bar');
       const filterIncludeInput = document.getElementById('filter-include');
       const filterExcludeInput = document.getElementById('filter-exclude');
+      const filterShowNoFailInput =
+        document.getElementById('filter-show-nofail');
       const filterCountEl = document.getElementById('filter-count');
       const cacheStatusBar = document.getElementById('cache-status-bar');
       const cacheStatusText = document.getElementById('cache-status-text');
@@ -2434,24 +2448,42 @@
       // regardless of any later (unsubmitted) edits to the form.
       let currentOpts = null;
 
+      // A job result carries no failures when both panels would be empty:
+      // the Summary Tab shows "No failures found in the summary." and the
+      // Failure Summary Tab shows "Failure summary is empty.".
+      const jobHasNoFailures = (r) =>
+        r.suggestions.length === 0 && r.failureSuggestions.length === 0;
+
       function applyJobFilter() {
         if (!lastRun) return;
 
         const includeTerms = parseFilterTerms(filterIncludeInput.value);
         const excludeTerms = parseFilterTerms(filterExcludeInput.value);
-        const filtered = lastRun.jobResults.filter(({ job }) =>
+        const hideNoFailures = !filterShowNoFailInput.checked;
+
+        const nameFiltered = lastRun.jobResults.filter(({ job }) =>
           jobMatchesFilter(job, includeTerms, excludeTerms),
         );
+        const noFailureHidden = hideNoFailures
+          ? nameFiltered.filter(jobHasNoFailures).length
+          : 0;
+        const filtered = hideNoFailures
+          ? nameFiltered.filter((r) => !jobHasNoFailures(r))
+          : nameFiltered;
 
         const total = lastRun.jobResults.length;
         const shown = filtered.length;
-        filterCountEl.textContent =
-          includeTerms.length || excludeTerms.length
-            ? `Showing ${fmt(shown)} of ${fmt(total)} jobs`
-            : '';
+        const parts = [];
+        if (includeTerms.length || excludeTerms.length) {
+          parts.push(`Showing ${fmt(shown)} of ${fmt(total)} jobs`);
+        }
+        if (noFailureHidden > 0) {
+          parts.push(`${fmt(noFailureHidden)} with no failures hidden`);
+        }
+        filterCountEl.textContent = parts.join(' — ');
 
         const reportEl = document.getElementById('report');
-        if (shown === 0 && (includeTerms.length || excludeTerms.length)) {
+        if (shown === 0) {
           reportEl.textContent = '';
           reportEl.appendChild(renderEmptyFilterMessage());
           return;
@@ -2536,6 +2568,7 @@
       pushIdInput.addEventListener('input', syncUrlFromForm);
       filterIncludeInput.addEventListener('input', applyJobFilterDebounced);
       filterExcludeInput.addEventListener('input', applyJobFilterDebounced);
+      filterShowNoFailInput.addEventListener('change', applyJobFilter);
       for (const radio of form.querySelectorAll('input[name="push-mode"]')) {
         radio.addEventListener('change', () => {
           setPushMode(pushModeRadio());
@@ -2615,14 +2648,12 @@
         jobFilterBar.hidden = false;
         filterIncludeInput.value = '';
         filterExcludeInput.value = '';
+        filterShowNoFailInput.checked = false;
         filterCountEl.textContent = '';
 
-        renderReport(
-          lastRun.serverUrl,
-          lastRun.project,
-          lastRun.revisionId,
-          jobResults,
-        );
+        // Applies the default no-failure hide (and any filters) rather than
+        // rendering every job unconditionally.
+        applyJobFilter();
         updateCacheStatus();
       }
 
