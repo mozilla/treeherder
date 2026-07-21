@@ -195,145 +195,157 @@
   <body>
     <main>
       <div class="page-intro">
-      <h1 class="h3">Summary Tab Preview</h1>
-      <p class="mb-3">
-        <a href="../testsummary-inventory/">← TestSummary Inventory</a> ·
-        <a href="../testsummary-audit/">TestSummary Field Audit</a>
-      </p>
-      <p class="intro">
-        Renders the job-view Summary tab
-        (<code>ui/job-view/details/tabs/summaryTab/SummaryTab.jsx</code>) for
-        every job in a push that produced a
-        <code>*_testsummary.jsonl</code> artifact, all on one page — useful for
-        scanning a whole push's failures without clicking through jobs one at a
-        time. Failures are matched against Bugzilla bug suggestions the same way
-        the real Summary tab does, but this page is read-only: there are no
-        bug-filing buttons. Styling reuses Treeherder's own classes/colors so
-        each job section looks like the real tab. Each job also shows the
-        Failure Summary tab's view
-        (<code
-          >ui/shared/tabs/failureSummary/FailureSummaryTab.jsx</code
-        >) side by side, so the two failure sources can be compared directly —
-        this page is meant for a large screen.
-      </p>
+        <h1 class="h3">Summary Tab Preview</h1>
+        <p class="mb-3">
+          <a href="../testsummary-inventory/">← TestSummary Inventory</a> ·
+          <a href="../testsummary-audit/">TestSummary Field Audit</a>
+        </p>
+        <p class="intro">
+          Renders the job-view Summary tab
+          (<code>ui/job-view/details/tabs/summaryTab/SummaryTab.jsx</code>) for
+          every job in a push that produced a
+          <code>*_testsummary.jsonl</code> artifact, all on one page — useful
+          for scanning a whole push's failures without clicking through jobs one
+          at a time. Failures are matched against Bugzilla bug suggestions the
+          same way the real Summary tab does, but this page is read-only: there
+          are no bug-filing buttons. Styling reuses Treeherder's own
+          classes/colors so each job section looks like the real tab. Each job
+          also shows the Failure Summary tab's view
+          (<code>ui/shared/tabs/failureSummary/FailureSummaryTab.jsx</code>)
+          side by side, so the two failure sources can be compared directly —
+          this page is meant for a large screen.
+        </p>
 
-      <form id="preview-form" class="card card-body">
-        <div class="mb-3">
-          <label for="host" class="form-label">Treeherder instance</label>
-          <select id="host" name="host" class="form-select">
-            <option value="production" selected>
-              Production (treeherder.mozilla.org)
-            </option>
-            <option value="stage">Staging (treeherder.allizom.org)</option>
-            <option value="localhost">Local (localhost:8000)</option>
-          </select>
-          <p class="form-text" id="local-warning" hidden>
-            This page is served over HTTPS, so a browser will block requests to
-            <code>http://localhost:8000</code> (mixed content) unless this page
-            is itself being opened from
-            <code>localhost</code>/<code>file://</code>.
-          </p>
-        </div>
+        <form id="preview-form" class="card card-body">
+          <div class="mb-3">
+            <label for="host" class="form-label">Treeherder instance</label>
+            <select id="host" name="host" class="form-select">
+              <option value="production" selected>
+                Production (treeherder.mozilla.org)
+              </option>
+              <option value="stage">Staging (treeherder.allizom.org)</option>
+              <option value="localhost">Local (localhost:8000)</option>
+            </select>
+            <p class="form-text" id="local-warning" hidden>
+              This page is served over HTTPS, so a browser will block requests
+              to
+              <code>http://localhost:8000</code> (mixed content) unless this
+              page is itself being opened from
+              <code>localhost</code>/<code>file://</code>.
+            </p>
+          </div>
 
-        <div class="mb-3">
-          <label for="project" class="form-label"
-            >Project (repository name)</label
-          >
-          <select id="project" name="project" class="form-select" required>
-            <option value="try">try</option>
-            <option value="mozilla-central">mozilla-central</option>
-            <option value="autoland" selected>autoland</option>
-          </select>
-        </div>
+          <div class="mb-3">
+            <label for="project" class="form-label"
+              >Project (repository name)</label
+            >
+            <select id="project" name="project" class="form-select" required>
+              <option value="try">try</option>
+              <option value="mozilla-central">mozilla-central</option>
+              <option value="autoland" selected>autoland</option>
+            </select>
+          </div>
 
-        <div class="mb-3">
-          <label id="push-mode-label" class="form-label"
-            >Identify the push by</label
-          >
-          <div
-            class="d-flex gap-4 mb-2"
-            role="radiogroup"
-            aria-labelledby="push-mode-label"
-          >
-            <div class="form-check">
-              <input
-                class="form-check-input"
-                type="radio"
-                name="push-mode"
-                id="push-mode-revision"
-                value="revision"
-                checked
-              />
-              <label class="form-check-label" for="push-mode-revision"
-                >Revision</label
-              >
+          <div class="mb-3">
+            <label id="push-mode-label" class="form-label"
+              >Identify the push by</label
+            >
+            <div
+              class="d-flex gap-4 mb-2"
+              role="radiogroup"
+              aria-labelledby="push-mode-label"
+            >
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  name="push-mode"
+                  id="push-mode-revision"
+                  value="revision"
+                  checked
+                />
+                <label class="form-check-label" for="push-mode-revision"
+                  >Revision</label
+                >
+              </div>
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  name="push-mode"
+                  id="push-mode-push-id"
+                  value="push-id"
+                />
+                <label class="form-check-label" for="push-mode-push-id"
+                  >Push ID</label
+                >
+              </div>
             </div>
-            <div class="form-check">
-              <input
-                class="form-check-input"
-                type="radio"
-                name="push-mode"
-                id="push-mode-push-id"
-                value="push-id"
-              />
-              <label class="form-check-label" for="push-mode-push-id"
-                >Push ID</label
-              >
+            <input
+              type="text"
+              id="revision"
+              name="revision"
+              class="form-control mb-2"
+              placeholder="e.g. 4f6e1c2..."
+            />
+            <input
+              type="number"
+              id="push-id"
+              name="push-id"
+              class="form-control"
+              placeholder="e.g. 1953427"
+              min="1"
+              hidden
+            />
+          </div>
+
+          <div>
+            <button type="submit" id="run-button" class="btn btn-primary">
+              Load summary
+            </button>
+            <button
+              type="button"
+              id="reload-button"
+              class="btn btn-outline-secondary ms-2"
+              hidden
+            >
+              Reload
+            </button>
+            <span class="text-muted ms-2" id="progress" hidden></span>
+          </div>
+        </form>
+
+        <div
+          id="error-banner"
+          class="alert alert-danger mt-3"
+          role="alert"
+          hidden
+        ></div>
+
+        <div id="summary-banner" class="row g-3 mt-1" hidden>
+          <div class="col">
+            <div class="card card-body text-center">
+              <div class="fs-4 fw-bold" id="stat-jobs">0</div>
+              <div class="text-muted small">jobs w/ summary</div>
             </div>
           </div>
-          <input
-            type="text"
-            id="revision"
-            name="revision"
-            class="form-control mb-2"
-            placeholder="e.g. 4f6e1c2..."
-          />
-          <input
-            type="number"
-            id="push-id"
-            name="push-id"
-            class="form-control"
-            placeholder="e.g. 1953427"
-            min="1"
-            hidden
-          />
-        </div>
-
-        <div>
-          <button type="submit" id="run-button" class="btn btn-primary">
-            Load summary
-          </button>
-          <span class="text-muted ms-2" id="progress" hidden></span>
-        </div>
-      </form>
-
-      <div
-        id="error-banner"
-        class="alert alert-danger mt-3"
-        role="alert"
-        hidden
-      ></div>
-
-      <div id="summary-banner" class="row g-3 mt-1" hidden>
-        <div class="col">
-          <div class="card card-body text-center">
-            <div class="fs-4 fw-bold" id="stat-jobs">0</div>
-            <div class="text-muted small">jobs w/ summary</div>
+          <div class="col">
+            <div class="card card-body text-center">
+              <div class="fs-4 fw-bold" id="stat-tests">0</div>
+              <div class="text-muted small">tests total</div>
+            </div>
           </div>
-        </div>
-        <div class="col">
-          <div class="card card-body text-center">
-            <div class="fs-4 fw-bold" id="stat-tests">0</div>
-            <div class="text-muted small">tests total</div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="card card-body text-center">
-            <div class="fs-4 fw-bold" id="stat-failed">0</div>
-            <div class="text-muted small">failures</div>
+          <div class="col">
+            <div class="card card-body text-center">
+              <div class="fs-4 fw-bold" id="stat-failed">0</div>
+              <div class="text-muted small">failures</div>
+            </div>
           </div>
         </div>
       </div>
+
+      <div id="cache-status-bar" class="mt-2" hidden>
+        <span class="text-muted small" id="cache-status-text"></span>
       </div>
 
       <div id="job-filter-bar" class="row g-3 mt-1 align-items-end" hidden>
@@ -373,12 +385,7 @@
      Treeherder backend session (it holds the Bugzilla API key), which this
      static page doesn't have, so "Submit Bug" opens a prefilled
      bugzilla.mozilla.org/enter_bug.cgi in a new tab instead. -->
-    <div
-      class="modal fade"
-      id="bugFilerModal"
-      tabindex="-1"
-      aria-hidden="true"
-    >
+    <div class="modal fade" id="bugFilerModal" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
@@ -393,14 +400,10 @@
           <div class="modal-body" id="bugFilerBody"></div>
           <div class="modal-footer">
             <p class="text-muted small me-auto mb-0">
-              Opens bugzilla.mozilla.org with these fields prefilled — this
-              page has no Treeherder session to file directly.
+              Opens bugzilla.mozilla.org with these fields prefilled — this page
+              has no Treeherder session to file directly.
             </p>
-            <button
-              type="button"
-              class="btn btn-secondary"
-              id="bugFilerSubmit"
-            >
+            <button type="button" class="btn btn-secondary" id="bugFilerSubmit">
               Submit Bug
             </button>
             <button
@@ -441,8 +444,8 @@
           <div class="modal-body" id="internalIssueBody"></div>
           <div class="modal-footer">
             <p class="text-muted small me-auto mb-0" id="internalIssueNote">
-              Submitting needs a logged-in Treeherder session — this page
-              will try, and offer to copy the summary if that fails.
+              Submitting needs a logged-in Treeherder session — this page will
+              try, and offer to copy the summary if that fails.
             </p>
             <button
               type="button"
@@ -478,6 +481,96 @@
       const BUG_SUGGESTION_LIMIT = 20;
       // Mirrors ui/helpers/constants.js#requiredInternalOccurrences.
       const REQUIRED_INTERNAL_OCCURRENCES = 3;
+
+      // ---------------------------------------------------------------------
+      // localStorage cache — a whole push's comparison result is expensive to
+      // build (an artifact list + bug_suggestions fetch per job), so the last
+      // few loads are persisted and restored instantly. The stored value is
+      // just the run() output (plain JSON-serializable objects), plus a `ts`
+      // stamp used for the "cached from …" note and LRU eviction.
+      // ---------------------------------------------------------------------
+
+      const CACHE_PREFIX = 'thSummaryPreview:v1:';
+      const CACHE_MAX_ENTRIES = 10;
+
+      function cacheKey(host, project, pushId, revision) {
+        return `${host}::${project}::${pushId ?? 'rev'}::${revision ?? ''}`;
+      }
+
+      function cacheEntries() {
+        const entries = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (!key || !key.startsWith(CACHE_PREFIX)) continue;
+          let ts = 0;
+          try {
+            ts = JSON.parse(localStorage.getItem(key))?.ts ?? 0;
+          } catch {
+            // Corrupt entry — sort it oldest so it's evicted first.
+          }
+          entries.push({ key, ts });
+        }
+        return entries;
+      }
+
+      // Keep at most CACHE_MAX_ENTRIES entries, evicting the oldest by `ts`.
+      // `extra` reserves headroom (used by the quota-retry path to make room
+      // for the entry about to be written).
+      function evictCache(extra = 0) {
+        const entries = cacheEntries().sort((a, b) => a.ts - b.ts);
+        const limit = Math.max(0, CACHE_MAX_ENTRIES - extra);
+        while (entries.length > limit) {
+          localStorage.removeItem(entries.shift().key);
+        }
+      }
+
+      function readCache(key) {
+        const raw = localStorage.getItem(CACHE_PREFIX + key);
+        if (!raw) return null;
+        try {
+          const parsed = JSON.parse(raw);
+          if (!parsed || !Array.isArray(parsed.jobResults)) throw new Error();
+          return parsed;
+        } catch {
+          localStorage.removeItem(CACHE_PREFIX + key);
+          return null;
+        }
+      }
+
+      // Persists `payload` (a run() result) under `key`, stamping `ts` and
+      // returning it. Best-effort: if the value is too large even after
+      // eviction, the caller's report is still shown, just not cached.
+      function writeCache(key, payload, log) {
+        const record = { ...payload, ts: Date.now() };
+        const serialized = JSON.stringify(record);
+        const storageKey = CACHE_PREFIX + key;
+        try {
+          evictCache(1);
+          localStorage.setItem(storageKey, serialized);
+        } catch (e) {
+          try {
+            // Drop everything else and retry once — the freshest result wins.
+            for (const { key: k } of cacheEntries()) {
+              if (k !== storageKey) localStorage.removeItem(k);
+            }
+            localStorage.setItem(storageKey, serialized);
+          } catch {
+            log?.debug?.('Result too large to cache in localStorage.');
+          }
+        }
+        return record.ts;
+      }
+
+      function formatCacheAge(ts) {
+        const seconds = Math.round((Date.now() - ts) / 1000);
+        if (seconds < 60) return 'just now';
+        const minutes = Math.round(seconds / 60);
+        if (minutes < 60) return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
+        const hours = Math.round(minutes / 60);
+        if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+        const days = Math.round(hours / 24);
+        return `${days} day${days === 1 ? '' : 's'} ago`;
+      }
 
       // ---------------------------------------------------------------------
       // HTTP + Treeherder/Taskcluster helpers (shared logic with
@@ -924,7 +1017,9 @@
         });
 
         const filtered = suggestions.filter((suggestion) => {
-          if (/^\[taskcluster:error\] exit status -?\d+$/.test(suggestion.search)) {
+          if (
+            /^\[taskcluster:error\] exit status -?\d+$/.test(suggestion.search)
+          ) {
             return false;
           }
           return (
@@ -939,7 +1034,9 @@
             suggestion.showBugSuggestions = true;
             return;
           }
-          suggestion.showBugSuggestions = !seenTestPaths.has(suggestion.path_end);
+          suggestion.showBugSuggestions = !seenTestPaths.has(
+            suggestion.path_end,
+          );
           seenTestPaths.add(suggestion.path_end);
         });
 
@@ -1094,7 +1191,8 @@
       ) {
         const li = el('li');
         const isDiffOnly =
-          otherSearches && !otherSearches.has(normalizeSearch(suggestion.search));
+          otherSearches &&
+          !otherSearches.has(normalizeSearch(suggestion.search));
         if (isDiffOnly) li.classList.add('failure-diff-unique');
         const line = el('div');
         const internalIssueIconEl = icon('fa-solid fa-circle-exclamation', {
@@ -1226,7 +1324,10 @@
           /file:\/\/\/.*?\/build\/tests\/reftest\/tests\//gi,
           '',
         );
-        summary = summary.replace(/chrome:\/\/mochitests\/content\/a11y\//gi, '');
+        summary = summary.replace(
+          /chrome:\/\/mochitests\/content\/a11y\//gi,
+          '',
+        );
         summary = summary.replace(
           /http:\/\/([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+):([0-9]+)\/tests\//gi,
           '',
@@ -1321,7 +1422,10 @@
 
           if (jg.includes('talos')) {
             isTestPath = /.*PROCESS-CRASH \| .*/.test(suggestion.search);
-          } else if (jg.includes('web platform tests') || jg.includes('reftest')) {
+          } else if (
+            jg.includes('web platform tests') ||
+            jg.includes('reftest')
+          ) {
             isTestPath = [
               /.*\.js(\?.*| )\|/,
               /.*\.html(\?.*| )\|/,
@@ -1361,9 +1465,8 @@
             trimParams = true;
           }
 
-          const isPerfTest = /.*browser\/base\/content\/test\/performance.*/.test(
-            summaryString,
-          );
+          const isPerfTest =
+            /.*browser\/base\/content\/test\/performance.*/.test(summaryString);
           const isLeakcheckLarge = /leakcheck large/i.test(summaryString);
 
           if (!isAssertion && !isPerfTest && !isLeakcheckLarge && isTestPath) {
@@ -1404,7 +1507,10 @@
       const bugFilerModal = new bootstrap.Modal(bugFilerModalEl);
 
       async function findProductByPath(serverUrl, pathEnd, platform) {
-        if (platform && (platform.startsWith('AC-') || platform.startsWith('fenix-'))) {
+        if (
+          platform &&
+          (platform.startsWith('AC-') || platform.startsWith('fenix-'))
+        ) {
           return ['Firefox for Android :: General'];
         }
         if (platform && platform.startsWith('focus-')) {
@@ -1489,8 +1595,11 @@
       }
 
       async function openBugFiler(suggestion, job, serverUrl, project) {
-        const { summary: initialSummary, keywords, crashSignatures } =
-          computeBugFilerState(suggestion, job);
+        const {
+          summary: initialSummary,
+          keywords,
+          crashSignatures,
+        } = computeBugFilerState(suggestion, job);
         const searchTerms = suggestion.search_terms || [];
         const allFailureLines = suggestion.search;
 
@@ -1540,10 +1649,16 @@
         });
 
         // Summary.
-        form.appendChild(el('label', { class: 'form-label', text: 'Summary:' }));
+        form.appendChild(
+          el('label', { class: 'form-label', text: 'Summary:' }),
+        );
         if (searchTerms.length) {
           const warn = el('div', { class: 'text-danger small' });
-          warn.appendChild(icon('fa-solid fa-triangle-exclamation', { title: 'This can cause poor bug suggestions to be generated' }));
+          warn.appendChild(
+            icon('fa-solid fa-triangle-exclamation', {
+              title: 'This can cause poor bug suggestions to be generated',
+            }),
+          );
           warn.appendChild(
             document.createTextNode(
               " Warning: Summary does not include the full text of any of the selected failure's search terms:",
@@ -1605,7 +1720,9 @@
         form.appendChild(commentInput);
 
         // Intermittent / regressed-by / see-also.
-        const extraRow = el('div', { class: 'd-flex gap-2 align-items-end mt-2' });
+        const extraRow = el('div', {
+          class: 'd-flex gap-2 align-items-end mt-2',
+        });
         const intermittentCheck = el('div', { class: 'form-check' }, [
           el('input', {
             class: 'form-check-input',
@@ -1689,7 +1806,9 @@
             return;
           }
           if (summaryInput.value.length > 255) {
-            window.alert('Please ensure the summary is no more than 255 characters');
+            window.alert(
+              'Please ensure the summary is no more than 255 characters',
+            );
             return;
           }
           const [product, component] = selectedProductEl.value.split(' :: ');
@@ -1734,18 +1853,13 @@
       // permitted session), with a copy-to-clipboard fallback on failure.
       // ---------------------------------------------------------------------
 
-      const internalIssueModalEl = document.getElementById(
-        'internalIssueModal',
-      );
-      const internalIssueBodyEl = document.getElementById(
-        'internalIssueBody',
-      );
+      const internalIssueModalEl =
+        document.getElementById('internalIssueModal');
+      const internalIssueBodyEl = document.getElementById('internalIssueBody');
       const internalIssueSubmitBtn = document.getElementById(
         'internalIssueSubmit',
       );
-      const internalIssueNoteEl = document.getElementById(
-        'internalIssueNote',
-      );
+      const internalIssueNoteEl = document.getElementById('internalIssueNote');
       const internalIssueModal = new bootstrap.Modal(internalIssueModalEl);
       const INTERNAL_ISSUE_NOTE_DEFAULT = internalIssueNoteEl.textContent;
 
@@ -1796,7 +1910,10 @@
 
           if (jg.includes('talos')) {
             isTestPath = /.*PROCESS-CRASH \| .*/.test(suggestion.search);
-          } else if (jg.includes('web platform tests') || jg.includes('reftest')) {
+          } else if (
+            jg.includes('web platform tests') ||
+            jg.includes('reftest')
+          ) {
             isTestPath = [
               /.*\.js(\?.*| )\|/,
               /.*\.html(\?.*| )\|/,
@@ -1866,7 +1983,11 @@
 
         const form = el('form', { class: 'd-flex flex-column' });
         form.appendChild(
-          el('label', { class: 'form-label', for: 'internalIssueSummary', text: 'Summary:' }),
+          el('label', {
+            class: 'form-label',
+            for: 'internalIssueSummary',
+            text: 'Summary:',
+          }),
         );
         const row = el('div', { class: 'd-flex' });
         const summaryInput = el('input', {
@@ -2064,9 +2185,7 @@
           const diffNote = el('p', { class: 'job-diff-note mb-2' });
           const parts = [];
           if (onlyInSummary > 0) {
-            parts.push(
-              `${fmt(onlyInSummary)} only in Summary Tab`,
-            );
+            parts.push(`${fmt(onlyInSummary)} only in Summary Tab`);
           }
           if (onlyInFailureSummary > 0) {
             parts.push(
@@ -2080,7 +2199,9 @@
         const summaryCountsLine = el('p', {
           class: 'failure-summary-line-empty mb-0',
         });
-        summaryCountsLine.appendChild(el('strong', { text: fmt(counts.total) }));
+        summaryCountsLine.appendChild(
+          el('strong', { text: fmt(counts.total) }),
+        );
         summaryCountsLine.appendChild(document.createTextNode(' tests: '));
         summaryCountsLine.appendChild(
           el('span', {
@@ -2091,7 +2212,7 @@
         summaryCountsLine.appendChild(document.createTextNode(', '));
         summaryCountsLine.appendChild(
           el('span', {
-            class: 'text-danger',
+            class: suggestions.length && 'text-danger',
             text: `${fmt(suggestions.length)} failed`,
           }),
         );
@@ -2263,7 +2384,13 @@
         reportEl.textContent = '';
 
         jobResults.forEach(
-          ({ job, summary, suggestions, failureSuggestions, profileArtifactUrl }) => {
+          ({
+            job,
+            summary,
+            suggestions,
+            failureSuggestions,
+            profileArtifactUrl,
+          }) => {
             reportEl.appendChild(
               renderJobSection(
                 serverUrl,
@@ -2297,8 +2424,15 @@
       const filterIncludeInput = document.getElementById('filter-include');
       const filterExcludeInput = document.getElementById('filter-exclude');
       const filterCountEl = document.getElementById('filter-count');
+      const cacheStatusBar = document.getElementById('cache-status-bar');
+      const cacheStatusText = document.getElementById('cache-status-text');
+      const reloadButton = document.getElementById('reload-button');
 
-      let lastRun = null; // { serverUrl, project, revisionId, jobResults } | null
+      // { serverUrl, project, revisionId, jobResults, ts } | null
+      let lastRun = null;
+      // The opts that produced `lastRun` — what the Reload button re-fetches,
+      // regardless of any later (unsubmitted) edits to the form.
+      let currentOpts = null;
 
       function applyJobFilter() {
         if (!lastRun) return;
@@ -2382,6 +2516,17 @@
 
       applyUrlParams();
 
+      // If the URL identifies a push we've already cached, render it
+      // immediately (with a Reload button to refresh in the background).
+      (function renderCachedOnOpen() {
+        const opts = optsFromForm();
+        if (!opts) return;
+        const cached = readCache(
+          cacheKey(opts.host, opts.project, opts.pushId, opts.revision),
+        );
+        if (cached) applyResult(cached, opts);
+      })();
+
       hostSelect.addEventListener('change', () => {
         localWarning.hidden = hostSelect.value !== 'localhost';
         syncUrlFromForm();
@@ -2411,9 +2556,7 @@
         debug: (text) => appendLogLine(text, 'debug'),
       };
 
-      form.addEventListener('submit', async (event) => {
-        event.preventDefault();
-
+      function optsFromForm() {
         const byRevision = pushModeRadio() === 'revision';
         const opts = {
           host: hostSelect.value,
@@ -2421,22 +2564,90 @@
           revision: byRevision ? revisionInput.value.trim() : '',
           pushId: byRevision ? null : Number(pushIdInput.value),
         };
-        if (!opts.project) return;
-        if (byRevision && !opts.revision) return;
-        if (!byRevision && !opts.pushId) return;
+        if (!opts.project) return null;
+        if (byRevision && !opts.revision) return null;
+        if (!byRevision && !opts.pushId) return null;
+        return opts;
+      }
 
-        errorBanner.hidden = true;
-        summaryBanner.hidden = true;
-        document.getElementById('report').textContent = '';
-        logPanel.style.display = 'block';
-        logPanel.textContent = '';
-        runButton.disabled = true;
-        progressEl.hidden = false;
-        progressEl.textContent = 'Starting…';
+      function updateCacheStatus() {
+        if (!lastRun) {
+          cacheStatusBar.hidden = true;
+          reloadButton.hidden = true;
+          return;
+        }
+        cacheStatusText.textContent = lastRun.ts
+          ? `Showing cached data from ${formatCacheAge(lastRun.ts)}.`
+          : 'Showing freshly loaded data.';
+        cacheStatusBar.hidden = false;
+        reloadButton.hidden = false;
+      }
+
+      // Renders a run() result (fresh or from cache) into the page and wires
+      // up the stat banner, filters and cache-status row. `opts` is the load
+      // that produced it, so the Reload button knows what to re-fetch.
+      function applyResult(result, opts) {
+        lastRun = {
+          serverUrl: result.serverUrl,
+          project: result.project ?? opts.project,
+          revisionId: result.revisionId,
+          jobResults: result.jobResults,
+          ts: result.ts ?? null,
+        };
+        currentOpts = opts;
+
+        const { jobResults } = lastRun;
+        const totalTests = jobResults.reduce(
+          (sum, r) => sum + (r.summary.counts.total || 0),
+          0,
+        );
+        const totalFailed = jobResults.reduce(
+          (sum, r) => sum + r.suggestions.length,
+          0,
+        );
+        document.getElementById('stat-jobs').textContent = fmt(
+          jobResults.length,
+        );
+        document.getElementById('stat-tests').textContent = fmt(totalTests);
+        document.getElementById('stat-failed').textContent = fmt(totalFailed);
+
+        summaryBanner.hidden = false;
+        jobFilterBar.hidden = false;
         filterIncludeInput.value = '';
         filterExcludeInput.value = '';
         filterCountEl.textContent = '';
-        jobFilterBar.hidden = true;
+
+        renderReport(
+          lastRun.serverUrl,
+          lastRun.project,
+          lastRun.revisionId,
+          jobResults,
+        );
+        updateCacheStatus();
+      }
+
+      // Fetches a fresh result for `opts` and caches it. In foreground mode
+      // (first load / cache miss) it clears the report and drives the log
+      // panel + submit button, as the page always has. In background mode
+      // (Reload) it leaves the current report untouched until fresh data is
+      // ready, showing progress on the Reload button instead.
+      async function doFetch(opts, { background }) {
+        errorBanner.hidden = true;
+        if (background) {
+          reloadButton.disabled = true;
+          reloadButton.textContent = 'Reloading…';
+        } else {
+          summaryBanner.hidden = true;
+          jobFilterBar.hidden = true;
+          cacheStatusBar.hidden = true;
+          reloadButton.hidden = true;
+          document.getElementById('report').textContent = '';
+          logPanel.style.display = 'block';
+          logPanel.textContent = '';
+          runButton.disabled = true;
+        }
+        progressEl.hidden = false;
+        progressEl.textContent = 'Starting…';
 
         try {
           const { serverUrl, revisionId, jobResults } = await run(
@@ -2447,32 +2658,39 @@
             },
           );
 
-          lastRun = { serverUrl, project: opts.project, revisionId, jobResults };
-
-          const totalTests = jobResults.reduce(
-            (sum, r) => sum + (r.summary.counts.total || 0),
-            0,
+          const ts = writeCache(
+            cacheKey(opts.host, opts.project, opts.pushId, opts.revision),
+            { serverUrl, project: opts.project, revisionId, jobResults },
+            log,
           );
-          const totalFailed = jobResults.reduce(
-            (sum, r) => sum + r.suggestions.length,
-            0,
+          applyResult(
+            { serverUrl, project: opts.project, revisionId, jobResults, ts },
+            opts,
           );
-          document.getElementById('stat-jobs').textContent = fmt(
-            jobResults.length,
-          );
-          document.getElementById('stat-tests').textContent = fmt(totalTests);
-          document.getElementById('stat-failed').textContent = fmt(totalFailed);
-          summaryBanner.hidden = false;
-          jobFilterBar.hidden = false;
-
-          renderReport(serverUrl, opts.project, revisionId, jobResults);
         } catch (e) {
           errorBanner.textContent = e.message;
           errorBanner.hidden = false;
         } finally {
           runButton.disabled = false;
+          reloadButton.disabled = false;
+          reloadButton.textContent = 'Reload';
           progressEl.hidden = true;
         }
+      }
+
+      // "Load summary" always fetches fresh (and re-caches). The cache is
+      // still used to auto-render instantly on page open; Reload refreshes in
+      // the background without clearing the current report.
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const opts = optsFromForm();
+        if (!opts) return;
+        doFetch(opts, { background: false });
+      });
+
+      reloadButton.addEventListener('click', () => {
+        if (!currentOpts) return;
+        doFetch(currentOpts, { background: true });
       });
     </script>
   </body>
