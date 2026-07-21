@@ -329,13 +329,13 @@
         Runs the same analysis as
         <code>scripts/audit-testsummary-fields.mjs</code> entirely in your
         browser, without downloading anything to disk. For a push, it fetches
-        every <code>*_testsummary.jsonl</code> artifact in parallel and
-        reports which mozlog actions and fields appear in those artifacts but
-        are <em>never</em> consumed by the job-view Summary tab
+        every <code>public/test_info/summary.jsonl</code> artifact in parallel
+        and reports which mozlog actions and fields appear in those artifacts
+        but are <em>never</em> consumed by the job-view Summary tab
         (<code>ui/helpers/testSummary.js</code> →
         <code>buildTestSummary</code>). Anything flagged is dead weight in the
         artifact and a candidate for removal from whatever emits
-        <code>_testsummary.jsonl</code>. For every action that isn't
+        <code>summary.jsonl</code>. For every action that isn't
         consumed, up to 2 example records are shown, pulled from 2 different
         files when possible.
       </p>
@@ -450,7 +450,7 @@
         stage: 'https://treeherder.allizom.org',
         production: 'https://treeherder.mozilla.org',
       };
-      const SUMMARY_ARTIFACT_SUFFIX = '_testsummary.jsonl';
+      const SUMMARY_ARTIFACT_PATH = 'public/test_info/summary.jsonl';
       const JOBS_PAGE_SIZE = 2000;
       const JOB_CONCURRENCY = 12;
       // Cap the number of distinct-file examples kept per unused action.
@@ -530,17 +530,6 @@
           offset += JOBS_PAGE_SIZE;
         }
         return jobs;
-      }
-
-      async function listArtifacts(tcRootUrl, taskId, run) {
-        const url = `${tcRootUrl}/api/queue/v1/task/${taskId}/runs/${run}/artifacts`;
-        try {
-          const data = await fetchJson(url);
-          return data.artifacts || [];
-        } catch {
-          // Expired tasks / missing runs are expected; skip silently.
-          return [];
-        }
       }
 
       async function fetchText(url) {
@@ -673,21 +662,22 @@
             const taskId = job.task_id;
             const run = job.retry_id ?? 0;
             if (!taskId) return;
-            const artifacts = await listArtifacts(tcRootUrl, taskId, run);
-            const summaries = artifacts.filter((a) =>
-              a.name.endsWith(SUMMARY_ARTIFACT_SUFFIX),
-            );
-            if (!summaries.length) return;
-            jobsWithArtifact += 1;
-            for (const artifact of summaries) {
-              const url = `${tcRootUrl}/api/queue/v1/task/${taskId}/runs/${run}/artifacts/${artifact.name}`;
-              const fileId = `${job.job_type_name || 'job'} (task ${taskId}/${run})`;
-              try {
-                ingestArtifact(inv, await fetchText(url), fileId);
-              } catch (e) {
-                log.debug(`${fileId}: failed to fetch ${artifact.name}: ${e.message}`);
-              }
+            // The summary artifact is at a fixed path — fetch it directly. A
+            // 404 means this job produced no summary (expected); skip quietly.
+            const url = `${tcRootUrl}/api/queue/v1/task/${taskId}/runs/${run}/artifacts/${SUMMARY_ARTIFACT_PATH}`;
+            let text;
+            try {
+              text = await fetchText(url);
+            } catch (e) {
+              if (e.status === 404) return;
+              throw e;
             }
+            jobsWithArtifact += 1;
+            ingestArtifact(
+              inv,
+              text,
+              `${job.job_type_name || 'job'} (task ${taskId}/${run})`,
+            );
           } catch (e) {
             log.debug(`job ${job.id}: ${e.message}`);
           } finally {

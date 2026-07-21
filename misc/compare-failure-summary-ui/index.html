@@ -244,7 +244,7 @@
         <code>misc/compare_failure_summary.py</code> entirely in your browser:
         for every completed job in a push, it checks whether the classic Failure
         Summary (<code>bug_suggestions</code>) and the new Summary tab (<code
-          >*_testsummary.jsonl</code
+          >public/test_info/summary.jsonl</code
         >
         artifact) agree on what failed.
       </p>
@@ -350,7 +350,7 @@
         stage: 'https://treeherder.allizom.org',
         production: 'https://treeherder.mozilla.org',
       };
-      const SUMMARY_ARTIFACT_SUFFIX = '_testsummary.jsonl';
+      const SUMMARY_ARTIFACT_PATH = 'public/test_info/summary.jsonl';
       const JOBS_PAGE_SIZE = 2000;
       const JOB_CONCURRENCY = 12;
 
@@ -374,14 +374,11 @@
         return new Set(data.filter((s) => s.path_end).map((s) => s.path_end));
       }
 
-      async function findTestsummaryArtifactUrl(tcRootUrl, taskId, runId) {
-        const listUrl = `${tcRootUrl}/api/queue/v1/task/${taskId}/runs/${runId}/artifacts`;
-        const data = await fetchJson(listUrl);
-        const artifact = (data.artifacts || []).find((a) =>
-          a.name.endsWith(SUMMARY_ARTIFACT_SUFFIX),
-        );
-        return artifact ? `${listUrl}/${artifact.name}` : null;
-      }
+      // The summary artifact lives at a fixed path, so its URL can be built
+      // directly (no artifact-listing round-trip). A fetch of it 404s when the
+      // job produced no summary.
+      const summaryArtifactUrl = (tcRootUrl, taskId, runId) =>
+        `${tcRootUrl}/api/queue/v1/task/${taskId}/runs/${runId}/artifacts/${SUMMARY_ARTIFACT_PATH}`;
 
       async function getUnexpectedTests(artifactUrl) {
         const res = await fetch(artifactUrl);
@@ -445,36 +442,26 @@
           return null;
         }
 
-        let artifactUrl;
-        try {
-          artifactUrl = await findTestsummaryArtifactUrl(
-            tcRootUrl,
-            job.task_id,
-            job.retry_id,
-          );
-        } catch (e) {
-          log.debug(
-            `${label}: failed to list taskcluster artifacts: ${e.message}`,
-          );
-          return null;
-        }
-
-        if (!artifactUrl) {
-          if (fsTests.size) {
-            log.debug(
-              `${label}: ${fsTests.size} failure-summary test(s), but no ${SUMMARY_ARTIFACT_SUFFIX} artifact`,
-            );
-          }
-          return null;
-        }
+        const artifactUrl = summaryArtifactUrl(
+          tcRootUrl,
+          job.task_id,
+          job.retry_id,
+        );
 
         let tsTests;
         try {
           tsTests = await getUnexpectedTests(artifactUrl);
         } catch (e) {
-          log.debug(
-            `${label}: failed to fetch ${SUMMARY_ARTIFACT_SUFFIX}: ${e.message}`,
-          );
+          if (e.status === 404) {
+            // No summary artifact for this job — expected.
+            if (fsTests.size) {
+              log.debug(
+                `${label}: ${fsTests.size} failure-summary test(s), but no summary.jsonl artifact`,
+              );
+            }
+            return null;
+          }
+          log.debug(`${label}: failed to fetch summary.jsonl: ${e.message}`);
           return null;
         }
 

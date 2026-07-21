@@ -204,7 +204,8 @@
           Renders the job-view Summary tab
           (<code>ui/job-view/details/tabs/summaryTab/SummaryTab.jsx</code>) for
           every job in a push that produced a
-          <code>*_testsummary.jsonl</code> artifact, all on one page — useful
+          <code>public/test_info/summary.jsonl</code> artifact, all on one page —
+          useful
           for scanning a whole push's failures without clicking through jobs one
           at a time. Failures are matched against Bugzilla bug suggestions the
           same way the real Summary tab does, but this page is read-only: there
@@ -485,7 +486,7 @@
         stage: 'https://treeherder.allizom.org',
         production: 'https://treeherder.mozilla.org',
       };
-      const SUMMARY_ARTIFACT_SUFFIX = '_testsummary.jsonl';
+      const SUMMARY_ARTIFACT_PATH = 'public/test_info/summary.jsonl';
       const JOBS_PAGE_SIZE = 2000;
       const JOB_CONCURRENCY = 100;
       const BZ_BASE_URL = 'https://bugzilla.mozilla.org/';
@@ -2327,13 +2328,11 @@
             const taskId = job.task_id;
             const run = job.retry_id ?? 0;
             if (!taskId) return;
+            // The summary artifact is at a fixed path, so we fetch it directly
+            // (a 404 for jobs without one is caught below and skips the job).
+            // The artifact listing is still needed for the profiler link.
+            const artifactUrl = `${tcRootUrl}/api/queue/v1/task/${taskId}/runs/${run}/artifacts/${SUMMARY_ARTIFACT_PATH}`;
             const artifacts = await listArtifacts(tcRootUrl, taskId, run);
-            const summaryArtifact = artifacts.find((a) =>
-              a.name.endsWith(SUMMARY_ARTIFACT_SUFFIX),
-            );
-            if (!summaryArtifact) return;
-
-            const artifactUrl = `${tcRootUrl}/api/queue/v1/task/${taskId}/runs/${run}/artifacts/${summaryArtifact.name}`;
             const profileArtifact = artifacts.find((a) =>
               isResourceUsageProfile(a.name.split('/').pop()),
             );

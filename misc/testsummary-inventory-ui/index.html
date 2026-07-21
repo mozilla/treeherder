@@ -287,7 +287,7 @@
         Runs the same analysis as
         <code>scripts/testsummary-inventory.mjs</code> entirely in your browser,
         without downloading anything to disk. For a push, it fetches every
-        <code>*_testsummary.jsonl</code> artifact in parallel and builds an
+        <code>public/test_info/summary.jsonl</code> artifact in parallel and builds an
         inventory of what <em>survives</em> the
         <code>TestSummaryFormatter</code> — which record actions, fields, and
         values are <em>not</em> filtered out — and flags anything still present
@@ -393,7 +393,7 @@
         stage: 'https://treeherder.allizom.org',
         production: 'https://treeherder.mozilla.org',
       };
-      const SUMMARY_ARTIFACT_SUFFIX = '_testsummary.jsonl';
+      const SUMMARY_ARTIFACT_PATH = 'public/test_info/summary.jsonl';
       const JOBS_PAGE_SIZE = 2000;
       const JOB_CONCURRENCY = 12;
 
@@ -443,14 +443,11 @@
         return jobs;
       }
 
-      async function findTestsummaryArtifactUrl(tcRootUrl, taskId, runId) {
-        const listUrl = `${tcRootUrl}/api/queue/v1/task/${taskId}/runs/${runId}/artifacts`;
-        const data = await fetchJson(listUrl);
-        const artifact = (data.artifacts || []).find((a) =>
-          a.name.endsWith(SUMMARY_ARTIFACT_SUFFIX),
-        );
-        return artifact ? `${listUrl}/${artifact.name}` : null;
-      }
+      // The summary artifact lives at a fixed path, so its URL can be built
+      // directly (no artifact-listing round-trip). A fetch of it 404s when the
+      // job produced no summary.
+      const summaryArtifactUrl = (tcRootUrl, taskId, runId) =>
+        `${tcRootUrl}/api/queue/v1/task/${taskId}/runs/${runId}/artifacts/${SUMMARY_ARTIFACT_PATH}`;
 
       // Runs `worker` over `items` with at most `limit` in flight at once, so a
       // large push doesn't fire thousands of simultaneous requests.
@@ -565,21 +562,21 @@
         await mapWithConcurrency(jobs, JOB_CONCURRENCY, async (job) => {
           try {
             if (job.task_id && job.retry_id != null) {
-              const artifactUrl = await findTestsummaryArtifactUrl(
+              const artifactUrl = summaryArtifactUrl(
                 tcRootUrl,
                 job.task_id,
                 job.retry_id,
               );
-              if (artifactUrl) {
-                const res = await fetch(artifactUrl);
-                if (res.ok) {
-                  ingestText(inv, await res.text());
-                  artifacts++;
-                } else {
-                  log.debug(
-                    `${job.job_type_name} (job ${job.id}): HTTP ${res.status} for artifact`,
-                  );
-                }
+              const res = await fetch(artifactUrl);
+              if (res.ok) {
+                ingestText(inv, await res.text());
+                artifacts++;
+              } else if (res.status !== 404) {
+                // 404 = no summary for this job, which is expected; anything
+                // else is worth noting.
+                log.debug(
+                  `${job.job_type_name} (job ${job.id}): HTTP ${res.status} for artifact`,
+                );
               }
             }
           } catch (e) {
