@@ -214,3 +214,108 @@ def test_alert_modification(
     p = PerformanceAlert.objects.get(id=1)
     assert p.related_summary is None
     assert p.status == PerformanceAlert.UNTRIAGED
+
+
+def test_summary_status_untriaged_with_zero_alerts(test_perf_alert_summary):
+    status = test_perf_alert_summary.autodetermine_status()
+    assert status == PerformanceAlertSummary.UNTRIAGED
+
+
+def test_summary_status_invalid_with_only_invalid_alerts(
+    test_perf_alert_summary, test_perf_signature
+):
+    create_perf_alert(
+        summary=test_perf_alert_summary,
+        series_signature=test_perf_signature,
+        status=PerformanceAlert.INVALID,
+        is_regression=True,
+    )
+
+    assert test_perf_alert_summary.status == PerformanceAlertSummary.INVALID
+
+
+def test_summary_status_infra_with_only_infra_alerts(test_perf_alert_summary, test_perf_signature):
+    create_perf_alert(
+        summary=test_perf_alert_summary,
+        series_signature=test_perf_signature,
+        status=PerformanceAlert.INFRA,
+        is_regression=True,
+    )
+
+    assert test_perf_alert_summary.status == PerformanceAlertSummary.INFRA
+
+
+def test_summary_status_invalid_with_mixed_invalid_and_infra_alerts(
+    test_perf_alert_summary, test_perf_signature, test_repository
+):
+    # second signature to prevent unique constraint violation
+    signature2 = PerformanceSignature.objects.create(
+        repository=test_repository,
+        signature_hash=(40 * "v"),
+        framework=test_perf_signature.framework,
+        platform=test_perf_signature.platform,
+        option_collection=test_perf_signature.option_collection,
+        suite="mysuite_2",
+        test="mytest_2",
+        has_subtests=False,
+        last_updated=datetime.datetime.now(),
+    )
+
+    create_perf_alert(
+        summary=test_perf_alert_summary,
+        series_signature=test_perf_signature,
+        status=PerformanceAlert.INFRA,
+        is_regression=True,
+    )
+    create_perf_alert(
+        summary=test_perf_alert_summary,
+        series_signature=signature2,
+        status=PerformanceAlert.INVALID,
+        is_regression=True,
+    )
+
+    assert test_perf_alert_summary.status == PerformanceAlertSummary.INVALID
+
+
+def test_summary_status_preserves_terminal_states_on_acknowledgement(
+    test_perf_alert_summary, test_perf_signature
+):
+    test_perf_alert_summary.status = PerformanceAlertSummary.FIXED
+    test_perf_alert_summary.save()
+
+    create_perf_alert(
+        summary=test_perf_alert_summary,
+        series_signature=test_perf_signature,
+        status=PerformanceAlert.ACKNOWLEDGED,
+        is_regression=True,
+    )
+
+    assert test_perf_alert_summary.status == PerformanceAlertSummary.FIXED
+
+
+def test_summary_status_reassigned_with_only_reassigned_alerts(
+    test_perf_alert_summary, test_perf_alert_summary_2, test_perf_signature
+):
+    create_perf_alert(
+        summary=test_perf_alert_summary,
+        related_summary=test_perf_alert_summary_2,
+        series_signature=test_perf_signature,
+        status=PerformanceAlert.REASSIGNED,
+        is_regression=True,
+    )
+
+    assert test_perf_alert_summary.status == PerformanceAlertSummary.REASSIGNED
+
+
+def test_summary_status_downstream_with_only_downstream_alerts(
+    test_perf_alert_summary, test_perf_alert_summary_2, test_perf_signature
+):
+    create_perf_alert(
+        summary=test_perf_alert_summary,
+        related_summary=test_perf_alert_summary_2,
+        series_signature=test_perf_signature,
+        status=PerformanceAlert.DOWNSTREAM,
+        is_regression=True,
+    )
+
+    assert test_perf_alert_summary.status == PerformanceAlertSummary.DOWNSTREAM
