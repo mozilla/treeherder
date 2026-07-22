@@ -4,7 +4,6 @@ import time
 
 from treeherder.model.models import Push
 from treeherder.perf.alerts import (
-    build_cpd_methods,
     create_alert,
     detect_methods_changes,
     generate_new_test_alerts_in_series,
@@ -572,9 +571,7 @@ def test_detection_tolerance_deduplication_guard_suppresses_nearby_duplicate_ale
                 int(time.mktime(d.push_timestamp.timetuple())), d.push_id, [], []
             )
         revision_data[d.push_id].values.append(d.value)
-    analyzed_series = detect_methods_changes(
-        test_perf_signature, list(revision_data.values()), build_cpd_methods()
-    )
+    analyzed_series = detect_methods_changes(test_perf_signature, list(revision_data.values()))
 
     _alerts_mod = sys.modules["treeherder.perf.alerts"]
     original = create_alert
