@@ -434,13 +434,13 @@ class Sherlock:
 
         if probe.lower_is_better is not None:
             if probe.lower_is_better:
-                if detection.confidence >= 0:
+                if detection.confidence <= 0:
                     return True
                 return False
             else:
                 if detection.confidence < 0:
-                    return True
-                return False
+                    return False
+                return True
 
         # When lower_is_better is not specified, assume everything is a regression
         return True
