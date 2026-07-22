@@ -78,6 +78,11 @@ describe('Filtering', () => {
       'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/JFVlnwufR7G9tZu_pKM0dQ',
       taskDefinition,
     );
+    // Summary tab probes for a summary.jsonl artifact with a HEAD request.
+    fetchMock.head(
+      'begin:https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/',
+      404,
+    );
   });
   beforeEach(() => {
     locationTracker = null;
