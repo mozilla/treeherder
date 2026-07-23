@@ -538,6 +538,57 @@ class TestTelemetryAlertManager:
         assert "Performing house keeping" in caplog.text
         assert "House keeping: retrying emails for alerts" in caplog.text
         assert "House keeping: retrying bug modifications" in caplog.text
+        assert "House keeping: rechecking is_regression for alerts" in caplog.text
+
+    def test_recheck_is_regression_corrects_stale_value(
+        self,
+        create_telemetry_signature,
+        create_telemetry_alert,
+        telemetry_alert_manager,
+        mock_probe,
+    ):
+        """Test _recheck_is_regression updates is_regression when it no longer matches settings."""
+        mock_probe.lower_is_better = True
+
+        signature = create_telemetry_signature(probe="test_probe")
+        # Stored as an improvement, but the confidence + lower_is_better say regression
+        alert_row = create_telemetry_alert(signature, is_regression=False, confidence=0.95)
+
+        telemetry_alert_manager._recheck_is_regression()
+
+        alert_row.refresh_from_db()
+        assert alert_row.is_regression is True
+
+    def test_recheck_is_regression_leaves_correct_value(
+        self,
+        create_telemetry_signature,
+        create_telemetry_alert,
+        telemetry_alert_manager,
+        mock_probe,
+    ):
+        """Test _recheck_is_regression leaves is_regression alone when it already matches."""
+        mock_probe.lower_is_better = True
+
+        signature = create_telemetry_signature(probe="test_probe")
+        alert_row = create_telemetry_alert(signature, is_regression=True, confidence=0.95)
+
+        telemetry_alert_manager._recheck_is_regression()
+
+        alert_row.refresh_from_db()
+        assert alert_row.is_regression is True
+
+    def test_recheck_is_regression_skips_unknown_probe(
+        self, create_telemetry_signature, create_telemetry_alert, telemetry_alert_manager
+    ):
+        """Test _recheck_is_regression ignores alerts whose probe is no longer alerting."""
+        signature = create_telemetry_signature(probe="removed_probe")
+        alert_row = create_telemetry_alert(signature, is_regression=False, confidence=0.95)
+
+        telemetry_alert_manager._recheck_is_regression()
+
+        alert_row.refresh_from_db()
+        # Unchanged because the probe is not in the manager's probes
+        assert alert_row.is_regression is False
 
     def test_multiple_alerts_bulk_update(
         self,

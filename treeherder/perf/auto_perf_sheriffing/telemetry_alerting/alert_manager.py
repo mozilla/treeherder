@@ -20,6 +20,7 @@ from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.email_manager impor
 from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.utils import (
     EMAIL_LIMIT,
     MODIFIABLE_ALERT_FIELDS,
+    is_regression,
 )
 from treeherder.perf.models import (
     PerformanceTelemetryAlert,
@@ -264,9 +265,50 @@ class TelemetryAlertManager(AlertManager):
 
         self.modify_alert_bugs(alerts, [], [])
 
+    def _recheck_is_regression(self):
+        """Re-evaluates the is_regression field for existing alerts.
+
+        The is_regression field depends on the probe's current lower_is_better
+        setting and the confidence recorded for the alert. A probe's
+        lower_is_better definition can change over time (e.g. when it's first set
+        or later corrected), which leaves already-created alerts with a stale
+        is_regression value. This goes through the existing alerts and updates any
+        whose is_regression no longer matches what the current settings produce.
+        """
+        logger.info("House keeping: rechecking is_regression for alerts")
+
+        alerts_to_update = []
+        for alert_row in PerformanceTelemetryAlert.objects.all():
+            alert = TelemetryAlertFactory.construct_alert(alert_row)
+
+            probe = self.probes.get(alert.telemetry_signature.probe)
+            if not probe:
+                # Probe is no longer alerting, skip it
+                continue
+
+            expected_is_regression = is_regression(
+                alert.telemetry_alert.confidence, probe.lower_is_better
+            )
+            if alert.telemetry_alert.is_regression != expected_is_regression:
+                alert.telemetry_alert.is_regression = expected_is_regression
+                alerts_to_update.append(alert.telemetry_alert)
+
+        if not alerts_to_update:
+            return
+
+        logger.info(
+            f"Updating is_regression for the following alert IDs: "
+            f"{', '.join(str(alert.id) for alert in alerts_to_update)}"
+        )
+        num_updated = PerformanceTelemetryAlert.objects.bulk_update(
+            alerts_to_update, ["is_regression"]
+        )
+        logger.info(f"{num_updated} alerts updated with is_regression changes")
+
     def house_keeping(self, alerts, commented_bugs, new_bugs):
         """General maintenance of the telemetry alert tables."""
         logger.info("Performing house keeping")
         self._redo_email_alerts()
         self._redo_bug_modifications()
+        self._recheck_is_regression()
         logger.info("Completed house keeping")
