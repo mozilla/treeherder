@@ -309,6 +309,37 @@ class TestTelemetryBugContent:
         telemetry_alert_obj.telemetry_alert.is_regression = False
         assert "Improvement" in bug_content._build_probe_alert_row(mock_probe, telemetry_alert_obj)
 
+    def test_build_probe_alert_row_shows_unknown_when_regression_is_none(
+        self, bug_content, mock_probe, alert_with_unknown_regression
+    ):
+        """Test that the alert row shows 'Unknown' when is_regression is None."""
+        result = bug_content._build_probe_alert_row(mock_probe, alert_with_unknown_regression)
+
+        assert "Unknown" in result
+        assert "Regression" not in result
+        assert "Improvement" not in result
+
+    @responses.activate
+    def test_file_bug_with_unknown_regression(
+        self, bug_manager, mock_probe, alert_with_unknown_regression
+    ):
+        """Test filing a bug for an alert whose direction is unknown (is_regression=None)."""
+        responses.add(
+            responses.POST,
+            "https://bugzilla.mozilla.org/rest/bug",
+            json={"id": 123456},
+            status=200,
+        )
+
+        result = bug_manager.file_bug(mock_probe, alert_with_unknown_regression)
+
+        assert result == {"id": 123456}
+
+        import json
+
+        request_body = json.loads(responses.calls[0].request.body)
+        assert "Unknown" in request_body["description"]
+
     def test_build_bug_content_calculates_date_range_correctly(
         self, bug_content, mock_probe, telemetry_alert_obj
     ):

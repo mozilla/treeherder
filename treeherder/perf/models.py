@@ -228,6 +228,8 @@ class PerformanceTelemetrySignature(models.Model):
         help_text="Application that runs the signature's tests. "
         "Generally used to record browser's name, but not necessarily.",
     )
+    # Null when the probe's direction can't be determined (e.g. lower_is_better is unset)
+    lower_is_better = models.BooleanField(null=True)
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -760,6 +762,9 @@ class PerformanceTelemetryAlert(PerformanceAlertBase):
         null=True,
     )
     series_signature = models.ForeignKey(PerformanceTelemetrySignature, on_delete=models.CASCADE)
+
+    # Null when the probe's direction can't be determined (e.g. lower_is_better is unset)
+    is_regression = models.BooleanField(null=True)
 
     sustained = models.BooleanField(default=False)
     direction = models.CharField(max_length=100, null=True)

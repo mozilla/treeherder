@@ -50,7 +50,10 @@ class TelemetryEmailWriter(EmailWriter):
         self._email.address = email
 
     def _write_subject(self, probe, alert):
-        self._email.subject = f"Telemetry Alert for {alert.status} in Probe {probe.name}"
+        if alert.telemetry_alert.is_regression is None:
+            self._email.subject = f"Telemetry Alert in Probe {probe.name}"
+        else:
+            self._email.subject = f"Telemetry Alert for {alert.status} in Probe {probe.name}"
 
     def _write_content(self, probe, alert):
         content = TelemetryEmailContent()

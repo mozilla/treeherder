@@ -95,6 +95,27 @@ class TestTelemetryEmailManagerIntegration:
     @patch(
         "treeherder.perf.auto_perf_sheriffing.base_email_manager.taskcluster.notify_client_factory"
     )
+    def test_full_email_flow_with_unknown_regression(
+        self, mock_notify_factory, alert_with_unknown_regression, mock_probe
+    ):
+        """Test the full email flow for an alert whose direction is unknown (is_regression=None)."""
+        mock_client = Mock()
+        mock_email_func = Mock()
+        mock_client.email = mock_email_func
+        mock_notify_factory.return_value = mock_client
+
+        email_manager = TelemetryEmailManager()
+        email_manager.email_alert(mock_probe, alert_with_unknown_regression)
+
+        assert mock_email_func.call_count == 1
+
+        email_payload = mock_email_func.call_args[0][0]
+        assert email_payload["subject"] == "Telemetry Alert in Probe test_probe_metric"
+        assert "MozDetect has detected a telemetry change" in email_payload["content"]
+
+    @patch(
+        "treeherder.perf.auto_perf_sheriffing.base_email_manager.taskcluster.notify_client_factory"
+    )
     def test_taskcluster_notify_client_not_called_during_initialization(self, mock_notify_factory):
         """Test that Taskcluster notify client is created during initialization."""
         mock_client = Mock()
@@ -291,6 +312,10 @@ class TestTelemetryEmailWriter:
         telemetry_alert_obj.telemetry_alert.is_regression = False
         writer._write_subject(mock_probe, telemetry_alert_obj)
         assert writer._email.subject == "Telemetry Alert for Improvement in Probe memory_total"
+
+        telemetry_alert_obj.telemetry_alert.is_regression = None
+        writer._write_subject(mock_probe, telemetry_alert_obj)
+        assert writer._email.subject == "Telemetry Alert in Probe memory_total"
 
     def test_write_content_sets_email_content(self, telemetry_alert_obj, mock_probe):
         """Test _write_content sets the email content."""

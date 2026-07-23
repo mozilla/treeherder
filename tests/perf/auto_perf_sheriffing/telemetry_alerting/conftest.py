@@ -197,6 +197,40 @@ def alert_with_bug(test_telemetry_alert_summary, test_telemetry_signature):
 
 
 @pytest.fixture
+def alert_with_unknown_regression(test_telemetry_alert_summary, test_telemetry_signature):
+    """Create a TelemetryAlert whose is_regression is None.
+
+    This mirrors what Sherlock._is_regression returns when a probe's
+    lower_is_better setting is unset, so the direction can't be determined.
+    """
+    from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.alert import (
+        TelemetryAlertFactory,
+    )
+
+    alert_row = PerformanceTelemetryAlert.objects.create(
+        summary=test_telemetry_alert_summary,
+        series_signature=test_telemetry_signature,
+        is_regression=None,
+        amount_pct=15.5,
+        amount_abs=100.0,
+        prev_value=645.5,
+        new_value=745.5,
+        sustained=True,
+        direction="increase",
+        confidence=0.95,
+        prev_median=650.0,
+        new_median=750.0,
+        prev_p05=700.0,
+        new_p05=800.0,
+        prev_p95=720.0,
+        new_p95=820.0,
+        bug_number=None,
+        notified=False,
+    )
+    return TelemetryAlertFactory.construct_alert(alert_row)
+
+
+@pytest.fixture
 def create_telemetry_alert(test_telemetry_alert_summary):
     """Factory fixture to create telemetry alerts with custom parameters."""
 

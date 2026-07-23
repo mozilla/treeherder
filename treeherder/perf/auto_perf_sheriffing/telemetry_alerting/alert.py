@@ -28,7 +28,13 @@ class TelemetryAlert(Alert):
 
     @property
     def status(self):
-        """Human-readable label for whether this alert is a regression."""
+        """Human-readable label for whether this alert is a regression.
+
+        Returns "Unknown" when the direction can't be determined (e.g. the
+        probe's lower_is_better setting is unset, leaving is_regression null).
+        """
+        if self.telemetry_alert.is_regression is None:
+            return "Unknown"
         return "Regression" if self.telemetry_alert.is_regression else "Improvement"
 
     def get_related_alerts(self):

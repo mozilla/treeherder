@@ -78,6 +78,7 @@ class TelemetryProbe:
     def is_mobile(self):
         return self.platform == MOBILE
 
+    @property
     def lower_is_better(self):
         return self.monitor_info.get("lower_is_better")
 
