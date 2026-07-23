@@ -158,31 +158,23 @@ def test_get_releases_with_number_and_since_params(mock_github):
     mock_github.get_repo.return_value = mock_repo_instance
 
     # Scenario 1: number=2, since='2023-01-05T12:00:00'
-    # 1. Apply number filter first: [R1, R2, R3, R4, R5] -> [:2] -> [R1, R2]
-    # 2. Apply since filter to [R1, R2]:
-    #    R1 (Jan 1) is NOT >= Jan 5
-    #    R2 (Jan 5) IS >= Jan 5
-    # Expected: [R2]
-    params_s1 = {"since": "2023-01-05T12:00:00", "number": 2}
+    # Apply since filter first and then slice by number
+    # Expected: [R2, R3, R4]
+    params_s1 = {"since": "2023-01-05T12:00:00", "number": 3}
     result_s1 = get_releases(owner, repo, params_s1)
-    assert len(result_s1) == 1
-    assert result_s1 == [mock_release_2]
+    assert len(result_s1) == 3
+    assert result_s1 == [mock_release_2, mock_release_3, mock_release_4]
 
-    # Scenario 2: number=1, since='2023-01-10T14:00:00'
-    # 1. Apply number filter first: [R1, R2, R3, R4, R5] -> [:1] -> [R1]
-    # 2. Apply since filter to [R1]:
-    #    R1 (Jan 1) is NOT >= Jan 10
+    # Scenario 2: number=1, since='2023-01-21T14:00:00'
+    # The since filter will be applied first leaving the number filter to act on on an empty array
     # Expected: []
-    params_s2 = {"since": "2023-01-10T14:00:00", "number": 1}
+    params_s2 = {"since": "2023-01-20T18:00:01", "number": 1}
     result_s2 = get_releases(owner, repo, params_s2)
     assert len(result_s2) == 0
     assert result_s2 == []
 
     # Scenario 3: number=100 (effectively no number limit), since='2023-01-10T14:00:00'
-    # 1. Apply number filter first: [R1, R2, R3, R4, R5] -> [:100] -> [R1, R2, R3, R4, R5]
-    # 2. Apply since filter to [R1, R2, R3, R4, R5]:
-    #    R1, R2 are NOT >= Jan 10
-    #    R3, R4, R5 ARE >= Jan 10
+    # Return matches by since as the number limit is ver large
     # Expected: [R3, R4, R5]
     params_s3 = {"since": "2023-01-10T14:00:00", "number": 100}
     result_s3 = get_releases(owner, repo, params_s3)

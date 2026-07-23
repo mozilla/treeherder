@@ -56,9 +56,6 @@ def get_releases(owner: str, repo: str, params: dict = None) -> list[GitRelease]
     releases = list(pygithub_get_repo(owner, repo).get_releases())
 
     if params:
-        if "number" in params:
-            releases = releases[: params.get("number")]
-
         if "since" in params:
             since_datetime = datetime.fromisoformat(params["since"])
             releases = list(
@@ -67,6 +64,8 @@ def get_releases(owner: str, repo: str, params: dict = None) -> list[GitRelease]
                     releases,
                 )
             )
+        if "number" in params:
+            releases = releases[: params.get("number")]
     return releases
 
 
