@@ -105,6 +105,11 @@ const SummaryTab = ({
     [summary, bugSuggestions],
   );
 
+  // Number of failing tests (not error lines — a test can emit several).
+  const failedCount = summary
+    ? Object.values(summary.realFailCounts || {}).reduce((a, b) => a + b, 0)
+    : 0;
+
   const fileBug = useCallback(
     (suggestion) => {
       pinJob(selectedJob);
@@ -166,8 +171,8 @@ const SummaryTab = ({
             {summary.counts.PASS || 0} passed
           </span>
           {', '}
-          <span className={suggestions.length && 'text-danger'}>
-            {suggestions.length} failed
+          <span className={failedCount && 'text-danger'}>
+            {failedCount} failed
           </span>
           {summary.counts.SKIP > 0 && (
             <>

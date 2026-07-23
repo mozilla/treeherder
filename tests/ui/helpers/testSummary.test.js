@@ -173,6 +173,75 @@ describe('buildTestSummary', () => {
   });
 });
 
+describe('buildFailureSuggestions', () => {
+  test('emits one failure line per unexpected subtest message', () => {
+    const summary = buildTestSummary([
+      { action: 'test_start', time: 0, group: 'g', test: 'browser_all.js' },
+      {
+        action: 'test_status',
+        time: 3,
+        group: 'g',
+        test: 'browser_all.js',
+        subtest: null,
+        status: 'FAIL',
+        expected: 'PASS',
+        message: 'there should be no unreferenced files - Got 1, expected +0',
+      },
+      {
+        action: 'test_status',
+        time: 4,
+        group: 'g',
+        test: 'browser_all.js',
+        subtest: null,
+        status: 'FAIL',
+        expected: 'PASS',
+        message: 'file only referenced from unreferenced files',
+      },
+      {
+        action: 'test_end',
+        time: 10,
+        group: 'g',
+        test: 'browser_all.js',
+        status: 'FAIL',
+        expected: 'PASS',
+        message: 'finished',
+      },
+    ]);
+
+    const suggestions = buildFailureSuggestions(summary);
+    expect(suggestions).toHaveLength(2);
+    expect(suggestions[0].search).toBe(
+      'TEST-UNEXPECTED-FAIL | browser_all.js | there should be no unreferenced files - Got 1, expected +0',
+    );
+    expect(suggestions[1].search).toBe(
+      'TEST-UNEXPECTED-FAIL | browser_all.js | file only referenced from unreferenced files',
+    );
+    // Both lines point at the same test path for bug matching / path filtering.
+    expect(suggestions.every((s) => s.path_end === 'browser_all.js')).toBe(true);
+  });
+
+  test('emits a single line for a failure with one message', () => {
+    const summary = buildTestSummary([
+      { action: 'test_start', time: 0, group: 'g', test: 'browser_one.js' },
+      {
+        action: 'test_end',
+        time: 10,
+        group: 'g',
+        test: 'browser_one.js',
+        status: 'FAIL',
+        expected: 'PASS',
+        message: 'boom',
+      },
+    ]);
+
+    const suggestions = buildFailureSuggestions(summary);
+    expect(suggestions).toHaveLength(1);
+    expect(suggestions[0].search).toBe(
+      'TEST-UNEXPECTED-FAIL | browser_one.js | boom',
+    );
+  });
+});
+
 describe('matchBugSuggestions', () => {
   const buildFailures = () =>
     buildFailureSuggestions(buildTestSummary(lines));
@@ -251,5 +320,56 @@ describe('matchBugSuggestions', () => {
       expect(s.showBugSuggestions).toBe(false);
       expect(s.valid_open_recent).toBe(false);
     });
+  });
+
+  test('attaches bugs only to the first line of a multi-message test', () => {
+    const summary = buildTestSummary([
+      { action: 'test_start', time: 0, group: 'g', test: 'browser_all.js' },
+      {
+        action: 'test_status',
+        time: 3,
+        group: 'g',
+        test: 'browser_all.js',
+        subtest: null,
+        status: 'FAIL',
+        expected: 'PASS',
+        message: 'first failure',
+      },
+      {
+        action: 'test_status',
+        time: 4,
+        group: 'g',
+        test: 'browser_all.js',
+        subtest: null,
+        status: 'FAIL',
+        expected: 'PASS',
+        message: 'second failure',
+      },
+      {
+        action: 'test_end',
+        time: 10,
+        group: 'g',
+        test: 'browser_all.js',
+        status: 'FAIL',
+        expected: 'PASS',
+        message: 'finished',
+      },
+    ]);
+    const bugSuggestions = [
+      {
+        path_end: 'browser_all.js',
+        bugs: { open_recent: [{ id: 7, internal_id: 7 }], all_others: [] },
+      },
+    ];
+
+    const failures = matchBugSuggestions(
+      buildFailureSuggestions(summary),
+      bugSuggestions,
+    );
+    expect(failures).toHaveLength(2);
+    expect(failures[0].bugs.open_recent).toHaveLength(1);
+    expect(failures[0].showBugSuggestions).toBe(true);
+    expect(failures[1].bugs.open_recent).toHaveLength(0);
+    expect(failures[1].showBugSuggestions).toBe(false);
   });
 });

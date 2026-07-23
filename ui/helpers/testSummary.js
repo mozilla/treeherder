@@ -134,6 +134,7 @@ export const buildTestSummary = (content) => {
       status: entry.status,
       success: entry.success,
       message: entry.message,
+      messages: entry.messages || (entry.message ? [entry.message] : []),
       start: entry.start,
       end: entry.end,
       duration: entry.duration,
@@ -183,7 +184,7 @@ export const buildTestSummary = (content) => {
         const queue = pending.get(line.test);
         const run = queue && queue.length ? queue[0] : null;
         if (run && line.message) {
-          const label = line.subtest ? `${line.subtest}: ` : '';
+          const label = line.subtest ? `${line.subtest} - ` : '';
           run.subtestFailures.push(`${label}${line.message}`);
         }
         return;
@@ -195,18 +196,23 @@ export const buildTestSummary = (content) => {
         const end = finiteOrNull(line.time);
         const success = !('expected' in line);
         const subtestFailures = run?.subtestFailures || [];
-        // For a failing test prefer the (more informative) subtest messages;
-        // otherwise fall back to the test_end message.
-        const message =
-          (!success && subtestFailures.length
-            ? subtestFailures.join(' | ')
-            : line.message) || null;
+        // For a failing test prefer the (more informative) subtest messages,
+        // keeping each one separate so the Summary tab can render one failure
+        // line per message; otherwise fall back to the test_end message.
+        const messages =
+          !success && subtestFailures.length
+            ? subtestFailures
+            : line.message
+              ? [line.message]
+              : [];
+        const message = messages.length ? messages.join(' | ') : null;
         recordEntry({
           test: line.test,
           group: line.group || run?.group || currentGroup,
           status: line.status,
           success,
           message,
+          messages,
           start,
           end,
           duration: durationOf(start, end),
@@ -299,14 +305,26 @@ export const buildFailureSuggestions = (summary) => {
     group.tests.forEach((test) => {
       if (test.success) return;
       const lastResult = test.results[test.results.length - 1];
-      const search = `TEST-UNEXPECTED-${test.status} | ${test.name}${
-        lastResult.message ? ` | ${lastResult.message}` : ''
-      }`;
-      suggestions.push({
-        search,
-        path_end: test.name,
-        search_terms: getSearchWords(search),
-        bugs: { open_recent: [], all_others: [] },
+      // A single failing test can emit several unexpected messages (e.g. one
+      // subtest failure per line). Render each as its own failure line, mirroring
+      // FailureSummaryTab, instead of collapsing them into one joined line.
+      const messages = lastResult.messages?.length
+        ? lastResult.messages
+        : [lastResult.message].filter(Boolean);
+      if (!messages.length) messages.push(null);
+      messages.forEach((message, index) => {
+        const search = `TEST-UNEXPECTED-${test.status} | ${test.name}${
+          message ? ` | ${message}` : ''
+        }`;
+        suggestions.push({
+          search,
+          path_end: test.name,
+          search_terms: getSearchWords(search),
+          // Bug suggestions match on test path, so every line of a test would
+          // otherwise get the same bugs. Only the first line carries them.
+          primary: index === 0,
+          bugs: { open_recent: [], all_others: [] },
+        });
       });
     });
   });
@@ -380,6 +398,12 @@ export const matchBugSuggestions = (failureSuggestions, bugSuggestions) => {
   }
 
   failureSuggestions.forEach((suggestion) => {
+    // Non-primary lines share a test path with the primary one; attaching bugs
+    // to them too would duplicate the suggestions under every message line.
+    if (suggestion.primary === false) {
+      decorateBugs(suggestion);
+      return;
+    }
     const matches = bugSuggestions.filter((bugSuggestion) =>
       pathsMatch(suggestion.path_end, bugSuggestion.path_end),
     );
