@@ -203,9 +203,9 @@
         <p class="intro">
           Renders the job-view Summary tab
           (<code>ui/job-view/details/tabs/summaryTab/SummaryTab.jsx</code>) for
-          every job in a push that produced a
-          <code>public/test_info/summary.jsonl</code> artifact, all on one page —
-          useful
+          every job in a push that produced a test summary
+          (<code>summary.jsonl</code>, or the legacy
+          <code>*_testsummary.jsonl</code>) artifact, all on one page — useful
           for scanning a whole push's failures without clicking through jobs one
           at a time. Failures are matched against Bugzilla bug suggestions the
           same way the real Summary tab does, but this page is read-only: there
@@ -486,7 +486,11 @@
         stage: 'https://treeherder.allizom.org',
         production: 'https://treeherder.mozilla.org',
       };
+      // New pushes emit the summary at a fixed path; legacy pushes emit it as
+      // a suite-prefixed artifact (e.g. mochitest-browser-chrome_testsummary.jsonl).
+      // Prefer the fixed path, fall back to suffix discovery.
       const SUMMARY_ARTIFACT_PATH = 'public/test_info/summary.jsonl';
+      const SUMMARY_ARTIFACT_SUFFIX = '_testsummary.jsonl';
       const JOBS_PAGE_SIZE = 2000;
       const JOB_CONCURRENCY = 100;
       const BZ_BASE_URL = 'https://bugzilla.mozilla.org/';
@@ -2357,11 +2361,19 @@
             const taskId = job.task_id;
             const run = job.retry_id ?? 0;
             if (!taskId) return;
-            // The summary artifact is at a fixed path, so we fetch it directly
-            // (a 404 for jobs without one is caught below and skips the job).
-            // The artifact listing is still needed for the profiler link.
-            const artifactUrl = `${tcRootUrl}/api/queue/v1/task/${taskId}/runs/${run}/artifacts/${SUMMARY_ARTIFACT_PATH}`;
+            // The artifact listing is needed for the profiler link, and also
+            // tells us which summary artifact this task produced: the fixed
+            // summary.jsonl (new pushes) or a suite-prefixed *_testsummary.jsonl
+            // (legacy). Prefer the fixed path; skip jobs that have neither.
             const artifacts = await listArtifacts(tcRootUrl, taskId, run);
+            const summaryName = artifacts.some(
+              (a) => a.name === SUMMARY_ARTIFACT_PATH,
+            )
+              ? SUMMARY_ARTIFACT_PATH
+              : artifacts.find((a) => a.name.endsWith(SUMMARY_ARTIFACT_SUFFIX))
+                  ?.name;
+            if (!summaryName) return;
+            const artifactUrl = `${tcRootUrl}/api/queue/v1/task/${taskId}/runs/${run}/artifacts/${summaryName}`;
             const profileArtifact = artifacts.find((a) =>
               isResourceUsageProfile(a.name.split('/').pop()),
             );
