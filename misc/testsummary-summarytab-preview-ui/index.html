@@ -784,6 +784,7 @@
             status: entry.status,
             success: entry.success,
             message: entry.message,
+            messages: entry.messages || (entry.message ? [entry.message] : []),
             start: entry.start,
             end: entry.end,
             duration: entry.duration,
@@ -836,16 +837,20 @@
               const end = finiteOrNull(line.time);
               const success = !('expected' in line);
               const subtestFailures = run?.subtestFailures || [];
-              const message =
-                (!success && subtestFailures.length
-                  ? subtestFailures.join(' | ')
-                  : line.message) || null;
+              const messages =
+                !success && subtestFailures.length
+                  ? subtestFailures
+                  : line.message
+                    ? [line.message]
+                    : [];
+              const message = messages.length ? messages.join(' | ') : null;
               recordEntry({
                 test: line.test,
                 group: line.group || run?.group || currentGroup,
                 status: line.status,
                 success,
                 message,
+                messages,
                 start,
                 end,
                 duration: durationOf(start, end),
@@ -926,13 +931,25 @@
           group.tests.forEach((test) => {
             if (test.success) return;
             const lastResult = test.results[test.results.length - 1];
-            const search = `TEST-UNEXPECTED-${test.status} | ${test.name}${
-              lastResult.message ? ` | ${lastResult.message}` : ''
-            }`;
-            suggestions.push({
-              search,
-              path_end: test.name,
-              bugs: { open_recent: [], all_others: [] },
+            // A single failing test can emit several unexpected messages (e.g.
+            // one subtest failure per line). Render each as its own failure
+            // line instead of collapsing them into one joined line.
+            const messages = lastResult.messages?.length
+              ? lastResult.messages
+              : [lastResult.message].filter(Boolean);
+            if (!messages.length) messages.push(null);
+            messages.forEach((message, index) => {
+              const search = `TEST-UNEXPECTED-${test.status} | ${test.name}${
+                message ? ` | ${message}` : ''
+              }`;
+              suggestions.push({
+                search,
+                path_end: test.name,
+                // Bug suggestions match on test path, so every line of a test
+                // would otherwise get the same bugs. Only the first carries them.
+                primary: index === 0,
+                bugs: { open_recent: [], all_others: [] },
+              });
             });
           });
         });
@@ -988,6 +1005,12 @@
         }
 
         failureSuggestions.forEach((suggestion) => {
+          // Non-primary lines share a test path with the primary one; attaching
+          // bugs to them too would duplicate the suggestions under every line.
+          if (suggestion.primary === false) {
+            decorateBugs(suggestion);
+            return;
+          }
           const matches = bugSuggestions.filter((bugSuggestion) =>
             pathsMatch(suggestion.path_end, bugSuggestion.path_end),
           );
@@ -2149,10 +2172,16 @@
         revisionId,
         job,
         suggestions,
-        counts,
+        summary,
         failureSuggestions,
         profileArtifactUrl,
       ) {
+        const { counts } = summary;
+        // Number of failing tests (not error lines — a test can emit several),
+        // mirroring SummaryTab.jsx's failedCount.
+        const failedCount = Object.values(
+          summary.realFailCounts || {},
+        ).reduce((a, b) => a + b, 0);
         const section = el('section', { class: 'job-block' });
 
         const heading = el('h2', { class: 'h6 mb-1 font-monospace' });
@@ -2226,8 +2255,8 @@
         summaryCountsLine.appendChild(document.createTextNode(', '));
         summaryCountsLine.appendChild(
           el('span', {
-            class: suggestions.length && 'text-danger',
-            text: `${fmt(suggestions.length)} failed`,
+            class: failedCount && 'text-danger',
+            text: `${fmt(failedCount)} failed`,
           }),
         );
         if (counts.SKIP > 0) {
@@ -2410,7 +2439,7 @@
                 revisionId,
                 job,
                 suggestions,
-                summary.counts,
+                summary,
                 failureSuggestions,
                 profileArtifactUrl,
               ),
@@ -2634,8 +2663,15 @@
           (sum, r) => sum + (r.summary.counts.total || 0),
           0,
         );
+        // Count failing tests (not error lines — a test can emit several),
+        // matching SummaryTab.jsx's failedCount.
         const totalFailed = jobResults.reduce(
-          (sum, r) => sum + r.suggestions.length,
+          (sum, r) =>
+            sum +
+            Object.values(r.summary.realFailCounts || {}).reduce(
+              (a, b) => a + b,
+              0,
+            ),
           0,
         );
         document.getElementById('stat-jobs').textContent = fmt(
