@@ -18,6 +18,7 @@ import {
   pollPushes,
 } from '../../shared/stores/pushesStore';
 import { updatePushParams } from '../../helpers/location';
+import { updateUrlSearch } from '../../helpers/router';
 
 import Push from './Push';
 import PushLoadErrors from './PushLoadErrors';
@@ -124,7 +125,11 @@ function PushList({
   const fetchNextPushes = useCallback(
     (count) => {
       const params = updatePushParams(location);
-      window.history.pushState(null, null, params);
+      // The revision -> tochange (or startdate removal) rewrite keeps the same
+      // top of range, so it must not be treated as a range change by the
+      // URL-watching effect below.
+      prevRouterSearch.current = params;
+      updateUrlSearch(params);
       fetchPushes(count, true);
     },
     [fetchPushes, location],
