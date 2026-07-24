@@ -15,8 +15,8 @@ def update_changelog(days=1):
     """
     logger.info(f"Updating unified changelog (days={days})")
     # collecting last day of changes across all sources
-    since = datetime.datetime.now() - datetime.timedelta(days=days)
-    since = since.strftime("%Y-%m-%dT%H:%M:%S")
+    since = datetime.datetime.now(tz=datetime.UTC) - datetime.timedelta(days=days)
+    since = since.strftime("%Y-%m-%dT%H:%M:%S %z")
 
     created = 0
     existed = 0
