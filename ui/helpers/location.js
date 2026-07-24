@@ -1,4 +1,5 @@
 import { thDefaultRepo } from './constants';
+import { replaceUrlSearch } from './router';
 import { createQueryParams, getApiUrl } from './url';
 
 export const getAllUrlParams = function getAllUrlParams(
@@ -19,9 +20,8 @@ export const getRepo = function getRepo() {
   return getUrlParam('repo') || thDefaultRepo;
 };
 
-// This won't update the react router history object
 export const replaceLocation = function replaceLocation(params) {
-  window.history.pushState(null, null, createQueryParams(params));
+  replaceUrlSearch(createQueryParams(params));
 };
 
 export const setUrlParam = function setUrlParam(field, value) {
