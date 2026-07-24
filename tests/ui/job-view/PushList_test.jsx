@@ -50,8 +50,9 @@ describe('PushList', () => {
 
   beforeEach(() => {
     mockNavigate = jest.fn();
-    // Mock window.history.pushState for URL updates
+    // Mock window.history state updates so the jsdom URL stays clean
     jest.spyOn(window.history, 'pushState').mockImplementation(() => {});
+    jest.spyOn(window.history, 'replaceState').mockImplementation(() => {});
   });
 
   const currentRepo = {
