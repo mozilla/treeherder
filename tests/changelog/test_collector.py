@@ -2,7 +2,7 @@ import binascii
 import json
 import os
 import re
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from unittest import mock
 
 import responses
@@ -19,7 +19,7 @@ COMMIT_INFO = re.compile(r"https://api.github.com/repos/.*/.*/commits/.*")
 
 
 def prepare_responses():
-    now = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+    now = datetime.now(tz=UTC).isoformat(timespec="seconds")
 
     def _commit():
         files = [{"filename": "file1"}, {"filename": "file2"}]
@@ -53,9 +53,9 @@ def prepare_responses():
 @responses.activate
 @mock.patch("treeherder.utils.github.pygithub_get_repo")
 def test_collect(mock_pygithub_get_repo):
-    now = datetime.now()
+    now = datetime.now(tz=UTC)
     yesterday = now - timedelta(days=1)
-    yesterday_str = yesterday.strftime("%Y-%m-%dT%H:%M:%S")
+    yesterday_str = yesterday.isoformat(timespec="seconds")
 
     # Mock the GitRelease object structure expected by collector.py
     mock_author = mock.Mock()
@@ -85,7 +85,7 @@ def test_collect(mock_pygithub_get_repo):
     assert release_entry["message"] == "Released mock_release_name"
     assert release_entry["remote_id"] == "mock_release_id_123"
     assert release_entry["url"] == "mock_release_url"
-    assert release_entry["date"] == now.isoformat()
+    assert release_entry["date"] == now.isoformat(timespec="seconds")
 
     # Verify a commit entry created from responses mock
     commit_entry = next((item for item in res if item["type"] == "commit"), None)

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 from unittest import mock
 
 import pytest
@@ -14,7 +14,7 @@ from treeherder.changelog.tasks import update_changelog
 @mock.patch("treeherder.utils.github.pygithub_get_repo")
 def test_update_changelog(mock_pygithub_get_repo):
     # Mock the GitRelease object structure expected by collector.py
-    now = datetime.now()
+    now = datetime.now(tz=UTC)
     mock_author = mock.Mock()
     mock_author.login = "mock_tarek_release"
     mock_release = mock.Mock()

@@ -28,7 +28,7 @@ class GitHub:
         for release in github.get_releases(owner, repository, params=gh_options):
             name = release.name or release.tag_name
             yield {
-                "date": release.published_at.isoformat(),
+                "date": release.published_at.isoformat(timespec="seconds"),
                 "author": release.author.login,
                 "message": "Released " + name,
                 "remote_id": release.id,
