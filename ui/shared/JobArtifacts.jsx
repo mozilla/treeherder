@@ -101,7 +101,7 @@ export default class JobArtifacts extends React.PureComponent {
 
   groupCrashDumps(jobDetails) {
     const crashDumps = new Map(); // Maps crash ID to {dmp, extra, json} artifacts
-    const completeCrashIds = new Set(); // Crash IDs with all 3 files
+    const mergedCrashIds = new Set(); // Crash IDs shown as a single row
 
     jobDetails.forEach((artifact) => {
       const match = artifact.value.match(CRASH_DUMP_PATTERN);
@@ -116,12 +116,13 @@ export default class JobArtifacts extends React.PureComponent {
       }
     });
 
-    // Identify complete crash dumps (all 3 files present) and compute
-    // aggregated size (sum) and expiry (earliest) across the 3 files.
+    // Identify crash dumps we can show in the crash viewer (the viewer reads
+    // the .json file, the .extra file is optional) and compute aggregated
+    // size (sum) and expiry (earliest) across the files we have.
     crashDumps.forEach((crash, crashId) => {
-      if (crash.dmp && crash.extra && crash.json) {
-        completeCrashIds.add(crashId);
-        const files = [crash.dmp, crash.extra, crash.json];
+      if (crash.dmp && crash.json) {
+        mergedCrashIds.add(crashId);
+        const files = [crash.dmp, crash.extra, crash.json].filter(Boolean);
         crash.contentLength = files.reduce(
           (sum, f) =>
             Number.isFinite(f.contentLength) ? sum + f.contentLength : sum,
@@ -134,7 +135,7 @@ export default class JobArtifacts extends React.PureComponent {
       }
     });
 
-    return { crashDumps, completeCrashIds };
+    return { crashDumps, mergedCrashIds };
   }
 
   render() {
@@ -145,15 +146,15 @@ export default class JobArtifacts extends React.PureComponent {
       selectedJob = null,
     } = this.props;
 
-    const { crashDumps, completeCrashIds } = this.groupCrashDumps(jobDetails);
+    const { crashDumps, mergedCrashIds } = this.groupCrashDumps(jobDetails);
 
-    // Emit one row per artifact, collapsing complete crash dumps into a
-    // single aggregated row (anchored on the .json file).
+    // Emit one row per artifact, collapsing crash dumps into a single
+    // aggregated row (anchored on the .json file).
     const rows = jobDetails.flatMap((line) => {
       const match = line.value.match(CRASH_DUMP_PATTERN);
       if (match) {
         const [, crashId, fileType] = match;
-        if (completeCrashIds.has(crashId)) {
+        if (mergedCrashIds.has(crashId)) {
           if (fileType !== 'json') return [];
           const crash = crashDumps.get(crashId);
           return [
@@ -226,10 +227,14 @@ export default class JobArtifacts extends React.PureComponent {
                       <td>
                         <CellLink href={viewerUrl} label="Open in crash viewer" />
                         <ArtifactLink artifact={crash.dmp} />
-                        {', '}
-                        <ArtifactLink artifact={crash.extra}>
-                          .extra
-                        </ArtifactLink>
+                        {crash.extra && (
+                          <>
+                            {', '}
+                            <ArtifactLink artifact={crash.extra}>
+                              .extra
+                            </ArtifactLink>
+                          </>
+                        )}
                         {', '}
                         <ArtifactLink artifact={crash.json}>.json</ArtifactLink>{' '}
                         -{' '}
