@@ -171,7 +171,7 @@ const SummaryTab = ({
             {summary.counts.PASS || 0} passed
           </span>
           {', '}
-          <span className={failedCount && 'text-danger'}>
+          <span className={failedCount ? 'text-danger' : ''}>
             {failedCount} failed
           </span>
           {summary.counts.SKIP > 0 && (

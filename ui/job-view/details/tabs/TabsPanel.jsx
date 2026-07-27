@@ -233,7 +233,6 @@ const TabsPanel = ({
       jobDetails?.find((detail) => detail.value?.endsWith('_testsummary.jsonl'))
         ?.url;
 
-    console.log('Probing for summary artifact at URL:', url);
     setSummaryUrl(null);
     if (!url) return undefined;
 
