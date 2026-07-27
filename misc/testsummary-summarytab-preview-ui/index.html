@@ -304,14 +304,6 @@
             <button type="submit" id="run-button" class="btn btn-primary">
               Load summary
             </button>
-            <button
-              type="button"
-              id="reload-button"
-              class="btn btn-outline-secondary ms-2"
-              hidden
-            >
-              Reload
-            </button>
             <span class="text-muted ms-2" id="progress" hidden></span>
           </div>
         </form>
@@ -343,10 +335,6 @@
             </div>
           </div>
         </div>
-      </div>
-
-      <div id="cache-status-bar" class="mt-2" hidden>
-        <span class="text-muted small" id="cache-status-text"></span>
       </div>
 
       <div id="job-filter-bar" class="row g-3 mt-1 align-items-end" hidden>
@@ -381,6 +369,18 @@
             />
             <label class="form-check-label small" for="filter-show-nofail"
               >Show jobs with no failures</label
+            >
+          </div>
+        </div>
+        <div class="col-auto">
+          <div class="form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              id="filter-show-identical"
+            />
+            <label class="form-check-label small" for="filter-show-identical"
+              >Show jobs with identical tabs</label
             >
           </div>
         </div>
@@ -498,97 +498,6 @@
       const BUG_SUGGESTION_LIMIT = 20;
       // Mirrors ui/helpers/constants.js#requiredInternalOccurrences.
       const REQUIRED_INTERNAL_OCCURRENCES = 3;
-
-      // ---------------------------------------------------------------------
-      // localStorage cache — a whole push's comparison result is expensive to
-      // build (an artifact list + bug_suggestions fetch per job), so the last
-      // few loads are persisted and restored instantly. The stored value is
-      // just the run() output (plain JSON-serializable objects), plus a `ts`
-      // stamp used for the "cached from …" note and LRU eviction.
-      // ---------------------------------------------------------------------
-
-      const CACHE_PREFIX = 'thSummaryPreview:v1:';
-      const CACHE_MAX_ENTRIES = 10;
-
-      function cacheKey(host, project, pushId, revision) {
-        return `${host}::${project}::${pushId ?? 'rev'}::${revision ?? ''}`;
-      }
-
-      function cacheEntries() {
-        const entries = [];
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (!key || !key.startsWith(CACHE_PREFIX)) continue;
-          let ts = 0;
-          try {
-            ts = JSON.parse(localStorage.getItem(key))?.ts ?? 0;
-          } catch {
-            // Corrupt entry — sort it oldest so it's evicted first.
-          }
-          entries.push({ key, ts });
-        }
-        return entries;
-      }
-
-      // Keep at most CACHE_MAX_ENTRIES entries, evicting the oldest by `ts`.
-      // `extra` reserves headroom (used by the quota-retry path to make room
-      // for the entry about to be written).
-      function evictCache(extra = 0) {
-        const entries = cacheEntries().sort((a, b) => a.ts - b.ts);
-        const limit = Math.max(0, CACHE_MAX_ENTRIES - extra);
-        while (entries.length > limit) {
-          localStorage.removeItem(entries.shift().key);
-        }
-      }
-
-      function readCache(key) {
-        const raw = localStorage.getItem(CACHE_PREFIX + key);
-        if (!raw) return null;
-        try {
-          const parsed = JSON.parse(raw);
-          if (!parsed || !Array.isArray(parsed.jobResults)) throw new Error();
-          return parsed;
-        } catch {
-          localStorage.removeItem(CACHE_PREFIX + key);
-          return null;
-        }
-      }
-
-      // Persists `payload` (a run() result) under `key`, stamping `ts` and
-      // returning it. Best-effort: if the value is too large even after
-      // eviction, the caller's report is still shown, just not cached.
-      function writeCache(key, payload, log) {
-        const record = { ...payload, ts: Date.now() };
-        const serialized = JSON.stringify(record);
-        const storageKey = CACHE_PREFIX + key;
-        try {
-          evictCache(1);
-          localStorage.setItem(storageKey, serialized);
-        } catch (e) {
-          try {
-            // Drop everything else and retry once — the freshest result wins.
-            for (const { key: k } of cacheEntries()) {
-              if (k !== storageKey) localStorage.removeItem(k);
-            }
-            localStorage.setItem(storageKey, serialized);
-          } catch {
-            log?.debug?.('Result too large to cache in localStorage.');
-          }
-        }
-        return record.ts;
-      }
-
-      function formatCacheAge(ts) {
-        const seconds = Math.round((Date.now() - ts) / 1000);
-        if (seconds < 60) return 'just now';
-        const minutes = Math.round(seconds / 60);
-        if (minutes < 60)
-          return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
-        const hours = Math.round(minutes / 60);
-        if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
-        const days = Math.round(hours / 24);
-        return `${days} day${days === 1 ? '' : 's'} ago`;
-      }
 
       // ---------------------------------------------------------------------
       // HTTP + Treeherder/Taskcluster helpers (shared logic with
@@ -1193,10 +1102,21 @@
         return li;
       }
 
+      // Copies `text` and briefly swaps `iconEl` for a check mark. Shared by
+      // the per-failure copy button and the per-job anchor link.
+      function copyWithFeedback(text, iconEl, restoreClass) {
+        navigator.clipboard?.writeText(text);
+        iconEl.className = 'fa-solid fa-check-circle';
+        setTimeout(() => {
+          iconEl.className = restoreClass;
+        }, 700);
+      }
+
       // Mirrors ui/shared/Clipboard.jsx — a working copy-to-clipboard button
       // (no auth needed, so unlike the file-bug icons this one is live).
       function renderCopyButton(text) {
-        const iconEl = icon('fa-regular fa-clipboard');
+        const iconClass = 'fa-regular fa-clipboard';
+        const iconEl = icon(iconClass);
         const btn = el(
           'button',
           {
@@ -1206,18 +1126,64 @@
           },
           [iconEl],
         );
-        btn.addEventListener('click', () => {
-          navigator.clipboard?.writeText(text);
-          iconEl.className = 'fa-solid fa-check-circle';
-          setTimeout(() => {
-            iconEl.className = 'fa-regular fa-clipboard';
-          }, 700);
-        });
+        btn.addEventListener('click', () =>
+          copyWithFeedback(text, iconEl, iconClass),
+        );
         return btn;
+      }
+
+      // A "#" style anchor for a job section: navigates to the fragment (so
+      // the browser scrolls and the address bar updates) and copies the full
+      // deep link — location.href already carries the push query params.
+      function renderAnchorLink(anchorId) {
+        const iconClass = 'fa-solid fa-link';
+        const iconEl = icon(iconClass);
+        const link = el(
+          'a',
+          {
+            href: `#${anchorId}`,
+            class: 'btn btn-sm bg-light py-2 px-2 ms-1 failure-action-btn',
+            title: 'Copy link to this job',
+            'aria-label': 'Copy link to this job',
+          },
+          [iconEl],
+        );
+        link.addEventListener('click', () =>
+          copyWithFeedback(
+            new URL(`#${anchorId}`, location.href).href,
+            iconEl,
+            iconClass,
+          ),
+        );
+        return link;
       }
 
       function normalizeSearch(search) {
         return (search || '').trim();
+      }
+
+      // Compares the two columns by normalized search string — the only notion
+      // of "same failure" available. Used both by the ⚠ diff note and by the
+      // job filter that hides jobs whose two tabs are identical.
+      function diffSearches(suggestions, failureSuggestions) {
+        const summarySearches = new Set(
+          suggestions.map((s) => normalizeSearch(s.search)),
+        );
+        const failureSearches = new Set(
+          failureSuggestions.map((s) => normalizeSearch(s.search)),
+        );
+        const onlyInSummary = [...summarySearches].filter(
+          (search) => !failureSearches.has(search),
+        ).length;
+        const onlyInFailureSummary = [...failureSearches].filter(
+          (search) => !summarySearches.has(search),
+        ).length;
+        return {
+          summarySearches,
+          failureSearches,
+          onlyInSummary,
+          onlyInFailureSummary,
+        };
       }
 
       // Mirrors SummaryItem.jsx. `otherSearches`/`diffLabel` are preview-only
@@ -2170,6 +2136,40 @@
         return panel;
       }
 
+      // Taskcluster serves .jsonl artifacts as a download rather than as a
+      // viewable document, so the raw href is only the fallback: on click we
+      // refetch the body and hand the new tab a text/plain blob instead.
+      function renderSummaryArtifactLink(url) {
+        const link = el('a', {
+          href: url,
+          target: '_blank',
+          rel: 'noopener noreferrer',
+          // Named after the artifact actually found — legacy tasks emit
+          // <suite>_testsummary.jsonl rather than summary.jsonl.
+          text: `open ${url.split('/').pop()}`,
+        });
+        link.addEventListener('click', async (event) => {
+          // Opened synchronously, before any await, or the popup blocker
+          // rejects it.
+          const tab = window.open('', '_blank');
+          if (!tab) return; // Blocked — let the default navigation happen.
+          event.preventDefault();
+          try {
+            const text = await fetchText(url);
+            const blobUrl = URL.createObjectURL(
+              new Blob([text], { type: 'text/plain' }),
+            );
+            tab.location = blobUrl;
+            // Freeing it earlier breaks the tab that is still loading it;
+            // after this the opened tab can be read but not reloaded.
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+          } catch (e) {
+            tab.location = url;
+          }
+        });
+        return link;
+      }
+
       function renderJobSection(
         serverUrl,
         project,
@@ -2179,6 +2179,7 @@
         summary,
         failureSuggestions,
         profileArtifactUrl,
+        summaryArtifactUrl,
       ) {
         const { counts } = summary;
         // Number of failing tests (not error lines — a test can emit several),
@@ -2186,10 +2187,14 @@
         const failedCount = Object.values(
           summary.realFailCounts || {},
         ).reduce((a, b) => a + b, 0);
-        const section = el('section', { class: 'job-block' });
+        // Same identity as the job-view link's selectedTaskRun below, so the
+        // anchor stays stable across runs of the same push.
+        const anchorId = `job-${job.task_id}-${job.retry_id ?? 0}`;
+        const section = el('section', { class: 'job-block', id: anchorId });
 
         const heading = el('h2', { class: 'h6 mb-1 font-monospace' });
         heading.appendChild(document.createTextNode(jobLabel(job)));
+        heading.appendChild(renderAnchorLink(anchorId));
         section.appendChild(heading);
 
         const jobUrl = `${serverUrl}/jobs?repo=${encodeURIComponent(project)}&revision=${encodeURIComponent(revisionId)}&selectedTaskRun=${job.task_id}.${job.retry_id ?? 0}`;
@@ -2203,6 +2208,10 @@
             text: 'open in job-view',
           }),
         );
+        if (summaryArtifactUrl) {
+          meta.appendChild(document.createTextNode(' — '));
+          meta.appendChild(renderSummaryArtifactLink(summaryArtifactUrl));
+        }
         if (profileArtifactUrl) {
           meta.appendChild(document.createTextNode(' — '));
           meta.appendChild(
@@ -2216,18 +2225,12 @@
         }
         section.appendChild(meta);
 
-        const summarySearches = new Set(
-          suggestions.map((s) => normalizeSearch(s.search)),
-        );
-        const failureSearches = new Set(
-          failureSuggestions.map((s) => normalizeSearch(s.search)),
-        );
-        const onlyInSummary = [...summarySearches].filter(
-          (search) => !failureSearches.has(search),
-        ).length;
-        const onlyInFailureSummary = [...failureSearches].filter(
-          (search) => !summarySearches.has(search),
-        ).length;
+        const {
+          summarySearches,
+          failureSearches,
+          onlyInSummary,
+          onlyInFailureSummary,
+        } = diffSearches(suggestions, failureSuggestions);
         if (onlyInSummary > 0 || onlyInFailureSummary > 0) {
           const diffNote = el('p', { class: 'job-diff-note mb-2' });
           const parts = [];
@@ -2397,12 +2400,21 @@
               }),
             );
 
+            // Computed once here rather than in applyJobFilter(), which reruns
+            // on every keystroke in the include/exclude inputs.
+            const { onlyInSummary, onlyInFailureSummary } = diffSearches(
+              suggestions,
+              failureSuggestions,
+            );
+
             jobResults.push({
               job,
               summary,
               suggestions,
               failureSuggestions,
               profileArtifactUrl,
+              summaryArtifactUrl: artifactUrl,
+              tabsIdentical: onlyInSummary === 0 && onlyInFailureSummary === 0,
             });
           } catch (e) {
             log.debug(`job ${job.id}: ${e.message}`);
@@ -2443,6 +2455,7 @@
             suggestions,
             failureSuggestions,
             profileArtifactUrl,
+            summaryArtifactUrl,
           }) => {
             reportEl.appendChild(
               renderJobSection(
@@ -2454,6 +2467,7 @@
                 summary,
                 failureSuggestions,
                 profileArtifactUrl,
+                summaryArtifactUrl,
               ),
             );
           },
@@ -2478,16 +2492,13 @@
       const filterExcludeInput = document.getElementById('filter-exclude');
       const filterShowNoFailInput =
         document.getElementById('filter-show-nofail');
+      const filterShowIdenticalInput = document.getElementById(
+        'filter-show-identical',
+      );
       const filterCountEl = document.getElementById('filter-count');
-      const cacheStatusBar = document.getElementById('cache-status-bar');
-      const cacheStatusText = document.getElementById('cache-status-text');
-      const reloadButton = document.getElementById('reload-button');
 
-      // { serverUrl, project, revisionId, jobResults, ts } | null
+      // { serverUrl, project, revisionId, jobResults } | null
       let lastRun = null;
-      // The opts that produced `lastRun` — what the Reload button re-fetches,
-      // regardless of any later (unsubmitted) edits to the form.
-      let currentOpts = null;
 
       // A job result carries no failures when both panels would be empty:
       // the Summary Tab shows "No failures found in the summary." and the
@@ -2495,12 +2506,17 @@
       const jobHasNoFailures = (r) =>
         r.suggestions.length === 0 && r.failureSuggestions.length === 0;
 
+      // Both tabs list exactly the same failures, so the job shows no ⚠ diff
+      // note and has nothing to compare. Precomputed in run().
+      const jobTabsIdentical = (r) => r.tabsIdentical;
+
       function applyJobFilter() {
         if (!lastRun) return;
 
         const includeTerms = parseFilterTerms(filterIncludeInput.value);
         const excludeTerms = parseFilterTerms(filterExcludeInput.value);
         const hideNoFailures = !filterShowNoFailInput.checked;
+        const hideIdentical = !filterShowIdenticalInput.checked;
 
         const nameFiltered = lastRun.jobResults.filter(({ job }) =>
           jobMatchesFilter(job, includeTerms, excludeTerms),
@@ -2508,9 +2524,17 @@
         const noFailureHidden = hideNoFailures
           ? nameFiltered.filter(jobHasNoFailures).length
           : 0;
-        const filtered = hideNoFailures
+        const afterNoFailures = hideNoFailures
           ? nameFiltered.filter((r) => !jobHasNoFailures(r))
           : nameFiltered;
+        // Counted after the no-failure pass: a job with two empty tabs is also
+        // "identical", and belongs to the no-failure tally only.
+        const identicalHidden = hideIdentical
+          ? afterNoFailures.filter(jobTabsIdentical).length
+          : 0;
+        const filtered = hideIdentical
+          ? afterNoFailures.filter((r) => !jobTabsIdentical(r))
+          : afterNoFailures;
 
         const total = lastRun.jobResults.length;
         const shown = filtered.length;
@@ -2520,6 +2544,9 @@
         }
         if (noFailureHidden > 0) {
           parts.push(`${fmt(noFailureHidden)} with no failures hidden`);
+        }
+        if (identicalHidden > 0) {
+          parts.push(`${fmt(identicalHidden)} with identical tabs hidden`);
         }
         filterCountEl.textContent = parts.join(' — ');
 
@@ -2566,7 +2593,13 @@
           params.set('push-id', pushIdInput.value);
         }
         const qs = params.toString();
-        history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
+        // Keep any job anchor — this runs on every keystroke in the revision
+        // and push-id inputs, and the URL is rebuilt from scratch.
+        history.replaceState(
+          null,
+          '',
+          `${qs ? `?${qs}` : location.pathname}${location.hash}`,
+        );
       }
 
       function applyUrlParams() {
@@ -2589,17 +2622,6 @@
 
       applyUrlParams();
 
-      // If the URL identifies a push we've already cached, render it
-      // immediately (with a Reload button to refresh in the background).
-      (function renderCachedOnOpen() {
-        const opts = optsFromForm();
-        if (!opts) return;
-        const cached = readCache(
-          cacheKey(opts.host, opts.project, opts.pushId, opts.revision),
-        );
-        if (cached) applyResult(cached, opts);
-      })();
-
       hostSelect.addEventListener('change', () => {
         localWarning.hidden = hostSelect.value !== 'localhost';
         syncUrlFromForm();
@@ -2610,6 +2632,7 @@
       filterIncludeInput.addEventListener('input', applyJobFilterDebounced);
       filterExcludeInput.addEventListener('input', applyJobFilterDebounced);
       filterShowNoFailInput.addEventListener('change', applyJobFilter);
+      filterShowIdenticalInput.addEventListener('change', applyJobFilter);
       for (const radio of form.querySelectorAll('input[name="push-mode"]')) {
         radio.addEventListener('change', () => {
           setPushMode(pushModeRadio());
@@ -2644,31 +2667,15 @@
         return opts;
       }
 
-      function updateCacheStatus() {
-        if (!lastRun) {
-          cacheStatusBar.hidden = true;
-          reloadButton.hidden = true;
-          return;
-        }
-        cacheStatusText.textContent = lastRun.ts
-          ? `Showing cached data from ${formatCacheAge(lastRun.ts)}.`
-          : 'Showing freshly loaded data.';
-        cacheStatusBar.hidden = false;
-        reloadButton.hidden = false;
-      }
-
-      // Renders a run() result (fresh or from cache) into the page and wires
-      // up the stat banner, filters and cache-status row. `opts` is the load
-      // that produced it, so the Reload button knows what to re-fetch.
-      function applyResult(result, opts) {
+      // Renders a run() result into the page and wires up the stat banner and
+      // filters.
+      function applyResult(result) {
         lastRun = {
           serverUrl: result.serverUrl,
-          project: result.project ?? opts.project,
+          project: result.project,
           revisionId: result.revisionId,
           jobResults: result.jobResults,
-          ts: result.ts ?? null,
         };
-        currentOpts = opts;
 
         const { jobResults } = lastRun;
         const totalTests = jobResults.reduce(
@@ -2697,34 +2704,22 @@
         filterIncludeInput.value = '';
         filterExcludeInput.value = '';
         filterShowNoFailInput.checked = false;
+        filterShowIdenticalInput.checked = false;
         filterCountEl.textContent = '';
 
-        // Applies the default no-failure hide (and any filters) rather than
-        // rendering every job unconditionally.
+        // Applies the default hides (and any filters) rather than rendering
+        // every job unconditionally.
         applyJobFilter();
-        updateCacheStatus();
       }
 
-      // Fetches a fresh result for `opts` and caches it. In foreground mode
-      // (first load / cache miss) it clears the report and drives the log
-      // panel + submit button, as the page always has. In background mode
-      // (Reload) it leaves the current report untouched until fresh data is
-      // ready, showing progress on the Reload button instead.
-      async function doFetch(opts, { background }) {
+      async function doFetch(opts) {
         errorBanner.hidden = true;
-        if (background) {
-          reloadButton.disabled = true;
-          reloadButton.textContent = 'Reloading…';
-        } else {
-          summaryBanner.hidden = true;
-          jobFilterBar.hidden = true;
-          cacheStatusBar.hidden = true;
-          reloadButton.hidden = true;
-          document.getElementById('report').textContent = '';
-          logPanel.style.display = 'block';
-          logPanel.textContent = '';
-          runButton.disabled = true;
-        }
+        summaryBanner.hidden = true;
+        jobFilterBar.hidden = true;
+        document.getElementById('report').textContent = '';
+        logPanel.style.display = 'block';
+        logPanel.textContent = '';
+        runButton.disabled = true;
         progressEl.hidden = false;
         progressEl.textContent = 'Starting…';
 
@@ -2737,39 +2732,26 @@
             },
           );
 
-          const ts = writeCache(
-            cacheKey(opts.host, opts.project, opts.pushId, opts.revision),
-            { serverUrl, project: opts.project, revisionId, jobResults },
-            log,
-          );
-          applyResult(
-            { serverUrl, project: opts.project, revisionId, jobResults, ts },
-            opts,
-          );
+          applyResult({
+            serverUrl,
+            project: opts.project,
+            revisionId,
+            jobResults,
+          });
         } catch (e) {
           errorBanner.textContent = e.message;
           errorBanner.hidden = false;
         } finally {
           runButton.disabled = false;
-          reloadButton.disabled = false;
-          reloadButton.textContent = 'Reload';
           progressEl.hidden = true;
         }
       }
 
-      // "Load summary" always fetches fresh (and re-caches). The cache is
-      // still used to auto-render instantly on page open; Reload refreshes in
-      // the background without clearing the current report.
       form.addEventListener('submit', (event) => {
         event.preventDefault();
         const opts = optsFromForm();
         if (!opts) return;
-        doFetch(opts, { background: false });
-      });
-
-      reloadButton.addEventListener('click', () => {
-        if (!currentOpts) return;
-        doFetch(currentOpts, { background: true });
+        doFetch(opts);
       });
     </script>
   </body>
