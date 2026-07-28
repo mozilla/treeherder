@@ -466,6 +466,10 @@ class PerformanceAlertSummaryBase(models.Model):
         if all(alert.status == alert_model.INFRA for alert in alerts):
             return summary_class.INFRA
 
+        # if it's a mix of ONLY invalid and infra, set to invalid
+        if all(alert.status in (alert_model.INVALID, alert_model.INFRA) for alert in alerts):
+            return summary_class.INVALID
+
         # otherwise filter out invalid alerts
         alerts = [a for a in alerts if a.status not in (alert_model.INVALID, alert_model.INFRA)]
 
