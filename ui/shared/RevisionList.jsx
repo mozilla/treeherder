@@ -18,6 +18,7 @@ export class RevisionList extends React.PureComponent {
       bugSummaryMap,
       commitShaClass = '',
       commentFont = '',
+      hideCommitSha = false,
     } = this.props;
 
     return (
@@ -30,6 +31,7 @@ export class RevisionList extends React.PureComponent {
             bugSummaryMap={bugSummaryMap}
             commitShaClass={commitShaClass}
             commentFont={commentFont}
+            hideCommitSha={hideCommitSha}
           />
         ))}
         {revisionCount > revisions.length && (
@@ -42,12 +44,13 @@ export class RevisionList extends React.PureComponent {
 }
 
 RevisionList.propTypes = {
-  revision: PropTypes.string.isRequired,
+  // Only needed to link to the pushlog when some revisions are not listed.
+  revision: PropTypes.string,
   revisions: PropTypes.arrayOf(
     PropTypes.shape({
       author: PropTypes.string.isRequired,
       comments: PropTypes.string.isRequired,
-      repository_id: PropTypes.number.isRequired,
+      repository_id: PropTypes.number,
       result_set_id: PropTypes.number,
       revision: PropTypes.string.isRequired,
     }),
@@ -59,6 +62,7 @@ RevisionList.propTypes = {
   widthClass: PropTypes.string,
   commitShaClass: PropTypes.string,
   commentFont: PropTypes.string,
+  hideCommitSha: PropTypes.bool,
 };
 
 export function MoreRevisionsLink(props) {

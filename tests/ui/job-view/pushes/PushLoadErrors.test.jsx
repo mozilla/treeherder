@@ -25,9 +25,7 @@ describe('PushLoadErrors', () => {
 
   const renderPushLoadErrors = (props = {}) => {
     const { loadingPushes = false, ...rest } = props;
-    return render(
-      <PushLoadErrors loadingPushes={loadingPushes} {...rest} />,
-    );
+    return render(<PushLoadErrors loadingPushes={loadingPushes} {...rest} />);
   };
 
   describe('loading state', () => {
@@ -118,6 +116,8 @@ describe('PushLoadErrors', () => {
         repoName: 'mozilla-central',
         landoInstance: 'lando-prod',
         landoCommitID: 'L12345',
+        // Older lando instances return no commits for the landing job.
+        landoJob: null,
         landoStatus: 'in_progress',
       });
 
@@ -133,6 +133,7 @@ describe('PushLoadErrors', () => {
         repoName: 'mozilla-central',
         landoInstance: 'lando-prod',
         landoCommitID: 'L12345',
+        landoJob: null,
         landoStatus: 'submitted',
       });
 
@@ -147,11 +148,25 @@ describe('PushLoadErrors', () => {
         repoName: 'mozilla-central',
         landoInstance: 'lando-prod',
         landoCommitID: 'L12345',
+        landoJob: null,
       });
 
       const link = screen.getByRole('link', { name: 'L12345' });
       expect(link).toHaveAttribute('target', '_blank');
       expect(link).toHaveAttribute('title', 'See lando status');
+    });
+
+    it('shows nothing until the lando landing job has been fetched', () => {
+      const { container } = renderPushLoadErrors({
+        currentRepo: createMockRepo(),
+        repoName: 'mozilla-central',
+        landoInstance: 'lando-prod',
+        landoCommitID: 'L12345',
+      });
+
+      expect(
+        container.querySelector('.unknown-message-body'),
+      ).not.toBeInTheDocument();
     });
 
     it('defaults landoStatus to unknown', () => {
@@ -160,6 +175,7 @@ describe('PushLoadErrors', () => {
         repoName: 'mozilla-central',
         landoInstance: 'lando-prod',
         landoCommitID: 'L12345',
+        landoJob: null,
       });
 
       expect(screen.getByText(/Lando status is: unknown/)).toBeInTheDocument();

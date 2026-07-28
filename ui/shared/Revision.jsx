@@ -70,36 +70,38 @@ export class Revision extends React.PureComponent {
       bugSummaryMap,
       commitShaClass = 'commit-sha',
       commentFont = '',
+      hideCommitSha = false,
     } = this.props;
     const comment = comments.split('\n')[0];
     const bugMatches = comment.match(/-- ([0-9]+)|bug.([0-9]+)/gi);
     const { clipboardVisible } = this.state;
     const { name, email } = parseAuthor(author);
-    const commitRevision = revision;
     const commentColor = this.isBackout(comment)
       ? 'text-danger'
       : 'text-secondary';
 
     return (
       <div className="revision d-flex flex-nowrap" data-testid="revision">
-        <span
-          onMouseEnter={() => this.showClipboard(true)}
-          onMouseLeave={() => this.showClipboard(false)}
-          className="pe-1 text-nowrap"
-        >
-          <Clipboard
-            description="full hash"
-            text={commitRevision}
-            visible={clipboardVisible}
-          />
-          <a
-            title={`Open revision ${commitRevision} on ${repo.url}`}
-            href={repo.getRevisionHref(commitRevision)}
-            className={commitShaClass}
+        {!hideCommitSha && (
+          <span
+            onMouseEnter={() => this.showClipboard(true)}
+            onMouseLeave={() => this.showClipboard(false)}
+            className="pe-1 text-nowrap"
           >
-            {commitRevision.substring(0, 12)}
-          </a>
-        </span>
+            <Clipboard
+              description="full hash"
+              text={revision}
+              visible={clipboardVisible}
+            />
+            <a
+              title={`Open revision ${revision} on ${repo.url}`}
+              href={repo.getRevisionHref(revision)}
+              className={commitShaClass}
+            >
+              {revision.substring(0, 12)}
+            </a>
+          </span>
+        )}
         <AuthorInitials title={`${name}: ${email}`} author={name} />
         <OverlayTrigger
           placement="auto"
@@ -146,4 +148,6 @@ Revision.propTypes = {
   }).isRequired,
   commitShaClass: PropTypes.string,
   commentFont: PropTypes.string,
+  // Lando pushes have no commit hash to show or link to yet.
+  hideCommitSha: PropTypes.bool,
 };

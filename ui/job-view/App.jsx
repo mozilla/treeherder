@@ -112,6 +112,8 @@ const App = () => {
   const [landoCommitID] = useState(urlParams.get('landoCommitID'));
   const [landoInstance] = useState(urlParams.get('landoInstance'));
   const [landoStatus, setLandoStatus] = useState('unknown');
+  // undefined until the lando landing job has been fetched.
+  const [landoJob, setLandoJob] = useState();
   const [user, setUser] = useState({ isLoggedIn: false, isStaff: false });
   const [filterModel, setFilterModel] = useState(
     () => new FilterModel(navigate, location),
@@ -175,6 +177,8 @@ const App = () => {
     } else {
       const status = data.status ? data.status : 'unknown';
       setLandoStatus(status.toLowerCase());
+      // Only the newer lando instances return the commits of the landing job.
+      setLandoJob(data.revisions?.length ? data : null);
     }
 
     return revisionData;
@@ -435,6 +439,7 @@ const App = () => {
                       landoCommitID={landoCommitID}
                       landoInstance={landoInstance}
                       landoStatus={landoStatus}
+                      landoJob={landoJob}
                       currentRepo={currentRepo}
                       filterModel={filterModel}
                       duplicateJobsVisible={duplicateJobsVisible}
