@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
 from github import Auth, Github
 from github.GitRelease import GitRelease
@@ -53,19 +53,35 @@ def get_releases(owner: str, repo: str, params: dict = None) -> list[GitRelease]
                           Releases are ordered from oldest to newest by published_at,
                           then by number if applicable.
     """
-    releases = list(pygithub_get_repo(owner, repo).get_releases())
+    paginated_releases = pygithub_get_repo(owner=owner, repo=repo).get_releases()
+
+    releases: list[GitRelease] = []
+    since_dt = None
+    max_number = None
 
     if params:
-        if "since" in params:
-            since_datetime = datetime.fromisoformat(params["since"])
-            releases = list(
-                filter(
-                    lambda release: release.published_at >= since_datetime,
-                    releases,
-                )
-            )
-        if "number" in params:
-            releases = releases[: params.get("number")]
+        max_number = params.get("number")
+        since_dt = params.get("since", None)
+        if since_dt:
+            since_dt = datetime.fromisoformat(since_dt)
+            if since_dt.tzinfo is None:
+                since_dt.replace(tzinfo=UTC)
+
+    for release in paginated_releases:
+        # Break if we have reached max_number
+        if max_number and len(releases) >= max_number:
+            break
+
+        # PyGithub returns releases in reverse chronological order
+        # Stop immediately if releases older than the since_dt are found
+        release_dt = release.published_at
+        if since_dt and release_dt:
+            if release_dt.tzinfo is None:
+                release_dt.replace(tzinfo=UTC)
+            if release.published_at < since_dt:
+                break
+        releases.append(release)
+
     return releases
 
 
