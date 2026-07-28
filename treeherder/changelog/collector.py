@@ -2,6 +2,7 @@
 
 import json
 import os
+from datetime import UTC, datetime
 
 from treeherder.changelog.filters import Filters
 from treeherder.utils import github
@@ -26,14 +27,18 @@ class GitHub:
             gh_options["since"] = kw["since"]
 
         for release in github.get_releases(owner, repository, params=gh_options):
-            name = release.name or release.tag_name
+            name = release["name"] or release["tag_name"]
+            pub_date: datetime = release["published_at"]
+            if pub_date.tzinfo is None:
+                pub_date = pub_date.replace(tzinfo=UTC)
+
             yield {
-                "date": release.published_at.isoformat(timespec="seconds"),
-                "author": release.author.login,
+                "date": pub_date.isoformat(timespec="seconds"),
+                "author": release["author"]["login"],
                 "message": "Released " + name,
-                "remote_id": release.id,
+                "remote_id": release["id"],
                 "type": "release",
-                "url": release.html_url,
+                "url": release["html_url"],
             }
 
         for commit in github.get_all_commits(owner, repository, params=gh_options):

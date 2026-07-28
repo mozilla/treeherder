@@ -34,24 +34,10 @@ def pygithub_get_repo(owner, repo) -> Repository:
     return github.get_repo(f"{owner}/{repo}")
 
 
-def get_releases(owner: str, repo: str, params: dict = None) -> list[GitRelease]:
+def get_releases(owner: str, repo: str, params: dict = None) -> list[dict]:
     """
     Retrieve GitHub releases for a given repository.
-
-    Args:
-        owner (str): The owner of the repository (e.g., 'mozilla').
-        repo (str): The name of the repository (e.g., 'treeherder').
-        params (dict, optional): A dictionary of parameters to filter releases.
-            Supported parameters:
-            - "number" (int): The maximum number of releases to return.
-            - "since" (str): An ISO 8601 formatted datetime string
-                             (e.g., "YYYY-MM-DDTHH:MM:SS") to filter releases
-                             published on or after this date.
-
-    Returns:
-        list[GitRelease]: A list of GitRelease objects, filtered by the given parameters.
-                          Releases are ordered from oldest to newest by published_at,
-                          then by number if applicable.
+    Returns a list of standardized dictionaries representing releases.
     """
     paginated_releases = pygithub_get_repo(owner=owner, repo=repo).get_releases()
 
@@ -80,7 +66,15 @@ def get_releases(owner: str, repo: str, params: dict = None) -> list[GitRelease]
                 release_dt.replace(tzinfo=UTC)
             if release.published_at < since_dt:
                 break
-        releases.append(release)
+        release_dict = {
+            "id": release.id,
+            "name": release.name,
+            "tag_name": release.tag_name,
+            "published_at": release.published_at,
+            "html_url": release.html_url,
+            "author": {"login": release.author.login if release.author else "unknown"},
+        }
+        releases.append(release_dict)
 
     return releases
 
