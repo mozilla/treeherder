@@ -44,8 +44,18 @@ class NotificationList extends React.Component {
               )}
               {notification.sticky && (
                 <Button
+                  variant="outline-secondary"
                   onClick={() => clearNotification(idx)}
-                  className="close pt-1"
+                  className="close ms-3 pt-1 float-end"
+                >
+                  x
+                </Button>
+              )}
+              {!notification.sticky && (
+                <Button
+                  variant="outline-light"
+                  onClick={() => clearNotification(idx)}
+                  className="close ms-3 pt-1 float-end"
                 >
                   x
                 </Button>
