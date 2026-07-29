@@ -31,6 +31,11 @@ BZ_TELEMETRY_ALERTS_CHANGED = (
 REVISION_INFO = "https://hg.mozilla.org/mozilla-central/json-log/%s"
 
 DEFAULT_CHANGE_DETECTION = "cdf_squared"
+
+SUPPORTED_LABELED_METRIC_TYPES = (
+    "labeled_timing_distribution",
+    "labeled_memory_distribution",
+)
 DESKTOP_PLATFORMS = (
     "Windows",
     "Linux",

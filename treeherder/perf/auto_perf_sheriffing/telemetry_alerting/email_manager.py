@@ -50,10 +50,11 @@ class TelemetryEmailWriter(EmailWriter):
         self._email.address = email
 
     def _write_subject(self, probe, alert):
+        probe_name = alert.telemetry_signature.pretty_name
         if alert.telemetry_alert.is_regression is None:
-            self._email.subject = f"Telemetry Alert in Probe {probe.name}"
+            self._email.subject = f"Telemetry Alert in Probe {probe_name}"
         else:
-            self._email.subject = f"Telemetry Alert for {alert.status} in Probe {probe.name}"
+            self._email.subject = f"Telemetry Alert for {alert.status} in Probe {probe_name}"
 
     def _write_content(self, probe, alert):
         content = TelemetryEmailContent()
@@ -155,7 +156,7 @@ class TelemetryEmailContent:
             "| [{alert_id}]({alert_details_link}) |"
         ).format(
             channel=telemetry_signature.channel,
-            probe=telemetry_signature.probe,
+            probe=telemetry_signature.pretty_name,
             glam_dashboard_link=get_glam_dashboard_link(telemetry_signature),
             platform=telemetry_signature.platform,
             status=status,

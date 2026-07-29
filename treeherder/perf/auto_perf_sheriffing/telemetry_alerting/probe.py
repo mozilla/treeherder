@@ -10,6 +10,7 @@ from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.utils import (
     DESKTOP,
     GLEAN_PROBE_INFO,
     MOBILE,
+    SUPPORTED_LABELED_METRIC_TYPES,
 )
 
 logger = logging.getLogger(__name__)
@@ -69,6 +70,14 @@ class TelemetryProbe:
     @property
     def platform(self):
         return self.metric_info["platform"]
+
+    @property
+    def metric_type(self):
+        return self.metric_info["data"].get("type", "")
+
+    @property
+    def is_labeled(self):
+        return self.metric_type in SUPPORTED_LABELED_METRIC_TYPES
 
     @property
     def is_desktop(self):

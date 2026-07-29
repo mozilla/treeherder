@@ -113,7 +113,7 @@ class TelemetryBugContent:
         end_date = (detection_range["to"].time + timedelta(days=1)).strftime("%Y-%m-%d")
 
         bug_content["title"] = self.BUG_TITLE.format(
-            probe=alert.telemetry_signature.probe, date=detection_date
+            probe=alert.telemetry_signature.pretty_name, date=detection_date
         )
 
         bug_content["description"] = self.BUG_DESCRIPTION.format(
@@ -213,6 +213,7 @@ class TelemetryBugContent:
         )
 
         return (
-            f"| [{alert.telemetry_signature.probe}]({get_glam_dashboard_link(alert.telemetry_signature)}) "
+            f"| [{alert.telemetry_signature.pretty_name}]"
+            f"({get_glam_dashboard_link(alert.telemetry_signature)}) "
             f"| {alert.telemetry_signature.platform} | {alert.status} {values} \n"
         )

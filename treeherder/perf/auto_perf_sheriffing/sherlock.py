@@ -31,6 +31,7 @@ from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.probe import (
 from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.utils import (
     ANDROID_ALERT_EMAIL,
     ANDROID_PROBE_ALLOWLIST,
+    DEFAULT_ALERT_EMAIL,
     DESKTOP,
     MOBILE,
     is_regression,
@@ -308,7 +309,14 @@ class Sherlock:
         alert_manager = PerformanceAlertManager()
         alert_manager.manage_alerts([])
 
-    def telemetry_alert(self, probe_filter=None, max_detections=None, platform_filter=None):
+    def telemetry_alert(
+        self,
+        probe_filter=None,
+        max_detections=None,
+        platform_filter=None,
+        label_filter=None,
+        force_monitor=False,
+    ):
         """Run telemetry change detection and alert management.
 
         :param probe_filter: If set, only the probe with this name is processed.
@@ -318,6 +326,11 @@ class Sherlock:
             single detection.
         :param platform_filter: If set to DESKTOP or MOBILE, only probes for that
             platform type are processed.
+        :param label_filter: If set, only this label of a labeled probe is
+            processed. Ignored for probes that aren't labeled.
+        :param force_monitor: If True, probes are monitored even when their
+            definition doesn't enable change detection. Used for locally testing
+            probes that aren't monitored yet.
         """
         if not self._can_run_telemetry():
             return
@@ -369,6 +382,17 @@ class Sherlock:
                     "notification_emails": [ANDROID_ALERT_EMAIL],
                 }
 
+            if force_monitor:
+                # Monitor the probe regardless of what its definition says. Only
+                # emails are produced, and they are always routed to the default
+                # alert email rather than the probe owners.
+                probe.monitor_info = {
+                    "lower_is_better": True,
+                    "detect_changes": True,
+                    "alert": False,
+                    "notification_emails": [DEFAULT_ALERT_EMAIL],
+                }
+
             if not probe.should_detect_changes():
                 continue
             probes.setdefault(probe.name, probe)
@@ -385,59 +409,104 @@ class Sherlock:
             for platform in platforms:
                 logger.info(f"On Platform {platform}")
 
-                # Create the probe signature now so that we can capture when it was first
-                # seen with change detection enabled. This is used to limit how far back
-                # we go for getting historical data which reduces the risk for a large
-                # influx of bugs/emails when a probe is first analyzed.
-                # XXX: Allow multiple channels, legacy probes, and different apps
-                probe_signature, _ = PerformanceTelemetrySignature.objects.update_or_create(
-                    channel="Nightly",
-                    platform=platform,
-                    probe=probe.name,
-                    probe_type="Glean",
-                    application="Fenix" if probe.is_mobile else "Firefox",
-                    defaults={"lower_is_better": probe.lower_is_better},
-                )
+                # Labeled probes hold one timeseries per label so each of them
+                # needs to be analyzed separately. Unlabeled probes have a single
+                # timeseries which is denoted by a `None` label.
+                for label in self._get_probe_labels(
+                    probe, platform, project, label_filter=label_filter
+                ):
+                    if label is not None:
+                        logger.info(f"On label {label}")
 
-                try:
-                    # Get data from 30 days before the signature creation date to now
-                    data = get_metric_table(
-                        probe.name,
-                        platform,
-                        android=probe.is_mobile,
-                        use_fog=True,
-                        project=project,
-                        from_build_date=str(
-                            (probe_signature.created - timedelta(days=30)).strftime("%Y-%m-%d")
-                        ),
+                    # Create the probe signature now so that we can capture when it was first
+                    # seen with change detection enabled. This is used to limit how far back
+                    # we go for getting historical data which reduces the risk for a large
+                    # influx of bugs/emails when a probe is first analyzed.
+                    # XXX: Allow multiple channels, legacy probes, and different apps
+                    probe_signature, _ = PerformanceTelemetrySignature.objects.update_or_create(
+                        channel="Nightly",
+                        platform=platform,
+                        probe=probe.name,
+                        label=label or "",
+                        probe_type="Glean",
+                        application="Fenix" if probe.is_mobile else "Firefox",
+                        defaults={"lower_is_better": probe.lower_is_better},
                     )
-                    if data.empty:
-                        logger.info("No data found")
-                        continue
 
-                    timeseries = mozdetect.TelemetryTimeSeries(data)
-
-                    ts_detector = cdf_ts_detector(timeseries)
-                    detections = ts_detector.detect_changes()
-
-                    if max_detections is not None:
-                        detections = detections[:max_detections]
-
-                    for detection in detections:
-                        # Only get buildids if there might be a detection
-                        if not self._buildid_mappings:
-                            self._make_buildid_to_date_mapping()
-                        alert = self._create_detection_alert(
-                            detection, probe, platform, repository, framework, probe_signature
+                    try:
+                        # Get data from 30 days before the signature creation date to now
+                        data = get_metric_table(
+                            probe.name,
+                            platform,
+                            android=probe.is_mobile,
+                            use_fog=True,
+                            project=project,
+                            from_build_date=str(
+                                (probe_signature.created - timedelta(days=30)).strftime("%Y-%m-%d")
+                            ),
+                            label=label,
                         )
-                        if alert:
-                            alerts.append(alert)
-                except Exception:
-                    logger.info(f"Failed: {traceback.format_exc()}")
+                        if data.empty:
+                            logger.info("No data found")
+                            continue
+
+                        timeseries = mozdetect.TelemetryTimeSeries(data)
+
+                        ts_detector = cdf_ts_detector(timeseries)
+                        detections = ts_detector.detect_changes()
+
+                        if max_detections is not None:
+                            detections = detections[:max_detections]
+
+                        for detection in detections:
+                            # Only get buildids if there might be a detection
+                            if not self._buildid_mappings:
+                                self._make_buildid_to_date_mapping()
+                            alert = self._create_detection_alert(
+                                detection, probe, platform, repository, framework, probe_signature
+                            )
+                            if alert:
+                                alerts.append(alert)
+                    except Exception:
+                        logger.info(f"Failed: {traceback.format_exc()}")
 
         if alerts:
             alert_manager = TelemetryAlertManager(probes)
             alert_manager.manage_alerts(alerts)
+
+    def _get_probe_labels(self, probe, platform, project, label_filter=None):
+        """Get the labels of a probe that need to be analyzed.
+
+        Labeled probe types (e.g. labeled_timing_distribution) hold a separate
+        timeseries for each of their labels so all of them need to be queried, and
+        alerted on, individually. Probes that aren't labeled have a single
+        timeseries which is denoted here with a `None` label.
+
+        :return list: The labels to analyze, or `[None]` for unlabeled probes.
+        """
+        if not probe.is_labeled:
+            return [None]
+
+        if probe.is_mobile:
+            # Labels can currently only be queried for desktop/FOG probes
+            logger.info(f"Skipping labeled mobile probe {probe.name}")
+            return []
+
+        from mozdetect.telemetry_query import get_metric_labels
+
+        try:
+            labels = get_metric_labels(probe.name, platform, project=project)
+        except Exception:
+            logger.info(f"Failed to get the labels of {probe.name}: {traceback.format_exc()}")
+            return []
+
+        if label_filter:
+            labels = [label for label in labels if label == label_filter]
+
+        if not labels:
+            logger.info(f"No labels found for labeled probe {probe.name}")
+
+        return labels
 
     def _is_prod(self):
         return settings.SITE_HOSTNAME == "treeherder.mozilla.org"
