@@ -718,7 +718,8 @@ describe('Mocked API calls', () => {
     );
   });
 
-  test("'Highlight infra changes' button can be turned off", async () => {
+describe('Highlight Options Dropdown', () => {
+  test("'Highlight infra changes' option can be turned off", async () => {
     const updateStateParams = jest.fn();
     const { getByText } = await graphsViewControls(
       graphData,
@@ -727,24 +728,23 @@ describe('Mocked API calls', () => {
       updateStateParams,
     );
 
-    const infraChangesButton = await waitFor(() =>
+    const dropdownToggle = await waitFor(() => getByText('Highlight'));
+    fireEvent.click(dropdownToggle);
+
+    const infraChangesOption = await waitFor(() =>
       getByText('Highlight infra changes'),
     );
+    fireEvent.click(infraChangesOption);
 
-    expect(infraChangesButton.classList).toContain('active');
-
-    updateStateParams.mockClear();
-    fireEvent.click(infraChangesButton);
-
-    // Wait for click to process
     await waitFor(() => {
       expect(updateStateParams).toHaveBeenCalledTimes(1);
     });
-
-    expect(updateStateParams).toHaveBeenCalledTimes(1);
+    expect(updateStateParams).toHaveBeenCalledWith({
+      highlightChangelogData: false,
+    });
   });
 
-  test("'Highlight other alerts' button can be turned on", async () => {
+  test("'Highlight common alerts' option can be turned on", async () => {
     const updateStateParams = jest.fn();
     const { getByText } = await graphsViewControls(
       graphData,
@@ -753,80 +753,76 @@ describe('Mocked API calls', () => {
       updateStateParams,
     );
 
-    const commonAlertsButton = await waitFor(() =>
+    const dropdownToggle = await waitFor(() => getByText('Highlight'));
+    fireEvent.click(dropdownToggle);
+
+    const commonAlertsOption = await waitFor(() =>
       getByText('Highlight common alerts'),
     );
+    fireEvent.click(commonAlertsOption);
 
-    expect(commonAlertsButton.classList).not.toContain('active');
-
-    updateStateParams.mockClear();
-    fireEvent.click(commonAlertsButton);
-
-    // Wait for click to process
     await waitFor(() => {
       expect(updateStateParams).toHaveBeenCalledTimes(1);
     });
-
-    expect(updateStateParams).toHaveBeenCalledTimes(1);
+    expect(updateStateParams).toHaveBeenCalledWith({
+      highlightCommonAlerts: true,
+    });
   });
 
-  test("'Highlight initial data points' button can be turned on", async () => {
-  const updateStateParams = jest.fn();
-  const { getByText } = await graphsViewControls(
-    graphData,
-    false,
-    false,
-    updateStateParams,
-    undefined,
-    false,
-    false,
-  );
+  test("'Highlight initial data points' option can be turned on", async () => {
+    const updateStateParams = jest.fn();
+    const { getByText } = await graphsViewControls(
+      graphData,
+      false,
+      false,
+      updateStateParams,
+      undefined,
+      false,
+      false,
+    );
 
-  const initialDataPointsButton = await waitFor(() =>
-    getByText('Highlight initial data points'),
-  );
+    const dropdownToggle = await waitFor(() => getByText('Highlight'));
+    fireEvent.click(dropdownToggle);
 
-  expect(initialDataPointsButton.classList).not.toContain('active');
+    const initialDataPointsOption = await waitFor(() =>
+      getByText('Highlight initial data points'),
+    );
+    fireEvent.click(initialDataPointsOption);
 
-  updateStateParams.mockClear();
-  fireEvent.click(initialDataPointsButton);
-
-  await waitFor(() => {
-    expect(updateStateParams).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(updateStateParams).toHaveBeenCalledTimes(1);
+    });
+    expect(updateStateParams).toHaveBeenCalledWith({
+      highlightInitialDataPoints: true,
+    });
   });
 
-  expect(updateStateParams).toHaveBeenCalledWith({
-    highlightInitialDataPoints: true,
-  });
-});
+  test("'Highlight initial data points' option can be turned off", async () => {
+    const updateStateParams = jest.fn();
+    const { getByText } = await graphsViewControls(
+      graphData,
+      false,
+      false,
+      updateStateParams,
+      undefined,
+      false,
+      true,
+    );
 
-test("'Highlight initial data points' button can be turned off", async () => {
-  const updateStateParams = jest.fn();
-  const { getByText } = await graphsViewControls(
-    graphData,
-    false,
-    false,
-    updateStateParams,
-    undefined,
-    false,
-    true,
-  );
+    const dropdownToggle = await waitFor(() => getByText('Highlight'));
+    fireEvent.click(dropdownToggle);
 
-  const initialDataPointsButton = await waitFor(() =>
-    getByText('Highlight initial data points'),
-  );
+    const initialDataPointsOption = await waitFor(() =>
+      getByText('Highlight initial data points'),
+    );
+    fireEvent.click(initialDataPointsOption);
 
-  expect(initialDataPointsButton.classList).toContain('active');
-
-  updateStateParams.mockClear();
-  fireEvent.click(initialDataPointsButton);
-
-  await waitFor(() => {
-    expect(updateStateParams).toHaveBeenCalledTimes(1);
-  });
-
-  expect(updateStateParams).toHaveBeenCalledWith({
-    highlightInitialDataPoints: false,
+    await waitFor(() => {
+      expect(updateStateParams).toHaveBeenCalledTimes(1);
+    });
+    expect(updateStateParams).toHaveBeenCalledWith({
+      highlightInitialDataPoints: false,
+    });
   });
 });
 
