@@ -62,3 +62,6 @@ CLAUDE.md
 
 # Cloud SQL Auth Proxy
 cloud-sql-proxy
+# Playwright artifacts
+test-results/
+playwright-report/
