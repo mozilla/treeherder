@@ -9,6 +9,7 @@ from django.db import transaction
 
 from treeherder.perf.auto_perf_sheriffing.factories import sherlock_factory
 from treeherder.perf.auto_perf_sheriffing.telemetry_alerting.utils import (
+    DEFAULT_ALERT_EMAIL,
     DESKTOP,
     MOBILE,
 )
@@ -31,6 +32,23 @@ class Command(BaseCommand):
             help=(
                 f"Only run probes for this platform type ('{DESKTOP}' or "
                 f"'{MOBILE}'). Defaults to both."
+            ),
+        )
+        parser.add_argument(
+            "--label",
+            help=(
+                "Only run detection/alerting for this label of a labeled probe "
+                "(e.g. 'https'). Ignored for probes that aren't labeled. "
+                "Defaults to all labels."
+            ),
+        )
+        parser.add_argument(
+            "--force-monitor",
+            action="store_true",
+            help=(
+                "Monitor the probes even when their definition doesn't enable "
+                "change detection. Any emails produced are routed to "
+                f"{DEFAULT_ALERT_EMAIL} instead of the probe owners."
             ),
         )
         parser.add_argument(
@@ -77,10 +95,13 @@ class Command(BaseCommand):
         probe = options["probe"]
         max_detections = options["max_detections"]
         platform_type = options["platform_type"]
+        label = options["label"]
+        force_monitor = options["force_monitor"]
 
         self.stdout.write(
             f"Running telemetry alerting for probe '{probe or 'all'}', "
-            f"platform '{platform_type or 'all'}', with max_detections={max_detections}"
+            f"platform '{platform_type or 'all'}', label '{label or 'all'}', "
+            f"with max_detections={max_detections}, force_monitor={force_monitor}"
         )
 
         sherlock = sherlock_factory(timedelta(days=options["days_to_lookup"]))
@@ -90,6 +111,8 @@ class Command(BaseCommand):
                     probe_filter=probe,
                     max_detections=max_detections,
                     platform_filter=platform_type,
+                    label_filter=label,
+                    force_monitor=force_monitor,
                 )
 
                 if not options["keep"]:
