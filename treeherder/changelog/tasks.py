@@ -15,8 +15,8 @@ def update_changelog(days=1):
     """
     logger.info(f"Updating unified changelog (days={days})")
     # collecting last day of changes across all sources
-    since = datetime.datetime.now() - datetime.timedelta(days=days)
-    since = since.strftime("%Y-%m-%dT%H:%M:%S")
+    since = datetime.datetime.now(tz=datetime.UTC) - datetime.timedelta(days=days)
+    since = since.isoformat(timespec="seconds")
 
     created = 0
     existed = 0
@@ -24,9 +24,6 @@ def update_changelog(days=1):
     with transaction.atomic():
         for entry in collect(since):
             files = entry.pop("files", [])
-            # lame hack to remove TZ awareness
-            if entry["date"].endswith("Z"):
-                entry["date"] = entry["date"][:-1]
             changelog, line_created = Changelog.objects.update_or_create(**entry)
             if not line_created:
                 existed += 1

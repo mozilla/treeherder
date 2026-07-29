@@ -1,4 +1,7 @@
+from datetime import UTC, datetime
+
 from github import Auth, Github
+from github.GitRelease import GitRelease
 
 from treeherder.config.settings import GITHUB_TOKEN
 from treeherder.utils.http import fetch_json
@@ -22,16 +25,57 @@ def fetch_api_full_url(url, params=None):
     return fetch_json(url, params, headers)
 
 
-def get_releases(owner, repo, params=None):
-    return fetch_api(f"repos/{owner}/{repo}/releases", params)
-
-
 def get_repo(owner, repo, params=None):
     return fetch_api(f"{owner}/{repo}", params)
 
 
 def pygithub_get_repo(owner, repo):
     return github.get_repo(f"{owner}/{repo}")
+
+
+def get_releases(owner, repo, params=None):
+    """
+    Retrieve GitHub releases for a given repository.
+    Returns a list of standardized dictionaries representing releases.
+    """
+    paginated_releases = pygithub_get_repo(owner=owner, repo=repo).get_releases()
+
+    releases: list[GitRelease] = []
+    since_dt = None
+    max_number = None
+
+    if params:
+        max_number = params.get("number")
+        since_dt = params.get("since", None)
+        if since_dt:
+            since_dt = datetime.fromisoformat(since_dt)
+            if since_dt.tzinfo is None:
+                since_dt.replace(tzinfo=UTC)
+
+    for release in paginated_releases:
+        # Break if we have reached max_number
+        if max_number and len(releases) >= max_number:
+            break
+
+        # PyGithub returns releases in reverse chronological order
+        # Stop immediately if releases older than the since_dt are found
+        release_dt = release.published_at
+        if since_dt and release_dt:
+            if release_dt.tzinfo is None:
+                release_dt.replace(tzinfo=UTC)
+            if release.published_at < since_dt:
+                break
+        release_dict = {
+            "id": release.id,
+            "name": release.name,
+            "tag_name": release.tag_name,
+            "published_at": release.published_at,
+            "html_url": release.html_url,
+            "author": {"login": release.author.login if release.author else "unknown"},
+        }
+        releases.append(release_dict)
+
+    return releases
 
 
 def compare_shas(owner, repo, base, head):
