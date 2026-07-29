@@ -1,7 +1,10 @@
+from urllib.parse import quote
+
 GLAM_DASHBOARD = (
     "https://glam.telemetry.mozilla.org/{product}/probe/{probe}/explore"
     "?normalizationType=non_normalized&os={os}"
 )
+GLAM_DASHBOARD_LABEL = "&aggKey={label}"
 GLEAN_PROBE_INFO = (
     "https://dictionary.telemetry.mozilla.org/data/firefox_desktop/metrics/data_{probe_name}.json"
 )
@@ -109,11 +112,17 @@ def get_glam_dashboard_link(telemetry_signature):
         product = "fog"
     else:
         product = "fenix"
-    return GLAM_DASHBOARD.format(
+    link = GLAM_DASHBOARD.format(
         product=product,
         probe=telemetry_signature.probe,
         os=telemetry_signature.platform,
     )
+
+    if telemetry_signature.label:
+        # Labeled probes display one label at a time on their dashboard
+        link += GLAM_DASHBOARD_LABEL.format(label=quote(telemetry_signature.label))
+
+    return link
 
 
 def get_treeherder_detection_link(detection_range, telemetry_signature):
