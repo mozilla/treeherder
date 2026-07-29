@@ -52,8 +52,9 @@ class TestTelemetryEmailManagerIntegration:
         # Verify the email payload
         email_payload = mock_email_func.call_args[0][0]
         assert email_payload["address"] == "test@mozilla.com"
-        assert (
-            email_payload["subject"] == "Telemetry Alert for Regression in Probe test_probe_metric"
+        assert email_payload["subject"] == (
+            "Telemetry Alert for Regression in Probe "
+            "networking_http_channel_page_open_to_first_sent"
         )
         assert "MozDetect has detected a telemetry change" in email_payload["content"]
 
@@ -110,7 +111,9 @@ class TestTelemetryEmailManagerIntegration:
         assert mock_email_func.call_count == 1
 
         email_payload = mock_email_func.call_args[0][0]
-        assert email_payload["subject"] == "Telemetry Alert in Probe test_probe_metric"
+        assert email_payload["subject"] == (
+            "Telemetry Alert in Probe networking_http_channel_page_open_to_first_sent"
+        )
         assert "MozDetect has detected a telemetry change" in email_payload["content"]
 
     @patch(
@@ -239,7 +242,7 @@ class TestTelemetryEmail:
     def test_email_calls_email_func_with_prepared_email(self, telemetry_alert_obj, mock_probe):
         """Test that email method calls email_func with prepared email payload."""
         mock_email_func = Mock()
-        mock_probe.name = "test_probe"
+        telemetry_alert_obj.telemetry_signature.probe = "test_probe"
 
         telemetry_email = TelemetryEmail(mock_email_func)
 
@@ -269,7 +272,7 @@ class TestTelemetryEmail:
     def test_prepare_email_returns_email_payload(self, telemetry_alert_obj, mock_probe):
         """Test _prepare_email returns properly formatted email payload."""
         mock_email_func = Mock()
-        mock_probe.name = "test_probe"
+        telemetry_alert_obj.telemetry_signature.probe = "test_probe"
 
         telemetry_email = TelemetryEmail(mock_email_func)
 
@@ -283,7 +286,7 @@ class TestTelemetryEmail:
 class TestTelemetryEmailWriter:
     def test_prepare_email_creates_complete_email(self, telemetry_alert_obj, mock_probe):
         """Test prepare_email creates a complete email with all required fields."""
-        mock_probe.name = "test_probe"
+        telemetry_alert_obj.telemetry_signature.probe = "test_probe"
 
         writer = TelemetryEmailWriter()
         result = writer.prepare_email("test@mozilla.com", mock_probe, telemetry_alert_obj)
@@ -301,7 +304,7 @@ class TestTelemetryEmailWriter:
 
     def test_write_subject_includes_probe_name_and_status(self, mock_probe, telemetry_alert_obj):
         """Test _write_subject includes the probe name and status in the subject."""
-        mock_probe.name = "memory_total"
+        telemetry_alert_obj.telemetry_signature.probe = "memory_total"
 
         writer = TelemetryEmailWriter()
 
@@ -316,6 +319,23 @@ class TestTelemetryEmailWriter:
         telemetry_alert_obj.telemetry_alert.is_regression = None
         writer._write_subject(mock_probe, telemetry_alert_obj)
         assert writer._email.subject == "Telemetry Alert in Probe memory_total"
+
+    def test_write_subject_includes_label_for_labeled_probes(self, mock_probe, telemetry_alert_obj):
+        """Test _write_subject includes the label of a labeled probe."""
+        telemetry_alert_obj.telemetry_signature.probe = "memory_total"
+        telemetry_alert_obj.telemetry_signature.label = "https"
+
+        writer = TelemetryEmailWriter()
+
+        telemetry_alert_obj.telemetry_alert.is_regression = True
+        writer._write_subject(mock_probe, telemetry_alert_obj)
+        assert (
+            writer._email.subject == "Telemetry Alert for Regression in Probe memory_total (https)"
+        )
+
+        telemetry_alert_obj.telemetry_alert.is_regression = None
+        writer._write_subject(mock_probe, telemetry_alert_obj)
+        assert writer._email.subject == "Telemetry Alert in Probe memory_total (https)"
 
     def test_write_content_sets_email_content(self, telemetry_alert_obj, mock_probe):
         """Test _write_content sets the email content."""
@@ -437,6 +457,22 @@ class TestTelemetryEmailContent:
 
         # Should include markdown links
         assert "[" in row and "]" in row and "(" in row and ")" in row
+
+    def test_build_table_row_includes_label(self, telemetry_alert_obj):
+        """Test _build_table_row includes the label of a labeled probe."""
+        content = TelemetryEmailContent()
+        detection_range = telemetry_alert_obj.get_detection_range()
+        telemetry_alert_obj.telemetry_signature.label = "https"
+
+        row = content._build_table_row(
+            detection_range,
+            telemetry_alert_obj.telemetry_signature,
+            telemetry_alert_obj.telemetry_alert_summary,
+            telemetry_alert_obj.telemetry_alert.id,
+            telemetry_alert_obj.status,
+        )
+
+        assert "networking_http_channel_page_open_to_first_sent (https)" in row
 
     def test_build_table_row_includes_dates(self, telemetry_alert_obj):
         """Test _build_table_row includes formatted dates."""
