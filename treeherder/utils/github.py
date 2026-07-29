@@ -2,7 +2,6 @@ from datetime import UTC, datetime
 
 from github import Auth, Github
 from github.GitRelease import GitRelease
-from github.Repository import Repository
 
 from treeherder.config.settings import GITHUB_TOKEN
 from treeherder.utils.http import fetch_json
@@ -30,11 +29,11 @@ def get_repo(owner, repo, params=None):
     return fetch_api(f"{owner}/{repo}", params)
 
 
-def pygithub_get_repo(owner, repo) -> Repository:
+def pygithub_get_repo(owner, repo):
     return github.get_repo(f"{owner}/{repo}")
 
 
-def get_releases(owner: str, repo: str, params: dict = None) -> list[dict]:
+def get_releases(owner, repo, params=None):
     """
     Retrieve GitHub releases for a given repository.
     Returns a list of standardized dictionaries representing releases.
