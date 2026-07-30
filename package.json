@@ -117,7 +117,7 @@
   },
   "pnpm": {
     "overrides": {
-      "cacache": "19.0.1",
+      "cacache": "21.0.1",
       "@mui/styled-engine": "npm:@mui/styled-engine-sc@latest"
     }
   }
