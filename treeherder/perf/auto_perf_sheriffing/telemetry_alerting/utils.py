@@ -13,7 +13,7 @@ PUSH_LOG = (
     "https://hg-edge.mozilla.org/mozilla-central/pushloghtml?"
     "startdate={start_date}&enddate={end_date}"
 )
-BASE_TELEMETRY_DASHBOARD = "https://gmierz.github.io/telemetry-alert-dashboard/"
+BASE_TELEMETRY_DASHBOARD = "https://alerts.telemetry.moz.tools/"
 TELEMETRY_ALERT_DASHBOARD = (
     BASE_TELEMETRY_DASHBOARD + "?view=grouped&alertSummaryId={alert_summary_id}"
 )
