@@ -109,6 +109,27 @@ describe('formatLogLineWithLinks', () => {
       ).toBeInTheDocument();
     });
 
+    it('creates link for profile artifacts with other file extensions', () => {
+      const line =
+        'TEST-UNEXPECTED-FAIL | gfx/layers/apz/test/mochitest/test_group_touchevents-6.html | profile uploaded in profile_test_group_touchevents-6-2.html.json';
+      const jobDetails = [
+        {
+          value: 'profile_test_group_touchevents-6-2.html.json',
+          url: 'https://taskcluster.example.com/artifacts/profile_test_group_touchevents-6-2.html.json',
+        },
+      ];
+
+      const result = formatLogLineWithLinks(line, jobDetails, mockJob);
+      const Wrapper = () => <>{result}</>;
+      render(<Wrapper />);
+
+      expect(
+        screen.getByText(
+          'open profile_test_group_touchevents-6-2.html.json in the Firefox Profiler',
+        ),
+      ).toBeInTheDocument();
+    });
+
     it('returns original line when profile artifact not found in jobDetails', () => {
       const line =
         'INFO profile uploaded in profile_other.js.json to TaskCluster';
