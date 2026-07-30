@@ -233,7 +233,7 @@ class TestTelemetryBugContent:
         result = bug_content.build_bug_content(mock_probe, telemetry_alert_obj)
 
         # The description should include the telemetry alert dashboard link with the alert summary ID
-        assert "gmierz.github.io/telemetry-alert-dashboard" in result["description"]
+        assert "alerts.telemetry.moz.tools" in result["description"]
         assert (
             f"alertSummaryId={telemetry_alert_obj.telemetry_alert_summary.id}"
             in result["description"]

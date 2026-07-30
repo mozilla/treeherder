@@ -477,7 +477,7 @@ class TestTelemetryEmailContent:
         assert "treeherder.mozilla.org" in row
 
         # Should include alert details link
-        assert "gmierz.github.io/telemetry-alert-dashboard" in row
+        assert "alerts.telemetry.moz.tools" in row
         assert f"alertId={alert_id}" in row
 
     def test_build_table_row_includes_status(self, telemetry_alert_obj):
