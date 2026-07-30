@@ -20,7 +20,7 @@ def set_internal_fks(apps, schema_editor):
             defaults={
                 "modified": now,
                 "summary": "(no bug data fetched)",
-            }
+            },
         )
         created_count += created
         bug_job_map.bug_id = bugscache.id
@@ -28,8 +28,8 @@ def set_internal_fks(apps, schema_editor):
     if created_count:
         print(f"Created {created_count} missing Bugscache entries referenced via BugJobMap")
 
-class Migration(migrations.Migration):
 
+class Migration(migrations.Migration):
     dependencies = [
         ("model", "0036_bugscache_init_autoincrement"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
@@ -38,9 +38,9 @@ class Migration(migrations.Migration):
     operations = [
         # Allow access to custom manager inside the migration
         migrations.AlterModelManagers(
-            name='bugjobmap',
+            name="bugjobmap",
             managers=[
-                ('objects', models.Manager()),
+                ("objects", models.Manager()),
             ],
         ),
         migrations.DeleteModel(
@@ -55,11 +55,7 @@ class Migration(migrations.Migration):
             name="bugjobmap",
             unique_together=set(),
         ),
-        migrations.RenameField(
-            model_name="bugjobmap",
-            old_name="bug_id",
-            new_name="bugzilla_id"
-        ),
+        migrations.RenameField(model_name="bugjobmap", old_name="bug_id", new_name="bugzilla_id"),
         migrations.AddField(
             model_name="bugjobmap",
             name="bug",

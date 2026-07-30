@@ -13,24 +13,24 @@ def set_update_next_run(apps, schema_editor):
     # chains of duplicates.
     more_than_year_ago = datetime.utcnow() - timedelta(days=400)
 
-    Bugscache = apps.get_model('model', 'Bugscache')
+    Bugscache = apps.get_model("model", "Bugscache")
     Bugscache.objects.all().update(modified=more_than_year_ago)
 
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('model', '0025_remove_bugscache_os'),
+        ("model", "0025_remove_bugscache_os"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='bugscache',
-            name='dupe_of',
+            model_name="bugscache",
+            name="dupe_of",
             field=models.PositiveIntegerField(null=True),
         ),
         migrations.AddField(
-            model_name='bugscache',
-            name='processed_update',
+            model_name="bugscache",
+            name="processed_update",
             field=models.BooleanField(default=True),
         ),
         migrations.RunPython(set_update_next_run),

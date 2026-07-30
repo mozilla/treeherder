@@ -11,7 +11,6 @@ def set_bugzilla_ids(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("model", "0034_bugjobmap_bug_open"),
     ]

@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("perf", "0060_alter_performancealert_unique_together_and_more"),
     ]
