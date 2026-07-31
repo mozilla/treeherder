@@ -798,8 +798,11 @@ export const createGraphData = (
   symbols,
   commonAlerts,
   replicates,
-) =>
-  seriesData.map((series) => {
+) => {
+  const alertByPush = new Map(alertSummaries.map((a) => [a.push_id, a]));
+  const commonByPush = new Map(commonAlerts[0].map((c) => [c.push_id, c]));
+
+  return seriesData.map((series) => {
     const color = colors.pop();
     const symbol = symbols.pop();
     // signature_id, framework_id and repository_name are
@@ -828,11 +831,9 @@ export const createGraphData = (
         z: color ? color[1] : '',
         _z: symbol || ['circle', 'outline'],
         revision: dataPoint.revision,
-        alertSummary: alertSummaries.find(
-          (item) => item.push_id === dataPoint.push_id,
-        ),
+        alertSummary: alertByPush.get(dataPoint.push_id),
         commonAlert: reduceDictToKeys(
-          commonAlerts[0].find((alert) => alert.push_id === dataPoint.push_id),
+          commonByPush.get(dataPoint.push_id),
           ['id', 'status'],
         ),
         signature_id: series.signature_id,
@@ -852,6 +853,7 @@ export const createGraphData = (
       replicates,
     };
   });
+}
 
 /**
  * This function will create a new Map object that holds keys composed by name and platform.
