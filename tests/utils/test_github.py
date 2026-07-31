@@ -5,6 +5,35 @@ from unittest.mock import patch
 from treeherder.utils.github import get_releases
 
 
+# Mock GitCommit and it's related classes
+class MockCommitParent:
+    def __init__(self, sha):
+        self.sha = sha
+
+
+class MockCommitFile:
+    def __init__(self, filename):
+        self.filename = filename
+
+
+class MockCommitter:
+    def __init__(self, date):
+        self.date = date
+
+
+class MockInnerCommit:
+    def __init__(self, committer_date):
+        self.committer = MockCommitter(committer_date)
+
+
+class MockCommit:
+    def __init__(self, sha, committer_date, parents=None, files=None):
+        self.sha = sha
+        self.commit = MockInnerCommit(committer_date)
+        self.parents = [MockCommitParent(parent_sha) for parent_sha in parents] if parents else []
+        self.files = [MockCommitFile(filename) for filename in files] if files else []
+
+
 # Helper for MockGitRelease
 class MockAuthor:
     def __init__(self, login):
@@ -63,14 +92,18 @@ class MockGitRelease:
 
 # Mock Repository class to simulate PyGithub's Repository objects
 class MockRepository:
-    def __init__(self, releases):
+    def __init__(self, releases=None, commits=None):
         self._releases = releases
+        self._commits = commits
 
     def get_releases(self):
         # PyGithub's get_releases returns an iterable (PaginatedList),
         # with releases in reverse chronological order.
         # Returning a list directly simulates this behavior for the mock.
         return self._releases
+
+    def get_commits(self):
+        return self._commits
 
 
 @patch("treeherder.utils.github.github")
