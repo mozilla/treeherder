@@ -248,7 +248,8 @@ def test_create_unauthenticated_bug(client, eleven_jobs_stored, activate_respons
 
 def test_post_comment(client, activate_responses, test_user):
     """
-    test successfully posting a comment to a Bugzilla bug
+    test successfully posting a comment to a Bugzilla bug and tagging it
+    with the perf-alert keyword
     """
 
     def request_callback(request):
@@ -256,14 +257,14 @@ def test_post_comment(client, activate_responses, test_user):
         requestdata = json.loads(request.body)
         requestheaders = request.headers
         assert requestheaders["x-bugzilla-api-key"] == "12345helloworld"
-        assert requestdata["comment"] == "Performance improvement detected."
-        assert requestdata["comment_tags"] == ["perf-alert"]
-        resp_body = {"id": 101}
+        assert requestdata["comment"] == {"body": "Performance improvement detected."}
+        assert requestdata["keywords"] == {"add": ["perf-alert"]}
+        resp_body = {"bugs": [{"id": 323}]}
         return (200, headers, json.dumps(resp_body))
 
     responses.add_callback(
-        responses.POST,
-        "https://thisisnotbugzilla.org/rest/bug/323/comment",
+        responses.PUT,
+        "https://thisisnotbugzilla.org/rest/bug/323",
         callback=request_callback,
         content_type="application/json",
     )
@@ -275,7 +276,7 @@ def test_post_comment(client, activate_responses, test_user):
         {"bug_id": 323, "comment": "Performance improvement detected."},
     )
     assert resp.status_code == 200
-    assert resp.json()["id"] == 101
+    assert resp.json()["id"] == 323
 
 
 def test_post_comment_missing_bug_id(client, activate_responses, test_user):
