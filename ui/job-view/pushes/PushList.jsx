@@ -19,10 +19,10 @@ import {
 } from '../../shared/stores/pushesStore';
 import { updatePushParams } from '../../helpers/location';
 
+import usePollingLifecycle from '../../hooks/usePollingLifecycle';
+
 import Push from './Push';
 import PushLoadErrors from './PushLoadErrors';
-
-const PUSH_POLL_INTERVAL = 60000;
 
 /**
  * URL-FIRST ARCHITECTURE
@@ -62,7 +62,6 @@ function PushList({
   );
   const location = useLocation();
   const [notificationSupported] = useState('Notification' in window);
-  const pushIntervalId = useRef(null);
   const prevRouterSearch = useRef(location.search);
   const prevJobsLoaded = useRef(jobsLoaded);
 
@@ -94,12 +93,6 @@ function PushList({
     },
     [location.search, updateRange, getUrlRangeValues],
   );
-
-  const poll = useCallback(() => {
-    pushIntervalId.current = setInterval(async () => {
-      pollPushes();
-    }, PUSH_POLL_INTERVAL);
-  }, [pollPushes]);
 
   const clearIfEligibleTarget = useCallback(
     (target) => {
@@ -134,17 +127,9 @@ function PushList({
     document.title = `[${allUnclassifiedFailureCount}] ${repoName}`;
   }, [allUnclassifiedFailureCount, repoName]);
 
-  // componentDidMount - start polling
-  useEffect(() => {
-    poll();
-
-    return () => {
-      if (pushIntervalId.current) {
-        clearInterval(pushIntervalId.current);
-        pushIntervalId.current = null;
-      }
-    };
-  }, [poll]);
+  // Start the push/job poll, with an idle timeout that stops it when the tab
+  // is left in the background past its limit (see usePollingLifecycle).
+  usePollingLifecycle(pollPushes);
 
   // Sync selection from URL when jobs first load
   useEffect(() => {
