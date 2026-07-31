@@ -224,10 +224,15 @@ test.describe('Logviewer', () => {
       page,
       context,
       baseURL,
+      browserName,
     }) => {
-      await context.grantPermissions(['clipboard-read', 'clipboard-write'], {
-        origin: baseURL,
-      });
+      // Granting clipboard permissions is a Chromium-only API; Playwright's
+      // Firefox allows clipboard writes in tests without it.
+      if (browserName === 'chromium') {
+        await context.grantPermissions(['clipboard-read', 'clipboard-write'], {
+          origin: baseURL,
+        });
+      }
 
       await page.goto(LOG_URL);
       await page.locator('[data-line="5"]').waitFor();

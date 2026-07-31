@@ -41,17 +41,31 @@ The tests are written with react testing library.
 ### Running the Playwright integration tests
 
 Integration tests are useful when testing higher level components that would be hard to set up with fetch mock.
-They are run with [Playwright] (see `playwright.config.js`), which starts the dev server automatically if it
-isn't already running on port 5000. API responses for the graphs view tests are replayed from the HAR
-recordings in `tests/ui/integration/recordings/`; requests not present in a recording fall through to the
-dev server proxy.
+They are run with [Playwright] (see `playwright.config.js`) in Firefox, which starts the dev server
+automatically if it isn't already running on port 5000. API responses for the graphs view tests are replayed
+from the HAR recordings in `tests/ui/integration/recordings/`; requests not present in a recording fall
+through to the dev server proxy.
 
 To run the tests:
 
 - If you haven't already done so, install local dependencies by running `pnpm install` from the project root.
-- Install the Playwright browser once with `npx playwright install chromium`.
+- Install the Playwright browser once with `npx playwright install firefox`.
 - For unit tests run `pnpm test` to execute the tests.
 - For integration tests run `pnpm test:integration` to execute the tests.
+
+#### Firefox notes
+
+The integration tests run against Firefox by default. A couple of things are worth knowing
+about clipboard access under Firefox:
+
+- Granting clipboard permissions via `context.grantPermissions()` is a Chromium-only Playwright
+  API and throws on Firefox, so the logviewer copy test only requests those permissions when
+  `browserName === 'chromium'`.
+- Copy/paste would not normally work in a stock headless Firefox build. Playwright ships its own
+  patched build of Firefox that permits clipboard writes in tests without an explicit grant, so
+  under Playwright's Firefox the copy test still works seamlessly. This is a non-issue in
+  practice, just a distinction worth knowing if you ever see clipboard behavior differ outside
+  of Playwright's bundled browser.
 
 While working on the frontend, you may wish to watch JavaScript files and re-run the unit tests
 automatically when files change. To do this, you may run one of the following commands:
