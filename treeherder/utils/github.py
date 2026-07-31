@@ -89,6 +89,10 @@ def get_all_commits(owner, repo, params=None):
 
 
 def get_commit(owner, repo, sha, params=None):
+    """
+    Retrieve GitHub commit for a given sha.
+    Returns a standardized dictionary representing a commit.
+    """
     repo_object = pygithub_get_repo(owner, repo)
     commit = repo_object.get_commit(sha)
     # Create a commit dict to be returned
