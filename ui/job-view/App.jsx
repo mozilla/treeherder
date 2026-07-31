@@ -185,7 +185,13 @@ const App = () => {
   }, [navigate]);
 
   const handleFiltersUpdated = useCallback(() => {
-    setFilterModel(new FilterModel(navigate, window.location));
+    // Snapshot the location values rather than passing the live
+    // window.location object.  A live object would always reflect the
+    // current URL, so the staleness check in handleUrlChanges would compare
+    // the URL against itself and never detect later filter changes
+    // (bug 2058000).
+    const { pathname, search, hash } = window.location;
+    setFilterModel(new FilterModel(navigate, { pathname, search, hash }));
   }, [navigate]);
 
   const getAllShownJobs = useCallback(
