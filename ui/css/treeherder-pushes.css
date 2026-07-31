@@ -24,6 +24,20 @@
   padding-right: 10px;
 }
 
+/* A lando push has no collapse icon, so pad by the width of one (0.875rem)
+   plus the pe-3 spacing that follows it, to align with the other pushes. */
+.lando-push-title {
+  padding-left: 1.625rem;
+}
+
+/* Keep the line breaks of the raw error output coming from lando. */
+.lando-push-error {
+  white-space: pre-wrap;
+  font-family: monospace;
+  font-size: 12px;
+  margin-left: 2em;
+}
+
 .push-body-divider {
   margin-left: 34px;
   border-bottom: 1px solid lightgrey;
@@ -118,6 +132,8 @@ fieldset[disabled] .btn-push:hover {
 
 .revision {
   font-size: 12px;
+  /* Same height as the rows that have a clipboard button for the commit hash. */
+  min-height: 23px;
 }
 
 .revision a {

@@ -1,10 +1,11 @@
-
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import { getAllUrlParams } from '../../helpers/location';
 import { uiJobsUrlBase, getLandoJobsUrl } from '../../helpers/url';
+
+import LandoPush from './LandoPush';
 
 function PushLoadErrors(props) {
   const {
@@ -14,6 +15,7 @@ function PushLoadErrors(props) {
     landoInstance = null,
     landoCommitID = null,
     landoStatus = 'unknown',
+    landoJob,
     repoName,
   } = props;
   const urlParams = getAllUrlParams();
@@ -63,8 +65,13 @@ function PushLoadErrors(props) {
         !revision &&
         landoInstance &&
         landoCommitID &&
+        // Don't show anything until the lando landing job has been fetched.
+        landoJob !== undefined &&
         currentRepo &&
-        currentRepo.url && (
+        currentRepo.url &&
+        (landoJob ? (
+          <LandoPush landoJob={landoJob} landoInstance={landoInstance} />
+        ) : (
           <div className="push-body unknown-message-body">
             <span>
               {landoInstance && landoCommitID && (
@@ -96,14 +103,17 @@ function PushLoadErrors(props) {
               )}
             </span>
           </div>
+        ))}
+      {!loadingPushes &&
+        revision &&
+        !isRevision(revision) &&
+        currentRepo.url && (
+          <div className="push-body unknown-message-body">
+            This is an invalid or unknown revision. Please change it, or click
+            <a href={`${uiJobsUrlBase}?${urlParams.toString()}`}> here</a> to
+            reload the latest revisions from {repoName}.
+          </div>
         )}
-      {!loadingPushes && revision && !isRevision(revision) && currentRepo.url && (
-        <div className="push-body unknown-message-body">
-          This is an invalid or unknown revision. Please change it, or click
-          <a href={`${uiJobsUrlBase}?${urlParams.toString()}`}> here</a> to
-          reload the latest revisions from {repoName}.
-        </div>
-      )}
       {!loadingPushes &&
         !revision &&
         !landoCommitID &&
@@ -154,6 +164,7 @@ PushLoadErrors.propTypes = {
   landoInstance: PropTypes.string,
   landoCommitID: PropTypes.string,
   landoStatus: PropTypes.string,
+  landoJob: PropTypes.shape({}),
 };
 
 export default PushLoadErrors;

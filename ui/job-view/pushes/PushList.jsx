@@ -48,6 +48,8 @@ function PushList({
   landoInstance = null,
   landoCommitID = null,
   landoStatus = 'unknown',
+  // No default value: undefined means the lando job hasn't been fetched yet.
+  landoJob,
   currentRepo = {},
   pushHealthVisibility,
 }) {
@@ -229,6 +231,7 @@ function PushList({
           landoInstance={landoInstance}
           landoCommitID={landoCommitID}
           landoStatus={landoStatus}
+          landoJob={landoJob}
         />
       )}
       <div className="card card-body get-next">
@@ -261,6 +264,7 @@ PushList.propTypes = {
   landoInstance: PropTypes.string,
   landoCommitID: PropTypes.string,
   landoStatus: PropTypes.string,
+  landoJob: PropTypes.shape({}),
   currentRepo: PropTypes.shape({}),
 };
 
