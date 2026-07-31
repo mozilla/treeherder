@@ -1,0 +1,18 @@
+[build]
+  command = "pnpm build"
+  publish = ".build"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[[redirects]]
+  from = "/api/*"
+  to = "https://treeherder.mozilla.org/api/:splat"
+  status = 200
+  force = true
+
+# React Router SPA fallback.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
