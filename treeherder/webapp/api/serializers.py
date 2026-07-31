@@ -204,8 +204,11 @@ class JobNoteSerializer(serializers.ModelSerializer):
     job_id = serializers.PrimaryKeyRelatedField(source="job", read_only=True)
 
     # these custom fields are for backwards compatibility
-    failure_classification_id = serializers.SlugRelatedField(
-        slug_field="id", source="failure_classification", read_only=True
+    # PrimaryKeyRelatedField reads the FK id already on the row (pk-only
+    # optimization), avoiding a per-note query to load the related
+    # FailureClassification just to read its id (which SlugRelatedField would do).
+    failure_classification_id = serializers.PrimaryKeyRelatedField(
+        source="failure_classification", read_only=True
     )
 
     class Meta:
