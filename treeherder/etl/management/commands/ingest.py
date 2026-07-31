@@ -48,7 +48,7 @@ class Connection:
 
 
 def ingest_pr(pr_url, root_url):
-    if not pr_url.ends_with("/"):
+    if not pr_url.endswith("/"):
         pr_url += "/"
     _, _, _, org, repo, _, pull_number, _ = pr_url.split("/", 7)
     pulse = {
