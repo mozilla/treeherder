@@ -89,7 +89,26 @@ def get_all_commits(owner, repo, params=None):
 
 
 def get_commit(owner, repo, sha, params=None):
-    return fetch_api(f"repos/{owner}/{repo}/commits/{sha}", params)
+    repo_object = pygithub_get_repo(owner, repo)
+    commit = repo_object.get_commit(sha)
+    # Create a commit dict to be returned
+    commit_dict = {}
+
+    # Append file objects required by collector.py
+    commit_dict["files"] = []
+    for file in commit.files:
+        f = {}
+        f["filename"] = file.filename
+        commit_dict["files"].append(f)
+
+    # Append object required by ingest.py
+    ## Add committer date
+    commit_dict["commit"] = {"committer": {"date": commit.commit.committer.date}}
+    ## Add parent sha's
+    commit_dict["parents"] = []
+    for parent in commit.parents:
+        commit_dict["parents"].append({"sha": parent.sha})
+    return commit_dict
 
 
 def get_pull_request(owner, repo, pr_id):
