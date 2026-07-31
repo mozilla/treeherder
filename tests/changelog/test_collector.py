@@ -36,18 +36,12 @@ def prepare_responses():
             },
         }
 
-    # def commit(request):
-    #     return 200, {}, json.dumps(_commit())
-
     def commits(request):
         return 200, {}, json.dumps([_commit()])
 
     responses.add_callback(
         responses.GET, COMMITS, callback=commits, content_type="application/json"
     )
-    # responses.add_callback(
-    #     responses.GET, COMMIT_INFO, callback=commit, content_type="application/json"
-    # )
 
 
 @responses.activate
