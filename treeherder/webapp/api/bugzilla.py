@@ -158,18 +158,18 @@ class BugzillaViewSet(viewsets.ViewSet):
         if not comment:
             return Response({"failure": "comment is required"}, status=HTTP_400_BAD_REQUEST)
 
-        url = f"{settings.BUGFILER_API_URL}/rest/bug/{bug_id}/comment"
+        url = f"{settings.BUGFILER_API_URL}/rest/bug/{bug_id}"
         headers = {
             "x-bugzilla-api-key": settings.PERF_SHERIFF_API_KEY,
             "Accept": "application/json",
         }
         data = {
-            "comment": comment,
-            "comment_tags": ["perf-alert"],
+            "comment": {"body": comment},
+            "keywords": {"add": ["perf-alert"]},
         }
 
         try:
-            response = make_request(url, method="POST", headers=headers, json=data)
+            response = make_request(url, method="PUT", headers=headers, json=data)
         except requests.exceptions.HTTPError as e:
             try:
                 message = e.response.json()["message"]
@@ -177,4 +177,5 @@ class BugzillaViewSet(viewsets.ViewSet):
                 message = e.response.text
             return Response({"failure": message}, status=HTTP_400_BAD_REQUEST)
 
-        return Response({"id": response.json().get("id")})
+        bugs = response.json().get("bugs", [])
+        return Response({"id": bugs[0].get("id") if bugs else None})
