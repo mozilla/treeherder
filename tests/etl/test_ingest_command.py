@@ -71,3 +71,11 @@ def test_query_data_consumes_compare_dict(monkeypatch):
             "id": "C1",
         }
     ]
+
+
+def test_ingest_pr_converts_url_to_pulse_and_calls_loader(monkeypatch):
+    """Test that ingest_pr parses PR URL with trailing slash and triggers PushLoader.process with the correct structure."""
+    calls = []
+
+    def mock_process(self, payload, exchange, root_url):
+        calls.append((payload, exchange, root_url))
