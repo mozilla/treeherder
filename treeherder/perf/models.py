@@ -1259,6 +1259,15 @@ class PerformanceSettings(models.Model):
         db_table = "performance_settings"
 
 
+class PerfCompareMwuCache(models.Model):
+    hash_key = models.CharField(max_length=64, unique=True, db_index=True)
+    results = models.JSONField()
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "perf_compare_mwu_cache"
+
+
 def deepgetattr(obj: object, attr_chain: str) -> object | None:
     """Recursively follow an attribute chain to get the final value.
 

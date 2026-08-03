@@ -1,10 +1,13 @@
 import datetime
+import hashlib
+import json
 import logging
 import multiprocessing
 import time
 import warnings
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
+from decimal import Decimal
 from urllib.parse import urlencode
 
 import django_filters
@@ -35,6 +38,7 @@ from treeherder.perf.alerts import get_alert_properties
 from treeherder.perf.models import (
     IssueTracker,
     OptionCollection,
+    PerfCompareMwuCache,
     PerformanceAlert,
     PerformanceAlertSummary,
     PerformanceBugTemplate,
@@ -1292,6 +1296,27 @@ class PerfCompareResults(generics.ListAPIView):
 
         # Process results based on test version
         if test_version == "mann-whitney-u":
+            cache_key = self._compute_mwu_cache_key(
+                base_rev,
+                new_rev,
+                base_repo_name,
+                new_repo_name,
+                framework,
+                interval,
+                no_subtests,
+                base_parent_signature,
+                new_parent_signature,
+                replicates,
+                enable_silverman_kde,
+                base_signatures,
+                new_signatures,
+                statistics_base_grouped_data,
+                statistics_new_grouped_data,
+            )
+            cached = PerfCompareMwuCache.objects.filter(hash_key=cache_key).first()
+            if cached:
+                return Response(data=cached.results)
+
             self._process_mann_whitney_u_version(
                 header_names,
                 platforms,
@@ -1339,6 +1364,11 @@ class PerfCompareResults(generics.ListAPIView):
 
         serializer = self.get_serializer(self.queryset, many=True)
         serialized_data = serializer.data
+
+        if test_version == "mann-whitney-u":
+            json_safe_data = json.loads(json.dumps(serialized_data, cls=DecimalEncoder))
+            PerfCompareMwuCache.objects.create(hash_key=cache_key, results=json_safe_data)
+
         return Response(data=serialized_data)
 
     def _process_mann_whitney_u_version(
@@ -2076,6 +2106,54 @@ class PerfCompareResults(generics.ListAPIView):
         }
 
         return stats_data
+
+    @staticmethod
+    def _compute_mwu_cache_key(
+        base_rev,
+        new_rev,
+        base_repo_name,
+        new_repo_name,
+        framework,
+        interval,
+        no_subtests,
+        base_parent_signature,
+        new_parent_signature,
+        replicates,
+        enable_silverman_kde,
+        base_signatures,
+        new_signatures,
+        statistics_base_grouped_data,
+        statistics_new_grouped_data,
+    ):
+        base_sig_ids = sorted(str(s["id"]) for s in base_signatures)
+        new_sig_ids = sorted(str(s["id"]) for s in new_signatures)
+        total_data_points = sum(len(v) for v in statistics_base_grouped_data.values()) + sum(
+            len(v) for v in statistics_new_grouped_data.values()
+        )
+        key_components = {
+            "base_rev": base_rev,
+            "new_rev": new_rev,
+            "base_repo": base_repo_name,
+            "new_repo": new_repo_name,
+            "framework": framework,
+            "interval": interval,
+            "no_subtests": no_subtests,
+            "base_parent_signature": base_parent_signature,
+            "new_parent_signature": new_parent_signature,
+            "replicates": replicates,
+            "enable_silverman_kde": enable_silverman_kde,
+            "base_sig_ids": base_sig_ids,
+            "new_sig_ids": new_sig_ids,
+            "total_data_points": total_data_points,
+        }
+        return hashlib.sha256(json.dumps(key_components, sort_keys=True).encode()).hexdigest()
+
+
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            return float(obj)
+        return super().default(obj)
 
 
 class TestSuiteHealthViewSet(viewsets.ViewSet):
