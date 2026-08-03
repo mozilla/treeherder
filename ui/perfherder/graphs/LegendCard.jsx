@@ -1,4 +1,4 @@
-
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Badge, Button, Form, CloseButton } from 'react-bootstrap';
 
@@ -22,42 +22,47 @@ const LegendCard = ({
     const newSymbols = [...symbols];
     const errorMessages = [];
     let updates;
-    const newTestData = [...testData].map((item) => {
-      if (item.signature_id === series.signature_id) {
-        const isVisible = !item.visible;
+    const targetIndex = testData.findIndex((item) => item.signature_id === series.signature_id);
+    const item = testData[targetIndex];
+    const isVisible = !item.visible;
+    let updatedItem = { ...item };
 
-        if (isVisible && newColors.length && newSymbols.length) {
-          item.color = newColors.pop();
-          item.symbol = newSymbols.pop();
-          item.visible = isVisible;
-          item.data = item.data.map((test) => ({
-            ...test,
-            z: item.color[1],
-            _z: item.symbol,
-          }));
-        } else if (!isVisible) {
-          newColors.push(item.color);
-          newSymbols.push(item.symbol);
-          item.color = ['border-secondary', ''];
-          item.symbol = ['circle', 'outline'];
-          item.visible = isVisible;
-          item.data = item.data.map((test) => ({
-            ...test,
-            z: item.color[1],
-            _z: item.symbol,
-          }));
-        } else {
-          errorMessages.push(
-            "The graph supports viewing 6 tests at a time. To select and view a test that isn't currently visible, first deselect a visible test",
-          );
-        }
-      }
-      return item;
-    });
+    if (isVisible && newColors.length && newSymbols.length) {
+      updatedItem.color = newColors.pop();
+      updatedItem.symbol = newSymbols.pop();
+      updatedItem.visible = isVisible;
+      updatedItem.data = item.data.map((test) => ({
+        ...test,
+        z: updatedItem.color[1],
+        _z: updatedItem.symbol,
+      }));
+    } else if (!isVisible) {
+      newColors.push(item.color);
+      newSymbols.push(item.symbol);
+      updatedItem.color = ['border-secondary', ''];
+      updatedItem.symbol = ['circle', 'outline'];
+      updatedItem.visible = isVisible;
+      updatedItem.data = item.data.map((test) => ({
+        ...test,
+        z: updatedItem.color[1],
+        _z: updatedItem.symbol,
+      }));
+    } else {
+      errorMessages.push(
+        "The graph supports viewing 6 tests at a time. To select and view a test that isn't currently visible, first deselect a visible test",
+      );
+    }
 
     if (errorMessages.length) {
       updates = { errorMessages, visibilityChanged: false };
     } else {
+      // rebuild the array by slicing around the updated item
+      const newTestData = [
+        ...testData.slice(0, targetIndex),
+        updatedItem,
+        ...testData.slice(targetIndex + 1),
+      ];
+      
       updates = {
         testData: newTestData,
         colors: newColors,
@@ -228,4 +233,9 @@ LegendCard.propTypes = {
   selectedDataPoint: PropTypes.shape({}),
 };
 
-export default LegendCard;
+const areEqual = (prev, next) =>
+  prev.series.signature_id === next.series.signature_id &&
+  prev.series.visible === next.series.visible &&
+  prev.colors === next.colors;
+
+export default React.memo(LegendCard, areEqual);
