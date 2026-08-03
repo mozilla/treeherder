@@ -61,9 +61,9 @@
     "zustand": "5.0.14"
   },
   "devDependencies": {
-    "@babel/core": "7.26.10",
-    "@babel/preset-env": "7.26.9",
-    "@babel/preset-react": "7.27.1",
+    "@babel/core": "8.0.1",
+    "@babel/preset-env": "8.0.2",
+    "@babel/preset-react": "8.0.1",
     "@biomejs/biome": "2.3.15",
     "@pollyjs/adapter-fetch": "6.0.7",
     "@pollyjs/adapter-node-http": "6.0.6",
