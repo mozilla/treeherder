@@ -47,6 +47,11 @@ class Command(BaseCommand):
             help="Probe name to use when creating the test alert.",
         )
         parser.add_argument(
+            "--label",
+            default="",
+            help="Probe label to use when creating the test alert (for labeled probes).",
+        )
+        parser.add_argument(
             "--channel",
             default="Nightly",
             choices=["Nightly", "Beta", "Release"],
@@ -141,13 +146,14 @@ class Command(BaseCommand):
 
         logger.info(
             f"Creating test alert: probe={options['probe']}, "
-            f"channel={options['channel']}, platform={options['platform']}, "
-            f"repo={repo.name}"
+            f"label={options['label'] or 'none'}, channel={options['channel']}, "
+            f"platform={options['platform']}, repo={repo.name}"
         )
 
         signature, _ = PerformanceTelemetrySignature.objects.get_or_create(
             channel=options["channel"],
             probe=options["probe"],
+            label=options["label"],
             probe_type="Glean",
             platform=options["platform"],
             application="Firefox",

@@ -18,6 +18,19 @@ class TestGetGlamDashboardLink:
             "?normalizationType=non_normalized&os=Windows"
         )
 
+    def test_labeled_probe_includes_agg_key(self, test_telemetry_signature):
+        """Test the label of a labeled probe is passed as the aggKey parameter."""
+        test_telemetry_signature.platform = "Windows"
+        test_telemetry_signature.probe = "perf_dns_first_byte"
+        test_telemetry_signature.label = "(other)_2"
+
+        link = get_glam_dashboard_link(test_telemetry_signature)
+
+        assert link == (
+            "https://glam.telemetry.mozilla.org/fog/probe/perf_dns_first_byte/explore"
+            "?normalizationType=non_normalized&os=Windows&aggKey=%28other%29_2"
+        )
+
     def test_mobile_platform_fenix(self, test_telemetry_signature):
         """Test GLAM dashboard link generation for mobile (non-desktop) platform."""
         test_telemetry_signature.platform = "Android"

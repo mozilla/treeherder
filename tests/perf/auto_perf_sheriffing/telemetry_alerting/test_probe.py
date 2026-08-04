@@ -190,6 +190,37 @@ class TestTelemetryProbeChangeDetection:
         assert probe.should_detect_changes() is False
 
 
+class TestTelemetryProbeMetricType:
+    def test_unlabeled_metric_type(self, base_metric_info):
+        """Test an unlabeled probe type isn't considered labeled."""
+        base_metric_info["data"]["monitor"] = True
+        probe = TelemetryProbe(base_metric_info)
+
+        assert probe.metric_type == "timing_distribution"
+        assert probe.is_labeled is False
+
+    @pytest.mark.parametrize(
+        "metric_type", ["labeled_timing_distribution", "labeled_memory_distribution"]
+    )
+    def test_labeled_metric_types(self, base_metric_info, metric_type):
+        """Test the labeled probe types are detected as labeled."""
+        base_metric_info["data"]["type"] = metric_type
+        base_metric_info["data"]["monitor"] = True
+        probe = TelemetryProbe(base_metric_info)
+
+        assert probe.metric_type == metric_type
+        assert probe.is_labeled is True
+
+    def test_missing_metric_type(self, base_metric_info):
+        """Test a probe with no type defined isn't considered labeled."""
+        del base_metric_info["data"]["type"]
+        base_metric_info["data"]["monitor"] = True
+        probe = TelemetryProbe(base_metric_info)
+
+        assert probe.metric_type == ""
+        assert probe.is_labeled is False
+
+
 class TestTelemetryProbeBugAndEmailDecisions:
     def test_should_file_bug_true(self, metric_info_with_alert):
         """Test should_file_bug returns True when alert=True."""

@@ -213,6 +213,14 @@ class PerformanceTelemetrySignature(models.Model):
     channel = models.CharField(max_length=30, choices=CHANNELS)
     platform = models.CharField(max_length=80)
     probe = models.CharField(max_length=80)
+    label = models.CharField(
+        max_length=255,
+        default="",
+        blank=True,
+        help_text="Label of the probe for labeled probe types (e.g. "
+        "labeled_timing_distribution). Each label of those probes holds its own "
+        "timeseries so it needs its own signature. Empty for unlabeled probes.",
+    )
 
     GLEAN = "Glean"
     LEGACY = "Legacy"
@@ -235,10 +243,19 @@ class PerformanceTelemetrySignature(models.Model):
     class Meta:
         db_table = "performance_telemetry_signature"
 
-        unique_together = ("channel", "probe", "probe_type", "platform", "application")
+        unique_together = ("channel", "probe", "probe_type", "platform", "application", "label")
+
+    @property
+    def pretty_name(self):
+        if self.label:
+            return f"{self.probe} ({self.label})"
+        return self.probe
 
     def __str__(self):
-        return f"{self.probe} {self.probe_type} {self.channel} {self.platform} {self.application}"
+        return (
+            f"{self.pretty_name} {self.probe_type} {self.channel} "
+            f"{self.platform} {self.application}"
+        )
 
 
 class PerformanceDatum(models.Model):

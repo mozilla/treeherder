@@ -68,7 +68,7 @@ class TelemetryAlert(Alert):
         return (
             f"TelemetryAlert<alertID={self.telemetry_alert.id}, "
             f"alertSummaryID={self.telemetry_alert_summary.id}, "
-            f"probe={self.telemetry_signature.probe}, "
+            f"probe={self.telemetry_signature.pretty_name}, "
             f"platform={self.telemetry_signature.platform}>"
         )
 

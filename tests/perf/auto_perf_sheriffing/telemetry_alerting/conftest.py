@@ -127,6 +127,14 @@ def base_metric_info():
 
 
 @pytest.fixture
+def labeled_metric_info(base_metric_info):
+    """Metric info for a labeled probe that has change detection enabled."""
+    base_metric_info["data"]["type"] = "labeled_timing_distribution"
+    base_metric_info["data"]["monitor"] = {"alert": False, "lower_is_better": True}
+    return base_metric_info
+
+
+@pytest.fixture
 def metric_info_with_alert(base_metric_info):
     """Metric info with alert=True and bugzilla_notification_emails."""
     base_metric_info["data"]["monitor"] = {
@@ -269,6 +277,7 @@ def create_telemetry_signature():
             "channel": "Nightly",
             "platform": "Windows",
             "probe": "test_probe",
+            "label": "",
             "probe_type": "Glean",
             "application": "Firefox",
         }
