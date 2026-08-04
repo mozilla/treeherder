@@ -6,8 +6,16 @@ from django.db.models import Max
 
 from tests import test_utils
 from tests.autoclassify.utils import create_failure_lines, test_line
-from treeherder.model.models import FailureLine, Job, JobGroup, JobLog, JobType, Machine
-from treeherder.perf.models import PerformanceDatum
+from treeherder.model.models import (
+    FailureLine,
+    Job,
+    JobGroup,
+    JobLog,
+    JobType,
+    Machine,
+    MachinePlatform,
+)
+from treeherder.perf.models import PerformanceDatum, PerformanceSignature
 
 
 @pytest.mark.parametrize(
@@ -192,5 +200,36 @@ def test_cycle_job_with_performance_data(
     assert Job.objects.count() == 0
 
     # assert that the perf object is still there, but the job reference is None
-    p = PerformanceDatum.objects.filter(id=1).first()
-    assert p is None
+    perf_datum = PerformanceDatum.objects.get()
+    assert perf_datum.job is None
+
+
+def test_cycle_job_doesnt_prune_platforms_used_by_performance_data(
+    test_repository, failure_classifications, test_job, mock_log_parser, test_perf_signature
+):
+    """
+    Pruning ancillary data must not remove a `machine_platform` row that is
+    still referenced by a `performance_signature`. Perf data outlives jobs by
+    years, and the FK cascades, so pruning it would silently wipe out that
+    platform's entire perf history.
+    """
+    test_job.submit_time = datetime.now() - timedelta(weeks=1)
+    test_job.save()
+
+    PerformanceDatum.objects.create(
+        repository=test_repository,
+        push=test_job.push,
+        job=test_job,
+        signature=test_perf_signature,
+        push_timestamp=test_job.push.time,
+        value=1.0,
+    )
+    # no job is left referencing the signature's platform once the job is cycled
+    platform_id = test_perf_signature.platform_id
+
+    call_command("cycle_data", "from:treeherder", sleep_time=0, days=1, chunk_size=3)
+
+    assert Job.objects.count() == 0
+    assert MachinePlatform.objects.filter(id=platform_id).exists()
+    assert PerformanceSignature.objects.filter(id=test_perf_signature.id).exists()
+    assert PerformanceDatum.objects.count() == 1
