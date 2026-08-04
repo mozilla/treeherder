@@ -23,10 +23,8 @@ from treeherder.perf.models import (
     PerformanceAlertSummary,
     PerformanceSignature,
 )
-from treeherder.services import taskcluster
 
 from .max_runtime import MaxRuntime
-from .signature_remover import PublicSignatureRemover
 from .utils import has_valid_explicit_days
 
 logger = logging.getLogger(__name__)
