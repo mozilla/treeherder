@@ -36,17 +36,11 @@ def prepare_responses():
             },
         }
 
-    def commit(request):
-        return 200, {}, json.dumps(_commit())
-
     def commits(request):
         return 200, {}, json.dumps([_commit()])
 
     responses.add_callback(
         responses.GET, COMMITS, callback=commits, content_type="application/json"
-    )
-    responses.add_callback(
-        responses.GET, COMMIT_INFO, callback=commit, content_type="application/json"
     )
 
 
@@ -68,8 +62,22 @@ def test_collect(mock_pygithub_get_repo):
     mock_release.html_url = "mock_release_url"
     mock_release.author = mock_author
 
+    # Mock the file and commit object
+    mock_file1 = mock.Mock()
+    mock_file1.filename = "file1"
+    mock_file2 = mock.Mock()
+    mock_file2.filename = "file2"
+
+    mock_commit = mock.Mock()
+    mock_commit.files = [mock_file1, mock_file2]
+    mock_commit.commit.committer.date = now.isoformat()
+    mock_parent = mock.Mock()
+    mock_parent.sha = "mock_parent_sha"
+    mock_commit.parents = [mock_parent]
+
     mock_repo = mock.Mock()
     mock_repo.get_releases.return_value = [mock_release]
+    mock_repo.get_commit.return_value = mock_commit
     mock_pygithub_get_repo.return_value = mock_repo
 
     prepare_responses()
