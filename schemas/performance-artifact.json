@@ -202,6 +202,11 @@
           "title": "Lower is better",
           "type": "boolean"
         },
+        "trialsOrderedByRun": {
+          "description": "Whether the replicates list is ordered by trial run (1st value is 1st trial, 2nd value is 2nd trial, etc.)",
+          "title": "Trials ordered by run",
+          "type": "boolean"
+        },
         "shouldAlert": {
           "description": "Whether we should alert on this suite (overrides default behaviour)",
           "title": "Should alert",
