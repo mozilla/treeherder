@@ -138,12 +138,22 @@
         margin-top: 1.5rem;
         padding-top: 1.5rem;
         border-top: 1px solid #dee2e6;
+        /* So a job scrolled to via its #anchor isn't flush against the top. */
+        scroll-margin-top: 1rem;
       }
 
       .job-block:first-of-type {
         margin-top: 1.5rem;
         padding-top: 0;
         border-top: none;
+      }
+
+      /* The job named by the URL fragment — kept outlined for the session so
+       * it stays findable after scrolling away. */
+      .job-block-linked {
+        outline: 2px solid #0d6efd;
+        outline-offset: 6px;
+        border-radius: 4px;
       }
 
       .job-block .job-meta {
@@ -388,6 +398,8 @@
           <span class="text-muted small" id="filter-count"></span>
         </div>
       </div>
+
+      <div id="anchor-notice" class="alert alert-warning py-2 small" hidden></div>
 
       <div id="report" aria-live="polite"></div>
 
@@ -2067,6 +2079,10 @@
         return `${symbol}${job.job_type_name || 'job'}`;
       }
 
+      // Same identity as the job-view link's selectedTaskRun, so the anchor
+      // stays stable across runs of the same push.
+      const jobAnchorId = (job) => `job-${job.task_id}-${job.retry_id ?? 0}`;
+
       function parseFilterTerms(raw) {
         return (raw || '')
           .split(',')
@@ -2136,11 +2152,8 @@
         return panel;
       }
 
-      // Taskcluster serves .jsonl artifacts as a download rather than as a
-      // viewable document, so the raw href is only the fallback: on click we
-      // refetch the body and hand the new tab a text/plain blob instead.
       function renderSummaryArtifactLink(url) {
-        const link = el('a', {
+        return el('a', {
           href: url,
           target: '_blank',
           rel: 'noopener noreferrer',
@@ -2148,26 +2161,6 @@
           // <suite>_testsummary.jsonl rather than summary.jsonl.
           text: `open ${url.split('/').pop()}`,
         });
-        link.addEventListener('click', async (event) => {
-          // Opened synchronously, before any await, or the popup blocker
-          // rejects it.
-          const tab = window.open('', '_blank');
-          if (!tab) return; // Blocked — let the default navigation happen.
-          event.preventDefault();
-          try {
-            const text = await fetchText(url);
-            const blobUrl = URL.createObjectURL(
-              new Blob([text], { type: 'text/plain' }),
-            );
-            tab.location = blobUrl;
-            // Freeing it earlier breaks the tab that is still loading it;
-            // after this the opened tab can be read but not reloaded.
-            setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
-          } catch (e) {
-            tab.location = url;
-          }
-        });
-        return link;
       }
 
       function renderJobSection(
@@ -2187,10 +2180,16 @@
         const failedCount = Object.values(
           summary.realFailCounts || {},
         ).reduce((a, b) => a + b, 0);
-        // Same identity as the job-view link's selectedTaskRun below, so the
-        // anchor stays stable across runs of the same push.
-        const anchorId = `job-${job.task_id}-${job.retry_id ?? 0}`;
-        const section = el('section', { class: 'job-block', id: anchorId });
+        const anchorId = jobAnchorId(job);
+        // renderReport wipes and rebuilds every section on each filter change,
+        // so the deep-link outline is re-applied here rather than stamped once.
+        const section = el('section', {
+          class:
+            anchorId === linkedAnchorId
+              ? 'job-block job-block-linked'
+              : 'job-block',
+          id: anchorId,
+        });
 
         const heading = el('h2', { class: 'h6 mb-1 font-monospace' });
         heading.appendChild(document.createTextNode(jobLabel(job)));
@@ -2496,9 +2495,29 @@
         'filter-show-identical',
       );
       const filterCountEl = document.getElementById('filter-count');
+      const anchorNotice = document.getElementById('anchor-notice');
 
       // { serverUrl, project, revisionId, jobResults } | null
       let lastRun = null;
+
+      // The job named by the URL fragment. Survives re-renders so
+      // renderJobSection can re-apply the outline.
+      let linkedAnchorId = null;
+
+      // The fragment present at page load. The browser already gave up on it —
+      // #report is empty until the fetch pipeline resolves, seconds later — so
+      // we re-apply it once the sections exist. Consumed after the first
+      // applyResult so loading another push doesn't re-trigger it.
+      let pendingAnchorId = decodeURIComponent(location.hash.slice(1)) || null;
+
+      function showAnchorNotice(anchorId) {
+        anchorNotice.textContent = `The linked job (${anchorId}) isn't in this push — it may belong to another push, or have no summary artifact.`;
+        anchorNotice.hidden = false;
+      }
+
+      function hideAnchorNotice() {
+        anchorNotice.hidden = true;
+      }
 
       // A job result carries no failures when both panels would be empty:
       // the Summary Tab shows "No failures found in the summary." and the
@@ -2566,6 +2585,57 @@
       }
 
       const applyJobFilterDebounced = debounce(applyJobFilter, 200);
+
+      // Scrolls to the job named by a #job-<taskId>-<run> fragment and marks
+      // it. The section may not be in the DOM: the default filters hide jobs
+      // with no failures and jobs whose two tabs are identical, so a link
+      // copied with those shown points at something the defaults removed. In
+      // that case the filters are relaxed (visibly — the checkboxes tick) so
+      // the filter bar keeps telling the truth about what's on screen.
+      function revealAnchor(anchorId, { instant = false } = {}) {
+        if (!anchorId || !lastRun) return;
+
+        const result = lastRun.jobResults.find(
+          (r) => jobAnchorId(r.job) === anchorId,
+        );
+        if (!result) {
+          showAnchorNotice(anchorId);
+          return;
+        }
+        hideAnchorNotice();
+        linkedAnchorId = anchorId;
+
+        if (!document.getElementById(anchorId)) {
+          const hiddenByName = !jobMatchesFilter(
+            result.job,
+            parseFilterTerms(filterIncludeInput.value),
+            parseFilterTerms(filterExcludeInput.value),
+          );
+          if (hiddenByName) {
+            filterIncludeInput.value = '';
+            filterExcludeInput.value = '';
+          }
+          filterShowNoFailInput.checked = true;
+          filterShowIdenticalInput.checked = true;
+          applyJobFilter();
+        }
+
+        const section = document.getElementById(anchorId);
+        if (!section) return;
+        // Move the outline by hand too: when the job was already visible,
+        // renderReport didn't re-run and the class wasn't re-stamped.
+        for (const other of document.querySelectorAll('.job-block-linked')) {
+          if (other !== section) other.classList.remove('job-block-linked');
+        }
+        section.classList.add('job-block-linked');
+        // Bootstrap sets scroll-behavior: smooth on :root, which is right for
+        // a click but makes a deep link crawl thousands of pixels on arrival —
+        // land there at once instead.
+        section.scrollIntoView({
+          block: 'start',
+          behavior: instant ? 'instant' : 'auto',
+        });
+      }
 
       const DEFAULTS = { host: 'production', project: 'autoland' };
 
@@ -2640,6 +2710,13 @@
         });
       }
 
+      // Covers both pasting a new fragment and clicking a job's link button —
+      // its native href="#id" navigation fires this, so the outline moves
+      // through the same path.
+      window.addEventListener('hashchange', () =>
+        revealAnchor(decodeURIComponent(location.hash.slice(1))),
+      );
+
       function appendLogLine(text, kind) {
         const line = document.createElement('div');
         line.className = kind ? `log-line ${kind}` : 'log-line';
@@ -2710,12 +2787,21 @@
         // Applies the default hides (and any filters) rather than rendering
         // every job unconditionally.
         applyJobFilter();
+
+        // The sections finally exist — honour the fragment the page was
+        // opened with.
+        if (pendingAnchorId) {
+          const anchorId = pendingAnchorId;
+          pendingAnchorId = null;
+          revealAnchor(anchorId, { instant: true });
+        }
       }
 
       async function doFetch(opts) {
         errorBanner.hidden = true;
         summaryBanner.hidden = true;
         jobFilterBar.hidden = true;
+        hideAnchorNotice();
         document.getElementById('report').textContent = '';
         logPanel.style.display = 'block';
         logPanel.textContent = '';
@@ -2751,8 +2837,24 @@
         event.preventDefault();
         const opts = optsFromForm();
         if (!opts) return;
+        // A manual load may be a different push, which makes any job fragment
+        // stale — drop it rather than carry it into the new report.
+        linkedAnchorId = null;
+        pendingAnchorId = null;
+        if (location.hash) {
+          history.replaceState(
+            null,
+            '',
+            `${location.pathname}${location.search}`,
+          );
+        }
         doFetch(opts);
       });
+
+      // applyUrlParams() may have pre-filled the form from ?revision= /
+      // ?push-id= — load right away instead of waiting for "Load summary".
+      const initialOpts = optsFromForm();
+      if (initialOpts) doFetch(initialOpts);
     </script>
   </body>
 </html>
