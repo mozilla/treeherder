@@ -71,3 +71,55 @@ def test_query_data_consumes_compare_dict(monkeypatch):
             "id": "C1",
         }
     ]
+
+
+def test_ingest_pr_converts_url_to_pulse_and_calls_loader(monkeypatch):
+    """Test that ingest_pr parses PR URL with trailing slash and triggers PushLoader.process with the correct structure."""
+    calls = []
+
+    def mock_process(self, payload, exchange, root_url):
+        calls.append((payload, exchange, root_url))
+
+    monkeypatch.setattr(ingest.PushLoader, "process", mock_process)
+
+    pr_url = "https://github.com/mozilla/treeherder/pull/1692/"
+    root_url = "https://firefox-ci-tc.services.mozilla.com"
+
+    ingest.ingest_pr(pr_url, root_url)
+
+    assert len(calls) == 1
+    payload, exchange, actual_root_url = calls[0]
+    assert exchange == "exchange/taskcluster-github/v1/pull-request"
+    assert actual_root_url == root_url
+    assert payload["organization"] == "mozilla"
+    assert payload["repository"] == "treeherder"
+    assert payload["action"] == "synchronize"
+    assert payload["details"]["event.pullNumber"] == "1692"
+    assert payload["details"]["event.base.repo.url"] == "https://github.com/mozilla/treeherder.git"
+    assert payload["details"]["event.head.repo.url"] == "https://github.com/mozilla/treeherder.git"
+
+
+def test_ingest_pr_handles_missing_trailing_slash(monkeypatch):
+    """Test that ingest_pr handles a PR URL without a trailing slash correctly."""
+    calls = []
+
+    def mock_process(self, payload, exchange, root_url):
+        calls.append((payload, exchange, root_url))
+
+    monkeypatch.setattr(ingest.PushLoader, "process", mock_process)
+
+    pr_url = "https://github.com/mozilla/treeherder/pull/1692"
+    root_url = "https://firefox-ci-tc.services.mozilla.com"
+
+    ingest.ingest_pr(pr_url, root_url)
+
+    assert len(calls) == 1
+    payload, exchange, actual_root_url = calls[0]
+    assert exchange == "exchange/taskcluster-github/v1/pull-request"
+    assert actual_root_url == root_url
+    assert payload["organization"] == "mozilla"
+    assert payload["repository"] == "treeherder"
+    assert payload["action"] == "synchronize"
+    assert payload["details"]["event.pullNumber"] == "1692"
+    assert payload["details"]["event.base.repo.url"] == "https://github.com/mozilla/treeherder.git"
+    assert payload["details"]["event.head.repo.url"] == "https://github.com/mozilla/treeherder.git"
