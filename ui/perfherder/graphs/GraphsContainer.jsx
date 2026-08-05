@@ -53,20 +53,24 @@ class GraphsContainer extends React.Component {
 
   componentDidMount() {
     const { selectedDataPoint } = this.props;
-    const { scatterPlotData } = this.state;
-    const zoomDomain = this.initZoomDomain(scatterPlotData);
     this.addHighlights();
     this.buildInitialRunsCache();
     if (selectedDataPoint) {
       this.verifySelectedDataPoint();
     }
-    window.addEventListener('resize', () =>
-      this.setState({
-        width: window.innerWidth,
-        zoomDomain,
-      }),
-    );
+    window.addEventListener('resize', this.handleResize);
   }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.handleResize);
+  }
+
+  handleResize = () => {
+    this.setState((prevState) => ({
+      width: window.innerWidth,
+      zoomDomain: this.initZoomDomain(prevState.scatterPlotData),
+    }));
+  };
 
   componentDidUpdate(prevProps) {
     const {
