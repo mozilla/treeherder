@@ -24,30 +24,27 @@ import FailureSummaryTab from '../../../shared/tabs/failureSummary/FailureSummar
 import PerformanceTab from './PerformanceTab';
 import AnnotationsTab from './AnnotationsTab';
 import SimilarJobsTab from './SimilarJobsTab';
+import SummaryTab from './summaryTab/SummaryTab';
 
-const showTabsFromProps = (props) => {
-  const { perfJobDetail } = props;
-  return {
-    showPerf: !!perfJobDetail.length,
-  };
-};
-
-const getTabNames = ({ showPerf }) => {
+const getTabNames = ({ showPerf, showSummary }) => {
   // The order in here has to match the order within the render method
   return [
+    'summary',
     'artifacts',
     'failure',
     'annotations',
     'similar',
     'perf',
     'test-groups',
-  ].filter((name) => !(name === 'perf' && !showPerf));
+  ].filter(
+    (name) =>
+      !(name === 'perf' && !showPerf) && !(name === 'summary' && !showSummary),
+  );
 };
 
-const getDefaultTabIndex = (status, props) => {
-  const { showPerf } = showTabsFromProps(props);
+const getDefaultTabIndex = (status, { showPerf, showSummary }) => {
   let idx = 0;
-  const tabNames = getTabNames({ showPerf });
+  const tabNames = getTabNames({ showPerf, showSummary });
   const tabIndexes = tabNames.reduce(
     (acc, name) => ({ ...acc, [name]: idx++ }),
     {},
@@ -97,14 +94,14 @@ const TabsPanel = ({
   }, []);
 
   const [tabIndex, setTabIndex] = useState(0);
+  const [summaryUrl, setSummaryUrl] = useState(null);
   const [overflowTabs, setOverflowTabs] = useState([]);
   const [showOverflowDropdown, setShowOverflowDropdown] = useState(false);
-  const [jobId, setJobId] = useState(null);
-  const [perfJobDetailSize, setPerfJobDetailSize] = useState(0);
   const [dropdownShow, setDropdownShow] = useState(false);
 
   const tabListRef = useRef(null);
   const resizeObserverRef = useRef(null);
+  const defaultTabKeyRef = useRef(null);
 
   const checkTabOverflow = useCallback(() => {
     if (!tabListRef.current) return;
@@ -130,16 +127,39 @@ const TabsPanel = ({
       }
     });
 
-    const { showPerf } = showTabsFromProps({ perfJobDetail });
+    const showPerf = !!perfJobDetail.length;
+    const showSummary = !!summaryUrl;
     const enableTestGroupsTab = testGroups && testGroups.length > 0;
 
-    // Create tab data array
-    const allTabs = [
-      { key: 'artifacts', label: 'Artifacts and Debugging Tools', index: 0 },
-      { key: 'failure', label: 'Failure Summary', index: 1 },
-      { key: 'annotations', label: 'Annotations', index: 2 },
-      { key: 'similar', label: 'Similar Jobs', index: 3 },
-    ];
+    // Create tab data array (order must match the render method)
+    const allTabs = [];
+    if (showSummary) {
+      allTabs.push({
+        key: 'summary',
+        label: 'Summary',
+        index: allTabs.length,
+      });
+    }
+    allTabs.push({
+      key: 'artifacts',
+      label: 'Artifacts and Debugging Tools',
+      index: allTabs.length,
+    });
+    allTabs.push({
+      key: 'failure',
+      label: 'Failure Summary',
+      index: allTabs.length,
+    });
+    allTabs.push({
+      key: 'annotations',
+      label: 'Annotations',
+      index: allTabs.length,
+    });
+    allTabs.push({
+      key: 'similar',
+      label: 'Similar Jobs',
+      index: allTabs.length,
+    });
 
     if (showPerf) {
       allTabs.push({
@@ -176,7 +196,7 @@ const TabsPanel = ({
       setOverflowTabs([]);
       setShowOverflowDropdown(false);
     }
-  }, [perfJobDetail, testGroups]);
+  }, [perfJobDetail, testGroups, summaryUrl]);
 
   const setupResizeObserver = useCallback(() => {
     if (tabListRef.current && window.ResizeObserver) {
@@ -195,28 +215,57 @@ const TabsPanel = ({
 
   const onSelectNextTab = useCallback(() => {
     const nextIndex = tabIndex + 1;
-    const tabCount = getTabNames(showTabsFromProps({ perfJobDetail })).length;
+    const tabCount = getTabNames({
+      showPerf: !!perfJobDetail.length,
+      showSummary: !!summaryUrl,
+    }).length;
     setTabIndex(nextIndex < tabCount ? nextIndex : 0);
-  }, [tabIndex, perfJobDetail]);
+  }, [tabIndex, perfJobDetail, summaryUrl]);
 
   const handleOverflowTabClick = useCallback((newTabIndex) => {
     setTabIndex(newTabIndex);
   }, []);
 
-  // Effect for handling job changes and setting default tab index
+  // Probe for the summary.jsonl artifact; only show the Summary tab when it exists
   useEffect(() => {
-    if (
-      selectedJob &&
-      (jobId !== selectedJob.id || perfJobDetailSize !== perfJobDetail.length)
-    ) {
-      const newTabIndex = getDefaultTabIndex(selectedJob.resultStatus, {
-        perfJobDetail,
+    const url =
+      jobDetails?.find((detail) => detail.value === 'summary.jsonl')?.url ||
+      jobDetails?.find((detail) => detail.value?.endsWith('_testsummary.jsonl'))
+        ?.url;
+
+    setSummaryUrl(null);
+    if (!url) return undefined;
+
+    let cancelled = false;
+    fetch(url, { method: 'HEAD' })
+      .then((resp) => {
+        if (!cancelled && resp.ok) {
+          setSummaryUrl(url);
+        }
+      })
+      .catch(() => {
+        // No summary artifact for this task; leave the Summary tab hidden.
       });
-      setTabIndex(newTabIndex);
-      setJobId(selectedJob.id);
-      setPerfJobDetailSize(perfJobDetail.length);
-    }
-  }, [selectedJob, perfJobDetail, jobId, perfJobDetailSize]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedJob?.task_id, selectedJob?.retry_id, jobDetails]);
+
+  // Effect for handling job changes and setting default tab index.
+  // Re-runs when the summary probe resolves so tab indexes stay in sync.
+  useEffect(() => {
+    if (!selectedJob) return;
+    const key = `${selectedJob.id}-${perfJobDetail.length}-${!!summaryUrl}`;
+    if (defaultTabKeyRef.current === key) return;
+    defaultTabKeyRef.current = key;
+    setTabIndex(
+      getDefaultTabIndex(selectedJob.resultStatus, {
+        showPerf: !!perfJobDetail.length,
+        showSummary: !!summaryUrl,
+      }),
+    );
+  }, [selectedJob, perfJobDetail, summaryUrl]);
 
   // Effect for setting up event listeners and resize observer
   useEffect(() => {
@@ -241,7 +290,8 @@ const TabsPanel = ({
   }, [checkTabOverflow]);
 
   const countPinnedJobs = Object.keys(pinnedJobs).length;
-  const { showPerf } = showTabsFromProps({ perfJobDetail });
+  const showPerf = !!perfJobDetail.length;
+  const showSummary = !!summaryUrl;
   const enableTestGroupsTab = testGroups && testGroups.length > 0;
 
   return (
@@ -255,6 +305,7 @@ const TabsPanel = ({
           <div className="tab-headers-wrapper" ref={tabListRef}>
             <TabList className="tab-headers">
               <span className="tab-header-tabs">
+                {showSummary && <Tab>Summary</Tab>}
                 <Tab>Artifacts and Debugging Tools</Tab>
                 <Tab>Failure Summary</Tab>
                 <Tab>Annotations</Tab>
@@ -380,6 +431,21 @@ const TabsPanel = ({
               </span>
             </TabList>
           </div>
+          {showSummary && (
+            <TabPanel>
+              <SummaryTab
+                key={summaryUrl}
+                artifactUrl={summaryUrl}
+                selectedJob={selectedJobFull}
+                jobLogUrls={jobLogUrls}
+                jobDetails={jobDetails}
+                logViewerFullUrl={logViewerFullUrl}
+                addBug={addBugAction}
+                pinJob={pinJobAction}
+                currentRepo={currentRepo}
+              />
+            </TabPanel>
+          )}
           <TabPanel>
             <JobArtifacts
               jobDetails={jobDetails}

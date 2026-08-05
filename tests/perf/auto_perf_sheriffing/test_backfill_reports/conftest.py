@@ -208,8 +208,14 @@ ONE_DAY_INTERVAL = datetime.timedelta(days=1)
 
 def prepare_graph_data_scenario(push_ids_to_keep, highlighted_push_id, perf_alert, perf_signature):
     original_job_count = Job.objects.count()
-    selectable_jobs = Job.objects.filter(push_id__in=push_ids_to_keep).order_by("push_id", "id")
-    Job.objects.exclude(push_id__in=push_ids_to_keep).delete()
+    # sample data stores several jobs per push; keep a single one per push, so the
+    # scenarios match the graphs documented below (job.id == job.push.id)
+    selectable_job_ids = [
+        Job.objects.filter(push_id=push_id).order_by("id").values_list("id", flat=True).first()
+        for push_id in push_ids_to_keep
+    ]
+    Job.objects.exclude(id__in=selectable_job_ids).delete()
+    selectable_jobs = Job.objects.filter(id__in=selectable_job_ids).order_by("push_id", "id")
 
     assert Job.objects.count() < original_job_count
 

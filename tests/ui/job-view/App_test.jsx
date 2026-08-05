@@ -44,6 +44,12 @@ describe('App', () => {
       },
     );
 
+    // Summary tab probes for a summary.jsonl artifact with a HEAD request.
+    fetchMock.head(
+      'begin:https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/',
+      404,
+    );
+
     fetchMock.get(getApiUrl('/repository/'), reposFixture);
     fetchMock.get(getApiUrl('/performance/framework/'), {});
     fetchMock.get(getApiUrl('/user/'), []);
