@@ -97,8 +97,8 @@ export default class AlertStatusCountdown extends React.Component {
       hour: '2-digit',
       minute: '2-digit'
     };
-    triageDueDate = new Date(triageDueDate).toLocaleString('en-UK', dateOptions);
-    bugDueDate = new Date(bugDueDate).toLocaleString('en-UK', dateOptions);
+    triageDueDate = new Date(triageDueDate).toLocaleString('en-GB', dateOptions);
+    bugDueDate = new Date(bugDueDate).toLocaleString('en-GB', dateOptions);
 
     if (!alertIsTriaged(alertSummary)) {
       countdownClass = this.getCountdownClass(countdown.triage);
