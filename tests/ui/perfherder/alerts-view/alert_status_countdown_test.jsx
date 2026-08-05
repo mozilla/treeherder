@@ -338,7 +338,7 @@ test('Alert is created on Wednesday, Triage countdown shows 1 working days', asy
   expect(dueDateStatusText).toBe('Time left: 1 days left');
 });
 
-test('Alert is created on Wednesday, Triage countdown shows hours left', async () => {
+test('Alert is created on Wednesday, Triage countdown shows Overdue when due date has been reached', async () => {
   const alert = testAlertSummaries[0];
 
   // created date day is set to Wednesday
