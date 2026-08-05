@@ -1,11 +1,11 @@
 import datetime
 
 MON, TUE, WED, THU, FRI, SAT, SUN = range(1, 8)
-TRIAGE_DAYS = 3
-BUG_DAYS = 5
+TRIAGE_DAYS = 2
+BUG_DAYS = 4
 
 
-def calculate_time_to(created, due_days=3):
+def calculate_time_to(created, due_days=TRIAGE_DAYS):
     due_date = created
 
     # if the alert was created in weekend, move the date to Monday
