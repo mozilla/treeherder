@@ -867,23 +867,6 @@ def test_perf_signature_4(test_perf_signature):
 
 
 @pytest.fixture
-def test_stalled_data_signature(test_perf_signature):
-    stalled_data_timestamp = datetime.datetime.now() - datetime.timedelta(days=120)
-    return perf_models.PerformanceSignature.objects.create(
-        repository=test_perf_signature.repository,
-        signature_hash=(20 * "t3"),
-        framework=test_perf_signature.framework,
-        platform=test_perf_signature.platform,
-        option_collection=test_perf_signature.option_collection,
-        suite="mysuite3",
-        test="mytest3",
-        has_subtests=test_perf_signature.has_subtests,
-        extra_options=test_perf_signature.extra_options,
-        last_updated=stalled_data_timestamp,
-    )
-
-
-@pytest.fixture
 def test_perf_data(test_perf_signature, eleven_jobs_stored):
     # for making things easier, ids for jobs
     # and push should be the same;

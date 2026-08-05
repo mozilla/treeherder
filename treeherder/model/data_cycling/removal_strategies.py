@@ -52,7 +52,6 @@ class RemovalStrategy(ABC):
             MainRemovalStrategy(*args, **kwargs),
             TryDataRemoval(*args, **kwargs),
             IrrelevantDataRemoval(*args, **kwargs),
-            StalledDataRemoval(*args, **kwargs),
             # append here any new strategies
             # ...
         ]
@@ -61,13 +60,13 @@ class RemovalStrategy(ABC):
 class MainRemovalStrategy(RemovalStrategy):
     """
     Removes `performance_datum` rows
-    that are at least 1 year old.
+    that are at least 3 years old.
     """
 
     @property
     def cycle_interval(self) -> int:
         # WARNING!! Don't override this without proper approval!
-        return 365  # days                                     #
+        return 1095  # days (3 years)                          #
         ########################################################
 
     def __init__(self, chunk_size: int, days: int = None):
@@ -127,7 +126,7 @@ class TryDataRemoval(RemovalStrategy):
     """
     Removes `performance_datum` rows
     that originate from `try` repository and
-    that are more than 6 weeks old.
+    that are more than 2 years old.
     """
 
     SIGNATURE_BULK_SIZE = 10
@@ -135,7 +134,7 @@ class TryDataRemoval(RemovalStrategy):
     @property
     def cycle_interval(self) -> int:
         # WARNING!! Don't override this without proper approval!
-        return 42  # days                                      #
+        return 730  # days (2 years)                           #
         ########################################################
 
     def __init__(self, chunk_size: int, days: int = None):
@@ -260,7 +259,8 @@ class IrrelevantDataRemoval(RemovalStrategy):
     """
     Removes `performance_datum` rows that originate
     from repositories, other than the ones mentioned
-    in `RELEVANT_REPO_NAMES`, that are more than 6 months old.
+    in `RELEVANT_REPO_NAMES` & `EXCLUDED_REPO_NAMES`,
+    that are more than 6 months old.
     """
 
     RELEVANT_REPO_NAMES = [
@@ -271,10 +271,14 @@ class IrrelevantDataRemoval(RemovalStrategy):
         "reference-browser",
     ]
 
+    # `try` data has its own (longer) retention period, enforced by
+    # `TryDataRemoval`, so this strategy must leave it alone.
+    EXCLUDED_REPO_NAMES = ["try"]
+
     @property
     def cycle_interval(self) -> int:
         # WARNING!! Don't override this without proper approval!
-        return 180  # days                                     #
+        return 730  # days                                     #
         ########################################################
 
     def __init__(self, chunk_size: int, days: int = None):
@@ -292,9 +296,9 @@ class IrrelevantDataRemoval(RemovalStrategy):
     def irrelevant_repositories(self):
         if self.__irrelevant_repos is None:
             self.__irrelevant_repos = list(
-                Repository.objects.exclude(name__in=self.RELEVANT_REPO_NAMES).values_list(
-                    "id", flat=True
-                )
+                Repository.objects.exclude(
+                    name__in=self.RELEVANT_REPO_NAMES + self.EXCLUDED_REPO_NAMES
+                ).values_list("id", flat=True)
             )
         return self.__irrelevant_repos
 
@@ -355,133 +359,3 @@ class IrrelevantDataRemoval(RemovalStrategy):
                 self._max_timestamp,
             ],
         )
-
-
-class StalledDataRemoval(RemovalStrategy):
-    """
-    Removes `performance_datum` rows from `performance_signature`s
-    that haven't been updated in the last 4 months.
-
-    Exception: `performance_datum` rows that have a historical value (`autoland` /
-    `mozilla-central` series with an average of 2 data points per month)
-    are excluded and are kept for 1 year.
-    """
-
-    @property
-    def cycle_interval(self) -> int:
-        # WARNING!! Don't override this without proper approval!
-        return 120  # days                                     #
-        ########################################################
-
-    def __init__(self, chunk_size: int, days: int = None):
-        super().__init__(chunk_size, days=days)
-
-        self._target_signature = None
-        self._removable_signatures = None
-
-    @property
-    def target_signature(self) -> PerformanceSignature:
-        try:
-            if self._target_signature is None:
-                self._target_signature = self.removable_signatures.pop()
-        except IndexError:
-            msg = "No stalled signature found."
-            logger.warning(msg)  # no stalled data is not normal
-            raise LookupError(msg)
-        return self._target_signature
-
-    @property
-    def removable_signatures(self) -> list[PerformanceSignature]:
-        if self._removable_signatures is None:
-            self._removable_signatures = list(
-                PerformanceSignature.objects.filter(last_updated__lte=self._max_timestamp).order_by(
-                    "last_updated"
-                )
-            )
-            self._removable_signatures = [
-                sig
-                for sig in self._removable_signatures
-                if not sig.has_data_with_historical_value()
-            ]
-        return self._removable_signatures
-
-    def remove(self, using: CursorWrapper):
-        while True:
-            try:
-                self.__attempt_remove(using)
-
-                deleted_rows = using.rowcount
-                if deleted_rows > 0:
-                    break  # deletion was successful
-
-                self.__lookup_new_signature()  # to remove data from
-            except LookupError as ex:
-                logger.debug(
-                    f"Could not target any (new) stalled signature to delete data from. {ex}"
-                )
-                break
-
-    @property
-    def max_timestamp(self) -> datetime:
-        return self._max_timestamp
-
-    @property
-    def name(self) -> str:
-        return "stalled data removal strategy"
-
-    def __attempt_remove(self, using: CursorWrapper):
-        """
-        Raw SQL is used to avoid Django ORM cascade deletes on performance_datum_replicate.
-        Although the WHERE clause in del_replicate looks redundant, it is intentionally kept to guide
-        the PostgreSQL planner toward a more efficient execution plan.
-        """
-        using.execute(
-            """
-            WITH target_datum AS (
-                SELECT pd.id, pd.repository_id, pd.signature_id, pd.push_timestamp
-                FROM performance_datum pd
-                WHERE pd.repository_id = %s
-                AND pd.signature_id = %s
-                AND pd.push_timestamp <= %s
-                LIMIT %s
-            ),
-            del_replicate AS (
-                DELETE FROM performance_datum_replicate r1
-                WHERE r1.performance_datum_id IN (
-                    SELECT td.id
-                    FROM target_datum td
-                    WHERE td.repository_id = %s
-                    AND td.signature_id = %s
-                    AND td.push_timestamp <= %s
-                    AND EXISTS (
-                        SELECT 1
-                        FROM performance_datum_replicate r2
-                        WHERE r2.performance_datum_id = td.id
-                    )
-                )
-            ),
-            del_multi AS (
-                DELETE FROM perf_multicommitdatum pm
-                USING target_datum td
-                WHERE pm.perf_datum_id = td.id
-            )
-            DELETE FROM performance_datum pd
-            USING target_datum td
-            WHERE pd.id = td.id
-            """,
-            [
-                self.target_signature.repository_id,
-                self.target_signature.id,
-                self._max_timestamp,
-                self._chunk_size,
-                self.target_signature.repository_id,
-                self.target_signature.id,
-                self._max_timestamp,
-            ],
-        )
-
-    def __lookup_new_signature(self):
-        try:
-            self._target_signature = self._removable_signatures.pop()
-        except IndexError:
-            raise LookupError("Exhausted all stalled signatures.")

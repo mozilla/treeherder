@@ -28,27 +28,18 @@ All following strategies target the `performance_datum` table, which stores the 
 
 #### Generic
 
-Removes data points older than 1 year.
+Removes data points older than 3 years.
 
 #### Try data
 
-Removes data points originating from try pushes, that are older than 6 weeks.
+Removes data points originating from try pushes, that are older than 2 years.
 
 #### Not actively sheriffed
 
-Removes data points from repositories other than autoland, mozilla-central, mozilla-beta, fenix & reference-browser, which are older than 6 months.
-
-#### Stalled data
-
-Removes data points from series which haven't been ingesting new ones for the last 4 months.
-
-Data points which fall into the 'historical value' category from autoland and mozilla-central series aren't removed.
-Performance data is considered to have historical value if the average between the number of data points and the number of months in which these data points are spread is greater or equal to two data points per month.
+Removes data points from repositories other than autoland, mozilla-central, mozilla-beta, fenix & reference-browser, which are older than 6 months. Data from try is exempt, as it's handled by the try data strategy above.
 
 ### Garbage collection
 
-Removes performance signatures which no longer has any data points linked to them. This cascades to the linked alerts, as they don't make sense without a parent series.
-
 Removes alert summaries which no longer has any alerts linked to them.
 
-These kinds of data pertain to the `performance_signature`, `performance_alert` & `performance_alert_summary` table respectively.
+This kind of data pertains to the `performance_alert_summary` table.

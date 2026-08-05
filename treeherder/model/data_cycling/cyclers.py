@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 from django.db import OperationalError, connection
 from django.db.backends.utils import CursorWrapper
-from django.db.models import Count, Q
+from django.db.models import Count
 
 from treeherder.model.data_cycling.removal_strategies import RemovalStrategy
 from treeherder.model.models import (
@@ -20,14 +20,11 @@ from treeherder.model.models import (
 from treeherder.perf.exceptions import MaxRuntimeExceededError, NoDataCyclingAtAllError
 from treeherder.perf.models import (
     BackfillReport,
-    PerformanceAlert,
     PerformanceAlertSummary,
     PerformanceSignature,
 )
-from treeherder.services import taskcluster
 
 from .max_runtime import MaxRuntime
-from .signature_remover import PublicSignatureRemover
 from .utils import has_valid_explicit_days
 
 logger = logging.getLogger(__name__)
@@ -78,12 +75,22 @@ class TreeherderCycler(DataCycler):
     def _remove_leftovers(self):
         logger.warning("Pruning ancillary data: job types, groups and machines")
 
-        def prune(reference_model, id_name, model):
+        def prune(reference_model, id_name, model, also_used_by=None):
             logger.warning(f"Pruning {model.__name__}s")
             used_ids = (
                 reference_model.objects.only(id_name).values_list(id_name, flat=True).distinct()
             )
-            unused_ids = model.objects.exclude(id__in=used_ids).values_list("id", flat=True)
+            unused = model.objects.exclude(id__in=used_ids)
+            # some models outlive the jobs they were ingested with (performance
+            # data is kept for years, jobs for months), so any other model still
+            # referencing them must be honoured as well, or we'd cascade delete it
+            for other_model, other_id_name in also_used_by or []:
+                unused = unused.exclude(
+                    id__in=other_model.objects.only(other_id_name)
+                    .values_list(other_id_name, flat=True)
+                    .distinct()
+                )
+            unused_ids = unused.values_list("id", flat=True)
 
             logger.warning(f"Removing {len(unused_ids)} records from {model.__name__}")
 
@@ -98,7 +105,12 @@ class TreeherderCycler(DataCycler):
         prune(Job, "machine_id", Machine)
         prune(GroupStatus, "group_id", Group)
         prune(Job, "build_platform_id", BuildPlatform)
-        prune(Job, "machine_platform_id", MachinePlatform)
+        prune(
+            Job,
+            "machine_platform_id",
+            MachinePlatform,
+            also_used_by=[(PerformanceSignature, "platform_id")],
+        )
 
 
 class PerfherderCycler(DataCycler):
@@ -149,32 +161,8 @@ class PerfherderCycler(DataCycler):
             logger.warning(ex)
 
     def _remove_leftovers(self):
-        self.__remove_empty_signatures()
-
-        self.__remove_too_old_alerts()
         self.__remove_empty_alert_summaries()
-
         self.__remove_empty_backfill_reports()
-
-    def __remove_empty_signatures(self):
-        logger.warning("Removing performance signatures which don't have any data points...")
-        potentially_empty_signatures = PerformanceSignature.objects.filter(
-            last_updated__lte=self.max_timestamp
-        )
-        notify_client = taskcluster.notify_client_factory()
-
-        signatures_remover = PublicSignatureRemover(timer=self.timer, notify_client=notify_client)
-        signatures_remover.remove_in_chunks(potentially_empty_signatures)
-
-    def __remove_too_old_alerts(self):
-        logger.warning("Removing alerts older than a year...")
-        PerformanceAlert.objects.filter(
-            # WARNING! Don't change this without proper approval!           #
-            # Otherwise we risk deleting data that's actively investigated  #
-            # and cripple the perf sheriffing process!                      #
-            Q(created__lt=datetime.now() - timedelta(days=365)) | Q(created__isnull=True),
-            #################################################################
-        ).delete()
 
     def __remove_empty_alert_summaries(self):
         logger.warning("Removing alert summaries which no longer have any alerts...")
