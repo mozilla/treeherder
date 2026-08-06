@@ -1261,6 +1261,26 @@ class BackfillRecord(models.Model):
                 return entry
         return None
 
+    def get_latest_detected_push(self) -> dict | None:
+        """
+        Parse backfill_logs and return the most recent iteration's detected culprit push
+        as {"detected_push_id": int|None, "detected_push_revision": str|None}, or None
+        if nothing was ever detected.
+        """
+        for entry in reversed(self.get_backfill_logs()):
+            if entry.get("detected_push_id") is not None:
+                return {
+                    "detected_push_id": entry.get("detected_push_id"),
+                    "detected_push_revision": entry.get("detected_push_revision"),
+                }
+        # Fallback for legacy records or logs that only hold the scalar.
+        if self.last_detected_push_id is not None:
+            return {
+                "detected_push_id": self.last_detected_push_id,
+                "detected_push_revision": None,
+            }
+        return None
+
     def save(self, *args, **kwargs):
         # refresh parent's latest update time
         super().save(*args, **kwargs)
