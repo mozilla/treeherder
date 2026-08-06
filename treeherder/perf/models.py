@@ -1258,3 +1258,73 @@ def deepgetattr(obj: object, attr_chain: str) -> object | None:
             f"Failed to access deeply nested attribute `{attr_chain}` on object of type {type(obj)}."
         )
         return None
+
+
+class BackfillRequest(models.Model):
+    # The push where the backfill was triggered from
+    push = models.ForeignKey(Push, on_delete=models.CASCADE, related_name="+")
+    job = models.ForeignKey(
+        Job, null=True, blank=True, on_delete=models.SET_NULL, related_name="backfill_requests"
+    )
+    repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
+    bk_task_id = models.CharField(max_length=255, db_index=True)
+
+    STANDARD = 0
+    SLICED = 1
+    STRATEGY_STATUSES = (
+        (STANDARD, "Standard"),
+        (SLICED, "Sliced"),
+    )
+    strategy = models.IntegerField(choices=STRATEGY_STATUSES, null=True, blank=True)
+    label = models.CharField(max_length=255, null=True, blank=True)
+    slices = models.IntegerField(null=True, blank=True)
+    target_hg_push_ids = models.JSONField(default=list)
+    scanned_push_count = models.IntegerField(default=0)  # Standard: Depth size, Sliced: Gap Size
+
+    PENDING = 0
+    SYNCED = 1
+    FAILED = 2
+    STATUSES = (
+        (PENDING, "Pending"),
+        (SYNCED, "Synced"),
+        (FAILED, "Failed"),
+    )
+    status = models.IntegerField(choices=STATUSES, default=PENDING)
+    created = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "backfill_request"
+
+
+class BackfilledPush(models.Model):
+    backfill_request = models.ForeignKey(
+        BackfillRequest, on_delete=models.CASCADE, related_name="backfilled_pushes"
+    )
+    # The push where the backfill job was created on
+    push = models.ForeignKey(Push, on_delete=models.CASCADE, related_name="+")
+    # Symbol: D (Decision)
+    decision_task_id = models.CharField(max_length=255)
+    # Symbol: backfill-task (Decision)
+    action_task_id = models.CharField(max_length=255, null=True, blank=True, default=None)
+    # Job created by the backfill-task
+    job = models.ForeignKey(
+        Job, null=True, blank=True, on_delete=models.SET_NULL, related_name="backfilled_pushes"
+    )
+
+    PENDING = 0
+    CREATED = 1
+    SKIPPED = 2  # If the target push already has the same test job, the trigger is skipped
+    FAILED = 3
+    STATUSES = (
+        (PENDING, "Pending"),
+        (CREATED, "Created"),
+        (SKIPPED, "Skipped"),
+        (FAILED, "Failed"),
+    )
+    status = models.IntegerField(choices=STATUSES, default=PENDING)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "backfilled_push"
+        unique_together = [("backfill_request", "push")]

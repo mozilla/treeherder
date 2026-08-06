@@ -14,6 +14,7 @@ from treeherder.perf.auto_perf_sheriffing.backfill_reports import (
     BackfillReportMaintainer,
 )
 from treeherder.perf.auto_perf_sheriffing.backfill_tool import BackfillTool
+from treeherder.perf.auto_perf_sheriffing.backfill_tracker import BackfillTracker
 from treeherder.perf.auto_perf_sheriffing.performance_alerting.alert_manager import (
     PerformanceAlertManager,
 )
@@ -41,6 +42,7 @@ from treeherder.perf.models import (
     BackfillNotificationRecord,
     BackfillRecord,
     BackfillReport,
+    BackfillRequest,
     PerformanceDatum,
     PerformanceFramework,
     PerformanceTelemetryAlert,
@@ -90,6 +92,10 @@ class Sherlock:
 
         logger.info("Sherlock: Marking reports for backfill...")
         self.secretary.mark_reports_for_backfill()
+        self.assert_can_run()
+
+        logger.info("Sherlock: Syncing backfill tracking data...")
+        BackfillTracker().sync()
         self.assert_can_run()
 
         # secretary checks the status of all backfilled jobs
@@ -203,8 +209,10 @@ class Sherlock:
             try:
                 if isinstance(data_point, dict):
                     using_job_id = data_point["job_id"]
+                    push_id = data_point["push_id"]
                 else:
                     using_job_id = data_point.job_id
+                    push_id = data_point.push_id
                 if not using_job_id:
                     logger.warning(
                         f"Failed to backfill [alert_id={record.alert.id}]: invalid job id."
@@ -212,6 +220,12 @@ class Sherlock:
                     continue
                 task_id = self.backfill_tool.backfill_job(using_job_id, alert_id=record.alert.id)
                 task_ids[using_job_id] = task_id
+                BackfillRequest.objects.create(
+                    job_id=using_job_id,
+                    push_id=push_id,
+                    repository=record.repository,
+                    bk_task_id=task_id,
+                )
                 left, consumed = left - 1, consumed + 1
             except (KeyError, CannotBackfillError, Exception) as ex:
                 logger.warning(f"Failed to backfill [alert_id={record.alert.id}]: {ex}")
