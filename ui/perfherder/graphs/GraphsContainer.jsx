@@ -78,9 +78,6 @@ class GraphsContainer extends React.Component {
       timeRange,
       selectedDataPoint,
     } = this.props;
-    const _scatterPlotData = flatMap(testData, (item) =>
-      item.visible ? item.data : [],
-    );
 
     if (
       prevProps.highlightAlerts !== highlightAlerts ||
@@ -390,6 +387,55 @@ class GraphsContainer extends React.Component {
     return data.reduce((max, p) => (p.y > max ? p.y : max), data[0].y);
   };
 
+  _dataKey = (props) => {
+    const testDataSig = (props.testData || [])
+      .map((t) => `${t.signature_id}:${t.visible}`)
+      .join(',');
+    
+    return `${testDataSig}|${props.timeRange?.value}|${props.changelogData?.length}`;
+  };
+
+  _getMemoizedData = () => {
+    const currentKey = this._dataKey(this.props);
+
+    if (currentKey === this._lastKey) {
+      return {
+        scatterPlotData: this._scatterCache,
+        infraAffectedData: this._infraAffectedCache,
+      };
+    }
+
+    const scatterPlotData = (this.props.testData || []).flatMap((item) =>
+      item.visible ? item.data : [],
+    );
+
+    let rawInfraData = [];
+    const markDataPoints = 5;
+    
+    (this.props.changelogData || []).forEach((data) =>
+      scatterPlotData.some((dataPoint, index) => {
+        const affectedData = dataPoint.x > data.date;
+        if (affectedData) {
+          rawInfraData.push(
+            scatterPlotData.slice(index, index + markDataPoints),
+          );
+        }
+        return affectedData;
+      }),
+    );
+
+    this._scatterCache = scatterPlotData;
+    this._infraAffectedCache = new Set(
+      flatMap(rawInfraData).map((item) => item.revision),
+    );
+    this._lastKey = currentKey;
+
+    return {
+      scatterPlotData: this._scatterCache,
+      infraAffectedData: this._infraAffectedCache,
+    };
+  };
+
   render() {
     const {
       testData = [],
@@ -405,35 +451,17 @@ class GraphsContainer extends React.Component {
     const {
       highlights,
       highlightCommonAlertsData,
-      scatterPlotData,
       zoomDomain,
       width,
     } = this.state;
 
-    let infraAffectedData = [];
-    const markDataPoints = 5;
+    const { scatterPlotData, infraAffectedData } = this._getMemoizedData();
     const hoverDatum = this.state.hoverId
       ? scatterPlotData.find((d) => d?.dataPointId === this.state.hoverId)
       : null;
     const lockedDatum = this.state.lockedId
       ? scatterPlotData.find((d) => d?.dataPointId === this.state.lockedId)
       : null;
-
-    changelogData.forEach((data) =>
-      scatterPlotData.some((dataPoint, index) => {
-        const affectedData = dataPoint.x > data.date;
-        if (affectedData) {
-          infraAffectedData.push(
-            scatterPlotData.slice(index, index + markDataPoints),
-          );
-        }
-        return affectedData;
-      }),
-    );
-
-    infraAffectedData = new Set(
-      flatMap(infraAffectedData).map((item) => item.revision),
-    );
 
     const yAxisLabel = this.computeYAxisLabel();
     const positionedTick = <VictoryLabel dx={-2} />;
