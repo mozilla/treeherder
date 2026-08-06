@@ -41,7 +41,7 @@ test('Alert is created on Monday, Triage countdown shows 2 working days', async 
   fireEvent.mouseOver(dueDateIcon);
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
-  const dueDateStatusText = dueDateStatus.querySelector('p').innerHTML;
+  const dueDateStatusText = dueDateStatus.querySelector('[data-testid="time-left"]').innerHTML;
   expect(dueDateStatusText).toBe('Time left: 3 days left');
 });
 
@@ -61,7 +61,7 @@ test('Alert is created on Monday, Triage countdown shows 1 working days', async 
   fireEvent.mouseOver(dueDateIcon);
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
-  const dueDateStatusText = dueDateStatus.querySelector('p').innerHTML;
+  const dueDateStatusText = dueDateStatus.querySelector('[data-testid="time-left"]').innerHTML;
   expect(dueDateStatusText).toBe('Time left: 2 days left');
 });
 
@@ -81,7 +81,7 @@ test('Alert is created on Monday, Triage countdown shows 1 working days', async 
   fireEvent.mouseOver(dueDateIcon);
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
-  const dueDateStatusText = dueDateStatus.querySelector('p').innerHTML;
+  const dueDateStatusText = dueDateStatus.querySelector('[data-testid="time-left"]').innerHTML;
   expect(dueDateStatusText).toBe('Time left: 1 days left');
 });
 
@@ -101,7 +101,7 @@ test('Alert is created on Monday, Triage countdown shows hours left', async () =
   fireEvent.mouseOver(dueDateIcon);
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
-  const dueDateStatusText = dueDateStatus.querySelector('p').innerHTML;
+  const dueDateStatusText = dueDateStatus.querySelector('[data-testid="time-left"]').innerHTML;
   expect(dueDateStatusText).toBe('Time left: 10 hours left');
 });
 
@@ -121,7 +121,7 @@ test('Alert is created on Monday, Triage countdown shows Overdue', async () => {
   fireEvent.mouseOver(dueDateIcon);
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
-  const dueDateStatusText = dueDateStatus.querySelector('p').innerHTML;
+  const dueDateStatusText = dueDateStatus.querySelector('[data-testid="time-left"]').innerHTML;
   expect(dueDateStatusText).toBe('Time left: Overdue');
 });
 
@@ -142,7 +142,7 @@ test('Alert is created on Monday, Bug countdown shows 4 working days', async () 
   fireEvent.mouseOver(dueDateIcon);
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
-  const dueDateStatusText = dueDateStatus.querySelector('p').innerHTML;
+  const dueDateStatusText = dueDateStatus.querySelector('[data-testid="time-left"]').innerHTML;
   expect(dueDateStatusText).toBe('Time left: 5 days left');
 });
 
@@ -163,7 +163,7 @@ test('Alert is created on Monday, Bug countdown shows 3 working days', async () 
   fireEvent.mouseOver(dueDateIcon);
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
-  const dueDateStatusText = dueDateStatus.querySelector('p').innerHTML;
+  const dueDateStatusText = dueDateStatus.querySelector('[data-testid="time-left"]').innerHTML;
   expect(dueDateStatusText).toBe('Time left: 4 days left');
 });
 
@@ -184,7 +184,7 @@ test('Alert is created on Monday, Bug countdown shows 2 working days', async () 
   fireEvent.mouseOver(dueDateIcon);
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
-  const dueDateStatusText = dueDateStatus.querySelector('p').innerHTML;
+  const dueDateStatusText = dueDateStatus.querySelector('[data-testid="time-left"]').innerHTML;
   expect(dueDateStatusText).toBe('Time left: 3 days left');
 });
 
@@ -205,7 +205,7 @@ test('Alert is created on Monday, Bug countdown shows 1 working days', async () 
   fireEvent.mouseOver(dueDateIcon);
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
-  const dueDateStatusText = dueDateStatus.querySelector('p').innerHTML;
+  const dueDateStatusText = dueDateStatus.querySelector('[data-testid="time-left"]').innerHTML;
   expect(dueDateStatusText).toBe('Time left: 2 days left');
 });
 
@@ -226,7 +226,7 @@ test('Alert is created on Monday, Bug countdown shows 1 working days', async () 
   fireEvent.mouseOver(dueDateIcon);
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
-  const dueDateStatusText = dueDateStatus.querySelector('p').innerHTML;
+  const dueDateStatusText = dueDateStatus.querySelector('[data-testid="time-left"]').innerHTML;
   expect(dueDateStatusText).toBe('Time left: 1 days left');
 });
 
@@ -247,7 +247,7 @@ test('Alert is created on Monday, Bug countdown shows hours left', async () => {
   fireEvent.mouseOver(dueDateIcon);
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
-  const dueDateStatusText = dueDateStatus.querySelector('p').innerHTML;
+  const dueDateStatusText = dueDateStatus.querySelector('[data-testid="time-left"]').innerHTML;
   expect(dueDateStatusText).toBe('Time left: 23 hours left');
 });
 
@@ -268,7 +268,7 @@ test('Alert is created on Monday, Bug countdown shows Overdue', async () => {
   fireEvent.mouseOver(dueDateIcon);
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
-  const dueDateStatusText = dueDateStatus.querySelector('p').innerHTML;
+  const dueDateStatusText = dueDateStatus.querySelector('[data-testid="time-left"]').innerHTML;
   expect(dueDateStatusText).toBe('Time left: Overdue');
 });
 
@@ -292,7 +292,7 @@ test('Alert is created on Wednesday, Triage countdown shows 2 working days', asy
   fireEvent.mouseOver(dueDateIcon);
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
-  const dueDateStatusText = dueDateStatus.querySelector('p').innerHTML;
+  const dueDateStatusText = dueDateStatus.querySelector('[data-testid="time-left"]').innerHTML;
   expect(dueDateStatusText).toBe('Time left: 3 days left');
 });
 
@@ -313,7 +313,7 @@ test('Alert is created on Wednesday, Triage countdown shows 1 working days', asy
   fireEvent.mouseOver(dueDateIcon);
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
-  const dueDateStatusText = dueDateStatus.querySelector('p').innerHTML;
+  const dueDateStatusText = dueDateStatus.querySelector('[data-testid="time-left"]').innerHTML;
   expect(dueDateStatusText).toBe('Time left: 2 days left');
 });
 
@@ -334,7 +334,7 @@ test('Alert is created on Wednesday, Triage countdown shows hours left', async (
   fireEvent.mouseOver(dueDateIcon);
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
-  const dueDateStatusText = dueDateStatus.querySelector('p').innerHTML;
+  const dueDateStatusText = dueDateStatus.querySelector('[data-testid="time-left"]').innerHTML;
   expect(dueDateStatusText).toBe('Time left: 1 days left');
 });
 
@@ -355,7 +355,7 @@ test('Alert is created on Wednesday, Triage countdown shows Overdue when due dat
   fireEvent.mouseOver(dueDateIcon);
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
-  const dueDateStatusText = dueDateStatus.querySelector('p').innerHTML;
+  const dueDateStatusText = dueDateStatus.querySelector('[data-testid="time-left"]').innerHTML;
   expect(dueDateStatusText).toBe('Time left: Overdue');
 });
 
@@ -376,7 +376,7 @@ test('Alert is created on Wednesday, Triage countdown shows Overdue', async () =
   fireEvent.mouseOver(dueDateIcon);
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
-  const dueDateStatusText = dueDateStatus.querySelector('p').innerHTML;
+  const dueDateStatusText = dueDateStatus.querySelector('[data-testid="time-left"]').innerHTML;
   expect(dueDateStatusText).toBe('Time left: Overdue');
 });
 
@@ -397,7 +397,7 @@ test('Alert is created on Wednesday, Bug countdown shows 4 working days', async 
   fireEvent.mouseOver(dueDateIcon);
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
-  const dueDateStatusText = dueDateStatus.querySelector('p').innerHTML;
+  const dueDateStatusText = dueDateStatus.querySelector('[data-testid="time-left"]').innerHTML;
   expect(dueDateStatusText).toBe('Time left: 5 days left');
 });
 
@@ -418,7 +418,7 @@ test('Alert is created on Wednesday, Bug countdown shows 3 working days', async 
   fireEvent.mouseOver(dueDateIcon);
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
-  const dueDateStatusText = dueDateStatus.querySelector('p').innerHTML;
+  const dueDateStatusText = dueDateStatus.querySelector('[data-testid="time-left"]').innerHTML;
   expect(dueDateStatusText).toBe('Time left: 4 days left');
 });
 
@@ -439,7 +439,7 @@ test('Alert is created on Wednesday, Bug countdown shows 2 working days', async 
   fireEvent.mouseOver(dueDateIcon);
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
-  const dueDateStatusText = dueDateStatus.querySelector('p').innerHTML;
+  const dueDateStatusText = dueDateStatus.querySelector('[data-testid="time-left"]').innerHTML;
   expect(dueDateStatusText).toBe('Time left: 3 days left');
 });
 
@@ -460,7 +460,7 @@ test('Alert is created on Wednesday, Bug countdown shows 1 working days', async 
   fireEvent.mouseOver(dueDateIcon);
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
-  const dueDateStatusText = dueDateStatus.querySelector('p').innerHTML;
+  const dueDateStatusText = dueDateStatus.querySelector('[data-testid="time-left"]').innerHTML;
   expect(dueDateStatusText).toBe('Time left: 2 days left');
 });
 
@@ -481,7 +481,7 @@ test('Alert is created on Wednesday, Bug countdown shows 1 working days', async 
   fireEvent.mouseOver(dueDateIcon);
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
-  const dueDateStatusText = dueDateStatus.querySelector('p').innerHTML;
+  const dueDateStatusText = dueDateStatus.querySelector('[data-testid="time-left"]').innerHTML;
   expect(dueDateStatusText).toBe('Time left: 1 days left');
 });
 
@@ -502,7 +502,7 @@ test('Alert is created on Wednesday, Bug countdown shows hours left', async () =
   fireEvent.mouseOver(dueDateIcon);
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
-  const dueDateStatusText = dueDateStatus.querySelector('p').innerHTML;
+  const dueDateStatusText = dueDateStatus.querySelector('[data-testid="time-left"]').innerHTML;
   expect(dueDateStatusText).toBe('Time left: 2 hours left');
 });
 
@@ -523,7 +523,7 @@ test('Alert is created on Wednesday, Bug countdown shows Overdue', async () => {
   fireEvent.mouseOver(dueDateIcon);
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
-  const dueDateStatusText = dueDateStatus.querySelector('p').innerHTML;
+  const dueDateStatusText = dueDateStatus.querySelector('[data-testid="time-left"]').innerHTML;
   expect(dueDateStatusText).toBe('Time left: Overdue');
 });
 
