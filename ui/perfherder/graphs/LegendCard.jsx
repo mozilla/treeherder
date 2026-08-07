@@ -22,7 +22,9 @@ const LegendCard = ({
     const newSymbols = [...symbols];
     const errorMessages = [];
     let updates;
-    const targetIndex = testData.findIndex((item) => item.signature_id === series.signature_id);
+    const targetIndex = testData.findIndex(
+      (item) => item.signature_id === series.signature_id,
+    );
     const item = testData[targetIndex];
     const isVisible = !item.visible;
     let updatedItem = { ...item };
@@ -62,7 +64,7 @@ const LegendCard = ({
         updatedItem,
         ...testData.slice(targetIndex + 1),
       ];
-      
+
       updates = {
         testData: newTestData,
         colors: newColors,
@@ -234,8 +236,10 @@ LegendCard.propTypes = {
 };
 
 const areEqual = (prev, next) =>
-  prev.series.signature_id === next.series.signature_id &&
-  prev.series.visible === next.series.visible &&
-  prev.colors === next.colors;
+  prev.series === next.series &&
+  prev.testData === next.testData &&
+  prev.colors === next.colors &&
+  prev.symbols === next.symbols &&
+  prev.selectedDataPoint === next.selectedDataPoint;
 
 export default React.memo(LegendCard, areEqual);
