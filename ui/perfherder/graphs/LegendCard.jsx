@@ -113,24 +113,46 @@ const LegendCard = ({
     // when removing a test, check to see if the next test in the queue had a color;
     // if it had secondary and was deselected, reset its color and visibility to
     // the removed test's color, otherwise push that color back into the colors list
+
+    const promoteIndex = graphColors.length - 1;
+
     if (
-      newData[graphColors.length - 1] &&
-      newData[graphColors.length - 1].color[0] === 'border-secondary'
+      newData[promoteIndex] &&
+      newData[promoteIndex].color[0] === 'border-secondary'
     ) {
-      newData[graphColors.length - 1].color = series.color;
-      newData[graphColors.length - 1].visible = true;
-      newData[graphColors.length - 1].data = newData[
-        graphColors.length - 1
-      ].data.map((item) => ({
-        ...item,
-        z: series.color[1],
-      }));
-      resetParams(newData);
+      const promoted = newData[promoteIndex];
+      let nextColor;
+      let nextSymbol;
+      const newColors = [...colors];
+      const newSymbols = [...symbols];
+
+      // if the removed test was disabled, its real color/symbol are in the pools.
+      if (series.color[0] === 'border-secondary') {
+        nextColor = newColors.pop();
+        nextSymbol = newSymbols.pop();
+      } else {
+        nextColor = series.color;
+        nextSymbol = series.symbol;
+      }
+
+      newData[promoteIndex] = {
+        ...promoted,
+        color: nextColor,
+        symbol: nextSymbol,
+        visible: true,
+        data: promoted.data.map((item) => ({
+          ...item,
+          z: nextColor[1],
+          _z: nextSymbol,
+        })),
+      };
+      resetParams(newData, newColors, newSymbols);
     } else if (series.color[0] === 'border-secondary') {
       resetParams(newData);
     } else {
-      const newColors = [...colors, ...[series.color]];
-      resetParams(newData, newColors);
+      const newColors = [...colors, series.color];
+      const newSymbols = [...symbols, series.symbol];
+      resetParams(newData, newColors, newSymbols);
     }
   };
 
