@@ -27,7 +27,7 @@ const LegendCard = ({
     );
     const item = testData[targetIndex];
     const isVisible = !item.visible;
-    let updatedItem = { ...item };
+    const updatedItem = { ...item };
 
     if (isVisible && newColors.length && newSymbols.length) {
       updatedItem.color = newColors.pop();
