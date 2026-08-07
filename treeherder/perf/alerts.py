@@ -10,6 +10,7 @@ from django.conf import settings
 from django.db import transaction
 from django.db.models import Exists, OuterRef, Subquery
 
+from treeherder.model.models import Push
 from treeherder.perf.email import AlertNotificationWriter
 from treeherder.perf.methods.CramerVonMisesDetector import CramerVonMisesDetector
 from treeherder.perf.methods.KolmogorovSmirnovDetector import KolmogorovSmirnovDetector
@@ -189,17 +190,48 @@ def generate_new_alerts_in_series(signature):
                 ):
                     continue
 
-                summary, _ = PerformanceAlertSummary.objects.get_or_create(
-                    repository=signature.repository,
-                    framework=signature.framework,
-                    push_id=cur.push_id,
-                    prev_push_id=prev.push_id,
-                    sheriffed=not signature.monitor,
-                    defaults={
-                        "manually_created": False,
-                        "created": datetime.utcfromtimestamp(cur.push_timestamp),
-                    },
+                # Lock the push row first. generate_alerts() runs per-signature as separate
+                # Celery tasks (concurrency=3), so two signatures regressing on the same push
+                # can otherwise race here and each create their own duplicate summary below.
+                Push.objects.select_for_update().get(id=cur.push_id)
+
+                # Duplicate summaries may already exist for this push (pre-merge legacy data),
+                # so get() would raise MultipleObjectsReturned here. Use filter() and take
+                # the earliest one instead of crashing.
+                summary = (
+                    PerformanceAlertSummary.objects.select_related("prev_push")
+                    .filter(
+                        repository=signature.repository,
+                        framework=signature.framework,
+                        push_id=cur.push_id,
+                        sheriffed=not signature.monitor,
+                    )
+                    .order_by("created", "id")
+                    .first()
                 )
+                is_new_summary = summary is None
+                if is_new_summary:
+                    summary = PerformanceAlertSummary.objects.create(
+                        repository=signature.repository,
+                        framework=signature.framework,
+                        push_id=cur.push_id,
+                        sheriffed=not signature.monitor,
+                        prev_push_id=prev.push_id,
+                        manually_created=False,
+                        created=datetime.utcfromtimestamp(cur.push_timestamp),
+                    )
+
+                # Widen prev_push to the earliest seen across merged alerts,
+                # unless a sheriff manually created this summary with a specific prev_push.
+                if (
+                    not is_new_summary
+                    and not summary.manually_created
+                    and prev.push_id != summary.prev_push_id
+                ):
+                    existing_prev_timestamp = time.mktime(summary.prev_push.time.timetuple())
+                    if prev.push_timestamp < existing_prev_timestamp:
+                        summary.prev_push_id = prev.push_id
+                        summary.save(update_fields=["prev_push_id"])
 
                 # django/mysql doesn't understand "inf", so just use some
                 # arbitrarily high value for that case
