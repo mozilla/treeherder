@@ -1614,6 +1614,9 @@ class PerfCompareResults(generics.ListAPIView):
 
         # Build common result dictionary (contains only data both test versions use)
         is_complete = base_runs_count and new_runs_count
+        resolved_framework = (
+            framework or base_sig.get("framework_id") or new_sig.get("framework_id")
+        )
         common_result = {
             "base_rev": base_rev,
             "new_rev": new_rev,
@@ -1624,7 +1627,7 @@ class PerfCompareResults(generics.ListAPIView):
             "suite": suite,
             "test": test,
             "is_complete": is_complete,
-            "framework_id": framework,
+            "framework_id": resolved_framework,
             "option_name": option_name,
             "extra_options": extra_options,
             "base_repository_name": base_repo_name,
@@ -1640,7 +1643,7 @@ class PerfCompareResults(generics.ListAPIView):
                 new_repo_name,
                 base_rev,
                 new_rev,
-                str(framework),
+                str(resolved_framework),
                 push_timestamp,
                 str(sig_hash),
             ),
@@ -2085,10 +2088,13 @@ class TestSuiteHealthViewSet(viewsets.ViewSet):
             return Response(data=query_params.errors, status=HTTP_400_BAD_REQUEST)
 
         framework_id = query_params.validated_data["framework"]
+        query_set = PerformanceSignature.objects.filter(parent_signature_id=None).prefetch_related(
+            "performancealert"
+        )
+        if framework_id is not None:
+            query_set = query_set.filter(framework_id=framework_id)
         query_set = (
-            PerformanceSignature.objects.prefetch_related("performancealert")
-            .filter(framework_id=framework_id, parent_signature_id=None)
-            .values("suite", "test")
+            query_set.values("suite", "test")
             .annotate(repositories=GroupConcat("repository_id", distinct=True))
             .annotate(platforms=GroupConcat("platform_id", distinct=True))
             .annotate(total_alerts=Count("performancealert"))
