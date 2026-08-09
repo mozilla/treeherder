@@ -1041,7 +1041,7 @@ class PerformanceSummary(generics.ListAPIView):
                                     "push_id": push_id,
                                     "push_timestamp": push_timestamp,
                                     "push__revision": push_revision,
-                                    "submit_time": submit_time,
+                                    "job__submit_time": submit_time,
                                 }
                             )
                         elif value is not None:
@@ -1053,7 +1053,7 @@ class PerformanceSummary(generics.ListAPIView):
                                     "push_id": push_id,
                                     "push_timestamp": push_timestamp,
                                     "push__revision": push_revision,
-                                    "submit_time": submit_time,
+                                    "job__submit_time": submit_time,
                                 }
                             )
                 else:

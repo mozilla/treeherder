@@ -1,6 +1,7 @@
 import copy
 import datetime
 from collections import defaultdict
+from urllib.parse import urlencode
 
 import pytest
 from django.urls import reverse
@@ -10,6 +11,7 @@ from treeherder.model.models import MachinePlatform, Push
 from treeherder.perf.models import (
     PerformanceAlert,
     PerformanceDatum,
+    PerformanceDatumReplicate,
     PerformanceFramework,
     PerformanceSignature,
 )
@@ -528,6 +530,57 @@ def test_perf_summary(client, test_perf_signature, test_perf_data):
     resp2 = client.get(reverse("performance-summary") + query_params2)
     assert resp2.status_code == 200
     assert resp2.json() == expected
+
+
+def summary_query_params(signature, perf_data, **extra):
+    """
+    An `all_data` query for one signature, spanning the data it was given.
+
+    We expand the time window outwards by one day so that it definitely
+    covers the entire data and we don't end up checking an empty list.
+    """
+    timestamps = [datum.push_timestamp for datum in perf_data]
+    one_day = datetime.timedelta(days=1)
+    return "?" + urlencode(
+        {
+            "repository": signature.repository.name,
+            "framework": signature.framework_id,
+            "signature": signature.id,
+            "startday": (min(timestamps) - one_day).isoformat(),
+            "endday": (max(timestamps) + one_day).isoformat(),
+            "all_data": "true",
+            **extra,
+        }
+    )
+
+
+@pytest.mark.parametrize("replicates", ["true", "false"])
+def test_perf_summary_data_includes_submit_time(
+    client, test_perf_signature, test_perf_data, replicates
+):
+    """
+    Test that `submit_time` is not null when using `replicates=true`.
+
+    The `replicates=false` case goes through a code path that was already
+    correct; it's covered here as a regression guard.
+    """
+
+    # Add a replicate row - the fixture doesn't have any replicates.
+    PerformanceDatumReplicate.objects.create(
+        performance_datum=test_perf_data[0], value=test_perf_data[0].value
+    )
+
+    query_params = summary_query_params(test_perf_signature, test_perf_data, replicates=replicates)
+
+    response = client.get(reverse("performance-summary") + query_params)
+    assert response.status_code == 200
+
+    data = response.json()[0]["data"]
+    expected = {datum.job.submit_time.strftime("%Y-%m-%dT%H:%M:%S") for datum in test_perf_data}
+    # One row per datum: the single replicate we added stands in for its datum's
+    # value rather than adding a row.
+    assert len(data) == len(test_perf_data)
+    assert {row["submit_time"] for row in data} == expected
 
 
 def test_perf_summary_should_alert_is_false_edge_case(
