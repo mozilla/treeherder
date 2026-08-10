@@ -707,7 +707,7 @@ describe('Mocked API calls', () => {
   });
 
   describe('Highlight Options Dropdown', () => {
-    test("'Highlight alerts' option can be turned off", async () => {
+    test("'Highlight alerts' option can be turned on", async () => {
       const updateStateParams = jest.fn();
       const { getByText } = await graphsViewControls(
         graphData,
@@ -721,7 +721,7 @@ describe('Mocked API calls', () => {
 
       const alertsOption = await waitFor(() => getByText('Highlight alerts'));
 
-      expect(alertsOption.classList).toContain('active');
+      expect(alertsOption.querySelector('svg')).toBeNull();
 
       fireEvent.click(alertsOption);
 
@@ -729,7 +729,7 @@ describe('Mocked API calls', () => {
         expect(updateStateParams).toHaveBeenCalledTimes(1);
       });
       expect(updateStateParams).toHaveBeenCalledWith({
-        highlightAlerts: false,
+        highlightAlerts: true,
       });
     });
 
@@ -749,7 +749,7 @@ describe('Mocked API calls', () => {
         getByText('Highlight infra changes'),
       );
 
-      expect(infraChangesOption.classList).toContain('active');
+      expect(infraChangesOption.querySelector('svg')).not.toBeNull();
 
       fireEvent.click(infraChangesOption);
 
@@ -777,7 +777,7 @@ describe('Mocked API calls', () => {
         getByText('Highlight common alerts'),
       );
 
-      expect(commonAlertsOption.classList).not.toContain('active');
+      expect(commonAlertsOption.querySelector('svg')).toBeNull();
 
       fireEvent.click(commonAlertsOption);
 
@@ -808,7 +808,7 @@ describe('Mocked API calls', () => {
         getByText('Highlight initial data points'),
       );
 
-      expect(commonAlertsOption.classList).not.toContain('active');
+      expect(initialDataPointsOption.querySelector('svg')).toBeNull();
 
       fireEvent.click(initialDataPointsOption);
 
@@ -839,7 +839,7 @@ describe('Mocked API calls', () => {
         getByText('Highlight initial data points'),
       );
 
-      expect(commonAlertsOption.classList).toContain('active');
+      expect(initialDataPointsOption.querySelector('svg')).not.toBeNull();
 
       fireEvent.click(initialDataPointsOption);
 
