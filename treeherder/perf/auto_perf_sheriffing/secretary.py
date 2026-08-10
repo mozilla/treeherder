@@ -114,9 +114,6 @@ class Secretary:
 
         for report in mature_reports:
             should_freeze = False
-            logger.info(
-                f"Sherlock: Marking report [summary_id={report.summary.id}] for backfill..."
-            )
             for record in report.records.all():
                 if record.status == BackfillRecord.PRELIMINARY:
                     logger.info(
