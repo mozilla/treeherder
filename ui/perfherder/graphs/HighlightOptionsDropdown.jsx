@@ -34,13 +34,14 @@ const HighlightOptionsDropdown = ({
   ];
 
   return (
-    <Dropdown
-      className="me-0 text-nowrap"
-      title="Highlight Options Dropdown"
-      aria-label="Highlight Options Dropdown"
-    >
-      <Dropdown.Toggle variant="secondary">Highlight</Dropdown.Toggle>
-      
+    <Dropdown className="me-0 text-nowrap" title="Highlight Options Dropdown">
+      <Dropdown.Toggle
+        variant="secondary"
+        aria-label="Highlight Options Dropdown"
+      >
+        Highlight
+      </Dropdown.Toggle>
+
       <Dropdown.Menu className="overflow-auto dropdown-menu-height">
         {highlightOptions.map(({ key, label, isChecked }) => (
           <Dropdown.Item
@@ -48,11 +49,13 @@ const HighlightOptionsDropdown = ({
             as="button"
             onClick={() => updateStateParams({ [key]: !isChecked })}
           >
-            <FontAwesomeIcon
-              icon={faCheck}
-              className={`me-2 ${isChecked ? '' : 'hide'}`}
-              title={isChecked ? 'Selected' : ''}
-            />
+            {isChecked && (
+              <FontAwesomeIcon
+                icon={faCheck}
+                className="me-2"
+                title="Selected"
+              />
+            )}
             {label}
           </Dropdown.Item>
         ))}
