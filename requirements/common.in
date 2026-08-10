@@ -10,7 +10,7 @@ certifi==2026.1.4
 psycopg[binary]==3.3.3
 
 jsonschema==4.26.0  # import jsonschema
-djangorestframework==3.17.0  # Imported as rest_framework
+djangorestframework==3.17.2  # Imported as rest_framework
 django-cors-headers==4.9.0  # Listed as 3rd party app on settings.py
 drf-spectacular==0.30.0  # Used for REST API Schema Generation
 mozlog==8.0.0
