@@ -1367,7 +1367,7 @@ class PerfCompareResults(generics.ListAPIView):
 
         if test_version == "mann-whitney-u":
             json_safe_data = json.loads(json.dumps(serialized_data, cls=DecimalEncoder))
-            PerfCompareMwuCache.objects.create(hash_key=cache_key, results=json_safe_data)
+            PerfCompareMwuCache.objects.get_or_create(hash_key=cache_key, results=json_safe_data)
 
         return Response(data=serialized_data)
 
