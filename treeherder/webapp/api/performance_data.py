@@ -1295,6 +1295,7 @@ class PerfCompareResults(generics.ListAPIView):
         self.queryset = []
 
         # Process results based on test version
+        cache_key = None
         if test_version == "mann-whitney-u":
             cache_key = self._compute_mwu_cache_key(
                 base_rev,
