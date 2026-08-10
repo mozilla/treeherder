@@ -128,9 +128,15 @@ export default class StatusDropdown extends React.Component {
       updateViewState,
     );
 
+    const validAlerts = filteredAlerts.filter(
+      (alert) =>
+        alert.status === 4 ||
+        (alert.status === 2 && alert.summary_id !== alertSummary.id),
+    );
+
     const textualSummary = new TextualSummary(
       frameworks,
-      filteredAlerts,
+      validAlerts,
       alertSummary,
       null,
       await browsertimeAlertsExtraData.enrichAndRetrieveAlerts(),
@@ -256,9 +262,15 @@ export default class StatusDropdown extends React.Component {
       updateViewState,
     );
 
+    const validAlerts = filteredAlerts.filter(
+      (alert) =>
+        alert.status === 4 ||
+        (alert.status === 2 && alert.summary_id !== alertSummary.id),
+    );
+
     const textualSummary = new TextualSummary(
       frameworks,
-      filteredAlerts,
+      validAlerts,
       alertSummary,
       null,
       await browsertimeAlertsExtraData.enrichAndRetrieveAlerts(),
@@ -368,9 +380,15 @@ export default class StatusDropdown extends React.Component {
       return { failureStatus: 'Failed to retrieve bug template' };
     }
 
+    const validAlerts = filteredAlerts.filter(
+      (alert) =>
+        alert.status === 4 ||
+        (alert.status === 2 && alert.summary_id !== alertSummary.id),
+    );
+
     const textualSummary = new TextualSummary(
       frameworks,
-      filteredAlerts,
+      validAlerts,
       alertSummary,
       null,
       await browsertimeAlertsExtraData.enrichAndRetrieveAlerts(),
