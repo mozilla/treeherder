@@ -132,7 +132,7 @@ export default class AlertStatusCountdown extends React.Component {
                     <div data-testid="due-date-status">
                       {showTriageCountdown && (
                         <div className="countdown-section">
-                          <div className="fw-bold">Triage Due: {bugDueDate}</div>
+                          <div className="fw-bold">Triage Due: {triageDueDate}</div>
                           <div data-testid="time-left">Time left: {countdown.triage}</div>
                         </div>
                       )}
