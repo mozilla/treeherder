@@ -17,8 +17,8 @@ export const thHosts = {
   default: {
     host: null,
     treestatus: {
-      uiUrl: 'https://lando.services.mozilla.com/treestatus/',
-      apiUrl: 'https://treestatus.prod.lando.prod.cloudops.mozgcp.net/',
+      uiUrl: 'https://lando.moz.tools/treestatus/',
+      apiUrl: 'https://lando.moz.tools/api/treestatus/',
     },
   },
 };
