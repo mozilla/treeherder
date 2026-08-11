@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { Badge, Button, Form, CloseButton } from 'react-bootstrap';
 
 import { getFrameworkName } from '../perf-helpers/helpers';
-import { graphColors } from '../perf-helpers/constants';
 import { Perfdocs } from '../perf-helpers/perfdocs';
 import GraphIcon from '../../shared/GraphIcon';
 
@@ -110,50 +109,39 @@ const LegendCard = ({
 
     newData.splice(index, 1);
 
-    // when removing a test, check to see if the next test in the queue had a color;
-    // if it had secondary and was deselected, reset its color and visibility to
-    // the removed test's color, otherwise push that color back into the colors list
-
-    const promoteIndex = graphColors.length - 1;
-
-    if (
-      newData[promoteIndex] &&
-      newData[promoteIndex].color[0] === 'border-secondary'
-    ) {
-      const promoted = newData[promoteIndex];
-      let nextColor;
-      let nextSymbol;
-      const newColors = [...colors];
-      const newSymbols = [...symbols];
-
-      // if the removed test was disabled, its real color/symbol are in the pools.
-      if (series.color[0] === 'border-secondary') {
-        nextColor = newColors.pop();
-        nextSymbol = newSymbols.pop();
-      } else {
-        nextColor = series.color;
-        nextSymbol = series.symbol;
-      }
-
-      newData[promoteIndex] = {
-        ...promoted,
-        color: nextColor,
-        symbol: nextSymbol,
-        visible: true,
-        data: promoted.data.map((item) => ({
-          ...item,
-          z: nextColor[1],
-          _z: nextSymbol,
-        })),
-      };
-      resetParams(newData, newColors, newSymbols);
-    } else if (series.color[0] === 'border-secondary') {
+    // removing a disabled test frees nothing, since it never held a
+    // color, just drop it. Removing a visible test frees its
+    // color: promote the first currently-disabled test to take its
+    // place, or return the color/symbol to the pool if none is waiting.
+    if (series.color[0] === 'border-secondary') {
       resetParams(newData);
-    } else {
+      return;
+    }
+
+    const promoteIndex = newData.findIndex(
+      (item) => item.color[0] === 'border-secondary',
+    );
+
+    if (promoteIndex === -1) {
       const newColors = [...colors, series.color];
       const newSymbols = [...symbols, series.symbol];
       resetParams(newData, newColors, newSymbols);
+      return;
     }
+
+    const promoted = newData[promoteIndex];
+    newData[promoteIndex] = {
+      ...promoted,
+      color: series.color,
+      symbol: series.symbol,
+      visible: true,
+      data: promoted.data.map((item) => ({
+        ...item,
+        z: series.color[1],
+        _z: series.symbol,
+      })),
+    };
+    resetParams(newData);
   };
 
   const subtitleStyle = 'p-0 mb-0 border-0 text-secondary text-start';
