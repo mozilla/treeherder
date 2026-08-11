@@ -30,8 +30,8 @@ export default class AlertStatusCountdown extends React.Component {
     } = alertSummary;
 
     const currentDate = new Date(Date.now());
-    triageDueDate = new Date(triageDueDate);
-    bugDueDate = new Date(bugDueDate);
+    triageDueDate = new Date(`${triageDueDate}Z`);
+    bugDueDate = new Date(`${bugDueDate}Z`);
 
     const timeToTriageDifference = getTimeDifference(
       currentDate,
@@ -91,14 +91,14 @@ export default class AlertStatusCountdown extends React.Component {
     let showReady;
     let { triage_due_date: triageDueDate, bug_due_date: bugDueDate } = alertSummary;
 
-    const dateOptions = { 
+    const dateOptions = {
       day: 'numeric',
       month: 'short',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     };
-    triageDueDate = new Date(triageDueDate).toLocaleString('en-GB', dateOptions);
-    bugDueDate = new Date(bugDueDate).toLocaleString('en-GB', dateOptions);
+    triageDueDate = new Date(`${triageDueDate}Z`).toLocaleString('en-GB', dateOptions);
+    bugDueDate = new Date(`${bugDueDate}Z`).toLocaleString('en-GB', dateOptions);
 
     if (!alertIsTriaged(alertSummary)) {
       countdownClass = this.getCountdownClass(countdown.triage);
@@ -132,13 +132,13 @@ export default class AlertStatusCountdown extends React.Component {
                     <div data-testid="due-date-status">
                       {showTriageCountdown && (
                         <div className="countdown-section">
-                          <div className='fw-bold'>Bug Due: {bugDueDate}</div>
+                          <div className="fw-bold">Triage Due: {bugDueDate}</div>
                           <div data-testid="time-left">Time left: {countdown.triage}</div>
                         </div>
                       )}
                       {showBugCountdown && (
                         <div className="countdown-section">
-                          <div className='fw-bold'>Bug Due: {bugDueDate}</div>
+                          <div className="fw-bold">Bug Due: {bugDueDate}</div>
                           <div data-testid="time-left">Time left: {countdown.bug}</div>
                         </div>
                       )}

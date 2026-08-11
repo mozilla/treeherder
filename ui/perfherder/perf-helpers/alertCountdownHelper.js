@@ -22,7 +22,7 @@ export const getTimeDifference = (currentDate, dueDate) => {
 
   // step forward exactly 24 hours at a time to count weekend days
   while (tempDate < dueDate) {
-    const dayOfWeek = tempDate.getUTCDay();
+    const dayOfWeek = tempDate.getDay();
 
     if (dayOfWeek === weekdays.sunday || dayOfWeek === weekdays.saturday) {
       weekendDays++;
