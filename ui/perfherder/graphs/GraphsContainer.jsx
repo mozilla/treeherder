@@ -21,6 +21,7 @@ import { abbreviatedNumber } from '../perf-helpers/helpers';
 
 import TableView from './TableView';
 import GraphTooltip from './GraphTooltip';
+import MissingJobTooltip from './MissingJobTooltip';
 
 const DOT_SIZE = 5;
 const CHART_WIDTH = 1350;
@@ -48,6 +49,8 @@ class GraphsContainer extends React.Component {
       width: window.innerWidth,
       hoverId: null,
       lockedId: null,
+      hoverMissingDatum: null,
+      lockedMissingDatum: null,
     };
   }
 
@@ -361,6 +364,8 @@ class GraphsContainer extends React.Component {
     this.props.updateStateParams?.({ selectedDataPoint: null });
   };
 
+  clearMissingLock = () => this.setState({ lockedMissingDatum: null });
+
   updateZoom = (zoom) => {
     const { lockedId } = this.state;
     const { updateStateParams } = this.props;
@@ -401,6 +406,7 @@ class GraphsContainer extends React.Component {
       highlightChangelogData,
       highlightCommonAlerts,
       highlightInitialDataPoints,
+      highlightMissingJobs,
     } = this.props;
     const {
       highlights,
@@ -408,6 +414,8 @@ class GraphsContainer extends React.Component {
       scatterPlotData,
       zoomDomain,
       width,
+      hoverMissingDatum,
+      lockedMissingDatum,
     } = this.state;
 
     let infraAffectedData = [];
@@ -418,6 +426,9 @@ class GraphsContainer extends React.Component {
     const lockedDatum = this.state.lockedId
       ? scatterPlotData.find((d) => d?.dataPointId === this.state.lockedId)
       : null;
+    const getMissingColor = (d) =>
+      testData.find((s) => s.signature_id === d?.signature_id)?.color[1] ??
+      '#888';
 
     changelogData.forEach((data) =>
       scatterPlotData.some((dataPoint, index) => {
@@ -636,6 +647,147 @@ class GraphsContainer extends React.Component {
                     />
                   )}
 
+                  {highlightMissingJobs &&
+                    testData.map((series) => {
+                      if (
+                        !series.visible ||
+                        !series.missingData ||
+                        series.missingData.length === 0
+                      )
+                        return null;
+                      // color is [cssClassName, hexValue]; index 1 is the hex for SVG stroke.
+                      const seriesColor = series.color[1];
+                      return (
+                        <VictoryScatter
+                          key={`missing-${series.id}`}
+                          name={`missing-${series.id}`}
+                          data={series.missingData}
+                          size={() => DOT_SIZE}
+                          symbol="circle"
+                          style={{
+                            data: {
+                              fill: 'transparent',
+                              stroke: seriesColor,
+                              strokeWidth: 2,
+                              strokeDasharray: '2,2',
+                              opacity: 0.7,
+                              cursor: 'pointer',
+                            },
+                          }}
+                          events={[
+                            {
+                              target: 'data',
+                              eventHandlers: {
+                                onMouseOver: (_evt, props) => {
+                                  this.setState({
+                                    hoverMissingDatum: props.datum,
+                                  });
+                                  return null;
+                                },
+                                onMouseOut: () => {
+                                  this.setState({ hoverMissingDatum: null });
+                                  return null;
+                                },
+                                onClick: (_evt, props) => {
+                                  const d = props.datum;
+                                  this.setState((prev) => ({
+                                    lockedMissingDatum:
+                                      prev.lockedMissingDatum?.signature_id ===
+                                        d.signature_id &&
+                                      prev.lockedMissingDatum?.pushId ===
+                                        d.pushId
+                                        ? null
+                                        : d,
+                                  }));
+                                  // Victory event handlers must return a value; null means no chart state mutation.
+                                  return null;
+                                },
+                              },
+                            },
+                          ]}
+                        />
+                      );
+                    })}
+
+                  {hoverMissingDatum && (
+                    <VictoryScatter
+                      name="hover-missing-layer"
+                      data={[hoverMissingDatum]}
+                      size={() => DOT_SIZE}
+                      symbol="circle"
+                      groupComponent={<g pointerEvents="none" />}
+                      style={{
+                        data: {
+                          pointerEvents: 'none',
+                          fill: 'transparent',
+                          stroke: getMissingColor(hoverMissingDatum),
+                          strokeWidth: 2,
+                          strokeDasharray: '2,2',
+                          opacity: 0.7,
+                        },
+                      }}
+                      labels={() => ' '}
+                      labelComponent={
+                        <VictoryTooltip
+                          active
+                          renderInPortal
+                          activateData={false}
+                          pointerLength={0}
+                          flyoutStyle={{ pointerEvents: 'none' }}
+                          style={{ pointerEvents: 'none' }}
+                          flyoutComponent={
+                            <MissingJobTooltip
+                              lockTooltip={false}
+                              closeTooltip={() =>
+                                this.setState({ hoverMissingDatum: null })
+                              }
+                              windowWidth={width}
+                              {...this.props}
+                            />
+                          }
+                        />
+                      }
+                    />
+                  )}
+                  {lockedMissingDatum && (
+                    <VictoryScatter
+                      name="lock-missing-layer"
+                      data={[lockedMissingDatum]}
+                      size={() => DOT_SIZE}
+                      symbol="circle"
+                      groupComponent={<g pointerEvents="none" />}
+                      style={{
+                        data: {
+                          pointerEvents: 'none',
+                          fill: 'transparent',
+                          stroke: getMissingColor(lockedMissingDatum),
+                          strokeWidth: 2,
+                          strokeDasharray: '2,2',
+                          opacity: 0.7,
+                        },
+                      }}
+                      labels={() => ' '}
+                      labelComponent={
+                        <VictoryTooltip
+                          active
+                          renderInPortal
+                          activateData={false}
+                          pointerLength={0}
+                          flyoutStyle={{ pointerEvents: 'none' }}
+                          style={{ pointerEvents: 'none' }}
+                          flyoutComponent={
+                            <MissingJobTooltip
+                              lockTooltip
+                              closeTooltip={this.clearMissingLock}
+                              windowWidth={width}
+                              {...this.props}
+                            />
+                          }
+                        />
+                      }
+                    />
+                  )}
+
                   <VictoryScatter
                     name="scatter-plot"
                     symbol={({ datum }) => (datum._z ? datum._z[0] : 'circle')}
@@ -838,6 +990,7 @@ GraphsContainer.propTypes = {
   selectedDataPoint: PropTypes.shape({}),
   highlightAlerts: PropTypes.bool,
   highlightInitialDataPoints: PropTypes.bool,
+  highlightMissingJobs: PropTypes.bool,
   highlightedRevisions: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.arrayOf(PropTypes.string),
