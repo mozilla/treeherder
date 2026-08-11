@@ -1376,11 +1376,8 @@ class PerfCompareResults(generics.ListAPIView):
         return Response(data=serialized_data)
 
     @staticmethod
-    def _process_mann_whitney_u(comparison_inputs, header_names, platforms, enable_silverman_kde):
-        """
-        Process performance comparison results using Mann-Whitney U test with parallel processing.
-        """
-        tasks = []
+    def _comparison_pairs(comparison_inputs, header_names, platforms):
+        """Yield each valid (header, platform) pair with its unpacked common result."""
         for header in header_names:
             for platform in platforms:
                 (
@@ -1391,19 +1388,31 @@ class PerfCompareResults(generics.ListAPIView):
                     common_result,
                 ) = PerfCompareResults._build_common_result(comparison_inputs, header, platform)
 
-                if no_results_to_show:
-                    continue
-
-                tasks.append(
-                    (
+                if not no_results_to_show:
+                    yield (
+                        lower_is_better,
                         statistics_base_perf_data,
                         statistics_new_perf_data,
                         header,
-                        lower_is_better,
                         common_result,
-                        enable_silverman_kde,
                     )
-                )
+
+    @staticmethod
+    def _process_mann_whitney_u(comparison_inputs, header_names, platforms, enable_silverman_kde):
+        """
+        Process performance comparison results using Mann-Whitney U test with parallel processing.
+        """
+        tasks = []
+        for (
+            lower_is_better,
+            stats_base,
+            stats_new,
+            header,
+            common,
+        ) in PerfCompareResults._comparison_pairs(comparison_inputs, header_names, platforms):
+            tasks.append(
+                (stats_base, stats_new, header, lower_is_better, common, enable_silverman_kde)
+            )
 
         workers = multiprocessing.cpu_count()
         logger.warning(f"Workers used for MWU analysis: {workers}")
@@ -1418,81 +1427,71 @@ class PerfCompareResults(generics.ListAPIView):
         Process performance comparison results using Student's t-test (sequential processing).
         """
         results = []
-        for header in header_names:
-            for platform in platforms:
-                (
-                    lower_is_better,
-                    statistics_base_perf_data,
-                    statistics_new_perf_data,
-                    no_results_to_show,
-                    common_result,
-                ) = PerfCompareResults._build_common_result(comparison_inputs, header, platform)
+        for (
+            lower_is_better,
+            stats_base,
+            stats_new,
+            header,
+            common,
+        ) in PerfCompareResults._comparison_pairs(comparison_inputs, header_names, platforms):
+            # Calculate Student's t-test specific data
+            base_runs_count = len(stats_base)
+            new_runs_count = len(stats_new)
+            is_complete = base_runs_count and new_runs_count
 
-                if no_results_to_show:
-                    continue
+            base_avg_value = perfcompare_utils.get_avg(stats_base, header)
+            base_stddev = perfcompare_utils.get_stddev(stats_base, header)
+            base_median_value = perfcompare_utils.get_median(stats_base)
+            new_avg_value = perfcompare_utils.get_avg(stats_new, header)
+            new_stddev = perfcompare_utils.get_stddev(stats_new, header)
+            new_median_value = perfcompare_utils.get_median(stats_new)
+            base_stddev_pct = perfcompare_utils.get_stddev_pct(base_avg_value, base_stddev)
+            new_stddev_pct = perfcompare_utils.get_stddev_pct(new_avg_value, new_stddev)
+            confidence = perfcompare_utils.get_abs_ttest_value(stats_base, stats_new)
+            confidence_text = perfcompare_utils.get_confidence_text(confidence)
+            delta_value = perfcompare_utils.get_delta_value(new_avg_value, base_avg_value)
+            delta_percentage = perfcompare_utils.get_delta_percentage(delta_value, base_avg_value)
+            magnitude = perfcompare_utils.get_magnitude(delta_percentage)
+            new_is_better = perfcompare_utils.is_new_better(delta_value, lower_is_better)
+            is_confident = perfcompare_utils.is_confident(
+                base_runs_count, new_runs_count, confidence
+            )
+            more_runs_are_needed = perfcompare_utils.more_runs_are_needed(
+                is_complete, is_confident, base_runs_count
+            )
+            class_name = perfcompare_utils.get_class_name(
+                new_is_better, base_avg_value, new_avg_value, confidence
+            )
 
-                # Calculate Student's t-test specific data
-                base_runs_count = len(statistics_base_perf_data)
-                new_runs_count = len(statistics_new_perf_data)
-                is_complete = base_runs_count and new_runs_count
+            is_improvement = class_name == "success"
+            is_regression = class_name == "danger"
+            is_meaningful = class_name == ""
 
-                base_avg_value = perfcompare_utils.get_avg(statistics_base_perf_data, header)
-                base_stddev = perfcompare_utils.get_stddev(statistics_base_perf_data, header)
-                base_median_value = perfcompare_utils.get_median(statistics_base_perf_data)
-                new_avg_value = perfcompare_utils.get_avg(statistics_new_perf_data, header)
-                new_stddev = perfcompare_utils.get_stddev(statistics_new_perf_data, header)
-                new_median_value = perfcompare_utils.get_median(statistics_new_perf_data)
-                base_stddev_pct = perfcompare_utils.get_stddev_pct(base_avg_value, base_stddev)
-                new_stddev_pct = perfcompare_utils.get_stddev_pct(new_avg_value, new_stddev)
-                confidence = perfcompare_utils.get_abs_ttest_value(
-                    statistics_base_perf_data, statistics_new_perf_data
-                )
-                confidence_text = perfcompare_utils.get_confidence_text(confidence)
-                delta_value = perfcompare_utils.get_delta_value(new_avg_value, base_avg_value)
-                delta_percentage = perfcompare_utils.get_delta_percentage(
-                    delta_value, base_avg_value
-                )
-                magnitude = perfcompare_utils.get_magnitude(delta_percentage)
-                new_is_better = perfcompare_utils.is_new_better(delta_value, lower_is_better)
-                is_confident = perfcompare_utils.is_confident(
-                    base_runs_count, new_runs_count, confidence
-                )
-                more_runs_are_needed = perfcompare_utils.more_runs_are_needed(
-                    is_complete, is_confident, base_runs_count
-                )
-                class_name = perfcompare_utils.get_class_name(
-                    new_is_better, base_avg_value, new_avg_value, confidence
-                )
+            row_result = {
+                **common,
+                "base_avg_value": base_avg_value,
+                "new_avg_value": new_avg_value,
+                "base_median_value": base_median_value,
+                "new_median_value": new_median_value,
+                "base_stddev": base_stddev,
+                "new_stddev": new_stddev,
+                "confidence": confidence,
+                "confidence_text": confidence_text,
+                "delta_value": delta_value,
+                "delta_percentage": delta_percentage,
+                "magnitude": magnitude,
+                "new_is_better": new_is_better,
+                "lower_is_better": lower_is_better,
+                "is_confident": is_confident,
+                "more_runs_are_needed": more_runs_are_needed,
+                "is_improvement": is_improvement,
+                "is_regression": is_regression,
+                "is_meaningful": is_meaningful,
+                "base_stddev_pct": base_stddev_pct,
+                "new_stddev_pct": new_stddev_pct,
+            }
 
-                is_improvement = class_name == "success"
-                is_regression = class_name == "danger"
-                is_meaningful = class_name == ""
-
-                row_result = {
-                    **common_result,
-                    "base_avg_value": base_avg_value,
-                    "new_avg_value": new_avg_value,
-                    "base_median_value": base_median_value,
-                    "new_median_value": new_median_value,
-                    "base_stddev": base_stddev,
-                    "new_stddev": new_stddev,
-                    "confidence": confidence,
-                    "confidence_text": confidence_text,
-                    "delta_value": delta_value,
-                    "delta_percentage": delta_percentage,
-                    "magnitude": magnitude,
-                    "new_is_better": new_is_better,
-                    "lower_is_better": lower_is_better,
-                    "is_confident": is_confident,
-                    "more_runs_are_needed": more_runs_are_needed,
-                    "is_improvement": is_improvement,
-                    "is_regression": is_regression,
-                    "is_meaningful": is_meaningful,
-                    "base_stddev_pct": base_stddev_pct,
-                    "new_stddev_pct": new_stddev_pct,
-                }
-
-                results.append(row_result)
+            results.append(row_result)
 
         return results
 
