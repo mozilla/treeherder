@@ -86,6 +86,15 @@ describe('updateRepoParams', () => {
     expect(result).not.toContain('author=');
   });
 
+  it('removes selection parameters when changing repo', () => {
+    window.location.search =
+      '?repo=autoland&selectedJob=456&selectedTaskRun=OeYt2-iLQSaQb2ashZ_VIQ.0';
+    const result = updateRepoParams('try');
+
+    expect(result).not.toContain('selectedJob=');
+    expect(result).not.toContain('selectedTaskRun=');
+  });
+
   it('preserves other parameters when changing repo', () => {
     window.location.search = '?repo=autoland&resultStatus=success&tier=1';
     const result = updateRepoParams('try');
