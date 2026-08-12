@@ -440,3 +440,105 @@ def test_alert_emails(
                 for call_arg in mocked_email_client.email.call_args_list
             ]
         )
+
+
+def _generate_regression(test_repository, signature, base_time, interval, gap=False):
+    # gap=True skips the push right before the regression, so its detected prev_push is one earlier.
+    before = int(interval / 2) - (1 if gap else 0)
+    _generate_performance_data(test_repository, signature, base_time, 1, 0.5, before)
+    _generate_performance_data(
+        test_repository, signature, base_time, int(interval / 2) + 1, 1.0, int(interval / 2)
+    )
+
+
+def test_merges_summary_and_widens_prev_push(
+    test_repository,
+    test_issue_tracker,
+    failure_classifications,
+    generic_reference_data,
+    test_perf_signature,
+    test_perf_signature_2,
+    mock_deviance,
+):
+    # signature 2 has a gap right before the regression, so it detects an
+    # earlier prev push than signature 1 for the same push.
+    base_time = time.time()
+    interval = 30
+
+    _generate_regression(test_repository, test_perf_signature, base_time, interval)
+    generate_new_alerts_in_series(test_perf_signature)
+    summary = PerformanceAlertSummary.objects.get()
+    assert summary.prev_push_id == int(interval / 2)
+
+    _generate_regression(test_repository, test_perf_signature_2, base_time, interval, gap=True)
+    generate_new_alerts_in_series(test_perf_signature_2)
+
+    assert PerformanceAlertSummary.objects.count() == 1
+    assert PerformanceAlert.objects.count() == 2
+    assert set(PerformanceAlert.objects.values_list("summary_id", flat=True)) == {summary.id}
+    summary.refresh_from_db()
+    assert summary.prev_push_id == int(interval / 2) - 1
+
+
+def test_does_not_narrow_prev_push(
+    test_repository,
+    test_issue_tracker,
+    failure_classifications,
+    generic_reference_data,
+    test_perf_signature,
+    test_perf_signature_2,
+    mock_deviance,
+):
+    # signature 1 has the gap this time, so its prev push is already the
+    # earliest; signature 2's later prev push must not narrow it.
+    base_time = time.time()
+    interval = 30
+
+    _generate_regression(test_repository, test_perf_signature, base_time, interval, gap=True)
+    generate_new_alerts_in_series(test_perf_signature)
+    summary = PerformanceAlertSummary.objects.get()
+    assert summary.prev_push_id == int(interval / 2) - 1
+
+    _generate_regression(test_repository, test_perf_signature_2, base_time, interval)
+    generate_new_alerts_in_series(test_perf_signature_2)
+
+    summary.refresh_from_db()
+    assert summary.prev_push_id == int(interval / 2) - 1
+
+
+def test_manually_created_summary_keeps_prev_push(
+    test_repository,
+    test_issue_tracker,
+    failure_classifications,
+    generic_reference_data,
+    test_perf_signature,
+    test_perf_signature_2,
+    mock_deviance,
+):
+    base_time = time.time()
+    interval = 30
+
+    _generate_regression(test_repository, test_perf_signature, base_time, interval)
+    push = Push.objects.get(repository=test_repository, revision=f"1234abcd{int(interval / 2) + 1}")
+    prev_push = Push.objects.get(
+        repository=test_repository, revision=f"1234abcd{int(interval / 2)}"
+    )
+    summary = PerformanceAlertSummary.objects.create(
+        repository=test_repository,
+        framework=test_perf_signature.framework,
+        push_id=push.id,
+        prev_push_id=prev_push.id,
+        sheriffed=True,
+        manually_created=True,
+        created=datetime.datetime.now(),
+    )
+
+    # signature 2's gap would otherwise widen prev_push, but this summary
+    # was manually created, so it must be left untouched.
+    _generate_regression(test_repository, test_perf_signature_2, base_time, interval, gap=True)
+    generate_new_alerts_in_series(test_perf_signature_2)
+
+    assert PerformanceAlertSummary.objects.count() == 1
+    assert PerformanceAlert.objects.filter(summary=summary).count() == 1
+    summary.refresh_from_db()
+    assert summary.prev_push_id == prev_push.id
