@@ -99,8 +99,14 @@ class GraphsContainer extends React.Component {
       this.addHighlights();
     }
 
-    if (prevProps.testData !== testData || prevProps.changelogData !== changelogData) {
+    if (prevProps.testData !== testData) {
       this.updateGraphs();
+    }
+    
+    if (prevProps.changelogData !== changelogData) {
+      this.setState((state) => ({
+        infraAffectedData: this.computeInfraAffectedData(state.scatterPlotData, changelogData),
+      }));
     }
 
     if (prevProps.timeRange !== timeRange) {
