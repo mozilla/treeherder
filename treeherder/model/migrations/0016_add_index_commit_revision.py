@@ -5,13 +5,13 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('model', '0015_add_repository_tc_root_url'),
+        ("model", "0015_add_repository_tc_root_url"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='commit',
-            name='revision',
+            model_name="commit",
+            name="revision",
             field=models.CharField(db_index=True, max_length=40),
         ),
     ]

@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("perf", "0058_performancealertsummary_original_prev_push_and_more"),
     ]

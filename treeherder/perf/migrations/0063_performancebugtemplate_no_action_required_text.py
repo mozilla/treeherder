@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("perf", "0062_performancetelemetryalert_bug_modified_and_more"),
     ]
