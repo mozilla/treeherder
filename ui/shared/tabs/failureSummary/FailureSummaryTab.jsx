@@ -35,10 +35,22 @@ class FailureSummaryTab extends React.Component {
   componentDidMount() {
     this.loadBugSuggestions();
 
-    window.addEventListener(thEvents.internalIssueClassification, (event) =>
-      this.checkInternalFailureOccurrences(event.detail.internalBugId),
+    window.addEventListener(
+      thEvents.internalIssueClassification,
+      this.handleInternalIssueClassification,
     );
   }
+
+  componentWillUnmount() {
+    window.removeEventListener(
+      thEvents.internalIssueClassification,
+      this.handleInternalIssueClassification,
+    );
+  }
+
+  handleInternalIssueClassification = (event) => {
+    this.checkInternalFailureOccurrences(event.detail.internalBugId);
+  };
 
   componentDidUpdate(prevProps) {
     const { selectedJobId } = this.props;

@@ -10,6 +10,7 @@ import { MemoryRouter } from 'react-router';
 
 import { getApiUrl } from '../../../ui/helpers/url';
 import { getProjectUrl } from '../../../ui/helpers/location';
+import { thEvents } from '../../../ui/helpers/constants';
 import PinBoard from '../../../ui/job-view/details/PinBoard';
 import {
   addBug,
@@ -78,6 +79,30 @@ describe('FailureSummaryTab', () => {
         'TEST-UNEXPECTED-FAIL | devtools/client/netmonitor/src/har/test/browser_net_har_copy_all_as_har.js | There must be some page title -',
       ),
     ).toBeInTheDocument();
+  });
+
+  test('removes its internalIssueClassification listener on unmount', () => {
+    const addSpy = jest.spyOn(window, 'addEventListener');
+    const removeSpy = jest.spyOn(window, 'removeEventListener');
+
+    const { unmount } = render(testFailureSummaryTab());
+
+    const eventType = thEvents.internalIssueClassification;
+    const addedHandler = addSpy.mock.calls.find(
+      ([type]) => type === eventType,
+    )[1];
+
+    unmount();
+
+    const removedCall = removeSpy.mock.calls.find(
+      ([type]) => type === eventType,
+    );
+
+    expect(removedCall).toBeDefined();
+    expect(removedCall[1]).toBe(addedHandler);
+
+    addSpy.mockRestore();
+    removeSpy.mockRestore();
   });
 
   test('suggested duplicate bugs should mention open bug', async () => {
