@@ -1,6 +1,7 @@
 import time
 
 import pytest
+from django.conf import settings
 from django.contrib.auth import SESSION_KEY
 from django.urls import reverse
 from rest_framework import status
@@ -10,6 +11,8 @@ from rest_framework.test import APIRequestFactory
 
 from treeherder.auth.backends import AuthBackend
 from treeherder.model.models import User
+
+GROUPS_CLAIM = "https://sso.mozilla.com/claim/groups"
 
 one_hour_in_seconds = 60 * 60
 one_day_in_seconds = 24 * one_hour_in_seconds
@@ -94,7 +97,9 @@ def test_login_logout_relogin(client, monkeypatch, id_token_sub, id_token_email,
     }
     assert SESSION_KEY in client.session
     # Uses a tolerance of up to 5 seconds to account for rounding/the time the test takes to run.
-    assert client.session.get_expiry_age() == pytest.approx(one_hour_in_seconds, abs=5)
+    assert client.session.get_expiry_age() == pytest.approx(
+        min(one_hour_in_seconds, settings.AUTH_MAX_SESSION_AGE_SECONDS), abs=5
+    )
 
     assert User.objects.count() == 1
     session_user_id = int(client.session[SESSION_KEY])
@@ -119,7 +124,9 @@ def test_login_logout_relogin(client, monkeypatch, id_token_sub, id_token_email,
     assert resp.status_code == 200
     assert resp.json()["username"] == expected_username
     assert SESSION_KEY in client.session
-    assert client.session.get_expiry_age() == pytest.approx(one_hour_in_seconds, abs=5)
+    assert client.session.get_expiry_age() == pytest.approx(
+        min(one_hour_in_seconds, settings.AUTH_MAX_SESSION_AGE_SECONDS), abs=5
+    )
     assert User.objects.count() == 1
 
 
@@ -388,4 +395,155 @@ def test_login_id_token_expires_before_access_token(test_ldap_user, client, monk
         HTTP_ACCESS_TOKEN_EXPIRES_AT=str(access_token_expiration_timestamp),
     )
     assert resp.status_code == 200
-    assert client.session.get_expiry_age() == pytest.approx(one_hour_in_seconds, abs=5)
+    assert client.session.get_expiry_age() == pytest.approx(
+        min(one_hour_in_seconds, settings.AUTH_MAX_SESSION_AGE_SECONDS), abs=5
+    )
+
+
+# Session expiry cap tests
+#
+# The Django session cookie is what authorizes every mutating API call, so its
+# lifetime bounds how long a user whose SSO access was revoked can keep acting.
+# The session is capped at AUTH_MAX_SESSION_AGE_SECONDS so that when the
+# frontend's silent renewals stop (e.g. a terminated employee) the session
+# lapses within that window rather than coasting on the token's full lifetime.
+
+
+def test_login_session_capped_when_tokens_outlive_cap(test_ldap_user, client, monkeypatch):
+    """When both tokens outlive the cap, the session is capped, not left at ~24h."""
+    now_in_seconds = int(time.time())
+    long_lived_timestamp = now_in_seconds + one_day_in_seconds
+
+    def userinfo_mock(*args, **kwargs):
+        return {"sub": "email", "email": test_ldap_user.email, "exp": long_lived_timestamp}
+
+    monkeypatch.setattr(AuthBackend, "_get_user_info", userinfo_mock)
+
+    resp = client.get(
+        reverse("auth-login"),
+        HTTP_AUTHORIZATION="Bearer meh",
+        HTTP_ID_TOKEN="meh",
+        HTTP_ACCESS_TOKEN_EXPIRES_AT=str(long_lived_timestamp),
+    )
+    assert resp.status_code == 200
+    assert client.session.get_expiry_age() == pytest.approx(
+        settings.AUTH_MAX_SESSION_AGE_SECONDS, abs=5
+    )
+
+
+def test_login_session_uses_token_expiry_when_shorter_than_cap(test_ldap_user, client, monkeypatch):
+    """A token expiring sooner than the cap still wins (the cap only shortens)."""
+    now_in_seconds = int(time.time())
+    ten_minutes = 10 * 60
+    id_token_expiration_timestamp = now_in_seconds + one_day_in_seconds
+    access_token_expiration_timestamp = now_in_seconds + ten_minutes
+
+    def userinfo_mock(*args, **kwargs):
+        return {
+            "sub": "email",
+            "email": test_ldap_user.email,
+            "exp": id_token_expiration_timestamp,
+        }
+
+    monkeypatch.setattr(AuthBackend, "_get_user_info", userinfo_mock)
+
+    resp = client.get(
+        reverse("auth-login"),
+        HTTP_AUTHORIZATION="Bearer meh",
+        HTTP_ID_TOKEN="meh",
+        HTTP_ACCESS_TOKEN_EXPIRES_AT=str(access_token_expiration_timestamp),
+    )
+    assert resp.status_code == 200
+    assert client.session.get_expiry_age() == pytest.approx(ten_minutes, abs=5)
+
+
+# is_staff / sheriff group claim tests
+#
+# The backend derives is_staff from the SSO groups claim on every /auth/login/,
+# including silent token renewals. Silent-renewal tokens frequently omit the
+# (large) groups claim entirely, so an absent claim must NOT demote the user --
+# otherwise renewals would strip a sheriff's permissions. A claim that IS present
+# is authoritative, so it both promotes and demotes.
+
+
+def _login_with_groups(client, user, groups, monkeypatch):
+    """Log `user` in via /auth/login/, injecting `groups` into the id token.
+
+    Pass `groups=None` to omit the groups claim entirely (the silent-renewal
+    case). Returns the /auth/login/ response.
+    """
+    now_in_seconds = int(time.time())
+    userinfo = {
+        "sub": "Mozilla-LDAP",
+        "email": user.email,
+        "exp": now_in_seconds + one_day_in_seconds,
+    }
+    if groups is not None:
+        userinfo[GROUPS_CLAIM] = groups
+
+    monkeypatch.setattr(AuthBackend, "_get_user_info", lambda *a, **k: userinfo)
+
+    return client.get(
+        reverse("auth-login"),
+        HTTP_AUTHORIZATION="Bearer meh",
+        HTTP_ID_TOKEN="meh",
+        HTTP_ACCESS_TOKEN_EXPIRES_AT=str(now_in_seconds + one_hour_in_seconds),
+    )
+
+
+def test_login_absent_groups_claim_preserves_staff(test_ldap_user, client, monkeypatch):
+    """Absent groups claim (e.g. silent renewal) must not demote an existing staff user."""
+    test_ldap_user.is_staff = True
+    test_ldap_user.save()
+
+    resp = _login_with_groups(client, test_ldap_user, None, monkeypatch)
+
+    assert resp.status_code == 200
+    assert resp.json()["is_staff"] is True
+    test_ldap_user.refresh_from_db()
+    assert test_ldap_user.is_staff is True
+
+
+def test_login_groups_claim_without_sheriff_demotes(test_ldap_user, client, monkeypatch):
+    """A present groups claim lacking a sheriff group is authoritative: demote."""
+    test_ldap_user.is_staff = True
+    test_ldap_user.save()
+
+    resp = _login_with_groups(
+        client, test_ldap_user, ["all_scm_level_1", "all_scm_level_2"], monkeypatch
+    )
+
+    assert resp.status_code == 200
+    assert resp.json()["is_staff"] is False
+    test_ldap_user.refresh_from_db()
+    assert test_ldap_user.is_staff is False
+
+
+def test_login_empty_groups_claim_demotes(test_ldap_user, client, monkeypatch):
+    """A present-but-empty groups claim is treated as authoritative: demote."""
+    test_ldap_user.is_staff = True
+    test_ldap_user.save()
+
+    resp = _login_with_groups(client, test_ldap_user, [], monkeypatch)
+
+    assert resp.status_code == 200
+    assert resp.json()["is_staff"] is False
+    test_ldap_user.refresh_from_db()
+    assert test_ldap_user.is_staff is False
+
+
+@pytest.mark.parametrize("sheriff_group", ["sheriff", "perf_sheriff"])
+def test_login_groups_claim_with_sheriff_promotes(
+    test_ldap_user, client, monkeypatch, sheriff_group
+):
+    """A present groups claim containing a sheriff group promotes a non-staff user."""
+    assert test_ldap_user.is_staff is False
+
+    resp = _login_with_groups(
+        client, test_ldap_user, ["all_scm_level_1", sheriff_group], monkeypatch
+    )
+
+    assert resp.status_code == 200
+    assert resp.json()["is_staff"] is True
+    test_ldap_user.refresh_from_db()
+    assert test_ldap_user.is_staff is True
