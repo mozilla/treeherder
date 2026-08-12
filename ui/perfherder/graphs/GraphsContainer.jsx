@@ -102,7 +102,7 @@ class GraphsContainer extends React.Component {
     if (prevProps.testData !== testData) {
       this.updateGraphs();
     }
-    
+
     if (prevProps.changelogData !== changelogData) {
       this.setState((state) => ({
         infraAffectedData: this.computeInfraAffectedData(state.scatterPlotData, changelogData),
@@ -259,7 +259,7 @@ class GraphsContainer extends React.Component {
   };
 
   computeInfraAffectedData = (scatterPlotData, changelogData = []) => {
-      let rawInfraData = [];
+      const rawInfraData = [];
       const markDataPoints = 5;
       
       changelogData.forEach((data) =>
