@@ -733,6 +733,7 @@ describe('Mocked API calls', () => {
 
     expect(infraChangesButton.classList).toContain('active');
 
+    updateStateParams.mockClear();
     fireEvent.click(infraChangesButton);
 
     // Wait for click to process
@@ -758,6 +759,7 @@ describe('Mocked API calls', () => {
 
     expect(commonAlertsButton.classList).not.toContain('active');
 
+    updateStateParams.mockClear();
     fireEvent.click(commonAlertsButton);
 
     // Wait for click to process
@@ -786,6 +788,7 @@ describe('Mocked API calls', () => {
 
   expect(initialDataPointsButton.classList).not.toContain('active');
 
+  updateStateParams.mockClear();
   fireEvent.click(initialDataPointsButton);
 
   await waitFor(() => {
@@ -815,6 +818,7 @@ test("'Highlight initial data points' button can be turned off", async () => {
 
   expect(initialDataPointsButton.classList).toContain('active');
 
+  updateStateParams.mockClear();
   fireEvent.click(initialDataPointsButton);
 
   await waitFor(() => {
@@ -841,6 +845,7 @@ test("'Highlight initial data points' button can be turned off", async () => {
 
     expect(useReplicatesButton.classList).not.toContain('active');
 
+    updateStateParams.mockClear();
     fireEvent.click(useReplicatesButton);
 
     // Wait for click to process
@@ -866,6 +871,7 @@ test("'Highlight initial data points' button can be turned off", async () => {
 
     expect(useReplicatesButton.classList).toContain('active');
 
+    updateStateParams.mockClear();
     fireEvent.click(useReplicatesButton);
 
     // Wait for click to process
