@@ -39,11 +39,21 @@ class GraphsContainer extends React.Component {
     const scatterPlotData = flatMap(testData, (item) =>
       item.visible ? item.data : [],
     );
+    const scatterPlotMap = scatterPlotData.reduce((acc, datum) => {
+      if (datum?.dataPointId != null) acc[datum.dataPointId] = datum;
+      return acc;
+    }, {});
+    const infraAffectedData = this.computeInfraAffectedData(
+      scatterPlotData, 
+      props.changelogData
+    );
     const zoomDomain = this.initZoomDomain(scatterPlotData);
     this.state = {
       highlights: [],
       highlightCommonAlertsData: [],
       scatterPlotData,
+      scatterPlotMap,
+      infraAffectedData,
       zoomDomain,
       width: window.innerWidth,
       hoverId: null,
@@ -75,6 +85,7 @@ class GraphsContainer extends React.Component {
       highlightChangelogData,
       highlightedRevisions,
       testData,
+      changelogData,
       timeRange,
       selectedDataPoint,
     } = this.props;
@@ -88,7 +99,7 @@ class GraphsContainer extends React.Component {
       this.addHighlights();
     }
 
-    if (prevProps.testData !== testData) {
+    if (prevProps.testData !== testData || prevProps.changelogData !== changelogData) {
       this.updateGraphs();
     }
 
@@ -241,11 +252,40 @@ class GraphsContainer extends React.Component {
     }
   };
 
+  computeInfraAffectedData = (scatterPlotData, changelogData = []) => {
+      let rawInfraData = [];
+      const markDataPoints = 5;
+      
+      changelogData.forEach((data) =>
+        scatterPlotData.some((dataPoint, index) => {
+          const affectedData = dataPoint.x > data.date;
+          if (affectedData) {
+            rawInfraData.push(
+              scatterPlotData.slice(index, index + markDataPoints),
+            );
+          }
+          return affectedData;
+        }),
+      );
+
+      return new Set(
+        flatMap(rawInfraData).map((item) => item.revision),
+      );
+    };
+
   updateGraphs = () => {
-    const { testData, updateStateParams, visibilityChanged } = this.props;
+    const { testData, changelogData, updateStateParams, visibilityChanged } = this.props;
     let { zoomDomain } = this.state;
     const scatterPlotData = testData.flatMap((item) =>
       item.visible ? item.data : [],
+    );
+    const scatterPlotMap = scatterPlotData.reduce((acc, datum) => {
+      if (datum?.dataPointId != null) acc[datum.dataPointId] = datum;
+      return acc;
+    }, {});
+    const infraAffectedData = this.computeInfraAffectedData(
+      scatterPlotData, 
+      changelogData
     );
     this.addHighlights();
     this.buildInitialRunsCache();
@@ -254,6 +294,8 @@ class GraphsContainer extends React.Component {
     }
     this.setState({
       scatterPlotData,
+      scatterPlotMap,
+      infraAffectedData,
       zoomDomain,
     });
 
@@ -387,55 +429,6 @@ class GraphsContainer extends React.Component {
     return data.reduce((max, p) => (p.y > max ? p.y : max), data[0].y);
   };
 
-  _dataKey = (props) => {
-    const testDataSig = (props.testData || [])
-      .map((t) => `${t.signature_id}:${t.visible}`)
-      .join(',');
-    
-    return `${testDataSig}|${props.timeRange?.value}|${props.changelogData?.length}`;
-  };
-
-  _getMemoizedData = () => {
-    const currentKey = this._dataKey(this.props);
-
-    if (currentKey === this._lastKey) {
-      return {
-        scatterPlotData: this._scatterCache,
-        infraAffectedData: this._infraAffectedCache,
-      };
-    }
-
-    const scatterPlotData = (this.props.testData || []).flatMap((item) =>
-      item.visible ? item.data : [],
-    );
-
-    let rawInfraData = [];
-    const markDataPoints = 5;
-    
-    (this.props.changelogData || []).forEach((data) =>
-      scatterPlotData.some((dataPoint, index) => {
-        const affectedData = dataPoint.x > data.date;
-        if (affectedData) {
-          rawInfraData.push(
-            scatterPlotData.slice(index, index + markDataPoints),
-          );
-        }
-        return affectedData;
-      }),
-    );
-
-    this._scatterCache = scatterPlotData;
-    this._infraAffectedCache = new Set(
-      flatMap(rawInfraData).map((item) => item.revision),
-    );
-    this._lastKey = currentKey;
-
-    return {
-      scatterPlotData: this._scatterCache,
-      infraAffectedData: this._infraAffectedCache,
-    };
-  };
-
   render() {
     const {
       testData = [],
@@ -453,15 +446,12 @@ class GraphsContainer extends React.Component {
       highlightCommonAlertsData,
       zoomDomain,
       width,
+      scatterPlotData,
+      infraAffectedData,
     } = this.state;
 
-    const { scatterPlotData, infraAffectedData } = this._getMemoizedData();
-    const hoverDatum = this.state.hoverId
-      ? scatterPlotData.find((d) => d?.dataPointId === this.state.hoverId)
-      : null;
-    const lockedDatum = this.state.lockedId
-      ? scatterPlotData.find((d) => d?.dataPointId === this.state.lockedId)
-      : null;
+    const hoverDatum = this.state.hoverId ? this.state.scatterPlotMap[this.state.hoverId] : null;
+    const lockedDatum = this.state.lockedId ? this.state.scatterPlotMap[this.state.lockedId] : null;
 
     const yAxisLabel = this.computeYAxisLabel();
     const positionedTick = <VictoryLabel dx={-2} />;
