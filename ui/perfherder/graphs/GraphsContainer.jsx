@@ -39,11 +39,21 @@ class GraphsContainer extends React.Component {
     const scatterPlotData = flatMap(testData, (item) =>
       item.visible ? item.data : [],
     );
+    const scatterPlotMap = scatterPlotData.reduce((acc, datum) => {
+      if (datum?.dataPointId != null) acc[datum.dataPointId] = datum;
+      return acc;
+    }, {});
+    const infraAffectedData = this.computeInfraAffectedData(
+      scatterPlotData, 
+      props.changelogData
+    );
     const zoomDomain = this.initZoomDomain(scatterPlotData);
     this.state = {
       highlights: [],
       highlightCommonAlertsData: [],
       scatterPlotData,
+      scatterPlotMap,
+      infraAffectedData,
       zoomDomain,
       width: window.innerWidth,
       hoverId: null,
@@ -79,12 +89,10 @@ class GraphsContainer extends React.Component {
       highlightChangelogData,
       highlightedRevisions,
       testData,
+      changelogData,
       timeRange,
       selectedDataPoint,
     } = this.props;
-    const _scatterPlotData = flatMap(testData, (item) =>
-      item.visible ? item.data : [],
-    );
 
     if (
       prevProps.highlightAlerts !== highlightAlerts ||
@@ -97,6 +105,12 @@ class GraphsContainer extends React.Component {
 
     if (prevProps.testData !== testData) {
       this.updateGraphs();
+    }
+
+    if (prevProps.changelogData !== changelogData) {
+      this.setState((state) => ({
+        infraAffectedData: this.computeInfraAffectedData(state.scatterPlotData, changelogData),
+      }));
     }
 
     if (prevProps.timeRange !== timeRange) {
@@ -248,11 +262,40 @@ class GraphsContainer extends React.Component {
     }
   };
 
+  computeInfraAffectedData = (scatterPlotData, changelogData = []) => {
+      const rawInfraData = [];
+      const markDataPoints = 5;
+      
+      changelogData.forEach((data) =>
+        scatterPlotData.some((dataPoint, index) => {
+          const affectedData = dataPoint.x > data.date;
+          if (affectedData) {
+            rawInfraData.push(
+              scatterPlotData.slice(index, index + markDataPoints),
+            );
+          }
+          return affectedData;
+        }),
+      );
+
+      return new Set(
+        flatMap(rawInfraData).map((item) => item.revision),
+      );
+    };
+
   updateGraphs = () => {
-    const { testData, updateStateParams, visibilityChanged } = this.props;
+    const { testData, changelogData, updateStateParams, visibilityChanged } = this.props;
     let { zoomDomain } = this.state;
     const scatterPlotData = testData.flatMap((item) =>
       item.visible ? item.data : [],
+    );
+    const scatterPlotMap = scatterPlotData.reduce((acc, datum) => {
+      if (datum?.dataPointId != null) acc[datum.dataPointId] = datum;
+      return acc;
+    }, {});
+    const infraAffectedData = this.computeInfraAffectedData(
+      scatterPlotData, 
+      changelogData
     );
     this.addHighlights();
     this.buildInitialRunsCache();
@@ -261,6 +304,8 @@ class GraphsContainer extends React.Component {
     }
     this.setState({
       scatterPlotData,
+      scatterPlotMap,
+      infraAffectedData,
       zoomDomain,
     });
 
@@ -409,35 +454,14 @@ class GraphsContainer extends React.Component {
     const {
       highlights,
       highlightCommonAlertsData,
-      scatterPlotData,
       zoomDomain,
       width,
+      scatterPlotData,
+      infraAffectedData,
     } = this.state;
 
-    let infraAffectedData = [];
-    const markDataPoints = 5;
-    const hoverDatum = this.state.hoverId
-      ? scatterPlotData.find((d) => d?.dataPointId === this.state.hoverId)
-      : null;
-    const lockedDatum = this.state.lockedId
-      ? scatterPlotData.find((d) => d?.dataPointId === this.state.lockedId)
-      : null;
-
-    changelogData.forEach((data) =>
-      scatterPlotData.some((dataPoint, index) => {
-        const affectedData = dataPoint.x > data.date;
-        if (affectedData) {
-          infraAffectedData.push(
-            scatterPlotData.slice(index, index + markDataPoints),
-          );
-        }
-        return affectedData;
-      }),
-    );
-
-    infraAffectedData = new Set(
-      flatMap(infraAffectedData).map((item) => item.revision),
-    );
+    const hoverDatum = this.state.hoverId ? this.state.scatterPlotMap[this.state.hoverId] : null;
+    const lockedDatum = this.state.lockedId ? this.state.scatterPlotMap[this.state.lockedId] : null;
 
     const yAxisLabel = this.computeYAxisLabel();
     const positionedTick = <VictoryLabel dx={-2} />;
