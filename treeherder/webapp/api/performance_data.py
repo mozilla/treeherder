@@ -1315,25 +1315,27 @@ class PerfCompareResults(generics.ListAPIView):
         platforms = set(base_platforms + new_platforms)
         self.queryset = []
 
+        base = _RepoPerfData(
+            sigs=base_signatures_map,
+            values=base_grouped_values,
+            replicates=base_grouped_replicates,
+            stats=statistics_base_grouped_data,
+            job_ids=base_grouped_job_ids,
+            rev=base_rev,
+            repo=base_repo_name,
+        )
+        new = _RepoPerfData(
+            sigs=new_signatures_map,
+            values=new_grouped_values,
+            replicates=new_grouped_replicates,
+            stats=statistics_new_grouped_data,
+            job_ids=new_grouped_job_ids,
+            rev=new_rev,
+            repo=new_repo_name,
+        )
         comparison_inputs = _ComparisonData(
-            base=_RepoPerfData(
-                sigs=base_signatures_map,
-                values=base_grouped_values,
-                replicates=base_grouped_replicates,
-                stats=statistics_base_grouped_data,
-                job_ids=base_grouped_job_ids,
-                rev=base_rev,
-                repo=base_repo_name,
-            ),
-            new=_RepoPerfData(
-                sigs=new_signatures_map,
-                values=new_grouped_values,
-                replicates=new_grouped_replicates,
-                stats=statistics_new_grouped_data,
-                job_ids=new_grouped_job_ids,
-                rev=new_rev,
-                repo=new_repo_name,
-            ),
+            base=base,
+            new=new,
             option_collection_map=option_collection_map,
             framework=framework,
             push_timestamp=push_timestamp,
