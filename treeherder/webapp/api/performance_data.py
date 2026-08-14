@@ -1384,11 +1384,11 @@ class PerfCompareResults(generics.ListAPIView):
                     lower_is_better,
                     statistics_base_perf_data,
                     statistics_new_perf_data,
-                    no_results_to_show,
+                    has_results,
                     common_result,
                 ) = PerfCompareResults._build_common_result(comparison_inputs, header, platform)
 
-                if not no_results_to_show:
+                if not has_results:
                     yield (
                         lower_is_better,
                         statistics_base_perf_data,
@@ -1503,7 +1503,7 @@ class PerfCompareResults(generics.ListAPIView):
 
         Returns a tuple of:
         (lower_is_better, statistics_base_perf_data, statistics_new_perf_data,
-         no_results_to_show, common_result)
+         has_results, common_result)
         """
         sig_identifier = perfcompare_utils.get_sig_identifier(header, platform)
         base_sig = comparison_inputs.base.sigs.get(sig_identifier, {})
@@ -1546,7 +1546,7 @@ class PerfCompareResults(generics.ListAPIView):
         # Check if there are no results to show
         base_runs_count = len(statistics_base_perf_data)
         new_runs_count = len(statistics_new_perf_data)
-        no_results_to_show = not base_runs_count and not new_runs_count
+        has_results = base_runs_count or new_runs_count
 
         # Build common result dictionary (contains only data both test versions use)
         is_complete = base_runs_count and new_runs_count
@@ -1595,7 +1595,7 @@ class PerfCompareResults(generics.ListAPIView):
             lower_is_better,
             statistics_base_perf_data,
             statistics_new_perf_data,
-            no_results_to_show,
+            has_results,
             common_result,
         )
 
