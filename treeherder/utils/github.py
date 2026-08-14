@@ -95,7 +95,6 @@ def get_commit(owner, repo, sha, params=None):
     """
     repo_object = pygithub_get_repo(owner, repo)
     commit = repo_object.get_commit(sha)
-    # Create a commit dict to be returned
     commit_dict = {}
 
     # Append file objects required by collector.py
@@ -106,9 +105,7 @@ def get_commit(owner, repo, sha, params=None):
         commit_dict["files"].append(f)
 
     # Append object required by ingest.py
-    ## Add committer date
     commit_dict["commit"] = {"committer": {"date": commit.commit.committer.date}}
-    ## Add parent sha's
     commit_dict["parents"] = []
     for parent in commit.parents:
         commit_dict["parents"].append({"sha": parent.sha})
