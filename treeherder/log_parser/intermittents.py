@@ -105,7 +105,7 @@ def _check_and_mark_infra(current_job, job_ids, push_ids):
 
 
 def check_and_mark_intermittent(job_id):
-    current_job = Job.objects.get(id=job_id)
+    current_job = Job.objects.select_related("repository", "job_type", "push").get(id=job_id)
     jtname = current_job.job_type.name.strip("-cf")
     ids = [current_job.push.id]
 

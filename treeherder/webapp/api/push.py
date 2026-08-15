@@ -257,7 +257,7 @@ class PushViewSet(viewsets.ViewSet):
             try:
                 pushes = Push.objects.filter(
                     revision__in=revision.split(","), repository__name=project
-                )
+                ).select_related("repository")
             except Push.DoesNotExist:
                 return Response(f"No push with revision: {revision}", status=HTTP_404_NOT_FOUND)
         else:
