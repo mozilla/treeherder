@@ -83,7 +83,7 @@ def store_job_artifacts(artifact_data):
                 continue
 
             try:
-                job = Job.objects.get(guid=job_guid)
+                job = Job.objects.select_related("repository").get(guid=job_guid)
             except Job.DoesNotExist:
                 logger.error("load_job_artifacts: No job_id for guid %s", job_guid)
                 continue
