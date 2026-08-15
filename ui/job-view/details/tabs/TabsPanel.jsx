@@ -93,15 +93,43 @@ const TabsPanel = ({
     addBug(bug, job);
   }, []);
 
-  const [tabIndex, setTabIndex] = useState(0);
   const [summaryUrl, setSummaryUrl] = useState(null);
   const [overflowTabs, setOverflowTabs] = useState([]);
   const [showOverflowDropdown, setShowOverflowDropdown] = useState(false);
   const [dropdownShow, setDropdownShow] = useState(false);
 
+  const showPerf = !!perfJobDetail.length;
+  const showSummary = !!summaryUrl;
+
+  const [tabIndex, setTabIndex] = useState(() =>
+    selectedJob
+      ? getDefaultTabIndex(selectedJob.resultStatus, { showPerf, showSummary })
+      : 0,
+  );
+
+  // Reset to the default tab whenever the job or the set of visible tabs
+  // changes. This is derived during render (not in an effect) so the selected
+  // tab is always consistent with the rendered tabs within a single commit —
+  // an effect would briefly commit a frame with the selection on the wrong
+  // tab, which flickers the tab header.
+  const defaultTabKey = selectedJob
+    ? `${selectedJob.id}-${showPerf}-${showSummary}`
+    : null;
+  const [prevDefaultTabKey, setPrevDefaultTabKey] = useState(defaultTabKey);
+  if (defaultTabKey !== prevDefaultTabKey) {
+    setPrevDefaultTabKey(defaultTabKey);
+    if (selectedJob) {
+      setTabIndex(
+        getDefaultTabIndex(selectedJob.resultStatus, {
+          showPerf,
+          showSummary,
+        }),
+      );
+    }
+  }
+
   const tabListRef = useRef(null);
   const resizeObserverRef = useRef(null);
-  const defaultTabKeyRef = useRef(null);
 
   const checkTabOverflow = useCallback(() => {
     if (!tabListRef.current) return;
@@ -226,21 +254,25 @@ const TabsPanel = ({
     setTabIndex(newTabIndex);
   }, []);
 
-  // Probe for the summary.jsonl artifact; only show the Summary tab when it exists
-  useEffect(() => {
-    const url =
-      jobDetails?.find((detail) => detail.value === 'summary.jsonl')?.url ||
-      jobDetails?.find((detail) => detail.value?.endsWith('_testsummary.jsonl'))
-        ?.url;
+  // Probe for the summary.jsonl artifact; only show the Summary tab when it
+  // exists. Keyed on the derived artifact URL (which embeds the task id), so
+  // a jobDetails array that merely changes identity — e.g. after a poll
+  // refetch — neither re-probes nor toggles the Summary tab off and back on.
+  const summaryArtifactUrl =
+    jobDetails?.find((detail) => detail.value === 'summary.jsonl')?.url ||
+    jobDetails?.find((detail) => detail.value?.endsWith('_testsummary.jsonl'))
+      ?.url ||
+    null;
 
+  useEffect(() => {
     setSummaryUrl(null);
-    if (!url) return undefined;
+    if (!summaryArtifactUrl) return undefined;
 
     let cancelled = false;
-    fetch(url, { method: 'HEAD' })
+    fetch(summaryArtifactUrl, { method: 'HEAD' })
       .then((resp) => {
         if (!cancelled && resp.ok) {
-          setSummaryUrl(url);
+          setSummaryUrl(summaryArtifactUrl);
         }
       })
       .catch(() => {
@@ -250,22 +282,7 @@ const TabsPanel = ({
     return () => {
       cancelled = true;
     };
-  }, [selectedJob?.task_id, selectedJob?.retry_id, jobDetails]);
-
-  // Effect for handling job changes and setting default tab index.
-  // Re-runs when the summary probe resolves so tab indexes stay in sync.
-  useEffect(() => {
-    if (!selectedJob) return;
-    const key = `${selectedJob.id}-${perfJobDetail.length}-${!!summaryUrl}`;
-    if (defaultTabKeyRef.current === key) return;
-    defaultTabKeyRef.current = key;
-    setTabIndex(
-      getDefaultTabIndex(selectedJob.resultStatus, {
-        showPerf: !!perfJobDetail.length,
-        showSummary: !!summaryUrl,
-      }),
-    );
-  }, [selectedJob, perfJobDetail, summaryUrl]);
+  }, [summaryArtifactUrl]);
 
   // Effect for setting up event listeners and resize observer
   useEffect(() => {
@@ -290,8 +307,6 @@ const TabsPanel = ({
   }, [checkTabOverflow]);
 
   const countPinnedJobs = Object.keys(pinnedJobs).length;
-  const showPerf = !!perfJobDetail.length;
-  const showSummary = !!summaryUrl;
   const enableTestGroupsTab = testGroups && testGroups.length > 0;
 
   return (
