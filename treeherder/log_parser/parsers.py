@@ -71,6 +71,7 @@ class ErrorParser(ParserBase):
         r"|^remoteFailed:"
         r"|^rm: cannot "
         r"|^abort:"
+        r"|^error: "
         r"|^\[taskcluster\] Error:"
         r"|^\[[\w._-]+:(?:error|exception)\]"
     )
