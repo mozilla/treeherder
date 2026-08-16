@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 
-function FilterPill({ label, isOn, onToggle, title }) {
+function FilterPill({ label, isOn, onToggle, title, status }) {
   return (
     <button
       type="button"
@@ -9,6 +9,7 @@ function FilterPill({ label, isOn, onToggle, title }) {
       aria-checked={isOn}
       aria-label={title || `Toggle ${label}`}
       title={title || `Toggle ${label}`}
+      data-status={status || undefined}
       onClick={onToggle}
     >
       {label}
@@ -21,10 +22,12 @@ FilterPill.propTypes = {
   isOn: PropTypes.bool.isRequired,
   onToggle: PropTypes.func.isRequired,
   title: PropTypes.string,
+  status: PropTypes.string,
 };
 
 FilterPill.defaultProps = {
   title: null,
+  status: null,
 };
 
 export default FilterPill;
