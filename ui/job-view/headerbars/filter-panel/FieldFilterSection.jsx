@@ -71,12 +71,12 @@ function FieldFilterSection({ filterModel }) {
             size="sm"
             defaultValue={value}
             aria-label={`${fieldChoices[field].name} filter value`}
-            list={`filter-suggestions-${field}`}
+            list={`filter-suggestions-${field}-${value}`}
             onBlur={(evt) => editFilter(field, value, evt.target.value.trim())}
             onKeyDown={(evt) => evt.key === 'Enter' && evt.target.blur()}
           />
           <SuggestionsDatalist
-            id={`filter-suggestions-${field}`}
+            id={`filter-suggestions-${field}-${value}`}
             field={field}
             jobMap={jobMap}
           />
