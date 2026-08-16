@@ -97,12 +97,15 @@
 }
 
 .filter-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid var(--bs-border-color, #ced4da);
   background: transparent;
   border-radius: 1rem;
-  padding: 0 0.6rem;
+  padding: 0.125rem 0.6rem;
   font-size: 0.8rem;
-  line-height: 1.5;
+  line-height: 1.2;
 }
 
 .filter-pill-on {
