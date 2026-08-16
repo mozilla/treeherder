@@ -3,6 +3,7 @@ import { allFilterParams } from '../../../helpers/filter';
 import {
   FILTER_PRESETS_STORAGE_KEY,
   COACH_MARK_STORAGE_KEY,
+  PUSH_SUGGESTIONS_MAX,
   TYPEAHEAD_FIELDS,
   TYPEAHEAD_MAX_SUGGESTIONS,
 } from './constants';
@@ -21,6 +22,27 @@ export const getFieldValueSuggestions = (jobMap, field) => {
     }
   }
   return [...values].sort().slice(0, TYPEAHEAD_MAX_SUGGESTIONS);
+};
+
+// Distinct author emails and short revision hashes from a list of push
+// objects, for the push-range datalists. Revisions keep push order (most
+// recent first) rather than sorting, since recency is the useful order.
+export const getPushSuggestions = (pushes) => {
+  const authors = new Set();
+  const revisions = new Set();
+
+  for (const push of pushes) {
+    if (push.author) {
+      authors.add(push.author);
+    }
+    if (push.revision) {
+      revisions.add(push.revision.slice(0, 12));
+    }
+  }
+  return {
+    authors: [...authors].sort().slice(0, PUSH_SUGGESTIONS_MAX),
+    revisions: [...revisions].slice(0, PUSH_SUGGESTIONS_MAX),
+  };
 };
 
 export const isValidDate = (str) => !str || !Number.isNaN(Date.parse(str));
