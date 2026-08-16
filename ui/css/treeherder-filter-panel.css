@@ -4,11 +4,14 @@
   width: min(680px, 95vw);
 }
 
+/* Same light blue family as the active-filters chips bar (alert-info) */
 .advanced-filter-panel-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 0.5rem;
+  background-color: var(--bs-info-bg-subtle, #cff4fc);
+  border-bottom-color: var(--bs-info-border-subtle, #9eeaf9);
 }
 
 .advanced-filter-panel-body {
@@ -72,6 +75,11 @@
   white-space: nowrap;
 }
 
+/* Matches $link-color in bootstrap-custom.scss — the push-list link blue */
+.advanced-filter-panel {
+  --filter-panel-accent: #337ab7;
+}
+
 .filter-pill {
   border: 1px solid var(--bs-border-color, #ced4da);
   background: transparent;
@@ -82,9 +90,78 @@
 }
 
 .filter-pill-on {
-  background: var(--bs-primary, #0d6efd);
-  border-color: var(--bs-primary, #0d6efd);
+  background: var(--filter-panel-accent);
+  border-color: var(--filter-panel-accent);
   color: #fff;
+}
+
+/* Result-status pills: outline in the status color when off, filled when
+   on. Status color tokens are defined in treeherder-navbar.css and shared
+   with the toolbar chicklets. */
+.filter-pill[data-status='testfailed'] {
+  --pill-status-color: var(--status-color-testfailed);
+}
+.filter-pill[data-status='busted'],
+.filter-pill[data-status='failures'] {
+  --pill-status-color: var(--status-color-busted);
+}
+.filter-pill[data-status='exception'] {
+  --pill-status-color: var(--status-color-exception);
+}
+.filter-pill[data-status='success'] {
+  --pill-status-color: var(--status-color-success);
+}
+.filter-pill[data-status='retry'] {
+  --pill-status-color: var(--status-color-retry);
+}
+.filter-pill[data-status='usercancel'] {
+  --pill-status-color: var(--status-color-usercancel);
+}
+.filter-pill[data-status='superseded'] {
+  --pill-status-color: var(--status-color-superseded);
+}
+.filter-pill[data-status='pending'] {
+  --pill-status-color: var(--status-color-pending);
+}
+.filter-pill[data-status='unscheduled'] {
+  --pill-status-color: var(--status-color-unscheduled);
+}
+.filter-pill[data-status='running'],
+.filter-pill[data-status='in progress'] {
+  --pill-status-color: var(--status-color-running);
+}
+
+.filter-pill[data-status] {
+  background: transparent;
+  border-color: var(--pill-status-color);
+  color: var(--pill-status-color);
+}
+
+.filter-pill-on[data-status] {
+  background: var(--pill-status-color);
+  border-color: var(--pill-status-color);
+  color: #fff;
+}
+
+/* Light status colors need dark text when filled */
+.filter-pill-on[data-status='pending'],
+.filter-pill-on[data-status='superseded'],
+.filter-pill-on[data-status='unscheduled'],
+.filter-pill-on[data-status='usercancel'] {
+  color: #212529;
+}
+
+/* Apply CTA and coach-mark button match the push-list link blue */
+.advanced-filter-panel .btn-primary,
+.filter-coach-mark .btn-primary {
+  --bs-btn-bg: #337ab7;
+  --bs-btn-border-color: #337ab7;
+  --bs-btn-hover-bg: #286090;
+  --bs-btn-hover-border-color: #286090;
+  --bs-btn-active-bg: #286090;
+  --bs-btn-active-border-color: #286090;
+  --bs-btn-disabled-bg: #337ab7;
+  --bs-btn-disabled-border-color: #337ab7;
 }
 
 .filter-panel-preset {

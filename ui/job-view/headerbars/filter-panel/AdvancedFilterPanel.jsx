@@ -50,7 +50,7 @@ function AdvancedFilterPanel({
         tabIndex={-1}
       >
         <Popover.Header className="advanced-filter-panel-header">
-          <b>Filters</b>
+          <b>Advanced Filters</b>
           <span>
             <Button
               size="sm"
