@@ -50,7 +50,9 @@ describe('SecondaryNavBar', () => {
           setCurrentRepoTreeStatus={() => {}}
           duplicateJobsVisible={false}
           groupCountsExpanded={false}
-          toggleFieldFilterVisible={() => {}}
+          isFilterPanelOpen={false}
+          toggleFilterPanel={() => {}}
+          classificationTypes={[]}
           {...props}
         />
       </MemoryRouter>
@@ -114,6 +116,31 @@ describe('SecondaryNavBar', () => {
 
     await waitFor(() => {
       expect(props.updateButtonClick).toHaveBeenCalled();
+    });
+  });
+
+  test('shows the advanced filter trigger and opens panel on click', async () => {
+    usePushesStore.setState({ ...initialState });
+    const toggleFilterPanel = jest.fn();
+    render(testSecondaryNavBar({ toggleFilterPanel }));
+
+    await waitFor(() => {
+      expect(screen.getByText(repoName)).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByLabelText('Advanced filters'));
+    expect(toggleFilterPanel).toHaveBeenCalled();
+  });
+
+  test('shows an active filter count badge when filters are set', async () => {
+    usePushesStore.setState({ ...initialState });
+    const filterModel = new FilterModel(mockNavigate, {
+      search: `?repo=${repoName}&platform=linux&startdate=2026-08-01`,
+      pathname: '/jobs',
+    });
+    render(testSecondaryNavBar({ filterModel }));
+
+    await waitFor(() => {
+      expect(screen.getByTitle('2 active filters')).toBeInTheDocument();
     });
   });
 });
