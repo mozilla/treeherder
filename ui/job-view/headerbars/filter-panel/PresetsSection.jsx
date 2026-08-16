@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate, useLocation } from 'react-router';
 
+import { thDefaultRepo } from '../../../helpers/constants';
 import { getAllUrlParams } from '../../../helpers/location';
 
 import {
@@ -27,7 +28,8 @@ function PresetsSection({ filterModel }) {
   };
 
   const onApply = (preset) => {
-    const currentRepo = getAllUrlParams({ search: location.search }).get('repo');
+    const currentRepo =
+      getAllUrlParams({ search: location.search }).get('repo') || thDefaultRepo;
     navigate({ search: getPresetQueryString(preset.params, currentRepo) });
   };
 

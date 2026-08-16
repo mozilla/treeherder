@@ -368,11 +368,13 @@ const SecondaryNavBar = ({
               title="Advanced filters"
               aria-label="Advanced filters"
               aria-expanded={isFilterPanelOpen}
+              aria-controls="advanced-filter-panel"
+              aria-haspopup="dialog"
             >
               <FontAwesomeIcon icon={faSliders} size="sm" />
               {activeFilterCount > 0 && (
                 <span
-                  className="badge badge-secondary badge-pill advanced-filter-badge"
+                  className="badge bg-secondary rounded-pill advanced-filter-badge"
                   title={`${activeFilterCount} active filters`}
                 >
                   {activeFilterCount}
@@ -401,7 +403,16 @@ const SecondaryNavBar = ({
           </span>
           <AdvancedFilterPanel
             isOpen={isFilterPanelOpen}
-            onClose={toggleFilterPanel}
+            onClose={(evt) => {
+              if (
+                evt &&
+                filterTriggerRef.current &&
+                filterTriggerRef.current.contains(evt.target)
+              ) {
+                return;
+              }
+              toggleFilterPanel();
+            }}
             target={filterTriggerRef}
             filterModel={filterModel}
             classificationTypes={classificationTypes}
