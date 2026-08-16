@@ -38,6 +38,10 @@ afterEach(() => {
   usePushesStore.setState({ ...initialState });
 });
 
+afterEach(() => {
+  localStorage.clear();
+});
+
 describe('SecondaryNavBar', () => {
   const testSecondaryNavBar = (props) => {
     return (
@@ -142,5 +146,28 @@ describe('SecondaryNavBar', () => {
     await waitFor(() => {
       expect(screen.getByTitle('2 active filters')).toBeInTheDocument();
     });
+  });
+
+  test('shows the coach mark on first render and dismisses forever', async () => {
+    usePushesStore.setState({ ...initialState });
+    render(testSecondaryNavBar());
+
+    await waitFor(() => {
+      expect(screen.getByText(/New: advanced filters/)).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Got it' }));
+    expect(screen.queryByText(/New: advanced filters/)).not.toBeInTheDocument();
+    expect(localStorage.getItem('thAdvancedFilterCoachMarkSeen')).toBeTruthy();
+  });
+
+  test('does not show the coach mark once seen', async () => {
+    localStorage.setItem('thAdvancedFilterCoachMarkSeen', '1');
+    usePushesStore.setState({ ...initialState });
+    render(testSecondaryNavBar());
+
+    await waitFor(() => {
+      expect(screen.getByText(repoName)).toBeInTheDocument();
+    });
+    expect(screen.queryByText(/New: advanced filters/)).not.toBeInTheDocument();
   });
 });
