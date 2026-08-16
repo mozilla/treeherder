@@ -9,14 +9,16 @@
   font-size: 12px;
 }
 
-/* Same light blue family as the active-filters chips bar (alert-info) */
+/* Same dark slate as the secondary toolbar (.th-context-navbar) the
+   popover hangs from, so the panel reads as part of that chrome */
 .advanced-filter-panel-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 0.5rem;
-  background-color: var(--bs-info-bg-subtle, #cff4fc);
-  border-bottom-color: var(--bs-info-border-subtle, #9eeaf9);
+  background-color: #354048;
+  color: #fff;
+  border-bottom-color: rgb(0 0 0 / 0.2);
 }
 
 .advanced-filter-panel-actions {
