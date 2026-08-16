@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import { useLocation, useNavigate } from 'react-router';
 
 import { getAllUrlParams, setUrlParams } from '../../../helpers/location';
@@ -23,10 +25,21 @@ function PushRangeSection() {
   const params = getAllUrlParams(location);
   const repoName = params.get('repo');
 
-  const [startdate, setStartdate] = useState(params.get('startdate') || '');
-  const [enddate, setEnddate] = useState(params.get('enddate') || '');
-  const [author, setAuthor] = useState(params.get('author') || '');
-  const [revision, setRevision] = useState(params.get('revision') || '');
+  const urlStartdate = params.get('startdate') || '';
+  const urlEnddate = params.get('enddate') || '';
+  const urlAuthor = params.get('author') || '';
+  const urlRevision = params.get('revision') || '';
+
+  const [startdate, setStartdate] = useState(urlStartdate);
+  const [enddate, setEnddate] = useState(urlEnddate);
+  const [author, setAuthor] = useState(urlAuthor);
+  const [revision, setRevision] = useState(urlRevision);
+
+  const isDirty =
+    startdate !== urlStartdate ||
+    enddate !== urlEnddate ||
+    author !== urlAuthor ||
+    revision !== urlRevision;
 
   const pushList = usePushesStore((state) => state.pushList);
   const [fetchedPushes, setFetchedPushes] = useState(
@@ -85,12 +98,7 @@ function PushRangeSection() {
 
   return (
     <div className="filter-panel-section" data-testid="push-range-section">
-      <div className="filter-panel-label">
-        Push range
-        <span className="filter-panel-hint">
-          staged — takes effect on Apply (reloads pushes)
-        </span>
-      </div>
+      <div className="filter-panel-label">Push range</div>
       <div className="filter-panel-row">
         <span className="filter-panel-hint">Quick:</span>
         {DATE_RANGE_PRESETS.map(({ label, days }) => (
@@ -104,6 +112,8 @@ function PushRangeSection() {
             {label}
           </Button>
         ))}
+      </div>
+      <div className="filter-panel-row filter-panel-dates">
         <Form.Control
           size="sm"
           type="date"
@@ -121,35 +131,74 @@ function PushRangeSection() {
         />
       </div>
       <div className="filter-panel-row">
-        <Form.Control
+        <span className="filter-panel-input-wrap">
+          <Form.Control
+            size="sm"
+            type="text"
+            placeholder="author (email)"
+            aria-label="Author"
+            value={author}
+            list="push-author-suggestions"
+            onChange={(evt) => setAuthor(evt.target.value)}
+          />
+          {author && (
+            <button
+              type="button"
+              className="filter-panel-input-clear"
+              aria-label="Clear author"
+              title="Clear author"
+              onClick={() => setAuthor('')}
+            >
+              <FontAwesomeIcon icon={faTimesCircle} />
+            </button>
+          )}
+          <datalist id="push-author-suggestions">
+            {authors.map((value) => (
+              <option value={value} key={value} />
+            ))}
+          </datalist>
+        </span>
+        <span className="filter-panel-input-wrap">
+          <Form.Control
+            size="sm"
+            type="text"
+            placeholder="revision (hash)"
+            aria-label="Revision"
+            value={revision}
+            list="push-revision-suggestions"
+            onChange={(evt) => setRevision(evt.target.value)}
+          />
+          {revision && (
+            <button
+              type="button"
+              className="filter-panel-input-clear"
+              aria-label="Clear revision"
+              title="Clear revision"
+              onClick={() => setRevision('')}
+            >
+              <FontAwesomeIcon icon={faTimesCircle} />
+            </button>
+          )}
+          <datalist id="push-revision-suggestions">
+            {revisions.map((value) => (
+              <option value={value} key={value} />
+            ))}
+          </datalist>
+        </span>
+      </div>
+      <div className="filter-panel-row filter-panel-apply-row">
+        {isDirty && (
+          <span className="filter-panel-hint fw-bold">
+            STAGED — takes effect on Apply (reloads pushes)
+          </span>
+        )}
+        <Button
           size="sm"
-          type="text"
-          placeholder="author (email)"
-          aria-label="Author"
-          value={author}
-          list="push-author-suggestions"
-          onChange={(evt) => setAuthor(evt.target.value)}
-        />
-        <datalist id="push-author-suggestions">
-          {authors.map((value) => (
-            <option value={value} key={value} />
-          ))}
-        </datalist>
-        <Form.Control
-          size="sm"
-          type="text"
-          placeholder="revision (hash)"
-          aria-label="Revision"
-          value={revision}
-          list="push-revision-suggestions"
-          onChange={(evt) => setRevision(evt.target.value)}
-        />
-        <datalist id="push-revision-suggestions">
-          {revisions.map((value) => (
-            <option value={value} key={value} />
-          ))}
-        </datalist>
-        <Button size="sm" variant="primary" onClick={applyRange} disabled={!validRange}>
+          variant="primary"
+          className="push-range-apply"
+          onClick={applyRange}
+          disabled={!validRange || !isDirty}
+        >
           Apply
         </Button>
       </div>

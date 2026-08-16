@@ -91,6 +91,49 @@
   white-space: nowrap;
 }
 
+/* Apply + its conditional staged hint keep to their own line, right-aligned */
+.filter-panel-apply-row {
+  justify-content: flex-end;
+}
+
+/* Start/end date inputs share one row */
+.filter-panel-dates {
+  flex-wrap: nowrap;
+}
+
+.filter-panel-dates .form-control {
+  flex: 1 1 0;
+  width: auto;
+}
+
+/* Text input with an inline clear control at the right end */
+.filter-panel-input-wrap {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+}
+
+.filter-panel-input-wrap .form-control {
+  width: 100%;
+  padding-right: 1.6rem;
+}
+
+.filter-panel-input-clear {
+  position: absolute;
+  right: 0.3rem;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  padding: 0 0.15rem;
+  background: transparent;
+  color: var(--bs-secondary-color, #6c757d);
+  line-height: 1;
+}
+
+.filter-panel-input-clear:hover {
+  color: var(--bs-body-color, #212529);
+}
+
 /* Matches $link-color in bootstrap-custom.scss — the push-list link blue */
 .advanced-filter-panel {
   --filter-panel-accent: #337ab7;
