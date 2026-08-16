@@ -14,9 +14,9 @@ import {
 import { pinJob, unPinAll, usePinnedJobsStore } from '../shared/stores/pinnedJobsStore';
 
 const handledKeys =
-  'b,c,f,ctrl+shift+f,f,g,i,j,k,l,shift+l,n,p,q,r,s,t,u,v,ctrl+shift+u,left,right,space,shift+/,escape,ctrl+enter,ctrl+backspace';
+  'b,c,f,ctrl+shift+f,shift+f,f,g,i,j,k,l,shift+l,n,p,q,r,s,t,u,v,ctrl+shift+u,left,right,space,shift+/,escape,ctrl+enter,ctrl+backspace';
 
-function KeyboardShortcuts({ filterModel, showOnScreenShortcuts, children }) {
+function KeyboardShortcuts({ filterModel, showOnScreenShortcuts, toggleFilterPanel, children }) {
   const clearScreen = useCallback(() => {
     const { pinnedJobs } = usePinnedJobsStore.getState();
     const {
@@ -147,6 +147,8 @@ function KeyboardShortcuts({ filterModel, showOnScreenShortcuts, children }) {
         return quickFilter();
       case 'ctrl+shift+f':
         return clearFilter();
+      case 'shift+f':
+        return toggleFilterPanel();
       case 'g':
         return openGeckoProfile();
       case 'i':
@@ -194,7 +196,7 @@ function KeyboardShortcuts({ filterModel, showOnScreenShortcuts, children }) {
     addRelatedBug, pinEditComment, quickFilter, clearFilter, openGeckoProfile,
     filterModel, changeSelectedJob, openLogviewer, openRawLog, jobRetrigger,
     selectNextTab, clearPinboard, doPinJob, showOnScreenShortcuts, clearScreen,
-    saveClassification, deleteClassification,
+    saveClassification, deleteClassification, toggleFilterPanel,
   ]);
 
   return (
@@ -212,6 +214,7 @@ KeyboardShortcuts.propTypes = {
   filterModel: PropTypes.shape({}).isRequired,
   children: PropTypes.arrayOf(PropTypes.element).isRequired,
   showOnScreenShortcuts: PropTypes.func.isRequired,
+  toggleFilterPanel: PropTypes.func.isRequired,
 };
 
 export default KeyboardShortcuts;
