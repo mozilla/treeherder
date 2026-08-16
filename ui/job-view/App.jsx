@@ -50,6 +50,7 @@ import '../css/treeherder-pinboard.css';
 import '../css/treeherder-bugfiler.css';
 import '../css/treeherder-fuzzyfinder.css';
 import '../css/treeherder-loading-overlay.css';
+import '../css/treeherder-filter-panel.css';
 
 const DEFAULT_DETAILS_PCT = 40;
 const MOBILE_DETAILS_MIN_HEIGHT = 84;
