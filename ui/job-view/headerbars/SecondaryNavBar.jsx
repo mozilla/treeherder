@@ -24,7 +24,12 @@ import {
 import TierIndicator from './TierIndicator';
 import WatchedRepo from './WatchedRepo';
 import AdvancedFilterPanel from './filter-panel/AdvancedFilterPanel';
-import { getActiveFilterCount } from './filter-panel/helpers';
+import FilterCoachMark from './filter-panel/FilterCoachMark';
+import {
+  getActiveFilterCount,
+  hasSeenCoachMark,
+  markCoachMarkSeen,
+} from './filter-panel/helpers';
 
 const MAX_WATCHED_REPOS = 3;
 const WATCHED_REPOS_STORAGE_KEY = 'thWatchedRepos';
@@ -73,6 +78,12 @@ const SecondaryNavBar = ({
   );
   const [watchedRepoNames, setWatchedRepoNames] = useState([]);
   const [repoName, setRepoName] = useState(getRepo());
+  const [showCoachMark, setShowCoachMark] = useState(() => !hasSeenCoachMark());
+
+  const dismissCoachMark = useCallback(() => {
+    markCoachMarkSeen();
+    setShowCoachMark(false);
+  }, []);
 
   const saveWatchedRepos = useCallback((repoList) => {
     setWatchedRepoNames(repoList);
@@ -136,6 +147,13 @@ const SecondaryNavBar = ({
       prevLocationSearch.current = location.search;
     }
   }, [location.search, handleUrlChanges]);
+
+  // Auto-dismiss coach mark when panel opens
+  useEffect(() => {
+    if (isFilterPanelOpen && showCoachMark) {
+      dismissCoachMark();
+    }
+  }, [isFilterPanelOpen, showCoachMark, dismissCoachMark]);
 
   const setSearchStr = (ev) => {
     setSearchQueryStr(ev.target.value);
@@ -379,6 +397,7 @@ const SecondaryNavBar = ({
               title="Clear this filter"
               onClick={clearFilterBox}
             />
+            {showCoachMark && <FilterCoachMark onDismiss={dismissCoachMark} />}
           </span>
           <AdvancedFilterPanel
             isOpen={isFilterPanelOpen}
