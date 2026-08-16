@@ -84,6 +84,7 @@ function FieldFilterSection({ filterModel }) {
             size="sm"
             variant="outline-secondary"
             title={`Remove filter: ${field}: ${value}`}
+            aria-label={`Remove filter: ${field}: ${value}`}
             onClick={() => filterModel.removeFilter(field, value)}
           >
             <FontAwesomeIcon icon={faTimesCircle} />
