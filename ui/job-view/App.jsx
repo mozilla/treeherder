@@ -401,6 +401,7 @@ const App = () => {
       <KeyboardShortcuts
         filterModel={filterModel}
         showOnScreenShortcuts={showOnScreenShortcuts}
+        toggleFilterPanel={toggleFilterPanel}
       >
         <PrimaryNavBar
           repos={repos}
