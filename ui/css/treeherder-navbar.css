@@ -201,38 +201,53 @@ secondary-nav-bar {
   color: var(--chicklet-color);
 }
 
+/* Shared result-status color tokens; also used by the advanced filter
+   panel pills (treeherder-filter-panel.css) */
+:root {
+  --status-color-testfailed: #dd6602;
+  --status-color-busted: #c03a44;
+  --status-color-exception: #77438d;
+  --status-color-success: rgba(2, 130, 51, 0.75);
+  --status-color-retry: #3656ff;
+  --status-color-usercancel: rgba(250, 115, 172, 0.82);
+  --status-color-superseded: #81b8ed;
+  --status-color-pending: #e0e0e0;
+  --status-color-unscheduled: #26d7b6;
+  --status-color-running: #7c7a7d;
+}
+
 /* Map status values to colors using CSS variables */
 .btn-view-nav[data-status='testfailed'] {
-  --chicklet-color: #dd6602;
+  --chicklet-color: var(--status-color-testfailed);
 }
 .btn-view-nav[data-status='busted'],
 .btn-view-nav[data-status='failures'] {
-  --chicklet-color: #c03a44;
+  --chicklet-color: var(--status-color-busted);
 }
 .btn-view-nav[data-status='exception'] {
-  --chicklet-color: #77438d;
+  --chicklet-color: var(--status-color-exception);
 }
 .btn-view-nav[data-status='success'] {
-  --chicklet-color: rgba(2, 130, 51, 0.75);
+  --chicklet-color: var(--status-color-success);
 }
 .btn-view-nav[data-status='retry'] {
-  --chicklet-color: #3656ff;
+  --chicklet-color: var(--status-color-retry);
 }
 .btn-view-nav[data-status='usercancel'] {
-  --chicklet-color: rgba(250, 115, 172, 0.82);
+  --chicklet-color: var(--status-color-usercancel);
 }
 .btn-view-nav[data-status='superseded'] {
-  --chicklet-color: #81b8ed;
+  --chicklet-color: var(--status-color-superseded);
 }
 .btn-view-nav[data-status='pending'] {
-  --chicklet-color: #e0e0e0;
+  --chicklet-color: var(--status-color-pending);
 }
 .btn-view-nav[data-status='unscheduled'] {
-  --chicklet-color: #26d7b6;
+  --chicklet-color: var(--status-color-unscheduled);
 }
 .btn-view-nav[data-status='running'],
 .btn-view-nav[data-status='in progress'] {
-  --chicklet-color: #7c7a7d;
+  --chicklet-color: var(--status-color-running);
 }
 .btn-view-nav[data-status='unknown'] {
   --chicklet-color: black;
