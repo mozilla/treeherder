@@ -46,6 +46,7 @@ function PrimaryNavBar({
                 filterModel={filterModel}
                 user={user}
                 getAllShownJobs={getAllShownJobs}
+                openFilterPanel={toggleFilterPanel}
               />
               <HelpMenu />
               <Login user={user} setUser={setUser} notify={notify} />
