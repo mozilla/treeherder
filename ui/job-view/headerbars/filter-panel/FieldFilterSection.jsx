@@ -73,7 +73,13 @@ function FieldFilterSection({ filterModel }) {
             aria-label={`${fieldChoices[field].name} filter value`}
             list={`filter-suggestions-${field}-${value}`}
             onBlur={(evt) => editFilter(field, value, evt.target.value.trim())}
-            onKeyDown={(evt) => evt.key === 'Enter' && evt.target.blur()}
+            onKeyDown={(evt) => {
+              if (evt.key === 'Enter') {
+                // Commit the edit; don't trigger the panel-level Enter=Apply
+                evt.stopPropagation();
+                evt.target.blur();
+              }
+            }}
           />
           <SuggestionsDatalist
             id={`filter-suggestions-${field}-${value}`}
@@ -115,7 +121,13 @@ function FieldFilterSection({ filterModel }) {
           value={draftValue}
           list="filter-suggestions-draft"
           onChange={(evt) => setDraftValue(evt.target.value)}
-          onKeyDown={(evt) => evt.key === 'Enter' && addDraftFilter()}
+          onKeyDown={(evt) => {
+            if (evt.key === 'Enter') {
+              // Add the filter; don't trigger the panel-level Enter=Apply
+              evt.stopPropagation();
+              addDraftFilter();
+            }
+          }}
         />
         {draftField && (
           <SuggestionsDatalist

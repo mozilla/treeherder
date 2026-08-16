@@ -1,6 +1,6 @@
 import { createRef } from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { MemoryRouter } from 'react-router';
+import { MemoryRouter, useLocation } from 'react-router';
 
 import FilterModel from '../../../../../ui/models/filter';
 import AdvancedFilterPanel from '../../../../../ui/job-view/headerbars/filter-panel/AdvancedFilterPanel';
@@ -10,6 +10,12 @@ import {
 } from '../../../../../ui/shared/stores/pushesStore';
 
 const mockNavigate = jest.fn();
+
+let currentSearch;
+function LocationSpy() {
+  currentSearch = useLocation().search;
+  return null;
+}
 
 afterEach(() => {
   mockNavigate.mockClear();
@@ -33,6 +39,7 @@ const renderPanel = ({ search = '?repo=autoland', filterModel } = {}) => {
         filterModel={fm}
         classificationTypes={[{ id: 4, name: 'intermittent' }]}
       />
+      <LocationSpy />
     </MemoryRouter>,
   );
 };
@@ -89,6 +96,44 @@ describe('AdvancedFilterPanel', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'add' }));
     expect(spy).toHaveBeenCalledWith('platform', 'linux');
+  });
+
+  it('Enter applies a dirty push range from anywhere in the panel', () => {
+    renderPanel();
+    const authorInput = screen.getByLabelText('Author');
+
+    fireEvent.change(authorInput, { target: { value: 'me@example.com' } });
+    fireEvent.keyDown(authorInput, { key: 'Enter' });
+    expect(currentSearch).toContain('author=me%40example.com');
+  });
+
+  it('Enter does nothing when the push range is clean', () => {
+    renderPanel();
+    const before = currentSearch;
+
+    fireEvent.keyDown(screen.getByLabelText('Author'), { key: 'Enter' });
+    expect(currentSearch).toBe(before);
+  });
+
+  it('Enter in the field-filter draft adds the filter without applying the push range', () => {
+    const fm = new FilterModel(mockNavigate, {
+      search: '?repo=autoland',
+      pathname: '/jobs',
+    });
+    const spy = jest.spyOn(fm, 'addFilter');
+
+    renderPanel({ filterModel: fm });
+    const before = currentSearch;
+
+    fireEvent.change(screen.getByLabelText('Field'), {
+      target: { value: 'platform' },
+    });
+    const valueInput = screen.getByLabelText('New filter value');
+    fireEvent.change(valueInput, { target: { value: 'linux' } });
+    fireEvent.keyDown(valueInput, { key: 'Enter' });
+
+    expect(spy).toHaveBeenCalledWith('platform', 'linux');
+    expect(currentSearch).toBe(before);
   });
 
   it('Clear all clears filters and push-range params', () => {
