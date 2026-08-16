@@ -61,14 +61,14 @@ function AdvancedFilterPanel({
           </span>
         </Popover.Header>
         <Popover.Body className="advanced-filter-panel-body">
-          <StatusSection filterModel={filterModel} />
+          <PushRangeSection />
+          <FieldFilterSection filterModel={filterModel} />
           <TierClassificationSection
             filterModel={filterModel}
             classificationTypes={classificationTypes}
           />
-          <FieldFilterSection filterModel={filterModel} />
-          <PushRangeSection />
           <PresetsSection filterModel={filterModel} />
+          <StatusSection filterModel={filterModel} />
         </Popover.Body>
       </Popover>
     </Overlay>
