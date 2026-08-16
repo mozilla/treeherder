@@ -121,3 +121,8 @@
   box-shadow: 0 4px 10px rgb(0 0 0 / 0.15);
   font-size: 0.8rem;
 }
+
+/* Positioning context for coach mark */
+#quick-filter-parent {
+  position: relative;
+}
