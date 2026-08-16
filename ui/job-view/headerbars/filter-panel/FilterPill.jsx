@@ -7,6 +7,7 @@ function FilterPill({ label, isOn, onToggle, title }) {
       className={`filter-pill ${isOn ? 'filter-pill-on' : ''}`}
       role="checkbox"
       aria-checked={isOn}
+      aria-label={title || `Toggle ${label}`}
       title={title || `Toggle ${label}`}
       onClick={onToggle}
     >
