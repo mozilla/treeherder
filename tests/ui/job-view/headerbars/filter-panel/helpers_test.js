@@ -1,6 +1,7 @@
 import FilterModel from '../../../../../ui/models/filter';
 import {
   getFieldValueSuggestions,
+  getPushSuggestions,
   isValidDate,
   isValidDateRange,
   getDateDaysAgo,
@@ -49,6 +50,21 @@ describe('getFieldValueSuggestions', () => {
     expect(getFieldValueSuggestions(bigMap, 'platform')).toHaveLength(
       TYPEAHEAD_MAX_SUGGESTIONS,
     );
+  });
+});
+
+describe('getPushSuggestions', () => {
+  it('returns distinct sorted authors and short revision hashes in push order', () => {
+    const pushes = [
+      { author: 'zed@mozilla.com', revision: 'abcdef1234567890abcd' },
+      { author: 'amy@mozilla.com', revision: '123456abcdef7890abcd' },
+      { author: 'zed@mozilla.com', revision: 'abcdef1234567890abcd' },
+      { author: '', revision: null },
+    ];
+    const { authors, revisions } = getPushSuggestions(pushes);
+
+    expect(authors).toEqual(['amy@mozilla.com', 'zed@mozilla.com']);
+    expect(revisions).toEqual(['abcdef123456', '123456abcdef']);
   });
 });
 
