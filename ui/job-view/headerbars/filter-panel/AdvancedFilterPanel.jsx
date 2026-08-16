@@ -52,12 +52,16 @@ function AdvancedFilterPanel({
           <span className="advanced-filter-panel-actions">
             <Button
               size="sm"
-              variant="outline-secondary"
+              variant="outline-light"
               onClick={() => filterModel.clearNonStatusFilters()}
             >
               Clear all
             </Button>
-            <CloseButton aria-label="Close filter panel" onClick={onClose} />
+            <CloseButton
+              variant="white"
+              aria-label="Close filter panel"
+              onClick={onClose}
+            />
           </span>
         </Popover.Header>
         <Popover.Body className="advanced-filter-panel-body">
