@@ -146,7 +146,10 @@
   border: 1px solid var(--bs-border-color, #ced4da);
   background: transparent;
   border-radius: 1rem;
-  padding: 0.125rem 0.6rem;
+  /* Asymmetric vertical padding is an optical correction: Helvetica
+     Neue's line box carries more ascent than descent, so a mathematically
+     centered line box renders the glyphs slightly low in the pill. */
+  padding: 1px 0.6rem 3px;
   font-size: 0.8rem;
   line-height: 1.2;
 }
