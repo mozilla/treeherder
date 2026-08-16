@@ -1,8 +1,6 @@
 import { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Overlay, Popover } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import { Button, CloseButton, Overlay, Popover } from 'react-bootstrap';
 
 import StatusSection from './StatusSection';
 import TierClassificationSection from './TierClassificationSection';
@@ -51,7 +49,7 @@ function AdvancedFilterPanel({
       >
         <Popover.Header className="advanced-filter-panel-header">
           <b>Advanced Filters</b>
-          <span>
+          <span className="advanced-filter-panel-actions">
             <Button
               size="sm"
               variant="outline-secondary"
@@ -59,14 +57,7 @@ function AdvancedFilterPanel({
             >
               Clear all
             </Button>
-            <Button
-              size="sm"
-              variant="outline-secondary"
-              aria-label="Close filter panel"
-              onClick={onClose}
-            >
-              <FontAwesomeIcon icon={faTimes} />
-            </Button>
+            <CloseButton aria-label="Close filter panel" onClick={onClose} />
           </span>
         </Popover.Header>
         <Popover.Body className="advanced-filter-panel-body">
