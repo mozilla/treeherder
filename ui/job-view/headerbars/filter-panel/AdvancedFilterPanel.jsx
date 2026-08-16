@@ -18,11 +18,32 @@ function AdvancedFilterPanel({
   const popoverRef = useRef(null);
   const wasOpen = useRef(isOpen);
 
+  // Enter anywhere in the panel applies the staged push range, if it is
+  // dirty (the Apply button's disabled state encodes dirty + valid).
+  // Controls with their own Enter semantics stopPropagation, and a focused
+  // button's Enter should only click that button.
+  const onPanelKeyDown = (evt) => {
+    if (evt.key !== 'Enter' || evt.target.tagName === 'BUTTON') {
+      return;
+    }
+    // currentTarget is the popover element itself; Overlay overrides the
+    // child ref it clones, so popoverRef cannot be relied on here.
+    const applyButton = evt.currentTarget.querySelector('.push-range-apply');
+
+    if (applyButton && !applyButton.disabled) {
+      applyButton.click();
+    }
+  };
+
   useEffect(() => {
     if (isOpen && !wasOpen.current) {
-      // Panel just opened - move focus into it.
-      if (popoverRef.current) {
-        popoverRef.current.focus();
+      // Panel just opened - move focus into it. Overlay overrides the
+      // child ref it clones, so look the element up by id instead.
+      const panel =
+        popoverRef.current || document.getElementById('advanced-filter-panel');
+
+      if (panel) {
+        panel.focus();
       }
     } else if (!isOpen && wasOpen.current) {
       // Panel just closed - restore focus to the trigger.
@@ -46,6 +67,7 @@ function AdvancedFilterPanel({
         className="advanced-filter-panel"
         ref={popoverRef}
         tabIndex={-1}
+        onKeyDown={onPanelKeyDown}
       >
         <Popover.Header className="advanced-filter-panel-header">
           <b>Advanced Filters</b>
