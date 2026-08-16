@@ -5,8 +5,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircle, faDotCircle } from '@fortawesome/free-regular-svg-icons';
 import {
   faExclamationCircle,
-  faFilter,
   faTimesCircle,
+  faSliders,
+  faCaretDown,
 } from '@fortawesome/free-solid-svg-icons';
 import { useLocation, useNavigate } from 'react-router';
 
@@ -22,6 +23,8 @@ import {
 
 import TierIndicator from './TierIndicator';
 import WatchedRepo from './WatchedRepo';
+import AdvancedFilterPanel from './filter-panel/AdvancedFilterPanel';
+import { getActiveFilterCount } from './filter-panel/helpers';
 
 const MAX_WATCHED_REPOS = 3;
 const WATCHED_REPOS_STORAGE_KEY = 'thWatchedRepos';
@@ -47,11 +50,15 @@ const SecondaryNavBar = ({
   setCurrentRepoTreeStatus,
   duplicateJobsVisible,
   groupCountsExpanded,
-  toggleFieldFilterVisible,
+  isFilterPanelOpen,
+  toggleFilterPanel,
+  classificationTypes,
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const prevLocationSearch = useRef(location.search);
+  const filterTriggerRef = useRef(null);
+  const activeFilterCount = getActiveFilterCount(filterModel);
 
   const allUnclassifiedFailureCount = usePushesStore(
     (state) => state.allUnclassifiedFailureCount,
@@ -327,20 +334,6 @@ const SecondaryNavBar = ({
           </span>
 
           <span>
-            <Button
-              size="sm"
-              className="btn-view-nav"
-              onClick={toggleFieldFilterVisible}
-              title="Filter by a job field"
-            >
-              <FontAwesomeIcon
-                icon={faFilter}
-                size="sm"
-                title="Filter by a job field"
-              />
-            </Button>
-          </span>
-          <span>
             <TierIndicator filterModel={filterModel} />
           </span>
           {/* Quick Filter Field */}
@@ -349,6 +342,26 @@ const SecondaryNavBar = ({
             className="form-group form-inline"
             tabIndex={-1}
           >
+            <Button
+              size="sm"
+              ref={filterTriggerRef}
+              className="btn-view-nav advanced-filter-trigger"
+              onClick={toggleFilterPanel}
+              title="Advanced filters"
+              aria-label="Advanced filters"
+              aria-expanded={isFilterPanelOpen}
+            >
+              <FontAwesomeIcon icon={faSliders} size="sm" />
+              {activeFilterCount > 0 && (
+                <span
+                  className="badge badge-secondary badge-pill advanced-filter-badge"
+                  title={`${activeFilterCount} active filters`}
+                >
+                  {activeFilterCount}
+                </span>
+              )}
+              <FontAwesomeIcon icon={faCaretDown} size="xs" />
+            </Button>
             <input
               id="quick-filter"
               className="form-control form-control-sm"
@@ -367,6 +380,13 @@ const SecondaryNavBar = ({
               onClick={clearFilterBox}
             />
           </span>
+          <AdvancedFilterPanel
+            isOpen={isFilterPanelOpen}
+            onClose={toggleFilterPanel}
+            target={filterTriggerRef}
+            filterModel={filterModel}
+            classificationTypes={classificationTypes}
+          />
         </form>
       </span>
     </div>
@@ -381,7 +401,9 @@ SecondaryNavBar.propTypes = {
   setCurrentRepoTreeStatus: PropTypes.func.isRequired,
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
-  toggleFieldFilterVisible: PropTypes.func.isRequired,
+  isFilterPanelOpen: PropTypes.bool.isRequired,
+  toggleFilterPanel: PropTypes.func.isRequired,
+  classificationTypes: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
 export default SecondaryNavBar;
