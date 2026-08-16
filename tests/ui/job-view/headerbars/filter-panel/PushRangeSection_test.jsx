@@ -63,6 +63,35 @@ describe('PushRangeSection', () => {
     expect(currentSearch).toContain('author=me%40example.com');
   });
 
+  it('disables Apply and hides the staged hint until a field changes', () => {
+    renderSection('?repo=autoland&author=me@example.com');
+
+    expect(screen.getByRole('button', { name: 'Apply' })).toBeDisabled();
+    expect(screen.queryByText(/STAGED — takes effect/)).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText('Author'), {
+      target: { value: 'someone-else@example.com' },
+    });
+    expect(screen.getByRole('button', { name: 'Apply' })).toBeEnabled();
+    expect(screen.getByText(/STAGED — takes effect/)).toBeInTheDocument();
+
+    // Reverting back to the URL value makes it clean again
+    fireEvent.change(screen.getByLabelText('Author'), {
+      target: { value: 'me@example.com' },
+    });
+    expect(screen.getByRole('button', { name: 'Apply' })).toBeDisabled();
+    expect(screen.queryByText(/STAGED — takes effect/)).not.toBeInTheDocument();
+  });
+
+  it('shows a clear control on author/revision only when non-empty', () => {
+    renderSection('?repo=autoland&author=me@example.com');
+
+    expect(screen.queryByLabelText('Clear revision')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText('Clear author'));
+    expect(screen.getByLabelText('Author')).toHaveValue('');
+    expect(screen.queryByLabelText('Clear author')).not.toBeInTheDocument();
+  });
+
   it('offers author and revision suggestions from fetched pushes', async () => {
     const { container } = renderSection();
 

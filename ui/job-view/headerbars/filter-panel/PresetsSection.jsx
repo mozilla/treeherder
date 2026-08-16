@@ -65,6 +65,15 @@ function PresetsSection({ filterModel }) {
           aria-label="Preset name"
           value={draftName}
           onChange={(evt) => setDraftName(evt.target.value)}
+          onKeyDown={(evt) => {
+            if (evt.key === 'Enter') {
+              // Save the preset; don't trigger the panel-level Enter=Apply
+              evt.stopPropagation();
+              if (draftName.trim()) {
+                onSave();
+              }
+            }
+          }}
         />
         <Button
           size="sm"
