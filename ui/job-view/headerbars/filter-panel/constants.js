@@ -11,6 +11,12 @@ export const TYPEAHEAD_FIELDS = {
   job_group_symbol: 'job_group_symbol',
 };
 
+// How far back the lazy push fetch looks for author/revision suggestions,
+// and how many suggestions a datalist may hold (native datalist filters by
+// typed prefix, so a generous cap keeps deep matches reachable).
+export const PUSH_SUGGESTIONS_DAYS = 4;
+export const PUSH_SUGGESTIONS_MAX = 200;
+
 export const DATE_RANGE_PRESETS = [
   { label: 'last day', days: 1 },
   { label: '2 days', days: 2 },

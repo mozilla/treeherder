@@ -1,7 +1,22 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router';
 
 import PushRangeSection from '../../../../../ui/job-view/headerbars/filter-panel/PushRangeSection';
+
+const mockGetList = jest.fn().mockResolvedValue({
+  data: {
+    results: [
+      { author: 'sheriff@mozilla.com', revision: 'abcdef1234567890abcd' },
+      { author: 'dev@mozilla.com', revision: '123456abcdef7890abcd' },
+    ],
+  },
+  failureStatus: null,
+});
+
+jest.mock('../../../../../ui/models/push', () => ({
+  __esModule: true,
+  default: { getList: (...args) => mockGetList(...args) },
+}));
 
 let currentSearch;
 function LocationSpy() {
@@ -46,6 +61,27 @@ describe('PushRangeSection', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Apply' }));
     expect(currentSearch).toContain('startdate=2026-08-01');
     expect(currentSearch).toContain('author=me%40example.com');
+  });
+
+  it('offers author and revision suggestions from fetched pushes', async () => {
+    const { container } = renderSection();
+
+    await waitFor(() => {
+      expect(
+        container.querySelector(
+          '#push-author-suggestions option[value="sheriff@mozilla.com"]',
+        ),
+      ).toBeInTheDocument();
+    });
+    // Revisions are suggested as 12-char short hashes
+    expect(
+      container.querySelector(
+        '#push-revision-suggestions option[value="abcdef123456"]',
+      ),
+    ).toBeInTheDocument();
+    expect(mockGetList).toHaveBeenCalledWith(
+      expect.objectContaining({ repo: 'autoland' }),
+    );
   });
 
   it('a quick-range button sets the start date and clears the end date', () => {
