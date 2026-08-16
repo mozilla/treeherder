@@ -120,7 +120,7 @@ const App = () => {
   const [filterModel, setFilterModel] = useState(
     () => new FilterModel(navigate, location),
   );
-  const [isFieldFilterVisible, setIsFieldFilterVisible] = useState(false);
+  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [serverChangedDelayed, setServerChangedDelayed] = useState(false);
   const [serverChanged, setServerChanged] = useState(false);
   const [serverChangedTimestamp, setServerChangedTimestamp] = useState(null);
@@ -213,8 +213,8 @@ const App = () => {
     [jobMap],
   );
 
-  const toggleFieldFilterVisible = useCallback(() => {
-    setIsFieldFilterVisible((prev) => !prev);
+  const toggleFilterPanel = useCallback(() => {
+    setIsFilterPanelOpen((prev) => !prev);
   }, []);
 
   const updateDimensions = useCallback(() => {
@@ -434,7 +434,9 @@ const App = () => {
           getAllShownJobs={getAllShownJobs}
           duplicateJobsVisible={duplicateJobsVisible}
           groupCountsExpanded={groupCountsExpanded}
-          toggleFieldFilterVisible={toggleFieldFilterVisible}
+          isFilterPanelOpen={isFilterPanelOpen}
+          toggleFilterPanel={toggleFilterPanel}
+          classificationTypes={classificationTypes}
           pushHealthVisibility={pushHealthVisibility}
           setPushHealthVisibility={setPushHealthVisibility}
         />
@@ -445,13 +447,11 @@ const App = () => {
         >
           <Panel defaultSize={pushListPct} minSize={20}>
             <div className="d-flex flex-column w-100 h-100">
-              {(isFieldFilterVisible || !!filterBarFilters.length) && (
+              {!!filterBarFilters.length && (
                 <ActiveFilters
                   classificationTypes={classificationTypes}
                   filterModel={filterModel}
                   filterBarFilters={filterBarFilters}
-                  isFieldFilterVisible={isFieldFilterVisible}
-                  toggleFieldFilterVisible={toggleFieldFilterVisible}
                 />
               )}
               {serverChangedDelayed && (

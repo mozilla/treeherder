@@ -235,9 +235,14 @@ function ActiveFilters({
 ActiveFilters.propTypes = {
   filterModel: PropTypes.shape({}).isRequired,
   filterBarFilters: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  isFieldFilterVisible: PropTypes.bool.isRequired,
-  toggleFieldFilterVisible: PropTypes.func.isRequired,
+  isFieldFilterVisible: PropTypes.bool,
+  toggleFieldFilterVisible: PropTypes.func,
   classificationTypes: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+};
+
+ActiveFilters.defaultProps = {
+  isFieldFilterVisible: false,
+  toggleFieldFilterVisible: () => {},
 };
 
 export default ActiveFilters;
