@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Overlay, Popover } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -16,6 +17,24 @@ function AdvancedFilterPanel({
   filterModel,
   classificationTypes,
 }) {
+  const popoverRef = useRef(null);
+  const wasOpen = useRef(isOpen);
+
+  useEffect(() => {
+    if (isOpen && !wasOpen.current) {
+      // Panel just opened - move focus into it.
+      if (popoverRef.current) {
+        popoverRef.current.focus();
+      }
+    } else if (!isOpen && wasOpen.current) {
+      // Panel just closed - restore focus to the trigger.
+      if (target.current) {
+        target.current.focus();
+      }
+    }
+    wasOpen.current = isOpen;
+  }, [isOpen, target]);
+
   return (
     <Overlay
       target={target.current}
@@ -24,7 +43,12 @@ function AdvancedFilterPanel({
       rootClose
       onHide={onClose}
     >
-      <Popover id="advanced-filter-panel" className="advanced-filter-panel">
+      <Popover
+        id="advanced-filter-panel"
+        className="advanced-filter-panel"
+        ref={popoverRef}
+        tabIndex={-1}
+      >
         <Popover.Header className="advanced-filter-panel-header">
           <b>Filters</b>
           <span>

@@ -1,4 +1,5 @@
 
+import { useRef, useState } from 'react';
 import fetchMock from 'fetch-mock';
 import { render, waitFor, fireEvent, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
@@ -169,5 +170,58 @@ describe('SecondaryNavBar', () => {
       expect(screen.getByText(repoName)).toBeInTheDocument();
     });
     expect(screen.queryByText(/New: advanced filters/)).not.toBeInTheDocument();
+  });
+
+  // Regression test: clicking the trigger while the panel is open used to
+  // fire both the Overlay's rootClose (onHide -> toggle -> close) and the
+  // button's own onClick (toggle -> reopen), so the two toggles canceled
+  // out and the panel could never be closed by clicking the trigger again.
+  test('clicking the trigger again while the panel is open closes it', async () => {
+    usePushesStore.setState({ ...initialState });
+
+    const StatefulSecondaryNavBar = () => {
+      const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
+      const toggleFilterPanel = () => setIsFilterPanelOpen((prev) => !prev);
+      const filterModel = useRef(
+        new FilterModel(mockNavigate, mockLocation),
+      ).current;
+
+      return (
+        <MemoryRouter initialEntries={[`/jobs?repo=${repoName}`]}>
+          <SecondaryNavBar
+            updateButtonClick={() => {}}
+            serverChanged={false}
+            filterModel={filterModel}
+            repos={repos}
+            setCurrentRepoTreeStatus={() => {}}
+            duplicateJobsVisible={false}
+            groupCountsExpanded={false}
+            isFilterPanelOpen={isFilterPanelOpen}
+            toggleFilterPanel={toggleFilterPanel}
+            classificationTypes={[]}
+          />
+        </MemoryRouter>
+      );
+    };
+
+    render(<StatefulSecondaryNavBar />);
+
+    await waitFor(() => {
+      expect(screen.getByText(repoName)).toBeInTheDocument();
+    });
+
+    const trigger = screen.getByLabelText('Advanced filters');
+
+    fireEvent.click(trigger);
+    await waitFor(() => {
+      expect(screen.getByText('Result status')).toBeInTheDocument();
+    });
+
+    fireEvent.mouseDown(trigger);
+    fireEvent.click(trigger);
+
+    await waitFor(() => {
+      expect(screen.queryByText('Result status')).not.toBeInTheDocument();
+    });
   });
 });

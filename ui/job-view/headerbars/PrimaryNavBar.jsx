@@ -93,6 +93,8 @@ export default React.memo(PrimaryNavBar, (prevProps, nextProps) => {
     isEqual(prevProps.repos, nextProps.repos) &&
     prevProps.serverChanged === nextProps.serverChanged &&
     prevProps.groupCountsExpanded === nextProps.groupCountsExpanded &&
-    prevProps.duplicateJobsVisible === nextProps.duplicateJobsVisible
+    prevProps.duplicateJobsVisible === nextProps.duplicateJobsVisible &&
+    prevProps.isFilterPanelOpen === nextProps.isFilterPanelOpen &&
+    prevProps.classificationTypes === nextProps.classificationTypes
   );
 });
