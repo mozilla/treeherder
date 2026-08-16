@@ -2,6 +2,11 @@
 .advanced-filter-panel {
   max-width: min(680px, 95vw);
   width: min(680px, 95vw);
+  /* Slightly heavier frame than the Bootstrap default 1px */
+  --bs-popover-border-width: 2px;
+  /* Match the 12px font size used throughout the jobs/push area */
+  --bs-popover-font-size: 12px;
+  font-size: 12px;
 }
 
 /* Same light blue family as the active-filters chips bar (alert-info) */
@@ -12,6 +17,12 @@
   gap: 0.5rem;
   background-color: var(--bs-info-bg-subtle, #cff4fc);
   border-bottom-color: var(--bs-info-border-subtle, #9eeaf9);
+}
+
+.advanced-filter-panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .advanced-filter-panel-body {
