@@ -18,6 +18,7 @@ function StatusSection({ filterModel }) {
           <FilterPill
             key={status}
             label={status}
+            status={status}
             isOn={resultStatus.includes(status)}
             onToggle={() => filterModel.toggleResultStatuses([status])}
           />
@@ -29,6 +30,7 @@ function StatusSection({ filterModel }) {
           <FilterPill
             key={group}
             label={group}
+            status={group}
             isOn={thFilterGroups[group].every((rs) => resultStatus.includes(rs))}
             onToggle={() => filterModel.toggleResultStatuses(thFilterGroups[group])}
             title={`Toggle all ${group} statuses`}
