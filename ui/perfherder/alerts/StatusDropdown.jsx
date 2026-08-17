@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Dropdown, Col, Form } from 'react-bootstrap';
 import template from 'lodash/template';
 import templateSettings from 'lodash/templateSettings';
+import { alertStatusMap } from '../perf-helpers/constants';
 
 import {
   getFilledBugSummary,
@@ -82,12 +83,21 @@ export default class StatusDropdown extends React.Component {
     };
   };
 
+  filterValidAlerts = () => {
+    const { filteredAlerts = [], alertSummary } = this.props;
+    return filteredAlerts.filter(
+      (alert) =>
+        alert.status === alertStatusMap.acknowledged ||
+        alert.status === alertStatusMap.untriaged ||
+        (alert.status === alertStatusMap.reassigned && alert.summary_id !== alertSummary.id),
+    );
+  };
+
   fileBug = async (culpritId) => {
     const {
       alertSummary,
       repoModel,
       updateViewState,
-      filteredAlerts = [],
       frameworks,
       user,
     } = this.props;
@@ -106,11 +116,7 @@ export default class StatusDropdown extends React.Component {
       updateViewState,
     );
 
-    const validAlerts = filteredAlerts.filter(
-      (alert) =>
-        alert.status === 4 ||
-        (alert.status === 2 && alert.summary_id !== alertSummary.id),
-    );
+    const validAlerts = this.filterValidAlerts();
 
     const textualSummary = new TextualSummary(
       frameworks,
@@ -220,7 +226,6 @@ export default class StatusDropdown extends React.Component {
     const {
       alertSummary,
       repoModel,
-      filteredAlerts = [],
       frameworks,
       updateViewState,
       user,
@@ -240,11 +245,7 @@ export default class StatusDropdown extends React.Component {
       updateViewState,
     );
 
-    const validAlerts = filteredAlerts.filter(
-      (alert) =>
-        alert.status === 4 ||
-        (alert.status === 2 && alert.summary_id !== alertSummary.id),
-    );
+    const validAlerts = this.filterValidAlerts();
 
     const textualSummary = new TextualSummary(
       frameworks,
@@ -280,7 +281,7 @@ export default class StatusDropdown extends React.Component {
 
     // can't access the clipboardData on event unless it's done from react's
     // onCopy, onCut or onPaste props so using this workaround
-    navigator.clipboard.writeText(commentText).then(() => {});
+    navigator.clipboard.writeText(commentText).then(() => { });
   };
 
   async getBugTemplate(framework, updateViewState) {
@@ -336,7 +337,6 @@ export default class StatusDropdown extends React.Component {
       alertSummary,
       repoModel,
       updateViewState,
-      filteredAlerts = [],
       frameworks,
       user,
     } = this.props;
@@ -358,11 +358,7 @@ export default class StatusDropdown extends React.Component {
       return { failureStatus: 'Failed to retrieve bug template' };
     }
 
-    const validAlerts = filteredAlerts.filter(
-      (alert) =>
-        alert.status === 4 ||
-        (alert.status === 2 && alert.summary_id !== alertSummary.id),
-    );
+    const validAlerts = this.filterValidAlerts();
 
     const textualSummary = new TextualSummary(
       frameworks,
