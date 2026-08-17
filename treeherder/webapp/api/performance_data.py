@@ -1390,7 +1390,7 @@ class PerfCompareResults(generics.ListAPIView):
                     common_result,
                 ) = PerfCompareResults._build_common_result(comparison_inputs, header, platform)
 
-                if not has_results:
+                if has_results:
                     yield (
                         lower_is_better,
                         statistics_base_perf_data,
