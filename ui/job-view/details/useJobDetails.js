@@ -150,10 +150,11 @@ function useJobDetails(selectedJob, currentRepo, pushList, frameworks) {
   const previousJobIdRef = useRef(null);
   const isFirstLoadRef = useRef(true);
 
-  const findPush = useCallback(
-    (pushId) => pushList.find((push) => pushId === push.id),
-    [pushList],
-  );
+  // Latest push list, readable from the load effect without retriggering it.
+  // The push list is replaced on every poll cycle; keying the effect on it
+  // would refetch job details (and flicker the details panel) once a minute.
+  const pushListRef = useRef(pushList);
+  pushListRef.current = pushList;
 
   // Update classifications when the classification changed event fires
   const updateClassifications = useCallback(async () => {
@@ -207,6 +208,14 @@ function useJobDetails(selectedJob, currentRepo, pushList, frameworks) {
     // For first load or initial job selection, load immediately
     const shouldDebounce = !isFirstLoad && !isNewJob;
 
+    // Drop the previous job's data immediately so the details panel (and the
+    // tabs derived from it) never renders one job's artifacts under another.
+    if (isNewJob && !isFirstLoad) {
+      setJobDetails([]);
+      setPerfJobDetail([]);
+      setTestGroups([]);
+    }
+
     const loadJobDetails = async (signal) => {
       if (!currentRepo) return;
 
@@ -214,7 +223,9 @@ function useJobDetails(selectedJob, currentRepo, pushList, frameworks) {
       setJobArtifactsLoading(true);
 
       try {
-        const push = findPush(selectedJob.push_id);
+        const push = pushListRef.current.find(
+          (p) => p.id === selectedJob.push_id,
+        );
 
         const artifactsParams = {
           jobId: selectedJob.id,
@@ -427,7 +438,10 @@ function useJobDetails(selectedJob, currentRepo, pushList, frameworks) {
       }
       abortController.abort();
     };
-    // We track specific fields that should trigger a reload
+    // We track the specific fields that should trigger a reload. The
+    // selectedJob object itself is deliberately NOT a dependency: polling
+    // replaces job objects with identical data, and refetching on identity
+    // changes makes the details panel flicker.
   }, [
     selectedJob?.id,
     selectedJob?.state,
@@ -435,8 +449,6 @@ function useJobDetails(selectedJob, currentRepo, pushList, frameworks) {
     selectedJob?.failure_classification_id,
     currentRepo,
     frameworks,
-    findPush,
-    selectedJob,
   ]);
 
   return {
