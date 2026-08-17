@@ -1189,13 +1189,13 @@ class PerformanceAlertSummaryTasks(generics.ListAPIView):
 
 @dataclass(frozen=True)
 class _RepoPerfData:
-    sigs: dict
+    signatures_map: dict
     values: dict
     replicates: dict
     stats: dict
     job_ids: dict
     rev: str | None
-    repo: str
+    repo_name: str
 
 
 @dataclass(frozen=True)
@@ -1316,22 +1316,22 @@ class PerfCompareResults(generics.ListAPIView):
         self.queryset = []
 
         base = _RepoPerfData(
-            sigs=base_signatures_map,
+            signatures_map=base_signatures_map,
             values=base_grouped_values,
             replicates=base_grouped_replicates,
             stats=statistics_base_grouped_data,
             job_ids=base_grouped_job_ids,
             rev=base_rev,
-            repo=base_repo_name,
+            repo_name=base_repo_name,
         )
         new = _RepoPerfData(
-            sigs=new_signatures_map,
+            signatures_map=new_signatures_map,
             values=new_grouped_values,
             replicates=new_grouped_replicates,
             stats=statistics_new_grouped_data,
             job_ids=new_grouped_job_ids,
             rev=new_rev,
-            repo=new_repo_name,
+            repo_name=new_repo_name,
         )
         comparison_inputs = _ComparisonData(
             base=base,
@@ -1508,9 +1508,9 @@ class PerfCompareResults(generics.ListAPIView):
          has_results, common_result)
         """
         sig_identifier = perfcompare_utils.get_sig_identifier(header, platform)
-        base_sig = comparison_inputs.base.sigs.get(sig_identifier, {})
+        base_sig = comparison_inputs.base.signatures_map.get(sig_identifier, {})
         base_sig_id = base_sig.get("id", None)
-        new_sig = comparison_inputs.new.sigs.get(sig_identifier, {})
+        new_sig = comparison_inputs.new.signatures_map.get(sig_identifier, {})
         new_sig_id = new_sig.get("id", None)
 
         # Get signature-based properties
@@ -1565,8 +1565,8 @@ class PerfCompareResults(generics.ListAPIView):
             "framework_id": comparison_inputs.framework,
             "option_name": option_name,
             "extra_options": extra_options,
-            "base_repository_name": comparison_inputs.base.repo,
-            "new_repository_name": comparison_inputs.new.repo,
+            "base_repository_name": comparison_inputs.base.repo_name,
+            "new_repository_name": comparison_inputs.new.repo_name,
             "base_measurement_unit": base_sig.get("measurement_unit", ""),
             "new_measurement_unit": new_sig.get("measurement_unit", ""),
             "base_runs": base_perf_data_values,
@@ -1574,8 +1574,8 @@ class PerfCompareResults(generics.ListAPIView):
             "base_runs_replicates": base_perf_data_replicates,
             "new_runs_replicates": new_perf_data_replicates,
             "graphs_link": PerfCompareResults._create_graph_links(
-                comparison_inputs.base.repo,
-                comparison_inputs.new.repo,
+                comparison_inputs.base.repo_name,
+                comparison_inputs.new.repo_name,
                 comparison_inputs.base.rev,
                 comparison_inputs.new.rev,
                 str(comparison_inputs.framework),
@@ -2036,8 +2036,8 @@ class PerfCompareResults(generics.ListAPIView):
         key_components = {
             "base_rev": comparison_inputs.base.rev,
             "new_rev": comparison_inputs.new.rev,
-            "base_repo": comparison_inputs.base.repo,
-            "new_repo": comparison_inputs.new.repo,
+            "base_repo": comparison_inputs.base.repo_name,
+            "new_repo": comparison_inputs.new.repo_name,
             "framework": comparison_inputs.framework,
             "interval": interval,
             "no_subtests": no_subtests,
