@@ -200,6 +200,99 @@
         font-size: 0.8rem;
         color: #856404;
       }
+
+      /* A triaged difference drops the amber, so the eye goes straight to what
+       * still needs looking at. Grey = deliberately ignored, green = has a bug. */
+      .failure-diff-treated {
+        background: #e9ecef;
+        border-left: 3px solid #adb5bd;
+        padding-left: 4px;
+      }
+
+      .failure-diff-treated .failure-line-text {
+        color: #6c757d;
+      }
+
+      .failure-diff-treated-bug {
+        background: #d1e7dd;
+        border-left-color: #198754;
+      }
+
+      .failure-diff-badge-treated {
+        font-size: 10px;
+        font-weight: 600;
+        color: #495057;
+        margin-left: 6px;
+        white-space: nowrap;
+      }
+
+      .failure-diff-treated-bug .failure-diff-badge-treated {
+        color: #0f5132;
+      }
+
+      /* Triage buttons sit inline after the failure line; keep them from
+       * inflating the row height of an untreated difference. */
+      .triage-btn {
+        font-size: 10px;
+        line-height: 1.2;
+        padding: 1px 5px;
+        margin-left: 4px;
+        vertical-align: middle;
+      }
+
+      .triage-bug-input {
+        font-size: 10px;
+        line-height: 1.2;
+        padding: 1px 4px;
+        margin-left: 4px;
+        width: 7em;
+        vertical-align: middle;
+      }
+
+      /* The collapsed header of a fully-triaged job. */
+      .job-summary {
+        cursor: pointer;
+        list-style: none;
+      }
+
+      .job-summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .job-summary::before {
+        content: '▾';
+        display: inline-block;
+        width: 1em;
+        color: #6c757d;
+      }
+
+      .job-details:not([open]) > .job-summary::before {
+        content: '▸';
+      }
+
+      .job-summary h2 {
+        display: inline;
+      }
+
+      .job-triage-badge {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #0f5132;
+        background: #d1e7dd;
+        border-radius: 0.25rem;
+        padding: 1px 6px;
+        margin-left: 8px;
+        white-space: nowrap;
+      }
+
+      .job-triage-badge-partial {
+        color: #856404;
+        background: #fff3cd;
+      }
+
+      #triage-bar {
+        font-size: 0.8rem;
+      }
     </style>
   </head>
   <body>
@@ -395,7 +488,66 @@
           </div>
         </div>
         <div class="col-auto">
+          <div class="form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              id="filter-hide-triaged"
+            />
+            <label class="form-check-label small" for="filter-hide-triaged"
+              >Hide fully triaged jobs</label
+            >
+          </div>
+        </div>
+        <div class="col-auto">
           <span class="text-muted small" id="filter-count"></span>
+        </div>
+      </div>
+
+      <!-- Triage flags live in this browser's localStorage, layered over the
+       triage.json committed next to this page. Export produces a file to
+       commit; Import merges one back in. -->
+      <div id="triage-bar" class="row g-2 align-items-center mb-3" hidden>
+        <div class="col-auto">
+          <span class="text-muted" id="triage-count"></span>
+        </div>
+        <div class="col-auto">
+          <button
+            type="button"
+            class="btn btn-outline-secondary btn-sm"
+            id="triage-export"
+          >
+            Export triage.json
+          </button>
+        </div>
+        <div class="col-auto">
+          <button
+            type="button"
+            class="btn btn-outline-secondary btn-sm"
+            id="triage-import"
+          >
+            Import…
+          </button>
+          <input
+            type="file"
+            id="triage-import-input"
+            accept="application/json,.json"
+            hidden
+          />
+        </div>
+        <div class="col-auto">
+          <button
+            type="button"
+            class="btn btn-outline-danger btn-sm"
+            id="triage-clear"
+          >
+            Clear local flags
+          </button>
+        </div>
+        <div class="col-auto">
+          <span class="text-danger" id="triage-storage-warning" hidden
+            >localStorage is unavailable — flags won't be saved.</span
+          >
         </div>
       </div>
 
@@ -510,6 +662,12 @@
       const BUG_SUGGESTION_LIMIT = 20;
       // Mirrors ui/helpers/constants.js#requiredInternalOccurrences.
       const REQUIRED_INTERNAL_OCCURRENCES = 3;
+      // Where triage flags (ignored / bug-linked differences) live. The
+      // localStorage layer is this browser's working copy; the JSON file is the
+      // shared baseline committed next to this page.
+      const TRIAGE_STORAGE_KEY = 'testsummary-preview-triage-v1';
+      const TRIAGE_BASELINE_URL = './triage.json';
+      const TRIAGE_VERSION = 1;
 
       // ---------------------------------------------------------------------
       // HTTP + Treeherder/Taskcluster helpers (shared logic with
@@ -1160,13 +1318,17 @@
           },
           [iconEl],
         );
-        link.addEventListener('click', () =>
+        link.addEventListener('click', (event) => {
+          // The link lives inside the section's <summary>, where a click would
+          // otherwise also fold the job away. The fragment navigation is still
+          // wanted, so stop the event rather than preventing its default.
+          event.stopPropagation();
           copyWithFeedback(
             new URL(`#${anchorId}`, location.href).href,
             iconEl,
             iconClass,
-          ),
-        );
+          );
+        });
         return link;
       }
 
@@ -1198,6 +1360,316 @@
         };
       }
 
+      // ---------------------------------------------------------------------
+      // Difference triage — flagging a difference as ignored or bug-linked.
+      //
+      // A flag has to survive to the next revision, so it can't key on the raw
+      // failure line: messages carry run-specific noise (counts, addresses,
+      // temp paths, timings) that changes every push. diffKey() masks that
+      // noise and keys on what's left.
+      //
+      // State lives in two layers. `baseline` is triage.json served next to
+      // this page — the team's shared, git-reviewed set. `local` is this
+      // browser's localStorage, and always wins. Un-flagging a key present in
+      // the baseline can't simply drop it locally, or the baseline would show
+      // through again, so it writes a `cleared` tombstone instead.
+      // ---------------------------------------------------------------------
+
+      const stripAnsi = (s) => s.replace(/\[[0-9;]*m/g, '');
+
+      // Order matters: UUIDs, addresses, durations and paths are consumed
+      // before the bare-number rule, which would otherwise eat their digits
+      // first and leave shapes that no longer match each other.
+      function maskVolatile(message) {
+        return message
+          .replace(
+            /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi,
+            '<UUID>',
+          )
+          .replace(/\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?/g, '<TS>')
+          .replace(/\b0x[0-9a-f]+\b/gi, '<ADDR>')
+          .replace(
+            /\b\d+(?:\.\d+)?\s?(?:ms|s|sec|secs|seconds|min|minutes)\b/gi,
+            '<DUR>',
+          )
+          .replace(/(?:[A-Za-z]:)?[\\/](?:[\w.-]+[\\/])+[\w.-]+/g, '<PATH>')
+          .replace(/\b[0-9a-f]{16,}\b/gi, '<HASH>')
+          .replace(/\b\d+(?:\.\d+)?\b/g, '<N>');
+      }
+
+      // A search is `TEST-UNEXPECTED-<STATUS> | <test path> | <message…>`.
+      // The test path is dropped wholesale: a flag records a verdict on a *kind*
+      // of failure, and "Test started but never finished" is one such kind
+      // whichever test hit it — otherwise the same call has to be made again for
+      // every test that trips over it. The message is still masked rather than
+      // dropped; it's what distinguishes one kind from the next.
+      //
+      // Not every line has that shape — harness output ("profiler <errno…>")
+      // arrives as one field. It gets masked too, whole: it carries the same
+      // per-run paths and counters, and leaving them in pins the flag to the
+      // push it was made on.
+      function diffKey(search) {
+        const s = stripAnsi(normalizeSearch(search)).replace(/\s+/g, ' ');
+        const parts = s.split(' | ');
+        if (parts.length < 3) return maskVolatile(s);
+        const message = maskVolatile(parts.slice(2).join(' | '));
+        return `${parts[0]} | <TEST> | ${message}`;
+      }
+
+      // Flags written under an earlier diffKey() — one that kept the test path —
+      // would silently stop matching anything. They carry the line they were
+      // made against in `seen.search`, so they can be re-keyed on the way in.
+      // Several old keys can collapse onto one new key; the most recent verdict
+      // wins, so the result doesn't depend on iteration order.
+      function rekeyTriageEntries(entries) {
+        const rekeyed = {};
+        for (const [key, entry] of Object.entries(entries)) {
+          const search = entry?.seen?.search;
+          const newKey = search ? diffKey(search) : key;
+          const existing = rekeyed[newKey];
+          if (existing && (existing.updated || '') > (entry?.updated || '')) {
+            continue;
+          }
+          rekeyed[newKey] = entry;
+        }
+        return rekeyed;
+      }
+
+      let baselineTriage = { version: TRIAGE_VERSION, entries: {} };
+      let localTriage = { version: TRIAGE_VERSION, entries: {} };
+      // Merged view of both layers, rebuilt on mutation rather than derived on
+      // every lookup — rendering reads it once per failure line.
+      let triageEntries = {};
+      // False when localStorage throws (private mode, some file:// contexts).
+      // The page still renders the baseline, read-only.
+      let triageStorageAvailable = true;
+
+      function recomputeTriageEntries() {
+        const merged = { ...baselineTriage.entries, ...localTriage.entries };
+        for (const [key, entry] of Object.entries(merged)) {
+          if (!entry || entry.state === 'cleared') delete merged[key];
+        }
+        triageEntries = merged;
+      }
+
+      const isTriageEntries = (parsed) =>
+        parsed &&
+        typeof parsed === 'object' &&
+        parsed.entries !== null &&
+        typeof parsed.entries === 'object';
+
+      function loadLocalTriage() {
+        try {
+          const raw = localStorage.getItem(TRIAGE_STORAGE_KEY);
+          const parsed = raw ? JSON.parse(raw) : null;
+          if (isTriageEntries(parsed)) {
+            localTriage = {
+              version: TRIAGE_VERSION,
+              entries: rekeyTriageEntries(parsed.entries),
+            };
+          }
+        } catch {
+          triageStorageAvailable = false;
+        }
+        recomputeTriageEntries();
+      }
+
+      function saveLocalTriage() {
+        try {
+          localStorage.setItem(TRIAGE_STORAGE_KEY, JSON.stringify(localTriage));
+        } catch {
+          triageStorageAvailable = false;
+        }
+      }
+
+      // Optional by design: the file is absent until someone commits one, and
+      // fetching a relative URL is blocked outright under file://. Either way
+      // the page carries on with the localStorage layer alone.
+      async function loadBaselineTriage() {
+        try {
+          const res = await fetch(TRIAGE_BASELINE_URL);
+          if (!res.ok) return;
+          const parsed = await res.json();
+          if (isTriageEntries(parsed)) {
+            baselineTriage = {
+              version: TRIAGE_VERSION,
+              entries: rekeyTriageEntries(parsed.entries),
+            };
+          }
+        } catch {
+          // No baseline available — localStorage only.
+        }
+        recomputeTriageEntries();
+      }
+
+      const getTriage = (key) => triageEntries[key];
+
+      function setTriage(key, state, bug, context) {
+        localTriage.entries[key] = {
+          state,
+          bug: bug || null,
+          updated: new Date().toISOString(),
+          seen: context,
+        };
+        saveLocalTriage();
+        recomputeTriageEntries();
+        onTriageChanged();
+      }
+
+      function clearTriage(key) {
+        if (key in baselineTriage.entries) {
+          localTriage.entries[key] = {
+            state: 'cleared',
+            updated: new Date().toISOString(),
+          };
+        } else {
+          delete localTriage.entries[key];
+        }
+        saveLocalTriage();
+        recomputeTriageEntries();
+        onTriageChanged();
+      }
+
+      function triageCounts() {
+        let ignored = 0;
+        let bugs = 0;
+        for (const entry of Object.values(triageEntries)) {
+          if (entry.state === 'ignored') ignored += 1;
+          else if (entry.state === 'bug') bugs += 1;
+        }
+        return { ignored, bugs, total: ignored + bugs };
+      }
+
+      // Every difference in a job — the diff-only lines on both sides —
+      // tallied by triage state. `total > 0 && untreated === 0` is what folds
+      // a section away, and what the "hide fully triaged" filter drops.
+      function jobDiffStats(result) {
+        const { summarySearches, failureSearches } = diffSearches(
+          result.suggestions,
+          result.failureSuggestions,
+        );
+        const stats = { total: 0, ignored: 0, bugs: 0, untreated: 0 };
+        const tally = (suggestions, otherSearches) => {
+          suggestions.forEach((suggestion) => {
+            if (otherSearches.has(normalizeSearch(suggestion.search))) return;
+            stats.total += 1;
+            const entry = getTriage(diffKey(suggestion.search));
+            if (!entry) stats.untreated += 1;
+            else if (entry.state === 'bug') stats.bugs += 1;
+            else stats.ignored += 1;
+          });
+        };
+        tally(result.suggestions, failureSearches);
+        tally(result.failureSuggestions, summarySearches);
+        return stats;
+      }
+
+      const jobFullyTriaged = (result) => {
+        const stats = jobDiffStats(result);
+        return stats.total > 0 && stats.untreated === 0;
+      };
+
+      // The badge and buttons trailing a difference: what it is, and how to
+      // flag it. Untreated shows "only here…" plus Ignore / Link bug; treated
+      // shows the verdict plus a way to undo it. Committing re-renders the
+      // whole report, so the inline bug input only has to survive until then.
+      function renderTriageControls(key, triage, diffLabel, context) {
+        const group = el('span');
+
+        const renderView = () => {
+          group.textContent = '';
+          if (!triage) {
+            group.appendChild(
+              el('span', {
+                class: 'failure-diff-badge',
+                text: `only here — missing from ${diffLabel}`,
+              }),
+            );
+            group.appendChild(
+              triageButton('ignore', 'btn-outline-secondary', () =>
+                setTriage(key, 'ignored', null, context),
+              ),
+            );
+            group.appendChild(
+              triageButton('link bug', 'btn-outline-success', renderEditor),
+            );
+            return;
+          }
+
+          const badge = el('span', { class: 'failure-diff-badge-treated' });
+          if (triage.state === 'bug') {
+            badge.appendChild(document.createTextNode('bug '));
+            // Internal issues (i123) exist only in Treeherder — there's no
+            // Bugzilla page to link to.
+            badge.appendChild(
+              String(triage.bug).startsWith('i')
+                ? document.createTextNode(String(triage.bug))
+                : el('a', {
+                    href: getBugUrl(triage.bug),
+                    target: '_blank',
+                    rel: 'noopener noreferrer',
+                    text: String(triage.bug),
+                  }),
+            );
+          } else {
+            badge.textContent = 'ignored';
+          }
+          group.appendChild(badge);
+          group.appendChild(
+            triageButton('×', 'btn-outline-secondary', () => clearTriage(key), {
+              title: 'Remove this flag',
+            }),
+          );
+        };
+
+        const renderEditor = () => {
+          group.textContent = '';
+          const input = el('input', {
+            type: 'text',
+            class: 'form-control form-control-sm d-inline-block triage-bug-input',
+            placeholder: '1892345',
+            // Same grammar as PinBoard.jsx: a leading `i` means internal issue.
+            title: 'Bugzilla number, or i<id> for an internal issue',
+          });
+          const commit = () => {
+            const value = input.value.trim();
+            if (!/^i?\d+$/.test(value)) {
+              input.classList.add('is-invalid');
+              return;
+            }
+            setTriage(key, 'bug', value, context);
+          };
+          input.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+              event.preventDefault();
+              commit();
+            } else if (event.key === 'Escape') {
+              renderView();
+            }
+          });
+          group.appendChild(input);
+          group.appendChild(triageButton('ok', 'btn-outline-success', commit));
+          group.appendChild(
+            triageButton('cancel', 'btn-outline-secondary', renderView),
+          );
+          input.focus();
+        };
+
+        renderView();
+        return group;
+      }
+
+      function triageButton(label, variant, onClick, attrs = {}) {
+        const button = el('button', {
+          type: 'button',
+          class: `btn ${variant} btn-sm triage-btn`,
+          text: label,
+          ...attrs,
+        });
+        button.addEventListener('click', onClick);
+        return button;
+      }
+
       // Mirrors SummaryItem.jsx. `otherSearches`/`diffLabel` are preview-only
       // additions to highlight failure lines missing from the other tab.
       function renderFailureItem(
@@ -1212,7 +1684,23 @@
         const isDiffOnly =
           otherSearches &&
           !otherSearches.has(normalizeSearch(suggestion.search));
-        if (isDiffOnly) li.classList.add('failure-diff-unique');
+        const triageKey = isDiffOnly ? diffKey(suggestion.search) : null;
+        const triage = triageKey ? getTriage(triageKey) : null;
+        if (isDiffOnly) {
+          if (triage) {
+            li.classList.add('failure-diff-treated');
+            if (triage.state === 'bug') {
+              li.classList.add('failure-diff-treated-bug');
+            }
+            // Both the raw line and the key it collapsed to, so a flag that
+            // failed to carry over to a new revision can be diagnosed on the
+            // spot: compare the two keys.
+            li.title = `${suggestion.search}\n\nkey: ${triageKey}`;
+          } else {
+            li.classList.add('failure-diff-unique');
+            li.title = `key: ${triageKey}`;
+          }
+        }
         const line = el('div');
         const internalIssueIconEl = icon('fa-solid fa-circle-exclamation', {
           title: 'File an internal issue for this failure',
@@ -1224,7 +1712,7 @@
         line.appendChild(internalIssueIconEl);
         line.appendChild(
           el('span', {
-            class: 'align-middle ms-1',
+            class: 'align-middle ms-1 failure-line-text',
             text: `${suggestion.search} `,
           }),
         );
@@ -1239,9 +1727,9 @@
         line.appendChild(bugIconEl);
         if (isDiffOnly) {
           line.appendChild(
-            el('span', {
-              class: 'failure-diff-badge',
-              text: `only here — missing from ${diffLabel}`,
+            renderTriageControls(triageKey, triage, diffLabel, {
+              search: suggestion.search,
+              job: job.job_type_name || '',
             }),
           );
         }
@@ -2191,10 +2679,51 @@
           id: anchorId,
         });
 
-        const heading = el('h2', { class: 'h6 mb-1 font-monospace' });
+        // A job whose differences have all been triaged folds away by default;
+        // it stays listed so nothing silently disappears. <details> gives the
+        // keyboard behaviour and open state for free.
+        const stats = jobDiffStats({ suggestions, failureSuggestions });
+        const autoCollapsed = stats.total > 0 && stats.untreated === 0;
+        const details = el('details', { class: 'job-details' });
+        details.open = manualJobOpenState.has(anchorId)
+          ? manualJobOpenState.get(anchorId)
+          : !autoCollapsed;
+        section.appendChild(details);
+
+        const summaryEl = el('summary', { class: 'job-summary mb-1' });
+        // Records intent on activation rather than on `toggle`: setting
+        // details.open above also fires toggle, which would pin every section
+        // to the state it happened to load in — so triaging a job's last
+        // difference would never fold it. Enter/Space on a <summary> dispatch
+        // a click too, and the default toggle runs after this handler, hence
+        // the negation.
+        summaryEl.addEventListener('click', () =>
+          manualJobOpenState.set(anchorId, !details.open),
+        );
+        const heading = el('h2', { class: 'h6 mb-0 font-monospace' });
         heading.appendChild(document.createTextNode(jobLabel(job)));
         heading.appendChild(renderAnchorLink(anchorId));
-        section.appendChild(heading);
+        summaryEl.appendChild(heading);
+        if (stats.total > 0) {
+          const parts = [];
+          if (stats.ignored > 0) parts.push(`${fmt(stats.ignored)} ignored`);
+          if (stats.bugs > 0) parts.push(`${fmt(stats.bugs)} bug(s)`);
+          if (stats.untreated > 0) {
+            parts.push(`${fmt(stats.untreated)} to triage`);
+          }
+          summaryEl.appendChild(
+            el('span', {
+              class: autoCollapsed
+                ? 'job-triage-badge'
+                : 'job-triage-badge job-triage-badge-partial',
+              text: `${fmt(stats.total)} difference(s) — ${parts.join(', ')}`,
+            }),
+          );
+        }
+        details.appendChild(summaryEl);
+
+        const body = el('div', { class: 'job-body' });
+        details.appendChild(body);
 
         const jobUrl = `${serverUrl}/jobs?repo=${encodeURIComponent(project)}&revision=${encodeURIComponent(revisionId)}&selectedTaskRun=${job.task_id}.${job.retry_id ?? 0}`;
         const meta = el('p', { class: 'job-meta mb-2' });
@@ -2222,7 +2751,7 @@
             }),
           );
         }
-        section.appendChild(meta);
+        body.appendChild(meta);
 
         const {
           summarySearches,
@@ -2242,7 +2771,7 @@
             );
           }
           diffNote.textContent = `⚠ Tabs differ: ${parts.join(', ')}.`;
-          section.appendChild(diffNote);
+          body.appendChild(diffNote);
         }
 
         const summaryCountsLine = el('p', {
@@ -2330,7 +2859,7 @@
         );
         columns.appendChild(failureCol);
 
-        section.appendChild(columns);
+        body.appendChild(columns);
         return section;
       }
 
@@ -2494,8 +3023,19 @@
       const filterShowIdenticalInput = document.getElementById(
         'filter-show-identical',
       );
+      const filterHideTriagedInput =
+        document.getElementById('filter-hide-triaged');
       const filterCountEl = document.getElementById('filter-count');
       const anchorNotice = document.getElementById('anchor-notice');
+      const triageBar = document.getElementById('triage-bar');
+      const triageCountEl = document.getElementById('triage-count');
+      const triageExportButton = document.getElementById('triage-export');
+      const triageImportButton = document.getElementById('triage-import');
+      const triageImportInput = document.getElementById('triage-import-input');
+      const triageClearButton = document.getElementById('triage-clear');
+      const triageStorageWarning = document.getElementById(
+        'triage-storage-warning',
+      );
 
       // { serverUrl, project, revisionId, jobResults } | null
       let lastRun = null;
@@ -2503,6 +3043,11 @@
       // The job named by the URL fragment. Survives re-renders so
       // renderJobSection can re-apply the outline.
       let linkedAnchorId = null;
+
+      // anchorId -> open, for jobs the user expanded or folded by hand. Every
+      // filter change rebuilds #report from scratch, so without this the
+      // <details> would snap back to its automatic state each time.
+      const manualJobOpenState = new Map();
 
       // The fragment present at page load. The browser already gave up on it —
       // #report is empty until the fetch pipeline resolves, seconds later — so
@@ -2551,9 +3096,17 @@
         const identicalHidden = hideIdentical
           ? afterNoFailures.filter(jobTabsIdentical).length
           : 0;
-        const filtered = hideIdentical
+        const afterIdentical = hideIdentical
           ? afterNoFailures.filter((r) => !jobTabsIdentical(r))
           : afterNoFailures;
+        // Off by default: a fully triaged job still shows, just folded.
+        const hideTriaged = filterHideTriagedInput.checked;
+        const triagedHidden = hideTriaged
+          ? afterIdentical.filter(jobFullyTriaged).length
+          : 0;
+        const filtered = hideTriaged
+          ? afterIdentical.filter((r) => !jobFullyTriaged(r))
+          : afterIdentical;
 
         const total = lastRun.jobResults.length;
         const shown = filtered.length;
@@ -2567,7 +3120,11 @@
         if (identicalHidden > 0) {
           parts.push(`${fmt(identicalHidden)} with identical tabs hidden`);
         }
+        if (triagedHidden > 0) {
+          parts.push(`${fmt(triagedHidden)} fully triaged hidden`);
+        }
         filterCountEl.textContent = parts.join(' — ');
+        updateTriageBar();
 
         const reportEl = document.getElementById('report');
         if (shown === 0) {
@@ -2585,6 +3142,84 @@
       }
 
       const applyJobFilterDebounced = debounce(applyJobFilter, 200);
+
+      function updateTriageBar() {
+        const { total, ignored, bugs } = triageCounts();
+        triageCountEl.textContent = total
+          ? `${fmt(total)} flagged (${fmt(ignored)} ignored, ${fmt(bugs)} bug-linked)`
+          : 'No differences flagged yet.';
+        triageStorageWarning.hidden = triageStorageAvailable;
+      }
+
+      // Flagging changes colours, the per-job tally and possibly whether a
+      // section folds, so the report is rebuilt through the one render path
+      // rather than patched in place.
+      function onTriageChanged() {
+        if (lastRun) applyJobFilter();
+        else updateTriageBar();
+      }
+
+      // Exports the merged view, not just the local layer: the result is meant
+      // to be committed as triage.json and become the next baseline.
+      function exportTriage() {
+        const blob = new Blob(
+          [
+            `${JSON.stringify(
+              { version: TRIAGE_VERSION, entries: triageEntries },
+              null,
+              2,
+            )}\n`,
+          ],
+          { type: 'application/json' },
+        );
+        const url = URL.createObjectURL(blob);
+        const link = el('a', { href: url, download: 'triage.json' });
+        link.click();
+        URL.revokeObjectURL(url);
+      }
+
+      async function importTriage(event) {
+        const file = event.target.files?.[0];
+        // Reset first, so re-picking the same file fires `change` again.
+        event.target.value = '';
+        if (!file) return;
+        try {
+          const parsed = JSON.parse(await file.text());
+          if (!isTriageEntries(parsed)) {
+            throw new Error('no "entries" object');
+          }
+          localTriage.entries = {
+            ...localTriage.entries,
+            ...rekeyTriageEntries(parsed.entries),
+          };
+          saveLocalTriage();
+          recomputeTriageEntries();
+          onTriageChanged();
+          log.info(
+            `Imported ${fmt(Object.keys(parsed.entries).length)} triage flag(s).`,
+          );
+        } catch (err) {
+          errorBanner.textContent = `Could not read that triage file: ${err.message}`;
+          errorBanner.hidden = false;
+        }
+      }
+
+      function clearLocalTriage() {
+        const { total } = triageCounts();
+        if (
+          !window.confirm(
+            `Clear this browser's triage flags? ${fmt(total)} flag(s) are ` +
+              'showing; any that came from the committed triage.json will ' +
+              'reappear.',
+          )
+        ) {
+          return;
+        }
+        localTriage = { version: TRIAGE_VERSION, entries: {} };
+        saveLocalTriage();
+        recomputeTriageEntries();
+        onTriageChanged();
+      }
 
       // Scrolls to the job named by a #job-<taskId>-<run> fragment and marks
       // it. The section may not be in the DOM: the default filters hide jobs
@@ -2628,6 +3263,14 @@
           if (other !== section) other.classList.remove('job-block-linked');
         }
         section.classList.add('job-block-linked');
+        // A fully triaged job arrives folded, which would land the deep link
+        // on a one-line header. Open it, and remember that so the next filter
+        // change doesn't fold it back.
+        const details = section.querySelector('.job-details');
+        if (details && !details.open) {
+          details.open = true;
+          manualJobOpenState.set(anchorId, true);
+        }
         // Bootstrap sets scroll-behavior: smooth on :root, which is right for
         // a click but makes a deep link crawl thousands of pixels on arrival —
         // land there at once instead.
@@ -2703,6 +3346,13 @@
       filterExcludeInput.addEventListener('input', applyJobFilterDebounced);
       filterShowNoFailInput.addEventListener('change', applyJobFilter);
       filterShowIdenticalInput.addEventListener('change', applyJobFilter);
+      filterHideTriagedInput.addEventListener('change', applyJobFilter);
+      triageExportButton.addEventListener('click', exportTriage);
+      triageImportButton.addEventListener('click', () =>
+        triageImportInput.click(),
+      );
+      triageImportInput.addEventListener('change', importTriage);
+      triageClearButton.addEventListener('click', clearLocalTriage);
       for (const radio of form.querySelectorAll('input[name="push-mode"]')) {
         radio.addEventListener('change', () => {
           setPushMode(pushModeRadio());
@@ -2778,11 +3428,15 @@
 
         summaryBanner.hidden = false;
         jobFilterBar.hidden = false;
+        triageBar.hidden = false;
         filterIncludeInput.value = '';
         filterExcludeInput.value = '';
         filterShowNoFailInput.checked = false;
         filterShowIdenticalInput.checked = false;
+        filterHideTriagedInput.checked = false;
         filterCountEl.textContent = '';
+        // Anchors are per task, so nothing carries over to another push.
+        manualJobOpenState.clear();
 
         // Applies the default hides (and any filters) rather than rendering
         // every job unconditionally.
@@ -2850,6 +3504,13 @@
         }
         doFetch(opts);
       });
+
+      // Both triage layers must be in before the first render, or a report
+      // would paint untriaged and then rearrange under the user.
+      loadLocalTriage();
+      updateTriageBar();
+      await loadBaselineTriage();
+      updateTriageBar();
 
       // applyUrlParams() may have pre-filled the form from ?revision= /
       // ?push-id= — load right away instead of waiting for "Load summary".
