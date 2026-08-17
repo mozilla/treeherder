@@ -13,6 +13,7 @@ import { createApiUrl } from '../../helpers/url';
 import TestDataModal from './TestDataModal';
 import GraphsContainer from './GraphsContainer';
 import TimeRangeDropdown from './TimeRangeDropdown';
+import HighlightOptionsDropdown from './HighlightOptionsDropdown';
 
 export default class GraphsViewControls extends React.Component {
   constructor() {
@@ -169,56 +170,14 @@ export default class GraphsViewControls extends React.Component {
             </Row>
             {!showTable && (
               <Row className="justify-content-start pt-3 pb-5 max-width-default mx-auto">
-                <Col sm="auto" className="ps-0">
-                  <Button
-                    variant="outline-darker-info"
-                    onClick={() =>
-                      updateStateParams({
-                        highlightAlerts: !highlightAlerts,
-                      })
-                    }
-                    active={highlightAlerts}
-                  >
-                    Highlight alerts
-                  </Button>
-
-                  <Button
-                    className="ms-3"
-                    variant="outline-darker-info"
-                    onClick={() =>
-                      updateStateParams({
-                        highlightChangelogData: !highlightChangelogData,
-                      })
-                    }
-                    active={highlightChangelogData}
-                  >
-                    Highlight infra changes
-                  </Button>
-                  <Button
-                    className="ms-3"
-                    variant="outline-darker-info"
-                    onClick={() =>
-                      updateStateParams({
-                        highlightCommonAlerts: !highlightCommonAlerts,
-                      })
-                    }
-                    active={highlightCommonAlerts}
-                  >
-                    Highlight common alerts
-                  </Button>
-
-                  <Button
-                    className="ms-3"
-                    variant="outline-darker-info"
-                    onClick={() =>
-                      updateStateParams({
-                        highlightInitialDataPoints: !highlightInitialDataPoints,
-                      })
-                    }
-                    active={highlightInitialDataPoints}
-                  >
-                    Highlight initial data points
-                  </Button>
+                <Col sm="auto" className="ps-0 d-flex align-items-center">
+                  <HighlightOptionsDropdown
+                    highlightAlerts={highlightAlerts}
+                    highlightChangelogData={highlightChangelogData}
+                    highlightCommonAlerts={highlightCommonAlerts}
+                    highlightInitialDataPoints={highlightInitialDataPoints}
+                    updateStateParams={updateStateParams}
+                  />
 
                   <Button
                     className="ms-3"
