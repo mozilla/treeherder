@@ -240,6 +240,16 @@
         vertical-align: middle;
       }
 
+      /* The tab-level "ignore all" sits between the counts line and the failure
+       * list, indented to read as acting on the list below it. */
+      .panel-triage-toolbar {
+        margin: 2px 0 4px;
+      }
+
+      .panel-triage-toolbar .triage-btn {
+        margin-left: 0;
+      }
+
       .triage-bug-input {
         font-size: 10px;
         line-height: 1.2;
@@ -401,11 +411,33 @@
               min="1"
               hidden
             />
+            <div class="d-flex align-items-center gap-2 mt-2">
+              <button
+                type="button"
+                id="latest-push-button"
+                class="btn btn-outline-secondary btn-sm"
+              >
+                Latest finished push
+              </button>
+              <span
+                class="text-muted small"
+                id="latest-push-status"
+                aria-live="polite"
+              ></span>
+            </div>
           </div>
 
           <div>
             <button type="submit" id="run-button" class="btn btn-primary">
               Load summary
+            </button>
+            <button
+              type="button"
+              id="stop-button"
+              class="btn btn-outline-danger"
+              hidden
+            >
+              Stop
             </button>
             <span class="text-muted ms-2" id="progress" hidden></span>
           </div>
@@ -665,6 +697,11 @@
       // Where triage flags (ignored / bug-linked differences) live. The
       // localStorage layer is this browser's working copy; the JSON file is the
       // shared baseline committed next to this page.
+      // How far back the "Latest finished push" button looks before giving up.
+      // Autoland routinely has a dozen-plus pushes in flight at once, so a
+      // shallow window comes back empty exactly when the repo is busiest; the
+      // statuses are fetched in one parallel round, so depth is cheap.
+      const LATEST_PUSH_SCAN = 30;
       const TRIAGE_STORAGE_KEY = 'testsummary-preview-triage-v1';
       const TRIAGE_BASELINE_URL = './triage.json';
       const TRIAGE_VERSION = 1;
@@ -681,49 +718,93 @@
         }
       }
 
-      async function fetchJson(url) {
-        const res = await fetch(url);
+      // `signal` is threaded explicitly rather than kept in a module-level
+      // variable: the "Latest finished push" lookup and a summary run can be in
+      // flight at the same time, and stopping one must not cancel the other.
+      const isAbort = (err) => err?.name === 'AbortError';
+
+      async function fetchJson(url, signal) {
+        const res = await fetch(url, { signal });
         if (!res.ok) throw new HttpError(res.status, url);
         return res.json();
       }
 
-      async function fetchText(url) {
-        const res = await fetch(url);
+      async function fetchText(url, signal) {
+        const res = await fetch(url, { signal });
         if (!res.ok) throw new HttpError(res.status, url);
         return res.text();
       }
 
-      async function getTcRootUrl(serverUrl, project) {
-        const repos = await fetchJson(`${serverUrl}/api/repository/`);
+      async function getTcRootUrl(serverUrl, project, signal) {
+        const repos = await fetchJson(`${serverUrl}/api/repository/`, signal);
         const repository = repos.find((r) => r.name === project);
         if (!repository) throw new Error(`Unknown project: ${project}`);
         return repository.tc_root_url;
       }
 
-      async function resolvePush(serverUrl, project, revision) {
+      async function resolvePush(serverUrl, project, revision, signal) {
         const data = await fetchJson(
           `${serverUrl}/api/project/${encodeURIComponent(project)}/push/?revision=${encodeURIComponent(revision)}`,
+          signal,
         );
         if (!data.results.length)
           throw new Error(`No push with revision ${revision} on ${project}`);
         return data.results[0];
       }
 
-      async function getPushRevision(serverUrl, project, pushId) {
+      async function getPushRevision(serverUrl, project, pushId, signal) {
         const push = await fetchJson(
           `${serverUrl}/api/project/${encodeURIComponent(project)}/push/${pushId}/`,
+          signal,
         );
         return push.revision;
       }
 
+      // Nothing left to report. `push/<id>/status/` already drops tier-3 and
+      // classified jobs (Push.get_status), so this is the same notion of "done"
+      // the job view shows. `completed > 0` guards against a push whose
+      // decision task hasn't scheduled anything yet — all three counts are zero
+      // there, which is empty, not finished.
+      const pushIsFinished = (status) =>
+        (status.pending || 0) === 0 &&
+        (status.running || 0) === 0 &&
+        (status.completed || 0) > 0;
+
+      // The newest push whose jobs have all reported, or null if none of the
+      // last `limit` qualify. The very newest push on an active repo is nearly
+      // always still running, and a push loaded mid-flight renders a partial
+      // report — hence walking back rather than just taking the head.
+      //
+      // Statuses are fetched concurrently: serialising a dozen round trips to
+      // answer one click is the difference between instant and sluggish. A
+      // status that fails to load is treated as unfinished rather than
+      // aborting the search.
+      async function findLatestFinishedPush(serverUrl, project, limit) {
+        const data = await fetchJson(
+          `${serverUrl}/api/project/${encodeURIComponent(project)}/push/?count=${limit}`,
+        );
+        const pushes = data.results || [];
+        const statuses = await Promise.all(
+          pushes.map((push) =>
+            fetchJson(
+              `${serverUrl}/api/project/${encodeURIComponent(project)}/push/${push.id}/status/`,
+            ).catch(() => null),
+          ),
+        );
+        // `results` is newest-first, so the first match is the latest one.
+        const index = statuses.findIndex((s) => s && pushIsFinished(s));
+        return index === -1 ? null : pushes[index];
+      }
+
       // The jobs endpoint returns a columnar form: `results` is an array of
       // arrays, decoded against `job_property_names`.
-      async function getJobs(serverUrl, project, pushId) {
+      async function getJobs(serverUrl, project, pushId, signal) {
         const jobs = [];
         let offset = 0;
         for (;;) {
           const data = await fetchJson(
             `${serverUrl}/api/project/${encodeURIComponent(project)}/jobs/?push_id=${pushId}&count=${JOBS_PAGE_SIZE}&offset=${offset}`,
+            signal,
           );
           const names = data.job_property_names;
           const page = (data.results || []).map((row) =>
@@ -738,12 +819,15 @@
         return jobs;
       }
 
-      async function listArtifacts(tcRootUrl, taskId, run) {
+      async function listArtifacts(tcRootUrl, taskId, run, signal) {
         const url = `${tcRootUrl}/api/queue/v1/task/${taskId}/runs/${run}/artifacts`;
         try {
-          const data = await fetchJson(url);
+          const data = await fetchJson(url, signal);
           return data.artifacts || [];
-        } catch {
+        } catch (e) {
+          // A stopped run isn't a missing artifact — swallowing it here would
+          // turn "the user pressed Stop" into "this task has nothing".
+          if (isAbort(e)) throw e;
           // Expired tasks / missing runs are expected; skip silently.
           return [];
         }
@@ -766,22 +850,31 @@
         return profilerUrl;
       }
 
-      async function getBugSuggestions(serverUrl, project, jobId) {
+      async function getBugSuggestions(serverUrl, project, jobId, signal) {
         try {
           const data = await fetchJson(
             `${serverUrl}/api/project/${encodeURIComponent(project)}/jobs/${jobId}/bug_suggestions/`,
+            signal,
           );
           return Array.isArray(data) ? data : [];
-        } catch {
+        } catch (e) {
+          // As in listArtifacts: an aborted request must not read as "this job
+          // has no bug suggestions", which would render a job as clean when it
+          // was simply never loaded.
+          if (isAbort(e)) throw e;
           return [];
         }
       }
 
       // Runs `worker` over `items` with at most `limit` in flight at once.
-      async function mapWithConcurrency(items, limit, worker) {
+      // Aborting stops new items being picked up; the ones already in flight
+      // are left to settle, so the caller gets a stable result rather than a
+      // collection still being written to.
+      async function mapWithConcurrency(items, limit, worker, signal) {
         let nextIndex = 0;
         async function runNext() {
           while (nextIndex < items.length) {
+            if (signal?.aborted) return;
             const index = nextIndex++;
             await worker(items[index], index);
           }
@@ -1504,16 +1597,27 @@
 
       const getTriage = (key) => triageEntries[key];
 
-      function setTriage(key, state, bug, context) {
-        localTriage.entries[key] = {
-          state,
-          bug: bug || null,
-          updated: new Date().toISOString(),
-          seen: context,
-        };
+      // One save, one recompute, one re-render for the whole batch. Looping
+      // over setTriage() instead would rebuild the entire report once per flag,
+      // which on a panel with dozens of differences is visibly slow.
+      function setTriageMany(items) {
+        if (!items.length) return;
+        const updated = new Date().toISOString();
+        for (const { key, state, bug, context } of items) {
+          localTriage.entries[key] = {
+            state,
+            bug: bug || null,
+            updated,
+            seen: context,
+          };
+        }
         saveLocalTriage();
         recomputeTriageEntries();
         onTriageChanged();
+      }
+
+      function setTriage(key, state, bug, context) {
+        setTriageMany([{ key, state, bug, context }]);
       }
 
       function clearTriage(key) {
@@ -1657,6 +1761,53 @@
 
         renderView();
         return group;
+      }
+
+      // The lines a panel can act on in bulk: unique to this tab, and not yet
+      // flagged. `otherSearches` is absent when a job has nothing to compare
+      // against, in which case no line counts as a difference.
+      const untriagedDiffOnly = (suggestions, otherSearches) =>
+        otherSearches
+          ? suggestions.filter(
+              (suggestion) =>
+                !otherSearches.has(normalizeSearch(suggestion.search)) &&
+                !getTriage(diffKey(suggestion.search)),
+            )
+          : [];
+
+      // Flags every outstanding difference in one tab at once. The per-line
+      // buttons are fine for a handful, but one job can differ on dozens of
+      // lines that are all the same verdict — the point of the tab-level button
+      // is to make that one decision instead of dozens.
+      //
+      // Several lines can collapse onto one diffKey, so the button counts lines
+      // (what's on screen) while the write may produce fewer entries.
+      function renderIgnoreAllControl(untriaged, job, diffLabel) {
+        const row = el('div', { class: 'panel-triage-toolbar' });
+        row.appendChild(
+          triageButton(
+            `ignore all ${fmt(untriaged.length)}`,
+            'btn-outline-secondary',
+            () =>
+              setTriageMany(
+                untriaged.map((suggestion) => ({
+                  key: diffKey(suggestion.search),
+                  state: 'ignored',
+                  bug: null,
+                  context: {
+                    search: suggestion.search,
+                    job: job.job_type_name || '',
+                  },
+                })),
+              ),
+            {
+              title:
+                `Flag all ${untriaged.length} line(s) only in this tab ` +
+                `(missing from ${diffLabel}) as ignored`,
+            },
+          ),
+        );
+        return row;
       }
 
       function triageButton(label, variant, onClick, attrs = {}) {
@@ -2610,6 +2761,11 @@
         });
         panel.appendChild(countsLine);
 
+        const untriaged = untriagedDiffOnly(suggestions, otherSearches);
+        if (untriaged.length) {
+          panel.appendChild(renderIgnoreAllControl(untriaged, job, diffLabel));
+        }
+
         const list = el('ul', {
           class: 'list-unstyled w-100 mb-0 text-small font-size-11',
         });
@@ -2865,20 +3021,26 @@
 
       // --- run ---
 
-      async function run(opts, log, onProgress) {
+      // Stopping during the setup phase below throws — there is no report to
+      // show yet. Once the per-job loop starts, stopping instead returns what
+      // has been collected so far, flagged with `aborted`: on a large push
+      // that's a usable partial report, and re-running is the way to get the
+      // rest.
+      async function run(opts, log, onProgress, signal) {
         const serverUrl = HOSTS[opts.host];
 
-        const tcRootUrl = await getTcRootUrl(serverUrl, opts.project);
+        const tcRootUrl = await getTcRootUrl(serverUrl, opts.project, signal);
 
         const pushId =
           opts.pushId ||
-          (await resolvePush(serverUrl, opts.project, opts.revision)).id;
+          (await resolvePush(serverUrl, opts.project, opts.revision, signal))
+            .id;
         const revisionId =
           opts.pushId || !opts.revision
-            ? await getPushRevision(serverUrl, opts.project, pushId)
+            ? await getPushRevision(serverUrl, opts.project, pushId, signal)
             : opts.revision;
 
-        const allJobs = await getJobs(serverUrl, opts.project, pushId);
+        const allJobs = await getJobs(serverUrl, opts.project, pushId, signal);
         const jobs = allJobs.filter((job) => job.result !== 'retry');
         log.info(`${jobs.length} job(s) on push ${pushId}.`);
         if (jobs.length < allJobs.length) {
@@ -2887,70 +3049,86 @@
 
         const jobResults = [];
         let completed = 0;
-        await mapWithConcurrency(jobs, JOB_CONCURRENCY, async (job) => {
-          try {
-            const taskId = job.task_id;
-            const run = job.retry_id ?? 0;
-            if (!taskId) return;
-            // The artifact listing is needed for the profiler link, and also
-            // tells us which summary artifact this task produced: the fixed
-            // summary.jsonl (new pushes) or a suite-prefixed *_testsummary.jsonl
-            // (legacy). Prefer the fixed path; skip jobs that have neither.
-            const artifacts = await listArtifacts(tcRootUrl, taskId, run);
-            const summaryName = artifacts.some(
-              (a) => a.name === SUMMARY_ARTIFACT_PATH,
-            )
-              ? SUMMARY_ARTIFACT_PATH
-              : artifacts.find((a) => a.name.endsWith(SUMMARY_ARTIFACT_SUFFIX))
-                  ?.name;
-            if (!summaryName) return;
-            const artifactUrl = `${tcRootUrl}/api/queue/v1/task/${taskId}/runs/${run}/artifacts/${summaryName}`;
-            const profileArtifact = artifacts.find((a) =>
-              isResourceUsageProfile(a.name.split('/').pop()),
-            );
-            const profileArtifactUrl = profileArtifact
-              ? `${tcRootUrl}/api/queue/v1/task/${taskId}/runs/${run}/artifacts/${profileArtifact.name}`
-              : null;
-            const [text, bugSuggestions] = await Promise.all([
-              fetchText(artifactUrl),
-              getBugSuggestions(serverUrl, opts.project, job.id),
-            ]);
+        await mapWithConcurrency(
+          jobs,
+          JOB_CONCURRENCY,
+          async (job) => {
+            try {
+              const taskId = job.task_id;
+              const run = job.retry_id ?? 0;
+              if (!taskId) return;
+              // The artifact listing is needed for the profiler link, and also
+              // tells us which summary artifact this task produced: the fixed
+              // summary.jsonl (new pushes) or a suite-prefixed
+              // *_testsummary.jsonl (legacy). Prefer the fixed path; skip jobs
+              // that have neither.
+              const artifacts = await listArtifacts(
+                tcRootUrl,
+                taskId,
+                run,
+                signal,
+              );
+              const summaryName = artifacts.some(
+                (a) => a.name === SUMMARY_ARTIFACT_PATH,
+              )
+                ? SUMMARY_ARTIFACT_PATH
+                : artifacts.find((a) =>
+                    a.name.endsWith(SUMMARY_ARTIFACT_SUFFIX),
+                  )?.name;
+              if (!summaryName) return;
+              const artifactUrl = `${tcRootUrl}/api/queue/v1/task/${taskId}/runs/${run}/artifacts/${summaryName}`;
+              const profileArtifact = artifacts.find((a) =>
+                isResourceUsageProfile(a.name.split('/').pop()),
+              );
+              const profileArtifactUrl = profileArtifact
+                ? `${tcRootUrl}/api/queue/v1/task/${taskId}/runs/${run}/artifacts/${profileArtifact.name}`
+                : null;
+              const [text, bugSuggestions] = await Promise.all([
+                fetchText(artifactUrl, signal),
+                getBugSuggestions(serverUrl, opts.project, job.id, signal),
+              ]);
 
-            const summary = buildTestSummary(text);
-            const suggestions = matchBugSuggestions(
-              buildFailureSuggestions(summary),
-              bugSuggestions,
-            );
-            const failureSuggestions = filterGenericFailures(
-              bugSuggestions.map((s) => {
-                decorateBugs(s);
-                return s;
-              }),
-            );
+              const summary = buildTestSummary(text);
+              const suggestions = matchBugSuggestions(
+                buildFailureSuggestions(summary),
+                bugSuggestions,
+              );
+              const failureSuggestions = filterGenericFailures(
+                bugSuggestions.map((s) => {
+                  decorateBugs(s);
+                  return s;
+                }),
+              );
 
-            // Computed once here rather than in applyJobFilter(), which reruns
-            // on every keystroke in the include/exclude inputs.
-            const { onlyInSummary, onlyInFailureSummary } = diffSearches(
-              suggestions,
-              failureSuggestions,
-            );
+              // Computed once here rather than in applyJobFilter(), which
+              // reruns on every keystroke in the include/exclude inputs.
+              const { onlyInSummary, onlyInFailureSummary } = diffSearches(
+                suggestions,
+                failureSuggestions,
+              );
 
-            jobResults.push({
-              job,
-              summary,
-              suggestions,
-              failureSuggestions,
-              profileArtifactUrl,
-              summaryArtifactUrl: artifactUrl,
-              tabsIdentical: onlyInSummary === 0 && onlyInFailureSummary === 0,
-            });
-          } catch (e) {
-            log.debug(`job ${job.id}: ${e.message}`);
-          } finally {
-            completed++;
-            onProgress(completed, jobs.length);
-          }
-        });
+              jobResults.push({
+                job,
+                summary,
+                suggestions,
+                failureSuggestions,
+                profileArtifactUrl,
+                summaryArtifactUrl: artifactUrl,
+                tabsIdentical:
+                  onlyInSummary === 0 && onlyInFailureSummary === 0,
+              });
+            } catch (e) {
+              // A stopped run cancels every request still open, which would
+              // otherwise log a line per job for something the user did on
+              // purpose.
+              if (!isAbort(e)) log.debug(`job ${job.id}: ${e.message}`);
+            } finally {
+              completed++;
+              onProgress(completed, jobs.length);
+            }
+          },
+          signal,
+        );
 
         // Jobs with failures first (most useful to scan), then by
         // job_type_name within each group.
@@ -2961,7 +3139,12 @@
           return jobLabel(a.job).localeCompare(jobLabel(b.job));
         });
 
-        return { serverUrl, revisionId, jobResults };
+        return {
+          serverUrl,
+          revisionId,
+          jobResults,
+          aborted: signal?.aborted ?? false,
+        };
       }
 
       function renderEmptyFilterMessage() {
@@ -3010,7 +3193,10 @@
       const projectSelect = document.getElementById('project');
       const revisionInput = document.getElementById('revision');
       const pushIdInput = document.getElementById('push-id');
+      const latestPushButton = document.getElementById('latest-push-button');
+      const latestPushStatus = document.getElementById('latest-push-status');
       const runButton = document.getElementById('run-button');
+      const stopButton = document.getElementById('stop-button');
       const progressEl = document.getElementById('progress');
       const errorBanner = document.getElementById('error-banner');
       const summaryBanner = document.getElementById('summary-banner');
@@ -3293,6 +3479,47 @@
         pushIdInput.hidden = mode !== 'push-id';
       }
 
+      // Fills whichever field the push-mode radio has showing, so the button
+      // means the same thing in both modes. The value lands in the field rather
+      // than loading straight away — the push is a starting point the user may
+      // want to edit, and the URL sync keeps the result linkable.
+      async function fillLatestFinishedPush() {
+        const project = projectSelect.value.trim();
+        if (!project) return;
+        latestPushButton.disabled = true;
+        latestPushStatus.className = 'text-muted small';
+        latestPushStatus.textContent = `Looking for the latest finished push on ${project}…`;
+        try {
+          const push = await findLatestFinishedPush(
+            HOSTS[hostSelect.value],
+            project,
+            LATEST_PUSH_SCAN,
+          );
+          if (!push) {
+            latestPushStatus.className = 'text-danger small';
+            latestPushStatus.textContent =
+              `None of the last ${LATEST_PUSH_SCAN} pushes on ${project} have ` +
+              'finished — they all still have jobs pending or running.';
+            return;
+          }
+          if (pushModeRadio() === 'revision') {
+            revisionInput.value = push.revision;
+          } else {
+            pushIdInput.value = String(push.id);
+          }
+          syncUrlFromForm();
+          latestPushStatus.className = 'text-muted small';
+          latestPushStatus.textContent = `${push.revision.slice(0, 12)} — pushed ${new Date(
+            push.push_timestamp * 1000,
+          ).toLocaleString()}`;
+        } catch (e) {
+          latestPushStatus.className = 'text-danger small';
+          latestPushStatus.textContent = `Could not look up the latest push: ${e.message}`;
+        } finally {
+          latestPushButton.disabled = false;
+        }
+      }
+
       function syncUrlFromForm() {
         const params = new URLSearchParams();
         if (hostSelect.value !== DEFAULTS.host)
@@ -3335,11 +3562,23 @@
 
       applyUrlParams();
 
+      // The lookup result names the instance and project it came from, so it
+      // stops being true the moment either changes.
+      const clearLatestPushStatus = () => {
+        latestPushStatus.textContent = '';
+      };
+
       hostSelect.addEventListener('change', () => {
         localWarning.hidden = hostSelect.value !== 'localhost';
+        clearLatestPushStatus();
         syncUrlFromForm();
       });
-      projectSelect.addEventListener('change', syncUrlFromForm);
+      projectSelect.addEventListener('change', () => {
+        clearLatestPushStatus();
+        syncUrlFromForm();
+      });
+      latestPushButton.addEventListener('click', fillLatestFinishedPush);
+      stopButton.addEventListener('click', stopRun);
       revisionInput.addEventListener('input', syncUrlFromForm);
       pushIdInput.addEventListener('input', syncUrlFromForm);
       filterIncludeInput.addEventListener('input', applyJobFilterDebounced);
@@ -3451,6 +3690,10 @@
         }
       }
 
+      // The in-flight run's controller, or null when nothing is loading — what
+      // the Stop button acts on.
+      let activeRunController = null;
+
       async function doFetch(opts) {
         errorBanner.hidden = true;
         summaryBanner.hidden = true;
@@ -3459,19 +3702,31 @@
         document.getElementById('report').textContent = '';
         logPanel.style.display = 'block';
         logPanel.textContent = '';
+        activeRunController = new AbortController();
         runButton.disabled = true;
+        stopButton.disabled = false;
+        stopButton.hidden = false;
         progressEl.hidden = false;
         progressEl.textContent = 'Starting…';
 
         try {
-          const { serverUrl, revisionId, jobResults } = await run(
+          const { serverUrl, revisionId, jobResults, aborted } = await run(
             opts,
             log,
             (done, total) => {
               progressEl.textContent = `Processing job ${done}/${total}…`;
             },
+            activeRunController.signal,
           );
 
+          if (aborted) {
+            log.info(
+              jobResults.length
+                ? `Stopped — showing the ${fmt(jobResults.length)} job(s) ` +
+                    'loaded so far. Load again for the rest.'
+                : 'Stopped before any job finished loading.',
+            );
+          }
           applyResult({
             serverUrl,
             project: opts.project,
@@ -3479,12 +3734,29 @@
             jobResults,
           });
         } catch (e) {
-          errorBanner.textContent = e.message;
-          errorBanner.hidden = false;
+          // Stopping during the setup phase leaves nothing to render, and it
+          // isn't a failure — say so in the log rather than the error banner.
+          if (isAbort(e)) {
+            log.info('Stopped before any job was loaded.');
+          } else {
+            errorBanner.textContent = e.message;
+            errorBanner.hidden = false;
+          }
         } finally {
+          activeRunController = null;
           runButton.disabled = false;
+          stopButton.hidden = true;
           progressEl.hidden = true;
         }
+      }
+
+      function stopRun() {
+        if (!activeRunController) return;
+        // Requests already open are cancelled by the abort; disabling the
+        // button marks the stop as taken while they unwind.
+        stopButton.disabled = true;
+        progressEl.textContent = 'Stopping…';
+        activeRunController.abort();
       }
 
       form.addEventListener('submit', (event) => {
