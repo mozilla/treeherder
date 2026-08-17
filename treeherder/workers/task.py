@@ -3,7 +3,6 @@ import zlib
 from functools import wraps
 
 import jsonschema
-import newrelic.agent
 from celery import shared_task
 from django.db.utils import IntegrityError, ProgrammingError
 
@@ -43,21 +42,6 @@ class retryable_task:  # noqa: N801
                 raise
             except Exception as e:
                 number_of_prior_retries = task_func.request.retries
-                # Whilst the New Relic agent does report the exception that caused a retry,
-                # it does so in a form like:
-                #   `celery.exceptions:Retry: Retry in 640s: error('Error -3 while decompressing: incorrect header check',)`
-                # ...which causes all retry exceptions to be lumped together in the same
-                # `celery.exceptions:Retry` group. The original exception is then only
-                # reported to New Relic once the max number of retries has been reached.
-                # As such we manually report the retried exceptions to New Relic here, so
-                # that the original exception is shown verbatim immediately, and then filter
-                # out the automatic `celery.exceptions:Retry` exceptions via the web UI. See:
-                # https://docs.newrelic.com/docs/agents/python-agent/back-end-services/python-agent-celery#ignoring-task-retry-errors
-                if not any(isinstance(e, x) for x in self.HIDE_DURING_RETRIES):
-                    params = {
-                        "number_of_prior_retries": number_of_prior_retries,
-                    }
-                    newrelic.agent.notice_error(attributes=params)
                 # Implement exponential backoff with some randomness to prevent
                 # thundering herd type problems. Constant factor chosen so we get
                 # reasonable pause between the fastest retries.
