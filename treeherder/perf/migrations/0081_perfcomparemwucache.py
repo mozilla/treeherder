@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("perf", "0079_alter_performancetelemetrysignature_unique_together_and_more"),
+        ("perf", "0080_backfillrequest_backfilledpush"),
     ]
 
     operations = [
