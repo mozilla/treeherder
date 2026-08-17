@@ -5,7 +5,11 @@ import pytest
 from django.urls import reverse
 
 from treeherder.model.models import Job
-from treeherder.perf.models import PerformanceDatum, PerformanceDatumReplicate
+from treeherder.perf.models import (
+    PerfCompareMwuCache,
+    PerformanceDatum,
+    PerformanceDatumReplicate,
+)
 from treeherder.webapp.api import perfcompare_utils
 
 pytestmark = pytest.mark.perf
@@ -14,6 +18,98 @@ NOW = datetime.datetime.now()
 ONE_DAY_AGO = NOW - datetime.timedelta(days=1)
 FOUR_DAYS_AGO = NOW - datetime.timedelta(days=4)
 SEVEN_DAYS_AGO = NOW - datetime.timedelta(days=7)
+
+
+def setup_mwu_compatible_data(
+    base_perf_data_values,
+    new_perf_data_values,
+    test_perfcomp_push,
+    try_repository,
+    test_perfcomp_push_2,
+    create_signature,
+    test_linux_platform,
+    test_perf_signature,
+    test_repository,
+):
+    """
+    Create base and new signatures with enough data points for MWU analysis.
+
+    Given lists of base and new performance values,
+    creates a base signature on try_repository (older push) and a new
+    signature on test_repository (newer push), each with one
+    PerformanceDatum per value.
+
+    Returns (base_sig, new_sig).
+    """
+    # Given: base and new signatures with MWU-compatible perf data
+    perf_jobs = Job.objects.filter(pk__in=range(1, 11)).order_by("push__time").all()
+
+    test_perfcomp_push.time = FOUR_DAYS_AGO
+    test_perfcomp_push.repository = try_repository
+    test_perfcomp_push.save()
+    test_perfcomp_push_2.time = datetime.datetime.now()
+    test_perfcomp_push_2.save()
+
+    suite = "a11yr"
+    test = "dhtml.html"
+    extra_options = "e10s fission stylo webrender"
+    measurement_unit = "ms"
+
+    base_sig = create_signature(
+        signature_hash=(20 * "c1"),
+        extra_options=extra_options,
+        platform=test_linux_platform,
+        measurement_unit=measurement_unit,
+        suite=suite,
+        test=test,
+        test_perf_signature=test_perf_signature,
+        repository=try_repository,
+        application="firefox",
+    )
+
+    for i, value in enumerate(base_perf_data_values):
+        job = perf_jobs[i]
+        job.push = test_perfcomp_push
+        job.save()
+        perf_datum = PerformanceDatum.objects.create(
+            value=value,
+            push_timestamp=job.push.time,
+            job=job,
+            push=job.push,
+            repository=try_repository,
+            signature=base_sig,
+        )
+        perf_datum.push.time = job.push.time
+        perf_datum.push.save()
+
+    new_sig = create_signature(
+        signature_hash=(20 * "c2"),
+        extra_options=extra_options,
+        platform=test_linux_platform,
+        measurement_unit=measurement_unit,
+        suite=suite,
+        test=test,
+        test_perf_signature=test_perf_signature,
+        repository=test_repository,
+        application="firefox",
+    )
+
+    for i, value in enumerate(new_perf_data_values):
+        job = perf_jobs[i + 3]
+        job.push = test_perfcomp_push_2
+        job.save()
+        perf_datum = PerformanceDatum.objects.create(
+            value=value,
+            push_timestamp=job.push.time,
+            job=job,
+            push=job.push,
+            repository=test_repository,
+            signature=new_sig,
+        )
+        perf_datum.push.time = job.push.time
+        perf_datum.push.save()
+
+    return base_sig, new_sig
 
 
 def test_perfcompare_results_against_no_base(
@@ -1396,3 +1492,175 @@ def test_perfcompare_results_with_silverman_kde_enabled(
 
     # Verify warnings is a list (may be empty or contain warnings)
     assert isinstance(result_with_kde["silverman_warnings"], list)
+
+
+def test_mwu_cache_hit_returns_cached_response(
+    client,
+    create_signature,
+    create_perf_datum,
+    test_perf_signature,
+    test_repository,
+    try_repository,
+    eleven_jobs_stored,
+    test_perfcomp_push,
+    test_perfcomp_push_2,
+    test_linux_platform,
+    test_option_collection,
+):
+    base_perf_data_values = [32.4, 33.1, 31.8]
+    new_perf_data_values = [40.2, 41.5, 39.8]
+    setup_mwu_compatible_data(
+        base_perf_data_values,
+        new_perf_data_values,
+        test_perfcomp_push,
+        try_repository,
+        test_perfcomp_push_2,
+        create_signature,
+        test_linux_platform,
+        test_perf_signature,
+        test_repository,
+    )
+
+    assert PerfCompareMwuCache.objects.count() == 0
+
+    query_params = (
+        f"?base_repository={try_repository.name}&new_repository={test_repository.name}"
+        f"&new_revision={test_perfcomp_push_2.revision}"
+        f"&framework={test_perf_signature.framework_id}"
+        f"&interval=604800&no_subtests=true&test_version=mann-whitney-u"
+    )
+
+    # When: the same MWU comparison is requested twice
+    first_response = client.get(reverse("perfcompare-results") + query_params)
+    assert first_response.status_code == 200
+
+    second_response = client.get(reverse("perfcompare-results") + query_params)
+    assert second_response.status_code == 200
+
+    # Then: both responses are identical and a single cache row was created
+    assert first_response.json() == second_response.json()
+    assert PerfCompareMwuCache.objects.count() == 1
+
+
+def test_mwu_cache_different_params_produce_different_cache_keys(
+    client,
+    create_signature,
+    create_perf_datum,
+    test_perf_signature,
+    test_repository,
+    try_repository,
+    eleven_jobs_stored,
+    test_perfcomp_push,
+    test_perfcomp_push_2,
+    test_linux_platform,
+    test_option_collection,
+):
+    base_perf_data_values = [100.0, 105.0, 102.0]
+    new_perf_data_values = [110.0, 115.0, 112.0]
+    setup_mwu_compatible_data(
+        base_perf_data_values,
+        new_perf_data_values,
+        test_perfcomp_push,
+        try_repository,
+        test_perfcomp_push_2,
+        create_signature,
+        test_linux_platform,
+        test_perf_signature,
+        test_repository,
+    )
+
+    base_query = (
+        f"?base_repository={try_repository.name}&new_repository={test_repository.name}"
+        f"&new_revision={test_perfcomp_push_2.revision}"
+        f"&framework={test_perf_signature.framework_id}"
+        f"&interval=604800&no_subtests=true&test_version=mann-whitney-u"
+    )
+
+    # Given: no cache entries exist yet
+    assert PerfCompareMwuCache.objects.count() == 0
+
+    # When: two MWU requests are made with different enable_silverman_kde parameters
+    query_without_kde = base_query
+    first_response = client.get(reverse("perfcompare-results") + query_without_kde)
+    assert first_response.status_code == 200
+
+    query_with_kde = base_query + "&enable_silverman_kde=true&replicates=true"
+    second_response = client.get(reverse("perfcompare-results") + query_with_kde)
+    assert second_response.status_code == 200
+
+    # Then: two distinct cache entries exist (different hash keys)
+    assert PerfCompareMwuCache.objects.count() == 2
+    cache_keys = set(PerfCompareMwuCache.objects.values_list("hash_key", flat=True))
+    assert len(cache_keys) == 2
+
+    # Then: the responses differ in silverman_kde content
+    first_result = first_response.json()[0]
+    second_result = second_response.json()[0]
+    assert first_result["silverman_kde"] is None
+    assert second_result["silverman_kde"] is not None
+
+
+def test_mwu_cache_recalculates_after_data_change(
+    client,
+    create_signature,
+    create_perf_datum,
+    test_perf_signature,
+    test_repository,
+    try_repository,
+    eleven_jobs_stored,
+    test_perfcomp_push,
+    test_perfcomp_push_2,
+    test_linux_platform,
+    test_option_collection,
+):
+    base_perf_data_values = [32.4, 33.1]
+    new_perf_data_values = [40.2, 41.5]
+    base_sig, _ = setup_mwu_compatible_data(
+        base_perf_data_values,
+        new_perf_data_values,
+        test_perfcomp_push,
+        try_repository,
+        test_perfcomp_push_2,
+        create_signature,
+        test_linux_platform,
+        test_perf_signature,
+        test_repository,
+    )
+
+    query_params = (
+        f"?base_repository={try_repository.name}&new_repository={test_repository.name}"
+        f"&new_revision={test_perfcomp_push_2.revision}"
+        f"&framework={test_perf_signature.framework_id}"
+        f"&interval=604800&no_subtests=true&test_version=mann-whitney-u"
+    )
+
+    # When: first MWU query is made, caching the result
+    first_response = client.get(reverse("perfcompare-results") + query_params)
+    assert first_response.status_code == 200
+    assert PerfCompareMwuCache.objects.count() == 1
+
+    # Given: a new data point is added for the base signature (simulating a retrigger)
+    perf_jobs = Job.objects.filter(pk__in=range(1, 11)).order_by("push__time").all()
+    job = perf_jobs[2]
+    job.push = test_perfcomp_push
+    job.save()
+    perf_datum = PerformanceDatum.objects.create(
+        value=31.8,
+        push_timestamp=job.push.time,
+        job=job,
+        push=job.push,
+        repository=try_repository,
+        signature=base_sig,
+    )
+    perf_datum.push.time = job.push.time
+    perf_datum.push.save()
+
+    # When: the same MWU query is made again after data changed
+    second_response = client.get(reverse("perfcompare-results") + query_params)
+    assert second_response.status_code == 200
+
+    # Then: a second cache entry exists with a different hash key
+    # because the total data point count changed
+    assert PerfCompareMwuCache.objects.count() == 2
+    cache_keys = list(PerfCompareMwuCache.objects.values_list("hash_key", flat=True))
+    assert cache_keys[0] != cache_keys[1]
