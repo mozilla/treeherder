@@ -8,7 +8,13 @@ module.exports = defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
+  reporter: process.env.CI
+    ? [
+        ['list'],
+        ['html', { open: 'never' }],
+        ['junit', { outputFile: 'test-results/junit.xml' }],
+      ]
+    : 'list',
 
   use: {
     baseURL: 'http://localhost:5000',

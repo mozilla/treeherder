@@ -46,6 +46,9 @@ automatically if it isn't already running on port 5000. API responses for the gr
 from the HAR recordings in `tests/ui/integration/recordings/`; requests not present in a recording fall
 through to the dev server proxy.
 
+The integration tests also run in CI (the `javascript-integration-tests` CircleCI job), with two retries
+for any test that fails and traces/screenshots uploaded as build artifacts on failure.
+
 To run the tests:
 
 - If you haven't already done so, install local dependencies by running `pnpm install` from the project root.
