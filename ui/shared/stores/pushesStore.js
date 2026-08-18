@@ -224,12 +224,15 @@ export const usePushesStore = create(
           delete options.tochange;
           options.push_timestamp__lte = oldestPushTimestamp;
         }
-        // Range queries (fromchange/startdate) fetch the per-request
-        // maximum; otherwise fetch the requested count. Either way, never
-        // request more than would fit under the thMaxPushes ceiling.
-        const desiredCount =
-          options.fromchange || options.startdate ? thMaxPushFetchSize : count;
-        options.count = Math.min(desiredCount, remaining);
+        // Range queries (fromchange/startdate) fetch everything in the
+        // range up to the remaining capacity in one request — the server
+        // returns the newest pushes in the range first. Otherwise fetch
+        // the requested count. Either way, never request more than would
+        // fit under the thMaxPushes ceiling.
+        options.count =
+          options.fromchange || options.startdate
+            ? remaining
+            : Math.min(count, remaining);
 
         const { data, failureStatus } = await PushModel.getList(options);
 
