@@ -1,6 +1,6 @@
 import pick from 'lodash/pick';
 
-import { thMaxPushFetchSize } from '../helpers/constants';
+import { thMaxPushFetchSize, thMaxPushes } from '../helpers/constants';
 import { getData } from '../helpers/http';
 import { getProjectUrl, getUrlParam } from '../helpers/location';
 import { createQueryParams, pushEndpoint } from '../helpers/url';
@@ -56,8 +56,9 @@ export default class PushModel {
       // respected so it can cap the total downloaded across requests.
       params.count = thMaxPushFetchSize;
     }
-    // Never request more than the per-request maximum.
-    params.count = Math.min(params.count, thMaxPushFetchSize);
+    // Never request more than the overall push ceiling (the API itself
+    // rejects counts over 1000).
+    params.count = Math.min(params.count, thMaxPushes);
 
     return getData(
       `${getProjectUrl(pushEndpoint, repoName)}${createQueryParams(params)}`,
