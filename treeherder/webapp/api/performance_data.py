@@ -1666,9 +1666,9 @@ class PerfCompareResults(generics.ListAPIView):
 
     @staticmethod
     def _get_signatures(repository_name, framework, parent_signature, interval, no_subtests):
-        signatures = PerformanceSignature.objects.select_related(
-            "framework", "repository", "platform", "push", "job"
-        ).filter(repository__name=repository_name)
+        signatures = PerformanceSignature.objects.select_related("repository", "platform").filter(
+            repository__name=repository_name
+        )
         signatures = signatures.filter(parent_signature__isnull=no_subtests)
         if framework:
             signatures = signatures.filter(framework__id=framework)
