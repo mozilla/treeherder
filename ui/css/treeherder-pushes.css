@@ -153,6 +153,13 @@ fieldset[disabled] .btn-push:hover {
   font-size: inherit; /* Inherit from parent */
 }
 
+/* Wide enough for almost all pairs of initials, so that what follows stays
+   aligned across the commits of a push. */
+.user-push-initials {
+  display: inline-block;
+  min-width: 1.7em;
+}
+
 /*
  * Revision
  */

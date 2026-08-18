@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-regular-svg-icons';
+import { faPhabricator } from '@fortawesome/free-brands-svg-icons';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 import { parseAuthor } from '../helpers/revision';
@@ -74,6 +75,10 @@ export class Revision extends React.PureComponent {
     } = this.props;
     const comment = comments.split('\n')[0];
     const bugMatches = comment.match(/-- ([0-9]+)|bug.([0-9]+)/gi);
+    // Only commits that were submitted to Phabricator carry this trailer.
+    const phabricatorMatch = comments.match(
+      /^Differential Revision: (\S+\/(D[0-9]+))\s*$/m,
+    );
     const { clipboardVisible } = this.state;
     const { name, email } = parseAuthor(author);
     const commentColor = this.isBackout(comment)
@@ -103,6 +108,17 @@ export class Revision extends React.PureComponent {
           </span>
         )}
         <AuthorInitials title={`${name}: ${email}`} author={name} />
+        {phabricatorMatch && (
+          <a
+            className="ms-2"
+            title={`Open ${phabricatorMatch[2]} on Phabricator`}
+            href={phabricatorMatch[1]}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <FontAwesomeIcon icon={faPhabricator} />
+          </a>
+        )}
         <OverlayTrigger
           placement="auto"
           overlay={
