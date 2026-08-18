@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import fetchMock from 'fetch-mock';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
@@ -38,14 +38,14 @@ afterEach(() => {
 });
 
 // Regression test for the PrimaryNavBar's React.memo comparator dropping
-// updates to isFilterPanelOpen/classificationTypes. Without those props in
-// the comparator, toggling the panel from App never re-renders the memoized
-// navbar chain, so the trigger's aria-expanded (and the panel itself) would
-// never reflect the new state.
+// updates to isFilterPanelOpen. Without that prop in the comparator,
+// toggling the panel from App never re-renders the memoized navbar chain,
+// so the trigger's aria-expanded would never reflect the new state.
 describe('PrimaryNavBar', () => {
   const StatefulPrimaryNavBar = () => {
     const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
     const toggleFilterPanel = () => setIsFilterPanelOpen((prev) => !prev);
+    const filterTriggerRef = useRef(null);
 
     return (
       <MemoryRouter initialEntries={[`/jobs?repo=${repoName}`]}>
@@ -62,7 +62,7 @@ describe('PrimaryNavBar', () => {
           groupCountsExpanded={false}
           isFilterPanelOpen={isFilterPanelOpen}
           toggleFilterPanel={toggleFilterPanel}
-          classificationTypes={[]}
+          filterTriggerRef={filterTriggerRef}
         />
       </MemoryRouter>
     );
@@ -81,7 +81,6 @@ describe('PrimaryNavBar', () => {
       expect(trigger).toHaveAttribute('aria-expanded', 'true');
     });
 
-    fireEvent.mouseDown(trigger);
     fireEvent.click(trigger);
 
     await waitFor(() => {
