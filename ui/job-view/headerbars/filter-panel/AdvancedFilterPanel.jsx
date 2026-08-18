@@ -71,16 +71,12 @@ function AdvancedFilterPanel({
         <span className="advanced-filter-panel-actions">
           <Button
             size="sm"
-            variant="outline-light"
+            variant="outline-darker-info"
             onClick={() => filterModel.clearNonStatusFilters()}
           >
             Clear all
           </Button>
-          <CloseButton
-            variant="white"
-            aria-label="Close filter panel"
-            onClick={onClose}
-          />
+          <CloseButton aria-label="Close filter panel" onClick={onClose} />
         </span>
       </div>
       <div className="advanced-filter-panel-body">
