@@ -54,6 +54,7 @@ export const updateRepoParams = function updateRepoParams(newRepoName) {
   const params = getAllUrlParams();
 
   params.delete('selectedJob');
+  params.delete('selectedTaskRun');
   params.delete('fromchange');
   params.delete('tochange');
   params.delete('revision');
