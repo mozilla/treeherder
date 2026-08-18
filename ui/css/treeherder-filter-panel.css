@@ -7,23 +7,36 @@
   width: 100%;
   /* Match the 12px font size used throughout the jobs/push area */
   font-size: 12px;
+  /* Separate the banner from the Active Filters bar above it */
+  border-top: 1px solid #bee5eb;
   border-bottom: 2px solid rgb(0 0 0 / 0.25);
 }
 
-/* Same light blue as the Active Filters bar (.alert-info) that sits
-   directly above, so the two filter bars read as one group */
+/* A darker shade of the Active Filters bar's alert-info blue; the
+   header and body share it so the whole banner reads as one field
+   behind the section cards */
 .advanced-filter-panel-header {
+  position: relative;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   gap: 0.5rem;
   padding: 0.3rem 0.75rem;
-  background-color: #d1ecf1;
+  background-color: #abdbe3;
   color: #0c5460;
-  border-bottom: 1px solid #bee5eb;
 }
 
+/* Same size as the Active Filters bar's title (the 14px body default) */
+.advanced-filter-panel-title {
+  font-size: 14px;
+}
+
+/* Actions pin to the right edge; the title stays truly centered */
 .advanced-filter-panel-actions {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -35,7 +48,7 @@
   max-height: 50vh;
   overflow-y: auto;
   padding: 0.5rem;
-  background-color: #eef1f4;
+  background-color: #abdbe3;
   display: flex;
   flex-wrap: wrap;
   align-items: stretch;
