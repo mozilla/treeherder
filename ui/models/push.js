@@ -34,6 +34,7 @@ export default class PushModel {
     const transformedOptions = convertDates(options);
     const repoName = transformedOptions.repo;
     delete transformedOptions.repo;
+    const hasExplicitCount = 'count' in transformedOptions;
     const params = {
       full: true,
       count: 10,
@@ -47,13 +48,16 @@ export default class PushModel {
       params.count++;
     }
     if (
-      params.count > thMaxPushFetchSize ||
-      transformedOptions.push_timestamp__gte ||
-      transformedOptions.fromchange
+      !hasExplicitCount &&
+      (transformedOptions.push_timestamp__gte || transformedOptions.fromchange)
     ) {
-      // fetch the maximum number of pushes
+      // Range queries with no caller-specified count fetch the maximum
+      // number of pushes per request. A caller's explicit count is
+      // respected so it can cap the total downloaded across requests.
       params.count = thMaxPushFetchSize;
     }
+    // Never request more than the per-request maximum.
+    params.count = Math.min(params.count, thMaxPushFetchSize);
 
     return getData(
       `${getProjectUrl(pushEndpoint, repoName)}${createQueryParams(params)}`,
