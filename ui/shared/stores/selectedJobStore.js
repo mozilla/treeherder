@@ -42,8 +42,16 @@ const doSelectJob = (job) => {
   return { selectedJob: job };
 };
 
+// ``countPinnedJobs`` may be a number of pinned jobs, or a pinned-jobs
+// object ({} when called from the URL-sync paths).  Only skip clearing
+// when jobs are actually pinned.
 const doClearSelectedJob = (countPinnedJobs) => {
-  if (!countPinnedJobs) {
+  const hasPinnedJobs =
+    typeof countPinnedJobs === 'number'
+      ? countPinnedJobs > 0
+      : Object.keys(countPinnedJobs || {}).length > 0;
+
+  if (!hasPinnedJobs) {
     const selected = findSelectedInstance();
     if (selected) selected.setSelected(false);
 
