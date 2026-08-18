@@ -10,17 +10,17 @@
   border-bottom: 2px solid rgb(0 0 0 / 0.25);
 }
 
-/* Same dark slate as the secondary toolbar (.th-context-navbar) the
-   banner hangs from, so the panel reads as part of that chrome */
+/* Same light blue as the Active Filters bar (.alert-info) that sits
+   directly above, so the two filter bars read as one group */
 .advanced-filter-panel-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 0.5rem;
   padding: 0.3rem 0.75rem;
-  background-color: #354048;
-  color: #fff;
-  border-bottom: 1px solid rgb(0 0 0 / 0.2);
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border-bottom: 1px solid #bee5eb;
 }
 
 .advanced-filter-panel-actions {
