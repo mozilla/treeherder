@@ -67,7 +67,7 @@ function AdvancedFilterPanel({
       onKeyDown={onPanelKeyDown}
     >
       <div className="advanced-filter-panel-header">
-        <b>Advanced Filters</b>
+        <b className="advanced-filter-panel-title">Advanced Filters</b>
         <span className="advanced-filter-panel-actions">
           <Button
             size="sm"
