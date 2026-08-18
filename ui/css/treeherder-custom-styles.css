@@ -505,6 +505,10 @@ a.btn-outline-dark:hover {
   color: #187c86;
 }
 
+.rt-tbody a:visited {
+  color: purple;
+}
+
 /*
  * Onscreen help
  */
