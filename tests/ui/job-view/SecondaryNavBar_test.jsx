@@ -1,11 +1,12 @@
 
-import { useRef, useState } from 'react';
+import { createRef, useRef, useState } from 'react';
 import fetchMock from 'fetch-mock';
 import { render, waitFor, fireEvent, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 
 import FilterModel from '../../../ui/models/filter';
 import SecondaryNavBar from '../../../ui/job-view/headerbars/SecondaryNavBar';
+import AdvancedFilterPanel from '../../../ui/job-view/headerbars/filter-panel/AdvancedFilterPanel';
 import {
   usePushesStore,
   initialState,
@@ -28,6 +29,9 @@ beforeEach(() => {
       },
     },
   );
+  // The advanced filter panel's push-range section fetches pushes for its
+  // author/revision autocomplete when the panel mounts.
+  fetchMock.get('begin:/api/project/autoland/push/', { results: [] });
 });
 
 afterEach(() => {
@@ -57,7 +61,7 @@ describe('SecondaryNavBar', () => {
           groupCountsExpanded={false}
           isFilterPanelOpen={false}
           toggleFilterPanel={() => {}}
-          classificationTypes={[]}
+          filterTriggerRef={createRef()}
           {...props}
         />
       </MemoryRouter>
@@ -172,16 +176,16 @@ describe('SecondaryNavBar', () => {
     expect(screen.queryByText(/New: advanced filters/)).not.toBeInTheDocument();
   });
 
-  // Regression test: clicking the trigger while the panel is open used to
-  // fire both the Overlay's rootClose (onHide -> toggle -> close) and the
-  // button's own onClick (toggle -> reopen), so the two toggles canceled
-  // out and the panel could never be closed by clicking the trigger again.
+  // The trigger in the toolbar and the banner panel are wired together
+  // through App state; clicking the trigger toggles the banner open and
+  // closed.
   test('clicking the trigger again while the panel is open closes it', async () => {
     usePushesStore.setState({ ...initialState });
 
-    const StatefulSecondaryNavBar = () => {
+    const StatefulJobView = () => {
       const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
       const toggleFilterPanel = () => setIsFilterPanelOpen((prev) => !prev);
+      const filterTriggerRef = useRef(null);
       const filterModel = useRef(
         new FilterModel(mockNavigate, mockLocation),
       ).current;
@@ -198,13 +202,20 @@ describe('SecondaryNavBar', () => {
             groupCountsExpanded={false}
             isFilterPanelOpen={isFilterPanelOpen}
             toggleFilterPanel={toggleFilterPanel}
+            filterTriggerRef={filterTriggerRef}
+          />
+          <AdvancedFilterPanel
+            isOpen={isFilterPanelOpen}
+            onClose={toggleFilterPanel}
+            target={filterTriggerRef}
+            filterModel={filterModel}
             classificationTypes={[]}
           />
         </MemoryRouter>
       );
     };
 
-    render(<StatefulSecondaryNavBar />);
+    render(<StatefulJobView />);
 
     await waitFor(() => {
       expect(screen.getByText(repoName)).toBeInTheDocument();
@@ -217,7 +228,6 @@ describe('SecondaryNavBar', () => {
       expect(screen.getByText('Result status')).toBeInTheDocument();
     });
 
-    fireEvent.mouseDown(trigger);
     fireEvent.click(trigger);
 
     await waitFor(() => {
