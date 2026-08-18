@@ -1647,7 +1647,7 @@ class PerfCompareResults(generics.ListAPIView):
     @staticmethod
     def _get_perf_data(repository_name, revision, signatures, interval, startday, endday):
         signature_ids = [signature["id"] for signature in list(signatures)]
-        perf_data = PerformanceDatum.objects.select_related("push", "repository", "id").filter(
+        perf_data = PerformanceDatum.objects.select_related("push", "repository").filter(
             signature_id__in=signature_ids,
             repository__name=repository_name,
         )
