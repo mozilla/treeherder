@@ -2,7 +2,10 @@ import fetchMock from 'fetch-mock';
 
 import PushModel from '../../../ui/models/push';
 import { getProjectUrl } from '../../../ui/helpers/location';
-import { thMaxPushFetchSize } from '../../../ui/helpers/constants';
+import {
+  thMaxPushFetchSize,
+  thMaxPushes,
+} from '../../../ui/helpers/constants';
 
 describe('PushModel', () => {
   afterEach(() => {
@@ -40,10 +43,10 @@ describe('PushModel', () => {
       expect(lastPushUrl().searchParams.get('count')).toBe('20');
     });
 
-    test('count never exceeds the per-request max', async () => {
+    test('count never exceeds the overall push ceiling', async () => {
       await PushModel.getList({ repo: 'autoland', count: 5000 });
       expect(lastPushUrl().searchParams.get('count')).toBe(
-        String(thMaxPushFetchSize),
+        String(thMaxPushes),
       );
     });
   });
