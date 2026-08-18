@@ -444,13 +444,6 @@ const App = () => {
   );
   const pushListContent = (
     <div className="d-flex flex-column w-100 h-100">
-      {!!filterBarFilters.length && (
-        <ActiveFilters
-          classificationTypes={classificationTypes}
-          filterModel={filterModel}
-          filterBarFilters={filterBarFilters}
-        />
-      )}
       {serverChangedDelayed && (
         <UpdateAvailable updateButtonClick={updateButtonClick} />
       )}
@@ -513,6 +506,13 @@ const App = () => {
           pushHealthVisibility={pushHealthVisibility}
           setPushHealthVisibility={setPushHealthVisibility}
         />
+        {!!filterBarFilters.length && (
+          <ActiveFilters
+            classificationTypes={classificationTypes}
+            filterModel={filterModel}
+            filterBarFilters={filterBarFilters}
+          />
+        )}
         <AdvancedFilterPanel
           isOpen={isFilterPanelOpen}
           onClose={toggleFilterPanel}
