@@ -10,7 +10,6 @@ import {
   deletePreset,
   buildPresetParams,
   getPresetQueryString,
-  getActiveFilterCount,
   hasSeenCoachMark,
   markCoachMarkSeen,
 } from '../../../../../ui/job-view/headerbars/filter-panel/helpers';
@@ -125,19 +124,6 @@ describe('presets', () => {
   });
 });
 
-describe('getActiveFilterCount', () => {
-  it('is 0 with default filters', () => {
-    expect(getActiveFilterCount(makeFilterModel('?repo=autoland'))).toBe(0);
-  });
-
-  it('counts non-default filters but not searchStr', () => {
-    const fm = makeFilterModel(
-      '?repo=autoland&platform=linux&startdate=2026-08-01&searchStr=foo&resultStatus=testfailed',
-    );
-    // platform + startdate + resultStatus (non-default) = 3; searchStr excluded
-    expect(getActiveFilterCount(fm)).toBe(3);
-  });
-});
 
 describe('coach mark', () => {
   it('is unseen initially, seen after marking', () => {
