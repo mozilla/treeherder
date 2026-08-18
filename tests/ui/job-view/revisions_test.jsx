@@ -150,6 +150,35 @@ describe('Revision item component', () => {
     ).toBeInTheDocument();
   });
 
+  test('links the Phabricator revision of the commit message trailer', () => {
+    const { getByTitle } = render(
+      <Revision
+        repo={repo}
+        revision={{
+          ...revision,
+          comments: `${revision.comments}\n\nDifferential Revision: https://phabricator.services.mozilla.com/D315454\n`,
+        }}
+        bugSummaryMap={push.bugSummaryMap}
+      />,
+    );
+
+    expect(
+      getByTitle('Open D315454 on Phabricator').getAttribute('href'),
+    ).toEqual('https://phabricator.services.mozilla.com/D315454');
+  });
+
+  test('shows no Phabricator link for a commit message without the trailer', () => {
+    render(
+      <Revision
+        repo={repo}
+        revision={revision}
+        bugSummaryMap={push.bugSummaryMap}
+      />,
+    );
+
+    expect(document.querySelectorAll('svg.fa-phabricator')).toHaveLength(0);
+  });
+
   test('marks the revision as backed out if the words "Back out" appear in the comments', () => {
     revision.comments =
       'Back out changeset a6e2d96c1274 (bug 1322565) for eslint failure';
