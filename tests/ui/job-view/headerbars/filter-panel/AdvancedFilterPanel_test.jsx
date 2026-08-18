@@ -22,7 +22,12 @@ afterEach(() => {
   usePushesStore.setState({ ...initialState });
 });
 
-const renderPanel = ({ search = '?repo=autoland', filterModel } = {}) => {
+const renderPanel = ({
+  search = '?repo=autoland',
+  filterModel,
+  isOpen = true,
+  onClose = jest.fn(),
+} = {}) => {
   const fm =
     filterModel || new FilterModel(mockNavigate, { search, pathname: '/jobs' });
   const target = createRef();
@@ -33,8 +38,8 @@ const renderPanel = ({ search = '?repo=autoland', filterModel } = {}) => {
         anchor
       </button>
       <AdvancedFilterPanel
-        isOpen
-        onClose={jest.fn()}
+        isOpen={isOpen}
+        onClose={onClose}
         target={target}
         filterModel={fm}
         classificationTypes={[{ id: 4, name: 'intermittent' }]}
@@ -52,6 +57,26 @@ describe('AdvancedFilterPanel', () => {
     expect(screen.getByText('Field filters')).toBeInTheDocument();
     expect(screen.getByText('Push range')).toBeInTheDocument();
     expect(screen.getByText('Presets')).toBeInTheDocument();
+  });
+
+  it('renders nothing when closed', () => {
+    renderPanel({ isOpen: false });
+    expect(screen.queryByText('Advanced Filters')).not.toBeInTheDocument();
+  });
+
+  it('renders the Presets section last', () => {
+    const { container } = renderPanel();
+    const sections = container.querySelectorAll('.filter-panel-section');
+
+    expect(sections[sections.length - 1]).toHaveTextContent('Presets');
+  });
+
+  it('Escape closes the panel', () => {
+    const onClose = jest.fn();
+
+    renderPanel({ onClose });
+    fireEvent.keyDown(screen.getByLabelText('Author'), { key: 'Escape' });
+    expect(onClose).toHaveBeenCalled();
   });
 
   it('status pill reflects and toggles resultStatus', () => {
