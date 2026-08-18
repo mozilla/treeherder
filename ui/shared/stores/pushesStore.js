@@ -10,7 +10,7 @@ import PushModel from '../../models/push';
 import { getTaskRunStr, isUnclassifiedFailure } from '../../helpers/job';
 import FilterModel from '../../models/filter';
 import JobModel from '../../models/job';
-import { thEvents } from '../../helpers/constants';
+import { thEvents, thMaxPushes, thMaxPushFetchSize } from '../../helpers/constants';
 import { processErrors, getData } from '../../helpers/http';
 import { updateUrlSearch } from '../../helpers/router';
 
@@ -102,12 +102,17 @@ const doRecalculateUnclassifiedCounts = (jobMap) => {
 const addPushes = (data, pushList, jobMap, setFromchange, oldBugSummaryMap) => {
   if (data.results.length > 0) {
     const pushIds = pushList.map((push) => push.id);
-    const newPushList = [
+    let newPushList = [
       ...pushList,
       ...data.results.filter((push) => !pushIds.includes(push.id)),
     ];
 
     newPushList.sort((a, b) => b.push_timestamp - a.push_timestamp);
+    // Hard ceiling, regardless of filters: keep only the newest
+    // thMaxPushes pushes. More can crash the browser.
+    if (newPushList.length > thMaxPushes) {
+      newPushList = newPushList.slice(0, thMaxPushes);
+    }
     const oldestPushTimestamp =
       newPushList[newPushList.length - 1].push_timestamp;
 
@@ -201,14 +206,31 @@ export const usePushesStore = create(
           return;
         }
 
+        // Never hold more than thMaxPushes pushes, no matter what the
+        // filters (e.g. a wide push range) would otherwise return.
+        const remaining = thMaxPushes - pushList.length;
+
+        if (remaining <= 0) {
+          notify(
+            `Max of ${thMaxPushes} pushes reached. Narrow the push range in the filter panel to see older pushes.`,
+            'warning',
+          );
+          set({ loadingPushes: false });
+          return;
+        }
+
         if (oldestPushTimestamp) {
           delete options.fromchange;
           delete options.tochange;
           options.push_timestamp__lte = oldestPushTimestamp;
         }
-        if (!options.fromchange) {
-          options.count = count;
-        }
+        // Range queries (fromchange/startdate) fetch the per-request
+        // maximum; otherwise fetch the requested count. Either way, never
+        // request more than would fit under the thMaxPushes ceiling.
+        const desiredCount =
+          options.fromchange || options.startdate ? thMaxPushFetchSize : count;
+        options.count = Math.min(desiredCount, remaining);
+
         const { data, failureStatus } = await PushModel.getList(options);
 
         if (!failureStatus) {
@@ -243,8 +265,18 @@ export const usePushesStore = create(
         } else if (pushList.length === 1 && locationSearch.revision) {
           fetchNewJobs();
         } else {
+          if (pushList.length >= thMaxPushes) {
+            // At the push ceiling: stop pulling in new pushes, but keep
+            // polling jobs for the pushes we already have.
+            await fetchNewJobs();
+            return;
+          }
           if (pushList.length) {
             pushPollingParams.fromchange = pushList[0].revision;
+            pushPollingParams.count = Math.min(
+              thMaxPushFetchSize,
+              thMaxPushes - pushList.length,
+            );
           }
           const { data, failureStatus } =
             await PushModel.getList(pushPollingParams);
