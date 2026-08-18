@@ -26,7 +26,6 @@ import {
 
 import TierIndicator from './TierIndicator';
 import WatchedRepo from './WatchedRepo';
-import AdvancedFilterPanel from './filter-panel/AdvancedFilterPanel';
 import FilterCoachMark from './filter-panel/FilterCoachMark';
 import {
   getActiveFilterCount,
@@ -60,13 +59,12 @@ const SecondaryNavBar = ({
   groupCountsExpanded,
   isFilterPanelOpen,
   toggleFilterPanel,
-  classificationTypes,
+  filterTriggerRef,
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const prevLocationSearch = useRef(location.search);
-  const filterTriggerRef = useRef(null);
   const activeFilterCount = getActiveFilterCount(filterModel);
 
   const allUnclassifiedFailureCount = usePushesStore(
@@ -430,22 +428,6 @@ const SecondaryNavBar = ({
             />
             {showCoachMark && <FilterCoachMark onDismiss={dismissCoachMark} />}
           </span>
-          <AdvancedFilterPanel
-            isOpen={isFilterPanelOpen}
-            onClose={(evt) => {
-              if (
-                evt &&
-                filterTriggerRef.current &&
-                filterTriggerRef.current.contains(evt.target)
-              ) {
-                return;
-              }
-              toggleFilterPanel();
-            }}
-            target={filterTriggerRef}
-            filterModel={filterModel}
-            classificationTypes={classificationTypes}
-          />
         </form>
       </span>
     </div>
@@ -462,7 +444,9 @@ SecondaryNavBar.propTypes = {
   groupCountsExpanded: PropTypes.bool.isRequired,
   isFilterPanelOpen: PropTypes.bool.isRequired,
   toggleFilterPanel: PropTypes.func.isRequired,
-  classificationTypes: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  filterTriggerRef: PropTypes.shape({
+    current: PropTypes.instanceOf(Element),
+  }).isRequired,
 };
 
 export default SecondaryNavBar;
