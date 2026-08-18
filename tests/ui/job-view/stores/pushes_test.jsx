@@ -202,6 +202,35 @@ describe('Pushes Zustand store', () => {
     ).toBe(true);
   });
 
+  test('range queries fetch the full remaining capacity in one request', async () => {
+    // startdate converts to push_timestamp__gte (Date.parse / 1000)
+    const gte = Date.parse('2026-08-01') / 1000;
+
+    fetchMock.get(
+      getProjectUrl(
+        `/push/?full=true&count=${thMaxPushes}&push_timestamp__gte=${gte}`,
+        repoName,
+      ),
+      { results: [] },
+    );
+
+    window.location = {
+      search: '?repo=autoland&startdate=2026-08-01',
+      pathname: '/jobs',
+    };
+
+    await usePushesStore.getState().fetchPushes();
+
+    expect(
+      fetchMock.called(
+        getProjectUrl(
+          `/push/?full=true&count=${thMaxPushes}&push_timestamp__gte=${gte}`,
+          repoName,
+        ),
+      ),
+    ).toBe(true);
+  });
+
   test('pushList is truncated to the newest thMaxPushes pushes', async () => {
     // Server returns more pushes than the remaining capacity (e.g. the
     // push_timestamp__lte overlap re-fetch); the store must still hold
@@ -269,7 +298,7 @@ describe('Pushes Zustand store', () => {
   test('should fetch a new set of pushes with updateRange', async () => {
     fetchMock.get(
       getProjectUrl(
-        '/push/?full=true&count=100&fromchange=9692347caff487cdcd889489b8e89a825fe6bbd1',
+        `/push/?full=true&count=${thMaxPushes}&fromchange=9692347caff487cdcd889489b8e89a825fe6bbd1`,
         repoName,
       ),
       pushListFromChangeFixture,
