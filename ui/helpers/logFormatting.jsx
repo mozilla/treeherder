@@ -82,7 +82,7 @@ export default function formatLogLineWithLinks(
   }
 
   // Check for profile uploaded
-  const hasProfile = line.match(/profile uploaded in (profile_.*\.js\.json)/);
+  const hasProfile = line.match(/profile uploaded in (profile_\S+)/);
   if (hasProfile) {
     const artifact = jobDetails.find(
       (artifact) => artifact.value === hasProfile[1],
