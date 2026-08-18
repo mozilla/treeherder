@@ -26,6 +26,7 @@ import { endpoints } from '../perfherder/perf-helpers/constants';
 
 import Notifications from '../shared/Notifications';
 import PrimaryNavBar from './headerbars/PrimaryNavBar';
+import AdvancedFilterPanel from './headerbars/filter-panel/AdvancedFilterPanel';
 import ActiveFilters from './headerbars/ActiveFilters';
 import UpdateAvailable from './headerbars/UpdateAvailable';
 import DetailsPanel from './details/DetailsPanel';
@@ -173,6 +174,9 @@ const App = () => {
   const landoIntervalRef = useRef(null);
   const notificationIntervalRef = useRef(null);
   const prevLocationSearch = useRef(location.search);
+  // The toolbar button that opens the filter panel; focus returns to it
+  // when the panel closes.
+  const filterTriggerRef = useRef(null);
 
   // Calculate splitter dimensions
   const { defaultPushListPct, defaultDetailsHeight } = useMemo(
@@ -486,7 +490,7 @@ const App = () => {
   );
 
   return (
-    <div id="global-container" className="height-minus-navbars">
+    <div id="global-container" className="job-view-layout">
       <KeyboardShortcuts
         filterModel={filterModel}
         showOnScreenShortcuts={showOnScreenShortcuts}
@@ -505,26 +509,35 @@ const App = () => {
           groupCountsExpanded={groupCountsExpanded}
           isFilterPanelOpen={isFilterPanelOpen}
           toggleFilterPanel={toggleFilterPanel}
-          classificationTypes={classificationTypes}
+          filterTriggerRef={filterTriggerRef}
           pushHealthVisibility={pushHealthVisibility}
           setPushHealthVisibility={setPushHealthVisibility}
+        />
+        <AdvancedFilterPanel
+          isOpen={isFilterPanelOpen}
+          onClose={toggleFilterPanel}
+          target={filterTriggerRef}
+          filterModel={filterModel}
+          classificationTypes={classificationTypes}
         />
         {isMobile ? (
           <div className="mobile-push-list">{pushListContent}</div>
         ) : (
-          <PanelGroup
-            ref={panelGroupRef}
-            direction="vertical"
-            onLayout={handleSplitChange}
-          >
-            <Panel defaultSize={pushListPct} minSize={20}>
-              {pushListContent}
-            </Panel>
-            <PanelResizeHandle className="resize-handle" />
-            <Panel defaultSize={100 - pushListPct} minSize={0}>
-              {detailsPanel}
-            </Panel>
-          </PanelGroup>
+          <div className="job-view-panels">
+            <PanelGroup
+              ref={panelGroupRef}
+              direction="vertical"
+              onLayout={handleSplitChange}
+            >
+              <Panel defaultSize={pushListPct} minSize={20}>
+                {pushListContent}
+              </Panel>
+              <PanelResizeHandle className="resize-handle" />
+              <Panel defaultSize={100 - pushListPct} minSize={0}>
+                {detailsPanel}
+              </Panel>
+            </PanelGroup>
+          </div>
         )}
         {isMobile && (
           <Offcanvas
