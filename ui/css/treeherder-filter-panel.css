@@ -21,6 +21,9 @@
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
+  /* Tall enough that the absolutely-centered Clear all button clears
+     both edges instead of touching the top of the banner */
+  min-height: 2.4rem;
   padding: 0.3rem 0.75rem;
   background-color: #abdbe3;
   color: #0c5460;
@@ -212,7 +215,9 @@
   --pill-status-color: var(--status-color-superseded);
 }
 .filter-pill[data-status='pending'] {
-  --pill-status-color: var(--status-color-pending);
+  /* The real pending color (#e0e0e0) is too faint for an outline pill
+     on a white card; use a darker gray that stays lighter than running */
+  --pill-status-color: #b3b3b3;
 }
 .filter-pill[data-status='unscheduled'] {
   --pill-status-color: var(--status-color-unscheduled);
@@ -263,15 +268,9 @@
   border-left: 0;
 }
 
-/* Trigger button + badge (used in Task 8) */
 .advanced-filter-trigger {
   display: flex;
   align-items: center;
-}
-
-.advanced-filter-badge {
-  font-size: 0.65rem;
-  margin-left: 0.2rem;
 }
 
 /* Coach mark (used in Task 10) */
