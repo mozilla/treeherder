@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { Button, CloseButton, Overlay, Popover } from 'react-bootstrap';
+import { Button, CloseButton } from 'react-bootstrap';
 
 import StatusSection from './StatusSection';
 import TierClassificationSection from './TierClassificationSection';
@@ -15,19 +15,22 @@ function AdvancedFilterPanel({
   filterModel,
   classificationTypes,
 }) {
-  const popoverRef = useRef(null);
+  const panelRef = useRef(null);
   const wasOpen = useRef(isOpen);
 
   // Enter anywhere in the panel applies the staged push range, if it is
   // dirty (the Apply button's disabled state encodes dirty + valid).
   // Controls with their own Enter semantics stopPropagation, and a focused
-  // button's Enter should only click that button.
+  // button's Enter should only click that button. Escape closes the panel.
   const onPanelKeyDown = (evt) => {
+    if (evt.key === 'Escape') {
+      evt.stopPropagation();
+      onClose();
+      return;
+    }
     if (evt.key !== 'Enter' || evt.target.tagName === 'BUTTON') {
       return;
     }
-    // currentTarget is the popover element itself; Overlay overrides the
-    // child ref it clones, so popoverRef cannot be relied on here.
     const applyButton = evt.currentTarget.querySelector('.push-range-apply');
 
     if (applyButton && !applyButton.disabled) {
@@ -37,13 +40,9 @@ function AdvancedFilterPanel({
 
   useEffect(() => {
     if (isOpen && !wasOpen.current) {
-      // Panel just opened - move focus into it. Overlay overrides the
-      // child ref it clones, so look the element up by id instead.
-      const panel =
-        popoverRef.current || document.getElementById('advanced-filter-panel');
-
-      if (panel) {
-        panel.focus();
+      // Panel just opened - move focus into it.
+      if (panelRef.current) {
+        panelRef.current.focus();
       }
     } else if (!isOpen && wasOpen.current) {
       // Panel just closed - restore focus to the trigger.
@@ -54,50 +53,47 @@ function AdvancedFilterPanel({
     wasOpen.current = isOpen;
   }, [isOpen, target]);
 
+  if (!isOpen) {
+    return null;
+  }
+
   return (
-    <Overlay
-      target={target.current}
-      show={isOpen}
-      placement="bottom-end"
-      rootClose
-      onHide={onClose}
+    <section
+      id="advanced-filter-panel"
+      className="advanced-filter-panel"
+      aria-label="Advanced filters"
+      ref={panelRef}
+      tabIndex={-1}
+      onKeyDown={onPanelKeyDown}
     >
-      <Popover
-        id="advanced-filter-panel"
-        className="advanced-filter-panel"
-        ref={popoverRef}
-        tabIndex={-1}
-        onKeyDown={onPanelKeyDown}
-      >
-        <Popover.Header className="advanced-filter-panel-header">
-          <b>Advanced Filters</b>
-          <span className="advanced-filter-panel-actions">
-            <Button
-              size="sm"
-              variant="outline-light"
-              onClick={() => filterModel.clearNonStatusFilters()}
-            >
-              Clear all
-            </Button>
-            <CloseButton
-              variant="white"
-              aria-label="Close filter panel"
-              onClick={onClose}
-            />
-          </span>
-        </Popover.Header>
-        <Popover.Body className="advanced-filter-panel-body">
-          <PushRangeSection />
-          <FieldFilterSection filterModel={filterModel} />
-          <TierClassificationSection
-            filterModel={filterModel}
-            classificationTypes={classificationTypes}
+      <div className="advanced-filter-panel-header">
+        <b>Advanced Filters</b>
+        <span className="advanced-filter-panel-actions">
+          <Button
+            size="sm"
+            variant="outline-light"
+            onClick={() => filterModel.clearNonStatusFilters()}
+          >
+            Clear all
+          </Button>
+          <CloseButton
+            variant="white"
+            aria-label="Close filter panel"
+            onClick={onClose}
           />
-          <PresetsSection filterModel={filterModel} />
-          <StatusSection filterModel={filterModel} />
-        </Popover.Body>
-      </Popover>
-    </Overlay>
+        </span>
+      </div>
+      <div className="advanced-filter-panel-body">
+        <PushRangeSection />
+        <FieldFilterSection filterModel={filterModel} />
+        <TierClassificationSection
+          filterModel={filterModel}
+          classificationTypes={classificationTypes}
+        />
+        <StatusSection filterModel={filterModel} />
+        <PresetsSection filterModel={filterModel} />
+      </div>
+    </section>
   );
 }
 
