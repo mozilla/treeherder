@@ -24,11 +24,7 @@ import {
 import TierIndicator from './TierIndicator';
 import WatchedRepo from './WatchedRepo';
 import FilterCoachMark from './filter-panel/FilterCoachMark';
-import {
-  getActiveFilterCount,
-  hasSeenCoachMark,
-  markCoachMarkSeen,
-} from './filter-panel/helpers';
+import { hasSeenCoachMark, markCoachMarkSeen } from './filter-panel/helpers';
 
 const MAX_WATCHED_REPOS = 3;
 const WATCHED_REPOS_STORAGE_KEY = 'thWatchedRepos';
@@ -61,7 +57,6 @@ const SecondaryNavBar = ({
   const location = useLocation();
   const navigate = useNavigate();
   const prevLocationSearch = useRef(location.search);
-  const activeFilterCount = getActiveFilterCount(filterModel);
 
   const allUnclassifiedFailureCount = usePushesStore(
     (state) => state.allUnclassifiedFailureCount,
@@ -370,14 +365,6 @@ const SecondaryNavBar = ({
               aria-haspopup="dialog"
             >
               <FontAwesomeIcon icon={faSliders} size="sm" />
-              {activeFilterCount > 0 && (
-                <span
-                  className="badge bg-secondary rounded-pill advanced-filter-badge"
-                  title={`${activeFilterCount} active filters`}
-                >
-                  {activeFilterCount}
-                </span>
-              )}
               <FontAwesomeIcon icon={faCaretDown} size="xs" />
             </Button>
             <input
