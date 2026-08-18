@@ -140,19 +140,6 @@ describe('SecondaryNavBar', () => {
     expect(toggleFilterPanel).toHaveBeenCalled();
   });
 
-  test('shows an active filter count badge when filters are set', async () => {
-    usePushesStore.setState({ ...initialState });
-    const filterModel = new FilterModel(mockNavigate, {
-      search: `?repo=${repoName}&platform=linux&startdate=2026-08-01`,
-      pathname: '/jobs',
-    });
-    render(testSecondaryNavBar({ filterModel }));
-
-    await waitFor(() => {
-      expect(screen.getByTitle('2 active filters')).toBeInTheDocument();
-    });
-  });
-
   test('shows the coach mark on first render and dismisses forever', async () => {
     usePushesStore.setState({ ...initialState });
     render(testSecondaryNavBar());

@@ -90,10 +90,6 @@ export const buildPresetParams = (filterModel) =>
 export const getPresetQueryString = (params, repo) =>
   new URLSearchParams({ repo, ...params }).toString();
 
-export const getActiveFilterCount = (filterModel) =>
-  Object.keys(buildPresetParams(filterModel)).filter((f) => f !== 'searchStr')
-    .length;
-
 export const hasSeenCoachMark = () => {
   try {
     return !!localStorage.getItem(COACH_MARK_STORAGE_KEY);
