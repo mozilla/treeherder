@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef, memo, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { useLocation } from 'react-router';
 import sortBy from 'lodash/sortBy';
+import debounce from 'lodash/debounce';
 import { Col, Row } from 'react-bootstrap';
 
 import {
@@ -21,6 +22,7 @@ import JobModel from '../../models/job';
 import RunnableJobModel from '../../models/runnableJob';
 import { getRevisionTitle } from '../../helpers/revision';
 import { getPercentComplete } from '../../helpers/display';
+import { createTaskLimiter } from '../../helpers/http';
 import {
   usePushesStore,
   updateJobMap,
@@ -42,6 +44,21 @@ import PushCountsDetails from './PushCountsDetails';
 
 const watchCycleStates = ['none', 'push', 'job', 'none'];
 const platformArray = Object.values(thPlatformMap);
+
+// All Push components share one limiter so that mounting hundreds of
+// pushes at once (e.g. a wide push range) doesn't fire hundreds of
+// concurrent jobs fetches — that overwhelms the API and the burst of
+// resolutions trips React's nested-update limit.
+const jobFetchLimiter = createTaskLimiter(6);
+
+// The unclassified counts are store-wide, so recalculating once after a
+// burst of per-push job loads is enough; every subscriber re-renders on
+// each recalculation.
+const debouncedRecalculateUnclassifiedCounts = debounce(
+  recalculateUnclassifiedCounts,
+  200,
+  { maxWait: 1000 },
+);
 
 // Bug 1638424 - Transform WPT test paths to look like paths
 // from a local checkout
@@ -276,7 +293,7 @@ function Push({
         if (!skipJobMap) {
           updateJobMap(jobs);
         }
-        recalculateUnclassifiedCounts();
+        debouncedRecalculateUnclassifiedCounts();
       }
     },
     [
@@ -289,11 +306,13 @@ function Push({
   );
 
   const fetchJobs = useCallback(async () => {
-    const { data, failureStatus } = await JobModel.getList(
-      {
-        push_id: push.id,
-      },
-      { fetchAll: true },
+    const { data, failureStatus } = await jobFetchLimiter(() =>
+      JobModel.getList(
+        {
+          push_id: push.id,
+        },
+        { fetchAll: true },
+      ),
     );
 
     if (!failureStatus) {

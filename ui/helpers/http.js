@@ -10,6 +10,36 @@ const generateHeaders = function generateHeaders() {
   });
 };
 
+// Returns a wrapper that runs the given async task functions at most
+// `limit` at a time, queueing the rest. Used to keep large fan-outs
+// (e.g. one jobs fetch per push) from overwhelming the API and from
+// resolving all at once.
+export const createTaskLimiter = (limit) => {
+  let active = 0;
+  const pending = [];
+
+  const runNext = () => {
+    if (active >= limit || pending.length === 0) {
+      return;
+    }
+    active++;
+    const { task, resolve, reject } = pending.shift();
+
+    task()
+      .then(resolve, reject)
+      .finally(() => {
+        active--;
+        runNext();
+      });
+  };
+
+  return (task) =>
+    new Promise((resolve, reject) => {
+      pending.push({ task, resolve, reject });
+      runNext();
+    });
+};
+
 export const getData = async function getData(url, options = {}) {
   let failureStatus = null;
   const response = await fetch(url, options);
