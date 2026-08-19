@@ -17,7 +17,7 @@
       "quoteStyle": "single",
       "trailingCommas": "all"
     },
-    "globals": ["page", "browser", "jestPuppeteer"]
+    "globals": []
   },
   "css": {
     "linter": {
