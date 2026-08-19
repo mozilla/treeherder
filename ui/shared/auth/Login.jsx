@@ -67,12 +67,24 @@ const Login = ({ setUser, user = { isLoggedIn: false }, notify }) => {
     window.addEventListener('storage', handleStorageEvent);
 
     // Ask the back-end if a user is logged in on page load
-    UserModel.get().then((currentUser) => {
+    UserModel.get().then(async (currentUser) => {
       if (currentUser.email && localStorage.getItem('userSession')) {
         setLoggedIn(currentUser);
-      } else {
-        setLoggedOut();
+        return;
       }
+      // The backend session is capped (AUTH_MAX_SESSION_AGE_SECONDS) and may
+      // have lapsed while the Auth0 refresh token is still valid (laptop
+      // asleep, browser closed overnight). Attempt a silent renewal before
+      // treating the user as logged out; it fails fast for a user whose SSO
+      // access was actually revoked.
+      if (localStorage.getItem('userSession')) {
+        const recoveredUser = await authServiceRef.current.recoverSession();
+        if (recoveredUser) {
+          setLoggedIn(recoveredUser);
+          return;
+        }
+      }
+      setLoggedOut();
     });
 
     return () => {
