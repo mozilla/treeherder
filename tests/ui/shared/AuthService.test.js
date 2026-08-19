@@ -362,6 +362,58 @@ describe('AuthService', () => {
     });
   });
 
+  describe('recoverSession', () => {
+    it('saves credentials and returns the user when renew succeeds', async () => {
+      const authResult = { accessToken: 'new-token' };
+      const recoveredUser = { email: 'test@mozilla.com', is_staff: false };
+      mockRenew.mockResolvedValue(authResult);
+      authService.saveCredentialsFromAuthResult = jest
+        .fn()
+        .mockResolvedValue(recoveredUser);
+
+      const result = await authService.recoverSession();
+
+      expect(mockRenew).toHaveBeenCalled();
+      expect(authService.saveCredentialsFromAuthResult).toHaveBeenCalledWith(
+        authResult,
+      );
+      expect(result).toEqual(recoveredUser);
+    });
+
+    it('returns null when renew fails (e.g. refresh token revoked)', async () => {
+      mockRenew.mockRejectedValue(new Error('login_required'));
+
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+      const result = await authService.recoverSession();
+
+      expect(result).toBeNull();
+      console.warn.mockRestore();
+    });
+
+    it('returns null when renew returns a falsy result', async () => {
+      mockRenew.mockResolvedValue(null);
+
+      const result = await authService.recoverSession();
+
+      expect(result).toBeNull();
+    });
+
+    it('does not clear the stored session on failure (caller decides)', async () => {
+      localStorage.setItem('userSession', '{"accessToken":"tok"}');
+      mockRenew.mockRejectedValue(new Error('network'));
+
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+      await authService.recoverSession();
+
+      expect(localStorage.getItem('userSession')).toBe(
+        '{"accessToken":"tok"}',
+      );
+      console.warn.mockRestore();
+    });
+  });
+
   describe('logout', () => {
     it('clears renewalLock from localStorage', () => {
       localStorage.setItem('renewalLock', Date.now().toString());

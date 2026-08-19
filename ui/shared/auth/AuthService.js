@@ -208,6 +208,34 @@ export default class AuthService {
     }
   }
 
+  /**
+   * Re-establish a lapsed backend session using the Auth0 refresh token.
+   *
+   * The Django session is capped (AUTH_MAX_SESSION_AGE_SECONDS) so it lapses
+   * whenever the renewal heartbeat stops for longer than the cap (laptop
+   * asleep, browser closed overnight). The refresh token usually remains
+   * valid much longer, so a silent renewal can log the user back in without
+   * any interaction. Returns the logged-in user on success, or null if the
+   * refresh token can no longer be used (e.g. revoked SSO access), in which
+   * case the caller should log the user out.
+   */
+  async recoverSession() {
+    try {
+      authLog('Attempting silent session recovery...');
+      const authResult = await renew();
+      if (!authResult) {
+        authWarn('Silent session recovery returned no credentials');
+        return null;
+      }
+      const user = await this.saveCredentialsFromAuthResult(authResult);
+      authInfo('Session recovered silently for:', user.email);
+      return user;
+    } catch (err) {
+      authWarn('Silent session recovery failed:', err.error || err.message);
+      return null;
+    }
+  }
+
   logout() {
     authInfo('Logging out user');
     localStorage.removeItem('userSession');
@@ -229,5 +257,7 @@ export default class AuthService {
 
     localStorage.setItem('userSession', JSON.stringify(userSession));
     localStorage.setItem('user', JSON.stringify(user));
+
+    return user;
   }
 }
