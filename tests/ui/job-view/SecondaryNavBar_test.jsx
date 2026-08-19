@@ -17,7 +17,7 @@ const mockNavigate = jest.fn();
 
 beforeEach(() => {
   fetchMock.get(
-    'https://treestatus.prod.lando.prod.cloudops.mozgcp.net/trees/firefox-autoland',
+    'https://lando.moz.tools/api/treestatus/trees/firefox-autoland',
     {
       result: {
         message_of_the_day: '',
