@@ -941,6 +941,23 @@
 
       const finiteOrNull = (value) => (Number.isFinite(value) ? value : null);
 
+      // Drops empty entries and repeats while keeping order. A failing
+      // test's message list is assembled from two sources that legitimately
+      // overlap — the same text arriving as both a subtest result and the
+      // `test_end` message would otherwise render as two identical lines.
+      const dedupe = (messages) => {
+        const seen = new Set();
+        return messages.filter((message) => {
+          // Compared without trailing punctuation so the same text reported as
+          // both a subtest ("Test timed out.") and a `test_end` message ("Test
+          // timed out") collapses to one line.
+          const key = (message || '').replace(/[.\s]+$/, '');
+          if (!key || seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+      };
+
       function buildTestSummary(content) {
         const lines = parseLines(content);
 
@@ -1000,10 +1017,14 @@
               if (!line.test || !('expected' in line)) return;
               const queue = pending.get(line.test);
               const run = queue && queue.length ? queue[0] : null;
-              if (run && line.message) {
-                const label = line.subtest ? `${line.subtest} - ` : '';
-                run.subtestFailures.push(`${label}${line.message}`);
-              }
+              if (!run) return;
+              // Either field alone can carry the whole signal: mochitest
+              // reports a timeout as `subtest: 'Test timed out.'` with an empty
+              // `message`, so gating on `message` drops the failure entirely.
+              const text = [line.subtest, line.message]
+                .filter(Boolean)
+                .join(' - ');
+              if (text) run.subtestFailures.push(text);
               return;
             }
             case 'test_end': {
@@ -1013,12 +1034,13 @@
               const end = finiteOrNull(line.time);
               const success = !('expected' in line);
               const subtestFailures = run?.subtestFailures || [];
-              const messages =
-                !success && subtestFailures.length
-                  ? subtestFailures
-                  : line.message
-                    ? [line.message]
-                    : [];
+              // Subtest messages are usually the more informative ones, but
+              // the `test_end` message is what names the failure mode ("Test
+              // timed out") — keeping only the subtests hides the cause behind
+              // whatever incidental line the harness logged last. Keep both.
+              const messages = dedupe(
+                success ? [line.message] : [...subtestFailures, line.message],
+              );
               const message = messages.length ? messages.join(' | ') : null;
               recordEntry({
                 test: line.test,
