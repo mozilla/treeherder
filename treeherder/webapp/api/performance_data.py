@@ -1027,6 +1027,7 @@ class PerformanceSummary(generics.ListAPIView):
                         push_revision,
                         replicate_value,
                         submit_time,
+                        machine_name,
                     ) in data.values_list(
                         "value",
                         "job_id",
@@ -1036,6 +1037,7 @@ class PerformanceSummary(generics.ListAPIView):
                         "push__revision",
                         "performancedatumreplicate__value",
                         "job__submit_time",
+                        "job__machine__name",
                     ).order_by("push_timestamp", "push_id", "job_id"):
                         if replicate_value is not None:
                             item["data"].append(
@@ -1047,6 +1049,7 @@ class PerformanceSummary(generics.ListAPIView):
                                     "push_timestamp": push_timestamp,
                                     "push__revision": push_revision,
                                     "job__submit_time": submit_time,
+                                    "job__machine__name": machine_name,
                                 }
                             )
                         elif value is not None:
@@ -1059,6 +1062,7 @@ class PerformanceSummary(generics.ListAPIView):
                                     "push_timestamp": push_timestamp,
                                     "push__revision": push_revision,
                                     "job__submit_time": submit_time,
+                                    "job__machine__name": machine_name,
                                 }
                             )
                 else:
@@ -1070,6 +1074,7 @@ class PerformanceSummary(generics.ListAPIView):
                         "push_timestamp",
                         "push__revision",
                         "job__submit_time",
+                        "job__machine__name",
                     ).order_by("push_timestamp", "push_id", "job_id")
 
                 item["option_name"] = option_collection_map[item["option_collection_id"]]
