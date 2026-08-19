@@ -34,7 +34,7 @@ const HighlightOptionsDropdown = ({
   ];
 
   return (
-    <Dropdown className="me-0 text-nowrap" title="Highlight Options Dropdown">
+    <Dropdown className="me-0 text-nowrap">
       <Dropdown.Toggle
         variant="secondary"
         aria-label="Highlight Options Dropdown"
@@ -47,15 +47,23 @@ const HighlightOptionsDropdown = ({
           <Dropdown.Item
             key={key}
             as="button"
+            className="d-flex align-items-center"
             onClick={() => updateStateParams({ [key]: !isChecked })}
+            role="menuitemcheckbox"
+            aria-checked={isChecked}
           >
-            {isChecked && (
-              <FontAwesomeIcon
-                icon={faCheck}
-                className="me-2"
-                title="Selected"
-              />
-            )}
+            <span
+              className="border border-secondary rounded me-2 d-flex align-items-center justify-content-center"
+              style={{ width: '18px', height: '18px' }}
+              aria-hidden="true"
+            >
+              {isChecked && (
+                <FontAwesomeIcon
+                  icon={faCheck}
+                  style={{ fontSize: '12px' }}
+                />
+              )}
+            </span>
             {label}
           </Dropdown.Item>
         ))}
