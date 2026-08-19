@@ -153,6 +153,37 @@ jobs:
           name: Run Jest tests
       - codecov/upload
 
+  javascript-integration-tests:
+    executor:
+      name: node/default
+      tag: '22.0'
+    # 4 vCPU: Playwright runs spec files in parallel workers, and the rspack
+    # dev server build that `webServer` triggers benefits from the extra cores.
+    resource_class: large
+    steps:
+      - checkout
+      - setup-pnpm
+      - restore_cache:
+          keys:
+            - playwright-firefox-v1-{{ checksum "pnpm-lock.yaml" }}
+            - playwright-firefox-v1-
+      - run:
+          name: Install Playwright Firefox
+          command: npx playwright install --with-deps firefox
+      - save_cache:
+          key: playwright-firefox-v1-{{ checksum "pnpm-lock.yaml" }}
+          paths:
+            - ~/.cache/ms-playwright
+      - run:
+          name: Run Playwright integration tests
+          command: pnpm test:integration
+      - store_test_results:
+          path: test-results
+      - store_artifacts:
+          path: playwright-report
+      - store_artifacts:
+          path: test-results
+
   javascript-lint:
     executor:
       name: node/default
@@ -257,6 +288,7 @@ workflows:
   run-tests:
     jobs:
       - javascript-tests
+      - javascript-integration-tests
       - javascript-lint
       - builds
       - python-tests-frontend
