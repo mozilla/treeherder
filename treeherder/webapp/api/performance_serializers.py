@@ -489,10 +489,22 @@ class PerformanceDatumSerializer(serializers.ModelSerializer):
     submit_time = serializers.DateTimeField(
         required=False, allow_null=True, default=None, source="job__submit_time"
     )
+    machine_name = serializers.CharField(
+        required=False, allow_null=True, default=None, source="job__machine__name"
+    )
 
     class Meta:
         model = PerformanceDatum
-        fields = ["job_id", "id", "value", "push_timestamp", "push_id", "revision", "submit_time"]
+        fields = [
+            "job_id",
+            "id",
+            "value",
+            "push_timestamp",
+            "push_id",
+            "revision",
+            "submit_time",
+            "machine_name",
+        ]
 
 
 class PerformanceSummarySerializer(serializers.ModelSerializer):

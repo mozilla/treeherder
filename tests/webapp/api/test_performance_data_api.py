@@ -583,6 +583,29 @@ def test_perf_summary_data_includes_submit_time(
     assert {row["submit_time"] for row in data} == expected
 
 
+@pytest.mark.parametrize("replicates", ["true", "false"])
+def test_perf_summary_data_includes_machine_name(
+    client, test_perf_signature, test_perf_data, replicates
+):
+    """
+    Check that "machine_name" is present on each datum.
+
+    We test both `replicates=true` `replicates=false` because the
+    two modes use different code to create the datum objects.
+    """
+    query_params = summary_query_params(test_perf_signature, test_perf_data, replicates=replicates)
+
+    response = client.get(reverse("performance-summary") + query_params)
+    assert response.status_code == 200
+
+    data = response.json()[0]["data"]
+    assert len(data) == len(test_perf_data)
+
+    expected_names = {datum.job.machine.name for datum in test_perf_data}
+    assert expected_names, "fixture jobs should have machines"
+    assert {row["machine_name"] for row in data} == expected_names
+
+
 def test_perf_summary_should_alert_is_false_edge_case(
     client, test_perf_signature, test_perf_signature_2, test_perf_data
 ):
