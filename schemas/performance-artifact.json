@@ -87,6 +87,11 @@
           "title": "Lower is better",
           "type": "boolean"
         },
+        "orderedTrials": {
+          "description": "Whether the replicates list is ordered (default is by trial run).",
+            "title": "Trials ordered",
+            "type": "boolean"
+        },
         "shouldAlert": {
           "description": "Whether we should alert",
           "title": "Should alert",
@@ -200,6 +205,11 @@
         "lowerIsBetter": {
           "description": "Whether lower values are better for suite",
           "title": "Lower is better",
+          "type": "boolean"
+        },
+        "orderedTrials": {
+          "description": "Whether the replicates list is ordered (default is by trial run).",
+          "title": "Trials ordered",
           "type": "boolean"
         },
         "shouldAlert": {
