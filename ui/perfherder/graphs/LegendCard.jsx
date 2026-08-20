@@ -3,27 +3,31 @@ import PropTypes from 'prop-types';
 import { Badge, Button, Form, CloseButton } from 'react-bootstrap';
 
 import { getFrameworkName } from '../perf-helpers/helpers';
+import { graphColors } from '../perf-helpers/constants';
 import { Perfdocs } from '../perf-helpers/perfdocs';
 import GraphIcon from '../../shared/GraphIcon';
 
 const LegendCard = ({
   series,
-  testData = [],
+  testDataRef,
   updateState,
   updateStateParams,
   selectedDataPoint = null,
   frameworks,
-  colors,
-  symbols,
+  colorsRef,
+  symbolsRef,
 }) => {
   const updateSelectedTest = () => {
-    const newColors = [...colors];
-    const newSymbols = [...symbols];
+    const testData = testDataRef.current;
+    const newColors = [...colorsRef.current];
+    const newSymbols = [...symbolsRef.current];
+
     const errorMessages = [];
     let updates;
     const targetIndex = testData.findIndex(
       (item) => item.signature_id === series.signature_id,
     );
+    if (targetIndex === -1) return;
     const item = testData[targetIndex];
     const isVisible = !item.visible;
     const updatedItem = { ...item };
@@ -100,48 +104,51 @@ const LegendCard = ({
   };
 
   const removeTest = () => {
-    const index = testData.indexOf(series);
-    const newData = [...testData];
+    const testData = testDataRef.current;
+    const colors = colorsRef.current;
+    const symbols = symbolsRef.current;
+
+    const index = testData.findIndex(
+      (item) => item.signature_id === series.signature_id
+    );
 
     if (index === -1) {
       return;
     }
 
+    const newData = [...testData];
+
     newData.splice(index, 1);
 
-    // removing a disabled test frees nothing, since it never held a
-    // color, just drop it. Removing a visible test frees its
-    // color: promote the first currently-disabled test to take its
-    // place, or return the color/symbol to the pool if none is waiting.
-    if (series.color[0] === 'border-secondary') {
+    // promote the test that just shifted into the maximum visibility slot.
+    // this ignores user-deselected tests earlier in the queue and 
+    // strictly targets the next auto-queued test that was forced hidden.
+    const promoteTargetIndex = graphColors.length - 1;
+
+    if (
+      newData[promoteTargetIndex] &&
+      newData[promoteTargetIndex].color[0] === 'border-secondary'
+    ) {
+      const promoted = newData[promoteTargetIndex];
+      newData[promoteTargetIndex] = {
+        ...promoted,
+        color: series.color,
+        symbol: series.symbol,
+        visible: true,
+        data: promoted.data.map((item) => ({
+          ...item,
+          z: series.color[1],
+          _z: series.symbol,
+        })),
+      };
       resetParams(newData);
-      return;
-    }
-
-    const promoteIndex = newData.findIndex(
-      (item) => item.color[0] === 'border-secondary',
-    );
-
-    if (promoteIndex === -1) {
+    } else if (series.color[0] === 'border-secondary') {
+      resetParams(newData);
+    } else {
       const newColors = [...colors, series.color];
       const newSymbols = [...symbols, series.symbol];
       resetParams(newData, newColors, newSymbols);
-      return;
     }
-
-    const promoted = newData[promoteIndex];
-    newData[promoteIndex] = {
-      ...promoted,
-      color: series.color,
-      symbol: series.symbol,
-      visible: true,
-      data: promoted.data.map((item) => ({
-        ...item,
-        z: series.color[1],
-        _z: series.symbol,
-      })),
-    };
-    resetParams(newData);
   };
 
   const subtitleStyle = 'p-0 mb-0 border-0 text-secondary text-start';
@@ -235,21 +242,23 @@ const LegendCard = ({
 };
 
 LegendCard.propTypes = {
-  series: PropTypes.PropTypes.shape({
+  series: PropTypes.shape({
     visible: PropTypes.bool,
   }).isRequired,
   updateState: PropTypes.func.isRequired,
-  testData: PropTypes.arrayOf(PropTypes.shape({})),
   updateStateParams: PropTypes.func.isRequired,
-  colors: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)).isRequired,
-  selectedDataPoint: PropTypes.shape({}),
-};
+  testDataRef: PropTypes.shape({ current: PropTypes.array }).isRequired,
+  colorsRef: PropTypes.shape({ current: PropTypes.array }).isRequired,
+  symbolsRef: PropTypes.shape({ current: PropTypes.array }).isRequired,
+  selectedDataPoint: PropTypes.shape({}),};
 
-const areEqual = (prev, next) =>
-  prev.series === next.series &&
-  prev.testData === next.testData &&
-  prev.colors === next.colors &&
-  prev.symbols === next.symbols &&
-  prev.selectedDataPoint === next.selectedDataPoint;
+const areEqual = (prev, next) => {
+  const seriesEqual = prev.series === next.series;
+  
+  const prevWasSelected = prev.selectedDataPoint?.signature_id === prev.series.signature_id;
+  const nextIsSelected = next.selectedDataPoint?.signature_id === next.series.signature_id;
+
+  return seriesEqual && prevWasSelected === nextIsSelected && prev.frameworks === next.frameworks;
+};
 
 export default React.memo(LegendCard, areEqual);
