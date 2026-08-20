@@ -846,7 +846,6 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
     is_confident = OptionalBooleanField()
     graphs_link = serializers.CharField()
     more_runs_are_needed = OptionalBooleanField(default=False)
-    is_fit_good = OptionalBooleanField(default=True)
     is_improvement = serializers.BooleanField(required=False)
     is_regression = serializers.BooleanField(required=False)
     is_meaningful = serializers.BooleanField(required=False)
@@ -866,18 +865,6 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
     mann_whitney_test = StatisticsTestSerializer(many=False)
     cliffs_delta = PerfCompareDecimalField(required=False)
     cliffs_interpretation = serializers.CharField(default="")
-    warning_c_delta = serializers.CharField(required=False)
-    silverman_kde = SilvermanKDESerializer(many=False, default=None)
-    silverman_warnings = serializers.ListField(
-        child=serializers.CharField(default=""),
-        default=[],
-    )
-    kde_base = KDESerializer(many=False, required=False)
-    kde_new = KDESerializer(many=False, required=False)
-    kde_warnings = serializers.ListField(
-        child=serializers.CharField(default=""),
-        default=[],
-    )
     direction_of_change = serializers.CharField(default="")
     cles = CLESSerializer(many=False, default=None)
 
@@ -912,7 +899,6 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
             "is_new_better",
             "lower_is_better",
             "is_confident",
-            "is_fit_good",
             "more_runs_are_needed",
             "direction_of_change",
             "is_improvement",
@@ -933,13 +919,7 @@ class PerfCompareResultsSerializerV2(serializers.ModelSerializer):
             "mann_whitney_test",
             "cliffs_delta",
             "cliffs_interpretation",
-            "warning_c_delta",
             "cles",
-            "silverman_kde",
-            "silverman_warnings",
-            "kde_new",
-            "kde_base",
-            "kde_warnings",
         ]
 
 
