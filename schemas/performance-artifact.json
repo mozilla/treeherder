@@ -88,8 +88,8 @@
           "type": "boolean"
         },
         "orderedTrials": {
-          "description": "Whether the replicates list is ordered by trial run (1st value is 1st trial, 2nd value is 2nd trial, etc.)",
-            "title": "Trials ordered by run",
+          "description": "Whether the replicates list is ordered (default is by trial run).",
+            "title": "Trials ordered",
             "type": "boolean"
         },
         "shouldAlert": {
@@ -208,8 +208,8 @@
           "type": "boolean"
         },
         "orderedTrials": {
-          "description": "Whether the replicates list is ordered by trial run (1st value is 1st trial, 2nd value is 2nd trial, etc.)",
-          "title": "Trials ordered by run",
+          "description": "Whether the replicates list is ordered (default is by trial run).",
+          "title": "Trials ordered",
           "type": "boolean"
         },
         "shouldAlert": {
