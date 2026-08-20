@@ -532,6 +532,17 @@
           </div>
         </div>
         <div class="col-auto">
+          <button
+            type="button"
+            id="sort-button"
+            class="btn btn-sm btn-outline-secondary"
+            aria-pressed="false"
+            title="Failures first groups the jobs worth looking at at the top; load order is the order they finished loading in, which never moves under you."
+          >
+            Sort: load order
+          </button>
+        </div>
+        <div class="col-auto">
           <span class="text-muted small" id="filter-count"></span>
         </div>
       </div>
@@ -3043,12 +3054,85 @@
 
       // --- run ---
 
-      // Stopping during the setup phase below throws — there is no report to
-      // show yet. Once the per-job loop starts, stopping instead returns what
-      // has been collected so far, flagged with `aborted`: on a large push
-      // that's a usable partial report, and re-running is the way to get the
-      // rest.
-      async function run(opts, log, onProgress, signal) {
+      // Loads one job's summary artifact and bug suggestions. Returns null when
+      // the job has nothing to show: no task id, or no summary artifact at all.
+      async function loadJobResult(
+        { serverUrl, tcRootUrl, project },
+        job,
+        signal,
+      ) {
+        const taskId = job.task_id;
+        const run = job.retry_id ?? 0;
+        if (!taskId) return null;
+        // The artifact listing is needed for the profiler link, and also
+        // tells us which summary artifact this task produced: the fixed
+        // summary.jsonl (new pushes) or a suite-prefixed
+        // *_testsummary.jsonl (legacy). Prefer the fixed path; skip jobs
+        // that have neither.
+        const artifacts = await listArtifacts(tcRootUrl, taskId, run, signal);
+        const summaryName = artifacts.some(
+          (a) => a.name === SUMMARY_ARTIFACT_PATH,
+        )
+          ? SUMMARY_ARTIFACT_PATH
+          : artifacts.find((a) => a.name.endsWith(SUMMARY_ARTIFACT_SUFFIX))
+              ?.name;
+        if (!summaryName) return null;
+        const artifactUrl = `${tcRootUrl}/api/queue/v1/task/${taskId}/runs/${run}/artifacts/${summaryName}`;
+        const profileArtifact = artifacts.find((a) =>
+          isResourceUsageProfile(a.name.split('/').pop()),
+        );
+        const profileArtifactUrl = profileArtifact
+          ? `${tcRootUrl}/api/queue/v1/task/${taskId}/runs/${run}/artifacts/${profileArtifact.name}`
+          : null;
+        const [text, bugSuggestions] = await Promise.all([
+          fetchText(artifactUrl, signal),
+          getBugSuggestions(serverUrl, project, job.id, signal),
+        ]);
+
+        const summary = buildTestSummary(text);
+        const suggestions = matchBugSuggestions(
+          buildFailureSuggestions(summary),
+          bugSuggestions,
+        );
+        const failureSuggestions = filterGenericFailures(
+          bugSuggestions.map((s) => {
+            decorateBugs(s);
+            return s;
+          }),
+        );
+
+        // Computed once here rather than in the filter path, which reruns on
+        // every keystroke in the include/exclude inputs.
+        const { onlyInSummary, onlyInFailureSummary } = diffSearches(
+          suggestions,
+          failureSuggestions,
+        );
+
+        return {
+          job,
+          summary,
+          suggestions,
+          failureSuggestions,
+          profileArtifactUrl,
+          summaryArtifactUrl: artifactUrl,
+          tabsIdentical: onlyInSummary === 0 && onlyInFailureSummary === 0,
+        };
+      }
+
+      // Streams a push into the page rather than returning it: `onStart` fires
+      // as soon as the job list is known, then `onJobResult` once per job that
+      // has something to show, in completion order.
+      //
+      // The job named by `opts.priorityAnchorId` — the #job-… fragment the page
+      // was opened with — is fetched on its own before all the others, so a
+      // deep link lands on its section within a couple of requests instead of
+      // after the whole push.
+      //
+      // Stopping during the setup phase below throws — there is nothing on
+      // screen yet. Once the per-job phase starts, stopping simply leaves
+      // whatever has already been rendered in place, and re-running is the way
+      // to get the rest.
+      async function run(opts, log, handlers, signal) {
         const serverUrl = HOSTS[opts.host];
 
         const tcRootUrl = await getTcRootUrl(serverUrl, opts.project, signal);
@@ -3069,104 +3153,43 @@
           log.debug(`Ignored ${allJobs.length - jobs.length} retry job(s).`);
         }
 
-        const jobResults = [];
-        let completed = 0;
-        await mapWithConcurrency(
-          jobs,
-          JOB_CONCURRENCY,
-          async (job) => {
-            try {
-              const taskId = job.task_id;
-              const run = job.retry_id ?? 0;
-              if (!taskId) return;
-              // The artifact listing is needed for the profiler link, and also
-              // tells us which summary artifact this task produced: the fixed
-              // summary.jsonl (new pushes) or a suite-prefixed
-              // *_testsummary.jsonl (legacy). Prefer the fixed path; skip jobs
-              // that have neither.
-              const artifacts = await listArtifacts(
-                tcRootUrl,
-                taskId,
-                run,
-                signal,
-              );
-              const summaryName = artifacts.some(
-                (a) => a.name === SUMMARY_ARTIFACT_PATH,
-              )
-                ? SUMMARY_ARTIFACT_PATH
-                : artifacts.find((a) =>
-                    a.name.endsWith(SUMMARY_ARTIFACT_SUFFIX),
-                  )?.name;
-              if (!summaryName) return;
-              const artifactUrl = `${tcRootUrl}/api/queue/v1/task/${taskId}/runs/${run}/artifacts/${summaryName}`;
-              const profileArtifact = artifacts.find((a) =>
-                isResourceUsageProfile(a.name.split('/').pop()),
-              );
-              const profileArtifactUrl = profileArtifact
-                ? `${tcRootUrl}/api/queue/v1/task/${taskId}/runs/${run}/artifacts/${profileArtifact.name}`
-                : null;
-              const [text, bugSuggestions] = await Promise.all([
-                fetchText(artifactUrl, signal),
-                getBugSuggestions(serverUrl, opts.project, job.id, signal),
-              ]);
-
-              const summary = buildTestSummary(text);
-              const suggestions = matchBugSuggestions(
-                buildFailureSuggestions(summary),
-                bugSuggestions,
-              );
-              const failureSuggestions = filterGenericFailures(
-                bugSuggestions.map((s) => {
-                  decorateBugs(s);
-                  return s;
-                }),
-              );
-
-              // Computed once here rather than in applyJobFilter(), which
-              // reruns on every keystroke in the include/exclude inputs.
-              const { onlyInSummary, onlyInFailureSummary } = diffSearches(
-                suggestions,
-                failureSuggestions,
-              );
-
-              jobResults.push({
-                job,
-                summary,
-                suggestions,
-                failureSuggestions,
-                profileArtifactUrl,
-                summaryArtifactUrl: artifactUrl,
-                tabsIdentical:
-                  onlyInSummary === 0 && onlyInFailureSummary === 0,
-              });
-            } catch (e) {
-              // A stopped run cancels every request still open, which would
-              // otherwise log a line per job for something the user did on
-              // purpose.
-              if (!isAbort(e)) log.debug(`job ${job.id}: ${e.message}`);
-            } finally {
-              completed++;
-              onProgress(completed, jobs.length);
-            }
-          },
-          signal,
-        );
-
-        // Jobs with failures first (most useful to scan), then by
-        // job_type_name within each group.
-        jobResults.sort((a, b) => {
-          const failedDiff =
-            (b.suggestions.length > 0) - (a.suggestions.length > 0);
-          if (failedDiff !== 0) return failedDiff;
-          return jobLabel(a.job).localeCompare(jobLabel(b.job));
+        handlers.onStart({
+          serverUrl,
+          project: opts.project,
+          revisionId,
+          total: jobs.length,
         });
 
-        return {
-          serverUrl,
-          revisionId,
-          jobResults,
-          aborted: signal?.aborted ?? false,
+        const ctx = { serverUrl, tcRootUrl, project: opts.project };
+        let completed = 0;
+        const settle = async (job) => {
+          try {
+            const result = await loadJobResult(ctx, job, signal);
+            if (result) handlers.onJobResult(result);
+          } catch (e) {
+            // A stopped run cancels every request still open, which would
+            // otherwise log a line per job for something the user did on
+            // purpose.
+            if (!isAbort(e)) log.debug(`job ${job.id}: ${e.message}`);
+          } finally {
+            completed++;
+            handlers.onProgress(completed, jobs.length);
+          }
         };
+
+        const queue = jobs.slice();
+        const priorityIndex = opts.priorityAnchorId
+          ? queue.findIndex((job) => jobAnchorId(job) === opts.priorityAnchorId)
+          : -1;
+        if (priorityIndex !== -1) {
+          const [priorityJob] = queue.splice(priorityIndex, 1);
+          log.info(`Loading the linked job first: ${jobLabel(priorityJob)}.`);
+          await settle(priorityJob);
+        }
+
+        await mapWithConcurrency(queue, JOB_CONCURRENCY, settle, signal);
+
+        return { aborted: signal?.aborted ?? false };
       }
 
       function renderEmptyFilterMessage() {
@@ -3174,6 +3197,14 @@
           class: 'alert alert-secondary',
           role: 'status',
           text: 'No jobs match the current filter.',
+        });
+      }
+
+      function renderEmptyReportMessage() {
+        return el('div', {
+          class: 'alert alert-secondary',
+          role: 'status',
+          text: 'No job on this push produced a test summary artifact.',
         });
       }
 
@@ -3234,6 +3265,7 @@
       const filterHideTriagedInput =
         document.getElementById('filter-hide-triaged');
       const filterCountEl = document.getElementById('filter-count');
+      const sortButton = document.getElementById('sort-button');
       const anchorNotice = document.getElementById('anchor-notice');
       const triageBar = document.getElementById('triage-bar');
       const triageCountEl = document.getElementById('triage-count');
@@ -3245,8 +3277,31 @@
         'triage-storage-warning',
       );
 
-      // { serverUrl, project, revisionId, jobResults } | null
+      // { serverUrl, project, revisionId, jobResults } | null. jobResults grows
+      // as the run streams in, in completion order.
       let lastRun = null;
+
+      // Running tallies behind the stat banner, so it can tick up per job
+      // instead of being computed once over a finished list.
+      let runTotals = { tests: 0, failed: 0 };
+
+      // 'arrival' — the order the jobs finished loading in, so nothing ever
+      // moves while a run streams in. 'failures' — jobs with failures first
+      // (the ones worth scanning), then by job name. A view preference, so it
+      // survives loading another push.
+      let sortMode = 'arrival';
+
+      const compareJobResults = (a, b) => {
+        const failedDiff =
+          (b.suggestions.length > 0) - (a.suggestions.length > 0);
+        if (failedDiff !== 0) return failedDiff;
+        return jobLabel(a.job).localeCompare(jobLabel(b.job));
+      };
+
+      // The in-flight run's controller, or null when nothing is loading — what
+      // the Stop button acts on, and how the render paths tell "still loading"
+      // apart from "nothing to show".
+      let activeRunController = null;
 
       // The job named by the URL fragment. Survives re-renders so
       // renderJobSection can re-apply the outline.
@@ -3257,14 +3312,15 @@
       // <details> would snap back to its automatic state each time.
       const manualJobOpenState = new Map();
 
-      // The fragment present at page load. The browser already gave up on it —
-      // #report is empty until the fetch pipeline resolves, seconds later — so
-      // we re-apply it once the sections exist. Consumed after the first
-      // applyResult so loading another push doesn't re-trigger it.
+      // The fragment the page was opened with, or one pasted while a run is in
+      // flight. Consumed by the flush that brings its job in — which, for a
+      // deep link, is the very first one, since run() fetches that job first.
       let pendingAnchorId = decodeURIComponent(location.hash.slice(1)) || null;
 
-      function showAnchorNotice(anchorId) {
-        anchorNotice.textContent = `The linked job (${anchorId}) isn't in this push — it may belong to another push, or have no summary artifact.`;
+      function showAnchorNotice(anchorId, { loading = false } = {}) {
+        anchorNotice.textContent = loading
+          ? `Still loading the linked job (${anchorId}) — the page will jump to it as soon as it arrives.`
+          : `The linked job (${anchorId}) isn't in this push — it may belong to another push, or have no summary artifact.`;
         anchorNotice.hidden = false;
       }
 
@@ -3282,62 +3338,126 @@
       // note and has nothing to compare. Precomputed in run().
       const jobTabsIdentical = (r) => r.tabsIdentical;
 
-      function applyJobFilter() {
-        if (!lastRun) return;
+      function filterState() {
+        return {
+          includeTerms: parseFilterTerms(filterIncludeInput.value),
+          excludeTerms: parseFilterTerms(filterExcludeInput.value),
+          hideNoFailures: !filterShowNoFailInput.checked,
+          hideIdentical: !filterShowIdenticalInput.checked,
+          // Off by default: a fully triaged job still shows, just folded.
+          hideTriaged: filterHideTriagedInput.checked,
+        };
+      }
 
-        const includeTerms = parseFilterTerms(filterIncludeInput.value);
-        const excludeTerms = parseFilterTerms(filterExcludeInput.value);
-        const hideNoFailures = !filterShowNoFailInput.checked;
-        const hideIdentical = !filterShowIdenticalInput.checked;
+      // The single decision about whether one job belongs on screen. Jobs
+      // arriving mid-run are appended through this, so a streamed report shows
+      // exactly what a re-render of the same set would.
+      function jobResultVisible(result, state) {
+        if (
+          !jobMatchesFilter(result.job, state.includeTerms, state.excludeTerms)
+        ) {
+          return false;
+        }
+        if (state.hideNoFailures && jobHasNoFailures(result)) return false;
+        if (state.hideIdentical && jobTabsIdentical(result)) return false;
+        if (state.hideTriaged && jobFullyTriaged(result)) return false;
+        return true;
+      }
 
-        const nameFiltered = lastRun.jobResults.filter(({ job }) =>
-          jobMatchesFilter(job, includeTerms, excludeTerms),
+      // Same cascade as jobResultVisible, counting each hidden job under the
+      // first reason that hides it: a job with two empty tabs is also
+      // "identical", and belongs to the no-failure tally only. Jobs dropped by
+      // the name filter aren't tallied — the "showing X of Y" part covers them.
+      function computeFiltered(state) {
+        const filtered = [];
+        let noFailureHidden = 0;
+        let identicalHidden = 0;
+        let triagedHidden = 0;
+        for (const result of lastRun ? lastRun.jobResults : []) {
+          if (
+            !jobMatchesFilter(
+              result.job,
+              state.includeTerms,
+              state.excludeTerms,
+            )
+          ) {
+            continue;
+          }
+          if (state.hideNoFailures && jobHasNoFailures(result)) {
+            noFailureHidden++;
+          } else if (state.hideIdentical && jobTabsIdentical(result)) {
+            identicalHidden++;
+          } else if (state.hideTriaged && jobFullyTriaged(result)) {
+            triagedHidden++;
+          } else {
+            filtered.push(result);
+          }
+        }
+        // Sorted here rather than at either call site, so the incremental
+        // insert and a full re-render can't disagree about the order.
+        if (sortMode === 'failures') filtered.sort(compareJobResults);
+        return { filtered, noFailureHidden, identicalHidden, triagedHidden };
+      }
+
+      function updateStatBanner() {
+        document.getElementById('stat-jobs').textContent = fmt(
+          lastRun ? lastRun.jobResults.length : 0,
         );
-        const noFailureHidden = hideNoFailures
-          ? nameFiltered.filter(jobHasNoFailures).length
-          : 0;
-        const afterNoFailures = hideNoFailures
-          ? nameFiltered.filter((r) => !jobHasNoFailures(r))
-          : nameFiltered;
-        // Counted after the no-failure pass: a job with two empty tabs is also
-        // "identical", and belongs to the no-failure tally only.
-        const identicalHidden = hideIdentical
-          ? afterNoFailures.filter(jobTabsIdentical).length
-          : 0;
-        const afterIdentical = hideIdentical
-          ? afterNoFailures.filter((r) => !jobTabsIdentical(r))
-          : afterNoFailures;
-        // Off by default: a fully triaged job still shows, just folded.
-        const hideTriaged = filterHideTriagedInput.checked;
-        const triagedHidden = hideTriaged
-          ? afterIdentical.filter(jobFullyTriaged).length
-          : 0;
-        const filtered = hideTriaged
-          ? afterIdentical.filter((r) => !jobFullyTriaged(r))
-          : afterIdentical;
+        document.getElementById('stat-tests').textContent = fmt(
+          runTotals.tests,
+        );
+        document.getElementById('stat-failed').textContent = fmt(
+          runTotals.failed,
+        );
+      }
 
-        const total = lastRun.jobResults.length;
-        const shown = filtered.length;
+      // The counts line under the filter inputs, plus the triage tally. Takes
+      // the computeFiltered() result the caller already has.
+      function updateFilterStatus(state, counts) {
+        const total = lastRun ? lastRun.jobResults.length : 0;
         const parts = [];
-        if (includeTerms.length || excludeTerms.length) {
-          parts.push(`Showing ${fmt(shown)} of ${fmt(total)} jobs`);
+        if (state.includeTerms.length || state.excludeTerms.length) {
+          parts.push(
+            `Showing ${fmt(counts.filtered.length)} of ${fmt(total)} jobs`,
+          );
         }
-        if (noFailureHidden > 0) {
-          parts.push(`${fmt(noFailureHidden)} with no failures hidden`);
+        if (counts.noFailureHidden > 0) {
+          parts.push(`${fmt(counts.noFailureHidden)} with no failures hidden`);
         }
-        if (identicalHidden > 0) {
-          parts.push(`${fmt(identicalHidden)} with identical tabs hidden`);
+        if (counts.identicalHidden > 0) {
+          parts.push(
+            `${fmt(counts.identicalHidden)} with identical tabs hidden`,
+          );
         }
-        if (triagedHidden > 0) {
-          parts.push(`${fmt(triagedHidden)} fully triaged hidden`);
+        if (counts.triagedHidden > 0) {
+          parts.push(`${fmt(counts.triagedHidden)} fully triaged hidden`);
         }
         filterCountEl.textContent = parts.join(' — ');
         updateTriageBar();
+      }
+
+      // Full rebuild of #report — what a filter or triage change goes through.
+      // Jobs arriving during a run take the cheaper append path in
+      // flushJobResults() instead.
+      function applyJobFilter() {
+        if (!lastRun) return;
+
+        const state = filterState();
+        const counts = computeFiltered(state);
+        updateFilterStatus(state, counts);
 
         const reportEl = document.getElementById('report');
-        if (shown === 0) {
+        if (counts.filtered.length === 0) {
           reportEl.textContent = '';
-          reportEl.appendChild(renderEmptyFilterMessage());
+          // Mid-run an empty report usually just means "not loaded yet", which
+          // the progress line is already saying.
+          if (!activeRunController) {
+            reportEl.appendChild(
+              lastRun.jobResults.length
+                ? renderEmptyFilterMessage()
+                : renderEmptyReportMessage(),
+            );
+          }
           return;
         }
 
@@ -3345,7 +3465,7 @@
           lastRun.serverUrl,
           lastRun.project,
           lastRun.revisionId,
-          filtered,
+          counts.filtered,
         );
       }
 
@@ -3436,13 +3556,26 @@
       // that case the filters are relaxed (visibly — the checkboxes tick) so
       // the filter bar keeps telling the truth about what's on screen.
       function revealAnchor(anchorId, { instant = false } = {}) {
-        if (!anchorId || !lastRun) return;
+        if (!anchorId) return;
+        if (!lastRun) {
+          // Nothing has loaded yet — the fetch pipeline is still resolving the
+          // push. Let the first flush take care of it.
+          if (activeRunController) pendingAnchorId = anchorId;
+          return;
+        }
 
         const result = lastRun.jobResults.find(
           (r) => jobAnchorId(r.job) === anchorId,
         );
         if (!result) {
-          showAnchorNotice(anchorId);
+          // Mid-run the job may simply not have been fetched yet, in which case
+          // the flush that brings it in does the reveal.
+          if (activeRunController) {
+            pendingAnchorId = anchorId;
+            showAnchorNotice(anchorId, { loading: true });
+          } else {
+            showAnchorNotice(anchorId);
+          }
           return;
         }
         hideAnchorNotice();
@@ -3608,6 +3741,13 @@
       filterShowNoFailInput.addEventListener('change', applyJobFilter);
       filterShowIdenticalInput.addEventListener('change', applyJobFilter);
       filterHideTriagedInput.addEventListener('change', applyJobFilter);
+      sortButton.addEventListener('click', () => {
+        sortMode = sortMode === 'arrival' ? 'failures' : 'arrival';
+        syncSortButton();
+        // A re-sort moves sections that are already on the page, so it goes
+        // through the full render path even mid-run.
+        applyJobFilter();
+      });
       triageExportButton.addEventListener('click', exportTriage);
       triageImportButton.addEventListener('click', () =>
         triageImportInput.click(),
@@ -3627,6 +3767,16 @@
       window.addEventListener('hashchange', () =>
         revealAnchor(decodeURIComponent(location.hash.slice(1))),
       );
+
+      function syncSortButton() {
+        const sorted = sortMode === 'failures';
+        sortButton.textContent = sorted
+          ? 'Sort: failures first'
+          : 'Sort: load order';
+        sortButton.setAttribute('aria-pressed', String(sorted));
+        sortButton.classList.toggle('btn-secondary', sorted);
+        sortButton.classList.toggle('btn-outline-secondary', !sorted);
+      }
 
       function appendLogLine(text, kind) {
         const line = document.createElement('div');
@@ -3655,37 +3805,19 @@
         return opts;
       }
 
-      // Renders a run() result into the page and wires up the stat banner and
-      // filters.
-      function applyResult(result) {
-        lastRun = {
-          serverUrl: result.serverUrl,
-          project: result.project,
-          revisionId: result.revisionId,
-          jobResults: result.jobResults,
-        };
+      // Jobs land in bursts — up to JOB_CONCURRENCY requests settle together —
+      // so arrivals are queued and written to the DOM once per animation frame
+      // rather than causing a reflow each.
+      const pendingJobResults = [];
+      let flushHandle = null;
 
-        const { jobResults } = lastRun;
-        const totalTests = jobResults.reduce(
-          (sum, r) => sum + (r.summary.counts.total || 0),
-          0,
-        );
-        // Count failing tests (not error lines — a test can emit several),
-        // matching SummaryTab.jsx's failedCount.
-        const totalFailed = jobResults.reduce(
-          (sum, r) =>
-            sum +
-            Object.values(r.summary.realFailCounts || {}).reduce(
-              (a, b) => a + b,
-              0,
-            ),
-          0,
-        );
-        document.getElementById('stat-jobs').textContent = fmt(
-          jobResults.length,
-        );
-        document.getElementById('stat-tests').textContent = fmt(totalTests);
-        document.getElementById('stat-failed').textContent = fmt(totalFailed);
+      // Clears the page for a new run and reveals the banner, filters and
+      // triage bar: they go live before any job has loaded and keep working on
+      // the partial set while the rest streams in.
+      function beginRun({ serverUrl, project, revisionId }) {
+        lastRun = { serverUrl, project, revisionId, jobResults: [] };
+        runTotals = { tests: 0, failed: 0 };
+        pendingJobResults.length = 0;
 
         summaryBanner.hidden = false;
         jobFilterBar.hidden = false;
@@ -3699,28 +3831,144 @@
         // Anchors are per task, so nothing carries over to another push.
         manualJobOpenState.clear();
 
-        // Applies the default hides (and any filters) rather than rendering
-        // every job unconditionally.
-        applyJobFilter();
+        document.getElementById('report').textContent = '';
+        updateStatBanner();
+        updateTriageBar();
+      }
 
-        // The sections finally exist — honour the fragment the page was
-        // opened with.
-        if (pendingAnchorId) {
-          const anchorId = pendingAnchorId;
-          pendingAnchorId = null;
-          revealAnchor(anchorId, { instant: true });
+      function addJobResult(result) {
+        if (!lastRun) return;
+        pendingJobResults.push(result);
+        // The linked job is the one the reader is waiting for: land it now
+        // rather than a frame later, so it is on screen as early as possible.
+        if (pendingAnchorId === jobAnchorId(result.job)) {
+          flushJobResults();
+          return;
+        }
+        if (flushHandle === null) {
+          flushHandle = requestAnimationFrame(flushJobResults);
         }
       }
 
-      // The in-flight run's controller, or null when nothing is loading — what
-      // the Stop button acts on.
-      let activeRunController = null;
+      // Puts this frame's new sections into #report at the position `ordered`
+      // gives them. In arrival order they always belong at the end, which is a
+      // single fragment append; sorted, each one is placed before the first
+      // section after it that is already on the page. Walking `ordered`
+      // forwards is what makes two adjacent new sections land in the right
+      // order relative to each other.
+      function insertNewSections(reportEl, ordered, sections) {
+        if (!sections.size) return;
+        if (sortMode === 'arrival') {
+          const fragment = document.createDocumentFragment();
+          for (const result of ordered) {
+            const section = sections.get(result);
+            if (section) fragment.appendChild(section);
+          }
+          reportEl.appendChild(fragment);
+          return;
+        }
+        for (let i = 0; i < ordered.length; i++) {
+          const section = sections.get(ordered[i]);
+          if (!section) continue;
+          let next = null;
+          for (let j = i + 1; j < ordered.length && !next; j++) {
+            next = document.getElementById(jobAnchorId(ordered[j].job));
+          }
+          reportEl.insertBefore(section, next);
+        }
+      }
+
+      // Renders everything that has arrived since the last frame.
+      function flushJobResults() {
+        if (flushHandle !== null) {
+          cancelAnimationFrame(flushHandle);
+          flushHandle = null;
+        }
+        if (!lastRun || !pendingJobResults.length) return;
+
+        const arrived = pendingJobResults.splice(0, pendingJobResults.length);
+        const state = filterState();
+        const sections = new Map();
+        let revealId = null;
+
+        for (const result of arrived) {
+          lastRun.jobResults.push(result);
+          runTotals.tests += result.summary.counts.total || 0;
+          // Count failing tests (not error lines — a test can emit several),
+          // matching SummaryTab.jsx's failedCount.
+          runTotals.failed += Object.values(
+            result.summary.realFailCounts || {},
+          ).reduce((a, b) => a + b, 0);
+          if (pendingAnchorId === jobAnchorId(result.job)) {
+            revealId = pendingAnchorId;
+            pendingAnchorId = null;
+          }
+          if (!jobResultVisible(result, state)) continue;
+          sections.set(
+            result,
+            renderJobSection(
+              lastRun.serverUrl,
+              lastRun.project,
+              lastRun.revisionId,
+              result.job,
+              result.suggestions,
+              result.summary,
+              result.failureSuggestions,
+              result.profileArtifactUrl,
+              result.summaryArtifactUrl,
+            ),
+          );
+        }
+
+        const counts = computeFiltered(state);
+        const reportEl = document.getElementById('report');
+        // An "everything is hidden" alert isn't a job section — drop it before
+        // the first real one lands next to it.
+        const alertEl = reportEl.querySelector(':scope > .alert');
+        if (alertEl) alertEl.remove();
+        insertNewSections(reportEl, counts.filtered, sections);
+
+        updateStatBanner();
+        updateFilterStatus(state, counts);
+
+        // Relaxes the filters if the job is hidden by them, then scrolls.
+        if (revealId) revealAnchor(revealId, { instant: true });
+      }
+
+      function finishRun() {
+        flushJobResults();
+        if (!lastRun) return;
+
+        const state = filterState();
+        const counts = computeFiltered(state);
+        updateFilterStatus(state, counts);
+        if (counts.filtered.length === 0) {
+          const reportEl = document.getElementById('report');
+          reportEl.textContent = '';
+          reportEl.appendChild(
+            lastRun.jobResults.length
+              ? renderEmptyFilterMessage()
+              : renderEmptyReportMessage(),
+          );
+        }
+
+        // Still set means nothing on this push ever matched the fragment the
+        // page was opened with.
+        if (pendingAnchorId) {
+          const anchorId = pendingAnchorId;
+          pendingAnchorId = null;
+          showAnchorNotice(anchorId);
+        }
+      }
 
       async function doFetch(opts) {
         errorBanner.hidden = true;
         summaryBanner.hidden = true;
         jobFilterBar.hidden = true;
         hideAnchorNotice();
+        // A previous run's results are gone from the screen, so they must not
+        // keep driving the filter bar either.
+        lastRun = null;
         document.getElementById('report').textContent = '';
         logPanel.style.display = 'block';
         logPanel.textContent = '';
@@ -3732,29 +3980,28 @@
         progressEl.textContent = 'Starting…';
 
         try {
-          const { serverUrl, revisionId, jobResults, aborted } = await run(
-            opts,
+          const { aborted } = await run(
+            { ...opts, priorityAnchorId: pendingAnchorId },
             log,
-            (done, total) => {
-              progressEl.textContent = `Processing job ${done}/${total}…`;
+            {
+              onStart: beginRun,
+              onJobResult: addJobResult,
+              onProgress: (done, total) => {
+                progressEl.textContent = `Loaded ${fmt(done)} of ${fmt(total)} jobs…`;
+              },
             },
             activeRunController.signal,
           );
 
           if (aborted) {
+            const loaded = lastRun ? lastRun.jobResults.length : 0;
             log.info(
-              jobResults.length
-                ? `Stopped — showing the ${fmt(jobResults.length)} job(s) ` +
-                    'loaded so far. Load again for the rest.'
+              loaded
+                ? `Stopped — the ${fmt(loaded)} job(s) already loaded stay on ` +
+                    'screen. Load again for the rest.'
                 : 'Stopped before any job finished loading.',
             );
           }
-          applyResult({
-            serverUrl,
-            project: opts.project,
-            revisionId,
-            jobResults,
-          });
         } catch (e) {
           // Stopping during the setup phase leaves nothing to render, and it
           // isn't a failure — say so in the log rather than the error banner.
@@ -3765,10 +4012,12 @@
             errorBanner.hidden = false;
           }
         } finally {
+          // Cleared before finishRun() so the report knows the run is over.
           activeRunController = null;
           runButton.disabled = false;
           stopButton.hidden = true;
           progressEl.hidden = true;
+          finishRun();
         }
       }
 
