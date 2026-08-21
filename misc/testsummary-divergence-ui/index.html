@@ -205,7 +205,14 @@
         border-radius: var(--r);
         padding: 8px 18px;
         cursor: pointer;
+        white-space: nowrap;
         transition: opacity 0.12s ease;
+      }
+
+      /* "Scan" becomes "Scanning…" mid-run; without a floor the button — and
+         every button after it — shifts sideways as the label changes. */
+      #run-button {
+        min-width: 8.5rem;
       }
 
       button:hover:not(:disabled) {
@@ -224,10 +231,16 @@
         font-weight: 500;
       }
 
+      /* The buttons get a row of their own rather than a grid cell: Stop and
+         Copy list appear once a scan is running, and three buttons do not fit
+         a 170px-minimum track — they used to overflow the card. */
       .actions {
+        grid-column: 1 / -1;
         display: flex;
+        flex-wrap: wrap;
         gap: 8px;
         align-items: center;
+        justify-content: flex-end;
       }
 
       .warning {
