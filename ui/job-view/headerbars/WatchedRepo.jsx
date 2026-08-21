@@ -174,7 +174,7 @@ function WatchedRepo({ repoName, unwatchRepo, repo, setCurrentRepoTreeStatus }) 
           )}
           <Dropdown.Item
             tag="a"
-            href={`${treeStatusUiUrl()}${treeStatusName(watchedRepo)}`}
+            href={`${treeStatusUiUrl()}${treeStatusName(watchedRepo)}/logs`}
             target="_blank"
             rel="noopener noreferrer"
           >
