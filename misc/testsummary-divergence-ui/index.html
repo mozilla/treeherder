@@ -390,6 +390,54 @@
         font-size: 0.76rem;
       }
 
+      /* --- view controls ---------------------------------------------- */
+
+      /* Grouping and sorting rearrange results already on screen, so they sit
+         with the results rather than in the scan form, which would suggest a
+         re-scan is needed. */
+      .viewbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px 20px;
+        padding: 10px 16px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: var(--r);
+      }
+
+      .viewbar .control {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .viewbar label {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 0.66rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+        font-weight: 500;
+      }
+
+      .viewbar select {
+        font: inherit;
+        font-size: 0.84rem;
+        color: var(--ink);
+        background: var(--bg);
+        border: 1px solid var(--line);
+        border-radius: var(--r);
+        padding: 5px 8px;
+      }
+
+      .viewbar .count {
+        margin-left: auto;
+        font-size: 0.78rem;
+        color: var(--ink-3);
+        font-variant-numeric: tabular-nums;
+      }
+
       /* --- results ---------------------------------------------------- */
 
       #results {
@@ -448,6 +496,14 @@
         font-size: 0.76rem;
         color: var(--ink-3);
         flex-wrap: wrap;
+      }
+
+      /* A job group gathers the same job across pushes, so its header names
+         the job rather than a revision. */
+      .job-head .rev {
+        font-family: 'IBM Plex Sans', -apple-system, sans-serif;
+        font-size: 0.92rem;
+        font-weight: 600;
       }
 
       .push-meta .hit {
@@ -576,6 +632,15 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+      }
+
+      .plat .sep {
+        opacity: 0.5;
+        padding: 0 0.35em;
+      }
+
+      .plat .rev-tag {
+        font-family: 'IBM Plex Mono', monospace;
       }
 
       .plat {
@@ -898,6 +963,27 @@
         >
       </div>
 
+      <div class="viewbar" id="viewbar" hidden>
+        <div class="control">
+          <label for="group-by">Group by</label>
+          <select id="group-by">
+            <option value="push" selected>Push</option>
+            <option value="job">Job</option>
+            <option value="none">No grouping</option>
+          </select>
+        </div>
+        <div class="control">
+          <label for="sort-by">Sort by</label>
+          <select id="sort-by">
+            <option value="differences" selected>Most differences</option>
+            <option value="fewest">Fewest differences</option>
+            <option value="recent">Push order</option>
+            <option value="job">Job name</option>
+          </select>
+        </div>
+        <span class="count" id="view-count"></span>
+      </div>
+
       <div id="results"></div>
 
       <section class="sec" id="coverage-section" hidden>
@@ -998,6 +1084,8 @@
         pushes: 20,
         threshold: 10,
         scope: 'failed',
+        group: 'push',
+        sort: 'differences',
       };
 
       const $ = (id) => document.getElementById(id);
@@ -1039,6 +1127,10 @@
       const statsPanel = $('stats');
       const legend = $('legend');
       const resultsEl = $('results');
+      const viewbar = $('viewbar');
+      const groupSelect = $('group-by');
+      const sortSelect = $('sort-by');
+      const viewCount = $('view-count');
       const coverageSection = $('coverage-section');
       const coverageBody = $('coverage-body');
       const coverageNote = $('coverage-note');
@@ -1063,6 +1155,10 @@
           params.set('threshold', thresholdInput.value);
         if (scopeSelect.value !== DEFAULTS.scope)
           params.set('scope', scopeSelect.value);
+        if (groupSelect.value !== DEFAULTS.group)
+          params.set('group', groupSelect.value);
+        if (sortSelect.value !== DEFAULTS.sort)
+          params.set('sort', sortSelect.value);
         const qs = params.toString();
         history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
       }
@@ -1092,6 +1188,11 @@
         }
         const scope = params.get('scope');
         if (scope === 'all' || scope === 'failed') scopeSelect.value = scope;
+        const group = params.get('group');
+        if (group && ['push', 'job', 'none'].includes(group))
+          groupSelect.value = group;
+        const sort = params.get('sort');
+        if (sort && sort in ROW_SORTS) sortSelect.value = sort;
         localWarning.hidden = hostSelect.value !== 'localhost';
       }
 
@@ -1252,7 +1353,10 @@
         return `${PREVIEW_URL}?project=${encodeURIComponent(project)}&revision=${encodeURIComponent(revision)}#${jobAnchorId(job)}`;
       }
 
-      function renderRow(project, revision, result) {
+      // `context` says what the surrounding group already establishes, so the
+      // row can spend its two lines on what actually varies within it.
+      function renderRow(project, push, result, { context = 'push' } = {}) {
+        const revision = push.revision;
         const { job, onlyInSummary, onlyInFailureSummary } = result;
         const total = onlyInSummary + onlyInFailureSummary;
 
@@ -1298,10 +1402,37 @@
               el('b', { class: 'total', text: fmt(total) }),
               split,
             ]),
-            el('div', { class: 'who' }, [
-              el('span', { class: 'job', text: shortJobName(job) }),
-              el('span', { class: 'plat', text: platformOf(job) }),
-            ]),
+            el(
+              'div',
+              { class: 'who' },
+              context === 'job'
+                ? [
+                    // The header already names the job; the push is what
+                    // differs from row to row.
+                    el('span', {
+                      class: 'job rev-tag',
+                      text: revision.slice(0, 12),
+                    }),
+                    el('span', { class: 'plat', text: pushDate(push) }),
+                  ]
+                : [
+                    el('span', { class: 'job', text: shortJobName(job) }),
+                    el(
+                      'span',
+                      { class: 'plat' },
+                      context === 'flat'
+                        ? [
+                            el('span', { text: platformOf(job) }),
+                            el('span', { class: 'sep', text: '·' }),
+                            el('span', {
+                              class: 'rev-tag',
+                              text: revision.slice(0, 12),
+                            }),
+                          ]
+                        : [el('span', { text: platformOf(job) })],
+                    ),
+                  ],
+            ),
             el('div', { class: 'ids' }, [
               el('span', { class: 'jid', text: String(job.id) }),
               el('span', { class: 'tid', text: job.task_id }),
@@ -1491,45 +1622,232 @@
 
       // Re-sorts a push's rows worst-first and refreshes everything that counts
       // them. Runs at the end of each push in both phases.
-      function finishPushSection(entry, opts) {
-        const { state, render } = entry;
-        Array.from(render.list.children)
-          .filter((node) => node.dataset.total !== undefined)
-          .sort((a, b) => Number(b.dataset.total) - Number(a.dataset.total))
-          .forEach((row) => render.list.appendChild(row));
+      // ---------------------------------------------------------------------
+      // Result rendering.
+      //
+      // #results is rebuilt from runState rather than appended to, so grouping
+      // and sorting are a re-render away and a hit found in the second scan
+      // phase slots into the same order as one found in the first.
+      // ---------------------------------------------------------------------
 
-        const empty = render.list.querySelector('.empty');
-        if (empty) empty.remove();
-        if (!state.hits.length) {
-          render.list.appendChild(
-            el('li', {
-              class: 'empty',
-              text:
-                state.scanned === 0
-                  ? 'Nothing on this push could be compared.'
-                  : `No job differs by more than ${fmt(opts.threshold)}.`,
-            }),
+      const totalOf = (result) =>
+        result.onlyInSummary + result.onlyInFailureSummary;
+      // Identity of "the same job on another push". The name usually already
+      // carries the platform, so the key keeps both to stay unambiguous while
+      // the label avoids printing the platform twice.
+      const jobKey = (job) =>
+        `${job.platform}|${job.platform_option}|${job.job_type_name}`;
+      const jobGroupLabel = (job) => {
+        const name = shortJobName(job);
+        return job.platform && name.includes(job.platform)
+          ? name
+          : `${platformOf(job)} ${name}`.trim();
+      };
+
+      const ROW_SORTS = {
+        differences: (a, b) =>
+          totalOf(b.result) - totalOf(a.result) ||
+          jobGroupLabel(a.result.job).localeCompare(jobGroupLabel(b.result.job)),
+        fewest: (a, b) =>
+          totalOf(a.result) - totalOf(b.result) ||
+          jobGroupLabel(a.result.job).localeCompare(jobGroupLabel(b.result.job)),
+        recent: (a, b) =>
+          b.push.push_timestamp - a.push.push_timestamp ||
+          totalOf(b.result) - totalOf(a.result),
+        job: (a, b) =>
+          jobGroupLabel(a.result.job).localeCompare(
+            jobGroupLabel(b.result.job),
+          ) || totalOf(b.result) - totalOf(a.result),
+      };
+
+      const rowSort = () => ROW_SORTS[sortSelect.value] || ROW_SORTS.differences;
+
+      function renderJobGroupSection(items, project) {
+        const worst = Math.max(...items.map((i) => totalOf(i.result)));
+        const meta = el('div', { class: 'push-meta' });
+        [
+          `${plural(items.length, 'push')}`,
+          `worst ${fmt(worst)}`,
+        ].forEach((text, index) => {
+          if (index) meta.appendChild(el('span', { class: 'dot' }));
+          meta.appendChild(
+            el('span', { class: index ? 'hit' : '', text }),
           );
-        }
-        updatePushMeta(render.meta, state, true);
+        });
 
-        const fresh = coverageRow(state, opts.project);
+        const section = el('section', { class: 'push' }, [
+          el('header', { class: 'push-head job-head' }, [
+            el('div', { class: 'push-id' }, [
+              el('span', {
+                class: 'rev',
+                text: jobGroupLabel(items[0].result.job),
+              }),
+            ]),
+            meta,
+          ]),
+        ]);
+        const list = el('ol', { class: 'rows' });
+        items.forEach((item) =>
+          list.appendChild(
+            renderRow(project, item.push, item.result, { context: 'job' }),
+          ),
+        );
+        section.appendChild(list);
+        return section;
+      }
+
+      function renderResults() {
+        if (!runState) return;
+        const { opts, collected, pushes } = runState;
+        const project = opts.project;
+        const sorted = collected.slice().sort(rowSort());
+
+        resultsEl.textContent = '';
+        viewbar.hidden = !pushes.length;
+        viewCount.textContent = collected.length
+          ? `${plural(collected.length, 'job')} over the threshold`
+          : '';
+
+        if (groupSelect.value === 'none') {
+          const list = el('ol', { class: 'rows' });
+          sorted.forEach((item) =>
+            list.appendChild(
+              renderRow(project, item.push, item.result, { context: 'flat' }),
+            ),
+          );
+          const section = el('section', { class: 'push' }, [list]);
+          if (!sorted.length) {
+            list.appendChild(
+              el('li', { class: 'empty', text: 'Nothing over the threshold yet.' }),
+            );
+          }
+          resultsEl.appendChild(section);
+          return;
+        }
+
+        if (groupSelect.value === 'job') {
+          const groups = new Map();
+          sorted.forEach((item) => {
+            const key = jobKey(item.result.job);
+            if (!groups.has(key)) groups.set(key, []);
+            groups.get(key).push(item);
+          });
+          // Groups follow the same order their first row would take, so the
+          // sort control governs the page as a whole.
+          const ordered = [...groups.entries()].sort(
+            (a, b) => rowSort()(a[1][0], b[1][0]),
+          );
+          if (!ordered.length) {
+            resultsEl.appendChild(
+              el('section', { class: 'push' }, [
+                el('ol', { class: 'rows' }, [
+                  el('li', {
+                    class: 'empty',
+                    text: 'Nothing over the threshold yet.',
+                  }),
+                ]),
+              ]),
+            );
+            return;
+          }
+          ordered.forEach(([, items]) =>
+            resultsEl.appendChild(renderJobGroupSection(items, project)),
+          );
+          return;
+        }
+
+        // Grouped by push. Every push scanned gets a section, including the
+        // clean ones — an absent push would read as "not scanned".
+        const byPush = new Map();
+        sorted.forEach((item) => {
+          const list = byPush.get(item.push.id) || [];
+          list.push(item);
+          byPush.set(item.push.id, list);
+        });
+
+        const entries = pushes.slice();
+        if (sortSelect.value !== 'recent') {
+          // Pushes with hits lead, ordered by their first row; the rest keep
+          // scan order at the bottom.
+          entries.sort((a, b) => {
+            const ra = (byPush.get(a.state.push.id) || [])[0];
+            const rb = (byPush.get(b.state.push.id) || [])[0];
+            if (ra && rb) return rowSort()(ra, rb);
+            if (ra) return -1;
+            if (rb) return 1;
+            return 0;
+          });
+        }
+
+        entries.forEach((entry) => {
+          const { state } = entry;
+          const render = createPushSection(state, project);
+          updatePushMeta(render.meta, state, entry.finished);
+          const items = byPush.get(state.push.id) || [];
+          items.forEach((item) =>
+            render.list.appendChild(
+              renderRow(project, item.push, item.result, { context: 'push' }),
+            ),
+          );
+          if (!items.length) {
+            render.list.appendChild(
+              el('li', {
+                class: 'empty',
+                text: !entry.finished
+                  ? 'Comparing…'
+                  : state.scanned === 0
+                    ? 'Nothing on this push could be compared.'
+                    : `No job differs by more than ${fmt(opts.threshold)}.`,
+              }),
+            );
+          }
+          resultsEl.appendChild(render.section);
+        });
+      }
+
+      // Hits arrive in bursts of up to JOB_CONCURRENCY, and each one rebuilds
+      // the list, so renders are coalesced.
+      //
+      // A timer rather than requestAnimationFrame: a scan of twenty pushes runs
+      // for minutes and the tab will be in the background for most of them,
+      // where rAF callbacks never fire and the report would stay empty until
+      // the tab was looked at again.
+      let renderHandle = null;
+      function scheduleRender() {
+        if (renderHandle !== null) return;
+        renderHandle = setTimeout(() => {
+          renderHandle = null;
+          renderResults();
+        }, 80);
+      }
+
+      // Paints immediately, cancelling any coalesced render still pending.
+      function renderNow() {
+        if (renderHandle !== null) {
+          clearTimeout(renderHandle);
+          renderHandle = null;
+        }
+        renderResults();
+      }
+
+      // Refreshes the coverage row for one push once its scan phase is done.
+      function finishPushSection(entry, opts) {
+        const fresh = coverageRow(entry.state, opts.project);
         if (entry.covRow) entry.covRow.replaceWith(fresh);
         else coverageBody.appendChild(fresh);
         entry.covRow = fresh;
+        scheduleRender();
       }
 
       // Handlers for one push's rows. Shared by both phases so a hit found
-      // among the passing jobs renders exactly like one found among the failed.
+      // among the passing jobs is recorded exactly like one found among the
+      // failed.
       function pushHandlers(entry, opts) {
         return {
           onHit(state, result) {
             runState.collected.push({ push: state.push, result });
-            entry.render.list.appendChild(
-              renderRow(opts.project, state.push.revision, result),
-            );
-            updatePushMeta(entry.render.meta, state, false);
             updateStats();
+            scheduleRender();
             copyButton.hidden = false;
           },
           onProgress() {
@@ -1565,6 +1883,7 @@
         coverageBody.textContent = '';
         copyButton.hidden = true;
         deferredBar.hidden = true;
+        viewbar.hidden = true;
 
         runState = { opts, ctx: null, collected: [], pushes: [], totalPushes: 0 };
         let entry = null;
@@ -1581,16 +1900,10 @@
                 setStatus(`Scanning ${plural(count, 'push')}…`, 0);
               },
               onPushStart(state) {
-                entry = {
-                  state,
-                  render: createPushSection(state, opts.project),
-                  covRow: null,
-                  finished: false,
-                };
+                entry = { state, covRow: null, finished: false };
                 runState.pushes.push(entry);
-                updatePushMeta(entry.render.meta, state, false);
-                resultsEl.appendChild(entry.render.section);
                 updateStats();
+                scheduleRender();
               },
               onHit(state, result) {
                 pushHandlers(entry, opts).onHit(state, result);
@@ -1669,7 +1982,7 @@
             const handlers = pushHandlers(entry, opts);
 
             state.comparingPassing = true;
-            updatePushMeta(entry.render.meta, state, false);
+            scheduleRender();
             try {
               await compareJobs(
                 ctx,
@@ -1732,9 +2045,17 @@
         controller = null;
         setRunning(false);
         showDeferredBar();
+        renderNow();
       }
 
       scanPassingButton.addEventListener('click', scanPassingJobs);
+
+      [groupSelect, sortSelect].forEach((control) =>
+        control.addEventListener('change', () => {
+          renderResults();
+          syncUrlFromForm();
+        }),
+      );
 
       stopButton.addEventListener('click', () => {
         if (controller) controller.abort();
@@ -1746,13 +2067,9 @@
         const lines = [
           '| Diff | Only in Summary | Only in Failure Summary | Revision | Job ID | Job | Link |',
           '| --- | --- | --- | --- | --- | --- | --- |',
+          // Same order as the page, so a copied list matches what was read.
           ...[...collected]
-            .sort(
-              (a, b) =>
-                b.result.onlyInSummary +
-                b.result.onlyInFailureSummary -
-                (a.result.onlyInSummary + a.result.onlyInFailureSummary),
-            )
+            .sort(rowSort())
             .map(({ push, result }) => {
               const total =
                 result.onlyInSummary + result.onlyInFailureSummary;
