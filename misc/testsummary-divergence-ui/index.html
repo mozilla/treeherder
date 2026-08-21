@@ -298,6 +298,19 @@
         font-size: 0.85rem;
       }
 
+      .banner.deferred {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px 16px;
+        border-left-color: var(--sum);
+      }
+
+      .banner.deferred span {
+        flex: 1 1 20rem;
+      }
+
       /* --- stats ------------------------------------------------------ */
 
       .stats {
@@ -808,6 +821,14 @@
           />
         </div>
 
+        <div class="field">
+          <label for="scope">Jobs to scan</label>
+          <select id="scope" name="scope">
+            <option value="failed" selected>Failed jobs first</option>
+            <option value="all">Every job</option>
+          </select>
+        </div>
+
         <div class="actions">
           <button type="submit" id="run-button">Scan</button>
           <button type="button" id="stop-button" class="ghost" hidden>
@@ -848,6 +869,19 @@
         <div class="stat">
           <b id="stat-affected">0</b><span>pushes containing them</span>
         </div>
+      </div>
+
+      <!-- Shown after a "failed jobs first" scan: the passing jobs it did not
+       look at, and the button that goes and looks at them. -->
+      <div
+        class="banner deferred"
+        id="deferred-bar"
+        hidden
+      >
+        <span id="deferred-text"></span>
+        <button type="button" id="scan-passing-button">
+          Scan the passing jobs too
+        </button>
       </div>
 
       <div class="legend" id="legend" hidden>
@@ -902,9 +936,19 @@
           <p>
             Jobs whose task produced no summary artifact have nothing to compare
             and are skipped, as are jobs that have not run yet &mdash; on a push
-            still in flight those are the overwhelming majority. Jobs marked
-            <code>success</code> are <em>not</em> skipped: several of them
-            differ, so filtering on job result would hide real divergence.
+            still in flight those are the overwhelming majority.
+          </p>
+          <p>
+            <strong>Failed jobs first</strong> compares only the jobs Treeherder
+            already reports as <code>testfailed</code>, <code>busted</code> or
+            <code>exception</code>. On a sample of 20 mozilla-central pushes
+            that was 558 of 15,853 comparable jobs &mdash; a scan roughly 25
+            times shorter. It is a head start, not the whole picture: 5 of the
+            56 worst divergences in that sample sat on jobs marked
+            <code>success</code>, including one green job whose Summary tab
+            listed 144 failures its Failure Summary tab did not list at all.
+            That is why the passing jobs stay one button away rather than being
+            filtered out.
           </p>
         </div>
       </section>
@@ -941,11 +985,19 @@
       // outlier arrives — nothing has to be redrawn mid-scan.
       const BAR_REFERENCE = 4096;
 
+      // Results that mean Treeherder itself considers the job failed. Scanning
+      // these first cuts the request count by around 96% — on a sample of 20
+      // mozilla-central pushes, 558 of 15,853 comparable jobs. It does not
+      // cover everything: 5 of the 56 worst divergences in that sample sat on
+      // jobs marked `success`, which is why the rest stay one click away.
+      const FAILED_RESULTS = new Set(['testfailed', 'busted', 'exception']);
+
       const DEFAULTS = {
         host: 'production',
         project: 'mozilla-central',
         pushes: 20,
         threshold: 10,
+        scope: 'failed',
       };
 
       const $ = (id) => document.getElementById(id);
@@ -975,6 +1027,7 @@
       const projectSelect = $('project');
       const pushesInput = $('pushes');
       const thresholdInput = $('threshold');
+      const scopeSelect = $('scope');
       const runButton = $('run-button');
       const stopButton = $('stop-button');
       const copyButton = $('copy-button');
@@ -989,6 +1042,9 @@
       const coverageSection = $('coverage-section');
       const coverageBody = $('coverage-body');
       const coverageNote = $('coverage-note');
+      const deferredBar = $('deferred-bar');
+      const deferredText = $('deferred-text');
+      const scanPassingButton = $('scan-passing-button');
 
       // ---------------------------------------------------------------------
       // URL params — same `instance`/`project` names the sibling pages use, so
@@ -1005,6 +1061,8 @@
           params.set('pushes', pushesInput.value);
         if (Number(thresholdInput.value) !== DEFAULTS.threshold)
           params.set('threshold', thresholdInput.value);
+        if (scopeSelect.value !== DEFAULTS.scope)
+          params.set('scope', scopeSelect.value);
         const qs = params.toString();
         history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
       }
@@ -1032,6 +1090,8 @@
           if (Number.isFinite(threshold) && threshold >= 0)
             thresholdInput.value = threshold;
         }
+        const scope = params.get('scope');
+        if (scope === 'all' || scope === 'failed') scopeSelect.value = scope;
         localWarning.hidden = hostSelect.value !== 'localhost';
       }
 
@@ -1076,6 +1136,42 @@
         return { job, onlyInSummary, onlyInFailureSummary };
       }
 
+      // Compares `jobs` for one push, folding each result into `pushState` and
+      // reporting the ones over the threshold. Shared by both scan phases, so a
+      // job found in the second counts exactly as one found in the first.
+      async function compareJobs(ctx, jobs, pushState, opts, handlers, signal) {
+        let done = 0;
+        await mapWithConcurrency(
+          jobs,
+          JOB_CONCURRENCY,
+          async (job) => {
+            try {
+              const result = await compareJob(ctx, job, signal);
+              if (result) {
+                pushState.scanned++;
+                const total =
+                  result.onlyInSummary + result.onlyInFailureSummary;
+                if (total > 0) pushState.differing++;
+                if (total > opts.threshold) {
+                  pushState.hits.push(result);
+                  handlers.onHit(pushState, result);
+                }
+              }
+            } catch (e) {
+              if (isAbort(e)) throw e;
+              // A single job failing to load is not worth aborting a scan
+              // that may cover tens of thousands of them.
+            } finally {
+              // Lets a stopped second phase work out what it never got to, so
+              // resuming cannot compare — and render — the same job twice.
+              handlers.onSettled?.(job);
+              handlers.onProgress(pushState, ++done, jobs.length);
+            }
+          },
+          signal,
+        );
+      }
+
       async function scan(opts, handlers, signal) {
         const serverUrl = HOSTS[opts.host];
         const tcRootUrl = await getTcRootUrl(serverUrl, opts.project, signal);
@@ -1092,7 +1188,7 @@
         // per-push section can then be finished and sorted before the next one
         // starts, instead of every push growing at once.
         for (const push of pushes) {
-          if (signal.aborted) return;
+          if (signal.aborted) return { ctx, deferred: [] };
           const allJobs = await getJobs(serverUrl, opts.project, push.id, signal);
           const nonRetry = allJobs.filter((job) => job.result !== 'retry');
           // A job that has not run has no artifacts to list. On a push still in
@@ -1100,46 +1196,34 @@
           // per job without changing any reported number.
           const jobs = nonRetry.filter((job) => job.state === 'completed');
 
+          // Jobs Treeherder already calls failed are ~3% of a push and hold
+          // most of the divergence, so they go first. The passing ones are not
+          // dropped — a green job whose Summary tab lists failures its Failure
+          // Summary tab does not is the most interesting case there is — they
+          // just wait for the caller to ask.
+          const failed = opts.failedFirst
+            ? jobs.filter((job) => FAILED_RESULTS.has(job.result))
+            : jobs;
+          const passing = opts.failedFirst
+            ? jobs.filter((job) => !FAILED_RESULTS.has(job.result))
+            : [];
+
           const pushState = {
             push,
             jobs: nonRetry.length,
             unrun: nonRetry.length - jobs.length,
+            comparable: jobs.length,
             scanned: 0,
             differing: 0,
             hits: [],
+            deferredJobs: passing,
           };
           handlers.onPushStart(pushState);
-
-          let done = 0;
-          await mapWithConcurrency(
-            jobs,
-            JOB_CONCURRENCY,
-            async (job) => {
-              try {
-                const result = await compareJob(ctx, job, signal);
-                if (result) {
-                  pushState.scanned++;
-                  const total =
-                    result.onlyInSummary + result.onlyInFailureSummary;
-                  if (total > 0) pushState.differing++;
-                  if (total > opts.threshold) {
-                    pushState.hits.push(result);
-                    handlers.onHit(pushState, result);
-                  }
-                }
-              } catch (e) {
-                if (isAbort(e)) throw e;
-                // A single job failing to load is not worth aborting a scan
-                // that may cover tens of thousands of them.
-              } finally {
-                handlers.onProgress(pushState, ++done, jobs.length);
-              }
-            },
-            signal,
-          );
-
+          await compareJobs(ctx, failed, pushState, opts, handlers, signal);
           handlers.onPushEnd(pushState);
         }
+
+        return { ctx, deferred: [] };
       }
 
       // ---------------------------------------------------------------------
@@ -1276,6 +1360,21 @@
           meta.appendChild(el('span', { text }));
         });
 
+        // Says how much of the push this section is actually reporting on —
+        // "clean" would otherwise read as "nothing wrong here" when most of the
+        // push was never compared.
+        if (state.comparingPassing) {
+          meta.appendChild(el('span', { class: 'dot' }));
+          meta.appendChild(el('span', { text: 'comparing passing jobs…' }));
+        } else if (state.deferredJobs.length) {
+          meta.appendChild(el('span', { class: 'dot' }));
+          meta.appendChild(
+            el('span', {
+              text: `${fmt(state.deferredJobs.length)} passing not compared`,
+            }),
+          );
+        }
+
         if (state.hits.length) {
           meta.appendChild(el('span', { class: 'dot' }));
           meta.appendChild(
@@ -1286,7 +1385,12 @@
           );
         } else if (finished && state.scanned) {
           meta.appendChild(el('span', { class: 'dot' }));
-          meta.appendChild(el('span', { class: 'clean', text: 'clean' }));
+          meta.appendChild(
+            el('span', {
+              class: 'clean',
+              text: state.deferredJobs.length ? 'none so far' : 'clean',
+            }),
+          );
         }
       }
 
@@ -1300,7 +1404,9 @@
               ? 'all jobs unscheduled'
               : state.scanned === 0
                 ? 'none produced one'
-                : `${fmt(state.scanned)} scanned`;
+                : state.deferredJobs.length
+                  ? `${fmt(state.scanned)} of ${fmt(state.comparable)} compared`
+                  : `${fmt(state.scanned)} scanned`;
         const row = el('tr', { class: over ? 'has' : state.scanned ? 'clean' : 'skip' });
         row.append(
           el('td', { class: 'c-rev', text: push.revision.slice(0, 12) }),
@@ -1323,7 +1429,7 @@
         runButton.disabled = running;
         runButton.textContent = running ? 'Scanning…' : 'Scan';
         stopButton.hidden = !running;
-        [hostSelect, projectSelect, pushesInput, thresholdInput].forEach(
+        [hostSelect, projectSelect, pushesInput, thresholdInput, scopeSelect].forEach(
           (control) => {
             control.disabled = running;
           },
@@ -1335,6 +1441,110 @@
         errorBanner.hidden = false;
       }
 
+      // Everything the current report is made of, shared by both scan phases:
+      // the second one appends into the same sections and re-derives the same
+      // totals rather than keeping a parallel set of counters.
+      //
+      // `pushes` holds one entry per push started, as
+      // { state, render, covRow, finished }.
+      let runState = null;
+
+      function updateStats() {
+        if (!runState) return;
+        const { opts, pushes } = runState;
+        const sum = (pick) => pushes.reduce((n, e) => n + pick(e.state), 0);
+        $('stat-pushes').textContent = fmt(pushes.filter((e) => e.finished).length);
+        $('stat-scanned').textContent = fmt(sum((st) => st.scanned));
+        $('stat-any').textContent = fmt(sum((st) => st.differing));
+        $('stat-over').textContent = fmt(sum((st) => st.hits.length));
+        $('stat-affected').textContent = fmt(
+          pushes.filter((e) => e.state.hits.length).length,
+        );
+        $('stat-over-label').textContent = `jobs differing by more than ${fmt(opts.threshold)}`;
+      }
+
+      function setStatus(text, fraction) {
+        statusLine.textContent = '';
+        statusLine.appendChild(el('span', { text }));
+        progressBar.style.width = `${Math.round(fraction * 100)}%`;
+      }
+
+      const deferredCount = () =>
+        runState
+          ? runState.pushes.reduce((n, e) => n + e.state.deferredJobs.length, 0)
+          : 0;
+
+      function showDeferredBar() {
+        const count = deferredCount();
+        if (!count) {
+          deferredBar.hidden = true;
+          return;
+        }
+        deferredText.textContent =
+          `${plural(count, 'job')} that Treeherder reports as passing were not compared. ` +
+          'A green job whose Summary tab lists failures its Failure Summary tab does not is the ' +
+          'most interesting kind of divergence, so it is worth checking.';
+        scanPassingButton.disabled = false;
+        scanPassingButton.textContent = `Scan the ${fmt(count)} passing jobs`;
+        deferredBar.hidden = false;
+      }
+
+      // Re-sorts a push's rows worst-first and refreshes everything that counts
+      // them. Runs at the end of each push in both phases.
+      function finishPushSection(entry, opts) {
+        const { state, render } = entry;
+        Array.from(render.list.children)
+          .filter((node) => node.dataset.total !== undefined)
+          .sort((a, b) => Number(b.dataset.total) - Number(a.dataset.total))
+          .forEach((row) => render.list.appendChild(row));
+
+        const empty = render.list.querySelector('.empty');
+        if (empty) empty.remove();
+        if (!state.hits.length) {
+          render.list.appendChild(
+            el('li', {
+              class: 'empty',
+              text:
+                state.scanned === 0
+                  ? 'Nothing on this push could be compared.'
+                  : `No job differs by more than ${fmt(opts.threshold)}.`,
+            }),
+          );
+        }
+        updatePushMeta(render.meta, state, true);
+
+        const fresh = coverageRow(state, opts.project);
+        if (entry.covRow) entry.covRow.replaceWith(fresh);
+        else coverageBody.appendChild(fresh);
+        entry.covRow = fresh;
+      }
+
+      // Handlers for one push's rows. Shared by both phases so a hit found
+      // among the passing jobs renders exactly like one found among the failed.
+      function pushHandlers(entry, opts) {
+        return {
+          onHit(state, result) {
+            runState.collected.push({ push: state.push, result });
+            entry.render.list.appendChild(
+              renderRow(opts.project, state.push.revision, result),
+            );
+            updatePushMeta(entry.render.meta, state, false);
+            updateStats();
+            copyButton.hidden = false;
+          },
+          onProgress() {
+            updateStats();
+          },
+        };
+      }
+
+      function beginScanUi() {
+        errorBanner.hidden = true;
+        [statusSection, statsPanel, legend, coverageSection].forEach((node) => {
+          node.hidden = false;
+        });
+      }
+
       form.addEventListener('submit', async (event) => {
         event.preventDefault();
         if (controller) return;
@@ -1344,143 +1554,187 @@
           project: projectSelect.value,
           pushes: Math.max(1, Math.min(50, Number(pushesInput.value) || DEFAULTS.pushes)),
           threshold: Math.max(0, Number(thresholdInput.value) || 0),
+          failedFirst: scopeSelect.value !== 'all',
         };
 
         controller = new AbortController();
         const { signal } = controller;
         setRunning(true);
-        errorBanner.hidden = true;
+        beginScanUi();
         resultsEl.textContent = '';
         coverageBody.textContent = '';
-        [statusSection, statsPanel, legend, coverageSection].forEach((node) => {
-          node.hidden = false;
-        });
         copyButton.hidden = true;
+        deferredBar.hidden = true;
 
-        const totals = {
-          pushes: 0,
-          pushesSeen: 0,
-          scanned: 0,
-          differing: 0,
-          over: 0,
-          affected: 0,
-        };
-        const collected = [];
-        let current = null;
-        // Totals hold finished pushes only; the push still running is added on
-        // top when the panel is drawn, so the figures climb during a scan
-        // instead of sitting at zero until the first push ends.
-        let currentState = null;
-
-        const updateStats = () => {
-          $('stat-pushes').textContent = fmt(totals.pushesSeen);
-          $('stat-scanned').textContent = fmt(
-            totals.scanned + (currentState ? currentState.scanned : 0),
-          );
-          $('stat-any').textContent = fmt(
-            totals.differing + (currentState ? currentState.differing : 0),
-          );
-          $('stat-over').textContent = fmt(totals.over);
-          $('stat-affected').textContent = fmt(totals.affected);
-          $('stat-over-label').textContent = `jobs differing by more than ${fmt(opts.threshold)}`;
-        };
-
-        const setStatus = (text, fraction) => {
-          statusLine.textContent = '';
-          statusLine.appendChild(el('span', { text }));
-          progressBar.style.width = `${Math.round(fraction * 100)}%`;
-        };
+        runState = { opts, ctx: null, collected: [], pushes: [], totalPushes: 0 };
+        let entry = null;
 
         updateStats();
         setStatus('Resolving pushes…', 0);
 
         try {
-          await scan(
+          const { ctx } = await scan(
             opts,
             {
               onStart(count) {
-                totals.pushes = count;
+                runState.totalPushes = count;
                 setStatus(`Scanning ${plural(count, 'push')}…`, 0);
               },
               onPushStart(state) {
-                currentState = state;
-                current = createPushSection(state, opts.project);
-                updatePushMeta(current.meta, state, false);
-                resultsEl.appendChild(current.section);
+                entry = {
+                  state,
+                  render: createPushSection(state, opts.project),
+                  covRow: null,
+                  finished: false,
+                };
+                runState.pushes.push(entry);
+                updatePushMeta(entry.render.meta, state, false);
+                resultsEl.appendChild(entry.render.section);
+                updateStats();
               },
               onHit(state, result) {
-                totals.over++;
-                if (state.hits.length === 1) totals.affected++;
-                collected.push({ push: state.push, result });
-                current.list.appendChild(
-                  renderRow(opts.project, state.push.revision, result),
-                );
-                updatePushMeta(current.meta, state, false);
-                updateStats();
-                copyButton.hidden = false;
+                pushHandlers(entry, opts).onHit(state, result);
               },
               onProgress(state, done, total) {
+                const seen = runState.pushes.filter((e) => e.finished).length;
                 const pushFraction = total ? done / total : 1;
                 setStatus(
-                  `Push ${totals.pushesSeen + 1} of ${totals.pushes} — ${state.push.revision.slice(0, 12)} — ${fmt(done)} of ${fmt(total)} jobs`,
-                  (totals.pushesSeen + pushFraction) / (totals.pushes || 1),
+                  `Push ${seen + 1} of ${runState.totalPushes} — ${state.push.revision.slice(0, 12)} — ${fmt(done)} of ${fmt(total)} jobs`,
+                  (seen + pushFraction) / (runState.totalPushes || 1),
                 );
                 updateStats();
               },
               onPushEnd(state) {
-                totals.pushesSeen++;
-                totals.scanned += state.scanned;
-                totals.differing += state.differing;
-                currentState = null;
-
-                // Jobs finish in completion order; the reader wants the worst
-                // divergence first.
-                const rows = Array.from(current.list.children).sort(
-                  (a, b) => Number(b.dataset.total) - Number(a.dataset.total),
-                );
-                rows.forEach((row) => current.list.appendChild(row));
-
-                if (!state.hits.length) {
-                  current.list.appendChild(
-                    el('li', {
-                      class: 'empty',
-                      text:
-                        state.scanned === 0
-                          ? 'Nothing on this push could be compared.'
-                          : `No job differs by more than ${fmt(opts.threshold)}.`,
-                    }),
-                  );
-                }
-                updatePushMeta(current.meta, state, true);
-                coverageBody.appendChild(coverageRow(state, opts.project));
+                entry.finished = true;
+                finishPushSection(entry, opts);
                 updateStats();
               },
             },
             signal,
           );
+          runState.ctx = ctx;
 
+          const seen = runState.pushes.filter((e) => e.finished).length;
+          const scanned = runState.pushes.reduce(
+            (n, e) => n + e.state.scanned,
+            0,
+          );
           setStatus(
             signal.aborted
-              ? `Stopped after ${plural(totals.pushesSeen, 'push')}.`
-              : `Done — ${plural(totals.scanned, 'job')} compared across ${plural(totals.pushesSeen, 'push')}.`,
+              ? `Stopped after ${plural(seen, 'push')}.`
+              : `Done — ${plural(scanned, 'job')} compared across ${plural(seen, 'push')}.`,
             1,
           );
         } catch (e) {
           if (isAbort(e)) {
-            setStatus(`Stopped after ${plural(totals.pushesSeen, 'push')}.`, 1);
+            setStatus(
+              `Stopped after ${plural(runState.pushes.filter((p) => p.finished).length, 'push')}.`,
+              1,
+            );
           } else {
             showError(`Scan failed: ${e.message}`);
             setStatus('Failed.', 1);
           }
         } finally {
-          coverageNote.textContent = totals.pushesSeen
-            ? `${plural(totals.pushesSeen, 'push')} fetched, ${plural(totals.scanned, 'job')} comparable.`
-            : '';
-          lastRun = { opts, collected };
-          controller = null;
-          setRunning(false);
+          finishScanUi(opts);
         }
       });
+
+      // Second phase: the jobs Treeherder calls passing, which the first phase
+      // set aside. Results land in the sections already on screen.
+      async function scanPassingJobs() {
+        if (!runState || controller || !deferredCount()) return;
+
+        const { opts, ctx } = runState;
+        const entries = runState.pushes.filter(
+          (e) => e.state.deferredJobs.length,
+        );
+        const grandTotal = deferredCount();
+
+        controller = new AbortController();
+        const { signal } = controller;
+        setRunning(true);
+        beginScanUi();
+        scanPassingButton.disabled = true;
+        deferredText.textContent = `Comparing ${plural(grandTotal, 'passing job')}…`;
+
+        let doneOverall = 0;
+        try {
+          for (const entry of entries) {
+            if (signal.aborted) break;
+            const { state } = entry;
+            const jobs = state.deferredJobs;
+            const attempted = new Set();
+            const base = doneOverall;
+            const handlers = pushHandlers(entry, opts);
+
+            state.comparingPassing = true;
+            updatePushMeta(entry.render.meta, state, false);
+            try {
+              await compareJobs(
+                ctx,
+                jobs,
+                state,
+                opts,
+                {
+                  onHit: handlers.onHit,
+                  onSettled: (job) => attempted.add(jobAnchorId(job)),
+                  onProgress: (_st, done) => {
+                    doneOverall = base + done;
+                    setStatus(
+                      `Passing jobs — ${state.push.revision.slice(0, 12)} — ${fmt(doneOverall)} of ${fmt(grandTotal)}`,
+                      doneOverall / grandTotal,
+                    );
+                    updateStats();
+                  },
+                },
+                signal,
+              );
+            } catch (e) {
+              // Stopping aborts the requests in flight, which surfaces here as
+              // a throw. The bookkeeping below still has to run, or this push
+              // stays marked as comparing and re-offers jobs it already
+              // compared — rendering their rows a second time on resume.
+              if (!isAbort(e)) throw e;
+            } finally {
+              state.comparingPassing = false;
+              // Only what was never attempted stays pending, so resuming after
+              // a stop cannot compare the same job twice.
+              state.deferredJobs = jobs.filter(
+                (job) => !attempted.has(jobAnchorId(job)),
+              );
+              finishPushSection(entry, opts);
+              updateStats();
+            }
+          }
+
+          setStatus(
+            signal.aborted
+              ? `Stopped — ${plural(deferredCount(), 'passing job')} still not compared.`
+              : `Done — every job on ${plural(runState.pushes.length, 'push')} compared.`,
+            1,
+          );
+        } catch (e) {
+          if (!isAbort(e)) showError(`Scan failed: ${e.message}`);
+        } finally {
+          finishScanUi(opts);
+        }
+      }
+
+      // Shared tail of both phases.
+      function finishScanUi(opts) {
+        const finished = runState.pushes.filter((e) => e.finished).length;
+        const scanned = runState.pushes.reduce((n, e) => n + e.state.scanned, 0);
+        coverageNote.textContent = finished
+          ? `${plural(finished, 'push')} fetched, ${plural(scanned, 'job')} compared.`
+          : '';
+        lastRun = { opts, collected: runState.collected };
+        controller = null;
+        setRunning(false);
+        showDeferredBar();
+      }
+
+      scanPassingButton.addEventListener('click', scanPassingJobs);
 
       stopButton.addEventListener('click', () => {
         if (controller) controller.abort();
@@ -1520,7 +1774,7 @@
         }
       });
 
-      [hostSelect, projectSelect, pushesInput, thresholdInput].forEach(
+      [hostSelect, projectSelect, pushesInput, thresholdInput, scopeSelect].forEach(
         (control) => {
           control.addEventListener('change', () => {
             localWarning.hidden = hostSelect.value !== 'localhost';
