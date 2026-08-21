@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import countBy from 'lodash/countBy';
 import { Button } from 'react-bootstrap';
@@ -115,11 +115,37 @@ const GraphTooltip = ({
     });
   }
 
+  // Only a clicked graph point displays the tooltip jobs hyperlink
+  const [fetchedJob, setFetchedJob] = useState(null);
+  const jobSearchStr =
+    fetchedJob?.jobId === dataPointDetails.jobId ? fetchedJob.searchStr : '';
+
+  useEffect(() => {
+    if (!lockTooltip || !dataPointDetails.jobId) return;
+
+    const controller = new AbortController();
+    JobModel.get(
+      testDetails.repository_name,
+      dataPointDetails.jobId,
+      controller.signal,
+    )
+      .then((job) =>
+        setFetchedJob({
+          jobId: dataPointDetails.jobId,
+          searchStr: job.searchStr || '',
+        }),
+      )
+      .catch(() => {});
+
+    return () => controller.abort();
+  }, [lockTooltip, dataPointDetails.jobId, testDetails.repository_name]);
+
   const jobsUrl = getJobsUrl({
     repo: testDetails.repository_name,
     revision: dataPointDetails.revision,
     selectedJob: dataPointDetails.jobId,
     group_state: 'expanded',
+    ...(jobSearchStr ? { searchStr: jobSearchStr.split(' ') } : {}),
   });
 
   const createAlert = async () => {
