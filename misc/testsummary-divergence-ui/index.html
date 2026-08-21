@@ -1,0 +1,1522 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TestSummary Divergence — Treeherder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+    />
+    <style>
+      /* Light is the complete palette; the two blocks below only redefine
+         tokens, so every component rule can stay theme-agnostic. */
+      :root {
+        --bg: #f4f7f7;
+        --panel: #ffffff;
+        --line: #dce5e5;
+        --line-soft: #e9efef;
+        --ink: #131a1b;
+        --ink-2: #4a5a5c;
+        --ink-3: #7a8b8d;
+        --sum: #0b6e7a;
+        --fail: #a55708;
+        --hot: #8e2c1e;
+        --ok: #1d6b4f;
+        --focus: #0b6e7a;
+        --r: 3px;
+        --maxw: 1140px;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme='light']) {
+          --bg: #0c1113;
+          --panel: #121a1c;
+          --line: #222e31;
+          --line-soft: #1a2426;
+          --ink: #e2ebeb;
+          --ink-2: #94a8aa;
+          --ink-3: #64787a;
+          --sum: #45b6c4;
+          --fail: #dfa04a;
+          --hot: #e0705c;
+          --ok: #5fc394;
+          --focus: #45b6c4;
+        }
+      }
+
+      :root[data-theme='dark'] {
+        --bg: #0c1113;
+        --panel: #121a1c;
+        --line: #222e31;
+        --line-soft: #1a2426;
+        --ink: #e2ebeb;
+        --ink-2: #94a8aa;
+        --ink-3: #64787a;
+        --sum: #45b6c4;
+        --fail: #dfa04a;
+        --hot: #e0705c;
+        --ok: #5fc394;
+        --focus: #45b6c4;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont,
+          'Segoe UI', sans-serif;
+        font-size: 15px;
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      main {
+        max-width: var(--maxw);
+        margin: 0 auto;
+        padding: 48px 24px 96px;
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+      }
+
+      h1,
+      h2 {
+        font-family: Archivo, 'IBM Plex Sans', sans-serif;
+        margin: 0;
+        text-wrap: balance;
+        letter-spacing: -0.015em;
+      }
+
+      h1 {
+        font-size: clamp(1.9rem, 1.5rem + 1.6vw, 2.6rem);
+        font-weight: 700;
+        line-height: 1.1;
+      }
+
+      h2 {
+        font-size: 1.12rem;
+        font-weight: 600;
+      }
+
+      a {
+        color: var(--sum);
+      }
+
+      code {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 0.85em;
+        background: var(--line-soft);
+        padding: 0.1em 0.35em;
+        border-radius: 2px;
+        color: var(--ink);
+      }
+
+      :focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: 2px;
+      }
+
+      .eyebrow {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 0.7rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+        font-weight: 500;
+        margin: 0;
+      }
+
+      .eyebrow a {
+        color: inherit;
+      }
+
+      .lede {
+        color: var(--ink-2);
+        max-width: 66ch;
+        margin: 0;
+      }
+
+      header.top {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      /* --- form ------------------------------------------------------- */
+
+      form.controls {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+        align-items: end;
+        gap: 16px;
+        padding: 18px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: var(--r);
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        min-width: 0;
+      }
+
+      .field label {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 0.66rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+        font-weight: 500;
+      }
+
+      .field select,
+      .field input {
+        font: inherit;
+        font-size: 0.88rem;
+        color: var(--ink);
+        background: var(--bg);
+        border: 1px solid var(--line);
+        border-radius: var(--r);
+        padding: 7px 9px;
+        width: 100%;
+      }
+
+      .field input[type='number'] {
+        font-family: 'IBM Plex Mono', monospace;
+        font-variant-numeric: tabular-nums;
+      }
+
+      button {
+        font-family: Archivo, 'IBM Plex Sans', sans-serif;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--bg);
+        background: var(--ink);
+        border: 1px solid var(--ink);
+        border-radius: var(--r);
+        padding: 8px 18px;
+        cursor: pointer;
+        transition: opacity 0.12s ease;
+      }
+
+      button:hover:not(:disabled) {
+        opacity: 0.85;
+      }
+
+      button:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      button.ghost {
+        color: var(--ink-2);
+        background: transparent;
+        border-color: var(--line);
+        font-weight: 500;
+      }
+
+      .actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .warning {
+        grid-column: 1 / -1;
+        margin: 0;
+        font-size: 0.78rem;
+        color: var(--fail);
+      }
+
+      /* --- status ----------------------------------------------------- */
+
+      .status {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .track {
+        height: 4px;
+        background: var(--line);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+
+      .track span {
+        display: block;
+        height: 100%;
+        width: 0;
+        background: var(--sum);
+        transition: width 0.2s ease;
+      }
+
+      .status-line {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 14px;
+        align-items: baseline;
+        font-size: 0.82rem;
+        color: var(--ink-2);
+      }
+
+      .status-line .count {
+        font-family: 'IBM Plex Mono', monospace;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .banner {
+        margin: 0;
+        padding: 11px 14px;
+        border: 1px solid var(--line);
+        border-left: 3px solid var(--hot);
+        border-radius: var(--r);
+        background: var(--panel);
+        color: var(--ink-2);
+        font-size: 0.85rem;
+      }
+
+      /* --- stats ------------------------------------------------------ */
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1px;
+        background: var(--line);
+        border: 1px solid var(--line);
+        border-radius: var(--r);
+        overflow: hidden;
+      }
+
+      .stat {
+        background: var(--panel);
+        padding: 16px 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .stat b {
+        font-family: 'IBM Plex Mono', monospace;
+        font-variant-numeric: tabular-nums;
+        font-size: 1.55rem;
+        font-weight: 600;
+        line-height: 1.1;
+      }
+
+      .stat span {
+        font-size: 0.78rem;
+        color: var(--ink-3);
+        line-height: 1.35;
+      }
+
+      .stat.key b {
+        color: var(--hot);
+      }
+
+      /* --- legend ----------------------------------------------------- */
+
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px 20px;
+        padding: 12px 16px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: var(--r);
+        font-size: 0.8rem;
+        color: var(--ink-2);
+      }
+
+      .key {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+      }
+
+      .chip {
+        width: 22px;
+        height: 9px;
+        border-radius: 1px;
+        display: inline-block;
+      }
+
+      .chip.s {
+        background: var(--sum);
+      }
+
+      .chip.f {
+        background: var(--fail);
+      }
+
+      .legend .note {
+        color: var(--ink-3);
+        font-size: 0.76rem;
+      }
+
+      /* --- results ---------------------------------------------------- */
+
+      #results {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .push {
+        border: 1px solid var(--line);
+        border-radius: var(--r);
+        background: var(--panel);
+        overflow: hidden;
+      }
+
+      .push-head {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 6px 18px;
+        padding: 13px 16px;
+        border-bottom: 1px solid var(--line);
+        background: linear-gradient(0deg, var(--line-soft), transparent);
+      }
+
+      .push-id {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+      }
+
+      .rev {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 0.94rem;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .rev:hover {
+        text-decoration: underline;
+      }
+
+      .pid {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 0.72rem;
+        color: var(--ink-3);
+      }
+
+      .push-meta {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-size: 0.76rem;
+        color: var(--ink-3);
+        flex-wrap: wrap;
+      }
+
+      .push-meta .hit {
+        color: var(--hot);
+        font-weight: 600;
+      }
+
+      .push-meta .clean {
+        color: var(--ok);
+        font-weight: 600;
+      }
+
+      .dot {
+        width: 3px;
+        height: 3px;
+        border-radius: 50%;
+        background: currentColor;
+        opacity: 0.5;
+      }
+
+      ol.rows {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .row + .row {
+        border-top: 1px solid var(--line-soft);
+      }
+
+      a.open {
+        display: grid;
+        grid-template-columns: 150px 92px minmax(0, 1fr) auto 20px;
+        align-items: center;
+        gap: 16px;
+        padding: 11px 16px;
+        text-decoration: none;
+        color: var(--ink);
+        transition: background 0.12s ease;
+      }
+
+      a.open:hover {
+        background: var(--line-soft);
+      }
+
+      a.open:focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: -2px;
+      }
+
+      .bar {
+        display: grid;
+        grid-template-columns: 1fr 1px 1fr;
+        align-items: center;
+        height: 16px;
+      }
+
+      .side {
+        height: 11px;
+        display: flex;
+      }
+
+      .side.left {
+        justify-content: flex-end;
+      }
+
+      .axis {
+        height: 16px;
+        background: var(--line);
+      }
+
+      .fill {
+        display: block;
+        height: 100%;
+        border-radius: 1px;
+      }
+
+      .fill.s {
+        background: var(--sum);
+      }
+
+      .fill.f {
+        background: var(--fail);
+      }
+
+      .nums {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        font-family: 'IBM Plex Mono', monospace;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .total {
+        font-size: 1.02rem;
+        font-weight: 600;
+      }
+
+      .split {
+        font-size: 0.72rem;
+        color: var(--ink-3);
+      }
+
+      .split i {
+        font-style: normal;
+        font-weight: 500;
+      }
+
+      .split i.s {
+        color: var(--sum);
+      }
+
+      .split i.f {
+        color: var(--fail);
+      }
+
+      .who {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+
+      .job {
+        font-size: 0.86rem;
+        font-weight: 500;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .plat {
+        font-size: 0.72rem;
+        color: var(--ink-3);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .ids {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        font-family: 'IBM Plex Mono', monospace;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+
+      .jid {
+        font-size: 0.8rem;
+        color: var(--ink-2);
+      }
+
+      .tid {
+        font-size: 0.68rem;
+        color: var(--ink-3);
+      }
+
+      .go {
+        color: var(--ink-3);
+        font-size: 0.85rem;
+        text-align: right;
+      }
+
+      a.open:hover .go {
+        color: var(--sum);
+      }
+
+      .empty {
+        padding: 14px 16px;
+        font-size: 0.84rem;
+        color: var(--ink-3);
+      }
+
+      /* --- coverage --------------------------------------------------- */
+
+      .cov-wrap {
+        border: 1px solid var(--line);
+        border-radius: var(--r);
+        background: var(--panel);
+        overflow-x: auto;
+      }
+
+      table.cov {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.8rem;
+      }
+
+      table.cov th {
+        text-align: left;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 0.66rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+        font-weight: 500;
+        padding: 11px 14px;
+        border-bottom: 1px solid var(--line);
+        white-space: nowrap;
+      }
+
+      table.cov td {
+        padding: 8px 14px;
+        border-bottom: 1px solid var(--line-soft);
+        white-space: nowrap;
+      }
+
+      table.cov tr:last-child td {
+        border-bottom: 0;
+      }
+
+      .c-rev {
+        font-family: 'IBM Plex Mono', monospace;
+        font-weight: 500;
+      }
+
+      .c-date,
+      .c-state {
+        color: var(--ink-2);
+      }
+
+      .c-num {
+        font-family: 'IBM Plex Mono', monospace;
+        font-variant-numeric: tabular-nums;
+        text-align: right;
+        color: var(--ink-2);
+      }
+
+      th.c-num {
+        text-align: right;
+      }
+
+      tr.skip td {
+        color: var(--ink-3);
+      }
+
+      tr.has .c-hit {
+        color: var(--hot);
+        font-weight: 600;
+      }
+
+      /* --- sections --------------------------------------------------- */
+
+      .sec {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .sec-head {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+
+      .method p {
+        margin: 0 0 8px;
+        color: var(--ink-2);
+        max-width: 72ch;
+        font-size: 0.88rem;
+      }
+
+      .method p:last-child {
+        margin-bottom: 0;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+
+      @media (max-width: 820px) {
+        a.open {
+          grid-template-columns: 1fr auto;
+          grid-template-areas: 'who nums' 'bar bar' 'ids ids';
+          gap: 6px 14px;
+        }
+
+        .bar {
+          grid-area: bar;
+        }
+
+        .nums {
+          grid-area: nums;
+          justify-self: end;
+        }
+
+        .who {
+          grid-area: who;
+        }
+
+        .ids {
+          grid-area: ids;
+          flex-direction: row;
+          gap: 10px;
+          align-items: baseline;
+          justify-content: flex-start;
+        }
+
+        .go {
+          display: none;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="top">
+        <p class="eyebrow">
+          <a href="../testsummary-summarytab-preview/">← Summary Tab Preview</a>
+          · <a href="../testsummary-inventory/">TestSummary Inventory</a> ·
+          <a href="../testsummary-audit/">Field Audit</a>
+        </p>
+        <h1>Where the Summary and Failure&nbsp;Summary tabs disagree</h1>
+        <p class="lede">
+          Scans the most recent pushes on a repository and lists every job whose
+          two tabs disagree by more than a threshold. The comparison is the same
+          one the
+          <a href="../testsummary-summarytab-preview/">Summary Tab Preview</a>
+          prints in its &ldquo;⚠ Tabs differ&rdquo; note &mdash; both pages
+          import it from <code>misc/shared/testsummary.js</code>, so the counts
+          here and there can never drift apart.
+        </p>
+      </header>
+
+      <form class="controls" id="scan-form">
+        <div class="field">
+          <label for="host">Treeherder instance</label>
+          <select id="host" name="host">
+            <option value="production" selected>production</option>
+            <option value="stage">stage</option>
+            <option value="localhost">localhost</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="project">Project</label>
+          <select id="project" name="project" required>
+            <option value="mozilla-central" selected>mozilla-central</option>
+            <option value="autoland">autoland</option>
+            <option value="try">try</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="pushes">Pushes to scan</label>
+          <input
+            type="number"
+            id="pushes"
+            name="pushes"
+            min="1"
+            max="50"
+            value="20"
+          />
+        </div>
+
+        <div class="field">
+          <label for="threshold">Report differences over</label>
+          <input
+            type="number"
+            id="threshold"
+            name="threshold"
+            min="0"
+            max="10000"
+            value="10"
+          />
+        </div>
+
+        <div class="actions">
+          <button type="submit" id="run-button">Scan</button>
+          <button type="button" id="stop-button" class="ghost" hidden>
+            Stop
+          </button>
+          <button type="button" id="copy-button" class="ghost" hidden>
+            Copy list
+          </button>
+        </div>
+
+        <p class="warning" id="local-warning" hidden>
+          This page is served over HTTPS, so the browser will block requests to
+          <code>http://localhost:8000</code> as mixed content unless the page is
+          itself opened from <code>localhost</code>.
+        </p>
+      </form>
+
+      <p class="banner" id="error-banner" role="alert" hidden></p>
+
+      <section class="status" id="status" hidden>
+        <div class="track"><span id="progress-bar"></span></div>
+        <div class="status-line" id="status-line" aria-live="polite"></div>
+      </section>
+
+      <div class="stats" id="stats" hidden>
+        <div class="stat">
+          <b id="stat-pushes">0</b><span>pushes examined</span>
+        </div>
+        <div class="stat">
+          <b id="stat-scanned">0</b><span>jobs with a summary artifact</span>
+        </div>
+        <div class="stat">
+          <b id="stat-any">0</b><span>jobs differing at all</span>
+        </div>
+        <div class="stat key">
+          <b id="stat-over">0</b><span id="stat-over-label">jobs over the threshold</span>
+        </div>
+        <div class="stat">
+          <b id="stat-affected">0</b><span>pushes containing them</span>
+        </div>
+      </div>
+
+      <div class="legend" id="legend" hidden>
+        <span class="key"
+          ><span class="chip s"></span>only in Summary Tab</span
+        >
+        <span class="key"
+          ><span class="chip f"></span>only in Failure Summary Tab</span
+        >
+        <span class="note"
+          >Bars are log-scaled &mdash; a single job can reach four figures on one
+          side and would flatten a linear axis. Read the figures, not the
+          widths.</span
+        >
+      </div>
+
+      <div id="results"></div>
+
+      <section class="sec" id="coverage-section" hidden>
+        <div class="sec-head">
+          <h2>Coverage</h2>
+          <p class="lede" id="coverage-note"></p>
+        </div>
+        <div class="cov-wrap">
+          <table class="cov">
+            <thead>
+              <tr>
+                <th>Revision</th>
+                <th>Pushed</th>
+                <th class="c-num">Jobs</th>
+                <th>Summary artifacts</th>
+                <th class="c-num">Over</th>
+              </tr>
+            </thead>
+            <tbody id="coverage-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="sec">
+        <div class="sec-head"><h2>How this is measured</h2></div>
+        <div class="method">
+          <p>
+            For every non-retry job on each push, the task&rsquo;s
+            <code>summary.jsonl</code> artifact is turned into the Summary
+            tab&rsquo;s failure lines and Treeherder&rsquo;s
+            <code>bug_suggestions</code> endpoint into the Failure Summary
+            tab&rsquo;s, then the two sets of normalized <code>search</code>
+            strings are compared. A job is reported when the number of lines
+            present in only one of the two tabs exceeds the threshold.
+          </p>
+          <p>
+            Jobs whose task produced no summary artifact have nothing to compare
+            and are skipped, as are jobs that have not run yet &mdash; on a push
+            still in flight those are the overwhelming majority. Jobs marked
+            <code>success</code> are <em>not</em> skipped: several of them
+            differ, so filtering on job result would hide real divergence.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <script type="module">
+      // The comparison pipeline is shared with the Summary Tab Preview page, so
+      // the two always report the same numbers for the same job.
+      import {
+        HOSTS,
+        SUMMARY_ARTIFACT_PATH,
+        SUMMARY_ARTIFACT_SUFFIX,
+        JOB_CONCURRENCY,
+        isAbort,
+        fetchJson,
+        fetchText,
+        getTcRootUrl,
+        getJobs,
+        listArtifacts,
+        getBugSuggestions,
+        mapWithConcurrency,
+        buildTestSummary,
+        buildFailureSuggestions,
+        matchBugSuggestions,
+        decorateBugs,
+        filterGenericFailures,
+        diffSearches,
+        jobAnchorId,
+      } from '../shared/testsummary.js';
+
+      const PREVIEW_URL = '../testsummary-summarytab-preview/';
+      // Bars are scaled against a fixed reference rather than the largest value
+      // seen, so a row's width means the same thing before and after a bigger
+      // outlier arrives — nothing has to be redrawn mid-scan.
+      const BAR_REFERENCE = 4096;
+
+      const DEFAULTS = {
+        host: 'production',
+        project: 'mozilla-central',
+        pushes: 20,
+        threshold: 10,
+      };
+
+      const $ = (id) => document.getElementById(id);
+      const fmt = (n) => Number(n).toLocaleString('en-US');
+      // "push" pluralises to "pushes", so a bare trailing "s" will not do.
+      const plural = (n, word) =>
+        `${fmt(n)} ${
+          n === 1 ? word : /(s|sh|ch|x|z)$/.test(word) ? `${word}es` : `${word}s`
+        }`;
+
+      function el(tag, attrs = {}, children = []) {
+        const node = document.createElement(tag);
+        Object.entries(attrs).forEach(([key, value]) => {
+          if (value === null || value === undefined) return;
+          if (key === 'text') node.textContent = value;
+          else if (key === 'html') node.innerHTML = value;
+          else node.setAttribute(key, value);
+        });
+        (Array.isArray(children) ? children : [children])
+          .filter(Boolean)
+          .forEach((child) => node.appendChild(child));
+        return node;
+      }
+
+      const form = $('scan-form');
+      const hostSelect = $('host');
+      const projectSelect = $('project');
+      const pushesInput = $('pushes');
+      const thresholdInput = $('threshold');
+      const runButton = $('run-button');
+      const stopButton = $('stop-button');
+      const copyButton = $('copy-button');
+      const localWarning = $('local-warning');
+      const errorBanner = $('error-banner');
+      const statusSection = $('status');
+      const statusLine = $('status-line');
+      const progressBar = $('progress-bar');
+      const statsPanel = $('stats');
+      const legend = $('legend');
+      const resultsEl = $('results');
+      const coverageSection = $('coverage-section');
+      const coverageBody = $('coverage-body');
+      const coverageNote = $('coverage-note');
+
+      // ---------------------------------------------------------------------
+      // URL params — same `instance`/`project` names the sibling pages use, so
+      // a link can be pasted between them.
+      // ---------------------------------------------------------------------
+
+      function syncUrlFromForm() {
+        const params = new URLSearchParams();
+        if (hostSelect.value !== DEFAULTS.host)
+          params.set('instance', hostSelect.value);
+        if (projectSelect.value !== DEFAULTS.project)
+          params.set('project', projectSelect.value);
+        if (Number(pushesInput.value) !== DEFAULTS.pushes)
+          params.set('pushes', pushesInput.value);
+        if (Number(thresholdInput.value) !== DEFAULTS.threshold)
+          params.set('threshold', thresholdInput.value);
+        const qs = params.toString();
+        history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
+      }
+
+      function applyUrlParams() {
+        const params = new URLSearchParams(location.search);
+        const instance = params.get('instance');
+        if (instance && instance in HOSTS) hostSelect.value = instance;
+        const project = params.get('project');
+        if (project) {
+          if (!Array.from(projectSelect.options).some((o) => o.value === project))
+            projectSelect.appendChild(el('option', { value: project, text: project }));
+          projectSelect.value = project;
+        }
+        // Read through Number() only once the param is actually there:
+        // Number(null) is 0, which would silently reset the threshold to zero
+        // on every URL that omits it.
+        if (params.has('pushes')) {
+          const pushes = Number(params.get('pushes'));
+          if (Number.isFinite(pushes) && pushes > 0)
+            pushesInput.value = Math.min(50, pushes);
+        }
+        if (params.has('threshold')) {
+          const threshold = Number(params.get('threshold'));
+          if (Number.isFinite(threshold) && threshold >= 0)
+            thresholdInput.value = threshold;
+        }
+        localWarning.hidden = hostSelect.value !== 'localhost';
+      }
+
+      // ---------------------------------------------------------------------
+      // Scan
+      // ---------------------------------------------------------------------
+
+      // One job's two tabs, compared. Returns null when there is nothing to
+      // compare: no task, or no summary artifact at all.
+      async function compareJob(ctx, job, signal) {
+        const taskId = job.task_id;
+        const run = job.retry_id ?? 0;
+        if (!taskId) return null;
+        const artifacts = await listArtifacts(ctx.tcRootUrl, taskId, run, signal);
+        const summaryName = artifacts.some((a) => a.name === SUMMARY_ARTIFACT_PATH)
+          ? SUMMARY_ARTIFACT_PATH
+          : artifacts.find((a) => a.name.endsWith(SUMMARY_ARTIFACT_SUFFIX))?.name;
+        if (!summaryName) return null;
+
+        const [text, bugSuggestions] = await Promise.all([
+          fetchText(
+            `${ctx.tcRootUrl}/api/queue/v1/task/${taskId}/runs/${run}/artifacts/${summaryName}`,
+            signal,
+          ),
+          getBugSuggestions(ctx.serverUrl, ctx.project, job.id, signal),
+        ]);
+
+        const suggestions = matchBugSuggestions(
+          buildFailureSuggestions(buildTestSummary(text)),
+          bugSuggestions,
+        );
+        const failureSuggestions = filterGenericFailures(
+          bugSuggestions.map((s) => {
+            decorateBugs(s);
+            return s;
+          }),
+        );
+        const { onlyInSummary, onlyInFailureSummary } = diffSearches(
+          suggestions,
+          failureSuggestions,
+        );
+        return { job, onlyInSummary, onlyInFailureSummary };
+      }
+
+      async function scan(opts, handlers, signal) {
+        const serverUrl = HOSTS[opts.host];
+        const tcRootUrl = await getTcRootUrl(serverUrl, opts.project, signal);
+        const ctx = { serverUrl, tcRootUrl, project: opts.project };
+
+        const pushData = await fetchJson(
+          `${serverUrl}/api/project/${encodeURIComponent(opts.project)}/push/?count=${opts.pushes}`,
+          signal,
+        );
+        const pushes = pushData.results || [];
+        handlers.onStart(pushes.length);
+
+        // Pushes run one at a time and jobs concurrently within a push: the
+        // per-push section can then be finished and sorted before the next one
+        // starts, instead of every push growing at once.
+        for (const push of pushes) {
+          if (signal.aborted) return;
+          const allJobs = await getJobs(serverUrl, opts.project, push.id, signal);
+          const nonRetry = allJobs.filter((job) => job.result !== 'retry');
+          // A job that has not run has no artifacts to list. On a push still in
+          // flight this is most of them, and skipping them here saves a request
+          // per job without changing any reported number.
+          const jobs = nonRetry.filter((job) => job.state === 'completed');
+
+          const pushState = {
+            push,
+            jobs: nonRetry.length,
+            unrun: nonRetry.length - jobs.length,
+            scanned: 0,
+            differing: 0,
+            hits: [],
+          };
+          handlers.onPushStart(pushState);
+
+          let done = 0;
+          await mapWithConcurrency(
+            jobs,
+            JOB_CONCURRENCY,
+            async (job) => {
+              try {
+                const result = await compareJob(ctx, job, signal);
+                if (result) {
+                  pushState.scanned++;
+                  const total =
+                    result.onlyInSummary + result.onlyInFailureSummary;
+                  if (total > 0) pushState.differing++;
+                  if (total > opts.threshold) {
+                    pushState.hits.push(result);
+                    handlers.onHit(pushState, result);
+                  }
+                }
+              } catch (e) {
+                if (isAbort(e)) throw e;
+                // A single job failing to load is not worth aborting a scan
+                // that may cover tens of thousands of them.
+              } finally {
+                handlers.onProgress(pushState, ++done, jobs.length);
+              }
+            },
+            signal,
+          );
+
+          handlers.onPushEnd(pushState);
+        }
+      }
+
+      // ---------------------------------------------------------------------
+      // Rendering
+      // ---------------------------------------------------------------------
+
+      const shortJobName = (job) =>
+        (job.job_type_name || 'job').replace(/^test-/, '');
+      const platformOf = (job) =>
+        [job.platform, job.platform_option].filter(Boolean).join(' ');
+      const barWidth = (value) =>
+        value <= 0
+          ? 0
+          : Math.min(
+              100,
+              Math.max(2, (Math.log1p(value) / Math.log1p(BAR_REFERENCE)) * 100),
+            );
+
+      const pushDate = (push) =>
+        `${new Date(push.push_timestamp * 1000)
+          .toISOString()
+          .replace('T', ' ')
+          .slice(0, 16)} UTC`;
+
+      function previewUrl(project, revision, job) {
+        return `${PREVIEW_URL}?project=${encodeURIComponent(project)}&revision=${encodeURIComponent(revision)}#${jobAnchorId(job)}`;
+      }
+
+      function renderRow(project, revision, result) {
+        const { job, onlyInSummary, onlyInFailureSummary } = result;
+        const total = onlyInSummary + onlyInFailureSummary;
+
+        const bar = el('div', {
+          class: 'bar',
+          role: 'img',
+          'aria-label': `${onlyInSummary} only in Summary Tab, ${onlyInFailureSummary} only in Failure Summary Tab`,
+        });
+        const left = el('div', { class: 'side left' });
+        left.appendChild(
+          el('span', {
+            class: 'fill s',
+            style: `width:${barWidth(onlyInSummary).toFixed(1)}%`,
+          }),
+        );
+        const right = el('div', { class: 'side right' });
+        right.appendChild(
+          el('span', {
+            class: 'fill f',
+            style: `width:${barWidth(onlyInFailureSummary).toFixed(1)}%`,
+          }),
+        );
+        bar.append(left, el('div', { class: 'axis' }), right);
+
+        const split = el('span', { class: 'split' });
+        split.append(
+          el('i', { class: 's', text: String(onlyInSummary) }),
+          document.createTextNode('/'),
+          el('i', { class: 'f', text: String(onlyInFailureSummary) }),
+        );
+
+        const link = el(
+          'a',
+          {
+            class: 'open',
+            href: previewUrl(project, revision, job),
+            target: '_blank',
+            rel: 'noopener',
+          },
+          [
+            bar,
+            el('div', { class: 'nums' }, [
+              el('b', { class: 'total', text: fmt(total) }),
+              split,
+            ]),
+            el('div', { class: 'who' }, [
+              el('span', { class: 'job', text: shortJobName(job) }),
+              el('span', { class: 'plat', text: platformOf(job) }),
+            ]),
+            el('div', { class: 'ids' }, [
+              el('span', { class: 'jid', text: String(job.id) }),
+              el('span', { class: 'tid', text: job.task_id }),
+            ]),
+            el('span', { class: 'go', 'aria-hidden': 'true', text: '↗' }),
+          ],
+        );
+
+        const row = el('li', { class: 'row' }, [link]);
+        row.dataset.total = String(total);
+        return row;
+      }
+
+      // A push's section is created as soon as the push starts so progress is
+      // visible while its jobs load, and re-sorted when it finishes.
+      function createPushSection(state, project) {
+        const { push } = state;
+        const meta = el('div', { class: 'push-meta' });
+        const section = el('section', { class: 'push' }, [
+          el('header', { class: 'push-head' }, [
+            el('div', { class: 'push-id' }, [
+              el('a', {
+                class: 'rev',
+                text: push.revision.slice(0, 12),
+                href: `${PREVIEW_URL}?project=${encodeURIComponent(project)}&revision=${encodeURIComponent(push.revision)}`,
+                target: '_blank',
+                rel: 'noopener',
+              }),
+              el('span', { class: 'pid', text: `push ${push.id}` }),
+            ]),
+            meta,
+          ]),
+        ]);
+        const list = el('ol', { class: 'rows' });
+        section.appendChild(list);
+        return { section, meta, list };
+      }
+
+      function updatePushMeta(meta, state, finished) {
+        meta.textContent = '';
+        const parts = [pushDate(state.push)];
+        if (state.jobs === 0) parts.push('no jobs on this push');
+        else if (state.scanned === 0 && finished)
+          parts.push(
+            state.unrun === state.jobs
+              ? 'no job has run yet'
+              : 'no summary artifacts',
+          );
+        else
+          parts.push(
+            `${plural(state.scanned, 'job')} with a summary artifact${finished ? '' : '…'}`,
+          );
+
+        parts.forEach((text, index) => {
+          if (index) meta.appendChild(el('span', { class: 'dot' }));
+          meta.appendChild(el('span', { text }));
+        });
+
+        if (state.hits.length) {
+          meta.appendChild(el('span', { class: 'dot' }));
+          meta.appendChild(
+            el('span', {
+              class: 'hit',
+              text: `${state.hits.length} over threshold`,
+            }),
+          );
+        } else if (finished && state.scanned) {
+          meta.appendChild(el('span', { class: 'dot' }));
+          meta.appendChild(el('span', { class: 'clean', text: 'clean' }));
+        }
+      }
+
+      function coverageRow(state, project) {
+        const { push } = state;
+        const over = state.hits.length;
+        const label =
+          state.jobs === 0
+            ? 'no jobs on push'
+            : state.scanned === 0 && state.unrun === state.jobs
+              ? 'all jobs unscheduled'
+              : state.scanned === 0
+                ? 'none produced one'
+                : `${fmt(state.scanned)} scanned`;
+        const row = el('tr', { class: over ? 'has' : state.scanned ? 'clean' : 'skip' });
+        row.append(
+          el('td', { class: 'c-rev', text: push.revision.slice(0, 12) }),
+          el('td', { class: 'c-date', text: pushDate(push) }),
+          el('td', { class: 'c-num', text: fmt(state.jobs) }),
+          el('td', { class: 'c-state', text: label }),
+          el('td', { class: 'c-num c-hit', text: over ? fmt(over) : '—' }),
+        );
+        return row;
+      }
+
+      // ---------------------------------------------------------------------
+      // Run loop
+      // ---------------------------------------------------------------------
+
+      let controller = null;
+      let lastRun = null;
+
+      function setRunning(running) {
+        runButton.disabled = running;
+        runButton.textContent = running ? 'Scanning…' : 'Scan';
+        stopButton.hidden = !running;
+        [hostSelect, projectSelect, pushesInput, thresholdInput].forEach(
+          (control) => {
+            control.disabled = running;
+          },
+        );
+      }
+
+      function showError(message) {
+        errorBanner.textContent = message;
+        errorBanner.hidden = false;
+      }
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (controller) return;
+
+        const opts = {
+          host: hostSelect.value,
+          project: projectSelect.value,
+          pushes: Math.max(1, Math.min(50, Number(pushesInput.value) || DEFAULTS.pushes)),
+          threshold: Math.max(0, Number(thresholdInput.value) || 0),
+        };
+
+        controller = new AbortController();
+        const { signal } = controller;
+        setRunning(true);
+        errorBanner.hidden = true;
+        resultsEl.textContent = '';
+        coverageBody.textContent = '';
+        [statusSection, statsPanel, legend, coverageSection].forEach((node) => {
+          node.hidden = false;
+        });
+        copyButton.hidden = true;
+
+        const totals = {
+          pushes: 0,
+          pushesSeen: 0,
+          scanned: 0,
+          differing: 0,
+          over: 0,
+          affected: 0,
+        };
+        const collected = [];
+        let current = null;
+        // Totals hold finished pushes only; the push still running is added on
+        // top when the panel is drawn, so the figures climb during a scan
+        // instead of sitting at zero until the first push ends.
+        let currentState = null;
+
+        const updateStats = () => {
+          $('stat-pushes').textContent = fmt(totals.pushesSeen);
+          $('stat-scanned').textContent = fmt(
+            totals.scanned + (currentState ? currentState.scanned : 0),
+          );
+          $('stat-any').textContent = fmt(
+            totals.differing + (currentState ? currentState.differing : 0),
+          );
+          $('stat-over').textContent = fmt(totals.over);
+          $('stat-affected').textContent = fmt(totals.affected);
+          $('stat-over-label').textContent = `jobs differing by more than ${fmt(opts.threshold)}`;
+        };
+
+        const setStatus = (text, fraction) => {
+          statusLine.textContent = '';
+          statusLine.appendChild(el('span', { text }));
+          progressBar.style.width = `${Math.round(fraction * 100)}%`;
+        };
+
+        updateStats();
+        setStatus('Resolving pushes…', 0);
+
+        try {
+          await scan(
+            opts,
+            {
+              onStart(count) {
+                totals.pushes = count;
+                setStatus(`Scanning ${plural(count, 'push')}…`, 0);
+              },
+              onPushStart(state) {
+                currentState = state;
+                current = createPushSection(state, opts.project);
+                updatePushMeta(current.meta, state, false);
+                resultsEl.appendChild(current.section);
+              },
+              onHit(state, result) {
+                totals.over++;
+                if (state.hits.length === 1) totals.affected++;
+                collected.push({ push: state.push, result });
+                current.list.appendChild(
+                  renderRow(opts.project, state.push.revision, result),
+                );
+                updatePushMeta(current.meta, state, false);
+                updateStats();
+                copyButton.hidden = false;
+              },
+              onProgress(state, done, total) {
+                const pushFraction = total ? done / total : 1;
+                setStatus(
+                  `Push ${totals.pushesSeen + 1} of ${totals.pushes} — ${state.push.revision.slice(0, 12)} — ${fmt(done)} of ${fmt(total)} jobs`,
+                  (totals.pushesSeen + pushFraction) / (totals.pushes || 1),
+                );
+                updateStats();
+              },
+              onPushEnd(state) {
+                totals.pushesSeen++;
+                totals.scanned += state.scanned;
+                totals.differing += state.differing;
+                currentState = null;
+
+                // Jobs finish in completion order; the reader wants the worst
+                // divergence first.
+                const rows = Array.from(current.list.children).sort(
+                  (a, b) => Number(b.dataset.total) - Number(a.dataset.total),
+                );
+                rows.forEach((row) => current.list.appendChild(row));
+
+                if (!state.hits.length) {
+                  current.list.appendChild(
+                    el('li', {
+                      class: 'empty',
+                      text:
+                        state.scanned === 0
+                          ? 'Nothing on this push could be compared.'
+                          : `No job differs by more than ${fmt(opts.threshold)}.`,
+                    }),
+                  );
+                }
+                updatePushMeta(current.meta, state, true);
+                coverageBody.appendChild(coverageRow(state, opts.project));
+                updateStats();
+              },
+            },
+            signal,
+          );
+
+          setStatus(
+            signal.aborted
+              ? `Stopped after ${plural(totals.pushesSeen, 'push')}.`
+              : `Done — ${plural(totals.scanned, 'job')} compared across ${plural(totals.pushesSeen, 'push')}.`,
+            1,
+          );
+        } catch (e) {
+          if (isAbort(e)) {
+            setStatus(`Stopped after ${plural(totals.pushesSeen, 'push')}.`, 1);
+          } else {
+            showError(`Scan failed: ${e.message}`);
+            setStatus('Failed.', 1);
+          }
+        } finally {
+          coverageNote.textContent = totals.pushesSeen
+            ? `${plural(totals.pushesSeen, 'push')} fetched, ${plural(totals.scanned, 'job')} comparable.`
+            : '';
+          lastRun = { opts, collected };
+          controller = null;
+          setRunning(false);
+        }
+      });
+
+      stopButton.addEventListener('click', () => {
+        if (controller) controller.abort();
+      });
+
+      copyButton.addEventListener('click', async () => {
+        if (!lastRun || !lastRun.collected.length) return;
+        const { opts, collected } = lastRun;
+        const lines = [
+          '| Diff | Only in Summary | Only in Failure Summary | Revision | Job ID | Job | Link |',
+          '| --- | --- | --- | --- | --- | --- | --- |',
+          ...[...collected]
+            .sort(
+              (a, b) =>
+                b.result.onlyInSummary +
+                b.result.onlyInFailureSummary -
+                (a.result.onlyInSummary + a.result.onlyInFailureSummary),
+            )
+            .map(({ push, result }) => {
+              const total =
+                result.onlyInSummary + result.onlyInFailureSummary;
+              const url = new URL(
+                previewUrl(opts.project, push.revision, result.job),
+                location.href,
+              ).href;
+              return `| ${total} | ${result.onlyInSummary} | ${result.onlyInFailureSummary} | ${push.revision.slice(0, 12)} | ${result.job.id} | ${shortJobName(result.job)} | ${url} |`;
+            }),
+        ];
+        try {
+          await navigator.clipboard.writeText(lines.join('\n'));
+          copyButton.textContent = 'Copied';
+          setTimeout(() => {
+            copyButton.textContent = 'Copy list';
+          }, 1500);
+        } catch {
+          showError('Could not write to the clipboard.');
+        }
+      });
+
+      [hostSelect, projectSelect, pushesInput, thresholdInput].forEach(
+        (control) => {
+          control.addEventListener('change', () => {
+            localWarning.hidden = hostSelect.value !== 'localhost';
+            syncUrlFromForm();
+          });
+        },
+      );
+
+      applyUrlParams();
+    </script>
+  </body>
+</html>

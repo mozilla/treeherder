@@ -8,6 +8,8 @@ on:
       - "misc/testsummary-inventory-ui/**"
       - "misc/testsummary-audit-ui/**"
       - "misc/testsummary-summarytab-preview-ui/**"
+      - "misc/testsummary-divergence-ui/**"
+      - "misc/shared/**"
       - ".github/workflows/deploy-compare-failure-summary-ui.yml"
   workflow_dispatch:
 
@@ -29,16 +31,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       # Assemble a single Pages site: compare-failure-summary-ui at the root
-      # (preserving its existing URL), testsummary-inventory-ui,
-      # testsummary-audit-ui and testsummary-summarytab-preview-ui under their
-      # own subpaths.
+      # (preserving its existing URL), the other UIs under their own subpaths,
+      # and misc/shared at /shared so the `../shared/…` module imports the
+      # subpath pages use resolve.
       - name: Assemble site
         run: |
-          mkdir -p _site/testsummary-inventory _site/testsummary-audit _site/testsummary-summarytab-preview
+          mkdir -p _site/testsummary-inventory _site/testsummary-audit _site/testsummary-summarytab-preview _site/testsummary-divergence _site/shared
           cp -r misc/compare-failure-summary-ui/. _site/
           cp -r misc/testsummary-inventory-ui/. _site/testsummary-inventory/
           cp -r misc/testsummary-audit-ui/. _site/testsummary-audit/
           cp -r misc/testsummary-summarytab-preview-ui/. _site/testsummary-summarytab-preview/
+          cp -r misc/testsummary-divergence-ui/. _site/testsummary-divergence/
+          cp -r misc/shared/. _site/shared/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

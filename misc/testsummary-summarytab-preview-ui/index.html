@@ -596,6 +596,19 @@
 
       <div id="anchor-notice" class="alert alert-warning py-2 small" hidden></div>
 
+      <!-- Shown when the page was opened on a #job-… link: only that job is
+       loaded, and the rest of the push waits behind this button. -->
+      <div
+        id="deferred-bar"
+        class="alert alert-secondary py-2 small d-flex flex-wrap align-items-center gap-3"
+        hidden
+      >
+        <span id="deferred-text" class="flex-grow-1"></span>
+        <button type="button" id="load-rest-button" class="btn btn-sm btn-primary">
+          Load the rest
+        </button>
+      </div>
+
       <div id="report" aria-live="polite"></div>
 
       <div id="log-panel"></div>
@@ -688,606 +701,48 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
-      const HOSTS = {
-        localhost: 'http://localhost:8000',
-        stage: 'https://treeherder.allizom.org',
-        production: 'https://treeherder.mozilla.org',
-      };
-      // New pushes emit the summary at a fixed path; legacy pushes emit it as
-      // a suite-prefixed artifact (e.g. mochitest-browser-chrome_testsummary.jsonl).
-      // Prefer the fixed path, fall back to suffix discovery.
-      const SUMMARY_ARTIFACT_PATH = 'public/test_info/summary.jsonl';
-      const SUMMARY_ARTIFACT_SUFFIX = '_testsummary.jsonl';
-      const JOBS_PAGE_SIZE = 2000;
-      const JOB_CONCURRENCY = 100;
-      const BZ_BASE_URL = 'https://bugzilla.mozilla.org/';
-      // Mirrors ui/helpers/constants.js#thBugSuggestionLimit.
-      const BUG_SUGGESTION_LIMIT = 20;
-      // Mirrors ui/helpers/constants.js#requiredInternalOccurrences.
-      const REQUIRED_INTERNAL_OCCURRENCES = 3;
+      // Fetch helpers, the testSummary mirror, bug-suggestion matching and
+      // the tab comparison are shared with the divergence scanner.
+      import {
+        HOSTS,
+        SUMMARY_ARTIFACT_PATH,
+        SUMMARY_ARTIFACT_SUFFIX,
+        JOB_CONCURRENCY,
+        BZ_BASE_URL,
+        BUG_SUGGESTION_LIMIT,
+        REQUIRED_INTERNAL_OCCURRENCES,
+        LATEST_PUSH_SCAN,
+        HttpError,
+        isAbort,
+        fetchJson,
+        fetchText,
+        getTcRootUrl,
+        resolvePush,
+        getPushRevision,
+        findLatestFinishedPush,
+        getJobs,
+        listArtifacts,
+        isResourceUsageProfile,
+        getPerfAnalysisUrl,
+        getBugSuggestions,
+        mapWithConcurrency,
+        buildTestSummary,
+        buildFailureSuggestions,
+        decorateBugs,
+        matchBugSuggestions,
+        filterGenericFailures,
+        normalizeSearch,
+        diffSearches,
+        jobLabel,
+        jobAnchorId,
+      } from '../shared/testsummary.js';
+
       // Where triage flags (ignored / bug-linked differences) live. The
       // localStorage layer is this browser's working copy; the JSON file is the
       // shared baseline committed next to this page.
-      // How far back the "Latest finished push" button looks before giving up.
-      // Autoland routinely has a dozen-plus pushes in flight at once, so a
-      // shallow window comes back empty exactly when the repo is busiest; the
-      // statuses are fetched in one parallel round, so depth is cheap.
-      const LATEST_PUSH_SCAN = 30;
       const TRIAGE_STORAGE_KEY = 'testsummary-preview-triage-v1';
       const TRIAGE_BASELINE_URL = './triage.json';
       const TRIAGE_VERSION = 1;
-
-      // ---------------------------------------------------------------------
-      // HTTP + Treeherder/Taskcluster helpers (shared logic with
-      // misc/testsummary-audit-ui/index.html).
-      // ---------------------------------------------------------------------
-
-      class HttpError extends Error {
-        constructor(status, url) {
-          super(`HTTP ${status} for ${url}`);
-          this.status = status;
-        }
-      }
-
-      // `signal` is threaded explicitly rather than kept in a module-level
-      // variable: the "Latest finished push" lookup and a summary run can be in
-      // flight at the same time, and stopping one must not cancel the other.
-      const isAbort = (err) => err?.name === 'AbortError';
-
-      async function fetchJson(url, signal) {
-        const res = await fetch(url, { signal });
-        if (!res.ok) throw new HttpError(res.status, url);
-        return res.json();
-      }
-
-      async function fetchText(url, signal) {
-        const res = await fetch(url, { signal });
-        if (!res.ok) throw new HttpError(res.status, url);
-        return res.text();
-      }
-
-      async function getTcRootUrl(serverUrl, project, signal) {
-        const repos = await fetchJson(`${serverUrl}/api/repository/`, signal);
-        const repository = repos.find((r) => r.name === project);
-        if (!repository) throw new Error(`Unknown project: ${project}`);
-        return repository.tc_root_url;
-      }
-
-      async function resolvePush(serverUrl, project, revision, signal) {
-        const data = await fetchJson(
-          `${serverUrl}/api/project/${encodeURIComponent(project)}/push/?revision=${encodeURIComponent(revision)}`,
-          signal,
-        );
-        if (!data.results.length)
-          throw new Error(`No push with revision ${revision} on ${project}`);
-        return data.results[0];
-      }
-
-      async function getPushRevision(serverUrl, project, pushId, signal) {
-        const push = await fetchJson(
-          `${serverUrl}/api/project/${encodeURIComponent(project)}/push/${pushId}/`,
-          signal,
-        );
-        return push.revision;
-      }
-
-      // Nothing left to report. `push/<id>/status/` already drops tier-3 and
-      // classified jobs (Push.get_status), so this is the same notion of "done"
-      // the job view shows. `completed > 0` guards against a push whose
-      // decision task hasn't scheduled anything yet — all three counts are zero
-      // there, which is empty, not finished.
-      const pushIsFinished = (status) =>
-        (status.pending || 0) === 0 &&
-        (status.running || 0) === 0 &&
-        (status.completed || 0) > 0;
-
-      // The newest push whose jobs have all reported, or null if none of the
-      // last `limit` qualify. The very newest push on an active repo is nearly
-      // always still running, and a push loaded mid-flight renders a partial
-      // report — hence walking back rather than just taking the head.
-      //
-      // Statuses are fetched concurrently: serialising a dozen round trips to
-      // answer one click is the difference between instant and sluggish. A
-      // status that fails to load is treated as unfinished rather than
-      // aborting the search.
-      async function findLatestFinishedPush(serverUrl, project, limit) {
-        const data = await fetchJson(
-          `${serverUrl}/api/project/${encodeURIComponent(project)}/push/?count=${limit}`,
-        );
-        const pushes = data.results || [];
-        const statuses = await Promise.all(
-          pushes.map((push) =>
-            fetchJson(
-              `${serverUrl}/api/project/${encodeURIComponent(project)}/push/${push.id}/status/`,
-            ).catch(() => null),
-          ),
-        );
-        // `results` is newest-first, so the first match is the latest one.
-        const index = statuses.findIndex((s) => s && pushIsFinished(s));
-        return index === -1 ? null : pushes[index];
-      }
-
-      // The jobs endpoint returns a columnar form: `results` is an array of
-      // arrays, decoded against `job_property_names`.
-      async function getJobs(serverUrl, project, pushId, signal) {
-        const jobs = [];
-        let offset = 0;
-        for (;;) {
-          const data = await fetchJson(
-            `${serverUrl}/api/project/${encodeURIComponent(project)}/jobs/?push_id=${pushId}&count=${JOBS_PAGE_SIZE}&offset=${offset}`,
-            signal,
-          );
-          const names = data.job_property_names;
-          const page = (data.results || []).map((row) =>
-            Array.isArray(row)
-              ? Object.fromEntries(names.map((n, idx) => [n, row[idx]]))
-              : row,
-          );
-          jobs.push(...page);
-          if (page.length < JOBS_PAGE_SIZE) break;
-          offset += JOBS_PAGE_SIZE;
-        }
-        return jobs;
-      }
-
-      async function listArtifacts(tcRootUrl, taskId, run, signal) {
-        const url = `${tcRootUrl}/api/queue/v1/task/${taskId}/runs/${run}/artifacts`;
-        try {
-          const data = await fetchJson(url, signal);
-          return data.artifacts || [];
-        } catch (e) {
-          // A stopped run isn't a missing artifact — swallowing it here would
-          // turn "the user pressed Stop" into "this task has nothing".
-          if (isAbort(e)) throw e;
-          // Expired tasks / missing runs are expected; skip silently.
-          return [];
-        }
-      }
-
-      // Mirrors ui/helpers/url.js's isResourceUsageProfile/getPerfAnalysisUrl.
-      function isResourceUsageProfile(fileName) {
-        return [
-          'profile_build_resources.json',
-          'profile_resource-usage.json',
-        ].includes(fileName);
-      }
-
-      function getPerfAnalysisUrl(url, job) {
-        let profilerUrl = `https://profiler.firefox.com/from-url/${encodeURIComponent(url)}`;
-        if (job && isResourceUsageProfile(url.split('/').pop())) {
-          const profileName = `${job.job_type_name} (${job.task_id}.${job.retry_id})`;
-          profilerUrl += `?profileName=${encodeURIComponent(profileName)}`;
-        }
-        return profilerUrl;
-      }
-
-      async function getBugSuggestions(serverUrl, project, jobId, signal) {
-        try {
-          const data = await fetchJson(
-            `${serverUrl}/api/project/${encodeURIComponent(project)}/jobs/${jobId}/bug_suggestions/`,
-            signal,
-          );
-          return Array.isArray(data) ? data : [];
-        } catch (e) {
-          // As in listArtifacts: an aborted request must not read as "this job
-          // has no bug suggestions", which would render a job as clean when it
-          // was simply never loaded.
-          if (isAbort(e)) throw e;
-          return [];
-        }
-      }
-
-      // Runs `worker` over `items` with at most `limit` in flight at once.
-      // Aborting stops new items being picked up; the ones already in flight
-      // are left to settle, so the caller gets a stable result rather than a
-      // collection still being written to.
-      async function mapWithConcurrency(items, limit, worker, signal) {
-        let nextIndex = 0;
-        async function runNext() {
-          while (nextIndex < items.length) {
-            if (signal?.aborted) return;
-            const index = nextIndex++;
-            await worker(items[index], index);
-          }
-        }
-        await Promise.all(
-          Array.from({ length: Math.min(limit, items.length) }, runNext),
-        );
-      }
-
-      // ---------------------------------------------------------------------
-      // Ported from ui/helpers/testSummary.js. Keep in sync with that file —
-      // this is a browser-side mirror, not an import, since this page has no
-      // build step.
-      // ---------------------------------------------------------------------
-
-      const NO_GROUP = '(no group)';
-      const INCOMPLETE_STATUS = 'CRASH';
-      const TEST_STATUSES = [
-        'PASS',
-        'FAIL',
-        'SKIP',
-        'TIMEOUT',
-        'ERROR',
-        'CRASH',
-      ];
-
-      const safeParseLine = (line) => {
-        try {
-          return JSON.parse(line);
-        } catch {
-          return null;
-        }
-      };
-
-      const parseLines = (content) => {
-        if (typeof content !== 'string') return [];
-        return content
-          .split('\n')
-          .map((line) => line.trim())
-          .filter(Boolean)
-          .map(safeParseLine)
-          .filter(Boolean);
-      };
-
-      const emptyCounts = () => {
-        const counts = { total: 0 };
-        TEST_STATUSES.forEach((status) => {
-          counts[status] = 0;
-        });
-        return counts;
-      };
-
-      const tallyStatus = (counts, status) => {
-        counts.total += 1;
-        if (status in counts) {
-          counts[status] += 1;
-        } else {
-          counts[status] = (counts[status] || 0) + 1;
-        }
-      };
-
-      const durationOf = (start, end) =>
-        Number.isFinite(start) && Number.isFinite(end) ? end - start : null;
-
-      const finiteOrNull = (value) => (Number.isFinite(value) ? value : null);
-
-      // Drops empty entries and repeats while keeping order. A failing
-      // test's message list is assembled from two sources that legitimately
-      // overlap — the same text arriving as both a subtest result and the
-      // `test_end` message would otherwise render as two identical lines.
-      const dedupe = (messages) => {
-        const seen = new Set();
-        return messages.filter((message) => {
-          // Compared without trailing punctuation so the same text reported as
-          // both a subtest ("Test timed out.") and a `test_end` message ("Test
-          // timed out") collapses to one line.
-          const key = (message || '').replace(/[.\s]+$/, '');
-          if (!key || seen.has(key)) return false;
-          seen.add(key);
-          return true;
-        });
-      };
-
-      function buildTestSummary(content) {
-        const lines = parseLines(content);
-
-        const groups = new Map();
-
-        const recordEntry = (entry) => {
-          const groupName = entry.group || NO_GROUP;
-          if (!groups.has(groupName)) {
-            groups.set(groupName, new Map());
-          }
-          const tests = groups.get(groupName);
-
-          if (!tests.has(entry.test)) {
-            tests.set(entry.test, { name: entry.test, results: [] });
-          }
-          tests.get(entry.test).results.push({
-            status: entry.status,
-            success: entry.success,
-            message: entry.message,
-            messages: entry.messages || (entry.message ? [entry.message] : []),
-            start: entry.start,
-            end: entry.end,
-            duration: entry.duration,
-          });
-        };
-
-        const pending = new Map();
-        let currentGroup = null;
-
-        const takePending = (testName) => {
-          const queue = pending.get(testName);
-          return queue && queue.length ? queue.shift() : null;
-        };
-
-        lines.forEach((line) => {
-          if (!line) return;
-
-          switch (line.action) {
-            case 'group_start':
-              currentGroup = line.name || currentGroup;
-              return;
-            case 'group_end':
-              currentGroup = null;
-              return;
-            case 'test_start': {
-              if (!line.test) return;
-              const run = {
-                group: line.group || currentGroup,
-                start: finiteOrNull(line.time),
-                subtestFailures: [],
-              };
-              if (!pending.has(line.test)) pending.set(line.test, []);
-              pending.get(line.test).push(run);
-              return;
-            }
-            case 'test_status': {
-              if (!line.test || !('expected' in line)) return;
-              const queue = pending.get(line.test);
-              const run = queue && queue.length ? queue[0] : null;
-              if (!run) return;
-              // Either field alone can carry the whole signal: mochitest
-              // reports a timeout as `subtest: 'Test timed out.'` with an empty
-              // `message`, so gating on `message` drops the failure entirely.
-              const text = [line.subtest, line.message]
-                .filter(Boolean)
-                .join(' - ');
-              if (text) run.subtestFailures.push(text);
-              return;
-            }
-            case 'test_end': {
-              if (!line.test) return;
-              const run = takePending(line.test);
-              const start = run ? run.start : null;
-              const end = finiteOrNull(line.time);
-              const success = !('expected' in line);
-              const subtestFailures = run?.subtestFailures || [];
-              // Subtest messages are usually the more informative ones, but
-              // the `test_end` message is what names the failure mode ("Test
-              // timed out") — keeping only the subtests hides the cause behind
-              // whatever incidental line the harness logged last. Keep both.
-              const messages = dedupe(
-                success ? [line.message] : [...subtestFailures, line.message],
-              );
-              const message = messages.length ? messages.join(' | ') : null;
-              recordEntry({
-                test: line.test,
-                group: line.group || run?.group || currentGroup,
-                status: line.status,
-                success,
-                message,
-                messages,
-                start,
-                end,
-                duration: durationOf(start, end),
-              });
-              return;
-            }
-            case 'crash': {
-              const testName = line.test || line.signature || '(unknown test)';
-              recordEntry({
-                test: testName,
-                group: line.group || currentGroup,
-                status: 'CRASH',
-                success: false,
-                message: line.signature || null,
-                start: null,
-                end: null,
-                duration: null,
-              });
-              return;
-            }
-            default:
-          }
-        });
-
-        pending.forEach((queue, testName) => {
-          queue.forEach((run) => {
-            recordEntry({
-              test: testName,
-              group: run.group,
-              status: INCOMPLETE_STATUS,
-              success: false,
-              message: 'Test started but never finished',
-              start: run.start,
-              end: null,
-              duration: null,
-            });
-          });
-        });
-
-        const overallCounts = emptyCounts();
-        const overallRealFailCounts = {};
-
-        const groupList = Array.from(groups.entries()).map(([name, tests]) => {
-          const groupCounts = emptyCounts();
-
-          const testList = Array.from(tests.values()).map((test) => {
-            const lastResult = test.results[test.results.length - 1];
-            const { status, success } = lastResult;
-            tallyStatus(groupCounts, status);
-            tallyStatus(overallCounts, status);
-            if (!success) {
-              overallRealFailCounts[status] =
-                (overallRealFailCounts[status] || 0) + 1;
-            }
-            return {
-              ...test,
-              status,
-              success,
-              retried: test.results.length > 1,
-            };
-          });
-
-          return { name, counts: groupCounts, tests: testList };
-        });
-
-        return {
-          groups: groupList,
-          counts: overallCounts,
-          realFailCounts: overallRealFailCounts,
-        };
-      }
-
-      function buildFailureSuggestions(summary) {
-        if (!summary) return [];
-
-        const suggestions = [];
-        summary.groups.forEach((group) => {
-          group.tests.forEach((test) => {
-            if (test.success) return;
-            const lastResult = test.results[test.results.length - 1];
-            // A single failing test can emit several unexpected messages (e.g.
-            // one subtest failure per line). Render each as its own failure
-            // line instead of collapsing them into one joined line.
-            const messages = lastResult.messages?.length
-              ? lastResult.messages
-              : [lastResult.message].filter(Boolean);
-            if (!messages.length) messages.push(null);
-            messages.forEach((message, index) => {
-              const search = `TEST-UNEXPECTED-${test.status} | ${test.name}${
-                message ? ` | ${message}` : ''
-              }`;
-              suggestions.push({
-                search,
-                path_end: test.name,
-                // Bug suggestions match on test path, so every line of a test
-                // would otherwise get the same bugs. Only the first carries them.
-                primary: index === 0,
-                bugs: { open_recent: [], all_others: [] },
-              });
-            });
-          });
-        });
-        return suggestions;
-      }
-
-      const normalizePath = (path) =>
-        (path || '').replace(/\\/g, '/').replace(/\/+$/, '').toLowerCase();
-
-      const pathsMatch = (testPath, bugPath) => {
-        if (!testPath || !bugPath) return false;
-        const a = normalizePath(testPath);
-        const b = normalizePath(bugPath);
-        if (!a || !b) return false;
-        return a === b || a.endsWith(`/${b}`) || b.endsWith(`/${a}`);
-      };
-
-      const bugKey = (bug) => bug.id ?? bug.internal_id;
-
-      const mergeBugs = (target, incoming) => {
-        const seen = new Set(target.map(bugKey));
-        incoming.forEach((bug) => {
-          const key = bugKey(bug);
-          if (!seen.has(key)) {
-            seen.add(key);
-            target.push(bug);
-          }
-        });
-      };
-
-      const decorateBugs = (suggestion) => {
-        const { bugs } = suggestion;
-        bugs.too_many_open_recent =
-          bugs.open_recent.length > BUG_SUGGESTION_LIMIT;
-        bugs.too_many_all_others =
-          bugs.all_others.length > BUG_SUGGESTION_LIMIT;
-        suggestion.valid_open_recent =
-          bugs.open_recent.length > 0 && !bugs.too_many_open_recent;
-        suggestion.valid_all_others =
-          bugs.all_others.length > 0 &&
-          !bugs.too_many_all_others &&
-          !bugs.too_many_open_recent;
-        suggestion.showBugSuggestions =
-          suggestion.valid_open_recent || suggestion.valid_all_others;
-      };
-
-      function matchBugSuggestions(failureSuggestions, bugSuggestions) {
-        if (!failureSuggestions || !failureSuggestions.length)
-          return failureSuggestions;
-        if (!bugSuggestions || !bugSuggestions.length) {
-          failureSuggestions.forEach(decorateBugs);
-          return failureSuggestions;
-        }
-
-        failureSuggestions.forEach((suggestion) => {
-          // Non-primary lines share a test path with the primary one; attaching
-          // bugs to them too would duplicate the suggestions under every line.
-          if (suggestion.primary === false) {
-            decorateBugs(suggestion);
-            return;
-          }
-          const matches = bugSuggestions.filter((bugSuggestion) =>
-            pathsMatch(suggestion.path_end, bugSuggestion.path_end),
-          );
-          matches.forEach((match) => {
-            mergeBugs(
-              suggestion.bugs.open_recent,
-              match.bugs?.open_recent || [],
-            );
-            mergeBugs(suggestion.bugs.all_others, match.bugs?.all_others || []);
-          });
-          decorateBugs(suggestion);
-        });
-
-        return failureSuggestions;
-      }
-
-      // Ported from FailureSummaryTab.jsx#isGenericFailure /
-      // #filterGenericFailures — used to build the Failure Summary Tab
-      // column's suggestion list from the raw bug_suggestions response, the
-      // same way the real FailureSummaryTab does in #loadBugSuggestions.
-      function isGenericFailure(search, pathEnd) {
-        const match =
-          search.match(/^TEST-UNEXPECTED-\w+ \| (.+?) \| finished in \d+ms$/) ||
-          search.match(
-            /^TEST-UNEXPECTED-\w+ \| (.+?) \| xpcshell return code: -?\d+$/,
-          );
-        return match && match[1] === pathEnd;
-      }
-
-      function filterGenericFailures(suggestions) {
-        if (suggestions.length <= 1) return suggestions;
-
-        const testPathsWithSpecificErrors = new Set();
-        suggestions.forEach((suggestion) => {
-          if (
-            suggestion.path_end &&
-            !isGenericFailure(suggestion.search, suggestion.path_end)
-          ) {
-            testPathsWithSpecificErrors.add(suggestion.path_end);
-          }
-        });
-
-        const filtered = suggestions.filter((suggestion) => {
-          if (
-            /^\[taskcluster:error\] exit status -?\d+$/.test(suggestion.search)
-          ) {
-            return false;
-          }
-          return (
-            !isGenericFailure(suggestion.search, suggestion.path_end) ||
-            !testPathsWithSpecificErrors.has(suggestion.path_end)
-          );
-        });
-
-        const seenTestPaths = new Set();
-        filtered.forEach((suggestion) => {
-          if (!suggestion.path_end) {
-            suggestion.showBugSuggestions = true;
-            return;
-          }
-          suggestion.showBugSuggestions = !seenTestPaths.has(
-            suggestion.path_end,
-          );
-          seenTestPaths.add(suggestion.path_end);
-        });
-
-        return filtered;
-      }
 
       // ---------------------------------------------------------------------
       // Rendering — mirrors the markup/classes of SummaryTab.jsx,
@@ -1456,34 +911,6 @@
           );
         });
         return link;
-      }
-
-      function normalizeSearch(search) {
-        return (search || '').trim();
-      }
-
-      // Compares the two columns by normalized search string — the only notion
-      // of "same failure" available. Used both by the ⚠ diff note and by the
-      // job filter that hides jobs whose two tabs are identical.
-      function diffSearches(suggestions, failureSuggestions) {
-        const summarySearches = new Set(
-          suggestions.map((s) => normalizeSearch(s.search)),
-        );
-        const failureSearches = new Set(
-          failureSuggestions.map((s) => normalizeSearch(s.search)),
-        );
-        const onlyInSummary = [...summarySearches].filter(
-          (search) => !failureSearches.has(search),
-        ).length;
-        const onlyInFailureSummary = [...failureSearches].filter(
-          (search) => !summarySearches.has(search),
-        ).length;
-        return {
-          summarySearches,
-          failureSearches,
-          onlyInSummary,
-          onlyInFailureSummary,
-        };
       }
 
       // ---------------------------------------------------------------------
@@ -2746,15 +2173,6 @@
         internalIssueModal.show();
       }
 
-      function jobLabel(job) {
-        const symbol = job.job_type_symbol ? `[${job.job_type_symbol}] ` : '';
-        return `${symbol}${job.job_type_name || 'job'}`;
-      }
-
-      // Same identity as the job-view link's selectedTaskRun, so the anchor
-      // stays stable across runs of the same push.
-      const jobAnchorId = (job) => `job-${job.task_id}-${job.retry_id ?? 0}`;
-
       function parseFilterTerms(raw) {
         return (raw || '')
           .split(',')
@@ -3119,20 +2537,10 @@
         };
       }
 
-      // Streams a push into the page rather than returning it: `onStart` fires
-      // as soon as the job list is known, then `onJobResult` once per job that
-      // has something to show, in completion order.
-      //
-      // The job named by `opts.priorityAnchorId` — the #job-… fragment the page
-      // was opened with — is fetched on its own before all the others, so a
-      // deep link lands on its section within a couple of requests instead of
-      // after the whole push.
-      //
-      // Stopping during the setup phase below throws — there is nothing on
-      // screen yet. Once the per-job phase starts, stopping simply leaves
-      // whatever has already been rendered in place, and re-running is the way
-      // to get the rest.
-      async function run(opts, log, handlers, signal) {
+      // Everything a run needs before its first job: the push it is about, and
+      // the job list. Split out from run() so that loading the rest of a push
+      // later can reuse it instead of resolving the push a second time.
+      async function resolvePushContext(opts, log, signal) {
         const serverUrl = HOSTS[opts.host];
 
         const tcRootUrl = await getTcRootUrl(serverUrl, opts.project, signal);
@@ -3153,43 +2561,115 @@
           log.debug(`Ignored ${allJobs.length - jobs.length} retry job(s).`);
         }
 
-        handlers.onStart({
+        return {
           serverUrl,
+          tcRootUrl,
           project: opts.project,
           revisionId,
+          pushId,
+          jobs,
+        };
+      }
+
+      // Loads `jobs`, reporting each result as it settles. `base` and `total`
+      // let a second call carry on the first one's progress count rather than
+      // restarting it, which is what "load the rest" needs.
+      //
+      // `onSettled` fires for every job that was actually attempted, whether or
+      // not it produced a result. A stopped run uses it to work out what is
+      // left, so resuming cannot load the same job — and render its section —
+      // twice.
+      async function settleJobs(ctx, jobs, log, handlers, signal, bounds = {}) {
+        const { base = 0, total = jobs.length } = bounds;
+        let completed = base;
+        await mapWithConcurrency(
+          jobs,
+          JOB_CONCURRENCY,
+          async (job) => {
+            try {
+              const result = await loadJobResult(ctx, job, signal);
+              if (result) handlers.onJobResult(result);
+            } catch (e) {
+              // A stopped run cancels every request still open, which would
+              // otherwise log a line per job for something the user did on
+              // purpose.
+              if (!isAbort(e)) log.debug(`job ${job.id}: ${e.message}`);
+            } finally {
+              handlers.onSettled?.(job);
+              completed++;
+              handlers.onProgress(completed, total);
+            }
+          },
+          signal,
+        );
+      }
+
+      // Streams a push into the page rather than returning it: `onStart` fires
+      // as soon as the job list is known, then `onJobResult` once per job that
+      // has something to show, in completion order.
+      //
+      // `opts.priorityAnchorId` is the #job-… fragment the page was opened
+      // with. That job is always fetched on its own first, so a deep link lands
+      // on its section within a couple of requests instead of after the whole
+      // push. With `opts.onlyAnchor` the run then stops there and hands back
+      // the untouched remainder in `remaining`, for the caller to load on
+      // demand — arriving on a link to one job should not pull several thousand
+      // others down behind it.
+      //
+      // Stopping during the setup phase below throws — there is nothing on
+      // screen yet. Once the per-job phase starts, stopping simply leaves
+      // whatever has already been rendered in place, and re-running is the way
+      // to get the rest.
+      async function run(opts, log, handlers, signal) {
+        const ctx = await resolvePushContext(opts, log, signal);
+        const { jobs } = ctx;
+
+        handlers.onStart({
+          serverUrl: ctx.serverUrl,
+          project: ctx.project,
+          revisionId: ctx.revisionId,
           total: jobs.length,
         });
-
-        const ctx = { serverUrl, tcRootUrl, project: opts.project };
-        let completed = 0;
-        const settle = async (job) => {
-          try {
-            const result = await loadJobResult(ctx, job, signal);
-            if (result) handlers.onJobResult(result);
-          } catch (e) {
-            // A stopped run cancels every request still open, which would
-            // otherwise log a line per job for something the user did on
-            // purpose.
-            if (!isAbort(e)) log.debug(`job ${job.id}: ${e.message}`);
-          } finally {
-            completed++;
-            handlers.onProgress(completed, jobs.length);
-          }
-        };
 
         const queue = jobs.slice();
         const priorityIndex = opts.priorityAnchorId
           ? queue.findIndex((job) => jobAnchorId(job) === opts.priorityAnchorId)
           : -1;
-        if (priorityIndex !== -1) {
-          const [priorityJob] = queue.splice(priorityIndex, 1);
-          log.info(`Loading the linked job first: ${jobLabel(priorityJob)}.`);
-          await settle(priorityJob);
+        const priorityJob =
+          priorityIndex === -1 ? null : queue.splice(priorityIndex, 1)[0];
+
+        if (opts.onlyAnchor) {
+          if (priorityJob) {
+            log.info(`Loading the linked job only: ${jobLabel(priorityJob)}.`);
+            await settleJobs(ctx, [priorityJob], log, handlers, signal, {
+              total: 1,
+            });
+          } else {
+            // Nothing matched the fragment. Loading the whole push instead
+            // would be a surprise on a link that named one job, so leave the
+            // report empty and let the button offer the push.
+            log.info('The linked job is not on this push.');
+          }
+          return {
+            aborted: signal?.aborted ?? false,
+            ctx,
+            remaining: queue,
+          };
         }
 
-        await mapWithConcurrency(queue, JOB_CONCURRENCY, settle, signal);
+        if (priorityJob) {
+          log.info(`Loading the linked job first: ${jobLabel(priorityJob)}.`);
+          await settleJobs(ctx, [priorityJob], log, handlers, signal, {
+            total: jobs.length,
+          });
+        }
 
-        return { aborted: signal?.aborted ?? false };
+        await settleJobs(ctx, queue, log, handlers, signal, {
+          base: priorityJob ? 1 : 0,
+          total: jobs.length,
+        });
+
+        return { aborted: signal?.aborted ?? false, ctx, remaining: [] };
       }
 
       function renderEmptyFilterMessage() {
@@ -3205,6 +2685,16 @@
           class: 'alert alert-secondary',
           role: 'status',
           text: 'No job on this push produced a test summary artifact.',
+        });
+      }
+
+      // Distinct from the message above: nothing is on screen because the push
+      // has not been loaded, not because it had nothing to show.
+      function renderUnloadedReportMessage() {
+        return el('div', {
+          class: 'alert alert-secondary',
+          role: 'status',
+          text: 'This push has not been loaded yet.',
         });
       }
 
@@ -3267,6 +2757,9 @@
       const filterCountEl = document.getElementById('filter-count');
       const sortButton = document.getElementById('sort-button');
       const anchorNotice = document.getElementById('anchor-notice');
+      const deferredBar = document.getElementById('deferred-bar');
+      const deferredText = document.getElementById('deferred-text');
+      const loadRestButton = document.getElementById('load-rest-button');
       const triageBar = document.getElementById('triage-bar');
       const triageCountEl = document.getElementById('triage-count');
       const triageExportButton = document.getElementById('triage-export');
@@ -3326,6 +2819,32 @@
 
       function hideAnchorNotice() {
         anchorNotice.hidden = true;
+      }
+
+      // The part of the push that has not been loaded, as
+      // { ctx, jobs } | null. Set when a deep-link run loads only its own job,
+      // and re-set with what is left over when loading the rest is stopped
+      // partway.
+      let deferredRest = null;
+
+      function showDeferredBar(loadedAnything) {
+        if (!deferredRest || !deferredRest.jobs.length) {
+          hideDeferredBar();
+          return;
+        }
+        const count = deferredRest.jobs.length;
+        deferredText.textContent = loadedAnything
+          ? `Showing the linked job only. ${fmt(count)} other job(s) on this push have not been loaded.`
+          : `${fmt(count)} job(s) on this push have not been loaded.`;
+        loadRestButton.textContent = loadedAnything
+          ? 'Load the remaining jobs'
+          : 'Load all jobs';
+        loadRestButton.disabled = false;
+        deferredBar.hidden = false;
+      }
+
+      function hideDeferredBar() {
+        deferredBar.hidden = true;
       }
 
       // A job result carries no failures when both panels would be empty:
@@ -3948,7 +3467,9 @@
           reportEl.appendChild(
             lastRun.jobResults.length
               ? renderEmptyFilterMessage()
-              : renderEmptyReportMessage(),
+              : deferredRest && deferredRest.jobs.length
+                ? renderUnloadedReportMessage()
+                : renderEmptyReportMessage(),
           );
         }
 
@@ -3966,9 +3487,12 @@
         summaryBanner.hidden = true;
         jobFilterBar.hidden = true;
         hideAnchorNotice();
+        hideDeferredBar();
         // A previous run's results are gone from the screen, so they must not
-        // keep driving the filter bar either.
+        // keep driving the filter bar either — and its unloaded remainder
+        // belongs to a push that is no longer on screen.
         lastRun = null;
+        deferredRest = null;
         document.getElementById('report').textContent = '';
         logPanel.style.display = 'block';
         logPanel.textContent = '';
@@ -3979,9 +3503,13 @@
         progressEl.hidden = false;
         progressEl.textContent = 'Starting…';
 
+        // Arriving on a #job-… link means the reader wants that one job, so
+        // load it alone and leave the rest of the push behind a button.
+        const onlyAnchor = Boolean(pendingAnchorId);
+
         try {
-          const { aborted } = await run(
-            { ...opts, priorityAnchorId: pendingAnchorId },
+          const { aborted, ctx, remaining } = await run(
+            { ...opts, priorityAnchorId: pendingAnchorId, onlyAnchor },
             log,
             {
               onStart: beginRun,
@@ -3993,6 +3521,10 @@
             activeRunController.signal,
           );
 
+          if (!aborted && remaining.length) {
+            deferredRest = { ctx, jobs: remaining };
+          }
+
           if (aborted) {
             const loaded = lastRun ? lastRun.jobResults.length : 0;
             log.info(
@@ -4000,6 +3532,10 @@
                 ? `Stopped — the ${fmt(loaded)} job(s) already loaded stay on ` +
                     'screen. Load again for the rest.'
                 : 'Stopped before any job finished loading.',
+            );
+          } else if (remaining.length) {
+            log.info(
+              `${fmt(remaining.length)} more job(s) on this push are ready to load.`,
             );
           }
         } catch (e) {
@@ -4018,8 +3554,72 @@
           stopButton.hidden = true;
           progressEl.hidden = true;
           finishRun();
+          showDeferredBar(Boolean(lastRun && lastRun.jobResults.length));
         }
       }
+
+      // Loads whatever a deep-link run left behind, appending to the report
+      // already on screen rather than starting it over.
+      async function loadDeferredRest() {
+        if (!deferredRest || activeRunController) return;
+
+        const { ctx, jobs } = deferredRest;
+        const attempted = new Set();
+        const alreadyLoaded = lastRun ? lastRun.jobResults.length : 0;
+        const total = alreadyLoaded + jobs.length;
+
+        loadRestButton.disabled = true;
+        deferredText.textContent = `Loading ${fmt(jobs.length)} more job(s)…`;
+        activeRunController = new AbortController();
+        runButton.disabled = true;
+        stopButton.disabled = false;
+        stopButton.hidden = false;
+        progressEl.hidden = false;
+        progressEl.textContent = `Loaded ${fmt(alreadyLoaded)} of ${fmt(total)} jobs…`;
+        logPanel.style.display = 'block';
+
+        try {
+          await settleJobs(
+            ctx,
+            jobs,
+            log,
+            {
+              onJobResult: addJobResult,
+              onSettled: (job) => attempted.add(jobAnchorId(job)),
+              onProgress: (done) => {
+                progressEl.textContent = `Loaded ${fmt(done)} of ${fmt(total)} jobs…`;
+              },
+            },
+            activeRunController.signal,
+            { base: alreadyLoaded, total },
+          );
+
+          const aborted = activeRunController.signal.aborted;
+          // Only what was never attempted stays pending, so resuming cannot
+          // load — and render — the same job a second time.
+          const left = jobs.filter((job) => !attempted.has(jobAnchorId(job)));
+          deferredRest = left.length ? { ctx, jobs: left } : null;
+          if (aborted) {
+            log.info(
+              `Stopped — ${fmt(left.length)} job(s) still not loaded.`,
+            );
+          }
+        } catch (e) {
+          if (!isAbort(e)) {
+            errorBanner.textContent = e.message;
+            errorBanner.hidden = false;
+          }
+        } finally {
+          activeRunController = null;
+          runButton.disabled = false;
+          stopButton.hidden = true;
+          progressEl.hidden = true;
+          finishRun();
+          showDeferredBar(true);
+        }
+      }
+
+      loadRestButton.addEventListener('click', loadDeferredRest);
 
       function stopRun() {
         if (!activeRunController) return;
