@@ -967,8 +967,8 @@
         <div class="control">
           <label for="group-by">Group by</label>
           <select id="group-by">
-            <option value="push" selected>Push</option>
-            <option value="job">Job</option>
+            <option value="push">Push</option>
+            <option value="job" selected>Job</option>
             <option value="none">No grouping</option>
           </select>
         </div>
@@ -1084,7 +1084,10 @@
         pushes: 20,
         threshold: 10,
         scope: 'failed',
-        group: 'push',
+        // Grouping by job is the default because the same job diverging on
+        // push after push is the signal worth acting on; one push in isolation
+        // cannot tell a systematic mismatch from an intermittent one.
+        group: 'job',
         sort: 'differences',
       };
 
