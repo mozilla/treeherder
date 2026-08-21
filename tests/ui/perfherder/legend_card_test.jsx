@@ -65,12 +65,12 @@ const legendCard = (
   render(
     <LegendCard
       series={series}
-      testData={testData}
+      testDataRef={{ current: testData }}
       frameworks={[{ id: 1, name: 'talos' }]}
       updateState={updateState}
       updateStateParams={updateStateParams}
-      colors={colors}
-      symbols={graphSymbols}
+      colorsRef={{ current: colors }}
+      symbolsRef={{ current: graphSymbols }}
     />,
   );
 

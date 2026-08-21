@@ -1,4 +1,4 @@
-
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Badge, Button, Form, CloseButton } from 'react-bootstrap';
 
@@ -9,55 +9,65 @@ import GraphIcon from '../../shared/GraphIcon';
 
 const LegendCard = ({
   series,
-  testData = [],
+  testDataRef,
   updateState,
   updateStateParams,
   selectedDataPoint = null,
   frameworks,
-  colors,
-  symbols,
+  colorsRef,
+  symbolsRef,
 }) => {
   const updateSelectedTest = () => {
-    const newColors = [...colors];
-    const newSymbols = [...symbols];
+    const testData = testDataRef.current;
+    const newColors = [...colorsRef.current];
+    const newSymbols = [...symbolsRef.current];
+
     const errorMessages = [];
     let updates;
-    const newTestData = [...testData].map((item) => {
-      if (item.signature_id === series.signature_id) {
-        const isVisible = !item.visible;
+    const targetIndex = testData.findIndex(
+      (item) => item.signature_id === series.signature_id,
+    );
+    if (targetIndex === -1) return;
+    const item = testData[targetIndex];
+    const isVisible = !item.visible;
+    const updatedItem = { ...item };
 
-        if (isVisible && newColors.length && newSymbols.length) {
-          item.color = newColors.pop();
-          item.symbol = newSymbols.pop();
-          item.visible = isVisible;
-          item.data = item.data.map((test) => ({
-            ...test,
-            z: item.color[1],
-            _z: item.symbol,
-          }));
-        } else if (!isVisible) {
-          newColors.push(item.color);
-          newSymbols.push(item.symbol);
-          item.color = ['border-secondary', ''];
-          item.symbol = ['circle', 'outline'];
-          item.visible = isVisible;
-          item.data = item.data.map((test) => ({
-            ...test,
-            z: item.color[1],
-            _z: item.symbol,
-          }));
-        } else {
-          errorMessages.push(
-            "The graph supports viewing 6 tests at a time. To select and view a test that isn't currently visible, first deselect a visible test",
-          );
-        }
-      }
-      return item;
-    });
+    if (isVisible && newColors.length && newSymbols.length) {
+      updatedItem.color = newColors.pop();
+      updatedItem.symbol = newSymbols.pop();
+      updatedItem.visible = isVisible;
+      updatedItem.data = item.data.map((test) => ({
+        ...test,
+        z: updatedItem.color[1],
+        _z: updatedItem.symbol,
+      }));
+    } else if (!isVisible) {
+      newColors.push(item.color);
+      newSymbols.push(item.symbol);
+      updatedItem.color = ['border-secondary', ''];
+      updatedItem.symbol = ['circle', 'outline'];
+      updatedItem.visible = isVisible;
+      updatedItem.data = item.data.map((test) => ({
+        ...test,
+        z: updatedItem.color[1],
+        _z: updatedItem.symbol,
+      }));
+    } else {
+      errorMessages.push(
+        "The graph supports viewing 6 tests at a time. To select and view a test that isn't currently visible, first deselect a visible test",
+      );
+    }
 
     if (errorMessages.length) {
       updates = { errorMessages, visibilityChanged: false };
     } else {
+      // rebuild the array by slicing around the updated item
+      const newTestData = [
+        ...testData.slice(0, targetIndex),
+        updatedItem,
+        ...testData.slice(targetIndex + 1),
+      ];
+
       updates = {
         testData: newTestData,
         colors: newColors,
@@ -94,36 +104,50 @@ const LegendCard = ({
   };
 
   const removeTest = () => {
-    const index = testData.indexOf(series);
-    const newData = [...testData];
+    const testData = testDataRef.current;
+    const colors = colorsRef.current;
+    const symbols = symbolsRef.current;
+
+    const index = testData.findIndex(
+      (item) => item.signature_id === series.signature_id
+    );
 
     if (index === -1) {
       return;
     }
 
+    const newData = [...testData];
+
     newData.splice(index, 1);
 
-    // when removing a test, check to see if the next test in the queue had a color;
-    // if it had secondary and was deselected, reset its color and visibility to
-    // the removed test's color, otherwise push that color back into the colors list
+    // promote the test that just shifted into the maximum visibility slot.
+    // this ignores user-deselected tests earlier in the queue and 
+    // strictly targets the next auto-queued test that was forced hidden.
+    const promoteTargetIndex = graphColors.length - 1;
+
     if (
-      newData[graphColors.length - 1] &&
-      newData[graphColors.length - 1].color[0] === 'border-secondary'
+      newData[promoteTargetIndex] &&
+      newData[promoteTargetIndex].color[0] === 'border-secondary'
     ) {
-      newData[graphColors.length - 1].color = series.color;
-      newData[graphColors.length - 1].visible = true;
-      newData[graphColors.length - 1].data = newData[
-        graphColors.length - 1
-      ].data.map((item) => ({
-        ...item,
-        z: series.color[1],
-      }));
+      const promoted = newData[promoteTargetIndex];
+      newData[promoteTargetIndex] = {
+        ...promoted,
+        color: series.color,
+        symbol: series.symbol,
+        visible: true,
+        data: promoted.data.map((item) => ({
+          ...item,
+          z: series.color[1],
+          _z: series.symbol,
+        })),
+      };
       resetParams(newData);
     } else if (series.color[0] === 'border-secondary') {
       resetParams(newData);
     } else {
-      const newColors = [...colors, ...[series.color]];
-      resetParams(newData, newColors);
+      const newColors = [...colors, series.color];
+      const newSymbols = [...symbols, series.symbol];
+      resetParams(newData, newColors, newSymbols);
     }
   };
 
@@ -218,14 +242,23 @@ const LegendCard = ({
 };
 
 LegendCard.propTypes = {
-  series: PropTypes.PropTypes.shape({
+  series: PropTypes.shape({
     visible: PropTypes.bool,
   }).isRequired,
   updateState: PropTypes.func.isRequired,
-  testData: PropTypes.arrayOf(PropTypes.shape({})),
   updateStateParams: PropTypes.func.isRequired,
-  colors: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)).isRequired,
-  selectedDataPoint: PropTypes.shape({}),
+  testDataRef: PropTypes.shape({ current: PropTypes.array }).isRequired,
+  colorsRef: PropTypes.shape({ current: PropTypes.array }).isRequired,
+  symbolsRef: PropTypes.shape({ current: PropTypes.array }).isRequired,
+  selectedDataPoint: PropTypes.shape({}),};
+
+const areEqual = (prev, next) => {
+  const seriesEqual = prev.series === next.series;
+  
+  const prevWasSelected = prev.selectedDataPoint?.signature_id === prev.series.signature_id;
+  const nextIsSelected = next.selectedDataPoint?.signature_id === next.series.signature_id;
+
+  return seriesEqual && prevWasSelected === nextIsSelected && prev.frameworks === next.frameworks;
 };
 
-export default LegendCard;
+export default React.memo(LegendCard, areEqual);
