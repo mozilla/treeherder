@@ -103,8 +103,17 @@ class GithubTransformer:
         return info
 
     def process_push(self, push_data):
-        commits = push_data
-        head_commit = commits[-1]
+        revisions = []
+        head_commit = None
+        for commit in push_data:
+            revisions.append(
+                {
+                    "comment": commit.commit.message,
+                    "author": f"{commit.commit.author.name} <{commit.commit.author.email}>",
+                    "revision": commit.sha,
+                }
+            )
+            head_commit = commit
         push = {
             "revision": head_commit.sha,
             # A push can be co-authored
@@ -113,19 +122,8 @@ class GithubTransformer:
             "push_timestamp": head_commit.commit.committer.date.timestamp(),
             # We want the original author's email to show up in the UI
             "author": head_commit.commit.author.email,
+            "revisions": revisions,
         }
-
-        revisions = []
-        for commit in commits:
-            revisions.append(
-                {
-                    "comment": commit.commit.message,
-                    "author": f"{commit.commit.author.name} <{commit.commit.author.email}>",
-                    "revision": commit.sha,
-                }
-            )
-
-        push["revisions"] = revisions
         return push
 
 
