@@ -1,0 +1,295 @@
+/* ui/css/treeherder-filter-panel.css */
+
+/* Full-width banner between the navbars and the push list; it sits in
+   document flow so opening it pushes the pushes down rather than
+   overlaying them. */
+.advanced-filter-panel {
+  width: 100%;
+  /* Match the 12px font size used throughout the jobs/push area */
+  font-size: 12px;
+  /* Separate the banner from the Active Filters bar above it */
+  border-top: 1px solid #bee5eb;
+  border-bottom: 2px solid rgb(0 0 0 / 0.25);
+}
+
+/* A darker shade of the Active Filters bar's alert-info blue; the
+   header and body share it so the whole banner reads as one field
+   behind the section cards */
+.advanced-filter-panel-header {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  /* Tall enough that the absolutely-centered Clear all button clears
+     both edges instead of touching the top of the banner */
+  min-height: 2.4rem;
+  padding: 0.3rem 0.75rem;
+  background-color: #abdbe3;
+  color: #0c5460;
+}
+
+/* Same size as the Active Filters bar's title (the 14px body default) */
+.advanced-filter-panel-title {
+  font-size: 14px;
+}
+
+/* Actions pin to the right edge; the title stays truly centered */
+.advanced-filter-panel-actions {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Sections flow left-to-right across the window, wrapping on narrow
+   viewports; Presets is last, so it lands at the end of the row. */
+.advanced-filter-panel-body {
+  max-height: 50vh;
+  overflow-y: auto;
+  padding: 0.5rem;
+  background-color: #abdbe3;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+/* Each section is a card floating on the tinted body */
+.filter-panel-section {
+  flex: 1 1 auto;
+  padding: 0.5rem 0.75rem;
+  background-color: #fff;
+  border: 1px solid var(--bs-border-color, #dee2e6);
+  border-radius: 0.375rem;
+}
+
+/* Keep the presets card at the end of the banner, hugging the right
+   edge even when the row has spare room. */
+.filter-panel-presets {
+  flex-grow: 0;
+  margin-left: auto;
+}
+
+.filter-panel-columns {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.filter-panel-grow {
+  flex: 1 1 auto;
+}
+
+.filter-panel-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--bs-secondary-color, #6c757d);
+  margin-bottom: 0.25rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.filter-panel-row {
+  display: flex;
+  gap: 0.375rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 0.25rem 0;
+}
+
+.filter-panel-hint {
+  font-size: 0.75rem;
+  color: var(--bs-secondary-color, #6c757d);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.filter-panel-error {
+  font-size: 0.75rem;
+  color: var(--bs-danger, #dc3545);
+}
+
+.filter-panel-field-name {
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+/* Apply + its conditional staged hint keep to their own line, right-aligned */
+.filter-panel-apply-row {
+  justify-content: flex-end;
+}
+
+/* Start/end date inputs share one row */
+.filter-panel-dates {
+  flex-wrap: nowrap;
+}
+
+.filter-panel-dates .form-control {
+  flex: 1 1 0;
+  width: auto;
+}
+
+/* Text input with an inline clear control at the right end */
+.filter-panel-input-wrap {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+}
+
+.filter-panel-input-wrap .form-control {
+  width: 100%;
+  padding-right: 1.6rem;
+}
+
+.filter-panel-input-clear {
+  position: absolute;
+  right: 0.3rem;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  padding: 0 0.15rem;
+  background: transparent;
+  color: var(--bs-secondary-color, #6c757d);
+  line-height: 1;
+}
+
+.filter-panel-input-clear:hover {
+  color: var(--bs-body-color, #212529);
+}
+
+/* Matches $link-color in bootstrap-custom.scss — the push-list link blue */
+.advanced-filter-panel {
+  --filter-panel-accent: #337ab7;
+}
+
+.filter-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--bs-border-color, #ced4da);
+  background: transparent;
+  border-radius: 1rem;
+  /* Asymmetric vertical padding is an optical correction: Helvetica
+     Neue's line box carries more ascent than descent, so a mathematically
+     centered line box renders the glyphs slightly low in the pill. */
+  padding: 1px 0.6rem 3px;
+  font-size: 0.8rem;
+  line-height: 1.2;
+}
+
+.filter-pill-on {
+  background: var(--filter-panel-accent);
+  border-color: var(--filter-panel-accent);
+  color: #fff;
+}
+
+/* Result-status pills: outline in the status color when off, filled when
+   on. Status color tokens are defined in treeherder-navbar.css and shared
+   with the toolbar chicklets. */
+.filter-pill[data-status='testfailed'] {
+  --pill-status-color: var(--status-color-testfailed);
+}
+.filter-pill[data-status='busted'],
+.filter-pill[data-status='failures'] {
+  --pill-status-color: var(--status-color-busted);
+}
+.filter-pill[data-status='exception'] {
+  --pill-status-color: var(--status-color-exception);
+}
+.filter-pill[data-status='success'] {
+  --pill-status-color: var(--status-color-success);
+}
+.filter-pill[data-status='retry'] {
+  --pill-status-color: var(--status-color-retry);
+}
+.filter-pill[data-status='usercancel'] {
+  --pill-status-color: var(--status-color-usercancel);
+}
+.filter-pill[data-status='superseded'] {
+  --pill-status-color: var(--status-color-superseded);
+}
+.filter-pill[data-status='pending'] {
+  /* The real pending color (#e0e0e0) is too faint for an outline pill
+     on a white card; use a darker gray that stays lighter than running */
+  --pill-status-color: #b3b3b3;
+}
+.filter-pill[data-status='unscheduled'] {
+  --pill-status-color: var(--status-color-unscheduled);
+}
+.filter-pill[data-status='running'],
+.filter-pill[data-status='in progress'] {
+  --pill-status-color: var(--status-color-running);
+}
+
+.filter-pill[data-status] {
+  background: transparent;
+  border-color: var(--pill-status-color);
+  color: var(--pill-status-color);
+}
+
+.filter-pill-on[data-status] {
+  background: var(--pill-status-color);
+  border-color: var(--pill-status-color);
+  color: #fff;
+}
+
+/* Light status colors need dark text when filled */
+.filter-pill-on[data-status='pending'],
+.filter-pill-on[data-status='superseded'],
+.filter-pill-on[data-status='unscheduled'],
+.filter-pill-on[data-status='usercancel'] {
+  color: #212529;
+}
+
+/* Apply CTA and coach-mark button match the push-list link blue */
+.advanced-filter-panel .btn-primary,
+.filter-coach-mark .btn-primary {
+  --bs-btn-bg: #337ab7;
+  --bs-btn-border-color: #337ab7;
+  --bs-btn-hover-bg: #286090;
+  --bs-btn-hover-border-color: #286090;
+  --bs-btn-active-bg: #286090;
+  --bs-btn-active-border-color: #286090;
+  --bs-btn-disabled-bg: #337ab7;
+  --bs-btn-disabled-border-color: #337ab7;
+}
+
+.filter-panel-preset {
+  display: inline-flex;
+}
+
+.filter-panel-preset .btn + .btn {
+  border-left: 0;
+}
+
+.advanced-filter-trigger {
+  display: flex;
+  align-items: center;
+}
+
+/* Coach mark (used in Task 10) */
+.filter-coach-mark {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 1050;
+  width: 320px;
+  background: var(--bs-warning-bg-subtle, #fff3cd);
+  color: var(--bs-body-color, #212529);
+  border: 1px solid var(--bs-warning-border-subtle, #ffe69c);
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  box-shadow: 0 4px 10px rgb(0 0 0 / 0.15);
+  font-size: 0.8rem;
+}
+
+/* Positioning context for coach mark */
+#quick-filter-parent {
+  position: relative;
+}
