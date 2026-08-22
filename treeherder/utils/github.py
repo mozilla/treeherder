@@ -78,10 +78,13 @@ def get_releases(owner, repo, params=None):
     return releases
 
 
-def compare_shas(owner, repo, base, head):
+def compare_shas(owner, repo, base, head, commit_count=None):
     repo = pygithub_get_repo(owner, repo)
-    comparison = repo.compare(base, head)
-    return [commit for commit in comparison.commits]
+    if commit_count is None:
+        comparison = repo.compare(base, head)
+    else:
+        comparison = repo.compare(base, head, comparison_commits_per_page=commit_count)
+    return (commit for commit in comparison.commits)
 
 
 def get_all_commits(owner, repo, params=None):
@@ -119,4 +122,4 @@ def get_pull_request(owner, repo, pr_id):
 
 def get_pull_request_commits(owner, repo, pr_id):
     pr = get_pull_request(owner, repo, pr_id)
-    return [commit for commit in pr.get_commits()]
+    return (commit for commit in pr.get_commits())
