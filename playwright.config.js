@@ -8,6 +8,10 @@ module.exports = defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
+  // CI containers report the host's CPU count rather than the executor's
+  // cgroup limit, so Playwright's default (cores / 2) massively oversubscribes
+  // the 4-vCPU CircleCI executor and the run hangs. Pin workers to match it.
+  workers: process.env.CI ? 4 : undefined,
   reporter: process.env.CI
     ? [
         ['list'],
