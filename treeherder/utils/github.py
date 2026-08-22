@@ -78,12 +78,11 @@ def get_releases(owner, repo, params=None):
     return releases
 
 
-def compare_shas(owner, repo, base, head, commit_count=None):
+def compare_shas(owner, repo, base, head, get_comparison_object=False):
     repo = pygithub_get_repo(owner, repo)
-    if commit_count is None:
-        comparison = repo.compare(base, head)
-    else:
-        comparison = repo.compare(base, head, comparison_commits_per_page=commit_count)
+    comparison = repo.compare(base, head)
+    if get_comparison_object:
+        return comparison
     return (commit for commit in comparison.commits)
 
 
