@@ -104,6 +104,7 @@ class GithubTransformer:
 
     def process_push(self, push_data):
         revisions = []
+        head_commit = None
         for commit in push_data:
             revisions.append(
                 {
@@ -112,7 +113,7 @@ class GithubTransformer:
                     "revision": commit.sha,
                 }
             )
-        head_commit = revisions.pop()
+            head_commit = commit
         push = {
             "revision": head_commit.sha,
             # A push can be co-authored
