@@ -17,6 +17,7 @@ const repositories = loadFixture('repositories.json');
 const pushList = loadFixture('push_list.json');
 const jobList = loadFixture('job_list/job_1.json');
 const taskDefinition = loadFixture('task_definition.json');
+const BUG_SUGGESTIONS = loadFixture('bug_suggestions.json');
 
 // The job list endpoint returns rows of values keyed by job_property_names;
 // zip them into objects for the /jobs/{id}/ detail endpoint.
@@ -88,7 +89,7 @@ async function seedLoggedInSession(page) {
  * to the classification endpoints, so tests can assert what would
  * have been written to the backend.
  */
-async function mockJobsViewApi(page, { user = [] } = {}) {
+async function mockJobsViewApi(page, { user = [], bugSuggestions = [] } = {}) {
   const captured = { notes: [], bugJobMaps: [] };
 
   await page.route('**/revision.txt', (route) =>
@@ -123,10 +124,10 @@ async function mockJobsViewApi(page, { user = [] } = {}) {
   // Details panel endpoints for the selected job.
   await page.route('**/api/project/autoland/jobs/**', (route) => {
     const { pathname } = new URL(route.request().url());
-    if (
-      pathname.endsWith('/text_log_errors/') ||
-      pathname.endsWith('/bug_suggestions/')
-    ) {
+    if (pathname.endsWith('/bug_suggestions/')) {
+      return route.fulfill(json(bugSuggestions));
+    }
+    if (pathname.endsWith('/text_log_errors/')) {
       return route.fulfill(json([]));
     }
     const match = pathname.match(/\/jobs\/(\d+)\/$/);
@@ -196,5 +197,6 @@ module.exports = {
   BUILD_JOB,
   SHERIFF_USER,
   FAILURE_CLASSIFICATIONS,
+  BUG_SUGGESTIONS,
   pushList,
 };
