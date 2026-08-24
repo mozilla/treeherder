@@ -75,6 +75,10 @@ from .utils import SHERIFFED_FRAMEWORKS, GroupConcat, get_profile_artifact_url
 logger = logging.getLogger(__name__)
 
 
+# Flag to denote that we should return results for all frameworks
+LIST_ALL_FRAMEWORKS = -1
+
+
 class PerformanceSignatureViewSet(viewsets.ViewSet):
     def list(self, request, project):
         repository = models.Repository.objects.get(name=project)
@@ -928,6 +932,8 @@ class PerformanceSummary(generics.ListAPIView):
         repository_name = query_params.validated_data["repository"]
         interval = query_params.validated_data["interval"]
         frameworks = query_params.validated_data["framework"]
+        if LIST_ALL_FRAMEWORKS in frameworks:
+            frameworks = []
         parent_signature = query_params.validated_data["parent_signature"]
         signature = query_params.validated_data["signature"]
         no_subtests = query_params.validated_data["no_subtests"]
@@ -1208,7 +1214,7 @@ class _ComparisonData:
     base: _RepoPerfData
     new: _RepoPerfData
     option_collection_map: dict
-    framework: int
+    framework: int | None
     push_timestamp: int
 
 
@@ -1236,6 +1242,8 @@ class PerfCompareResults(generics.ListAPIView):
         new_repo_name = query_params.validated_data["new_repository"]
         interval = query_params.validated_data["interval"]
         framework = query_params.validated_data["framework"]
+        if framework == LIST_ALL_FRAMEWORKS:
+            framework = None
         no_subtests = query_params.validated_data["no_subtests"]
         base_parent_signature = query_params.validated_data["base_parent_signature"]
         new_parent_signature = query_params.validated_data["new_parent_signature"]
@@ -1517,6 +1525,7 @@ class PerfCompareResults(generics.ListAPIView):
         base_sig_id = base_sig.get("id", None)
         new_sig = comparison_inputs.new.signatures_map.get(sig_identifier, {})
         new_sig_id = new_sig.get("id", None)
+        sig_framework_id = base_sig.get("framework_id") or new_sig.get("framework_id")
 
         # Get signature-based properties
         if base_sig:
@@ -1567,7 +1576,7 @@ class PerfCompareResults(generics.ListAPIView):
             "suite": suite,
             "test": test,
             "is_complete": is_complete,
-            "framework_id": comparison_inputs.framework,
+            "framework_id": sig_framework_id,
             "option_name": option_name,
             "extra_options": extra_options,
             "base_repository_name": comparison_inputs.base.repo_name,
@@ -1583,7 +1592,7 @@ class PerfCompareResults(generics.ListAPIView):
                 comparison_inputs.new.repo_name,
                 comparison_inputs.base.rev,
                 comparison_inputs.new.rev,
-                str(comparison_inputs.framework),
+                str(sig_framework_id),
                 comparison_inputs.push_timestamp,
                 str(sig_hash),
             ),
