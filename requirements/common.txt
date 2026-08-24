@@ -983,9 +983,9 @@ jmespath==1.0.1 \
     # via
     #   boto3
     #   botocore
-json-e==4.8.1 \
-    --hash=sha256:0a642ea7c80ac8689d795054b65e9140c85e8ba57952b383b6c5fdda7e3056d7 \
-    --hash=sha256:b734766ff00f8aa0ab1f2ea6d70893564b7caa44d7fb3e53a955fede0f6c7c32
+json-e==4.8.4 \
+    --hash=sha256:698f6f3e56f04642176c4574bb0050e84fb5a8a9871da4034aa201f07001a7e2 \
+    --hash=sha256:d6cb9340008e09d454eda8ac0e4bf71d94c6b26f1a1d5ac3f5a3153600180f3d
     # via
     #   -r requirements/common.in
     #   mozci
