@@ -7,6 +7,7 @@ import time
 import warnings
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass
 from decimal import Decimal
 from urllib.parse import urlencode
 
@@ -1186,6 +1187,26 @@ class PerformanceAlertSummaryTasks(generics.ListAPIView):
         return Response(data=serializer.data)
 
 
+@dataclass(frozen=True)
+class _RepoPerfData:
+    signatures_map: dict
+    values: dict
+    replicates: dict
+    stats: dict
+    job_ids: dict
+    rev: str | None
+    repo_name: str
+
+
+@dataclass(frozen=True)
+class _ComparisonData:
+    base: _RepoPerfData
+    new: _RepoPerfData
+    option_collection_map: dict
+    framework: int
+    push_timestamp: int
+
+
 class PerfCompareResults(generics.ListAPIView):
     serializer_class = PerfCompareResultsSerializer
     queryset = None
@@ -1294,15 +1315,37 @@ class PerfCompareResults(generics.ListAPIView):
         platforms = set(base_platforms + new_platforms)
         self.queryset = []
 
+        base = _RepoPerfData(
+            signatures_map=base_signatures_map,
+            values=base_grouped_values,
+            replicates=base_grouped_replicates,
+            stats=statistics_base_grouped_data,
+            job_ids=base_grouped_job_ids,
+            rev=base_rev,
+            repo_name=base_repo_name,
+        )
+        new = _RepoPerfData(
+            signatures_map=new_signatures_map,
+            values=new_grouped_values,
+            replicates=new_grouped_replicates,
+            stats=statistics_new_grouped_data,
+            job_ids=new_grouped_job_ids,
+            rev=new_rev,
+            repo_name=new_repo_name,
+        )
+        comparison_inputs = _ComparisonData(
+            base=base,
+            new=new,
+            option_collection_map=option_collection_map,
+            framework=framework,
+            push_timestamp=push_timestamp,
+        )
+
         # Process results based on test version
         cache_key = None
         if test_version == "mann-whitney-u":
             cache_key = self._compute_mwu_cache_key(
-                base_rev,
-                new_rev,
-                base_repo_name,
-                new_repo_name,
-                framework,
+                comparison_inputs,
                 interval,
                 no_subtests,
                 base_parent_signature,
@@ -1311,56 +1354,18 @@ class PerfCompareResults(generics.ListAPIView):
                 enable_silverman_kde,
                 base_signatures,
                 new_signatures,
-                statistics_base_grouped_data,
-                statistics_new_grouped_data,
             )
+
             cached = PerfCompareMwuCache.objects.filter(hash_key=cache_key).first()
             if cached:
                 return Response(data=cached.results)
 
-            self._process_mann_whitney_u_version(
-                header_names,
-                platforms,
-                base_signatures_map,
-                new_signatures_map,
-                base_grouped_values,
-                new_grouped_values,
-                base_grouped_replicates,
-                new_grouped_replicates,
-                statistics_base_grouped_data,
-                statistics_new_grouped_data,
-                base_grouped_job_ids,
-                new_grouped_job_ids,
-                option_collection_map,
-                base_rev,
-                new_rev,
-                base_repo_name,
-                new_repo_name,
-                framework,
-                push_timestamp,
-                enable_silverman_kde,
+            self.queryset = PerfCompareResults._process_mann_whitney_u(
+                comparison_inputs, header_names, platforms, enable_silverman_kde
             )
         else:
-            self._process_student_t_version(
-                header_names,
-                platforms,
-                base_signatures_map,
-                new_signatures_map,
-                base_grouped_values,
-                new_grouped_values,
-                base_grouped_replicates,
-                new_grouped_replicates,
-                statistics_base_grouped_data,
-                statistics_new_grouped_data,
-                base_grouped_job_ids,
-                new_grouped_job_ids,
-                option_collection_map,
-                base_rev,
-                new_rev,
-                base_repo_name,
-                new_repo_name,
-                framework,
-                push_timestamp,
+            self.queryset = PerfCompareResults._process_student_t(
+                comparison_inputs, header_names, platforms
             )
 
         serializer = self.get_serializer(self.queryset, many=True)
@@ -1372,242 +1377,140 @@ class PerfCompareResults(generics.ListAPIView):
 
         return Response(data=serialized_data)
 
-    def _process_mann_whitney_u_version(
-        self,
-        header_names,
-        platforms,
-        base_signatures_map,
-        new_signatures_map,
-        base_grouped_values,
-        new_grouped_values,
-        base_grouped_replicates,
-        new_grouped_replicates,
-        statistics_base_grouped_data,
-        statistics_new_grouped_data,
-        base_grouped_job_ids,
-        new_grouped_job_ids,
-        option_collection_map,
-        base_rev,
-        new_rev,
-        base_repo_name,
-        new_repo_name,
-        framework,
-        push_timestamp,
-        enable_silverman_kde,
-    ):
+    @staticmethod
+    def _comparison_pairs(comparison_inputs, header_names, platforms):
+        """Yield each valid (header, platform) pair with its unpacked common result."""
+        for header in header_names:
+            for platform in platforms:
+                (
+                    lower_is_better,
+                    statistics_base_perf_data,
+                    statistics_new_perf_data,
+                    has_results,
+                    common_result,
+                ) = PerfCompareResults._build_common_result(comparison_inputs, header, platform)
+
+                if has_results:
+                    yield (
+                        lower_is_better,
+                        statistics_base_perf_data,
+                        statistics_new_perf_data,
+                        header,
+                        common_result,
+                    )
+
+    @staticmethod
+    def _process_mann_whitney_u(comparison_inputs, header_names, platforms, enable_silverman_kde):
         """
         Process performance comparison results using Mann-Whitney U test with parallel processing.
         """
         tasks = []
-        for header in header_names:
-            for platform in platforms:
-                # Build common result using shared method
-                (
-                    lower_is_better,
-                    statistics_base_perf_data,
-                    statistics_new_perf_data,
-                    no_results_to_show,
-                    common_result,
-                ) = self._build_common_result(
-                    header,
-                    platform,
-                    base_signatures_map,
-                    new_signatures_map,
-                    base_grouped_values,
-                    new_grouped_values,
-                    base_grouped_replicates,
-                    new_grouped_replicates,
-                    statistics_base_grouped_data,
-                    statistics_new_grouped_data,
-                    base_grouped_job_ids,
-                    new_grouped_job_ids,
-                    option_collection_map,
-                    base_rev,
-                    new_rev,
-                    base_repo_name,
-                    new_repo_name,
-                    framework,
-                    push_timestamp,
-                )
+        for (
+            lower_is_better,
+            stats_base,
+            stats_new,
+            header,
+            common,
+        ) in PerfCompareResults._comparison_pairs(comparison_inputs, header_names, platforms):
+            tasks.append(
+                (stats_base, stats_new, header, lower_is_better, common, enable_silverman_kde)
+            )
 
-                if no_results_to_show:
-                    continue
-
-                tasks.append(
-                    (
-                        statistics_base_perf_data,
-                        statistics_new_perf_data,
-                        header,
-                        lower_is_better,
-                        common_result,
-                        enable_silverman_kde,
-                    )
-                )
-
-        # Process tasks in parallel using multiprocessing
         workers = multiprocessing.cpu_count()
         logger.warning(f"Workers used for MWU analysis: {workers}")
         with multiprocessing.Pool(processes=workers) as pool:
-            results = pool.starmap(self._process_mann_whitney_task, tasks)
+            results = pool.starmap(PerfCompareResults._process_mann_whitney_task, tasks)
 
-        self.queryset.extend(results)
+        return results
 
-    def _process_student_t_version(
-        self,
-        header_names,
-        platforms,
-        base_signatures_map,
-        new_signatures_map,
-        base_grouped_values,
-        new_grouped_values,
-        base_grouped_replicates,
-        new_grouped_replicates,
-        statistics_base_grouped_data,
-        statistics_new_grouped_data,
-        base_grouped_job_ids,
-        new_grouped_job_ids,
-        option_collection_map,
-        base_rev,
-        new_rev,
-        base_repo_name,
-        new_repo_name,
-        framework,
-        push_timestamp,
-    ):
+    @staticmethod
+    def _process_student_t(comparison_inputs, header_names, platforms):
         """
         Process performance comparison results using Student's t-test (sequential processing).
         """
-        for header in header_names:
-            for platform in platforms:
-                # Build common result using shared method
-                (
-                    lower_is_better,
-                    statistics_base_perf_data,
-                    statistics_new_perf_data,
-                    no_results_to_show,
-                    common_result,
-                ) = self._build_common_result(
-                    header,
-                    platform,
-                    base_signatures_map,
-                    new_signatures_map,
-                    base_grouped_values,
-                    new_grouped_values,
-                    base_grouped_replicates,
-                    new_grouped_replicates,
-                    statistics_base_grouped_data,
-                    statistics_new_grouped_data,
-                    base_grouped_job_ids,
-                    new_grouped_job_ids,
-                    option_collection_map,
-                    base_rev,
-                    new_rev,
-                    base_repo_name,
-                    new_repo_name,
-                    framework,
-                    push_timestamp,
-                )
+        results = []
+        for (
+            lower_is_better,
+            stats_base,
+            stats_new,
+            header,
+            common,
+        ) in PerfCompareResults._comparison_pairs(comparison_inputs, header_names, platforms):
+            # Calculate Student's t-test specific data
+            base_runs_count = len(stats_base)
+            new_runs_count = len(stats_new)
+            is_complete = base_runs_count and new_runs_count
 
-                if no_results_to_show:
-                    continue
+            base_avg_value = perfcompare_utils.get_avg(stats_base, header)
+            base_stddev = perfcompare_utils.get_stddev(stats_base, header)
+            base_median_value = perfcompare_utils.get_median(stats_base)
+            new_avg_value = perfcompare_utils.get_avg(stats_new, header)
+            new_stddev = perfcompare_utils.get_stddev(stats_new, header)
+            new_median_value = perfcompare_utils.get_median(stats_new)
+            base_stddev_pct = perfcompare_utils.get_stddev_pct(base_avg_value, base_stddev)
+            new_stddev_pct = perfcompare_utils.get_stddev_pct(new_avg_value, new_stddev)
+            confidence = perfcompare_utils.get_abs_ttest_value(stats_base, stats_new)
+            confidence_text = perfcompare_utils.get_confidence_text(confidence)
+            delta_value = perfcompare_utils.get_delta_value(new_avg_value, base_avg_value)
+            delta_percentage = perfcompare_utils.get_delta_percentage(delta_value, base_avg_value)
+            magnitude = perfcompare_utils.get_magnitude(delta_percentage)
+            new_is_better = perfcompare_utils.is_new_better(delta_value, lower_is_better)
+            is_confident = perfcompare_utils.is_confident(
+                base_runs_count, new_runs_count, confidence
+            )
+            more_runs_are_needed = perfcompare_utils.more_runs_are_needed(
+                is_complete, is_confident, base_runs_count
+            )
+            class_name = perfcompare_utils.get_class_name(
+                new_is_better, base_avg_value, new_avg_value, confidence
+            )
 
-                # Calculate Student's t-test specific data
-                base_runs_count = len(statistics_base_perf_data)
-                new_runs_count = len(statistics_new_perf_data)
-                is_complete = base_runs_count and new_runs_count
+            is_improvement = class_name == "success"
+            is_regression = class_name == "danger"
+            is_meaningful = class_name == ""
 
-                base_avg_value = perfcompare_utils.get_avg(statistics_base_perf_data, header)
-                base_stddev = perfcompare_utils.get_stddev(statistics_base_perf_data, header)
-                base_median_value = perfcompare_utils.get_median(statistics_base_perf_data)
-                new_avg_value = perfcompare_utils.get_avg(statistics_new_perf_data, header)
-                new_stddev = perfcompare_utils.get_stddev(statistics_new_perf_data, header)
-                new_median_value = perfcompare_utils.get_median(statistics_new_perf_data)
-                base_stddev_pct = perfcompare_utils.get_stddev_pct(base_avg_value, base_stddev)
-                new_stddev_pct = perfcompare_utils.get_stddev_pct(new_avg_value, new_stddev)
-                confidence = perfcompare_utils.get_abs_ttest_value(
-                    statistics_base_perf_data, statistics_new_perf_data
-                )
-                confidence_text = perfcompare_utils.get_confidence_text(confidence)
-                delta_value = perfcompare_utils.get_delta_value(new_avg_value, base_avg_value)
-                delta_percentage = perfcompare_utils.get_delta_percentage(
-                    delta_value, base_avg_value
-                )
-                magnitude = perfcompare_utils.get_magnitude(delta_percentage)
-                new_is_better = perfcompare_utils.is_new_better(delta_value, lower_is_better)
-                is_confident = perfcompare_utils.is_confident(
-                    base_runs_count, new_runs_count, confidence
-                )
-                more_runs_are_needed = perfcompare_utils.more_runs_are_needed(
-                    is_complete, is_confident, base_runs_count
-                )
-                class_name = perfcompare_utils.get_class_name(
-                    new_is_better, base_avg_value, new_avg_value, confidence
-                )
+            row_result = {
+                **common,
+                "base_avg_value": base_avg_value,
+                "new_avg_value": new_avg_value,
+                "base_median_value": base_median_value,
+                "new_median_value": new_median_value,
+                "base_stddev": base_stddev,
+                "new_stddev": new_stddev,
+                "confidence": confidence,
+                "confidence_text": confidence_text,
+                "delta_value": delta_value,
+                "delta_percentage": delta_percentage,
+                "magnitude": magnitude,
+                "new_is_better": new_is_better,
+                "lower_is_better": lower_is_better,
+                "is_confident": is_confident,
+                "more_runs_are_needed": more_runs_are_needed,
+                "is_improvement": is_improvement,
+                "is_regression": is_regression,
+                "is_meaningful": is_meaningful,
+                "base_stddev_pct": base_stddev_pct,
+                "new_stddev_pct": new_stddev_pct,
+            }
 
-                is_improvement = class_name == "success"
-                is_regression = class_name == "danger"
-                is_meaningful = class_name == ""
+            results.append(row_result)
 
-                row_result = {
-                    **common_result,
-                    "base_avg_value": base_avg_value,
-                    "new_avg_value": new_avg_value,
-                    "base_median_value": base_median_value,
-                    "new_median_value": new_median_value,
-                    "base_stddev": base_stddev,
-                    "new_stddev": new_stddev,
-                    "confidence": confidence,
-                    "confidence_text": confidence_text,
-                    "delta_value": delta_value,
-                    "delta_percentage": delta_percentage,
-                    "magnitude": magnitude,
-                    "new_is_better": new_is_better,
-                    "lower_is_better": lower_is_better,
-                    "is_confident": is_confident,
-                    "more_runs_are_needed": more_runs_are_needed,
-                    "is_improvement": is_improvement,
-                    "is_regression": is_regression,
-                    "is_meaningful": is_meaningful,
-                    "base_stddev_pct": base_stddev_pct,
-                    "new_stddev_pct": new_stddev_pct,
-                }
+        return results
 
-                self.queryset.append(row_result)
-
-    def _build_common_result(
-        self,
-        header,
-        platform,
-        base_signatures_map,
-        new_signatures_map,
-        base_grouped_values,
-        new_grouped_values,
-        base_grouped_replicates,
-        new_grouped_replicates,
-        statistics_base_grouped_data,
-        statistics_new_grouped_data,
-        base_grouped_job_ids,
-        new_grouped_job_ids,
-        option_collection_map,
-        base_rev,
-        new_rev,
-        base_repo_name,
-        new_repo_name,
-        framework,
-        push_timestamp,
-    ):
+    @staticmethod
+    def _build_common_result(comparison_inputs, header, platform):
         """
         Build the common result dictionary that is shared between Mann-Whitney U
         and Student's t-test processing.
 
         Returns a tuple of:
         (lower_is_better, statistics_base_perf_data, statistics_new_perf_data,
-         no_results_to_show, common_result)
+         has_results, common_result)
         """
         sig_identifier = perfcompare_utils.get_sig_identifier(header, platform)
-        base_sig = base_signatures_map.get(sig_identifier, {})
+        base_sig = comparison_inputs.base.signatures_map.get(sig_identifier, {})
         base_sig_id = base_sig.get("id", None)
-        new_sig = new_signatures_map.get(sig_identifier, {})
+        new_sig = comparison_inputs.new.signatures_map.get(sig_identifier, {})
         new_sig_id = new_sig.get("id", None)
 
         # Get signature-based properties
@@ -1619,7 +1522,9 @@ class PerfCompareResults(generics.ListAPIView):
                 sig_hash,
                 suite,
                 test,
-            ) = self._get_signature_based_properties(base_sig, option_collection_map)
+            ) = PerfCompareResults._get_signature_based_properties(
+                base_sig, comparison_inputs.option_collection_map
+            )
         else:
             (
                 extra_options,
@@ -1628,29 +1533,28 @@ class PerfCompareResults(generics.ListAPIView):
                 sig_hash,
                 suite,
                 test,
-            ) = self._get_signature_based_properties(new_sig, option_collection_map)
+            ) = PerfCompareResults._get_signature_based_properties(
+                new_sig, comparison_inputs.option_collection_map
+            )
 
         # Extract performance data
-        base_perf_data_values = base_grouped_values.get(base_sig_id, [])
-        new_perf_data_values = new_grouped_values.get(new_sig_id, [])
-        base_perf_data_replicates = base_grouped_replicates.get(base_sig_id, [])
-        new_perf_data_replicates = new_grouped_replicates.get(new_sig_id, [])
-        statistics_base_perf_data = statistics_base_grouped_data.get(base_sig_id, [])
-        statistics_new_perf_data = statistics_new_grouped_data.get(new_sig_id, [])
+        base_perf_data_values = comparison_inputs.base.values.get(base_sig_id, [])
+        new_perf_data_values = comparison_inputs.new.values.get(new_sig_id, [])
+        base_perf_data_replicates = comparison_inputs.base.replicates.get(base_sig_id, [])
+        new_perf_data_replicates = comparison_inputs.new.replicates.get(new_sig_id, [])
+        statistics_base_perf_data = comparison_inputs.base.stats.get(base_sig_id, [])
+        statistics_new_perf_data = comparison_inputs.new.stats.get(new_sig_id, [])
 
         # Check if there are no results to show
         base_runs_count = len(statistics_base_perf_data)
         new_runs_count = len(statistics_new_perf_data)
-        no_results_to_show = not base_runs_count and not new_runs_count
+        has_results = base_runs_count or new_runs_count
 
         # Build common result dictionary (contains only data both test versions use)
         is_complete = base_runs_count and new_runs_count
-        resolved_framework = (
-            framework or base_sig.get("framework_id") or new_sig.get("framework_id")
-        )
         common_result = {
-            "base_rev": base_rev,
-            "new_rev": new_rev,
+            "base_rev": comparison_inputs.base.rev,
+            "new_rev": comparison_inputs.new.rev,
             "header_name": header,
             "platform": platform,
             "base_app": base_sig.get("application", ""),
@@ -1658,28 +1562,28 @@ class PerfCompareResults(generics.ListAPIView):
             "suite": suite,
             "test": test,
             "is_complete": is_complete,
-            "framework_id": resolved_framework,
+            "framework_id": comparison_inputs.framework,
             "option_name": option_name,
             "extra_options": extra_options,
-            "base_repository_name": base_repo_name,
-            "new_repository_name": new_repo_name,
+            "base_repository_name": comparison_inputs.base.repo_name,
+            "new_repository_name": comparison_inputs.new.repo_name,
             "base_measurement_unit": base_sig.get("measurement_unit", ""),
             "new_measurement_unit": new_sig.get("measurement_unit", ""),
             "base_runs": base_perf_data_values,
             "new_runs": new_perf_data_values,
             "base_runs_replicates": base_perf_data_replicates,
             "new_runs_replicates": new_perf_data_replicates,
-            "graphs_link": self._create_graph_links(
-                base_repo_name,
-                new_repo_name,
-                base_rev,
-                new_rev,
-                str(resolved_framework),
-                push_timestamp,
+            "graphs_link": PerfCompareResults._create_graph_links(
+                comparison_inputs.base.repo_name,
+                comparison_inputs.new.repo_name,
+                comparison_inputs.base.rev,
+                comparison_inputs.new.rev,
+                str(comparison_inputs.framework),
+                comparison_inputs.push_timestamp,
                 str(sig_hash),
             ),
-            "base_retriggerable_job_ids": base_grouped_job_ids.get(base_sig_id, []),
-            "new_retriggerable_job_ids": new_grouped_job_ids.get(new_sig_id, []),
+            "base_retriggerable_job_ids": comparison_inputs.base.job_ids.get(base_sig_id, []),
+            "new_retriggerable_job_ids": comparison_inputs.new.job_ids.get(new_sig_id, []),
             "base_parent_signature": base_sig.get("parent_signature_id", None),
             "new_parent_signature": new_sig.get("parent_signature_id", None),
             "base_signature_id": base_sig_id,
@@ -1693,15 +1597,16 @@ class PerfCompareResults(generics.ListAPIView):
             lower_is_better,
             statistics_base_perf_data,
             statistics_new_perf_data,
-            no_results_to_show,
+            has_results,
             common_result,
         )
 
-    def _get_signature_based_properties(self, sig, option_collection_map):
+    @staticmethod
+    def _get_signature_based_properties(sig, option_collection_map):
         return (
             sig.get("extra_options", ""),
             sig.get("lower_is_better", ""),
-            self._get_option_name(sig, option_collection_map),
+            PerfCompareResults._get_option_name(sig, option_collection_map),
             sig.get("signature_hash", ""),
             sig.get("suite", ""),
             sig.get("test", ""),
@@ -2113,11 +2018,7 @@ class PerfCompareResults(generics.ListAPIView):
 
     @staticmethod
     def _compute_mwu_cache_key(
-        base_rev,
-        new_rev,
-        base_repo_name,
-        new_repo_name,
-        framework,
+        comparison_inputs: _ComparisonData,
         interval,
         no_subtests,
         base_parent_signature,
@@ -2126,20 +2027,18 @@ class PerfCompareResults(generics.ListAPIView):
         enable_silverman_kde,
         base_signatures,
         new_signatures,
-        statistics_base_grouped_data,
-        statistics_new_grouped_data,
     ):
         base_sig_ids = sorted(str(s["id"]) for s in base_signatures)
         new_sig_ids = sorted(str(s["id"]) for s in new_signatures)
-        total_data_points = sum(len(v) for v in statistics_base_grouped_data.values()) + sum(
-            len(v) for v in statistics_new_grouped_data.values()
+        total_data_points = sum(len(v) for v in comparison_inputs.base.stats.values()) + sum(
+            len(v) for v in comparison_inputs.new.stats.values()
         )
         key_components = {
-            "base_rev": base_rev,
-            "new_rev": new_rev,
-            "base_repo": base_repo_name,
-            "new_repo": new_repo_name,
-            "framework": framework,
+            "base_rev": comparison_inputs.base.rev,
+            "new_rev": comparison_inputs.new.rev,
+            "base_repo": comparison_inputs.base.repo_name,
+            "new_repo": comparison_inputs.new.repo_name,
+            "framework": comparison_inputs.framework,
             "interval": interval,
             "no_subtests": no_subtests,
             "base_parent_signature": base_parent_signature,
