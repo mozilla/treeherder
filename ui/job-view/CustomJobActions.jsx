@@ -5,7 +5,7 @@ import jsonSchemaDefaults from 'json-schema-defaults';
 import keyBy from 'lodash/keyBy';
 import jsyaml from 'js-yaml';
 import tcLibUrls from 'taskcluster-lib-urls';
-import { Button, Dropdown, Form, Modal } from 'react-bootstrap';
+import { Button, Dropdown, Form, Modal, ButtonGroup } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckSquare } from '@fortawesome/free-regular-svg-icons';
 
@@ -32,9 +32,8 @@ class CustomJobActions extends React.PureComponent {
       selectedAction: {},
       schema: '',
       payload: '',
-      payloadObject: {},
-      inputValues: {},
       dropdownOpen: false,
+      payloadView: 'yaml',
     };
   }
 
@@ -79,175 +78,33 @@ class CustomJobActions extends React.PureComponent {
 
   onChangeAction = (actionName) => {
     const { actions } = this.state;
-    const selectedAction = actions?.[actionName];
+    const selectedAction = actions[actionName];
 
-    if (actionName && selectedAction) {
-      this.setState({ dropdownOpen: false });
+    if (actionName) {
+      this.setState({ selectedAction, payloadView: 'yaml' });
       this.updateSelectedAction(selectedAction);
     }
   };
 
-  toggleDropdown = (isOpen) => {
-    this.setState((prevState) => ({
-      dropdownOpen: typeof isOpen === 'boolean' ? isOpen : !prevState.dropdownOpen
-    }));
+  onChangePayload(payload) {
+    this.setState({ payload });
+  }
+
+  toggleDropdown = () => {
+    this.setState((prevState) => ({ dropdownOpen: !prevState.dropdownOpen }));
   };
 
   updateSelectedAction = (action) => {
     const { ajv } = this.state;
 
-    if (action?.schema) {
-      let defaults = {};
-      try {
-        defaults = jsonSchemaDefaults(action.schema) || {};
-      } catch (_e) {
-        defaults = {};
-      }
-
-      const cleanPayloadObj = {};
-      const initialInputValues = {};
-
-      if (defaults && typeof defaults === 'object') {
-        Object.entries(defaults).forEach(([key, val]) => {
-          if (val !== '' && val !== null && val !== undefined) {
-            cleanPayloadObj[key] = val;
-            initialInputValues[key] =
-              typeof val === 'object' ? JSON.stringify(val) : String(val);
-          }
-        });
-      }
-
+    if (action.schema) {
       this.setState({
-        selectedAction: action,
         schema: jsyaml.dump(action.schema),
-        payloadObject: cleanPayloadObj,
-        inputValues: initialInputValues,
-        payload: Object.keys(cleanPayloadObj).length ? jsyaml.dump(cleanPayloadObj) : '',
+        payload: jsyaml.dump(jsonSchemaDefaults(action.schema)),
         validate: ajv.compile(action.schema),
       });
     } else {
-      this.setState({
-        selectedAction: action || {},
-        schema: null,
-        payloadObject: {},
-        inputValues: {},
-        payload: null,
-        validate: null,
-      });
-    }
-  };
-
-  handlePropertyChange = (key, rawValue, propSchema = {}) => {
-    const type = propSchema.type;
-    const isEnum = Array.isArray(propSchema.enum);
-
-    this.setState((prevState) => {
-      const nextPayloadObj = { ...prevState.payloadObject };
-      const nextInputValues = { ...prevState.inputValues };
-
-      if (rawValue === '' || rawValue === null || rawValue === undefined) {
-        delete nextPayloadObj[key];
-        delete nextInputValues[key];
-      } else if (isEnum) {
-        const matchedEnum = propSchema.enum.find((opt) => String(opt) === rawValue);
-        if (matchedEnum !== undefined) {
-          nextPayloadObj[key] = matchedEnum;
-          nextInputValues[key] = String(matchedEnum);
-        } else {
-          delete nextPayloadObj[key];
-          delete nextInputValues[key];
-        }
-      } else if (type === 'number' || type === 'integer') {
-        const allowNegative = propSchema.minimum === undefined || propSchema.minimum < 0;
-        let sanitized = rawValue;
-
-        if (type === 'integer') {
-          sanitized = allowNegative
-            ? rawValue.replace(/(?!^-)[^0-9]/g, '')
-            : rawValue.replace(/[^0-9]/g, '');
-        } else {
-          sanitized = allowNegative
-            ? rawValue.replace(/(?!^-)[^0-9.]/g, '')
-            : rawValue.replace(/[^0-9.]/g, '');
-
-          const parts = sanitized.split('.');
-          if (parts.length > 2) {
-            sanitized = `${parts[0]}.${parts.slice(1).join('')}`;
-          }
-        }
-
-        if (sanitized !== '' && sanitized !== '-') {
-          let numVal = Number(sanitized);
-
-          if (!Number.isNaN(numVal)) {
-            if (propSchema.maximum !== undefined && numVal > propSchema.maximum) {
-              numVal = propSchema.maximum;
-              sanitized = String(propSchema.maximum);
-            }
-            nextPayloadObj[key] = numVal;
-          } else {
-            delete nextPayloadObj[key];
-          }
-        } else {
-          delete nextPayloadObj[key];
-        }
-
-        nextInputValues[key] = sanitized;
-      } else if (type === 'boolean') {
-        const boolVal = rawValue === 'true';
-        nextPayloadObj[key] = boolVal;
-        nextInputValues[key] = String(boolVal);
-      } else {
-        nextPayloadObj[key] = rawValue;
-        nextInputValues[key] = rawValue;
-      }
-
-      const yamlPayload = Object.keys(nextPayloadObj).length > 0 ? jsyaml.dump(nextPayloadObj) : '';
-
-      return {
-        payloadObject: nextPayloadObj,
-        inputValues: nextInputValues,
-        payload: yamlPayload,
-      };
-    });
-  };
-
-  handleNumberBlur = (key, propSchema) => {
-    const { inputValues } = this.state;
-    const currentInput = inputValues[key];
-
-    if (currentInput === undefined || currentInput === null || currentInput === '') {
-      return;
-    }
-
-    let cleaned = currentInput;
-    if (cleaned.endsWith('.')) {
-      cleaned = cleaned.slice(0, -1);
-    }
-    if (cleaned === '-' || cleaned === '-.' || cleaned === '.') {
-      cleaned = '';
-    }
-
-    if (cleaned === '') {
-      this.handlePropertyChange(key, '', propSchema);
-      return;
-    }
-
-    let numVal = Number(cleaned);
-    if (!Number.isNaN(numVal)) {
-      if (propSchema.minimum !== undefined && numVal < propSchema.minimum) {
-        numVal = propSchema.minimum;
-      }
-      if (propSchema.maximum !== undefined && numVal > propSchema.maximum) {
-        numVal = propSchema.maximum;
-      }
-
-      const targetValStr = String(numVal);
-      if (targetValStr !== currentInput) {
-        this.handlePropertyChange(key, targetValStr, propSchema);
-      }
-    } else {
-      this.handlePropertyChange(key, '', propSchema);
+      this.setState({ schema: null, payload: null, validate: null });
     }
   };
 
@@ -256,7 +113,7 @@ class CustomJobActions extends React.PureComponent {
     const {
       ajv,
       validate,
-      payloadObject,
+      payload,
       decisionTaskId,
       originalTaskId,
       originalTask,
@@ -265,10 +122,16 @@ class CustomJobActions extends React.PureComponent {
     } = this.state;
     const { currentRepo } = this.props;
 
-    const input = Object.keys(payloadObject).length > 0 ? payloadObject : null;
-
-    if (validate) {
-      const valid = validate(input || {});
+    let input = null;
+    if (validate && payload) {
+      try {
+        input = jsyaml.load(payload);
+      } catch (_e) {
+        this.setState({ triggering: false });
+        notify(`YAML Error: ${e.message}`, 'danger');
+        return;
+      }
+      const valid = validate(input);
       if (!valid) {
         this.setState({ triggering: false });
         notify(ajv.errorsText(validate.errors), 'danger');
@@ -325,102 +188,123 @@ class CustomJobActions extends React.PureComponent {
     }
   };
 
-  renderPropertyFields = () => {
-    const { selectedAction, inputValues } = this.state;
-    const properties = selectedAction?.schema?.properties;
+  onFormFieldChange = (fieldName, type, value) => {
+    const { payload } = this.state;
+    try {
+      const parsedPayload = jsyaml.load(payload) || {};
+      
+      if (type === 'integer') {
+        parsedPayload[fieldName] = value === '' ? '' : parseInt(value, 10);
+      } else if (type === 'boolean') {
+        parsedPayload[fieldName] = value === 'true';
+      }
 
-    if (!properties || Object.keys(properties).length === 0) {
-      return null;
+      this.onChangePayload(jsyaml.dump(parsedPayload));
+    } catch (_e) {
+      notify(`Cannot update form: Invalid YAML in Raw view.`, 'danger');
+    }
+  };
+
+  renderPayloadForm() {
+    const { selectedAction, payload } = this.state;
+    const properties = selectedAction?.schema?.properties;
+    
+    if (!properties) return null;
+
+    let parsedPayload = {};
+    try {
+      parsedPayload = jsyaml.load(payload) || {};
+    } catch (_e) {
+      return (
+        <div className="text-danger p-3 border rounded">
+          Invalid YAML detected. Please fix errors in the Raw YAML view before using the form.
+        </div>
+      );
     }
 
     return (
-      <div className="mb-3 border p-3 rounded bg-light">
-        <h6 className="fw-bold mb-3">Action Properties</h6>
-        <div className="row">
-          {Object.entries(properties).map(([propKey, propSchema]) => {
-            const inputValue = inputValues[propKey] ?? '';
-            const isNumber = propSchema.type === 'number' || propSchema.type === 'integer';
-            const isBoolean = propSchema.type === 'boolean';
-            const isEnum = Array.isArray(propSchema.enum);
+      <div className="p-3 border rounded" style={{ backgroundColor: '#f8f9fa' }}>
+        {Object.entries(properties).map(([key, prop]) => {
+          const isBool = prop.type === 'boolean';
+          const isInt = prop.type === 'integer';
+          
+          const isEmpty = parsedPayload[key] === '' || parsedPayload[key] === undefined || Number.isNaN(parsedPayload[key]);
+          const value = !isEmpty ? parsedPayload[key] : (parsedPayload[key] === '' ? '' : prop.default);
 
-            let rangeSuffix = '';
-            if (propSchema.minimum !== undefined && propSchema.maximum !== undefined) {
-              rangeSuffix = ` (${propSchema.minimum}-${propSchema.maximum})`;
-            } else if (propSchema.minimum !== undefined) {
-              rangeSuffix = ` (min: ${propSchema.minimum})`;
-            } else if (propSchema.maximum !== undefined) {
-              rangeSuffix = ` (max: ${propSchema.maximum})`;
-            }
+          const label = prop.title || key;
+          const rangeLabel = isInt ? ` (${prop.minimum}-${prop.maximum})` : '';
+          const fullLabelText = `${label}${rangeLabel}`;
 
-            const displayName = `${propKey}${rangeSuffix}`;
-
-            const labelContent = propSchema.description ? (
-              <SimpleTooltip text={displayName} tooltipText={propSchema.description} />
-            ) : (
-              <span>{displayName}</span>
-            );
-
-            return (
-              <div className="col-md-6 form-group mb-3" key={propKey}>
-                <Form.Label htmlFor={`property-${propKey}`} className="fw-semibold">
-                  {labelContent}
-                </Form.Label>
-
-                {isEnum ? (
-                  <Form.Select
-                    id={`property-${propKey}`}
-                    value={inputValue}
-                    onChange={(e) =>
-                      this.handlePropertyChange(propKey, e.target.value, propSchema)
-                    }
-                  >
-                    <option value="">-- select an option --</option>
-                    {propSchema.enum.map((opt) => (
-                      <option key={opt} value={opt}>
-                        {String(opt)}
-                      </option>
-                    ))}
-                  </Form.Select>
-                ) : isBoolean ? (
-                  <Form.Select
-                    id={`property-${propKey}`}
-                    value={inputValue}
-                    onChange={(e) =>
-                      this.handlePropertyChange(propKey, e.target.value, propSchema)
-                    }
-                  >
-                    <option value="">-- select boolean --</option>
-                    <option value="true">true</option>
-                    <option value="false">false</option>
-                  </Form.Select>
-                ) : isNumber ? (
-                  <Form.Control
-                    type="text"
-                    inputMode={propSchema.type === 'integer' ? 'numeric' : 'decimal'}
-                    id={`property-${propKey}`}
-                    value={inputValue}
-                    onBlur={() => this.handleNumberBlur(propKey, propSchema)}
-                    onChange={(e) =>
-                      this.handlePropertyChange(propKey, e.target.value, propSchema)
-                    }
+          return (
+            <Form.Group key={key} className="d-flex align-items-center mb-3">
+              <Form.Label className="w-50 fw-bold mb-0" style={{ cursor: prop.description ? 'help' : 'default' }}>
+                {prop.description ? (
+                  <SimpleTooltip 
+                    text={fullLabelText} 
+                    tooltipText={prop.description} 
+                    placement="top" 
                   />
                 ) : (
-                  <Form.Control
-                    type="text"
-                    id={`property-${propKey}`}
-                    value={inputValue}
-                    onChange={(e) =>
-                      this.handlePropertyChange(propKey, e.target.value, propSchema)
-                    }
-                  />
+                  fullLabelText
                 )}
+              </Form.Label>
+              <div className="w-50">
+                {isBool ? (
+                  <Form.Control
+                    as="select"
+                    value={value ? 'true' : 'false'}
+                    onChange={(e) => this.onFormFieldChange(key, 'boolean', e.target.value)}
+                  >
+                    <option value="true">True</option>
+                    <option value="false">False</option>
+                  </Form.Control>
+                ) : isInt ? (
+                  <React.Fragment>
+                    <Form.Control
+                      type="number"
+                      min={prop.minimum}
+                      max={prop.maximum}
+                      value={value}
+                      isInvalid={isEmpty}
+                      onChange={(e) => {
+                        let sanitizedValue = e.target.value.replace(/\D/g, '');
+                        
+                        if (sanitizedValue !== '' && parseInt(sanitizedValue, 10) > prop.maximum) {
+                          sanitizedValue = prop.maximum.toString();
+                        }
+                        
+                        this.onFormFieldChange(key, 'integer', sanitizedValue);
+                      }}
+                      onBlur={(e) => {
+                        if (e.target.value !== '') {
+                          const numVal = parseInt(e.target.value, 10);
+                          if (numVal < prop.minimum) {
+                            this.onFormFieldChange(key, 'integer', prop.minimum.toString());
+                          }
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        const isControlKey = ['Backspace', 'Tab', 'Enter', 'Delete', 'ArrowLeft', 'ArrowRight'].includes(e.key);
+                        const isShortcut = e.ctrlKey || e.metaKey;
+                        const isNumber = /^[0-9]$/.test(e.key);
+
+                        if (!isControlKey && !isShortcut && !isNumber) {
+                          e.preventDefault();
+                        }
+                      }}
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      This field cannot be empty.
+                    </Form.Control.Feedback>
+                  </React.Fragment>
+                ) : null}
               </div>
-            );
-          })}
-        </div>
+            </Form.Group>
+          );
+        })}
       </div>
     );
-  };
+  }
 
   render() {
     const { toggle } = this.props;
@@ -441,7 +325,7 @@ class CustomJobActions extends React.PureComponent {
           {!!actions && (
             <div>
               <div className="form-group">
-                <Form.Label htmlFor="action-select-input">Action</Form.Label>
+                <Form.Label for="action-select-input">Action</Form.Label>
                 <Dropdown
                   show={this.state.dropdownOpen}
                   onToggle={this.toggleDropdown}
@@ -470,35 +354,60 @@ class CustomJobActions extends React.PureComponent {
                   </p>
                 )}
               </div>
-
-              {this.renderPropertyFields()}
-
               <div className="row">
                 {!!selectedAction.schema && (
                   <React.Fragment>
                     <div className="col-s-12 col-md-6 form-group">
-                      <Form.Label htmlFor="payload-textarea" className="w-100">
-                        Payload
-                      </Form.Label>
-                      <textarea
-                        id="payload-textarea"
-                        value={payload || ''}
-                        className="form-control pre"
-                        rows="10"
-                        readOnly
-                        spellCheck="false"
-                      />
+                      <div className="d-flex justify-content-between align-items-end mb-2 w-100" style={{ minHeight: '31px' }}>
+                        <Form.Label htmlFor="payload-textarea" className="mb-0 fw-bold">
+                          Payload
+                        </Form.Label>
+                        
+                        {['backfill', 'retrigger'].includes(selectedAction.name) && (
+                          <ButtonGroup size="sm">
+                            <Button
+                              variant={this.state.payloadView === 'yaml' ? 'primary' : 'outline-primary'}
+                              onClick={() => this.setState({ payloadView: 'yaml' })}
+                            >
+                              Raw YAML
+                            </Button>
+                            <Button
+                              variant={this.state.payloadView === 'form' ? 'primary' : 'outline-primary'}
+                              onClick={() => this.setState({ payloadView: 'form' })}
+                            >
+                              Form
+                            </Button>
+                          </ButtonGroup>
+                        )}
+                      </div>
+
+                      {['backfill', 'retrigger'].includes(selectedAction.name) && this.state.payloadView === 'form' ? (
+                        this.renderPayloadForm()
+                      ) : (
+                        <textarea
+                          id="payload-textarea"
+                          value={payload}
+                          className="form-control pre"
+                          rows="10"
+                          onChange={(evt) =>
+                            this.onChangePayload(evt.target.value)
+                          }
+                          spellCheck="false"
+                        />
+                      )}
                     </div>
                     <div className="col-s-12 col-md-6 form-group">
-                      <Form.Label htmlFor="schema-textarea" className="w-100">
-                        Schema
-                      </Form.Label>
+                      <div className="d-flex align-items-end mb-2 w-100" style={{ minHeight: '31px' }}>
+                        <Form.Label htmlFor="schema-textarea" className="mb-0 fw-bold w-100">
+                          Schema
+                        </Form.Label>
+                      </div>
                       <textarea
                         id="schema-textarea"
                         className="form-control pre"
                         rows="10"
                         readOnly
-                        value={schema || ''}
+                        value={schema}
                       />
                     </div>
                   </React.Fragment>
