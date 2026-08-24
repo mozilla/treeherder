@@ -438,6 +438,17 @@
         font-variant-numeric: tabular-nums;
       }
 
+      .viewbar input[type='checkbox'] {
+        accent-color: var(--sum);
+        width: 14px;
+        height: 14px;
+        margin: 0;
+      }
+
+      .viewbar .check label {
+        cursor: pointer;
+      }
+
       /* --- results ---------------------------------------------------- */
 
       #results {
@@ -534,6 +545,15 @@
         border-top: 1px solid var(--line-soft);
       }
 
+      /* A row's triage control is a sibling of the link, not a child of it: a
+         <button> cannot live inside an <a>, and the two would fight over the
+         click if it could. The link takes the remaining width, so the grid
+         inside it is unchanged. */
+      .row {
+        display: flex;
+        align-items: center;
+      }
+
       a.open {
         display: grid;
         grid-template-columns: 150px 92px minmax(0, 1fr) auto 20px;
@@ -543,9 +563,14 @@
         text-decoration: none;
         color: var(--ink);
         transition: background 0.12s ease;
+        flex: 1 1 auto;
+        /* Lets the minmax(0, 1fr) track above actually shrink. */
+        min-width: 0;
       }
 
-      a.open:hover {
+      /* On the row, not the link: the highlight would otherwise stop short of
+         the gap the triage control occupies. */
+      .row:hover {
         background: var(--line-soft);
       }
 
@@ -686,6 +711,130 @@
         color: var(--ink-3);
       }
 
+      /* --- triage ----------------------------------------------------- */
+
+      .triage {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex: 0 0 auto;
+      }
+
+      .triage-row {
+        padding-right: 16px;
+      }
+
+      button.triage-btn {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 0.68rem;
+        font-weight: 500;
+        letter-spacing: 0.06em;
+        color: var(--ink-2);
+        background: transparent;
+        border: 1px solid var(--line);
+        border-radius: var(--r);
+        padding: 2px 7px;
+      }
+
+      button.triage-btn:hover:not(:disabled) {
+        background: var(--line-soft);
+      }
+
+      button.triage-btn.bug {
+        color: var(--ok);
+      }
+
+      button.triage-btn.undo {
+        color: var(--ink-3);
+      }
+
+      .triage-bug-input {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 0.75rem;
+        width: 7.5em;
+        color: var(--ink);
+        background: var(--bg);
+        border: 1px solid var(--line);
+        border-radius: var(--r);
+        padding: 2px 6px;
+      }
+
+      .triage-bug-input.invalid {
+        border-color: var(--hot);
+      }
+
+      /* Outlined rather than filled: a tinted background would need a light
+         and a dark value per state, and the badge sits on --panel in both
+         themes. currentColor gives the border for free. */
+      .triage-badge {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 0.68rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        white-space: nowrap;
+        border: 1px solid currentColor;
+        border-radius: var(--r);
+        padding: 1px 6px;
+      }
+
+      .triage-badge.ignored {
+        color: var(--ink-3);
+      }
+
+      .triage-badge.bug {
+        color: var(--ok);
+      }
+
+      .triage-badge.bug a {
+        color: inherit;
+      }
+
+      /* A triaged job is dimmed, not removed — the checkbox in the view bar
+         removes it. Only the link dims: the control that undoes the verdict
+         has to stay readable, or the verdict cannot be taken back. */
+      .row.triaged a.open {
+        opacity: 0.45;
+      }
+
+      .row:hover.triaged a.open {
+        opacity: 0.75;
+      }
+
+      .push.triaged .push-id {
+        opacity: 0.55;
+      }
+
+      /* Same shell as the view bar — it is the same kind of strip — but
+         quieter, since it is about bookkeeping rather than what is shown. */
+      .triagebar {
+        font-size: 0.8rem;
+      }
+
+      .triagebar .tcount {
+        color: var(--ink-3);
+      }
+
+      .triagebar .twarn {
+        color: var(--hot);
+      }
+
+      .triagebar .tactions {
+        margin-left: auto;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .triagebar button {
+        font-size: 0.78rem;
+        padding: 5px 10px;
+      }
+
+      button.ghost.danger {
+        color: var(--hot);
+        border-color: var(--hot);
+      }
+
       /* --- coverage --------------------------------------------------- */
 
       .cov-wrap {
@@ -813,6 +962,30 @@
 
         .go {
           display: none;
+        }
+
+        /* Below the breakpoint the link already uses all three of its rows;
+           the triage control drops underneath it rather than squeezing the
+           job name into nothing. */
+        .row {
+          flex-wrap: wrap;
+        }
+
+        .triage-row {
+          flex: 1 0 100%;
+          justify-content: flex-end;
+          padding: 0 16px 11px;
+        }
+
+        /* The control has a row to itself here, so the buttons can be a
+           comfortable size to tap rather than the compact ones the desktop
+           row has room for. */
+        .triage-row button.triage-btn {
+          padding: 9px 12px;
+        }
+
+        .triage-row .triage-bug-input {
+          padding: 8px 8px;
         }
       }
 
@@ -981,7 +1154,38 @@
             <option value="job">Job name</option>
           </select>
         </div>
+        <div class="control check">
+          <input type="checkbox" id="hide-triaged" />
+          <label for="hide-triaged">Hide triaged jobs</label>
+        </div>
         <span class="count" id="view-count"></span>
+      </div>
+
+      <!-- Triage flags live in this browser's localStorage, layered over the
+       triage.json committed next to this page. Export produces a file to
+       commit; Import merges one back in. -->
+      <div class="viewbar triagebar" id="triage-bar" hidden>
+        <span class="tcount" id="triage-count"></span>
+        <span class="twarn" id="triage-storage-warning" hidden
+          >localStorage is unavailable &mdash; flags won't be saved.</span
+        >
+        <div class="tactions">
+          <button type="button" class="ghost" id="triage-export">
+            Export triage.json
+          </button>
+          <button type="button" class="ghost" id="triage-import">
+            Import&hellip;
+          </button>
+          <input
+            type="file"
+            id="triage-import-input"
+            accept="application/json,.json"
+            hidden
+          />
+          <button type="button" class="ghost danger" id="triage-clear">
+            Clear local flags
+          </button>
+        </div>
       </div>
 
       <div id="results"></div>
@@ -1048,6 +1252,7 @@
         SUMMARY_ARTIFACT_PATH,
         SUMMARY_ARTIFACT_SUFFIX,
         JOB_CONCURRENCY,
+        BZ_BASE_URL,
         isAbort,
         fetchJson,
         fetchText,
@@ -1077,6 +1282,13 @@
       // cover everything: 5 of the 56 worst divergences in that sample sat on
       // jobs marked `success`, which is why the rest stay one click away.
       const FAILED_RESULTS = new Set(['testfailed', 'busted', 'exception']);
+
+      // Where triage flags — the jobs marked ignored or linked to a bug —
+      // live. The localStorage layer is this browser's working copy; the JSON
+      // file is the shared baseline committed next to this page.
+      const TRIAGE_STORAGE_KEY = 'testsummary-divergence-triage-v1';
+      const TRIAGE_BASELINE_URL = './triage.json';
+      const TRIAGE_VERSION = 1;
 
       const DEFAULTS = {
         host: 'production',
@@ -1140,6 +1352,14 @@
       const deferredBar = $('deferred-bar');
       const deferredText = $('deferred-text');
       const scanPassingButton = $('scan-passing-button');
+      const hideTriaged = $('hide-triaged');
+      const triageBar = $('triage-bar');
+      const triageCountEl = $('triage-count');
+      const triageStorageWarning = $('triage-storage-warning');
+      const triageExportButton = $('triage-export');
+      const triageImportButton = $('triage-import');
+      const triageImportInput = $('triage-import-input');
+      const triageClearButton = $('triage-clear');
 
       // ---------------------------------------------------------------------
       // URL params — same `instance`/`project` names the sibling pages use, so
@@ -1162,6 +1382,9 @@
           params.set('group', groupSelect.value);
         if (sortSelect.value !== DEFAULTS.sort)
           params.set('sort', sortSelect.value);
+        // Written only when on: an absent param is the default, the same way
+        // the selects omit theirs.
+        if (hideTriaged.checked) params.set('hide', 'triaged');
         const qs = params.toString();
         history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
       }
@@ -1196,7 +1419,127 @@
           groupSelect.value = group;
         const sort = params.get('sort');
         if (sort && sort in ROW_SORTS) sortSelect.value = sort;
+        hideTriaged.checked = params.get('hide') === 'triaged';
         localWarning.hidden = hostSelect.value !== 'localhost';
+      }
+
+      // ---------------------------------------------------------------------
+      // Triage. `baseline` is the triage.json committed next to this page —
+      // the team's shared, git-reviewed set. `local` is this browser's
+      // localStorage, and always wins. Un-flagging a key present in the
+      // baseline cannot simply drop it locally, or the baseline would show
+      // through again, so it writes a `cleared` tombstone instead.
+      //
+      // The key is jobKey() — platform, option and job type. That is already
+      // canonical: it holds nothing per-push, so a flag made against one push
+      // applies to the same job on every other one, and survives a rescan.
+      // That is the whole point, and it is why nothing has to be masked or
+      // re-keyed on the way in the way the per-line triage on the Summary Tab
+      // Preview page does.
+      // ---------------------------------------------------------------------
+
+      let baselineTriage = { version: TRIAGE_VERSION, entries: {} };
+      let localTriage = { version: TRIAGE_VERSION, entries: {} };
+      // Merged view of both layers, rebuilt on mutation rather than derived on
+      // every lookup — rendering reads it once per row.
+      let triageEntries = {};
+      // False when localStorage throws (private mode, some sandboxed
+      // contexts). The page still renders the baseline, read-only.
+      let triageStorageAvailable = true;
+
+      const getBugUrl = (bugId) => `${BZ_BASE_URL}show_bug.cgi?id=${bugId}`;
+
+      function recomputeTriageEntries() {
+        const merged = { ...baselineTriage.entries, ...localTriage.entries };
+        for (const [key, entry] of Object.entries(merged)) {
+          if (!entry || entry.state === 'cleared') delete merged[key];
+        }
+        triageEntries = merged;
+      }
+
+      const isTriageEntries = (parsed) =>
+        parsed &&
+        typeof parsed === 'object' &&
+        parsed.entries !== null &&
+        typeof parsed.entries === 'object';
+
+      function loadLocalTriage() {
+        try {
+          const raw = localStorage.getItem(TRIAGE_STORAGE_KEY);
+          const parsed = raw ? JSON.parse(raw) : null;
+          if (isTriageEntries(parsed)) {
+            localTriage = { version: TRIAGE_VERSION, entries: parsed.entries };
+          }
+        } catch {
+          triageStorageAvailable = false;
+        }
+        recomputeTriageEntries();
+      }
+
+      function saveLocalTriage() {
+        try {
+          localStorage.setItem(TRIAGE_STORAGE_KEY, JSON.stringify(localTriage));
+        } catch {
+          triageStorageAvailable = false;
+        }
+      }
+
+      // Optional by design: the file is absent until someone commits one, and
+      // a stale deploy can 404 it. Either way the page carries on with the
+      // localStorage layer alone.
+      async function loadBaselineTriage() {
+        try {
+          const res = await fetch(TRIAGE_BASELINE_URL);
+          if (!res.ok) return;
+          const parsed = await res.json();
+          if (isTriageEntries(parsed)) {
+            baselineTriage = {
+              version: TRIAGE_VERSION,
+              entries: parsed.entries,
+            };
+          }
+        } catch {
+          // No baseline available — localStorage only.
+        }
+        recomputeTriageEntries();
+      }
+
+      const getTriage = (key) => triageEntries[key];
+
+      function setTriage(key, state, bug, seen) {
+        localTriage.entries[key] = {
+          state,
+          bug: bug || null,
+          updated: new Date().toISOString(),
+          seen,
+        };
+        saveLocalTriage();
+        recomputeTriageEntries();
+        onTriageChanged();
+      }
+
+      function clearTriage(key) {
+        if (key in baselineTriage.entries) {
+          localTriage.entries[key] = {
+            state: 'cleared',
+            updated: new Date().toISOString(),
+          };
+        } else {
+          delete localTriage.entries[key];
+        }
+        saveLocalTriage();
+        recomputeTriageEntries();
+        onTriageChanged();
+      }
+
+      function triageCounts() {
+        let ignored = 0;
+        let bugs = 0;
+        for (const entry of Object.values(triageEntries)) {
+          if (entry.state === 'ignored') ignored += 1;
+          else if (entry.state === 'bug') bugs += 1;
+        }
+        return { ignored, bugs, total: ignored + bugs };
       }
 
       // ---------------------------------------------------------------------
@@ -1356,12 +1699,144 @@
         return `${PREVIEW_URL}?project=${encodeURIComponent(project)}&revision=${encodeURIComponent(revision)}#${jobAnchorId(job)}`;
       }
 
+      function triageButton(label, variant, onClick, attrs = {}) {
+        const button = el('button', {
+          type: 'button',
+          class: `triage-btn ${variant}`.trim(),
+          text: label,
+          ...attrs,
+        });
+        button.addEventListener('click', onClick);
+        return button;
+      }
+
+      // What a flag was made against. The key is three pipe-separated fields
+      // and nothing else; this is what makes an exported triage.json readable
+      // on its own, months later, without the page that produced it.
+      const triageSeen = (job, project) => ({
+        label: jobGroupLabel(job),
+        platform: job.platform,
+        platform_option: job.platform_option,
+        job_type_name: job.job_type_name,
+        project,
+      });
+
+      // The ignore / link-bug control for one job. `seen` rather than
+      // `context`, because `context` already means the layout context
+      // ('push' | 'job' | 'flat') everywhere else in this file.
+      function renderJobTriageControls(key, triage, seen, { placement = 'row' } = {}) {
+        const group = el('span', {
+          class: `triage triage-${placement}`,
+          // Worth spelling out: flagging one row visibly dims the same job
+          // under every other push, which is surprising the first time.
+          title: 'Applies to this job on every push in this scan',
+        });
+
+        const renderView = () => {
+          group.textContent = '';
+          if (!triage) {
+            group.append(
+              triageButton('ignore', '', () =>
+                setTriage(key, 'ignored', null, seen),
+              ),
+              triageButton('link bug', 'bug', renderEditor),
+            );
+            return;
+          }
+
+          if (triage.state === 'bug') {
+            const badge = el('span', { class: 'triage-badge bug' }, [
+              document.createTextNode('bug '),
+            ]);
+            // Internal issues (i123) exist only in Treeherder — there is no
+            // Bugzilla page to link to.
+            badge.appendChild(
+              String(triage.bug).startsWith('i')
+                ? document.createTextNode(String(triage.bug))
+                : el('a', {
+                    href: getBugUrl(triage.bug),
+                    target: '_blank',
+                    rel: 'noopener',
+                    text: String(triage.bug),
+                  }),
+            );
+            group.appendChild(badge);
+          } else {
+            group.appendChild(
+              el('span', { class: 'triage-badge ignored', text: 'ignored' }),
+            );
+          }
+
+          group.appendChild(
+            triageButton('\u00d7', 'undo', () => clearTriage(key), {
+              title: 'Remove this flag',
+              'aria-label': 'Remove this flag',
+            }),
+          );
+        };
+
+        // Closing the editor has to release the render hold, or a scan still
+        // in flight never repaints again. Every path out of here decrements.
+        const closeEditor = (thenRenderView) => {
+          triageEditorOpen -= 1;
+          if (renderDeferred) {
+            renderDeferred = false;
+            renderNow();
+          } else if (thenRenderView) {
+            renderView();
+          }
+        };
+
+        const renderEditor = () => {
+          triageEditorOpen += 1;
+          group.textContent = '';
+          const input = el('input', {
+            type: 'text',
+            class: 'triage-bug-input',
+            placeholder: '1892345',
+            // Same grammar as PinBoard.jsx: a leading `i` means internal issue.
+            title: 'Bugzilla number, or i<id> for an internal issue',
+          });
+          const commit = () => {
+            const value = input.value.trim();
+            if (!/^i?\d+$/.test(value)) {
+              input.classList.add('invalid');
+              return;
+            }
+            // Released before the write, so the re-render setTriage triggers
+            // is the one that repaints this control in its treated state.
+            triageEditorOpen -= 1;
+            renderDeferred = false;
+            setTriage(key, 'bug', value, seen);
+          };
+          input.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+              event.preventDefault();
+              commit();
+            } else if (event.key === 'Escape') {
+              closeEditor(true);
+            }
+          });
+          group.append(
+            input,
+            triageButton('ok', 'bug', commit),
+            triageButton('cancel', '', () => closeEditor(true)),
+          );
+          input.focus();
+        };
+
+        renderView();
+        return group;
+      }
+
       // `context` says what the surrounding group already establishes, so the
       // row can spend its two lines on what actually varies within it.
       function renderRow(project, push, result, { context = 'push' } = {}) {
         const revision = push.revision;
         const { job, onlyInSummary, onlyInFailureSummary } = result;
         const total = onlyInSummary + onlyInFailureSummary;
+        const key = jobKey(job);
+        const triage = getTriage(key);
 
         const bar = el('div', {
           class: 'bar',
@@ -1444,8 +1919,18 @@
           ],
         );
 
-        const row = el('li', { class: 'row' }, [link]);
+        // Under `job` grouping the section header owns the control, so the
+        // row does not repeat it once per push.
+        const row = el('li', { class: `row${triage ? ' triaged' : ''}` }, [
+          link,
+          context === 'job'
+            ? null
+            : renderJobTriageControls(key, triage, triageSeen(job, project)),
+        ]);
         row.dataset.total = String(total);
+        // Identity the row lacked until now. For inspection and for any future
+        // partial update — nothing reads it, the filter works on data.
+        row.dataset.jobKey = key;
         return row;
       }
 
@@ -1646,6 +2131,7 @@
           ? name
           : `${platformOf(job)} ${name}`.trim();
       };
+      const isTriaged = (item) => Boolean(getTriage(jobKey(item.result.job)));
 
       const ROW_SORTS = {
         differences: (a, b) =>
@@ -1667,6 +2153,9 @@
 
       function renderJobGroupSection(items, project) {
         const worst = Math.max(...items.map((i) => totalOf(i.result)));
+        const job = items[0].result.job;
+        const key = jobKey(job);
+        const triage = getTriage(key);
         const meta = el('div', { class: 'push-meta' });
         [
           `${plural(items.length, 'push')}`,
@@ -1677,14 +2166,21 @@
             el('span', { class: index ? 'hit' : '', text }),
           );
         });
+        // The group is the job, so this is the control's natural home: one
+        // verdict for every row under it.
+        meta.append(
+          el('span', { class: 'dot' }),
+          renderJobTriageControls(key, triage, triageSeen(job, project), {
+            placement: 'head',
+          }),
+        );
 
-        const section = el('section', { class: 'push' }, [
+        const section = el('section', {
+          class: `push${triage ? ' triaged' : ''}`,
+        }, [
           el('header', { class: 'push-head job-head' }, [
             el('div', { class: 'push-id' }, [
-              el('span', {
-                class: 'rev',
-                text: jobGroupLabel(items[0].result.job),
-              }),
+              el('span', { class: 'rev', text: jobGroupLabel(job) }),
             ]),
             meta,
           ]),
@@ -1700,16 +2196,47 @@
       }
 
       function renderResults() {
+        // Held rather than dropped: see triageEditorOpen. The guard sits here
+        // rather than in scheduleRender() so that it covers every entry point
+        // at once — the coalescer, renderNow, the view controls and
+        // onTriageChanged.
+        if (triageEditorOpen) {
+          renderDeferred = true;
+          return;
+        }
         if (!runState) return;
         const { opts, collected, pushes } = runState;
         const project = opts.project;
-        const sorted = collected.slice().sort(rowSort());
+
+        // Filtering once, before the sort, covers all three groupings below —
+        // they all derive from `sorted`. Because the key is per job, a job
+        // group is flagged as a whole or not at all, so hiding never leaves a
+        // group half-empty.
+        const flagged = collected.filter(isTriaged).length;
+        const hiding = hideTriaged.checked && flagged > 0;
+        const sorted = (
+          hiding ? collected.filter((item) => !isTriaged(item)) : collected.slice()
+        ).sort(rowSort());
+
+        // "Nothing over the threshold" is a lie when the filter is what
+        // emptied the page.
+        const emptyText = () =>
+          hiding && !sorted.length
+            ? 'Every job over the threshold is triaged.'
+            : 'Nothing over the threshold yet.';
 
         resultsEl.textContent = '';
         viewbar.hidden = !pushes.length;
-        viewCount.textContent = collected.length
-          ? `${plural(collected.length, 'job')} over the threshold`
-          : '';
+        viewCount.textContent = !collected.length
+          ? ''
+          : hiding
+            ? `${plural(sorted.length, 'job')} over the threshold \u00b7 ${fmt(flagged)} triaged hidden`
+            : flagged
+              ? `${plural(collected.length, 'job')} over the threshold \u00b7 ${fmt(flagged)} triaged`
+              : `${plural(collected.length, 'job')} over the threshold`;
+        // Ahead of the grouping branches: each one returns, so this is the
+        // only spot every render passes through.
+        updateTriageBar();
 
         if (groupSelect.value === 'none') {
           const list = el('ol', { class: 'rows' });
@@ -1720,9 +2247,7 @@
           );
           const section = el('section', { class: 'push' }, [list]);
           if (!sorted.length) {
-            list.appendChild(
-              el('li', { class: 'empty', text: 'Nothing over the threshold yet.' }),
-            );
+            list.appendChild(el('li', { class: 'empty', text: emptyText() }));
           }
           resultsEl.appendChild(section);
           return;
@@ -1744,10 +2269,7 @@
             resultsEl.appendChild(
               el('section', { class: 'push' }, [
                 el('ol', { class: 'rows' }, [
-                  el('li', {
-                    class: 'empty',
-                    text: 'Nothing over the threshold yet.',
-                  }),
+                  el('li', { class: 'empty', text: emptyText() }),
                 ]),
               ]),
             );
@@ -1767,6 +2289,18 @@
           list.push(item);
           byPush.set(item.push.id, list);
         });
+
+        // What the filter took out of each push, so a section emptied by the
+        // checkbox does not report itself as clean.
+        const hiddenPerPush = new Map();
+        if (hiding) {
+          collected.filter(isTriaged).forEach((item) => {
+            hiddenPerPush.set(
+              item.push.id,
+              (hiddenPerPush.get(item.push.id) || 0) + 1,
+            );
+          });
+        }
 
         const entries = pushes.slice();
         if (sortSelect.value !== 'recent') {
@@ -1800,7 +2334,9 @@
                   ? 'Comparing…'
                   : state.scanned === 0
                     ? 'Nothing on this push could be compared.'
-                    : `No job differs by more than ${fmt(opts.threshold)}.`,
+                    : hiddenPerPush.get(state.push.id)
+                      ? `${plural(hiddenPerPush.get(state.push.id), 'job')} over the threshold, all triaged.`
+                      : `No job differs by more than ${fmt(opts.threshold)}.`,
               }),
             );
           }
@@ -1816,6 +2352,20 @@
       // where rAF callbacks never fire and the report would stay empty until
       // the tab was looked at again.
       let renderHandle = null;
+
+      // A bug number gets typed into a report that is still being scanned:
+      // scheduleRender() fires every 80ms and renderResults() rebuilds
+      // #results from scratch, which would take the <input> — and the
+      // half-typed number in it — out from under the user. Renders are held
+      // while an editor is open and replayed the moment it closes, so a hit
+      // that arrived meanwhile is not lost.
+      //
+      // A counter rather than a flag: "link bug" can be clicked on a second
+      // row while the first is still open, and closing one must not unblock
+      // the other.
+      let triageEditorOpen = 0;
+      let renderDeferred = false;
+
       function scheduleRender() {
         if (renderHandle !== null) return;
         renderHandle = setTimeout(() => {
@@ -1882,6 +2432,11 @@
         const { signal } = controller;
         setRunning(true);
         beginScanUi();
+        // This wipes #results directly rather than through renderResults(), so
+        // any editor open in the old report is gone with it — its counter has
+        // to go too, or renders stay held forever.
+        triageEditorOpen = 0;
+        renderDeferred = false;
         resultsEl.textContent = '';
         coverageBody.textContent = '';
         copyButton.hidden = true;
@@ -2051,14 +2606,119 @@
         renderNow();
       }
 
+      // ---------------------------------------------------------------------
+      // The triage bar: what is flagged, and the round trip to a committable
+      // triage.json. There is no server here, so a flag reaches the repository
+      // by being exported, committed, and served back as the next baseline.
+      // ---------------------------------------------------------------------
+
+      function updateTriageBar() {
+        const { total, ignored, bugs } = triageCounts();
+        const inScan = runState
+          ? runState.collected.filter(isTriaged).length
+          : 0;
+        // The merged set covers every job ever flagged, most of which this
+        // scan never looked at; the second figure is the one that explains
+        // what is dimmed on screen.
+        triageCountEl.textContent = total
+          ? `${fmt(total)} flagged (${fmt(ignored)} ignored, ${fmt(bugs)} bug-linked)` +
+            (runState ? ` \u00b7 ${fmt(inScan)} in this scan` : '')
+          : 'No job flagged yet.';
+        triageStorageWarning.hidden = triageStorageAvailable;
+        // Shown once a scan starts, and at boot when flags already exist — so
+        // an existing set can be reviewed, exported or cleared without having
+        // to scan first.
+        triageBar.hidden = !runState && !total;
+      }
+
+      // Flagging changes what is dimmed, the view-bar count and possibly which
+      // rows are on screen at all, so the report is rebuilt through the one
+      // render path rather than patched in place.
+      function onTriageChanged() {
+        if (runState) renderNow();
+        else updateTriageBar();
+      }
+
+      // Exports the merged view, not just the local layer: the result is meant
+      // to be committed as triage.json and become the next baseline.
+      function exportTriage() {
+        const blob = new Blob(
+          [
+            `${JSON.stringify(
+              { version: TRIAGE_VERSION, entries: triageEntries },
+              null,
+              2,
+            )}\n`,
+          ],
+          { type: 'application/json' },
+        );
+        const url = URL.createObjectURL(blob);
+        const link = el('a', { href: url, download: 'triage.json' });
+        link.click();
+        URL.revokeObjectURL(url);
+      }
+
+      async function importTriage(event) {
+        const file = event.target.files?.[0];
+        // Reset first, so re-picking the same file fires `change` again.
+        event.target.value = '';
+        if (!file) return;
+        try {
+          const parsed = JSON.parse(await file.text());
+          if (!isTriageEntries(parsed)) {
+            throw new Error('no "entries" object');
+          }
+          // Merged into the local layer rather than replacing it: importing a
+          // colleague's file should not drop the flags made here since.
+          localTriage.entries = {
+            ...localTriage.entries,
+            ...parsed.entries,
+          };
+          saveLocalTriage();
+          recomputeTriageEntries();
+          onTriageChanged();
+          const count = Object.keys(parsed.entries).length;
+          triageImportButton.textContent = `Imported ${fmt(count)}`;
+          setTimeout(() => {
+            triageImportButton.textContent = 'Import\u2026';
+          }, 1500);
+        } catch (err) {
+          showError(`Could not read that triage file: ${err.message}`);
+        }
+      }
+
+      function clearLocalTriage() {
+        const { total } = triageCounts();
+        if (
+          !window.confirm(
+            `Clear this browser's triage flags? ${fmt(total)} flag(s) are ` +
+              'showing; any that came from the committed triage.json will ' +
+              'reappear.',
+          )
+        ) {
+          return;
+        }
+        localTriage = { version: TRIAGE_VERSION, entries: {} };
+        saveLocalTriage();
+        recomputeTriageEntries();
+        onTriageChanged();
+      }
+
       scanPassingButton.addEventListener('click', scanPassingJobs);
 
-      [groupSelect, sortSelect].forEach((control) =>
+      [groupSelect, sortSelect, hideTriaged].forEach((control) =>
         control.addEventListener('change', () => {
           renderResults();
           syncUrlFromForm();
         }),
       );
+
+      triageExportButton.addEventListener('click', exportTriage);
+      triageImportButton.addEventListener('click', () =>
+        triageImportInput.click(),
+      );
+      triageImportInput.addEventListener('change', importTriage);
+      triageClearButton.addEventListener('click', clearLocalTriage);
 
       stopButton.addEventListener('click', () => {
         if (controller) controller.abort();
@@ -2067,11 +2727,29 @@
       copyButton.addEventListener('click', async () => {
         if (!lastRun || !lastRun.collected.length) return;
         const { opts, collected } = lastRun;
+        // Same filter as the page: with it on, the pasted table is exactly the
+        // untriaged backlog, which is the artifact worth putting in a bug.
+        const rows = hideTriaged.checked
+          ? collected.filter((item) => !isTriaged(item))
+          : collected;
+        if (!rows.length) return;
+
+        // With the filter off the triaged rows are still listed, so the column
+        // says which of them are already handled rather than dropping them
+        // silently.
+        const triageCell = (job) => {
+          const triage = getTriage(jobKey(job));
+          if (!triage) return '—';
+          if (triage.state !== 'bug') return 'ignored';
+          const bug = String(triage.bug);
+          return bug.startsWith('i') ? bug : `[bug ${bug}](${getBugUrl(bug)})`;
+        };
+
         const lines = [
-          '| Diff | Only in Summary | Only in Failure Summary | Revision | Job ID | Job | Link |',
-          '| --- | --- | --- | --- | --- | --- | --- |',
+          '| Diff | Only in Summary | Only in Failure Summary | Revision | Job ID | Job | Link | Triage |',
+          '| --- | --- | --- | --- | --- | --- | --- | --- |',
           // Same order as the page, so a copied list matches what was read.
-          ...[...collected]
+          ...[...rows]
             .sort(rowSort())
             .map(({ push, result }) => {
               const total =
@@ -2080,7 +2758,7 @@
                 previewUrl(opts.project, push.revision, result.job),
                 location.href,
               ).href;
-              return `| ${total} | ${result.onlyInSummary} | ${result.onlyInFailureSummary} | ${push.revision.slice(0, 12)} | ${result.job.id} | ${shortJobName(result.job)} | ${url} |`;
+              return `| ${total} | ${result.onlyInSummary} | ${result.onlyInFailureSummary} | ${push.revision.slice(0, 12)} | ${result.job.id} | ${shortJobName(result.job)} | ${url} | ${triageCell(result.job)} |`;
             }),
         ];
         try {
@@ -2104,6 +2782,16 @@
       );
 
       applyUrlParams();
+
+      // Both layers must be in before anything renders, or a report could
+      // paint untriaged and then rearrange under the user. Nothing has been
+      // scanned yet, so the wait costs only the baseline fetch.
+      loadLocalTriage();
+      updateTriageBar();
+      await loadBaselineTriage();
+      // Not updateTriageBar(): if Scan was hit during the fetch, the arriving
+      // baseline has to fold into the report, not just into the count.
+      onTriageChanged();
     </script>
   </body>
 </html>
