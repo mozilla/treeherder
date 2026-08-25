@@ -9,10 +9,10 @@ from treeherder.changelog.tasks import update_changelog
 
 
 @pytest.mark.django_db()
-@mock.patch("treeherder.utils.github.pygithub_get_repo")
-def test_update_changelog(mock_pygithub_get_repo):
+@mock.patch("treeherder.utils.github.get_repo")
+def test_update_changelog(mock_get_repo):
     now = datetime.now(tz=UTC)
-    mock_pygithub_get_repo.return_value = _mock_repo(now)
+    mock_get_repo.return_value = _mock_repo(now)
 
     num_entries = Changelog.objects.count()
 

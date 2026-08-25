@@ -12,11 +12,7 @@ else:
     github = Github()
 
 
-def get_repo(owner, repo, params=None):
-    return pygithub_get_repo(owner, repo)
-
-
-def pygithub_get_repo(owner, repo):
+def get_repo(owner, repo):
     return github.get_repo(f"{owner}/{repo}")
 
 
@@ -41,7 +37,7 @@ def get_releases(owner, repo, params=None):
     Retrieve GitHub releases for a given repository.
     Returns a list of standardized dictionaries representing releases.
     """
-    paginated_releases = pygithub_get_repo(owner=owner, repo=repo).get_releases()
+    paginated_releases = get_repo(owner=owner, repo=repo).get_releases()
 
     releases: list[GitRelease] = []
     max_number, since_dt = _parse_list_options(params)
@@ -74,7 +70,7 @@ def get_releases(owner, repo, params=None):
 
 def get_comparison(owner, repo, base, head):
     """Return the PyGithub Comparison for ``base...head``."""
-    return pygithub_get_repo(owner, repo).compare(base, head)
+    return get_repo(owner, repo).compare(base, head)
 
 
 def compare_shas(owner, repo, base, head):
@@ -97,7 +93,7 @@ def get_all_commits(owner, repo, params=None):
     used by collector.py and ingest.py.
     """
     max_number, since_dt = _parse_list_options(params)
-    repo_object = pygithub_get_repo(owner, repo)
+    repo_object = get_repo(owner, repo)
     kwargs = {}
     if since_dt is not None:
         kwargs["since"] = since_dt
@@ -133,7 +129,7 @@ def get_commit(owner, repo, sha, params=None):
     Retrieve GitHub commit for a given sha.
     Returns a standardized dictionary representing a commit.
     """
-    repo_object = pygithub_get_repo(owner, repo)
+    repo_object = get_repo(owner, repo)
     commit = repo_object.get_commit(sha)
     commit_dict = {}
 
@@ -153,7 +149,7 @@ def get_commit(owner, repo, sha, params=None):
 
 
 def get_pull_request(owner, repo, pr_id):
-    repo = pygithub_get_repo(owner, repo)
+    repo = get_repo(owner, repo)
     return repo.get_pull(pr_id)
 
 

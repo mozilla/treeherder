@@ -54,14 +54,14 @@ def _mock_repo(now):
     return mock_repo
 
 
-@mock.patch("treeherder.utils.github.pygithub_get_repo")
-def test_collect(mock_pygithub_get_repo):
+@mock.patch("treeherder.utils.github.get_repo")
+def test_collect(mock_get_repo):
     now = datetime.now(tz=UTC)
     yesterday = now - timedelta(days=1)
     yesterday_str = yesterday.isoformat(timespec="seconds")
 
     mock_repo = _mock_repo(now)
-    mock_pygithub_get_repo.return_value = mock_repo
+    mock_get_repo.return_value = mock_repo
 
     res = list(collect(yesterday_str))
 
