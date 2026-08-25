@@ -4,7 +4,7 @@ from unittest.mock import patch
 import pytest
 
 # Import the function to be tested
-from treeherder.utils.github import get_all_commits, get_releases
+from treeherder.utils.github import compare_shas, get_all_commits, get_comparison, get_releases
 
 
 # Mock GitCommit and it's related classes
@@ -142,6 +142,14 @@ class MockRepository:
 
     def get_commits(self, since=None):
         return list(self._commits.values())
+
+    def compare(self, base, head):
+        class MockComparison:
+            def __init__(self, commits):
+                self.commits = commits
+                self.merge_base_commit = None
+
+        return MockComparison(list(self._commits.values()))
 
 
 @patch("treeherder.utils.github.github")
@@ -544,3 +552,22 @@ def test_get_all_commits_with_number_and_since_params(mock_github):
 
     assert captured["since"] == datetime(2023, 1, 5, tzinfo=UTC)
     assert [c["sha"] for c in result] == ["newer"]
+
+
+@patch("treeherder.utils.github.github")
+def test_get_comparison_and_compare_shas(mock_github):
+    """get_comparison returns the PyGithub Comparison; compare_shas stays a commit list."""
+    owner = "test-owner"
+    repo = "test-repo"
+    c1 = MockCommit("sha1", datetime(2023, 1, 10, tzinfo=UTC), message="one")
+    c2 = MockCommit("sha2", datetime(2023, 1, 5, tzinfo=UTC), message="two")
+    mock_repo = MockRepository()
+    mock_repo._commits = {"sha1": c1, "sha2": c2}
+    mock_github.get_repo.return_value = mock_repo
+
+    comparison = get_comparison(owner, repo, "base", "head")
+    mock_github.get_repo.assert_called_with(f"{owner}/{repo}")
+    assert list(comparison.commits) == [c1, c2]
+
+    result = compare_shas(owner, repo, "base", "head")
+    assert result == [c1, c2]

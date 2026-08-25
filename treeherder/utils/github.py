@@ -4,25 +4,12 @@ from github import Auth, Github
 from github.GitRelease import GitRelease
 
 from treeherder.config.settings import GITHUB_TOKEN
-from treeherder.utils.http import fetch_json
 
 if GITHUB_TOKEN:
     auth = Auth.Token(GITHUB_TOKEN)
     github = Github(auth=auth)
 else:
     github = Github()
-
-
-def fetch_api(path, params=None):
-    return fetch_api_full_url(f"https://api.github.com/{path}", params)
-
-
-def fetch_api_full_url(url, params=None):
-    if GITHUB_TOKEN:
-        headers = {"Authorization": f"token {GITHUB_TOKEN}"}
-    else:
-        headers = {}
-    return fetch_json(url, params, headers)
 
 
 def get_repo(owner, repo, params=None):
@@ -85,10 +72,18 @@ def get_releases(owner, repo, params=None):
     return releases
 
 
+def get_comparison(owner, repo, base, head):
+    """Return the PyGithub Comparison for ``base...head``."""
+    return pygithub_get_repo(owner, repo).compare(base, head)
+
+
 def compare_shas(owner, repo, base, head):
-    repo = pygithub_get_repo(owner, repo)
-    comparison = repo.compare(base, head)
-    return [commit for commit in comparison.commits]
+    """Return the list of PyGithub commits between ``base`` and ``head``.
+
+    Used by push_loader. GithubPushTransformer.process_push expects commit
+    objects (``.sha``, ``.commit.committer.date``, ``.commit.author``).
+    """
+    return [commit for commit in get_comparison(owner, repo, base, head).commits]
 
 
 def get_all_commits(owner, repo, params=None):
