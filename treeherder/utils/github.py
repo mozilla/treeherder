@@ -1,15 +1,23 @@
 from datetime import UTC, datetime
 
 from github import Auth, Github
-from github.GitRelease import GitRelease
 
 from treeherder.config.settings import GITHUB_TOKEN
 
+# per_page=100 is GitHub's max and matches collector MAX_ITEMS, so typical
+# list endpoints complete in one HTTP call (PyGithub defaults to 30).
+# lazy=True builds repo/PR objects from URLs without GET /repos or GET /pulls.
+# seconds_between_requests=0 matches the old fetch_json client (no 250ms pause).
+_GITHUB_KWARGS = {
+    "per_page": 100,
+    "lazy": True,
+    "seconds_between_requests": 0,
+}
+
 if GITHUB_TOKEN:
-    auth = Auth.Token(GITHUB_TOKEN)
-    github = Github(auth=auth)
+    github = Github(auth=Auth.Token(GITHUB_TOKEN), **_GITHUB_KWARGS)
 else:
-    github = Github()
+    github = Github(**_GITHUB_KWARGS)
 
 
 def get_repo(owner, repo):
@@ -35,18 +43,14 @@ def _parse_list_options(params):
 def get_releases(owner, repo, params=None):
     """
     Retrieve GitHub releases for a given repository.
-    Returns a list of standardized dictionaries representing releases.
+    Yields standardized dictionaries representing releases.
     """
     paginated_releases = get_repo(owner=owner, repo=repo).get_releases()
 
-    releases: list[GitRelease] = []
     max_number, since_dt = _parse_list_options(params)
+    count = 0
 
     for release in paginated_releases:
-        # Break if we have reached max_number
-        if max_number and len(releases) >= max_number:
-            break
-
         # PyGithub returns releases in reverse chronological order
         # Stop immediately if releases older than the since_dt are found
         release_dt = release.published_at
@@ -55,7 +59,7 @@ def get_releases(owner, repo, params=None):
                 release_dt.replace(tzinfo=UTC)
             if release.published_at < since_dt:
                 break
-        release_dict = {
+        yield {
             "id": release.id,
             "name": release.name,
             "tag_name": release.tag_name,
@@ -63,9 +67,9 @@ def get_releases(owner, repo, params=None):
             "html_url": release.html_url,
             "author": {"login": release.author.login if release.author else "unknown"},
         }
-        releases.append(release_dict)
-
-    return releases
+        count += 1
+        if max_number and count >= max_number:
+            break
 
 
 def get_comparison(owner, repo, base, head):
@@ -76,10 +80,10 @@ def get_comparison(owner, repo, base, head):
 def compare_shas(owner, repo, base, head):
     """Return the list of PyGithub commits between ``base`` and ``head``.
 
-    Used by push_loader. GithubPushTransformer.process_push expects commit
-    objects (``.sha``, ``.commit.committer.date``, ``.commit.author``).
+    Materialized as a list because GithubTransformer.process_push indexes
+    ``commits[-1]`` and then iterates the same sequence.
     """
-    return [commit for commit in get_comparison(owner, repo, base, head).commits]
+    return list(get_comparison(owner, repo, base, head).commits)
 
 
 def get_all_commits(owner, repo, params=None):
@@ -100,9 +104,6 @@ def get_all_commits(owner, repo, params=None):
 
     count = 0
     for commit in repo_object.get_commits(**kwargs):
-        if max_number and count >= max_number:
-            break
-
         git_commit = commit.commit
         author = git_commit.author if git_commit else None
         committer = git_commit.committer if git_commit else None
@@ -122,6 +123,8 @@ def get_all_commits(owner, repo, params=None):
             },
         }
         count += 1
+        if max_number and count >= max_number:
+            break
 
 
 def get_commit(owner, repo, sha, params=None):
@@ -154,5 +157,6 @@ def get_pull_request(owner, repo, pr_id):
 
 
 def get_pull_request_commits(owner, repo, pr_id):
+    """Return PR commits as a list (process_push needs ``commits[-1]``)."""
     pr = get_pull_request(owner, repo, pr_id)
-    return [commit for commit in pr.get_commits()]
+    return list(pr.get_commits())
