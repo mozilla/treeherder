@@ -276,30 +276,19 @@ def query_data(repo_meta, commit):
     event_base_sha = repo_meta["branch"]
     # First we try with `master` being the base sha
     # e.g. https://api.github.com/repos/servo/servo/compare/master...1418c0555ff77e5a3d6cf0c6020ba92ece36be2e
-    # compare_response = fetch_api(
-    #     f"repos/{repo_meta['owner']}/{repo_meta['repo']}/compare/{event_base_sha}...{commit}"
-    # )
     compare_response = compare_shas(
         repo_meta["owner"], repo_meta["repo"], event_base_sha, commit, get_comparison_object=True
     )
-    merge_base_commit = (
-        compare_response.merge_base_commit
-    )  # compare_response.get("merge_base_commit")
+    merge_base_commit = compare_response.merge_base_commit
     if merge_base_commit:
-        commiter_date = (
-            merge_base_commit.commit.committer.date
-        )  # merge_base_commit["commit"]["committer"]["date"]
+        commiter_date = merge_base_commit.commit.committer.date
         # Since we don't use PushEvents that contain the "before" or "event.base.sha" fields [1]
         # we need to discover the right parent which existed in the base branch.
         # [1] https://github.com/taskcluster/taskcluster/blob/3dda0adf85619d18c5dcf255259f3e274d2be346/services/github/src/api.js#L55
-        parents = (
-            compare_response.merge_base_commit.parents
-        )  # compare_response["merge_base_commit"]["parents"]
+        parents = compare_response.merge_base_commit.parents
         if len(parents) == 1:
             parent = parents[0]
-            commit_info = get_commit(
-                repo_meta["owner"], repo_meta["repo"], parent.sha
-            )  # fetch_api_full_url(parent["url"])
+            commit_info = get_commit(repo_meta["owner"], repo_meta["repo"], parent.sha)
             committer_date = commit_info["commit"]["committer"]["date"]
             # All commits involved in a PR share the same committer's date
             if merge_base_commit.commit.committer.date == committer_date:
@@ -309,9 +298,7 @@ def query_data(repo_meta, commit):
                 event_base_sha = parent.sha
         else:
             for parent in parents:
-                _commit = get_commit(
-                    repo_meta["owner"], repo_meta["repo"], parent.sha
-                )  # fetch_api_full_url(parent["url"])
+                _commit = get_commit(repo_meta["owner"], repo_meta["repo"], parent.sha)
                 # All commits involved in a merge share the same committer's date
                 if commiter_date != _commit["commit"]["committer"]["date"]:
                     event_base_sha = _commit["sha"]
@@ -326,16 +313,21 @@ def query_data(repo_meta, commit):
             event_base_sha,
             commit,
             get_comparison_object=True,
-        )  # fetch_api(f"repos/{repo_meta['owner']}/{repo_meta['repo']}/compare/{event_base_sha}...{commit}")
+        )
 
     commits = []
     for _commit in compare_response.commits:
+        author = _commit.commit.author
+        committer = _commit.commit.committer
         commits.append(
             {
-                "message": _commit["commit"]["message"],
-                "author": _commit["commit"]["author"],
-                "committer": _commit["commit"]["committer"],
-                "id": _commit["sha"],
+                "message": _commit.commit.message,
+                "author": {
+                    "name": author.name if author else None,
+                    "email": author.email if author else None,
+                },
+                "committer": {"date": committer.date if committer else None},
+                "id": _commit.sha,
             }
         )
 

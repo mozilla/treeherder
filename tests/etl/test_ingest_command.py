@@ -1,3 +1,5 @@
+from types import SimpleNamespace
+
 from treeherder.etl.management.commands import ingest
 
 REPO_META = {
@@ -9,56 +11,63 @@ REPO_META = {
 }
 
 
-def test_query_data_consumes_compare_dict(monkeypatch):
-    """query_data must read the GitHub compare REST response as a dict.
+def _commit_obj(
+    sha, message=None, author_name=None, author_email=None, committer_date=None, parents=None
+):
+    return SimpleNamespace(
+        sha=sha,
+        commit=SimpleNamespace(
+            message=message,
+            author=SimpleNamespace(name=author_name, email=author_email),
+            committer=SimpleNamespace(date=committer_date),
+        ),
+        parents=[SimpleNamespace(sha=parent_sha) for parent_sha in (parents or [])],
+    )
 
-    Regression guard for Bug 2009865, which switched ``compare_shas`` to return
-    a list of PyGithub commit objects (for the Pulse push loader) but left
-    query_data doing dict access (``.get("merge_base_commit")`` / ``["commits"]``),
-    breaking the ``ingest push`` command for GitHub repos.
+
+def test_query_data_consumes_comparison_object(monkeypatch):
+    """query_data must read a PyGithub Comparison object, not a REST dict.
+
+    Regression guard for Bug 2009865 / Bug 2038705: ``compare_shas`` returns
+    PyGithub objects, and query_data must use attribute access so ``ingest push``
+    still works for GitHub repos.
     """
     compare_by_range = {
         # base branch vs head: the head isn't on the base branch, so the API
         # reports a merge base whose parent is the real fork point.
-        "main...HEAD": {
-            "merge_base_commit": {
-                "sha": "BASE",
-                "commit": {"committer": {"date": "2026-01-01T00:00:00Z"}},
-                "parents": [
-                    {
-                        "sha": "PARENT",
-                        "url": "https://api.github.com/repos/o/r/commits/PARENT",
-                    }
-                ],
-            },
-            "commits": [],
-        },
+        ("main", "HEAD"): SimpleNamespace(
+            merge_base_commit=_commit_obj(
+                sha="BASE",
+                committer_date="2026-01-01T00:00:00Z",
+                parents=["PARENT"],
+            ),
+            commits=[],
+        ),
         # re-compare with the corrected base yields the push's commits
-        "PARENT...HEAD": {
-            "merge_base_commit": {"sha": "PARENT", "parents": []},
-            "commits": [
-                {
-                    "sha": "C1",
-                    "commit": {
-                        "message": "Fix the thing",
-                        "author": {"name": "Dev", "email": "dev@example.com"},
-                        "committer": {"date": "2026-02-02T00:00:00Z"},
-                    },
-                }
+        ("PARENT", "HEAD"): SimpleNamespace(
+            merge_base_commit=_commit_obj(sha="PARENT", parents=[]),
+            commits=[
+                _commit_obj(
+                    sha="C1",
+                    message="Fix the thing",
+                    author_name="Dev",
+                    author_email="dev@example.com",
+                    committer_date="2026-02-02T00:00:00Z",
+                )
             ],
-        },
+        ),
     }
 
-    def fake_fetch_api(path, params=None):
-        return compare_by_range[path.split("/compare/")[1]]
+    def fake_compare_shas(owner, repo, base, head, get_comparison_object=False):
+        return compare_by_range[(base, head)]
 
-    def fake_fetch_api_full_url(url, params=None):
+    def fake_get_commit(owner, repo, sha):
         # The merge-base parent, with a committer date different from the merge
         # base so query_data takes the simple (non-recursive) branch.
-        return {"sha": "PARENT", "commit": {"committer": {"date": "2026-02-02T00:00:00Z"}}}
+        return {"sha": sha, "commit": {"committer": {"date": "2026-02-02T00:00:00Z"}}}
 
-    monkeypatch.setattr(ingest, "fetch_api", fake_fetch_api)
-    monkeypatch.setattr(ingest, "fetch_api_full_url", fake_fetch_api_full_url)
+    monkeypatch.setattr(ingest, "compare_shas", fake_compare_shas)
+    monkeypatch.setattr(ingest, "get_commit", fake_get_commit)
 
     event_base_sha, commits = ingest.query_data(REPO_META, "HEAD")
 

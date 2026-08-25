@@ -4,7 +4,7 @@ from unittest.mock import patch
 import pytest
 
 # Import the function to be tested
-from treeherder.utils.github import get_releases
+from treeherder.utils.github import get_all_commits, get_releases
 
 
 # Mock GitCommit and it's related classes
@@ -23,17 +23,49 @@ class MockCommitter:
         self.date = date
 
 
+class MockCommitAuthor:
+    def __init__(self, name, date, email="dev@example.com"):
+        self.name = name
+        self.date = date
+        self.email = email
+
+
 class MockInnerCommit:
-    def __init__(self, committer_date):
+    def __init__(self, committer_date, message="", author_name="author"):
         self.committer = MockCommitter(committer_date)
+        self.message = message
+        self.author = MockCommitAuthor(author_name, committer_date)
 
 
 class MockCommit:
-    def __init__(self, sha, committer_date, parents=None, files=None):
+    def __init__(
+        self,
+        sha,
+        committer_date,
+        parents=None,
+        files=None,
+        message="",
+        html_url=None,
+        author_name="author",
+    ):
         self.sha = sha
-        self.commit = MockInnerCommit(committer_date)
+        self.commit = MockInnerCommit(committer_date, message, author_name)
         self.parents = [MockCommitParent(p_sha) for p_sha in parents] if parents else []
         self.files = [MockCommitFile(f_name) for f_name in files] if files else []
+        self.html_url = html_url or f"https://github.com/mock-owner/mock-repo/commit/{sha}"
+
+    def to_expected_dict(self):
+        return {
+            "sha": self.sha,
+            "html_url": self.html_url,
+            "commit": {
+                "message": self.commit.message,
+                "author": {
+                    "name": self.commit.author.name,
+                    "date": self.commit.author.date,
+                },
+            },
+        }
 
 
 @pytest.fixture
@@ -114,9 +146,10 @@ class MockGitRelease:
 
 # Mock Repository class to simulate PyGithub's Repository objects
 class MockRepository:
-    def __init__(self, releases=None, commits=None):
+    def __init__(self, releases=None, commits=None, commit_list=None):
         self._releases = releases or []
         self._commits = commits or {}
+        self._commit_list = commit_list or []
 
     def get_releases(self):
         # PyGithub's get_releases returns an iterable (PaginatedList),
@@ -126,6 +159,12 @@ class MockRepository:
 
     def get_commit(self, sha):
         return self._commits[sha]
+
+    def get_commits(self, since=None, **kwargs):
+        commits = self._commit_list
+        if since:
+            commits = [c for c in commits if c.commit.author.date >= since]
+        return commits
 
 
 @patch("treeherder.utils.github.github")
@@ -373,6 +412,7 @@ def test_get_commit_standard(github_commit_mock):
     # Assertions
     mock_github.get_repo.assert_called_once_with(f"{owner}/{repo}")
     assert result == {
+        "sha": sha,
         "files": [{"filename": "file1.py"}, {"filename": "file2.py"}],
         "commit": {"committer": {"date": date_str}},
         "parents": [{"sha": "parentsha1"}, {"sha": "parentsha2"}],
@@ -400,6 +440,7 @@ def test_get_commit_initial_commit(github_commit_mock):
     result = get_commit(owner, repo, sha)
 
     assert result == {
+        "sha": sha,
         "files": [{"filename": "README.md"}],
         "commit": {"committer": {"date": date_str}},
         "parents": [],
@@ -427,7 +468,121 @@ def test_get_commit_no_files(github_commit_mock):
     result = get_commit(owner, repo, sha)
 
     assert result == {
+        "sha": sha,
         "files": [],
         "commit": {"committer": {"date": date_str}},
         "parents": [{"sha": "parentsha"}],
     }
+
+
+@patch("treeherder.utils.github.github")
+def test_get_all_commits_no_params(mock_github):
+    """
+    Test get_all_commits returns all commits when no filtering parameters are provided.
+    """
+    owner = "test-owner"
+    repo = "test-repo"
+
+    commit_1 = MockCommit(
+        "sha1",
+        datetime(2023, 1, 1, 10, 0, tzinfo=UTC),
+        message="Commit 1",
+        author_name="dev1",
+    )
+    commit_2 = MockCommit(
+        "sha2",
+        datetime(2023, 1, 5, 12, 0, tzinfo=UTC),
+        message="Commit 2",
+        author_name="dev2",
+    )
+    commit_3 = MockCommit(
+        "sha3",
+        datetime(2023, 1, 10, 14, 0, tzinfo=UTC),
+        message="Commit 3",
+        author_name="dev3",
+    )
+    # Simulate PyGithub's reverse chronological order
+    commit_list = [commit_3, commit_2, commit_1]
+
+    mock_repo_instance = MockRepository(commit_list=commit_list)
+    mock_github.get_repo.return_value = mock_repo_instance
+
+    result = get_all_commits(owner, repo)
+
+    mock_github.get_repo.assert_called_once_with(f"{owner}/{repo}")
+    assert result == [c.to_expected_dict() for c in commit_list]
+
+
+@patch("treeherder.utils.github.github")
+def test_get_all_commits_with_number_param(mock_github):
+    """
+    Test get_all_commits returns at most N newest commits when filtered by 'number'.
+    """
+    owner = "test-owner"
+    repo = "test-repo"
+
+    commit_1 = MockCommit("sha1", datetime(2023, 1, 1, 10, 0, tzinfo=UTC), message="Commit 1")
+    commit_2 = MockCommit("sha2", datetime(2023, 1, 5, 12, 0, tzinfo=UTC), message="Commit 2")
+    commit_3 = MockCommit("sha3", datetime(2023, 1, 10, 14, 0, tzinfo=UTC), message="Commit 3")
+    commit_list = [commit_3, commit_2, commit_1]
+
+    mock_repo_instance = MockRepository(commit_list=commit_list)
+    mock_github.get_repo.return_value = mock_repo_instance
+
+    result = get_all_commits(owner, repo, {"number": 2})
+    assert result == [c.to_expected_dict() for c in commit_list[:2]]
+
+    result_large = get_all_commits(owner, repo, {"number": 10})
+    assert result_large == [c.to_expected_dict() for c in commit_list]
+
+
+@patch("treeherder.utils.github.github")
+def test_get_all_commits_with_since_param(mock_github):
+    """
+    Test get_all_commits returns commits at or after the 'since' parameter.
+    """
+    owner = "test-owner"
+    repo = "test-repo"
+
+    commit_1 = MockCommit("sha1", datetime(2023, 1, 1, 10, 0, tzinfo=UTC), message="Commit 1")
+    commit_2 = MockCommit("sha2", datetime(2023, 1, 5, 12, 0, tzinfo=UTC), message="Commit 2")
+    commit_3 = MockCommit("sha3", datetime(2023, 1, 10, 14, 0, tzinfo=UTC), message="Commit 3")
+    commit_list = [commit_3, commit_2, commit_1]
+
+    mock_repo_instance = MockRepository(commit_list=commit_list)
+    mock_github.get_repo.return_value = mock_repo_instance
+
+    result = get_all_commits(owner, repo, {"since": "2023-01-05T12:00:00+00:00"})
+    assert result == [commit_3.to_expected_dict(), commit_2.to_expected_dict()]
+
+    result_later = get_all_commits(owner, repo, {"since": "2023-01-15T00:00:00+00:00"})
+    assert result_later == []
+
+    result_earlier = get_all_commits(owner, repo, {"since": "2022-12-31T00:00:00+00:00"})
+    assert result_earlier == [c.to_expected_dict() for c in commit_list]
+
+
+@patch("treeherder.utils.github.github")
+def test_get_all_commits_with_number_and_since_params(mock_github):
+    """
+    Test get_all_commits applies 'since' then limits by 'number'.
+    """
+    owner = "test-owner"
+    repo = "test-repo"
+
+    commit_1 = MockCommit("sha1", datetime(2023, 1, 1, 10, 0, tzinfo=UTC), message="Commit 1")
+    commit_2 = MockCommit("sha2", datetime(2023, 1, 5, 12, 0, tzinfo=UTC), message="Commit 2")
+    commit_3 = MockCommit("sha3", datetime(2023, 1, 10, 14, 0, tzinfo=UTC), message="Commit 3")
+    commit_4 = MockCommit("sha4", datetime(2023, 1, 15, 16, 0, tzinfo=UTC), message="Commit 4")
+    commit_5 = MockCommit("sha5", datetime(2023, 1, 20, 18, 0, tzinfo=UTC), message="Commit 5")
+    commit_list = [commit_5, commit_4, commit_3, commit_2, commit_1]
+
+    mock_repo_instance = MockRepository(commit_list=commit_list)
+    mock_github.get_repo.return_value = mock_repo_instance
+
+    result = get_all_commits(owner, repo, {"since": "2023-01-05T12:00:00+00:00", "number": 3})
+    assert result == [
+        commit_5.to_expected_dict(),
+        commit_4.to_expected_dict(),
+        commit_3.to_expected_dict(),
+    ]

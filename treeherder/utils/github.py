@@ -4,29 +4,12 @@ from github import Auth, Github
 from github.GitRelease import GitRelease
 
 from treeherder.config.settings import GITHUB_TOKEN
-from treeherder.utils.http import fetch_json
 
 if GITHUB_TOKEN:
     auth = Auth.Token(GITHUB_TOKEN)
     github = Github(auth=auth)
 else:
     github = Github()
-
-
-def fetch_api(path, params=None):
-    return fetch_api_full_url(f"https://api.github.com/{path}", params)
-
-
-def fetch_api_full_url(url, params=None):
-    if GITHUB_TOKEN:
-        headers = {"Authorization": f"token {GITHUB_TOKEN}"}
-    else:
-        headers = {}
-    return fetch_json(url, params, headers)
-
-
-def get_repo(owner, repo, params=None):
-    return fetch_api(f"{owner}/{repo}", params)
 
 
 def pygithub_get_repo(owner, repo):
@@ -87,7 +70,48 @@ def compare_shas(owner, repo, base, head, get_comparison_object=False):
 
 
 def get_all_commits(owner, repo, params=None):
-    return fetch_api(f"repos/{owner}/{repo}/commits", params)
+    """
+    Retrieve GitHub commits for a given repository.
+    Returns a list of standardized dictionaries representing commits.
+    """
+    repo_object = pygithub_get_repo(owner, repo)
+    since_dt = None
+    max_number = None
+
+    if params:
+        max_number = params.get("number")
+        since_dt = params.get("since", None)
+        if since_dt:
+            since_dt = datetime.fromisoformat(since_dt)
+            if since_dt.tzinfo is None:
+                since_dt = since_dt.replace(tzinfo=UTC)
+
+    if since_dt:
+        paginated_commits = repo_object.get_commits(since=since_dt)
+    else:
+        paginated_commits = repo_object.get_commits()
+
+    commits = []
+    for commit in paginated_commits:
+        if max_number and len(commits) >= max_number:
+            break
+
+        author = commit.commit.author
+        commits.append(
+            {
+                "sha": commit.sha,
+                "html_url": commit.html_url,
+                "commit": {
+                    "message": commit.commit.message,
+                    "author": {
+                        "name": author.name if author else "unknown",
+                        "date": author.date if author else None,
+                    },
+                },
+            }
+        )
+
+    return commits
 
 
 def get_commit(owner, repo, sha, params=None):
@@ -97,7 +121,7 @@ def get_commit(owner, repo, sha, params=None):
     """
     repo_object = pygithub_get_repo(owner, repo)
     commit = repo_object.get_commit(sha)
-    commit_dict = {}
+    commit_dict = {"sha": commit.sha}
 
     # Append file objects required by collector.py
     commit_dict["files"] = []
