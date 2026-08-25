@@ -4,7 +4,7 @@ from unittest.mock import patch
 import pytest
 
 # Import the function to be tested
-from treeherder.utils.github import get_releases
+from treeherder.utils.github import get_all_commits, get_releases
 
 
 # Mock GitCommit and it's related classes
@@ -23,15 +23,24 @@ class MockCommitter:
         self.date = date
 
 
+class MockGitAuthor:
+    def __init__(self, date, name="author"):
+        self.date = date
+        self.name = name
+
+
 class MockInnerCommit:
-    def __init__(self, committer_date):
+    def __init__(self, committer_date, author_name="author", message=""):
         self.committer = MockCommitter(committer_date)
+        self.author = MockGitAuthor(committer_date, author_name)
+        self.message = message
 
 
 class MockCommit:
-    def __init__(self, sha, committer_date, parents=None, files=None):
+    def __init__(self, sha, committer_date, parents=None, files=None, html_url=None, message=""):
         self.sha = sha
-        self.commit = MockInnerCommit(committer_date)
+        self.html_url = html_url or f"https://github.com/mock-owner/mock-repo/commit/{sha}"
+        self.commit = MockInnerCommit(committer_date, message=message)
         self.parents = [MockCommitParent(p_sha) for p_sha in parents] if parents else []
         self.files = [MockCommitFile(f_name) for f_name in files] if files else []
 
@@ -46,9 +55,13 @@ def github_commit_mock():
         mock_repo = MockRepository()
         mock_github.get_repo.return_value = mock_repo
 
-        def _register(sha, committer_date, parents=None, files=None):
+        def _register(sha, committer_date, parents=None, files=None, message=""):
             commit_obj = MockCommit(
-                sha=sha, committer_date=committer_date, parents=parents, files=files
+                sha=sha,
+                committer_date=committer_date,
+                parents=parents,
+                files=files,
+                message=message,
             )
             mock_repo._commits[sha] = commit_obj
             return mock_github, mock_repo, commit_obj
@@ -126,6 +139,9 @@ class MockRepository:
 
     def get_commit(self, sha):
         return self._commits[sha]
+
+    def get_commits(self, since=None):
+        return list(self._commits.values())
 
 
 @patch("treeherder.utils.github.github")
@@ -431,3 +447,100 @@ def test_get_commit_no_files(github_commit_mock):
         "commit": {"committer": {"date": date_str}},
         "parents": [{"sha": "parentsha"}],
     }
+
+
+def _register_list_commits(mock_github, commits):
+    mock_repo = MockRepository()
+    mock_github.get_repo.return_value = mock_repo
+    for commit in commits:
+        mock_repo._commits[commit.sha] = commit
+    return mock_repo
+
+
+@patch("treeherder.utils.github.github")
+def test_get_all_commits_no_params(mock_github):
+    """get_all_commits returns dicts matching the GitHub list-commits shape."""
+    owner = "test-owner"
+    repo = "test-repo"
+    c1 = MockCommit("sha1", datetime(2023, 1, 10, tzinfo=UTC), message="second")
+    c2 = MockCommit("sha2", datetime(2023, 1, 5, tzinfo=UTC), message="first")
+    _register_list_commits(mock_github, [c1, c2])
+
+    result = list(get_all_commits(owner, repo))
+
+    mock_github.get_repo.assert_called_once_with(f"{owner}/{repo}")
+    assert [c["sha"] for c in result] == ["sha1", "sha2"]
+    assert result[0]["html_url"] == c1.html_url
+    assert result[0]["commit"]["message"] == "second"
+    assert result[0]["commit"]["author"]["name"] == "author"
+    assert result[0]["commit"]["author"]["date"] == c1.commit.author.date
+    assert result[0]["commit"]["committer"]["date"] == c1.commit.committer.date
+
+
+@patch("treeherder.utils.github.github")
+def test_get_all_commits_with_number_param(mock_github):
+    """Collector gh_options `number` limits how many commits are yielded."""
+    owner = "test-owner"
+    repo = "test-repo"
+    commits = [
+        MockCommit(f"sha{i}", datetime(2023, 1, 10 - i, tzinfo=UTC), message=f"c{i}")
+        for i in range(5)
+    ]
+    mock_repo = _register_list_commits(mock_github, commits)
+    mock_repo.get_commits = lambda **kwargs: commits
+
+    result = list(get_all_commits(owner, repo, params={"number": 2}))
+
+    assert [c["sha"] for c in result] == ["sha0", "sha1"]
+
+
+@patch("treeherder.utils.github.github")
+def test_get_all_commits_with_since_param(mock_github):
+    """Collector gh_options `since` is passed to PyGithub as a datetime."""
+    owner = "test-owner"
+    repo = "test-repo"
+    since_commit = MockCommit("new", datetime(2023, 1, 10, tzinfo=UTC), message="new")
+    mock_repo = MockRepository()
+    mock_github.get_repo.return_value = mock_repo
+
+    captured = {}
+
+    def capture_get_commits(**kwargs):
+        captured.update(kwargs)
+        return [since_commit]
+
+    mock_repo.get_commits = capture_get_commits
+    since_str = "2023-01-05T12:00:00+00:00"
+    result = list(get_all_commits(owner, repo, params={"since": since_str}))
+
+    assert captured["since"] == datetime.fromisoformat(since_str)
+    assert [c["sha"] for c in result] == ["new"]
+
+
+@patch("treeherder.utils.github.github")
+def test_get_all_commits_with_number_and_since_params(mock_github):
+    """Both collector gh_options are applied together."""
+    owner = "test-owner"
+    repo = "test-repo"
+    newer = MockCommit("newer", datetime(2023, 1, 20, tzinfo=UTC), message="newer")
+    older = MockCommit("older", datetime(2023, 1, 10, tzinfo=UTC), message="older")
+    mock_repo = MockRepository()
+    mock_github.get_repo.return_value = mock_repo
+
+    captured = {}
+
+    def capture_get_commits(**kwargs):
+        captured.update(kwargs)
+        return [newer, older]
+
+    mock_repo.get_commits = capture_get_commits
+    result = list(
+        get_all_commits(
+            owner,
+            repo,
+            params={"since": "2023-01-05T00:00:00+00:00", "number": 1},
+        )
+    )
+
+    assert captured["since"] == datetime(2023, 1, 5, tzinfo=UTC)
+    assert [c["sha"] for c in result] == ["newer"]

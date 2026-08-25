@@ -26,11 +26,27 @@ def fetch_api_full_url(url, params=None):
 
 
 def get_repo(owner, repo, params=None):
-    return fetch_api(f"{owner}/{repo}", params)
+    return pygithub_get_repo(owner, repo)
 
 
 def pygithub_get_repo(owner, repo):
     return github.get_repo(f"{owner}/{repo}")
+
+
+def _parse_list_options(params):
+    """Parse collector-style gh_options (`number`, `since`) for list endpoints."""
+    max_number = None
+    since_dt = None
+    if not params:
+        return max_number, since_dt
+
+    max_number = params.get("number")
+    since_dt = params.get("since")
+    if since_dt is not None and not isinstance(since_dt, datetime):
+        since_dt = datetime.fromisoformat(since_dt)
+    if isinstance(since_dt, datetime) and since_dt.tzinfo is None:
+        since_dt = since_dt.replace(tzinfo=UTC)
+    return max_number, since_dt
 
 
 def get_releases(owner, repo, params=None):
@@ -41,16 +57,7 @@ def get_releases(owner, repo, params=None):
     paginated_releases = pygithub_get_repo(owner=owner, repo=repo).get_releases()
 
     releases: list[GitRelease] = []
-    since_dt = None
-    max_number = None
-
-    if params:
-        max_number = params.get("number")
-        since_dt = params.get("since", None)
-        if since_dt:
-            since_dt = datetime.fromisoformat(since_dt)
-            if since_dt.tzinfo is None:
-                since_dt.replace(tzinfo=UTC)
+    max_number, since_dt = _parse_list_options(params)
 
     for release in paginated_releases:
         # Break if we have reached max_number
@@ -85,7 +92,45 @@ def compare_shas(owner, repo, base, head):
 
 
 def get_all_commits(owner, repo, params=None):
-    return fetch_api(f"repos/{owner}/{repo}/commits", params)
+    """
+    Retrieve GitHub commits for a given repository.
+
+    ``params`` accepts the same collector gh_options as ``get_releases``:
+    ``number`` (max commits to return) and ``since`` (ISO-8601 string or datetime).
+
+    Yields standardized dictionaries matching the GitHub list-commits JSON shape
+    used by collector.py and ingest.py.
+    """
+    max_number, since_dt = _parse_list_options(params)
+    repo_object = pygithub_get_repo(owner, repo)
+    kwargs = {}
+    if since_dt is not None:
+        kwargs["since"] = since_dt
+
+    count = 0
+    for commit in repo_object.get_commits(**kwargs):
+        if max_number and count >= max_number:
+            break
+
+        git_commit = commit.commit
+        author = git_commit.author if git_commit else None
+        committer = git_commit.committer if git_commit else None
+        yield {
+            "sha": commit.sha,
+            "html_url": commit.html_url,
+            "commit": {
+                "message": git_commit.message if git_commit else "",
+                "author": {
+                    "name": author.name if author else None,
+                    "date": author.date if author else None,
+                },
+                "committer": {
+                    "name": committer.name if committer else None,
+                    "date": committer.date if committer else None,
+                },
+            },
+        }
+        count += 1
 
 
 def get_commit(owner, repo, sha, params=None):
