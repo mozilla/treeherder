@@ -113,12 +113,12 @@ def get_all_commits(owner, repo, params=None):
             "commit": {
                 "message": git_commit.message if git_commit else "",
                 "author": {
-                    "name": author.name if author else None,
-                    "date": author.date if author else None,
+                    "name": getattr(author, "name", None),
+                    "date": getattr(author, "date", None),
                 },
                 "committer": {
-                    "name": committer.name if committer else None,
-                    "date": committer.date if committer else None,
+                    "name": getattr(committer, "name", None),
+                    "date": getattr(committer, "date", None),
                 },
             },
         }

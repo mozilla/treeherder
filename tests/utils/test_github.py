@@ -3,8 +3,12 @@ from unittest.mock import patch
 
 import pytest
 
-# Import the function to be tested
-from treeherder.utils.github import compare_shas, get_all_commits, get_comparison, get_releases
+from treeherder.utils.github import (
+    compare_shas,
+    get_all_commits,
+    get_comparison,
+    get_releases,
+)
 
 
 # Mock GitCommit and it's related classes
@@ -19,8 +23,9 @@ class MockCommitFile:
 
 
 class MockCommitter:
-    def __init__(self, date):
+    def __init__(self, date, name="author"):
         self.date = date
+        self.name = name
 
 
 class MockGitAuthor:
