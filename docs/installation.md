@@ -243,7 +243,7 @@ docker compose exec backend ./manage.py ingest push -p autoland --last-n-pushes 
 docker compose exec backend ./manage.py ingest task -p autoland -r 1ee42a54a431acdd6cbe43b49de0237fe67eddd9 --task-id <TASK-ID> --enable-eager-celery
 ```
 
-#### Ingest a single Github push or the last 10
+#### Ingest a single Github push or all git pushes
 
 ```bash
 docker compose exec backend ./manage.py ingest git-push -p servo-try -c 92fc94588f3b6987082923c0003012fd696b1a2d
@@ -258,6 +258,19 @@ docker compose exec -e GITHUB_TOKEN=<foo> backend ./manage.py ingest git-pushes 
     If you make too many calls to the Github API you will start getting 403 messages because of the rate limit.
     To avoid this visit [your settings](https://github.com/settings/tokens) and set up `GITHUB_TOKEN`. You don't need
     to grant scopes for it.
+
+To time GitHub API usage after the PyGithub migration (use a token, and `--dry-run` so `git-pushes` does not write):
+
+```bash
+# Changelog walks each configured repo for `--days` (default 1), at most 100 commits/releases each
+time docker compose exec backend ./manage.py update_changelog --days 1
+
+# One compare (plus parent lookups when the merge base is not the branch tip)
+time docker compose exec -e GITHUB_TOKEN=<foo> backend ./manage.py ingest git-push -p servo-try -c 92fc94588f3b6987082923c0003012fd696b1a2d
+
+# Paginates the default branch; log line "Fetched N commits from Github" is the size of the walk
+time docker compose exec -e GITHUB_TOKEN=<foo> backend ./manage.py ingest git-pushes -p android-components --dry-run
+```
 
 #### Ingesting Github PRs
 

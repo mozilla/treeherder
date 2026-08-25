@@ -64,7 +64,9 @@ class MockCommit:
                     "name": self.commit.author.name,
                     "date": self.commit.author.date,
                 },
+                "committer": {"date": self.commit.committer.date},
             },
+            "parents": [{"sha": p.sha} for p in self.parents],
         }
 
 
@@ -195,7 +197,7 @@ def test_get_releases_no_params(mock_github):
     expected_result = [r.to_expected_dict() for r in all_mock_releases_input_for_repo]
 
     # Assertions
-    mock_github.get_repo.assert_called_once_with(f"{owner}/{repo}")
+    mock_github.get_repo.assert_called_once_with(f"{owner}/{repo}", lazy=True)
     assert len(result) == 3
     assert result == expected_result
 
@@ -410,7 +412,7 @@ def test_get_commit_standard(github_commit_mock):
     result = get_commit(owner, repo, sha)
 
     # Assertions
-    mock_github.get_repo.assert_called_once_with(f"{owner}/{repo}")
+    mock_github.get_repo.assert_called_once_with(f"{owner}/{repo}", lazy=True)
     assert result == {
         "sha": sha,
         "files": [{"filename": "file1.py"}, {"filename": "file2.py"}],
@@ -509,7 +511,7 @@ def test_get_all_commits_no_params(mock_github):
 
     result = get_all_commits(owner, repo)
 
-    mock_github.get_repo.assert_called_once_with(f"{owner}/{repo}")
+    mock_github.get_repo.assert_called_once_with(f"{owner}/{repo}", lazy=True)
     assert result == [c.to_expected_dict() for c in commit_list]
 
 

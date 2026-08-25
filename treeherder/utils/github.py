@@ -5,15 +5,23 @@ from github.GitRelease import GitRelease
 
 from treeherder.config.settings import GITHUB_TOKEN
 
+# Fetch 100 items per page (GitHub's max) so changelog/ingest need fewer round trips
+# than PyGithub's default of 30. Disable PyGithub's 250ms inter-request sleep so
+# behaviour matches the previous fetch_json client; GitHub rate limits still apply.
+_github_kwargs = {
+    "per_page": 100,
+    "seconds_between_requests": None,
+    "seconds_between_writes": None,
+}
 if GITHUB_TOKEN:
-    auth = Auth.Token(GITHUB_TOKEN)
-    github = Github(auth=auth)
+    github = Github(auth=Auth.Token(GITHUB_TOKEN), **_github_kwargs)
 else:
-    github = Github()
+    github = Github(**_github_kwargs)
 
 
 def pygithub_get_repo(owner, repo):
-    return github.get_repo(f"{owner}/{repo}")
+    # lazy=True avoids an extra GET /repos/{owner}/{repo} on every helper call.
+    return github.get_repo(f"{owner}/{repo}", lazy=True)
 
 
 def get_releases(owner, repo, params=None):
@@ -97,6 +105,7 @@ def get_all_commits(owner, repo, params=None):
             break
 
         author = commit.commit.author
+        committer = commit.commit.committer
         commits.append(
             {
                 "sha": commit.sha,
@@ -107,7 +116,11 @@ def get_all_commits(owner, repo, params=None):
                         "name": author.name if author else "unknown",
                         "date": author.date if author else None,
                     },
+                    "committer": {"date": committer.date if committer else None},
                 },
+                # List-commits payloads include parents; ingest git-pushes can use
+                # these instead of issuing a get_commit() per SHA.
+                "parents": [{"sha": parent.sha} for parent in commit.parents],
             }
         )
 

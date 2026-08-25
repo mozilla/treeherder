@@ -132,3 +132,44 @@ def test_ingest_pr_handles_missing_trailing_slash(monkeypatch):
     assert payload["details"]["event.pullNumber"] == "1692"
     assert payload["details"]["event.base.repo.url"] == "https://github.com/mozilla/treeherder.git"
     assert payload["details"]["event.head.repo.url"] == "https://github.com/mozilla/treeherder.git"
+
+
+def test_ingest_git_pushes_uses_list_commit_metadata(monkeypatch):
+    """git-pushes should not issue a get_commit() per SHA; list-commits has parents/dates."""
+    monkeypatch.setattr(ingest, "GITHUB_TOKEN", "token")
+    monkeypatch.setattr(ingest, "repo_meta", lambda project: REPO_META)
+
+    commits = [
+        {
+            "sha": "C2",
+            "parents": [{"sha": "C1"}],
+            "commit": {"committer": {"date": "2026-02-02T00:00:00Z"}},
+        },
+        {
+            "sha": "C1",
+            "parents": [{"sha": "ROOT"}],
+            "commit": {"committer": {"date": "2026-01-01T00:00:00Z"}},
+        },
+    ]
+    get_commit_calls = []
+    monkeypatch.setattr(ingest.github, "get_all_commits", lambda owner, repo: commits)
+    monkeypatch.setattr(
+        ingest.github, "get_commit", lambda owner, repo, sha: get_commit_calls.append(sha)
+    )
+
+    ingested = []
+    monkeypatch.setattr(ingest, "ingest_push", lambda project, revision: ingested.append(revision))
+
+    class FakeClient:
+        def __init__(self, server_url=None):
+            pass
+
+        def get_pushes(self, project, count=None):
+            return [{"revision": revision} for revision in ingested]
+
+    monkeypatch.setattr(ingest, "TreeherderClient", FakeClient)
+
+    ingest.ingest_git_pushes("proj", dry_run=False)
+
+    assert get_commit_calls == []
+    assert ingested == ["C2", "C1"]

@@ -384,24 +384,24 @@ def ingest_git_pushes(project, dry_run=False):
     _repo = repo_meta(project)
     owner, repo = _repo["owner"], _repo["repo"]
     github_commits = github.get_all_commits(owner, repo)
+    logger.info("Fetched %s commits from Github", len(github_commits))
     not_push_revision = []
     push_revision = []
     push_to_date = {}
     for _commit in github_commits:
-        info = github.get_commit(owner, repo, _commit["sha"])
         # Revisions that are marked as non-push should be ignored
         if _commit["sha"] in not_push_revision:
             logger.debug("Not a revision of a push: {}".format(_commit["sha"]))
             continue
 
         # Establish which revisions to ignore
-        for index, parent in enumerate(info["parents"]):
+        for index, parent in enumerate(_commit["parents"]):
             if index != 0:
                 not_push_revision.append(parent["sha"])
 
         # The 1st parent is the push from `master` from which we forked
-        oldest_parent_revision = info["parents"][0]["sha"]
-        push_to_date[oldest_parent_revision] = info["commit"]["committer"]["date"]
+        oldest_parent_revision = _commit["parents"][0]["sha"]
+        push_to_date[oldest_parent_revision] = _commit["commit"]["committer"]["date"]
         logger.info(
             f"Push: {oldest_parent_revision} - Date: {push_to_date[oldest_parent_revision]}"
         )

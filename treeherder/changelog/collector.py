@@ -51,8 +51,13 @@ class GitHub:
 
             message = commit["commit"]["message"]
             message = message.split("\n")[0]
+            commit_date = commit["commit"]["author"]["date"]
+            if isinstance(commit_date, datetime):
+                if commit_date.tzinfo is None:
+                    commit_date = commit_date.replace(tzinfo=UTC)
+                commit_date = commit_date.isoformat(timespec="seconds")
             res = {
-                "date": commit["commit"]["author"]["date"],
+                "date": commit_date,
                 "author": commit["commit"]["author"]["name"],
                 "message": message,
                 "remote_id": commit["sha"],

@@ -1,6 +1,8 @@
 import copy
 import json
 import os
+from datetime import UTC, datetime
+from types import SimpleNamespace
 
 import pytest
 import responses
@@ -8,6 +10,7 @@ import responses
 from treeherder.etl.push_loader import (
     GithubPullRequestTransformer,
     GithubPushTransformer,
+    GithubTransformer,
     HgPushFetchError,
     HgPushTransformer,
     PulsePushError,
@@ -163,6 +166,35 @@ def mock_hg_push_commits(activate_responses):
 def test_get_transformer_class(exchange, transformer_class):
     rsl = PushLoader()
     assert rsl.get_transformer_class(exchange) == transformer_class
+
+
+def test_process_push_reads_pygithub_commit_attributes():
+    """Pulse GitHub transformers consume PyGithub commit objects, not REST dicts."""
+    transformer = GithubTransformer.__new__(GithubTransformer)
+    committed_at = datetime(2020, 2, 12, 15, 29, 12, tzinfo=UTC)
+    commit = SimpleNamespace(
+        sha="abc123",
+        commit=SimpleNamespace(
+            message="Fix the thing",
+            author=SimpleNamespace(name="Dev", email="dev@example.com"),
+            committer=SimpleNamespace(date=committed_at),
+        ),
+    )
+
+    push = transformer.process_push([commit])
+
+    assert push == {
+        "revision": "abc123",
+        "push_timestamp": committed_at.timestamp(),
+        "author": "dev@example.com",
+        "revisions": [
+            {
+                "comment": "Fix the thing",
+                "author": "Dev <dev@example.com>",
+                "revision": "abc123",
+            }
+        ],
+    }
 
 
 def test_unsupported_exchange():

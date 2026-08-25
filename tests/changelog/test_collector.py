@@ -65,3 +65,30 @@ def test_collect(mock_pygithub_get_repo):
     assert commit_entry is not None
     assert commit_entry["author"] == "tarek"
     assert commit_entry["message"] == "yeah"
+    assert commit_entry["date"] == now.isoformat(timespec="seconds")
+
+
+@mock.patch("treeherder.utils.github.pygithub_get_repo")
+def test_get_changes_filter_by_path_loads_files_via_get_commit(mock_pygithub_get_repo):
+    """filter_by_path still uses get_commit() for file lists, not the list-commits payload."""
+    now = datetime.now(tz=UTC)
+    mock_repo = _mock_github_repo(now)
+    mock_pygithub_get_repo.return_value = mock_repo
+
+    from treeherder.changelog.collector import GitHub
+
+    changes = list(
+        GitHub().get_changes(
+            user="o",
+            repository="r",
+            filters=[["filter_by_path", "file1"]],
+            number=10,
+            since=now.isoformat(timespec="seconds"),
+        )
+    )
+
+    mock_repo.get_commit.assert_called_once_with("mock_commit_sha")
+    commit_changes = [c for c in changes if c["type"] == "commit"]
+    assert len(commit_changes) == 1
+    assert commit_changes[0]["files"] == ["file1", "file2"]
+    assert commit_changes[0]["date"] == now.isoformat(timespec="seconds")
