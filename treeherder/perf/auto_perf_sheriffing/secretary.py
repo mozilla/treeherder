@@ -173,6 +173,7 @@ class Secretary:
                     new_note = "Backfill exceeded 72-hour limit, marking as FAILED."
                     log_entry = {
                         "notes": f"{last_log.get('notes', '')} {new_note}".strip(),
+                        "timestamp": datetime.now(UTC).isoformat(),
                     }
                     record.update_backfill_log(last_log["iteration"], log_entry)
                     record.save()
