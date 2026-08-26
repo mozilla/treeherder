@@ -325,16 +325,14 @@ def test_grouped_perf_data_uses_single_query(
 
     # When: grouping the performance data
     with django_assert_num_queries(1):
-        grouped_job_ids, grouped_values, grouped_replicate_values = (
-            PerfCompareResults._get_grouped_perf_data(perf_data)
-        )
+        grouped = PerfCompareResults._get_grouped_perf_data(perf_data)
 
     # Then: values, job ids and replicate values are grouped as before
     sig_id = test_perf_signature.id
-    assert sorted(grouped_values[sig_id]) == [10.0, 20.0]
-    assert sorted(grouped_job_ids[sig_id]) == sorted([job1.id, job2.id])
+    assert sorted(grouped.values[sig_id]) == [10.0, 20.0]
+    assert sorted(grouped.job_ids[sig_id]) == sorted([job1.id, job2.id])
     # replicate value used when present, main value used as fallback otherwise
-    assert sorted(grouped_replicate_values[sig_id]) == [10.5, 20.0]
+    assert sorted(grouped.replicates[sig_id]) == [10.5, 20.0]
 
 
 def test_perfcompare_results_queries_perf_datum_once_per_repo(
