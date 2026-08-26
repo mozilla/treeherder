@@ -3,13 +3,14 @@ import time
 import pytest
 from django.conf import settings
 from django.contrib.auth import SESSION_KEY
+from django.contrib.auth.models import AnonymousUser, Group
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.decorators import APIView
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory
 
-from treeherder.auth.backends import AuthBackend
+from treeherder.auth.backends import AuthBackend, get_scm_level
 from treeherder.model.models import User
 
 GROUPS_CLAIM = "https://sso.mozilla.com/claim/groups"
@@ -547,3 +548,113 @@ def test_login_groups_claim_with_sheriff_promotes(
     assert resp.json()["is_staff"] is True
     test_ldap_user.refresh_from_db()
     assert test_ldap_user.is_staff is True
+
+
+def _group_names(user):
+    return sorted(group.name for group in user.groups.all())
+
+
+def test_login_mirrors_tracked_groups(test_ldap_user, client, monkeypatch):
+    """Tracked groups in the claim are recorded as Django group membership."""
+    resp = _login_with_groups(
+        client, test_ldap_user, ["all_scm_level_1", "all_scm_level_2", "sheriff"], monkeypatch
+    )
+
+    assert resp.status_code == 200
+    assert _group_names(test_ldap_user) == ["all_scm_level_1", "all_scm_level_2", "sheriff"]
+
+
+def test_login_ignores_untracked_groups(test_ldap_user, client, monkeypatch):
+    """Groups Treeherder doesn't track are not mirrored."""
+    resp = _login_with_groups(
+        client,
+        test_ldap_user,
+        ["all_scm_level_1", "mozilliansorg_something", "team_release"],
+        monkeypatch,
+    )
+
+    assert resp.status_code == 200
+    assert _group_names(test_ldap_user) == ["all_scm_level_1"]
+
+
+def test_login_removes_revoked_groups(test_ldap_user, client, monkeypatch):
+    """A present claim is authoritative: groups it omits are removed."""
+    _login_with_groups(client, test_ldap_user, ["all_scm_level_1", "sheriff"], monkeypatch)
+    assert _group_names(test_ldap_user) == ["all_scm_level_1", "sheriff"]
+
+    resp = _login_with_groups(client, test_ldap_user, ["all_scm_level_1"], monkeypatch)
+
+    assert resp.status_code == 200
+    assert _group_names(test_ldap_user) == ["all_scm_level_1"]
+
+
+def test_login_absent_groups_claim_preserves_groups(test_ldap_user, client, monkeypatch):
+    """Absent groups claim (e.g. silent renewal) must not clear recorded groups."""
+    _login_with_groups(client, test_ldap_user, ["all_scm_level_1"], monkeypatch)
+    assert _group_names(test_ldap_user) == ["all_scm_level_1"]
+
+    resp = _login_with_groups(client, test_ldap_user, None, monkeypatch)
+
+    assert resp.status_code == 200
+    assert _group_names(test_ldap_user) == ["all_scm_level_1"]
+
+
+def test_login_leaves_untracked_membership_alone(test_ldap_user, client, monkeypatch):
+    """Group membership outside the tracked set survives a sync."""
+    unrelated = Group.objects.create(name="unrelated_group")
+    test_ldap_user.groups.add(unrelated)
+
+    resp = _login_with_groups(client, test_ldap_user, ["all_scm_level_1"], monkeypatch)
+
+    assert resp.status_code == 200
+    assert _group_names(test_ldap_user) == ["all_scm_level_1", "unrelated_group"]
+
+
+def test_login_new_user_gets_groups(db, client, monkeypatch):
+    """A user created on first login has their groups recorded too."""
+    now_in_seconds = int(time.time())
+    monkeypatch.setattr(
+        AuthBackend,
+        "_get_user_info",
+        lambda *a, **k: {
+            "sub": "Mozilla-LDAP",
+            "email": "newuser@foo.com",
+            "exp": now_in_seconds + one_day_in_seconds,
+            GROUPS_CLAIM: ["all_scm_level_3", "mozilliansorg_something"],
+        },
+    )
+
+    resp = client.get(
+        reverse("auth-login"),
+        HTTP_AUTHORIZATION="Bearer meh",
+        HTTP_ID_TOKEN="meh",
+        HTTP_ACCESS_TOKEN_EXPIRES_AT=str(now_in_seconds + one_hour_in_seconds),
+    )
+
+    assert resp.status_code == 200
+    user = User.objects.get(username="mozilla-ldap/newuser@foo.com")
+    assert _group_names(user) == ["all_scm_level_3"]
+
+
+@pytest.mark.parametrize(
+    ("groups", "expected_level"),
+    [
+        ([], 0),
+        (["sheriff"], 0),
+        (["all_scm_level_1"], 1),
+        (["all_scm_level_1", "all_scm_level_2"], 2),
+        (["all_scm_level_3"], 3),
+        (["all_scm_level_1", "all_scm_level_2", "all_scm_level_3"], 3),
+    ],
+)
+def test_get_scm_level(test_ldap_user, client, monkeypatch, groups, expected_level):
+    """get_scm_level reports the highest level held, and 0 when none is known."""
+    _login_with_groups(client, test_ldap_user, groups, monkeypatch)
+
+    assert get_scm_level(test_ldap_user) == expected_level
+
+
+def test_get_scm_level_anonymous():
+    """An unauthenticated user has no known level."""
+    assert get_scm_level(AnonymousUser()) == 0
+    assert get_scm_level(None) == 0
