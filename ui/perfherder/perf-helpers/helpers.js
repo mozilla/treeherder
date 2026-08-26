@@ -791,6 +791,51 @@ export const reduceDictToKeys = function reduceDictToKeys(dict, keys) {
   return reducedDict;
 };
 
+const buildMissingData = (series) => {
+  const missing = series.missing_data;
+  if (!missing || missing.length === 0) return [];
+
+  // series.data is sorted by push_timestamp by the backend.
+  // Append 'Z' because backend timestamps are UTC strings without a timezone suffix,
+  // and Date.parse treats bare ISO strings as local time in some environments.
+  const realPoints = series.data.map((dp) => ({
+    t: Date.parse(`${dp.push_timestamp}Z`),
+    y: dp.value,
+  }));
+
+  return missing.map((entry) => {
+    const t = Date.parse(`${entry.push_timestamp}Z`);
+    // Find the nearest neighbours for interpolation: the first real point at or
+    // after the missing timestamp (right) and the one immediately before it (left).
+    const rightIdx = realPoints.findIndex((p) => p.t >= t);
+    // insertionIdx mirrors what a binary search would return: realPoints.length when
+    // all points fall before t, so left/right derivations stay consistent.
+    const insertionIdx = rightIdx === -1 ? realPoints.length : rightIdx;
+    const right = rightIdx !== -1 ? realPoints[rightIdx] : null;
+    const left = insertionIdx > 0 ? realPoints[insertionIdx - 1] : null;
+    let y;
+    if (left && right && right.t !== left.t) {
+      y = left.y + ((right.y - left.y) * (t - left.t)) / (right.t - left.t);
+    } else if (left) {
+      y = left.y;
+    } else if (right) {
+      y = right.y;
+    } else {
+      y = 0; // no real points at all — shouldn't happen in practice
+    }
+    return {
+      x: new Date(`${entry.push_timestamp}Z`),
+      y,
+      revision: entry.push__revision,
+      pushId: entry.push_id,
+      jobId: entry.job_id,
+      status: entry.status,
+      signature_id: series.signature_id,
+      repository_name: series.repository_name,
+    };
+  });
+};
+
 export const createGraphData = (
   seriesData,
   alertSummaries,
@@ -822,6 +867,7 @@ export const createGraphData = (
       repository_name: series.repository_name,
       projectId: series.repository_id,
       id: `${series.repository_name} ${series.name}`,
+      missingData: buildMissingData(series),
       data: series.data.map((dataPoint) => ({
         // Backend implicitly provides all dates as UTC.
         // Let's make this explicit, so frontend doesn't get confused.

@@ -21,6 +21,7 @@ import { abbreviatedNumber } from '../perf-helpers/helpers';
 
 import TableView from './TableView';
 import GraphTooltip from './GraphTooltip';
+import MissingJobTooltip from './MissingJobTooltip';
 
 const DOT_SIZE = 5;
 const CHART_WIDTH = 1350;
@@ -58,6 +59,8 @@ class GraphsContainer extends React.Component {
       width: window.innerWidth,
       hoverId: null,
       lockedId: null,
+      hoverMissingDatum: null,
+      lockedMissingDatum: null,
     };
   }
 
@@ -410,6 +413,58 @@ class GraphsContainer extends React.Component {
     this.props.updateStateParams?.({ selectedDataPoint: null });
   };
 
+  clearMissingLock = () => this.setState({ lockedMissingDatum: null });
+
+  renderMissingTooltipLayer(datum, locked) {
+    const { width } = this.state;
+    const { testData } = this.props;
+    const color =
+      testData.find((s) => s.signature_id === datum?.signature_id)?.color[1] ??
+      '#888';
+    return (
+      <VictoryScatter
+        name={locked ? 'lock-missing-layer' : 'hover-missing-layer'}
+        data={[datum]}
+        size={() => DOT_SIZE}
+        symbol="circle"
+        groupComponent={<g pointerEvents="none" />}
+        style={{
+          data: {
+            pointerEvents: 'none',
+            fill: 'transparent',
+            stroke: color,
+            strokeWidth: 2,
+            strokeDasharray: '2,2',
+            opacity: 0.7,
+          },
+        }}
+        labels={() => ' '}
+        labelComponent={
+          <VictoryTooltip
+            active
+            renderInPortal
+            activateData={false}
+            pointerLength={0}
+            flyoutStyle={{ pointerEvents: 'none' }}
+            style={{ pointerEvents: 'none' }}
+            flyoutComponent={
+              <MissingJobTooltip
+                lockTooltip={locked}
+                closeTooltip={
+                  locked
+                    ? this.clearMissingLock
+                    : () => this.setState({ hoverMissingDatum: null })
+                }
+                windowWidth={width}
+                {...this.props}
+              />
+            }
+          />
+        }
+      />
+    );
+  }
+
   updateZoom = (zoom) => {
     const { lockedId } = this.state;
     const { updateStateParams } = this.props;
@@ -450,6 +505,7 @@ class GraphsContainer extends React.Component {
       highlightChangelogData,
       highlightCommonAlerts,
       highlightInitialDataPoints,
+      highlightMissingJobs,
     } = this.props;
     const {
       highlights,
@@ -458,6 +514,8 @@ class GraphsContainer extends React.Component {
       width,
       scatterPlotData,
       infraAffectedData,
+      hoverMissingDatum,
+      lockedMissingDatum,
     } = this.state;
 
     const hoverDatum = this.state.hoverId ? this.state.scatterPlotMap[this.state.hoverId] : null;
@@ -664,6 +722,79 @@ class GraphsContainer extends React.Component {
                     />
                   )}
 
+                  {highlightMissingJobs &&
+                    testData.map((series) => {
+                      if (
+                        !series.visible ||
+                        !series.missingData ||
+                        series.missingData.length === 0
+                      )
+                        return null;
+                      // color is [cssClassName, hexValue]; index 1 is the hex for SVG stroke.
+                      const seriesColor = series.color[1];
+                      return (
+                        <VictoryScatter
+                          key={`missing-${series.id}`}
+                          name={`missing-${series.id}`}
+                          data={series.missingData}
+                          size={() => DOT_SIZE}
+                          symbol="circle"
+                          style={{
+                            data: {
+                              fill: 'transparent',
+                              stroke: seriesColor,
+                              strokeWidth: 2,
+                              strokeDasharray: '2,2',
+                              opacity: 0.7,
+                            },
+                          }}
+                          events={[
+                            {
+                              target: 'data',
+                              eventHandlers: {
+                                onMouseOver: (_evt, props) => {
+                                  this.setState({
+                                    hoverMissingDatum: props.datum,
+                                  });
+                                  return null;
+                                },
+                                onMouseOut: () => {
+                                  this.setState({ hoverMissingDatum: null });
+                                  return null;
+                                },
+                                onMouseDown: (evt) =>
+                                  evt.stopPropagation(),
+                                onClick: (_evt, props) => {
+                                  const d = props.datum;
+                                  const isToggleOff =
+                                    this.state.lockedMissingDatum
+                                      ?.signature_id === d.signature_id &&
+                                    this.state.lockedMissingDatum?.pushId ===
+                                      d.pushId;
+                                  this.setState({
+                                    lockedMissingDatum: isToggleOff ? null : d,
+                                    lockedId: null,
+                                  });
+                                  if (!isToggleOff) {
+                                    this.props.updateStateParams?.({
+                                      selectedDataPoint: null,
+                                    });
+                                  }
+                                  // Victory event handlers must return a value; null means no chart state mutation.
+                                  return null;
+                                },
+                              },
+                            },
+                          ]}
+                        />
+                      );
+                    })}
+
+                  {hoverMissingDatum &&
+                    this.renderMissingTooltipLayer(hoverMissingDatum, false)}
+                  {lockedMissingDatum &&
+                    this.renderMissingTooltipLayer(lockedMissingDatum, true)}
+
                   <VictoryScatter
                     name="scatter-plot"
                     symbol={({ datum }) => (datum._z ? datum._z[0] : 'circle')}
@@ -726,6 +857,7 @@ class GraphsContainer extends React.Component {
                                 if (id == null) return null;
                                 this.setState((prev) => ({
                                   lockedId: prev.lockedId === id ? null : id,
+                                  lockedMissingDatum: null,
                                 }));
                                 const signatureId =
                                   props?.datum?.signature_id ?? null;
@@ -866,6 +998,7 @@ GraphsContainer.propTypes = {
   selectedDataPoint: PropTypes.shape({}),
   highlightAlerts: PropTypes.bool,
   highlightInitialDataPoints: PropTypes.bool,
+  highlightMissingJobs: PropTypes.bool,
   highlightedRevisions: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.arrayOf(PropTypes.string),

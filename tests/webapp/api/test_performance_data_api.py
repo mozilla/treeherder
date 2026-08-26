@@ -7,7 +7,7 @@ import pytest
 from django.urls import reverse
 
 from tests.conftest import create_perf_alert
-from treeherder.model.models import MachinePlatform, Push
+from treeherder.model.models import Job, MachinePlatform, Push
 from treeherder.perf.models import (
     PerformanceAlert,
     PerformanceDatum,
@@ -682,6 +682,258 @@ def test_data_points_from_same_push_are_ordered_chronologically(
 
     job_ids = response.json()[0]["job_ids"]
     assert job_ids == sorted(job_ids)
+
+
+def test_perf_summary_omits_missing_data_field_by_default(
+    client, test_perf_signature, test_perf_data
+):
+    """Without include_missing_data, the response omits the missing_data field."""
+    query_params = (
+        f"?repository={test_perf_signature.repository.name}"
+        f"&framework={test_perf_signature.framework_id}"
+        f"&interval=172800"
+        f"&signature={test_perf_signature.id}"
+        f"&all_data=true"
+    )
+    response = client.get(reverse("performance-summary") + query_params)
+    assert response.status_code == 200
+    assert "missing_data" not in response.json()[0]
+
+
+def test_perf_summary_includes_missing_data_field_when_enabled(
+    client, test_perf_signature, test_perf_data
+):
+    """With include_missing_data=true, the response includes a missing_data list."""
+    query_params = (
+        f"?repository={test_perf_signature.repository.name}"
+        f"&framework={test_perf_signature.framework_id}"
+        f"&interval=172800"
+        f"&signature={test_perf_signature.id}"
+        f"&all_data=true"
+        f"&include_missing_data=true"
+    )
+    response = client.get(reverse("performance-summary") + query_params)
+    assert response.status_code == 200
+    body = response.json()[0]
+    assert "missing_data" in body
+    assert isinstance(body["missing_data"], list)
+
+
+def _align_datum_jobs_to_signature(signature):
+    """
+    Align the datum-producing jobs (pushes 1-4) so their job_type, platform,
+    and option_collection_hash match the given signature. Returns the template
+    job so callers can assign the same attributes to additional jobs.
+    """
+    template_job = Job.objects.filter(push_id=1).first()
+    template_job.machine_platform = signature.platform
+    template_job.option_collection_hash = signature.option_collection.option_collection_hash
+    template_job.save()
+    for job in Job.objects.filter(push_id__in=[1, 2, 3, 4]):
+        job.job_type = template_job.job_type
+        job.machine_platform = template_job.machine_platform
+        job.option_collection_hash = template_job.option_collection_hash
+        job.save()
+    return template_job
+
+
+def _setup_missing_data_test_pushes(base):
+    """
+    Assign deterministic times to pushes 1-6 so that pushes 5 and 6 fall
+    between the datum-producing pushes (1-4) in chronological order:
+      push 1 → base + 0d
+      push 2 → base + 1d
+      push 5 → base + 1d 12h  (in range, between push 2 and push 3)
+      push 6 → base + 2d 12h  (in range, between push 3 and push 4)
+      push 3 → base + 2d
+      push 4 → base + 3d
+    """
+    pushes = list(Push.objects.filter(id__in=[1, 2, 3, 4, 5, 6]).order_by("id"))
+    pushes[0].time = base
+    pushes[1].time = base + datetime.timedelta(days=1)
+    pushes[4].time = base + datetime.timedelta(days=1, hours=12)
+    pushes[5].time = base + datetime.timedelta(days=2, hours=12)
+    pushes[2].time = base + datetime.timedelta(days=2)
+    pushes[3].time = base + datetime.timedelta(days=3)
+    for p in pushes:
+        p.save()
+
+
+def _sync_datum_timestamps(signature):
+    """Sync each datum's push_timestamp with its push.time for the time-range filter."""
+    for pd in PerformanceDatum.objects.filter(signature=signature):
+        pd.push_timestamp = pd.push.time
+        pd.save()
+
+
+def _configure_job(job, template_job, result, state=None):
+    """Set job_type/platform/option_collection_hash from template_job, then save."""
+    job.job_type = template_job.job_type
+    job.machine_platform = template_job.machine_platform
+    job.option_collection_hash = template_job.option_collection_hash
+    job.result = result
+    if state is not None:
+        job.state = state
+    job.save()
+
+
+def _missing_data_query_params(signature):
+    return (
+        f"?repository={signature.repository.name}"
+        f"&framework={signature.framework_id}"
+        f"&startday=2023-01-01T00%3A00%3A00"
+        f"&endday=2025-01-01T00%3A00%3A00"
+        f"&signature={signature.id}"
+        f"&all_data=true"
+        f"&include_missing_data=true"
+    )
+
+
+def test_perf_summary_missing_data_classifies_failed_and_not_run(
+    client, test_repository, test_perf_signature, test_perf_data
+):
+    """
+    Pushes within the data range with no datum are classified as 'failed'
+    (matching jobs exist but all failed) or 'not_run' (no matching job exists).
+    Multiple failed jobs on the same push collapse to one entry.
+    """
+    _setup_missing_data_test_pushes(datetime.datetime(2024, 1, 1))
+    _sync_datum_timestamps(test_perf_signature)
+    template_job = _align_datum_jobs_to_signature(test_perf_signature)
+
+    # Push 5: two matching jobs, both failed → expect one 'failed' entry
+    push5_jobs = list(Job.objects.filter(push_id=5)[:2])
+    _configure_job(push5_jobs[0], template_job, result="testfailed")
+    _configure_job(push5_jobs[1], template_job, result="busted")
+
+    # Push 6: no matching job (force a non-matching option_collection_hash)
+    Job.objects.filter(push_id=6).update(option_collection_hash="no-match-hash")
+
+    response = client.get(
+        reverse("performance-summary") + _missing_data_query_params(test_perf_signature)
+    )
+    assert response.status_code == 200
+
+    missing = response.json()[0]["missing_data"]
+    by_push = {m["push_id"]: m for m in missing}
+
+    assert sum(1 for m in missing if m["push_id"] == 5) == 1
+    assert by_push[5]["status"] == "failed"
+    assert by_push[5]["job_id"] is not None
+    assert by_push[6]["status"] == "not_run"
+    assert by_push[6]["job_id"] is None
+
+
+def test_perf_summary_missing_data_success_job_no_datum(
+    client, test_repository, test_perf_signature, test_perf_data
+):
+    """
+    A push whose matching job succeeded but produced no PerformanceDatum should
+    appear in missing_data as 'not_run' (data-collection gap). A push where a
+    failure co-exists with a success should appear as 'failed'.
+    """
+    _setup_missing_data_test_pushes(datetime.datetime(2024, 10, 1))
+    _sync_datum_timestamps(test_perf_signature)
+    template_job = _align_datum_jobs_to_signature(test_perf_signature)
+
+    # Push 5: job succeeded but left no datum → 'not_run'
+    push5_job = Job.objects.filter(push_id=5).first()
+    _configure_job(push5_job, template_job, result="success", state="completed")
+
+    # Push 6: one success + one failure, no datum → 'failed'
+    push6_jobs = list(Job.objects.filter(push_id=6)[:2])
+    _configure_job(push6_jobs[0], template_job, result="success", state="completed")
+    _configure_job(push6_jobs[1], template_job, result="testfailed", state="completed")
+
+    response = client.get(
+        reverse("performance-summary") + _missing_data_query_params(test_perf_signature)
+    )
+    assert response.status_code == 200
+
+    missing = response.json()[0]["missing_data"]
+    by_push = {m["push_id"]: m for m in missing}
+
+    assert 5 in by_push, "Push with success-but-no-datum job should appear in missing_data"
+    assert by_push[5]["status"] == "not_run"
+    assert by_push[5]["job_id"] is None
+
+    assert 6 in by_push, "Push with success+testfailed jobs should appear in missing_data"
+    assert by_push[6]["status"] == "failed"
+    assert by_push[6]["job_id"] is not None
+
+
+def test_perf_summary_missing_data_handles_retried_jobs(
+    client, test_repository, test_perf_signature, test_perf_data
+):
+    """
+    A push where the matching job was auto-retried then failed should still appear
+    as 'failed'. A push where ALL matching jobs are 'retry' with no final result
+    should be skipped.
+    """
+    _setup_missing_data_test_pushes(datetime.datetime(2024, 6, 1))
+    _sync_datum_timestamps(test_perf_signature)
+    template_job = _align_datum_jobs_to_signature(test_perf_signature)
+
+    # Push 5: first attempt auto-retried, retry also failed → 'failed'
+    push5_jobs = list(Job.objects.filter(push_id=5)[:2])
+    _configure_job(push5_jobs[0], template_job, result="retry")
+    _configure_job(push5_jobs[1], template_job, result="busted")
+
+    # Push 6: all attempts still 'retry' (no final result) → skipped
+    for job in Job.objects.filter(push_id=6)[:2]:
+        _configure_job(job, template_job, result="retry")
+
+    response = client.get(
+        reverse("performance-summary") + _missing_data_query_params(test_perf_signature)
+    )
+    assert response.status_code == 200
+
+    missing = response.json()[0]["missing_data"]
+    push_ids = {m["push_id"] for m in missing}
+    by_push = {m["push_id"]: m for m in missing}
+
+    assert 5 in push_ids, "Push with retry+busted jobs should appear in missing_data"
+    assert by_push[5]["status"] == "failed"
+    assert by_push[5]["job_id"] is not None
+
+    assert 6 not in push_ids, "Push with only retry jobs should not appear in missing_data"
+
+
+def test_perf_summary_missing_data_inconclusive_results(
+    client, test_repository, test_perf_signature, test_perf_data
+):
+    """
+    A push with inconclusive results (superseded, usercancel) mixed with a
+    definitive failure should still be classified as 'failed'. A push where all
+    matching jobs are inconclusive should be skipped entirely.
+    """
+    _setup_missing_data_test_pushes(datetime.datetime(2024, 8, 1))
+    _sync_datum_timestamps(test_perf_signature)
+    template_job = _align_datum_jobs_to_signature(test_perf_signature)
+
+    # Push 5: superseded + testfailed → 'failed'
+    push5_jobs = list(Job.objects.filter(push_id=5)[:2])
+    _configure_job(push5_jobs[0], template_job, result="superseded")
+    _configure_job(push5_jobs[1], template_job, result="testfailed")
+
+    # Push 6: only superseded (no definitive result) → skipped
+    for job in Job.objects.filter(push_id=6)[:2]:
+        _configure_job(job, template_job, result="superseded")
+
+    response = client.get(
+        reverse("performance-summary") + _missing_data_query_params(test_perf_signature)
+    )
+    assert response.status_code == 200
+
+    missing = response.json()[0]["missing_data"]
+    push_ids = {m["push_id"] for m in missing}
+    by_push = {m["push_id"]: m for m in missing}
+
+    assert 5 in push_ids, "Push with superseded+testfailed jobs should appear in missing_data"
+    assert by_push[5]["status"] == "failed"
+    assert by_push[5]["job_id"] is not None
+
+    assert 6 not in push_ids, "Push with only superseded jobs should not appear in missing_data"
 
 
 def test_no_retriggers_perf_summary(
