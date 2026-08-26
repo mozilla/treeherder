@@ -126,7 +126,7 @@ class CustomJobActions extends React.PureComponent {
     if (validate && payload) {
       try {
         input = jsyaml.load(payload);
-      } catch (_e) {
+      } catch (e) {
         this.setState({ triggering: false });
         notify(`YAML Error: ${e.message}`, 'danger');
         return;
@@ -228,11 +228,13 @@ class CustomJobActions extends React.PureComponent {
           const isBool = prop.type === 'boolean';
           const isInt = prop.type === 'integer';
           
-          const isEmpty = parsedPayload[key] === '' || parsedPayload[key] === undefined || Number.isNaN(parsedPayload[key]);
+          const isEmpty = parsedPayload[key] === '' || parsedPayload[key] === undefined || parsedPayload[key] === null || Number.isNaN(parsedPayload[key]);          
           const value = !isEmpty ? parsedPayload[key] : (parsedPayload[key] === '' ? '' : prop.default);
 
           const label = prop.title || key;
-          const rangeLabel = isInt ? ` (${prop.minimum}-${prop.maximum})` : '';
+          const rangeLabel = isInt && prop.minimum !== undefined && prop.maximum !== undefined 
+            ? ` (${prop.minimum}-${prop.maximum})` 
+            : '';
           const fullLabelText = `${label}${rangeLabel}`;
 
           return (
@@ -252,7 +254,7 @@ class CustomJobActions extends React.PureComponent {
                 {isBool ? (
                   <Form.Control
                     as="select"
-                    value={value ? 'true' : 'false'}
+                    value={String(value) === 'true' ? 'true' : 'false'}
                     onChange={(e) => this.onFormFieldChange(key, 'boolean', e.target.value)}
                   >
                     <option value="true">True</option>
@@ -262,29 +264,35 @@ class CustomJobActions extends React.PureComponent {
                   <React.Fragment>
                     <Form.Control
                       type="number"
-                      min={prop.minimum}
+                      min={prop.minimum ?? 0}
                       max={prop.maximum}
                       value={value}
                       isInvalid={isEmpty}
                       onChange={(e) => {
                         let sanitizedValue = e.target.value.replace(/\D/g, '');
                         
-                        if (sanitizedValue !== '' && parseInt(sanitizedValue, 10) > prop.maximum) {
+                        if (sanitizedValue !== '' && prop.maximum !== undefined && parseInt(sanitizedValue, 10) > prop.maximum) {
                           sanitizedValue = prop.maximum.toString();
                         }
                         
                         this.onFormFieldChange(key, 'integer', sanitizedValue);
                       }}
                       onBlur={(e) => {
-                        if (e.target.value !== '') {
+                        const fallback = prop.default !== undefined 
+                          ? prop.default.toString() 
+                          : (prop.minimum !== undefined ? prop.minimum.toString() : '0');
+
+                        if (e.target.value === '') {
+                          this.onFormFieldChange(key, 'integer', fallback);
+                        } else {
                           const numVal = parseInt(e.target.value, 10);
-                          if (numVal < prop.minimum) {
+                          if (prop.minimum !== undefined && numVal < prop.minimum) {
                             this.onFormFieldChange(key, 'integer', prop.minimum.toString());
                           }
                         }
                       }}
                       onKeyDown={(e) => {
-                        const isControlKey = ['Backspace', 'Tab', 'Enter', 'Delete', 'ArrowLeft', 'ArrowRight'].includes(e.key);
+                        const isControlKey = ['Backspace', 'Tab', 'Enter', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(e.key);
                         const isShortcut = e.ctrlKey || e.metaKey;
                         const isNumber = /^[0-9]$/.test(e.key);
 
@@ -325,7 +333,7 @@ class CustomJobActions extends React.PureComponent {
           {!!actions && (
             <div>
               <div className="form-group">
-                <Form.Label for="action-select-input">Action</Form.Label>
+                <Form.Label htmlFor="action-select-input">Action</Form.Label>
                 <Dropdown
                   show={this.state.dropdownOpen}
                   onToggle={this.toggleDropdown}
