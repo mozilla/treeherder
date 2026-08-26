@@ -508,7 +508,7 @@ export default class AlertTableRow extends React.Component {
               </span>
               {detectedPushRevision && (
                 <span className="ms-1 fst-italic text-muted small">
-                  {detectedPushRevision.slice(0, 12)}
+                  Suggested culprit: {detectedPushRevision.slice(0, 12)}
                 </span>
               )}
             </>

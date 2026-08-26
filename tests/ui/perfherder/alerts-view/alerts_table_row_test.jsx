@@ -457,18 +457,35 @@ describe('detected push revision', () => {
     },
   });
 
-  test('renders the detected push revision, styled italic/muted/small', async () => {
+  test('renders the suggested culprit revision, styled italic/muted/small', async () => {
     const revision = 'a1b2c3d4e5f6';
     const { getByText } = alertTableRowTest({
       alert: alertWithBackfill({ detected_push_revision: revision }),
       tags: false,
     });
 
-    const revisionEl = await waitFor(() => getByText(revision));
+    const revisionEl = await waitFor(() =>
+      getByText(`Suggested culprit: ${revision}`),
+    );
     expect(revisionEl).toBeInTheDocument();
     expect(revisionEl).toHaveClass('fst-italic');
     expect(revisionEl).toHaveClass('text-muted');
     expect(revisionEl).toHaveClass('small');
+  });
+
+  test('truncates the suggested culprit revision to 12 characters', async () => {
+    const revision = 'abcdef0123456789abcdef0123456789abcdef01'; // 40-char sha
+    const { getByText, queryByText } = alertTableRowTest({
+      alert: alertWithBackfill({ detected_push_revision: revision }),
+      tags: false,
+    });
+
+    const revisionEl = await waitFor(() =>
+      getByText(`Suggested culprit: ${revision.slice(0, 12)}`),
+    );
+    expect(revisionEl).toBeInTheDocument();
+    // the full, untruncated revision is not shown
+    expect(queryByText(`Suggested culprit: ${revision}`)).toBeNull();
   });
 
   test('does not render the revision span when detected_push_revision is absent', async () => {
