@@ -12,11 +12,19 @@ def backfill_record_with_logs(test_perf_alert):
     record = BackfillRecord.objects.create(alert=test_perf_alert, report=report)
     record.backfill_logs = json.dumps(
         [
-            {"iteration": 0, "status": "initial",
-             "detected_push_id": 111, "detected_push_revision": "aaaa1111bbbb"},
-            {"iteration": 0, "status": "backfill_requested"},          # no push → must be skipped
-            {"iteration": 1, "status": "right",
-             "detected_push_id": 222, "detected_push_revision": "cccc2222dddd"},
+            {
+                "iteration": 0,
+                "status": "initial",
+                "detected_push_id": 111,
+                "detected_push_revision": "aaaa1111bbbb",
+            },
+            {"iteration": 0, "status": "backfill_requested"},  # no push → must be skipped
+            {
+                "iteration": 1,
+                "status": "right",
+                "detected_push_id": 222,
+                "detected_push_revision": "cccc2222dddd",
+            },
         ]
     )
     record.save()
@@ -41,7 +49,9 @@ def test_serializer_exposes_detected_push(backfill_record_with_logs):
 @pytest.mark.django_db
 def test_detected_push_null_when_no_logs(test_perf_alert):
     report = BackfillReport.objects.create(summary=test_perf_alert.summary)
-    record = BackfillRecord.objects.create(alert=test_perf_alert, report=report)  # backfill_logs='[]'
+    record = BackfillRecord.objects.create(
+        alert=test_perf_alert, report=report
+    )  # backfill_logs='[]'
     data = BackfillRecordSerializer(record).data
     assert data["detected_push_id"] is None
     assert data["detected_push_revision"] is None
@@ -57,4 +67,3 @@ def test_detected_push_falls_back_to_scalar(test_perf_alert):
         "detected_push_id": 999,
         "detected_push_revision": None,
     }
-
