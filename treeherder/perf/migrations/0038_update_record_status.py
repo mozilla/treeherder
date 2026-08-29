@@ -5,20 +5,20 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('perf', '0037_extend_backfill_record'),
+        ("perf", "0037_extend_backfill_record"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='backfillrecord',
-            name='status',
+            model_name="backfillrecord",
+            name="status",
             field=models.IntegerField(
                 choices=[
-                    (0, 'Preliminary'),
-                    (1, 'Ready for processing'),
-                    (2, 'Backfilled'),
-                    (3, 'Successful'),
-                    (4, 'Failed'),
+                    (0, "Preliminary"),
+                    (1, "Ready for processing"),
+                    (2, "Backfilled"),
+                    (3, "Successful"),
+                    (4, "Failed"),
                 ],
                 default=0,
             ),

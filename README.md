@@ -4,7 +4,7 @@
 [![Build Status](https://circleci.com/gh/mozilla/treeherder.svg?branch=master&style=shield)](https://app.circleci.com/pipelines/github/mozilla/treeherder)
 ![Node dependencies Status](https://shields.io/librariesio/github/mozilla/treeherder)
 [![Documentation Status](https://readthedocs.org/projects/treeherder/badge/?version=latest)](https://treeherder.readthedocs.io/?badge=latest)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://docs.astral.sh/ruff/formatter/)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
 ## Description

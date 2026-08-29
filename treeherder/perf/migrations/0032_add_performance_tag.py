@@ -5,24 +5,24 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('perf', '0031_fix_application_in_constraints'),
+        ("perf", "0031_fix_application_in_constraints"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='PerformanceTag',
+            name="PerformanceTag",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=30, unique=True)),
+                ("id", models.AutoField(primary_key=True, serialize=False)),
+                ("name", models.CharField(max_length=30, unique=True)),
                 (
-                    'alert_summaries',
+                    "alert_summaries",
                     models.ManyToManyField(
-                        related_name='performance_tags', to='perf.PerformanceAlertSummary'
+                        related_name="performance_tags", to="perf.PerformanceAlertSummary"
                     ),
                 ),
             ],
             options={
-                'db_table': 'performance_tag',
+                "db_table": "performance_tag",
             },
         ),
     ]

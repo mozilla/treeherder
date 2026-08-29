@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("perf", "0061_performancedatum_os_name_and_more"),
     ]
