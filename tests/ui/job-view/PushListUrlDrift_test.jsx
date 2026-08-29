@@ -175,4 +175,27 @@ describe('PushList URL drift between window.location and React Router', () => {
     expect(fetchMock.called(resetFetchUrl)).toBe(false);
     expect(usePushesStore.getState().pushList).toHaveLength(3);
   });
+
+  test('clicking a push timestamp after "get next" narrows the view to that push', async () => {
+    const { getByTestId, getAllByTitle } = renderPushList();
+
+    await waitFor(() => expect(pushCount()).toBe(1));
+
+    fireEvent.click(getByTestId('get-next-10'));
+    await waitFor(() => expect(pushCount()).toBe(3));
+    expect(window.location.search).not.toContain('revision=');
+
+    // The timestamp is a router <Link> to `revision=<push1>`.  React Router
+    // navigates, and PushList compares the new search against the one it last
+    // saw.  With the drift, its stale search still contains `revision=<push1>`
+    // so the range looks unchanged and updateRange never runs: the URL says
+    // "one push" while the view keeps showing all three.
+    fireEvent.click(getAllByTitle('View only this push')[0]);
+
+    await waitFor(() =>
+      expect(window.location.search).toContain(`revision=${push1Revision}`),
+    );
+    await waitFor(() => expect(pushCount()).toBe(1));
+    expect(usePushesStore.getState().pushList[0].revision).toBe(push1Revision);
+  });
 });
