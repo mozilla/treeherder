@@ -48,8 +48,6 @@ def test_ingest_twice_log_parsing_status_changed(
     job_data[0]["job"]["state"] = "completed"
     test_utils.do_job_ingestion(test_repository, job_data, sample_push)
     assert JobLog.objects.count() == 1
-    for job_log in JobLog.objects.all():
-        job_log.status == JobLog.FAILED
 
 
 @pytest.mark.parametrize("same_ingestion_cycle", [False, True])
