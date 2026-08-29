@@ -332,6 +332,65 @@ describe('Pushes Zustand store', () => {
     expect(state.revisionTips).toEqual(revisionTips.slice(0, 3));
   });
 
+  test('fetchNewJobs only queries incomplete, forced, or selected pushes', async () => {
+    // push 1: running job (incomplete); push 2: all completed;
+    // push 3: completed but force-flagged active.
+    const pushList = [1, 2, 3].map((id) => ({ id, revision: `rev${id}` }));
+    const jobMap = {
+      10: {
+        id: 10,
+        push_id: 1,
+        state: 'running',
+        last_modified: '2019-08-05T20:00:00',
+      },
+      20: {
+        id: 20,
+        push_id: 2,
+        state: 'completed',
+        last_modified: '2019-08-05T20:00:00',
+      },
+      30: {
+        id: 30,
+        push_id: 3,
+        state: 'completed',
+        last_modified: '2019-08-05T20:00:00',
+      },
+    };
+
+    usePushesStore.setState({
+      ...initialState,
+      pushList,
+      jobMap,
+      forcePollPushIds: new Set([3]),
+    });
+
+    let requestedUrl = '';
+    fetchMock.mock(`begin:${getApiUrl('/jobs/?', repoName)}`, (url) => {
+      requestedUrl = url;
+      return { count: 0, next: null, results: [] };
+    });
+
+    window.location = { search: '', pathname: '/jobs' };
+    await usePushesStore.getState().fetchNewJobs();
+
+    const params = new URLSearchParams(requestedUrl.split('?')[1]);
+    const ids = params
+      .get('push_id__in')
+      .split(',')
+      .map(Number)
+      .sort((a, b) => a - b);
+    // push 2 (all completed, not forced, not selected) is excluded.
+    expect(ids).toEqual([1, 3]);
+  });
+
+  test('markPushActive adds a push id to forcePollPushIds', () => {
+    usePushesStore.setState({ ...initialState, forcePollPushIds: new Set() });
+
+    usePushesStore.getState().markPushActive(42);
+
+    expect(usePushesStore.getState().forcePollPushIds.has(42)).toBe(true);
+  });
+
   test('should clear the pushList with clearPushes', async () => {
     const push = pushListFixture.results[0];
     usePushesStore.setState({
