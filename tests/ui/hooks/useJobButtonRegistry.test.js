@@ -5,6 +5,9 @@ import {
   unregisterJobButton,
   getJobButtonInstance,
   useJobButtonRegistry,
+  setPendingScrollTaskRun,
+  consumePendingScroll,
+  clearJobButtonRegistry,
 } from '../../../ui/hooks/useJobButtonRegistry';
 import * as locationHelpers from '../../../ui/helpers/location';
 
@@ -385,6 +388,104 @@ describe('useJobButtonRegistry', () => {
 
         expect(typeof result.current.buttonRef).toBe('function');
       });
+    });
+  });
+
+  describe('pending scroll', () => {
+    const createMockJob = (overrides = {}) => ({
+      id: 1,
+      task_run: 'task-run-123',
+      visible: true,
+      ...overrides,
+    });
+
+    const createMockFilterModel = () => ({ showJob: jest.fn(() => true) });
+
+    let rafSpy;
+
+    beforeEach(() => {
+      clearJobButtonRegistry();
+      rafSpy = jest
+        .spyOn(window, 'requestAnimationFrame')
+        .mockImplementation((cb) => cb());
+    });
+
+    afterEach(() => {
+      rafSpy.mockRestore();
+      clearJobButtonRegistry();
+    });
+
+    it('consumes a pending scroll only for the matching task run', () => {
+      setPendingScrollTaskRun('task-run-123');
+
+      expect(consumePendingScroll('other-task-run')).toBe(false);
+      expect(consumePendingScroll('task-run-123')).toBe(true);
+      // A pending scroll can only be consumed once.
+      expect(consumePendingScroll('task-run-123')).toBe(false);
+    });
+
+    it('is cleared by clearJobButtonRegistry', () => {
+      setPendingScrollTaskRun('task-run-123');
+      clearJobButtonRegistry();
+
+      expect(consumePendingScroll('task-run-123')).toBe(false);
+    });
+
+    it('scrolls the selected button into view on mount when a scroll is pending', () => {
+      const job = createMockJob();
+      const filterModel = createMockFilterModel();
+      locationHelpers.getUrlParam.mockReturnValue('task-run-123');
+      setPendingScrollTaskRun('task-run-123');
+
+      const { result } = renderHook(() =>
+        useJobButtonRegistry(job, filterModel, jest.fn()),
+      );
+      const element = { scrollIntoView: jest.fn() };
+      act(() => {
+        result.current.buttonRef(element);
+      });
+
+      expect(element.scrollIntoView).toHaveBeenCalledWith({
+        behavior: 'smooth',
+        block: 'center',
+      });
+      // The pending scroll was consumed by the mount.
+      expect(consumePendingScroll('task-run-123')).toBe(false);
+    });
+
+    it('does not scroll a selected button on mount when no scroll is pending', () => {
+      const job = createMockJob();
+      const filterModel = createMockFilterModel();
+      locationHelpers.getUrlParam.mockReturnValue('task-run-123');
+
+      const { result } = renderHook(() =>
+        useJobButtonRegistry(job, filterModel, jest.fn()),
+      );
+      const element = { scrollIntoView: jest.fn() };
+      act(() => {
+        result.current.buttonRef(element);
+      });
+
+      expect(element.scrollIntoView).not.toHaveBeenCalled();
+    });
+
+    it('does not scroll an unselected button even when a scroll is pending', () => {
+      const job = createMockJob({ task_run: 'other-task-run' });
+      const filterModel = createMockFilterModel();
+      locationHelpers.getUrlParam.mockReturnValue('task-run-123');
+      setPendingScrollTaskRun('task-run-123');
+
+      const { result } = renderHook(() =>
+        useJobButtonRegistry(job, filterModel, jest.fn()),
+      );
+      const element = { scrollIntoView: jest.fn() };
+      act(() => {
+        result.current.buttonRef(element);
+      });
+
+      expect(element.scrollIntoView).not.toHaveBeenCalled();
+      // Still pending for the actual selected button.
+      expect(consumePendingScroll('task-run-123')).toBe(true);
     });
   });
 });
