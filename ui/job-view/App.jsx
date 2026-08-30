@@ -28,9 +28,12 @@ import UpdateAvailable from './headerbars/UpdateAvailable';
 import DetailsPanel from './details/DetailsPanel';
 import PushList from './pushes/PushList';
 import KeyboardShortcuts from './KeyboardShortcuts';
-import { useNotificationStore } from '../shared/stores/notificationStore';
+import { notify, useNotificationStore } from '../shared/stores/notificationStore';
 import { useSelectedJobStore } from '../shared/stores/selectedJobStore';
-import { usePushesStore, fetchPushes } from '../shared/stores/pushesStore';
+import {
+  usePushesStore,
+  fetchInitialPushes,
+} from '../shared/stores/pushesStore';
 
 import '../css/treeherder.css';
 import '../css/treeherder-navbar-panels.css';
@@ -135,6 +138,12 @@ const App = () => {
   );
   const [showShortCuts, setShowShortCuts] = useState(false);
   const [pushHealthVisibility, setPushHealthVisibility] = useState('try');
+  // On a deep link to a job, the push list waits until the job (and the
+  // revision its push belongs to) has been resolved, so it fetches only
+  // that push.  The details panel is not gated on this.
+  const [selectionResolved, setSelectionResolved] = useState(
+    () => !(urlParams.has('selectedTaskRun') || urlParams.has('selectedJob')),
+  );
   const [frameworks, setFrameworks] = useState(null);
   const [latestSplitPct, setLatestSplitPct] = useState(undefined);
 
@@ -289,8 +298,15 @@ const App = () => {
       setClassificationMap(ClassificationTypeModel.getMap(types));
     });
 
-    // Start (pre)fetching pushes immediately
-    fetchPushes();
+    // Start (pre)fetching pushes immediately.  On a deep link to a job this
+    // resolves the job first (details load right away) and then fetches only
+    // the push containing it.
+    fetchInitialPushes(notify).then((job) => {
+      if (job) {
+        setRevision(job.push_revision);
+      }
+      setSelectionResolved(true);
+    });
 
     window.addEventListener('resize', updateDimensions, false);
     window.addEventListener(thEvents.filtersUpdated, handleFiltersUpdated);
@@ -435,7 +451,7 @@ const App = () => {
               {serverChangedDelayed && (
                 <UpdateAvailable updateButtonClick={updateButtonClick} />
               )}
-              {currentRepo && (
+              {currentRepo && selectionResolved && (
                 <div id="th-global-content" className="th-global-content">
                   <span className="th-view-content" tabIndex={-1}>
                     <PushList
