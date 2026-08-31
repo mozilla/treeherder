@@ -1,4 +1,11 @@
+import pytest
 from django.urls import reverse
+
+# The project jobs endpoint (JobsProjectViewSet) routes safe-method reads to the
+# read_replica alias (JOBS_POLLING_READ_REPLICA_DESIGN.md). transaction=True is
+# required because the routed viewset reads through the separate ``read_replica``
+# connection, which only sees committed data.
+pytestmark = pytest.mark.django_db(transaction=True, databases=["default", "read_replica"])
 
 
 def test_pending_job_available(test_repository, pending_jobs_stored, client):
