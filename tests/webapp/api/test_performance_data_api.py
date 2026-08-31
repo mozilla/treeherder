@@ -15,7 +15,10 @@ from treeherder.perf.models import (
     PerformanceFramework,
     PerformanceSignature,
 )
-from treeherder.webapp.api.performance_data import PerformanceSummary
+from treeherder.webapp.api.performance_data import (
+    LIST_ALL_FRAMEWORKS,
+    PerformanceSummary,
+)
 
 pytestmark = pytest.mark.perf
 
@@ -874,3 +877,37 @@ def test_alert_summary_tasks_get_failure(client, test_perf_alert_summary):
     resp = client.get(reverse("performance-alertsummary-tasks"))
     assert resp.status_code == 400
     assert resp.json() == {"id": ["This field is required."]}
+
+
+def test_perf_summary_with_all_framework_param(
+    client,
+    test_perf_signature,
+    test_perf_signature_same_hash_different_framework,
+    test_perf_data,
+):
+    # Given two signatures in different frameworks with performance data
+    signature1 = test_perf_signature
+    signature2 = test_perf_signature_same_hash_different_framework
+
+    PerformanceDatum.objects.create(
+        repository=signature2.repository,
+        push=test_perf_data[0].push,
+        job=test_perf_data[0].job,
+        signature=signature2,
+        value=20.0,
+        push_timestamp=test_perf_data[0].push_timestamp,
+    )
+
+    # When the framework parameter is omitted from the summary request
+    query_params = (
+        f"?repository={signature1.repository.name}"
+        f"&interval=172800&no_subtests=true"
+        f"&revision={test_perf_data[0].push.revision}"
+        f"&framework={LIST_ALL_FRAMEWORKS}"
+    )
+    response = client.get(reverse("performance-summary") + query_params)
+
+    # Then results are returned for both frameworks
+    assert response.status_code == 200
+    framework_ids = {item["framework_id"] for item in response.json()}
+    assert sorted(framework_ids) == sorted({signature1.framework_id, signature2.framework_id})

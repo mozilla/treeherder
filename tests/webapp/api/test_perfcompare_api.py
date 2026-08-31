@@ -9,8 +9,11 @@ from treeherder.perf.models import (
     PerfCompareMwuCache,
     PerformanceDatum,
     PerformanceDatumReplicate,
+    PerformanceFramework,
+    PerformanceSignature,
 )
 from treeherder.webapp.api import perfcompare_utils
+from treeherder.webapp.api.performance_data import LIST_ALL_FRAMEWORKS
 
 pytestmark = pytest.mark.perf
 
@@ -1664,3 +1667,91 @@ def test_mwu_cache_recalculates_after_data_change(
     assert PerfCompareMwuCache.objects.count() == 2
     cache_keys = list(PerfCompareMwuCache.objects.values_list("hash_key", flat=True))
     assert cache_keys[0] != cache_keys[1]
+
+
+def test_perfcompare_results_with_all_framework_param(
+    client,
+    create_perf_datum,
+    test_perf_signature,
+    test_repository,
+    try_repository,
+    eleven_jobs_stored,
+    test_perfcomp_push,
+    test_perfcomp_push_2,
+    test_linux_platform,
+):
+    # Given two frameworks with performance data in different repositories
+    framework2 = PerformanceFramework.objects.create(name="test_talos_2", enabled=True)
+
+    perf_jobs = Job.objects.filter(pk__in=range(1, 11)).order_by("push__time").all()
+    test_perfcomp_push.time = FOUR_DAYS_AGO
+    test_perfcomp_push.repository = try_repository
+    test_perfcomp_push.save()
+    test_perfcomp_push_2.time = datetime.datetime.now()
+    test_perfcomp_push_2.save()
+
+    base_options = dict(
+        test="dhtml.html",
+        has_subtests=False,
+        extra_options="e10s fission stylo webrender",
+        measurement_unit="ms",
+        last_updated=datetime.datetime.now(),
+    )
+
+    base_sig = PerformanceSignature.objects.create(
+        repository=try_repository,
+        signature_hash=(20 * "n1"),
+        framework=framework2,
+        platform=test_linux_platform,
+        option_collection=test_perf_signature.option_collection,
+        suite="a11yr",
+        **base_options,
+    )
+    new_sig = PerformanceSignature.objects.create(
+        repository=test_repository,
+        signature_hash=(20 * "n2"),
+        framework=test_perf_signature.framework,
+        platform=test_linux_platform,
+        option_collection=test_perf_signature.option_collection,
+        suite="b11yr",
+        **base_options,
+    )
+
+    job = perf_jobs[0]
+    job.push = test_perfcomp_push
+    job.save()
+    perf_datum = PerformanceDatum.objects.create(
+        value=32.4,
+        push_timestamp=job.push.time,
+        job=job,
+        push=job.push,
+        repository=try_repository,
+        signature=base_sig,
+    )
+    perf_datum.push.time = job.push.time
+    perf_datum.push.save()
+    create_perf_datum(0, perf_jobs[1], test_perfcomp_push_2, new_sig, [40.2])
+
+    # When the framework parameter is omitted
+    query_params = (
+        f"?base_repository={try_repository.name}&new_repository={test_repository.name}"
+        f"&new_revision={test_perfcomp_push_2.revision}"
+        f"&interval=604800&no_subtests=true"
+        f"&framework={LIST_ALL_FRAMEWORKS}"
+    )
+    response = client.get(reverse("perfcompare-results") + query_params)
+
+    # Then results are returned across all frameworks
+    assert response.status_code == 200
+    results = response.json()
+    assert len(results) > 0
+
+    # And each result has a valid framework_id from its signature model
+    # And graph links are free of placeholder values
+    for result in results:
+        assert result["framework_id"] is not None
+        assert "None" not in result["graphs_link"]
+
+    # And results include data from both frameworks
+    framework_ids = {result["framework_id"] for result in results}
+    assert framework_ids == {framework2.id, test_perf_signature.framework_id}
