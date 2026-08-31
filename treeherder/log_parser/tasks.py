@@ -44,7 +44,6 @@ def parse_logs(job_id, job_log_ids, priority):
         # need to know one occurred so we can skip further steps and reraise to
         # trigger the retry decorator.
         first_exception = None
-        completed_names = set()
         for job_log in job_logs:
             newrelic.agent.add_custom_attribute(f"job_log_{job_log.name}_url", job_log.url)
             logger.info("parser_task for %s", job_log.id)
@@ -75,8 +74,6 @@ def parse_logs(job_id, job_log_ids, priority):
                 # track the exception on NewRelic but don't stop parsing future
                 # log lines.
                 newrelic.agent.notice_error()
-            else:
-                completed_names.add(job_log.name)
 
         # Raise so we trigger the retry decorator.
         if first_exception:
