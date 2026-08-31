@@ -803,6 +803,7 @@ class JobLog(models.Model):
     job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name="job_log")
     name = models.CharField(max_length=50)
     url = models.URLField(max_length=255)
+    parse_attempts = models.PositiveSmallIntegerField(default=0)
     status = models.IntegerField(choices=STATUSES, default=PENDING)
 
     class Meta:
@@ -810,7 +811,7 @@ class JobLog(models.Model):
         unique_together = ("job", "name", "url")
 
     def __str__(self):
-        return f"{self.id} {self.job.guid} {self.name} {self.status}"
+        return f"{self.id} {self.job.guid} {self.name} {self.status} ({self.parse_attempts} parse attempts)"
 
     def update_status(self, status):
         self.status = status

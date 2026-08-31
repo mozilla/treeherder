@@ -48,6 +48,13 @@ def parse_logs(job_id, job_log_ids, priority):
             newrelic.agent.add_custom_attribute(f"job_log_{job_log.name}_url", job_log.url)
             logger.info("parser_task for %s", job_log.id)
 
+            if job_log.parse_attempts >= 3:
+                job_log.update_status(JobLog.FAILED)
+                logger.error(
+                    f"Log failed to download/parse ({job_log.parse_attempts} attempts), skipping for log ID {job_log.id}"
+                )
+                continue
+
             # Only parse logs which haven't yet been processed or else failed on the last attempt.
             if job_log.status not in (JobLog.PENDING, JobLog.FAILED):
                 logger.info(
@@ -90,7 +97,9 @@ def store_failure_lines(job_log):
 
 def post_log_artifacts(job_log):
     """Post a list of artifacts to a job."""
-    logger.info("Downloading/parsing log for log %s", job_log.id)
+    job_log.parse_attempts += 1
+    job_log.save()
+    logger.info(f"Downloading/parsing log (attempt {job_log.parse_attempts}) for log {job_log.id}")
 
     try:
         artifact_list = extract_text_log_artifacts(job_log)
