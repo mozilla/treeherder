@@ -166,5 +166,31 @@ test.describe('Classification', () => {
     await expect(pinboard).toContainText(
       'press spacebar to pin a selected job',
     );
+
+    // The job now renders as classified in the push list: its button
+    // on its own push gains the star icon and the classified marker.
+    // (The star svg's <title> adds "classified" to the button text,
+    // so a /^B$/ text filter would miss the classified button.)
+    const jobPush = page.getByTestId(`push-${BUILD_JOB.push_id}`);
+    const classifiedB = jobPush
+      .locator('[data-testid="job-btn"][data-classified="true"]')
+      .filter({ hasText: /^B/ });
+    await expect(classifiedB).toHaveCount(1);
+    await expect(classifiedB.locator('.classified-icon')).toBeVisible();
+
+    // Deselect first (a selected job stays visible regardless of
+    // filters), then filter to unclassified failures: the newly
+    // classified job is no longer shown on its push.
+    // Blur the related-bug input first: keyboard shortcuts are
+    // ignored while an input has focus, and Firefox does not move
+    // focus on button clicks.
+    await page.evaluate(() => document.activeElement?.blur());
+    await page.keyboard.press('Escape');
+    await expect(page).not.toHaveURL(/selectedTaskRun=/);
+    await page.keyboard.press('u');
+    await expect(page).toHaveURL(/classifiedState=unclassified/);
+    await expect(
+      jobPush.locator('[data-testid="job-btn"]').filter({ hasText: /^B/ }),
+    ).toHaveCount(0);
   });
 });
