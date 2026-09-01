@@ -2,6 +2,8 @@ import datetime
 from unittest import skip
 
 import pytest
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 
 from treeherder.model.models import Job
@@ -11,6 +13,7 @@ from treeherder.perf.models import (
     PerformanceDatumReplicate,
 )
 from treeherder.webapp.api import perfcompare_utils
+from treeherder.webapp.api.performance_data import PerfCompareResults
 
 pytestmark = pytest.mark.perf
 
@@ -279,6 +282,112 @@ def test_perfcompare_results_against_no_base(
     assert expected[0] == response.json()[0]
     assert response.json()[0]["base_parent_signature"] is None
     assert response.json()[0]["new_parent_signature"] is None
+
+
+def test_grouped_perf_data_uses_single_query(
+    test_perf_signature,
+    test_perfcomp_push,
+    eleven_jobs_stored,
+    django_assert_num_queries,
+):
+    """
+    Given performance datums, some of which have replicate values,
+    When _get_grouped_perf_data runs,
+    Then it issues a single query while preserving the grouping semantics.
+    """
+    # Given: two datums for the same signature, one with a replicate value
+    jobs = Job.objects.filter(pk__in=range(1, 11)).order_by("push__time").all()
+    job1, job2 = jobs[0], jobs[1]
+    job1.push = test_perfcomp_push
+    job1.save()
+    job2.push = test_perfcomp_push
+    job2.save()
+
+    datum1 = PerformanceDatum.objects.create(
+        value=10.0,
+        push_timestamp=test_perfcomp_push.time,
+        job=job1,
+        push=test_perfcomp_push,
+        repository=test_perf_signature.repository,
+        signature=test_perf_signature,
+    )
+    PerformanceDatum.objects.create(
+        value=20.0,
+        push_timestamp=test_perfcomp_push.time,
+        job=job2,
+        push=test_perfcomp_push,
+        repository=test_perf_signature.repository,
+        signature=test_perf_signature,
+    )
+    PerformanceDatumReplicate.objects.create(performance_datum=datum1, value=10.5)
+
+    perf_data = PerformanceDatum.objects.filter(signature=test_perf_signature)
+
+    # When: grouping the performance data
+    with django_assert_num_queries(1):
+        grouped = PerfCompareResults._get_grouped_perf_data(perf_data)
+
+    # Then: values, job ids and replicate values are grouped as before
+    sig_id = test_perf_signature.id
+    assert sorted(grouped.values[sig_id]) == [10.0, 20.0]
+    assert sorted(grouped.job_ids[sig_id]) == sorted([job1.id, job2.id])
+    # replicate value used when present, main value used as fallback otherwise
+    assert sorted(grouped.replicates[sig_id]) == [10.5, 20.0]
+
+
+def test_perfcompare_results_queries_perf_datum_once_per_repo(
+    client,
+    create_signature,
+    test_perf_signature,
+    test_repository,
+    try_repository,
+    eleven_jobs_stored,
+    test_perfcomp_push,
+    test_perfcomp_push_2,
+    test_linux_platform,
+    test_option_collection,
+):
+    """
+    Given base and new performance data, each with replicate values,
+    When the perfcompare results endpoint is queried,
+    Then the performance_datum table is queried only once per repo
+    (it used to be scanned twice per repo, once per grouping pass).
+    """
+    # Given: base and new data on two repos
+    setup_mwu_compatible_data(
+        [32.4, 33.1, 31.8],
+        [40.2, 41.5, 39.8],
+        test_perfcomp_push,
+        try_repository,
+        test_perfcomp_push_2,
+        create_signature,
+        test_linux_platform,
+        test_perf_signature,
+        test_repository,
+    )
+
+    base_datum = PerformanceDatum.objects.filter(signature__repository=try_repository).first()
+    new_datum = PerformanceDatum.objects.filter(signature__repository=test_repository).first()
+    PerformanceDatumReplicate.objects.create(performance_datum=base_datum, value=30.0)
+    PerformanceDatumReplicate.objects.create(performance_datum=new_datum, value=45.0)
+
+    query_params = (
+        f"?base_repository={try_repository.name}&new_repository={test_repository.name}"
+        f"&new_revision={test_perfcomp_push_2.revision}"
+        f"&framework={test_perf_signature.framework_id}"
+        f"&interval=604800&no_subtests=true"
+    )
+
+    # When: the comparison is requested
+    with CaptureQueriesContext(connection) as captured:
+        response = client.get(reverse("perfcompare-results") + query_params)
+
+    # Then: exactly one performance_datum query per side (two total)
+    assert response.status_code == 200
+    perf_datum_queries = [
+        query["sql"] for query in captured.captured_queries if "performance_datum" in query["sql"]
+    ]
+    assert len(perf_datum_queries) == 2
 
 
 def test_perfcompare_results_with_only_one_run_and_diff_repo(
