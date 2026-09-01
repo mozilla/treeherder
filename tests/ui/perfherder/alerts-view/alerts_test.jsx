@@ -291,7 +291,7 @@ test('selecting all alerts and marking them as acknowledged updates all alerts',
     expect(alertCheckbox1).toHaveProperty('checked', true);
     expect(alertCheckbox2).toHaveProperty('checked', true);
   });
-  let acknowledgeButton = await waitFor(() => getByText('Acknowledge'));
+  const acknowledgeButton = await waitFor(() => getByText('Acknowledge'));
 
   fireEvent.click(acknowledgeButton);
 
@@ -391,7 +391,7 @@ test('selecting the alert summary checkbox then deselecting one alert only updat
     expect(alertCheckbox4).toHaveProperty('checked', true);
   });
 
-  let acknowledgeButton = await waitFor(() => getByText('Acknowledge'));
+  const acknowledgeButton = await waitFor(() => getByText('Acknowledge'));
   fireEvent.click(acknowledgeButton);
 
   // only the selected alert has been updated
