@@ -119,5 +119,16 @@ test.describe('Failure summary tab', () => {
 
     // The pinboard is cleared after a successful save.
     await expect(pinboard.locator('.pinned-job')).toHaveCount(0);
+
+    // The job now renders as classified in the push list: its button
+    // on its own push gains the star icon and the classified marker.
+    // (The star svg's <title> adds "classified" to the button text,
+    // so a /^B$/ text filter would miss the classified button.)
+    const classifiedB = page
+      .getByTestId(`push-${BUILD_JOB.push_id}`)
+      .locator('[data-testid="job-btn"][data-classified="true"]')
+      .filter({ hasText: /^B/ });
+    await expect(classifiedB).toHaveCount(1);
+    await expect(classifiedB.locator('.classified-icon')).toBeVisible();
   });
 });
