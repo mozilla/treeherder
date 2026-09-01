@@ -11,7 +11,18 @@ import { getBtnClass, formatDuration } from '../../helpers/job';
 import { useJobButtonRegistry } from '../../hooks/useJobButtonRegistry';
 
 const JobButtonComponent = forwardRef(function JobButtonComponent(
-  { job, filterModel, visible, filterPlatformCb, intermittent = false },
+  {
+    job,
+    filterModel,
+    visible,
+    filterPlatformCb,
+    intermittent = false,
+    // These scalar props exist so that memo() can detect changes: the job
+    // object itself is mutated in place when e.g. a classification is
+    // saved, so comparing the job reference alone would never re-render.
+    failureClassificationId,
+    resultStatus,
+  },
   ref,
 ) {
   const {
@@ -35,13 +46,7 @@ const JobButtonComponent = forwardRef(function JobButtonComponent(
     [job, visible, setSelected, toggleRunnableSelected, refilter],
   );
 
-  const {
-    state,
-    failure_classification_id: jobFailureClassificationId,
-    id,
-    job_type_symbol: jobTypeSymbol,
-    resultStatus: jobResultStatus,
-  } = job;
+  const { state, id, job_type_symbol: jobTypeSymbol } = job;
 
   const onMouseEnter = useCallback(
     (e) => {
@@ -63,17 +68,17 @@ const JobButtonComponent = forwardRef(function JobButtonComponent(
 
   const runnable = state === 'runnable';
   const { status, isClassified } = getBtnClass(
-    jobResultStatus,
-    jobFailureClassificationId,
+    resultStatus,
+    failureClassificationId,
   );
   let classifiedIcon = null;
 
   if (
-    jobFailureClassificationId > 1 &&
-    ![6, 8].includes(jobFailureClassificationId)
+    failureClassificationId > 1 &&
+    ![6, 8].includes(failureClassificationId)
   ) {
     classifiedIcon =
-      jobFailureClassificationId === 7 ? faStarRegular : faStarSolid;
+      failureClassificationId === 7 ? faStarRegular : faStarSolid;
   }
 
   const classes = ['btn', 'filter-shown'];
@@ -131,6 +136,8 @@ JobButtonComponent.propTypes = {
   visible: PropTypes.bool.isRequired,
   filterPlatformCb: PropTypes.func.isRequired,
   intermittent: PropTypes.bool,
+  failureClassificationId: PropTypes.number.isRequired,
+  resultStatus: PropTypes.string.isRequired,
 };
 
 export default memo(JobButtonComponent);
