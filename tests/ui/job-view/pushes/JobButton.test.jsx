@@ -55,6 +55,8 @@ describe('JobButton', () => {
     render(
       <JobButtonComponent
         job={job}
+        failureClassificationId={job.failure_classification_id}
+        resultStatus={job.resultStatus}
         filterModel={filterModel}
         visible
         filterPlatformCb={filterPlatformCb}
@@ -72,6 +74,8 @@ describe('JobButton', () => {
     const { container } = render(
       <JobButtonComponent
         job={job}
+        failureClassificationId={job.failure_classification_id}
+        resultStatus={job.resultStatus}
         filterModel={filterModel}
         visible={false}
         filterPlatformCb={filterPlatformCb}
@@ -89,6 +93,8 @@ describe('JobButton', () => {
     render(
       <JobButtonComponent
         job={job}
+        failureClassificationId={job.failure_classification_id}
+        resultStatus={job.resultStatus}
         filterModel={filterModel}
         visible
         filterPlatformCb={filterPlatformCb}
@@ -108,6 +114,8 @@ describe('JobButton', () => {
     render(
       <JobButtonComponent
         job={job}
+        failureClassificationId={job.failure_classification_id}
+        resultStatus={job.resultStatus}
         filterModel={filterModel}
         visible
         filterPlatformCb={filterPlatformCb}
@@ -127,6 +135,8 @@ describe('JobButton', () => {
       render(
         <JobButtonComponent
           job={job}
+          failureClassificationId={job.failure_classification_id}
+          resultStatus={job.resultStatus}
           filterModel={filterModel}
           visible
           filterPlatformCb={filterPlatformCb}
@@ -144,6 +154,8 @@ describe('JobButton', () => {
       render(
         <JobButtonComponent
           job={job}
+          failureClassificationId={job.failure_classification_id}
+          resultStatus={job.resultStatus}
           filterModel={filterModel}
           visible
           filterPlatformCb={filterPlatformCb}
@@ -161,6 +173,8 @@ describe('JobButton', () => {
       render(
         <JobButtonComponent
           job={job}
+          failureClassificationId={job.failure_classification_id}
+          resultStatus={job.resultStatus}
           filterModel={filterModel}
           visible
           filterPlatformCb={filterPlatformCb}
@@ -178,6 +192,8 @@ describe('JobButton', () => {
       render(
         <JobButtonComponent
           job={job}
+          failureClassificationId={job.failure_classification_id}
+          resultStatus={job.resultStatus}
           filterModel={filterModel}
           visible
           filterPlatformCb={filterPlatformCb}
@@ -195,6 +211,8 @@ describe('JobButton', () => {
       render(
         <JobButtonComponent
           job={job}
+          failureClassificationId={job.failure_classification_id}
+          resultStatus={job.resultStatus}
           filterModel={filterModel}
           visible
           filterPlatformCb={filterPlatformCb}
@@ -215,6 +233,8 @@ describe('JobButton', () => {
       render(
         <JobButtonComponent
           job={job}
+          failureClassificationId={job.failure_classification_id}
+          resultStatus={job.resultStatus}
           filterModel={filterModel}
           visible
           filterPlatformCb={filterPlatformCb}
@@ -239,6 +259,8 @@ describe('JobButton', () => {
       render(
         <JobButtonComponent
           job={job}
+          failureClassificationId={job.failure_classification_id}
+          resultStatus={job.resultStatus}
           filterModel={filterModel}
           visible
           filterPlatformCb={filterPlatformCb}
@@ -264,6 +286,8 @@ describe('JobButton', () => {
       render(
         <JobButtonComponent
           job={job}
+          failureClassificationId={job.failure_classification_id}
+          resultStatus={job.resultStatus}
           filterModel={filterModel}
           visible
           filterPlatformCb={filterPlatformCb}
@@ -288,6 +312,8 @@ describe('JobButton', () => {
       render(
         <JobButtonComponent
           job={job}
+          failureClassificationId={job.failure_classification_id}
+          resultStatus={job.resultStatus}
           filterModel={filterModel}
           visible
           filterPlatformCb={filterPlatformCb}
@@ -307,6 +333,8 @@ describe('JobButton', () => {
       render(
         <JobButtonComponent
           job={job}
+          failureClassificationId={job.failure_classification_id}
+          resultStatus={job.resultStatus}
           filterModel={filterModel}
           visible
           filterPlatformCb={filterPlatformCb}
@@ -328,6 +356,8 @@ describe('JobButton', () => {
       render(
         <JobButtonComponent
           job={job}
+          failureClassificationId={job.failure_classification_id}
+          resultStatus={job.resultStatus}
           filterModel={filterModel}
           visible
           filterPlatformCb={filterPlatformCb}
@@ -350,6 +380,8 @@ describe('JobButton', () => {
       render(
         <JobButtonComponent
           job={job}
+          failureClassificationId={job.failure_classification_id}
+          resultStatus={job.resultStatus}
           filterModel={filterModel}
           visible
           filterPlatformCb={filterPlatformCb}
@@ -373,6 +405,8 @@ describe('JobButton', () => {
       render(
         <JobButtonComponent
           job={job}
+          failureClassificationId={job.failure_classification_id}
+          resultStatus={job.resultStatus}
           filterModel={filterModel}
           visible
           filterPlatformCb={filterPlatformCb}
@@ -394,6 +428,8 @@ describe('JobButton', () => {
       render(
         <JobButtonComponent
           job={job}
+          failureClassificationId={job.failure_classification_id}
+          resultStatus={job.resultStatus}
           filterModel={filterModel}
           visible
           filterPlatformCb={filterPlatformCb}
@@ -416,6 +452,8 @@ describe('JobButton', () => {
         <JobButtonComponent
           ref={ref}
           job={job}
+          failureClassificationId={job.failure_classification_id}
+          resultStatus={job.resultStatus}
           filterModel={filterModel}
           visible
           filterPlatformCb={filterPlatformCb}
@@ -438,6 +476,8 @@ describe('JobButton', () => {
         <JobButtonComponent
           ref={ref}
           job={job}
+          failureClassificationId={job.failure_classification_id}
+          resultStatus={job.resultStatus}
           filterModel={filterModel}
           visible
           filterPlatformCb={filterPlatformCb}
@@ -457,6 +497,8 @@ describe('JobButton', () => {
         <JobButtonComponent
           ref={ref}
           job={job}
+          failureClassificationId={job.failure_classification_id}
+          resultStatus={job.resultStatus}
           filterModel={filterModel}
           visible
           filterPlatformCb={filterPlatformCb}
@@ -476,6 +518,8 @@ describe('JobButton', () => {
       render(
         <JobButtonComponent
           job={job}
+          failureClassificationId={job.failure_classification_id}
+          resultStatus={job.resultStatus}
           filterModel={filterModel}
           visible
           filterPlatformCb={filterPlatformCb}
@@ -495,6 +539,8 @@ describe('JobButton', () => {
       render(
         <JobButtonComponent
           job={job}
+          failureClassificationId={job.failure_classification_id}
+          resultStatus={job.resultStatus}
           filterModel={filterModel}
           visible
           filterPlatformCb={filterPlatformCb}
