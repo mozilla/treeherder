@@ -179,6 +179,8 @@ export function JobGroupComponent({
                 job={job}
                 filterModel={filterModel}
                 visible={job.visible}
+                failureClassificationId={job.failure_classification_id}
+                resultStatus={job.resultStatus}
                 filterPlatformCb={filterPlatformCb}
                 intermittent={isIntermittent(job)}
                 key={job.id}
