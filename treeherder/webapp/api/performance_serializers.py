@@ -183,6 +183,7 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
     prev_value = PerformanceDecimalField(read_only=True)
     new_value = PerformanceDecimalField(read_only=True)
     noise_profile = serializers.CharField(read_only=True)
+    severity = serializers.ReadOnlyField()
 
     @transaction.atomic
     def update(self, instance, validated_data):
@@ -297,6 +298,7 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
             "backfill_record",
             "side_by_side_available",
             "noise_profile",
+            "severity",
         ]
 
 
@@ -355,6 +357,7 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     first_triaged = serializers.ReadOnlyField()
     triage_due_date = serializers.ReadOnlyField()
     bug_due_date = serializers.ReadOnlyField()
+    severity = serializers.ReadOnlyField()
     monitored_alerts = serializers.BooleanField(required=False)
 
     def validate(self, data):
@@ -407,6 +410,7 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
             "bug_status",
             "bug_due_date",
             "bug_updated",
+            "severity",
             "issue_tracker",
             "notes",
             "revision",
