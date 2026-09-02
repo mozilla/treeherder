@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
 from django.db import models
+from django.db.models import Q
 from django.utils.timezone import now as django_now
 
 from treeherder.model.models import (
@@ -574,9 +575,8 @@ class PerformanceAlertSummary(PerformanceAlertSummaryBase):
         # alerts reach a summary over time, since generate_alerts runs per signature,
         # so the most severe one is only known once they have all landed
         rank = PerformanceSignature.SEVERITY_RANK
-        severities = (
-            PerformanceAlert.objects.filter(summary=self)
-            | PerformanceAlert.objects.filter(related_summary=self)
+        severities = PerformanceAlert.objects.filter(
+            Q(summary=self) | Q(related_summary=self)
         ).values_list("severity", flat=True)
 
         most_severe = max(severities, key=lambda severity: rank.get(severity, 0), default=None)
