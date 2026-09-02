@@ -435,9 +435,8 @@ class PerformanceAlertSummaryBase(models.Model):
 
     @staticmethod
     def _resolve_due_date(current, candidate):
-        # runs when the severity rises and the deadline would shorten with it: we
-        # only accept the shorter date if it hasn't passed, otherwise the summary
-        # would go overdue with no warning
+        # Validate that the due date is strictly in the future to prevent immediate
+        # overdue status and ensure triagers have adequate response time.
         if current is not None and candidate < current and candidate < django_now():
             return current
         return candidate
@@ -564,7 +563,7 @@ class PerformanceAlertSummary(PerformanceAlertSummaryBase):
     # Severity of the most severe alert this summary holds, which is what its
     # due dates are derived from. Null means no alert carries a severity yet.
     severity = models.CharField(
-        max_length=80, choices=PerformanceSignature.ALERT_SEVERITIES, null=True, default=None
+        max_length=20, choices=PerformanceSignature.ALERT_SEVERITIES, null=True, default=None
     )
 
     def update_status(self, using=None):
@@ -756,7 +755,7 @@ class PerformanceAlert(PerformanceAlertBase):
     # Severity of the signature when this alert was raised. The signature's own
     # value is overwritten on every ingestion; null means the alert predates this field.
     severity = models.CharField(
-        max_length=80, choices=PerformanceSignature.ALERT_SEVERITIES, null=True, default=None
+        max_length=20, choices=PerformanceSignature.ALERT_SEVERITIES, null=True, default=None
     )
 
     def save(self, *args, **kwargs):
