@@ -4,6 +4,7 @@ import {
   matchBugSuggestions,
   NO_GROUP,
   INCOMPLETE_STATUS,
+  HARNESS_STATUS,
 } from '../../../ui/helpers/testSummary';
 
 const lines = [
@@ -370,6 +371,158 @@ describe('matchBugSuggestions', () => {
     expect(failures[0].bugs.open_recent).toHaveLength(1);
     expect(failures[0].showBugSuggestions).toBe(true);
     expect(failures[1].bugs.open_recent).toHaveLength(0);
+    expect(failures[1].showBugSuggestions).toBe(false);
+  });
+});
+
+describe('harness failures (ERROR/CRITICAL log lines)', () => {
+  const group = 'netwerk/test/browser/browser.toml';
+  const leakLines = [
+    `TEST-UNEXPECTED-FAIL | LeakSanitizer leak at Alloc, nsTSubstring, nsTSubstring, Append | ${group}`,
+    `TEST-UNEXPECTED-FAIL | LeakSanitizer leak at nsTimer, nsTimer::WithEventTarget, NS_NewTimer, NS_NewTimer | ${group}`,
+  ];
+  const summaryLines = [
+    { action: 'suite_start', time: 0, name: 'mochitest-browser' },
+    { action: 'group_start', time: 1, name: group },
+    { action: 'test_start', time: 2, group, test: 'netwerk/test/browser/browser_test_offline_tab.js' },
+    {
+      action: 'test_end',
+      time: 5,
+      group,
+      test: 'netwerk/test/browser/browser_test_offline_tab.js',
+      status: 'PASS',
+      message: 'finished in 3ms',
+    },
+    { action: 'log', time: 6, level: 'ERROR', message: leakLines[0] },
+    { action: 'log', time: 7, level: 'ERROR', message: leakLines[1] },
+    { action: 'group_end', time: 8, name: group },
+    { action: 'suite_end', time: 9 },
+  ];
+
+  const harnessEntries = (summary, groupName) =>
+    summary.groups
+      .find((g) => g.name === groupName)
+      .tests.filter((t) => t.harness);
+
+  test('files each line as its own ERROR entry under the open group', () => {
+    const summary = buildTestSummary(summaryLines);
+    const entries = harnessEntries(summary, group);
+
+    expect(entries).toHaveLength(2);
+    expect(entries.map((e) => e.name)).toEqual([
+      'LeakSanitizer leak at Alloc, nsTSubstring, nsTSubstring, Append',
+      'LeakSanitizer leak at nsTimer, nsTimer::WithEventTarget, NS_NewTimer, NS_NewTimer',
+    ]);
+    entries.forEach((entry, index) => {
+      expect(entry.status).toBe(HARNESS_STATUS);
+      expect(entry.success).toBe(false);
+      expect(entry.retried).toBe(false);
+      expect(entry.results).toHaveLength(1);
+      expect(entry.results[0].message).toBe(leakLines[index]);
+    });
+    // The passing test in the same group is untouched, and the harness
+    // lines count as failures without inflating the test tallies.
+    expect(summary.groups[0].tests).toHaveLength(3);
+    expect(summary.counts).toMatchObject({ total: 1, PASS: 1, ERROR: 0 });
+    expect(summary.groups[0].counts).toMatchObject({ total: 1, ERROR: 0 });
+    expect(summary.realFailCounts).toEqual({ ERROR: 2 });
+  });
+
+  test('does not collapse identical lines into one retried entry', () => {
+    const summary = buildTestSummary([
+      { action: 'group_start', time: 0, name: 'g' },
+      { action: 'log', time: 1, level: 'ERROR', message: 'TEST-UNEXPECTED-FAIL | leakcheck | 1288 bytes leaked (nsFoo)' },
+      { action: 'log', time: 2, level: 'ERROR', message: 'TEST-UNEXPECTED-FAIL | leakcheck | 1288 bytes leaked (nsFoo)' },
+    ]);
+    const entries = harnessEntries(summary, 'g');
+    expect(entries).toHaveLength(2);
+    expect(entries.every((e) => e.retried === false)).toBe(true);
+  });
+
+  test('ignores log lines that are not failures', () => {
+    const summary = buildTestSummary([
+      { action: 'group_start', time: 0, name: 'g' },
+      { action: 'log', time: 1, level: 'INFO', message: 'TEST-INFO | noise' },
+      { action: 'log', time: 2, level: 'WARNING', message: 'careful' },
+      { action: 'log', time: 3, level: 'ERROR' },
+      { action: 'log', time: 4, level: 'CRITICAL', message: 'TEST-UNEXPECTED-FAIL | leakcheck | 12 bytes leaked (nsBar)' },
+    ]);
+    const entries = harnessEntries(summary, 'g');
+    expect(entries).toHaveLength(1);
+    expect(entries[0].results[0].message).toBe(
+      'TEST-UNEXPECTED-FAIL | leakcheck | 12 bytes leaked (nsBar)',
+    );
+  });
+
+  test('files a line under the manifest it names, or NO_GROUP when it names none', () => {
+    const summary = buildTestSummary([
+      { action: 'group_start', time: 0, name: 'a/browser.toml' },
+      { action: 'group_end', time: 1, name: 'a/browser.toml' },
+      { action: 'log', time: 2, level: 'ERROR', message: 'TEST-UNEXPECTED-FAIL | LeakSanitizer leak at X | a/browser.toml' },
+      { action: 'log', time: 3, level: 'ERROR', message: 'TEST-UNEXPECTED-FAIL | Shutdown | Main app process exited abnormally' },
+    ]);
+    expect(harnessEntries(summary, 'a/browser.toml')).toHaveLength(1);
+    expect(harnessEntries(summary, NO_GROUP)).toHaveLength(1);
+  });
+
+  test('names the entry after the message when the line has no path token', () => {
+    const summary = buildTestSummary([
+      { action: 'group_start', time: 0, name: 'g' },
+      { action: 'log', time: 1, level: 'ERROR', message: 'TEST-UNEXPECTED-FAIL | leakcheck | 1288 bytes leaked (nsFoo)' },
+      { action: 'log', time: 2, level: 'ERROR', message: 'Automation Error: mozprocess timed out' },
+    ]);
+    const [leak, timeout] = harnessEntries(summary, 'g');
+    expect(leak.name).toBe('TEST-UNEXPECTED-FAIL | leakcheck | 1288 bytes leaked (nsFoo)');
+    expect(leak.pathEnd).toBe(null);
+    expect(timeout.name).toBe('Automation Error: mozprocess timed out');
+    expect(timeout.pathEnd).toBe(null);
+  });
+
+  test('emits the raw line as the suggestion, with the backend path_end', () => {
+    const suggestions = buildFailureSuggestions(buildTestSummary(summaryLines));
+
+    expect(suggestions).toHaveLength(2);
+    expect(suggestions.map((s) => s.search)).toEqual(leakLines);
+    expect(suggestions.map((s) => s.path_end)).toEqual([
+      'LeakSanitizer leak at Alloc, nsTSubstring, nsTSubstring, Append',
+      'LeakSanitizer leak at nsTimer, nsTimer::WithEventTarget, NS_NewTimer, NS_NewTimer',
+    ]);
+    expect(suggestions.every((s) => s.primary)).toBe(true);
+  });
+
+  test('derives path_end the way the backend does for crash and leakcheck lines', () => {
+    const suggestions = buildFailureSuggestions(
+      buildTestSummary([
+        { action: 'group_start', time: 0, name: 'g' },
+        { action: 'log', time: 1, level: 'ERROR', message: 'PROCESS-CRASH | application crashed [@ mozalloc_abort] | dom/tests/test_x.html' },
+        { action: 'log', time: 2, level: 'ERROR', message: 'TEST-UNEXPECTED-FAIL | leakcheck | 1288 bytes leaked (nsFoo)' },
+        { action: 'log', time: 3, level: 'ERROR', message: 'TEST-UNEXPECTED-FAIL | layout\\reftests\\a.html == layout\\reftests\\a-ref.html | image comparison' },
+      ]),
+    );
+
+    expect(suggestions.map((s) => s.path_end)).toEqual([
+      'dom/tests/test_x.html',
+      null,
+      'layout/reftests/a.html',
+    ]);
+  });
+
+  test('attaches the bugs the API keys on the same path_end', () => {
+    const bugSuggestions = [
+      {
+        search: leakLines[0],
+        path_end: 'LeakSanitizer leak at Alloc, nsTSubstring, nsTSubstring, Append',
+        bugs: { open_recent: [], all_others: [{ id: 1979140, internal_id: 42 }] },
+      },
+    ];
+    const failures = matchBugSuggestions(
+      buildFailureSuggestions(buildTestSummary(summaryLines)),
+      bugSuggestions,
+    );
+
+    expect(failures[0].bugs.all_others.map((b) => b.id)).toEqual([1979140]);
+    expect(failures[0].showBugSuggestions).toBe(true);
+    expect(failures[1].bugs.all_others).toHaveLength(0);
     expect(failures[1].showBugSuggestions).toBe(false);
   });
 });
