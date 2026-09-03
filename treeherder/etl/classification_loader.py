@@ -120,7 +120,7 @@ class ClassificationLoader:
             revision_field = "revision__startswith" if len(revision) < 40 else "revision"
             filter_kwargs = {"repository": repository, revision_field: revision}
 
-            push = Push.objects.get(**filter_kwargs)
+            push = Push.objects.select_related("repository").get(**filter_kwargs)
         except Push.DoesNotExist:
             logger.info("Job with unsupported revision: %s", revision)
             raise
@@ -154,7 +154,9 @@ class ClassificationLoader:
 
                 # Retrieving the relevant Job
                 try:
-                    job = Job.objects.get(taskcluster_metadata__task_id=task["task_id"])
+                    job = Job.objects.select_related("repository").get(
+                        taskcluster_metadata__task_id=task["task_id"]
+                    )
                 except Job.DoesNotExist:
                     logger.error(
                         "Job associated to the TC task %s does not exist and could not be autoclassified.",

@@ -28,7 +28,12 @@ def parse_logs(job_id, job_log_ids, priority):
     # Attach task_id/run_id/job_id as GCP log labels to every line emitted while
     # parsing this job's logs (including deeper failure-line processing).
     with log_context(**job_log_labels(job), component="log_parser"):
-        job_logs = JobLog.objects.filter(id__in=job_log_ids, job=job)
+        # select_related the job/repository chain: the parsers below access
+        # job_log.job.repository lazily, and by then the log downloads may have
+        # outlived the task's original DB connection.
+        job_logs = JobLog.objects.filter(id__in=job_log_ids, job=job).select_related(
+            "job__repository"
+        )
 
         if len(job_log_ids) != len(job_logs):
             logger.warning(
