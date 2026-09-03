@@ -24,7 +24,7 @@ python-dateutil==2.9.0.post0
 django-filter==26.1  # Listed in DEFAULT_FILTER_BACKENDS on settings.py
 django-redis==6.0.0  # Listed in CACHES on settings.py
 
-taskcluster==88.0.5  # import taskcluster
+taskcluster==107.0.0  # import taskcluster
 python-jose[pycryptodome]==3.5.0  # from jose import jwt
 
 PyGithub==2.9.1
