@@ -953,9 +953,9 @@ grpcio-status==1.70.0 \
     --hash=sha256:0e7b42816512433b18b9d764285ff029bde059e9d41f8fe10a60631bd8348101 \
     --hash=sha256:fc5a2ae2b9b1c1969cc49f3262676e6854aa2398ec69cb5bd6c47cd501904a85
     # via google-api-core
-gunicorn==26.0.0 \
-    --hash=sha256:40233d26a5f0d1872916188c276e21641155111c2853f0c2cd55260aec0d24fc \
-    --hash=sha256:ca9346f85e3a4aeeb64d491045c16b9a35647abd37ea15efe53080eb8b090baf
+gunicorn==26.2.0 \
+    --hash=sha256:62b864895d9ebff0b2f9867ba04fe811c93121596540830c9c916d0769668447 \
+    --hash=sha256:bd249d0b3f7972f7432f0a6b6ff3b3ee2d129f70cd1ff6c09a9dd9e29a2b88e3
     # via -r requirements/common.in
 identify==2.6.7 \
     --hash=sha256:155931cb617a401807b09ecec6635d6c692d180090a1cedca8ef7d58ba5b6aa0 \
@@ -1591,7 +1591,6 @@ packaging==24.0 \
     # via
     #   db-dtypes
     #   google-cloud-bigquery
-    #   gunicorn
     #   kombu
     #   matplotlib
 pandas==2.2.3 \
