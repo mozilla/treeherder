@@ -61,7 +61,7 @@
     "zustand": "5.0.15"
   },
   "devDependencies": {
-    "@babel/core": "7.26.10",
+    "@babel/core": "7.29.7",
     "@babel/preset-env": "7.26.9",
     "@babel/preset-react": "7.27.1",
     "@biomejs/biome": "2.3.15",
