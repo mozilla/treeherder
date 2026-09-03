@@ -2,123 +2,123 @@
   "logurl": "http://my-log.mozilla.org/build-fail.log.gz",
   "errors": [
     {
-      "linenumber": 137717,
+      "linenumber": 137959,
       "line": "21:47:57    ERROR -  error: linking with `/builds/worker/checkouts/gecko/build/cargo-linker` failed: exit status: 1"
     },
     {
-      "linenumber": 137720,
+      "linenumber": 137962,
       "line": "21:47:57    ERROR -    = note: lld-link: error: undefined symbol: PropVariantCompareEx"
     },
     {
-      "linenumber": 137723,
+      "linenumber": 137965,
       "line": "21:47:57    ERROR -            lld-link: error: undefined symbol: VariantToPropVariant"
     },
     {
-      "linenumber": 137726,
+      "linenumber": 137968,
       "line": "21:47:57    ERROR -            lld-link: error: undefined symbol: PropVariantToVariant"
     },
     {
-      "linenumber": 137729,
+      "linenumber": 137971,
       "line": "21:47:57    ERROR -            lld-link: error: undefined symbol: PropVariantToBSTR"
     },
     {
-      "linenumber": 137732,
+      "linenumber": 137974,
       "line": "21:47:57    ERROR -            lld-link: error: undefined symbol: VariantToBoolean"
     },
     {
-      "linenumber": 137735,
+      "linenumber": 137977,
       "line": "21:47:57    ERROR -            lld-link: error: undefined symbol: PropVariantToBoolean"
     },
     {
-      "linenumber": 137738,
+      "linenumber": 137980,
       "line": "21:47:57    ERROR -            lld-link: error: undefined symbol: VariantToUInt16"
     },
     {
-      "linenumber": 137741,
+      "linenumber": 137983,
       "line": "21:47:57    ERROR -            lld-link: error: undefined symbol: PropVariantToUInt16"
     },
     {
-      "linenumber": 137744,
+      "linenumber": 137986,
       "line": "21:47:57    ERROR -            lld-link: error: undefined symbol: VariantToInt16"
     },
     {
-      "linenumber": 137747,
+      "linenumber": 137989,
       "line": "21:47:57    ERROR -            lld-link: error: undefined symbol: PropVariantToInt16"
     },
     {
-      "linenumber": 137750,
+      "linenumber": 137992,
       "line": "21:47:57    ERROR -            lld-link: error: undefined symbol: VariantToUInt32"
     },
     {
-      "linenumber": 137753,
+      "linenumber": 137995,
       "line": "21:47:57    ERROR -            lld-link: error: undefined symbol: PropVariantToUInt32"
     },
     {
-      "linenumber": 137756,
+      "linenumber": 137998,
       "line": "21:47:57    ERROR -            lld-link: error: undefined symbol: VariantToInt32"
     },
     {
-      "linenumber": 137759,
+      "linenumber": 138001,
       "line": "21:47:57    ERROR -            lld-link: error: undefined symbol: PropVariantToInt32"
     },
     {
-      "linenumber": 137762,
+      "linenumber": 138004,
       "line": "21:47:57    ERROR -            lld-link: error: undefined symbol: VariantToUInt64"
     },
     {
-      "linenumber": 137765,
+      "linenumber": 138007,
       "line": "21:47:57    ERROR -            lld-link: error: undefined symbol: PropVariantToUInt64"
     },
     {
-      "linenumber": 137768,
+      "linenumber": 138010,
       "line": "21:47:57    ERROR -            lld-link: error: undefined symbol: VariantToInt64"
     },
     {
-      "linenumber": 137771,
+      "linenumber": 138013,
       "line": "21:47:57    ERROR -            lld-link: error: undefined symbol: PropVariantToInt64"
     },
     {
-      "linenumber": 137774,
+      "linenumber": 138016,
       "line": "21:47:57    ERROR -            lld-link: error: undefined symbol: VariantToDouble"
     },
     {
-      "linenumber": 137777,
+      "linenumber": 138019,
       "line": "21:47:57    ERROR -            lld-link: error: undefined symbol: PropVariantToDouble"
     },
     {
-      "linenumber": 137780,
+      "linenumber": 138022,
       "line": "21:47:57    ERROR -  error: could not compile `crashreporter` (bin \"crashreporter\") due to 1 previous error"
     },
     {
-      "linenumber": 137783,
+      "linenumber": 138025,
       "line": "21:47:57    ERROR -  gmake[4]: *** [/builds/worker/checkouts/gecko/config/makefiles/rust.mk:600: force-cargo-program-build] Error 101"
     },
     {
-      "linenumber": 137787,
+      "linenumber": 138029,
       "line": "21:47:57    ERROR -  gmake[3]: *** [/builds/worker/checkouts/gecko/config/recurse.mk:72: toolkit/crashreporter/client/app/target] Error 2"
     },
     {
-      "linenumber": 137789,
+      "linenumber": 138031,
       "line": "21:47:57    ERROR -  gmake[2]: *** [/builds/worker/checkouts/gecko/config/recurse.mk:34: compile] Error 2"
     },
     {
-      "linenumber": 137790,
+      "linenumber": 138032,
       "line": "21:47:57    ERROR -  gmake[1]: *** [/builds/worker/checkouts/gecko/config/rules.mk:359: default] Error 2"
     },
     {
-      "linenumber": 137876,
+      "linenumber": 138118,
       "line": "21:47:57     INFO -  gmake: *** [client.mk:59: build] Error 2"
     },
     {
-      "linenumber": 137880,
+      "linenumber": 138122,
       "line": "21:47:58    FATAL - 'mach build -v' did not run successfully. Please check log for errors."
     },
     {
-      "linenumber": 137881,
+      "linenumber": 138123,
       "line": "21:47:58    FATAL - Running post_fatal callback..."
     },
     {
-      "linenumber": 137882,
+      "linenumber": 138124,
       "line": "21:47:58    FATAL - Exiting -1"
     }
   ]
