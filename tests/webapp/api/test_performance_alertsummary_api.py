@@ -101,6 +101,7 @@ def test_alert_summaries_get(
         "original_prev_push_revision",
         "performance_tags",
         "duplicated_summaries",
+        "severity",
     }
     assert len(resp.json()["results"][0]["alerts"]) == 1
     assert set(resp.json()["results"][0]["alerts"][0].keys()) == {
@@ -126,6 +127,7 @@ def test_alert_summaries_get(
         "backfill_record",
         "side_by_side_available",
         "noise_profile",
+        "severity",
     }
     assert resp.json()["results"][0]["related_alerts"] == []
     assert set(resp.json()["results"][0]["alerts"][0]["taskcluster_metadata"].keys()) == {
@@ -332,6 +334,7 @@ def test_alert_summaries_get_onhold(
         "original_prev_push_revision",
         "performance_tags",
         "duplicated_summaries",
+        "severity",
     }
     assert len(resp.json()["results"][0]["alerts"]) == 1
     assert set(resp.json()["results"][0]["alerts"][0].keys()) == {
@@ -357,6 +360,7 @@ def test_alert_summaries_get_onhold(
         "backfill_record",
         "side_by_side_available",
         "noise_profile",
+        "severity",
     }
     assert resp.json()["results"][0]["related_alerts"] == []
     assert set(resp.json()["results"][0]["alerts"][0]["taskcluster_metadata"].keys()) == {

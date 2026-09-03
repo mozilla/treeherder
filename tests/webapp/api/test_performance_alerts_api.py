@@ -51,6 +51,7 @@ def test_alerts_get(
         "backfill_record",
         "side_by_side_available",
         "noise_profile",
+        "severity",
     }
     assert resp.json()["results"][0]["related_summary_id"] is None
     assert set(resp.json()["results"][0]["taskcluster_metadata"].keys()) == {

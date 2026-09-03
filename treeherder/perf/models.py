@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
 from django.db import models
+from django.db.models import Q
 from django.utils.timezone import now as django_now
 
 from treeherder.model.models import (
@@ -19,7 +20,13 @@ from treeherder.model.models import (
     Push,
     Repository,
 )
-from treeherder.perf.utils import BUG_DAYS, TRIAGE_DAYS, calculate_time_to
+from treeherder.perf.utils import (
+    BUG_DAYS,
+    CRITICAL_BUG_DAYS,
+    CRITICAL_TRIAGE_DAYS,
+    TRIAGE_DAYS,
+    calculate_time_to,
+)
 from treeherder.utils import default_serializer
 
 logger = logging.getLogger(__name__)
@@ -96,6 +103,8 @@ class PerformanceSignature(models.Model):
     SUBCRITICAL = "subcritical"
     NORMAL = "normal"
     ALERT_SEVERITIES = ((CRITICAL, "critical"), (SUBCRITICAL, "subcritical"), (NORMAL, "normal"))
+    # None ranks lowest: it means a signature or alert that predates the severity
+    SEVERITY_RANK = {None: 0, NORMAL: 1, SUBCRITICAL: 2, CRITICAL: 3}
 
     should_alert = models.BooleanField(null=True)
     monitor = models.BooleanField(null=True)
@@ -383,7 +392,11 @@ class PerformanceAlertSummaryBase(models.Model):
                 if has_bug_status:
                     update_fields.add("bug_status")
 
-        triage_due = calculate_time_to(self.created, TRIAGE_DAYS)
+        triage_days, bug_days = self.get_due_days()
+
+        triage_due = self._resolve_due_date(
+            self.triage_due_date, calculate_time_to(self.created, triage_days)
+        )
         # created is initially PerformanceDatum.push_timestamp and due to a potential race condition
         # triage_due_date is not always calculated after the real created date
         if self.triage_due_date != triage_due:
@@ -392,7 +405,9 @@ class PerformanceAlertSummaryBase(models.Model):
             if update_fields is not None:
                 update_fields = {"triage_due_date"}.union(update_fields)
 
-        bug_due = calculate_time_to(self.created, BUG_DAYS)
+        bug_due = self._resolve_due_date(
+            self.bug_due_date, calculate_time_to(self.created, bug_days)
+        )
         if self.bug_due_date != bug_due:
             self.bug_due_date = bug_due
 
@@ -407,6 +422,24 @@ class PerformanceAlertSummaryBase(models.Model):
 
         super().save(*args, update_fields=update_fields, **kwargs)
         self.__prev_bug_number = self.bug_number
+
+    def get_due_days(self):
+        # only PerformanceAlertSummary carries a severity; the telemetry and testing
+        # summaries keep the standard deadlines
+        if getattr(self, "severity", None) in (
+            PerformanceSignature.CRITICAL,
+            PerformanceSignature.SUBCRITICAL,
+        ):
+            return CRITICAL_TRIAGE_DAYS, CRITICAL_BUG_DAYS
+        return TRIAGE_DAYS, BUG_DAYS
+
+    @staticmethod
+    def _resolve_due_date(current, candidate):
+        # Validate that the due date is strictly in the future to prevent immediate
+        # overdue status and ensure triagers have adequate response time.
+        if current is not None and candidate < current and candidate < django_now():
+            return current
+        return candidate
 
     def update_status(self, using=None):
         self.status = self.autodetermine_status()
@@ -526,6 +559,28 @@ class PerformanceAlertSummary(PerformanceAlertSummaryBase):
         (BUG_MOVED, "MOVED"),
     )
     bug_status = models.IntegerField(choices=BUG_STATUSES, null=True, default=None)
+
+    # Severity of the most severe alert this summary holds, which is what its
+    # due dates are derived from. Null means no alert carries a severity yet.
+    severity = models.CharField(
+        max_length=20, choices=PerformanceSignature.ALERT_SEVERITIES, null=True, default=None
+    )
+
+    def update_status(self, using=None):
+        self.update_severity()
+        super().update_status(using=using)
+
+    def update_severity(self):
+        # alerts reach a summary over time, since generate_alerts runs per signature,
+        # so the most severe one is only known once they have all landed
+        rank = PerformanceSignature.SEVERITY_RANK
+        severities = PerformanceAlert.objects.filter(
+            Q(summary=self) | Q(related_summary=self)
+        ).values_list("severity", flat=True)
+
+        most_severe = max(severities, key=lambda severity: rank.get(severity, 0), default=None)
+        if rank.get(most_severe, 0) > rank.get(self.severity, 0):
+            self.severity = most_severe
 
     class Meta:
         db_table = "performance_alert_summary"
@@ -697,7 +752,17 @@ class PerformanceAlertBase(models.Model):
 
 
 class PerformanceAlert(PerformanceAlertBase):
+    # Severity of the signature when this alert was raised. The signature's own
+    # value is overwritten on every ingestion; null means the alert predates this field.
+    severity = models.CharField(
+        max_length=20, choices=PerformanceSignature.ALERT_SEVERITIES, null=True, default=None
+    )
+
     def save(self, *args, **kwargs):
+        # snapshot the severity once, when the alert is first created
+        if self._state.adding and self.severity is None:
+            self.severity = self.series_signature.alert_severity
+
         # validate that we set a status that makes sense for presence
         # or absence of a related summary
         if self.related_summary and self.status not in self.RELATIONAL_STATUS_IDS:
