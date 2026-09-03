@@ -7,6 +7,7 @@ import { Row, Col, Badge } from 'react-bootstrap';
 
 import Clipboard from '../../shared/Clipboard';
 import { getFrameworkName, getTitle } from '../perf-helpers/helpers';
+import { severeAlertSeverities } from '../perf-helpers/constants';
 
 export default class AlertHeaderTitle extends React.Component {
   constructor(props) {
@@ -18,7 +19,7 @@ export default class AlertHeaderTitle extends React.Component {
     const { alertSummary, frameworks } = this.props;
 
     const { severity } = alertSummary;
-    const showSeverity = ['critical', 'subcritical'].includes(severity);
+    const showSeverity = severeAlertSeverities.includes(severity);
 
     return (
       <Row>

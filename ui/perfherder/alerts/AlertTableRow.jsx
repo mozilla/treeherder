@@ -34,6 +34,7 @@ import {
   browsertimeId,
   browsertimeEssentialTests,
   browsertimeBenchmarksTests,
+  severeAlertSeverities,
 } from '../perf-helpers/constants';
 import { Perfdocs } from '../perf-helpers/perfdocs';
 
@@ -397,7 +398,7 @@ export default class AlertTableRow extends React.Component {
       !browsertimeBenchmarksTests.includes(alert.series_signature.suite) &&
       alert.side_by_side_available;
 
-    const isSevere = ['critical', 'subcritical'].includes(alert.severity);
+    const isSevere = severeAlertSeverities.includes(alert.severity);
 
     const backfillStatusInfo = this.getBackfillStatusInfo(alert);
     let sherlockTooltip = backfillStatusInfo?.message;
