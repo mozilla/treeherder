@@ -1,10 +1,13 @@
 import json
 
+import pytest
 import responses
+from django.contrib.auth.models import Group
 from django.test import override_settings
 from django.urls import reverse
 from django.utils import timezone
 
+from treeherder.auth.backends import get_scm_level
 from treeherder.model.models import Bugscache
 
 PERF_BUG_PAYLOAD = {
@@ -21,9 +24,9 @@ PERF_BUG_PAYLOAD = {
 
 @responses.activate
 @override_settings(PERF_SHERIFF_API_KEY="perf-key", BUGFILER_API_KEY="bug-key")
-def test_create_perf_bug_uses_perf_sheriff_api_key(client, test_user):
+def test_create_perf_bug_uses_perf_sheriff_api_key(client, test_scm_level_1_user):
     responses.add(responses.POST, "https://thisisnotbugzilla.org/rest/bug", json={"id": 1})
-    client.force_authenticate(user=test_user)
+    client.force_authenticate(user=test_scm_level_1_user)
 
     resp = client.post(reverse("bugzilla-create-bug"), PERF_BUG_PAYLOAD)
 
@@ -32,8 +35,8 @@ def test_create_perf_bug_uses_perf_sheriff_api_key(client, test_user):
 
 
 @override_settings(PERF_SHERIFF_API_KEY=None)
-def test_create_perf_bug_without_api_key_returns_400(client, test_user):
-    client.force_authenticate(user=test_user)
+def test_create_perf_bug_without_api_key_returns_400(client, test_scm_level_1_user):
+    client.force_authenticate(user=test_scm_level_1_user)
 
     resp = client.post(reverse("bugzilla-create-bug"), PERF_BUG_PAYLOAD)
 
@@ -41,7 +44,77 @@ def test_create_perf_bug_without_api_key_returns_400(client, test_user):
     assert resp.json()["failure"] == "Performance sheriff bot API key not set!"
 
 
-def test_create_bug(client, eleven_jobs_stored, activate_responses, test_user):
+@override_settings(PERF_SHERIFF_API_KEY="perf-key", BUGFILER_API_KEY="bug-key")
+def test_create_perf_bug_unauthorized(client, test_user):
+    """
+    test that filing a perf bug requires commit access or staff, since it uses the
+    perf sheriff bot's credentials
+    """
+    assert get_scm_level(test_user) == 0
+    assert test_user.is_staff is False
+
+    client.force_authenticate(user=test_user)
+
+    resp = client.post(reverse("bugzilla-create-bug"), PERF_BUG_PAYLOAD)
+
+    assert resp.status_code == 403
+    assert (
+        resp.json()["failure"]
+        == "Not authorized to file bug with Treeherder: must have commit access or be staff"
+    )
+
+
+@responses.activate
+@override_settings(PERF_SHERIFF_API_KEY="perf-key", BUGFILER_API_KEY="bug-key")
+def test_create_perf_bug_allows_staff_without_commit_access(client, test_sheriff):
+    """
+    test that staff without recorded commit access can still file perf bugs
+    """
+    responses.add(responses.POST, "https://thisisnotbugzilla.org/rest/bug", json={"id": 1})
+    assert get_scm_level(test_sheriff) == 0
+
+    client.force_authenticate(user=test_sheriff)
+
+    resp = client.post(reverse("bugzilla-create-bug"), PERF_BUG_PAYLOAD)
+
+    assert resp.status_code == 200
+
+
+@override_settings(BUGFILER_API_KEY="bug-key")
+def test_create_bug_unauthorized(client, activate_responses, test_user):
+    """
+    test that filing an intermittent-failure bug also requires commit access or
+    staff, not just authentication
+    """
+    assert get_scm_level(test_user) == 0
+    assert test_user.is_staff is False
+
+    client.force_authenticate(user=test_user)
+
+    resp = client.post(
+        reverse("bugzilla-create-bug"),
+        {
+            "product": "Bugzilla",
+            "component": "Administration",
+            "summary": "Intermittent summary",
+            "version": "4.0.17",
+            "comment": "Intermittent Description",
+            "comment_tags": "treeherder",
+            "thisisnotanoption": "testing 123",
+            "keywords": ["intermittent-failure"],
+            "see_also": "12345",
+            "is_security_issue": False,
+        },
+    )
+
+    assert resp.status_code == 403
+    assert (
+        resp.json()["failure"]
+        == "Not authorized to file bug with Treeherder: must have commit access or be staff"
+    )
+
+
+def test_create_bug(client, eleven_jobs_stored, activate_responses, test_scm_level_1_user):
     """
     test successfully creating a bug in bugzilla
     """
@@ -54,7 +127,7 @@ def test_create_bug(client, eleven_jobs_stored, activate_responses, test_user):
         assert requestdata["type"] == "defect"
         assert requestdata["product"] == "Bugzilla"
         assert requestdata["description"] == "**Filed by:** {}\nIntermittent Description".format(
-            test_user.email.replace("@", " [at] ")
+            test_scm_level_1_user.email.replace("@", " [at] ")
         )
         assert requestdata["component"] == "Administration"
         assert requestdata["summary"] == "Intermittent summary"
@@ -71,7 +144,7 @@ def test_create_bug(client, eleven_jobs_stored, activate_responses, test_user):
         content_type="application/json",
     )
 
-    client.force_authenticate(user=test_user)
+    client.force_authenticate(user=test_scm_level_1_user)
 
     resp = client.post(
         reverse("bugzilla-create-bug"),
@@ -92,7 +165,9 @@ def test_create_bug(client, eleven_jobs_stored, activate_responses, test_user):
     assert resp.json()["url"] == "https://thisisnotbugzilla.org/show_bug.cgi?id=323"
 
 
-def test_create_bug_with_unicode(client, eleven_jobs_stored, activate_responses, test_user):
+def test_create_bug_with_unicode(
+    client, eleven_jobs_stored, activate_responses, test_scm_level_1_user
+):
     """
     test successfully creating a bug in bugzilla
     """
@@ -107,7 +182,7 @@ def test_create_bug_with_unicode(client, eleven_jobs_stored, activate_responses,
         assert requestdata[
             "description"
         ] == "**Filed by:** {}\nIntermittent “description” string".format(
-            test_user.email.replace("@", " [at] ")
+            test_scm_level_1_user.email.replace("@", " [at] ")
         )
         assert requestdata["component"] == "Administration"
         assert requestdata["summary"] == "Intermittent “summary”"
@@ -124,7 +199,7 @@ def test_create_bug_with_unicode(client, eleven_jobs_stored, activate_responses,
         content_type="application/json",
     )
 
-    client.force_authenticate(user=test_user)
+    client.force_authenticate(user=test_scm_level_1_user)
 
     resp = client.post(
         reverse("bugzilla-create-bug"),
@@ -144,7 +219,7 @@ def test_create_bug_with_unicode(client, eleven_jobs_stored, activate_responses,
     assert resp.json()["id"] == 323
 
 
-def test_create_crash_bug(client, eleven_jobs_stored, activate_responses, test_user):
+def test_create_crash_bug(client, eleven_jobs_stored, activate_responses, test_scm_level_1_user):
     """
     test successfully creating a bug with a crash signature in bugzilla
     """
@@ -157,7 +232,7 @@ def test_create_crash_bug(client, eleven_jobs_stored, activate_responses, test_u
         assert requestdata["type"] == "defect"
         assert requestdata["product"] == "Bugzilla"
         assert requestdata["description"] == "**Filed by:** {}\nIntermittent Description".format(
-            test_user.email.replace("@", " [at] ")
+            test_scm_level_1_user.email.replace("@", " [at] ")
         )
         assert requestdata["component"] == "Administration"
         assert requestdata["summary"] == "Intermittent summary"
@@ -176,7 +251,7 @@ def test_create_crash_bug(client, eleven_jobs_stored, activate_responses, test_u
         content_type="application/json",
     )
 
-    client.force_authenticate(user=test_user)
+    client.force_authenticate(user=test_scm_level_1_user)
 
     resp = client.post(
         reverse("bugzilla-create-bug"),
@@ -246,7 +321,7 @@ def test_create_unauthenticated_bug(client, eleven_jobs_stored, activate_respons
     assert resp.json()["detail"] == "Authentication credentials were not provided."
 
 
-def test_post_comment(client, activate_responses, test_user):
+def test_post_comment(client, activate_responses, test_scm_level_1_user):
     """
     test successfully posting a comment to a Bugzilla bug and tagging it
     with the perf-alert keyword
@@ -269,7 +344,7 @@ def test_post_comment(client, activate_responses, test_user):
         content_type="application/json",
     )
 
-    client.force_authenticate(user=test_user)
+    client.force_authenticate(user=test_scm_level_1_user)
 
     resp = client.post(
         reverse("bugzilla-post-comment"),
@@ -279,11 +354,11 @@ def test_post_comment(client, activate_responses, test_user):
     assert resp.json()["id"] == 323
 
 
-def test_post_comment_missing_bug_id(client, activate_responses, test_user):
+def test_post_comment_missing_bug_id(client, activate_responses, test_scm_level_1_user):
     """
     test that post_comment returns 400 when bug_id is missing
     """
-    client.force_authenticate(user=test_user)
+    client.force_authenticate(user=test_scm_level_1_user)
 
     resp = client.post(
         reverse("bugzilla-post-comment"),
@@ -293,11 +368,11 @@ def test_post_comment_missing_bug_id(client, activate_responses, test_user):
     assert resp.json()["failure"] == "bug_id is required"
 
 
-def test_post_comment_missing_comment(client, activate_responses, test_user):
+def test_post_comment_missing_comment(client, activate_responses, test_scm_level_1_user):
     """
     test that post_comment returns 400 when comment is missing
     """
-    client.force_authenticate(user=test_user)
+    client.force_authenticate(user=test_scm_level_1_user)
 
     resp = client.post(
         reverse("bugzilla-post-comment"),
@@ -305,6 +380,83 @@ def test_post_comment_missing_comment(client, activate_responses, test_user):
     )
     assert resp.status_code == 400
     assert resp.json()["failure"] == "comment is required"
+
+
+def test_post_comment_without_commit_access(client, activate_responses, test_user):
+    """
+    test that post_comment returns 403 for a user with no recorded commit access
+    """
+    client.force_authenticate(user=test_user)
+
+    resp = client.post(
+        reverse("bugzilla-post-comment"),
+        {"bug_id": 323, "comment": "Performance improvement detected."},
+    )
+    assert resp.status_code == 403
+    assert (
+        resp.json()["failure"]
+        == "Not authorized to file bug with Treeherder: must have commit access or be staff"
+    )
+
+
+def test_post_comment_staff_without_commit_access(client, activate_responses, test_sheriff):
+    """
+    test that a staff user with no recorded commit access is still allowed, since
+    commit-access groups are only recorded from a login whose token carried the
+    groups claim
+    """
+
+    def request_callback(request):
+        return (200, {}, json.dumps({"bugs": [{"id": 323}]}))
+
+    responses.add_callback(
+        responses.PUT,
+        "https://thisisnotbugzilla.org/rest/bug/323",
+        callback=request_callback,
+        content_type="application/json",
+    )
+
+    assert test_sheriff.is_staff is True
+    assert get_scm_level(test_sheriff) == 0
+
+    client.force_authenticate(user=test_sheriff)
+
+    resp = client.post(
+        reverse("bugzilla-post-comment"),
+        {"bug_id": 323, "comment": "Performance improvement detected."},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["id"] == 323
+
+
+@pytest.mark.parametrize("scm_group", ["all_scm_level_2", "all_scm_level_3"])
+def test_post_comment_higher_commit_levels_allowed(
+    client, activate_responses, test_user, scm_group
+):
+    """
+    test that levels above 1 satisfy the check, without relying on the user also
+    holding all_scm_level_1
+    """
+
+    def request_callback(request):
+        return (200, {}, json.dumps({"bugs": [{"id": 323}]}))
+
+    responses.add_callback(
+        responses.PUT,
+        "https://thisisnotbugzilla.org/rest/bug/323",
+        callback=request_callback,
+        content_type="application/json",
+    )
+
+    test_user.groups.add(Group.objects.get_or_create(name=scm_group)[0])
+    client.force_authenticate(user=test_user)
+
+    resp = client.post(
+        reverse("bugzilla-post-comment"),
+        {"bug_id": 323, "comment": "Performance improvement detected."},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["id"] == 323
 
 
 def test_post_comment_unauthenticated(client, activate_responses):
@@ -320,7 +472,7 @@ def test_post_comment_unauthenticated(client, activate_responses):
 
 
 def test_create_bug_with_long_crash_signature(
-    client, eleven_jobs_stored, activate_responses, test_user
+    client, eleven_jobs_stored, activate_responses, test_scm_level_1_user
 ):
     """
     test successfully creating a bug in bugzilla
@@ -352,7 +504,7 @@ def test_create_bug_with_long_crash_signature(
         content_type="application/json",
     )
 
-    client.force_authenticate(user=test_user)
+    client.force_authenticate(user=test_scm_level_1_user)
 
     crashsig = "x" * 2050
     resp = client.post(
@@ -389,7 +541,7 @@ def _make_bug_response(bug_id=323):
 
 
 def test_create_bug_returns_existing_internal_id(
-    client, eleven_jobs_stored, activate_responses, test_user
+    client, eleven_jobs_stored, activate_responses, test_scm_level_1_user
 ):
     """When a Bugscache row already exists for the new bugzilla id, its pk is returned."""
     _make_bug_response(bug_id=323)
@@ -403,7 +555,7 @@ def test_create_bug_returns_existing_internal_id(
         modified=timezone.now(),
     )
 
-    client.force_authenticate(user=test_user)
+    client.force_authenticate(user=test_scm_level_1_user)
     resp = client.post(
         reverse("bugzilla-create-bug"),
         {
@@ -423,7 +575,7 @@ def test_create_bug_returns_existing_internal_id(
 
 
 def test_create_bug_links_internal_bug_by_summary(
-    client, eleven_jobs_stored, activate_responses, test_user
+    client, eleven_jobs_stored, activate_responses, test_scm_level_1_user
 ):
     """An internal bug matching by summary gets the new bugzilla id and its pk is returned."""
     _make_bug_response(bug_id=323)
@@ -437,7 +589,7 @@ def test_create_bug_links_internal_bug_by_summary(
         modified=timezone.now(),
     )
 
-    client.force_authenticate(user=test_user)
+    client.force_authenticate(user=test_scm_level_1_user)
     resp = client.post(
         reverse("bugzilla-create-bug"),
         {

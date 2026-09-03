@@ -4,11 +4,28 @@ from django.utils import timezone
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.status import HTTP_400_BAD_REQUEST
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
 
+from treeherder.auth.backends import get_scm_level
 from treeherder.model.models import Bugscache, BugzillaSecurityGroup
 from treeherder.utils.bugzilla import get_bug_url
 from treeherder.utils.http import make_request
+
+
+def _bugzilla_permission_error(user):
+    """
+    Response to return when `user` may not act through Treeherder's Bugzilla
+    credentials, or None if they may.
+    """
+    if get_scm_level(user) >= 1 or user.is_staff:
+        return None
+
+    return Response(
+        {
+            "failure": "Not authorized to file bug with Treeherder: must have commit access or be staff"
+        },
+        status=HTTP_403_FORBIDDEN,
+    )
 
 
 class BugzillaViewSet(viewsets.ViewSet):
@@ -17,6 +34,9 @@ class BugzillaViewSet(viewsets.ViewSet):
         """
         Create a bugzilla bug with passed params
         """
+        if error := _bugzilla_permission_error(request.user):
+            return error
+
         params = request.data
         # Only Perfherder is setting the param needinfo_from when filing a regression bug
         is_perf_bug = bool(params.get("needinfo_from"))
@@ -144,6 +164,9 @@ class BugzillaViewSet(viewsets.ViewSet):
         """
         Post a comment to an existing Bugzilla bug
         """
+        if error := _bugzilla_permission_error(request.user):
+            return error
+
         if settings.PERF_SHERIFF_API_KEY is None:
             return Response(
                 {"failure": "Performance sheriff bot API key not set!"}, status=HTTP_400_BAD_REQUEST
