@@ -1,62 +1,56 @@
 from datetime import UTC, datetime
 
 from github import Auth, Github
-from github.GitRelease import GitRelease
 
 from treeherder.config.settings import GITHUB_TOKEN
-from treeherder.utils.http import fetch_json
+
+# per_page=100 is GitHub's max and matches collector MAX_ITEMS, so typical
+# list endpoints complete in one HTTP call (PyGithub defaults to 30).
+# lazy=True builds repo/PR objects from URLs without GET /repos or GET /pulls.
+# seconds_between_requests=0 matches the old fetch_json client (no 250ms pause).
+_GITHUB_KWARGS = {
+    "per_page": 100,
+    "lazy": True,
+    "seconds_between_requests": 0,
+}
 
 if GITHUB_TOKEN:
-    auth = Auth.Token(GITHUB_TOKEN)
-    github = Github(auth=auth)
+    github = Github(auth=Auth.Token(GITHUB_TOKEN), **_GITHUB_KWARGS)
 else:
-    github = Github()
+    github = Github(**_GITHUB_KWARGS)
 
 
-def fetch_api(path, params=None):
-    return fetch_api_full_url(f"https://api.github.com/{path}", params)
-
-
-def fetch_api_full_url(url, params=None):
-    if GITHUB_TOKEN:
-        headers = {"Authorization": f"token {GITHUB_TOKEN}"}
-    else:
-        headers = {}
-    return fetch_json(url, params, headers)
-
-
-def get_repo(owner, repo, params=None):
-    return fetch_api(f"{owner}/{repo}", params)
-
-
-def pygithub_get_repo(owner, repo):
+def get_repo(owner, repo):
     return github.get_repo(f"{owner}/{repo}")
+
+
+def _parse_list_options(params):
+    """Parse collector-style gh_options (`number`, `since`) for list endpoints."""
+    max_number = None
+    since_dt = None
+    if not params:
+        return max_number, since_dt
+
+    max_number = params.get("number")
+    since_dt = params.get("since")
+    if since_dt is not None and not isinstance(since_dt, datetime):
+        since_dt = datetime.fromisoformat(since_dt)
+    if isinstance(since_dt, datetime) and since_dt.tzinfo is None:
+        since_dt = since_dt.replace(tzinfo=UTC)
+    return max_number, since_dt
 
 
 def get_releases(owner, repo, params=None):
     """
     Retrieve GitHub releases for a given repository.
-    Returns a list of standardized dictionaries representing releases.
+    Yields standardized dictionaries representing releases.
     """
-    paginated_releases = pygithub_get_repo(owner=owner, repo=repo).get_releases()
+    paginated_releases = get_repo(owner=owner, repo=repo).get_releases()
 
-    releases: list[GitRelease] = []
-    since_dt = None
-    max_number = None
-
-    if params:
-        max_number = params.get("number")
-        since_dt = params.get("since", None)
-        if since_dt:
-            since_dt = datetime.fromisoformat(since_dt)
-            if since_dt.tzinfo is None:
-                since_dt.replace(tzinfo=UTC)
+    max_number, since_dt = _parse_list_options(params)
+    count = 0
 
     for release in paginated_releases:
-        # Break if we have reached max_number
-        if max_number and len(releases) >= max_number:
-            break
-
         # PyGithub returns releases in reverse chronological order
         # Stop immediately if releases older than the since_dt are found
         release_dt = release.published_at
@@ -65,7 +59,7 @@ def get_releases(owner, repo, params=None):
                 release_dt.replace(tzinfo=UTC)
             if release.published_at < since_dt:
                 break
-        release_dict = {
+        yield {
             "id": release.id,
             "name": release.name,
             "tag_name": release.tag_name,
@@ -73,19 +67,64 @@ def get_releases(owner, repo, params=None):
             "html_url": release.html_url,
             "author": {"login": release.author.login if release.author else "unknown"},
         }
-        releases.append(release_dict)
+        count += 1
+        if max_number and count >= max_number:
+            break
 
-    return releases
+
+def get_comparison(owner, repo, base, head):
+    """Return the PyGithub Comparison for ``base...head``."""
+    return get_repo(owner, repo).compare(base, head)
 
 
 def compare_shas(owner, repo, base, head):
-    repo = pygithub_get_repo(owner, repo)
-    comparison = repo.compare(base, head)
-    return [commit for commit in comparison.commits]
+    """Return the list of PyGithub commits between ``base`` and ``head``.
+
+    Materialized as a list because GithubTransformer.process_push indexes
+    ``commits[-1]`` and then iterates the same sequence.
+    """
+    return list(get_comparison(owner, repo, base, head).commits)
 
 
 def get_all_commits(owner, repo, params=None):
-    return fetch_api(f"repos/{owner}/{repo}/commits", params)
+    """
+    Retrieve GitHub commits for a given repository.
+
+    ``params`` accepts the same collector gh_options as ``get_releases``:
+    ``number`` (max commits to return) and ``since`` (ISO-8601 string or datetime).
+
+    Yields standardized dictionaries matching the GitHub list-commits JSON shape
+    used by collector.py and ingest.py.
+    """
+    max_number, since_dt = _parse_list_options(params)
+    repo_object = get_repo(owner, repo)
+    kwargs = {}
+    if since_dt is not None:
+        kwargs["since"] = since_dt
+
+    count = 0
+    for commit in repo_object.get_commits(**kwargs):
+        git_commit = commit.commit
+        author = git_commit.author if git_commit else None
+        committer = git_commit.committer if git_commit else None
+        yield {
+            "sha": commit.sha,
+            "html_url": commit.html_url,
+            "commit": {
+                "message": git_commit.message if git_commit else "",
+                "author": {
+                    "name": getattr(author, "name", None),
+                    "date": getattr(author, "date", None),
+                },
+                "committer": {
+                    "name": getattr(committer, "name", None),
+                    "date": getattr(committer, "date", None),
+                },
+            },
+        }
+        count += 1
+        if max_number and count >= max_number:
+            break
 
 
 def get_commit(owner, repo, sha, params=None):
@@ -93,7 +132,7 @@ def get_commit(owner, repo, sha, params=None):
     Retrieve GitHub commit for a given sha.
     Returns a standardized dictionary representing a commit.
     """
-    repo_object = pygithub_get_repo(owner, repo)
+    repo_object = get_repo(owner, repo)
     commit = repo_object.get_commit(sha)
     commit_dict = {}
 
@@ -113,10 +152,11 @@ def get_commit(owner, repo, sha, params=None):
 
 
 def get_pull_request(owner, repo, pr_id):
-    repo = pygithub_get_repo(owner, repo)
+    repo = get_repo(owner, repo)
     return repo.get_pull(pr_id)
 
 
 def get_pull_request_commits(owner, repo, pr_id):
+    """Return PR commits as a list (process_push needs ``commits[-1]``)."""
     pr = get_pull_request(owner, repo, pr_id)
-    return [commit for commit in pr.get_commits()]
+    return list(pr.get_commits())
