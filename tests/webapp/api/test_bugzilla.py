@@ -58,7 +58,10 @@ def test_create_perf_bug_unauthorized(client, test_user):
     resp = client.post(reverse("bugzilla-create-bug"), PERF_BUG_PAYLOAD)
 
     assert resp.status_code == 403
-    assert resp.json()["failure"] == "Not authorized"
+    assert (
+        resp.json()["failure"]
+        == "Not authorized to file bug with Treeherder: must have commit access or be staff"
+    )
 
 
 @responses.activate
@@ -105,7 +108,10 @@ def test_create_bug_unauthorized(client, activate_responses, test_user):
     )
 
     assert resp.status_code == 403
-    assert resp.json()["failure"] == "Not authorized"
+    assert (
+        resp.json()["failure"]
+        == "Not authorized to file bug with Treeherder: must have commit access or be staff"
+    )
 
 
 def test_create_bug(client, eleven_jobs_stored, activate_responses, test_scm_level_1_user):
@@ -387,7 +393,10 @@ def test_post_comment_without_commit_access(client, activate_responses, test_use
         {"bug_id": 323, "comment": "Performance improvement detected."},
     )
     assert resp.status_code == 403
-    assert resp.json()["failure"] == "Not authorized"
+    assert (
+        resp.json()["failure"]
+        == "Not authorized to file bug with Treeherder: must have commit access or be staff"
+    )
 
 
 def test_post_comment_staff_without_commit_access(client, activate_responses, test_sheriff):

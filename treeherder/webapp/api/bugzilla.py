@@ -20,7 +20,12 @@ def _bugzilla_permission_error(user):
     if get_scm_level(user) >= 1 or user.is_staff:
         return None
 
-    return Response({"failure": "Not authorized"}, status=HTTP_403_FORBIDDEN)
+    return Response(
+        {
+            "failure": "Not authorized to file bug with Treeherder: must have commit access or be staff"
+        },
+        status=HTTP_403_FORBIDDEN,
+    )
 
 
 class BugzillaViewSet(viewsets.ViewSet):
