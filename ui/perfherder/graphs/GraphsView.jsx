@@ -560,7 +560,7 @@ function GraphsView({ projects, frameworks, user }) {
                     >
                       <LegendCard
                         series={series}
-                        testData={testData}
+                        testDataRef={testDataRef}
                         projects={projects}
                         frameworks={frameworks}
                         user={user}
@@ -583,8 +583,8 @@ function GraphsView({ projects, frameworks, user }) {
                             setErrorMessages(state.errorMessages);
                         }}
                         updateStateParams={updateStateParams}
-                        colors={colors}
-                        symbols={symbols}
+                        colorsRef={colorsRef}
+                        symbolsRef={symbolsRef}
                         selectedDataPoint={selectedDataPoint}
                       />
                     </div>
