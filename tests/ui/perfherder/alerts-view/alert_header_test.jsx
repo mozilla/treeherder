@@ -39,3 +39,25 @@ test("Critical badge is displayed near alert summary for 'speedometer3 score win
 
   expect(criticalTag.textContent).toBe('critical');
 });
+
+test('Sub-critical badge is displayed for a sub-critical summary', async () => {
+  const { findByText } = alertHeaderTitleTest({
+    ...testAlertSummaries[0],
+    severity: 'subcritical',
+  });
+
+  const severityTag = await waitFor(() => findByText('subcritical'));
+
+  expect(severityTag.textContent).toBe('subcritical');
+});
+
+test('Critical badge is not displayed for a normal summary', async () => {
+  const { queryByText, findByText } = alertHeaderTitleTest({
+    ...testAlertSummaries[0],
+    severity: 'normal',
+  });
+
+  await waitFor(() => findByText(/Alert #/));
+
+  expect(queryByText('critical')).toBeNull();
+});

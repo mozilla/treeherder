@@ -14,28 +14,11 @@ export default class AlertHeaderTitle extends React.Component {
     this.state = {};
   }
 
-  isAlertSummaryCritical = (alertSummary) => {
-    const { alerts } = alertSummary;
-
-    const criticalTests = [
-      'speedometer3 score windows11-64-24h2-shippable',
-      'newssite-applink-startup applink_startup android-hw-a55-14-0-aarch64-shippable',
-    ];
-
-    const isCritical = alerts.some((alert) => {
-      const { series_signature: seriesSignature } = alert;
-      const { suite, test, machine_platform: platform } = seriesSignature;
-
-      return criticalTests.includes(`${suite} ${test} ${platform}`);
-    });
-
-    return isCritical;
-  };
-
   render() {
     const { alertSummary, frameworks } = this.props;
 
-    const isCritical = this.isAlertSummaryCritical(alertSummary);
+    const { severity } = alertSummary;
+    const showSeverity = ['critical', 'subcritical'].includes(severity);
 
     return (
       <Row>
@@ -51,9 +34,9 @@ export default class AlertHeaderTitle extends React.Component {
               <Badge bg="secondary" text="white" className="flex-shrink-0 mt-1">
                 {getFrameworkName(frameworks, alertSummary.framework)}
               </Badge>
-              {isCritical ? (
+              {showSeverity ? (
                 <Badge bg="danger" className="flex-shrink-0 mt-1">
-                  critical
+                  {severity}
                 </Badge>
               ) : null}
               <span>

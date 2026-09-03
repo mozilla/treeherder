@@ -1,6 +1,7 @@
 [
   {
     "id": 45548,
+    "severity": "critical",
     "push_id": 1661657,
     "prev_push_id": 1661640,
     "original_revision": "8af8a47885e21ff463049676faa541b6f75c5011",
@@ -5873,6 +5874,7 @@
   },
   {
     "id": 44661,
+    "severity": "critical",
     "push_id": 1614225,
     "prev_push_id": 1614033,
     "original_revision": "74d8ffa093802fba0948d772a5adc22c3059b05e",
