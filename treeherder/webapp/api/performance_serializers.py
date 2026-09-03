@@ -90,6 +90,16 @@ class BackfillRecordSerializer(serializers.Serializer):
     total_backfills_failed = serializers.IntegerField()
     total_backfills_successful = serializers.IntegerField()
     total_backfills_in_progress = serializers.IntegerField()
+    detected_push_id = serializers.SerializerMethodField()
+    detected_push_revision = serializers.SerializerMethodField()
+
+    def get_detected_push_id(self, obj):
+        detected = obj.get_latest_detected_push()
+        return detected["detected_push_id"] if detected else None
+
+    def get_detected_push_revision(self, obj):
+        detected = obj.get_latest_detected_push()
+        return detected["detected_push_revision"] if detected else None
 
     class Meta:
         model = BackfillRecord
@@ -101,6 +111,8 @@ class BackfillRecordSerializer(serializers.Serializer):
             "total_backfills_failed",
             "total_backfills_successful",
             "total_backfills_in_progress",
+            "detected_push_id",
+            "detected_push_revision",
         )
 
 

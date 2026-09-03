@@ -3,6 +3,7 @@ import { render, cleanup, waitFor, fireEvent } from '@testing-library/react';
 import AlertTableRow from '../../../../ui/perfherder/alerts/AlertTableRow';
 import testAlertSummaries from '../../mock/alert_summaries';
 import { thPlatformMap } from '../../../../ui/helpers/constants';
+import { alertBackfillResultStatusMap } from '../../../../ui/perfherder/perf-helpers/constants';
 
 const testUser = {
   username: 'mozilla-ldap/test_user@mozilla.com',
@@ -443,5 +444,62 @@ describe('graph link highlight', () => {
 
     expect(setLastClickedGraphAlertId).toHaveBeenCalledTimes(1);
     expect(setLastClickedGraphAlertId).toHaveBeenCalledWith(testAlert.id);
+  });
+});
+
+describe('detected push revision', () => {
+  const alertWithBackfill = (backfillOverrides = {}) => ({
+    ...testAlert,
+    backfill_record: {
+      status: alertBackfillResultStatusMap.successful,
+      total_backfills_successful: 2,
+      ...backfillOverrides,
+    },
+  });
+
+  test('renders the suggested culprit revision, styled italic/muted/small', async () => {
+    const revision = 'a1b2c3d4e5f6';
+    const { getByText } = alertTableRowTest({
+      alert: alertWithBackfill({ detected_push_revision: revision }),
+      tags: false,
+    });
+
+    const revisionEl = await waitFor(() =>
+      getByText(`Suggested culprit: ${revision}`),
+    );
+    expect(revisionEl).toBeInTheDocument();
+    expect(revisionEl).toHaveClass('fst-italic');
+    expect(revisionEl).toHaveClass('text-muted');
+    expect(revisionEl).toHaveClass('small');
+  });
+
+  test('truncates the suggested culprit revision to 12 characters', async () => {
+    const revision = 'abcdef0123456789abcdef0123456789abcdef01'; // 40-char sha
+    const { getByText, queryByText } = alertTableRowTest({
+      alert: alertWithBackfill({ detected_push_revision: revision }),
+      tags: false,
+    });
+
+    const revisionEl = await waitFor(() =>
+      getByText(`Suggested culprit: ${revision.slice(0, 12)}`),
+    );
+    expect(revisionEl).toBeInTheDocument();
+    // the full, untruncated revision is not shown
+    expect(queryByText(`Suggested culprit: ${revision}`)).toBeNull();
+  });
+
+  test('does not render the revision span when detected_push_revision is absent', async () => {
+    const alert = alertWithBackfill(); // backfill record present, but no detected push
+    const { container, getByTestId } = alertTableRowTest({
+      alert,
+      tags: false,
+    });
+
+    // the Sherlock icon still renders (backfill_record is present)...
+    await waitFor(() => getByTestId(`alert ${alert.id} sherlock icon`));
+    // ...but the styled detected-push revision span does not
+    expect(
+      container.querySelector('.fst-italic.text-muted.small'),
+    ).toBeNull();
   });
 });

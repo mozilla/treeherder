@@ -362,7 +362,13 @@ export default class AlertTableRow extends React.Component {
   }
 
   render() {
-    const { user = null, alert, alertSummary, lastClickedGraphAlertId, setLastClickedGraphAlertId } = this.props;
+    const {
+      user = null,
+      alert,
+      alertSummary,
+      lastClickedGraphAlertId,
+      setLastClickedGraphAlertId,
+    } = this.props;
     const { starred, checkboxSelected, icons } = this.state;
     const { repository, framework, revision } = alertSummary;
 
@@ -384,7 +390,8 @@ export default class AlertTableRow extends React.Component {
       ? `Classified by ${alert.classifier_email}`
       : 'Classified automatically';
     const bookmarkClass = starred ? 'visible' : '';
-    const graphActive = lastClickedGraphAlertId !== null && lastClickedGraphAlertId === alert.id;
+    const graphActive =
+      lastClickedGraphAlertId !== null && lastClickedGraphAlertId === alert.id;
     const noiseProfile = alert.noise_profile || 'N\\A';
     const noiseProfileTooltip = alert.noise_profile
       ? noiseProfiles[alert.noise_profile.replace('/', '')]
@@ -398,6 +405,7 @@ export default class AlertTableRow extends React.Component {
       alert.side_by_side_available;
 
     const backfillStatusInfo = this.getBackfillStatusInfo(alert);
+    const detectedPushRevision = alert.backfill_record?.detected_push_revision;
     let sherlockTooltip = backfillStatusInfo?.message;
     if (backfillStatusInfo?.displayTasksCount) {
       sherlockTooltip = (
@@ -484,19 +492,26 @@ export default class AlertTableRow extends React.Component {
             this.getTitleText(alert, alertStatus)
           )}
           {backfillStatusInfo && (
-            <span className="text-darker-info">
-              <SimpleTooltip
-                key={alert.id}
-                text={
-                  <FontAwesomeIcon
-                    icon={backfillStatusInfo.icon}
-                    color={backfillStatusInfo.color}
-                    data-testid={`alert ${alert.id.toString()} sherlock icon`}
-                  />
-                }
-                tooltipText={sherlockTooltip}
-              />
-            </span>
+            <>
+              <span className="text-darker-info">
+                <SimpleTooltip
+                  key={alert.id}
+                  text={
+                    <FontAwesomeIcon
+                      icon={backfillStatusInfo.icon}
+                      color={backfillStatusInfo.color}
+                      data-testid={`alert ${alert.id.toString()} sherlock icon`}
+                    />
+                  }
+                  tooltipText={sherlockTooltip}
+                />
+              </span>
+              {detectedPushRevision && (
+                <span className="ms-1 fst-italic text-muted small">
+                  Suggested culprit: {detectedPushRevision.slice(0, 12)}
+                </span>
+              )}
+            </>
           )}
         </td>
         <td className="table-width-lg">
