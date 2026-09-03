@@ -33,8 +33,8 @@ def test_retryable_task():
     assert result.wait() == 10
 
 
-@retryable_task()
 @count_retries
+@retryable_task()
 def throwing_task():
     raise TypeError
 
@@ -47,8 +47,8 @@ def test_retryable_task_throws():
     assert thread_data.retry_count == 0
 
 
-@retryable_task()
 @count_retries
+@retryable_task()
 def throwing_task_should_retry():
     raise OperationalError
 
