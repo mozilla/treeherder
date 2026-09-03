@@ -15,6 +15,7 @@ import responses
 import yaml
 from _pytest.monkeypatch import MonkeyPatch
 from django.conf import settings
+from django.contrib.auth.models import Group
 from django.core.management import call_command
 
 # Importing this module registers the ``setting_changed`` receiver that resets
@@ -749,6 +750,19 @@ def test_sheriff(db):
     user = th_models.User.objects.create(
         username="testsheriff1", email="sheriff@foo.com", is_staff=True
     )
+    return user
+
+
+@pytest.fixture
+def test_scm_level_1_user(db):
+    """
+    A user with level 1 hg commit access, as mirrored from the SSO groups claim
+    into Django group membership at login.
+    """
+    user = th_models.User.objects.create(
+        username="mozilla-ldap/committer@foo.com", email="committer@foo.com", is_staff=False
+    )
+    user.groups.add(Group.objects.get_or_create(name="all_scm_level_1")[0])
     return user
 
 

@@ -14,7 +14,9 @@ logger = logging.getLogger(__name__)
 @retryable_task(name="generate-alerts", max_retries=10)
 def generate_alerts(signature_id):
     newrelic.agent.add_custom_attribute("signature_id", str(signature_id))
-    signature = PerformanceSignature.objects.get(id=signature_id)
+    signature = PerformanceSignature.objects.select_related("repository", "framework").get(
+        id=signature_id
+    )
     generate_new_alerts_in_series(signature)
     # Test alert generation is temporarily disabled.
     # try:
@@ -45,7 +47,9 @@ def ingest_perfherder_data(job_id, job_log_ids):
     newrelic.agent.add_custom_attribute("job_id", str(job_id))
 
     job = Job.objects.get(id=job_id)
-    job_artifacts = JobLog.objects.filter(id__in=job_log_ids, job=job)
+    job_artifacts = JobLog.objects.filter(id__in=job_log_ids, job=job).select_related(
+        "job__repository"
+    )
 
     if len(job_log_ids) != len(job_artifacts):
         logger.warning(

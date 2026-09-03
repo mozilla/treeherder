@@ -1212,6 +1212,45 @@ class _ComparisonData:
     push_timestamp: int
 
 
+@dataclass(frozen=True)
+class GroupedPerfData:
+    values: dict
+    job_ids: dict
+    replicates: dict
+
+
+@dataclass(frozen=True)
+class SignaturesMap:
+    map: dict
+    header_names: list
+    platforms: list
+
+
+@dataclass(frozen=True)
+class SignatureInfo:
+    extra_options: str
+    lower_is_better: bool | str
+    option_name: str
+    signature_hash: str
+    suite: str
+    test: str
+
+
+@dataclass(frozen=True)
+class ComparisonRow:
+    stats_base: list
+    stats_new: list
+    header: str
+    lower_is_better: bool | str
+    common: dict
+
+
+@dataclass(frozen=True)
+class MwuTask:
+    row: ComparisonRow
+    enable_silverman_kde: bool
+
+
 class PerfCompareResults(generics.ListAPIView):
     serializer_class = PerfCompareResultsSerializer
     queryset = None
@@ -1291,50 +1330,42 @@ class PerfCompareResults(generics.ListAPIView):
 
         option_collection_map = perfcompare_utils.get_option_collection_map()
 
-        (
-            base_grouped_job_ids,
-            base_grouped_values,
-            base_grouped_replicates,
-        ) = self._get_grouped_perf_data(base_perf_data)
-        (
-            new_grouped_job_ids,
-            new_grouped_values,
-            new_grouped_replicates,
-        ) = self._get_grouped_perf_data(new_perf_data)
+        base_grouped = self._get_grouped_perf_data(base_perf_data)
+        new_grouped = self._get_grouped_perf_data(new_perf_data)
 
-        statistics_base_grouped_data = base_grouped_values
-        statistics_new_grouped_data = new_grouped_values
+        statistics_base_grouped_data = base_grouped.values
+        statistics_new_grouped_data = new_grouped.values
         if replicates:
-            statistics_base_grouped_data = base_grouped_replicates
-            statistics_new_grouped_data = new_grouped_replicates
+            statistics_base_grouped_data = base_grouped.replicates
+            statistics_new_grouped_data = new_grouped.replicates
 
-        base_signatures_map, base_header_names, base_platforms = self._get_signatures_map(
+        base_signatures_map = self._get_signatures_map(
             base_signatures, statistics_base_grouped_data, option_collection_map
         )
-        new_signatures_map, new_header_names, new_platforms = self._get_signatures_map(
+        new_signatures_map = self._get_signatures_map(
             new_signatures, statistics_new_grouped_data, option_collection_map
         )
 
-        header_names = list(set(base_header_names + new_header_names))
+        header_names = list(set(base_signatures_map.header_names + new_signatures_map.header_names))
         header_names.sort()
-        platforms = set(base_platforms + new_platforms)
+        platforms = set(base_signatures_map.platforms + new_signatures_map.platforms)
         self.queryset = []
 
         base = _RepoPerfData(
-            signatures_map=base_signatures_map,
-            values=base_grouped_values,
-            replicates=base_grouped_replicates,
+            signatures_map=base_signatures_map.map,
+            values=base_grouped.values,
+            replicates=base_grouped.replicates,
             stats=statistics_base_grouped_data,
-            job_ids=base_grouped_job_ids,
+            job_ids=base_grouped.job_ids,
             rev=base_rev,
             repo_name=base_repo_name,
         )
         new = _RepoPerfData(
-            signatures_map=new_signatures_map,
-            values=new_grouped_values,
-            replicates=new_grouped_replicates,
+            signatures_map=new_signatures_map.map,
+            values=new_grouped.values,
+            replicates=new_grouped.replicates,
             stats=statistics_new_grouped_data,
-            job_ids=new_grouped_job_ids,
+            job_ids=new_grouped.job_ids,
             rev=new_rev,
             repo_name=new_repo_name,
         )
@@ -1384,42 +1415,24 @@ class PerfCompareResults(generics.ListAPIView):
 
     @staticmethod
     def _comparison_pairs(comparison_inputs, header_names, platforms):
-        """Yield each valid (header, platform) pair with its unpacked common result."""
+        """Yield a ComparisonRow for each (header, platform) pair that has results."""
         for header in header_names:
             for platform in platforms:
-                (
-                    lower_is_better,
-                    statistics_base_perf_data,
-                    statistics_new_perf_data,
-                    has_results,
-                    common_result,
-                ) = PerfCompareResults._build_common_result(comparison_inputs, header, platform)
-
-                if has_results:
-                    yield (
-                        lower_is_better,
-                        statistics_base_perf_data,
-                        statistics_new_perf_data,
-                        header,
-                        common_result,
-                    )
+                row = PerfCompareResults._build_common_result(comparison_inputs, header, platform)
+                if row is not None:
+                    yield row
 
     @staticmethod
     def _process_mann_whitney_u(comparison_inputs, header_names, platforms, enable_silverman_kde):
         """
         Process performance comparison results using Mann-Whitney U test with parallel processing.
         """
-        tasks = []
-        for (
-            lower_is_better,
-            stats_base,
-            stats_new,
-            header,
-            common,
-        ) in PerfCompareResults._comparison_pairs(comparison_inputs, header_names, platforms):
-            tasks.append(
-                (stats_base, stats_new, header, lower_is_better, common, enable_silverman_kde)
+        tasks = [
+            MwuTask(row=row, enable_silverman_kde=enable_silverman_kde)
+            for row in PerfCompareResults._comparison_pairs(
+                comparison_inputs, header_names, platforms
             )
+        ]
 
         # Use 'fork' context explicitly because Python 3.14+ defaults to 'forkserver'
         # which deadlocks when used within a Django process.
@@ -1427,7 +1440,7 @@ class PerfCompareResults(generics.ListAPIView):
         logger.warning(f"Workers used for MWU analysis: {workers}")
         ctx = multiprocessing.get_context("fork")
         with ctx.Pool(processes=workers) as pool:
-            results = pool.starmap(PerfCompareResults._process_mann_whitney_task, tasks)
+            results = pool.map(PerfCompareResults._process_mann_whitney_task, tasks)
 
         return results
 
@@ -1437,13 +1450,12 @@ class PerfCompareResults(generics.ListAPIView):
         Process performance comparison results using Student's t-test (sequential processing).
         """
         results = []
-        for (
-            lower_is_better,
-            stats_base,
-            stats_new,
-            header,
-            common,
-        ) in PerfCompareResults._comparison_pairs(comparison_inputs, header_names, platforms):
+        for row in PerfCompareResults._comparison_pairs(comparison_inputs, header_names, platforms):
+            lower_is_better = row.lower_is_better
+            stats_base = row.stats_base
+            stats_new = row.stats_new
+            header = row.header
+            common = row.common
             # Calculate Student's t-test specific data
             base_runs_count = len(stats_base)
             new_runs_count = len(stats_new)
@@ -1508,12 +1520,11 @@ class PerfCompareResults(generics.ListAPIView):
     @staticmethod
     def _build_common_result(comparison_inputs, header, platform):
         """
-        Build the common result dictionary that is shared between Mann-Whitney U
-        and Student's t-test processing.
+        Build the common result shared between Mann-Whitney U and Student's t-test
+        processing.
 
-        Returns a tuple of:
-        (lower_is_better, statistics_base_perf_data, statistics_new_perf_data,
-         has_results, common_result)
+        Returns a ComparisonRow, or None when neither revision has data for this
+        (header, platform) pair.
         """
         sig_identifier = perfcompare_utils.get_sig_identifier(header, platform)
         base_sig = comparison_inputs.base.signatures_map.get(sig_identifier, {})
@@ -1522,28 +1533,9 @@ class PerfCompareResults(generics.ListAPIView):
         new_sig_id = new_sig.get("id", None)
 
         # Get signature-based properties
-        if base_sig:
-            (
-                extra_options,
-                lower_is_better,
-                option_name,
-                sig_hash,
-                suite,
-                test,
-            ) = PerfCompareResults._get_signature_based_properties(
-                base_sig, comparison_inputs.option_collection_map
-            )
-        else:
-            (
-                extra_options,
-                lower_is_better,
-                option_name,
-                sig_hash,
-                suite,
-                test,
-            ) = PerfCompareResults._get_signature_based_properties(
-                new_sig, comparison_inputs.option_collection_map
-            )
+        sig_info = PerfCompareResults._get_signature_based_properties(
+            base_sig or new_sig, comparison_inputs.option_collection_map
+        )
 
         # Extract performance data
         base_perf_data_values = comparison_inputs.base.values.get(base_sig_id, [])
@@ -1557,6 +1549,8 @@ class PerfCompareResults(generics.ListAPIView):
         base_runs_count = len(statistics_base_perf_data)
         new_runs_count = len(statistics_new_perf_data)
         has_results = base_runs_count or new_runs_count
+        if not has_results:
+            return None
 
         # Build common result dictionary (contains only data both test versions use)
         is_complete = base_runs_count and new_runs_count
@@ -1567,12 +1561,12 @@ class PerfCompareResults(generics.ListAPIView):
             "platform": platform,
             "base_app": base_sig.get("application", ""),
             "new_app": new_sig.get("application", ""),
-            "suite": suite,
-            "test": test,
+            "suite": sig_info.suite,
+            "test": sig_info.test,
             "is_complete": is_complete,
             "framework_id": comparison_inputs.framework,
-            "option_name": option_name,
-            "extra_options": extra_options,
+            "option_name": sig_info.option_name,
+            "extra_options": sig_info.extra_options,
             "base_repository_name": comparison_inputs.base.repo_name,
             "new_repository_name": comparison_inputs.new.repo_name,
             "base_measurement_unit": base_sig.get("measurement_unit", ""),
@@ -1588,7 +1582,7 @@ class PerfCompareResults(generics.ListAPIView):
                 comparison_inputs.new.rev,
                 str(comparison_inputs.framework),
                 comparison_inputs.push_timestamp,
-                str(sig_hash),
+                str(sig_info.signature_hash),
             ),
             "base_retriggerable_job_ids": comparison_inputs.base.job_ids.get(base_sig_id, []),
             "new_retriggerable_job_ids": comparison_inputs.new.job_ids.get(new_sig_id, []),
@@ -1601,28 +1595,26 @@ class PerfCompareResults(generics.ListAPIView):
             ),
         }
 
-        return (
-            lower_is_better,
-            statistics_base_perf_data,
-            statistics_new_perf_data,
-            has_results,
-            common_result,
+        return ComparisonRow(
+            stats_base=statistics_base_perf_data,
+            stats_new=statistics_new_perf_data,
+            header=header,
+            lower_is_better=sig_info.lower_is_better,
+            common=common_result,
         )
 
     @staticmethod
     def _get_signature_based_properties(sig, option_collection_map):
-        return (
-            sig.get("extra_options", ""),
-            sig.get("lower_is_better", ""),
-            PerfCompareResults._get_option_name(sig, option_collection_map),
-            sig.get("signature_hash", ""),
-            sig.get("suite", ""),
-            sig.get("test", ""),
-        )
+        option_collection_id = sig.get("option_collection_id", "")
 
-    @staticmethod
-    def _get_option_name(sig, option_collection_map):
-        return option_collection_map.get(sig.get("option_collection_id", ""), "")
+        return SignatureInfo(
+            extra_options=sig.get("extra_options", ""),
+            lower_is_better=sig.get("lower_is_better", ""),
+            option_name=option_collection_map.get(option_collection_id, ""),
+            signature_hash=sig.get("signature_hash", ""),
+            suite=sig.get("suite", ""),
+            test=sig.get("test", ""),
+        )
 
     @staticmethod
     def _get_push_timestamp(base_push, new_push):
@@ -1650,7 +1642,7 @@ class PerfCompareResults(generics.ListAPIView):
     @staticmethod
     def _get_perf_data(repository_name, revision, signatures, interval, startday, endday):
         signature_ids = [signature["id"] for signature in list(signatures)]
-        perf_data = PerformanceDatum.objects.select_related("push", "repository", "id").filter(
+        perf_data = PerformanceDatum.objects.select_related("push", "repository").filter(
             signature_id__in=signature_ids,
             repository__name=repository_name,
         )
@@ -1669,9 +1661,9 @@ class PerfCompareResults(generics.ListAPIView):
 
     @staticmethod
     def _get_signatures(repository_name, framework, parent_signature, interval, no_subtests):
-        signatures = PerformanceSignature.objects.select_related(
-            "framework", "repository", "platform", "push", "job"
-        ).filter(repository__name=repository_name)
+        signatures = PerformanceSignature.objects.select_related("repository", "platform").filter(
+            repository__name=repository_name
+        )
         signatures = signatures.filter(parent_signature__isnull=no_subtests)
         if framework:
             signatures = signatures.filter(framework__id=framework)
@@ -1762,25 +1754,27 @@ class PerfCompareResults(generics.ListAPIView):
         grouped_replicate_values = defaultdict(list)
         grouped_values = defaultdict(list)
         grouped_job_ids = defaultdict(list)
-        for signature_id, value, job_id in perf_data.values_list("signature_id", "value", "job_id"):
+        for signature_id, value, job_id, replicate_value in perf_data.values_list(
+            "signature_id", "value", "job_id", "performancedatumreplicate__value"
+        ):
             if value is not None:
                 grouped_values[signature_id].append(value)
                 grouped_job_ids[signature_id].append(job_id)
-        for signature_id, value, replicate_value in perf_data.values_list(
-            "signature_id", "value", "performancedatumreplicate__value"
-        ):
             if replicate_value is not None:
                 grouped_replicate_values[signature_id].append(replicate_value)
             else:
                 grouped_replicate_values[signature_id].append(value)
-        return grouped_job_ids, grouped_values, grouped_replicate_values
+        return GroupedPerfData(
+            values=grouped_values,
+            job_ids=grouped_job_ids,
+            replicates=grouped_replicate_values,
+        )
 
     @staticmethod
     def _get_signatures_map(signatures, grouped_values, option_collection_map):
         """
-        @return: signatures_map - contains a mapping of all the signatures for easy access and matching
-                 header_names - list of header names for all given signatures
-                 platforms - list of platforms for all given signatures
+        @return: SignaturesMap - mapping of all the signatures for easy access and
+                 matching, plus the header names and platforms for all given signatures
         """
         header_names = []
         platforms = []
@@ -1806,7 +1800,11 @@ class PerfCompareResults(generics.ListAPIView):
             header_names.append(header)
             platforms.append(platform)
 
-        return signatures_map, header_names, platforms
+        return SignaturesMap(
+            map=signatures_map,
+            header_names=header_names,
+            platforms=platforms,
+        )
 
     """
     _process_new_stats does the following for base and new:
@@ -1821,14 +1819,7 @@ class PerfCompareResults(generics.ListAPIView):
     """
 
     @staticmethod
-    def _process_mann_whitney_task(
-        statistics_base_perf_data,
-        statistics_new_perf_data,
-        header,
-        lower_is_better,
-        common_result,
-        enable_silverman_kde,
-    ):
+    def _process_mann_whitney_task(task):
         """
         Process a single mann-whitney-u test task for parallel execution.
         This is a static method so it can be pickled by multiprocessing.
@@ -1837,16 +1828,16 @@ class PerfCompareResults(generics.ListAPIView):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             new_stats = PerfCompareResults._process_stats(
-                statistics_base_perf_data,
-                statistics_new_perf_data,
-                header,
-                lower_is_better,
+                task.row.stats_base,
+                task.row.stats_new,
+                task.row.header,
+                task.row.lower_is_better,
                 remove_outliers=False,
-                enable_silverman_kde=enable_silverman_kde,
+                enable_silverman_kde=task.enable_silverman_kde,
             )
 
         row_result = {
-            **common_result,
+            **task.row.common,
             **new_stats,
         }
         return row_result

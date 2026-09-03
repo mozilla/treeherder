@@ -3,10 +3,9 @@ updates:
 - package-ecosystem: pip
   directories:
     - "/"
-    - "/requirements"
   schedule:
     interval: daily
-  open-pull-requests-limit: 99
+  open-pull-requests-limit: 999
   labels:
   - dependencies
 - package-ecosystem: docker

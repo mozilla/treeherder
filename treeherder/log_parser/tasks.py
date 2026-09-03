@@ -28,7 +28,12 @@ def parse_logs(job_id, job_log_ids, priority):
     # Attach task_id/run_id/job_id as GCP log labels to every line emitted while
     # parsing this job's logs (including deeper failure-line processing).
     with log_context(**job_log_labels(job), component="log_parser"):
-        job_logs = JobLog.objects.filter(id__in=job_log_ids, job=job)
+        # select_related the job/repository chain: the parsers below access
+        # job_log.job.repository lazily, and by then the log downloads may have
+        # outlived the task's original DB connection.
+        job_logs = JobLog.objects.filter(id__in=job_log_ids, job=job).select_related(
+            "job__repository"
+        )
 
         if len(job_log_ids) != len(job_logs):
             logger.warning(
@@ -44,10 +49,16 @@ def parse_logs(job_id, job_log_ids, priority):
         # need to know one occurred so we can skip further steps and reraise to
         # trigger the retry decorator.
         first_exception = None
-        completed_names = set()
         for job_log in job_logs:
             newrelic.agent.add_custom_attribute(f"job_log_{job_log.name}_url", job_log.url)
             logger.info("parser_task for %s", job_log.id)
+
+            if job_log.parse_attempts >= 3:
+                job_log.update_status(JobLog.FAILED)
+                logger.error(
+                    f"Log failed to download/parse ({job_log.parse_attempts} attempts), skipping for log ID {job_log.id}"
+                )
+                continue
 
             # Only parse logs which haven't yet been processed or else failed on the last attempt.
             if job_log.status not in (JobLog.PENDING, JobLog.FAILED):
@@ -75,8 +86,6 @@ def parse_logs(job_id, job_log_ids, priority):
                 # track the exception on NewRelic but don't stop parsing future
                 # log lines.
                 newrelic.agent.notice_error()
-            else:
-                completed_names.add(job_log.name)
 
         # Raise so we trigger the retry decorator.
         if first_exception:
@@ -93,7 +102,9 @@ def store_failure_lines(job_log):
 
 def post_log_artifacts(job_log):
     """Post a list of artifacts to a job."""
-    logger.info("Downloading/parsing log for log %s", job_log.id)
+    job_log.parse_attempts += 1
+    job_log.save()
+    logger.info(f"Downloading/parsing log (attempt {job_log.parse_attempts}) for log {job_log.id}")
 
     try:
         artifact_list = extract_text_log_artifacts(job_log)

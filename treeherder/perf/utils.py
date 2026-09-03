@@ -3,6 +3,9 @@ import datetime
 MON, TUE, WED, THU, FRI, SAT, SUN = range(1, 8)
 TRIAGE_DAYS = 2
 BUG_DAYS = 4
+# critical and sub-critical alerts share the same, shorter deadlines
+CRITICAL_TRIAGE_DAYS = 1
+CRITICAL_BUG_DAYS = 2
 
 
 def calculate_time_to(created, due_days=TRIAGE_DAYS):

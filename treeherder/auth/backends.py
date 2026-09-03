@@ -3,7 +3,7 @@ import logging
 import time
 
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Group, User
 from django.core.exceptions import ObjectDoesNotExist
 from jose import jwt
 from rest_framework.exceptions import AuthenticationFailed
@@ -11,6 +11,18 @@ from rest_framework.exceptions import AuthenticationFailed
 from treeherder.config.settings import AUTH0_CLIENTID, AUTH0_DOMAIN
 
 GROUPS_CLAIM = "https://sso.mozilla.com/claim/groups"
+
+# SSO groups that grant sheriffing access.
+SHERIFF_GROUPS = frozenset({"sheriff", "perf_sheriff"})
+
+# SSO groups with commit access.
+SCM_LEVEL_GROUPS = {
+    "all_scm_level_1": 1,
+    "all_scm_level_2": 2,
+    "all_scm_level_3": 3,
+}
+
+TRACKED_SSO_GROUPS = frozenset(SCM_LEVEL_GROUPS) | SHERIFF_GROUPS
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +40,20 @@ logger = logging.getLogger(__name__)
 # read its content.
 with open("treeherder/auth/jwks.json") as f:
     jwks = json.load(f)
+
+
+def get_scm_level(user):
+    """
+    Highest hg commit level SSO has confirmed for `user`, or 0 if none is known.
+    """
+    if not user or not user.is_authenticated:
+        return 0
+
+    group_names = {group.name for group in user.groups.all()}
+
+    return max(
+        (level for name, level in SCM_LEVEL_GROUPS.items() if name in group_names), default=0
+    )
 
 
 class AuthBackend:
@@ -74,10 +100,27 @@ class AuthBackend:
         """
         Set users in sheriffing group in jwt response as is_staff
         """
+        return 1 if SHERIFF_GROUPS.intersection(user_info.get(GROUPS_CLAIM, [])) else 0
 
-        groups = user_info.get(GROUPS_CLAIM, [])
+    def _get_tracked_groups_from_userinfo(self, user_info):
+        """
+        The subset of the groups claim that Treeherder records, sorted so the
+        stored membership is stable across logins.
+        """
+        groups = user_info.get(GROUPS_CLAIM) or []
+        return sorted(group for group in groups if group in TRACKED_SSO_GROUPS)
 
-        return 1 if ("sheriff" in groups or "perf_sheriff" in groups) else 0
+    def _sync_sso_groups(self, user, tracked_groups):
+        """
+        Mirror `tracked_groups` into Django group membership.
+
+        The groups claim only reaches us on /auth/login/; every other request is
+        session-authenticated and carries no token, so membership has to be
+        persisted here to be checkable later (see `get_scm_level`).
+        """
+        stale = user.groups.filter(name__in=TRACKED_SSO_GROUPS).exclude(name__in=tracked_groups)
+        user.groups.remove(*stale)
+        user.groups.add(*[Group.objects.get_or_create(name=name)[0] for name in tracked_groups])
 
     def _get_username_from_userinfo(self, user_info):
         """
@@ -222,6 +265,7 @@ class AuthBackend:
             user_info = self._get_user_info(access_token, id_token)
             username = self._get_username_from_userinfo(user_info)
             is_sheriff = self._get_is_sheriff_from_userinfo(user_info)
+            tracked_groups = self._get_tracked_groups_from_userinfo(user_info)
             groups_claim_present = GROUPS_CLAIM in user_info
             logger.debug("User info retrieved for: %s", username)
 
@@ -259,6 +303,7 @@ class AuthBackend:
                         user.is_staff = is_sheriff
                         user.save()
                         logger.debug("Updated staff status for user %s to %s", username, is_sheriff)
+                    self._sync_sso_groups(user, tracked_groups)
                 elif user.is_staff:
                     # No groups claim on this token. This is typical of a silent
                     # token renewal, where Auth0 omits the large custom claim.
@@ -274,9 +319,12 @@ class AuthBackend:
                 # The user doesn't already exist, so create it since we allow
                 # anyone with SSO access to create an account on Treeherder.
                 logger.debug("Creating new user: %s", username)
-                return User.objects.create_user(
+                user = User.objects.create_user(
                     username, email=user_info["email"], password=None, is_staff=is_sheriff
                 )
+                if groups_claim_present:
+                    self._sync_sso_groups(user, tracked_groups)
+                return user
         except AuthenticationFailed as e:
             logger.error("Authentication failed: %s", str(e))
             raise
