@@ -75,8 +75,7 @@ def get_artifact_list(root_url, task_id):
         artifacts = fetch_json(artifacts_url)
     except Exception as e:
         print(e)
-    finally:
-        return artifacts.get("artifacts", [])
+    return artifacts.get("artifacts", [])
 
 
 def get_profile_artifact_url(alert, metadata_key):
