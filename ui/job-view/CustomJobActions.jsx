@@ -5,7 +5,7 @@ import jsonSchemaDefaults from 'json-schema-defaults';
 import keyBy from 'lodash/keyBy';
 import jsyaml from 'js-yaml';
 import tcLibUrls from 'taskcluster-lib-urls';
-import { Button, Dropdown, Form, Modal } from 'react-bootstrap';
+import { Button, Dropdown, Form, Modal, ButtonGroup } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckSquare } from '@fortawesome/free-regular-svg-icons';
 
@@ -16,6 +16,7 @@ import { checkRootUrl } from '../taskcluster-auth-callback/constants';
 
 import { notify } from '../shared/stores/notificationStore';
 import { usePushesStore } from '../shared/stores/pushesStore';
+import SimpleTooltip from '../shared/SimpleTooltip';
 
 class CustomJobActions extends React.PureComponent {
   constructor(props) {
@@ -32,6 +33,7 @@ class CustomJobActions extends React.PureComponent {
       schema: '',
       payload: '',
       dropdownOpen: false,
+      payloadView: 'yaml',
     };
   }
 
@@ -79,7 +81,7 @@ class CustomJobActions extends React.PureComponent {
     const selectedAction = actions[actionName];
 
     if (actionName) {
-      this.setState({ selectedAction });
+      this.setState({ selectedAction, payloadView: 'yaml' });
       this.updateSelectedAction(selectedAction);
     }
   };
@@ -186,6 +188,132 @@ class CustomJobActions extends React.PureComponent {
     }
   };
 
+  onFormFieldChange = (fieldName, type, value) => {
+    const { payload } = this.state;
+    try {
+      const parsedPayload = jsyaml.load(payload) || {};
+      
+      if (type === 'integer') {
+        parsedPayload[fieldName] = value === '' ? '' : parseInt(value, 10);
+      } else if (type === 'boolean') {
+        parsedPayload[fieldName] = value === 'true';
+      }
+
+      this.onChangePayload(jsyaml.dump(parsedPayload));
+    } catch (_e) {
+      notify(`Cannot update form: Invalid YAML in Raw view.`, 'danger');
+    }
+  };
+
+  renderPayloadForm() {
+    const { selectedAction, payload } = this.state;
+    const properties = selectedAction?.schema?.properties;
+    
+    if (!properties) return null;
+
+    let parsedPayload = {};
+    try {
+      parsedPayload = jsyaml.load(payload) || {};
+    } catch (_e) {
+      return (
+        <div className="text-danger p-3 border rounded">
+          Invalid YAML detected. Please fix errors in the Raw YAML view before using the form.
+        </div>
+      );
+    }
+
+    return (
+      <div className="p-3 border rounded" style={{ backgroundColor: '#f8f9fa' }}>
+        {Object.entries(properties).map(([key, prop]) => {
+          const isBool = prop.type === 'boolean';
+          const isInt = prop.type === 'integer';
+          
+          const isEmpty = parsedPayload[key] === '' || parsedPayload[key] === undefined || parsedPayload[key] === null || Number.isNaN(parsedPayload[key]);          
+          const value = !isEmpty ? parsedPayload[key] : (parsedPayload[key] === '' ? '' : prop.default);
+
+          const label = prop.title || key;
+          const rangeLabel = isInt && prop.minimum !== undefined && prop.maximum !== undefined 
+            ? ` (${prop.minimum}-${prop.maximum})` 
+            : '';
+          const fullLabelText = `${label}${rangeLabel}`;
+
+          return (
+            <Form.Group key={key} className="d-flex align-items-center mb-3">
+              <Form.Label className="w-50 fw-bold mb-0" style={{ cursor: prop.description ? 'help' : 'default' }}>
+                {prop.description ? (
+                  <SimpleTooltip 
+                    text={fullLabelText} 
+                    tooltipText={prop.description} 
+                    placement="top" 
+                  />
+                ) : (
+                  fullLabelText
+                )}
+              </Form.Label>
+              <div className="w-50">
+                {isBool ? (
+                  <Form.Control
+                    as="select"
+                    value={String(value) === 'true' ? 'true' : 'false'}
+                    onChange={(e) => this.onFormFieldChange(key, 'boolean', e.target.value)}
+                  >
+                    <option value="true">True</option>
+                    <option value="false">False</option>
+                  </Form.Control>
+                ) : isInt ? (
+                  <React.Fragment>
+                    <Form.Control
+                      type="number"
+                      min={prop.minimum ?? 0}
+                      max={prop.maximum}
+                      value={value}
+                      isInvalid={isEmpty}
+                      onChange={(e) => {
+                        let sanitizedValue = e.target.value.replace(/\D/g, '');
+                        
+                        if (sanitizedValue !== '' && prop.maximum !== undefined && parseInt(sanitizedValue, 10) > prop.maximum) {
+                          sanitizedValue = prop.maximum.toString();
+                        }
+                        
+                        this.onFormFieldChange(key, 'integer', sanitizedValue);
+                      }}
+                      onBlur={(e) => {
+                        const fallback = prop.default !== undefined 
+                          ? prop.default.toString() 
+                          : (prop.minimum !== undefined ? prop.minimum.toString() : '0');
+
+                        if (e.target.value === '') {
+                          this.onFormFieldChange(key, 'integer', fallback);
+                        } else {
+                          const numVal = parseInt(e.target.value, 10);
+                          if (prop.minimum !== undefined && numVal < prop.minimum) {
+                            this.onFormFieldChange(key, 'integer', prop.minimum.toString());
+                          }
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        const isControlKey = ['Backspace', 'Tab', 'Enter', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(e.key);
+                        const isShortcut = e.ctrlKey || e.metaKey;
+                        const isNumber = /^[0-9]$/.test(e.key);
+
+                        if (!isControlKey && !isShortcut && !isNumber) {
+                          e.preventDefault();
+                        }
+                      }}
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      This field cannot be empty.
+                    </Form.Control.Feedback>
+                  </React.Fragment>
+                ) : null}
+              </div>
+            </Form.Group>
+          );
+        })}
+      </div>
+    );
+  }
+
   render() {
     const { toggle } = this.props;
     const { triggering, selectedAction, schema, actions, payload } = this.state;
@@ -205,7 +333,7 @@ class CustomJobActions extends React.PureComponent {
           {!!actions && (
             <div>
               <div className="form-group">
-                <Form.Label for="action-select-input">Action</Form.Label>
+                <Form.Label htmlFor="action-select-input">Action</Form.Label>
                 <Dropdown
                   show={this.state.dropdownOpen}
                   onToggle={this.toggleDropdown}
@@ -238,24 +366,50 @@ class CustomJobActions extends React.PureComponent {
                 {!!selectedAction.schema && (
                   <React.Fragment>
                     <div className="col-s-12 col-md-6 form-group">
-                      <Form.Label for="payload-textarea" className="w-100">
-                        Payload
-                      </Form.Label>
-                      <textarea
-                        id="payload-textarea"
-                        value={payload}
-                        className="form-control pre"
-                        rows="10"
-                        onChange={(evt) =>
-                          this.onChangePayload(evt.target.value)
-                        }
-                        spellCheck="false"
-                      />
+                      <div className="d-flex justify-content-between align-items-end mb-2 w-100" style={{ minHeight: '31px' }}>
+                        <Form.Label htmlFor="payload-textarea" className="mb-0 fw-bold">
+                          Payload
+                        </Form.Label>
+                        
+                        {['backfill', 'retrigger'].includes(selectedAction.name) && (
+                          <ButtonGroup size="sm">
+                            <Button
+                              variant={this.state.payloadView === 'yaml' ? 'primary' : 'outline-primary'}
+                              onClick={() => this.setState({ payloadView: 'yaml' })}
+                            >
+                              Raw YAML
+                            </Button>
+                            <Button
+                              variant={this.state.payloadView === 'form' ? 'primary' : 'outline-primary'}
+                              onClick={() => this.setState({ payloadView: 'form' })}
+                            >
+                              Form
+                            </Button>
+                          </ButtonGroup>
+                        )}
+                      </div>
+
+                      {['backfill', 'retrigger'].includes(selectedAction.name) && this.state.payloadView === 'form' ? (
+                        this.renderPayloadForm()
+                      ) : (
+                        <textarea
+                          id="payload-textarea"
+                          value={payload}
+                          className="form-control pre"
+                          rows="10"
+                          onChange={(evt) =>
+                            this.onChangePayload(evt.target.value)
+                          }
+                          spellCheck="false"
+                        />
+                      )}
                     </div>
                     <div className="col-s-12 col-md-6 form-group">
-                      <Form.Label for="schema-textarea" className="w-100">
-                        Schema
-                      </Form.Label>
+                      <div className="d-flex align-items-end mb-2 w-100" style={{ minHeight: '31px' }}>
+                        <Form.Label htmlFor="schema-textarea" className="mb-0 fw-bold w-100">
+                          Schema
+                        </Form.Label>
+                      </div>
                       <textarea
                         id="schema-textarea"
                         className="form-control pre"
