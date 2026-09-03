@@ -680,6 +680,14 @@ li.pagination-active.active > button {
   flex: initial;
 }
 
+.alert-row-severe > td {
+  background-color: #fdf3f4;
+}
+
+.alert-row-severe > td:first-child {
+  border-left: 3px solid #dc3545 !important;
+}
+
 .alert-title-container {
   width: 250px;
 }

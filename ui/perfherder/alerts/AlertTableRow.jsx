@@ -34,6 +34,7 @@ import {
   browsertimeId,
   browsertimeEssentialTests,
   browsertimeBenchmarksTests,
+  severeAlertSeverities,
 } from '../perf-helpers/constants';
 import { Perfdocs } from '../perf-helpers/perfdocs';
 
@@ -397,6 +398,8 @@ export default class AlertTableRow extends React.Component {
       !browsertimeBenchmarksTests.includes(alert.series_signature.suite) &&
       alert.side_by_side_available;
 
+    const isSevere = severeAlertSeverities.includes(alert.severity);
+
     const backfillStatusInfo = this.getBackfillStatusInfo(alert);
     let sherlockTooltip = backfillStatusInfo?.message;
     if (backfillStatusInfo?.displayTasksCount) {
@@ -418,7 +421,7 @@ export default class AlertTableRow extends React.Component {
       <tr
         className={`align-middle ${
           alertSummary.notes ? 'border-top border-start border-end' : 'border'
-        }`}
+        }${isSevere ? ' alert-row-severe' : ''}`}
         aria-label="Alert table row"
         data-testid={alert.id}
       >

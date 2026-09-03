@@ -445,3 +445,26 @@ describe('graph link highlight', () => {
     expect(setLastClickedGraphAlertId).toHaveBeenCalledWith(testAlert.id);
   });
 });
+
+test.each(['critical', 'subcritical'])(
+  'Alert row is marked out when the alert is %s',
+  async (severity) => {
+    const { findByLabelText } = alertTableRowTest({
+      alert: { ...testAlert, severity },
+    });
+
+    const row = await findByLabelText('Alert table row');
+
+    expect(row).toHaveClass('alert-row-severe');
+  },
+);
+
+test('Alert row is not marked out for a normal alert', async () => {
+  const { findByLabelText } = alertTableRowTest({
+    alert: { ...testAlert, severity: 'normal' },
+  });
+
+  const row = await findByLabelText('Alert table row');
+
+  expect(row).not.toHaveClass('alert-row-severe');
+});
