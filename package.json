@@ -68,7 +68,7 @@
     "@playwright/test": "1.62.1",
     "@rspack/cli": "1.6.8",
     "@rspack/core": "1.6.8",
-    "@rspack/plugin-react-refresh": "1.5.3",
+    "@rspack/plugin-react-refresh": "2.0.2",
     "@swc/core": "1.15.47",
     "@swc/jest": "0.2.39",
     "@testing-library/dom": "10.4.1",
