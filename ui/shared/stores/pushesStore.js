@@ -5,17 +5,25 @@ import keyBy from 'lodash/keyBy';
 import max from 'lodash/max';
 
 import { parseQueryParams, bugzillaBugsApi } from '../../helpers/url';
-import { getUrlParam, replaceLocation } from '../../helpers/location';
+import {
+  getAllUrlParams,
+  getUrlParam,
+  replaceLocation,
+} from '../../helpers/location';
 import PushModel from '../../models/push';
 import { getTaskRunStr, isUnclassifiedFailure } from '../../helpers/job';
 import FilterModel from '../../models/filter';
 import JobModel from '../../models/job';
 import { thEvents } from '../../helpers/constants';
 import { processErrors, getData } from '../../helpers/http';
-import { updateUrlSearch } from '../../helpers/router';
+import { replaceUrlSearch, updateUrlSearch } from '../../helpers/router';
 
 import { notify } from './notificationStore';
-import { clearJobViaUrl, setSelectedJob } from './selectedJobStore';
+import {
+  clearJobViaUrl,
+  resolveSelectedJobFromUrl,
+  setSelectedJob,
+} from './selectedJobStore';
 
 const DEFAULT_PUSH_COUNT = 10;
 const PUSH_POLLING_KEYS = ['tochange', 'enddate', 'revision', 'author'];
@@ -354,9 +362,18 @@ export const usePushesStore = create(
               revisionJobMap[id] = job;
             }
           }
+          // Only clear the selection if the selected job is not part of the
+          // push being narrowed to (e.g. a deep link to a job rewrites the
+          // URL to that job's revision -- keep its selection).
+          const selectedTaskRun = getUrlParam('selectedTaskRun');
+          const selectionInPush =
+            selectedTaskRun &&
+            Object.values(revisionJobMap).some(
+              (job) => job.task_run === selectedTaskRun,
+            );
           if (
-            getUrlParam('selectedJob') ||
-            getUrlParam('selectedTaskRun')
+            (getUrlParam('selectedJob') || selectedTaskRun) &&
+            !selectionInPush
           ) {
             clearJobViaUrl();
           }
@@ -374,6 +391,49 @@ export const usePushesStore = create(
 // Standalone functions for use outside React components
 export const fetchPushes = (count, setFromchange) =>
   usePushesStore.getState().fetchPushes(count, setFromchange);
+
+/**
+ * The initial push fetch for the jobs view.
+ *
+ * When the URL deep-links to a job (``selectedTaskRun`` or ``selectedJob``)
+ * without naming a push range, resolve the job first -- so the details panel
+ * loads immediately -- then fetch only the push that contains it, rewriting
+ * the URL to ``revision=<its revision>`` so get-next-N and reloads behave
+ * like any other single-revision view.  Explicit range params
+ * (revision/fromchange/etc.) always win; the job is still resolved eagerly
+ * so its details load before the pushes do.
+ *
+ * Returns the resolved job when the URL was rewritten to its revision,
+ * otherwise null.
+ */
+export const fetchInitialPushes = async (notifyFn = notify) => {
+  const params = getAllUrlParams();
+  const hasSelection =
+    params.has('selectedTaskRun') || params.has('selectedJob');
+
+  if (hasSelection) {
+    const hasRange = PUSH_FETCH_KEYS.some((key) => params.has(key));
+
+    if (!hasRange) {
+      const job = await resolveSelectedJobFromUrl(notifyFn);
+
+      if (job) {
+        const newParams = getAllUrlParams();
+        newParams.set('revision', job.push_revision);
+        newParams.delete('selectedJob');
+        newParams.set('selectedTaskRun', job.task_run);
+        replaceUrlSearch(newParams.toString());
+        usePushesStore.getState().fetchPushes();
+        return job;
+      }
+    } else {
+      // Fire-and-forget: the eager selection only feeds the details panel.
+      resolveSelectedJobFromUrl(notifyFn);
+    }
+  }
+  usePushesStore.getState().fetchPushes();
+  return null;
+};
 export const pollPushes = () => usePushesStore.getState().pollPushes();
 export const clearPushes = () => usePushesStore.getState().clearPushes();
 export const setPushes = (pushList, jobMap) =>

@@ -46,11 +46,33 @@ export const clearCurrentlySelectedInstance = () => {
   currentlySelectedJobId = null;
 };
 
+// When a job is selected from the URL (a deep link), the button it belongs
+// to may not have rendered yet -- its push's jobs load later.  The selection
+// code records the task run here, and whichever comes first consumes it:
+// the button mounting (below) or the post-load selection sync
+// (selectedJobStore), so the job is scrolled into view exactly once.
+let pendingScrollTaskRun = null;
+
+export const setPendingScrollTaskRun = (taskRun) => {
+  pendingScrollTaskRun = taskRun;
+};
+
+// Returns true (and consumes the pending scroll) only when the given task
+// run is the one waiting to be scrolled to.
+export const consumePendingScroll = (taskRun) => {
+  if (pendingScrollTaskRun && pendingScrollTaskRun === taskRun) {
+    pendingScrollTaskRun = null;
+    return true;
+  }
+  return false;
+};
+
 // Clear all registry state (useful for tests)
 export const clearJobButtonRegistry = () => {
   jobButtonRegistry.clear();
   currentlySelectedInstance = null;
   currentlySelectedJobId = null;
+  pendingScrollTaskRun = null;
 };
 
 /**
@@ -74,7 +96,6 @@ export function useJobButtonRegistry(job, filterModel, filterPlatformCb) {
   });
   const [isRunnableSelected, setIsRunnableSelected] = useState(false);
   const buttonRef = useRef(null);
-  const hasScrolledRef = useRef(false);
 
   // Listen for URL changes (popstate) to update selection state
   useEffect(() => {
@@ -116,13 +137,14 @@ export function useJobButtonRegistry(job, filterModel, filterPlatformCb) {
     filterPlatformCb(getUrlParam('selectedTaskRun'));
   }, [filterPlatformCb]);
 
-  // Callback ref to attach to the button element - scrolls into view when selected
+  // Callback ref to attach to the button element - scrolls into view when
+  // the element mounts, is selected, and a pending scroll was requested for
+  // this job's task run (i.e. the job was selected via the URL before its
+  // button had rendered).
   const buttonRefCallback = useCallback(
     (element) => {
       buttonRef.current = element;
-      // Scroll into view when the element mounts and is selected (only on initial load)
-      if (element && isSelected && !hasScrolledRef.current) {
-        hasScrolledRef.current = true;
+      if (element && isSelected && consumePendingScroll(job.task_run)) {
         // Use requestAnimationFrame to ensure the DOM has fully rendered
         requestAnimationFrame(() => {
           if (element && typeof element.scrollIntoView === 'function') {
@@ -131,7 +153,7 @@ export function useJobButtonRegistry(job, filterModel, filterPlatformCb) {
         });
       }
     },
-    [isSelected],
+    [isSelected, job.task_run],
   );
 
   // Register with job button registry on mount, unregister on unmount
