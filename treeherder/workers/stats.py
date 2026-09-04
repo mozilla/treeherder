@@ -62,7 +62,9 @@ def publish_stats():
     # nb of job per repo
     jobs_per_repo = {
         key: sum(ct for k, ct in vals)
-        for key, vals in groupby(sorted((repo, ct) for repo, _, ct in jobs_stats), lambda x: x[0])
+        for key, vals in groupby(
+            sorted((repo, ct) for repo, _, ct in jobs_stats), lambda x: x[0]
+        )
     }
     logger.debug(f"Jobs per repo: {jobs_per_repo}")
     for key, value in jobs_per_repo.items():
@@ -71,7 +73,9 @@ def publish_stats():
     # nb of job per state
     jobs_per_state = {
         key: sum(ct for k, ct in vals)
-        for key, vals in groupby(sorted((state, ct) for _, state, ct in jobs_stats), lambda x: x[0])
+        for key, vals in groupby(
+            sorted((state, ct) for _, state, ct in jobs_stats), lambda x: x[0]
+        )
     }
     logger.debug(f"Jobs per state : {jobs_per_state}")
     for key, value in jobs_per_state.items():
