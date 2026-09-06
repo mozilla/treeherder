@@ -1,6 +1,7 @@
 import json
 import logging
 from collections import defaultdict
+from contextlib import closing
 from itertools import islice
 
 import newrelic.agent
@@ -11,7 +12,7 @@ from requests.exceptions import HTTPError
 
 from treeherder.etl.text import astral_filter
 from treeherder.model.models import FailureLine, Group, GroupStatus, JobLog
-from treeherder.utils.http import fetch_text
+from treeherder.utils.http import ITER_LINES_CHUNK_SIZE, make_request
 
 logger = logging.getLogger(__name__)
 
@@ -20,12 +21,23 @@ def store_failure_lines(job_log):
     log_iter = fetch_log(job_log)
     if not log_iter:
         return False
-    return write_failure_lines(job_log, log_iter)
+    # Only FAILURE_LINES_CUTOFF + 1 records are consumed; close the streamed
+    # response as soon as they are, rather than when the generator is collected.
+    with closing(log_iter):
+        return write_failure_lines(job_log, log_iter)
 
 
 def fetch_log(job_log):
+    """Return an iterator of parsed JSON records from the errorsummary log, or
+    ``None`` if the log is missing or empty.
+
+    The log is streamed line by line rather than downloaded whole: only
+    ``FAILURE_LINES_CUTOFF + 1`` records are ever consumed, and a large
+    errorsummary log would otherwise cost several times its decompressed size
+    in memory before the first line is parsed.
+    """
     try:
-        log_text = fetch_text(job_log.url)
+        response = make_request(job_log.url, stream=True)
     except HTTPError as e:
         job_log.update_status(JobLog.FAILED)
         if e.response is not None and e.response.status_code in (403, 404):
@@ -33,10 +45,36 @@ def fetch_log(job_log):
             return
         raise
 
-    if not log_text:
+    log_iter = _iter_json_lines(response)
+    try:
+        first = next(log_iter)
+    except StopIteration:
         return
 
-    return (json.loads(item) for item in log_text.splitlines())
+    return _prepend(first, log_iter)
+
+
+def _prepend(first, rest):
+    """Yield ``first`` then everything from ``rest``, closing ``rest`` (and
+    with it the underlying HTTP response) when this generator is closed."""
+    try:
+        yield first
+        yield from rest
+    finally:
+        rest.close()
+
+
+def _iter_json_lines(response):
+    """Yield one parsed JSON object per non-blank line of a streamed response,
+    closing the connection when the consumer stops iterating."""
+    with response:
+        for raw_line in response.iter_lines(chunk_size=ITER_LINES_CHUNK_SIZE):
+            # Decode per line (rather than using ``response.text``) so unicode line
+            # separators inside a JSON string are not treated as record boundaries,
+            # and so malformed bytes cannot break the rest of the log.
+            line = raw_line.decode("utf-8", "replace").strip()
+            if line:
+                yield json.loads(line)
 
 
 def write_failure_lines(job_log, log_iter):

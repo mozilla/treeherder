@@ -2,6 +2,12 @@ import newrelic.agent
 import requests
 from django.conf import settings
 
+# Chunk size for `Response.iter_lines()` when streaming logs. The default (512 bytes)
+# re-concatenates the pending partial line on every chunk, which is quadratic in the
+# length of a single line: an 8 MB line takes ~20 s and hundreds of MB, and a multi-MB
+# PERFHERDER_DATA line can run for many minutes. A 1 MB chunk makes it linear.
+ITER_LINES_CHUNK_SIZE = 1024 * 1024
+
 
 def make_request(url, method="GET", headers=None, timeout=30, **kwargs):
     """A wrapper around requests to set defaults & call raise_for_status()."""
