@@ -9,6 +9,11 @@ from treeherder.log_parser.utils import validate_perf_data
 
 logger = logging.getLogger(__name__)
 
+# Longest PERFHERDER_DATA line (in characters) we are willing to parse. Real lines are
+# a few KB; the largest seen on browsertime jobs is ~165 KB. Beyond this the json.loads
+# + jsonschema work on a single line costs minutes and GBs of memory, so skip it instead.
+MAX_PERFHERDER_DATA_LINE_LENGTH = 5 * 1024 * 1024
+
 
 class ParserBase:
     """
@@ -196,6 +201,17 @@ class PerformanceParser(ParserBase):
         super().__init__("performance_data")
 
     def parse_line(self, line, lineno):
+        if len(line) > MAX_PERFHERDER_DATA_LINE_LENGTH:
+            # Check for the marker only on oversized lines, so the common path stays
+            # a single regex match.
+            if "PERFHERDER_DATA:" in line:
+                logger.warning(
+                    "Skipping PERFHERDER_DATA on line %d: %d characters exceeds the %d limit",
+                    lineno,
+                    len(line),
+                    MAX_PERFHERDER_DATA_LINE_LENGTH,
+                )
+            return
         match = self.RE_PERFORMANCE.match(line)
         if match:
             try:
