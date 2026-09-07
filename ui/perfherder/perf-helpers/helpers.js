@@ -810,6 +810,7 @@ export const createGraphData = (
       color: color || ['border-secondary', ''],
       symbol: symbol || ['circle', 'outline'],
       visible: Boolean(color),
+      queued: !color,
       name: series.name,
       suite: series.suite,
       signature_id: series.signature_id,

@@ -36,6 +36,7 @@ const LegendCard = ({
       updatedItem.color = newColors.pop();
       updatedItem.symbol = newSymbols.pop();
       updatedItem.visible = isVisible;
+      updatedItem.queued = false;
       updatedItem.data = item.data.map((test) => ({
         ...test,
         z: updatedItem.color[1],
@@ -47,6 +48,7 @@ const LegendCard = ({
       updatedItem.color = ['border-secondary', ''];
       updatedItem.symbol = ['circle', 'outline'];
       updatedItem.visible = isVisible;
+      updatedItem.queued = false;
       updatedItem.data = item.data.map((test) => ({
         ...test,
         z: updatedItem.color[1],
@@ -120,21 +122,23 @@ const LegendCard = ({
 
     newData.splice(index, 1);
 
-    // promote the test that just shifted into the maximum visibility slot.
-    // this ignores user-deselected tests earlier in the queue and 
-    // strictly targets the next auto-queued test that was forced hidden.
-    const promoteTargetIndex = graphColors.length - 1;
-
-    if (
-      newData[promoteTargetIndex] &&
-      newData[promoteTargetIndex].color[0] === 'border-secondary'
-    ) {
-      const promoted = newData[promoteTargetIndex];
-      newData[promoteTargetIndex] = {
+      // Removing a hidden test frees no color slot → just drop it.
+    if (series.color[0] === 'border-secondary') {
+      resetParams(newData);
+      return;
+    }
+    // A visible test was removed → promote the next auto-queued test (one that
+    // was force-hidden only because the palette was exhausted). Tests the user
+    // deliberately hid are queued:false and are never auto-promoted.
+    const promoteIndex = newData.findIndex((item) => item.queued);
+    if (promoteIndex !== -1) {
+      const promoted = newData[promoteIndex];
+      newData[promoteIndex] = {
         ...promoted,
         color: series.color,
         symbol: series.symbol,
         visible: true,
+        queued: false,
         data: promoted.data.map((item) => ({
           ...item,
           z: series.color[1],
@@ -142,13 +146,12 @@ const LegendCard = ({
         })),
       };
       resetParams(newData);
-    } else if (series.color[0] === 'border-secondary') {
-      resetParams(newData);
-    } else {
-      const newColors = [...colors, series.color];
-      const newSymbols = [...symbols, series.symbol];
-      resetParams(newData, newColors, newSymbols);
+      return;
     }
+    // No auto-queued test waiting → return the freed color/symbol to the pool.
+    const newColors = [...colors, series.color];
+    const newSymbols = [...symbols, series.symbol];
+    resetParams(newData, newColors, newSymbols);
   };
 
   const subtitleStyle = 'p-0 mb-0 border-0 text-secondary text-start';
