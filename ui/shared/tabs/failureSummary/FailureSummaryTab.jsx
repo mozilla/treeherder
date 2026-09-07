@@ -5,7 +5,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import {
-  thBugSuggestionLimit,
   thEvents,
   requiredInternalOccurrences,
 } from '../../../helpers/constants';
@@ -13,7 +12,6 @@ import { getResultState, isReftest } from '../../../helpers/job';
 import { getReftestUrl } from '../../../helpers/url';
 import BugFiler from '../../BugFiler';
 import InternalIssueFiler from '../../InternalIssueFiler';
-import BugSuggestionsModel from '../../../models/bugSuggestions';
 
 import ErrorsList from './ErrorsList';
 import ListItem from './ListItem';
@@ -26,15 +24,11 @@ class FailureSummaryTab extends React.Component {
     this.state = {
       isBugFilerOpen: false,
       isInternalIssueFilerOpen: false,
-      suggestions: [],
       errors: [],
-      bugSuggestionsLoading: false,
     };
   }
 
   componentDidMount() {
-    this.loadBugSuggestions();
-
     window.addEventListener(
       thEvents.internalIssueClassification,
       this.handleInternalIssueClassification,
@@ -53,14 +47,18 @@ class FailureSummaryTab extends React.Component {
   };
 
   componentDidUpdate(prevProps) {
-    const { selectedJobId } = this.props;
+    const { bugSuggestions } = this.props;
 
-    if (
-      !!selectedJobId &&
-      !!prevProps.selectedJob &&
-      selectedJobId !== prevProps.selectedJobId
-    ) {
-      this.loadBugSuggestions();
+    if (bugSuggestions !== prevProps.bugSuggestions) {
+      // Fresh suggestions arrived (job change or refresh): reset the reading
+      // position. Guarded — the data now loads in the background, even while
+      // this tab's panel is not mounted in the DOM.
+      const scrollArea = document.querySelector('#failure-summary-scroll-area');
+
+      if (scrollArea?.scrollTo) {
+        scrollArea.scrollTo(0, 0);
+        window.getSelection().removeAllRanges();
+      }
     }
   }
 
@@ -107,7 +105,7 @@ class FailureSummaryTab extends React.Component {
 
   checkInternalFailureOccurrences = (bugInternalId) => {
     // Try matching an internal bug already fetched with enough occurences
-    const { suggestions } = this.state;
+    const suggestions = this.props.bugSuggestions || [];
 
     const internalBugs = suggestions
       .flatMap((s) => s.bugs.open_recent)
@@ -139,104 +137,6 @@ class FailureSummaryTab extends React.Component {
     this.checkInternalFailureOccurrences(data.internal_id);
   };
 
-  isGenericFailure = (search, pathEnd) => {
-    const match =
-      search.match(/^TEST-UNEXPECTED-\w+ \| (.+?) \| finished in \d+ms$/) ||
-      search.match(
-        /^TEST-UNEXPECTED-\w+ \| (.+?) \| xpcshell return code: -?\d+$/,
-      );
-
-    return match && match[1] === pathEnd;
-  };
-
-  filterGenericFailures = (suggestions) => {
-    if (suggestions.length <= 1) {
-      return suggestions;
-    }
-
-    // First pass: collect test paths with at least one non-generic error
-    const testPathsWithSpecificErrors = new Set();
-    suggestions.forEach((suggestion) => {
-      if (
-        suggestion.path_end &&
-        !this.isGenericFailure(suggestion.search, suggestion.path_end)
-      ) {
-        testPathsWithSpecificErrors.add(suggestion.path_end);
-      }
-    });
-
-    // Second pass: filter out generic errors
-    const filtered = suggestions.filter((suggestion) => {
-      // Filter taskcluster errors since there are other messages (length > 1)
-      if (/^\[taskcluster:error\] exit status -?\d+$/.test(suggestion.search)) {
-        return false;
-      }
-
-      // Filter generic per-test errors if this test has specific errors
-      return (
-        !this.isGenericFailure(suggestion.search, suggestion.path_end) ||
-        !testPathsWithSpecificErrors.has(suggestion.path_end)
-      );
-    });
-
-    // Third pass: mark first occurrence of each test path to show bugs
-    const seenTestPaths = new Set();
-    filtered.forEach((suggestion) => {
-      if (!suggestion.path_end) {
-        suggestion.showBugSuggestions = true;
-        return;
-      }
-
-      suggestion.showBugSuggestions = !seenTestPaths.has(suggestion.path_end);
-      seenTestPaths.add(suggestion.path_end);
-    });
-
-    return filtered;
-  };
-
-  loadBugSuggestions = () => {
-    const { selectedJobId } = this.props;
-
-    if (!selectedJobId) {
-      return;
-    }
-    this.setState({ bugSuggestionsLoading: true });
-    BugSuggestionsModel.get(selectedJobId).then(async (suggestions) => {
-      suggestions.forEach((suggestion) => {
-        suggestion.bugs.too_many_open_recent =
-          suggestion.bugs.open_recent.length > thBugSuggestionLimit;
-        suggestion.bugs.too_many_all_others =
-          suggestion.bugs.all_others.length > thBugSuggestionLimit;
-        suggestion.valid_open_recent =
-          suggestion.bugs.open_recent.length > 0 &&
-          !suggestion.bugs.too_many_open_recent;
-        suggestion.valid_all_others =
-          suggestion.bugs.all_others.length > 0 &&
-          !suggestion.bugs.too_many_all_others &&
-          // If we have too many open_recent bugs, we're unlikely to have
-          // relevant all_others bugs, so don't show them either.
-          !suggestion.bugs.too_many_open_recent;
-      });
-
-      // Filter out generic failure messages when specific ones exist for the same test
-      const filteredSuggestions = this.filterGenericFailures(suggestions);
-
-      this.setState(
-        { bugSuggestionsLoading: false, suggestions: filteredSuggestions },
-        () => {
-          const scrollArea = document.querySelector(
-            '#failure-summary-scroll-area',
-          );
-
-          if (scrollArea.scrollTo) {
-            scrollArea.scrollTo(0, 0);
-            window.getSelection().removeAllRanges();
-          }
-        },
-      );
-    });
-  };
-
   render() {
     const {
       jobLogUrls = [],
@@ -247,15 +147,12 @@ class FailureSummaryTab extends React.Component {
       addBug = null,
       currentRepo,
       developerMode = false,
+      bugSuggestions = null,
+      bugSuggestionsLoading = false,
     } = this.props;
-    const {
-      isBugFilerOpen,
-      isInternalIssueFilerOpen,
-      suggestion,
-      bugSuggestionsLoading,
-      suggestions,
-      errors,
-    } = this.state;
+    const { isBugFilerOpen, isInternalIssueFilerOpen, suggestion, errors } =
+      this.state;
+    const suggestions = bugSuggestions || [];
     const logs = jobLogUrls.filter(
       (jlu) => !jlu.name.includes('perfherder-data'),
     );
@@ -422,7 +319,8 @@ class FailureSummaryTab extends React.Component {
 
 FailureSummaryTab.propTypes = {
   selectedJob: PropTypes.shape({}).isRequired,
-  selectedJobId: PropTypes.number,
+  bugSuggestions: PropTypes.arrayOf(PropTypes.shape({})),
+  bugSuggestionsLoading: PropTypes.bool,
   jobLogUrls: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.number,
