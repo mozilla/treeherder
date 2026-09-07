@@ -7,13 +7,14 @@ import {
   buildTestSummary,
   buildFailureSuggestions,
   matchBugSuggestions,
+  computeSummaryDivergence,
 } from '../../../../helpers/testSummary';
 import { thEvents } from '../../../../helpers/constants';
 import { isReftest } from '../../../../helpers/job';
 import { getReftestUrl } from '../../../../helpers/url';
 import BugFiler from '../../../../shared/BugFiler';
 import InternalIssueFiler from '../../../../shared/InternalIssueFiler';
-import BugSuggestionsModel from '../../../../models/bugSuggestions';
+import SuggestionsListItem from '../../../../shared/tabs/failureSummary/SuggestionsListItem';
 
 import SummaryItem from './SummaryItem';
 
@@ -26,9 +27,10 @@ const SummaryTab = ({
   addBug = null,
   pinJob,
   currentRepo,
+  bugSuggestions = null,
+  bugSuggestionsLoading = false,
 }) => {
   const [summary, setSummary] = useState(null);
-  const [bugSuggestions, setBugSuggestions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isBugFilerOpen, setIsBugFilerOpen] = useState(false);
@@ -74,35 +76,25 @@ const SummaryTab = ({
     };
   }, [artifactUrl]);
 
-  const jobId = selectedJob?.id;
-
-  useEffect(() => {
-    if (!jobId) {
-      setBugSuggestions([]);
-      return undefined;
-    }
-
-    let cancelled = false;
-    BugSuggestionsModel.get(jobId)
-      .then((data) => {
-        if (!cancelled) {
-          setBugSuggestions(Array.isArray(data) ? data : []);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setBugSuggestions([]);
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [jobId]);
+  const failureSuggestions = useMemo(
+    () => buildFailureSuggestions(summary),
+    [summary],
+  );
 
   const suggestions = useMemo(
-    () => matchBugSuggestions(buildFailureSuggestions(summary), bugSuggestions),
-    [summary, bugSuggestions],
+    () => matchBugSuggestions(failureSuggestions, bugSuggestions || []),
+    [failureSuggestions, bugSuggestions],
+  );
+
+  // Compare the two summaries once both are loaded. When they disagree, the
+  // classic Failure Summary is rendered stacked below the summary so no
+  // failure line is lost to the reader.
+  const divergence = useMemo(
+    () =>
+      summary && bugSuggestions && !bugSuggestionsLoading
+        ? computeSummaryDivergence(failureSuggestions, bugSuggestions)
+        : { diverged: false },
+    [summary, failureSuggestions, bugSuggestions, bugSuggestionsLoading],
   );
 
   // Number of failing tests (not error lines — a test can emit several).
@@ -201,6 +193,31 @@ const SummaryTab = ({
             addBug={addBug}
           />
         ))}
+        {divergence.diverged && (
+          <li className="border-top mt-2 pt-2">
+            <h3 className="failure-summary-line-empty font-size-12 fw-bold mb-0">
+              Failure Summary (classic)
+            </h3>
+            <p className="failure-summary-line-empty text-muted mb-0">
+              The classic failure summary below differs from the summary above.
+            </p>
+            <ul className="list-unstyled w-100 mb-0">
+              {(bugSuggestions || []).map((suggestion, index) => (
+                <SuggestionsListItem
+                  key={`classic-${selectedJob.id}-${index}`} // eslint-disable-line react/no-array-index-key
+                  index={index}
+                  suggestion={suggestion}
+                  toggleBugFiler={() => fileBug(suggestion)}
+                  toggleInternalIssueFiler={() => fileInternalIssue(suggestion)}
+                  selectedJob={selectedJob}
+                  addBug={addBug}
+                  currentRepo={currentRepo}
+                  jobDetails={jobDetails}
+                />
+              ))}
+            </ul>
+          </li>
+        )}
       </ul>
       {isBugFilerOpen && (
         <BugFiler
@@ -242,6 +259,8 @@ SummaryTab.propTypes = {
   addBug: PropTypes.func,
   pinJob: PropTypes.func.isRequired,
   currentRepo: PropTypes.shape({}).isRequired,
+  bugSuggestions: PropTypes.arrayOf(PropTypes.shape({})),
+  bugSuggestionsLoading: PropTypes.bool,
 };
 
 export default SummaryTab;

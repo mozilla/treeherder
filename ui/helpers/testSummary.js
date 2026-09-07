@@ -505,4 +505,151 @@ export const matchBugSuggestions = (failureSuggestions, bugSuggestions) => {
   return failureSuggestions;
 };
 
+
+// ---------------------------------------------------------------------------
+// Classic Failure Summary (`/bug_suggestions/` API) helpers, shared with the
+// Summary tab so both views normalize their failure lines identically.
+
+// True when a failure line is the generic per-test noise line ("finished in
+// Nms" / "xpcshell return code") for its own test path.
+export const isGenericFailure = (search, pathEnd) => {
+  const match =
+    search.match(/^TEST-UNEXPECTED-\w+ \| (.+?) \| finished in \d+ms$/) ||
+    search.match(
+      /^TEST-UNEXPECTED-\w+ \| (.+?) \| xpcshell return code: -?\d+$/,
+    );
+
+  return match && match[1] === pathEnd;
+};
+
+// Drop the lines that carry no signal of their own: `[taskcluster:error] exit
+// status N` lines, and generic per-test lines when a specific error exists for
+// the same `path_end`. Pure and idempotent — safe to apply to a list that was
+// already filtered. A single-line list is returned as-is (matching the classic
+// Failure Summary, which only filters when other messages exist).
+export const filterGenericFailureLines = (suggestions) => {
+  const list = suggestions || [];
+  if (list.length <= 1) {
+    return [...list];
+  }
+
+  // First pass: collect test paths with at least one non-generic error
+  const testPathsWithSpecificErrors = new Set();
+  list.forEach((suggestion) => {
+    if (
+      suggestion.path_end &&
+      !isGenericFailure(suggestion.search, suggestion.path_end)
+    ) {
+      testPathsWithSpecificErrors.add(suggestion.path_end);
+    }
+  });
+
+  // Second pass: filter out generic errors
+  return list.filter((suggestion) => {
+    // Filter taskcluster errors since there are other messages (length > 1)
+    if (/^\[taskcluster:error\] exit status -?\d+$/.test(suggestion.search)) {
+      return false;
+    }
+
+    // Filter generic per-test errors if this test has specific errors
+    return (
+      !isGenericFailure(suggestion.search, suggestion.path_end) ||
+      !testPathsWithSpecificErrors.has(suggestion.path_end)
+    );
+  });
+};
+
+// Exact behavior of the classic Failure Summary's filtering: drop generic
+// lines, then mark the first occurrence of each test path to show its bugs.
+// Mutates `showBugSuggestions` on the kept suggestions.
+export const filterGenericFailures = (suggestions) => {
+  if (suggestions.length <= 1) {
+    return suggestions;
+  }
+
+  const filtered = filterGenericFailureLines(suggestions);
+
+  // Mark first occurrence of each test path to show bugs
+  const seenTestPaths = new Set();
+  filtered.forEach((suggestion) => {
+    if (!suggestion.path_end) {
+      suggestion.showBugSuggestions = true;
+      return;
+    }
+
+    suggestion.showBugSuggestions = !seenTestPaths.has(suggestion.path_end);
+    seenTestPaths.add(suggestion.path_end);
+  });
+
+  return filtered;
+};
+
+/**
+ * Prepare the raw `/bug_suggestions/` API response for display: derive the
+ * bug-validity flags and filter the generic failure lines — the exact
+ * processing the classic Failure Summary applies before rendering. Mutates
+ * the suggestions (flags) and returns the filtered array.
+ */
+export const prepareBugSuggestions = (suggestions) => {
+  const list = Array.isArray(suggestions) ? suggestions : [];
+  list.forEach((suggestion) => {
+    suggestion.bugs.too_many_open_recent =
+      suggestion.bugs.open_recent.length > thBugSuggestionLimit;
+    suggestion.bugs.too_many_all_others =
+      suggestion.bugs.all_others.length > thBugSuggestionLimit;
+    suggestion.valid_open_recent =
+      suggestion.bugs.open_recent.length > 0 &&
+      !suggestion.bugs.too_many_open_recent;
+    suggestion.valid_all_others =
+      suggestion.bugs.all_others.length > 0 &&
+      !suggestion.bugs.too_many_all_others &&
+      // If we have too many open_recent bugs, we're unlikely to have
+      // relevant all_others bugs, so don't show them either.
+      !suggestion.bugs.too_many_open_recent;
+  });
+
+  return filterGenericFailures(list);
+};
+
+const normalizeSearchLine = (search) =>
+  (search || '').trim().replace(/\s+/g, ' ');
+
+/**
+ * Compare the testsummary-derived failure lines with the classic
+ * `/bug_suggestions/` ones. Both sides go through the same generic-line
+ * filter, so noise lines (`finished in Nms`, `[taskcluster:error] ...`) never
+ * count as a divergence; the normalized `search` strings are then set-diffed.
+ *
+ * @param {ReturnType<typeof buildFailureSuggestions>} failureSuggestions
+ * @param {Array<{ search: string, path_end: ?string }>} bugSuggestions
+ * @returns {{ diverged: boolean, onlyInSummary: string[], onlyInClassic: string[] }}
+ */
+export const computeSummaryDivergence = (
+  failureSuggestions,
+  bugSuggestions,
+) => {
+  const toLineSet = (suggestions) =>
+    new Set(
+      filterGenericFailureLines(suggestions || [])
+        .map((suggestion) => normalizeSearchLine(suggestion.search))
+        .filter(Boolean),
+    );
+
+  const summaryLines = toLineSet(failureSuggestions);
+  const classicLines = toLineSet(bugSuggestions);
+
+  const onlyInSummary = [...summaryLines].filter(
+    (line) => !classicLines.has(line),
+  );
+  const onlyInClassic = [...classicLines].filter(
+    (line) => !summaryLines.has(line),
+  );
+
+  return {
+    diverged: onlyInSummary.length > 0 || onlyInClassic.length > 0,
+    onlyInSummary,
+    onlyInClassic,
+  };
+};
+
 export default buildTestSummary;
