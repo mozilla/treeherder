@@ -9,6 +9,7 @@ import JobLogUrlModel from '../../../../ui/models/jobLogUrl';
 import PerfSeriesModel from '../../../../ui/models/perfSeries';
 import JobClassificationModel from '../../../../ui/models/classification';
 import BugJobMapModel from '../../../../ui/models/bugJobMap';
+import BugSuggestionsModel from '../../../../ui/models/bugSuggestions';
 import { getData } from '../../../../ui/helpers/http';
 
 jest.mock('../../../../ui/models/job', () => ({
@@ -30,6 +31,10 @@ jest.mock('../../../../ui/models/classification', () => ({
 jest.mock('../../../../ui/models/bugJobMap', () => ({
   __esModule: true,
   default: { getList: jest.fn() },
+}));
+jest.mock('../../../../ui/models/bugSuggestions', () => ({
+  __esModule: true,
+  default: { get: jest.fn() },
 }));
 jest.mock('../../../../ui/helpers/http', () => ({
   getData: jest.fn(),
@@ -71,6 +76,7 @@ const mockResolvedFetches = ({ artifactName = 'public/summary.jsonl' } = {}) => 
   });
   JobClassificationModel.getList.mockResolvedValue([]);
   BugJobMapModel.getList.mockResolvedValue([]);
+  BugSuggestionsModel.get.mockResolvedValue([]);
   getData.mockResolvedValue({
     failureStatus: null,
     data: { artifacts: [{ name: artifactName, contentLength: 10 }] },

@@ -2,6 +2,9 @@ import {
   buildTestSummary,
   buildFailureSuggestions,
   matchBugSuggestions,
+  filterGenericFailures,
+  prepareBugSuggestions,
+  computeSummaryDivergence,
   NO_GROUP,
   INCOMPLETE_STATUS,
   HARNESS_STATUS,
@@ -524,5 +527,175 @@ describe('harness failures (ERROR/CRITICAL log lines)', () => {
     expect(failures[0].showBugSuggestions).toBe(true);
     expect(failures[1].bugs.all_others).toHaveLength(0);
     expect(failures[1].showBugSuggestions).toBe(false);
+  });
+});
+
+describe('classic failure summary helpers', () => {
+  const line = (search, pathEnd = null, extra = {}) => ({
+    search,
+    path_end: pathEnd,
+    bugs: { open_recent: [], all_others: [] },
+    ...extra,
+  });
+
+  const genericLine = (path) =>
+    line(`TEST-UNEXPECTED-FAIL | ${path} | finished in 12ms`, path);
+
+  describe('filterGenericFailures', () => {
+    test('drops generic lines when a specific error exists for the path', () => {
+      const specific = line(
+        'TEST-UNEXPECTED-FAIL | path/a.js | assertion failed',
+        'path/a.js',
+      );
+      const filtered = filterGenericFailures([specific, genericLine('path/a.js')]);
+
+      expect(filtered).toEqual([specific]);
+    });
+
+    test('keeps a generic line when it is the only error for its path', () => {
+      const other = line(
+        'TEST-UNEXPECTED-FAIL | path/b.js | assertion failed',
+        'path/b.js',
+      );
+      const filtered = filterGenericFailures([other, genericLine('path/a.js')]);
+
+      expect(filtered).toHaveLength(2);
+    });
+
+    test('drops taskcluster exit-status lines', () => {
+      const specific = line(
+        'TEST-UNEXPECTED-FAIL | path/a.js | assertion failed',
+        'path/a.js',
+      );
+      const filtered = filterGenericFailures([
+        specific,
+        line('[taskcluster:error] exit status 1'),
+      ]);
+
+      expect(filtered).toEqual([specific]);
+    });
+
+    test('marks only the first occurrence of each path to show bugs', () => {
+      const first = line(
+        'TEST-UNEXPECTED-FAIL | path/a.js | first error',
+        'path/a.js',
+      );
+      const second = line(
+        'TEST-UNEXPECTED-FAIL | path/a.js | second error',
+        'path/a.js',
+      );
+      const pathless = line('some harness error');
+
+      filterGenericFailures([first, second, pathless]);
+
+      expect(first.showBugSuggestions).toBe(true);
+      expect(second.showBugSuggestions).toBe(false);
+      expect(pathless.showBugSuggestions).toBe(true);
+    });
+  });
+
+  describe('prepareBugSuggestions', () => {
+    test('derives the bug-validity flags', () => {
+      const bug = { id: 1, internal_id: 1, occurrences: 1, resolution: '' };
+      const withBugs = line(
+        'TEST-UNEXPECTED-FAIL | path/a.js | assertion failed',
+        'path/a.js',
+        { bugs: { open_recent: [bug], all_others: [] } },
+      );
+
+      const [prepared] = prepareBugSuggestions([withBugs]);
+
+      expect(prepared.valid_open_recent).toBe(true);
+      expect(prepared.valid_all_others).toBe(false);
+      expect(prepared.bugs.too_many_open_recent).toBe(false);
+    });
+
+    test('filters generic lines and handles a non-array input', () => {
+      const specific = line(
+        'TEST-UNEXPECTED-FAIL | path/a.js | assertion failed',
+        'path/a.js',
+      );
+
+      expect(prepareBugSuggestions([specific, genericLine('path/a.js')])).toEqual(
+        [specific],
+      );
+      expect(prepareBugSuggestions(undefined)).toEqual([]);
+    });
+  });
+
+  describe('computeSummaryDivergence', () => {
+    const summarySide = (search, pathEnd = null) => ({
+      search,
+      path_end: pathEnd,
+    });
+
+    test('identical failure lines do not diverge', () => {
+      const result = computeSummaryDivergence(
+        [summarySide('TEST-UNEXPECTED-FAIL | path/a.js | oops', 'path/a.js')],
+        [line('TEST-UNEXPECTED-FAIL | path/a.js | oops', 'path/a.js')],
+      );
+
+      expect(result.diverged).toBe(false);
+      expect(result.onlyInSummary).toEqual([]);
+      expect(result.onlyInClassic).toEqual([]);
+    });
+
+    test('a line only in the classic summary is reported', () => {
+      const result = computeSummaryDivergence(
+        [summarySide('TEST-UNEXPECTED-FAIL | path/a.js | oops', 'path/a.js')],
+        [
+          line('TEST-UNEXPECTED-FAIL | path/a.js | oops', 'path/a.js'),
+          line('PROCESS-CRASH | app crashed | path/a.js', 'path/a.js'),
+        ],
+      );
+
+      expect(result.diverged).toBe(true);
+      expect(result.onlyInClassic).toEqual([
+        'PROCESS-CRASH | app crashed | path/a.js',
+      ]);
+      expect(result.onlyInSummary).toEqual([]);
+    });
+
+    test('a line only in the summary is reported', () => {
+      const result = computeSummaryDivergence(
+        [
+          summarySide('TEST-UNEXPECTED-FAIL | path/a.js | oops', 'path/a.js'),
+          summarySide('TEST-UNEXPECTED-FAIL | path/b.js | boom', 'path/b.js'),
+        ],
+        [line('TEST-UNEXPECTED-FAIL | path/a.js | oops', 'path/a.js')],
+      );
+
+      expect(result.diverged).toBe(true);
+      expect(result.onlyInSummary).toEqual([
+        'TEST-UNEXPECTED-FAIL | path/b.js | boom',
+      ]);
+    });
+
+    test('generic lines are ignored on both sides', () => {
+      const result = computeSummaryDivergence(
+        [summarySide('TEST-UNEXPECTED-FAIL | path/a.js | oops', 'path/a.js')],
+        [
+          line('TEST-UNEXPECTED-FAIL | path/a.js | oops', 'path/a.js'),
+          line('TEST-UNEXPECTED-FAIL | path/a.js | finished in 12ms', 'path/a.js'),
+          line('[taskcluster:error] exit status 1'),
+        ],
+      );
+
+      expect(result.diverged).toBe(false);
+    });
+
+    test('whitespace-only differences do not diverge', () => {
+      const result = computeSummaryDivergence(
+        [summarySide('TEST-UNEXPECTED-FAIL | path/a.js |  oops ', 'path/a.js')],
+        [line('TEST-UNEXPECTED-FAIL | path/a.js | oops', 'path/a.js')],
+      );
+
+      expect(result.diverged).toBe(false);
+    });
+
+    test('null inputs are treated as empty and do not diverge', () => {
+      expect(computeSummaryDivergence(null, null).diverged).toBe(false);
+      expect(computeSummaryDivergence(undefined, []).diverged).toBe(false);
+    });
   });
 });
