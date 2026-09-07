@@ -9,7 +9,6 @@ import {
 import { MemoryRouter } from 'react-router';
 
 import { getApiUrl } from '../../../ui/helpers/url';
-import { getProjectUrl } from '../../../ui/helpers/location';
 import { thEvents } from '../../../ui/helpers/constants';
 import PinBoard from '../../../ui/job-view/details/PinBoard';
 import {
@@ -17,6 +16,7 @@ import {
   usePinnedJobsStore,
 } from '../../../ui/shared/stores/pinnedJobsStore';
 import FailureSummaryTab from '../../../ui/shared/tabs/failureSummary/FailureSummaryTab';
+import { prepareBugSuggestions } from '../../../ui/helpers/testSummary';
 import jobMap from '../mock/job_map';
 import bugSuggestions from '../mock/bug_suggestions.json';
 import jobLogUrls from '../mock/job_log_urls.json';
@@ -30,11 +30,6 @@ describe('FailureSummaryTab', () => {
 
   beforeEach(async () => {
     fetchMock.get(getApiUrl('/jobs/?push_id=511138', repoName), selectedJob);
-
-    fetchMock.get(
-      getProjectUrl('/jobs/255514014/bug_suggestions/', repoName),
-      bugSuggestions,
-    );
   });
 
   afterEach(() => {
@@ -48,7 +43,16 @@ describe('FailureSummaryTab', () => {
     });
   });
 
-  const testFailureSummaryTab = () => (
+  // prepareBugSuggestions mutates its input, so each test gets a fresh copy
+  // of the (JSON-loaded) mock.
+  const preparedMockSuggestions = () =>
+    prepareBugSuggestions(JSON.parse(JSON.stringify(bugSuggestions)));
+
+  const testFailureSummaryTab = (
+    // The component no longer fetches: it renders the suggestions prepared by
+    // useJobDetails, so the tests hand it the same prepared shape.
+    suggestions = preparedMockSuggestions(),
+  ) => (
     <MemoryRouter>
       <PinBoard
         classificationTypes={[{ id: 0, name: 'intermittent' }]}
@@ -57,7 +61,8 @@ describe('FailureSummaryTab', () => {
       />
       <FailureSummaryTab
         selectedJob={selectedJob}
-        selectedJobId={selectedJob.id}
+        bugSuggestions={suggestions}
+        bugSuggestionsLoading={false}
         jobLogUrls={jobLogUrls}
         logParseStatus="parsed"
         reftestUrl="boo"
@@ -183,26 +188,20 @@ describe('FailureSummaryTab', () => {
       bugs: { open_recent: [], all_others: [] },
     });
 
-    const mockSuggestions = (suggestions) => {
-      fetchMock.reset();
-      fetchMock.get(getApiUrl('/jobs/?push_id=511138', repoName), selectedJob);
-      fetchMock.get(
-        getProjectUrl('/jobs/255514014/bug_suggestions/', repoName),
-        suggestions,
-      );
-    };
-
     test('banner counts every new failure line and flags only the first', async () => {
-      mockSuggestions([
-        newFailureSuggestion('path/one.js', 'first new failure'),
-        newFailureSuggestion('path/two.js', 'second new failure'),
-        {
-          // Not a new failure: three-part search but not flagged new in rev.
-          ...newFailureSuggestion('path/three.js', 'not new'),
-          failure_new_in_rev: false,
-        },
-      ]);
-      render(testFailureSummaryTab());
+      render(
+        testFailureSummaryTab(
+          prepareBugSuggestions([
+            newFailureSuggestion('path/one.js', 'first new failure'),
+            newFailureSuggestion('path/two.js', 'second new failure'),
+            {
+              // Not a new failure: three-part search but not flagged new in rev.
+              ...newFailureSuggestion('path/three.js', 'not new'),
+              failure_new_in_rev: false,
+            },
+          ]),
+        ),
+      );
 
       // Banner reflects the count of qualifying lines (2, not 3).
       expect(
@@ -217,13 +216,16 @@ describe('FailureSummaryTab', () => {
     });
 
     test('renders no banner or NEW button when there are no new failure lines', async () => {
-      mockSuggestions([
-        {
-          ...newFailureSuggestion('path/one.js', 'old failure'),
-          failure_new_in_rev: false,
-        },
-      ]);
-      render(testFailureSummaryTab());
+      render(
+        testFailureSummaryTab(
+          prepareBugSuggestions([
+            {
+              ...newFailureSuggestion('path/one.js', 'old failure'),
+              failure_new_in_rev: false,
+            },
+          ]),
+        ),
+      );
 
       // Wait for the (non-new) failure line to render before asserting absence.
       expect(await screen.findByText(/old failure/)).toBeInTheDocument();
