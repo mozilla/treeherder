@@ -38,7 +38,7 @@ importers:
         version: 9.4.0(@types/react@19.2.17)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7))
       '@mui/x-date-pickers':
         specifier: 8.21.0
-        version: 8.21.0(@mui/material@7.1.2(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7)))(@mui/system@7.3.7(@types/react@19.2.17)(react@19.2.7)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7)))(@types/react@19.2.17)(dayjs@1.11.21)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 8.21.0(@mui/material@7.1.2(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7)))(@mui/system@7.3.7(@types/react@19.2.17)(react@19.2.7)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7)))(@types/react@19.2.17)(dayjs@1.11.23)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@popperjs/core':
         specifier: 2.11.8
         version: 2.11.8
@@ -55,8 +55,8 @@ importers:
         specifier: 3.12.1
         version: 3.12.1
       dayjs:
-        specifier: 1.11.21
-        version: 1.11.21
+        specifier: 1.11.23
+        version: 1.11.23
       fuse.js:
         specifier: 7.5.0
         version: 7.5.0
@@ -2415,8 +2415,8 @@ packages:
     resolution: {integrity: sha512-Jy/tj3ldjZJo63sVAvg6LHt2mHvl4V6AgRAmNDtLdm7faqtsx+aJG42rsyCo9JCoRVKwPFzKlIPx3DIibwSIaQ==}
     engines: {node: '>=12'}
 
-  dayjs@1.11.21:
-    resolution: {integrity: sha512-98IT+HOahAisibz/yjKbzuOBwYcjJ7BCLPzARyHiyEBmRz4fatF+KPJszEHXsGYjUG234aH/cOjW1wwTbKUZlA==}
+  dayjs@1.11.23:
+    resolution: {integrity: sha512-QDTCU0M0MxR3hQfnlDJfwekQiaanm1ubOD231u73WBckQ/fsamwRLiE2GBz6D3a/xF1NgfiDLJjXBa1hYOYTtQ==}
 
   debounce@1.2.1:
     resolution: {integrity: sha512-XRRe6Glud4rd/ZGQfiV1ruXSfbvfJedlV9Y6zOlP+2K04vBYiJEte6stfFkCP03aMnY5tsipamumUjL14fofug==}
@@ -6398,7 +6398,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.17
 
-  '@mui/x-date-pickers@8.21.0(@mui/material@7.1.2(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7)))(@mui/system@7.3.7(@types/react@19.2.17)(react@19.2.7)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7)))(@types/react@19.2.17)(dayjs@1.11.21)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@mui/x-date-pickers@8.21.0(@mui/material@7.1.2(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7)))(@mui/system@7.3.7(@types/react@19.2.17)(react@19.2.7)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7)))(@types/react@19.2.17)(dayjs@1.11.23)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
       '@babel/runtime': 7.28.6
       '@mui/material': 7.1.2(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(styled-components@6.1.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7))
@@ -6412,7 +6412,7 @@ snapshots:
       react-dom: 19.2.7(react@19.2.7)
       react-transition-group: 4.4.5(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     optionalDependencies:
-      dayjs: 1.11.21
+      dayjs: 1.11.23
     transitivePeerDependencies:
       - '@types/react'
 
@@ -7671,7 +7671,7 @@ snapshots:
       whatwg-mimetype: 3.0.0
       whatwg-url: 11.0.0
 
-  dayjs@1.11.21: {}
+  dayjs@1.11.23: {}
 
   debounce@1.2.1: {}
 
