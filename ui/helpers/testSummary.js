@@ -507,6 +507,21 @@ const decorateBugs = (suggestion) => {
 };
 
 /**
+ * A "new failure" line: a three-part `search` that is either flagged new in
+ * the revision or, on try, has never been seen before (`counter === 0`).
+ * Shared by the Summary and the classic Failure Summary tabs so both flag the
+ * same lines.
+ *
+ * @param {{ search: string, failure_new_in_rev: ?boolean, counter: ?number }} suggestion
+ * @param {string} repoName
+ * @returns {boolean}
+ */
+export const isNewFailureLine = (suggestion, repoName) =>
+  suggestion.search.split(' | ').length === 3 &&
+  (suggestion.failure_new_in_rev === true ||
+    (suggestion.counter === 0 && repoName === 'try'));
+
+/**
  * Enrich the testsummary-derived failure suggestions with the Bugzilla bug
  * suggestions returned by the `/bug_suggestions/` API, matching on test path.
  *

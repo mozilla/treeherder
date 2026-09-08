@@ -35,7 +35,7 @@ const classicOnlySuggestion = () => ({
   bugs: { open_recent: [], all_others: [] },
 });
 
-const renderSummaryTab = (bugSuggestions, jsonl = summaryJsonl) =>
+const renderSummaryTab = (bugSuggestions, jsonl = summaryJsonl, repo = currentRepo) =>
   render(
     <MemoryRouter>
       <SummaryTab
@@ -47,7 +47,7 @@ const renderSummaryTab = (bugSuggestions, jsonl = summaryJsonl) =>
         jobDetails={[]}
         addBug={() => {}}
         pinJob={() => {}}
-        currentRepo={currentRepo}
+        currentRepo={repo}
         bugSuggestions={bugSuggestions}
         bugSuggestionsLoading={false}
       />
@@ -154,5 +154,59 @@ describe('SummaryTab loading and error states', () => {
     expect(
       screen.getByText('Failed to load summary (404)'),
     ).toBeInTheDocument();
+  });
+});
+
+describe('SummaryTab new failure lines in the classic section', () => {
+  afterEach(cleanup);
+
+  // The classic section is only stacked below when the two summaries diverge,
+  // so every case here needs a line the summary artifact does not have.
+  const divergingWith = (overrides) =>
+    prepareBugSuggestions([
+      matchingSuggestion(),
+      { ...classicOnlySuggestion(), ...overrides },
+    ]);
+
+  test('flags the first new failure and counts them all', () => {
+    renderSummaryTab(divergingWith({ failure_new_in_rev: true }));
+
+    expect(screen.getByText('Failure Summary (classic)')).toBeInTheDocument();
+    expect(
+      screen.getByText(/1 new failure line\(s\)\. First one is flagged/),
+    ).toBeInTheDocument();
+    expect(screen.getByText('NEW')).toBeInTheDocument();
+  });
+
+  test('renders no banner when no line is new', () => {
+    renderSummaryTab(divergingWith({}));
+
+    expect(screen.getByText('Failure Summary (classic)')).toBeInTheDocument();
+    expect(screen.queryByText(/new failure line/)).toBeNull();
+    expect(screen.queryByText('NEW')).toBeNull();
+  });
+
+  test('counts a never-seen line on try only', () => {
+    renderSummaryTab(divergingWith({ counter: 0 }));
+    expect(screen.queryByText('NEW')).toBeNull();
+    cleanup();
+
+    renderSummaryTab(divergingWith({ counter: 0 }), summaryJsonl, {
+      name: 'try',
+    });
+    expect(screen.getByText('NEW')).toBeInTheDocument();
+  });
+
+  test('leaves the summary lines themselves unflagged', () => {
+    renderSummaryTab(
+      prepareBugSuggestions([
+        { ...matchingSuggestion(), failure_new_in_rev: true },
+      ]),
+    );
+
+    // The two summaries agree, so there is no classic section and nothing to
+    // flag: the NEW button belongs to the classic list only.
+    expect(screen.queryByText('Failure Summary (classic)')).toBeNull();
+    expect(screen.queryByText('NEW')).toBeNull();
   });
 });
