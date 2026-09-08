@@ -117,6 +117,25 @@ export const getLogViewerUrl = function getLogViewerUrl(
   return lineNumber ? `${rv}&lineNumber=${lineNumber}` : rv;
 };
 
+// Log viewer URL for a line known only relative to mozharness's console
+// output (the `line` of a summary.jsonl record). The log viewer, which holds
+// the whole log, resolves it against the anchor message once the log is
+// loaded; see resolveConsoleLine in ui/logviewer/logviewerHelpers.js.
+export const getLogViewerConsoleLineUrl = function getLogViewerConsoleLineUrl(
+  jobId,
+  repoName,
+  consoleLine,
+  anchor,
+  task,
+) {
+  const params = new URLSearchParams({
+    consoleLine,
+    consoleAnchorLine: anchor.line,
+    consoleAnchor: anchor.message,
+  });
+  return `${getLogViewerUrl(jobId, repoName, null, task)}&${params}`;
+};
+
 export const isResourceUsageProfile = function isResourceUsageProfile(
   fileName,
 ) {

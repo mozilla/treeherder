@@ -84,3 +84,49 @@ describe('SummaryTab divergence with the classic failure summary', () => {
     expect(screen.queryByText('Failure Summary (classic)')).toBeNull();
   });
 });
+
+describe('SummaryTab log viewer links', () => {
+  const anchorMessage = 'ConsoleLogger online at 20260904 in /builds/worker';
+  const anchoredJsonl = [
+    `{"action":"console_anchor","line":1,"message":"${anchorMessage}"}`,
+    '{"action":"test_start","time":0,"group":"dom/manifest.ini","test":"dom/tests/test_fail.html","line":40}',
+    '{"action":"test_end","time":10,"group":"dom/manifest.ini","test":"dom/tests/test_fail.html","status":"FAIL","expected":"PASS","message":"assertion failed","line":42}',
+  ].join('\n');
+
+  const mockArtifact = (text) => {
+    window.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      text: () => Promise.resolve(text),
+    });
+  };
+
+  afterEach(() => {
+    cleanup();
+    delete window.fetch;
+  });
+
+  test('links a failure line to its console line in the log viewer', async () => {
+    mockArtifact(anchoredJsonl);
+    renderSummaryTab([]);
+
+    const link = (await screen.findByTitle('Go to this line in the log viewer'))
+      .closest('a');
+    const url = new URL(link.getAttribute('href'), 'https://treeherder.test');
+
+    expect(url.pathname).toBe('/logviewer');
+    expect(url.searchParams.get('job_id')).toBe('1');
+    expect(url.searchParams.get('repo')).toBe('autoland');
+    expect(url.searchParams.get('consoleLine')).toBe('42');
+    expect(url.searchParams.get('consoleAnchorLine')).toBe('1');
+    expect(url.searchParams.get('consoleAnchor')).toBe(anchorMessage);
+    expect(url.searchParams.get('lineNumber')).toBeNull();
+  });
+
+  test('renders no log viewer link when the artifact has no anchor', async () => {
+    mockArtifact(summaryJsonl);
+    renderSummaryTab([]);
+
+    expect(await screen.findByText(/1 failed/)).toBeInTheDocument();
+    expect(screen.queryByTitle('Go to this line in the log viewer')).toBeNull();
+  });
+});
