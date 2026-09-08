@@ -71,6 +71,9 @@ const TabsPanel = ({
   testGroups = [],
   bugSuggestions = null,
   bugSuggestionsLoading = false,
+  summary = null,
+  summaryLoading = false,
+  summaryError = null,
 }) => {
   // Zustand hooks
   const pinnedJobs = usePinnedJobsStore((state) => state.pinnedJobs);
@@ -251,14 +254,6 @@ const TabsPanel = ({
     setDropdownShow(false);
   }, []);
 
-  // URL of the summary.jsonl artifact when the task published one; SummaryTab
-  // handles its absence (and any fetch failure) itself.
-  const summaryArtifactUrl =
-    jobDetails?.find((detail) => detail.value === 'summary.jsonl')?.url ||
-    jobDetails?.find((detail) => detail.value?.endsWith('_testsummary.jsonl'))
-      ?.url ||
-    null;
-
   // Effect for setting up event listeners and resize observer
   useEffect(() => {
     window.addEventListener(thEvents.selectNextTab, onSelectNextTab);
@@ -423,8 +418,11 @@ const TabsPanel = ({
           </div>
           <TabPanel>
             <SummaryTab
-              key={summaryArtifactUrl}
-              artifactUrl={summaryArtifactUrl}
+              // Reset the tab's modal state when another job is selected.
+              key={selectedJobFull?.id}
+              summary={summary}
+              summaryLoading={summaryLoading}
+              summaryError={summaryError}
               selectedJob={selectedJobFull}
               jobLogUrls={jobLogUrls}
               jobDetails={jobDetails}
@@ -516,6 +514,9 @@ TabsPanel.propTypes = {
   testGroups: PropTypes.arrayOf(PropTypes.string),
   bugSuggestions: PropTypes.arrayOf(PropTypes.shape({})),
   bugSuggestionsLoading: PropTypes.bool,
+  summary: PropTypes.shape({}),
+  summaryLoading: PropTypes.bool,
+  summaryError: PropTypes.string,
 };
 
 export default TabsPanel;
