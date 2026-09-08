@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Virtuoso } from 'react-virtuoso';
 
 import { useLogViewer } from './useLogViewer';
+import { resolveConsoleLine } from './logviewerHelpers';
 import SearchBar from './SearchBar';
 import LogRow from './LogRow';
 import '../css/classic-logviewer.css';
@@ -14,6 +15,8 @@ const ClassicLogViewer = ({
   initialHighlight,
   onHighlightChange,
   errorLineNumbers,
+  consoleLine = null,
+  onConsoleLineResolved = null,
 }) => {
   const [caseInsensitive, setCaseInsensitive] = useState(true);
 
@@ -56,6 +59,35 @@ const ClassicLogViewer = ({
   // If initialLine was null at mount, we must scroll when it arrives later.
   const mountedWithInitialLine = useRef(initialLine != null);
 
+  // A line known only relative to mozharness's console output, resolved
+  // against the log during render so Virtuoso mounts already positioned on
+  // it (a scrollToIndex issued in the mount tick is lost).
+  const resolvedConsoleLine = useMemo(
+    () =>
+      consoleLine && lineCount
+        ? resolveConsoleLine(
+            lines,
+            consoleLine.message,
+            consoleLine.anchorLine,
+            consoleLine.line,
+          )
+        : null,
+    [consoleLine, lines, lineCount],
+  );
+  const consoleLineReportedRef = useRef(false);
+  useEffect(() => {
+    if (!consoleLine || !lineCount || consoleLineReportedRef.current) return;
+    consoleLineReportedRef.current = true;
+    if (resolvedConsoleLine) setHighlight([resolvedConsoleLine]);
+    if (onConsoleLineResolved) onConsoleLineResolved(resolvedConsoleLine);
+  }, [
+    consoleLine,
+    lineCount,
+    resolvedConsoleLine,
+    setHighlight,
+    onConsoleLineResolved,
+  ]);
+
   // Dynamic scroll and highlight: when initialLine changes
   useEffect(() => {
     if (!initialLine || !lineCount) return;
@@ -66,7 +98,9 @@ const ClassicLogViewer = ({
       mountedWithInitialLine.current = false;
       return;
     }
-    scrollToLine(initialLine);
+    // The line may arrive in the same tick Virtuoso mounts (e.g. the first
+    // error line once a console line failed to resolve): let it lay out first.
+    requestAnimationFrame(() => scrollToLine(initialLine));
     setHighlight([initialLine]);
   }, [initialLine, lineCount, scrollToLine, setHighlight]);
 
@@ -244,7 +278,9 @@ const ClassicLogViewer = ({
         overscan={200}
         rangeChanged={setVisibleRange}
         initialTopMostItemIndex={
-          !isFiltered && initialLine ? Math.max(0, initialLine - 1) : 0
+          !isFiltered && (initialLine || resolvedConsoleLine)
+            ? Math.max(0, (initialLine || resolvedConsoleLine) - 1)
+            : 0
         }
       />
     </div>
@@ -258,6 +294,12 @@ ClassicLogViewer.propTypes = {
   initialHighlight: PropTypes.arrayOf(PropTypes.number),
   onHighlightChange: PropTypes.func,
   errorLineNumbers: PropTypes.arrayOf(PropTypes.number),
+  consoleLine: PropTypes.shape({
+    line: PropTypes.number.isRequired,
+    anchorLine: PropTypes.number,
+    message: PropTypes.string.isRequired,
+  }),
+  onConsoleLineResolved: PropTypes.func,
 };
 
 ClassicLogViewer.defaultProps = {
