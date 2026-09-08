@@ -130,10 +130,22 @@ describe('SummaryTab loading and error states', () => {
       </MemoryRouter>,
     );
 
-  test('renders the spinner while the panel is loading the artifact', () => {
+  test('overlays a spinner while the panel is loading the artifact', () => {
     renderWith({ summaryLoading: true });
 
-    expect(screen.getByText(/Loading summary/)).toBeInTheDocument();
+    expect(screen.getByTitle('Loading...')).toBeInTheDocument();
+    // The list keeps its shape rather than being replaced, and does not claim
+    // the job has no failures before the artifact has been read.
+    expect(screen.queryByText('No failures found in the summary.')).toBeNull();
+  });
+
+  test('reports an empty summary once loading is done', () => {
+    renderWith({ summaryLoading: false, summary: buildTestSummary('') });
+
+    expect(
+      screen.getByText('No failures found in the summary.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByTitle('Loading...')).toBeNull();
   });
 
   test('renders the error the panel reported', () => {
