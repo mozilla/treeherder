@@ -8,13 +8,6 @@ import {
 
 import TabsPanel from '../../../../../ui/job-view/details/tabs/TabsPanel';
 
-jest.mock(
-  '../../../../../ui/shared/tabs/failureSummary/FailureSummaryTab',
-  () => ({
-    __esModule: true,
-    default: () => null,
-  }),
-);
 jest.mock('../../../../../ui/job-view/details/tabs/summaryTab/SummaryTab', () => ({
   __esModule: true,
   default: () => null,

@@ -145,9 +145,9 @@ function useJobDetails(selectedJob, currentRepo, pushList, frameworks) {
   const [classifications, setClassifications] = useState([]);
   const [testGroups, setTestGroups] = useState([]);
   const [bugs, setBugs] = useState([]);
-  // Classic Failure Summary data (`/bug_suggestions/`), fetched here so it
-  // loads in the background and is shared by the Summary and Failure Summary
-  // tabs (a single request per job). `null` means not yet loaded.
+  // Classic failure summary data (`/bug_suggestions/`), fetched here so it
+  // loads in the background rather than when its section of the Summary tab
+  // is opened. `null` means not yet loaded.
   const [bugSuggestions, setBugSuggestions] = useState(null);
   const [bugSuggestionsLoading, setBugSuggestionsLoading] = useState(false);
   const [taskExpired, setTaskExpired] = useState(false);

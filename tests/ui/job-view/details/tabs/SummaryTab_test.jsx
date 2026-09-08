@@ -6,6 +6,10 @@ import {
   buildTestSummary,
   prepareBugSuggestions,
 } from '../../../../../ui/helpers/testSummary';
+import {
+  requiredInternalOccurrences,
+  thEvents,
+} from '../../../../../ui/helpers/constants';
 
 const selectedJob = {
   id: 1,
@@ -50,6 +54,24 @@ const renderSummaryTab = (bugSuggestions, jsonl = summaryJsonl, repo = currentRe
         currentRepo={repo}
         bugSuggestions={bugSuggestions}
         bugSuggestionsLoading={false}
+      />
+    </MemoryRouter>,
+  );
+
+// Renders with only the props a case cares about; everything else is inert.
+const renderWith = (props) =>
+  render(
+    <MemoryRouter>
+      <SummaryTab
+        selectedJob={selectedJob}
+        jobLogUrls={[]}
+        jobDetails={[]}
+        addBug={() => {}}
+        pinJob={() => {}}
+        currentRepo={currentRepo}
+        bugSuggestions={[]}
+        bugSuggestionsLoading={false}
+        {...props}
       />
     </MemoryRouter>,
   );
@@ -121,23 +143,6 @@ describe('SummaryTab log viewer links', () => {
 
 describe('SummaryTab loading and error states', () => {
   afterEach(cleanup);
-
-  const renderWith = (props) =>
-    render(
-      <MemoryRouter>
-        <SummaryTab
-          selectedJob={selectedJob}
-          jobLogUrls={[]}
-          jobDetails={[]}
-          addBug={() => {}}
-          pinJob={() => {}}
-          currentRepo={currentRepo}
-          bugSuggestions={[]}
-          bugSuggestionsLoading={false}
-          {...props}
-        />
-      </MemoryRouter>,
-    );
 
   test('overlays a spinner while the panel is loading the artifact', () => {
     renderWith({ summaryLoading: true });
@@ -295,5 +300,163 @@ describe('SummaryTab classic section folding', () => {
 
     expandClassic();
     expect(screen.queryByText(/application crashed/)).toBeNull();
+  });
+});
+
+// Behaviour the Summary tab took over when the separate Failure Summary tab
+// was removed.
+describe('SummaryTab log parsing states', () => {
+  afterEach(cleanup);
+
+  const completedJob = { ...selectedJob, state: 'completed', result: 'busted' };
+
+  test('says parsing is in progress and links the raw log', () => {
+    renderWith({
+      jobLogUrls: [
+        {
+          id: 7,
+          name: 'live_backing_log',
+          parse_status: 'pending',
+          url: 'https://example.com/live_backing.log',
+        },
+      ],
+    });
+
+    expect(screen.getByText(/Log parsing in progress/)).toBeInTheDocument();
+    expect(screen.getByText('The raw log')).toHaveAttribute(
+      'href',
+      'https://example.com/live_backing.log',
+    );
+  });
+
+  test('reports a failed parse', () => {
+    renderWith({
+      logParseStatus: 'failed',
+      jobLogUrls: [
+        { id: 7, name: 'live_backing_log', parse_status: 'failed', url: 'u' },
+      ],
+    });
+
+    expect(
+      screen.getByText(/Log parsing failed\./),
+    ).toBeInTheDocument();
+  });
+
+  test('reports a parse skipped for size', () => {
+    renderWith({
+      logParseStatus: 'skipped-size',
+      jobLogUrls: [
+        {
+          id: 7,
+          name: 'live_backing_log',
+          parse_status: 'skipped-size',
+          url: 'u',
+        },
+      ],
+    });
+
+    expect(
+      screen.getByText(/exceeds the size limit/),
+    ).toBeInTheDocument();
+  });
+
+  test('names the job state when it has no logs yet', () => {
+    renderWith({ selectedJob: completedJob, jobLogUrls: [] });
+
+    expect(
+      screen.getByText('No logs yet available for this busted job.'),
+    ).toBeInTheDocument();
+  });
+
+  test('says nothing once the log is parsed', () => {
+    renderWith({
+      logParseStatus: 'parsed',
+      jobLogUrls: [
+        { id: 7, name: 'live_backing_log', parse_status: 'parsed', url: 'u' },
+      ],
+    });
+
+    expect(screen.queryByText(/Log parsing/)).toBeNull();
+    expect(screen.queryByText(/No logs yet available/)).toBeNull();
+  });
+});
+
+describe('SummaryTab internal issue escalation', () => {
+  beforeEach(() => {
+    // Escalating opens the bug filer, which looks up a Bugzilla component.
+    window.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve([{ product: 'Core', component: 'DOM' }]),
+    });
+  });
+
+  afterEach(() => {
+    cleanup();
+    delete window.fetch;
+  });
+
+  // An internal bug one occurrence short of the threshold: classifying it
+  // once more should escalate it to a real Bugzilla bug.
+  const internalBugSuggestions = (occurrences) => [
+    {
+      search: 'TEST-UNEXPECTED-FAIL | dom/tests/test_fail.html | boom',
+      path_end: 'dom/tests/test_fail.html',
+      // The bug filer opens on escalation and reads these.
+      search_terms: ['test_fail.html', 'boom'],
+      bugs: {
+        open_recent: [{ id: null, internal_id: 42, occurrences }],
+        all_others: [],
+      },
+    },
+  ];
+
+  test('files a bug once the internal issue reached its occurrences', () => {
+    const pinJob = jest.fn();
+    renderWith({
+      pinJob,
+      bugSuggestions: internalBugSuggestions(requiredInternalOccurrences - 1),
+    });
+
+    fireEvent(
+      window,
+      new CustomEvent(thEvents.internalIssueClassification, {
+        detail: { internalBugId: 42 },
+      }),
+    );
+
+    // fileBug pins the job before opening the filer.
+    expect(pinJob).toHaveBeenCalledWith(selectedJob);
+  });
+
+  test('does nothing for an internal issue seen too few times', () => {
+    const pinJob = jest.fn();
+    renderWith({ pinJob, bugSuggestions: internalBugSuggestions(0) });
+
+    fireEvent(
+      window,
+      new CustomEvent(thEvents.internalIssueClassification, {
+        detail: { internalBugId: 42 },
+      }),
+    );
+
+    expect(pinJob).not.toHaveBeenCalled();
+  });
+
+  test('drops its listener on unmount', () => {
+    const removeSpy = jest.spyOn(window, 'removeEventListener');
+    const addSpy = jest.spyOn(window, 'addEventListener');
+
+    const { unmount } = renderWith({});
+    const eventType = thEvents.internalIssueClassification;
+    const added = addSpy.mock.calls.find(([type]) => type === eventType)[1];
+
+    unmount();
+
+    const removed = removeSpy.mock.calls.find(([type]) => type === eventType);
+    expect(removed).toBeDefined();
+    expect(removed[1]).toBe(added);
+
+    addSpy.mockRestore();
+    removeSpy.mockRestore();
   });
 });
