@@ -19,7 +19,6 @@ import {
   pinJob,
   addBug,
 } from '../../../shared/stores/pinnedJobsStore';
-import FailureSummaryTab from '../../../shared/tabs/failureSummary/FailureSummaryTab';
 
 import PerformanceTab from './PerformanceTab';
 import AnnotationsTab from './AnnotationsTab';
@@ -31,7 +30,6 @@ const getTabNames = ({ showPerf }) => {
   return [
     'summary',
     'artifacts',
-    'failure',
     'annotations',
     'similar',
     'perf',
@@ -163,11 +161,6 @@ const TabsPanel = ({
       index: allTabs.length,
     });
     allTabs.push({
-      key: 'failure',
-      label: 'Failure Summary',
-      index: allTabs.length,
-    });
-    allTabs.push({
       key: 'annotations',
       label: 'Annotations',
       index: allTabs.length,
@@ -292,7 +285,6 @@ const TabsPanel = ({
               <span className="tab-header-tabs">
                 <Tab>Summary</Tab>
                 <Tab>Artifacts and Debugging Tools</Tab>
-                <Tab>Failure Summary</Tab>
                 <Tab>Annotations</Tab>
                 <Tab>Similar Jobs</Tab>
                 {showPerf && <Tab>Performance</Tab>}
@@ -426,6 +418,7 @@ const TabsPanel = ({
               selectedJob={selectedJobFull}
               jobLogUrls={jobLogUrls}
               jobDetails={jobDetails}
+              logParseStatus={logParseStatus}
               logViewerFullUrl={logViewerFullUrl}
               addBug={addBugAction}
               pinJob={pinJobAction}
@@ -440,21 +433,6 @@ const TabsPanel = ({
               jobArtifactsLoading={jobArtifactsLoading}
               repoName={currentRepo.name}
               selectedJob={selectedJobFull}
-            />
-          </TabPanel>
-          <TabPanel>
-            <FailureSummaryTab
-              selectedJob={selectedJobFull}
-              bugSuggestions={bugSuggestions}
-              bugSuggestionsLoading={bugSuggestionsLoading}
-              jobLogUrls={jobLogUrls}
-              jobDetails={jobDetails}
-              logParseStatus={logParseStatus}
-              logViewerFullUrl={logViewerFullUrl}
-              addBug={addBugAction}
-              pinJob={pinJobAction}
-              currentRepo={currentRepo}
-              fontSize="font-size-11"
             />
           </TabPanel>
           <TabPanel>
