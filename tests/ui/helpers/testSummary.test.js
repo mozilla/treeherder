@@ -699,3 +699,128 @@ describe('classic failure summary helpers', () => {
     });
   });
 });
+
+describe('console lines', () => {
+  const anchorLine = {
+    action: 'console_anchor',
+    line: 1,
+    message: 'ConsoleLogger online at 20260904 in /builds/worker',
+  };
+
+  test('keeps the console_anchor record as the summary anchor', () => {
+    const summary = buildTestSummary([anchorLine, ...lines]);
+
+    expect(summary.anchor).toEqual({
+      line: 1,
+      message: 'ConsoleLogger online at 20260904 in /builds/worker',
+    });
+    // The anchor is not a test.
+    expect(summary.counts.total).toBe(3);
+  });
+
+  test('has no anchor when the artifact carries none', () => {
+    expect(buildTestSummary(lines).anchor).toBeNull();
+  });
+
+  test('links a failing test_end to its own console line', () => {
+    const summary = buildTestSummary([
+      anchorLine,
+      { action: 'test_start', time: 1, test: 'a.html', line: 10 },
+      {
+        action: 'test_end',
+        time: 2,
+        test: 'a.html',
+        status: 'FAIL',
+        expected: 'PASS',
+        message: 'boom',
+        line: 12,
+      },
+    ]);
+    const [suggestion] = buildFailureSuggestions(summary);
+
+    expect(suggestion.line).toBe(12);
+    expect(summary.groups[0].tests[0].results[0].lines).toEqual([12]);
+  });
+
+  test('links each unexpected subtest message to its own console line', () => {
+    const summary = buildTestSummary([
+      { action: 'test_start', time: 1, test: 'a.html', line: 10 },
+      {
+        action: 'test_status',
+        test: 'a.html',
+        subtest: 'first',
+        status: 'FAIL',
+        expected: 'PASS',
+        message: 'one',
+        line: 11,
+      },
+      {
+        action: 'test_status',
+        test: 'a.html',
+        subtest: 'second',
+        status: 'FAIL',
+        expected: 'PASS',
+        message: 'two',
+        line: 13,
+      },
+      {
+        action: 'test_end',
+        time: 2,
+        test: 'a.html',
+        status: 'OK',
+        expected: 'OK',
+        line: 15,
+      },
+    ]);
+    const suggestions = buildFailureSuggestions(summary);
+
+    expect(suggestions.map((s) => s.line)).toEqual([11, 13]);
+  });
+
+  test('links crashes, harness lines and unfinished tests', () => {
+    const summary = buildTestSummary([
+      { action: 'group_start', name: 'dir/manifest.toml', line: null },
+      { action: 'test_start', time: 1, test: 'hung.html', line: 20 },
+      {
+        action: 'crash',
+        test: 'crashed.html',
+        signature: 'sig',
+        line: 25,
+      },
+      {
+        action: 'log',
+        level: 'ERROR',
+        message: 'TEST-UNEXPECTED-FAIL | leakcheck | tab process: 12 bytes leaked (Foo)',
+        line: 30,
+      },
+    ]);
+    const byTest = Object.fromEntries(
+      buildFailureSuggestions(summary).map((s) => [s.search, s.line]),
+    );
+
+    expect(byTest['TEST-UNEXPECTED-CRASH | crashed.html | sig']).toBe(25);
+    expect(
+      byTest['TEST-UNEXPECTED-FAIL | leakcheck | tab process: 12 bytes leaked (Foo)'],
+    ).toBe(30);
+    expect(
+      byTest['TEST-UNEXPECTED-CRASH | hung.html | Test started but never finished'],
+    ).toBe(20);
+  });
+
+  test('leaves the line null when the record printed nothing', () => {
+    const summary = buildTestSummary([
+      { action: 'test_start', time: 1, test: 'a.html' },
+      {
+        action: 'test_end',
+        time: 2,
+        test: 'a.html',
+        status: 'FAIL',
+        expected: 'PASS',
+        message: 'boom',
+        line: null,
+      },
+    ]);
+
+    expect(buildFailureSuggestions(summary)[0].line).toBeNull();
+  });
+});
