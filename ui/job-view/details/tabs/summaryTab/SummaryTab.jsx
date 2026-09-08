@@ -82,6 +82,12 @@ const SummaryTab = ({
     };
   }, [bugSuggestions, currentRepo.name]);
 
+  // The classic failure summary is shown whenever the API returned lines.
+  // Anything narrower hides data the reader can no longer reach elsewhere:
+  // this tab replaced the Failure Summary tab, and a job can have bug
+  // suggestions with no summary.jsonl at all (nothing to diverge from).
+  const hasClassicLines = !!bugSuggestions?.length;
+
   // The classic failure summary is folded away by default: it is a second
   // opinion on failures the summary above already lists. When the artifact
   // found nothing, it is the only content there is, so it starts open.
@@ -236,11 +242,13 @@ const SummaryTab = ({
         )}
 
         {!summaryLoading && !summaryError && suggestions.length === 0 && (
-          <li>
-            <p className="failure-summary-line-empty mb-0">
-              No failures found in the summary.
-            </p>
-          </li>
+          <ListItem
+            text={
+              summary
+                ? 'No failures found in the summary.'
+                : 'No summary artifact for this job.'
+            }
+          />
         )}
         {suggestions.map((suggestion, index) => (
           <SummaryItem
@@ -255,8 +263,7 @@ const SummaryTab = ({
             addBug={addBug}
           />
         ))}
-        {(divergence.diverged ||
-          (!!summaryError && !!bugSuggestions?.length)) && (
+        {hasClassicLines && (
           <li className="border-top mt-2 pt-2">
             <h3 className="font-size-12 mb-0">
               <Button
@@ -278,8 +285,8 @@ const SummaryTab = ({
                 <>
                   {divergence.diverged && (
                     <p className="failure-summary-line-empty text-muted mb-0">
-                      The classic failure summary below differs from the
-                      summary above.
+                      The classic failure summary below differs from the summary
+                      above.
                     </p>
                   )}
                   {newFailures.count > 0 && (
