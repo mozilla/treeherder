@@ -91,17 +91,6 @@ const SummaryTab = ({
     window.dispatchEvent(new CustomEvent(thEvents.saveClassification));
   };
 
-  if (summaryLoading) {
-    return (
-      <div id="summary-tab" role="region" aria-label="Summary">
-        <p className="failure-summary-line-empty mb-0">
-          <FontAwesomeIcon icon={faSpinner} pulse className="me-2" />
-          Loading summary…
-        </p>
-      </div>
-    );
-  }
-
   if (summaryError) {
     return (
       <div id="summary-tab" role="region" aria-label="Summary">
@@ -137,7 +126,7 @@ const SummaryTab = ({
         </p>
       )}
       <ul className="list-unstyled w-100 h-100 mb-0 overflow-auto text-small font-size-11">
-        {suggestions.length === 0 && (
+        {!summaryLoading && suggestions.length === 0 && (
           <li>
             <p className="failure-summary-line-empty mb-0">
               No failures found in the summary.
@@ -181,6 +170,19 @@ const SummaryTab = ({
               ))}
             </ul>
           </li>
+        )}
+
+        {summaryLoading && (
+          <div className="overlay">
+            <div>
+              <FontAwesomeIcon
+                icon={faSpinner}
+                pulse
+                className="th-spinner-lg"
+                title="Loading..."
+              />
+            </div>
+          </div>
         )}
       </ul>
       {isBugFilerOpen && (
