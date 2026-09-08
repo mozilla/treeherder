@@ -157,12 +157,39 @@ describe('SummaryTab loading and error states', () => {
     expect(screen.queryByTitle('Loading...')).toBeNull();
   });
 
-  test('renders the error the panel reported', () => {
+  test('reports a failed load as a line in the list, like the classic tab', () => {
     renderWith({ summaryError: 'Failed to load summary (404)' });
 
     expect(
       screen.getByText('Failed to load summary (404)'),
     ).toBeInTheDocument();
+    // The panel keeps its shape rather than being replaced by the message,
+    // and does not claim the job has no failures when it could not read them.
+    expect(screen.getByRole('region', { name: 'Summary' })).toBeInTheDocument();
+    expect(screen.queryByText('No failures found in the summary.')).toBeNull();
+  });
+
+  test('falls back to the classic failure summary, open, when the load failed', () => {
+    renderWith({
+      summaryError: 'Failed to load summary (404)',
+      bugSuggestions: prepareBugSuggestions([classicOnlySuggestion()]),
+    });
+
+    expect(
+      screen.getByRole('button', { name: /Failure Summary \(classic\)/ }),
+    ).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByText(/application crashed/)).toBeInTheDocument();
+    // Nothing diverged — there is no summary to differ from.
+    expect(screen.queryByText(/differs from the summary above/)).toBeNull();
+  });
+
+  test('renders no classic section when the load failed and the API has nothing', () => {
+    renderWith({
+      summaryError: 'Failed to load summary (404)',
+      bugSuggestions: [],
+    });
+
+    expect(screen.queryByText('Failure Summary (classic)')).toBeNull();
   });
 });
 
