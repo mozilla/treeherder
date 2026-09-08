@@ -30,7 +30,7 @@ pytest-freezer==0.4.9
 
 # To test code that's doing advanced communication
 # with web services via `requests` library
-vcrpy==8.1.1
+vcrpy==8.3.0
 
 # pip-compile for pinning versions
 pip-tools==7.6.1
