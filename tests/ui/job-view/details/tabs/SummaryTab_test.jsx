@@ -98,11 +98,17 @@ describe('SummaryTab divergence with the classic failure summary', () => {
     expect(screen.getByText(/application crashed/)).toBeInTheDocument();
   });
 
-  test('renders no classic section when both summaries agree', () => {
+  test('folds the section, without the divergence note, when they agree', () => {
     renderSummaryTab(prepareBugSuggestions([matchingSuggestion()]));
 
     expect(screen.getByText(/1 failed/)).toBeInTheDocument();
-    expect(screen.queryByText('Failure Summary (classic)')).toBeNull();
+    // Still reachable — the classic lines are no longer shown anywhere else —
+    // but folded, and with nothing to say about a divergence.
+    expect(
+      screen.getByRole('button', { name: /Failure Summary \(classic\)/ }),
+    ).toHaveAttribute('aria-expanded', 'false');
+    expandClassic();
+    expect(screen.queryByText(/differs from the summary above/)).toBeNull();
   });
 });
 
@@ -201,6 +207,24 @@ describe('SummaryTab loading and error states', () => {
     expect(screen.queryByText(/differs from the summary above/)).toBeNull();
   });
 
+  test('shows the classic summary, open, for a job with no summary artifact', () => {
+    // Plenty of tasks publish bug suggestions and no summary.jsonl at all —
+    // there is no summary to diverge from, and the lines must still show.
+    renderWith({
+      summary: null,
+      summaryError: null,
+      bugSuggestions: prepareBugSuggestions([classicOnlySuggestion()]),
+    });
+
+    expect(
+      screen.getByText('No summary artifact for this job.'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Failure Summary \(classic\)/ }),
+    ).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByText(/application crashed/)).toBeInTheDocument();
+  });
+
   test('renders no classic section when the load failed and the API has nothing', () => {
     renderWith({
       summaryError: 'Failed to load summary (404)',
@@ -261,10 +285,12 @@ describe('SummaryTab new failure lines in the classic section', () => {
       ]),
     );
 
-    // The two summaries agree, so there is no classic section and nothing to
-    // flag: the NEW button belongs to the classic list only.
-    expect(screen.queryByText('Failure Summary (classic)')).toBeNull();
+    // Nothing is flagged among the summary lines: the NEW button appears only
+    // once the classic section is opened.
     expect(screen.queryByText('NEW')).toBeNull();
+
+    expandClassic();
+    expect(screen.getByText('NEW')).toBeInTheDocument();
   });
 });
 
