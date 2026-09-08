@@ -9,6 +9,7 @@ import {
   requiredInternalOccurrences,
 } from '../../../helpers/constants';
 import { getResultState, isReftest } from '../../../helpers/job';
+import { isNewFailureLine } from '../../../helpers/testSummary';
 import { getReftestUrl } from '../../../helpers/url';
 import BugFiler from '../../BugFiler';
 import InternalIssueFiler from '../../InternalIssueFiler';
@@ -159,18 +160,14 @@ class FailureSummaryTab extends React.Component {
     const jobLogsAllParsed =
       logs.length > 0 && logs.every((jlu) => jlu.parse_status !== 'pending');
 
-    // A "new failure" line has a three-part `search` and is either flagged new
-    // in the revision, or (on try) has never been seen before (counter === 0).
-    // Derived at render time rather than mutated onto the props so render stays
-    // a pure function of props/state.
-    const isNewFailureLine = (candidate) =>
-      candidate.search.split(' | ').length === 3 &&
-      (candidate.failure_new_in_rev === true ||
-        (candidate.counter === 0 && currentRepo.name === 'try'));
+    // Derived at render time rather than mutated onto the props so render
+    // stays a pure function of props/state.
+    const isNewFailure = (candidate) =>
+      isNewFailureLine(candidate, currentRepo.name);
 
-    const newFailureCount = suggestions.filter(isNewFailureLine).length;
+    const newFailureCount = suggestions.filter(isNewFailure).length;
     // Only the first new-failure line is flagged with the "NEW" button.
-    const firstNewFailureIndex = suggestions.findIndex(isNewFailureLine);
+    const firstNewFailureIndex = suggestions.findIndex(isNewFailure);
 
     return (
       <div className="w-100 h-100" role="region" aria-label="Failure Summary">

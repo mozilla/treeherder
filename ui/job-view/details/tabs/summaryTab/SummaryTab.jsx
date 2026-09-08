@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
+import { Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
@@ -7,6 +8,7 @@ import {
   buildFailureSuggestions,
   matchBugSuggestions,
   computeSummaryDivergence,
+  isNewFailureLine,
 } from '../../../../helpers/testSummary';
 import { thEvents } from '../../../../helpers/constants';
 import { isReftest } from '../../../../helpers/job';
@@ -56,6 +58,20 @@ const SummaryTab = ({
         : { diverged: false },
     [summary, failureSuggestions, bugSuggestions, bugSuggestionsLoading],
   );
+
+  // New failure lines of the classic failure summary stacked below, flagged
+  // exactly as the Failure Summary tab flags them. Only the API's lines carry
+  // the data this needs (`failure_new_in_rev` / `counter`).
+  const newFailures = useMemo(() => {
+    const isNew = (suggestion) =>
+      isNewFailureLine(suggestion, currentRepo.name);
+
+    return {
+      count: (bugSuggestions || []).filter(isNew).length,
+      // Only the first one is flagged with the "NEW" button.
+      firstIndex: (bugSuggestions || []).findIndex(isNew),
+    };
+  }, [bugSuggestions, currentRepo.name]);
 
   // Number of failing tests (not error lines — a test can emit several).
   const failedCount = summary
@@ -154,12 +170,22 @@ const SummaryTab = ({
             <p className="failure-summary-line-empty text-muted mb-0">
               The classic failure summary below differs from the summary above.
             </p>
+            {newFailures.count > 0 && (
+              <Button
+                className="failure-summary-new-message border-0"
+                title="New Test Failure"
+              >
+                {newFailures.count} new failure line(s). First one is flagged,
+                it might be good to look at all failures in this job.
+              </Button>
+            )}
             <ul className="list-unstyled w-100 mb-0">
               {(bugSuggestions || []).map((suggestion, index) => (
                 <SuggestionsListItem
                   key={`classic-${selectedJob.id}-${index}`} // eslint-disable-line react/no-array-index-key
                   index={index}
                   suggestion={suggestion}
+                  showNewButton={index === newFailures.firstIndex}
                   toggleBugFiler={() => fileBug(suggestion)}
                   toggleInternalIssueFiler={() => fileInternalIssue(suggestion)}
                   selectedJob={selectedJob}
