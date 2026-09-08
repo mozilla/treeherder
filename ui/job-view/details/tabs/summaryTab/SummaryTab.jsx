@@ -19,6 +19,7 @@ import { isReftest } from '../../../../helpers/job';
 import { getReftestUrl } from '../../../../helpers/url';
 import BugFiler from '../../../../shared/BugFiler';
 import InternalIssueFiler from '../../../../shared/InternalIssueFiler';
+import ListItem from '../../../../shared/tabs/failureSummary/ListItem';
 import SuggestionsListItem from '../../../../shared/tabs/failureSummary/SuggestionsListItem';
 
 import SummaryItem from './SummaryItem';
@@ -124,16 +125,6 @@ const SummaryTab = ({
     window.dispatchEvent(new CustomEvent(thEvents.saveClassification));
   };
 
-  if (summaryError) {
-    return (
-      <div id="summary-tab" role="region" aria-label="Summary">
-        <p className="failure-summary-line-empty text-danger mb-0">
-          {summaryError}
-        </p>
-      </div>
-    );
-  }
-
   const logs = jobLogUrls.filter(
     (jlu) => !jlu.name.includes('perfherder-data'),
   );
@@ -159,7 +150,9 @@ const SummaryTab = ({
         </p>
       )}
       <ul className="list-unstyled w-100 h-100 mb-0 overflow-auto text-small font-size-11">
-        {!summaryLoading && suggestions.length === 0 && (
+        {summaryError && <ListItem text={summaryError} />}
+
+        {!summaryLoading && !summaryError && suggestions.length === 0 && (
           <li>
             <p className="failure-summary-line-empty mb-0">
               No failures found in the summary.
@@ -179,7 +172,8 @@ const SummaryTab = ({
             addBug={addBug}
           />
         ))}
-        {divergence.diverged && (
+        {(divergence.diverged ||
+          (!!summaryError && !!bugSuggestions?.length)) && (
           <li className="border-top mt-2 pt-2">
             <h3 className="font-size-12 mb-0">
               <Button
@@ -199,10 +193,12 @@ const SummaryTab = ({
             <div id="classic-failure-summary">
               {showClassic && (
                 <>
-                  <p className="failure-summary-line-empty text-muted mb-0">
-                    The classic failure summary below differs from the summary
-                    above.
-                  </p>
+                  {divergence.diverged && (
+                    <p className="failure-summary-line-empty text-muted mb-0">
+                      The classic failure summary below differs from the
+                      summary above.
+                    </p>
+                  )}
                   {newFailures.count > 0 && (
                     <Button
                       className="failure-summary-new-message border-0"
