@@ -14,6 +14,7 @@ import JobModel from '../../models/job';
 import JobLogUrlModel from '../../models/jobLogUrl';
 import PerfSeriesModel from '../../models/perfSeries';
 import { Perfdocs } from '../../perfherder/perf-helpers/perfdocs';
+import useJobSummary from './useJobSummary';
 
 // Debounce delay for loading job details when rapidly switching jobs
 const JOB_DETAILS_DEBOUNCE_MS = 200;
@@ -487,6 +488,13 @@ function useJobDetails(selectedJob, currentRepo, pushList, frameworks) {
     frameworks,
   ]);
 
+  // Summary tab data (`summary.jsonl`), loaded here rather than in the tab so
+  // it survives tab switches and job reselection, and is cached per artifact.
+  const { summary, summaryLoading, summaryError } = useJobSummary(
+    selectedJob,
+    jobDetails,
+  );
+
   return {
     selectedJobFull,
     jobDetails,
@@ -503,6 +511,9 @@ function useJobDetails(selectedJob, currentRepo, pushList, frameworks) {
     bugs,
     bugSuggestions,
     bugSuggestionsLoading,
+    summary,
+    summaryLoading,
+    summaryError,
     taskExpired,
   };
 }
