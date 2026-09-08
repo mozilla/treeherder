@@ -190,12 +190,9 @@ const SummaryTab = ({
           <span className={failedCount ? 'text-danger' : ''}>
             {failedCount} failed
           </span>
-          {summary.counts.SKIP > 0 && (
-            <>
-              {', '}
-              <span className="text-muted">{summary.counts.SKIP} skipped</span>
-            </>
-          )}
+          {', '}
+          {/* Always rendered, zero included, so the row keeps one shape. */}
+          <span className="text-muted">{summary.counts.SKIP || 0} skipped</span>
         </p>
       )}
       <ul className="list-unstyled w-100 h-100 mb-0 overflow-auto text-small font-size-11">
