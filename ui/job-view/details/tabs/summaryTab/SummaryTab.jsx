@@ -1,10 +1,9 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import {
-  buildTestSummary,
   buildFailureSuggestions,
   matchBugSuggestions,
   computeSummaryDivergence,
@@ -19,7 +18,9 @@ import SuggestionsListItem from '../../../../shared/tabs/failureSummary/Suggesti
 import SummaryItem from './SummaryItem';
 
 const SummaryTab = ({
-  artifactUrl = null,
+  summary = null,
+  summaryLoading = false,
+  summaryError = null,
   selectedJob,
   jobLogUrls = [],
   jobDetails = [],
@@ -30,51 +31,10 @@ const SummaryTab = ({
   bugSuggestions = null,
   bugSuggestionsLoading = false,
 }) => {
-  const [summary, setSummary] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [isBugFilerOpen, setIsBugFilerOpen] = useState(false);
   const [isInternalIssueFilerOpen, setIsInternalIssueFilerOpen] =
     useState(false);
   const [activeSuggestion, setActiveSuggestion] = useState(null);
-
-  useEffect(() => {
-    if (!artifactUrl) {
-      setSummary(null);
-      return undefined;
-    }
-
-    let cancelled = false;
-    setIsLoading(true);
-    setError(null);
-
-    fetch(artifactUrl)
-      .then((resp) => {
-        if (!resp.ok) {
-          throw new Error(`Failed to load summary (${resp.status})`);
-        }
-        return resp.text();
-      })
-      .then((text) => {
-        if (!cancelled) {
-          setSummary(buildTestSummary(text));
-        }
-      })
-      .catch((err) => {
-        if (!cancelled) {
-          setError(err.message);
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setIsLoading(false);
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [artifactUrl]);
 
   const failureSuggestions = useMemo(
     () => buildFailureSuggestions(summary),
@@ -131,7 +91,7 @@ const SummaryTab = ({
     window.dispatchEvent(new CustomEvent(thEvents.saveClassification));
   };
 
-  if (isLoading) {
+  if (summaryLoading) {
     return (
       <div id="summary-tab" role="region" aria-label="Summary">
         <p className="failure-summary-line-empty mb-0">
@@ -142,10 +102,12 @@ const SummaryTab = ({
     );
   }
 
-  if (error) {
+  if (summaryError) {
     return (
       <div id="summary-tab" role="region" aria-label="Summary">
-        <p className="failure-summary-line-empty text-danger mb-0">{error}</p>
+        <p className="failure-summary-line-empty text-danger mb-0">
+          {summaryError}
+        </p>
       </div>
     );
   }
@@ -253,7 +215,9 @@ const SummaryTab = ({
 };
 
 SummaryTab.propTypes = {
-  artifactUrl: PropTypes.string,
+  summary: PropTypes.shape({}),
+  summaryLoading: PropTypes.bool,
+  summaryError: PropTypes.string,
   selectedJob: PropTypes.shape({}).isRequired,
   jobLogUrls: PropTypes.arrayOf(PropTypes.shape({})),
   jobDetails: PropTypes.arrayOf(PropTypes.shape({})),
