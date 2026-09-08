@@ -1,4 +1,7 @@
-import { splitLogIntoLines } from '../../../ui/logviewer/logviewerHelpers';
+import {
+  resolveConsoleLine,
+  splitLogIntoLines,
+} from '../../../ui/logviewer/logviewerHelpers';
 
 describe('splitLogIntoLines', () => {
   test('splits on LF (\\n)', () => {
@@ -33,5 +36,50 @@ describe('splitLogIntoLines', () => {
       'trailer',
     ]);
     expect(lines[2]).toBe('TEST-UNEXPECTED-FAIL');
+  });
+});
+
+describe('resolveConsoleLine', () => {
+  const anchor = 'ConsoleLogger online at 20260904 14:08:33Z in /builds/worker';
+  const log = [
+    '[taskcluster 2026-09-04T14:08:00.000Z] Task ID: abc',
+    '[fetches 2026-09-04T14:08:10.000Z] downloading',
+    `[task 2026-09-04T14:08:33.047+00:00] 14:08:33     INFO - ${anchor}`,
+    '[task 2026-09-04T14:08:33.048+00:00] 14:08:33     INFO - Using env: {}',
+    '[task 2026-09-04T14:08:40.000+00:00] 14:08:40     INFO - TEST-START | a.html',
+    '[taskcluster 2026-09-04T14:08:45.000Z] [taskcluster-proxy] Successfully refreshed credentials',
+    '[task 2026-09-04T14:08:50.000+00:00] 14:08:50  WARNING - TEST-UNEXPECTED-FAIL | a.html | boom',
+    '[task 2026-09-04T14:08:51.000+00:00] 14:08:51     INFO - SUITE-END | took 10s',
+  ];
+
+  test('maps the anchor line to itself', () => {
+    expect(resolveConsoleLine(log, anchor, 1, 1)).toBe(3);
+  });
+
+  test('offsets by the preamble before the anchor', () => {
+    expect(resolveConsoleLine(log, anchor, 1, 3)).toBe(5);
+  });
+
+  test('skips lines the worker injected after the anchor', () => {
+    // The proxy refresh at log line 6 was never counted by mozharness.
+    expect(resolveConsoleLine(log, anchor, 1, 4)).toBe(7);
+    expect(resolveConsoleLine(log, anchor, 1, 5)).toBe(8);
+  });
+
+  test('honours an anchor that is not mozharness line 1', () => {
+    expect(resolveConsoleLine(log, anchor, 2, 4)).toBe(5);
+  });
+
+  test('handles logs without the [task] prefix (generic-worker)', () => {
+    const bare = log.map((line) => line.replace(/^\[task [^\]]+\] /, ''));
+    expect(resolveConsoleLine(bare, anchor, 1, 4)).toBe(7);
+  });
+
+  test('returns null when the anchor is missing or the line is out of range', () => {
+    expect(resolveConsoleLine(log, 'not in the log', 1, 2)).toBeNull();
+    expect(resolveConsoleLine(log, anchor, 1, 99)).toBeNull();
+    expect(resolveConsoleLine(log, anchor, 1, 0)).toBeNull();
+    expect(resolveConsoleLine(log, anchor, 5, 2)).toBeNull();
+    expect(resolveConsoleLine([], anchor, 1, 1)).toBeNull();
   });
 });
