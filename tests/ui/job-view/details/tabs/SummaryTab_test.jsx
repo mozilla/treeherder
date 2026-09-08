@@ -153,6 +153,19 @@ describe('SummaryTab loading and error states', () => {
     expect(screen.queryByText('No failures found in the summary.')).toBeNull();
   });
 
+  test('shows every count, zeros included', () => {
+    renderWith({ summary: buildTestSummary(summaryJsonl) });
+
+    // The total sits in its own <strong>, hence the element-wise assertions.
+    expect(screen.getByText('tests:', { exact: false })).toHaveTextContent(
+      '1 tests: 0 passed, 1 failed, 0 skipped',
+    );
+    expect(screen.getByText('0 passed')).toBeInTheDocument();
+    expect(screen.getByText('1 failed')).toBeInTheDocument();
+    // Shown even at zero, so the row does not change shape between jobs.
+    expect(screen.getByText('0 skipped')).toBeInTheDocument();
+  });
+
   test('reports an empty summary once loading is done', () => {
     renderWith({ summaryLoading: false, summary: buildTestSummary('') });
 
