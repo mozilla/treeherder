@@ -11,12 +11,10 @@ thread_data = local()
 
 
 def count_retries(f):
-    thread_data.retry_count = -1
-
     @wraps(f)
-    def inner():
+    def inner(*args, **kwargs):
         thread_data.retry_count += 1
-        f()
+        return f(*args, **kwargs)
 
     return inner
 
@@ -33,28 +31,42 @@ def test_retryable_task():
     assert result.wait() == 10
 
 
-@retryable_task()
-@count_retries
-def throwing_task():
-    raise TypeError
+def create_throwing_task():
+    thread_data.retry_count = 0
+
+    @retryable_task()
+    @count_retries
+    def throwing_task():
+        raise TypeError
+
+    return throwing_task
 
 
 def test_retryable_task_throws():
     "Test celery immediately raises an error for a task that throws"
 
+    throwing_task = create_throwing_task()
+
     with pytest.raises(TypeError):
         throwing_task.delay()
-    assert thread_data.retry_count == 0
+    assert thread_data.retry_count == 1
 
 
-@retryable_task()
-@count_retries
-def throwing_task_should_retry():
-    raise OperationalError
+def create_throwing_task_should_retry():
+    thread_data.retry_count = 0
+
+    @retryable_task()
+    @count_retries
+    def throwing_task_should_retry():
+        raise OperationalError
+
+    return throwing_task_should_retry
 
 
 def test_retryable_task_throws_retry():
     "Test celery executes a task properly"
+
+    throwing_task_should_retry = create_throwing_task_should_retry()
 
     with pytest.raises(Retry) as e:
         throwing_task_should_retry.delay()
