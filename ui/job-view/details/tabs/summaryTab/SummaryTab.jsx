@@ -2,7 +2,11 @@ import { useState, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import {
+  faAngleDown,
+  faAngleUp,
+  faSpinner,
+} from '@fortawesome/free-solid-svg-icons';
 
 import {
   buildFailureSuggestions,
@@ -72,6 +76,19 @@ const SummaryTab = ({
       firstIndex: (bugSuggestions || []).findIndex(isNew),
     };
   }, [bugSuggestions, currentRepo.name]);
+
+  // The classic failure summary is folded away by default: it is a second
+  // opinion on failures the summary above already lists. When the artifact
+  // found nothing, it is the only content there is, so it starts open.
+  const summaryIsEmpty = !summaryLoading && suggestions.length === 0;
+  const [showClassic, setShowClassic] = useState(summaryIsEmpty);
+  const [prevSummaryIsEmpty, setPrevSummaryIsEmpty] = useState(summaryIsEmpty);
+  if (summaryIsEmpty !== prevSummaryIsEmpty) {
+    // The artifact finished loading (or another job was selected): apply the
+    // default again rather than keeping the previous job's fold state.
+    setPrevSummaryIsEmpty(summaryIsEmpty);
+    setShowClassic(summaryIsEmpty);
+  }
 
   // Number of failing tests (not error lines — a test can emit several).
   const failedCount = summary
@@ -164,37 +181,59 @@ const SummaryTab = ({
         ))}
         {divergence.diverged && (
           <li className="border-top mt-2 pt-2">
-            <h3 className="failure-summary-line-empty font-size-12 fw-bold mb-0">
-              Failure Summary (classic)
-            </h3>
-            <p className="failure-summary-line-empty text-muted mb-0">
-              The classic failure summary below differs from the summary above.
-            </p>
-            {newFailures.count > 0 && (
+            <h3 className="font-size-12 mb-0">
               <Button
-                className="failure-summary-new-message border-0"
-                title="New Test Failure"
+                variant="link"
+                className="failure-summary-line-empty p-0 fw-bold text-decoration-none"
+                onClick={() => setShowClassic((prev) => !prev)}
+                aria-expanded={showClassic}
+                aria-controls="classic-failure-summary"
               >
-                {newFailures.count} new failure line(s). First one is flagged,
-                it might be good to look at all failures in this job.
-              </Button>
-            )}
-            <ul className="list-unstyled w-100 mb-0">
-              {(bugSuggestions || []).map((suggestion, index) => (
-                <SuggestionsListItem
-                  key={`classic-${selectedJob.id}-${index}`} // eslint-disable-line react/no-array-index-key
-                  index={index}
-                  suggestion={suggestion}
-                  showNewButton={index === newFailures.firstIndex}
-                  toggleBugFiler={() => fileBug(suggestion)}
-                  toggleInternalIssueFiler={() => fileInternalIssue(suggestion)}
-                  selectedJob={selectedJob}
-                  addBug={addBug}
-                  currentRepo={currentRepo}
-                  jobDetails={jobDetails}
+                <FontAwesomeIcon
+                  icon={showClassic ? faAngleUp : faAngleDown}
+                  className="me-2"
                 />
-              ))}
-            </ul>
+                Failure Summary (classic)
+              </Button>
+            </h3>
+            <div id="classic-failure-summary">
+              {showClassic && (
+                <>
+                  <p className="failure-summary-line-empty text-muted mb-0">
+                    The classic failure summary below differs from the summary
+                    above.
+                  </p>
+                  {newFailures.count > 0 && (
+                    <Button
+                      className="failure-summary-new-message border-0"
+                      title="New Test Failure"
+                    >
+                      {newFailures.count} new failure line(s). First one is
+                      flagged, it might be good to look at all failures in this
+                      job.
+                    </Button>
+                  )}
+                  <ul className="list-unstyled w-100 mb-0">
+                    {(bugSuggestions || []).map((suggestion, index) => (
+                      <SuggestionsListItem
+                        key={`classic-${selectedJob.id}-${index}`} // eslint-disable-line react/no-array-index-key
+                        index={index}
+                        suggestion={suggestion}
+                        showNewButton={index === newFailures.firstIndex}
+                        toggleBugFiler={() => fileBug(suggestion)}
+                        toggleInternalIssueFiler={() =>
+                          fileInternalIssue(suggestion)
+                        }
+                        selectedJob={selectedJob}
+                        addBug={addBug}
+                        currentRepo={currentRepo}
+                        jobDetails={jobDetails}
+                      />
+                    ))}
+                  </ul>
+                </>
+              )}
+            </div>
           </li>
         )}
 
