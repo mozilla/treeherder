@@ -122,7 +122,7 @@ const LegendCard = ({
 
     newData.splice(index, 1);
 
-      // Removing a hidden test frees no color slot → just drop it.
+    // Removing a hidden test frees no color slot → just drop it.
     if (series.color[0] === 'border-secondary') {
       resetParams(newData);
       return;
@@ -172,9 +172,8 @@ const LegendCard = ({
       <div className={`${series.color[0]} graph-legend-card p-3`}>
         <Button
           variant="outline-link"
-          className={`p-0 mb-0 pointer border-0 ${
-            series.visible ? series.color[0] : 'text-muted'
-          } text-start`}
+          className={`p-0 mb-0 pointer border-0 ${series.visible ? series.color[0] : 'text-muted'
+            } text-start`}
           onClick={() => addTestData('addRelatedConfigs')}
           title="Add related configurations"
         >
@@ -223,12 +222,10 @@ const LegendCard = ({
           </Button>
         )}
         <Badge> {framework} </Badge>
-        <div className="small">{`should_alert: ${
-          series.shouldAlert !== false
-        }`}</div>
-        <div className="small">{`alert_change_type: ${
-          series.alertChangeType === 1 ? 'absolute' : 'percentage'
-        }`}</div>
+        <div className="small">{`should_alert: ${series.shouldAlert !== false
+          }`}</div>
+        <div className="small">{`alert_change_type: ${series.alertChangeType === 1 ? 'absolute' : 'percentage'
+          }`}</div>
         <div className="small">{`alert_threshold: ${series.alertThreshold}`}</div>
         <div className="small">{`${series.signatureHash.slice(0, 16)}...`}</div>
       </div>
@@ -253,11 +250,12 @@ LegendCard.propTypes = {
   testDataRef: PropTypes.shape({ current: PropTypes.array }).isRequired,
   colorsRef: PropTypes.shape({ current: PropTypes.array }).isRequired,
   symbolsRef: PropTypes.shape({ current: PropTypes.array }).isRequired,
-  selectedDataPoint: PropTypes.shape({}),};
+  selectedDataPoint: PropTypes.shape({}),
+};
 
 const areEqual = (prev, next) => {
   const seriesEqual = prev.series === next.series;
-  
+
   const prevWasSelected = prev.selectedDataPoint?.signature_id === prev.series.signature_id;
   const nextIsSelected = next.selectedDataPoint?.signature_id === next.series.signature_id;
 
