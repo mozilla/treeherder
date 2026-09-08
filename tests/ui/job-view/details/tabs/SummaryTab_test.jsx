@@ -2,7 +2,10 @@ import { render, screen, cleanup } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 
 import SummaryTab from '../../../../../ui/job-view/details/tabs/summaryTab/SummaryTab';
-import { prepareBugSuggestions } from '../../../../../ui/helpers/testSummary';
+import {
+  buildTestSummary,
+  prepareBugSuggestions,
+} from '../../../../../ui/helpers/testSummary';
 
 const selectedJob = {
   id: 1,
@@ -12,8 +15,6 @@ const selectedJob = {
   job_type_symbol: 'M-1',
 };
 const currentRepo = { name: 'autoland' };
-
-const artifactUrl = 'https://example.com/summary.jsonl';
 
 const summaryJsonl = [
   '{"action":"test_start","time":0,"group":"dom/manifest.ini","test":"dom/tests/test_fail.html"}',
@@ -34,11 +35,13 @@ const classicOnlySuggestion = () => ({
   bugs: { open_recent: [], all_others: [] },
 });
 
-const renderSummaryTab = (bugSuggestions) =>
+const renderSummaryTab = (bugSuggestions, jsonl = summaryJsonl) =>
   render(
     <MemoryRouter>
       <SummaryTab
-        artifactUrl={artifactUrl}
+        summary={buildTestSummary(jsonl)}
+        summaryLoading={false}
+        summaryError={null}
         selectedJob={selectedJob}
         jobLogUrls={[]}
         jobDetails={[]}
@@ -52,35 +55,22 @@ const renderSummaryTab = (bugSuggestions) =>
   );
 
 describe('SummaryTab divergence with the classic failure summary', () => {
-  beforeEach(() => {
-    window.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      text: () => Promise.resolve(summaryJsonl),
-    });
-  });
+  afterEach(cleanup);
 
-  afterEach(() => {
-    cleanup();
-    delete window.fetch;
-  });
-
-  test('stacks the classic failure summary below when the two diverge', async () => {
+  test('stacks the classic failure summary below when the two diverge', () => {
     renderSummaryTab(
       prepareBugSuggestions([matchingSuggestion(), classicOnlySuggestion()]),
     );
 
-    expect(
-      await screen.findByText('Failure Summary (classic)'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Failure Summary (classic)')).toBeInTheDocument();
     // The classic-only line is rendered in the stacked section.
     expect(screen.getByText(/application crashed/)).toBeInTheDocument();
   });
 
-  test('renders no classic section when both summaries agree', async () => {
+  test('renders no classic section when both summaries agree', () => {
     renderSummaryTab(prepareBugSuggestions([matchingSuggestion()]));
 
-    // Wait for the summary artifact to render before asserting absence.
-    expect(await screen.findByText(/1 failed/)).toBeInTheDocument();
+    expect(screen.getByText(/1 failed/)).toBeInTheDocument();
     expect(screen.queryByText('Failure Summary (classic)')).toBeNull();
   });
 });
@@ -93,23 +83,13 @@ describe('SummaryTab log viewer links', () => {
     '{"action":"test_end","time":10,"group":"dom/manifest.ini","test":"dom/tests/test_fail.html","status":"FAIL","expected":"PASS","message":"assertion failed","line":42}',
   ].join('\n');
 
-  const mockArtifact = (text) => {
-    window.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      text: () => Promise.resolve(text),
-    });
-  };
+  afterEach(cleanup);
 
-  afterEach(() => {
-    cleanup();
-    delete window.fetch;
-  });
+  test('links a failure line to its console line in the log viewer', () => {
+    renderSummaryTab([], anchoredJsonl);
 
-  test('links a failure line to its console line in the log viewer', async () => {
-    mockArtifact(anchoredJsonl);
-    renderSummaryTab([]);
-
-    const link = (await screen.findByTitle('Go to this line in the log viewer'))
+    const link = screen
+      .getByTitle('Go to this line in the log viewer')
       .closest('a');
     const url = new URL(link.getAttribute('href'), 'https://treeherder.test');
 
@@ -122,11 +102,45 @@ describe('SummaryTab log viewer links', () => {
     expect(url.searchParams.get('lineNumber')).toBeNull();
   });
 
-  test('renders no log viewer link when the artifact has no anchor', async () => {
-    mockArtifact(summaryJsonl);
+  test('renders no log viewer link when the artifact has no anchor', () => {
     renderSummaryTab([]);
 
-    expect(await screen.findByText(/1 failed/)).toBeInTheDocument();
+    expect(screen.getByText(/1 failed/)).toBeInTheDocument();
     expect(screen.queryByTitle('Go to this line in the log viewer')).toBeNull();
+  });
+});
+
+describe('SummaryTab loading and error states', () => {
+  afterEach(cleanup);
+
+  const renderWith = (props) =>
+    render(
+      <MemoryRouter>
+        <SummaryTab
+          selectedJob={selectedJob}
+          jobLogUrls={[]}
+          jobDetails={[]}
+          addBug={() => {}}
+          pinJob={() => {}}
+          currentRepo={currentRepo}
+          bugSuggestions={[]}
+          bugSuggestionsLoading={false}
+          {...props}
+        />
+      </MemoryRouter>,
+    );
+
+  test('renders the spinner while the panel is loading the artifact', () => {
+    renderWith({ summaryLoading: true });
+
+    expect(screen.getByText(/Loading summary/)).toBeInTheDocument();
+  });
+
+  test('renders the error the panel reported', () => {
+    renderWith({ summaryError: 'Failed to load summary (404)' });
+
+    expect(
+      screen.getByText('Failed to load summary (404)'),
+    ).toBeInTheDocument();
   });
 });
