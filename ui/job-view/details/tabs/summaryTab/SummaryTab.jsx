@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -14,8 +14,11 @@ import {
   computeSummaryDivergence,
   isNewFailureLine,
 } from '../../../../helpers/testSummary';
-import { thEvents } from '../../../../helpers/constants';
-import { isReftest } from '../../../../helpers/job';
+import {
+  requiredInternalOccurrences,
+  thEvents,
+} from '../../../../helpers/constants';
+import { getResultState, isReftest } from '../../../../helpers/job';
 import { getReftestUrl } from '../../../../helpers/url';
 import BugFiler from '../../../../shared/BugFiler';
 import InternalIssueFiler from '../../../../shared/InternalIssueFiler';
@@ -31,6 +34,7 @@ const SummaryTab = ({
   selectedJob,
   jobLogUrls = [],
   jobDetails = [],
+  logParseStatus = 'pending',
   logViewerFullUrl = null,
   addBug = null,
   pinJob,
@@ -114,6 +118,48 @@ const SummaryTab = ({
     [pinJob, selectedJob],
   );
 
+  // An internal issue filed from the pin board escalates to a real Bugzilla
+  // bug once it has been seen enough times. The listener lived in the Failure
+  // Summary tab until that tab was removed.
+  const checkInternalFailureOccurrences = useCallback(
+    (bugInternalId) => {
+      const classicSuggestions = bugSuggestions || [];
+      const existingBug = classicSuggestions
+        .flatMap((s) => s.bugs.open_recent)
+        .filter((bug) => bug.id === null)
+        .find((bug) => bug.internal_id === bugInternalId);
+      if (!existingBug) return;
+
+      if (existingBug.occurrences >= requiredInternalOccurrences - 1) {
+        existingBug.occurrences += 1;
+        fileBug(
+          classicSuggestions.find((s) =>
+            s.bugs.open_recent.some(
+              (bug) => bug.internal_id === existingBug.internal_id,
+            ),
+          ),
+        );
+      }
+    },
+    [bugSuggestions, fileBug],
+  );
+
+  useEffect(() => {
+    const onInternalIssueClassification = (event) =>
+      checkInternalFailureOccurrences(event.detail.internalBugId);
+
+    window.addEventListener(
+      thEvents.internalIssueClassification,
+      onInternalIssueClassification,
+    );
+
+    return () =>
+      window.removeEventListener(
+        thEvents.internalIssueClassification,
+        onInternalIssueClassification,
+      );
+  }, [checkInternalFailureOccurrences]);
+
   const bugFilerCallback = async (data) => {
     await addBug({ id: data.id, newBug: data.id });
     window.dispatchEvent(new CustomEvent(thEvents.saveClassification));
@@ -123,11 +169,14 @@ const SummaryTab = ({
   const internalIssueFilerCallback = async (data) => {
     await addBug({ ...data, newBug: `i${data.internal_id}` });
     window.dispatchEvent(new CustomEvent(thEvents.saveClassification));
+    checkInternalFailureOccurrences(data.internal_id);
   };
 
   const logs = jobLogUrls.filter(
     (jlu) => !jlu.name.includes('perfherder-data'),
   );
+  const jobLogsAllParsed =
+    logs.length > 0 && logs.every((jlu) => jlu.parse_status !== 'pending');
 
   return (
     <div id="summary-tab" role="region" aria-label="Summary">
@@ -151,6 +200,43 @@ const SummaryTab = ({
       )}
       <ul className="list-unstyled w-100 h-100 mb-0 overflow-auto text-small font-size-11">
         {summaryError && <ListItem text={summaryError} />}
+
+        {!bugSuggestionsLoading &&
+          !jobLogsAllParsed &&
+          logs.map((jobLog) => (
+            <li key={jobLog.id}>
+              <p className="failure-summary-line-empty mb-0">
+                Log parsing in progress.
+                <br />
+                <a
+                  title="Open the raw log in a new window"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={jobLog.url}
+                >
+                  The raw log
+                </a>{' '}
+                is available. This panel will automatically recheck every 5
+                seconds.
+              </p>
+            </li>
+          ))}
+
+        {!bugSuggestionsLoading && logParseStatus === 'failed' && (
+          <ListItem text="Log parsing failed.  Unable to generate failure summary." />
+        )}
+
+        {!bugSuggestionsLoading && logParseStatus === 'skipped-size' && (
+          <ListItem text="Log parsing was skipped since the log exceeds the size limit." />
+        )}
+
+        {!bugSuggestionsLoading && !logs.length && (
+          <ListItem
+            text={`No logs yet available for this ${getResultState(
+              selectedJob,
+            )} job.`}
+          />
+        )}
 
         {!summaryLoading && !summaryError && suggestions.length === 0 && (
           <li>
@@ -284,6 +370,7 @@ SummaryTab.propTypes = {
   selectedJob: PropTypes.shape({}).isRequired,
   jobLogUrls: PropTypes.arrayOf(PropTypes.shape({})),
   jobDetails: PropTypes.arrayOf(PropTypes.shape({})),
+  logParseStatus: PropTypes.string,
   logViewerFullUrl: PropTypes.string,
   addBug: PropTypes.func,
   pinJob: PropTypes.func.isRequired,
