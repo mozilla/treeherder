@@ -5,6 +5,7 @@ import {
   filterGenericFailures,
   prepareBugSuggestions,
   computeSummaryDivergence,
+  isNewFailureLine,
   NO_GROUP,
   INCOMPLETE_STATUS,
   HARNESS_STATUS,
@@ -620,6 +621,37 @@ describe('classic failure summary helpers', () => {
         [specific],
       );
       expect(prepareBugSuggestions(undefined)).toEqual([]);
+    });
+  });
+
+  describe('isNewFailureLine', () => {
+    const line = (overrides) => ({
+      search: 'TEST-UNEXPECTED-FAIL | test_fail.html | boom',
+      ...overrides,
+    });
+
+    test('flags a line marked new in the revision', () => {
+      expect(isNewFailureLine(line({ failure_new_in_rev: true }), 'autoland')).toBe(
+        true,
+      );
+    });
+
+    test('flags a never-seen line on try only', () => {
+      expect(isNewFailureLine(line({ counter: 0 }), 'try')).toBe(true);
+      expect(isNewFailureLine(line({ counter: 0 }), 'autoland')).toBe(false);
+    });
+
+    test('ignores a line that is not a three-part failure', () => {
+      expect(
+        isNewFailureLine(
+          { search: '[taskcluster:error] exit status 1', failure_new_in_rev: true },
+          'try',
+        ),
+      ).toBe(false);
+    });
+
+    test('ignores a known line', () => {
+      expect(isNewFailureLine(line({ counter: 12 }), 'try')).toBe(false);
     });
   });
 
