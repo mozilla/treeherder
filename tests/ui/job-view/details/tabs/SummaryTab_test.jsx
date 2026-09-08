@@ -1,4 +1,4 @@
-import { render, screen, cleanup } from '@testing-library/react';
+import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 
 import SummaryTab from '../../../../../ui/job-view/details/tabs/summaryTab/SummaryTab';
@@ -54,6 +54,12 @@ const renderSummaryTab = (bugSuggestions, jsonl = summaryJsonl, repo = currentRe
     </MemoryRouter>,
   );
 
+// The classic section is folded by default; open it to read its content.
+const expandClassic = () =>
+  fireEvent.click(
+    screen.getByRole('button', { name: /Failure Summary \(classic\)/ }),
+  );
+
 describe('SummaryTab divergence with the classic failure summary', () => {
   afterEach(cleanup);
 
@@ -63,7 +69,10 @@ describe('SummaryTab divergence with the classic failure summary', () => {
     );
 
     expect(screen.getByText('Failure Summary (classic)')).toBeInTheDocument();
-    // The classic-only line is rendered in the stacked section.
+    // Folded by default: the summary above already lists the failures.
+    expect(screen.queryByText(/application crashed/)).toBeNull();
+
+    expandClassic();
     expect(screen.getByText(/application crashed/)).toBeInTheDocument();
   });
 
@@ -171,7 +180,8 @@ describe('SummaryTab new failure lines in the classic section', () => {
   test('flags the first new failure and counts them all', () => {
     renderSummaryTab(divergingWith({ failure_new_in_rev: true }));
 
-    expect(screen.getByText('Failure Summary (classic)')).toBeInTheDocument();
+    expandClassic();
+
     expect(
       screen.getByText(/1 new failure line\(s\)\. First one is flagged/),
     ).toBeInTheDocument();
@@ -180,20 +190,22 @@ describe('SummaryTab new failure lines in the classic section', () => {
 
   test('renders no banner when no line is new', () => {
     renderSummaryTab(divergingWith({}));
+    expandClassic();
 
-    expect(screen.getByText('Failure Summary (classic)')).toBeInTheDocument();
     expect(screen.queryByText(/new failure line/)).toBeNull();
     expect(screen.queryByText('NEW')).toBeNull();
   });
 
   test('counts a never-seen line on try only', () => {
     renderSummaryTab(divergingWith({ counter: 0 }));
+    expandClassic();
     expect(screen.queryByText('NEW')).toBeNull();
     cleanup();
 
     renderSummaryTab(divergingWith({ counter: 0 }), summaryJsonl, {
       name: 'try',
     });
+    expandClassic();
     expect(screen.getByText('NEW')).toBeInTheDocument();
   });
 
@@ -208,5 +220,53 @@ describe('SummaryTab new failure lines in the classic section', () => {
     // flag: the NEW button belongs to the classic list only.
     expect(screen.queryByText('Failure Summary (classic)')).toBeNull();
     expect(screen.queryByText('NEW')).toBeNull();
+  });
+});
+
+describe('SummaryTab classic section folding', () => {
+  afterEach(cleanup);
+
+  test('is folded by default when the summary lists failures', () => {
+    renderSummaryTab(
+      prepareBugSuggestions([matchingSuggestion(), classicOnlySuggestion()]),
+    );
+
+    const toggle = screen.getByRole('button', {
+      name: /Failure Summary \(classic\)/,
+    });
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByText(/application crashed/)).toBeNull();
+  });
+
+  test('starts open when the summary artifact found no failures', () => {
+    // An artifact with a passing test only (`expected` is written for
+    // unexpected results only): nothing for the summary to list, so the
+    // classic summary is the only content and opens on its own.
+    const passingJsonl = [
+      '{"action":"test_start","time":0,"group":"dom/manifest.ini","test":"dom/tests/test_pass.html"}',
+      '{"action":"test_end","time":10,"group":"dom/manifest.ini","test":"dom/tests/test_pass.html","status":"PASS"}',
+    ].join('\n');
+
+    renderSummaryTab(
+      prepareBugSuggestions([classicOnlySuggestion()]),
+      passingJsonl,
+    );
+
+    expect(
+      screen.getByRole('button', { name: /Failure Summary \(classic\)/ }),
+    ).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByText(/application crashed/)).toBeInTheDocument();
+  });
+
+  test('folds and unfolds on click', () => {
+    renderSummaryTab(
+      prepareBugSuggestions([matchingSuggestion(), classicOnlySuggestion()]),
+    );
+
+    expandClassic();
+    expect(screen.getByText(/application crashed/)).toBeInTheDocument();
+
+    expandClassic();
+    expect(screen.queryByText(/application crashed/)).toBeNull();
   });
 });
