@@ -21,6 +21,16 @@ import { thBugSuggestionLimit } from './constants';
 //   {"action": "log", "time": <ms>, "level": "ERROR" | "CRITICAL",
 //    "message": "TEST-UNEXPECTED-FAIL | <what> | <detail>"}
 //
+// Every record may carry a `line`: the 1-based index, among the lines
+// mozharness wrote to the console, of the first log line emitted for it. The
+// artifact opens with a `console_anchor` record giving the text and console
+// line of mozharness's first message; the log viewer locates that text in the
+// task log to translate the `line` of the other records (the log also holds
+// worker-injected lines mozharness never saw).
+//
+//   {"action": "console_anchor", "line": 1,
+//    "message": "ConsoleLogger online at ... in ..."}
+//
 // A `log` line is a failure the harness could not attribute to a test
 // (LeakSanitizer/TSan reports, shutdown leak checks, harness errors). It
 // carries no `test`/`group`, so it is filed under the manifest it names or
@@ -111,6 +121,9 @@ const durationOf = (start, end) =>
 
 const finiteOrNull = (value) => (Number.isFinite(value) ? value : null);
 
+// Console line of a record, or null when it printed nothing (group events).
+const consoleLineOf = (record) => finiteOrNull(record.line);
+
 // Mirrors the "FAILURE-TYPE | testNameOrFilePath | message" branch of the
 // backend's get_error_search_term_and_path() (treeherder/model/error_summary.py)
 // so a harness failure line gets the same `path_end` the bug_suggestions API
@@ -148,10 +161,11 @@ const pathEndOfLine = (line) => {
  *       retried: boolean,
  *       harness?: true,
  *       pathEnd?: ?string,
- *       results: Array<{ status: string, success: boolean, message: ?string, start: ?number, end: ?number, duration: ?number }>,
+ *       results: Array<{ status: string, success: boolean, message: ?string, messages: string[], line: ?number, lines: Array<?number>, start: ?number, end: ?number, duration: ?number }>,
  *     }>,
  *   }>,
  *   counts: Object,
+ *   anchor: ?{ line: number, message: string },
  * }}
  */
 export const buildTestSummary = (content) => {
@@ -175,11 +189,17 @@ export const buildTestSummary = (content) => {
       }
       tests.set(key, test);
     }
+    const messages = entry.messages || (entry.message ? [entry.message] : []);
+    const line = entry.line ?? null;
     tests.get(key).results.push({
       status: entry.status,
       success: entry.success,
       message: entry.message,
-      messages: entry.messages || (entry.message ? [entry.message] : []),
+      messages,
+      // Console line of the record that produced the result, and one per
+      // message (a subtest failure links to its own log line).
+      line,
+      lines: entry.lines || messages.map(() => line),
       start: entry.start,
       end: entry.end,
       duration: entry.duration,
@@ -196,6 +216,7 @@ export const buildTestSummary = (content) => {
   // even when it arrives after that group's `group_end`.
   const knownGroups = new Set();
   let harnessLines = 0;
+  let anchor = null;
 
   const takePending = (testName) => {
     const queue = pending.get(testName);
@@ -206,6 +227,11 @@ export const buildTestSummary = (content) => {
     if (!line) return;
 
     switch (line.action) {
+      case 'console_anchor':
+        if (!anchor && line.message && consoleLineOf(line) !== null) {
+          anchor = { line: line.line, message: line.message };
+        }
+        return;
       case 'group_start':
         if (line.name) knownGroups.add(line.name);
         currentGroup = line.name || currentGroup;
@@ -218,6 +244,7 @@ export const buildTestSummary = (content) => {
         const run = {
           group: line.group || currentGroup,
           start: finiteOrNull(line.time),
+          line: consoleLineOf(line),
           // Messages from unexpected `test_status` (subtest) events, which are
           // usually more descriptive than the parent `test_end` message.
           subtestFailures: [],
@@ -235,7 +262,10 @@ export const buildTestSummary = (content) => {
         const run = queue && queue.length ? queue[0] : null;
         if (run && line.message) {
           const label = line.subtest ? `${line.subtest} - ` : '';
-          run.subtestFailures.push(`${label}${line.message}`);
+          run.subtestFailures.push({
+            message: `${label}${line.message}`,
+            line: consoleLineOf(line),
+          });
         }
         return;
       }
@@ -249,12 +279,14 @@ export const buildTestSummary = (content) => {
         // For a failing test prefer the (more informative) subtest messages,
         // keeping each one separate so the Summary tab can render one failure
         // line per message; otherwise fall back to the test_end message.
-        const messages =
+        const endLine = consoleLineOf(line);
+        const failures =
           !success && subtestFailures.length
             ? subtestFailures
             : line.message
-              ? [line.message]
+              ? [{ message: line.message, line: endLine }]
               : [];
+        const messages = failures.map((failure) => failure.message);
         const message = messages.length ? messages.join(' | ') : null;
         recordEntry({
           test: line.test,
@@ -263,6 +295,8 @@ export const buildTestSummary = (content) => {
           success,
           message,
           messages,
+          line: endLine,
+          lines: failures.map((failure) => failure.line),
           start,
           end,
           duration: durationOf(start, end),
@@ -277,6 +311,7 @@ export const buildTestSummary = (content) => {
           status: 'CRASH',
           success: false,
           message: line.signature || null,
+          line: consoleLineOf(line),
           start: null,
           end: null,
           duration: null,
@@ -301,6 +336,7 @@ export const buildTestSummary = (content) => {
             success: false,
             message,
             messages: [message],
+            line: consoleLineOf(line),
             start: null,
             end: null,
             duration: null,
@@ -327,6 +363,7 @@ export const buildTestSummary = (content) => {
         status: INCOMPLETE_STATUS,
         success: false,
         message: 'Test started but never finished',
+        line: run.line,
         start: run.start,
         end: null,
         duration: null,
@@ -370,6 +407,7 @@ export const buildTestSummary = (content) => {
     groups: groupList,
     counts: overallCounts,
     realFailCounts: overallRealFailCounts,
+    anchor,
   };
 };
 
@@ -379,7 +417,7 @@ export const buildTestSummary = (content) => {
  * reuses BugFiler/InternalIssueFiler but has no Bugzilla suggestion data).
  *
  * @param {ReturnType<typeof buildTestSummary>|null} summary
- * @returns {Array<{ search: string, path_end: ?string, search_terms: string[], bugs: { open_recent: [], all_others: [] } }>}
+ * @returns {Array<{ search: string, path_end: ?string, search_terms: string[], line: ?number, bugs: { open_recent: [], all_others: [] } }>}
  */
 export const buildFailureSuggestions = (summary) => {
   if (!summary) return [];
@@ -408,6 +446,9 @@ export const buildFailureSuggestions = (summary) => {
           search,
           path_end: test.harness ? test.pathEnd : test.name,
           search_terms: getSearchWords(search),
+          // Console line of the record behind this message, to be resolved
+          // against the task log with the summary's `anchor`.
+          line: lastResult.lines?.[index] ?? lastResult.line ?? null,
           // Bug suggestions match on test path, so every line of a test would
           // otherwise get the same bugs. Only the first line carries them.
           primary: index === 0,
