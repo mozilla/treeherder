@@ -225,6 +225,110 @@ describe('buildFailureSuggestions', () => {
     expect(suggestions.every((s) => s.path_end === 'browser_all.js')).toBe(true);
   });
 
+  test('uses the subtest messages a failing xpcshell test replays after its end', () => {
+    // xpcshell buffers a failing test's output and replays it after the
+    // test_end, so the informative statuses arrive once the run is closed.
+    const summary = buildTestSummary([
+      {
+        action: 'test_start',
+        time: 0,
+        group: 'netwerk/test/unit/xpcshell.toml',
+        test: 'netwerk/test/unit/test_retry.js',
+        line: 100,
+      },
+      {
+        action: 'test_end',
+        time: 10,
+        group: 'netwerk/test/unit/xpcshell.toml',
+        test: 'netwerk/test/unit/test_retry.js',
+        status: 'FAIL',
+        expected: 'PASS',
+        message: 'xpcshell return code: 0',
+        line: 101,
+      },
+      {
+        action: 'group_start',
+        name: 'replaying full log for netwerk/test/unit/test_retry.js',
+      },
+      {
+        action: 'test_status',
+        time: 8,
+        test: 'netwerk/test/unit/test_retry.js',
+        subtest: 'test_intentional_failure',
+        status: 'FAIL',
+        expected: 'PASS',
+        message: 'Intentional failure - false == true',
+        line: 150,
+      },
+      {
+        action: 'test_status',
+        time: 9,
+        test: 'netwerk/test/unit/test_retry.js',
+        subtest: null,
+        status: 'FAIL',
+        expected: 'PASS',
+        message: 'profile uploaded in profile_test_retry.js.json',
+        line: 160,
+      },
+      {
+        action: 'group_end',
+        name: 'replaying full log for netwerk/test/unit/test_retry.js',
+      },
+    ]);
+
+    const suggestions = buildFailureSuggestions(summary);
+    expect(suggestions.map((s) => s.search)).toEqual([
+      'TEST-UNEXPECTED-FAIL | netwerk/test/unit/test_retry.js | test_intentional_failure - Intentional failure - false == true',
+      'TEST-UNEXPECTED-FAIL | netwerk/test/unit/test_retry.js | profile uploaded in profile_test_retry.js.json',
+    ]);
+    // Each line links to the console line of its own status, not the test_end.
+    expect(suggestions.map((s) => s.line)).toEqual([150, 160]);
+    // The test stays filed under its manifest, not the replay group.
+    const [group] = summary.groups;
+    expect(group.name).toBe('netwerk/test/unit/xpcshell.toml');
+    expect(group.tests[0].results[0].lines).toEqual([150, 160]);
+  });
+
+  test('ignores the replayed statuses of a run the harness will retry', () => {
+    // A test_end with no `expected` is not a reported failure: the harness
+    // reruns the test, and that later run is the authoritative result.
+    const summary = buildTestSummary([
+      { action: 'test_start', time: 0, group: 'g', test: 'test_retry.js' },
+      {
+        action: 'test_end',
+        time: 10,
+        group: 'g',
+        test: 'test_retry.js',
+        status: 'FAIL',
+        message: 'Test failed or timed out, will retry',
+      },
+      {
+        action: 'test_status',
+        time: 8,
+        test: 'test_retry.js',
+        subtest: 'sub',
+        status: 'FAIL',
+        expected: 'PASS',
+        message: 'replayed noise',
+      },
+      { action: 'test_start', time: 20, group: 'g', test: 'test_retry.js' },
+      {
+        action: 'test_end',
+        time: 30,
+        group: 'g',
+        test: 'test_retry.js',
+        status: 'PASS',
+      },
+    ]);
+
+    expect(buildFailureSuggestions(summary)).toEqual([]);
+    const [test] = summary.groups[0].tests;
+    expect(test.retried).toBe(true);
+    expect(test.results[0].messages).toEqual([
+      'Test failed or timed out, will retry',
+    ]);
+  });
+
   test('emits a single line for a failure with one message', () => {
     const summary = buildTestSummary([
       { action: 'test_start', time: 0, group: 'g', test: 'browser_one.js' },
