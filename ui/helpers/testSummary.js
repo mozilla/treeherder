@@ -45,6 +45,12 @@ import { thBugSuggestionLimit } from './constants';
 // A single test can appear more than once (e.g. when it is retried), and a few
 // results carry no `group`. We regroup the lines first by test (collapsing the
 // repeated runs of the same test into one entry), then by group.
+//
+// Records are in console order, which is not always run order: xpcshell buffers
+// a failing test's output and replays it *after* the test ends, so that run's
+// `test_status` records arrive after its `test_end` (wrapped in a
+// `group_start`/`group_end` pair named "replaying full log for <test>"). Such a
+// status still belongs to the run that just closed.
 
 export const NO_GROUP = '(no group)';
 
@@ -191,7 +197,7 @@ export const buildTestSummary = (content) => {
     }
     const messages = entry.messages || (entry.message ? [entry.message] : []);
     const line = entry.line ?? null;
-    tests.get(key).results.push({
+    const result = {
       status: entry.status,
       success: entry.success,
       message: entry.message,
@@ -203,7 +209,9 @@ export const buildTestSummary = (content) => {
       start: entry.start,
       end: entry.end,
       duration: entry.duration,
-    });
+    };
+    tests.get(key).results.push(result);
+    return result;
   };
 
   // Open `test_start` events awaiting their `test_end`, queued per test name so
@@ -217,6 +225,12 @@ export const buildTestSummary = (content) => {
   const knownGroups = new Set();
   let harnessLines = 0;
   let anchor = null;
+
+  // The result each test's latest `test_end` produced, so the subtest results
+  // the harness replays after that `test_end` can still enrich it.
+  const lastClosed = new Map();
+  // Closed results a replayed status has already overwritten the messages of.
+  const replayedInto = new WeakSet();
 
   const takePending = (testName) => {
     const queue = pending.get(testName);
@@ -257,16 +271,32 @@ export const buildTestSummary = (content) => {
         // A subtest result. We only keep the unexpected ones (those carrying an
         // `expected` field) to enrich the parent test's failure message. The
         // pending run's *first* queued start owns the in-progress subtests.
-        if (!line.test || !('expected' in line)) return;
+        if (!line.test || !('expected' in line) || !line.message) return;
+        const label = line.subtest ? `${line.subtest} - ` : '';
+        const failure = {
+          message: `${label}${line.message}`,
+          line: consoleLineOf(line),
+        };
         const queue = pending.get(line.test);
         const run = queue && queue.length ? queue[0] : null;
-        if (run && line.message) {
-          const label = line.subtest ? `${line.subtest} - ` : '';
-          run.subtestFailures.push({
-            message: `${label}${line.message}`,
-            line: consoleLineOf(line),
-          });
+        if (run) {
+          run.subtestFailures.push(failure);
+          return;
         }
+        // No run open: the harness is replaying the log of the run that just
+        // ended. Fold the failure into that result, replacing the generic
+        // `test_end` message the first time (a run the harness will retry is
+        // not reported as failing, so it is left alone).
+        const closed = lastClosed.get(line.test);
+        if (!closed || closed.success) return;
+        if (!replayedInto.has(closed)) {
+          replayedInto.add(closed);
+          closed.messages = [];
+          closed.lines = [];
+        }
+        closed.messages.push(failure.message);
+        closed.lines.push(failure.line);
+        closed.message = closed.messages.join(' | ');
         return;
       }
       case 'test_end': {
@@ -288,7 +318,7 @@ export const buildTestSummary = (content) => {
               : [];
         const messages = failures.map((failure) => failure.message);
         const message = messages.length ? messages.join(' | ') : null;
-        recordEntry({
+        const result = recordEntry({
           test: line.test,
           group: line.group || run?.group || currentGroup,
           status: line.status,
@@ -301,6 +331,7 @@ export const buildTestSummary = (content) => {
           end,
           duration: durationOf(start, end),
         });
+        lastClosed.set(line.test, result);
         return;
       }
       case 'crash': {
