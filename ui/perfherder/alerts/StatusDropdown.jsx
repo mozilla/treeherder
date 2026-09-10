@@ -18,7 +18,11 @@ import {
   getApiUrl,
   getPerfCompareBaseURL,
 } from '../../helpers/url';
-import { criticalTestsList, summaryStatusMap } from '../perf-helpers/constants';
+import {
+  alertStatusMap,
+  severeAlertSeverities,
+  summaryStatusMap,
+} from '../perf-helpers/constants';
 import DropdownMenuItems from '../../shared/DropdownMenuItems';
 import BrowsertimeAlertsExtraData from '../../models/browsertimeAlertsExtraData';
 import { isWeekend } from '../perf-helpers/alertCountdownHelper';
@@ -82,6 +86,24 @@ export default class StatusDropdown extends React.Component {
     };
   };
 
+  getSevereTests = (alertSummary) => {
+    const { alerts = [], related_alerts: relatedAlerts = [] } = alertSummary;
+    const names = [...alerts, ...relatedAlerts]
+      .filter(
+        (alert) =>
+          severeAlertSeverities.includes(alert.severity) &&
+          ![alertStatusMap.invalid, alertStatusMap.infra].includes(alert.status),
+      )
+      .map(({ series_signature: signature }) => {
+        const { suite, test, machine_platform: platform } = signature;
+        const name = test && test !== suite ? `${suite} ${test}` : suite;
+
+        return `${name} ${platform}`;
+      });
+
+    return Array.from(new Set(names)).join(', ');
+  };
+
   fileBug = async (culpritId) => {
     const {
       alertSummary,
@@ -123,7 +145,7 @@ export default class StatusDropdown extends React.Component {
     );
 
     if (showCriticalFileBugModal) {
-      templateArgs.criticalTests = criticalTestsList[templateArgs.framework];
+      templateArgs.criticalTests = this.getSevereTests(alertSummary);
     }
 
     templateSettings.interpolate = /{{([\s\S]+?)}}/g;
@@ -427,7 +449,6 @@ export default class StatusDropdown extends React.Component {
       user,
       issueTrackers = [],
       performanceTags,
-      frameworks,
     } = this.props;
     const {
       showBugModal,
@@ -440,7 +461,6 @@ export default class StatusDropdown extends React.Component {
       isWeekend,
     } = this.state;
 
-    const frameworkName = getFrameworkName(frameworks, alertSummary.framework);
     const alertStatus = getStatus(alertSummary.status);
     const alertSummaryActiveTags = alertSummary.performance_tags || [];
 
@@ -589,7 +609,7 @@ export default class StatusDropdown extends React.Component {
               </Dropdown.Item>
             )}
             {!alertSummary.bug_number &&
-              frameworkName in criticalTestsList &&
+              severeAlertSeverities.includes(alertSummary.severity) &&
               user.isStaff && (
                 <Dropdown.Item
                   as="a"
