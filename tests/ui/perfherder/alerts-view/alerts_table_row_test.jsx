@@ -521,6 +521,8 @@ describe('detected push revision', () => {
     // the Sherlock icon still renders (backfill_record is present)...
     await waitFor(() => getByTestId(`alert ${alert.id} sherlock icon`));
     // ...but the styled detected-push revision span does not
-    expect(container.querySelector('.fst-italic.text-muted.small')).toBeNull();
+    expect(
+      container.querySelector('[data-testid$="suggested-culprit"]'),
+    ).toBeNull();
   });
 });

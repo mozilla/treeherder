@@ -328,3 +328,5 @@ export const countdownClasses = {
 };
 
 export const severeAlertSeverities = ['critical', 'subcritical'];
+
+export const revisionDislayLength = 12;
