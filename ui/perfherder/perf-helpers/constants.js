@@ -334,4 +334,4 @@ export const criticalTestsList = {
 
 export const severeAlertSeverities = ['critical', 'subcritical'];
 
-export const revisionDislayLength = 12;
+export const revisionDisplayLength = 12;
