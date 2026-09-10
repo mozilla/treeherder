@@ -19,40 +19,34 @@ import {
   pinJob,
   addBug,
 } from '../../../shared/stores/pinnedJobsStore';
-import FailureSummaryTab from '../../../shared/tabs/failureSummary/FailureSummaryTab';
 
 import PerformanceTab from './PerformanceTab';
 import AnnotationsTab from './AnnotationsTab';
 import SimilarJobsTab from './SimilarJobsTab';
 import SummaryTab from './summaryTab/SummaryTab';
 
-const getTabNames = ({ showPerf, showSummary }) => {
+const getTabNames = ({ showPerf }) => {
   // The order in here has to match the order within the render method
   return [
     'summary',
     'artifacts',
-    'failure',
     'annotations',
     'similar',
     'perf',
     'test-groups',
-  ].filter(
-    (name) =>
-      !(name === 'perf' && !showPerf) && !(name === 'summary' && !showSummary),
-  );
+  ].filter((name) => !(name === 'perf' && !showPerf));
 };
 
-const getDefaultTabIndex = (status, { showPerf, showSummary }) => {
+const getDefaultTabIndex = (status, { showPerf }) => {
   let idx = 0;
-  const tabNames = getTabNames({ showPerf, showSummary });
+  const tabNames = getTabNames({ showPerf });
   const tabIndexes = tabNames.reduce(
     (acc, name) => ({ ...acc, [name]: idx++ }),
     {},
   );
-
   let tabIndex = showPerf ? tabIndexes.perf : tabIndexes.artifacts;
   if (['busted', 'testfailed', 'exception'].includes(status)) {
-    tabIndex = tabIndexes.failure;
+    tabIndex = tabIndexes.summary;
   }
   return tabIndex;
 };
@@ -73,6 +67,11 @@ const TabsPanel = ({
   selectedJobFull,
   currentRepo,
   testGroups = [],
+  bugSuggestions = null,
+  bugSuggestionsLoading = false,
+  summary = null,
+  summaryLoading = false,
+  summaryError = null,
 }) => {
   // Zustand hooks
   const pinnedJobs = usePinnedJobsStore((state) => state.pinnedJobs);
@@ -93,17 +92,15 @@ const TabsPanel = ({
     addBug(bug, job);
   }, []);
 
-  const [summaryUrl, setSummaryUrl] = useState(null);
   const [overflowTabs, setOverflowTabs] = useState([]);
   const [showOverflowDropdown, setShowOverflowDropdown] = useState(false);
   const [dropdownShow, setDropdownShow] = useState(false);
 
   const showPerf = !!perfJobDetail.length;
-  const showSummary = !!summaryUrl;
 
   const [tabIndex, setTabIndex] = useState(() =>
     selectedJob
-      ? getDefaultTabIndex(selectedJob.resultStatus, { showPerf, showSummary })
+      ? getDefaultTabIndex(selectedJob.resultStatus, { showPerf })
       : 0,
   );
 
@@ -112,19 +109,12 @@ const TabsPanel = ({
   // tab is always consistent with the rendered tabs within a single commit —
   // an effect would briefly commit a frame with the selection on the wrong
   // tab, which flickers the tab header.
-  const defaultTabKey = selectedJob
-    ? `${selectedJob.id}-${showPerf}-${showSummary}`
-    : null;
+  const defaultTabKey = selectedJob ? `${selectedJob.id}-${showPerf}` : null;
   const [prevDefaultTabKey, setPrevDefaultTabKey] = useState(defaultTabKey);
   if (defaultTabKey !== prevDefaultTabKey) {
     setPrevDefaultTabKey(defaultTabKey);
     if (selectedJob) {
-      setTabIndex(
-        getDefaultTabIndex(selectedJob.resultStatus, {
-          showPerf,
-          showSummary,
-        }),
-      );
+      setTabIndex(getDefaultTabIndex(selectedJob.resultStatus, { showPerf }));
     }
   }
 
@@ -156,26 +146,18 @@ const TabsPanel = ({
     });
 
     const showPerf = !!perfJobDetail.length;
-    const showSummary = !!summaryUrl;
     const enableTestGroupsTab = testGroups && testGroups.length > 0;
 
     // Create tab data array (order must match the render method)
     const allTabs = [];
-    if (showSummary) {
-      allTabs.push({
-        key: 'summary',
-        label: 'Summary',
-        index: allTabs.length,
-      });
-    }
     allTabs.push({
-      key: 'artifacts',
-      label: 'Artifacts and Debugging Tools',
+      key: 'summary',
+      label: 'Summary',
       index: allTabs.length,
     });
     allTabs.push({
-      key: 'failure',
-      label: 'Failure Summary',
+      key: 'artifacts',
+      label: 'Artifacts and Debugging Tools',
       index: allTabs.length,
     });
     allTabs.push({
@@ -224,7 +206,7 @@ const TabsPanel = ({
       setOverflowTabs([]);
       setShowOverflowDropdown(false);
     }
-  }, [perfJobDetail, testGroups, summaryUrl]);
+  }, [perfJobDetail, testGroups]);
 
   const setupResizeObserver = useCallback(() => {
     if (tabListRef.current && window.ResizeObserver) {
@@ -245,44 +227,13 @@ const TabsPanel = ({
     const nextIndex = tabIndex + 1;
     const tabCount = getTabNames({
       showPerf: !!perfJobDetail.length,
-      showSummary: !!summaryUrl,
     }).length;
     setTabIndex(nextIndex < tabCount ? nextIndex : 0);
-  }, [tabIndex, perfJobDetail, summaryUrl]);
+  }, [tabIndex, perfJobDetail]);
 
   const handleOverflowTabClick = useCallback((newTabIndex) => {
     setTabIndex(newTabIndex);
   }, []);
-
-  // Probe for the summary.jsonl artifact; only show the Summary tab when it
-  // exists. Keyed on the derived artifact URL (which embeds the task id), so
-  // a jobDetails array that merely changes identity — e.g. after a poll
-  // refetch — neither re-probes nor toggles the Summary tab off and back on.
-  const summaryArtifactUrl =
-    jobDetails?.find((detail) => detail.value === 'summary.jsonl')?.url ||
-    jobDetails?.find((detail) => detail.value?.endsWith('_testsummary.jsonl'))
-      ?.url ||
-    null;
-
-  useEffect(() => {
-    setSummaryUrl(null);
-    if (!summaryArtifactUrl) return undefined;
-
-    let cancelled = false;
-    fetch(summaryArtifactUrl, { method: 'HEAD' })
-      .then((resp) => {
-        if (!cancelled && resp.ok) {
-          setSummaryUrl(summaryArtifactUrl);
-        }
-      })
-      .catch(() => {
-        // No summary artifact for this task; leave the Summary tab hidden.
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [summaryArtifactUrl]);
 
   // Effect for setting up event listeners and resize observer
   useEffect(() => {
@@ -320,9 +271,8 @@ const TabsPanel = ({
           <div className="tab-headers-wrapper" ref={tabListRef}>
             <TabList className="tab-headers">
               <span className="tab-header-tabs">
-                {showSummary && <Tab>Summary</Tab>}
+                <Tab>Summary</Tab>
                 <Tab>Artifacts and Debugging Tools</Tab>
-                <Tab>Failure Summary</Tab>
                 <Tab>Annotations</Tab>
                 <Tab>Similar Jobs</Tab>
                 {showPerf && <Tab>Performance</Tab>}
@@ -446,33 +396,14 @@ const TabsPanel = ({
               </span>
             </TabList>
           </div>
-          {showSummary && (
-            <TabPanel>
-              <SummaryTab
-                key={summaryUrl}
-                artifactUrl={summaryUrl}
-                selectedJob={selectedJobFull}
-                jobLogUrls={jobLogUrls}
-                jobDetails={jobDetails}
-                logViewerFullUrl={logViewerFullUrl}
-                addBug={addBugAction}
-                pinJob={pinJobAction}
-                currentRepo={currentRepo}
-              />
-            </TabPanel>
-          )}
           <TabPanel>
-            <JobArtifacts
-              jobDetails={jobDetails}
-              jobArtifactsLoading={jobArtifactsLoading}
-              repoName={currentRepo.name}
+            <SummaryTab
+              // Reset the tab's modal state when another job is selected.
+              key={selectedJobFull?.id}
+              summary={summary}
+              summaryLoading={summaryLoading}
+              summaryError={summaryError}
               selectedJob={selectedJobFull}
-            />
-          </TabPanel>
-          <TabPanel>
-            <FailureSummaryTab
-              selectedJob={selectedJobFull}
-              selectedJobId={selectedJob.id}
               jobLogUrls={jobLogUrls}
               jobDetails={jobDetails}
               logParseStatus={logParseStatus}
@@ -480,7 +411,16 @@ const TabsPanel = ({
               addBug={addBugAction}
               pinJob={pinJobAction}
               currentRepo={currentRepo}
-              fontSize="font-size-11"
+              bugSuggestions={bugSuggestions}
+              bugSuggestionsLoading={bugSuggestionsLoading}
+            />
+          </TabPanel>
+          <TabPanel>
+            <JobArtifacts
+              jobDetails={jobDetails}
+              jobArtifactsLoading={jobArtifactsLoading}
+              repoName={currentRepo.name}
+              selectedJob={selectedJobFull}
             />
           </TabPanel>
           <TabPanel>
@@ -538,6 +478,11 @@ TabsPanel.propTypes = {
   logParseStatus: PropTypes.string,
   logViewerFullUrl: PropTypes.string,
   testGroups: PropTypes.arrayOf(PropTypes.string),
+  bugSuggestions: PropTypes.arrayOf(PropTypes.shape({})),
+  bugSuggestionsLoading: PropTypes.bool,
+  summary: PropTypes.shape({}),
+  summaryLoading: PropTypes.bool,
+  summaryError: PropTypes.string,
 };
 
 export default TabsPanel;

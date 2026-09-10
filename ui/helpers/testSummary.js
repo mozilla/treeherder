@@ -18,6 +18,25 @@ import { thBugSuggestionLimit } from './constants';
 //   {"action": "crash", "group": "<manifest>", "test": "<path>",
 //    "signature": "<crash signature>", ...}
 //
+//   {"action": "log", "time": <ms>, "level": "ERROR" | "CRITICAL",
+//    "message": "TEST-UNEXPECTED-FAIL | <what> | <detail>"}
+//
+// Every record may carry a `line`: the 1-based index, among the lines
+// mozharness wrote to the console, of the first log line emitted for it. The
+// artifact opens with a `console_anchor` record giving the text and console
+// line of mozharness's first message; the log viewer locates that text in the
+// task log to translate the `line` of the other records (the log also holds
+// worker-injected lines mozharness never saw).
+//
+//   {"action": "console_anchor", "line": 1,
+//    "message": "ConsoleLogger online at ... in ..."}
+//
+// A `log` line is a failure the harness could not attribute to a test
+// (LeakSanitizer/TSan reports, shutdown leak checks, harness errors). It
+// carries no `test`/`group`, so it is filed under the manifest it names or
+// the group open at the time, as its own entry, and never mistaken for a
+// test run.
+//
 // The `end` event is not guaranteed: a test that crashes or hangs gets a
 // `test_start` with no matching `test_end`. We pair the two events to recover
 // each run's duration, and treat an unpaired `test_start` as a run that never
@@ -26,12 +45,26 @@ import { thBugSuggestionLimit } from './constants';
 // A single test can appear more than once (e.g. when it is retried), and a few
 // results carry no `group`. We regroup the lines first by test (collapsing the
 // repeated runs of the same test into one entry), then by group.
+//
+// Records are in console order, which is not always run order: xpcshell buffers
+// a failing test's output and replays it *after* the test ends, so that run's
+// `test_status` records arrive after its `test_end` (wrapped in a
+// `group_start`/`group_end` pair named "replaying full log for <test>"). Such a
+// status still belongs to the run that just closed.
 
 export const NO_GROUP = '(no group)';
 
 // Status given to a test that emitted a `test_start` but never a matching
 // `test_end` — the harness died mid-run, which almost always means a crash.
 export const INCOMPLETE_STATUS = 'CRASH';
+
+// Status given to a harness-level failure (an ERROR/CRITICAL `log` line):
+// it is not a test result, so it gets its own bucket rather than FAIL.
+export const HARNESS_STATUS = 'ERROR';
+
+// Levels at which a `log` record is a failure — the same two mozlog's
+// ErrorSummaryFormatter keeps, i.e. what the classic Failure Summary shows.
+const FAILURE_LOG_LEVELS = new Set(['ERROR', 'CRITICAL']);
 
 // Status buckets we report counts for. Anything unexpected falls back to its
 // raw status string so nothing is silently dropped.
@@ -94,6 +127,30 @@ const durationOf = (start, end) =>
 
 const finiteOrNull = (value) => (Number.isFinite(value) ? value : null);
 
+// Console line of a record, or null when it printed nothing (group events).
+const consoleLineOf = (record) => finiteOrNull(record.line);
+
+// Mirrors the "FAILURE-TYPE | testNameOrFilePath | message" branch of the
+// backend's get_error_search_term_and_path() (treeherder/model/error_summary.py)
+// so a harness failure line gets the same `path_end` the bug_suggestions API
+// derives from it, and the two can be matched.
+const LEAK_RE = /\d+ bytes leaked \(.+\)$|leak at .+$/;
+const REFTEST_RE = /\s+[=!]=\s+.*/;
+const MARIONETTE_RE = /.+marionette([_harness/]?).*\/test_.+.py ([A-Za-z]+).+/;
+
+const pathEndOfLine = (line) => {
+  const tokens = line.split(' | ');
+  if (tokens.length < 3) return null;
+  const isCrash = tokens[0].includes('PROCESS-CRASH');
+  const message = isCrash ? tokens[1] : tokens[2];
+  if (LEAK_RE.test(message)) return null;
+  let path = (isCrash ? tokens[2] : tokens[1])
+    .replace(REFTEST_RE, '')
+    .replace(/\\/g, '/');
+  if (MARIONETTE_RE.test(path)) path = `${path.split('.py ')[0]}.py`;
+  return path;
+};
+
 /**
  * Build the Summary tab data from a `*_testsummary.jsonl` artifact.
  *
@@ -108,10 +165,13 @@ const finiteOrNull = (value) => (Number.isFinite(value) ? value : null);
  *       status: string,
  *       success: boolean,
  *       retried: boolean,
- *       results: Array<{ status: string, success: boolean, message: ?string, start: ?number, end: ?number, duration: ?number }>,
+ *       harness?: true,
+ *       pathEnd?: ?string,
+ *       results: Array<{ status: string, success: boolean, message: ?string, messages: string[], line: ?number, lines: Array<?number>, start: ?number, end: ?number, duration: ?number }>,
  *     }>,
  *   }>,
  *   counts: Object,
+ *   anchor: ?{ line: number, message: string },
  * }}
  */
 export const buildTestSummary = (content) => {
@@ -120,25 +180,38 @@ export const buildTestSummary = (content) => {
   // group name -> Map(test name -> { name, results })
   const groups = new Map();
 
-  const recordEntry = (entry) => {
+  const recordEntry = (entry, key = entry.test) => {
     const groupName = entry.group || NO_GROUP;
     if (!groups.has(groupName)) {
       groups.set(groupName, new Map());
     }
     const tests = groups.get(groupName);
 
-    if (!tests.has(entry.test)) {
-      tests.set(entry.test, { name: entry.test, results: [] });
+    if (!tests.has(key)) {
+      const test = { name: entry.test, results: [] };
+      if (entry.harness) {
+        test.harness = true;
+        test.pathEnd = entry.pathEnd;
+      }
+      tests.set(key, test);
     }
-    tests.get(entry.test).results.push({
+    const messages = entry.messages || (entry.message ? [entry.message] : []);
+    const line = entry.line ?? null;
+    const result = {
       status: entry.status,
       success: entry.success,
       message: entry.message,
-      messages: entry.messages || (entry.message ? [entry.message] : []),
+      messages,
+      // Console line of the record that produced the result, and one per
+      // message (a subtest failure links to its own log line).
+      line,
+      lines: entry.lines || messages.map(() => line),
       start: entry.start,
       end: entry.end,
       duration: entry.duration,
-    });
+    };
+    tests.get(key).results.push(result);
+    return result;
   };
 
   // Open `test_start` events awaiting their `test_end`, queued per test name so
@@ -147,6 +220,17 @@ export const buildTestSummary = (content) => {
   // The group most recently opened by `group_start`, used as a fallback when a
   // test event carries no `group` of its own.
   let currentGroup = null;
+  // Groups seen so far, to file a harness line under the manifest it names
+  // even when it arrives after that group's `group_end`.
+  const knownGroups = new Set();
+  let harnessLines = 0;
+  let anchor = null;
+
+  // The result each test's latest `test_end` produced, so the subtest results
+  // the harness replays after that `test_end` can still enrich it.
+  const lastClosed = new Map();
+  // Closed results a replayed status has already overwritten the messages of.
+  const replayedInto = new WeakSet();
 
   const takePending = (testName) => {
     const queue = pending.get(testName);
@@ -157,7 +241,13 @@ export const buildTestSummary = (content) => {
     if (!line) return;
 
     switch (line.action) {
+      case 'console_anchor':
+        if (!anchor && line.message && consoleLineOf(line) !== null) {
+          anchor = { line: line.line, message: line.message };
+        }
+        return;
       case 'group_start':
+        if (line.name) knownGroups.add(line.name);
         currentGroup = line.name || currentGroup;
         return;
       case 'group_end':
@@ -168,6 +258,7 @@ export const buildTestSummary = (content) => {
         const run = {
           group: line.group || currentGroup,
           start: finiteOrNull(line.time),
+          line: consoleLineOf(line),
           // Messages from unexpected `test_status` (subtest) events, which are
           // usually more descriptive than the parent `test_end` message.
           subtestFailures: [],
@@ -180,13 +271,32 @@ export const buildTestSummary = (content) => {
         // A subtest result. We only keep the unexpected ones (those carrying an
         // `expected` field) to enrich the parent test's failure message. The
         // pending run's *first* queued start owns the in-progress subtests.
-        if (!line.test || !('expected' in line)) return;
+        if (!line.test || !('expected' in line) || !line.message) return;
+        const label = line.subtest ? `${line.subtest} - ` : '';
+        const failure = {
+          message: `${label}${line.message}`,
+          line: consoleLineOf(line),
+        };
         const queue = pending.get(line.test);
         const run = queue && queue.length ? queue[0] : null;
-        if (run && line.message) {
-          const label = line.subtest ? `${line.subtest} - ` : '';
-          run.subtestFailures.push(`${label}${line.message}`);
+        if (run) {
+          run.subtestFailures.push(failure);
+          return;
         }
+        // No run open: the harness is replaying the log of the run that just
+        // ended. Fold the failure into that result, replacing the generic
+        // `test_end` message the first time (a run the harness will retry is
+        // not reported as failing, so it is left alone).
+        const closed = lastClosed.get(line.test);
+        if (!closed || closed.success) return;
+        if (!replayedInto.has(closed)) {
+          replayedInto.add(closed);
+          closed.messages = [];
+          closed.lines = [];
+        }
+        closed.messages.push(failure.message);
+        closed.lines.push(failure.line);
+        closed.message = closed.messages.join(' | ');
         return;
       }
       case 'test_end': {
@@ -199,24 +309,29 @@ export const buildTestSummary = (content) => {
         // For a failing test prefer the (more informative) subtest messages,
         // keeping each one separate so the Summary tab can render one failure
         // line per message; otherwise fall back to the test_end message.
-        const messages =
+        const endLine = consoleLineOf(line);
+        const failures =
           !success && subtestFailures.length
             ? subtestFailures
             : line.message
-              ? [line.message]
+              ? [{ message: line.message, line: endLine }]
               : [];
+        const messages = failures.map((failure) => failure.message);
         const message = messages.length ? messages.join(' | ') : null;
-        recordEntry({
+        const result = recordEntry({
           test: line.test,
           group: line.group || run?.group || currentGroup,
           status: line.status,
           success,
           message,
           messages,
+          line: endLine,
+          lines: failures.map((failure) => failure.line),
           start,
           end,
           duration: durationOf(start, end),
         });
+        lastClosed.set(line.test, result);
         return;
       }
       case 'crash': {
@@ -227,10 +342,42 @@ export const buildTestSummary = (content) => {
           status: 'CRASH',
           success: false,
           message: line.signature || null,
+          line: consoleLineOf(line),
           start: null,
           end: null,
           duration: null,
         });
+        return;
+      }
+      case 'log': {
+        // Only ERROR/CRITICAL lines reach the artifact (mozlog's
+        // TestSummaryFormatter filters the rest); be defensive anyway.
+        if (!line.message || !FAILURE_LOG_LEVELS.has(line.level)) return;
+        const { message } = line;
+        const tokens = message.split(' | ');
+        const scope =
+          tokens.length > 1 ? tokens[tokens.length - 1].trim() : '';
+        const pathEnd = pathEndOfLine(message);
+        harnessLines += 1;
+        recordEntry(
+          {
+            test: pathEnd || message,
+            group: knownGroups.has(scope) ? scope : currentGroup,
+            status: HARNESS_STATUS,
+            success: false,
+            message,
+            messages: [message],
+            line: consoleLineOf(line),
+            start: null,
+            end: null,
+            duration: null,
+            harness: true,
+            pathEnd,
+          },
+          // Each line is its own entry: two leak reports are two failures,
+          // not one test run twice.
+          `harness:${harnessLines}`,
+        );
         return;
       }
       default:
@@ -247,6 +394,7 @@ export const buildTestSummary = (content) => {
         status: INCOMPLETE_STATUS,
         success: false,
         message: 'Test started but never finished',
+        line: run.line,
         start: run.start,
         end: null,
         duration: null,
@@ -265,8 +413,12 @@ export const buildTestSummary = (content) => {
       // The "final" status/success is the last run of the test (handles retries).
       const lastResult = test.results[test.results.length - 1];
       const { status, success } = lastResult;
-      tallyStatus(groupCounts, status);
-      tallyStatus(overallCounts, status);
+      // Harness failures are not tests: they count as failures below but
+      // stay out of the test tallies, so "N tests" keeps meaning tests.
+      if (!test.harness) {
+        tallyStatus(groupCounts, status);
+        tallyStatus(overallCounts, status);
+      }
       if (!success) {
         overallRealFailCounts[status] =
           (overallRealFailCounts[status] || 0) + 1;
@@ -286,6 +438,7 @@ export const buildTestSummary = (content) => {
     groups: groupList,
     counts: overallCounts,
     realFailCounts: overallRealFailCounts,
+    anchor,
   };
 };
 
@@ -295,7 +448,7 @@ export const buildTestSummary = (content) => {
  * reuses BugFiler/InternalIssueFiler but has no Bugzilla suggestion data).
  *
  * @param {ReturnType<typeof buildTestSummary>|null} summary
- * @returns {Array<{ search: string, path_end: string, search_terms: string[], bugs: { open_recent: [], all_others: [] } }>}
+ * @returns {Array<{ search: string, path_end: ?string, search_terms: string[], line: ?number, bugs: { open_recent: [], all_others: [] } }>}
  */
 export const buildFailureSuggestions = (summary) => {
   if (!summary) return [];
@@ -313,13 +466,20 @@ export const buildFailureSuggestions = (summary) => {
         : [lastResult.message].filter(Boolean);
       if (!messages.length) messages.push(null);
       messages.forEach((message, index) => {
-        const search = `TEST-UNEXPECTED-${test.status} | ${test.name}${
-          message ? ` | ${message}` : ''
-        }`;
+        // A harness line already is a complete failure line; a test result
+        // is rebuilt into the classic "TEST-UNEXPECTED-<status> | test | msg".
+        const search = test.harness
+          ? message
+          : `TEST-UNEXPECTED-${test.status} | ${test.name}${
+              message ? ` | ${message}` : ''
+            }`;
         suggestions.push({
           search,
-          path_end: test.name,
+          path_end: test.harness ? test.pathEnd : test.name,
           search_terms: getSearchWords(search),
+          // Console line of the record behind this message, to be resolved
+          // against the task log with the summary's `anchor`.
+          line: lastResult.lines?.[index] ?? lastResult.line ?? null,
           // Bug suggestions match on test path, so every line of a test would
           // otherwise get the same bugs. Only the first line carries them.
           primary: index === 0,
@@ -378,6 +538,21 @@ const decorateBugs = (suggestion) => {
 };
 
 /**
+ * A "new failure" line: a three-part `search` that is either flagged new in
+ * the revision or, on try, has never been seen before (`counter === 0`).
+ * Shared by the Summary and the classic Failure Summary tabs so both flag the
+ * same lines.
+ *
+ * @param {{ search: string, failure_new_in_rev: ?boolean, counter: ?number }} suggestion
+ * @param {string} repoName
+ * @returns {boolean}
+ */
+export const isNewFailureLine = (suggestion, repoName) =>
+  suggestion.search.split(' | ').length === 3 &&
+  (suggestion.failure_new_in_rev === true ||
+    (suggestion.counter === 0 && repoName === 'try'));
+
+/**
  * Enrich the testsummary-derived failure suggestions with the Bugzilla bug
  * suggestions returned by the `/bug_suggestions/` API, matching on test path.
  *
@@ -415,6 +590,153 @@ export const matchBugSuggestions = (failureSuggestions, bugSuggestions) => {
   });
 
   return failureSuggestions;
+};
+
+
+// ---------------------------------------------------------------------------
+// Classic Failure Summary (`/bug_suggestions/` API) helpers, shared with the
+// Summary tab so both views normalize their failure lines identically.
+
+// True when a failure line is the generic per-test noise line ("finished in
+// Nms" / "xpcshell return code") for its own test path.
+export const isGenericFailure = (search, pathEnd) => {
+  const match =
+    search.match(/^TEST-UNEXPECTED-\w+ \| (.+?) \| finished in \d+ms$/) ||
+    search.match(
+      /^TEST-UNEXPECTED-\w+ \| (.+?) \| xpcshell return code: -?\d+$/,
+    );
+
+  return match && match[1] === pathEnd;
+};
+
+// Drop the lines that carry no signal of their own: `[taskcluster:error] exit
+// status N` lines, and generic per-test lines when a specific error exists for
+// the same `path_end`. Pure and idempotent — safe to apply to a list that was
+// already filtered. A single-line list is returned as-is (matching the classic
+// Failure Summary, which only filters when other messages exist).
+export const filterGenericFailureLines = (suggestions) => {
+  const list = suggestions || [];
+  if (list.length <= 1) {
+    return [...list];
+  }
+
+  // First pass: collect test paths with at least one non-generic error
+  const testPathsWithSpecificErrors = new Set();
+  list.forEach((suggestion) => {
+    if (
+      suggestion.path_end &&
+      !isGenericFailure(suggestion.search, suggestion.path_end)
+    ) {
+      testPathsWithSpecificErrors.add(suggestion.path_end);
+    }
+  });
+
+  // Second pass: filter out generic errors
+  return list.filter((suggestion) => {
+    // Filter taskcluster errors since there are other messages (length > 1)
+    if (/^\[taskcluster:error\] exit status -?\d+$/.test(suggestion.search)) {
+      return false;
+    }
+
+    // Filter generic per-test errors if this test has specific errors
+    return (
+      !isGenericFailure(suggestion.search, suggestion.path_end) ||
+      !testPathsWithSpecificErrors.has(suggestion.path_end)
+    );
+  });
+};
+
+// Exact behavior of the classic Failure Summary's filtering: drop generic
+// lines, then mark the first occurrence of each test path to show its bugs.
+// Mutates `showBugSuggestions` on the kept suggestions.
+export const filterGenericFailures = (suggestions) => {
+  if (suggestions.length <= 1) {
+    return suggestions;
+  }
+
+  const filtered = filterGenericFailureLines(suggestions);
+
+  // Mark first occurrence of each test path to show bugs
+  const seenTestPaths = new Set();
+  filtered.forEach((suggestion) => {
+    if (!suggestion.path_end) {
+      suggestion.showBugSuggestions = true;
+      return;
+    }
+
+    suggestion.showBugSuggestions = !seenTestPaths.has(suggestion.path_end);
+    seenTestPaths.add(suggestion.path_end);
+  });
+
+  return filtered;
+};
+
+/**
+ * Prepare the raw `/bug_suggestions/` API response for display: derive the
+ * bug-validity flags and filter the generic failure lines — the exact
+ * processing the classic Failure Summary applies before rendering. Mutates
+ * the suggestions (flags) and returns the filtered array.
+ */
+export const prepareBugSuggestions = (suggestions) => {
+  const list = Array.isArray(suggestions) ? suggestions : [];
+  list.forEach((suggestion) => {
+    suggestion.bugs.too_many_open_recent =
+      suggestion.bugs.open_recent.length > thBugSuggestionLimit;
+    suggestion.bugs.too_many_all_others =
+      suggestion.bugs.all_others.length > thBugSuggestionLimit;
+    suggestion.valid_open_recent =
+      suggestion.bugs.open_recent.length > 0 &&
+      !suggestion.bugs.too_many_open_recent;
+    suggestion.valid_all_others =
+      suggestion.bugs.all_others.length > 0 &&
+      !suggestion.bugs.too_many_all_others &&
+      // If we have too many open_recent bugs, we're unlikely to have
+      // relevant all_others bugs, so don't show them either.
+      !suggestion.bugs.too_many_open_recent;
+  });
+
+  return filterGenericFailures(list);
+};
+
+const normalizeSearchLine = (search) =>
+  (search || '').trim().replace(/\s+/g, ' ');
+
+/**
+ * Compare the testsummary-derived failure lines with the classic
+ * `/bug_suggestions/` ones. Both sides go through the same generic-line
+ * filter, so noise lines (`finished in Nms`, `[taskcluster:error] ...`) never
+ * count as a divergence; the normalized `search` strings are then set-diffed.
+ *
+ * @param {ReturnType<typeof buildFailureSuggestions>} failureSuggestions
+ * @param {Array<{ search: string, path_end: ?string }>} bugSuggestions
+ * @returns {{ diverged: boolean, onlyInSummary: string[], onlyInClassic: string[] }}
+ */
+export const computeSummaryDivergence = (
+  failureSuggestions,
+  bugSuggestions,
+) => {
+  const toLineSet = (suggestions) =>
+    new Set(
+      filterGenericFailureLines(suggestions || [])
+        .map((suggestion) => normalizeSearchLine(suggestion.search))
+        .filter(Boolean),
+    );
+
+  const summaryLines = toLineSet(failureSuggestions);
+  const classicLines = toLineSet(bugSuggestions);
+
+  const onlyInSummary = [...summaryLines].filter(
+    (line) => !classicLines.has(line),
+  );
+  const onlyInClassic = [...classicLines].filter(
+    (line) => !summaryLines.has(line),
+  );
+
+  return {
+    diverged: onlyInSummary.length > 0 || onlyInClassic.length > 0,
+    onlyInSummary,
+    onlyInClassic,
+  };
 };
 
 export default buildTestSummary;

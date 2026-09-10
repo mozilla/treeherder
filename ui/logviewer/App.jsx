@@ -17,8 +17,10 @@ import {
   copySelectedLogToBugFiler,
   findNextErrorLine,
   findPrevErrorLine,
+  getUrlConsoleLine,
   getUrlLineNumber,
   writeLineNumberParam,
+  writeResolvedConsoleLine,
 } from './logviewerHelpers';
 
 import './logviewer.css';
@@ -56,10 +58,16 @@ const App = () => {
     () => initialHighlightRef.current?.[0] ?? null,
   );
   const [highlight, setHighlightState] = useState(initialHighlightRef.current);
+  // A line pinned relative to mozharness's console output (from the job
+  // view's Summary tab). It is resolved to a log line once the log is loaded;
+  // an absolute lineNumber in the URL takes precedence.
+  const consoleLineRef = useRef(
+    initialHighlightRef.current ? null : getUrlConsoleLine(),
+  );
 
   // When errors arrive, default to scrolling to the first one (unless URL pinned a line)
   useEffect(() => {
-    if (firstErrorLine == null) return;
+    if (firstErrorLine == null || consoleLineRef.current) return;
     const urlLN = getUrlLineNumber();
     const lineToScrollTo = urlLN ? urlLN[0] : firstErrorLine;
     setInitialLine(lineToScrollTo);
@@ -70,6 +78,16 @@ const App = () => {
     setHighlightState(newHighlight);
     writeLineNumberParam(newHighlight);
   }, []);
+
+  const onConsoleLineResolved = useCallback(
+    (lineNumber) => {
+      consoleLineRef.current = null;
+      const target = lineNumber ?? firstErrorLine;
+      writeResolvedConsoleLine(target);
+      if (target != null) setInitialLine(target);
+    },
+    [firstErrorLine],
+  );
 
   const onErrorLineClick = useCallback((lineNumbers) => {
     if (lineNumbers && lineNumbers[0] > 0) {
@@ -178,6 +196,8 @@ const App = () => {
               initialHighlight={initialHighlightRef.current}
               onHighlightChange={onHighlightChange}
               errorLineNumbers={errorLineNumbers}
+              consoleLine={consoleLineRef.current}
+              onConsoleLineResolved={onConsoleLineResolved}
             />
           )}
         </div>

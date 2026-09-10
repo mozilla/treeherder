@@ -1,0 +1,501 @@
+import { render, screen, cleanup, fireEvent } from '@testing-library/react';
+import { MemoryRouter } from 'react-router';
+
+import SummaryTab from '../../../../../ui/job-view/details/tabs/summaryTab/SummaryTab';
+import {
+  buildTestSummary,
+  prepareBugSuggestions,
+} from '../../../../../ui/helpers/testSummary';
+import {
+  requiredInternalOccurrences,
+  thEvents,
+} from '../../../../../ui/helpers/constants';
+
+const selectedJob = {
+  id: 1,
+  platform: 'linux',
+  job_group_name: 'Mochitest',
+  job_type_name: 'test-linux1804-64/opt-mochitest-1',
+  job_type_symbol: 'M-1',
+};
+const currentRepo = { name: 'autoland' };
+
+const summaryJsonl = [
+  '{"action":"test_start","time":0,"group":"dom/manifest.ini","test":"dom/tests/test_fail.html"}',
+  '{"action":"test_end","time":10,"group":"dom/manifest.ini","test":"dom/tests/test_fail.html","status":"FAIL","expected":"PASS","message":"assertion failed"}',
+].join('\n');
+
+// The exact line buildFailureSuggestions derives from the artifact above.
+const matchingSuggestion = () => ({
+  search: 'TEST-UNEXPECTED-FAIL | dom/tests/test_fail.html | assertion failed',
+  path_end: 'dom/tests/test_fail.html',
+  bugs: { open_recent: [], all_others: [] },
+});
+
+// A line only the classic bug_suggestions API knows about.
+const classicOnlySuggestion = () => ({
+  search: 'PROCESS-CRASH | application crashed | dom/tests/test_fail.html',
+  path_end: 'dom/tests/test_fail.html',
+  bugs: { open_recent: [], all_others: [] },
+});
+
+const renderSummaryTab = (bugSuggestions, jsonl = summaryJsonl, repo = currentRepo) =>
+  render(
+    <MemoryRouter>
+      <SummaryTab
+        summary={buildTestSummary(jsonl)}
+        summaryLoading={false}
+        summaryError={null}
+        selectedJob={selectedJob}
+        jobLogUrls={[]}
+        jobDetails={[]}
+        addBug={() => {}}
+        pinJob={() => {}}
+        currentRepo={repo}
+        bugSuggestions={bugSuggestions}
+        bugSuggestionsLoading={false}
+      />
+    </MemoryRouter>,
+  );
+
+// Renders with only the props a case cares about; everything else is inert.
+const renderWith = (props) =>
+  render(
+    <MemoryRouter>
+      <SummaryTab
+        selectedJob={selectedJob}
+        jobLogUrls={[]}
+        jobDetails={[]}
+        addBug={() => {}}
+        pinJob={() => {}}
+        currentRepo={currentRepo}
+        bugSuggestions={[]}
+        bugSuggestionsLoading={false}
+        {...props}
+      />
+    </MemoryRouter>,
+  );
+
+// The classic section is folded by default; open it to read its content.
+const expandClassic = () =>
+  fireEvent.click(
+    screen.getByRole('button', { name: /Failure Summary \(classic\)/ }),
+  );
+
+describe('SummaryTab divergence with the classic failure summary', () => {
+  afterEach(cleanup);
+
+  test('stacks the classic failure summary below when the two diverge', () => {
+    renderSummaryTab(
+      prepareBugSuggestions([matchingSuggestion(), classicOnlySuggestion()]),
+    );
+
+    expect(screen.getByText('Failure Summary (classic)')).toBeInTheDocument();
+    // Folded by default: the summary above already lists the failures.
+    expect(screen.queryByText(/application crashed/)).toBeNull();
+
+    expandClassic();
+    expect(screen.getByText(/application crashed/)).toBeInTheDocument();
+  });
+
+  test('folds the section, without the divergence note, when they agree', () => {
+    renderSummaryTab(prepareBugSuggestions([matchingSuggestion()]));
+
+    expect(screen.getByText(/1 failed/)).toBeInTheDocument();
+    // Still reachable — the classic lines are no longer shown anywhere else —
+    // but folded, and with nothing to say about a divergence.
+    expect(
+      screen.getByRole('button', { name: /Failure Summary \(classic\)/ }),
+    ).toHaveAttribute('aria-expanded', 'false');
+    expandClassic();
+    expect(screen.queryByText(/differs from the summary above/)).toBeNull();
+  });
+});
+
+describe('SummaryTab log viewer links', () => {
+  const anchorMessage = 'ConsoleLogger online at 20260904 in /builds/worker';
+  const anchoredJsonl = [
+    `{"action":"console_anchor","line":1,"message":"${anchorMessage}"}`,
+    '{"action":"test_start","time":0,"group":"dom/manifest.ini","test":"dom/tests/test_fail.html","line":40}',
+    '{"action":"test_end","time":10,"group":"dom/manifest.ini","test":"dom/tests/test_fail.html","status":"FAIL","expected":"PASS","message":"assertion failed","line":42}',
+  ].join('\n');
+
+  afterEach(cleanup);
+
+  test('links a failure line to its console line in the log viewer', () => {
+    renderSummaryTab([], anchoredJsonl);
+
+    const link = screen
+      .getByTitle('Go to this line in the log viewer')
+      .closest('a');
+    const url = new URL(link.getAttribute('href'), 'https://treeherder.test');
+
+    expect(url.pathname).toBe('/logviewer');
+    expect(url.searchParams.get('job_id')).toBe('1');
+    expect(url.searchParams.get('repo')).toBe('autoland');
+    expect(url.searchParams.get('consoleLine')).toBe('42');
+    expect(url.searchParams.get('consoleAnchorLine')).toBe('1');
+    expect(url.searchParams.get('consoleAnchor')).toBe(anchorMessage);
+    expect(url.searchParams.get('lineNumber')).toBeNull();
+  });
+
+  test('renders no log viewer link when the artifact has no anchor', () => {
+    renderSummaryTab([]);
+
+    expect(screen.getByText(/1 failed/)).toBeInTheDocument();
+    expect(screen.queryByTitle('Go to this line in the log viewer')).toBeNull();
+  });
+});
+
+describe('SummaryTab loading and error states', () => {
+  afterEach(cleanup);
+
+  test('overlays a spinner while the panel is loading the artifact', () => {
+    renderWith({ summaryLoading: true });
+
+    expect(screen.getByTitle('Loading...')).toBeInTheDocument();
+    // The list keeps its shape rather than being replaced, and does not claim
+    // the job has no failures before the artifact has been read.
+    expect(screen.queryByText('No failures found in the summary.')).toBeNull();
+  });
+
+  test('shows every count, zeros included', () => {
+    renderWith({ summary: buildTestSummary(summaryJsonl) });
+
+    // The total sits in its own <strong>, hence the element-wise assertions.
+    expect(screen.getByText('tests:', { exact: false })).toHaveTextContent(
+      '1 tests: 0 passed, 1 failed, 0 skipped',
+    );
+    expect(screen.getByText('0 passed')).toBeInTheDocument();
+    expect(screen.getByText('1 failed')).toBeInTheDocument();
+    // Shown even at zero, so the row does not change shape between jobs.
+    expect(screen.getByText('0 skipped')).toBeInTheDocument();
+  });
+
+  test('reports an empty summary once loading is done', () => {
+    renderWith({ summaryLoading: false, summary: buildTestSummary('') });
+
+    expect(
+      screen.getByText('No failures found in the summary.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByTitle('Loading...')).toBeNull();
+  });
+
+  test('reports a failed load as a line in the list, like the classic tab', () => {
+    renderWith({ summaryError: 'Failed to load summary (404)' });
+
+    expect(
+      screen.getByText('Failed to load summary (404)'),
+    ).toBeInTheDocument();
+    // The panel keeps its shape rather than being replaced by the message,
+    // and does not claim the job has no failures when it could not read them.
+    expect(screen.getByRole('region', { name: 'Summary' })).toBeInTheDocument();
+    expect(screen.queryByText('No failures found in the summary.')).toBeNull();
+  });
+
+  test('falls back to the classic failure summary, open, when the load failed', () => {
+    renderWith({
+      summaryError: 'Failed to load summary (404)',
+      bugSuggestions: prepareBugSuggestions([classicOnlySuggestion()]),
+    });
+
+    expect(
+      screen.getByRole('button', { name: /Failure Summary \(classic\)/ }),
+    ).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByText(/application crashed/)).toBeInTheDocument();
+    // Nothing diverged — there is no summary to differ from.
+    expect(screen.queryByText(/differs from the summary above/)).toBeNull();
+  });
+
+  test('shows the classic summary, open, for a job with no summary artifact', () => {
+    // Plenty of tasks publish bug suggestions and no summary.jsonl at all —
+    // there is no summary to diverge from, and the lines must still show.
+    renderWith({
+      summary: null,
+      summaryError: null,
+      bugSuggestions: prepareBugSuggestions([classicOnlySuggestion()]),
+    });
+
+    expect(
+      screen.getByText('No summary artifact for this job.'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Failure Summary \(classic\)/ }),
+    ).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByText(/application crashed/)).toBeInTheDocument();
+  });
+
+  test('renders no classic section when the load failed and the API has nothing', () => {
+    renderWith({
+      summaryError: 'Failed to load summary (404)',
+      bugSuggestions: [],
+    });
+
+    expect(screen.queryByText('Failure Summary (classic)')).toBeNull();
+  });
+});
+
+describe('SummaryTab new failure lines in the classic section', () => {
+  afterEach(cleanup);
+
+  // The classic section is only stacked below when the two summaries diverge,
+  // so every case here needs a line the summary artifact does not have.
+  const divergingWith = (overrides) =>
+    prepareBugSuggestions([
+      matchingSuggestion(),
+      { ...classicOnlySuggestion(), ...overrides },
+    ]);
+
+  test('flags the first new failure and counts them all', () => {
+    renderSummaryTab(divergingWith({ failure_new_in_rev: true }));
+
+    expandClassic();
+
+    expect(
+      screen.getByText(/1 new failure line\(s\)\. First one is flagged/),
+    ).toBeInTheDocument();
+    expect(screen.getByText('NEW')).toBeInTheDocument();
+  });
+
+  test('renders no banner when no line is new', () => {
+    renderSummaryTab(divergingWith({}));
+    expandClassic();
+
+    expect(screen.queryByText(/new failure line/)).toBeNull();
+    expect(screen.queryByText('NEW')).toBeNull();
+  });
+
+  test('counts a never-seen line on try only', () => {
+    renderSummaryTab(divergingWith({ counter: 0 }));
+    expandClassic();
+    expect(screen.queryByText('NEW')).toBeNull();
+    cleanup();
+
+    renderSummaryTab(divergingWith({ counter: 0 }), summaryJsonl, {
+      name: 'try',
+    });
+    expandClassic();
+    expect(screen.getByText('NEW')).toBeInTheDocument();
+  });
+
+  test('leaves the summary lines themselves unflagged', () => {
+    renderSummaryTab(
+      prepareBugSuggestions([
+        { ...matchingSuggestion(), failure_new_in_rev: true },
+      ]),
+    );
+
+    // Nothing is flagged among the summary lines: the NEW button appears only
+    // once the classic section is opened.
+    expect(screen.queryByText('NEW')).toBeNull();
+
+    expandClassic();
+    expect(screen.getByText('NEW')).toBeInTheDocument();
+  });
+});
+
+describe('SummaryTab classic section folding', () => {
+  afterEach(cleanup);
+
+  test('is folded by default when the summary lists failures', () => {
+    renderSummaryTab(
+      prepareBugSuggestions([matchingSuggestion(), classicOnlySuggestion()]),
+    );
+
+    const toggle = screen.getByRole('button', {
+      name: /Failure Summary \(classic\)/,
+    });
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByText(/application crashed/)).toBeNull();
+  });
+
+  test('starts open when the summary artifact found no failures', () => {
+    // An artifact with a passing test only (`expected` is written for
+    // unexpected results only): nothing for the summary to list, so the
+    // classic summary is the only content and opens on its own.
+    const passingJsonl = [
+      '{"action":"test_start","time":0,"group":"dom/manifest.ini","test":"dom/tests/test_pass.html"}',
+      '{"action":"test_end","time":10,"group":"dom/manifest.ini","test":"dom/tests/test_pass.html","status":"PASS"}',
+    ].join('\n');
+
+    renderSummaryTab(
+      prepareBugSuggestions([classicOnlySuggestion()]),
+      passingJsonl,
+    );
+
+    expect(
+      screen.getByRole('button', { name: /Failure Summary \(classic\)/ }),
+    ).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByText(/application crashed/)).toBeInTheDocument();
+  });
+
+  test('folds and unfolds on click', () => {
+    renderSummaryTab(
+      prepareBugSuggestions([matchingSuggestion(), classicOnlySuggestion()]),
+    );
+
+    expandClassic();
+    expect(screen.getByText(/application crashed/)).toBeInTheDocument();
+
+    expandClassic();
+    expect(screen.queryByText(/application crashed/)).toBeNull();
+  });
+});
+
+// Behaviour the Summary tab took over when the separate Failure Summary tab
+// was removed.
+describe('SummaryTab log parsing states', () => {
+  afterEach(cleanup);
+
+  const completedJob = { ...selectedJob, state: 'completed', result: 'busted' };
+
+  test('says parsing is in progress and links the raw log', () => {
+    renderWith({
+      jobLogUrls: [
+        {
+          id: 7,
+          name: 'live_backing_log',
+          parse_status: 'pending',
+          url: 'https://example.com/live_backing.log',
+        },
+      ],
+    });
+
+    expect(screen.getByText(/Log parsing in progress/)).toBeInTheDocument();
+    expect(screen.getByText('The raw log')).toHaveAttribute(
+      'href',
+      'https://example.com/live_backing.log',
+    );
+  });
+
+  test('reports a failed parse', () => {
+    renderWith({
+      logParseStatus: 'failed',
+      jobLogUrls: [
+        { id: 7, name: 'live_backing_log', parse_status: 'failed', url: 'u' },
+      ],
+    });
+
+    expect(
+      screen.getByText(/Log parsing failed\./),
+    ).toBeInTheDocument();
+  });
+
+  test('reports a parse skipped for size', () => {
+    renderWith({
+      logParseStatus: 'skipped-size',
+      jobLogUrls: [
+        {
+          id: 7,
+          name: 'live_backing_log',
+          parse_status: 'skipped-size',
+          url: 'u',
+        },
+      ],
+    });
+
+    expect(
+      screen.getByText(/exceeds the size limit/),
+    ).toBeInTheDocument();
+  });
+
+  test('names the job state when it has no logs yet', () => {
+    renderWith({ selectedJob: completedJob, jobLogUrls: [] });
+
+    expect(
+      screen.getByText('No logs yet available for this busted job.'),
+    ).toBeInTheDocument();
+  });
+
+  test('says nothing once the log is parsed', () => {
+    renderWith({
+      logParseStatus: 'parsed',
+      jobLogUrls: [
+        { id: 7, name: 'live_backing_log', parse_status: 'parsed', url: 'u' },
+      ],
+    });
+
+    expect(screen.queryByText(/Log parsing/)).toBeNull();
+    expect(screen.queryByText(/No logs yet available/)).toBeNull();
+  });
+});
+
+describe('SummaryTab internal issue escalation', () => {
+  beforeEach(() => {
+    // Escalating opens the bug filer, which looks up a Bugzilla component.
+    window.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve([{ product: 'Core', component: 'DOM' }]),
+    });
+  });
+
+  afterEach(() => {
+    cleanup();
+    delete window.fetch;
+  });
+
+  // An internal bug one occurrence short of the threshold: classifying it
+  // once more should escalate it to a real Bugzilla bug.
+  const internalBugSuggestions = (occurrences) => [
+    {
+      search: 'TEST-UNEXPECTED-FAIL | dom/tests/test_fail.html | boom',
+      path_end: 'dom/tests/test_fail.html',
+      // The bug filer opens on escalation and reads these.
+      search_terms: ['test_fail.html', 'boom'],
+      bugs: {
+        open_recent: [{ id: null, internal_id: 42, occurrences }],
+        all_others: [],
+      },
+    },
+  ];
+
+  test('files a bug once the internal issue reached its occurrences', () => {
+    const pinJob = jest.fn();
+    renderWith({
+      pinJob,
+      bugSuggestions: internalBugSuggestions(requiredInternalOccurrences - 1),
+    });
+
+    fireEvent(
+      window,
+      new CustomEvent(thEvents.internalIssueClassification, {
+        detail: { internalBugId: 42 },
+      }),
+    );
+
+    // fileBug pins the job before opening the filer.
+    expect(pinJob).toHaveBeenCalledWith(selectedJob);
+  });
+
+  test('does nothing for an internal issue seen too few times', () => {
+    const pinJob = jest.fn();
+    renderWith({ pinJob, bugSuggestions: internalBugSuggestions(0) });
+
+    fireEvent(
+      window,
+      new CustomEvent(thEvents.internalIssueClassification, {
+        detail: { internalBugId: 42 },
+      }),
+    );
+
+    expect(pinJob).not.toHaveBeenCalled();
+  });
+
+  test('drops its listener on unmount', () => {
+    const removeSpy = jest.spyOn(window, 'removeEventListener');
+    const addSpy = jest.spyOn(window, 'addEventListener');
+
+    const { unmount } = renderWith({});
+    const eventType = thEvents.internalIssueClassification;
+    const added = addSpy.mock.calls.find(([type]) => type === eventType)[1];
+
+    unmount();
+
+    const removed = removeSpy.mock.calls.find(([type]) => type === eventType);
+    expect(removed).toBeDefined();
+    expect(removed[1]).toBe(added);
+
+    addSpy.mockRestore();
+    removeSpy.mockRestore();
+  });
+});
