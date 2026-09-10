@@ -19,6 +19,7 @@ import {
   getPerfCompareBaseURL,
 } from '../../helpers/url';
 import {
+  alertStatusMap,
   severeAlertSeverities,
   summaryStatusMap,
 } from '../perf-helpers/constants';
@@ -88,7 +89,11 @@ export default class StatusDropdown extends React.Component {
   getSevereTests = (alertSummary) => {
     const { alerts = [], related_alerts: relatedAlerts = [] } = alertSummary;
     const names = [...alerts, ...relatedAlerts]
-      .filter((alert) => severeAlertSeverities.includes(alert.severity))
+      .filter(
+        (alert) =>
+          severeAlertSeverities.includes(alert.severity) &&
+          ![alertStatusMap.invalid, alertStatusMap.infra].includes(alert.status),
+      )
       .map(({ series_signature: signature }) => {
         const { suite, test, machine_platform: platform } = signature;
         const name = test && test !== suite ? `${suite} ${test}` : suite;
