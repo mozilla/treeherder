@@ -35,7 +35,7 @@ import {
   browsertimeEssentialTests,
   browsertimeBenchmarksTests,
   severeAlertSeverities,
-  revisionDislayLength,
+  revisionDisplayLength,
 } from '../perf-helpers/constants';
 import { Perfdocs } from '../perf-helpers/perfdocs';
 
@@ -516,7 +516,7 @@ export default class AlertTableRow extends React.Component {
                   data-testid="suggested-culprit"
                 >
                   Suggested culprit:{' '}
-                  {detectedPushRevision.slice(0, revisionDislayLength)}
+                  {detectedPushRevision.slice(0, revisionDisplayLength)}
                 </span>
               )}
             </>

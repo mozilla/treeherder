@@ -1270,7 +1270,7 @@ class BackfillRecord(models.Model):
         for entry in reversed(self.get_backfill_logs()):
             if entry.get("detected_push_id") is not None:
                 return {
-                    "detected_push_id": entry.get("detected_push_id"),
+                    "detected_push_id": entry["detected_push_id"],
                     "detected_push_revision": entry.get("detected_push_revision"),
                 }
         # Fallback for legacy records or logs that only hold the scalar.
