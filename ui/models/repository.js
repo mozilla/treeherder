@@ -15,6 +15,14 @@ export default class RepositoryModel {
       this.pushLogUrl = `${this.url}/pushloghtml`;
       this.revisionHrefPrefix = `${this.url}/rev/`;
     }
+
+    // For repos transitioning from hg to git, store git link info
+    // so per-push components can choose the right URL.
+    if (this.git_url) {
+      const branch = this.git_branch || 'main';
+      this.gitRevisionHrefPrefix = `${this.git_url}/commit/`;
+      this.gitPushLogUrl = `${this.git_url}/commits/${branch}`;
+    }
   }
 
   static getList() {
@@ -27,14 +35,18 @@ export default class RepositoryModel {
     return repos.find((repo) => repo.name === name);
   }
 
-  getRevisionHref(revision) {
+  getRevisionHref(revision, isGitRevision = false) {
+    if (isGitRevision && this.gitRevisionHrefPrefix) {
+      return `${this.gitRevisionHrefPrefix}${revision}`;
+    }
     return `${this.revisionHrefPrefix}${revision}`;
   }
 
-  getPushLogHref(revision) {
-    return this.dvcs_type === 'git'
-      ? this.getRevisionHref(revision)
-      : `${this.pushLogUrl}?changeset=${revision}`;
+  getPushLogHref(revision, isGitRevision = false) {
+    if (this.dvcs_type === 'git' || (isGitRevision && this.git_url)) {
+      return this.getRevisionHref(revision, isGitRevision);
+    }
+    return `${this.pushLogUrl}?changeset=${revision}`;
   }
 
   getPushLogRangeHref(params) {
@@ -43,5 +55,12 @@ export default class RepositoryModel {
     return this.dvcs_type === 'git'
       ? `${this.url}/compare/${fromchange}...${tochange}`
       : `${this.pushLogUrl}?${new URLSearchParams(params).toString()}`;
+  }
+
+  getRevisionBaseUrl(isGitRevision = false) {
+    if (isGitRevision && this.git_url) {
+      return this.git_url;
+    }
+    return this.url;
   }
 }
