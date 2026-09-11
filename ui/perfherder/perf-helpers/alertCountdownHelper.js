@@ -2,7 +2,7 @@ import { weekdays } from './constants';
 
 export const isWeekend = () => {
   const currentDate = new Date(Date.now());
-  const currentDay = currentDate.getDay();
+  const currentDay = currentDate.getUTCDay();
 
   return currentDay === weekdays.saturday || currentDay === weekdays.sunday;
 };
@@ -22,7 +22,7 @@ export const getTimeDifference = (currentDate, dueDate) => {
 
   // step forward exactly 24 hours at a time to count weekend days
   while (tempDate < dueDate) {
-    const dayOfWeek = tempDate.getDay();
+    const dayOfWeek = tempDate.getUTCDay();
 
     if (dayOfWeek === weekdays.sunday || dayOfWeek === weekdays.saturday) {
       weekendDays++;
