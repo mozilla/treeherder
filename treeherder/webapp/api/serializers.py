@@ -96,20 +96,38 @@ class JobProjectSerializer(serializers.ModelSerializer):
 
 class JobSerializer(serializers.ModelSerializer):
     def to_representation(self, job):
-        option_collection_map = self.context["option_collection_map"]
-        submit = job.pop("submit_time")
-        start = job.pop("start_time")
-        end = job.pop("end_time")
-        option_collection_hash = job.pop("option_collection_hash")
+        # job is a dict from JobsViewSet's .values(*_query_field_names) query.
+        # job_type/job_group/machine_platform are resolved from per-page id->value
+        # maps batch-fetched in JobsViewSet.list() rather than via SQL joins. The
+        # returned list MUST stay in the same order as JobsViewSet._output_field_names.
+        context = self.context
+        option_collection_map = context["option_collection_map"]
+        job_type = context["job_type_map"].get(job["job_type_id"]) or {}
+        job_group = context["job_group_map"].get(job["job_group_id"]) or {}
+        machine_platform = context["machine_platform_map"].get(job["machine_platform_id"]) or {}
 
-        ret_val = list(job.values())
-        ret_val.extend(
-            [
-                models.Job.get_duration(submit, start, end),  # duration
-                option_collection_map.get(option_collection_hash, ""),  # platform option
-            ]
-        )
-        return ret_val
+        return [
+            job["failure_classification_id"],
+            job["id"],
+            job_group.get("name", ""),
+            job_group.get("symbol", ""),
+            job_type.get("name", ""),
+            job_type.get("symbol", ""),
+            job["last_modified"],
+            machine_platform.get("platform", ""),
+            job["push_id"],
+            job["push__revision"],
+            job["result"],
+            job["signature__signature"],
+            job["state"],
+            job["tier"],
+            job["taskcluster_metadata__task_id"],
+            job["taskcluster_metadata__retry_id"],
+            models.Job.get_duration(
+                job["submit_time"], job["start_time"], job["end_time"]
+            ),  # duration
+            option_collection_map.get(job["option_collection_hash"], ""),  # platform option
+        ]
 
     class Meta:
         model = models.Job
