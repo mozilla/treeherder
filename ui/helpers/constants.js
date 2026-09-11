@@ -391,6 +391,10 @@ export const thBugSuggestionLimit = 20;
 
 export const thMaxPushFetchSize = 100;
 
+// Hard ceiling on the total number of pushes the jobs view will hold,
+// regardless of filters. Rendering more than this can crash the browser.
+export const thMaxPushes = 500;
+
 export const errorMessageClass = 'text-danger py-4 d-block text-center';
 
 export const genericErrorMessage = 'Something went wrong';

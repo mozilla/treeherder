@@ -32,6 +32,13 @@ const ShortcutTable = function ShortcutTable() {
             </tr>
             <tr>
               <td>
+                <kbd>shift</kbd>
+                <kbd>f</kbd>
+              </td>
+              <td>Toggle the advanced filter panel</td>
+            </tr>
+            <tr>
+              <td>
                 <kbd>i</kbd>
               </td>
               <td>Toggle pending and running jobs</td>

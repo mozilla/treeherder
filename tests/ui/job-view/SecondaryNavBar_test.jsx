@@ -1,10 +1,12 @@
 
+import { createRef, useRef, useState } from 'react';
 import fetchMock from 'fetch-mock';
 import { render, waitFor, fireEvent, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 
 import FilterModel from '../../../ui/models/filter';
 import SecondaryNavBar from '../../../ui/job-view/headerbars/SecondaryNavBar';
+import AdvancedFilterPanel from '../../../ui/job-view/headerbars/filter-panel/AdvancedFilterPanel';
 import {
   usePushesStore,
   initialState,
@@ -27,6 +29,9 @@ beforeEach(() => {
       },
     },
   );
+  // The advanced filter panel's push-range section fetches pushes for its
+  // author/revision autocomplete when the panel mounts.
+  fetchMock.get('begin:/api/project/autoland/push/', { results: [] });
 });
 
 afterEach(() => {
@@ -36,6 +41,10 @@ afterEach(() => {
 
 afterEach(() => {
   usePushesStore.setState({ ...initialState });
+});
+
+afterEach(() => {
+  localStorage.clear();
 });
 
 describe('SecondaryNavBar', () => {
@@ -50,7 +59,9 @@ describe('SecondaryNavBar', () => {
           setCurrentRepoTreeStatus={() => {}}
           duplicateJobsVisible={false}
           groupCountsExpanded={false}
-          toggleFieldFilterVisible={() => {}}
+          isFilterPanelOpen={false}
+          toggleFilterPanel={() => {}}
+          filterTriggerRef={createRef()}
           {...props}
         />
       </MemoryRouter>
@@ -114,6 +125,100 @@ describe('SecondaryNavBar', () => {
 
     await waitFor(() => {
       expect(props.updateButtonClick).toHaveBeenCalled();
+    });
+  });
+
+  test('shows the advanced filter trigger and opens panel on click', async () => {
+    usePushesStore.setState({ ...initialState });
+    const toggleFilterPanel = jest.fn();
+    render(testSecondaryNavBar({ toggleFilterPanel }));
+
+    await waitFor(() => {
+      expect(screen.getByText(repoName)).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByLabelText('Advanced filters'));
+    expect(toggleFilterPanel).toHaveBeenCalled();
+  });
+
+  test('shows the coach mark on first render and dismisses forever', async () => {
+    usePushesStore.setState({ ...initialState });
+    render(testSecondaryNavBar());
+
+    await waitFor(() => {
+      expect(screen.getByText(/New: advanced filters/)).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Got it' }));
+    expect(screen.queryByText(/New: advanced filters/)).not.toBeInTheDocument();
+    expect(localStorage.getItem('thAdvancedFilterCoachMarkSeen')).toBeTruthy();
+  });
+
+  test('does not show the coach mark once seen', async () => {
+    localStorage.setItem('thAdvancedFilterCoachMarkSeen', '1');
+    usePushesStore.setState({ ...initialState });
+    render(testSecondaryNavBar());
+
+    await waitFor(() => {
+      expect(screen.getByText(repoName)).toBeInTheDocument();
+    });
+    expect(screen.queryByText(/New: advanced filters/)).not.toBeInTheDocument();
+  });
+
+  // The trigger in the toolbar and the banner panel are wired together
+  // through App state; clicking the trigger toggles the banner open and
+  // closed.
+  test('clicking the trigger again while the panel is open closes it', async () => {
+    usePushesStore.setState({ ...initialState });
+
+    const StatefulJobView = () => {
+      const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
+      const toggleFilterPanel = () => setIsFilterPanelOpen((prev) => !prev);
+      const filterTriggerRef = useRef(null);
+      const filterModel = useRef(
+        new FilterModel(mockNavigate, mockLocation),
+      ).current;
+
+      return (
+        <MemoryRouter initialEntries={[`/jobs?repo=${repoName}`]}>
+          <SecondaryNavBar
+            updateButtonClick={() => {}}
+            serverChanged={false}
+            filterModel={filterModel}
+            repos={repos}
+            setCurrentRepoTreeStatus={() => {}}
+            duplicateJobsVisible={false}
+            groupCountsExpanded={false}
+            isFilterPanelOpen={isFilterPanelOpen}
+            toggleFilterPanel={toggleFilterPanel}
+            filterTriggerRef={filterTriggerRef}
+          />
+          <AdvancedFilterPanel
+            isOpen={isFilterPanelOpen}
+            onClose={toggleFilterPanel}
+            target={filterTriggerRef}
+            filterModel={filterModel}
+            classificationTypes={[]}
+          />
+        </MemoryRouter>
+      );
+    };
+
+    render(<StatefulJobView />);
+
+    await waitFor(() => {
+      expect(screen.getByText(repoName)).toBeInTheDocument();
+    });
+
+    const trigger = screen.getByLabelText('Advanced filters');
+
+    fireEvent.click(trigger);
+    await waitFor(() => {
+      expect(screen.getByText('Result status')).toBeInTheDocument();
+    });
+
+    fireEvent.click(trigger);
+
+    await waitFor(() => {
+      expect(screen.queryByText('Result status')).not.toBeInTheDocument();
     });
   });
 });
