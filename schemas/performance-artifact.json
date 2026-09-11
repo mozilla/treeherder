@@ -56,6 +56,56 @@
       },
       "type": "object"
     },
+    "detection_technique_schema": {
+      "title": "Detection technique",
+      "description": "Either the name of a change detection technique to run, or an object configuring one",
+      "oneOf": [
+        {
+          "title": "Technique name",
+          "description": "Runs the technique with its default settings",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        {
+          "title": "Technique configuration",
+          "properties": {
+            "name": {
+              "title": "Detection technique name",
+              "description": "Name surfaced in the alerts this technique produces. Defaults to \"<technique>-<hash>\", where <hash> is a hash of this object, or to \"<technique>-<preset>\" when a preset is given without custom arguments",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 50
+            },
+            "technique": {
+              "title": "Technique",
+              "description": "Name of the change detection technique to run, e.g. \"mwu\"",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 50
+            },
+            "preset": {
+              "title": "Preset",
+              "description": "Named set of settings to run the technique with, e.g. \"sensitive\"",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 50
+            },
+            "args": {
+              "title": "Technique arguments",
+              "description": "Settings for the technique, overriding those of the preset, or the technique's defaults when no preset is given, e.g. {\"p_value_threshold\": 0.01}",
+              "type": "object",
+              "additionalProperties": {
+                "type": ["number", "string", "boolean"]
+              }
+            }
+          },
+          "required": ["technique"],
+          "additionalProperties": false,
+          "type": "object"
+        }
+      ]
+    },
     "subtest_schema": {
       "properties": {
         "name": {
@@ -135,6 +185,16 @@
           "type": "number",
           "minimum": 1,
           "maximum": 255
+        },
+        "detectionTechniques": {
+          "title": "Detection techniques",
+          "description": "Change detection techniques to run on this subtest's data, and how to configure them",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/detection_technique_schema"
+          },
+          "uniqueItems": true,
+          "maxItems": 8
         }
       },
       "required": ["name", "value"],
@@ -267,6 +327,16 @@
           "items": {
             "type": "string",
             "maxLength": 100
+          },
+          "uniqueItems": true,
+          "maxItems": 8
+        },
+        "detectionTechniques": {
+          "title": "Detection techniques",
+          "description": "Change detection techniques to run on this suite's data, and how to configure them",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/detection_technique_schema"
           },
           "uniqueItems": true,
           "maxItems": 8
