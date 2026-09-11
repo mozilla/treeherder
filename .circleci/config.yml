@@ -151,7 +151,11 @@ jobs:
       - run:
           command: pnpm test:ci
           name: Run Jest tests
-      - codecov/upload
+      - codecov/upload:
+          # Skip the CLI GPG/integrity check: the keyserver step is flaky and
+          # was hard-failing jobs (exit 2, "no valid OpenPGP data"). fail_on_error
+          # defaults to false, so a failed upload itself never blocks CI either.
+          skip_validation: true
 
   javascript-integration-tests:
     executor:
@@ -222,7 +226,11 @@ jobs:
       - run:
           name: Run tests and coverage within Docker container
           command: tox -e docker-general
-      - codecov/upload
+      - codecov/upload:
+          # Skip the CLI GPG/integrity check: the keyserver step is flaky and
+          # was hard-failing jobs (exit 2, "no valid OpenPGP data"). fail_on_error
+          # defaults to false, so a failed upload itself never blocks CI either.
+          skip_validation: true
 
   python-tests-perf:
     machine:
@@ -234,7 +242,11 @@ jobs:
       - run:
           name: Run tests and coverage within Docker container
           command: tox -e docker-perf
-      - codecov/upload
+      - codecov/upload:
+          # Skip the CLI GPG/integrity check: the keyserver step is flaky and
+          # was hard-failing jobs (exit 2, "no valid OpenPGP data"). fail_on_error
+          # defaults to false, so a failed upload itself never blocks CI either.
+          skip_validation: true
 
   python-tests-frontend:
     machine:
@@ -246,7 +258,11 @@ jobs:
       - run:
           name: Run tests and coverage within Docker container
           command: tox -e docker-frontend
-      - codecov/upload
+      - codecov/upload:
+          # Skip the CLI GPG/integrity check: the keyserver step is flaky and
+          # was hard-failing jobs (exit 2, "no valid OpenPGP data"). fail_on_error
+          # defaults to false, so a failed upload itself never blocks CI either.
+          skip_validation: true
 
   python-tests-telemetry:
     machine:
@@ -258,7 +274,11 @@ jobs:
       - run:
           name: Run tests and coverage within Docker container
           command: tox -e docker-telemetry
-      - codecov/upload
+      - codecov/upload:
+          # Skip the CLI GPG/integrity check: the keyserver step is flaky and
+          # was hard-failing jobs (exit 2, "no valid OpenPGP data"). fail_on_error
+          # defaults to false, so a failed upload itself never blocks CI either.
+          skip_validation: true
 
   test-docker-build:
     docker:
