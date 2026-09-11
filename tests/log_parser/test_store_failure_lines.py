@@ -512,3 +512,98 @@ def test_store_error_summary_known_intermittent(activate_responses, test_reposit
 
     failure = FailureLine.objects.first()
     assert failure.known_intermittent == ["FAIL", "TIMEOUT"]
+
+
+class FakeStreamingResponse:
+    """Stand-in for a `requests.Response` opened with ``stream=True``.
+
+    Yields ``lines`` lazily and fails loudly if the caller reads past them, so a
+    test can prove the consumer stops reading once it has what it needs.
+    """
+
+    def __init__(self, lines):
+        self.lines = lines
+        self.iter_lines_kwargs = None
+        self.closed = False
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc_info):
+        self.close()
+
+    def close(self):
+        self.closed = True
+
+    def iter_lines(self, **kwargs):
+        self.iter_lines_kwargs = kwargs
+        yield from self.lines
+        raise AssertionError("read past the last line the consumer should need")
+
+
+def test_fetch_log_streams_and_stops_at_cutoff(test_job, monkeypatch):
+    """The errorsummary log must be streamed line by line (never loaded whole)
+    and reading must stop once FAILURE_LINES_CUTOFF + 1 lines are consumed."""
+    from treeherder.log_parser import failureline
+    from treeherder.utils.http import ITER_LINES_CHUNK_SIZE
+
+    cutoff = 5
+    monkeypatch.setattr(settings, "FAILURE_LINES_CUTOFF", cutoff)
+
+    lines = [
+        json.dumps({"action": "log", "line": i, "level": "ERROR", "message": f"m{i}"}).encode()
+        for i in range(cutoff + 1)
+    ]
+    fake = FakeStreamingResponse(lines)
+    calls = []
+
+    def fake_make_request(url, **kwargs):
+        calls.append((url, kwargs))
+        return fake
+
+    monkeypatch.setattr(failureline, "make_request", fake_make_request)
+    log_obj = JobLog.objects.create(job=test_job, name="errorsummary_json", url="http://x/es.log")
+
+    store_failure_lines(log_obj)
+
+    assert calls == [("http://x/es.log", {"stream": True})]
+    assert fake.iter_lines_kwargs == {"chunk_size": ITER_LINES_CHUNK_SIZE}
+    assert fake.closed
+    assert FailureLine.objects.count() == cutoff + 1
+    assert FailureLine.objects.filter(action="truncated").count() == 1
+
+
+def test_store_error_summary_blank_lines_and_unicode_line_separator(
+    activate_responses, test_repository, test_job
+):
+    """Blank lines are skipped and a JSON string containing U+2028 (which
+    str.splitlines() treats as a line break) must not split the record."""
+    log_url = "http://my-log.mozilla.org"
+    first = {"action": "log", "line": 1, "level": "ERROR", "message": "first"}
+    second = {"action": "log", "line": 2, "level": "ERROR", "message": "a b"}
+    body = json.dumps(first) + "\n\n" + json.dumps(second, ensure_ascii=False) + "\n"
+    responses.add(
+        responses.GET,
+        log_url,
+        content_type="text/plain;charset=utf-8",
+        body=body.encode("utf-8"),
+        status=200,
+    )
+    log_obj = JobLog.objects.create(job=test_job, name="errorsummary_json", url=log_url)
+
+    store_failure_lines(log_obj)
+
+    assert FailureLine.objects.count() == 2
+    assert FailureLine.objects.get(line=2).message == "a b"
+
+
+def test_store_error_summary_empty_body(activate_responses, test_repository, test_job):
+    """An empty errorsummary log stores nothing and leaves the log pending."""
+    log_url = "http://my-log.mozilla.org"
+    responses.add(responses.GET, log_url, body="", status=200)
+    log_obj = JobLog.objects.create(job=test_job, name="errorsummary_json", url=log_url)
+
+    assert store_failure_lines(log_obj) is None
+    assert FailureLine.objects.count() == 0
+    log_obj.refresh_from_db()
+    assert log_obj.status == JobLog.PENDING

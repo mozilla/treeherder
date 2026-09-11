@@ -2,7 +2,7 @@ import logging
 
 import newrelic.agent
 
-from treeherder.utils.http import make_request
+from treeherder.utils.http import ITER_LINES_CHUNK_SIZE, make_request
 
 from .artifactbuilders import LogViewerArtifactBuilder, PerformanceDataArtifactBuilder
 from .parsers import EmptyPerformanceDataError
@@ -98,7 +98,7 @@ class ArtifactBuilderCollection:
             # and we cannot use its `decode_unicode=True` mode, since otherwise Unicode newline
             # characters such as `\u0085` (which can appear in test output) are treated the same
             # as `\n` or `\r`, and so split into unwanted additional lines by `iter_lines()`.
-            for line in response.iter_lines():
+            for line in response.iter_lines(chunk_size=ITER_LINES_CHUNK_SIZE):
                 for builder in self.builders:
                     try:
                         # Using `replace` to prevent malformed unicode (which might possibly exist
