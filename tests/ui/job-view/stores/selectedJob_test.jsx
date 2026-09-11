@@ -46,9 +46,12 @@ describe('syncSelectionFromUrl', () => {
   });
 
   it('clears the selected job when the task is not in the loaded jobs', () => {
-    // The URL still names a task, but the loaded pushes (e.g. after a repo
-    // switch) don't contain it.
-    useSelectedJobStore.setState({ selectedJob: testJob });
+    // The URL names a task that isn't in the loaded pushes, and the current
+    // selection is a different job (a matching selection would be kept --
+    // see selectedJobEagerResolve_test.jsx).
+    useSelectedJobStore.setState({
+      selectedJob: { ...testJob, id: 1, task_id: 'Za9t2-iLQSaQb2ashZ_VIQ' },
+    });
     setLocationSearch(
       '?repo=mozilla-central&selectedTaskRun=OeYt2-iLQSaQb2ashZ_VIQ.0',
     );
