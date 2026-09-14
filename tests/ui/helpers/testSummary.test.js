@@ -6,6 +6,7 @@ import {
   prepareBugSuggestions,
   computeSummaryDivergence,
   isNewFailureLine,
+  findNewFailureLines,
   NO_GROUP,
   INCOMPLETE_STATUS,
   HARNESS_STATUS,
@@ -481,6 +482,85 @@ describe('matchBugSuggestions', () => {
     expect(failures[1].bugs.open_recent).toHaveLength(0);
     expect(failures[1].showBugSuggestions).toBe(false);
   });
+
+  describe('new failure fields', () => {
+    const noBugs = { open_recent: [], all_others: [] };
+
+    test('copies them from the API line with the same text', () => {
+      const failures = matchBugSuggestions(buildFailures(), [
+        {
+          // Spacing differs from the summary line; the text is the same.
+          search:
+            'TEST-UNEXPECTED-FAIL |  dom/tests/test_fail.html | assertion failed ',
+          path_end: 'dom/tests/test_fail.html',
+          failure_new_in_rev: true,
+          counter: 0,
+          bugs: noBugs,
+        },
+      ]);
+      const failed = failures.find(
+        (s) => s.path_end === 'dom/tests/test_fail.html',
+      );
+
+      expect(failed.failure_new_in_rev).toBe(true);
+      expect(failed.counter).toBe(0);
+    });
+
+    test('does not copy them from another line of the same test', () => {
+      const failures = matchBugSuggestions(buildFailures(), [
+        {
+          search:
+            'PROCESS-CRASH | application crashed | dom/tests/test_fail.html',
+          path_end: 'dom/tests/test_fail.html',
+          failure_new_in_rev: true,
+          counter: 0,
+          bugs: noBugs,
+        },
+      ]);
+      const failed = failures.find(
+        (s) => s.path_end === 'dom/tests/test_fail.html',
+      );
+
+      expect(failed.failure_new_in_rev).toBe(false);
+      expect(failed.counter).toBeNull();
+    });
+
+    test('copies them onto every line of a multi-message test', () => {
+      const summary = buildTestSummary([
+        { action: 'test_start', time: 0, group: 'g', test: 'browser_all.js' },
+        ...['first failure', 'second failure'].map((message) => ({
+          action: 'test_status',
+          time: 3,
+          group: 'g',
+          test: 'browser_all.js',
+          subtest: null,
+          status: 'FAIL',
+          expected: 'PASS',
+          message,
+        })),
+        {
+          action: 'test_end',
+          time: 10,
+          group: 'g',
+          test: 'browser_all.js',
+          status: 'FAIL',
+          expected: 'PASS',
+        },
+      ]);
+
+      const failures = matchBugSuggestions(buildFailureSuggestions(summary), [
+        {
+          search: 'TEST-UNEXPECTED-FAIL | browser_all.js | second failure',
+          path_end: 'browser_all.js',
+          failure_new_in_rev: true,
+          bugs: noBugs,
+        },
+      ]);
+
+      // Only the second line is new, though the first one carries the bugs.
+      expect(failures.map((s) => s.failure_new_in_rev)).toEqual([false, true]);
+    });
+  });
 });
 
 describe('harness failures (ERROR/CRITICAL log lines)', () => {
@@ -756,6 +836,33 @@ describe('classic failure summary helpers', () => {
 
     test('ignores a known line', () => {
       expect(isNewFailureLine(line({ counter: 12 }), 'try')).toBe(false);
+    });
+  });
+
+  describe('findNewFailureLines', () => {
+    const line = (overrides) => ({
+      search: 'TEST-UNEXPECTED-FAIL | test_fail.html | boom',
+      ...overrides,
+    });
+
+    test('counts every new line and points at the first one', () => {
+      expect(
+        findNewFailureLines(
+          [
+            line({ counter: 3 }),
+            line({ failure_new_in_rev: true }),
+            line({ counter: 0 }),
+          ],
+          'try',
+        ),
+      ).toEqual({ count: 2, firstIndex: 1 });
+    });
+
+    test('finds nothing in a list with no new line', () => {
+      expect(findNewFailureLines([line({ counter: 3 })], 'try')).toEqual({
+        count: 0,
+        firstIndex: -1,
+      });
     });
   });
 
