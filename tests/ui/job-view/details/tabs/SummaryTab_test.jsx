@@ -278,18 +278,65 @@ describe('SummaryTab new failure lines in the classic section', () => {
     expect(screen.getByText('NEW')).toBeInTheDocument();
   });
 
-  test('leaves the summary lines themselves unflagged', () => {
+  test('flags a line both summaries have in each of them', () => {
     renderSummaryTab(
       prepareBugSuggestions([
         { ...matchingSuggestion(), failure_new_in_rev: true },
       ]),
     );
 
-    // Nothing is flagged among the summary lines: the NEW button appears only
-    // once the classic section is opened.
-    expect(screen.queryByText('NEW')).toBeNull();
+    // The summary list flags it while the classic section is folded...
+    expect(screen.getAllByText('NEW')).toHaveLength(1);
 
+    // ...and the classic section flags its own copy once opened.
     expandClassic();
+    expect(screen.getAllByText('NEW')).toHaveLength(2);
+    expect(screen.getAllByText(/1 new failure line\(s\)/)).toHaveLength(2);
+  });
+});
+
+describe('SummaryTab new failure lines in the summary', () => {
+  afterEach(cleanup);
+
+  test('flags the first new failure without opening the classic section', () => {
+    renderSummaryTab(
+      prepareBugSuggestions([
+        { ...matchingSuggestion(), failure_new_in_rev: true },
+      ]),
+    );
+
+    expect(
+      screen.getByRole('button', { name: /Failure Summary \(classic\)/ }),
+    ).toHaveAttribute('aria-expanded', 'false');
+    expect(
+      screen.getByText(/1 new failure line\(s\)\. First one is flagged/),
+    ).toBeInTheDocument();
+    expect(screen.getByText('NEW')).toBeInTheDocument();
+  });
+
+  test('leaves a line unflagged when only a classic line is new', () => {
+    // The new line is another message of the same test: the backend said
+    // nothing about the summary's own line.
+    renderSummaryTab(
+      prepareBugSuggestions([
+        matchingSuggestion(),
+        { ...classicOnlySuggestion(), failure_new_in_rev: true },
+      ]),
+    );
+
+    expect(screen.queryByText(/new failure line/)).toBeNull();
+    expect(screen.queryByText('NEW')).toBeNull();
+  });
+
+  test('counts a never-seen line on try only', () => {
+    const neverSeen = () =>
+      prepareBugSuggestions([{ ...matchingSuggestion(), counter: 0 }]);
+
+    renderSummaryTab(neverSeen());
+    expect(screen.queryByText('NEW')).toBeNull();
+    cleanup();
+
+    renderSummaryTab(neverSeen(), summaryJsonl, { name: 'try' });
     expect(screen.getByText('NEW')).toBeInTheDocument();
   });
 });
