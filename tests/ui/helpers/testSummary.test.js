@@ -60,8 +60,8 @@ const lines = [
 describe('buildTestSummary', () => {
   const findTest = (summary, groupName, testName) =>
     summary.groups
-      .find((g) => g.name === groupName)
-      .tests.find((t) => t.name === testName);
+      .find(g => g.name === groupName)
+      .tests.find(t => t.name === testName);
 
   test('pairs test_start/test_end into a single run with a duration', () => {
     const summary = buildTestSummary(lines);
@@ -223,7 +223,7 @@ describe('buildFailureSuggestions', () => {
       'TEST-UNEXPECTED-FAIL | browser_all.js | file only referenced from unreferenced files',
     );
     // Both lines point at the same test path for bug matching / path filtering.
-    expect(suggestions.every((s) => s.path_end === 'browser_all.js')).toBe(true);
+    expect(suggestions.every(s => s.path_end === 'browser_all.js')).toBe(true);
   });
 
   test('uses the subtest messages a failing xpcshell test replays after its end', () => {
@@ -278,12 +278,12 @@ describe('buildFailureSuggestions', () => {
     ]);
 
     const suggestions = buildFailureSuggestions(summary);
-    expect(suggestions.map((s) => s.search)).toEqual([
+    expect(suggestions.map(s => s.search)).toEqual([
       'TEST-UNEXPECTED-FAIL | netwerk/test/unit/test_retry.js | test_intentional_failure - Intentional failure - false == true',
       'TEST-UNEXPECTED-FAIL | netwerk/test/unit/test_retry.js | profile uploaded in profile_test_retry.js.json',
     ]);
     // Each line links to the console line of its own status, not the test_end.
-    expect(suggestions.map((s) => s.line)).toEqual([150, 160]);
+    expect(suggestions.map(s => s.line)).toEqual([150, 160]);
     // The test stays filed under its manifest, not the replay group.
     const [group] = summary.groups;
     expect(group.name).toBe('netwerk/test/unit/xpcshell.toml');
@@ -369,7 +369,7 @@ describe('matchBugSuggestions', () => {
 
     const failures = matchBugSuggestions(buildFailures(), bugSuggestions);
     const failed = failures.find(
-      (s) => s.path_end === 'dom/tests/test_fail.html',
+      s => s.path_end === 'dom/tests/test_fail.html',
     );
 
     expect(failed.bugs.open_recent).toHaveLength(1);
@@ -377,7 +377,7 @@ describe('matchBugSuggestions', () => {
     expect(failed.showBugSuggestions).toBe(true);
 
     const unmatched = failures.find(
-      (s) => s.path_end === 'layout/tests/test_other.html',
+      s => s.path_end === 'layout/tests/test_other.html',
     );
     expect(unmatched.bugs.open_recent).toHaveLength(0);
     expect(unmatched.showBugSuggestions).toBe(false);
@@ -393,7 +393,7 @@ describe('matchBugSuggestions', () => {
 
     const failures = matchBugSuggestions(buildFailures(), bugSuggestions);
     const failed = failures.find(
-      (s) => s.path_end === 'dom/tests/test_fail.html',
+      s => s.path_end === 'dom/tests/test_fail.html',
     );
     expect(failed.bugs.open_recent).toHaveLength(1);
   });
@@ -418,15 +418,15 @@ describe('matchBugSuggestions', () => {
 
     const failures = matchBugSuggestions(buildFailures(), bugSuggestions);
     const failed = failures.find(
-      (s) => s.path_end === 'dom/tests/test_fail.html',
+      s => s.path_end === 'dom/tests/test_fail.html',
     );
-    expect(failed.bugs.open_recent.map((b) => b.id)).toEqual([1, 2]);
+    expect(failed.bugs.open_recent.map(b => b.id)).toEqual([1, 2]);
   });
 
   test('returns decorated suggestions even with no bug suggestions', () => {
     const failures = matchBugSuggestions(buildFailures(), []);
     expect(failures).toHaveLength(2);
-    failures.forEach((s) => {
+    failures.forEach(s => {
       expect(s.showBugSuggestions).toBe(false);
       expect(s.valid_open_recent).toBe(false);
     });
@@ -499,7 +499,7 @@ describe('matchBugSuggestions', () => {
         },
       ]);
       const failed = failures.find(
-        (s) => s.path_end === 'dom/tests/test_fail.html',
+        s => s.path_end === 'dom/tests/test_fail.html',
       );
 
       expect(failed.failure_new_in_rev).toBe(true);
@@ -518,7 +518,7 @@ describe('matchBugSuggestions', () => {
         },
       ]);
       const failed = failures.find(
-        (s) => s.path_end === 'dom/tests/test_fail.html',
+        s => s.path_end === 'dom/tests/test_fail.html',
       );
 
       expect(failed.failure_new_in_rev).toBe(false);
@@ -528,7 +528,7 @@ describe('matchBugSuggestions', () => {
     test('copies them onto every line of a multi-message test', () => {
       const summary = buildTestSummary([
         { action: 'test_start', time: 0, group: 'g', test: 'browser_all.js' },
-        ...['first failure', 'second failure'].map((message) => ({
+        ...['first failure', 'second failure'].map(message => ({
           action: 'test_status',
           time: 3,
           group: 'g',
@@ -558,7 +558,7 @@ describe('matchBugSuggestions', () => {
       ]);
 
       // Only the second line is new, though the first one carries the bugs.
-      expect(failures.map((s) => s.failure_new_in_rev)).toEqual([false, true]);
+      expect(failures.map(s => s.failure_new_in_rev)).toEqual([false, true]);
     });
   });
 });
@@ -589,15 +589,15 @@ describe('harness failures (ERROR/CRITICAL log lines)', () => {
 
   const harnessEntries = (summary, groupName) =>
     summary.groups
-      .find((g) => g.name === groupName)
-      .tests.filter((t) => t.harness);
+      .find(g => g.name === groupName)
+      .tests.filter(t => t.harness);
 
   test('files each line as its own ERROR entry under the open group', () => {
     const summary = buildTestSummary(summaryLines);
     const entries = harnessEntries(summary, group);
 
     expect(entries).toHaveLength(2);
-    expect(entries.map((e) => e.name)).toEqual([
+    expect(entries.map(e => e.name)).toEqual([
       'LeakSanitizer leak at Alloc, nsTSubstring, nsTSubstring, Append',
       'LeakSanitizer leak at nsTimer, nsTimer::WithEventTarget, NS_NewTimer, NS_NewTimer',
     ]);
@@ -624,7 +624,7 @@ describe('harness failures (ERROR/CRITICAL log lines)', () => {
     ]);
     const entries = harnessEntries(summary, 'g');
     expect(entries).toHaveLength(2);
-    expect(entries.every((e) => e.retried === false)).toBe(true);
+    expect(entries.every(e => e.retried === false)).toBe(true);
   });
 
   test('ignores log lines that are not failures', () => {
@@ -670,12 +670,12 @@ describe('harness failures (ERROR/CRITICAL log lines)', () => {
     const suggestions = buildFailureSuggestions(buildTestSummary(summaryLines));
 
     expect(suggestions).toHaveLength(2);
-    expect(suggestions.map((s) => s.search)).toEqual(leakLines);
-    expect(suggestions.map((s) => s.path_end)).toEqual([
+    expect(suggestions.map(s => s.search)).toEqual(leakLines);
+    expect(suggestions.map(s => s.path_end)).toEqual([
       'LeakSanitizer leak at Alloc, nsTSubstring, nsTSubstring, Append',
       'LeakSanitizer leak at nsTimer, nsTimer::WithEventTarget, NS_NewTimer, NS_NewTimer',
     ]);
-    expect(suggestions.every((s) => s.primary)).toBe(true);
+    expect(suggestions.every(s => s.primary)).toBe(true);
   });
 
   test('derives path_end the way the backend does for crash and leakcheck lines', () => {
@@ -688,14 +688,14 @@ describe('harness failures (ERROR/CRITICAL log lines)', () => {
       ]),
     );
 
-    expect(suggestions.map((s) => s.path_end)).toEqual([
+    expect(suggestions.map(s => s.path_end)).toEqual([
       'dom/tests/test_x.html',
       null,
       'layout/reftests/a.html',
     ]);
   });
 
-  test('attaches the bugs the API keys on the same path_end', () => {
+  test("attaches the API's bugs to the line with the same path_end", () => {
     const bugSuggestions = [
       {
         search: leakLines[0],
@@ -708,7 +708,7 @@ describe('harness failures (ERROR/CRITICAL log lines)', () => {
       bugSuggestions,
     );
 
-    expect(failures[0].bugs.all_others.map((b) => b.id)).toEqual([1979140]);
+    expect(failures[0].bugs.all_others.map(b => b.id)).toEqual([1979140]);
     expect(failures[0].showBugSuggestions).toBe(true);
     expect(failures[1].bugs.all_others).toHaveLength(0);
     expect(failures[1].showBugSuggestions).toBe(false);
@@ -723,7 +723,7 @@ describe('classic failure summary helpers', () => {
     ...extra,
   });
 
-  const genericLine = (path) =>
+  const genericLine = path =>
     line(`TEST-UNEXPECTED-FAIL | ${path} | finished in 12ms`, path);
 
   describe('filterGenericFailures', () => {
@@ -809,7 +809,7 @@ describe('classic failure summary helpers', () => {
   });
 
   describe('isNewFailureLine', () => {
-    const line = (overrides) => ({
+    const line = overrides => ({
       search: 'TEST-UNEXPECTED-FAIL | test_fail.html | boom',
       ...overrides,
     });
@@ -840,7 +840,7 @@ describe('classic failure summary helpers', () => {
   });
 
   describe('findNewFailureLines', () => {
-    const line = (overrides) => ({
+    const line = overrides => ({
       search: 'TEST-UNEXPECTED-FAIL | test_fail.html | boom',
       ...overrides,
     });
@@ -1017,7 +1017,7 @@ describe('console lines', () => {
     ]);
     const suggestions = buildFailureSuggestions(summary);
 
-    expect(suggestions.map((s) => s.line)).toEqual([11, 13]);
+    expect(suggestions.map(s => s.line)).toEqual([11, 13]);
   });
 
   test('links crashes, harness lines and unfinished tests', () => {
@@ -1038,7 +1038,7 @@ describe('console lines', () => {
       },
     ]);
     const byTest = Object.fromEntries(
-      buildFailureSuggestions(summary).map((s) => [s.search, s.line]),
+      buildFailureSuggestions(summary).map(s => [s.search, s.line]),
     );
 
     expect(byTest['TEST-UNEXPECTED-CRASH | crashed.html | sig']).toBe(25);
