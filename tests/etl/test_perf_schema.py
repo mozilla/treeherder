@@ -36,6 +36,44 @@ import pytest
             {"value": 1234},
             False,
         ),
+        (
+            {"value": 1234, "detectionTechniques": ["ttest", "mwu"]},
+            {"value": 1234, "detectionTechniques": ["ttest", "mwu"]},
+            False,
+        ),
+        (
+            {
+                "value": 1234,
+                "detectionTechniques": [
+                    {"technique": "ttest"},
+                    {
+                        "technique": "mwu",
+                        "preset": "sensitive",
+                        "args": {"p_value_threshold": 0.01},
+                    },
+                    {
+                        "name": "mwu-super-sensitive",
+                        "technique": "mwu",
+                        "preset": "sensitive",
+                        "args": {"cliffs_delta_threshold": 0.1},
+                    },
+                ],
+            },
+            {"value": 1234, "detectionTechniques": ["ttest", {"technique": "mwu"}]},
+            False,
+        ),
+        # A technique has to be named, either as a string or through `technique`
+        (
+            {"value": 1234, "detectionTechniques": [{"preset": "sensitive"}]},
+            {"value": 1234},
+            True,
+        ),
+        # Misspelled keys shouldn't be silently dropped
+        (
+            {"value": 1234},
+            {"value": 1234, "detectionTechniques": [{"technique": "mwu", "arg": {}}]},
+            True,
+        ),
     ],
 )
 def test_perf_schema(suite_value, test_value, expected_fail):
