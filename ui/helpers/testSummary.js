@@ -553,6 +553,26 @@ export const isNewFailureLine = (suggestion, repoName) =>
     (suggestion.counter === 0 && repoName === 'try'));
 
 /**
+ * Where the new failure lines of a list are: how many there are, for the
+ * banner, and the index of the first one, the only line flagged "NEW".
+ *
+ * @param {Array<{ search: string, failure_new_in_rev: ?boolean, counter: ?number }>} suggestions
+ * @param {string} repoName
+ * @returns {{ count: number, firstIndex: number }}
+ */
+export const findNewFailureLines = (suggestions, repoName) => {
+  const isNew = (suggestion) => isNewFailureLine(suggestion, repoName);
+
+  return {
+    count: suggestions.filter(isNew).length,
+    firstIndex: suggestions.findIndex(isNew),
+  };
+};
+
+const normalizeSearchLine = (search) =>
+  (search || '').trim().replace(/\s+/g, ' ');
+
+/**
  * Enrich the testsummary-derived failure suggestions with the Bugzilla bug
  * suggestions returned by the `/bug_suggestions/` API, matching on test path.
  *
@@ -561,8 +581,12 @@ export const isNewFailureLine = (suggestion, repoName) =>
  * match the two by test path (`path_end`) and attach every matching bug to the
  * corresponding failing test, merging when several error lines map to one test.
  *
+ * Whether a line is new (`failure_new_in_rev` / `counter`) is copied from the
+ * API line with the same text instead: the backend decides it per line, so
+ * another message of the same test being new says nothing about this one.
+ *
  * @param {ReturnType<typeof buildFailureSuggestions>} failureSuggestions
- * @param {Array<{ path_end: ?string, bugs: { open_recent: [], all_others: [] } }>} bugSuggestions
+ * @param {Array<{ search: string, path_end: ?string, failure_new_in_rev: ?boolean, counter: ?number, bugs: { open_recent: [], all_others: [] } }>} bugSuggestions
  * @returns {typeof failureSuggestions} the same suggestions, bugs attached.
  */
 export const matchBugSuggestions = (failureSuggestions, bugSuggestions) => {
@@ -572,7 +596,18 @@ export const matchBugSuggestions = (failureSuggestions, bugSuggestions) => {
     return failureSuggestions;
   }
 
+  const classicByLine = new Map();
+  bugSuggestions.forEach((bugSuggestion) => {
+    const key = normalizeSearchLine(bugSuggestion.search);
+    if (!classicByLine.has(key)) classicByLine.set(key, bugSuggestion);
+  });
+
   failureSuggestions.forEach((suggestion) => {
+    // Every line gets this, primary or not: each one is its own message.
+    const classic = classicByLine.get(normalizeSearchLine(suggestion.search));
+    suggestion.failure_new_in_rev = classic?.failure_new_in_rev ?? false;
+    suggestion.counter = classic?.counter ?? null;
+
     // Non-primary lines share a test path with the primary one; attaching bugs
     // to them too would duplicate the suggestions under every message line.
     if (suggestion.primary === false) {
@@ -697,9 +732,6 @@ export const prepareBugSuggestions = (suggestions) => {
 
   return filterGenericFailures(list);
 };
-
-const normalizeSearchLine = (search) =>
-  (search || '').trim().replace(/\s+/g, ' ');
 
 /**
  * Compare the testsummary-derived failure lines with the classic
