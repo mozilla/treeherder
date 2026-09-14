@@ -12,7 +12,7 @@ import {
   buildFailureSuggestions,
   matchBugSuggestions,
   computeSummaryDivergence,
-  isNewFailureLine,
+  findNewFailureLines,
 } from '../../../../helpers/testSummary';
 import {
   requiredInternalOccurrences,
@@ -25,6 +25,7 @@ import InternalIssueFiler from '../../../../shared/InternalIssueFiler';
 import ListItem from '../../../../shared/tabs/failureSummary/ListItem';
 import SuggestionsListItem from '../../../../shared/tabs/failureSummary/SuggestionsListItem';
 
+import NewFailuresMessage from './NewFailuresMessage';
 import SummaryItem from './SummaryItem';
 
 const SummaryTab = ({
@@ -68,19 +69,17 @@ const SummaryTab = ({
     [summary, failureSuggestions, bugSuggestions, bugSuggestionsLoading],
   );
 
-  // New failure lines of the classic failure summary stacked below, flagged
-  // exactly as the Failure Summary tab flags them. Only the API's lines carry
-  // the data this needs (`failure_new_in_rev` / `counter`).
-  const newFailures = useMemo(() => {
-    const isNew = (suggestion) =>
-      isNewFailureLine(suggestion, currentRepo.name);
-
-    return {
-      count: (bugSuggestions || []).filter(isNew).length,
-      // Only the first one is flagged with the "NEW" button.
-      firstIndex: (bugSuggestions || []).findIndex(isNew),
-    };
-  }, [bugSuggestions, currentRepo.name]);
+  // New failure lines of both lists, flagged exactly as the Failure Summary tab
+  // flagged them. Only the API's lines carry the data this needs
+  // (`failure_new_in_rev` / `counter`); the summary lines borrow it from the API
+  // line with the same text, in matchBugSuggestions. Not memoized: that call
+  // mutates and returns the same array, so a memo keyed on `suggestions` would
+  // miss the bug suggestions arriving.
+  const newSummaryFailures = findNewFailureLines(suggestions, currentRepo.name);
+  const newClassicFailures = findNewFailureLines(
+    bugSuggestions || [],
+    currentRepo.name,
+  );
 
   // The classic failure summary is shown whenever the API returned lines.
   // Anything narrower hides data the reader can no longer reach elsewhere:
@@ -250,10 +249,16 @@ const SummaryTab = ({
             }
           />
         )}
+        {newSummaryFailures.count > 0 && (
+          <li>
+            <NewFailuresMessage count={newSummaryFailures.count} />
+          </li>
+        )}
         {suggestions.map((suggestion, index) => (
           <SummaryItem
             key={`${selectedJob.id}-${index}`} // eslint-disable-line react/no-array-index-key
             suggestion={suggestion}
+            showNewButton={index === newSummaryFailures.firstIndex}
             toggleBugFiler={fileBug}
             toggleInternalIssueFiler={fileInternalIssue}
             selectedJob={selectedJob}
@@ -289,23 +294,14 @@ const SummaryTab = ({
                       above.
                     </p>
                   )}
-                  {newFailures.count > 0 && (
-                    <Button
-                      className="failure-summary-new-message border-0"
-                      title="New Test Failure"
-                    >
-                      {newFailures.count} new failure line(s). First one is
-                      flagged, it might be good to look at all failures in this
-                      job.
-                    </Button>
-                  )}
+                  <NewFailuresMessage count={newClassicFailures.count} />
                   <ul className="list-unstyled w-100 mb-0">
                     {(bugSuggestions || []).map((suggestion, index) => (
                       <SuggestionsListItem
                         key={`classic-${selectedJob.id}-${index}`} // eslint-disable-line react/no-array-index-key
                         index={index}
                         suggestion={suggestion}
-                        showNewButton={index === newFailures.firstIndex}
+                        showNewButton={index === newClassicFailures.firstIndex}
                         toggleBugFiler={() => fileBug(suggestion)}
                         toggleInternalIssueFiler={() =>
                           fileInternalIssue(suggestion)

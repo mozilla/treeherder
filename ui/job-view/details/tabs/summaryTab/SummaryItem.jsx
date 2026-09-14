@@ -40,6 +40,7 @@ const SummaryItem = ({
   currentRepo,
   anchor = null,
   addBug = null,
+  showNewButton = false,
 }) => {
   const [showMore, setShowMore] = useState(false);
   const filterTestPath = suggestion.search.match(/([a-z_\-0-9]+[/])+/gi);
@@ -69,6 +70,14 @@ const SummaryItem = ({
           >
             <FontAwesomeIcon icon={faCircleExclamation} />
           </Button>
+          {showNewButton && (
+            <Button
+              className="btn-orange border-outline-secondary"
+              title="number of times this error message has been seen until now (including this run)"
+            >
+              NEW
+            </Button>
+          )}
           <span className="align-middle">{line} </span>
           <Clipboard
             description=" text of error line"
@@ -186,6 +195,7 @@ SummaryItem.propTypes = {
     message: PropTypes.string,
   }),
   addBug: PropTypes.func,
+  showNewButton: PropTypes.bool,
 };
 
 export default SummaryItem;
