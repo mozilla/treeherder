@@ -10,6 +10,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
+from treeherder.config.db_routing import ReadReplicaMixin
 from treeherder.log_parser.failureline import get_group_results
 from treeherder.model.models import Commit, Job, JobType, Push, Repository
 from treeherder.push_health.builds import get_build_failures
@@ -28,7 +29,7 @@ from treeherder.webapp.api.utils import to_datetime, to_timestamp
 logger = logging.getLogger(__name__)
 
 
-class PushViewSet(viewsets.ViewSet):
+class PushViewSet(ReadReplicaMixin, viewsets.ViewSet):
     """
     View for ``push`` records
     """

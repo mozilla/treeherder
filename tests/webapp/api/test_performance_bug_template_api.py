@@ -3,7 +3,12 @@ from django.urls import reverse
 
 from treeherder.perf.models import PerformanceBugTemplate, PerformanceFramework
 
-pytestmark = pytest.mark.perf
+pytestmark = [
+    pytest.mark.perf,
+    # transaction=True is required because the routed viewset reads through the
+    # separate ``read_replica`` connection, which only sees committed data.
+    pytest.mark.django_db(transaction=True, databases=["default", "read_replica"]),
+]
 
 
 def test_perf_bug_template_api(client, test_perf_framework):
