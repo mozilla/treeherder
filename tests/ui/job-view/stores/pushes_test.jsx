@@ -16,11 +16,22 @@ import {
   initialState,
 } from '../../../../ui/shared/stores/pushesStore';
 import { getApiUrl } from '../../../../ui/helpers/url';
+import { thMaxPushes } from '../../../../ui/helpers/constants';
 import JobModel from '../../../../ui/models/job';
 
 const emptyBugzillaResponse = {
   bugs: [],
 };
+
+// Minimal push objects that satisfy addPushes/getRevisionTips.
+const fakePushes = (count, newestTimestamp = 2000000000, idBase = 1000000) =>
+  Array.from({ length: count }, (_, i) => ({
+    id: idBase + i,
+    revision: `rev${idBase + i}`,
+    author: 'someone@example.com',
+    push_timestamp: newestTimestamp - i,
+    revisions: [{ comments: 'no bug - a change' }],
+  }));
 
 describe('Pushes Zustand store', () => {
   const repoName = 'autoland';
@@ -156,6 +167,115 @@ describe('Pushes Zustand store', () => {
     );
   });
 
+  test('fetchPushes does not fetch once thMaxPushes pushes are loaded', async () => {
+    usePushesStore.setState({
+      ...initialState,
+      pushList: fakePushes(thMaxPushes),
+    });
+
+    await usePushesStore.getState().fetchPushes();
+    const state = usePushesStore.getState();
+
+    // No push API call was made and the list did not grow.
+    expect(fetchMock.called(`begin:${getProjectUrl('/push/', repoName)}`)).toBe(
+      false,
+    );
+    expect(state.pushList).toHaveLength(thMaxPushes);
+    expect(state.loadingPushes).toBe(false);
+  });
+
+  test('fetchPushes caps the requested count to the remaining capacity', async () => {
+    fetchMock.get(
+      getProjectUrl('/push/?full=true&count=5', repoName),
+      { results: [] },
+    );
+
+    usePushesStore.setState({
+      ...initialState,
+      pushList: fakePushes(thMaxPushes - 5),
+    });
+
+    await usePushesStore.getState().fetchPushes(10);
+
+    expect(
+      fetchMock.called(getProjectUrl('/push/?full=true&count=5', repoName)),
+    ).toBe(true);
+  });
+
+  test('range queries fetch the full remaining capacity in one request', async () => {
+    // startdate converts to push_timestamp__gte (Date.parse / 1000)
+    const gte = Date.parse('2026-08-01') / 1000;
+
+    fetchMock.get(
+      getProjectUrl(
+        `/push/?full=true&count=${thMaxPushes}&push_timestamp__gte=${gte}`,
+        repoName,
+      ),
+      { results: [] },
+    );
+
+    window.location = {
+      search: '?repo=autoland&startdate=2026-08-01',
+      pathname: '/jobs',
+    };
+
+    await usePushesStore.getState().fetchPushes();
+
+    expect(
+      fetchMock.called(
+        getProjectUrl(
+          `/push/?full=true&count=${thMaxPushes}&push_timestamp__gte=${gte}`,
+          repoName,
+        ),
+      ),
+    ).toBe(true);
+  });
+
+  test('pushList is truncated to the newest thMaxPushes pushes', async () => {
+    // Server returns more pushes than the remaining capacity (e.g. the
+    // push_timestamp__lte overlap re-fetch); the store must still hold
+    // no more than thMaxPushes, keeping the newest.
+    const existing = fakePushes(thMaxPushes - 1);
+    const older = fakePushes(3, 1000000000, 2000000);
+
+    fetchMock.get(
+      getProjectUrl('/push/?full=true&count=1', repoName),
+      { results: older },
+    );
+
+    usePushesStore.setState({ ...initialState, pushList: existing });
+
+    await usePushesStore.getState().fetchPushes(10);
+    const state = usePushesStore.getState();
+
+    expect(state.pushList).toHaveLength(thMaxPushes);
+    // The newest of the older pushes was kept; the rest were dropped.
+    expect(state.pushList[state.pushList.length - 1].id).toBe(older[0].id);
+  });
+
+  test('pollPushes stops adding pushes at thMaxPushes but still polls jobs', async () => {
+    fetchMock.mock(
+      `begin:${getApiUrl('/jobs/?push_id__in=', repoName)}`,
+      jobListFixtureTwo,
+    );
+
+    usePushesStore.setState({
+      ...initialState,
+      pushList: fakePushes(thMaxPushes),
+    });
+
+    await usePushesStore.getState().pollPushes();
+    const state = usePushesStore.getState();
+
+    expect(fetchMock.called(`begin:${getProjectUrl('/push/', repoName)}`)).toBe(
+      false,
+    );
+    expect(state.pushList).toHaveLength(thMaxPushes);
+    expect(
+      fetchMock.called(`begin:${getApiUrl('/jobs/?push_id__in=', repoName)}`),
+    ).toBe(true);
+  });
+
   test('should pare down to single revision updateRange', async () => {
     usePushesStore.setState({
       ...initialState,
@@ -178,7 +298,7 @@ describe('Pushes Zustand store', () => {
   test('should fetch a new set of pushes with updateRange', async () => {
     fetchMock.get(
       getProjectUrl(
-        '/push/?full=true&count=100&fromchange=9692347caff487cdcd889489b8e89a825fe6bbd1',
+        `/push/?full=true&count=${thMaxPushes}&fromchange=9692347caff487cdcd889489b8e89a825fe6bbd1`,
         repoName,
       ),
       pushListFromChangeFixture,

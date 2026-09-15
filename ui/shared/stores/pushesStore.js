@@ -10,7 +10,7 @@ import PushModel from '../../models/push';
 import { getTaskRunStr, isUnclassifiedFailure } from '../../helpers/job';
 import FilterModel from '../../models/filter';
 import JobModel from '../../models/job';
-import { thEvents } from '../../helpers/constants';
+import { thEvents, thMaxPushes, thMaxPushFetchSize } from '../../helpers/constants';
 import { processErrors, getData } from '../../helpers/http';
 import { updateUrlSearch } from '../../helpers/router';
 
@@ -18,6 +18,9 @@ import { notify } from './notificationStore';
 import { clearJobViaUrl, setSelectedJob } from './selectedJobStore';
 
 const DEFAULT_PUSH_COUNT = 10;
+// Push ids per jobs-polling request; 100 ids keeps the encoded query
+// string safely under common server request-line limits (~4kB).
+const PUSH_IDS_PER_JOB_POLL = 100;
 const PUSH_POLLING_KEYS = ['tochange', 'enddate', 'revision', 'author'];
 const PUSH_FETCH_KEYS = [...PUSH_POLLING_KEYS, 'fromchange', 'startdate'];
 
@@ -102,12 +105,17 @@ const doRecalculateUnclassifiedCounts = (jobMap) => {
 const addPushes = (data, pushList, jobMap, setFromchange, oldBugSummaryMap) => {
   if (data.results.length > 0) {
     const pushIds = pushList.map((push) => push.id);
-    const newPushList = [
+    let newPushList = [
       ...pushList,
       ...data.results.filter((push) => !pushIds.includes(push.id)),
     ];
 
     newPushList.sort((a, b) => b.push_timestamp - a.push_timestamp);
+    // Hard ceiling, regardless of filters: keep only the newest
+    // thMaxPushes pushes. More can crash the browser.
+    if (newPushList.length > thMaxPushes) {
+      newPushList = newPushList.slice(0, thMaxPushes);
+    }
     const oldestPushTimestamp =
       newPushList[newPushList.length - 1].push_timestamp;
 
@@ -201,14 +209,34 @@ export const usePushesStore = create(
           return;
         }
 
+        // Never hold more than thMaxPushes pushes, no matter what the
+        // filters (e.g. a wide push range) would otherwise return.
+        const remaining = thMaxPushes - pushList.length;
+
+        if (remaining <= 0) {
+          notify(
+            `Max of ${thMaxPushes} pushes reached. Narrow the push range in the filter panel to see older pushes.`,
+            'warning',
+          );
+          set({ loadingPushes: false });
+          return;
+        }
+
         if (oldestPushTimestamp) {
           delete options.fromchange;
           delete options.tochange;
           options.push_timestamp__lte = oldestPushTimestamp;
         }
-        if (!options.fromchange) {
-          options.count = count;
-        }
+        // Range queries (fromchange/startdate) fetch everything in the
+        // range up to the remaining capacity in one request — the server
+        // returns the newest pushes in the range first. Otherwise fetch
+        // the requested count. Either way, never request more than would
+        // fit under the thMaxPushes ceiling.
+        options.count =
+          options.fromchange || options.startdate
+            ? remaining
+            : Math.min(count, remaining);
+
         const { data, failureStatus } = await PushModel.getList(options);
 
         if (!failureStatus) {
@@ -243,8 +271,18 @@ export const usePushesStore = create(
         } else if (pushList.length === 1 && locationSearch.revision) {
           fetchNewJobs();
         } else {
+          if (pushList.length >= thMaxPushes) {
+            // At the push ceiling: stop pulling in new pushes, but keep
+            // polling jobs for the pushes we already have.
+            await fetchNewJobs();
+            return;
+          }
           if (pushList.length) {
             pushPollingParams.fromchange = pushList[0].revision;
+            pushPollingParams.count = Math.min(
+              thMaxPushFetchSize,
+              thMaxPushes - pushList.length,
+            );
           }
           const { data, failureStatus } =
             await PushModel.getList(pushPollingParams);
@@ -275,17 +313,27 @@ export const usePushesStore = create(
         const pushIds = pushList.map((push) => push.id);
         const lastModified = getLastModifiedJobTime(jobMap);
 
-        const resp = await JobModel.getList(
-          {
-            push_id__in: pushIds.join(','),
-            last_modified__gt: lastModified.toISOString().replace('Z', ''),
-          },
-          { fetchAll: true },
+        // Chunk the push ids so the query string stays under server
+        // request-line limits (~4k) even with the maximum pushes loaded.
+        const chunks = [];
+        for (let i = 0; i < pushIds.length; i += PUSH_IDS_PER_JOB_POLL) {
+          chunks.push(pushIds.slice(i, i + PUSH_IDS_PER_JOB_POLL));
+        }
+        const responses = await Promise.all(
+          chunks.map((chunk) =>
+            JobModel.getList(
+              {
+                push_id__in: chunk.join(','),
+                last_modified__gt: lastModified.toISOString().replace('Z', ''),
+              },
+              { fetchAll: true },
+            ),
+          ),
         );
-        const errors = processErrors([resp]);
+        const errors = processErrors(responses);
 
         if (!errors.length) {
-          const { data } = resp;
+          const data = responses.flatMap((resp) => resp.data);
           const jobs = data.reduce((acc, job) => {
             const pushJobs = acc[job.push_id]
               ? [...acc[job.push_id], job]
