@@ -42,6 +42,7 @@ def throwing_task():
 def test_retryable_task_throws():
     "Test celery immediately raises an error for a task that throws"
 
+    thread_data.retry_count = -1
     with pytest.raises(TypeError):
         throwing_task.delay()
     assert thread_data.retry_count == 0
@@ -56,10 +57,11 @@ def throwing_task_should_retry():
 def test_retryable_task_throws_retry():
     "Test celery executes a task properly"
 
+    thread_data.retry_count = -1
     with pytest.raises(Retry) as e:
         throwing_task_should_retry.delay()
     assert str(e.value) == "Retry in 10s: OperationalError()"
 
     # The task is only called once, the Retry() exception
     # will signal to the worker that the task needs to be tried again later
-    assert thread_data.retry_count == 1
+    assert thread_data.retry_count == 0
