@@ -87,18 +87,22 @@ const SummaryTab = ({
   // suggestions with no summary.jsonl at all (nothing to diverge from).
   const hasClassicLines = !!bugSuggestions?.length;
 
-  // The classic failure summary is folded away by default: it is a second
-  // opinion on failures the summary above already lists. When the artifact
-  // found nothing, it is the only content there is, so it starts open.
+  // The classic failure summary is a second opinion on failures the summary
+  // above already lists, so it sits under a heading that folds it away, folded
+  // by default. When the artifact found nothing, it is the only content there
+  // is: shown as is, with no heading, nothing to fold, and no border or note
+  // setting it apart from a summary with nothing in it.
   const summaryIsEmpty = !summaryLoading && suggestions.length === 0;
-  const [showClassic, setShowClassic] = useState(summaryIsEmpty);
+  const classicFoldable = !summaryIsEmpty;
+  const [showClassic, setShowClassic] = useState(false);
   const [prevSummaryIsEmpty, setPrevSummaryIsEmpty] = useState(summaryIsEmpty);
   if (summaryIsEmpty !== prevSummaryIsEmpty) {
-    // The artifact finished loading (or another job was selected): apply the
-    // default again rather than keeping the previous job's fold state.
+    // The artifact finished loading (or another job was selected): fold the
+    // section again rather than keeping the previous job's fold state.
     setPrevSummaryIsEmpty(summaryIsEmpty);
-    setShowClassic(summaryIsEmpty);
+    setShowClassic(false);
   }
+  const classicOpen = !classicFoldable || showClassic;
 
   // Number of failing tests (not error lines — a test can emit several).
   const failedCount = summary
@@ -269,26 +273,28 @@ const SummaryTab = ({
           />
         ))}
         {hasClassicLines && (
-          <li className="border-top mt-2 pt-2">
-            <h3 className="font-size-12 mb-0">
-              <Button
-                variant="link"
-                className="failure-summary-line-empty p-0 fw-bold text-decoration-none"
-                onClick={() => setShowClassic((prev) => !prev)}
-                aria-expanded={showClassic}
-                aria-controls="classic-failure-summary"
-              >
-                <FontAwesomeIcon
-                  icon={showClassic ? faAngleUp : faAngleDown}
-                  className="me-2"
-                />
-                Failure Summary (classic)
-              </Button>
-            </h3>
+          <li className={classicFoldable ? 'border-top mt-2 pt-2' : undefined}>
+            {classicFoldable && (
+              <h3 className="font-size-12 mb-0">
+                <Button
+                  variant="link"
+                  className="failure-summary-line-empty p-0 fw-bold text-decoration-none"
+                  onClick={() => setShowClassic((prev) => !prev)}
+                  aria-expanded={showClassic}
+                  aria-controls="classic-failure-summary"
+                >
+                  <FontAwesomeIcon
+                    icon={showClassic ? faAngleUp : faAngleDown}
+                    className="me-2"
+                  />
+                  Failure Summary (classic)
+                </Button>
+              </h3>
+            )}
             <div id="classic-failure-summary">
-              {showClassic && (
+              {classicOpen && (
                 <>
-                  {divergence.diverged && (
+                  {classicFoldable && divergence.diverged && (
                     <p className="failure-summary-line-empty text-muted mb-0">
                       The classic failure summary below differs from the summary
                       above.

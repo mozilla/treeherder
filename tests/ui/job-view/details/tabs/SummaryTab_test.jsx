@@ -96,6 +96,9 @@ describe('SummaryTab divergence with the classic failure summary', () => {
 
     expandClassic();
     expect(screen.getByText(/application crashed/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/differs from the summary above/),
+    ).toBeInTheDocument();
   });
 
   test('folds the section, without the divergence note, when they agree', () => {
@@ -193,21 +196,20 @@ describe('SummaryTab loading and error states', () => {
     expect(screen.queryByText('No failures found in the summary.')).toBeNull();
   });
 
-  test('falls back to the classic failure summary, open, when the load failed', () => {
+  test('falls back to the classic failure summary, unfolded, when the load failed', () => {
     renderWith({
       summaryError: 'Failed to load summary (404)',
       bugSuggestions: prepareBugSuggestions([classicOnlySuggestion()]),
     });
 
-    expect(
-      screen.getByRole('button', { name: /Failure Summary \(classic\)/ }),
-    ).toHaveAttribute('aria-expanded', 'true');
+    // The only content there is: no heading, nothing to fold.
+    expect(screen.queryByText('Failure Summary (classic)')).toBeNull();
     expect(screen.getByText(/application crashed/)).toBeInTheDocument();
     // Nothing diverged — there is no summary to differ from.
     expect(screen.queryByText(/differs from the summary above/)).toBeNull();
   });
 
-  test('shows the classic summary, open, for a job with no summary artifact', () => {
+  test('shows the classic summary, unfolded, for a job with no summary artifact', () => {
     // Plenty of tasks publish bug suggestions and no summary.jsonl at all —
     // there is no summary to diverge from, and the lines must still show.
     renderWith({
@@ -219,9 +221,7 @@ describe('SummaryTab loading and error states', () => {
     expect(
       screen.getByText('No summary artifact for this job.'),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: /Failure Summary \(classic\)/ }),
-    ).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.queryByText('Failure Summary (classic)')).toBeNull();
     expect(screen.getByText(/application crashed/)).toBeInTheDocument();
   });
 
@@ -356,10 +356,10 @@ describe('SummaryTab classic section folding', () => {
     expect(screen.queryByText(/application crashed/)).toBeNull();
   });
 
-  test('starts open when the summary artifact found no failures', () => {
+  test('has no heading to fold when the summary artifact found no failures', () => {
     // An artifact with a passing test only (`expected` is written for
     // unexpected results only): nothing for the summary to list, so the
-    // classic summary is the only content and opens on its own.
+    // classic summary is the only content and is shown as is.
     const passingJsonl = [
       '{"action":"test_start","time":0,"group":"dom/manifest.ini","test":"dom/tests/test_pass.html"}',
       '{"action":"test_end","time":10,"group":"dom/manifest.ini","test":"dom/tests/test_pass.html","status":"PASS"}',
@@ -370,9 +370,37 @@ describe('SummaryTab classic section folding', () => {
       passingJsonl,
     );
 
+    expect(screen.queryByText('Failure Summary (classic)')).toBeNull();
+    expect(screen.getByText(/application crashed/)).toBeInTheDocument();
+    // Nor a border or a divergence note: the two summaries do differ, but
+    // there is nothing above for the lines to be set apart from.
+    expect(screen.getByText(/application crashed/).closest('.border-top')).toBeNull();
+    expect(screen.queryByText(/differs from the summary above/)).toBeNull();
+  });
+
+  test('drops the heading once the loaded artifact lists no failures', () => {
+    const tab = props => (
+      <MemoryRouter>
+        <SummaryTab
+          selectedJob={selectedJob}
+          jobDetails={[]}
+          pinJob={() => {}}
+          currentRepo={currentRepo}
+          bugSuggestions={prepareBugSuggestions([classicOnlySuggestion()])}
+          {...props}
+        />
+      </MemoryRouter>
+    );
+
+    // Folded under its heading while the artifact is still loading...
+    const { rerender } = render(tab({ summaryLoading: true }));
     expect(
       screen.getByRole('button', { name: /Failure Summary \(classic\)/ }),
-    ).toHaveAttribute('aria-expanded', 'true');
+    ).toHaveAttribute('aria-expanded', 'false');
+
+    // ...then the only content there is.
+    rerender(tab({ summary: buildTestSummary('') }));
+    expect(screen.queryByText('Failure Summary (classic)')).toBeNull();
     expect(screen.getByText(/application crashed/)).toBeInTheDocument();
   });
 
