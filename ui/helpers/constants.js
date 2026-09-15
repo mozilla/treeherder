@@ -205,10 +205,13 @@ export const thPlatformMap = {
   'android-5-0-armv7': 'Android ARMv7',
   'android-5-0-armv7-shippable': 'Android ARMv7 Shippable',
   'android-armv7-shippable': 'Android ARMv7 Shippable',
+  'android-5-0-armv7-nightlyasrelease': 'Android ARMv7 NightlyAsRelease',
   'android-5-0-aarch64': 'Android AArch64',
   'android-5-0-aarch64-shippable': 'Android AArch64 Shippable',
   'android-aarch64-shippable': 'Android AArch64 Shippable',
   'android-5-0-aarch64-shippable-lite': 'Android AArch64 Lite Shippable',
+  'android-5-0-aarch64-nightlyasrelease': 'Android AArch64 NightlyAsRelease',
+  'android-aarch64-nightlyasrelease': 'Android AArch64 NightlyAsRelease',
   'android-5-0-x86': 'Android x86',
   'android-5-0-x86-shippable': 'Android x86 Shippable',
   'android-x86-shippable': 'Android x86 Shippable',
@@ -216,9 +219,12 @@ export const thPlatformMap = {
   'android-5-0-x86_64-shippable': 'Android x86-64 Shippable',
   'android-x86_64-shippable': 'Android x86-64 Shippable',
   'android-5-0-x86_64-shippable-lite': 'Android x86-64 Lite Shippable',
+  'android-5-0-x86_64-nightlyasrelease': 'Android x86-64 NightlyAsRelease',
   'android-5-0-geckoview-fat-aar': 'Android GeckoView multi-arch fat AAR',
   'android-5-0-geckoview-fat-aar-shippable':
     'Android GeckoView multi-arch fat AAR Shippable',
+  'android-5-0-geckoview-fat-aar-nightlyasrelease':
+    'Android GeckoView multi-arch fat AAR NightlyAsRelease',
   'android-em-7-0-x86': 'Android 7.0 x86',
   'android-em-7-0-x86-qr': 'Android 7.0 x86',
   'android-em-7-0-x86_64-qr': 'Android 7.0 x86-64',
@@ -245,6 +251,8 @@ export const thPlatformMap = {
   'android-hw-p6-13-0-aarch64': 'Android 13.0 Pixel6 AArch64',
   'android-hw-p6-13-0-aarch64-shippable':
     'Android 13.0 Pixel6 AArch64 Shippable',
+  'android-hw-p6-13-0-aarch64-nightlyasrelease':
+    'Android 13.0 Pixel6 AArch64 NightlyAsRelease',
   'android-em-14-x86_64': 'Android 14.0 x86-64',
   'android-em-14-x86_64-shippable': 'Android 14.0 x86-64 Shippable',
   'android-em-14-x86_64-lite': 'Android 14.0 x86-64 Lite',
@@ -252,10 +260,14 @@ export const thPlatformMap = {
   'android-hw-a55-14-0-aarch64-shippable':
     'Android 14.0 Galaxy A55 AArch64 Shippable',
   'android-hw-a55-14-0-aarch64': 'Android 14.0 Galaxy A55 AArch64',
+  'android-hw-a55-14-0-aarch64-nightlyasrelease':
+    'Android 14.0 Galaxy A55 AArch64 NightlyAsRelease',
   'android-hw-a55-14-0-android-aarch64-shippable-qr':
     'Android 14.0 Galaxy A55 AArch64 Shippable',
   'android-hw-s24-14-0-aarch64-shippable':
     'Android 14.0 Galaxy S24 AArch64 Shippable',
+  'android-hw-s24-14-0-aarch64-nightlyasrelease':
+    'Android 14.0 Galaxy S24 AArch64 NightlyAsRelease',
   'android-hw-s24-14-0-android-aarch64-shippable-qr':
     'Android 14.0 Galaxy S24 AArch64 Shippable',
   Android: 'Android',
