@@ -550,9 +550,9 @@ urllib3[socks]==2.0.3 \
     #   requests
     #   responses
     #   selenium
-vcrpy==8.1.1 \
-    --hash=sha256:2d16f31ad56493efb6165182dd99767207031b0da3f68b18f975545ede8ac4b9 \
-    --hash=sha256:58e3053e33b423f3594031cb758c3f4d1df931307f1e67928e30cf352df7709f
+vcrpy==8.3.0 \
+    --hash=sha256:46d64e77e8d95e5c76c7d9a94ff05d8b38b2ae4e1d4869eb0235024b6fcb5212 \
+    --hash=sha256:bd66e6143746778157f00e2a922527a8d96b2fdc350be8988a45a29c843815b9
     # via -r requirements/dev.in
 virtualenv==20.29.2 \
     --hash=sha256:fdaabebf6d03b5ba83ae0a02cfe96f48a716f4fae556461d180825866f75b728 \
