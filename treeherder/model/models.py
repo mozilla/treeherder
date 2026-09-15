@@ -871,7 +871,6 @@ class BugJobMap(models.Model):
         bug_map = BugJobMap.objects.create(
             job_id=job_id, user=user, bug_open=bug_open, **bug_reference
         )
-
         if not user:
             return bug_map
 
