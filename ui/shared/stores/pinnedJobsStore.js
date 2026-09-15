@@ -67,21 +67,32 @@ export const usePinnedJobsStore = create(
       pinJobs: (jobsToPin) => {
         const { pinnedJobs } = get();
 
-        const spaceRemaining = MAX_SIZE - Object.keys(pinnedJobs).length;
-        const showError = jobsToPin.length > spaceRemaining;
-        const newPinnedJobs = jobsToPin
-          .slice(0, spaceRemaining)
-          .reduce((acc, job) => ({ ...acc, [job.id]: job }), {});
+        const newJobsToPin = jobsToPin.filter((job) => !pinnedJobs[job.id]);
 
-        if (!spaceRemaining || showError) {
-          notify(COUNT_ERROR, 'danger', { sticky: true });
+        if (newJobsToPin.length === 0) {
           return;
         }
 
-        set({
-          pinnedJobs: { ...pinnedJobs, ...newPinnedJobs },
-          isPinBoardVisible: true,
-        });
+        const spaceRemaining = MAX_SIZE - Object.keys(pinnedJobs).length;
+        const jobsToAdd = newJobsToPin.slice(0, spaceRemaining);
+        const showError = newJobsToPin.length > spaceRemaining;
+
+        if (jobsToAdd.length > 0) {
+          const newPinnedJobsMap = jobsToAdd.reduce(
+            (acc, job) => ({ ...acc, [job.id]: job }),
+            {},
+          );
+
+          set({
+            pinnedJobs: { ...pinnedJobs, ...newPinnedJobsMap },
+            isPinBoardVisible: true,
+          });
+          pulsePinCount();
+        }
+
+        if (showError) {
+          notify(COUNT_ERROR, 'danger', { sticky: true });
+        }
       },
 
       addBug: (bug, job = null) => {
