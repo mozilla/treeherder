@@ -67,3 +67,23 @@ def test_detected_push_falls_back_to_scalar(test_perf_alert):
         "detected_push_id": 999,
         "detected_push_revision": None,
     }
+
+
+@pytest.mark.django_db
+def test_detected_push_revision_is_none_when_key_absent(test_perf_alert):
+    report = BackfillReport.objects.create(summary=test_perf_alert.summary)
+    record = BackfillRecord.objects.create(alert=test_perf_alert, report=report)
+    record.backfill_logs = json.dumps(
+        [
+            {
+                "iteration": 0,
+                "status": "initial",
+                "detected_push_id": 111,
+                # no "detected_push_revision" key — old/legacy log format
+            }
+        ]
+    )
+    record.save()
+    result = record.get_latest_detected_push()
+    assert result["detected_push_id"] == 111
+    assert result["detected_push_revision"] is None
