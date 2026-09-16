@@ -62,7 +62,7 @@ test('Alert is created on Monday, Triage countdown shows 1 working days', async 
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
   const dueDateStatusText = dueDateStatus.querySelector('[data-testid="time-left"]').innerHTML;
-  expect(dueDateStatusText).toBe('Time left: 1 days left');
+  expect(dueDateStatusText).toBe('Time left: 1 day left');
 });
 
 test('Alert is created on Monday, Triage countdown shows hours left', async () => {
@@ -186,7 +186,7 @@ test('Alert is created on Monday, Bug countdown shows 1 working days', async () 
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
   const dueDateStatusText = dueDateStatus.querySelector('[data-testid="time-left"]').innerHTML;
-  expect(dueDateStatusText).toBe('Time left: 1 days left');
+  expect(dueDateStatusText).toBe('Time left: 1 day left');
 });
 
 test('Alert is created on Monday, Bug countdown shows hours left', async () => {
@@ -273,7 +273,7 @@ test('Alert is created on Wednesday, Triage countdown shows 1 working days', asy
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
   const dueDateStatusText = dueDateStatus.querySelector('[data-testid="time-left"]').innerHTML;
-  expect(dueDateStatusText).toBe('Time left: 1 days left');
+  expect(dueDateStatusText).toBe('Time left: 1 day left');
 });
 
 test('Alert is created on Wednesday, Triage countdown shows hours left', async () => {
@@ -399,7 +399,7 @@ test('Alert is created on Wednesday, Bug countdown shows 1 working days', async 
 
   const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
   const dueDateStatusText = dueDateStatus.querySelector('[data-testid="time-left"]').innerHTML;
-  expect(dueDateStatusText).toBe('Time left: 1 days left');
+  expect(dueDateStatusText).toBe('Time left: 1 day left');
 });
 
 test('Alert is created on Wednesday, Bug countdown shows hours left', async () => {
