@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Ajv from 'ajv';
 import jsonSchemaDefaults from 'json-schema-defaults';
 import keyBy from 'lodash/keyBy';
-import jsyaml from 'js-yaml';
+import * as jsyaml from 'js-yaml';
 import tcLibUrls from 'taskcluster-lib-urls';
 import { Button, Dropdown, Form, Modal } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
