@@ -34,7 +34,7 @@ export const getTimeDifference = (currentDate, dueDate) => {
   const workingMs = Math.max(0, totalMs - (weekendDays * msInDay));
 
   return {
-    hours: Math.ceil(workingMs / msInHour),
+    hours: Math.floor(workingMs / msInHour),
     days: Math.ceil(workingMs / msInDay),
   };
 };
@@ -49,7 +49,7 @@ export const getCountdownText = (now, dueDate, difference) => {
     return `${difference.hours} hours left`;
   }
 
-  return `${difference.days} days left`;
+  return `${difference.days} ${difference.days === 1 ? 'day' : 'days'} left`;
 };
 
 export const alertIsTriaged = (alertSummary) => {
