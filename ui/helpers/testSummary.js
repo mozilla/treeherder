@@ -21,6 +21,11 @@ import { thBugSuggestionLimit } from './constants';
 //   {"action": "log", "time": <ms>, "level": "ERROR" | "CRITICAL",
 //    "message": "TEST-UNEXPECTED-FAIL | <what> | <detail>"}
 //
+//   {"action": "ubsan_error", "time": <ms>, "kind": "undefined-behavior",
+//    "message": "<runtime error message>", "file": "<path>", "lineno": <n>,
+//    "column": <n>, "stack": [...], "scope": "<manifest or test>",
+//    "test": "<path>"}
+//
 // Every record may carry a `line`: the 1-based index, among the lines
 // mozharness wrote to the console, of the first log line emitted for it. The
 // artifact opens with a `console_anchor` record giving the text and console
@@ -36,6 +41,12 @@ import { thBugSuggestionLimit } from './constants';
 // carries no `test`/`group`, so it is filed under the manifest it names or
 // the group open at the time, as its own entry, and never mistaken for a
 // test run.
+//
+// A `ubsan_error` line is an UndefinedBehaviorSanitizer report the harness
+// attributed to the test it was running (`test`), or to the manifest open
+// between tests (`scope`). It is a failure of its own, filed like a harness
+// line. The classic Failure Summary only shows the runtime's SUMMARY line of
+// a report, so the entry also carries that text for the two to be matched.
 //
 // The `end` event is not guaranteed: a test that crashes or hangs gets a
 // `test_start` with no matching `test_end`. We pair the two events to recover
@@ -151,6 +162,38 @@ const pathEndOfLine = (line) => {
   return path;
 };
 
+// CI builds embed source paths under "checkouts/gecko/"; the repo-relative
+// part is what a reader wants (the resource usage profile strips the same
+// prefix).
+const CHECKOUTS_GECKO = 'checkouts/gecko/';
+
+const repoRelativePath = (path) => {
+  const index = path.lastIndexOf(CHECKOUTS_GECKO);
+  return index === -1 ? path : path.slice(index + CHECKOUTS_GECKO.length);
+};
+
+// "<file>:<lineno>[:<column>]" of a ubsan_error record, or null when the
+// runtime printed no source location.
+const sourceLocationOf = (record, display = false) => {
+  if (!record.file) return null;
+  let location = display ? repoRelativePath(record.file) : record.file;
+  if (Number.isFinite(record.lineno)) {
+    location += `:${record.lineno}`;
+    if (Number.isFinite(record.column)) location += `:${record.column}`;
+  }
+  return location;
+};
+
+// The SUMMARY line compiler-rt prints for a report: the only line of it
+// Treeherder's log parser keeps for the classic Failure Summary.
+const ubsanClassicLine = (record) => {
+  const kind = record.kind || 'undefined-behavior';
+  const location = sourceLocationOf(record);
+  return `SUMMARY: UndefinedBehaviorSanitizer: ${kind}${
+    location ? ` ${location}` : ''
+  }`;
+};
+
 /**
  * Build the Summary tab data from a `*_testsummary.jsonl` artifact.
  *
@@ -167,7 +210,7 @@ const pathEndOfLine = (line) => {
  *       retried: boolean,
  *       harness?: true,
  *       pathEnd?: ?string,
- *       results: Array<{ status: string, success: boolean, message: ?string, messages: string[], line: ?number, lines: Array<?number>, start: ?number, end: ?number, duration: ?number }>,
+ *       results: Array<{ status: string, success: boolean, message: ?string, messages: string[], line: ?number, lines: Array<?number>, start: ?number, end: ?number, duration: ?number, classicLine?: string }>,
  *     }>,
  *   }>,
  *   counts: Object,
@@ -210,6 +253,9 @@ export const buildTestSummary = (content) => {
       end: entry.end,
       duration: entry.duration,
     };
+    // The text the classic Failure Summary shows for this result, when it is
+    // not the message itself.
+    if (entry.classicLine) result.classicLine = entry.classicLine;
     tests.get(key).results.push(result);
     return result;
   };
@@ -380,6 +426,42 @@ export const buildTestSummary = (content) => {
         );
         return;
       }
+      case 'ubsan_error': {
+        // Shown as "UndefinedBehaviorSanitizer | <test> | <message> at
+        // <file>:<lineno>:<column>", the failure-line shape whose middle token
+        // is the test path, so bugs match on it and the bug filer names the
+        // test. The test path is unknown between tests.
+        if (!line.message) return;
+        const location = sourceLocationOf(line, true);
+        const detail = location ? `${line.message} at ${location}` : line.message;
+        const message = line.test
+          ? `UndefinedBehaviorSanitizer | ${line.test} | ${detail}`
+          : `UndefinedBehaviorSanitizer | ${detail}`;
+        const pathEnd = pathEndOfLine(message);
+        harnessLines += 1;
+        recordEntry(
+          {
+            test: pathEnd || message,
+            group:
+              line.group ||
+              (knownGroups.has(line.scope) ? line.scope : currentGroup),
+            status: HARNESS_STATUS,
+            success: false,
+            message,
+            messages: [message],
+            line: consoleLineOf(line),
+            start: null,
+            end: null,
+            duration: null,
+            harness: true,
+            pathEnd,
+            classicLine: ubsanClassicLine(line),
+          },
+          // Each report is its own entry, like a harness line.
+          `harness:${harnessLines}`,
+        );
+        return;
+      }
       default:
     }
   });
@@ -448,7 +530,7 @@ export const buildTestSummary = (content) => {
  * reuses BugFiler/InternalIssueFiler but has no Bugzilla suggestion data).
  *
  * @param {ReturnType<typeof buildTestSummary>|null} summary
- * @returns {Array<{ search: string, path_end: ?string, search_terms: string[], line: ?number, bugs: { open_recent: [], all_others: [] } }>}
+ * @returns {Array<{ search: string, path_end: ?string, search_terms: string[], line: ?number, classicLine?: string, bugs: { open_recent: [], all_others: [] } }>}
  */
 export const buildFailureSuggestions = (summary) => {
   if (!summary) return [];
@@ -473,7 +555,7 @@ export const buildFailureSuggestions = (summary) => {
           : `TEST-UNEXPECTED-${test.status} | ${test.name}${
               message ? ` | ${message}` : ''
             }`;
-        suggestions.push({
+        const suggestion = {
           search,
           path_end: test.harness ? test.pathEnd : test.name,
           search_terms: getSearchWords(search),
@@ -484,7 +566,13 @@ export const buildFailureSuggestions = (summary) => {
           // otherwise get the same bugs. Only the first line carries them.
           primary: index === 0,
           bugs: { open_recent: [], all_others: [] },
-        });
+        };
+        // What the classic Failure Summary shows for this line when that is
+        // not `search` itself (a UBSan report), to match the two summaries.
+        if (lastResult.classicLine) {
+          suggestion.classicLine = lastResult.classicLine;
+        }
+        suggestions.push(suggestion);
       });
     });
   });
@@ -583,7 +671,9 @@ const normalizeSearchLine = (search) =>
  *
  * Whether a line is new (`failure_new_in_rev` / `counter`) is copied from the
  * API line with the same text instead: the backend decides it per line, so
- * another message of the same test being new says nothing about this one.
+ * another message of the same test being new says nothing about this one. A
+ * line the classic summary prints differently is matched on that classic
+ * text.
  *
  * @param {ReturnType<typeof buildFailureSuggestions>} failureSuggestions
  * @param {Array<{ search: string, path_end: ?string, failure_new_in_rev: ?boolean, counter: ?number, bugs: { open_recent: [], all_others: [] } }>} bugSuggestions
@@ -604,7 +694,9 @@ export const matchBugSuggestions = (failureSuggestions, bugSuggestions) => {
 
   failureSuggestions.forEach((suggestion) => {
     // Every line gets this, primary or not: each one is its own message.
-    const classic = classicByLine.get(normalizeSearchLine(suggestion.search));
+    const classic = classicByLine.get(
+      normalizeSearchLine(suggestion.classicLine ?? suggestion.search),
+    );
     suggestion.failure_new_in_rev = classic?.failure_new_in_rev ?? false;
     suggestion.counter = classic?.counter ?? null;
 
@@ -750,7 +842,9 @@ export const computeSummaryDivergence = (
   const toLineSet = (suggestions) =>
     new Set(
       filterGenericFailureLines(suggestions || [])
-        .map((suggestion) => normalizeSearchLine(suggestion.search))
+        .map((suggestion) =>
+          normalizeSearchLine(suggestion.classicLine ?? suggestion.search),
+        )
         .filter(Boolean),
     );
 

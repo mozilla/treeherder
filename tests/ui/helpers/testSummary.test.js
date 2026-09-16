@@ -715,6 +715,147 @@ describe('harness failures (ERROR/CRITICAL log lines)', () => {
   });
 });
 
+describe('UBSan reports (ubsan_error records)', () => {
+  const group = 'toolkit/components/ml/tests/browser_models/browser_models.toml';
+  const testPath = 'toolkit/components/ml/tests/browser_models/browser_ml_smollm2_chat.js';
+  const file = '/builds/worker/checkouts/gecko/third_party/llama.cpp/ggml/src/ggml-c.c';
+  const report = {
+    action: 'ubsan_error',
+    time: 3,
+    kind: 'undefined-behavior',
+    message: 'applying non-zero offset 96 to null pointer',
+    file,
+    lineno: 7106,
+    column: 33,
+    stack: [{ function: 'incr_ptr_aligned', file, line: 7106, column: 33 }],
+    scope: testPath,
+    test: testPath,
+  };
+  const displayLine = `UndefinedBehaviorSanitizer | ${testPath} | applying non-zero offset 96 to null pointer at third_party/llama.cpp/ggml/src/ggml-c.c:7106:33`;
+  const classicLine = `SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ${file}:7106:33`;
+  const summaryLines = [
+    { action: 'group_start', time: 1, name: group },
+    { action: 'test_start', time: 2, group, test: testPath },
+    report,
+    { action: 'test_end', time: 5, group, test: testPath, status: 'PASS' },
+    { action: 'group_end', time: 6, name: group },
+  ];
+
+  const harnessEntries = (summary, groupName) =>
+    summary.groups
+      .find(g => g.name === groupName)
+      .tests.filter(t => t.harness);
+
+  test("files a report as its own failure under the running test's group", () => {
+    const summary = buildTestSummary(summaryLines);
+    const entries = harnessEntries(summary, group);
+
+    expect(entries).toHaveLength(1);
+    const [entry] = entries;
+    expect(entry.name).toBe(testPath);
+    expect(entry.pathEnd).toBe(testPath);
+    expect(entry.status).toBe(HARNESS_STATUS);
+    expect(entry.success).toBe(false);
+    expect(entry.retried).toBe(false);
+    expect(entry.results).toHaveLength(1);
+    expect(entry.results[0].message).toBe(displayLine);
+    expect(entry.results[0].classicLine).toBe(classicLine);
+    // The test the report interrupted still passed: a report is not a test.
+    expect(summary.counts).toMatchObject({ total: 1, PASS: 1, ERROR: 0 });
+    expect(summary.realFailCounts).toEqual({ ERROR: 1 });
+  });
+
+  test('files a report between tests under the manifest its scope names', () => {
+    const summary = buildTestSummary([
+      { action: 'group_start', time: 1, name: group },
+      { action: 'group_end', time: 2, name: group },
+      { ...report, test: undefined, scope: group },
+    ]);
+    const [entry] = harnessEntries(summary, group);
+
+    expect(entry.results[0].message).toBe(
+      'UndefinedBehaviorSanitizer | applying non-zero offset 96 to null pointer at third_party/llama.cpp/ggml/src/ggml-c.c:7106:33',
+    );
+    expect(entry.pathEnd).toBe(null);
+  });
+
+  test('keeps two reports apart and prints only the location the runtime gave', () => {
+    const summary = buildTestSummary([
+      { action: 'group_start', time: 1, name: 'g' },
+      { ...report, file: '/src/a.c', lineno: 12, column: undefined },
+      { action: 'ubsan_error', time: 4, kind: 'pointer-overflow', message: 'division by zero', test: 'b.js' },
+    ]);
+    const entries = harnessEntries(summary, 'g');
+
+    expect(entries).toHaveLength(2);
+    expect(entries.every(e => e.retried === false)).toBe(true);
+    expect(entries[0].results[0].message).toBe(
+      `UndefinedBehaviorSanitizer | ${testPath} | applying non-zero offset 96 to null pointer at /src/a.c:12`,
+    );
+    expect(entries[0].results[0].classicLine).toBe(
+      'SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior /src/a.c:12',
+    );
+    expect(entries[1].results[0].message).toBe(
+      'UndefinedBehaviorSanitizer | b.js | division by zero',
+    );
+    expect(entries[1].results[0].classicLine).toBe(
+      'SUMMARY: UndefinedBehaviorSanitizer: pointer-overflow',
+    );
+  });
+
+  test('ignores a report with no message', () => {
+    const summary = buildTestSummary([
+      { action: 'group_start', time: 1, name: 'g' },
+      { action: 'ubsan_error', time: 2, kind: 'undefined-behavior', test: testPath },
+    ]);
+
+    expect(summary.groups).toEqual([]);
+  });
+
+  test('emits the display line as the suggestion, with the classic line alongside', () => {
+    const suggestions = buildFailureSuggestions(buildTestSummary(summaryLines));
+
+    expect(suggestions).toHaveLength(1);
+    expect(suggestions[0].search).toBe(displayLine);
+    expect(suggestions[0].path_end).toBe(testPath);
+    expect(suggestions[0].classicLine).toBe(classicLine);
+    expect(suggestions[0].line).toBe(null);
+  });
+
+  test('leaves other suggestions without a classic line', () => {
+    const [suggestion] = buildFailureSuggestions(buildTestSummary(lines));
+
+    expect(suggestion).not.toHaveProperty('classicLine');
+  });
+
+  test('matches the classic SUMMARY line for newness and divergence', () => {
+    const failures = buildFailureSuggestions(buildTestSummary(summaryLines));
+    const classic = [
+      {
+        search: classicLine,
+        path_end: null,
+        failure_new_in_rev: true,
+        counter: 3,
+        bugs: { open_recent: [], all_others: [] },
+      },
+    ];
+
+    expect(computeSummaryDivergence(failures, classic).diverged).toBe(false);
+    const [matched] = matchBugSuggestions(failures, classic);
+    expect(matched.failure_new_in_rev).toBe(true);
+    expect(matched.counter).toBe(3);
+    expect(isNewFailureLine(matched, 'autoland')).toBe(true);
+  });
+
+  test('diverges when the classic summary lacks the report', () => {
+    const failures = buildFailureSuggestions(buildTestSummary(summaryLines));
+
+    const divergence = computeSummaryDivergence(failures, []);
+    expect(divergence.diverged).toBe(true);
+    expect(divergence.onlyInSummary).toEqual([classicLine]);
+  });
+});
+
 describe('classic failure summary helpers', () => {
   const line = (search, pathEnd = null, extra = {}) => ({
     search,
