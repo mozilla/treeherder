@@ -1,4 +1,5 @@
 import copy
+import json
 
 import pytest
 from django.urls import reverse
@@ -6,6 +7,8 @@ from first import first
 
 from tests.conftest import create_perf_alert
 from treeherder.perf.models import (
+    BackfillRecord,
+    BackfillReport,
     PerformanceAlert,
     PerformanceAlertSummary,
     PerformanceFramework,
@@ -672,3 +675,30 @@ def dump_vars(alert_summaries, perf_data, alerts=None):
             dump(alert)
     for perf_datum in perf_data:
         pprint(f"PerfData(id={perf_datum.push_id}, push_timestamp={perf_datum.push_timestamp})")
+
+
+@pytest.mark.django_db
+def test_alerts_list_exposes_detected_push_in_backfill_record(
+    client,
+    test_perf_alert,
+):
+    report = BackfillReport.objects.create(summary=test_perf_alert.summary)
+    record = BackfillRecord.objects.create(alert=test_perf_alert, report=report)
+    record.backfill_logs = json.dumps(
+        [
+            {
+                "iteration": 0,
+                "status": "right",
+                "detected_push_id": 222,
+                "detected_push_revision": "cccc2222dddd",
+            }
+        ]
+    )
+    record.save()
+
+    resp = client.get(reverse("performance-alerts-list"))
+    assert resp.status_code == 200
+
+    backfill = resp.json()["results"][0]["backfill_record"]
+    assert backfill["detected_push_id"] == 222
+    assert backfill["detected_push_revision"] == "cccc2222dddd"

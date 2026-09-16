@@ -91,6 +91,18 @@ class BackfillRecordSerializer(serializers.Serializer):
     total_backfills_successful = serializers.IntegerField()
     total_backfills_in_progress = serializers.IntegerField()
 
+    def to_representation(self, instance):
+        # detected_push_id / detected_push_revision are injected here rather than
+        # declared as serializer fields, so they won't show up in DRF's generated
+        # schema or the browsable API's form — they only appear in the JSON output.
+        data = super().to_representation(instance)
+
+        detected = instance.get_latest_detected_push()
+        data["detected_push_id"] = detected["detected_push_id"] if detected else None
+        data["detected_push_revision"] = detected["detected_push_revision"] if detected else None
+
+        return data
+
     class Meta:
         model = BackfillRecord
         fields = (
