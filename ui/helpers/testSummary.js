@@ -26,6 +26,10 @@ import { thBugSuggestionLimit } from './constants';
 //    "column": <n>, "stack": [...], "scope": "<manifest or test>",
 //    "test": "<path>"}
 //
+//   {"action": "mozleak_total", "time": <ms>, "process": "default",
+//    "bytes": 856, "threshold": 0, "objects": ["CondVar", ...],
+//    "scope": "<manifest>", "induced_crash": false, "ignore_missing": false}
+//
 // Every record may carry a `line`: the 1-based index, among the lines
 // mozharness wrote to the console, of the first log line emitted for it. The
 // artifact opens with a `console_anchor` record giving the text and console
@@ -47,6 +51,11 @@ import { thBugSuggestionLimit } from './constants';
 // between tests (`scope`). It is a failure of its own, filed like a harness
 // line. The classic Failure Summary only shows the runtime's SUMMARY line of
 // a report, so the entry also carries that text for the two to be matched.
+//
+// A `mozleak_total` line is a refcount leak total mozleak found in a process
+// log once the browser exited, scoped to the manifest that was running. Only
+// the failing ones reach the artifact. The classic Failure Summary shows the
+// line the TBPL formatter prints for it, so that text is rebuilt here.
 //
 // The `end` event is not guaranteed: a test that crashes or hangs gets a
 // `test_start` with no matching `test_end`. We pair the two events to recover
@@ -203,6 +212,35 @@ const ubsanClassicLine = (record) => {
   }`;
 };
 
+// Objects whose leak the TBPL formatter names in the line instead of the
+// byte count, in the order it checks them.
+const BIG_LEAKERS = [
+  'nsGlobalWindowInner',
+  'nsGlobalWindowOuter',
+  'Document',
+  'nsDocShell',
+  'BrowsingContext',
+  'SystemGlobal',
+];
+
+// The TEST-UNEXPECTED-FAIL line TbplFormatter.mozleak_total prints for a
+// failing leak total, or null when the total is not a failure.
+const leakcheckLine = (record) => {
+  const { process, bytes, threshold, objects = [] } = record;
+  if (bytes === null || bytes === undefined) {
+    if (record.induced_crash || record.ignore_missing) return null;
+    return `TEST-UNEXPECTED-FAIL | leakcheck | ${process} missing output line for total leaks!`;
+  }
+  if (bytes === 0 || !(bytes > (threshold ?? 0))) return null;
+  const big = BIG_LEAKERS.find((name) => objects.includes(name));
+  if (big) {
+    return `TEST-UNEXPECTED-FAIL | leakcheck large ${big} | ${record.scope}`;
+  }
+  const shown = objects.slice(0, 5).join(', ');
+  const summary = objects.length > 5 ? `${shown}, ...` : shown;
+  return `TEST-UNEXPECTED-FAIL | leakcheck | ${process} ${bytes} bytes leaked (${summary})`;
+};
+
 /**
  * Build the Summary tab data from a `*_testsummary.jsonl` artifact.
  *
@@ -290,6 +328,32 @@ export const buildTestSummary = (content) => {
   const takePending = (testName) => {
     const queue = pending.get(testName);
     return queue && queue.length ? queue.shift() : null;
+  };
+
+  // File a failure that is not a test result (a harness line, a sanitizer
+  // report, a leak total) as its own entry: two identical lines are two
+  // failures, not one test run twice.
+  const recordHarnessLine = ({ message, group, line, classicLine }) => {
+    const pathEnd = pathEndOfLine(message);
+    harnessLines += 1;
+    recordEntry(
+      {
+        test: pathEnd || message,
+        group,
+        status: HARNESS_STATUS,
+        success: false,
+        message,
+        messages: [message],
+        line,
+        start: null,
+        end: null,
+        duration: null,
+        harness: true,
+        pathEnd,
+        classicLine,
+      },
+      `harness:${harnessLines}`,
+    );
   };
 
   lines.forEach((line) => {
@@ -419,27 +483,11 @@ export const buildTestSummary = (content) => {
         const tokens = message.split(' | ');
         const scope =
           tokens.length > 1 ? tokens[tokens.length - 1].trim() : '';
-        const pathEnd = pathEndOfLine(message);
-        harnessLines += 1;
-        recordEntry(
-          {
-            test: pathEnd || message,
-            group: knownGroups.has(scope) ? scope : currentGroup,
-            status: HARNESS_STATUS,
-            success: false,
-            message,
-            messages: [message],
-            line: consoleLineOf(line),
-            start: null,
-            end: null,
-            duration: null,
-            harness: true,
-            pathEnd,
-          },
-          // Each line is its own entry: two leak reports are two failures,
-          // not one test run twice.
-          `harness:${harnessLines}`,
-        );
+        recordHarnessLine({
+          message,
+          group: knownGroups.has(scope) ? scope : currentGroup,
+          line: consoleLineOf(line),
+        });
         return;
       }
       case 'ubsan_error': {
@@ -453,29 +501,26 @@ export const buildTestSummary = (content) => {
         const message = line.test
           ? `UndefinedBehaviorSanitizer | ${line.test} | ${detail}`
           : `UndefinedBehaviorSanitizer | ${detail}`;
-        const pathEnd = pathEndOfLine(message);
-        harnessLines += 1;
-        recordEntry(
-          {
-            test: pathEnd || message,
-            group:
-              line.group ||
-              (knownGroups.has(line.scope) ? line.scope : currentGroup),
-            status: HARNESS_STATUS,
-            success: false,
-            message,
-            messages: [message],
-            line: consoleLineOf(line),
-            start: null,
-            end: null,
-            duration: null,
-            harness: true,
-            pathEnd,
-            classicLine: ubsanClassicLine(line),
-          },
-          // Each report is its own entry, like a harness line.
-          `harness:${harnessLines}`,
-        );
+        recordHarnessLine({
+          message,
+          group:
+            line.group ||
+            (knownGroups.has(line.scope) ? line.scope : currentGroup),
+          line: consoleLineOf(line),
+          classicLine: ubsanClassicLine(line),
+        });
+        return;
+      }
+      case 'mozleak_total': {
+        // Shown as the line the TBPL formatter prints, which is what the
+        // classic Failure Summary has for it.
+        const message = leakcheckLine(line);
+        if (!message) return;
+        recordHarnessLine({
+          message,
+          group: knownGroups.has(line.scope) ? line.scope : currentGroup,
+          line: consoleLineOf(line),
+        });
         return;
       }
       default:
