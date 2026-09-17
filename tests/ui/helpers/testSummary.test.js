@@ -982,6 +982,124 @@ describe('UBSan reports (ubsan_error records)', () => {
   });
 });
 
+describe('leak totals (mozleak_total records)', () => {
+  const group = 'browser/components/aiwindow/ui/test/browser/browser.toml';
+  const total = {
+    action: 'mozleak_total',
+    time: 3,
+    process: 'default',
+    bytes: 856,
+    threshold: 0,
+    objects: [
+      'CondVar',
+      'MozPromiseRefcountable',
+      'Mutex',
+      'ThreadEventTarget',
+      'ThreadTargetSink',
+      'nsThread',
+    ],
+    scope: group,
+    induced_crash: false,
+    ignore_missing: false,
+  };
+  const classicLine =
+    'TEST-UNEXPECTED-FAIL | leakcheck | default 856 bytes leaked (CondVar, MozPromiseRefcountable, Mutex, ThreadEventTarget, ThreadTargetSink, ...)';
+  const summaryLines = [
+    { action: 'group_start', time: 1, name: group },
+    { action: 'test_start', time: 2, group, test: 'browser_a.js' },
+    { action: 'test_end', time: 4, group, test: 'browser_a.js', status: 'PASS' },
+    total,
+    { action: 'group_end', time: 6, name: group },
+  ];
+
+  const harnessEntries = (summary, groupName) =>
+    summary.groups
+      .find(g => g.name === groupName)
+      .tests.filter(t => t.harness);
+
+  test('files a failing total as the classic line under the manifest it is scoped to', () => {
+    const summary = buildTestSummary(summaryLines);
+    const entries = harnessEntries(summary, group);
+
+    expect(entries).toHaveLength(1);
+    const [entry] = entries;
+    expect(entry.name).toBe(classicLine);
+    expect(entry.pathEnd).toBe(null);
+    expect(entry.status).toBe(HARNESS_STATUS);
+    expect(entry.success).toBe(false);
+    expect(entry.results[0].message).toBe(classicLine);
+    expect(entry.results[0]).not.toHaveProperty('classicLine');
+    // The test that ran in that browser still passed: a leak is not a test.
+    expect(summary.counts).toMatchObject({ total: 1, PASS: 1, ERROR: 0 });
+    expect(summary.realFailCounts).toEqual({ ERROR: 1 });
+  });
+
+  test('keeps two totals apart and matches the classic summary', () => {
+    const summary = buildTestSummary([...summaryLines, { ...total, time: 7 }]);
+    const failures = buildFailureSuggestions(summary);
+
+    expect(failures.map(f => f.search)).toEqual([classicLine, classicLine]);
+    expect(failures.every(f => f.path_end === null)).toBe(true);
+    const classic = [classicLine, classicLine].map(search => ({
+      search,
+      path_end: null,
+      bugs: { open_recent: [], all_others: [] },
+    }));
+    expect(computeSummaryDivergence(failures, classic).diverged).toBe(false);
+  });
+
+  test('lists the first five objects only, or names a big leaker instead', () => {
+    const summary = buildTestSummary([
+      { action: 'group_start', time: 1, name: group },
+      { ...total, objects: ['A', 'B'] },
+      { ...total, objects: ['A', 'B', 'C', 'D', 'E'] },
+      { ...total, objects: ['Mutex', 'nsDocShell', 'nsGlobalWindowInner'] },
+    ]);
+
+    expect(
+      harnessEntries(summary, group).map(e => e.results[0].message),
+    ).toEqual([
+      'TEST-UNEXPECTED-FAIL | leakcheck | default 856 bytes leaked (A, B)',
+      'TEST-UNEXPECTED-FAIL | leakcheck | default 856 bytes leaked (A, B, C, D, E)',
+      `TEST-UNEXPECTED-FAIL | leakcheck large nsGlobalWindowInner | ${group}`,
+    ]);
+  });
+
+  test('reports a process log with no total line unless that is expected', () => {
+    const summary = buildTestSummary([
+      { action: 'group_start', time: 1, name: group },
+      { ...total, process: 'tab', bytes: null, objects: [] },
+      { ...total, process: 'gpu', bytes: null, objects: [], ignore_missing: true },
+      { ...total, process: 'rdd', bytes: null, objects: [], induced_crash: true },
+    ]);
+
+    expect(
+      harnessEntries(summary, group).map(e => e.results[0].message),
+    ).toEqual([
+      'TEST-UNEXPECTED-FAIL | leakcheck | tab missing output line for total leaks!',
+    ]);
+  });
+
+  test('ignores a total that is not a failure', () => {
+    const summary = buildTestSummary([
+      { action: 'group_start', time: 1, name: group },
+      { ...total, bytes: 0, objects: [] },
+      { ...total, process: 'gmplugin', bytes: 1000, threshold: 20000 },
+    ]);
+
+    expect(summary.groups).toEqual([]);
+  });
+
+  test('files a total whose scope is unknown under the open group', () => {
+    const summary = buildTestSummary([
+      { action: 'group_start', time: 1, name: 'g' },
+      { ...total, scope: 'elsewhere.toml' },
+    ]);
+
+    expect(harnessEntries(summary, 'g')).toHaveLength(1);
+  });
+});
+
 describe('classic failure summary helpers', () => {
   const line = (search, pathEnd = null, extra = {}) => ({
     search,
