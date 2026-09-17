@@ -62,6 +62,11 @@ import { thBugSuggestionLimit } from './constants';
 // `test_status` records arrive after its `test_end` (wrapped in a
 // `group_start`/`group_end` pair named "replaying full log for <test>"). Such a
 // status still belongs to the run that just closed.
+//
+// mochitest finds shutdown leaks (windows, docShells) only once the browser has
+// exited, at the end of the run or, with --restart-between-tests, after each
+// test: it reports them as `test_status` records naming the leaking test, after
+// that test's `test_end` said it passed. Such a status fails the run it names.
 
 export const NO_GROUP = '(no group)';
 
@@ -87,6 +92,10 @@ export const TEST_STATUSES = [
   'ERROR',
   'CRASH',
 ];
+
+// `test_end` statuses that say the run passed. A failure reported for the run
+// after such an end (a shutdown leak) is its real result.
+const PASSING_STATUSES = new Set(['PASS', 'OK']);
 
 const safeParse = (line) => {
   try {
@@ -330,11 +339,18 @@ export const buildTestSummary = (content) => {
           return;
         }
         // No run open: the harness is replaying the log of the run that just
-        // ended. Fold the failure into that result, replacing the generic
-        // `test_end` message the first time (a run the harness will retry is
-        // not reported as failing, so it is left alone).
+        // ended, or reporting a shutdown leak of a test that passed. Fold the
+        // failure into that result, replacing the generic `test_end` message
+        // the first time. A run that passed fails on it; a run the harness
+        // closed as an expected failure it will retry is left alone, that
+        // later run being the result.
         const closed = lastClosed.get(line.test);
-        if (!closed || closed.success) return;
+        if (!closed) return;
+        if (closed.success) {
+          if (!PASSING_STATUSES.has(closed.status)) return;
+          closed.success = false;
+          closed.status = line.status;
+        }
         if (!replayedInto.has(closed)) {
           replayedInto.add(closed);
           closed.messages = [];
