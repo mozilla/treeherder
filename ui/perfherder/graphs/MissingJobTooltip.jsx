@@ -4,7 +4,7 @@ import { Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
-import { getJobsUrl } from '../../helpers/url';
+import { getJobsUrl, getPerfCompareBaseSubtestsURL } from '../../helpers/url';
 import { notify } from '../../shared/stores/notificationStore';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
 import { toMercurialDateStr } from '../../helpers/display';
@@ -91,6 +91,18 @@ const MissingJobTooltip = ({
     ...(datum.jobId ? { selectedJob: datum.jobId } : {}),
     group_state: 'expanded',
   });
+
+  const compareUrl = prevRevision
+    ? getPerfCompareBaseSubtestsURL(
+        testDetails.repository_name,
+        prevRevision,
+        testDetails.repository_name,
+        datum.revision,
+        testDetails.framework_id,
+        testDetails.parentSignature || testDetails.signature_id,
+        testDetails.parentSignature || testDetails.signature_id,
+      )
+    : null;
 
   const retriggerJob = async () => {
     if (!currentRepo) {
@@ -191,15 +203,19 @@ const MissingJobTooltip = ({
               <a href={pushUrl} target="_blank" rel="noopener noreferrer">
                 {datum.revision.slice(0, 12)}
               </a>{' '}
+              {(datum.jobId || prevRevision) && '('}
               {datum.jobId && (
-                <>
-                  {'('}
-                  <a href={jobsUrl} target="_blank" rel="noopener noreferrer">
-                    job
-                  </a>
-                  {') '}
-                </>
+                <a href={jobsUrl} target="_blank" rel="noopener noreferrer">
+                  job
+                </a>
               )}
+              {datum.jobId && prevRevision && ', '}
+              {prevRevision && (
+                <a href={compareUrl} target="_blank" rel="noopener noreferrer">
+                  compare
+                </a>
+              )}
+              {(datum.jobId || prevRevision) && ') '}
               <Clipboard text={datum.revision} description="Revision" />
             </span>
             {datum.jobId && user.isStaff && (
