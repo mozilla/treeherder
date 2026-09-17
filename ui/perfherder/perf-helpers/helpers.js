@@ -791,47 +791,55 @@ export const reduceDictToKeys = function reduceDictToKeys(dict, keys) {
   return reducedDict;
 };
 
-const buildMissingData = (series) => {
-  const missing = series.missing_data;
-  if (!missing || missing.length === 0) return [];
+// 1. Centralize the date parsing quirk
+const parseUtcDate = (timestampStr) => Date.parse(`${timestampStr}Z`);
 
-  // series.data is sorted by push_timestamp by the backend.
-  // Append 'Z' because backend timestamps are UTC strings without a timezone suffix,
-  // and Date.parse treats bare ISO strings as local time in some environments.
-  const realPoints = series.data.map((dp) => ({
-    t: Date.parse(`${dp.push_timestamp}Z`),
+// 2. Extract the math into a pure function
+const interpolateY = (targetTime, left, right) => {
+  if (left && right && right.t !== left.t) {
+    return left.y + ((right.y - left.y) * (targetTime - left.t)) / (right.t - left.t);
+  }
+  if (left) return left.y;
+  if (right) return right.y;
+  return 0; // Fallback: no real points
+};
+
+// 3. Clarify the nearest-neighbor search
+const findNeighbors = (sortedPoints, targetTime) => {
+  const rightIdx = sortedPoints.findIndex((p) => p.t >= targetTime);
+
+  const right = rightIdx !== -1 ? sortedPoints[rightIdx] : null;
+  // If rightIdx is -1, all points are before targetTime, so left is the last item
+  const leftIdx = rightIdx === -1 ? sortedPoints.length - 1 : rightIdx - 1;
+  const left = leftIdx >= 0 ? sortedPoints[leftIdx] : null;
+
+  return { left, right };
+};
+
+// Main Helper
+const buildMissingData = (series) => {
+  const { missing_data: missing, data = [], signature_id, repository_name } = series;
+
+  if (!missing?.length) return [];
+
+  const realPoints = data.map((dp) => ({
+    t: parseUtcDate(dp.push_timestamp),
     y: dp.value,
   }));
 
   return missing.map((entry) => {
-    const t = Date.parse(`${entry.push_timestamp}Z`);
-    // Find the nearest neighbours for interpolation: the first real point at or
-    // after the missing timestamp (right) and the one immediately before it (left).
-    const rightIdx = realPoints.findIndex((p) => p.t >= t);
-    // insertionIdx mirrors what a binary search would return: realPoints.length when
-    // all points fall before t, so left/right derivations stay consistent.
-    const insertionIdx = rightIdx === -1 ? realPoints.length : rightIdx;
-    const right = rightIdx !== -1 ? realPoints[rightIdx] : null;
-    const left = insertionIdx > 0 ? realPoints[insertionIdx - 1] : null;
-    let y;
-    if (left && right && right.t !== left.t) {
-      y = left.y + ((right.y - left.y) * (t - left.t)) / (right.t - left.t);
-    } else if (left) {
-      y = left.y;
-    } else if (right) {
-      y = right.y;
-    } else {
-      y = 0; // no real points at all — shouldn't happen in practice
-    }
+    const targetTime = parseUtcDate(entry.push_timestamp);
+    const { left, right } = findNeighbors(realPoints, targetTime);
+
     return {
-      x: new Date(`${entry.push_timestamp}Z`),
-      y,
+      x: new Date(targetTime), // Reuse the already parsed timestamp
+      y: interpolateY(targetTime, left, right),
       revision: entry.push__revision,
       pushId: entry.push_id,
       jobId: entry.job_id,
       status: entry.status,
-      signature_id: series.signature_id,
-      repository_name: series.repository_name,
+      signature_id,
+      repository_name,
     };
   });
 };
