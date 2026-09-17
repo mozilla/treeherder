@@ -427,6 +427,31 @@ class GraphsContainer extends React.Component {
 
   clearMissingLock = () => this.setState({ lockedMissingDatum: null });
 
+  renderMissingHighlightRing(datum, locked) {
+    const { testData } = this.props;
+    const color =
+      testData.find((s) => s.signature_id === datum?.signature_id)?.color[1] ??
+      '#888';
+    return (
+      <VictoryScatter
+        name={locked ? 'lock-missing-ring' : 'hover-missing-ring'}
+        data={[datum]}
+        size={() => DOT_SIZE}
+        symbol="circle"
+        groupComponent={<g pointerEvents="none" />}
+        style={{
+          data: {
+            pointerEvents: 'none',
+            fill: color,
+            stroke: color,
+            strokeOpacity: 0.3,
+            strokeWidth: 12,
+          },
+        }}
+      />
+    );
+  }
+
   renderMissingTooltipLayer(datum, locked) {
     const { width } = this.state;
     const { testData } = this.props;
@@ -803,7 +828,11 @@ class GraphsContainer extends React.Component {
                     })}
 
                   {hoverMissingDatum &&
+                    this.renderMissingHighlightRing(hoverMissingDatum, false)}
+                  {hoverMissingDatum &&
                     this.renderMissingTooltipLayer(hoverMissingDatum, false)}
+                  {lockedMissingDatum &&
+                    this.renderMissingHighlightRing(lockedMissingDatum, true)}
                   {lockedMissingDatum &&
                     this.renderMissingTooltipLayer(lockedMissingDatum, true)}
 
