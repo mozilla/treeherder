@@ -330,6 +330,132 @@ describe('buildFailureSuggestions', () => {
     ]);
   });
 
+  test('fails a passed run on the shutdown leaks mochitest reports after its test_end', () => {
+    // mochitest finds shutdown leaks once the browser has exited, so it reports
+    // them after the test_end of the test they name, which passed. The first
+    // pass leaked too but recorded nothing: the harness retried the test.
+    const manifest = 'browser/components/aiwindow/ui/test/browser/browser.toml';
+    const testPath =
+      'browser/components/aiwindow/ui/test/browser/browser_aiwindow_group_tabs_button_model.js';
+    const summary = buildTestSummary([
+      { action: 'group_start', name: manifest },
+      { action: 'test_start', time: 0, group: manifest, test: testPath },
+      {
+        action: 'test_end',
+        time: 10,
+        group: manifest,
+        test: testPath,
+        status: 'PASS',
+        message: 'finished in 10ms',
+      },
+      { action: 'group_start', name: 'retry' },
+      {
+        action: 'test_start',
+        time: 20,
+        group: manifest,
+        test: testPath,
+        line: 200,
+      },
+      {
+        action: 'test_end',
+        time: 30,
+        group: manifest,
+        test: testPath,
+        status: 'PASS',
+        message: 'finished in 10ms',
+        line: 210,
+      },
+      {
+        action: 'test_status',
+        time: 31,
+        group: manifest,
+        test: testPath,
+        subtest: 'Shutdown',
+        status: 'FAIL',
+        expected: 'PASS',
+        message:
+          'leaked window until shutdown [url = chrome://browser/content/browser.xhtml]',
+        line: 220,
+      },
+      // The harness synthesizes some of these records without a group.
+      {
+        action: 'test_status',
+        time: 32,
+        test: testPath,
+        subtest: 'Shutdown',
+        status: 'FAIL',
+        expected: 'PASS',
+        message: 'leaked 1 window(s) until shutdown [url = about:blank]',
+        line: 230,
+      },
+      { action: 'group_end', name: 'retry' },
+      { action: 'group_end', name: manifest },
+    ]);
+
+    const suggestions = buildFailureSuggestions(summary);
+    expect(suggestions.map(s => s.search)).toEqual([
+      `TEST-UNEXPECTED-FAIL | ${testPath} | Shutdown - leaked window until shutdown [url = chrome://browser/content/browser.xhtml]`,
+      `TEST-UNEXPECTED-FAIL | ${testPath} | Shutdown - leaked 1 window(s) until shutdown [url = about:blank]`,
+    ]);
+    // Each line links to the console line of its own status, not the test_end.
+    expect(suggestions.map(s => s.line)).toEqual([220, 230]);
+    expect(summary.realFailCounts).toEqual({ FAIL: 1 });
+    // The test stays filed under its manifest, not the retry group.
+    expect(summary.groups.map(g => g.name)).toEqual([manifest]);
+    const [entry] = summary.groups[0].tests;
+    expect(entry.status).toBe('FAIL');
+    expect(entry.success).toBe(false);
+    expect(entry.retried).toBe(true);
+    expect(entry.results[0].status).toBe('PASS');
+    expect(entry.results[1].message).not.toContain('finished in');
+  });
+
+  test('attributes a shutdown leak to a test that ended several tests earlier', () => {
+    // A regular chunk exits the browser once, after its last test: the leak
+    // names a test that ended before others, which passed for good.
+    const summary = buildTestSummary([
+      { action: 'group_start', name: 'g' },
+      { action: 'test_start', time: 0, group: 'g', test: 'browser_leaks.js' },
+      {
+        action: 'test_end',
+        time: 10,
+        group: 'g',
+        test: 'browser_leaks.js',
+        status: 'PASS',
+        message: 'finished in 10ms',
+      },
+      { action: 'test_start', time: 20, group: 'g', test: 'browser_clean.js' },
+      {
+        action: 'test_end',
+        time: 30,
+        group: 'g',
+        test: 'browser_clean.js',
+        status: 'PASS',
+        message: 'finished in 10ms',
+      },
+      { action: 'group_end', name: 'g' },
+      {
+        action: 'test_status',
+        time: 40,
+        test: 'browser_leaks.js',
+        subtest: 'Shutdown',
+        status: 'FAIL',
+        expected: 'PASS',
+        message: 'leaked 1 docShell(s) until shutdown',
+      },
+    ]);
+
+    expect(buildFailureSuggestions(summary).map(s => s.search)).toEqual([
+      'TEST-UNEXPECTED-FAIL | browser_leaks.js | Shutdown - leaked 1 docShell(s) until shutdown',
+    ]);
+    const byName = Object.fromEntries(
+      summary.groups[0].tests.map(t => [t.name, t]),
+    );
+    expect(byName['browser_leaks.js'].status).toBe('FAIL');
+    expect(byName['browser_clean.js'].success).toBe(true);
+    expect(summary.counts).toMatchObject({ total: 2, PASS: 1, FAIL: 1 });
+  });
+
   test('emits a single line for a failure with one message', () => {
     const summary = buildTestSummary([
       { action: 'test_start', time: 0, group: 'g', test: 'browser_one.js' },
