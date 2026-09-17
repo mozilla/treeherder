@@ -91,6 +91,7 @@ class GraphsContainer extends React.Component {
       highlightCommonAlerts,
       highlightChangelogData,
       highlightedRevisions,
+      highlightMissingJobs,
       testData,
       changelogData,
       timeRange,
@@ -101,7 +102,8 @@ class GraphsContainer extends React.Component {
       prevProps.highlightAlerts !== highlightAlerts ||
       prevProps.highlightCommonAlerts !== highlightCommonAlerts ||
       prevProps.highlightChangelogData !== highlightChangelogData ||
-      prevProps.highlightedRevisions !== highlightedRevisions
+      prevProps.highlightedRevisions !== highlightedRevisions ||
+      prevProps.highlightMissingJobs !== highlightMissingJobs
     ) {
       this.addHighlights();
     }
@@ -323,6 +325,7 @@ class GraphsContainer extends React.Component {
       highlightAlerts,
       highlightCommonAlerts,
       highlightedRevisions,
+      highlightMissingJobs,
     } = this.props;
     let highlights = [];
     let highlightCommonAlertsData = [];
@@ -358,6 +361,15 @@ class GraphsContainer extends React.Component {
 
         if (dataPoint) {
           highlights.push(dataPoint);
+        }
+
+        if (highlightMissingJobs && series.missingData) {
+          const missingPoint = series.missingData.find(
+            (item) => item.revision && item.revision.indexOf(rev) !== -1,
+          );
+          if (missingPoint) {
+            highlights.push(missingPoint);
+          }
         }
       }
     }
