@@ -71,14 +71,20 @@ describe('resolveLogLine', () => {
     expect(resolveLogLine(log, ['a.html', 'boom'], time)).toBe(9);
   });
 
-  test('tells apart runs repeated within a second, as test-verify does', () => {
-    const runs = [0, 450, 900, 1350].map(
+  test('tells apart the back-to-back runs of test-verify', () => {
+    // Taken from a try run: a test failing at once is run again every 110ms
+    // or so, each TEST-START being printed after the previous run's replay.
+    const start = at('2026-09-04T14:10:00.000Z');
+    const recorded = [0, 115, 225, 338, 450];
+    const stamped = [2, 167, 278, 389, 502];
+    const runs = stamped.map(
       (offset) =>
-        `[task ${new Date(at('2026-09-04T14:10:00.000Z') + offset + 1).toISOString()}] 14:10:00     INFO - TEST-START | tv.js`,
+        `[task ${new Date(start + offset).toISOString()}] 14:10:00     INFO - TEST-START | tv.js`,
     );
-    [0, 450, 900, 1350].forEach((offset, run) => {
-      const time = at('2026-09-04T14:10:00.000Z') + offset;
-      expect(resolveLogLine(runs, ['tv.js', 'TEST-START'], time)).toBe(run + 1);
+    recorded.forEach((offset, run) => {
+      expect(resolveLogLine(runs, ['tv.js', 'TEST-START'], start + offset)).toBe(
+        run + 1,
+      );
     });
   });
 

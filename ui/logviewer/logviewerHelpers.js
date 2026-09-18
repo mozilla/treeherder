@@ -80,10 +80,10 @@ const taskTimeOf = (line) => {
 };
 
 // The harness and run-task read the same clock, but not always at the same
-// resolution: on Windows a line can be stamped a timer tick (~16ms) before its
-// record. Keep this well under the time a test takes to run again, which
-// test-verify does in a few hundred milliseconds.
-const CLOCK_TOLERANCE_MS = 100;
+// resolution: on Windows a line can be stamped a timer tick (15.6ms) before
+// its record. Allow for that tick and no more: test-verify reruns a test that
+// fails at once every 110ms or so, and the previous run's line must stay out.
+const CLOCK_TOLERANCE_MS = 20;
 
 /**
  * Find the task log line of a summary.jsonl record: 1-based, or null.
