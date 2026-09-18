@@ -11,10 +11,12 @@ import {
 
 import Clipboard from '../../../../shared/Clipboard';
 import BugListItem from '../../../../shared/tabs/failureSummary/BugListItem';
+import logviewerIcon from '../../../../img/logviewerIcon.png';
 import { isReftest } from '../../../../helpers/job';
 import { thBugSuggestionLimit } from '../../../../helpers/constants';
 import {
   createQueryParams,
+  getLogViewerRecordUrl,
   parseQueryParams,
 } from '../../../../helpers/url';
 import formatLogLineWithLinks from '../../../../helpers/logFormatting';
@@ -35,7 +37,9 @@ const SummaryItem = ({
   toggleInternalIssueFiler,
   selectedJob,
   jobDetails,
+  currentRepo,
   addBug = null,
+  showNewButton = false,
 }) => {
   const [showMore, setShowMore] = useState(false);
   const filterTestPath = suggestion.search.match(/([a-z_\-0-9]+[/])+/gi);
@@ -65,8 +69,19 @@ const SummaryItem = ({
           >
             <FontAwesomeIcon icon={faCircleExclamation} />
           </Button>
+          {showNewButton && (
+            <Button
+              className="btn-orange border-outline-secondary"
+              title="number of times this error message has been seen until now (including this run)"
+            >
+              NEW
+            </Button>
+          )}
           <span className="align-middle">{line} </span>
-          <Clipboard description=" text of error line" text={suggestion.search} />
+          <Clipboard
+            description=" text of error line"
+            text={suggestion.search}
+          />
           {filterTestPath && !isReftest(selectedJob) && (
             <Link
               to={getPathFilter(filterTestPath)}
@@ -75,6 +90,25 @@ const SummaryItem = ({
             >
               <FontAwesomeIcon icon={faFilter} />
             </Link>
+          )}
+          {suggestion.logTarget?.texts.length > 0 && (
+            <a
+              href={getLogViewerRecordUrl(
+                selectedJob.id,
+                currentRepo.name,
+                suggestion.logTarget,
+                selectedJob,
+              )}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Go to this line in the log viewer"
+            >
+              <img
+                alt="Logviewer"
+                src={logviewerIcon}
+                className="logviewer-icon ms-1"
+              />
+            </a>
           )}
           <Button
             className="bg-light py-2 px-2 ms-2 failure-action-btn"
@@ -153,7 +187,9 @@ SummaryItem.propTypes = {
   ).isRequired,
   toggleBugFiler: PropTypes.func.isRequired,
   toggleInternalIssueFiler: PropTypes.func.isRequired,
+  currentRepo: PropTypes.shape({ name: PropTypes.string }).isRequired,
   addBug: PropTypes.func,
+  showNewButton: PropTypes.bool,
 };
 
 export default SummaryItem;
