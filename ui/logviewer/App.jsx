@@ -17,10 +17,10 @@ import {
   copySelectedLogToBugFiler,
   findNextErrorLine,
   findPrevErrorLine,
-  getUrlConsoleLine,
+  getUrlLogTarget,
   getUrlLineNumber,
   writeLineNumberParam,
-  writeResolvedConsoleLine,
+  writeResolvedLogTarget,
 } from './logviewerHelpers';
 
 import './logviewer.css';
@@ -58,16 +58,16 @@ const App = () => {
     () => initialHighlightRef.current?.[0] ?? null,
   );
   const [highlight, setHighlightState] = useState(initialHighlightRef.current);
-  // A line pinned relative to mozharness's console output (from the job
-  // view's Summary tab). It is resolved to a log line once the log is loaded;
-  // an absolute lineNumber in the URL takes precedence.
-  const consoleLineRef = useRef(
-    initialHighlightRef.current ? null : getUrlConsoleLine(),
+  // A summary.jsonl record pinned by its text and time (from the job view's
+  // Summary tab). It is resolved to a log line once the log is loaded; an
+  // absolute lineNumber in the URL takes precedence.
+  const logTargetRef = useRef(
+    initialHighlightRef.current ? null : getUrlLogTarget(),
   );
 
   // When errors arrive, default to scrolling to the first one (unless URL pinned a line)
   useEffect(() => {
-    if (firstErrorLine == null || consoleLineRef.current) return;
+    if (firstErrorLine == null || logTargetRef.current) return;
     const urlLN = getUrlLineNumber();
     const lineToScrollTo = urlLN ? urlLN[0] : firstErrorLine;
     setInitialLine(lineToScrollTo);
@@ -79,11 +79,11 @@ const App = () => {
     writeLineNumberParam(newHighlight);
   }, []);
 
-  const onConsoleLineResolved = useCallback(
+  const onLogTargetResolved = useCallback(
     (lineNumber) => {
-      consoleLineRef.current = null;
+      logTargetRef.current = null;
       const target = lineNumber ?? firstErrorLine;
-      writeResolvedConsoleLine(target);
+      writeResolvedLogTarget(target);
       if (target != null) setInitialLine(target);
     },
     [firstErrorLine],
@@ -196,8 +196,8 @@ const App = () => {
               initialHighlight={initialHighlightRef.current}
               onHighlightChange={onHighlightChange}
               errorLineNumbers={errorLineNumbers}
-              consoleLine={consoleLineRef.current}
-              onConsoleLineResolved={onConsoleLineResolved}
+              logTarget={logTargetRef.current}
+              onLogTargetResolved={onLogTargetResolved}
             />
           )}
         </div>
