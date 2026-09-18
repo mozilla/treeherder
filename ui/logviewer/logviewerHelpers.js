@@ -45,60 +45,83 @@ export const writeLineNumberParam = (highlight) => {
 };
 
 /**
- * Read the console-line URL params written by getLogViewerConsoleLineUrl:
- * `{ line, anchorLine, message }`, or null when absent.
+ * Read the record URL params written by getLogViewerRecordUrl:
+ * `{ texts, time }`, or null when absent. `time` is null when not given.
  */
-export const getUrlConsoleLine = () => {
-  const line = parseInt(getUrlParam('consoleLine'), 10);
-  const message = getUrlParam('consoleAnchor');
-  if (!(line > 0) || !message) return null;
-  const anchorLine = parseInt(getUrlParam('consoleAnchorLine'), 10);
-  return { line, anchorLine: anchorLine > 0 ? anchorLine : 1, message };
+export const getUrlLogTarget = () => {
+  const texts = getAllUrlParams()
+    .getAll('lineText')
+    .filter((text) => text);
+  if (!texts.length) return null;
+  const time = parseInt(getUrlParam('lineTime'), 10);
+  return { texts, time: Number.isFinite(time) ? time : null };
 };
 
 /**
- * Replace the console-line params with the log line they resolved to (or
- * drop them when `lineNumber` is null), in a single history entry.
+ * Replace the record params with the log line they resolved to (or drop them
+ * when `lineNumber` is null), in a single history entry.
  */
-export const writeResolvedConsoleLine = (lineNumber) => {
+export const writeResolvedLogTarget = (lineNumber) => {
   const params = getAllUrlParams();
-  params.delete('consoleLine');
-  params.delete('consoleAnchorLine');
-  params.delete('consoleAnchor');
+  params.delete('lineText');
+  params.delete('lineTime');
   if (lineNumber) {
     params.set('lineNumber', lineNumber);
   }
   replaceLocation(params);
 };
 
-// A line written by mozharness's logger: `HH:MM:SS LEVEL - ...`, optionally
-// behind the worker's `[task <timestamp>] ` prefix.
-const MOZHARNESS_LINE_RE = /^(\[task [^\]]+\] )?\d\d:\d\d:\d\d\s+[A-Z]+ - /;
+// The time run-task stamps on every line it relays: `[task <ISO 8601>] `.
+const TASK_STAMP_RE = /^\[task ([^\]]+)\]/;
+
+const taskTimeOf = (line) => {
+  const match = TASK_STAMP_RE.exec(line);
+  return match ? Date.parse(match[1]) : NaN;
+};
+
+// The harness and run-task read the same clock, but not always at the same
+// resolution: on Windows a line can be stamped a timer tick (~16ms) before its
+// record. Keep this well under the time a test takes to run again, which
+// test-verify does in a few hundred milliseconds.
+const CLOCK_TOLERANCE_MS = 100;
 
 /**
- * Translate a line counted by mozharness (the `line` of a summary.jsonl
- * record) into a 1-based line number of the task log.
+ * Find the task log line of a summary.jsonl record: 1-based, or null.
  *
- * mozharness only counts the lines it writes itself, whereas the task log
- * also holds a preamble and lines the worker injects at any time. So the
- * anchor message (mozharness's first console line, at `anchorLine` in its own
- * count) is located in the log, and only mozharness-formatted lines are
- * counted from there on. Returns null when the anchor is missing or the line
- * falls past the end of the log.
+ * The task log belongs to the worker, which adds lines of its own at any
+ * time, so a record cannot know its line number. It is located by content
+ * instead, among the lines containing every one of `texts` (falling back to
+ * the first text alone, the test path, when none does). Repeated runs of a
+ * test print the same text, so the record's `time` (ms) picks one: a line is
+ * printed once its record exists, never before, and possibly much later
+ * (xpcshell replays a failing test's statuses when the test ends). The first
+ * match run-task stamped from that time on wins, else the last one before it.
+ * Without a time or stamps, the first match is returned.
  */
-export const resolveConsoleLine = (lines, anchorMessage, anchorLine, consoleLine) => {
-  if (!lines || !anchorMessage || !(consoleLine > 0)) return null;
-  const start = lines.findIndex((line) => line.includes(anchorMessage));
-  if (start < 0) return null;
-  let remaining = consoleLine - (anchorLine > 0 ? anchorLine : 1);
-  if (remaining < 0) return null;
-  for (let i = start; i < lines.length; i++) {
-    if (i === start || MOZHARNESS_LINE_RE.test(lines[i])) {
-      if (remaining === 0) return i + 1;
-      remaining -= 1;
-    }
+export const resolveLogLine = (lines, texts, time) => {
+  if (!lines || !texts || !texts.length) return null;
+  const matching = (needles) => {
+    const found = [];
+    lines.forEach((line, index) => {
+      if (needles.every((needle) => line.includes(needle))) found.push(index);
+    });
+    return found;
+  };
+  let candidates = matching(texts);
+  if (!candidates.length && texts.length > 1) {
+    candidates = matching(texts.slice(0, 1));
   }
-  return null;
+  if (!candidates.length) return null;
+
+  if (!Number.isFinite(time)) return candidates[0] + 1;
+  const stamped = candidates
+    .map((index) => ({ index, at: taskTimeOf(lines[index]) }))
+    .filter((candidate) => Number.isFinite(candidate.at));
+  if (!stamped.length) return candidates[0] + 1;
+  const printedAfter = stamped.find(
+    (candidate) => candidate.at >= time - CLOCK_TOLERANCE_MS,
+  );
+  return (printedAfter ?? stamped[stamped.length - 1]).index + 1;
 };
 
 /**
