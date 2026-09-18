@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { Dropdown, Col, Form } from 'react-bootstrap';
 import template from 'lodash/template';
 import templateSettings from 'lodash/templateSettings';
-import { alertStatusMap } from '../perf-helpers/constants';
 
 import {
   getFilledBugSummary,
@@ -104,7 +103,7 @@ export default class StatusDropdown extends React.Component {
 
     return Array.from(new Set(names)).join(', ');
   };
-  
+
   filterValidAlerts = () => {
     const { filteredAlerts = [], alertSummary } = this.props;
     return filteredAlerts.filter(
