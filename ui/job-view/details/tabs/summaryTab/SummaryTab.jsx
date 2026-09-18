@@ -268,7 +268,6 @@ const SummaryTab = ({
             selectedJob={selectedJob}
             jobDetails={jobDetails}
             currentRepo={currentRepo}
-            anchor={summary?.anchor}
             addBug={addBug}
           />
         ))}

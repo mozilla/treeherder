@@ -1,5 +1,5 @@
 import {
-  resolveConsoleLine,
+  resolveLogLine,
   splitLogIntoLines,
 } from '../../../ui/logviewer/logviewerHelpers';
 
@@ -39,47 +39,90 @@ describe('splitLogIntoLines', () => {
   });
 });
 
-describe('resolveConsoleLine', () => {
-  const anchor = 'ConsoleLogger online at 20260904 14:08:33Z in /builds/worker';
+describe('resolveLogLine', () => {
+  const at = (stamp) => Date.parse(stamp);
   const log = [
     '[taskcluster 2026-09-04T14:08:00.000Z] Task ID: abc',
     '[fetches 2026-09-04T14:08:10.000Z] downloading',
-    `[task 2026-09-04T14:08:33.047+00:00] 14:08:33     INFO - ${anchor}`,
-    '[task 2026-09-04T14:08:33.048+00:00] 14:08:33     INFO - Using env: {}',
+    '[task 2026-09-04T14:08:33.047+00:00] 14:08:33     INFO - ConsoleLogger online',
     '[task 2026-09-04T14:08:40.000+00:00] 14:08:40     INFO - TEST-START | a.html',
     '[taskcluster 2026-09-04T14:08:45.000Z] [taskcluster-proxy] Successfully refreshed credentials',
     '[task 2026-09-04T14:08:50.000+00:00] 14:08:50  WARNING - TEST-UNEXPECTED-FAIL | a.html | boom',
-    '[task 2026-09-04T14:08:51.000+00:00] 14:08:51     INFO - SUITE-END | took 10s',
+    '[task 2026-09-04T14:08:51.000+00:00] 14:08:51     INFO - TEST-START | b.html',
+    '[task 2026-09-04T14:09:40.000+00:00] 14:09:40     INFO - TEST-START | a.html',
+    '[task 2026-09-04T14:09:50.000+00:00] 14:09:50  WARNING - TEST-UNEXPECTED-FAIL | a.html | boom',
+    '[task 2026-09-04T14:09:51.000+00:00] 14:09:51     INFO - SUITE-END | took 80s',
   ];
 
-  test('maps the anchor line to itself', () => {
-    expect(resolveConsoleLine(log, anchor, 1, 1)).toBe(3);
+  test('finds the line holding every text, whatever the worker injected', () => {
+    expect(resolveLogLine(log, ['b.html', 'TEST-START'], null)).toBe(7);
   });
 
-  test('offsets by the preamble before the anchor', () => {
-    expect(resolveConsoleLine(log, anchor, 1, 3)).toBe(5);
+  test('tells repeated runs apart by the time run-task stamped', () => {
+    const texts = ['a.html', 'boom'];
+    expect(resolveLogLine(log, texts, at('2026-09-04T14:08:49.900Z'))).toBe(6);
+    expect(resolveLogLine(log, texts, at('2026-09-04T14:09:49.900Z'))).toBe(9);
   });
 
-  test('skips lines the worker injected after the anchor', () => {
-    // The proxy refresh at log line 6 was never counted by mozharness.
-    expect(resolveConsoleLine(log, anchor, 1, 4)).toBe(7);
-    expect(resolveConsoleLine(log, anchor, 1, 5)).toBe(8);
+  test('picks the line printed after the record, however late', () => {
+    // xpcshell replays a failing test's statuses when the test ends: a failure
+    // early in the second run is closer in time to the first run's line.
+    const time = at('2026-09-04T14:08:52.000Z');
+    expect(resolveLogLine(log, ['a.html', 'boom'], time)).toBe(9);
   });
 
-  test('honours an anchor that is not mozharness line 1', () => {
-    expect(resolveConsoleLine(log, anchor, 2, 4)).toBe(5);
+  test('tells apart runs repeated within a second, as test-verify does', () => {
+    const runs = [0, 450, 900, 1350].map(
+      (offset) =>
+        `[task ${new Date(at('2026-09-04T14:10:00.000Z') + offset + 1).toISOString()}] 14:10:00     INFO - TEST-START | tv.js`,
+    );
+    [0, 450, 900, 1350].forEach((offset, run) => {
+      const time = at('2026-09-04T14:10:00.000Z') + offset;
+      expect(resolveLogLine(runs, ['tv.js', 'TEST-START'], time)).toBe(run + 1);
+    });
   });
 
-  test('handles logs without the [task] prefix (generic-worker)', () => {
+  test('accepts a line stamped a timer tick before its record', () => {
+    // Windows: the harness and run-task read the clock at different resolutions.
+    const time = at('2026-09-04T14:09:50.015Z');
+    expect(resolveLogLine(log, ['a.html', 'boom'], time)).toBe(9);
+  });
+
+  test('picks the last match when every one was stamped before the record', () => {
+    const time = at('2026-09-04T15:00:00.000Z');
+    expect(resolveLogLine(log, ['a.html', 'boom'], time)).toBe(9);
+  });
+
+  test('returns the first match without a time', () => {
+    expect(resolveLogLine(log, ['a.html', 'boom'], null)).toBe(6);
+    expect(resolveLogLine(log, ['a.html', 'boom'])).toBe(6);
+  });
+
+  test('returns the first match in a log without [task] stamps', () => {
     const bare = log.map((line) => line.replace(/^\[task [^\]]+\] /, ''));
-    expect(resolveConsoleLine(bare, anchor, 1, 4)).toBe(7);
+    expect(
+      resolveLogLine(bare, ['a.html', 'boom'], at('2026-09-04T14:09:49.900Z')),
+    ).toBe(6);
   });
 
-  test('returns null when the anchor is missing or the line is out of range', () => {
-    expect(resolveConsoleLine(log, 'not in the log', 1, 2)).toBeNull();
-    expect(resolveConsoleLine(log, anchor, 1, 99)).toBeNull();
-    expect(resolveConsoleLine(log, anchor, 1, 0)).toBeNull();
-    expect(resolveConsoleLine(log, anchor, 5, 2)).toBeNull();
-    expect(resolveConsoleLine([], anchor, 1, 1)).toBeNull();
+  test('still matches a line another process glued a fragment onto', () => {
+    const glued = [...log];
+    glued[8] =
+      '[task 2026-09-04T14:09:50.000+00:00] pulse: no newline14:09:50  WARNING - TEST-UNEXPECTED-FAIL | a.html | boom';
+    expect(
+      resolveLogLine(glued, ['a.html', 'boom'], at('2026-09-04T14:09:49.900Z')),
+    ).toBe(9);
+  });
+
+  test('falls back to the first text, the test path, from that time on', () => {
+    const texts = ['a.html', 'Test started but never finished'];
+    expect(resolveLogLine(log, texts, at('2026-09-04T14:09:40.000Z'))).toBe(8);
+  });
+
+  test('returns null when nothing matches', () => {
+    expect(resolveLogLine(log, ['not in the log'], null)).toBeNull();
+    expect(resolveLogLine(log, [], null)).toBeNull();
+    expect(resolveLogLine([], ['a.html'], null)).toBeNull();
+    expect(resolveLogLine(null, ['a.html'], null)).toBeNull();
   });
 });
