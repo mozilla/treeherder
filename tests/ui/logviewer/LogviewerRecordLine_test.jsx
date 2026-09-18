@@ -9,10 +9,10 @@ import { getApiUrl } from '../../../ui/helpers/url';
 import { getProjectUrl } from '../../../ui/helpers/location';
 import fullJob from '../mock/full_job.json';
 
-// A summary.jsonl record only knows its line among the lines mozharness wrote
-// to the console; the log viewer must translate it against the anchor message
-// once the log is loaded, then leave a plain ?lineNumber= URL behind.
-describe('Logviewer console line resolution', () => {
+// A summary.jsonl record knows the text it printed and when, not its line in
+// the task log; the log viewer must find it once the log is loaded, then leave
+// a plain ?lineNumber= URL behind.
+describe('Logviewer record line resolution', () => {
   const repoName = 'autoland';
   const jobId = '259537375';
   const taskId = 'O5YBAWwxRfuZ_UlRJS5Rqg';
@@ -21,28 +21,25 @@ describe('Logviewer console line resolution', () => {
     `/jobs/${jobId}/text_log_errors/`,
     repoName,
   );
-  const anchor = 'ConsoleLogger online at 20260907 09:17:05Z in /builds/worker';
   const logContent = [
     '[taskcluster 2026-09-07T09:16:00.000Z] Task ID: abc',
     '[fetches 2026-09-07T09:16:10.000Z] downloading',
-    `[task 2026-09-07T09:17:05.000+00:00] 09:17:05     INFO - ${anchor}`,
+    '[task 2026-09-07T09:17:05.000+00:00] 09:17:05     INFO - ConsoleLogger online',
     '[task 2026-09-07T09:17:06.000+00:00] 09:17:06     INFO - Using env: {}',
     '[taskcluster 2026-09-07T09:17:07.000Z] [taskcluster-proxy] refreshed',
     '[task 2026-09-07T09:17:08.000+00:00] 09:17:08     INFO - TEST-START | a.html',
     '[task 2026-09-07T09:17:09.000+00:00] 09:17:09  WARNING - TEST-UNEXPECTED-FAIL | a.html | boom',
   ].join('\n');
 
-  const openLogviewer = (anchorMessage) => {
+  const openLogviewer = (testPath) => {
     const params = new URLSearchParams({
       job_id: jobId,
       repo: repoName,
       task: `${taskId}.0`,
-      // Console line 3 is TEST-START: anchor (1), env (2), then the worker
-      // line in between must not be counted.
-      consoleLine: 3,
-      consoleAnchorLine: 1,
-      consoleAnchor: anchorMessage,
+      lineTime: Date.parse('2026-09-07T09:17:07.900Z'),
     });
+    params.append('lineText', testPath);
+    params.append('lineText', 'TEST-START');
     window.history.replaceState(null, '', `/logviewer?${params}`);
     render(
       <MemoryRouter>
@@ -79,28 +76,29 @@ describe('Logviewer console line resolution', () => {
     fetchMock.reset();
   });
 
-  test('rewrites the console line params into the resolved ?lineNumber=', async () => {
-    openLogviewer(anchor);
+  test('rewrites the record params into the resolved ?lineNumber=', async () => {
+    openLogviewer('a.html');
 
     await waitFor(() => {
       const params = new URLSearchParams(window.location.search);
       expect(params.get('lineNumber')).toBe('6');
     });
     const params = new URLSearchParams(window.location.search);
-    expect(params.get('consoleLine')).toBeNull();
-    expect(params.get('consoleAnchorLine')).toBeNull();
-    expect(params.get('consoleAnchor')).toBeNull();
+    expect(params.getAll('lineText')).toEqual([]);
+    expect(params.get('lineTime')).toBeNull();
     expect(params.get('job_id')).toBe(jobId);
     expect(params.get('task')).toBe(`${taskId}.0`);
   });
 
-  test('falls back to the first error line when the anchor is not in the log', async () => {
-    openLogviewer('some other task');
+  test('falls back to the first error line when the text is not in the log', async () => {
+    openLogviewer('another-test.html');
 
     await waitFor(() => {
       const params = new URLSearchParams(window.location.search);
       expect(params.get('lineNumber')).toBe('7');
     });
-    expect(new URLSearchParams(window.location.search).get('consoleLine')).toBeNull();
+    expect(
+      new URLSearchParams(window.location.search).getAll('lineText'),
+    ).toEqual([]);
   });
 });
