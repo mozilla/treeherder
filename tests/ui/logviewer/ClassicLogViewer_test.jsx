@@ -51,10 +51,9 @@ describe('ClassicLogViewer console line resolution', () => {
     delete global.fetch;
   });
 
-  const anchor = 'ConsoleLogger online at 20260904 in /builds/worker';
   const log = [
     '[taskcluster 2026-09-04T14:08:00.000Z] Task ID: abc',
-    `[task 2026-09-04T14:08:33.047+00:00] 14:08:33     INFO - ${anchor}`,
+    '[task 2026-09-04T14:08:33.047+00:00] 14:08:33     INFO - ConsoleLogger online',
     '[taskcluster 2026-09-04T14:08:45.000Z] [taskcluster-proxy] refreshed',
     '[task 2026-09-04T14:08:40.000+00:00] 14:08:40     INFO - TEST-START | a.html',
   ].join('\n');
@@ -64,35 +63,35 @@ describe('ClassicLogViewer console line resolution', () => {
       ok: true,
       text: () => Promise.resolve(log),
     });
-    const onConsoleLineResolved = jest.fn();
+    const onLogTargetResolved = jest.fn();
 
     render(
       <ClassicLogViewer
         url="https://example.com/live_backing.log"
-        consoleLine={{ line: 2, anchorLine: 1, message: anchor }}
-        onConsoleLineResolved={onConsoleLineResolved}
+        logTarget={{ texts: ['a.html', 'TEST-START'], time: 1788530920000 }}
+        onLogTargetResolved={onLogTargetResolved}
       />,
     );
 
-    await waitFor(() => expect(onConsoleLineResolved).toHaveBeenCalledWith(4));
-    expect(onConsoleLineResolved).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(onLogTargetResolved).toHaveBeenCalledWith(4));
+    expect(onLogTargetResolved).toHaveBeenCalledTimes(1);
   });
 
-  it('reports null when the anchor is not in the log', async () => {
+  it('reports null when the text is not in the log', async () => {
     global.fetch.mockResolvedValue({
       ok: true,
       text: () => Promise.resolve(log),
     });
-    const onConsoleLineResolved = jest.fn();
+    const onLogTargetResolved = jest.fn();
 
     render(
       <ClassicLogViewer
         url="https://example.com/live_backing.log"
-        consoleLine={{ line: 2, anchorLine: 1, message: 'another task' }}
-        onConsoleLineResolved={onConsoleLineResolved}
+        logTarget={{ texts: ['another-test.html'], time: null }}
+        onLogTargetResolved={onLogTargetResolved}
       />,
     );
 
-    await waitFor(() => expect(onConsoleLineResolved).toHaveBeenCalledWith(null));
+    await waitFor(() => expect(onLogTargetResolved).toHaveBeenCalledWith(null));
   });
 });

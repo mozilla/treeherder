@@ -235,7 +235,6 @@ describe('buildFailureSuggestions', () => {
         time: 0,
         group: 'netwerk/test/unit/xpcshell.toml',
         test: 'netwerk/test/unit/test_retry.js',
-        line: 100,
       },
       {
         action: 'test_end',
@@ -245,7 +244,6 @@ describe('buildFailureSuggestions', () => {
         status: 'FAIL',
         expected: 'PASS',
         message: 'xpcshell return code: 0',
-        line: 101,
       },
       {
         action: 'group_start',
@@ -259,7 +257,6 @@ describe('buildFailureSuggestions', () => {
         status: 'FAIL',
         expected: 'PASS',
         message: 'Intentional failure - false == true',
-        line: 150,
       },
       {
         action: 'test_status',
@@ -269,7 +266,6 @@ describe('buildFailureSuggestions', () => {
         status: 'FAIL',
         expected: 'PASS',
         message: 'profile uploaded in profile_test_retry.js.json',
-        line: 160,
       },
       {
         action: 'group_end',
@@ -282,12 +278,12 @@ describe('buildFailureSuggestions', () => {
       'TEST-UNEXPECTED-FAIL | netwerk/test/unit/test_retry.js | test_intentional_failure - Intentional failure - false == true',
       'TEST-UNEXPECTED-FAIL | netwerk/test/unit/test_retry.js | profile uploaded in profile_test_retry.js.json',
     ]);
-    // Each line links to the console line of its own status, not the test_end.
-    expect(suggestions.map(s => s.line)).toEqual([150, 160]);
+    // Each line links to its own status, recorded before the test_end.
+    expect(suggestions.map(s => s.logTarget.time)).toEqual([8, 9]);
     // The test stays filed under its manifest, not the replay group.
     const [group] = summary.groups;
     expect(group.name).toBe('netwerk/test/unit/xpcshell.toml');
-    expect(group.tests[0].results[0].lines).toEqual([150, 160]);
+    expect(group.tests[0].results[0].logTimes).toEqual([8, 9]);
   });
 
   test('ignores the replayed statuses of a run the harness will retry', () => {
@@ -354,7 +350,6 @@ describe('buildFailureSuggestions', () => {
         time: 20,
         group: manifest,
         test: testPath,
-        line: 200,
       },
       {
         action: 'test_end',
@@ -363,7 +358,6 @@ describe('buildFailureSuggestions', () => {
         test: testPath,
         status: 'PASS',
         message: 'finished in 10ms',
-        line: 210,
       },
       {
         action: 'test_status',
@@ -375,7 +369,6 @@ describe('buildFailureSuggestions', () => {
         expected: 'PASS',
         message:
           'leaked window until shutdown [url = chrome://browser/content/browser.xhtml]',
-        line: 220,
       },
       // The harness synthesizes some of these records without a group.
       {
@@ -386,7 +379,6 @@ describe('buildFailureSuggestions', () => {
         status: 'FAIL',
         expected: 'PASS',
         message: 'leaked 1 window(s) until shutdown [url = about:blank]',
-        line: 230,
       },
       { action: 'group_end', name: 'retry' },
       { action: 'group_end', name: manifest },
@@ -397,8 +389,8 @@ describe('buildFailureSuggestions', () => {
       `TEST-UNEXPECTED-FAIL | ${testPath} | Shutdown - leaked window until shutdown [url = chrome://browser/content/browser.xhtml]`,
       `TEST-UNEXPECTED-FAIL | ${testPath} | Shutdown - leaked 1 window(s) until shutdown [url = about:blank]`,
     ]);
-    // Each line links to the console line of its own status, not the test_end.
-    expect(suggestions.map(s => s.line)).toEqual([220, 230]);
+    // Each line links to its own status, not the test_end.
+    expect(suggestions.map(s => s.logTarget.time)).toEqual([31, 32]);
     expect(summary.realFailCounts).toEqual({ FAIL: 1 });
     // The test stays filed under its manifest, not the retry group.
     expect(summary.groups.map(g => g.name)).toEqual([manifest]);
@@ -945,7 +937,8 @@ describe('UBSan reports (ubsan_error records)', () => {
     expect(suggestions[0].search).toBe(displayLine);
     expect(suggestions[0].path_end).toBe(testPath);
     expect(suggestions[0].classicLine).toBe(classicLine);
-    expect(suggestions[0].line).toBe(null);
+    // The log has the classic line, not the display one.
+    expect(suggestions[0].logTarget.texts).toEqual([classicLine]);
   });
 
   test('leaves other suggestions without a classic line', () => {
@@ -1328,114 +1321,20 @@ describe('classic failure summary helpers', () => {
   });
 });
 
-describe('console lines', () => {
-  const anchorLine = {
-    action: 'console_anchor',
-    line: 1,
-    message: 'ConsoleLogger online at 20260904 in /builds/worker',
-  };
-
-  test('keeps the console_anchor record as the summary anchor', () => {
-    const summary = buildTestSummary([anchorLine, ...lines]);
-
-    expect(summary.anchor).toEqual({
+describe('log targets', () => {
+  test('ignores the console_anchor record of older artifacts', () => {
+    const anchorLine = {
+      action: 'console_anchor',
       line: 1,
       message: 'ConsoleLogger online at 20260904 in /builds/worker',
-    });
-    // The anchor is not a test.
+    };
+    const summary = buildTestSummary([anchorLine, ...lines]);
+
     expect(summary.counts.total).toBe(3);
+    expect(summary).not.toHaveProperty('anchor');
   });
 
-  test('has no anchor when the artifact carries none', () => {
-    expect(buildTestSummary(lines).anchor).toBeNull();
-  });
-
-  test('links a failing test_end to its own console line', () => {
-    const summary = buildTestSummary([
-      anchorLine,
-      { action: 'test_start', time: 1, test: 'a.html', line: 10 },
-      {
-        action: 'test_end',
-        time: 2,
-        test: 'a.html',
-        status: 'FAIL',
-        expected: 'PASS',
-        message: 'boom',
-        line: 12,
-      },
-    ]);
-    const [suggestion] = buildFailureSuggestions(summary);
-
-    expect(suggestion.line).toBe(12);
-    expect(summary.groups[0].tests[0].results[0].lines).toEqual([12]);
-  });
-
-  test('links each unexpected subtest message to its own console line', () => {
-    const summary = buildTestSummary([
-      { action: 'test_start', time: 1, test: 'a.html', line: 10 },
-      {
-        action: 'test_status',
-        test: 'a.html',
-        subtest: 'first',
-        status: 'FAIL',
-        expected: 'PASS',
-        message: 'one',
-        line: 11,
-      },
-      {
-        action: 'test_status',
-        test: 'a.html',
-        subtest: 'second',
-        status: 'FAIL',
-        expected: 'PASS',
-        message: 'two',
-        line: 13,
-      },
-      {
-        action: 'test_end',
-        time: 2,
-        test: 'a.html',
-        status: 'OK',
-        expected: 'OK',
-        line: 15,
-      },
-    ]);
-    const suggestions = buildFailureSuggestions(summary);
-
-    expect(suggestions.map(s => s.line)).toEqual([11, 13]);
-  });
-
-  test('links crashes, harness lines and unfinished tests', () => {
-    const summary = buildTestSummary([
-      { action: 'group_start', name: 'dir/manifest.toml', line: null },
-      { action: 'test_start', time: 1, test: 'hung.html', line: 20 },
-      {
-        action: 'crash',
-        test: 'crashed.html',
-        signature: 'sig',
-        line: 25,
-      },
-      {
-        action: 'log',
-        level: 'ERROR',
-        message: 'TEST-UNEXPECTED-FAIL | leakcheck | tab process: 12 bytes leaked (Foo)',
-        line: 30,
-      },
-    ]);
-    const byTest = Object.fromEntries(
-      buildFailureSuggestions(summary).map(s => [s.search, s.line]),
-    );
-
-    expect(byTest['TEST-UNEXPECTED-CRASH | crashed.html | sig']).toBe(25);
-    expect(
-      byTest['TEST-UNEXPECTED-FAIL | leakcheck | tab process: 12 bytes leaked (Foo)'],
-    ).toBe(30);
-    expect(
-      byTest['TEST-UNEXPECTED-CRASH | hung.html | Test started but never finished'],
-    ).toBe(20);
-  });
-
-  test('leaves the line null when the record printed nothing', () => {
+  test('targets a failing test_end by its test, message and time', () => {
     const summary = buildTestSummary([
       { action: 'test_start', time: 1, test: 'a.html' },
       {
@@ -1445,10 +1344,118 @@ describe('console lines', () => {
         status: 'FAIL',
         expected: 'PASS',
         message: 'boom',
-        line: null,
+      },
+    ]);
+    const [suggestion] = buildFailureSuggestions(summary);
+
+    expect(suggestion.logTarget).toEqual({ texts: ['a.html', 'boom'], time: 2 });
+    expect(summary.groups[0].tests[0].results[0].logTimes).toEqual([2]);
+  });
+
+  test('targets each unexpected subtest message by its own time', () => {
+    const summary = buildTestSummary([
+      { action: 'test_start', time: 1, test: 'a.html' },
+      {
+        action: 'test_status',
+        time: 3,
+        test: 'a.html',
+        subtest: 'first',
+        status: 'FAIL',
+        expected: 'PASS',
+        message: 'one',
+      },
+      {
+        action: 'test_status',
+        time: 5,
+        test: 'a.html',
+        subtest: 'second',
+        status: 'FAIL',
+        expected: 'PASS',
+        message: 'two',
+      },
+      {
+        action: 'test_end',
+        time: 9,
+        test: 'a.html',
+        status: 'OK',
+        expected: 'OK',
+      },
+    ]);
+    const suggestions = buildFailureSuggestions(summary);
+
+    expect(suggestions.map(s => s.logTarget)).toEqual([
+      { texts: ['a.html', 'first - one'], time: 3 },
+      { texts: ['a.html', 'second - two'], time: 5 },
+    ]);
+  });
+
+  test('targets crashes, harness lines and unfinished tests', () => {
+    const leak =
+      'TEST-UNEXPECTED-FAIL | leakcheck | tab process: 12 bytes leaked (Foo)';
+    const summary = buildTestSummary([
+      { action: 'group_start', name: 'dir/manifest.toml' },
+      { action: 'test_start', time: 1, test: 'hung.html' },
+      { action: 'crash', time: 4, test: 'crashed.html', signature: 'sig' },
+      { action: 'log', time: 6, level: 'ERROR', message: leak },
+    ]);
+    const byTest = Object.fromEntries(
+      buildFailureSuggestions(summary).map(s => [s.search, s.logTarget]),
+    );
+
+    expect(byTest['TEST-UNEXPECTED-CRASH | crashed.html | sig']).toEqual({
+      texts: ['crashed.html', 'sig'],
+      time: 4,
+    });
+    // A harness line is searched for as it is: it names no test.
+    expect(byTest[leak]).toEqual({ texts: [leak], time: 6 });
+    // The message is ours, not the log's: the test path alone finds the test.
+    expect(
+      byTest['TEST-UNEXPECTED-CRASH | hung.html | Test started but never finished'],
+    ).toEqual({
+      texts: ['hung.html', 'Test started but never finished'],
+      time: 1,
+    });
+  });
+
+  test('searches for the first log line of a message only, capped', () => {
+    const summary = buildTestSummary([
+      { action: 'test_start', time: 1, test: 'a.html' },
+      {
+        action: 'test_end',
+        time: 2,
+        test: 'a.html',
+        status: 'FAIL',
+        expected: 'PASS',
+        message: `${'x'.repeat(300)}\nsecond line`,
+      },
+      { action: 'test_start', time: 3, test: 'b.html' },
+      {
+        action: 'test_end',
+        time: 4,
+        test: 'b.html',
+        status: 'FAIL',
+        expected: 'PASS',
+        message: 'first\u2028second',
+      },
+    ]);
+    const [long, split] = buildFailureSuggestions(summary);
+
+    expect(long.logTarget.texts).toEqual(['a.html', 'x'.repeat(200)]);
+    expect(split.logTarget.texts).toEqual(['b.html', 'first']);
+  });
+
+  test('leaves the time null when the record has none', () => {
+    const summary = buildTestSummary([
+      { action: 'test_start', test: 'a.html' },
+      {
+        action: 'test_end',
+        test: 'a.html',
+        status: 'FAIL',
+        expected: 'PASS',
+        message: 'boom',
       },
     ]);
 
-    expect(buildFailureSuggestions(summary)[0].line).toBeNull();
+    expect(buildFailureSuggestions(summary)[0].logTarget.time).toBeNull();
   });
 });

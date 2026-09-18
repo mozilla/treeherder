@@ -16,7 +16,7 @@ import { isReftest } from '../../../../helpers/job';
 import { thBugSuggestionLimit } from '../../../../helpers/constants';
 import {
   createQueryParams,
-  getLogViewerConsoleLineUrl,
+  getLogViewerRecordUrl,
   parseQueryParams,
 } from '../../../../helpers/url';
 import formatLogLineWithLinks from '../../../../helpers/logFormatting';
@@ -38,7 +38,6 @@ const SummaryItem = ({
   selectedJob,
   jobDetails,
   currentRepo,
-  anchor = null,
   addBug = null,
   showNewButton = false,
 }) => {
@@ -92,13 +91,12 @@ const SummaryItem = ({
               <FontAwesomeIcon icon={faFilter} />
             </Link>
           )}
-          {anchor && suggestion.line != null && (
+          {suggestion.logTarget?.texts.length > 0 && (
             <a
-              href={getLogViewerConsoleLineUrl(
+              href={getLogViewerRecordUrl(
                 selectedJob.id,
                 currentRepo.name,
-                suggestion.line,
-                anchor,
+                suggestion.logTarget,
                 selectedJob,
               )}
               target="_blank"
@@ -190,10 +188,6 @@ SummaryItem.propTypes = {
   toggleBugFiler: PropTypes.func.isRequired,
   toggleInternalIssueFiler: PropTypes.func.isRequired,
   currentRepo: PropTypes.shape({ name: PropTypes.string }).isRequired,
-  anchor: PropTypes.shape({
-    line: PropTypes.number,
-    message: PropTypes.string,
-  }),
   addBug: PropTypes.func,
   showNewButton: PropTypes.bool,
 };

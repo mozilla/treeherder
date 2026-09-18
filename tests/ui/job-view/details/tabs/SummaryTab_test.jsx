@@ -116,17 +116,15 @@ describe('SummaryTab divergence with the classic failure summary', () => {
 });
 
 describe('SummaryTab log viewer links', () => {
-  const anchorMessage = 'ConsoleLogger online at 20260904 in /builds/worker';
-  const anchoredJsonl = [
-    `{"action":"console_anchor","line":1,"message":"${anchorMessage}"}`,
-    '{"action":"test_start","time":0,"group":"dom/manifest.ini","test":"dom/tests/test_fail.html","line":40}',
-    '{"action":"test_end","time":10,"group":"dom/manifest.ini","test":"dom/tests/test_fail.html","status":"FAIL","expected":"PASS","message":"assertion failed","line":42}',
+  const failingJsonl = [
+    '{"action":"test_start","time":0,"group":"dom/manifest.ini","test":"dom/tests/test_fail.html"}',
+    '{"action":"test_end","time":10,"group":"dom/manifest.ini","test":"dom/tests/test_fail.html","status":"FAIL","expected":"PASS","message":"assertion failed"}',
   ].join('\n');
 
   afterEach(cleanup);
 
-  test('links a failure line to its console line in the log viewer', () => {
-    renderSummaryTab([], anchoredJsonl);
+  test('links a failure line to the log viewer by its text and time', () => {
+    renderSummaryTab([], failingJsonl);
 
     const link = screen
       .getByTitle('Go to this line in the log viewer')
@@ -136,17 +134,21 @@ describe('SummaryTab log viewer links', () => {
     expect(url.pathname).toBe('/logviewer');
     expect(url.searchParams.get('job_id')).toBe('1');
     expect(url.searchParams.get('repo')).toBe('autoland');
-    expect(url.searchParams.get('consoleLine')).toBe('42');
-    expect(url.searchParams.get('consoleAnchorLine')).toBe('1');
-    expect(url.searchParams.get('consoleAnchor')).toBe(anchorMessage);
+    expect(url.searchParams.getAll('lineText')).toEqual([
+      'dom/tests/test_fail.html',
+      'assertion failed',
+    ]);
+    expect(url.searchParams.get('lineTime')).toBe('10');
     expect(url.searchParams.get('lineNumber')).toBeNull();
   });
 
-  test('renders no log viewer link when the artifact has no anchor', () => {
+  test('links the failures of any artifact, whatever produced it', () => {
     renderSummaryTab([]);
 
     expect(screen.getByText(/1 failed/)).toBeInTheDocument();
-    expect(screen.queryByTitle('Go to this line in the log viewer')).toBeNull();
+    expect(
+      screen.getAllByTitle('Go to this line in the log viewer').length,
+    ).toBeGreaterThan(0);
   });
 });
 
