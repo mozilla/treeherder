@@ -276,15 +276,31 @@ class Consumers:
         self.consumers = consumers
 
     def run(self):
+        # Consumers run in daemon threads. Without this bookkeeping an exception
+        # in one of them would only be printed by the thread's excepthook and the
+        # process would exit 0 with nothing listening, which supervisors such as
+        # docker compose treat as success.
+        errors = []
+
         def thd(consumer):
-            consumer.prepare()
-            consumer.run()
+            try:
+                consumer.prepare()
+                consumer.run()
+            except Exception as e:
+                logger.exception("Pulse consumer %s failed", type(consumer).__name__)
+                errors.append(e)
 
         threads = [threading.Thread(target=thd, args=(c,), daemon=True) for c in self.consumers]
         for t in threads:
             t.start()
-        for t in threads:
-            t.join()
+        # Poll instead of a blocking join so that one failed consumer ends the
+        # process instead of leaving it half-alive, and so KeyboardInterrupt is
+        # still delivered to the main thread.
+        while not errors and any(t.is_alive() for t in threads):
+            for t in threads:
+                t.join(timeout=1)
+        if errors:
+            raise errors[0]
 
 
 def prepare_consumers(consumer_cls, sources, build_routing_key=None):
