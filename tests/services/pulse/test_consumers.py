@@ -1,3 +1,4 @@
+import threading
 from unittest.mock import MagicMock
 
 import pytest
@@ -452,6 +453,45 @@ def test_consumers_runner():
 
     assert mock_prepare.call_count == 2
     assert mock_run.call_count == 2
+
+
+def test_consumers_runner_raises_when_a_consumer_fails():
+    """A consumer exception must surface from run() so the process exits non-zero."""
+
+    class FailingConsumer:
+        def prepare(self):
+            pass
+
+        def run(self):
+            raise ConnectionError("broker refused login")
+
+    with pytest.raises(ConnectionError, match="broker refused login"):
+        Consumers([FailingConsumer()]).run()
+
+
+def test_consumers_runner_stops_when_one_consumer_fails_and_another_is_still_running():
+    """One dead consumer ends run() even though a sibling is still blocked on the broker."""
+    release = threading.Event()
+
+    class BlockingConsumer:
+        def prepare(self):
+            pass
+
+        def run(self):
+            release.wait(timeout=30)
+
+    class FailingConsumer:
+        def prepare(self):
+            pass
+
+        def run(self):
+            raise RuntimeError("boom")
+
+    try:
+        with pytest.raises(RuntimeError, match="boom"):
+            Consumers([BlockingConsumer(), FailingConsumer()]).run()
+    finally:
+        release.set()
 
 
 def test_prepare_consumers_factory():
