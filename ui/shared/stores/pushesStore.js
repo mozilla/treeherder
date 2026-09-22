@@ -2,7 +2,6 @@ import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import pick from 'lodash/pick';
 import keyBy from 'lodash/keyBy';
-import max from 'lodash/max';
 
 import { parseQueryParams, bugzillaBugsApi } from '../../helpers/url';
 import { getUrlParam, replaceLocation } from '../../helpers/location';
@@ -77,14 +76,42 @@ const getBugSummaryMap = async (bugIds, oldBugSummaryMap) => {
   usePushesStore.setState({ bugSummaryMap: result });
 };
 
-const getLastModifiedJobTime = (jobMap) => {
-  const latest =
-    max(
-      Object.values(jobMap).map((job) => new Date(`${job.last_modified}Z`)),
-    ) || new Date();
+const INCOMPLETE_JOB_STATES = new Set(['pending', 'running']);
 
-  latest.setSeconds(latest.getSeconds() - 3);
-  return latest;
+// Single pass over jobMap: which pushes still have incomplete jobs, and the
+// newest last_modified time (used as the poll's last_modified__gt bound). This
+// replaces a separate max() scan; jobMap size is bounded by enforcePushLimit.
+const scanJobMap = (jobMap) => {
+  const incompletePushIds = new Set();
+  let latest = null;
+  for (const job of Object.values(jobMap)) {
+    if (INCOMPLETE_JOB_STATES.has(job.state)) {
+      incompletePushIds.add(job.push_id);
+    }
+    const modified = new Date(`${job.last_modified}Z`);
+    if (latest === null || modified > latest) {
+      latest = modified;
+    }
+  }
+  const lastModified = latest || new Date();
+  lastModified.setSeconds(lastModified.getSeconds() - 3);
+  return { incompletePushIds, lastModified };
+};
+
+// Pushes worth polling for job updates: incomplete ones, ones re-activated by a
+// local retrigger/backfill, and the currently selected push (so a job you are
+// watching stays live). Completed pushes fall out, shrinking the query.
+const getActivePushIds = (pushList, incompletePushIds, forcePollPushIds) => {
+  const { selectedJob } = useSelectedJobStore.getState();
+  const selectedPushId = selectedJob ? selectedJob.push_id : null;
+  return pushList
+    .map((push) => push.id)
+    .filter(
+      (id) =>
+        incompletePushIds.has(id) ||
+        forcePollPushIds.has(id) ||
+        id === selectedPushId,
+    );
 };
 
 /**
@@ -255,6 +282,10 @@ export const usePushesStore = create(
   devtools(
     (set, get) => ({
       ...initialState,
+      // Push ids to keep polling even though their jobs look complete, e.g.
+      // after a local retrigger/backfill. Not in initialState so each store
+      // instance gets its own Set (and resets don't share a reference).
+      forcePollPushIds: new Set(),
 
       fetchPushes: async (
         count = DEFAULT_PUSH_COUNT,
@@ -354,18 +385,38 @@ export const usePushesStore = create(
       },
 
       fetchNewJobs: async () => {
-        const { pushList, jobMap } = get();
+        const { pushList, jobMap, forcePollPushIds } = get();
 
         if (!pushList.length) {
           return;
         }
 
-        const pushIds = pushList.map((push) => push.id);
-        const lastModified = getLastModifiedJobTime(jobMap);
+        const { incompletePushIds, lastModified } = scanJobMap(jobMap);
+        const activePushIds = getActivePushIds(
+          pushList,
+          incompletePushIds,
+          forcePollPushIds,
+        );
+
+        // Drop force flags now covered by incompleteness (rule 1 owns them) or
+        // no longer in the push list, keeping the set small.
+        const pushIdSet = new Set(pushList.map((push) => push.id));
+        const prunedForced = new Set(
+          [...forcePollPushIds].filter(
+            (id) => pushIdSet.has(id) && !incompletePushIds.has(id),
+          ),
+        );
+        if (prunedForced.size !== forcePollPushIds.size) {
+          set({ forcePollPushIds: prunedForced });
+        }
+
+        if (!activePushIds.length) {
+          return;
+        }
 
         const resp = await JobModel.getList(
           {
-            push_id__in: pushIds.join(','),
+            push_id__in: activePushIds.join(','),
             last_modified__gt: lastModified.toISOString().replace('Z', ''),
           },
           { fetchAll: true },
@@ -402,7 +453,13 @@ export const usePushesStore = create(
       },
 
       clearPushes: () => {
-        set({ ...initialState });
+        set({ ...initialState, forcePollPushIds: new Set() });
+      },
+
+      markPushActive: (pushId) => {
+        const forcePollPushIds = new Set(get().forcePollPushIds);
+        forcePollPushIds.add(pushId);
+        set({ forcePollPushIds });
       },
 
       setPushes: (pushList, jobMap) => {
@@ -472,3 +529,5 @@ export const updateJobMap = (jobList) =>
   usePushesStore.getState().updateJobMap(jobList);
 export const updateRange = (range) =>
   usePushesStore.getState().updateRange(range);
+export const markPushActive = (pushId) =>
+  usePushesStore.getState().markPushActive(pushId);
