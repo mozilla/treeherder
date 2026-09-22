@@ -1,0 +1,119 @@
+name: Deploy
+
+# Builds the production image and pushes it to Docker Hub and GCP Artifact
+# Registry, mirroring the CircleCI `deploy` job. Kept separate from ci.yml so
+# that `id-token: write` and the registry credentials are never exposed to a
+# workflow that runs on fork pull requests.
+#
+# `workflow_dispatch` exists for dry runs: with the `push` input left false it
+# exercises version.json, the image build, the Docker Hub login and the GCP
+# OIDC exchange without publishing anything. GitHub only accepts a dispatch for
+# a workflow that exists on the default branch, so dry runs happen after merge.
+#
+# Push-triggered runs are gated on the DEPLOY_ENABLED repository variable so
+# this file can land before the registry secrets and variables exist without
+# producing a failed run on every push to master. Set DEPLOY_ENABLED=true to
+# switch on publishing; unset it (or set it to anything else) to switch off
+# without a code change.
+
+on:
+  push:
+    branches: [master, prototype]
+    tags: ['*']
+  workflow_dispatch:
+    inputs:
+      push:
+        description: Push the built image to the registries
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    name: deploy
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || vars.DEPLOY_ENABLED == 'true'
+    # Uncomment once a `deploy` environment holding the registry secrets exists.
+    # environment: deploy
+    env:
+      SHOULD_PUSH: ${{ github.event_name == 'push' || inputs.push == true }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create version.json
+        run: |
+          # https://github.com/mozilla-services/Dockerflow/blob/master/docs/version_object.md
+          TAG=""
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then TAG="$GITHUB_REF_NAME"; fi
+          printf '{"commit":"%s","version":"%s","source":"https://github.com/%s","build":"%s"}\n' \
+            "$GITHUB_SHA" \
+            "$TAG" \
+            "$GITHUB_REPOSITORY" \
+            "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" > version.json
+          cat version.json
+
+      # Same tag scheme as the CircleCI `deploy-to-dockerhub` / `deploy-to-gcp-gar` commands.
+      - name: Compute image tags
+        id: tags
+        env:
+          DOCKERHUB_REPO: ${{ vars.DOCKERHUB_REPO }}
+          GAR_REPO: ${{ vars.GCP_GAR_REGISTRY }}/${{ vars.GCP_PROJECT_ID_OF_GCP_GAR }}/treeherder-prod/treeherder
+        run: |
+          tags=()
+          if [ "$GITHUB_REF" = "refs/heads/master" ]; then
+            tags+=("latest" "master-$GITHUB_SHA")
+          elif [ "$GITHUB_REF" = "refs/heads/prototype" ]; then
+            tags+=("prototype-$GITHUB_SHA")
+          elif [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            tags+=("$GITHUB_REF_NAME")
+          else
+            # workflow_dispatch from any other branch: never publish a real tag.
+            tags+=("dispatch-$GITHUB_SHA")
+          fi
+          {
+            echo "tags<<EOF"
+            for t in "${tags[@]}"; do
+              echo "$DOCKERHUB_REPO:$t"
+              echo "$GAR_REPO:$t"
+            done
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+          printf 'Image tags:\n'; printf '  %s\n' "${tags[@]}"
+
+      - uses: docker/setup-buildx-action@v3
+
+      # Both logins run even when SHOULD_PUSH is false so a dry run proves the
+      # credentials and the OIDC exchange before anything is published.
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASS }}
+
+      - name: Authenticate to GCP
+        id: gcp-auth
+        uses: google-github-actions/auth@v3
+        with:
+          token_format: access_token
+          workload_identity_provider: projects/${{ vars.GCP_WIP_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.GCP_WIP_ID }}/providers/${{ vars.GCP_WIP_PROVIDER_ID }}
+          service_account: ${{ vars.GCP_GAR_PUSHER_SERVICE_ACCOUNT_EMAIL }}
+
+      - name: Log in to GCP Artifact Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ vars.GCP_GAR_REGISTRY }}
+          username: oauth2accesstoken
+          password: ${{ steps.gcp-auth.outputs.access_token }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile
+          push: ${{ env.SHOULD_PUSH == 'true' }}
+          tags: ${{ steps.tags.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
