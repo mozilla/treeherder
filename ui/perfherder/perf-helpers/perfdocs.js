@@ -1,5 +1,3 @@
-import { browsertimeBenchmarksTests } from './constants';
-
 export const perfViews = {
   graphsView: 'graphsView',
   compareView: 'compareView',
@@ -31,19 +29,63 @@ const supportedPerfdocsFrameworks = {
  * TODO: remove hardcoded names once suffixes are removed from Perfdocs
  * @link https://firefox-source-docs.mozilla.org/testing/perfdocs/raptor.html#interactive
  */
-const browsertimeInteractiveTests = [
-  'cnn-nav',
-  'facebook-nav',
-  'reddit-billgates-ama',
-  'reddit-billgates-post-1',
-  'reddit-billgates-post-2',
+const browsertimeInteractiveTests = ['-nav', 'reddit-billgates'];
+
+/**
+ * TODO: remove hardcoded names once suffixes are removed from Perfdocs
+ * @link https://firefox-source-docs.mozilla.org/testing/perfdocs/raptor.html#benchmarks
+ */
+const browsertimeBenchmarkTests = [
+  'speedometer',
+  'youtube-playback',
+  'wasm',
+  'jetstream',
+  'stylebench',
+  'sunspider',
+  'ares6',
+  'webaudio',
+  'assorted-dom',
+  'motionmark',
+  'media-capabilities',
+  'twitch-animation',
+  'unity-webgl',
+  'matrix-react-bench',
 ];
 
 /**
  * TODO: remove hardcoded names once suffixes are removed from Perfdocs
  * @link https://firefox-source-docs.mozilla.org/testing/perfdocs/raptor.html#custom
  */
-const browsertimeCustomTests = ['process-switch', 'welcome'];
+const browsertimeCustomTests = [
+  'process-switch',
+  'welcome',
+  'addkab',
+  'addkar',
+  'addkbl',
+  'addmab',
+  'addmar',
+  'addmbl',
+  'baseline',
+  'browsertime',
+  'connect',
+  'constant-regression',
+  'dns-',
+  'getkeyrng',
+  'h2-',
+  'h3-',
+  'he3',
+  'idb',
+  'media-seek',
+  'mp-',
+  'prefetch-',
+  'sample-',
+  'throttled',
+  'tp6-',
+  'trr-',
+  'upload',
+  've-',
+  'vpl-',
+];
 
 export const removedOldTestsDevTools = [
   'total-after-gc',
@@ -126,17 +168,29 @@ export class Perfdocs {
 
   get updatedURLWithSuffix() {
     let suffixForSuite;
-    const suiteNameBeforeDot = this.suite.split('.')[0];
-    if (browsertimeInteractiveTests.includes(suiteNameBeforeDot)) {
+    const suiteNameBeforeDot = this.suite.split('.')[0].toLowerCase();
+
+    const isInteractive = browsertimeInteractiveTests.some((keyword) =>
+      suiteNameBeforeDot.includes(keyword),
+    );
+    const isBenchmark = browsertimeBenchmarkTests.some((keyword) =>
+      suiteNameBeforeDot.includes(keyword),
+    );
+    const isCustom = browsertimeCustomTests.some((keyword) =>
+      suiteNameBeforeDot.includes(keyword),
+    );
+    const isMobile = this.platform.includes('android');
+
+    if (isInteractive) {
       this.url = this.url.concat(suiteNameBeforeDot);
       suffixForSuite = '-i';
     } else {
       this.url = this.url.concat(this.suite);
-      if (browsertimeBenchmarksTests.includes(this.suite)) {
+      if (isBenchmark) {
         suffixForSuite = '-b';
-      } else if (browsertimeCustomTests.includes(this.suite)) {
+      } else if (isCustom) {
         suffixForSuite = '-c';
-      } else if (this.platform.includes('android')) {
+      } else if (isMobile) {
         suffixForSuite = '-m';
       } else suffixForSuite = '-d';
     }
