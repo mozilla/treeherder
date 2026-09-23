@@ -258,6 +258,21 @@ class GraphsContainer extends React.Component {
 
     if (found) {
       this.setState({ lockedId: selectedDataPoint.dataPointId });
+      return;
+    }
+
+    const allMissing = (testData || []).flatMap((s) =>
+      Array.isArray(s?.missingData) ? s.missingData : [],
+    );
+
+    const foundMissing = allMissing.find(
+      (d) =>
+        d.signature_id === selectedDataPoint.signature_id &&
+        d.pushId === selectedDataPoint.dataPointId,
+    );
+
+    if (foundMissing) {
+      this.setState({ lockedMissingDatum: foundMissing, lockedId: null });
     } else {
       updateStateParams({
         errorMessages: [
@@ -425,7 +440,10 @@ class GraphsContainer extends React.Component {
     this.props.updateStateParams?.({ selectedDataPoint: null });
   };
 
-  clearMissingLock = () => this.setState({ lockedMissingDatum: null });
+  clearMissingLock = () => {
+    this.setState({ lockedMissingDatum: null });
+    this.props.updateStateParams?.({ selectedDataPoint: null });
+  };
 
   renderMissingHighlightRing(datum, locked) {
     const { testData } = this.props;
@@ -812,11 +830,14 @@ class GraphsContainer extends React.Component {
                                     lockedMissingDatum: isToggleOff ? null : d,
                                     lockedId: null,
                                   });
-                                  if (!isToggleOff) {
-                                    this.props.updateStateParams?.({
-                                      selectedDataPoint: null,
-                                    });
-                                  }
+                                  this.props.updateStateParams?.({
+                                    selectedDataPoint: isToggleOff
+                                      ? null
+                                      : {
+                                          signature_id: d.signature_id,
+                                          dataPointId: d.pushId,
+                                        },
+                                  });
                                   // Victory event handlers must return a value; null means no chart state mutation.
                                   return null;
                                 },
