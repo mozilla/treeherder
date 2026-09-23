@@ -2,9 +2,14 @@ import { useLayoutEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import {
+  faExclamationCircle,
+  faTimes,
+} from '@fortawesome/free-solid-svg-icons';
+import { Link } from 'react-router';
 
 import { getJobsUrl, getPerfCompareBaseSubtestsURL } from '../../helpers/url';
+import { getStatus } from '../perf-helpers/helpers';
 import { notify } from '../../shared/stores/notificationStore';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
 import { toMercurialDateStr } from '../../helpers/display';
@@ -61,6 +66,11 @@ const MissingJobTooltip = ({
 
   const { label: statusLabel, className: statusClass } =
     STATUS_DISPLAY[datum.status] ?? STATUS_DISPLAY.not_run;
+
+  const isCommonAlert = Boolean(datum.commonAlert);
+  const commonAlertStatus = isCommonAlert
+    ? getStatus(datum.commonAlert.status)
+    : null;
 
   const currentRepo = RepositoryModel.getRepo(
     testDetails.repository_name,
@@ -206,6 +216,29 @@ const MissingJobTooltip = ({
           <div>
             <p className={`small ${statusClass}`}>{statusLabel}</p>
           </div>
+          {isCommonAlert && (
+            <div>
+              <p>
+                <Link
+                  to={`/perfherder/alerts?id=${datum.commonAlert.id}`}
+                  target="_blank"
+                >
+                  <FontAwesomeIcon
+                    className="text-warning"
+                    icon={faExclamationCircle}
+                    size="sm"
+                  />
+                  {` Alert # ${datum.commonAlert.id}`}
+                </Link>
+                <span className="text-secondary">{` - ${commonAlertStatus} `}</span>
+                <Clipboard
+                  text={datum.commonAlert.id.toString()}
+                  description="Alert Summary id"
+                />
+                <p className="small text-danger">Common alert</p>
+              </p>
+            </div>
+          )}
           <div>
             <span>
               <a href={pushUrl} target="_blank" rel="noopener noreferrer">

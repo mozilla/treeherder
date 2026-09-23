@@ -817,7 +817,7 @@ const findNeighbors = (sortedPoints, targetTime) => {
 };
 
 // Main Helper
-const buildMissingData = (series) => {
+const buildMissingData = (series, commonByPush) => {
   const { missing_data: missing, data = [], signature_id, repository_name } = series;
 
   if (!missing?.length) return [];
@@ -840,6 +840,10 @@ const buildMissingData = (series) => {
       status: entry.status,
       signature_id,
       repository_name,
+      commonAlert: reduceDictToKeys(
+        commonByPush?.get(entry.push_id),
+        ['id', 'status'],
+      ),
     };
   });
 };
@@ -876,7 +880,7 @@ export const createGraphData = (
       repository_name: series.repository_name,
       projectId: series.repository_id,
       id: `${series.repository_name} ${series.name}`,
-      missingData: buildMissingData(series),
+      missingData: buildMissingData(series, commonByPush),
       data: series.data.map((dataPoint) => ({
         // Backend implicitly provides all dates as UTC.
         // Let's make this explicit, so frontend doesn't get confused.

@@ -363,6 +363,16 @@ class GraphsContainer extends React.Component {
           ...highlightCommonAlertsData,
           ...dataPoints,
         ];
+
+        if (series.missingData) {
+          const missingPoints = series.missingData.filter(
+            (item) => item.commonAlert,
+          );
+          highlightCommonAlertsData = [
+            ...highlightCommonAlertsData,
+            ...missingPoints,
+          ];
+        }
       }
 
       for (const rev of highlightedRevisions) {
