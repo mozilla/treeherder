@@ -100,9 +100,13 @@ export const thPlatformMap = {
   'macosx1470-64-devedition': 'macOS 14.70 DevEdition',
   'macosx1500-64': 'macOS 15 AArch64',
   'macosx1500-aarch64': 'macOS 15 AArch64',
+  'macosx1500-aarch64-vms': 'macOS 15 AArch64 VM',
   'macosx1500-aarch64-shippable': 'macOS 15 AArch64 Shippable',
+  'macosx1500-aarch64-vms-shippable': 'macOS 15 AArch64 Shippable VM',
   'macosx1500-aarch64-devedition': 'macOS 15 AArch64 DevEdition',
+  'macosx1500-aarch64-vms-devedition': 'macOS 15 AArch64 DevEdition VM',
   'macosx1500-aarch64-nightlyasrelease': 'macOS 15 AArch64 NightlyAsRelease',
+  'macosx1500-aarch64-vms-nightlyasrelease': 'macOS 15 AArch64 NightlyAsRelease VM',
   macosx64: 'macOS',
   osx: 'macOS',
   'macosx64-shippable': 'macOS Shippable',
@@ -220,6 +224,7 @@ export const thPlatformMap = {
   'android-x86_64-shippable': 'Android x86-64 Shippable',
   'android-5-0-x86_64-shippable-lite': 'Android x86-64 Lite Shippable',
   'android-5-0-x86_64-nightlyasrelease': 'Android x86-64 NightlyAsRelease',
+  'android-5-0-x86_64-ccov': 'Android x86-64 CCov',
   'android-5-0-geckoview-fat-aar': 'Android GeckoView multi-arch fat AAR',
   'android-5-0-geckoview-fat-aar-shippable':
     'Android GeckoView multi-arch fat AAR Shippable',
@@ -239,17 +244,19 @@ export const thPlatformMap = {
     'Android 11.0 Galaxy A51 AArch64 Shippable',
   'android-hw-a51-11-0-arm7-qr': 'Android 11.0 Galaxy A51 ARMv7',
   'android-hw-a51-11-0-arm7': 'Android 11.0 Galaxy A51 ARMv7',
-  'android-hw-p5-13-0-android-aarch64-shippable-qr':
-    'Android 13.0 Pixel5 AArch64 Shippable',
-  'android-hw-p5-13-0-android-aarch64-qr': 'Android 13.0 Pixel5 AArch64',
-  'android-hw-p6-13-0-android-aarch64-shippable-qr':
-    'Android 13.0 Pixel5 AArch64 Shippable',
-  'android-hw-p5-13-0-arm7-shippable-qr': 'Android 13.0 Pixel5 ARMv7 Shippable',
   'android-hw-p5-13-0-arm7-qr': 'Android 13.0 Pixel5 ARMv7',
   'android-hw-p5-13-0-arm7': 'Android 13.0 Pixel5 ARMv7',
+  'android-hw-p5-13-0-arm7-shippable-qr': 'Android 13.0 Pixel5 ARMv7 Shippable',
+  'android-hw-p6-13-0-arm7': 'Android 13.0 Pixel6 ARMv7',
+  'android-hw-p6-13-0-arm7-shippable': 'Android 13.0 Pixel6 ARMv7 Shippable',
   'android-hw-p5-13-0-aarch64': 'Android 13.0 Pixel5 AArch64',
+  'android-hw-p5-13-0-android-aarch64-qr': 'Android 13.0 Pixel5 AArch64',
+  'android-hw-p5-13-0-android-aarch64-shippable-qr':
+    'Android 13.0 Pixel5 AArch64 Shippable',
   'android-hw-p6-13-0-aarch64': 'Android 13.0 Pixel6 AArch64',
   'android-hw-p6-13-0-aarch64-shippable':
+    'Android 13.0 Pixel6 AArch64 Shippable',
+  'android-hw-p6-13-0-android-aarch64-shippable-qr':
     'Android 13.0 Pixel6 AArch64 Shippable',
   'android-hw-p6-13-0-aarch64-nightlyasrelease':
     'Android 13.0 Pixel6 AArch64 NightlyAsRelease',
@@ -257,6 +264,7 @@ export const thPlatformMap = {
   'android-em-14-x86_64-shippable': 'Android 14.0 x86-64 Shippable',
   'android-em-14-x86_64-lite': 'Android 14.0 x86-64 Lite',
   'android-em-14-x86_64-shippable-lite': 'Android 14.0 x86-64 Lite Shippable',
+  'android-em-14-x86_64-ccov': 'Android 14.0 x86-64 CCov',
   'android-hw-a55-14-0-aarch64-shippable':
     'Android 14.0 Galaxy A55 AArch64 Shippable',
   'android-hw-a55-14-0-aarch64': 'Android 14.0 Galaxy A55 AArch64',
@@ -309,6 +317,7 @@ export const thPlatformMap = {
   'linux64-snap-amd64-2404-esr140': 'Linux 24.04 x64 Snap amd64 esr140',
   'linux64-snap-amd64-2404-esr': 'Linux 24.04 x64 Snap amd64 esr',
   other: 'Other',
+  'bhr-aggregate': 'Other',
 };
 
 // Platforms where the `opt` should be dropped from
