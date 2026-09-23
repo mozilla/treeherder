@@ -85,12 +85,20 @@ const MissingJobTooltip = ({
     });
   }
 
-  const jobsUrl = getJobsUrl({
-    repo: datum.repository_name,
-    revision: datum.revision,
-    ...(datum.jobId ? { selectedJob: datum.jobId } : {}),
-    group_state: 'expanded',
-  });
+  const jobsUrl = datum.jobId
+    ? getJobsUrl({
+        repo: datum.repository_name,
+        revision: datum.revision,
+        selectedJob: datum.jobId,
+        group_state: 'expanded',
+      })
+    : getJobsUrl({
+        repo: datum.repository_name,
+        group_state: 'expanded',
+        tochange: datum.revision,
+        ...(prevRevision ? { fromchange: prevRevision } : {}),
+        searchStr: testDetails.name,
+      });
 
   const compareUrl = prevRevision
     ? getPerfCompareBaseSubtestsURL(
@@ -203,19 +211,17 @@ const MissingJobTooltip = ({
               <a href={pushUrl} target="_blank" rel="noopener noreferrer">
                 {datum.revision.slice(0, 12)}
               </a>{' '}
-              {(datum.jobId || prevRevision) && '('}
-              {datum.jobId && (
-                <a href={jobsUrl} target="_blank" rel="noopener noreferrer">
-                  job
-                </a>
-              )}
-              {datum.jobId && prevRevision && ', '}
+              {'('}
+              <a href={jobsUrl} target="_blank" rel="noopener noreferrer">
+                job
+              </a>
+              {prevRevision && ', '}
               {prevRevision && (
                 <a href={compareUrl} target="_blank" rel="noopener noreferrer">
                   compare
                 </a>
               )}
-              {(datum.jobId || prevRevision) && ') '}
+              {') '}
               <Clipboard text={datum.revision} description="Revision" />
             </span>
             {datum.jobId && user.isStaff && (
