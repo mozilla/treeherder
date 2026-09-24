@@ -501,7 +501,10 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
     def _untriaged_regressions(self, queryset, name, value):
         return queryset.filter(
             Q(alerts__is_regression=True, alerts__status=PerformanceAlert.UNTRIAGED)
-            | Q(related_alerts__is_regression=True)
+            | Q(
+                related_alerts__is_regression=True,
+                alerts__status=PerformanceAlert.UNTRIAGED,
+            )
         ).distinct()
 
     def _untriaged_improvements(self, queryset, name, value):
