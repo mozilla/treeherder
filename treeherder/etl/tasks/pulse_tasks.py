@@ -23,12 +23,13 @@ def store_pulse_tasks(
     """
     Fetches tasks from Taskcluster
     """
-    loop = asyncio.get_event_loop()
     newrelic.agent.add_custom_attribute("exchange", exchange)
     newrelic.agent.add_custom_attribute("routing_key", routing_key)
-    # handle_message expects messages in this format
+    # handle_message expects messages in this format.
+    # asyncio.run() creates its own event loop: a Celery worker has none set, and
+    # since Python 3.14 asyncio.get_event_loop() no longer creates one implicitly.
     with settings.STATSD_CLIENT.timer("pulse_handle_message"):
-        runs = loop.run_until_complete(
+        runs = asyncio.run(
             handle_message(
                 {
                     "exchange": exchange,

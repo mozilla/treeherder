@@ -1,5 +1,7 @@
 from types import SimpleNamespace
 
+from django.core.management import call_command
+
 from treeherder.etl.management.commands import ingest
 
 REPO_META = {
@@ -126,3 +128,39 @@ def test_ingest_pr_handles_missing_trailing_slash(monkeypatch):
     assert payload["details"]["event.pullNumber"] == "1692"
     assert payload["details"]["event.base.repo.url"] == "https://github.com/mozilla/treeherder.git"
     assert payload["details"]["event.head.repo.url"] == "https://github.com/mozilla/treeherder.git"
+
+
+def test_ingest_task_runs_without_current_event_loop(monkeypatch, no_current_event_loop):
+    """`ingest task` must run its coroutine without a pre-existing event loop.
+
+    A management command process has none, and Python 3.14 no longer creates one
+    implicitly in asyncio.get_event_loop().
+    """
+    ingested = []
+
+    async def fake_ingest_task(task_id, root_url):
+        ingested.append((task_id, root_url))
+
+    monkeypatch.setattr(ingest, "ingest_task", fake_ingest_task)
+
+    call_command("ingest", "task", "--task-id", "abc123", "--root-url", "https://tc.example.com")
+
+    assert ingested == [("abc123", "https://tc.example.com")]
+
+
+def test_ingest_all_tasks_runs_without_current_event_loop(
+    monkeypatch, no_current_event_loop, test_repository
+):
+    """`ingest push --ingest-all-tasks` must run process_tasks without a pre-existing loop."""
+    processed = []
+
+    async def fake_process_tasks(task_group_id, root_url):
+        processed.append((task_group_id, root_url))
+
+    monkeypatch.setattr(ingest, "get_decision_task_id", lambda *args: "decision-task")
+    monkeypatch.setattr(ingest, "process_tasks", fake_process_tasks)
+    monkeypatch.setattr(ingest, "_ingest_hg_push", lambda *args: None)
+
+    call_command("ingest", "push", "--project", test_repository.name, "--commit", "abcdef", "-a")
+
+    assert processed == [("decision-task", test_repository.tc_root_url)]
