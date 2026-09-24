@@ -1434,12 +1434,9 @@ class PerfCompareResults(generics.ListAPIView):
             )
         ]
 
-        # Use 'fork' context explicitly because Python 3.14+ defaults to 'forkserver'
-        # which deadlocks when used within a Django process.
         workers = multiprocessing.cpu_count()
         logger.warning(f"Workers used for MWU analysis: {workers}")
-        ctx = multiprocessing.get_context("fork")
-        with ctx.Pool(processes=workers) as pool:
+        with multiprocessing.Pool(processes=workers) as pool:
             results = pool.map(PerfCompareResults._process_mann_whitney_task, tasks)
 
         return results
