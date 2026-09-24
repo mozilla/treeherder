@@ -1,3 +1,4 @@
+import asyncio
 import copy
 import datetime
 import json
@@ -138,6 +139,19 @@ def block_unmocked_requests():
     monkeypatch.setattr("requests.adapters.HTTPAdapter.send", mocked_send)
     yield monkeypatch
     monkeypatch.undo()
+
+
+@pytest.fixture
+def no_current_event_loop():
+    """Run the test with no event loop set on the current thread.
+
+    That is the state of a fresh Celery worker or management-command process.
+    Python 3.14 removed the implicit loop creation from asyncio.get_event_loop(),
+    so code that still relies on it raises RuntimeError there. Earlier versions
+    raise the same error once set_event_loop(None) has been called, which lets
+    this fixture catch such regressions on every supported interpreter.
+    """
+    asyncio.set_event_loop(None)
 
 
 @pytest.fixture

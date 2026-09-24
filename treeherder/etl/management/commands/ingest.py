@@ -93,8 +93,7 @@ def ingest_hg_push(options):
     elif options["ingest_all_tasks"]:
         gecko_decision_task = get_decision_task_id(project, commit, repo.tc_root_url)
         logger.info("## START ##")
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(process_tasks(gecko_decision_task, repo.tc_root_url))
+        asyncio.run(process_tasks(gecko_decision_task, repo.tc_root_url))
         logger.info("## END ##")
     else:
         logger.info("You can ingest all tasks for a push with -a/--ingest-all-tasks.")
@@ -208,7 +207,7 @@ async def routine_to_future(func, *args):
         """Wraps a coroutine into a regular routine to be ran by threads."""
         asyncio.run(func(*args))
 
-    event_loop = asyncio.get_event_loop()
+    event_loop = asyncio.get_running_loop()
     if inspect.iscoroutinefunction(func):
         return await event_loop.run_in_executor(executor, _wrap_coroutine, func, *args)
     return await event_loop.run_in_executor(executor, func, *args)
@@ -467,7 +466,6 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        loop = asyncio.get_event_loop()
         type_of_ingestion = options["ingestion_type"][0]
         root_url = options["root_url"]
 
@@ -485,7 +483,7 @@ class Command(BaseCommand):
 
         if type_of_ingestion == "task":
             assert options["taskId"]
-            loop.run_until_complete(ingest_task(options["taskId"], root_url))
+            asyncio.run(ingest_task(options["taskId"], root_url))
         elif type_of_ingestion == "pr":
             assert options["prUrl"]
             ingest_pr(options["prUrl"], root_url)
