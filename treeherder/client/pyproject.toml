@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "treeherder-client"
+dynamic = ["version"]
+description = "Python library to retrieve data from the Treeherder API"
+authors = [
+  { name = "Mozilla Automation and Testing Team", email = "tools@lists.mozilla.org" }
+]
+license = { text = "MPL" }
+classifiers = [
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
+  "Natural Language :: English",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
+requires-python = ">=3.10"
+dependencies = [
+  "requests>=2.32.5",
+]
+urls = { Homepage = "https://github.com/mozilla/treeherder" }
+
+[tool.setuptools]
+packages = ["thclient"]
+
+[tool.setuptools.dynamic]
+version = { attr = "thclient.client.__version__" }
