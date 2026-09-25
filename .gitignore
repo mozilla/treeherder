@@ -17,6 +17,7 @@ venv/
 
 # Database
 treeherder_backup_*
+.*backup.dump
 
 # Caches
 .eslintcache
