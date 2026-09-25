@@ -2827,9 +2827,9 @@ tabulate==0.9.0 \
     --hash=sha256:0095b12bf5966de529c0feb1fa08671671b3368eec77d7ef7ab114be2c068b3c \
     --hash=sha256:024ca478df22e9340661486f85298cff5f6dcdba14f3813e8830015b9ed1948f
     # via mozci
-taskcluster==110.0.0 \
-    --hash=sha256:04d32762b56f5bdff73e75c7542c1557abaf36f5f4d0c2f0a4e39fd12fc9fd11 \
-    --hash=sha256:f982a2d13379c3c5f72ab98c5d95264116f8765854345cf86eab95992cc1e7a8
+taskcluster==110.1.0 \
+    --hash=sha256:84bdc694ca11e9d6d5fc1ccb26ae514ea12b0fef1611e2f037f8120d11b0d1bb \
+    --hash=sha256:b4e4d120068bdbb75fdae0e703073b32dd551587cf66fff8db0e142e895a5172
     # via
     #   -r requirements/common.in
     #   mozci
@@ -2872,8 +2872,8 @@ uritemplate==4.2.0 \
     #   -r requirements/common.in
     #   drf-spectacular
 urllib3==2.6.3 \
-    --hash=sha256:bf272323e553dfb2e87d9bfd225ca7b0f467b919d7bbd355436d3fd37cb0acd4 \
-    --hash=sha256:1b62b6884944a57dbe321509ab94fd4d3b307075e0c2eae991ac71ee15ad38ed
+    --hash=sha256:1b62b6884944a57dbe321509ab94fd4d3b307075e0c2eae991ac71ee15ad38ed \
+    --hash=sha256:bf272323e553dfb2e87d9bfd225ca7b0f467b919d7bbd355436d3fd37cb0acd4
     # via
     #   botocore
     #   pygithub
