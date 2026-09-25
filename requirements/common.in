@@ -4,7 +4,7 @@ whitenoise[brotli]==6.12.0  # Used by Whitenoise to provide Brotli-compressed ve
 Django==6.0.3
 celery==5.6.3  # celery needed for data ingestion
 simplejson==3.20.2  # import simplejson
-newrelic==13.5.0
+newrelic==13.6.0
 certifi==2026.1.4
 
 psycopg[binary]==3.3.6
@@ -24,7 +24,7 @@ python-dateutil==2.9.0.post0
 django-filter==26.1  # Listed in DEFAULT_FILTER_BACKENDS on settings.py
 django-redis==6.0.0  # Listed in CACHES on settings.py
 
-taskcluster==110.0.0  # import taskcluster
+taskcluster==110.1.0  # import taskcluster
 python-jose[pycryptodome]==3.5.0  # from jose import jwt
 
 PyGithub==2.9.1

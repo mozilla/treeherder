@@ -93,7 +93,7 @@ Other services running inside the Compose project, can be accessed in the same w
   > pip install -U twine wheel
   > cd treeherder/client/
   > rm -rf dist/*
-  > python setup.py sdist bdist_wheel
+  > python -m build
   > twine upload dist/*
   ```
 
