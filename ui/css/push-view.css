@@ -476,6 +476,56 @@ body.pv-body {
   word-break: break-word;
 }
 
+/* A failure summary opened in place, under the tile that was tapped. */
+.pv-inline {
+  padding: 4px 16px 12px;
+  border-top: 1px solid var(--pv-hairline);
+}
+
+.pv-inline-failures > li + li {
+  border-top: 1px solid var(--pv-hairline);
+}
+
+.pv-failure-block {
+  padding: 12px 0;
+}
+
+.pv-failure-block .pv-card-body {
+  padding: 0;
+}
+
+.pv-failure-block .pv-bugs {
+  margin-top: 10px;
+  border: 1px solid var(--pv-hairline);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.pv-inline .pv-other-errors {
+  padding: 0;
+}
+
+.pv-inline-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 18px;
+}
+
+.pv-chevron {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  margin-left: auto;
+  border-right: 2px solid var(--pv-muted);
+  border-bottom: 2px solid var(--pv-muted);
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+}
+
+.pv-chevron-open {
+  transform: rotate(-135deg);
+}
+
 .pv-other-errors {
   margin-top: 12px;
   padding: 0 6px;
@@ -943,6 +993,7 @@ body.pv-body {
   .pv-run,
   .pv-card-head,
   .pv-action,
+  .pv-chevron,
   .pv-tick,
   .pv-aurora {
     transition: none;

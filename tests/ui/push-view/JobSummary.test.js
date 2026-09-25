@@ -19,3 +19,13 @@ test('one card per test, filler dropped, new first, harness noise apart', () => 
   expect(groups[1].isNew).toBe(false);
   expect(other).toHaveLength(1);
 });
+
+test('a leak check is its own entry, not hidden with harness noise', () => {
+  const { groups, other } = groupFailureLines([
+    { line_number: 1, path_end: '', search: 'TEST-UNEXPECTED-FAIL | leakcheck | default 920 bytes leaked (CondVar, Mutex)', counter: 12, failure_new_in_rev: false, bugs: { open_recent: [], all_others: [] } },
+    { line_number: 2, path_end: '', search: '[taskcluster:error] <nil>', counter: 6168, failure_new_in_rev: false, bugs: { open_recent: [], all_others: [] } },
+  ]);
+  expect(groups.map((g) => g.path)).toEqual(['leakcheck']);
+  expect(groups[0].messages).toEqual(['default 920 bytes leaked (CondVar, Mutex)']);
+  expect(other).toHaveLength(1);
+});

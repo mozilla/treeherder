@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router';
 
 import {
   ago,
@@ -24,13 +23,11 @@ import { queued, useCountUp, usePoll, usePulse } from './hooks';
 import Ring from './Ring';
 import Retrigger from './Retrigger';
 import Nav from './Nav';
+import { JobFailures } from './JobSummary';
 import { chooseFullView } from './phone';
 import { cachedHealth, cachedPush, cachedSummary, rememberPush } from './cache';
 import { estimatePush, fetchPushJobs, loadDurationTable } from './eta';
 
-// A failed job opens its failure summary here, not the desktop log viewer.
-const summaryUrl = (repo, revision, jobId) =>
-  `/push?repo=${repo}&revision=${revision}&job=${jobId}`;
 
 // The whole screen exists to say this one sentence.
 const verdict = ({ yours, parentToo, builds, lint, progress, eta, seenBefore }) => {
@@ -149,6 +146,41 @@ const RunBar = ({ failed, total }) => {
   );
 };
 
+// The failure summary opens under whatever was tapped, rather than on a new
+// page: the tile you chose stays in view with its answer beneath it.
+const Chevron = ({ open }) => (
+  <span className={`pv-chevron${open ? ' pv-chevron-open' : ''}`} aria-hidden="true" />
+);
+
+const RunRow = ({ run, repo, revision, under }) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <li>
+      <button
+        type="button"
+        className="pv-run"
+        aria-expanded={open}
+        onClick={() => setOpen(!open)}
+      >
+        <span>
+          {run.platform} {run.config}
+          {run.symbol && <span className="pv-muted"> · {run.symbol}</span>}
+        </span>
+        <Chevron open={open} />
+      </button>
+      {open && (
+        <JobFailures
+          inline
+          repo={repo}
+          revision={revision}
+          jobId={run.id}
+          under={under}
+        />
+      )}
+    </li>
+  );
+};
+
 const TestCard = ({ group, jobs, repo, revision }) => {
   const [open, setOpen] = useState(false);
   const { dir, file } = splitTestPath(group.testName);
@@ -156,7 +188,7 @@ const TestCard = ({ group, jobs, repo, revision }) => {
   const runs = group.entries.flatMap((e) =>
     e.failedInJobs.map((id) => ({
       id,
-      job: (jobs[e.jobName] || []).find((j) => j.id === id),
+      symbol: (jobs[e.jobName] || []).find((j) => j.id === id)?.job_type_symbol,
       config: e.config,
       platform: platformName(e.platform),
     })),
@@ -177,22 +209,29 @@ const TestCard = ({ group, jobs, repo, revision }) => {
           {!group.failedInParent && <span className="pv-tag">New</span>}
           Failed {failed} of {group.totalJobs} {plural(group.totalJobs, 'run')} ·{' '}
           {[...group.platforms].join(', ')} · {[...group.configs].join(', ')}
+          <Chevron open={open} />
         </span>
       </button>
-      {open && (
+      {/* One failed run: its summary is the answer. Several: pick one. */}
+      {open && runs.length === 1 && (
+        <JobFailures
+          inline
+          repo={repo}
+          revision={revision}
+          jobId={runs[0].id}
+          under={group.testName}
+        />
+      )}
+      {open && runs.length > 1 && (
         <ul className="pv-runs">
-          {runs.map(({ id, job, config, platform }) => (
-            <li key={id}>
-              <Link className="pv-run" to={summaryUrl(repo, revision, id)}>
-                <span>
-                  {platform} {config}
-                  {job?.job_type_symbol && (
-                    <span className="pv-muted"> · {job.job_type_symbol}</span>
-                  )}
-                </span>
-                <span className="pv-run-action">Summary</span>
-              </Link>
-            </li>
+          {runs.map((run) => (
+            <RunRow
+              key={run.id}
+              run={run}
+              repo={repo}
+              revision={revision}
+              under={group.testName}
+            />
           ))}
         </ul>
       )}
@@ -200,17 +239,45 @@ const TestCard = ({ group, jobs, repo, revision }) => {
   );
 };
 
+// A card whose tap opens one job's failure summary beneath it.
+const JobTile = ({ jobId, repo, revision, under, children }) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <li className="pv-card">
+      <button
+        type="button"
+        className="pv-card-head"
+        aria-expanded={open}
+        onClick={() => setOpen(!open)}
+      >
+        {children(open)}
+      </button>
+      {open && (
+        <JobFailures
+          inline
+          repo={repo}
+          revision={revision}
+          jobId={jobId}
+          under={under}
+        />
+      )}
+    </li>
+  );
+};
+
 const JobCard = ({ job, repo, revision }) => (
-  <li className="pv-card">
-    <Link className="pv-card-head" to={summaryUrl(repo, revision, job.id)}>
-      <span className="pv-test-file">{jobShortName(job.job_type_name)}</span>
-      <span className="pv-card-meta">
-        {job.platform === 'lint' ? '' : `${platformName(job.platform)} · `}
-        {resultWord(job.result)}
-        <span className="pv-run-action">Summary</span>
-      </span>
-    </Link>
-  </li>
+  <JobTile jobId={job.id} repo={repo} revision={revision}>
+    {(open) => (
+      <>
+        <span className="pv-test-file">{jobShortName(job.job_type_name)}</span>
+        <span className="pv-card-meta">
+          {job.platform === 'lint' ? '' : `${platformName(job.platform)} · `}
+          {resultWord(job.result)}
+          <Chevron open={open} />
+        </span>
+      </>
+    )}
+  </JobTile>
 );
 
 // Failures Treeherder had seen before, named by their first failing test and
@@ -247,19 +314,27 @@ const SeenBefore = ({ jobs, repo, revision }) => {
       ...new Set(runs.map((j) => `${platformName(j.platform)} ${j.platformOption}`)),
     ].join(', ');
     return (
-      <li key={runs[0].id} className="pv-card">
-        <Link className="pv-card-head" to={summaryUrl(repo, revision, runs[0].id)}>
-          <span className="pv-test-file">
-            {file || <span className="pv-skeleton" />}
-          </span>
-          {dir && <span className="pv-test-dir">{dir}</span>}
-          <span className="pv-card-meta">
-            {runs.length > 1 && `${runs.length} jobs · `}
-            {where} · {runs.map((j) => j.symbol).join(', ')}
-            <span className="pv-run-action">Summary</span>
-          </span>
-        </Link>
-      </li>
+      <JobTile
+        key={runs[0].id}
+        jobId={runs[0].id}
+        repo={repo}
+        revision={revision}
+        under={name}
+      >
+        {(open) => (
+          <>
+            <span className="pv-test-file">
+              {file || <span className="pv-skeleton" />}
+            </span>
+            {dir && <span className="pv-test-dir">{dir}</span>}
+            <span className="pv-card-meta">
+              {runs.length > 1 && `${runs.length} jobs · `}
+              {where} · {runs.map((j) => j.symbol).join(', ')}
+              <Chevron open={open} />
+            </span>
+          </>
+        )}
+      </JobTile>
     );
   });
 };
@@ -269,15 +344,17 @@ const LintCard = ({ jobs, repo, revision }) => (
   <li className="pv-card">
     <ul>
       {jobs.map((job) => (
-        <li key={job.id}>
-          <Link className="pv-run" to={summaryUrl(repo, revision, job.id)}>
-            <span>
-              {jobShortName(job.job_type_name)}
-              <span className="pv-muted"> · {resultWord(job.result)}</span>
-            </span>
-            <span className="pv-run-action">Summary</span>
-          </Link>
-        </li>
+        <RunRow
+          key={job.id}
+          run={{
+            id: job.id,
+            platform: jobShortName(job.job_type_name),
+            config: '',
+            symbol: resultWord(job.result),
+          }}
+          repo={repo}
+          revision={revision}
+        />
       ))}
     </ul>
   </li>
