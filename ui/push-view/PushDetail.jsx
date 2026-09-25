@@ -23,6 +23,7 @@ import {
 import { queued, useCountUp, usePoll, usePulse } from './hooks';
 import Ring from './Ring';
 import Retrigger from './Retrigger';
+import { chooseFullView } from './phone';
 import { cachedHealth, cachedPush, cachedSummary, rememberPush } from './cache';
 import { estimatePush, fetchPushJobs, loadDurationTable } from './eta';
 
@@ -520,7 +521,11 @@ const PushDetail = ({ repo, revision }) => {
               </ul>
             </details>
           )}
-          <a className="pv-link" href={`/jobs?repo=${repo}&revision=${revision}`}>
+          <a
+            className="pv-link"
+            href={`/jobs?repo=${repo}&revision=${revision}`}
+            onClick={chooseFullView}
+          >
             Every job, in the full view
           </a>
         </footer>
