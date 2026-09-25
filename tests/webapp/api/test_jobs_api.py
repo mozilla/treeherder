@@ -7,6 +7,12 @@ from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from treeherder.model.models import Job, TextLogError
 
+# JobsViewSet / JobsProjectViewSet route safe-method reads to the read_replica
+# alias (JOBS_POLLING_READ_REPLICA_DESIGN.md). transaction=True is required
+# because the routed viewset reads through the separate ``read_replica``
+# connection, which only sees committed data.
+pytestmark = pytest.mark.django_db(transaction=True, databases=["default", "read_replica"])
+
 
 @pytest.mark.parametrize(
     ("offset", "count", "expected_num"),
