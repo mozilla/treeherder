@@ -13,6 +13,11 @@ import ChunkErrorBoundary from './shared/ChunkErrorBoundary';
 import LoginCallback from './login-callback/LoginCallback';
 import TaskclusterCallback from './taskcluster-auth-callback/TaskclusterCallback';
 import UserGuideApp from './userguide/App';
+import {
+  isPhone,
+  prefersFullView,
+  pushViewFor,
+} from './push-view/phone';
 import treeFavicon from './img/tree_open.png';
 import logFavicon from './img/logviewerIcon.png';
 import perfFavicon from './img/line_chart.png';
@@ -71,6 +76,16 @@ const WithFavicon = ({ children, route }) => {
   }, [route, location]);
 
   return children;
+};
+
+// Phones get the push view in place of the desktop jobs view.
+const JobsOrPushView = () => {
+  const { search } = useLocation();
+  const target = pushViewFor(search, {
+    phone: isPhone(),
+    fullView: prefersFullView(),
+  });
+  return target ? <Navigate to={target} replace /> : <JobsViewApp />;
 };
 
 // Component to handle URL updates for backwards compatibility
@@ -138,7 +153,7 @@ const AppRoutes = () => {
               path="/jobs/*"
               element={
                 <WithFavicon route="/jobs">
-                  <JobsViewApp />
+                  <JobsOrPushView />
                 </WithFavicon>
               }
             />
