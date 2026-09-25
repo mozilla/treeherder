@@ -5,7 +5,9 @@ import { getProjectUrl } from '../helpers/location';
 import { bzBaseUrl } from '../helpers/url';
 
 import Nav from './Nav';
+import { chooseFullView } from './phone';
 import {
+  testFromErrorLine,
   jobShortName,
   platformName,
   plural,
@@ -36,8 +38,14 @@ export const groupFailureLines = (lines) => {
   const tests = new Map();
   const other = [];
   for (const line of lines) {
-    const path = line.path_end || '';
-    if (!path.includes('/') && !path.includes('.')) {
+    // A test file, or a named harness check like "leakcheck" from the line
+    // itself; anything else (a bare harness error) goes with the rest.
+    const named = line.path_end || '';
+    const path =
+      named.includes('/') || named.includes('.')
+        ? named
+        : testFromErrorLine(line.search);
+    if (!path) {
       other.push(line);
       continue;
     }
@@ -109,17 +117,19 @@ const Bug = ({ bug, path }) => {
   );
 };
 
-const Failure = ({ group }) => {
+const Failure = ({ group, block, under }) => {
+  // Opened under a tile that already names this test: skip straight to why.
+  const repeat = block && under && group.path.endsWith(under);
   const [showAll, setShowAll] = useState(false);
   const { dir, file } = splitTestPath(group.path);
   const bugs = showAll ? group.bugs : group.bugs.slice(0, SHOWN_BUGS);
   const hidden = group.bugs.length - bugs.length;
 
   return (
-    <li className="pv-card pv-failure">
+    <li className={block ? 'pv-failure-block' : 'pv-card pv-failure'}>
       <div className="pv-card-body">
-        <span className="pv-test-file">{file}</span>
-        {dir && <span className="pv-test-dir">{dir}</span>}
+        {!repeat && <span className="pv-test-file">{file}</span>}
+        {!repeat && dir && <span className="pv-test-dir">{dir}</span>}
         {group.messages.map((m) => (
           <p key={m} className="pv-failure-message">
             {m}
@@ -127,7 +137,7 @@ const Failure = ({ group }) => {
         ))}
         <span className="pv-card-meta">
           {group.isNew ? (
-            <span className="pv-tag">New in this push</span>
+            !repeat && <span className="pv-tag">New in this push</span>
           ) : (
             `Seen ${group.counter} ${plural(group.counter, 'time')} before`
           )}
@@ -155,8 +165,8 @@ const Failure = ({ group }) => {
   );
 };
 
-const OtherErrors = ({ lines }) => (
-  <details className="pv-other-errors">
+const OtherErrors = ({ lines, open }) => (
+  <details className="pv-other-errors" open={open}>
     <summary>
       {lines.length} other log {plural(lines.length, 'error')}
     </summary>
@@ -175,7 +185,7 @@ const OtherErrors = ({ lines }) => (
 const jobTitle = (name) =>
   jobShortName(name).replace(/^test-[^/]+\/[^-]+-/, '');
 
-const JobSummary = ({ repo, revision, jobId }) => {
+const useJob = (repo, jobId) => {
   const [job, setJob] = useState(null);
   const [lines, setLines] = useState(null);
   const [error, setError] = useState(null);
@@ -195,8 +205,92 @@ const JobSummary = ({ repo, revision, jobId }) => {
     };
   }, [repo, jobId]);
 
+  return { job, lines, error };
+};
+
+// Why a job failed: one entry per test, then the log lines that name no
+// test. Those open by themselves when they're all there is, so the reason
+// is never behind a tap.
+export const JobFailures = ({ repo, revision, jobId, inline, under }) => {
+  const { job, lines } = useJob(repo, jobId);
   const { groups, other } = groupFailureLines(lines || []);
   const rawLog = job?.logs?.find((l) => l.name === 'live_backing_log')?.url;
+  const full = job
+    ? `/jobs?repo=${repo}&revision=${revision}&selectedTaskRun=${job.task_id}.${job.retry_id}`
+    : `/jobs?repo=${repo}&revision=${revision}`;
+
+  const links = (
+    <div className={inline ? 'pv-inline-links' : 'pv-footer'}>
+      <a className="pv-link" href={`/logviewer?job_id=${jobId}&repo=${repo}`}>
+        Log viewer
+      </a>
+      {rawLog && (
+        <a className="pv-link" href={rawLog}>
+          Raw log
+        </a>
+      )}
+      {inline && (
+        <a className="pv-link" href={full} onClick={chooseFullView}>
+          Full view
+        </a>
+      )}
+    </div>
+  );
+
+  if (!lines) {
+    return (
+      <div className={inline ? 'pv-inline' : undefined}>
+        <span className="pv-skeleton" />
+      </div>
+    );
+  }
+
+  const body = (
+    <>
+      {!lines.length && (
+        <p className="pv-sub">
+          No failure lines were parsed for this job. The log has the rest.
+        </p>
+      )}
+      {groups.length > 0 && (
+        <ul className={inline ? 'pv-inline-failures' : 'pv-cards pv-rise'}>
+          {groups.map((group) => (
+            <Failure
+              key={group.path}
+              group={group}
+              block={inline}
+              under={under}
+            />
+          ))}
+        </ul>
+      )}
+      {other.length > 0 && (
+        <OtherErrors lines={other} open={groups.length === 0} />
+      )}
+    </>
+  );
+
+  return inline ? (
+    <div className="pv-inline pv-rise">
+      {body}
+      {links}
+    </div>
+  ) : (
+    <>
+      <section className="pv-section">
+        <h2 className="pv-section-title">
+          Failure summary <span className="pv-muted">{groups.length}</span>
+        </h2>
+        {body}
+      </section>
+      {links}
+    </>
+  );
+};
+
+// The same summary as its own page, for a link straight to one job.
+const JobSummary = ({ repo, revision, jobId }) => {
+  const { job, error } = useJob(repo, jobId);
   const full = job
     ? `/jobs?repo=${repo}&revision=${revision}&selectedTaskRun=${job.task_id}.${job.retry_id}`
     : `/jobs?repo=${repo}&revision=${revision}`;
@@ -209,9 +303,7 @@ const JobSummary = ({ repo, revision, jobId }) => {
         backLabel="This push"
         full={full}
       />
-
       {error && <p className="pv-sub">{error}</p>}
-
       {job && (
         <header className="pv-push-head pv-rise">
           <span className="pv-eyebrow">
@@ -221,38 +313,7 @@ const JobSummary = ({ repo, revision, jobId }) => {
           <h1 className="pv-job-title">{jobTitle(job.job_type_name)}</h1>
         </header>
       )}
-
-      <section className="pv-section">
-        <h2 className="pv-section-title">
-          Failure summary{' '}
-          {lines && <span className="pv-muted">{groups.length}</span>}
-        </h2>
-        {!lines && <span className="pv-skeleton pv-skeleton-headline" />}
-        {lines && !lines.length && (
-          <p className="pv-sub">
-            No failure lines were parsed for this job. The log has the rest.
-          </p>
-        )}
-        {groups.length > 0 && (
-          <ul className="pv-cards pv-rise">
-            {groups.map((group) => (
-              <Failure key={group.path} group={group} />
-            ))}
-          </ul>
-        )}
-        {other.length > 0 && <OtherErrors lines={other} />}
-      </section>
-
-      <footer className="pv-footer">
-        <a className="pv-link" href={`/logviewer?job_id=${jobId}&repo=${repo}`}>
-          Open in the log viewer
-        </a>
-        {rawLog && (
-          <a className="pv-link" href={rawLog}>
-            Raw log
-          </a>
-        )}
-      </footer>
+      <JobFailures repo={repo} revision={revision} jobId={jobId} />
     </>
   );
 };
