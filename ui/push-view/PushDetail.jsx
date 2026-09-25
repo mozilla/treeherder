@@ -23,11 +23,14 @@ import {
 import { queued, useCountUp, usePoll, usePulse } from './hooks';
 import Ring from './Ring';
 import Retrigger from './Retrigger';
+import Nav from './Nav';
 import { chooseFullView } from './phone';
 import { cachedHealth, cachedPush, cachedSummary, rememberPush } from './cache';
 import { estimatePush, fetchPushJobs, loadDurationTable } from './eta';
 
-const logUrl = (repo, jobId) => `/logviewer?job_id=${jobId}&repo=${repo}`;
+// A failed job opens its failure summary here, not the desktop log viewer.
+const summaryUrl = (repo, revision, jobId) =>
+  `/push?repo=${repo}&revision=${revision}&job=${jobId}`;
 
 // The whole screen exists to say this one sentence.
 const verdict = ({ yours, parentToo, builds, lint, progress, eta, seenBefore }) => {
@@ -146,7 +149,7 @@ const RunBar = ({ failed, total }) => {
   );
 };
 
-const TestCard = ({ group, jobs, repo }) => {
+const TestCard = ({ group, jobs, repo, revision }) => {
   const [open, setOpen] = useState(false);
   const { dir, file } = splitTestPath(group.testName);
   const failed = group.jobIds.size;
@@ -180,15 +183,15 @@ const TestCard = ({ group, jobs, repo }) => {
         <ul className="pv-runs">
           {runs.map(({ id, job, config, platform }) => (
             <li key={id}>
-              <a className="pv-run" href={logUrl(repo, id)}>
+              <Link className="pv-run" to={summaryUrl(repo, revision, id)}>
                 <span>
                   {platform} {config}
                   {job?.job_type_symbol && (
                     <span className="pv-muted"> · {job.job_type_symbol}</span>
                   )}
                 </span>
-                <span className="pv-run-action">Log</span>
-              </a>
+                <span className="pv-run-action">Summary</span>
+              </Link>
             </li>
           ))}
         </ul>
@@ -197,22 +200,22 @@ const TestCard = ({ group, jobs, repo }) => {
   );
 };
 
-const JobCard = ({ job, repo }) => (
+const JobCard = ({ job, repo, revision }) => (
   <li className="pv-card">
-    <a className="pv-card-head" href={logUrl(repo, job.id)}>
+    <Link className="pv-card-head" to={summaryUrl(repo, revision, job.id)}>
       <span className="pv-test-file">{jobShortName(job.job_type_name)}</span>
       <span className="pv-card-meta">
         {job.platform === 'lint' ? '' : `${platformName(job.platform)} · `}
         {resultWord(job.result)}
-        <span className="pv-run-action">Log</span>
+        <span className="pv-run-action">Summary</span>
       </span>
-    </a>
+    </Link>
   </li>
 );
 
 // Failures Treeherder had seen before, named by their first failing test and
 // grouped, so five red jobs read as the tests they are.
-const SeenBefore = ({ jobs, repo }) => {
+const SeenBefore = ({ jobs, repo, revision }) => {
   const [tests, setTests] = useState({});
   const ids = jobs.map((j) => j.id).join(',');
 
@@ -245,7 +248,7 @@ const SeenBefore = ({ jobs, repo }) => {
     ].join(', ');
     return (
       <li key={runs[0].id} className="pv-card">
-        <a className="pv-card-head" href={logUrl(repo, runs[0].id)}>
+        <Link className="pv-card-head" to={summaryUrl(repo, revision, runs[0].id)}>
           <span className="pv-test-file">
             {file || <span className="pv-skeleton" />}
           </span>
@@ -253,27 +256,27 @@ const SeenBefore = ({ jobs, repo }) => {
           <span className="pv-card-meta">
             {runs.length > 1 && `${runs.length} jobs · `}
             {where} · {runs.map((j) => j.symbol).join(', ')}
-            <span className="pv-run-action">Log</span>
+            <span className="pv-run-action">Summary</span>
           </span>
-        </a>
+        </Link>
       </li>
     );
   });
 };
 
 // Lint jobs are one-word names; seven of them read better as one card.
-const LintCard = ({ jobs, repo }) => (
+const LintCard = ({ jobs, repo, revision }) => (
   <li className="pv-card">
     <ul>
       {jobs.map((job) => (
         <li key={job.id}>
-          <a className="pv-run" href={logUrl(repo, job.id)}>
+          <Link className="pv-run" to={summaryUrl(repo, revision, job.id)}>
             <span>
               {jobShortName(job.job_type_name)}
               <span className="pv-muted"> · {resultWord(job.result)}</span>
             </span>
-            <span className="pv-run-action">Log</span>
-          </a>
+            <span className="pv-run-action">Summary</span>
+          </Link>
         </li>
       ))}
     </ul>
@@ -419,11 +422,11 @@ const PushDetail = ({ repo, revision }) => {
 
   return (
     <>
-      <nav className="pv-nav">
-        <Link to={`/push?repo=${repo}`} className="pv-back">
-          Your pushes
-        </Link>
-      </nav>
+      <Nav
+        back={`/push?repo=${repo}`}
+        backLabel="Your pushes"
+        full={`/jobs?repo=${repo}&revision=${revision}`}
+      />
 
       {error && <p className="pv-sub">{error}</p>}
 
@@ -480,28 +483,28 @@ const PushDetail = ({ repo, revision }) => {
         <div className="pv-rise">
           <Section title="Broken here" count={yours.length}>
             {yours.map((g) => (
-              <TestCard key={g.testName} group={g} jobs={health.jobs} repo={repo} />
+              <TestCard key={g.testName} group={g} jobs={health.jobs} repo={repo} revision={revision} />
             ))}
           </Section>
           <Section title="Builds" count={builds.length}>
             {builds.map((job) => (
-              <JobCard key={job.id} job={job} repo={repo} />
+              <JobCard key={job.id} job={job} repo={repo} revision={revision} />
             ))}
           </Section>
           <Section title="Lint" count={lint.length}>
-            <LintCard jobs={lint} repo={repo} />
+            <LintCard jobs={lint} repo={repo} revision={revision} />
           </Section>
           <Section title="Also failing on the parent" count={parentToo.length} quiet>
             {parentToo.map((g) => (
-              <TestCard key={g.testName} group={g} jobs={health.jobs} repo={repo} />
+              <TestCard key={g.testName} group={g} jobs={health.jobs} repo={repo} revision={revision} />
             ))}
           </Section>
           <Section title="Seen before" count={seenBefore.length} quiet>
-            <SeenBefore jobs={seenBefore} repo={repo} />
+            <SeenBefore jobs={seenBefore} repo={repo} revision={revision} />
           </Section>
           <Section title="Known intermittents" count={known.length} quiet>
             {known.map((g) => (
-              <TestCard key={g.testName} group={g} jobs={health.jobs} repo={repo} />
+              <TestCard key={g.testName} group={g} jobs={health.jobs} repo={repo} revision={revision} />
             ))}
           </Section>
         </div>

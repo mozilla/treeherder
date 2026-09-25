@@ -66,6 +66,7 @@ body.pv-body {
    push title gets a few more characters on a phone. */
 .pv-masthead,
 .pv-nav,
+.pv-section > .pv-sub,
 .pv-push-head,
 .pv-section-title,
 .pv-footer {
@@ -389,7 +390,117 @@ body.pv-body {
 /* ---- detail ---- */
 
 .pv-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin: -12px 0 8px;
+}
+
+/* Always one tap from the full view, never in the way of the answer. */
+.pv .pv-full {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  margin: 6px 0;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--pv-muted);
+  background: var(--pv-surface);
+  box-shadow: 0 0 0 1px var(--pv-hairline);
+}
+
+.pv .pv-full:active {
+  transform: scale(0.97);
+}
+
+.pv-job-title {
+  margin: 6px 0 28px;
+  font-size: 26px;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  word-break: break-word;
+}
+
+.pv .pv-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 16px;
+}
+
+.pv-failure-message {
+  margin: 8px 0 0;
+  font-family: ui-monospace, 'SF Mono', Menlo, 'Roboto Mono', monospace;
+  font-size: 13px;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.pv-bugs {
+  border-top: 1px solid var(--pv-hairline);
+}
+
+.pv .pv-bug {
+  display: flex;
+  gap: 10px;
+  min-height: 48px;
+  padding: 12px 16px;
+  font-size: 14px;
+}
+
+.pv-bugs li + li .pv-bug,
+.pv-bugs li + li .pv-more {
+  border-top: 1px solid var(--pv-hairline);
+}
+
+.pv-bug-id {
+  flex: none;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  color: var(--pv-running);
+}
+
+.pv-bug-id.pv-muted {
+  color: var(--pv-muted);
+  font-weight: 500;
+}
+
+.pv-bug-summary {
+  color: var(--pv-ink);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+.pv-other-errors {
+  margin-top: 12px;
+  padding: 0 6px;
+}
+
+.pv-other-errors summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 14px;
+  color: var(--pv-muted);
+  cursor: pointer;
+}
+
+.pv-other-errors li {
+  margin: 6px 0;
+  color: var(--pv-muted);
+}
+
+.pv .pv-more {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 16px;
+  font-size: 14px;
+  color: var(--pv-muted);
 }
 
 .pv .pv-back {

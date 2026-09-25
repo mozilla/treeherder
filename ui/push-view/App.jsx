@@ -6,6 +6,7 @@ import { parseQueryParams } from '../helpers/url';
 
 import PushList from './PushList';
 import PushDetail from './PushDetail';
+import JobSummary from './JobSummary';
 import AuthorPrompt from './AuthorPrompt';
 import { AUTHOR_STORAGE_KEY } from './helpers';
 
@@ -79,7 +80,11 @@ const PushViewApp = () => {
   const { author, checked, remember } = useAuthor(params.author);
 
   let screen;
-  if (params.revision) {
+  if (params.revision && params.job) {
+    screen = (
+      <JobSummary repo={repo} revision={params.revision} jobId={params.job} />
+    );
+  } else if (params.revision) {
     screen = <PushDetail repo={repo} revision={params.revision} />;
   } else if (author) {
     screen = (

@@ -12,6 +12,7 @@ import {
 import { queued, usePoll, usePulse } from './hooks';
 import Ring from './Ring';
 import Kit from './Kit';
+import Nav from './Nav';
 import {
   cachedPushes,
   cachedSummary,
@@ -125,6 +126,7 @@ const PushList = ({ repo, author, onChangeAuthor }) => {
   return (
     <>
       <div className="pv-aurora pv-tone-quiet" />
+      <Nav full={`/jobs?repo=${repo}&author=${encodeURIComponent(author)}`} />
       <header className="pv-masthead pv-rise">
         <div className="pv-masthead-words">
           <span className="pv-nameplate">Treeherder · {repo}</span>
