@@ -257,3 +257,32 @@ test("'Request backout' is not offered for a summary with no severity", async ()
   });
   expect(queryByText('Request backout')).toBeNull();
 });
+
+test('filterValidAlerts returns only valid alerts (acknowledged, untriaged, and valid reassigned)', () => {
+  const alertSummary = { id: 100 };
+  const dropdown = new StatusDropdown({
+    alertSummary,
+    frameworks: [],
+    filteredAlerts: [
+      { id: 1, status: 4 },
+      { id: 2, status: 0 },
+      { id: 3, status: 2, summary_id: 200 },
+      { id: 4, status: 2, summary_id: 100 },
+      { id: 5, status: 3 },
+    ],
+  });
+
+  const validAlerts = dropdown.filterValidAlerts();
+
+  expect(validAlerts).toHaveLength(3);
+  expect(validAlerts.map(a => a.id)).toEqual([1, 2, 3]);
+});
+
+test('filterValidAlerts defaults to an empty array if filteredAlerts is undefined', () => {
+  const dropdown = new StatusDropdown({
+    alertSummary: { id: 100 },
+    frameworks: [],
+  });
+
+  expect(dropdown.filterValidAlerts()).toEqual([]);
+});
