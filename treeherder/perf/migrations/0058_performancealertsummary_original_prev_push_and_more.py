@@ -5,24 +5,23 @@ from django.db import migrations, models
 
 
 def update_summary_original_push(apps, schema_editor):
-    performancealertsummary = apps.get_model('perf', 'PerformanceAlertSummary')
+    performancealertsummary = apps.get_model("perf", "PerformanceAlertSummary")
     for alert in performancealertsummary.objects.all():
         alert.original_prev_push = alert.prev_push
         alert.save()
 
-    performancealertsummarytesting = apps.get_model('perf', 'PerformanceAlertSummaryTesting')
+    performancealertsummarytesting = apps.get_model("perf", "PerformanceAlertSummaryTesting")
     for alert in performancealertsummarytesting.objects.all():
         alert.original_prev_push = alert.prev_push
         alert.save()
 
-    performancetetemetryalertsummary = apps.get_model('perf', 'PerformanceTelemetryAlertSummary')
+    performancetetemetryalertsummary = apps.get_model("perf", "PerformanceTelemetryAlertSummary")
     for alert in performancetetemetryalertsummary.objects.all():
         alert.original_prev_push = alert.prev_push
         alert.save()
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("perf", "0057_performancealert_confidence_and_more"),
     ]

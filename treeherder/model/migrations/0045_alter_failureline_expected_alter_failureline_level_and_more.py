@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("model", "0044_add_optimized_group_results_indexes"),
     ]

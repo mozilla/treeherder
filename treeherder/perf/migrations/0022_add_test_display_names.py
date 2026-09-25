@@ -5,44 +5,44 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('model', '0015_add_repository_tc_root_url'),
-        ('perf', '0021_remove_application_from_constraint'),
+        ("model", "0015_add_repository_tc_root_url"),
+        ("perf", "0021_remove_application_from_constraint"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='performancesignature',
-            name='suite_public_name',
+            model_name="performancesignature",
+            name="suite_public_name",
             field=models.CharField(max_length=30, null=True),
         ),
         migrations.AddField(
-            model_name='performancesignature',
-            name='test_public_name',
+            model_name="performancesignature",
+            name="test_public_name",
             field=models.CharField(max_length=30, null=True),
         ),
         migrations.AlterUniqueTogether(
-            name='performancesignature',
+            name="performancesignature",
             unique_together={
                 (
-                    'repository',
-                    'suite',
-                    'test',
-                    'framework',
-                    'platform',
-                    'option_collection',
-                    'extra_options',
-                    'last_updated',
+                    "repository",
+                    "suite",
+                    "test",
+                    "framework",
+                    "platform",
+                    "option_collection",
+                    "extra_options",
+                    "last_updated",
                 ),
                 (
-                    'repository',
-                    'suite_public_name',
-                    'test_public_name',
-                    'framework',
-                    'platform',
-                    'option_collection',
-                    'extra_options',
+                    "repository",
+                    "suite_public_name",
+                    "test_public_name",
+                    "framework",
+                    "platform",
+                    "option_collection",
+                    "extra_options",
                 ),
-                ('repository', 'framework', 'signature_hash'),
+                ("repository", "framework", "signature_hash"),
             },
         ),
     ]

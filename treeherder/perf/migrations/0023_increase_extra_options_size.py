@@ -5,13 +5,13 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('perf', '0022_add_test_display_names'),
+        ("perf", "0022_add_test_display_names"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='performancesignature',
-            name='extra_options',
+            model_name="performancesignature",
+            name="extra_options",
             field=models.CharField(blank=True, max_length=422),
         ),
     ]

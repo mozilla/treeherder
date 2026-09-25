@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("model", "0035_bugscache_optional_bugzilla_ref"),
         ("perf", "0056_performancealertsummary_original_push"),
@@ -257,9 +256,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 "db_table": "performance_telemetry_signature",
-                "unique_together": {
-                    ("channel", "probe", "probe_type", "platform", "application")
-                },
+                "unique_together": {("channel", "probe", "probe_type", "platform", "application")},
             },
         ),
         migrations.CreateModel(
@@ -286,21 +283,15 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "amount_pct",
-                    models.FloatField(
-                        help_text="Amount in percentage that series has changed"
-                    ),
+                    models.FloatField(help_text="Amount in percentage that series has changed"),
                 ),
                 (
                     "amount_abs",
-                    models.FloatField(
-                        help_text="Absolute amount that series has changed"
-                    ),
+                    models.FloatField(help_text="Absolute amount that series has changed"),
                 ),
                 (
                     "prev_value",
-                    models.FloatField(
-                        help_text="Previous value of series before change"
-                    ),
+                    models.FloatField(help_text="Previous value of series before change"),
                 ),
                 (
                     "new_value",
@@ -350,21 +341,15 @@ class Migration(migrations.Migration):
                 ("direction", models.CharField(max_length=100, null=True)),
                 (
                     "prev_median",
-                    models.FloatField(
-                        help_text="Previous median value of series before change"
-                    ),
+                    models.FloatField(help_text="Previous median value of series before change"),
                 ),
                 (
                     "new_median",
-                    models.FloatField(
-                        help_text="New median value of series after change"
-                    ),
+                    models.FloatField(help_text="New median value of series after change"),
                 ),
                 (
                     "prev_p90",
-                    models.FloatField(
-                        help_text="Previous P90 value of series before change"
-                    ),
+                    models.FloatField(help_text="Previous P90 value of series before change"),
                 ),
                 (
                     "new_p90",
@@ -372,9 +357,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "prev_p95",
-                    models.FloatField(
-                        help_text="Previous P95 value of series before change"
-                    ),
+                    models.FloatField(help_text="Previous P95 value of series before change"),
                 ),
                 (
                     "new_p95",
@@ -442,21 +425,15 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "amount_pct",
-                    models.FloatField(
-                        help_text="Amount in percentage that series has changed"
-                    ),
+                    models.FloatField(help_text="Amount in percentage that series has changed"),
                 ),
                 (
                     "amount_abs",
-                    models.FloatField(
-                        help_text="Absolute amount that series has changed"
-                    ),
+                    models.FloatField(help_text="Absolute amount that series has changed"),
                 ),
                 (
                     "prev_value",
-                    models.FloatField(
-                        help_text="Previous value of series before change"
-                    ),
+                    models.FloatField(help_text="Previous value of series before change"),
                 ),
                 (
                     "new_value",
@@ -506,21 +483,15 @@ class Migration(migrations.Migration):
                 ("direction", models.CharField(max_length=100, null=True)),
                 (
                     "prev_median",
-                    models.FloatField(
-                        help_text="Previous median value of series before change"
-                    ),
+                    models.FloatField(help_text="Previous median value of series before change"),
                 ),
                 (
                     "new_median",
-                    models.FloatField(
-                        help_text="New median value of series after change"
-                    ),
+                    models.FloatField(help_text="New median value of series after change"),
                 ),
                 (
                     "prev_p90",
-                    models.FloatField(
-                        help_text="Previous P90 value of series before change"
-                    ),
+                    models.FloatField(help_text="Previous P90 value of series before change"),
                 ),
                 (
                     "new_p90",
@@ -528,9 +499,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "prev_p95",
-                    models.FloatField(
-                        help_text="Previous P95 value of series before change"
-                    ),
+                    models.FloatField(help_text="Previous P95 value of series before change"),
                 ),
                 (
                     "new_p95",

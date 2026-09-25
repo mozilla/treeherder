@@ -5,13 +5,13 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('perf', '0014_add_performance_datum_idx'),
+        ("perf", "0014_add_performance_datum_idx"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='performancealertsummary',
-            name='bug_updated',
+            model_name="performancealertsummary",
+            name="bug_updated",
             field=models.DateTimeField(null=True),
         ),
     ]

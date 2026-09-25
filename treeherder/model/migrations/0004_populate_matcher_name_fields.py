@@ -4,7 +4,7 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('model', '0003_add_matcher_name_fields'),
+        ("model", "0003_add_matcher_name_fields"),
     ]
 
     operations = []

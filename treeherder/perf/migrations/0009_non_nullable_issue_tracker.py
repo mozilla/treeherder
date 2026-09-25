@@ -5,15 +5,15 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('perf', '0008_add_confirming_state'),
+        ("perf", "0008_add_confirming_state"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='performancealertsummary',
-            name='issue_tracker',
+            model_name="performancealertsummary",
+            name="issue_tracker",
             field=models.ForeignKey(
-                default=1, on_delete=django.db.models.deletion.PROTECT, to='perf.IssueTracker'
+                default=1, on_delete=django.db.models.deletion.PROTECT, to="perf.IssueTracker"
             ),
         ),
     ]
