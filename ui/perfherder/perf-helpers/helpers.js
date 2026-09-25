@@ -791,6 +791,63 @@ export const reduceDictToKeys = function reduceDictToKeys(dict, keys) {
   return reducedDict;
 };
 
+// 1. Centralize the date parsing quirk
+const parseUtcDate = (timestampStr) => Date.parse(`${timestampStr}Z`);
+
+// 2. Extract the math into a pure function
+const interpolateY = (targetTime, left, right) => {
+  if (left && right && right.t !== left.t) {
+    return left.y + ((right.y - left.y) * (targetTime - left.t)) / (right.t - left.t);
+  }
+  if (left) return left.y;
+  if (right) return right.y;
+  return 0; // Fallback: no real points
+};
+
+// 3. Clarify the nearest-neighbor search
+const findNeighbors = (sortedPoints, targetTime) => {
+  const rightIdx = sortedPoints.findIndex((p) => p.t >= targetTime);
+
+  const right = rightIdx !== -1 ? sortedPoints[rightIdx] : null;
+  // If rightIdx is -1, all points are before targetTime, so left is the last item
+  const leftIdx = rightIdx === -1 ? sortedPoints.length - 1 : rightIdx - 1;
+  const left = leftIdx >= 0 ? sortedPoints[leftIdx] : null;
+
+  return { left, right };
+};
+
+// Main Helper
+const buildMissingData = (series, commonByPush) => {
+  const { missing_data: missing, data = [], signature_id, repository_name } = series;
+
+  if (!missing?.length) return [];
+
+  const realPoints = data.map((dp) => ({
+    t: parseUtcDate(dp.push_timestamp),
+    y: dp.value,
+  }));
+
+  return missing.map((entry) => {
+    const targetTime = parseUtcDate(entry.push_timestamp);
+    const { left, right } = findNeighbors(realPoints, targetTime);
+
+    return {
+      x: new Date(targetTime), // Reuse the already parsed timestamp
+      y: interpolateY(targetTime, left, right),
+      revision: entry.push__revision,
+      pushId: entry.push_id,
+      jobId: entry.job_id,
+      status: entry.status,
+      signature_id,
+      repository_name,
+      commonAlert: reduceDictToKeys(
+        commonByPush?.get(entry.push_id),
+        ['id', 'status'],
+      ),
+    };
+  });
+};
+
 export const createGraphData = (
   seriesData,
   alertSummaries,
@@ -823,6 +880,7 @@ export const createGraphData = (
       repository_name: series.repository_name,
       projectId: series.repository_id,
       id: `${series.repository_name} ${series.name}`,
+      missingData: buildMissingData(series, commonByPush),
       data: series.data.map((dataPoint) => ({
         // Backend implicitly provides all dates as UTC.
         // Let's make this explicit, so frontend doesn't get confused.
