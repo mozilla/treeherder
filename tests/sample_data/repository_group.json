@@ -1,6 +1,5 @@
 [
   {
-    "pk": 1,
     "model": "model.repositorygroup",
     "fields": {
       "name": "development",
@@ -8,7 +7,6 @@
     }
   },
   {
-    "pk": 2,
     "model": "model.repositorygroup",
     "fields": {
       "name": "release-stabilization",
@@ -16,7 +14,6 @@
     }
   },
   {
-    "pk": 8,
     "model": "model.repositorygroup",
     "fields": {
       "name": "comm-repositories",

@@ -90,12 +90,26 @@ class Option(NamedModel):
         db_table = "option"
 
 
+class RepositoryGroupManager(models.Manager):
+    def get_by_natural_key(self, name):
+        return self.get(name=name)
+
+
 class RepositoryGroup(NamedModel):
-    # Fields are pre-defined in fixtures/repository_group.json
     description = models.TextField(blank=True)
+
+    objects = RepositoryGroupManager()
 
     class Meta:
         db_table = "repository_group"
+
+    def natural_key(self):
+        return (self.name,)
+
+
+class RepositoryManager(models.Manager):
+    def get_by_natural_key(self, name):
+        return self.get(name=name)
 
 
 class Repository(models.Model):
@@ -114,12 +128,19 @@ class Repository(models.Model):
     tc_root_url = models.CharField(max_length=255, null=False, db_index=True)
     accepts_pull_requests = models.BooleanField(default=False, db_index=True)
 
+    objects = RepositoryManager()
+
     class Meta:
         db_table = "repository"
         verbose_name_plural = "repositories"
         indexes = [
             models.Index(fields=["url", "active_status"], name="repo_url_active_idx"),
         ]
+
+    def natural_key(self):
+        return (self.name,)
+
+    natural_key.dependencies = ["model.RepositoryGroup"]
 
     @classmethod
     def fetch_all_names(cls) -> list[str]:
@@ -154,15 +175,26 @@ class Repository(models.Model):
         return f"{self.name} {self.repository_group}"
 
 
+class RepositoryBranchManager(models.Manager):
+    def get_by_natural_key(self, repository_name, branch):
+        return self.get(repository__name=repository_name, branch=branch)
+
+
 class RepositoryBranch(models.Model):
-    # Fields are pre-defined in fixtures/repository_branch.json
     id = models.BigAutoField(primary_key=True)
     repository = models.ForeignKey(Repository, on_delete=models.CASCADE, related_name="branches")
     branch = models.CharField(max_length=255, db_index=True)
 
+    objects = RepositoryBranchManager()
+
     class Meta:
         db_table = "repository_branch"
         unique_together = ("repository", "branch")
+
+    def natural_key(self):
+        return (self.repository.name, self.branch)
+
+    natural_key.dependencies = ["model.Repository"]
 
     def clean(self):
         count = self.branch.count("*")
