@@ -176,13 +176,14 @@ export default class StatusDropdown extends React.Component {
 
     if (!culpritDetails.failureStatus) {
       let cc = culpritDetails.ccList.add(result.cc_list);
+      const [product, component] = this.getBugComponent(culpritDetails);
       cc = Array.from(cc);
       defaultParams = {
         ...defaultParams,
         cc,
         needinfo_from: culpritDetails.needinfoFrom,
-        component: culpritDetails.component,
-        product: culpritDetails.product,
+        component: component,
+        product: product,
         regressed_by: culpritId,
       };
     }
@@ -209,6 +210,13 @@ export default class StatusDropdown extends React.Component {
       failureStatus: null,
     };
   };
+
+  getBugComponent= (culpritDetails) => {
+      const overrides = new Map();
+      overrides.set(["Web Compatbility", "Site Reports"], ["Web Compatbility", "Interventions"]);
+      const inputs = [culpritDetails.product, culpritDetails.component];
+      return overrides.get(inputs) ?? inputs;
+  }
 
   getTemplateArgs(
     frameworks,
