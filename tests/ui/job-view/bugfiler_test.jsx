@@ -261,6 +261,15 @@ describe('BugFiler', () => {
     expect(displayed).toHaveValue(expected);
   });
 
+  test('drops the crash dump UUID from a crash suggestion', async () => {
+    const rawSummary =
+      'PROCESS-CRASH | 2b81f563-8ae7-3b04-a638-914a564ffb12 | application crashed [@ linux-vdso.so.1 + 0x0000000000000c4b] | dom/animation/test/mochitest.toml';
+    const expected =
+      'Intermittent application crashed [@ linux-vdso.so.1 + 0x0000000000000c4b] | single tracking bug';
+    const displayed = await SummaryAndExpected(rawSummary);
+    expect(displayed).toHaveValue(expected);
+  });
+
   test('should parse mochitest-bc summaries', async () => {
     const rawSummary =
       'browser/components/sessionstore/test/browser_625016.js | observe1: 1 window in data written to disk - Got 0, expected 1';
