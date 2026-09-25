@@ -54,6 +54,9 @@ describe('parseJobRows', () => {
       {
         id: 1,
         state: 'running',
+        result: 'unknown',
+        symbol: '',
+        classification: 1,
         tier: 1,
         platform: 'linux',
         platformOption: 'opt',
@@ -181,5 +184,41 @@ describe('estimatePush', () => {
     // is observed, so only the five tests count as blocked.
     expect(eta.blockingBuild.blockedJobs).toBe(5);
     expect(eta.mostAt).toBeNull();
+  });
+});
+
+describe('job-list counts', () => {
+  const { statusFromJobs, testFromErrorLine } = jest.requireActual(
+    '../../../ui/push-view/helpers',
+  );
+
+  test('counts every failed job, not just the ones tagged new', () => {
+    const jobs = [
+      ...Array(334).fill({ tier: 1, state: 'completed', result: 'success' }),
+      ...Array(6).fill({ tier: 2, state: 'completed', result: 'success' }),
+      ...Array(5).fill({ tier: 1, state: 'completed', result: 'testfailed' }),
+      { tier: 1, state: 'completed', result: 'testfailed', classification: 6 },
+      { tier: 3, state: 'completed', result: 'testfailed' },
+    ];
+    expect(statusFromJobs(jobs)).toEqual({
+      completed: 346,
+      pending: 0,
+      running: 0,
+      unscheduled: 0,
+      success: 340,
+      testfailed: 6,
+    });
+  });
+
+  test('names the failing test from an error line', () => {
+    expect(
+      testFromErrorLine(
+        '09:29:05 INFO - TEST-UNEXPECTED-FAIL | toolkit/a/browser_b.js | leaked window',
+      ),
+    ).toBe('toolkit/a/browser_b.js');
+    expect(
+      testFromErrorLine('TEST-UNEXPECTED-FAIL | leakcheck | default 920 bytes leaked'),
+    ).toBe('leakcheck');
+    expect(testFromErrorLine('[taskcluster:error] <nil>')).toBe(null);
   });
 });

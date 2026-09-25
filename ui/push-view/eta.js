@@ -17,10 +17,13 @@ import { getProjectUrl } from '../helpers/location';
 import { createQueryParams } from '../helpers/url';
 
 // Taskcluster jobs come back as positional rows; these are the columns the
-// model reads.
+// model and the job counts read.
 const COLUMNS = {
   id: 'id',
   state: 'state',
+  result: 'result',
+  symbol: 'job_type_symbol',
+  classification: 'failure_classification_id',
   tier: 'tier',
   platform: 'platform',
   platformOption: 'platform_option',
@@ -56,6 +59,9 @@ export const parseJobRows = ({ job_property_names: names, results }) => {
       // An unknown state is filed as pending, not completed: guessing "done"
       // is the error that promises a finish with jobs still queued.
       state: STATES.has(state) ? state : 'pending',
+      result: get(row, 'result') || 'unknown',
+      symbol: get(row, 'symbol') || '',
+      classification: get(row, 'classification') ?? 1,
       tier: get(row, 'tier') ?? 1,
       platform,
       platformOption: get(row, 'platformOption') || '',

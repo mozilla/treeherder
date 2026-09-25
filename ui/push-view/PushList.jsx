@@ -41,12 +41,17 @@ export const describeSummary = (summary) => {
       text: progress.running ? `${text} · still running` : text,
     };
   }
+  // Nothing tagged new, but a job still failed: say so rather than "green".
+  const failed = ['testfailed', 'busted', 'exception'].some(
+    (r) => summary.status?.[r] > 0,
+  );
   if (progress.running) {
     return {
       tone: 'running',
       text: `Running · ${progress.done} of ${progress.total}`,
     };
   }
+  if (failed) return { tone: 'quiet', text: 'Only failures seen before' };
   return { tone: 'good', text: 'All green' };
 };
 
@@ -79,7 +84,7 @@ const PushRow = ({ push, repo, refreshKey, index }) => {
         }}
         onClick={() => rememberPush(repo, push)}
       >
-        <Ring status={summary?.status} loading={!summary} ticks={24} size={44} weight={7} />
+        <Ring status={summary?.status} loading={!summary} ticks={24} size={38} weight={7} />
         <span className="pv-row-body">
           <span className="pv-row-title">{pushTitle(push)}</span>
           <span className="pv-row-meta">
