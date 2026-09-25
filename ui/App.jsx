@@ -24,6 +24,8 @@ const PerfherderApp = lazy(() => import('./perfherder/App'));
 
 const JobsViewApp = lazy(() => import('./job-view/App'));
 
+const PushViewApp = lazy(() => import('./push-view/App'));
+
 const LogviewerApp = lazy(() => import('./logviewer/App'));
 
 const RedocApp = lazy(() => import('./RedocApp'));
@@ -35,6 +37,7 @@ const faviconPaths = {
     favicon: logFavicon,
   },
   '/perfherder': { title: 'Perfherder', favicon: perfFavicon },
+  '/push': { title: 'Treeherder Push', favicon: treeFavicon },
   '/userguide': {
     title: 'Treeherder User Guide',
     favicon: treeFavicon,
@@ -136,6 +139,14 @@ const AppRoutes = () => {
               element={
                 <WithFavicon route="/jobs">
                   <JobsViewApp />
+                </WithFavicon>
+              }
+            />
+            <Route
+              path="/push/*"
+              element={
+                <WithFavicon route="/push">
+                  <PushViewApp />
                 </WithFavicon>
               }
             />
