@@ -6,9 +6,11 @@ import multiprocessing
 import time
 import warnings
 from collections import defaultdict
+from collections.abc import Iterator, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from decimal import Decimal
+from typing import Any
 from urllib.parse import urlencode
 
 import django_filters
@@ -23,12 +25,21 @@ from django.db.models import (
     Exists,
     OuterRef,
     Q,
+    QuerySet,
     Subquery,
     Value,
     When,
 )
 from django.db.models.functions import Concat
-from rest_framework import exceptions, filters, generics, pagination, viewsets
+from rest_framework import (
+    exceptions,
+    filters,
+    generics,
+    pagination,
+    serializers,
+    viewsets,
+)
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
@@ -1256,9 +1267,9 @@ class MwuTask:
 
 class PerfCompareResults(generics.ListAPIView):
     serializer_class = PerfCompareResultsSerializer
-    queryset = None
+    queryset: Sequence | None = None
 
-    def get_serializer_class(self):
+    def get_serializer_class(self) -> type[serializers.ModelSerializer]:
         test_version = self.request.query_params.get("test_version", "")
         if test_version == "student-t":
             return PerfCompareResultsSerializer
@@ -1267,7 +1278,7 @@ class PerfCompareResults(generics.ListAPIView):
         else:
             return PerfCompareResultsSerializer
 
-    def list(self, request):
+    def list(self, request: Request) -> Response:
         query_params = PerfCompareResultsQueryParamsSerializer(data=request.query_params)
         if not query_params.is_valid():
             return Response(data=query_params.errors, status=HTTP_400_BAD_REQUEST)
@@ -1417,7 +1428,9 @@ class PerfCompareResults(generics.ListAPIView):
         return Response(data=serialized_data)
 
     @staticmethod
-    def _comparison_pairs(comparison_inputs, header_names, platforms):
+    def _comparison_pairs(
+        comparison_inputs: _ComparisonData, header_names: Sequence[str], platforms: set[str]
+    ) -> Iterator[ComparisonRow]:
         """Yield a ComparisonRow for each (header, platform) pair that has results."""
         for header in header_names:
             for platform in platforms:
@@ -1426,7 +1439,12 @@ class PerfCompareResults(generics.ListAPIView):
                     yield row
 
     @staticmethod
-    def _process_mann_whitney_u(comparison_inputs, header_names, platforms, enable_silverman_kde):
+    def _process_mann_whitney_u(
+        comparison_inputs: _ComparisonData,
+        header_names: Sequence[str],
+        platforms: set[str],
+        enable_silverman_kde: bool,
+    ) -> Sequence[dict]:
         """
         Process performance comparison results using Mann-Whitney U test with parallel processing.
         """
@@ -1448,7 +1466,9 @@ class PerfCompareResults(generics.ListAPIView):
         return results
 
     @staticmethod
-    def _process_student_t(comparison_inputs, header_names, platforms):
+    def _process_student_t(
+        comparison_inputs: _ComparisonData, header_names: Sequence[str], platforms: set[str]
+    ) -> Sequence[dict]:
         """
         Process performance comparison results using Student's t-test (sequential processing).
         """
@@ -1521,7 +1541,9 @@ class PerfCompareResults(generics.ListAPIView):
         return results
 
     @staticmethod
-    def _build_common_result(comparison_inputs, header, platform):
+    def _build_common_result(
+        comparison_inputs: _ComparisonData, header: str, platform: str
+    ) -> ComparisonRow | None:
         """
         Build the common result shared between Mann-Whitney U and Student's t-test
         processing.
@@ -1607,7 +1629,9 @@ class PerfCompareResults(generics.ListAPIView):
         )
 
     @staticmethod
-    def _get_signature_based_properties(sig, option_collection_map):
+    def _get_signature_based_properties(
+        sig: dict[str, Any], option_collection_map: dict[int, str]
+    ) -> SignatureInfo:
         option_collection_id = sig.get("option_collection_id", "")
 
         return SignatureInfo(
@@ -1620,7 +1644,7 @@ class PerfCompareResults(generics.ListAPIView):
         )
 
     @staticmethod
-    def _get_push_timestamp(base_push, new_push):
+    def _get_push_timestamp(base_push: models.Push | None, new_push: models.Push) -> int:
         # This function will determine the right push time stamp to assign a revision.
         # It will do this by comparing timestamps with ph_time_ranges
         new_push_timestamp = new_push.time
@@ -1643,7 +1667,14 @@ class PerfCompareResults(generics.ListAPIView):
         return max(values)
 
     @staticmethod
-    def _get_perf_data(repository_name, revision, signatures, interval, startday, endday):
+    def _get_perf_data(
+        repository_name: str,
+        revision: str | None,
+        signatures: QuerySet,
+        interval: int | None,
+        startday: datetime.datetime | None,
+        endday: datetime.datetime | None,
+    ) -> QuerySet:
         signature_ids = [signature["id"] for signature in list(signatures)]
         perf_data = PerformanceDatum.objects.select_related("push", "repository").filter(
             signature_id__in=signature_ids,
@@ -1663,7 +1694,13 @@ class PerfCompareResults(generics.ListAPIView):
         return perf_data
 
     @staticmethod
-    def _get_signatures(repository_name, framework, parent_signature, interval, no_subtests):
+    def _get_signatures(
+        repository_name: str,
+        framework: int | None,
+        parent_signature: str | None,
+        interval: int | None,
+        no_subtests: bool,
+    ) -> QuerySet:
         signatures = PerformanceSignature.objects.select_related("repository", "platform").filter(
             repository__name=repository_name
         )
@@ -1698,14 +1735,14 @@ class PerfCompareResults(generics.ListAPIView):
 
     @staticmethod
     def _create_graph_links(
-        base_repo_name,
-        new_repo_name,
-        base_revision,
-        new_revision,
-        framework,
-        time_range,
-        signature,
-    ):
+        base_repo_name: str,
+        new_repo_name: str,
+        base_revision: str | None,
+        new_revision: str | None,
+        framework: str,
+        time_range: int,
+        signature: str,
+    ) -> str:
         highlighted_revision_key = "highlightedRevisions"
         time_range_key = "timerange"
         series_key = "series"
@@ -1713,7 +1750,8 @@ class PerfCompareResults(generics.ListAPIView):
         highlighted_revisions_params = []
         if base_revision:
             highlighted_revisions_params.append((highlighted_revision_key, base_revision[:12]))
-        highlighted_revisions_params.append((highlighted_revision_key, new_revision[:12]))
+        if new_revision:
+            highlighted_revisions_params.append((highlighted_revision_key, new_revision[:12]))
 
         encoded = urlencode(highlighted_revisions_params)
         graph_link = f"graphs?{encoded}"
@@ -1737,7 +1775,7 @@ class PerfCompareResults(generics.ListAPIView):
         return f"https://treeherder.mozilla.org/perfherder/{graph_link}"
 
     @staticmethod
-    def _get_interval(base_push, new_push):
+    def _get_interval(base_push: models.Push, new_push: models.Push) -> int:
         base_push_timestamp = base_push.time
         new_push_timestamp = new_push.time
 
@@ -1753,7 +1791,7 @@ class PerfCompareResults(generics.ListAPIView):
         return new_time_range
 
     @staticmethod
-    def _get_grouped_perf_data(perf_data):
+    def _get_grouped_perf_data(perf_data: QuerySet) -> GroupedPerfData:
         grouped_replicate_values = defaultdict(list)
         grouped_values = defaultdict(list)
         grouped_job_ids = defaultdict(list)
@@ -1774,7 +1812,9 @@ class PerfCompareResults(generics.ListAPIView):
         )
 
     @staticmethod
-    def _get_signatures_map(signatures, grouped_values, option_collection_map):
+    def _get_signatures_map(
+        signatures: QuerySet, grouped_values: dict, option_collection_map: dict
+    ) -> SignaturesMap:
         """
         @return: SignaturesMap - mapping of all the signatures for easy access and
                  matching, plus the header names and platforms for all given signatures
@@ -1822,7 +1862,7 @@ class PerfCompareResults(generics.ListAPIView):
     """
 
     @staticmethod
-    def _process_mann_whitney_task(task):
+    def _process_mann_whitney_task(task: MwuTask) -> dict:
         """
         Process a single mann-whitney-u test task for parallel execution.
         This is a static method so it can be pickled by multiprocessing.
@@ -1847,14 +1887,14 @@ class PerfCompareResults(generics.ListAPIView):
 
     @staticmethod
     def _process_stats(
-        base_rev_data,
-        new_rev_data,
-        header,
-        lower_is_better,
-        remove_outliers=stats.ENABLE_REMOVE_OUTLIERS,
-        pvalue_threshold=stats.PVALUE_THRESHOLD,
-        enable_silverman_kde=False,
-    ):
+        base_rev_data: Sequence[float],
+        new_rev_data: Sequence[float],
+        header: str,
+        lower_is_better: bool | str,
+        remove_outliers: bool = stats.ENABLE_REMOVE_OUTLIERS,
+        pvalue_threshold: float = stats.PVALUE_THRESHOLD,
+        enable_silverman_kde: bool = False,
+    ) -> dict:
         # extract data, potentially removing outliers
         if remove_outliers:
             base_rev_data = stats.remove_outliers(base_rev_data)
@@ -2021,15 +2061,15 @@ class PerfCompareResults(generics.ListAPIView):
     @staticmethod
     def _compute_mwu_cache_key(
         comparison_inputs: _ComparisonData,
-        interval,
-        no_subtests,
-        base_parent_signature,
-        new_parent_signature,
-        replicates,
-        enable_silverman_kde,
-        base_signatures,
-        new_signatures,
-    ):
+        interval: int | None,
+        no_subtests: bool,
+        base_parent_signature: str | None,
+        new_parent_signature: str | None,
+        replicates: bool,
+        enable_silverman_kde: bool,
+        base_signatures: QuerySet,
+        new_signatures: QuerySet,
+    ) -> str:
         base_sig_ids = sorted(str(s["id"]) for s in base_signatures)
         new_sig_ids = sorted(str(s["id"]) for s in new_signatures)
         total_data_points = sum(len(v) for v in comparison_inputs.base.stats.values()) + sum(

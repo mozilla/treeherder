@@ -26,3 +26,13 @@ repos:
         args: [--fix, --show-fixes]
       - id: ruff-format
         exclude: ^treeherder/.*/migrations
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v2.3.1
+    hooks:
+    - id: mypy
+      # Add --strict once we have more coverage
+      args: [--ignore-missing-imports, --follow-imports=skip, --disable-error-code=misc]
+      entry: mypy treeherder/webapp/api/performance_data.py
+      pass_filenames: false
+      files: treeherder/webapp/api/performance_data.py
