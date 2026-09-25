@@ -27,7 +27,7 @@ afterEach(() => jest.useRealTimers());
 const button = () => screen.getByRole('button');
 
 test('one tap only asks; nothing is sent', () => {
-  render(<Retrigger jobs={jobs} repo="try" />);
+  render(<Retrigger jobs={jobs} repo="try" live />);
   expect(button()).toHaveTextContent('Run the 2 failures again');
   fireEvent.click(button());
   expect(button()).toHaveTextContent('Tap again to rerun 2 jobs');
@@ -35,7 +35,7 @@ test('one tap only asks; nothing is sent', () => {
 });
 
 test('an unanswered confirm backs off', () => {
-  render(<Retrigger jobs={jobs} repo="try" />);
+  render(<Retrigger jobs={jobs} repo="try" live />);
   fireEvent.click(button());
   act(() => jest.advanceTimersByTime(4000));
   expect(button()).toHaveTextContent('Run the 2 failures again');
@@ -45,7 +45,7 @@ test('the second tap sends and reports success', async () => {
   JobModel.retrigger.mockImplementation((j, repo, notify) =>
     notify('Request sent to retrigger/add new jobs via actions.json (abc)'),
   );
-  render(<Retrigger jobs={jobs} repo="try" />);
+  render(<Retrigger jobs={jobs} repo="try" live />);
   fireEvent.click(button());
   await act(async () => fireEvent.click(button()));
   expect(JobModel.retrigger).toHaveBeenCalledWith(
@@ -61,7 +61,7 @@ test('missing Taskcluster credentials ask for approval, then resend', async () =
   JobModel.retrigger.mockImplementationOnce((j, repo, notify) =>
     notify(`Unable to retrigger/add jobs.  ${tcCredentialsMessage}`, 'danger'),
   );
-  render(<Retrigger jobs={jobs} repo="try" />);
+  render(<Retrigger jobs={jobs} repo="try" live />);
   fireEvent.click(button());
   await act(async () => fireEvent.click(button()));
   expect(button()).toHaveTextContent('Approve Taskcluster in the new tab');
@@ -73,9 +73,21 @@ test('a failure says so', async () => {
   JobModel.retrigger.mockImplementation((j, repo, notify) =>
     notify('Retrigger failed with Decision task: x: boom', 'danger'),
   );
-  render(<Retrigger jobs={[jobs[0]]} repo="try" />);
+  render(<Retrigger jobs={[jobs[0]]} repo="try" live />);
   expect(button()).toHaveTextContent('Run the failure again');
   fireEvent.click(button());
   await act(async () => fireEvent.click(button()));
   expect(button()).toHaveTextContent("Couldn't send that.");
+});
+
+test('where Taskcluster cannot sign in, it says so and never sends', () => {
+  render(<Retrigger jobs={jobs} repo="try" live={false} />);
+  expect(button()).toHaveTextContent('Run the 2 failures again');
+  fireEvent.click(button());
+  expect(button()).toHaveTextContent(
+    "Retrigger sends from treeherder.mozilla.org. This demo can't sign in to Taskcluster.",
+  );
+  fireEvent.click(button());
+  expect(JobModel.retrigger).not.toHaveBeenCalled();
+  expect(button()).toHaveTextContent('Run the 2 failures again');
 });

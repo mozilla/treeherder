@@ -6,7 +6,7 @@ import { tcCredentialsMessage } from '../helpers/taskcluster';
 import { tcClientIdMap } from '../taskcluster-auth-callback/constants';
 
 // Taskcluster only signs in from origins it has a client for. Anywhere else
-// the button could only fail, so it isn't shown.
+// the button can't send, so it says where it can instead of failing quietly.
 export const canRetrigger = () => !!tcClientIdMap[window.location.origin];
 
 let repos;
@@ -22,11 +22,13 @@ const LABELS = {
   sent: () => "Sent. They'll show up here as they run.",
   signin: () => 'Approve Taskcluster in the new tab, then tap again.',
   failed: () => "Couldn't send that. Tap to try again.",
+  elsewhere: () =>
+    "Retrigger sends from treeherder.mozilla.org. This demo can't sign in to Taskcluster.",
 };
 
 // One button for the question a red push leaves you with: is it me, or is
 // it flaky? Rerunning the failed jobs answers it.
-const Retrigger = ({ jobs, repo }) => {
+const Retrigger = ({ jobs, repo, live = canRetrigger() }) => {
   const [state, setState] = useState('idle');
   const timer = useRef();
   const n = jobs.length;
@@ -51,7 +53,8 @@ const Retrigger = ({ jobs, repo }) => {
   };
 
   const onClick = () => {
-    if (state === 'confirm') send();
+    if (!live) settle(state === 'elsewhere' ? 'idle' : 'elsewhere', 6000);
+    else if (state === 'confirm') send();
     else if (['idle', 'signin', 'failed'].includes(state)) {
       if (state === 'idle') settle('confirm', 4000);
       else send();

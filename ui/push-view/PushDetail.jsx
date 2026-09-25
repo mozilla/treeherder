@@ -19,7 +19,7 @@ import {
 } from './helpers';
 import { useCountUp, usePoll, usePulse } from './hooks';
 import Ring from './Ring';
-import Retrigger, { canRetrigger } from './Retrigger';
+import Retrigger from './Retrigger';
 import { cachedHealth, cachedPush, cachedSummary, rememberPush } from './cache';
 import { estimatePush, fetchPushJobs, loadDurationTable } from './eta';
 
@@ -362,7 +362,7 @@ const PushDetail = ({ repo, revision }) => {
             <h1 className="pv-headline">{said.headline}</h1>
             <p className="pv-sub">{said.sub}</p>
             <Legend status={health.status} />
-            {failedJobs.length > 0 && canRetrigger() && (
+            {failedJobs.length > 0 && (
               <Retrigger jobs={failedJobs} repo={repo} />
             )}
             {eta && <p className="pv-eta-line">{eta.line}</p>}

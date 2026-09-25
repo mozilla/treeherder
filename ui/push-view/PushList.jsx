@@ -11,6 +11,7 @@ import {
 } from './helpers';
 import { queued, usePoll, usePulse } from './hooks';
 import Ring from './Ring';
+import Kit from './Kit';
 import {
   cachedPushes,
   cachedSummary,
@@ -120,11 +121,14 @@ const PushList = ({ repo, author, onChangeAuthor }) => {
     <>
       <div className="pv-aurora pv-tone-quiet" />
       <header className="pv-masthead pv-rise">
-        <span className="pv-nameplate">Treeherder · {repo}</span>
-        <h1 className="pv-title">Your pushes</h1>
-        <button type="button" className="pv-link-button" onClick={onChangeAuthor}>
-          {author}
-        </button>
+        <div className="pv-masthead-words">
+          <span className="pv-nameplate">Treeherder · {repo}</span>
+          <h1 className="pv-title">Your pushes</h1>
+          <button type="button" className="pv-link-button" onClick={onChangeAuthor}>
+            {author}
+          </button>
+        </div>
+        <Kit />
       </header>
 
       {error && <p className="pv-sub">{error}</p>}
