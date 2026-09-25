@@ -115,6 +115,48 @@ export const finishedCount = (status) =>
     .filter(([key]) => !NOT_RESULTS.has(key))
     .reduce((n, [, count]) => n + count, 0);
 
+// The same shape as `status`, counted from the push's own job list. Push
+// Health's summary has been seen reporting 1 failed job on a push with 6, so
+// when the list is at hand it's the one to trust. Tier 3 is left out, as the
+// full view hides it by default.
+export const statusFromJobs = (jobs) => {
+  const status = { completed: 0, pending: 0, running: 0, unscheduled: 0 };
+  for (const job of jobs) {
+    if (job.tier > 2) continue;
+    if (job.state === 'completed') {
+      status.completed += 1;
+      status[job.result] = (status[job.result] || 0) + 1;
+    } else {
+      status[job.state] = (status[job.state] || 0) + 1;
+    }
+  }
+  return status;
+};
+
+export const FAILED_RESULTS = new Set(['testfailed', 'busted', 'exception']);
+
+// "TEST-UNEXPECTED-FAIL | path/to/test.js | message" names the test; a leak
+// check or harness error names itself.
+export const testFromErrorLine = (line = '') => {
+  const parts = line.split(' | ');
+  if (parts.length >= 2 && /TEST-UNEXPECTED|PROCESS-CRASH/.test(parts[0])) {
+    return parts[1].trim();
+  }
+  return null;
+};
+
+export const fetchFirstFailingTest = async (repo, jobId) => {
+  const { data, failureStatus } = await getData(
+    getProjectUrl(`/jobs/${jobId}/text_log_errors/`, repo),
+  );
+  if (failureStatus || !Array.isArray(data)) return null;
+  for (const error of data) {
+    const test = testFromErrorLine(error.line);
+    if (test) return test;
+  }
+  return null;
+};
+
 export const progressOf = (status) => {
   if (!status) return null;
   const done = finishedCount(status);

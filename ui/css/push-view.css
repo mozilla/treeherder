@@ -56,9 +56,21 @@ body.pv-body {
   isolation: isolate;
   max-width: 640px;
   margin: 0 auto;
-  padding: max(20px, env(safe-area-inset-top)) 20px
-    max(40px, env(safe-area-inset-bottom));
+  padding: max(20px, env(safe-area-inset-top))
+    max(12px, env(safe-area-inset-right)) max(40px, env(safe-area-inset-bottom))
+    max(12px, env(safe-area-inset-left));
   line-height: 1.4;
+}
+
+/* The headings keep their breathing room; only the cards run wider, so a
+   push title gets a few more characters on a phone. */
+.pv-masthead,
+.pv-nav,
+.pv-push-head,
+.pv-section-title,
+.pv-footer {
+  padding-left: 6px;
+  padding-right: 6px;
 }
 
 .pv a {
@@ -321,8 +333,8 @@ body.pv-body {
 .pv-row {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 14px 16px;
+  gap: 12px;
+  padding: 12px 14px 12px 12px;
   background: var(--pv-surface);
   border-radius: var(--pv-radius);
   box-shadow:

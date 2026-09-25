@@ -3,8 +3,10 @@ import { Link } from 'react-router';
 
 import {
   ago,
+  FAILED_RESULTS,
   countWord,
   describeEta,
+  fetchFirstFailingTest,
   duration,
   fetchHealth,
   fetchPush,
@@ -16,8 +18,9 @@ import {
   pushTitle,
   resultWord,
   splitTestPath,
+  statusFromJobs,
 } from './helpers';
-import { useCountUp, usePoll, usePulse } from './hooks';
+import { queued, useCountUp, usePoll, usePulse } from './hooks';
 import Ring from './Ring';
 import Retrigger from './Retrigger';
 import { cachedHealth, cachedPush, cachedSummary, rememberPush } from './cache';
@@ -26,7 +29,7 @@ import { estimatePush, fetchPushJobs, loadDurationTable } from './eta';
 const logUrl = (repo, jobId) => `/logviewer?job_id=${jobId}&repo=${repo}`;
 
 // The whole screen exists to say this one sentence.
-const verdict = ({ yours, parentToo, builds, lint, progress, eta }) => {
+const verdict = ({ yours, parentToo, builds, lint, progress, eta, seenBefore }) => {
   const count = (n, noun) => `${countWord(n).toLowerCase()} ${plural(n, noun)}`;
   const broke = [];
   if (yours.length) broke.push(`${count(yours.length, 'test')} broke`);
@@ -37,30 +40,41 @@ const verdict = ({ yours, parentToo, builds, lint, progress, eta }) => {
   const sofar = progress.running
     ? `${progress.done} of ${progress.total} jobs done so far.`
     : null;
+  const others = seenBefore.length
+    ? ` ${countWord(seenBefore.length)} other ${plural(seenBefore.length, 'failure has', 'failures have')} been seen before.`
+    : '';
 
   if (broke.length) {
     return {
       tone: 'bad',
       headline: `${sentence[0].toUpperCase()}${sentence.slice(1)}.`,
       sub:
-        sofar ||
-        (parentToo.length
-          ? `${parentToo.length} more ${plural(parentToo.length, 'test fails', 'tests fail')} on the parent too.`
-          : "Nothing here fails on the parent, so it's probably yours."),
+        (sofar ||
+          (parentToo.length
+            ? `${parentToo.length} more ${plural(parentToo.length, 'test fails', 'tests fail')} on the parent too.`
+            : "Nothing here fails on the parent, so it's probably yours.")) +
+        others,
     };
   }
   if (progress.running && eta) {
     return {
       tone: 'running',
       headline: eta.headline,
-      sub: `${sofar} Nothing new has broken.`,
+      sub: `${sofar} Nothing new has broken.${others}`,
     };
   }
   if (progress.running) {
     return {
       tone: 'running',
       headline: 'Still running.',
-      sub: `${sofar} Nothing new has broken.`,
+      sub: `${sofar} Nothing new has broken.${others}`,
+    };
+  }
+  if (seenBefore.length && !parentToo.length) {
+    return {
+      tone: 'good',
+      headline: 'Nothing new broke.',
+      sub: `${countWord(seenBefore.length)} ${plural(seenBefore.length, 'failure has', 'failures have')} been seen before, so ${plural(seenBefore.length, "it's", "they're")} likely intermittent.`,
     };
   }
   if (parentToo.length) {
@@ -195,6 +209,57 @@ const JobCard = ({ job, repo }) => (
   </li>
 );
 
+// Failures Treeherder had seen before, named by their first failing test and
+// grouped, so five red jobs read as the tests they are.
+const SeenBefore = ({ jobs, repo }) => {
+  const [tests, setTests] = useState({});
+  const ids = jobs.map((j) => j.id).join(',');
+
+  useEffect(() => {
+    let live = true;
+    for (const id of ids.split(',').filter(Boolean)) {
+      queued(() => fetchFirstFailingTest(repo, id)).then(
+        (test) => live && setTests((t) => ({ ...t, [id]: test })),
+      );
+    }
+    return () => {
+      live = false;
+    };
+  }, [ids, repo]);
+
+  const groups = new Map();
+  for (const job of jobs) {
+    const known = job.id in tests;
+    const name = tests[job.id] || (known ? jobShortName(job.jobTypeName) : '');
+    const key = name || `job:${job.id}`;
+    const g = groups.get(key) || { name, jobs: [] };
+    g.jobs.push(job);
+    groups.set(key, g);
+  }
+
+  return [...groups.values()].map(({ name, jobs: runs }) => {
+    const { dir, file } = splitTestPath(name);
+    const where = [
+      ...new Set(runs.map((j) => `${platformName(j.platform)} ${j.platformOption}`)),
+    ].join(', ');
+    return (
+      <li key={runs[0].id} className="pv-card">
+        <a className="pv-card-head" href={logUrl(repo, runs[0].id)}>
+          <span className="pv-test-file">
+            {file || <span className="pv-skeleton" />}
+          </span>
+          {dir && <span className="pv-test-dir">{dir}</span>}
+          <span className="pv-card-meta">
+            {runs.length > 1 && `${runs.length} jobs · `}
+            {where} · {runs.map((j) => j.symbol).join(', ')}
+            <span className="pv-run-action">Log</span>
+          </span>
+        </a>
+      </li>
+    );
+  });
+};
+
 // Lint jobs are one-word names; seven of them read better as one card.
 const LintCard = ({ jobs, repo }) => (
   <li className="pv-card">
@@ -253,32 +318,37 @@ const PushDetail = ({ repo, revision }) => {
     loadHealth();
   }, [loadHealth, repo, revision]);
 
-  const progress = health && progressOf(health.status);
-  const running = !!progress?.running;
-
-  const [etaModel, setEtaModel] = useState(null);
-  const loadEta = useCallback(async () => {
-    if (!push || !running) return;
-    const [jobs, table] = await Promise.all([
-      fetchPushJobs(repo, push.id),
-      loadDurationTable(),
-    ]);
-    if (jobs) {
-      setEtaModel(
-        estimatePush(jobs, table, { pushedAt: push.push_timestamp * 1000 }),
-      );
-    }
-  }, [repo, push, running]);
+  // The push's own job list: exact counts, the ETA's input, and the failures
+  // Push Health leaves out.
+  const [jobs, setJobs] = useState(null);
+  const loadJobs = useCallback(async () => {
+    if (!push) return;
+    const list = await fetchPushJobs(repo, push.id);
+    if (list) setJobs(list);
+  }, [repo, push]);
 
   useEffect(() => {
-    if (running) loadEta();
-    else setEtaModel(null);
-  }, [running, loadEta]);
+    setJobs(null);
+    loadJobs();
+  }, [loadJobs]);
+
+  const counts = jobs ? statusFromJobs(jobs) : health?.status || summary?.status;
+  const progress = health && counts && progressOf(counts);
+  const running = !!progress?.running;
+
+  const [table, setTable] = useState(null);
+  useEffect(() => {
+    if (running && !table) loadDurationTable().then(setTable);
+  }, [running, table]);
+  const etaModel =
+    running && jobs && table
+      ? estimatePush(jobs, table, { pushedAt: push.push_timestamp * 1000 })
+      : null;
 
   usePoll(
     () => {
       loadHealth();
-      loadEta();
+      loadJobs();
     },
     60 * 1000,
     !health || running,
@@ -294,12 +364,32 @@ const PushDetail = ({ repo, revision }) => {
   const known = groupByTest(tests.knownIssues || []);
   const builds = health?.metrics.builds.details || [];
   const lint = health?.metrics.linting.details || [];
+
+  // Push Health only reports failures Treeherder tagged as new: an error line
+  // it had never seen before. Every other failed job still failed, so it gets
+  // shown, not dropped.
+  const reported = new Set([
+    ...groups.flatMap((g) => [...g.jobIds]),
+    ...known.flatMap((g) => [...g.jobIds]),
+    ...builds.map((j) => j.id),
+    ...lint.map((j) => j.id),
+  ]);
+  const seenBefore = (jobs || []).filter(
+    (j) =>
+      j.tier <= 2 &&
+      j.state === 'completed' &&
+      FAILED_RESULTS.has(j.result) &&
+      !reported.has(j.id),
+  );
+
   const said =
-    health && verdict({ yours, parentToo, builds, lint, progress, eta });
+    health &&
+    progress &&
+    verdict({ yours, parentToo, builds, lint, progress, eta, seenBefore });
   const pulsing = usePulse(said ? said.headline : undefined);
 
-  // The jobs behind what broke here, once per job type: retriggering is by
-  // label, so two runs of the same job would otherwise go twice.
+  // Every failed job, once per job type: retriggering is by label, so two
+  // runs of the same job would otherwise go twice.
   const failedJobs = health
     ? [
         ...yours.flatMap((g) =>
@@ -311,6 +401,11 @@ const PushDetail = ({ repo, revision }) => {
         ),
         ...builds,
         ...lint,
+        ...seenBefore.map((j) => ({
+          id: j.id,
+          push_id: push.id,
+          job_type_name: j.jobTypeName,
+        })),
       ].filter(
         (job, i, all) =>
           all.findIndex((j) => j.job_type_name === job.job_type_name) === i,
@@ -350,8 +445,8 @@ const PushDetail = ({ repo, revision }) => {
       >
         {!error && (
           <Ring
-            status={health?.status || summary?.status}
-            loading={!health && !summary}
+            status={counts}
+            loading={!counts}
             size="min(240px, 64vw)"
           >
             {health && <RingCenter progress={progress} />}
@@ -361,7 +456,7 @@ const PushDetail = ({ repo, revision }) => {
           <div className="pv-rise pv-hero-words">
             <h1 className="pv-headline">{said.headline}</h1>
             <p className="pv-sub">{said.sub}</p>
-            <Legend status={health.status} />
+            <Legend status={counts} />
             {failedJobs.length > 0 && (
               <Retrigger jobs={failedJobs} repo={repo} />
             )}
@@ -399,6 +494,9 @@ const PushDetail = ({ repo, revision }) => {
             {parentToo.map((g) => (
               <TestCard key={g.testName} group={g} jobs={health.jobs} repo={repo} />
             ))}
+          </Section>
+          <Section title="Seen before" count={seenBefore.length} quiet>
+            <SeenBefore jobs={seenBefore} repo={repo} />
           </Section>
           <Section title="Known intermittents" count={known.length} quiet>
             {known.map((g) => (
