@@ -6,12 +6,15 @@ import { addAggregateFields } from '../../helpers/job';
 import { getLogViewerUrl, getArtifactsUrl } from '../../helpers/url';
 import { formatArtifacts } from '../../helpers/display';
 import { getData } from '../../helpers/http';
+import { prepareBugSuggestions } from '../../helpers/testSummary';
 import BugJobMapModel from '../../models/bugJobMap';
+import BugSuggestionsModel from '../../models/bugSuggestions';
 import JobClassificationModel from '../../models/classification';
 import JobModel from '../../models/job';
 import JobLogUrlModel from '../../models/jobLogUrl';
 import PerfSeriesModel from '../../models/perfSeries';
 import { Perfdocs } from '../../perfherder/perf-helpers/perfdocs';
+import useJobSummary from './useJobSummary';
 
 // Debounce delay for loading job details when rapidly switching jobs
 const JOB_DETAILS_DEBOUNCE_MS = 200;
@@ -142,6 +145,11 @@ function useJobDetails(selectedJob, currentRepo, pushList, frameworks) {
   const [classifications, setClassifications] = useState([]);
   const [testGroups, setTestGroups] = useState([]);
   const [bugs, setBugs] = useState([]);
+  // Classic failure summary data (`/bug_suggestions/`), fetched here so it
+  // loads in the background rather than when its section of the Summary tab
+  // is opened. `null` means not yet loaded.
+  const [bugSuggestions, setBugSuggestions] = useState(null);
+  const [bugSuggestionsLoading, setBugSuggestionsLoading] = useState(false);
   const [taskExpired, setTaskExpired] = useState(false);
 
   // Refs for cleanup
@@ -214,6 +222,7 @@ function useJobDetails(selectedJob, currentRepo, pushList, frameworks) {
       setJobDetails([]);
       setPerfJobDetail([]);
       setTestGroups([]);
+      setBugSuggestions(null);
     }
 
     const loadJobDetails = async (signal) => {
@@ -221,6 +230,7 @@ function useJobDetails(selectedJob, currentRepo, pushList, frameworks) {
 
       setJobDetailLoading(true);
       setJobArtifactsLoading(true);
+      setBugSuggestionsLoading(true);
 
       try {
         const push = pushListRef.current.find(
@@ -276,6 +286,14 @@ function useJobDetails(selectedJob, currentRepo, pushList, frameworks) {
           selectedJob.id,
           signal,
         );
+
+        // The failure catch is attached at creation: this promise is awaited
+        // last, and if an earlier await throws (e.g. the whole load is
+        // aborted), its rejection would otherwise escape as unhandled.
+        const bugSuggestionsPromise = BugSuggestionsModel.get(
+          selectedJob.id,
+          signal,
+        ).catch((error) => ({ failed: error }));
 
         // Wait for main data
         const [
@@ -391,12 +409,31 @@ function useJobDetails(selectedJob, currentRepo, pushList, frameworks) {
             setJobDetailLoading(false);
           }
         }
+
+        // Handle bug suggestions (classic Failure Summary data)
+        const bugSuggestionsResult = await bugSuggestionsPromise;
+        if (signal.aborted) return;
+
+        if (bugSuggestionsResult?.failed) {
+          if (bugSuggestionsResult.failed.name !== 'AbortError') {
+            setBugSuggestions([]);
+            setBugSuggestionsLoading(false);
+          }
+        } else {
+          setBugSuggestions(
+            prepareBugSuggestions(
+              Array.isArray(bugSuggestionsResult) ? bugSuggestionsResult : [],
+            ),
+          );
+          setBugSuggestionsLoading(false);
+        }
       } catch (error) {
         if (error.name !== 'AbortError') {
           // eslint-disable-next-line no-console
           console.error('Error loading job details:', error);
           setJobDetailLoading(false);
           setJobArtifactsLoading(false);
+          setBugSuggestionsLoading(false);
         }
       }
     };
@@ -451,6 +488,13 @@ function useJobDetails(selectedJob, currentRepo, pushList, frameworks) {
     frameworks,
   ]);
 
+  // Summary tab data (`summary.jsonl`), loaded here rather than in the tab so
+  // it survives tab switches and job reselection, and is cached per artifact.
+  const { summary, summaryLoading, summaryError } = useJobSummary(
+    selectedJob,
+    jobDetails,
+  );
+
   return {
     selectedJobFull,
     jobDetails,
@@ -465,6 +509,11 @@ function useJobDetails(selectedJob, currentRepo, pushList, frameworks) {
     classifications,
     testGroups,
     bugs,
+    bugSuggestions,
+    bugSuggestionsLoading,
+    summary,
+    summaryLoading,
+    summaryError,
     taskExpired,
   };
 }

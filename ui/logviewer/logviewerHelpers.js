@@ -1,4 +1,9 @@
-import { getUrlParam, setUrlParam } from '../helpers/location';
+import {
+  getAllUrlParams,
+  getUrlParam,
+  replaceLocation,
+  setUrlParam,
+} from '../helpers/location';
 
 /**
  * Split raw log text into display lines using the SAME line-boundary rules the
@@ -37,6 +42,86 @@ export const writeLineNumberParam = (highlight) => {
   } else {
     setUrlParam('lineNumber', highlight[0]);
   }
+};
+
+/**
+ * Read the record URL params written by getLogViewerRecordUrl:
+ * `{ texts, time }`, or null when absent. `time` is null when not given.
+ */
+export const getUrlLogTarget = () => {
+  const texts = getAllUrlParams()
+    .getAll('lineText')
+    .filter((text) => text);
+  if (!texts.length) return null;
+  const time = parseInt(getUrlParam('lineTime'), 10);
+  return { texts, time: Number.isFinite(time) ? time : null };
+};
+
+/**
+ * Replace the record params with the log line they resolved to (or drop them
+ * when `lineNumber` is null), in a single history entry.
+ */
+export const writeResolvedLogTarget = (lineNumber) => {
+  const params = getAllUrlParams();
+  params.delete('lineText');
+  params.delete('lineTime');
+  if (lineNumber) {
+    params.set('lineNumber', lineNumber);
+  }
+  replaceLocation(params);
+};
+
+// The time run-task stamps on every line it relays: `[task <ISO 8601>] `.
+const TASK_STAMP_RE = /^\[task ([^\]]+)\]/;
+
+const taskTimeOf = (line) => {
+  const match = TASK_STAMP_RE.exec(line);
+  return match ? Date.parse(match[1]) : NaN;
+};
+
+// The harness and run-task read the same clock, but not always at the same
+// resolution: on Windows a line can be stamped a timer tick (~16ms) before its
+// record. Keep this well under the time a test takes to run again, which
+// test-verify does in a few hundred milliseconds.
+const CLOCK_TOLERANCE_MS = 100;
+
+/**
+ * Find the task log line of a summary.jsonl record: 1-based, or null.
+ *
+ * The task log belongs to the worker, which adds lines of its own at any
+ * time, so a record cannot know its line number. It is located by content
+ * instead, among the lines containing every one of `texts` (falling back to
+ * the first text alone, the test path, when none does). Repeated runs of a
+ * test print the same text, so the record's `time` (ms) picks one: a line is
+ * printed once its record exists, never before, and possibly much later
+ * (xpcshell replays a failing test's statuses when the test ends). The first
+ * match run-task stamped from that time on wins, else the last one before it.
+ * Without a time or stamps, the first match is returned.
+ */
+export const resolveLogLine = (lines, texts, time) => {
+  if (!lines || !texts || !texts.length) return null;
+  const matching = (needles) => {
+    const found = [];
+    lines.forEach((line, index) => {
+      if (needles.every((needle) => line.includes(needle))) found.push(index);
+    });
+    return found;
+  };
+  let candidates = matching(texts);
+  if (!candidates.length && texts.length > 1) {
+    candidates = matching(texts.slice(0, 1));
+  }
+  if (!candidates.length) return null;
+
+  if (!Number.isFinite(time)) return candidates[0] + 1;
+  const stamped = candidates
+    .map((index) => ({ index, at: taskTimeOf(lines[index]) }))
+    .filter((candidate) => Number.isFinite(candidate.at));
+  if (!stamped.length) return candidates[0] + 1;
+  const printedAfter = stamped.find(
+    (candidate) => candidate.at >= time - CLOCK_TOLERANCE_MS,
+  );
+  return (printedAfter ?? stamped[stamped.length - 1]).index + 1;
 };
 
 /**

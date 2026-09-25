@@ -117,6 +117,24 @@ export const getLogViewerUrl = function getLogViewerUrl(
   return lineNumber ? `${rv}&lineNumber=${lineNumber}` : rv;
 };
 
+// Log viewer URL for a summary.jsonl record, which knows the text it printed
+// and when (`{ texts, time }`) but not its line in the task log. The log
+// viewer, which holds the whole log, finds the line once the log is loaded;
+// see resolveLogLine in ui/logviewer/logviewerHelpers.js.
+export const getLogViewerRecordUrl = function getLogViewerRecordUrl(
+  jobId,
+  repoName,
+  logTarget,
+  task,
+) {
+  const params = new URLSearchParams();
+  logTarget.texts.forEach((text) => params.append('lineText', text));
+  if (Number.isFinite(logTarget.time)) {
+    params.set('lineTime', logTarget.time);
+  }
+  return `${getLogViewerUrl(jobId, repoName, null, task)}&${params}`;
+};
+
 export const isResourceUsageProfile = function isResourceUsageProfile(
   fileName,
 ) {
