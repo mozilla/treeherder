@@ -42,7 +42,10 @@ class TreeherderClientTest(unittest.TestCase):
     def test_get_repositories(self):
         tdc = TreeherderClient()
         url = tdc._get_endpoint_url(tdc.REPOSITORY_ENDPOINT)
-        content = [{"name": "autoland", "dvcs_type": "hg"}, {"name": "mozilla-central", "dvcs_type": "hg"}]
+        content = [
+            {"name": "autoland", "dvcs_type": "hg"},
+            {"name": "mozilla-central", "dvcs_type": "hg"},
+        ]
         responses.add(responses.GET, url, json=content, status=200)
 
         repositories = tdc.get_repositories()
