@@ -6,6 +6,7 @@ import testPerformanceTags from '../../mock/performance_tags';
 import repos from '../../mock/repositories';
 import StatusDropdown from '../../../../ui/perfherder/alerts/StatusDropdown';
 import issueTrackers from '../../../../treeherder/perf/fixtures/issue_tracker';
+import { alertStatusMap } from '../../../../ui/perfherder/perf-helpers/constants';
 
 let testAlertSummary = testAlertSummaries[0];
 const testAlerts = testAlertSummary.alerts;
@@ -264,11 +265,11 @@ test('filterValidAlerts returns only valid alerts (acknowledged, untriaged, and 
     alertSummary,
     frameworks: [],
     filteredAlerts: [
-      { id: 1, status: 4 },
-      { id: 2, status: 0 },
-      { id: 3, status: 2, summary_id: 200 },
-      { id: 4, status: 2, summary_id: 100 },
-      { id: 5, status: 3 },
+      { id: 1, status: alertStatusMap.acknowledged },
+      { id: 2, status: alertStatusMap.untriaged },
+      { id: 3, status: alertStatusMap.reassigned, summary_id: 99 },
+      { id: 4, status: alertStatusMap.reassigned, summary_id: 100 },
+      { id: 5, status: alertStatusMap.invalid },
     ],
   });
 
