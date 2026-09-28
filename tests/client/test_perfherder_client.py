@@ -3,10 +3,10 @@ import unittest
 import responses
 
 from treeherder.client.thclient import (
+    PerfherderClient,
     PerformanceSeries,
     PerformanceSignatureCollection,
     PerformanceTimeInterval,
-    PerfherderClient,
 )
 
 
