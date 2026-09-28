@@ -6,6 +6,7 @@ import testPerformanceTags from '../../mock/performance_tags';
 import repos from '../../mock/repositories';
 import StatusDropdown from '../../../../ui/perfherder/alerts/StatusDropdown';
 import issueTrackers from '../../../../treeherder/perf/fixtures/issue_tracker';
+import { alertStatusMap } from '../../../../ui/perfherder/perf-helpers/constants';
 
 let testAlertSummary = testAlertSummaries[0];
 const testAlerts = testAlertSummary.alerts;
@@ -256,4 +257,33 @@ test("'Request backout' is not offered for a summary with no severity", async ()
     expect(getByText('File bug')).toBeInTheDocument();
   });
   expect(queryByText('Request backout')).toBeNull();
+});
+
+test('filterValidAlerts returns only valid alerts (acknowledged, untriaged, and valid reassigned)', () => {
+  const alertSummary = { id: 100 };
+  const dropdown = new StatusDropdown({
+    alertSummary,
+    frameworks: [],
+    filteredAlerts: [
+      { id: 1, status: alertStatusMap.acknowledged },
+      { id: 2, status: alertStatusMap.untriaged },
+      { id: 3, status: alertStatusMap.reassigned, summary_id: 99 },
+      { id: 4, status: alertStatusMap.reassigned, summary_id: 100 },
+      { id: 5, status: alertStatusMap.invalid },
+    ],
+  });
+
+  const validAlerts = dropdown.filterValidAlerts();
+
+  expect(validAlerts).toHaveLength(3);
+  expect(validAlerts.map(a => a.id)).toEqual([1, 2, 3]);
+});
+
+test('filterValidAlerts defaults to an empty array if filteredAlerts is undefined', () => {
+  const dropdown = new StatusDropdown({
+    alertSummary: { id: 100 },
+    frameworks: [],
+  });
+
+  expect(dropdown.filterValidAlerts()).toEqual([]);
 });
