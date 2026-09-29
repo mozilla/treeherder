@@ -160,7 +160,7 @@ export class Perfdocs {
         this.suite = 'about-newtab-with-snippets';
       }
       this.url = this.url.concat(
-        this.suite.replace(/:|\s|\./g, '-').toLowerCase(),
+        this.suite.replace(/:|\s|\.|_/g, '-').toLowerCase(),  // the underscore is a talos-centered fix for unconventional test names
       );
     }
     return this.url;
