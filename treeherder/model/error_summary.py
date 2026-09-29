@@ -347,6 +347,11 @@ def get_error_search_term_and_path(error_line):
         test_name_or_path = tokens[1]
         message = tokens[2]
         if is_crash:
+            if re.search(
+                r"^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}",
+                tokens[1],
+            ):
+                tokens.pop(1)
             test_name_or_path = tokens[2]
             message = tokens[1]
         # Leak failure messages are of the form:
