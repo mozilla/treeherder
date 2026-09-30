@@ -127,31 +127,52 @@ test('where Taskcluster cannot sign in, it says so and never sends', () => {
   expect(taskcluster.getAuthCode).not.toHaveBeenCalled();
 });
 
-test('only failed test jobs are rerun, as the full view does, once per label', () => {
+test('only failed test jobs nobody has answered yet are rerun', () => {
   const job = (id, extra) => ({
     id,
     tier: 1,
     state: 'completed',
     result: 'testfailed',
+    classification: 1,
     platform: 'macosx1500-aarch64',
     symbol: 'bc',
     jobTypeName: `test-macosx1500-aarch64/debug-mochitest-browser-chrome-${id}`,
     ...extra,
   });
+  const retried = 'test-macosx1500-aarch64/opt-mochitest-plain-xorig-4';
   const list = [
-    job(1),
-    job(2, { jobTypeName: job(1).jobTypeName }), // a second run, same label
-    job(3, { platform: 'lint', jobTypeName: 'source-test-mozlint-eslint' }),
-    job(4, { symbol: 'mozlint', jobTypeName: 'source-test-mozlint-codespell' }),
-    job(5, { jobTypeName: 'build-linux64/opt' }),
-    job(6, { result: 'busted' }),
-    job(7, { result: 'success' }),
-    job(8, { tier: 3 }),
-    job(9, { state: 'running' }),
-    job(10),
+    job(1), // failed once, unclassified: rerun
+    job(2, { classification: 6 }), // failed once, new failure: rerun
+    job(3, { classification: 8 }), // marked intermittent (needs bug id)
+    job(4, { classification: 4 }), // intermittent
+    job(5, { classification: 5 }), // infra
+    job(6, { jobTypeName: retried }), // failed, then retriggered...
+    job(7, { jobTypeName: retried, result: 'success' }), // ...and passed
+    job(8, { jobTypeName: 'rerun-in-flight' }),
+    job(9, { jobTypeName: 'rerun-in-flight', state: 'running', result: 'unknown' }),
+    job(10, { platform: 'lint', jobTypeName: 'source-test-mozlint-eslint' }),
+    job(11, { symbol: 'mozlint', jobTypeName: 'source-test-mozlint-codespell' }),
+    job(12, { jobTypeName: 'build-linux64/opt' }),
+    job(13, { result: 'busted' }),
+    job(14, { tier: 3 }),
   ];
   expect(retriggerableJobs(list, 42)).toEqual([
     { id: 1, push_id: 42, job_type_name: job(1).jobTypeName },
-    { id: 10, push_id: 42, job_type_name: job(10).jobTypeName },
+    { id: 2, push_id: 42, job_type_name: job(2).jobTypeName },
   ]);
+});
+
+test('a job that failed on every rebuild is not offered again', () => {
+  const name = 'test-macosx1500-aarch64/opt-mochitest-browser-chrome-1';
+  const runs = Array.from({ length: 10 }, (_, i) => ({
+    id: i,
+    tier: 1,
+    state: 'completed',
+    result: 'testfailed',
+    classification: 1,
+    platform: 'macosx1500-aarch64',
+    symbol: 'bc1',
+    jobTypeName: name,
+  }));
+  expect(retriggerableJobs(runs, 1)).toEqual([]);
 });

@@ -280,12 +280,22 @@ export const groupByTest = (failures) => {
   return [...groups.values()].sort((a, b) => b.jobIds.size - a.jobIds.size);
 };
 
-// What "rerun the failures" means, taken from the full view's "Retrigger all
-// failed test jobs" (#9344): failed test jobs only. Rerunning lint gives the
-// same answer and builds are expensive, so neither is included. Once per job
-// type, since retriggering is by label.
-export const retriggerableJobs = (jobs, pushId) =>
-  jobs
+// Failures that still need a rerun to say whether they're flaky. Only
+// failed test jobs count, as the full view's "Retrigger all failed test
+// jobs" (#9344) has it: rerunning lint gives the same answer and builds are
+// expensive. Of those, a failure is already answered, and skipped, when
+// Treeherder has classified it (intermittent, infra, expected, fixed by
+// commit) or when its job has run more than once, retriggered or rebuilt,
+// finished or not. Once per job type, since retriggering is by label.
+const UNCLASSIFIED = new Set([1, 6]); // "not classified", "new failure"
+
+export const retriggerableJobs = (jobs, pushId) => {
+  const runs = new Map();
+  for (const j of jobs) {
+    if (j.tier > 2) continue;
+    runs.set(j.jobTypeName, (runs.get(j.jobTypeName) || 0) + 1);
+  }
+  return jobs
     .filter(
       (j) =>
         j.tier <= 2 &&
@@ -293,10 +303,9 @@ export const retriggerableJobs = (jobs, pushId) =>
         j.result === 'testfailed' &&
         j.platform !== 'lint' &&
         j.symbol !== 'mozlint' &&
-        !j.jobTypeName.includes('build'),
+        !j.jobTypeName.includes('build') &&
+        UNCLASSIFIED.has(j.classification) &&
+        runs.get(j.jobTypeName) === 1,
     )
-    .map((j) => ({ id: j.id, push_id: pushId, job_type_name: j.jobTypeName }))
-    .filter(
-      (job, i, all) =>
-        all.findIndex((j) => j.job_type_name === job.job_type_name) === i,
-    );
+    .map((j) => ({ id: j.id, push_id: pushId, job_type_name: j.jobTypeName }));
+};

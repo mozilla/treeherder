@@ -485,6 +485,12 @@ const PushDetail = ({ repo, author, theme, revision }) => {
   const pulsing = usePulse(said ? said.headline : undefined);
 
   const failedJobs = push ? retriggerableJobs(jobs || [], push.id) : [];
+  // Only once the job list is in, so the note never flashes before the button.
+  const testsFailed =
+    !!jobs &&
+    jobs.some(
+      (j) => j.tier <= 2 && j.result === 'testfailed' && j.platform !== 'lint',
+    );
 
   const pushedBy = push?.author;
   const pushedByName = push ? authorName(push) : null;
@@ -539,6 +545,11 @@ const PushDetail = ({ repo, author, theme, revision }) => {
             <Legend status={counts} />
             {failedJobs.length > 0 && (
               <Retrigger jobs={failedJobs} repo={repo} />
+            )}
+            {failedJobs.length === 0 && testsFailed && (
+              <p className="pv-elapsed">
+                Every failure has already been rerun or marked intermittent.
+              </p>
             )}
             {eta && <p className="pv-eta-line">{eta.line}</p>}
             {progress.running && push && (
