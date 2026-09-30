@@ -19,6 +19,7 @@ import {
   pushTitle,
   pushUrl,
   resultWord,
+  retriggerableJobs,
   splitTestPath,
   statusFromJobs,
 } from './helpers';
@@ -483,29 +484,7 @@ const PushDetail = ({ repo, author, theme, revision }) => {
     verdict({ yours, parentToo, builds, lint, progress, eta, seenBefore });
   const pulsing = usePulse(said ? said.headline : undefined);
 
-  // Every failed job, once per job type: retriggering is by label, so two
-  // runs of the same job would otherwise go twice.
-  const failedJobs = health
-    ? [
-        ...yours.flatMap((g) =>
-          g.entries.flatMap((e) =>
-            (health.jobs[e.jobName] || []).filter((j) =>
-              e.failedInJobs.includes(j.id),
-            ),
-          ),
-        ),
-        ...builds,
-        ...lint,
-        ...seenBefore.map((j) => ({
-          id: j.id,
-          push_id: push.id,
-          job_type_name: j.jobTypeName,
-        })),
-      ].filter(
-        (job, i, all) =>
-          all.findIndex((j) => j.job_type_name === job.job_type_name) === i,
-      )
-    : [];
+  const failedJobs = push ? retriggerableJobs(jobs || [], push.id) : [];
 
   const pushedBy = push?.author;
   const pushedByName = push ? authorName(push) : null;

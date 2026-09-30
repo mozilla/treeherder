@@ -279,3 +279,24 @@ export const groupByTest = (failures) => {
   }
   return [...groups.values()].sort((a, b) => b.jobIds.size - a.jobIds.size);
 };
+
+// What "rerun the failures" means, taken from the full view's "Retrigger all
+// failed test jobs" (#9344): failed test jobs only. Rerunning lint gives the
+// same answer and builds are expensive, so neither is included. Once per job
+// type, since retriggering is by label.
+export const retriggerableJobs = (jobs, pushId) =>
+  jobs
+    .filter(
+      (j) =>
+        j.tier <= 2 &&
+        j.state === 'completed' &&
+        j.result === 'testfailed' &&
+        j.platform !== 'lint' &&
+        j.symbol !== 'mozlint' &&
+        !j.jobTypeName.includes('build'),
+    )
+    .map((j) => ({ id: j.id, push_id: pushId, job_type_name: j.jobTypeName }))
+    .filter(
+      (job, i, all) =>
+        all.findIndex((j) => j.job_type_name === job.job_type_name) === i,
+    );

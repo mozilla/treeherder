@@ -2,12 +2,29 @@ import { useEffect, useRef, useState } from 'react';
 
 import JobModel from '../models/job';
 import RepositoryModel from '../models/repository';
-import { tcCredentialsMessage } from '../helpers/taskcluster';
-import { tcClientIdMap } from '../taskcluster-auth-callback/constants';
+import dayjs from '../helpers/dayjs';
+import taskcluster, { tcCredentialsMessage } from '../helpers/taskcluster';
+import {
+  checkRootUrl,
+  prodFirefoxRootUrl,
+  tcClientIdMap,
+} from '../taskcluster-auth-callback/constants';
 
 // Taskcluster only signs in from origins it has a client for. Anywhere else
 // the button can't send, so it says where it can instead of failing quietly.
 export const canRetrigger = () => !!tcClientIdMap[window.location.origin];
+
+// The same check taskcluster.getCredentials makes, done synchronously.
+export const hasTaskclusterCredentials = (
+  rootUrl = checkRootUrl(prodFirefoxRootUrl),
+) => {
+  try {
+    const stored = JSON.parse(localStorage.getItem('userCredentials'));
+    return !!stored?.[rootUrl] && dayjs(stored[rootUrl].expires).isAfter(dayjs());
+  } catch {
+    return false;
+  }
+};
 
 let repos;
 const getRepo = async (name) => {
@@ -16,7 +33,8 @@ const getRepo = async (name) => {
 };
 
 const LABELS = {
-  idle: (n) => `Run ${n === 1 ? 'the failure' : `the ${n} failures`} again`,
+  idle: (n) =>
+    n === 1 ? 'Rerun the failed test job' : `Rerun the ${n} failed test jobs`,
   confirm: (n) => `Tap again to rerun ${n} ${n === 1 ? 'job' : 'jobs'}`,
   sending: () => 'Sending…',
   sent: () => "Sent. They'll show up here as they run.",
@@ -52,13 +70,24 @@ const Retrigger = ({ jobs, repo, live = canRetrigger() }) => {
     });
   };
 
+  // Phones only open a new tab from inside a tap. Treeherder's retrigger asks
+  // for Taskcluster approval after several requests, by which point the tap
+  // is long over and the tab gets blocked. So check for credentials here,
+  // synchronously, and if there are none open the approval tab now and wait
+  // for the next tap; with credentials, the retrigger never needs a tab.
+  const sendOrSignIn = () => {
+    if (hasTaskclusterCredentials()) {
+      send();
+    } else {
+      taskcluster.getAuthCode();
+      settle('signin');
+    }
+  };
+
   const onClick = () => {
     if (!live) settle(state === 'elsewhere' ? 'idle' : 'elsewhere', 6000);
-    else if (state === 'confirm') send();
-    else if (['idle', 'signin', 'failed'].includes(state)) {
-      if (state === 'idle') settle('confirm', 4000);
-      else send();
-    }
+    else if (state === 'idle') settle('confirm', 4000);
+    else if (['confirm', 'signin', 'failed'].includes(state)) sendOrSignIn();
   };
 
   return (
