@@ -4,23 +4,34 @@
 
 import { finishedCount } from './helpers';
 
-const BAD_RESULTS = ['testfailed', 'busted', 'exception'];
+// Failures first from twelve o'clock, so they're what the eye lands on, then
+// passes, other finishes, and what's still to come. Each is a Treeherder job
+// state and takes that state's colour.
+const ORDER = [
+  'testfailed',
+  'busted',
+  'exception',
+  'success',
+  'retry',
+  'usercancel',
+  'superseded',
+  'other',
+  'running',
+  'pending',
+  'unscheduled',
+];
+const NAMED = new Set(ORDER.slice(0, 7));
 
-// Split `ticks` across the categories in proportion to their job counts,
-// giving any non-empty category at least one tick (largest remainder).
+// Split `ticks` across the states in proportion to their job counts, giving
+// any non-empty state at least one tick (largest remainder).
 export const allocateTicks = (status, ticks) => {
-  const bad = BAD_RESULTS.reduce((n, r) => n + (status?.[r] || 0), 0);
-  const good = status?.success || 0;
-  const other = Math.max(0, finishedCount(status) - bad - good);
-  const running = status?.running || 0;
-  const pending = (status?.pending || 0) + (status?.unscheduled || 0);
-  const parts = [
-    ['bad', bad],
-    ['good', good],
-    ['other', other],
-    ['running', running],
-    ['pending', pending],
-  ];
+  const counts = Object.fromEntries(ORDER.map((k) => [k, status?.[k] || 0]));
+  counts.other = Math.max(
+    0,
+    finishedCount(status) -
+      ORDER.filter((k) => NAMED.has(k)).reduce((n, k) => n + counts[k], 0),
+  );
+  const parts = ORDER.map((k) => [k, counts[k]]);
   const total = parts.reduce((n, [, c]) => n + c, 0);
   if (!total) return Array(ticks).fill('pending');
 

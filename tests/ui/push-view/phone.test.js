@@ -24,3 +24,9 @@ test('choosing the full view on a phone is respected', () => {
     pushViewFor('?repo=try&revision=abc', { phone: true, fullView: true }),
   ).toBe(null);
 });
+
+test('an author in the link comes along', () => {
+  expect(pushViewFor('?repo=try&author=fqueze%40mozilla.com', phone)).toBe(
+    '/push?repo=try&author=fqueze%40mozilla.com',
+  );
+});

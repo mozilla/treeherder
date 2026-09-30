@@ -1,13 +1,16 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router';
 
 import {
   ago,
+  authorName,
   fetchHealth,
   fetchPushes,
   fetchSummary,
   progressOf,
+  pushesOf,
   pushTitle,
+  pushUrl,
 } from './helpers';
 import { queued, usePoll, usePulse } from './hooks';
 import Ring from './Ring';
@@ -16,6 +19,7 @@ import Nav from './Nav';
 import {
   cachedPushes,
   cachedSummary,
+  rememberPerson,
   rememberPush,
   rememberPushes,
 } from './cache';
@@ -56,7 +60,7 @@ export const describeSummary = (summary) => {
   return { tone: 'good', text: 'All green' };
 };
 
-const PushRow = ({ push, repo, refreshKey, index }) => {
+const PushRow = ({ push, repo, author, refreshKey, index }) => {
   const [summary, setSummary] = useState(() =>
     cachedSummary(repo, push.revision),
   );
@@ -78,7 +82,7 @@ const PushRow = ({ push, repo, refreshKey, index }) => {
     <li className="pv-cascade" style={{ '--i': index }}>
       <Link
         className={`pv-row pv-tone-${tone}${pulsing ? ' pv-pulse' : ''}`}
-        to={`/push?repo=${repo}&revision=${push.revision}`}
+        to={pushUrl({ repo, author, revision: push.revision })}
         onPointerDown={() => {
           rememberPush(repo, push);
           fetchHealth(repo, push.revision);
@@ -100,7 +104,75 @@ const PushRow = ({ push, repo, refreshKey, index }) => {
   );
 };
 
-const PushList = ({ repo, author, onChangeAuthor }) => {
+// The author, editable where it's shown: a mistyped address is fixed in
+// place rather than by starting over.
+const AuthorEditor = ({ repo, author, name, editing, setEditing }) => {
+  const navigate = useNavigate();
+  const [value, setValue] = useState(author);
+  const input = useRef(null);
+
+  useEffect(() => {
+    if (editing) {
+      setValue(author);
+      input.current?.focus();
+      input.current?.select();
+    }
+  }, [editing, author]);
+
+  if (!editing) {
+    return (
+      <button
+        type="button"
+        className="pv-switch-person"
+        onClick={() => setEditing(true)}
+        aria-label={`Author ${author}, tap to change`}
+      >
+        author: {name || author}
+      </button>
+    );
+  }
+
+  const next = value.trim().toLowerCase();
+  return (
+    <form
+      className="pv-author-edit"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!next.includes('@')) return;
+        setEditing(false);
+        navigate(pushUrl({ repo, author: next }));
+      }}
+    >
+      <input
+        ref={input}
+        className="pv-input pv-input-inline"
+        type="email"
+        inputMode="email"
+        autoComplete="email"
+        aria-label="Author email"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={(e) => e.key === 'Escape' && setEditing(false)}
+      />
+      <button type="submit" className="pv-inline-go" disabled={!next.includes('@')}>
+        Show
+      </button>
+      <button
+        type="button"
+        className="pv-inline-cancel"
+        onClick={() => setEditing(false)}
+      >
+        Cancel
+      </button>
+      <Link className="pv-inline-recent" to={pushUrl({ repo, author: '' })}>
+        Recent
+      </Link>
+    </form>
+  );
+};
+
+const PushList = ({ repo, author, theme }) => {
+  const [editing, setEditing] = useState(false);
   const [pushes, setPushes] = useState(() => cachedPushes(repo, author));
   const [error, setError] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -123,17 +195,38 @@ const PushList = ({ repo, author, onChangeAuthor }) => {
   }, [load, repo, author]);
   usePoll(load, 90 * 1000);
 
+  // Only this author's pushes: just after switching, the list can still hold
+  // the last person's for a render.
+  const own = pushes?.find((p) => p.author?.toLowerCase() === author);
+  const name = own ? authorName(own) : null;
+  // Someone with no pushes is usually a typo; don't offer it back.
+  useEffect(() => {
+    if (own) rememberPerson(author, name);
+  }, [own, author, name]);
+
   return (
     <>
-      <div className="pv-aurora pv-tone-quiet" />
-      <Nav full={`/jobs?repo=${repo}&author=${encodeURIComponent(author)}`} />
+      <Nav
+        repo={repo}
+        author={author}
+        theme={theme}
+        full={`/jobs?repo=${repo}&author=${encodeURIComponent(author)}`}
+        filter={
+          <AuthorEditor
+            repo={repo}
+            author={author}
+            name={name}
+            editing={editing}
+            setEditing={setEditing}
+          />
+        }
+      />
       <header className="pv-masthead pv-rise">
         <div className="pv-masthead-words">
-          <span className="pv-nameplate">Treeherder · {repo}</span>
-          <h1 className="pv-title">Your pushes</h1>
-          <button type="button" className="pv-link-button" onClick={onChangeAuthor}>
-            {author}
-          </button>
+          <h1 className="pv-title">
+            {pushesOf(name)}
+          </h1>
+          {name && <span className="pv-masthead-email">{author}</span>}
         </div>
         <Kit />
       </header>
@@ -141,9 +234,18 @@ const PushList = ({ repo, author, onChangeAuthor }) => {
       {error && <p className="pv-sub">{error}</p>}
 
       {pushes && !pushes.length && (
-        <p className="pv-sub pv-rise">
-          Nothing on {repo} from {author} yet.
-        </p>
+        <div className="pv-empty pv-rise">
+          <p className="pv-sub">
+            Nothing on {repo} from {author}.
+          </p>
+          <button
+            type="button"
+            className="pv-link-button"
+            onClick={() => setEditing(true)}
+          >
+            Wrong address? Change it
+          </button>
+        </div>
       )}
 
       {pushes && (
@@ -152,6 +254,7 @@ const PushList = ({ repo, author, onChangeAuthor }) => {
             <PushRow
               key={push.id}
               index={index}
+              author={author}
               push={push}
               repo={repo}
               refreshKey={refreshKey}

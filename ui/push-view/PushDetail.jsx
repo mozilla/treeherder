@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import {
   ago,
+  authorName,
   FAILED_RESULTS,
   countWord,
   describeEta,
@@ -14,7 +15,9 @@ import {
   platformName,
   plural,
   progressOf,
+  pushesOf,
   pushTitle,
+  pushUrl,
   resultWord,
   splitTestPath,
   statusFromJobs,
@@ -25,7 +28,14 @@ import Retrigger from './Retrigger';
 import Nav from './Nav';
 import { JobFailures } from './JobSummary';
 import { chooseFullView } from './phone';
-import { cachedHealth, cachedPush, cachedSummary, rememberPush } from './cache';
+import {
+  cachedHealth,
+  cachedPush,
+  cachedSummary,
+  personName,
+  rememberPerson,
+  rememberPush,
+} from './cache';
 import { estimatePush, fetchPushJobs, loadDurationTable } from './eta';
 
 
@@ -112,17 +122,21 @@ const RingCenter = ({ progress }) => {
   );
 };
 
+// The full view's words and colours for each job state.
 const LEGEND = [
-  ['bad', (s) => (s.testfailed || 0) + (s.busted || 0) + (s.exception || 0), 'failed'],
-  ['good', (s) => s.success || 0, 'passed'],
-  ['running', (s) => s.running || 0, 'running'],
-  ['pending', (s) => (s.pending || 0) + (s.unscheduled || 0), 'waiting'],
+  ['testfailed', 'failed'],
+  ['busted', 'busted'],
+  ['exception', 'exception'],
+  ['success', 'passed'],
+  ['running', 'running'],
+  ['pending', 'pending'],
+  ['unscheduled', 'waiting on a build'],
 ];
 
 const Legend = ({ status }) => (
   <ul className="pv-legend">
-    {LEGEND.map(([kind, count, label]) => {
-      const n = count(status);
+    {LEGEND.map(([kind, label]) => {
+      const n = status[kind] || 0;
       return n ? (
         <li key={kind} className={`pv-legend-${kind}`}>
           <span className="pv-legend-dot" />
@@ -370,7 +384,7 @@ const Section = ({ title, count, children, quiet }) =>
     </section>
   ) : null;
 
-const PushDetail = ({ repo, revision }) => {
+const PushDetail = ({ repo, author, theme, revision }) => {
   const [push, setPush] = useState(() => cachedPush(repo, revision));
   const [health, setHealth] = useState(() => cachedHealth(repo, revision));
   // The list already knows this push's counts, so the ring can draw before
@@ -493,6 +507,10 @@ const PushDetail = ({ repo, revision }) => {
       )
     : [];
 
+  const pushedBy = push?.author;
+  const pushedByName = push ? authorName(push) : null;
+  useEffect(() => rememberPerson(pushedBy, pushedByName), [pushedBy, pushedByName]);
+
   const commits = push
     ? push.revisions.filter((r) => !/^Fuzzy query|^try:/i.test(r.comments))
     : [];
@@ -500,9 +518,13 @@ const PushDetail = ({ repo, revision }) => {
   return (
     <>
       <Nav
-        back={`/push?repo=${repo}`}
-        backLabel="Your pushes"
+        repo={repo}
+        author={author}
+        theme={theme}
+        back={pushUrl({ repo, author })}
+        backLabel={pushesOf(personName(author))}
         full={`/jobs?repo=${repo}&revision=${revision}`}
+        filter={`revision: ${revision.slice(0, 12)}`}
       />
 
       {error && <p className="pv-sub">{error}</p>}
@@ -510,15 +532,13 @@ const PushDetail = ({ repo, revision }) => {
       {push && (
         <header className="pv-push-head pv-rise">
           <span className="pv-eyebrow">
-            {repo} · {ago(push.push_timestamp)} · {revision.slice(0, 12)}
+            {ago(push.push_timestamp)} · {authorName(push) || push.author}
           </span>
           {pushTitle(push) !== revision.slice(0, 12) && (
             <p className="pv-push-title">{pushTitle(push)}</p>
           )}
         </header>
       )}
-
-      <div className={`pv-aurora pv-tone-${said?.tone || 'quiet'}`} />
 
       <section
         className={`pv-hero pv-tone-${said?.tone || 'quiet'}${pulsing ? ' pv-pulse' : ''}`}

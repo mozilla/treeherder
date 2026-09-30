@@ -1,30 +1,28 @@
 /* Push view: one push, one answer, sized for a phone.
-   Status colours are checked for 3:1 non-text contrast against their own
-   background in both schemes. */
+   Colours are Treeherder's own: the job states come straight from the
+   --status-* variables in treeherder-job-buttons.css, the chrome from the
+   full view's navbars. Text colours keep 4.5:1 on white; where a status
+   colour is too light for small text, its darker "classified" shade is used. */
 
 body.pv-body {
-  --pv-bg: #f5f5f1;
-  --pv-surface: #ffffffd9;
-  --pv-ink: #15171c;
-  --pv-muted: #5d636e;
-  --pv-hairline: #e2e2dc;
-  --pv-dots: #15171c0d;
-  --pv-good: #1a7f37;
-  --pv-bad: #cf222e;
-  --pv-running: #0969da;
-  --pv-pending: #cfd2d6;
-  --pv-quiet: #b4b8bf;
-  --pv-aurora-strength: 0.16;
-  --pv-radius: 16px;
+  --pv-bg: #fff;
+  --pv-surface: #fff;
+  --pv-ink: #212529;
+  --pv-muted: #6c757d;
+  --pv-hairline: #dee2e6;
+  --pv-wash: #f8f9fa;
+  --pv-link: #337ab7;
+  --pv-topbar: rgb(34, 34, 34);
+  --pv-contextbar: rgb(55, 64, 71);
+  --pv-info-bg: rgb(214, 235, 240);
+  --pv-info-ink: #0c5460;
+  --pv-danger: #dc3545;
+  --pv-radius: 8px;
 
   margin: 0;
-  background-color: var(--pv-bg);
-  background-image: radial-gradient(circle, var(--pv-dots) 1px, transparent 1px);
-  background-size: 22px 22px;
+  background: var(--pv-bg);
   color: var(--pv-ink);
-  font-family:
-    -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Segoe UI',
-    sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
@@ -33,39 +31,42 @@ body.pv-body {
   -webkit-tap-highlight-color: transparent;
 }
 
-@media (prefers-color-scheme: dark) {
-  body.pv-body {
-    --pv-bg: #0c0e11;
-    --pv-surface: #16191ed9;
-    --pv-ink: #eceef1;
-    --pv-muted: #9aa1ab;
-    --pv-hairline: #262a31;
-    --pv-dots: #ffffff0a;
-    --pv-good: #3fb950;
-    --pv-bad: #f85149;
-    --pv-running: #4c9bff;
-    --pv-pending: #30353d;
-    --pv-quiet: #474c55;
-    --pv-aurora-strength: 0.22;
-    color-scheme: dark;
-  }
+/* Dark, when chosen. The bars are Treeherder's either way; the page goes
+   dark, and the job colours that vanish on it (black running, deep blue
+   retry, deep green success) get lighter shades of themselves. */
+body.pv-body.pv-dark {
+  --pv-bg: #16181b;
+  --pv-surface: #1e2125;
+  --pv-wash: #191c1f;
+  --pv-ink: #e9ecef;
+  --pv-muted: #adb5bd;
+  --pv-hairline: #343a40;
+  --pv-link: #6ea8fe;
+  --pv-info-bg: #032830;
+  --pv-info-ink: #6edff6;
+  --status-success: #2ea043;
+  --status-success-hover: #4ac26b;
+  --status-running: #e9ecef;
+  --status-retry: #5b6ee1;
+  --status-testfailed-classified: #f3913f;
+  color-scheme: dark;
+}
+
+.pv-dark .pv-tone-running {
+  --pv-tone-text: var(--pv-ink);
 }
 
 .pv {
-  position: relative;
-  isolation: isolate;
   max-width: 640px;
   margin: 0 auto;
-  padding: max(20px, env(safe-area-inset-top))
-    max(12px, env(safe-area-inset-right)) max(40px, env(safe-area-inset-bottom))
-    max(12px, env(safe-area-inset-left));
+  padding: 0 max(12px, env(safe-area-inset-right))
+    max(40px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
   line-height: 1.4;
 }
 
 /* The headings keep their breathing room; only the cards run wider, so a
    push title gets a few more characters on a phone. */
 .pv-masthead,
-.pv-nav,
 .pv-section > .pv-sub,
 .pv-push-head,
 .pv-section-title,
@@ -94,43 +95,220 @@ body.pv-body {
   text-align: left;
 }
 
-/* ---- tones ---- */
+/* ---- tones ----
+   --pv-tone paints marks; --pv-tone-text is the same colour, dark enough
+   to read as small text on white. */
 
 .pv-tone-good {
-  --pv-tone: var(--pv-good);
+  --pv-tone: var(--status-success);
+  --pv-tone-text: var(--status-success-hover);
 }
 .pv-tone-bad {
-  --pv-tone: var(--pv-bad);
+  --pv-tone: var(--status-testfailed);
+  --pv-tone-text: var(--status-testfailed-classified);
 }
 .pv-tone-running {
-  --pv-tone: var(--pv-running);
+  --pv-tone: var(--status-running);
+  --pv-tone-text: var(--pv-ink);
 }
 .pv-tone-quiet {
-  --pv-tone: var(--pv-quiet);
+  --pv-tone: var(--pv-hairline);
+  --pv-tone-text: var(--pv-muted);
 }
 
-/* A wash of the verdict's colour behind everything. It's a solid colour seen
-   through a soft mask, so a change of verdict fades rather than cuts. */
-.pv-aurora {
-  position: fixed;
-  inset: 0 0 auto;
-  height: 75vh;
-  z-index: -1;
-  pointer-events: none;
-  background-color: var(--pv-tone);
-  opacity: var(--pv-aurora-strength);
-  mask-image: radial-gradient(
-    ellipse 70% 55% at 50% 18%,
-    #000 0%,
-    transparent 100%
-  );
-  transition:
-    background-color 1.2s ease,
-    opacity 1.2s ease;
+/* ---- Treeherder's navbars ---- */
+
+/* Full-bleed however narrow the page column is. */
+.pv-bars {
+  margin: 0 calc(50% - 50vw) 20px;
 }
 
-.pv-aurora.pv-tone-quiet {
-  opacity: calc(var(--pv-aurora-strength) * 0.5);
+.pv-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  padding: env(safe-area-inset-top) max(12px, env(safe-area-inset-right)) 0
+    max(12px, env(safe-area-inset-left));
+  background: var(--pv-topbar);
+  border-bottom: 1px solid #000;
+}
+
+.pv-logo {
+  display: block;
+  height: 20px;
+}
+
+.pv-topbar-end {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* A plain switch, moon beside it; on means dark. */
+.pv .pv-theme {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.pv .pv-theme::before {
+  content: '☾';
+  font-size: 15px;
+  line-height: 1;
+}
+
+.pv-theme-track {
+  position: relative;
+  width: 34px;
+  height: 20px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.25);
+  transition: background-color 0.2s ease;
+}
+
+.pv-theme-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s ease;
+}
+
+.pv-theme[aria-checked='true'] .pv-theme-track {
+  background: var(--pv-link);
+}
+
+.pv-theme[aria-checked='true'] .pv-theme-thumb {
+  transform: translateX(14px);
+}
+
+.pv .pv-full {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 4px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.pv .pv-full:active {
+  color: #fff;
+}
+
+.pv-contextbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  padding: 0 max(12px, env(safe-area-inset-right)) 0
+    max(12px, env(safe-area-inset-left));
+  background: var(--pv-contextbar);
+  color: #fff;
+  font-size: 15px;
+}
+
+.pv .pv-back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: #fff;
+}
+
+.pv-back::before {
+  content: '‹';
+  margin-right: 6px;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.pv-repo {
+  margin-left: auto;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* What the page is showing, in the full view's "Active Filters" strip. */
+.pv-infobar {
+  display: flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 max(12px, env(safe-area-inset-right)) 0
+    max(12px, env(safe-area-inset-left));
+  background: var(--pv-info-bg);
+  color: var(--pv-info-ink);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.pv-infobar button,
+.pv .pv-switch-person {
+  font-weight: 700;
+  color: inherit;
+}
+
+/* The author reads as editable: a pencil, and a tap turns it into a field. */
+.pv .pv-switch-person {
+  min-height: 36px;
+  text-align: left;
+}
+
+.pv .pv-switch-person::after {
+  content: ' ✎';
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+.pv-author-edit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 0;
+}
+
+.pv .pv-input-inline {
+  flex: 1 1 180px;
+  min-width: 0;
+  padding: 8px 10px;
+  font-size: 16px;
+}
+
+.pv .pv-inline-go,
+.pv .pv-inline-cancel,
+.pv .pv-inline-recent {
+  min-height: 40px;
+  padding: 0 12px;
+  border-radius: var(--pv-radius);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.pv .pv-inline-go {
+  color: #fff;
+  background: var(--pv-link);
+}
+
+.pv .pv-inline-go:disabled {
+  opacity: 0.4;
+}
+
+.pv .pv-inline-cancel,
+.pv .pv-inline-recent {
+  display: inline-flex;
+  align-items: center;
+  color: var(--pv-info-ink);
+}
+
+.pv-empty {
+  padding: 0 6px;
 }
 
 /* ---- type ---- */
@@ -139,29 +317,25 @@ body.pv-body {
 .pv-eyebrow {
   display: block;
   font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--pv-muted);
 }
 
-.pv-eyebrow {
-  letter-spacing: 0.08em;
-}
-
 .pv-title {
   margin: 6px 0 0;
-  font-size: 38px;
-  font-weight: 750;
-  letter-spacing: -0.035em;
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   line-height: 1.05;
 }
 
 .pv-headline {
   margin: 0;
-  font-size: 32px;
-  font-weight: 750;
-  letter-spacing: -0.03em;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   line-height: 1.1;
 }
 
@@ -182,10 +356,11 @@ body.pv-body {
   align-items: center;
   min-height: 48px;
   font-size: 14px;
-  color: var(--pv-muted);
-  text-decoration: underline;
-  text-decoration-color: var(--pv-hairline);
-  text-underline-offset: 3px;
+  color: var(--pv-link);
+}
+
+.pv .pv-link {
+  color: var(--pv-link);
 }
 
 /* ---- the ring ---- */
@@ -210,25 +385,45 @@ body.pv-body {
   animation: pv-tick-in 0.45s cubic-bezier(0.3, 1.4, 0.5, 1) var(--in) both;
 }
 
-.pv-tick-bad {
-  stroke: var(--pv-bad);
+/* One tick colour per job state, exactly as the full view paints them. */
+.pv-tick-testfailed {
+  stroke: var(--status-testfailed);
 }
-.pv-tick-good {
-  stroke: var(--pv-good);
+.pv-tick-busted {
+  stroke: var(--status-busted);
+}
+.pv-tick-exception {
+  stroke: var(--status-exception);
+}
+.pv-tick-success {
+  stroke: var(--status-success);
+}
+.pv-tick-retry {
+  stroke: var(--status-retry);
+}
+.pv-tick-usercancel {
+  stroke: var(--status-usercancel);
+}
+.pv-tick-superseded {
+  stroke: var(--status-superseded);
 }
 .pv-tick-other {
-  stroke: var(--pv-quiet);
+  stroke: var(--status-unknown);
+}
+.pv-tick-running {
+  stroke: var(--status-running);
+}
+.pv-tick-unscheduled {
+  stroke: var(--status-unscheduled);
 }
 .pv-tick-pending,
 .pv-tick-loading {
-  stroke: var(--pv-pending);
-}
-.pv-tick-running {
-  stroke: var(--pv-running);
+  stroke: var(--status-pending);
+  opacity: 0.35;
 }
 
-/* Running and loading ticks carry a slow wave of light around the ring, so
-   a push that is working looks like it. */
+/* Running and loading ticks carry a slow wave around the ring, so a push
+   that is working looks like it. */
 .pv-tick-running,
 .pv-tick-loading {
   animation:
@@ -242,7 +437,6 @@ body.pv-body {
     transform: scale(0.2);
   }
   to {
-    opacity: 1;
     transform: none;
   }
 }
@@ -267,9 +461,9 @@ body.pv-body {
 }
 
 .pv-ring-figure {
-  font-size: 56px;
-  font-weight: 750;
-  letter-spacing: -0.04em;
+  font-size: 54px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
@@ -283,8 +477,8 @@ body.pv-body {
 .pv-ring-label {
   margin-top: 6px;
   font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--pv-muted);
 }
@@ -296,18 +490,26 @@ body.pv-body {
   align-items: flex-end;
   justify-content: space-between;
   gap: 12px;
-  margin: 8px 0 28px;
+  margin: 0 0 24px;
 }
 
 .pv-masthead-words {
   min-width: 0;
 }
 
+.pv-masthead-email {
+  display: block;
+  margin-top: 4px;
+  font-size: 14px;
+  color: var(--pv-muted);
+  word-break: break-all;
+}
+
 /* Kit sits on the masthead's baseline, arriving a beat after the title. */
 .pv-kit {
   flex: none;
-  width: 104px;
-  height: 104px;
+  width: 96px;
+  height: 96px;
   object-fit: contain;
   object-position: bottom right;
   margin-bottom: 6px;
@@ -328,7 +530,7 @@ body.pv-body {
 .pv-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .pv-row {
@@ -337,12 +539,8 @@ body.pv-body {
   gap: 12px;
   padding: 12px 14px 12px 12px;
   background: var(--pv-surface);
+  border: 1px solid var(--pv-hairline);
   border-radius: var(--pv-radius);
-  box-shadow:
-    0 0 0 1px var(--pv-hairline),
-    0 6px 20px -12px #0000002e;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   transition: transform 0.12s ease;
 }
 
@@ -356,8 +554,7 @@ body.pv-body {
 
 .pv-row-title {
   font-size: 16px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-weight: 700;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -374,12 +571,8 @@ body.pv-body {
 }
 
 .pv-row-status {
-  color: var(--pv-tone, var(--pv-muted));
-  font-weight: 600;
-}
-
-.pv-tone-quiet .pv-row-status {
-  color: var(--pv-muted);
+  color: var(--pv-tone-text, var(--pv-muted));
+  font-weight: 700;
 }
 
 .pv-row-when {
@@ -389,37 +582,10 @@ body.pv-body {
 
 /* ---- detail ---- */
 
-.pv-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: -12px 0 8px;
-}
-
-/* Always one tap from the full view, never in the way of the answer. */
-.pv .pv-full {
-  display: inline-flex;
-  align-items: center;
-  min-height: 36px;
-  margin: 6px 0;
-  padding: 0 14px;
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--pv-muted);
-  background: var(--pv-surface);
-  box-shadow: 0 0 0 1px var(--pv-hairline);
-}
-
-.pv .pv-full:active {
-  transform: scale(0.97);
-}
-
 .pv-job-title {
   margin: 6px 0 28px;
-  font-size: 26px;
-  font-weight: 750;
-  letter-spacing: -0.02em;
+  font-size: 24px;
+  font-weight: 700;
   word-break: break-word;
 }
 
@@ -432,7 +598,7 @@ body.pv-body {
 
 .pv-failure-message {
   margin: 8px 0 0;
-  font-family: ui-monospace, 'SF Mono', Menlo, 'Roboto Mono', monospace;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, 'Roboto Mono', monospace;
   font-size: 13px;
   line-height: 1.45;
   word-break: break-word;
@@ -457,14 +623,14 @@ body.pv-body {
 
 .pv-bug-id {
   flex: none;
-  font-weight: 650;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: var(--pv-running);
+  color: var(--pv-link);
 }
 
 .pv-bug-id.pv-muted {
   color: var(--pv-muted);
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .pv-bug-summary {
@@ -480,6 +646,7 @@ body.pv-body {
 .pv-inline {
   padding: 4px 16px 12px;
   border-top: 1px solid var(--pv-hairline);
+  background: var(--pv-wash);
 }
 
 .pv-inline-failures > li + li {
@@ -496,8 +663,9 @@ body.pv-body {
 
 .pv-failure-block .pv-bugs {
   margin-top: 10px;
+  background: var(--pv-surface);
   border: 1px solid var(--pv-hairline);
-  border-radius: 12px;
+  border-radius: var(--pv-radius);
   overflow: hidden;
 }
 
@@ -526,6 +694,11 @@ body.pv-body {
   transform: rotate(-135deg);
 }
 
+/* Rotated, the square's corner sits low; lift it onto the text's centre. */
+.pv-chevron:not(.pv-chevron-open) {
+  margin-top: -4px;
+}
+
 .pv-other-errors {
   margin-top: 12px;
   padding: 0 6px;
@@ -536,7 +709,7 @@ body.pv-body {
   align-items: center;
   min-height: 44px;
   font-size: 14px;
-  color: var(--pv-muted);
+  color: var(--pv-link);
   cursor: pointer;
 }
 
@@ -550,23 +723,7 @@ body.pv-body {
   min-height: 44px;
   padding: 10px 16px;
   font-size: 14px;
-  color: var(--pv-muted);
-}
-
-.pv .pv-back {
-  display: inline-flex;
-  align-items: center;
-  min-height: 48px;
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--pv-muted);
-}
-
-.pv-back::before {
-  content: '‹';
-  margin-right: 6px;
-  font-size: 22px;
-  line-height: 1;
+  color: var(--pv-link);
 }
 
 .pv-push-head {
@@ -577,14 +734,13 @@ body.pv-body {
   margin: 6px auto 0;
   max-width: 30ch;
   font-size: 17px;
-  font-weight: 500;
 }
 
 .pv-hero {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 28px 0 36px;
+  margin: 24px 0 32px;
   text-align: center;
 }
 
@@ -602,14 +758,14 @@ body.pv-body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 26px;
+  margin-top: 24px;
   /* Tall enough for a headline and a line, so arriving results don't shove
      the page down. */
   min-height: 96px;
 }
 
 .pv-hero .pv-headline {
-  color: var(--pv-tone);
+  color: var(--pv-tone-text);
 }
 
 .pv-hero.pv-tone-quiet .pv-headline {
@@ -627,7 +783,6 @@ body.pv-body {
   gap: 6px 16px;
   margin-top: 16px;
   font-size: 13px;
-  font-weight: 500;
   font-variant-numeric: tabular-nums;
   color: var(--pv-muted);
 }
@@ -639,38 +794,47 @@ body.pv-body {
 }
 
 .pv-legend-dot {
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
-  background: currentColor;
 }
 
-.pv-legend-bad .pv-legend-dot {
-  background: var(--pv-bad);
+.pv-legend-testfailed .pv-legend-dot {
+  background: var(--status-testfailed);
 }
-.pv-legend-good .pv-legend-dot {
-  background: var(--pv-good);
+.pv-legend-busted .pv-legend-dot {
+  background: var(--status-busted);
+}
+.pv-legend-exception .pv-legend-dot {
+  background: var(--status-exception);
+}
+.pv-legend-success .pv-legend-dot {
+  background: var(--status-success);
 }
 .pv-legend-running .pv-legend-dot {
-  background: var(--pv-running);
+  background: var(--status-running);
+}
+.pv-legend-unscheduled .pv-legend-dot {
+  background: var(--status-unscheduled);
 }
 .pv-legend-pending .pv-legend-dot {
-  background: var(--pv-pending);
+  background: var(--status-pending);
+  opacity: 0.45;
 }
 
+/* Treeherder's link blue, as an outlined button that fills on the second,
+   committing tap. */
 .pv .pv-action {
   margin-top: 20px;
   min-height: 48px;
   padding: 12px 22px;
-  border-radius: 999px;
+  border-radius: var(--pv-radius);
   font-size: 15px;
-  font-weight: 650;
+  font-weight: 700;
   text-align: center;
-  color: var(--pv-tone);
+  color: var(--pv-link);
   background: var(--pv-surface);
-  box-shadow:
-    0 0 0 1.5px var(--pv-tone),
-    0 8px 24px -14px var(--pv-tone);
+  border: 1px solid var(--pv-link);
   transition:
     transform 0.12s ease,
     background-color 0.3s ease,
@@ -681,37 +845,36 @@ body.pv-body {
   transform: scale(0.97);
 }
 
-/* The second tap is the commitment: the button fills so it can't be missed. */
 .pv .pv-action-confirm {
   color: #fff;
-  background: var(--pv-tone);
+  background: var(--pv-link);
 }
 
 .pv .pv-action-sent {
-  color: var(--pv-good);
-  box-shadow: 0 0 0 1.5px var(--pv-good);
+  color: var(--status-success-hover);
+  border-color: var(--status-success);
 }
 
 .pv .pv-action-elsewhere {
   color: var(--pv-muted);
-  box-shadow: 0 0 0 1.5px var(--pv-hairline);
-  font-weight: 500;
+  border-color: var(--pv-hairline);
+  font-weight: 400;
 }
 
 .pv .pv-action-sending {
   opacity: 0.7;
 }
 
+/* The ETA sits in Treeherder's info-strip colours. */
 .pv-eta-line {
   margin: 18px 0 0;
   padding: 8px 14px;
-  border-radius: 999px;
+  border-radius: var(--pv-radius);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: var(--pv-running);
-  background: var(--pv-surface);
-  box-shadow: 0 0 0 1px var(--pv-hairline);
+  color: var(--pv-info-ink);
+  background: var(--pv-info-bg);
 }
 
 .pv-elapsed {
@@ -727,13 +890,13 @@ body.pv-body {
 .pv-section-title {
   margin: 0 0 10px;
   font-size: 12px;
-  font-weight: 650;
-  letter-spacing: 0.12em;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
 .pv-section-quiet {
-  opacity: 0.72;
+  opacity: 0.75;
 }
 
 .pv-cards {
@@ -744,12 +907,8 @@ body.pv-body {
 
 .pv-card {
   background: var(--pv-surface);
+  border: 1px solid var(--pv-hairline);
   border-radius: var(--pv-radius);
-  box-shadow:
-    0 0 0 1px var(--pv-hairline),
-    0 6px 20px -12px #0000002e;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   overflow: hidden;
 }
 
@@ -764,8 +923,7 @@ body.pv-body {
 
 .pv-test-file {
   font-size: 17px;
-  font-weight: 650;
-  letter-spacing: -0.01em;
+  font-weight: 700;
   word-break: break-word;
 }
 
@@ -786,11 +944,11 @@ body.pv-body {
   height: 6px;
   max-width: 22px;
   border-radius: 3px;
-  background: var(--pv-pending);
+  background: var(--pv-hairline);
 }
 
 .pv-runbar .pv-runbar-bad {
-  background: var(--pv-bad);
+  background: var(--status-testfailed);
 }
 
 .pv-card-meta {
@@ -803,25 +961,30 @@ body.pv-body {
   color: var(--pv-muted);
 }
 
+/* Treeherder's red "failed" badge. */
 .pv-tag {
-  padding: 1px 7px;
-  border-radius: 999px;
+  padding: 2px 6px;
+  border-radius: 4px;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--pv-bad);
-  box-shadow: inset 0 0 0 1px var(--pv-bad);
+  color: #fff;
+  background: var(--pv-danger);
 }
 
 .pv-runs {
   border-top: 1px solid var(--pv-hairline);
 }
 
-.pv-run {
+/* .pv prefix: a run row is a button, and the button reset above would
+   otherwise strip its padding and run the text into the card's edge. */
+.pv .pv-run {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+  width: 100%;
   min-height: 48px;
   padding: 12px 16px;
   font-size: 15px;
@@ -830,12 +993,6 @@ body.pv-body {
 
 .pv-card li + li .pv-run {
   border-top: 1px solid var(--pv-hairline);
-}
-
-.pv-run-action {
-  margin-left: auto;
-  font-weight: 600;
-  color: var(--pv-running);
 }
 
 .pv-footer {
@@ -851,7 +1008,7 @@ body.pv-body {
   align-items: center;
   min-height: 48px;
   font-size: 14px;
-  color: var(--pv-muted);
+  color: var(--pv-link);
   cursor: pointer;
 }
 
@@ -872,8 +1029,9 @@ body.pv-body {
 .pv-card-head:focus-visible,
 .pv-run:focus-visible,
 .pv-back:focus-visible,
+.pv-full:focus-visible,
 .pv-link-button:focus-visible {
-  outline: 2px solid var(--pv-running);
+  outline: 2px solid var(--pv-link);
   outline-offset: 2px;
   border-radius: var(--pv-radius);
 }
@@ -883,27 +1041,43 @@ body.pv-body {
 .pv-prompt {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: 20vh;
+  gap: 16px;
+  padding: 0 6px;
+}
+
+.pv-prompt .pv-people {
+  margin: 0 -6px;
+}
+
+.pv-prompt-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pv .pv-button.pv-button-secondary {
+  display: block;
+  color: var(--pv-link);
+  background: var(--pv-surface);
+  border: 1px solid var(--pv-link);
 }
 
 .pv-input {
-  margin-top: 12px;
   padding: 14px 16px;
   font: inherit;
   font-size: 17px;
   color: var(--pv-ink);
   background: var(--pv-surface);
-  border: 1px solid var(--pv-hairline);
+  border: 1px solid #ced4da;
   border-radius: var(--pv-radius);
 }
 
 .pv .pv-button {
   padding: 14px 16px;
-  font-weight: 600;
+  font-weight: 700;
   text-align: center;
   color: #fff;
-  background: var(--pv-running);
+  background: var(--pv-link);
   border-radius: var(--pv-radius);
 }
 
@@ -937,14 +1111,10 @@ body.pv-body {
 /* A status that changes glows once in its new colour. */
 @keyframes pv-pulse {
   0% {
-    box-shadow:
-      0 0 0 1px var(--pv-hairline),
-      0 0 0 4px var(--pv-tone);
+    box-shadow: 0 0 0 3px var(--pv-tone);
   }
   100% {
-    box-shadow:
-      0 0 0 1px var(--pv-hairline),
-      0 0 0 4px transparent;
+    box-shadow: 0 0 0 3px transparent;
   }
 }
 
@@ -966,8 +1136,8 @@ body.pv-body {
   display: block;
   width: 9em;
   height: 1em;
-  border-radius: 6px;
-  background: var(--pv-hairline);
+  border-radius: 4px;
+  background: #e9ecef;
   animation: pv-shimmer 1.4s ease-in-out infinite;
 }
 
@@ -994,8 +1164,9 @@ body.pv-body {
   .pv-card-head,
   .pv-action,
   .pv-chevron,
-  .pv-tick,
-  .pv-aurora {
+  .pv-theme-track,
+  .pv-theme-thumb,
+  .pv-tick {
     transition: none;
   }
 }

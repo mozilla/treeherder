@@ -68,3 +68,23 @@ export const shared = (key, start, freshMs = 5000) => {
   inFlight.set(key, { promise, at: Date.now() });
   return promise;
 };
+
+// People you've looked at, newest first, so the picker can offer them back.
+const MAX_PEOPLE = 8;
+
+export const recentPeople = () => read('people') || [];
+
+export const rememberPerson = (email, name) => {
+  if (!email) return;
+  const key = email.toLowerCase();
+  const people = recentPeople();
+  const known = people.find((p) => p.email === key);
+  const next = [
+    { email: key, name: name || known?.name || null },
+    ...people.filter((p) => p.email !== key),
+  ].slice(0, MAX_PEOPLE);
+  write('people', next);
+};
+
+export const personName = (email) =>
+  recentPeople().find((p) => p.email === email?.toLowerCase())?.name || null;

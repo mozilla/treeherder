@@ -7,6 +7,7 @@ import { bzBaseUrl } from '../helpers/url';
 import Nav from './Nav';
 import { chooseFullView } from './phone';
 import {
+  pushUrl,
   testFromErrorLine,
   jobShortName,
   platformName,
@@ -289,7 +290,7 @@ export const JobFailures = ({ repo, revision, jobId, inline, under }) => {
 };
 
 // The same summary as its own page, for a link straight to one job.
-const JobSummary = ({ repo, revision, jobId }) => {
+const JobSummary = ({ repo, author, theme, revision, jobId }) => {
   const { job, error } = useJob(repo, jobId);
   const full = job
     ? `/jobs?repo=${repo}&revision=${revision}&selectedTaskRun=${job.task_id}.${job.retry_id}`
@@ -297,11 +298,14 @@ const JobSummary = ({ repo, revision, jobId }) => {
 
   return (
     <>
-      <div className="pv-aurora pv-tone-bad" />
       <Nav
-        back={`/push?repo=${repo}&revision=${revision}`}
+        repo={repo}
+        author={author}
+        theme={theme}
+        back={pushUrl({ repo, author, revision })}
         backLabel="This push"
         full={full}
+        filter={`revision: ${revision.slice(0, 12)}${job ? ` · ${job.job_type_symbol}` : ''}`}
       />
       {error && <p className="pv-sub">{error}</p>}
       {job && (

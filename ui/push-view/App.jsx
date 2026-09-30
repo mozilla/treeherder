@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 
 import UserModel from '../models/user';
 import { parseQueryParams } from '../helpers/url';
@@ -8,8 +8,11 @@ import PushList from './PushList';
 import PushDetail from './PushDetail';
 import JobSummary from './JobSummary';
 import AuthorPrompt from './AuthorPrompt';
-import { AUTHOR_STORAGE_KEY } from './helpers';
+import { pushUrl } from './helpers';
+import { useTheme } from './theme';
 
+// Treeherder's job-state colours (--status-*), shared with the full view.
+import '../css/treeherder-job-buttons.css';
 import '../css/push-view.css';
 
 // The rest of Treeherder is laid out for a desktop and relies on the browser
@@ -22,16 +25,8 @@ const HEAD_TAGS = [
     content:
       'width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content',
   },
-  {
-    name: 'theme-color',
-    content: '#f6f6f3',
-    media: '(prefers-color-scheme: light)',
-  },
-  {
-    name: 'theme-color',
-    content: '#0e1013',
-    media: '(prefers-color-scheme: dark)',
-  },
+  // Treeherder's top bar, so the browser's toolbar runs into it.
+  { name: 'theme-color', content: 'rgb(34, 34, 34)' },
 ];
 
 const useMobileHead = () => {
@@ -50,48 +45,56 @@ const useMobileHead = () => {
   }, []);
 };
 
-const useAuthor = (fromUrl) => {
-  const [author, setAuthor] = useState(
-    fromUrl || localStorage.getItem(AUTHOR_STORAGE_KEY),
-  );
-  const [checked, setChecked] = useState(!!author);
+// Whose pushes: the URL says, so any screen can be shared or bookmarked. With
+// no author in it, fill in the signed-in user; failing that, ask. An empty
+// `author=` asks on purpose, for switching person.
+const useAuthorInUrl = (params, repo) => {
+  const navigate = useNavigate();
+  const asking = 'author' in params && !params.author;
+  const [checked, setChecked] = useState(false);
+  const needsOne = !params.revision && !('author' in params);
 
   useEffect(() => {
-    if (author) return;
+    if (!needsOne) return;
+    let live = true;
     UserModel.get()
-      .then((user) => user.email && setAuthor(user.email))
+      .then((user) => {
+        if (live && user.email) {
+          navigate(pushUrl({ repo, author: user.email }), { replace: true });
+        }
+      })
       .catch(() => {})
-      .finally(() => setChecked(true));
-  }, [author]);
+      .finally(() => live && setChecked(true));
+    return () => {
+      live = false;
+    };
+  }, [needsOne, repo, navigate]);
 
-  const remember = (email) => {
-    localStorage.setItem(AUTHOR_STORAGE_KEY, email);
-    setAuthor(email);
-  };
+  const choose = (email) => navigate(pushUrl({ repo, author: email }));
 
-  return { author, checked, remember };
+  return { author: params.author || null, asking: asking || checked, choose };
 };
 
 const PushViewApp = () => {
   useMobileHead();
+  const theme = useTheme();
   const { search } = useLocation();
   const params = parseQueryParams(search);
   const repo = params.repo || 'try';
-  const { author, checked, remember } = useAuthor(params.author);
+  const { author, asking, choose } = useAuthorInUrl(params, repo);
+  const shared = { repo, author, theme };
 
   let screen;
   if (params.revision && params.job) {
     screen = (
-      <JobSummary repo={repo} revision={params.revision} jobId={params.job} />
+      <JobSummary {...shared} revision={params.revision} jobId={params.job} />
     );
   } else if (params.revision) {
-    screen = <PushDetail repo={repo} revision={params.revision} />;
+    screen = <PushDetail {...shared} revision={params.revision} />;
   } else if (author) {
-    screen = (
-      <PushList repo={repo} author={author} onChangeAuthor={() => remember('')} />
-    );
-  } else if (checked) {
-    screen = <AuthorPrompt onSubmit={remember} />;
+    screen = <PushList {...shared} />;
+  } else if (asking) {
+    screen = <AuthorPrompt {...shared} onSubmit={choose} />;
   }
 
   return <main className="pv">{screen}</main>;

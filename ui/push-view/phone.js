@@ -35,7 +35,7 @@ export const pushViewFor = (search, { phone, fullView }) => {
   if (!phone || fullView) return null;
   const params = new URLSearchParams(search);
   const next = new URLSearchParams();
-  for (const key of ['repo', 'revision']) {
+  for (const key of ['repo', 'revision', 'author']) {
     if (params.get(key)) next.set(key, params.get(key));
   }
   const query = next.toString();

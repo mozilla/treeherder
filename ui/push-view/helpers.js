@@ -5,7 +5,34 @@ import PushModel from '../models/push';
 
 import { rememberHealth, rememberSummary, shared } from './cache';
 
-export const AUTHOR_STORAGE_KEY = 'pushViewAuthor';
+// Every screen's address. The author rides along, so a list, a push and a
+// job summary can be shared or bookmarked and still say whose pushes they're
+// seen from.
+export const pushUrl = ({ repo, author, revision, job }) => {
+  const q = new URLSearchParams({ repo });
+  if (revision) q.set('revision', revision);
+  if (job) q.set('job', job);
+  if (author !== undefined && author !== null) q.set('author', author);
+  return `/push?${q}`;
+};
+
+// "Florian Quèze" → "Florian's pushes"; no name, just "Pushes".
+export const pushesOf = (name) =>
+  name ? `${name.split(' ')[0]}’s pushes` : 'Pushes';
+
+// The person's name, as the desktop view shows it: from the commits, which
+// carry "Full Name <email>". Prefer the commit whose email is the pusher's;
+// a try push is usually one person's commits even when the email differs.
+export const authorName = (push) => {
+  const people = (push?.revisions || [])
+    .map((r) => r.author?.match(/^\s*(.*?)\s*<([^>]+)>/))
+    .filter(Boolean)
+    .map(([, name, email]) => ({ name, email: email.toLowerCase() }));
+  const own = people.find((p) => p.email === push?.author?.toLowerCase());
+  if (own?.name) return own.name;
+  const names = new Set(people.map((p) => p.name).filter(Boolean));
+  return names.size === 1 ? [...names][0] : null;
+};
 
 export const fetchPushes = (repo, author, count = 15) =>
   getData(
