@@ -341,12 +341,8 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
         read_only=True, slug_field="revision", source="original_push"
     )
     push_timestamp = TimestampField(source="push", read_only=True)
-    prev_push_revision = RepositoryScopedRevisionField(
-        read_only=False,
-        slug_field="revision",
-        source="prev_push",
-        required=False,
-        queryset=Push.objects.all(),
+    prev_push_revision = serializers.SlugRelatedField(
+        read_only=True, slug_field="revision", source="prev_push"
     )
     original_prev_push_revision = serializers.SlugRelatedField(
         read_only=True, slug_field="revision", source="original_prev_push"
@@ -373,10 +369,30 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     monitored_alerts = serializers.BooleanField(required=False)
 
     def validate(self, data):
-        push = data.get("push", getattr(self.instance, "push", None))
-        prev_push = data.get("prev_push", getattr(self.instance, "prev_push", None))
-        if push and prev_push and push.revision == prev_push.revision:
-            raise serializers.ValidationError("From and To revisions should be distinct.")
+        if "push" in data:
+            push = data["push"]
+            prev_push = (
+                Push.objects.filter(repository_id=push.repository_id, time__lt=push.time)
+                .order_by("-time")
+                .first()
+            )
+
+            existing = (
+                PerformanceAlertSummary.objects.filter(
+                    repository_id=self.instance.repository_id,
+                    framework_id=self.instance.framework_id,
+                    sheriffed=self.instance.sheriffed,
+                    push=push,
+                )
+                .exclude(id=self.instance.id)
+                .first()
+            )
+            if existing:
+                raise serializers.ValidationError(
+                    f"Alert summary #{existing.id} already uses this To revision, "
+                    "reassign the alerts to it instead."
+                )
+            data["prev_push"] = prev_push
         return data
 
     def update(self, instance, validated_data):

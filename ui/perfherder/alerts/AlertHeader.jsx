@@ -33,36 +33,19 @@ const AlertHeader = ({
 }) => {
   const [inEditMode, setInEditMode] = useState(false);
   const [newRevisionTo, setnewRevisionTo] = useState(alertSummary.revision);
-  const [newRevisionFrom, setnewRevisionFrom] = useState(
-    alertSummary.prev_push_revision,
-  );
-  const revisionToType = 'to';
 
   const handleEditMode = () => {
     setnewRevisionTo('');
-    setnewRevisionFrom('');
     setInEditMode(true);
   };
-  const handleRevisionChange = (revisionType) => (event) => {
-    // revisionType can only be "to" or "from"
-    if (revisionType === revisionToType) setnewRevisionTo(event.target.value);
-    else setnewRevisionFrom(event.target.value);
+  const handleRevisionChange = (event) => {
+    setnewRevisionTo(event.target.value);
   };
   const saveRevision = async () => {
-    const trimmedRevisionTo =
-      newRevisionTo.trim() === ''
-        ? alertSummary.revision
-        : newRevisionTo.trim();
-    const trimmedRevisionFrom =
-      newRevisionFrom.trim() === ''
-        ? alertSummary.prev_push_revision
-        : newRevisionFrom.trim();
+    const trimmedRevisionTo = newRevisionTo.trim();
 
     const longHashMatch = /\b[a-f0-9]{40}\b/;
-    if (
-      !longHashMatch.test(trimmedRevisionTo) ||
-      !longHashMatch.test(trimmedRevisionFrom)
-    ) {
+    if (!longHashMatch.test(trimmedRevisionTo)) {
       updateViewState({
         errorMessages: [
           `Invalid Revision format, expected a 40 character hash.`,
@@ -70,10 +53,7 @@ const AlertHeader = ({
       });
       return;
     }
-    const response = await changeRevision(
-      trimmedRevisionTo,
-      trimmedRevisionFrom,
-    );
+    const response = await changeRevision(trimmedRevisionTo);
     if (!response.failureStatus) {
       setInEditMode(false);
     }
@@ -87,11 +67,8 @@ const AlertHeader = ({
     );
     return issueTrackerUrl + alertSummary.bug_number;
   };
-  const handleRevertRevision = (revisionType) => () => {
-    // revisionType can only be "to" or "from"
-    if (revisionType === revisionToType)
-      setnewRevisionTo(alertSummary.original_revision);
-    else setnewRevisionFrom(alertSummary.original_prev_push_revision);
+  const handleRevertRevision = () => {
+    setnewRevisionTo(alertSummary.original_revision);
   };
   const bugNumber = alertSummary.bug_number
     ? `Bug ${alertSummary.bug_number}`
@@ -261,40 +238,6 @@ const AlertHeader = ({
         <div>
           <Row className="mb-2">
             <Col xs="2" className="p-0 align-content-center">
-              <span className="align-middle">Current From: </span>
-            </Col>
-            <Col xs="2" className="p-0 align-content-center">
-              <span className="align-middle">
-                {`${alertSummary.prev_push_revision.slice(0, 12)}`}{' '}
-              </span>
-            </Col>
-
-            <Col xs="5" className="p-0">
-              <InputGroup size="sm">
-                <Form.Control
-                  value={newRevisionFrom}
-                  placeholder="Enter desired revision"
-                  onChange={handleRevisionChange('from')}
-                  autoFocus
-                />
-              </InputGroup>
-            </Col>
-            <Col xs="3" className="p-0">
-              <Button
-                className="ms-1"
-                size="sm"
-                disabled={
-                  alertSummary.original_prev_push_revision ===
-                  alertSummary.prev_push_revision
-                }
-                onClick={handleRevertRevision('from')}
-              >
-                Reset Revision
-              </Button>
-            </Col>
-          </Row>
-          <Row className="mb-2">
-            <Col xs="2" className="p-0 align-content-center">
               <span className="align-middle">Current To: </span>
             </Col>
             <Col xs="2" className="p-0 align-content-center">
@@ -305,7 +248,7 @@ const AlertHeader = ({
                 <Form.Control
                   value={newRevisionTo}
                   placeholder="Enter desired revision"
-                  onChange={handleRevisionChange('to')}
+                  onChange={handleRevisionChange}
                   autoFocus
                 />
               </InputGroup>
@@ -317,7 +260,7 @@ const AlertHeader = ({
                 disabled={
                   alertSummary.original_revision === alertSummary.revision
                 }
-                onClick={handleRevertRevision('to')}
+                onClick={handleRevertRevision}
               >
                 Reset Revision
               </Button>
@@ -329,7 +272,7 @@ const AlertHeader = ({
                 variant="primary"
                 className="ms-1"
                 size="xs"
-                disabled={newRevisionTo === '' && newRevisionFrom === ''}
+                disabled={newRevisionTo.trim() === ''}
                 onClick={saveRevision}
               >
                 Save
