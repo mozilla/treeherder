@@ -1,8 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
+import { Button, Offcanvas } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBars } from '@fortawesome/free-solid-svg-icons';
 
 import Logo from '../../img/treeherder-logo.png';
+import useIsMobile from '../../hooks/useIsMobile';
 import Login from '../../shared/auth/Login';
 import LogoMenu from '../../shared/LogoMenu';
 import { notify } from '../../shared/stores/notificationStore';
@@ -29,25 +33,44 @@ function PrimaryNavBar({
   getAllShownJobs,
   ...rest
 }) {
+  const isMobile = useIsMobile();
+  const [menuOpen, setMenuOpen] = React.useState(false);
+  const menus = (
+    <>
+      <NotificationsMenu />
+      <InfraMenu />
+      <ReposMenu repos={repos} />
+      <TiersMenu filterModel={filterModel} />
+      <FiltersMenu
+        filterModel={filterModel}
+        user={user}
+        getAllShownJobs={getAllShownJobs}
+      />
+      <HelpMenu />
+      <Login user={user} setUser={setUser} notify={notify} />
+    </>
+  );
+
   return (
     <div id="global-navbar-container">
       <div id="th-global-top-nav-panel">
         <nav id="th-global-navbar" className="navbar navbar-dark">
           <div id="th-global-navbar-top">
             <LogoMenu menuText="Treeherder" menuImage={Logo} />
-            <span className="navbar-right">
-              <NotificationsMenu />
-              <InfraMenu />
-              <ReposMenu repos={repos} />
-              <TiersMenu filterModel={filterModel} />
-              <FiltersMenu
-                filterModel={filterModel}
-                user={user}
-                getAllShownJobs={getAllShownJobs}
-              />
-              <HelpMenu />
-              <Login user={user} setUser={setUser} notify={notify} />
-            </span>
+            {isMobile ? (
+              <Button
+                className="mobile-menu-toggle"
+                variant="dark"
+                aria-label="Open navigation"
+                aria-controls="mobile-navigation"
+                aria-expanded={menuOpen}
+                onClick={() => setMenuOpen(true)}
+              >
+                <FontAwesomeIcon icon={faBars} />
+              </Button>
+            ) : (
+              <span className="navbar-right">{menus}</span>
+            )}
           </div>
           <SecondaryNavBar
             updateButtonClick={updateButtonClick}
@@ -62,6 +85,25 @@ function PrimaryNavBar({
           />
         </nav>
       </div>
+      {isMobile && (
+        <Offcanvas
+          id="mobile-navigation"
+          show={menuOpen}
+          onHide={() => setMenuOpen(false)}
+          placement="end"
+          className="mobile-navigation"
+          aria-labelledby="mobile-navigation-title"
+        >
+          <Offcanvas.Header closeButton>
+            <Offcanvas.Title id="mobile-navigation-title">
+              Treeherder
+            </Offcanvas.Title>
+          </Offcanvas.Header>
+          <Offcanvas.Body>
+            <div className="navbar-right">{menus}</div>
+          </Offcanvas.Body>
+        </Offcanvas>
+      )}
     </div>
   );
 }

@@ -62,6 +62,60 @@
   flex: 0 0 auto;
 }
 
+@media (max-width: 767.98px) {
+  .mobile-job-details .mobile-pinboard-back {
+    align-self: flex-start;
+    min-height: 44px;
+  }
+
+  .mobile-job-details .mobile-pinboard-visible #details-panel-content {
+    display: none;
+  }
+
+  .mobile-job-details #pinboard-panel:not(.hidden) {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+  }
+
+  .mobile-job-details #pinboard-contents {
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .mobile-job-details #pinned-job-list {
+    min-height: 72px;
+    flex: none;
+  }
+
+  .mobile-job-details #pinned-job-list .content {
+    position: static;
+    max-height: 160px;
+  }
+
+  .mobile-job-details #pinboard-related-bugs {
+    width: auto;
+  }
+
+  .mobile-job-details #pinboard-classification {
+    width: 100%;
+  }
+
+  .mobile-job-details #pinboard-panel #pinboard-classification select,
+  .mobile-job-details #pinboard-classification .add-classification-input {
+    width: 100%;
+    min-height: 36px;
+  }
+
+  .mobile-job-details #pinboard-controls {
+    margin: 8px;
+  }
+
+  .mobile-job-details .save-btn-group {
+    margin-top: 0;
+  }
+}
+
 #pinboard-contents {
   background-color: #e6eef5;
   color: #252c33;
