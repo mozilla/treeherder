@@ -1065,7 +1065,25 @@ body.pv-body.pv-dark {
 }
 
 .pv-prompt .pv-people {
-  margin: 0 -6px;
+  margin: -10px -6px 0;
+}
+
+.pv-people-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pv-people-head .pv-section-title {
+  margin: 0;
+  padding: 0;
+}
+
+.pv .pv-clear {
+  min-height: 44px;
+  padding: 0 4px;
+  font-size: 14px;
+  color: var(--pv-link);
 }
 
 .pv-prompt-form {

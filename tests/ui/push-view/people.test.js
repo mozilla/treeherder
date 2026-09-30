@@ -1,5 +1,6 @@
 import { authorName, pushUrl, pushesOf } from '../../../ui/push-view/helpers';
 import {
+  clearRecentPeople,
   personName,
   recentPeople,
   rememberPerson,
@@ -44,4 +45,12 @@ test('links carry the author, and an empty one asks', () => {
   expect(pushUrl({ repo: 'try', author: '' })).toBe('/push?repo=try&author=');
   expect(pushUrl({ repo: 'try', author: null })).toBe('/push?repo=try');
   expect(pushesOf('Florian Quèze')).toBe('Florian’s pushes');
+});
+
+test('clearing forgets everyone', () => {
+  rememberPerson('rcurran@mozilla.com', 'Ryan Curran');
+  rememberPerson('fqueze@mozilla.com', 'Florian Quèze');
+  clearRecentPeople();
+  expect(recentPeople()).toEqual([]);
+  expect(personName('rcurran@mozilla.com')).toBe(null);
 });

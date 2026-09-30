@@ -1,14 +1,14 @@
 import { useState } from 'react';
 
 import Nav from './Nav';
-import { recentPeople } from './cache';
+import { clearRecentPeople, recentPeople } from './cache';
 import { chooseFullView } from './phone';
 
 // Whose pushes to show, as a sentence the field completes: anyone looked at
 // lately is one tap away; anyone else is an email address.
 const AuthorPrompt = ({ repo, theme, onSubmit }) => {
   const [email, setEmail] = useState('');
-  const people = recentPeople();
+  const [people, setPeople] = useState(recentPeople);
   const valid = email.includes('@');
 
   return (
@@ -17,6 +17,21 @@ const AuthorPrompt = ({ repo, theme, onSubmit }) => {
       <div className="pv-prompt pv-rise">
         <h1 className="pv-headline">Pushes by…</h1>
 
+        {people.length > 0 && (
+          <div className="pv-people-head">
+            <h2 className="pv-section-title">Recent</h2>
+            <button
+              type="button"
+              className="pv-clear"
+              onClick={() => {
+                clearRecentPeople();
+                setPeople([]);
+              }}
+            >
+              Clear
+            </button>
+          </div>
+        )}
         {people.length > 0 && (
           <ul className="pv-cards pv-people">
             {people.map((p) => (

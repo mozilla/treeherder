@@ -86,5 +86,7 @@ export const rememberPerson = (email, name) => {
   write('people', next);
 };
 
+export const clearRecentPeople = () => write('people', []);
+
 export const personName = (email) =>
   recentPeople().find((p) => p.email === email?.toLowerCase())?.name || null;
