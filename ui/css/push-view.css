@@ -142,29 +142,21 @@ body.pv-body.pv-dark {
 .pv-topbar-end {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 
-/* A plain switch, moon beside it; on means dark. */
+/* On means dark. The knob shows which theme is on: a sun, or a moon. */
 .pv .pv-theme {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
   min-height: 44px;
-  color: rgba(255, 255, 255, 0.75);
-}
-
-.pv .pv-theme::before {
-  content: '☾';
-  font-size: 15px;
-  line-height: 1;
 }
 
 .pv-theme-track {
   position: relative;
-  width: 34px;
-  height: 20px;
-  border-radius: 10px;
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.25);
   transition: background-color 0.2s ease;
 }
@@ -173,11 +165,23 @@ body.pv-body.pv-dark {
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 16px;
-  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: #fff;
   transition: transform 0.2s ease;
+}
+
+.pv-theme-thumb svg {
+  width: 13px;
+  height: 13px;
+  fill: #f0a020;
+  stroke: #f0a020;
+  stroke-width: 2;
+  stroke-linecap: round;
 }
 
 .pv-theme[aria-checked='true'] .pv-theme-track {
@@ -185,20 +189,35 @@ body.pv-body.pv-dark {
 }
 
 .pv-theme[aria-checked='true'] .pv-theme-thumb {
-  transform: translateX(14px);
+  transform: translateX(20px);
+}
+
+.pv-theme[aria-checked='true'] .pv-theme-thumb svg {
+  fill: var(--pv-contextbar);
+  stroke: none;
 }
 
 .pv .pv-full {
   display: inline-flex;
   align-items: center;
-  min-height: 44px;
-  padding: 0 4px;
+  gap: 4px;
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 6px;
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .pv .pv-full:active {
   color: #fff;
+  border-color: #fff;
+}
+
+.pv-topbar-divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .pv-contextbar {
