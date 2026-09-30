@@ -123,7 +123,7 @@
 
 .dropdown-item {
   cursor: pointer;
-  color: #212529 !important;
+  color: var(--th-dropdown-item-color, #212529) !important;
 }
 
 .dropdown-item:hover,
@@ -303,7 +303,12 @@
 
 .queryparam {
   display: inline-block;
-  font: 12px Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  font:
+    12px Consolas,
+    'Liberation Mono',
+    Menlo,
+    Courier,
+    monospace;
   color: #555;
 }
 

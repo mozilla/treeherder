@@ -225,6 +225,68 @@ fieldset[disabled] .btn-push:hover {
   background-color: rgba(0, 0, 0, 0.03);
 }
 
+@media (max-width: 767.98px) {
+  .push-bar {
+    padding: 8px;
+    flex-wrap: wrap;
+    white-space: normal;
+    gap: 4px 8px;
+  }
+
+  .push-left,
+  .push-title-left {
+    min-width: 0;
+    flex: 1 1 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .push-body-divider {
+    margin-left: 0;
+  }
+
+  .push-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 0;
+  }
+
+  .push-buttons > .btn,
+  .push-buttons > .btn-group {
+    margin: 0 4px 0 0;
+    min-height: 30px;
+  }
+
+  .push .job-list {
+    min-width: 0;
+    padding: 0 8px;
+  }
+
+  .push-jobs-scroll {
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+  }
+
+  .push-jobs-scroll table {
+    width: max-content;
+    min-width: 100%;
+  }
+
+  .push-jobs-scroll .platform {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: #fff;
+    width: 8rem;
+    min-width: 8rem;
+  }
+
+  .push-jobs-scroll tr:nth-child(even) .platform {
+    background: #f8f8f8;
+  }
+}
+
 .get-next {
   flex-direction: row;
   font-size: 14px;

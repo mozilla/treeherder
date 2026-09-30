@@ -307,10 +307,10 @@ const SecondaryNavBar = ({
                 const { status } = getBtnClass(filterName);
                 return (
                   <span key={filterName}>
-                    <FontAwesomeIcon
+                    <button
+                      type="button"
                       className="btn btn-view-nav btn-nav-filter"
                       data-status={status}
-                      icon={isOn ? faDotCircle : faCircle}
                       onClick={() =>
                         toggleResultStatusFilterChicklet(filterName)
                       }
@@ -318,8 +318,9 @@ const SecondaryNavBar = ({
                       aria-label={filterName}
                       role="checkbox"
                       aria-checked={isOn}
-                      tabIndex={0}
-                    />
+                    >
+                      <FontAwesomeIcon icon={isOn ? faDotCircle : faCircle} />
+                    </button>
                   </span>
                 );
               })}

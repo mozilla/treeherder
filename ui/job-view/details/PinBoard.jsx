@@ -29,6 +29,7 @@ import {
 } from '../../shared/stores/pinnedJobsStore';
 
 function PinBoard({
+  mobile = false,
   selectedJobFull = null,
   isLoggedIn,
   isStaff = false,
@@ -83,7 +84,8 @@ function PinBoard({
       const job = jobMap[pinnedJob.id];
 
       if (classification.failure_classification_id > 0) {
-        job.failure_classification_id = classification.failure_classification_id;
+        job.failure_classification_id =
+          classification.failure_classification_id;
         recalculateUnclassifiedCounts();
 
         classification.job_id = job.id;
@@ -219,42 +221,30 @@ function PinBoard({
       const jobs = Object.values(currentPinnedJobs);
       const classifyPromises = jobs.map((job) => saveClassification(job));
       const bugPromises = jobs.map((job) => saveBugs(job));
-      Promise.all([...classifyPromises, ...bugPromises]).then(
-        (results) => {
-          // Collect successfully classified jobs (saveClassification returns the job or null)
-          const classifiedJobs = results
-            .slice(0, jobs.length)
-            .filter(Boolean);
-          if (classifiedJobs.length) {
-            // Group updated jobs by push_id and dispatch applyNewJobs
-            // so Push components re-render JobButtons with new styling
-            const jobsByPush = classifiedJobs.reduce((acc, job) => {
-              const pushJobs = acc[job.push_id]
-                ? [...acc[job.push_id], job]
-                : [job];
-              return { ...acc, [job.push_id]: pushJobs };
-            }, {});
-            window.dispatchEvent(
-              new CustomEvent(thEvents.applyNewJobs, {
-                detail: { jobs: jobsByPush },
-              }),
-            );
-          }
+      Promise.all([...classifyPromises, ...bugPromises]).then((results) => {
+        // Collect successfully classified jobs (saveClassification returns the job or null)
+        const classifiedJobs = results.slice(0, jobs.length).filter(Boolean);
+        if (classifiedJobs.length) {
+          // Group updated jobs by push_id and dispatch applyNewJobs
+          // so Push components re-render JobButtons with new styling
+          const jobsByPush = classifiedJobs.reduce((acc, job) => {
+            const pushJobs = acc[job.push_id]
+              ? [...acc[job.push_id], job]
+              : [job];
+            return { ...acc, [job.push_id]: pushJobs };
+          }, {});
           window.dispatchEvent(
-            new CustomEvent(thEvents.classificationChanged),
+            new CustomEvent(thEvents.applyNewJobs, {
+              detail: { jobs: jobsByPush },
+            }),
           );
-          recalculateUnclassifiedCounts();
-          handleUnPinAll();
-        },
-      );
+        }
+        window.dispatchEvent(new CustomEvent(thEvents.classificationChanged));
+        recalculateUnclassifiedCounts();
+        handleUnPinAll();
+      });
     }
-  }, [
-    isLoggedIn,
-    currentRepo,
-    saveClassification,
-    saveBugs,
-    handleUnPinAll,
-  ]);
+  }, [isLoggedIn, currentRepo, saveClassification, saveBugs, handleUnPinAll]);
 
   saveRef.current = save;
 
@@ -276,7 +266,8 @@ function PinBoard({
 
   const cancelAllPinnedJobsTitle = () => {
     if (!isLoggedIn) return 'Not logged in';
-    if (!canCancelAllPinnedJobs()) return 'No pending / running jobs in pinBoard';
+    if (!canCancelAllPinnedJobs())
+      return 'No pending / running jobs in pinBoard';
     return 'Cancel all the pinned jobs';
   };
 
@@ -328,9 +319,7 @@ function PinBoard({
       }
       // Dispatch applyNewJobs so Push components re-render JobButtons
       const jobsByPush = updatedJobs.reduce((acc, job) => {
-        const pushJobs = acc[job.push_id]
-          ? [...acc[job.push_id], job]
-          : [job];
+        const pushJobs = acc[job.push_id] ? [...acc[job.push_id], job] : [job];
         return { ...acc, [job.push_id]: pushJobs };
       }, {});
       window.dispatchEvent(
@@ -423,7 +412,9 @@ function PinBoard({
           <div className="content">
             {!hasPinnedJobs && (
               <span className="pinboard-preload-txt">
-                press spacebar to pin a selected job
+                {mobile
+                  ? 'No pinned jobs'
+                  : 'press spacebar to pin a selected job'}
               </span>
             )}
             {Object.values(pinnedJobs).map((job) => {

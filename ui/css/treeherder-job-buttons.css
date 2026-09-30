@@ -96,7 +96,9 @@ button.btn.runnable-job-btn {
 }
 
 /* Selected jobs: white background for classified failures and non-failures */
-.job-btn.selected-job:not([data-status='testfailed']):not([data-status='busted']):not([data-status='exception']),
+.job-btn.selected-job:not([data-status='testfailed']):not(
+    [data-status='busted']
+  ):not([data-status='exception']),
 .job-btn.selected-job[data-classified='true'] {
   background: #fff;
 }
@@ -194,6 +196,17 @@ button.btn.runnable-job-btn.filter-shown {
   margin: 0 -1px 1px 1px;
 }
 
+@media (max-width: 767.98px) {
+  .push-jobs-scroll button.btn.job-btn,
+  .push-jobs-scroll button.btn.group-btn,
+  .push-jobs-scroll button.btn.group-symbol,
+  .push-jobs-scroll button.btn.runnable-job-btn {
+    min-height: 26px;
+    min-width: 26px;
+    margin-right: 2px;
+  }
+}
+
 .classified-icon,
 .intermittent-icon {
   font-size: 0.62em;
@@ -226,9 +239,15 @@ button.btn.runnable-job-btn.filter-shown {
   color: var(--failure-color, white);
   background-color: var(--failure-bg-color, var(--status-testfailed));
 }
-.job-btn[data-status='testfailed']:not([data-classified='true']):not(.selected-job):hover,
-.job-btn[data-status='testfailed']:not([data-classified='true']):not(.selected-job):focus,
-.job-btn[data-status='testfailed']:not([data-classified='true']):not(.selected-job):active {
+.job-btn[data-status='testfailed']:not([data-classified='true']):not(
+    .selected-job
+  ):hover,
+.job-btn[data-status='testfailed']:not([data-classified='true']):not(
+    .selected-job
+  ):focus,
+.job-btn[data-status='testfailed']:not([data-classified='true']):not(
+    .selected-job
+  ):active {
   background-color: var(--status-testfailed-hover);
   color: white;
 }
@@ -242,9 +261,15 @@ button.btn.runnable-job-btn.filter-shown {
 .group-btn[data-status='testfailed'][data-classified='true'] {
   background-color: transparent;
 }
-.job-btn[data-status='testfailed'][data-classified='true']:not(.selected-job):hover,
-.job-btn[data-status='testfailed'][data-classified='true']:not(.selected-job):focus,
-.job-btn[data-status='testfailed'][data-classified='true']:not(.selected-job):active {
+.job-btn[data-status='testfailed'][data-classified='true']:not(
+    .selected-job
+  ):hover,
+.job-btn[data-status='testfailed'][data-classified='true']:not(
+    .selected-job
+  ):focus,
+.job-btn[data-status='testfailed'][data-classified='true']:not(
+    .selected-job
+  ):active {
   background-color: var(--status-testfailed-classified);
   color: white;
 }
@@ -255,9 +280,15 @@ button.btn.runnable-job-btn.filter-shown {
   color: white;
   background-color: var(--status-busted);
 }
-.job-btn[data-status='busted']:not([data-classified='true']):not(.selected-job):hover,
-.job-btn[data-status='busted']:not([data-classified='true']):not(.selected-job):focus,
-.job-btn[data-status='busted']:not([data-classified='true']):not(.selected-job):active {
+.job-btn[data-status='busted']:not([data-classified='true']):not(
+    .selected-job
+  ):hover,
+.job-btn[data-status='busted']:not([data-classified='true']):not(
+    .selected-job
+  ):focus,
+.job-btn[data-status='busted']:not([data-classified='true']):not(
+    .selected-job
+  ):active {
   background-color: var(--status-busted-hover);
   color: white;
 }
@@ -273,7 +304,9 @@ button.btn.runnable-job-btn.filter-shown {
 }
 .job-btn[data-status='busted'][data-classified='true']:not(.selected-job):hover,
 .job-btn[data-status='busted'][data-classified='true']:not(.selected-job):focus,
-.job-btn[data-status='busted'][data-classified='true']:not(.selected-job):active {
+.job-btn[data-status='busted'][data-classified='true']:not(
+    .selected-job
+  ):active {
   background-color: var(--status-busted-classified);
   color: white;
 }
@@ -316,9 +349,15 @@ button.btn.runnable-job-btn.filter-shown {
   color: #3a004d;
   background-color: var(--status-exception);
 }
-.job-btn[data-status='exception']:not([data-classified='true']):not(.selected-job):hover,
-.job-btn[data-status='exception']:not([data-classified='true']):not(.selected-job):focus,
-.job-btn[data-status='exception']:not([data-classified='true']):not(.selected-job):active {
+.job-btn[data-status='exception']:not([data-classified='true']):not(
+    .selected-job
+  ):hover,
+.job-btn[data-status='exception']:not([data-classified='true']):not(
+    .selected-job
+  ):focus,
+.job-btn[data-status='exception']:not([data-classified='true']):not(
+    .selected-job
+  ):active {
   background-color: var(--status-exception-hover);
   color: white;
 }
@@ -332,9 +371,15 @@ button.btn.runnable-job-btn.filter-shown {
 .group-btn[data-status='exception'][data-classified='true'] {
   background-color: transparent;
 }
-.job-btn[data-status='exception'][data-classified='true']:not(.selected-job):hover,
-.job-btn[data-status='exception'][data-classified='true']:not(.selected-job):focus,
-.job-btn[data-status='exception'][data-classified='true']:not(.selected-job):active {
+.job-btn[data-status='exception'][data-classified='true']:not(
+    .selected-job
+  ):hover,
+.job-btn[data-status='exception'][data-classified='true']:not(
+    .selected-job
+  ):focus,
+.job-btn[data-status='exception'][data-classified='true']:not(
+    .selected-job
+  ):active {
   background-color: var(--status-exception-classified);
   color: white;
 }

@@ -1,4 +1,5 @@
 const { defineConfig, devices } = require('@playwright/test');
+const port = Number(process.env.PLAYWRIGHT_PORT || 5000);
 
 module.exports = defineConfig({
   testDir: './tests/ui/integration',
@@ -21,7 +22,7 @@ module.exports = defineConfig({
     : 'list',
 
   use: {
-    baseURL: 'http://localhost:5000',
+    baseURL: `http://localhost:${port}`,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
@@ -31,11 +32,20 @@ module.exports = defineConfig({
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
     },
+    {
+      name: 'mobile-firefox',
+      testMatch: '**/job-view/**/*.spec.js',
+      use: {
+        ...devices['Desktop Firefox'],
+        viewport: { width: 390, height: 844 },
+        hasTouch: true,
+      },
+    },
   ],
 
   webServer: {
-    command: 'BROWSER=none pnpm start',
-    port: 5000,
+    command: `PORT=${port} BROWSER=none pnpm start`,
+    port,
     reuseExistingServer: true,
     timeout: 120_000,
   },
