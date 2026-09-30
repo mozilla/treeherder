@@ -4,8 +4,8 @@ import Nav from './Nav';
 import { recentPeople } from './cache';
 import { chooseFullView } from './phone';
 
-// Whose pushes to show: anyone looked at lately is one tap away; anyone else
-// is an email address.
+// Whose pushes to show, as a sentence the field completes: anyone looked at
+// lately is one tap away; anyone else is an email address.
 const AuthorPrompt = ({ repo, theme, onSubmit }) => {
   const [email, setEmail] = useState('');
   const people = recentPeople();
@@ -15,7 +15,7 @@ const AuthorPrompt = ({ repo, theme, onSubmit }) => {
     <>
       <Nav repo={repo} theme={theme} full={`/jobs?repo=${repo}`} />
       <div className="pv-prompt pv-rise">
-        <h1 className="pv-headline">Whose pushes?</h1>
+        <h1 className="pv-headline">Pushes by…</h1>
 
         {people.length > 0 && (
           <ul className="pv-cards pv-people">
@@ -46,7 +46,7 @@ const AuthorPrompt = ({ repo, theme, onSubmit }) => {
             type="email"
             inputMode="email"
             autoComplete="email"
-            placeholder={people.length ? 'Someone else: name@mozilla.com' : 'you@mozilla.com'}
+            placeholder={people.length ? 'name@mozilla.com' : 'you@mozilla.com'}
             aria-label="Author email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
