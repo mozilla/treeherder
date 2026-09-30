@@ -4,14 +4,21 @@ import Hotkeys from 'react-hot-keys';
 
 import { thEvents } from '../helpers/constants';
 
-import { notify, useNotificationStore } from '../shared/stores/notificationStore';
+import {
+  notify,
+  useNotificationStore,
+} from '../shared/stores/notificationStore';
 import {
   useSelectedJobStore,
   changeJob,
   clearSelectedJob,
   updateJobDetails,
 } from '../shared/stores/selectedJobStore';
-import { pinJob, unPinAll, usePinnedJobsStore } from '../shared/stores/pinnedJobsStore';
+import {
+  pinJob,
+  unPinAll,
+  usePinnedJobsStore,
+} from '../shared/stores/pinnedJobsStore';
 
 const handledKeys =
   'b,c,f,ctrl+shift+f,f,g,i,j,k,l,shift+l,n,p,q,r,s,t,u,v,ctrl+shift+u,left,right,space,shift+/,escape,ctrl+enter,ctrl+backspace';
@@ -19,10 +26,8 @@ const handledKeys =
 function KeyboardShortcuts({ filterModel, showOnScreenShortcuts, children }) {
   const clearScreen = useCallback(() => {
     const { pinnedJobs } = usePinnedJobsStore.getState();
-    const {
-      notifications,
-      clearAllOnScreenNotifications,
-    } = useNotificationStore.getState();
+    const { notifications, clearAllOnScreenNotifications } =
+      useNotificationStore.getState();
 
     if (notifications.length) {
       clearAllOnScreenNotifications();
@@ -135,74 +140,86 @@ function KeyboardShortcuts({ filterModel, showOnScreenShortcuts, children }) {
     return true;
   }, []);
 
-  const onKeyDown = useCallback((key, e) => {
-    e.preventDefault();
+  const onKeyDown = useCallback(
+    (key, e) => {
+      e.preventDefault();
 
-    switch (key) {
-      case 'b':
-        return addRelatedBug();
-      case 'c':
-        return pinEditComment();
-      case 'f':
-        return quickFilter();
-      case 'ctrl+shift+f':
-        return clearFilter();
-      case 'g':
-        return openGeckoProfile();
-      case 'i':
-        return filterModel.toggleInProgress();
-      case 'j':
-        return changeSelectedJob('next', true);
-      case 'k':
-        return changeSelectedJob('previous', true);
-      case 'l':
-        return openLogviewer();
-      case 'shift+l':
-        return openRawLog();
-      case 'n':
-        return changeSelectedJob('next', true);
-      case 'p':
-        return changeSelectedJob('previous', true);
-      case 'q':
-        return filterModel.toggleClassifiedFailures(true);
-      case 'r':
-        return jobRetrigger();
-      case 's':
-        return filterModel.toggleUnscheduledResultStatus();
-      case 't':
-        return selectNextTab();
-      case 'u':
-        return filterModel.toggleUnclassifiedFailures();
-      case 'ctrl+shift+u':
-        return clearPinboard();
-      case 'left':
-        return changeSelectedJob('previous', false);
-      case 'right':
-        return changeSelectedJob('next', false);
-      case 'space':
-        return doPinJob();
-      case 'shift+/':
-        return showOnScreenShortcuts();
-      case 'escape':
-        return clearScreen();
-      case 'ctrl+enter':
-        return saveClassification();
-      case 'ctrl+backspace':
-        return deleteClassification();
-    }
-  }, [
-    addRelatedBug, pinEditComment, quickFilter, clearFilter, openGeckoProfile,
-    filterModel, changeSelectedJob, openLogviewer, openRawLog, jobRetrigger,
-    selectNextTab, clearPinboard, doPinJob, showOnScreenShortcuts, clearScreen,
-    saveClassification, deleteClassification,
-  ]);
+      switch (key) {
+        case 'b':
+          return addRelatedBug();
+        case 'c':
+          return pinEditComment();
+        case 'f':
+          return quickFilter();
+        case 'ctrl+shift+f':
+          return clearFilter();
+        case 'g':
+          return openGeckoProfile();
+        case 'i':
+          return filterModel.toggleInProgress();
+        case 'j':
+          return changeSelectedJob('next', true);
+        case 'k':
+          return changeSelectedJob('previous', true);
+        case 'l':
+          return openLogviewer();
+        case 'shift+l':
+          return openRawLog();
+        case 'n':
+          return changeSelectedJob('next', true);
+        case 'p':
+          return changeSelectedJob('previous', true);
+        case 'q':
+          return filterModel.toggleClassifiedFailures(true);
+        case 'r':
+          return jobRetrigger();
+        case 's':
+          return filterModel.toggleUnscheduledResultStatus();
+        case 't':
+          return selectNextTab();
+        case 'u':
+          return filterModel.toggleUnclassifiedFailures();
+        case 'ctrl+shift+u':
+          return clearPinboard();
+        case 'left':
+          return changeSelectedJob('previous', false);
+        case 'right':
+          return changeSelectedJob('next', false);
+        case 'space':
+          return doPinJob();
+        case 'shift+/':
+          return showOnScreenShortcuts();
+        case 'escape':
+          return clearScreen();
+        case 'ctrl+enter':
+          return saveClassification();
+        case 'ctrl+backspace':
+          return deleteClassification();
+      }
+    },
+    [
+      addRelatedBug,
+      pinEditComment,
+      quickFilter,
+      clearFilter,
+      openGeckoProfile,
+      filterModel,
+      changeSelectedJob,
+      openLogviewer,
+      openRawLog,
+      jobRetrigger,
+      selectNextTab,
+      clearPinboard,
+      doPinJob,
+      showOnScreenShortcuts,
+      clearScreen,
+      saveClassification,
+      deleteClassification,
+    ],
+  );
 
   return (
-    <Hotkeys
-      keyName={handledKeys}
-      onKeyDown={onKeyDown}
-      filter={filter}
-    >
+    <Hotkeys keyName={handledKeys} onKeyDown={onKeyDown} filter={filter}>
       {children}
     </Hotkeys>
   );

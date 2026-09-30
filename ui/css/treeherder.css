@@ -28,6 +28,27 @@ body {
   cursor: not-allowed;
   font-style: italic;
 }
+
+@media (max-width: 767.98px) {
+  #global-container {
+    height: 100dvh;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #global-container .mobile-push-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  #global-container .th-global-content {
+    min-height: 0;
+    overflow-x: hidden;
+    overscroll-behavior-y: contain;
+  }
+}
 /*
  * Resizer between PushList and DetailsPanel (react-resizable-panels)
  */

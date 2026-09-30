@@ -1,4 +1,3 @@
-
 import {
   render,
   fireEvent,
@@ -88,7 +87,7 @@ test('select a job updates url', async () => {
   expect(spell).toBeInTheDocument();
 
   // Click the job - this dispatches selectJobViaUrl which updates the URL
-  fireEvent.mouseDown(spell);
+  fireEvent.click(spell);
   await waitFor(() => expect(spell).toHaveClass('selected-job'));
 
   // Verify pushState was called with the correct selectedTaskRun parameter
@@ -111,7 +110,7 @@ test('filter change keeps selected job visible', async () => {
   expect(spell).toBeInTheDocument();
 
   // Click the job - this dispatches selectJobViaUrl which updates the URL
-  fireEvent.mouseDown(spell);
+  fireEvent.click(spell);
   await waitFor(() => expect(spell).toHaveClass('selected-job'));
 
   act(() => {

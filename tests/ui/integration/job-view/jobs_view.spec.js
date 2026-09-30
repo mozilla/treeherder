@@ -173,4 +173,50 @@ test.describe('Jobs View', () => {
     await expect(buildJobs).toHaveCount(0);
     await expect(yamlJobs.first()).toBeVisible();
   });
+
+  test('mobile navigation and job details preserve the browsing flow', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-firefox');
+
+    await expect(
+      page.getByRole('button', { name: 'Open navigation' }),
+    ).toBeVisible();
+    await page.getByRole('button', { name: 'Open navigation' }).click();
+    await expect(
+      page.locator('#mobile-navigation').getByRole('button', { name: 'Repos' }),
+    ).toBeVisible();
+    await page
+      .locator('#mobile-navigation')
+      .getByRole('button', { name: 'Close' })
+      .click();
+
+    await expect(page.locator('#quick-filter')).toBeVisible();
+    await expect(page.getByTestId('push-header').first()).toBeVisible();
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+
+    await page.getByTestId('job-btn').filter({ hasText: 'B' }).first().click();
+    await expect(page.locator('.mobile-job-details')).toBeVisible();
+    await expect(
+      page.locator('.mobile-job-details #details-panel'),
+    ).toContainText(BUILD_JOB.job_type_name);
+    await expect(page).toHaveURL(
+      new RegExp(`selectedTaskRun=${BUILD_JOB.task_id}`),
+    );
+
+    await page.reload();
+    await expect(
+      page.locator('.mobile-job-details #details-panel'),
+    ).toBeVisible();
+    await page
+      .locator('.mobile-job-details')
+      .getByRole('button', { name: 'Close' })
+      .click();
+    await expect(page).not.toHaveURL(/selectedTaskRun=/);
+    await expect(page.getByTestId('push-header').first()).toBeVisible();
+  });
 });
