@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Hotkeys from 'react-hot-keys';
 
@@ -17,6 +17,19 @@ const handledKeys =
   'b,c,f,ctrl+shift+f,f,g,i,j,k,l,shift+l,n,p,q,r,s,t,u,v,ctrl+shift+u,left,right,space,shift+/,escape,ctrl+enter,ctrl+backspace';
 
 function KeyboardShortcuts({ filterModel, showOnScreenShortcuts, children }) {
+  // react-hot-keys tracks an internal `isKeyDown` latch that it only clears on
+  // a keyup bubbling to document.body. Shortcuts that open a new tab (l, shift+l,
+  // g) steal that keyup, so the latch stays set and the next shortcut is
+  // swallowed (the "have to press it twice" bug). When the window loses focus,
+  // synthesize a keyup so the latch is cleared before focus returns.
+  useEffect(() => {
+    const clearHeldKeys = () => {
+      document.body.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true }));
+    };
+    window.addEventListener('blur', clearHeldKeys);
+    return () => window.removeEventListener('blur', clearHeldKeys);
+  }, []);
+
   const clearScreen = useCallback(() => {
     const { pinnedJobs } = usePinnedJobsStore.getState();
     const {
