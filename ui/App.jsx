@@ -13,6 +13,11 @@ import ChunkErrorBoundary from './shared/ChunkErrorBoundary';
 import LoginCallback from './login-callback/LoginCallback';
 import TaskclusterCallback from './taskcluster-auth-callback/TaskclusterCallback';
 import UserGuideApp from './userguide/App';
+import {
+  isPhone,
+  prefersFullView,
+  simpleViewFor,
+} from './simple-view/phone';
 import treeFavicon from './img/tree_open.png';
 import logFavicon from './img/logviewerIcon.png';
 import perfFavicon from './img/line_chart.png';
@@ -23,6 +28,8 @@ const IntermittentFailuresApp = lazy(
 const PerfherderApp = lazy(() => import('./perfherder/App'));
 
 const JobsViewApp = lazy(() => import('./job-view/App'));
+
+const SimpleViewApp = lazy(() => import('./simple-view/App'));
 
 const LogviewerApp = lazy(() => import('./logviewer/App'));
 
@@ -35,6 +42,7 @@ const faviconPaths = {
     favicon: logFavicon,
   },
   '/perfherder': { title: 'Perfherder', favicon: perfFavicon },
+  '/simple': { title: 'Treeherder Simple View', favicon: treeFavicon },
   '/userguide': {
     title: 'Treeherder User Guide',
     favicon: treeFavicon,
@@ -68,6 +76,15 @@ const WithFavicon = ({ children, route }) => {
   }, [route, location]);
 
   return children;
+};
+
+const JobsOrSimpleView = () => {
+  const { search } = useLocation();
+  const target = simpleViewFor(search, {
+    phone: isPhone(),
+    fullView: prefersFullView(),
+  });
+  return target ? <Navigate to={target} replace /> : <JobsViewApp />;
 };
 
 // Component to handle URL updates for backwards compatibility
@@ -135,7 +152,15 @@ const AppRoutes = () => {
               path="/jobs/*"
               element={
                 <WithFavicon route="/jobs">
-                  <JobsViewApp />
+                  <JobsOrSimpleView />
+                </WithFavicon>
+              }
+            />
+            <Route
+              path="/simple/*"
+              element={
+                <WithFavicon route="/simple">
+                  <SimpleViewApp />
                 </WithFavicon>
               }
             />

@@ -331,9 +331,9 @@
 }
 
 .alert-info {
-  color: #0c5460;
-  background-color: #d1ecf1;
-  border-color: #bee5eb;
+  color: var(--th-info-color);
+  background-color: var(--th-info-bg);
+  border-color: var(--th-info-border);
 }
 
 .alert-darker-info,
