@@ -178,6 +178,35 @@ test.describe('Jobs View', () => {
     await expect(yamlJobs.first()).toBeVisible();
   });
 
+  test('mobile job field filters keep their actions in view', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-firefox');
+
+    await page.getByRole('button', { name: 'Show job filters' }).click();
+    await page.locator('button[title="Filter by a job field"]').click();
+
+    const form = page.locator('.active-filters-bar form');
+    await expect(form.getByRole('textbox', { name: 'Value' })).toBeVisible();
+    await expect(form.getByRole('button', { name: 'add' })).toBeVisible();
+    await expect(form.getByRole('button', { name: 'cancel' })).toBeVisible();
+    expect(
+      await form.evaluate(
+        (element) => element.scrollWidth <= element.clientWidth,
+      ),
+    ).toBe(true);
+
+    await page
+      .getByRole('combobox', { name: 'Field' })
+      .selectOption('failure_classification_id');
+    await expect(page.locator('#job-filter-choice-value')).toBeVisible();
+    expect(
+      await form.evaluate(
+        (element) => element.scrollWidth <= element.clientWidth,
+      ),
+    ).toBe(true);
+  });
+
   test('mobile navigation and job details preserve the browsing flow', async ({
     page,
   }, testInfo) => {
