@@ -26,6 +26,12 @@ const STATUS_DISPLAY = {
   not_run: { label: 'Job not run', className: 'text-warning' },
 };
 
+const TOOLTIP_WIDTH = 280;
+const TOOLTIP_FALLBACK_HEIGHT = 186; // approximate height before first measurement
+const CHART_RIGHT_EDGE_THRESHOLD = 1275; // x-coord where tooltip clips the chart edge
+const NARROW_WINDOW_MAX = 1825; // window width where clipping occurs
+const HORIZONTAL_NUDGE = 100; // px to shift left to avoid right-edge clip
+
 const MissingJobTooltip = ({
   testData,
   user,
@@ -39,6 +45,7 @@ const MissingJobTooltip = ({
 }) => {
   const tooltipRef = useRef(null);
   const [tooltipHeight, setTooltipHeight] = useState(0);
+  const prevHeightRef = useRef(0);
 
   const testDetails = testData.find(
     (item) => item.signature_id === datum.signature_id,
@@ -51,8 +58,10 @@ const MissingJobTooltip = ({
 
     const measure = () => {
       const measuredHeight = element.getBoundingClientRect().height;
-      if (measuredHeight && Math.abs(measuredHeight - tooltipHeight) > 1)
+      if (measuredHeight && Math.abs(measuredHeight - prevHeightRef.current) > 1) {
+        prevHeightRef.current = measuredHeight;
         setTooltipHeight(measuredHeight);
+      }
     };
 
     measure();
@@ -178,12 +187,6 @@ const MissingJobTooltip = ({
       notify(formatTaskclusterError(error), 'danger', { sticky: true });
     }
   };
-
-  const TOOLTIP_WIDTH = 280;
-  const TOOLTIP_FALLBACK_HEIGHT = 186; // approximate height before first measurement
-  const CHART_RIGHT_EDGE_THRESHOLD = 1275; // x-coord where tooltip clips the chart edge
-  const NARROW_WINDOW_MAX = 1825;         // window width where clipping occurs
-  const HORIZONTAL_NUDGE = 100;           // px to shift left to avoid right-edge clip
 
   const verticalOffset = 10;
   const horizontalOffset =

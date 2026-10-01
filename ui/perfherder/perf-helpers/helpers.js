@@ -829,11 +829,14 @@ const buildMissingData = (series, commonByPush) => {
 
   if (!missing?.length) return [];
 
-  // Build a list of { t, y } pairs from the real data points so we can interpolate.
-  const realPoints = data.map((dataPoint) => ({
-    t: parseUtcDate(dataPoint.push_timestamp),
-    y: dataPoint.value,
-  }));
+  // Build a sorted list of { t, y } pairs from the real data points so we can interpolate.
+  // findNeighbors requires chronological order to find the correct neighbours via findIndex.
+  const realPoints = data
+    .map((dataPoint) => ({
+      t: parseUtcDate(dataPoint.push_timestamp),
+      y: dataPoint.value,
+    }))
+    .sort((a, b) => a.t - b.t);
 
   return missing.map((entry) => {
     const targetTime = parseUtcDate(entry.push_timestamp);
