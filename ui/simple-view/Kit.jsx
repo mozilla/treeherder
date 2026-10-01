@@ -4,6 +4,7 @@ import alert from './kit/alert.svg';
 import inquisitive from './kit/inquisitive.svg';
 import sittingLookingForward from './kit/sitting-looking-forward.svg';
 import sittingLookingUp from './kit/sitting-looking-up.svg';
+import { KIT_ALT } from './strings';
 
 // Kit, the Firefox mascot, from the official artwork in mozilla-central.
 // A different pose each visit; to add one, drop its SVG in ./kit and list it.
@@ -14,7 +15,7 @@ const Kit = () => {
     () => POSES[Math.floor(Math.random() * POSES.length)],
   );
 
-  return <img className="sv-kit" src={pose} alt="Kit, the Firefox mascot" />;
+  return <img className="sv-kit" src={pose} alt={KIT_ALT} />;
 };
 
 export default Kit;

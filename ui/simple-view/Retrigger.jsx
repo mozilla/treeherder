@@ -10,6 +10,8 @@ import {
   tcClientIdMap,
 } from '../taskcluster-auth-callback/constants';
 
+import { RETRIGGER } from './strings';
+
 // Taskcluster only signs in from origins it has a client for. Anywhere else
 // the button can't send, so it says where it can instead of failing quietly.
 export const canRetrigger = () => !!tcClientIdMap[window.location.origin];
@@ -32,17 +34,7 @@ const getRepo = async (name) => {
   return RepositoryModel.getRepo(name, await repos);
 };
 
-const LABELS = {
-  idle: (n) =>
-    n === 1 ? 'Rerun the failed test job' : `Rerun the ${n} failed test jobs`,
-  confirm: (n) => `Tap again to rerun ${n} ${n === 1 ? 'job' : 'jobs'}`,
-  sending: () => 'Sending…',
-  sent: () => "Sent. They'll show up here as they run.",
-  signin: () => 'Approve Taskcluster in the new tab, then tap again.',
-  failed: () => "Couldn't send that. Tap to try again.",
-  elsewhere: () =>
-    "Retrigger sends from treeherder.mozilla.org. This demo can't sign in to Taskcluster.",
-};
+const LABELS = RETRIGGER;
 
 // One button for the question a red push leaves you with: is it me, or is
 // it flaky? Rerunning the failed jobs answers it.

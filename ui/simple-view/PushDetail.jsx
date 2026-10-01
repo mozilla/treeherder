@@ -4,7 +4,6 @@ import {
   ago,
   authorName,
   FAILED_RESULTS,
-  countWord,
   describeEta,
   fetchFirstFailingTest,
   duration,
@@ -13,9 +12,7 @@ import {
   groupByTest,
   jobShortName,
   platformName,
-  plural,
   progressOf,
-  pushesOf,
   pushTitle,
   pushUrl,
   resultWord,
@@ -25,6 +22,7 @@ import {
 } from './helpers';
 import { queued, useCountUp, usePoll, usePulse } from './hooks';
 import Ring from './Ring';
+import { LIST, PUSH, VERDICT } from './strings';
 import Retrigger from './Retrigger';
 import Nav from './Nav';
 import { JobFailures } from './JobSummary';
@@ -42,64 +40,54 @@ import { estimatePush, fetchPushJobs, loadDurationTable } from './eta';
 
 // The whole screen exists to say this one sentence.
 const verdict = ({ yours, parentToo, builds, lint, progress, eta, seenBefore }) => {
-  const count = (n, noun) => `${countWord(n).toLowerCase()} ${plural(n, noun)}`;
   const broke = [];
-  if (yours.length) broke.push(`${count(yours.length, 'test')} broke`);
-  if (builds.length) broke.push(`${count(builds.length, 'build')} broke`);
-  if (lint.length) broke.push('lint failed');
-  const sentence = broke.join(', ');
+  if (yours.length) broke.push(VERDICT.broke(yours.length, 'test'));
+  if (builds.length) broke.push(VERDICT.broke(builds.length, 'build'));
+  if (lint.length) broke.push(VERDICT.lintFailed);
 
   const sofar = progress.running
-    ? `${progress.done} of ${progress.total} jobs done so far.`
+    ? VERDICT.soFar(progress.done, progress.total)
     : null;
   const others = seenBefore.length
-    ? ` ${countWord(seenBefore.length)} other ${plural(seenBefore.length, 'failure has', 'failures have')} been seen before.`
+    ? VERDICT.othersSeenBefore(seenBefore.length)
     : '';
 
   if (broke.length) {
     return {
       tone: 'bad',
-      headline: `${sentence[0].toUpperCase()}${sentence.slice(1)}.`,
+      headline: VERDICT.sentence(broke),
       sub:
         (sofar ||
           (parentToo.length
-            ? `${parentToo.length} more ${plural(parentToo.length, 'test fails', 'tests fail')} on the parent too.`
-            : "Nothing here fails on the parent, so it's probably yours.")) +
-        others,
-    };
-  }
-  if (progress.running && eta) {
-    return {
-      tone: 'running',
-      headline: eta.headline,
-      sub: `${sofar} Nothing new has broken.${others}`,
+            ? VERDICT.alsoOnParent(parentToo.length)
+            : VERDICT.probablyYours)) + others,
     };
   }
   if (progress.running) {
     return {
       tone: 'running',
-      headline: 'Still running.',
-      sub: `${sofar} Nothing new has broken.${others}`,
+      headline: eta ? eta.headline : VERDICT.stillRunning,
+      sub: VERDICT.nothingNewYet(sofar, others),
     };
   }
   if (seenBefore.length && !parentToo.length) {
     return {
       tone: 'good',
-      headline: 'Nothing new broke.',
-      sub: `${countWord(seenBefore.length)} ${plural(seenBefore.length, 'failure has', 'failures have')} been seen before, so ${plural(seenBefore.length, "it's", "they're")} likely intermittent.`,
+      headline: VERDICT.nothingNew,
+      sub: VERDICT.likelyIntermittent(seenBefore.length),
     };
   }
   if (parentToo.length) {
     return {
       tone: 'good',
-      headline: 'Nothing new broke.',
-      sub: `${countWord(parentToo.length)} ${plural(parentToo.length, 'test fails', 'tests fail')} here, but on the parent too.`,
+      headline: VERDICT.nothingNew,
+      sub: VERDICT.failsOnParentToo(parentToo.length),
     };
   }
   return {
     tone: 'good',
-    headline: 'All green.',
-    sub: `${progress.total} ${plural(progress.total, 'job')}, nothing needs a look.`,
+    headline: VERDICT.allGreen,
+    sub: VERDICT.nothingToLookAt(progress.total),
   };
 };
 
@@ -117,22 +105,14 @@ const RingCenter = ({ progress }) => {
         {running && <span className="sv-ring-unit">%</span>}
       </span>
       <span className="sv-ring-label">
-        {running ? 'done' : plural(progress.total, 'job')}
+        {running ? PUSH.ringDone : PUSH.ringJobs(progress.total)}
       </span>
     </>
   );
 };
 
 // The full view's words and colours for each job state.
-const LEGEND = [
-  ['testfailed', 'failed'],
-  ['busted', 'busted'],
-  ['exception', 'exception'],
-  ['success', 'passed'],
-  ['running', 'running'],
-  ['pending', 'pending'],
-  ['unscheduled', 'waiting on a build'],
-];
+const LEGEND = Object.entries(PUSH.legend);
 
 const Legend = ({ status }) => (
   <ul className="sv-legend">
@@ -221,8 +201,8 @@ const TestCard = ({ group, jobs, repo, revision }) => {
         {dir && <span className="sv-test-dir">{dir}</span>}
         <RunBar failed={failed} total={group.totalJobs} />
         <span className="sv-card-meta">
-          {!group.failedInParent && <span className="sv-tag">New</span>}
-          Failed {failed} of {group.totalJobs} {plural(group.totalJobs, 'run')} ·{' '}
+          {!group.failedInParent && <span className="sv-tag">{PUSH.newTag}</span>}
+          {PUSH.failedRuns(failed, group.totalJobs)} ·{' '}
           {[...group.platforms].join(', ')} · {[...group.configs].join(', ')}
           <Chevron open={open} />
         </span>
@@ -343,7 +323,7 @@ const SeenBefore = ({ jobs, repo, revision }) => {
             </span>
             {dir && <span className="sv-test-dir">{dir}</span>}
             <span className="sv-card-meta">
-              {runs.length > 1 && `${runs.length} jobs · `}
+              {runs.length > 1 && PUSH.jobCount(runs.length)}
               {where} · {runs.map((j) => j.symbol).join(', ')}
               <Chevron open={open} />
             </span>
@@ -396,7 +376,7 @@ const PushDetail = ({ repo, author, theme, revision }) => {
   useEffect(() => {
     fetchPush(repo, revision).then(({ data, failureStatus }) => {
       if (failureStatus || !data.results?.length) {
-        setError('No push with that revision.');
+        setError(PUSH.noPush);
       } else {
         setPush(data.results[0]);
         rememberPush(repo, data.results[0]);
@@ -507,7 +487,7 @@ const PushDetail = ({ repo, author, theme, revision }) => {
         author={author}
         theme={theme}
         back={pushUrl({ repo, author })}
-        backLabel={pushesOf(personName(author))}
+        backLabel={LIST.title(personName(author))}
         full={`/jobs?repo=${repo}&revision=${revision}`}
         filter={`revision: ${revision.slice(0, 12)}`}
       />
@@ -548,17 +528,17 @@ const PushDetail = ({ repo, author, theme, revision }) => {
             )}
             {failedJobs.length === 0 && testsFailed && (
               <p className="sv-elapsed">
-                Every failure has already been rerun or marked intermittent.
+                {PUSH.alreadyAnswered}
               </p>
             )}
             {eta && <p className="sv-eta-line">{eta.line}</p>}
             {progress.running && push && (
-              <p className="sv-elapsed">{duration(push.push_timestamp)} in</p>
+              <p className="sv-elapsed">{PUSH.elapsed(duration(push.push_timestamp))}</p>
             )}
           </div>
         ) : (
           !error && (
-            <div className="sv-hero-words" aria-label="Reading the results">
+            <div className="sv-hero-words" aria-label={PUSH.reading}>
               <span className="sv-skeleton sv-skeleton-headline" />
               <span className="sv-skeleton" />
             </div>
@@ -568,28 +548,28 @@ const PushDetail = ({ repo, author, theme, revision }) => {
 
       {health && (
         <div className="sv-rise">
-          <Section title="Broken here" count={yours.length}>
+          <Section title={PUSH.sections.brokenHere} count={yours.length}>
             {yours.map((g) => (
               <TestCard key={g.testName} group={g} jobs={health.jobs} repo={repo} revision={revision} />
             ))}
           </Section>
-          <Section title="Builds" count={builds.length}>
+          <Section title={PUSH.sections.builds} count={builds.length}>
             {builds.map((job) => (
               <JobCard key={job.id} job={job} repo={repo} revision={revision} />
             ))}
           </Section>
-          <Section title="Lint" count={lint.length}>
+          <Section title={PUSH.sections.lint} count={lint.length}>
             <LintCard jobs={lint} repo={repo} revision={revision} />
           </Section>
-          <Section title="Also failing on the parent" count={parentToo.length} quiet>
+          <Section title={PUSH.sections.alsoOnParent} count={parentToo.length} quiet>
             {parentToo.map((g) => (
               <TestCard key={g.testName} group={g} jobs={health.jobs} repo={repo} revision={revision} />
             ))}
           </Section>
-          <Section title="Seen before" count={seenBefore.length} quiet>
+          <Section title={PUSH.sections.seenBefore} count={seenBefore.length} quiet>
             <SeenBefore jobs={seenBefore} repo={repo} revision={revision} />
           </Section>
-          <Section title="Known intermittents" count={known.length} quiet>
+          <Section title={PUSH.sections.knownIntermittents} count={known.length} quiet>
             {known.map((g) => (
               <TestCard key={g.testName} group={g} jobs={health.jobs} repo={repo} revision={revision} />
             ))}
@@ -602,7 +582,7 @@ const PushDetail = ({ repo, author, theme, revision }) => {
           {commits.length > 0 && (
             <details className="sv-commits">
               <summary>
-                {commits.length} {plural(commits.length, 'commit')}
+                {PUSH.commits(commits.length)}
               </summary>
               <ul>
                 {commits.map((r) => (
@@ -616,7 +596,7 @@ const PushDetail = ({ repo, author, theme, revision }) => {
             href={`/jobs?repo=${repo}&revision=${revision}`}
             onClick={chooseFullView}
           >
-            Every job, in the full view
+            {PUSH.everyJob}
           </a>
         </footer>
       )}

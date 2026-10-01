@@ -4,6 +4,7 @@ import logo from '../img/treeherder-logo.png';
 
 import { pushUrl } from './helpers';
 import { chooseFullView } from './phone';
+import { NAV } from './strings';
 
 // Drawn, not typed: the Unicode sun becomes a colour emoji on iOS.
 const Moon = () => (
@@ -29,8 +30,8 @@ const ThemeSwitch = ({ theme }) => {
       className="sv-theme"
       role="switch"
       aria-checked={dark}
-      aria-label="Dark mode"
-      title={dark ? 'Dark mode on' : 'Dark mode off'}
+      aria-label={NAV.darkMode}
+      title={NAV.darkModeState(dark)}
       onClick={theme.toggle}
     >
       <span className="sv-theme-track">
@@ -46,14 +47,14 @@ const ThemeSwitch = ({ theme }) => {
 const Nav = ({ repo, author, theme, back, backLabel, full, filter }) => (
   <header className="sv-bars">
     <div className="sv-topbar">
-      <Link to={pushUrl({ repo, author })} aria-label="Your pushes">
-        <img className="sv-logo" src={logo} alt="Treeherder" />
+      <Link to={pushUrl({ repo, author })} aria-label={NAV.home}>
+        <img className="sv-logo" src={logo} alt={NAV.logoAlt} />
       </Link>
       <span className="sv-topbar-end">
         <ThemeSwitch theme={theme} />
         <span className="sv-topbar-divider" aria-hidden="true" />
         <a className="sv-full" href={full} onClick={chooseFullView}>
-          Full view <span aria-hidden="true">↗</span>
+          {NAV.fullView} <span aria-hidden="true">↗</span>
         </a>
       </span>
     </div>

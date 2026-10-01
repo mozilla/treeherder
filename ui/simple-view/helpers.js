@@ -1,9 +1,13 @@
 import { getData } from '../helpers/http';
 import { getProjectUrl } from '../helpers/location';
 import { createQueryParams, pushEndpoint } from '../helpers/url';
+import { thPlatformMap } from '../helpers/constants';
 import PushModel from '../models/push';
 
 import { rememberHealth, rememberSummary, shared } from './cache';
+import { ETA, LIST, RESULT_WORDS, TIME, countWord } from './strings';
+
+export { countWord };
 
 // Every screen's address. The author rides along, so a list, a push and a
 // job summary can be shared or bookmarked and still say whose pushes they're
@@ -17,8 +21,7 @@ export const pushUrl = ({ repo, author, revision, job }) => {
 };
 
 // "Florian Quèze" → "Florian's pushes"; no name, just "Pushes".
-export const pushesOf = (name) =>
-  name ? `${name.split(' ')[0]}’s pushes` : 'Pushes';
+export const pushesOf = LIST.title;
 
 // The person's name, as the desktop view shows it: from the commits, which
 // carry "Full Name <email>". Prefer the commit whose email is the pusher's;
@@ -84,46 +87,24 @@ export const pushTitle = (push) => {
 export const jobShortName = (name) =>
   name.replace(/^source-test-mozlint-/, '').replace(/^source-test-/, '');
 
-const RESULT_WORDS = {
-  testfailed: 'failed',
-  busted: 'broke',
-  exception: 'errored',
-  usercancel: 'cancelled',
-};
-
 export const resultWord = (result) => RESULT_WORDS[result] || result;
-
-const NUMBER_WORDS = [
-  'No',
-  'One',
-  'Two',
-  'Three',
-  'Four',
-  'Five',
-  'Six',
-  'Seven',
-  'Eight',
-  'Nine',
-];
-
-export const countWord = (n) => NUMBER_WORDS[n] || String(n);
 
 export const plural = (n, one, many = `${one}s`) => (n === 1 ? one : many);
 
 export const ago = (epochSeconds) => {
   const minutes = Math.max(0, Math.round(Date.now() / 1000 - epochSeconds) / 60);
-  if (minutes < 1) return 'just now';
-  if (minutes < 60) return `${Math.round(minutes)}m ago`;
+  if (minutes < 1) return TIME.justNow;
+  if (minutes < 60) return TIME.minutesAgo(Math.round(minutes));
   const hours = minutes / 60;
-  if (hours < 24) return `${Math.round(hours)}h ago`;
+  if (hours < 24) return TIME.hoursAgo(Math.round(hours));
   const days = Math.round(hours / 24);
-  return days === 1 ? 'yesterday' : `${days}d ago`;
+  return days === 1 ? TIME.yesterday : TIME.daysAgo(days);
 };
 
 export const duration = (epochSeconds) => {
   const minutes = Math.round((Date.now() / 1000 - epochSeconds) / 60);
-  if (minutes < 60) return `${minutes} min`;
-  return `${Math.floor(minutes / 60)}h ${minutes % 60}m`;
+  if (minutes < 60) return TIME.minutes(minutes);
+  return TIME.hoursMinutes(Math.floor(minutes / 60), minutes % 60);
 };
 
 // `status` counts unclassified, non-tier-3 jobs by state, and completed jobs
@@ -201,7 +182,7 @@ const minutesUntil = (ms, now = Date.now()) =>
 
 // "build-linux64-shippable/opt" reads as "linux64 shippable build".
 const buildName = (name) =>
-  `${name.replace(/^build-/, '').replace(/\/.*$/, '').replace(/-/g, ' ')} build`;
+  ETA.buildName(name.replace(/^build-/, '').replace(/\/.*$/, '').replace(/-/g, ' '));
 
 // The ETA in words. Null when the model has nothing honest to say.
 export const describeEta = (eta, { started = false, now = Date.now() } = {}) => {
@@ -209,43 +190,25 @@ export const describeEta = (eta, { started = false, now = Date.now() } = {}) => 
   if (eta.confidence === 'firm') {
     const soon = eta.mostAt <= now;
     return {
-      headline: soon
-        ? 'Most results any minute.'
-        : `Most results in ~${minutesUntil(eta.mostAt, now)} min.`,
-      line: `Most by ${clock(eta.mostAt)} · all done around ${clock(eta.allAt)}`,
+      headline: soon ? ETA.mostSoon : ETA.mostIn(minutesUntil(eta.mostAt, now)),
+      line: ETA.mostLine(clock(eta.mostAt), clock(eta.allAt)),
     };
   }
   if (eta.confidence === 'blockedOnBuild' && eta.blockingBuild) {
     const { name, finishAt, blockedJobs } = eta.blockingBuild;
-    // Once some of the push has run, it's only the rest that are waiting.
-    const who = started ? 'The rest start' : 'Tests start';
     return {
       headline:
         finishAt <= now
-          ? `${who} any minute.`
-          : `${who} in ~${minutesUntil(finishAt, now)} min.`,
-      line: `${blockedJobs} ${blockedJobs === 1 ? 'job waits' : 'jobs wait'} on the ${buildName(name)}`,
+          ? ETA.startSoon(started)
+          : ETA.startIn(started, minutesUntil(finishAt, now)),
+      line: ETA.waitingOn(blockedJobs, buildName(name)),
     };
   }
   return null;
 };
 
-const OS_NAMES = [
-  [/^macosx(\d\d)(\d\d)/, (m) => `macOS ${Number(m[1]) === 10 ? `10.${Number(m[2])}` : Number(m[1])}`],
-  [/^windows(\d+)/, (m) => `Windows ${m[1]}`],
-  [/^win(\d+)/, (m) => `Windows ${m[1]}`],
-  [/^linux/, () => 'Linux'],
-  [/^android/, () => 'Android'],
-];
-
-export const platformName = (platform = '') => {
-  const arch = /aarch64|arm64/.test(platform) ? ' ARM' : '';
-  for (const [re, name] of OS_NAMES) {
-    const m = platform.match(re);
-    if (m) return `${name(m)}${arch}`;
-  }
-  return platform;
-};
+export const platformName = (platform = '') =>
+  thPlatformMap[platform] || platform;
 
 // "toolkit/content/tests/browser/browser_contentTitle.js" reads as its file
 // name first; the directory is context.

@@ -8,12 +8,12 @@ import {
   fetchPushes,
   fetchSummary,
   progressOf,
-  pushesOf,
   pushTitle,
   pushUrl,
 } from './helpers';
 import { queued, usePoll, usePulse } from './hooks';
 import Ring from './Ring';
+import { LIST, PICKER } from './strings';
 import Kit from './Kit';
 import Nav from './Nav';
 import {
@@ -31,19 +31,18 @@ export const describeSummary = (summary) => {
   // testFailureCount is per test *per config*, so it would disagree with the
   // detail screen's per-test count. Say what is failing; the detail counts it.
   const broken = [
-    [summary.testFailureCount, 'tests'],
-    [summary.buildFailureCount, 'build'],
-    [summary.lintFailureCount, 'lint'],
+    [summary.testFailureCount, LIST.failingKinds.tests],
+    [summary.buildFailureCount, LIST.failingKinds.build],
+    [summary.lintFailureCount, LIST.failingKinds.lint],
   ]
     .filter(([n]) => n > 0)
     .map(([, what]) => what);
 
   if (broken.length) {
-    const what = broken.join(' and ');
-    const text = `${what[0].toUpperCase()}${what.slice(1)} failing`;
+    const text = LIST.failing(broken);
     return {
       tone: 'bad',
-      text: progress.running ? `${text} · still running` : text,
+      text: progress.running ? LIST.stillRunning(text) : text,
     };
   }
   // Nothing tagged new, but a job still failed: say so rather than "green".
@@ -53,11 +52,11 @@ export const describeSummary = (summary) => {
   if (progress.running) {
     return {
       tone: 'running',
-      text: `Running · ${progress.done} of ${progress.total}`,
+      text: LIST.running(progress.done, progress.total),
     };
   }
-  if (failed) return { tone: 'quiet', text: 'Only failures seen before' };
-  return { tone: 'good', text: 'All green' };
+  if (failed) return { tone: 'quiet', text: LIST.onlySeenBefore };
+  return { tone: 'good', text: LIST.green };
 };
 
 const PushRow = ({ push, repo, author, refreshKey, index }) => {
@@ -125,9 +124,9 @@ const AuthorEditor = ({ repo, author, name, editing, setEditing }) => {
         type="button"
         className="sv-switch-person"
         onClick={() => setEditing(true)}
-        aria-label={`Author ${author}, tap to change`}
+        aria-label={LIST.authorLabel(author)}
       >
-        author: {name || author}
+        {LIST.author(name || author)}
       </button>
     );
   }
@@ -149,23 +148,23 @@ const AuthorEditor = ({ repo, author, name, editing, setEditing }) => {
         type="email"
         inputMode="email"
         autoComplete="email"
-        aria-label="Author email"
+        aria-label={PICKER.emailLabel}
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={(e) => e.key === 'Escape' && setEditing(false)}
       />
       <button type="submit" className="sv-inline-go" disabled={!next.includes('@')}>
-        Show
+        {LIST.editShow}
       </button>
       <button
         type="button"
         className="sv-inline-cancel"
         onClick={() => setEditing(false)}
       >
-        Cancel
+        {LIST.editCancel}
       </button>
       <Link className="sv-inline-recent" to={pushUrl({ repo, author: '' })}>
-        Recent
+        {LIST.editRecent}
       </Link>
     </form>
   );
@@ -180,7 +179,7 @@ const PushList = ({ repo, author, theme }) => {
   const load = useCallback(async () => {
     const { data, failureStatus } = await fetchPushes(repo, author);
     if (failureStatus) {
-      setError("Couldn't reach Treeherder.");
+      setError(LIST.unreachable);
       return;
     }
     setError(null);
@@ -224,7 +223,7 @@ const PushList = ({ repo, author, theme }) => {
       <header className="sv-masthead sv-rise">
         <div className="sv-masthead-words">
           <h1 className="sv-title">
-            {pushesOf(name)}
+            {LIST.title(name)}
           </h1>
           {name && <span className="sv-masthead-email">{author}</span>}
         </div>
@@ -236,14 +235,14 @@ const PushList = ({ repo, author, theme }) => {
       {pushes && !pushes.length && (
         <div className="sv-empty sv-rise">
           <p className="sv-sub">
-            Nothing on {repo} from {author}.
+            {LIST.empty(repo, author)}
           </p>
           <button
             type="button"
             className="sv-link-button"
             onClick={() => setEditing(true)}
           >
-            Wrong address? Change it
+            {LIST.wrongAddress}
           </button>
         </div>
       )}

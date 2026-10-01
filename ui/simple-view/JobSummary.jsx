@@ -6,12 +6,12 @@ import { bzBaseUrl } from '../helpers/url';
 
 import Nav from './Nav';
 import { chooseFullView } from './phone';
+import { JOB } from './strings';
 import {
   pushUrl,
   testFromErrorLine,
   jobShortName,
   platformName,
-  plural,
   resultWord,
   splitTestPath,
 } from './helpers';
@@ -99,7 +99,7 @@ const Bug = ({ bug, path }) => {
       {bug.resolution ? <s>{bug.id}</s> : bug.id}
     </span>
   ) : (
-    <span className="sv-bug-id sv-muted">Internal</span>
+    <span className="sv-bug-id sv-muted">{JOB.internalBug}</span>
   );
   return (
     <li>
@@ -138,9 +138,9 @@ const Failure = ({ group, block, under }) => {
         ))}
         <span className="sv-card-meta">
           {group.isNew ? (
-            !repeat && <span className="sv-tag">New in this push</span>
+            !repeat && <span className="sv-tag">{JOB.newInPush}</span>
           ) : (
-            `Seen ${group.counter} ${plural(group.counter, 'time')} before`
+            JOB.seenBefore(group.counter)
           )}
         </span>
       </div>
@@ -156,7 +156,7 @@ const Failure = ({ group, block, under }) => {
                 className="sv-more"
                 onClick={() => setShowAll(true)}
               >
-                {hidden} more {plural(hidden, 'bug')}
+                {JOB.moreBugs(hidden)}
               </button>
             </li>
           )}
@@ -169,7 +169,7 @@ const Failure = ({ group, block, under }) => {
 const OtherErrors = ({ lines, open }) => (
   <details className="sv-other-errors" open={open}>
     <summary>
-      {lines.length} other log {plural(lines.length, 'error')}
+      {JOB.otherErrors(lines.length)}
     </summary>
     <ul>
       {lines.map((line) => (
@@ -196,7 +196,7 @@ const useJob = (repo, jobId) => {
     Promise.all([fetchJob(repo, jobId), fetchSuggestions(repo, jobId)]).then(
       ([j, s]) => {
         if (!live) return;
-        if (j.failureStatus) setError("Couldn't load that job.");
+        if (j.failureStatus) setError(JOB.loadError);
         else setJob(j.data);
         setLines(s.failureStatus || !Array.isArray(s.data) ? [] : s.data);
       },
@@ -223,16 +223,16 @@ export const JobFailures = ({ repo, revision, jobId, inline, under }) => {
   const links = (
     <div className={inline ? 'sv-inline-links' : 'sv-footer'}>
       <a className="sv-link" href={`/logviewer?job_id=${jobId}&repo=${repo}`}>
-        Log viewer
+        {JOB.logViewer}
       </a>
       {rawLog && (
         <a className="sv-link" href={rawLog}>
-          Raw log
+          {JOB.rawLog}
         </a>
       )}
       {inline && (
         <a className="sv-link" href={full} onClick={chooseFullView}>
-          Full view
+          {JOB.fullView}
         </a>
       )}
     </div>
@@ -250,7 +250,7 @@ export const JobFailures = ({ repo, revision, jobId, inline, under }) => {
     <>
       {!lines.length && (
         <p className="sv-sub">
-          No failure lines were parsed for this job. The log has the rest.
+          {JOB.noLines}
         </p>
       )}
       {groups.length > 0 && (
@@ -280,7 +280,7 @@ export const JobFailures = ({ repo, revision, jobId, inline, under }) => {
     <>
       <section className="sv-section">
         <h2 className="sv-section-title">
-          Failure summary <span className="sv-muted">{groups.length}</span>
+          {JOB.failureSummary} <span className="sv-muted">{groups.length}</span>
         </h2>
         {body}
       </section>
@@ -303,7 +303,7 @@ const JobSummary = ({ repo, author, theme, revision, jobId }) => {
         author={author}
         theme={theme}
         back={pushUrl({ repo, author, revision })}
-        backLabel="This push"
+        backLabel={JOB.backToPush}
         full={full}
         filter={`revision: ${revision.slice(0, 12)}${job ? ` · ${job.job_type_symbol}` : ''}`}
       />

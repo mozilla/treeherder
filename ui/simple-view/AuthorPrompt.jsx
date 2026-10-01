@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Nav from './Nav';
 import { clearRecentPeople, recentPeople } from './cache';
 import { chooseFullView } from './phone';
+import { PICKER } from './strings';
 
 // Whose pushes to show, as a sentence the field completes: anyone looked at
 // lately is one tap away; anyone else is an email address.
@@ -15,11 +16,11 @@ const AuthorPrompt = ({ repo, theme, onSubmit }) => {
     <>
       <Nav repo={repo} theme={theme} full={`/jobs?repo=${repo}`} />
       <div className="sv-prompt sv-rise">
-        <h1 className="sv-headline">Pushes by…</h1>
+        <h1 className="sv-headline">{PICKER.title}</h1>
 
         {people.length > 0 && (
           <div className="sv-people-head">
-            <h2 className="sv-section-title">Recent</h2>
+            <h2 className="sv-section-title">{PICKER.recent}</h2>
             <button
               type="button"
               className="sv-clear"
@@ -28,7 +29,7 @@ const AuthorPrompt = ({ repo, theme, onSubmit }) => {
                 setPeople([]);
               }}
             >
-              Clear
+              {PICKER.clear}
             </button>
           </div>
         )}
@@ -61,13 +62,13 @@ const AuthorPrompt = ({ repo, theme, onSubmit }) => {
             type="email"
             inputMode="email"
             autoComplete="email"
-            placeholder={people.length ? 'name@mozilla.com' : 'you@mozilla.com'}
-            aria-label="Author email"
+            placeholder={PICKER.placeholder(people.length > 0)}
+            aria-label={PICKER.emailLabel}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
           <button className="sv-button" type="submit" disabled={!valid}>
-            Show pushes
+            {PICKER.show}
           </button>
         </form>
 
@@ -76,7 +77,7 @@ const AuthorPrompt = ({ repo, theme, onSubmit }) => {
           href={`/jobs?repo=${repo}`}
           onClick={chooseFullView}
         >
-          Open the full view
+          {PICKER.openFullView}
         </a>
       </div>
     </>
