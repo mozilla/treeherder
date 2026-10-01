@@ -309,7 +309,7 @@ describe('App', () => {
       });
       const sheet = resize.closest('.mobile-job-details');
       expect(sheet.style.getPropertyValue('--bs-offcanvas-height')).toBe(
-        '50dvh',
+        'min(84px, 100dvh)',
       );
 
       const summary = await screen.findByTestId('summary-panel');
@@ -322,20 +322,24 @@ describe('App', () => {
 
       fireEvent.keyDown(resize, { key: 'End' });
       expect(sheet.style.getPropertyValue('--bs-offcanvas-height')).toBe(
-        '100dvh',
+        `min(${window.innerHeight}px, 100dvh)`,
       );
       fireEvent.keyDown(resize, { key: 'Home' });
       expect(sheet.style.getPropertyValue('--bs-offcanvas-height')).toBe(
-        '50dvh',
+        'min(84px, 100dvh)',
       );
 
-      resize.setPointerCapture = jest.fn();
-      fireEvent.pointerDown(resize, { pointerId: 1, clientY: 800 });
-      fireEvent.pointerMove(resize, { pointerId: 1, clientY: 0 });
+      const header = resize.closest('.offcanvas-header');
+      header.setPointerCapture = jest.fn();
+      fireEvent.pointerDown(sheet.querySelector('#mobile-job-details-title'), {
+        pointerId: 1,
+        clientY: 800,
+      });
+      fireEvent.pointerMove(header, { pointerId: 1, clientY: 0 });
       expect(sheet.style.getPropertyValue('--bs-offcanvas-height')).toBe(
-        '100dvh',
+        `min(${window.innerHeight}px, 100dvh)`,
       );
-      fireEvent.pointerUp(resize, { pointerId: 1 });
+      fireEvent.pointerUp(header, { pointerId: 1 });
     } finally {
       matchMedia.mockRestore();
       window.PointerEvent = originalPointerEvent;

@@ -245,6 +245,28 @@ test.describe('Jobs View', () => {
     await expect(
       page.locator('.mobile-job-details #details-panel'),
     ).toContainText(BUILD_JOB.job_type_name);
+    const sheet = page.locator('.mobile-job-details');
+    await expect(sheet).toHaveCSS('height', '84px');
+    await sheet
+      .getByRole('slider', { name: 'Resize job details' })
+      .press('End');
+    await expect(sheet).toHaveCSS('height', '844px');
+    await expect(
+      page.locator('.mobile-job-details #pinboard-btn'),
+    ).toBeHidden();
+    const selectedTab = sheet.locator(
+      '.tab-header-tabs [role="tab"].selected-tab',
+    );
+    await expect(selectedTab).toBeVisible();
+    await sheet.getByRole('button', { name: 'More tab options' }).click();
+    await sheet
+      .locator('.tab-overflow-menu')
+      .getByText('Artifacts and Debugging Tools')
+      .click();
+    await expect(
+      sheet.getByRole('tab', { name: 'Artifacts and Debugging Tools' }),
+    ).toBeVisible();
+    await expect(sheet.locator('.tab-overflow-menu')).toBeHidden();
     await expect(page).toHaveURL(
       new RegExp(`selectedTaskRun=${BUILD_JOB.task_id}`),
     );
@@ -259,5 +281,65 @@ test.describe('Jobs View', () => {
       .click();
     await expect(page).not.toHaveURL(/selectedTaskRun=/);
     await expect(page.getByTestId('push-header').first()).toBeVisible();
+  });
+
+  test('mobile Similar Jobs opens details from a list row', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-firefox');
+
+    const jobIdIndex = jobList.job_property_names.indexOf('id');
+    await page.route('**/api/failureclassification/', (route) =>
+      route.fulfill(json([{ id: 1, name: 'Not classified' }])),
+    );
+    await page.route(
+      `**/api/project/autoland/jobs/${BUILD_JOB.id}/similar_jobs/**`,
+      (route) =>
+        route.fulfill(
+          json({
+            job_property_names: jobList.job_property_names,
+            results: jobList.results.filter(
+              (row) => row[jobIdIndex] === BUILD_JOB.id,
+            ),
+          }),
+        ),
+    );
+    await page.route('**/api/project/autoland/push/**', (route) => {
+      if (new URL(route.request().url()).searchParams.has('id__in')) {
+        return route.fulfill(json({ results: [pushList.results[0]] }));
+      }
+      return route.fallback();
+    });
+    await page.goto('/jobs?repo=autoland');
+
+    await page.getByTestId('job-btn').filter({ hasText: 'B' }).first().click();
+    const sheet = page.locator('.mobile-job-details');
+    await sheet
+      .getByRole('slider', { name: 'Resize job details' })
+      .press('End');
+    await sheet.getByRole('button', { name: 'More tab options' }).click();
+    await sheet.locator('.tab-overflow-menu').getByText('Similar Jobs').click();
+
+    const similarJobs = sheet.getByRole('region', { name: 'Similar Jobs' });
+    const details = similarJobs.locator('.similar-job-detail-panel');
+    await expect(
+      similarJobs.getByLabel('Exclude successful jobs'),
+    ).toBeVisible();
+    await expect(
+      similarJobs.locator('.similar-job-list tbody tr').first(),
+    ).toBeVisible();
+    await expect(details).toBeHidden();
+
+    await similarJobs
+      .locator('.similar-job-list tbody tr')
+      .first()
+      .locator('td')
+      .first()
+      .click();
+    await expect(details).toBeVisible();
+    await expect(details).toContainText('Job name');
+    await details.getByRole('button', { name: 'Back to similar jobs' }).click();
+    await expect(details).toBeHidden();
+    await expect(similarJobs.locator('.similar-job-list')).toBeVisible();
   });
 });

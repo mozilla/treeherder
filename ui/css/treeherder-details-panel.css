@@ -291,8 +291,8 @@ div#details-panel-content .actionbar-nav > li > button:focus {
     top: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: 80px;
-    height: 24px;
+    width: 48px;
+    height: 12px;
     border: 0;
     background: transparent;
     touch-action: none;
@@ -310,9 +310,13 @@ div#details-panel-content .actionbar-nav > li > button:focus {
   }
 
   .mobile-job-details .offcanvas-header {
-    min-height: 64px;
-    padding-top: 24px;
+    min-height: 44px;
+    height: 44px;
+    padding: 12px 12px 0;
     flex: none;
+    touch-action: none;
+    cursor: ns-resize;
+    user-select: none;
   }
 
   .mobile-job-details .offcanvas-title {
@@ -382,6 +386,27 @@ div#details-panel-content .actionbar-nav > li > button:focus {
 
   .mobile-job-details .tab-headers-wrapper {
     padding-left: 44px;
+  }
+
+  .mobile-job-details #details-panel-content ul.tab-headers {
+    min-width: 0;
+  }
+
+  .mobile-job-details .details-panel-close-btn {
+    display: none;
+  }
+
+  .mobile-job-details .tab-header-tabs {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .mobile-job-details .tab-header-tabs > li.selected-tab {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .mobile-job-details .tab-overflow-menu {
@@ -633,6 +658,51 @@ div.similar-jobs .similar-job-detail-panel .similar_job_detail table {
 div.similar-jobs .similar-job-list {
   overflow: auto;
   flex: 1 1;
+}
+
+@media (max-width: 767.98px) {
+  .mobile-job-details .similar-jobs {
+    position: relative;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .mobile-job-details div.similar-jobs .similar-job-list {
+    min-width: 0;
+    flex: 1 1 100%;
+  }
+
+  .mobile-job-details .similar-job-list form {
+    padding: 8px;
+    background-color: #f2f4f5;
+  }
+
+  .mobile-job-details div.similar-jobs .similar-job-detail-panel {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    width: 100%;
+    margin: 0;
+    border-left: 0;
+    background-color: #fff;
+    transform: translateX(100%);
+    visibility: hidden;
+    transition:
+      transform 0.2s ease,
+      visibility 0.2s ease;
+  }
+
+  .mobile-job-details div.similar-jobs .similar-job-detail-panel.is-open {
+    transform: translateX(0);
+    visibility: visible;
+  }
+
+  .mobile-job-details .similar-job-detail-close {
+    display: block;
+    min-width: 44px;
+    min-height: 44px;
+    margin-left: auto;
+  }
 }
 
 /* Override the default display:none on job-btn so similar job buttons are visible */
