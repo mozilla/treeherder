@@ -1049,6 +1049,75 @@ class PerformanceSummary(generics.ListAPIView):
             item["id"]: item["option__name"] for item in list(option_collection)
         }
 
+        # Existing datum rows for every signature, grouped by sig id.
+        existing_by_sig = defaultdict(list)
+        if include_missing_data:
+            for sig_id, push_id, jt_id, ts in data.values_list(
+                "signature_id", "push_id", "job__job_type_id", "push_timestamp"
+            ):
+                existing_by_sig[sig_id].append((push_id, jt_id, ts))
+
+        sig_meta = {}
+        if include_missing_data and existing_by_sig:
+            for item in self.queryset:
+                sig_id = item["id"]
+                rows = existing_by_sig.get(sig_id, [])
+                if not rows:
+                    continue
+                push_ids = {r[0] for r in rows}
+                jt_ids = {r[1] for r in rows if r[1] is not None}
+                timestamps = [r[2] for r in rows if r[2] is not None]
+                if not jt_ids or not timestamps:
+                    continue
+                sig_meta[sig_id] = {
+                    "existing_push_ids": push_ids,
+                    "expected_job_type_ids": jt_ids,
+                    "min_ts": min(timestamps),
+                    "max_ts": max(timestamps),
+                    "platform_id": item["platform_id"],
+                    "option_hash": item["option_collection__option_collection_hash"],
+                    "repository_id": item["repository_id"],
+                }
+
+        # One push query spanning the full time range across all signatures.
+        all_candidate_pushes = {}
+        if sig_meta:
+            all_existing_push_ids = set().union(
+                *(m["existing_push_ids"] for m in sig_meta.values())
+            )
+            global_min_ts = min(m["min_ts"] for m in sig_meta.values())
+            global_max_ts = max(m["max_ts"] for m in sig_meta.values())
+            # All items share the same repository (filtered at query time).
+            repo_id = next(iter(sig_meta.values()))["repository_id"]
+            all_candidate_pushes = {
+                p["id"]: p
+                for p in models.Push.objects.filter(
+                    repository_id=repo_id,
+                    time__gte=global_min_ts,
+                    time__lte=global_max_ts,
+                )
+                .exclude(id__in=all_existing_push_ids)
+                .values("id", "revision", "time")
+            }
+
+        # One Job query for all candidate pushes; per-signature filtering
+        # happens in Python inside _compute_missing_data_from_cache.
+        all_jobs_by_push = defaultdict(list)
+        if all_candidate_pushes:
+            for j in models.Job.objects.filter(
+                push_id__in=all_candidate_pushes.keys(),
+                state__in=("pending", "running", "completed"),
+            ).values(
+                "id",
+                "push_id",
+                "result",
+                "state",
+                "job_type_id",
+                "machine_platform_id",
+                "option_collection_hash",
+            ):
+                all_jobs_by_push[j["push_id"]].append(j)
+
         if signature and all_data:
             for item in self.queryset:
                 if replicates:
@@ -1116,7 +1185,9 @@ class PerformanceSummary(generics.ListAPIView):
                 item["repository_name"] = repository_name
 
                 if include_missing_data:
-                    item["missing_data"] = self._compute_missing_data(item, data)
+                    item["missing_data"] = self._compute_missing_data_from_cache(
+                        item, sig_meta, all_candidate_pushes, all_jobs_by_push
+                    )
 
         else:
             grouped_values = defaultdict(list)
@@ -1186,51 +1257,42 @@ class PerformanceSummary(generics.ListAPIView):
     _MISSING_INCONCLUSIVE_RESULTS = frozenset({"retry", "superseded", "usercancel"})
 
     @staticmethod
-    def _compute_missing_data(item, data_qs):
+    def _compute_missing_data_from_cache(item, sig_meta, all_candidate_pushes, all_jobs_by_push):
         """
         Return a list of pushes within the data's time range that produced no
         PerformanceDatum for this signature, classified as 'failed' or 'not_run'.
         One entry per push (deduped).
+
+        Uses pre-fetched dicts built before the loop so no DB queries are made here.
+        Per-signature filters (job type, platform, option hash) are applied in Python.
         """
-        existing = list(data_qs.values_list("push_id", "job__job_type_id", "push_timestamp"))
-        if not existing:
+        meta = sig_meta.get(item["id"])
+        if not meta:
             return []
 
-        existing_push_ids = {push_id for push_id, _, _ in existing}
-        # Infer which job types "should" run for this signature from the types that
-        # actually produced existing data — no separate configuration needed.
-        expected_job_type_ids = {jt_id for _, jt_id, _ in existing if jt_id is not None}
-        timestamps = [ts for _, _, ts in existing if ts is not None]
-        if not expected_job_type_ids or not timestamps:
-            return []
-
-        candidate_pushes = list(
-            models.Push.objects.filter(
-                repository_id=item["repository_id"],
-                time__gte=min(timestamps),
-                time__lte=max(timestamps),
-            )
-            .exclude(id__in=existing_push_ids)
-            .values("id", "revision", "time")
-        )
+        candidate_pushes = [
+            p
+            for p in all_candidate_pushes.values()
+            if meta["min_ts"] <= p["time"] <= meta["max_ts"]
+            and p["id"] not in meta["existing_push_ids"]
+        ]
         if not candidate_pushes:
             return []
 
-        all_matching_jobs = models.Job.objects.filter(
-            push_id__in=[p["id"] for p in candidate_pushes],
-            job_type_id__in=expected_job_type_ids,
-            machine_platform_id=item["platform_id"],
-            option_collection_hash=item["option_collection__option_collection_hash"],
-            state__in=("pending", "running", "completed"),
-        ).values("id", "push_id", "result", "state")
-
         completed_by_push = defaultdict(list)
         in_progress_push_ids = set()
-        for j in all_matching_jobs:
-            if j["state"] == "completed":
-                completed_by_push[j["push_id"]].append(j)
-            else:
-                in_progress_push_ids.add(j["push_id"])
+        for p in candidate_pushes:
+            for j in all_jobs_by_push.get(p["id"], []):
+                if (
+                    j["job_type_id"] not in meta["expected_job_type_ids"]
+                    or j["machine_platform_id"] != meta["platform_id"]
+                    or j["option_collection_hash"] != meta["option_hash"]
+                ):
+                    continue
+                if j["state"] == "completed":
+                    completed_by_push[p["id"]].append(j)
+                else:
+                    in_progress_push_ids.add(p["id"])
 
         failed = PerformanceSummary._MISSING_FAILED_RESULTS
         inconclusive = PerformanceSummary._MISSING_INCONCLUSIVE_RESULTS
