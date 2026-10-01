@@ -131,6 +131,35 @@ body.sv-body {
   height: 20px;
 }
 
+.sv-topbar-start {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sv-beta {
+  padding: 1px 5px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.sv-beta-note {
+  margin: 36px 0 0;
+  padding: 0 6px;
+  font-size: 13px;
+  color: var(--sv-muted);
+}
+
+.sv .sv-beta-note a {
+  color: var(--sv-link);
+  text-decoration: underline;
+}
+
 .sv-topbar-end {
   display: flex;
   align-items: center;

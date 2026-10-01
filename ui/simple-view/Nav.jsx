@@ -47,9 +47,12 @@ const ThemeSwitch = ({ theme }) => {
 const Nav = ({ repo, author, theme, back, backLabel, full, filter }) => (
   <header className="sv-bars">
     <div className="sv-topbar">
-      <Link to={pushUrl({ repo, author })} aria-label={NAV.home}>
-        <img className="sv-logo" src={logo} alt={NAV.logoAlt} />
-      </Link>
+      <span className="sv-topbar-start">
+        <Link to={pushUrl({ repo, author })} aria-label={NAV.home}>
+          <img className="sv-logo" src={logo} alt={NAV.logoAlt} />
+        </Link>
+        <span className="sv-beta">{NAV.beta}</span>
+      </span>
       <span className="sv-topbar-end">
         <ThemeSwitch theme={theme} />
         <span className="sv-topbar-divider" aria-hidden="true" />

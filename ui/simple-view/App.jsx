@@ -10,6 +10,7 @@ import JobSummary from './JobSummary';
 import AuthorPrompt from './AuthorPrompt';
 import { pushUrl } from './helpers';
 import { useTheme } from './theme';
+import { BETA, FEEDBACK_URL } from './strings';
 
 // Treeherder's job-state colours (--status-*), shared with the full view.
 import '../css/treeherder-job-buttons.css';
@@ -97,7 +98,17 @@ const SimpleViewApp = () => {
     screen = <AuthorPrompt {...shared} onSubmit={choose} />;
   }
 
-  return <main className="sv">{screen}</main>;
+  return (
+    <main className="sv">
+      {screen}
+      <p className="sv-beta-note">
+        {BETA.note}{' '}
+        <a href={FEEDBACK_URL} target="_blank" rel="noopener noreferrer">
+          {BETA.report}
+        </a>
+      </p>
+    </main>
+  );
 };
 
 export default SimpleViewApp;
