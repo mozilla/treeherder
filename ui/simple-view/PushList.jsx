@@ -24,12 +24,9 @@ import {
   rememberPushes,
 } from './cache';
 
-// One short phrase for where a push stands, and a tone for its edge.
 export const describeSummary = (summary) => {
   if (!summary) return { tone: 'quiet', text: '' };
   const progress = progressOf(summary.status);
-  // testFailureCount is per test *per config*, so it would disagree with the
-  // detail screen's per-test count. Say what is failing; the detail counts it.
   const broken = [
     [summary.testFailureCount, LIST.failingKinds.tests],
     [summary.buildFailureCount, LIST.failingKinds.build],
@@ -45,7 +42,6 @@ export const describeSummary = (summary) => {
       text: progress.running ? LIST.stillRunning(text) : text,
     };
   }
-  // Nothing tagged new, but a job still failed: say so rather than "green".
   const failed = ['testfailed', 'busted', 'exception'].some(
     (r) => summary.status?.[r] > 0,
   );
@@ -103,8 +99,6 @@ const PushRow = ({ push, repo, author, refreshKey, index }) => {
   );
 };
 
-// The author, editable where it's shown: a mistyped address is fixed in
-// place rather than by starting over.
 const AuthorEditor = ({ repo, author, name, editing, setEditing }) => {
   const navigate = useNavigate();
   const [value, setValue] = useState(author);
@@ -194,11 +188,8 @@ const PushList = ({ repo, author, theme }) => {
   }, [load, repo, author]);
   usePoll(load, 90 * 1000);
 
-  // Only this author's pushes: just after switching, the list can still hold
-  // the last person's for a render.
   const own = pushes?.find((p) => p.author?.toLowerCase() === author);
   const name = own ? authorName(own) : null;
-  // Someone with no pushes is usually a typo; don't offer it back.
   useEffect(() => {
     if (own) rememberPerson(author, name);
   }, [own, author, name]);

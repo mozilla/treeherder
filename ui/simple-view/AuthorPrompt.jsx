@@ -5,8 +5,6 @@ import { clearRecentPeople, recentPeople } from './cache';
 import { chooseFullView } from './phone';
 import { PICKER } from './strings';
 
-// Whose pushes to show, as a sentence the field completes: anyone looked at
-// lately is one tap away; anyone else is an email address.
 const AuthorPrompt = ({ repo, theme, onSubmit }) => {
   const [email, setEmail] = useState('');
   const [people, setPeople] = useState(recentPeople);

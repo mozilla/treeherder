@@ -6,8 +6,6 @@ import sittingLookingForward from './kit/sitting-looking-forward.svg';
 import sittingLookingUp from './kit/sitting-looking-up.svg';
 import { KIT_ALT } from './strings';
 
-// Kit, the Firefox mascot, from the official artwork in mozilla-central.
-// A different pose each visit; to add one, drop its SVG in ./kit and list it.
 const POSES = [sittingLookingUp, sittingLookingForward, inquisitive, alert];
 
 const Kit = () => {

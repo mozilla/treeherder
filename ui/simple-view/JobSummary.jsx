@@ -16,31 +16,21 @@ import {
   splitTestPath,
 } from './helpers';
 
-// The failure summary for one job, sized for a phone: what failed, whether
-// it's new, and the bugs it matches. The log is there, but it's the last
-// resort, not the first tap.
-
 const fetchJob = (repo, id) => getData(getProjectUrl(`/jobs/${id}/`, repo));
 const fetchSuggestions = (repo, id) =>
   getData(getProjectUrl(`/jobs/${id}/bug_suggestions/`, repo));
 
-// "TEST-UNEXPECTED-FAIL | path | message" → the message.
 const messageOf = (search) => {
   const parts = search.split(' | ');
   return parts.length > 2 ? parts.slice(2).join(' | ') : search;
 };
 
-// Lines a failing test always drags along; they say nothing about why.
 const FILLER = /^(profile uploaded in |finished in \d+ms$)/;
 
-// One card per test, however many lines it logged; lines with no test (a
-// harness error) are kept apart so they can't bury the ones that matter.
 export const groupFailureLines = (lines) => {
   const tests = new Map();
   const other = [];
   for (const line of lines) {
-    // A test file, or a named harness check like "leakcheck" from the line
-    // itself; anything else (a bare harness error) goes with the rest.
     const named = line.path_end || '';
     const path =
       named.includes('/') || named.includes('.')
@@ -65,7 +55,6 @@ export const groupFailureLines = (lines) => {
       ...(line.bugs?.open_recent || []),
       ...(line.bugs?.all_others || []),
     ]) {
-      // Internal issues have no Bugzilla id and often repeat one summary.
       const key = bug.id || `internal:${bug.summary}`;
       if (!g.bugs.has(key)) g.bugs.set(key, bug);
     }
@@ -75,12 +64,10 @@ export const groupFailureLines = (lines) => {
     const real = g.messages.filter((m) => !FILLER.test(m));
     return { ...g, messages: real.length ? real : g.messages, bugs: [...g.bugs.values()] };
   });
-  // New failures first: they're the ones to read.
   groups.sort((a, b) => Number(b.isNew) - Number(a.isNew));
   return { groups, other };
 };
 
-// A bug summary usually repeats the test path the card already shows.
 const bugSummary = (summary, path) => {
   const trimmed = summary
     .replace(/^Intermittent\s+/i, '')
@@ -119,7 +106,6 @@ const Bug = ({ bug, path }) => {
 };
 
 const Failure = ({ group, block, under }) => {
-  // Opened under a tile that already names this test: skip straight to why.
   const repeat = block && under && group.path.endsWith(under);
   const [showAll, setShowAll] = useState(false);
   const { dir, file } = splitTestPath(group.path);
@@ -181,8 +167,6 @@ const OtherErrors = ({ lines, open }) => (
   </details>
 );
 
-// "test-macosx1500-aarch64/debug-mochitest-browser-chrome-15" → the suite;
-// the platform and build type are already in the line above it.
 const jobTitle = (name) =>
   jobShortName(name).replace(/^test-[^/]+\/[^-]+-/, '');
 
@@ -209,9 +193,6 @@ const useJob = (repo, jobId) => {
   return { job, lines, error };
 };
 
-// Why a job failed: one entry per test, then the log lines that name no
-// test. Those open by themselves when they're all there is, so the reason
-// is never behind a tap.
 export const JobFailures = ({ repo, revision, jobId, inline, under }) => {
   const { job, lines } = useJob(repo, jobId);
   const { groups, other } = groupFailureLines(lines || []);
@@ -289,7 +270,6 @@ export const JobFailures = ({ repo, revision, jobId, inline, under }) => {
   );
 };
 
-// The same summary as its own page, for a link straight to one job.
 const JobSummary = ({ repo, author, theme, revision, jobId }) => {
   const { job, error } = useJob(repo, jobId);
   const full = job

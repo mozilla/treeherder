@@ -37,8 +37,6 @@ import {
 } from './cache';
 import { estimatePush, fetchPushJobs, loadDurationTable } from './eta';
 
-
-// The whole screen exists to say this one sentence.
 const verdict = ({ yours, parentToo, builds, lint, progress, eta, seenBefore }) => {
   const broke = [];
   if (yours.length) broke.push(VERDICT.broke(yours.length, 'test'));
@@ -91,8 +89,6 @@ const verdict = ({ yours, parentToo, builds, lint, progress, eta, seenBefore }) 
   };
 };
 
-// What the middle of the ring says: how far along while it runs, how big the
-// push was once it's done.
 const RingCenter = ({ progress }) => {
   const running = progress.running;
   const pct = progress.total ? Math.floor((progress.done / progress.total) * 100) : 0;
@@ -111,7 +107,6 @@ const RingCenter = ({ progress }) => {
   );
 };
 
-// The full view's words and colours for each job state.
 const LEGEND = Object.entries(PUSH.legend);
 
 const Legend = ({ status }) => (
@@ -128,7 +123,6 @@ const Legend = ({ status }) => (
   </ul>
 );
 
-// Failed runs out of all runs. Solid red is a real break; a scatter is flaky.
 const RunBar = ({ failed, total }) => {
   const cells = Math.min(total, 20);
   const red = Math.round((failed / total) * cells);
@@ -141,8 +135,6 @@ const RunBar = ({ failed, total }) => {
   );
 };
 
-// The failure summary opens under whatever was tapped, rather than on a new
-// page: the tile you chose stays in view with its answer beneath it.
 const Chevron = ({ open }) => (
   <span className={`sv-chevron${open ? ' sv-chevron-open' : ''}`} aria-hidden="true" />
 );
@@ -207,7 +199,6 @@ const TestCard = ({ group, jobs, repo, revision }) => {
           <Chevron open={open} />
         </span>
       </button>
-      {/* One failed run: its summary is the answer. Several: pick one. */}
       {open && runs.length === 1 && (
         <JobFailures
           inline
@@ -234,7 +225,6 @@ const TestCard = ({ group, jobs, repo, revision }) => {
   );
 };
 
-// A card whose tap opens one job's failure summary beneath it.
 const JobTile = ({ jobId, repo, revision, under, children }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -275,8 +265,6 @@ const JobCard = ({ job, repo, revision }) => (
   </JobTile>
 );
 
-// Failures Treeherder had seen before, named by their first failing test and
-// grouped, so five red jobs read as the tests they are.
 const SeenBefore = ({ jobs, repo, revision }) => {
   const [tests, setTests] = useState({});
   const ids = jobs.map((j) => j.id).join(',');
@@ -334,7 +322,6 @@ const SeenBefore = ({ jobs, repo, revision }) => {
   });
 };
 
-// Lint jobs are one-word names; seven of them read better as one card.
 const LintCard = ({ jobs, repo, revision }) => (
   <li className="sv-card">
     <ul>
@@ -368,8 +355,6 @@ const Section = ({ title, count, children, quiet }) =>
 const PushDetail = ({ repo, author, theme, revision }) => {
   const [push, setPush] = useState(() => cachedPush(repo, revision));
   const [health, setHealth] = useState(() => cachedHealth(repo, revision));
-  // The list already knows this push's counts, so the ring can draw before
-  // the full health report arrives.
   const summary = cachedSummary(repo, revision);
   const [error, setError] = useState(null);
 
@@ -394,8 +379,6 @@ const PushDetail = ({ repo, author, theme, revision }) => {
     loadHealth();
   }, [loadHealth, repo, revision]);
 
-  // The push's own job list: exact counts, the ETA's input, and the failures
-  // Push Health leaves out.
   const [jobs, setJobs] = useState(null);
   const loadJobs = useCallback(async () => {
     if (!push) return;
@@ -441,9 +424,7 @@ const PushDetail = ({ repo, author, theme, revision }) => {
   const builds = health?.metrics.builds.details || [];
   const lint = health?.metrics.linting.details || [];
 
-  // Push Health only reports failures Treeherder tagged as new: an error line
-  // it had never seen before. Every other failed job still failed, so it gets
-  // shown, not dropped.
+  // Push Health only reports failures classified as new (id 6); show the rest too.
   const reported = new Set([
     ...groups.flatMap((g) => [...g.jobIds]),
     ...known.flatMap((g) => [...g.jobIds]),
@@ -465,7 +446,6 @@ const PushDetail = ({ repo, author, theme, revision }) => {
   const pulsing = usePulse(said ? said.headline : undefined);
 
   const failedJobs = push ? retriggerableJobs(jobs || [], push.id) : [];
-  // Only once the job list is in, so the note never flashes before the button.
   const testsFailed =
     !!jobs &&
     jobs.some(

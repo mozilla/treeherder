@@ -1,8 +1,3 @@
-/* Push view: one push, one answer, sized for a phone.
-   Colours are Treeherder's own: the job states come straight from the
-   --status-* variables in treeherder-job-buttons.css, the chrome from the
-   full view's navbars. Text colours keep 4.5:1 on white; where a status
-   colour is too light for small text, its darker "classified" shade is used. */
 
 body.sv-body {
   --sv-bg: var(--bs-body-bg);
@@ -26,14 +21,9 @@ body.sv-body {
   -webkit-font-smoothing: antialiased;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  /* Android paints a blue flash on every tap; the view has its own pressed
-     states instead. */
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Dark, when chosen. The bars are Treeherder's either way; the page goes
-   dark, and the job colours that vanish on it (black running, deep blue
-   retry, deep green success) get lighter shades of themselves. */
 [data-bs-theme='dark'] body.sv-body {
   --sv-info-bg: var(--bs-info-bg-subtle);
   --sv-info-ink: var(--bs-info-text-emphasis);
@@ -56,8 +46,6 @@ body.sv-body {
   line-height: 1.4;
 }
 
-/* The headings keep their breathing room; only the cards run wider, so a
-   push title gets a few more characters on a phone. */
 .sv-masthead,
 .sv-section > .sv-sub,
 .sv-push-head,
@@ -87,10 +75,6 @@ body.sv-body {
   text-align: left;
 }
 
-/* ---- tones ----
-   --sv-tone paints marks; --sv-tone-text is the same colour, dark enough
-   to read as small text on white. */
-
 .sv-tone-good {
   --sv-tone: var(--status-success);
   --sv-tone-text: var(--status-success-hover);
@@ -108,9 +92,6 @@ body.sv-body {
   --sv-tone-text: var(--sv-muted);
 }
 
-/* ---- Treeherder's navbars ---- */
-
-/* Full-bleed however narrow the page column is. */
 .sv-bars {
   margin: 0 calc(50% - 50vw) 20px;
 }
@@ -166,7 +147,6 @@ body.sv-body {
   gap: 12px;
 }
 
-/* On means dark. The knob shows which theme is on: a sun, or a moon. */
 .sv .sv-theme {
   display: inline-flex;
   align-items: center;
@@ -274,7 +254,6 @@ body.sv-body {
   color: rgba(255, 255, 255, 0.9);
 }
 
-/* What the page is showing, in the full view's "Active Filters" strip. */
 .sv-infobar {
   display: flex;
   align-items: center;
@@ -293,7 +272,6 @@ body.sv-body {
   color: inherit;
 }
 
-/* The author reads as editable: a pencil, and a tap turns it into a field. */
 .sv .sv-switch-person {
   min-height: 36px;
   text-align: left;
@@ -351,8 +329,6 @@ body.sv-body {
   padding: 0 6px;
 }
 
-/* ---- type ---- */
-
 .sv-nameplate,
 .sv-eyebrow {
   display: block;
@@ -403,8 +379,6 @@ body.sv-body {
   color: var(--sv-link);
 }
 
-/* ---- the ring ---- */
-
 .sv-ring {
   position: relative;
   flex: none;
@@ -425,7 +399,6 @@ body.sv-body {
   animation: sv-tick-in 0.45s cubic-bezier(0.3, 1.4, 0.5, 1) var(--in) both;
 }
 
-/* One tick colour per job state, exactly as the full view paints them. */
 .sv-tick-testfailed {
   stroke: var(--status-testfailed);
 }
@@ -462,8 +435,6 @@ body.sv-body {
   opacity: 0.35;
 }
 
-/* Running and loading ticks carry a slow wave around the ring, so a push
-   that is working looks like it. */
 .sv-tick-running,
 .sv-tick-loading {
   animation:
@@ -523,8 +494,6 @@ body.sv-body {
   color: var(--sv-muted);
 }
 
-/* ---- list ---- */
-
 .sv-masthead {
   display: flex;
   align-items: flex-end;
@@ -545,7 +514,6 @@ body.sv-body {
   word-break: break-all;
 }
 
-/* Kit sits on the masthead's baseline, arriving a beat after the title. */
 .sv-kit {
   flex: none;
   width: 96px;
@@ -606,7 +574,6 @@ body.sv-body {
   justify-content: space-between;
   gap: 12px;
   font-size: 14px;
-  /* Reserved so a status arriving later doesn't move the row. */
   min-height: 20px;
 }
 
@@ -619,8 +586,6 @@ body.sv-body {
   color: var(--sv-muted);
   white-space: nowrap;
 }
-
-/* ---- detail ---- */
 
 .sv-job-title {
   margin: 6px 0 28px;
@@ -682,7 +647,6 @@ body.sv-body {
   word-break: break-word;
 }
 
-/* A failure summary opened in place, under the tile that was tapped. */
 .sv-inline {
   padding: 4px 16px 12px;
   border-top: 1px solid var(--sv-hairline);
@@ -734,7 +698,6 @@ body.sv-body {
   transform: rotate(-135deg);
 }
 
-/* Rotated, the square's corner sits low; lift it onto the text's centre. */
 .sv-chevron:not(.sv-chevron-open) {
   margin-top: -4px;
 }
@@ -799,8 +762,6 @@ body.sv-body {
   flex-direction: column;
   align-items: center;
   margin-top: 24px;
-  /* Tall enough for a headline and a line, so arriving results don't shove
-     the page down. */
   min-height: 96px;
 }
 
@@ -862,8 +823,6 @@ body.sv-body {
   opacity: 0.45;
 }
 
-/* Treeherder's link blue, as an outlined button that fills on the second,
-   committing tap. */
 .sv .sv-action {
   margin-top: 20px;
   min-height: 48px;
@@ -905,7 +864,6 @@ body.sv-body {
   opacity: 0.7;
 }
 
-/* The ETA sits in Treeherder's info-strip colours. */
 .sv-eta-line {
   margin: 18px 0 0;
   padding: 8px 14px;
@@ -1001,7 +959,6 @@ body.sv-body {
   color: var(--sv-muted);
 }
 
-/* Treeherder's red "failed" badge. */
 .sv-tag {
   padding: 2px 6px;
   border-radius: 4px;
@@ -1017,8 +974,6 @@ body.sv-body {
   border-top: 1px solid var(--sv-hairline);
 }
 
-/* .sv prefix: a run row is a button, and the button reset above would
-   otherwise strip its padding and run the text into the card's edge. */
 .sv .sv-run {
   display: flex;
   align-items: center;
@@ -1057,8 +1012,6 @@ body.sv-body {
   font-size: 14px;
 }
 
-/* ---- press + focus ---- */
-
 .sv-row:active,
 .sv .sv-card-head:active,
 .sv-run:active {
@@ -1075,8 +1028,6 @@ body.sv-body {
   outline-offset: 2px;
   border-radius: var(--sv-radius);
 }
-
-/* ---- author prompt ---- */
 
 .sv-prompt {
   display: flex;
@@ -1143,8 +1094,6 @@ body.sv-body {
   opacity: 0.4;
 }
 
-/* ---- motion ---- */
-
 @keyframes sv-rise {
   from {
     opacity: 0;
@@ -1160,13 +1109,11 @@ body.sv-body {
   animation: sv-rise 0.45s cubic-bezier(0.25, 0.6, 0.3, 1) both;
 }
 
-/* List rows arrive one after another rather than as a slab. */
 .sv-cascade {
   animation: sv-rise 0.45s cubic-bezier(0.25, 0.6, 0.3, 1)
     calc(var(--i) * 45ms) both;
 }
 
-/* A status that changes glows once in its new colour. */
 @keyframes sv-pulse {
   0% {
     box-shadow: 0 0 0 3px var(--sv-tone);

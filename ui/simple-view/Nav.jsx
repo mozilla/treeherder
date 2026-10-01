@@ -6,7 +6,6 @@ import { pushUrl } from './helpers';
 import { chooseFullView } from './phone';
 import { NAV } from './strings';
 
-// Drawn, not typed: the Unicode sun becomes a colour emoji on iOS.
 const Moon = () => (
   <svg viewBox="0 0 24 24" aria-hidden="true">
     <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
@@ -20,8 +19,6 @@ const Sun = () => (
   </svg>
 );
 
-// A theme switch, and only that: the knob carries the sun or the moon, so it
-// can't be mistaken for the Full view button beside it.
 const ThemeSwitch = ({ theme }) => {
   const dark = theme.theme === 'dark';
   return (
@@ -41,9 +38,6 @@ const ThemeSwitch = ({ theme }) => {
   );
 };
 
-// Treeherder's bars, as the full view has them: the logo bar, the repo bar,
-// and the strip saying what's shown. Always one tap to the full view of the
-// same thing.
 const Nav = ({ repo, author, theme, back, backLabel, full, filter }) => (
   <header className="sv-bars">
     <div className="sv-topbar">

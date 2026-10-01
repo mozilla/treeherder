@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
 
-// Light is Treeherder's look and the default; dark is a choice, remembered
-// in this browser.
 const THEME_KEY = 'simpleViewTheme';
 
 const stored = () => {
@@ -26,7 +24,6 @@ export const useTheme = () => {
     try {
       localStorage.setItem(THEME_KEY, next);
     } catch {
-      // Unsaved, it still switches for this visit.
     }
     setTheme(next);
   };

@@ -1,6 +1,3 @@
-// Show what we knew last time at once, then quietly replace it. A finished
-// push never changes and a running one changes slowly, so the last answer is
-// almost always the right first frame.
 
 const PREFIX = 'simpleView:';
 const MAX_HEALTH = 8;
@@ -18,11 +15,9 @@ const write = (key, value) => {
   try {
     localStorage.setItem(PREFIX + key, JSON.stringify(value));
   } catch {
-    // Full or disabled storage just means no head start next time.
   }
 };
 
-// A small map kept in one key, trimmed to the most recently written entries.
 const boundedMap = (key, max) => ({
   get: (id) => read(key)?.[id]?.value ?? null,
   set: (id, value) => {
@@ -57,8 +52,6 @@ export const cachedHealth = (repo, revision) =>
 export const rememberHealth = (repo, revision, health) =>
   healths.set(`${repo}:${revision}`, health);
 
-// In-flight requests, so a fetch started when a finger lands on a row is the
-// same one the detail screen waits on when it opens.
 const inFlight = new Map();
 
 export const shared = (key, start, freshMs = 5000) => {
@@ -69,7 +62,6 @@ export const shared = (key, start, freshMs = 5000) => {
   return promise;
 };
 
-// People you've looked at, newest first, so the picker can offer them back.
 const MAX_PEOPLE = 8;
 
 export const recentPeople = () => read('people') || [];

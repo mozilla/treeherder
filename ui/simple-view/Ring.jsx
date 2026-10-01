@@ -1,12 +1,6 @@
-// A push drawn as a ring of jobs: failures first from twelve o'clock, then
-// passes, then whatever is still running and waiting. Each tick is a share of
-// the push's jobs, so a glance gives the shape of the whole thing.
 
 import { finishedCount } from './helpers';
 
-// Failures first from twelve o'clock, so they're what the eye lands on, then
-// passes, other finishes, and what's still to come. Each is a Treeherder job
-// state and takes that state's colour.
 const ORDER = [
   'testfailed',
   'busted',
@@ -22,8 +16,6 @@ const ORDER = [
 ];
 const NAMED = new Set(ORDER.slice(0, 7));
 
-// Split `ticks` across the states in proportion to their job counts, giving
-// any non-empty state at least one tick (largest remainder).
 export const allocateTicks = (status, ticks) => {
   const counts = Object.fromEntries(ORDER.map((k) => [k, status?.[k] || 0]));
   counts.other = Math.max(
@@ -63,8 +55,6 @@ const Ring = ({ status, ticks = 90, size = 240, weight = 3, loading, children })
           const sin = Math.sin(a);
           return (
             <line
-              // Ticks keep their slot, so a job changing state recolours in
-              // place instead of the ring redrawing.
               key={i}
               className={`sv-tick sv-tick-${kind}`}
               x1={cos * inner}

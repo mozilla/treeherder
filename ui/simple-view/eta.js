@@ -1,23 +1,10 @@
-// When a try push will be done. A port of BuildWatch's PushETA.
-//
-// A push doesn't finish smoothly: on a sampled 907-job push, 90% of the jobs
-// were in at 47 minutes and the last at 144, and that tail was queueing, not
-// working. So there are two numbers. `mostAt` (90% of jobs) is the headline:
-// replayed over 77 finished pushes it has a median error of 2 minutes and
-// overruns by more than 30 minutes 1% of the time. `allAt` (last job) is
-// real but soft, 13 minutes median error, and should read as approximate.
-//
-// Run time comes from a table of per-job-type medians (job-durations.json);
-// it varies about 5%. Queue wait is the hard part, and it's read live: in a
-// worker pool, the jobs that have started tell you what the ones that haven't
-// will wait.
+// BuildWatch's push ETA model: per-job-type median run times, plus queue wait
+// read live from jobs in the same worker pool that have already started.
 
 import { getData } from '../helpers/http';
 import { getProjectUrl } from '../helpers/location';
 import { createQueryParams } from '../helpers/url';
 
-// Taskcluster jobs come back as positional rows; these are the columns the
-// model and the job counts read.
 const COLUMNS = {
   id: 'id',
   state: 'state',
@@ -35,8 +22,6 @@ const COLUMNS = {
 
 const STATES = new Set(['pending', 'running', 'completed', 'unscheduled']);
 
-// Treeherder writes an absent timestamp as 0, not null. Left as 0 it reads as
-// 1 January 1970, and every queued job looks like it started 56 years ago.
 const stamp = (v) => (typeof v === 'number' && v > 0 ? v : null);
 
 export const parseJobRows = ({ job_property_names: names, results }) => {
@@ -56,8 +41,6 @@ export const parseJobRows = ({ job_property_names: names, results }) => {
     }
     jobs.push({
       id,
-      // An unknown state is filed as pending, not completed: guessing "done"
-      // is the error that promises a finish with jobs still queued.
       state: STATES.has(state) ? state : 'pending',
       result: get(row, 'result') || 'unknown',
       symbol: get(row, 'symbol') || '',
@@ -94,14 +77,11 @@ export const fetchPushJobs = async (repo, pushId) => {
     if (failureStatus) return null;
     const before = jobs.size;
     for (const job of parseJobRows(data)) jobs.set(job.id, job);
-    // Stop on a short page, or on a page that added nothing new: Treeherder's
-    // list endpoints have been seen to repeat rows rather than advance.
     if (data.results.length < PAGE || jobs.size === before) break;
   }
   return [...jobs.values()];
 };
 
-// Lazily, so the 140 KB table is its own chunk and /jobs never pays for it.
 let tablePromise;
 export const loadDurationTable = () => {
   tablePromise =
@@ -112,16 +92,10 @@ export const loadDurationTable = () => {
   return tablePromise;
 };
 
-// ---- the model ----
-
-// The global median job, for when the table is missing entirely.
 const HARD_FALLBACK_MINUTES = 20.8;
 
-// Chunked suites are named `…-wdspec-headless-1`, `-2`…; dropping the chunk
-// number lets an unseen chunk inherit its siblings' timing (misses 14% → 8%).
 export const familyKey = (name) => name.replace(/-\d+$/, '');
 
-// Expected run time in seconds, most specific match first.
 export const expectedRunTime = (job, table) => {
   const minutes =
     table?.exact?.[job.jobTypeName] ??
@@ -132,7 +106,6 @@ export const expectedRunTime = (job, table) => {
   return minutes * 60;
 };
 
-// Jobs sharing this key contend for the same workers, so share a queue wait.
 const poolKey = (job) => `${job.platform}|${job.platformOption}`;
 
 const queueWait = (job) =>
@@ -140,9 +113,6 @@ const queueWait = (job) =>
     ? job.start - job.submit
     : null;
 
-// A shippable build is a pipeline, not a task: instrumented-build produces a
-// profiling binary, generate-profile runs it, and only then does build make
-// what the tests consume.
 export const buildStage = ({ jobTypeName: n }) => {
   if (n.startsWith('toolchain-')) return 0;
   if (n.startsWith('instrumented-build-')) return 1;
@@ -163,23 +133,12 @@ const median = (values) => {
   return s.length % 2 ? s[mid] : (s[mid - 1] + s[mid]) / 2;
 };
 
-// Uncorrected, the real finish is 1.9× the predicted remaining time at the
-// median. 1.25 brings that to 1.5× and still overshoots 2× only 2% of the
-// time. Erring long is the right direction for an ETA.
 const TAIL_CALIBRATION = 1.25;
 
-// The estimate holds once 60% of unresolved jobs sit in pools where something
-// has started. Below that it's wrong by about 113 minutes, so say nothing.
-// 83% of pushes clear the bar, at a median of 30 minutes in.
 const FIRM_COVERAGE = 0.6;
 
-// The decision task has to land before there's anything to estimate.
 const MINIMUM_ELAPSED = 8 * 60;
 
-// Walks the build chain stage by stage to find when tests are released. Each
-// stage starts only once the earlier ones land, so the frontier is carried
-// forward: a running stage is projected from its own start, one that hasn't
-// started from the frontier plus a normal queue wait.
 const buildGate = (unresolved, poolWaits, globalWait, now, table) => {
   let frontier = null;
   let running = null;
@@ -192,7 +151,6 @@ const buildGate = (unresolved, poolWaits, globalWait, now, table) => {
       if (job.start != null) {
         const end = job.start + run;
         ends.push(end);
-        // Name the latest-finishing running stage.
         if (!running || end > running.end) {
           running = { end, name: job.jobTypeName };
         }
@@ -214,15 +172,6 @@ const buildGate = (unresolved, poolWaits, globalWait, now, table) => {
     : null;
 };
 
-// Returns null when there's nothing to estimate: no jobs, or none unresolved.
-// Otherwise `confidence` is one of:
-//   'firm'           — show `mostAt` as the headline, `allAt` as approximate.
-//   'blockedOnBuild' — tests wait on a running build; show `blockingBuild`.
-//                      Build finishes land within 5 minutes 71% of the time.
-//   'estimating'     — too early to know. `mostAt`/`allAt` are null so no
-//                      screen can show a number that would be wrong.
-// Every tier counts: one sampled push ran 209 tier-1 jobs against 545 tier-2,
-// and an ETA that ignored them would promise a finish with hundreds queued.
 export const estimatePush = (jobs, table, { now = Date.now(), pushedAt }) => {
   if (!jobs?.length) return null;
   const nowS = now / 1000;
@@ -235,8 +184,6 @@ export const estimatePush = (jobs, table, { now = Date.now(), pushedAt }) => {
   for (const job of jobs) {
     if (job.state === 'completed' && job.end != null) resolvedEnds.push(job.end);
     else unresolved.push(job);
-    // A start stamp is an observation of the pool's queue whether or not the
-    // job has since finished.
     const wait = queueWait(job);
     if (wait != null) {
       const key = poolKey(job);
@@ -249,9 +196,6 @@ export const estimatePush = (jobs, table, { now = Date.now(), pushedAt }) => {
   const poolWaits = new Map([...waits].map(([k, v]) => [k, median(v)]));
   const globalWait = poolWaits.size ? median([...poolWaits.values()]) : 0;
 
-  // A job in a pool nothing has started in is usually waiting on a build, not
-  // idly queued. One live push had 32 of 37 unresolved jobs unscheduled behind
-  // a single running macOS build, with no pool observation at all.
   const gate = buildGate(unresolved, poolWaits, globalWait, nowS, table);
 
   const projected = [...resolvedEnds];
@@ -263,17 +207,14 @@ export const estimatePush = (jobs, table, { now = Date.now(), pushedAt }) => {
     const run = expectedRunTime(job, table);
     let end;
     if (job.start != null) {
-      // Already running: all that's left to know is how long it runs.
       end = job.start + run;
     } else if (job.submit == null) {
       continue;
     } else if (poolWaits.has(poolKey(job))) {
       observed += 1;
-      // Never predict a wait shorter than the one already served.
       const wait = Math.max(poolWaits.get(poolKey(job)), nowS - job.submit);
       end = job.submit + wait + run;
     } else if (gate) {
-      // Released when the build chain lands, then a normal queue wait.
       end = Math.max(gate.releasesAt, nowS) + globalWait + run;
     } else {
       end = job.submit + Math.max(globalWait, nowS - job.submit) + run;
@@ -313,9 +254,6 @@ export const estimatePush = (jobs, table, { now = Date.now(), pushedAt }) => {
     };
   }
 
-  // Only name a long pole when it's really holding things up. The true one is
-  // in this estimator's top three 86% of the time but top one only 51%, so
-  // it's a hint, not a fact.
   let longPole = null;
   let longPoleRemaining = 0;
   if (worstJob && worstEnd > mostS + 5 * 60) {
@@ -333,7 +271,6 @@ export const estimatePush = (jobs, table, { now = Date.now(), pushedAt }) => {
     confidence,
     mostAt: firm ? mostS * 1000 : null,
     allAt: firm ? allS * 1000 : null,
-    // Where `mostAt` sits along pushed → allAt, for marking a timeline.
     mostFraction: firm && span > 0 ? Math.min(1, Math.max(0, (mostS - pushedS) / span)) : null,
     pushedAt,
     blockingBuild,

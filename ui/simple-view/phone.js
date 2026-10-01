@@ -1,6 +1,3 @@
-// Phones visiting the jobs view get the push view instead, since the jobs
-// view is laid out for a desktop. Choosing the full view from the push view
-// turns this off for the rest of the browser session.
 
 const FULL_VIEW_KEY = 'simpleViewFullView';
 
@@ -28,13 +25,9 @@ export const chooseFullView = () => {
   try {
     sessionStorage.setItem(FULL_VIEW_KEY, '1');
   } catch {
-    // Without storage the redirect can't be skipped; the link still works on
-    // anything that isn't a phone.
   }
 };
 
-// Where a jobs-view URL goes on a phone, or null to stay put. A link to one
-// push keeps pointing at that push.
 export const simpleViewFor = (search, { phone, fullView }) => {
   if (!phone || fullView) return null;
   const params = new URLSearchParams(search);

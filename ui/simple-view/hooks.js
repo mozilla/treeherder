@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 
-// Re-run `load` every `intervalMs` while the tab is visible, and once more
-// the moment it becomes visible again (a phone coming out of a pocket).
 export const usePoll = (load, intervalMs, enabled = true) => {
   const saved = useRef(load);
   saved.current = load;
@@ -20,8 +18,6 @@ export const usePoll = (load, intervalMs, enabled = true) => {
   }, [intervalMs, enabled]);
 };
 
-// True for one beat whenever `key` changes after its first value, so a
-// status that moves is felt instead of silently swapped.
 export const usePulse = (key) => {
   const previous = useRef(key);
   const [pulsing, setPulsing] = useState(false);
@@ -40,8 +36,6 @@ export const usePulse = (key) => {
   return pulsing;
 };
 
-// A tiny queue so a list of fifteen pushes asks for its summaries a few at a
-// time instead of all at once.
 const MAX_IN_FLIGHT = 4;
 let inFlight = 0;
 const waiting = [];
@@ -61,8 +55,6 @@ export const queued = (task) =>
     else waiting.push(run);
   });
 
-// Counts from the last shown value to `target` with an ease-out, so a number
-// that moves is watched arriving rather than swapped.
 export const useCountUp = (target, ms = 900) => {
   const [value, setValue] = useState(0);
   const shown = useRef(0);

@@ -12,21 +12,15 @@ import { pushUrl } from './helpers';
 import { useTheme } from './theme';
 import { BETA, FEEDBACK_URL } from './strings';
 
-// Treeherder's job-state colours (--status-*), shared with the full view.
 import '../css/treeherder-job-buttons.css';
 import '../css/simple-view.css';
 
-// The rest of Treeherder is laid out for a desktop and relies on the browser
-// zooming it out on a phone. Only this view opts in to device width, and only
-// while it's mounted. theme-color tints Chrome's toolbar on Android (and
-// Safari's on iOS) to match the page instead of sitting on it as a white bar.
 const HEAD_TAGS = [
   {
     name: 'viewport',
     content:
       'width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content',
   },
-  // Treeherder's top bar, so the browser's toolbar runs into it.
   { name: 'theme-color', content: 'rgb(34, 34, 34)' },
 ];
 
@@ -46,9 +40,6 @@ const useMobileHead = () => {
   }, []);
 };
 
-// Whose pushes: the URL says, so any screen can be shared or bookmarked. With
-// no author in it, fill in the signed-in user; failing that, ask. An empty
-// `author=` asks on purpose, for switching person.
 const useAuthorInUrl = (params, repo) => {
   const navigate = useNavigate();
   const asking = 'author' in params && !params.author;

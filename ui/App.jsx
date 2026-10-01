@@ -78,7 +78,6 @@ const WithFavicon = ({ children, route }) => {
   return children;
 };
 
-// Phones get the push view in place of the desktop jobs view.
 const JobsOrSimpleView = () => {
   const { search } = useLocation();
   const target = simpleViewFor(search, {
