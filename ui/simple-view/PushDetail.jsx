@@ -39,8 +39,8 @@ import { estimatePush, fetchPushJobs, loadDurationTable } from './eta';
 
 const verdict = ({ yours, parentToo, builds, lint, progress, eta, seenBefore }) => {
   const broke = [];
-  if (yours.length) broke.push(VERDICT.broke(yours.length, 'test'));
-  if (builds.length) broke.push(VERDICT.broke(builds.length, 'build'));
+  if (yours.length) broke.push(VERDICT.testsBroke(yours.length));
+  if (builds.length) broke.push(VERDICT.buildsBroke(builds.length));
   if (lint.length) broke.push(VERDICT.lintFailed);
 
   const sofar = progress.running

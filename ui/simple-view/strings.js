@@ -65,7 +65,8 @@ export const LIST = {
 };
 
 export const VERDICT = {
-  broke: (n, noun) => `${countWord(n).toLowerCase()} ${plural(n, noun)} broke`,
+  testsBroke: (n) => `${countWord(n).toLowerCase()} ${plural(n, 'test')} broke`,
+  buildsBroke: (n) => `${countWord(n).toLowerCase()} ${plural(n, 'build')} broke`,
   lintFailed: 'lint failed',
   sentence: (parts) => `${capitalize(parts.join(', '))}.`,
   soFar: (done, total) => `${done} of ${total} jobs done so far.`,
