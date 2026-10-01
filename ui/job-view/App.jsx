@@ -49,6 +49,7 @@ import '../css/treeherder-fuzzyfinder.css';
 import '../css/treeherder-loading-overlay.css';
 
 const DEFAULT_DETAILS_PCT = 40;
+const MOBILE_DETAILS_MIN_HEIGHT = 84;
 const REVISION_POLL_INTERVAL = 1000 * 60 * 5;
 const REVISION_POLL_DELAYED_INTERVAL = 1000 * 60 * 60;
 const LANDO_POLL_INTERVAL = 1000 * 60;
@@ -103,7 +104,9 @@ const App = () => {
   const navigate = useNavigate();
   const panelGroupRef = useRef();
   const resizeStartRef = useRef(null);
-  const [mobileDetailsHeight, setMobileDetailsHeight] = useState(50);
+  const [mobileDetailsHeight, setMobileDetailsHeight] = useState(
+    MOBILE_DETAILS_MIN_HEIGHT,
+  );
 
   // Zustand state
   const selectedJob = useSelectedJobStore((state) => state.selectedJob);
@@ -494,54 +497,56 @@ const App = () => {
             show={hasSelectedJob}
             onHide={() => {
               clearSelectedJob(0);
-              setMobileDetailsHeight(50);
+              setMobileDetailsHeight(MOBILE_DETAILS_MIN_HEIGHT);
             }}
             className="mobile-job-details"
             aria-labelledby="mobile-job-details-title"
-            style={{ '--bs-offcanvas-height': `${mobileDetailsHeight}dvh` }}
+            style={{
+              '--bs-offcanvas-height': `min(${mobileDetailsHeight}px, 100dvh)`,
+            }}
             backdrop={false}
             scroll
             enforceFocus={false}
           >
-            <Offcanvas.Header closeButton>
+            <Offcanvas.Header
+              closeButton
+              onPointerDown={(event) => {
+                if (event.target.closest('.btn-close')) return;
+                resizeStartRef.current = {
+                  y: event.clientY,
+                  height: mobileDetailsHeight,
+                };
+                event.currentTarget.setPointerCapture(event.pointerId);
+              }}
+              onPointerMove={(event) => {
+                if (resizeStartRef.current) {
+                  const { y, height } = resizeStartRef.current;
+                  setMobileDetailsHeight(
+                    Math.min(
+                      window.innerHeight,
+                      Math.max(
+                        MOBILE_DETAILS_MIN_HEIGHT,
+                        Math.round(height + y - event.clientY),
+                      ),
+                    ),
+                  );
+                }
+              }}
+              onPointerUp={() => {
+                resizeStartRef.current = null;
+              }}
+              onPointerCancel={() => {
+                resizeStartRef.current = null;
+              }}
+            >
               <button
                 type="button"
                 className="mobile-details-resize"
                 aria-label="Resize job details"
-                aria-valuemin={50}
-                aria-valuemax={100}
+                aria-valuemin={MOBILE_DETAILS_MIN_HEIGHT}
+                aria-valuemax={window.innerHeight}
                 aria-valuenow={mobileDetailsHeight}
                 role="slider"
-                onPointerDown={(event) => {
-                  resizeStartRef.current = {
-                    y: event.clientY,
-                    height: mobileDetailsHeight,
-                  };
-                  event.currentTarget.setPointerCapture(event.pointerId);
-                }}
-                onPointerMove={(event) => {
-                  if (resizeStartRef.current) {
-                    const { y, height } = resizeStartRef.current;
-                    setMobileDetailsHeight(
-                      Math.min(
-                        100,
-                        Math.max(
-                          50,
-                          Math.round(
-                            height +
-                              ((y - event.clientY) / window.innerHeight) * 100,
-                          ),
-                        ),
-                      ),
-                    );
-                  }
-                }}
-                onPointerUp={() => {
-                  resizeStartRef.current = null;
-                }}
-                onPointerCancel={() => {
-                  resizeStartRef.current = null;
-                }}
                 onKeyDown={(event) => {
                   if (
                     ['ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)
@@ -549,13 +554,14 @@ const App = () => {
                     event.preventDefault();
                     event.stopPropagation();
                     setMobileDetailsHeight((height) => {
-                      if (event.key === 'Home') return 50;
-                      if (event.key === 'End') return 100;
+                      if (event.key === 'Home')
+                        return MOBILE_DETAILS_MIN_HEIGHT;
+                      if (event.key === 'End') return window.innerHeight;
                       return Math.min(
-                        100,
+                        window.innerHeight,
                         Math.max(
-                          50,
-                          height + (event.key === 'ArrowUp' ? 10 : -10),
+                          MOBILE_DETAILS_MIN_HEIGHT,
+                          height + (event.key === 'ArrowUp' ? 40 : -40),
                         ),
                       );
                     });

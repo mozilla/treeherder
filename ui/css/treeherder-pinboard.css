@@ -63,6 +63,10 @@
 }
 
 @media (max-width: 767.98px) {
+  .mobile-job-details #pinboard-btn {
+    display: none;
+  }
+
   .mobile-job-details .mobile-pinboard-back {
     align-self: flex-start;
     min-height: 44px;
