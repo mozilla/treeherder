@@ -341,8 +341,12 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
         read_only=True, slug_field="revision", source="original_push"
     )
     push_timestamp = TimestampField(source="push", read_only=True)
-    prev_push_revision = serializers.SlugRelatedField(
-        read_only=True, slug_field="revision", source="prev_push"
+    prev_push_revision = RepositoryScopedRevisionField(
+        read_only=False,
+        slug_field="revision",
+        source="prev_push",
+        required=False,
+        queryset=Push.objects.all(),
     )
     original_prev_push_revision = serializers.SlugRelatedField(
         read_only=True, slug_field="revision", source="original_prev_push"
@@ -369,14 +373,20 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     monitored_alerts = serializers.BooleanField(required=False)
 
     def validate(self, data):
-        if "push" in data:
+        if "push" in data and "prev_push" not in data:
             push = data["push"]
-            prev_push = (
+            data["prev_push"] = (
                 Push.objects.filter(repository_id=push.repository_id, time__lt=push.time)
                 .order_by("-time")
                 .first()
             )
 
+        push = data.get("push", self.instance.push)
+        prev_push = data.get("prev_push", self.instance.prev_push)
+        if push.revision == prev_push.revision:
+            raise serializers.ValidationError("From and To revisions should be distinct.")
+
+        if "push" in data or "prev_push" in data:
             existing = (
                 PerformanceAlertSummary.objects.filter(
                     repository_id=self.instance.repository_id,
@@ -392,7 +402,6 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
                     f"Alert summary #{existing.id} already uses this To revision, "
                     "reassign the alerts to it instead."
                 )
-            data["prev_push"] = prev_push
         return data
 
     def update(self, instance, validated_data):

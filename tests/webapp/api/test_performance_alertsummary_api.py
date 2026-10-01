@@ -403,6 +403,50 @@ def test_alert_summaries_put(
     assert PerformanceAlertSummary.objects.get(id=1).assignee == test_user
 
 
+def test_performance_alert_summary_change_from_revision(
+    client, test_perf_alert_summary, test_sheriff, test_push
+):
+    client.force_authenticate(user=test_sheriff)
+
+    # verify we can set revision
+    assert PerformanceAlertSummary.objects.get(id=1).prev_push.revision != test_push.revision
+    resp = client.put(
+        reverse("performance-alert-summaries-list") + "1/",
+        {"prev_push_revision": test_push.revision},
+    )
+    assert resp.status_code == 200
+    assert PerformanceAlertSummary.objects.get(id=1).prev_push.revision == test_push.revision
+
+    # verify we cannot set non-existing revision
+    resp = client.put(
+        reverse("performance-alert-summaries-list") + "1/",
+        {"prev_push_revision": "no-push-revision"},
+    )
+    assert resp.status_code == 400
+
+    # revert revision
+    original_revision = PerformanceAlertSummary.objects.get(id=1).original_prev_push.revision
+    resp = client.put(
+        reverse("performance-alert-summaries-list") + "1/",
+        {"prev_push_revision": original_revision},
+    )
+    assert resp.status_code == 200
+    assert PerformanceAlertSummary.objects.get(id=1).prev_push.revision == original_revision
+
+
+def test_performance_alert_summary_same_from_to_revision(
+    client, test_perf_alert_summary, test_sheriff, test_push
+):
+    client.force_authenticate(user=test_sheriff)
+
+    # verify we cannot set the same revision for both from and to revision
+    resp = client.put(
+        reverse("performance-alert-summaries-list") + "1/",
+        {"revision": test_push.revision, "prev_push_revision": test_push.revision},
+    )
+    assert resp.status_code == 400
+
+
 def test_performance_alert_summary_change_revision(
     client, test_perf_alert_summary, test_sheriff, test_push
 ):
@@ -453,6 +497,25 @@ def test_performance_alert_summary_change_revision_sets_from_revision(
     summary = PerformanceAlertSummary.objects.get(id=1)
     assert summary.push == new_push
     assert summary.prev_push == previous_push
+
+
+def test_performance_alert_summary_change_revision_keeps_sent_from_revision(
+    client, test_perf_alert_summary, test_sheriff, create_push
+):
+    client.force_authenticate(user=test_sheriff)
+    repository = test_perf_alert_summary.repository
+    now = datetime.now()
+    older_push = create_push(repository, revision="a" * 40, time=now - timedelta(hours=2))
+    create_push(repository, revision="b" * 40, time=now - timedelta(hours=1))
+    new_push = create_push(repository, revision="c" * 40, time=now)
+
+    resp = client.put(
+        reverse("performance-alert-summaries-list") + "1/",
+        {"revision": new_push.revision, "prev_push_revision": older_push.revision},
+    )
+
+    assert resp.status_code == 200
+    assert PerformanceAlertSummary.objects.get(id=1).prev_push == older_push
 
 
 @pytest.mark.parametrize("existing_from", ["previous", "older"])
@@ -508,6 +571,22 @@ def test_performance_alert_summary_change_revision_duplicated_across_repositorie
     summary = PerformanceAlertSummary.objects.get(id=1)
     assert summary.push == test_push
     assert summary.push.repository == test_perf_alert_summary.repository
+
+
+def test_performance_alert_summary_change_from_revision_duplicated_across_repositories(
+    client, test_perf_alert_summary, test_sheriff, test_push, duplicated_push
+):
+    client.force_authenticate(user=test_sheriff)
+
+    resp = client.put(
+        reverse("performance-alert-summaries-list") + "1/",
+        {"prev_push_revision": test_push.revision},
+    )
+
+    assert resp.status_code == 200
+    summary = PerformanceAlertSummary.objects.get(id=1)
+    assert summary.prev_push == test_push
+    assert summary.prev_push.repository == test_perf_alert_summary.repository
 
 
 def test_performance_alert_summary_revision_from_other_repository_rejected(
