@@ -557,7 +557,19 @@ fieldset[disabled] .btn-view-nav-closed.active {
 
   .watched-repo-navbar .watched-repos {
     min-height: 36px;
-    overflow-x: auto;
+    width: 100%;
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+
+  .watched-repo-navbar .watched-repo-toggle {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .watched-repo-navbar:not(.mobile-filters-expanded) .watched-repo-extra,
+  .watched-repo-navbar:not(.mobile-filters-expanded) .watched-repo-controls {
+    display: none;
   }
 
   .watched-repo-navbar form {

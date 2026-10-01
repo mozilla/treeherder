@@ -163,6 +163,10 @@ test.describe('Jobs View', () => {
     await expect(buildJobs.first()).toBeVisible();
     await expect(yamlJobs.first()).toBeVisible();
 
+    if (test.info().project.name === 'mobile-firefox') {
+      await page.getByRole('button', { name: 'Show job filters' }).click();
+    }
+
     const quickFilter = page.locator('#quick-filter');
     await quickFilter.fill('yaml');
     await quickFilter.press('Enter');
@@ -191,7 +195,44 @@ test.describe('Jobs View', () => {
       .getByRole('button', { name: 'Close' })
       .click();
 
-    await expect(page.locator('#quick-filter')).toBeVisible();
+    await expect(
+      page.locator('#watched-repo-navbar .btn-watched-repo.active'),
+    ).toBeVisible();
+    const repoInfo = page
+      .locator('#watched-repo-navbar .watched-repos .dropdown-toggle')
+      .first();
+    await expect(repoInfo).toBeVisible();
+    await repoInfo.click();
+    expect(
+      await page.evaluate(() => {
+        const row = document.querySelector(
+          '#watched-repo-navbar .watched-repos',
+        );
+        const menu = row.querySelector('.dropdown-menu.show');
+        const rect = menu.getBoundingClientRect();
+        const hit = document.elementFromPoint(rect.left + 16, rect.top + 24);
+        return (
+          rect.bottom > row.getBoundingClientRect().bottom && menu.contains(hit)
+        );
+      }),
+    ).toBe(true);
+    await repoInfo.click();
+    await expect(page.locator('#quick-filter')).toBeHidden();
+    await page.getByRole('button', { name: 'Show job filters' }).click();
+    const quickFilter = page.locator('#quick-filter');
+    await expect(quickFilter).toBeVisible();
+    await quickFilter.fill('yaml');
+    await quickFilter.press('Enter');
+    await expect(page).toHaveURL(/searchStr=yaml/);
+    await expect(
+      page.getByRole('button', { name: 'Hide job filters' }),
+    ).toBeVisible();
+    await expect(quickFilter).toBeVisible();
+    await quickFilter.fill('');
+    await quickFilter.press('Enter');
+    await expect(page).not.toHaveURL(/searchStr=/);
+    await page.getByRole('button', { name: 'Hide job filters' }).click();
+    await expect(quickFilter).toBeHidden();
     await expect(page.getByTestId('push-header').first()).toBeVisible();
     expect(
       await page.evaluate(
