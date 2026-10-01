@@ -4,6 +4,8 @@ import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircle, faDotCircle } from '@fortawesome/free-regular-svg-icons';
 import {
+  faChevronDown,
+  faChevronUp,
   faExclamationCircle,
   faFilter,
   faTimesCircle,
@@ -66,6 +68,7 @@ const SecondaryNavBar = ({
   );
   const [watchedRepoNames, setWatchedRepoNames] = useState([]);
   const [repoName, setRepoName] = useState(getRepo());
+  const [mobileFiltersExpanded, setMobileFiltersExpanded] = useState(false);
 
   const saveWatchedRepos = useCallback((repoList) => {
     setWatchedRepoNames(repoList);
@@ -208,7 +211,7 @@ const SecondaryNavBar = ({
   return (
     <div
       id="watched-repo-navbar"
-      className="th-context-navbar navbar-dark watched-repo-navbar"
+      className={`th-context-navbar navbar-dark watched-repo-navbar ${mobileFiltersExpanded ? 'mobile-filters-expanded' : ''}`}
       tabIndex={-1}
     >
       <span className="justify-content-between w-100 d-flex flex-wrap">
@@ -227,8 +230,29 @@ const SecondaryNavBar = ({
               />
             </ErrorBoundary>
           ))}
+          <Button
+            className="btn-view-nav watched-repo-toggle d-md-none ms-auto"
+            type="button"
+            title={
+              mobileFiltersExpanded ? 'Hide job filters' : 'Show job filters'
+            }
+            aria-label={
+              mobileFiltersExpanded ? 'Hide job filters' : 'Show job filters'
+            }
+            aria-controls="watched-repo-controls"
+            aria-expanded={mobileFiltersExpanded}
+            onClick={() => setMobileFiltersExpanded((expanded) => !expanded)}
+          >
+            <FontAwesomeIcon
+              icon={mobileFiltersExpanded ? faChevronUp : faChevronDown}
+            />
+          </Button>
         </span>
-        <form role="search" className="form-inline flex-row">
+        <form
+          id="watched-repo-controls"
+          role="search"
+          className="form-inline flex-row watched-repo-controls"
+        >
           {serverChanged && (
             <Button
               size="sm"
