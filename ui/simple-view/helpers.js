@@ -13,7 +13,7 @@ export const pushUrl = ({ repo, author, revision, job }) => {
   if (revision) q.set('revision', revision);
   if (job) q.set('job', job);
   if (author !== undefined && author !== null) q.set('author', author);
-  return `/push?${q}`;
+  return `/simple?${q}`;
 };
 
 // "Florian Quèze" → "Florian's pushes"; no name, just "Pushes".

@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 
-import Retrigger from '../../../ui/push-view/Retrigger';
-import { retriggerableJobs } from '../../../ui/push-view/helpers';
+import Retrigger from '../../../ui/simple-view/Retrigger';
+import { retriggerableJobs } from '../../../ui/simple-view/helpers';
 import JobModel from '../../../ui/models/job';
 import RepositoryModel from '../../../ui/models/repository';
 import taskcluster, { tcCredentialsMessage } from '../../../ui/helpers/taskcluster';

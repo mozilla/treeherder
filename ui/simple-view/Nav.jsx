@@ -26,15 +26,15 @@ const ThemeSwitch = ({ theme }) => {
   return (
     <button
       type="button"
-      className="pv-theme"
+      className="sv-theme"
       role="switch"
       aria-checked={dark}
       aria-label="Dark mode"
       title={dark ? 'Dark mode on' : 'Dark mode off'}
       onClick={theme.toggle}
     >
-      <span className="pv-theme-track">
-        <span className="pv-theme-thumb">{dark ? <Moon /> : <Sun />}</span>
+      <span className="sv-theme-track">
+        <span className="sv-theme-thumb">{dark ? <Moon /> : <Sun />}</span>
       </span>
     </button>
   );
@@ -44,28 +44,28 @@ const ThemeSwitch = ({ theme }) => {
 // and the strip saying what's shown. Always one tap to the full view of the
 // same thing.
 const Nav = ({ repo, author, theme, back, backLabel, full, filter }) => (
-  <header className="pv-bars">
-    <div className="pv-topbar">
+  <header className="sv-bars">
+    <div className="sv-topbar">
       <Link to={pushUrl({ repo, author })} aria-label="Your pushes">
-        <img className="pv-logo" src={logo} alt="Treeherder" />
+        <img className="sv-logo" src={logo} alt="Treeherder" />
       </Link>
-      <span className="pv-topbar-end">
+      <span className="sv-topbar-end">
         <ThemeSwitch theme={theme} />
-        <span className="pv-topbar-divider" aria-hidden="true" />
-        <a className="pv-full" href={full} onClick={chooseFullView}>
+        <span className="sv-topbar-divider" aria-hidden="true" />
+        <a className="sv-full" href={full} onClick={chooseFullView}>
           Full view <span aria-hidden="true">↗</span>
         </a>
       </span>
     </div>
     {back && (
-      <div className="pv-contextbar">
-        <Link to={back} className="pv-back">
+      <div className="sv-contextbar">
+        <Link to={back} className="sv-back">
           {backLabel}
         </Link>
-        <span className="pv-repo">{repo}</span>
+        <span className="sv-repo">{repo}</span>
       </div>
     )}
-    {filter && <div className="pv-infobar">{filter}</div>}
+    {filter && <div className="sv-infobar">{filter}</div>}
   </header>
 );
 

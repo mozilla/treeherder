@@ -14,7 +14,7 @@ const Kit = () => {
     () => POSES[Math.floor(Math.random() * POSES.length)],
   );
 
-  return <img className="pv-kit" src={pose} alt="Kit, the Firefox mascot" />;
+  return <img className="sv-kit" src={pose} alt="Kit, the Firefox mascot" />;
 };
 
 export default Kit;

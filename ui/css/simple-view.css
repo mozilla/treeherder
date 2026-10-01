@@ -4,24 +4,24 @@
    full view's navbars. Text colours keep 4.5:1 on white; where a status
    colour is too light for small text, its darker "classified" shade is used. */
 
-body.pv-body {
-  --pv-bg: #fff;
-  --pv-surface: #fff;
-  --pv-ink: #212529;
-  --pv-muted: #6c757d;
-  --pv-hairline: #dee2e6;
-  --pv-wash: #f8f9fa;
-  --pv-link: #337ab7;
-  --pv-topbar: rgb(34, 34, 34);
-  --pv-contextbar: rgb(55, 64, 71);
-  --pv-info-bg: rgb(214, 235, 240);
-  --pv-info-ink: #0c5460;
-  --pv-danger: #dc3545;
-  --pv-radius: 8px;
+body.sv-body {
+  --sv-bg: #fff;
+  --sv-surface: #fff;
+  --sv-ink: #212529;
+  --sv-muted: #6c757d;
+  --sv-hairline: #dee2e6;
+  --sv-wash: #f8f9fa;
+  --sv-link: #337ab7;
+  --sv-topbar: rgb(34, 34, 34);
+  --sv-contextbar: rgb(55, 64, 71);
+  --sv-info-bg: rgb(214, 235, 240);
+  --sv-info-ink: #0c5460;
+  --sv-danger: #dc3545;
+  --sv-radius: 8px;
 
   margin: 0;
-  background: var(--pv-bg);
-  color: var(--pv-ink);
+  background: var(--sv-bg);
+  color: var(--sv-ink);
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -webkit-text-size-adjust: 100%;
@@ -34,16 +34,16 @@ body.pv-body {
 /* Dark, when chosen. The bars are Treeherder's either way; the page goes
    dark, and the job colours that vanish on it (black running, deep blue
    retry, deep green success) get lighter shades of themselves. */
-body.pv-body.pv-dark {
-  --pv-bg: #16181b;
-  --pv-surface: #1e2125;
-  --pv-wash: #191c1f;
-  --pv-ink: #e9ecef;
-  --pv-muted: #adb5bd;
-  --pv-hairline: #343a40;
-  --pv-link: #6ea8fe;
-  --pv-info-bg: #032830;
-  --pv-info-ink: #6edff6;
+body.sv-body.sv-dark {
+  --sv-bg: #16181b;
+  --sv-surface: #1e2125;
+  --sv-wash: #191c1f;
+  --sv-ink: #e9ecef;
+  --sv-muted: #adb5bd;
+  --sv-hairline: #343a40;
+  --sv-link: #6ea8fe;
+  --sv-info-bg: #032830;
+  --sv-info-ink: #6edff6;
   --status-success: #2ea043;
   --status-success-hover: #4ac26b;
   --status-running: #e9ecef;
@@ -52,11 +52,11 @@ body.pv-body.pv-dark {
   color-scheme: dark;
 }
 
-.pv-dark .pv-tone-running {
-  --pv-tone-text: var(--pv-ink);
+.sv-dark .sv-tone-running {
+  --sv-tone-text: var(--sv-ink);
 }
 
-.pv {
+.sv {
   max-width: 640px;
   margin: 0 auto;
   padding: 0 max(12px, env(safe-area-inset-right))
@@ -66,27 +66,27 @@ body.pv-body.pv-dark {
 
 /* The headings keep their breathing room; only the cards run wider, so a
    push title gets a few more characters on a phone. */
-.pv-masthead,
-.pv-section > .pv-sub,
-.pv-push-head,
-.pv-section-title,
-.pv-footer {
+.sv-masthead,
+.sv-section > .sv-sub,
+.sv-push-head,
+.sv-section-title,
+.sv-footer {
   padding-left: 6px;
   padding-right: 6px;
 }
 
-.pv a {
+.sv a {
   color: inherit;
   text-decoration: none;
 }
 
-.pv ul {
+.sv ul {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.pv button {
+.sv button {
   font: inherit;
   color: inherit;
   background: none;
@@ -96,63 +96,63 @@ body.pv-body.pv-dark {
 }
 
 /* ---- tones ----
-   --pv-tone paints marks; --pv-tone-text is the same colour, dark enough
+   --sv-tone paints marks; --sv-tone-text is the same colour, dark enough
    to read as small text on white. */
 
-.pv-tone-good {
-  --pv-tone: var(--status-success);
-  --pv-tone-text: var(--status-success-hover);
+.sv-tone-good {
+  --sv-tone: var(--status-success);
+  --sv-tone-text: var(--status-success-hover);
 }
-.pv-tone-bad {
-  --pv-tone: var(--status-testfailed);
-  --pv-tone-text: var(--status-testfailed-classified);
+.sv-tone-bad {
+  --sv-tone: var(--status-testfailed);
+  --sv-tone-text: var(--status-testfailed-classified);
 }
-.pv-tone-running {
-  --pv-tone: var(--status-running);
-  --pv-tone-text: var(--pv-ink);
+.sv-tone-running {
+  --sv-tone: var(--status-running);
+  --sv-tone-text: var(--sv-ink);
 }
-.pv-tone-quiet {
-  --pv-tone: var(--pv-hairline);
-  --pv-tone-text: var(--pv-muted);
+.sv-tone-quiet {
+  --sv-tone: var(--sv-hairline);
+  --sv-tone-text: var(--sv-muted);
 }
 
 /* ---- Treeherder's navbars ---- */
 
 /* Full-bleed however narrow the page column is. */
-.pv-bars {
+.sv-bars {
   margin: 0 calc(50% - 50vw) 20px;
 }
 
-.pv-topbar {
+.sv-topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   min-height: 44px;
   padding: env(safe-area-inset-top) max(12px, env(safe-area-inset-right)) 0
     max(12px, env(safe-area-inset-left));
-  background: var(--pv-topbar);
+  background: var(--sv-topbar);
   border-bottom: 1px solid #000;
 }
 
-.pv-logo {
+.sv-logo {
   display: block;
   height: 20px;
 }
 
-.pv-topbar-end {
+.sv-topbar-end {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
 /* On means dark. The knob shows which theme is on: a sun, or a moon. */
-.pv .pv-theme {
+.sv .sv-theme {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
 }
 
-.pv-theme-track {
+.sv-theme-track {
   position: relative;
   width: 44px;
   height: 24px;
@@ -161,7 +161,7 @@ body.pv-body.pv-dark {
   transition: background-color 0.2s ease;
 }
 
-.pv-theme-thumb {
+.sv-theme-thumb {
   position: absolute;
   top: 2px;
   left: 2px;
@@ -175,7 +175,7 @@ body.pv-body.pv-dark {
   transition: transform 0.2s ease;
 }
 
-.pv-theme-thumb svg {
+.sv-theme-thumb svg {
   width: 13px;
   height: 13px;
   fill: #f0a020;
@@ -184,20 +184,20 @@ body.pv-body.pv-dark {
   stroke-linecap: round;
 }
 
-.pv-theme[aria-checked='true'] .pv-theme-track {
-  background: var(--pv-link);
+.sv-theme[aria-checked='true'] .sv-theme-track {
+  background: var(--sv-link);
 }
 
-.pv-theme[aria-checked='true'] .pv-theme-thumb {
+.sv-theme[aria-checked='true'] .sv-theme-thumb {
   transform: translateX(20px);
 }
 
-.pv-theme[aria-checked='true'] .pv-theme-thumb svg {
-  fill: var(--pv-contextbar);
+.sv-theme[aria-checked='true'] .sv-theme-thumb svg {
+  fill: var(--sv-contextbar);
   stroke: none;
 }
 
-.pv .pv-full {
+.sv .sv-full {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -209,18 +209,18 @@ body.pv-body.pv-dark {
   color: rgba(255, 255, 255, 0.85);
 }
 
-.pv .pv-full:active {
+.sv .sv-full:active {
   color: #fff;
   border-color: #fff;
 }
 
-.pv-topbar-divider {
+.sv-topbar-divider {
   width: 1px;
   height: 20px;
   background: rgba(255, 255, 255, 0.2);
 }
 
-.pv-contextbar {
+.sv-contextbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -228,63 +228,63 @@ body.pv-body.pv-dark {
   min-height: 44px;
   padding: 0 max(12px, env(safe-area-inset-right)) 0
     max(12px, env(safe-area-inset-left));
-  background: var(--pv-contextbar);
+  background: var(--sv-contextbar);
   color: #fff;
   font-size: 15px;
 }
 
-.pv .pv-back {
+.sv .sv-back {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
   color: #fff;
 }
 
-.pv-back::before {
+.sv-back::before {
   content: '‹';
   margin-right: 6px;
   font-size: 22px;
   line-height: 1;
 }
 
-.pv-repo {
+.sv-repo {
   margin-left: auto;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.9);
 }
 
 /* What the page is showing, in the full view's "Active Filters" strip. */
-.pv-infobar {
+.sv-infobar {
   display: flex;
   align-items: center;
   min-height: 36px;
   padding: 0 max(12px, env(safe-area-inset-right)) 0
     max(12px, env(safe-area-inset-left));
-  background: var(--pv-info-bg);
-  color: var(--pv-info-ink);
+  background: var(--sv-info-bg);
+  color: var(--sv-info-ink);
   font-size: 14px;
   font-weight: 700;
 }
 
-.pv-infobar button,
-.pv .pv-switch-person {
+.sv-infobar button,
+.sv .sv-switch-person {
   font-weight: 700;
   color: inherit;
 }
 
 /* The author reads as editable: a pencil, and a tap turns it into a field. */
-.pv .pv-switch-person {
+.sv .sv-switch-person {
   min-height: 36px;
   text-align: left;
 }
 
-.pv .pv-switch-person::after {
+.sv .sv-switch-person::after {
   content: ' ✎';
   font-weight: 400;
   opacity: 0.8;
 }
 
-.pv-author-edit {
+.sv-author-edit {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -293,56 +293,56 @@ body.pv-body.pv-dark {
   padding: 6px 0;
 }
 
-.pv .pv-input-inline {
+.sv .sv-input-inline {
   flex: 1 1 180px;
   min-width: 0;
   padding: 8px 10px;
   font-size: 16px;
 }
 
-.pv .pv-inline-go,
-.pv .pv-inline-cancel,
-.pv .pv-inline-recent {
+.sv .sv-inline-go,
+.sv .sv-inline-cancel,
+.sv .sv-inline-recent {
   min-height: 40px;
   padding: 0 12px;
-  border-radius: var(--pv-radius);
+  border-radius: var(--sv-radius);
   font-size: 14px;
   font-weight: 700;
 }
 
-.pv .pv-inline-go {
+.sv .sv-inline-go {
   color: #fff;
-  background: var(--pv-link);
+  background: var(--sv-link);
 }
 
-.pv .pv-inline-go:disabled {
+.sv .sv-inline-go:disabled {
   opacity: 0.4;
 }
 
-.pv .pv-inline-cancel,
-.pv .pv-inline-recent {
+.sv .sv-inline-cancel,
+.sv .sv-inline-recent {
   display: inline-flex;
   align-items: center;
-  color: var(--pv-info-ink);
+  color: var(--sv-info-ink);
 }
 
-.pv-empty {
+.sv-empty {
   padding: 0 6px;
 }
 
 /* ---- type ---- */
 
-.pv-nameplate,
-.pv-eyebrow {
+.sv-nameplate,
+.sv-eyebrow {
   display: block;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--pv-muted);
+  color: var(--sv-muted);
 }
 
-.pv-title {
+.sv-title {
   margin: 6px 0 0;
   font-size: 34px;
   font-weight: 700;
@@ -350,7 +350,7 @@ body.pv-body.pv-dark {
   line-height: 1.05;
 }
 
-.pv-headline {
+.sv-headline {
   margin: 0;
   font-size: 30px;
   font-weight: 700;
@@ -358,99 +358,99 @@ body.pv-body.pv-dark {
   line-height: 1.1;
 }
 
-.pv-sub {
+.sv-sub {
   margin: 10px 0 0;
   font-size: 16px;
-  color: var(--pv-muted);
+  color: var(--sv-muted);
 }
 
-.pv-muted {
-  color: var(--pv-muted);
+.sv-muted {
+  color: var(--sv-muted);
   font-weight: 400;
 }
 
-.pv-link-button,
-.pv-link {
+.sv-link-button,
+.sv-link {
   display: inline-flex;
   align-items: center;
   min-height: 48px;
   font-size: 14px;
-  color: var(--pv-link);
+  color: var(--sv-link);
 }
 
-.pv .pv-link {
-  color: var(--pv-link);
+.sv .sv-link {
+  color: var(--sv-link);
 }
 
 /* ---- the ring ---- */
 
-.pv-ring {
+.sv-ring {
   position: relative;
   flex: none;
 }
 
-.pv-ring svg {
+.sv-ring svg {
   display: block;
   width: 100%;
   height: 100%;
   overflow: visible;
 }
 
-.pv-tick {
+.sv-tick {
   stroke-linecap: round;
   transform-box: fill-box;
   transform-origin: center;
   transition: stroke 0.8s ease;
-  animation: pv-tick-in 0.45s cubic-bezier(0.3, 1.4, 0.5, 1) var(--in) both;
+  animation: sv-tick-in 0.45s cubic-bezier(0.3, 1.4, 0.5, 1) var(--in) both;
 }
 
 /* One tick colour per job state, exactly as the full view paints them. */
-.pv-tick-testfailed {
+.sv-tick-testfailed {
   stroke: var(--status-testfailed);
 }
-.pv-tick-busted {
+.sv-tick-busted {
   stroke: var(--status-busted);
 }
-.pv-tick-exception {
+.sv-tick-exception {
   stroke: var(--status-exception);
 }
-.pv-tick-success {
+.sv-tick-success {
   stroke: var(--status-success);
 }
-.pv-tick-retry {
+.sv-tick-retry {
   stroke: var(--status-retry);
 }
-.pv-tick-usercancel {
+.sv-tick-usercancel {
   stroke: var(--status-usercancel);
 }
-.pv-tick-superseded {
+.sv-tick-superseded {
   stroke: var(--status-superseded);
 }
-.pv-tick-other {
+.sv-tick-other {
   stroke: var(--status-unknown);
 }
-.pv-tick-running {
+.sv-tick-running {
   stroke: var(--status-running);
 }
-.pv-tick-unscheduled {
+.sv-tick-unscheduled {
   stroke: var(--status-unscheduled);
 }
-.pv-tick-pending,
-.pv-tick-loading {
+.sv-tick-pending,
+.sv-tick-loading {
   stroke: var(--status-pending);
   opacity: 0.35;
 }
 
 /* Running and loading ticks carry a slow wave around the ring, so a push
    that is working looks like it. */
-.pv-tick-running,
-.pv-tick-loading {
+.sv-tick-running,
+.sv-tick-loading {
   animation:
-    pv-tick-in 0.45s cubic-bezier(0.3, 1.4, 0.5, 1) var(--in) both,
-    pv-wave 2.4s ease-in-out calc(var(--wave) - 2.4s) infinite;
+    sv-tick-in 0.45s cubic-bezier(0.3, 1.4, 0.5, 1) var(--in) both,
+    sv-wave 2.4s ease-in-out calc(var(--wave) - 2.4s) infinite;
 }
 
-@keyframes pv-tick-in {
+@keyframes sv-tick-in {
   from {
     opacity: 0;
     transform: scale(0.2);
@@ -460,7 +460,7 @@ body.pv-body.pv-dark {
   }
 }
 
-@keyframes pv-wave {
+@keyframes sv-wave {
   0%,
   100% {
     opacity: 1;
@@ -470,7 +470,7 @@ body.pv-body.pv-dark {
   }
 }
 
-.pv-ring-center {
+.sv-ring-center {
   position: absolute;
   inset: 0;
   display: flex;
@@ -479,7 +479,7 @@ body.pv-body.pv-dark {
   justify-content: center;
 }
 
-.pv-ring-figure {
+.sv-ring-figure {
   font-size: 54px;
   font-weight: 700;
   letter-spacing: -0.03em;
@@ -487,24 +487,24 @@ body.pv-body.pv-dark {
   font-variant-numeric: tabular-nums;
 }
 
-.pv-ring-unit {
+.sv-ring-unit {
   font-size: 28px;
   margin-left: 2px;
-  color: var(--pv-muted);
+  color: var(--sv-muted);
 }
 
-.pv-ring-label {
+.sv-ring-label {
   margin-top: 6px;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--pv-muted);
+  color: var(--sv-muted);
 }
 
 /* ---- list ---- */
 
-.pv-masthead {
+.sv-masthead {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
@@ -512,30 +512,30 @@ body.pv-body.pv-dark {
   margin: 0 0 24px;
 }
 
-.pv-masthead-words {
+.sv-masthead-words {
   min-width: 0;
 }
 
-.pv-masthead-email {
+.sv-masthead-email {
   display: block;
   margin-top: 4px;
   font-size: 14px;
-  color: var(--pv-muted);
+  color: var(--sv-muted);
   word-break: break-all;
 }
 
 /* Kit sits on the masthead's baseline, arriving a beat after the title. */
-.pv-kit {
+.sv-kit {
   flex: none;
   width: 96px;
   height: 96px;
   object-fit: contain;
   object-position: bottom right;
   margin-bottom: 6px;
-  animation: pv-kit-in 0.6s cubic-bezier(0.3, 1.4, 0.5, 1) 0.2s both;
+  animation: sv-kit-in 0.6s cubic-bezier(0.3, 1.4, 0.5, 1) 0.2s both;
 }
 
-@keyframes pv-kit-in {
+@keyframes sv-kit-in {
   from {
     opacity: 0;
     transform: translateY(10px) scale(0.92);
@@ -546,24 +546,24 @@ body.pv-body.pv-dark {
   }
 }
 
-.pv-list {
+.sv-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.pv-row {
+.sv-row {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 12px 14px 12px 12px;
-  background: var(--pv-surface);
-  border: 1px solid var(--pv-hairline);
-  border-radius: var(--pv-radius);
+  background: var(--sv-surface);
+  border: 1px solid var(--sv-hairline);
+  border-radius: var(--sv-radius);
   transition: transform 0.12s ease;
 }
 
-.pv-row-body {
+.sv-row-body {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -571,7 +571,7 @@ body.pv-body.pv-dark {
   flex: 1;
 }
 
-.pv-row-title {
+.sv-row-title {
   font-size: 16px;
   font-weight: 700;
   display: -webkit-box;
@@ -580,7 +580,7 @@ body.pv-body.pv-dark {
   overflow: hidden;
 }
 
-.pv-row-meta {
+.sv-row-meta {
   display: flex;
   justify-content: space-between;
   gap: 12px;
@@ -589,33 +589,33 @@ body.pv-body.pv-dark {
   min-height: 20px;
 }
 
-.pv-row-status {
-  color: var(--pv-tone-text, var(--pv-muted));
+.sv-row-status {
+  color: var(--sv-tone-text, var(--sv-muted));
   font-weight: 700;
 }
 
-.pv-row-when {
-  color: var(--pv-muted);
+.sv-row-when {
+  color: var(--sv-muted);
   white-space: nowrap;
 }
 
 /* ---- detail ---- */
 
-.pv-job-title {
+.sv-job-title {
   margin: 6px 0 28px;
   font-size: 24px;
   font-weight: 700;
   word-break: break-word;
 }
 
-.pv .pv-card-body {
+.sv .sv-card-body {
   display: flex;
   flex-direction: column;
   gap: 2px;
   padding: 16px;
 }
 
-.pv-failure-message {
+.sv-failure-message {
   margin: 8px 0 0;
   font-family: ui-monospace, 'SF Mono', Menlo, Consolas, 'Roboto Mono', monospace;
   font-size: 13px;
@@ -623,11 +623,11 @@ body.pv-body.pv-dark {
   word-break: break-word;
 }
 
-.pv-bugs {
-  border-top: 1px solid var(--pv-hairline);
+.sv-bugs {
+  border-top: 1px solid var(--sv-hairline);
 }
 
-.pv .pv-bug {
+.sv .sv-bug {
   display: flex;
   gap: 10px;
   min-height: 48px;
@@ -635,25 +635,25 @@ body.pv-body.pv-dark {
   font-size: 14px;
 }
 
-.pv-bugs li + li .pv-bug,
-.pv-bugs li + li .pv-more {
-  border-top: 1px solid var(--pv-hairline);
+.sv-bugs li + li .sv-bug,
+.sv-bugs li + li .sv-more {
+  border-top: 1px solid var(--sv-hairline);
 }
 
-.pv-bug-id {
+.sv-bug-id {
   flex: none;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: var(--pv-link);
+  color: var(--sv-link);
 }
 
-.pv-bug-id.pv-muted {
-  color: var(--pv-muted);
+.sv-bug-id.sv-muted {
+  color: var(--sv-muted);
   font-weight: 400;
 }
 
-.pv-bug-summary {
-  color: var(--pv-ink);
+.sv-bug-summary {
+  color: var(--sv-ink);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -662,100 +662,100 @@ body.pv-body.pv-dark {
 }
 
 /* A failure summary opened in place, under the tile that was tapped. */
-.pv-inline {
+.sv-inline {
   padding: 4px 16px 12px;
-  border-top: 1px solid var(--pv-hairline);
-  background: var(--pv-wash);
+  border-top: 1px solid var(--sv-hairline);
+  background: var(--sv-wash);
 }
 
-.pv-inline-failures > li + li {
-  border-top: 1px solid var(--pv-hairline);
+.sv-inline-failures > li + li {
+  border-top: 1px solid var(--sv-hairline);
 }
 
-.pv-failure-block {
+.sv-failure-block {
   padding: 12px 0;
 }
 
-.pv-failure-block .pv-card-body {
+.sv-failure-block .sv-card-body {
   padding: 0;
 }
 
-.pv-failure-block .pv-bugs {
+.sv-failure-block .sv-bugs {
   margin-top: 10px;
-  background: var(--pv-surface);
-  border: 1px solid var(--pv-hairline);
-  border-radius: var(--pv-radius);
+  background: var(--sv-surface);
+  border: 1px solid var(--sv-hairline);
+  border-radius: var(--sv-radius);
   overflow: hidden;
 }
 
-.pv-inline .pv-other-errors {
+.sv-inline .sv-other-errors {
   padding: 0;
 }
 
-.pv-inline-links {
+.sv-inline-links {
   display: flex;
   flex-wrap: wrap;
   gap: 0 18px;
 }
 
-.pv-chevron {
+.sv-chevron {
   flex: none;
   width: 9px;
   height: 9px;
   margin-left: auto;
-  border-right: 2px solid var(--pv-muted);
-  border-bottom: 2px solid var(--pv-muted);
+  border-right: 2px solid var(--sv-muted);
+  border-bottom: 2px solid var(--sv-muted);
   transform: rotate(45deg);
   transition: transform 0.2s ease;
 }
 
-.pv-chevron-open {
+.sv-chevron-open {
   transform: rotate(-135deg);
 }
 
 /* Rotated, the square's corner sits low; lift it onto the text's centre. */
-.pv-chevron:not(.pv-chevron-open) {
+.sv-chevron:not(.sv-chevron-open) {
   margin-top: -4px;
 }
 
-.pv-other-errors {
+.sv-other-errors {
   margin-top: 12px;
   padding: 0 6px;
 }
 
-.pv-other-errors summary {
+.sv-other-errors summary {
   display: flex;
   align-items: center;
   min-height: 44px;
   font-size: 14px;
-  color: var(--pv-link);
+  color: var(--sv-link);
   cursor: pointer;
 }
 
-.pv-other-errors li {
+.sv-other-errors li {
   margin: 6px 0;
-  color: var(--pv-muted);
+  color: var(--sv-muted);
 }
 
-.pv .pv-more {
+.sv .sv-more {
   width: 100%;
   min-height: 44px;
   padding: 10px 16px;
   font-size: 14px;
-  color: var(--pv-link);
+  color: var(--sv-link);
 }
 
-.pv-push-head {
+.sv-push-head {
   text-align: center;
 }
 
-.pv-push-title {
+.sv-push-title {
   margin: 6px auto 0;
   max-width: 30ch;
   font-size: 17px;
 }
 
-.pv-hero {
+.sv-hero {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -763,17 +763,17 @@ body.pv-body.pv-dark {
   text-align: center;
 }
 
-.pv-hero.pv-pulse .pv-ring {
-  animation: pv-ring-pop 0.9s cubic-bezier(0.3, 1.4, 0.5, 1);
+.sv-hero.sv-pulse .sv-ring {
+  animation: sv-ring-pop 0.9s cubic-bezier(0.3, 1.4, 0.5, 1);
 }
 
-@keyframes pv-ring-pop {
+@keyframes sv-ring-pop {
   40% {
     transform: scale(1.04);
   }
 }
 
-.pv-hero-words {
+.sv-hero-words {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -783,19 +783,19 @@ body.pv-body.pv-dark {
   min-height: 96px;
 }
 
-.pv-hero .pv-headline {
-  color: var(--pv-tone-text);
+.sv-hero .sv-headline {
+  color: var(--sv-tone-text);
 }
 
-.pv-hero.pv-tone-quiet .pv-headline {
-  color: var(--pv-ink);
+.sv-hero.sv-tone-quiet .sv-headline {
+  color: var(--sv-ink);
 }
 
-.pv-hero .pv-sub {
+.sv-hero .sv-sub {
   max-width: 32ch;
 }
 
-.pv .pv-legend {
+.sv .sv-legend {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -803,110 +803,110 @@ body.pv-body.pv-dark {
   margin-top: 16px;
   font-size: 13px;
   font-variant-numeric: tabular-nums;
-  color: var(--pv-muted);
+  color: var(--sv-muted);
 }
 
-.pv-legend li {
+.sv-legend li {
   display: inline-flex;
   align-items: center;
   gap: 6px;
 }
 
-.pv-legend-dot {
+.sv-legend-dot {
   width: 9px;
   height: 9px;
   border-radius: 50%;
 }
 
-.pv-legend-testfailed .pv-legend-dot {
+.sv-legend-testfailed .sv-legend-dot {
   background: var(--status-testfailed);
 }
-.pv-legend-busted .pv-legend-dot {
+.sv-legend-busted .sv-legend-dot {
   background: var(--status-busted);
 }
-.pv-legend-exception .pv-legend-dot {
+.sv-legend-exception .sv-legend-dot {
   background: var(--status-exception);
 }
-.pv-legend-success .pv-legend-dot {
+.sv-legend-success .sv-legend-dot {
   background: var(--status-success);
 }
-.pv-legend-running .pv-legend-dot {
+.sv-legend-running .sv-legend-dot {
   background: var(--status-running);
 }
-.pv-legend-unscheduled .pv-legend-dot {
+.sv-legend-unscheduled .sv-legend-dot {
   background: var(--status-unscheduled);
 }
-.pv-legend-pending .pv-legend-dot {
+.sv-legend-pending .sv-legend-dot {
   background: var(--status-pending);
   opacity: 0.45;
 }
 
 /* Treeherder's link blue, as an outlined button that fills on the second,
    committing tap. */
-.pv .pv-action {
+.sv .sv-action {
   margin-top: 20px;
   min-height: 48px;
   padding: 12px 22px;
-  border-radius: var(--pv-radius);
+  border-radius: var(--sv-radius);
   font-size: 15px;
   font-weight: 700;
   text-align: center;
-  color: var(--pv-link);
-  background: var(--pv-surface);
-  border: 1px solid var(--pv-link);
+  color: var(--sv-link);
+  background: var(--sv-surface);
+  border: 1px solid var(--sv-link);
   transition:
     transform 0.12s ease,
     background-color 0.3s ease,
     color 0.3s ease;
 }
 
-.pv .pv-action:active {
+.sv .sv-action:active {
   transform: scale(0.97);
 }
 
-.pv .pv-action-confirm {
+.sv .sv-action-confirm {
   color: #fff;
-  background: var(--pv-link);
+  background: var(--sv-link);
 }
 
-.pv .pv-action-sent {
+.sv .sv-action-sent {
   color: var(--status-success-hover);
   border-color: var(--status-success);
 }
 
-.pv .pv-action-elsewhere {
-  color: var(--pv-muted);
-  border-color: var(--pv-hairline);
+.sv .sv-action-elsewhere {
+  color: var(--sv-muted);
+  border-color: var(--sv-hairline);
   font-weight: 400;
 }
 
-.pv .pv-action-sending {
+.sv .sv-action-sending {
   opacity: 0.7;
 }
 
 /* The ETA sits in Treeherder's info-strip colours. */
-.pv-eta-line {
+.sv-eta-line {
   margin: 18px 0 0;
   padding: 8px 14px;
-  border-radius: var(--pv-radius);
+  border-radius: var(--sv-radius);
   font-size: 13px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: var(--pv-info-ink);
-  background: var(--pv-info-bg);
+  color: var(--sv-info-ink);
+  background: var(--sv-info-bg);
 }
 
-.pv-elapsed {
+.sv-elapsed {
   margin: 8px 0 0;
   font-size: 13px;
-  color: var(--pv-muted);
+  color: var(--sv-muted);
 }
 
-.pv-section {
+.sv-section {
   margin-bottom: 28px;
 }
 
-.pv-section-title {
+.sv-section-title {
   margin: 0 0 10px;
   font-size: 12px;
   font-weight: 700;
@@ -914,24 +914,24 @@ body.pv-body.pv-dark {
   text-transform: uppercase;
 }
 
-.pv-section-quiet {
+.sv-section-quiet {
   opacity: 0.75;
 }
 
-.pv-cards {
+.sv-cards {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.pv-card {
-  background: var(--pv-surface);
-  border: 1px solid var(--pv-hairline);
-  border-radius: var(--pv-radius);
+.sv-card {
+  background: var(--sv-surface);
+  border: 1px solid var(--sv-hairline);
+  border-radius: var(--sv-radius);
   overflow: hidden;
 }
 
-.pv .pv-card-head {
+.sv .sv-card-head {
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -940,48 +940,48 @@ body.pv-body.pv-dark {
   cursor: pointer;
 }
 
-.pv-test-file {
+.sv-test-file {
   font-size: 17px;
   font-weight: 700;
   word-break: break-word;
 }
 
-.pv-test-dir {
+.sv-test-dir {
   font-size: 13px;
-  color: var(--pv-muted);
+  color: var(--sv-muted);
   word-break: break-all;
 }
 
-.pv-runbar {
+.sv-runbar {
   display: flex;
   gap: 3px;
   margin-top: 12px;
 }
 
-.pv-runbar span {
+.sv-runbar span {
   flex: 1;
   height: 6px;
   max-width: 22px;
   border-radius: 3px;
-  background: var(--pv-hairline);
+  background: var(--sv-hairline);
 }
 
-.pv-runbar .pv-runbar-bad {
+.sv-runbar .sv-runbar-bad {
   background: var(--status-testfailed);
 }
 
-.pv-card-meta {
+.sv-card-meta {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 4px 8px;
   margin-top: 10px;
   font-size: 13px;
-  color: var(--pv-muted);
+  color: var(--sv-muted);
 }
 
 /* Treeherder's red "failed" badge. */
-.pv-tag {
+.sv-tag {
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 11px;
@@ -989,16 +989,16 @@ body.pv-body.pv-dark {
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: #fff;
-  background: var(--pv-danger);
+  background: var(--sv-danger);
 }
 
-.pv-runs {
-  border-top: 1px solid var(--pv-hairline);
+.sv-runs {
+  border-top: 1px solid var(--sv-hairline);
 }
 
-/* .pv prefix: a run row is a button, and the button reset above would
+/* .sv prefix: a run row is a button, and the button reset above would
    otherwise strip its padding and run the text into the card's edge. */
-.pv .pv-run {
+.sv .sv-run {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1010,121 +1010,121 @@ body.pv-body.pv-dark {
   transition: transform 0.12s ease;
 }
 
-.pv-card li + li .pv-run {
-  border-top: 1px solid var(--pv-hairline);
+.sv-card li + li .sv-run {
+  border-top: 1px solid var(--sv-hairline);
 }
 
-.pv-footer {
+.sv-footer {
   display: flex;
   flex-direction: column;
   margin-top: 8px;
   padding-top: 12px;
-  border-top: 1px solid var(--pv-hairline);
+  border-top: 1px solid var(--sv-hairline);
 }
 
-.pv-commits summary {
+.sv-commits summary {
   display: flex;
   align-items: center;
   min-height: 48px;
   font-size: 14px;
-  color: var(--pv-link);
+  color: var(--sv-link);
   cursor: pointer;
 }
 
-.pv-commits li {
+.sv-commits li {
   margin-top: 8px;
   font-size: 14px;
 }
 
 /* ---- press + focus ---- */
 
-.pv-row:active,
-.pv .pv-card-head:active,
-.pv-run:active {
+.sv-row:active,
+.sv .sv-card-head:active,
+.sv-run:active {
   transform: scale(0.985);
 }
 
-.pv-row:focus-visible,
-.pv-card-head:focus-visible,
-.pv-run:focus-visible,
-.pv-back:focus-visible,
-.pv-full:focus-visible,
-.pv-link-button:focus-visible {
-  outline: 2px solid var(--pv-link);
+.sv-row:focus-visible,
+.sv-card-head:focus-visible,
+.sv-run:focus-visible,
+.sv-back:focus-visible,
+.sv-full:focus-visible,
+.sv-link-button:focus-visible {
+  outline: 2px solid var(--sv-link);
   outline-offset: 2px;
-  border-radius: var(--pv-radius);
+  border-radius: var(--sv-radius);
 }
 
 /* ---- author prompt ---- */
 
-.pv-prompt {
+.sv-prompt {
   display: flex;
   flex-direction: column;
   gap: 16px;
   padding: 0 6px;
 }
 
-.pv-prompt .pv-people {
+.sv-prompt .sv-people {
   margin: -10px -6px 0;
 }
 
-.pv-people-head {
+.sv-people-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.pv-people-head .pv-section-title {
+.sv-people-head .sv-section-title {
   margin: 0;
   padding: 0;
 }
 
-.pv .pv-clear {
+.sv .sv-clear {
   min-height: 44px;
   padding: 0 4px;
   font-size: 14px;
-  color: var(--pv-link);
+  color: var(--sv-link);
 }
 
-.pv-prompt-form {
+.sv-prompt-form {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.pv .pv-button.pv-button-secondary {
+.sv .sv-button.sv-button-secondary {
   display: block;
-  color: var(--pv-link);
-  background: var(--pv-surface);
-  border: 1px solid var(--pv-link);
+  color: var(--sv-link);
+  background: var(--sv-surface);
+  border: 1px solid var(--sv-link);
 }
 
-.pv-input {
+.sv-input {
   padding: 14px 16px;
   font: inherit;
   font-size: 17px;
-  color: var(--pv-ink);
-  background: var(--pv-surface);
+  color: var(--sv-ink);
+  background: var(--sv-surface);
   border: 1px solid #ced4da;
-  border-radius: var(--pv-radius);
+  border-radius: var(--sv-radius);
 }
 
-.pv .pv-button {
+.sv .sv-button {
   padding: 14px 16px;
   font-weight: 700;
   text-align: center;
   color: #fff;
-  background: var(--pv-link);
-  border-radius: var(--pv-radius);
+  background: var(--sv-link);
+  border-radius: var(--sv-radius);
 }
 
-.pv .pv-button:disabled {
+.sv .sv-button:disabled {
   opacity: 0.4;
 }
 
 /* ---- motion ---- */
 
-@keyframes pv-rise {
+@keyframes sv-rise {
   from {
     opacity: 0;
     transform: translateY(8px);
@@ -1135,31 +1135,31 @@ body.pv-body.pv-dark {
   }
 }
 
-.pv-rise {
-  animation: pv-rise 0.45s cubic-bezier(0.25, 0.6, 0.3, 1) both;
+.sv-rise {
+  animation: sv-rise 0.45s cubic-bezier(0.25, 0.6, 0.3, 1) both;
 }
 
 /* List rows arrive one after another rather than as a slab. */
-.pv-cascade {
-  animation: pv-rise 0.45s cubic-bezier(0.25, 0.6, 0.3, 1)
+.sv-cascade {
+  animation: sv-rise 0.45s cubic-bezier(0.25, 0.6, 0.3, 1)
     calc(var(--i) * 45ms) both;
 }
 
 /* A status that changes glows once in its new colour. */
-@keyframes pv-pulse {
+@keyframes sv-pulse {
   0% {
-    box-shadow: 0 0 0 3px var(--pv-tone);
+    box-shadow: 0 0 0 3px var(--sv-tone);
   }
   100% {
     box-shadow: 0 0 0 3px transparent;
   }
 }
 
-.pv-row.pv-pulse {
-  animation: pv-pulse 1.2s ease-out;
+.sv-row.sv-pulse {
+  animation: sv-pulse 1.2s ease-out;
 }
 
-@keyframes pv-shimmer {
+@keyframes sv-shimmer {
   0%,
   100% {
     opacity: 0.45;
@@ -1169,41 +1169,41 @@ body.pv-body.pv-dark {
   }
 }
 
-.pv-skeleton {
+.sv-skeleton {
   display: block;
   width: 9em;
   height: 1em;
   border-radius: 4px;
   background: #e9ecef;
-  animation: pv-shimmer 1.4s ease-in-out infinite;
+  animation: sv-shimmer 1.4s ease-in-out infinite;
 }
 
-.pv-skeleton-headline {
+.sv-skeleton-headline {
   width: 14em;
   height: 30px;
   margin-bottom: 12px;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pv-rise,
-  .pv-cascade,
-  .pv-kit,
-  .pv-row.pv-pulse,
-  .pv-hero.pv-pulse .pv-ring,
-  .pv-skeleton,
-  .pv-tick,
-  .pv-tick-running,
-  .pv-tick-loading {
+  .sv-rise,
+  .sv-cascade,
+  .sv-kit,
+  .sv-row.sv-pulse,
+  .sv-hero.sv-pulse .sv-ring,
+  .sv-skeleton,
+  .sv-tick,
+  .sv-tick-running,
+  .sv-tick-loading {
     animation: none;
   }
-  .pv-row,
-  .pv-run,
-  .pv-card-head,
-  .pv-action,
-  .pv-chevron,
-  .pv-theme-track,
-  .pv-theme-thumb,
-  .pv-tick {
+  .sv-row,
+  .sv-run,
+  .sv-card-head,
+  .sv-action,
+  .sv-chevron,
+  .sv-theme-track,
+  .sv-theme-thumb,
+  .sv-tick {
     transition: none;
   }
 }

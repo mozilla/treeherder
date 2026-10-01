@@ -95,23 +95,23 @@ const SHOWN_BUGS = 3;
 const Bug = ({ bug, path }) => {
   const text = bugSummary(bug.summary || '', path);
   const label = bug.id ? (
-    <span className="pv-bug-id">
+    <span className="sv-bug-id">
       {bug.resolution ? <s>{bug.id}</s> : bug.id}
     </span>
   ) : (
-    <span className="pv-bug-id pv-muted">Internal</span>
+    <span className="sv-bug-id sv-muted">Internal</span>
   );
   return (
     <li>
       {bug.id ? (
-        <a className="pv-bug" href={`${bzBaseUrl}show_bug.cgi?id=${bug.id}`}>
+        <a className="sv-bug" href={`${bzBaseUrl}show_bug.cgi?id=${bug.id}`}>
           {label}
-          <span className="pv-bug-summary">{text}</span>
+          <span className="sv-bug-summary">{text}</span>
         </a>
       ) : (
-        <span className="pv-bug">
+        <span className="sv-bug">
           {label}
-          <span className="pv-bug-summary">{text}</span>
+          <span className="sv-bug-summary">{text}</span>
         </span>
       )}
     </li>
@@ -127,25 +127,25 @@ const Failure = ({ group, block, under }) => {
   const hidden = group.bugs.length - bugs.length;
 
   return (
-    <li className={block ? 'pv-failure-block' : 'pv-card pv-failure'}>
-      <div className="pv-card-body">
-        {!repeat && <span className="pv-test-file">{file}</span>}
-        {!repeat && dir && <span className="pv-test-dir">{dir}</span>}
+    <li className={block ? 'sv-failure-block' : 'sv-card sv-failure'}>
+      <div className="sv-card-body">
+        {!repeat && <span className="sv-test-file">{file}</span>}
+        {!repeat && dir && <span className="sv-test-dir">{dir}</span>}
         {group.messages.map((m) => (
-          <p key={m} className="pv-failure-message">
+          <p key={m} className="sv-failure-message">
             {m}
           </p>
         ))}
-        <span className="pv-card-meta">
+        <span className="sv-card-meta">
           {group.isNew ? (
-            !repeat && <span className="pv-tag">New in this push</span>
+            !repeat && <span className="sv-tag">New in this push</span>
           ) : (
             `Seen ${group.counter} ${plural(group.counter, 'time')} before`
           )}
         </span>
       </div>
       {group.bugs.length > 0 && (
-        <ul className="pv-bugs">
+        <ul className="sv-bugs">
           {bugs.map((bug) => (
             <Bug key={bug.id || bug.summary} bug={bug} path={group.path} />
           ))}
@@ -153,7 +153,7 @@ const Failure = ({ group, block, under }) => {
             <li>
               <button
                 type="button"
-                className="pv-more"
+                className="sv-more"
                 onClick={() => setShowAll(true)}
               >
                 {hidden} more {plural(hidden, 'bug')}
@@ -167,13 +167,13 @@ const Failure = ({ group, block, under }) => {
 };
 
 const OtherErrors = ({ lines, open }) => (
-  <details className="pv-other-errors" open={open}>
+  <details className="sv-other-errors" open={open}>
     <summary>
       {lines.length} other log {plural(lines.length, 'error')}
     </summary>
     <ul>
       {lines.map((line) => (
-        <li key={line.line_number} className="pv-failure-message">
+        <li key={line.line_number} className="sv-failure-message">
           {line.search}
         </li>
       ))}
@@ -221,17 +221,17 @@ export const JobFailures = ({ repo, revision, jobId, inline, under }) => {
     : `/jobs?repo=${repo}&revision=${revision}`;
 
   const links = (
-    <div className={inline ? 'pv-inline-links' : 'pv-footer'}>
-      <a className="pv-link" href={`/logviewer?job_id=${jobId}&repo=${repo}`}>
+    <div className={inline ? 'sv-inline-links' : 'sv-footer'}>
+      <a className="sv-link" href={`/logviewer?job_id=${jobId}&repo=${repo}`}>
         Log viewer
       </a>
       {rawLog && (
-        <a className="pv-link" href={rawLog}>
+        <a className="sv-link" href={rawLog}>
           Raw log
         </a>
       )}
       {inline && (
-        <a className="pv-link" href={full} onClick={chooseFullView}>
+        <a className="sv-link" href={full} onClick={chooseFullView}>
           Full view
         </a>
       )}
@@ -240,8 +240,8 @@ export const JobFailures = ({ repo, revision, jobId, inline, under }) => {
 
   if (!lines) {
     return (
-      <div className={inline ? 'pv-inline' : undefined}>
-        <span className="pv-skeleton" />
+      <div className={inline ? 'sv-inline' : undefined}>
+        <span className="sv-skeleton" />
       </div>
     );
   }
@@ -249,12 +249,12 @@ export const JobFailures = ({ repo, revision, jobId, inline, under }) => {
   const body = (
     <>
       {!lines.length && (
-        <p className="pv-sub">
+        <p className="sv-sub">
           No failure lines were parsed for this job. The log has the rest.
         </p>
       )}
       {groups.length > 0 && (
-        <ul className={inline ? 'pv-inline-failures' : 'pv-cards pv-rise'}>
+        <ul className={inline ? 'sv-inline-failures' : 'sv-cards sv-rise'}>
           {groups.map((group) => (
             <Failure
               key={group.path}
@@ -272,15 +272,15 @@ export const JobFailures = ({ repo, revision, jobId, inline, under }) => {
   );
 
   return inline ? (
-    <div className="pv-inline pv-rise">
+    <div className="sv-inline sv-rise">
       {body}
       {links}
     </div>
   ) : (
     <>
-      <section className="pv-section">
-        <h2 className="pv-section-title">
-          Failure summary <span className="pv-muted">{groups.length}</span>
+      <section className="sv-section">
+        <h2 className="sv-section-title">
+          Failure summary <span className="sv-muted">{groups.length}</span>
         </h2>
         {body}
       </section>
@@ -307,14 +307,14 @@ const JobSummary = ({ repo, author, theme, revision, jobId }) => {
         full={full}
         filter={`revision: ${revision.slice(0, 12)}${job ? ` · ${job.job_type_symbol}` : ''}`}
       />
-      {error && <p className="pv-sub">{error}</p>}
+      {error && <p className="sv-sub">{error}</p>}
       {job && (
-        <header className="pv-push-head pv-rise">
-          <span className="pv-eyebrow">
+        <header className="sv-push-head sv-rise">
+          <span className="sv-eyebrow">
             {platformName(job.platform)} {job.platform_option} ·{' '}
             {job.job_type_symbol} · {resultWord(job.result)}
           </span>
-          <h1 className="pv-job-title">{jobTitle(job.job_type_name)}</h1>
+          <h1 className="sv-job-title">{jobTitle(job.job_type_name)}</h1>
         </header>
       )}
       <JobFailures repo={repo} revision={revision} jobId={jobId} />

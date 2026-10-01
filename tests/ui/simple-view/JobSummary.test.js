@@ -1,4 +1,4 @@
-import { groupFailureLines } from '../../../ui/push-view/JobSummary';
+import { groupFailureLines } from '../../../ui/simple-view/JobSummary';
 
 const bug = (id, summary) => ({ id, summary, resolution: '' });
 const path = 'browser/components/contextualidentity/test/browser/browser_newtabButton.js';

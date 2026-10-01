@@ -93,7 +93,7 @@ const Retrigger = ({ jobs, repo, live = canRetrigger() }) => {
   return (
     <button
       type="button"
-      className={`pv-action pv-action-${state}`}
+      className={`sv-action sv-action-${state}`}
       onClick={onClick}
       disabled={state === 'sending' || state === 'sent'}
       aria-live="polite"

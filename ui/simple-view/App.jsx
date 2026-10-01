@@ -13,7 +13,7 @@ import { useTheme } from './theme';
 
 // Treeherder's job-state colours (--status-*), shared with the full view.
 import '../css/treeherder-job-buttons.css';
-import '../css/push-view.css';
+import '../css/simple-view.css';
 
 // The rest of Treeherder is laid out for a desktop and relies on the browser
 // zooming it out on a phone. Only this view opts in to device width, and only
@@ -37,10 +37,10 @@ const useMobileHead = () => {
       document.head.appendChild(meta);
       return meta;
     });
-    document.body.classList.add('pv-body');
+    document.body.classList.add('sv-body');
     return () => {
       for (const meta of tags) meta.remove();
-      document.body.classList.remove('pv-body');
+      document.body.classList.remove('sv-body');
     };
   }, []);
 };
@@ -75,7 +75,7 @@ const useAuthorInUrl = (params, repo) => {
   return { author: params.author || null, asking: asking || checked, choose };
 };
 
-const PushViewApp = () => {
+const SimpleViewApp = () => {
   useMobileHead();
   const theme = useTheme();
   const { search } = useLocation();
@@ -97,7 +97,7 @@ const PushViewApp = () => {
     screen = <AuthorPrompt {...shared} onSubmit={choose} />;
   }
 
-  return <main className="pv">{screen}</main>;
+  return <main className="sv">{screen}</main>;
 };
 
-export default PushViewApp;
+export default SimpleViewApp;

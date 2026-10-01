@@ -112,11 +112,11 @@ const RingCenter = ({ progress }) => {
 
   return (
     <>
-      <span className="pv-ring-figure">
+      <span className="sv-ring-figure">
         {n}
-        {running && <span className="pv-ring-unit">%</span>}
+        {running && <span className="sv-ring-unit">%</span>}
       </span>
-      <span className="pv-ring-label">
+      <span className="sv-ring-label">
         {running ? 'done' : plural(progress.total, 'job')}
       </span>
     </>
@@ -135,12 +135,12 @@ const LEGEND = [
 ];
 
 const Legend = ({ status }) => (
-  <ul className="pv-legend">
+  <ul className="sv-legend">
     {LEGEND.map(([kind, label]) => {
       const n = status[kind] || 0;
       return n ? (
-        <li key={kind} className={`pv-legend-${kind}`}>
-          <span className="pv-legend-dot" />
+        <li key={kind} className={`sv-legend-${kind}`}>
+          <span className="sv-legend-dot" />
           {n} {label}
         </li>
       ) : null;
@@ -153,9 +153,9 @@ const RunBar = ({ failed, total }) => {
   const cells = Math.min(total, 20);
   const red = Math.round((failed / total) * cells);
   return (
-    <span className="pv-runbar" aria-hidden="true">
+    <span className="sv-runbar" aria-hidden="true">
       {Array.from({ length: cells }, (_, i) => (
-        <span key={i} className={i < red ? 'pv-runbar-bad' : undefined} />
+        <span key={i} className={i < red ? 'sv-runbar-bad' : undefined} />
       ))}
     </span>
   );
@@ -164,7 +164,7 @@ const RunBar = ({ failed, total }) => {
 // The failure summary opens under whatever was tapped, rather than on a new
 // page: the tile you chose stays in view with its answer beneath it.
 const Chevron = ({ open }) => (
-  <span className={`pv-chevron${open ? ' pv-chevron-open' : ''}`} aria-hidden="true" />
+  <span className={`sv-chevron${open ? ' sv-chevron-open' : ''}`} aria-hidden="true" />
 );
 
 const RunRow = ({ run, repo, revision, under }) => {
@@ -173,13 +173,13 @@ const RunRow = ({ run, repo, revision, under }) => {
     <li>
       <button
         type="button"
-        className="pv-run"
+        className="sv-run"
         aria-expanded={open}
         onClick={() => setOpen(!open)}
       >
         <span>
           {run.platform} {run.config}
-          {run.symbol && <span className="pv-muted"> · {run.symbol}</span>}
+          {run.symbol && <span className="sv-muted"> · {run.symbol}</span>}
         </span>
         <Chevron open={open} />
       </button>
@@ -210,18 +210,18 @@ const TestCard = ({ group, jobs, repo, revision }) => {
   );
 
   return (
-    <li className={`pv-card${open ? ' pv-card-open' : ''}`}>
+    <li className={`sv-card${open ? ' sv-card-open' : ''}`}>
       <button
         type="button"
-        className="pv-card-head"
+        className="sv-card-head"
         aria-expanded={open}
         onClick={() => setOpen(!open)}
       >
-        <span className="pv-test-file">{file}</span>
-        {dir && <span className="pv-test-dir">{dir}</span>}
+        <span className="sv-test-file">{file}</span>
+        {dir && <span className="sv-test-dir">{dir}</span>}
         <RunBar failed={failed} total={group.totalJobs} />
-        <span className="pv-card-meta">
-          {!group.failedInParent && <span className="pv-tag">New</span>}
+        <span className="sv-card-meta">
+          {!group.failedInParent && <span className="sv-tag">New</span>}
           Failed {failed} of {group.totalJobs} {plural(group.totalJobs, 'run')} ·{' '}
           {[...group.platforms].join(', ')} · {[...group.configs].join(', ')}
           <Chevron open={open} />
@@ -238,7 +238,7 @@ const TestCard = ({ group, jobs, repo, revision }) => {
         />
       )}
       {open && runs.length > 1 && (
-        <ul className="pv-runs">
+        <ul className="sv-runs">
           {runs.map((run) => (
             <RunRow
               key={run.id}
@@ -258,10 +258,10 @@ const TestCard = ({ group, jobs, repo, revision }) => {
 const JobTile = ({ jobId, repo, revision, under, children }) => {
   const [open, setOpen] = useState(false);
   return (
-    <li className="pv-card">
+    <li className="sv-card">
       <button
         type="button"
-        className="pv-card-head"
+        className="sv-card-head"
         aria-expanded={open}
         onClick={() => setOpen(!open)}
       >
@@ -284,8 +284,8 @@ const JobCard = ({ job, repo, revision }) => (
   <JobTile jobId={job.id} repo={repo} revision={revision}>
     {(open) => (
       <>
-        <span className="pv-test-file">{jobShortName(job.job_type_name)}</span>
-        <span className="pv-card-meta">
+        <span className="sv-test-file">{jobShortName(job.job_type_name)}</span>
+        <span className="sv-card-meta">
           {job.platform === 'lint' ? '' : `${platformName(job.platform)} · `}
           {resultWord(job.result)}
           <Chevron open={open} />
@@ -338,11 +338,11 @@ const SeenBefore = ({ jobs, repo, revision }) => {
       >
         {(open) => (
           <>
-            <span className="pv-test-file">
-              {file || <span className="pv-skeleton" />}
+            <span className="sv-test-file">
+              {file || <span className="sv-skeleton" />}
             </span>
-            {dir && <span className="pv-test-dir">{dir}</span>}
-            <span className="pv-card-meta">
+            {dir && <span className="sv-test-dir">{dir}</span>}
+            <span className="sv-card-meta">
               {runs.length > 1 && `${runs.length} jobs · `}
               {where} · {runs.map((j) => j.symbol).join(', ')}
               <Chevron open={open} />
@@ -356,7 +356,7 @@ const SeenBefore = ({ jobs, repo, revision }) => {
 
 // Lint jobs are one-word names; seven of them read better as one card.
 const LintCard = ({ jobs, repo, revision }) => (
-  <li className="pv-card">
+  <li className="sv-card">
     <ul>
       {jobs.map((job) => (
         <RunRow
@@ -377,11 +377,11 @@ const LintCard = ({ jobs, repo, revision }) => (
 
 const Section = ({ title, count, children, quiet }) =>
   count ? (
-    <section className={`pv-section${quiet ? ' pv-section-quiet' : ''}`}>
-      <h2 className="pv-section-title">
-        {title} <span className="pv-muted">{count}</span>
+    <section className={`sv-section${quiet ? ' sv-section-quiet' : ''}`}>
+      <h2 className="sv-section-title">
+        {title} <span className="sv-muted">{count}</span>
       </h2>
-      <ul className="pv-cards">{children}</ul>
+      <ul className="sv-cards">{children}</ul>
     </section>
   ) : null;
 
@@ -512,21 +512,21 @@ const PushDetail = ({ repo, author, theme, revision }) => {
         filter={`revision: ${revision.slice(0, 12)}`}
       />
 
-      {error && <p className="pv-sub">{error}</p>}
+      {error && <p className="sv-sub">{error}</p>}
 
       {push && (
-        <header className="pv-push-head pv-rise">
-          <span className="pv-eyebrow">
+        <header className="sv-push-head sv-rise">
+          <span className="sv-eyebrow">
             {ago(push.push_timestamp)} · {authorName(push) || push.author}
           </span>
           {pushTitle(push) !== revision.slice(0, 12) && (
-            <p className="pv-push-title">{pushTitle(push)}</p>
+            <p className="sv-push-title">{pushTitle(push)}</p>
           )}
         </header>
       )}
 
       <section
-        className={`pv-hero pv-tone-${said?.tone || 'quiet'}${pulsing ? ' pv-pulse' : ''}`}
+        className={`sv-hero sv-tone-${said?.tone || 'quiet'}${pulsing ? ' sv-pulse' : ''}`}
         aria-live="polite"
       >
         {!error && (
@@ -539,35 +539,35 @@ const PushDetail = ({ repo, author, theme, revision }) => {
           </Ring>
         )}
         {said ? (
-          <div className="pv-rise pv-hero-words">
-            <h1 className="pv-headline">{said.headline}</h1>
-            <p className="pv-sub">{said.sub}</p>
+          <div className="sv-rise sv-hero-words">
+            <h1 className="sv-headline">{said.headline}</h1>
+            <p className="sv-sub">{said.sub}</p>
             <Legend status={counts} />
             {failedJobs.length > 0 && (
               <Retrigger jobs={failedJobs} repo={repo} />
             )}
             {failedJobs.length === 0 && testsFailed && (
-              <p className="pv-elapsed">
+              <p className="sv-elapsed">
                 Every failure has already been rerun or marked intermittent.
               </p>
             )}
-            {eta && <p className="pv-eta-line">{eta.line}</p>}
+            {eta && <p className="sv-eta-line">{eta.line}</p>}
             {progress.running && push && (
-              <p className="pv-elapsed">{duration(push.push_timestamp)} in</p>
+              <p className="sv-elapsed">{duration(push.push_timestamp)} in</p>
             )}
           </div>
         ) : (
           !error && (
-            <div className="pv-hero-words" aria-label="Reading the results">
-              <span className="pv-skeleton pv-skeleton-headline" />
-              <span className="pv-skeleton" />
+            <div className="sv-hero-words" aria-label="Reading the results">
+              <span className="sv-skeleton sv-skeleton-headline" />
+              <span className="sv-skeleton" />
             </div>
           )
         )}
       </section>
 
       {health && (
-        <div className="pv-rise">
+        <div className="sv-rise">
           <Section title="Broken here" count={yours.length}>
             {yours.map((g) => (
               <TestCard key={g.testName} group={g} jobs={health.jobs} repo={repo} revision={revision} />
@@ -598,9 +598,9 @@ const PushDetail = ({ repo, author, theme, revision }) => {
       )}
 
       {push && (
-        <footer className="pv-footer">
+        <footer className="sv-footer">
           {commits.length > 0 && (
-            <details className="pv-commits">
+            <details className="sv-commits">
               <summary>
                 {commits.length} {plural(commits.length, 'commit')}
               </summary>
@@ -612,7 +612,7 @@ const PushDetail = ({ repo, author, theme, revision }) => {
             </details>
           )}
           <a
-            className="pv-link"
+            className="sv-link"
             href={`/jobs?repo=${repo}&revision=${revision}`}
             onClick={chooseFullView}
           >

@@ -2,7 +2,7 @@
 // view is laid out for a desktop. Choosing the full view from the push view
 // turns this off for the rest of the browser session.
 
-const FULL_VIEW_KEY = 'pushViewFullView';
+const FULL_VIEW_KEY = 'simpleViewFullView';
 
 // A small touch screen. This reads the screen, not the window: the jobs view
 // has no viewport tag, so a phone lays it out about 980px wide and a
@@ -31,7 +31,7 @@ export const chooseFullView = () => {
 
 // Where a jobs-view URL goes on a phone, or null to stay put. A link to one
 // push keeps pointing at that push.
-export const pushViewFor = (search, { phone, fullView }) => {
+export const simpleViewFor = (search, { phone, fullView }) => {
   if (!phone || fullView) return null;
   const params = new URLSearchParams(search);
   const next = new URLSearchParams();
@@ -39,5 +39,5 @@ export const pushViewFor = (search, { phone, fullView }) => {
     if (params.get(key)) next.set(key, params.get(key));
   }
   const query = next.toString();
-  return query ? `/push?${query}` : '/push';
+  return query ? `/simple?${query}` : '/simple';
 };

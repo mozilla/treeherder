@@ -1,10 +1,10 @@
-import { authorName, pushUrl, pushesOf } from '../../../ui/push-view/helpers';
+import { authorName, pushUrl, pushesOf } from '../../../ui/simple-view/helpers';
 import {
   clearRecentPeople,
   personName,
   recentPeople,
   rememberPerson,
-} from '../../../ui/push-view/cache';
+} from '../../../ui/simple-view/cache';
 
 beforeEach(() => localStorage.clear());
 
@@ -40,10 +40,10 @@ test('recent people are newest first, deduplicated, and keep their names', () =>
 
 test('links carry the author, and an empty one asks', () => {
   expect(pushUrl({ repo: 'try', author: 'a@b.c', revision: 'abc' })).toBe(
-    '/push?repo=try&revision=abc&author=a%40b.c',
+    '/simple?repo=try&revision=abc&author=a%40b.c',
   );
-  expect(pushUrl({ repo: 'try', author: '' })).toBe('/push?repo=try&author=');
-  expect(pushUrl({ repo: 'try', author: null })).toBe('/push?repo=try');
+  expect(pushUrl({ repo: 'try', author: '' })).toBe('/simple?repo=try&author=');
+  expect(pushUrl({ repo: 'try', author: null })).toBe('/simple?repo=try');
   expect(pushesOf('Florian Quèze')).toBe('Florian’s pushes');
 });
 

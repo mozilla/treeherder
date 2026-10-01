@@ -16,8 +16,8 @@ import UserGuideApp from './userguide/App';
 import {
   isPhone,
   prefersFullView,
-  pushViewFor,
-} from './push-view/phone';
+  simpleViewFor,
+} from './simple-view/phone';
 import treeFavicon from './img/tree_open.png';
 import logFavicon from './img/logviewerIcon.png';
 import perfFavicon from './img/line_chart.png';
@@ -29,7 +29,7 @@ const PerfherderApp = lazy(() => import('./perfherder/App'));
 
 const JobsViewApp = lazy(() => import('./job-view/App'));
 
-const PushViewApp = lazy(() => import('./push-view/App'));
+const SimpleViewApp = lazy(() => import('./simple-view/App'));
 
 const LogviewerApp = lazy(() => import('./logviewer/App'));
 
@@ -42,7 +42,7 @@ const faviconPaths = {
     favicon: logFavicon,
   },
   '/perfherder': { title: 'Perfherder', favicon: perfFavicon },
-  '/push': { title: 'Treeherder Push', favicon: treeFavicon },
+  '/simple': { title: 'Treeherder Simple View', favicon: treeFavicon },
   '/userguide': {
     title: 'Treeherder User Guide',
     favicon: treeFavicon,
@@ -79,9 +79,9 @@ const WithFavicon = ({ children, route }) => {
 };
 
 // Phones get the push view in place of the desktop jobs view.
-const JobsOrPushView = () => {
+const JobsOrSimpleView = () => {
   const { search } = useLocation();
-  const target = pushViewFor(search, {
+  const target = simpleViewFor(search, {
     phone: isPhone(),
     fullView: prefersFullView(),
   });
@@ -153,15 +153,15 @@ const AppRoutes = () => {
               path="/jobs/*"
               element={
                 <WithFavicon route="/jobs">
-                  <JobsOrPushView />
+                  <JobsOrSimpleView />
                 </WithFavicon>
               }
             />
             <Route
-              path="/push/*"
+              path="/simple/*"
               element={
-                <WithFavicon route="/push">
-                  <PushViewApp />
+                <WithFavicon route="/simple">
+                  <SimpleViewApp />
                 </WithFavicon>
               }
             />

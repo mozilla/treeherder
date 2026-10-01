@@ -4,7 +4,7 @@ import {
   expectedRunTime,
   familyKey,
   parseJobRows,
-} from '../../../ui/push-view/eta';
+} from '../../../ui/simple-view/eta';
 
 const MIN = 60;
 const NOW = 1_800_000_000; // seconds
@@ -189,7 +189,7 @@ describe('estimatePush', () => {
 
 describe('job-list counts', () => {
   const { statusFromJobs, testFromErrorLine } = jest.requireActual(
-    '../../../ui/push-view/helpers',
+    '../../../ui/simple-view/helpers',
   );
 
   test('counts every failed job, not just the ones tagged new', () => {

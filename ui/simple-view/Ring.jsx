@@ -55,7 +55,7 @@ const Ring = ({ status, ticks = 90, size = 240, weight = 3, loading, children })
   const inner = outer - Math.max(14, 1200 / ticks / 2);
 
   return (
-    <div className="pv-ring" style={{ width: size, height: size }}>
+    <div className="sv-ring" style={{ width: size, height: size }}>
       <svg viewBox="-100 -100 200 200" aria-hidden="true">
         {kinds.map((kind, i) => {
           const a = (i / ticks) * 2 * Math.PI - Math.PI / 2;
@@ -66,7 +66,7 @@ const Ring = ({ status, ticks = 90, size = 240, weight = 3, loading, children })
               // Ticks keep their slot, so a job changing state recolours in
               // place instead of the ring redrawing.
               key={i}
-              className={`pv-tick pv-tick-${kind}`}
+              className={`sv-tick sv-tick-${kind}`}
               x1={cos * inner}
               y1={sin * inner}
               x2={cos * outer}
@@ -80,7 +80,7 @@ const Ring = ({ status, ticks = 90, size = 240, weight = 3, loading, children })
           );
         })}
       </svg>
-      {children && <div className="pv-ring-center">{children}</div>}
+      {children && <div className="sv-ring-center">{children}</div>}
     </div>
   );
 };

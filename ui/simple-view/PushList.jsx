@@ -79,9 +79,9 @@ const PushRow = ({ push, repo, author, refreshKey, index }) => {
   const pulsing = usePulse(summary ? `${tone}:${text}` : undefined);
 
   return (
-    <li className="pv-cascade" style={{ '--i': index }}>
+    <li className="sv-cascade" style={{ '--i': index }}>
       <Link
-        className={`pv-row pv-tone-${tone}${pulsing ? ' pv-pulse' : ''}`}
+        className={`sv-row sv-tone-${tone}${pulsing ? ' sv-pulse' : ''}`}
         to={pushUrl({ repo, author, revision: push.revision })}
         onPointerDown={() => {
           rememberPush(repo, push);
@@ -90,13 +90,13 @@ const PushRow = ({ push, repo, author, refreshKey, index }) => {
         onClick={() => rememberPush(repo, push)}
       >
         <Ring status={summary?.status} loading={!summary} ticks={24} size={38} weight={7} />
-        <span className="pv-row-body">
-          <span className="pv-row-title">{pushTitle(push)}</span>
-          <span className="pv-row-meta">
-            <span className="pv-row-status">
-              {summary ? text : <span className="pv-skeleton" />}
+        <span className="sv-row-body">
+          <span className="sv-row-title">{pushTitle(push)}</span>
+          <span className="sv-row-meta">
+            <span className="sv-row-status">
+              {summary ? text : <span className="sv-skeleton" />}
             </span>
-            <span className="pv-row-when">{ago(push.push_timestamp)}</span>
+            <span className="sv-row-when">{ago(push.push_timestamp)}</span>
           </span>
         </span>
       </Link>
@@ -123,7 +123,7 @@ const AuthorEditor = ({ repo, author, name, editing, setEditing }) => {
     return (
       <button
         type="button"
-        className="pv-switch-person"
+        className="sv-switch-person"
         onClick={() => setEditing(true)}
         aria-label={`Author ${author}, tap to change`}
       >
@@ -135,7 +135,7 @@ const AuthorEditor = ({ repo, author, name, editing, setEditing }) => {
   const next = value.trim().toLowerCase();
   return (
     <form
-      className="pv-author-edit"
+      className="sv-author-edit"
       onSubmit={(e) => {
         e.preventDefault();
         if (!next.includes('@')) return;
@@ -145,7 +145,7 @@ const AuthorEditor = ({ repo, author, name, editing, setEditing }) => {
     >
       <input
         ref={input}
-        className="pv-input pv-input-inline"
+        className="sv-input sv-input-inline"
         type="email"
         inputMode="email"
         autoComplete="email"
@@ -154,17 +154,17 @@ const AuthorEditor = ({ repo, author, name, editing, setEditing }) => {
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={(e) => e.key === 'Escape' && setEditing(false)}
       />
-      <button type="submit" className="pv-inline-go" disabled={!next.includes('@')}>
+      <button type="submit" className="sv-inline-go" disabled={!next.includes('@')}>
         Show
       </button>
       <button
         type="button"
-        className="pv-inline-cancel"
+        className="sv-inline-cancel"
         onClick={() => setEditing(false)}
       >
         Cancel
       </button>
-      <Link className="pv-inline-recent" to={pushUrl({ repo, author: '' })}>
+      <Link className="sv-inline-recent" to={pushUrl({ repo, author: '' })}>
         Recent
       </Link>
     </form>
@@ -221,26 +221,26 @@ const PushList = ({ repo, author, theme }) => {
           />
         }
       />
-      <header className="pv-masthead pv-rise">
-        <div className="pv-masthead-words">
-          <h1 className="pv-title">
+      <header className="sv-masthead sv-rise">
+        <div className="sv-masthead-words">
+          <h1 className="sv-title">
             {pushesOf(name)}
           </h1>
-          {name && <span className="pv-masthead-email">{author}</span>}
+          {name && <span className="sv-masthead-email">{author}</span>}
         </div>
         <Kit />
       </header>
 
-      {error && <p className="pv-sub">{error}</p>}
+      {error && <p className="sv-sub">{error}</p>}
 
       {pushes && !pushes.length && (
-        <div className="pv-empty pv-rise">
-          <p className="pv-sub">
+        <div className="sv-empty sv-rise">
+          <p className="sv-sub">
             Nothing on {repo} from {author}.
           </p>
           <button
             type="button"
-            className="pv-link-button"
+            className="sv-link-button"
             onClick={() => setEditing(true)}
           >
             Wrong address? Change it
@@ -249,7 +249,7 @@ const PushList = ({ repo, author, theme }) => {
       )}
 
       {pushes && (
-        <ul className="pv-list">
+        <ul className="sv-list">
           {pushes.map((push, index) => (
             <PushRow
               key={push.id}

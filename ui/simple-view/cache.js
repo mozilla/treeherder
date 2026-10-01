@@ -2,7 +2,7 @@
 // push never changes and a running one changes slowly, so the last answer is
 // almost always the right first frame.
 
-const PREFIX = 'pushView:';
+const PREFIX = 'simpleView:';
 const MAX_HEALTH = 8;
 const MAX_SUMMARIES = 60;
 

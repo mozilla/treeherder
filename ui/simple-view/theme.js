@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 // Light is Treeherder's look and the default; dark is a choice, remembered
 // in this browser.
-const THEME_KEY = 'pushViewTheme';
+const THEME_KEY = 'simpleViewTheme';
 
 const stored = () => {
   try {
@@ -16,8 +16,8 @@ export const useTheme = () => {
   const [theme, setTheme] = useState(stored);
 
   useEffect(() => {
-    document.body.classList.toggle('pv-dark', theme === 'dark');
-    return () => document.body.classList.remove('pv-dark');
+    document.body.classList.toggle('sv-dark', theme === 'dark');
+    return () => document.body.classList.remove('sv-dark');
   }, [theme]);
 
   const toggle = () => {

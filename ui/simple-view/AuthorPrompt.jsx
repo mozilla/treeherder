@@ -14,15 +14,15 @@ const AuthorPrompt = ({ repo, theme, onSubmit }) => {
   return (
     <>
       <Nav repo={repo} theme={theme} full={`/jobs?repo=${repo}`} />
-      <div className="pv-prompt pv-rise">
-        <h1 className="pv-headline">Pushes by…</h1>
+      <div className="sv-prompt sv-rise">
+        <h1 className="sv-headline">Pushes by…</h1>
 
         {people.length > 0 && (
-          <div className="pv-people-head">
-            <h2 className="pv-section-title">Recent</h2>
+          <div className="sv-people-head">
+            <h2 className="sv-section-title">Recent</h2>
             <button
               type="button"
-              className="pv-clear"
+              className="sv-clear"
               onClick={() => {
                 clearRecentPeople();
                 setPeople([]);
@@ -33,16 +33,16 @@ const AuthorPrompt = ({ repo, theme, onSubmit }) => {
           </div>
         )}
         {people.length > 0 && (
-          <ul className="pv-cards pv-people">
+          <ul className="sv-cards sv-people">
             {people.map((p) => (
-              <li key={p.email} className="pv-card">
+              <li key={p.email} className="sv-card">
                 <button
                   type="button"
-                  className="pv-card-head"
+                  className="sv-card-head"
                   onClick={() => onSubmit(p.email)}
                 >
-                  <span className="pv-test-file">{p.name || p.email}</span>
-                  {p.name && <span className="pv-test-dir">{p.email}</span>}
+                  <span className="sv-test-file">{p.name || p.email}</span>
+                  {p.name && <span className="sv-test-dir">{p.email}</span>}
                 </button>
               </li>
             ))}
@@ -50,14 +50,14 @@ const AuthorPrompt = ({ repo, theme, onSubmit }) => {
         )}
 
         <form
-          className="pv-prompt-form"
+          className="sv-prompt-form"
           onSubmit={(e) => {
             e.preventDefault();
             if (valid) onSubmit(email.trim().toLowerCase());
           }}
         >
           <input
-            className="pv-input"
+            className="sv-input"
             type="email"
             inputMode="email"
             autoComplete="email"
@@ -66,13 +66,13 @@ const AuthorPrompt = ({ repo, theme, onSubmit }) => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          <button className="pv-button" type="submit" disabled={!valid}>
+          <button className="sv-button" type="submit" disabled={!valid}>
             Show pushes
           </button>
         </form>
 
         <a
-          className="pv-button pv-button-secondary"
+          className="sv-button sv-button-secondary"
           href={`/jobs?repo=${repo}`}
           onClick={chooseFullView}
         >
