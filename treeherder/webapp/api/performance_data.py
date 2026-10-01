@@ -1049,14 +1049,21 @@ class PerformanceSummary(generics.ListAPIView):
             item["id"]: item["option__name"] for item in list(option_collection)
         }
 
-        # Existing datum rows for every signature, grouped by sig id.
+        # --- Batch pre-fetch for the missing-data overlay (avoids N+1 DB queries) ---
+        # Step 1: fetch all existing datum rows for every signature in one query,
+        # then group them by signature id so each step below can look up its own slice.
+        # Each row is a (push_id, job_type_id, push_timestamp) tuple from values_list.
         existing_by_sig = defaultdict(list)
         if include_missing_data:
-            for sig_id, push_id, jt_id, ts in data.values_list(
+            for sig_id, push_id, job_type_id, push_timestamp in data.values_list(
                 "signature_id", "push_id", "job__job_type_id", "push_timestamp"
             ):
-                existing_by_sig[sig_id].append((push_id, jt_id, ts))
+                existing_by_sig[sig_id].append((push_id, job_type_id, push_timestamp))
 
+        # Step 2: for each signature, derive the metadata needed to filter pushes and jobs:
+        # which push_ids already have data, which job types produced data, and the time range.
+        # Stored in sig_meta keyed by signature id so _compute_missing_data_from_cache can
+        # look up the right filters without touching the database.
         sig_meta = {}
         if include_missing_data and existing_by_sig:
             for item in self.queryset:
@@ -1064,14 +1071,22 @@ class PerformanceSummary(generics.ListAPIView):
                 rows = existing_by_sig.get(sig_id, [])
                 if not rows:
                     continue
-                push_ids = {r[0] for r in rows}
-                jt_ids = {r[1] for r in rows if r[1] is not None}
-                timestamps = [r[2] for r in rows if r[2] is not None]
-                if not jt_ids or not timestamps:
+                push_ids = {push_id for (push_id, job_type_id, push_timestamp) in rows}
+                job_type_ids = {
+                    job_type_id
+                    for (push_id, job_type_id, push_timestamp) in rows
+                    if job_type_id is not None
+                }
+                timestamps = [
+                    push_timestamp
+                    for (push_id, job_type_id, push_timestamp) in rows
+                    if push_timestamp is not None
+                ]
+                if not job_type_ids or not timestamps:
                     continue
                 sig_meta[sig_id] = {
                     "existing_push_ids": push_ids,
-                    "expected_job_type_ids": jt_ids,
+                    "expected_job_type_ids": job_type_ids,
                     "min_ts": min(timestamps),
                     "max_ts": max(timestamps),
                     "platform_id": item["platform_id"],
@@ -1079,19 +1094,20 @@ class PerformanceSummary(generics.ListAPIView):
                     "repository_id": item["repository_id"],
                 }
 
-        # One push query spanning the full time range across all signatures.
+        # Step 3: one Push query covering the combined time range of all signatures.
+        # Using the global min/max avoids one query per signature.
+        # All signatures in a request share the same repository (filtered at query time).
         all_candidate_pushes = {}
         if sig_meta:
             all_existing_push_ids = set().union(
-                *(m["existing_push_ids"] for m in sig_meta.values())
+                *(sig_info["existing_push_ids"] for sig_info in sig_meta.values())
             )
-            global_min_ts = min(m["min_ts"] for m in sig_meta.values())
-            global_max_ts = max(m["max_ts"] for m in sig_meta.values())
-            # All items share the same repository (filtered at query time).
+            global_min_ts = min(sig_info["min_ts"] for sig_info in sig_meta.values())
+            global_max_ts = max(sig_info["max_ts"] for sig_info in sig_meta.values())
             repo_id = next(iter(sig_meta.values()))["repository_id"]
             all_candidate_pushes = {
-                p["id"]: p
-                for p in models.Push.objects.filter(
+                push["id"]: push
+                for push in models.Push.objects.filter(
                     repository_id=repo_id,
                     time__gte=global_min_ts,
                     time__lte=global_max_ts,
@@ -1100,11 +1116,13 @@ class PerformanceSummary(generics.ListAPIView):
                 .values("id", "revision", "time")
             }
 
-        # One Job query for all candidate pushes; per-signature filtering
-        # happens in Python inside _compute_missing_data_from_cache.
+        # Step 4: one Job query for all candidate pushes at once.
+        # The broad filter (no per-signature job_type/platform/option_hash) intentionally
+        # fetches more rows than strictly needed; _compute_missing_data_from_cache applies
+        # the per-signature filters in Python to avoid one DB query per signature.
         all_jobs_by_push = defaultdict(list)
         if all_candidate_pushes:
-            for j in models.Job.objects.filter(
+            for job in models.Job.objects.filter(
                 push_id__in=all_candidate_pushes.keys(),
                 state__in=("pending", "running", "completed"),
             ).values(
@@ -1116,7 +1134,8 @@ class PerformanceSummary(generics.ListAPIView):
                 "machine_platform_id",
                 "option_collection_hash",
             ):
-                all_jobs_by_push[j["push_id"]].append(j)
+                all_jobs_by_push[job["push_id"]].append(job)
+        # --- end of missing-data pre-fetch ---
 
         if signature and all_data:
             for item in self.queryset:
@@ -1266,63 +1285,72 @@ class PerformanceSummary(generics.ListAPIView):
         Uses pre-fetched dicts built before the loop so no DB queries are made here.
         Per-signature filters (job type, platform, option hash) are applied in Python.
         """
+        # Look up the pre-computed metadata for this specific signature.
+        # If absent, the signature had no existing data so there's nothing to compare against.
         meta = sig_meta.get(item["id"])
         if not meta:
             return []
 
+        # Narrow the globally fetched pushes down to the time range of this signature
+        # and exclude pushes that already have a datum.
         candidate_pushes = [
-            p
-            for p in all_candidate_pushes.values()
-            if meta["min_ts"] <= p["time"] <= meta["max_ts"]
-            and p["id"] not in meta["existing_push_ids"]
+            push
+            for push in all_candidate_pushes.values()
+            if meta["min_ts"] <= push["time"] <= meta["max_ts"]
+            and push["id"] not in meta["existing_push_ids"]
         ]
         if not candidate_pushes:
             return []
 
+        # Apply per-signature filters (job type, platform, option hash) in Python
+        # since the DB query intentionally fetched all jobs for all signatures at once.
         completed_by_push = defaultdict(list)
         in_progress_push_ids = set()
-        for p in candidate_pushes:
-            for j in all_jobs_by_push.get(p["id"], []):
+        for push in candidate_pushes:
+            for job in all_jobs_by_push.get(push["id"], []):
                 if (
-                    j["job_type_id"] not in meta["expected_job_type_ids"]
-                    or j["machine_platform_id"] != meta["platform_id"]
-                    or j["option_collection_hash"] != meta["option_hash"]
+                    job["job_type_id"] not in meta["expected_job_type_ids"]
+                    or job["machine_platform_id"] != meta["platform_id"]
+                    or job["option_collection_hash"] != meta["option_hash"]
                 ):
                     continue
-                if j["state"] == "completed":
-                    completed_by_push[p["id"]].append(j)
+                if job["state"] == "completed":
+                    completed_by_push[push["id"]].append(job)
                 else:
-                    in_progress_push_ids.add(p["id"])
+                    in_progress_push_ids.add(push["id"])
 
         failed = PerformanceSummary._MISSING_FAILED_RESULTS
         inconclusive = PerformanceSummary._MISSING_INCONCLUSIVE_RESULTS
         missing = []
-        for p in candidate_pushes:
-            jobs = completed_by_push.get(p["id"], [])
+        for push in candidate_pushes:
+            jobs = completed_by_push.get(push["id"], [])
             if not jobs:
-                status = "in_progress" if p["id"] in in_progress_push_ids else "not_run"
+                # No completed jobs: either still running or never scheduled.
+                status = "in_progress" if push["id"] in in_progress_push_ids else "not_run"
                 job_id = None
-            elif all(j["result"] in inconclusive for j in jobs):
+            elif all(job["result"] in inconclusive for job in jobs):
+                # All jobs ended inconclusively (retried, superseded, cancelled) — skip
+                # to avoid a false-positive missing entry.
                 continue
-            elif any(j["result"] in failed for j in jobs):
+            elif any(job["result"] in failed for job in jobs):
                 status = "failed"
-                job_id = min(j["id"] for j in jobs if j["result"] in failed)
+                job_id = min(job["id"] for job in jobs if job["result"] in failed)
             else:
-                # Completed (possibly with success) but no datum — data-collection gap.
+                # Jobs completed with success but produced no datum — data-collection gap.
                 status = "not_run"
                 job_id = None
 
             missing.append(
                 {
-                    "push_id": p["id"],
-                    "push_timestamp": p["time"],
-                    "revision": p["revision"],
+                    "push_id": push["id"],
+                    "push_timestamp": push["time"],
+                    "revision": push["revision"],
                     "job_id": job_id,
                     "status": status,
                 }
             )
 
-        missing.sort(key=lambda m: m["push_timestamp"])
+        missing.sort(key=lambda entry: entry["push_timestamp"])
         return missing
 
     @staticmethod
