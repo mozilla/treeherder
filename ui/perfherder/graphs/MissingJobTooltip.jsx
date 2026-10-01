@@ -50,8 +50,9 @@ const MissingJobTooltip = ({
     const element = tooltipRef.current;
 
     const measure = () => {
-      const h = element.getBoundingClientRect().height;
-      if (h && Math.abs(h - tooltipHeight) > 1) setTooltipHeight(h);
+      const measuredHeight = element.getBoundingClientRect().height;
+      if (measuredHeight && Math.abs(measuredHeight - tooltipHeight) > 1)
+        setTooltipHeight(measuredHeight);
     };
 
     measure();
@@ -77,13 +78,15 @@ const MissingJobTooltip = ({
     projects,
   );
 
-  // Build sorted timeline combining actual and missing data points to find prevRevision.
+  // Merge real and missing data points into one chronological list so we can
+  // find the revision that immediately precedes this missing point (used for
+  // the pushlog range link and the compare URL).
   const allPoints = [
-    ...testDetails.data.map((d) => ({ revision: d.revision, x: d.x })),
-    ...(testDetails.missingData || []).map((d) => ({ revision: d.revision, x: d.x })),
-  ].sort((a, b) => a.x - b.x);
+    ...testDetails.data.map((dataPoint) => ({ revision: dataPoint.revision, x: dataPoint.x })),
+    ...(testDetails.missingData || []).map((dataPoint) => ({ revision: dataPoint.revision, x: dataPoint.x })),
+  ].sort((pointA, pointB) => pointA.x - pointB.x);
 
-  const currentIndex = allPoints.findIndex((p) => p.revision === datum.revision);
+  const currentIndex = allPoints.findIndex((point) => point.revision === datum.revision);
   const prevRevision = currentIndex > 0 ? allPoints[currentIndex - 1].revision : null;
 
   let pushUrl;
@@ -133,8 +136,8 @@ const MissingJobTooltip = ({
     try {
       const job = await JobModel.get(currentRepo.name, datum.jobId);
       await JobModel.retrigger([job], currentRepo, notify, 1);
-    } catch (e) {
-      notify(formatTaskclusterError(e), 'danger', { sticky: true });
+    } catch (error) {
+      notify(formatTaskclusterError(error), 'danger', { sticky: true });
     }
   };
 
@@ -171,8 +174,8 @@ const MissingJobTooltip = ({
         currentRepo,
       });
       notify('Request sent to backfill job via actions.json', 'success');
-    } catch (e) {
-      notify(formatTaskclusterError(e), 'danger', { sticky: true });
+    } catch (error) {
+      notify(formatTaskclusterError(error), 'danger', { sticky: true });
     }
   };
 

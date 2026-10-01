@@ -791,40 +791,48 @@ export const reduceDictToKeys = function reduceDictToKeys(dict, keys) {
   return reducedDict;
 };
 
-// 1. Centralize the date parsing quirk
+// Backend dates arrive as naive UTC strings (e.g. "2024-01-01T12:00:00").
+// Appending "Z" makes Date.parse treat them as UTC instead of local time.
 const parseUtcDate = (timestampStr) => Date.parse(`${timestampStr}Z`);
 
-// 2. Extract the math into a pure function
+// Linear interpolation: given a target time and the nearest real data points on
+// either side, estimate what y value the chart would show at that position.
+// Missing points are plotted at this interpolated y so they sit on the trend line.
 const interpolateY = (targetTime, left, right) => {
   if (left && right && right.t !== left.t) {
     return left.y + ((right.y - left.y) * (targetTime - left.t)) / (right.t - left.t);
   }
   if (left) return left.y;
   if (right) return right.y;
-  return 0; // Fallback: no real points
+  return 0; // no real points exist to interpolate from
 };
 
-// 3. Clarify the nearest-neighbor search
+// Find the real data points immediately before and after targetTime so
+// interpolateY can compute a y position for a missing point.
 const findNeighbors = (sortedPoints, targetTime) => {
-  const rightIdx = sortedPoints.findIndex((p) => p.t >= targetTime);
+  const rightIdx = sortedPoints.findIndex((point) => point.t >= targetTime);
 
   const right = rightIdx !== -1 ? sortedPoints[rightIdx] : null;
-  // If rightIdx is -1, all points are before targetTime, so left is the last item
+  // When rightIdx is -1 every point is before targetTime, so the left neighbour
+  // is the last item in the array.
   const leftIdx = rightIdx === -1 ? sortedPoints.length - 1 : rightIdx - 1;
   const left = leftIdx >= 0 ? sortedPoints[leftIdx] : null;
 
   return { left, right };
 };
 
-// Main Helper
+// Convert the raw missing_data entries from the API into chart-ready objects.
+// Each entry gets an interpolated y value so it appears on the trend line,
+// plus any common-alert metadata needed by the tooltip.
 const buildMissingData = (series, commonByPush) => {
   const { missing_data: missing, data = [], signature_id, repository_name } = series;
 
   if (!missing?.length) return [];
 
-  const realPoints = data.map((dp) => ({
-    t: parseUtcDate(dp.push_timestamp),
-    y: dp.value,
+  // Build a list of { t, y } pairs from the real data points so we can interpolate.
+  const realPoints = data.map((dataPoint) => ({
+    t: parseUtcDate(dataPoint.push_timestamp),
+    y: dataPoint.value,
   }));
 
   return missing.map((entry) => {

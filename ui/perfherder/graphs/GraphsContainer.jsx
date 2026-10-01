@@ -261,14 +261,15 @@ class GraphsContainer extends React.Component {
       return;
     }
 
-    const allMissing = (testData || []).flatMap((s) =>
-      Array.isArray(s?.missingData) ? s.missingData : [],
+    // Restore a locked missing-data tooltip when the user navigates back via URL.
+    const allMissing = (testData || []).flatMap((series) =>
+      Array.isArray(series?.missingData) ? series.missingData : [],
     );
 
     const foundMissing = allMissing.find(
-      (d) =>
-        d.signature_id === selectedDataPoint.signature_id &&
-        d.pushId === selectedDataPoint.dataPointId,
+      (missingDatum) =>
+        missingDatum.signature_id === selectedDataPoint.signature_id &&
+        missingDatum.pushId === selectedDataPoint.dataPointId,
     );
 
     if (foundMissing) {
@@ -455,10 +456,13 @@ class GraphsContainer extends React.Component {
     this.props.updateStateParams?.({ selectedDataPoint: null });
   };
 
+  // Renders a semi-transparent filled ring around a missing-data dot to indicate
+  // hover or locked state, matching the colour of its parent series.
   renderMissingHighlightRing(datum, locked) {
     const { testData } = this.props;
+    // color is [cssClassName, hexValue]; index 1 is the hex value used for SVG.
     const color =
-      testData.find((s) => s.signature_id === datum?.signature_id)?.color[1] ??
+      testData.find((series) => series.signature_id === datum?.signature_id)?.color[1] ??
       '#888';
     return (
       <VictoryScatter
@@ -480,11 +484,15 @@ class GraphsContainer extends React.Component {
     );
   }
 
+  // Renders an invisible scatter point on top of a missing-data dot that owns the
+  // VictoryTooltip. Kept separate from the visible dot so Victory's tooltip portal
+  // renders above all other chart layers.
   renderMissingTooltipLayer(datum, locked) {
     const { width } = this.state;
     const { testData } = this.props;
+    // color is [cssClassName, hexValue]; index 1 is the hex value used for SVG.
     const color =
-      testData.find((s) => s.signature_id === datum?.signature_id)?.color[1] ??
+      testData.find((series) => series.signature_id === datum?.signature_id)?.color[1] ??
       '#888';
     return (
       <VictoryScatter
@@ -829,22 +837,24 @@ class GraphsContainer extends React.Component {
                                 onMouseDown: (evt) =>
                                   evt.stopPropagation(),
                                 onClick: (_evt, props) => {
-                                  const d = props.datum;
+                                  const clickedDatum = props.datum;
+                                  // Toggle off if the user clicks the already-locked dot;
+                                  // otherwise lock onto the new dot and sync the URL.
                                   const isToggleOff =
                                     this.state.lockedMissingDatum
-                                      ?.signature_id === d.signature_id &&
+                                      ?.signature_id === clickedDatum.signature_id &&
                                     this.state.lockedMissingDatum?.pushId ===
-                                      d.pushId;
+                                      clickedDatum.pushId;
                                   this.setState({
-                                    lockedMissingDatum: isToggleOff ? null : d,
+                                    lockedMissingDatum: isToggleOff ? null : clickedDatum,
                                     lockedId: null,
                                   });
                                   this.props.updateStateParams?.({
                                     selectedDataPoint: isToggleOff
                                       ? null
                                       : {
-                                          signature_id: d.signature_id,
-                                          dataPointId: d.pushId,
+                                          signature_id: clickedDatum.signature_id,
+                                          dataPointId: clickedDatum.pushId,
                                         },
                                   });
                                   // Victory event handlers must return a value; null means no chart state mutation.
