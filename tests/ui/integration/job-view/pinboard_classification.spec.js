@@ -134,6 +134,17 @@ test.describe('Classification', () => {
     await bugInput.fill('123456');
     await bugInput.press('Enter');
     await expect(page.getByTestId('pinboard-bug-123456')).toBeVisible();
+    // Enter does not always close the input (PinBoard flips
+    // enteringBugNumber from inside a setState updater). The input also
+    // saves on blur, so if it is still open, clearing it before it loses
+    // focus keeps the save click from adding the bug a second time, which
+    // would raise a "duplicate bug" notification that Escape then
+    // dismisses instead of deselecting the job.
+    if (await bugInput.isVisible()) {
+      await bugInput.fill('');
+      await bugInput.blur();
+    }
+    await expect(bugInput).toBeHidden();
 
     await expect(
       pinboard.locator('#pinboard-classification-select'),
@@ -187,8 +198,21 @@ test.describe('Classification', () => {
     await page.evaluate(() => document.activeElement?.blur());
     await page.keyboard.press('Escape');
     await expect(page).not.toHaveURL(/selectedTaskRun=/);
+    await expect(page.getByTestId('selected-job')).toHaveCount(0);
+    // The "u" shortcut rebuilds the query string from the location the
+    // FilterModel last saw, which App refreshes in a passive effect after
+    // the router processes the Escape URL change. Let that effect flush
+    // (it is scheduled as a macrotask at commit) before pressing "u", or
+    // the removed selectedTaskRun can be re-added and re-select the job.
+    await page.evaluate(
+      () =>
+        new Promise((resolve) => {
+          requestAnimationFrame(() => setTimeout(resolve, 0));
+        }),
+    );
     await page.keyboard.press('u');
     await expect(page).toHaveURL(/classifiedState=unclassified/);
+    await expect(page).not.toHaveURL(/selectedTaskRun=/);
     await expect(
       jobPush.locator('[data-testid="job-btn"]').filter({ hasText: /^B/ }),
     ).toHaveCount(0);
