@@ -243,7 +243,7 @@ export default class AlertTable extends React.Component {
     return { failureStatus };
   };
 
-  changeRevision = async (newRevisionTo) => {
+  changeRevision = async (newRevisionTo, newRevisionFrom) => {
     const {
       updateAlertSummary: updateAlertSummaryProp = updateAlertSummary,
       updateViewState,
@@ -253,7 +253,10 @@ export default class AlertTable extends React.Component {
     const { alertSummary } = this.state;
     const { data, failureStatus } = await updateAlertSummaryFunc(
       alertSummary.id,
-      { revision: newRevisionTo },
+      {
+        ...(newRevisionTo && { revision: newRevisionTo }),
+        ...(newRevisionFrom && { prev_push_revision: newRevisionFrom }),
+      },
     );
 
     if (!failureStatus) {
