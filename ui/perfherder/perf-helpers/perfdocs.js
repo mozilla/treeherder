@@ -155,10 +155,6 @@ export class Perfdocs {
       this.url = this.updatedURLWithSuffix;
     } else {
       // framework is either awsy, talos or devtools
-      if (this.suite === 'about_newtab_with_snippets') {
-        // talos
-        this.suite = 'about-newtab-with-snippets';
-      }
       this.url = this.url.concat(
         this.suite.replace(/:|\s|\.|_/g, '-').toLowerCase(),  // the underscore is a talos-centered fix for unconventional test names
       );
@@ -185,7 +181,7 @@ export class Perfdocs {
       this.url = this.url.concat(suiteNameBeforeDot);
       suffixForSuite = '-i';
     } else {
-      this.url = this.url.concat(this.suite);
+      this.url = this.url.concat(this.suite.toLowerCase());
       if (isBenchmark) {
         suffixForSuite = '-b';
       } else if (isCustom) {

@@ -102,3 +102,85 @@ test("Some DevTools tests are not yet completed and don't have documentation", (
   const perfdocs = new Perfdocs(framework, suite);
   expect(perfdocs.hasDocumentation()).toBeFalsy();
 });
+
+test('For framework browsertime, the mobile suffix (-m) is added correctly', () => {
+  const framework = 'browsertime';
+  const suite = 'amazon';
+  const platform = 'android';
+
+  const perfdocs = new Perfdocs(framework, suite, platform);
+  expect(perfdocs.documentationURL).toBe(
+    'https://firefox-source-docs.mozilla.org/testing/perfdocs/raptor.html#amazon-m',
+  );
+});
+
+test('For framework browsertime, the benchmark suffix (-b) is added correctly', () => {
+  const framework = 'browsertime';
+  const suite = 'speedometer';
+
+  const perfdocs = new Perfdocs(framework, suite);
+  expect(perfdocs.documentationURL).toBe(
+    'https://firefox-source-docs.mozilla.org/testing/perfdocs/raptor.html#speedometer-b',
+  );
+});
+
+test('For framework browsertime, the custom suffix (-c) is added correctly', () => {
+  const framework = 'browsertime';
+  const suite = 'process-switch';
+
+  const perfdocs = new Perfdocs(framework, suite);
+  expect(perfdocs.documentationURL).toBe(
+    'https://firefox-source-docs.mozilla.org/testing/perfdocs/raptor.html#process-switch-c',
+  );
+});
+
+test('For framework browsertime, the interactive suffix (-i) is added correctly', () => {
+  const framework = 'browsertime';
+  const suite = 'cnn-nav';
+
+  const perfdocs = new Perfdocs(framework, suite);
+  expect(perfdocs.documentationURL).toBe(
+    'https://firefox-source-docs.mozilla.org/testing/perfdocs/raptor.html#cnn-nav-i',
+  );
+});
+
+test('For framework browsertime, the default desktop suffix (-d) is added correctly', () => {
+  const framework = 'browsertime';
+  const suite = 'amazon';
+  const platform = 'windows11-64-24h2-shippable';
+
+  const perfdocs = new Perfdocs(framework, suite, platform);
+  expect(perfdocs.documentationURL).toBe(
+    'https://firefox-source-docs.mozilla.org/testing/perfdocs/raptor.html#amazon-d',
+  );
+});
+
+test('For framework browsertime, a dotted suite name is handled correctly', () => {
+  const framework = 'browsertime';
+  const suite = 'reddit-billgates-ama.members';
+
+  const perfdocs = new Perfdocs(framework, suite);
+  expect(perfdocs.documentationURL).toBe(
+    'https://firefox-source-docs.mozilla.org/testing/perfdocs/raptor.html#reddit-billgates-ama-i',
+  );
+});
+
+test('For framework browsertime, a suite name with uppercase letters is converted to lowercase', () => {
+  const framework = 'browsertime';
+  const suite = 'addkARN';
+
+  const perfdocs = new Perfdocs(framework, suite);
+  expect(perfdocs.documentationURL).toBe(
+    'https://firefox-source-docs.mozilla.org/testing/perfdocs/raptor.html#addkarn-c',
+  );
+});
+
+test('For framework talos, underscores in the suite name are replaced with dashes', () => {
+  const framework = 'talos';
+  const suite = 'about_newtab_with_snippets';
+
+  const perfdocs = new Perfdocs(framework, suite);
+  expect(perfdocs.documentationURL).toBe(
+    'https://firefox-source-docs.mozilla.org/testing/perfdocs/talos.html#about-newtab-with-snippets',
+  );
+});
