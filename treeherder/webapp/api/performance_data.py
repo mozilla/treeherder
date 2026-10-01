@@ -383,7 +383,7 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
             datums = datums.filter(push_timestamp__lt=end_date)
 
         ret: defaultdict[str, list] = defaultdict(list)
-        seen_push_ids: defaultdict[str, set] = defaultdict(set)
+        seen_push_ids: defaultdict[str, set] = defaultdict(set[int])
         values_list = datums.values_list(
             "id",
             "signature_id",
