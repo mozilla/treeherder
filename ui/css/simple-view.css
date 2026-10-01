@@ -12,6 +12,11 @@ body.sv-body {
   --sv-info-bg: var(--th-info-bg);
   --sv-info-ink: var(--th-info-color);
   --sv-danger: var(--bs-danger);
+  --sv-success: var(--status-success);
+  --sv-success-text: var(--status-success-hover);
+  --sv-running: var(--status-running);
+  --sv-retry: var(--status-retry);
+  --sv-failure-text: var(--status-testfailed-classified);
   --sv-radius: 8px;
 
   margin: 0;
@@ -27,11 +32,11 @@ body.sv-body {
 [data-bs-theme='dark'] body.sv-body {
   --sv-info-bg: var(--bs-info-bg-subtle);
   --sv-info-ink: var(--bs-info-text-emphasis);
-  --status-success: #2ea043;
-  --status-success-hover: #4ac26b;
-  --status-running: var(--bs-body-color);
-  --status-retry: #5b6ee1;
-  --status-testfailed-classified: #f3913f;
+  --sv-success: color-mix(in srgb, var(--status-success) 75%, var(--bs-white));
+  --sv-success-text: color-mix(in srgb, var(--status-success) 60%, var(--bs-white));
+  --sv-running: var(--bs-body-color);
+  --sv-retry: color-mix(in srgb, var(--status-retry) 65%, var(--bs-white));
+  --sv-failure-text: color-mix(in srgb, var(--status-testfailed) 80%, var(--bs-white));
 }
 
 [data-bs-theme='dark'] .sv-tone-running {
@@ -76,15 +81,15 @@ body.sv-body {
 }
 
 .sv-tone-good {
-  --sv-tone: var(--status-success);
-  --sv-tone-text: var(--status-success-hover);
+  --sv-tone: var(--sv-success);
+  --sv-tone-text: var(--sv-success-text);
 }
 .sv-tone-bad {
   --sv-tone: var(--status-testfailed);
-  --sv-tone-text: var(--status-testfailed-classified);
+  --sv-tone-text: var(--sv-failure-text);
 }
 .sv-tone-running {
-  --sv-tone: var(--status-running);
+  --sv-tone: var(--sv-running);
   --sv-tone-text: var(--sv-ink);
 }
 .sv-tone-quiet {
@@ -120,13 +125,13 @@ body.sv-body {
 
 .sv-beta {
   padding: 1px 5px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(var(--bs-white-rgb), 0.5);
   border-radius: 4px;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(var(--bs-white-rgb), 0.85);
 }
 
 .sv-beta-note {
@@ -158,7 +163,7 @@ body.sv-body {
   width: 44px;
   height: 24px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(var(--bs-white-rgb), 0.25);
   transition: background-color 0.2s ease;
 }
 
@@ -204,10 +209,10 @@ body.sv-body {
   gap: 4px;
   min-height: 32px;
   padding: 0 10px;
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(var(--bs-white-rgb), 0.35);
   border-radius: 6px;
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(var(--bs-white-rgb), 0.85);
 }
 
 .sv .sv-full:active {
@@ -218,7 +223,7 @@ body.sv-body {
 .sv-topbar-divider {
   width: 1px;
   height: 20px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(var(--bs-white-rgb), 0.2);
 }
 
 .sv-contextbar {
@@ -251,7 +256,7 @@ body.sv-body {
 .sv-repo {
   margin-left: auto;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(var(--bs-white-rgb), 0.9);
 }
 
 .sv-infobar {
@@ -409,10 +414,10 @@ body.sv-body {
   stroke: var(--status-exception);
 }
 .sv-tick-success {
-  stroke: var(--status-success);
+  stroke: var(--sv-success);
 }
 .sv-tick-retry {
-  stroke: var(--status-retry);
+  stroke: var(--sv-retry);
 }
 .sv-tick-usercancel {
   stroke: var(--status-usercancel);
@@ -424,7 +429,7 @@ body.sv-body {
   stroke: var(--status-unknown);
 }
 .sv-tick-running {
-  stroke: var(--status-running);
+  stroke: var(--sv-running);
 }
 .sv-tick-unscheduled {
   stroke: var(--status-unscheduled);
@@ -810,10 +815,10 @@ body.sv-body {
   background: var(--status-exception);
 }
 .sv-legend-success .sv-legend-dot {
-  background: var(--status-success);
+  background: var(--sv-success);
 }
 .sv-legend-running .sv-legend-dot {
-  background: var(--status-running);
+  background: var(--sv-running);
 }
 .sv-legend-unscheduled .sv-legend-dot {
   background: var(--status-unscheduled);
@@ -850,8 +855,8 @@ body.sv-body {
 }
 
 .sv .sv-action-sent {
-  color: var(--status-success-hover);
-  border-color: var(--status-success);
+  color: var(--sv-success-text);
+  border-color: var(--sv-success);
 }
 
 .sv .sv-action-elsewhere {
