@@ -22,6 +22,7 @@ class SummaryPanel extends React.PureComponent {
       currentRepo,
       classificationMap,
       taskExpired = false,
+      hiddenOnMobile = false,
     } = this.props;
 
     const logs = jobLogUrls.filter(
@@ -63,6 +64,8 @@ class SummaryPanel extends React.PureComponent {
         id="summary-panel"
         role="region"
         aria-label="Summary"
+        aria-hidden={hiddenOnMobile || undefined}
+        inert={hiddenOnMobile}
         data-testid="summary-panel"
       >
         {!!selectedJobFull && (
@@ -127,6 +130,7 @@ SummaryPanel.propTypes = {
   logViewerUrl: PropTypes.string,
   logViewerFullUrl: PropTypes.string,
   taskExpired: PropTypes.bool,
+  hiddenOnMobile: PropTypes.bool,
 };
 
 export default SummaryPanel;

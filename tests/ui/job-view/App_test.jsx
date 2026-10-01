@@ -1,6 +1,5 @@
-
 import fetchMock from 'fetch-mock';
-import { render, waitFor, fireEvent } from '@testing-library/react';
+import { render, waitFor, fireEvent, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 
 import { AppRoutes } from '../../../ui/App';
@@ -195,7 +194,7 @@ describe('App', () => {
     const firstJob = await findByText(firstJobSymbol);
 
     // Click on the first job and wait for state updates
-    fireEvent.mouseDown(firstJob);
+    fireEvent.click(firstJob);
 
     // Wait for summary panel to appear
     expect(await findByTestId('summary-panel')).toBeInTheDocument();
@@ -285,5 +284,65 @@ describe('App', () => {
     const tryLink = tryRepoLink.closest('a');
     expect(tryLink.getAttribute('href')).toContain('/jobs');
     expect(tryLink.getAttribute('href')).toContain('repo=try');
+  });
+
+  test('mobile job details resize and toggle the summary over the tabs', async () => {
+    const originalPointerEvent = window.PointerEvent;
+    window.PointerEvent = MouseEvent;
+    const matchMedia = jest
+      .spyOn(window, 'matchMedia')
+      .mockImplementation((media) => ({
+        media,
+        matches: true,
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+        addListener: jest.fn(),
+        removeListener: jest.fn(),
+      }));
+
+    try {
+      const { findByText } = render(testApp());
+      fireEvent.click(await findByText('yaml'));
+
+      const resize = await screen.findByRole('slider', {
+        name: 'Resize job details',
+      });
+      const sheet = resize.closest('.mobile-job-details');
+      expect(sheet.style.getPropertyValue('--bs-offcanvas-height')).toBe(
+        'min(84px, 100dvh)',
+      );
+
+      const summary = await screen.findByTestId('summary-panel');
+      expect(summary).toHaveAttribute('aria-hidden', 'true');
+      expect(screen.getByRole('region', { name: 'Job' })).toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: 'Show job summary' }));
+      expect(summary).not.toHaveAttribute('aria-hidden');
+      fireEvent.click(screen.getByRole('button', { name: 'Hide job summary' }));
+      expect(summary).toHaveAttribute('aria-hidden', 'true');
+
+      fireEvent.keyDown(resize, { key: 'End' });
+      expect(sheet.style.getPropertyValue('--bs-offcanvas-height')).toBe(
+        `min(${window.innerHeight}px, 100dvh)`,
+      );
+      fireEvent.keyDown(resize, { key: 'Home' });
+      expect(sheet.style.getPropertyValue('--bs-offcanvas-height')).toBe(
+        'min(84px, 100dvh)',
+      );
+
+      const header = resize.closest('.offcanvas-header');
+      header.setPointerCapture = jest.fn();
+      fireEvent.pointerDown(sheet.querySelector('#mobile-job-details-title'), {
+        pointerId: 1,
+        clientY: 800,
+      });
+      fireEvent.pointerMove(header, { pointerId: 1, clientY: 0 });
+      expect(sheet.style.getPropertyValue('--bs-offcanvas-height')).toBe(
+        `min(${window.innerHeight}px, 100dvh)`,
+      );
+      fireEvent.pointerUp(header, { pointerId: 1 });
+    } finally {
+      matchMedia.mockRestore();
+      window.PointerEvent = originalPointerEvent;
+    }
   });
 });

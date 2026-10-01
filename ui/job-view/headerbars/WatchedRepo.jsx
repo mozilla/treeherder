@@ -54,43 +54,53 @@ const statusInfoMap = {
   },
 };
 
-function WatchedRepo({ repoName, unwatchRepo, repo, setCurrentRepoTreeStatus }) {
+function WatchedRepo({
+  repoName,
+  unwatchRepo,
+  repo,
+  setCurrentRepoTreeStatus,
+}) {
   const [status, setStatus] = useState('not retrieved yet');
   const [reason, setReason] = useState('');
   const [messageOfTheDay, setMessageOfTheDay] = useState('');
-  const [statusInfo, setStatusInfo] = useState(statusInfoMap['not retrieved yet']);
+  const [statusInfo, setStatusInfo] = useState(
+    statusInfoMap['not retrieved yet'],
+  );
 
   const intervalRef = useRef(null);
 
-  const updateTreeStatus = useCallback((mustBeCurrentRepo = false) => {
-    const watchedRepoName = repo.name;
+  const updateTreeStatus = useCallback(
+    (mustBeCurrentRepo = false) => {
+      const watchedRepoName = repo.name;
 
-    if (repo.dvcs_type !== 'hg') {
-      setStatus('unsupported');
-      setReason('');
-      setMessageOfTheDay('');
-      setStatusInfo(statusInfoMap.unsupported);
-      setCurrentRepoTreeStatus('unsupported');
-      clearInterval(intervalRef.current);
-    } else {
-      TreeStatusModel.get(watchedRepoName).then((data) => {
-        const treeStatus = data.result;
+      if (repo.dvcs_type !== 'hg') {
+        setStatus('unsupported');
+        setReason('');
+        setMessageOfTheDay('');
+        setStatusInfo(statusInfoMap.unsupported);
+        setCurrentRepoTreeStatus('unsupported');
+        clearInterval(intervalRef.current);
+      } else {
+        TreeStatusModel.get(watchedRepoName).then((data) => {
+          const treeStatus = data.result;
 
-        if (mustBeCurrentRepo || watchedRepoName === repoName) {
-          setCurrentRepoTreeStatus(treeStatus.status);
-        }
+          if (mustBeCurrentRepo || watchedRepoName === repoName) {
+            setCurrentRepoTreeStatus(treeStatus.status);
+          }
 
-        setStatus(treeStatus.status);
-        setReason(treeStatus.reason);
-        setMessageOfTheDay(treeStatus.message_of_the_day);
-        setStatusInfo(statusInfoMap[treeStatus.status]);
+          setStatus(treeStatus.status);
+          setReason(treeStatus.reason);
+          setMessageOfTheDay(treeStatus.message_of_the_day);
+          setStatusInfo(statusInfoMap[treeStatus.status]);
 
-        if (treeStatus.status === 'unsupported') {
-          clearInterval(intervalRef.current);
-        }
-      });
-    }
-  }, [repo, repoName, setCurrentRepoTreeStatus]);
+          if (treeStatus.status === 'unsupported') {
+            clearInterval(intervalRef.current);
+          }
+        });
+      }
+    },
+    [repo, repoName, setCurrentRepoTreeStatus],
+  );
 
   useEffect(() => {
     updateTreeStatus();
@@ -106,7 +116,10 @@ function WatchedRepo({ repoName, unwatchRepo, repo, setCurrentRepoTreeStatus }) 
   const pulseIcon = statusInfo.pulseIcon || null;
 
   return (
-    <div className="btn-group" role="group">
+    <div
+      className={`btn-group ${watchedRepo === repoName ? '' : 'watched-repo-extra'}`}
+      role="group"
+    >
       <Link
         to={{
           search: updateRepoParams(watchedRepo),
@@ -124,10 +137,7 @@ function WatchedRepo({ repoName, unwatchRepo, repo, setCurrentRepoTreeStatus }) 
       </Link>
       <Dropdown>
         <Dropdown.Toggle className={`btn-view-nav ${activeClass} no-caret`}>
-          <FontAwesomeIcon
-            icon={faInfoCircle}
-            title={`${watchedRepo} info`}
-          />
+          <FontAwesomeIcon icon={faInfoCircle} title={`${watchedRepo} info`} />
         </Dropdown.Toggle>
         {watchedRepo !== repoName && (
           <Button
@@ -135,10 +145,7 @@ function WatchedRepo({ repoName, unwatchRepo, repo, setCurrentRepoTreeStatus }) 
             onClick={() => unwatchRepo(watchedRepo)}
             size="sm"
           >
-            <FontAwesomeIcon
-              icon={faTimes}
-              title={`Unwatch ${watchedRepo}`}
-            />
+            <FontAwesomeIcon icon={faTimes} title={`Unwatch ${watchedRepo}`} />
           </Button>
         )}
         <Dropdown.Menu>

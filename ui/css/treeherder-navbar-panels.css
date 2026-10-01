@@ -39,3 +39,20 @@
   padding-top: 3px;
   border: 1px solid #ced4da;
 }
+
+@media (max-width: 767.98px) {
+  .active-filters-bar {
+    padding: 4px 8px;
+  }
+
+  .active-filters-bar form {
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
+  .active-filters-bar #job-filter-field,
+  .active-filters-bar #job-filter-value,
+  .active-filters-bar #job-filter-choice-value {
+    flex-basis: 100%;
+  }
+}

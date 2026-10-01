@@ -204,6 +204,17 @@ const TabsPanel = ({
       });
     }
 
+    if (container.closest('.mobile-job-details')) {
+      tabs.forEach((tab, index) => {
+        if (tab.getAttribute('role') === 'tab') {
+          tab.style.display = index === tabIndex ? '' : 'none';
+        }
+      });
+      setOverflowTabs(allTabs.filter((tab) => tab.index !== tabIndex));
+      setShowOverflowDropdown(allTabs.length > 1);
+      return;
+    }
+
     // Use CSS to hide/show tabs instead of conditional rendering
     if (overflowIndex > -1 && overflowIndex < allTabs.length) {
       // Hide tabs that overflow
@@ -224,7 +235,7 @@ const TabsPanel = ({
       setOverflowTabs([]);
       setShowOverflowDropdown(false);
     }
-  }, [perfJobDetail, testGroups, summaryUrl]);
+  }, [perfJobDetail, testGroups, summaryUrl, tabIndex]);
 
   const setupResizeObserver = useCallback(() => {
     if (tabListRef.current && window.ResizeObserver) {
@@ -252,6 +263,7 @@ const TabsPanel = ({
 
   const handleOverflowTabClick = useCallback((newTabIndex) => {
     setTabIndex(newTabIndex);
+    setDropdownShow(false);
   }, []);
 
   // Probe for the summary.jsonl artifact; only show the Summary tab when it
