@@ -522,14 +522,14 @@ class GraphsContainer extends React.Component {
             style={{ pointerEvents: 'none' }}
             flyoutComponent={
               <MissingJobTooltip
-              lockTooltip={locked}
-              closeTooltip={locked ? this.clearMissingLock : () => this.setState({ hoverMissingDatum: null })}
-              windowWidth={width}
-              testData={this.props.testData}
-              user={this.props.user}
-              projects={this.props.projects}
-              datum={datum}
-            />
+                lockTooltip={locked}
+                closeTooltip={locked ? this.clearMissingLock : () => this.setState({ hoverMissingDatum: null })}
+                windowWidth={width}
+                testData={this.props.testData}
+                user={this.props.user}
+                projects={this.props.projects}
+                datum={datum}
+              />
             }
           />
         }
