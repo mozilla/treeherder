@@ -54,4 +54,10 @@ input[type='checkbox'] {
 :root {
   --failure-bg-color: #f7c194;
   --failure-color: #743603;
+  --th-navbar-bg: #222;
+  --th-navbar-border: black;
+  --th-context-navbar-bg: #354048;
+  --th-info-bg: #d1ecf1;
+  --th-info-color: #0c5460;
+  --th-info-border: #bee5eb;
 }

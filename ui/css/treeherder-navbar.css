@@ -11,11 +11,11 @@
 #th-global-navbar-top {
   padding-left: 0;
   padding-top: 1px;
-  border-bottom: 1px solid black;
+  border-bottom: 1px solid var(--th-navbar-border);
   justify-content: space-between;
   display: flex;
   width: 100%;
-  background-color: #222;
+  background-color: var(--th-navbar-bg);
   height: 33px;
   min-height: 33px;
   max-height: 33px;
@@ -104,7 +104,7 @@ label.dropdown-item.active,
 }
 
 .th-context-navbar {
-  background-color: #354048;
+  background-color: var(--th-context-navbar-bg);
   overflow: visible;
 }
 
@@ -133,7 +133,7 @@ secondary-nav-bar {
   width: 100%;
   display: flex;
   align-items: center;
-  background-color: #354048;
+  background-color: var(--th-context-navbar-bg);
   min-height: 33px;
 }
 

@@ -16,8 +16,9 @@ export const useTheme = () => {
   const [theme, setTheme] = useState(stored);
 
   useEffect(() => {
-    document.body.classList.toggle('sv-dark', theme === 'dark');
-    return () => document.body.classList.remove('sv-dark');
+    const root = document.documentElement;
+    root.setAttribute('data-bs-theme', theme);
+    return () => root.removeAttribute('data-bs-theme');
   }, [theme]);
 
   const toggle = () => {

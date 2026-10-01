@@ -5,24 +5,24 @@
    colour is too light for small text, its darker "classified" shade is used. */
 
 body.sv-body {
-  --sv-bg: #fff;
-  --sv-surface: #fff;
-  --sv-ink: #212529;
-  --sv-muted: #6c757d;
-  --sv-hairline: #dee2e6;
-  --sv-wash: #f8f9fa;
-  --sv-link: #337ab7;
-  --sv-topbar: rgb(34, 34, 34);
-  --sv-contextbar: rgb(55, 64, 71);
-  --sv-info-bg: rgb(214, 235, 240);
-  --sv-info-ink: #0c5460;
-  --sv-danger: #dc3545;
+  --sv-bg: var(--bs-body-bg);
+  --sv-surface: var(--bs-body-bg);
+  --sv-ink: var(--bs-body-color);
+  --sv-muted: var(--bs-secondary-color);
+  --sv-hairline: var(--bs-border-color);
+  --sv-wash: var(--bs-tertiary-bg);
+  --sv-link: var(--bs-link-color);
+  --sv-topbar: var(--th-navbar-bg);
+  --sv-contextbar: var(--th-context-navbar-bg);
+  --sv-info-bg: var(--th-info-bg);
+  --sv-info-ink: var(--th-info-color);
+  --sv-danger: var(--bs-danger);
   --sv-radius: 8px;
 
   margin: 0;
   background: var(--sv-bg);
   color: var(--sv-ink);
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: var(--bs-body-font-family);
   -webkit-font-smoothing: antialiased;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
@@ -34,25 +34,17 @@ body.sv-body {
 /* Dark, when chosen. The bars are Treeherder's either way; the page goes
    dark, and the job colours that vanish on it (black running, deep blue
    retry, deep green success) get lighter shades of themselves. */
-body.sv-body.sv-dark {
-  --sv-bg: #16181b;
-  --sv-surface: #1e2125;
-  --sv-wash: #191c1f;
-  --sv-ink: #e9ecef;
-  --sv-muted: #adb5bd;
-  --sv-hairline: #343a40;
-  --sv-link: #6ea8fe;
-  --sv-info-bg: #032830;
-  --sv-info-ink: #6edff6;
+[data-bs-theme='dark'] body.sv-body {
+  --sv-info-bg: var(--bs-info-bg-subtle);
+  --sv-info-ink: var(--bs-info-text-emphasis);
   --status-success: #2ea043;
   --status-success-hover: #4ac26b;
-  --status-running: #e9ecef;
+  --status-running: var(--bs-body-color);
   --status-retry: #5b6ee1;
   --status-testfailed-classified: #f3913f;
-  color-scheme: dark;
 }
 
-.sv-dark .sv-tone-running {
+[data-bs-theme='dark'] .sv-tone-running {
   --sv-tone-text: var(--sv-ink);
 }
 
@@ -131,7 +123,7 @@ body.sv-body.sv-dark {
   padding: env(safe-area-inset-top) max(12px, env(safe-area-inset-right)) 0
     max(12px, env(safe-area-inset-left));
   background: var(--sv-topbar);
-  border-bottom: 1px solid #000;
+  border-bottom: 1px solid var(--th-navbar-border);
 }
 
 .sv-logo {
@@ -171,15 +163,15 @@ body.sv-body.sv-dark {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--bs-white);
   transition: transform 0.2s ease;
 }
 
 .sv-theme-thumb svg {
   width: 13px;
   height: 13px;
-  fill: #f0a020;
-  stroke: #f0a020;
+  fill: var(--bs-warning);
+  stroke: var(--bs-warning);
   stroke-width: 2;
   stroke-linecap: round;
 }
@@ -210,8 +202,8 @@ body.sv-body.sv-dark {
 }
 
 .sv .sv-full:active {
-  color: #fff;
-  border-color: #fff;
+  color: var(--bs-white);
+  border-color: var(--bs-white);
 }
 
 .sv-topbar-divider {
@@ -229,7 +221,7 @@ body.sv-body.sv-dark {
   padding: 0 max(12px, env(safe-area-inset-right)) 0
     max(12px, env(safe-area-inset-left));
   background: var(--sv-contextbar);
-  color: #fff;
+  color: var(--bs-white);
   font-size: 15px;
 }
 
@@ -237,7 +229,7 @@ body.sv-body.sv-dark {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
-  color: #fff;
+  color: var(--bs-white);
 }
 
 .sv-back::before {
@@ -311,7 +303,7 @@ body.sv-body.sv-dark {
 }
 
 .sv .sv-inline-go {
-  color: #fff;
+  color: var(--bs-white);
   background: var(--sv-link);
 }
 
@@ -865,7 +857,7 @@ body.sv-body.sv-dark {
 }
 
 .sv .sv-action-confirm {
-  color: #fff;
+  color: var(--bs-white);
   background: var(--sv-link);
 }
 
@@ -988,7 +980,7 @@ body.sv-body.sv-dark {
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #fff;
+  color: var(--bs-white);
   background: var(--sv-danger);
 }
 
@@ -1105,7 +1097,7 @@ body.sv-body.sv-dark {
   font-size: 17px;
   color: var(--sv-ink);
   background: var(--sv-surface);
-  border: 1px solid #ced4da;
+  border: 1px solid var(--bs-border-color);
   border-radius: var(--sv-radius);
 }
 
@@ -1113,7 +1105,7 @@ body.sv-body.sv-dark {
   padding: 14px 16px;
   font-weight: 700;
   text-align: center;
-  color: #fff;
+  color: var(--bs-white);
   background: var(--sv-link);
   border-radius: var(--sv-radius);
 }
@@ -1174,7 +1166,7 @@ body.sv-body.sv-dark {
   width: 9em;
   height: 1em;
   border-radius: 4px;
-  background: #e9ecef;
+  background: var(--bs-secondary-bg);
   animation: sv-shimmer 1.4s ease-in-out infinite;
 }
 
