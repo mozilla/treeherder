@@ -489,6 +489,9 @@ class PerformanceQueryParamsSerializer(serializers.Serializer):
                 "Required: revision, startday and endday or interval."
             )
 
+        if data["include_missing_data"] and not data["all_data"]:
+            raise serializers.ValidationError("include_missing_data requires all_data=true.")
+
         return data
 
     def validate_repository(self, repository):
