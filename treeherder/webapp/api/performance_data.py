@@ -559,7 +559,7 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
         return queryset.filter(assignee__username=value)
 
     def _timerange(
-        self, queryset: QuerySet[PerformanceAlertSummary], name: str, value: int
+        self, queryset: QuerySet[PerformanceAlertSummary], name: str, value: Decimal
     ) -> QuerySet[PerformanceAlertSummary]:
         return queryset.filter(
             push__time__gt=datetime.datetime.utcfromtimestamp(int(time.time() - int(value)))
