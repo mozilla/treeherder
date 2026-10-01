@@ -63,6 +63,7 @@ function GraphsView({ projects, frameworks, user }) {
   const [highlightChangelogData, setHighlightChangelogData] = useState(false);
   const [highlightInitialDataPoints, setHighlightInitialDataPoints] =
     useState(false);
+  const [highlightMissingJobs, setHighlightMissingJobs] = useState(false);
   const [highlightedRevisions, setHighlightedRevisions] = useState(['', '']);
   const [highlightedToRevision, setHighlightedToRevision] = useState(
     getHighlightedToRevision(),
@@ -91,6 +92,8 @@ function GraphsView({ projects, frameworks, user }) {
   errorMessagesRef.current = errorMessages;
   const replicatesRef = useRef(replicates);
   replicatesRef.current = replicates;
+  const highlightMissingJobsRef = useRef(highlightMissingJobs);
+  highlightMissingJobsRef.current = highlightMissingJobs;
 
   // Track whether changeParams should run after state updates
   const pendingChangeParams = useRef(false);
@@ -123,6 +126,7 @@ function GraphsView({ projects, frameworks, user }) {
       interval: timeRangeRef.current.value,
       all_data: true,
       replicates: replicatesRef.current,
+      include_missing_data: highlightMissingJobsRef.current,
     };
   }, []);
 
@@ -219,6 +223,7 @@ function GraphsView({ projects, frameworks, user }) {
       highlightCommonAlerts: +highlightCommonAlerts,
       highlightChangelogData: +highlightChangelogData,
       highlightInitialDataPoints: +highlightInitialDataPoints,
+      highlightMissingJobs: +highlightMissingJobs,
       timerange: timeRangeRef.current.value,
       replicates: +replicatesRef.current,
       showTable: +showTable,
@@ -256,6 +261,7 @@ function GraphsView({ projects, frameworks, user }) {
     highlightCommonAlerts,
     highlightChangelogData,
     highlightInitialDataPoints,
+    highlightMissingJobs,
     highlightedRevisions,
     highlightedToRevision,
     selectedDataPoint,
@@ -282,7 +288,7 @@ function GraphsView({ projects, frameworks, user }) {
   }, []);
 
   const getTestData = useCallback(
-    async (newDisplayedTests = [], init = false) => {
+    async (newDisplayedTests = [], init = false, preserveZoom = false) => {
       const currentTestData = testDataRef.current;
       const tests = newDisplayedTests.length
         ? newDisplayedTests
@@ -310,7 +316,7 @@ function GraphsView({ projects, frameworks, user }) {
         }
         setTestData(newTestData);
         setLoading(false);
-        setVisibilityChanged(false);
+        setVisibilityChanged(preserveZoom);
 
         if (!init) {
           pendingChangeParams.current = true;
@@ -352,6 +358,10 @@ function GraphsView({ projects, frameworks, user }) {
         state.replicates !== undefined &&
         state.replicates !== replicatesRef.current;
 
+      const highlightMissingJobsChanged =
+        state.highlightMissingJobs !== undefined &&
+        state.highlightMissingJobs !== highlightMissingJobsRef.current;
+
       if (state.testData !== undefined) setTestData(state.testData);
       if (state.selectedDataPoint !== undefined)
         setSelectedDataPoint(state.selectedDataPoint);
@@ -373,6 +383,10 @@ function GraphsView({ projects, frameworks, user }) {
       if (state.colors !== undefined) setColors(state.colors);
       if (state.symbols !== undefined) setSymbols(state.symbols);
       if (state.showTable !== undefined) setShowTable(state.showTable);
+      if (state.highlightMissingJobs !== undefined) {
+        setHighlightMissingJobs(state.highlightMissingJobs);
+        highlightMissingJobsRef.current = state.highlightMissingJobs;
+      }
 
       if (state.replicates !== undefined) {
         setReplicates(state.replicates);
@@ -385,6 +399,10 @@ function GraphsView({ projects, frameworks, user }) {
         setColors([...graphColors]);
         setSymbols([...graphSymbols]);
         getTestData();
+      } else if (highlightMissingJobsChanged) {
+        setColors([...graphColors]);
+        setSymbols([...graphSymbols]);
+        getTestData([], false, true);
       } else {
         pendingChangeParams.current = true;
       }
@@ -402,6 +420,7 @@ function GraphsView({ projects, frameworks, user }) {
       highlightCommonAlerts: hlCommonAlerts,
       highlightChangelogData: hlChangelogData,
       highlightInitialDataPoints: hlInitialDataPoints,
+      highlightMissingJobs: hlMissingJobs,
       highlightedRevisions: hlRevisions,
       highlightedToRevision: hlToRevision,
       replicates: replicatesParam,
@@ -413,6 +432,10 @@ function GraphsView({ projects, frameworks, user }) {
     if (replicatesParam) {
       updates.replicates = Boolean(parseInt(replicatesParam, 10));
       replicatesRef.current = updates.replicates;
+    }
+
+    if (hlMissingJobs !== undefined) {
+      highlightMissingJobsRef.current = Boolean(parseInt(hlMissingJobs, 10));
     }
 
     if (showTableParam !== undefined) {
@@ -442,6 +465,9 @@ function GraphsView({ projects, frameworks, user }) {
         parseInt(hlInitialDataPoints, 10),
       );
     }
+    if (hlMissingJobs !== undefined) {
+      updates.highlightMissingJobs = Boolean(parseInt(hlMissingJobs, 10));
+    }
     if (hlRevisions) {
       updates.highlightedRevisions =
         typeof hlRevisions === 'string' ? [hlRevisions] : hlRevisions;
@@ -469,6 +495,8 @@ function GraphsView({ projects, frameworks, user }) {
       setHighlightChangelogData(updates.highlightChangelogData);
     if (updates.highlightInitialDataPoints !== undefined)
       setHighlightInitialDataPoints(updates.highlightInitialDataPoints);
+    if (updates.highlightMissingJobs !== undefined)
+      setHighlightMissingJobs(updates.highlightMissingJobs);
     if (updates.replicates !== undefined) setReplicates(updates.replicates);
     if (updates.showTable !== undefined) setShowTable(updates.showTable);
     if (updates.highlightedRevisions !== undefined)
@@ -612,6 +640,7 @@ function GraphsView({ projects, frameworks, user }) {
               highlightAlerts={highlightAlerts}
               highlightChangelogData={highlightChangelogData}
               highlightInitialDataPoints={highlightInitialDataPoints}
+              highlightMissingJobs={highlightMissingJobs}
               highlightedRevisions={highlightedRevisions}
               highlightedToRevision={highlightedToRevision}
               highlightCommonAlerts={highlightCommonAlerts}
