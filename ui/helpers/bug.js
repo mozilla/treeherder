@@ -38,6 +38,10 @@ export const parseSummary = (suggestion) => {
   summary = summary.replace(re, '');
   re = /xpcshell([-a-zA-Z0-9]+)?.(ini|toml):/gi;
   summary = summary.replace(re, '');
+  // mozlog puts the minidump UUID right after the PROCESS-CRASH prefix, it
+  // differs in every run and must not end up in the summary.
+  re = /(PROCESS-CRASH \| )[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12} \| /i;
+  summary = summary.replace(re, '$1');
   summary = summary.replace('/_mozilla/', 'mozilla/tests/');
   // We don't want to include "REFTEST" when it's an unexpected pass
   summary = summary.replace(
