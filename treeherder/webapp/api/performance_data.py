@@ -87,7 +87,7 @@ logger = logging.getLogger(__name__)
 
 
 class PerformanceSignatureViewSet(viewsets.ViewSet):
-    def list(self, request, project):
+    def list(self, request: Request, project: str) -> Response:
         repository = models.Repository.objects.get(name=project)
 
         signature_data = PerformanceSignature.objects.filter(repository=repository).select_related(
@@ -148,7 +148,7 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
             platforms = models.MachinePlatform.objects.filter(platform=platform)
             signature_data = signature_data.filter(platform__in=platforms)
 
-        signature_map = {}
+        signature_map: dict[int, dict[str, Any]] = {}
         for (
             id,
             signature_hash,
@@ -182,7 +182,7 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
             "parent_signature__signature_hash",
             "should_alert",
         ).distinct():
-            signature_map[id] = signature_props = {
+            signature_props: dict[str, Any] = {
                 "id": id,
                 "signature_hash": signature_hash,
                 "framework_id": framework,
@@ -191,6 +191,7 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
                 "suite": suite,
                 "should_alert": should_alert,
             }
+            signature_map[id] = signature_props
             if not lower_is_better:
                 # almost always true, save some bandwidth by assuming that by
                 # default
@@ -225,7 +226,7 @@ class PerformancePlatformViewSet(viewsets.ViewSet):
     All platforms for a particular branch that have performance data
     """
 
-    def list(self, request, project):
+    def list(self, request: Request, project: str) -> Response:
         signature_data = PerformanceSignature.objects.filter(repository__name=project)
         interval = request.query_params.get("interval")
         if interval:
@@ -250,7 +251,7 @@ class PerformanceFrameworkViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class PerformanceJobViewSet(viewsets.ReadOnlyModelViewSet):
-    def list(self, request, project):
+    def list(self, request: Request, project: str) -> Response:
         repository = models.Repository.objects.get(name=project)
         # Expect exactly one job_id in query params
         try:
@@ -314,7 +315,7 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
     This view serves performance test result data
     """
 
-    def list(self, request, project):
+    def list(self, request: Request, project: str) -> Response:
         repository = models.Repository.objects.get(name=project)
 
         signature_hashes = request.query_params.getlist("signatures")  # deprecated
@@ -381,7 +382,8 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
         if end_date:
             datums = datums.filter(push_timestamp__lt=end_date)
 
-        ret, seen_push_ids = defaultdict(list), defaultdict(set)
+        ret: defaultdict[str, list] = defaultdict(list)
+        seen_push_ids: defaultdict[str, set] = defaultdict(set[int])
         values_list = datums.values_list(
             "id",
             "signature_id",
@@ -447,7 +449,9 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
     timerange = django_filters.NumberFilter(method="_timerange")
     show_sheriffed_frameworks = django_filters.BooleanFilter(method="_show_sheriffed_frameworks")
 
-    def _filter_text(self, queryset, name, value):
+    def _filter_text(
+        self, queryset: QuerySet[PerformanceAlertSummary], name: str, value: str
+    ) -> QuerySet[PerformanceAlertSummary]:
         sep = Value(" ")
         words = value.split(" ")
 
@@ -495,12 +499,16 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
 
         return queryset.filter(id__in=Subquery(filtered_summaries))
 
-    def _hide_improvements(self, queryset, name, value):
+    def _hide_improvements(
+        self, queryset: QuerySet[PerformanceAlertSummary], name: str, value: bool
+    ) -> QuerySet[PerformanceAlertSummary]:
         return queryset.annotate(total_regressions=Count("alerts__is_regression")).filter(
             alerts__is_regression=True, total_regressions__gte=1
         )
 
-    def _hide_related_and_invalid(self, queryset, name, value):
+    def _hide_related_and_invalid(
+        self, queryset: QuerySet[PerformanceAlertSummary], name: str, value: bool
+    ) -> QuerySet[PerformanceAlertSummary]:
         return queryset.exclude(
             status__in=[
                 PerformanceAlertSummary.DOWNSTREAM,
@@ -509,7 +517,9 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
             ]
         )
 
-    def _untriaged_regressions(self, queryset, name, value):
+    def _untriaged_regressions(
+        self, queryset: QuerySet[PerformanceAlertSummary], name: str, value: bool
+    ) -> QuerySet[PerformanceAlertSummary]:
         return queryset.filter(
             Q(alerts__is_regression=True, alerts__status=PerformanceAlert.UNTRIAGED)
             | Q(
@@ -518,7 +528,9 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
             )
         ).distinct()
 
-    def _untriaged_improvements(self, queryset, name, value):
+    def _untriaged_improvements(
+        self, queryset: QuerySet[PerformanceAlertSummary], name: str, value: bool
+    ) -> QuerySet[PerformanceAlertSummary]:
         untriaged_regression_alerts = PerformanceAlert.objects.filter(
             summary_id=OuterRef("pk"),
             is_regression=True,
@@ -541,15 +553,21 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
             .distinct()
         )
 
-    def _with_assignee(self, queryset, name, value):
+    def _with_assignee(
+        self, queryset: QuerySet[PerformanceAlertSummary], name: str, value: str
+    ) -> QuerySet[PerformanceAlertSummary]:
         return queryset.filter(assignee__username=value)
 
-    def _timerange(self, queryset, name, value):
+    def _timerange(
+        self, queryset: QuerySet[PerformanceAlertSummary], name: str, value: Decimal
+    ) -> QuerySet[PerformanceAlertSummary]:
         return queryset.filter(
             push__time__gt=datetime.datetime.utcfromtimestamp(int(time.time() - int(value)))
         )
 
-    def _show_sheriffed_frameworks(self, queryset, name, value):
+    def _show_sheriffed_frameworks(
+        self, queryset: QuerySet[PerformanceAlertSummary], name: str, value: bool
+    ) -> QuerySet[PerformanceAlertSummary]:
         return queryset.filter(framework__name__in=SHERIFFED_FRAMEWORKS)
 
     class Meta:
@@ -1267,7 +1285,6 @@ class MwuTask:
 
 class PerfCompareResults(generics.ListAPIView):
     serializer_class = PerfCompareResultsSerializer
-    queryset: Sequence | None = None
 
     def get_serializer_class(self) -> type[serializers.ModelSerializer]:
         test_version = self.request.query_params.get("test_version", "")
@@ -1363,7 +1380,6 @@ class PerfCompareResults(generics.ListAPIView):
         header_names = list(set(base_signatures_map.header_names + new_signatures_map.header_names))
         header_names.sort()
         platforms = set(base_signatures_map.platforms + new_signatures_map.platforms)
-        self.queryset = []
 
         base = _RepoPerfData(
             signatures_map=base_signatures_map.map,
@@ -1410,15 +1426,15 @@ class PerfCompareResults(generics.ListAPIView):
             if cached:
                 return Response(data=cached.results)
 
-            self.queryset = PerfCompareResults._process_mann_whitney_u(
+            comparison_results = PerfCompareResults._process_mann_whitney_u(
                 comparison_inputs, header_names, platforms, enable_silverman_kde
             )
         else:
-            self.queryset = PerfCompareResults._process_student_t(
+            comparison_results = PerfCompareResults._process_student_t(
                 comparison_inputs, header_names, platforms
             )
 
-        serializer = self.get_serializer(self.queryset, many=True)
+        serializer = self.get_serializer(comparison_results, many=True)
         serialized_data = serializer.data
 
         if test_version == "mann-whitney-u":
