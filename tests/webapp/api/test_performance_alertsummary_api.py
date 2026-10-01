@@ -478,6 +478,79 @@ def test_performance_alert_summary_change_revision(
     assert PerformanceAlertSummary.objects.get(id=1).push.revision == original_revision
 
 
+def test_performance_alert_summary_change_revision_sets_from_revision(
+    client, test_perf_alert_summary, test_sheriff, test_repository_2, create_push
+):
+    client.force_authenticate(user=test_sheriff)
+    repository = test_perf_alert_summary.repository
+    now = datetime.now()
+    previous_push = create_push(repository, revision="a" * 40, time=now - timedelta(hours=2))
+    # a later push on another repository must not be picked as the from revision
+    create_push(test_repository_2, revision="b" * 40, time=now - timedelta(hours=1))
+    new_push = create_push(repository, revision="c" * 40, time=now)
+
+    resp = client.put(
+        reverse("performance-alert-summaries-list") + "1/", {"revision": new_push.revision}
+    )
+
+    assert resp.status_code == 200
+    summary = PerformanceAlertSummary.objects.get(id=1)
+    assert summary.push == new_push
+    assert summary.prev_push == previous_push
+
+
+def test_performance_alert_summary_change_revision_keeps_sent_from_revision(
+    client, test_perf_alert_summary, test_sheriff, create_push
+):
+    client.force_authenticate(user=test_sheriff)
+    repository = test_perf_alert_summary.repository
+    now = datetime.now()
+    older_push = create_push(repository, revision="a" * 40, time=now - timedelta(hours=2))
+    create_push(repository, revision="b" * 40, time=now - timedelta(hours=1))
+    new_push = create_push(repository, revision="c" * 40, time=now)
+
+    resp = client.put(
+        reverse("performance-alert-summaries-list") + "1/",
+        {"revision": new_push.revision, "prev_push_revision": older_push.revision},
+    )
+
+    assert resp.status_code == 200
+    assert PerformanceAlertSummary.objects.get(id=1).prev_push == older_push
+
+
+@pytest.mark.parametrize("existing_from", ["previous", "older"])
+def test_performance_alert_summary_change_revision_onto_existing_summary(
+    client, test_perf_alert_summary, test_sheriff, create_push, existing_from
+):
+    client.force_authenticate(user=test_sheriff)
+    now = datetime.now()
+    pushes = {
+        "older": create_push(
+            test_perf_alert_summary.repository, revision="b" * 40, time=now - timedelta(hours=2)
+        ),
+        "previous": create_push(
+            test_perf_alert_summary.repository, revision="a" * 40, time=now - timedelta(hours=1)
+        ),
+    }
+    new_push = create_push(test_perf_alert_summary.repository, revision="c" * 40, time=now)
+    # the existing summary has the same To, with either the same or a wider From range
+    existing = PerformanceAlertSummary.objects.create(
+        repository=test_perf_alert_summary.repository,
+        framework=test_perf_alert_summary.framework,
+        prev_push=pushes[existing_from],
+        push=new_push,
+        manually_created=False,
+        created=now,
+    )
+    resp = client.put(
+        reverse("performance-alert-summaries-list") + "1/", {"revision": new_push.revision}
+    )
+
+    assert resp.status_code == 400
+    assert f"Alert summary #{existing.id} already uses this To revision" in resp.content.decode()
+    assert PerformanceAlertSummary.objects.get(id=1).push_id == test_perf_alert_summary.push_id
+
+
 @pytest.fixture
 def duplicated_push(create_push, test_push, test_repository_2):
     return create_push(test_repository_2, revision=test_push.revision)
