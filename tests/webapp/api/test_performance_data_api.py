@@ -729,11 +729,14 @@ def _align_datum_jobs_to_signature(signature):
     template_job.machine_platform = signature.platform
     template_job.option_collection_hash = signature.option_collection.option_collection_hash
     template_job.save()
-    for job in Job.objects.filter(push_id__in=[1, 2, 3, 4]):
+    jobs_to_update = list(Job.objects.filter(push_id__in=[1, 2, 3, 4]))
+    for job in jobs_to_update:
         job.job_type = template_job.job_type
         job.machine_platform = template_job.machine_platform
         job.option_collection_hash = template_job.option_collection_hash
-        job.save()
+    Job.objects.bulk_update(
+        jobs_to_update, ["job_type", "machine_platform", "option_collection_hash"]
+    )
     return template_job
 
 
@@ -756,15 +759,15 @@ def _setup_missing_data_test_pushes(base):
     pushes[5].time = base + datetime.timedelta(days=2, hours=12)
     pushes[2].time = base + datetime.timedelta(days=2)
     pushes[3].time = base + datetime.timedelta(days=3)
-    for p in pushes:
-        p.save()
+    Push.objects.bulk_update(pushes, ["time"])
 
 
 def _sync_datum_timestamps(signature):
     """Sync each datum's push_timestamp with its push.time for the time-range filter."""
-    for pd in PerformanceDatum.objects.filter(signature=signature):
+    datums = list(PerformanceDatum.objects.filter(signature=signature).select_related("push"))
+    for pd in datums:
         pd.push_timestamp = pd.push.time
-        pd.save()
+    PerformanceDatum.objects.bulk_update(datums, ["push_timestamp"])
 
 
 def _configure_job(job, template_job, result, state=None):

@@ -456,14 +456,18 @@ class GraphsContainer extends React.Component {
     this.props.updateStateParams?.({ selectedDataPoint: null });
   };
 
+  // color is [cssClassName, hexValue]; index 1 is the hex value used for SVG.
+  _getMissingDatumColor(datum) {
+    return (
+      this.props.testData.find((series) => series.signature_id === datum?.signature_id)
+        ?.color[1] ?? '#888'
+    );
+  }
+
   // Renders a semi-transparent filled ring around a missing-data dot to indicate
   // hover or locked state, matching the colour of its parent series.
   renderMissingHighlightRing(datum, locked) {
-    const { testData } = this.props;
-    // color is [cssClassName, hexValue]; index 1 is the hex value used for SVG.
-    const color =
-      testData.find((series) => series.signature_id === datum?.signature_id)?.color[1] ??
-      '#888';
+    const color = this._getMissingDatumColor(datum);
     return (
       <VictoryScatter
         name={locked ? 'lock-missing-ring' : 'hover-missing-ring'}
@@ -489,11 +493,7 @@ class GraphsContainer extends React.Component {
   // renders above all other chart layers.
   renderMissingTooltipLayer(datum, locked) {
     const { width } = this.state;
-    const { testData } = this.props;
-    // color is [cssClassName, hexValue]; index 1 is the hex value used for SVG.
-    const color =
-      testData.find((series) => series.signature_id === datum?.signature_id)?.color[1] ??
-      '#888';
+    const color = this._getMissingDatumColor(datum);
     return (
       <VictoryScatter
         name={locked ? 'lock-missing-layer' : 'hover-missing-layer'}
