@@ -1241,14 +1241,28 @@ class PerformanceSummary(generics.ListAPIView):
         but the subtests do not have the `should_alert` set to True, then those subtests will not trigger an alert.
         A null value for these subtests indicates that the `should_alert` parameter is set to False.
         """
+        candidate_parent_ids = {
+            signature["parent_signature_id"]
+            for signature in self.queryset
+            if signature["should_alert"] is None
+            and signature["parent_signature_id"] is not None
+            and signature["parent_signature__should_alert"] is not False
+        }
+
+        parents_with_data = set(
+            PerformanceDatum.objects.filter(
+                signature_id__in=candidate_parent_ids, value__isnull=False
+            )
+            .values_list("signature_id", flat=True)
+            .distinct()
+        )
+
         for signature in list(self.queryset):
             if (
                 signature["should_alert"] is None
                 and signature["parent_signature_id"] is not None
                 and signature["parent_signature__should_alert"] is not False
-                and PerformanceDatum.objects.filter(
-                    signature_id=signature["parent_signature_id"], value__isnull=False
-                ).exists()
+                and signature["parent_signature_id"] in parents_with_data
             ):
                 signature["should_alert"] = False
 
