@@ -1329,9 +1329,14 @@ class PerformanceSummary(generics.ListAPIView):
                 status = "in_progress" if push["id"] in in_progress_push_ids else "not_run"
                 job_id = None
             elif all(job["result"] in inconclusive for job in jobs):
-                # All jobs ended inconclusively (retried, superseded, cancelled) — skip
+                # All completed jobs are inconclusive (retried, superseded, cancelled).
+                # If a retry is still running, surface it as in_progress; otherwise skip
                 # to avoid a false-positive missing entry.
-                continue
+                if push["id"] in in_progress_push_ids:
+                    status = "in_progress"
+                    job_id = None
+                else:
+                    continue
             elif any(job["result"] in failed for job in jobs):
                 status = "failed"
                 job_id = min(job["id"] for job in jobs if job["result"] in failed)
