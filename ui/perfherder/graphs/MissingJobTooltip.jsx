@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -72,6 +72,20 @@ const MissingJobTooltip = ({
     return () => ro.disconnect();
   }, []);
 
+  // Merge real and missing data points into one chronological list so we can
+  // find the revision that immediately precedes this missing point (used for
+  // the pushlog range link and the compare URL).
+  const allPoints = useMemo(
+    () => {
+      if (!testDetails) return [];
+      return [
+        ...testDetails.data.map((dataPoint) => ({ revision: dataPoint.revision, x: dataPoint.x })),
+        ...(testDetails.missingData || []).map((dataPoint) => ({ revision: dataPoint.revision, x: dataPoint.x })),
+      ].sort((pointA, pointB) => pointA.x - pointB.x);
+    },
+    [testDetails],
+  );
+
   if (!testDetails) return null;
 
   const { label: statusLabel, className: statusClass } =
@@ -86,14 +100,6 @@ const MissingJobTooltip = ({
     testDetails.repository_name,
     projects,
   );
-
-  // Merge real and missing data points into one chronological list so we can
-  // find the revision that immediately precedes this missing point (used for
-  // the pushlog range link and the compare URL).
-  const allPoints = [
-    ...testDetails.data.map((dataPoint) => ({ revision: dataPoint.revision, x: dataPoint.x })),
-    ...(testDetails.missingData || []).map((dataPoint) => ({ revision: dataPoint.revision, x: dataPoint.x })),
-  ].sort((pointA, pointB) => pointA.x - pointB.x);
 
   const currentIndex = allPoints.findIndex((point) => point.revision === datum.revision);
   const prevRevision = currentIndex > 0 ? allPoints[currentIndex - 1].revision : null;
