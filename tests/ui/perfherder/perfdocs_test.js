@@ -116,11 +116,11 @@ test('For framework browsertime, the mobile suffix (-m) is added correctly', () 
 
 test('For framework browsertime, the benchmark suffix (-b) is added correctly', () => {
   const framework = 'browsertime';
-  const suite = 'speedometer';
+  const suite = 'speedometer3';
 
   const perfdocs = new Perfdocs(framework, suite);
   expect(perfdocs.documentationURL).toBe(
-    'https://firefox-source-docs.mozilla.org/testing/perfdocs/raptor.html#speedometer-b',
+    'https://firefox-source-docs.mozilla.org/testing/perfdocs/raptor.html#speedometer3-b',
   );
 });
 
