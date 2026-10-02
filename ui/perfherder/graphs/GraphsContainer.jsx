@@ -40,6 +40,7 @@ class GraphsContainer extends React.Component {
     const scatterPlotData = flatMap(testData, (item) =>
       item.visible ? item.data : [],
     );
+    this.hasVisibleData = scatterPlotData.length > 0;
     const scatterPlotMap = scatterPlotData.reduce((acc, datum) => {
       if (datum?.dataPointId != null) acc[datum.dataPointId] = datum;
       return acc;
@@ -323,6 +324,7 @@ class GraphsContainer extends React.Component {
     if (scatterPlotData.length) {
       zoomDomain = this.updateZoomDomain(scatterPlotData);
     }
+    this.hasVisibleData = scatterPlotData.length > 0;
     this.setState({
       scatterPlotData,
       scatterPlotMap,
@@ -391,7 +393,7 @@ class GraphsContainer extends React.Component {
 
         if (highlightMissingJobs && series.missingData) {
           const missingPoint = series.missingData.find(
-            (item) => item.revision && item.revision.includes(rev),
+            (item) => item.revision?.includes(rev),
           );
           if (missingPoint) {
             highlights.push(missingPoint);
@@ -428,11 +430,7 @@ class GraphsContainer extends React.Component {
   };
 
   checkDate = (x) => {
-    const graphData = this.props.testData.filter(
-      (item) => item.visible === true && item.data.length > 0,
-    );
-
-    return graphData.length > 0
+    return this.hasVisibleData
       ? dayjs.utc(x).format('MMM DD')
       : dayjs.utc().format('MMM DD');
   };
