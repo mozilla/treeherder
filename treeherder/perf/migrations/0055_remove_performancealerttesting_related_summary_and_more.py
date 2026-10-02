@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("perf", "0054_performancealert_confidence_and_more"),
     ]

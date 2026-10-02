@@ -5,13 +5,13 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('perf', '0017_assignment_support_for_alert_summaries'),
+        ("perf", "0017_assignment_support_for_alert_summaries"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='performancesignature',
-            name='measurement_unit',
+            model_name="performancesignature",
+            name="measurement_unit",
             field=models.CharField(max_length=50, null=True),
         ),
     ]

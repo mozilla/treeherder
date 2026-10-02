@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
     """
 
     dependencies = [
-        ('perf', '0044_perfdatum_bigint_fk'),
+        ("perf", "0044_perfdatum_bigint_fk"),
     ]
 
     operations = [
@@ -17,24 +17,24 @@ class Migration(migrations.Migration):
             migrations.RunSQL.noop,
             state_operations=[
                 migrations.AlterField(
-                    model_name='performancedatum',
-                    name='id',
+                    model_name="performancedatum",
+                    name="id",
                     field=models.BigAutoField(primary_key=True, serialize=False),
                 ),
             ],
         ),
         # Restore MultiCommitDatum FK to PerformanceDatum
         migrations.CreateModel(
-            name='MultiCommitDatum',
+            name="MultiCommitDatum",
             fields=[
                 (
-                    'perf_datum',
+                    "perf_datum",
                     models.OneToOneField(
                         on_delete=django.db.models.deletion.CASCADE,
                         primary_key=True,
-                        related_name='multi_commit_datum',
+                        related_name="multi_commit_datum",
                         serialize=False,
-                        to='perf.performancedatum',
+                        to="perf.performancedatum",
                     ),
                 ),
             ],

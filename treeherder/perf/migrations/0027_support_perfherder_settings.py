@@ -5,19 +5,19 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('perf', '0026_add_backfill_record_status'),
+        ("perf", "0026_add_backfill_record_status"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='PerformanceSettings',
+            name="PerformanceSettings",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=255)),
-                ('settings', models.TextField()),
+                ("id", models.AutoField(primary_key=True, serialize=False)),
+                ("name", models.CharField(max_length=255)),
+                ("settings", models.TextField()),
             ],
             options={
-                'db_table': 'performance_settings',
+                "db_table": "performance_settings",
             },
         ),
     ]

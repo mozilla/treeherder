@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("perf", "0051_performancealertsummary_bug_due_date"),
     ]

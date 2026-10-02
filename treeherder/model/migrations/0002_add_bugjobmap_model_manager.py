@@ -5,14 +5,14 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('model', '0001_squashed_0022_modify_bugscache_and_bugjobmap'),
+        ("model", "0001_squashed_0022_modify_bugscache_and_bugjobmap"),
     ]
 
     operations = [
         migrations.AlterModelManagers(
-            name='bugjobmap',
+            name="bugjobmap",
             managers=[
-                ('failures', django.db.models.manager.Manager()),
+                ("failures", django.db.models.manager.Manager()),
             ],
         ),
     ]

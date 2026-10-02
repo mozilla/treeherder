@@ -5,14 +5,13 @@ from django.db import migrations, models
 
 
 def update_summary_original_push(apps, schema_editor):
-    PerformanceAlertSummary = apps.get_model('perf', 'PerformanceAlertSummary')
+    PerformanceAlertSummary = apps.get_model("perf", "PerformanceAlertSummary")
     for alert in PerformanceAlertSummary.objects.all():
         alert.original_push = alert.push
         alert.save()
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("perf", "0055_remove_performancealerttesting_related_summary_and_more"),
     ]

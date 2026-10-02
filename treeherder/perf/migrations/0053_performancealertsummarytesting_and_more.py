@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         (
             "model",
@@ -127,21 +126,15 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "amount_pct",
-                    models.FloatField(
-                        help_text="Amount in percentage that series has changed"
-                    ),
+                    models.FloatField(help_text="Amount in percentage that series has changed"),
                 ),
                 (
                     "amount_abs",
-                    models.FloatField(
-                        help_text="Absolute amount that series has changed"
-                    ),
+                    models.FloatField(help_text="Absolute amount that series has changed"),
                 ),
                 (
                     "prev_value",
-                    models.FloatField(
-                        help_text="Previous value of series before change"
-                    ),
+                    models.FloatField(help_text="Previous value of series before change"),
                 ),
                 (
                     "new_value",
