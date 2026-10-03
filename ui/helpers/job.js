@@ -6,6 +6,7 @@ import {
 
 import { thFailureResults, thPlatformMap } from './constants';
 import { getGroupMapKey } from './aggregateId';
+import { getJobGroupInstance } from '../hooks/useJobGroupRegistry';
 import { getAllUrlParams, getRepo } from './location';
 import { getAction } from './taskcluster';
 import { formatTaskclusterError } from './errorMessage';
@@ -193,14 +194,31 @@ export const findSelectedInstance = function findSelectedInstance() {
   }
 };
 
-// Check if the element is visible on screen or not.
-const isOnScreen = function isOnScreen(el) {
-  const bounding = el.getBoundingClientRect();
-  const offset = el.getBoundingClientRect();
-  const top = offset.top + document.body.scrollTop;
-  const bottom = top + el.offsetHeight;
+// Find the nearest ancestor that scrolls vertically.  The job view scrolls
+// inside #th-global-content rather than the window, and the details panel
+// takes up the space below it.
+const getScrollParent = function getScrollParent(el) {
+  let parent = el.parentElement;
+  while (parent && parent !== document.body) {
+    const { overflowY } = window.getComputedStyle(parent);
+    if (overflowY === 'auto' || overflowY === 'scroll') {
+      return parent;
+    }
+    parent = parent.parentElement;
+  }
+  return null;
+};
 
-  return top >= bounding.bottom && bottom <= bounding.top;
+// Check if the element is fully visible within its scroll container, or
+// within the window viewport when it has no scrolling ancestor.
+const isOnScreen = function isOnScreen(el) {
+  const { top, bottom } = el.getBoundingClientRect();
+  const scrollParent = getScrollParent(el);
+  const view = scrollParent
+    ? scrollParent.getBoundingClientRect()
+    : { top: 0, bottom: window.innerHeight };
+
+  return top >= view.top && bottom <= view.bottom;
 };
 
 // Scroll the element into view.
@@ -210,7 +228,7 @@ export const scrollToElement = function scrollToElement(el) {
   }
 };
 
-export const findGroupElement = function findGroupElement(job) {
+const getJobGroupMapKey = function getJobGroupMapKey(job) {
   const {
     push_id: pushId,
     job_group_symbol: jobGroupSymbol,
@@ -218,32 +236,37 @@ export const findGroupElement = function findGroupElement(job) {
     platform,
     platform_option: platformOption,
   } = job;
-  const groupMapKey = getGroupMapKey(
-    pushId,
-    jobGroupSymbol,
-    tier,
-    platform,
-    platformOption,
-  );
+  return getGroupMapKey(pushId, jobGroupSymbol, tier, platform, platformOption);
+};
+
+export const findGroupElement = function findGroupElement(job) {
   return document.querySelector(
-    `#push-list span[data-group-key='${groupMapKey}']`,
+    `#push-list span[data-group-key='${getJobGroupMapKey(job)}']`,
   );
 };
 
+// Fetch the registered JobGroup instance (with ``setExpanded``) for a job.
 export const findGroupInstance = function findGroupInstance(job) {
-  const groupEl = findGroupElement(job);
+  return getJobGroupInstance(getJobGroupMapKey(job));
+};
 
-  if (groupEl) {
-    return findInstance(groupEl);
+export const findJobElement = function findJobElement(jobId) {
+  return document.querySelector(`#push-list button[data-job-id='${jobId}']`);
+};
+
+// Scroll a job's button into view, or the group it is rolled up into when
+// the button isn't rendered.
+export const scrollJobIntoView = function scrollJobIntoView(job) {
+  const el = findJobElement(job.id) || findGroupElement(job);
+  if (el) {
+    scrollToElement(el);
   }
 };
 
 // Fetch the React instance based on the jobId, and if scrollTo
 // is true, then scroll it into view.
 export const findJobInstance = function findJobInstance(jobId, scrollTo) {
-  const jobEl = document.querySelector(
-    `#push-list button[data-job-id='${jobId}']`,
-  );
+  const jobEl = findJobElement(jobId);
   if (jobEl) {
     if (scrollTo) {
       scrollToElement(jobEl);

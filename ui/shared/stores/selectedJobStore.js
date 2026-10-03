@@ -2,19 +2,31 @@ import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
 import {
-  findGroupElement,
   findGroupInstance,
   findJobInstance,
   findSelectedInstance,
   getTaskRun,
   getTaskRunStr,
-  scrollToElement,
+  scrollJobIntoView,
 } from '../../helpers/job';
 import { thJobNavSelectors } from '../../helpers/constants';
 import { getUrlParam, setUrlParam, setUrlParams } from '../../helpers/location';
 import { updateUrlSearch } from '../../helpers/router';
 import JobModel from '../../models/job';
 import { getJobsUrl } from '../../helpers/url';
+
+// Scroll the selected job (or the group it is rolled up into) into view.
+// This is deferred for two frames so the selection has rendered and a
+// freshly expanded group has mounted its job buttons, letting us target the
+// button itself rather than the group.  If selecting the job also opens the
+// details panel, App re-scrolls once the panel's layout has been applied.
+const scrollSelectedJobIntoView = (job) => {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      scrollJobIntoView(job);
+    });
+  });
+};
 
 const doSelectJob = (job) => {
   const selected = findSelectedInstance();
@@ -26,18 +38,15 @@ const doSelectJob = (job) => {
   if (newSelectedElement) {
     newSelectedElement.setSelected(true);
   } else {
+    // The job is rolled up into a group count, so its button isn't rendered.
+    // Expanding the group mounts the button, which selects itself from the
+    // ``selectedTaskRun`` URL param.
     const group = findGroupInstance(job);
     if (group) {
       group.setExpanded(true);
     }
-
-    // If the job is in a group count, then the job element won't exist, but
-    // its group will.  We can try scrolling to that.
-    const groupEl = findGroupElement(job);
-    if (groupEl) {
-      scrollToElement(groupEl);
-    }
   }
+  scrollSelectedJobIntoView(job);
 
   return { selectedJob: job };
 };
