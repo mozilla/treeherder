@@ -6,6 +6,7 @@ import { useLocation, useNavigate } from 'react-router';
 import { thFavicons, thDefaultRepo, thEvents } from '../helpers/constants';
 import ShortcutTable from '../shared/ShortcutTable';
 import { matchesDefaults, hasUrlFilterChanges } from '../helpers/filter';
+import { scrollJobIntoView } from '../helpers/job';
 import { getAllUrlParams } from '../helpers/location';
 import { MAX_TRANSIENT_AGE } from '../helpers/notifications';
 import {
@@ -137,6 +138,12 @@ const App = () => {
   const [pushHealthVisibility, setPushHealthVisibility] = useState('try');
   const [frameworks, setFrameworks] = useState(null);
   const [latestSplitPct, setLatestSplitPct] = useState(undefined);
+  // Set when the details panel is opening so the selected job can be
+  // scrolled back into view once the new panel layout has been applied.
+  const rescrollAfterPanelOpen = useRef(false);
+  const prevHasSelectedJob = useRef(hasSelectedJob);
+  const selectedJobRef = useRef(selectedJob);
+  selectedJobRef.current = selectedJob;
 
   // Refs for intervals
   const updateIntervalRef = useRef(null);
@@ -375,8 +382,22 @@ const App = () => {
 
   // Effect for panel layout updates when hasSelectedJob changes
   useEffect(() => {
+    rescrollAfterPanelOpen.current =
+      hasSelectedJob && !prevHasSelectedJob.current;
+    prevHasSelectedJob.current = hasSelectedJob;
     updatePanelLayout();
   }, [hasSelectedJob, updatePanelLayout]);
+
+  // Opening the details panel shrinks the push list, which can hide the job
+  // that was just scrolled into view.  ``latestSplitPct`` updates (via
+  // onLayout) in the same render that applies the new panel sizes, so by the
+  // time this effect runs the push list has its final height.
+  useEffect(() => {
+    if (rescrollAfterPanelOpen.current && selectedJobRef.current) {
+      rescrollAfterPanelOpen.current = false;
+      scrollJobIntoView(selectedJobRef.current);
+    }
+  }, [latestSplitPct]);
 
   // Calculate panel sizes
   const pushListPct =
