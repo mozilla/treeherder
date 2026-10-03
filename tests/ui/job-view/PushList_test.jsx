@@ -74,6 +74,7 @@ describe('PushList', () => {
     revisionHrefPrefix: 'https://hg.mozilla.org/autoland/rev/',
     getRevisionHref: () => 'foo',
     getPushLogHref: () => 'foo',
+    getRevisionBaseUrl: () => 'https://hg.mozilla.org/autoland',
   };
 
   const pushCount = () =>
