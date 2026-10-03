@@ -11,6 +11,7 @@ import countBy from 'lodash/countBy';
 import { thFailureResults } from '../../helpers/constants';
 import { getUrlParam } from '../../helpers/location';
 import { getBtnClass } from '../../helpers/job';
+import { useJobGroupRegistry } from '../../hooks/useJobGroupRegistry';
 
 import JobButton from './JobButton';
 import JobCount from './JobCount';
@@ -69,6 +70,10 @@ export function JobGroupComponent({
   const toggleExpanded = useCallback(() => {
     setExpanded((prev) => !prev);
   }, []);
+
+  // Let the selection code expand this group when the selected job is
+  // rolled up into one of its counts.
+  useJobGroupRegistry(group.mapKey, setExpanded);
 
   const toggleAll = useCallback(() => {
     for (const ref of Object.values(jobButtonRefs.current)) {

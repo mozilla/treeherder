@@ -373,8 +373,8 @@ describe('useJobButtonRegistry', () => {
       });
     });
 
-    describe('buttonRef callback', () => {
-      it('returns a function for buttonRef', () => {
+    describe('buttonRef', () => {
+      it('returns a ref object for buttonRef', () => {
         const job = createMockJob();
         const filterModel = createMockFilterModel();
         const filterPlatformCb = jest.fn();
@@ -383,7 +383,7 @@ describe('useJobButtonRegistry', () => {
           useJobButtonRegistry(job, filterModel, filterPlatformCb),
         );
 
-        expect(typeof result.current.buttonRef).toBe('function');
+        expect(result.current.buttonRef).toHaveProperty('current', null);
       });
     });
   });
