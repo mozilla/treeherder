@@ -1,6 +1,13 @@
 import datetime
 
+import pytest
 from django.urls import reverse
+
+# SummaryByGroupName routes its safe-method reads to the read_replica alias
+# (JOBS_POLLING_READ_REPLICA_DESIGN.md). transaction=True is required because
+# the routed view reads through the separate ``read_replica`` connection, which
+# only sees committed data.
+pytestmark = pytest.mark.django_db(transaction=True, databases=["default", "read_replica"])
 
 
 # test date (future date, no data)
