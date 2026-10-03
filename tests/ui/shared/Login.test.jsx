@@ -15,12 +15,14 @@ import UserModel from '../../../ui/models/user';
 const mockRecoverSession = jest.fn();
 const mockLogout = jest.fn();
 const mockResetRenewalTimer = jest.fn();
+const mockDestroy = jest.fn();
 
 jest.mock('../../../ui/shared/auth/AuthService', () =>
   jest.fn().mockImplementation(() => ({
     recoverSession: (...args) => mockRecoverSession(...args),
     logout: (...args) => mockLogout(...args),
     resetRenewalTimer: (...args) => mockResetRenewalTimer(...args),
+    destroy: (...args) => mockDestroy(...args),
   })),
 );
 
@@ -121,5 +123,41 @@ describe('Login page-load session handling', () => {
 
     await waitFor(() => expect(mockLogout).toHaveBeenCalled());
     expect(mockRecoverSession).not.toHaveBeenCalled();
+  });
+
+  it('shows the user as logged out when this tab is logged out elsewhere (auth:logout)', async () => {
+    localStorage.setItem('userSession', storedSession);
+    UserModel.get.mockResolvedValue({ email: 'test@mozilla.com' });
+
+    renderLogin();
+    await waitFor(() =>
+      expect(setUser).toHaveBeenCalledWith(
+        expect.objectContaining({ isLoggedIn: true }),
+      ),
+    );
+    setUser.mockClear();
+
+    // e.g. the http helpers failed to recover a lapsed session and logged out
+    window.dispatchEvent(new Event('auth:logout'));
+
+    await waitFor(() =>
+      expect(setUser).toHaveBeenCalledWith(
+        expect.objectContaining({ isLoggedIn: false }),
+      ),
+    );
+    // The event is the *result* of a logout; it must not trigger another one.
+    expect(mockLogout).not.toHaveBeenCalled();
+  });
+
+  it('stops the renewal heartbeat when unmounted', async () => {
+    localStorage.setItem('userSession', storedSession);
+    UserModel.get.mockResolvedValue({ email: 'test@mozilla.com' });
+
+    const { unmount } = renderLogin();
+    await waitFor(() => expect(setUser).toHaveBeenCalled());
+
+    unmount();
+
+    expect(mockDestroy).toHaveBeenCalledTimes(1);
   });
 });
