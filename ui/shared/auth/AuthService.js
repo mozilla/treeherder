@@ -19,10 +19,29 @@ const authInfo = (msg, ...args) => console.log(`[Auth]`, msg, ...args);
 const authWarn = (msg, ...args) => console.warn(`[Auth]`, msg, ...args);
 const authError = (msg, ...args) => console.error(`[Auth]`, msg, ...args);
 
+// How often the heartbeat watchdog checks whether a renewal is overdue. A
+// single long setTimeout is unreliable across laptop sleep: browsers suspend
+// timers and resume them with their remaining delay intact, so a 15-minute
+// timer set before a two-hour sleep still waits after wake, long after the
+// capped backend session (AUTH_MAX_SESSION_AGE_SECONDS) has lapsed. A short
+// interval bounds that gap to HEARTBEAT_CHECK_MS, and the visibility/online
+// listeners close it entirely when the user returns to the tab.
+const HEARTBEAT_CHECK_MS = 30 * 1000;
+
 export default class AuthService {
   constructor(setUser) {
     this.renewalTimer = null;
+    this.heartbeatWatchdog = null;
+    // Wall-clock time at which the next renewal should run (renewAfter + jitter).
+    this.renewAt = null;
     this.setUser = setUser;
+
+    this._onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') this.checkRenewal();
+    };
+    this._onOnline = () => this.checkRenewal();
+    document.addEventListener('visibilitychange', this._onVisibilityChange);
+    window.addEventListener('online', this._onOnline);
   }
 
   async _fetchUser(userSession) {
@@ -59,6 +78,34 @@ export default class AuthService {
       clearTimeout(this.renewalTimer);
       this.renewalTimer = null;
     }
+    if (this.heartbeatWatchdog) {
+      clearInterval(this.heartbeatWatchdog);
+      this.heartbeatWatchdog = null;
+    }
+    this.renewAt = null;
+  }
+
+  /**
+   * Run the renewal if its scheduled time has passed. Called by the one-shot
+   * timer, the watchdog interval, and the visibility/online listeners, so a
+   * renewal that is overdue after a suspension runs as soon as any of them
+   * fires rather than when the original timer finally elapses.
+   */
+  checkRenewal() {
+    if (this.renewAt === null || Date.now() < this.renewAt) return;
+    // Clear before renewing so concurrent triggers don't double-renew; the
+    // renewal reschedules via resetRenewalTimer when it finishes.
+    this.renewAt = null;
+    this._renewAuth();
+  }
+
+  /**
+   * Stop the heartbeat and detach the wake listeners.
+   */
+  destroy() {
+    this._clearRenewalTimer();
+    document.removeEventListener('visibilitychange', this._onVisibilityChange);
+    window.removeEventListener('online', this._onOnline);
   }
 
   async _renewAuth() {
@@ -196,9 +243,14 @@ export default class AuthService {
         timeout += Math.random() * 5 * 1000 * 60;
       }
 
-      // create renewal timer
+      // create renewal timer plus the watchdog that catches it being overdue
       this._clearRenewalTimer();
-      this.renewalTimer = setTimeout(() => this._renewAuth(), timeout);
+      this.renewAt = Date.now() + timeout;
+      this.renewalTimer = setTimeout(() => this.checkRenewal(), timeout);
+      this.heartbeatWatchdog = setInterval(
+        () => this.checkRenewal(),
+        HEARTBEAT_CHECK_MS,
+      );
       authLog(
         'Renewal timer set: %ds from now (renewAfter=%s, interval=%s)',
         Math.round(timeout / 1000),
@@ -249,6 +301,10 @@ export default class AuthService {
     localStorage.setItem('user', JSON.stringify(loggedOutUser));
 
     if (this.setUser) this.setUser(loggedOutUser);
+    // Storage events only reach other tabs; tell this tab's Login component too
+    // (needed when code without access to its state logs out, e.g. the http
+    // helpers after a failed in-tab session recovery).
+    window.dispatchEvent(new Event('auth:logout'));
   }
 
   async saveCredentialsFromAuthResult(authResult) {
