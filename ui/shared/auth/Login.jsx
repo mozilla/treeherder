@@ -63,6 +63,17 @@ const Login = ({ setUser, user = { isLoggedIn: false }, notify }) => {
     [setLoggedIn, setLoggedOut],
   );
 
+  // Stop the renewal heartbeat and its wake listeners when this navbar goes away.
+  useEffect(() => () => authServiceRef.current.destroy(), []);
+
+  useEffect(() => {
+    // Another part of this tab (e.g. the http helpers) logged the user out;
+    // just reflect it, the logout itself has already happened.
+    const handleAuthLogout = () => setUser(loggedOutUser);
+    window.addEventListener('auth:logout', handleAuthLogout);
+    return () => window.removeEventListener('auth:logout', handleAuthLogout);
+  }, [setUser]);
+
   useEffect(() => {
     window.addEventListener('storage', handleStorageEvent);
 
