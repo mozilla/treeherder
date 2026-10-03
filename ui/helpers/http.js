@@ -1,5 +1,7 @@
 import Cookies from 'js-cookie';
 
+import AuthService from '../shared/auth/AuthService';
+
 import { processErrorMessage } from './errorMessage';
 
 const generateHeaders = function generateHeaders() {
@@ -10,9 +12,53 @@ const generateHeaders = function generateHeaders() {
   });
 };
 
-export const getData = async function getData(url, options = {}) {
+const isAuthFailure = (status) => status === 401 || status === 403;
+
+// The backend session is capped (AUTH_MAX_SESSION_AGE_SECONDS) and lapses
+// whenever the renewal heartbeat pauses for longer than the cap (laptop
+// asleep, tab suspended) while this tab still believes it is logged in. The
+// Auth0 tokens are usually still valid, so re-establish the session silently
+// and let the caller retry. Returns true when the session was recovered.
+let recoveryService = null;
+let recoveryInFlight = null;
+const recoverLapsedSession = () => {
+  // Concurrent failed writes (e.g. a bulk classification) share one recovery
+  // rather than each re-logging in.
+  if (!recoveryInFlight) {
+    if (!recoveryService) recoveryService = new AuthService();
+    recoveryInFlight = recoveryService
+      .recoverSession()
+      .then((user) => {
+        if (!user) {
+          // Refresh token no longer usable (e.g. SSO access revoked): the
+          // user really is logged out, so make the UI reflect that.
+          recoveryService.logout();
+        }
+        return !!user;
+      })
+      .finally(() => {
+        recoveryInFlight = null;
+      });
+  }
+  return recoveryInFlight;
+};
+
+export const getData = async function getData(url, options = {}, retried = false) {
   let failureStatus = null;
   const response = await fetch(url, options);
+
+  if (
+    isAuthFailure(response.status) &&
+    !retried &&
+    localStorage.getItem('userSession') &&
+    (await recoverLapsedSession())
+  ) {
+    // Logging in again rotates the CSRF token, so rebuild the headers.
+    const retryOptions = options.headers
+      ? { ...options, headers: generateHeaders() }
+      : options;
+    return getData(url, retryOptions, true);
+  }
 
   if (!response.ok) {
     failureStatus = response.status;

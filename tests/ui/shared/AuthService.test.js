@@ -415,6 +415,18 @@ describe('AuthService', () => {
   });
 
   describe('logout', () => {
+    it('dispatches an auth:logout event so this tab can update its UI', () => {
+      // storage events only reach *other* tabs, so code without access to the
+      // Login component's state (e.g. the http helpers) relies on this event.
+      const listener = jest.fn();
+      window.addEventListener('auth:logout', listener);
+
+      authService.logout();
+
+      expect(listener).toHaveBeenCalledTimes(1);
+      window.removeEventListener('auth:logout', listener);
+    });
+
     it('clears renewalLock from localStorage', () => {
       localStorage.setItem('renewalLock', Date.now().toString());
 
@@ -455,6 +467,95 @@ describe('AuthService', () => {
         ),
       ).toBeNull();
       expect(localStorage.getItem('unrelated-key')).toBe('keep-this');
+    });
+  });
+  describe('wake-aware heartbeat', () => {
+    const futureSession = () =>
+      JSON.stringify({
+        renewAfter: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+        accessToken: 'tok',
+        accessTokenExpiresAt: Math.floor(Date.now() / 1000) + 86400,
+        idToken: 'id',
+      });
+
+    beforeEach(() => {
+      jest.setSystemTime(new Date('2026-10-03T17:00:00Z'));
+      // A successful renewal stores a session whose renewAfter is 15 minutes
+      // out, which is what reschedules the next heartbeat.
+      mockRenew.mockResolvedValue({ accessToken: 'new' });
+      authService.saveCredentialsFromAuthResult = jest.fn(async () => {
+        localStorage.setItem('userSession', futureSession());
+        return { email: 'test@mozilla.com' };
+      });
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      authService.destroy();
+      console.warn.mockRestore();
+    });
+
+    it('renews within a minute of waking from a long suspension', async () => {
+      localStorage.setItem('userSession', futureSession());
+      authService.resetRenewalTimer();
+
+      // Simulate a laptop asleep for two hours: wall-clock time jumps but no
+      // timer callbacks run while suspended.
+      jest.setSystemTime(Date.now() + 2 * 60 * 60 * 1000);
+      await jest.advanceTimersByTimeAsync(60 * 1000);
+
+      expect(mockRenew).toHaveBeenCalledTimes(1);
+    });
+
+    it('renews immediately when the tab becomes visible and renewal is overdue', async () => {
+      localStorage.setItem('userSession', futureSession());
+      authService.resetRenewalTimer();
+      jest.setSystemTime(Date.now() + 2 * 60 * 60 * 1000);
+
+      Object.defineProperty(document, 'visibilityState', {
+        value: 'visible',
+        configurable: true,
+      });
+      document.dispatchEvent(new Event('visibilitychange'));
+      await Promise.resolve();
+
+      expect(mockRenew).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not renew on visibility change when renewal is not yet due', async () => {
+      localStorage.setItem('userSession', futureSession());
+      authService.resetRenewalTimer();
+
+      Object.defineProperty(document, 'visibilityState', {
+        value: 'visible',
+        configurable: true,
+      });
+      document.dispatchEvent(new Event('visibilitychange'));
+      await Promise.resolve();
+
+      expect(mockRenew).not.toHaveBeenCalled();
+    });
+
+    it('renews when the browser comes back online and renewal is overdue', async () => {
+      localStorage.setItem('userSession', futureSession());
+      authService.resetRenewalTimer();
+      jest.setSystemTime(Date.now() + 2 * 60 * 60 * 1000);
+
+      window.dispatchEvent(new Event('online'));
+      await Promise.resolve();
+
+      expect(mockRenew).toHaveBeenCalledTimes(1);
+    });
+
+    it('stops checking after destroy', async () => {
+      localStorage.setItem('userSession', futureSession());
+      authService.resetRenewalTimer();
+      authService.destroy();
+
+      jest.setSystemTime(Date.now() + 2 * 60 * 60 * 1000);
+      await jest.advanceTimersByTimeAsync(60 * 1000);
+
+      expect(mockRenew).not.toHaveBeenCalled();
     });
   });
 });
